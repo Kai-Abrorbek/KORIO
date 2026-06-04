@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/auth.store";
 import KorioLogo from "../components/KorioLogo";
 
 export default function SplashScreen() {
   const { isLoggedIn } = useAuthStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -17,9 +19,7 @@ export default function SplashScreen() {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <KorioLogo dark={false} iconSize={80} />
-        <Text style={styles.subtitle}>
-          AI로 배우는 한국어 · Learn Korean with AI
-        </Text>
+        <Text style={styles.subtitle}>{t("splash.subtitle")}</Text>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -27,14 +27,16 @@ export default function SplashScreen() {
           style={styles.primaryButton}
           onPress={() => router.push("/onboarding/survey")}
         >
-          <Text style={styles.primaryButtonText}>시작하기</Text>
+          <Text style={styles.primaryButtonText}>{t("common.start")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => router.push("/auth/login")}
         >
-          <Text style={styles.secondaryButtonText}>이미 계정이 있어요</Text>
+          <Text style={styles.secondaryButtonText}>
+            {t("splash.hasAccount")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

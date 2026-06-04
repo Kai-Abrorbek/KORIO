@@ -10,7 +10,7 @@ export default {
   },
   splash: {
     subtitle: "AI bilan koreys tilini o'rgan",
-    hasAccount: "Hisobim bor",
+    hasAccount: "Akkaunt mavjud",
   },
   onboarding: {
     survey: {
@@ -60,7 +60,7 @@ export default {
     errors: {
       INVALID_CREDENTIALS: "Email yoki parol noto'g'ri.",
       EMAIL_ALREADY_EXISTS: "Bu email allaqachon ishlatilmoqda.",
-      USER_NOT_FOUND: "Bunday hisob mavjud emas.",
+      USER_NOT_FOUND: "Bunday akkaunt mavjud emas.",
     },
   },
 };
