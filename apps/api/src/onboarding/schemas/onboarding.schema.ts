@@ -8,25 +8,28 @@ export class Onboarding {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   userId: MongooseSchema.Types.ObjectId;
 
+  @Prop({ unique: true, sparse: true })
+  sessionId: string; // 비로그인 유저 식별용
+
   // 설문조사
   @Prop()
-  targetLanguage: string; // 'korean'
+  targetLanguage: string;
 
   @Prop([String])
-  learningGoals: string[]; // ['kpop', 'travel', 'work' ...]
+  learningGoals: string[];
 
   @Prop()
-  learningStyle: string; // 'grammar' | 'conversation' | 'game' | 'vocabulary'
+  learningStyle: string;
 
   @Prop()
-  dailyGoalMinutes: number; // 5 | 10 | 15 | 20
+  dailyGoalMinutes: number;
 
   // 레벨 테스트 결과
   @Prop({ default: 0 })
   levelTestScore: number;
 
   @Prop({ default: 'beginner' })
-  detectedLevel: string; // 'beginner' | 'intermediate' | 'advanced'
+  detectedLevel: string;
 
   @Prop({ default: 0 })
   correctAnswers: number;
@@ -34,12 +37,15 @@ export class Onboarding {
   @Prop({ default: 0 })
   totalQuestions: number;
 
+  @Prop([String])
+  wrongQuestionIds: string[];
+
   // 비로그인 학습 진도
   @Prop({ default: 0 })
-  guestQuestionCount: number; // 30개 넘으면 로그인 유도
+  guestQuestionCount: number;
 
   @Prop({ type: Object })
-  sessionData: Record<string, any>; // 비로그인 세션 데이터 임시 저장
+  sessionData: Record<string, any>;
 }
 
 export const OnboardingSchema = SchemaFactory.createForClass(Onboarding);
