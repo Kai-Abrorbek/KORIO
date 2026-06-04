@@ -7,6 +7,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { StyleSheet } from "react-native";
+import AnimatedProgressBar from "@/components/AnimatedProgressBar";
 
 const questions = [
   {
@@ -178,27 +179,7 @@ export default function LevelTestScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${((current + 1) / questions.length) * 100}%` },
-              ]}
-            />
-            <View
-              style={[
-                styles.progressStar,
-                { left: `${((current + 1) / questions.length) * 100}%` },
-              ]}
-            >
-              <Ionicons name="star" size={16} color="#fff" />
-            </View>
-          </View>
-          <Text style={styles.progressText}>
-            {current + 1}/{questions.length}
-          </Text>
-        </View>
+        <AnimatedProgressBar current={current + 1} total={questions.length} />
       </View>
 
       <View style={styles.content}>
@@ -269,6 +250,7 @@ const getStyles = (theme: ThemeColors) =>
     container: {
       flex: 1,
       backgroundColor: theme.bg,
+      marginBottom: 20,
     },
     header: {
       paddingTop: 60,

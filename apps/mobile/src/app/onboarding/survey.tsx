@@ -13,6 +13,7 @@ import { LearningGoal, LearningStyle } from "../../types/enums";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import AnimatedProgressBar from "@/components/AnimatedProgressBar";
 
 export default function SurveyScreen() {
   const { t } = useTranslation();
@@ -128,19 +129,7 @@ export default function SurveyScreen() {
           <Ionicons name="chevron-back" size={24} color={theme.text} />
         </TouchableOpacity>
 
-        <View style={styles.progressContainer}>
-          <View style={styles.progressTrack}>
-            <View
-              style={[styles.progressFill, { width: `${(step / 3) * 100}%` }]}
-            />
-            <View
-              style={[styles.progressStar, { left: `${(step / 3) * 100}%` }]}
-            >
-              <Ionicons name="star" size={20} color="#fff" />
-            </View>
-          </View>
-          <Text style={styles.progressText}>{step}/3</Text>
-        </View>
+        <AnimatedProgressBar current={step} total={3} />
 
         <Ionicons name="settings-outline" size={24} color={theme.text} />
       </View>
