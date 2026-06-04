@@ -49,6 +49,9 @@ export default {
       intermediate: "O'rta",
       advanced: "Yuqori",
       startLearning: "O'rganishni boshlash",
+      beginnerDesc: "Asoslardan boshlaylik!",
+      intermediateDesc: "Asos bor! Yuqoriga chiqamiz!",
+      advancedDesc: "Zo'r ekansan! Ilg'or kursga o'tamiz!",
     },
   },
   auth: {

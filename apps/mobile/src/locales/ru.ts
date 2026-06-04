@@ -49,6 +49,9 @@ export default {
       intermediate: "Средний",
       advanced: "Продвинутый",
       startLearning: "Начать обучение",
+      beginnerDesc: "Начнём с основ!",
+      intermediateDesc: "Основа есть! Идём выше!",
+      advancedDesc: "Отличный уровень! Переходим к продвинутому!",
     },
   },
   auth: {

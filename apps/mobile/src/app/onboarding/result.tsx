@@ -119,21 +119,21 @@ export default function ResultScreen() {
       color: "#1D9E75",
       bg: "#E3F8EC",
       icon: "leaf" as const,
-      description: "기초부터 차근차근 배워요!",
+      description: t("onboarding.result.beginnerDesc"),
     },
     intermediate: {
       label: t("onboarding.result.intermediate"),
       color: "#45B7D1",
       bg: "#E3F4FF",
       icon: "trending-up" as const,
-      description: "기초는 잡혔어요! 더 높이 올라가요!",
+      description: t("onboarding.result.intermediateDesc"),
     },
     advanced: {
       label: t("onboarding.result.advanced"),
       color: "#FF6B6B",
       bg: "#FFE5EC",
       icon: "flame" as const,
-      description: "실력자네요! 고급 과정으로 가요!",
+      description: t("onboarding.result.advancedDesc"),
     },
   };
 
