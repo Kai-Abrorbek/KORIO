@@ -1,8 +1,8 @@
 export const themes = {
   light: {
-    bg: "#F0EFFA",
+    bg: "#ffffff",
     surface: "#FFFFFF",
-    primary: "#7F77DD",
+    primary: "#776ee2",
     text: "#1A1A2E",
     textSecondary: "#55555F",
     border: "#ECEAF6",
@@ -11,13 +11,12 @@ export const themes = {
   dark: {
     bg: "#15151D",
     surface: "#25252E",
-    primary: "#7F77DD",
+    primary: "#776ee2",
     text: "#FFFFFF",
     textSecondary: "#A6A6B3",
     border: "#3A3A44",
     navy: "#1A1A2E",
   },
-  system: null, // 시스템 따라가기
-} as const;
+};
 
 export type ThemeColors = typeof themes.light;
