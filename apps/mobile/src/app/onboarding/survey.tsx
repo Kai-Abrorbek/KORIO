@@ -70,21 +70,25 @@ export default function SurveyScreen() {
       key: LearningStyle.GRAMMAR,
       label: t("onboarding.survey.style.grammar"),
       icon: "book",
+      color: "#45B7D1",
     },
     {
       key: LearningStyle.CONVERSATION,
       label: t("onboarding.survey.style.conversation"),
       icon: "chatbubbles",
+      color: "#1D9E75",
     },
     {
       key: LearningStyle.GAME,
       label: t("onboarding.survey.style.game"),
       icon: "game-controller",
+      color: "#FF6B6B",
     },
     {
       key: LearningStyle.VOCABULARY,
       label: t("onboarding.survey.style.vocabulary"),
       icon: "list",
+      color: "#DDA0DD",
     },
   ];
 
@@ -196,11 +200,7 @@ export default function SurveyScreen() {
                   <Ionicons
                     name={style.icon as any}
                     size={24}
-                    color={
-                      selectedStyle === style.key
-                        ? theme.primary
-                        : theme.textSecondary
-                    }
+                    color={style.color}
                   />
                   <Text
                     style={[
@@ -276,6 +276,7 @@ const getStyles = (theme: ThemeColors) =>
     container: {
       flex: 1,
       backgroundColor: theme.bg,
+      marginBottom: 20,
     },
     header: {
       paddingTop: 60,
@@ -389,8 +390,13 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
-      borderWidth: 2,
-      borderColor: "transparent",
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      shadowColor: "#1A1A2E",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
     },
     listCardSelected: {
       borderColor: theme.primary,
