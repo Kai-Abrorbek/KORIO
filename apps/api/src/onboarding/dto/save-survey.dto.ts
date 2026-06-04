@@ -1,11 +1,12 @@
 import { IsArray, IsNumber, IsString } from 'class-validator';
+import { LearningGoal } from '../../common/enums/learning-goal.enum';
 
 export class SaveSurveyDto {
   @IsString()
   targetLanguage: string;
 
   @IsArray()
-  learningGoals: string[];
+  learningGoals: LearningGoal[];
 
   @IsString()
   learningStyle: string;

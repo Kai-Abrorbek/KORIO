@@ -1,8 +1,9 @@
 import { IsOptional, IsString } from 'class-validator';
+import { AuthProvider } from '../../common/enums/provider.enum';
 
 export class SocialLoginDto {
   @IsString()
-  provider: string; // 'google' | 'kakao' | 'naver' | 'telegram'
+  provider: AuthProvider; // 'google' | 'kakao' | 'naver' | 'telegram'
 
   @IsString()
   providerId: string;

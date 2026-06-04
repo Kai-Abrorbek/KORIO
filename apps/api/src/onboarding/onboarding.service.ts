@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Onboarding, OnboardingDocument } from './schemas/onboarding.schema';
 import { SaveSurveyDto } from './dto/save-survey.dto';
 import { SaveLevelTestDto } from './dto/save-level-test.dto';
+import { calculateLevel } from '../common/enums/level.enum';
 
 @Injectable()
 export class OnboardingService {
@@ -40,7 +41,7 @@ export class OnboardingService {
   }
 
   async saveLevelTest(dto: SaveLevelTestDto): Promise<Onboarding | null> {
-    const detectedLevel = this.calculateLevel(dto.score);
+    const detectedLevel = calculateLevel(dto.score);
 
     return this.onboardingModel.findOneAndUpdate(
       { sessionId: dto.sessionId },
@@ -53,12 +54,6 @@ export class OnboardingService {
       },
       { new: true },
     );
-  }
-
-  private calculateLevel(score: number): string {
-    if (score >= 90) return 'advanced';
-    if (score >= 60) return 'intermediate';
-    return 'beginner';
   }
 
   async updateGuestProgress(

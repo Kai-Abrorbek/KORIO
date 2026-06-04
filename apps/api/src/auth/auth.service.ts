@@ -15,6 +15,7 @@ import {
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { AuthProvider } from '../common/enums/provider.enum';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
       email: dto.email,
       password: hashedPassword,
       nickname: dto.nickname,
-      provider: 'local',
+      provider: AuthProvider.LOCAL,
     });
 
     // 온보딩 데이터 연결

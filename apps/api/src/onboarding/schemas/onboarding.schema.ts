@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { UserLevel } from '../../common/enums/level.enum';
+import { LearningGoal } from '../../common/enums/learning-goal.enum';
 
 export type OnboardingDocument = Onboarding & Document;
 
@@ -15,8 +17,8 @@ export class Onboarding {
   @Prop()
   targetLanguage: string;
 
-  @Prop([String])
-  learningGoals: string[];
+  @Prop({ type: [String], enum: LearningGoal })
+  learningGoals: LearningGoal[];
 
   @Prop()
   learningStyle: string;
@@ -28,8 +30,8 @@ export class Onboarding {
   @Prop({ default: 0 })
   levelTestScore: number;
 
-  @Prop({ default: 'beginner' })
-  detectedLevel: string;
+  @Prop({ enum: UserLevel, default: UserLevel.BEGINNER })
+  detectedLevel: UserLevel;
 
   @Prop({ default: 0 })
   correctAnswers: number;

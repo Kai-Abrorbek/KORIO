@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { UserLevel } from '../../common/enums/level.enum';
 
 export type LessonDocument = Lesson & Document;
 
@@ -9,12 +10,6 @@ export enum LessonCategory {
   EXPRESSION = 'expression', // 표현
   CONVERSATION = 'conversation', // 실전 회화
   LISTENING = 'listening', // 리스닝
-}
-
-export enum LessonLevel {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced',
 }
 
 @Schema({ timestamps: true })
@@ -28,8 +23,8 @@ export class Lesson {
   @Prop({ required: true, enum: LessonCategory })
   category: LessonCategory;
 
-  @Prop({ required: true, enum: LessonLevel })
-  level: LessonLevel;
+  @Prop({ required: true, enum: UserLevel })
+  level: UserLevel;
 
   @Prop({ default: 0 })
   order: number; // 로드맵에서 순서

@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { UserLevel } from '../../common/enums/level.enum';
+import { UserRole } from '../../common/enums/role.enum';
+import { AuthProvider } from '../../common/enums/provider.enum';
 
 export type UserDocument = User & Document;
 
@@ -14,12 +17,12 @@ export class User {
   @Prop()
   nickname: string;
 
-  @Prop({ default: 'user' })
-  role: string;
+  @Prop({ enum: UserRole, default: UserRole.USER })
+  role: UserRole;
 
   // 소셜 로그인
-  @Prop()
-  provider: string; // 'local' | 'google' | 'kakao' | 'naver' | 'telegram'
+  @Prop({ enum: AuthProvider })
+  provider: AuthProvider; // 'local' | 'google' | 'kakao' | 'naver' | 'telegram'
 
   @Prop({ sparse: true })
   providerId: string;
@@ -37,8 +40,8 @@ export class User {
   @Prop()
   dailyGoalMinutes: number;
 
-  @Prop({ default: 'beginner' })
-  level: string;
+  @Prop({ enum: UserLevel, default: UserLevel.BEGINNER })
+  level: UserLevel;
 
   // 학습 진도
   @Prop({ default: 0 })
