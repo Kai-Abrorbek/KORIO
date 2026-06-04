@@ -1,0 +1,66 @@
+export default {
+  common: {
+    start: "Get Started",
+    next: "Next",
+    back: "Back",
+    confirm: "Confirm",
+    cancel: "Cancel",
+    save: "Save",
+    loading: "Loading...",
+  },
+  splash: {
+    subtitle: "Learn Korean with AI",
+    hasAccount: "I already have an account",
+  },
+  onboarding: {
+    survey: {
+      title: "Why do you want to learn Korean?",
+      goals: {
+        kpop: "K-pop / K-drama",
+        travel: "Travel",
+        work: "Work / Business",
+        study: "Academic study",
+        friend: "Korean friend / partner",
+        interest: "Just love languages",
+      },
+      style: {
+        title: "How would you like to learn?",
+        grammar: "Structured grammar",
+        conversation: "Conversation focused",
+        game: "Game-like and fun",
+        vocabulary: "Vocabulary focused",
+      },
+      daily: {
+        title: "How much time can you study daily?",
+        five: "5 minutes",
+        ten: "10 minutes",
+        fifteen: "15 minutes",
+        twenty: "20+ minutes",
+      },
+    },
+    levelTest: {
+      title: "Let's check your level!",
+      subtitle: "We'll assess your level with 10 questions",
+      start: "Start test",
+    },
+    result: {
+      title: "Here are your results!",
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+      startLearning: "Start Learning",
+    },
+  },
+  auth: {
+    login: "Log In",
+    register: "Sign Up",
+    email: "Email",
+    password: "Password",
+    nickname: "Nickname",
+    errors: {
+      INVALID_CREDENTIALS: "Invalid email or password.",
+      EMAIL_ALREADY_EXISTS: "Email already in use.",
+      USER_NOT_FOUND: "Account not found.",
+    },
+  },
+};
