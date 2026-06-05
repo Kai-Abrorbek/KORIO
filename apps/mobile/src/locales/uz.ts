@@ -60,6 +60,8 @@ export default {
     email: "Email",
     password: "Parol",
     nickname: "Taxallus",
+    noAccount: "Akkaunt yo'qmi?",
+    hasAccount: "Akkaunt mavjudmi?",
     errors: {
       INVALID_CREDENTIALS: "Email yoki parol noto'g'ri.",
       EMAIL_ALREADY_EXISTS: "Bu email allaqachon ishlatilmoqda.",

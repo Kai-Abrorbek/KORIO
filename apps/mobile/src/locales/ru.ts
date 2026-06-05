@@ -60,6 +60,8 @@ export default {
     email: "Email",
     password: "Пароль",
     nickname: "Никнейм",
+    noAccount: "Нет аккаунта?",
+    hasAccount: "Уже есть аккаунт?",
     errors: {
       INVALID_CREDENTIALS: "Неверный email или пароль.",
       EMAIL_ALREADY_EXISTS: "Email уже используется.",

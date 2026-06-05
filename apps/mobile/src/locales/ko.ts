@@ -60,6 +60,8 @@ export default {
     email: "이메일",
     password: "비밀번호",
     nickname: "닉네임",
+    noAccount: "계정이 없으신가요?",
+    hasAccount: "이미 계정이 있으신가요?",
     errors: {
       INVALID_CREDENTIALS: "이메일 또는 비밀번호가 틀렸습니다.",
       EMAIL_ALREADY_EXISTS: "이미 사용중인 이메일입니다.",
