@@ -26,7 +26,7 @@ export default function WelcomeScreen() {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => router.push("/onboarding/survey")}
+          onPress={() => router.push("/(tabs)")}
         >
           <Text style={styles.primaryButtonText}>{t("common.start")}</Text>
         </TouchableOpacity>
