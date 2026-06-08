@@ -104,4 +104,16 @@ export default {
     repairPen: "Перья восстановления",
     medalTitle: "Медали месяца",
   },
+  roadmap: {
+    sectionUnit: "Раздел {{section}}, Юнит {{unit}}",
+    sectionN: "Раздел {{section}}",
+    nextSection: "Следующий раздел",
+    jumpHere: "Перепрыгнуть сюда?",
+    lessonProgress: "Урок {{current}}/{{total}}",
+    continue: "Продолжить",
+    locked: "Заблокировано",
+    lockedDescription:
+      "Пройдите все предыдущие уровни, чтобы разблокировать этот уровень!",
+    chestLocked: "Выполните ещё {{count}} уроков, чтобы открыть этот подарок!",
+  },
 };

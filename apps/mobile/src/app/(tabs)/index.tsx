@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import CalendarModal from "@/components/CalendarModal";
 import FloatingAIButton from "@/components/FloatingAIButton";
 import AIChatModal from "@/components/AIChatModal";
+import { useRouter } from "expo-router";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
@@ -47,6 +48,7 @@ export default function HomeScreen() {
   const [chatVisible, setChatVisible] = useState(false);
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
+  const router = useRouter();
 
   useEffect(() => {
     aiPulse.value = withRepeat(
@@ -215,7 +217,10 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.lessonButton}>
+          <TouchableOpacity
+            style={styles.lessonButton}
+            onPress={() => router.push("/roadmap")}
+          >
             <Ionicons name="book" size={18} color="#fff" />
             <Text style={styles.lessonButtonText}>
               {t("home.continueLessonBtn")}

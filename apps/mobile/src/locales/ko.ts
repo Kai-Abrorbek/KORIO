@@ -104,4 +104,15 @@ export default {
     repairPen: "복구펜 보유",
     medalTitle: "이달의 학습 메달",
   },
+  roadmap: {
+    sectionUnit: "섹션 {{section}}, 유닛 {{unit}}",
+    sectionN: "섹션 {{section}}",
+    nextSection: "다음 섹션",
+    jumpHere: "여기로 건너뛸까요?",
+    lessonProgress: "레슨 {{current}}/{{total}}",
+    continue: "계속",
+    locked: "잠김",
+    lockedDescription: "이 레벨을 잠금 해제하려면 이전 레벨을 모두 완료하세요!",
+    chestLocked: "레슨 {{count}}개를 더 완료하여 이 선물 상자를 열어보세요!",
+  },
 };

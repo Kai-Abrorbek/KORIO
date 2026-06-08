@@ -104,4 +104,17 @@ export default {
     repairPen: "Tiklash qalam",
     medalTitle: "Bu oylik medal",
   },
+  roadmap: {
+    sectionUnit: "Bo'lim {{section}}, Birlik {{unit}}",
+    sectionN: "Bo'lim {{section}}",
+    nextSection: "Keyingi bo'lim",
+    jumpHere: "Shu yerga o'tasizmi?",
+    lessonProgress: "Dars {{current}}/{{total}}",
+    continue: "Davom etish",
+    locked: "Yopiq",
+    lockedDescription:
+      "Ushbu darajani ochish uchun avvalgi darajalarni tugating!",
+    chestLocked:
+      "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
+  },
 };

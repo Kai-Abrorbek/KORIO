@@ -104,4 +104,15 @@ export default {
     repairPen: "Repair pens",
     medalTitle: "Monthly medals",
   },
+  roadmap: {
+    sectionUnit: "Section {{section}}, Unit {{unit}}",
+    sectionN: "Section {{section}}",
+    nextSection: "Next section",
+    jumpHere: "Jump here?",
+    lessonProgress: "Lesson {{current}}/{{total}}",
+    continue: "Continue",
+    locked: "Locked",
+    lockedDescription: "Complete all previous levels to unlock this level!",
+    chestLocked: "Complete {{count}} more lessons to open this gift box!",
+  },
 };
