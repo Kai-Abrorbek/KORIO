@@ -117,4 +117,18 @@ export default {
     chestLocked:
       "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
   },
+  lesson: {
+    check: "Tekshirish",
+    next: "Davom etish",
+    correct: "Juda zo'r!",
+    wrong: "Noto'g'ri!",
+    correctAnswer: "To'g'ri javob",
+    meaning: "To'g'ri! Ma'nosi",
+    matchPairs: "Mos keladigan so'zlarni juftlang",
+    matched: "ta juft",
+    previousWrong: "Oldingi xato",
+    speakingSkip: "Gapirish savolini o'tkazib yuborish",
+    typeHere: "Bu yerga yozing",
+    tapOrDrag: "So'zni bosing yoki sudrab olib keling",
+  },
 };

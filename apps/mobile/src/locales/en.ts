@@ -115,4 +115,18 @@ export default {
     lockedDescription: "Complete all previous levels to unlock this level!",
     chestLocked: "Complete {{count}} more lessons to open this gift box!",
   },
+  lesson: {
+    check: "Check",
+    next: "Continue",
+    correct: "Great job!",
+    wrong: "Incorrect!",
+    correctAnswer: "Correct answer",
+    meaning: "Correct! Meaning",
+    matchPairs: "Match the pairs",
+    matched: "pairs matched",
+    previousWrong: "Previous mistake",
+    speakingSkip: "Skip speaking exercise",
+    typeHere: "Type here",
+    tapOrDrag: "Tap or drag words here",
+  },
 };

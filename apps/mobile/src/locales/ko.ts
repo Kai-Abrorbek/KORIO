@@ -115,4 +115,18 @@ export default {
     lockedDescription: "이 레벨을 잠금 해제하려면 이전 레벨을 모두 완료하세요!",
     chestLocked: "레슨 {{count}}개를 더 완료하여 이 선물 상자를 열어보세요!",
   },
+  lesson: {
+    check: "확인",
+    next: "계속",
+    correct: "정말 잘했어요!",
+    wrong: "정확하지 않습니다!",
+    correctAnswer: "정답",
+    meaning: "정답! 의미",
+    matchPairs: "의미가 일치하는 단어끼리 짝을 지으세요",
+    matched: "쌍 완성",
+    previousWrong: "이전오답",
+    speakingSkip: "말하기 문제 건너뛰기",
+    typeHere: "여기에 입력하세요",
+    tapOrDrag: "단어를 탭하거나 드래그하세요",
+  },
 };

@@ -7,12 +7,13 @@ import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 
 export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
+  const router = useRouter();
   const roadmap = MOCK_ROADMAP;
 
   const handleNodeTap = (nodeId: string) => {
@@ -24,6 +25,7 @@ export default function RoadmapScreen() {
   const handleNodeStart = (node: RoadmapNode) => {
     setSelectedNodeId(null);
     console.log("start lesson:", node.id, node.type);
+    router.push("/lesson");
     // TODO: 레슨 화면으로 이동
   };
 
