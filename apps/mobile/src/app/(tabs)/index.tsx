@@ -168,19 +168,20 @@ export default function HomeScreen() {
         >
           {/* 우측 아이콘 버튼들 */}
           <View style={styles.lessonSideButtons}>
-            <TouchableOpacity style={styles.lessonSideBtn}>
-              <Ionicons name="person-outline" size={20} color={theme.primary} />
+            <TouchableOpacity style={styles.lessonSideBtn} activeOpacity={0.7}>
+              <Ionicons name="person-outline" size={22} color={theme.primary} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.lessonSideBtn}>
-              <Ionicons name="book-outline" size={20} color={theme.primary} />
+            <TouchableOpacity
+              style={styles.lessonSideBtn}
+              activeOpacity={0.85}
+              onPress={() => router.push("/courses")}
+            >
+              <Ionicons name="book-outline" size={22} color={theme.primary} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.lessonSideBtn}>
-              <Ionicons name="add" size={20} color={theme.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.lessonSideBtn}>
+            <TouchableOpacity style={styles.lessonSideBtn} activeOpacity={0.7}>
               <Ionicons
                 name="settings-outline"
-                size={20}
+                size={22}
                 color={theme.primary}
               />
             </TouchableOpacity>
@@ -537,12 +538,27 @@ const getStyles = (theme: ThemeColors) =>
       zIndex: 10,
     },
     lessonSideBtn: {
-      width: 36,
-      height: 36,
-      borderRadius: 10,
-      backgroundColor: theme.bg,
+      width: 52,
+      height: 52,
+      borderRadius: 14,
       alignItems: "center",
       justifyContent: "center",
+      backgroundColor: theme.primary + "12", // 보라 7% 틴트
+      borderWidth: 1.5,
+      borderColor: theme.primary + "30", // 보라 19% 테두리
+      borderBottomWidth: 4,
+      borderBottomColor: theme.primary + "55", // 진한 보라 = 3D 입체감
+      shadowColor: theme.primary,
+      shadowOpacity: 0.12,
+      shadowOffset: { width: 0, height: 3 },
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    lessonSideBtnPrimary: {
+      backgroundColor: theme.primary, // + 버튼은 강조 (꽉 채운 색)
+      borderColor: theme.primary,
+      borderBottomColor: "#5C56B8", // 진한 보라
+      shadowOpacity: 0.25,
     },
     mascotWrap: {
       alignItems: "center",
