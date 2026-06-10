@@ -1,29 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserStatsDocument = UserStats & Document;
 
 @Schema({ timestamps: true })
 export class UserStats {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  userId: MongooseSchema.Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 
   @Prop({ required: true })
-  date: Date; // 날짜별 기록
+  date: Date;
 
   @Prop({ default: 0 })
-  studyTimeSeconds: number; // 학습 시간 (초)
+  studyTimeSeconds: number;
 
   @Prop({ default: 0 })
-  totalQuestions: number; // 푼 문제 수
+  totalQuestions: number;
 
   @Prop({ default: 0 })
-  correctQuestions: number; // 맞은 문제 수
+  correctQuestions: number;
 
   @Prop({ default: 0 })
-  xpEarned: number; // 획득 XP
+  xpEarned: number;
 
-  // 카테고리별 학습량
   @Prop({ default: 0 })
   vocabularyCount: number;
 

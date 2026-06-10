@@ -4,11 +4,15 @@ import { Document } from 'mongoose';
 export type QuestionDocument = Question & Document;
 
 export enum QuestionType {
-  MULTIPLE_CHOICE = 'multiple_choice', // 객관식
-  SENTENCE_BUILDER = 'sentence_builder', // 문장 맞추기
-  FILL_IN_BLANK = 'fill_in_blank', // 빈칸 채우기
-  LISTENING = 'listening', // 듣고 맞추기
-  WORD_MATCHING = 'word_matching', // 단어 매칭
+  SENTENCE_BUILDER = 'sentence_builder',
+  TRANSLATE_BUILDER = 'translate_builder',
+  WORD_ARRANGE = 'word_arrange',
+  SPEAKING = 'speaking',
+  IMAGE_CHOICE = 'image_choice',
+  DIALOG_COMPLETE = 'dialog_complete',
+  TYPE_ANSWER = 'type_answer',
+  WORD_MATCHING = 'word_matching',
+  LISTENING = 'listening',
 }
 
 export enum QuestionLevel {
@@ -20,6 +24,26 @@ export enum QuestionLevel {
   LEVEL_6 = '6',
 }
 
+// 다국어 텍스트
+class I18nText {
+  @Prop({ default: '' }) ko: string;
+  @Prop({ default: '' }) uz: string;
+  @Prop({ default: '' }) en: string;
+  @Prop({ default: '' }) ru: string;
+}
+
+// 단어 매칭 쌍
+class MatchingPair {
+  @Prop({ required: true }) korean: string;
+  @Prop({ required: true }) native: string; // 유저 언어 (우즈벡어 등)
+}
+
+// 대화 라인
+class DialogLine {
+  @Prop({ required: true, enum: ['npc', 'user'] }) speaker: 'npc' | 'user';
+  @Prop({ required: true }) text: string; // 한국어
+}
+
 @Schema({ timestamps: true })
 export class Question {
   @Prop({ required: true, enum: QuestionType })
@@ -28,29 +52,58 @@ export class Question {
   @Prop({ required: true, enum: QuestionLevel })
   level: QuestionLevel;
 
-  @Prop({ required: true })
-  question: string; // 문제 내용
+  // 지시문 - 유저 언어로 (예: "다음 문장을 번역하세요")
+  @Prop({ type: I18nText, default: {} })
+  instruction: I18nText;
 
+  // NPC 말풍선 - 한국어 (배우는 언어)
+  @Prop({ default: '' })
+  npcText: string;
+
+  // 보기 (sentence_builder, word_arrange 등)
   @Prop([String])
-  options: string[]; // 보기 (객관식, 문장맞추기 등)
+  options: string[];
 
+  // 정답 - 한국어 or 유저언어 (타입에 따라 다름)
   @Prop({ required: true })
-  answer: string; // 정답
+  answer: string;
 
-  @Prop()
-  hint: string; // AI 힌트
+  // 빈칸 앞뒤 텍스트 (image_choice, type_answer)
+  @Prop({ default: '' })
+  sentencePrefix: string;
 
-  @Prop()
-  explanation: string; // 정답 설명
+  @Prop({ default: '' })
+  sentenceSuffix: string;
 
-  @Prop()
-  audioUrl: string; // TTS 음성 URL
+  // 대화 완성 문제 (dialog_complete)
+  @Prop({ type: [{ speaker: String, text: String }], default: [] })
+  dialogLines: DialogLine[];
 
-  @Prop()
-  imageUrl: string; // 문제 이미지
+  // 단어 매칭 쌍 (word_matching)
+  @Prop({ type: [{ korean: String, native: String }], default: [] })
+  pairs: MatchingPair[];
 
-  @Prop({ default: 0 })
-  xpReward: number; // 맞추면 얻는 XP
+  // 힌트 - 유저 언어로
+  @Prop({ type: I18nText, default: {} })
+  hint: I18nText;
+
+  // 정답 설명 - 유저 언어로
+  @Prop({ type: I18nText, default: {} })
+  explanation: I18nText;
+
+  // 오디오 URL (speaking, listening, word_arrange)
+  @Prop({ default: '' })
+  audioUrl: string;
+
+  // 이미지 URL (image_choice)
+  @Prop({ default: '' })
+  imageUrl: string;
+
+  @Prop({ default: 10 })
+  xpReward: number;
+
+  @Prop({ default: true })
+  isActive: boolean;
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

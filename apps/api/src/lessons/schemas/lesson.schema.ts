@@ -1,24 +1,34 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { UserLevel } from '../../common/enums/level.enum';
 
 export type LessonDocument = Lesson & Document;
 
 export enum LessonCategory {
-  VOCABULARY = 'vocabulary', // 어휘
-  GRAMMAR = 'grammar', // 문법
-  EXPRESSION = 'expression', // 표현
-  CONVERSATION = 'conversation', // 실전 회화
-  LISTENING = 'listening', // 리스닝
+  VOCABULARY = 'vocabulary',
+  GRAMMAR = 'grammar',
+  EXPRESSION = 'expression',
+  CONVERSATION = 'conversation',
+  LISTENING = 'listening',
+}
+
+// 다국어 텍스트
+class I18nText {
+  @Prop({ default: '' }) ko: string;
+  @Prop({ default: '' }) uz: string;
+  @Prop({ default: '' }) en: string;
+  @Prop({ default: '' }) ru: string;
 }
 
 @Schema({ timestamps: true })
 export class Lesson {
-  @Prop({ required: true })
-  title: string; // 레슨 제목
+  // 레슨 제목 - 다국어
+  @Prop({ type: I18nText, default: {} })
+  title: I18nText;
 
-  @Prop()
-  description: string; // 레슨 설명
+  // 레슨 설명 - 다국어
+  @Prop({ type: I18nText, default: {} })
+  description: I18nText;
 
   @Prop({ required: true, enum: LessonCategory })
   category: LessonCategory;
@@ -27,19 +37,20 @@ export class Lesson {
   level: UserLevel;
 
   @Prop({ default: 0 })
-  order: number; // 로드맵에서 순서
+  order: number;
 
   @Prop({ default: 0 })
-  section: number; // 섹션 번호
+  section: number;
 
   @Prop({ default: 0 })
-  unit: number; // 유닛 번호
+  unit: number;
 
-  @Prop([String])
-  questionIds: string[]; // Question ID 배열
+  // Question ObjectId 배열
+  @Prop({ type: [Types.ObjectId], ref: 'Question', default: [] })
+  questionIds: Types.ObjectId[];
 
   @Prop({ default: 0 })
-  xpReward: number; // 레슨 완료시 XP
+  xpReward: number;
 
   @Prop({ default: true })
   isActive: boolean;

@@ -105,10 +105,6 @@ export default function LessonScreen() {
         theme={theme}
       />
 
-      {/* 올빼미 */}
-      {/* <View style={s.owlArea}>
-        <OwlMascot state={getOwlState()} size={110} />
-      </View> */}
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
@@ -141,6 +137,6 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       paddingVertical: 4,
       position: "relative",
-      marginBottom: 20,
+      marginBottom: 30,
     },
   });
