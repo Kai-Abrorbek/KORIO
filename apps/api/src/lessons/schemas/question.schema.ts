@@ -65,7 +65,7 @@ export class Question {
   options: string[];
 
   // 정답 - 한국어 or 유저언어 (타입에 따라 다름)
-  @Prop({ required: true })
+  @Prop({ default: '' })
   answer: string;
 
   // 빈칸 앞뒤 텍스트 (image_choice, type_answer)

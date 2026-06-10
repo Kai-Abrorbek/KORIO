@@ -1,20 +1,51 @@
-import { View, ScrollView, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_ROADMAP } from "@/mocks/roadmap.mock";
-import { RoadmapNode, RoadmapUnit } from "@/types/roadmap";
+import { RoadmapData, RoadmapNode, RoadmapUnit } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import { LessonService } from "@/services/lesson.service";
 
 export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const router = useRouter();
-  const roadmap = MOCK_ROADMAP;
+  // const roadmap = MOCK_ROADMAP;
+  const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRoadmap();
+  }, []);
+
+  const loadRoadmap = async () => {
+    try {
+      setLoading(true);
+      const data = await LessonService.getRoadmap();
+      // 백엔드 데이터 + mock stats 합치기 (stats는 나중에 백엔드 연결)
+      setRoadmap({
+        ...MOCK_ROADMAP,
+        units: data.units,
+      });
+    } catch (err) {
+      console.error("로드맵 로드 실패:", err);
+      // 실패 시 mock fallback
+      setRoadmap(MOCK_ROADMAP);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNodeTap = (nodeId: string) => {
     setSelectedNodeId((prev) => (prev === nodeId ? null : nodeId));
@@ -24,20 +55,32 @@ export default function RoadmapScreen() {
 
   const handleNodeStart = (node: RoadmapNode) => {
     setSelectedNodeId(null);
-    console.log("start lesson:", node.id, node.type);
-    router.push("/lesson");
-    // TODO: 레슨 화면으로 이동
+    router.push({
+      pathname: "/lesson",
+      params: { lessonId: node.lessonId },
+    });
   };
 
   const handleGuidePress = (unit: RoadmapUnit) => {
     console.log("guide pressed:", unit.id);
-    // TODO: 가이드북 모달
   };
 
   const handleJumpToNextSection = () => {
     console.log("jump to next section");
-    // TODO: 점프 테스트
   };
+
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

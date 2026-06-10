@@ -169,4 +169,84 @@ export class LessonsService {
 
     return questions.map((q) => this.formatQuestion(q, lang));
   }
+
+  async getRoadmap(userId: string, lang: string = 'uz') {
+    const lessons = await this.lessonModel
+      .find({ isActive: true })
+      .sort({ section: 1, unit: 1, order: 1 })
+      .lean();
+
+    const userObjectId = new Types.ObjectId(userId);
+    const progresses = await this.userProgressModel
+      .find({ userId: userObjectId })
+      .lean();
+
+    const progressMap = new Map(
+      progresses.map((p) => [p.lessonId.toString(), p]),
+    );
+
+    // section → unit → lessons 그룹핑
+    const unitMap = new Map<string, any>();
+
+    for (const lesson of lessons) {
+      const unitKey = `${lesson.section}-${lesson.unit}`;
+
+      if (!unitMap.has(unitKey)) {
+        unitMap.set(unitKey, {
+          id: `unit-${lesson.section}-${lesson.unit}`,
+          sectionNumber: lesson.section,
+          unitNumber: lesson.unit,
+          title: this.extractI18n(lesson.title, lang),
+          color: '#776ee2', // 나중에 unit 스키마에 color 추가
+          status: 'locked',
+          nodes: [],
+        });
+      }
+
+      const progress = progressMap.get(lesson._id.toString());
+      const isCompleted = progress?.isCompleted ?? false;
+
+      const unit = unitMap.get(unitKey);
+      unit.nodes.push({
+        id: lesson._id.toString(),
+        lessonId: lesson._id.toString(),
+        type: 'star',
+        status: isCompleted ? 'completed' : 'locked',
+        title: this.extractI18n(lesson.title, lang),
+        xpReward: lesson.xpReward,
+        currentLesson: progress?.correctAnswers ?? 0,
+        totalLessons: lesson.questionIds.length,
+      });
+    }
+
+    // unit status 계산 (첫 번째 미완성 unit = current)
+    const units = Array.from(unitMap.values());
+    let foundCurrent = false;
+
+    for (const unit of units) {
+      const allCompleted = unit.nodes.every(
+        (n: any) => n.status === 'completed',
+      );
+      const anyCompleted = unit.nodes.some(
+        (n: any) => n.status === 'completed',
+      );
+
+      if (allCompleted) {
+        unit.status = 'completed';
+      } else if (!foundCurrent) {
+        unit.status = 'current';
+        foundCurrent = true;
+        // 첫 번째 미완성 노드 = current
+        let foundCurrentNode = false;
+        for (const node of unit.nodes) {
+          if (node.status !== 'completed' && !foundCurrentNode) {
+            node.status = 'current';
+            foundCurrentNode = true;
+          }
+        }
+      }
+    }
+
+    return { units };
+  }
 }

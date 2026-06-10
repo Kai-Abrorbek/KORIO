@@ -35,11 +35,6 @@ export default function UnitRoadmap({
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
-  // const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  // const handleNodePress = (nodeId: string) => {
-  //   setSelectedNodeId((prev) => (prev === nodeId ? null : nodeId));
-  // };
 
   const handleStart = (node: RoadmapNode) => {
     onNodeStart?.(node);

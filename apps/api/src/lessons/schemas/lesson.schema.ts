@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema, Types } from 'mongoose';
-import { UserLevel } from '../../common/enums/level.enum';
+import { Document, Types } from 'mongoose';
+import { QuestionLevel } from './question.schema';
 
 export type LessonDocument = Lesson & Document;
 
@@ -33,8 +33,8 @@ export class Lesson {
   @Prop({ required: true, enum: LessonCategory })
   category: LessonCategory;
 
-  @Prop({ required: true, enum: UserLevel })
-  level: UserLevel;
+  @Prop({ required: true, enum: QuestionLevel })
+  level: QuestionLevel;
 
   @Prop({ default: 0 })
   order: number;

@@ -29,14 +29,10 @@ export class LessonsController {
     return this.lessonsService.getLevelTestQuestions(lang);
   }
 
-  // 레슨 상세 + 문제들
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async getLessonById(
-    @Param('id') id: string,
-    @Query('lang') lang: string = 'uz',
-  ) {
-    return this.lessonsService.getLessonById(id, lang);
+  @Get('roadmap')
+  async getRoadmap(@Request() req, @Query('lang') lang: string = 'uz') {
+    return this.lessonsService.getRoadmap(req.user.userId, lang);
   }
 
   // 레슨 완료 저장
@@ -48,5 +44,15 @@ export class LessonsController {
     @Request() req,
   ) {
     return this.lessonsService.completeLesson(id, req.user.userId, dto);
+  }
+
+  // 레슨 상세 + 문제들
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getLessonById(
+    @Param('id') id: string,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.lessonsService.getLessonById(id, lang);
   }
 }

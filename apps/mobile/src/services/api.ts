@@ -1,29 +1,62 @@
-import axios from "axios";
+import { Platform } from "react-native";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
+const BASE_URL = "http://localhost:3000";
+
+const TokenStorage = {
+  get: async (): Promise<string | null> => {
+    if (Platform.OS === "web") {
+      return localStorage.getItem("access_token");
+    }
+    const SecureStore = await import("expo-secure-store");
+    return SecureStore.getItemAsync("access_token");
   },
-});
-
-// 요청 인터셉터 - 토큰 자동 추가
-api.interceptors.request.use(
-  (config) => {
-    // 나중에 AsyncStorage에서 토큰 가져와서 추가할 거야
-    return config;
+  set: async (token: string): Promise<void> => {
+    if (Platform.OS === "web") {
+      localStorage.setItem("access_token", token);
+      return;
+    }
+    const SecureStore = await import("expo-secure-store");
+    await SecureStore.setItemAsync("access_token", token);
   },
-  (error) => Promise.reject(error),
-);
-
-// 응답 인터셉터 - 에러 처리
-api.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    const message = error.response?.data?.message ?? "UNKNOWN_ERROR";
-    return Promise.reject(new Error(message));
+  remove: async (): Promise<void> => {
+    if (Platform.OS === "web") {
+      localStorage.removeItem("access_token");
+      return;
+    }
+    const SecureStore = await import("expo-secure-store");
+    await SecureStore.deleteItemAsync("access_token");
   },
-);
+};
 
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = await TokenStorage.get();
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...((options.headers as Record<string, string>) ?? {}),
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message ?? "UNKNOWN_ERROR");
+  }
+
+  return data;
+}
+
+const api = {
+  get: <T>(path: string) => request<T>(path),
+  post: <T>(path: string, body: any) =>
+    request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  patch: <T>(path: string, body: any) =>
+    request<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
+  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+};
+
+export { TokenStorage };
 export default api;

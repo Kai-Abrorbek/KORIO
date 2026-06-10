@@ -15,11 +15,12 @@ export interface RoadmapNode {
   type: NodeType;
   status: NodeStatus;
   title?: string;
+  lessonId?: string; // 추가
   currentLesson?: number;
   totalLessons?: number;
   chestLessonsRemaining?: number;
   xpReward?: number;
-  progress?: number; // 0~1 (현재 진행 중인 노드)
+  progress?: number;
 }
 
 export interface RoadmapUnit {

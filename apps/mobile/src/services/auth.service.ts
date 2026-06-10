@@ -1,5 +1,5 @@
-import api from "./api";
-import { AuthProvider } from "../types/enums";
+import api, { TokenStorage } from "./api";
+import { AuthProvider } from "@/types/enums";
 
 interface RegisterData {
   email: string;
@@ -23,9 +23,27 @@ interface SocialLoginData {
 }
 
 export const authService = {
-  register: (data: RegisterData) => api.post("/auth/register", data),
+  register: async (data: RegisterData) => {
+    const res: any = await api.post("/auth/register", data);
+    if (res?.accessToken) await TokenStorage.set(res.accessToken);
+    return res;
+  },
 
-  login: (data: LoginData) => api.post("/auth/login", data),
+  login: async (data: LoginData) => {
+    const res: any = await api.post("/auth/login", data);
+    if (res?.accessToken) await TokenStorage.set(res.accessToken);
+    return res;
+  },
 
-  socialLogin: (data: SocialLoginData) => api.post("/auth/social", data),
+  socialLogin: async (data: SocialLoginData) => {
+    const res: any = await api.post("/auth/social", data);
+    if (res?.accessToken) await TokenStorage.set(res.accessToken);
+    return res;
+  },
+
+  logout: async () => {
+    await TokenStorage.remove();
+  },
+
+  getToken: () => TokenStorage.get(),
 };
