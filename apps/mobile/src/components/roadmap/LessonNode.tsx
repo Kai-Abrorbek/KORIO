@@ -1,5 +1,14 @@
+import { useEffect } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  withSequence,
+  Easing,
+} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { NodeType, NodeStatus } from "@/types/roadmap";
@@ -10,6 +19,8 @@ interface Props {
   type: NodeType;
   status: NodeStatus;
   unitColor: string;
+  completedSteps?: number;
+  totalSteps?: number;
   onPress?: () => void;
 }
 
@@ -23,19 +34,63 @@ const ICON_MAP: Record<NodeType, keyof typeof Ionicons.glyphMap> = {
 };
 
 const NODE_SIZE = 72;
+const STEP_DEG = 10.5; // 360 / 7 — 한 번에 한 스텝씩 툭
+const STEP_DURATION = 30; // 툭 도는 시간 (ms)
+const REST_DURATION = 1000; // 쉬는 시간 (ms)
+const STEPS_PER_CYCLE = 7; // 한 사이클에 몇 스텝
 
 export default function LessonNode({
   type,
   status,
   unitColor,
+  completedSteps = 0,
+  totalSteps = 2,
   onPress,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const isCompleted = status === "completed";
   const isCurrent = status === "current";
   const isLocked = status === "locked";
+
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    if (!isCurrent || type !== "star") return;
+
+    // 실제로는 누적 각도로 관리
+    let currentDeg = 0;
+
+    const runStep = () => {
+      // 7스텝씩 툭툭 돌기
+      const targetDeg = currentDeg + STEP_DEG * STEPS_PER_CYCLE;
+      rotate.value = withSequence(
+        // 7번 스텝 (각 스텝 사이 짧은 딜레이)
+        ...Array.from({ length: STEPS_PER_CYCLE }, (_, i) =>
+          withTiming(currentDeg + STEP_DEG * (i + 1), {
+            duration: STEP_DURATION,
+            easing: Easing.out(Easing.back(1.2)),
+          }),
+        ),
+        // 쉬기
+        withDelay(REST_DURATION, withTiming(targetDeg, { duration: 0 })),
+      );
+      currentDeg = targetDeg;
+    };
+
+    // 첫 실행
+    runStep();
+
+    // 반복
+    const totalCycleDuration = STEPS_PER_CYCLE * STEP_DURATION + REST_DURATION;
+    const interval = setInterval(runStep, totalCycleDuration);
+
+    return () => clearInterval(interval);
+  }, [isCurrent, type]);
+
+  const iconRotateStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotate.value}deg` }],
+  }));
 
   let mainColor: string;
   let darkColor: string;
@@ -56,10 +111,13 @@ export default function LessonNode({
 
   return (
     <View style={styles.wrap}>
-      {/* 현재 노드 펄스 링 */}
       {isCurrent && (
         <View style={styles.ringWrap} pointerEvents="none">
-          <AnimatedNodeRing color={unitColor} />
+          <AnimatedNodeRing
+            color={unitColor}
+            completedSteps={completedSteps}
+            totalSteps={totalSteps}
+          />
         </View>
       )}
 
@@ -68,11 +126,15 @@ export default function LessonNode({
         onPress={onPress}
         style={styles.touchable}
       >
-        {/* 3D 입체감 - 아래 그림자 레이어 */}
         <View style={[styles.depth, { backgroundColor: darkColor }]} />
-        {/* 윗면 */}
         <View style={[styles.face, { backgroundColor: mainColor }]}>
-          <Ionicons name={iconName} size={iconSize} color={iconColor} />
+          {isCurrent && type === "star" ? (
+            <Animated.View style={iconRotateStyle}>
+              <Ionicons name={iconName} size={iconSize} color={iconColor} />
+            </Animated.View>
+          ) : (
+            <Ionicons name={iconName} size={iconSize} color={iconColor} />
+          )}
         </View>
       </TouchableOpacity>
     </View>

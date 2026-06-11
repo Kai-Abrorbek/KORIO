@@ -128,6 +128,9 @@ export default {
     speakingSkip: "Skip speaking exercise",
     typeHere: "Type here",
     tapOrDrag: "Tap or drag words here",
+    newWord: "New word",
+    selectCorrectImage: "Select the correct image",
+    listenAndSelect: "Listen and select",
   },
   stats: {
     tabs: { period: "By Period", category: "By Category" },

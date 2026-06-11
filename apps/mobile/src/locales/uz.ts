@@ -130,6 +130,9 @@ export default {
     speakingSkip: "Gapirish savolini o'tkazib yuborish",
     typeHere: "Bu yerga yozing",
     tapOrDrag: "So'zni bosing yoki sudrab olib keling",
+    newWord: "Yangi so'z",
+    selectCorrectImage: "To'g'ri rasmni tanlang",
+    listenAndSelect: "Eshiting va tanlang",
   },
   stats: {
     tabs: { period: "Davriy", category: "Toifa" },

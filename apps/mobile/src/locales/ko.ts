@@ -128,6 +128,9 @@ export default {
     speakingSkip: "말하기 문제 건너뛰기",
     typeHere: "여기에 입력하세요",
     tapOrDrag: "단어를 탭하거나 드래그하세요",
+    newWord: "Yangi so'z",
+    selectCorrectImage: "To'g'ri rasmni tanlang",
+    listenAndSelect: "Eshiting va tanlang",
   },
   stats: {
     tabs: { period: "기간별", category: "학습별" },

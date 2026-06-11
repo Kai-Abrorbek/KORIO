@@ -1,9 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
-import { LessonQuestion, AnswerState } from "@/types/lesson";
+import { LessonQuestion, AnswerState, ImageChoiceOption } from "@/types/lesson";
 import { useState } from "react";
+import { useSpeech } from "@/hooks/useSpeech";
 
 interface Props {
   question: LessonQuestion;
@@ -19,70 +21,103 @@ export default function ImageChoice({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const s = getStyles(theme);
   const [selected, setSelected] = useState<string | null>(null);
+  const { speak } = useSpeech();
+
+  // choices 없으면 options로 fallback
+  const choices: ImageChoiceOption[] =
+    question.choices ??
+    question.options?.map((opt) => ({ text: opt, label: opt, emoji: "❓" })) ??
+    [];
+
+  const handleSelect = (text: string) => {
+    if (answerState !== "idle") return;
+    setSelected(text);
+    speak(text);
+  };
 
   const handleCheck = () => {
     if (!selected || answerState !== "idle") return;
     onAnswer(selected);
   };
 
-  const getChipStyle = (opt: string) => {
+  const getCardStyle = (text: string) => {
     if (answerState !== "idle") {
-      if (opt === question.answer) return [s.chip, s.chipCorrect];
-      if (opt === selected) return [s.chip, s.chipWrong];
-      return [s.chip];
+      if (text === question.answer) return [s.card, s.cardCorrect];
+      if (text === selected) return [s.card, s.cardWrong];
+      return [s.card, s.cardDim];
     }
-    return selected === opt ? [s.chip, s.chipSelected] : [s.chip];
+    return selected === text ? [s.card, s.cardSelected] : [s.card];
   };
 
-  const getTextStyle = (opt: string) => {
+  const getLabelStyle = (text: string) => {
     if (answerState !== "idle") {
-      if (opt === question.answer) return [s.chipText, { color: "#1CB454" }];
-      if (opt === selected) return [s.chipText, { color: "#FF4B4B" }];
+      if (text === question.answer) return [s.label, { color: "#1CB454" }];
+      if (text === selected) return [s.label, { color: "#FF4B4B" }];
+      return [s.label, { color: theme.textSecondary }];
     }
-    return [s.chipText];
+    return selected === text ? [s.label, { color: theme.primary }] : [s.label];
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
-      <Text style={s.title}>{question.question}</Text>
-
-      {question.imageUrl && (
-        <View style={s.imageCard}>
-          <Image
-            source={{ uri: question.imageUrl }}
-            style={s.image}
-            resizeMode="contain"
-          />
-        </View>
-      )}
-
-      <View style={s.sentenceRow}>
-        <Text style={s.sentenceText}>
-          {question.sentencePrefix}{" "}
-          <Text
-            style={[
-              s.blank,
-              answerState === "correct" && { color: "#1CB454" },
-              answerState === "wrong" && { color: "#FF4B4B" },
-            ]}
-          >
-            {selected ?? "_______"}
-          </Text>
-          {question.sentenceSuffix}
-        </Text>
+    <Animated.View entering={FadeInDown.duration(350)} style={s.container}>
+      {/* NEW WORD 뱃지 */}
+      <View style={s.badge}>
+        <Ionicons name="star" size={13} color={theme.primary} />
+        <Text style={s.badgeText}>{t("lesson.newWord")}</Text>
       </View>
 
-      <View style={s.options}>
-        {question.options?.map((opt) => (
-          <TouchableOpacity
-            key={opt}
-            style={getChipStyle(opt)}
-            onPress={() => answerState === "idle" && setSelected(opt)}
+      {/* 지시문 */}
+      <Text style={s.title}>{t("lesson.selectCorrectImage")}</Text>
+
+      {/* TTS + 단어 */}
+      <View style={s.wordRow}>
+        <TouchableOpacity
+          style={s.ttsBtn}
+          onPress={() => speak(question.answer)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="volume-high" size={22} color="#fff" />
+        </TouchableOpacity>
+        <Text style={s.wordText}>{question.answer}</Text>
+      </View>
+
+      {/* 2×2 이미지 그리드 */}
+      <View style={s.grid}>
+        {choices.map((choice, i) => (
+          <Animated.View
+            key={choice.text}
+            entering={ZoomIn.delay(i * 60).duration(280)}
+            style={s.cardWrap}
           >
-            <Text style={getTextStyle(opt)}>{opt}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={getCardStyle(choice.text)}
+              onPress={() => handleSelect(choice.text)}
+              activeOpacity={0.85}
+            >
+              {/* 정답 체크 표시 */}
+              {answerState !== "idle" && choice.text === question.answer && (
+                <View style={s.checkMark}>
+                  <Ionicons name="checkmark-circle" size={22} color="#1CB454" />
+                </View>
+              )}
+              {/* 오답 X 표시 */}
+              {answerState !== "idle" &&
+                choice.text === selected &&
+                choice.text !== question.answer && (
+                  <View style={s.checkMark}>
+                    <Ionicons name="close-circle" size={22} color="#FF4B4B" />
+                  </View>
+                )}
+
+              {/* 이모지 or 이미지 */}
+              <Text style={s.emoji}>{choice.emoji ?? "🖼️"}</Text>
+
+              {/* 라벨 */}
+              <Text style={getLabelStyle(choice.text)}>{choice.label}</Text>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
       </View>
 
@@ -94,76 +129,138 @@ export default function ImageChoice({
         ]}
         onPress={handleCheck}
         disabled={!selected || answerState !== "idle"}
+        activeOpacity={0.85}
       >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
+        <Text
+          style={[
+            s.checkBtnText,
+            (!selected || answerState !== "idle") && s.checkBtnTextDisabled,
+          ]}
+        >
+          {t("lesson.check")}
+        </Text>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+    },
+    badge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      marginBottom: 12,
+    },
+    badgeText: {
+      fontSize: 13,
+      fontWeight: "800",
+      color: theme.primary,
+      letterSpacing: 0.8,
+      textTransform: "uppercase",
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
       marginBottom: 20,
     },
-    imageCard: {
-      alignSelf: "center",
-      width: 220,
-      height: 180,
-      borderRadius: 20,
-      backgroundColor: theme.surface,
-      borderWidth: 1.5,
-      borderColor: theme.border,
-      overflow: "hidden",
-      marginBottom: 24,
+    wordRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      marginBottom: 28,
+    },
+    ttsBtn: {
+      width: 48,
+      height: 48,
+      borderRadius: 12,
+      backgroundColor: theme.primary,
       alignItems: "center",
       justifyContent: "center",
     },
-    image: { width: "100%", height: "100%" },
-    sentenceRow: {
-      marginBottom: 28,
-      paddingBottom: 12,
-      borderBottomWidth: 2,
-      borderBottomColor: theme.border,
-    },
-    sentenceText: { fontSize: 20, color: theme.text, fontWeight: "500" },
-    blank: {
-      color: theme.primary,
+    wordText: {
+      fontSize: 26,
       fontWeight: "800",
+      color: theme.text,
       textDecorationLine: "underline",
+      textDecorationStyle: "dotted",
+      textDecorationColor: theme.primary,
     },
-    options: {
+    grid: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 12,
-      marginBottom: 24,
+      marginBottom: 28,
     },
-    chip: {
-      borderWidth: 1.5,
+    cardWrap: {
+      width: "47.5%",
+    },
+    card: {
+      borderWidth: 2,
       borderColor: theme.border,
-      borderBottomWidth: 3,
-      borderRadius: 12,
-      paddingHorizontal: 18,
-      paddingVertical: 12,
+      borderBottomWidth: 4,
+      borderRadius: 16,
+      paddingVertical: 20,
+      paddingHorizontal: 12,
+      alignItems: "center",
       backgroundColor: theme.surface,
+      gap: 10,
+      position: "relative",
     },
-    chipSelected: {
+    cardSelected: {
       borderColor: theme.primary,
-      backgroundColor: theme.primary + "20",
+      backgroundColor: theme.primary + "15",
     },
-    chipCorrect: { borderColor: "#1CB454", backgroundColor: "#D7F5E3" },
-    chipWrong: { borderColor: "#FF4B4B", backgroundColor: "#FFEBEB" },
-    chipText: { fontSize: 16, fontWeight: "700", color: theme.text },
+    cardCorrect: {
+      borderColor: "#1CB454",
+      backgroundColor: "#D7F5E3",
+    },
+    cardWrong: {
+      borderColor: "#FF4B4B",
+      backgroundColor: "#FFEBEB",
+    },
+    cardDim: {
+      opacity: 0.45,
+    },
+    checkMark: {
+      position: "absolute",
+      top: 8,
+      right: 8,
+    },
+    emoji: {
+      fontSize: 52,
+    },
+    label: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: theme.text,
+      textAlign: "center",
+    },
     checkBtn: {
       backgroundColor: theme.primary,
       borderRadius: 16,
+      borderBottomWidth: 4,
+      borderColor: theme.primary + "99",
       paddingVertical: 16,
       alignItems: "center",
     },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+    checkBtnDisabled: {
+      backgroundColor: theme.border,
+      borderColor: theme.border,
+    },
+    checkBtnText: {
+      color: "#fff",
+      fontSize: 17,
+      fontWeight: "800",
+      letterSpacing: 0.5,
+    },
+    checkBtnTextDisabled: {
+      color: theme.textSecondary,
+    },
   });

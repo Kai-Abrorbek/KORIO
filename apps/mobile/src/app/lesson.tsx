@@ -67,7 +67,7 @@ export default function LessonScreen() {
   };
 
   const currentQ = lesson?.questions[currentIdx];
-
+  console.log(lesson);
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
     let isCorrect = false;

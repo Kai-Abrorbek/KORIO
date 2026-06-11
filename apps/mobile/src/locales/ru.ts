@@ -129,6 +129,9 @@ export default {
     speakingSkip: "Пропустить задание на говорение",
     typeHere: "Введите здесь",
     tapOrDrag: "Нажмите или перетащите слова сюда",
+    newWord: "Новое слово",
+    selectCorrectImage: "Выберите правильное изображение",
+    listenAndSelect: "Слушайте и выбирайте",
   },
   stats: {
     tabs: { period: "По периоду", category: "По категории" },

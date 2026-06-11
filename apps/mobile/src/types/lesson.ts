@@ -12,7 +12,7 @@ export type QuestionType =
 
 export interface MatchingPair {
   korean: string;
-  native: string; // 우즈벡어/영어/러시아어 (유저 언어)
+  native: string;
 }
 
 export interface DialogLine {
@@ -20,16 +20,25 @@ export interface DialogLine {
   text: string;
 }
 
+// image_choice 옵션 (이모지 or 이미지 URL)
+export interface ImageChoiceOption {
+  text: string; // 단어 (한국어)
+  label: string; // 라벨 (유저 언어)
+  emoji?: string; // 이모지 (임시)
+  imageUrl?: string; // 나중에 실제 이미지로 교체
+}
+
 export interface LessonQuestion {
   id: string;
   type: QuestionType;
   level: string;
-  question: string; // 지시문 (유저 언어)
-  npcText?: string; // NPC 말풍선 텍스트
-  options?: string[]; // 보기
-  answer: string; // 정답
+  question: string;
+  npcText?: string;
+  options?: string[];
+  choices?: ImageChoiceOption[]; // image_choice 전용
+  answer: string;
   hint?: string;
-  explanation?: string; // 유저 언어로 된 설명
+  explanation?: string;
   audioUrl?: string;
   imageUrl?: string;
   xpReward: number;

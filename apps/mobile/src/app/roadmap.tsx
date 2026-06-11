@@ -4,7 +4,9 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_ROADMAP } from "@/mocks/roadmap.mock";
@@ -15,11 +17,26 @@ import {
   NodeType,
 } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
+import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
-import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
+
+const UNIT_COLORS = [
+  "#776ee2",
+  "#1D9E75",
+  "#E2A83A",
+  "#E25C5C",
+  "#45B7D1",
+  "#6e1cf2",
+  "#FF7A00",
+  "#2ECC71",
+];
+
+function getUnitColor(index: number): string {
+  return UNIT_COLORS[index % UNIT_COLORS.length];
+}
 
 function injectChests(unit: RoadmapUnit): RoadmapUnit {
   const nodes = [...unit.nodes];
@@ -30,7 +47,6 @@ function injectChests(unit: RoadmapUnit): RoadmapUnit {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     result.push(node);
-
     if (node.type !== "chest" && node.type !== "boss") {
       lessonCount++;
       if (lessonCount % 4 === 0 && i < nodes.length - 1) {
@@ -43,14 +59,12 @@ function injectChests(unit: RoadmapUnit): RoadmapUnit {
             id: `${unit.id}-auto-chest-${chestIndex}`,
             type: "chest" as NodeType,
             status: chestStatus,
-            chestLessonsRemaining:
-              chestStatus === "locked" ? 4 - (lessonCount % 4 || 4) : 0,
+            chestLessonsRemaining: 0,
           });
         }
       }
     }
   }
-
   return { ...unit, nodes: result };
 }
 
@@ -58,9 +72,14 @@ export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const router = useRouter();
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
+  const scrollRef = useRef<ScrollView>(null);
+  const unitOffsets = useRef<number[]>([]);
+  const scrollHeight = useRef({ content: 0, container: 0 });
 
   useEffect(() => {
     loadRoadmap();
@@ -70,10 +89,7 @@ export default function RoadmapScreen() {
     try {
       setLoading(true);
       const data = await LessonService.getRoadmap();
-      setRoadmap({
-        ...MOCK_ROADMAP,
-        units: data.units,
-      });
+      setRoadmap({ ...MOCK_ROADMAP, units: data.units });
     } catch (err) {
       console.error("로드맵 로드 실패:", err);
       setRoadmap(MOCK_ROADMAP);
@@ -83,25 +99,64 @@ export default function RoadmapScreen() {
   };
 
   const handleNodeTap = (nodeId: string) => {
-    setSelectedNodeId((prev) => (prev === nodeId ? null : nodeId));
+    setSelectedNodeId((prev: string | null) =>
+      prev === nodeId ? null : nodeId,
+    );
   };
 
   const closePopover = () => setSelectedNodeId(null);
 
   const handleNodeStart = (node: RoadmapNode) => {
     setSelectedNodeId(null);
-    router.push({
-      pathname: "/lesson",
-      params: { lessonId: node.lessonId },
-    });
+    router.push({ pathname: "/lesson", params: { lessonId: node.lessonId } });
   };
 
   const handleGuidePress = (unit: RoadmapUnit) => {
     console.log("guide pressed:", unit.id);
   };
 
-  const handleJumpToNextSection = () => {
-    console.log("jump to next section");
+  // JumpButton: 해당 유닛의 첫 번째 활성(current/locked) 노드 레슨 바로 시작
+  const handleJumpToUnit = (unit: RoadmapUnit) => {
+    const targetNode =
+      unit.nodes.find((n) => n.status === "current") ??
+      unit.nodes.find((n) => n.type === "star") ??
+      unit.nodes[0];
+
+    if (targetNode?.lessonId) {
+      router.push({
+        pathname: "/lesson",
+        params: { lessonId: targetNode.lessonId },
+      });
+    }
+  };
+
+  const handleScroll = (e: any) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const offsets = unitOffsets.current;
+    let current = 0;
+    for (let i = 0; i < offsets.length; i++) {
+      if (y + 10 >= offsets[i]) current = i;
+    }
+    setCurrentUnitIndex(current);
+
+    // 맨 아래 판단
+    const { content, container } = scrollHeight.current;
+    setIsAtBottom(y + container >= content - 30);
+  };
+
+  // 스크롤 버튼: 맨 아래면 맨 위로, 아니면 맨 아래로
+  const handleScrollToggle = () => {
+    if (isAtBottom) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    } else {
+      // current 유닛 위치로 이동
+      const currentIdx = processedUnits.findIndex(
+        (u) => u.status === "current",
+      );
+      const targetIdx = currentIdx >= 0 ? currentIdx : 0;
+      const offset = unitOffsets.current[targetIdx] ?? 0;
+      scrollRef.current?.scrollTo({ y: offset, animated: true });
+    }
   };
 
   if (loading) {
@@ -117,65 +172,119 @@ export default function RoadmapScreen() {
     );
   }
 
-  // 유닛마다 chest 자동 삽입
-  const processedUnits = roadmap.units.map(injectChests);
+  const processedUnits = roadmap.units.map((unit, i) =>
+    injectChests({ ...unit, color: getUnitColor(i) }),
+  );
+  const currentUnit = processedUnits[currentUnitIndex] ?? processedUnits[0];
 
   return (
     <View style={styles.container}>
       <RoadmapHeader stats={roadmap.stats} />
 
+      {/* 고정 배너 */}
+      {currentUnit && (
+        <SectionBanner
+          sectionNumber={currentUnit.sectionNumber}
+          unitNumber={currentUnit.unitNumber}
+          title={currentUnit.title}
+          color={currentUnit.color}
+          onGuidePress={() => handleGuidePress(currentUnit)}
+        />
+      )}
+
       <ScrollView
+        ref={scrollRef}
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onContentSizeChange={(_, h) => {
+          scrollHeight.current.content = h;
+        }}
+        onLayout={(e) => {
+          scrollHeight.current.container = e.nativeEvent.layout.height;
+        }}
       >
         <Pressable onPress={closePopover}>
           {processedUnits.map((unit, index) => (
-            <View key={unit.id}>
+            <View
+              key={unit.id}
+              onLayout={(e) => {
+                unitOffsets.current[index] = e.nativeEvent.layout.y;
+              }}
+            >
               <UnitRoadmap
                 unit={unit}
                 selectedNodeId={selectedNodeId}
                 onNodeTap={handleNodeTap}
                 onNodeStart={handleNodeStart}
                 onGuidePress={handleGuidePress}
+                // 첫 번째 유닛 제외, 잠긴 유닛만 JumpButton 표시
+                onJumpToUnit={
+                  index > 0 && unit.status === "locked"
+                    ? () => handleJumpToUnit(unit)
+                    : undefined
+                }
               />
-
-              {/* 유닛 사이마다 "여기로 건너뛸까요?" 경계 표시 */}
-              {index < processedUnits.length - 1 && (
-                <NextSectionLocked
-                  key={`jump-${unit.id}`}
-                  sectionNumber={processedUnits[index + 1].sectionNumber}
-                  description={processedUnits[index + 1].title}
-                  onJump={handleJumpToNextSection}
-                />
-              )}
             </View>
           ))}
-
-          {/* 마지막 잠금 섹션 */}
-          {roadmap.nextLockedSection && (
-            <NextSectionLocked
-              sectionNumber={roadmap.nextLockedSection.sectionNumber}
-              description={roadmap.nextLockedSection.description}
-              onJump={handleJumpToNextSection}
-            />
-          )}
         </Pressable>
       </ScrollView>
+
+      {/* 맨 아래/위 스크롤 버튼 */}
+      <TouchableOpacity
+        style={styles.scrollBtn}
+        onPress={handleScrollToggle}
+        activeOpacity={0.85}
+      >
+        <View style={styles.scrollBtnDepth} />
+        <View style={styles.scrollBtnFace}>
+          <Ionicons
+            name={isAtBottom ? "arrow-up" : "arrow-down"}
+            size={24}
+            color="#45B7D1"
+          />
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
 
+const SCROLL_BTN_SIZE = 52;
+
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.bg,
+    container: { flex: 1, backgroundColor: theme.bg },
+    scroll: { flex: 1 },
+    scrollContent: { paddingBottom: 140 },
+    scrollBtn: {
+      position: "absolute",
+      bottom: 110,
+      right: 20,
+      width: SCROLL_BTN_SIZE,
+      height: SCROLL_BTN_SIZE + 5,
+      alignItems: "center",
+      justifyContent: "center",
     },
-    scroll: {
-      flex: 1,
+    scrollBtnDepth: {
+      position: "absolute",
+      width: SCROLL_BTN_SIZE,
+      height: SCROLL_BTN_SIZE,
+      borderRadius: 14,
+      backgroundColor: theme.border,
+      top: 5,
     },
-    scrollContent: {
-      paddingBottom: 120,
+    scrollBtnFace: {
+      position: "absolute",
+      top: 0,
+      width: SCROLL_BTN_SIZE,
+      height: SCROLL_BTN_SIZE,
+      borderRadius: 14,
+      backgroundColor: theme.surface,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      alignItems: "center",
+      justifyContent: "center",
     },
   });
