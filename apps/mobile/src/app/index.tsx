@@ -5,16 +5,21 @@ import { useAuthStore } from "../store/auth.store";
 import KorioLogo from "../components/KorioLogo";
 
 export default function SplashScreen() {
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, user } = useAuthStore();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (isLoggedIn) {
-        router.replace("/(tabs)");
+        router.replace("/(tabs)"); // 온보딩 완료 → 메인
+        // if (user?.isOnboardingCompleted) {
+        //   router.replace("/(tabs)"); // 온보딩 완료 → 메인
+        // } else {
+        //   router.replace("/onboarding/survey"); // 첫 접속 → 온보딩
+        // }
       } else {
-        router.replace("/welcome");
+        router.replace("/welcome"); // 비로그인 → 웰컴
       }
-    }, 2000); // 2초 후 자동 이동
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);

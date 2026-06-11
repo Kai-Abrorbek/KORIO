@@ -128,6 +128,7 @@ export class AuthService {
         level: user.level,
         totalXP: user.totalXP,
         streak: user.streak,
+        isOnboardingCompleted: user.isOnboardingCompleted,
       },
     };
   }

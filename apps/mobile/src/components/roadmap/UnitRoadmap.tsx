@@ -17,13 +17,14 @@ interface Props {
   onGuidePress?: (unit: RoadmapUnit) => void;
 }
 
-const AMPLITUDE = 75;
-const FREQUENCY = 0.7;
-const NODE_GAP = 24;
+// 진짜 지그재그: 인덱스 기준으로 좌/우/중앙 교차
+// 패턴: 오른쪽 → 중앙약간오른쪽 → 왼쪽 → 중앙약간왼쪽 → 반복
+const ZIGZAG_OFFSETS = [65, 0, -65, 0];
+const NODE_GAP = 20;
 const NODE_SIZE = 72;
 
-function getNodeOffset(index: number): number {
-  return Math.sin(index * FREQUENCY) * AMPLITUDE;
+function getZigzagOffset(index: number): number {
+  return ZIGZAG_OFFSETS[index % ZIGZAG_OFFSETS.length];
 }
 
 export default function UnitRoadmap({
@@ -54,10 +55,11 @@ export default function UnitRoadmap({
 
       <View style={styles.nodesContainer}>
         {unit.nodes.map((node, i) => {
-          const offset = getNodeOffset(i);
+          const offset = getZigzagOffset(i);
           const isCurrent = node.status === "current";
           const isSelected = selectedNodeId === node.id;
-          const characterOffset = offset > 0 ? offset - 110 : offset + 110;
+          // 캐릭터는 노드 반대편에
+          const characterOffset = offset > 0 ? offset - 115 : offset + 115;
 
           return (
             <View
@@ -91,7 +93,7 @@ export default function UnitRoadmap({
                 </View>
               )}
 
-              {/* 노드 팝오버 */}
+              {/* 노드 팝오버 — 잠금 포함 절대 건드리지 않음 */}
               {isSelected && (
                 <View style={styles.popoverContainer}>
                   <NodePopover
@@ -113,7 +115,7 @@ export default function UnitRoadmap({
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: {
-      paddingBottom: 16,
+      paddingBottom: 8,
     },
     nodesContainer: {
       alignItems: "center",

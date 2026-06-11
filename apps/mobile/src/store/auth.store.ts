@@ -12,6 +12,7 @@ interface User {
   streak: number;
   profileImage?: string;
   provider: AuthProvider;
+  isOnboardingCompleted: boolean; // 추가
 }
 
 interface AuthState {

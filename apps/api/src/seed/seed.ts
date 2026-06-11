@@ -5,6 +5,13 @@ import { Model } from 'mongoose';
 import { Question } from '../lessons/schemas/question.schema';
 import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { UNIT1_QUESTIONS, UNIT1_LESSONS } from './data/unit1';
+import { UNIT2_QUESTIONS, UNIT2_LESSONS } from './data/unit2';
+import { UNIT3_QUESTIONS, UNIT3_LESSONS } from './data/unit3';
+import { UNIT4_LESSONS, UNIT4_QUESTIONS } from './data/unit4';
+import { UNIT5_QUESTIONS, UNIT5_LESSONS } from './data/unit5';
+import { UNIT6_QUESTIONS, UNIT6_LESSONS } from './data/unit6';
+import { UNIT7_QUESTIONS, UNIT7_LESSONS } from './data/unit7';
+import { UNIT8_QUESTIONS, UNIT8_LESSONS } from './data/unit8';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -19,9 +26,26 @@ async function seed() {
   console.log('🗑️  기존 데이터 삭제 완료');
 
   // 전체 문제 맵
-  const allQuestions = { ...UNIT1_QUESTIONS };
-  // 나중에 2과, 3과 추가 시: ...UNIT2_QUESTIONS, ...UNIT3_QUESTIONS
-  const allLessons = [...UNIT1_LESSONS];
+  const allQuestions = {
+    ...UNIT1_QUESTIONS,
+    ...UNIT2_QUESTIONS,
+    ...UNIT3_QUESTIONS,
+    ...UNIT4_QUESTIONS,
+    ...UNIT5_QUESTIONS,
+    ...UNIT6_QUESTIONS,
+    ...UNIT7_QUESTIONS,
+    ...UNIT8_QUESTIONS,
+  };
+  const allLessons = [
+    ...UNIT1_LESSONS,
+    ...UNIT2_LESSONS,
+    ...UNIT3_LESSONS,
+    ...UNIT4_LESSONS,
+    ...UNIT5_LESSONS,
+    ...UNIT6_LESSONS,
+    ...UNIT7_LESSONS,
+    ...UNIT8_LESSONS,
+  ];
 
   for (const lessonData of allLessons) {
     const { questions: qKeys, ...lesson } = lessonData;
