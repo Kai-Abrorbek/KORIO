@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Lesson, LessonDocument } from './schemas/lesson.schema';
+import { LessonNode, LessonNodeDocument } from './schemas/node.schema';
 import { Question, QuestionDocument } from './schemas/question.schema';
 import {
   UserProgress,
@@ -18,6 +19,8 @@ export class LessonsService {
   constructor(
     @InjectModel(Lesson.name)
     private lessonModel: Model<LessonDocument>,
+    @InjectModel(LessonNode.name)
+    private nodeModel: Model<LessonNodeDocument>,
     @InjectModel(Question.name)
     private questionModel: Model<QuestionDocument>,
     @InjectModel(UserProgress.name)
@@ -52,34 +55,7 @@ export class LessonsService {
     };
   }
 
-  async getLessons(userId: string) {
-    const lessons = await this.lessonModel
-      .find({ isActive: true })
-      .sort({ section: 1, unit: 1, order: 1 })
-      .lean();
-
-    const progresses = await this.userProgressModel
-      .find({ userId: new Types.ObjectId(userId) })
-      .lean();
-
-    const progressMap = new Map(
-      progresses.map((p) => [p.lessonId.toString(), p]),
-    );
-
-    return lessons.map((lesson) => ({
-      id: lesson._id.toString(),
-      title: lesson.title,
-      category: lesson.category,
-      level: lesson.level,
-      section: lesson.section,
-      unit: lesson.unit,
-      order: lesson.order,
-      xpReward: lesson.xpReward,
-      questionCount: lesson.questionIds.length,
-      progress: progressMap.get(lesson._id.toString()) || null,
-    }));
-  }
-
+  // 레슨 상세 + 문제들 (lessonId로 조회)
   async getLessonById(lessonId: string, lang: string = 'uz') {
     const lesson = await this.lessonModel.findById(lessonId).lean();
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
@@ -103,6 +79,7 @@ export class LessonsService {
     };
   }
 
+  // 레슨 완료 저장
   async completeLesson(
     lessonId: string,
     userId: string,
@@ -125,7 +102,7 @@ export class LessonsService {
         wrongQuestionIds: dto.wrongQuestionIds,
         completedAt: new Date(),
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: 'after' },
     );
 
     const today = new Date();
@@ -146,7 +123,7 @@ export class LessonsService {
           [`${lesson?.category}Count`]: dto.totalAnswers,
         },
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: 'after' },
     );
 
     return { success: true, xpEarned: dto.xpEarned };
@@ -170,83 +147,122 @@ export class LessonsService {
     return questions.map((q) => this.formatQuestion(q, lang));
   }
 
+  // 로드맵 조회
   async getRoadmap(userId: string, lang: string = 'uz') {
-    const lessons = await this.lessonModel
+    // 모든 노드 조회 (section, unit, order 순)
+    const nodes = await this.nodeModel
       .find({ isActive: true })
       .sort({ section: 1, unit: 1, order: 1 })
       .lean();
 
-    const userObjectId = new Types.ObjectId(userId);
+    // 모든 레슨 조회
+    const lessons = await this.lessonModel.find({ isActive: true }).lean();
+
+    // lessonId → lesson 맵
+    const lessonMap = new Map(lessons.map((l) => [l._id.toString(), l]));
+
+    // 유저 진행도 조회
     const progresses = await this.userProgressModel
-      .find({ userId: userObjectId })
+      .find({ userId: new Types.ObjectId(userId) })
       .lean();
 
     const progressMap = new Map(
       progresses.map((p) => [p.lessonId.toString(), p]),
     );
 
-    // section → unit → lessons 그룹핑
+    // 유닛별 그룹핑
     const unitMap = new Map<string, any>();
 
-    for (const lesson of lessons) {
-      const unitKey = `${lesson.section}-${lesson.unit}`;
+    for (const node of nodes) {
+      const unitKey = `${node.section}-${node.unit}`;
 
       if (!unitMap.has(unitKey)) {
         unitMap.set(unitKey, {
-          id: `unit-${lesson.section}-${lesson.unit}`,
-          sectionNumber: lesson.section,
-          unitNumber: lesson.unit,
-          title: this.extractI18n(lesson.title, lang),
-          color: '#776ee2', // 나중에 unit 스키마에 color 추가
+          id: `unit-${node.section}-${node.unit}`,
+          sectionNumber: node.section,
+          unitNumber: node.unit,
+          title: this.extractI18n(node.title, lang),
+          color: '#776ee2',
           status: 'locked',
           nodes: [],
         });
       }
 
-      const progress = progressMap.get(lesson._id.toString());
-      const isCompleted = progress?.isCompleted ?? false;
+      // 노드 안의 레슨들 진행도 계산
+      const nodeLessons = node.lessonIds.map((lid) => {
+        const lesson = lessonMap.get(lid.toString());
+        const progress = progressMap.get(lid.toString());
+        return {
+          lessonId: lid.toString(),
+          title: lesson ? this.extractI18n(lesson.title, lang) : '',
+          isCompleted: progress?.isCompleted ?? false,
+        };
+      });
+
+      const completedCount = nodeLessons.filter((l) => l.isCompleted).length;
+      const totalCount = nodeLessons.length; // 보통 4
 
       const unit = unitMap.get(unitKey);
       unit.nodes.push({
-        id: lesson._id.toString(),
-        lessonId: lesson._id.toString(),
+        id: node._id.toString(),
         type: 'star',
-        status: isCompleted ? 'completed' : 'locked',
-        title: this.extractI18n(lesson.title, lang),
-        xpReward: lesson.xpReward,
-        currentLesson: progress?.correctAnswers ?? 0,
-        totalLessons: lesson.questionIds.length,
+        status: 'locked', // 나중에 계산
+        title: this.extractI18n(node.title, lang),
+        completedLessons: completedCount,
+        totalLessons: totalCount,
+        lessons: nodeLessons,
+        // 레슨 시작할 때 첫 번째 미완료 레슨 ID 전달
+        lessonId:
+          nodeLessons.find((l) => !l.isCompleted)?.lessonId ??
+          nodeLessons[0]?.lessonId,
       });
     }
 
-    // unit status 계산 (첫 번째 미완성 unit = current)
+    // unit/node status 계산
     const units = Array.from(unitMap.values());
-    let foundCurrent = false;
+    let foundCurrentUnit = false;
 
     for (const unit of units) {
-      const allCompleted = unit.nodes.every(
-        (n: any) => n.status === 'completed',
-      );
-      const anyCompleted = unit.nodes.some(
-        (n: any) => n.status === 'completed',
+      const allNodesCompleted = unit.nodes.every(
+        (n: any) => n.completedLessons === n.totalLessons,
       );
 
-      if (allCompleted) {
+      if (allNodesCompleted) {
         unit.status = 'completed';
-      } else if (!foundCurrent) {
+        unit.nodes.forEach((n: any) => (n.status = 'completed'));
+      } else if (!foundCurrentUnit) {
         unit.status = 'current';
-        foundCurrent = true;
-        // 첫 번째 미완성 노드 = current
+        foundCurrentUnit = true;
+
         let foundCurrentNode = false;
         for (const node of unit.nodes) {
-          if (node.status !== 'completed' && !foundCurrentNode) {
+          if (node.completedLessons === node.totalLessons) {
+            node.status = 'completed';
+          } else if (!foundCurrentNode) {
             node.status = 'current';
             foundCurrentNode = true;
           }
+          // 나머지는 locked 유지
         }
       }
     }
 
     return { units };
+  }
+
+  async getLessons(userId: string) {
+    const nodes = await this.nodeModel
+      .find({ isActive: true })
+      .sort({ section: 1, unit: 1, order: 1 })
+      .lean();
+
+    return nodes.map((node) => ({
+      id: node._id.toString(),
+      title: node.title,
+      section: node.section,
+      unit: node.unit,
+      order: node.order,
+      lessonCount: node.lessonIds.length,
+    }));
   }
 }

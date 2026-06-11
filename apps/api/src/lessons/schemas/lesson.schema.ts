@@ -12,7 +12,6 @@ export enum LessonCategory {
   LISTENING = 'listening',
 }
 
-// 다국어 텍스트
 class I18nText {
   @Prop({ default: '' }) ko: string;
   @Prop({ default: '' }) uz: string;
@@ -22,11 +21,12 @@ class I18nText {
 
 @Schema({ timestamps: true })
 export class Lesson {
-  // 레슨 제목 - 다국어
+  @Prop({ type: Types.ObjectId, ref: 'LessonNode', required: true })
+  nodeId: Types.ObjectId;
+
   @Prop({ type: I18nText, default: {} })
   title: I18nText;
 
-  // 레슨 설명 - 다국어
   @Prop({ type: I18nText, default: {} })
   description: I18nText;
 
@@ -37,7 +37,7 @@ export class Lesson {
   level: QuestionLevel;
 
   @Prop({ default: 0 })
-  order: number;
+  order: number; // 노드 안에서 레슨 순서 (1, 2, 3, 4)
 
   @Prop({ default: 0 })
   section: number;
@@ -45,7 +45,6 @@ export class Lesson {
   @Prop({ default: 0 })
   unit: number;
 
-  // Question ObjectId 배열
   @Prop({ type: [Types.ObjectId], ref: 'Question', default: [] })
   questionIds: Types.ObjectId[];
 
