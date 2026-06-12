@@ -179,4 +179,22 @@ export default {
       culture: "Korean Culture",
     },
   },
+  profile: {
+    joinedYear: "Joined in {{year}}",
+    courses: "Courses",
+    following: "Following",
+    followers: "Followers",
+    addFriend: "Add a friend",
+    learningStatus: "Learning Status",
+    streakDays: "{{count}} days",
+    xp: "{{count}} XP",
+    friendStreak: "Friend Streaks",
+    league: {
+      bronze: "Bronze",
+      silver: "Silver",
+      gold: "Gold",
+      platinum: "Platinum",
+      diamond: "Diamond",
+    },
+  },
 };

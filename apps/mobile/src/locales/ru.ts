@@ -180,4 +180,22 @@ export default {
       culture: "Корейская культура",
     },
   },
+  profile: {
+    joinedYear: "Присоединился в {{year}}",
+    courses: "Курсы",
+    following: "Подписки",
+    followers: "Подписчики",
+    addFriend: "Добавить друга",
+    learningStatus: "Прогресс",
+    streakDays: "{{count}} дн.",
+    xp: "{{count}} XP",
+    friendStreak: "Серии с друзьями",
+    league: {
+      bronze: "Бронза",
+      silver: "Серебро",
+      gold: "Золото",
+      platinum: "Платина",
+      diamond: "Алмаз",
+    },
+  },
 };

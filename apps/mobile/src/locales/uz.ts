@@ -181,4 +181,22 @@ export default {
       culture: "Koreys madaniyati",
     },
   },
+  profile: {
+    joinedYear: "{{year}}-yilda qo'shildi",
+    courses: "Kurslar",
+    following: "Obuna",
+    followers: "Obunachilar",
+    addFriend: "Do'st qo'shish",
+    learningStatus: "O'qish holati",
+    streakDays: "{{count}} kun",
+    xp: "{{count}} XP",
+    friendStreak: "Do'st bilan ketma-ket o'qish",
+    league: {
+      bronze: "Bronza",
+      silver: "Kumush",
+      gold: "Oltin",
+      platinum: "Platinum",
+      diamond: "Olmos",
+    },
+  },
 };

@@ -179,4 +179,22 @@ export default {
       culture: "한국 문화",
     },
   },
+  profile: {
+    joinedYear: "{{year}}년 가입",
+    courses: "학습 과정",
+    following: "팔로잉",
+    followers: "팔로워",
+    addFriend: "친구 추가하기",
+    learningStatus: "학습 현황",
+    streakDays: "{{count}}일",
+    xp: "{{count}} XP",
+    friendStreak: "친구와의 연속 학습",
+    league: {
+      bronze: "브론즈",
+      silver: "실버",
+      gold: "골드",
+      platinum: "플래티넘",
+      diamond: "다이아몬드",
+    },
+  },
 };
