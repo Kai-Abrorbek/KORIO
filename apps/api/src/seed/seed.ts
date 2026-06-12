@@ -6,13 +6,13 @@ import { Question } from '../lessons/schemas/question.schema';
 import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { UNIT1_QUESTIONS, UNIT1_NODES } from './data/unit1';
-// import { UNIT2_QUESTIONS, UNIT2_NODES } from './data/unit2';
-// import { UNIT3_QUESTIONS, UNIT3_NODES } from './data/unit3';
-// import { UNIT4_QUESTIONS, UNIT4_NODES } from './data/unit4';
-// import { UNIT5_QUESTIONS, UNIT5_NODES } from './data/unit5';
-// import { UNIT6_QUESTIONS, UNIT6_NODES } from './data/unit6';
-// import { UNIT7_QUESTIONS, UNIT7_NODES } from './data/unit7';
-// import { UNIT8_QUESTIONS, UNIT8_NODES } from './data/unit8';
+import { UNIT2_QUESTIONS, UNIT2_NODES } from './data/unit2';
+import { UNIT3_QUESTIONS, UNIT3_NODES } from './data/unit3';
+import { UNIT4_QUESTIONS, UNIT4_NODES } from './data/unit4';
+import { UNIT5_QUESTIONS, UNIT5_NODES } from './data/unit5';
+import { UNIT6_QUESTIONS, UNIT6_NODES } from './data/unit6';
+import { UNIT7_QUESTIONS, UNIT7_NODES } from './data/unit7';
+import { UNIT8_QUESTIONS, UNIT8_NODES } from './data/unit8';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -30,24 +30,24 @@ async function seed() {
 
   const allQuestions = {
     ...UNIT1_QUESTIONS,
-    // ...UNIT2_QUESTIONS,
-    // ...UNIT3_QUESTIONS,
-    // ...UNIT4_QUESTIONS,
-    // ...UNIT5_QUESTIONS,
-    // ...UNIT6_QUESTIONS,
-    // ...UNIT7_QUESTIONS,
-    // ...UNIT8_QUESTIONS,
+    ...UNIT2_QUESTIONS,
+    ...UNIT3_QUESTIONS,
+    ...UNIT4_QUESTIONS,
+    ...UNIT5_QUESTIONS,
+    ...UNIT6_QUESTIONS,
+    ...UNIT7_QUESTIONS,
+    ...UNIT8_QUESTIONS,
   };
 
   const allNodes = [
     ...UNIT1_NODES,
-    // ...UNIT2_NODES,
-    // ...UNIT3_NODES,
-    // ...UNIT4_NODES,
-    // ...UNIT5_NODES,
-    // ...UNIT6_NODES,
-    // ...UNIT7_NODES,
-    // ...UNIT8_NODES,
+    ...UNIT2_NODES,
+    ...UNIT3_NODES,
+    ...UNIT4_NODES,
+    ...UNIT5_NODES,
+    ...UNIT6_NODES,
+    ...UNIT7_NODES,
+    ...UNIT8_NODES,
   ];
 
   for (const nodeData of allNodes) {
@@ -63,6 +63,11 @@ async function seed() {
 
     for (const lessonData of lessons) {
       const { questions: qKeys, ...lessonInfo } = lessonData;
+      for (const key of qKeys) {
+        if (!allQuestions[key]) {
+          console.log('❌ 없는 키:', key);
+        }
+      }
 
       const createdQuestions = await questionModel.insertMany(
         qKeys.map((key) => allQuestions[key]),
