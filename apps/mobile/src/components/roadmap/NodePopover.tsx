@@ -96,8 +96,8 @@ export default function NodePopover({
       <Text style={styles.activeTitle}>{unit.title}</Text>
       <Text style={styles.activeSubtitle}>
         {t("roadmap.lessonProgress", {
-          current: node.currentLesson ?? 1,
-          total: node.totalLessons ?? 1,
+          current: node.completedLessons ?? 0,
+          total: node.totalLessons ?? 4,
         })}
       </Text>
       <TouchableOpacity

@@ -10,14 +10,21 @@ export type NodeStatus = "completed" | "current" | "locked";
 
 export type SectionStatus = "completed" | "current" | "locked";
 
+export interface NodeLesson {
+  lessonId: string;
+  title: string;
+  isCompleted: boolean;
+}
+
 export interface RoadmapNode {
   id: string;
   type: NodeType;
   status: NodeStatus;
   title?: string;
-  lessonId?: string; // 추가
-  currentLesson?: number;
-  totalLessons?: number;
+  lessonId?: string; // 첫 번째 미완료 레슨 ID
+  lessons?: NodeLesson[]; // 노드 안의 레슨 4개
+  completedLessons?: number; // 완료된 레슨 수 (링 진행도)
+  totalLessons?: number; // 전체 레슨 수 (보통 4)
   chestLessonsRemaining?: number;
   xpReward?: number;
   progress?: number;
@@ -28,7 +35,7 @@ export interface RoadmapUnit {
   sectionNumber: number;
   unitNumber: number;
   title: string;
-  color: string; // 유닛별 테마 컬러
+  color: string;
   status: SectionStatus;
   nodes: RoadmapNode[];
 }
@@ -39,7 +46,7 @@ export interface NextLockedSection {
 }
 
 export interface UserRoadmapStats {
-  language: string; // "🇺🇸" 같은 깃발 이모지
+  language: string;
   languageLevel: number;
   streak: number;
   gems: number;

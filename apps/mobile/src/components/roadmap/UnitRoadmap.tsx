@@ -69,7 +69,7 @@ export default function UnitRoadmap({
                   type={node.type}
                   status={node.status}
                   unitColor={unit.color}
-                  completedSteps={node.currentLesson ?? 2}
+                  completedSteps={node.completedLessons ?? 0}
                   totalSteps={node.totalLessons ?? 4}
                   onPress={() => onNodeTap(node.id)}
                 />
