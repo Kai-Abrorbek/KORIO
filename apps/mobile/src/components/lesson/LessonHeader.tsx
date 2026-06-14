@@ -4,33 +4,40 @@ import Animated, {
   withTiming,
   withSpring,
   withSequence,
+  withDelay,
   useSharedValue,
   FadeInDown,
-  FadeOutUp,
+  Easing,
 } from "react-native-reanimated";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
 import { ThemeColors } from "@/constants/theme";
+import { AnswerState } from "@/types/lesson";
 
 interface Props {
-  current: number;
+  progress: number; // 0-1
   total: number;
   hearts: number;
   combo: number;
+  answerState: AnswerState;
   onClose: () => void;
   theme: ThemeColors;
 }
 
 export default function LessonHeader({
-  current,
+  progress,
   total,
   hearts,
   combo,
+  answerState,
   onClose,
   theme,
 }: Props) {
-  const progress = current / total;
-  const progressWidth = useSharedValue(0);
+  const progressWidth = useSharedValue(progress);
+  const fillScaleY = useSharedValue(1);
+  const shimmerX = useSharedValue(-200);
+  const endGlowOpacity = useSharedValue(0);
+  const endGlowScale = useSharedValue(0.5);
   const comboScale = useSharedValue(1);
   const prevCombo = useRef(0);
   const s = styles(theme);
@@ -38,11 +45,48 @@ export default function LessonHeader({
   const marker1 = Math.round(total * 0.5);
   const marker2 = total - 1;
 
+  // progress 부드럽게 차오름 (spring, 살짝 overshoot)
   useEffect(() => {
-    progressWidth.value = withTiming(progress, { duration: 500 });
+    progressWidth.value = withSpring(progress, {
+      damping: 14,
+      stiffness: 150,
+      mass: 0.8,
+    });
   }, [progress]);
 
-  // 콤보 바뀔 때 애니메이션
+  // 정답일 때만 화려한 보상 효과
+  useEffect(() => {
+    if (answerState === "correct") {
+      // 1) bar 세로로 살짝 부풀음 (jiggle)
+      fillScaleY.value = withSequence(
+        withTiming(1.35, { duration: 180, easing: Easing.out(Easing.cubic) }),
+        withSpring(1, { damping: 5, stiffness: 220 }),
+      );
+
+      // 2) Shimmer stripe 흐름 (사선 빛이 bar 가로질러 지나감)
+      shimmerX.value = -200;
+      shimmerX.value = withDelay(
+        80,
+        withTiming(400, {
+          duration: 850,
+          easing: Easing.out(Easing.cubic),
+        }),
+      );
+
+      // 3) Fill 끝부분에서 glow 반짝
+      endGlowScale.value = 0.4;
+      endGlowOpacity.value = withSequence(
+        withTiming(1, { duration: 220 }),
+        withDelay(120, withTiming(0, { duration: 480 })),
+      );
+      endGlowScale.value = withSequence(
+        withTiming(1.5, { duration: 300, easing: Easing.out(Easing.cubic) }),
+        withTiming(0.9, { duration: 400 }),
+      );
+    }
+  }, [answerState]);
+
+  // 콤보 (기존 그대로)
   useEffect(() => {
     if (combo > prevCombo.current && combo >= 2) {
       comboScale.value = withSequence(
@@ -55,15 +99,25 @@ export default function LessonHeader({
     prevCombo.current = combo;
   }, [combo]);
 
-  const progressStyle = useAnimatedStyle(() => ({
+  const fillStyle = useAnimatedStyle(() => ({
     width: `${progressWidth.value * 100}%` as any,
+    transform: [{ scaleY: fillScaleY.value }],
+  }));
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shimmerX.value }, { skewX: "-20deg" }],
+  }));
+
+  const endGlowStyle = useAnimatedStyle(() => ({
+    left: `${progressWidth.value * 100}%` as any,
+    opacity: endGlowOpacity.value,
+    transform: [{ translateX: -14 }, { scale: endGlowScale.value }],
   }));
 
   const comboStyle = useAnimatedStyle(() => ({
     transform: [{ scale: comboScale.value }],
   }));
 
-  // 콤보별 색상
   const getComboColor = () => {
     if (combo >= 10) return "#FFD700";
     if (combo >= 7) return "#776ee2";
@@ -73,7 +127,6 @@ export default function LessonHeader({
 
   return (
     <View style={s.wrapper}>
-      {/* 콤보 텍스트 - 헤더 위에 독립적으로 */}
       {combo >= 2 && (
         <Animated.View
           entering={FadeInDown.springify().damping(12)}
@@ -87,7 +140,6 @@ export default function LessonHeader({
         </Animated.View>
       )}
 
-      {/* 헤더 행 */}
       <View style={s.container}>
         <TouchableOpacity
           onPress={onClose}
@@ -99,7 +151,19 @@ export default function LessonHeader({
         {/* 프로그레스바 */}
         <View style={s.progressWrap}>
           <View style={s.track}>
-            <Animated.View style={[s.fill, progressStyle]} />
+            {/* Fill */}
+            <Animated.View style={[s.fill, fillStyle]}>
+              {/* 위쪽 흰색 highlight stripe (Duolingo 시그니처) */}
+              <View style={s.fillTopHighlight} />
+
+              {/* Shimmer - 정답 시 사선으로 가로지름 */}
+              <Animated.View style={[s.shimmer, shimmerStyle]} />
+            </Animated.View>
+
+            {/* 끝부분 glow (fill 밖에 위치, 위치는 progress 따라 이동) */}
+            <Animated.View style={[s.endGlow, endGlowStyle]} />
+
+            {/* 마커 */}
             <View
               style={[
                 s.markerWrap,
@@ -175,6 +239,36 @@ const styles = (theme: ThemeColors) =>
       bottom: 0,
       backgroundColor: "#FFD000",
       borderRadius: 99,
+      overflow: "hidden",
+    },
+    fillTopHighlight: {
+      position: "absolute",
+      top: 3,
+      left: 8,
+      right: 8,
+      height: 5,
+      borderRadius: 99,
+      backgroundColor: "rgba(255, 255, 255, 0.55)",
+    },
+    shimmer: {
+      position: "absolute",
+      top: -4,
+      bottom: -4,
+      width: 70,
+      backgroundColor: "rgba(255, 255, 255, 0.55)",
+    },
+    endGlow: {
+      position: "absolute",
+      top: -4,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: "rgba(255, 240, 130, 0.95)",
+      shadowColor: "#FFD000",
+      shadowOpacity: 1,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 10,
     },
     markerWrap: {
       position: "absolute",

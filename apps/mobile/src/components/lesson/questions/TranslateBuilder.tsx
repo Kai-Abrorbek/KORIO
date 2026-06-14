@@ -1,22 +1,16 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from "react-native-reanimated";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import AnswerChip, {
+  GhostChip,
+  ChipLayout,
+} from "@/components/lesson/AnswerChip";
 
 interface Props {
   question: LessonQuestion;
@@ -31,114 +25,6 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
-
-function Chip({
-  item,
-  onTap,
-  onDragToZone,
-  theme,
-  answerState,
-}: {
-  item: WordItem;
-  onTap: (id: string) => void;
-  onDragToZone: (id: string, toZone: "bank" | "placed") => void;
-  theme: ThemeColors;
-  answerState: AnswerState;
-}) {
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const zIndex = useSharedValue(1);
-  const isPlaced = item.zone === "placed";
-
-  const pan = Gesture.Pan()
-    .enabled(answerState === "idle")
-    .onStart(() => {
-      scale.value = withSpring(1.12, { damping: 8 });
-      zIndex.value = 999;
-    })
-    .onUpdate((e) => {
-      translateX.value = e.translationX;
-      translateY.value = e.translationY;
-    })
-    .onEnd((e) => {
-      scale.value = withSpring(1, { damping: 10 });
-      zIndex.value = 1;
-      translateX.value = withSpring(0, { damping: 14 });
-      translateY.value = withSpring(0, { damping: 14 });
-      const movedFar =
-        Math.abs(e.translationX) > 5 || Math.abs(e.translationY) > 5;
-      if (!movedFar) return;
-      if (isPlaced && e.translationY > 50)
-        runOnJS(onDragToZone)(item.id, "bank");
-      else if (!isPlaced && e.translationY < -50)
-        runOnJS(onDragToZone)(item.id, "placed");
-    });
-
-  const tap = Gesture.Tap()
-    .enabled(answerState === "idle")
-    .onEnd(() => runOnJS(onTap)(item.id));
-
-  const composed = Gesture.Simultaneous(tap, pan);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-    zIndex: zIndex.value,
-  }));
-
-  const getBg = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "correct") return "#D7F5E3";
-      if (answerState === "wrong") return "#FFEBEB";
-    }
-    return isPlaced ? theme.primary + "18" : theme.surface;
-  };
-
-  const getBorder = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "correct") return "#1CB454";
-      if (answerState === "wrong") return "#FF4B4B";
-    }
-    return isPlaced ? theme.primary : theme.border;
-  };
-
-  const getTextColor = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "correct") return "#1CB454";
-      if (answerState === "wrong") return "#FF4B4B";
-    }
-    return theme.text;
-  };
-
-  return (
-    <GestureDetector gesture={composed}>
-      <Animated.View
-        style={[
-          cs.chip,
-          { backgroundColor: getBg(), borderColor: getBorder() },
-          animStyle,
-        ]}
-      >
-        <Text style={[cs.text, { color: getTextColor() }]}>{item.word}</Text>
-      </Animated.View>
-    </GestureDetector>
-  );
-}
-
-const cs = StyleSheet.create({
-  chip: {
-    borderWidth: 1.5,
-    borderBottomWidth: 3,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  text: { fontSize: 15, fontWeight: "700" },
-});
 
 export default function TranslateBuilder({
   question,
@@ -206,6 +92,38 @@ export default function TranslateBuilder({
     onAnswer(placedWords.map((w) => w.word).join(" "));
   };
 
+  const chipLayouts = useRef<Map<string, ChipLayout>>(new Map());
+
+  const handleChipLayout = useCallback(
+    (id: string, layout: ChipLayout, zone: "bank" | "placed") => {
+      if (zone === "placed") {
+        chipLayouts.current.set(id, layout);
+      } else {
+        chipLayouts.current.delete(id);
+      }
+    },
+    [],
+  );
+
+  const getPlacedChipLayouts = useCallback(() => chipLayouts.current, []);
+
+  const handleSwap = useCallback((draggedId: string, targetId: string) => {
+    setWords((prev) => {
+      const dragged = prev.find((w) => w.id === draggedId);
+      const target = prev.find((w) => w.id === targetId);
+      if (!dragged || !target) return prev;
+      if (dragged.zone !== "placed" || target.zone !== "placed") return prev;
+
+      return prev.map((w) => {
+        if (w.id === draggedId)
+          return { ...w, placedIndex: target.placedIndex };
+        if (w.id === targetId)
+          return { ...w, placedIndex: dragged.placedIndex };
+        return w;
+      });
+    });
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
@@ -238,12 +156,16 @@ export default function TranslateBuilder({
             <Text style={s.placeholder}>{t("lesson.tapOrDrag")}</Text>
           ) : (
             <View style={s.chipRow}>
-              {placedWords.map((item) => (
-                <Chip
+              {placedWords.map((item, idx) => (
+                <AnswerChip
                   key={item.id}
                   item={item}
+                  orderIndex={idx}
                   onTap={handleTap}
                   onDragToZone={handleDragToZone}
+                  onSwap={handleSwap}
+                  onLayoutMeasured={handleChipLayout}
+                  getPlacedChipLayouts={getPlacedChipLayouts}
                   theme={theme}
                   answerState={answerState}
                 />
@@ -259,28 +181,14 @@ export default function TranslateBuilder({
         <View style={s.chipRow}>
           {words.map((item) =>
             item.zone === "placed" ? (
-              // ghost 자리 - 빈 회색 박스
-              <View
-                key={item.id}
-                style={[
-                  cs.chip,
-                  {
-                    backgroundColor: theme.border + "60",
-                    borderColor: "transparent",
-                    opacity: 0.5,
-                  },
-                ]}
-              >
-                <Text style={[cs.text, { color: "transparent" }]}>
-                  {item.word}
-                </Text>
-              </View>
+              <GhostChip key={item.id} word={item.word} theme={theme} />
             ) : (
-              <Chip
+              <AnswerChip
                 key={item.id}
                 item={item}
                 onTap={handleTap}
                 onDragToZone={handleDragToZone}
+                onLayoutMeasured={handleChipLayout}
                 theme={theme}
                 answerState={answerState}
               />

@@ -66,6 +66,7 @@ export default function LessonScreen() {
     }
   };
 
+  console.log(lesson);
   const currentQ = lesson?.questions[currentIdx];
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
@@ -170,10 +171,14 @@ export default function LessonScreen() {
   return (
     <View style={s.container}>
       <LessonHeader
-        current={currentIdx + 1}
+        progress={
+          (currentIdx + (answerState !== "idle" ? 1 : 0)) /
+          lesson.questions.length
+        }
         total={lesson.questions.length}
         hearts={hearts}
         combo={combo}
+        answerState={answerState}
         onClose={() => {
           if (router.canGoBack()) {
             router.back();

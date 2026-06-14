@@ -20,10 +20,14 @@ import {
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
 import OwlMascot from "@/components/lesson/OwlMascot";
+import AnswerChip, {
+  GhostChip,
+  ChipLayout,
+} from "@/components/lesson/AnswerChip";
 
 interface Props {
   question: LessonQuestion;
@@ -221,6 +225,38 @@ export default function WordArrange({
     onAnswer(placedWords.map((w) => w.word).join(" "));
   };
 
+  const chipLayouts = useRef<Map<string, ChipLayout>>(new Map());
+
+  const handleChipLayout = useCallback(
+    (id: string, layout: ChipLayout, zone: "bank" | "placed") => {
+      if (zone === "placed") {
+        chipLayouts.current.set(id, layout);
+      } else {
+        chipLayouts.current.delete(id);
+      }
+    },
+    [],
+  );
+
+  const getPlacedChipLayouts = useCallback(() => chipLayouts.current, []);
+
+  const handleSwap = useCallback((draggedId: string, targetId: string) => {
+    setWords((prev) => {
+      const dragged = prev.find((w) => w.id === draggedId);
+      const target = prev.find((w) => w.id === targetId);
+      if (!dragged || !target) return prev;
+      if (dragged.zone !== "placed" || target.zone !== "placed") return prev;
+
+      return prev.map((w) => {
+        if (w.id === draggedId)
+          return { ...w, placedIndex: target.placedIndex };
+        if (w.id === targetId)
+          return { ...w, placedIndex: dragged.placedIndex };
+        return w;
+      });
+    });
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
@@ -258,12 +294,16 @@ export default function WordArrange({
             <Text style={s.placeholder}>{t("lesson.tapOrDrag")}</Text>
           ) : (
             <View style={s.chipRow}>
-              {placedWords.map((item) => (
-                <Chip
+              {placedWords.map((item, idx) => (
+                <AnswerChip
                   key={item.id}
                   item={item}
+                  orderIndex={idx}
                   onTap={handleTap}
                   onDragToZone={handleDragToZone}
+                  onSwap={handleSwap}
+                  onLayoutMeasured={handleChipLayout}
+                  getPlacedChipLayouts={getPlacedChipLayouts}
                   theme={theme}
                   answerState={answerState}
                 />
@@ -279,28 +319,14 @@ export default function WordArrange({
         <View style={s.chipRow}>
           {words.map((item) =>
             item.zone === "placed" ? (
-              // ghost 자리 - 빈 회색 박스
-              <View
-                key={item.id}
-                style={[
-                  cs.chip,
-                  {
-                    backgroundColor: theme.border + "60",
-                    borderColor: "transparent",
-                    opacity: 0.5,
-                  },
-                ]}
-              >
-                <Text style={[cs.text, { color: "transparent" }]}>
-                  {item.word}
-                </Text>
-              </View>
+              <GhostChip key={item.id} word={item.word} theme={theme} />
             ) : (
-              <Chip
+              <AnswerChip
                 key={item.id}
                 item={item}
                 onTap={handleTap}
                 onDragToZone={handleDragToZone}
+                onLayoutMeasured={handleChipLayout}
                 theme={theme}
                 answerState={answerState}
               />
