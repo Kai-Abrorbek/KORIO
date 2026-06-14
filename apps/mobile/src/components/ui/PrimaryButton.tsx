@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, StyleSheet, ViewStyle } from "react-native";
+import { useSound } from "@/hooks/useSound";
 
 interface Props {
   label: string;
@@ -7,6 +8,7 @@ interface Props {
   color?: string;
   darkColor?: string;
   style?: ViewStyle;
+  silent?: boolean; // 사운드 끄고 싶을 때
 }
 
 export default function PrimaryButton({
@@ -16,14 +18,21 @@ export default function PrimaryButton({
   color = "#58CC02",
   darkColor = "#58A700",
   style,
+  silent,
 }: Props) {
+  const { play } = useSound();
   const bg = disabled ? "#D1D1D6" : color;
   const dark = disabled ? "#B5B5BA" : darkColor;
+
+  const handlePress = () => {
+    if (!silent) play("click");
+    onPress?.();
+  };
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
       style={[
         styles.btn,

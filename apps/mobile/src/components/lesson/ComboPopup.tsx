@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
+import { useSound } from "@/hooks/useSound";
 
 interface Props {
   combo: number;
@@ -45,9 +46,11 @@ export default function ComboPopup({ combo }: Props) {
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.7);
   const prevCombo = useRef(0);
+  const { play } = useSound();
 
   useEffect(() => {
     if (combo > prevCombo.current && [3, 5, 7, 10].includes(combo)) {
+      play("combo");
       // 기존 애니메이션 캔슬
       cancelAnimation(translateY);
       cancelAnimation(opacity);
