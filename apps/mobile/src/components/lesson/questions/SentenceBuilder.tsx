@@ -7,17 +7,18 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
-import OwlMascot from "@/components/lesson/OwlMascot";
 import AnswerChip, {
   GhostChip,
   ChipLayout,
 } from "@/components/lesson/AnswerChip";
+import OwlMascot, { OwlState } from "@/components/lesson/OwlMascot";
 
 interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
+  combo?: number;
 }
 
 interface WordItem {
@@ -32,6 +33,7 @@ export default function SentenceBuilder({
   answerState,
   onAnswer,
   theme,
+  combo = 0,
 }: Props) {
   const { t } = useTranslation();
   const s = styles(theme);
@@ -60,6 +62,15 @@ export default function SentenceBuilder({
     }, 600);
     return () => clearTimeout(timer);
   }, []);
+
+  const owlState: OwlState =
+    answerState === "correct" && combo >= 3
+      ? "combo"
+      : answerState === "correct"
+        ? "correct"
+        : answerState === "wrong"
+          ? "wrong"
+          : "idle";
 
   const placedWords = words
     .filter((w) => w.zone === "placed")
@@ -147,7 +158,7 @@ export default function SentenceBuilder({
 
         {/* 캐릭터 + 스피커 버튼 2개 */}
         <View style={s.npcRow}>
-          <OwlMascot state="idle" size={100} />
+          <OwlMascot state={owlState} size={100} />
           <View style={s.speakerBubble}>
             <TouchableOpacity
               style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}

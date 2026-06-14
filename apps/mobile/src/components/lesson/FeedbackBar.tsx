@@ -1,15 +1,25 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  FadeOutDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+} from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
+import OwlMascot, { OwlState } from "@/components/lesson/OwlMascot";
 
 interface Props {
   state: AnswerState;
   explanation?: string;
   onNext: () => void;
   theme: ThemeColors;
+  combo?: number;
 }
 
 export default function FeedbackBar({
@@ -17,11 +27,47 @@ export default function FeedbackBar({
   explanation,
   onNext,
   theme,
+  combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  if (state === "idle") return null;
+  const owlScale = useSharedValue(0);
+  const owlRotate = useSharedValue(-20);
 
   const isCorrect = state === "correct";
+
+  // 올빼미 상태 계산
+  const owlState: OwlState =
+    isCorrect && combo >= 3
+      ? "combo"
+      : isCorrect
+        ? "correct"
+        : state === "wrong"
+          ? "wrong"
+          : "idle";
+
+  useEffect(() => {
+    if (state !== "idle") {
+      // 바 등장 후 살짝 딜레이 두고 owl이 통! 등장
+      owlScale.value = withDelay(
+        180,
+        withSpring(1, { damping: 7, stiffness: 220 }),
+      );
+      owlRotate.value = withDelay(
+        180,
+        withSpring(0, { damping: 9, stiffness: 200 }),
+      );
+    } else {
+      owlScale.value = 0;
+      owlRotate.value = -20;
+    }
+  }, [state]);
+
+  const owlAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: owlScale.value }, { rotate: `${owlRotate.value}deg` }],
+  }));
+
+  if (state === "idle") return null;
+
   const bg = isCorrect ? "#D7F5E3" : "#FFEBEB";
   const accent = isCorrect ? "#1CB454" : "#FF4B4B";
   const label = isCorrect ? t("lesson.correct") : t("lesson.wrong");
@@ -32,32 +78,39 @@ export default function FeedbackBar({
       exiting={FadeOutDown.duration(200)}
       style={[s.container, { backgroundColor: bg }]}
     >
-      <View style={s.top}>
-        <View style={s.labelRow}>
-          <Ionicons
-            name={isCorrect ? "checkmark-circle" : "close-circle"}
-            size={24}
-            color={accent}
-          />
-          <Text style={[s.label, { color: accent }]}>{label}</Text>
+      <View style={s.contentRow}>
+        <Animated.View style={[s.owlWrap, owlAnimStyle]}>
+          <OwlMascot state={owlState} size={72} />
+        </Animated.View>
+
+        <View style={s.textArea}>
+          <View style={s.labelRow}>
+            <Ionicons
+              name={isCorrect ? "checkmark-circle" : "close-circle"}
+              size={22}
+              color={accent}
+            />
+            <Text style={[s.label, { color: accent }]}>{label}</Text>
+          </View>
+          {!isCorrect && explanation && (
+            <View style={s.answerRow}>
+              <Text style={s.answerLabel}>{t("lesson.correctAnswer")}:</Text>
+              <Text style={s.answerText}>{explanation}</Text>
+            </View>
+          )}
+          {isCorrect && explanation && (
+            <View style={s.answerRow}>
+              <Text style={[s.answerLabel, { color: "#1CB454" }]}>
+                {t("lesson.meaning")}:
+              </Text>
+              <Text style={[s.answerText, { color: "#1CB454" }]}>
+                {explanation}
+              </Text>
+            </View>
+          )}
         </View>
-        {!isCorrect && explanation && (
-          <View style={s.answerRow}>
-            <Text style={s.answerLabel}>{t("lesson.correctAnswer")}:</Text>
-            <Text style={s.answerText}>{explanation}</Text>
-          </View>
-        )}
-        {isCorrect && explanation && (
-          <View style={s.answerRow}>
-            <Text style={[s.answerLabel, { color: "#1CB454" }]}>
-              {t("lesson.meaning")}:
-            </Text>
-            <Text style={[s.answerText, { color: "#1CB454" }]}>
-              {explanation}
-            </Text>
-          </View>
-        )}
       </View>
+
       <TouchableOpacity
         style={[s.btn, { backgroundColor: accent }]}
         onPress={onNext}
@@ -82,7 +135,19 @@ const s = StyleSheet.create({
     borderTopRightRadius: 24,
     gap: 16,
   },
-  top: { gap: 8 },
+  contentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  owlWrap: {
+    width: 72,
+    height: 72,
+  },
+  textArea: {
+    flex: 1,
+    gap: 6,
+  },
   labelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   label: { fontSize: 20, fontWeight: "800" },
   answerRow: { gap: 2 },

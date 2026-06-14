@@ -129,6 +129,7 @@ export default function LessonScreen() {
       answerState,
       onAnswer: handleAnswer,
       theme,
+      combo,
     };
     switch (currentQ.type) {
       case "sentence_builder":
@@ -205,6 +206,7 @@ export default function LessonScreen() {
         explanation={currentQ.explanation}
         onNext={handleNext}
         theme={theme}
+        combo={combo}
       />
 
       <ComboPopup combo={combo} />
