@@ -323,4 +323,17 @@ export default {
       },
     },
   },
+  lessonComplete: {
+    title: "Lesson Complete!",
+    totalXp: "Total XP",
+    claim: "Claim XP",
+    labels: {
+      perfect: "Perfect",
+      excellent: "Excellent",
+      good: "Good",
+      tryHarder: "Try Harder",
+      fast: "Fast",
+      speed: "Speed",
+    },
+  },
 };

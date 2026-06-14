@@ -323,4 +323,17 @@ export default {
       },
     },
   },
+  lessonComplete: {
+    title: "레슨 완료!",
+    totalXp: "총 XP",
+    claim: "XP 받기",
+    labels: {
+      perfect: "완벽해요",
+      excellent: "훌륭해요",
+      good: "좋아요",
+      tryHarder: "노력해요",
+      fast: "빠르게",
+      speed: "스피드",
+    },
+  },
 };

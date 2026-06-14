@@ -33,6 +33,13 @@ export default function RootLayout() {
         <Stack.Screen name="friends" />
         <Stack.Screen name="user-courses" />
         <Stack.Screen name="settings" />
+        <Stack.Screen
+          name="lesson-complete"
+          options={{
+            animation: "fade",
+            gestureEnabled: false, // 뒤로가기 막기
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

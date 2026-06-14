@@ -325,4 +325,17 @@ export default {
       },
     },
   },
+  lessonComplete: {
+    title: "Dars yakunlandi!",
+    totalXp: "Jami XP",
+    claim: "XP olish",
+    labels: {
+      perfect: "Zo'r",
+      excellent: "Ajoyib",
+      good: "Yaxshi",
+      tryHarder: "Tirishing",
+      fast: "Tez",
+      speed: "Tezlik",
+    },
+  },
 };

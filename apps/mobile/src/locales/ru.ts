@@ -324,4 +324,17 @@ export default {
       },
     },
   },
+  lessonComplete: {
+    title: "Урок завершён!",
+    totalXp: "Всего XP",
+    claim: "Получить XP",
+    labels: {
+      perfect: "Идеально",
+      excellent: "Отлично",
+      good: "Хорошо",
+      tryHarder: "Старайся",
+      fast: "Быстро",
+      speed: "Скорость",
+    },
+  },
 };
