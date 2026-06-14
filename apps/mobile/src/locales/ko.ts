@@ -213,4 +213,24 @@ export default {
       streakKing: "스트릭 왕",
     },
   },
+  friends: {
+    title: "친구",
+    tabs: {
+      following: "팔로잉",
+      followers: "팔로워",
+    },
+  },
+  userCourses: {
+    title: "{{name}}님의 과정",
+    list: {
+      english: "영어",
+      spanish: "스페인어",
+      chess: "체스",
+      japanese: "일본어",
+      chinese: "중국어",
+      russian: "러시아어",
+      music: "음악",
+      math: "수학",
+    },
+  },
 };

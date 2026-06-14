@@ -213,4 +213,24 @@ export default {
       streakKing: "Streak King",
     },
   },
+  friends: {
+    title: "Friends",
+    tabs: {
+      following: "Following",
+      followers: "Followers",
+    },
+  },
+  userCourses: {
+    title: "{{name}}'s Courses",
+    list: {
+      english: "English",
+      spanish: "Spanish",
+      chess: "Chess",
+      japanese: "Japanese",
+      chinese: "Chinese",
+      russian: "Russian",
+      music: "Music",
+      math: "Math",
+    },
+  },
 };

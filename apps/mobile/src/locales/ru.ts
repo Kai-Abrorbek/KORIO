@@ -214,4 +214,24 @@ export default {
       streakKing: "Король серий",
     },
   },
+  friends: {
+    title: "Друзья",
+    tabs: {
+      following: "Подписки",
+      followers: "Подписчики",
+    },
+  },
+  userCourses: {
+    title: "Курсы {{name}}",
+    list: {
+      english: "Английский",
+      spanish: "Испанский",
+      chess: "Шахматы",
+      japanese: "Японский",
+      chinese: "Китайский",
+      russian: "Русский",
+      music: "Музыка",
+      math: "Математика",
+    },
+  },
 };

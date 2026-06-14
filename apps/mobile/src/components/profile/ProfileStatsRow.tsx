@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import { useRouter } from "expo-router";
 
 interface Props {
   primaryFlag: string;
@@ -19,10 +20,14 @@ export default function ProfileStatsRow({
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const router = useRouter();
 
   return (
     <View style={styles.row}>
-      <View style={styles.cell}>
+      <Pressable
+        style={styles.cell}
+        onPress={() => router.push("/user-courses")}
+      >
         <View style={styles.flagRow}>
           <Text style={styles.flag}>{primaryFlag}</Text>
           {extraCount > 0 && (
@@ -32,17 +37,17 @@ export default function ProfileStatsRow({
           )}
         </View>
         <Text style={styles.label}>{t("profile.courses")}</Text>
-      </View>
+      </Pressable>
 
-      <View style={styles.cell}>
+      <Pressable style={styles.cell} onPress={() => router.push("/friends")}>
         <Text style={styles.value}>{following}</Text>
         <Text style={styles.label}>{t("profile.following")}</Text>
-      </View>
+      </Pressable>
 
-      <View style={styles.cell}>
+      <Pressable style={styles.cell} onPress={() => router.push("/friends")}>
         <Text style={styles.value}>{followers}</Text>
         <Text style={styles.label}>{t("profile.followers")}</Text>
-      </View>
+      </Pressable>
     </View>
   );
 }

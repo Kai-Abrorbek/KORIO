@@ -215,4 +215,24 @@ export default {
       streakKing: "Streak qiroli",
     },
   },
+  friends: {
+    title: "Do'stlar",
+    tabs: {
+      following: "Obunalar",
+      followers: "Obunachilar",
+    },
+  },
+  userCourses: {
+    title: "{{name}}ning kurslari",
+    list: {
+      english: "Ingliz tili",
+      spanish: "Ispan tili",
+      chess: "Shaxmat",
+      japanese: "Yapon tili",
+      chinese: "Xitoy tili",
+      russian: "Rus tili",
+      music: "Musiqa",
+      math: "Matematika",
+    },
+  },
 };
