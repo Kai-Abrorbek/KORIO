@@ -40,6 +40,13 @@ export default function RootLayout() {
             gestureEnabled: false, // 뒤로가기 막기
           }}
         />
+        <Stack.Screen
+          name="chest-reward"
+          options={{
+            animation: "fade",
+            gestureEnabled: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

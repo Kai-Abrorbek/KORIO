@@ -338,4 +338,16 @@ export default {
       speed: "Tezlik",
     },
   },
+  chestReward: {
+    titles: {
+      common: "Oddiy buyum",
+      rare: "Noyob buyum",
+      epic: "Afsonaviy buyum",
+    },
+    tapToUpgrade: "Yangilash uchun bosing!",
+    tap: "Bosing!",
+    oneChanceLeft: "1 imkoniyat qoldi!",
+    gemReward: "Tosh +{{count}}",
+    continue: "Davom etish",
+  },
 };

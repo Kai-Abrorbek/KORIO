@@ -337,4 +337,16 @@ export default {
       speed: "Скорость",
     },
   },
+  chestReward: {
+    titles: {
+      common: "Обычный предмет",
+      rare: "Редкий предмет",
+      epic: "Эпический предмет",
+    },
+    tapToUpgrade: "Нажмите, чтобы улучшить!",
+    tap: "Нажмите!",
+    oneChanceLeft: "Осталась 1 попытка!",
+    gemReward: "Камни +{{count}}",
+    continue: "Продолжить",
+  },
 };

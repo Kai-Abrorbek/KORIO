@@ -336,4 +336,16 @@ export default {
       speed: "Speed",
     },
   },
+  chestReward: {
+    titles: {
+      common: "Common Item",
+      rare: "Rare Item",
+      epic: "Epic Item",
+    },
+    tapToUpgrade: "Tap to upgrade!",
+    tap: "Tap!",
+    oneChanceLeft: "1 chance left!",
+    gemReward: "Gems +{{count}}",
+    continue: "Continue",
+  },
 };

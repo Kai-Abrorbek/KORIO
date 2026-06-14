@@ -336,4 +336,16 @@ export default {
       speed: "스피드",
     },
   },
+  chestReward: {
+    titles: {
+      common: "흔한템",
+      rare: "희귀템",
+      epic: "전설템",
+    },
+    tapToUpgrade: "탭하여 업그레이드하세요!",
+    tap: "탭하세요!",
+    oneChanceLeft: "기회가 1번 남았습니다!",
+    gemReward: "보석 +{{count}}개",
+    continue: "계속",
+  },
 };
