@@ -197,4 +197,20 @@ export default {
       diamond: "Diamond",
     },
   },
+  friendProfile: {
+    follow: "Follow",
+    following: "Following",
+    weeklyProgress: "Weekly Progress",
+    me: "Me",
+    report: "Report user",
+    block: "Block",
+    achievements: {
+      title: "Achievements",
+      explorer: "Explorer",
+      champion: "Champion",
+      scholar: "Scholar",
+      master: "Master",
+      streakKing: "Streak King",
+    },
+  },
 };

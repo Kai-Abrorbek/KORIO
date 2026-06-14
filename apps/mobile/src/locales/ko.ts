@@ -197,4 +197,20 @@ export default {
       diamond: "다이아몬드",
     },
   },
+  friendProfile: {
+    follow: "팔로우",
+    following: "팔로우 중",
+    weeklyProgress: "주간 진도",
+    me: "나",
+    report: "사용자 신고하기",
+    block: "차단하기",
+    achievements: {
+      title: "업적",
+      explorer: "탐험가",
+      champion: "챔피언",
+      scholar: "학자",
+      master: "마스터",
+      streakKing: "스트릭 왕",
+    },
+  },
 };

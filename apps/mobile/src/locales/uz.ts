@@ -199,4 +199,20 @@ export default {
       diamond: "Olmos",
     },
   },
+  friendProfile: {
+    follow: "Obuna bo'lish",
+    following: "Obuna bo'lingan",
+    weeklyProgress: "Haftalik o'sish",
+    me: "Men",
+    report: "Foydalanuvchini xabar qilish",
+    block: "Bloklash",
+    achievements: {
+      title: "Yutuqlar",
+      explorer: "Tadqiqotchi",
+      champion: "Chempion",
+      scholar: "Olim",
+      master: "Usta",
+      streakKing: "Streak qiroli",
+    },
+  },
 };

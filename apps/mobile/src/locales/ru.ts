@@ -198,4 +198,20 @@ export default {
       diamond: "Алмаз",
     },
   },
+  friendProfile: {
+    follow: "Подписаться",
+    following: "Вы подписаны",
+    weeklyProgress: "Прогресс за неделю",
+    me: "Я",
+    report: "Пожаловаться",
+    block: "Заблокировать",
+    achievements: {
+      title: "Достижения",
+      explorer: "Исследователь",
+      champion: "Чемпион",
+      scholar: "Учёный",
+      master: "Мастер",
+      streakKing: "Король серий",
+    },
+  },
 };
