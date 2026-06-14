@@ -17,11 +17,11 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
-import BoriMascot from "@/components/BoriMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 import { useEffect, useState } from "react";
-import CalendarModal from "@/components/CalendarModal";
-import FloatingAIButton from "@/components/FloatingAIButton";
-import AIChatModal from "@/components/AIChatModal";
+import CalendarModal from "@/components/home/CalendarModal";
+import FloatingAIButton from "@/components/home/FloatingAIButton";
+import AIChatModal from "@/components/home/AIChatModal";
 import { useRouter } from "expo-router";
 
 const today = new Date().getDay();

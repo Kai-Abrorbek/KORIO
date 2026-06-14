@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import BoriMascot from "@/components/BoriMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 import { CelebrationStyle } from "@/types/lesson-complete";
 
 interface Props {

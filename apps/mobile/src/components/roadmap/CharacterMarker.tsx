@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BoriMascot from "@/components/BoriMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 

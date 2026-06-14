@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "../store/auth.store";
-import KorioLogo from "../components/KorioLogo";
+import KorioLogo from "../components/home/KorioLogo";
 
 export default function SplashScreen() {
   const { isLoggedIn, user } = useAuthStore();

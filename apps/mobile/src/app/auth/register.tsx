@@ -17,7 +17,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { authService } from "@/services/auth.service";
-import KorioLogo from "@/components/KorioLogo";
+import KorioLogo from "@/components/home/KorioLogo";
 
 export default function RegisterScreen() {
   const { t } = useTranslation();

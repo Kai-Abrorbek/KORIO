@@ -7,7 +7,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { StyleSheet } from "react-native";
-import AnimatedProgressBar from "@/components/AnimatedProgressBar";
+import AnimatedProgressBar from "@/components/home/AnimatedProgressBar";
 
 const questions = [
   {

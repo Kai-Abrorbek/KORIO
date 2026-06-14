@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import BoriMascot from "../components/BoriMascot";
+import BoriMascot from "../components/home/BoriMascot";
 import { ThemeColors } from "../constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 

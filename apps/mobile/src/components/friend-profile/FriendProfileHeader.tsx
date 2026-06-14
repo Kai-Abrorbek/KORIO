@@ -12,7 +12,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/BoriMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 import SuperBadge from "@/components/ui/SuperBadge";
 import { League } from "@/types/profile";
 import { LEAGUE_HERO_COLORS } from "@/mocks/friend-profile.mock";

@@ -16,7 +16,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
 import { authService } from "@/services/auth.service";
-import KorioLogo from "@/components/KorioLogo";
+import KorioLogo from "@/components/home/KorioLogo";
 import KakaoIcon from "../../../assets/icons/kakaotalk.svg";
 import NaverIcon from "../../../assets/icons/naver.svg";
 import TelegramIcon from "../../../assets/icons/telegram.svg";

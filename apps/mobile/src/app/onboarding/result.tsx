@@ -22,7 +22,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
-import BoriMascot from "@/components/BoriMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
