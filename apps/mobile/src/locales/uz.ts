@@ -350,4 +350,29 @@ export default {
     gemReward: "Tosh +{{count}}",
     continue: "Davom etish",
   },
+  hangul: {
+    title: "Hangul ustasi",
+    hero: {
+      progress: "Bajarilgan",
+      learned: "{{learned}} / {{total}} o'rganildi",
+    },
+    tabs: {
+      consonants: "Undosh",
+      vowels: "Unli",
+    },
+    detail: {
+      listen: "Tinglash",
+      examples: "Misol so'zlar",
+      playGame: "O'yin orqali mashq",
+    },
+    startGame: "O'yin boshlash",
+    game: {
+      matchHint: "Bir xil harf va talaffuzni juftlang",
+      won: "Ajoyib!",
+      timeLabel: "Vaqt",
+      movesLabel: "Harakat",
+      playAgain: "Qayta o'ynash",
+      exit: "Chiqish",
+    },
+  },
 };

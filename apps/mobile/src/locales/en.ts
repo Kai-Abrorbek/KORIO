@@ -348,4 +348,29 @@ export default {
     gemReward: "Gems +{{count}}",
     continue: "Continue",
   },
+  hangul: {
+    title: "Hangul Master",
+    hero: {
+      progress: "Progress",
+      learned: "{{learned}} / {{total}} learned",
+    },
+    tabs: {
+      consonants: "Consonants",
+      vowels: "Vowels",
+    },
+    detail: {
+      listen: "Listen",
+      examples: "Example words",
+      playGame: "Practice with game",
+    },
+    startGame: "Start game",
+    game: {
+      matchHint: "Match the character with its pronunciation",
+      won: "Perfect!",
+      timeLabel: "Time",
+      movesLabel: "Moves",
+      playAgain: "Play again",
+      exit: "Exit",
+    },
+  },
 };

@@ -349,4 +349,29 @@ export default {
     gemReward: "Камни +{{count}}",
     continue: "Продолжить",
   },
+  hangul: {
+    title: "Мастер хангыля",
+    hero: {
+      progress: "Прогресс",
+      learned: "{{learned}} / {{total}} изучено",
+    },
+    tabs: {
+      consonants: "Согласные",
+      vowels: "Гласные",
+    },
+    detail: {
+      listen: "Слушать",
+      examples: "Примеры слов",
+      playGame: "Тренировка через игру",
+    },
+    startGame: "Начать игру",
+    game: {
+      matchHint: "Соедините букву с её произношением",
+      won: "Идеально!",
+      timeLabel: "Время",
+      movesLabel: "Ходы",
+      playAgain: "Играть ещё",
+      exit: "Выйти",
+    },
+  },
 };

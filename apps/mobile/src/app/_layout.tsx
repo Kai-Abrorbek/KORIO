@@ -47,6 +47,14 @@ export default function RootLayout() {
             gestureEnabled: false,
           }}
         />
+        <Stack.Screen
+          name="hangul"
+          options={{ animation: "slide_from_right" }}
+        />
+        <Stack.Screen
+          name="hangul-game"
+          options={{ animation: "fade", gestureEnabled: false }}
+        />
       </Stack>
     </ThemeProvider>
   );

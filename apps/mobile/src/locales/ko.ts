@@ -348,4 +348,29 @@ export default {
     gemReward: "보석 +{{count}}개",
     continue: "계속",
   },
+  hangul: {
+    title: "한글 마스터",
+    hero: {
+      progress: "진행률",
+      learned: "{{learned}} / {{total}} 학습 완료",
+    },
+    tabs: {
+      consonants: "자음",
+      vowels: "모음",
+    },
+    detail: {
+      listen: "들어보기",
+      examples: "예시 단어",
+      playGame: "게임으로 연습",
+    },
+    startGame: "게임 시작",
+    game: {
+      matchHint: "같은 글자와 발음을 짝지어 보세요",
+      won: "완벽!",
+      timeLabel: "시간",
+      movesLabel: "이동",
+      playAgain: "다시 도전",
+      exit: "그만하기",
+    },
+  },
 };
