@@ -13,7 +13,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const user = MOCK_PROFILE;
+  const user = MOCK_PROFILE; //TODO 나중에 실제 유저랑 교체
 
   return (
     <ScrollView

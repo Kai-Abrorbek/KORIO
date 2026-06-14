@@ -32,6 +32,7 @@ export default function RootLayout() {
         <Stack.Screen name="friend-profile" />
         <Stack.Screen name="friends" />
         <Stack.Screen name="user-courses" />
+        <Stack.Screen name="settings" />
       </Stack>
     </ThemeProvider>
   );

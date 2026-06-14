@@ -174,7 +174,13 @@ export default function LessonScreen() {
         total={lesson.questions.length}
         hearts={hearts}
         combo={combo}
-        onClose={() => router.back()}
+        onClose={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace("/");
+          }
+        }}
         theme={theme}
       />
 

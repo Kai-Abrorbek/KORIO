@@ -27,7 +27,13 @@ export default function UserCoursesScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/profile");
+            }
+          }}
           hitSlop={10}
           activeOpacity={0.7}
           style={styles.backBtn}

@@ -35,7 +35,13 @@ export default function CoursesScreen() {
       {/* 닫기 X */}
       <TouchableOpacity
         style={styles.closeBtn}
-        onPress={() => router.back()}
+        onPress={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace("/");
+          }
+        }}
         hitSlop={12}
         activeOpacity={0.7}
       >
@@ -84,7 +90,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     closeBtn: {
       position: "absolute",
-      top: 54,
+      top: 44,
       left: 16,
       zIndex: 10,
       padding: 6,

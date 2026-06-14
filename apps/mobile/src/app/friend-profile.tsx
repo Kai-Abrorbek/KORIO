@@ -31,7 +31,13 @@ export default function FriendProfileScreen() {
         name={user.name}
         league={user.league}
         isSuper={user.isSuper}
-        onBack={() => router.back()}
+        onBack={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace("/profile");
+          }
+        }}
         onShare={() => console.log("share")}
       />
 

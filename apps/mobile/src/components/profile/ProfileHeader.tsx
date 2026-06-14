@@ -13,6 +13,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import BoriMascot from "@/components/BoriMascot";
+import { useRouter } from "expo-router";
 
 interface Props {
   name: string;
@@ -29,9 +30,9 @@ export default function ProfileHeader({
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
-
   const bob = useSharedValue(0);
   const scale = useSharedValue(0.7);
+  const router = useRouter();
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 10, stiffness: 160 });
@@ -52,6 +53,20 @@ export default function ProfileHeader({
   return (
     <View style={styles.hero}>
       <View style={styles.topRow}>
+        <TouchableOpacity
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
+          hitSlop={10}
+          activeOpacity={0.7}
+          style={styles.backBtn}
+        >
+          <Ionicons name="chevron-back" size={28} color={theme.text} />
+        </TouchableOpacity>
         <Text style={styles.name} numberOfLines={1}>
           {name}
         </Text>
@@ -68,12 +83,12 @@ export default function ProfileHeader({
           </TouchableOpacity>
         </View>
       </View>
-
+      {/* 
       {isSuper && (
         <View style={styles.superBadge}>
           <Text style={styles.superText}>SUPER</Text>
         </View>
-      )}
+      )} */}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
         <BoriMascot size={200} />
@@ -95,6 +110,13 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      gap: 10,
+    },
+    backBtn: {
+      width: 32,
+      height: 32,
+      alignItems: "center",
+      justifyContent: "center",
     },
     name: {
       flex: 1,

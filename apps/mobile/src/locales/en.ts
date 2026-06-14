@@ -233,4 +233,94 @@ export default {
       math: "Math",
     },
   },
+  settings: {
+    title: "Settings",
+    version: "App version: {{version}}",
+    user: {
+      subscribe: "Subscribe to Premium",
+      freeTooltip: "Right now!",
+      freeTooltipDesc: "Try 7 days for free!",
+    },
+    quickActions: {
+      authCode: "Code",
+      friends: "Friends",
+    },
+    guest: {
+      title: "You're in guest mode.",
+      description:
+        "If you uninstall KORIO from this device, you may lose your study data! Sign up to keep it safe.",
+      login: "Log in with existing account",
+      signup: "Sign up",
+    },
+    items: {
+      display: {
+        title: "Display",
+        description: "Dark mode, study screen theme",
+      },
+      notifications: {
+        title: "Notifications",
+        description: "Study time, report, league notifications",
+      },
+      sound: {
+        title: "Sound & Effects",
+        description: "Study audio and sound effects",
+      },
+      favorites: {
+        title: "Favorites",
+        description: "Study modes shown on home",
+      },
+      vocab: {
+        title: "Vocabulary",
+        description: "Quiz style, wordbook, difficulty",
+      },
+      grammar: {
+        title: "Grammar",
+        description: "Daily goal, audio speed and volume",
+      },
+      expression: {
+        title: "Expression",
+        description: "Settings, audio speed and volume",
+      },
+      conversation: {
+        title: "Conversation",
+        description: "Settings, audio and sound effects",
+      },
+      listening: {
+        title: "Listening",
+        description: "Mode, pronunciation, practice settings",
+      },
+      league: {
+        title: "League",
+        description: "Participation, rank change notifications",
+      },
+      report: {
+        title: "Study Report",
+        description: "Sharing and arrival notifications",
+      },
+      account: {
+        title: "Account",
+        description: "Account code, linked accounts, goals",
+      },
+      subscription: {
+        title: "Subscription",
+        description: "Restore purchases, info, coupons",
+      },
+      help: {
+        title: "Help Center",
+        description: "Support, certificates, announcements",
+      },
+      language: {
+        title: "Language",
+        description: "Default language",
+      },
+      lab: {
+        title: "Lab",
+        description: "Features KORIO is experimenting with",
+      },
+      update: {
+        title: "Update History",
+        description: "App version: {{version}}",
+      },
+    },
+  },
 };

@@ -235,4 +235,94 @@ export default {
       math: "Matematika",
     },
   },
+  settings: {
+    title: "Sozlamalar",
+    version: "Ilova versiyasi: {{version}}",
+    user: {
+      subscribe: "Premium obunani sotib olish",
+      freeTooltip: "Hozir oling!",
+      freeTooltipDesc: "7 kun bepul sinab ko'ring!",
+    },
+    quickActions: {
+      authCode: "Kod",
+      friends: "Do'stlar",
+    },
+    guest: {
+      title: "Siz mehmon holatidasiz.",
+      description:
+        "KORIO ilovasini qurilmangizdan o'chirsangiz, o'qish ma'lumotlaringiz yo'qolishi mumkin! Ma'lumotlaringizni saqlash uchun ro'yxatdan o'ting.",
+      login: "Mavjud akkaunt bilan kirish",
+      signup: "Ro'yxatdan o'tish",
+    },
+    items: {
+      display: {
+        title: "Ko'rinish",
+        description: "Tungi rejim, mavzu sozlamalari",
+      },
+      notifications: {
+        title: "Bildirishnomalar",
+        description: "O'qish vaqti va hisobot bildirishnomalari",
+      },
+      sound: {
+        title: "Ovoz va effektlar",
+        description: "Ovoz va effekt sozlamalari",
+      },
+      favorites: {
+        title: "Sevimlilar",
+        description: "Bosh sahifada ko'rsatiladigan rejim",
+      },
+      vocab: {
+        title: "Lug'at o'qishi",
+        description: "Viktorina, lug'at, qiyinlik darajasi",
+      },
+      grammar: {
+        title: "Grammatika",
+        description: "Kunlik maqsad, ovoz tezligi sozlamalari",
+      },
+      expression: {
+        title: "Iboralar",
+        description: "Sozlamalar, ovoz tezligi va volum",
+      },
+      conversation: {
+        title: "Suhbat o'qishi",
+        description: "Sozlamalar, ovoz va effekt volumi",
+      },
+      listening: {
+        title: "Tinglash",
+        description: "Rejim, talaffuz tanish, mashq sozlamalari",
+      },
+      league: {
+        title: "Liga",
+        description: "Ishtirok va o'rin o'zgarishi bildirishnomalari",
+      },
+      report: {
+        title: "O'qish hisoboti",
+        description: "Hisobotni ulashish va kelganda xabar",
+      },
+      account: {
+        title: "Akkauntni boshqarish",
+        description: "Unikal kod, akkaunt ulanishi, maqsad",
+      },
+      subscription: {
+        title: "Obuna boshqaruvi",
+        description: "Xaridlarni tiklash, obuna, kupon",
+      },
+      help: {
+        title: "Yordam markazi",
+        description: "Yordam, sertifikat, e'lonlar",
+      },
+      language: {
+        title: "Til",
+        description: "Asosiy til sozlamasi",
+      },
+      lab: {
+        title: "Laboratoriya",
+        description: "KORIO sinab ko'rayotgan yangi funksiyalar",
+      },
+      update: {
+        title: "Yangilanish tarixi",
+        description: "Ilova versiyasi: {{version}}",
+      },
+    },
+  },
 };

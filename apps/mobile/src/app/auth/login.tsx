@@ -60,7 +60,13 @@ export default function LoginScreen() {
       >
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
         >
           <Ionicons name="chevron-back" size={24} color={theme.text} />
         </TouchableOpacity>

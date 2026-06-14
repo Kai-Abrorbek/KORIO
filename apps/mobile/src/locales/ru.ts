@@ -234,4 +234,94 @@ export default {
       math: "Математика",
     },
   },
+  settings: {
+    title: "Настройки",
+    version: "Версия приложения: {{version}}",
+    user: {
+      subscribe: "Подписаться на Премиум",
+      freeTooltip: "Прямо сейчас!",
+      freeTooltipDesc: "Попробуйте 7 дней бесплатно!",
+    },
+    quickActions: {
+      authCode: "Код",
+      friends: "Друзья",
+    },
+    guest: {
+      title: "Вы в режиме гостя.",
+      description:
+        "Если удалить KORIO с устройства, данные обучения могут быть потеряны! Зарегистрируйтесь, чтобы их сохранить.",
+      login: "Войти с существующим аккаунтом",
+      signup: "Регистрация",
+    },
+    items: {
+      display: {
+        title: "Экран",
+        description: "Тёмный режим, тема экрана",
+      },
+      notifications: {
+        title: "Уведомления",
+        description: "Время, отчёты, лига",
+      },
+      sound: {
+        title: "Звук и эффекты",
+        description: "Настройки звука и эффектов",
+      },
+      favorites: {
+        title: "Избранное",
+        description: "Режимы на главной",
+      },
+      vocab: {
+        title: "Лексика",
+        description: "Викторина, словарь, сложность",
+      },
+      grammar: {
+        title: "Грамматика",
+        description: "Дневная цель, скорость и громкость",
+      },
+      expression: {
+        title: "Выражения",
+        description: "Настройки, скорость и громкость",
+      },
+      conversation: {
+        title: "Разговор",
+        description: "Настройки, звук и эффекты",
+      },
+      listening: {
+        title: "Аудирование",
+        description: "Режим, распознавание, практика",
+      },
+      league: {
+        title: "Лига",
+        description: "Участие, уведомления о ранге",
+      },
+      report: {
+        title: "Отчёт обучения",
+        description: "Поделиться, уведомления о приходе",
+      },
+      account: {
+        title: "Аккаунт",
+        description: "Код, привязка, цели",
+      },
+      subscription: {
+        title: "Подписка",
+        description: "Восстановить покупки, инфо, купоны",
+      },
+      help: {
+        title: "Поддержка",
+        description: "Помощь, сертификаты, объявления",
+      },
+      language: {
+        title: "Язык",
+        description: "Язык по умолчанию",
+      },
+      lab: {
+        title: "Лаборатория",
+        description: "Экспериментальные функции KORIO",
+      },
+      update: {
+        title: "История обновлений",
+        description: "Версия: {{version}}",
+      },
+    },
+  },
 };

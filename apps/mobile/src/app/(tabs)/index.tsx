@@ -10,7 +10,6 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   FadeInDown,
   useSharedValue,
-  useAnimatedStyle,
   withRepeat,
   withSequence,
   withTiming,
@@ -61,11 +60,6 @@ export default function HomeScreen() {
     );
   }, []);
 
-  const aiGlowStyle = useAnimatedStyle(() => ({
-    shadowOpacity: aiPulse.value,
-    shadowRadius: 20,
-  }));
-
   const DAYS = t("home.days", { returnObjects: true }) as string[];
   const categories = [
     { key: "vocab", color: "#776ee2" },
@@ -87,14 +81,14 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* 상단 헤더 */}
         <View style={styles.header}>
-          <TouchableOpacity>
-            <Ionicons name="menu" size={24} color={theme.text} />
+          <TouchableOpacity onPress={() => router.push("/settings")}>
+            <Ionicons name="menu" size={30} color={theme.text} />
           </TouchableOpacity>
-          <Text style={styles.username}>{user?.nickname ?? "Kai"}</Text>
+          <Text style={styles.username}>{user?.nickname}</Text>
           <TouchableOpacity>
             <Ionicons
               name="notifications-outline"
-              size={24}
+              size={30}
               color={theme.text}
             />
           </TouchableOpacity>
@@ -168,7 +162,11 @@ export default function HomeScreen() {
         >
           {/* 우측 아이콘 버튼들 */}
           <View style={styles.lessonSideButtons}>
-            <TouchableOpacity style={styles.lessonSideBtn} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.lessonSideBtn}
+              activeOpacity={0.7}
+              onPress={() => router.push("/profile")}
+            >
               <Ionicons name="person-outline" size={22} color={theme.primary} />
             </TouchableOpacity>
             <TouchableOpacity
@@ -178,7 +176,13 @@ export default function HomeScreen() {
             >
               <Ionicons name="book-outline" size={22} color={theme.primary} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.lessonSideBtn} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.lessonSideBtn}
+              activeOpacity={0.7}
+              onPress={() => {
+                router.push("/settings");
+              }}
+            >
               <Ionicons
                 name="settings-outline"
                 size={22}

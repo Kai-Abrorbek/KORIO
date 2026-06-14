@@ -233,4 +233,94 @@ export default {
       math: "수학",
     },
   },
+  settings: {
+    title: "설정",
+    version: "앱 버전: {{version}}",
+    user: {
+      subscribe: "프리미엄 멤버십 구독하기",
+      freeTooltip: "지금 바로!",
+      freeTooltipDesc: "7일 무료 체험해 보세요!",
+    },
+    quickActions: {
+      authCode: "인증번호",
+      friends: "친구 관리",
+    },
+    guest: {
+      title: "현재 게스트 상태입니다.",
+      description:
+        "KORIO를 해당 기기에서 삭제하면 학습 데이터를 잃을 수 있어요! 회원가입 해서 학습 내용을 안전하게 보관하세요!",
+      login: "기존 계정으로 로그인",
+      signup: "회원가입",
+    },
+    items: {
+      display: {
+        title: "화면",
+        description: "다크 모드 설정, 학습 화면 테마",
+      },
+      notifications: {
+        title: "알림",
+        description: "학습 시간 및 학습 리포트, 리그 알림",
+      },
+      sound: {
+        title: "음성 및 효과음",
+        description: "학습 음성 및 효과음 설정",
+      },
+      favorites: {
+        title: "즐겨찾기",
+        description: "홈에 표시할 학습 모드 설정",
+      },
+      vocab: {
+        title: "어휘 학습",
+        description: "퀴즈 방식, 단어장 변경, 난이도 및 복습 단어 비율 조정",
+      },
+      grammar: {
+        title: "문법 학습",
+        description: "일일 학습 목표, 음성 속도 및 볼륨 설정",
+      },
+      expression: {
+        title: "표현 학습",
+        description: "학습 설정, 음성 속도 및 볼륨 설정",
+      },
+      conversation: {
+        title: "실전 회화 학습",
+        description: "학습 설정, 음성 및 효과음 볼륨 설정",
+      },
+      listening: {
+        title: "리스닝 학습",
+        description: "학습 모드, 발음 인식 기준, 발음 구분 연습 설정",
+      },
+      league: {
+        title: "리그",
+        description: "참여 여부, 순위 변동 알림 설정",
+      },
+      report: {
+        title: "학습 리포트",
+        description: "학습 리포트 공유 및 학습 리포트 도착 알림 설정",
+      },
+      account: {
+        title: "계정 관리",
+        description: "고유 계정 코드, 계정 연결, 학습 목적",
+      },
+      subscription: {
+        title: "멤버십/구독 관리",
+        description: "구매 내역 복구, 구독 정보 관리, 쿠폰 등록",
+      },
+      help: {
+        title: "고객지원",
+        description: "고객센터, 수강증/출석증 발급, 공지사항",
+      },
+      language: {
+        title: "언어",
+        description: "기본 언어 설정",
+      },
+      lab: {
+        title: "실험실",
+        description: "KORIO가 실험 중인 기능들",
+      },
+      update: {
+        title: "업데이트 히스토리",
+        description: "앱 버전: {{version}}",
+      },
+    },
+  },
 };
