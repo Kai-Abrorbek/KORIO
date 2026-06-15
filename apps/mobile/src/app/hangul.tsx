@@ -23,6 +23,7 @@ import MasteryCard from "@/components/hangul/MasteryCard";
 import CategoryTabs from "@/components/hangul/CategoryTabs";
 import CharacterCard from "@/components/hangul/CharacterCard";
 import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
+import GameMenu from "@/components/hangul/games/GameMenu";
 
 export default function HangulScreen() {
   const { t } = useTranslation();
@@ -101,14 +102,7 @@ export default function HangulScreen() {
       </ScrollView>
 
       {/* FAB - 게임 시작 */}
-      <TouchableOpacity
-        style={styles.fab}
-        activeOpacity={0.85}
-        onPress={goToGame}
-      >
-        <Ionicons name="game-controller" size={22} color="#fff" />
-        <Text style={styles.fabText}>{t("hangul.startGame")}</Text>
-      </TouchableOpacity>
+      <GameMenu />
 
       {/* 디테일 시트 */}
       <CharacterDetailSheet

@@ -388,6 +388,27 @@ export default {
       clear: "Tozalash",
       exit: "Chiqish",
     },
+    games: {
+      memory: "Xotira", // uz: "Xotira", en: "Memory", ru: "Память"
+      drawing: "Chizish", // uz: "Chizish", en: "Draw", ru: "Рисовать"
+      slot: "Slot", // uz: "Slot", en: "Slot", ru: "Слот"
+      speed: "Tezlik",
+    },
+    speed: {
+      getReady: "Tayyor",
+      go: "Boshla!",
+      score: "Ball",
+      combo: "Kombo",
+      timeUp: "Vaqt tugadi!",
+      finalScore: "Yakuniy ball",
+      correct: "To'g'ri",
+      maxCombo: "Eng yuqori kombo",
+      accuracy: "Aniqlik",
+      bestScore: "Rekord: {{score}}",
+      newBest: "Yangi rekord!",
+      playAgain: "Qayta o'ynash",
+      exit: "Chiqish",
+    },
   },
   wordChain: {
     title: "So'z zanjiri",

@@ -65,6 +65,10 @@ export default function RootLayout() {
             name="hangul-drawing"
             options={{ animation: "fade", gestureEnabled: false }}
           />
+          <Stack.Screen
+            name="speed-round"
+            options={{ animation: "fade", gestureEnabled: false }}
+          />
         </Stack>
       </ThemeProvider>
     </SoundProvider>

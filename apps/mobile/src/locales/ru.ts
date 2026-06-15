@@ -387,6 +387,27 @@ export default {
       clear: "Очистить",
       exit: "Выход",
     },
+    games: {
+      memory: "Память", // uz: "Xotira", en: "Memory", ru: "Память"
+      drawing: "Рисовать", // uz: "Chizish", en: "Draw", ru: "Рисовать"
+      slot: "Слот", // uz: "Slot", en: "Slot", ru: "Слот"
+      speed: "Скорость",
+    },
+    speed: {
+      getReady: "Готовьтесь",
+      go: "Старт!",
+      score: "Очки",
+      combo: "Комбо",
+      timeUp: "Время вышло!",
+      finalScore: "Итоговый счёт",
+      correct: "Правильно",
+      maxCombo: "Макс. комбо",
+      accuracy: "Точность",
+      bestScore: "Рекорд: {{score}}",
+      newBest: "Новый рекорд!",
+      playAgain: "Играть снова",
+      exit: "Выход",
+    },
   },
   wordChain: {
     title: "Цепочка слов",

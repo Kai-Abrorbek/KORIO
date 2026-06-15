@@ -386,6 +386,27 @@ export default {
       clear: "지우기",
       exit: "그만하기",
     },
+    games: {
+      memory: "메모리", // uz: "Xotira", en: "Memory", ru: "Память"
+      drawing: "그리기", // uz: "Chizish", en: "Draw", ru: "Рисовать"
+      slot: "슬롯",
+      speed: "스피드",
+    },
+    speed: {
+      getReady: "준비",
+      go: "시작!",
+      score: "점수",
+      combo: "콤보",
+      timeUp: "시간 끝!",
+      finalScore: "최종 점수",
+      correct: "정답",
+      maxCombo: "최고 콤보",
+      accuracy: "정확도",
+      bestScore: "최고 기록: {{score}}",
+      newBest: "신기록!",
+      playAgain: "다시 도전",
+      exit: "그만하기",
+    },
   },
   wordChain: {
     title: "끝말잇기",
