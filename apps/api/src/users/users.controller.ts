@@ -20,37 +20,22 @@ export class UsersController {
 
   @Get('me')
   async getMe(@Request() req) {
-    return this.usersService.getMe(req.user.userId);
+    return this.usersService.getMe(req.user._id.toString());
   }
 
   @Patch('me')
   async updateMe(@Request() req, @Body() dto: any) {
-    return this.usersService.updateMe(req.user.userId, dto);
+    return this.usersService.updateMe(req.user._id.toString(), dto);
   }
 
   @Get('me/following')
   async getFollowing(@Request() req) {
-    return this.usersService.getFollowing(req.user.userId);
+    return this.usersService.getFollowing(req.user._id.toString());
   }
 
   @Get('me/followers')
   async getFollowers(@Request() req) {
-    return this.usersService.getFollowers(req.user.userId);
-  }
-
-  @Post('follow/:id')
-  async follow(@Request() req, @Param('id') targetId: string) {
-    return this.usersService.follow(req.user.userId, targetId);
-  }
-
-  @Delete('follow/:id')
-  async unfollow(@Request() req, @Param('id') targetId: string) {
-    return this.usersService.unfollow(req.user.userId, targetId);
-  }
-
-  @Get(':id')
-  async getUserById(@Request() req, @Param('id') id: string) {
-    return this.usersService.getUserById(id, req.user.userId);
+    return this.usersService.getFollowers(req.user._id.toString());
   }
 
   @Get('me/calendar')
@@ -61,11 +46,54 @@ export class UsersController {
   ) {
     const y = parseInt(year, 10);
     const m = parseInt(month, 10);
-    return this.usersService.getCalendar(req.user.userId, y, m);
+    return this.usersService.getCalendar(req.user._id.toString(), y, m);
   }
 
   @Get('me/stats/weekly')
   async getWeekly(@Request() req, @Query('date') date?: string) {
-    return this.usersService.getWeeklyStats(req.user.userId, date);
+    return this.usersService.getWeeklyStats(req.user._id.toString(), date);
+  }
+
+  @Get('me/stats/period')
+  async getPeriodStats(
+    @Request() req,
+    @Query('endDate') endDate?: string,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.usersService.getPeriodStats(
+      req.user._id.toString(),
+      endDate,
+      lang,
+    );
+  }
+
+  @Get('me/stats/category')
+  async getCategoryStats(
+    @Request() req,
+    @Query('category') category: string,
+    @Query('endDate') endDate?: string,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.usersService.getCategoryStats(
+      req.user._id.toString(),
+      category,
+      endDate,
+      lang,
+    );
+  }
+
+  @Post('follow/:id')
+  async follow(@Request() req, @Param('id') targetId: string) {
+    return this.usersService.follow(req.user._id.toString(), targetId);
+  }
+
+  @Delete('follow/:id')
+  async unfollow(@Request() req, @Param('id') targetId: string) {
+    return this.usersService.unfollow(req.user._id.toString(), targetId);
+  }
+
+  @Get(':id')
+  async getUserById(@Request() req, @Param('id') id: string) {
+    return this.usersService.getUserById(id, req.user._id.toString());
   }
 }

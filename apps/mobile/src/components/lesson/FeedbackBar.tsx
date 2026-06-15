@@ -92,18 +92,22 @@ export default function FeedbackBar({
             />
             <Text style={[s.label, { color: accent }]}>{label}</Text>
           </View>
-          {!isCorrect && explanation && (
+          {!!explanation && (
             <View style={s.answerRow}>
-              <Text style={s.answerLabel}>{t("lesson.correctAnswer")}:</Text>
-              <Text style={s.answerText}>{explanation}</Text>
-            </View>
-          )}
-          {isCorrect && explanation && (
-            <View style={s.answerRow}>
-              <Text style={[s.answerLabel, { color: "#1CB454" }]}>
-                {t("lesson.meaning")}:
+              <Text
+                style={[
+                  s.answerLabel,
+                  { color: isCorrect ? "#1CB454" : "#888" },
+                ]}
+              >
+                {isCorrect ? t("lesson.meaning") : t("lesson.correctAnswer")}
               </Text>
-              <Text style={[s.answerText, { color: "#1CB454" }]}>
+              <Text
+                style={[
+                  s.answerText,
+                  { color: isCorrect ? "#1CB454" : "#333" },
+                ]}
+              >
                 {explanation}
               </Text>
             </View>

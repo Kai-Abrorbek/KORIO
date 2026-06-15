@@ -13,11 +13,13 @@ export interface HeatmapDay {
 }
 
 export interface TimePoint {
+  date: string;
   label: string;
   minutes: number;
 }
 
 export interface VolumePoint {
+  date: string;
   label: string;
   vocab: number;
   grammar: number;
@@ -27,6 +29,7 @@ export interface VolumePoint {
 }
 
 export interface CategoryDailyPoint {
+  date: string;
   label: string;
   newWords: number;
   knownWords: number;

@@ -20,7 +20,7 @@ export class LessonsController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getLessons(@Request() req) {
-    return this.lessonsService.getLessons(req.user.userId);
+    return this.lessonsService.getLessons(req.user._id.toString());
   }
 
   // 레벨 테스트 문제
@@ -32,7 +32,7 @@ export class LessonsController {
   @UseGuards(JwtAuthGuard)
   @Get('roadmap')
   async getRoadmap(@Request() req, @Query('lang') lang: string = 'uz') {
-    return this.lessonsService.getRoadmap(req.user.userId, lang);
+    return this.lessonsService.getRoadmap(req.user._id.toString(), lang);
   }
 
   // 레슨 완료 저장
@@ -43,7 +43,7 @@ export class LessonsController {
     @Body() dto: CompleteLessonDto,
     @Request() req,
   ) {
-    return this.lessonsService.completeLesson(id, req.user.userId, dto);
+    return this.lessonsService.completeLesson(id, req.user._id.toString(), dto);
   }
 
   // 레슨 상세 + 문제들

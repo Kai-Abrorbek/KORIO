@@ -1,9 +1,15 @@
-import { useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { useState, useCallback, useEffect } from "react";
+import { View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_STATS } from "@/mocks/stats.mock";
-import { StatsTab } from "@/types/stats";
+import {
+  PeriodStats,
+  CategoryStats,
+  StatsTab,
+  StudyCategory,
+} from "@/types/stats";
+import { StatsService } from "@/services/stats.service";
 import StatsHeader from "@/components/stats/StatsHeader";
 import TopTabs from "@/components/stats/TopTabs";
 import PeriodView from "@/components/stats/period/PeriodView";
@@ -14,7 +20,65 @@ export default function StatsScreen() {
   const styles = getStyles(theme);
   const [tab, setTab] = useState<StatsTab>("period");
 
-  const stats = MOCK_STATS;
+  const [periodData, setPeriodData] = useState<PeriodStats | null>(null);
+  const [categoryData, setCategoryData] = useState<Record<
+    StudyCategory,
+    CategoryStats
+  > | null>(null);
+  const [loadingPeriod, setLoadingPeriod] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+
+  const loadPeriod = async () => {
+    try {
+      setLoadingPeriod(true);
+      const data = await StatsService.getPeriod();
+      setPeriodData(data);
+    } catch (err) {
+      console.error("period stats 실패:", err);
+    } finally {
+      setLoadingPeriod(false);
+    }
+  };
+
+  const loadAllCategories = async () => {
+    try {
+      setLoadingCategory(true);
+      const categories: StudyCategory[] = [
+        "vocab",
+        "grammar",
+        "expression",
+        "conversation",
+        "listening",
+      ];
+      const results = await Promise.all(
+        categories.map((c) => StatsService.getCategory(c)),
+      );
+      const byType = categories.reduce(
+        (acc, c, i) => {
+          acc[c] = results[i];
+          return acc;
+        },
+        {} as Record<StudyCategory, CategoryStats>,
+      );
+      setCategoryData(byType);
+    } catch (err) {
+      console.error("category stats 실패:", err);
+    } finally {
+      setLoadingCategory(false);
+    }
+  };
+
+  // 화면 진입할 때마다 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      loadPeriod();
+      loadAllCategories();
+    }, []),
+  );
+
+  const isLoading =
+    (tab === "period" && loadingPeriod && !periodData) ||
+    (tab === "category" && loadingCategory && !categoryData);
 
   return (
     <View style={styles.container}>
@@ -26,10 +90,14 @@ export default function StatsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {tab === "period" ? (
-          <PeriodView data={stats.period} />
+        {isLoading ? (
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator size="large" color={theme.primary} />
+          </View>
+        ) : tab === "period" ? (
+          periodData && <PeriodView data={periodData} />
         ) : (
-          <CategoryView data={stats.categoryByType} />
+          categoryData && <CategoryView data={categoryData} />
         )}
       </ScrollView>
     </View>
@@ -48,5 +116,10 @@ const getStyles = (theme: ThemeColors) =>
     scrollContent: {
       paddingTop: 16,
       paddingBottom: 140,
+    },
+    loadingWrap: {
+      paddingTop: 80,
+      alignItems: "center",
+      justifyContent: "center",
     },
   });

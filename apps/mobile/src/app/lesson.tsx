@@ -10,7 +10,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { AnswerState, LessonSession } from "@/types/lesson";
+import { AnswerState, LessonQuestion, LessonSession } from "@/types/lesson";
 import { LessonService } from "@/services/lesson.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
@@ -37,6 +37,10 @@ export default function LessonScreen() {
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const [hearts, setHearts] = useState(3);
   const [combo, setCombo] = useState(0);
+  const questionQueue = useRef<LessonQuestion[]>([]);
+  const retryCount = useRef<Record<string, number>>({});
+  const uniqueCorrect = useRef<Set<string>>(new Set());
+  const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
   const wrongIds = useRef<string[]>([]);
   const correctCount = useRef(0);
@@ -49,24 +53,21 @@ export default function LessonScreen() {
   const loadLesson = async () => {
     try {
       setLoading(true);
-      if (lessonId) {
-        // 실제 API
-        const data = await LessonService.getLessonById(lessonId);
-        setLesson(data);
-      } else {
-        // lessonId 없으면 mock (개발용)
-        setLesson(MOCK_LESSON);
-      }
+      const data = lessonId
+        ? await LessonService.getLessonById(lessonId)
+        : MOCK_LESSON;
+      setLesson(data);
+      questionQueue.current = [...data.questions]; // 큐 초기화
     } catch (err) {
       console.error("레슨 로드 실패:", err);
-      // API 실패 시 mock으로 fallback
       setLesson(MOCK_LESSON);
+      questionQueue.current = [...MOCK_LESSON.questions];
     } finally {
       setLoading(false);
     }
   };
 
-  const currentQ = lesson?.questions[currentIdx];
+  const currentQ = questionQueue.current[0];
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
     let isCorrect = false;
@@ -81,13 +82,35 @@ export default function LessonScreen() {
     }
 
     totalCount.current += 1;
+
+    if (isCorrect) {
+      if (!uniqueCorrect.current.has(currentQ.id)) {
+        uniqueCorrect.current.add(currentQ.id);
+        setProgress(
+          uniqueCorrect.current.size / (lesson?.questions.length ?? 1),
+        );
+      }
+      setCombo((c) => c + 1);
+    }
+
     if (isCorrect) {
       correctCount.current += 1;
       setCombo((c) => c + 1);
     } else {
       setCombo(0);
-      setHearts((h) => Math.max(0, h - 1));
-      wrongIds.current.push(currentQ.id);
+
+      const id = currentQ.id;
+      retryCount.current[id] = (retryCount.current[id] ?? 0) + 1;
+
+      if (retryCount.current[id] >= 3) {
+        // 3번 틀리면 포기 → wrongIds에만 넣고 큐에 안 넣음
+        if (!wrongIds.current.includes(id)) {
+          wrongIds.current.push(id);
+        }
+      } else {
+        // 큐 맨 끝에 추가
+        questionQueue.current = [...questionQueue.current, currentQ];
+      }
     }
 
     setAnswerState(isCorrect ? "correct" : "wrong");
@@ -96,29 +119,37 @@ export default function LessonScreen() {
   const handleNext = async () => {
     if (!lesson) return;
 
-    if (currentIdx + 1 >= lesson.questions.length) {
-      // 레슨 완료 → 백엔드에 저장
+    // 큐에서 현재 문제 제거
+    const [, ...remaining] = questionQueue.current;
+    questionQueue.current = remaining;
+
+    console.log("안 비었씀==========", questionQueue.current.length);
+    if (questionQueue.current.length === 0) {
+      // 큐 비었으면 종료 조건 체크
+      const isCompleted = wrongIds.current.length <= 3;
+
       if (lessonId) {
         try {
-          const result = await LessonService.completeLesson(lessonId, {
+          await LessonService.completeLesson(lessonId, {
             correctAnswers: correctCount.current,
             totalAnswers: totalCount.current,
             xpEarned: correctCount.current * 15,
             combo,
             speedSeconds: Math.round((Date.now() - startTime.current) / 1000),
             wrongQuestionIds: wrongIds.current,
-            isCompleted: hearts > 0,
+            isCompleted,
           });
-          console.log("✅ 레슨 완료 저장됨:", result);
+          console.log("✅ 레슨 완료 저장");
         } catch (err) {
           console.error("❌ 레슨 완료 저장 실패:", err);
-          // 에러 보여줄지 결정 (지금은 그냥 뒤로감)
         }
       }
+      console.log("비었씀==========");
       router.back();
       return;
     }
 
+    // 다음 문제로
     setCurrentIdx((i) => i + 1);
     setAnswerState("idle");
   };
@@ -173,10 +204,7 @@ export default function LessonScreen() {
   return (
     <View style={s.container}>
       <LessonHeader
-        progress={
-          (currentIdx + (answerState !== "idle" ? 1 : 0)) /
-          lesson.questions.length
-        }
+        progress={progress}
         total={lesson.questions.length}
         hearts={hearts}
         combo={combo}
