@@ -24,26 +24,17 @@ import FloatingAIButton from "@/components/home/FloatingAIButton";
 import AIChatModal from "@/components/home/AIChatModal";
 import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
+import { StatsService, DayStats } from "@/services/stats.service";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
-
-const weeklyData = [
-  { vocab: 20, grammar: 15 },
-  { vocab: 30, grammar: 20 },
-  { vocab: 10, grammar: 10 },
-  { vocab: 40, grammar: 25 },
-  { vocab: 50, grammar: 35 },
-  { vocab: 0, grammar: 0 },
-  { vocab: 0, grammar: 0 },
-];
-const maxData = Math.max(...weeklyData.map((d) => d.vocab + d.grammar));
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [weekly, setWeekly] = useState<DayStats[]>([]);
   const [chatVisible, setChatVisible] = useState(false);
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
@@ -67,7 +58,15 @@ export default function HomeScreen() {
       UserService.getMe()
         .then((me) => updateUser(me as any))
         .catch((err) => console.error("getMe 실패:", err));
+      StatsService.getWeekly()
+        .then((data) => setWeekly(data.days))
+        .catch((err) => console.error("weekly 실패:", err));
     }, []),
+  );
+
+  const maxData = Math.max(
+    1,
+    ...weekly.map((d) => d.vocabularyCount + d.grammarCount),
   );
 
   const DAYS = t("home.days", { returnObjects: true }) as string[];
@@ -271,11 +270,12 @@ export default function HomeScreen() {
           </View>
           <View style={styles.chartRow}>
             {DAYS.map((day, i) => {
-              const total = weeklyData[i].vocab + weeklyData[i].grammar;
-              const vocabH =
-                maxData > 0 ? (weeklyData[i].vocab / maxData) * 70 : 0;
-              const grammarH =
-                maxData > 0 ? (weeklyData[i].grammar / maxData) * 70 : 0;
+              const d = weekly[i];
+              const vocab = d?.vocabularyCount || 0;
+              const grammar = d?.grammarCount || 0;
+              const total = vocab + grammar;
+              const vocabH = maxData > 0 ? (vocab / maxData) * 70 : 0;
+              const grammarH = maxData > 0 ? (grammar / maxData) * 70 : 0;
               return (
                 <View key={day} style={styles.chartItem}>
                   <View style={styles.chartBarWrap}>

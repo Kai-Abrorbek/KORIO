@@ -8,6 +8,7 @@ import {
   Body,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -50,5 +51,21 @@ export class UsersController {
   @Get(':id')
   async getUserById(@Request() req, @Param('id') id: string) {
     return this.usersService.getUserById(id, req.user.userId);
+  }
+
+  @Get('me/calendar')
+  async getCalendar(
+    @Request() req,
+    @Query('year') year: string,
+    @Query('month') month: string,
+  ) {
+    const y = parseInt(year, 10);
+    const m = parseInt(month, 10);
+    return this.usersService.getCalendar(req.user.userId, y, m);
+  }
+
+  @Get('me/stats/weekly')
+  async getWeekly(@Request() req, @Query('date') date?: string) {
+    return this.usersService.getWeeklyStats(req.user.userId, date);
   }
 }

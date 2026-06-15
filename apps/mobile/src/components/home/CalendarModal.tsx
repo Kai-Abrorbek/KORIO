@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +10,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { StatsService } from "@/services/stats.service";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -18,31 +19,39 @@ interface CalendarModalProps {
   visible: boolean;
   onClose: () => void;
   streak: number;
-  completedDays?: number[]; // 나중에 API 데이터 받을 때 여기로
 }
 
 export default function CalendarModal({
   visible,
   onClose,
   streak,
-  completedDays = [1, 2, 3, 4, 5, 8, 9, 10], // 기본값 더미데이터
 }: CalendarModalProps) {
   const theme = useTheme();
   const styles = getStyles(theme);
   const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
-
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
   const WEEKS = t("home.days", { returnObjects: true }) as string[];
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const today = new Date();
-
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const days: (number | null)[] = [];
   for (let i = 0; i < firstDay; i++) days.push(null);
   for (let i = 1; i <= daysInMonth; i++) days.push(i);
+
+  useEffect(() => {
+    if (!visible) return;
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth() + 1; // 1-12
+    StatsService.getCalendar(y, m)
+      .then((data) => setCompletedDays(data.completedDays))
+      .catch((err) => {
+        console.error("달력 로드 실패:", err);
+        setCompletedDays([]);
+      });
+  }, [visible, currentDate]);
 
   const isToday = (day: number) =>
     day === today.getDate() &&

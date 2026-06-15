@@ -176,4 +176,81 @@ export class UsersService {
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
     return user.followers || [];
   }
+
+  /** 특정 월의 학습한 날짜 리스트 (1-31) */
+  async getCalendar(userId: string, year: number, month: number) {
+    // month 는 1-12 (0-indexed 가 아니라)
+    const start = new Date(year, month - 1, 1, 0, 0, 0);
+    const end = new Date(year, month, 1, 0, 0, 0);
+
+    const stats = await this.statsModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        date: { $gte: start, $lt: end },
+        $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
+      })
+      .lean();
+
+    const completedDays = stats.map((s) => new Date(s.date).getDate());
+
+    return {
+      year,
+      month,
+      completedDays: Array.from(new Set(completedDays)).sort((a, b) => a - b),
+    };
+  }
+
+  /** 최근 N일 (기본 7일) 일별 학습 통계 */
+  async getWeeklyStats(userId: string, endDateStr?: string) {
+    const endDate = endDateStr ? new Date(endDateStr) : new Date();
+    endDate.setHours(23, 59, 59, 999);
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+
+    const stats = await this.statsModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        date: { $gte: startDate, $lte: endDate },
+      })
+      .sort({ date: 1 })
+      .lean();
+
+    // 7일 배열 만들기
+    const result: Array<{
+      date: string;
+      studyTimeSeconds: number;
+      totalQuestions: number;
+      correctQuestions: number;
+      xpEarned: number;
+      vocabularyCount: number;
+      grammarCount: number;
+      expressionCount: number;
+      conversationCount: number;
+      listeningCount: number;
+    }> = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      const dayKey = d.toISOString().split('T')[0];
+      const stat = stats.find(
+        (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
+      );
+      result.push({
+        date: dayKey,
+        studyTimeSeconds: stat?.studyTimeSeconds || 0,
+        totalQuestions: stat?.totalQuestions || 0,
+        correctQuestions: stat?.correctQuestions || 0,
+        xpEarned: stat?.xpEarned || 0,
+        vocabularyCount: stat?.vocabularyCount || 0,
+        grammarCount: stat?.grammarCount || 0,
+        expressionCount: stat?.expressionCount || 0,
+        conversationCount: stat?.conversationCount || 0,
+        listeningCount: stat?.listeningCount || 0,
+      });
+    }
+
+    return { days: result };
+  }
 }
