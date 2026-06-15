@@ -18,11 +18,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
 import BoriMascot from "@/components/home/BoriMascot";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
 import FloatingAIButton from "@/components/home/FloatingAIButton";
 import AIChatModal from "@/components/home/AIChatModal";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { UserService } from "@/services/user.service";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
@@ -42,12 +43,13 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { user } = useAuthStore();
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
+  const { user } = useAuthStore();
+  const updateUser = useAuthStore((s) => s.updateUser);
 
   useEffect(() => {
     aiPulse.value = withRepeat(
@@ -59,6 +61,14 @@ export default function HomeScreen() {
       false,
     );
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getMe()
+        .then((me) => updateUser(me as any))
+        .catch((err) => console.error("getMe 실패:", err));
+    }, []),
+  );
 
   const DAYS = t("home.days", { returnObjects: true }) as string[];
   const categories = [
