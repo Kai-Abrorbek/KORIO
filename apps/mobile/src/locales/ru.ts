@@ -110,6 +110,7 @@ export default {
     nextSection: "Следующий раздел",
     jumpHere: "Перепрыгнуть сюда?",
     lessonProgress: "Урок {{current}}/{{total}}",
+    continueWithXp: "Продолжить +{{xp}} XP",
     continue: "Продолжить",
     locked: "Заблокировано",
     lockedDescription:
@@ -372,6 +373,19 @@ export default {
       movesLabel: "Ходы",
       playAgain: "Играть ещё",
       exit: "Выйти",
+    },
+    draw: {
+      title: "Рисовать хангыль",
+      instruction: "Проведите по линиям в правильном порядке",
+      stroke: "{{current}}/{{total}} линия",
+      perfect: "Идеально!",
+      good: "Отлично",
+      okay: "Нормально",
+      tryAgain: "Попробуйте снова",
+      complete: "Готово!",
+      retry: "Ещё раз",
+      clear: "Очистить",
+      exit: "Выход",
     },
   },
   wordChain: {

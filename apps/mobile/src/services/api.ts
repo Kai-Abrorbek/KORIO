@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://192.168.45.105:3000";
 
 const TokenStorage = {
   get: async (): Promise<string | null> => {

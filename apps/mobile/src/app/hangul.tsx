@@ -126,6 +126,7 @@ const getStyles = (theme: ThemeColors) =>
     container: {
       flex: 1,
       backgroundColor: theme.bg,
+      marginBottom: 30,
     },
     header: {
       flexDirection: "row",

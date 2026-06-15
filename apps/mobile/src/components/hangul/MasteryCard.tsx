@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   wrap: {
     marginHorizontal: 16,
     marginBottom: 20,
+    marginTop: 10,
   },
   glow: {
     position: "absolute",

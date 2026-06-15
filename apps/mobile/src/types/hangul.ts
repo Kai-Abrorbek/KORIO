@@ -27,3 +27,21 @@ export interface MemoryCard {
   isFlipped: boolean;
   isMatched: boolean;
 }
+
+// ── 한글 그리기 게임용 ──
+export interface StrokePoint {
+  x: number;
+  y: number;
+}
+
+export interface StrokeDef {
+  points: StrokePoint[]; // 획의 polyline 포인트
+}
+
+export interface HangulStrokeChar {
+  id: string;
+  char: string;
+  name: string;
+  romanization: string;
+  strokes: StrokeDef[];
+}

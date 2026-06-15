@@ -61,6 +61,10 @@ export default function RootLayout() {
             name="word-chain"
             options={{ animation: "slide_from_right" }}
           />
+          <Stack.Screen
+            name="hangul-drawing"
+            options={{ animation: "fade", gestureEnabled: false }}
+          />
         </Stack>
       </ThemeProvider>
     </SoundProvider>

@@ -46,13 +46,13 @@ export default function CharacterDetailSheet({
   const backdrop = useSharedValue(0);
   const sheetY = useSharedValue(800);
   const charScale = useSharedValue(0);
-  const charRotate = useSharedValue(-30);
+  const charRotate = useSharedValue(-20);
   const ringScale = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
       backdrop.value = withTiming(1, { duration: 250 });
-      sheetY.value = withSpring(0, { damping: 16, stiffness: 130 });
+      sheetY.value = withSpring(0, { damping: 40, stiffness: 150 });
       charScale.value = withDelay(
         150,
         withSpring(1, { damping: 8, stiffness: 180 }),
@@ -82,7 +82,7 @@ export default function CharacterDetailSheet({
       backdrop.value = withTiming(0, { duration: 200 });
       sheetY.value = withTiming(800, { duration: 250 });
       charScale.value = 0;
-      charRotate.value = -30;
+      charRotate.value = -20;
       ringScale.value = 0;
     }
   }, [visible]);
@@ -117,7 +117,7 @@ export default function CharacterDetailSheet({
     <Modal
       transparent
       visible={visible}
-      animationType="none"
+      animationType="slide"
       onRequestClose={onClose}
     >
       <View style={styles.root}>
@@ -129,7 +129,7 @@ export default function CharacterDetailSheet({
           {/* Handle */}
           <View style={styles.handle} />
 
-          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {/* 글자 디스플레이 */}
             <View style={styles.charArea}>
               <Animated.View style={[styles.ring, ringStyle]} />
@@ -220,7 +220,6 @@ const getStyles = (theme: ThemeColors) =>
       paddingTop: 10,
       paddingBottom: 30,
       maxHeight: "85%",
-      overflow: "hidden",
     },
     handle: {
       width: 44,
@@ -310,7 +309,6 @@ const getStyles = (theme: ThemeColors) =>
       flexWrap: "wrap",
       gap: 10,
       marginBottom: 22,
-      overflow: "hidden",
     },
     exampleChip: {
       flexDirection: "row",
@@ -322,7 +320,6 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 12,
       paddingHorizontal: 14,
       paddingVertical: 10,
-      maxWidth: "47%",
     },
     exampleWord: {
       fontSize: 16,
