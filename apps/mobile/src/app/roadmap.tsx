@@ -19,8 +19,8 @@ import {
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
 
 const UNIT_COLORS = [
@@ -81,9 +81,11 @@ export default function RoadmapScreen() {
   const unitOffsets = useRef<number[]>([]);
   const scrollHeight = useRef({ content: 0, container: 0 });
 
-  useEffect(() => {
-    loadRoadmap();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadRoadmap();
+    }, []),
+  );
 
   const loadRoadmap = async () => {
     try {

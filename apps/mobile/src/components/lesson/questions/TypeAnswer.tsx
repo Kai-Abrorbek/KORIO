@@ -56,9 +56,11 @@ export default function TypeAnswer({
           </View>
           <View style={s.bubble}>
             <Text style={s.bubbleText}>
-              {question.sentencePrefix
-                ? `${question.sentencePrefix} _____${question.sentenceSuffix ?? ""}`
-                : question.question}
+              {question.npcText
+                ? question.npcText
+                : question.sentencePrefix
+                  ? `${question.sentencePrefix} _____${question.sentenceSuffix ?? ""}`
+                  : question.question}
             </Text>
           </View>
         </View>

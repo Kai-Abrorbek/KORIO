@@ -1,6 +1,13 @@
 import { Platform } from "react-native";
 
-const BASE_URL = "http://192.168.45.105:3000";
+const DEV_LAN_IP = "192.168.45.105";
+
+const BASE_URL =
+  Platform.select({
+    web: "http://localhost:3000",
+    ios: `http://${DEV_LAN_IP}:3000`,
+    android: `http://${DEV_LAN_IP}:3000`,
+  }) ?? "http://localhost:3000";
 
 const TokenStorage = {
   get: async (): Promise<string | null> => {

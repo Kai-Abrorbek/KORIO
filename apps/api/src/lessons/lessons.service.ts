@@ -42,6 +42,7 @@ export class LessonsService {
       question: this.extractI18n(q.instruction, lang),
       npcText: q.npcText || '',
       options: q.options || [],
+      choices: q.choices || [], // ← 이거 추가
       answer: q.answer,
       sentencePrefix: q.sentencePrefix || '',
       sentenceSuffix: q.sentenceSuffix || '',

@@ -66,7 +66,6 @@ export default function LessonScreen() {
     }
   };
 
-  console.log(lesson);
   const currentQ = lesson?.questions[currentIdx];
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
@@ -101,7 +100,7 @@ export default function LessonScreen() {
       // 레슨 완료 → 백엔드에 저장
       if (lessonId) {
         try {
-          await LessonService.completeLesson(lessonId, {
+          const result = await LessonService.completeLesson(lessonId, {
             correctAnswers: correctCount.current,
             totalAnswers: totalCount.current,
             xpEarned: correctCount.current * 15,
@@ -110,8 +109,10 @@ export default function LessonScreen() {
             wrongQuestionIds: wrongIds.current,
             isCompleted: hearts > 0,
           });
+          console.log("✅ 레슨 완료 저장됨:", result);
         } catch (err) {
-          console.error("레슨 완료 저장 실패:", err);
+          console.error("❌ 레슨 완료 저장 실패:", err);
+          // 에러 보여줄지 결정 (지금은 그냥 뒤로감)
         }
       }
       router.back();

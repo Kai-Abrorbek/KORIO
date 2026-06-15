@@ -24,6 +24,13 @@ export enum QuestionLevel {
   LEVEL_6 = '6',
 }
 
+class ImageChoiceOption {
+  @Prop({ required: true }) text: string;
+  @Prop({ required: true }) label: string;
+  @Prop({ default: '' }) emoji: string;
+  @Prop({ default: '' }) imageUrl: string;
+}
+
 // 다국어 텍스트
 class I18nText {
   @Prop({ default: '' }) ko: string;
@@ -55,6 +62,12 @@ export class Question {
   // 지시문 - 유저 언어로 (예: "다음 문장을 번역하세요")
   @Prop({ type: I18nText, default: {} })
   instruction: I18nText;
+
+  @Prop({
+    type: [{ text: String, label: String, emoji: String, imageUrl: String }],
+    default: [],
+  })
+  choices: ImageChoiceOption[];
 
   // NPC 말풍선 - 한국어 (배우는 언어)
   @Prop({ default: '' })
