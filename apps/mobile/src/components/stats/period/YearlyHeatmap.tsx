@@ -1,26 +1,20 @@
-import { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useMemo, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { HeatmapDay } from "@/types/stats";
 import StatsCard from "../shared/StatsCard";
-import PaginationArrows from "../shared/PaginationArrows";
 
 interface Props {
   days: HeatmapDay[];
 }
 
-const CELL_SIZE = 6;
+const CELL_SIZE = 7;
 const CELL_GAP = 2;
-const ROWS_PER_BLOCK = 7;
-const WEEKS_PER_BLOCK = 26; // 6 months ~ 26 weeks
+const MONTH_GAP = 6;
+const DAY_LABEL_WIDTH = 16;
 
 const INTENSITY_COLORS = [
   "#F0EFFA",
@@ -30,95 +24,182 @@ const INTENSITY_COLORS = [
   "#776ee2",
 ];
 
-function HeatCell({ intensity, delay }: { intensity: number; delay: number }) {
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.4);
+function fmtDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
-  useEffect(() => {
-    opacity.value = withDelay(delay, withTiming(1, { duration: 220 }));
-    scale.value = withDelay(delay, withTiming(1, { duration: 260 }));
-  }, [delay, opacity, scale]);
+// 학년도 시작 = 6월 (0-indexed 5). 오늘이 6월 이상이면 올해부터, 미만이면 작년부터.
+function getAcademicYearStart(today: Date, offset: number = 0) {
+  const month = today.getMonth();
+  let startYear = month >= 5 ? today.getFullYear() : today.getFullYear() - 1;
+  startYear += offset;
+  return { year: startYear, month: 5 }; // 6월 시작
+}
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
+function getAcademicYearMonths(start: { year: number; month: number }) {
+  // 12개월: Jun-Nov + Dec-May
+  const months: Array<{ year: number; month: number }> = [];
+  let y = start.year;
+  let m = start.month;
+  for (let i = 0; i < 12; i++) {
+    months.push({ year: y, month: m });
+    m++;
+    if (m > 11) {
+      m = 0;
+      y++;
+    }
+  }
+  return months;
+}
+
+function MonthBlock({
+  year,
+  month,
+  dateMap,
+  today,
+  monthShort,
+}: {
+  year: number;
+  month: number;
+  dateMap: Map<string, number>;
+  today: Date;
+  monthShort: (m: number) => string;
+}) {
+  const theme = useTheme();
+  const themed = getStyles(theme);
+
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // 0=Mon
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   return (
-    <Animated.View
-      style={[
-        styles.cell,
-        { backgroundColor: INTENSITY_COLORS[intensity] },
-        animatedStyle,
-      ]}
-    />
+    <View style={themed.monthBlock}>
+      <Text style={themed.monthLabel}>{monthShort(month)}</Text>
+      <View style={themed.weekRow}>
+        {Array.from({ length: 5 }).map((_, col) => (
+          <View key={col} style={themed.weekCol}>
+            {Array.from({ length: 7 }).map((_, row) => {
+              const dayNum = col * 7 + row - firstDow + 1;
+              if (dayNum < 1 || dayNum > daysInMonth) {
+                return (
+                  <View
+                    key={row}
+                    style={[styles.cell, { backgroundColor: "transparent" }]}
+                  />
+                );
+              }
+              const date = new Date(year, month, dayNum);
+              const isFuture = date > today;
+              const key = fmtDate(date);
+              const intensity = dateMap.get(key) ?? 0;
+
+              return (
+                <View
+                  key={row}
+                  style={[
+                    styles.cell,
+                    {
+                      backgroundColor: isFuture
+                        ? "transparent"
+                        : INTENSITY_COLORS[intensity],
+                    },
+                  ]}
+                />
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
 export default function YearlyHeatmap({ days }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const themed = getStyles(theme);
+  const lang = i18n.language?.split("-")[0] || "en";
 
-  // 26주씩 두 블록으로 쪼개기
-  const firstBlock = days.slice(0, 26 * 7);
-  const secondBlock = days.slice(26 * 7);
+  const [yearOffset, setYearOffset] = useState(0); // 0=현재 학년도, -1=이전
 
-  const monthsTop = ["JUN", "JUL", "AUG", "SEP", "OCT", "NOV"];
-  const monthsBottom = ["DEC", "JAN", "FEB", "MAR", "APR", "MAY"];
-  const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
-  const renderBlock = (
-    block: HeatmapDay[],
-    blockIndex: number,
-    months: string[],
-  ) => {
-    const weeks: HeatmapDay[][] = [];
-    for (let w = 0; w < WEEKS_PER_BLOCK; w++) {
-      weeks.push(block.slice(w * 7, w * 7 + 7));
-    }
+  const start = getAcademicYearStart(today, yearOffset);
+  const allMonths = getAcademicYearMonths(start);
+  const topMonths = allMonths.slice(0, 6);
+  const bottomMonths = allMonths.slice(6, 12);
 
-    return (
-      <View style={themed.block}>
-        {/* 월 라벨 */}
-        <View style={themed.monthLabels}>
-          <View style={themed.dayLabelSpacer} />
-          {months.map((m) => (
-            <Text key={m} style={themed.monthText}>
-              {m}
-            </Text>
-          ))}
-        </View>
+  const dateMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const d of days) m.set(d.date, d.intensity);
+    return m;
+  }, [days]);
 
-        <View style={themed.grid}>
-          {/* 요일 라벨 */}
-          <View style={themed.dayLabels}>
-            {dayLabels.map((d) => (
-              <Text key={d} style={themed.dayText}>
-                {d}
-              </Text>
-            ))}
-          </View>
-
-          {/* 셀 격자 */}
-          <View style={themed.cellsRow}>
-            {weeks.map((week, wi) => (
-              <View key={wi} style={themed.weekCol}>
-                {Array.from({ length: 7 }).map((_, di) => {
-                  const cell = week[di];
-                  const intensity = cell?.intensity ?? 0;
-                  const delay = blockIndex * 400 + wi * 25;
-                  return (
-                    <HeatCell key={di} intensity={intensity} delay={delay} />
-                  );
-                })}
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-    );
+  const monthShort = (m: number) => {
+    const UZ = [
+      "Yan",
+      "Fev",
+      "Mar",
+      "Apr",
+      "May",
+      "Iyn",
+      "Iyl",
+      "Avg",
+      "Sen",
+      "Okt",
+      "No'y",
+      "Dek",
+    ];
+    const EN = [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
+    ];
+    const RU = [
+      "ЯНВ",
+      "ФЕВ",
+      "МАР",
+      "АПР",
+      "МАЙ",
+      "ИЮН",
+      "ИЮЛ",
+      "АВГ",
+      "СЕН",
+      "ОКТ",
+      "НОЯ",
+      "ДЕК",
+    ];
+    if (lang === "ko") return `${m + 1}월`;
+    if (lang === "uz") return UZ[m];
+    return lang === "ru" ? RU[m] : EN[m];
   };
+
+  const dayLabels =
+    lang === "ko"
+      ? ["월", "화", "수", "목", "금", "토", "일"]
+      : lang === "uz"
+        ? ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Yak"]
+        : lang === "ru"
+          ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+          : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  const yearLabel =
+    yearOffset === 0 ? t("stats.recent") : `${start.year}-${start.year + 1}`;
 
   return (
     <View>
@@ -126,7 +207,26 @@ export default function YearlyHeatmap({ days }: Props) {
       <StatsCard>
         <View style={themed.header}>
           <Text style={themed.title}>{t("stats.yearlyStudy")}</Text>
-          <PaginationArrows label={t("stats.recent")} />
+          <View style={themed.paginationRow}>
+            <TouchableOpacity
+              onPress={() => setYearOffset((o) => o - 1)}
+              hitSlop={10}
+            >
+              <Ionicons name="chevron-back" size={18} color={theme.text} />
+            </TouchableOpacity>
+            <Text style={themed.yearLabel}>{yearLabel}</Text>
+            <TouchableOpacity
+              onPress={() => setYearOffset((o) => Math.min(0, o + 1))}
+              hitSlop={10}
+              disabled={yearOffset >= 0}
+            >
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={yearOffset >= 0 ? theme.border : theme.text}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={themed.legendRow}>
@@ -145,9 +245,52 @@ export default function YearlyHeatmap({ days }: Props) {
           <Text style={themed.legendText}>More</Text>
         </View>
 
-        {renderBlock(firstBlock, 0, monthsTop)}
+        {/* 상단 6개월 */}
+        <View style={themed.row}>
+          <View style={themed.dayLabelCol}>
+            {/* 빈 공간 (month label 자리) */}
+            <View style={{ height: 14 }} />
+            {dayLabels.map((d) => (
+              <Text key={d} style={themed.dayText}>
+                {d}
+              </Text>
+            ))}
+          </View>
+          {topMonths.map((m) => (
+            <MonthBlock
+              key={`${m.year}-${m.month}`}
+              year={m.year}
+              month={m.month}
+              dateMap={dateMap}
+              today={today}
+              monthShort={monthShort}
+            />
+          ))}
+        </View>
+
         <View style={{ height: 12 }} />
-        {renderBlock(secondBlock, 1, monthsBottom)}
+
+        {/* 하단 6개월 */}
+        <View style={themed.row}>
+          <View style={themed.dayLabelCol}>
+            <View style={{ height: 14 }} />
+            {dayLabels.map((d) => (
+              <Text key={d} style={themed.dayText}>
+                {d}
+              </Text>
+            ))}
+          </View>
+          {bottomMonths.map((m) => (
+            <MonthBlock
+              key={`${m.year}-${m.month}`}
+              year={m.year}
+              month={m.month}
+              dateMap={dateMap}
+              today={today}
+              monthShort={monthShort}
+            />
+          ))}
+        </View>
       </StatsCard>
     </View>
   );
@@ -178,10 +321,18 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       marginBottom: 14,
     },
-    title: {
-      fontSize: 17,
-      fontWeight: "800",
+    title: { fontSize: 17, fontWeight: "800", color: theme.text },
+    paginationRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    yearLabel: {
+      fontSize: 13,
+      fontWeight: "700",
       color: theme.text,
+      minWidth: 80,
+      textAlign: "center",
     },
     legendRow: {
       flexDirection: "row",
@@ -189,52 +340,33 @@ const getStyles = (theme: ThemeColors) =>
       gap: 6,
       marginBottom: 18,
     },
-    legendDots: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    legendText: {
-      fontSize: 12,
-      color: theme.textSecondary,
-      fontWeight: "600",
-    },
-    block: {
-      gap: 4,
-    },
-    monthLabels: {
-      flexDirection: "row",
-      marginLeft: 18,
-      justifyContent: "space-between",
-      marginBottom: 4,
-    },
-    dayLabelSpacer: {
-      width: 0,
-    },
-    monthText: {
-      fontSize: 9,
-      fontWeight: "700",
-      color: theme.textSecondary,
-      letterSpacing: 0.5,
-    },
-    grid: {
-      flexDirection: "row",
-    },
-    dayLabels: {
-      gap: CELL_GAP,
-      marginRight: 4,
-      width: 14,
+    legendDots: { flexDirection: "row", alignItems: "center" },
+    legendText: { fontSize: 12, color: theme.textSecondary, fontWeight: "600" },
+    row: { flexDirection: "row", alignItems: "flex-start" },
+    dayLabelCol: {
+      width: DAY_LABEL_WIDTH,
+      marginRight: 2,
     },
     dayText: {
       fontSize: 8,
       color: theme.textSecondary,
-      height: CELL_SIZE + CELL_GAP - 2,
+      height: CELL_SIZE + CELL_GAP,
+      lineHeight: CELL_SIZE + CELL_GAP,
     },
-    cellsRow: {
+    monthBlock: {
+      marginRight: MONTH_GAP,
+    },
+    monthLabel: {
+      fontSize: 10,
+      fontWeight: "700",
+      color: theme.textSecondary,
+      letterSpacing: 0.3,
+      height: 14,
+      marginBottom: 0,
+    },
+    weekRow: {
       flexDirection: "row",
       gap: CELL_GAP,
-      flex: 1,
     },
-    weekCol: {
-      flexDirection: "column",
-    },
+    weekCol: { flexDirection: "column" },
   });

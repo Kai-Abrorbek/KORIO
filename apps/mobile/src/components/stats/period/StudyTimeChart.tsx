@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { useTranslation } from "react-i18next";
-import Svg, { Path, Circle, Line, G } from "react-native-svg";
+import Svg, { Path, Circle, Line, G, Text as SvgText } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -11,23 +17,18 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StudyPeriod, TimePoint } from "@/types/stats";
+import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-interface Props {
-  points: TimePoint[];
-  avgPerDayLabel: string;
-  rangeStart: string;
-  rangeEnd: string;
-}
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CHART_WIDTH = SCREEN_WIDTH - 32 - 36; // screen - card margin - card padding
-const CHART_HEIGHT = 160;
+const CHART_WIDTH = SCREEN_WIDTH - 32 - 36;
+const CHART_HEIGHT = 180;
 const PADDING_X = 8;
 const PADDING_Y = 14;
+const LABEL_HEIGHT = 18;
 
 function buildSmoothPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return "";
@@ -41,47 +42,89 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
   return d;
 }
 
-export default function StudyTimeChart({
-  points,
-  avgPerDayLabel,
-  rangeStart,
-  rangeEnd,
-}: Props) {
+function getVisibleLabelIndices(period: StudyPeriod, count: number): number[] {
+  if (period === "week" || period === "year") {
+    return Array.from({ length: count }, (_, i) => i);
+  }
+  if (period === "month") {
+    const idx: number[] = [];
+    for (let i = 4; i < count; i += 5) idx.push(i);
+    if (idx[idx.length - 1] !== count - 1) idx.push(count - 1);
+    return idx;
+  }
+  const step = Math.max(1, Math.floor(count / 6));
+  const idx: number[] = [];
+  for (let i = 0; i < count; i += step) idx.push(i);
+  if (idx[idx.length - 1] !== count - 1) idx.push(count - 1);
+  return idx;
+}
+
+export default function StudyTimeChart() {
   const { t } = useTranslation();
   const theme = useTheme();
   const themed = getStyles(theme);
+
   const [period, setPeriod] = useState<StudyPeriod>("week");
+  const [points, setPoints] = useState<TimePoint[]>([]);
+  const [avgPerDayLabel, setAvgPerDayLabel] = useState("");
+  const [rangeLabel, setRangeLabel] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    StatsService.getPeriod(period)
+      .then((d) => {
+        setPoints(d.studyTime.points);
+        setAvgPerDayLabel(d.studyTime.avgPerDayLabel);
+        setRangeLabel(d.studyTime.rangeLabel);
+      })
+      .catch((err) => console.error("studyTime 로드 실패:", err))
+      .finally(() => setLoading(false));
+  }, [period]);
 
   const max = Math.max(...points.map((p) => p.minutes), 1);
-  const stepX = (CHART_WIDTH - PADDING_X * 2) / (points.length - 1);
+  const stepX =
+    points.length > 1 ? (CHART_WIDTH - PADDING_X * 2) / (points.length - 1) : 0;
 
   const coords = points.map((p, i) => ({
     x: PADDING_X + i * stepX,
     y:
       CHART_HEIGHT -
       PADDING_Y -
-      (p.minutes / max) * (CHART_HEIGHT - PADDING_Y * 2),
+      (p.minutes / max) * (CHART_HEIGHT - PADDING_Y * 2 - LABEL_HEIGHT),
   }));
 
   const pathD = buildSmoothPath(coords);
 
-  // Animation
   const progress = useSharedValue(0);
   useEffect(() => {
     progress.value = 0;
     progress.value = withTiming(1, {
-      duration: 1100,
+      duration: 1000,
       easing: Easing.out(Easing.cubic),
     });
-  }, [pathD, progress]);
+  }, [pathD]);
 
   const animatedProps = useAnimatedProps(() => ({
     strokeDashoffset: 1000 - progress.value * 1000,
   }));
 
+  const [rangeStart, rangeEnd] = rangeLabel.split(" - ");
+  const visibleLabels = getVisibleLabelIndices(period, points.length);
+
   return (
     <StatsCard>
-      <PeriodSelector value={period} onChange={setPeriod} />
+      <View style={themed.headerRow}>
+        <PeriodSelector value={period} onChange={setPeriod} />
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color={theme.primary}
+            style={{ marginLeft: 8 }}
+          />
+        )}
+      </View>
+
       <Text style={themed.title}>{t("stats.studyTime")}</Text>
       <Text style={themed.subtitle}>
         {t("stats.avgStudyTime")}{" "}
@@ -90,33 +133,25 @@ export default function StudyTimeChart({
       </Text>
 
       <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
-        {/* 격자 */}
         {[0, 1, 2, 3, 4].map((i) => (
           <Line
             key={`h${i}`}
             x1={0}
             x2={CHART_WIDTH}
-            y1={PADDING_Y + i * ((CHART_HEIGHT - PADDING_Y * 2) / 4)}
-            y2={PADDING_Y + i * ((CHART_HEIGHT - PADDING_Y * 2) / 4)}
-            stroke={theme.border}
-            strokeWidth={1}
-            strokeOpacity={0.5}
-          />
-        ))}
-        {[0, 1, 2, 3, 4].map((i) => (
-          <Line
-            key={`v${i}`}
-            y1={PADDING_Y}
-            y2={CHART_HEIGHT - PADDING_Y}
-            x1={(CHART_WIDTH / 4) * i}
-            x2={(CHART_WIDTH / 4) * i}
+            y1={
+              PADDING_Y +
+              i * ((CHART_HEIGHT - PADDING_Y * 2 - LABEL_HEIGHT) / 4)
+            }
+            y2={
+              PADDING_Y +
+              i * ((CHART_HEIGHT - PADDING_Y * 2 - LABEL_HEIGHT) / 4)
+            }
             stroke={theme.border}
             strokeWidth={1}
             strokeOpacity={0.5}
           />
         ))}
 
-        {/* 라인 */}
         <AnimatedPath
           d={pathD}
           stroke="#776ee2"
@@ -128,11 +163,28 @@ export default function StudyTimeChart({
           animatedProps={animatedProps}
         />
 
-        {/* 정점 점들 (값 있는 곳만) */}
         <G>
           {coords.map((c, i) =>
             points[i].minutes > 0 ? (
               <Circle key={i} cx={c.x} cy={c.y} r={3} fill="#776ee2" />
+            ) : null,
+          )}
+        </G>
+
+        <G>
+          {visibleLabels.map((i) =>
+            points[i] ? (
+              <SvgText
+                key={i}
+                x={coords[i].x}
+                y={CHART_HEIGHT - 2}
+                fontSize={10}
+                fill={theme.textSecondary}
+                fontWeight="600"
+                textAnchor="middle"
+              >
+                {points[i].label}
+              </SvgText>
             ) : null,
           )}
         </G>
@@ -148,28 +200,23 @@ export default function StudyTimeChart({
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 6,
+    },
     title: {
       fontSize: 17,
       fontWeight: "800",
       color: theme.text,
       marginBottom: 8,
     },
-    subtitle: {
-      fontSize: 13,
-      color: theme.textSecondary,
-      marginBottom: 18,
-    },
-    accent: {
-      color: "#776ee2",
-      fontWeight: "700",
-    },
+    subtitle: { fontSize: 13, color: theme.textSecondary, marginBottom: 18 },
+    accent: { color: "#776ee2", fontWeight: "700" },
     rangeRow: {
       flexDirection: "row",
       justifyContent: "space-between",
       marginTop: 4,
     },
-    rangeText: {
-      fontSize: 11,
-      color: theme.textSecondary,
-    },
+    rangeText: { fontSize: 11, color: theme.textSecondary },
   });

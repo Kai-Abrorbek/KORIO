@@ -177,6 +177,63 @@ export class UsersService {
     return user.followers || [];
   }
 
+  private getMonthLabel(date: Date, lang: string): string {
+    const month = date.getMonth() + 1;
+    const SHORT_UZ = [
+      'Yan',
+      'Fev',
+      'Mar',
+      'Apr',
+      'May',
+      'Iyn',
+      'Iyl',
+      'Avg',
+      'Sen',
+      'Okt',
+      "No'y",
+      'Dek',
+    ];
+    const SHORT_EN = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const SHORT_RU = [
+      'Янв',
+      'Фев',
+      'Мар',
+      'Апр',
+      'Май',
+      'Июн',
+      'Июл',
+      'Авг',
+      'Сен',
+      'Окт',
+      'Ноя',
+      'Дек',
+    ];
+    switch (lang) {
+      case 'ko':
+        return `${month}월`;
+      case 'uz':
+        return SHORT_UZ[date.getMonth()];
+      case 'ru':
+        return SHORT_RU[date.getMonth()];
+      case 'en':
+      default:
+        return SHORT_EN[date.getMonth()];
+    }
+  }
+
   /** 특정 월의 학습한 날짜 리스트 (1-31) */
   async getCalendar(userId: string, year: number, month: number) {
     // month 는 1-12 (0-indexed 가 아니라)
@@ -306,17 +363,56 @@ export class UsersService {
   // ── Period 통계 ──
   async getPeriodStats(
     userId: string,
+    range: 'week' | 'month' | 'year' | 'all' = 'week',
     endDateStr: string | undefined,
     lang: string = 'uz',
   ) {
     const endDate = endDateStr ? new Date(endDateStr) : new Date();
     endDate.setHours(23, 59, 59, 999);
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6);
+
+    let startDate: Date;
+    let bucketBy: 'day' | 'month';
+    let bucketCount: number;
+
+    switch (range) {
+      case 'week':
+        startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 6);
+        bucketBy = 'day';
+        bucketCount = 7;
+        break;
+      case 'month':
+        startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 29);
+        bucketBy = 'day';
+        bucketCount = 30;
+        break;
+      case 'year':
+        startDate = new Date(endDate);
+        startDate.setMonth(startDate.getMonth() - 11);
+        startDate.setDate(1);
+        bucketBy = 'month';
+        bucketCount = 12;
+        break;
+      case 'all': {
+        const user = await this.userModel.findById(userId).lean();
+        const joined = user?.createdAt
+          ? new Date((user as any).createdAt)
+          : endDate;
+        startDate = new Date(joined.getFullYear(), joined.getMonth(), 1);
+        bucketBy = 'month';
+        const monthsDiff =
+          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+          (endDate.getMonth() - startDate.getMonth()) +
+          1;
+        bucketCount = Math.max(1, monthsDiff);
+        break;
+      }
+    }
     startDate.setHours(0, 0, 0, 0);
 
-    // 1) 7일 통계 (studyTime + studyVolume)
-    const weekStats = await this.statsModel
+    // 데이터 조회
+    const stats = await this.statsModel
       .find({
         userId: new Types.ObjectId(userId),
         date: { $gte: startDate, $lte: endDate },
@@ -329,62 +425,377 @@ export class UsersService {
 
     const timePoints: any[] = [];
     const volumePoints: any[] = [];
-    let totalMinutes = 0;
+    let totalStudySeconds = 0;
     let totalQuestions = 0;
     let activeDays = 0;
     let todayHasData = false;
 
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      const dayKey = d.toISOString().split('T')[0];
-      const stat = weekStats.find(
-        (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
-      );
-      const isToday = dayKey === todayKey;
-      const label = this.getDayLabel(d, isToday, lang);
+    if (bucketBy === 'day') {
+      for (let i = 0; i < bucketCount; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        const dayKey = d.toISOString().split('T')[0];
+        const stat = stats.find(
+          (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
+        );
+        const isToday = dayKey === todayKey;
 
-      const minutes = stat ? stat.studyTimeSeconds / 60 : 0;
-      const dayTotal = stat
-        ? (stat.vocabularyCount || 0) +
-          (stat.grammarCount || 0) +
-          (stat.expressionCount || 0) +
-          (stat.conversationCount || 0) +
-          (stat.listeningCount || 0)
-        : 0;
+        const seconds = stat?.studyTimeSeconds || 0;
+        const minutes = seconds / 60;
+        const vocab = stat?.vocabularyCount || 0;
+        const grammar = stat?.grammarCount || 0;
+        const expression = stat?.expressionCount || 0;
+        const conversation = stat?.conversationCount || 0;
+        const listening = stat?.listeningCount || 0;
+        const dayTotal =
+          vocab + grammar + expression + conversation + listening;
 
-      if (isToday && stat && (stat.totalQuestions || 0) > 0) {
-        todayHasData = true;
+        const label =
+          range === 'week'
+            ? this.getDayLabel(d, isToday, lang)
+            : `${d.getMonth() + 1}/${d.getDate()}`;
+
+        if (isToday && (stat?.totalQuestions || 0) > 0) todayHasData = true;
+
+        timePoints.push({
+          date: dayKey,
+          label,
+          minutes: Math.round(minutes * 10) / 10,
+        });
+        volumePoints.push({
+          date: dayKey,
+          label,
+          vocab,
+          grammar,
+          expression,
+          conversation,
+          listening,
+        });
+
+        if (seconds > 0) {
+          totalStudySeconds += seconds;
+          activeDays++;
+        }
+        totalQuestions += dayTotal;
       }
+    } else {
+      // monthly buckets (year, all)
+      for (let i = 0; i < bucketCount; i++) {
+        const m = new Date(startDate);
+        m.setMonth(startDate.getMonth() + i);
+        const monthStart = new Date(m.getFullYear(), m.getMonth(), 1);
+        const monthEnd = new Date(
+          m.getFullYear(),
+          m.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
 
-      timePoints.push({
-        date: dayKey,
-        label,
-        minutes: Math.round(minutes * 10) / 10,
-      });
-      volumePoints.push({
-        date: dayKey,
-        label,
-        vocab: stat?.vocabularyCount || 0,
-        grammar: stat?.grammarCount || 0,
-        expression: stat?.expressionCount || 0,
-        conversation: stat?.conversationCount || 0,
-        listening: stat?.listeningCount || 0,
-      });
+        const monthStats = stats.filter((s) => {
+          const sd = new Date(s.date);
+          return sd >= monthStart && sd <= monthEnd;
+        });
 
-      if (stat && (stat.studyTimeSeconds || 0) > 0) {
-        totalMinutes += minutes;
-        activeDays++;
+        const seconds = monthStats.reduce(
+          (acc, s) => acc + (s.studyTimeSeconds || 0),
+          0,
+        );
+        const minutes = seconds / 60;
+        const vocab = monthStats.reduce(
+          (acc, s) => acc + (s.vocabularyCount || 0),
+          0,
+        );
+        const grammar = monthStats.reduce(
+          (acc, s) => acc + (s.grammarCount || 0),
+          0,
+        );
+        const expression = monthStats.reduce(
+          (acc, s) => acc + (s.expressionCount || 0),
+          0,
+        );
+        const conversation = monthStats.reduce(
+          (acc, s) => acc + (s.conversationCount || 0),
+          0,
+        );
+        const listening = monthStats.reduce(
+          (acc, s) => acc + (s.listeningCount || 0),
+          0,
+        );
+        const monthTotal =
+          vocab + grammar + expression + conversation + listening;
+        const monthActiveDays = monthStats.filter(
+          (s) => (s.studyTimeSeconds || 0) > 0,
+        ).length;
+
+        const label = this.getMonthLabel(m, lang);
+        const dateKey = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+
+        timePoints.push({
+          date: dateKey,
+          label,
+          minutes: Math.round(minutes * 10) / 10,
+        });
+        volumePoints.push({
+          date: dateKey,
+          label,
+          vocab,
+          grammar,
+          expression,
+          conversation,
+          listening,
+        });
+
+        if (seconds > 0) {
+          totalStudySeconds += seconds;
+          activeDays += monthActiveDays;
+        }
+        totalQuestions += monthTotal;
+
+        if (monthStart <= today && monthEnd >= today) {
+          const todayStat = monthStats.find(
+            (s) => new Date(s.date).toISOString().split('T')[0] === todayKey,
+          );
+          if (todayStat && (todayStat.totalQuestions || 0) > 0) {
+            todayHasData = true;
+          }
+        }
       }
-      totalQuestions += dayTotal;
     }
 
-    const avgMinutes = activeDays > 0 ? totalMinutes / activeDays : 0;
-    const avgSeconds = Math.round(avgMinutes * 60);
+    const avgSeconds =
+      activeDays > 0 ? Math.round(totalStudySeconds / activeDays) : 0;
+    const totalSpanDays =
+      bucketBy === 'day'
+        ? bucketCount
+        : Math.max(
+            1,
+            Math.ceil(
+              (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+            ),
+          );
     const avgPerDay =
-      activeDays > 0 ? Math.round(totalQuestions / activeDays) : 0;
+      totalSpanDays > 0 ? Math.round(totalQuestions / totalSpanDays) : 0;
 
-    // 2) 365일 히트맵
+    // 평균 라벨: 분 또는 일 단위
+    const avgLabel =
+      bucketBy === 'day'
+        ? this.formatTimeLong(avgSeconds, lang)
+        : this.formatTimeLong(avgSeconds, lang);
+
+    // 365일 히트맵 (range 와 무관, 항상 동일)
+    const heatmap = await this.buildHeatmap(userId);
+
+    return {
+      range,
+      todayHasData,
+      heatmap,
+      studyTime: {
+        avgPerDayLabel: avgLabel,
+        rangeLabel: `${this.formatDate(startDate)} - ${this.formatDate(endDate)}`,
+        points: timePoints,
+      },
+      studyVolume: {
+        avgPerDay,
+        points: volumePoints,
+      },
+    };
+  }
+
+  // ── Category 통계 ──
+  async getCategoryStats(
+    userId: string,
+    category: string,
+    range: 'week' | 'month' | 'year' | 'all' = 'week',
+    endDateStr: string | undefined,
+    lang: string = 'uz',
+  ) {
+    const validCategories = [
+      'vocab',
+      'grammar',
+      'expression',
+      'conversation',
+      'listening',
+    ];
+    if (!validCategories.includes(category)) {
+      throw new BadRequestException(`Invalid category: ${category}`);
+    }
+    const fieldMap: Record<string, string> = {
+      vocab: 'vocabularyCount',
+      grammar: 'grammarCount',
+      expression: 'expressionCount',
+      conversation: 'conversationCount',
+      listening: 'listeningCount',
+    };
+    const field = fieldMap[category];
+
+    const endDate = endDateStr ? new Date(endDateStr) : new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    // range 별로 startDate / bucket 결정 (getPeriodStats 와 동일 로직)
+    let startDate: Date;
+    let bucketBy: 'day' | 'month';
+    let bucketCount: number;
+
+    switch (range) {
+      case 'week':
+        startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 6);
+        bucketBy = 'day';
+        bucketCount = 7;
+        break;
+      case 'month':
+        startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 29);
+        bucketBy = 'day';
+        bucketCount = 30;
+        break;
+      case 'year':
+        startDate = new Date(endDate);
+        startDate.setMonth(startDate.getMonth() - 11);
+        startDate.setDate(1);
+        bucketBy = 'month';
+        bucketCount = 12;
+        break;
+      case 'all': {
+        const user = await this.userModel.findById(userId).lean();
+        const joined = user?.createdAt
+          ? new Date((user as any).createdAt)
+          : endDate;
+        startDate = new Date(joined.getFullYear(), joined.getMonth(), 1);
+        bucketBy = 'month';
+        bucketCount = Math.max(
+          1,
+          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+            (endDate.getMonth() - startDate.getMonth()) +
+            1,
+        );
+        break;
+      }
+    }
+    startDate.setHours(0, 0, 0, 0);
+
+    // 전체 합계
+    const allStats = await this.statsModel.aggregate([
+      { $match: { userId: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          totalCategoryCount: { $sum: `$${field}` },
+          totalQuestions: { $sum: '$totalQuestions' },
+          totalStudyTime: { $sum: '$studyTimeSeconds' },
+        },
+      },
+    ]);
+    const all = allStats[0] || {
+      totalCategoryCount: 0,
+      totalQuestions: 0,
+      totalStudyTime: 0,
+    };
+    const allRatio =
+      all.totalQuestions > 0 ? all.totalCategoryCount / all.totalQuestions : 0;
+    const totalTimeSeconds = Math.round(all.totalStudyTime * allRatio);
+
+    // 오늘 시간
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStat = await this.statsModel.findOne({
+      userId: new Types.ObjectId(userId),
+      date: { $gte: today },
+    });
+    let todayTimeSeconds = 0;
+    if (todayStat) {
+      const todayRatio =
+        todayStat.totalQuestions > 0
+          ? ((todayStat as any)[field] || 0) / todayStat.totalQuestions
+          : 0;
+      todayTimeSeconds = Math.round(todayStat.studyTimeSeconds * todayRatio);
+    }
+
+    // 차트 데이터
+    const periodStats = await this.statsModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        date: { $gte: startDate, $lte: endDate },
+      })
+      .lean();
+
+    const todayKey = today.toISOString().split('T')[0];
+    const chart: any[] = [];
+
+    if (bucketBy === 'day') {
+      for (let i = 0; i < bucketCount; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        const dayKey = d.toISOString().split('T')[0];
+        const stat = periodStats.find(
+          (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
+        );
+        const isToday = dayKey === todayKey;
+        const label =
+          range === 'week'
+            ? this.getDayLabel(d, isToday, lang)
+            : `${d.getMonth() + 1}/${d.getDate()}`;
+        const count = stat ? (stat as any)[field] || 0 : 0;
+        chart.push({
+          date: dayKey,
+          label,
+          newWords: count,
+          knownWords: 0,
+          reviewWords: 0,
+        });
+      }
+    } else {
+      for (let i = 0; i < bucketCount; i++) {
+        const m = new Date(startDate);
+        m.setMonth(startDate.getMonth() + i);
+        const monthStart = new Date(m.getFullYear(), m.getMonth(), 1);
+        const monthEnd = new Date(
+          m.getFullYear(),
+          m.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
+        const monthStats = periodStats.filter((s) => {
+          const sd = new Date(s.date);
+          return sd >= monthStart && sd <= monthEnd;
+        });
+        const count = monthStats.reduce(
+          (acc, s) => acc + ((s as any)[field] || 0),
+          0,
+        );
+        const label = this.getMonthLabel(m, lang);
+        const dateKey = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+        chart.push({
+          date: dateKey,
+          label,
+          newWords: count,
+          knownWords: 0,
+          reviewWords: 0,
+        });
+      }
+    }
+
+    return {
+      range,
+      trophyLevel: null,
+      totalProblems: all.totalCategoryCount,
+      todayTime: this.formatTime(todayTimeSeconds),
+      totalTime: this.formatTime(totalTimeSeconds),
+      newWordsToday: null,
+      knownWordsToday: null,
+      reviewWordsToday: null,
+      reviewAccuracy: null,
+      chart, // ⚠️ weekChart → chart 로 변경
+    };
+  }
+
+  private async buildHeatmap(userId: string) {
     const heatmapStart = new Date();
     heatmapStart.setHours(0, 0, 0, 0);
     heatmapStart.setDate(heatmapStart.getDate() - 364);
@@ -411,132 +822,6 @@ export class UsersService {
       const xp = statsByDate.get(key) || 0;
       heatmap.push({ date: key, intensity: this.xpToIntensity(xp) });
     }
-
-    return {
-      todayHasData,
-      heatmap,
-      studyTime: {
-        avgPerDayLabel: this.formatTimeLong(avgSeconds, lang),
-        rangeLabel: `${this.formatDate(startDate)} - ${this.formatDate(endDate)}`,
-        points: timePoints,
-      },
-      studyVolume: {
-        avgPerDay,
-        points: volumePoints,
-      },
-    };
-  }
-
-  // ── Category 통계 ──
-  async getCategoryStats(
-    userId: string,
-    category: string,
-    endDateStr: string | undefined,
-    lang: string = 'uz',
-  ) {
-    const validCategories = [
-      'vocab',
-      'grammar',
-      'expression',
-      'conversation',
-      'listening',
-    ];
-    if (!validCategories.includes(category)) {
-      throw new BadRequestException(`Invalid category: ${category}`);
-    }
-    const fieldMap: Record<string, string> = {
-      vocab: 'vocabularyCount',
-      grammar: 'grammarCount',
-      expression: 'expressionCount',
-      conversation: 'conversationCount',
-      listening: 'listeningCount',
-    };
-    const field = fieldMap[category];
-
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
-    endDate.setHours(23, 59, 59, 999);
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
-
-    // 1) 전체 합계 (totalProblems, totalTime)
-    const allStats = await this.statsModel.aggregate([
-      { $match: { userId: new Types.ObjectId(userId) } },
-      {
-        $group: {
-          _id: null,
-          totalCategoryCount: { $sum: `$${field}` },
-          totalQuestions: { $sum: '$totalQuestions' },
-          totalStudyTime: { $sum: '$studyTimeSeconds' },
-        },
-      },
-    ]);
-    const all = allStats[0] || {
-      totalCategoryCount: 0,
-      totalQuestions: 0,
-      totalStudyTime: 0,
-    };
-
-    const allRatio =
-      all.totalQuestions > 0 ? all.totalCategoryCount / all.totalQuestions : 0;
-    const totalTimeSeconds = Math.round(all.totalStudyTime * allRatio);
-
-    // 2) 오늘 시간
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStat = await this.statsModel.findOne({
-      userId: new Types.ObjectId(userId),
-      date: { $gte: today },
-    });
-    let todayTimeSeconds = 0;
-    if (todayStat) {
-      const todayRatio =
-        todayStat.totalQuestions > 0
-          ? ((todayStat as any)[field] || 0) / todayStat.totalQuestions
-          : 0;
-      todayTimeSeconds = Math.round(todayStat.studyTimeSeconds * todayRatio);
-    }
-
-    // 3) 주간 차트
-    const weekStats = await this.statsModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        date: { $gte: startDate, $lte: endDate },
-      })
-      .lean();
-
-    const todayKey = today.toISOString().split('T')[0];
-    const weekChart: any[] = [];
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      const dayKey = d.toISOString().split('T')[0];
-      const stat = weekStats.find(
-        (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
-      );
-      const isToday = dayKey === todayKey;
-      const label = this.getDayLabel(d, isToday, lang);
-      const count = stat ? (stat as any)[field] || 0 : 0;
-      weekChart.push({
-        date: dayKey,
-        label,
-        newWords: count, // 임시: 카테고리 문제 수를 newWords 에 (단어 추적 도입 전까지)
-        knownWords: 0,
-        reviewWords: 0,
-      });
-    }
-
-    return {
-      trophyLevel: null, // 게임화 로직 도입 전
-      totalProblems: all.totalCategoryCount,
-      todayTime: this.formatTime(todayTimeSeconds),
-      totalTime: this.formatTime(totalTimeSeconds),
-      newWordsToday: null, // 단어 추적 도입 전
-      knownWordsToday: null,
-      reviewWordsToday: null,
-      reviewAccuracy: null,
-      weekChart,
-    };
+    return heatmap;
   }
 }

@@ -28,7 +28,7 @@ export interface VolumePoint {
   listening: number;
 }
 
-export interface CategoryDailyPoint {
+export interface CategoryChartPoint {
   date: string;
   label: string;
   newWords: number;
@@ -45,10 +45,11 @@ export interface CategoryStats {
   knownWordsToday: number | null;
   reviewWordsToday: number | null;
   reviewAccuracy: number | null;
-  weekChart: CategoryDailyPoint[];
+  chart: CategoryChartPoint[]; // weekChart → chart
 }
 
 export interface PeriodStats {
+  range: StudyPeriod;
   todayHasData: boolean;
   heatmap: HeatmapDay[];
   studyTime: {
@@ -60,9 +61,4 @@ export interface PeriodStats {
     avgPerDay: number;
     points: VolumePoint[];
   };
-}
-
-export interface StatsData {
-  period: PeriodStats;
-  categoryByType: Record<StudyCategory, CategoryStats>;
 }

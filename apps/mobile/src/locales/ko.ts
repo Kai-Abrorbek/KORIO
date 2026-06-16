@@ -151,6 +151,10 @@ export default {
     problemsCount: "{{count}}개",
     nDays: "{{count}}일",
     period: { week: "주", month: "월", year: "년", all: "전체" },
+    avgStudyVolume: "최근 한 주, 하루 평균",
+    avgStudyVolumeSuffix: "의 문제를 풀었어요.",
+    questionsCount: "{{count}}개",
+    noStudyRecord: "학습 기록이 없어요.",
     category: {
       vocab: "어휘",
       grammar: "문법",

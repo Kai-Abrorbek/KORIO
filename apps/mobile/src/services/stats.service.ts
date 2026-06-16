@@ -1,6 +1,11 @@
 import api from "./api";
 import i18n from "@/locales/i18n";
-import { PeriodStats, CategoryStats, StudyCategory } from "@/types/stats";
+import {
+  PeriodStats,
+  CategoryStats,
+  StudyCategory,
+  StudyPeriod,
+} from "@/types/stats";
 
 export interface CalendarData {
   year: number;
@@ -34,19 +39,24 @@ export const StatsService = {
   getWeekly: (date?: string): Promise<WeeklyData> =>
     api.get(`/users/me/stats/weekly${date ? `?date=${date}` : ""}`),
 
-  getPeriod: (endDate?: string): Promise<PeriodStats> => {
-    const params = new URLSearchParams({ lang: getLang() });
+  getPeriod: (
+    range: StudyPeriod = "week",
+    endDate?: string,
+  ): Promise<PeriodStats> => {
+    const params = new URLSearchParams({ lang: getLang(), range });
     if (endDate) params.append("endDate", endDate);
     return api.get(`/users/me/stats/period?${params}`);
   },
 
   getCategory: (
     category: StudyCategory,
+    range: StudyPeriod = "week",
     endDate?: string,
   ): Promise<CategoryStats> => {
     const params = new URLSearchParams({
-      category: categoryMap[category],
+      category,
       lang: getLang(),
+      range,
     });
     if (endDate) params.append("endDate", endDate);
     return api.get(`/users/me/stats/category?${params}`);

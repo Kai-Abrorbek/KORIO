@@ -107,6 +107,9 @@ export class User {
   // 온보딩 완료 여부
   @Prop({ default: false })
   isOnboardingCompleted: boolean;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

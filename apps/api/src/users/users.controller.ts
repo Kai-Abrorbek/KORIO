@@ -57,11 +57,13 @@ export class UsersController {
   @Get('me/stats/period')
   async getPeriodStats(
     @Request() req,
+    @Query('range') range: 'week' | 'month' | 'year' | 'all' = 'week',
     @Query('endDate') endDate?: string,
     @Query('lang') lang: string = 'uz',
   ) {
     return this.usersService.getPeriodStats(
       req.user._id.toString(),
+      range,
       endDate,
       lang,
     );
@@ -71,12 +73,14 @@ export class UsersController {
   async getCategoryStats(
     @Request() req,
     @Query('category') category: string,
+    @Query('range') range: 'week' | 'month' | 'year' | 'all' = 'week',
     @Query('endDate') endDate?: string,
     @Query('lang') lang: string = 'uz',
   ) {
     return this.usersService.getCategoryStats(
       req.user._id.toString(),
       category,
+      range,
       endDate,
       lang,
     );

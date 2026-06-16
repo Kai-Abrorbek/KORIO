@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, {
   useSharedValue,
@@ -10,15 +16,24 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { CategoryDailyPoint, CategoryStats } from "@/types/stats";
+import {
+  CategoryChartPoint,
+  CategoryStats,
+  StudyCategory,
+  StudyPeriod,
+} from "@/types/stats";
+import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
-import PaginationArrows from "../shared/PaginationArrows";
+import PeriodSelector from "../shared/PeriodSelector";
 
 interface Props {
-  stats: CategoryStats;
+  category: StudyCategory;
 }
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CHART_WIDTH = SCREEN_WIDTH - 32 - 36;
 const CHART_HEIGHT = 150;
+
 const COLORS = {
   newWords: "#FFCD3C",
   knownWords: "#A6D5FF",
@@ -26,36 +41,77 @@ const COLORS = {
   accuracy: "#776ee2",
 };
 
+function getVisibleLabelIndices(period: StudyPeriod, count: number): number[] {
+  if (period === "week" || period === "year") {
+    return Array.from({ length: count }, (_, i) => i);
+  }
+  if (period === "month") {
+    const idx: number[] = [];
+    for (let i = 4; i < count; i += 5) idx.push(i);
+    if (idx[idx.length - 1] !== count - 1) idx.push(count - 1);
+    return idx;
+  }
+  const step = Math.max(1, Math.floor(count / 6));
+  const idx: number[] = [];
+  for (let i = 0; i < count; i += step) idx.push(i);
+  if (idx[idx.length - 1] !== count - 1) idx.push(count - 1);
+  return idx;
+}
+
 function StackedBar({
   point,
   maxTotal,
   index,
+  barWidth,
 }: {
-  point: CategoryDailyPoint;
+  point: CategoryChartPoint;
   maxTotal: number;
   index: number;
+  barWidth: number;
 }) {
+  const theme = useTheme();
   const total = point.newWords + point.knownWords + point.reviewWords;
   const height = useSharedValue(0);
 
   useEffect(() => {
+    height.value = 0;
     height.value = withDelay(
-      index * 70,
-      withTiming((total / maxTotal) * CHART_HEIGHT, {
-        duration: 800,
+      index * 40,
+      withTiming(maxTotal > 0 ? (total / maxTotal) * CHART_HEIGHT : 0, {
+        duration: 600,
         easing: Easing.out(Easing.cubic),
       }),
     );
-  }, [total, maxTotal, index, height]);
+  }, [total, maxTotal, index]);
 
   const animatedStyle = useAnimatedStyle(() => ({ height: height.value }));
 
   if (total === 0) {
-    return <View style={styles.barEmpty} />;
+    return (
+      <View
+        style={{
+          width: barWidth,
+          height: 4,
+          borderRadius: 2,
+          backgroundColor: theme.border,
+          alignSelf: "flex-end",
+        }}
+      />
+    );
   }
 
   return (
-    <Animated.View style={[styles.barFill, animatedStyle]}>
+    <Animated.View
+      style={[
+        {
+          width: barWidth,
+          borderRadius: 4,
+          overflow: "hidden",
+          flexDirection: "column-reverse",
+        },
+        animatedStyle,
+      ]}
+    >
       {point.newWords > 0 && (
         <View
           style={{ flex: point.newWords, backgroundColor: COLORS.newWords }}
@@ -78,54 +134,114 @@ function StackedBar({
   );
 }
 
-export default function StudyInfoChart({ stats }: Props) {
+export default function StudyInfoChart({ category }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const themed = getStyles(theme);
-  const [windowSize, setWindowSize] = useState(7);
 
-  const totals = stats.weekChart.map(
-    (p) => p.newWords + p.knownWords + p.reviewWords,
-  );
+  const [period, setPeriod] = useState<StudyPeriod>("week");
+  const [stats, setStats] = useState<CategoryStats | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    StatsService.getCategory(category, period)
+      .then(setStats)
+      .catch((err) => console.error("category chart 로드 실패:", err))
+      .finally(() => setLoading(false));
+  }, [category, period]);
+
+  if (!stats) {
+    return (
+      <StatsCard>
+        <View style={themed.headerRow}>
+          <PeriodSelector value={period} onChange={setPeriod} />
+        </View>
+        <View style={{ paddingVertical: 40, alignItems: "center" }}>
+          <ActivityIndicator color={theme.primary} />
+        </View>
+      </StatsCard>
+    );
+  }
+
+  const chart = stats.chart;
+  const totals = chart.map((p) => p.newWords + p.knownWords + p.reviewWords);
   const maxTotal = Math.max(...totals, 1);
   const grandTotal = totals.reduce((a, b) => a + b, 0);
+  const visibleLabels = getVisibleLabelIndices(period, chart.length);
 
+  const todayKey = new Date().toISOString().split("T")[0];
   const fmt = (v: number | null) => (v == null ? "-" : v.toString());
+
+  const gap = 4;
+  const barWidth =
+    chart.length > 0
+      ? Math.max(4, (CHART_WIDTH - (chart.length - 1) * gap) / chart.length)
+      : 0;
 
   return (
     <StatsCard>
-      <View style={themed.header}>
-        <Text style={themed.title}>{t("stats.studyInfo")}</Text>
-        <PaginationArrows
-          label={t("stats.nDays", { count: windowSize })}
-          onPrev={() => setWindowSize((s) => Math.max(7, s - 7))}
-          onNext={() => setWindowSize((s) => s + 7)}
-        />
+      <View style={themed.headerRow}>
+        <PeriodSelector value={period} onChange={setPeriod} />
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color={theme.primary}
+            style={{ marginLeft: 8 }}
+          />
+        )}
       </View>
 
-      <View style={themed.chartRow}>
-        <View style={themed.bars}>
-          {stats.weekChart.map((p, i) => (
-            <View key={i} style={themed.barCol}>
-              <StackedBar point={p} maxTotal={maxTotal} index={i} />
-            </View>
-          ))}
-        </View>
-        <View style={themed.labels}>
-          {stats.weekChart.map((p, i) => (
-            <Text
+      <Text style={themed.title}>{t("stats.studyInfo")}</Text>
+
+      {/* 막대 차트 */}
+      <View style={[themed.chartArea, { height: CHART_HEIGHT }]}>
+        {chart.map((p, i) => (
+          <View
+            key={i}
+            style={{
+              width: barWidth,
+              marginRight: i === chart.length - 1 ? 0 : gap,
+              height: CHART_HEIGHT,
+              justifyContent: "flex-end",
+            }}
+          >
+            <StackedBar
+              point={p}
+              maxTotal={maxTotal}
+              index={i}
+              barWidth={barWidth}
+            />
+          </View>
+        ))}
+      </View>
+
+      {/* x축 라벨 */}
+      <View style={themed.labelRow}>
+        {chart.map((p, i) => {
+          const isToday = p.date === todayKey || i === chart.length - 1;
+          return (
+            <View
               key={i}
-              style={[
-                themed.labelText,
-                p.label === "오늘" && themed.labelTextActive,
-              ]}
+              style={{
+                width: barWidth,
+                marginRight: i === chart.length - 1 ? 0 : gap,
+                alignItems: "center",
+              }}
             >
-              {p.label}
-            </Text>
-          ))}
-        </View>
+              {visibleLabels.includes(i) ? (
+                <Text
+                  style={[themed.labelText, isToday && themed.labelTextActive]}
+                >
+                  {p.label}
+                </Text>
+              ) : null}
+            </View>
+          );
+        })}
       </View>
 
+      {/* Total + Legend */}
       <View style={themed.totalRow}>
         <View>
           <Text style={themed.totalLabel}>Total</Text>
@@ -155,7 +271,6 @@ export default function StudyInfoChart({ stats }: Props) {
               stats.reviewAccuracy == null ? "-" : `${stats.reviewAccuracy}%`
             }
             outline
-            withHelp
           />
         </View>
       </View>
@@ -168,13 +283,11 @@ function LegendRow({
   label,
   value,
   outline,
-  withHelp,
 }: {
   color: string;
   label: string;
   value: string;
   outline?: boolean;
-  withHelp?: boolean;
 }) {
   const theme = useTheme();
   const themed = getStyles(theme);
@@ -198,70 +311,42 @@ function LegendRow({
   );
 }
 
-const styles = StyleSheet.create({
-  barFill: {
-    width: "100%",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-  barEmpty: {
-    width: "100%",
-    height: 4,
-    backgroundColor: "#EFEFF6",
-    borderRadius: 2,
-  },
-});
-
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    header: {
+    headerRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 18,
+      marginBottom: 14,
     },
     title: {
       fontSize: 17,
       fontWeight: "800",
       color: theme.text,
+      marginBottom: 12,
     },
-    chartRow: {
-      gap: 8,
-      marginBottom: 18,
-    },
-    bars: {
+    chartArea: {
       flexDirection: "row",
-      justifyContent: "space-between",
-      height: CHART_HEIGHT,
       alignItems: "flex-end",
-      paddingHorizontal: 4,
+      paddingVertical: 4,
     },
-    barCol: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "flex-end",
-      marginHorizontal: 4,
-    },
-    labels: {
+    labelRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
-      paddingHorizontal: 4,
+      marginTop: 6,
+      marginBottom: 16,
     },
     labelText: {
-      fontSize: 12,
+      fontSize: 11,
       color: theme.textSecondary,
       fontWeight: "600",
-      flex: 1,
-      textAlign: "center",
     },
     labelTextActive: {
       color: theme.text,
-      fontWeight: "700",
+      fontWeight: "800",
     },
     totalRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
+      alignItems: "flex-start",
       gap: 16,
       paddingTop: 6,
     },
