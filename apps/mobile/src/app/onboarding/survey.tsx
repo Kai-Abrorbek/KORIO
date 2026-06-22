@@ -116,7 +116,7 @@ export default function SurveyScreen() {
         learningStyle: selectedStyle!,
         dailyGoalMinutes: selectedMinutes,
       });
-      router.push("/onboarding/level-test");
+      router.push({ pathname: "/lesson", params: { mode: "levelTest" } });
     }
   };
 

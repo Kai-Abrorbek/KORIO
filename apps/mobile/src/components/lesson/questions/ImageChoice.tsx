@@ -6,6 +6,7 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState, ImageChoiceOption } from "@/types/lesson";
 import { useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Props {
   question: LessonQuestion;
@@ -24,8 +25,8 @@ export default function ImageChoice({
   const s = getStyles(theme);
   const [selected, setSelected] = useState<string | null>(null);
   const { speak } = useSpeech();
+  const insets = useSafeAreaInsets();
 
-  // choices 없으면 options로 fallback
   const choices: ImageChoiceOption[] =
     question.choices ??
     question.options?.map((opt) => ({ text: opt, label: opt, emoji: "❓" })) ??
@@ -121,25 +122,28 @@ export default function ImageChoice({
         ))}
       </View>
 
+      <View style={{ flex: 1 }} />
       {/* 확인 버튼 */}
-      <TouchableOpacity
-        style={[
-          s.checkBtn,
-          (!selected || answerState !== "idle") && s.checkBtnDisabled,
-        ]}
-        onPress={handleCheck}
-        disabled={!selected || answerState !== "idle"}
-        activeOpacity={0.85}
-      >
-        <Text
+      <View style={{ marginTop: insets.top + 250 }}>
+        <TouchableOpacity
           style={[
-            s.checkBtnText,
-            (!selected || answerState !== "idle") && s.checkBtnTextDisabled,
+            s.checkBtn,
+            (!selected || answerState !== "idle") && s.checkBtnDisabled,
           ]}
+          onPress={handleCheck}
+          disabled={!selected || answerState !== "idle"}
+          activeOpacity={0.85}
         >
-          {t("lesson.check")}
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={[
+              s.checkBtnText,
+              (!selected || answerState !== "idle") && s.checkBtnTextDisabled,
+            ]}
+          >
+            {t("lesson.check")}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
@@ -150,6 +154,7 @@ const getStyles = (theme: ThemeColors) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
+      marginBottom: 40,
     },
     badge: {
       flexDirection: "row",
@@ -196,7 +201,6 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 12,
-      marginBottom: 28,
     },
     cardWrap: {
       width: "47.5%",

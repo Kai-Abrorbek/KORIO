@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,8 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
+const ANSWER_LINES = 2;
+const LINE_H = 65;
 
 export default function TranslateBuilder({
   question,
@@ -33,9 +35,8 @@ export default function TranslateBuilder({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const s = styles(theme, ANSWER_LINES, LINE_H);
   const { speak, isSpeaking } = useSpeech();
-
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
       id: `w-${i}`,
@@ -48,7 +49,6 @@ export default function TranslateBuilder({
   const placedWords = words
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
-  const bankWords = words.filter((w) => w.zone === "bank");
 
   const handleTap = (id: string) => {
     setWords((prev) => {
@@ -124,41 +124,64 @@ export default function TranslateBuilder({
     });
   }, []);
 
+  const disabled = placedWords.length === 0 || answerState !== "idle";
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
-        {/* 지시문 */}
+        {/* 제목 */}
         <Text style={s.title}>{question.question}</Text>
 
-        {/* NPC 말풍선 - 한국어 문장 */}
+        {/* 캐릭터 + 말풍선 */}
         <View style={s.npcRow}>
-          <View style={s.avatar}>
-            <Text style={{ fontSize: 32 }}>👵</Text>
+          <View style={s.character}>
+            <Image
+              source={require("@/../assets/images/character.jpg")}
+              style={s.characterImage}
+              resizeMode="contain"
+            />
           </View>
+
           <View style={s.bubble}>
+            {/* 말풍선 꼬리 (테두리) */}
+            <View style={s.tailBorder} />
+            {/* 말풍선 꼬리 (안쪽 흰색) */}
+            <View style={s.tailInner} />
+
             <TouchableOpacity
-              style={s.audioBtn}
               onPress={() => speak(question.npcText ?? "")}
+              hitSlop={8}
+              style={s.audioBtn}
             >
               <Ionicons
-                name={isSpeaking ? "volume-high" : "volume-medium"}
-                size={22}
-                color={isSpeaking ? theme.primary : "#58CC02"}
+                name="volume-medium"
+                size={24}
+                color={isSpeaking ? "#1A9BE6" : "#1A9BE6"}
               />
             </TouchableOpacity>
-            <Text style={s.bubbleText}>{question.npcText}</Text>
+
+            <View style={s.bubbleTextWrap}>
+              <Text style={s.bubbleText}>{question.npcText}</Text>
+              <View style={s.dashedUnderline} />
+            </View>
           </View>
         </View>
 
-        {/* 배치 영역 - 우즈벡어 단어 조합 */}
-        <View style={s.placedArea}>
-          {placedWords.length === 0 ? (
-            <Text style={s.placeholder}>{t("lesson.tapOrDrag")}</Text>
-          ) : (
-            <View style={s.chipRow}>
-              {placedWords.map((item, idx) => (
+        {/* 답 영역 - 위/아래 두 줄 */}
+        <View style={s.answerArea}>
+          {/* 줄 (룰드 라인) */}
+          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+            <View
+              key={`line-${i}`}
+              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+            />
+          ))}
+
+          {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
+          <View style={s.placedWrap}>
+            {placedWords.map((item, idx) => (
+              <View key={item.id} style={s.lineSlot}>
                 <AnswerChip
-                  key={item.id}
                   item={item}
                   orderIndex={idx}
                   onTap={handleTap}
@@ -169,122 +192,224 @@ export default function TranslateBuilder({
                   theme={theme}
                   answerState={answerState}
                 />
-              ))}
-            </View>
-          )}
+              </View>
+            ))}
+          </View>
         </View>
-
-        <View style={s.divider} />
-        <View style={[s.divider, { marginTop: 10, marginBottom: 16 }]} />
 
         {/* 단어 뱅크 */}
-        <View style={s.chipRow}>
-          {words.map((item) =>
-            item.zone === "placed" ? (
-              <GhostChip key={item.id} word={item.word} theme={theme} />
-            ) : (
-              <AnswerChip
-                key={item.id}
-                item={item}
-                onTap={handleTap}
-                onDragToZone={handleDragToZone}
-                onLayoutMeasured={handleChipLayout}
-                theme={theme}
-                answerState={answerState}
-              />
-            ),
-          )}
+        <View style={s.bank}>
+          {words.map((item) => {
+            const isPlaced = item.zone === "placed";
+            return (
+              <View key={item.id} style={s.bankSlot}>
+                {/* AnswerChip 항상 자리 차지 (placed 일 땐 투명 + 터치 X) */}
+                <View
+                  style={{ opacity: isPlaced ? 0 : 1 }}
+                  pointerEvents={isPlaced ? "none" : "auto"}
+                >
+                  <AnswerChip
+                    item={item}
+                    onTap={handleTap}
+                    onDragToZone={handleDragToZone}
+                    onLayoutMeasured={handleChipLayout}
+                    theme={theme}
+                    answerState={answerState}
+                  />
+                </View>
+                {/* placed 일 때만 GhostChip 을 위에 오버레이 */}
+                {isPlaced && (
+                  <View style={s.ghostOverlay} pointerEvents="none">
+                    <GhostChip word={item.word} theme={theme} />
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </View>
 
+        {/* 여백 (확인 버튼을 아래로 밀어줌) */}
+        <View style={{ flex: 1 }} />
+
+        {/* 확인 버튼 */}
         <TouchableOpacity
-          style={[
-            s.checkBtn,
-            (placedWords.length === 0 || answerState !== "idle") &&
-              s.checkBtnDisabled,
-          ]}
+          style={[s.checkBtn, disabled && s.checkBtnDisabled]}
           onPress={handleCheck}
-          disabled={placedWords.length === 0 || answerState !== "idle"}
+          disabled={disabled}
+          activeOpacity={0.85}
         >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
+          <Text style={[s.checkBtnText, disabled && s.checkBtnTextDisabled]}>
+            {t("lesson.check")}
+          </Text>
         </TouchableOpacity>
       </Animated.View>
     </GestureHandlerRootView>
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, lines: number, lineH: number) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      paddingBottom: 16,
+      marginBottom: 40,
+    },
+    // 제목
     title: {
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 20,
-    },
-    npcRow: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: 12,
       marginBottom: 24,
     },
-    avatar: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
-      backgroundColor: theme.border,
+
+    // 캐릭터 + 말풍선
+    npcRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      // marginBottom: 32,
+      height: 250,
+    },
+    character: {
+      width: 166,
+      height: 200,
       alignItems: "center",
       justifyContent: "center",
+    },
+    characterEmoji: {
+      fontSize: 100,
     },
     bubble: {
       flex: 1,
-      backgroundColor: theme.surface,
-      borderRadius: 16,
-      borderTopLeftRadius: 4,
-      padding: 14,
-      borderWidth: 1.5,
+      backgroundColor: theme.bg,
+      borderRadius: 18,
+      borderWidth: 2,
       borderColor: theme.border,
+      // paddingVertical: 16,
+      // paddingHorizontal: 14,
       flexDirection: "row",
       alignItems: "center",
       gap: 10,
+      minHeight: 76,
+      position: "relative",
+    },
+    // 꼬리 (회색 테두리)
+    tailBorder: {
+      position: "absolute",
+      left: -12,
+      top: "50%",
+      marginTop: -9,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderBottomWidth: 9,
+      borderRightWidth: 12,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: theme.border,
+    },
+    // 꼬리 (안쪽 흰색)
+    tailInner: {
+      position: "absolute",
+      left: -8,
+      top: "50%",
+      marginTop: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 7,
+      borderBottomWidth: 7,
+      borderRightWidth: 10,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: theme.border,
     },
     audioBtn: { padding: 2 },
+    bubbleTextWrap: { flex: 1 },
     bubbleText: {
-      flex: 1,
-      fontSize: 16,
+      fontSize: 14,
       color: theme.text,
       fontWeight: "500",
-      lineHeight: 22,
+      lineHeight: 24,
     },
-    placedArea: {
-      minHeight: 60,
-      borderWidth: 2,
-      borderColor: theme.border,
+    dashedUnderline: {
+      borderBottomWidth: 1.5,
+      borderBottomColor: theme.textSecondary,
       borderStyle: "dashed",
-      borderRadius: 14,
-      padding: 10,
-      marginBottom: 4,
-      justifyContent: "center",
+      marginTop: 4,
     },
-    placeholder: {
-      color: theme.textSecondary,
-      fontSize: 14,
-      textAlign: "center",
-      fontWeight: "500",
+
+    // 답 영역 라인
+    answerArea: {
+      height: 180,
+      minHeight: lineH * lines,
+      marginTop: 8,
+      marginBottom: 8,
+      position: "relative",
     },
-    chipRow: {
+    answerLine: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      height: 1,
+      backgroundColor: theme.border,
+    },
+    placedWrap: {
+      ...StyleSheet.absoluteFill,
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignContent: "flex-start",
+    },
+    lineSlot: {
+      height: lineH,
+      justifyContent: "flex-end",
+      paddingBottom: 8,
+      marginRight: 8,
+    },
+
+    characterImage: {
+      width: 160,
+      height: 180,
+    },
+    // 단어 뱅크
+    bank: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      marginBottom: 8,
+      justifyContent: "center",
+      height: 150,
     },
-    divider: { height: 1.5, backgroundColor: theme.border },
+    bankSlot: {
+      position: "relative",
+    },
+    ghostOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    // 확인 버튼
     checkBtn: {
-      backgroundColor: theme.primary,
+      backgroundColor: "#58CC02",
       borderRadius: 16,
-      paddingVertical: 16,
+      paddingVertical: 18,
       alignItems: "center",
       marginTop: 16,
     },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+    checkBtnDisabled: {
+      backgroundColor: theme.bg,
+    },
+    checkBtnText: {
+      color: "#fff",
+      fontSize: 17,
+      fontWeight: "800",
+      letterSpacing: 1,
+    },
+    checkBtnTextDisabled: {
+      color: "#AFAFAF",
+    },
   });

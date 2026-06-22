@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
@@ -28,6 +28,9 @@ interface WordItem {
   placedIndex: number;
 }
 
+const ANSWER_LINES = 2;
+const LINE_H = 65;
+
 export default function SentenceBuilder({
   question,
   answerState,
@@ -36,7 +39,7 @@ export default function SentenceBuilder({
   combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const s = styles(theme, LINE_H, ANSWER_LINES);
   const { speak, speakSlow, isSpeaking } = useSpeech();
   const hasAutoPlayed = useRef(false);
 
@@ -158,8 +161,18 @@ export default function SentenceBuilder({
 
         {/* 캐릭터 + 스피커 버튼 2개 */}
         <View style={s.npcRow}>
-          <OwlMascot state={owlState} size={100} />
+          <View style={s.character}>
+            <Image
+              source={require("@/../assets/images/character.jpg")}
+              style={s.characterImage}
+              resizeMode="contain"
+            />
+          </View>
           <View style={s.speakerBubble}>
+            {/* 말풍선 꼬리 (테두리) */}
+            <View style={s.tailBorder} />
+            {/* 말풍선 꼬리 (안쪽 흰색) */}
+            <View style={s.tailInner} />
             <TouchableOpacity
               style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
               onPress={() => speak(question.answer)}
@@ -180,14 +193,20 @@ export default function SentenceBuilder({
         </View>
 
         {/* 배치 영역 */}
-        <View style={s.placedArea}>
-          {placedWords.length === 0 ? (
-            <Text style={s.placeholder}>{t("lesson.tapOrDrag")}</Text>
-          ) : (
-            <View style={s.chipRow}>
-              {placedWords.map((item, idx) => (
+        <View style={s.answerArea}>
+          {/* 줄 (룰드 라인) */}
+          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+            <View
+              key={`line-${i}`}
+              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+            />
+          ))}
+
+          {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
+          <View style={s.placedWrap}>
+            {placedWords.map((item, idx) => (
+              <View key={item.id} style={s.lineSlot}>
                 <AnswerChip
-                  key={item.id}
                   item={item}
                   orderIndex={idx}
                   onTap={handleTap}
@@ -198,13 +217,10 @@ export default function SentenceBuilder({
                   theme={theme}
                   answerState={answerState}
                 />
-              ))}
-            </View>
-          )}
+              </View>
+            ))}
+          </View>
         </View>
-
-        <View style={s.divider} />
-        <View style={[s.divider, { marginTop: 10, marginBottom: 16 }]} />
 
         {/* 단어 뱅크 */}
         <View style={s.chipRow}>
@@ -224,6 +240,7 @@ export default function SentenceBuilder({
             ),
           )}
         </View>
+        <View style={{ flex: 1 }} />
 
         <TouchableOpacity
           style={[
@@ -241,9 +258,14 @@ export default function SentenceBuilder({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, lineH: number, lines: number) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      marginBottom: 40,
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",
@@ -254,18 +276,64 @@ const styles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 16,
-      marginBottom: 28,
+      height: 250,
+    },
+    character: {
+      width: 166,
+      height: 200,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    characterImage: {
+      width: 160,
+      height: 180,
+    },
+    characterEmoji: {
+      fontSize: 100,
     },
     speakerBubble: {
       flex: 1,
-      flexDirection: "row",
-      gap: 12,
-      backgroundColor: theme.surface,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1.5,
+      backgroundColor: theme.bg,
+      borderRadius: 18,
+      borderWidth: 2,
       borderColor: theme.border,
+      paddingVertical: 16,
+      paddingHorizontal: 14,
+      flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-around",
+      gap: 10,
+      minHeight: 76,
+      position: "relative",
+    },
+    tailBorder: {
+      position: "absolute",
+      left: -12,
+      top: "50%",
+      marginTop: -9,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderBottomWidth: 9,
+      borderRightWidth: 12,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: theme.border,
+    },
+    // 꼬리 (안쪽 흰색)
+    tailInner: {
+      position: "absolute",
+      left: -8,
+      top: "50%",
+      marginTop: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 7,
+      borderBottomWidth: 7,
+      borderRightWidth: 10,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: theme.border,
     },
     speakerBtn: {
       width: 56,
@@ -278,6 +346,32 @@ const styles = (theme: ThemeColors) =>
       justifyContent: "center",
     },
     speakerBtnActive: { backgroundColor: "#4A90D9" },
+    answerArea: {
+      height: 180,
+      minHeight: lineH * lines,
+      marginTop: 8,
+      marginBottom: 8,
+      position: "relative",
+    },
+    answerLine: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      height: 1,
+      backgroundColor: theme.border,
+    },
+    placedWrap: {
+      ...StyleSheet.absoluteFill,
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignContent: "flex-start",
+    },
+    lineSlot: {
+      height: lineH,
+      justifyContent: "flex-end",
+      paddingBottom: 8,
+      marginRight: 8,
+    },
     placedArea: {
       minHeight: 56,
       borderWidth: 2,
@@ -298,7 +392,7 @@ const styles = (theme: ThemeColors) =>
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      marginBottom: 8,
+      height: 190,
     },
     divider: { height: 1.5, backgroundColor: theme.border },
     checkBtn: {

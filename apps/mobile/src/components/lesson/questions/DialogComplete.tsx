@@ -6,6 +6,7 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Props {
   question: LessonQuestion;
@@ -24,6 +25,7 @@ export default function DialogComplete({
   const s = styles(theme);
   const [selected, setSelected] = useState<string | null>(null);
   const { speak, isSpeaking } = useSpeech();
+  const insets = useSafeAreaInsets();
 
   const handleCheck = () => {
     if (!selected || answerState !== "idle") return;
@@ -41,7 +43,7 @@ export default function DialogComplete({
           style={s.npcRow}
         >
           <View style={s.avatar}>
-            <Text style={{ fontSize: 28 }}>👨</Text>
+            <Text style={{ fontSize: 45 }}>👨</Text>
           </View>
           <View style={s.npcBubble}>
             <TouchableOpacity onPress={() => speak(line.text)}>
@@ -64,10 +66,10 @@ export default function DialogComplete({
           </Text>
         </View>
         <View style={s.avatar}>
-          <Text style={{ fontSize: 28 }}>👩</Text>
+          <Text style={{ fontSize: 45 }}>👩</Text>
         </View>
       </View>
-
+      <View style={{ flex: 1 }} />
       {/* 선택지 */}
       <View style={s.options}>
         {question.options?.map((opt) => {
@@ -101,25 +103,32 @@ export default function DialogComplete({
           );
         })}
       </View>
-
+      <View style={{ flex: 1 }} />
       {/* 확인 버튼 */}
-      <TouchableOpacity
-        style={[
-          s.checkBtn,
-          (!selected || answerState !== "idle") && s.checkBtnDisabled,
-        ]}
-        onPress={handleCheck}
-        disabled={!selected || answerState !== "idle"}
-      >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-      </TouchableOpacity>
+      <View style={{ paddingBottom: insets.bottom + 12 }}>
+        <TouchableOpacity
+          style={[
+            s.checkBtn,
+            (!selected || answerState !== "idle") && s.checkBtnDisabled,
+          ]}
+          onPress={handleCheck}
+          disabled={!selected || answerState !== "idle"}
+        >
+          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      marginBottom: 40,
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",
@@ -140,8 +149,8 @@ const styles = (theme: ThemeColors) =>
       justifyContent: "flex-end",
     },
     avatar: {
-      width: 44,
-      height: 44,
+      width: 74,
+      height: 74,
       borderRadius: 22,
       backgroundColor: theme.border,
       alignItems: "center",
@@ -175,7 +184,7 @@ const styles = (theme: ThemeColors) =>
     },
     userText: { fontSize: 15, color: theme.primary, fontWeight: "600" },
     emptyText: { fontSize: 15, color: theme.textSecondary },
-    options: { gap: 12, marginBottom: 24 },
+    options: { gap: 12, marginTop: 8 },
     option: {
       borderWidth: 1.5,
       borderColor: theme.border,

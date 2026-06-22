@@ -133,7 +133,7 @@ export class LessonsService {
   async getLevelTestQuestions(lang: string = 'uz') {
     const easyQuestions = await this.questionModel.aggregate([
       { $match: { level: { $in: ['1', '2', '3'] }, isActive: true } },
-      { $sample: { size: 6 } },
+      { $sample: { size: 10 } },
     ]);
 
     const hardQuestions = await this.questionModel.aggregate([

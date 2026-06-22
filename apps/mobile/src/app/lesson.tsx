@@ -1,11 +1,6 @@
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Text,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
@@ -30,6 +25,7 @@ export default function LessonScreen() {
   const theme = useTheme();
   const s = getStyles(theme);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const [lesson, setLesson] = useState<LessonSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +64,7 @@ export default function LessonScreen() {
   };
 
   const currentQ = questionQueue.current[0];
+
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
     let isCorrect = false;
@@ -90,10 +87,6 @@ export default function LessonScreen() {
           uniqueCorrect.current.size / (lesson?.questions.length ?? 1),
         );
       }
-      setCombo((c) => c + 1);
-    }
-
-    if (isCorrect) {
       correctCount.current += 1;
       setCombo((c) => c + 1);
     } else {
@@ -123,7 +116,6 @@ export default function LessonScreen() {
     const [, ...remaining] = questionQueue.current;
     questionQueue.current = remaining;
 
-    console.log("안 비었씀==========", questionQueue.current.length);
     if (questionQueue.current.length === 0) {
       // 큐 비었으면 종료 조건 체크
       const isCompleted = wrongIds.current.length <= 3;
@@ -139,12 +131,10 @@ export default function LessonScreen() {
             wrongQuestionIds: wrongIds.current,
             isCompleted,
           });
-          console.log("✅ 레슨 완료 저장");
         } catch (err) {
           console.error("❌ 레슨 완료 저장 실패:", err);
         }
       }
-      console.log("비었씀==========");
       router.back();
       return;
     }
@@ -219,16 +209,10 @@ export default function LessonScreen() {
         theme={theme}
       />
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingBottom: answerState !== "idle" ? 180 : 40,
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
+      {/* ScrollView 제거 → flex:1 View. 컴포넌트들의 바닥 고정이 살아남 */}
+      <View style={[s.questionArea, { paddingBottom: insets.bottom }]}>
         {renderQuestion()}
-      </ScrollView>
+      </View>
 
       <FeedbackBar
         state={answerState}
@@ -246,6 +230,7 @@ export default function LessonScreen() {
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.bg },
+    questionArea: { flex: 1 },
     loadingContainer: {
       flex: 1,
       backgroundColor: theme.bg,

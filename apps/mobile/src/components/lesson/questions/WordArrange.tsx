@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   useWindowDimensions,
+  Image,
 } from "react-native";
 import Animated, {
   FadeInDown,
@@ -43,114 +44,8 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
-
-function Chip({
-  item,
-  onTap,
-  onDragToZone,
-  theme,
-  answerState,
-}: {
-  item: WordItem;
-  onTap: (id: string) => void;
-  onDragToZone: (id: string, toZone: "bank" | "placed") => void;
-  theme: ThemeColors;
-  answerState: AnswerState;
-}) {
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const zIndex = useSharedValue(1);
-  const isPlaced = item.zone === "placed";
-
-  const pan = Gesture.Pan()
-    .enabled(answerState === "idle")
-    .onStart(() => {
-      scale.value = withSpring(1.12, { damping: 8 });
-      zIndex.value = 999;
-    })
-    .onUpdate((e) => {
-      translateX.value = e.translationX;
-      translateY.value = e.translationY;
-    })
-    .onEnd((e) => {
-      scale.value = withSpring(1, { damping: 10 });
-      zIndex.value = 1;
-      translateX.value = withSpring(0, { damping: 14 });
-      translateY.value = withSpring(0, { damping: 14 });
-      const movedFar =
-        Math.abs(e.translationX) > 5 || Math.abs(e.translationY) > 5;
-      if (!movedFar) return;
-      if (isPlaced && e.translationY > 50)
-        runOnJS(onDragToZone)(item.id, "bank");
-      else if (!isPlaced && e.translationY < -50)
-        runOnJS(onDragToZone)(item.id, "placed");
-    });
-
-  const tap = Gesture.Tap()
-    .enabled(answerState === "idle")
-    .onEnd(() => runOnJS(onTap)(item.id));
-
-  const composed = Gesture.Simultaneous(tap, pan);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-    zIndex: zIndex.value,
-  }));
-
-  const getBg = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "correct") return "#D7F5E3";
-      if (answerState === "wrong") return "#FFEBEB";
-    }
-    // placed = 연두색, bank = 회색
-    return isPlaced ? "#D7F5E3" : theme.surface;
-  };
-
-  const getBorder = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "correct") return "#1CB454";
-      if (answerState === "wrong") return "#FF4B4B";
-    }
-    return isPlaced ? "#1CB454" : theme.border;
-  };
-
-  const getTextColor = () => {
-    if (answerState !== "idle" && isPlaced) {
-      if (answerState === "wrong") return "#FF4B4B";
-    }
-    return isPlaced ? "#1CB454" : theme.text;
-  };
-
-  return (
-    <GestureDetector gesture={composed}>
-      <Animated.View
-        style={[
-          cs.chip,
-          { backgroundColor: getBg(), borderColor: getBorder() },
-          animStyle,
-        ]}
-      >
-        <Text style={[cs.text, { color: getTextColor() }]}>{item.word}</Text>
-      </Animated.View>
-    </GestureDetector>
-  );
-}
-
-const cs = StyleSheet.create({
-  chip: {
-    borderWidth: 1.5,
-    borderBottomWidth: 3,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  text: { fontSize: 15, fontWeight: "700" },
-});
+const ANSWER_LINES = 2;
+const LINE_H = 65;
 
 export default function WordArrange({
   question,
@@ -160,7 +55,7 @@ export default function WordArrange({
   combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const s = styles(theme, ANSWER_LINES, LINE_H);
   const { speak, speakSlow, isSpeaking } = useSpeech();
 
   const [words, setWords] = useState<WordItem[]>(
@@ -276,8 +171,19 @@ export default function WordArrange({
 
         {/* 캐릭터 + 스피커 버튼 2개 */}
         <View style={s.npcRow}>
-          <OwlMascot state={owlState} size={100} />
+          <View style={s.character}>
+            <Image
+              source={require("@/../assets/images/character.jpg")}
+              style={s.characterImage}
+              resizeMode="contain"
+            />
+          </View>
+          {/* <OwlMascot state={owlState} size={100} /> */}
           <View style={s.speakerBubble}>
+            {/* 말풍선 꼬리 (테두리) */}
+            <View style={s.tailBorder} />
+            {/* 말풍선 꼬리 (안쪽 흰색) */}
+            <View style={s.tailInner} />
             {/* 일반 재생 */}
             <TouchableOpacity
               style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
@@ -300,14 +206,20 @@ export default function WordArrange({
         </View>
 
         {/* 배치된 단어들 (상단 - 연두색) */}
-        <View style={s.placedArea}>
-          {placedWords.length === 0 ? (
-            <Text style={s.placeholder}>{t("lesson.tapOrDrag")}</Text>
-          ) : (
-            <View style={s.chipRow}>
-              {placedWords.map((item, idx) => (
+        <View style={s.answerArea}>
+          {/* 줄 (룰드 라인) */}
+          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+            <View
+              key={`line-${i}`}
+              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+            />
+          ))}
+
+          {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
+          <View style={s.placedWrap}>
+            {placedWords.map((item, idx) => (
+              <View key={item.id} style={s.lineSlot}>
                 <AnswerChip
-                  key={item.id}
                   item={item}
                   orderIndex={idx}
                   onTap={handleTap}
@@ -318,13 +230,10 @@ export default function WordArrange({
                   theme={theme}
                   answerState={answerState}
                 />
-              ))}
-            </View>
-          )}
+              </View>
+            ))}
+          </View>
         </View>
-
-        <View style={s.divider} />
-        <View style={[s.divider, { marginTop: 10, marginBottom: 16 }]} />
 
         {/* 단어 뱅크 (하단 - 회색) */}
         <View style={s.chipRow}>
@@ -362,31 +271,78 @@ export default function WordArrange({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, lines: number, lineH: number) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      marginBottom: 40,
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 20,
     },
     npcRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: 16,
-      marginBottom: 28,
+      height: 250,
+    },
+    character: {
+      width: 166,
+      height: 200,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    characterImage: {
+      width: 120,
+      height: 140,
     },
     speakerBubble: {
       flex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 18,
+      borderWidth: 2,
+      borderColor: "#E5E5EA",
+      paddingVertical: 16,
+      paddingHorizontal: 14,
       flexDirection: "row",
-      gap: 12,
-      backgroundColor: theme.surface,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1.5,
-      borderColor: theme.border,
       alignItems: "center",
+      justifyContent: "space-around",
+      // gap: 10,
+      minHeight: 76,
+      position: "relative",
+    },
+    tailBorder: {
+      position: "absolute",
+      left: -12,
+      top: "50%",
+      marginTop: -9,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderBottomWidth: 9,
+      borderRightWidth: 12,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: "#E5E5EA",
+    },
+    // 꼬리 (안쪽 흰색)
+    tailInner: {
+      position: "absolute",
+      left: -8,
+      top: "50%",
+      marginTop: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 7,
+      borderBottomWidth: 7,
+      borderRightWidth: 10,
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: "#fff",
     },
     speakerBtn: {
       width: 56,
@@ -401,6 +357,33 @@ const styles = (theme: ThemeColors) =>
     speakerBtnActive: {
       backgroundColor: "#4A90D9",
     },
+    answerArea: {
+      height: 180,
+      minHeight: lineH * lines,
+      marginTop: 8,
+      marginBottom: 8,
+      position: "relative",
+    },
+    answerLine: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      height: 1,
+      backgroundColor: theme.border,
+    },
+    placedWrap: {
+      ...StyleSheet.absoluteFill,
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignContent: "flex-start",
+    },
+    lineSlot: {
+      height: lineH,
+      justifyContent: "flex-end",
+      paddingBottom: 8,
+      marginRight: 8,
+    },
+
     placedArea: {
       minHeight: 56,
       borderWidth: 2,
@@ -422,6 +405,7 @@ const styles = (theme: ThemeColors) =>
       flexWrap: "wrap",
       gap: 10,
       marginBottom: 8,
+      height: 160,
     },
     divider: { height: 1.5, backgroundColor: theme.border },
     checkBtn: {

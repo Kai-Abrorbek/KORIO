@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -26,6 +27,11 @@ export class UsersController {
   @Patch('me')
   async updateMe(@Request() req, @Body() dto: any) {
     return this.usersService.updateMe(req.user._id.toString(), dto);
+  }
+
+  @Post('me/level-test')
+  async saveLevelTest(@Request() req, @Body() dto: SaveLevelTestMeDto) {
+    return this.usersService.saveLevelTest(req.user._id.toString(), dto);
   }
 
   @Get('me/following')

@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -23,6 +23,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import BoriMascot from "@/components/home/BoriMascot";
+import { useAuthStore } from "@/store/auth.store";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -92,10 +93,14 @@ export default function ResultScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const { total, correct, score } = useLocalSearchParams<{
+    total: string;
+    correct: string;
+    score: string;
+  }>();
   const { detectedLevel, levelTestScore, correctAnswers } =
     useOnboardingStore();
-
-  // Bori 둥둥 애니메이션
+  const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const boriY = useSharedValue(0);
 
   useEffect(() => {
@@ -168,11 +173,13 @@ export default function ResultScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{correctAnswers}/10</Text>
+            <Text style={styles.statValue}>
+              {correctAnswers}/{total}
+            </Text>
             <Text style={styles.statLabel}>정답</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{levelTestScore}점</Text>
+            <Text style={styles.statValue}>{score}점</Text>
             <Text style={styles.statLabel}>점수</Text>
           </View>
         </View>
@@ -184,7 +191,7 @@ export default function ResultScreen() {
       >
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => router.replace("/welcome")}
+          onPress={() => router.replace(isLoggedIn ? "/(tabs)" : "/welcome")}
         >
           <Text style={styles.primaryButtonText}>
             {t("onboarding.result.startLearning")}

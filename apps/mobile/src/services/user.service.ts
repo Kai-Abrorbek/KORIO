@@ -28,6 +28,14 @@ export interface UserMe {
 }
 
 export const UserService = {
+  saveLevelTest: (data: {
+    correctAnswers: number;
+    totalQuestions: number;
+    score: number;
+    wrongQuestionIds: string[];
+  }): Promise<{ success: boolean; detectedLevel: string; score: number }> =>
+    api.post(`/users/me/level-test`, data),
+
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 
   updateMe: (data: Partial<UserMe>): Promise<UserMe> =>

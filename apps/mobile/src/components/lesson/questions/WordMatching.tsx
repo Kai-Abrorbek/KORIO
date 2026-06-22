@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useEffect, useState } from "react";
+import MatchPairCard, { PairStatus } from "../MatchPairCard";
 
 interface Props {
   question: LessonQuestion;
@@ -11,8 +12,21 @@ interface Props {
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
 }
+interface Item {
+  id: string;
+  pairId: number;
+  text: string;
+  status: PairStatus;
+}
 
-type MatchResult = { ko: string; native: string; correct: boolean };
+const shuffle = <T,>(a: T[]) => {
+  const r = [...a];
+  for (let i = r.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+};
 
 export default function WordMatching({
   question,
@@ -23,94 +37,158 @@ export default function WordMatching({
   const { t } = useTranslation();
   const s = styles(theme);
   const pairs = question.pairs ?? [];
-  const [selectedKo, setSelectedKo] = useState<string | null>(null);
-  const [selectedEn, setSelectedEn] = useState<string | null>(null);
-  const [matched, setMatched] = useState<MatchResult[]>([]);
-  const [shuffledNative] = useState(() =>
-    [...pairs].map((p) => p.native).sort(() => Math.random() - 0.5),
+
+  const [left, setLeft] = useState<Item[]>(() =>
+    shuffle(
+      pairs.map((p, i) => ({
+        id: `k-${i}`,
+        pairId: i,
+        text: p.korean,
+        status: "idle" as PairStatus,
+      })),
+    ),
   );
+  const [right, setRight] = useState<Item[]>(() =>
+    shuffle(
+      pairs.map((p, i) => ({
+        id: `n-${i}`,
+        pairId: i,
+        text: p.native,
+        status: "idle" as PairStatus,
+      })),
+    ),
+  );
+  const [selL, setSelL] = useState<number | null>(null);
+  const [selR, setSelR] = useState<number | null>(null);
+  const [matchedCount, setMatchedCount] = useState(0);
 
-  useEffect(() => {
-    if (!selectedKo || !selectedEn) return;
-    const pair = pairs.find((p) => p.korean === selectedKo);
-    const correct = pair?.native === selectedEn;
-    const newMatched = [
-      ...matched,
-      { ko: selectedKo, native: selectedEn, correct },
-    ];
-    setMatched(newMatched);
-    setSelectedKo(null);
-    setSelectedEn(null);
+  const locked = answerState !== "idle";
+  const allDone = pairs.length > 0 && matchedCount === pairs.length;
 
-    if (newMatched.length === pairs.length) {
-      const allCorrect = newMatched.every((m) => m.correct);
-      onAnswer(allCorrect ? "all_correct" : "some_wrong");
+  const setLS = (i: number, st: PairStatus) =>
+    setLeft((p) => p.map((x, idx) => (idx === i ? { ...x, status: st } : x)));
+  const setRS = (j: number, st: PairStatus) =>
+    setRight((p) => p.map((x, idx) => (idx === j ? { ...x, status: st } : x)));
+
+  const evaluate = (i: number, j: number) => {
+    const correct = left[i].pairId === right[j].pairId;
+    setSelL(null);
+    setSelR(null);
+    if (correct) {
+      setLS(i, "correct");
+      setRS(j, "correct");
+      setMatchedCount((c) => c + 1);
+      setTimeout(() => {
+        setLS(i, "ghost");
+        setRS(j, "ghost");
+      }, 700);
+    } else {
+      setLS(i, "wrong");
+      setRS(j, "wrong");
+      setTimeout(() => {
+        setLS(i, "idle");
+        setRS(j, "idle");
+      }, 520);
     }
-  }, [selectedKo, selectedEn]);
-
-  const getKoStyle = (ko: string) => {
-    const m = matched.find((m) => m.ko === ko);
-    if (m) return m.correct ? [s.chip, s.chipCorrect] : [s.chip, s.chipWrong];
-    if (selectedKo === ko) return [s.chip, s.chipSelected];
-    return [s.chip];
-  };
-  const getEnStyle = (en: string) => {
-    const m = matched.find((m) => m.native === en);
-    if (m) return m.correct ? [s.chip, s.chipCorrect] : [s.chip, s.chipWrong];
-    if (selectedEn === en) return [s.chip, s.chipSelected];
-    return [s.chip];
   };
 
-  const isKoMatched = (ko: string) => matched.some((m) => m.ko === ko);
-  const isEnMatched = (en: string) => matched.some((m) => m.native === en);
+  const tapL = (i: number) => {
+    if (locked) return;
+    const it = left[i];
+    if (
+      it.status === "correct" ||
+      it.status === "ghost" ||
+      it.status === "wrong"
+    )
+      return;
+    if (selL === i) {
+      setLS(i, "idle");
+      setSelL(null);
+      return;
+    }
+    if (selL !== null) setLS(selL, "idle");
+    setLS(i, "selected");
+    setSelL(i);
+    if (selR !== null) evaluate(i, selR);
+  };
+
+  const tapR = (j: number) => {
+    if (locked) return;
+    const it = right[j];
+    if (
+      it.status === "correct" ||
+      it.status === "ghost" ||
+      it.status === "wrong"
+    )
+      return;
+    if (selR === j) {
+      setRS(j, "idle");
+      setSelR(null);
+      return;
+    }
+    if (selR !== null) setRS(selR, "idle");
+    setRS(j, "selected");
+    setSelR(j);
+    if (selL !== null) evaluate(selL, j);
+  };
+
+  const check = () => {
+    if (!allDone || locked) return;
+    onAnswer("all_correct");
+  };
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+      {/* 헤더 유지 */}
       <Text style={s.title}>{question.question}</Text>
       <Text style={s.sub}>{t("lesson.matchPairs")}</Text>
 
       <View style={s.grid}>
         <View style={s.col}>
-          {pairs.map((p) => (
-            <TouchableOpacity
-              key={p.korean}
-              style={getKoStyle(p.korean)}
-              onPress={() =>
-                !isKoMatched(p.korean) &&
-                setSelectedKo((prev) => (prev === p.korean ? null : p.korean))
-              }
-            >
-              <Text style={s.chipText}>{p.korean}</Text>
-            </TouchableOpacity>
+          {left.map((item, i) => (
+            <MatchPairCard
+              key={item.id}
+              text={item.text}
+              status={item.status}
+              onPress={() => tapL(i)}
+              theme={theme}
+            />
           ))}
         </View>
         <View style={s.col}>
-          {shuffledNative.map((en) => (
-            <TouchableOpacity
-              key={en}
-              style={getEnStyle(en)}
-              onPress={() =>
-                !isEnMatched(en) &&
-                setSelectedEn((prev) => (prev === en ? null : en))
-              }
-            >
-              <Text style={s.chipText}>{en}</Text>
-            </TouchableOpacity>
+          {right.map((item, j) => (
+            <MatchPairCard
+              key={item.id}
+              text={item.text}
+              status={item.status}
+              onPress={() => tapR(j)}
+              theme={theme}
+            />
           ))}
         </View>
       </View>
 
-      <Text style={s.progress}>
-        {matched.filter((m) => m.correct).length}/{pairs.length}{" "}
-        {t("lesson.matched")}
-      </Text>
+      <View style={{ flex: 1 }} />
+
+      <TouchableOpacity
+        style={[s.checkBtn, (!allDone || locked) && s.checkBtnDisabled]}
+        onPress={check}
+        disabled={!allDone || locked}
+      >
+        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      marginBottom: 40,
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",
@@ -123,30 +201,14 @@ const styles = (theme: ThemeColors) =>
       marginBottom: 28,
       fontWeight: "500",
     },
-    grid: { flexDirection: "row", gap: 12 },
-    col: { flex: 1, gap: 12 },
-    chip: {
-      padding: 16,
-      borderRadius: 14,
-      borderWidth: 2,
-      borderColor: theme.border,
-      backgroundColor: theme.surface,
+    grid: { flexDirection: "row", gap: 14, height: 600 },
+    col: { flex: 1, gap: 14, height: "100%" },
+    checkBtn: {
+      backgroundColor: theme.primary,
+      borderRadius: 16,
+      paddingVertical: 16,
       alignItems: "center",
-      justifyContent: "center",
-      minHeight: 56,
     },
-    chipSelected: {
-      borderColor: theme.primary,
-      backgroundColor: theme.primary + "20",
-    },
-    chipCorrect: { borderColor: "#1CB454", backgroundColor: "#D7F5E3" },
-    chipWrong: { borderColor: "#FF4B4B", backgroundColor: "#FFEBEB" },
-    chipText: { fontSize: 16, fontWeight: "700", color: "#333" },
-    progress: {
-      marginTop: 24,
-      textAlign: "center",
-      color: theme.textSecondary,
-      fontWeight: "600",
-      fontSize: 14,
-    },
+    checkBtnDisabled: { backgroundColor: theme.border },
+    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

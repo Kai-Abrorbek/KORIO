@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Animated, {
   FadeInDown,
   useSharedValue,
@@ -6,12 +6,13 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  withDelay,
   cancelAnimation,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
 
@@ -21,6 +22,46 @@ interface Props {
   onAnswer: (answer: string) => void;
   onSkip: () => void;
   theme: ThemeColors;
+}
+
+const MIC_BLUE = "#1CB0F6";
+const MIC_BLUE_DARK = "#1899D6";
+
+// 파형 막대 한 개
+function WaveBar({ index, active }: { index: number; active: boolean }) {
+  const base = [10, 18, 28, 16, 32, 20, 30, 14, 24, 18, 12][index % 11];
+  const sv = useSharedValue(0.4);
+  if (active) {
+    sv.value = withDelay(
+      index * 60,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withTiming(0.4, { duration: 300 }),
+        ),
+        -1,
+        true,
+      ),
+    );
+  } else {
+    cancelAnimation(sv);
+    sv.value = withTiming(0.4);
+  }
+  const st = useAnimatedStyle(() => ({ transform: [{ scaleY: sv.value }] }));
+  return (
+    <Animated.View
+      style={[
+        {
+          width: 5,
+          height: base,
+          borderRadius: 3,
+          backgroundColor: "#fff",
+          marginHorizontal: 3,
+        },
+        st,
+      ]}
+    />
+  );
 }
 
 export default function Speaking({
@@ -33,99 +74,67 @@ export default function Speaking({
   const { t } = useTranslation();
   const s = styles(theme);
   const [isRecording, setIsRecording] = useState(false);
-  const pulseScale = useSharedValue(1);
-  const pulseOpacity = useSharedValue(0.6);
-  const { speak, speakSlow, isSpeaking } = useSpeech();
-  const hasAutoPlayed = useRef(false);
-
-  useEffect(() => {
-    if (hasAutoPlayed.current) return;
-    hasAutoPlayed.current = true;
-    const timer = setTimeout(() => {
-      speak(question.answer);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const { speak, isSpeaking } = useSpeech();
 
   const startRecording = () => {
     setIsRecording(true);
-    pulseScale.value = withRepeat(
-      withSequence(
-        withTiming(1.4, { duration: 600 }),
-        withTiming(1, { duration: 600 }),
-      ),
-      -1,
-    );
-    pulseOpacity.value = withRepeat(
-      withSequence(
-        withTiming(0.2, { duration: 600 }),
-        withTiming(0.6, { duration: 600 }),
-      ),
-      -1,
-    );
     // 실제 STT 연결 전 mock: 3초 후 정답 처리
     setTimeout(() => {
-      stopRecording();
+      setIsRecording(false);
       onAnswer(question.answer);
     }, 3000);
   };
 
-  const stopRecording = () => {
-    setIsRecording(false);
-    cancelAnimation(pulseScale);
-    cancelAnimation(pulseOpacity);
-    pulseScale.value = withTiming(1);
-    pulseOpacity.value = withTiming(0.6);
-  };
-
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
-    opacity: pulseOpacity.value,
-  }));
+  const stopRecording = () => setIsRecording(false);
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
       <Text style={s.title}>{question.question}</Text>
 
-      {/* NPC + 말풍선 */}
+      {/* 말풍선(위) + 캐릭터(아래) */}
       <View style={s.npcArea}>
         <View style={s.bubble}>
-          <TouchableOpacity onPress={() => speak(question.answer)}>
+          <TouchableOpacity onPress={() => speak(question.answer)} hitSlop={8}>
             <Ionicons
               name="volume-high"
-              size={22}
-              color={isSpeaking ? theme.primary : "#58CC02"}
+              size={24}
+              color={isSpeaking ? theme.primary : MIC_BLUE}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => speakSlow(question.answer)}
-            style={{ marginLeft: 8 }}
-          >
-            <Ionicons name="hourglass" size={20} color="#58CC02" />
-          </TouchableOpacity>
-          <Text style={s.bubbleText}>{question.answer}</Text>
+          <View style={s.bubbleTextWrap}>
+            <Text style={s.bubbleText}>{question.answer}</Text>
+            <View style={s.dashedUnderline} />
+          </View>
+          {/* 꼬리 (아래 방향) */}
+          <View style={s.tailBorder} />
+          <View style={s.tailInner} />
         </View>
-        <View style={s.npcWrapper}>
-          <Text style={{ fontSize: 100 }}>🧑</Text>
-        </View>
+
+        <Image
+          source={require("@/../assets/images/character.jpg")}
+          style={s.characterImage}
+          resizeMode="contain"
+        />
       </View>
 
-      {/* 마이크 버튼 */}
-      <View style={s.micArea}>
-        {/* 펄스 링 */}
-        <Animated.View style={[s.pulseRing, pulseStyle]} />
-        <TouchableOpacity
-          style={[s.micBtn, isRecording && s.micBtnActive]}
-          onPress={isRecording ? stopRecording : startRecording}
-          activeOpacity={0.85}
-        >
-          <Ionicons
-            name={isRecording ? "stop" : "mic"}
-            size={36}
-            color="#fff"
-          />
-        </TouchableOpacity>
-      </View>
+      <View style={{ flex: 1 }} />
+
+      {/* 가로 마이크 바 */}
+      <TouchableOpacity
+        style={[s.micBar, isRecording && s.micBarActive]}
+        onPress={isRecording ? stopRecording : startRecording}
+        activeOpacity={0.9}
+      >
+        {isRecording ? (
+          <View style={s.waveRow}>
+            {Array.from({ length: 11 }).map((_, i) => (
+              <WaveBar key={i} index={i} active />
+            ))}
+          </View>
+        ) : (
+          <Ionicons name="mic" size={32} color="#fff" />
+        )}
+      </TouchableOpacity>
 
       {/* 건너뛰기 */}
       <TouchableOpacity onPress={onSkip} style={s.skipBtn}>
@@ -141,55 +150,84 @@ const styles = (theme: ThemeColors) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      alignItems: "stretch",
     },
     title: {
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 32,
+      marginBottom: 28,
     },
-    npcArea: { alignItems: "center", marginBottom: 40 },
+
+    npcArea: { alignItems: "center" },
     bubble: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: 12,
       backgroundColor: theme.surface,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1.5,
+      borderRadius: 18,
+      borderWidth: 2,
       borderColor: theme.border,
-      marginBottom: 16,
+      paddingVertical: 16,
+      paddingHorizontal: 18,
       alignSelf: "stretch",
+      marginBottom: 22,
+      position: "relative",
     },
-    bubbleText: { flex: 1, fontSize: 18, color: theme.text, fontWeight: "600" },
-    npcWrapper: { marginTop: 8 },
-    micArea: {
-      alignItems: "center",
-      justifyContent: "center",
-      height: 140,
-      marginBottom: 24,
+    bubbleTextWrap: { flex: 1 },
+    bubbleText: { fontSize: 14, color: theme.text, fontWeight: "600" },
+    dashedUnderline: {
+      borderBottomWidth: 1.5,
+      borderBottomColor: theme.textSecondary,
+      borderStyle: "dashed",
+      marginTop: 6,
     },
-    pulseRing: {
+    // 꼬리 (아래 방향) - 테두리
+    tailBorder: {
       position: "absolute",
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-      backgroundColor: "#1CB454",
+      left: 40,
+      bottom: -12,
+      width: 0,
+      height: 0,
+      borderLeftWidth: 9,
+      borderRightWidth: 9,
+      borderTopWidth: 12,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+      borderTopColor: theme.border,
     },
-    micBtn: {
-      width: 88,
-      height: 88,
-      borderRadius: 44,
-      backgroundColor: "#58CC02",
+    // 꼬리 (안쪽)
+    tailInner: {
+      position: "absolute",
+      left: 42,
+      bottom: -8,
+      width: 0,
+      height: 0,
+      borderLeftWidth: 7,
+      borderRightWidth: 7,
+      borderTopWidth: 10,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+      borderTopColor: theme.surface,
+    },
+    characterImage: { width: 180, height: 230 },
+
+    // 가로 마이크 바
+    micBar: {
+      height: 60,
+      width: 150,
+      borderRadius: 18,
+      backgroundColor: MIC_BLUE,
       alignItems: "center",
       justifyContent: "center",
-      shadowColor: "#58CC02",
-      shadowOpacity: 0.5,
-      shadowRadius: 16,
-      elevation: 8,
+      borderBottomWidth: 4,
+      borderBottomColor: MIC_BLUE_DARK,
+      marginBottom: 12,
+      // marginTop: 200,
+      marginLeft: 120,
     },
-    micBtnActive: { backgroundColor: "#FF4B4B" },
-    skipBtn: { alignItems: "center", marginTop: 8 },
-    skipText: { fontSize: 14, color: theme.textSecondary, fontWeight: "600" },
+    micBarActive: { backgroundColor: MIC_BLUE },
+    waveRow: { flexDirection: "row", alignItems: "center", height: 36 },
+
+    skipBtn: { alignItems: "center", paddingVertical: 14 },
+    skipText: { fontSize: 15, color: theme.textSecondary, fontWeight: "700" },
   });

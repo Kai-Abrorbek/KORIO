@@ -22,6 +22,7 @@ interface Props {
   answerState: AnswerState;
   onClose: () => void;
   theme: ThemeColors;
+  hideBadges?: boolean;
 }
 
 export default function LessonHeader({
@@ -32,6 +33,7 @@ export default function LessonHeader({
   answerState,
   onClose,
   theme,
+  hideBadges = false,
 }: Props) {
   const progressWidth = useSharedValue(progress);
   const fillScaleY = useSharedValue(1);
@@ -184,19 +186,21 @@ export default function LessonHeader({
         </View>
 
         {/* 오른쪽 배지 */}
-        <View style={s.right}>
-          <View style={s.lightningBadge}>
-            <MaterialCommunityIcons
-              name="lightning-bolt"
-              size={18}
-              color="#fff"
-            />
-            <View style={s.lightningDot} />
+        {!hideBadges && (
+          <View style={s.right}>
+            <View style={s.lightningBadge}>
+              <MaterialCommunityIcons
+                name="lightning-bolt"
+                size={18}
+                color="#fff"
+              />
+              <View style={s.lightningDot} />
+            </View>
+            <View style={s.infinityBadge}>
+              <MaterialCommunityIcons name="infinity" size={20} color="#fff" />
+            </View>
           </View>
-          <View style={s.infinityBadge}>
-            <MaterialCommunityIcons name="infinity" size={20} color="#fff" />
-          </View>
-        </View>
+        )}
       </View>
     </View>
   );

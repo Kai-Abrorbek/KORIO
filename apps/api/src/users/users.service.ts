@@ -11,6 +11,7 @@ import {
   UserProgress,
   UserProgressDocument,
 } from './schemas/user-progress.schema';
+import { calculateLevel } from '../common/enums/level.enum';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +21,30 @@ export class UsersService {
     @InjectModel(UserProgress.name)
     private progressModel: Model<UserProgressDocument>,
   ) {}
+
+  async saveLevelTest(
+    userId: string,
+    dto: {
+      correctAnswers: number;
+      totalQuestions: number;
+      score: number;
+      wrongQuestionIds: string[];
+    },
+  ) {
+    const detectedLevel = calculateLevel(dto.score);
+
+    await this.userModel.findByIdAndUpdate(new Types.ObjectId(userId), {
+      level: detectedLevel,
+      isOnboardingCompleted: true,
+    });
+
+    return {
+      success: true,
+      detectedLevel,
+      score: dto.score,
+      correctAnswers: dto.correctAnswers,
+    };
+  }
 
   /** 본인 정보 + 카운트 */
   async getMe(userId: string) {
