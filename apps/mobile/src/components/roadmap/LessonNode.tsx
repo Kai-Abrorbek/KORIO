@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -16,6 +16,7 @@ import { darken } from "@/utils/color";
 import AnimatedNodeRing, { RING_SIZE } from "./AnimatedNodeRing";
 
 interface Props {
+  index: number;
   type: NodeType;
   status: NodeStatus;
   unitColor: string;
@@ -31,6 +32,7 @@ const ICON_MAP: Record<NodeType, keyof typeof Ionicons.glyphMap> = {
   chest: "gift",
   review: "refresh",
   boss: "trophy",
+  "play-forward": "play-forward",
 };
 
 const NODE_SIZE = 72;
@@ -40,6 +42,7 @@ const REST_DURATION = 1000; // 쉬는 시간 (ms)
 const STEPS_PER_CYCLE = 7; // 한 사이클에 몇 스텝
 
 export default function LessonNode({
+  index,
   type,
   status,
   unitColor,
@@ -96,10 +99,14 @@ export default function LessonNode({
   let darkColor: string;
   let iconColor: string;
 
-  if (isLocked) {
+  if (isLocked && index !== 0) {
     mainColor = theme.border;
     darkColor = darken(theme.border, 20);
     iconColor = theme.textSecondary;
+  } else if (isLocked && index === 0) {
+    mainColor = unitColor;
+    darkColor = darken(unitColor, 40);
+    iconColor = "#fff";
   } else {
     mainColor = unitColor;
     darkColor = darken(unitColor, 40);
@@ -128,7 +135,20 @@ export default function LessonNode({
       >
         <View style={[styles.depth, { backgroundColor: darkColor }]} />
         <View style={[styles.face, { backgroundColor: mainColor }]}>
-          {isCurrent && type === "star" ? (
+          {isLocked ? (
+            <Ionicons
+              name={index !== 0 ? "lock-closed" : "play-forward"}
+              size={index !== 0 ? iconSize - 5 : iconSize + 1}
+              color={index !== 0 ? iconColor : "white"}
+              style={index !== 0 ? { opacity: 0.5 } : { opacity: 1 }}
+            />
+          ) : type === "chest" ? (
+            <MaterialCommunityIcons
+              name="treasure-chest"
+              size={iconSize + 4}
+              color={iconColor}
+            />
+          ) : isCurrent && type === "star" ? (
             <Animated.View style={iconRotateStyle}>
               <Ionicons name={iconName} size={iconSize} color={iconColor} />
             </Animated.View>

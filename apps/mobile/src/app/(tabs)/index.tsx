@@ -189,7 +189,7 @@ export default function HomeScreen() {
               style={styles.lessonSideBtn}
               activeOpacity={0.7}
               onPress={() => {
-                router.push("/word-chain");
+                router.push("/settings");
               }}
             >
               <Ionicons

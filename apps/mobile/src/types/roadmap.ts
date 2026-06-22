@@ -4,7 +4,8 @@ export type NodeType =
   | "speech"
   | "chest"
   | "review"
-  | "boss";
+  | "boss"
+  | "play-forward";
 
 export type NodeStatus = "completed" | "current" | "locked";
 

@@ -74,6 +74,7 @@ export default function RoadmapScreen() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isPastCurrent, setIsPastCurrent] = useState(false);
   const router = useRouter();
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
@@ -141,17 +142,20 @@ export default function RoadmapScreen() {
     }
     setCurrentUnitIndex(current);
 
-    // 맨 아래 판단
+    // current 유닛 offset 기준으로 판단
+    const currentIdx = processedUnits.findIndex((u) => u.status === "current");
+    const targetOffset = unitOffsets.current[currentIdx] ?? 0;
+    setIsPastCurrent(y > targetOffset + 100); // 100px 아래로 내리면 바로 전환
+
     const { content, container } = scrollHeight.current;
     setIsAtBottom(y + container >= content - 30);
   };
 
   // 스크롤 버튼: 맨 아래면 맨 위로, 아니면 맨 아래로
   const handleScrollToggle = () => {
-    if (isAtBottom) {
+    if (isPastCurrent) {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
     } else {
-      // current 유닛 위치로 이동
       const currentIdx = processedUnits.findIndex(
         (u) => u.status === "current",
       );
@@ -209,28 +213,33 @@ export default function RoadmapScreen() {
         }}
       >
         <Pressable onPress={closePopover}>
-          {processedUnits.map((unit, index) => (
-            <View
-              key={unit.id}
-              onLayout={(e) => {
-                unitOffsets.current[index] = e.nativeEvent.layout.y;
-              }}
-            >
-              <UnitRoadmap
-                unit={unit}
-                selectedNodeId={selectedNodeId}
-                onNodeTap={handleNodeTap}
-                onNodeStart={handleNodeStart}
-                onGuidePress={handleGuidePress}
-                // 첫 번째 유닛 제외, 잠긴 유닛만 JumpButton 표시
-                onJumpToUnit={
-                  index > 0 && unit.status === "locked"
-                    ? () => handleJumpToUnit(unit)
-                    : undefined
-                }
-              />
-            </View>
-          ))}
+          {processedUnits.map((unit, index) => {
+            const hasSelectedNode = unit.nodes.some(
+              (n) => n.id === selectedNodeId,
+            );
+            return (
+              <View
+                key={unit.id}
+                onLayout={(e) => {
+                  unitOffsets.current[index] = e.nativeEvent.layout.y;
+                }}
+                style={hasSelectedNode ? styles.unitElevated : undefined}
+              >
+                <UnitRoadmap
+                  unit={unit}
+                  selectedNodeId={selectedNodeId}
+                  onNodeTap={handleNodeTap}
+                  onNodeStart={handleNodeStart}
+                  onGuidePress={handleGuidePress}
+                  onJumpToUnit={
+                    index > 0 && unit.status === "locked"
+                      ? () => handleJumpToUnit(unit)
+                      : undefined
+                  }
+                />
+              </View>
+            );
+          })}
         </Pressable>
       </ScrollView>
 
@@ -243,7 +252,7 @@ export default function RoadmapScreen() {
         <View style={styles.scrollBtnDepth} />
         <View style={styles.scrollBtnFace}>
           <Ionicons
-            name={isAtBottom ? "arrow-up" : "arrow-down"}
+            name={isPastCurrent ? "arrow-up" : "arrow-down"}
             size={24}
             color="#45B7D1"
           />
@@ -276,6 +285,10 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 14,
       backgroundColor: theme.border,
       top: 5,
+    },
+    unitElevated: {
+      zIndex: 9999,
+      elevation: 30,
     },
     scrollBtnFace: {
       position: "absolute",
