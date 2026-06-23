@@ -134,6 +134,12 @@ export default {
     newWord: "Yangi so'z",
     selectCorrectImage: "To'g'ri rasmni tanlang",
     listenAndSelect: "Eshiting va tanlang",
+    translateSentence: "Quyidagi gapni tarjima qiling",
+    enterTranslation: "Tarjimani kiriting",
+    tapToSpeak: "Gapirish uchun bosing",
+    recording: "Tinglanmoqda...",
+    typeHeardEnglish: "Eshitilgan inglizchani kiriting",
+    hardPractice: "Qiyin mashq",
   },
   stats: {
     tabs: { period: "Davriy", category: "Toifa" },
@@ -427,5 +433,13 @@ export default {
     exit: "Chiqish",
     exitTitle: "O'yinni tugatamizmi?",
     exitConfirm: "Joriy progress saqlanmaydi",
+  },
+  score: {
+    raised: "Ingliz tili ballingiz oshdi!",
+    continue: "Davom etish",
+    explain: "Ball haqida",
+    title: "Ingliz tili bali",
+    hint: "Ingliz tilingiz yaxshilansa, ball oshadi",
+    progress: "Ball holati",
   },
 };

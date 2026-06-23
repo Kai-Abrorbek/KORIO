@@ -133,6 +133,12 @@ export default {
     newWord: "Новое слово",
     selectCorrectImage: "Выберите правильное изображение",
     listenAndSelect: "Слушайте и выбирайте",
+    translateSentence: "Переведите это предложение",
+    enterTranslation: "Введите перевод",
+    tapToSpeak: "Нажмите, чтобы говорить",
+    recording: "Слушаю...",
+    typeHeardEnglish: "Введите услышанное",
+    hardPractice: "Сложная практика",
   },
   stats: {
     tabs: { period: "По периоду", category: "По категории" },
@@ -426,5 +432,13 @@ export default {
     exit: "Выйти",
     exitTitle: "Завершить игру?",
     exitConfirm: "Прогресс не сохранится",
+  },
+  score: {
+    raised: "Ваш балл по английскому вырос!",
+    continue: "Продолжить",
+    explain: "О баллах",
+    title: "Балл по английскому",
+    hint: "Балл растёт по мере улучшения английского",
+    progress: "Прогресс баллов",
   },
 };

@@ -19,6 +19,8 @@ import DialogComplete from "@/components/lesson/questions/DialogComplete";
 import TypeAnswer from "@/components/lesson/questions/TypeAnswer";
 import WordMatching from "@/components/lesson/questions/WordMatching";
 import TranslateBuilder from "@/components/lesson/questions/TranslateBuilder";
+import TranslateType from "@/components/lesson/questions/TranslateType";
+import ListenType from "@/components/lesson/questions/ListenType";
 
 export default function LessonScreen() {
   const { t } = useTranslation();
@@ -170,6 +172,10 @@ export default function LessonScreen() {
         return <TypeAnswer {...props} />;
       case "word_matching":
         return <WordMatching {...props} />;
+      case "listen_type":
+        return <ListenType {...props} onSkip={handleNext} />;
+      case "translate_type":
+        return <TranslateType {...props} />;
       default:
         return <SentenceBuilder {...props} />;
     }

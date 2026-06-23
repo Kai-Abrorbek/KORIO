@@ -132,6 +132,12 @@ export default {
     newWord: "New word",
     selectCorrectImage: "Select the correct image",
     listenAndSelect: "Listen and select",
+    translateSentence: "Translate this sentence",
+    enterTranslation: "Enter translation",
+    tapToSpeak: "Tap to speak",
+    recording: "Listening...",
+    hardPractice: "Hard practice",
+    typeHeardEnglish: "Type what you hear",
   },
   stats: {
     tabs: { period: "By Period", category: "By Category" },
@@ -425,5 +431,13 @@ export default {
     exit: "Exit",
     exitTitle: "Quit the game?",
     exitConfirm: "Your progress won't be saved",
+  },
+  score: {
+    raised: "You raised your English score!",
+    continue: "Continue",
+    explain: "Score explained",
+    title: "English score",
+    hint: "Your score goes up as your English improves",
+    progress: "Score progress",
   },
 };

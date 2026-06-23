@@ -8,7 +8,9 @@ export type QuestionType =
   | "image_choice"
   | "dialog_complete"
   | "type_answer"
-  | "listening";
+  | "listening"
+  | "translate_type"
+  | "listen_type";
 
 export interface MatchingPair {
   korean: string;
@@ -46,6 +48,7 @@ export interface LessonQuestion {
   dialogLines?: DialogLine[];
   sentencePrefix?: string;
   sentenceSuffix?: string;
+  hard?: boolean;
 }
 
 export interface LessonSession {

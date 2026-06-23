@@ -132,6 +132,12 @@ export default {
     newWord: "Yangi so'z",
     selectCorrectImage: "To'g'ri rasmni tanlang",
     listenAndSelect: "Eshiting va tanlang",
+    translateSentence: "다음 문장을 번역하세요",
+    enterTranslation: "번역 입력",
+    tapToSpeak: "탭하여 말하기",
+    recording: "듣는 중...",
+    hardPractice: "어려운 연습",
+    typeHeardEnglish: "들리는 영어 입력",
   },
   stats: {
     tabs: { period: "기간별", category: "학습별" },
@@ -429,5 +435,13 @@ export default {
     exit: "그만하기",
     exitTitle: "게임을 종료할까요?",
     exitConfirm: "현재 진행 상황은 저장되지 않아요",
+  },
+  score: {
+    raised: "영어 스코어를 올렸습니다!",
+    continue: "계속",
+    explain: "스코어 설명",
+    title: "영어 스코어",
+    hint: "영어 실력이 늘어나면 스코어가 올라가요",
+    progress: "스코어 현황",
   },
 };
