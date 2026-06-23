@@ -444,4 +444,13 @@ export default {
     hint: "영어 실력이 늘어나면 스코어가 올라가요",
     progress: "스코어 현황",
   },
+  matchGame: {
+    title: "의미가 일치하는 단어끼리 짝을 지으세요",
+    continue: "계속",
+    bubble: "오, {{xp}} XP면 좀 멋진데요?",
+    starEarned: "{{xp}} XP와 별 하나를 획득했어요!",
+    keepGoing: "계속 진행해서 다음 별도 따볼까요?",
+    timeUp: "시간 종료!",
+    finalScore: "총 {{count}}개를 맞췄어요!",
+  },
 };

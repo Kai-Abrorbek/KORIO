@@ -442,4 +442,13 @@ export default {
     hint: "Ingliz tilingiz yaxshilansa, ball oshadi",
     progress: "Ball holati",
   },
+  matchGame: {
+    title: "Ma'nosi bir xil so'zlarni juftlang",
+    continue: "Davom etish",
+    bubble: "Voy, {{xp}} XP — zo'r-ku!",
+    starEarned: "{{xp}} XP va bitta yulduz oldingiz!",
+    keepGoing: "Davom etib keyingi yulduzni ham olamizmi?",
+    timeUp: "Vaqt tugadi!",
+    finalScore: "Jami {{count}} ta juftladingiz!",
+  },
 };

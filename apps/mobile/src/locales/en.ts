@@ -440,4 +440,13 @@ export default {
     hint: "Your score goes up as your English improves",
     progress: "Score progress",
   },
+  matchGame: {
+    title: "Match the words with the same meaning",
+    continue: "Continue",
+    bubble: "Nice, {{xp}} XP is pretty cool.",
+    starEarned: "You earned {{xp}} XP and a star!",
+    keepGoing: "Keep going to earn the next star?",
+    timeUp: "Time's up!",
+    finalScore: "You matched {{count}} pairs!",
+  },
 };
