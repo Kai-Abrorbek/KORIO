@@ -261,7 +261,7 @@ const styles = (theme: ThemeColors, lines: number, lineH: number) =>
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 24,
+      marginBottom: 20,
     },
 
     // 캐릭터 + 말풍선
@@ -269,8 +269,7 @@ const styles = (theme: ThemeColors, lines: number, lineH: number) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      // marginBottom: 32,
-      height: 250,
+      height: 180,
     },
     character: {
       width: 166,
@@ -287,19 +286,16 @@ const styles = (theme: ThemeColors, lines: number, lineH: number) =>
       borderRadius: 18,
       borderWidth: 2,
       borderColor: theme.border,
-      // paddingVertical: 16,
-      // paddingHorizontal: 14,
       flexDirection: "row",
       alignItems: "center",
       gap: 10,
       minHeight: 76,
       position: "relative",
     },
-    // 꼬리 (회색 테두리)
     tailBorder: {
       position: "absolute",
       left: -12,
-      top: "50%",
+      top: "15%",
       marginTop: -9,
       width: 0,
       height: 0,
@@ -310,11 +306,10 @@ const styles = (theme: ThemeColors, lines: number, lineH: number) =>
       borderBottomColor: "transparent",
       borderRightColor: theme.border,
     },
-    // 꼬리 (안쪽 흰색)
     tailInner: {
       position: "absolute",
       left: -8,
-      top: "50%",
+      top: "15%",
       marginTop: -7,
       width: 0,
       height: 0,
@@ -340,7 +335,6 @@ const styles = (theme: ThemeColors, lines: number, lineH: number) =>
       marginTop: 4,
     },
 
-    // 답 영역 라인
     answerArea: {
       height: 180,
       minHeight: lineH * lines,

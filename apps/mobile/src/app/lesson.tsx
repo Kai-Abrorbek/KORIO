@@ -1,6 +1,13 @@
-import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
@@ -11,6 +18,7 @@ import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
 import ComboPopup from "@/components/lesson/ComboPopup";
+import BoriMascot from "@/components/home/BoriMascot";
 import SentenceBuilder from "@/components/lesson/questions/SentenceBuilder";
 import WordArrange from "@/components/lesson/questions/WordArrange";
 import Speaking from "@/components/lesson/questions/Speaking";
@@ -19,8 +27,12 @@ import DialogComplete from "@/components/lesson/questions/DialogComplete";
 import TypeAnswer from "@/components/lesson/questions/TypeAnswer";
 import WordMatching from "@/components/lesson/questions/WordMatching";
 import TranslateBuilder from "@/components/lesson/questions/TranslateBuilder";
-import TranslateType from "@/components/lesson/questions/TranslateType";
-import ListenType from "@/components/lesson/questions/ListenType";
+import { useAuthStore } from "@/store/auth.store";
+import { useOnboardingStore } from "@/store/onboarding.store";
+import { UserService } from "@/services/user.service";
+import { onboardingService } from "@/services/onboarding.service";
+
+type Phase = "main" | "reviewIntro" | "review";
 
 export default function LessonScreen() {
   const { t } = useTranslation();
@@ -28,21 +40,33 @@ export default function LessonScreen() {
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
+  const { lessonId, mode } = useLocalSearchParams<{
+    lessonId?: string;
+    mode?: string;
+  }>();
+  const isLevelTest = mode === "levelTest";
+  const { setLevelTestResult, sessionId } = useOnboardingStore();
+  const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
+  const updateUser = useAuthStore((st) => st.updateUser);
+  const locked = useRef(false);
   const [lesson, setLesson] = useState<LessonSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const [hearts, setHearts] = useState(3);
   const [combo, setCombo] = useState(0);
-  const questionQueue = useRef<LessonQuestion[]>([]);
-  const retryCount = useRef<Record<string, number>>({});
+  const [phase, setPhase] = useState<Phase>("main");
+
+  const reviewTotal = useRef(0);
+  const questionQueue = useRef<LessonQuestion[]>([]); // 현재 푸는 큐 (main → review)
+  const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
+  const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
   const uniqueCorrect = useRef<Set<string>>(new Set());
   const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
-  const wrongIds = useRef<string[]>([]);
   const correctCount = useRef(0);
   const totalCount = useRef(0);
+  const wrongIds = useRef<string[]>([]);
 
   useEffect(() => {
     loadLesson();
@@ -51,97 +75,225 @@ export default function LessonScreen() {
   const loadLesson = async () => {
     try {
       setLoading(true);
+
+      if (isLevelTest) {
+        const questions = await LessonService.getLevelTestQuestions();
+        const session = {
+          lessonId: "level-test",
+          lessonTitle: "Level Test",
+          category: "",
+          totalXp: 0,
+          questions,
+        };
+        setLesson(session as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
       const data = lessonId
         ? await LessonService.getLessonById(lessonId)
         : MOCK_LESSON;
       setLesson(data);
-      questionQueue.current = [...data.questions]; // 큐 초기화
+      questionQueue.current = [...data.questions];
     } catch (err) {
       console.error("레슨 로드 실패:", err);
-      setLesson(MOCK_LESSON);
-      questionQueue.current = [...MOCK_LESSON.questions];
+      if (!isLevelTest) {
+        setLesson(MOCK_LESSON);
+        questionQueue.current = [...MOCK_LESSON.questions];
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const goNextLevelTest = () => {
+    locked.current = false;
+    const [, ...rest] = questionQueue.current;
+    questionQueue.current = rest;
+
+    if (questionQueue.current.length === 0) {
+      finishLevelTest();
+      return;
+    }
+    setCurrentIdx((i) => i + 1);
+  };
+
+  const finishLevelTest = async () => {
+    const total = lesson?.questions.length ?? 1;
+    const correct = correctCount.current;
+    const score = Math.round((correct / total) * 100);
+    const detectedLevel =
+      score >= 90 ? "advanced" : score >= 60 ? "intermediate" : "beginner";
+    const wrongQuestionIds = wrongIds.current;
+
+    // result 화면이 store를 읽으므로 항상 세팅
+    setLevelTestResult({
+      score,
+      detectedLevel,
+      correctAnswers: correct,
+      wrongQuestionIds,
+    });
+
+    try {
+      if (isLoggedIn) {
+        await UserService.saveLevelTest({
+          correctAnswers: correct,
+          totalQuestions: total,
+          score,
+          wrongQuestionIds,
+        });
+        updateUser({
+          level: detectedLevel as any,
+          isOnboardingCompleted: true,
+        });
+      } else {
+        await onboardingService.saveLevelTest({
+          sessionId,
+          correctAnswers: correct,
+          totalQuestions: total,
+          score,
+          wrongQuestionIds,
+        });
+      }
+    } catch (e) {
+      console.error("레벨테스트 저장 실패:", e);
+    } finally {
+      router.replace("/onboarding/result");
+    }
+  };
+
   const currentQ = questionQueue.current[0];
+
+  const goHome = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
+
+  const checkCorrect = (answer: string, q: LessonQuestion) => {
+    if (q.type === "word_matching" || q.type === "audio_match") {
+      return answer === "all_correct";
+    }
+    if (q.type === "speaking") return true;
+    return answer.trim().toLowerCase() === q.answer.trim().toLowerCase();
+  };
 
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
-    let isCorrect = false;
+    const isCorrect = checkCorrect(answer, currentQ);
 
-    if (currentQ.type === "word_matching") {
-      isCorrect = answer === "all_correct";
-    } else if (currentQ.type === "speaking") {
-      isCorrect = true;
-    } else {
-      isCorrect =
-        answer.trim().toLowerCase() === currentQ.answer.trim().toLowerCase();
+    if (isLevelTest) {
+      if (locked.current) return;
+      locked.current = true;
+      totalCount.current += 1;
+      if (isCorrect) correctCount.current += 1;
+      else wrongIds.current.push(currentQ.id);
+      setProgress(totalCount.current / (lesson?.questions.length ?? 1));
+      setTimeout(goNextLevelTest, 280); // 짧은 텀만, 정답 공개 X
+      return;
     }
 
     totalCount.current += 1;
 
     if (isCorrect) {
-      if (!uniqueCorrect.current.has(currentQ.id)) {
-        uniqueCorrect.current.add(currentQ.id);
-        setProgress(
-          uniqueCorrect.current.size / (lesson?.questions.length ?? 1),
-        );
-      }
       correctCount.current += 1;
       setCombo((c) => c + 1);
+      if (!uniqueCorrect.current.has(currentQ.id)) {
+        uniqueCorrect.current.add(currentQ.id);
+      }
+      // 복습 단계에서 맞으면 최종 오답에서 제외
+      if (phase === "review") finalWrongIds.current.delete(currentQ.id);
     } else {
       setCombo(0);
-
-      const id = currentQ.id;
-      retryCount.current[id] = (retryCount.current[id] ?? 0) + 1;
-
-      if (retryCount.current[id] >= 3) {
-        // 3번 틀리면 포기 → wrongIds에만 넣고 큐에 안 넣음
-        if (!wrongIds.current.includes(id)) {
-          wrongIds.current.push(id);
+      if (phase === "main") {
+        // 1단계: 틀리면 복습 큐에 모음 (중복 방지)
+        if (!reviewQueue.current.some((q) => q.id === currentQ.id)) {
+          reviewQueue.current.push(currentQ);
         }
       } else {
-        // 큐 맨 끝에 추가
-        questionQueue.current = [...questionQueue.current, currentQ];
+        // 2단계: 또 틀리면 반복 안 하고 최종 오답으로 기록 후 넘어감
+        finalWrongIds.current.add(currentQ.id);
       }
+    }
+
+    // 진행도: main 단계에서만 갱신
+    if (phase === "main") {
+      setProgress(uniqueCorrect.current.size / (lesson?.questions.length ?? 1));
     }
 
     setAnswerState(isCorrect ? "correct" : "wrong");
   };
 
-  const handleNext = async () => {
-    if (!lesson) return;
-
-    // 큐에서 현재 문제 제거
-    const [, ...remaining] = questionQueue.current;
-    questionQueue.current = remaining;
-
-    if (questionQueue.current.length === 0) {
-      // 큐 비었으면 종료 조건 체크
-      const isCompleted = wrongIds.current.length <= 3;
-
-      if (lessonId) {
-        try {
-          await LessonService.completeLesson(lessonId, {
-            correctAnswers: correctCount.current,
-            totalAnswers: totalCount.current,
-            xpEarned: correctCount.current * 15,
-            combo,
-            speedSeconds: Math.round((Date.now() - startTime.current) / 1000),
-            wrongQuestionIds: wrongIds.current,
-            isCompleted,
-          });
-        } catch (err) {
-          console.error("❌ 레슨 완료 저장 실패:", err);
-        }
+  const finishLesson = async () => {
+    const wrongArr = [...finalWrongIds.current];
+    if (lessonId) {
+      try {
+        await LessonService.completeLesson(lessonId, {
+          correctAnswers: correctCount.current,
+          totalAnswers: totalCount.current,
+          xpEarned: uniqueCorrect.current.size * 15,
+          combo,
+          speedSeconds: Math.round((Date.now() - startTime.current) / 1000),
+          wrongQuestionIds: wrongArr,
+          isCompleted: true,
+        });
+      } catch (err) {
+        console.error("❌ 레슨 완료 저장 실패:", err);
       }
-      router.back();
+    }
+    goHome();
+  };
+
+  const handleNext = async () => {
+    if (isLevelTest) {
+      if (locked.current) return;
+      locked.current = true;
+      if (currentQ) wrongIds.current.push(currentQ.id); // 스킵=오답
+      totalCount.current += 1;
+      goNextLevelTest();
       return;
     }
 
-    // 다음 문제로
+    if (!lesson) return;
+
+    // 현재 문제 큐에서 제거
+    const [, ...remaining] = questionQueue.current;
+    questionQueue.current = remaining;
+
+    // 복습 진행바: (전체 - 남은) / 전체
+    if (phase === "review" && reviewTotal.current > 0) {
+      setProgress(
+        (reviewTotal.current - questionQueue.current.length) /
+          reviewTotal.current,
+      );
+    }
+
+    if (questionQueue.current.length === 0) {
+      if (phase === "main") {
+        // 1단계 끝 → 복습할 게 있으면 안내, 없으면 종료
+        if (reviewQueue.current.length > 0) {
+          setPhase("reviewIntro");
+          setAnswerState("idle");
+          return;
+        }
+        await finishLesson();
+        return;
+      }
+      // 2단계 끝 → 종료 (반복 없음)
+      await finishLesson();
+      return;
+    }
+
+    setCurrentIdx((i) => i + 1);
+    setAnswerState("idle");
+  };
+
+  // 복습 안내 → 계속
+  const startReview = () => {
+    reviewTotal.current = reviewQueue.current.length;
+    questionQueue.current = [...reviewQueue.current];
+    setPhase("review");
+    setCombo(0);
+    setProgress(0); // 복습 진행바 0부터
     setCurrentIdx((i) => i + 1);
     setAnswerState("idle");
   };
@@ -172,10 +324,6 @@ export default function LessonScreen() {
         return <TypeAnswer {...props} />;
       case "word_matching":
         return <WordMatching {...props} />;
-      case "listen_type":
-        return <ListenType {...props} onSkip={handleNext} />;
-      case "translate_type":
-        return <TranslateType {...props} />;
       default:
         return <SentenceBuilder {...props} />;
     }
@@ -189,7 +337,7 @@ export default function LessonScreen() {
     );
   }
 
-  if (!lesson || !currentQ) {
+  if (!lesson) {
     return (
       <View style={s.loadingContainer}>
         <Text style={{ color: theme.text }}>레슨을 불러올 수 없어요</Text>
@@ -205,30 +353,56 @@ export default function LessonScreen() {
         hearts={hearts}
         combo={combo}
         answerState={answerState}
-        onClose={() => {
-          if (router.canGoBack()) {
-            router.back();
-          } else {
-            router.replace("/");
-          }
-        }}
+        onClose={goHome}
         theme={theme}
       />
 
-      {/* ScrollView 제거 → flex:1 View. 컴포넌트들의 바닥 고정이 살아남 */}
-      <View style={[s.questionArea, { paddingBottom: insets.bottom }]}>
-        {renderQuestion()}
-      </View>
+      {/* 복습 안내 오버레이 */}
+      {phase === "reviewIntro" ? (
+        <Animated.View
+          entering={FadeIn.duration(300)}
+          style={[s.reviewIntro, { paddingBottom: insets.bottom + 16 }]}
+        >
+          <View style={s.reviewCenter}>
+            <BoriMascot size={150} />
+            <View style={s.bubble}>
+              <Text style={s.bubbleText}>{t("lesson.reviewIntro")}</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={s.continueBtn}
+            onPress={startReview}
+            activeOpacity={0.9}
+          >
+            <Text style={s.continueText}>{t("lesson.continue")}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ) : currentQ ? (
+        <>
+          <View
+            key={
+              isLevelTest
+                ? `lt-${currentIdx}`
+                : `q-${currentQ.id}-${currentIdx}`
+            }
+            style={[s.questionArea, { paddingBottom: insets.bottom }]}
+          >
+            {renderQuestion()}
+          </View>
 
-      <FeedbackBar
-        state={answerState}
-        explanation={currentQ.explanation}
-        onNext={handleNext}
-        theme={theme}
-        combo={combo}
-      />
+          {!isLevelTest && (
+            <FeedbackBar
+              state={answerState}
+              explanation={currentQ.explanation}
+              onNext={handleNext}
+              theme={theme}
+              combo={combo}
+            />
+          )}
 
-      <ComboPopup combo={combo} />
+          {!isLevelTest && <ComboPopup combo={combo} />}
+        </>
+      ) : null}
     </View>
   );
 }
@@ -242,6 +416,35 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.bg,
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 30,
     },
+    // 복습 안내
+    reviewIntro: { flex: 1, paddingHorizontal: 20, marginBottom: 40 },
+    reviewCenter: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+    },
+    bubble: {
+      flex: 1,
+      backgroundColor: theme.surface,
+      borderWidth: 2,
+      borderColor: theme.border,
+      borderRadius: 20,
+      padding: 20,
+    },
+    bubbleText: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.text,
+      lineHeight: 30,
+    },
+    continueBtn: {
+      backgroundColor: theme.primary,
+      borderRadius: 16,
+      paddingVertical: 18,
+      alignItems: "center",
+    },
+    continueText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

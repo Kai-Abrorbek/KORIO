@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    height: 100,
+    height: 90,
   },
   text: { fontSize: 18, fontWeight: "800" },
   shine: {

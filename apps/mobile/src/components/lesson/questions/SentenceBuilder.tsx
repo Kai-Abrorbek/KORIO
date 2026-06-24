@@ -240,7 +240,6 @@ export default function SentenceBuilder({
             ),
           )}
         </View>
-        <View style={{ flex: 1 }} />
 
         <TouchableOpacity
           style={[
@@ -276,11 +275,11 @@ const styles = (theme: ThemeColors, lineH: number, lines: number) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 16,
-      height: 250,
+      height: 180,
     },
     character: {
       width: 166,
-      height: 200,
+      height: 180,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -309,7 +308,7 @@ const styles = (theme: ThemeColors, lineH: number, lines: number) =>
     tailBorder: {
       position: "absolute",
       left: -12,
-      top: "50%",
+      top: "30%",
       marginTop: -9,
       width: 0,
       height: 0,
@@ -323,8 +322,8 @@ const styles = (theme: ThemeColors, lineH: number, lines: number) =>
     // 꼬리 (안쪽 흰색)
     tailInner: {
       position: "absolute",
-      left: -8,
-      top: "50%",
+      left: -10,
+      top: "30%",
       marginTop: -7,
       width: 0,
       height: 0,
@@ -392,7 +391,7 @@ const styles = (theme: ThemeColors, lineH: number, lines: number) =>
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      height: 190,
+      height: 180,
     },
     divider: { height: 1.5, backgroundColor: theme.border },
     checkBtn: {

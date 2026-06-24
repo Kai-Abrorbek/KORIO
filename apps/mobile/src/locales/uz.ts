@@ -140,6 +140,8 @@ export default {
     recording: "Tinglanmoqda...",
     typeHeardEnglish: "Eshitilgan inglizchani kiriting",
     hardPractice: "Qiyin mashq",
+    reviewIntro: "Endi xato qilgan savollarni ishlaymizmi?",
+    continue: "Davom etish",
   },
   stats: {
     tabs: { period: "Davriy", category: "Toifa" },
@@ -189,6 +191,7 @@ export default {
     },
   },
   profile: {
+    logout: "Log Out",
     joinedYear: "{{year}}-yilda qo'shildi",
     courses: "Kurslar",
     following: "Obuna",

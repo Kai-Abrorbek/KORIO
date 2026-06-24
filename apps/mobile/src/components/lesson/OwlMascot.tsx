@@ -72,14 +72,14 @@ export default function OwlMascot({ state = "idle", size = 120 }: Props) {
       return;
     }
 
-    Asset.fromModule(RIV_MODULES[state])
-      .downloadAsync()
-      .then((asset) => {
-        if (mounted) setUri(asset.localUri || asset.uri);
-      })
-      .catch(() => {
-        if (mounted) setFailed(true);
-      });
+    // Asset.fromModule(RIV_MODULES[state])
+    //   .downloadAsync()
+    //   .then((asset) => {
+    //     if (mounted) setUri(asset.localUri || asset.uri);
+    //   })
+    //   .catch(() => {
+    //     if (mounted) setFailed(true);
+    //   });
 
     return () => {
       mounted = false;

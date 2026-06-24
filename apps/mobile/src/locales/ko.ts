@@ -138,6 +138,8 @@ export default {
     recording: "듣는 중...",
     hardPractice: "어려운 연습",
     typeHeardEnglish: "들리는 영어 입력",
+    reviewIntro: "자 이제 틀린 문제 풀어볼까요?",
+    continue: "계속",
   },
   stats: {
     tabs: { period: "기간별", category: "학습별" },
@@ -191,6 +193,7 @@ export default {
     },
   },
   profile: {
+    logout: "로그 아웃",
     joinedYear: "{{year}}년 가입",
     courses: "학습 과정",
     following: "팔로잉",

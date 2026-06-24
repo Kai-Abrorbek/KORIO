@@ -168,7 +168,7 @@ export default function WordMatching({
         </View>
       </View>
 
-      <View style={{ flex: 1 }} />
+      {/* <View style={{ flex: 1 }} /> */}
 
       <TouchableOpacity
         style={[s.checkBtn, (!allDone || locked) && s.checkBtnDisabled]}
@@ -201,7 +201,7 @@ const styles = (theme: ThemeColors) =>
       marginBottom: 28,
       fontWeight: "500",
     },
-    grid: { flexDirection: "row", gap: 14, height: 600 },
+    grid: { flexDirection: "row", gap: 14, height: 540 },
     col: { flex: 1, gap: 14, height: "100%" },
     checkBtn: {
       backgroundColor: theme.primary,

@@ -155,7 +155,7 @@ const styles = (theme: ThemeColors) =>
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 28,
+      marginBottom: 20,
     },
 
     npcArea: { alignItems: "center" },
@@ -222,8 +222,7 @@ const styles = (theme: ThemeColors) =>
       borderBottomWidth: 4,
       borderBottomColor: MIC_BLUE_DARK,
       marginBottom: 12,
-      // marginTop: 200,
-      marginLeft: 120,
+      marginLeft: 105,
     },
     micBarActive: { backgroundColor: MIC_BLUE },
     waveRow: { flexDirection: "row", alignItems: "center", height: 36 },

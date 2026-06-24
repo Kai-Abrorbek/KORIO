@@ -81,11 +81,38 @@ export default function RoadmapScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const unitOffsets = useRef<number[]>([]);
   const scrollHeight = useRef({ content: 0, container: 0 });
+  const didAutoScroll = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
       loadRoadmap();
     }, []),
+  );
+
+  const processedUnits = roadmap.units.map((unit, i) =>
+    injectChests({ ...unit, color: getUnitColor(i) }),
+  );
+  const currentUnit = processedUnits[currentUnitIndex] ?? processedUnits[0];
+
+  const currentUnitIdx = Math.max(
+    0,
+    processedUnits.findIndex((u) => u.status === "current"),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      didAutoScroll.current = false;
+      const y = unitOffsets.current[currentUnitIdx];
+      if (y != null) {
+        didAutoScroll.current = true;
+        requestAnimationFrame(() =>
+          scrollRef.current?.scrollTo({
+            y: Math.max(0, y - 12),
+            animated: false,
+          }),
+        );
+      }
+    }, [currentUnitIdx]),
   );
 
   const loadRoadmap = async () => {
@@ -154,7 +181,8 @@ export default function RoadmapScreen() {
   // 스크롤 버튼: 맨 아래면 맨 위로, 아니면 맨 아래로
   const handleScrollToggle = () => {
     if (isPastCurrent) {
-      scrollRef.current?.scrollTo({ y: 0, animated: true });
+      const y = unitOffsets.current[currentUnitIdx] ?? 0;
+      scrollRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
     } else {
       const currentIdx = processedUnits.findIndex(
         (u) => u.status === "current",
@@ -177,11 +205,6 @@ export default function RoadmapScreen() {
       </View>
     );
   }
-
-  const processedUnits = roadmap.units.map((unit, i) =>
-    injectChests({ ...unit, color: getUnitColor(i) }),
-  );
-  const currentUnit = processedUnits[currentUnitIndex] ?? processedUnits[0];
 
   return (
     <View style={styles.container}>
@@ -221,7 +244,18 @@ export default function RoadmapScreen() {
               <View
                 key={unit.id}
                 onLayout={(e) => {
-                  unitOffsets.current[index] = e.nativeEvent.layout.y;
+                  const y = e.nativeEvent.layout.y;
+                  unitOffsets.current[index] = y;
+
+                  if (index === currentUnitIdx && !didAutoScroll.current) {
+                    didAutoScroll.current = true;
+                    requestAnimationFrame(() => {
+                      scrollRef.current?.scrollTo({
+                        y: Math.max(0, y - 12),
+                        animated: false,
+                      });
+                    });
+                  }
                 }}
                 style={hasSelectedNode ? styles.unitElevated : undefined}
               >

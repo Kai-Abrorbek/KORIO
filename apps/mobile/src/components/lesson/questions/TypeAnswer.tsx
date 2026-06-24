@@ -182,7 +182,7 @@ const styles = (theme: ThemeColors) =>
     tailBorder: {
       position: "absolute",
       left: -12,
-      top: "50%",
+      top: "15%",
       marginTop: -9,
       width: 0,
       height: 0,
@@ -196,7 +196,7 @@ const styles = (theme: ThemeColors) =>
     tailInner: {
       position: "absolute",
       left: -8,
-      top: "50%",
+      top: "15%",
       marginTop: -7,
       width: 0,
       height: 0,

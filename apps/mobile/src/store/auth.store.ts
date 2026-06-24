@@ -34,7 +34,7 @@ interface AuthState {
   isLoading: boolean;
 
   setUser: (user: User, token: string) => void;
-  updateUser: (partial: Partial<User>) => void; // ← 추가
+  updateUser: (partial: Partial<User>) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }

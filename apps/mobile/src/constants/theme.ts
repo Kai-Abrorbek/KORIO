@@ -7,6 +7,7 @@ export const themes = {
     textSecondary: "#55555F",
     border: "#ECEAF6",
     navy: "#1A1A2E",
+    // logout: "#cf5314",
   },
   dark: {
     bg: "#15151D",

@@ -138,6 +138,8 @@ export default {
     recording: "Listening...",
     hardPractice: "Hard practice",
     typeHeardEnglish: "Type what you hear",
+    reviewIntro: "Now let's review the ones you missed!",
+    continue: "Continue",
   },
   stats: {
     tabs: { period: "By Period", category: "By Category" },
@@ -187,6 +189,7 @@ export default {
     },
   },
   profile: {
+    logout: "Log Out",
     joinedYear: "Joined in {{year}}",
     courses: "Courses",
     following: "Following",

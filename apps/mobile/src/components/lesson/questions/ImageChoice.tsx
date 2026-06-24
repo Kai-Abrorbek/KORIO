@@ -27,10 +27,13 @@ export default function ImageChoice({
   const { speak } = useSpeech();
   const insets = useSafeAreaInsets();
 
-  const choices: ImageChoiceOption[] =
-    question.choices ??
-    question.options?.map((opt) => ({ text: opt, label: opt, emoji: "❓" })) ??
-    [];
+  const choices: ImageChoiceOption[] = question.choices?.length
+    ? question.choices
+    : (question.options?.map((opt) => ({
+        text: opt,
+        label: opt,
+        emoji: "❓",
+      })) ?? []);
 
   const handleSelect = (text: string) => {
     if (answerState !== "idle") return;
@@ -124,7 +127,7 @@ export default function ImageChoice({
 
       <View style={{ flex: 1 }} />
       {/* 확인 버튼 */}
-      <View style={{ marginTop: insets.top + 250 }}>
+      <View>
         <TouchableOpacity
           style={[
             s.checkBtn,

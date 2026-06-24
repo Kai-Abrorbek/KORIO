@@ -139,6 +139,8 @@ export default {
     recording: "Слушаю...",
     typeHeardEnglish: "Введите услышанное",
     hardPractice: "Сложная практика",
+    reviewIntro: "Теперь разберём ошибки!",
+    continue: "Продолжить",
   },
   stats: {
     tabs: { period: "По периоду", category: "По категории" },
@@ -188,6 +190,7 @@ export default {
     },
   },
   profile: {
+    logout: "Log Out",
     joinedYear: "Присоединился в {{year}}",
     courses: "Курсы",
     following: "Подписки",

@@ -210,7 +210,7 @@ const styles = (theme: ThemeColors) =>
   StyleSheet.create({
     wrapper: {
       backgroundColor: theme.bg,
-      paddingTop: 52,
+      paddingTop: 26,
     },
     comboWrap: {
       alignItems: "center",

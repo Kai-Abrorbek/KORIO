@@ -10,7 +10,8 @@ export type QuestionType =
   | "type_answer"
   | "listening"
   | "translate_type"
-  | "listen_type";
+  | "listen_type"
+  | "audio_match";
 
 export interface MatchingPair {
   korean: string;
