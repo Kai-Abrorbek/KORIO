@@ -1,3 +1,4 @@
+import { UserProfile } from "@/types/profile";
 import api from "./api";
 
 export interface UserMe {
@@ -26,6 +27,22 @@ export interface UserMe {
   createdAt: string;
   lastStudiedAt?: string;
 }
+
+export const toUserProfile = (me: any): UserProfile => ({
+  name: me.nickname,
+  username: me.username,
+  joinedYear: me.joinedYear,
+  isSuper: me.isSuper,
+  coursePrimaryFlag: me.coursePrimaryFlag,
+  courseExtraCount: me.courseExtraCount ?? 0,
+  following: me.followingCount ?? 0,
+  followers: me.followersCount ?? 0,
+  streak: me.streak ?? 0,
+  languageLevel: me.languageLevel ?? 1,
+  league: me.league ?? "bronze",
+  totalXp: me.totalXP ?? 0,
+  friendStreaks: me.friendStreaks ?? [],
+});
 
 export const UserService = {
   saveLevelTest: (data: {

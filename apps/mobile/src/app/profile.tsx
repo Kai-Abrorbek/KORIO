@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_PROFILE } from "@/mocks/profile.mock";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileMeta from "@/components/profile/ProfileMeta";
 import ProfileStatsRow from "@/components/profile/ProfileStatsRow";
@@ -16,12 +15,16 @@ import LearningStatusGrid from "@/components/profile/LearningStatusGrid";
 import FriendStreakSection from "@/components/profile/FriendStreakSection";
 import { t } from "i18next";
 import { useAuthStore } from "@/store/auth.store";
+import { toUserProfile } from "@/services/user.service";
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { logout, user } = useAuthStore();
-  const user_mock = MOCK_PROFILE; //TODO 나중에 실제 유저랑 교체
+  const { logout } = useAuthStore();
+  const user = useAuthStore((st) => st.user);
+  const profile = user ? toUserProfile(user) : null;
+
+  if (!profile) return null;
 
   return (
     <ScrollView
@@ -30,36 +33,36 @@ export default function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <ProfileHeader
-        name={user?.nickname ?? ""}
-        isSuper={user_mock.isSuper}
+        name={profile.username}
+        isSuper={profile.isSuper}
         onShare={() => console.log("share")}
         onSettings={() => console.log("settings")}
       />
 
       <ProfileMeta
-        username={user_mock.username}
-        joinedYear={user_mock.joinedYear}
+        username={profile.username}
+        joinedYear={profile.joinedYear}
       />
 
       <ProfileStatsRow
-        primaryFlag={user_mock.coursePrimaryFlag}
-        extraCount={user_mock.courseExtraCount}
-        following={user_mock.following}
-        followers={user_mock.followers}
+        primaryFlag={profile.coursePrimaryFlag}
+        extraCount={profile.courseExtraCount}
+        following={profile.following}
+        followers={profile.followers}
       />
 
       <AddFriendButton onPress={() => console.log("add friend")} />
 
       <LearningStatusGrid
-        streak={user_mock.streak}
-        languageFlag={user_mock.coursePrimaryFlag}
-        languageLevel={user_mock.languageLevel}
-        league={user_mock.league}
-        totalXp={user_mock.totalXp}
+        streak={profile.streak}
+        languageFlag={profile.coursePrimaryFlag}
+        languageLevel={profile.languageLevel}
+        league={profile.league}
+        totalXp={profile.totalXp}
       />
 
       <FriendStreakSection
-        streaks={user_mock.friendStreaks}
+        streaks={profile.friendStreaks}
         onAddFriend={() => console.log("add friend streak")}
       />
 

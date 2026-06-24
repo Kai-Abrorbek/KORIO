@@ -169,10 +169,9 @@ export default function RoadmapScreen() {
     }
     setCurrentUnitIndex(current);
 
-    // current 유닛 offset 기준으로 판단
     const currentIdx = processedUnits.findIndex((u) => u.status === "current");
     const targetOffset = unitOffsets.current[currentIdx] ?? 0;
-    setIsPastCurrent(y > targetOffset + 100); // 100px 아래로 내리면 바로 전환
+    setIsPastCurrent(y > targetOffset + 100);
 
     const { content, container } = scrollHeight.current;
     setIsAtBottom(y + container >= content - 30);

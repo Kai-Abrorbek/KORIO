@@ -12,6 +12,7 @@ import {
   UserProgressDocument,
 } from './schemas/user-progress.schema';
 import { calculateLevel } from '../common/enums/level.enum';
+import { countryToFlag, langToFlag, levelToNumber } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -84,6 +85,14 @@ export class UsersService {
       isOnboardingCompleted: user.isOnboardingCompleted,
       createdAt: (user as any).createdAt,
       lastStudiedAt: user.lastStudiedAt,
+      joinedYear: (user as any).createdAt
+        ? new Date((user as any).createdAt).getFullYear()
+        : new Date().getFullYear(),
+      languageLevel: levelToNumber(user.level),
+      coursePrimaryFlag:
+        countryToFlag(user.country) || langToFlag(user.targetLanguage),
+      courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)
+      friendStreaks: [], // TODO: 친구 스트릭 도메인 생기면 채움
     };
   }
 
