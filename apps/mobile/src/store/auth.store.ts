@@ -37,6 +37,7 @@ interface AuthState {
   updateUser: (partial: Partial<User>) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  setUserData: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -56,8 +57,9 @@ export const useAuthStore = create<AuthState>()(
 
       updateUser: (partial) =>
         set((state) => ({
-          user: state.user ? { ...state.user, ...partial } : null,
+          user: state.user ? { ...state.user, ...partial } : (partial as User), // null이면 받은 걸로 통째 세팅
         })),
+      setUserData: (user) => set({ user }),
     }),
     {
       name: "auth-storage",

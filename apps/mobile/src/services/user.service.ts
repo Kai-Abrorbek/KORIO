@@ -68,4 +68,7 @@ export const UserService = {
 
   getFollowing: (): Promise<any[]> => api.get(`/users/me/following`),
   getFollowers: (): Promise<any[]> => api.get(`/users/me/followers`),
+
+  getUserWeekly: (id: string): Promise<{ days: any[] }> =>
+    api.get(`/users/${id}/stats/weekly`),
 };

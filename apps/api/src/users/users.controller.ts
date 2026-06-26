@@ -60,6 +60,11 @@ export class UsersController {
     return this.usersService.getWeeklyStats(req.user._id.toString(), date);
   }
 
+  @Get(':id/stats/weekly')
+  async getUserWeekly(@Param('id') id: string, @Query('date') date?: string) {
+    return this.usersService.getWeeklyStats(id, date);
+  }
+
   @Get('me/stats/period')
   async getPeriodStats(
     @Request() req,

@@ -227,6 +227,14 @@ export default {
   },
   friends: {
     title: "Do'stlar",
+    findFriends: "Do'st qidiring",
+    fromContacts: "Kontaktlardan tanlash",
+    searchByName: "Ism bo'yicha qidirish",
+    shareLink: "Follow havolasini ulashish",
+    suggestions: "Do'st takliflari",
+    seeAll: "Hammasini ko'rish",
+    follow: "Kuzatish",
+    following: "Kuzatilmoqda",
     tabs: {
       following: "Obunalar",
       followers: "Obunachilar",

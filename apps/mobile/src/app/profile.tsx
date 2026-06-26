@@ -16,6 +16,7 @@ import FriendStreakSection from "@/components/profile/FriendStreakSection";
 import { t } from "i18next";
 import { useAuthStore } from "@/store/auth.store";
 import { toUserProfile } from "@/services/user.service";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -23,7 +24,7 @@ export default function ProfileScreen() {
   const { logout } = useAuthStore();
   const user = useAuthStore((st) => st.user);
   const profile = user ? toUserProfile(user) : null;
-
+  const router = useRouter();
   if (!profile) return null;
 
   return (
@@ -33,16 +34,13 @@ export default function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <ProfileHeader
-        name={profile.username}
+        name={profile.name}
         isSuper={profile.isSuper}
         onShare={() => console.log("share")}
         onSettings={() => console.log("settings")}
       />
 
-      <ProfileMeta
-        username={profile.username}
-        joinedYear={profile.joinedYear}
-      />
+      <ProfileMeta username={profile.name} joinedYear={profile.joinedYear} />
 
       <ProfileStatsRow
         primaryFlag={profile.coursePrimaryFlag}
@@ -51,7 +49,7 @@ export default function ProfileScreen() {
         followers={profile.followers}
       />
 
-      <AddFriendButton onPress={() => console.log("add friend")} />
+      <AddFriendButton onPress={() => router.push("/add-friends")} />
 
       <LearningStatusGrid
         streak={profile.streak}

@@ -229,6 +229,14 @@ export default {
   },
   friends: {
     title: "친구",
+    findFriends: "친구를 찾아보세요",
+    fromContacts: "연락처에서 선택하기",
+    searchByName: "이름 검색하기",
+    shareLink: "팔로우 링크 공유하기",
+    suggestions: "친구 추천",
+    seeAll: "모두 보기",
+    follow: "팔로우하기",
+    following: "팔로우 중",
     tabs: {
       following: "팔로잉",
       followers: "팔로워",

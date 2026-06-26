@@ -129,6 +129,13 @@ export class UsersService {
       followersCount: user.followers?.length || 0,
       completedLessons,
       isFollowing,
+      joinedYear: (user as any).createdAt
+        ? new Date((user as any).createdAt).getFullYear()
+        : new Date().getFullYear(),
+      coursePrimaryFlag:
+        countryToFlag(user.country) || langToFlag(user.targetLanguage),
+      courseExtraCount: 0,
+      languageLevel: levelToNumber(user.level),
     };
   }
 

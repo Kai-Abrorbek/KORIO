@@ -225,6 +225,14 @@ export default {
   },
   friends: {
     title: "Friends",
+    findFriends: "Find friends",
+    fromContacts: "Select from contacts",
+    searchByName: "Search by name",
+    shareLink: "Share follow link",
+    suggestions: "Suggestions",
+    seeAll: "See all",
+    follow: "Follow",
+    following: "Following",
     tabs: {
       following: "Following",
       followers: "Followers",

@@ -226,6 +226,14 @@ export default {
   },
   friends: {
     title: "Друзья",
+    findFriends: "Найти друзей",
+    fromContacts: "Выбрать из контактов",
+    searchByName: "Поиск по имени",
+    shareLink: "Поделиться ссылкой",
+    suggestions: "Рекомендации",
+    seeAll: "Показать все",
+    follow: "Подписаться",
+    following: "Вы подписаны",
     tabs: {
       following: "Подписки",
       followers: "Подписчики",

@@ -40,7 +40,7 @@ export default function HomeScreen() {
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
   const { user } = useAuthStore();
-  const updateUser = useAuthStore((s) => s.updateUser);
+  const setUserData = useAuthStore((st) => st.setUserData);
 
   useEffect(() => {
     aiPulse.value = withRepeat(
@@ -56,7 +56,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       UserService.getMe()
-        .then((me) => updateUser(me as any))
+        .then((me) => setUserData(me as any))
         .catch((err) => console.error("getMe 실패:", err));
       StatsService.getWeekly()
         .then((data) => setWeekly(data.days))
@@ -823,3 +823,6 @@ const getStyles = (theme: ThemeColors) =>
       fontWeight: "500",
     },
   });
+function setUserData(arg0: any): any {
+  throw new Error("Function not implemented.");
+}
