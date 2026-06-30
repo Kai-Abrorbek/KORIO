@@ -234,6 +234,7 @@ export default {
   friends: {
     title: "Do'stlar",
     findFriendsTitle: "Do'st topish",
+    followedBy: "{{name}} kuzatmoqda",
     nameOrId: "Ism yoki ID",
     contactsTitle: "Kontaktlardagi KORIO foydalanuvchilari",
     contactsCount: "{{count}} ta kontakt",

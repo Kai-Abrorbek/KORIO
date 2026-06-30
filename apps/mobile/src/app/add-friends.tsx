@@ -1,28 +1,45 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Share,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_SUGGESTIONS } from "@/mocks/friend-suggestions.mock";
 import SuggestionCard from "@/components/friends/SuggestionCard";
+import { UserService } from "@/services/user.service";
 
 export default function AddFriendsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const s = styles(theme);
-
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [followed, setFollowed] = useState<Set<string>>(new Set());
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getSuggestions()
+        .then((data) =>
+          setSuggestions(
+            data.map((u: any) => ({
+              id: u.id,
+              name: u.nickname,
+              avatarUri: u.profileImage,
+              username: u.username,
+              reasonName: u.reasonName,
+            })),
+          ),
+        )
+        .catch((e) => console.error("추천 로드 실패:", e));
+    }, []),
+  );
 
   const toggleFollow = (id: string) =>
     setFollowed((p) => {
@@ -32,7 +49,7 @@ export default function AddFriendsScreen() {
     });
   const dismiss = (id: string) => setDismissed((p) => new Set(p).add(id));
 
-  const list = MOCK_SUGGESTIONS.filter((x) => !dismissed.has(x.id));
+  const list = suggestions.filter((x) => !dismissed.has(x.id));
 
   const actions = [
     {

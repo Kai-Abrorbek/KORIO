@@ -134,15 +134,18 @@ export class UsersService {
   }
 
   /** 다른 유저 프로필 */
-  async getUserById(userId: string, currentUserId: string) {
+  async getUserById(currentUserId: string, targetId: string) {
+    if (!Types.ObjectId.isValid(targetId)) {
+      throw new NotFoundException('유저를 찾을 수 없습니다');
+    }
     const user = await this.userModel
-      .findById(userId)
+      .findById(currentUserId)
       .select('-password -email')
       .lean();
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
 
     const completedLessons = await this.progressModel.countDocuments({
-      userId: new Types.ObjectId(userId),
+      userId: new Types.ObjectId(currentUserId),
       isCompleted: true,
     });
 
@@ -174,6 +177,98 @@ export class UsersService {
       courseExtraCount: 0,
       languageLevel: levelToNumber(user.level),
     };
+  }
+
+  async getSuggestions(currentUserId: string, limit = 20) {
+    const meId = new Types.ObjectId(currentUserId);
+    const me = await this.userModel.findById(meId).select('following').lean();
+    const myFollowing = (me?.following ?? []).map((f) => f.toString());
+    const excludeIds = new Set<string>([currentUserId, ...myFollowing]);
+
+    const suggestions: Array<{
+      id: string;
+      nickname: string;
+      username: string;
+      profileImage: string;
+      reason?: string;
+      reasonUserId?: string;
+    }> = [];
+    const added = new Set<string>();
+
+    // 1) 친구의 팔로잉 기반 (내가 팔로우하는 사람들이 팔로우하는 유저)
+    if (myFollowing.length > 0) {
+      const friends = await this.userModel
+        .find({ _id: { $in: me?.following ?? [] } })
+        .select('nickname following')
+        .lean();
+
+      for (const friend of friends) {
+        for (const candId of friend.following ?? []) {
+          const cid = candId.toString();
+          if (excludeIds.has(cid) || added.has(cid)) continue;
+          added.add(cid);
+          suggestions.push({
+            id: cid,
+            nickname: '', // 아래서 채움
+            username: '',
+            profileImage: '',
+            reason: 'followedBy', // 프론트 i18n: "OO님이 팔로우 중"
+            reasonUserId: friend._id.toString(),
+            // reason 표시용 친구 이름
+            ...({ reasonName: friend.nickname } as any),
+          });
+          if (suggestions.length >= limit) break;
+        }
+        if (suggestions.length >= limit) break;
+      }
+    }
+
+    // 2) 부족하면 무관한 랜덤 유저로 채움
+    if (suggestions.length < limit) {
+      const need = limit - suggestions.length;
+      const exclude = [...excludeIds, ...added].map(
+        (id) => new Types.ObjectId(id),
+      );
+      const randoms = await this.userModel.aggregate([
+        { $match: { _id: { $nin: exclude } } },
+        { $sample: { size: need } },
+        { $project: { nickname: 1, username: 1, profileImage: 1 } },
+      ]);
+      randoms.forEach((u) => {
+        suggestions.push({
+          id: u._id.toString(),
+          nickname: u.nickname,
+          username: u.username || '',
+          profileImage: u.profileImage || '',
+          // reason 없음 (무관한 추천)
+        });
+      });
+    }
+
+    // 친구기반 추천들의 닉네임/프사 채우기
+    const needInfo = suggestions
+      .filter((s) => !s.nickname)
+      .map((s) => new Types.ObjectId(s.id));
+    if (needInfo.length > 0) {
+      const infos = await this.userModel
+        .find({ _id: { $in: needInfo } })
+        .select('nickname username profileImage')
+        .lean();
+      const infoMap = new Map(infos.map((u) => [u._id.toString(), u]));
+      suggestions.forEach((s) => {
+        if (!s.nickname) {
+          const info = infoMap.get(s.id);
+          if (info) {
+            s.nickname = info.nickname;
+            s.username = info.username || '';
+            s.profileImage = info.profileImage || '';
+          }
+        }
+      });
+    }
+
+    // 닉네임 못 채운(삭제된 유저 등) 항목 제거
+    return suggestions.filter((s) => s.nickname);
   }
 
   /** 본인 프로필 수정 */
@@ -931,6 +1026,43 @@ export class UsersService {
         'nickname username profileImage country targetLanguage totalXP level',
       )
       .limit(30)
+      .lean();
+
+    return users.map((u) => ({
+      id: u._id.toString(),
+      nickname: u.nickname,
+      username: u.username || '',
+      profileImage: u.profileImage || '',
+      isFollowing: followingSet.has(u._id.toString()),
+    }));
+  }
+
+  async matchByNames(currentUserId: string, names: string[]) {
+    const clean = (names ?? [])
+      .map((n) => (n ?? '').trim())
+      .filter(Boolean)
+      .slice(0, 100);
+    if (!clean.length) return [];
+
+    const regexes = clean.map(
+      (n) => new RegExp(n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    );
+
+    const me = await this.userModel
+      .findById(currentUserId)
+      .select('following')
+      .lean();
+    const followingSet = new Set(
+      (me?.following ?? []).map((f) => f.toString()),
+    );
+
+    const users = await this.userModel
+      .find({
+        _id: { $ne: new Types.ObjectId(currentUserId) },
+        $or: [{ nickname: { $in: regexes } }, { username: { $in: regexes } }],
+      })
+      .select('nickname username profileImage')
+      .limit(50)
       .lean();
 
     return users.map((u) => ({

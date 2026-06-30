@@ -112,6 +112,16 @@ export class UsersController {
     return this.usersService.searchUsers(req.user._id.toString(), q);
   }
 
+  @Post('match-contacts')
+  async matchContacts(@Request() req, @Body('names') names: string[]) {
+    return this.usersService.matchByNames(req.user._id.toString(), names ?? []);
+  }
+
+  @Get('suggestions')
+  async getSuggestions(@Request() req) {
+    return this.usersService.getSuggestions(req.user._id.toString());
+  }
+
   @Get(':id')
   async getUserById(@Request() req, @Param('id') id: string) {
     return this.usersService.getUserById(id, req.user._id.toString());

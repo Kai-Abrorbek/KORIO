@@ -249,6 +249,7 @@ export default {
     shareLink: "팔로우 링크 공유하기",
     suggestions: "친구 추천",
     seeAll: "모두 보기",
+    followedBy: "{{name}}님이 팔로우 중",
     follow: "팔로우하기",
     following: "팔로우 중",
     tabs: {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,13 +8,12 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { UserService } from "@/services/user.service";
-import { MOCK_SUGGESTIONS } from "@/mocks/friend-suggestions.mock";
 import SuggestionList from "@/components/friends/SuggestionList";
 import { SuggestionItem } from "@/components/friends/SuggestionRow";
 
@@ -29,6 +28,25 @@ export default function FriendSearchScreen() {
   const [followedIds, setFollowedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getSuggestions()
+        .then((data) =>
+          setSuggestions(
+            data.map((u: any) => ({
+              id: u.id,
+              name: u.nickname,
+              avatarUri: u.profileImage,
+              username: u.username,
+              reasonName: u.reasonName,
+            })),
+          ),
+        )
+        .catch((e) => console.error("추천 로드 실패:", e));
+    }, []),
+  );
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -62,7 +80,16 @@ export default function FriendSearchScreen() {
   return (
     <View style={s.container}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/profile");
+            }
+          }}
+          hitSlop={8}
+        >
           <Ionicons name="arrow-back" size={28} color={theme.text} />
         </TouchableOpacity>
         <Text style={s.headerTitle}>{t("friends.findFriendsTitle")}</Text>
@@ -108,7 +135,7 @@ export default function FriendSearchScreen() {
         ) : (
           <>
             <Text style={s.section}>{t("friends.suggestions")}</Text>
-            <SuggestionList items={MOCK_SUGGESTIONS} />
+            <SuggestionList items={suggestions} />
           </>
         )}
       </ScrollView>

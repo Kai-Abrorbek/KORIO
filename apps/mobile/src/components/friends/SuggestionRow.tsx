@@ -2,13 +2,14 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import FriendAvatar from "@/components/friends/FriendAvatar";
+import { useTranslation } from "react-i18next";
 
 export interface SuggestionItem {
   id: string;
   name: string;
   avatarUri?: string;
-  reason?: string; // "hanjo kim님이 팔로우 중"
-  username?: string; // 검색결과용
+  username?: string;
+  reasonName?: string; // "OO님이 팔로우 중"의 OO
 }
 
 interface Props {
@@ -28,8 +29,13 @@ export default function SuggestionRow({
   onPress,
   theme,
 }: Props) {
+  const { t } = useTranslation();
+  const sub = item.reasonName
+    ? t("friends.followedBy", { name: item.reasonName })
+    : item.username
+      ? `@${item.username}`
+      : "";
   const s = styles(theme);
-  const sub = item.reason || (item.username ? `@${item.username}` : "");
   return (
     <TouchableOpacity style={s.row} onPress={onPress} activeOpacity={0.7}>
       <FriendAvatar name={item.name} avatarUri={item.avatarUri} size={56} />

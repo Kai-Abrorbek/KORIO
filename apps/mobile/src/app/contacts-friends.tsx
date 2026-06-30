@@ -43,29 +43,24 @@ export default function ContactsFriendsScreen() {
           Contacts.Fields.Emails,
         ],
       });
-      // 이름만 추려서 백엔드 검색에 매칭 (간단버전: 이름으로 검색)
-      // 실제 매칭은 phone/email 기반 백엔드 엔드포인트가 더 정확하지만, 여기선 이름 검색 재활용
+
       const names = [...new Set(data.map((c) => c.name).filter(Boolean))].slice(
         0,
-        30,
+        100,
       );
-      const found: SuggestionItem[] = [];
-      for (const name of names) {
-        try {
-          const res = await UserService.searchUsers(name as string);
-          res.forEach((u: any) => {
-            if (!found.some((f) => f.id === u.id)) {
-              found.push({
-                id: u.id,
-                name: u.nickname,
-                avatarUri: u.profileImage,
-                username: u.username,
-              });
-            }
-          });
-        } catch {}
+      try {
+        const res = await UserService.matchContacts(names as string[]);
+        setMatched(
+          res.map((u: any) => ({
+            id: u.id,
+            name: u.nickname,
+            avatarUri: u.profileImage,
+            username: u.username,
+          })),
+        );
+      } catch (e) {
+        console.error("연락처 매칭 실패:", e);
       }
-      setMatched(found);
       setLoading(false);
     })();
   }, []);

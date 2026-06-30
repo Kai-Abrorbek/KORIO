@@ -1,23 +1,48 @@
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_SUGGESTIONS } from "@/mocks/friend-suggestions.mock";
+import { UserService } from "@/services/user.service";
 import SuggestionList from "@/components/friends/SuggestionList";
+import { SuggestionItem } from "@/components/friends/SuggestionRow";
 
 export default function FriendSuggestionsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const s = styles(theme);
+  const [items, setItems] = useState<SuggestionItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      UserService.getSuggestions()
+        .then((data) =>
+          setItems(
+            data.map((u: any) => ({
+              id: u.id,
+              name: u.nickname,
+              avatarUri: u.profileImage,
+              username: u.username,
+              reasonName: u.reasonName,
+            })),
+          ),
+        )
+        .catch((e) => console.error("추천 로드 실패:", e))
+        .finally(() => setLoading(false));
+    }, []),
+  );
 
   return (
     <View style={s.container}>
@@ -32,7 +57,11 @@ export default function FriendSuggestionsScreen() {
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        <SuggestionList items={MOCK_SUGGESTIONS} />
+        {loading ? (
+          <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+        ) : (
+          <SuggestionList items={items} />
+        )}
       </ScrollView>
     </View>
   );

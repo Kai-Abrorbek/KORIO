@@ -232,6 +232,7 @@ export default {
   friends: {
     title: "Friends",
     findFriendsTitle: "Find friends",
+    followedBy: "Followed by {{name}}",
     nameOrId: "Name or ID",
     contactsTitle: "KORIO users in your contacts",
     contactsCount: "{{count}} contacts",

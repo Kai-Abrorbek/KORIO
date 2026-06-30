@@ -74,4 +74,9 @@ export const UserService = {
 
   searchUsers: (q: string): Promise<any[]> =>
     api.get(`/users/search?q=${encodeURIComponent(q)}`),
+
+  matchContacts: (names: string[]): Promise<any[]> =>
+    api.post(`/users/match-contacts`, { names }),
+
+  getSuggestions: (): Promise<any[]> => api.get(`/users/suggestions`),
 };
