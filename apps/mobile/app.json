@@ -36,6 +36,10 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "expo-contacts",
+        { "contactsPermission": "친구를 찾기 위해 연락처에 접근합니다." }
       ]
     ],
     "experiments": {
