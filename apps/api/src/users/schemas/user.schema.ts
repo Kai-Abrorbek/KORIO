@@ -85,6 +85,12 @@ export class User {
   @Prop({ default: false })
   isSuper: boolean;
 
+  @Prop({ default: null })
+  superPlan: string;
+
+  @Prop({ default: null })
+  superExpiresAt: Date;
+
   // ✨ 신규: 복구펜 개수
   @Prop({ default: 0 })
   streakFreeze: number;
