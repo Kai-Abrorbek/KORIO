@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -7,7 +7,10 @@ import Animated, {
   withTiming,
   withDelay,
   withSequence,
+  withRepeat,
+  withSpring,
   Easing,
+  interpolate,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -57,6 +60,86 @@ export default function LessonNode({
   const isLocked = status === "locked";
 
   const rotate = useSharedValue(0);
+
+  const press = useSharedValue(0); // 눌림
+  const float = useSharedValue(0); // 현재 노드 둥실
+  const sparkle = useSharedValue(0); // 반짝
+  const shine = useSharedValue(-1); // 완료 노드 광택 sweep
+  const wiggle = useSharedValue(0); // 가끔 흔들
+
+  const isCompleted = status === "completed";
+
+  // 현재 노드: 둥실 + 반짝
+  useEffect(() => {
+    if (!isCurrent) return;
+    float.value = withRepeat(
+      withSequence(
+        withTiming(-5, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      true,
+    );
+    sparkle.value = withRepeat(
+      withSequence(
+        withDelay(400, withTiming(1, { duration: 600 })),
+        withTiming(0, { duration: 600 }),
+      ),
+      -1,
+      false,
+    );
+  }, [isCurrent]);
+
+  // 완료 노드: 가끔 광택이 쓱 지나감
+  useEffect(() => {
+    if (!isCompleted) return;
+    const run = () => {
+      shine.value = -1;
+      shine.value = withTiming(1, {
+        duration: 700,
+        easing: Easing.inOut(Easing.ease),
+      });
+    };
+    const id = setInterval(run, 3500 + Math.random() * 2500);
+    return () => clearInterval(id);
+  }, [isCompleted]);
+
+  // 가끔 랜덤 wiggle (현재/완료 노드)
+  useEffect(() => {
+    if (isLocked) return;
+    const id = setInterval(
+      () => {
+        wiggle.value = withSequence(
+          withTiming(-0.06, { duration: 70 }),
+          withTiming(0.06, { duration: 70 }),
+          withTiming(-0.04, { duration: 70 }),
+          withSpring(0, { damping: 6 }),
+        );
+      },
+      4000 + Math.random() * 4000,
+    );
+    return () => clearInterval(id);
+  }, [isLocked]);
+
+  const faceAnimStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: float.value + press.value * 6 },
+      { rotate: `${wiggle.value}rad` },
+      { scale: 1 - press.value * 0.04 },
+    ],
+  }));
+  const depthAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleY: 1 - press.value * 0.5 }],
+    opacity: 1 - press.value * 0.3,
+  }));
+  const sparkleStyle = useAnimatedStyle(() => ({
+    opacity: sparkle.value,
+    transform: [{ scale: 0.5 + sparkle.value * 0.8 }],
+  }));
+  const shineStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(shine.value, [-1, 0, 1], [0, 0.7, 0]),
+    transform: [{ translateX: shine.value * NODE_SIZE }, { rotate: "20deg" }],
+  }));
 
   useEffect(() => {
     if (!isCurrent || type !== "star") return;
@@ -128,13 +211,33 @@ export default function LessonNode({
         </View>
       )}
 
-      <TouchableOpacity
-        activeOpacity={0.85}
+      <Pressable
         onPress={onPress}
+        onPressIn={() => {
+          press.value = withTiming(1, { duration: 80 });
+        }}
+        onPressOut={() => {
+          press.value = withSpring(0, { damping: 12, stiffness: 300 });
+        }}
         style={styles.touchable}
       >
-        <View style={[styles.depth, { backgroundColor: darkColor }]} />
-        <View style={[styles.face, { backgroundColor: mainColor }]}>
+        <Animated.View
+          style={[styles.depth, { backgroundColor: darkColor }, depthAnimStyle]}
+        />
+        <Animated.View
+          style={[styles.face, { backgroundColor: mainColor }, faceAnimStyle]}
+        >
+          {/* 표면 상단 하이라이트 (입체감) */}
+          {!isLocked && <View style={styles.gloss} pointerEvents="none" />}
+
+          {/* 완료 노드 광택 sweep */}
+          {isCompleted && (
+            <Animated.View
+              style={[styles.shine, shineStyle]}
+              pointerEvents="none"
+            />
+          )}
+
           {isLocked ? (
             <Ionicons
               name={index !== 0 ? "lock-closed" : "play-forward"}
@@ -155,8 +258,26 @@ export default function LessonNode({
           ) : (
             <Ionicons name={iconName} size={iconSize} color={iconColor} />
           )}
-        </View>
-      </TouchableOpacity>
+
+          {/* 현재 노드 반짝이 */}
+          {isCurrent && (
+            <>
+              <Animated.Text
+                style={[styles.sparkTR, sparkleStyle]}
+                pointerEvents="none"
+              >
+                ✦
+              </Animated.Text>
+              <Animated.Text
+                style={[styles.sparkBL, sparkleStyle]}
+                pointerEvents="none"
+              >
+                ✦
+              </Animated.Text>
+            </>
+          )}
+        </Animated.View>
+      </Pressable>
     </View>
   );
 }
@@ -199,5 +320,34 @@ const getStyles = (theme: ThemeColors) =>
       justifyContent: "center",
       position: "absolute",
       top: 0,
+    },
+    gloss: {
+      position: "absolute",
+      top: 6,
+      width: NODE_SIZE * 0.62,
+      height: NODE_SIZE * 0.34,
+      borderRadius: NODE_SIZE / 2,
+      backgroundColor: "rgba(255,255,255,0.35)",
+    },
+    shine: {
+      position: "absolute",
+      top: -8,
+      bottom: -8,
+      width: 16,
+      backgroundColor: "rgba(255,255,255,0.85)",
+    },
+    sparkTR: {
+      position: "absolute",
+      top: 2,
+      right: 4,
+      fontSize: 14,
+      color: "#fff",
+    },
+    sparkBL: {
+      position: "absolute",
+      bottom: 4,
+      left: 6,
+      fontSize: 11,
+      color: "#fff",
     },
   });
