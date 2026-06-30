@@ -132,6 +132,7 @@ export default {
     typeWhatYouHear: "Type what you hear",
     fillBlank: "Choose the word for the blank",
     skipListening: "Skip listening exercise",
+    fillMissing: "Type the missing word",
     tapToOpenWordBank: "Tap to open the word bank",
     tapOrDrag: "Tap or drag words here",
     newWord: "New word",

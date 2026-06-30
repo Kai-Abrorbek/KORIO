@@ -131,6 +131,7 @@ export default {
     skipListening: "Пропустить аудиозадание",
     typeHere: "Введите здесь",
     tapWhatYouHear: "Нажмите то, что слышите",
+    fillMissing: "Введите пропущенное слово",
     typeWhatYouHear: "Введите то, что слышите",
     fillBlank: "Выберите слово для пропуска",
     tapToOpenWordBank: "Нажмите, чтобы открыть набор слов",

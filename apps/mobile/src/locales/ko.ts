@@ -133,6 +133,7 @@ export default {
     tapOrDrag: "단어를 탭하거나 드래그하세요",
     newWord: "Yangi so'z",
     selectCorrectImage: "To'g'ri rasmni tanlang",
+    fillMissing: "빠진 단어를 입력하세요",
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "다음 문장을 번역하세요",
     enterTranslation: "번역 입력",

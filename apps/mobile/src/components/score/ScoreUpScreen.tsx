@@ -9,12 +9,30 @@ import Animated, {
   Easing,
   interpolate,
   FadeInDown,
+  SlideInRight,
+  SlideOutRight,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import BoriMascot from "@/components/home/BoriMascot";
+import { useTheme } from "@/hooks/useTheme";
+import { Modal } from "react-native";
+import { useState } from "react";
+import ScoreDetailScreen from "@/components/score/ScoreDetailScreen";
+import { ScoreMilestone } from "@/components/score/ScoreDetailScreen";
+
+const DETAIL_MILESTONES: ScoreMilestone[] = [
+  { score: 1, label: "시작하기", icon: "star" },
+  { score: 10, label: "자기소개하기", icon: "hand-left" },
+  { score: 30, label: "음식 주문하기", icon: "restaurant" },
+  { score: 50, label: "길 안내하기", icon: "location" },
+  { score: 70, label: "짧은 글 읽기", icon: "book" },
+  { score: 90, label: "TV 시청하기", icon: "tv" },
+  { score: 110, label: "직장에서 소통하기", icon: "briefcase" },
+  { score: 130, label: "과정 완료", icon: "trophy" },
+];
 
 const BLUE = "#1CB0F6";
 const BLUE_TEXT = "#1899D6";
@@ -39,14 +57,14 @@ export default function ScoreUpScreen({
   onExplain,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles;
-
-  // 마스코트 미친 신남 애니메이션
+  const theme = useTheme();
+  const s = getStyles(theme);
   const bounce = useSharedValue(0);
   const rot = useSharedValue(0);
   const sx = useSharedValue(0);
   const sparkle = useSharedValue(0);
   const pop = useSharedValue(0);
+  const [showDetail, setShowDetail] = useState(false);
 
   useEffect(() => {
     // 등장 팝
@@ -162,68 +180,97 @@ export default function ScoreUpScreen({
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={onExplain} style={s.explain}>
+        <TouchableOpacity
+          onPress={() => {
+            onExplain?.(); // 기존 콜백도 유지 (있으면)
+            setShowDetail(true);
+          }}
+          style={s.explain}
+        >
           <Text style={s.explainText}>{t("score.explain")}</Text>
         </TouchableOpacity>
       </View>
+      {/* 스코어 상세 모달 — 옆에서 슬라이드 + 전체 덮기 */}
+      <Modal
+        visible={showDetail}
+        animationType="none"
+        transparent={false}
+        onRequestClose={() => setShowDetail(false)}
+        presentationStyle="fullScreen"
+      >
+        <Animated.View
+          entering={SlideInRight.duration(280)}
+          exiting={SlideOutRight.duration(220)}
+          style={{ flex: 1 }}
+        >
+          <ScoreDetailScreen
+            score={score}
+            flag={flag}
+            milestones={DETAIL_MILESTONES}
+            onClose={() => setShowDetail(false)}
+            onShare={onShare}
+          />
+        </Animated.View>
+      </Modal>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BLUE,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  mascotWrap: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 60,
-  },
-  spark: { position: "absolute", color: "#FFE14D", fontSize: 26, zIndex: 2 },
-  sparkTR: { top: -10, right: 6 },
-  sparkTL: { top: 30, left: -4, fontSize: 18 },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 18,
-    marginBottom: 20,
-  },
-  flag: { fontSize: 64 },
-  score: { fontSize: 84, fontWeight: "900", color: "#fff" },
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "#fff",
-    textAlign: "center",
-  },
-  footer: { gap: 18 },
-  row: { flexDirection: "row", gap: 12 },
-  shareBtn: {
-    width: 64,
-    borderRadius: 16,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 18,
-  },
-  continueBtn: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 18,
-  },
-  continueText: { color: BLUE_TEXT, fontSize: 17, fontWeight: "800" },
-  explain: { alignItems: "center", paddingVertical: 4 },
-  explainText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "800",
-    opacity: 0.95,
-  },
-});
+const getStyles = (theme: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: BLUE,
+      paddingHorizontal: 20,
+      paddingBottom: 40,
+    },
+    center: { flex: 1, alignItems: "center", justifyContent: "center" },
+    mascotWrap: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 60,
+    },
+    spark: { position: "absolute", color: "#FFE14D", fontSize: 26, zIndex: 2 },
+    sparkTR: { top: -10, right: 6 },
+    sparkTL: { top: 30, left: -4, fontSize: 18 },
+    scoreRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 18,
+      marginBottom: 20,
+    },
+    flag: { fontSize: 64 },
+    score: { fontSize: 84, fontWeight: "900", color: "#fff" },
+    title: {
+      fontSize: 26,
+      fontWeight: "800",
+      color: "#fff",
+      textAlign: "center",
+    },
+    footer: { gap: 18 },
+    row: { flexDirection: "row", gap: 12 },
+    shareBtn: {
+      width: 64,
+      borderRadius: 16,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 18,
+    },
+    continueBtn: {
+      flex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 16,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 18,
+    },
+    continueText: { color: BLUE_TEXT, fontSize: 17, fontWeight: "800" },
+    explain: { alignItems: "center", paddingVertical: 4 },
+    explainText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "800",
+      opacity: 0.95,
+    },
+  });

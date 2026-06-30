@@ -93,7 +93,12 @@ export default function ScoreDetailScreen({
                     style={[
                       s.rail,
                       {
-                        backgroundColor: i === 0 ? "transparent" : theme.border,
+                        backgroundColor:
+                          i === 0
+                            ? "transparent"
+                            : reached
+                              ? BLUE
+                              : theme.border,
                       },
                     ]}
                   />
@@ -122,7 +127,11 @@ export default function ScoreDetailScreen({
                     style={[
                       s.rail,
                       {
-                        backgroundColor: isLast ? "transparent" : theme.border,
+                        backgroundColor: isLast
+                          ? "transparent"
+                          : i < currentIdx
+                            ? BLUE
+                            : theme.border,
                         flex: 1,
                       },
                     ]}

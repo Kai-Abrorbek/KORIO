@@ -36,6 +36,7 @@ import ListenType from "@/components/lesson/questions/ListenType";
 import FillInBlank from "@/components/lesson/questions/FillInBlank";
 import TranslateType from "@/components/lesson/questions/TranslateType";
 import AudioMatch from "@/components/lesson/questions/AudioMatch";
+import ListenFill from "@/components/lesson/questions/ListenFill";
 
 type Phase = "main" | "reviewIntro" | "review";
 
@@ -337,6 +338,8 @@ export default function LessonScreen() {
         return <FillInBlank {...props} />;
       case "translate_type":
         return <TranslateType {...props} />;
+      case "listen_fill":
+        return <ListenFill {...props} onSkip={handleNext} />;
       case "audio_match":
         return <AudioMatch {...props} onSkip={handleNext} />;
       default:
