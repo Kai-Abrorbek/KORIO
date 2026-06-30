@@ -107,6 +107,11 @@ export class UsersController {
     return this.usersService.unfollow(req.user._id.toString(), targetId);
   }
 
+  @Get('search')
+  async search(@Request() req, @Query('q') q: string) {
+    return this.usersService.searchUsers(req.user._id.toString(), q);
+  }
+
   @Get(':id')
   async getUserById(@Request() req, @Param('id') id: string) {
     return this.usersService.getUserById(id, req.user._id.toString());

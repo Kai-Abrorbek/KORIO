@@ -905,4 +905,40 @@ export class UsersService {
     }
     return heatmap;
   }
+
+  async searchUsers(currentUserId: string, q: string) {
+    const query = (q ?? '').trim();
+    if (!query) return [];
+
+    // 정규식 이스케이프 (특수문자 안전)
+    const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(safe, 'i');
+
+    const me = await this.userModel
+      .findById(currentUserId)
+      .select('following')
+      .lean();
+    const followingSet = new Set(
+      (me?.following ?? []).map((f) => f.toString()),
+    );
+
+    const users = await this.userModel
+      .find({
+        _id: { $ne: new Types.ObjectId(currentUserId) }, // 본인 제외
+        $or: [{ nickname: regex }, { username: regex }],
+      })
+      .select(
+        'nickname username profileImage country targetLanguage totalXP level',
+      )
+      .limit(30)
+      .lean();
+
+    return users.map((u) => ({
+      id: u._id.toString(),
+      nickname: u.nickname,
+      username: u.username || '',
+      profileImage: u.profileImage || '',
+      isFollowing: followingSet.has(u._id.toString()),
+    }));
+  }
 }

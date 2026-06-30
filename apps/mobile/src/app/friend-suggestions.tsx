@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   View,
   Text,
@@ -12,26 +11,13 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_SUGGESTIONS } from "@/mocks/friend-suggestions.mock";
-import SuggestionRow from "@/components/friends/SuggestionRow";
+import SuggestionList from "@/components/friends/SuggestionList";
 
 export default function FriendSuggestionsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const s = styles(theme);
-
-  const [followed, setFollowed] = useState<Set<string>>(new Set());
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-
-  const toggleFollow = (id: string) =>
-    setFollowed((p) => {
-      const n = new Set(p);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
-    });
-  const dismiss = (id: string) => setDismissed((p) => new Set(p).add(id));
-
-  const list = MOCK_SUGGESTIONS.filter((x) => !dismissed.has(x.id));
 
   return (
     <View style={s.container}>
@@ -42,22 +28,11 @@ export default function FriendSuggestionsScreen() {
         <Text style={s.headerTitle}>{t("friends.suggestions")}</Text>
         <View style={{ width: 28 }} />
       </View>
-
       <ScrollView
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        {list.map((item) => (
-          <SuggestionRow
-            key={item.id}
-            item={item}
-            followed={followed.has(item.id)}
-            onFollow={() => toggleFollow(item.id)}
-            onDismiss={() => dismiss(item.id)}
-            onPress={() => router.push(`/friend-profile?id=${item.id}`)}
-            theme={theme}
-          />
-        ))}
+        <SuggestionList items={MOCK_SUGGESTIONS} />
       </ScrollView>
     </View>
   );

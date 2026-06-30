@@ -69,6 +69,14 @@ export default function RootLayout() {
             name="speed-round"
             options={{ animation: "fade", gestureEnabled: false }}
           />
+          <Stack.Screen
+            name="follow-link"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+              headerShown: false,
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </SoundProvider>

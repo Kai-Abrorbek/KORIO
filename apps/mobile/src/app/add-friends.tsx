@@ -39,19 +39,19 @@ export default function AddFriendsScreen() {
       icon: "book",
       color: "#F4B400",
       label: t("friends.fromContacts"),
-      onPress: () => {},
+      onPress: () => router.push("/contacts-friends"),
     },
     {
       icon: "search",
       color: "#1CB0F6",
       label: t("friends.searchByName"),
-      onPress: () => {},
+      onPress: () => router.push("/friend-search"),
     },
     {
       icon: "share-social",
       color: "#58CC02",
       label: t("friends.shareLink"),
-      onPress: () => Share.share({ message: "KORIO에서 나를 팔로우하세요!" }),
+      onPress: () => router.push("/follow-link"),
     },
   ];
 

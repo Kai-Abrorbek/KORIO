@@ -71,4 +71,7 @@ export const UserService = {
 
   getUserWeekly: (id: string): Promise<{ days: any[] }> =>
     api.get(`/users/${id}/stats/weekly`),
+
+  searchUsers: (q: string): Promise<any[]> =>
+    api.get(`/users/search?q=${encodeURIComponent(q)}`),
 };
