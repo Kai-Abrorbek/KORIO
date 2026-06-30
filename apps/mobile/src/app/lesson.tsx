@@ -31,6 +31,10 @@ import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { UserService } from "@/services/user.service";
 import { onboardingService } from "@/services/onboarding.service";
+import Listening from "@/components/lesson/questions/Listening";
+import ListenType from "@/components/lesson/questions/ListenType";
+import FillInBlank from "@/components/lesson/questions/FillInBlank";
+import TranslateType from "@/components/lesson/questions/TranslateType";
 
 type Phase = "main" | "reviewIntro" | "review";
 
@@ -324,6 +328,14 @@ export default function LessonScreen() {
         return <TypeAnswer {...props} />;
       case "word_matching":
         return <WordMatching {...props} />;
+      case "listening":
+        return <Listening {...props} />;
+      case "listen_type":
+        return <ListenType {...props} />;
+      case "fill_in_blank":
+        return <FillInBlank {...props} />;
+      case "translate_type":
+        return <TranslateType {...props} />;
       default:
         return <SentenceBuilder {...props} />;
     }

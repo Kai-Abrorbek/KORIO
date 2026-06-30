@@ -140,6 +140,9 @@ export default {
     typeHeardEnglish: "들리는 영어 입력",
     reviewIntro: "자 이제 틀린 문제 풀어볼까요?",
     continue: "계속",
+    tapWhatYouHear: "들리는 단어를 탭하세요",
+    typeWhatYouHear: "들리는 내용을 입력하세요",
+    fillBlank: "빈칸에 알맞은 단어를 고르세요",
   },
   stats: {
     tabs: { period: "기간별", category: "학습별" },
