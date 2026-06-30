@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserLevel, AuthProvider } from "../types/enums";
 
-interface User {
+export interface User {
   id: string;
   email: string;
   nickname: string;
@@ -25,6 +25,7 @@ interface User {
   country?: string;
   provider: AuthProvider;
   isOnboardingCompleted: boolean;
+  currentUnitProgress?: number;
 }
 
 interface AuthState {

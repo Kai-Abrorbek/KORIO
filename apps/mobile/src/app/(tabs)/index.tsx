@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, User } from "@/store/auth.store";
 import BoriMascot from "@/components/home/BoriMascot";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
@@ -25,6 +25,7 @@ import AIChatModal from "@/components/home/AIChatModal";
 import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
 import { StatsService, DayStats } from "@/services/stats.service";
+import CircleProgress from "@/components/home/CircleProgress";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
@@ -41,6 +42,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
+  const lessonProgress = (user as User)?.currentUnitProgress ?? 0;
 
   useEffect(() => {
     aiPulse.value = withRepeat(
@@ -56,7 +58,9 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       UserService.getMe()
-        .then((me) => setUserData(me as any))
+        .then((me) => {
+          setUserData(me as any);
+        })
         .catch((err) => console.error("getMe 실패:", err));
       StatsService.getWeekly()
         .then((data) => setWeekly(data.days))
@@ -68,6 +72,12 @@ export default function HomeScreen() {
     1,
     ...weekly.map((d) => d.vocabularyCount + d.grammarCount),
   );
+
+  const studiedDay = (i: number) => {
+    const d = weekly[i];
+    if (!d) return false;
+    return (d.vocabularyCount ?? 0) + (d.grammarCount ?? 0) > 0;
+  };
 
   const DAYS = t("home.days", { returnObjects: true }) as string[];
   const categories = [
@@ -135,31 +145,33 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.daysRow}>
-              {DAYS.map((day, i) => (
-                <View key={day} style={styles.dayItem}>
-                  <View
-                    style={[
-                      styles.dayCircle,
-                      i < todayIndex && styles.dayCircleCompleted,
-                      i === todayIndex && styles.dayCircleToday,
-                    ]}
-                  >
-                    {i < todayIndex ? (
-                      <Ionicons name="checkmark" size={14} color="#fff" />
-                    ) : i === todayIndex ? (
-                      <Ionicons name="flame" size={14} color="#FF7A00" />
-                    ) : null}
+              {DAYS.map((day, i) => {
+                const studied = studiedDay(i);
+                const isToday = i === todayIndex;
+                const isFuture = i > todayIndex;
+                return (
+                  <View key={day} style={styles.dayItem}>
+                    <View
+                      style={[
+                        styles.dayCircle,
+                        studied && styles.dayCircleCompleted, // 실제 공부한 날만 색칠
+                        isToday && styles.dayCircleToday,
+                      ]}
+                    >
+                      {studied ? (
+                        <Ionicons name="checkmark" size={14} color="#fff" />
+                      ) : isToday ? (
+                        <Ionicons name="flame" size={14} color="#FF7A00" />
+                      ) : null}
+                    </View>
+                    <Text
+                      style={[styles.dayLabel, isToday && styles.dayLabelToday]}
+                    >
+                      {day}
+                    </Text>
                   </View>
-                  <Text
-                    style={[
-                      styles.dayLabel,
-                      i === todayIndex && styles.dayLabelToday,
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                </View>
-              ))}
+                );
+              })}
             </View>
           </Animated.View>
         </TouchableOpacity>
@@ -215,7 +227,7 @@ export default function HomeScreen() {
                   color={theme.primary}
                 />
                 <Text style={styles.reviewRateText}>
-                  {t("home.reviewRate")} -%{" "}
+                  {t("home.reviewRate")} {Math.round(lessonProgress)}%{" "}
                 </Text>
                 <Ionicons
                   name="chevron-forward"
@@ -226,9 +238,11 @@ export default function HomeScreen() {
               <Text style={styles.lessonTitle}>{t("home.vocabStudy")}</Text>
               <Text style={styles.lessonSubTitle}>{t("home.dailyGoal")}</Text>
             </View>
-            <View style={styles.circleProgress}>
-              <Text style={styles.circleProgressText}>5%</Text>
-            </View>
+            <CircleProgress
+              percent={lessonProgress}
+              color={theme.primary}
+              textColor={theme.primary}
+            />
           </View>
 
           <TouchableOpacity

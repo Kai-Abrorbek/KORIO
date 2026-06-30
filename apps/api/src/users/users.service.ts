@@ -13,6 +13,7 @@ import {
 } from './schemas/user-progress.schema';
 import { calculateLevel } from '../common/enums/level.enum';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
+import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
     @InjectModel(UserStats.name) private statsModel: Model<UserStatsDocument>,
     @InjectModel(UserProgress.name)
     private progressModel: Model<UserProgressDocument>,
+    @InjectModel(LessonNode.name) private nodeModel: Model<LessonNodeDocument>,
   ) {}
 
   async saveLevelTest(
@@ -59,7 +61,7 @@ export class UsersService {
       userId: new Types.ObjectId(userId),
       isCompleted: true,
     });
-
+    const currentUnitProgress = await this.calcCurrentUnitProgress(userId);
     return {
       id: user._id.toString(),
       email: user.email,
@@ -80,6 +82,7 @@ export class UsersService {
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,
+      currentUnitProgress,
       targetLanguage: user.targetLanguage,
       dailyGoalMinutes: user.dailyGoalMinutes,
       isOnboardingCompleted: user.isOnboardingCompleted,
@@ -94,6 +97,40 @@ export class UsersService {
       courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)
       friendStreaks: [], // TODO: 친구 스트릭 도메인 생기면 채움
     };
+  }
+
+  private async calcCurrentUnitProgress(userId: string): Promise<number> {
+    const nodes = await this.nodeModel
+      .find()
+      .sort({ section: 1, unit: 1, order: 1 })
+      .lean();
+    if (!nodes.length) return 0;
+
+    const progresses = await this.progressModel
+      .find({ userId: new Types.ObjectId(userId), isCompleted: true })
+      .lean();
+    const doneSet = new Set(progresses.map((p) => p.lessonId.toString()));
+
+    // 유닛별 그룹핑
+    const unitMap = new Map<string, { done: number; total: number }>();
+    for (const node of nodes) {
+      const key = `${node.section}-${node.unit}`;
+      if (!unitMap.has(key)) unitMap.set(key, { done: 0, total: 0 });
+      const u = unitMap.get(key)!;
+      for (const lid of node.lessonIds) {
+        u.total += 1;
+        if (doneSet.has(lid.toString())) u.done += 1;
+      }
+    }
+
+    // 첫 번째 "미완료" 유닛 = 현재 유닛
+    for (const u of unitMap.values()) {
+      if (u.total > 0 && u.done < u.total) {
+        return Math.round((u.done / u.total) * 100);
+      }
+    }
+    // 전부 완료면 100
+    return 100;
   }
 
   /** 다른 유저 프로필 */
@@ -300,11 +337,15 @@ export class UsersService {
 
   /** 최근 N일 (기본 7일) 일별 학습 통계 */
   async getWeeklyStats(userId: string, endDateStr?: string) {
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
-    endDate.setHours(23, 59, 59, 999);
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6);
+    const base = endDateStr ? new Date(endDateStr) : new Date();
+    const day = base.getDay() || 7; // 일=7로 보정
+    const startDate = new Date(base);
+    startDate.setDate(base.getDate() - (day - 1)); // 이번 주 월요일
     startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6); // 일요일
+    endDate.setHours(23, 59, 59, 999);
 
     const stats = await this.statsModel
       .find({
@@ -348,7 +389,6 @@ export class UsersService {
         listeningCount: stat?.listeningCount || 0,
       });
     }
-
     return { days: result };
   }
 

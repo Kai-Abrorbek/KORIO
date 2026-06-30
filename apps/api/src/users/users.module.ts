@@ -8,6 +8,7 @@ import {
   UserProgressSchema,
 } from './schemas/user-progress.schema';
 import { UserStats, UserStatsSchema } from './schemas/user-stats.schema';
+import { LessonNode, LessonNodeSchema } from '../lessons/schemas/node.schema';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserStats, UserStatsSchema } from './schemas/user-stats.schema';
       { name: User.name, schema: UserSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: LessonNode.name, schema: LessonNodeSchema },
     ]),
   ],
   providers: [UsersService],
