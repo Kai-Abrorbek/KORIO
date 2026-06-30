@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { LeagueModule } from './league/league.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     OnboardingModule,
     LessonsModule,
     SubscriptionModule,
+    LeagueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -546,4 +546,21 @@ export default {
       advancedStats: "Detailed learning insights",
     },
   },
+  // en
+  league: {
+    weeklyRanking: "Weekly League",
+    endsIn: "Ends in {{time}}",
+    promotionZone: "Top {{count}} promote",
+    demotionZone: "Bottom {{count}} demote",
+    needXp: "{{xp}} XP to promote!",
+    inPromotion: "You're in the promotion zone! 🔥",
+    you: "(You)",
+    tiers: {
+      bronze: "Bronze League",
+      silver: "Silver League",
+      gold: "Gold League",
+      platinum: "Platinum League",
+      diamond: "Diamond League",
+    },
+  },
 };

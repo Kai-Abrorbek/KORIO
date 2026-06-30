@@ -548,4 +548,21 @@ export default {
       advancedStats: "Batafsil tahlil",
     },
   },
+  // uz
+  league: {
+    weeklyRanking: "Haftalik liga",
+    endsIn: "{{time}} dan keyin tugaydi",
+    promotionZone: "Yuqori {{count}} ko'tariladi",
+    demotionZone: "Pastki {{count}} tushadi",
+    needXp: "Ko'tarilishga {{xp}} XP!",
+    inPromotion: "Siz ko'tarilish zonasidasiz! 🔥",
+    you: "(Siz)",
+    tiers: {
+      bronze: "Bronza liga",
+      silver: "Kumush liga",
+      gold: "Oltin liga",
+      platinum: "Platina liga",
+      diamond: "Olmos liga",
+    },
+  },
 };

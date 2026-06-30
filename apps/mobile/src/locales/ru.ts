@@ -547,4 +547,21 @@ export default {
       advancedStats: "Подробная аналитика",
     },
   },
+  // ru
+  league: {
+    weeklyRanking: "Недельная лига",
+    endsIn: "Завершится через {{time}}",
+    promotionZone: "Топ {{count}} повышение",
+    demotionZone: "Низ {{count}} понижение",
+    needXp: "До повышения {{xp}} XP!",
+    inPromotion: "Вы в зоне повышения! 🔥",
+    you: "(Вы)",
+    tiers: {
+      bronze: "Бронзовая лига",
+      silver: "Серебряная лига",
+      gold: "Золотая лига",
+      platinum: "Платиновая лига",
+      diamond: "Алмазная лига",
+    },
+  },
 };

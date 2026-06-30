@@ -550,4 +550,20 @@ export default {
       advancedStats: "상세한 학습 분석 제공",
     },
   },
+  league: {
+    weeklyRanking: "주간 리그",
+    endsIn: "{{time}} 후 종료",
+    promotionZone: "상위 {{count}}명 승급",
+    demotionZone: "하위 {{count}}명 강등",
+    needXp: "승급까지 {{xp}} XP!",
+    inPromotion: "승급권 안에 있어요! 🔥",
+    you: "(나)",
+    tiers: {
+      bronze: "브론즈 리그",
+      silver: "실버 리그",
+      gold: "골드 리그",
+      platinum: "플래티넘 리그",
+      diamond: "다이아몬드 리그",
+    },
+  },
 };
