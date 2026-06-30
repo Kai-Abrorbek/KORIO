@@ -133,6 +133,8 @@ export default {
     tapWhatYouHear: "Eshitganingizni tanlang",
     typeWhatYouHear: "Eshitganingizni yozing",
     fillBlank: "Bo'sh joyga mos so'zni tanlang",
+    tapToOpenWordBank: "Lug'atni ko'rish uchun bosing",
+    skipListening: "Tinglash mashqini o'tkazib yuborish",
     tapOrDrag: "So'zni bosing yoki sudrab olib keling",
     newWord: "Yangi so'z",
     selectCorrectImage: "To'g'ri rasmni tanlang",

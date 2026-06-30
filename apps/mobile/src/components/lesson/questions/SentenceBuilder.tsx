@@ -1,5 +1,13 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+  Pressable,
+} from "react-native";
+import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
@@ -42,6 +50,7 @@ export default function SentenceBuilder({
   const s = styles(theme, LINE_H, ANSWER_LINES);
   const { speak, speakSlow, isSpeaking } = useSpeech();
   const hasAutoPlayed = useRef(false);
+  const [bankOpen, setBankOpen] = useState(false);
 
   // 섞인 단어로 초기화
   const [words, setWords] = useState<WordItem[]>(() => {
@@ -66,19 +75,13 @@ export default function SentenceBuilder({
     return () => clearTimeout(timer);
   }, []);
 
-  const owlState: OwlState =
-    answerState === "correct" && combo >= 3
-      ? "combo"
-      : answerState === "correct"
-        ? "correct"
-        : answerState === "wrong"
-          ? "wrong"
-          : "idle";
-
   const placedWords = words
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
   const bankWords = words.filter((w) => w.zone === "bank");
+
+  const LONG_SENTENCE_LEN = 18; // 이 글자 수 넘으면 단어장 접고 탭으로 펼침 (레벨업 긴 문장 대비)
+  const isLong = (question.npcText?.length ?? 0) > LONG_SENTENCE_LEN;
 
   const handleTap = (id: string) => {
     setWords((prev) => {
@@ -154,6 +157,23 @@ export default function SentenceBuilder({
     });
   }, []);
 
+  const renderBankChips = () =>
+    words.map((item) =>
+      item.zone === "placed" ? (
+        <GhostChip key={item.id} word={item.word} theme={theme} />
+      ) : (
+        <AnswerChip
+          key={item.id}
+          item={item}
+          onTap={handleTap}
+          onDragToZone={handleDragToZone}
+          onLayoutMeasured={handleChipLayout}
+          theme={theme}
+          answerState={answerState}
+        />
+      ),
+    );
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
@@ -222,24 +242,30 @@ export default function SentenceBuilder({
           </View>
         </View>
 
+        <View style={s.divider} />
+        <View style={[s.divider, { marginTop: 10, marginBottom: 16 }]} />
+
         {/* 단어 뱅크 */}
-        <View style={s.chipRow}>
-          {words.map((item) =>
-            item.zone === "placed" ? (
-              <GhostChip key={item.id} word={item.word} theme={theme} />
-            ) : (
-              <AnswerChip
-                key={item.id}
-                item={item}
-                onTap={handleTap}
-                onDragToZone={handleDragToZone}
-                onLayoutMeasured={handleChipLayout}
-                theme={theme}
-                answerState={answerState}
+        {!isLong ? (
+          <View style={s.chipRow}>{renderBankChips()}</View>
+        ) : (
+          !bankOpen && (
+            <TouchableOpacity
+              style={s.bankHint}
+              onPress={() => setBankOpen(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="chevron-up"
+                size={18}
+                color={theme.textSecondary}
               />
-            ),
-          )}
-        </View>
+              <Text style={s.bankHintText}>
+                {t("lesson.tapToOpenWordBank")}
+              </Text>
+            </TouchableOpacity>
+          )
+        )}
 
         <TouchableOpacity
           style={[
@@ -252,6 +278,25 @@ export default function SentenceBuilder({
         >
           <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
         </TouchableOpacity>
+
+        {/* 긴 문장용 슬라이드업 단어장 (답 영역은 위에 그대로 보임) */}
+        <Modal
+          visible={isLong && bankOpen}
+          transparent
+          animationType="none"
+          onRequestClose={() => setBankOpen(false)}
+        >
+          <View style={s.sheetWrap}>
+            <Pressable style={{ flex: 1 }} onPress={() => setBankOpen(false)} />
+            <Animated.View
+              entering={SlideInDown.springify().damping(18).mass(0.8)}
+              style={s.sheet}
+            >
+              <View style={s.grabber} />
+              <View style={s.chipRow}>{renderBankChips()}</View>
+            </Animated.View>
+          </View>
+        </Modal>
       </Animated.View>
     </GestureHandlerRootView>
   );
@@ -403,4 +448,38 @@ const styles = (theme: ThemeColors, lineH: number, lines: number) =>
     },
     checkBtnDisabled: { backgroundColor: theme.border },
     checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+    bankHint: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      paddingVertical: 18,
+    },
+    bankHintText: {
+      color: theme.textSecondary,
+      fontSize: 15,
+      fontWeight: "600",
+    },
+    sheetWrap: { flex: 1, justifyContent: "flex-end" },
+    sheet: {
+      backgroundColor: theme.surface,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      paddingBottom: 32,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 20,
+      elevation: 16,
+    },
+    grabber: {
+      alignSelf: "center",
+      width: 40,
+      height: 5,
+      borderRadius: 99,
+      backgroundColor: theme.border,
+      marginBottom: 16,
+    },
   });

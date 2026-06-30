@@ -131,6 +131,8 @@ export default {
     tapWhatYouHear: "Tap what you hear",
     typeWhatYouHear: "Type what you hear",
     fillBlank: "Choose the word for the blank",
+    skipListening: "Skip listening exercise",
+    tapToOpenWordBank: "Tap to open the word bank",
     tapOrDrag: "Tap or drag words here",
     newWord: "New word",
     selectCorrectImage: "Select the correct image",
