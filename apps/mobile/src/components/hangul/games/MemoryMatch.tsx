@@ -156,11 +156,18 @@ function MemoryCardView({
         {/* 뒷면 (커버) */}
         <Animated.View style={[styles.face, frontStyle]}>
           <LinearGradient
-            colors={["#8B7BFF", "#776ee2", "#5448E0"]}
+            colors={["#9D8DFF", "#776ee2", "#5B4DD4"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.faceInner}
           >
-            <Text style={styles.backText}>K</Text>
-            <View style={styles.backDot} />
+            {/* 대각 광택 */}
+            <View style={styles.shine} />
+            {/* 한글 자모 워터마크 */}
+            <Text style={styles.backGlyph}>가</Text>
+            <View style={styles.backBadge}>
+              <Text style={styles.backBadgeText}>한</Text>
+            </View>
           </LinearGradient>
         </Animated.View>
 
@@ -169,10 +176,26 @@ function MemoryCardView({
           style={[
             styles.face,
             styles.faceFront,
+            card.type === "hangul"
+              ? styles.faceFrontHangul
+              : styles.faceFrontRoman,
             backStyle,
             card.isMatched && styles.faceMatched,
           ]}
         >
+          {/* 타입 표시 점 */}
+          <View
+            style={[
+              styles.typeDot,
+              {
+                backgroundColor: card.isMatched
+                  ? "#58CC02"
+                  : card.type === "hangul"
+                    ? theme.primary
+                    : "#1CB0F6",
+              },
+            ]}
+          />
           <Text
             style={[
               card.type === "hangul" ? styles.hangulText : styles.romanText,
@@ -191,26 +214,27 @@ const cardStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     cardWrap: {
       width: "23%",
-      aspectRatio: 0.75,
+      aspectRatio: 0.72,
       margin: "1%",
       position: "relative",
     },
     matchedGlow: {
       position: "absolute",
-      top: -6,
-      left: -6,
-      right: -6,
-      bottom: -6,
-      borderRadius: 18,
+      top: -8,
+      left: -8,
+      right: -8,
+      bottom: -8,
+      borderRadius: 20,
       backgroundColor: "#58CC02",
+      shadowColor: "#58CC02",
+      shadowOpacity: 0.6,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 0 },
     },
-    cardArea: {
-      flex: 1,
-      position: "relative",
-    },
+    cardArea: { flex: 1, position: "relative" },
     face: {
       ...StyleSheet.absoluteFill,
-      borderRadius: 12,
+      borderRadius: 16,
       alignItems: "center",
       justifyContent: "center",
       backfaceVisibility: "hidden",
@@ -221,37 +245,55 @@ const cardStyles = (theme: ThemeColors) =>
       width: "100%",
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 12,
+      borderRadius: 16,
     },
+    // 뒷면 광택/글리프/뱃지
+    shine: {
+      position: "absolute",
+      top: -30,
+      left: -40,
+      width: "70%",
+      height: "180%",
+      backgroundColor: "rgba(255,255,255,0.18)",
+      transform: [{ rotate: "22deg" }],
+    },
+    backGlyph: {
+      fontSize: 46,
+      fontWeight: "900",
+      color: "rgba(255,255,255,0.22)",
+    },
+    backBadge: {
+      position: "absolute",
+      bottom: 7,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: "rgba(255,255,255,0.25)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    backBadgeText: { color: "#fff", fontSize: 11, fontWeight: "900" },
+    // 앞면
     faceFront: {
       backgroundColor: theme.surface,
       borderWidth: 2,
-      borderBottomWidth: 4,
-      borderColor: theme.border,
+      borderBottomWidth: 5,
     },
+    faceFrontHangul: { borderColor: theme.primary + "55" },
+    faceFrontRoman: { borderColor: "#1CB0F6" + "55" },
     faceMatched: {
-      backgroundColor: "#D7F5E3",
+      backgroundColor: "#E7F9D5",
       borderColor: "#58CC02",
     },
-    backText: {
-      color: "#fff",
-      fontSize: 32,
-      fontWeight: "900",
-      opacity: 0.85,
-    },
-    backDot: {
+    typeDot: {
       position: "absolute",
-      bottom: 8,
-      width: 6,
-      height: 6,
-      borderRadius: 3,
-      backgroundColor: "rgba(255,255,255,0.6)",
+      top: 8,
+      right: 8,
+      width: 7,
+      height: 7,
+      borderRadius: 4,
     },
-    hangulText: {
-      fontSize: 30,
-      fontWeight: "900",
-      color: theme.text,
-    },
+    hangulText: { fontSize: 32, fontWeight: "900", color: theme.text },
     romanText: {
       fontSize: 22,
       fontWeight: "900",
@@ -393,6 +435,15 @@ export default function MemoryMatch({ characters, onExit }: Props) {
             theme={theme}
           />
         </View>
+      </View>
+
+      <View style={styles.progressTrack}>
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${(matches / PAIRS) * 100}%` },
+          ]}
+        />
       </View>
 
       <Text style={styles.title}>{t("hangul.game.matchHint")}</Text>
@@ -592,6 +643,26 @@ const getStyles = (theme: ThemeColors) =>
       paddingTop: 54,
       paddingHorizontal: 12,
     },
+    progressTrack: {
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: theme.border,
+      marginHorizontal: 4,
+      marginBottom: 14,
+      overflow: "hidden",
+    },
+    progressFill: {
+      height: "100%",
+      borderRadius: 5,
+      backgroundColor: "#58CC02",
+    },
+    title: {
+      fontSize: 15,
+      fontWeight: "800",
+      color: theme.textSecondary,
+      textAlign: "center",
+      marginBottom: 14,
+    },
     topBar: {
       flexDirection: "row",
       alignItems: "center",
@@ -604,13 +675,6 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       justifyContent: "flex-end",
       gap: 8,
-    },
-    title: {
-      fontSize: 15,
-      fontWeight: "700",
-      color: theme.textSecondary,
-      textAlign: "center",
-      marginBottom: 12,
     },
     grid: {
       flexDirection: "row",

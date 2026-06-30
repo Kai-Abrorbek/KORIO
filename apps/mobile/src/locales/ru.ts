@@ -425,6 +425,28 @@ export default {
       slot: "Слот", // uz: "Slot", en: "Slot", ru: "Слот"
       speed: "Скорость",
     },
+    memory: {
+      level: "Уровень {{level}}",
+      memorize: "Запомните карточки!",
+      cleared: "Готово!",
+      timeUp: "Время вышло!",
+      nextLevel: "Следующий уровень",
+      allCleared: "Все уровни пройдены! 🏆",
+      retry: "Заново",
+      exit: "Выход",
+    },
+    wordMemory: {
+      level: "Уровень {{level}}",
+      memorize: "Запомните карточки!",
+      combo: "{{n}} комбо!",
+      lastPair: "Последняя пара!",
+      cleared: "Готово!",
+      timeUp: "Время вышло!",
+      nextLevel: "Следующий уровень",
+      allCleared: "Все уровни пройдены! 🏆",
+      retry: "Заново",
+      exit: "Выход",
+    },
     speed: {
       getReady: "Готовьтесь",
       go: "Старт!",
