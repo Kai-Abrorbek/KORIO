@@ -39,6 +39,7 @@ const SCORE_COLORS: Record<StrokeScore, string> = {
   okay: "#1FA9F7",
   fail: "#FF4B4B",
 };
+const VIEWBOX = 300;
 
 export default function HangulDrawingGame({ characters, onExit }: Props) {
   const { t } = useTranslation();
@@ -67,30 +68,34 @@ export default function HangulDrawingGame({ characters, onExit }: Props) {
   // 피드백 애니메이션
   const feedbackScale = useSharedValue(0);
   const feedbackOpacity = useSharedValue(0);
+  const feedbackY = useSharedValue(8);
 
   useEffect(() => {
     if (feedback) {
-      feedbackOpacity.value = withTiming(1, { duration: 150 });
-      feedbackScale.value = withSequence(
-        withSpring(1.15, { damping: 8, stiffness: 220 }),
-        withSpring(1, { damping: 9 }),
-      );
-      // 1.2초 후 다음 진행
+      feedbackOpacity.value = withTiming(1, {
+        duration: 200,
+        easing: Easing.out(Easing.cubic),
+      });
+      feedbackY.value = withTiming(0, {
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+      });
+
       const timer = setTimeout(() => {
         feedbackOpacity.value = withTiming(0, { duration: 200 });
-        feedbackScale.value = withTiming(0.8, { duration: 200 });
-        advance();
-      }, 1200);
+        feedbackY.value = withTiming(8, { duration: 200 });
+        advance(); // ← 이게 빠졌었음! 다음 획/글자로 진행
+      }, 1100);
       return () => clearTimeout(timer);
     } else {
       feedbackOpacity.value = 0;
-      feedbackScale.value = 0;
+      feedbackY.value = 8;
     }
   }, [feedback]);
 
   const feedbackStyle = useAnimatedStyle(() => ({
     opacity: feedbackOpacity.value,
-    transform: [{ scale: feedbackScale.value }],
+    transform: [{ translateY: feedbackY.value }],
   }));
 
   // 진행률 바
@@ -110,7 +115,7 @@ export default function HangulDrawingGame({ characters, onExit }: Props) {
   const handleStrokeFinished = (userPoints: StrokePoint[]) => {
     if (feedback) return; // 피드백 중 무시
     const target = character.strokes[strokeIdx].points;
-    const result = scoreStroke(target, userPoints);
+    const result = scoreStroke(target, userPoints, 300);
 
     Haptics.notificationAsync(
       result.score === "fail"

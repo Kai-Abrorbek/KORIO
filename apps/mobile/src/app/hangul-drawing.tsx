@@ -11,7 +11,13 @@ export default function HangulDrawingScreen() {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <HangulDrawingGame
         characters={HANGUL_STROKE_CHARS}
-        onExit={() => router.back()}
+        onExit={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace("/");
+          }
+        }}
       />
     </View>
   );
