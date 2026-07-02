@@ -121,6 +121,7 @@ export default {
   lesson: {
     check: "Tekshirish",
     next: "Davom etish",
+    combo: "Combo",
     correct: "Juda zo'r!",
     wrong: "Noto'g'ri!",
     correctAnswer: "To'g'ri javob",

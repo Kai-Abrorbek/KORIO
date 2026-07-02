@@ -320,6 +320,7 @@ const getStyles = (theme: ThemeColors) =>
       justifyContent: "center",
       position: "absolute",
       top: 0,
+      overflow: "hidden",
     },
     gloss: {
       position: "absolute",

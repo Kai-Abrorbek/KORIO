@@ -119,6 +119,7 @@ export default {
   lesson: {
     check: "확인",
     next: "계속",
+    combo: "콤보",
     correct: "정말 잘했어요!",
     wrong: "정확하지 않습니다!",
     correctAnswer: "정답",

@@ -118,6 +118,7 @@ export default {
   },
   lesson: {
     check: "Check",
+    combo: "Combo",
     next: "Continue",
     correct: "Great job!",
     wrong: "Incorrect!",

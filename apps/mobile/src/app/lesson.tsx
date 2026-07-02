@@ -59,10 +59,12 @@ export default function LessonScreen() {
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
-  const [hearts, setHearts] = useState(3);
+  const userEnergy = useAuthStore((st) => st.user?.energy ?? 25);
+  const [energy, setEnergy] = useState(userEnergy);
+  const [showNoEnergy, setShowNoEnergy] = useState(false);
   const [combo, setCombo] = useState(0);
   const [phase, setPhase] = useState<Phase>("main");
-
+  const [showCombo, setShowCombo] = useState<boolean>(false);
   const reviewTotal = useRef(0);
   const questionQueue = useRef<LessonQuestion[]>([]); // 현재 푸는 큐 (main → review)
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
@@ -81,7 +83,6 @@ export default function LessonScreen() {
   const loadLesson = async () => {
     try {
       setLoading(true);
-
       if (isLevelTest) {
         const questions = await LessonService.getLevelTestQuestions();
         const session = {
@@ -201,8 +202,15 @@ export default function LessonScreen() {
     totalCount.current += 1;
 
     if (isCorrect) {
+      setShowCombo(true);
       correctCount.current += 1;
       setCombo((c) => c + 1);
+      // 에너지 1 감소 (0 이하로 안 내려감)
+      setEnergy((e) => {
+        const next = Math.max(0, e - 1);
+        if (next === 0) setShowNoEnergy(true);
+        return next;
+      });
       if (!uniqueCorrect.current.has(currentQ.id)) {
         uniqueCorrect.current.add(currentQ.id);
       }
@@ -260,7 +268,7 @@ export default function LessonScreen() {
     }
 
     if (!lesson) return;
-
+    setShowCombo(false);
     // 현재 문제 큐에서 제거
     const [, ...remaining] = questionQueue.current;
     questionQueue.current = remaining;
@@ -367,12 +375,12 @@ export default function LessonScreen() {
     <View style={s.container}>
       <LessonHeader
         progress={progress}
-        total={lesson.questions.length}
-        hearts={hearts}
         combo={combo}
+        energy={energy}
         answerState={answerState}
         onClose={goHome}
         theme={theme}
+        showCombo={showCombo}
       />
 
       {/* 복습 안내 오버레이 */}

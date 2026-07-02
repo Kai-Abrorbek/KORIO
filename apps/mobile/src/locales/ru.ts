@@ -120,6 +120,7 @@ export default {
   lesson: {
     check: "Проверить",
     next: "Продолжить",
+    combo: "Combo",
     correct: "Отлично!",
     wrong: "Неправильно!",
     correctAnswer: "Правильный ответ",

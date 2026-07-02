@@ -65,9 +65,9 @@ export default function SettingsScreen() {
       >
         <View style={styles.topCard}>
           <SettingsUserCard
-            name={MOCK_PROFILE.name}
+            name={user?.nickname ?? ""}
             onProfilePress={() => router.push("/profile")}
-            onSubscribePress={() => console.log("subscribe")}
+            onSubscribePress={() => router.push("/(tabs)/premium")}
           />
           <SettingsQuickActions
             onAuthCode={() => console.log("auth code")}
