@@ -386,7 +386,10 @@ export default function HomeScreen() {
           entering={FadeInDown.delay(500).duration(500)}
           style={styles.card}
         >
-          <TouchableOpacity style={styles.reviewRow}>
+          <TouchableOpacity
+            style={styles.reviewRow}
+            onPress={() => router.push("/practice")}
+          >
             <View style={[styles.reviewIcon, { backgroundColor: "#EEEDFE" }]}>
               <Ionicons name="refresh" size={20} color={theme.primary} />
             </View>
@@ -394,9 +397,9 @@ export default function HomeScreen() {
               <Text style={styles.reviewTitle}>{t("home.review")}</Text>
               <Text style={styles.reviewSub}>{t("home.reviewSub")}</Text>
             </View>
-            <View style={styles.reviewBadge}>
+            {/* <View style={styles.reviewBadge}>
               <Text style={styles.reviewBadgeText}>6</Text>
-            </View>
+            </View> */}
             <Ionicons
               name="chevron-forward"
               size={16}

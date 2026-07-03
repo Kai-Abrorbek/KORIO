@@ -77,6 +77,10 @@ export default function RootLayout() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="practice"
+            options={{ animation: "slide_from_right" }}
+          />
         </Stack>
       </ThemeProvider>
     </SoundProvider>

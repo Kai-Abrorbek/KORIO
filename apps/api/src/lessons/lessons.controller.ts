@@ -35,6 +35,50 @@ export class LessonsController {
     return this.lessonsService.getRoadmap(req.user._id.toString(), lang);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('mistakes')
+  async getMistakes(@Request() req) {
+    return this.lessonsService.getMistakes(req.user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('learned-words')
+  async getLearnedWords(@Request() req) {
+    return this.lessonsService.getLearnedWords(req.user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('word-practice')
+  async getWordPractice(@Request() req) {
+    return this.lessonsService.getWordPracticeQuestions(
+      req.user._id.toString(),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('mistake-questions')
+  async getMistakeQuestions(
+    @Request() req,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.lessonsService.getMistakeQuestions(
+      req.user._id.toString(),
+      lang,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('mistakes/resolve')
+  async resolveMistakes(
+    @Request() req,
+    @Body() body: { correctIds: string[] },
+  ) {
+    return this.lessonsService.resolveMistakes(
+      req.user._id.toString(),
+      body.correctIds ?? [],
+    );
+  }
+
   // 레슨 완료 저장
   @UseGuards(JwtAuthGuard)
   @Post(':id/complete')

@@ -51,6 +51,8 @@ export default function LessonScreen() {
     mode?: string;
   }>();
   const isLevelTest = mode === "levelTest";
+  const isWordPractice = mode === "wordPractice";
+  const isReview = mode === "review";
   const { setLevelTestResult, sessionId } = useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
@@ -66,6 +68,7 @@ export default function LessonScreen() {
   const [phase, setPhase] = useState<Phase>("main");
   const [showCombo, setShowCombo] = useState<boolean>(false);
   const reviewTotal = useRef(0);
+  const reviewCorrectIds = useRef<Set<string>>(new Set());
   const questionQueue = useRef<LessonQuestion[]>([]); // 현재 푸는 큐 (main → review)
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
@@ -93,6 +96,33 @@ export default function LessonScreen() {
           questions,
         };
         setLesson(session as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
+      if (isWordPractice) {
+        const { questions } = await LessonService.getWordPractice();
+        const session = {
+          lessonId: "word-practice",
+          lessonTitle: "Word Practice",
+          category: "",
+          totalXp: 10,
+          questions,
+        };
+        setLesson(session as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
+      if (isReview) {
+        const { questions } = await LessonService.getMistakeQuestions();
+        setLesson({
+          lessonId: "review",
+          lessonTitle: "Review",
+          category: "",
+          totalXp: 16,
+          questions,
+        } as any);
         questionQueue.current = [...questions];
         return;
       }
@@ -204,18 +234,19 @@ export default function LessonScreen() {
     if (isCorrect) {
       setShowCombo(true);
       correctCount.current += 1;
+      if (isReview) reviewCorrectIds.current.add(currentQ.id);
+      if (phase === "review") finalWrongIds.current.delete(currentQ.id);
       setCombo((c) => c + 1);
-      // 에너지 1 감소 (0 이하로 안 내려감)
+
       setEnergy((e) => {
         const next = Math.max(0, e - 1);
         if (next === 0) setShowNoEnergy(true);
         return next;
       });
+
       if (!uniqueCorrect.current.has(currentQ.id)) {
         uniqueCorrect.current.add(currentQ.id);
       }
-      // 복습 단계에서 맞으면 최종 오답에서 제외
-      if (phase === "review") finalWrongIds.current.delete(currentQ.id);
     } else {
       setCombo(0);
       if (phase === "main") {
@@ -239,7 +270,13 @@ export default function LessonScreen() {
 
   const finishLesson = async () => {
     const wrongArr = [...finalWrongIds.current];
-    if (lessonId) {
+    if (isReview) {
+      // 복습: 맞춘 문제(최종 오답에 없는 것)를 오답에서 제거
+      const correctIds = [...reviewCorrectIds.current].filter(
+        (id) => !finalWrongIds.current.has(id),
+      );
+      LessonService.resolveMistakes(correctIds).catch(() => {});
+    } else if (!isLevelTest && !isWordPractice && lessonId) {
       try {
         await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,

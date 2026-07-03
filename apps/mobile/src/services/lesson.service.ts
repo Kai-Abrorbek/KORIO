@@ -40,4 +40,21 @@ export const LessonService = {
   getLevelTestQuestions: (): Promise<any[]> => {
     return api.get(`/lessons/level-test?lang=${getLang()}`);
   },
+
+  getMistakes: (): Promise<{ count: number; questions: any[] }> =>
+    api.get(`/lessons/mistakes`),
+
+  getLearnedWords: (): Promise<{
+    count: number;
+    words: { korean: string; native: string }[];
+  }> => api.get(`/lessons/learned-words`),
+
+  getWordPractice: (): Promise<{ questions: any[] }> =>
+    api.get(`/lessons/word-practice`),
+
+  getMistakeQuestions: (): Promise<{ questions: any[] }> =>
+    api.get(`/lessons/mistake-questions`),
+
+  resolveMistakes: (correctIds: string[]): Promise<{ removed: number }> =>
+    api.post(`/lessons/mistakes/resolve`, { correctIds }),
 };

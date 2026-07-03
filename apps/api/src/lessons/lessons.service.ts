@@ -57,7 +57,7 @@ export class LessonsService {
   }
 
   // 레슨 상세 + 문제들 (lessonId로 조회)
-  async getLessonById(lessonId: string, lang: string = 'uz') {
+  public async getLessonById(lessonId: string, lang: string = 'uz') {
     const lesson = await this.lessonModel.findById(lessonId).lean();
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
 
@@ -81,7 +81,7 @@ export class LessonsService {
   }
 
   // 레슨 완료 저장
-  async completeLesson(
+  public async completeLesson(
     lessonId: string,
     userId: string,
     dto: CompleteLessonDto,
@@ -130,7 +130,7 @@ export class LessonsService {
     return { success: true, xpEarned: dto.xpEarned };
   }
 
-  async getLevelTestQuestions(lang: string = 'uz') {
+  public async getLevelTestQuestions(lang: string = 'uz') {
     const easyQuestions = await this.questionModel.aggregate([
       { $match: { level: { $in: ['1', '2', '3'] }, isActive: true } },
       { $sample: { size: 10 } },
@@ -149,7 +149,7 @@ export class LessonsService {
   }
 
   // 로드맵 조회
-  async getRoadmap(userId: string, lang: string = 'uz') {
+  public async getRoadmap(userId: string, lang: string = 'uz') {
     // 모든 노드 조회 (section, unit, order 순)
     const nodes = await this.nodeModel
       .find({ isActive: true })
@@ -251,7 +251,7 @@ export class LessonsService {
     return { units };
   }
 
-  async getLessons(userId: string) {
+  public async getLessons(userId: string) {
     const nodes = await this.nodeModel
       .find({ isActive: true })
       .sort({ section: 1, unit: 1, order: 1 })
@@ -265,5 +265,152 @@ export class LessonsService {
       order: node.order,
       lessonCount: node.lessonIds.length,
     }));
+  }
+
+  // 유저의 모든 틀린 문제 (중복 제거)
+  public async getMistakes(userId: string) {
+    const progresses = await this.userProgressModel
+      .find({ userId: new Types.ObjectId(userId) })
+      .select('wrongQuestionIds')
+      .lean();
+
+    // 모든 wrongQuestionIds 합치고 중복 제거
+    const idSet = new Set<string>();
+    progresses.forEach((p) =>
+      (p.wrongQuestionIds ?? []).forEach((id) => idSet.add(id)),
+    );
+    const ids = [...idSet].filter((id) => Types.ObjectId.isValid(id));
+
+    if (ids.length === 0) return { count: 0, questions: [] };
+
+    const questions = await this.questionModel
+      .find({ _id: { $in: ids.map((id) => new Types.ObjectId(id)) } })
+      .select('type instruction answer npcText')
+      .lean();
+
+    return {
+      count: questions.length,
+      questions: questions.map((q) => ({
+        id: q._id.toString(),
+        type: q.type,
+        instruction: q.instruction, // i18n {ko,uz,en,ru}
+        answer: q.answer,
+        npcText: q.npcText,
+      })),
+    };
+  }
+
+  // 유저가 배운 단어 (완료 레슨의 word_matching pairs)
+  public async getLearnedWords(userId: string) {
+    // 완료한 레슨 id
+    const completed = await this.userProgressModel
+      .find({ userId: new Types.ObjectId(userId), isCompleted: true })
+      .select('lessonId')
+      .lean();
+    const lessonIds = completed.map((p) => p.lessonId);
+    if (lessonIds.length === 0) return { count: 0, words: [] };
+
+    // 그 레슨들의 question id 모으기
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: lessonIds } })
+      .select('questionIds')
+      .lean();
+
+    const qIds = new Set<string>();
+    lessons.forEach((l) =>
+      (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
+    );
+
+    if (qIds.size === 0) return { count: 0, words: [] };
+
+    // pairs 있는 question에서 단어 추출
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
+        'pairs.0': { $exists: true },
+      })
+      .select('pairs')
+      .lean();
+
+    const wordMap = new Map<string, { korean: string; native: string }>();
+    questions.forEach((q) =>
+      (q.pairs ?? []).forEach((p: any) => {
+        if (p.korean && !wordMap.has(p.korean)) {
+          wordMap.set(p.korean, { korean: p.korean, native: p.native });
+        }
+      }),
+    );
+
+    const words = [...wordMap.values()];
+    return { count: words.length, words };
+  }
+
+  // 배운 단어로 word_matching 연습 문제 생성
+  public async getWordPracticeQuestions(userId: string) {
+    const { words } = await this.getLearnedWords(userId);
+    if (words.length === 0) return { questions: [] };
+
+    // 셔플
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
+
+    // 4쌍씩 묶어서 문제 생성 (마지막 그룹이 2개 미만이면 버림)
+    const PER = 4;
+    const questions: any[] = [];
+    for (let i = 0; i < shuffled.length; i += PER) {
+      const group = shuffled.slice(i, i + PER);
+      if (group.length < 2) break;
+      questions.push({
+        id: `wp-${i}`,
+        type: 'word_matching',
+        question: '', // 프론트에서 i18n 지시문 붙임
+        instruction: {
+          ko: '알맞은 짝을 연결하세요',
+          uz: "To'g'ri juftlikni bog'lang",
+          en: 'Match the pairs',
+          ru: 'Соедините пары',
+        },
+        pairs: group.map((w) => ({ korean: w.korean, native: w.native })),
+      });
+    }
+
+    return { questions };
+  }
+
+  // 복습 완료: 맞춘 문제들을 모든 progress의 오답 목록에서 제거
+  public async resolveMistakes(userId: string, correctIds: string[]) {
+    const validIds = correctIds.filter((id) => Types.ObjectId.isValid(id));
+    if (validIds.length === 0) return { removed: 0 };
+
+    // 이 유저의 모든 progress에서 해당 오답 id들 제거
+    await this.userProgressModel.updateMany(
+      { userId: new Types.ObjectId(userId) },
+      { $pull: { wrongQuestionIds: { $in: validIds } } },
+    );
+
+    return { removed: validIds.length };
+  }
+
+  // 복습용: 틀린 문제 전체 (실제로 풀 수 있는 형태)
+  async getMistakeQuestions(userId: string, lang: string = 'uz') {
+    const progresses = await this.userProgressModel
+      .find({ userId: new Types.ObjectId(userId) })
+      .select('wrongQuestionIds')
+      .lean();
+
+    const idSet = new Set<string>();
+    progresses.forEach((p) =>
+      (p.wrongQuestionIds ?? []).forEach((id) => idSet.add(id)),
+    );
+    const ids = [...idSet].filter((id) => Types.ObjectId.isValid(id));
+    if (ids.length === 0) return { questions: [] };
+
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: ids.map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    return { questions: questions.map((q) => this.formatQuestion(q, lang)) };
   }
 }
