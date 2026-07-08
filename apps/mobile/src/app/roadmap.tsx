@@ -19,7 +19,7 @@ import {
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
@@ -86,6 +86,16 @@ export default function RoadmapScreen() {
   const didAutoScroll = useRef(false);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
+  const user = useAuthStore((s) => s.user);
+
+  const userStats = {
+    language: "🇺🇸",
+    languageLevel: 2,
+    streak: user?.streak,
+    gems: user?.gems,
+    energy: user?.energy,
+    isSuper: user?.isSuper,
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -215,7 +225,7 @@ export default function RoadmapScreen() {
 
   return (
     <View style={styles.container}>
-      <RoadmapHeader stats={roadmap.stats} energy={energy} />
+      <RoadmapHeader stats={userStats} energy={energy} />
 
       {/* 고정 배너 */}
       {currentUnit && (

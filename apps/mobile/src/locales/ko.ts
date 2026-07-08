@@ -119,6 +119,9 @@ export default {
   lesson: {
     check: "확인",
     next: "계속",
+    quitTitle: "잠깐만요, 이 레슨이 1분밖에 안 남았어요!",
+    quitContinue: "계속 학습하기",
+    quitLeave: "그만하기",
     combo: "콤보",
     correct: "정말 잘했어요!",
     wrong: "정확하지 않습니다!",

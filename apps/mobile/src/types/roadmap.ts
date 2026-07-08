@@ -48,11 +48,11 @@ export interface NextLockedSection {
 
 export interface UserRoadmapStats {
   language: string;
-  languageLevel: number;
-  streak: number;
-  gems: number;
-  energy: number;
-  isSuper: boolean;
+  languageLevel: number | undefined;
+  streak: number | undefined;
+  gems: number | undefined;
+  energy: number | undefined;
+  isSuper: boolean | undefined;
 }
 
 export interface RoadmapData {

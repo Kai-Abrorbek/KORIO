@@ -25,6 +25,7 @@ interface Props {
   theme: ThemeColors;
   hideBadges?: boolean;
   showCombo?: boolean;
+  isSuper?: boolean;
 }
 
 export default function LessonHeader({
@@ -36,6 +37,7 @@ export default function LessonHeader({
   theme,
   hideBadges = false,
   showCombo,
+  isSuper = false,
 }: Props) {
   const { t } = useTranslation();
   const progressWidth = useSharedValue(progress);
@@ -150,19 +152,24 @@ export default function LessonHeader({
           </View>
         </View>
 
-        {/* 에너지 배지 */}
-        {!hideBadges && (
-          <Animated.View style={[s.energyBadge, energyStyle]}>
-            <View style={s.batteryIcon}>
-              <MaterialCommunityIcons
-                name="lightning-bolt"
-                size={14}
-                color="#fff"
-              />
+        {/* /* 에너지 배지 또는 SUPER */}
+        {!hideBadges &&
+          (isSuper ? (
+            <View style={s.superBadge}>
+              <Text style={s.superText}>SUPER</Text>
             </View>
-            <Text style={s.energyText}>{energy}</Text>
-          </Animated.View>
-        )}
+          ) : (
+            <Animated.View style={[s.energyBadge, energyStyle]}>
+              <View style={s.batteryIcon}>
+                <MaterialCommunityIcons
+                  name="lightning-bolt"
+                  size={14}
+                  color="#fff"
+                />
+              </View>
+              <Text style={s.energyText}>{energy}</Text>
+            </Animated.View>
+          ))}
       </View>
     </View>
   );
@@ -217,6 +224,20 @@ const styles = (theme: ThemeColors) =>
       bottom: -4,
       width: 60,
       backgroundColor: "rgba(255,255,255,0.5)",
+    },
+    superBadge: {
+      backgroundColor: "#A56EFF",
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      borderRadius: 8,
+      transform: [{ skewX: "-10deg" }],
+    },
+    superText: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#fff",
+      letterSpacing: 1,
+      transform: [{ skewX: "10deg" }],
     },
     energyBadge: { flexDirection: "row", alignItems: "center", gap: 6 },
     batteryIcon: {

@@ -39,6 +39,7 @@ import AudioMatch from "@/components/lesson/questions/AudioMatch";
 import ListenFill from "@/components/lesson/questions/ListenFill";
 import { useEnergyStore } from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
+import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 
 type Phase = "main" | "reviewIntro" | "review";
 
@@ -80,10 +81,11 @@ export default function LessonScreen() {
   const correctCount = useRef(0);
   const totalCount = useRef(0);
   const wrongIds = useRef<string[]>([]);
+  const [showQuit, setShowQuit] = useState(false);
+  const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
 
   useEffect(() => {
     loadLesson();
-    EnergyService.consume().catch(() => {});
   }, [lessonId]);
 
   // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
@@ -254,12 +256,19 @@ export default function LessonScreen() {
       if (phase === "review") finalWrongIds.current.delete(currentQ.id);
       setCombo((c) => c + 1);
 
-      setEnergy((e) => {
-        const next = Math.max(0, e - 1);
-        return next;
-      });
-
-      if (energy - 1 <= 0) openEnergyModal();
+      // 슈퍼가 아닐 때만 에너지 소모
+      if (!isSuper) {
+        setEnergy((e) => {
+          const next = Math.max(0, e - 1);
+          if (next <= 0) openEnergyModal();
+          return next;
+        });
+        EnergyService.consume()
+          .then((res) =>
+            updateUser({ energy: res.energy, gems: res.gems } as any),
+          )
+          .catch(() => {});
+      }
 
       if (!uniqueCorrect.current.has(currentQ.id)) {
         uniqueCorrect.current.add(currentQ.id);
@@ -424,11 +433,12 @@ export default function LessonScreen() {
   return (
     <View style={s.container}>
       <LessonHeader
+        isSuper={isSuper}
         progress={progress}
         combo={combo}
         energy={energy}
         answerState={answerState}
-        onClose={goHome}
+        onClose={() => setShowQuit(true)}
         theme={theme}
         showCombo={showCombo}
       />
@@ -479,6 +489,15 @@ export default function LessonScreen() {
           {!isLevelTest && <ComboPopup combo={combo} />}
         </>
       ) : null}
+
+      <QuitLessonModal
+        visible={showQuit}
+        onContinue={() => setShowQuit(false)}
+        onQuit={() => {
+          setShowQuit(false);
+          goHome();
+        }}
+      />
     </View>
   );
 }

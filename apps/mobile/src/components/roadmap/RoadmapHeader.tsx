@@ -5,6 +5,7 @@ import { ThemeColors } from "@/constants/theme";
 import { UserRoadmapStats } from "@/types/roadmap";
 import { BatteryBadge, ENERGY_COLORS } from "@/components/energy/BatteryBadge";
 import EnergyBadge from "./EnergyBadge";
+import { useRouter } from "expo-router";
 
 interface Props {
   stats: UserRoadmapStats;
@@ -14,6 +15,7 @@ interface Props {
 export default function RoadmapHeader({ stats, energy }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -36,12 +38,15 @@ export default function RoadmapHeader({ stats, energy }: Props) {
       </View>
 
       {/* 에너지 또는 SUPER 뱃지 */}
-      {!stats.isSuper ? (
+      {stats.isSuper ? (
         <View style={styles.superBadge}>
           <Text style={styles.superText}>SUPER</Text>
         </View>
       ) : (
-        <TouchableOpacity style={styles.statBox}>
+        <TouchableOpacity
+          style={styles.statBox}
+          onPress={() => router.push("/energy")}
+        >
           <EnergyBadge energy={energy} size={26} />
         </TouchableOpacity>
       )}

@@ -121,6 +121,9 @@ export default {
   lesson: {
     check: "Tekshirish",
     next: "Davom etish",
+    quitTitle: "Shoshmang, bu darsga atigi 1 daqiqa qoldi!",
+    quitContinue: "Davom etish",
+    quitLeave: "To'xtatish",
     combo: "Combo",
     correct: "Juda zo'r!",
     wrong: "Noto'g'ri!",

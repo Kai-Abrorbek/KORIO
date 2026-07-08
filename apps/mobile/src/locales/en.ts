@@ -119,6 +119,9 @@ export default {
   lesson: {
     check: "Check",
     combo: "Combo",
+    quitTitle: "Wait, you're just 1 minute from finishing!",
+    quitContinue: "Keep learning",
+    quitLeave: "Quit",
     next: "Continue",
     correct: "Great job!",
     wrong: "Incorrect!",

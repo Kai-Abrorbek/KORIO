@@ -7,7 +7,7 @@ export const MOCK_ROADMAP: RoadmapData = {
     streak: 1,
     gems: 597,
     energy: 98,
-    isSuper: true,
+    isSuper: false,
   },
   units: [
     {
