@@ -91,24 +91,32 @@ export class User {
   @Prop({ default: null })
   superExpiresAt: Date;
 
-  // ✨ 신규: 복구펜 개수
+  // 신규: 복구펜 개수
   @Prop({ default: 0 })
   streakFreeze: number;
 
-  // ✨ 신규: 보석 (인앱 화폐)
+  // 신규: 보석 (인앱 화폐)
   @Prop({ default: 0 })
   gems: number;
 
-  // ✨ 신규: 에너지/하트
+  //  신규: 에너지/하트
   @Prop({ default: 5 })
   energy: number;
 
-  // ✨ 신규: 팔로잉/팔로워 (배열로 가져감 - MVP)
+  //  신규: 팔로잉/팔로워 (배열로 가져감 - MVP)
   @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
   following: Types.ObjectId[];
 
   @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
   followers: Types.ObjectId[];
+
+  // 에너지 마지막 회복 계산 시각 (lazy regen용)
+  @Prop({ default: () => new Date() })
+  energyUpdatedAt: Date;
+
+  // 무료 에너지 받은 시각들 (하루 3회 제한용)
+  @Prop({ type: [Date], default: [] })
+  freeEnergyClaims: Date[];
 
   // 온보딩 완료 여부
   @Prop({ default: false })

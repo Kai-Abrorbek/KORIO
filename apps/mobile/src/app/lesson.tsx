@@ -37,6 +37,8 @@ import FillInBlank from "@/components/lesson/questions/FillInBlank";
 import TranslateType from "@/components/lesson/questions/TranslateType";
 import AudioMatch from "@/components/lesson/questions/AudioMatch";
 import ListenFill from "@/components/lesson/questions/ListenFill";
+import { useEnergyStore } from "@/store/energy.store";
+import { EnergyService } from "@/services/energy.service";
 
 type Phase = "main" | "reviewIntro" | "review";
 
@@ -63,7 +65,7 @@ export default function LessonScreen() {
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const userEnergy = useAuthStore((st) => st.user?.energy ?? 25);
   const [energy, setEnergy] = useState(userEnergy);
-  const [showNoEnergy, setShowNoEnergy] = useState(false);
+  const openEnergyModal = useEnergyStore((s) => s.openEnergyModal);
   const [combo, setCombo] = useState(0);
   const [phase, setPhase] = useState<Phase>("main");
   const [showCombo, setShowCombo] = useState<boolean>(false);
@@ -81,6 +83,7 @@ export default function LessonScreen() {
 
   useEffect(() => {
     loadLesson();
+    EnergyService.consume().catch(() => {});
   }, [lessonId]);
 
   // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
@@ -253,9 +256,10 @@ export default function LessonScreen() {
 
       setEnergy((e) => {
         const next = Math.max(0, e - 1);
-        if (next === 0) setShowNoEnergy(true);
         return next;
       });
+
+      if (energy - 1 <= 0) openEnergyModal();
 
       if (!uniqueCorrect.current.has(currentQ.id)) {
         uniqueCorrect.current.add(currentQ.id);

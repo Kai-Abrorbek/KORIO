@@ -516,6 +516,9 @@ export default {
     modalTitle: "Чтобы начать урок, нужно больше энергии!",
     tryFreeWeek: "Неделю бесплатно",
     noThanks: "Нет, спасибо",
+    full: "Полно",
+    freeCount: "Бесплатно ({{n}})",
+    freeDone: "Завтра",
   },
   // ru
   premium: {

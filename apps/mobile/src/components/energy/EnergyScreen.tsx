@@ -15,6 +15,7 @@ import {
   SuperInfinityBadge,
   ENERGY_COLORS,
 } from "./BatteryBadge";
+import { useEffect, useState } from "react";
 
 interface Props {
   energy?: number;
@@ -29,6 +30,10 @@ interface Props {
   onRefill?: () => void;
   onWidgetBoost?: () => void;
   onWatchAd?: () => void;
+  secondsToNext?: number;
+  freeRemaining?: number;
+  canRefill?: boolean;
+  onFree?: () => void;
 }
 
 export default function EnergyScreen({
@@ -44,11 +49,31 @@ export default function EnergyScreen({
   onRefill,
   onWidgetBoost,
   onWatchAd,
+  secondsToNext = 0,
+  freeRemaining = 0,
+  canRefill = false,
+  onFree,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = getStyles(theme);
   const fillPct = Math.max(0, Math.min(1, energy / maxEnergy)) * 100;
+  const isFull = energy >= maxEnergy;
+  // "N시간 N분" 실시간 감소 (1초마다)
+  const [remainSec, setRemainSec] = useState(etaHours * 3600 + etaMinutes * 60);
+
+  useEffect(() => {
+    setRemainSec(etaHours * 3600 + etaMinutes * 60);
+  }, [etaHours, etaMinutes]);
+
+  useEffect(() => {
+    if (energy >= maxEnergy) return;
+    const id = setInterval(() => setRemainSec((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [energy, maxEnergy]);
+
+  const rh = Math.floor(remainSec / 3600);
+  const rm = Math.floor((remainSec % 3600) / 60);
 
   return (
     <View style={s.container}>
@@ -70,13 +95,17 @@ export default function EnergyScreen({
       >
         {/* 충전 상태 */}
         <View style={s.chargeRow}>
-          <Text style={s.chargeLabel}>{t("energy.charging")}</Text>
-          <View style={s.etaWrap}>
-            <Ionicons name="flash" size={16} color={theme.textSecondary} />
-            <Text style={s.etaText}>
-              {t("energy.timeToFull", { h: etaHours, m: etaMinutes })}
-            </Text>
-          </View>
+          <Text style={s.chargeLabel}>
+            {isFull ? t("energy.full") : t("energy.charging")}
+          </Text>
+          {!isFull && (
+            <View style={s.etaWrap}>
+              <Ionicons name="flash" size={16} color={theme.textSecondary} />
+              <Text style={s.etaText}>
+                {t("energy.timeToFull", { h: rh, m: rm })}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* 큰 진행 바 */}
@@ -85,8 +114,12 @@ export default function EnergyScreen({
             <View style={[s.trackFill, { width: `${fillPct}%` }]} />
             <Text style={s.trackText}>{`${energy} / ${maxEnergy}`}</Text>
           </View>
-          <View style={s.barCap}>
-            <Ionicons name="flash" size={20} color="#B9B9C4" />
+          <View style={[s.barCap, isFull && s.barCapFull]}>
+            <Ionicons
+              name="flash"
+              size={20}
+              color={isFull ? "#fff" : "#B9B9C4"}
+            />
           </View>
         </View>
 
@@ -114,7 +147,12 @@ export default function EnergyScreen({
         </TouchableOpacity>
 
         {/* 충전하기 */}
-        <TouchableOpacity activeOpacity={0.9} onPress={onRefill} style={s.card}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={onRefill}
+          disabled={isFull || !canRefill}
+          style={[s.card, (isFull || !canRefill) && { opacity: 0.5 }]}
+        >
           <BatteryBadge value={maxEnergy} fill="gray" size={50} />
           <Text style={[s.rowLabel, { color: ENERGY_COLORS.numGray }]}>
             {t("energy.refill")}
@@ -157,20 +195,36 @@ export default function EnergyScreen({
         </TouchableOpacity>
 
         {/* 자동 충전 (비활성) */}
-        <View style={[s.card, { opacity: 0.55 }]}>
+        {/* 무료 +5 (하루 제한) */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={onFree}
+          disabled={freeRemaining <= 0}
+          style={[s.card, freeRemaining <= 0 && { opacity: 0.5 }]}
+        >
           <BatteryBadge value={5} fill="gray" size={50} />
-          <Text style={[s.rowLabel, { color: ENERGY_COLORS.numGray }]}>
+          <Text
+            style={[
+              s.rowLabel,
+              freeRemaining <= 0 && { color: ENERGY_COLORS.numGray },
+            ]}
+          >
             {t("energy.plusFive")}
           </Text>
           <Text
             style={[
               s.action,
-              { color: theme.textSecondary, textAlign: "right", maxWidth: 110 },
+              {
+                color:
+                  freeRemaining > 0 ? ENERGY_COLORS.blue : theme.textSecondary,
+              },
             ]}
           >
-            {t("energy.nextRefill", { h: nextRefillHours })}
+            {freeRemaining > 0
+              ? t("energy.freeCount", { n: freeRemaining })
+              : t("energy.freeDone")}
           </Text>
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -208,15 +262,15 @@ const getStyles = (theme: ThemeColors) =>
     barRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
+      gap: 3,
       paddingHorizontal: 20,
       marginBottom: 28,
     },
     track: {
       flex: 1,
-      height: 40,
+      height: 25,
       backgroundColor: "#E9E9EF",
-      borderRadius: 12,
+      borderRadius: 8,
       justifyContent: "center",
       overflow: "hidden",
     },
@@ -226,21 +280,24 @@ const getStyles = (theme: ThemeColors) =>
       top: 0,
       bottom: 0,
       backgroundColor: ENERGY_COLORS.pink,
-      borderRadius: 12,
+      borderRadius: 8,
     },
     trackText: {
       textAlign: "center",
       fontSize: 17,
       fontWeight: "800",
-      color: theme.textSecondary,
+      color: theme.surface,
     },
     barCap: {
       width: 56,
-      height: 40,
-      borderRadius: 12,
+      height: 25,
+      borderRadius: 8,
       backgroundColor: "#E9E9EF",
       alignItems: "center",
       justifyContent: "center",
+    },
+    barCapFull: {
+      backgroundColor: ENERGY_COLORS.pink,
     },
     superCard: {
       marginHorizontal: 20,

@@ -519,6 +519,9 @@ export default {
     modalTitle: "이 레슨을 시작하려면 에너지가 더 필요합니다!",
     tryFreeWeek: "1주 무료로 이용해보기",
     noThanks: "아니요, 괜찮아요",
+    full: "가득 참",
+    freeCount: "무료 ({{n}})",
+    freeDone: "내일 다시",
   },
   // ko
   premium: {

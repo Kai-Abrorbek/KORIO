@@ -517,6 +517,9 @@ export default {
     modalTitle: "Bu darsni boshlash uchun ko'proq energiya kerak!",
     tryFreeWeek: "1 hafta bepul sinab ko'rish",
     noThanks: "Yo'q, rahmat",
+    full: "To'la",
+    freeCount: "Bepul ({{n}})",
+    freeDone: "Ertaga",
   },
   // uz
   premium: {

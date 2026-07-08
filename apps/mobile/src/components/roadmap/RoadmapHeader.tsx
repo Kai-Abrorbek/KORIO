@@ -1,14 +1,17 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { UserRoadmapStats } from "@/types/roadmap";
+import { BatteryBadge, ENERGY_COLORS } from "@/components/energy/BatteryBadge";
+import EnergyBadge from "./EnergyBadge";
 
 interface Props {
   stats: UserRoadmapStats;
+  energy: number;
 }
 
-export default function RoadmapHeader({ stats }: Props) {
+export default function RoadmapHeader({ stats, energy }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
 
@@ -33,15 +36,14 @@ export default function RoadmapHeader({ stats }: Props) {
       </View>
 
       {/* 에너지 또는 SUPER 뱃지 */}
-      {stats.isSuper ? (
+      {!stats.isSuper ? (
         <View style={styles.superBadge}>
           <Text style={styles.superText}>SUPER</Text>
         </View>
       ) : (
-        <View style={styles.statBox}>
-          <Ionicons name="flash" size={20} color="#E24B4A" />
-          <Text style={styles.statText}>{stats.energy}</Text>
-        </View>
+        <TouchableOpacity style={styles.statBox}>
+          <EnergyBadge energy={energy} size={26} />
+        </TouchableOpacity>
       )}
     </View>
   );

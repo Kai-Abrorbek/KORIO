@@ -215,7 +215,7 @@ export default function RoadmapScreen() {
 
   return (
     <View style={styles.container}>
-      <RoadmapHeader stats={roadmap.stats} />
+      <RoadmapHeader stats={roadmap.stats} energy={energy} />
 
       {/* 고정 배너 */}
       {currentUnit && (

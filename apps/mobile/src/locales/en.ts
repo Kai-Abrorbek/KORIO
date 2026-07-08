@@ -515,6 +515,9 @@ export default {
     modalTitle: "You need more energy to start this lesson!",
     tryFreeWeek: "Try 1 week for free",
     noThanks: "No thanks",
+    full: "Full",
+    freeCount: "Free ({{n}})",
+    freeDone: "Tomorrow",
   },
   // en
   premium: {

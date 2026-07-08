@@ -88,8 +88,8 @@ export default function LessonHeader({
   useEffect(() => {
     if (energy < prevEnergy.current) {
       energyScale.value = withSequence(
-        withTiming(1.3, { duration: 120 }),
-        withSpring(1, { damping: 6 }),
+        withTiming(1, { duration: 40 }),
+        withSpring(1, { damping: 10 }),
       );
     }
     prevEnergy.current = energy;

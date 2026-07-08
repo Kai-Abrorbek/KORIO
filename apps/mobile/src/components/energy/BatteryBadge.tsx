@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 export const ENERGY_COLORS = {
-  pink: "#FF4B82",
+  pink: "#fb6ca3",
   pinkSoft: "#FFD4E2",
   gem: "#5CD0F0",
   gemText: "#3BB6E5",

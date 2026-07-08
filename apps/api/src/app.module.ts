@@ -9,6 +9,7 @@ import { OnboardingModule } from './onboarding/onboarding.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { LeagueModule } from './league/league.module';
+import { EnergyModule } from './energy/energy.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LeagueModule } from './league/league.module';
     LessonsModule,
     SubscriptionModule,
     LeagueModule,
+    EnergyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
