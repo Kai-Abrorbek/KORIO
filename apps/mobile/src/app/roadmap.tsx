@@ -22,6 +22,8 @@ import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
+import { useEnergyStore } from "@/store/energy.store";
+import { useAuthStore } from "@/store/auth.store";
 
 const UNIT_COLORS = [
   "#776ee2",
@@ -82,6 +84,8 @@ export default function RoadmapScreen() {
   const unitOffsets = useRef<number[]>([]);
   const scrollHeight = useRef({ content: 0, container: 0 });
   const didAutoScroll = useRef(false);
+  const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
+  const energy = useAuthStore((s) => s.user?.energy ?? 0);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,7 +142,9 @@ export default function RoadmapScreen() {
 
   const handleNodeStart = (node: RoadmapNode) => {
     setSelectedNodeId(null);
-    router.push({ pathname: "/lesson", params: { lessonId: node.lessonId } });
+    guardLessonStart(energy, () => {
+      router.push({ pathname: "/lesson", params: { lessonId: node.lessonId } });
+    });
   };
 
   const handleGuidePress = (unit: RoadmapUnit) => {
@@ -153,9 +159,11 @@ export default function RoadmapScreen() {
       unit.nodes[0];
 
     if (targetNode?.lessonId) {
-      router.push({
-        pathname: "/lesson",
-        params: { lessonId: targetNode.lessonId },
+      guardLessonStart(energy, () => {
+        router.push({
+          pathname: "/lesson",
+          params: { lessonId: targetNode.lessonId },
+        });
       });
     }
   };

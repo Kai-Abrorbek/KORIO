@@ -15,6 +15,8 @@ import { useRouter } from "expo-router";
 import { ThemeColors } from "@/constants/theme";
 import { LessonService } from "@/services/lesson.service";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useEnergyStore } from "@/store/energy.store";
+import { useAuthStore } from "@/store/auth.store";
 
 interface Props {
   visible: boolean;
@@ -30,6 +32,8 @@ export default function WordsModal({ visible, onClose, theme }: Props) {
   const [words, setWords] = useState<{ korean: string; native: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortAsc, setSortAsc] = useState(false);
+  const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
+  const energy = useAuthStore((s) => s.user?.energy ?? 0);
 
   useEffect(() => {
     if (!visible) return;
@@ -50,7 +54,9 @@ export default function WordsModal({ visible, onClose, theme }: Props) {
   const startGame = () => {
     if (words.length < 2) return; // 배운 단어 부족하면 시작 안 함
     onClose();
-    router.push("/lesson?mode=wordPractice"); // ✅ 배운 단어로 짝맞추기
+    guardLessonStart(energy, () => {
+      router.push("/lesson?mode=wordPractice"); // ✅ 배운 단어로 짝맞추기
+    });
   };
 
   return (

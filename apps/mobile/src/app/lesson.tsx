@@ -83,6 +83,19 @@ export default function LessonScreen() {
     loadLesson();
   }, [lessonId]);
 
+  // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
+  useEffect(() => {
+    if (!isReview) return;
+    return () => {
+      const correctIds = [...reviewCorrectIds.current].filter(
+        (id) => !finalWrongIds.current.has(id),
+      );
+      if (correctIds.length > 0) {
+        LessonService.resolveMistakes(correctIds).catch(() => {});
+      }
+    };
+  }, [isReview]);
+
   const loadLesson = async () => {
     try {
       setLoading(true);
@@ -271,11 +284,7 @@ export default function LessonScreen() {
   const finishLesson = async () => {
     const wrongArr = [...finalWrongIds.current];
     if (isReview) {
-      // 복습: 맞춘 문제(최종 오답에 없는 것)를 오답에서 제거
-      const correctIds = [...reviewCorrectIds.current].filter(
-        (id) => !finalWrongIds.current.has(id),
-      );
-      LessonService.resolveMistakes(correctIds).catch(() => {});
+      // 복습은 화면 벗어날 때(unmount) resolveMistakes 처리. 여기선 아무것도 안 함.
     } else if (!isLevelTest && !isWordPractice && lessonId) {
       try {
         await LessonService.completeLesson(lessonId, {

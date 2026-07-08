@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { ThemeColors } from "@/constants/theme";
 import { LessonService } from "@/services/lesson.service";
+import { useEnergyStore } from "@/store/energy.store";
+import { useAuthStore } from "@/store/auth.store";
 
 const MIN_MISTAKES = 10; // 복습 시작 최소 오답 수
 const ORANGE = "#FF9600";
@@ -33,6 +35,8 @@ export default function MistakesModal({ visible, onClose, theme }: Props) {
     questions: [],
   });
   const [loading, setLoading] = useState(true);
+  const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
+  const energy = useAuthStore((s) => s.user?.energy ?? 0);
 
   useEffect(() => {
     if (!visible) return;
@@ -49,7 +53,9 @@ export default function MistakesModal({ visible, onClose, theme }: Props) {
 
   const startReview = () => {
     onClose();
-    router.push("/lesson?mode=review"); // 복습 모드 (틀린문제로 레슨)
+    guardLessonStart(energy, () => {
+      router.push("/lesson?mode=review"); // 복습 모드 (틀린문제로 레슨)
+    });
   };
 
   return (
