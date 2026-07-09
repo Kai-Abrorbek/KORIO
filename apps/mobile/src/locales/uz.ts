@@ -106,6 +106,9 @@ export default {
   },
   roadmap: {
     sectionUnit: "Bo'lim {{section}}, Birlik {{unit}}",
+    review: "복습",
+    legend: "레전드",
+    legendSubtitle: "레전드 레벨을 달성하여 실력을 증명하세요.",
     sectionN: "Bo'lim {{section}}",
     nextSection: "Keyingi bo'lim",
     jumpHere: "Shu yerga o'tasizmi?",
@@ -365,6 +368,8 @@ export default {
   lessonComplete: {
     title: "Dars yakunlandi!",
     totalXp: "Jami XP",
+    accuracy: "Aniqlik",
+    speed: "Tezlik",
     claim: "XP olish",
     labels: {
       perfect: "Zo'r",

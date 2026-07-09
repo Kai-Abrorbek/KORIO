@@ -13,6 +13,7 @@ import {
   UserStatsDocument,
 } from '../users/schemas/user-stats.schema';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class LessonsService {
@@ -27,6 +28,8 @@ export class LessonsService {
     private userProgressModel: Model<UserProgressDocument>,
     @InjectModel(UserStats.name)
     private userStatsModel: Model<UserStatsDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
   ) {}
 
   private extractI18n(obj: any, lang: string): string {
@@ -126,6 +129,10 @@ export class LessonsService {
       },
       { upsert: true, returnDocument: 'after' },
     );
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { totalXP: dto.xpEarned },
+    });
 
     return { success: true, xpEarned: dto.xpEarned };
   }
@@ -412,5 +419,50 @@ export class LessonsService {
       .lean();
 
     return { questions: questions.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  // 노드 복습: 노드의 모든 레슨 문제 중 랜덤 N개
+  async getNodeReview(nodeId: string, lang: string = 'uz', limit = 20) {
+    if (!Types.ObjectId.isValid(nodeId)) return { questions: [] };
+
+    const node = await this.nodeModel
+      .findById(nodeId)
+      .select('lessonIds')
+      .lean();
+    if (!node || !node.lessonIds?.length) return { questions: [] };
+
+    // 노드의 레슨들 → questionIds 모으기
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: node.lessonIds } })
+      .select('questionIds')
+      .lean();
+
+    const qIds = new Set<string>();
+    lessons.forEach((l) =>
+      (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
+    );
+    if (qIds.size === 0) return { questions: [] };
+
+    // 문제 가져와서 셔플 후 limit개
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, limit);
+    return { questions: shuffled.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  // XP만 추가 (복습/레전드처럼 진행도 저장 없이 XP만)
+  async addXp(userId: string, amount: number) {
+    const xp = Math.max(0, Math.min(1000, Math.floor(amount || 0)));
+    if (xp === 0) return { added: 0, totalXP: null };
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, { $inc: { totalXP: xp } }, { new: true })
+      .select('totalXP')
+      .lean();
+    return { added: xp, totalXP: user?.totalXP ?? null };
   }
 }

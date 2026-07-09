@@ -106,6 +106,9 @@ export default {
   },
   roadmap: {
     sectionUnit: "Section {{section}}, Unit {{unit}}",
+    review: "Review",
+    legend: "Legendary",
+    legendSubtitle: "Reach Legendary level to prove your skills.",
     sectionN: "Section {{section}}",
     nextSection: "Next section",
     jumpHere: "Jump here?",
@@ -363,6 +366,8 @@ export default {
   lessonComplete: {
     title: "Lesson Complete!",
     totalXp: "Total XP",
+    accuracy: "Accuracy",
+    speed: "Speed",
     claim: "Claim XP",
     labels: {
       perfect: "Perfect",

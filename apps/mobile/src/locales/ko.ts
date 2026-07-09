@@ -106,6 +106,9 @@ export default {
   },
   roadmap: {
     sectionUnit: "섹션 {{section}}, 유닛 {{unit}}",
+    review: "Takrorlash",
+    legend: "Afsona",
+    legendSubtitle: "Afsona darajasiga yeting va mahoratingizni isbotlang.",
     sectionN: "섹션 {{section}}",
     nextSection: "다음 섹션",
     jumpHere: "여기로 건너뛸까요?",
@@ -366,6 +369,8 @@ export default {
   },
   lessonComplete: {
     title: "레슨 완료!",
+    accuracy: "정확도",
+    speed: "스피드",
     totalXp: "총 XP",
     claim: "XP 받기",
     labels: {

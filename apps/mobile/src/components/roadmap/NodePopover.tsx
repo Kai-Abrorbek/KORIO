@@ -17,12 +17,16 @@ interface Props {
   unit: RoadmapUnit;
   triangleOffsetX?: number;
   onStart?: () => void;
+  onReview?: () => void;
+  onLegend?: () => void;
 }
 
 export default function NodePopover({
   node,
   unit,
   triangleOffsetX = 0,
+  onReview,
+  onLegend,
   onStart,
 }: Props) {
   const { t } = useTranslation();
@@ -79,6 +83,56 @@ export default function NodePopover({
   }
 
   // 활성 (현재/오픈된) 노드
+  // 완료 노드 - 복습 + 레전드
+  if (node.status === "completed") {
+    return (
+      <View
+        style={[
+          styles.bubble,
+          { backgroundColor: unit.color, shadowColor: darken(unit.color, 60) },
+        ]}
+      >
+        <View
+          style={[
+            styles.arrow,
+            { borderBottomColor: unit.color },
+            { marginLeft: -10 + triangleOffsetX },
+          ]}
+        />
+        <Text style={styles.activeTitle}>{unit.title}</Text>
+        <Text style={styles.activeSubtitle}>{t("roadmap.legendSubtitle")}</Text>
+
+        {/* 복습 (흰 버튼) */}
+        <TouchableOpacity
+          style={styles.reviewBtn}
+          onPress={onReview}
+          activeOpacity={0.85}
+        >
+          <Text style={[styles.reviewText, { color: unit.color }]}>
+            {t("roadmap.review")}
+          </Text>
+          <View style={styles.xpRow}>
+            <Ionicons name="flash" size={15} color={unit.color} />
+            <Text style={[styles.xpText, { color: unit.color }]}>5 XP</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* 레전드 (노란 버튼) */}
+        <TouchableOpacity
+          style={styles.legendBtn}
+          onPress={onLegend}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.legendText}>{t("roadmap.legend")}</Text>
+          <View style={styles.xpRow}>
+            <Ionicons name="flash" size={15} color="#8A6D00" />
+            <Text style={styles.legendXpText}>40 XP</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View
       style={[
@@ -213,4 +267,30 @@ const getStyles = (theme: ThemeColors) =>
       fontWeight: "800",
       color: theme.textSecondary,
     },
+    reviewBtn: {
+      backgroundColor: "#fff",
+      borderRadius: 12,
+      paddingVertical: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+      marginBottom: 10,
+      borderBottomWidth: 4,
+      borderColor: "rgba(0,0,0,0.12)",
+    },
+    reviewText: { fontSize: 16, fontWeight: "800" },
+    legendBtn: {
+      backgroundColor: "#FFD900",
+      borderRadius: 12,
+      paddingVertical: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+      borderBottomWidth: 4,
+      borderColor: "#E5AE00",
+    },
+    legendText: { fontSize: 16, fontWeight: "900", color: "#8A6D00" },
+    legendXpText: { fontSize: 15, fontWeight: "900", color: "#8A6D00" },
   });

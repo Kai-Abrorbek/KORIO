@@ -57,4 +57,10 @@ export const LessonService = {
 
   resolveMistakes: (correctIds: string[]): Promise<{ removed: number }> =>
     api.post(`/lessons/mistakes/resolve`, { correctIds }),
+
+  getNodeReview: (nodeId: string): Promise<{ questions: any[] }> =>
+    api.get(`/lessons/node-review/${nodeId}`),
+
+  addXp: (amount: number): Promise<{ added: number; totalXP: number }> =>
+    api.post(`/lessons/add-xp`, { amount }),
 };

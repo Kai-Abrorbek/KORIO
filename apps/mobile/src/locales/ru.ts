@@ -106,6 +106,9 @@ export default {
   },
   roadmap: {
     sectionUnit: "Раздел {{section}}, Юнит {{unit}}",
+    review: "Повторить",
+    legend: "Легенда",
+    legendSubtitle: "Достигните уровня Легенды и докажите мастерство.",
     sectionN: "Раздел {{section}}",
     nextSection: "Следующий раздел",
     jumpHere: "Перепрыгнуть сюда?",
@@ -364,6 +367,8 @@ export default {
   lessonComplete: {
     title: "Урок завершён!",
     totalXp: "Всего XP",
+    accuracy: "Точность",
+    speed: "Скорость",
     claim: "Получить XP",
     labels: {
       perfect: "Идеально",

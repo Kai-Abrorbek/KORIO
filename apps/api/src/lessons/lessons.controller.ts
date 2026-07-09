@@ -79,6 +79,21 @@ export class LessonsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('node-review/:nodeId')
+  async getNodeReview(
+    @Param('nodeId') nodeId: string,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.lessonsService.getNodeReview(nodeId, lang);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('add-xp')
+  async addXp(@Request() req, @Body() body: { amount: number }) {
+    return this.lessonsService.addXp(req.user._id.toString(), body.amount ?? 0);
+  }
+
   // 레슨 완료 저장
   @UseGuards(JwtAuthGuard)
   @Post(':id/complete')

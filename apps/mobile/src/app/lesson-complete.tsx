@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_LESSON_COMPLETE } from "@/mocks/lesson-complete.mock";
 import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
 import Confetti from "@/components/lesson-complete/Confetti";
 import StatCard from "@/components/lesson-complete/StatCard";
@@ -15,7 +15,17 @@ export default function LessonCompleteScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const stats = MOCK_LESSON_COMPLETE;
+  const params = useLocalSearchParams<{
+    xp?: string;
+    accuracy?: string;
+    time?: string;
+  }>();
+  const xp = Number(params.xp ?? 0);
+  const accuracy = Number(params.accuracy ?? 0);
+  const time = params.time ?? "0:00";
+
+  // 순차 애니: 현재 몇 번째 카드까지 진행
+  const [activeIdx, setActiveIdx] = useState(0);
 
   return (
     <View style={styles.container}>
@@ -31,22 +41,28 @@ export default function LessonCompleteScreen() {
         <View style={styles.statsRow}>
           <StatCard
             index={0}
+            active={activeIdx >= 0}
+            onDone={() => setActiveIdx(1)}
             label={t("lessonComplete.totalXp")}
-            value={stats.xp.toString()}
+            value={xp.toString()}
             iconName="flash"
             color="#FFCC00"
           />
           <StatCard
             index={1}
-            label={t(stats.accuracy.labelKey)}
-            value={`${stats.accuracy.value}%`}
+            active={activeIdx >= 1}
+            onDone={() => setActiveIdx(2)}
+            label={t("lessonComplete.accuracy")}
+            value={`${accuracy}%`}
             iconName="locate"
             color="#58CC02"
           />
           <StatCard
             index={2}
-            label={t(stats.time.labelKey)}
-            value={stats.time.value}
+            active={activeIdx >= 2}
+            onDone={() => {}}
+            label={t("lessonComplete.speed")}
+            value={time}
             iconName="timer"
             color="#1FA9F7"
           />
@@ -55,11 +71,8 @@ export default function LessonCompleteScreen() {
 
       <LessonCompleteActions
         showShare
-        onShare={() => console.log("share")}
-        onClaim={() => {
-          console.log("claim XP");
-          router.back();
-        }}
+        onShare={() => {}}
+        onClaim={() => router.replace("/roadmap")}
       />
     </View>
   );
@@ -67,10 +80,7 @@ export default function LessonCompleteScreen() {
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.bg,
-    },
+    container: { flex: 1, backgroundColor: theme.bg },
     content: {
       flex: 1,
       paddingTop: 80,
@@ -93,9 +103,12 @@ const getStyles = (theme: ThemeColors) =>
       textShadowOffset: { width: 0, height: 3 },
       textShadowRadius: 8,
     },
+    // 카드를 아래로 — content가 flex라 statsRow에 marginTop auto로 밀기
     statsRow: {
       flexDirection: "row",
       gap: 10,
       width: "100%",
+      marginTop: "auto",
+      marginBottom: 20,
     },
   });

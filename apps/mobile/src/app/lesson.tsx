@@ -49,13 +49,15 @@ export default function LessonScreen() {
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { lessonId, mode } = useLocalSearchParams<{
+  const { lessonId, mode, nodeId } = useLocalSearchParams<{
     lessonId?: string;
     mode?: string;
+    nodeId?: string;
   }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
+  const isNodeReview = mode === "nodeReview";
   const { setLevelTestResult, sessionId } = useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
@@ -139,6 +141,19 @@ export default function LessonScreen() {
           lessonTitle: "Review",
           category: "",
           totalXp: 16,
+          questions,
+        } as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
+      if (isNodeReview && nodeId) {
+        const { questions } = await LessonService.getNodeReview(nodeId);
+        setLesson({
+          lessonId: "node-review",
+          lessonTitle: "Review",
+          category: "",
+          totalXp: 5,
           questions,
         } as any);
         questionQueue.current = [...questions];
@@ -295,24 +310,67 @@ export default function LessonScreen() {
 
   const finishLesson = async () => {
     const wrongArr = [...finalWrongIds.current];
+
+    // XP 계산: 기본 20 + 콤보 보너스
+    const baseXp = isNodeReview ? 5 : 20;
+    const comboBonus = isNodeReview ? 0 : Math.max(0, combo);
+    const earnedXp = baseXp + comboBonus;
+
+    // 정답률 / 시간
+    const total = totalCount.current || 1;
+    const accuracy = Math.round((correctCount.current / total) * 100);
+    const seconds = Math.round((Date.now() - startTime.current) / 1000);
+    const mm = Math.floor(seconds / 60);
+    const ss = String(seconds % 60).padStart(2, "0");
+    const timeStr = `${mm}:${ss}`;
+
     if (isReview) {
-      // 복습은 화면 벗어날 때(unmount) resolveMistakes 처리. 여기선 아무것도 안 함.
-    } else if (!isLevelTest && !isWordPractice && lessonId) {
+      // 복습은 unmount에서 resolveMistakes 처리
+      LessonService.addXp(earnedXp)
+        .then((r) => {
+          updateUser({ totalXP: r.totalXP } as any);
+        })
+        .catch(() => {});
+    } else if (isNodeReview) {
+      // 노드 복습: XP만 저장
+      LessonService.addXp(earnedXp)
+        .then((r) => {
+          updateUser({ totalXP: r.totalXP } as any);
+        })
+        .catch(() => {});
+    } else if (!isLevelTest && !isWordPractice && !isNodeReview && lessonId) {
       try {
         await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,
           totalAnswers: totalCount.current,
-          xpEarned: uniqueCorrect.current.size * 15,
+          xpEarned: earnedXp,
           combo,
-          speedSeconds: Math.round((Date.now() - startTime.current) / 1000),
+          speedSeconds: seconds,
           wrongQuestionIds: wrongArr,
           isCompleted: true,
         });
+        updateUser({
+          totalXP: (useAuthStore.getState().user?.totalXP ?? 0) + earnedXp,
+        } as any);
       } catch (err) {
         console.error("❌ 레슨 완료 저장 실패:", err);
       }
     }
-    goHome();
+
+    // 레벨테스트는 자체 결과 화면, 나머지는 완료 화면으로
+    if (isLevelTest) {
+      goHome();
+      return;
+    }
+
+    router.replace({
+      pathname: "/lesson-complete",
+      params: {
+        xp: String(earnedXp),
+        accuracy: String(accuracy),
+        time: timeStr,
+      },
+    });
   };
 
   const handleNext = async () => {

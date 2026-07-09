@@ -10,6 +10,7 @@ import {
   UserProgressSchema,
 } from '../users/schemas/user-progress.schema';
 import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
       { name: Question.name, schema: QuestionSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [LessonsController],

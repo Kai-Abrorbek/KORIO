@@ -26,6 +26,8 @@ interface Props {
   onNodeStart?: (node: RoadmapNode) => void;
   onGuidePress?: (unit: RoadmapUnit) => void;
   onJumpToUnit?: () => void;
+  onNodeReview?: (node: RoadmapNode) => void;
+  onNodeLegend?: (node: RoadmapNode) => void;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -46,8 +48,8 @@ export default function UnitRoadmap({
   selectedNodeId,
   onNodeTap,
   onNodeStart,
-  onGuidePress,
-  onJumpToUnit,
+  onNodeReview,
+  onNodeLegend,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -84,13 +86,6 @@ export default function UnitRoadmap({
   return (
     <View style={styles.container}>
       <SectionTitleDivider title={unit.title} />
-
-      {/* 유닛 첫 별 위 건너뛰기 버튼 */}
-      {/* {onJumpToUnit && (
-        <View style={styles.jumpWrapper}>
-          <JumpButton onPress={onJumpToUnit} color={unit.color} />
-        </View>
-      )} */}
 
       <View style={styles.nodesContainer}>
         {/* 점선 라인 (노드 뒤) */}
@@ -188,6 +183,8 @@ export default function UnitRoadmap({
                     unit={unit}
                     triangleOffsetX={offset}
                     onStart={() => onNodeStart?.(node)}
+                    onReview={() => onNodeReview?.(node)}
+                    onLegend={() => onNodeLegend?.(node)}
                   />
                 </View>
               )}

@@ -157,6 +157,22 @@ export default function RoadmapScreen() {
     });
   };
 
+  const handleNodeReview = (node: RoadmapNode) => {
+    setSelectedNodeId(null);
+    guardLessonStart(energy, () => {
+      router.push({
+        pathname: "/lesson",
+        params: { mode: "nodeReview", nodeId: node.id },
+      });
+    });
+  };
+
+  const handleNodeLegend = (node: RoadmapNode) => {
+    setSelectedNodeId(null);
+    // 레전드 모달 — 나중에
+    console.log("legend:", node.id);
+  };
+
   const handleGuidePress = (unit: RoadmapUnit) => {
     console.log("guide pressed:", unit.id);
   };
@@ -281,6 +297,8 @@ export default function RoadmapScreen() {
                   selectedNodeId={selectedNodeId}
                   onNodeTap={handleNodeTap}
                   onNodeStart={handleNodeStart}
+                  onNodeReview={handleNodeReview}
+                  onNodeLegend={handleNodeLegend}
                   onGuidePress={handleGuidePress}
                   onJumpToUnit={
                     index > 0 && unit.status === "locked"
