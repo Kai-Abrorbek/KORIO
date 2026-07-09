@@ -24,13 +24,16 @@ import CategoryTabs from "@/components/hangul/CategoryTabs";
 import CharacterCard from "@/components/hangul/CharacterCard";
 import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
 import GameMenu from "@/components/hangul/games/GameMenu";
+import { useEnergyStore } from "@/store/energy.store";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function HangulScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
-
+  const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
+  const energy = useAuthStore((s) => s.user?.energy ?? 0);
   const [category, setCategory] = useState<HangulCategory>("consonant");
   const [selected, setSelected] = useState<HangulCharacter | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -54,9 +57,8 @@ export default function HangulScreen() {
   };
 
   const goToGame = () => {
-    router.push({
-      pathname: "/hangul-game",
-      params: { category },
+    guardLessonStart(energy, () => {
+      router.push({ pathname: "/hangul-game", params: { category } });
     });
   };
 

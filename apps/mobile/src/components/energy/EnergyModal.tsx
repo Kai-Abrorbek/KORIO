@@ -17,6 +17,7 @@ import {
   SuperInfinityBadge,
   ENERGY_COLORS,
 } from "./BatteryBadge";
+import { useRouter } from "expo-router";
 
 interface Props {
   visible: boolean;
@@ -26,6 +27,7 @@ interface Props {
   onTrySuper?: () => void;
   onRefill?: () => void;
   onWatchAd?: () => void;
+  onDismissToHome?: () => void;
 }
 
 export default function EnergyModal({
@@ -36,20 +38,22 @@ export default function EnergyModal({
   onTrySuper,
   onRefill,
   onWatchAd,
+  onDismissToHome,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = getStyles(theme);
+  const router = useRouter();
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="none"
-      onRequestClose={onClose}
+      onRequestClose={() => {}}
     >
       <Animated.View entering={FadeIn.duration(200)} style={s.backdrop}>
-        <Pressable style={{ flex: 1 }} onPress={onClose} />
+        <Pressable style={{ flex: 1 }} />
 
         <View style={s.gemFloat}>
           <Ionicons name="diamond" size={20} color={ENERGY_COLORS.gem} />
@@ -151,7 +155,10 @@ export default function EnergyModal({
             <Text style={s.ctaText}>{t("energy.tryFreeWeek")}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={onClose} style={s.dismiss}>
+          <TouchableOpacity
+            onPress={onDismissToHome ?? onClose}
+            style={s.dismiss}
+          >
             <Text style={s.dismissText}>{t("energy.noThanks")}</Text>
           </TouchableOpacity>
         </Animated.View>

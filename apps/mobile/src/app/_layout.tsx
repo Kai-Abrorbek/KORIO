@@ -96,6 +96,10 @@ export default function RootLayout() {
           visible={energyModalVisible}
           gems={gems}
           onClose={closeEnergyModal}
+          onDismissToHome={() => {
+            closeEnergyModal();
+            router.replace("/roadmap");
+          }}
           onTrySuper={() => {
             closeEnergyModal();
             router.push("/premium");

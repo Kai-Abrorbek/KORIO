@@ -258,16 +258,15 @@ export default function LessonScreen() {
 
       // 슈퍼가 아닐 때만 에너지 소모
       if (!isSuper) {
-        setEnergy((e) => {
-          const next = Math.max(0, e - 1);
-          if (next <= 0) openEnergyModal();
-          return next;
-        });
+        const nextEnergy = Math.max(0, energy - 1);
+        setEnergy(nextEnergy);
+        if (nextEnergy <= 0) openEnergyModal();
+
         EnergyService.consume()
-          .then((res) =>
-            updateUser({ energy: res.energy, gems: res.gems } as any),
-          )
-          .catch(() => {});
+          .then((res) => {
+            updateUser({ energy: res.energy, gems: res.gems } as any);
+          })
+          .catch((e) => console.log("CONSUME FAIL:", e?.message, e));
       }
 
       if (!uniqueCorrect.current.has(currentQ.id)) {

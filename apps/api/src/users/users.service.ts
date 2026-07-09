@@ -78,7 +78,7 @@ export class UsersService {
       isSuper: user.isSuper || false,
       streakFreeze: user.streakFreeze || 0,
       gems: user.gems || 0,
-      energy: user.energy || 5,
+      energy: user.energy || 0,
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,
