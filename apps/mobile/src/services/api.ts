@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-const DEV_LAN_IP = "192.168.45.210";
+const DEV_LAN_IP = "192.168.45.173";
 
 const BASE_URL =
   Platform.select({

@@ -465,4 +465,97 @@ export class LessonsService {
       .lean();
     return { added: xp, totalXP: user?.totalXP ?? null };
   }
+
+  // 유닛 점프 테스트 문제 뽑기 (targetUnit 직전까지 레슨 문제 중 25개)
+  async getUnitJumpTest(
+    userId: string,
+    targetSection: number,
+    targetUnit: number,
+    lang = 'uz',
+    limit = 25,
+  ) {
+    // targetUnit "이전"의 모든 노드 (같은 섹션 기준)
+    const nodes = await this.nodeModel
+      .find({ section: targetSection, unit: { $lt: targetUnit } })
+      .select('lessonIds')
+      .lean();
+
+    if (!nodes.length) return { questions: [] };
+
+    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: lessonIds } })
+      .select('questionIds')
+      .lean();
+
+    const qIds = new Set<string>();
+    lessons.forEach((l) =>
+      (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
+    );
+    if (!qIds.size) return { questions: [] };
+
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    // 내용 기준 중복 제거 (정답+지문+보기+대화가 같으면 하나만)
+    const seen = new Set<string>();
+    const unique = questions.filter((q: any) => {
+      const parts = [
+        q.answer ?? '',
+        q.npcText ?? '',
+        q.sentencePrefix ?? '',
+        q.sentenceSuffix ?? '',
+        (q.options ?? []).join(','),
+        (q.pairs ?? []).map((p: any) => `${p.korean}:${p.native}`).join(','),
+        (q.dialogLines ?? []).map((d: any) => d.text).join(','),
+      ];
+      const key = parts.join('|').trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const shuffled = unique.sort(() => Math.random() - 0.5).slice(0, limit);
+    return { questions: shuffled.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  // 점프 통과 → 사이 레슨 전부 완료 처리 (XP 없이)
+  async completeUnitJump(
+    userId: string,
+    targetSection: number,
+    targetUnit: number,
+  ) {
+    const nodes = await this.nodeModel
+      .find({ section: targetSection, unit: { $lt: targetUnit } })
+      .select('lessonIds')
+      .lean();
+
+    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    if (!lessonIds.length) return { completed: 0 };
+
+    // 각 레슨을 UserProgress에 완료로 upsert (XP 0)
+    const ops = lessonIds.map((lid) => ({
+      updateOne: {
+        filter: { userId: new Types.ObjectId(userId), lessonId: lid },
+        update: {
+          $set: { isCompleted: true },
+          $setOnInsert: {
+            userId: new Types.ObjectId(userId),
+            lessonId: lid,
+            correctAnswers: 0,
+            totalAnswers: 0,
+            wrongQuestionIds: [],
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    await this.userProgressModel.bulkWrite(ops);
+    return { completed: lessonIds.length };
+  }
 }

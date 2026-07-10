@@ -94,6 +94,35 @@ export class LessonsController {
     return this.lessonsService.addXp(req.user._id.toString(), body.amount ?? 0);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('jump-test')
+  async getUnitJumpTest(
+    @Request() req,
+    @Query('section') section: string,
+    @Query('unit') unit: string,
+    @Query('lang') lang = 'uz',
+  ) {
+    return this.lessonsService.getUnitJumpTest(
+      req.user._id.toString(),
+      Number(section),
+      Number(unit),
+      lang,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('jump-complete')
+  async completeUnitJump(
+    @Request() req,
+    @Body() body: { section: number; unit: number },
+  ) {
+    return this.lessonsService.completeUnitJump(
+      req.user._id.toString(),
+      body.section,
+      body.unit,
+    );
+  }
+
   // 레슨 완료 저장
   @UseGuards(JwtAuthGuard)
   @Post(':id/complete')

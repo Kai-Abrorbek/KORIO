@@ -89,6 +89,22 @@ export default function RootLayout() {
             name="practice"
             options={{ animation: "slide_from_right" }}
           />
+          <Stack.Screen
+            name="jump-result"
+            options={{ headerShown: false, gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="jump-start"
+            options={{ headerShown: false, gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="jump-intro"
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+              animation: "slide_from_right",
+            }}
+          />
         </Stack>
 
         {/* 전역 에너지 부족 모달 — 어느 화면에서든 뜸 */}

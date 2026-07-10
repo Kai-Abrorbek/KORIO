@@ -178,20 +178,15 @@ export default function RoadmapScreen() {
   };
 
   // JumpButton: 해당 유닛의 첫 번째 활성(current/locked) 노드 레슨 바로 시작
-  const handleJumpToUnit = (unit: RoadmapUnit) => {
-    const targetNode =
-      unit.nodes.find((n) => n.status === "current") ??
-      unit.nodes.find((n) => n.type === "star") ??
-      unit.nodes[0];
-
-    if (targetNode?.lessonId) {
-      guardLessonStart(energy, () => {
-        router.push({
-          pathname: "/lesson",
-          params: { lessonId: targetNode.lessonId },
-        });
-      });
-    }
+  const handleJumpTest = (unit: RoadmapUnit) => {
+    setSelectedNodeId(null);
+    router.push({
+      pathname: "/jump-start",
+      params: {
+        section: String(unit.sectionNumber),
+        unit: String(unit.unitNumber),
+      },
+    });
   };
 
   const handleScroll = (e: any) => {
@@ -300,11 +295,7 @@ export default function RoadmapScreen() {
                   onNodeReview={handleNodeReview}
                   onNodeLegend={handleNodeLegend}
                   onGuidePress={handleGuidePress}
-                  onJumpToUnit={
-                    index > 0 && unit.status === "locked"
-                      ? () => handleJumpToUnit(unit)
-                      : undefined
-                  }
+                  onJumpTest={handleJumpTest}
                 />
               </View>
             );

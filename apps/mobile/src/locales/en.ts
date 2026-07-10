@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "Section {{section}}, Unit {{unit}}",
+    jumpTitle: "Jump to Unit {{unit}} and prove your skills!",
+    jumpDescription: "Pass this test to jump straight here!",
+    jumpStart: "Start test",
+    jumpLater: "Maybe later",
     review: "Review",
     legend: "Legendary",
     legendSubtitle: "Reach Legendary level to prove your skills.",
@@ -596,5 +600,19 @@ export default {
     conversation: "Conversation",
     videoCall: "Video call",
     soon: "Soon",
+  },
+  jump: {
+    passTitle: "Unit {{unit}} unlocked!",
+    passSub: "You passed the test! You can now continue from here.",
+    failTitle: "A bit more practice needed",
+    failSub:
+      "Too many mistakes. Build your skills by completing earlier lessons!",
+    continue: "Continue",
+    introRule:
+      "To pass this challenge, finish with fewer than 5 mistakes. Good luck!",
+    introContinue: "Continue",
+    startTitle: "Jump to Unit {{unit}} and prove your skills!",
+    startBtn: "Start test",
+    later: "Maybe later",
   },
 };

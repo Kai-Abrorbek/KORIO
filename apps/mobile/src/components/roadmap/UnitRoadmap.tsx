@@ -28,6 +28,7 @@ interface Props {
   onJumpToUnit?: () => void;
   onNodeReview?: (node: RoadmapNode) => void;
   onNodeLegend?: (node: RoadmapNode) => void;
+  onJumpTest?: (unit: RoadmapUnit) => void;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -50,6 +51,7 @@ export default function UnitRoadmap({
   onNodeStart,
   onNodeReview,
   onNodeLegend,
+  onJumpTest,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -185,6 +187,8 @@ export default function UnitRoadmap({
                     onStart={() => onNodeStart?.(node)}
                     onReview={() => onNodeReview?.(node)}
                     onLegend={() => onNodeLegend?.(node)}
+                    canJump={i === 0 && node.status === "locked"}
+                    onJumpTest={() => onJumpTest?.(unit)}
                   />
                 </View>
               )}

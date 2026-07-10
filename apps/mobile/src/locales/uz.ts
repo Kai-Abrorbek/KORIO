@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "Bo'lim {{section}}, Birlik {{unit}}",
+    jumpTitle: "Unit {{unit}}ga o'tib, mahoratingizni isbotlang!",
+    jumpDescription: "Bu testdan o'tsangiz, shu yerga o'tishingiz mumkin!",
+    jumpStart: "Testni boshlash",
+    jumpLater: "Keyinroq",
     review: "복습",
     legend: "레전드",
     legendSubtitle: "레전드 레벨을 달성하여 실력을 증명하세요.",
@@ -598,5 +602,18 @@ export default {
     conversation: "Suhbat",
     videoCall: "Video qo'ng'iroq",
     soon: "Tez orada",
+  },
+  jump: {
+    passTitle: "Unit {{unit}} ochildi!",
+    passSub: "Testdan o'tdingiz! Endi shu yerdan davom etishingiz mumkin.",
+    failTitle: "Yana biroz mashq kerak",
+    failSub:
+      "Xatolar juda ko'p edi. Oldingi darslarni bajarib, mahoratingizni oshiring!",
+    continue: "Davom etish",
+    introRule: "Bu sinovdan o'tish uchun 5 tadan kam xato qiling. Omad!",
+    introContinue: "Davom etish",
+    startTitle: "Unit {{unit}}ga o'tib, mahoratingizni ko'rsating!",
+    startBtn: "Testni boshlash",
+    later: "Keyinroq",
   },
 };

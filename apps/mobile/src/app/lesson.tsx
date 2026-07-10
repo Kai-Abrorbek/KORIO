@@ -49,15 +49,18 @@ export default function LessonScreen() {
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { lessonId, mode, nodeId } = useLocalSearchParams<{
+  const { lessonId, mode, nodeId, section, unit } = useLocalSearchParams<{
     lessonId?: string;
     mode?: string;
     nodeId?: string;
+    section?: string;
+    unit?: string;
   }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
   const isNodeReview = mode === "nodeReview";
+  const isJumpTest = mode === "jumpTest";
   const { setLevelTestResult, sessionId } = useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
@@ -85,6 +88,7 @@ export default function LessonScreen() {
   const wrongIds = useRef<string[]>([]);
   const [showQuit, setShowQuit] = useState(false);
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
+  const [hearts, setHearts] = useState(5);
 
   useEffect(() => {
     loadLesson();
@@ -116,6 +120,22 @@ export default function LessonScreen() {
           questions,
         };
         setLesson(session as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
+      if (isJumpTest) {
+        const { questions } = await LessonService.getJumpTest(
+          Number(section),
+          Number(unit),
+        );
+        setLesson({
+          lessonId: "jump-test",
+          lessonTitle: "Jump Test",
+          category: "",
+          totalXp: 0,
+          questions,
+        } as any);
         questionQueue.current = [...questions];
         return;
       }
@@ -182,10 +202,33 @@ export default function LessonScreen() {
     questionQueue.current = rest;
 
     if (questionQueue.current.length === 0) {
-      finishLevelTest();
+      if (isJumpTest) finishJumpTest();
+      else finishLevelTest();
       return;
     }
     setCurrentIdx((i) => i + 1);
+  };
+
+  const finishJumpTest = async (heartsOut = false) => {
+    const wrongCount = wrongIds.current.length;
+    const passed = !heartsOut && wrongCount < 5;
+
+    if (passed) {
+      try {
+        await LessonService.completeJump(Number(section), Number(unit));
+      } catch (e) {
+        console.log("jump complete fail:", e);
+      }
+      router.replace({
+        pathname: "/jump-result",
+        params: { passed: "1", unit: String(unit) },
+      });
+    } else {
+      router.replace({
+        pathname: "/jump-result",
+        params: { passed: "0", wrong: String(wrongCount) },
+      });
+    }
   };
 
   const finishLevelTest = async () => {
@@ -258,7 +301,7 @@ export default function LessonScreen() {
       if (isCorrect) correctCount.current += 1;
       else wrongIds.current.push(currentQ.id);
       setProgress(totalCount.current / (lesson?.questions.length ?? 1));
-      setTimeout(goNextLevelTest, 280); // 짧은 텀만, 정답 공개 X
+      setTimeout(goNextLevelTest, 280);
       return;
     }
 
@@ -272,16 +315,15 @@ export default function LessonScreen() {
       setCombo((c) => c + 1);
 
       // 슈퍼가 아닐 때만 에너지 소모
-      if (!isSuper) {
+      if (!isSuper && !isJumpTest) {
         const nextEnergy = Math.max(0, energy - 1);
         setEnergy(nextEnergy);
         if (nextEnergy <= 0) openEnergyModal();
-
         EnergyService.consume()
-          .then((res) => {
-            updateUser({ energy: res.energy, gems: res.gems } as any);
-          })
-          .catch((e) => console.log("CONSUME FAIL:", e?.message, e));
+          .then((res) =>
+            updateUser({ energy: res.energy, gems: res.gems } as any),
+          )
+          .catch(() => {});
       }
 
       if (!uniqueCorrect.current.has(currentQ.id)) {
@@ -289,13 +331,14 @@ export default function LessonScreen() {
       }
     } else {
       setCombo(0);
-      if (phase === "main") {
-        // 1단계: 틀리면 복습 큐에 모음 (중복 방지)
+      if (isJumpTest) {
+        wrongIds.current.push(currentQ.id);
+        setHearts((h) => Math.max(0, h - 1));
+      } else if (phase === "main") {
         if (!reviewQueue.current.some((q) => q.id === currentQ.id)) {
           reviewQueue.current.push(currentQ);
         }
       } else {
-        // 2단계: 또 틀리면 반복 안 하고 최종 오답으로 기록 후 넘어감
         finalWrongIds.current.add(currentQ.id);
       }
     }
@@ -377,7 +420,7 @@ export default function LessonScreen() {
     if (isLevelTest) {
       if (locked.current) return;
       locked.current = true;
-      if (currentQ) wrongIds.current.push(currentQ.id); // 스킵=오답
+      if (currentQ) wrongIds.current.push(currentQ.id);
       totalCount.current += 1;
       goNextLevelTest();
       return;
@@ -385,6 +428,11 @@ export default function LessonScreen() {
 
     if (!lesson) return;
     setShowCombo(false);
+
+    if (isJumpTest && hearts <= 0) {
+      finishJumpTest(true);
+      return;
+    }
     // 현재 문제 큐에서 제거
     const [, ...remaining] = questionQueue.current;
     questionQueue.current = remaining;
@@ -398,6 +446,11 @@ export default function LessonScreen() {
     }
 
     if (questionQueue.current.length === 0) {
+      if (isJumpTest) {
+        finishJumpTest(false);
+        return;
+      }
+
       if (phase === "main") {
         // 1단계 끝 → 복습할 게 있으면 안내, 없으면 종료
         if (reviewQueue.current.length > 0) {
@@ -494,8 +547,12 @@ export default function LessonScreen() {
         progress={progress}
         combo={combo}
         energy={energy}
+        hearts={hearts}
+        showHearts={isJumpTest}
         answerState={answerState}
-        onClose={() => setShowQuit(true)}
+        onClose={() =>
+          isJumpTest || isLevelTest ? goHome() : setShowQuit(true)
+        }
         theme={theme}
         showCombo={showCombo}
       />
@@ -543,7 +600,7 @@ export default function LessonScreen() {
             />
           )}
 
-          {!isLevelTest && <ComboPopup combo={combo} />}
+          {!isLevelTest && !isJumpTest && <ComboPopup combo={combo} />}
         </>
       ) : null}
 

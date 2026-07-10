@@ -19,6 +19,8 @@ interface Props {
   onStart?: () => void;
   onReview?: () => void;
   onLegend?: () => void;
+  canJump?: boolean; // 점프 가능한 잠금노드인가
+  onJumpTest?: () => void; // 테스트 시작
 }
 
 export default function NodePopover({
@@ -28,6 +30,8 @@ export default function NodePopover({
   onReview,
   onLegend,
   onStart,
+  canJump = false,
+  onJumpTest,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -72,11 +76,23 @@ export default function NodePopover({
           />
           <Text style={styles.lockedTitle}>{unit.title}</Text>
           <Text style={styles.lockedDescription}>
-            {t("roadmap.lockedDescription")}
+            {canJump
+              ? t("roadmap.jumpDescription")
+              : t("roadmap.lockedDescription")}
           </Text>
-          <View style={styles.lockedBtn}>
-            <Text style={styles.lockedBtnText}>{t("roadmap.locked")}</Text>
-          </View>
+          {canJump ? (
+            <TouchableOpacity
+              style={styles.jumpTestBtn}
+              onPress={onJumpTest}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.jumpTestText}>{t("roadmap.jumpStart")}</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.lockedBtn}>
+              <Text style={styles.lockedBtnText}>{t("roadmap.locked")}</Text>
+            </View>
+          )}
         </View>
       </Pressable>
     );
@@ -256,6 +272,15 @@ const getStyles = (theme: ThemeColors) =>
       marginBottom: 14,
       textAlign: "center",
     },
+    jumpTestBtn: {
+      backgroundColor: "#1CB0F6",
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: "center",
+      borderBottomWidth: 4,
+      borderColor: "#1899D6",
+    },
+    jumpTestText: { color: "#fff", fontSize: 15, fontWeight: "900" },
     lockedBtn: {
       backgroundColor: theme.bg,
       borderRadius: 12,

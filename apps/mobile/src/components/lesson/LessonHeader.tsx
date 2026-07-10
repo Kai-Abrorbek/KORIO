@@ -26,6 +26,8 @@ interface Props {
   hideBadges?: boolean;
   showCombo?: boolean;
   isSuper?: boolean;
+  hearts?: number;
+  showHearts?: boolean;
 }
 
 export default function LessonHeader({
@@ -38,6 +40,8 @@ export default function LessonHeader({
   hideBadges = false,
   showCombo,
   isSuper = false,
+  hearts = 5,
+  showHearts = false,
 }: Props) {
   const { t } = useTranslation();
   const progressWidth = useSharedValue(progress);
@@ -153,8 +157,20 @@ export default function LessonHeader({
         </View>
 
         {/* /* 에너지 배지 또는 SUPER */}
-        {!hideBadges &&
-          (isSuper ? (
+        {showHearts ? (
+          <View style={s.heartsRow}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Ionicons
+                key={i}
+                name="heart"
+                size={22}
+                color={i < hearts ? "#FF4B4B" : "#E5E5E5"}
+                style={{ marginLeft: i === 0 ? 0 : 3 }}
+              />
+            ))}
+          </View>
+        ) : !hideBadges ? (
+          isSuper ? (
             <View style={s.superBadge}>
               <Text style={s.superText}>SUPER</Text>
             </View>
@@ -169,7 +185,8 @@ export default function LessonHeader({
               </View>
               <Text style={s.energyText}>{energy}</Text>
             </Animated.View>
-          ))}
+          )
+        ) : null}
       </View>
     </View>
   );
@@ -225,6 +242,7 @@ const styles = (theme: ThemeColors) =>
       width: 60,
       backgroundColor: "rgba(255,255,255,0.5)",
     },
+    heartsRow: { flexDirection: "row", alignItems: "center" },
     superBadge: {
       backgroundColor: "#A56EFF",
       paddingHorizontal: 12,

@@ -63,4 +63,13 @@ export const LessonService = {
 
   addXp: (amount: number): Promise<{ added: number; totalXP: number }> =>
     api.post(`/lessons/add-xp`, { amount }),
+
+  getJumpTest: (section: number, unit: number): Promise<{ questions: any[] }> =>
+    api.get(`/lessons/jump-test?section=${section}&unit=${unit}`),
+
+  completeJump: (
+    section: number,
+    unit: number,
+  ): Promise<{ completed: number }> =>
+    api.post(`/lessons/jump-complete`, { section, unit }),
 };

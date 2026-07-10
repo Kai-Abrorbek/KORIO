@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "섹션 {{section}}, 유닛 {{unit}}",
+    jumpTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",
+    jumpDescription: "이 테스트를 통과하면 여기로 바로 건너뛸 수 있어요!",
+    jumpStart: "테스트 시작하기",
+    jumpLater: "나중에",
     review: "Takrorlash",
     legend: "Afsona",
     legendSubtitle: "Afsona darajasiga yeting va mahoratingizni isbotlang.",
@@ -599,5 +603,17 @@ export default {
     conversation: "회화",
     videoCall: "영상 통화",
     soon: "준비중",
+  },
+  jump: {
+    passTitle: "유닛 {{unit}} 잠금 해제!",
+    passSub: "테스트를 통과했어요! 이제 여기서 학습을 이어갈 수 있어요.",
+    failTitle: "조금 더 연습이 필요해요",
+    failSub: "오답이 너무 많았어요. 이전 레슨을 완료하면서 실력을 쌓아보세요!",
+    continue: "계속",
+    introRule: "이 도전을 통과하려면 오답 5개 미만으로 완료하세요. 화이팅!",
+    introContinue: "계속",
+    startTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",
+    startBtn: "테스트 시작하기",
+    later: "나중에",
   },
 };
