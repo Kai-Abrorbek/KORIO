@@ -5,14 +5,24 @@ import { Model } from 'mongoose';
 import { Question } from '../lessons/schemas/question.schema';
 import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
-import { UNIT1_QUESTIONS, UNIT1_NODES } from './data/unit1';
-import { UNIT2_QUESTIONS, UNIT2_NODES } from './data/unit2';
-import { UNIT3_QUESTIONS, UNIT3_NODES } from './data/unit3';
-import { UNIT4_QUESTIONS, UNIT4_NODES } from './data/unit4';
-import { UNIT5_QUESTIONS, UNIT5_NODES } from './data/unit5';
-import { UNIT6_QUESTIONS, UNIT6_NODES } from './data/unit6';
-import { UNIT7_QUESTIONS, UNIT7_NODES } from './data/unit7';
-import { UNIT8_QUESTIONS, UNIT8_NODES } from './data/unit8';
+import {
+  UNIT1_QUESTIONS,
+  UNIT1_NODES,
+  UNIT2_QUESTIONS,
+  UNIT2_NODES,
+  UNIT3_QUESTIONS,
+  UNIT3_NODES,
+  UNIT4_QUESTIONS,
+  UNIT4_NODES,
+  UNIT5_QUESTIONS,
+  UNIT5_NODES,
+  UNIT6_QUESTIONS,
+  UNIT6_NODES,
+  UNIT7_QUESTIONS,
+  UNIT7_NODES,
+  UNIT8_QUESTIONS,
+  UNIT8_NODES,
+} from './data';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -21,11 +31,8 @@ async function seed() {
   const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
   const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
 
-  console.log('🌱 시딩 시작...');
+  console.log('🌱 시딩 시작 (upsert 방식 — 진행도 유지)...');
 
-  await questionModel.deleteMany({});
-  await lessonModel.deleteMany({});
-  await nodeModel.deleteMany({});
   console.log('🗑️  기존 데이터 삭제 완료');
 
   const allQuestions = {
@@ -53,49 +60,67 @@ async function seed() {
   for (const nodeData of allNodes) {
     const { lessons, ...nodeInfo } = nodeData;
 
-    // 1. 노드 먼저 생성 (lessonIds 빈 배열로)
-    const node = await nodeModel.create({
-      ...nodeInfo,
-      lessonIds: [],
-    });
+    // 노드 code: section-unit-order 조합 (고유)
+    const nodeCode = `s${nodeInfo.section}_u${nodeInfo.unit}_o${nodeInfo.order}`;
+
+    // 노드 upsert (code로 찾아서 내용 갱신, 없으면 생성)
+    const node = await nodeModel.findOneAndUpdate(
+      { code: nodeCode },
+      { $set: { ...nodeInfo, code: nodeCode } },
+      { upsert: true, returnDocument: 'after' },
+    );
 
     const lessonIds: any[] = [];
 
-    for (const lessonData of lessons) {
+    for (let li = 0; li < lessons.length; li++) {
+      const lessonData = lessons[li];
       const { questions: qKeys, ...lessonInfo } = lessonData;
+
+      const questionIds: any[] = [];
       for (const key of qKeys) {
         if (!allQuestions[key]) {
           console.log('❌ 없는 키:', key);
+          continue;
         }
+        // question code = allQuestions의 key (안정적!)
+        const q = await questionModel.findOneAndUpdate(
+          { code: key },
+          { $set: { ...allQuestions[key], code: key } },
+          { upsert: true, returnDocument: 'after' },
+        );
+        questionIds.push(q._id);
       }
 
-      const createdQuestions = await questionModel.insertMany(
-        qKeys.map((key) => allQuestions[key]),
+      // 레슨 code: 노드 code + 레슨 순서
+      const lessonCode = `${nodeCode}_l${li + 1}`;
+      const lesson = await lessonModel.findOneAndUpdate(
+        { code: lessonCode },
+        {
+          $set: {
+            ...lessonInfo,
+            code: lessonCode,
+            nodeId: node._id,
+            section: nodeInfo.section,
+            unit: nodeInfo.unit,
+            questionIds,
+            xpReward: qKeys.length * 15,
+            isActive: true,
+          },
+        },
+        { upsert: true, returnDocument: 'after' },
       );
-      const questionIds = createdQuestions.map((q) => q._id);
-
-      // 2. 레슨 생성할 때 nodeId 바로 넣기
-      const lesson = await lessonModel.create({
-        ...lessonInfo,
-        nodeId: node._id, // ← 바로 넣기
-        section: nodeInfo.section,
-        unit: nodeInfo.unit,
-        questionIds,
-        xpReward: qKeys.length * 15,
-        isActive: true,
-      });
 
       lessonIds.push(lesson._id);
-      console.log(`  ✅ 레슨: ${lessonInfo.title.ko}`);
+      console.log(`  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode})`);
     }
 
-    // 3. 노드에 lessonIds 업데이트
     await nodeModel.findByIdAndUpdate(node._id, { lessonIds });
-
-    console.log(`✅ 노드: ${nodeInfo.title.ko} (레슨 ${lessonIds.length}개)`);
+    console.log(
+      `✅ 노드: ${nodeInfo.title.ko} (${nodeCode}, 레슨 ${lessonIds.length}개)`,
+    );
   }
 
-  console.log('🎉 시딩 완료!');
+  console.log('🎉 시딩 완료! (진행도 유지됨)');
   await app.close();
 }
 

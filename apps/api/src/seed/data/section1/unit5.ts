@@ -2,8 +2,8 @@
 // 서울대 한국어 1A - 5과: 주말에 친구를 만났어요
 // ══════════════════════════════════════════════
 
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT5_WORDS = [
   // 숫자
@@ -1257,7 +1257,7 @@ export const UNIT5_NODES = [
       en: 'Dates and days',
       ru: 'Даты и дни недели',
     },
-    section: 2,
+    section: 1,
     unit: 5,
     order: 1,
     isActive: true,
@@ -1415,7 +1415,7 @@ export const UNIT5_NODES = [
       en: 'N에 (time)',
       ru: 'N에 (время)',
     },
-    section: 2,
+    section: 1,
     unit: 5,
     order: 2,
     isActive: true,
@@ -1553,7 +1553,7 @@ export const UNIT5_NODES = [
       en: 'What did you do yesterday?',
       ru: 'Что делали вчера?',
     },
-    section: 2,
+    section: 1,
     unit: 5,
     order: 3,
     isActive: true,
@@ -1711,7 +1711,7 @@ export const UNIT5_NODES = [
       en: 'Watched a movie and shopped',
       ru: 'Посмотрел фильм и купил',
     },
-    section: 2,
+    section: 1,
     unit: 5,
     order: 4,
     isActive: true,

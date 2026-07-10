@@ -2,8 +2,8 @@
 // 서울대 한국어 1A - 8과: 영화 볼까요?
 // ══════════════════════════════════════════════
 
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT8_WORDS = [
   // 여가 활동 - 치다
@@ -1384,7 +1384,7 @@ export const UNIT8_NODES = [
       en: 'What is your hobby?',
       ru: 'Какое ваше хобби?',
     },
-    section: 3,
+    section: 1,
     unit: 8,
     order: 1,
     isActive: true,
@@ -1542,7 +1542,7 @@ export const UNIT8_NODES = [
       en: 'Good at/Bad at',
       ru: 'Хорошо/Плохо умею',
     },
-    section: 3,
+    section: 1,
     unit: 8,
     order: 2,
     isActive: true,
@@ -1700,7 +1700,7 @@ export const UNIT8_NODES = [
       en: 'This/That + N, -네요',
       ru: 'Этот/Тот + N, -네요',
     },
-    section: 3,
+    section: 1,
     unit: 8,
     order: 3,
     isActive: true,
@@ -1858,7 +1858,7 @@ export const UNIT8_NODES = [
       en: 'Shall we cycle together?',
       ru: 'Покатаемся вместе?',
     },
-    section: 3,
+    section: 1,
     unit: 8,
     order: 4,
     isActive: true,

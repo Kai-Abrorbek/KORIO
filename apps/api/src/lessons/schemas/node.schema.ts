@@ -12,6 +12,9 @@ class I18nText {
 
 @Schema({ timestamps: true })
 export class LessonNode {
+  @Prop({ index: true, sparse: true })
+  code?: string;
+
   @Prop({ required: true })
   section: number;
 

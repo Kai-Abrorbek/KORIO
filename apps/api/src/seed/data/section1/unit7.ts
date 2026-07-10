@@ -2,8 +2,8 @@
 // 서울대 한국어 1A - 7과: 날씨가 어떻습니까?
 // ══════════════════════════════════════════════
 
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT7_WORDS = [
   // 날씨 형용사
@@ -1301,7 +1301,7 @@ export const UNIT7_NODES = [
       en: "What's the weather?",
       ru: 'Какая погода?',
     },
-    section: 3,
+    section: 1,
     unit: 7,
     order: 1,
     isActive: true,
@@ -1459,7 +1459,7 @@ export const UNIT7_NODES = [
       en: 'About seasons',
       ru: 'О временах года',
     },
-    section: 3,
+    section: 1,
     unit: 7,
     order: 2,
     isActive: true,
@@ -1617,7 +1617,7 @@ export const UNIT7_NODES = [
       en: 'Weather formal speech',
       ru: 'Погода официальный стиль',
     },
-    section: 3,
+    section: 1,
     unit: 7,
     order: 3,
     isActive: true,
@@ -1775,7 +1775,7 @@ export const UNIT7_NODES = [
       en: "It snows and it's cold",
       ru: 'Снег и холодно',
     },
-    section: 3,
+    section: 1,
     unit: 7,
     order: 4,
     isActive: true,

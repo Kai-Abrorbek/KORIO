@@ -1,5 +1,5 @@
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT2_WORDS = [
   // 학용품

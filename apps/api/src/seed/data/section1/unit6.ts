@@ -2,8 +2,8 @@
 // 서울대 한국어 1A - 6과: 얼마예요?
 // ══════════════════════════════════════════════
 
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT6_WORDS = [
   // 음식 (한국 음식)
@@ -1292,7 +1292,7 @@ export const UNIT6_NODES = [
       en: 'What would you like?',
       ru: 'Что будете заказывать?',
     },
-    section: 2,
+    section: 1,
     unit: 6,
     order: 1,
     isActive: true,
@@ -1450,7 +1450,7 @@ export const UNIT6_NODES = [
       en: 'Expressing taste',
       ru: 'Выражение вкуса',
     },
-    section: 2,
+    section: 1,
     unit: 6,
     order: 2,
     isActive: true,
@@ -1603,7 +1603,7 @@ export const UNIT6_NODES = [
       en: 'How much?',
       ru: 'Сколько стоит?',
     },
-    section: 2,
+    section: 1,
     unit: 6,
     order: 3,
     isActive: true,
@@ -1777,7 +1777,7 @@ export const UNIT6_NODES = [
       ru: 'Нэнмён тоже дайте',
     },
 
-    section: 2,
+    section: 1,
     unit: 6,
     order: 4,
     isActive: true,

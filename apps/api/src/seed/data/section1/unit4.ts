@@ -2,8 +2,8 @@
 // 서울대 한국어 1A - 4과: 어디에 있어요?
 // ══════════════════════════════════════════════
 
-import { LessonCategory } from '../../lessons/schemas/lesson.schema';
-import { QuestionLevel } from '../../lessons/schemas/question.schema';
+import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
+import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 
 export const UNIT4_WORDS = [
   // 장소 (Place 2)
@@ -1276,7 +1276,7 @@ export const UNIT4_NODES = [
       en: 'Where is this place?',
       ru: 'Где это место?',
     },
-    section: 2,
+    section: 1,
     unit: 4,
     order: 1,
     isActive: true,
@@ -1434,7 +1434,7 @@ export const UNIT4_NODES = [
       en: 'Where is it?',
       ru: 'Где это?',
     },
-    section: 2,
+    section: 1,
     unit: 4,
     order: 2,
     isActive: true,
@@ -1592,7 +1592,7 @@ export const UNIT4_NODES = [
       en: 'Where are you going?',
       ru: 'Куда вы идёте?',
     },
-    section: 2,
+    section: 1,
     unit: 4,
     order: 3,
     isActive: true,
@@ -1750,7 +1750,7 @@ export const UNIT4_NODES = [
       en: 'In front/behind/next to',
       ru: 'Спереди/сзади/рядом',
     },
-    section: 2,
+    section: 1,
     unit: 4,
     order: 4,
     isActive: true,

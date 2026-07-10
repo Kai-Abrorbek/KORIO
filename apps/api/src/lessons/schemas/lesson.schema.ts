@@ -21,6 +21,9 @@ class I18nText {
 
 @Schema({ timestamps: true })
 export class Lesson {
+  @Prop({ index: true, sparse: true })
+  code?: string;
+
   @Prop({ type: Types.ObjectId, ref: 'LessonNode', required: true })
   nodeId: Types.ObjectId;
 

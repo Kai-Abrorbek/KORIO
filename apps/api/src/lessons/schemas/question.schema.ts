@@ -13,6 +13,11 @@ export enum QuestionType {
   TYPE_ANSWER = 'type_answer',
   WORD_MATCHING = 'word_matching',
   LISTENING = 'listening',
+  FILL_IN_BLANK = 'fill_in_blank',
+  LISTEN_TYPE = 'listen_type',
+  LISTEN_FILL = 'listen_fill',
+  TRANSLATE_TYPE = 'translate_type',
+  AUDIO_MATCH = 'audio_match',
 }
 
 export enum QuestionLevel {
@@ -53,6 +58,9 @@ class DialogLine {
 
 @Schema({ timestamps: true })
 export class Question {
+  @Prop({ index: true, sparse: true })
+  code?: string;
+
   @Prop({ required: true, enum: QuestionType })
   type: QuestionType;
 

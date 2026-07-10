@@ -80,7 +80,7 @@ export default function LessonCompleteScreen() {
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg },
+    container: { flex: 1, backgroundColor: theme.bg, marginBottom: 30 },
     content: {
       flex: 1,
       paddingTop: 80,
