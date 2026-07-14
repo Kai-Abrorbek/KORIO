@@ -21,17 +21,19 @@ import { useTheme } from "@/hooks/useTheme";
 import { Modal } from "react-native";
 import { useState } from "react";
 import ScoreDetailScreen from "@/components/score/ScoreDetailScreen";
-import { ScoreMilestone } from "@/components/score/ScoreDetailScreen";
 
-const DETAIL_MILESTONES: ScoreMilestone[] = [
-  { score: 1, label: "시작하기", icon: "star" },
-  { score: 10, label: "자기소개하기", icon: "hand-left" },
-  { score: 30, label: "음식 주문하기", icon: "restaurant" },
-  { score: 50, label: "길 안내하기", icon: "location" },
-  { score: 70, label: "짧은 글 읽기", icon: "book" },
-  { score: 90, label: "TV 시청하기", icon: "tv" },
-  { score: 110, label: "직장에서 소통하기", icon: "briefcase" },
-  { score: 130, label: "과정 완료", icon: "trophy" },
+const MILESTONE_STYLE: {
+  icon: keyof typeof Ionicons.glyphMap;
+  labelKey: string;
+}[] = [
+  { icon: "star", labelKey: "score.milestones.start" },
+  { icon: "hand-left", labelKey: "score.milestones.intro" },
+  { icon: "restaurant", labelKey: "score.milestones.order" },
+  { icon: "location", labelKey: "score.milestones.directions" },
+  { icon: "book", labelKey: "score.milestones.reading" },
+  { icon: "tv", labelKey: "score.milestones.tv" },
+  { icon: "briefcase", labelKey: "score.milestones.work" },
+  { icon: "trophy", labelKey: "score.milestones.complete" },
 ];
 
 const BLUE = "#1CB0F6";
@@ -39,6 +41,7 @@ const BLUE_TEXT = "#1899D6";
 
 interface Props {
   score: number;
+  milestones?: { score: number }[];
   flag?: string; // 이모지 국기 (예: "🇺🇸")
   title?: string; // "영어 스코어를 올렸습니다!"
   continueLabel?: string;
@@ -49,6 +52,7 @@ interface Props {
 
 export default function ScoreUpScreen({
   score,
+  milestones,
   flag = "🇺🇸",
   title,
   continueLabel,
@@ -123,6 +127,12 @@ export default function ScoreUpScreen({
       { scale: 0.6 + sparkle.value * 0.7 },
       { rotate: `${sparkle.value * 40}deg` },
     ],
+  }));
+
+  const detailMilestones = (milestones ?? []).map((m, i) => ({
+    score: m.score,
+    label: t(MILESTONE_STYLE[i % MILESTONE_STYLE.length].labelKey),
+    icon: MILESTONE_STYLE[i % MILESTONE_STYLE.length].icon,
   }));
 
   return (
@@ -206,7 +216,7 @@ export default function ScoreUpScreen({
           <ScoreDetailScreen
             score={score}
             flag={flag}
-            milestones={DETAIL_MILESTONES}
+            milestones={detailMilestones}
             onClose={() => setShowDetail(false)}
             onShare={onShare}
           />

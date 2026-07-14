@@ -94,6 +94,12 @@ export class LessonsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('score')
+  async getScore(@Request() req) {
+    return this.lessonsService.getScore(req.user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('add-xp')
   async addXp(@Request() req, @Body() body: { amount: number }) {
     return this.lessonsService.addXp(req.user._id.toString(), body.amount ?? 0);

@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "섹션 {{section}}, 유닛 {{unit}}",
+    courseTab: "과정",
+    newCourses: "신규 과정",
+    scoreExplain: "스코어 설명",
+    scoreText: "회원님의 스코어는 {{score}}점입니다.",
     jumpTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",
     jumpDescription: "이 테스트를 통과하면 여기로 바로 건너뛸 수 있어요!",
     jumpStart: "테스트 시작하기",
@@ -504,6 +508,16 @@ export default {
     title: "영어 스코어",
     hint: "영어 실력이 늘어나면 스코어가 올라가요",
     progress: "스코어 현황",
+    milestones: {
+      start: "시작하기",
+      intro: "자기소개하기",
+      order: "음식점에서 주문하기",
+      directions: "간단한 길 안내하기",
+      reading: "짧은 스토리 읽기",
+      tv: "TV 프로그램 시청하기",
+      work: "직장에서 소통하기",
+      complete: "과정 완료",
+    },
   },
   matchGame: {
     title: "의미가 일치하는 단어끼리 짝을 지으세요",

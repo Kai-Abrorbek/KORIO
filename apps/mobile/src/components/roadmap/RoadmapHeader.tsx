@@ -6,6 +6,8 @@ import { UserRoadmapStats } from "@/types/roadmap";
 import { BatteryBadge, ENERGY_COLORS } from "@/components/energy/BatteryBadge";
 import EnergyBadge from "./EnergyBadge";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import CourseDropdown from "./CourseDropdown";
 
 interface Props {
   stats: UserRoadmapStats;
@@ -16,14 +18,25 @@ export default function RoadmapHeader({ stats, energy }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
   const router = useRouter();
+  const [courseOpen, setCourseOpen] = useState(false);
 
   return (
     <View style={styles.container}>
       {/* 언어 */}
-      <View style={styles.statBox}>
+      <TouchableOpacity
+        style={styles.statBox}
+        onPress={() => setCourseOpen(true)}
+        activeOpacity={0.7}
+      >
         <Text style={styles.flag}>{stats.language}</Text>
         <Text style={styles.statText}>{stats.languageLevel}</Text>
-      </View>
+        <Ionicons
+          name="caret-down"
+          size={12}
+          color={theme.textSecondary}
+          style={{ marginLeft: 2 }}
+        />
+      </TouchableOpacity>
 
       {/* 스트릭 */}
       <View style={styles.statBox}>
@@ -50,6 +63,11 @@ export default function RoadmapHeader({ stats, energy }: Props) {
           <EnergyBadge energy={energy} size={26} />
         </TouchableOpacity>
       )}
+
+      <CourseDropdown
+        visible={courseOpen}
+        onClose={() => setCourseOpen(false)}
+      />
     </View>
   );
 }

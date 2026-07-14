@@ -5,6 +5,14 @@ import i18n from "@/locales/i18n";
 // 현재 유저 언어 가져오기
 const getLang = () => i18n.language?.split("-")[0] || "uz";
 
+export interface ScoreData {
+  score: number;
+  completedUnits: number;
+  nextScore: number;
+  progress: number;
+  milestones: { score: number }[];
+}
+
 export const LessonService = {
   // 로드맵용 레슨 목록
   getLessons: (): Promise<any[]> => {
@@ -75,4 +83,6 @@ export const LessonService = {
     unit: number,
   ): Promise<{ completed: number }> =>
     api.post(`/lessons/jump-complete`, { section, unit }),
+
+  getScore: (): Promise<ScoreData> => api.get(`/lessons/score`),
 };

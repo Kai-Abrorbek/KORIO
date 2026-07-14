@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "Раздел {{section}}, Юнит {{unit}}",
+    courseTab: "Курсы",
+    newCourses: "Новые курсы",
+    scoreExplain: "О баллах",
+    scoreText: "Ваш балл: {{score}}.",
     jumpTitle: "Перейдите к юниту {{unit}} и докажите свои навыки!",
     jumpDescription: "Пройдите тест, чтобы перейти сюда!",
     jumpStart: "Начать тест",
@@ -501,6 +505,16 @@ export default {
     title: "Балл по английскому",
     hint: "Балл растёт по мере улучшения английского",
     progress: "Прогресс баллов",
+    milestones: {
+      start: "Начало",
+      intro: "Представиться",
+      order: "Заказать в ресторане",
+      directions: "Объяснить дорогу",
+      reading: "Читать короткие тексты",
+      tv: "Смотреть ТВ",
+      work: "Общаться на работе",
+      complete: "Завершить курс",
+    },
   },
   matchGame: {
     title: "Соедините слова с одинаковым значением",

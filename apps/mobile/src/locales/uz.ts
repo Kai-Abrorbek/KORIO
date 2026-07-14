@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "Bo'lim {{section}}, Birlik {{unit}}",
+    courseTab: "Kurslar",
+    newCourses: "Yangi kurslar",
+    scoreExplain: "Ball haqida",
+    scoreText: "Sizning ballingiz: {{score}}.",
     jumpTitle: "Unit {{unit}}ga o'tib, mahoratingizni isbotlang!",
     jumpDescription: "Bu testdan o'tsangiz, shu yerga o'tishingiz mumkin!",
     jumpStart: "Testni boshlash",
@@ -502,6 +506,16 @@ export default {
     title: "Ingliz tili bali",
     hint: "Ingliz tilingiz yaxshilansa, ball oshadi",
     progress: "Ball holati",
+    milestones: {
+      start: "Boshlash",
+      intro: "O'zini tanishtirish",
+      order: "Restoranda buyurtma",
+      directions: "Yo'l ko'rsatish",
+      reading: "Qisqa hikoya o'qish",
+      tv: "TV ko'rish",
+      work: "Ishda muloqot",
+      complete: "Kursni tugatish",
+    },
   },
   matchGame: {
     title: "Ma'nosi bir xil so'zlarni juftlang",

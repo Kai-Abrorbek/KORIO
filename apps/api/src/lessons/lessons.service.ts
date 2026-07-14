@@ -14,6 +14,7 @@ import {
 } from '../users/schemas/user-stats.schema';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import { buildMilestones, calcScore } from './score.util';
 
 @Injectable()
 export class LessonsService {
@@ -557,5 +558,55 @@ export class LessonsService {
 
     await this.userProgressModel.bulkWrite(ops);
     return { completed: lessonIds.length };
+  }
+
+  async getScore(userId: string) {
+    const uId = new Types.ObjectId(userId);
+
+    // 전체 노드 (chest 제외)
+    const nodes = await this.nodeModel
+      .find({ isActive: true, nodeType: { $ne: 'chest' } })
+      .select('section unit lessonIds')
+      .lean();
+
+    // 유저 완료 레슨
+    const done = await this.userProgressModel
+      .find({ userId: uId, isCompleted: true })
+      .select('lessonId')
+      .lean();
+    const doneSet = new Set(done.map((d: any) => d.lessonId.toString()));
+
+    // 유닛별로 노드 묶기
+    const unitMap = new Map<string, { section: number; nodes: any[] }>();
+    for (const n of nodes) {
+      const key = `${n.section}-${n.unit}`;
+      if (!unitMap.has(key))
+        unitMap.set(key, { section: n.section, nodes: [] });
+      unitMap.get(key)!.nodes.push(n);
+    }
+
+    // 유닛 완주 판정 = 그 유닛의 모든 노드의 모든 레슨 완료
+    let completedUnits = 0;
+    const sectionUnits = new Map<number, number>();
+
+    for (const [, u] of unitMap) {
+      sectionUnits.set(u.section, (sectionUnits.get(u.section) ?? 0) + 1);
+
+      const allDone = u.nodes.every((n) => {
+        const ids = (n.lessonIds ?? []).map((x: any) => x.toString());
+        return ids.length > 0 && ids.every((id) => doneSet.has(id));
+      });
+      if (allDone) completedUnits++;
+    }
+
+    // 섹션별 유닛 수 → 마일스톤 (섹션 늘어나면 자동 확장)
+    const milestones = buildMilestones(
+      [...sectionUnits.entries()].map(([section, units]) => ({
+        section,
+        units,
+      })),
+    );
+
+    return calcScore(completedUnits, milestones);
   }
 }

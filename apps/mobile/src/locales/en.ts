@@ -106,6 +106,10 @@ export default {
   },
   roadmap: {
     sectionUnit: "Section {{section}}, Unit {{unit}}",
+    courseTab: "Courses",
+    newCourses: "New Courses",
+    scoreExplain: "About score",
+    scoreText: "Your score is {{score}}.",
     jumpTitle: "Jump to Unit {{unit}} and prove your skills!",
     jumpDescription: "Pass this test to jump straight here!",
     jumpStart: "Start test",
@@ -500,6 +504,16 @@ export default {
     title: "English score",
     hint: "Your score goes up as your English improves",
     progress: "Score progress",
+    milestones: {
+      start: "Get started",
+      intro: "Introduce yourself",
+      order: "Order at a restaurant",
+      directions: "Give simple directions",
+      reading: "Read short stories",
+      tv: "Watch TV shows",
+      work: "Communicate at work",
+      complete: "Complete the course",
+    },
   },
   matchGame: {
     title: "Match the words with the same meaning",
