@@ -15,6 +15,7 @@ import {
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { buildMilestones, calcScore } from './score.util';
+import { LeagueService } from '../league/league.service';
 
 @Injectable()
 export class LessonsService {
@@ -31,6 +32,7 @@ export class LessonsService {
     private userStatsModel: Model<UserStatsDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private leagueService: LeagueService,
   ) {}
 
   private extractI18n(obj: any, lang: string): string {
@@ -460,10 +462,26 @@ export class LessonsService {
   async addXp(userId: string, amount: number) {
     const xp = Math.max(0, Math.min(1000, Math.floor(amount || 0)));
     if (xp === 0) return { added: 0, totalXP: null };
+
+    const uId = new Types.ObjectId(userId);
+
     const user = await this.userModel
-      .findByIdAndUpdate(userId, { $inc: { totalXP: xp } }, { new: true })
+      .findByIdAndUpdate(uId, { $inc: { totalXP: xp } }, { new: true })
       .select('totalXP')
       .lean();
+
+    // 일일 통계 → 리그 주간 집계에 반영
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    await this.userStatsModel.updateOne(
+      { userId: uId, date: today },
+      { $inc: { xpEarned: xp } },
+      { upsert: true },
+    );
+
+    // 리그 자동 참여
+    await this.leagueService.ensureJoined(userId).catch(() => {});
+
     return { added: xp, totalXP: user?.totalXP ?? null };
   }
 

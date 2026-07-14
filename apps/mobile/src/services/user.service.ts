@@ -79,4 +79,6 @@ export const UserService = {
     api.post(`/users/match-contacts`, { names }),
 
   getSuggestions: (): Promise<any[]> => api.get(`/users/suggestions`),
+
+  touchActive: (): Promise<{ ok: boolean }> => api.post(`/users/me/active`, {}),
 };

@@ -1073,4 +1073,12 @@ export class UsersService {
       isFollowing: followingSet.has(u._id.toString()),
     }));
   }
+
+  async touchActive(userId: string) {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { $set: { lastActiveAt: new Date() } },
+    );
+    return { ok: true };
+  }
 }

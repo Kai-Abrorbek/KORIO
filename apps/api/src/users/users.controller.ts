@@ -55,6 +55,11 @@ export class UsersController {
     return this.usersService.getCalendar(req.user._id.toString(), y, m);
   }
 
+  @Post('me/active')
+  async touchActive(@Request() req) {
+    return this.usersService.touchActive(req.user._id.toString());
+  }
+
   @Get('me/stats/weekly')
   async getWeekly(@Request() req, @Query('date') date?: string) {
     return this.usersService.getWeeklyStats(req.user._id.toString(), date);

@@ -2,10 +2,19 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
+import { useEffect } from "react";
+import { UserService } from "@/services/user.service";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
+
+  useEffect(() => {
+    const ping = () => UserService.touchActive().catch(() => {});
+    ping();
+    const id = setInterval(ping, 3 * 60 * 1000); // 3분마다
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <Tabs

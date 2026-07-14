@@ -22,4 +22,14 @@ export class LeagueController {
   settle() {
     return this.service.settleWeek();
   }
+
+  @Post('snapshot-rank')
+  async snapshotRank(@Request() req) {
+    return this.service.snapshotRank(req.user._id.toString());
+  }
+
+  @Post('ack-rank')
+  async ackRank(@Request() req) {
+    return this.service.ackRank(req.user._id.toString());
+  }
 }

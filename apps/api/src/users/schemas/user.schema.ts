@@ -122,6 +122,15 @@ export class User {
   @Prop({ default: false })
   isOnboardingCompleted: boolean;
 
+  @Prop({ default: 0 })
+  previousLeagueRank: number;
+
+  @Prop({ default: false })
+  isBot: boolean; // 리그 봇 유저
+
+  @Prop({ type: Date, default: null })
+  lastActiveAt: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -6,45 +6,235 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
+  Pressable,
 } from "react-native";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "@/hooks/useTheme";
+import { ThemeColors } from "@/constants/theme";
+import {
+  LeagueService,
+  LeagueData,
+  LeagueMember,
+} from "@/services/league.service";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withSequence,
   withTiming,
-  withDelay,
-  Easing,
 } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
-import { useTheme } from "@/hooks/useTheme";
-import { ThemeColors } from "@/constants/theme";
-import { LeagueService } from "@/services/league.service";
+import { TIERS, getTier, getTierIndex } from "@/constants/league-tiers";
+import TierCrystal from "@/components/league/TierCrystal";
+import { withDelay, withSpring, Easing } from "react-native-reanimated";
 
+const MEDAL_COLORS = [
+  { fill: "#FFC93C", ribbon: "#E5A700", text: "#8A5B00" }, // 1등 금
+  { fill: "#C9D3DE", ribbon: "#A8B4C2", text: "#5C6875" }, // 2등 은
+  { fill: "#D19A64", ribbon: "#B07C48", text: "#7A4E1E" }, // 3등 동
+];
+// 티어 메타 (그라데이션용 light/color/dark)
 const TIER_META: Record<
   string,
-  { color: string; colorDark: string; emoji: string }
+  { light: string; color: string; dark: string }
 > = {
-  bronze: { color: "#CD7F32", colorDark: "#A05A1E", emoji: "🥉" },
-  silver: { color: "#B8C2CC", colorDark: "#8A97A3", emoji: "🥈" },
-  gold: { color: "#FFD93D", colorDark: "#E0AC00", emoji: "🥇" },
-  platinum: { color: "#5AC8E8", colorDark: "#2E9DC4", emoji: "💠" },
-  diamond: { color: "#7B6BF0", colorDark: "#5B4DD4", emoji: "💎" },
+  bronze: { light: "#E8A867", color: "#CD7F32", dark: "#A05A1E" },
+  silver: { light: "#DDE3E9", color: "#B8C2CC", dark: "#8A97A3" },
+  gold: { light: "#FFE896", color: "#FFD93D", dark: "#E0AC00" },
+  platinum: { light: "#A6E6F5", color: "#5AC8E8", dark: "#2E9DC4" },
+  diamond: { light: "#B9AFFF", color: "#7B6BF0", dark: "#5B4DD4" },
 };
+const TIER_ORDER = ["bronze", "silver", "gold", "platinum", "diamond"];
+const MEDAL = ["#FFC93C", "#C3CCD6", "#D68A4E"]; // 1,2,3등
+const AVATAR_COLORS = [
+  "#FF6B6B",
+  "#4ECDC4",
+  "#FFD93D",
+  "#6C7BFF",
+  "#FF8FB1",
+  "#5AC8E8",
+  "#9B8CFF",
+  "#FF9F5A",
+];
 
-const MEDAL = ["#FFD93D", "#C0C8D0", "#CD7F32"]; // 1,2,3등
+function avatarColor(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = seed.charCodeAt(i) + ((h << 5) - h);
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+// ── 아바타 ──
+function Avatar({
+  member,
+  size = 44,
+}: {
+  member: LeagueMember;
+  size?: number;
+}) {
+  return (
+    <View style={{ width: size, height: size }}>
+      {member.profileImage ? (
+        <Image
+          source={{ uri: member.profileImage }}
+          style={{ width: size, height: size, borderRadius: size / 2 }}
+        />
+      ) : (
+        <View
+          style={{
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            backgroundColor: avatarColor(member.id),
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text
+            style={{ color: "#fff", fontSize: size * 0.42, fontWeight: "800" }}
+          >
+            {member.nickname.trim().charAt(0).toUpperCase()}
+          </Text>
+        </View>
+      )}
+      {member.online && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 1,
+            right: 1,
+            width: size * 0.26,
+            height: size * 0.26,
+            borderRadius: size * 0.13,
+            backgroundColor: "#58CC02",
+            borderWidth: 3,
+            borderColor: "#fff",
+          }}
+        />
+      )}
+    </View>
+  );
+}
+
+// ── 순위 뱃지 ──
+function RankBadge({
+  rank,
+  isMe,
+  theme,
+}: {
+  rank: number;
+  isMe?: boolean;
+  theme: ThemeColors;
+}) {
+  if (rank <= 3) {
+    const c = MEDAL_COLORS[rank - 1];
+    return (
+      <View style={rb.wrap}>
+        {/* 리본 꼬리 */}
+        <View style={[rb.tail, { borderTopColor: c.ribbon }]} />
+        {/* 원형 메달 */}
+        <View style={[rb.circle, { backgroundColor: c.fill }]}>
+          <Text style={[rb.num, { color: c.text }]}>{rank}</Text>
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={rb.wrap}>
+      <Text
+        style={[rb.plain, { color: isMe ? "#58A700" : theme.textSecondary }]}
+      >
+        {rank}
+      </Text>
+    </View>
+  );
+}
 
 export default function LeagueScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
 
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<LeagueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(Date.now());
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  // ✅ pulse 는 여기 한 번만
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1.06, { duration: 900 }),
+        withTiming(1, { duration: 900 }),
+      ),
+      -1,
+    );
+  }, []);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
+
+  const ROW_H = 64; // 리스트 행 높이 (실제 스타일과 맞춰야 함)
+
+  // 순위 상승 애니메이션
+  const lift = useSharedValue(0);
+  const move = useSharedValue(0);
+  const settle = useSharedValue(1);
+  const [animDone, setAnimDone] = useState(false);
+
+  useEffect(() => {
+    if (!data || animDone) return;
+    const me = data.members.find((m) => m.isMe);
+    if (!me) return;
+
+    const prev = data.previousRank ?? me.rank;
+    if (prev <= me.rank) {
+      setAnimDone(true);
+      return; // 안 올랐으면 애니 없음
+    }
+
+    const dist = (prev - me.rank) * ROW_H;
+
+    // 들어올림 → 위로 쭉 → 툭 내려놓기
+    lift.value = withDelay(500, withTiming(1, { duration: 240 }));
+    move.value = withDelay(
+      760,
+      withTiming(-dist, { duration: 850, easing: Easing.inOut(Easing.cubic) }),
+    );
+    lift.value = withDelay(1610, withTiming(0, { duration: 200 }));
+    settle.value = withDelay(
+      1610,
+      withSequence(
+        withTiming(1.05, { duration: 110 }),
+        withSpring(1, { damping: 6, stiffness: 220 }),
+      ),
+    );
+
+    // 애니 끝나면 순위 저장 (다시 안 나오게)
+    const tid = setTimeout(() => {
+      LeagueService.ackRank().catch(() => {});
+      setAnimDone(true);
+    }, 2000);
+    return () => clearTimeout(tid);
+  }, [data, animDone]);
+
+  const meRowStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: move.value },
+      { scale: settle.value * (1 + lift.value * 0.04) },
+    ],
+    zIndex: lift.value > 0 ? 20 : 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: lift.value * 0.3, // 평소 0 → 안 보임
+    shadowRadius: lift.value * 12,
+    elevation: lift.value * 12,
+  }));
 
   useFocusEffect(
     useCallback(() => {
@@ -56,350 +246,265 @@ export default function LeagueScreen() {
     }, []),
   );
 
-  // 카운트다운 1초 갱신
+  // 카운트다운 갱신
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(id);
   }, []);
 
   if (loading || !data) {
     return (
-      <View style={[s.container, s.center]}>
+      <View
+        style={[
+          s.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
 
-  const meta = TIER_META[data.tier] ?? TIER_META.bronze;
-  const me = data.members.find((m: any) => m.isMe);
-  const promoteLine = data.promoteCount; // 상위 N
-  const demoteLine = data.members.length - data.demoteCount; // 이 이후 강등
+  const tierMeta = getTier(data.tier);
+  const myTierIdx = getTierIndex(data.tier);
+  const CHALLENGE_XP = data.boostXp ?? 210;
 
-  // 카운트다운
-  const diff = Math.max(0, new Date(data.endsAt).getTime() - now);
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  const countdown =
-    days > 0 ? `${days}일 ${hours}시간` : `${hours}시간 ${mins}분`;
+  // 카운트다운 라벨
+  const remaining = new Date(data.endsAt).getTime() - now;
+  const days = Math.ceil(remaining / 86400000);
+  const hours = Math.floor(remaining / 3600000);
+  const timeLabel =
+    days > 1
+      ? t("league.daysLeft", { count: days })
+      : `${Math.max(0, hours)}:${String(Math.max(0, Math.floor((remaining % 3600000) / 60000))).padStart(2, "0")}`;
 
-  // 승급까지 필요한 XP (내가 승급권 밖이면)
-  let promoteMsg: string | null = null;
-  if (me && data.promoteCount > 0 && me.rank > data.promoteCount) {
-    const target = data.members[data.promoteCount - 1];
-    const need = (target?.xp ?? 0) - me.xp + 1;
-    if (need > 0) promoteMsg = t("league.needXp", { xp: need });
-  } else if (me && me.rank <= data.promoteCount) {
-    promoteMsg = t("league.inPromotion");
-  }
+  const promoteLine = data.promoteCount;
+  const demoteLine = data.members.length - data.demoteCount;
 
   return (
-    <ScrollView
-      style={s.container}
-      contentContainerStyle={{ paddingBottom: 40 }}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* 티어 히어로 */}
-      <LinearGradient colors={[meta.color, meta.colorDark]} style={s.hero}>
-        <TierBadge emoji={meta.emoji} />
-        <Text style={s.tierName}>{t(`league.tiers.${data.tier}`)}</Text>
-        <Text style={s.tierSub}>{t("league.weeklyRanking")}</Text>
-
-        {/* 카운트다운 */}
-        <View style={s.countdown}>
-          <Ionicons name="time" size={16} color="#fff" />
-          <Text style={s.countdownText}>
-            {t("league.endsIn", { time: countdown })}
-          </Text>
+    <View style={s.container}>
+      {/* 헤더 */}
+      <View style={s.header}>
+        <Text style={s.title}>{t(`league.tiers.${data.tier}`)}</Text>
+        <View style={s.timeRow}>
+          <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
+          <Text style={s.timeText}>{timeLabel}</Text>
         </View>
-      </LinearGradient>
-
-      {/* 동기부여 배너 */}
-      {promoteMsg && (
-        <View
-          style={[
-            s.banner,
-            me && me.rank <= data.promoteCount ? s.bannerGreen : s.bannerBlue,
-          ]}
-        >
-          <Ionicons
-            name={me && me.rank <= data.promoteCount ? "trending-up" : "flame"}
-            size={20}
-            color="#fff"
-          />
-          <Text style={s.bannerText}>{promoteMsg}</Text>
-        </View>
-      )}
-
-      {/* 승급권 라벨 */}
-      {data.promoteCount > 0 && (
-        <View style={s.zoneLabel}>
-          <View style={[s.zoneDot, { backgroundColor: "#58CC02" }]} />
-          <Text style={s.zoneText}>
-            {t("league.promotionZone", { count: data.promoteCount })}
-          </Text>
-        </View>
-      )}
-
-      {/* 순위 리스트 */}
-      <View style={s.list}>
-        {data.members.map((m: any, i: number) => {
-          const inPromote = i < promoteLine;
-          const inDemote = data.demoteCount > 0 && i >= demoteLine;
-          const showDemoteLine = data.demoteCount > 0 && i === demoteLine;
-          return (
-            <View key={m.id}>
-              {/* 강등권 구분선 */}
-              {showDemoteLine && (
-                <View style={s.zoneLabel}>
-                  <View style={[s.zoneDot, { backgroundColor: "#FF4B4B" }]} />
-                  <Text style={s.zoneText}>
-                    {t("league.demotionZone", { count: data.demoteCount })}
-                  </Text>
-                </View>
-              )}
-              <RankRow
-                rank={m.rank}
-                nickname={m.nickname}
-                xp={m.xp}
-                profileImage={m.profileImage}
-                isMe={m.isMe}
-                inPromote={inPromote}
-                inDemote={inDemote}
-                theme={theme}
-                t={t}
-              />
-            </View>
-          );
-        })}
       </View>
-    </ScrollView>
-  );
-}
+      {/* 티어 10개 가로 스크롤 */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          gap: 10,
+          alignItems: "center",
+        }}
+        style={{ marginBottom: 20 }}
+      >
+        {TIERS.map((tr, i) => (
+          <TierCrystal
+            key={tr.key}
+            tier={tr}
+            locked={i > myTierIdx}
+            size={i === myTierIdx ? 120 : 92}
+            active={i === myTierIdx}
+          />
+        ))}
+      </ScrollView>
 
-// 티어 뱃지 (둥실 + 빛)
-function TierBadge({ emoji }: { emoji: string }) {
-  const float = useSharedValue(0);
-  const glow = useSharedValue(0.4);
-  useEffect(() => {
-    float.value = withRepeat(
-      withSequence(
-        withTiming(-8, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-    glow.value = withRepeat(
-      withSequence(
-        withTiming(0.8, { duration: 1000 }),
-        withTiming(0.3, { duration: 1000 }),
-      ),
-      -1,
-      true,
-    );
-  }, []);
-  const bStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: float.value }],
-  }));
-  const gStyle = useAnimatedStyle(() => ({ opacity: glow.value }));
-  return (
-    <View style={badge.wrap}>
-      <Animated.View style={[badge.glow, gStyle]} />
-      <Animated.Text style={[badge.emoji, bStyle]}>{emoji}</Animated.Text>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 120,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 리더보드 */}
+        <View style={s.board}>
+          {data.members.map((m) => (
+            <Animated.View
+              key={m.id}
+              style={[s.row, m.isMe && s.rowMe, m.isMe && meRowStyle]}
+            >
+              <RankBadge rank={m.rank} isMe={m.isMe} theme={theme} />
+              <Avatar member={m} size={52} />
+              <View style={s.info}>
+                <Text style={[s.name, m.isMe && s.nameMe]} numberOfLines={1}>
+                  {m.nickname}
+                </Text>
+                <View style={s.subRow}>
+                  {!!m.flag && <Text style={s.flag}>{m.flag}</Text>}
+                  {m.streak != null && <Text style={s.streak}>{m.streak}</Text>}
+                </View>
+              </View>
+              <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
+            </Animated.View>
+          ))}
+        </View>
+      </ScrollView>
+
+      <Animated.View
+        style={[fab.wrap, { bottom: insets.bottom + 120 }, pulseStyle]}
+      >
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/xp-challenge",
+              params: { tier: data.tier, xp: String(CHALLENGE_XP) },
+            })
+          }
+        >
+          {({ pressed }) => (
+            <View
+              style={[
+                { alignItems: "center" },
+                pressed && { transform: [{ scale: 0.95 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[tierMeta.colorLight, tierMeta.color]}
+                style={[fab.circle, { shadowColor: tierMeta.colorDark }]}
+              >
+                <Ionicons name="flash" size={30} color="#fff" />
+              </LinearGradient>
+              <View style={[fab.badge, { backgroundColor: tierMeta.color }]}>
+                <Text style={fab.badgeText}>+{CHALLENGE_XP} XP</Text>
+              </View>
+            </View>
+          )}
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }
 
-// 순위 행
-function RankRow({
-  rank,
-  nickname,
-  xp,
-  profileImage,
-  isMe,
-  inPromote,
-  inDemote,
-  theme,
-  t,
-}: any) {
-  const s = styles(theme);
-  const pulse = useSharedValue(1);
-  useEffect(() => {
-    if (isMe) {
-      pulse.value = withRepeat(
-        withSequence(
-          withTiming(1.02, { duration: 900 }),
-          withTiming(1, { duration: 900 }),
-        ),
-        -1,
-        true,
-      );
-    }
-  }, [isMe]);
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: isMe ? pulse.value : 1 }],
-  }));
-
-  const medalColor = rank <= 3 ? MEDAL[rank - 1] : null;
-
-  return (
-    <Animated.View style={[s.row, isMe && s.rowMe, pulseStyle]}>
-      {/* 순위 */}
-      <View style={[s.rankBox, medalColor && { backgroundColor: medalColor }]}>
-        {rank <= 3 ? (
-          <Ionicons name="trophy" size={18} color="#fff" />
-        ) : (
-          <Text
-            style={[
-              s.rankNum,
-              inPromote && { color: "#58CC02" },
-              inDemote && { color: "#FF4B4B" },
-            ]}
-          >
-            {rank}
-          </Text>
-        )}
-      </View>
-
-      {/* 아바타 */}
-      {profileImage ? (
-        <Image source={{ uri: profileImage }} style={s.avatar} />
-      ) : (
-        <View style={[s.avatar, s.avatarFallback]}>
-          <Text style={s.avatarInitial}>{nickname?.[0] ?? "?"}</Text>
-        </View>
-      )}
-
-      {/* 이름 */}
-      <Text
-        style={[s.name, isMe && { color: theme.primary, fontWeight: "900" }]}
-        numberOfLines={1}
-      >
-        {nickname} {isMe && t("league.you")}
-      </Text>
-
-      {/* XP */}
-      <Text style={s.xp}>{xp} XP</Text>
-    </Animated.View>
-  );
-}
-
-const badge = StyleSheet.create({
-  wrap: {
-    width: 96,
-    height: 96,
+const fab = StyleSheet.create({
+  wrap: { position: "absolute", right: 20, alignItems: "center" },
+  circle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 8,
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
   },
-  glow: {
+  badge: {
+    marginTop: -12,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 2.5,
+    borderColor: "#fff",
+  },
+  badgeText: { color: "#fff", fontSize: 13, fontWeight: "900" },
+});
+
+const rb = StyleSheet.create({
+  wrap: { width: 34, alignItems: "center", justifyContent: "center" },
+  circle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tail: {
     position: "absolute",
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: "rgba(255,255,255,0.4)",
+    bottom: -2,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 7,
+    borderRightWidth: 7,
+    borderTopWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
   },
-  emoji: { fontSize: 64 },
+  num: { fontSize: 13, fontWeight: "900" },
+  plain: { fontSize: 17, fontWeight: "800" },
 });
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.bg },
-    center: { alignItems: "center", justifyContent: "center" },
-
-    hero: {
-      paddingTop: 70,
-      paddingBottom: 28,
+    header: { paddingHorizontal: 20, marginBottom: 8, marginTop: 20 },
+    title: { fontSize: 30, fontWeight: "900", color: theme.text },
+    timeRow: {
+      flexDirection: "row",
       alignItems: "center",
-      borderBottomLeftRadius: 32,
-      borderBottomRightRadius: 32,
-    },
-    tierName: {
-      fontSize: 30,
-      fontWeight: "900",
-      color: "#fff",
-      letterSpacing: 0.5,
-    },
-    tierSub: {
-      fontSize: 14,
-      color: "rgba(255,255,255,0.85)",
+      gap: 5,
       marginTop: 4,
-      fontWeight: "600",
     },
-    countdown: {
-      flexDirection: "row",
+    timeText: { fontSize: 15, fontWeight: "600", color: theme.textSecondary },
+    tierRow: {
+      paddingHorizontal: 16,
       alignItems: "center",
-      gap: 6,
-      marginTop: 16,
-      backgroundColor: "rgba(0,0,0,0.18)",
-      paddingHorizontal: 14,
-      paddingVertical: 7,
-      borderRadius: 20,
+      gap: 4,
+      paddingVertical: 14,
+      minHeight: 130,
     },
-    countdownText: { color: "#fff", fontSize: 14, fontWeight: "800" },
-
-    banner: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-      marginHorizontal: 20,
-      marginTop: 18,
-      padding: 14,
-      borderRadius: 16,
+    boostWrap: {
+      position: "absolute",
+      right: 18,
+      shadowColor: "#6A5EE0",
+      shadowOpacity: 0.5,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 10,
     },
-    bannerGreen: { backgroundColor: "#58CC02" },
-    bannerBlue: { backgroundColor: "#1CB0F6" },
-    bannerText: { color: "#fff", fontSize: 15, fontWeight: "800", flex: 1 },
-
-    zoneLabel: {
+    boostBtn: {
       flexDirection: "row",
       alignItems: "center",
       gap: 8,
-      paddingHorizontal: 24,
-      marginTop: 18,
-      marginBottom: 6,
+      paddingVertical: 14,
+      paddingHorizontal: 22,
+      borderRadius: 30,
     },
-    zoneDot: { width: 8, height: 8, borderRadius: 4 },
-    zoneText: {
-      fontSize: 13,
-      fontWeight: "800",
-      color: theme.textSecondary,
-      textTransform: "uppercase",
-      letterSpacing: 0.5,
-    },
-
-    list: { paddingHorizontal: 16, paddingTop: 8 },
+    boostIcons: { alignItems: "center" },
+    boostText: { color: "#fff", fontSize: 17, fontWeight: "900" },
+    board: { paddingHorizontal: 4, marginTop: 8 },
     row: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 12,
-      paddingVertical: 12,
-      paddingHorizontal: 12,
-      borderRadius: 16,
-      marginBottom: 4,
+      height: 84, // ROW_H 와 일치시킬 것
+      paddingHorizontal: 16,
+      gap: 14,
+      backgroundColor: "transparent", // ✅ 보더/배경 없음
     },
     rowMe: {
-      backgroundColor: theme.primary + "12",
-      borderWidth: 2,
-      borderColor: theme.primary + "44",
+      borderRadius: 10,
+      backgroundColor: "#D7F5B1", // ✅ 사진의 연초록 (풀블리드)
     },
-    rankBox: {
-      width: 34,
-      height: 34,
-      borderRadius: 12,
-      backgroundColor: theme.border,
+    info: { flex: 1 },
+    name: {
+      fontSize: 20,
+      fontWeight: "800",
+      color: theme.text,
+    },
+    nameMe: { color: "#3D3D3D", fontWeight: "800" }, // 사진처럼 이름은 진회색 유지
+    subRow: {
+      flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
+      gap: 6,
+      marginTop: 3,
     },
-    rankNum: { fontSize: 16, fontWeight: "900", color: theme.textSecondary },
-    avatar: { width: 44, height: 44, borderRadius: 22 },
-    avatarFallback: {
-      backgroundColor: theme.primary,
+    flag: { fontSize: 17 },
+    streak: { fontSize: 16, fontWeight: "700", color: "#AFAFAF" },
+
+    xp: { fontSize: 19, fontWeight: "700", color: "#AFAFAF" },
+    xpMe: { color: "#58A700", fontWeight: "800" }, // ✅ 내 XP만 초록
+
+    // 승급/강등 라인 (사진엔 없지만 필요하면 얇게)
+    zoneWrap: {
+      flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
+      gap: 8,
+      paddingHorizontal: 16,
+      marginVertical: 10,
     },
-    avatarInitial: { color: "#fff", fontSize: 18, fontWeight: "900" },
-    name: { flex: 1, fontSize: 16, fontWeight: "700", color: theme.text },
-    xp: { fontSize: 15, fontWeight: "900", color: theme.text },
+    zoneLine: { flex: 1, height: 2, borderRadius: 1 },
+    zoneText: { fontSize: 12, fontWeight: "800" },
   });
