@@ -169,8 +169,12 @@ export default function RoadmapScreen() {
 
   const handleNodeLegend = (node: RoadmapNode) => {
     setSelectedNodeId(null);
-    // 레전드 모달 — 나중에
-    console.log("legend:", node.id);
+    guardLessonStart(energy, () => {
+      router.push({
+        pathname: "/legend-intro",
+        params: { nodeId: node.id, energy: energy },
+      });
+    });
   };
 
   const handleGuidePress = (unit: RoadmapUnit) => {

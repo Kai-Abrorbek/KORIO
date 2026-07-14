@@ -84,8 +84,13 @@ export class LessonsController {
   async getNodeReview(
     @Param('nodeId') nodeId: string,
     @Query('lang') lang: string = 'uz',
+    @Query('limit') limit?: string,
   ) {
-    return this.lessonsService.getNodeReview(nodeId, lang);
+    return this.lessonsService.getNodeReview(
+      nodeId,
+      lang,
+      limit ? Number(limit) : 20,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

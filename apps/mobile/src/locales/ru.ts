@@ -614,4 +614,9 @@ export default {
     startBtn: "Начать тест",
     later: "Позже",
   },
+  legend: {
+    introTitle: "Докажите легендарный уровень! Плюс бонусные награды.",
+    start: "Начать +{{xp}} XP",
+    later: "Позже",
+  },
 };

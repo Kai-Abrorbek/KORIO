@@ -40,8 +40,13 @@ import ListenFill from "@/components/lesson/questions/ListenFill";
 import { useEnergyStore } from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
 import QuitLessonModal from "@/components/lesson/QuitLessonModal";
+import LegendHeader from "@/components/lesson/LegendHeader";
 
 type Phase = "main" | "reviewIntro" | "review";
+const LEGEND_SEGMENTS = [5, 7, 10];
+const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
+const LEGEND_DURATION = 120; // 2분
+const LEGEND_XP = 40;
 
 export default function LessonScreen() {
   const { t } = useTranslation();
@@ -61,6 +66,7 @@ export default function LessonScreen() {
   const isReview = mode === "review";
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
+  const isLegend = mode === "legend";
   const { setLevelTestResult, sessionId } = useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
@@ -161,6 +167,22 @@ export default function LessonScreen() {
           lessonTitle: "Review",
           category: "",
           totalXp: 16,
+          questions,
+        } as any);
+        questionQueue.current = [...questions];
+        return;
+      }
+
+      if (isLegend && nodeId) {
+        const { questions } = await LessonService.getNodeReview(
+          nodeId,
+          LEGEND_TOTAL,
+        );
+        setLesson({
+          lessonId: "legend",
+          lessonTitle: "Legend",
+          category: "",
+          totalXp: LEGEND_XP,
           questions,
         } as any);
         questionQueue.current = [...questions];
@@ -355,8 +377,8 @@ export default function LessonScreen() {
     const wrongArr = [...finalWrongIds.current];
 
     // XP 계산: 기본 20 + 콤보 보너스
-    const baseXp = isNodeReview ? 5 : 20;
-    const comboBonus = isNodeReview ? 0 : Math.max(0, combo);
+    const baseXp = isLegend ? LEGEND_XP : isNodeReview ? 5 : 20;
+    const comboBonus = isLegend || isNodeReview ? 0 : Math.max(0, combo);
     const earnedXp = baseXp + comboBonus;
 
     // 정답률 / 시간
@@ -374,14 +396,20 @@ export default function LessonScreen() {
           updateUser({ totalXP: r.totalXP } as any);
         })
         .catch(() => {});
-    } else if (isNodeReview) {
+    } else if (isNodeReview || isLegend) {
       // 노드 복습: XP만 저장
       LessonService.addXp(earnedXp)
         .then((r) => {
           updateUser({ totalXP: r.totalXP } as any);
         })
         .catch(() => {});
-    } else if (!isLevelTest && !isWordPractice && !isNodeReview && lessonId) {
+    } else if (
+      !isLevelTest &&
+      !isWordPractice &&
+      !isNodeReview &&
+      !isLegend &&
+      lessonId
+    ) {
       try {
         await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,
@@ -542,20 +570,31 @@ export default function LessonScreen() {
 
   return (
     <View style={s.container}>
-      <LessonHeader
-        isSuper={isSuper}
-        progress={progress}
-        combo={combo}
-        energy={energy}
-        hearts={hearts}
-        showHearts={isJumpTest}
-        answerState={answerState}
-        onClose={() =>
-          isJumpTest || isLevelTest ? goHome() : setShowQuit(true)
-        }
-        theme={theme}
-        showCombo={showCombo}
-      />
+      {isLegend ? (
+        <LegendHeader
+          segments={LEGEND_SEGMENTS}
+          currentIndex={currentIdx}
+          durationSec={LEGEND_DURATION}
+          onTimeout={goHome}
+          onClose={() => setShowQuit(true)}
+          theme={theme}
+        />
+      ) : (
+        <LessonHeader
+          isSuper={isSuper}
+          progress={progress}
+          combo={combo}
+          energy={energy}
+          hearts={hearts}
+          showHearts={isJumpTest}
+          answerState={answerState}
+          onClose={() =>
+            isJumpTest || isLevelTest ? goHome() : setShowQuit(true)
+          }
+          theme={theme}
+          showCombo={showCombo}
+        />
+      )}
 
       {/* 복습 안내 오버레이 */}
       {phase === "reviewIntro" ? (

@@ -615,4 +615,9 @@ export default {
     startBtn: "Start test",
     later: "Maybe later",
   },
+  legend: {
+    introTitle: "Prove your legendary skills! Plus, earn extra rewards.",
+    start: "Start +{{xp}} XP",
+    later: "Maybe later",
+  },
 };

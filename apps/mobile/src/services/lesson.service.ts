@@ -58,8 +58,11 @@ export const LessonService = {
   resolveMistakes: (correctIds: string[]): Promise<{ removed: number }> =>
     api.post(`/lessons/mistakes/resolve`, { correctIds }),
 
-  getNodeReview: (nodeId: string): Promise<{ questions: any[] }> =>
-    api.get(`/lessons/node-review/${nodeId}`),
+  getNodeReview: (
+    nodeId: string,
+    limit?: number,
+  ): Promise<{ questions: any[] }> =>
+    api.get(`/lessons/node-review/${nodeId}${limit ? `?limit=${limit}` : ""}`),
 
   addXp: (amount: number): Promise<{ added: number; totalXP: number }> =>
     api.post(`/lessons/add-xp`, { amount }),

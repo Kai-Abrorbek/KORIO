@@ -616,4 +616,9 @@ export default {
     startBtn: "테스트 시작하기",
     later: "나중에",
   },
+  legend: {
+    introTitle: "레전드급 실력을 증명하세요! 덤으로 추가 보상도 드립니다.",
+    start: "시작 +{{xp}} XP",
+    later: "나중에 하기",
+  },
 };

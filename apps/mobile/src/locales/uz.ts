@@ -616,4 +616,9 @@ export default {
     startBtn: "Testni boshlash",
     later: "Keyinroq",
   },
+  legend: {
+    introTitle: "Mahoratingizni isbotlang! Qo'shimcha mukofot ham bor.",
+    start: "Boshlash +{{xp}} XP",
+    later: "Keyinroq",
+  },
 };
