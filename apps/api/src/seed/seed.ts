@@ -103,7 +103,7 @@ async function seed() {
             section: nodeInfo.section,
             unit: nodeInfo.unit,
             questionIds,
-            xpReward: qKeys.length * 15,
+            xpReward: qKeys.length * 2,
             isActive: true,
           },
         },

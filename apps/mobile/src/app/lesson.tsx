@@ -87,6 +87,7 @@ export default function LessonScreen() {
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
   const uniqueCorrect = useRef<Set<string>>(new Set());
+  const serverXp = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
   const correctCount = useRef(0);
@@ -411,18 +412,21 @@ export default function LessonScreen() {
       lessonId
     ) {
       try {
-        await LessonService.completeLesson(lessonId, {
+        const res = await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,
           totalAnswers: totalCount.current,
-          xpEarned: earnedXp,
+          xpEarned: earnedXp, // 서버가 무시
           combo,
           speedSeconds: seconds,
           wrongQuestionIds: wrongArr,
           isCompleted: true,
         });
         updateUser({
-          totalXP: (useAuthStore.getState().user?.totalXP ?? 0) + earnedXp,
+          totalXP: res.totalXP,
+          gems: res.gems,
+          energy: res.energy,
         } as any);
+        serverXp.current = res.xpEarned; // 완료 화면에 서버 값
       } catch (err) {
         console.error("❌ 레슨 완료 저장 실패:", err);
       }
@@ -437,7 +441,7 @@ export default function LessonScreen() {
     router.replace({
       pathname: "/lesson-complete",
       params: {
-        xp: String(earnedXp),
+        xp: String(serverXp.current ?? earnedXp), // 서버 값 있으면 그거, 없으면 로컬
         accuracy: String(accuracy),
         time: timeStr,
       },

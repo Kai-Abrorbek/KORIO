@@ -16,6 +16,8 @@ import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
+import { calcLessonXp } from './economy.const';
+// import { calcLessonXp, rollChest, xpToLevel } from './xp.util';
 
 @Injectable()
 export class LessonsService {
@@ -87,11 +89,24 @@ export class LessonsService {
   }
 
   // 레슨 완료 저장
+
   public async completeLesson(
     lessonId: string,
     userId: string,
     dto: CompleteLessonDto,
   ) {
+    const lesson = await this.lessonModel
+      .findById(new Types.ObjectId(lessonId))
+      .lean();
+    if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
+
+    // ✅ XP = 기본값 + 콤보 (서버 계산, 클라 xpEarned 무시)
+    const xpEarned = calcLessonXp(
+      lesson.xpReward ?? 0,
+      dto.combo,
+      dto.correctAnswers,
+    );
+
     await this.userProgressModel.findOneAndUpdate(
       {
         userId: new Types.ObjectId(userId),
@@ -101,7 +116,7 @@ export class LessonsService {
         userId: new Types.ObjectId(userId),
         lessonId: new Types.ObjectId(lessonId),
         isCompleted: dto.isCompleted,
-        xpEarned: dto.xpEarned,
+        xpEarned,
         correctAnswers: dto.correctAnswers,
         totalAnswers: dto.totalAnswers,
         combo: dto.combo,
@@ -114,31 +129,36 @@ export class LessonsService {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const lesson = await this.lessonModel
-      .findById(new Types.ObjectId(lessonId))
-      .lean();
-
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
       {
         $inc: {
-          studyTimeSeconds: dto.speedSeconds,
-          totalQuestions: dto.totalAnswers,
-          correctQuestions: dto.correctAnswers,
-          xpEarned: dto.xpEarned,
-          [`${lesson?.category}Count`]: dto.totalAnswers,
+          studyTimeSeconds: dto.speedSeconds ?? 0,
+          totalQuestions: dto.totalAnswers ?? 0,
+          correctQuestions: dto.correctAnswers ?? 0,
+          xpEarned,
+          [`${lesson.category}Count`]: dto.totalAnswers ?? 0,
         },
       },
       { upsert: true, returnDocument: 'after' },
     );
 
     await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
-    await this.userModel.findByIdAndUpdate(userId, {
-      $inc: { totalXP: dto.xpEarned },
-    });
 
-    return { success: true, xpEarned: dto.xpEarned };
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(userId, { $inc: { totalXP: xpEarned } }, { new: true })
+      .select('totalXP gems energy')
+      .lean();
+
+    await this.leagueService.ensureJoined(userId).catch(() => {});
+
+    return {
+      success: true,
+      xpEarned,
+      totalXP: updatedUser?.totalXP ?? 0,
+      gems: updatedUser?.gems ?? 0,
+      energy: updatedUser?.energy ?? 0,
+    };
   }
 
   public async getLevelTestQuestions(lang: string = 'uz') {
@@ -214,19 +234,23 @@ export class LessonsService {
       const completedCount = nodeLessons.filter((l) => l.isCompleted).length;
       const totalCount = nodeLessons.length; // 보통 4
 
+      const startLesson =
+        nodeLessons.find((l) => !l.isCompleted) ?? nodeLessons[0];
+      const startLessonObj = startLesson
+        ? lessonMap.get(startLesson.lessonId)
+        : null;
+
       const unit = unitMap.get(unitKey);
       unit.nodes.push({
         id: node._id.toString(),
         type: 'star',
-        status: 'locked', // 나중에 계산
+        status: 'locked',
         title: this.extractI18n(node.title, lang),
         completedLessons: completedCount,
         totalLessons: totalCount,
         lessons: nodeLessons,
-        // 레슨 시작할 때 첫 번째 미완료 레슨 ID 전달
-        lessonId:
-          nodeLessons.find((l) => !l.isCompleted)?.lessonId ??
-          nodeLessons[0]?.lessonId,
+        lessonId: startLesson?.lessonId,
+        xpReward: startLessonObj?.xpReward ?? 0, // ✅ 시작할 레슨의 XP
       });
     }
 

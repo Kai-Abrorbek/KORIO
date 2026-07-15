@@ -34,13 +34,19 @@ export const LessonService = {
     data: {
       correctAnswers: number;
       totalAnswers: number;
-      xpEarned: number;
+      xpEarned: number; // 보내긴 하는데 서버가 무시함 (호환 유지)
       combo: number;
       speedSeconds: number;
       wrongQuestionIds: string[];
       isCompleted: boolean;
     },
-  ): Promise<{ success: boolean; xpEarned: number }> => {
+  ): Promise<{
+    success: boolean;
+    xpEarned: number;
+    totalXP: number;
+    gems: number;
+    energy: number;
+  }> => {
     return api.post(`/lessons/${lessonId}/complete`, data);
   },
 
