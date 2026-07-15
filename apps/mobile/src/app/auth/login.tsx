@@ -20,6 +20,9 @@ import KorioLogo from "@/components/home/KorioLogo";
 import KakaoIcon from "../../../assets/icons/kakaotalk.svg";
 import NaverIcon from "../../../assets/icons/naver.svg";
 import TelegramIcon from "../../../assets/icons/telegram.svg";
+import { ActivityIndicator } from "react-native";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -32,6 +35,14 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const google = useGoogleAuth((code) =>
+    setError(t(`auth.errors.${code}`) ?? code),
+  );
+
+  const telegram = useTelegramAuth((code) =>
+    setError(t(`auth.errors.${code}`) ?? code),
+  );
 
   const handleLogin = async () => {
     if (!email || !password) return;
@@ -147,8 +158,16 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.socialButtons}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-google" size={22} color="#4285F4" />
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={google.signIn}
+              disabled={google.loading || !google.ready}
+            >
+              {google.loading ? (
+                <ActivityIndicator size="small" color="#4285F4" />
+              ) : (
+                <Ionicons name="logo-google" size={22} color="#4285F4" />
+              )}
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
               <KakaoIcon width={22} height={22} />
@@ -156,8 +175,16 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.socialButton}>
               <NaverIcon width={22} height={22} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <TelegramIcon width={22} height={22} />
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={telegram.signIn}
+              disabled={telegram.loading}
+            >
+              {telegram.loading ? (
+                <ActivityIndicator size="small" color="#229ED9" />
+              ) : (
+                <TelegramIcon width={22} height={22} />
+              )}
             </TouchableOpacity>
           </View>
         </View>

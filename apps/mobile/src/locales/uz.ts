@@ -66,6 +66,8 @@ export default {
       INVALID_CREDENTIALS: "Email yoki parol noto'g'ri.",
       EMAIL_ALREADY_EXISTS: "Bu email allaqachon ishlatilmoqda.",
       USER_NOT_FOUND: "Bunday akkaunt mavjud emas.",
+      SOCIAL_LOGIN_FAILED:
+        "Ijtimoiy tarmoq orqali kirish amalga oshmadi. Qayta urinib ko'ring.",
     },
   },
   home: {

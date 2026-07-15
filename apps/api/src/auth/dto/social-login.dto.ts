@@ -3,24 +3,18 @@ import { AuthProvider } from '../../common/enums/provider.enum';
 
 export class SocialLoginDto {
   @IsString()
-  provider: AuthProvider; // 'google' | 'kakao' | 'naver' | 'telegram'
-
-  @IsString()
-  providerId: string;
+  provider: AuthProvider;
 
   @IsOptional()
   @IsString()
-  email?: string;
+  providerId?: string; // 토큰 검증 안 하는 provider용 (임시)
 
   @IsOptional()
   @IsString()
-  nickname?: string;
+  idToken?: string; // 구글 등 서버 검증용
 
-  @IsOptional()
-  @IsString()
-  profileImage?: string;
-
-  @IsOptional()
-  @IsString()
-  sessionId?: string; // 온보딩 데이터 연결용
+  @IsOptional() @IsString() email?: string;
+  @IsOptional() @IsString() nickname?: string;
+  @IsOptional() @IsString() profileImage?: string;
+  @IsOptional() @IsString() sessionId?: string;
 }

@@ -1,5 +1,5 @@
 import "../locales/i18n";
-import { Stack } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   ThemeProvider,
@@ -12,6 +12,7 @@ import EnergyModal from "@/components/energy/EnergyModal";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -19,6 +20,20 @@ export default function RootLayout() {
   const closeEnergyModal = useEnergyStore((s) => s.closeEnergyModal);
   const gems = useAuthStore((s) => s.user?.gems ?? 0);
   const router = useRouter();
+
+  const segments = useSegments();
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+
+  useEffect(() => {
+    const inAuth = segments[0] === "auth";
+    const inOnboarding = segments[0] === "onboarding";
+    const inWelcome = segments[0] === "welcome";
+
+    // 로그아웃 상태인데 보호된 화면에 있으면 → 로그인으로
+    if (!isLoggedIn && !inAuth && !inOnboarding && !inWelcome) {
+      router.replace("/auth/login");
+    }
+  }, [isLoggedIn, segments]);
 
   return (
     <SoundProvider>

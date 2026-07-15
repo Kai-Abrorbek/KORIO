@@ -66,6 +66,8 @@ export default {
       INVALID_CREDENTIALS: "Неверный email или пароль.",
       EMAIL_ALREADY_EXISTS: "Email уже используется.",
       USER_NOT_FOUND: "Аккаунт не найден.",
+      SOCIAL_LOGIN_FAILED:
+        "Не удалось войти через соцсеть. Попробуйте ещё раз.",
     },
   },
   home: {

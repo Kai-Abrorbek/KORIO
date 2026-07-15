@@ -66,6 +66,7 @@ export default {
       INVALID_CREDENTIALS: "Invalid email or password.",
       EMAIL_ALREADY_EXISTS: "Email already in use.",
       USER_NOT_FOUND: "Account not found.",
+      SOCIAL_LOGIN_FAILED: "Social login failed. Please try again.",
     },
   },
   home: {

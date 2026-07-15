@@ -15,7 +15,8 @@ interface LoginData {
 
 interface SocialLoginData {
   provider: AuthProvider;
-  providerId: string;
+  providerId?: string; // 옵셔널로
+  idToken?: string; // 추가
   email?: string;
   nickname?: string;
   profileImage?: string;

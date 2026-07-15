@@ -66,6 +66,7 @@ export default {
       INVALID_CREDENTIALS: "이메일 또는 비밀번호가 틀렸습니다.",
       EMAIL_ALREADY_EXISTS: "이미 사용중인 이메일입니다.",
       USER_NOT_FOUND: "존재하지 않는 계정입니다.",
+      SOCIAL_LOGIN_FAILED: "소셜 로그인에 실패했어요. 다시 시도해 주세요.",
     },
   },
   home: {

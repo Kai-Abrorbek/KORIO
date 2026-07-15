@@ -528,14 +528,6 @@ export class UsersService {
     return `${y}.${m}.${day}`;
   }
 
-  private xpToIntensity(xp: number): 0 | 1 | 2 | 3 | 4 {
-    if (xp <= 0) return 0;
-    if (xp < 50) return 1;
-    if (xp < 150) return 2;
-    if (xp < 300) return 3;
-    return 4;
-  }
-
   // ── Period 통계 ──
   async getPeriodStats(
     userId: string,
@@ -1021,6 +1013,14 @@ export class UsersService {
       statsByDate.set(key, (statsByDate.get(key) || 0) + (s.xpEarned || 0));
     }
 
+    for (const s of yearStats) {
+      const key = new Date(s.date).toISOString().split('T')[0];
+      statsByDate.set(
+        key,
+        (statsByDate.get(key) || 0) + (s.studyTimeSeconds || 0),
+      );
+    }
+
     const heatmap: any[] = [];
     for (let i = 364; i >= 0; i--) {
       const d = new Date();
@@ -1028,9 +1028,19 @@ export class UsersService {
       d.setDate(d.getDate() - i);
       const key = d.toISOString().split('T')[0];
       const xp = statsByDate.get(key) || 0;
-      heatmap.push({ date: key, intensity: this.xpToIntensity(xp) });
+      const seconds = statsByDate.get(key) || 0;
+      heatmap.push({ date: key, intensity: this.secondsToIntensity(seconds) });
     }
     return heatmap;
+  }
+
+  private secondsToIntensity(seconds: number): 0 | 1 | 2 | 3 | 4 {
+    if (seconds <= 0) return 0;
+    const minutes = seconds / 60;
+    if (minutes < 5) return 1;
+    if (minutes < 15) return 2;
+    if (minutes < 30) return 3;
+    return 4;
   }
 
   async searchUsers(currentUserId: string, q: string) {

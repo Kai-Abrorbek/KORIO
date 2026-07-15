@@ -24,6 +24,8 @@ const INTENSITY_COLORS = [
   "#776ee2",
 ];
 
+const ACTIVE_COLORS = ["#D9D2F5", "#B7ABEC", "#9587E0", "#776ee2"];
+
 function fmtDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -103,7 +105,9 @@ function MonthBlock({
                     {
                       backgroundColor: isFuture
                         ? "transparent"
-                        : INTENSITY_COLORS[intensity],
+                        : intensity === 0
+                          ? theme.border // 무학습 = 중립 회색 (활동 색 X)
+                          : ACTIVE_COLORS[intensity - 1],
                     },
                   ]}
                 />
@@ -232,7 +236,7 @@ export default function YearlyHeatmap({ days }: Props) {
         <View style={themed.legendRow}>
           <Text style={themed.legendText}>Less</Text>
           <View style={themed.legendDots}>
-            {INTENSITY_COLORS.map((c, i) => (
+            {[theme.border, ...ACTIVE_COLORS].map((c, i) => (
               <View
                 key={i}
                 style={[
