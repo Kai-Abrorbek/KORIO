@@ -696,4 +696,10 @@ export default {
     listenAgain: "Ещё раз",
     nextQuestion: "Далее",
   },
+  pronQuiz: {
+    question: "Какое произношение верное?",
+    practice: "Произнести",
+    lecture: "Урок",
+    next: "Далее",
+  },
 };

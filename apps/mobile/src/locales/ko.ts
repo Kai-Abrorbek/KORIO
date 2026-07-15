@@ -697,4 +697,10 @@ export default {
     listenAgain: "다시 듣기",
     nextQuestion: "다음 문제",
   },
+  pronQuiz: {
+    question: "어느 쪽이 맞는 발음일까요?",
+    practice: "발음 해보기",
+    lecture: "강의 보기",
+    next: "다음 문제",
+  },
 };

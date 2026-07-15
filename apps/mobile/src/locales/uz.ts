@@ -699,4 +699,10 @@ export default {
     listenAgain: "Qayta tinglash",
     nextQuestion: "Keyingi",
   },
+  pronQuiz: {
+    question: "Qaysi biri to'g'ri talaffuz?",
+    practice: "Talaffuz qilish",
+    lecture: "Dars",
+    next: "Keyingi",
+  },
 };

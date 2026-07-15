@@ -696,4 +696,10 @@ export default {
     listenAgain: "Replay",
     nextQuestion: "Next",
   },
+  pronQuiz: {
+    question: "Which is the correct pronunciation?",
+    practice: "Try saying it",
+    lecture: "Lesson",
+    next: "Next",
+  },
 };
