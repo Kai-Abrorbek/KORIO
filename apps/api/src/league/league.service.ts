@@ -152,6 +152,11 @@ export class LeagueService {
       Math.ceil((end.getTime() - Date.now()) / 86400000),
     );
 
+    const prevRank =
+      user.previousLeagueRank && user.previousLeagueRank > 0
+        ? user.previousLeagueRank
+        : (me?.rank ?? 0);
+
     return {
       tier,
       tierIndex: TIER_ORDER.indexOf(tier),
@@ -164,7 +169,7 @@ export class LeagueService {
       roomSize: room!.members.length,
       members: ranked,
       myRank: me?.rank ?? 0,
-      previousRank: user.previousLeagueRank ?? me?.rank ?? 0,
+      previousRank: prevRank,
       boostXp: CHALLENGE_XP,
     };
   }
@@ -295,43 +300,55 @@ export class LeagueService {
     const weekKey = this.getWeekKey();
     const user = await this.userModel
       .findById(userId)
-      .select('league isBot')
+      .select('league isBot previousLeagueRank')
       .lean();
     if (!user || (user as any).isBot) return;
 
     const tier = user.league ?? UserLeague.BRONZE;
 
     const exists = await this.roomModel
-      .findOne({
-        weekKey,
-        tier,
-        members: new Types.ObjectId(userId),
-      })
+      .findOne({ weekKey, tier, members: new Types.ObjectId(userId) })
       .select('_id')
       .lean();
-    if (exists) return;
 
-    let room = await this.roomModel.findOne({
-      weekKey,
-      tier,
-      settled: false,
-      $expr: { $lt: [{ $size: '$members' }, ROOM_SIZE] },
-    });
-    if (!room)
-      room = await this.roomModel.create({ tier, weekKey, members: [] });
+    if (!exists) {
+      let room = await this.roomModel.findOne({
+        weekKey,
+        tier,
+        settled: false,
+        $expr: { $lt: [{ $size: '$members' }, ROOM_SIZE] },
+      });
+      if (!room)
+        room = await this.roomModel.create({ tier, weekKey, members: [] });
 
-    await this.roomModel.findByIdAndUpdate(room._id, {
-      $addToSet: { members: new Types.ObjectId(userId) },
-    });
+      await this.roomModel.findByIdAndUpdate(room._id, {
+        $addToSet: { members: new Types.ObjectId(userId) },
+      });
+    }
   }
 
-  // 순위 애니메이션 본 뒤 현재 순위를 저장 (다시 안 나오게)
-  async ackRank(userId: string) {
+  // XP 적립 직전 호출 — 아직 기록 없으면 현재 순위를 저장
+  async snapshotIfNeeded(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('previousLeagueRank isBot')
+      .lean();
+    if (!user || (user as any).isBot) return;
+    if (user.previousLeagueRank && user.previousLeagueRank > 0) return; // 이미 기록 있음
+
     const league = await this.getMyLeague(userId);
     await this.userModel.updateOne(
       { _id: new Types.ObjectId(userId) },
       { $set: { previousLeagueRank: league.myRank ?? 0 } },
     );
-    return { rank: league.myRank ?? 0 };
+  }
+
+  // 순위 애니메이션 본 뒤 현재 순위를 저장 (다시 안 나오게)
+  async ackRank(userId: string, rank: number) {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { $set: { previousLeagueRank: rank } },
+    );
+    return { rank };
   }
 }

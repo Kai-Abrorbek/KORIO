@@ -1,4 +1,11 @@
-import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+  Body,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LeagueService } from './league.service';
 
@@ -29,7 +36,7 @@ export class LeagueController {
   }
 
   @Post('ack-rank')
-  async ackRank(@Request() req) {
-    return this.service.ackRank(req.user._id.toString());
+  async ackRank(@Request() req, @Body() body: { rank: number }) {
+    return this.service.ackRank(req.user._id.toString(), body.rank ?? 0);
   }
 }

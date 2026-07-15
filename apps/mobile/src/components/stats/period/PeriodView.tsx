@@ -9,12 +9,14 @@ import TodayInfoCard from "./TodayInfoCard";
 import YearlyHeatmap from "./YearlyHeatmap";
 import StudyTimeChart from "./StudyTimeChart";
 import StudyVolumeChart from "./StudyVolumeChart";
+import { TodaySummary } from "@/types/stats";
 
 export default function PeriodView() {
   const theme = useTheme();
   const [heatmap, setHeatmap] = useState<HeatmapDay[]>([]);
   const [todayHasData, setTodayHasData] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [today, setToday] = useState<TodaySummary | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -22,6 +24,7 @@ export default function PeriodView() {
       StatsService.getPeriod("week")
         .then((d) => {
           setHeatmap(d.heatmap);
+          setToday(d.today);
           setTodayHasData(d.todayHasData);
         })
         .catch((err) => console.error("heatmap 로드 실패:", err))
@@ -39,7 +42,7 @@ export default function PeriodView() {
 
   return (
     <View>
-      <TodayInfoCard hasData={todayHasData} />
+      <TodayInfoCard hasData={todayHasData} today={today} />
       <YearlyHeatmap days={heatmap} />
       <StudyTimeChart />
       <StudyVolumeChart />

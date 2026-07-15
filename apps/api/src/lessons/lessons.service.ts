@@ -133,6 +133,7 @@ export class LessonsService {
       { upsert: true, returnDocument: 'after' },
     );
 
+    await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
     await this.userModel.findByIdAndUpdate(userId, {
       $inc: { totalXP: dto.xpEarned },
     });
@@ -463,14 +464,15 @@ export class LessonsService {
     const xp = Math.max(0, Math.min(1000, Math.floor(amount || 0)));
     if (xp === 0) return { added: 0, totalXP: null };
 
-    const uId = new Types.ObjectId(userId);
+    // ✅ XP 주기 전 현재 순위 기록 (애니메이션 비교용)
+    await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
 
+    const uId = new Types.ObjectId(userId);
     const user = await this.userModel
       .findByIdAndUpdate(uId, { $inc: { totalXP: xp } }, { new: true })
       .select('totalXP')
       .lean();
 
-    // 일일 통계 → 리그 주간 집계에 반영
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     await this.userStatsModel.updateOne(
@@ -479,9 +481,7 @@ export class LessonsService {
       { upsert: true },
     );
 
-    // 리그 자동 참여
     await this.leagueService.ensureJoined(userId).catch(() => {});
-
     return { added: xp, totalXP: user?.totalXP ?? null };
   }
 

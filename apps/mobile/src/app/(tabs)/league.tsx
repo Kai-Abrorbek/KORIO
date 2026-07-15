@@ -179,7 +179,7 @@ export default function LeagueScreen() {
     transform: [{ scale: pulse.value }],
   }));
 
-  const ROW_H = 64; // 리스트 행 높이 (실제 스타일과 맞춰야 함)
+  const ROW_H = 84; // 리스트 행 높이 (실제 스타일과 맞춰야 함)
 
   // 순위 상승 애니메이션
   const lift = useSharedValue(0);
@@ -217,9 +217,10 @@ export default function LeagueScreen() {
 
     // 애니 끝나면 순위 저장 (다시 안 나오게)
     const tid = setTimeout(() => {
-      LeagueService.ackRank().catch(() => {});
+      LeagueService.ackRank(me.rank).catch(() => {});
       setAnimDone(true);
     }, 2000);
+
     return () => clearTimeout(tid);
   }, [data, animDone]);
 

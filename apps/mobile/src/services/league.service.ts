@@ -33,5 +33,6 @@ export const LeagueService = {
   snapshotRank: (): Promise<{ previousRank: number }> =>
     api.post(`/league/snapshot-rank`, {}),
 
-  ackRank: (): Promise<{ rank: number }> => api.post(`/league/ack-rank`, {}),
+  ackRank: (rank: number): Promise<{ rank: number }> =>
+    api.post(`/league/ack-rank`, { rank }),
 };

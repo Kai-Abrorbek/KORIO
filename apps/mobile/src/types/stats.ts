@@ -48,9 +48,25 @@ export interface CategoryStats {
   chart: CategoryChartPoint[]; // weekChart → chart
 }
 
+export interface TodaySummary {
+  studyTimeLabel: string;
+  totalQuestions: number;
+  categories: {
+    category: StudyCategory;
+    total: number;
+    newCount: number;
+    reviewCount: number;
+    reviewAccuracy: number | null;
+  }[];
+  weekdayIndex: number;
+  avgTimeLabel: string;
+  avgProblems: number;
+}
+
 export interface PeriodStats {
   range: StudyPeriod;
   todayHasData: boolean;
+  today: TodaySummary; // 추가
   heatmap: HeatmapDay[];
   studyTime: {
     avgPerDayLabel: string;

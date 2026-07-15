@@ -543,6 +543,16 @@ export class UsersService {
     endDateStr: string | undefined,
     lang: string = 'uz',
   ) {
+    let todayStudySeconds = 0;
+    let todayTotalQ = 0;
+    let todayCats = {
+      vocab: 0,
+      grammar: 0,
+      expression: 0,
+      conversation: 0,
+      listening: 0,
+    };
+
     const endDate = endDateStr ? new Date(endDateStr) : new Date();
     endDate.setHours(23, 59, 59, 999);
 
@@ -631,7 +641,12 @@ export class UsersService {
             ? this.getDayLabel(d, isToday, lang)
             : `${d.getMonth() + 1}/${d.getDate()}`;
 
-        if (isToday && (stat?.totalQuestions || 0) > 0) todayHasData = true;
+        if (isToday) {
+          todayStudySeconds = seconds;
+          todayTotalQ = dayTotal;
+          todayCats = { vocab, grammar, expression, conversation, listening };
+          if ((stat?.totalQuestions || 0) > 0) todayHasData = true;
+        }
 
         timePoints.push({
           date: dayKey,
@@ -776,6 +791,23 @@ export class UsersService {
       studyVolume: {
         avgPerDay,
         points: volumePoints,
+      },
+      today: {
+        studyTimeLabel: `${String(Math.floor(todayStudySeconds / 60)).padStart(2, '0')}:${String(todayStudySeconds % 60).padStart(2, '0')}`,
+        totalQuestions: todayTotalQ,
+        // 새/복습 split·정답률은 SRS 소스 필요 → 지금은 전부 new, 정답률 null
+        categories: Object.entries(todayCats)
+          .filter(([, c]) => c > 0)
+          .map(([category, c]) => ({
+            category,
+            total: c,
+            newCount: c,
+            reviewCount: 0,
+            reviewAccuracy: null,
+          })),
+        weekdayIndex: today.getDay(),
+        avgTimeLabel: avgLabel,
+        avgProblems: avgPerDay,
       },
     };
   }

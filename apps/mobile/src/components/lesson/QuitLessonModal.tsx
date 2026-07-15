@@ -39,7 +39,7 @@ export default function QuitLessonModal({
         <Pressable style={StyleSheet.absoluteFill} onPress={onContinue} />
 
         {/* 바텀 시트 */}
-        <Animated.View entering={SlideInDown.duration(260)} style={s.sheet}>
+        <Animated.View style={s.sheet}>
           <View style={s.handle} />
 
           <View style={s.mascot}>
