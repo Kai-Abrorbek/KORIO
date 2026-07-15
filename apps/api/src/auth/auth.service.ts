@@ -116,6 +116,18 @@ export class AuthService {
       providerId,
     });
 
+    if (!user && email) {
+      user = await this.userModel.findOne({ email });
+      if (user) {
+        // 기존 계정에 소셜 정보 연결
+        user.provider = dto.provider;
+        user.providerId = providerId;
+        if (!user.profileImage && profileImage)
+          user.profileImage = profileImage;
+        await user.save();
+      }
+    }
+
     if (!user) {
       user = await this.userModel.create({
         email,
