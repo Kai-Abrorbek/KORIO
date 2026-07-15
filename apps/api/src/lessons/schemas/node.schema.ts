@@ -33,6 +33,9 @@ export class LessonNode {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ default: 'lesson', enum: ['lesson', 'chest', 'boss'] })
+  nodeType: string; // 노드 종류 (기본 lesson)
 }
 
 export const LessonNodeSchema = SchemaFactory.createForClass(LessonNode);

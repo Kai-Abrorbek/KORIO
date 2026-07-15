@@ -80,3 +80,19 @@ export function rollChest(): {
   if (r < 0.9) return { grade: 'silver', gems: rand(16, 25) };
   return { grade: 'gold', gems: rand(26, 40) };
 }
+
+// 상자 보석 = 등급 랜덤 + 진도 보너스(섹션) + 완벽 보너스
+export function rollChestReward(params: {
+  section: number; // 노드 섹션 (진도)
+  perfect: boolean; // 노드 전체 무실수 여부
+}): { grade: 'wood' | 'silver' | 'gold'; gems: number } {
+  const base = rollChest(); // 등급 + 기본 보석 (랜덤)
+
+  const progressBonus = Math.max(0, params.section - 1) * 3; // 섹션1=+0, 섹션2=+3...
+  const perfectBonus = params.perfect ? 15 : 0;
+
+  return {
+    grade: base.grade,
+    gems: base.gems + progressBonus + perfectBonus,
+  };
+}

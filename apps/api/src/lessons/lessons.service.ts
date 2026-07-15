@@ -18,6 +18,7 @@ import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { calcLessonXp } from './economy.const';
 // import { calcLessonXp, rollChest, xpToLevel } from './xp.util';
+import { rollChestReward } from './xp.util';
 
 @Injectable()
 export class LessonsService {
@@ -89,7 +90,6 @@ export class LessonsService {
   }
 
   // 레슨 완료 저장
-
   public async completeLesson(
     lessonId: string,
     userId: string,
@@ -145,8 +145,59 @@ export class LessonsService {
 
     await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
 
+    // ── 노드 완성 감지 → 상자 ──
+    let chest: { grade: string; gems: number } | null = null;
+
+    const node = await this.nodeModel.findById(lesson.nodeId).lean();
+    if (node && node.nodeType !== 'chest') {
+      // 이 노드의 모든 레슨 완료됐는지 확인
+      const nodeLessonIds = (node.lessonIds ?? []).map((x: any) =>
+        x.toString(),
+      );
+      const doneCount = await this.userProgressModel.countDocuments({
+        userId: new Types.ObjectId(userId),
+        lessonId: { $in: node.lessonIds },
+        isCompleted: true,
+      });
+      const nodeComplete =
+        nodeLessonIds.length > 0 && doneCount >= nodeLessonIds.length;
+
+      // 아직 이 노드 상자 안 열었으면 → 지급
+      const already = await this.userModel.exists({
+        _id: new Types.ObjectId(userId),
+        openedChests: node._id,
+      });
+
+      if (nodeComplete && !already) {
+        // 노드 전체 무실수 여부 (이 노드 레슨들 중 wrongQuestionIds 있었나)
+        const nodeProgresses = await this.userProgressModel
+          .find({
+            userId: new Types.ObjectId(userId),
+            lessonId: { $in: node.lessonIds },
+          })
+          .select('wrongQuestionIds')
+          .lean();
+        const perfect = nodeProgresses.every(
+          (p) => (p.wrongQuestionIds?.length ?? 0) === 0,
+        );
+
+        chest = rollChestReward({ section: node.section ?? 1, perfect });
+
+        // 보석 지급 + 상자 연 기록 (서버에서, 조작 불가)
+        await this.userModel.findByIdAndUpdate(userId, {
+          $inc: { gems: chest.gems },
+          $addToSet: { openedChests: node._id },
+        });
+      }
+    }
+
+    // ── 유저 totalXP 반영 ──
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(userId, { $inc: { totalXP: xpEarned } }, { new: true })
+      .findByIdAndUpdate(
+        userId,
+        { $inc: { totalXP: xpEarned } },
+        { returnDocument: 'after' },
+      )
       .select('totalXP gems energy')
       .lean();
 
@@ -158,6 +209,7 @@ export class LessonsService {
       totalXP: updatedUser?.totalXP ?? 0,
       gems: updatedUser?.gems ?? 0,
       energy: updatedUser?.energy ?? 0,
+      chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
     };
   }
 
@@ -493,7 +545,11 @@ export class LessonsService {
 
     const uId = new Types.ObjectId(userId);
     const user = await this.userModel
-      .findByIdAndUpdate(uId, { $inc: { totalXP: xp } }, { new: true })
+      .findByIdAndUpdate(
+        uId,
+        { $inc: { totalXP: xp } },
+        { returnDocument: 'after' },
+      )
       .select('totalXP')
       .lean();
 

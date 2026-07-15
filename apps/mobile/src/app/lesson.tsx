@@ -87,7 +87,6 @@ export default function LessonScreen() {
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
   const uniqueCorrect = useRef<Set<string>>(new Set());
-  const serverXp = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
   const correctCount = useRef(0);
@@ -426,7 +425,21 @@ export default function LessonScreen() {
           gems: res.gems,
           energy: res.energy,
         } as any);
-        serverXp.current = res.xpEarned; // 완료 화면에 서버 값
+
+        const gemsBefore = res.chest ? res.gems - res.chest.gems : res.gems;
+
+        router.replace({
+          pathname: "/lesson-complete",
+          params: {
+            xp: String(res.xpEarned),
+            accuracy: String(accuracy),
+            time: timeStr,
+            chestGrade: res.chest?.grade ?? "",
+            chestGems: res.chest ? String(res.chest.gems) : "",
+            gemTotal: String(gemsBefore),
+          },
+        });
+        return;
       } catch (err) {
         console.error("❌ 레슨 완료 저장 실패:", err);
       }
@@ -441,7 +454,7 @@ export default function LessonScreen() {
     router.replace({
       pathname: "/lesson-complete",
       params: {
-        xp: String(serverXp.current ?? earnedXp), // 서버 값 있으면 그거, 없으면 로컬
+        xp: String(earnedXp), // ref 필요 없음
         accuracy: String(accuracy),
         time: timeStr,
       },

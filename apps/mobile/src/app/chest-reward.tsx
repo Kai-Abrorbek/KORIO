@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,13 +21,40 @@ import GemsPile from "@/components/chest-reward/GemsPile";
 import GemCounter from "@/components/chest-reward/GemCounter";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 
+const GRADE_TITLE: Record<string, string> = {
+  wood: "chestReward.woodChest",
+  silver: "chestReward.silverChest",
+  gold: "chestReward.goldChest",
+};
+
 export default function ChestRewardScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const params = useLocalSearchParams<{
+    grade?: string;
+    gems?: string;
+    gemTotal?: string;
+  }>();
+  const grade = (params.grade ?? "wood") as "wood" | "silver" | "gold";
+  const gemsAmount = Number(params.gems ?? 0);
+  const currentGemTotal = Number(params.gemTotal ?? 0);
 
-  const reward = MOCK_CHEST_REWARD;
+  // 백엔드 grade(wood/silver/gold) → mock 등급(common/rare/epic)
+  const GRADE_TO_TYPE: Record<string, string> = {
+    wood: "common",
+    silver: "rare",
+    gold: "epic",
+  };
+
+  const reward = {
+    rewardType: GRADE_TO_TYPE[grade] ?? "common",
+    gemAmount: gemsAmount,
+    currentGemTotal,
+    tapsRequired: 3,
+  };
+
   const chestRef = useRef<ChestHandle>(null);
 
   const [phase, setPhase] = useState<ChestPhase>("idle");

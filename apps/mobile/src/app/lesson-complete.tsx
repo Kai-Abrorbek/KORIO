@@ -19,13 +19,34 @@ export default function LessonCompleteScreen() {
     xp?: string;
     accuracy?: string;
     time?: string;
+    chestGrade?: string;
+    chestGems?: string;
+    gemTotal?: string;
   }>();
+
+  const hasChest = !!params.chestGrade;
   const xp = Number(params.xp ?? 0);
   const accuracy = Number(params.accuracy ?? 0);
   const time = params.time ?? "0:00";
 
   // 순차 애니: 현재 몇 번째 카드까지 진행
   const [activeIdx, setActiveIdx] = useState(0);
+
+  // "계속" 버튼 onPress:
+  const onContinue = () => {
+    if (params.chestGrade) {
+      router.replace({
+        pathname: "/chest-reward",
+        params: {
+          grade: params.chestGrade,
+          gems: params.chestGems ?? "0",
+          gemTotal: params.gemTotal ?? "0",
+        },
+      });
+    } else {
+      router.replace("/roadmap");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -72,7 +93,7 @@ export default function LessonCompleteScreen() {
       <LessonCompleteActions
         showShare
         onShare={() => {}}
-        onClaim={() => router.replace("/roadmap")}
+        onClaim={onContinue}
       />
     </View>
   );

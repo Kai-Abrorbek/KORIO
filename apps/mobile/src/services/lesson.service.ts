@@ -46,6 +46,7 @@ export const LessonService = {
     totalXP: number;
     gems: number;
     energy: number;
+    chest: { grade: "wood" | "silver" | "gold"; gems: number } | null;
   }> => {
     return api.post(`/lessons/${lessonId}/complete`, data);
   },

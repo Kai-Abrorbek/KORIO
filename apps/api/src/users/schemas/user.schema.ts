@@ -131,6 +131,9 @@ export class User {
   @Prop({ type: Date, default: null })
   lastActiveAt: Date;
 
+  @Prop({ type: [Types.ObjectId], ref: 'LessonNode', default: [] })
+  openedChests: Types.ObjectId[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }
