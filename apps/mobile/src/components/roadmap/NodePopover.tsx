@@ -21,6 +21,7 @@ interface Props {
   onLegend?: () => void;
   canJump?: boolean; // 점프 가능한 잠금노드인가
   onJumpTest?: () => void; // 테스트 시작
+  onClose?: () => void;
 }
 
 export default function NodePopover({
@@ -32,6 +33,7 @@ export default function NodePopover({
   onStart,
   canJump = false,
   onJumpTest,
+  onClose,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -89,9 +91,13 @@ export default function NodePopover({
               <Text style={styles.jumpTestText}>{t("roadmap.jumpStart")}</Text>
             </TouchableOpacity>
           ) : (
-            <View style={styles.lockedBtn}>
+            <TouchableOpacity
+              style={styles.lockedBtn}
+              onPress={onClose}
+              activeOpacity={0.85}
+            >
               <Text style={styles.lockedBtnText}>{t("roadmap.locked")}</Text>
-            </View>
+            </TouchableOpacity>
           )}
         </View>
       </Pressable>

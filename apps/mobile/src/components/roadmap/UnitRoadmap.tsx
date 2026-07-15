@@ -189,6 +189,7 @@ export default function UnitRoadmap({
                     onLegend={() => onNodeLegend?.(node)}
                     canJump={i === 0 && node.status === "locked"}
                     onJumpTest={() => onJumpTest?.(unit)}
+                    onClose={() => onNodeTap(node.id)}
                   />
                 </View>
               )}

@@ -69,7 +69,7 @@ export default function CourseDropdown({ visible, onClose }: Props) {
     >
       <View style={{ flex: 1 }}>
         <Animated.View
-          entering={SlideInUp.springify().damping(18)}
+          entering={SlideInUp.springify().damping(0)}
           style={[s.panel, { paddingTop: insets.top + 12 }]}
         >
           {/* 수강 중 과정 + 과정 추가 */}
@@ -184,9 +184,9 @@ const getStyles = (theme: ThemeColors) =>
     row: { gap: 18, paddingVertical: 12, paddingHorizontal: 4 },
     courseItem: { alignItems: "center", width: 84 },
     iconBox: {
-      width: 84,
-      height: 78,
-      borderRadius: 18,
+      width: 70,
+      height: 68,
+      borderRadius: 15,
       backgroundColor: theme.surface,
       borderWidth: 2,
       borderColor: theme.border,

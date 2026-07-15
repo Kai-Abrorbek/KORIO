@@ -18,6 +18,7 @@ import {
   ENERGY_COLORS,
 } from "./BatteryBadge";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Props {
   visible: boolean;
@@ -44,12 +45,13 @@ export default function EnergyModal({
   const theme = useTheme();
   const s = getStyles(theme);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      animationType="slide"
       onRequestClose={() => {}}
     >
       <Animated.View entering={FadeIn.duration(200)} style={s.backdrop}>
@@ -60,10 +62,7 @@ export default function EnergyModal({
           <Text style={s.gemText}>{gems}</Text>
         </View>
 
-        <Animated.View
-          entering={SlideInDown.springify().damping(18).mass(0.8)}
-          style={s.sheet}
-        >
+        <Animated.View style={[s.sheet, { paddingBottom: insets.bottom + 24 }]}>
           <Text style={s.title}>{t("energy.modalTitle")}</Text>
 
           <View style={s.cardsRow}>
