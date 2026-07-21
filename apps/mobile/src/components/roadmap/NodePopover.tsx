@@ -24,6 +24,10 @@ interface Props {
   onClose?: () => void;
 }
 
+const LEGEND_GOLD = "#FFD900";
+const LEGEND_GOLD_DARK = "#E5AE00";
+const LEGEND_INK = "#8A6D00";
+
 export default function NodePopover({
   node,
   unit,
@@ -104,7 +108,48 @@ export default function NodePopover({
     );
   }
 
-  // 활성 (현재/오픈된) 노드
+  // 레전드 완료 - 복습만 (재도전 불가)
+  if (node.status === "completed" && node.legendCompleted) {
+    return (
+      <View
+        style={[
+          styles.bubble,
+          { backgroundColor: LEGEND_GOLD, shadowColor: LEGEND_GOLD_DARK },
+        ]}
+      >
+        <View
+          style={[
+            styles.arrow,
+            { borderBottomColor: LEGEND_GOLD },
+            { marginLeft: -10 + triangleOffsetX },
+          ]}
+        />
+        <Text style={[styles.activeTitle, { color: LEGEND_INK }]}>
+          {unit.title}
+        </Text>
+        <Text
+          style={[styles.activeSubtitle, { color: LEGEND_INK, opacity: 0.8 }]}
+        >
+          {t("roadmap.legendDone")}
+        </Text>
+
+        <TouchableOpacity
+          style={[styles.reviewBtn, { marginBottom: 0 }]}
+          onPress={onReview}
+          activeOpacity={0.85}
+        >
+          <Text style={[styles.reviewText, { color: LEGEND_INK }]}>
+            {t("roadmap.review")}
+          </Text>
+          <View style={styles.xpRow}>
+            <Ionicons name="flash" size={15} color={LEGEND_INK} />
+            <Text style={[styles.xpText, { color: LEGEND_INK }]}>5 XP</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   // 완료 노드 - 복습 + 레전드
   if (node.status === "completed") {
     return (

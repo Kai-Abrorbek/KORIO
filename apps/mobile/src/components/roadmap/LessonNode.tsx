@@ -23,6 +23,7 @@ interface Props {
   type: NodeType;
   status: NodeStatus;
   unitColor: string;
+  isLegendDone?: boolean;
   completedSteps?: number;
   totalSteps?: number;
   onPress?: () => void;
@@ -50,6 +51,7 @@ export default function LessonNode({
   status,
   unitColor,
   completedSteps = 0,
+  isLegendDone = false,
   totalSteps = 2,
   onPress,
 }: Props) {
@@ -196,7 +198,13 @@ export default function LessonNode({
     iconColor = "#fff";
   }
 
-  const iconName = ICON_MAP[type];
+  if (isLegendDone && !isLocked) {
+    mainColor = "#FFD900";
+    darkColor = "#E5AE00";
+    iconColor = "#8A6D00";
+  }
+
+  const iconName = isLegendDone ? "star" : ICON_MAP[type];
   const iconSize = type === "chest" || type === "boss" ? 34 : 30;
 
   return (

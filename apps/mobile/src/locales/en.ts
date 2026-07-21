@@ -129,6 +129,7 @@ export default {
     locked: "Locked",
     lockedDescription: "Complete all previous levels to unlock this level!",
     chestLocked: "Complete {{count}} more lessons to open this gift box!",
+    legendDone: "You reached Legend level on this one!",
   },
   lesson: {
     check: "Check",

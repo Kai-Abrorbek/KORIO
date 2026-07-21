@@ -17,8 +17,9 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { calcLessonXp } from './economy.const';
-// import { calcLessonXp, rollChest, xpToLevel } from './xp.util';
 import { rollChestReward } from './xp.util';
+
+const LEGEND_XP = 40;
 
 @Injectable()
 export class LessonsService {
@@ -234,6 +235,15 @@ export class LessonsService {
   // 로드맵 조회
   public async getRoadmap(userId: string, lang: string = 'uz') {
     // 모든 노드 조회 (section, unit, order 순)
+    const meUser = await this.userModel
+      .findById(new Types.ObjectId(userId))
+      .select('legendNodes')
+      .lean();
+
+    const legendSet = new Set(
+      ((meUser?.legendNodes ?? []) as any[]).map((x) => x.toString()),
+    );
+
     const nodes = await this.nodeModel
       .find({ isActive: true })
       .sort({ section: 1, unit: 1, order: 1 })
@@ -303,6 +313,7 @@ export class LessonsService {
         lessons: nodeLessons,
         lessonId: startLesson?.lessonId,
         xpReward: startLessonObj?.xpReward ?? 0, // ✅ 시작할 레슨의 XP
+        legendCompleted: legendSet.has(node._id.toString()),
       });
     }
 
@@ -708,5 +719,44 @@ export class LessonsService {
     );
 
     return calcScore(completedUnits, milestones);
+  }
+
+  async completeLegend(userId: string, nodeId: string) {
+    const node = await this.nodeModel
+      .findById(new Types.ObjectId(nodeId))
+      .lean();
+    if (!node) throw new NotFoundException('노드를 찾을 수 없습니다');
+
+    const uId = new Types.ObjectId(userId);
+
+    // 이미 클리어했으면 XP 안 줌 (반복 파밍 차단)
+    const already = await this.userModel.exists({
+      _id: uId,
+      legendNodes: node._id,
+    });
+    if (already) {
+      const u = await this.userModel.findById(uId).select('totalXP').lean();
+      return {
+        success: true,
+        alreadyDone: true,
+        xpEarned: 0,
+        totalXP: u?.totalXP ?? 0,
+      };
+    }
+
+    await this.userModel.updateOne(
+      { _id: uId },
+      { $addToSet: { legendNodes: node._id } },
+    );
+
+    // XP는 서버가 정함 (통계·리그 반영까지 addXp가 처리)
+    const res = await this.addXp(userId, LEGEND_XP);
+
+    return {
+      success: true,
+      alreadyDone: false,
+      xpEarned: LEGEND_XP,
+      totalXP: res.totalXP ?? 0,
+    };
   }
 }

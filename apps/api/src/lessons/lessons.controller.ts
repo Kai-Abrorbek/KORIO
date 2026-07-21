@@ -134,6 +134,12 @@ export class LessonsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('nodes/:nodeId/legend-complete')
+  async completeLegend(@Request() req, @Param('nodeId') nodeId: string) {
+    return this.lessonsService.completeLegend(req.user._id.toString(), nodeId);
+  }
+
   // 레슨 완료 저장
   @UseGuards(JwtAuthGuard)
   @Post(':id/complete')

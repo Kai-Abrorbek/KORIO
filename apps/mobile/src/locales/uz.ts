@@ -132,6 +132,7 @@ export default {
       "Ushbu darajani ochish uchun avvalgi darajalarni tugating!",
     chestLocked:
       "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
+    legendDone: "Siz bu darajada afsona darajasiga yetdingiz!",
   },
   lesson: {
     check: "Tekshirish",

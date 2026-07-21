@@ -398,12 +398,15 @@ export default function LessonScreen() {
         })
         .catch(() => {});
     } else if (isNodeReview || isLegend) {
-      // 노드 복습: XP만 저장
-      LessonService.addXp(earnedXp)
-        .then((r) => {
-          updateUser({ totalXP: r.totalXP } as any);
-        })
-        .catch(() => {});
+      if (isLegend && nodeId) {
+        LessonService.completeLegend(nodeId)
+          .then((r) => updateUser({ totalXP: r.totalXP } as any))
+          .catch(() => {});
+      } else {
+        LessonService.addXp(earnedXp)
+          .then((r) => updateUser({ totalXP: r.totalXP } as any))
+          .catch(() => {});
+      }
     } else if (
       !isLevelTest &&
       !isWordPractice &&

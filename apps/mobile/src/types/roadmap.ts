@@ -29,6 +29,7 @@ export interface RoadmapNode {
   chestLessonsRemaining?: number;
   xpReward?: number;
   progress?: number;
+  legendCompleted?: boolean;
 }
 
 export interface RoadmapUnit {

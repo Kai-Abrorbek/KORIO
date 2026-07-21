@@ -149,6 +149,7 @@ export default function UnitRoadmap({
                       type={isCurrent && !isSelected ? "boss" : node.type}
                       status={node.status}
                       unitColor={unit.color}
+                      isLegendDone={!!node.legendCompleted}
                       completedSteps={node.completedLessons ?? 0}
                       totalSteps={node.totalLessons ?? 4}
                       onPress={() => onNodeTap(node.id)}
@@ -160,6 +161,7 @@ export default function UnitRoadmap({
                     type={isCurrent && !isSelected ? "speech" : node.type}
                     status={node.status}
                     unitColor={unit.color}
+                    isLegendDone={!!node.legendCompleted}
                     completedSteps={node.completedLessons ?? 0}
                     totalSteps={node.totalLessons ?? 4}
                     onPress={() => onNodeTap(node.id)}

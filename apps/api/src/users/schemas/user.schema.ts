@@ -134,6 +134,10 @@ export class User {
   @Prop({ type: [Types.ObjectId], ref: 'LessonNode', default: [] })
   openedChests: Types.ObjectId[];
 
+  // 레전드 완료한 노드 (재도전 방지)
+  @Prop({ type: [Types.ObjectId], ref: 'LessonNode', default: [] })
+  legendNodes: Types.ObjectId[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

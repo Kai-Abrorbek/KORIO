@@ -92,4 +92,13 @@ export const LessonService = {
     api.post(`/lessons/jump-complete`, { section, unit }),
 
   getScore: (): Promise<ScoreData> => api.get(`/lessons/score`),
+
+  completeLegend: (
+    nodeId: string,
+  ): Promise<{
+    success: boolean;
+    alreadyDone: boolean;
+    xpEarned: number;
+    totalXP: number;
+  }> => api.post(`/lessons/nodes/${nodeId}/legend-complete`, {}),
 };
