@@ -48,7 +48,7 @@ export interface NextLockedSection {
 
 export interface UserRoadmapStats {
   language: string;
-  languageLevel: number | undefined;
+  score: number | undefined;
   streak: number | undefined;
   gems: number | undefined;
   energy: number | undefined;
@@ -57,6 +57,7 @@ export interface UserRoadmapStats {
 
 export interface RoadmapData {
   stats: UserRoadmapStats;
+  score: number;
   units: RoadmapUnit[];
   nextLockedSection?: NextLockedSection;
 }

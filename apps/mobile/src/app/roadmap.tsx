@@ -24,6 +24,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
+import { KOR_FLAG } from "@/constants/course";
 
 const UNIT_COLORS = [
   "#776ee2",
@@ -89,8 +90,8 @@ export default function RoadmapScreen() {
   const user = useAuthStore((s) => s.user);
 
   const userStats = {
-    language: "🇺🇸",
-    languageLevel: 2,
+    language: KOR_FLAG,
+    score: roadmap.score,
     streak: user?.streak,
     gems: user?.gems,
     energy: user?.energy,

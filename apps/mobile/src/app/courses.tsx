@@ -26,7 +26,6 @@ export default function CoursesScreen() {
 
   const handleContinue = () => {
     // TODO: 선택한 과정 저장 / 적용
-    console.log("selected course:", selectedId);
     router.back();
   };
 
@@ -87,6 +86,7 @@ const getStyles = (theme: ThemeColors) =>
       flex: 1,
       backgroundColor: theme.bg,
       paddingTop: 54,
+      marginBottom: 25,
     },
     closeBtn: {
       position: "absolute",

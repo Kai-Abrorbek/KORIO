@@ -3,7 +3,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { UserRoadmapStats } from "@/types/roadmap";
-import { BatteryBadge, ENERGY_COLORS } from "@/components/energy/BatteryBadge";
 import EnergyBadge from "./EnergyBadge";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -29,7 +28,7 @@ export default function RoadmapHeader({ stats, energy }: Props) {
         activeOpacity={0.7}
       >
         <Text style={styles.flag}>{stats.language}</Text>
-        <Text style={styles.statText}>{stats.languageLevel}</Text>
+        <Text style={styles.statText}>{stats.score}</Text>
         <Ionicons
           name="caret-down"
           size={12}

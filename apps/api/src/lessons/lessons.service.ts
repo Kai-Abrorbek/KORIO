@@ -309,6 +309,7 @@ export class LessonsService {
     // unit/node status 계산
     const units = Array.from(unitMap.values());
     let foundCurrentUnit = false;
+    let score = 0;
 
     for (const unit of units) {
       const allNodesCompleted = unit.nodes.every(
@@ -316,6 +317,7 @@ export class LessonsService {
       );
 
       if (allNodesCompleted) {
+        score++;
         unit.status = 'completed';
         unit.nodes.forEach((n: any) => (n.status = 'completed'));
       } else if (!foundCurrentUnit) {
@@ -335,7 +337,7 @@ export class LessonsService {
       }
     }
 
-    return { units };
+    return { units, score };
   }
 
   public async getLessons(userId: string) {

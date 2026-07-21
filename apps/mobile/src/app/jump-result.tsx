@@ -63,7 +63,12 @@ export default function JumpResultScreen() {
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg, paddingHorizontal: 20 },
+    container: {
+      flex: 1,
+      backgroundColor: theme.bg,
+      paddingHorizontal: 20,
+      marginBottom: 25,
+    },
     center: {
       flex: 1,
       alignItems: "center",

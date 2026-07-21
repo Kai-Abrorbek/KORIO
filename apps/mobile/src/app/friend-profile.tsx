@@ -24,8 +24,6 @@ export default function FriendProfileScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const { id } = useLocalSearchParams<{ id: string }>();
-  const me = useAuthStore((st) => st.user);
-  console.log(id);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);

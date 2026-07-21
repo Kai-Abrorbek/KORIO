@@ -1,9 +1,10 @@
 import { RoadmapData } from "@/types/roadmap";
 
 export const MOCK_ROADMAP: RoadmapData = {
+  score: 0,
   stats: {
     language: "🇺🇸",
-    languageLevel: 2,
+    score: 0,
     streak: 1,
     gems: 597,
     energy: 98,
@@ -24,7 +25,7 @@ export const MOCK_ROADMAP: RoadmapData = {
           type: "star",
           status: "current",
           progress: 0.3,
-          currentLesson: 4,
+          // currentLesson: 4,
           totalLessons: 4,
           xpReward: 75,
         },

@@ -194,7 +194,7 @@ export default function LessonHeader({
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
-    wrapper: { backgroundColor: theme.bg, paddingTop: 26 },
+    wrapper: { backgroundColor: theme.bg, paddingTop: 30 },
     comboWrap: { alignItems: "center", paddingBottom: 4 },
     comboText: { fontSize: 16, fontWeight: "900", color: "#1CB0F6" },
     container: {
