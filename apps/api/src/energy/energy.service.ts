@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { ENERGY_CONFIG } from './energy.constants';
 import { computeEnergy, minutesToFull } from './energy.util';
+import { isSuperActive } from '../users/super.util';
 
 @Injectable()
 export class EnergyService {
@@ -14,10 +15,11 @@ export class EnergyService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new BadRequestException('User not found');
 
+    const superActive = isSuperActive(user);
     const now = new Date();
     const res = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
-      user.isSuper,
+      superActive,
       now,
     );
 
@@ -57,10 +59,11 @@ export class EnergyService {
     if (!user) throw new BadRequestException('User not found');
 
     // 먼저 회복 반영
+    const superActive = isSuperActive(user);
     const now = new Date();
     const regen = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
-      user.isSuper,
+      superActive,
       now,
     );
     user.energy = regen.energy;
@@ -86,7 +89,7 @@ export class EnergyService {
 
     const res = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
-      user.isSuper,
+      superActive,
       now,
     );
     return this.buildResponse(user, res.secondsToNext);
@@ -97,30 +100,32 @@ export class EnergyService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new BadRequestException('User not found');
 
+    const superActive = isSuperActive(user);
     const now = new Date();
     const regen = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
-      user.isSuper,
+      superActive,
       now,
     );
     user.energy = regen.energy;
     user.energyUpdatedAt = regen.energyUpdatedAt;
 
-    if (!user.isSuper) {
+    if (!superActive) {
       user.energy = Math.max(0, user.energy - amount);
     }
     await user.save();
 
     const res = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
-      user.isSuper,
+      superActive,
       now,
     );
     return this.buildResponse(user, res.secondsToNext);
   }
 
   private buildResponse(user: User, secondsToNext: number) {
-    const totalMin = minutesToFull(user.energy, secondsToNext, user.isSuper);
+    const superActive = isSuperActive(user);
+    const totalMin = minutesToFull(user.energy, secondsToNext, superActive);
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const freeUsedToday = (user.freeEnergyClaims ?? []).filter(
@@ -131,7 +136,7 @@ export class EnergyService {
       energy: user.energy,
       maxEnergy: ENERGY_CONFIG.MAX,
       gems: user.gems,
-      isSuper: user.isSuper,
+      isSuper: superActive,
       secondsToNext, // 다음 1개까지 남은 초
       minutesToFull: totalMin, // 꽉 찰 때까지 분
       etaHours: Math.floor(totalMin / 60),

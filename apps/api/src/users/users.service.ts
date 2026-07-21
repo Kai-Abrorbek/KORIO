@@ -14,6 +14,7 @@ import {
 import { calculateLevel } from '../common/enums/level.enum';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
+import { isSuperActive } from './super.util';
 
 @Injectable()
 export class UsersService {
@@ -75,7 +76,7 @@ export class UsersService {
       streak: user.streak || 0,
       longestStreak: user.longestStreak || 0,
       league: user.league,
-      isSuper: user.isSuper || false,
+      isSuper: isSuperActive(user),
       streakFreeze: user.streakFreeze || 0,
       gems: user.gems || 0,
       energy: user.energy || 0,
@@ -164,7 +165,7 @@ export class UsersService {
       totalXP: user.totalXP || 0,
       streak: user.streak || 0,
       league: user.league,
-      isSuper: user.isSuper || false,
+      isSuper: isSuperActive(user),
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,

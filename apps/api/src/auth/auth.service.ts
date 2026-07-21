@@ -19,6 +19,7 @@ import { SocialLoginDto } from './dto/social-login.dto';
 import { AuthProvider } from '../common/enums/provider.enum';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
+import { trialFields } from '../users/super.util';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +45,7 @@ export class AuthService {
       password: hashedPassword,
       nickname: dto.nickname,
       provider: AuthProvider.LOCAL,
+      ...trialFields(),
     });
 
     // 온보딩 데이터 연결
@@ -135,6 +137,7 @@ export class AuthService {
         profileImage,
         provider: dto.provider,
         providerId,
+        ...trialFields(),
       });
     }
 
@@ -210,12 +213,14 @@ export class AuthService {
       provider: AuthProvider.TELEGRAM,
       providerId,
     });
+
     if (!user) {
       user = await this.userModel.create({
         provider: AuthProvider.TELEGRAM,
         providerId,
         nickname,
         profileImage,
+        ...trialFields(),
       });
     }
 

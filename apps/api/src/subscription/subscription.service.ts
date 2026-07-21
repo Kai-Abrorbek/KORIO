@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import { isSuperActive, trialDaysLeft } from '../users/super.util';
 
 export interface PlanFeature {
   icon: string;
@@ -79,13 +80,15 @@ export class SubscriptionService {
       .lean();
     if (!user) throw new NotFoundException('User not found');
 
-    const active =
-      !!user.isSuper &&
-      (!user.superExpiresAt || new Date(user.superExpiresAt) > new Date());
+    const active = isSuperActive(user as any);
+    const daysLeft = trialDaysLeft(user as any);
+
     return {
       isSuper: active,
       plan: (user as any).superPlan ?? null,
       expiresAt: (user as any).superExpiresAt ?? null,
+      isTrial: (user as any).superPlan === 'trial' && active,
+      trialDaysLeft: daysLeft,
     };
   }
 
