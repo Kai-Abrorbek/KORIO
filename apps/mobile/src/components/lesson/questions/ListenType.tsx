@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface Props {
@@ -40,6 +40,14 @@ export default function ListenType({
 
   const locked = answerState !== "idle";
   const audioText = question.answer;
+
+  // 문제 진입 시 자동 재생 (문제 바뀌면 다시 1회)
+  useEffect(() => {
+    if (!audioText) return;
+    // 화면 전환 애니(FadeInDown 400ms) + TTS 엔진 준비 시간 확보
+    const id = setTimeout(() => speak(audioText), 500);
+    return () => clearTimeout(id);
+  }, [audioText]);
 
   const handleCheck = () => {
     if (!input.trim() || locked) return;

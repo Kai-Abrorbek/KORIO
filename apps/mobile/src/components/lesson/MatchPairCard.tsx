@@ -8,8 +8,8 @@ import Animated, {
   withDelay,
   Easing,
 } from "react-native-reanimated";
-import { useEffect } from "react";
 import { ThemeColors } from "@/constants/theme";
+import { useEffect, type ReactNode } from "react";
 
 export type PairStatus = "idle" | "selected" | "wrong" | "correct" | "ghost";
 
@@ -22,13 +22,20 @@ const GREEN_BORDER = "#58CC02";
 const GREEN_TEXT = "#58A700";
 
 interface Props {
-  text: string;
+  text?: string;
   status: PairStatus;
   onPress: () => void;
   theme: ThemeColors;
+  children?: ReactNode;
 }
 
-export default function MatchPairCard({ text, status, onPress, theme }: Props) {
+export default function MatchPairCard({
+  text,
+  status,
+  onPress,
+  theme,
+  children,
+}: Props) {
   const ty = useSharedValue(0); // 팝 바운스
   const shake = useSharedValue(0); // 오답 흔들림
   const shineX = useSharedValue(-200); // 흰색 샤인 스윕
@@ -109,9 +116,14 @@ export default function MatchPairCard({ text, status, onPress, theme }: Props) {
           },
         ]}
       >
-        <Text style={[styles.text, { color: palette.color }]} numberOfLines={1}>
-          {text}
-        </Text>
+        {children ?? (
+          <Text
+            style={[styles.text, { color: palette.color }]}
+            numberOfLines={1}
+          >
+            {text}
+          </Text>
+        )}
 
         {status === "correct" && (
           <>

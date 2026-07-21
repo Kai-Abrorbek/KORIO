@@ -8,13 +8,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface Props {
@@ -24,8 +25,6 @@ interface Props {
   onSkip?: () => void;
   theme: ThemeColors;
 }
-
-const CH_W = 15;
 
 export default function ListenFill({
   question,
@@ -39,10 +38,21 @@ export default function ListenFill({
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
   const { speak, speakSlow, isSpeaking } = useSpeech();
+  const { width: winW } = useWindowDimensions();
+  const [measuredW, setMeasuredW] = useState(0);
 
+  const MAX_BLANK = winW - 112; // 좌우 패딩 + 여유
+  const blankWidth = Math.min(MAX_BLANK, Math.max(90, measuredW + 18));
   const locked = answerState !== "idle";
   const audioText = question.answer; // 듣기용 정답 문장(전체)
-  const blankWidth = Math.max(90, (input.length || 6) * CH_W);
+
+  // 문제 진입 시 자동 재생 (문제 바뀌면 다시 1회)
+  useEffect(() => {
+    if (!audioText) return;
+    // 화면 전환 애니(FadeInDown 400ms) + TTS 엔진 준비 시간 확보
+    const id = setTimeout(() => speak(audioText), 500);
+    return () => clearTimeout(id);
+  }, [audioText]);
 
   const underlineColor =
     answerState === "correct"
@@ -117,6 +127,15 @@ export default function ListenFill({
             style={s.inputCard}
           >
             <View style={s.sentence}>
+              {/* 실제 텍스트 폭 측정용 (화면에 안 보임) */}
+              <Text
+                style={s.ghost}
+                numberOfLines={1}
+                pointerEvents="none"
+                onLayout={(e) => setMeasuredW(e.nativeEvent.layout.width)}
+              >
+                {input}
+              </Text>
               {question.sentencePrefix ? (
                 <Text style={s.fix}>{question.sentencePrefix} </Text>
               ) : null}
@@ -128,6 +147,10 @@ export default function ListenFill({
                   value={input}
                   onChangeText={setInput}
                   editable={!locked}
+                  autoFocus
+                  autoCorrect={false}
+                  spellCheck={false}
+                  autoCapitalize="none"
                   onSubmitEditing={handleCheck}
                 />
                 {input.length === 0 && (
@@ -265,6 +288,14 @@ const styles = (theme: ThemeColors) =>
       flexDirection: "row",
       flexWrap: "wrap",
       alignItems: "flex-end",
+    },
+    ghost: {
+      position: "absolute",
+      opacity: 0,
+      top: 0,
+      left: 0,
+      fontSize: 22,
+      fontWeight: "800",
     },
     fix: { fontSize: 22, color: theme.text, fontWeight: "600", lineHeight: 40 },
     blank: { height: 40, justifyContent: "flex-end", marginHorizontal: 2 },

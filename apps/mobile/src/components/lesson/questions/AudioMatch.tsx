@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import MatchPairCard, { PairStatus } from "../MatchPairCard";
 
 interface Props {
   question: LessonQuestion;
@@ -22,18 +23,18 @@ interface Props {
   onSkip?: () => void;
   theme: ThemeColors;
 }
-type Status = "idle" | "selected" | "matched" | "wrong";
+
 interface AItem {
   id: string;
   pairId: number;
   audio: string;
-  status: Status;
+  status: PairStatus;
 }
 interface TItem {
   id: string;
   pairId: number;
   text: string;
-  status: Status;
+  status: PairStatus;
 }
 
 const GREEN_BG = "#E3F8EC";
@@ -107,14 +108,13 @@ export default function AudioMatch({
   const s = styles(theme);
   const { speak } = useSpeech();
   const pairs = question.pairs ?? [];
-
   const [left, setLeft] = useState<AItem[]>(() =>
     shuffle(
       pairs.map((p, i) => ({
         id: `a-${i}`,
         pairId: i,
         audio: p.korean,
-        status: "idle" as Status,
+        status: "idle" as PairStatus,
       })),
     ),
   );
@@ -124,21 +124,20 @@ export default function AudioMatch({
         id: `t-${i}`,
         pairId: i,
         text: p.native,
-        status: "idle" as Status,
+        status: "idle" as PairStatus,
       })),
     ),
   );
   const [selA, setSelA] = useState<number | null>(null);
   const [selT, setSelT] = useState<number | null>(null);
   const [playing, setPlaying] = useState<string | null>(null);
-
+  const [matchedCount, setMatchedCount] = useState(0);
   const locked = answerState !== "idle";
-  const allMatched =
-    left.length > 0 && left.every((x) => x.status === "matched");
+  const allMatched = pairs.length > 0 && matchedCount === pairs.length;
 
-  const setLS = (i: number, st: Status) =>
+  const setLS = (i: number, st: PairStatus) =>
     setLeft((p) => p.map((x, idx) => (idx === i ? { ...x, status: st } : x)));
-  const setRS = (j: number, st: Status) =>
+  const setRS = (j: number, st: PairStatus) =>
     setRight((p) => p.map((x, idx) => (idx === j ? { ...x, status: st } : x)));
 
   const playAudio = (item: AItem) => {
@@ -149,24 +148,36 @@ export default function AudioMatch({
 
   const evaluate = (i: number, j: number) => {
     const correct = left[i].pairId === right[j].pairId;
+    setSelA(null);
+    setSelT(null);
     if (correct) {
-      setLS(i, "matched");
-      setRS(j, "matched");
+      setLS(i, "correct");
+      setRS(j, "correct");
+      setMatchedCount((c) => c + 1);
+      setTimeout(() => {
+        setLS(i, "ghost");
+        setRS(j, "ghost");
+      }, 700);
     } else {
       setLS(i, "wrong");
       setRS(j, "wrong");
       setTimeout(() => {
         setLS(i, "idle");
         setRS(j, "idle");
-      }, 500);
+      }, 520);
     }
-    setSelA(null);
-    setSelT(null);
   };
 
   const tapAudio = (i: number) => {
-    if (locked || left[i].status === "matched") return;
-    playAudio(left[i]);
+    if (locked) return;
+    const it = left[i];
+    if (
+      it.status === "correct" ||
+      it.status === "ghost" ||
+      it.status === "wrong"
+    )
+      return;
+    playAudio(it);
     if (selA === i) {
       setLS(i, "idle");
       setSelA(null);
@@ -179,7 +190,14 @@ export default function AudioMatch({
   };
 
   const tapText = (j: number) => {
-    if (locked || right[j].status === "matched") return;
+    if (locked) return;
+    const it = right[j];
+    if (
+      it.status === "correct" ||
+      it.status === "ghost" ||
+      it.status === "wrong"
+    )
+      return;
     if (selT === j) {
       setRS(j, "idle");
       setSelT(null);
@@ -196,68 +214,37 @@ export default function AudioMatch({
     onAnswer("all_correct");
   };
 
-  const palette = (st: Status) =>
-    st === "matched"
-      ? { bg: GREEN_BG, border: GREEN_BORDER, color: GREEN_BORDER }
-      : st === "wrong"
-        ? { bg: RED_BG, border: RED_BORDER, color: RED_BORDER }
-        : st === "selected"
-          ? {
-              bg: theme.primary + "14",
-              border: theme.primary,
-              color: theme.primary,
-            }
-          : { bg: theme.surface, border: theme.border, color: theme.text };
-
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
       <Text style={s.title}>{question.question || t("lesson.matchPairs")}</Text>
 
       <View style={s.board}>
         <View style={s.col}>
-          {left.map((item, i) => {
-            const p = palette(item.status);
-            return (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => tapAudio(i)}
-                disabled={locked || item.status === "matched"}
-                activeOpacity={0.85}
-                style={[
-                  s.audioCard,
-                  { backgroundColor: p.bg, borderColor: p.border },
-                ]}
-              >
+          {left.map((item, i) => (
+            <MatchPairCard
+              key={item.id}
+              status={item.status}
+              onPress={() => tapAudio(i)}
+              theme={theme}
+            >
+              <View style={s.audioInner}>
                 <Ionicons name="volume-high" size={26} color={AUDIO_BLUE} />
                 <Waveform active={playing === item.id} />
-              </TouchableOpacity>
-            );
-          })}
+              </View>
+            </MatchPairCard>
+          ))}
         </View>
 
         <View style={s.col}>
-          {right.map((item, j) => {
-            const p = palette(item.status);
-            return (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => tapText(j)}
-                disabled={locked || item.status === "matched"}
-                activeOpacity={0.85}
-                style={[
-                  s.textCard,
-                  { backgroundColor: p.bg, borderColor: p.border },
-                ]}
-              >
-                <Text
-                  style={[s.textCardText, { color: p.color }]}
-                  numberOfLines={1}
-                >
-                  {item.text}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          {right.map((item, j) => (
+            <MatchPairCard
+              key={item.id}
+              text={item.text}
+              status={item.status}
+              onPress={() => tapText(j)}
+              theme={theme}
+            />
+          ))}
         </View>
       </View>
 
@@ -300,6 +287,7 @@ const styles = (theme: ThemeColors) =>
       alignItems: "center",
       gap: 10,
     },
+    audioInner: { flexDirection: "row", alignItems: "center", gap: 10 },
     textCard: {
       borderRadius: 16,
       borderWidth: 2,

@@ -7,6 +7,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -34,11 +35,13 @@ export default function TypeAnswer({
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
   const { speak, isSpeaking } = useSpeech();
+  const { width: winW } = useWindowDimensions();
+  const [measuredW, setMeasuredW] = useState(0);
 
+  const MAX_BLANK = winW - 72; // 좌우 패딩 + 여유
+  const blankWidth = Math.min(MAX_BLANK, Math.max(90, measuredW + 18));
   const locked = answerState !== "idle";
   const promptText = question.npcText ?? question.answer;
-  const CH_W = 15; // 글자당 대략 폭(px). 폰트 크기 바뀌면 같이 조절
-  const blankWidth = Math.max(90, (input.length || 6) * CH_W);
 
   const handleCheck = () => {
     if (!input.trim() || locked) return;
@@ -89,9 +92,17 @@ export default function TypeAnswer({
           </View>
         </View>
 
-        {/* 입력 - 밑줄 라인 스타일 */}
         {/* 빈칸 채우기 - 인라인 한 줄 */}
         <View style={s.sentence}>
+          {/* 실제 텍스트 폭 측정용 (화면에 안 보임) */}
+          <Text
+            style={s.ghost}
+            numberOfLines={1}
+            pointerEvents="none"
+            onLayout={(e) => setMeasuredW(e.nativeEvent.layout.width)}
+          >
+            {input}
+          </Text>
           {question.sentencePrefix ? (
             <Text style={s.fix}>{question.sentencePrefix} </Text>
           ) : null}
@@ -104,6 +115,9 @@ export default function TypeAnswer({
               onChangeText={setInput}
               editable={!locked}
               autoFocus
+              autoCorrect={false}
+              spellCheck={false}
+              autoCapitalize="none"
               onSubmitEditing={handleCheck}
             />
             {input.length === 0 && (
@@ -227,6 +241,14 @@ const styles = (theme: ThemeColors) =>
       flexWrap: "wrap",
       alignItems: "flex-end",
       marginTop: 8,
+    },
+    ghost: {
+      position: "absolute",
+      opacity: 0,
+      top: 0,
+      left: 0,
+      fontSize: 22,
+      fontWeight: "800",
     },
     fix: { fontSize: 22, color: theme.text, fontWeight: "600", lineHeight: 40 },
     blank: { height: 40, justifyContent: "flex-end", marginHorizontal: 2 },
