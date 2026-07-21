@@ -98,7 +98,7 @@ export default function ResultScreen() {
     correct: string;
     score: string;
   }>();
-  const { detectedLevel, levelTestScore, correctAnswers } =
+  const { detectedLevel, levelTestScore, correctAnswers, totalQuestions } =
     useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const boriY = useSharedValue(0);
@@ -174,13 +174,15 @@ export default function ResultScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>
-              {correctAnswers}/{total}
+              {correctAnswers}/{totalQuestions}
             </Text>
-            <Text style={styles.statLabel}>정답</Text>
+            <Text style={styles.statLabel}>
+              {t("onboarding.result.correct")}
+            </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{score}점</Text>
-            <Text style={styles.statLabel}>점수</Text>
+            <Text style={styles.statValue}>{levelTestScore}</Text>
+            <Text style={styles.statLabel}>{t("onboarding.result.score")}</Text>
           </View>
         </View>
       </Animated.View>

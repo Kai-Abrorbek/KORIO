@@ -105,6 +105,7 @@ export default function LevelTestScreen() {
       score,
       detectedLevel,
       correctAnswers: correct,
+      totalQuestions: total,
       wrongQuestionIds,
     });
 

@@ -266,6 +266,7 @@ export default function LessonScreen() {
       score,
       detectedLevel,
       correctAnswers: correct,
+      totalQuestions: total,
       wrongQuestionIds,
     });
 

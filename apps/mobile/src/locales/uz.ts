@@ -52,6 +52,8 @@ export default {
       beginnerDesc: "Asoslardan boshlaylik!",
       intermediateDesc: "Asos bor! Yuqoriga chiqamiz!",
       advancedDesc: "Zo'r ekansan! Ilg'or kursga o'tamiz!",
+      correct: "To'g'ri",
+      score: "Ball",
     },
   },
   auth: {

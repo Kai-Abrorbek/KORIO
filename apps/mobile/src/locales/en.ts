@@ -52,6 +52,8 @@ export default {
       beginnerDesc: "Let's start from the basics!",
       intermediateDesc: "Great foundation! Let's level up!",
       advancedDesc: "You're skilled! Let's go advanced!",
+      correct: "Correct",
+      score: "Score",
     },
   },
   auth: {

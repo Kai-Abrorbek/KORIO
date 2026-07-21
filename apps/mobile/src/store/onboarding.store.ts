@@ -12,6 +12,7 @@ interface OnboardingState {
   levelTestScore: number;
   detectedLevel: string;
   correctAnswers: number;
+  totalQuestions: number;
   wrongQuestionIds: string[];
 
   // 비로그인 세션
@@ -29,6 +30,7 @@ interface OnboardingState {
     score: number;
     detectedLevel: string;
     correctAnswers: number;
+    totalQuestions: number;
     wrongQuestionIds: string[];
   }) => void;
   incrementGuestCount: () => void;
@@ -46,6 +48,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   levelTestScore: 0,
   detectedLevel: "",
   correctAnswers: 0,
+  totalQuestions: 0,
   wrongQuestionIds: [],
   sessionId: generateSessionId(),
   guestQuestionCount: 0,
@@ -57,6 +60,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       levelTestScore: data.score,
       detectedLevel: data.detectedLevel,
       correctAnswers: data.correctAnswers,
+      totalQuestions: data.totalQuestions,
       wrongQuestionIds: data.wrongQuestionIds,
     })),
   incrementGuestCount: () =>

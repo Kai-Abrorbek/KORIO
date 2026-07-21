@@ -52,6 +52,8 @@ export default {
       beginnerDesc: "Начнём с основ!",
       intermediateDesc: "Основа есть! Идём выше!",
       advancedDesc: "Отличный уровень! Переходим к продвинутому!",
+      correct: "Правильно",
+      score: "Баллы",
     },
   },
   auth: {

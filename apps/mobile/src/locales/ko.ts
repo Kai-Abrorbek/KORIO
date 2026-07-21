@@ -52,6 +52,8 @@ export default {
       beginnerDesc: "기초부터 차근차근 배워요!",
       intermediateDesc: "기초는 잡혔어요! 더 높이 올라가요!",
       advancedDesc: "실력자네요! 고급 과정으로 가요!",
+      correct: "정답",
+      score: "점수",
     },
   },
   auth: {
