@@ -98,12 +98,16 @@ export default function LessonScreen() {
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
   const [hearts, setHearts] = useState(5);
   const [showBonus, setShowBonus] = useState(false);
-  const [bonusAmount, setBonusAmount] = useState(6);
+  const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
 
   useEffect(() => {
     loadLesson();
   }, [lessonId]);
+
+  useEffect(() => {
+    setEnergy(userEnergy);
+  }, [userEnergy]);
 
   // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
   useEffect(() => {
@@ -344,41 +348,48 @@ export default function LessonScreen() {
       const nextCombo = combo + 1;
       setCombo(nextCombo);
 
-      console.log(
-        "COMBO",
-        nextCombo,
-        "mod4:",
-        nextCombo % 4 === 0,
-        "super:",
-        isSuper,
-      );
-
       // 4연속마다 보너스 에너지 (updater 밖에서 호출)
       if (nextCombo % 4 === 0 && !isSuper && !isJumpTest) {
         console.log("CALLING comboBonus");
         EnergyService.comboBonus()
           .then((res) => {
-            console.log("SET BONUS TRUE", res.bonusGranted);
             updateUser({ energy: res.energy, gems: res.gems } as any);
-            setEnergy(res.energy);
             if (res.bonusGranted > 0) {
               setBonusAmount(res.bonusGranted);
               setShowLightning(true);
+              setShowBonus(true);
             }
           })
-          .catch((e) => console.log("comboBonus ERROR", e));
+          .catch(() => {});
       }
 
       // 슈퍼가 아닐 때만 에너지 소모
       if (!isSuper && !isJumpTest) {
-        const nextEnergy = Math.max(0, energy - 1);
-        setEnergy(nextEnergy);
-        if (nextEnergy <= 0) openEnergyModal();
-        EnergyService.consume()
-          .then((res) =>
-            updateUser({ energy: res.energy, gems: res.gems } as any),
-          )
-          .catch(() => {});
+        (async () => {
+          try {
+            // 1) 소모 먼저
+            const consumeRes = await EnergyService.consume();
+            updateUser({
+              energy: consumeRes.energy,
+              gems: consumeRes.gems,
+            } as any);
+            if (consumeRes.energy <= 0) openEnergyModal();
+
+            // 2) 4연속이면 소모 반영된 뒤 보너스
+            if (nextCombo % 4 === 0) {
+              const bonusRes = await EnergyService.comboBonus();
+              updateUser({
+                energy: bonusRes.energy,
+                gems: bonusRes.gems,
+              } as any);
+              if (bonusRes.bonusGranted > 0) {
+                setBonusAmount(bonusRes.bonusGranted);
+                setShowLightning(true);
+                setShowBonus(true);
+              }
+            }
+          } catch {}
+        })();
       }
 
       if (!uniqueCorrect.current.has(currentQ.id)) {
@@ -692,13 +703,13 @@ export default function LessonScreen() {
             />
           )}
 
-          {!isLevelTest && !isJumpTest && (
+          {/* {!isLevelTest && !isJumpTest && (
             <>
               <LightningStrike
                 visible={showLightning}
                 onDone={() => {
-                  setShowLightning(false);
                   setShowBonus(true); // 번개 끝 → 배터리
+                  setShowLightning(false);
                 }}
               />
               <EnergyBonusPopup
@@ -707,7 +718,7 @@ export default function LessonScreen() {
                 onDone={() => setShowBonus(false)}
               />
             </>
-          )}
+          )} */}
         </>
       ) : null}
 
@@ -717,6 +728,16 @@ export default function LessonScreen() {
         onQuit={() => {
           setShowQuit(false);
           goHome();
+        }}
+      />
+
+      <LightningStrike visible={showLightning} />
+      <EnergyBonusPopup
+        visible={showBonus}
+        amount={bonusAmount}
+        onDone={() => {
+          setShowBonus(false);
+          setShowLightning(false); // 배터리 끝날 때 번개도 같이 정리
         }}
       />
     </View>

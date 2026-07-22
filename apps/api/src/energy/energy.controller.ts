@@ -34,7 +34,6 @@ export class EnergyController {
   @UseGuards(JwtAuthGuard)
   @Post('combo-bonus')
   async comboBonus(@Request() req) {
-    console.log(req);
     return this.energyService.grantComboBonus(req.user._id.toString());
   }
 }
