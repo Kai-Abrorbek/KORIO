@@ -348,22 +348,6 @@ export default function LessonScreen() {
 
       const nextCombo = combo + 1;
       setCombo(nextCombo);
-
-      // 4연속마다 보너스 에너지 (updater 밖에서 호출)
-      if (nextCombo % 4 === 0 && !isSuper && !isJumpTest) {
-        console.log("CALLING comboBonus");
-        EnergyService.comboBonus()
-          .then((res) => {
-            updateUser({ energy: res.energy, gems: res.gems } as any);
-            if (res.bonusGranted > 0) {
-              setBonusAmount(res.bonusGranted);
-              setShowLightning(true);
-              setShowBonus(true);
-            }
-          })
-          .catch(() => {});
-      }
-
       // 슈퍼가 아닐 때만 에너지 소모
       if (!isSuper && !isJumpTest) {
         (async () => {
