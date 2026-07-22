@@ -134,6 +134,7 @@ export default {
     scoreDesc:
       "이 점수에서 모든 레벨의 레전드 레벨을 완료하여 최종 트로피를 잠금 해제하세요!",
     scoreLocked: "이 유닛을 완료하면 잠금이 풀려요.",
+    goToLegend: "레전드 레벨로 가기",
   },
   lesson: {
     check: "확인",

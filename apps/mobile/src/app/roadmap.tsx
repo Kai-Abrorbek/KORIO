@@ -252,6 +252,16 @@ export default function RoadmapScreen() {
     [energy, guardLessonStart, router],
   );
 
+  const handleGoLegend = useCallback(
+    (unitId: string, firstNode: RoadmapNode) => {
+      const idx = processedUnits.findIndex((u) => u.id === unitId);
+      if (idx >= 0) scrollToUnit(idx, true);
+      // 스크롤 살짝 기다렸다가 첫 노드 팝오버 오픈
+      setTimeout(() => setSelectedNodeId(firstNode.id), 400);
+    },
+    [processedUnits, scrollToUnit],
+  );
+
   const handleGuidePress = useCallback((unit: RoadmapUnit) => {
     console.log("guide pressed:", unit.id);
   }, []);
@@ -291,6 +301,7 @@ export default function RoadmapScreen() {
             onNodeLegend={handleNodeLegend}
             onGuidePress={handleGuidePress}
             onJumpTest={handleJumpTest}
+            onGoLegend={handleGoLegend}
           />
         </Pressable>
       );
@@ -302,6 +313,7 @@ export default function RoadmapScreen() {
       handleNodeStart,
       handleNodeReview,
       handleNodeLegend,
+      handleGoLegend,
       handleGuidePress,
       handleJumpTest,
       styles.unitElevated,

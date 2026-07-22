@@ -134,6 +134,7 @@ export default {
     scoreDesc:
       "Finish Legend level on every level at this score to unlock the final trophy!",
     scoreLocked: "Finish this unit to unlock it.",
+    goToLegend: "Go to Legend level",
   },
   lesson: {
     check: "Check",

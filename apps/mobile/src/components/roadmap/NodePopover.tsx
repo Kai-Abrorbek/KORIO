@@ -22,6 +22,7 @@ interface Props {
   canJump?: boolean; // 점프 가능한 잠금노드인가
   onJumpTest?: () => void; // 테스트 시작
   onClose?: () => void;
+  onGoLegend?: (firstNode: RoadmapNode) => void;
 }
 
 const LEGEND_GOLD = "#FFD900";
@@ -38,6 +39,7 @@ export default function NodePopover({
   canJump = false,
   onJumpTest,
   onClose,
+  onGoLegend,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -67,9 +69,26 @@ export default function NodePopover({
         <Text style={styles.activeTitle}>
           {t("roadmap.scoreReview", { score: node.scoreValue ?? 0 })}
         </Text>
-        <Text style={styles.activeSubtitle}>
+        <Text
+          style={[styles.activeSubtitle, { opacity: 0.85, fontWeight: "600" }]}
+        >
           {done ? t("roadmap.scoreDesc") : t("roadmap.scoreLocked")}
         </Text>
+
+        {done && (
+          <TouchableOpacity
+            style={styles.legendCtaBtn}
+            onPress={() => onGoLegend?.(unit.nodes[0])}
+            activeOpacity={0.85}
+          >
+            <View style={styles.legendCtaDepth} />
+            <View style={styles.legendCtaFace}>
+              <Text style={styles.legendCtaText}>
+                {t("roadmap.goToLegend")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -397,4 +416,34 @@ const getStyles = (theme: ThemeColors) =>
     },
     legendText: { fontSize: 16, fontWeight: "900", color: "#8A6D00" },
     legendXpText: { fontSize: 15, fontWeight: "900", color: "#8A6D00" },
+    legendCtaBtn: {
+      marginTop: 4,
+      height: 56,
+      justifyContent: "center",
+    },
+    legendCtaDepth: {
+      position: "absolute",
+      top: 6,
+      left: 0,
+      right: 0,
+      height: 50,
+      borderRadius: 16,
+      backgroundColor: "#E5AE00",
+    },
+    legendCtaFace: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 50,
+      borderRadius: 16,
+      backgroundColor: "#FFC800",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    legendCtaText: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#8A6D00",
+    },
   });

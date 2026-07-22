@@ -133,10 +133,11 @@ export default {
     chestLocked:
       "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
     legendDone: "Siz bu darajada afsona darajasiga yetdingiz!",
-    scoreReview: "{{score}}-ball takrori",
+    scoreReview: "Daraja - {{score}} takrorlash",
     scoreDesc:
-      "Bu ballda barcha darajalarning afsona darajasini tugatib, yakuniy kubokni oching!",
+      "Bu ballga yetganingizdan so‘ng, barcha darajalardagi Legend bosqichlarini tugatib, yakuniy sovrinni qo‘lga kiriting!",
     scoreLocked: "Bu bo'limni tugatsangiz ochiladi.",
+    goToLegend: "Legend bosqichiga o'tish",
   },
   lesson: {
     check: "Tekshirish",

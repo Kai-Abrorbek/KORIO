@@ -30,6 +30,7 @@ interface Props {
   onNodeReview?: (node: RoadmapNode) => void;
   onNodeLegend?: (node: RoadmapNode) => void;
   onJumpTest?: (unit: RoadmapUnit) => void;
+  onGoLegend?: (unitId: string, firstNode: RoadmapNode) => void;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -53,6 +54,7 @@ export default function UnitRoadmap({
   onNodeReview,
   onNodeLegend,
   onJumpTest,
+  onGoLegend,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -197,6 +199,7 @@ export default function UnitRoadmap({
                     onStart={() => onNodeStart?.(node)}
                     onReview={() => onNodeReview?.(node)}
                     onLegend={() => onNodeLegend?.(node)}
+                    onGoLegend={(firstNode) => onGoLegend?.(unit.id, firstNode)}
                     canJump={i === 0 && node.status === "locked"}
                     onJumpTest={() => onJumpTest?.(unit)}
                     onClose={() => onNodeTap(node.id)}
