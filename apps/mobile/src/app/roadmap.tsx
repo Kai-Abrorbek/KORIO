@@ -25,6 +25,7 @@ import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
+import { UserService } from "@/services/user.service";
 
 const UNIT_COLORS = [
   "#776ee2",
@@ -105,6 +106,7 @@ export default function RoadmapScreen() {
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
   const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
 
   const userStats = {
     language: KOR_FLAG,
@@ -166,6 +168,9 @@ export default function RoadmapScreen() {
   const loadRoadmap = useCallback(async () => {
     try {
       setLoading(true);
+      UserService.getMe()
+        .then((me) => updateUser(me as any))
+        .catch(() => {});
       const data = await LessonService.getRoadmap();
       setRoadmap({ ...MOCK_ROADMAP, units: data.units });
       const idx = Math.max(

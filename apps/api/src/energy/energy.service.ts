@@ -1,10 +1,15 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { ENERGY_CONFIG } from './energy.constants';
 import { computeEnergy, minutesToFull } from './energy.util';
 import { isSuperActive } from '../users/super.util';
+import { COMBO_BONUS_THRESHOLD, COMBO_BONUS_MAX } from './energy.constants';
 
 @Injectable()
 export class EnergyService {
@@ -123,7 +128,7 @@ export class EnergyService {
     return this.buildResponse(user, res.secondsToNext);
   }
 
-  private buildResponse(user: User, secondsToNext: number) {
+  private buildResponse(user: User, secondsToNext: number, bonusGranted = 0) {
     const superActive = isSuperActive(user);
     const totalMin = minutesToFull(user.energy, secondsToNext, superActive);
     const todayStart = new Date();
@@ -134,6 +139,7 @@ export class EnergyService {
 
     return {
       energy: user.energy,
+      bonusGranted,
       maxEnergy: ENERGY_CONFIG.MAX,
       gems: user.gems,
       isSuper: superActive,
@@ -147,5 +153,39 @@ export class EnergyService {
         ENERGY_CONFIG.FREE_DAILY_LIMIT - freeUsedToday,
       ),
     };
+  }
+
+  async grantComboBonus(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    const superActive = isSuperActive(user);
+    const now = new Date();
+
+    // 먼저 시간 회복분 반영
+    const regen = computeEnergy(
+      { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
+      superActive,
+      now,
+    );
+    user.energy = regen.energy;
+    user.energyUpdatedAt = regen.energyUpdatedAt;
+
+    const max = ENERGY_CONFIG.MAX; // 25
+    let granted = 0;
+
+    // 슈퍼 아니고, 에너지가 임계값 이하일 때만
+    if (!superActive && user.energy <= COMBO_BONUS_THRESHOLD) {
+      // 25까지 남은 여유
+      const room = Math.max(0, max - user.energy);
+      // 최대 8까지, 단 25 넘지 않게
+      granted = Math.min(COMBO_BONUS_MAX, room);
+      if (granted > 0) {
+        user.energy += granted;
+        await user.save();
+      }
+    }
+
+    return this.buildResponse(user, /* secondsToNext */ 0, granted);
   }
 }

@@ -18,4 +18,8 @@ export const EnergyService = {
   refill: (): Promise<EnergyState> => api.post("/energy/refill", {}),
   claimFree: (): Promise<EnergyState> => api.post("/energy/free", {}),
   consume: (): Promise<EnergyState> => api.post("/energy/consume", {}),
+  comboBonus: (): Promise<EnergyState & { bonusGranted: number }> => {
+    console.log(api.post("/energy/combo-bonus", {}));
+    return api.post("/energy/combo-bonus", {});
+  },
 };

@@ -5,3 +5,7 @@ export const ENERGY_CONFIG = {
   FREE_DAILY_LIMIT: 3, // 무료 +5 하루 횟수
   FREE_AMOUNT: 5, // 무료로 받는 양
 } as const;
+
+export const COMBO_BONUS_STREAK = 4; // 4연속 정답
+export const COMBO_BONUS_THRESHOLD = 15; // 에너지 15 이하일 때만
+export const COMBO_BONUS_MAX = 8; // 최대 8까지

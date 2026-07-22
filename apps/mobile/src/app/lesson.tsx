@@ -41,6 +41,8 @@ import { useEnergyStore } from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
 import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 import LegendHeader from "@/components/lesson/LegendHeader";
+import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
+import LightningStrike from "@/components/lesson/LightningStrike";
 
 type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -95,6 +97,9 @@ export default function LessonScreen() {
   const [showQuit, setShowQuit] = useState(false);
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
   const [hearts, setHearts] = useState(5);
+  const [showBonus, setShowBonus] = useState(false);
+  const [bonusAmount, setBonusAmount] = useState(6);
+  const [showLightning, setShowLightning] = useState(false);
 
   useEffect(() => {
     loadLesson();
@@ -335,7 +340,34 @@ export default function LessonScreen() {
       correctCount.current += 1;
       if (isReview) reviewCorrectIds.current.add(currentQ.id);
       if (phase === "review") finalWrongIds.current.delete(currentQ.id);
-      setCombo((c) => c + 1);
+
+      const nextCombo = combo + 1;
+      setCombo(nextCombo);
+
+      console.log(
+        "COMBO",
+        nextCombo,
+        "mod4:",
+        nextCombo % 4 === 0,
+        "super:",
+        isSuper,
+      );
+
+      // 4연속마다 보너스 에너지 (updater 밖에서 호출)
+      if (nextCombo % 4 === 0 && !isSuper && !isJumpTest) {
+        console.log("CALLING comboBonus");
+        EnergyService.comboBonus()
+          .then((res) => {
+            console.log("SET BONUS TRUE", res.bonusGranted);
+            updateUser({ energy: res.energy, gems: res.gems } as any);
+            setEnergy(res.energy);
+            if (res.bonusGranted > 0) {
+              setBonusAmount(res.bonusGranted);
+              setShowLightning(true);
+            }
+          })
+          .catch((e) => console.log("comboBonus ERROR", e));
+      }
 
       // 슈퍼가 아닐 때만 에너지 소모
       if (!isSuper && !isJumpTest) {
@@ -660,7 +692,22 @@ export default function LessonScreen() {
             />
           )}
 
-          {!isLevelTest && !isJumpTest && <ComboPopup combo={combo} />}
+          {!isLevelTest && !isJumpTest && (
+            <>
+              <LightningStrike
+                visible={showLightning}
+                onDone={() => {
+                  setShowLightning(false);
+                  setShowBonus(true); // 번개 끝 → 배터리
+                }}
+              />
+              <EnergyBonusPopup
+                visible={showBonus}
+                amount={bonusAmount}
+                onDone={() => setShowBonus(false)}
+              />
+            </>
+          )}
         </>
       ) : null}
 
