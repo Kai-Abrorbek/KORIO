@@ -76,6 +76,23 @@ function injectChests(unit: RoadmapUnit): RoadmapUnit {
   return { ...unit, nodes: result };
 }
 
+function appendScoreNode(unit: RoadmapUnit): RoadmapUnit {
+  const last = unit.nodes[unit.nodes.length - 1];
+  if (last?.type === "score") return unit; // 중복 방지
+  return {
+    ...unit,
+    nodes: [
+      ...unit.nodes,
+      {
+        id: `${unit.id}-score`,
+        type: "score" as NodeType,
+        status: unit.status === "completed" ? "completed" : "locked",
+        scoreValue: unit.unitNumber,
+      },
+    ],
+  };
+}
+
 export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -101,7 +118,7 @@ export default function RoadmapScreen() {
   const processedUnits = useMemo(
     () =>
       roadmap.units.map((unit, i) =>
-        injectChests({ ...unit, color: getUnitColor(i) }),
+        appendScoreNode(injectChests({ ...unit, color: getUnitColor(i) })),
       ),
     [roadmap.units],
   );

@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import ScoreNode from "./ScoreNode";
 
 interface Props {
   unit: RoadmapUnit;
@@ -125,7 +126,14 @@ export default function UnitRoadmap({
                   { transform: [{ translateX: offset }] },
                 ]}
               >
-                {i === 0 && node.status === "locked" ? (
+                {node.type === "score" ? (
+                  <ScoreNode
+                    score={node.scoreValue ?? unit.unitNumber}
+                    locked={node.status !== "completed"}
+                    unitColor={unit.color}
+                    onPress={() => onNodeTap(node.id)}
+                  />
+                ) : i === 0 && node.status === "locked" ? (
                   <>
                     <Animated.View style={[animatedStyle, { marginTop: 10 }]}>
                       <View style={styles.bubble}>

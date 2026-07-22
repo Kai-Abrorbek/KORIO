@@ -130,6 +130,10 @@ export default {
     lockedDescription: "Complete all previous levels to unlock this level!",
     chestLocked: "Complete {{count}} more lessons to open this gift box!",
     legendDone: "You reached Legend level on this one!",
+    scoreReview: "Score {{score}} review",
+    scoreDesc:
+      "Finish Legend level on every level at this score to unlock the final trophy!",
+    scoreLocked: "Finish this unit to unlock it.",
   },
   lesson: {
     check: "Check",

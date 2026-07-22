@@ -46,6 +46,34 @@ export default function NodePopover({
   const isLocked = node.status === "locked";
   const isChest = node.type === "chest";
 
+  // 스코어 노드
+  if (node.type === "score") {
+    const done = node.status === "completed";
+    const bg = done ? unit.color : theme.border;
+    return (
+      <View
+        style={[
+          styles.bubble,
+          { backgroundColor: bg, shadowColor: darken(bg, 60) },
+        ]}
+      >
+        <View
+          style={[
+            styles.arrow,
+            { borderBottomColor: bg },
+            { marginLeft: -10 + triangleOffsetX },
+          ]}
+        />
+        <Text style={styles.activeTitle}>
+          {t("roadmap.scoreReview", { score: node.scoreValue ?? 0 })}
+        </Text>
+        <Text style={styles.activeSubtitle}>
+          {done ? t("roadmap.scoreDesc") : t("roadmap.scoreLocked")}
+        </Text>
+      </View>
+    );
+  }
+
   // 상자 (잠금) - 설명만 있음
   if (isChest && isLocked) {
     return (

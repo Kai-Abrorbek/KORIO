@@ -133,6 +133,10 @@ export default {
     chestLocked:
       "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
     legendDone: "Siz bu darajada afsona darajasiga yetdingiz!",
+    scoreReview: "{{score}}-ball takrori",
+    scoreDesc:
+      "Bu ballda barcha darajalarning afsona darajasini tugatib, yakuniy kubokni oching!",
+    scoreLocked: "Bu bo'limni tugatsangiz ochiladi.",
   },
   lesson: {
     check: "Tekshirish",

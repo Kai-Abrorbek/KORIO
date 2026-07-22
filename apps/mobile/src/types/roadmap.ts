@@ -5,6 +5,7 @@ export type NodeType =
   | "chest"
   | "review"
   | "boss"
+  | "score"
   | "play-forward";
 
 export type NodeStatus = "completed" | "current" | "locked";
@@ -30,6 +31,7 @@ export interface RoadmapNode {
   xpReward?: number;
   progress?: number;
   legendCompleted?: boolean;
+  scoreValue?: number;
 }
 
 export interface RoadmapUnit {

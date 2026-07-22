@@ -130,6 +130,10 @@ export default {
     lockedDescription: "이 레벨을 잠금 해제하려면 이전 레벨을 모두 완료하세요!",
     chestLocked: "레슨 {{count}}개를 더 완료하여 이 선물 상자를 열어보세요!",
     legendDone: "이 레벨에서 레전드 레벨을 달성했습니다!",
+    scoreReview: "스코어 {{score}} 복습",
+    scoreDesc:
+      "이 점수에서 모든 레벨의 레전드 레벨을 완료하여 최종 트로피를 잠금 해제하세요!",
+    scoreLocked: "이 유닛을 완료하면 잠금이 풀려요.",
   },
   lesson: {
     check: "확인",
