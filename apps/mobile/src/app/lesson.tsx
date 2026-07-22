@@ -100,6 +100,7 @@ export default function LessonScreen() {
   const [showBonus, setShowBonus] = useState(false);
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
+  const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
 
   useEffect(() => {
     loadLesson();
@@ -376,13 +377,14 @@ export default function LessonScreen() {
             if (consumeRes.energy <= 0) openEnergyModal();
 
             // 2) 4연속이면 소모 반영된 뒤 보너스
-            if (nextCombo % 4 === 0) {
+            if (nextCombo % 4 === 0 && !bonusGiven.current) {
               const bonusRes = await EnergyService.comboBonus();
-              updateUser({
-                energy: bonusRes.energy,
-                gems: bonusRes.gems,
-              } as any);
               if (bonusRes.bonusGranted > 0) {
+                bonusGiven.current = true; // 이 레슨에선 다시 안 줌
+                updateUser({
+                  energy: bonusRes.energy,
+                  gems: bonusRes.gems,
+                } as any);
                 setBonusAmount(bonusRes.bonusGranted);
                 setShowLightning(true);
                 setShowBonus(true);

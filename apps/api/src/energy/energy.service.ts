@@ -162,7 +162,25 @@ export class EnergyService {
     const superActive = isSuperActive(user);
     const now = new Date();
 
-    // 먼저 시간 회복분 반영
+    // 쿨다운: 마지막 보너스 후 30분 안 지났으면 안 줌
+    const COOLDOWN_MS = 30 * 60 * 1000;
+    if (
+      user.lastComboBonusAt &&
+      now.getTime() - new Date(user.lastComboBonusAt).getTime() < COOLDOWN_MS
+    ) {
+      // 회복만 반영하고 보너스 0
+      const regen = computeEnergy(
+        { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
+        superActive,
+        now,
+      );
+      user.energy = regen.energy;
+      user.energyUpdatedAt = regen.energyUpdatedAt;
+      await user.save();
+      return this.buildResponse(user, 0, 0);
+    }
+
+    // 회복 반영
     const regen = computeEnergy(
       { energy: user.energy, energyUpdatedAt: user.energyUpdatedAt },
       superActive,
@@ -171,21 +189,19 @@ export class EnergyService {
     user.energy = regen.energy;
     user.energyUpdatedAt = regen.energyUpdatedAt;
 
-    const max = ENERGY_CONFIG.MAX; // 25
+    const max = ENERGY_CONFIG.MAX;
     let granted = 0;
 
-    // 슈퍼 아니고, 에너지가 임계값 이하일 때만
     if (!superActive && user.energy <= COMBO_BONUS_THRESHOLD) {
-      // 25까지 남은 여유
       const room = Math.max(0, max - user.energy);
-      // 최대 8까지, 단 25 넘지 않게
       granted = Math.min(COMBO_BONUS_MAX, room);
       if (granted > 0) {
         user.energy += granted;
-        await user.save();
+        user.lastComboBonusAt = now; // ✅ 지급 시각 기록
       }
     }
 
-    return this.buildResponse(user, /* secondsToNext */ 0, granted);
+    await user.save();
+    return this.buildResponse(user, 0, granted);
   }
 }

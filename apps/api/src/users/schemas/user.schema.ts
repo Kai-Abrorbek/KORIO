@@ -138,6 +138,9 @@ export class User {
   @Prop({ type: [Types.ObjectId], ref: 'LessonNode', default: [] })
   legendNodes: Types.ObjectId[];
 
+  @Prop({ default: null })
+  lastComboBonusAt: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
