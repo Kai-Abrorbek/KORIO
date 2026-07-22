@@ -22,6 +22,18 @@ import {
   UNIT7_NODES,
   UNIT8_QUESTIONS,
   UNIT8_NODES,
+  S2_UNIT1_QUESTIONS,
+  S2_UNIT1_NODES,
+  S2_UNIT2_QUESTIONS,
+  S2_UNIT2_NODES,
+  S2_UNIT3_QUESTIONS,
+  S2_UNIT3_NODES,
+  S2_UNIT4_QUESTIONS,
+  S2_UNIT4_NODES,
+  S2_UNIT5_QUESTIONS,
+  S2_UNIT5_NODES,
+  S2_UNIT6_QUESTIONS,
+  S2_UNIT6_NODES,
 } from './data';
 
 async function seed() {
@@ -44,6 +56,13 @@ async function seed() {
     ...UNIT6_QUESTIONS,
     ...UNIT7_QUESTIONS,
     ...UNIT8_QUESTIONS,
+
+    ...S2_UNIT1_QUESTIONS,
+    ...S2_UNIT2_QUESTIONS,
+    ...S2_UNIT3_QUESTIONS,
+    ...S2_UNIT4_QUESTIONS,
+    ...S2_UNIT5_QUESTIONS,
+    ...S2_UNIT6_QUESTIONS,
   };
 
   const allNodes = [
@@ -55,6 +74,13 @@ async function seed() {
     ...UNIT6_NODES,
     ...UNIT7_NODES,
     ...UNIT8_NODES,
+
+    ...S2_UNIT1_NODES,
+    ...S2_UNIT2_NODES,
+    ...S2_UNIT3_NODES,
+    ...S2_UNIT4_NODES,
+    ...S2_UNIT5_NODES,
+    ...S2_UNIT6_NODES,
   ];
 
   for (const nodeData of allNodes) {
