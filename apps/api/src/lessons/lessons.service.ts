@@ -18,6 +18,7 @@ import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { calcLessonXp } from './economy.const';
 import { rollChestReward } from './xp.util';
+import { UsersService } from '../users/users.service';
 
 const LEGEND_XP = 40;
 
@@ -37,6 +38,7 @@ export class LessonsService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private leagueService: LeagueService,
+    private usersService: UsersService,
   ) {}
 
   private extractI18n(obj: any, lang: string): string {
@@ -143,6 +145,15 @@ export class LessonsService {
       },
       { upsert: true, returnDocument: 'after' },
     );
+
+    // ── 연속 학습일 갱신 (오늘 기록 저장된 뒤에 호출해야 함) ──
+    await this.usersService.syncStreak(userId).catch(() => {});
+    await this.userModel
+      .updateOne(
+        { _id: new Types.ObjectId(userId) },
+        { $set: { lastStudiedAt: new Date() } },
+      )
+      .catch(() => {});
 
     await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
 

@@ -15,6 +15,7 @@ import { calculateLevel } from '../common/enums/level.enum';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive } from './super.util';
+import { calcStreak } from './utils/streak.util';
 
 @Injectable()
 export class UsersService {
@@ -63,6 +64,10 @@ export class UsersService {
       isCompleted: true,
     });
     const currentUnitProgress = await this.calcCurrentUnitProgress(userId);
+
+    // 스트릭은 파생 데이터 → 읽을 때 계산해야 "끊김"도 즉시 반영됨
+    const streak = await this.syncStreak(userId, user.longestStreak || 0);
+
     return {
       id: user._id.toString(),
       email: user.email,
@@ -73,8 +78,8 @@ export class UsersService {
       country: user.country || '',
       level: user.level,
       totalXP: user.totalXP || 0,
-      streak: user.streak || 0,
-      longestStreak: user.longestStreak || 0,
+      streak: streak.current,
+      longestStreak: streak.longest,
       league: user.league,
       isSuper: isSuperActive(user),
       streakFreeze: user.streakFreeze || 0,
@@ -408,26 +413,74 @@ export class UsersService {
     }
   }
 
-  /** 특정 월의 학습한 날짜 리스트 (1-31) */
+  /**
+   * UserStats 기준으로 연속 학습일을 계산하고, 값이 바뀌었으면 user 에 반영.
+   * 읽기 시점에 계산하므로 "이틀 이상 안 하면 끊김"이 자동으로 반영된다.
+   */
+  async syncStreak(userId: string, prevLongest = 0) {
+    const uId = new Types.ObjectId(userId);
+    const rows = await this.statsModel
+      .find({
+        userId: uId,
+        $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
+      })
+      .select('date')
+      .lean();
+
+    const { current, longest } = calcStreak(rows.map((r) => r.date));
+    const nextLongest = Math.max(longest, current, prevLongest);
+
+    await this.userModel
+      .updateOne(
+        { _id: uId },
+        { $set: { streak: current, longestStreak: nextLongest } },
+      )
+      .catch(() => {});
+
+    return { current, longest: nextLongest };
+  }
+
+  /** 특정 월의 학습한 날짜 리스트 (1-31) + 연속 학습일 */
   async getCalendar(userId: string, year: number, month: number) {
     // month 는 1-12 (0-indexed 가 아니라)
     const start = new Date(year, month - 1, 1, 0, 0, 0);
     const end = new Date(year, month, 1, 0, 0, 0);
+    const uId = new Types.ObjectId(userId);
+    // 실제로 학습이 있었던 날만 (빈 레코드 제외)
+    const studied = {
+      $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
+    };
 
-    const stats = await this.statsModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        date: { $gte: start, $lt: end },
-        $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
-      })
-      .lean();
+    const [monthStats, allStats] = await Promise.all([
+      this.statsModel
+        .find({ userId: uId, date: { $gte: start, $lt: end }, ...studied })
+        .select('date')
+        .lean(),
+      // 연속 계산은 월 경계를 넘나들기 때문에 전체 기록이 필요
+      this.statsModel
+        .find({ userId: uId, ...studied })
+        .select('date')
+        .lean(),
+    ]);
 
-    const completedDays = stats.map((s) => new Date(s.date).getDate());
+    const completedDays = Array.from(
+      new Set(monthStats.map((s) => new Date(s.date).getDate())),
+    ).sort((a, b) => a - b);
+
+    const { current, longest, days } = calcStreak(allStats.map((s) => s.date));
+
+    // 현재 연속 구간 중 이번 달에 속하는 날짜만 (달력 하이라이트용)
+    const streakDays = days
+      .filter((d) => d.getFullYear() === year && d.getMonth() === month - 1)
+      .map((d) => d.getDate());
 
     return {
       year,
       month,
-      completedDays: Array.from(new Set(completedDays)).sort((a, b) => a - b),
+      completedDays,
+      streakDays,
+      streak: current,
+      longestStreak: longest,
     };
   }
 

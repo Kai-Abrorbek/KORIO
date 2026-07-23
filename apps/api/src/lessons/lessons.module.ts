@@ -12,6 +12,7 @@ import {
 import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { LeagueModule } from '../league/league.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { LeagueModule } from '../league/league.module';
       { name: User.name, schema: UserSchema },
     ]),
     LeagueModule,
+    UsersModule,
   ],
   controllers: [LessonsController],
   providers: [LessonsService],
