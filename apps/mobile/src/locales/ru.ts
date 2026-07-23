@@ -145,6 +145,7 @@ export default {
   lesson: {
     check: "Проверить",
     next: "Продолжить",
+    meaningShort: "Значение:",
     combo: "Combo",
     quitTitle: "Подождите, до конца урока всего 1 минута!",
     quitContinue: "Продолжить",

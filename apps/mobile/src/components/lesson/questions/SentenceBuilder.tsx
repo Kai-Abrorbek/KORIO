@@ -19,7 +19,6 @@ import AnswerChip, {
   GhostChip,
   ChipLayout,
 } from "@/components/lesson/AnswerChip";
-import OwlMascot, { OwlState } from "@/components/lesson/OwlMascot";
 
 interface Props {
   question: LessonQuestion;

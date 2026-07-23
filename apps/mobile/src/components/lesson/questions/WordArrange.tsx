@@ -24,7 +24,6 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
-import OwlMascot, { OwlState } from "@/components/lesson/OwlMascot";
 import AnswerChip, {
   GhostChip,
   ChipLayout,
@@ -74,15 +73,6 @@ export default function WordArrange({
     }, 600);
     return () => clearTimeout(timer);
   }, []);
-
-  const owlState: OwlState =
-    answerState === "correct" && combo >= 3
-      ? "combo"
-      : answerState === "correct"
-        ? "correct"
-        : answerState === "wrong"
-          ? "wrong"
-          : "idle";
 
   const placedWords = words
     .filter((w) => w.zone === "placed")
@@ -178,7 +168,6 @@ export default function WordArrange({
               resizeMode="contain"
             />
           </View>
-          {/* <OwlMascot state={owlState} size={100} /> */}
           <View style={s.speakerBubble}>
             {/* 말풍선 꼬리 (테두리) */}
             <View style={s.tailBorder} />

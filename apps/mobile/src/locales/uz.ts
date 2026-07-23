@@ -148,6 +148,7 @@ export default {
     next: "Davom etish",
     quitTitle: "Shoshmang, bu darsga atigi 1 daqiqa qoldi!",
     quitContinue: "Davom etish",
+    meaningShort: "Ma'nosi:",
     quitLeave: "To'xtatish",
     combo: "Combo",
     correct: "Juda zo'r!",

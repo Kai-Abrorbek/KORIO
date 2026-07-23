@@ -66,6 +66,7 @@ export class LessonsService {
       pairs: q.pairs || [],
       hint: this.extractI18n(q.hint, lang),
       explanation: this.extractI18n(q.explanation, lang),
+      answerTranslation: this.extractI18n(q.answerTranslation, lang),
       audioUrl: q.audioUrl || '',
       imageUrl: q.imageUrl || '',
       xpReward: q.xpReward || 10,

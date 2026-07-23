@@ -148,6 +148,7 @@ export default {
     quitLeave: "Quit",
     next: "Continue",
     correct: "Great job!",
+    meaningShort: "Meaning:",
     wrong: "Incorrect!",
     correctAnswer: "Correct answer",
     meaning: "Correct! Meaning",

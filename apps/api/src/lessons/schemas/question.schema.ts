@@ -112,6 +112,12 @@ export class Question {
   @Prop({ type: I18nText, default: {} })
   explanation: I18nText;
 
+  // 정답(한국어)의 뜻 - 유저 언어로.
+  // explanation 이 "왜 그런지"라면 이건 "무슨 뜻인지".
+  // 학습자가 정답 문장의 의미를 모르면 학습이 안 되므로 피드백에 함께 보여준다.
+  @Prop({ type: I18nText, default: {} })
+  answerTranslation: I18nText;
+
   // 오디오 URL (speaking, listening, word_arrange)
   @Prop({ default: '' })
   audioUrl: string;

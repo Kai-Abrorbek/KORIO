@@ -701,6 +701,8 @@ export default function LessonScreen() {
           {!isLevelTest && (
             <FeedbackBar
               state={answerState}
+              answer={currentQ.answer}
+              answerTranslation={currentQ.answerTranslation}
               explanation={currentQ.explanation}
               onNext={handleNext}
               theme={theme}

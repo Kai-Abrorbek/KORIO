@@ -44,6 +44,8 @@ export interface LessonQuestion {
   answer: string;
   hint?: string;
   explanation?: string;
+  /** 정답의 뜻 (유저 언어) */
+  answerTranslation?: string;
   audioUrl?: string;
   imageUrl?: string;
   xpReward: number;

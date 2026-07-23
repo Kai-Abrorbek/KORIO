@@ -143,6 +143,7 @@ export default {
   lesson: {
     check: "확인",
     next: "계속",
+    meaningShort: "의미:",
     quitTitle: "잠깐만요, 이 레슨이 1분밖에 안 남았어요!",
     quitContinue: "계속 학습하기",
     quitLeave: "그만하기",
