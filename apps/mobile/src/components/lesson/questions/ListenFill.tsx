@@ -44,7 +44,8 @@ export default function ListenFill({
   const MAX_BLANK = winW - 112; // 좌우 패딩 + 여유
   const blankWidth = Math.min(MAX_BLANK, Math.max(90, measuredW + 18));
   const locked = answerState !== "idle";
-  const audioText = question.answer; // 듣기용 정답 문장(전체)
+  const audioText =
+    question.sentencePrefix + question.answer + question.sentenceSuffix; // 듣기용 정답 문장(전체)
 
   // 문제 진입 시 자동 재생 (문제 바뀌면 다시 1회)
   useEffect(() => {
