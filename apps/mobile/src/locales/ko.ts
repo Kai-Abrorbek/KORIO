@@ -671,6 +671,8 @@ export default {
     startTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",
     startBtn: "테스트 시작하기",
     later: "나중에",
+    startTitleSection:
+      "이 테스트를 통과하면 섹션 {{section}}(으)로 건너뜁니다.",
   },
   legend: {
     introTitle: "레전드급 실력을 증명하세요! 덤으로 추가 보상도 드립니다.",

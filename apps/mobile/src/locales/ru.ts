@@ -695,6 +695,8 @@ export default {
     startTitle: "Перейдите к юниту {{unit}} и покажите навыки!",
     startBtn: "Начать тест",
     later: "Позже",
+    // ru.ts
+    startTitleSection: "Пройдите тест, чтобы перейти к разделу {{section}}.",
   },
   legend: {
     introTitle: "Докажите легендарный уровень! Плюс бонусные награды.",

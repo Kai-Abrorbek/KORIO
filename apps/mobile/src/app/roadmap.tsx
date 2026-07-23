@@ -309,6 +309,7 @@ export default function RoadmapScreen() {
       params: {
         section: String(next.sectionNumber),
         unit: String(next.firstUnitNumber || 1),
+        target: "section",
       },
     });
   }, [roadmap.nextSection, router]);

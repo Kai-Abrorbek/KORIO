@@ -695,6 +695,8 @@ export default {
     startTitle: "Jump to Unit {{unit}} and prove your skills!",
     startBtn: "Start test",
     later: "Maybe later",
+    // en.ts
+    startTitleSection: "Pass this test to skip ahead to Section {{section}}.",
   },
   legend: {
     introTitle: "Prove your legendary skills! Plus, earn extra rewards.",

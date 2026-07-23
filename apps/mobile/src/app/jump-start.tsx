@@ -13,15 +13,22 @@ export default function JumpStartScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
-  const { section, unit } = useLocalSearchParams<{
+  const { section, unit, target } = useLocalSearchParams<{
     section?: string;
     unit?: string;
+    target?: string;
   }>();
+
+  const isSectionJump = target === "section";
 
   const goIntro = () => {
     router.push({
       pathname: "/jump-intro",
-      params: { section: String(section), unit: String(unit) },
+      params: {
+        section: String(section),
+        unit: String(unit),
+        target: String(target ?? ""),
+      },
     });
   };
 
@@ -39,10 +46,12 @@ export default function JumpStartScreen() {
     >
       <View style={s.center}>
         {/* 국기 + 유닛 번호 */}
-        <Animated.View entering={FadeIn.duration(300)} style={s.flagRow}>
-          <Text style={s.flag}>🇺🇸</Text>
-          <Text style={s.unitNum}>{unit}</Text>
-        </Animated.View>
+        {!isSectionJump && (
+          <Animated.View entering={FadeIn.duration(300)} style={s.flagRow}>
+            <Text style={s.flag}>🇰🇷</Text>
+            <Text style={s.unitNum}>{unit}</Text>
+          </Animated.View>
+        )}
 
         {/* 마스코트 */}
         <Animated.View entering={FadeInDown.delay(150)} style={s.mascot}>
@@ -51,7 +60,9 @@ export default function JumpStartScreen() {
 
         {/* 설명 */}
         <Animated.Text entering={FadeInDown.delay(300)} style={s.title}>
-          {t("jump.startTitle", { unit })}
+          {isSectionJump
+            ? t("jump.startTitleSection", { section })
+            : t("jump.startTitle", { unit })}
         </Animated.Text>
       </View>
 

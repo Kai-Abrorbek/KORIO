@@ -677,6 +677,8 @@ export default {
     startTitle: "Unit {{unit}}ga o'tib, mahoratingizni ko'rsating!",
     startBtn: "Testni boshlash",
     later: "Keyinroq",
+    // uz.ts
+    startTitleSection: "Bu testdan o'tsangiz, {{section}}-bo'limga o'tasiz.",
   },
   legend: {
     introTitle: "Mahoratingizni isbotlang! Qo'shimcha mukofot ham bor.",
