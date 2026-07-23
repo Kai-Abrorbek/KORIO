@@ -19,7 +19,17 @@ export const LessonService = {
     return api.get(`/lessons?lang=${getLang()}`);
   },
 
-  getRoadmap: (): Promise<{ units: any[] }> => {
+  getRoadmap: (): Promise<{
+    units: any[];
+    score: number;
+    currentSection: number;
+    nextSection: {
+      sectionNumber: number;
+      title: string;
+      description: string;
+      firstUnitNumber: number;
+    } | null;
+  }> => {
     return api.get(`/lessons/roadmap?lang=${getLang()}`);
   },
 

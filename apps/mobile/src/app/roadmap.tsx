@@ -26,6 +26,7 @@ import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
+import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 
 const UNIT_COLORS = [
   "#776ee2",
@@ -172,19 +173,20 @@ export default function RoadmapScreen() {
         .then((me) => updateUser(me as any))
         .catch(() => {});
 
-      const userScoreData = await LessonService.getScore();
       const data = await LessonService.getRoadmap();
       setRoadmap({
-        score: userScoreData.score,
+        score: data.score,
         stats: {
           energy: user?.energy,
           gems: user?.gems,
           isSuper: user?.isSuper,
           language: KOR_FLAG,
-          score: userScoreData.score,
+          score: data.score,
           streak: user?.streak,
         },
         units: data.units,
+        currentSection: data.currentSection,
+        nextSection: data.nextSection,
       });
       const idx = Math.max(
         0,
@@ -298,6 +300,19 @@ export default function RoadmapScreen() {
     [router],
   );
 
+  const handleNextSectionJump = useCallback(() => {
+    const next = roadmap.nextSection;
+    if (!next) return;
+    setSelectedNodeId(null);
+    router.push({
+      pathname: "/jump-start",
+      params: {
+        section: String(next.sectionNumber),
+        unit: String(next.firstUnitNumber || 1),
+      },
+    });
+  }, [roadmap.nextSection, router]);
+
   const handleScrollToggle = useCallback(() => {
     scrollToUnit(currentUnitIdx, true);
   }, [currentUnitIdx, scrollToUnit]);
@@ -383,6 +398,16 @@ export default function RoadmapScreen() {
         maxToRenderPerBatch={2}
         initialNumToRender={2}
         updateCellsBatchingPeriod={60}
+        ListFooterComponent={
+          roadmap.nextSection ? (
+            <NextSectionLocked
+              sectionNumber={roadmap.nextSection.sectionNumber}
+              title={roadmap.nextSection.title}
+              description={roadmap.nextSection.description}
+              onJump={handleNextSectionJump}
+            />
+          ) : null
+        }
       />
 
       {/* current 유닛으로 점프 버튼 */}

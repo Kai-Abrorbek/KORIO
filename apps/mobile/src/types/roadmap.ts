@@ -63,4 +63,11 @@ export interface RoadmapData {
   score: number;
   units: RoadmapUnit[];
   nextLockedSection?: NextLockedSection;
+  currentSection?: number;
+  nextSection?: {
+    sectionNumber: number;
+    title: string;
+    description: string;
+    firstUnitNumber: number;
+  } | null;
 }
