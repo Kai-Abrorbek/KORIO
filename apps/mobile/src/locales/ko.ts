@@ -217,6 +217,8 @@ export default {
       expression: "표현",
       conversation: "실전 회화",
       listening: "리스닝",
+      topik: "토픽",
+      other: "기타",
     },
     categoryTrophy: "{{category}} 트로피",
     todayStudyTime: "오늘 학습 시간",

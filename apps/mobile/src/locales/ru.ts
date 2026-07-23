@@ -214,6 +214,8 @@ export default {
       expression: "Выражения",
       conversation: "Разговор",
       listening: "Аудирование",
+      topik: "TOPIK",
+      other: "Другое",
     },
     categoryTrophy: "Трофей: {{category}}",
     totalProblems: "Всего задач",

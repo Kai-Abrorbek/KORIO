@@ -25,11 +25,6 @@ export interface DayStats {
   totalQuestions: number;
   correctQuestions: number;
   xpEarned: number;
-  vocabularyCount: number;
-  grammarCount: number;
-  expressionCount: number;
-  conversationCount: number;
-  listeningCount: number;
   categories: Record<StudyCategory, number>;
 }
 

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StudyCategory } from "@/types/stats";
-import { CATEGORY_LIST } from "@/mocks/stats.mock";
+import { CATEGORY_LIST } from "@/constants/stats";
 
 interface Props {
   value: StudyCategory;

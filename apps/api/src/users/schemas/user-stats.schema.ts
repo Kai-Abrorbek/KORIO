@@ -23,21 +23,6 @@ export class UserStats {
   @Prop({ default: 0 })
   xpEarned: number;
 
-  @Prop({ default: 0 })
-  vocabularyCount: number;
-
-  @Prop({ default: 0 })
-  grammarCount: number;
-
-  @Prop({ default: 0 })
-  expressionCount: number;
-
-  @Prop({ default: 0 })
-  conversationCount: number;
-
-  @Prop({ default: 0 })
-  listeningCount: number;
-
   // 기존 vocabularyCount ~ listeningCount 5개 @Prop 전부 삭제하고 ↓
   /**
    * 카테고리별 문제 수. { vocab: 12, grammar: 8, topik: 4, ... }

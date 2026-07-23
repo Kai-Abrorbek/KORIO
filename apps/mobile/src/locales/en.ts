@@ -213,6 +213,8 @@ export default {
       expression: "Expression",
       conversation: "Conversation",
       listening: "Listening",
+      topik: "TOPIK",
+      other: "Other",
     },
     categoryTrophy: "{{category}} Trophy",
     todayStudyTime: "Today's Study Time",

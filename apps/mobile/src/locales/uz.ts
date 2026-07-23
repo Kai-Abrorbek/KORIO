@@ -217,6 +217,8 @@ export default {
       expression: "Iboralar",
       conversation: "Suhbat",
       listening: "Tinglash",
+      topik: "TOPIK",
+      other: "Boshqa",
     },
     categoryTrophy: "{{category}} sovrini",
     todayStudyTime: "Bugungi o'qish vaqti",

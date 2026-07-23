@@ -744,6 +744,7 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "flex-end",
       marginBottom: 2,
+      paddingVertical: 10,
     },
     chartItem: {
       flex: 1,
@@ -752,7 +753,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     chartBarWrap: {
       height: CHART_HEIGHT,
-      width: "56%",
+      width: "50%",
       justifyContent: "flex-end",
       overflow: "hidden",
     },
@@ -823,7 +824,7 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 4,
     },
     legendText: {
-      fontSize: 12,
+      fontSize: 10,
       fontWeight: "600",
       color: theme.textSecondary,
     },

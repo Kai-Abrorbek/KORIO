@@ -17,15 +17,16 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StudyPeriod, VolumePoint } from "@/types/stats";
-import { CATEGORY_COLORS, CATEGORY_LIST } from "@/mocks/stats.mock";
 import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
+import { ALL_CATEGORIES, CATEGORY_COLORS } from "@/constants/stats";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CHART_WIDTH = SCREEN_WIDTH - 32 - 36;
 const CHART_HEIGHT = 140;
-
+const SEG_GAP = 3; // 색 구간 사이 간격
+const SEG_MIN = 4; // 값이 있으면 최소 이만큼은 보이게
 function getVisibleLabelIndices(period: StudyPeriod, count: number): number[] {
   if (period === "week" || period === "year") {
     return Array.from({ length: count }, (_, i) => i);
@@ -55,12 +56,7 @@ function StackedBar({
   barWidth: number;
 }) {
   const theme = useTheme();
-  const total =
-    point.vocab +
-    point.grammar +
-    point.expression +
-    point.conversation +
-    point.listening;
+  const total = ALL_CATEGORIES.reduce((n, c) => n + (point[c] ?? 0), 0);
 
   const height = useSharedValue(0);
 
@@ -96,20 +92,24 @@ function StackedBar({
       style={[
         {
           width: barWidth,
-          borderRadius: 4,
-          overflow: "hidden",
           flexDirection: "column-reverse",
+          gap: SEG_GAP,
         },
         animatedStyle,
       ]}
     >
-      {CATEGORY_LIST.map((cat) => {
-        const v = point[cat];
+      {ALL_CATEGORIES.map((cat) => {
+        const v = point[cat] ?? 0;
         if (v === 0) return null;
         return (
           <View
             key={cat}
-            style={{ flex: v, backgroundColor: CATEGORY_COLORS[cat] }}
+            style={{
+              flex: v,
+              minHeight: SEG_MIN,
+              borderRadius: Math.min(4, barWidth / 2),
+              backgroundColor: CATEGORY_COLORS[cat],
+            }}
           />
         );
       })}
@@ -140,9 +140,7 @@ export default function StudyVolumeChart() {
 
   const maxTotal = Math.max(
     1,
-    ...points.map(
-      (p) => p.vocab + p.grammar + p.expression + p.conversation + p.listening,
-    ),
+    ...points.map((p) => ALL_CATEGORIES.reduce((n, c) => n + (p[c] ?? 0), 0)),
   );
 
   const visibleLabels = getVisibleLabelIndices(period, points.length);
@@ -168,18 +166,18 @@ export default function StudyVolumeChart() {
       <Text style={themed.title}>{t("stats.studyVolume")}</Text>
       {avgPerDay > 0 ? (
         <Text style={themed.subtitle}>
-          {t("stats.avgStudyVolume")}{" "}
+          {t("stats.avgVolume")}{" "}
           <Text style={themed.accent}>
-            {t("stats.questionsCount", { count: avgPerDay })}
+            {t("stats.problemsCount", { count: avgPerDay })}
           </Text>
-          {t("stats.avgStudyVolumeSuffix")}
+          {t("stats.avgVolumeSuffix")}
         </Text>
       ) : (
         <Text style={themed.subtitle}>{t("stats.noStudyRecord")}</Text>
       )}
 
       <View style={themed.legend}>
-        {CATEGORY_LIST.map((cat) => (
+        {ALL_CATEGORIES.map((cat) => (
           <View key={cat} style={themed.legendItem}>
             <View
               style={[
@@ -246,7 +244,7 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.text,
       marginBottom: 8,
     },
-    subtitle: { fontSize: 13, color: theme.textSecondary, marginBottom: 14 },
+    subtitle: { fontSize: 11, color: theme.textSecondary, marginBottom: 14 },
     accent: { color: "#776ee2", fontWeight: "700" },
     legend: {
       flexDirection: "row",
@@ -256,7 +254,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     legendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
     legendDot: { width: 7, height: 7, borderRadius: 4 },
-    legendText: { fontSize: 11, fontWeight: "600", color: theme.textSecondary },
+    legendText: { fontSize: 10, fontWeight: "600", color: theme.textSecondary },
     chartArea: {
       flexDirection: "row",
       alignItems: "flex-end",
