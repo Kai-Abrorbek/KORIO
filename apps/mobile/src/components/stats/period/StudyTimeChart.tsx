@@ -127,7 +127,7 @@ export default function StudyTimeChart() {
 
       <Text style={themed.title}>{t("stats.studyTime")}</Text>
       <Text style={themed.subtitle}>
-        {t("stats.avgStudyTime")}{" "}
+        {t(`stats.avgStudyTime.${period}`)}{" "}
         <Text style={themed.accent}>{avgPerDayLabel}</Text>
         {t("stats.avgStudyTimeSuffix")}
       </Text>

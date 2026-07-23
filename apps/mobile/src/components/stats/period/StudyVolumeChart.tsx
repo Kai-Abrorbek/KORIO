@@ -166,7 +166,7 @@ export default function StudyVolumeChart() {
       <Text style={themed.title}>{t("stats.studyVolume")}</Text>
       {avgPerDay > 0 ? (
         <Text style={themed.subtitle}>
-          {t("stats.avgVolume")}{" "}
+          {t(`stats.avgVolume.${period}`)}{" "}
           <Text style={themed.accent}>
             {t("stats.problemsCount", { count: avgPerDay })}
           </Text>
