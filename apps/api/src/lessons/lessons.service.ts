@@ -16,11 +16,12 @@ import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
-import { calcLessonXp } from './economy.const';
 import { rollChestReward } from './xp.util';
 import { UsersService } from '../users/users.service';
 import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
+import { CompletePracticeDto } from './dto/complete-practice.dto';
+import { calcLessonXp, calcPracticeXp } from './economy.const';
 
 const LEGEND_XP = 40;
 
@@ -220,6 +221,32 @@ export class LessonsService {
       energy: updatedUser?.energy ?? 0,
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
     };
+  }
+
+  /**
+   * 복습 · 단어연습 등 레슨이 아닌 학습 완료 처리.
+   * XP 는 서버가 모드로 결정하고(클라 값 무시), 통계는 실제 푼 문제 기준으로 남긴다.
+   */
+  async completePractice(userId: string, dto: CompletePracticeDto) {
+    const ids = (dto.questionIds ?? []).filter((id) =>
+      Types.ObjectId.isValid(id),
+    );
+    const wrong = new Set(dto.wrongQuestionIds ?? []).size;
+    const correct = Math.max(0, ids.length - wrong);
+    const xp = calcPracticeXp(dto.mode, dto.combo ?? 0, correct);
+
+    // 문제 수 · 학습 시간 · 카테고리 (XP 는 아래 addXp 가 기록하므로 여기선 0)
+    await this.recordStudy(userId, {
+      questionIds: ids.map((id) => new Types.ObjectId(id)),
+      wrongQuestionIds: dto.wrongQuestionIds,
+      speedSeconds: dto.speedSeconds,
+      xpEarned: 0,
+    });
+
+    // totalXP · UserStats.xpEarned · 리그 반영
+    const res = await this.addXp(userId, xp);
+
+    return { success: true, xpEarned: xp, totalXP: res.totalXP ?? 0 };
   }
 
   /**
@@ -821,6 +848,17 @@ export class LessonsService {
       { _id: uId },
       { $addToSet: { legendNodes: node._id } },
     );
+
+    // 레전드도 학습 통계에 반영 (문제 수 · 카테고리)
+    const legendLessons = await this.lessonModel
+      .find({ _id: { $in: node.lessonIds ?? [] } })
+      .select('questionIds')
+      .lean();
+    const legendQuestionIds = legendLessons.flatMap((l) => l.questionIds ?? []);
+    await this.recordStudy(userId, {
+      questionIds: legendQuestionIds,
+      xpEarned: 0,
+    }).catch(() => {});
 
     // XP는 서버가 정함 (통계·리그 반영까지 addXp가 처리)
     const res = await this.addXp(userId, LEGEND_XP);

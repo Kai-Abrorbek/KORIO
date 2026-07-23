@@ -406,11 +406,6 @@ export default function LessonScreen() {
   const finishLesson = async () => {
     const wrongArr = [...finalWrongIds.current];
 
-    // XP 계산: 기본 20 + 콤보 보너스
-    const baseXp = isLegend ? LEGEND_XP : isNodeReview ? 5 : 20;
-    const comboBonus = isLegend || isNodeReview ? 0 : Math.max(0, combo);
-    const earnedXp = baseXp + comboBonus;
-
     // 정답률 / 시간
     const total = totalCount.current || 1;
     const accuracy = Math.round((correctCount.current / total) * 100);
@@ -419,35 +414,59 @@ export default function LessonScreen() {
     const ss = String(seconds % 60).padStart(2, "0");
     const timeStr = `${mm}:${ss}`;
 
-    if (isReview) {
+    // 이번 세션에서 실제로 푼 문제들 (통계 카테고리 집계의 근거)
+    const practicedIds = (lesson?.questions ?? [])
+      .map((q: any) => q.id)
+      .filter(Boolean);
+
+    // 완료 화면에 띄울 XP — 서버가 확정한 값으로 채운다
+    let earnedXp = 0;
+
+    if (isReview || isWordPractice) {
       // 복습은 unmount에서 resolveMistakes 처리
-      LessonService.addXp(earnedXp)
-        .then((r) => {
-          updateUser({ totalXP: r.totalXP } as any);
-        })
-        .catch(() => {});
+      try {
+        const r = await LessonService.completePractice({
+          mode: isWordPractice ? "wordPractice" : "review",
+          questionIds: practicedIds,
+          wrongQuestionIds: wrongArr,
+          speedSeconds: seconds,
+          combo,
+        });
+        earnedXp = r.xpEarned;
+        updateUser({ totalXP: r.totalXP } as any);
+      } catch (err) {
+        console.error("연습 완료 저장 실패:", err);
+      }
     } else if (isNodeReview || isLegend) {
       if (isLegend && nodeId) {
-        LessonService.completeLegend(nodeId)
-          .then((r) => updateUser({ totalXP: r.totalXP } as any))
-          .catch(() => {});
+        try {
+          const r = await LessonService.completeLegend(nodeId);
+          earnedXp = r.xpEarned;
+          updateUser({ totalXP: r.totalXP } as any);
+        } catch (err) {
+          console.error("레전드 완료 저장 실패:", err);
+        }
       } else {
-        LessonService.addXp(earnedXp)
-          .then((r) => updateUser({ totalXP: r.totalXP } as any))
-          .catch(() => {});
+        try {
+          const r = await LessonService.completePractice({
+            mode: "nodeReview",
+            questionIds: practicedIds,
+            wrongQuestionIds: wrongArr,
+            speedSeconds: seconds,
+            combo,
+          });
+          earnedXp = r.xpEarned;
+          updateUser({ totalXP: r.totalXP } as any);
+        } catch (err) {
+          console.error("노드 복습 완료 저장 실패:", err);
+        }
       }
-    } else if (
-      !isLevelTest &&
-      !isWordPractice &&
-      !isNodeReview &&
-      !isLegend &&
-      lessonId
-    ) {
+    } else if (!isLevelTest && lessonId) {
       try {
         const res = await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,
           totalAnswers: totalCount.current,
-          xpEarned: earnedXp, // 서버가 무시
+          xpEarned: 0, // 서버가 계산 (클라 값 무시)
           combo,
           speedSeconds: seconds,
           wrongQuestionIds: wrongArr,
@@ -487,7 +506,7 @@ export default function LessonScreen() {
     router.replace({
       pathname: "/lesson-complete",
       params: {
-        xp: String(earnedXp), // ref 필요 없음
+        xp: String(earnedXp),
         accuracy: String(accuracy),
         time: timeStr,
       },

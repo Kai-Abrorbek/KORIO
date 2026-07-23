@@ -11,6 +11,7 @@ import {
 import { LessonsService } from './lessons.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
+import { CompletePracticeDto } from './dto/complete-practice.dto';
 
 @Controller('lessons')
 export class LessonsController {
@@ -97,6 +98,12 @@ export class LessonsController {
   @Get('score')
   async getScore(@Request() req) {
     return this.lessonsService.getScore(req.user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('practice-complete')
+  async completePractice(@Request() req, @Body() dto: CompletePracticeDto) {
+    return this.lessonsService.completePractice(req.user._id.toString(), dto);
   }
 
   @UseGuards(JwtAuthGuard)

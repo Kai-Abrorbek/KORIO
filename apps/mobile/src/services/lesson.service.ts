@@ -101,4 +101,14 @@ export const LessonService = {
     xpEarned: number;
     totalXP: number;
   }> => api.post(`/lessons/nodes/${nodeId}/legend-complete`, {}),
+
+  /** 복습·연습 완료. XP 는 서버가 모드로 결정하고 통계도 함께 기록됨 */
+  completePractice: (body: {
+    mode: "review" | "nodeReview" | "wordPractice";
+    questionIds: string[];
+    wrongQuestionIds?: string[];
+    speedSeconds?: number;
+    combo?: number;
+  }): Promise<{ success: boolean; xpEarned: number; totalXP: number }> =>
+    api.post(`/lessons/practice-complete`, body),
 };
