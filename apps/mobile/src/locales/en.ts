@@ -75,6 +75,7 @@ export default {
     streak: "day streak",
     calendar: "Calendar",
     continueLesson: "Continue Learning",
+    longestStreak: "Longest streak",
     continueLessonBtn: "Continue",
     reviewRate: "Review accuracy",
     vocabStudy: "Vocabulary",

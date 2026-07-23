@@ -74,6 +74,7 @@ export default {
   },
   home: {
     streak: "kun ketma-ket",
+    longestStreak: "Eng uzun seriya",
     calendar: "Taqvim",
     continueLesson: "Davom ettirish",
     continueLessonBtn: "Davom etish",

@@ -11,6 +11,12 @@ export interface CalendarData {
   year: number;
   month: number;
   completedDays: number[];
+  /** 현재 연속 구간에 포함된 이번 달 날짜 */
+  streakDays: number[];
+  /** 현재 연속 학습일 */
+  streak: number;
+  /** 역대 최장 연속 학습일 */
+  longestStreak: number;
 }
 
 export interface DayStats {

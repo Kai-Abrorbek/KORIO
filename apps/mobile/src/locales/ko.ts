@@ -73,6 +73,7 @@ export default {
   },
   home: {
     streak: "일 연속 학습 중",
+    longestStreak: "최장 기록",
     calendar: "달력",
     continueLesson: "이어서 학습하기",
     continueLessonBtn: "이어서 진행하기",

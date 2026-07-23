@@ -75,6 +75,7 @@ export default {
   home: {
     streak: "дней подряд",
     calendar: "Календарь",
+    longestStreak: "Лучшая серия",
     continueLesson: "Продолжить",
     continueLessonBtn: "Продолжить обучение",
     reviewRate: "Точность повторения",
