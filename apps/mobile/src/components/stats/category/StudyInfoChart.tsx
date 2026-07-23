@@ -25,6 +25,7 @@ import {
 import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
+import { CATEGORY_COLORS } from "@/constants/stats";
 
 interface Props {
   category: StudyCategory;
@@ -33,6 +34,18 @@ interface Props {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CHART_WIDTH = SCREEN_WIDTH - 32 - 36;
 const CHART_HEIGHT = 150;
+const SEG_GAP = 3; // 색 구간 사이 간격
+const SEG_MIN = 4; // 값이 있으면 최소 이만큼은 보이게
+
+function getColors(category: StudyCategory) {
+  const base = CATEGORY_COLORS[category] ?? "#776ee2";
+  return {
+    newWords: base,
+    knownWords: `${base}99`, // 60%
+    reviewWords: `${base}4D`, // 30%
+    accuracy: base,
+  };
+}
 
 const COLORS = {
   newWords: "#FFCD3C",
@@ -63,11 +76,13 @@ function StackedBar({
   maxTotal,
   index,
   barWidth,
+  colors,
 }: {
   point: CategoryChartPoint;
   maxTotal: number;
   index: number;
   barWidth: number;
+  colors: ReturnType<typeof getColors>;
 }) {
   const theme = useTheme();
   const total = point.newWords + point.knownWords + point.reviewWords;
@@ -105,30 +120,30 @@ function StackedBar({
       style={[
         {
           width: barWidth,
-          borderRadius: 4,
-          overflow: "hidden",
           flexDirection: "column-reverse",
+          gap: SEG_GAP,
         },
         animatedStyle,
       ]}
     >
-      {point.newWords > 0 && (
-        <View
-          style={{ flex: point.newWords, backgroundColor: COLORS.newWords }}
-        />
-      )}
-      {point.knownWords > 0 && (
-        <View
-          style={{ flex: point.knownWords, backgroundColor: COLORS.knownWords }}
-        />
-      )}
-      {point.reviewWords > 0 && (
-        <View
-          style={{
-            flex: point.reviewWords,
-            backgroundColor: COLORS.reviewWords,
-          }}
-        />
+      {(
+        [
+          ["newWords", point.newWords],
+          ["knownWords", point.knownWords],
+          ["reviewWords", point.reviewWords],
+        ] as const
+      ).map(([key, v]) =>
+        v > 0 ? (
+          <View
+            key={key}
+            style={{
+              flex: v,
+              minHeight: SEG_MIN,
+              borderRadius: Math.min(4, barWidth / 2),
+              backgroundColor: colors[key],
+            }}
+          />
+        ) : null,
       )}
     </Animated.View>
   );
@@ -142,6 +157,7 @@ export default function StudyInfoChart({ category }: Props) {
   const [period, setPeriod] = useState<StudyPeriod>("week");
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const colors = getColors(category);
 
   useEffect(() => {
     setLoading(true);
@@ -211,6 +227,7 @@ export default function StudyInfoChart({ category }: Props) {
               maxTotal={maxTotal}
               index={i}
               barWidth={barWidth}
+              colors={colors}
             />
           </View>
         ))}
