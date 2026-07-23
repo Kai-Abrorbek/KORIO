@@ -37,6 +37,15 @@ export class UserStats {
 
   @Prop({ default: 0 })
   listeningCount: number;
+
+  // 기존 vocabularyCount ~ listeningCount 5개 @Prop 전부 삭제하고 ↓
+  /**
+   * 카테고리별 문제 수. { vocab: 12, grammar: 8, topik: 4, ... }
+   * 컬럼 대신 Map 이라 카테고리를 추가/삭제해도 스키마 변경이 필요 없다.
+   * 키는 StudyCategory 값과 동일.
+   */
+  @Prop({ type: Map, of: Number, default: {} })
+  categoryCounts: Map<string, number>;
 }
 
 export const UserStatsSchema = SchemaFactory.createForClass(UserStats);

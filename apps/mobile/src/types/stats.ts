@@ -4,7 +4,9 @@ export type StudyCategory =
   | "grammar"
   | "expression"
   | "conversation"
-  | "listening";
+  | "listening"
+  | "topik"
+  | "other";
 export type StudyPeriod = "week" | "month" | "year" | "all";
 
 export interface HeatmapDay {
@@ -26,6 +28,8 @@ export interface VolumePoint {
   expression: number;
   conversation: number;
   listening: number;
+  topik: number;
+  other: number;
 }
 
 export interface CategoryChartPoint {

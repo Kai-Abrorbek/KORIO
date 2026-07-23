@@ -75,6 +75,7 @@ export default {
   home: {
     streak: "дней подряд",
     calendar: "Календарь",
+    today: "Сегодня",
     longestStreak: "Лучшая серия",
     continueLesson: "Продолжить",
     continueLessonBtn: "Продолжить обучение",
@@ -97,6 +98,8 @@ export default {
       expression: "Выражения",
       conversation: "Разговор",
       listening: "Аудирование",
+      topik: "TOPIK",
+      other: "Другое",
     },
     review: "Повторение",
     reviewSub: "Неверные ответы · Практика",

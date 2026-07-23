@@ -29,6 +29,22 @@ import CircleProgress from "@/components/home/CircleProgress";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
+// 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
+const CATEGORIES = [
+  { key: "vocab", color: "#776ee2" },
+  { key: "grammar", color: "#45B7D1" },
+  { key: "expression", color: "#FF6B6B" },
+  { key: "conversation", color: "#1D9E75" },
+  { key: "listening", color: "#FAC775" },
+  { key: "topik", color: "#E2A83A" },
+  // 아직 분류 안 된 문제 타입 — 차트에 회색으로 뜨면 매핑을 추가하라는 신호
+  { key: "other", color: "#9AA0A6" },
+] as const;
+
+const CHART_HEIGHT = 78; // 막대 영역 높이
+const BAR_MAX = 66; // 최대 막대 길이 (나머지는 segment 간격 몫)
+const BAR_GAP = 3; // 색 구간 사이 간격
+const BAR_MIN_SEG = 6; // 값이 있으면 최소 이만큼은 보이게
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -70,8 +86,25 @@ export default function HomeScreen() {
 
   const maxData = Math.max(
     1,
-    ...weekly.map((d) => d.vocabularyCount + d.grammarCount),
+    ...weekly.map((d) =>
+      CATEGORIES.reduce((sum, c) => sum + (d.categories?.[c.key] ?? 0), 0),
+    ),
   );
+
+  // 주간 합계 (하단 요약)
+  const weekSeconds = weekly.reduce((n, d) => n + (d.studyTimeSeconds ?? 0), 0);
+  const weekQuestions = weekly.reduce((n, d) => n + (d.totalQuestions ?? 0), 0);
+  const weekTimeText = (() => {
+    if (!weekSeconds) return "-";
+    const h = Math.floor(weekSeconds / 3600);
+    const m = Math.floor((weekSeconds % 3600) / 60);
+    if (h > 0) {
+      return m
+        ? `${h}${t("home.studyTime")} ${m}${t("home.studyMin")}`
+        : `${h}${t("home.studyTime")}`;
+    }
+    return `${Math.max(1, m)}${t("home.studyMin")}`;
+  })();
 
   const studiedDay = (i: number) => {
     const d = weekly[i];
@@ -81,13 +114,6 @@ export default function HomeScreen() {
   };
 
   const DAYS = t("home.days", { returnObjects: true }) as string[];
-  const categories = [
-    { key: "vocab", color: "#776ee2" },
-    { key: "grammar", color: "#45B7D1" },
-    { key: "expression", color: "#FF6B6B" },
-    { key: "conversation", color: "#1D9E75" },
-    { key: "listening", color: "#FAC775" },
-  ];
 
   const quickAccess = [
     { icon: "basket-outline", label: t("home.shop"), color: "#776ee2" },
@@ -277,99 +303,22 @@ export default function HomeScreen() {
           entering={FadeInDown.delay(400).duration(500)}
           style={styles.card}
         >
-          <View style={styles.cardHeader}>
+          <TouchableOpacity
+            style={styles.cardHeader}
+            onPress={() => router.push("/stats")}
+            activeOpacity={0.7}
+          >
             <Text style={styles.cardTitle}>{t("home.weeklyInfo")}</Text>
-            <Text style={styles.cardSub}>
-              5{t("home.month")} 4{t("home.weekUnit")}
-            </Text>
-          </View>
-          <View style={styles.chartRow}>
-            {DAYS.map((day, i) => {
-              const d = weekly[i];
-              const vocab = d?.vocabularyCount || 0;
-              const grammar = d?.grammarCount || 0;
-              const total = vocab + grammar;
-              const vocabH = maxData > 0 ? (vocab / maxData) * 70 : 0;
-              const grammarH = maxData > 0 ? (grammar / maxData) * 70 : 0;
-              return (
-                <View key={day} style={styles.chartItem}>
-                  <View style={styles.chartBarWrap}>
-                    {total > 0 ? (
-                      <View
-                        style={{
-                          alignItems: "center",
-                          justifyContent: "flex-end",
-                          height: 70,
-                        }}
-                      >
-                        <View
-                          style={{
-                            width: 20,
-                            borderRadius: 4,
-                            overflow: "hidden",
-                          }}
-                        >
-                          <View
-                            style={{
-                              height: grammarH,
-                              backgroundColor: "#45B7D1",
-                            }}
-                          />
-                          <View
-                            style={{
-                              height: vocabH,
-                              backgroundColor: theme.primary,
-                            }}
-                          />
-                        </View>
-                      </View>
-                    ) : (
-                      <View
-                        style={{
-                          height: 70,
-                          justifyContent: "flex-end",
-                          alignItems: "center",
-                        }}
-                      >
-                        <View
-                          style={{
-                            height: 6,
-                            width: 20,
-                            backgroundColor: theme.border,
-                            borderRadius: 4,
-                          }}
-                        />
-                      </View>
-                    )}
-                  </View>
-                  <Text
-                    style={[
-                      styles.chartLabel,
-                      i === todayIndex && {
-                        color: theme.primary,
-                        fontWeight: "700",
-                      },
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-          <View style={styles.chartStats}>
-            <Text style={styles.chartStatText}>
-              2{t("home.studyTime")} 15{t("home.studyMin")}
-            </Text>
-            <Text style={styles.chartStatText}>
-              142{t("home.studyProblems")}
-            </Text>
-            <Text style={[styles.chartStatText, { color: theme.primary }]}>
-              {t("home.thisWeek")}
-            </Text>
-          </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={theme.textSecondary}
+            />
+          </TouchableOpacity>
+
+          {/* 범례 */}
           <View style={styles.legendRow}>
-            {categories.map((item) => (
+            {CATEGORIES.map((item) => (
               <View key={item.key} style={styles.legendItem}>
                 <View
                   style={[styles.legendDot, { backgroundColor: item.color }]}
@@ -379,6 +328,70 @@ export default function HomeScreen() {
                 </Text>
               </View>
             ))}
+          </View>
+
+          {/* 요일별 누적 막대 */}
+          <View style={styles.chartRow}>
+            {DAYS.map((day, i) => {
+              const d = weekly[i];
+              const segments = CATEGORIES.map((c) => ({
+                color: c.color,
+                value: d?.categories?.[c.key] ?? 0,
+              })).filter((seg) => seg.value > 0);
+              const isToday = i === todayIndex;
+
+              return (
+                <View key={day} style={styles.chartItem}>
+                  <View style={styles.chartBarWrap}>
+                    {segments.length > 0 ? (
+                      segments.map((seg, si) => (
+                        <View
+                          key={si}
+                          style={{
+                            height: Math.max(
+                              BAR_MIN_SEG,
+                              (seg.value / maxData) * BAR_MAX,
+                            ),
+                            backgroundColor: seg.color,
+                            borderRadius: 5,
+                            marginTop: si === 0 ? 0 : BAR_GAP,
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <View style={styles.chartBarEmpty} />
+                    )}
+                  </View>
+                  <Text
+                    style={[
+                      styles.chartLabel,
+                      isToday && styles.chartLabelToday,
+                    ]}
+                  >
+                    {isToday ? t("home.today") : day}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.chartDivider} />
+
+          {/* 주간 합계 */}
+          <View style={styles.chartStats}>
+            <View style={styles.chartStatItem}>
+              <Text style={styles.chartStatLabel}>{t("home.studyTime")}</Text>
+              <Text style={styles.chartStatValue}>{weekTimeText}</Text>
+            </View>
+            <View style={styles.chartStatDivider} />
+            <View style={styles.chartStatItem}>
+              <Text style={styles.chartStatLabel}>
+                {t("home.studyProblems")}
+              </Text>
+              <Text style={styles.chartStatValue}>
+                {weekQuestions > 0 ? weekQuestions : "-"}
+              </Text>
+            </View>
           </View>
         </Animated.View>
 
@@ -729,56 +742,89 @@ const getStyles = (theme: ThemeColors) =>
     },
     chartRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
       alignItems: "flex-end",
-      height: 80,
-      marginBottom: 8,
+      marginBottom: 2,
     },
     chartItem: {
       flex: 1,
       alignItems: "center",
-      gap: 4,
+      gap: 8,
     },
     chartBarWrap: {
-      flex: 1,
+      height: CHART_HEIGHT,
+      width: "56%",
       justifyContent: "flex-end",
-      width: "60%",
+      overflow: "hidden",
     },
-    chartBar: {
-      borderRadius: 4,
-      minHeight: 4,
+    chartBarEmpty: {
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: theme.border,
     },
     chartLabel: {
-      fontSize: 11,
+      fontSize: 12,
+      fontWeight: "600",
       color: theme.textSecondary,
+    },
+    chartLabelToday: {
+      color: theme.primary,
+      fontWeight: "800",
+    },
+    chartDivider: {
+      height: 1,
+      borderWidth: 1,
+      borderRadius: 1,
+      borderStyle: "dashed",
+      borderColor: theme.border,
+      marginTop: 14,
+      marginBottom: 14,
     },
     chartStats: {
       flexDirection: "row",
-      gap: 12,
-      marginBottom: 8,
+      alignItems: "center",
     },
-    chartStatText: {
-      fontSize: 13,
-      fontWeight: "600",
+    chartStatItem: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    chartStatDivider: {
+      width: 1,
+      height: 18,
+      backgroundColor: theme.border,
+      marginHorizontal: 16,
+    },
+    chartStatLabel: {
+      fontSize: 14,
+      fontWeight: "800",
       color: theme.text,
+    },
+    chartStatValue: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: theme.textSecondary,
     },
     legendRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 8,
+      rowGap: 8,
+      columnGap: 12,
+      marginBottom: 16,
     },
     legendItem: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 4,
+      gap: 5,
     },
     legendDot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
     },
     legendText: {
-      fontSize: 11,
+      fontSize: 12,
+      fontWeight: "600",
       color: theme.textSecondary,
     },
     reviewRow: {

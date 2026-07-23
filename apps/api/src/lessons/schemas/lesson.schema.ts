@@ -10,6 +10,7 @@ export enum LessonCategory {
   EXPRESSION = 'expression',
   CONVERSATION = 'conversation',
   LISTENING = 'listening',
+  TOPIK = 'topik',
 }
 
 class I18nText {

@@ -16,6 +16,14 @@ import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive } from './super.util';
 import { calcStreak } from './utils/streak.util';
+import {
+  CategoryCounts,
+  StudyCategory,
+  STUDY_CATEGORIES,
+  emptyCounts,
+  sumCounts,
+  toCounts,
+} from './utils/study-category.util';
 
 @Injectable()
 export class UsersService {
@@ -145,17 +153,17 @@ export class UsersService {
       throw new NotFoundException('유저를 찾을 수 없습니다');
     }
     const user = await this.userModel
-      .findById(currentUserId)
+      .findById(targetId)
       .select('-password -email')
       .lean();
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
 
     const completedLessons = await this.progressModel.countDocuments({
-      userId: new Types.ObjectId(currentUserId),
+      userId: new Types.ObjectId(targetId),
       isCompleted: true,
     });
 
-    const isFollowing = user.followers?.some(
+    const isFollowing = !!user.followers?.some(
       (f) => f.toString() === currentUserId,
     );
 
@@ -511,11 +519,7 @@ export class UsersService {
       totalQuestions: number;
       correctQuestions: number;
       xpEarned: number;
-      vocabularyCount: number;
-      grammarCount: number;
-      expressionCount: number;
-      conversationCount: number;
-      listeningCount: number;
+      categories: CategoryCounts;
     }> = [];
 
     for (let i = 0; i < 7; i++) {
@@ -531,11 +535,7 @@ export class UsersService {
         totalQuestions: stat?.totalQuestions || 0,
         correctQuestions: stat?.correctQuestions || 0,
         xpEarned: stat?.xpEarned || 0,
-        vocabularyCount: stat?.vocabularyCount || 0,
-        grammarCount: stat?.grammarCount || 0,
-        expressionCount: stat?.expressionCount || 0,
-        conversationCount: stat?.conversationCount || 0,
-        listeningCount: stat?.listeningCount || 0,
+        categories: toCounts(stat?.categoryCounts as any),
       });
     }
     return { days: result };
@@ -591,13 +591,7 @@ export class UsersService {
   ) {
     let todayStudySeconds = 0;
     let todayTotalQ = 0;
-    let todayCats = {
-      vocab: 0,
-      grammar: 0,
-      expression: 0,
-      conversation: 0,
-      listening: 0,
-    };
+    let todayCats: CategoryCounts = emptyCounts();
 
     const endDate = endDateStr ? new Date(endDateStr) : new Date();
     endDate.setHours(23, 59, 59, 999);
@@ -674,14 +668,8 @@ export class UsersService {
 
         const seconds = stat?.studyTimeSeconds || 0;
         const minutes = seconds / 60;
-        const vocab = stat?.vocabularyCount || 0;
-        const grammar = stat?.grammarCount || 0;
-        const expression = stat?.expressionCount || 0;
-        const conversation = stat?.conversationCount || 0;
-        const listening = stat?.listeningCount || 0;
-        const dayTotal =
-          vocab + grammar + expression + conversation + listening;
-
+        const cats = toCounts(stat?.categoryCounts as any);
+        const dayTotal = sumCounts(cats);
         const label =
           range === 'week'
             ? this.getDayLabel(d, isToday, lang)
@@ -690,7 +678,7 @@ export class UsersService {
         if (isToday) {
           todayStudySeconds = seconds;
           todayTotalQ = dayTotal;
-          todayCats = { vocab, grammar, expression, conversation, listening };
+          todayCats = cats;
           if ((stat?.totalQuestions || 0) > 0) todayHasData = true;
         }
 
@@ -699,15 +687,8 @@ export class UsersService {
           label,
           minutes: Math.round(minutes * 10) / 10,
         });
-        volumePoints.push({
-          date: dayKey,
-          label,
-          vocab,
-          grammar,
-          expression,
-          conversation,
-          listening,
-        });
+
+        volumePoints.push({ date: dayKey, label, ...cats });
 
         if (seconds > 0) {
           totalStudySeconds += seconds;
@@ -741,28 +722,12 @@ export class UsersService {
           0,
         );
         const minutes = seconds / 60;
-        const vocab = monthStats.reduce(
-          (acc, s) => acc + (s.vocabularyCount || 0),
-          0,
-        );
-        const grammar = monthStats.reduce(
-          (acc, s) => acc + (s.grammarCount || 0),
-          0,
-        );
-        const expression = monthStats.reduce(
-          (acc, s) => acc + (s.expressionCount || 0),
-          0,
-        );
-        const conversation = monthStats.reduce(
-          (acc, s) => acc + (s.conversationCount || 0),
-          0,
-        );
-        const listening = monthStats.reduce(
-          (acc, s) => acc + (s.listeningCount || 0),
-          0,
-        );
-        const monthTotal =
-          vocab + grammar + expression + conversation + listening;
+        const cats = monthStats.reduce((acc, st) => {
+          const c = toCounts(st.categoryCounts as any);
+          for (const k of STUDY_CATEGORIES) acc[k] += c[k];
+          return acc;
+        }, emptyCounts());
+        const monthTotal = sumCounts(cats);
         const monthActiveDays = monthStats.filter(
           (s) => (s.studyTimeSeconds || 0) > 0,
         ).length;
@@ -775,15 +740,8 @@ export class UsersService {
           label,
           minutes: Math.round(minutes * 10) / 10,
         });
-        volumePoints.push({
-          date: dateKey,
-          label,
-          vocab,
-          grammar,
-          expression,
-          conversation,
-          listening,
-        });
+
+        volumePoints.push({ date: dateKey, label, ...cats });
 
         if (seconds > 0) {
           totalStudySeconds += seconds;
@@ -866,24 +824,12 @@ export class UsersService {
     endDateStr: string | undefined,
     lang: string = 'uz',
   ) {
-    const validCategories = [
-      'vocab',
-      'grammar',
-      'expression',
-      'conversation',
-      'listening',
-    ];
-    if (!validCategories.includes(category)) {
+    if (!(STUDY_CATEGORIES as string[]).includes(category)) {
       throw new BadRequestException(`Invalid category: ${category}`);
     }
-    const fieldMap: Record<string, string> = {
-      vocab: 'vocabularyCount',
-      grammar: 'grammarCount',
-      expression: 'expressionCount',
-      conversation: 'conversationCount',
-      listening: 'listeningCount',
-    };
-    const field = fieldMap[category];
+
+    // Map 필드는 dot path 로 접근 (categoryCounts.vocab)
+    const field = `categoryCounts.${category}`;
 
     const endDate = endDateStr ? new Date(endDateStr) : new Date();
     endDate.setHours(23, 59, 59, 999);
@@ -963,7 +909,9 @@ export class UsersService {
     if (todayStat) {
       const todayRatio =
         todayStat.totalQuestions > 0
-          ? ((todayStat as any)[field] || 0) / todayStat.totalQuestions
+          ? toCounts(todayStat.categoryCounts as any)[
+              category as StudyCategory
+            ] / todayStat.totalQuestions
           : 0;
       todayTimeSeconds = Math.round(todayStat.studyTimeSeconds * todayRatio);
     }
@@ -992,7 +940,11 @@ export class UsersService {
           range === 'week'
             ? this.getDayLabel(d, isToday, lang)
             : `${d.getMonth() + 1}/${d.getDate()}`;
-        const count = stat ? (stat as any)[field] || 0 : 0;
+
+        const count = stat
+          ? toCounts(stat.categoryCounts as any)[category as StudyCategory]
+          : 0;
+
         chart.push({
           date: dayKey,
           label,
@@ -1020,7 +972,8 @@ export class UsersService {
           return sd >= monthStart && sd <= monthEnd;
         });
         const count = monthStats.reduce(
-          (acc, s) => acc + ((s as any)[field] || 0),
+          (acc, st) =>
+            acc + toCounts(st.categoryCounts as any)[category as StudyCategory],
           0,
         );
         const label = this.getMonthLabel(m, lang);
@@ -1061,17 +1014,12 @@ export class UsersService {
       })
       .lean();
 
-    const statsByDate = new Map<string, number>();
+    const secondsByDate = new Map<string, number>();
     for (const s of yearStats) {
       const key = new Date(s.date).toISOString().split('T')[0];
-      statsByDate.set(key, (statsByDate.get(key) || 0) + (s.xpEarned || 0));
-    }
-
-    for (const s of yearStats) {
-      const key = new Date(s.date).toISOString().split('T')[0];
-      statsByDate.set(
+      secondsByDate.set(
         key,
-        (statsByDate.get(key) || 0) + (s.studyTimeSeconds || 0),
+        (secondsByDate.get(key) || 0) + (s.studyTimeSeconds || 0),
       );
     }
 
@@ -1081,8 +1029,7 @@ export class UsersService {
       d.setHours(0, 0, 0, 0);
       d.setDate(d.getDate() - i);
       const key = d.toISOString().split('T')[0];
-      const xp = statsByDate.get(key) || 0;
-      const seconds = statsByDate.get(key) || 0;
+      const seconds = secondsByDate.get(key) || 0;
       heatmap.push({ date: key, intensity: this.secondsToIntensity(seconds) });
     }
     return heatmap;

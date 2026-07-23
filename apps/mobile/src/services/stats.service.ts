@@ -30,6 +30,7 @@ export interface DayStats {
   expressionCount: number;
   conversationCount: number;
   listeningCount: number;
+  categories: Record<StudyCategory, number>;
 }
 
 export interface WeeklyData {
@@ -67,13 +68,4 @@ export const StatsService = {
     if (endDate) params.append("endDate", endDate);
     return api.get(`/users/me/stats/category?${params}`);
   },
-};
-
-// 프론트 카테고리 키와 백엔드 카테고리 키가 동일하면 이 매핑 불필요
-const categoryMap: Record<StudyCategory, string> = {
-  vocab: "vocab",
-  grammar: "grammar",
-  expression: "expression",
-  conversation: "conversation",
-  listening: "listening",
 };

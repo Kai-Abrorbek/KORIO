@@ -73,6 +73,7 @@ export default {
   },
   home: {
     streak: "day streak",
+    today: "Today",
     calendar: "Calendar",
     continueLesson: "Continue Learning",
     longestStreak: "Longest streak",
@@ -96,6 +97,8 @@ export default {
       expression: "Expression",
       conversation: "Conversation",
       listening: "Listening",
+      topik: "TOPIK",
+      other: "Other",
     },
     review: "Review",
     reviewSub: "Wrong answers · Practice",

@@ -73,6 +73,7 @@ export default {
   },
   home: {
     streak: "일 연속 학습 중",
+    today: "오늘",
     longestStreak: "최장 기록",
     calendar: "달력",
     continueLesson: "이어서 학습하기",
@@ -96,6 +97,8 @@ export default {
       expression: "표현",
       conversation: "실전회화",
       listening: "리스닝",
+      topik: "토픽",
+      other: "기타",
     },
     review: "복습하기",
     reviewSub: "틀린 문제 모음 · 오답 복습",

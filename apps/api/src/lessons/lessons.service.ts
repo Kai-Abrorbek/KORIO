@@ -19,6 +19,8 @@ import { LeagueService } from '../league/league.service';
 import { calcLessonXp } from './economy.const';
 import { rollChestReward } from './xp.util';
 import { UsersService } from '../users/users.service';
+import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
+import { StudyCategory } from '../users/utils/study-category.util';
 
 const LEGEND_XP = 40;
 
@@ -130,21 +132,16 @@ export class LessonsService {
       { upsert: true, returnDocument: 'after' },
     );
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    await this.userStatsModel.findOneAndUpdate(
-      { userId: new Types.ObjectId(userId), date: today },
-      {
-        $inc: {
-          studyTimeSeconds: dto.speedSeconds ?? 0,
-          totalQuestions: dto.totalAnswers ?? 0,
-          correctQuestions: dto.correctAnswers ?? 0,
-          xpEarned,
-          [`${lesson.category}Count`]: dto.totalAnswers ?? 0,
-        },
-      },
-      { upsert: true, returnDocument: 'after' },
-    );
+    // 통계 기록 (카테고리는 문제 타입에서 유도 — recordStudy 가 처리)
+    await this.recordStudy(userId, {
+      questionIds: lesson.questionIds,
+      wrongQuestionIds: dto.wrongQuestionIds,
+      speedSeconds: dto.speedSeconds,
+      xpEarned,
+      // TOPIK 처럼 레슨 단위로 성격이 정해지는 건 통째로 그 버킷에
+      overrideCategory:
+        lesson.category === 'topik' ? StudyCategory.TOPIK : undefined,
+    });
 
     // ── 연속 학습일 갱신 (오늘 기록 저장된 뒤에 호출해야 함) ──
     await this.usersService.syncStreak(userId).catch(() => {});
@@ -223,6 +220,71 @@ export class LessonsService {
       energy: updatedUser?.energy ?? 0,
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
     };
+  }
+
+  /**
+   * 학습 기록 1건 반영. 모든 학습 모드(레슨 · 복습 · 카테고리별 연습 · 게임 · AI 대화)가
+   * 이 함수 하나만 호출하면 통계가 정확히 쌓인다.
+   *
+   * 카테고리는 문제 타입에서 자동 유도되므로 호출부는 카테고리를 몰라도 된다.
+   * questionIds 가 없는 모드는 questionTypes 를 직접 넘기거나,
+   * 타입 개념이 없으면 overrideCategory + questionCount 를 쓴다.
+   */
+  async recordStudy(
+    userId: string,
+    params: {
+      questionIds?: Types.ObjectId[];
+      questionTypes?: string[];
+      /** 타입 개념이 없는 모드(게임 등)용 — 푼 문제 수만 넘김 */
+      questionCount?: number;
+      /** 지정하면 타입과 무관하게 전부 이 버킷으로 */
+      overrideCategory?: StudyCategory;
+      wrongQuestionIds?: string[];
+      wrongCount?: number;
+      speedSeconds?: number;
+      xpEarned?: number;
+    },
+  ) {
+    let types = params.questionTypes ?? [];
+
+    if (!types.length && params.questionIds?.length) {
+      const qs = await this.questionModel
+        .find({ _id: { $in: params.questionIds } })
+        .select('type')
+        .lean();
+      types = qs.map((q) => q.type);
+    }
+
+    // 타입 목록이 없으면 questionCount 만큼 override 버킷에 넣는다
+    if (!types.length && params.questionCount && params.overrideCategory) {
+      types = new Array(params.questionCount).fill('');
+    }
+
+    const total = types.length;
+    const xp = params.xpEarned ?? 0;
+    if (!total && !xp) return;
+
+    const wrong =
+      params.wrongCount ?? new Set(params.wrongQuestionIds ?? []).size;
+    // 비정상 값 방어 (음수 · 3시간 초과)
+    const seconds = Math.min(Math.max(params.speedSeconds ?? 0, 0), 3 * 3600);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await this.userStatsModel.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId), date: today },
+      {
+        $inc: {
+          studyTimeSeconds: seconds,
+          totalQuestions: total,
+          correctQuestions: Math.max(0, total - wrong),
+          xpEarned: xp,
+          ...buildCategoryInc(types, params.overrideCategory),
+        },
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
   }
 
   public async getLevelTestQuestions(lang: string = 'uz') {

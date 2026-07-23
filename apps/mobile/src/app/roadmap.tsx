@@ -171,8 +171,21 @@ export default function RoadmapScreen() {
       UserService.getMe()
         .then((me) => updateUser(me as any))
         .catch(() => {});
+
+      const userScoreData = await LessonService.getScore();
       const data = await LessonService.getRoadmap();
-      setRoadmap({ ...MOCK_ROADMAP, units: data.units });
+      setRoadmap({
+        score: userScoreData.score,
+        stats: {
+          energy: user?.energy,
+          gems: user?.gems,
+          isSuper: user?.isSuper,
+          language: KOR_FLAG,
+          score: userScoreData.score,
+          streak: user?.streak,
+        },
+        units: data.units,
+      });
       const idx = Math.max(
         0,
         data.units.findIndex((u: RoadmapUnit) => u.status === "current"),

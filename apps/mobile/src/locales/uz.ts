@@ -74,6 +74,7 @@ export default {
   },
   home: {
     streak: "kun ketma-ket",
+    today: "Bugun",
     longestStreak: "Eng uzun seriya",
     calendar: "Taqvim",
     continueLesson: "Davom ettirish",
@@ -97,6 +98,8 @@ export default {
       expression: "Iboralar",
       conversation: "Suhbat",
       listening: "Tinglash",
+      topik: "TOPIK",
+      other: "Boshqa",
     },
     review: "Takrorlash",
     reviewSub: "Xato savollar · Takrorlash",
