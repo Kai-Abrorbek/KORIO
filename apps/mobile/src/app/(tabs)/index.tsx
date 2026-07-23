@@ -76,7 +76,8 @@ export default function HomeScreen() {
   const studiedDay = (i: number) => {
     const d = weekly[i];
     if (!d) return false;
-    return (d.vocabularyCount ?? 0) + (d.grammarCount ?? 0) > 0;
+    // 카테고리 무관 "그날 학습했는가" (백엔드 기준과 동일)
+    return (d.totalQuestions ?? 0) > 0 || (d.xpEarned ?? 0) > 0;
   };
 
   const DAYS = t("home.days", { returnObjects: true }) as string[];
@@ -123,7 +124,7 @@ export default function HomeScreen() {
               <View style={styles.streakTitle}>
                 <Ionicons name="flame" size={18} color="#FF7A00" />
                 <Text style={styles.streakText}>
-                  <Text style={styles.streakCount}>{user?.streak ?? 12}</Text>{" "}
+                  <Text style={styles.streakCount}>{user?.streak ?? 0}</Text>{" "}
                   {t("home.streak")}
                 </Text>
               </View>
@@ -141,7 +142,7 @@ export default function HomeScreen() {
               <CalendarModal
                 visible={calendarVisible}
                 onClose={() => setCalendarVisible(false)}
-                streak={user?.streak ?? 12}
+                streak={user?.streak ?? 0}
               />
             </View>
             <View style={styles.daysRow}>
