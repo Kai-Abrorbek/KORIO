@@ -22,6 +22,7 @@ import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import { calcLessonXp, calcPracticeXp } from './economy.const';
+import { getSectionMeta, pickSectionText } from './section.const';
 
 const LEGEND_XP = 40;
 
@@ -448,7 +449,41 @@ export class LessonsService {
       }
     }
 
-    return { units, score };
+    // ── 현재 섹션만 노출 (듀오링고 방식) ──
+    // 다음 섹션 유닛까지 같이 보여주면 "다음 섹션 잠김" 안내와 모순된다.
+    const currentUnit = units.find((u: any) => u.status === 'current');
+    const currentSection =
+      currentUnit?.sectionNumber ?? units[units.length - 1]?.sectionNumber ?? 1;
+
+    const sectionUnits = units.filter(
+      (u: any) => u.sectionNumber === currentSection,
+    );
+
+    // 다음 섹션이 실제로 존재할 때만 안내 카드용 정보를 내려준다
+    const nextNumber = currentSection + 1;
+    const hasNext = units.some((u: any) => u.sectionNumber === nextNumber);
+    const nextMeta = hasNext ? getSectionMeta(nextNumber) : null;
+    const nextFirstUnit = hasNext
+      ? Math.min(
+          ...units
+            .filter((u: any) => u.sectionNumber === nextNumber)
+            .map((u: any) => u.unitNumber),
+        )
+      : 0;
+
+    return {
+      units: sectionUnits,
+      score,
+      currentSection,
+      nextSection: nextMeta
+        ? {
+            sectionNumber: nextNumber,
+            title: pickSectionText(nextMeta.title, lang),
+            description: pickSectionText(nextMeta.description, lang),
+            firstUnitNumber: nextFirstUnit,
+          }
+        : null,
+    };
   }
 
   public async getLessons(userId: string) {
@@ -678,6 +713,13 @@ export class LessonsService {
     return { added: xp, totalXP: user?.totalXP ?? null };
   }
 
+  /** (section, unit) 보다 앞선 모든 노드 조건 — 섹션 경계 포함 */
+  private beforeFilter(section: number, unit: number) {
+    return {
+      $or: [{ section: { $lt: section } }, { section, unit: { $lt: unit } }],
+    };
+  }
+
   // 유닛 점프 테스트 문제 뽑기 (targetUnit 직전까지 레슨 문제 중 25개)
   async getUnitJumpTest(
     userId: string,
@@ -688,7 +730,7 @@ export class LessonsService {
   ) {
     // targetUnit "이전"의 모든 노드 (같은 섹션 기준)
     const nodes = await this.nodeModel
-      .find({ section: targetSection, unit: { $lt: targetUnit } })
+      .find(this.beforeFilter(targetSection, targetUnit))
       .select('lessonIds')
       .lean();
 
@@ -742,7 +784,7 @@ export class LessonsService {
     targetUnit: number,
   ) {
     const nodes = await this.nodeModel
-      .find({ section: targetSection, unit: { $lt: targetUnit } })
+      .find(this.beforeFilter(targetSection, targetUnit))
       .select('lessonIds')
       .lean();
 
