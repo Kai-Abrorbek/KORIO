@@ -761,4 +761,15 @@ export default {
     easyFirst: "Avval Easy rejimini bajaring.",
     confirm: "OK",
   },
+  // uz.ts
+  aiChat: {
+    correctionTitle: "Grammatika tuzatish",
+    teacherName: "Bori muallim",
+    online: "Onlayn · AI suhbat ustozi",
+    inputPlaceholder: "Koreys tilida yozing...",
+    today: "Bugun",
+    emptyHint:
+      "Bori muallim bilan koreyscha suhbatlashing.\nIstalgan narsadan boshlang!",
+    errorReply: "Xabar yuborilmadi. Birozdan keyin qayta urinib ko'ring.",
+  },
 };

@@ -10,6 +10,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EnergyModule } from './energy/energy.module';
     SubscriptionModule,
     LeagueModule,
     EnergyModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
-  KeyboardAvoidingView,
+  ActivityIndicator,
   Keyboard,
   Platform,
 } from "react-native";
@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import BoriMascot from "./BoriMascot";
+import { AiService } from "@/services/ai.service";
 
 interface Message {
   id: string;
@@ -45,6 +46,7 @@ interface AIChatModalProps {
   prefill?: string;
 }
 
+// 유저가 한국어로 연습하는 문구이므로 번역하지 않는다
 const QUICK_REPLIES = [
   "저는 학생이에요",
   "한국 음식을 좋아해요",
@@ -59,22 +61,29 @@ function nowTime() {
   return `${hh}:${mm.toString().padStart(2, "0")}`;
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: "init-1",
-    who: "ai",
-    text: "안녕하세요! 오늘은 자기소개를 연습해 볼까요? 😊",
-    translation: "Salom! Bugun o'zini tanishtirishni mashq qilamizmi?",
-    time: nowTime(),
-  },
-  {
-    id: "init-2",
-    who: "ai",
-    text: "먼저, 어디에서 왔는지 말해 보세요.",
-    translation: "Avval, qayerdan kelganingizni ayting.",
-    time: nowTime(),
-  },
-];
+function timeOf(iso?: string) {
+  const d = iso ? new Date(iso) : new Date();
+  return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
+
+/** 서버 DTO → 화면 메시지 */
+function toMessage(m: {
+  id: string;
+  who: "ai" | "user";
+  text: string;
+  translation?: string;
+  correction?: { wrong: string; right: string; note?: string };
+  createdAt?: string;
+}): Message {
+  return {
+    id: m.id,
+    who: m.who,
+    text: m.text,
+    translation: m.translation,
+    correction: m.correction,
+    time: timeOf(m.createdAt),
+  };
+}
 
 // ─── 타이핑 인디케이터 (점 3개 통통) ───
 function TypingIndicator({ theme }: { theme: ThemeColors }) {
@@ -190,9 +199,11 @@ export default function AIChatModal({
   const insets = useSafeAreaInsets();
   const styles = getStyles(theme);
 
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
   const [draft, setDraft] = useState(prefill);
   const [isTyping, setIsTyping] = useState(false);
+  const [kbHeight, setKbHeight] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -201,6 +212,16 @@ export default function AIChatModal({
     if (prefill) setDraft(prefill);
   }, [prefill]);
 
+  // 열릴 때 대화 기록 로드
+  useEffect(() => {
+    if (!visible) return;
+    setLoading(true);
+    AiService.getHistory()
+      .then((d: any) => setMessages((d.messages ?? []).map(toMessage)))
+      .catch((err: any) => console.error("대화 기록 로드 실패:", err))
+      .finally(() => setLoading(false));
+  }, [visible]);
+
   // 메시지 추가될 때마다 맨 아래로 스크롤
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -208,52 +229,60 @@ export default function AIChatModal({
     });
   }, [messages, isTyping]);
 
-  // 키보드 뜰 때 맨 아래로
+  // 키보드 높이 직접 추적.
+  // RN Modal 은 Android 에서 별도 윈도우라 adjustResize 가 안 먹고,
+  // statusBarTranslucent 까지 겹쳐 창이 줄지 않는다. 그래서 패딩으로 직접 밀어준다.
   useEffect(() => {
-    const sub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => {
-        setTimeout(
-          () => scrollRef.current?.scrollToEnd({ animated: true }),
-          100,
-        );
-      },
-    );
-    return () => sub.remove();
+    const showEvt =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvt =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvt, (e) => {
+      setKbHeight(e.endCoordinates?.height ?? 0);
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
+    });
+    const hideSub = Keyboard.addListener(hideEvt, () => setKbHeight(0));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
   }, []);
 
-  const send = (text?: string) => {
+  const send = async (text?: string) => {
     const content = (text ?? draft).trim();
-    if (!content) return;
+    if (!content || isTyping) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setDraft("");
-    const userMsg: Message = {
-      id: `u-${Date.now()}`,
-      who: "user",
-      text: content,
-      time: nowTime(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
 
-    // AI "타이핑 중" → 답변
+    // 낙관적 렌더 — 서버 왕복을 기다리지 않고 바로 보여준다
+    setMessages((prev) => [
+      ...prev,
+      { id: `u-${Date.now()}`, who: "user", text: content, time: nowTime() },
+    ]);
+
     setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
+    try {
+      const { reply } = await AiService.sendMessage(content);
+      if (reply) setMessages((prev) => [...prev, toMessage(reply)]);
+    } catch (err) {
+      console.error("메시지 전송 실패:", err);
       setMessages((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
+          id: `err-${Date.now()}`,
           who: "ai",
-          text: "좋아요! 계속 이어서 말해 볼까요?",
-          translation: "Zo'r! Davom etamizmi?",
+          text: t("aiChat.errorReply"),
           time: nowTime(),
         },
       ]);
-    }, 1200);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const canSend = draft.trim().length > 0;
-
   return (
     <Modal
       visible={visible}
@@ -263,7 +292,7 @@ export default function AIChatModal({
       statusBarTranslucent
     >
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* ─── 헤더 (KeyboardAvoidingView 밖 - 고정) ─── */}
+        {/* ─── 헤더 (고정) ─── */}
         <LinearGradient
           colors={["#8B7BFF", "#776ee2", "#5448E0"]}
           start={{ x: 0, y: 0 }}
@@ -284,10 +313,10 @@ export default function AIChatModal({
               <View style={styles.onlineDot} />
             </View>
             <View>
-              <Text style={styles.headerName}>보리 선생님</Text>
+              <Text style={styles.headerName}>{t("aiChat.teacherName")}</Text>
               <View style={styles.onlineRow}>
                 <View style={styles.onlineDotSmall} />
-                <Text style={styles.onlineText}>온라인 · AI 회화 선생님</Text>
+                <Text style={styles.onlineText}>{t("aiChat.online")}</Text>
               </View>
             </View>
           </View>
@@ -301,12 +330,8 @@ export default function AIChatModal({
           </TouchableOpacity>
         </LinearGradient>
 
-        {/* ─── KeyboardAvoidingView 안: 메시지 + 입력바 ─── */}
-        <KeyboardAvoidingView
-          style={styles.kbWrap}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={0}
-        >
+        {/* ─── 메시지 + 입력바 (키보드 높이만큼 밀림) ─── */}
+        <View style={[styles.kbWrap, { paddingBottom: kbHeight }]}>
           {/* 메시지 리스트 */}
           <ScrollView
             ref={scrollRef}
@@ -316,9 +341,19 @@ export default function AIChatModal({
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           >
-            <View style={styles.dateBadge}>
-              <Text style={styles.dateBadgeText}>오늘</Text>
-            </View>
+            {loading ? (
+              <View style={styles.centerState}>
+                <ActivityIndicator color={theme.primary} />
+              </View>
+            ) : messages.length === 0 ? (
+              <View style={styles.centerState}>
+                <Text style={styles.emptyText}>{t("aiChat.emptyHint")}</Text>
+              </View>
+            ) : (
+              <View style={styles.dateBadge}>
+                <Text style={styles.dateBadgeText}>{t("aiChat.today")}</Text>
+              </View>
+            )}
 
             {messages.map((msg) =>
               msg.who === "ai" ? (
@@ -354,7 +389,9 @@ export default function AIChatModal({
                             size={13}
                             color={theme.primary}
                           />
-                          <Text style={styles.correctionTitle}>문법 교정</Text>
+                          <Text style={styles.correctionTitle}>
+                            {t("aiChat.correctionTitle")}
+                          </Text>
                         </View>
                         <View style={styles.correctionBody}>
                           <Text style={styles.correctionWrong}>
@@ -431,7 +468,9 @@ export default function AIChatModal({
           <View
             style={[
               styles.inputBar,
-              { paddingBottom: Math.max(insets.bottom, 10) },
+              {
+                paddingBottom: kbHeight > 0 ? 10 : Math.max(insets.bottom, 10),
+              },
             ]}
           >
             <TouchableOpacity style={styles.attachBtn} hitSlop={6}>
@@ -442,7 +481,7 @@ export default function AIChatModal({
               <TextInput
                 ref={inputRef}
                 style={styles.input}
-                placeholder="한국어로 메시지 입력..."
+                placeholder={t("aiChat.inputPlaceholder")}
                 placeholderTextColor={theme.textSecondary}
                 value={draft}
                 onChangeText={setDraft}
@@ -470,7 +509,7 @@ export default function AIChatModal({
               <Ionicons name="arrow-up" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
     </Modal>
   );
@@ -569,6 +608,18 @@ const getStyles = (theme: ThemeColors) =>
       marginBottom: 12,
       borderWidth: 1,
       borderColor: theme.border,
+    },
+    centerState: {
+      paddingVertical: 48,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    emptyText: {
+      fontSize: 14,
+      lineHeight: 21,
+      textAlign: "center",
+      color: theme.textSecondary,
+      paddingHorizontal: 32,
     },
     dateBadgeText: {
       fontSize: 11,

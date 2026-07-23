@@ -758,4 +758,15 @@ export default {
     easyFirst: "Please finish Easy mode first.",
     confirm: "OK",
   },
+  // en.ts
+  aiChat: {
+    correctionTitle: "Grammar fix",
+    teacherName: "Teacher Bori",
+    online: "Online · AI conversation tutor",
+    inputPlaceholder: "Type in Korean...",
+    today: "Today",
+    emptyHint:
+      "Practise Korean with Teacher Bori.\nStart with anything you like!",
+    errorReply: "Couldn't send your message. Please try again in a moment.",
+  },
 };
