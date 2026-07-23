@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  Dimensions,
   ScrollView,
   ActivityIndicator,
   Keyboard,
@@ -15,7 +16,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
-  FadeInUp,
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
@@ -45,14 +45,6 @@ interface AIChatModalProps {
   onClose: () => void;
   prefill?: string;
 }
-
-// 유저가 한국어로 연습하는 문구이므로 번역하지 않는다
-const QUICK_REPLIES = [
-  "저는 학생이에요",
-  "한국 음식을 좋아해요",
-  "다시 말해 주세요",
-  "무슨 뜻이에요?",
-];
 
 function nowTime() {
   const d = new Date();
@@ -239,7 +231,14 @@ export default function AIChatModal({
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
 
     const showSub = Keyboard.addListener(showEvt, (e) => {
-      setKbHeight(e.endCoordinates?.height ?? 0);
+      // height 대신 화면 기준 위치로 계산한다.
+      // 삼성 등 일부 키보드는 상단 툴바 높이를 height 에 포함하지 않아서
+      // height 만 쓰면 툴바만큼 덜 밀려 입력창이 가려진다.
+      // screen(= 네비게이션 바 포함) 높이에서 키보드 상단 Y 를 빼면 실제 가려지는 높이.
+      const screenH = Dimensions.get("screen").height;
+      const kbTop = e.endCoordinates?.screenY ?? screenH;
+      const occluded = Math.max(0, Math.round(screenH - kbTop));
+      setKbHeight(occluded || e.endCoordinates?.height || 0);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
     });
     const hideSub = Keyboard.addListener(hideEvt, () => setKbHeight(0));
@@ -357,11 +356,7 @@ export default function AIChatModal({
 
             {messages.map((msg) =>
               msg.who === "ai" ? (
-                <Animated.View
-                  key={msg.id}
-                  entering={FadeInUp.duration(300).springify().damping(16)}
-                  style={styles.aiRow}
-                >
+                <View key={msg.id} style={styles.aiRow}>
                   <AIAvatar />
                   <View style={styles.aiContent}>
                     <View style={styles.aiBubble}>
@@ -415,53 +410,26 @@ export default function AIChatModal({
                     )}
                     <Text style={styles.timeStampLeft}>{msg.time}</Text>
                   </View>
-                </Animated.View>
+                </View>
               ) : (
-                <Animated.View
-                  key={msg.id}
-                  entering={FadeInUp.duration(300).springify().damping(16)}
-                  style={styles.userRow}
-                >
+                <View key={msg.id} style={styles.userRow}>
                   <View style={styles.userBubble}>
                     <Text style={styles.userBubbleText}>{msg.text}</Text>
                   </View>
                   <Text style={styles.timeStampRight}>{msg.time}</Text>
-                </Animated.View>
+                </View>
               ),
             )}
 
             {/* 타이핑 인디케이터 */}
             {isTyping && (
-              <Animated.View
-                entering={FadeInUp.duration(200)}
-                style={styles.aiRow}
-              >
+              <View style={styles.aiRow}>
                 <AIAvatar />
                 <View style={styles.typingBubble}>
                   <TypingIndicator theme={theme} />
                 </View>
-              </Animated.View>
+              </View>
             )}
-          </ScrollView>
-
-          {/* 빠른 답변 */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickRepliesContent}
-            style={styles.quickReplies}
-            keyboardShouldPersistTaps="handled"
-          >
-            {QUICK_REPLIES.map((q) => (
-              <TouchableOpacity
-                key={q}
-                style={styles.quickChip}
-                onPress={() => send(q)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.quickChipText}>{q}</Text>
-              </TouchableOpacity>
-            ))}
           </ScrollView>
 
           {/* 입력바 */}
