@@ -67,6 +67,10 @@ export class LessonsService {
       hint: this.extractI18n(q.hint, lang),
       explanation: this.extractI18n(q.explanation, lang),
       answerTranslation: this.extractI18n(q.answerTranslation, lang),
+      acceptedAnswers: q.acceptedAnswers || [],
+      difficulty: q.difficulty ?? 3,
+      tags: q.tags || [],
+      audioText: q.audioText || '',
       audioUrl: q.audioUrl || '',
       imageUrl: q.imageUrl || '',
       xpReward: q.xpReward || 10,
@@ -255,9 +259,8 @@ export class LessonsService {
    * 학습 기록 1건 반영. 모든 학습 모드(레슨 · 복습 · 카테고리별 연습 · 게임 · AI 대화)가
    * 이 함수 하나만 호출하면 통계가 정확히 쌓인다.
    *
-   * 카테고리는 문제 타입에서 자동 유도되므로 호출부는 카테고리를 몰라도 된다.
-   * questionIds 가 없는 모드는 questionTypes 를 직접 넘기거나,
-   * 타입 개념이 없으면 overrideCategory + questionCount 를 쓴다.
+   * 카테고리는 문제의 lessonCategory(없으면 타입)에서 자동 유도되므로
+   * 호출부는 카테고리를 몰라도 된다.
    */
   async recordStudy(
     userId: string,
@@ -274,22 +277,28 @@ export class LessonsService {
       xpEarned?: number;
     },
   ) {
-    let types = params.questionTypes ?? [];
+    // 카테고리 판정에 필요한 최소 정보만 모은다
+    let items: { type?: string; lessonCategory?: string }[] = (
+      params.questionTypes ?? []
+    ).map((type) => ({ type }));
 
-    if (!types.length && params.questionIds?.length) {
+    if (!items.length && params.questionIds?.length) {
       const qs = await this.questionModel
         .find({ _id: { $in: params.questionIds } })
-        .select('type')
+        .select('type lessonCategory')
         .lean();
-      types = qs.map((q) => q.type);
+      items = qs.map((q) => ({
+        type: q.type,
+        lessonCategory: (q as any).lessonCategory,
+      }));
     }
 
-    // 타입 목록이 없으면 questionCount 만큼 override 버킷에 넣는다
-    if (!types.length && params.questionCount && params.overrideCategory) {
-      types = new Array(params.questionCount).fill('');
+    // 문제 개념이 없는 모드는 questionCount 만큼 override 버킷에 넣는다
+    if (!items.length && params.questionCount && params.overrideCategory) {
+      items = new Array(params.questionCount).fill({});
     }
 
-    const total = types.length;
+    const total = items.length;
     const xp = params.xpEarned ?? 0;
     if (!total && !xp) return;
 
@@ -309,7 +318,7 @@ export class LessonsService {
           totalQuestions: total,
           correctQuestions: Math.max(0, total - wrong),
           xpEarned: xp,
-          ...buildCategoryInc(types, params.overrideCategory),
+          ...buildCategoryInc(items, params.overrideCategory),
         },
       },
       { upsert: true, returnDocument: 'after' },

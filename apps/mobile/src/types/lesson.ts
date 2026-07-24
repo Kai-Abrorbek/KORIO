@@ -46,6 +46,14 @@ export interface LessonQuestion {
   explanation?: string;
   /** 정답의 뜻 (유저 언어) */
   answerTranslation?: string;
+  /** 정답으로 인정할 추가 표기 */
+  acceptedAnswers?: string[];
+  /** 세분화된 난이도 1~5 */
+  difficulty?: number;
+  /** 문법 포인트 · 어휘 주제 */
+  tags?: string[];
+  /** TTS 로 읽어줄 원문 (듣기 계열) */
+  audioText?: string;
   audioUrl?: string;
   imageUrl?: string;
   xpReward: number;

@@ -43,6 +43,7 @@ import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
+import { isAnswerCorrect } from "@/utils/answer-check";
 
 type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -320,7 +321,8 @@ export default function LessonScreen() {
       return answer === "all_correct";
     }
     if (q.type === "speaking") return true;
-    return answer.trim().toLowerCase() === q.answer.trim().toLowerCase();
+    // 띄어쓰기·문장부호 차이로 억울하게 틀리지 않도록 정규화 후 비교
+    return isAnswerCorrect(answer, q.answer, q.acceptedAnswers);
   };
 
   const handleAnswer = (answer: string) => {

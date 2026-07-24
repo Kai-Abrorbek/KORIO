@@ -47,8 +47,18 @@ export const LESSON_TO_STUDY: Record<LessonCategory, StudyCategory> = {
 };
 
 /** 문제 타입 하나의 통계 버킷 */
-export function categoryOf(type: string): StudyCategory {
-  return QUESTION_CATEGORY[type as QuestionType] ?? StudyCategory.OTHER;
+/**
+ * 문제 하나의 통계 버킷.
+ * 시드가 lessonCategory 를 명시했으면 그게 가장 정확하므로 우선한다.
+ * 없으면 타입에서 유도하고, 그것도 없으면 OTHER 로 모은다.
+ */
+export function categoryOf(q: {
+  type?: string;
+  lessonCategory?: string;
+}): StudyCategory {
+  const explicit = LESSON_TO_STUDY[q.lessonCategory as LessonCategory];
+  if (explicit) return explicit;
+  return QUESTION_CATEGORY[q.type as QuestionType] ?? StudyCategory.OTHER;
 }
 
 /**
@@ -60,12 +70,12 @@ export function categoryOf(type: string): StudyCategory {
  * (TOPIK 레슨, 특정 게임 등 "무엇을 훈련하는지"가 레슨/모드 단위로 정해지는 경우)
  */
 export function buildCategoryInc(
-  types: string[],
+  questions: { type?: string; lessonCategory?: string }[],
   override?: StudyCategory,
 ): Record<string, number> {
   const inc: Record<string, number> = {};
-  for (const t of types) {
-    const key = `categoryCounts.${override ?? categoryOf(t)}`;
+  for (const q of questions) {
+    const key = `categoryCounts.${override ?? categoryOf(q)}`;
     inc[key] = (inc[key] ?? 0) + 1;
   }
   return inc;

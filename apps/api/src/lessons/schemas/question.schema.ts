@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { LessonCategory } from './lesson.schema';
 
 export type QuestionDocument = Question & Document;
 
@@ -117,6 +118,28 @@ export class Question {
   // 학습자가 정답 문장의 의미를 모르면 학습이 안 되므로 피드백에 함께 보여준다.
   @Prop({ type: I18nText, default: {} })
   answerTranslation: I18nText;
+
+  // 정답으로 인정할 추가 표기 (동의 표현 · 허용되는 변형)
+  @Prop({ type: [String], default: [] })
+  acceptedAnswers: string[];
+
+  // 이 문제가 속한 학습 영역.
+  // 레슨의 category 는 "레슨 주제"라 문제 단위 분류로 쓸 수 없다.
+  // (회화 레슨 안에도 문법·듣기 문제가 섞인다)
+  @Prop({ enum: LessonCategory })
+  lessonCategory: LessonCategory;
+
+  // 세분화된 난이도 1~5. level(1/2) 보다 정밀하며 적응형 출제에 쓴다.
+  @Prop({ default: 3 })
+  difficulty: number;
+
+  // 문법 포인트 · 어휘 주제. "이 문법만 연습" 같은 기능에서 사용.
+  @Prop({ type: [String], default: [], index: true })
+  tags: string[];
+
+  // TTS 로 읽어줄 원문 (듣기 계열). answer 와 다를 수 있다.
+  @Prop({ default: '' })
+  audioText: string;
 
   // 오디오 URL (speaking, listening, word_arrange)
   @Prop({ default: '' })
