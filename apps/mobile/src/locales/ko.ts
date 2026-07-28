@@ -15,6 +15,46 @@ export default {
   onboarding: {
     survey: {
       title: "왜 한국어를 배우나요?",
+      subtitle: {
+        selfLevel: "솔직하게 골라줘!",
+        hangul: "한글부터 확인해볼게",
+        goals: "목표가 있으면 더 빨라져",
+        interests: "좋아하는 걸로 배우자",
+        style: "너한테 맞는 방식으로",
+        daily: "조금씩 매일이 최고야",
+        reminder: "까먹지 않게 챙겨줄게",
+      },
+      start: "시작하기",
+      selfLevel: {
+        title: "한국어 얼마나 알아?",
+        completeBeginner: "완전 처음이야",
+        basicGreetings: "인사말 정도 알아",
+        basicConversation: "기초 회화는 돼",
+        above: "그 이상이야",
+      },
+      hangul: {
+        title: "한글 읽을 수 있어?",
+        none: "아직 못 읽어",
+        partial: "조금 읽어",
+        fluent: "잘 읽어",
+      },
+      interests: {
+        title: "뭐로 배우면 재밌을까?",
+        kpop: "K-pop",
+        drama: "K-드라마",
+        travel: "여행",
+        business: "비즈니스",
+        topik: "TOPIK 시험",
+        game: "게임",
+        food: "K-푸드",
+      },
+      reminder: {
+        title: "언제 알림 받을래?",
+        morning: "아침",
+        afternoon: "점심",
+        evening: "저녁",
+        skip: "알림 안 받을래",
+      },
       goals: {
         kpop: "K-pop / K-드라마",
         travel: "여행",

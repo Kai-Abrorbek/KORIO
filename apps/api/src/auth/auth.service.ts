@@ -64,6 +64,12 @@ export class AuthService {
           learningGoals: onboarding.learningGoals,
           dailyGoalMinutes: onboarding.dailyGoalMinutes,
           isOnboardingCompleted: true,
+          placementLevel: onboarding.placementLevel,
+          hangulLevel: onboarding.hangulLevel,
+          interests: onboarding.interests,
+          selfReportedLevel: onboarding.selfReportedLevel,
+          reminderHour: onboarding.reminderHour,
+          reminderEnabled: onboarding.reminderEnabled,
         });
       }
     }
@@ -157,6 +163,12 @@ export class AuthService {
           learningGoals: onboarding.learningGoals,
           dailyGoalMinutes: onboarding.dailyGoalMinutes,
           isOnboardingCompleted: true,
+          placementLevel: onboarding.placementLevel,
+          hangulLevel: onboarding.hangulLevel,
+          interests: onboarding.interests,
+          selfReportedLevel: onboarding.selfReportedLevel,
+          reminderHour: onboarding.reminderHour,
+          reminderEnabled: onboarding.reminderEnabled,
         });
       }
     }
@@ -240,6 +252,12 @@ export class AuthService {
           learningGoals: onboarding.learningGoals,
           dailyGoalMinutes: onboarding.dailyGoalMinutes,
           isOnboardingCompleted: true,
+          placementLevel: onboarding.placementLevel,
+          hangulLevel: onboarding.hangulLevel,
+          interests: onboarding.interests,
+          selfReportedLevel: onboarding.selfReportedLevel,
+          reminderHour: onboarding.reminderHour,
+          reminderEnabled: onboarding.reminderEnabled,
         });
       }
     }

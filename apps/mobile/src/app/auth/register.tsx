@@ -45,7 +45,9 @@ export default function RegisterScreen() {
         sessionId,
       })) as any;
       setUser(res.user, res.accessToken);
-      router.replace("/(tabs)");
+      router.replace(
+        res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
+      );
     } catch (err: any) {
       const code = err.message ?? "UNKNOWN_ERROR";
       setError(t(`auth.errors.${code}`) ?? code);

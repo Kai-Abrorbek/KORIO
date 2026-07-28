@@ -5,6 +5,8 @@ import { Onboarding, OnboardingDocument } from './schemas/onboarding.schema';
 import { SaveSurveyDto } from './dto/save-survey.dto';
 import { SaveLevelTestDto } from './dto/save-level-test.dto';
 import { calculateLevel } from '../common/enums/level.enum';
+import { scoreToPlacementLevel } from '../lessons/placement.const';
+import { SelfReportedLevel } from '../common/enums/self-level.enum';
 
 @Injectable()
 export class OnboardingService {
@@ -26,6 +28,11 @@ export class OnboardingService {
           learningGoals: dto.learningGoals,
           learningStyle: dto.learningStyle,
           dailyGoalMinutes: dto.dailyGoalMinutes,
+          hangulLevel: dto.hangulLevel,
+          interests: dto.interests,
+          selfReportedLevel: dto.selfReportedLevel,
+          reminderHour: dto.reminderHour,
+          reminderEnabled: dto.reminderEnabled,
         },
         { new: true },
       ) as any;
@@ -37,11 +44,25 @@ export class OnboardingService {
       learningGoals: dto.learningGoals,
       learningStyle: dto.learningStyle,
       dailyGoalMinutes: dto.dailyGoalMinutes,
+      hangulLevel: dto.hangulLevel,
+      interests: dto.interests,
+      selfReportedLevel: dto.selfReportedLevel,
+      reminderHour: dto.reminderHour,
+      reminderEnabled: dto.reminderEnabled,
     });
   }
 
   async saveLevelTest(dto: SaveLevelTestDto): Promise<Onboarding | null> {
     const detectedLevel = calculateLevel(dto.score);
+
+    // 자가레벨 밴드 안에서 점수로 placement(1~6) 확정
+    const existing = await this.onboardingModel
+      .findOne({ sessionId: dto.sessionId })
+      .lean();
+    const self =
+      (existing?.selfReportedLevel as SelfReportedLevel) ??
+      SelfReportedLevel.BASIC_GREETINGS;
+    const placementLevel = scoreToPlacementLevel(self, dto.score);
 
     return this.onboardingModel.findOneAndUpdate(
       { sessionId: dto.sessionId },
@@ -50,6 +71,7 @@ export class OnboardingService {
         totalQuestions: dto.totalQuestions,
         levelTestScore: dto.score,
         detectedLevel,
+        placementLevel,
         wrongQuestionIds: dto.wrongQuestionIds,
       },
       { new: true },

@@ -12,6 +12,7 @@ import { LessonsService } from './lessons.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
+import { SelfReportedLevel } from '../common/enums/self-level.enum';
 
 @Controller('lessons')
 export class LessonsController {
@@ -26,8 +27,11 @@ export class LessonsController {
 
   // 레벨 테스트 문제
   @Get('level-test')
-  async getLevelTestQuestions(@Query('lang') lang: string = 'uz') {
-    return this.lessonsService.getLevelTestQuestions(lang);
+  async getLevelTestQuestions(
+    @Query('self') self: SelfReportedLevel,
+    @Query('lang') lang: string = 'uz',
+  ) {
+    return this.lessonsService.getLevelTestQuestions(self, lang);
   }
 
   @UseGuards(JwtAuthGuard)

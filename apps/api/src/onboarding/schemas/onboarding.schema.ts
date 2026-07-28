@@ -2,6 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { UserLevel } from '../../common/enums/level.enum';
 import { LearningGoal } from '../../common/enums/learning-goal.enum';
+import { HangulLevel } from '../../common/enums/hangul-level.enum';
+import { SelfReportedLevel } from '../../common/enums/self-level.enum';
+import { Interest } from '../../common/enums/interest.enum';
 
 export type OnboardingDocument = Onboarding & Document;
 
@@ -25,6 +28,24 @@ export class Onboarding {
 
   @Prop()
   dailyGoalMinutes: number;
+
+  @Prop({ enum: HangulLevel })
+  hangulLevel: HangulLevel;
+
+  @Prop({ type: [String], enum: Interest, default: [] })
+  interests: Interest[];
+
+  @Prop({ enum: SelfReportedLevel })
+  selfReportedLevel: SelfReportedLevel;
+
+  @Prop()
+  reminderHour: number;
+
+  @Prop({ default: false })
+  reminderEnabled: boolean;
+
+  @Prop({ default: 1 })
+  placementLevel: number; // 1~6, 콘텐츠 진입 레벨
 
   // 레벨 테스트 결과
   @Prop({ default: 0 })

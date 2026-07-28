@@ -51,7 +51,9 @@ export default function LoginScreen() {
     try {
       const res = (await authService.login({ email, password })) as any;
       setUser(res.user, res.accessToken);
-      router.replace("/(tabs)");
+      router.replace(
+        res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
+      );
     } catch (err: any) {
       const code = err.message ?? "UNKNOWN_ERROR";
       setError(t(`auth.errors.${code}`) ?? code);

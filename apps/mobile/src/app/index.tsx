@@ -9,20 +9,17 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (isLoggedIn) {
-        router.replace("/(tabs)"); // 온보딩 완료 → 메인
-        if (user?.isOnboardingCompleted) {
-          router.replace("/(tabs)"); // 온보딩 완료 → 메인
-        } else {
-          router.replace("/onboarding/survey"); // 첫 접속 → 온보딩
-        }
-      } else {
+      if (!isLoggedIn) {
         router.replace("/welcome"); // 비로그인 → 웰컴
+      } else if (user?.isOnboardingCompleted) {
+        router.replace("/(tabs)"); // 온보딩 완료 → 메인
+      } else {
+        router.replace("/onboarding/survey"); // 온보딩 미완 → 서베이
       }
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoggedIn, user?.isOnboardingCompleted]);
 
   return (
     <View style={styles.container}>

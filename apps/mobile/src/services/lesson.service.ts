@@ -62,8 +62,8 @@ export const LessonService = {
   },
 
   // 레벨 테스트 문제
-  getLevelTestQuestions: (): Promise<any[]> => {
-    return api.get(`/lessons/level-test?lang=${getLang()}`);
+  getLevelTestQuestions: (self?: string): Promise<any[]> => {
+    return api.get(`/lessons/level-test?lang=${getLang()}&self=${self ?? ""}`);
   },
 
   getMistakes: (): Promise<{ count: number; questions: any[] }> =>

@@ -15,6 +15,46 @@ export default {
   onboarding: {
     survey: {
       title: "Why do you want to learn Korean?",
+      subtitle: {
+        selfLevel: "Rostini tanlang!",
+        hangul: "Avval hangulni tekshiramiz",
+        goals: "Maqsad bilan tezroq bo'ladi",
+        interests: "Yoqqan narsangiz bilan o'rganamiz",
+        style: "Sizga mos usulda",
+        daily: "Har kuni ozdan — eng zo'ri",
+        reminder: "Unutmasligingiz uchun eslataman",
+      },
+      start: "Boshlash",
+      selfLevel: {
+        title: "Koreys tilini qanchalik bilasiz?",
+        completeBeginner: "Umuman birinchi marta",
+        basicGreetings: "Salomlashishni bilaman",
+        basicConversation: "Oddiy suhbat qila olaman",
+        above: "Undan ham ko'proq",
+      },
+      hangul: {
+        title: "Hangul o'qiy olasizmi?",
+        none: "Hali o'qiy olmayman",
+        partial: "Bir oz o'qiyman",
+        fluent: "Yaxshi o'qiyman",
+      },
+      interests: {
+        title: "Nima orqali o'rgansangiz qiziq?",
+        kpop: "K-pop",
+        drama: "K-drama",
+        travel: "Sayohat",
+        business: "Biznes",
+        topik: "TOPIK imtihoni",
+        game: "O'yinlar",
+        food: "K-food",
+      },
+      reminder: {
+        title: "Qachon eslatma yuboraylik?",
+        morning: "Ertalab",
+        afternoon: "Tushda",
+        evening: "Kechqurun",
+        skip: "Eslatma kerak emas",
+      },
       goals: {
         kpop: "K-pop / K-drama",
         travel: "Travel",

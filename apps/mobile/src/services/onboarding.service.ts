@@ -1,5 +1,11 @@
 import api from "./api";
-import { LearningGoal, LearningStyle } from "../types/enums";
+import {
+  LearningGoal,
+  LearningStyle,
+  HangulLevel,
+  SelfReportedLevel,
+  Interest,
+} from "../types/enums";
 
 interface SurveyData {
   sessionId: string;
@@ -7,6 +13,11 @@ interface SurveyData {
   learningGoals: LearningGoal[];
   learningStyle: LearningStyle;
   dailyGoalMinutes: number;
+  hangulLevel: HangulLevel;
+  interests: Interest[];
+  selfReportedLevel: SelfReportedLevel;
+  reminderHour?: number;
+  reminderEnabled?: boolean;
 }
 
 interface LevelTestData {
@@ -23,8 +34,8 @@ export const onboardingService = {
   saveLevelTest: (data: LevelTestData) =>
     api.post("/onboarding/level-test", data),
 
-  updateGuestProgress: (sessionId: string) =>
-    api.patch(`/onboarding/guest-progress/${sessionId}`),
+  // updateGuestProgress: (sessionId: string) =>
+  //   api.patch(`/onboarding/guest-progress/${sessionId}`),
 
   getSessionData: (sessionId: string) =>
     api.get(`/onboarding/session/${sessionId}`),

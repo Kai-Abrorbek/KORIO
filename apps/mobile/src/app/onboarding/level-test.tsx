@@ -34,7 +34,8 @@ export default function LevelTestScreen() {
   const theme = useTheme();
   const s = getStyles(theme);
 
-  const { setLevelTestResult, sessionId } = useOnboardingStore();
+  const { setLevelTestResult, sessionId, selfReportedLevel } =
+    useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
 
@@ -50,7 +51,8 @@ export default function LevelTestScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await LessonService.getLevelTestQuestions();
+        const data =
+          await LessonService.getLevelTestQuestions(selfReportedLevel);
         setQuestions(data);
       } catch (e) {
         console.error("레벨테스트 문제 로드 실패:", e);

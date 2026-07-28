@@ -23,6 +23,8 @@ import { StudyCategory } from '../users/utils/study-category.util';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import { calcLessonXp, calcPracticeXp } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
+import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
+import { SelfReportedLevel } from '../common/enums/self-level.enum';
 
 const LEGEND_XP = 40;
 
@@ -325,20 +327,23 @@ export class LessonsService {
     );
   }
 
-  public async getLevelTestQuestions(lang: string = 'uz') {
-    const easyQuestions = await this.questionModel.aggregate([
-      { $match: { level: { $in: ['1', '2', '3'] }, isActive: true } },
-      { $sample: { size: 10 } },
-    ]);
+  public async getLevelTestQuestions(
+    self: SelfReportedLevel = SelfReportedLevel.BASIC_GREETINGS,
+    lang: string = 'uz',
+  ) {
+    const band =
+      SELF_LEVEL_BAND[self] ??
+      SELF_LEVEL_BAND[SelfReportedLevel.BASIC_GREETINGS];
+    const levels = band.questionLevels.length
+      ? band.questionLevels
+      : ['1', '2'];
 
-    const hardQuestions = await this.questionModel.aggregate([
-      { $match: { level: { $in: ['4', '5', '6'] }, isActive: true } },
-      { $sample: { size: 4 } },
+    // 밴드 안에서 랜덤 추출 후 쉬운→어려운 정렬
+    const questions = await this.questionModel.aggregate([
+      { $match: { level: { $in: levels }, isActive: true } },
+      { $sample: { size: 14 } },
+      { $sort: { level: 1 } },
     ]);
-
-    const questions = [...easyQuestions, ...hardQuestions].sort(
-      () => Math.random() - 0.5,
-    );
 
     return questions.map((q) => this.formatQuestion(q, lang));
   }
@@ -348,8 +353,10 @@ export class LessonsService {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
       .findById(new Types.ObjectId(userId))
-      .select('legendNodes')
+      .select('legendNodes placementLevel')
       .lean();
+
+    const startSection = sectionRangeForLevel(meUser?.placementLevel ?? 1)[0];
 
     const legendSet = new Set(
       ((meUser?.legendNodes ?? []) as any[]).map((x) => x.toString()),
@@ -434,9 +441,9 @@ export class LessonsService {
     let score = 0;
 
     for (const unit of units) {
-      const allNodesCompleted = unit.nodes.every(
-        (n: any) => n.completedLessons === n.totalLessons,
-      );
+      const allNodesCompleted =
+        unit.sectionNumber < startSection ||
+        unit.nodes.every((n: any) => n.completedLessons === n.totalLessons);
 
       if (allNodesCompleted) {
         score++;

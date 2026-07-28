@@ -27,3 +27,26 @@ export enum AuthProvider {
   NAVER = "naver",
   TELEGRAM = "telegram",
 }
+
+export enum HangulLevel {
+  NONE = "none",
+  PARTIAL = "partial",
+  FLUENT = "fluent",
+}
+
+export enum SelfReportedLevel {
+  COMPLETE_BEGINNER = "complete_beginner",
+  BASIC_GREETINGS = "basic_greetings",
+  BASIC_CONVERSATION = "basic_conversation",
+  ABOVE = "above",
+}
+
+export enum Interest {
+  KPOP = "kpop",
+  DRAMA = "drama",
+  TRAVEL = "travel",
+  BUSINESS = "business",
+  TOPIK = "topik",
+  GAME = "game",
+  FOOD = "food",
+}

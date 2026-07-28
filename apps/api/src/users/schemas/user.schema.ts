@@ -3,6 +3,9 @@ import { Document, Types } from 'mongoose';
 import { UserLevel } from '../../common/enums/level.enum';
 import { UserRole } from '../../common/enums/role.enum';
 import { AuthProvider } from '../../common/enums/provider.enum';
+import { HangulLevel } from '../../common/enums/hangul-level.enum';
+import { SelfReportedLevel } from '../../common/enums/self-level.enum';
+import { Interest } from '../../common/enums/interest.enum';
 
 export type UserDocument = User & Document;
 
@@ -62,6 +65,24 @@ export class User {
 
   @Prop({ enum: UserLevel, default: UserLevel.BEGINNER })
   level: UserLevel;
+
+  @Prop({ enum: HangulLevel })
+  hangulLevel: HangulLevel;
+
+  @Prop({ type: [String], enum: Interest, default: [] })
+  interests: Interest[];
+
+  @Prop({ enum: SelfReportedLevel })
+  selfReportedLevel: SelfReportedLevel;
+
+  @Prop()
+  reminderHour: number;
+
+  @Prop({ default: false })
+  reminderEnabled: boolean;
+
+  @Prop({ default: 1 })
+  placementLevel: number; // 1~6 → sectionRangeForLevel 로 로드맵 시작 섹션 결정
 
   // 학습 진도
   @Prop({ default: 0 })

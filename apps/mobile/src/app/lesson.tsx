@@ -21,7 +21,6 @@ import { LessonService } from "@/services/lesson.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
-import ComboPopup from "@/components/lesson/ComboPopup";
 import BoriMascot from "@/components/home/BoriMascot";
 import SentenceBuilder from "@/components/lesson/questions/SentenceBuilder";
 import WordArrange from "@/components/lesson/questions/WordArrange";
@@ -78,7 +77,8 @@ export default function LessonScreen() {
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
   const isLegend = mode === "legend";
-  const { setLevelTestResult, sessionId } = useOnboardingStore();
+  const { setLevelTestResult, sessionId, selfReportedLevel } =
+    useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
   const updateUser = useAuthStore((st) => st.updateUser);
   const locked = useRef(false);
@@ -136,7 +136,8 @@ export default function LessonScreen() {
     try {
       setLoading(true);
       if (isLevelTest) {
-        const questions = await LessonService.getLevelTestQuestions();
+        const questions =
+          await LessonService.getLevelTestQuestions(selfReportedLevel);
         const session = {
           lessonId: "level-test",
           lessonTitle: "Level Test",

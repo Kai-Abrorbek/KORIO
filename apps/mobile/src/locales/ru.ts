@@ -15,6 +15,46 @@ export default {
   onboarding: {
     survey: {
       title: "Зачем вы хотите учить корейский?",
+      subtitle: {
+        selfLevel: "Ответь честно!",
+        hangul: "Сначала проверим хангыль",
+        goals: "С целью двигаешься быстрее",
+        interests: "Учись с тем, что нравится",
+        style: "Твой способ обучения",
+        daily: "Понемногу каждый день — лучше всего",
+        reminder: "Помогу не забыть",
+      },
+      start: "Начать",
+      selfLevel: {
+        title: "Насколько ты знаешь корейский?",
+        completeBeginner: "Совсем новичок",
+        basicGreetings: "Знаю базовые приветствия",
+        basicConversation: "Могу вести простой разговор",
+        above: "Больше того",
+      },
+      hangul: {
+        title: "Умеешь читать хангыль?",
+        none: "Пока нет",
+        partial: "Немного",
+        fluent: "Да, свободно",
+      },
+      interests: {
+        title: "С чем учиться интереснее?",
+        kpop: "K-pop",
+        drama: "K-дорамы",
+        travel: "Путешествия",
+        business: "Бизнес",
+        topik: "Экзамен TOPIK",
+        game: "Игры",
+        food: "K-еда",
+      },
+      reminder: {
+        title: "Когда напоминать?",
+        morning: "Утром",
+        afternoon: "Днём",
+        evening: "Вечером",
+        skip: "Без напоминаний",
+      },
       goals: {
         kpop: "K-pop / K-драма",
         travel: "Путешествия",

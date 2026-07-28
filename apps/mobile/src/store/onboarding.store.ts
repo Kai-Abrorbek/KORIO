@@ -1,5 +1,10 @@
-import { LearningGoal } from "@/types/enums";
 import { create } from "zustand";
+import {
+  LearningGoal,
+  HangulLevel,
+  SelfReportedLevel,
+  Interest,
+} from "@/types/enums";
 
 interface OnboardingState {
   // 설문조사
@@ -7,6 +12,11 @@ interface OnboardingState {
   learningGoals: LearningGoal[];
   learningStyle: string;
   dailyGoalMinutes: number;
+  hangulLevel: HangulLevel | "";
+  interests: Interest[];
+  selfReportedLevel: SelfReportedLevel | "";
+  reminderHour: number | null;
+  reminderEnabled: boolean;
 
   // 레벨 테스트
   levelTestScore: number;
@@ -25,7 +35,13 @@ interface OnboardingState {
     learningGoals: LearningGoal[];
     learningStyle: string;
     dailyGoalMinutes: number;
+    hangulLevel: HangulLevel;
+    interests: Interest[];
+    selfReportedLevel: SelfReportedLevel;
+    reminderHour?: number;
+    reminderEnabled?: boolean;
   }) => void;
+
   setLevelTestResult: (data: {
     score: number;
     detectedLevel: string;
@@ -33,6 +49,7 @@ interface OnboardingState {
     totalQuestions: number;
     wrongQuestionIds: string[];
   }) => void;
+
   incrementGuestCount: () => void;
   reset: () => void;
 }
@@ -52,8 +69,14 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   wrongQuestionIds: [],
   sessionId: generateSessionId(),
   guestQuestionCount: 0,
+  hangulLevel: "",
+  interests: [],
+  selfReportedLevel: "",
+  reminderHour: null,
+  reminderEnabled: false,
 
   setSurvey: (data) => set((state) => ({ ...state, ...data })),
+
   setLevelTestResult: (data) =>
     set((state) => ({
       ...state,
@@ -63,8 +86,10 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       totalQuestions: data.totalQuestions,
       wrongQuestionIds: data.wrongQuestionIds,
     })),
+
   incrementGuestCount: () =>
     set((state) => ({ guestQuestionCount: state.guestQuestionCount + 1 })),
+
   reset: () =>
     set({
       targetLanguage: "korean",
@@ -77,5 +102,10 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       wrongQuestionIds: [],
       sessionId: generateSessionId(),
       guestQuestionCount: 0,
+      hangulLevel: "",
+      interests: [],
+      selfReportedLevel: "",
+      reminderHour: null,
+      reminderEnabled: false,
     }),
 }));
