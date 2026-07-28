@@ -45,7 +45,6 @@ export function useTelegramAuth(
       await TokenStorage.set(token);
       const me: any = await UserService.getMe(); // 토큰으로 유저 조회
       setUser(me, token);
-      router.replace("/(tabs)");
     } catch (e: any) {
       onError?.(e?.message ?? "SOCIAL_LOGIN_FAILED");
     } finally {

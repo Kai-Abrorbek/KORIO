@@ -214,7 +214,7 @@ export default {
     enterTranslation: "Tarjimani kiriting",
     tapToSpeak: "Gapirish uchun bosing",
     recording: "Tinglanmoqda...",
-    typeHeardEnglish: "Eshitilgan inglizchani kiriting",
+    typeHeardEnglish: "Eshitilgan so'zlarni kiriting",
     hardPractice: "Qiyin mashq",
     reviewIntro: "Endi xato qilgan savollarni ishlaymizmi?",
     continue: "Davom etish",

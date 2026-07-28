@@ -41,7 +41,9 @@ export function useGoogleAuth(
         sessionId,
       });
       setUser(res.user, res.accessToken);
-      router.replace("/(tabs)");
+      router.replace(
+        res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
+      );
     } catch (e: any) {
       if (e.code === statusCodes.SIGN_IN_CANCELLED) {
         // 사용자가 취소 → 조용히

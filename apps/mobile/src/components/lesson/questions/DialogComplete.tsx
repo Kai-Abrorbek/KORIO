@@ -69,7 +69,6 @@ export default function DialogComplete({
           <Text style={{ fontSize: 45 }}>👩</Text>
         </View>
       </View>
-      <View style={{ flex: 1 }} />
       {/* 선택지 */}
       <View style={s.options}>
         {question.options?.map((opt) => {

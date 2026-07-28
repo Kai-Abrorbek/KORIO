@@ -6,18 +6,8 @@ import {
   useWindowDimensions,
   Image,
 } from "react-native";
-import Animated, {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from "react-native-reanimated";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
@@ -77,7 +67,6 @@ export default function WordArrange({
   const placedWords = words
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
-  const bankWords = words.filter((w) => w.zone === "bank");
 
   const handleTap = (id: string) => {
     setWords((prev) => {
