@@ -7,7 +7,11 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
@@ -57,6 +61,10 @@ export default function LessonScreen() {
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const keyboard = useAnimatedKeyboard();
+  const questionAreaStyle = useAnimatedStyle(() => ({
+    paddingBottom: Math.max(keyboard.height.value, insets.bottom),
+  }));
   const { lessonId, mode, nodeId, section, unit } = useLocalSearchParams<{
     lessonId?: string;
     mode?: string;
@@ -689,16 +697,16 @@ export default function LessonScreen() {
         </Animated.View>
       ) : currentQ ? (
         <>
-          <View
+          <Animated.View
             key={
               isLevelTest
                 ? `lt-${currentIdx}`
                 : `q-${currentQ.id}-${currentIdx}`
             }
-            style={[s.questionArea, { paddingBottom: insets.bottom }]}
+            style={[s.questionArea, questionAreaStyle]}
           >
             {renderQuestion()}
-          </View>
+          </Animated.View>
 
           {!isLevelTest && (
             <FeedbackBar

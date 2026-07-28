@@ -4,8 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import Animated, {
   FadeInDown,
@@ -92,10 +90,7 @@ export default function TranslateType({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
         {question.hard && (
           <View style={s.hardRow}>
@@ -156,7 +151,7 @@ export default function TranslateType({
           <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
         </TouchableOpacity>
       </Animated.View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

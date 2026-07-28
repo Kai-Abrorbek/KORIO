@@ -5,8 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -56,10 +54,7 @@ export default function TypeAnswer({
         : theme.primary;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
         {/* 지시문 */}
         <Text style={s.title}>
@@ -152,7 +147,7 @@ export default function TypeAnswer({
           </Text>
         </TouchableOpacity>
       </Animated.View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

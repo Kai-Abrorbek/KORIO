@@ -77,10 +77,11 @@ export default function SentenceBuilder({
   const placedWords = words
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
-  const bankWords = words.filter((w) => w.zone === "bank");
 
-  const LONG_SENTENCE_LEN = 18; // 이 글자 수 넘으면 단어장 접고 탭으로 펼침 (레벨업 긴 문장 대비)
-  const isLong = (question.npcText?.length ?? 0) > LONG_SENTENCE_LEN;
+  // 인라인 단어장은 ~9칩까지 수용. 그 이상이거나 놓을 단어가 2줄 넘칠 때만 모달로.
+  const isLong =
+    (question.options?.length ?? 0) > 9 ||
+    (question.answer?.split(" ").length ?? 0) > 6;
 
   const handleTap = (id: string) => {
     setWords((prev) => {
@@ -285,16 +286,21 @@ export default function SentenceBuilder({
           animationType="none"
           onRequestClose={() => setBankOpen(false)}
         >
-          <View style={s.sheetWrap}>
-            <Pressable style={{ flex: 1 }} onPress={() => setBankOpen(false)} />
-            <Animated.View
-              entering={SlideInDown.springify().damping(18).mass(0.8)}
-              style={s.sheet}
-            >
-              <View style={s.grabber} />
-              <View style={s.chipRow}>{renderBankChips()}</View>
-            </Animated.View>
-          </View>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <View style={s.sheetWrap}>
+              <Pressable
+                style={{ flex: 1 }}
+                onPress={() => setBankOpen(false)}
+              />
+              <Animated.View
+                entering={SlideInDown.springify().damping(18).mass(0.8)}
+                style={s.sheet}
+              >
+                <View style={s.grabber} />
+                <View style={s.chipRow}>{renderBankChips()}</View>
+              </Animated.View>
+            </View>
+          </GestureHandlerRootView>
         </Modal>
       </Animated.View>
     </GestureHandlerRootView>

@@ -6,8 +6,6 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -68,11 +66,7 @@ export default function ListenFill({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-    >
+    <View style={{ flex: 1 }}>
       <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
         {/* 위 영역: 키보드 뜨면 스크롤 */}
         <ScrollView
@@ -193,7 +187,7 @@ export default function ListenFill({
           </Text>
         </TouchableOpacity>
       </Animated.View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
