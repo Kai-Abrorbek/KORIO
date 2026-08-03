@@ -41,12 +41,26 @@ export default function AddFriendsScreen() {
     }, []),
   );
 
-  const toggleFollow = (id: string) =>
+  const toggleFollow = async (id: string) => {
+    const isFollowed = followed.has(id);
     setFollowed((p) => {
       const n = new Set(p);
-      n.has(id) ? n.delete(id) : n.add(id);
+      isFollowed ? n.delete(id) : n.add(id);
       return n;
     });
+    try {
+      if (isFollowed) await UserService.unfollow(id);
+      else await UserService.follow(id);
+    } catch (e) {
+      console.error("팔로우 실패:", e);
+      setFollowed((p) => {
+        const n = new Set(p);
+        isFollowed ? n.add(id) : n.delete(id);
+        return n;
+      });
+    }
+  };
+
   const dismiss = (id: string) => setDismissed((p) => new Set(p).add(id));
 
   const list = suggestions.filter((x) => !dismissed.has(x.id));

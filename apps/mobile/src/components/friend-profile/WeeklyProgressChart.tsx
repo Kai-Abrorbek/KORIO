@@ -102,8 +102,8 @@ export default function WeeklyProgressChart({
       <View style={themed.chartRow}>
         {/* Y축 라벨 */}
         <View style={themed.yLabels}>
-          {yLabels.map((v) => (
-            <Text key={v} style={themed.yLabelText}>
+          {yLabels.map((v, i) => (
+            <Text key={i} style={themed.yLabelText}>
               {v}
             </Text>
           ))}
@@ -168,8 +168,8 @@ export default function WeeklyProgressChart({
 
       {/* X축 라벨 */}
       <View style={[themed.xLabels, { marginLeft: Y_AXIS_WIDTH }]}>
-        {points.map((p) => (
-          <Text key={p.label} style={themed.xLabelText}>
+        {points.map((p, i) => (
+          <Text key={`x-${i}`} style={themed.xLabelText}>
             {p.label}
           </Text>
         ))}

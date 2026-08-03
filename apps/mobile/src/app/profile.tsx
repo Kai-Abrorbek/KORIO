@@ -17,14 +17,26 @@ import { t } from "i18next";
 import { useAuthStore } from "@/store/auth.store";
 import { toUserProfile } from "@/services/user.service";
 import { useRouter } from "expo-router";
+import { useCallback } from "react";
+import { useFocusEffect } from "expo-router";
+import { UserService } from "@/services/user.service";
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { logout } = useAuthStore();
+  const { logout, updateUser } = useAuthStore();
   const user = useAuthStore((st) => st.user);
   const profile = user ? toUserProfile(user) : null;
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getMe()
+        .then((me) => updateUser(me as any))
+        .catch((e) => console.error("getMe 실패:", e));
+    }, []),
+  );
+
   if (!profile) return null;
 
   return (

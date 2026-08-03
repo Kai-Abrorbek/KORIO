@@ -99,7 +99,7 @@ export default function FriendsScreen() {
               key={friend.id}
               friend={friend}
               isLast={i === list.length - 1}
-              onPress={() => router.push("/friend-profile")}
+              onPress={() => router.push(`/friend-profile?id=${friend.id}`)}
             />
           ))}
         </View>
