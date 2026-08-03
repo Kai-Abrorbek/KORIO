@@ -372,6 +372,9 @@ export default {
       learningTheme: "Тема обучения",
       themes: { skyBlue: "Небесно-голубая", purple: "Фиолетовая" },
     },
+    language: {
+      subtitle: "Выберите язык приложения",
+    },
     title: "Настройки",
     version: "Версия приложения: {{version}}",
     user: {

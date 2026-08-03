@@ -370,6 +370,9 @@ export default {
       learningTheme: "Learning theme",
       themes: { skyBlue: "Sky blue", purple: "Purple" },
     },
+    language: {
+      subtitle: "Choose your app language",
+    },
     title: "Settings",
     version: "App version: {{version}}",
     user: {

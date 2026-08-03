@@ -370,6 +370,9 @@ export default {
       learningTheme: "학습 테마",
       themes: { skyBlue: "스카이 블루", purple: "퍼플" },
     },
+    language: {
+      subtitle: "앱에서 사용할 언어를 선택하세요",
+    },
     title: "설정",
     version: "앱 버전: {{version}}",
     user: {

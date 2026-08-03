@@ -130,6 +130,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "globe",
         iconColor: "#45B7D1",
         iconBgColor: "#D5F0F5",
+        route: "/language",
       },
       {
         id: "lab",

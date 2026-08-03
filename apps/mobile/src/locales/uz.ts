@@ -374,6 +374,9 @@ export default {
       learningTheme: "O'quv mavzusi",
       themes: { skyBlue: "Moviy osmon", purple: "Siyohrang" },
     },
+    language: {
+      subtitle: "Ilova tilini tanlang",
+    },
     title: "Sozlamalar",
     version: "Ilova versiyasi: {{version}}",
     user: {
