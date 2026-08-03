@@ -364,6 +364,14 @@ export default {
     },
   },
   settings: {
+    display: {
+      darkModeSection: "Тёмная тема",
+      learningSection: "Экран обучения",
+      lightMode: "Светлая тема",
+      darkMode: "Тёмная тема",
+      learningTheme: "Тема обучения",
+      themes: { skyBlue: "Небесно-голубая", purple: "Фиолетовая" },
+    },
     title: "Настройки",
     version: "Версия приложения: {{version}}",
     user: {

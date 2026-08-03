@@ -11,6 +11,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "sunny",
         iconColor: "#45B7D1",
         iconBgColor: "#DBF0FF",
+        route: "/display",
       },
       {
         id: "notifications",

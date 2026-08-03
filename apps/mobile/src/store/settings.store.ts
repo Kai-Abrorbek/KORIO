@@ -3,10 +3,13 @@ import i18n from "../locales/i18n";
 
 type Language = "uz" | "ko" | "en" | "ru";
 export type Theme = "light" | "dark" | "system"; // 나중에 'purple' | 'mint' 등 추가 가능
+export type LearningTheme = "skyBlue" | "purple";
 
 interface SettingsState {
   language: Language;
   theme: Theme;
+  learningTheme: LearningTheme;
+  setLearningTheme: (t: LearningTheme) => void;
 
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
@@ -15,6 +18,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>((set) => ({
   language: "uz",
   theme: "system", // 기본은 시스템 따라가기
+  learningTheme: "skyBlue",
 
   setLanguage: (lang) => {
     i18n.changeLanguage(lang);
@@ -22,4 +26,5 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   },
 
   setTheme: (theme) => set({ theme }),
+  setLearningTheme: (learningTheme) => set({ learningTheme }),
 }));

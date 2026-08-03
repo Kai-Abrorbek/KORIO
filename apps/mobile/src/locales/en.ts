@@ -362,6 +362,14 @@ export default {
     },
   },
   settings: {
+    display: {
+      darkModeSection: "Dark mode",
+      learningSection: "Learning screen",
+      lightMode: "Light mode",
+      darkMode: "Dark mode",
+      learningTheme: "Learning theme",
+      themes: { skyBlue: "Sky blue", purple: "Purple" },
+    },
     title: "Settings",
     version: "App version: {{version}}",
     user: {

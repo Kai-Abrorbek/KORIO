@@ -362,6 +362,14 @@ export default {
     },
   },
   settings: {
+    display: {
+      darkModeSection: "다크 모드 설정",
+      learningSection: "학습 화면 설정",
+      lightMode: "라이트 모드",
+      darkMode: "다크 모드",
+      learningTheme: "학습 테마",
+      themes: { skyBlue: "스카이 블루", purple: "퍼플" },
+    },
     title: "설정",
     version: "앱 버전: {{version}}",
     user: {

@@ -366,6 +366,14 @@ export default {
     },
   },
   settings: {
+    display: {
+      darkModeSection: "Qorong'i rejim",
+      learningSection: "O'quv ekrani sozlamalari",
+      lightMode: "Yorug' rejim",
+      darkMode: "Qorong'i rejim",
+      learningTheme: "O'quv mavzusi",
+      themes: { skyBlue: "Moviy osmon", purple: "Siyohrang" },
+    },
     title: "Sozlamalar",
     version: "Ilova versiyasi: {{version}}",
     user: {
