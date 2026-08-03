@@ -373,6 +373,22 @@ export default {
     language: {
       subtitle: "앱에서 사용할 언어를 선택하세요",
     },
+    notifications: {
+      master: "전체 알림",
+      masterDesc: "모든 알림을 켜고 끕니다",
+      learningSection: "학습",
+      daily: "매일 학습 알림",
+      dailyDesc: "매일 정한 시간에 알려줄게요",
+      time: "시간",
+      streak: "스트릭 알림",
+      streakDesc: "스트릭이 끊기기 전에 알려줘요",
+      socialSection: "경쟁 · 소셜",
+      league: "리그 알림",
+      friends: "친구 활동",
+      otherSection: "기타",
+      events: "이벤트 · 새 소식",
+      pickTime: "알림 시간 선택",
+    },
     title: "설정",
     version: "앱 버전: {{version}}",
     user: {

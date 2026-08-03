@@ -375,6 +375,22 @@ export default {
     language: {
       subtitle: "Выберите язык приложения",
     },
+    notifications: {
+      master: "Все уведомления",
+      masterDesc: "Включить или выключить все уведомления",
+      learningSection: "Обучение",
+      daily: "Ежедневное напоминание",
+      dailyDesc: "Напомним в выбранное время",
+      time: "Время",
+      streak: "Напоминание о серии",
+      streakDesc: "Предупредим, пока серия не прервалась",
+      socialSection: "Соревнования · Друзья",
+      league: "Уведомления лиги",
+      friends: "Активность друзей",
+      otherSection: "Другое",
+      events: "События · Новости",
+      pickTime: "Выберите время напоминания",
+    },
     title: "Настройки",
     version: "Версия приложения: {{version}}",
     user: {

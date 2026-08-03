@@ -377,6 +377,22 @@ export default {
     language: {
       subtitle: "Ilova tilini tanlang",
     },
+    notifications: {
+      master: "Barcha bildirishnomalar",
+      masterDesc: "Hamma bildirishnomalarni yoqish yoki o'chirish",
+      learningSection: "O'quv",
+      daily: "Kunlik eslatma",
+      dailyDesc: "Har kuni belgilangan vaqtda eslatamiz",
+      time: "Vaqt",
+      streak: "Streak eslatmasi",
+      streakDesc: "Streak uzilishidan oldin ogohlantiramiz",
+      socialSection: "Musobaqa · Ijtimoiy",
+      league: "Liga bildirishnomalari",
+      friends: "Do'stlar faoliyati",
+      otherSection: "Boshqa",
+      events: "Tadbirlar · Yangiliklar",
+      pickTime: "Eslatma vaqtini tanlang",
+    },
     title: "Sozlamalar",
     version: "Ilova versiyasi: {{version}}",
     user: {

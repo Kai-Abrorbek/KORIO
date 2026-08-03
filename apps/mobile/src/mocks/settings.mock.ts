@@ -20,6 +20,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "notifications",
         iconColor: "#F4B860",
         iconBgColor: "#FFF4D6",
+        route: "/notifications",
       },
       {
         id: "sound",

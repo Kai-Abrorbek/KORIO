@@ -373,6 +373,22 @@ export default {
     language: {
       subtitle: "Choose your app language",
     },
+    notifications: {
+      master: "All notifications",
+      masterDesc: "Turn all notifications on or off",
+      learningSection: "Learning",
+      daily: "Daily reminder",
+      dailyDesc: "We'll remind you at your set time",
+      time: "Time",
+      streak: "Streak reminder",
+      streakDesc: "Get warned before your streak breaks",
+      socialSection: "Competition · Social",
+      league: "League updates",
+      friends: "Friend activity",
+      otherSection: "Other",
+      events: "Events · News",
+      pickTime: "Pick reminder time",
+    },
     title: "Settings",
     version: "App version: {{version}}",
     user: {
