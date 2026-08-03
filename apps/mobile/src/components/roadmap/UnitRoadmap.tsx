@@ -1,5 +1,4 @@
 import { View, StyleSheet, Dimensions, Text } from "react-native";
-import Svg, { Polyline } from "react-native-svg";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { RoadmapUnit, RoadmapNode } from "@/types/roadmap";
@@ -7,7 +6,6 @@ import SectionTitleDivider from "./SectionTitleDivider";
 import LessonNode from "./LessonNode";
 import CharacterMarker from "./CharacterMarker";
 import NodePopover from "./NodePopover";
-import JumpButton from "./JumpButton";
 import { t } from "i18next";
 import Animated, {
   Easing,
@@ -19,6 +17,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import ScoreNode from "./ScoreNode";
+import Svg, { Path } from "react-native-svg";
+import { darken } from "@/utils/color";
 
 interface Props {
   unit: RoadmapUnit;
@@ -44,6 +44,29 @@ const CENTER_X = SCREEN_WIDTH / 2;
 
 function getZigzagOffset(index: number): number {
   return ZIGZAG_OFFSETS[index % ZIGZAG_OFFSETS.length];
+}
+
+type RoutePoint = {
+  x: number;
+  y: number;
+};
+
+function buildRouteSegment(from: RoutePoint, to: RoutePoint): string {
+  const middleY = (from.y + to.y) / 2;
+
+  return `M ${from.x} ${from.y} C ${from.x} ${middleY}, ${to.x} ${middleY}, ${to.x} ${to.y}`;
+}
+
+function buildRoutePath(points: RoutePoint[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) {
+    return `M ${points[0].x} ${points[0].y}`;
+  }
+
+  return points
+    .slice(1)
+    .map((point, index) => buildRouteSegment(points[index], point))
+    .join(" ");
 }
 
 export default function UnitRoadmap({
@@ -73,16 +96,22 @@ export default function UnitRoadmap({
   }, []);
 
   // 점선 connector 좌표 계산
-  const connectorPoints = unit.nodes
-    .map((_, i) => {
-      const offset = getZigzagOffset(i);
-      const y = i * ROW_HEIGHT + NODE_SIZE; // 노드 face 의 시각적 중심
-      const x = CENTER_X + offset;
-      return `${x},${y}`;
-    })
-    .join(" ");
+  const routePoints = unit.nodes.map((_, index) => ({
+    x: CENTER_X + getZigzagOffset(index),
+    y: index * ROW_HEIGHT + NODE_WRAP_HEIGHT / 2,
+  }));
 
-  const svgHeight = Math.max(unit.nodes.length * ROW_HEIGHT, 100);
+  const routePath = buildRoutePath(routePoints);
+
+  const routeSegments = routePoints.slice(1).map((point, index) => ({
+    path: buildRouteSegment(routePoints[index], point),
+    isActive: unit.nodes[index]?.status !== "locked",
+  }));
+
+  const svgHeight = Math.max(
+    (unit.nodes.length - 1) * ROW_HEIGHT + NODE_WRAP_HEIGHT,
+    100,
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }, { scale: scale.value }],
@@ -100,14 +129,63 @@ export default function UnitRoadmap({
           style={styles.connectorSvg}
           pointerEvents="none"
         >
-          <Polyline
-            points={connectorPoints}
+          {/* 길 아래쪽 깊은 그림자 */}
+          <Path
+            d={routePath}
             fill="none"
-            stroke={theme.border}
-            strokeWidth={8}
+            stroke={darken(unit.color, 50)}
+            strokeWidth={24}
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeDasharray="2,16"
+            opacity={0.13}
+            transform="translate(0 7)"
+          />
+
+          {/* 하얀 지도길 바닥 */}
+          <Path
+            d={routePath}
+            fill="none"
+            stroke={theme.surface}
+            strokeWidth={18}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.98}
+          />
+
+          {/* 유닛 컬러 테두리 */}
+          <Path
+            d={routePath}
+            fill="none"
+            stroke={unit.color}
+            strokeWidth={12}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.16}
+          />
+
+          {/* 완료된 길과 잠긴 길을 상태에 따라 표현 */}
+          {routeSegments.map((segment, index) => (
+            <Path
+              key={index}
+              d={segment.path}
+              fill="none"
+              stroke={segment.isActive ? unit.color : theme.border}
+              strokeWidth={6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={segment.isActive ? 0.88 : 0.7}
+            />
+          ))}
+
+          {/* 지도길 위 작은 반짝임 */}
+          <Path
+            d={routePath}
+            fill="none"
+            stroke={theme.surface}
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeDasharray="1 15"
+            opacity={0.92}
           />
         </Svg>
 
@@ -137,7 +215,9 @@ export default function UnitRoadmap({
                   />
                 ) : i === 0 && node.status === "locked" ? (
                   <>
-                    <Animated.View style={[animatedStyle, { marginTop: 10 }]}>
+                    <Animated.View
+                      style={[styles.jumpBubbleWrap, animatedStyle]}
+                    >
                       <View style={styles.bubble}>
                         <Text
                           style={[styles.bubbleText, { color: unit.color }]}
@@ -145,7 +225,7 @@ export default function UnitRoadmap({
                           {t("roadmap.jumpHere")}
                         </Text>
                       </View>
-                      {/* 꼬리 */}
+
                       <View
                         style={[
                           styles.bubbleTail,
@@ -216,10 +296,9 @@ export default function UnitRoadmap({
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { paddingBottom: 8 },
-    jumpWrapper: {
-      alignItems: "center",
-      marginBottom: 8,
+    container: {
+      paddingBottom: 8,
+      position: "relative",
     },
     nodesContainer: {
       alignItems: "center",
@@ -232,40 +311,55 @@ const getStyles = (theme: ThemeColors) =>
     },
     nodeRow: {
       width: "100%",
+      minHeight: NODE_WRAP_HEIGHT,
       alignItems: "center",
       marginBottom: NODE_GAP,
       position: "relative",
     },
-    nodeRowSelected: { zIndex: 999, elevation: 20 },
-    nodePosition: { alignItems: "center" },
-    character: { position: "absolute", top: 10 },
+    nodeRowSelected: {
+      zIndex: 999,
+      elevation: 20,
+    },
+    nodePosition: {
+      height: NODE_WRAP_HEIGHT,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    character: {
+      position: "absolute",
+      top: -2,
+    },
     popoverContainer: {
       position: "absolute",
       top: NODE_SIZE + 16,
       left: 0,
       right: 0,
     },
-
+    jumpBubbleWrap: {
+      position: "absolute",
+      bottom: NODE_WRAP_HEIGHT + 12,
+      alignItems: "center",
+      zIndex: 5,
+    },
     bubble: {
       backgroundColor: theme.surface,
-      borderRadius: 16,
-      paddingVertical: 14,
-      paddingHorizontal: 28,
+      borderRadius: 18,
+      paddingVertical: 12,
+      paddingHorizontal: 22,
       borderWidth: 2,
       borderColor: theme.border,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
-      elevation: 4,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      elevation: 7,
     },
     bubbleText: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: "900",
-      letterSpacing: 0.2,
+      letterSpacing: 0.15,
     },
     bubbleTail: {
-      left: 110,
       width: 0,
       height: 0,
       borderLeftWidth: 10,
@@ -274,5 +368,9 @@ const getStyles = (theme: ThemeColors) =>
       borderLeftColor: "transparent",
       borderRightColor: "transparent",
       marginTop: -1,
+    },
+    jumpWrapper: {
+      alignItems: "center",
+      marginBottom: 8,
     },
   });

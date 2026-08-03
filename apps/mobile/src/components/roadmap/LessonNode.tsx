@@ -230,6 +230,23 @@ export default function LessonNode({
         }}
         style={styles.touchable}
       >
+        <View
+          style={[styles.groundShadow, { backgroundColor: darkColor }]}
+          pointerEvents="none"
+        />
+
+        {!isLocked && (
+          <View
+            style={[
+              styles.aura,
+              {
+                backgroundColor: mainColor,
+                shadowColor: mainColor,
+              },
+            ]}
+            pointerEvents="none"
+          />
+        )}
         <Animated.View
           style={[styles.depth, { backgroundColor: darkColor }, depthAnimStyle]}
         />
@@ -237,6 +254,9 @@ export default function LessonNode({
           style={[styles.face, { backgroundColor: mainColor }, faceAnimStyle]}
         >
           {/* 표면 상단 하이라이트 (입체감) */}
+          <View style={styles.lowerShade} pointerEvents="none" />
+          <View style={styles.innerBorder} pointerEvents="none" />
+
           {!isLocked && <View style={styles.gloss} pointerEvents="none" />}
 
           {/* 완료 노드 광택 sweep */}
@@ -314,30 +334,76 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    groundShadow: {
+      position: "absolute",
+      top: NODE_SIZE - 4,
+      width: NODE_SIZE * 0.72,
+      height: 16,
+      borderRadius: 999,
+      opacity: 0.18,
+      transform: [{ scaleX: 1.16 }],
+    },
+    aura: {
+      position: "absolute",
+      top: -5,
+      width: NODE_SIZE + 10,
+      height: NODE_SIZE + 10,
+      borderRadius: 999,
+      opacity: 0.1,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.7,
+      shadowRadius: 13,
+      elevation: 5,
+    },
     depth: {
       position: "absolute",
+      top: 8,
       width: NODE_SIZE,
       height: NODE_SIZE,
       borderRadius: NODE_SIZE / 2,
-      top: 6,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 7 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 5,
     },
     face: {
+      position: "absolute",
+      top: 0,
       width: NODE_SIZE,
       height: NODE_SIZE,
       borderRadius: NODE_SIZE / 2,
       alignItems: "center",
       justifyContent: "center",
-      position: "absolute",
-      top: 0,
       overflow: "hidden",
+      borderWidth: 2.5,
+      borderColor: "rgba(255,255,255,0.3)",
+    },
+    lowerShade: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: NODE_SIZE * 0.36,
+      backgroundColor: "rgba(0,0,0,0.08)",
+    },
+    innerBorder: {
+      position: "absolute",
+      top: 5,
+      left: 5,
+      right: 5,
+      bottom: 5,
+      borderRadius: 999,
+      borderWidth: 1.5,
+      borderColor: "rgba(255,255,255,0.18)",
     },
     gloss: {
       position: "absolute",
-      top: 6,
-      width: NODE_SIZE * 0.62,
-      height: NODE_SIZE * 0.34,
+      top: 5,
+      width: NODE_SIZE * 0.56,
+      height: NODE_SIZE * 0.25,
       borderRadius: NODE_SIZE / 2,
-      backgroundColor: "rgba(255,255,255,0.35)",
+      backgroundColor: "rgba(255,255,255,0.38)",
     },
     shine: {
       position: "absolute",

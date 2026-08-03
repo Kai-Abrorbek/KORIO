@@ -80,7 +80,7 @@ const getStyles = (theme: ThemeColors) =>
       paddingHorizontal: 20,
       paddingTop: 54,
       paddingBottom: 14,
-      backgroundColor: theme.bg,
+      backgroundColor: "transparent",
     },
     statBox: {
       flexDirection: "row",

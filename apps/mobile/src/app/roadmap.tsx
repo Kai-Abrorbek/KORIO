@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_ROADMAP } from "@/mocks/roadmap.mock";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   RoadmapData,
   RoadmapNode,
@@ -27,6 +28,177 @@ import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
+
+function RoadmapBackdrop({ theme }: { theme: ThemeColors }) {
+  const isDark = theme.bg === "#15151D";
+
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      <LinearGradient
+        colors={
+          isDark
+            ? ["#171522", "#211F36", "#15151D"]
+            : ["#F8F6FF", "#F2FAFF", "#FFF9EE"]
+        }
+        locations={[0, 0.55, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+
+      <View
+        style={[
+          backdropStyles.orbTop,
+          { backgroundColor: isDark ? "#776EE2" : "#BEB7FF" },
+        ]}
+      />
+
+      <View
+        style={[
+          backdropStyles.orbSide,
+          { backgroundColor: isDark ? "#45B7D1" : "#BFEFFF" },
+        ]}
+      />
+
+      <View style={[backdropStyles.cloud, backdropStyles.cloudLeft]}>
+        <View
+          style={[
+            backdropStyles.cloudBase,
+            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
+          ]}
+        />
+        <View
+          style={[
+            backdropStyles.cloudPuffSmall,
+            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
+          ]}
+        />
+        <View
+          style={[
+            backdropStyles.cloudPuffLarge,
+            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
+          ]}
+        />
+      </View>
+
+      <View
+        style={[
+          backdropStyles.hillLeft,
+          { backgroundColor: isDark ? "#393456" : "#DCD7FF" },
+        ]}
+      />
+
+      <View
+        style={[
+          backdropStyles.hillRight,
+          { backgroundColor: isDark ? "#2D2945" : "#CFEFFF" },
+        ]}
+      />
+
+      <View style={[backdropStyles.sparkle, backdropStyles.sparkleOne]} />
+      <View style={[backdropStyles.sparkle, backdropStyles.sparkleTwo]} />
+      <View style={[backdropStyles.sparkle, backdropStyles.sparkleThree]} />
+    </View>
+  );
+}
+
+const backdropStyles = StyleSheet.create({
+  orbTop: {
+    position: "absolute",
+    top: 122,
+    right: -52,
+    width: 176,
+    height: 176,
+    borderRadius: 999,
+    opacity: 0.14,
+  },
+  orbSide: {
+    position: "absolute",
+    top: "52%",
+    left: -82,
+    width: 210,
+    height: 210,
+    borderRadius: 999,
+    opacity: 0.12,
+  },
+  cloud: {
+    position: "absolute",
+    width: 86,
+    height: 42,
+    opacity: 0.58,
+  },
+  cloudLeft: {
+    top: 206,
+    left: 14,
+  },
+  cloudBase: {
+    position: "absolute",
+    left: 4,
+    bottom: 2,
+    width: 76,
+    height: 24,
+    borderRadius: 999,
+  },
+  cloudPuffSmall: {
+    position: "absolute",
+    left: 16,
+    bottom: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+  },
+  cloudPuffLarge: {
+    position: "absolute",
+    right: 13,
+    bottom: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+  },
+  hillLeft: {
+    position: "absolute",
+    left: -118,
+    bottom: -126,
+    width: 330,
+    height: 235,
+    borderRadius: 999,
+    opacity: 0.22,
+    transform: [{ rotate: "-8deg" }],
+  },
+  hillRight: {
+    position: "absolute",
+    right: -154,
+    bottom: -96,
+    width: 350,
+    height: 205,
+    borderRadius: 999,
+    opacity: 0.17,
+    transform: [{ rotate: "9deg" }],
+  },
+  sparkle: {
+    position: "absolute",
+    width: 10,
+    height: 10,
+    borderRadius: 2,
+    backgroundColor: "#8C82E8",
+    opacity: 0.42,
+    transform: [{ rotate: "45deg" }],
+  },
+  sparkleOne: {
+    top: 324,
+    left: 32,
+  },
+  sparkleTwo: {
+    top: "39%",
+    right: 34,
+    width: 7,
+    height: 7,
+  },
+  sparkleThree: {
+    top: "68%",
+    left: 68,
+    width: 6,
+    height: 6,
+  },
+});
 
 const UNIT_COLORS = [
   "#776ee2",
@@ -369,6 +541,7 @@ export default function RoadmapScreen() {
 
   return (
     <View style={styles.container}>
+      <RoadmapBackdrop theme={theme} />
       <RoadmapHeader stats={userStats} energy={energy} />
 
       {/* 고정 배너 */}
@@ -417,12 +590,25 @@ export default function RoadmapScreen() {
         onPress={handleScrollToggle}
         activeOpacity={0.85}
       >
+        <View
+          style={[
+            styles.scrollBtnGlow,
+            { backgroundColor: currentUnit?.color ?? theme.primary },
+          ]}
+        />
+
         <View style={styles.scrollBtnDepth} />
-        <View style={styles.scrollBtnFace}>
+
+        <View
+          style={[
+            styles.scrollBtnFace,
+            { borderColor: currentUnit?.color ?? theme.primary },
+          ]}
+        >
           <Ionicons
             name={isPastCurrent ? "arrow-up" : "arrow-down"}
             size={24}
-            color="#45B7D1"
+            color={currentUnit?.color ?? theme.primary}
           />
         </View>
       </TouchableOpacity>
@@ -434,40 +620,62 @@ const SCROLL_BTN_SIZE = 52;
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg },
-    scroll: { flex: 1 },
-    scrollContent: { paddingBottom: 140 },
+    container: {
+      flex: 1,
+      backgroundColor: theme.bg,
+      overflow: "hidden",
+    },
+    scroll: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingTop: 10,
+      paddingBottom: 140,
+    },
     scrollBtn: {
       position: "absolute",
       bottom: 110,
-      right: 20,
-      width: SCROLL_BTN_SIZE,
-      height: SCROLL_BTN_SIZE + 5,
+      right: 18,
+      width: SCROLL_BTN_SIZE + 8,
+      height: SCROLL_BTN_SIZE + 11,
       alignItems: "center",
       justifyContent: "center",
     },
+    scrollBtnGlow: {
+      position: "absolute",
+      top: -3,
+      width: SCROLL_BTN_SIZE + 14,
+      height: SCROLL_BTN_SIZE + 14,
+      borderRadius: 999,
+      opacity: 0.16,
+    },
     scrollBtnDepth: {
       position: "absolute",
+      top: 7,
       width: SCROLL_BTN_SIZE,
       height: SCROLL_BTN_SIZE,
-      borderRadius: 14,
+      borderRadius: 999,
       backgroundColor: theme.border,
-      top: 5,
-    },
-    unitElevated: {
-      zIndex: 9999,
-      elevation: 30,
     },
     scrollBtnFace: {
       position: "absolute",
       top: 0,
       width: SCROLL_BTN_SIZE,
       height: SCROLL_BTN_SIZE,
-      borderRadius: 14,
+      borderRadius: 999,
       backgroundColor: theme.surface,
-      borderWidth: 1.5,
+      borderWidth: 2.5,
       borderColor: theme.border,
       alignItems: "center",
       justifyContent: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.14,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    unitElevated: {
+      zIndex: 9999,
+      elevation: 30,
     },
   });
