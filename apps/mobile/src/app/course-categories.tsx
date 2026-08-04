@@ -76,6 +76,11 @@ function CategoryCard({
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          // 문법은 로드맵이 아니라 전용 문법 목록으로
+          if (c.category === "grammar") {
+            router.push("/grammar-list");
+            return;
+          }
           router.push({
             pathname: "/roadmap",
             params: { category: c.category },

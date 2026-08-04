@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { GrammarService } from './grammar.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('grammar')
+@UseGuards(JwtAuthGuard)
 export class GrammarController {
   constructor(private readonly grammarService: GrammarService) {}
 

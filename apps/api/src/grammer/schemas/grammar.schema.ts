@@ -90,6 +90,8 @@ export class Grammar {
   @Prop({ type: [GrammarQuizItem], default: [] })
   quiz: GrammarQuizItem[];
 
+  @Prop({ default: 1, index: true }) section: number; // 문법 섹션 (1~12)
+
   @Prop({ default: 0, index: true }) order: number; // 순서 (다음 문법 자동 연결)
 
   @Prop({ default: true })

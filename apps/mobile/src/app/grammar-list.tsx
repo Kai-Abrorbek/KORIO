@@ -1,0 +1,342 @@
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import Animated, {
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import { Ionicons } from "@expo/vector-icons";
+import { GrammarService } from "@/services/grammar.service";
+import { GrammarListItem } from "@/types/grammar";
+
+/* grammar-study 와 동일한 뉴브루탈 팔레트 */
+const C = {
+  cream: "#FBF1DC",
+  ink: "#17120C",
+  paper: "#FFFDF6",
+  yellow: "#FBD24E",
+  pink: "#F7C0D4",
+  blue: "#A7D8F0",
+  coral: "#FF5A2E",
+  mint: "#BFE8C6",
+  sub: "#8a7f6d",
+  green: "#3FB56A",
+};
+
+const SECTION_COUNT = 12;
+const SECTION_COLORS = [C.blue, C.mint, C.yellow, C.pink];
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+/* 눌리는 하드섀도우 카드 (grammar-study NBPress 톤) */
+function NBPress({ children, onPress, bg = "#fff", radius = 14, style }: any) {
+  const p = useSharedValue(0);
+  const card = useAnimatedStyle(() => ({
+    transform: [{ translateX: p.value * 3 }, { translateY: p.value * 4 }],
+  }));
+  const sh = useAnimatedStyle(() => ({ opacity: 1 - p.value }));
+  return (
+    <View style={{ position: "relative" }}>
+      <Animated.View style={[st.shadow, { borderRadius: radius }, sh]} />
+      <AnimatedPressable
+        onPressIn={() => (p.value = withTiming(1, { duration: 70 }))}
+        onPressOut={() => (p.value = withTiming(0, { duration: 110 }))}
+        onPress={onPress}
+        style={[
+          st.cardBase,
+          { backgroundColor: bg, borderRadius: radius },
+          style,
+          card,
+        ]}
+      >
+        {children}
+      </AnimatedPressable>
+    </View>
+  );
+}
+
+/* 문법 한 개 카드 */
+function GrammarCard({ item }: { item: GrammarListItem }) {
+  return (
+    <NBPress
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/grammar-study?id=${item.id}`);
+      }}
+      bg={C.paper}
+      radius={14}
+      style={st.gCard}
+    >
+      <View style={st.patBox}>
+        <Text style={st.pat}>{item.pattern}</Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={st.gSum} numberOfLines={2}>
+          {item.summary}
+        </Text>
+        {item.tags.length > 0 && (
+          <View style={st.tags}>
+            {item.tags.slice(0, 3).map((tag, i) => (
+              <View key={i} style={st.tag}>
+                <Text style={st.tagT}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+      <Ionicons name="chevron-forward" size={20} color={C.ink} />
+    </NBPress>
+  );
+}
+
+/* 섹션 아코디언 블록 */
+function SectionBlock({
+  section,
+  items,
+  color,
+  expanded,
+  onToggle,
+  t,
+}: {
+  section: number;
+  items: GrammarListItem[];
+  color: string;
+  expanded: boolean;
+  onToggle: () => void;
+  t: (k: string, o?: any) => string;
+}) {
+  const locked = items.length === 0;
+  const rot = useSharedValue(expanded ? 1 : 0);
+  useEffect(() => {
+    rot.value = withTiming(expanded ? 1 : 0, { duration: 200 });
+  }, [expanded, rot]);
+  const chevStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rot.value * 90}deg` }],
+  }));
+
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <View style={{ position: "relative" }}>
+        <View style={[st.shadow, { borderRadius: 18 }]} />
+        <Pressable
+          onPress={() => {
+            if (locked) return;
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onToggle();
+          }}
+          style={[
+            st.secHead,
+            {
+              backgroundColor: locked ? "#EFE7D2" : color,
+              opacity: locked ? 0.65 : 1,
+            },
+          ]}
+        >
+          <View style={st.secNum}>
+            <Text style={st.secNumT}>{section}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={st.secTitle}>
+              {t("grammarList.section", { n: section })}
+            </Text>
+            <Text style={st.secSub}>
+              {locked
+                ? t("grammarList.comingSoon")
+                : t("grammarList.count", { count: items.length })}
+            </Text>
+          </View>
+          {locked ? (
+            <Ionicons name="lock-closed" size={20} color={C.ink} />
+          ) : (
+            <Animated.View style={chevStyle}>
+              <Ionicons name="chevron-forward" size={22} color={C.ink} />
+            </Animated.View>
+          )}
+        </Pressable>
+      </View>
+
+      {expanded && !locked && (
+        <View style={{ marginTop: 12, gap: 12 }}>
+          {items.map((item, i) => (
+            <Animated.View
+              key={item.id}
+              entering={FadeInDown.delay(i * 50).duration(300)}
+            >
+              <GrammarCard item={item} />
+            </Animated.View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+export default function GrammarList() {
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const [items, setItems] = useState<GrammarListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  useEffect(() => {
+    GrammarService.listGrammar()
+      .then((rows) => {
+        setItems(rows);
+        setExpanded(rows[0]?.section ?? 1); // 첫 데이터 섹션 자동 펼침
+      })
+      .catch((e) => console.error("문법 목록 로드 실패:", e))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // 섹션별 그룹핑
+  const bySection = new Map<number, GrammarListItem[]>();
+  items.forEach((it) => {
+    const arr = bySection.get(it.section) ?? [];
+    arr.push(it);
+    bySection.set(it.section, arr);
+  });
+
+  return (
+    <View style={[st.container, { paddingTop: insets.top + 6 }]}>
+      <View style={st.topbar}>
+        <NBPress
+          onPress={() =>
+            router.canGoBack() ? router.back() : router.replace("/courses")
+          }
+          bg="#fff"
+          radius={12}
+          style={st.back}
+        >
+          <Text style={st.backT}>‹</Text>
+        </NBPress>
+        <Text style={st.crumb}>{t("grammarList.title")}</Text>
+      </View>
+
+      {loading ? (
+        <ActivityIndicator color={C.ink} style={{ marginTop: 48 }} />
+      ) : (
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: 18,
+            paddingBottom: insets.bottom + 40,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={st.hero}>{t("grammarList.hero")}</Text>
+          {Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((sec) => (
+            <SectionBlock
+              key={sec}
+              section={sec}
+              items={bySection.get(sec) ?? []}
+              color={SECTION_COLORS[(sec - 1) % SECTION_COLORS.length]}
+              expanded={expanded === sec}
+              onToggle={() => setExpanded(expanded === sec ? null : sec)}
+              t={t}
+            />
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const st = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.cream },
+  shadow: {
+    position: "absolute",
+    left: 4,
+    top: 5,
+    right: -4,
+    bottom: -5,
+    backgroundColor: C.ink,
+    borderRadius: 18,
+  },
+  cardBase: { borderWidth: 3, borderColor: C.ink, padding: 14 },
+
+  topbar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 18,
+    marginBottom: 14,
+  },
+  back: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+  },
+  backT: { fontSize: 24, fontWeight: "800", color: C.ink, marginTop: -4 },
+  crumb: { fontSize: 20, color: C.ink, fontWeight: "800" },
+  hero: {
+    fontSize: 15,
+    color: C.sub,
+    fontWeight: "600",
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+
+  secHead: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    borderWidth: 3,
+    borderColor: C.ink,
+    borderRadius: 18,
+    padding: 14,
+  },
+  secNum: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: C.ink,
+    backgroundColor: C.paper,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secNumT: { fontSize: 22, fontWeight: "800", color: C.ink },
+  secTitle: { fontSize: 18, fontWeight: "800", color: C.ink },
+  secSub: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.ink,
+    marginTop: 2,
+    opacity: 0.7,
+  },
+
+  gCard: { flexDirection: "row", alignItems: "center", gap: 12 },
+  patBox: {
+    backgroundColor: C.yellow,
+    borderWidth: 2,
+    borderColor: C.ink,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  pat: { fontSize: 16, fontWeight: "800", color: C.ink },
+  gSum: { fontSize: 13.5, fontWeight: "600", color: C.ink, lineHeight: 19 },
+  tags: { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
+  tag: {
+    backgroundColor: C.mint,
+    borderWidth: 1.5,
+    borderColor: C.ink,
+    borderRadius: 7,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  tagT: { fontSize: 11, fontWeight: "700", color: C.ink },
+});

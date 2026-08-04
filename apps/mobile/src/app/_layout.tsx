@@ -140,6 +140,14 @@ export default function RootLayout() {
               name="course-categories"
               options={{ animation: "slide_from_right" }}
             />
+            <Stack.Screen
+              name="grammar-study"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="grammar-list"
+              options={{ animation: "slide_from_right" }}
+            />
           </Stack>
 
           {/* 전역 에너지 부족 모달 — 어느 화면에서든 뜸 */}

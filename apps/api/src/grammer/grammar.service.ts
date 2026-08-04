@@ -78,14 +78,15 @@ export class GrammarService {
   async listGrammar(lang = 'uz') {
     const rows = await this.grammarModel
       .find({ isActive: true })
-      .sort({ order: 1 })
-      .select('code pattern summary tags')
+      .sort({ section: 1, order: 1 })
+      .select('code pattern summary tags section')
       .lean();
     return rows.map((g: any) => ({
       id: g.code,
       pattern: g.pattern,
       summary: this.pick(g.summary, lang),
       tags: (g.tags || []).map((t: any) => this.pick(t, lang)).filter(Boolean),
+      section: g.section ?? 1,
     }));
   }
 }
