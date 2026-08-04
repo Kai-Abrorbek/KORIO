@@ -312,6 +312,9 @@ export default {
   },
   friendProfile: {
     follow: "Подписаться",
+    followBack: "Подписаться в ответ",
+    followedByOne: "Подписан(а): {{name}}",
+    followedByMany: "{{name}} и ещё {{count}} подписаны",
     following: "Вы подписаны",
     weeklyProgress: "Прогресс за неделю",
     me: "Я",

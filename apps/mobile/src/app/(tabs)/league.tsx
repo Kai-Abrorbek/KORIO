@@ -162,6 +162,7 @@ export default function LeagueScreen() {
   const [now, setNow] = useState(Date.now());
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
   // ✅ pulse 는 여기 한 번만
   const pulse = useSharedValue(1);
@@ -324,8 +325,11 @@ export default function LeagueScreen() {
         {/* 리더보드 */}
         <View style={s.board}>
           {data.members.map((m) => (
-            <Animated.View
+            <AnimatedPressable
               key={m.id}
+              onPress={() =>
+                !m.isMe && router.push(`/friend-profile?id=${m.id}`)
+              }
               style={[s.row, m.isMe && s.rowMe, m.isMe && meRowStyle]}
             >
               <RankBadge rank={m.rank} isMe={m.isMe} theme={theme} />
@@ -340,7 +344,7 @@ export default function LeagueScreen() {
                 </View>
               </View>
               <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
-            </Animated.View>
+            </AnimatedPressable>
           ))}
         </View>
       </ScrollView>

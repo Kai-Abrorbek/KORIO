@@ -309,7 +309,10 @@ export default {
     },
   },
   friendProfile: {
+    followedByOne: "Followed by {{name}}",
+    followedByMany: "Followed by {{name}} and {{count}} others",
     follow: "Follow",
+    followBack: "Follow back",
     following: "Following",
     weeklyProgress: "Weekly Progress",
     me: "Me",

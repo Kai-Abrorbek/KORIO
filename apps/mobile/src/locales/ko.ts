@@ -310,6 +310,9 @@ export default {
   },
   friendProfile: {
     follow: "팔로우",
+    followBack: "맞팔하기",
+    followedByOne: "{{name}}님이 팔로우 중",
+    followedByMany: "{{name}} 외 {{count}}명이 팔로우 중",
     following: "팔로우 중",
     weeklyProgress: "주간 진도",
     me: "나",

@@ -13,6 +13,7 @@ import FollowButton from "@/components/friend-profile/FollowButton";
 import WeeklyProgressChart from "@/components/friend-profile/WeeklyProgressChart";
 import LearningStatusGrid from "@/components/profile/LearningStatusGrid";
 import ReportBlockSection from "@/components/friend-profile/ReportBlockSection";
+import FollowedBySection from "@/components/friend-profile/FollowedBySection";
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -27,6 +28,7 @@ export default function FriendProfileScreen() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowedBy, setIsFollowedBy] = useState(false);
   const [points, setPoints] = useState<
     { label: string; themXp: number; meXp: number }[]
   >([]);
@@ -51,6 +53,7 @@ export default function FriendProfileScreen() {
         .then(([u, themW, meW]) => {
           setUser(u);
           setIsFollowing(!!u.isFollowing);
+          setIsFollowedBy(!!u.isFollowedBy);
 
           const themDays = themW?.days ?? [];
           const meDays = meW?.days ?? [];
@@ -115,8 +118,16 @@ export default function FriendProfileScreen() {
         following={user.followingCount ?? 0}
         followers={user.followersCount ?? 0}
       />
-
-      <FollowButton isFollowing={isFollowing} onPress={toggleFollow} />
+      <FollowedBySection
+        users={user.followedBy ?? []}
+        count={user.followedByCount ?? 0}
+        theme={theme}
+      />
+      <FollowButton
+        isFollowing={isFollowing}
+        isFollowedBy={isFollowedBy}
+        onPress={toggleFollow}
+      />
 
       <WeeklyProgressChart
         points={points}

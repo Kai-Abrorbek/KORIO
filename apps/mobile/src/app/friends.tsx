@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { FriendTab } from "@/types/friend";
@@ -29,7 +29,10 @@ export default function FriendsScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const [tab, setTab] = useState<FriendTab>("following");
+  const { tab: tabParam } = useLocalSearchParams<{ tab?: string }>();
+  const [tab, setTab] = useState<FriendTab>(
+    tabParam === "followers" ? "followers" : "following",
+  );
   const [following, setFollowing] = useState<any[]>([]);
   const [followers, setFollowers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

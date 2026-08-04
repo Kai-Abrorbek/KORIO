@@ -77,7 +77,7 @@ function LangCard({
         </View>
         {selected ? (
           <Animated.View
-            entering={ZoomIn.springify().damping(12)}
+            entering={ZoomIn.springify().damping(0)}
             style={s.checkOn}
           >
             <Ionicons name="checkmark" size={16} color="#fff" />

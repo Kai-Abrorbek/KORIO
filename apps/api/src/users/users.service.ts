@@ -105,7 +105,7 @@ export class UsersService {
       joinedYear: (user as any).createdAt
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
-      languageLevel: levelToNumber(user.level),
+      languageLevel: user.placementLevel || 1,
       coursePrimaryFlag:
         countryToFlag(user.country) || langToFlag(user.targetLanguage),
       courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)
@@ -167,6 +167,38 @@ export class UsersService {
       (f) => f.toString() === currentUserId,
     );
 
+    // 상대가 나를 팔로우하는가 (맞팔하기 버튼 표시용)
+    const isFollowedBy = !!user.following?.some(
+      (f) => f.toString() === currentUserId,
+    );
+
+    // 소셜 프루프: 내가 팔로우하는 사람 중 이 유저도 팔로우하는 사람
+    const me = await this.userModel
+      .findById(currentUserId)
+      .select('following')
+      .lean();
+    const myFollowing = (me?.following ?? []).map((f) => f.toString());
+    const targetFollowers = (user.followers ?? []).map((f) => f.toString());
+    const mutualIds = myFollowing.filter((f) => targetFollowers.includes(f));
+    const followedByUsers = mutualIds.length
+      ? await this.userModel
+          .find({ _id: { $in: mutualIds.slice(0, 3) } })
+          .select('nickname profileImage')
+          .lean()
+      : [];
+    // 스트릭은 파생값 → 저장값 대신 읽기 전용으로 계산 (write X)
+    const streakRows = await this.statsModel
+      .find({
+        userId: new Types.ObjectId(targetId),
+        $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
+      })
+      .select('date')
+      .lean();
+
+    const { current: streakCurrent } = calcStreak(
+      streakRows.map((r) => r.date),
+    );
+
     return {
       id: user._id.toString(),
       nickname: user.nickname,
@@ -176,20 +208,27 @@ export class UsersService {
       country: user.country || '',
       level: user.level,
       totalXP: user.totalXP || 0,
-      streak: user.streak || 0,
+      streak: streakCurrent,
       league: user.league,
       isSuper: isSuperActive(user),
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,
       isFollowing,
+      isFollowedBy,
       joinedYear: (user as any).createdAt
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
       coursePrimaryFlag:
         countryToFlag(user.country) || langToFlag(user.targetLanguage),
       courseExtraCount: 0,
-      languageLevel: levelToNumber(user.level),
+      languageLevel: user.placementLevel || 1,
+      followedBy: followedByUsers.map((u) => ({
+        id: u._id.toString(),
+        nickname: u.nickname,
+        profileImage: u.profileImage || '',
+      })),
+      followedByCount: mutualIds.length,
     };
   }
 

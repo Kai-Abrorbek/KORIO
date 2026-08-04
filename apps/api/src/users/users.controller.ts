@@ -129,6 +129,6 @@ export class UsersController {
 
   @Get(':id')
   async getUserById(@Request() req, @Param('id') id: string) {
-    return this.usersService.getUserById(id, req.user._id.toString());
+    return this.usersService.getUserById(req.user._id.toString(), id);
   }
 }

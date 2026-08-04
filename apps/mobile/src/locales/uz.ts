@@ -313,7 +313,10 @@ export default {
     },
   },
   friendProfile: {
+    followedByOne: "{{name}} kuzatib boradi",
+    followedByMany: "{{name}} va yana {{count}} kishi kuzatib boradi",
     follow: "Obuna bo'lish",
+    followBack: "Javoban kuzatish",
     following: "Obuna bo'lingan",
     weeklyProgress: "Haftalik o'sish",
     me: "Men",

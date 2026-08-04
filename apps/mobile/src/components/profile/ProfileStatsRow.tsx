@@ -39,12 +39,18 @@ export default function ProfileStatsRow({
         <Text style={styles.label}>{t("profile.courses")}</Text>
       </Pressable>
 
-      <Pressable style={styles.cell} onPress={() => router.push("/friends")}>
+      <Pressable
+        style={styles.cell}
+        onPress={() => router.push("/friends?tab=following")}
+      >
         <Text style={styles.value}>{following}</Text>
         <Text style={styles.label}>{t("profile.following")}</Text>
       </Pressable>
 
-      <Pressable style={styles.cell} onPress={() => router.push("/friends")}>
+      <Pressable
+        style={styles.cell}
+        onPress={() => router.push("/friends?tab=followers")}
+      >
         <Text style={styles.value}>{followers}</Text>
         <Text style={styles.label}>{t("profile.followers")}</Text>
       </Pressable>
