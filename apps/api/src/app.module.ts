@@ -11,6 +11,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
+import { GrammarModule } from './grammer/grammar.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AiModule } from './ai/ai.module';
     LeagueModule,
     EnergyModule,
     AiModule,
+    GrammarModule,
   ],
   controllers: [AppController],
   providers: [AppService],
