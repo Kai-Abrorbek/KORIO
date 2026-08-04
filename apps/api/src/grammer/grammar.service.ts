@@ -2,12 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Grammar, GrammarDocument } from './schemas/grammar.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class GrammarService {
   constructor(
     @InjectModel(Grammar.name)
     private grammarModel: Model<GrammarDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
   ) {}
 
   private pick(obj: any, lang: string): string {
@@ -74,19 +77,58 @@ export class GrammarService {
     return this.format(g, lang, next);
   }
 
-  /** 목록 (문법 리스트 화면용, 가벼운 필드) */
-  async listGrammar(lang = 'uz') {
+  /** 목록 (문법 리스트 화면용) + 완료 여부 + 섹션 순차 잠금 */
+  async listGrammar(userId: string, lang = 'uz') {
     const rows = await this.grammarModel
       .find({ isActive: true })
       .sort({ section: 1, order: 1 })
       .select('code pattern summary tags section')
       .lean();
-    return rows.map((g: any) => ({
+
+    const me = await this.userModel
+      .findById(userId)
+      .select('completedGrammar')
+      .lean();
+    const done = new Set<string>(me?.completedGrammar ?? []);
+
+    const grammars = rows.map((g: any) => ({
       id: g.code,
       pattern: g.pattern,
       summary: this.pick(g.summary, lang),
       tags: (g.tags || []).map((t: any) => this.pick(t, lang)).filter(Boolean),
       section: g.section ?? 1,
+      completed: done.has(g.code),
     }));
+
+    // 순차 잠금: 데이터 순서대로, 이전 섹션을 전부 완료해야 다음 섹션이 열림
+    const bySection = new Map<number, typeof grammars>();
+    grammars.forEach((g) => {
+      const arr = bySection.get(g.section) ?? [];
+      arr.push(g);
+      bySection.set(g.section, arr);
+    });
+    let unlockedThrough = 0;
+    for (let s = 1; s <= 12; s++) {
+      const items = bySection.get(s);
+      if (!items || items.length === 0) break; // 데이터 없으면 중단
+      unlockedThrough = s; // 이 섹션은 열림
+      if (!items.every((g) => g.completed)) break; // 미완료면 다음은 잠금
+    }
+
+    return { grammars, unlockedThrough };
+  }
+
+  /** 문법 완료 저장 (퀴즈 통과 시) */
+  async completeGrammar(userId: string, code: string) {
+    const g = await this.grammarModel
+      .findOne({ code, isActive: true })
+      .select('code')
+      .lean();
+    if (!g) throw new NotFoundException('grammar not found');
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $addToSet: { completedGrammar: code } },
+    );
+    return { success: true };
   }
 }

@@ -96,7 +96,11 @@ function GrammarCard({ item }: { item: GrammarListItem }) {
           </View>
         )}
       </View>
-      <Ionicons name="chevron-forward" size={20} color={C.ink} />
+      {item.completed ? (
+        <Ionicons name="checkmark-circle" size={24} color={C.green} />
+      ) : (
+        <Ionicons name="chevron-forward" size={20} color={C.ink} />
+      )}
     </NBPress>
   );
 }
@@ -107,6 +111,7 @@ function SectionBlock({
   items,
   color,
   expanded,
+  locked,
   onToggle,
   t,
 }: {
@@ -114,10 +119,11 @@ function SectionBlock({
   items: GrammarListItem[];
   color: string;
   expanded: boolean;
+  locked: boolean;
   onToggle: () => void;
   t: (k: string, o?: any) => string;
 }) {
-  const locked = items.length === 0;
+  const empty = items.length === 0;
   const rot = useSharedValue(expanded ? 1 : 0);
   useEffect(() => {
     rot.value = withTiming(expanded ? 1 : 0, { duration: 200 });
@@ -153,8 +159,12 @@ function SectionBlock({
             </Text>
             <Text style={st.secSub}>
               {locked
-                ? t("grammarList.comingSoon")
-                : t("grammarList.count", { count: items.length })}
+                ? empty
+                  ? t("grammarList.comingSoon")
+                  : t("grammarList.locked")
+                : items.every((g) => g.completed)
+                  ? t("grammarList.sectionDone")
+                  : t("grammarList.count", { count: items.length })}
             </Text>
           </View>
           {locked ? (
@@ -187,14 +197,16 @@ export default function GrammarList() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState<GrammarListItem[]>([]);
+  const [unlocked, setUnlocked] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
     GrammarService.listGrammar()
-      .then((rows) => {
-        setItems(rows);
-        setExpanded(rows[0]?.section ?? 1); // 첫 데이터 섹션 자동 펼침
+      .then((res) => {
+        setItems(res.grammars);
+        setUnlocked(res.unlockedThrough);
+        setExpanded(res.unlockedThrough || 1); // 진행 중 섹션 자동 펼침
       })
       .catch((e) => console.error("문법 목록 로드 실패:", e))
       .finally(() => setLoading(false));
@@ -242,6 +254,7 @@ export default function GrammarList() {
               items={bySection.get(sec) ?? []}
               color={SECTION_COLORS[(sec - 1) % SECTION_COLORS.length]}
               expanded={expanded === sec}
+              locked={sec > unlocked}
               onToggle={() => setExpanded(expanded === sec ? null : sec)}
               t={t}
             />

@@ -860,6 +860,8 @@ export default {
     hero: "Master grammar step by step, section by section.",
     section: "Section {{n}}",
     count: "{{count}} points",
+    locked: "Finish the previous section",
+    sectionDone: "Done!",
     comingSoon: "Coming soon",
   },
   grammarStudy: {

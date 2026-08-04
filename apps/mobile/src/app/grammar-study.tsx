@@ -142,12 +142,23 @@ function DialogueRow({ turn }: { turn: GrammarDialogueTurn }) {
   );
 }
 
-function Quiz({ items }: { items: GrammarQuizItem[] }) {
+function Quiz({
+  items,
+  onComplete,
+}: {
+  items: GrammarQuizItem[];
+  onComplete?: () => void;
+}) {
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [solved, setSolved] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [wrong, setWrong] = useState<number | null>(null);
+
+  // 퀴즈를 끝까지 통과하면 완료 저장
+  useEffect(() => {
+    if (items.length > 0 && idx >= items.length) onComplete?.();
+  }, [idx, items.length, onComplete]);
 
   if (idx >= items.length) {
     return (
@@ -397,7 +408,12 @@ export default function GrammarStudy() {
         {g.quiz.length > 0 && (
           <Section delay={280}>
             <NB>
-              <Quiz items={g.quiz} />
+              <Quiz
+                items={g.quiz}
+                onComplete={() =>
+                  GrammarService.completeGrammar(g.id).catch(() => {})
+                }
+              />
             </NB>
           </Section>
         )}

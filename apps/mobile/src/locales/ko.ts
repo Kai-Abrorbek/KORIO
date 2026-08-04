@@ -857,6 +857,8 @@ export default {
     hero: "섹션별로 문법을 차근차근 익혀보세요.",
     section: "섹션 {{n}}",
     count: "문법 {{count}}개",
+    locked: "이전 섹션을 완료하세요",
+    sectionDone: "완료!",
     comingSoon: "준비 중",
   },
   grammarStudy: {

@@ -859,6 +859,8 @@ export default {
     hero: "Изучайте грамматику шаг за шагом, раздел за разделом.",
     section: "Раздел {{n}}",
     count: "{{count}} правил",
+    locked: "Завершите предыдущий раздел",
+    sectionDone: "Готово!",
     comingSoon: "Скоро",
   },
   grammarStudy: {

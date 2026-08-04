@@ -159,6 +159,10 @@ export class User {
   @Prop({ type: [Types.ObjectId], ref: 'LessonNode', default: [] })
   legendNodes: Types.ObjectId[];
 
+  // 완료한 문법 code 목록 (grammar 순차 잠금용)
+  @Prop({ type: [String], default: [] })
+  completedGrammar: string[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

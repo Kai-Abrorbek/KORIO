@@ -49,4 +49,10 @@ export interface GrammarListItem {
   summary: string;
   tags: string[];
   section: number;
+  completed: boolean;
+}
+
+export interface GrammarListResponse {
+  grammars: GrammarListItem[];
+  unlockedThrough: number; // 열린 최대 섹션 (순차 잠금)
 }

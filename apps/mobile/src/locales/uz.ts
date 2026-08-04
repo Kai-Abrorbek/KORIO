@@ -863,6 +863,8 @@ export default {
     hero: "Grammatikani bo'lim-bo'lim o'rganing.",
     section: "{{n}}-bo'lim",
     count: "{{count}} ta qoida",
+    locked: "Avvalgi bo'limni tugating",
+    sectionDone: "Tugallandi!",
     comingSoon: "Tez orada",
   },
   grammarStudy: {
