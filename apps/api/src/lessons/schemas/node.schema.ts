@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { LessonCategory } from './lesson.schema';
 
 export type LessonNodeDocument = LessonNode & Document;
 
@@ -36,6 +37,11 @@ export class LessonNode {
 
   @Prop({ default: 'lesson', enum: ['lesson', 'chest', 'boss'] })
   nodeType: string; // 노드 종류 (기본 lesson)
+
+  // 학습 카테고리 (어휘/문법/...). 미지정 = 기존 메인(어휘) 트랙.
+  // course-categories 에서 문법 등 별도 트랙 노드를 시드할 때 사용.
+  @Prop({ enum: LessonCategory })
+  category?: LessonCategory;
 }
 
 export const LessonNodeSchema = SchemaFactory.createForClass(LessonNode);

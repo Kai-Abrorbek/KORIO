@@ -1,11 +1,13 @@
 import {
   View,
+  Text,
   FlatList,
   StyleSheet,
   Pressable,
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -21,7 +23,7 @@ import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -270,6 +272,7 @@ function appendScoreNode(unit: RoadmapUnit): RoadmapUnit {
 export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
+  const { t } = useTranslation();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
   const router = useRouter();
@@ -338,6 +341,8 @@ export default function RoadmapScreen() {
     listRef.current?.scrollToIndex({ index, animated });
   }, []);
 
+  const { category } = useLocalSearchParams<{ category?: string }>();
+
   const loadRoadmap = useCallback(async () => {
     try {
       setLoading(true);
@@ -345,7 +350,7 @@ export default function RoadmapScreen() {
         .then((me) => updateUser(me as any))
         .catch(() => {});
 
-      const data = await LessonService.getRoadmap();
+      const data = await LessonService.getRoadmap(category);
       setRoadmap({
         score: data.score,
         stats: {
@@ -367,11 +372,12 @@ export default function RoadmapScreen() {
       requestAnimationFrame(() => scrollToUnit(idx, false));
     } catch (err) {
       console.error("로드맵 로드 실패:", err);
-      setRoadmap(MOCK_ROADMAP);
+      // category 로드맵(문법 등)은 목업으로 덮지 않고 빈 상태로 둔다
+      if (!category) setRoadmap(MOCK_ROADMAP);
     } finally {
       setLoading(false);
     }
-  }, [scrollToUnit]);
+  }, [scrollToUnit, category]);
 
   useFocusEffect(
     useCallback(() => {
@@ -535,6 +541,51 @@ export default function RoadmapScreen() {
         ]}
       >
         <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
+
+  // 아직 콘텐츠 없는 카테고리(문법 등) → 준비 중 화면
+  if (category && processedUnits.length === 0) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { alignItems: "center", justifyContent: "center", padding: 32 },
+        ]}
+      >
+        <RoadmapBackdrop theme={theme} />
+        <TouchableOpacity
+          style={{ position: "absolute", top: 54, left: 16 }}
+          onPress={() =>
+            router.canGoBack() ? router.back() : router.replace("/courses")
+          }
+          hitSlop={12}
+        >
+          <Ionicons name="chevron-back" size={28} color={theme.text} />
+        </TouchableOpacity>
+        <Text style={{ fontSize: 52, marginBottom: 16 }}>🚧</Text>
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "800",
+            color: theme.text,
+            marginBottom: 8,
+            textAlign: "center",
+          }}
+        >
+          {t("roadmap.comingSoonTitle")}
+        </Text>
+        <Text
+          style={{
+            fontSize: 15,
+            color: theme.textSecondary,
+            textAlign: "center",
+            lineHeight: 22,
+          }}
+        >
+          {t("roadmap.comingSoonDesc")}
+        </Text>
       </View>
     );
   }

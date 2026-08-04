@@ -152,6 +152,8 @@ export default {
     medalTitle: "Monthly medals",
   },
   roadmap: {
+    comingSoonTitle: "Coming soon!",
+    comingSoonDesc: "This course is still being prepared. Stay tuned!",
     sectionUnit: "Section {{section}}, Unit {{unit}}",
     courseTab: "Courses",
     newCourses: "New Courses",

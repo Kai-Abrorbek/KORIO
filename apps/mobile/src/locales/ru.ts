@@ -153,6 +153,8 @@ export default {
     medalTitle: "Медали месяца",
   },
   roadmap: {
+    comingSoonTitle: "Скоро!",
+    comingSoonDesc: "Этот курс ещё готовится. Оставайтесь с нами!",
     sectionUnit: "Раздел {{section}}, Юнит {{unit}}",
     courseTab: "Курсы",
     newCourses: "Новые курсы",

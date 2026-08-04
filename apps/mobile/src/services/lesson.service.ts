@@ -19,7 +19,9 @@ export const LessonService = {
     return api.get(`/lessons?lang=${getLang()}`);
   },
 
-  getRoadmap: (): Promise<{
+  getRoadmap: (
+    category?: string,
+  ): Promise<{
     units: any[];
     score: number;
     currentSection: number;
@@ -30,7 +32,9 @@ export const LessonService = {
       firstUnitNumber: number;
     } | null;
   }> => {
-    return api.get(`/lessons/roadmap?lang=${getLang()}`);
+    return api.get(
+      `/lessons/roadmap?lang=${getLang()}${category ? `&category=${category}` : ""}`,
+    );
   },
 
   // 레슨 상세 + 문제들

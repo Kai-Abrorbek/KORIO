@@ -36,8 +36,16 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('roadmap')
-  async getRoadmap(@Request() req, @Query('lang') lang: string = 'uz') {
-    return this.lessonsService.getRoadmap(req.user._id.toString(), lang);
+  async getRoadmap(
+    @Request() req,
+    @Query('lang') lang: string = 'uz',
+    @Query('category') category?: string,
+  ) {
+    return this.lessonsService.getRoadmap(
+      req.user._id.toString(),
+      lang,
+      category,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

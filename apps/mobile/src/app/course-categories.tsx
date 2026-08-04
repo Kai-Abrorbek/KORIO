@@ -23,12 +23,27 @@ import { ThemeColors } from "@/constants/theme";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const CATEGORIES = [
-  { key: "vocab", icon: "book", color: "#FF7043" },
-  { key: "grammar", icon: "construct", color: "#5C6BC0" },
-  { key: "expression", icon: "chatbubble-ellipses", color: "#26A69A" },
-  { key: "conversation", icon: "chatbubbles", color: "#EC407A" },
-  { key: "listening", icon: "headset", color: "#42A5F5" },
-  { key: "topik", icon: "ribbon", color: "#AB47BC" },
+  { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043" },
+  { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0" },
+  {
+    key: "expression",
+    category: "expression",
+    icon: "chatbubble-ellipses",
+    color: "#26A69A",
+  },
+  {
+    key: "conversation",
+    category: "conversation",
+    icon: "chatbubbles",
+    color: "#EC407A",
+  },
+  {
+    key: "listening",
+    category: "listening",
+    icon: "headset",
+    color: "#42A5F5",
+  },
+  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC" },
 ];
 
 function CategoryCard({
@@ -61,7 +76,10 @@ function CategoryCard({
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          // TODO: 카테고리 선택 → 해당 콘텐츠로
+          router.push({
+            pathname: "/roadmap",
+            params: { category: c.category },
+          });
         }}
         style={[s.catCard, aStyle]}
       >

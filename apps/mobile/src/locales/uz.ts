@@ -153,6 +153,8 @@ export default {
     medalTitle: "Bu oylik medal",
   },
   roadmap: {
+    comingSoonTitle: "Tez orada!",
+    comingSoonDesc: "Bu kurs hali tayyorlanmoqda. Kuting!",
     sectionUnit: "Bo'lim {{section}}, Birlik {{unit}}",
     courseTab: "Kurslar",
     newCourses: "Yangi kurslar",

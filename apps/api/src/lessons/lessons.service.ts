@@ -349,7 +349,11 @@ export class LessonsService {
   }
 
   // 로드맵 조회
-  public async getRoadmap(userId: string, lang: string = 'uz') {
+  public async getRoadmap(
+    userId: string,
+    lang: string = 'uz',
+    category?: string,
+  ) {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
       .findById(new Types.ObjectId(userId))
@@ -362,8 +366,14 @@ export class LessonsService {
       ((meUser?.legendNodes ?? []) as any[]).map((x) => x.toString()),
     );
 
+    // 카테고리 필터: 'vocabulary'/미지정은 기존 전체 로드맵(현재 그대로),
+    // 그 외(grammar 등)는 해당 category 노드만 렌더.
+    const nodeFilter: Record<string, any> = { isActive: true };
+    if (category && category !== 'vocabulary') {
+      nodeFilter.category = category;
+    }
     const nodes = await this.nodeModel
-      .find({ isActive: true })
+      .find(nodeFilter)
       .sort({ section: 1, unit: 1, order: 1 })
       .lean();
 

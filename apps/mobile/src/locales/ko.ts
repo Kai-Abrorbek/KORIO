@@ -152,6 +152,8 @@ export default {
     medalTitle: "이달의 학습 메달",
   },
   roadmap: {
+    comingSoonTitle: "곧 만나요!",
+    comingSoonDesc: "이 학습 과정은 준비 중이에요. 조금만 기다려 주세요.",
     sectionUnit: "섹션 {{section}}, 유닛 {{unit}}",
     courseTab: "과정",
     newCourses: "신규 과정",
