@@ -349,6 +349,7 @@ export default {
     suggestions: "Do'st takliflari",
     seeAll: "Hammasini ko'rish",
     follow: "Kuzatish",
+    followBack: "Javoban kuzatish",
     following: "Kuzatilmoqda",
     tabs: {
       following: "Obunalar",

@@ -48,7 +48,9 @@ export default function ProfileScreen() {
       <ProfileHeader
         name={profile.name}
         isSuper={profile.isSuper}
-        onShare={() => console.log("share")}
+        onShare={() => {
+          router.push("/follow-link");
+        }}
         onSettings={() => console.log("settings")}
       />
 

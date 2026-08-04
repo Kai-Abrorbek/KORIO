@@ -70,6 +70,7 @@ const styles = (theme: ThemeColors) =>
       backgroundColor: "rgba(0,0,0,0.55)",
       justifyContent: "space-between",
       paddingTop: 80,
+      marginBottom: 40,
     },
     card: {
       backgroundColor: theme.surface,

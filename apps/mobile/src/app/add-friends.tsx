@@ -20,7 +20,6 @@ export default function AddFriendsScreen() {
   const { t } = useTranslation();
   const s = styles(theme);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [followed, setFollowed] = useState<Set<string>>(new Set());
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
   useFocusEffect(
@@ -34,32 +33,14 @@ export default function AddFriendsScreen() {
               avatarUri: u.profileImage,
               username: u.username,
               reasonName: u.reasonName,
+              isFollowing: u.isFollowing,
+              isFollowedBy: u.isFollowedBy,
             })),
           ),
         )
         .catch((e) => console.error("추천 로드 실패:", e));
     }, []),
   );
-
-  const toggleFollow = async (id: string) => {
-    const isFollowed = followed.has(id);
-    setFollowed((p) => {
-      const n = new Set(p);
-      isFollowed ? n.delete(id) : n.add(id);
-      return n;
-    });
-    try {
-      if (isFollowed) await UserService.unfollow(id);
-      else await UserService.follow(id);
-    } catch (e) {
-      console.error("팔로우 실패:", e);
-      setFollowed((p) => {
-        const n = new Set(p);
-        isFollowed ? n.add(id) : n.delete(id);
-        return n;
-      });
-    }
-  };
 
   const dismiss = (id: string) => setDismissed((p) => new Set(p).add(id));
 
@@ -140,8 +121,6 @@ export default function AddFriendsScreen() {
           <SuggestionCard
             key={item.id}
             item={item}
-            followed={followed.has(item.id)}
-            onFollow={() => toggleFollow(item.id)}
             onDismiss={() => dismiss(item.id)}
             theme={theme}
           />

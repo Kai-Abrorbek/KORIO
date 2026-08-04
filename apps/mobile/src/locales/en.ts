@@ -345,6 +345,7 @@ export default {
     suggestions: "Suggestions",
     seeAll: "See all",
     follow: "Follow",
+    followBack: "Follow back",
     following: "Following",
     tabs: {
       following: "Following",

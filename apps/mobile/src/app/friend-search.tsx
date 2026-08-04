@@ -25,7 +25,6 @@ export default function FriendSearchScreen() {
 
   const [q, setQ] = useState("");
   const [results, setResults] = useState<SuggestionItem[]>([]);
-  const [followedIds, setFollowedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -41,6 +40,8 @@ export default function FriendSearchScreen() {
               avatarUri: u.profileImage,
               username: u.username,
               reasonName: u.reasonName,
+              isFollowing: u.isFollowing,
+              isFollowedBy: u.isFollowedBy,
             })),
           ),
         )
@@ -64,10 +65,9 @@ export default function FriendSearchScreen() {
             name: u.nickname,
             avatarUri: u.profileImage,
             username: u.username,
+            isFollowing: u.isFollowing,
+            isFollowedBy: u.isFollowedBy,
           })),
-        );
-        setFollowedIds(
-          data.filter((u: any) => u.isFollowing).map((u: any) => u.id),
         );
       } catch (e) {
         console.error("검색 실패:", e);
@@ -127,11 +127,7 @@ export default function FriendSearchScreen() {
         )}
 
         {q.trim().length > 0 ? (
-          <SuggestionList
-            items={results}
-            initialFollowed={followedIds}
-            dismissable={false}
-          />
+          <SuggestionList items={results} dismissable={false} />
         ) : (
           <>
             <Text style={s.section}>{t("friends.suggestions")}</Text>

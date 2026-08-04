@@ -234,7 +234,10 @@ export class UsersService {
 
   async getSuggestions(currentUserId: string, limit = 20) {
     const meId = new Types.ObjectId(currentUserId);
-    const me = await this.userModel.findById(meId).select('following').lean();
+    const me = await this.userModel
+      .findById(meId)
+      .select('following followers')
+      .lean();
     const myFollowing = (me?.following ?? []).map((f) => f.toString());
     const excludeIds = new Set<string>([currentUserId, ...myFollowing]);
 
@@ -320,8 +323,17 @@ export class UsersService {
       });
     }
 
-    // 닉네임 못 채운(삭제된 유저 등) 항목 제거
-    return suggestions.filter((s) => s.nickname);
+    // 닉네임 못 채운(삭제된 유저 등) 항목 제거 + 나와의 관계 부여
+    const followerSet = new Set(
+      (me?.followers ?? []).map((f) => f.toString()),
+    );
+    return suggestions
+      .filter((s) => s.nickname)
+      .map((s) => ({
+        ...s,
+        isFollowing: false, // 추천은 아직 내가 팔로우 안 한 사람
+        isFollowedBy: followerSet.has(s.id),
+      }));
   }
 
   /** 본인 프로필 수정 */
@@ -377,30 +389,69 @@ export class UsersService {
     return { success: true };
   }
 
-  /** 팔로잉 목록 */
-  async getFollowing(userId: string) {
-    const user = await this.userModel
-      .findById(userId)
-      .populate({
-        path: 'following',
-        select: 'nickname username profileImage streak totalXP league',
-      })
+  /** 유저 목록에 현재 유저 기준 관계(isFollowing/isFollowedBy) 부여 */
+  private async decorateRelations(users: any[], currentUserId: string) {
+    const me = await this.userModel
+      .findById(currentUserId)
+      .select('following followers')
       .lean();
-    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
-    return user.following || [];
+    const followingSet = new Set(
+      (me?.following ?? []).map((f) => f.toString()),
+    );
+    const followerSet = new Set(
+      (me?.followers ?? []).map((f) => f.toString()),
+    );
+    return users.map((u) => {
+      const id = u._id.toString();
+      return {
+        id,
+        nickname: u.nickname,
+        username: u.username || '',
+        profileImage: u.profileImage || '',
+        streak: u.streak || 0,
+        totalXP: u.totalXP || 0,
+        league: u.league,
+        targetLanguage: u.targetLanguage,
+        level: u.level,
+        isMe: id === currentUserId,
+        isFollowing: followingSet.has(id),
+        isFollowedBy: followerSet.has(id),
+      };
+    });
   }
 
-  /** 팔로워 목록 */
-  async getFollowers(userId: string) {
+  /** 팔로잉 목록 (targetUserId가 팔로우하는 사람들 + 나와의 관계) */
+  async getFollowing(targetUserId: string, currentUserId: string) {
     const user = await this.userModel
-      .findById(userId)
+      .findById(targetUserId)
       .populate({
-        path: 'followers',
-        select: 'nickname username profileImage streak totalXP league',
+        path: 'following',
+        select:
+          'nickname username profileImage streak totalXP league targetLanguage level',
       })
       .lean();
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
-    return user.followers || [];
+    return this.decorateRelations(
+      (user.following as any[]) || [],
+      currentUserId,
+    );
+  }
+
+  /** 팔로워 목록 (targetUserId를 팔로우하는 사람들 + 나와의 관계) */
+  async getFollowers(targetUserId: string, currentUserId: string) {
+    const user = await this.userModel
+      .findById(targetUserId)
+      .populate({
+        path: 'followers',
+        select:
+          'nickname username profileImage streak totalXP league targetLanguage level',
+      })
+      .lean();
+    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+    return this.decorateRelations(
+      (user.followers as any[]) || [],
+      currentUserId,
+    );
   }
 
   private getMonthLabel(date: Date, lang: string): string {
@@ -1093,10 +1144,13 @@ export class UsersService {
 
     const me = await this.userModel
       .findById(currentUserId)
-      .select('following')
+      .select('following followers')
       .lean();
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
+    );
+    const followerSet = new Set(
+      (me?.followers ?? []).map((f) => f.toString()),
     );
 
     const users = await this.userModel
@@ -1116,6 +1170,7 @@ export class UsersService {
       username: u.username || '',
       profileImage: u.profileImage || '',
       isFollowing: followingSet.has(u._id.toString()),
+      isFollowedBy: followerSet.has(u._id.toString()),
     }));
   }
 
@@ -1132,10 +1187,13 @@ export class UsersService {
 
     const me = await this.userModel
       .findById(currentUserId)
-      .select('following')
+      .select('following followers')
       .lean();
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
+    );
+    const followerSet = new Set(
+      (me?.followers ?? []).map((f) => f.toString()),
     );
 
     const users = await this.userModel
@@ -1153,6 +1211,7 @@ export class UsersService {
       username: u.username || '',
       profileImage: u.profileImage || '',
       isFollowing: followingSet.has(u._id.toString()),
+      isFollowedBy: followerSet.has(u._id.toString()),
     }));
   }
 

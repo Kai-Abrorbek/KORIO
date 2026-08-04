@@ -3,4 +3,6 @@ export interface FriendSuggestion {
   name: string;
   avatarUri?: string;
   reason: string;
+  isFollowing?: boolean;
+  isFollowedBy?: boolean;
 }

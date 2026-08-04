@@ -345,6 +345,7 @@ export default {
     seeAll: "모두 보기",
     followedBy: "{{name}}님이 팔로우 중",
     follow: "팔로우하기",
+    followBack: "맞팔하기",
     following: "팔로우 중",
     tabs: {
       following: "팔로잉",

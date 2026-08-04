@@ -6,6 +6,9 @@ export interface Friend {
   avatarUri?: string;
   primaryFlag?: string;
   level?: number;
+  isFollowing?: boolean;
+  isFollowedBy?: boolean;
+  isMe?: boolean;
 }
 
 export interface FriendsData {

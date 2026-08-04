@@ -117,6 +117,7 @@ export default function FriendProfileScreen() {
         extraCount={user.courseExtraCount ?? 0}
         following={user.followingCount ?? 0}
         followers={user.followersCount ?? 0}
+        userId={id}
       />
       <FollowedBySection
         users={user.followedBy ?? []}

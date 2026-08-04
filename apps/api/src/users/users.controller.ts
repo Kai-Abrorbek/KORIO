@@ -35,13 +35,25 @@ export class UsersController {
   }
 
   @Get('me/following')
-  async getFollowing(@Request() req) {
-    return this.usersService.getFollowing(req.user._id.toString());
+  async getMyFollowing(@Request() req) {
+    const me = req.user._id.toString();
+    return this.usersService.getFollowing(me, me);
   }
 
   @Get('me/followers')
-  async getFollowers(@Request() req) {
-    return this.usersService.getFollowers(req.user._id.toString());
+  async getMyFollowers(@Request() req) {
+    const me = req.user._id.toString();
+    return this.usersService.getFollowers(me, me);
+  }
+
+  @Get(':id/following')
+  async getUserFollowing(@Request() req, @Param('id') id: string) {
+    return this.usersService.getFollowing(id, req.user._id.toString());
+  }
+
+  @Get(':id/followers')
+  async getUserFollowers(@Request() req, @Param('id') id: string) {
+    return this.usersService.getFollowers(id, req.user._id.toString());
   }
 
   @Get('me/calendar')

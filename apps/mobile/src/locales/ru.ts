@@ -347,6 +347,7 @@ export default {
     suggestions: "Рекомендации",
     seeAll: "Показать все",
     follow: "Подписаться",
+    followBack: "Ответная подписка",
     following: "Вы подписаны",
     tabs: {
       following: "Подписки",

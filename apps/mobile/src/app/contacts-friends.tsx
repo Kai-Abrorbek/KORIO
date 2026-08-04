@@ -56,6 +56,8 @@ export default function ContactsFriendsScreen() {
             name: u.nickname,
             avatarUri: u.profileImage,
             username: u.username,
+            isFollowing: u.isFollowing,
+            isFollowedBy: u.isFollowedBy,
           })),
         );
       } catch (e) {

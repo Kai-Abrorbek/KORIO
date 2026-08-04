@@ -29,7 +29,10 @@ export default function FriendsScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const { tab: tabParam } = useLocalSearchParams<{ tab?: string }>();
+  const { tab: tabParam, userId } = useLocalSearchParams<{
+    tab?: string;
+    userId?: string;
+  }>();
   const [tab, setTab] = useState<FriendTab>(
     tabParam === "followers" ? "followers" : "following",
   );
@@ -39,17 +42,22 @@ export default function FriendsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      Promise.all([UserService.getFollowing(), UserService.getFollowers()])
+      setLoading(true);
+      // userId 있으면 그 유저의 목록, 없으면 내 목록
+      const followingReq = userId
+        ? UserService.getUserFollowing(userId)
+        : UserService.getFollowing();
+      const followersReq = userId
+        ? UserService.getUserFollowers(userId)
+        : UserService.getFollowers();
+      Promise.all([followingReq, followersReq])
         .then(([fwing, fwers]) => {
           setFollowing(fwing ?? []);
           setFollowers(fwers ?? []);
-          setLoading(true);
         })
         .catch((e) => console.error("friends 로드 실패:", e))
-        .finally(() => {
-          setLoading(false);
-        });
-    }, []),
+        .finally(() => setLoading(false));
+    }, [userId]),
   );
 
   const raw = tab === "following" ? following : followers;
@@ -57,7 +65,10 @@ export default function FriendsScreen() {
     id: u._id ?? u.id,
     name: u.nickname,
     primaryFlag: langToFlag(u.targetLanguage),
-    level: u.totalXP ?? levelToNum(u.level), // 카드의 level이 "레벨 숫자"면 levelToNum, "XP"면 totalXP
+    level: u.totalXP ?? levelToNum(u.level),
+    isFollowing: u.isFollowing,
+    isFollowedBy: u.isFollowedBy,
+    isMe: u.isMe,
   }));
 
   if (loading) {

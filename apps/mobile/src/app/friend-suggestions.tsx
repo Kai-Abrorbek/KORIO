@@ -36,6 +36,8 @@ export default function FriendSuggestionsScreen() {
               avatarUri: u.profileImage,
               username: u.username,
               reasonName: u.reasonName,
+              isFollowing: u.isFollowing,
+              isFollowedBy: u.isFollowedBy,
             })),
           ),
         )

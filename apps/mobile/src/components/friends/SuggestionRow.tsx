@@ -1,8 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import FriendAvatar from "@/components/friends/FriendAvatar";
-import { useTranslation } from "react-i18next";
+import FollowPill from "@/components/friends/FollowPill";
 
 export interface SuggestionItem {
   id: string;
@@ -10,12 +11,12 @@ export interface SuggestionItem {
   avatarUri?: string;
   username?: string;
   reasonName?: string; // "OO님이 팔로우 중"의 OO
+  isFollowing?: boolean;
+  isFollowedBy?: boolean;
 }
 
 interface Props {
   item: SuggestionItem;
-  followed: boolean;
-  onFollow: () => void;
   onDismiss?: () => void;
   onPress?: () => void;
   theme: ThemeColors;
@@ -23,8 +24,6 @@ interface Props {
 
 export default function SuggestionRow({
   item,
-  followed,
-  onFollow,
   onDismiss,
   onPress,
   theme,
@@ -49,17 +48,11 @@ export default function SuggestionRow({
           </Text>
         )}
       </View>
-      <TouchableOpacity
-        style={[s.addBtn, followed && s.addedBtn]}
-        onPress={onFollow}
-        hitSlop={8}
-      >
-        <Ionicons
-          name={followed ? "checkmark" : "person-add"}
-          size={22}
-          color="#fff"
-        />
-      </TouchableOpacity>
+      <FollowPill
+        userId={item.id}
+        isFollowing={!!item.isFollowing}
+        isFollowedBy={item.isFollowedBy}
+      />
       {onDismiss && (
         <TouchableOpacity onPress={onDismiss} hitSlop={8} style={s.close}>
           <Ionicons name="close" size={24} color={theme.textSecondary} />
@@ -74,7 +67,7 @@ const styles = (theme: ThemeColors) =>
     row: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 14,
+      gap: 12,
       paddingVertical: 14,
       paddingHorizontal: 4,
       borderBottomWidth: 1,
@@ -83,14 +76,5 @@ const styles = (theme: ThemeColors) =>
     info: { flex: 1 },
     name: { fontSize: 18, fontWeight: "800", color: theme.text },
     sub: { fontSize: 14, color: theme.textSecondary, marginTop: 2 },
-    addBtn: {
-      width: 56,
-      height: 44,
-      borderRadius: 12,
-      backgroundColor: "#1CB0F6",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    addedBtn: { backgroundColor: "#58CC02" },
     close: { padding: 4 },
   });

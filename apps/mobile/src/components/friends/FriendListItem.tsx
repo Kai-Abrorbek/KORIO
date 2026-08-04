@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { Friend } from "@/types/friend";
 import FriendAvatar from "./FriendAvatar";
+import FollowPill from "./FollowPill";
 
 interface Props {
   friend: Friend;
@@ -35,7 +35,13 @@ export default function FriendListItem({ friend, onPress, isLast }: Props) {
         )}
       </View>
 
-      <Ionicons name="chevron-forward" size={22} color={theme.textSecondary} />
+      {!friend.isMe && (
+        <FollowPill
+          userId={friend.id}
+          isFollowing={!!friend.isFollowing}
+          isFollowedBy={friend.isFollowedBy}
+        />
+      )}
     </TouchableOpacity>
   );
 }

@@ -9,6 +9,7 @@ interface Props {
   extraCount: number;
   following: number;
   followers: number;
+  userId?: string; // 남 프로필이면 그 유저 id (없으면 내 프로필)
 }
 
 export default function ProfileStatsRow({
@@ -16,6 +17,7 @@ export default function ProfileStatsRow({
   extraCount,
   following,
   followers,
+  userId,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -35,24 +37,36 @@ export default function ProfileStatsRow({
               <Text style={styles.badgeText}>+{extraCount}</Text>
             </View>
           )}
+          <Text style={styles.label}>{t("profile.courses")}</Text>
         </View>
-        <Text style={styles.label}>{t("profile.courses")}</Text>
       </Pressable>
 
       <Pressable
         style={styles.cell}
-        onPress={() => router.push("/friends?tab=following")}
+        onPress={() =>
+          router.push(
+            `/friends?tab=following${userId ? `&userId=${userId}` : ""}`,
+          )
+        }
       >
-        <Text style={styles.value}>{following}</Text>
-        <Text style={styles.label}>{t("profile.following")}</Text>
+        <View style={styles.center}>
+          <Text style={styles.value}>{following}</Text>
+          <Text style={styles.label}>{t("profile.following")}</Text>
+        </View>
       </Pressable>
 
       <Pressable
         style={styles.cell}
-        onPress={() => router.push("/friends?tab=followers")}
+        onPress={() =>
+          router.push(
+            `/friends?tab=followers${userId ? `&userId=${userId}` : ""}`,
+          )
+        }
       >
-        <Text style={styles.value}>{followers}</Text>
-        <Text style={styles.label}>{t("profile.followers")}</Text>
+        <View style={styles.center}>
+          <Text style={styles.value}>{followers}</Text>
+          <Text style={styles.label}>{t("profile.followers")}</Text>
+        </View>
       </Pressable>
     </View>
   );
@@ -64,20 +78,26 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       paddingHorizontal: 20,
       marginBottom: 18,
+      gap: 40,
     },
     cell: {
       flex: 1,
-      alignItems: "flex-start",
+      alignItems: "center",
       gap: 6,
     },
     flagRow: {
-      flexDirection: "row",
+      flexDirection: "column",
       alignItems: "center",
       gap: 8,
       height: 28,
     },
     flag: {
       fontSize: 26,
+    },
+    center: {
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 6,
     },
     badge: {
       borderWidth: 1.5,
