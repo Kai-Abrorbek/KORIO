@@ -163,6 +163,10 @@ export class User {
   @Prop({ type: [String], default: [] })
   completedGrammar: string[];
 
+  // 보석 보상 지급 완료한 문법 섹션 (중복 지급 방지)
+  @Prop({ type: [Number], default: [] })
+  completedGrammarSections: number[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

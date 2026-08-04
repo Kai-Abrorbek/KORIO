@@ -868,6 +868,11 @@ export default {
     locked: "이전 섹션을 완료하세요",
     sectionDone: "완료!",
     comingSoon: "준비 중",
+    superOnly: "KORIO SUPER",
+    premiumTitle: "SUPER로 계속 배우기",
+    premiumDesc: "무료 섹션을 다 마쳤어요! KORIO SUPER로 모든 문법을 잠금 해제하세요.",
+    premiumCta: "SUPER 시작하기",
+    premiumLater: "나중에",
   },
   grammarStudy: {
     crumb: "문법 · 진행",

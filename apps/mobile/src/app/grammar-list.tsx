@@ -6,9 +6,11 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import Animated, {
   FadeInDown,
+  SlideInDown,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -33,6 +35,8 @@ const C = {
   mint: "#BFE8C6",
   sub: "#8a7f6d",
   green: "#3FB56A",
+  gold: "#E2A83A",
+  goldBg: "#FCEFC7",
 };
 
 const SECTION_COUNT = 12;
@@ -105,69 +109,93 @@ function GrammarCard({ item }: { item: GrammarListItem }) {
   );
 }
 
-/* 섹션 아코디언 블록 */
+/* 섹션 아코디언 블록 (순차 잠금 + 프리미엄 잠금) */
 function SectionBlock({
   section,
   items,
   color,
   expanded,
   locked,
+  premiumLocked,
   onToggle,
+  onPremium,
   t,
 }: {
   section: number;
   items: GrammarListItem[];
   color: string;
   expanded: boolean;
-  locked: boolean;
+  locked: boolean; // 순차 잠금 (이전 섹션 미완료)
+  premiumLocked: boolean; // 프리미엄 필요
   onToggle: () => void;
+  onPremium: () => void;
   t: (k: string, o?: any) => string;
 }) {
   const empty = items.length === 0;
-  const rot = useSharedValue(expanded ? 1 : 0);
+  const allDone = items.length > 0 && items.every((g) => g.completed);
+  const open = expanded && !locked && !premiumLocked;
+  const rot = useSharedValue(open ? 1 : 0);
   useEffect(() => {
-    rot.value = withTiming(expanded ? 1 : 0, { duration: 200 });
-  }, [expanded, rot]);
+    rot.value = withTiming(open ? 1 : 0, { duration: 200 });
+  }, [open, rot]);
   const chevStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rot.value * 90}deg` }],
   }));
+
+  const headBg = premiumLocked ? C.goldBg : locked ? "#EFE7D2" : color;
+
+  const onHeadPress = () => {
+    if (premiumLocked) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onPremium();
+      return;
+    }
+    if (locked) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onToggle();
+  };
 
   return (
     <View style={{ marginBottom: 16 }}>
       <View style={{ position: "relative" }}>
         <View style={[st.shadow, { borderRadius: 18 }]} />
         <Pressable
-          onPress={() => {
-            if (locked) return;
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onToggle();
-          }}
+          onPress={onHeadPress}
           style={[
             st.secHead,
-            {
-              backgroundColor: locked ? "#EFE7D2" : color,
-              opacity: locked ? 0.65 : 1,
-            },
+            { backgroundColor: headBg, opacity: locked ? 0.65 : 1 },
           ]}
         >
-          <View style={st.secNum}>
-            <Text style={st.secNumT}>{section}</Text>
+          <View
+            style={[st.secNum, premiumLocked && { borderColor: C.gold }]}
+          >
+            {premiumLocked ? (
+              <Ionicons name="star" size={22} color={C.gold} />
+            ) : (
+              <Text style={st.secNumT}>{section}</Text>
+            )}
           </View>
           <View style={{ flex: 1 }}>
             <Text style={st.secTitle}>
               {t("grammarList.section", { n: section })}
             </Text>
-            <Text style={st.secSub}>
-              {locked
-                ? empty
-                  ? t("grammarList.comingSoon")
-                  : t("grammarList.locked")
-                : items.every((g) => g.completed)
-                  ? t("grammarList.sectionDone")
-                  : t("grammarList.count", { count: items.length })}
+            <Text
+              style={[st.secSub, premiumLocked && { color: C.gold, opacity: 1 }]}
+            >
+              {premiumLocked
+                ? t("grammarList.superOnly")
+                : locked
+                  ? empty
+                    ? t("grammarList.comingSoon")
+                    : t("grammarList.locked")
+                  : allDone
+                    ? t("grammarList.sectionDone")
+                    : t("grammarList.count", { count: items.length })}
             </Text>
           </View>
-          {locked ? (
+          {premiumLocked ? (
+            <Ionicons name="lock-closed" size={20} color={C.gold} />
+          ) : locked ? (
             <Ionicons name="lock-closed" size={20} color={C.ink} />
           ) : (
             <Animated.View style={chevStyle}>
@@ -177,7 +205,7 @@ function SectionBlock({
         </Pressable>
       </View>
 
-      {expanded && !locked && (
+      {open && (
         <View style={{ marginTop: 12, gap: 12 }}>
           {items.map((item, i) => (
             <Animated.View
@@ -193,19 +221,73 @@ function SectionBlock({
   );
 }
 
+/* 하단 구독 유도 시트 */
+function PremiumSheet({
+  visible,
+  onClose,
+  bottomInset,
+  t,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  bottomInset: number;
+  t: (k: string, o?: any) => string;
+}) {
+  return (
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <Pressable style={st.overlay} onPress={onClose} />
+      <Animated.View
+        entering={SlideInDown.springify().damping(18)}
+        style={[st.sheet, { paddingBottom: bottomInset + 24 }]}
+      >
+        <View style={st.handle} />
+        <View style={st.crownWrap}>
+          <Ionicons name="star" size={40} color={C.gold} />
+        </View>
+        <Text style={st.sheetTitle}>{t("grammarList.premiumTitle")}</Text>
+        <Text style={st.sheetDesc}>{t("grammarList.premiumDesc")}</Text>
+        <NBPress
+          onPress={() => {
+            onClose();
+            router.push("/premium");
+          }}
+          bg={C.yellow}
+          radius={16}
+          style={st.subBtn}
+        >
+          <Text style={st.subBtnT}>{t("grammarList.premiumCta")}</Text>
+        </NBPress>
+        <Pressable onPress={onClose} style={{ paddingVertical: 10 }}>
+          <Text style={st.later}>{t("grammarList.premiumLater")}</Text>
+        </Pressable>
+      </Animated.View>
+    </Modal>
+  );
+}
+
 export default function GrammarList() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState<GrammarListItem[]>([]);
   const [unlocked, setUnlocked] = useState(0);
+  const [isSuper, setIsSuper] = useState(false);
+  const [freeSections, setFreeSections] = useState(2);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [premiumVisible, setPremiumVisible] = useState(false);
 
   useEffect(() => {
     GrammarService.listGrammar()
       .then((res) => {
         setItems(res.grammars);
         setUnlocked(res.unlockedThrough);
+        setIsSuper(res.isSuper);
+        setFreeSections(res.freeSections);
         setExpanded(res.unlockedThrough || 1); // 진행 중 섹션 자동 펼침
       })
       .catch((e) => console.error("문법 목록 로드 실패:", e))
@@ -255,12 +337,21 @@ export default function GrammarList() {
               color={SECTION_COLORS[(sec - 1) % SECTION_COLORS.length]}
               expanded={expanded === sec}
               locked={sec > unlocked}
+              premiumLocked={sec <= unlocked && sec > freeSections && !isSuper}
               onToggle={() => setExpanded(expanded === sec ? null : sec)}
+              onPremium={() => setPremiumVisible(true)}
               t={t}
             />
           ))}
         </ScrollView>
       )}
+
+      <PremiumSheet
+        visible={premiumVisible}
+        onClose={() => setPremiumVisible(false)}
+        bottomInset={insets.bottom}
+        t={t}
+      />
     </View>
   );
 }
@@ -352,4 +443,63 @@ const st = StyleSheet.create({
     paddingVertical: 2,
   },
   tagT: { fontSize: 11, fontWeight: "700", color: C.ink },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: C.cream,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 3,
+    borderColor: C.ink,
+    paddingTop: 12,
+    paddingHorizontal: 22,
+    alignItems: "center",
+  },
+  handle: {
+    width: 44,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: C.ink,
+    opacity: 0.2,
+    marginBottom: 18,
+  },
+  crownWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: C.ink,
+    backgroundColor: C.goldBg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  sheetTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: C.ink,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  sheetDesc: {
+    fontSize: 14.5,
+    color: C.sub,
+    textAlign: "center",
+    lineHeight: 21,
+    marginBottom: 22,
+  },
+  subBtn: { width: "100%", alignItems: "center", paddingVertical: 16 },
+  subBtnT: { fontSize: 17, fontWeight: "800", color: C.ink },
+  later: { fontSize: 14, color: C.sub, fontWeight: "600" },
 });

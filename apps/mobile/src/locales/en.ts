@@ -871,6 +871,11 @@ export default {
     locked: "Finish the previous section",
     sectionDone: "Done!",
     comingSoon: "Coming soon",
+    superOnly: "KORIO SUPER",
+    premiumTitle: "Keep learning with SUPER",
+    premiumDesc: "You've finished the free sections! Unlock all grammar with KORIO SUPER.",
+    premiumCta: "Start SUPER",
+    premiumLater: "Maybe later",
   },
   grammarStudy: {
     crumb: "Grammar · Progressive",

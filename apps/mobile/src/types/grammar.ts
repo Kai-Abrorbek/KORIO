@@ -55,4 +55,6 @@ export interface GrammarListItem {
 export interface GrammarListResponse {
   grammars: GrammarListItem[];
   unlockedThrough: number; // 열린 최대 섹션 (순차 잠금)
+  isSuper: boolean;
+  freeSections: number; // 무료 섹션 수 (이후 프리미엄)
 }

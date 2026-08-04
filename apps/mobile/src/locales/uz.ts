@@ -874,6 +874,11 @@ export default {
     locked: "Avvalgi bo'limni tugating",
     sectionDone: "Tugallandi!",
     comingSoon: "Tez orada",
+    superOnly: "KORIO SUPER",
+    premiumTitle: "SUPER bilan davom eting",
+    premiumDesc: "Bepul bo'limlarni tugatdingiz! KORIO SUPER bilan barcha grammatikani oching.",
+    premiumCta: "SUPER'ni boshlash",
+    premiumLater: "Keyinroq",
   },
   grammarStudy: {
     crumb: "Grammatika · Davom",

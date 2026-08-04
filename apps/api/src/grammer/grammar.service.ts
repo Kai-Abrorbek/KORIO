@@ -3,6 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Grammar, GrammarDocument } from './schemas/grammar.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import { LessonsService } from '../lessons/lessons.service';
+import { StudyCategory } from '../users/utils/study-category.util';
+import { isSuperActive } from '../users/super.util';
+
+const FREE_GRAMMAR_SECTIONS = 2; // 무료 섹션 수 (이후 프리미엄)
+const GRAMMAR_XP = 15; // 문법 퀴즈 통과 XP
+const SECTION_COMPLETE_GEMS = 25; // 섹션 완성 보석
 
 @Injectable()
 export class GrammarService {
@@ -11,6 +18,7 @@ export class GrammarService {
     private grammarModel: Model<GrammarDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private readonly lessonsService: LessonsService,
   ) {}
 
   private pick(obj: any, lang: string): string {
@@ -87,9 +95,10 @@ export class GrammarService {
 
     const me = await this.userModel
       .findById(userId)
-      .select('completedGrammar')
+      .select('completedGrammar isSuper superExpiresAt')
       .lean();
     const done = new Set<string>(me?.completedGrammar ?? []);
+    const isSuper = isSuperActive(me ?? {});
 
     const grammars = rows.map((g: any) => ({
       id: g.code,
@@ -115,20 +124,90 @@ export class GrammarService {
       if (!items.every((g) => g.completed)) break; // 미완료면 다음은 잠금
     }
 
-    return { grammars, unlockedThrough };
+    return {
+      grammars,
+      unlockedThrough,
+      isSuper,
+      freeSections: FREE_GRAMMAR_SECTIONS,
+    };
   }
 
-  /** 문법 완료 저장 (퀴즈 통과 시) */
+  /** 문법 완료 (퀴즈 통과 시): XP · 통계 · 스트릭 · 섹션 완성 보석 */
   async completeGrammar(userId: string, code: string) {
     const g = await this.grammarModel
       .findOne({ code, isActive: true })
-      .select('code')
+      .select('code section quiz')
       .lean();
     if (!g) throw new NotFoundException('grammar not found');
+
+    const me = await this.userModel
+      .findById(userId)
+      .select('completedGrammar')
+      .lean();
+    const done = new Set<string>(me?.completedGrammar ?? []);
+
+    // 이미 완료한 문법은 보상 없이 (중복 방지)
+    if (done.has(code)) {
+      return {
+        success: true,
+        already: true,
+        xpEarned: 0,
+        gemsEarned: 0,
+        sectionCompleted: false,
+      };
+    }
+
+    // 완료 저장
     await this.userModel.updateOne(
       { _id: userId },
       { $addToSet: { completedGrammar: code } },
     );
-    return { success: true };
+
+    // 통계 기록 (grammar 버킷, 퀴즈 문제 수만큼)
+    const quizCount = (g as any).quiz?.length ?? 0;
+    await this.lessonsService.recordStudy(userId, {
+      questionCount: Math.max(1, quizCount),
+      overrideCategory: StudyCategory.GRAMMAR,
+    });
+
+    // XP + totalXP + 리그 반영 (addXp 가 처리)
+    const xpRes = await this.lessonsService.addXp(userId, GRAMMAR_XP);
+
+    // 섹션 완성 → 보석 (섹션당 1회)
+    let gemsEarned = 0;
+    const section = (g as any).section ?? 1;
+    const sectionCodes = await this.grammarModel
+      .find({ section, isActive: true })
+      .select('code')
+      .lean();
+    const nowDone = new Set<string>([...done, code]);
+    const sectionComplete =
+      sectionCodes.length > 0 &&
+      sectionCodes.every((s: any) => nowDone.has(s.code));
+    if (sectionComplete) {
+      const already = await this.userModel.exists({
+        _id: userId,
+        completedGrammarSections: section,
+      });
+      if (!already) {
+        await this.userModel.updateOne(
+          { _id: userId },
+          {
+            $inc: { gems: SECTION_COMPLETE_GEMS },
+            $addToSet: { completedGrammarSections: section },
+          },
+        );
+        gemsEarned = SECTION_COMPLETE_GEMS;
+      }
+    }
+
+    return {
+      success: true,
+      already: false,
+      xpEarned: GRAMMAR_XP,
+      totalXP: xpRes.totalXP ?? 0,
+      gemsEarned,
+      sectionCompleted: gemsEarned > 0,
+    };
   }
 }

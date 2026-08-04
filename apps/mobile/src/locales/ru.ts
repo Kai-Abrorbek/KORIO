@@ -870,6 +870,11 @@ export default {
     locked: "Завершите предыдущий раздел",
     sectionDone: "Готово!",
     comingSoon: "Скоро",
+    superOnly: "KORIO SUPER",
+    premiumTitle: "Продолжайте с SUPER",
+    premiumDesc: "Вы прошли бесплатные разделы! Откройте всю грамматику с KORIO SUPER.",
+    premiumCta: "Начать SUPER",
+    premiumLater: "Позже",
   },
   grammarStudy: {
     crumb: "Грамматика · Прогрессив",
