@@ -26,6 +26,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
 import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
+import { useSettingsStore } from "@/store/settings.store";
 
 const today = new Date().getDay();
 const todayIndex = today === 0 ? 6 : today - 1;
@@ -53,6 +54,15 @@ export default function HomeScreen() {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [weekly, setWeekly] = useState<DayStats[]>([]);
   const [chatVisible, setChatVisible] = useState(false);
+  const learnMode = useSettingsStore((s) => s.learnMode);
+
+  // 현재 학습 모드에 맞는 "이어서 학습하기" 경로
+  const continuePath =
+    learnMode === "grammar"
+      ? "/grammar-list"
+      : learnMode === "vocabulary"
+        ? "/roadmap"
+        : `/roadmap?category=${learnMode}`;
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
@@ -226,6 +236,17 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.lessonSideBtn}
+              activeOpacity={0.85}
+              onPress={() => router.push("/course-categories")}
+            >
+              <Ionicons
+                name="swap-horizontal"
+                size={22}
+                color={theme.primary}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.lessonSideBtn}
               activeOpacity={0.7}
               onPress={() => {
                 router.push("/settings");
@@ -262,7 +283,9 @@ export default function HomeScreen() {
                   color={theme.primary}
                 />
               </TouchableOpacity>
-              <Text style={styles.lessonTitle}>{t("home.vocabStudy")}</Text>
+              <Text style={styles.lessonTitle}>
+                {t(`home.mode.${learnMode}`)}
+              </Text>
               <Text style={styles.lessonSubTitle}>{t("home.dailyGoal")}</Text>
             </View>
             <CircleProgress
@@ -274,7 +297,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={styles.lessonButton}
-            onPress={() => router.push("/roadmap")}
+            onPress={() => router.push(continuePath as any)}
           >
             <Ionicons name="book" size={18} color="#fff" />
             <Text style={styles.lessonButtonText}>
@@ -614,6 +637,8 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "space-between",
       marginBottom: 12,
+      marginRight: 20,
+      marginTop: 20,
     },
     lessonBottomLeft: {
       gap: 4,

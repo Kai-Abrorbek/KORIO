@@ -19,6 +19,7 @@ import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import { useSettingsStore, LearnMode } from "@/store/settings.store";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -59,6 +60,7 @@ function CategoryCard({
   index: number;
   s: ReturnType<typeof getStyles>;
 }) {
+  const setLearnMode = useSettingsStore((st) => st.setLearnMode);
   const pressed = useSharedValue(0);
   const aStyle = useAnimatedStyle(() => ({
     transform: [
@@ -76,6 +78,7 @@ function CategoryCard({
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setLearnMode(c.category as LearnMode); // 현재 학습 모드 기억
           // 문법은 로드맵이 아니라 전용 문법 목록으로
           if (c.category === "grammar") {
             router.push("/grammar-list");

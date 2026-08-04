@@ -6,6 +6,13 @@ import i18n from "../locales/i18n";
 type Language = "uz" | "ko" | "en" | "ru";
 export type Theme = "light" | "dark" | "system";
 export type LearningTheme = "skyBlue" | "purple";
+export type LearnMode =
+  | "vocabulary"
+  | "grammar"
+  | "expression"
+  | "conversation"
+  | "listening"
+  | "topik";
 export interface NotificationPrefs {
   master: boolean;
   daily: boolean;
@@ -20,10 +27,12 @@ interface SettingsState {
   language: Language;
   theme: Theme;
   learningTheme: LearningTheme;
+  learnMode: LearnMode; // 현재 진행 중인 학습 모드
   notifications: NotificationPrefs;
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
   setLearningTheme: (t: LearningTheme) => void;
+  setLearnMode: (m: LearnMode) => void;
   setNotifications: (patch: Partial<NotificationPrefs>) => void;
 }
 
@@ -33,6 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
       language: "uz",
       theme: "system",
       learningTheme: "skyBlue",
+      learnMode: "vocabulary",
       notifications: {
         master: true,
         daily: true,
@@ -48,6 +58,7 @@ export const useSettingsStore = create<SettingsState>()(
       },
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
+      setLearnMode: (learnMode) => set({ learnMode }),
       setNotifications: (patch) =>
         set((s) => ({ notifications: { ...s.notifications, ...patch } })),
     }),
