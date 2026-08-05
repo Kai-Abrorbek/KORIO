@@ -12,13 +12,17 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
-  withRepeat,
-  withSequence,
   withDelay,
+  runOnJS,
   Easing,
 } from "react-native-reanimated";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { HangulCharacter } from "@/types/hangul";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -42,50 +46,48 @@ export default function CharacterDetailSheet({
   const { speak, isSpeaking } = useSpeech();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const insets = useSafeAreaInsets();
+
+  const CLOSED = 800;
+  const DURATION = 250; // 열 때·닫을 때 동일
 
   const backdrop = useSharedValue(0);
-  const sheetY = useSharedValue(800);
-  const charScale = useSharedValue(0);
-  const charRotate = useSharedValue(-20);
-  const ringScale = useSharedValue(0);
+  const sheetY = useSharedValue(CLOSED);
+  const charIn = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
-      backdrop.value = withTiming(1, { duration: 250 });
-      sheetY.value = withSpring(0, { damping: 40, stiffness: 150 });
-      charScale.value = withDelay(
-        150,
-        withSpring(1, { damping: 8, stiffness: 180 }),
-      );
-      charRotate.value = withDelay(
-        150,
-        withSpring(0, { damping: 10, stiffness: 160 }),
-      );
-      ringScale.value = withDelay(
-        300,
-        withRepeat(
-          withSequence(
-            withTiming(1.15, {
-              duration: 1500,
-              easing: Easing.inOut(Easing.ease),
-            }),
-            withTiming(1, {
-              duration: 1500,
-              easing: Easing.inOut(Easing.ease),
-            }),
-          ),
-          -1,
-          true,
-        ),
-      );
+      backdrop.value = withTiming(1, { duration: DURATION });
+      sheetY.value = withTiming(0, {
+        duration: DURATION,
+        easing: Easing.out(Easing.cubic),
+      });
+      // 튀지 않게 — 살짝 커지며 페이드인만
+      charIn.value = withDelay(90, withTiming(1, { duration: 220 }));
     } else {
-      backdrop.value = withTiming(0, { duration: 200 });
-      sheetY.value = withTiming(800, { duration: 250 });
-      charScale.value = 0;
-      charRotate.value = -20;
-      ringScale.value = 0;
+      backdrop.value = withTiming(0, { duration: DURATION });
+      sheetY.value = withTiming(CLOSED, {
+        duration: DURATION,
+        easing: Easing.in(Easing.cubic),
+      });
+      charIn.value = 0;
     }
   }, [visible]);
+
+  // 아래로 끌어서 닫기
+  const dragClose = Gesture.Pan()
+    .onUpdate((e) => {
+      sheetY.value = Math.max(0, e.translationY);
+    })
+    .onEnd((e) => {
+      if (e.translationY > 90 || e.velocityY > 800) {
+        sheetY.value = withTiming(CLOSED, { duration: DURATION });
+        backdrop.value = withTiming(0, { duration: DURATION });
+        runOnJS(onClose)();
+      } else {
+        sheetY.value = withTiming(0, { duration: 160 });
+      }
+    });
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: backdrop.value,
@@ -96,15 +98,8 @@ export default function CharacterDetailSheet({
   }));
 
   const charStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: charScale.value },
-      { rotate: `${charRotate.value}deg` },
-    ],
-  }));
-
-  const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: ringScale.value }],
-    opacity: 0.4,
+    opacity: charIn.value,
+    transform: [{ scale: 0.9 + charIn.value * 0.1 }],
   }));
 
   if (!character) return null;
@@ -117,22 +112,36 @@ export default function CharacterDetailSheet({
     <Modal
       transparent
       visible={visible}
-      animationType="slide"
+      // Modal 자체 슬라이드를 쓰면 아래 sheetY 애니와 겹쳐서
+      // 열림/닫힘 속도가 달라진다. 애니는 우리가 전부 제어.
+      animationType="none"
+      statusBarTranslucent
       onRequestClose={onClose}
     >
-      <View style={styles.root}>
+      <GestureHandlerRootView style={styles.root}>
         <Animated.View style={[styles.backdrop, backdropStyle]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         </Animated.View>
 
-        <Animated.View style={[styles.sheet, sheetStyle]}>
-          {/* Handle */}
-          <View style={styles.handle} />
+        <Animated.View
+          style={[
+            styles.sheet,
+            sheetStyle,
+            // 안드로이드 네비바에 안 깔리게
+            { paddingBottom: insets.bottom + 20 },
+          ]}
+        >
+          {/* 핸들 — 아래로 끌면 닫힘 */}
+          <GestureDetector gesture={dragClose}>
+            <View style={styles.handleZone}>
+              <View style={styles.handle} />
+            </View>
+          </GestureDetector>
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* 글자 디스플레이 */}
             <View style={styles.charArea}>
-              <Animated.View style={[styles.ring, ringStyle]} />
+              <View style={styles.ring} />
               <Animated.View style={[styles.charBubble, charStyle]}>
                 <Text style={styles.bigChar}>{character.char}</Text>
               </Animated.View>
@@ -200,7 +209,7 @@ export default function CharacterDetailSheet({
             </TouchableOpacity>
           </ScrollView>
         </Animated.View>
-      </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
@@ -217,17 +226,21 @@ const getStyles = (theme: ThemeColors) =>
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
       paddingHorizontal: 20,
-      paddingTop: 10,
-      paddingBottom: 30,
+      paddingTop: 6,
       maxHeight: "85%",
+    },
+    // 끌기 편하게 터치 영역을 넉넉히
+    handleZone: {
+      alignSelf: "stretch",
+      alignItems: "center",
+      paddingTop: 6,
+      paddingBottom: 14,
     },
     handle: {
       width: 44,
       height: 5,
       borderRadius: 3,
       backgroundColor: theme.border,
-      alignSelf: "center",
-      marginBottom: 16,
     },
     charArea: {
       alignItems: "center",
@@ -235,12 +248,14 @@ const getStyles = (theme: ThemeColors) =>
       height: 200,
       marginBottom: 12,
     },
+    // 무한 펄스 빼고 은은한 후광으로 고정
     ring: {
       position: "absolute",
-      width: 180,
-      height: 180,
-      borderRadius: 90,
+      width: 184,
+      height: 184,
+      borderRadius: 92,
       backgroundColor: "#776ee2",
+      opacity: 0.22,
     },
     charBubble: {
       width: 160,

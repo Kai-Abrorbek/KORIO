@@ -34,8 +34,8 @@ export default function CategoryTabs({ value, onChange }: Props) {
   useEffect(() => {
     const l = layouts[value];
     if (l) {
-      indicatorX.value = withSpring(l.x, { damping: 16, stiffness: 180 });
-      indicatorW.value = withSpring(l.w, { damping: 16, stiffness: 180 });
+      indicatorX.value = withSpring(l.x, { damping: 100, stiffness: 180 });
+      indicatorW.value = withSpring(l.w, { damping: 100, stiffness: 180 });
     }
   }, [value, layouts]);
 

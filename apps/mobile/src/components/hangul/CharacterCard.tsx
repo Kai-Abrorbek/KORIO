@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
   withDelay,
   withSequence,
@@ -14,6 +13,9 @@ import Animated, {
 import { HangulCharacter } from "@/types/hangul";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+
+/** 카드가 눌릴 때 내려앉는 깊이(px) */
+const DEPTH = 4;
 
 interface Props {
   character: HangulCharacter;
@@ -65,34 +67,38 @@ export default function CharacterCard({
   const styles = getStyles(theme);
   const config = getStyleByMastery(mastery, theme);
 
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const tap = useSharedValue(1);
-  const glow = useSharedValue(0.6);
+  // 등장: 0에서 튀어나오지 않고 살짝 아래에서 떠오르며 페이드인
+  const enter = useSharedValue(0);
+  // 눌림: 카드가 바텀보더(깊이) 쪽으로 내려앉음
+  const press = useSharedValue(0);
+  const glow = useSharedValue(0.3);
   const float = useSharedValue(0);
 
   useEffect(() => {
-    // 등장 stagger
-    scale.value = withDelay(
-      index * 30,
-      withSpring(1, { damping: 12, stiffness: 180 }),
+    // stagger 는 상한을 둬서 뒤쪽 카드가 하염없이 기다리지 않게
+    const delay = Math.min(index * 18, 320);
+    enter.value = withDelay(
+      delay,
+      withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) }),
     );
-    opacity.value = withDelay(index * 30, withTiming(1, { duration: 300 }));
 
-    // 마스터 카드는 살랑 떠 있음
+    // 마스터 카드만 아주 느리게 숨 쉬듯 — 점멸이 아니라 은은하게
     if (mastery === 3) {
       float.value = withRepeat(
         withSequence(
-          withTiming(-3, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
+          withTiming(-2, { duration: 2400, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: 2400, easing: Easing.inOut(Easing.sin) }),
         ),
         -1,
         true,
       );
       glow.value = withRepeat(
         withSequence(
-          withTiming(1, { duration: 1500 }),
-          withTiming(0.5, { duration: 1500 }),
+          withTiming(0.5, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0.22, {
+            duration: 2200,
+            easing: Easing.inOut(Easing.sin),
+          }),
         ),
         -1,
         true,
@@ -101,18 +107,30 @@ export default function CharacterCard({
   }, [index, mastery]);
 
   const handlePressIn = () => {
-    tap.value = withSpring(0.92, { damping: 10, stiffness: 400 });
+    press.value = withTiming(1, {
+      duration: 60,
+      easing: Easing.out(Easing.quad),
+    });
   };
   const handlePressOut = () => {
-    tap.value = withSpring(1, { damping: 8, stiffness: 300 });
+    press.value = withTiming(0, {
+      duration: 110,
+      easing: Easing.out(Easing.quad),
+    });
   };
 
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
+  // 래퍼: 등장 + 마스터 카드 부유
+  const wrapStyle = useAnimatedStyle(() => ({
+    opacity: enter.value,
     transform: [
-      { scale: scale.value * tap.value },
-      { translateY: float.value },
+      { translateY: (1 - enter.value) * 10 + float.value },
+      { scale: 0.96 + enter.value * 0.04 },
     ],
+  }));
+
+  // 카드: 누르면 깊이만큼 내려앉음 (로드맵 버튼과 같은 결)
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: press.value * DEPTH }],
   }));
 
   const glowStyle = useAnimatedStyle(() => ({
@@ -120,35 +138,45 @@ export default function CharacterCard({
   }));
 
   return (
-    <Animated.View style={[styles.wrap, animStyle]}>
-      {config.glow && <Animated.View style={[styles.glow, glowStyle]} />}
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={[
-          styles.card,
-          { backgroundColor: config.bg, borderColor: config.border },
-        ]}
-      >
-        <Text style={[styles.char, { color: config.accent }]}>
-          {character.char}
-        </Text>
-        <Text style={[styles.roman, { color: config.accent, opacity: 0.7 }]}>
-          {character.romanization}
-        </Text>
-        <View style={styles.stars}>
-          {[0, 1, 2].map((i) => (
-            <Ionicons
-              key={i}
-              name={i < mastery ? "star" : "star-outline"}
-              size={11}
-              color={i < mastery ? config.accent : theme.border}
-              style={{ marginHorizontal: 1 }}
-            />
-          ))}
-        </View>
-      </Pressable>
+    <Animated.View style={[styles.wrap, wrapStyle]}>
+      {config.glow && (
+        <Animated.View
+          style={[styles.glow, { borderColor: config.border }, glowStyle]}
+        />
+      )}
+
+      {/* 깊이 — 카드가 눌리면 이 면에 내려앉는다 */}
+      <View style={[styles.depth, { backgroundColor: config.border }]} />
+
+      <Animated.View style={[styles.cardWrap, cardStyle]}>
+        <Pressable
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={[
+            styles.card,
+            { backgroundColor: config.bg, borderColor: config.border },
+          ]}
+        >
+          <Text style={[styles.char, { color: config.accent }]}>
+            {character.char}
+          </Text>
+          <Text style={[styles.roman, { color: config.accent, opacity: 0.7 }]}>
+            {character.romanization}
+          </Text>
+          <View style={styles.stars}>
+            {[0, 1, 2].map((i) => (
+              <Ionicons
+                key={i}
+                name={i < mastery ? "star" : "star-outline"}
+                size={11}
+                color={i < mastery ? config.accent : theme.border}
+                style={{ marginHorizontal: 1 }}
+              />
+            ))}
+          </View>
+        </Pressable>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -160,20 +188,32 @@ const getStyles = (theme: ThemeColors) =>
       aspectRatio: 0.85,
       margin: "1%",
     },
+    // 노란 사각형이 번쩍이던 걸 은은한 링으로 교체
     glow: {
       position: "absolute",
-      top: -4,
-      left: -4,
-      right: -4,
-      bottom: -4,
+      top: -3,
+      left: -3,
+      right: -3,
+      bottom: -3,
       borderRadius: 18,
-      backgroundColor: "#FFD000",
-      opacity: 0.4,
+      borderWidth: 2,
+    },
+    // 카드 아래 깔리는 면. 눌리면 카드가 여기까지 내려온다.
+    depth: {
+      position: "absolute",
+      top: DEPTH,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: 14,
+    },
+    cardWrap: {
+      flex: 1,
+      marginBottom: DEPTH,
     },
     card: {
       flex: 1,
       borderWidth: 2,
-      borderBottomWidth: 4,
       borderRadius: 14,
       alignItems: "center",
       justifyContent: "center",
