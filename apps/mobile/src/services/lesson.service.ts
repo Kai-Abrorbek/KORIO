@@ -5,12 +5,21 @@ import i18n from "@/locales/i18n";
 // 현재 유저 언어 가져오기
 const getLang = () => i18n.language?.split("-")[0] || "uz";
 
+export interface ScoreMilestone {
+  score: number; // 그 섹션 끝까지의 누적 유닛 수
+  section: number;
+  units: number; // 그 섹션의 유닛 수
+  title?: string; // 섹션 제목 (유저 언어)
+  startScore?: number; // 섹션 시작 시점 누적 유닛 수
+  status?: "completed" | "current" | "locked";
+}
+
 export interface ScoreData {
   score: number;
   completedUnits: number;
   nextScore: number;
   progress: number;
-  milestones: { score: number }[];
+  milestones: ScoreMilestone[];
 }
 
 export const LessonService = {
@@ -105,7 +114,8 @@ export const LessonService = {
   ): Promise<{ completed: number }> =>
     api.post(`/lessons/jump-complete`, { section, unit }),
 
-  getScore: (): Promise<ScoreData> => api.get(`/lessons/score`),
+  getScore: (): Promise<ScoreData> =>
+    api.get(`/lessons/score?lang=${getLang()}`),
 
   completeLegend: (
     nodeId: string,

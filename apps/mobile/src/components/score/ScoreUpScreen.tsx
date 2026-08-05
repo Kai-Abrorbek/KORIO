@@ -21,6 +21,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Modal } from "react-native";
 import { useState } from "react";
 import ScoreDetailScreen from "@/components/score/ScoreDetailScreen";
+import { ScoreMilestone } from "@/services/lesson.service";
 
 const MILESTONE_STYLE: {
   icon: keyof typeof Ionicons.glyphMap;
@@ -41,7 +42,7 @@ const BLUE_TEXT = "#1899D6";
 
 interface Props {
   score: number;
-  milestones?: { score: number }[];
+  milestones?: ScoreMilestone[];
   flag?: string; // 이모지 국기 (예: "🇺🇸")
   title?: string; // "영어 스코어를 올렸습니다!"
   continueLabel?: string;
@@ -131,8 +132,12 @@ export default function ScoreUpScreen({
 
   const detailMilestones = (milestones ?? []).map((m, i) => ({
     score: m.score,
-    label: t(MILESTONE_STYLE[i % MILESTONE_STYLE.length].labelKey),
+    // 섹션 제목은 백엔드가 유저 언어로 내려줌. 없으면 기존 라벨로 폴백.
+    label: m.title || t(MILESTONE_STYLE[i % MILESTONE_STYLE.length].labelKey),
     icon: MILESTONE_STYLE[i % MILESTONE_STYLE.length].icon,
+    status: m.status,
+    startScore: m.startScore,
+    units: m.units,
   }));
 
   return (

@@ -154,6 +154,10 @@ export default function RootLayout() {
               options={{ animation: "fade", gestureEnabled: false }}
             />
             <Stack.Screen
+              name="score"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="avatar-editor"
               options={{
                 animation: "slide_from_bottom",

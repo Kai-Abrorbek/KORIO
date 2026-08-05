@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import ScoreUpScreen from "@/components/score/ScoreUpScreen";
+import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import ScoreDetailScreen from "@/components/score/ScoreDetailScreen";
 import { LessonService, ScoreData } from "@/services/lesson.service";
+import { KOR_FLAG } from "@/constants/course";
 
 const EMPTY: ScoreData = {
   score: 0,
@@ -11,8 +14,21 @@ const EMPTY: ScoreData = {
   milestones: [],
 };
 
+// 섹션 순서대로 돌려쓰는 아이콘 — 섹션이 늘어나도 자동으로 이어짐
+const SECTION_ICONS: (keyof typeof Ionicons.glyphMap)[] = [
+  "star",
+  "hand-left",
+  "restaurant",
+  "location",
+  "book",
+  "tv",
+  "briefcase",
+  "trophy",
+];
+
 export default function Score() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [data, setData] = useState<ScoreData>(EMPTY);
 
   useEffect(() => {
@@ -27,14 +43,23 @@ export default function Score() {
     };
   }, []);
 
+  const milestones = data.milestones.map((m, i) => ({
+    score: m.score,
+    label: m.title || t("score.sectionFallback", { section: m.section }),
+    icon: SECTION_ICONS[i % SECTION_ICONS.length],
+    status: m.status,
+    startScore: m.startScore,
+    units: m.units,
+  }));
+
   return (
-    <ScoreUpScreen
+    <ScoreDetailScreen
       score={data.score}
-      milestones={data.milestones}
-      flag="🇰🇷"
+      flag={KOR_FLAG}
+      milestones={milestones}
+      onClose={() => router.back()}
       onContinue={() => router.back()}
       onShare={() => {}}
-      onExplain={() => {}}
     />
   );
 }
