@@ -9,13 +9,23 @@ import {
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import Animated, { SlideInUp, FadeIn } from "react-native-reanimated";
+import Animated, {
+  SlideInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_HANJO_COURSES } from "@/mocks/user-courses.mock";
-import { MOCK_COURSES } from "@/mocks/courses.mock";
+import { KOR_FLAG } from "@/constants/course";
+import { useAuthStore } from "@/store/auth.store";
+import { EnrolledCourse } from "@/types/user-courses";
+import { Course } from "@/types/courses";
 import { LessonService, ScoreData } from "@/services/lesson.service";
 
 interface Props {
@@ -36,9 +46,24 @@ export default function CourseDropdown({ visible, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const theme = useTheme();
-  const s = getStyles(theme);
+  const isDark = theme.bg === "#15151D";
+  const s = getStyles(theme, isDark);
+  const user = useAuthStore((st) => st.user);
 
   const [sc, setSc] = useState<ScoreData>(EMPTY);
+
+  // 실제 수강 중 코스 — 지금은 한국어 하나. 멀티 코스 생기면 API 목록으로 교체.
+  const enrolled: EnrolledCourse[] = [
+    {
+      id: "korean",
+      nameKey: "courses.languages.korean",
+      flag: KOR_FLAG,
+      xp: user?.totalXP ?? 0,
+    },
+  ];
+
+  // 신규/추천 코스 — 실데이터 소스 생기면 여기 연결. 비어있으면 섹션 자체를 숨김.
+  const newCourses: Course[] = [];
 
   useEffect(() => {
     if (!visible) return;
@@ -60,25 +85,45 @@ export default function CourseDropdown({ visible, onClose }: Props) {
 
   const fillPct = sc.progress * 100;
 
+  // 그래버 위로 드래그 → 닫기
+  const translateY = useSharedValue(0);
+  const panelStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+  const closeGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateY.value = Math.min(0, e.translationY); // 위로만 따라감
+    })
+    .onEnd((e) => {
+      if (e.translationY < -50) {
+        runOnJS(onClose)();
+        translateY.value = 0;
+      } else {
+        translateY.value = withTiming(0, { duration: 160 });
+      }
+    });
+
   return (
     <Modal
       transparent
       visible={visible}
-      animationType="fade"
+      animationType="none"
+      statusBarTranslucent
       onRequestClose={onClose}
     >
-      <View style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View
-          entering={SlideInUp.springify().damping(0)}
-          style={[s.panel, { paddingTop: insets.top + 12 }]}
+          entering={SlideInUp.duration(220)}
+          style={[s.panel, panelStyle, { paddingTop: insets.top + 12 }]}
         >
           {/* 수강 중 과정 + 과정 추가 */}
+          <Text style={s.sectionLabel}>{t("roadmap.enrolledTitle")}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={s.row}
           >
-            {MOCK_HANJO_COURSES.map((c, i) => (
+            {enrolled.map((c, i) => (
               <Pressable key={c.id} style={s.courseItem} onPress={onClose}>
                 <View
                   style={[
@@ -134,66 +179,100 @@ export default function CourseDropdown({ visible, onClose }: Props) {
             </Pressable>
           </View>
 
-          {/* 신규 과정 */}
-          <Text style={s.sectionTitle}>{t("roadmap.newCourses")}</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.row}
-          >
-            {MOCK_COURSES.map((c) => (
-              <Pressable
-                key={c.id}
-                style={s.courseItem}
-                onPress={() => go("/courses")}
+          {/* 신규 과정 — 있을 때만 노출 */}
+          {newCourses.length > 0 && (
+            <>
+              <Text style={s.sectionTitle}>{t("roadmap.newCourses")}</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={s.row}
               >
-                <View
-                  style={[
-                    s.iconBox,
-                    { backgroundColor: c.color, borderColor: c.color },
-                  ]}
-                >
-                  <Ionicons name={c.icon as any} size={32} color="#fff" />
-                </View>
-                <Text style={s.courseLabel} numberOfLines={1}>
-                  {t(c.nameKey)}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
+                {newCourses.map((c) => (
+                  <Pressable
+                    key={c.id}
+                    style={s.courseItem}
+                    onPress={() => go("/courses")}
+                  >
+                    <View
+                      style={[
+                        s.iconBox,
+                        { backgroundColor: c.color, borderColor: c.color },
+                      ]}
+                    >
+                      <Ionicons name={c.icon as any} size={32} color="#fff" />
+                    </View>
+                    <Text style={s.courseLabel} numberOfLines={1}>
+                      {t(c.nameKey)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </>
+          )}
+
+          {/* 하단 그래버 — 위로 드래그하면 닫힘 */}
+          <GestureDetector gesture={closeGesture}>
+            <View style={s.grabberZone}>
+              <View style={s.grabber} />
+            </View>
+          </GestureDetector>
         </Animated.View>
 
-        {/* 배경 (탭하면 닫힘) */}
-        <Animated.View entering={FadeIn} style={{ flex: 1 }}>
-          <Pressable style={s.backdrop} onPress={onClose} />
-        </Animated.View>
-      </View>
+        {/* 배경 (탭하면 닫힘) — 로드맵이 그대로 보이게 투명 */}
+        <Pressable style={s.backdrop} onPress={onClose} />
+      </GestureHandlerRootView>
     </Modal>
   );
 }
 
-const getStyles = (theme: ThemeColors) =>
+const getStyles = (theme: ThemeColors, isDark: boolean) =>
   StyleSheet.create({
     panel: {
-      backgroundColor: theme.bg,
-      paddingBottom: 24,
+      // 라이트일 때 bg/surface 가 둘 다 흰색이라 카드 구분이 안 됨 → 패널을 살짝 톤다운
+      backgroundColor: isDark ? theme.bg : "#F7F5FF",
+      paddingBottom: 4,
       paddingHorizontal: 16,
       borderBottomLeftRadius: 24,
       borderBottomRightRadius: 24,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: isDark ? 0.45 : 0.14,
+      shadowRadius: 20,
+      elevation: 12,
     },
-    row: { gap: 18, paddingVertical: 12, paddingHorizontal: 4 },
+    sectionLabel: {
+      fontSize: 12,
+      fontWeight: "700",
+      letterSpacing: 1.2,
+      color: theme.textSecondary,
+      marginTop: 4,
+      marginHorizontal: 4,
+    },
+    row: { gap: 16, paddingVertical: 12, paddingHorizontal: 4 },
     courseItem: { alignItems: "center", width: 84 },
     iconBox: {
       width: 70,
       height: 68,
-      borderRadius: 15,
-      backgroundColor: theme.surface,
+      borderRadius: 16,
+      backgroundColor: isDark ? theme.surface : "#FFFFFF",
       borderWidth: 2,
       borderColor: theme.border,
       alignItems: "center",
       justifyContent: "center",
     },
-    iconBoxActive: { borderColor: "#1CB0F6", borderWidth: 3 },
+    iconBoxActive: {
+      borderColor: theme.primary,
+      borderWidth: 2.5,
+      backgroundColor: isDark
+        ? "rgba(119,110,226,0.16)"
+        : "rgba(119,110,226,0.10)",
+      shadowColor: theme.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 6,
+    },
     iconBoxAdd: { backgroundColor: "transparent", borderStyle: "dashed" },
     flag: { fontSize: 40 },
     courseLabel: {
@@ -203,23 +282,28 @@ const getStyles = (theme: ThemeColors) =>
       marginTop: 8,
     },
     scoreCard: {
-      borderWidth: 1.5,
-      borderColor: theme.border,
+      backgroundColor: isDark ? theme.surface : "#FFFFFF",
       borderRadius: 16,
       padding: 18,
-      marginTop: 12,
+      marginTop: 16,
       marginHorizontal: 4,
+      borderWidth: isDark ? 0 : 1,
+      borderColor: theme.border,
     },
     scoreBarRow: { flexDirection: "row", alignItems: "center", gap: 12 },
     scoreNum: { fontSize: 20, fontWeight: "900", color: theme.text },
     scoreTrack: {
       flex: 1,
-      height: 18,
-      backgroundColor: theme.border,
-      borderRadius: 9,
+      height: 16,
+      backgroundColor: isDark ? theme.bg : "#E8E4F8",
+      borderRadius: 8,
       overflow: "hidden",
     },
-    scoreFill: { height: "100%", backgroundColor: "#58CC02", borderRadius: 9 },
+    scoreFill: {
+      height: "100%",
+      backgroundColor: theme.primary,
+      borderRadius: 8,
+    },
     scoreText: {
       fontSize: 18,
       fontWeight: "700",
@@ -230,7 +314,7 @@ const getStyles = (theme: ThemeColors) =>
     scoreLink: {
       fontSize: 17,
       fontWeight: "800",
-      color: "#1CB0F6",
+      color: theme.primary,
       textAlign: "center",
       marginTop: 14,
     },
@@ -242,5 +326,17 @@ const getStyles = (theme: ThemeColors) =>
       marginBottom: 4,
       marginHorizontal: 4,
     },
-    backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)" },
+    grabberZone: {
+      alignSelf: "stretch",
+      alignItems: "center",
+      paddingTop: 16,
+      paddingBottom: 16, // 드래그 잡기 쉽게 터치 영역 확보
+    },
+    grabber: {
+      width: 48,
+      height: 5,
+      borderRadius: 3,
+      backgroundColor: isDark ? theme.border : "#C9C2E8",
+    },
+    backdrop: { flex: 1, backgroundColor: "transparent" },
   });

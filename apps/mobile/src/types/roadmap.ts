@@ -51,6 +51,7 @@ export interface NextLockedSection {
 
 export interface UserRoadmapStats {
   language: string;
+  courseCount: number;
   score: number | undefined;
   streak: number | undefined;
   gems: number | undefined;

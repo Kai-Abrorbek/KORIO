@@ -286,6 +286,7 @@ export default function RoadmapScreen() {
 
   const userStats = {
     language: KOR_FLAG,
+    courseCount: (user?.courseExtraCount ?? 0) + 1, // 주 코스 포함 총 코스 수
     score: roadmap.score,
     streak: user?.streak,
     gems: user?.gems,
@@ -358,6 +359,7 @@ export default function RoadmapScreen() {
           gems: user?.gems,
           isSuper: user?.isSuper,
           language: KOR_FLAG,
+          courseCount: (user?.courseExtraCount ?? 0) + 1,
           score: data.score,
           streak: user?.streak,
         },

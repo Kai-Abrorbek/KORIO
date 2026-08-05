@@ -28,7 +28,7 @@ export default function RoadmapHeader({ stats, energy }: Props) {
         activeOpacity={0.7}
       >
         <Text style={styles.flag}>{stats.language}</Text>
-        <Text style={styles.statText}>{stats.score}</Text>
+        <Text style={styles.statText}>{stats.courseCount}</Text>
         <Ionicons
           name="caret-down"
           size={12}
