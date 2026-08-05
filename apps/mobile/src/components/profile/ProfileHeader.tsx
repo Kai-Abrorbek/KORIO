@@ -12,12 +12,14 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
 import { useRouter } from "expo-router";
+import AvatarPreview from "@/components/avatar/AvatarPreview";
+import type { AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
   isSuper: boolean;
+  avatar?: AvatarConfig | null;
   onShare?: () => void;
   onSettings?: () => void;
 }
@@ -25,6 +27,7 @@ interface Props {
 export default function ProfileHeader({
   name,
   isSuper,
+  avatar,
   onShare,
   onSettings,
 }: Props) {
@@ -35,11 +38,11 @@ export default function ProfileHeader({
   const router = useRouter();
 
   useEffect(() => {
-    scale.value = withSpring(1, { damping: 10, stiffness: 160 });
+    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
     bob.value = withRepeat(
       withSequence(
-        withTiming(-4, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
-        withTiming(4, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-1, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
       ),
       -1,
       true,
@@ -83,15 +86,15 @@ export default function ProfileHeader({
           </TouchableOpacity>
         </View>
       </View>
-      {/* 
+
       {isSuper && (
         <View style={styles.superBadge}>
           <Text style={styles.superText}>SUPER</Text>
         </View>
-      )} */}
+      )}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
-        <BoriMascot size={200} />
+        <AvatarPreview avatar={avatar} size={220} />
       </Animated.View>
     </View>
   );

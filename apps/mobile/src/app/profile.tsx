@@ -48,10 +48,11 @@ export default function ProfileScreen() {
       <ProfileHeader
         name={profile.name}
         isSuper={profile.isSuper}
+        avatar={user?.avatar}
         onShare={() => {
           router.push("/follow-link");
         }}
-        onSettings={() => console.log("settings")}
+        onSettings={() => router.push("/settings")}
       />
 
       <ProfileMeta username={profile.name} joinedYear={profile.joinedYear} />
