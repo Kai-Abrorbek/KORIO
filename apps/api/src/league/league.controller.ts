@@ -39,4 +39,14 @@ export class LeagueController {
   async ackRank(@Request() req, @Body() body: { rank: number }) {
     return this.service.ackRank(req.user._id.toString(), body.rank ?? 0);
   }
+
+  @Get('result')
+  async getResult(@Request() req) {
+    return this.service.getPendingResult(req.user._id.toString());
+  }
+
+  @Post('result/ack')
+  async ackResult(@Request() req) {
+    return this.service.clearPendingResult(req.user._id.toString());
+  }
 }

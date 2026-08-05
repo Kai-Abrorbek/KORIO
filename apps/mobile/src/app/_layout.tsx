@@ -149,6 +149,10 @@ export default function RootLayout() {
               name="grammar-list"
               options={{ animation: "slide_from_right" }}
             />
+            <Stack.Screen
+              name="league-result"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
           </Stack>
 
           {/* 전역 에러 처리 모달*/}

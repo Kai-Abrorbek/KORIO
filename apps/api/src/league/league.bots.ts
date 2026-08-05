@@ -1,4 +1,4 @@
-// 리그 봇 유저 (초기 유저 부족 시 방 채움)
+// 리그 봇 유저 (초기 유저 부족 시 방 채움 — 30명 방이라 넉넉히)
 export const BOT_PROFILES = [
   { nickname: 'Aziz', flag: '🇺🇿', base: 40 },
   { nickname: 'Malika', flag: '🇺🇿', base: 65 },
@@ -12,13 +12,40 @@ export const BOT_PROFILES = [
   { nickname: 'Bekzod', flag: '🇺🇿', base: 25 },
   { nickname: 'Emma', flag: '🇺🇸', base: 85 },
   { nickname: 'Shohruh', flag: '🇺🇿', base: 60 },
+  { nickname: 'Dilnoza', flag: '🇺🇿', base: 50 },
+  { nickname: 'Иван', flag: '🇷🇺', base: 110 },
+  { nickname: 'Olivia', flag: '🇺🇸', base: 70 },
+  { nickname: 'Umid', flag: '🇺🇿', base: 35 },
+  { nickname: 'Екатерина', flag: '🇷🇺', base: 95 },
+  { nickname: 'Noah', flag: '🇺🇸', base: 80 },
+  { nickname: 'Gulnora', flag: '🇺🇿', base: 42 },
+  { nickname: 'Сергей', flag: '🇷🇺', base: 130 },
+  { nickname: 'Sophia', flag: '🇺🇸', base: 58 },
+  { nickname: 'Firuz', flag: '🇺🇿', base: 28 },
+  { nickname: 'Мария', flag: '🇷🇺', base: 105 },
+  { nickname: 'Liam', flag: '🇺🇸', base: 92 },
+  { nickname: 'Kamola', flag: '🇺🇿', base: 48 },
+  { nickname: 'Алексей', flag: '🇷🇺', base: 78 },
+  { nickname: 'Ava', flag: '🇺🇸', base: 63 },
+  { nickname: 'Otabek', flag: '🇺🇿', base: 38 },
+  { nickname: 'Наталья', flag: '🇷🇺', base: 115 },
+  { nickname: 'Mason', flag: '🇺🇸', base: 52 },
+  { nickname: 'Zarina', flag: '🇺🇿', base: 68 },
+  { nickname: 'Владимир', flag: '🇷🇺', base: 88 },
+  { nickname: 'Isabella', flag: '🇺🇸', base: 44 },
+  { nickname: 'Doston', flag: '🇺🇿', base: 33 },
 ];
 
 // 티어가 높을수록 봇 XP도 높게 (난이도 상승)
 export const TIER_BOT_MULTIPLIER: Record<string, number> = {
   bronze: 1,
-  silver: 1.6,
-  gold: 2.4,
-  platinum: 3.4,
-  diamond: 4.5,
+  silver: 1.5,
+  gold: 2,
+  sapphire: 2.6,
+  ruby: 3.2,
+  emerald: 3.9,
+  amethyst: 4.6,
+  pearl: 5.4,
+  obsidian: 6.3,
+  diamond: 7.2,
 };

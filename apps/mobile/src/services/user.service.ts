@@ -13,7 +13,17 @@ export interface UserMe {
   totalXP: number;
   streak: number;
   longestStreak: number;
-  league: "bronze" | "silver" | "gold" | "platinum" | "diamond";
+  league:
+    | "bronze"
+    | "silver"
+    | "gold"
+    | "sapphire"
+    | "ruby"
+    | "emerald"
+    | "amethyst"
+    | "pearl"
+    | "obsidian"
+    | "diamond";
   isSuper: boolean;
   streakFreeze: number;
   gems: number;

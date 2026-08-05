@@ -12,6 +12,7 @@ import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
 import { GrammarModule } from './grammer/grammar.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { GrammarModule } from './grammer/grammar.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     OnboardingModule,

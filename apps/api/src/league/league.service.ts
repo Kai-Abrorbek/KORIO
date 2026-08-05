@@ -8,6 +8,7 @@ import {
 } from '../users/schemas/user-stats.schema';
 import { LeagueRoom, LeagueRoomDocument } from './schemas/league-room.schema';
 import { BOT_PROFILES, TIER_BOT_MULTIPLIER } from './league.bots';
+import { Cron } from '@nestjs/schedule';
 
 const MIN_MEMBERS = 8; // 방에 최소 이만큼은 있게 (봇으로 채움)
 
@@ -15,12 +16,33 @@ const TIER_ORDER: UserLeague[] = [
   UserLeague.BRONZE,
   UserLeague.SILVER,
   UserLeague.GOLD,
-  UserLeague.PLATINUM,
+  UserLeague.SAPPHIRE,
+  UserLeague.RUBY,
+  UserLeague.EMERALD,
+  UserLeague.AMETHYST,
+  UserLeague.PEARL,
+  UserLeague.OBSIDIAN,
   UserLeague.DIAMOND,
 ];
-const ROOM_SIZE = 10;
-const PROMOTE_COUNT = 3; // 상위 3명 승급
-const DEMOTE_COUNT = 3; // 하위 3명 강등
+
+// 티어별 승급/강등 인원 + 1·2·3위 젬 상자 (위로 갈수록 승급 빡세게, 보상 큼)
+const TIER_CONFIG: Record<
+  UserLeague,
+  { promote: number; demote: number; chest: [number, number, number] }
+> = {
+  [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10] },
+  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12] },
+  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15] },
+  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18] },
+  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22] },
+  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28] },
+  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35] },
+  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45] },
+  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55] },
+  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80] },
+};
+
+const ROOM_SIZE = 30;
 const CHALLENGE_XP = 210;
 const ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5분 내 활동 = 온라인
 
@@ -31,6 +53,13 @@ export class LeagueService {
     @InjectModel(UserStats.name) private statsModel: Model<UserStatsDocument>,
     @InjectModel(LeagueRoom.name) private roomModel: Model<LeagueRoomDocument>,
   ) {}
+
+  @Cron('0 0 * * 1', { timeZone: 'UTC' })
+  async handleWeeklySettlement() {
+    console.log('🏆 주간 리그 자동 정산 시작...');
+    const result = await this.settleWeek(); // 지난주 방들
+    console.log(`✅ 자동 정산 완료: ${result.settled}개 방`);
+  }
 
   // ISO 주차 키 ("2026-W26")
   getWeekKey(d = new Date()): string {
@@ -163,9 +192,8 @@ export class LeagueService {
       weekKey,
       endsAt: end,
       daysLeft,
-      promoteCount:
-        TIER_ORDER.indexOf(tier) < TIER_ORDER.length - 1 ? PROMOTE_COUNT : 0,
-      demoteCount: TIER_ORDER.indexOf(tier) > 0 ? DEMOTE_COUNT : 0,
+      promoteCount: TIER_CONFIG[tier]?.promote ?? 0,
+      demoteCount: TIER_CONFIG[tier]?.demote ?? 0,
       roomSize: room!.members.length,
       members: ranked,
       myRank: me?.rank ?? 0,
@@ -177,9 +205,13 @@ export class LeagueService {
   // 티어 메타 (프론트 표시용)
   getTiers() {
     return {
-      tiers: TIER_ORDER.map((t, i) => ({ id: t, index: i })),
-      promoteCount: PROMOTE_COUNT,
-      demoteCount: DEMOTE_COUNT,
+      tiers: TIER_ORDER.map((t, i) => ({
+        id: t,
+        index: i,
+        promote: TIER_CONFIG[t].promote,
+        demote: TIER_CONFIG[t].demote,
+        chest: TIER_CONFIG[t].chest,
+      })),
     };
   }
 
@@ -190,31 +222,52 @@ export class LeagueService {
     const rooms = await this.roomModel.find({ weekKey, settled: false });
 
     for (const room of rooms) {
+      const cfg = TIER_CONFIG[room.tier] ?? TIER_CONFIG[UserLeague.BRONZE];
+      const tierIdx = TIER_ORDER.indexOf(room.tier);
       const xpMap = await this.getWeeklyXp(room.members);
       const ranked = [...room.members].sort(
         (a, b) =>
           (xpMap.get(b.toString()) ?? 0) - (xpMap.get(a.toString()) ?? 0),
       );
-      const tierIdx = TIER_ORDER.indexOf(room.tier);
+      const n = ranked.length;
 
-      // 승급
-      if (tierIdx < TIER_ORDER.length - 1) {
-        for (const uid of ranked.slice(0, PROMOTE_COUNT)) {
-          await this.userModel.updateOne(
-            { _id: uid, isBot: { $ne: true } }, // ✅ 봇 제외
-            { league: TIER_ORDER[tierIdx + 1] },
-          );
+      for (let i = 0; i < n; i++) {
+        const uid = ranked[i];
+        const rank = i + 1;
+        const gems = i < 3 ? (cfg.chest[i] ?? 0) : 0;
+
+        let change: 'promote' | 'demote' | 'stay' = 'stay';
+        let toTier = room.tier;
+        if (i < cfg.promote && tierIdx < TIER_ORDER.length - 1) {
+          change = 'promote';
+          toTier = TIER_ORDER[tierIdx + 1];
+        } else if (i >= n - cfg.demote && cfg.demote > 0 && tierIdx > 0) {
+          change = 'demote';
+          toTier = TIER_ORDER[tierIdx - 1];
         }
+
+        const update: any = {
+          $set: {
+            pendingLeagueResult: {
+              weekKey,
+              finalRank: rank,
+              fromTier: room.tier,
+              toTier,
+              change,
+              gems,
+            },
+          },
+        };
+        if (change !== 'stay') update.$set.league = toTier;
+        if (gems > 0) update.$inc = { gems };
+
+        // 봇 제외 (필터로 봇이면 no-op)
+        await this.userModel.updateOne(
+          { _id: uid, isBot: { $ne: true } },
+          update,
+        );
       }
-      // 강등
-      if (tierIdx > 0) {
-        for (const uid of ranked.slice(-DEMOTE_COUNT)) {
-          await this.userModel.updateOne(
-            { _id: uid, isBot: { $ne: true } }, // ✅ 봇 제외
-            { league: TIER_ORDER[tierIdx - 1] },
-          );
-        }
-      }
+
       await this.roomModel.findByIdAndUpdate(room._id, { settled: true });
     }
     return { settled: rooms.length, weekKey };
@@ -350,5 +403,21 @@ export class LeagueService {
       { $set: { previousLeagueRank: rank } },
     );
     return { rank };
+  }
+
+  async getPendingResult(userId: string) {
+    const user = await this.userModel
+      .findById(new Types.ObjectId(userId))
+      .select('pendingLeagueResult')
+      .lean();
+    return user?.pendingLeagueResult ?? null;
+  }
+
+  async clearPendingResult(userId: string) {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { $set: { pendingLeagueResult: null } },
+    );
+    return { ok: true };
   }
 }

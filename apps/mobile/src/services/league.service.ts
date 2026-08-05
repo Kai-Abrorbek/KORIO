@@ -25,6 +25,15 @@ export interface LeagueData {
   members: LeagueMember[];
 }
 
+export interface LeagueResult {
+  weekKey: string;
+  finalRank: number;
+  fromTier: string;
+  toTier: string;
+  change: "promote" | "demote" | "stay";
+  gems: number;
+}
+
 export const LeagueService = {
   getMyLeague: (): Promise<LeagueData> => api.get(`/league/me`),
 
@@ -35,4 +44,9 @@ export const LeagueService = {
 
   ackRank: (rank: number): Promise<{ rank: number }> =>
     api.post(`/league/ack-rank`, { rank }),
+
+  getLeagueResult: (): Promise<LeagueResult | null> =>
+    api.get(`/league/result`),
+
+  ackLeagueResult: (): Promise<any> => api.post(`/league/result/ack`, {}),
 };

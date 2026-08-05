@@ -163,6 +163,17 @@ export default function LeagueScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+  const [checkedResult, setCheckedResult] = useState(false);
+
+  useEffect(() => {
+    if (checkedResult) return;
+    setCheckedResult(true);
+    LeagueService.getLeagueResult()
+      .then((r) => {
+        if (r) router.push("/league-result");
+      })
+      .catch(() => {});
+  }, [checkedResult]);
 
   // ✅ pulse 는 여기 한 번만
   const pulse = useSharedValue(1);
@@ -324,28 +335,73 @@ export default function LeagueScreen() {
       >
         {/* 리더보드 */}
         <View style={s.board}>
-          {data.members.map((m) => (
-            <AnimatedPressable
-              key={m.id}
-              onPress={() =>
-                !m.isMe && router.push(`/friend-profile?id=${m.id}`)
-              }
-              style={[s.row, m.isMe && s.rowMe, m.isMe && meRowStyle]}
-            >
-              <RankBadge rank={m.rank} isMe={m.isMe} theme={theme} />
-              <Avatar member={m} size={52} />
-              <View style={s.info}>
-                <Text style={[s.name, m.isMe && s.nameMe]} numberOfLines={1}>
-                  {m.nickname}
-                </Text>
-                <View style={s.subRow}>
-                  {!!m.flag && <Text style={s.flag}>{m.flag}</Text>}
-                  {m.streak != null && <Text style={s.streak}>{m.streak}</Text>}
-                </View>
+          {data.members.map((m) => {
+            const inPromote = promoteLine > 0 && m.rank <= promoteLine;
+            const inDemote = data.demoteCount > 0 && m.rank > demoteLine;
+            return (
+              <View key={m.id}>
+                <Animated.View
+                  style={[
+                    s.row,
+                    inPromote && s.rowPromote,
+                    inDemote && s.rowDemote,
+                    m.isMe && s.rowMe,
+                    m.isMe && meRowStyle,
+                  ]}
+                >
+                  <RankBadge rank={m.rank} isMe={m.isMe} theme={theme} />
+                  <Avatar member={m} size={52} />
+                  <View style={s.info}>
+                    <Text
+                      style={[s.name, m.isMe && s.nameMe]}
+                      numberOfLines={1}
+                    >
+                      {m.nickname}
+                    </Text>
+                    <View style={s.subRow}>
+                      {!!m.flag && <Text style={s.flag}>{m.flag}</Text>}
+                      {m.streak != null && (
+                        <Text style={s.streak}>{m.streak}</Text>
+                      )}
+                    </View>
+                  </View>
+                  <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
+                </Animated.View>
+
+                {/* 승급존 경계선 */}
+                {promoteLine > 0 && m.rank === promoteLine && (
+                  <View style={s.zoneDivider}>
+                    <View
+                      style={[s.zoneLine, { backgroundColor: "#58CC02" }]}
+                    />
+                    <View style={[s.zoneChip, { backgroundColor: "#58CC02" }]}>
+                      <Ionicons name="chevron-up" size={13} color="#fff" />
+                      <Text style={s.zoneText}>{t("league.promoteZone")}</Text>
+                    </View>
+                    <View
+                      style={[s.zoneLine, { backgroundColor: "#58CC02" }]}
+                    />
+                  </View>
+                )}
+
+                {/* 강등존 경계선 */}
+                {data.demoteCount > 0 && m.rank === demoteLine && (
+                  <View style={s.zoneDivider}>
+                    <View
+                      style={[s.zoneLine, { backgroundColor: "#FF4B4B" }]}
+                    />
+                    <View style={[s.zoneChip, { backgroundColor: "#FF4B4B" }]}>
+                      <Ionicons name="chevron-down" size={13} color="#fff" />
+                      <Text style={s.zoneText}>{t("league.demoteZone")}</Text>
+                    </View>
+                    <View
+                      style={[s.zoneLine, { backgroundColor: "#FF4B4B" }]}
+                    />
+                  </View>
+                )}
               </View>
-              <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
-            </AnimatedPressable>
-          ))}
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -479,6 +535,29 @@ const styles = (theme: ThemeColors) =>
       gap: 14,
       backgroundColor: "transparent", // ✅ 보더/배경 없음
     },
+    rowPromote: { backgroundColor: "rgba(88,204,2,0.10)" },
+    rowDemote: { backgroundColor: "rgba(255,75,75,0.10)" },
+    zoneDivider: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginVertical: 8,
+    },
+    zoneLine: { flex: 1, height: 3, borderRadius: 99 },
+    zoneChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+      paddingVertical: 4,
+      paddingHorizontal: 11,
+      borderRadius: 99,
+    },
+    zoneText: {
+      color: "#fff",
+      fontSize: 12,
+      fontWeight: "800",
+      letterSpacing: 0.3,
+    },
     rowMe: {
       borderRadius: 10,
       backgroundColor: "#D7F5B1", // ✅ 사진의 연초록 (풀블리드)
@@ -510,6 +589,4 @@ const styles = (theme: ThemeColors) =>
       paddingHorizontal: 16,
       marginVertical: 10,
     },
-    zoneLine: { flex: 1, height: 2, borderRadius: 1 },
-    zoneText: { fontSize: 12, fontWeight: "800" },
   });

@@ -13,7 +13,12 @@ export enum UserLeague {
   BRONZE = 'bronze',
   SILVER = 'silver',
   GOLD = 'gold',
-  PLATINUM = 'platinum',
+  SAPPHIRE = 'sapphire',
+  RUBY = 'ruby',
+  EMERALD = 'emerald',
+  AMETHYST = 'amethyst',
+  PEARL = 'pearl',
+  OBSIDIAN = 'obsidian',
   DIAMOND = 'diamond',
 }
 
@@ -145,6 +150,16 @@ export class User {
 
   @Prop({ default: 0 })
   previousLeagueRank: number;
+
+  @Prop({ type: Object, default: null })
+  pendingLeagueResult: {
+    weekKey: string;
+    finalRank: number;
+    fromTier: string;
+    toTier: string;
+    change: string; // 'promote' | 'demote' | 'stay'
+    gems: number;
+  } | null;
 
   @Prop({ default: false })
   isBot: boolean; // 리그 봇 유저
