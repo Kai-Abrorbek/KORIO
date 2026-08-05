@@ -71,9 +71,21 @@ export const UserService = {
     hangulCompletedAt: string;
   }> => api.post(`/users/me/hangul-complete`, {}),
 
-  /** 레벨 테스트를 건너뛰는 완전 초보자용 온보딩 마감 */
-  completeOnboardingAsBeginner: (): Promise<{ success: boolean }> =>
-    api.post(`/users/me/onboarding-complete`, {}),
+  /**
+   * 설문 결과를 유저 문서에 반영.
+   * saveSurvey 는 onboarding 컬렉션에만 쓰고 유저로는 가입 때만 복사돼서,
+   * 로그인 후 설문을 보는 경로에서는 이걸 따로 불러줘야 한다.
+   */
+  syncOnboardingSurvey: (data: {
+    hangulLevel?: string;
+    selfReportedLevel?: string;
+    dailyGoalMinutes?: number;
+    targetLanguage?: string;
+    interests?: string[];
+    reminderHour?: number;
+    completeNow?: boolean;
+  }): Promise<{ success: boolean }> =>
+    api.post(`/users/me/onboarding-survey`, data),
 
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 

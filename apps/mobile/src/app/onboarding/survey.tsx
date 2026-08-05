@@ -421,14 +421,27 @@ export default function SurveyScreen() {
       setSubmitting(false);
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    if (selfLevel === SelfReportedLevel.COMPLETE_BEGINNER) {
-      // 완전초보는 레벨 테스트를 건너뛴다. 한글 화면으로 튕기지 않고 홈으로 보내서
-      // 로드맵을 먼저 보게 하고, 거기 첫 노드가 "한글 배우기" 로 열려 있다.
-      try {
-        await UserService.completeOnboardingAsBeginner();
-      } catch {
-        // 실패해도 진행 — 다음 getMe 때 재동기화
-      }
+    const isBeginner = selfLevel === SelfReportedLevel.COMPLETE_BEGINNER;
+
+    // 설문은 onboarding 컬렉션에만 저장돼서 유저 문서엔 안 남는다.
+    // 로드맵이 hangulLevel 을 보고 한글 노드를 띄우므로 여기서 직접 반영.
+    try {
+      await UserService.syncOnboardingSurvey({
+        hangulLevel: hangul!,
+        selfReportedLevel: selfLevel!,
+        dailyGoalMinutes: minutes!,
+        targetLanguage: "korean",
+        interests,
+        reminderHour: reminderEnabled ? REMINDER_HOURS[reminder!] : undefined,
+        // 완전초보는 레벨 테스트를 건너뛰므로 온보딩을 여기서 마감
+        completeNow: isBeginner,
+      });
+    } catch {
+      // 실패해도 진행 — 다음 getMe 때 재동기화
+    }
+
+    if (isBeginner) {
+      // 한글 화면으로 튕기지 않고 홈으로. 로드맵 첫 노드가 "한글 배우기" 로 열려 있다.
       router.replace("/(tabs)");
     } else {
       router.push({ pathname: "/lesson", params: { mode: "levelTest" } });

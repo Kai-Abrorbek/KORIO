@@ -45,11 +45,9 @@ export class UsersController {
     return this.usersService.completeHangul(req.user._id.toString());
   }
 
-  @Post('me/onboarding-complete')
-  async completeOnboarding(@Request() req) {
-    return this.usersService.completeOnboardingAsBeginner(
-      req.user._id.toString(),
-    );
+  @Post('me/onboarding-survey')
+  async syncOnboardingSurvey(@Request() req, @Body() dto: any) {
+    return this.usersService.syncOnboardingSurvey(req.user._id.toString(), dto);
   }
 
   @Get('me/following')

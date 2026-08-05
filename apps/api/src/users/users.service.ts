@@ -12,6 +12,8 @@ import {
   UserProgressDocument,
 } from './schemas/user-progress.schema';
 import { calculateLevel, UserLevel } from '../common/enums/level.enum';
+import { HangulLevel } from '../common/enums/hangul-level.enum';
+import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { localKey } from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
@@ -44,16 +46,48 @@ export class UsersService {
   ) {}
 
   /**
-   * 레벨 테스트를 건너뛰는 완전 초보자용 온보딩 마감.
-   * 이걸 안 해주면 isOnboardingCompleted 가 false 로 남아서
+   * 설문 결과를 유저 문서에 반영한다.
+   *
+   * saveSurvey 는 sessionId 기준으로 onboarding 컬렉션에만 쓰고,
+   * 그게 유저로 복사되는 건 "가입" 시점뿐이다. 그런데 로그인 후에 설문을 보는
+   * 경로(login/register → survey)에서는 그 복사가 이미 지나간 뒤라
+   * hangulLevel 같은 값이 유저에 영영 안 남는다. 그래서 여기서 직접 반영한다.
+   *
+   * completeNow=true 면 레벨 테스트를 건너뛰는 완전 초보자라
+   * 온보딩까지 마감한다. 안 그러면 isOnboardingCompleted 가 false 로 남아
    * 앱을 다시 켤 때마다 온보딩으로 되돌아간다.
    */
-  async completeOnboardingAsBeginner(userId: string) {
-    await this.userModel.findByIdAndUpdate(new Types.ObjectId(userId), {
-      level: UserLevel.BEGINNER,
-      placementLevel: 1,
-      isOnboardingCompleted: true,
-    });
+  async syncOnboardingSurvey(
+    userId: string,
+    dto: {
+      hangulLevel?: HangulLevel;
+      selfReportedLevel?: SelfReportedLevel;
+      dailyGoalMinutes?: number;
+      targetLanguage?: string;
+      interests?: string[];
+      reminderHour?: number;
+      completeNow?: boolean;
+    },
+  ) {
+    const update: Record<string, any> = {};
+    if (dto.hangulLevel) update.hangulLevel = dto.hangulLevel;
+    if (dto.selfReportedLevel) update.selfReportedLevel = dto.selfReportedLevel;
+    if (dto.dailyGoalMinutes) update.dailyGoalMinutes = dto.dailyGoalMinutes;
+    if (dto.targetLanguage) update.targetLanguage = dto.targetLanguage;
+    if (dto.interests?.length) update.interests = dto.interests;
+    if (dto.reminderHour !== undefined) update.reminderHour = dto.reminderHour;
+
+    if (dto.completeNow) {
+      update.level = UserLevel.BEGINNER;
+      update.placementLevel = 1;
+      update.isOnboardingCompleted = true;
+    }
+
+    await this.userModel.findByIdAndUpdate(
+      new Types.ObjectId(userId),
+      update,
+      {},
+    );
     return { success: true };
   }
 
