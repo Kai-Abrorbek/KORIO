@@ -5,7 +5,15 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { useEffect, useState } from "react";
 import Svg, { Path } from "react-native-svg";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+} from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -19,6 +27,79 @@ export interface ScoreMilestone {
   status?: "completed" | "current" | "locked";
   startScore?: number; // 섹션 시작 시점 누적 유닛 수
   units?: number; // 그 섹션의 유닛 수
+}
+
+/** 현재 학습 중인 섹션 노드 — 레일이 도달할 즈음 한 번 톡 하고 커짐 */
+function CurrentNodePulse({
+  delay,
+  children,
+  style,
+}: {
+  delay: number;
+  children: React.ReactNode;
+  style: any;
+}) {
+  const sc = useSharedValue(1);
+
+  useEffect(() => {
+    sc.value = withDelay(
+      delay,
+      withTiming(1.12, { duration: 260, easing: Easing.out(Easing.quad) }),
+    );
+  }, [delay]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: sc.value }],
+  }));
+
+  return <Animated.View style={[style, animStyle]}>{children}</Animated.View>;
+}
+
+/** 섹션을 잇는 레일. 열릴 때 0 → 실제 진행률까지 차오름 (위에서 아래로 순차) */
+function AnimatedRail({
+  ratio,
+  color,
+  trackStyle,
+  fillStyle,
+  delay,
+}: {
+  ratio: number;
+  color: string;
+  trackStyle: any;
+  fillStyle: any;
+  delay: number;
+}) {
+  // 퍼센트 높이는 부모가 flex 로 잡히면 계산이 안 돼서 안 그려진다.
+  // 실제 트랙 높이를 재서 픽셀로 애니메이션.
+  const [trackH, setTrackH] = useState(0);
+  const h = useSharedValue(0);
+
+  useEffect(() => {
+    if (!trackH) return;
+    h.value = 0;
+    h.value = withDelay(
+      delay,
+      withTiming(ratio * trackH, {
+        duration: 900,
+        easing: Easing.out(Easing.cubic),
+      }),
+    );
+  }, [ratio, delay, trackH]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    height: h.value,
+  }));
+
+  return (
+    <View
+      style={trackStyle}
+      onLayout={(e) => setTrackH(e.nativeEvent.layout.height)}
+    >
+      <Animated.View
+        style={[fillStyle, { backgroundColor: color }, animStyle]}
+      />
+    </View>
+  );
 }
 
 interface Props {
@@ -117,32 +198,32 @@ export default function ScoreDetailScreen({
             <View key={`${m.score}-${i}`} style={s.row}>
               {/* 왼쪽 레일 */}
               <View style={s.railCol}>
-                <View
-                  style={[
-                    s.node,
-                    active && { backgroundColor: ACCENT },
-                    current && s.nodeCurrent,
-                  ]}
-                >
-                  <Ionicons
-                    name={m.icon}
-                    size={26}
-                    color={active ? "#fff" : theme.textSecondary}
-                  />
-                </View>
-
-                {!isLast && (
-                  <View style={s.rail}>
-                    <View
-                      style={[
-                        s.railFill,
-                        {
-                          height: `${ratio * 100}%`,
-                          backgroundColor: ACCENT,
-                        },
-                      ]}
+                {current ? (
+                  // 앞 레일이 다 차오른 뒤에 톡 하고 켜짐
+                  <CurrentNodePulse
+                    delay={180 + Math.max(0, i - 1) * 260 + 700}
+                    style={[s.node, s.nodeCurrent, { backgroundColor: ACCENT }]}
+                  >
+                    <Ionicons name={m.icon} size={26} color="#fff" />
+                  </CurrentNodePulse>
+                ) : (
+                  <View style={[s.node, active && { backgroundColor: ACCENT }]}>
+                    <Ionicons
+                      name={m.icon}
+                      size={26}
+                      color={active ? "#fff" : theme.textSecondary}
                     />
                   </View>
+                )}
+
+                {!isLast && (
+                  <AnimatedRail
+                    ratio={ratio}
+                    color={ACCENT}
+                    trackStyle={s.rail}
+                    fillStyle={s.railFill}
+                    delay={180 + i * 260}
+                  />
                 )}
               </View>
 
@@ -240,13 +321,13 @@ const getStyles = (theme: ThemeColors, accent: string) =>
       marginTop: -1,
     },
 
-    body: { flex: 1, paddingHorizontal: 20 },
+    body: { flex: 1, paddingHorizontal: 20, paddingVertical: 20 },
 
     row: { flexDirection: "row", gap: 16 },
     railCol: { width: 56, alignItems: "center" },
     node: {
-      width: 56,
-      height: 56,
+      width: 46,
+      height: 46,
       borderRadius: 28,
       backgroundColor: theme.border,
       alignItems: "center",
@@ -260,10 +341,9 @@ const getStyles = (theme: ThemeColors, accent: string) =>
       shadowOpacity: 0.25,
       shadowRadius: 10,
       elevation: 8,
-      transform: [{ scale: 1.08 }],
     },
     rail: {
-      width: 10,
+      width: 14,
       flex: 1,
       minHeight: 64,
       borderRadius: 5,
