@@ -15,6 +15,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import type { AvatarConfig } from "@/types/avatar";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   name: string;
@@ -36,9 +37,10 @@ export default function ProfileHeader({
   const bob = useSharedValue(0);
   const scale = useSharedValue(0.7);
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
+    scale.value = withSpring(1, { damping: 1, stiffness: 160 });
     bob.value = withRepeat(
       withSequence(
         withTiming(-1, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
@@ -94,7 +96,21 @@ export default function ProfileHeader({
       )}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
-        <AvatarPreview avatar={avatar} size={220} />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t("avatarEditor.open")}
+          activeOpacity={0.9}
+          style={styles.avatarButton}
+          onPress={() => router.push("/avatar-editor")}
+        >
+          <AvatarPreview avatar={avatar} size={220} />
+
+          <View style={styles.editBadgeDepth} />
+
+          <View style={styles.editBadge}>
+            <Ionicons name="pencil" size={18} color="#FFFFFF" />
+          </View>
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );
@@ -158,5 +174,40 @@ const getStyles = (theme: ThemeColors) =>
     avatarWrap: {
       alignItems: "center",
       marginTop: 20,
+    },
+    avatarButton: {
+      position: "relative",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editBadgeDepth: {
+      position: "absolute",
+      right: 18,
+      bottom: 17,
+      width: 45,
+      height: 45,
+      borderRadius: 16,
+      backgroundColor: "#554CB5",
+    },
+    editBadge: {
+      position: "absolute",
+      right: 18,
+      bottom: 22,
+      width: 45,
+      height: 45,
+      borderRadius: 16,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.primary,
+      borderWidth: 2,
+      borderColor: "#FFFFFF",
+      shadowColor: "#000000",
+      shadowOffset: {
+        width: 0,
+        height: 5,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 7,
+      elevation: 7,
     },
   });

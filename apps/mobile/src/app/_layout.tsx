@@ -153,6 +153,13 @@ export default function RootLayout() {
               name="league-result"
               options={{ animation: "fade", gestureEnabled: false }}
             />
+            <Stack.Screen
+              name="avatar-editor"
+              options={{
+                animation: "slide_from_bottom",
+                gestureEnabled: false,
+              }}
+            />
           </Stack>
 
           {/* 전역 에러 처리 모달*/}

@@ -1,6 +1,18 @@
-import { AvatarCategory, AvatarOption } from "@/types/avatar";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  AVATAR_IDS,
+  type AvatarField,
+  type AvatarOption,
+} from "@/types/avatar";
 
-const free = (id: string, swatch?: string): AvatarOption => ({
+export interface AvatarCategory {
+  id: AvatarField;
+  icon: keyof typeof Ionicons.glyphMap;
+  preview: "full" | "head";
+  options: readonly AvatarOption[];
+}
+
+const free = (id: AvatarOption["id"], swatch?: string): AvatarOption => ({
   id,
   swatch,
   unlock: {
@@ -12,139 +24,121 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
   {
     id: "skinTone",
     icon: "color-palette-outline",
-    options: [
-      free("skin_01", "#6F3D2D"),
-      free("skin_02", "#7F4935"),
-      free("skin_03", "#935638"),
-      free("skin_04", "#A96845"),
-      free("skin_05", "#BE7C54"),
-      free("skin_06", "#CF8F65"),
-      free("skin_07", "#DFA27A"),
-      free("skin_08", "#ECB58F"),
-      free("skin_09", "#F4C8A7"),
-      free("skin_10", "#F9DCC7"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.skinTone.map((id, index) =>
+      free(
+        id,
+        [
+          "#5B3226",
+          "#71402E",
+          "#875039",
+          "#9D6245",
+          "#B87956",
+          "#CC906B",
+          "#DDA17D",
+          "#EAB692",
+          "#F3C8A9",
+          "#F8DCC7",
+        ][index],
+      ),
+    ),
   },
   {
     id: "bodyShape",
     icon: "body-outline",
-    options: [
-      free("body_balanced"),
-      free("body_slim"),
-      free("body_soft"),
-      free("body_broad"),
-    ],
+    preview: "full",
+    options: AVATAR_IDS.bodyShape.map((id) => free(id)),
   },
   {
     id: "expression",
     icon: "happy-outline",
-    options: [
-      free("expression_calm"),
-      free("expression_smile"),
-      free("expression_proud"),
-      free("expression_curious"),
-      free("expression_playful"),
-      free("expression_focused"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.expression.map((id) => free(id)),
   },
   {
     id: "eyeColor",
     icon: "eye-outline",
-    options: [
-      free("eyes_charcoal", "#30343B"),
-      free("eyes_brown", "#6E3D24"),
-      free("eyes_hazel", "#96761B"),
-      free("eyes_green", "#3D8C38"),
-      free("eyes_teal", "#168E92"),
-      free("eyes_blue", "#247CC5"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.eyeColor.map((id, index) =>
+      free(
+        id,
+        ["#25252B", "#6D3F2A", "#987426", "#3D853D", "#168A90", "#2C73BE"][
+          index
+        ],
+      ),
+    ),
   },
   {
     id: "hairstyle",
     icon: "cut-outline",
-    options: [
-      free("hair_none"),
-      free("hair_crop"),
-      free("hair_wave"),
-      free("hair_bob"),
-      free("hair_curls"),
-      free("hair_topknot"),
-      free("hair_pony"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.hairstyle.map((id) => free(id)),
   },
   {
     id: "hairColor",
     icon: "brush-outline",
-    options: [
-      free("haircolor_charcoal", "#303033"),
-      free("haircolor_espresso", "#4A2D25"),
-      free("haircolor_chestnut", "#713E2B"),
-      free("haircolor_copper", "#A54F2A"),
-      free("haircolor_burgundy", "#7D2E38"),
-      free("haircolor_silver", "#96949B"),
-      free("haircolor_blonde", "#D99C33"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.hairColor.map((id, index) =>
+      free(
+        id,
+        [
+          "#24242B",
+          "#3D2825",
+          "#683C2C",
+          "#A2512E",
+          "#712F3E",
+          "#95949C",
+          "#D49B39",
+        ][index],
+      ),
+    ),
   },
   {
     id: "eyewear",
     icon: "glasses-outline",
-    options: [
-      free("eyewear_none"),
-      free("eyewear_round"),
-      free("eyewear_square"),
-      free("eyewear_sun"),
-      free("eyewear_half"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.eyewear.map((id) => free(id)),
   },
   {
     id: "facialHair",
     icon: "cloud-outline",
-    options: [
-      free("facial_none"),
-      free("facial_stubble"),
-      free("facial_mustache"),
-      free("facial_beard"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.facialHair.map((id) => free(id)),
   },
   {
     id: "headwear",
     icon: "baseball-outline",
-    options: [
-      free("headwear_none"),
-      free("headwear_cap"),
-      free("headwear_beanie"),
-      free("headwear_headband"),
-      free("headwear_bucket"),
-    ],
+    preview: "head",
+    options: AVATAR_IDS.headwear.map((id) => free(id)),
   },
   {
     id: "outfit",
     icon: "shirt-outline",
-    options: [
-      free("outfit_hoodie"),
-      free("outfit_varsity"),
-      free("outfit_sweater"),
-      free("outfit_sport"),
-      free("outfit_hanbok"),
-      free("outfit_denim"),
-    ],
+    preview: "full",
+    options: AVATAR_IDS.outfit.map((id) => free(id)),
   },
   {
     id: "background",
     icon: "image-outline",
-    options: [
-      free("background_cloud", "#EEF0F4"),
-      free("background_lilac", "#DDB8FF"),
-      free("background_sky", "#B7E4FF"),
-      free("background_mint", "#BDF4DF"),
-      free("background_lime", "#D9F4A5"),
-      free("background_sand", "#F5E4B7"),
-      free("background_peach", "#FFD0B7"),
-      free("background_coral", "#FFB5B5"),
-      free("background_navy", "#2E4E83"),
-      free("background_plum", "#6C4A83"),
-      free("background_sunset", "#F4A75A"),
-      free("background_aurora", "#7EDAC8"),
-    ],
+    preview: "full",
+    options: AVATAR_IDS.background.map((id, index) =>
+      free(
+        id,
+        [
+          "#E7EAF0",
+          "#C9BEFF",
+          "#B8E4FF",
+          "#B9EDD9",
+          "#D8F2A7",
+          "#F0D9A7",
+          "#F6C5AA",
+          "#F5ADAF",
+          "#385783",
+          "#644879",
+          "#EE9C60",
+          "#72CFC5",
+        ][index],
+      ),
+    ),
   },
 ] as const;
