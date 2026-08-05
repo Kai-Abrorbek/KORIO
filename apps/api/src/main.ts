@@ -1,3 +1,4 @@
+import './config/timezone'; // 반드시 최상단: 서버 타임존 KST 고정
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';

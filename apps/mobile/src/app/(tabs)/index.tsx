@@ -28,8 +28,6 @@ import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
 import { useSettingsStore } from "@/store/settings.store";
 
-const today = new Date().getDay();
-const todayIndex = today === 0 ? 6 : today - 1;
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
   { key: "vocab", color: "#776ee2" },
@@ -123,7 +121,11 @@ export default function HomeScreen() {
     return (d.totalQuestions ?? 0) > 0 || (d.xpEarned ?? 0) > 0;
   };
 
-  const DAYS = t("home.days", { returnObjects: true }) as string[];
+  const DAYS = t("home.days", { returnObjects: true }) as string[]; // 월~일
+  const dayLabel = (dateStr: string) => {
+    const js = new Date(dateStr).getDay(); // 0=일 .. 6=토
+    return DAYS[(js + 6) % 7]; // 월=0 시작 배열로 매핑
+  };
 
   const quickAccess = [
     { icon: "basket-outline", label: t("home.shop"), color: "#776ee2" },
@@ -182,12 +184,11 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.daysRow}>
-              {DAYS.map((day, i) => {
+              {weekly.map((d, i) => {
                 const studied = studiedDay(i);
-                const isToday = i === todayIndex;
-                const isFuture = i > todayIndex;
+                const isToday = i === weekly.length - 1; // 오른쪽 끝 = 오늘
                 return (
-                  <View key={day} style={styles.dayItem}>
+                  <View key={d.date} style={styles.dayItem}>
                     <View
                       style={[
                         styles.dayCircle,
@@ -204,7 +205,7 @@ export default function HomeScreen() {
                     <Text
                       style={[styles.dayLabel, isToday && styles.dayLabelToday]}
                     >
-                      {day}
+                      {dayLabel(d.date)}
                     </Text>
                   </View>
                 );
@@ -355,16 +356,15 @@ export default function HomeScreen() {
 
           {/* 요일별 누적 막대 */}
           <View style={styles.chartRow}>
-            {DAYS.map((day, i) => {
-              const d = weekly[i];
+            {weekly.map((d, i) => {
               const segments = CATEGORIES.map((c) => ({
                 color: c.color,
                 value: d?.categories?.[c.key] ?? 0,
               })).filter((seg) => seg.value > 0);
-              const isToday = i === todayIndex;
+              const isToday = i === weekly.length - 1;
 
               return (
-                <View key={day} style={styles.chartItem}>
+                <View key={d.date} style={styles.chartItem}>
                   <View style={styles.chartBarWrap}>
                     {segments.length > 0 ? (
                       segments.map((seg, si) => (
@@ -391,7 +391,7 @@ export default function HomeScreen() {
                       isToday && styles.chartLabelToday,
                     ]}
                   >
-                    {isToday ? t("home.today") : day}
+                    {isToday ? t("home.today") : dayLabel(d.date)}
                   </Text>
                 </View>
               );

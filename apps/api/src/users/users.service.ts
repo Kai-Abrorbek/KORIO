@@ -638,13 +638,19 @@ export class UsersService {
       categories: CategoryCounts;
     }> = [];
 
+    // 로컬(KST) 기준 YYYY-MM-DD 키 — toISOString(UTC)은 자정이 전날로 밀리므로 쓰지 않는다
+    const localKey = (dt: Date) => {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
-      const dayKey = d.toISOString().split('T')[0];
-      const stat = stats.find(
-        (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
-      );
+      const dayKey = localKey(d);
+      const stat = stats.find((s) => localKey(new Date(s.date)) === dayKey);
       result.push({
         date: dayKey,
         studyTimeSeconds: stat?.studyTimeSeconds || 0,
