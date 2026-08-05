@@ -3,11 +3,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { useEffect } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { UserService } from "@/services/user.service";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const ping = () => UserService.touchActive().catch(() => {});
@@ -24,9 +26,9 @@ export default function TabsLayout() {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
           borderTopWidth: 1,
-          paddingBottom: 4,
-          paddingTop: 4,
-          height: 100,
+          paddingTop: 8,
+          paddingBottom: insets.bottom,
+          height: 60 + insets.bottom,
           position: "absolute",
           bottom: 0,
         },
