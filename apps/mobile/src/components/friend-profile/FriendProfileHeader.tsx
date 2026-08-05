@@ -12,15 +12,17 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
 import SuperBadge from "@/components/ui/SuperBadge";
 import { League } from "@/types/profile";
 import { LEAGUE_HERO_COLORS } from "@/mocks/friend-profile.mock";
+import AvatarPreview from "@/components/avatar/AvatarPreview";
+import type { AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
   league: League;
   isSuper: boolean;
+  avatar?: Partial<AvatarConfig> | null;
   onBack?: () => void;
   onShare?: () => void;
 }
@@ -29,6 +31,7 @@ export default function FriendProfileHeader({
   name,
   league,
   isSuper,
+  avatar,
   onBack,
   onShare,
 }: Props) {
@@ -77,7 +80,7 @@ export default function FriendProfileHeader({
       )}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
-        <BoriMascot size={170} />
+        <AvatarPreview avatar={avatar} size={190} />
       </Animated.View>
     </View>
   );

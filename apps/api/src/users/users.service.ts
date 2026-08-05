@@ -25,7 +25,12 @@ import {
   toCounts,
 } from './utils/study-category.util';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
-import { DEFAULT_AVATAR_CONFIG } from './avatar/avatar.constants';
+import { AvatarConfig } from './schemas/avatar.schema';
+import {
+  AVATAR_VERSION,
+  DEFAULT_AVATAR_CONFIG,
+  type AvatarConfigValue,
+} from './avatar/avatar.constants';
 
 @Injectable()
 export class UsersService {
@@ -240,6 +245,16 @@ export class UsersService {
     };
   }
 
+  private normalizeAvatar(
+    avatar?: Partial<AvatarConfigValue> | null,
+  ): AvatarConfigValue {
+    return {
+      ...DEFAULT_AVATAR_CONFIG,
+      ...(avatar ?? {}),
+      version: AVATAR_VERSION,
+    } as AvatarConfigValue;
+  }
+
   async getSuggestions(currentUserId: string, limit = 20) {
     const meId = new Types.ObjectId(currentUserId);
     const me = await this.userModel
@@ -254,9 +269,11 @@ export class UsersService {
       nickname: string;
       username: string;
       profileImage: string;
+      avatar: AvatarConfigValue;
       reason?: string;
       reasonUserId?: string;
     }> = [];
+
     const added = new Set<string>();
 
     // 1) 친구의 팔로잉 기반 (내가 팔로우하는 사람들이 팔로우하는 유저)
@@ -296,7 +313,7 @@ export class UsersService {
       const randoms = await this.userModel.aggregate([
         { $match: { _id: { $nin: exclude } } },
         { $sample: { size: need } },
-        { $project: { nickname: 1, username: 1, profileImage: 1 } },
+        { $project: { nickname: 1, username: 1, profileImage: 1, avatar: 1 } },
       ]);
       randoms.forEach((u) => {
         suggestions.push({
@@ -304,6 +321,9 @@ export class UsersService {
           nickname: u.nickname,
           username: u.username || '',
           profileImage: u.profileImage || '',
+          avatar: this.normalizeAvatar(
+            u.avatar as Partial<AvatarConfigValue> | null,
+          ),
           // reason 없음 (무관한 추천)
         });
       });
@@ -315,9 +335,14 @@ export class UsersService {
       .map((s) => new Types.ObjectId(s.id));
     if (needInfo.length > 0) {
       const infos = await this.userModel
-        .find({ _id: { $in: needInfo } })
-        .select('nickname username profileImage')
+        .find({
+          _id: {
+            $in: needInfo,
+          },
+        })
+        .select('nickname username profileImage avatar')
         .lean();
+
       const infoMap = new Map(infos.map((u) => [u._id.toString(), u]));
       suggestions.forEach((s) => {
         if (!s.nickname) {
@@ -326,6 +351,9 @@ export class UsersService {
             s.nickname = info.nickname;
             s.username = info.username || '';
             s.profileImage = info.profileImage || '';
+            s.avatar = this.normalizeAvatar(
+              info.avatar as Partial<AvatarConfigValue> | null,
+            );
           }
         }
       });
@@ -379,7 +407,7 @@ export class UsersService {
           },
         },
         {
-          new: true,
+          returnDocument: 'after',
           runValidators: true,
         },
       )
@@ -462,14 +490,22 @@ export class UsersService {
       .populate({
         path: 'following',
         select:
-          'nickname username profileImage streak totalXP league targetLanguage level',
+          'nickname username profileImage avatar streak totalXP league targetLanguage level',
       })
       .lean();
-    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
-    return this.decorateRelations(
-      (user.following as any[]) || [],
-      currentUserId,
-    );
+
+    if (!user) {
+      throw new NotFoundException('유저를 찾을 수 없습니다');
+    }
+
+    const following = ((user.following as any[]) || []).map((friend) => ({
+      ...friend,
+      avatar: friend.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
+    }));
+
+    return this.decorateRelations(following, currentUserId);
   }
 
   /** 팔로워 목록 (targetUserId를 팔로우하는 사람들 + 나와의 관계) */
@@ -479,14 +515,22 @@ export class UsersService {
       .populate({
         path: 'followers',
         select:
-          'nickname username profileImage streak totalXP league targetLanguage level',
+          'nickname username profileImage avatar streak totalXP league targetLanguage level',
       })
       .lean();
-    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
-    return this.decorateRelations(
-      (user.followers as any[]) || [],
-      currentUserId,
-    );
+
+    if (!user) {
+      throw new NotFoundException('유저를 찾을 수 없습니다');
+    }
+
+    const followers = ((user.followers as any[]) || []).map((friend) => ({
+      ...friend,
+      avatar: friend.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
+    }));
+
+    return this.decorateRelations(followers, currentUserId);
   }
 
   private getMonthLabel(date: Date, lang: string): string {
@@ -1184,7 +1228,9 @@ export class UsersService {
 
     const me = await this.userModel
       .findById(currentUserId)
-      .select('following followers')
+      .select(
+        'nickname username profileImage avatar country targetLanguage totalXP level',
+      )
       .lean();
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
@@ -1207,6 +1253,9 @@ export class UsersService {
       nickname: u.nickname,
       username: u.username || '',
       profileImage: u.profileImage || '',
+      avatar: u.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
       isFollowing: followingSet.has(u._id.toString()),
       isFollowedBy: followerSet.has(u._id.toString()),
     }));
@@ -1237,7 +1286,7 @@ export class UsersService {
         _id: { $ne: new Types.ObjectId(currentUserId) },
         $or: [{ nickname: { $in: regexes } }, { username: { $in: regexes } }],
       })
-      .select('nickname username profileImage')
+      .select('nickname username profileImage avatar')
       .limit(50)
       .lean();
 
@@ -1246,6 +1295,9 @@ export class UsersService {
       nickname: u.nickname,
       username: u.username || '',
       profileImage: u.profileImage || '',
+      avatar: u.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
       isFollowing: followingSet.has(u._id.toString()),
       isFollowedBy: followerSet.has(u._id.toString()),
     }));

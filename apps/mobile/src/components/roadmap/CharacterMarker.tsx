@@ -1,23 +1,30 @@
-import { View, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BoriMascot from "@/components/home/BoriMascot";
+import AvatarPreview from "@/components/avatar/AvatarPreview";
+import type { AvatarConfig } from "@/types/avatar";
 import { useTheme } from "@/hooks/useTheme";
-import { ThemeColors } from "@/constants/theme";
+import type { ThemeColors } from "@/constants/theme";
 
 interface Props {
-  hearts?: number; // 캐릭터 밑에 표시할 별/하트 개수
+  hearts?: number;
+  avatar?: Partial<AvatarConfig> | null;
 }
 
-export default function CharacterMarker({ hearts = 3 }: Props) {
+export default function CharacterMarker({ hearts = 3, avatar }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
 
   return (
     <View style={styles.container}>
-      <BoriMascot size={80} />
+      <View style={styles.avatar}>
+        <AvatarPreview avatar={avatar} size={88} showBackground={false} />
+      </View>
+
       <View style={styles.starsRow}>
-        {Array.from({ length: hearts }).map((_, i) => (
-          <Ionicons key={i} name="star" size={14} color={theme.border} />
+        {Array.from({
+          length: hearts,
+        }).map((_, index) => (
+          <Ionicons key={index} name="star" size={14} color={theme.border} />
         ))}
       </View>
     </View>
@@ -28,7 +35,14 @@ const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: {
       alignItems: "center",
-      gap: 4,
+      gap: 2,
+    },
+    avatar: {
+      width: 88,
+      height: 88,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
     },
     starsRow: {
       flexDirection: "row",

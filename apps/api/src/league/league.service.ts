@@ -9,6 +9,7 @@ import {
 import { LeagueRoom, LeagueRoomDocument } from './schemas/league-room.schema';
 import { BOT_PROFILES, TIER_BOT_MULTIPLIER } from './league.bots';
 import { Cron } from '@nestjs/schedule';
+import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
 
 const MIN_MEMBERS = 8; // 방에 최소 이만큼은 있게 (봇으로 채움)
 
@@ -112,7 +113,7 @@ export class LeagueService {
     const weekKey = this.getWeekKey();
     const user = await this.userModel
       .findById(userId)
-      .select('league nickname profileImage previousLeagueRank')
+      .select('league nickname profileImage avatar previousLeagueRank')
       .lean();
     if (!user) throw new NotFoundException('User not found');
     const tier = user.league ?? UserLeague.BRONZE;
@@ -144,13 +145,14 @@ export class LeagueService {
       _id: { $in: room!.members },
       isBot: { $ne: true },
     });
+
     await this.fillWithBots(room!._id as Types.ObjectId, room!.members.length);
     room = await this.roomModel.findById(room!._id);
 
     // 멤버 정보 + 주간 XP
     const members = await this.userModel
       .find({ _id: { $in: room!.members } })
-      .select('nickname profileImage league isBot lastActiveAt streak')
+      .select('nickname profileImage avatar league isBot lastActiveAt streak')
       .lean();
     const xpMap = await this.getWeeklyXp(room!.members);
 
@@ -160,6 +162,11 @@ export class LeagueService {
         id: m._id.toString(),
         nickname: m.nickname,
         profileImage: m.profileImage || '',
+        avatar: m.isBot
+          ? undefined
+          : m.avatar || {
+              ...DEFAULT_AVATAR_CONFIG,
+            },
         xp: m.isBot
           ? this.botXp(m.nickname, tier, weekKey)
           : (xpMap.get(m._id.toString()) ?? 0),

@@ -33,6 +33,7 @@ export default function FriendSuggestionsScreen() {
             data.map((u: any) => ({
               id: u.id,
               name: u.nickname,
+              avatar: u.avatar,
               avatarUri: u.profileImage,
               username: u.username,
               reasonName: u.reasonName,

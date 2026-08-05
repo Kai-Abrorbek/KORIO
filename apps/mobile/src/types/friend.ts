@@ -1,3 +1,5 @@
+import type { AvatarConfig } from "@/types/avatar";
+
 export type FriendTab = "following" | "followers";
 
 export interface Friend {
@@ -9,6 +11,7 @@ export interface Friend {
   isFollowing?: boolean;
   isFollowedBy?: boolean;
   isMe?: boolean;
+  avatar?: AvatarConfig;
 }
 
 export interface FriendsData {

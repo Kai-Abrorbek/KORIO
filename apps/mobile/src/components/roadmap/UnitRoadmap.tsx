@@ -19,10 +19,12 @@ import { useEffect } from "react";
 import ScoreNode from "./ScoreNode";
 import Svg, { Path } from "react-native-svg";
 import { darken } from "@/utils/color";
+import type { AvatarConfig } from "@/types/avatar";
 
 interface Props {
   unit: RoadmapUnit;
   selectedNodeId: string | null;
+  avatar?: Partial<AvatarConfig> | null;
   onNodeTap: (nodeId: string) => void;
   onNodeStart?: (node: RoadmapNode) => void;
   onGuidePress?: (unit: RoadmapUnit) => void;
@@ -71,6 +73,7 @@ function buildRoutePath(points: RoutePoint[]): string {
 
 export default function UnitRoadmap({
   unit,
+  avatar,
   selectedNodeId,
   onNodeTap,
   onNodeStart,
@@ -266,7 +269,7 @@ export default function UnitRoadmap({
                   ]}
                   pointerEvents="none"
                 >
-                  <CharacterMarker hearts={3} />
+                  <CharacterMarker hearts={3} avatar={avatar} />
                 </View>
               )}
 

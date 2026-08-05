@@ -64,6 +64,8 @@ export default function FriendsScreen() {
   const list = raw.map((u) => ({
     id: u._id ?? u.id,
     name: u.nickname,
+    avatar: u.avatar,
+    avatarUri: u.profileImage,
     primaryFlag: langToFlag(u.targetLanguage),
     level: u.totalXP ?? levelToNum(u.level),
     isFollowing: u.isFollowing,
@@ -113,7 +115,14 @@ export default function FriendsScreen() {
               key={friend.id}
               friend={friend}
               isLast={i === list.length - 1}
-              onPress={() => router.push(`/friend-profile?id=${friend.id}`)}
+              onPress={() =>
+                router.push({
+                  pathname: "/friend-profile",
+                  params: {
+                    id: friend.id,
+                  },
+                })
+              }
             />
           ))}
         </View>

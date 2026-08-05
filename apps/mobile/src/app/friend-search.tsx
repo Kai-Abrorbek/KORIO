@@ -37,6 +37,7 @@ export default function FriendSearchScreen() {
             data.map((u: any) => ({
               id: u.id,
               name: u.nickname,
+              avatar: u.avatar,
               avatarUri: u.profileImage,
               username: u.username,
               reasonName: u.reasonName,
@@ -63,6 +64,7 @@ export default function FriendSearchScreen() {
           data.map((u: any) => ({
             id: u.id,
             name: u.nickname,
+            avatar: u.avatar,
             avatarUri: u.profileImage,
             username: u.username,
             isFollowing: u.isFollowing,

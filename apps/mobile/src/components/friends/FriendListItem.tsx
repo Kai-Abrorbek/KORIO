@@ -21,7 +21,11 @@ export default function FriendListItem({ friend, onPress, isLast }: Props) {
       onPress={onPress}
       activeOpacity={0.6}
     >
-      <FriendAvatar name={friend.name} avatarUri={friend.avatarUri} />
+      <FriendAvatar
+        name={friend.name}
+        avatar={friend.avatar}
+        avatarUri={friend.avatarUri}
+      />
 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>

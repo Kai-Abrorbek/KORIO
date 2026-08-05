@@ -25,7 +25,12 @@ export default function SuggestionCard({ item, onDismiss, theme }: Props) {
         <Ionicons name="close" size={20} color={theme.textSecondary} />
       </TouchableOpacity>
 
-      <FriendAvatar name={item.name} avatarUri={item.avatarUri} size={64} />
+      <FriendAvatar
+        name={item.name}
+        avatar={item.avatar}
+        avatarUri={item.avatarUri}
+        size={64}
+      />
       <Text style={s.name} numberOfLines={1}>
         {item.name}
       </Text>

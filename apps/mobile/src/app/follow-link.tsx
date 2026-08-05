@@ -26,7 +26,8 @@ export default function FollowLinkScreen() {
         <View style={s.avatarBox}>
           <FriendAvatar
             name={user?.nickname || "User"}
-            avatarUri={(user as any)?.profileImage}
+            avatar={user?.avatar}
+            avatarUri={user?.profileImage}
             size={140}
           />
         </View>

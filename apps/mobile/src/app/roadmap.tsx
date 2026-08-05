@@ -506,6 +506,7 @@ export default function RoadmapScreen() {
         >
           <UnitRoadmap
             unit={unit}
+            avatar={user?.avatar}
             selectedNodeId={selectedNodeId}
             onNodeTap={handleNodeTap}
             onNodeStart={handleNodeStart}

@@ -4,7 +4,6 @@ import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { UserService } from "@/services/user.service";
-import { useAuthStore } from "@/store/auth.store";
 import { StatsService } from "@/services/stats.service";
 import FriendProfileHeader from "@/components/friend-profile/FriendProfileHeader";
 import ProfileMeta from "@/components/profile/ProfileMeta";
@@ -105,6 +104,7 @@ export default function FriendProfileScreen() {
       <FriendProfileHeader
         name={user.nickname}
         league={user.league}
+        avatar={user.avatar}
         isSuper={user.isSuper}
         onBack={goBack}
         onShare={() => console.log("share")}

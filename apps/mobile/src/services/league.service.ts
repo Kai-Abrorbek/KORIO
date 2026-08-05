@@ -1,10 +1,13 @@
 import api from "./api";
+import type { AvatarConfig } from "@/types/avatar";
 
 // 백엔드 /league/me 응답 shape 그대로 (교체는 아래 return 한 줄만)
 export interface LeagueMember {
   id: string;
   nickname: string;
   profileImage?: string;
+  avatar?: AvatarConfig;
+  isBot?: boolean;
   xp: number;
   rank: number;
   isMe: boolean;

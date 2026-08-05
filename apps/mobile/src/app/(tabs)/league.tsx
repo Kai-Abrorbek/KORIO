@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Image,
   Pressable,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -30,41 +29,13 @@ import Animated, {
 import { TIERS, getTier, getTierIndex } from "@/constants/league-tiers";
 import TierCrystal from "@/components/league/TierCrystal";
 import { withDelay, withSpring, Easing } from "react-native-reanimated";
+import FriendAvatar from "@/components/friends/FriendAvatar";
 
 const MEDAL_COLORS = [
   { fill: "#FFC93C", ribbon: "#E5A700", text: "#8A5B00" }, // 1등 금
   { fill: "#C9D3DE", ribbon: "#A8B4C2", text: "#5C6875" }, // 2등 은
   { fill: "#D19A64", ribbon: "#B07C48", text: "#7A4E1E" }, // 3등 동
 ];
-// 티어 메타 (그라데이션용 light/color/dark)
-const TIER_META: Record<
-  string,
-  { light: string; color: string; dark: string }
-> = {
-  bronze: { light: "#E8A867", color: "#CD7F32", dark: "#A05A1E" },
-  silver: { light: "#DDE3E9", color: "#B8C2CC", dark: "#8A97A3" },
-  gold: { light: "#FFE896", color: "#FFD93D", dark: "#E0AC00" },
-  platinum: { light: "#A6E6F5", color: "#5AC8E8", dark: "#2E9DC4" },
-  diamond: { light: "#B9AFFF", color: "#7B6BF0", dark: "#5B4DD4" },
-};
-const TIER_ORDER = ["bronze", "silver", "gold", "platinum", "diamond"];
-const MEDAL = ["#FFC93C", "#C3CCD6", "#D68A4E"]; // 1,2,3등
-const AVATAR_COLORS = [
-  "#FF6B6B",
-  "#4ECDC4",
-  "#FFD93D",
-  "#6C7BFF",
-  "#FF8FB1",
-  "#5AC8E8",
-  "#9B8CFF",
-  "#FF9F5A",
-];
-
-function avatarColor(seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = seed.charCodeAt(i) + ((h << 5) - h);
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
-}
 
 // ── 아바타 ──
 function Avatar({
@@ -75,42 +46,31 @@ function Avatar({
   size?: number;
 }) {
   return (
-    <View style={{ width: size, height: size }}>
-      {member.profileImage ? (
-        <Image
-          source={{ uri: member.profileImage }}
-          style={{ width: size, height: size, borderRadius: size / 2 }}
-        />
-      ) : (
-        <View
-          style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: avatarColor(member.id),
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text
-            style={{ color: "#fff", fontSize: size * 0.42, fontWeight: "800" }}
-          >
-            {member.nickname.trim().charAt(0).toUpperCase()}
-          </Text>
-        </View>
-      )}
+    <View
+      style={{
+        width: size,
+        height: size,
+      }}
+    >
+      <FriendAvatar
+        name={member.nickname}
+        avatar={member.isBot ? undefined : member.avatar}
+        avatarUri={member.profileImage}
+        size={size}
+      />
+
       {member.online && (
         <View
           style={{
             position: "absolute",
-            bottom: 1,
-            right: 1,
-            width: size * 0.26,
-            height: size * 0.26,
-            borderRadius: size * 0.13,
+            right: 0,
+            bottom: 0,
+            width: size * 0.27,
+            height: size * 0.27,
+            borderRadius: size,
             backgroundColor: "#58CC02",
-            borderWidth: 3,
-            borderColor: "#fff",
+            borderWidth: 2.5,
+            borderColor: "#FFFFFF",
           }}
         />
       )}
@@ -490,7 +450,7 @@ const rb = StyleSheet.create({
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg },
+    container: { flex: 1, backgroundColor: theme.bg, paddingVertical: 30 },
     header: { paddingHorizontal: 20, marginBottom: 8, marginTop: 20 },
     title: { fontSize: 30, fontWeight: "900", color: theme.text },
     timeRow: {

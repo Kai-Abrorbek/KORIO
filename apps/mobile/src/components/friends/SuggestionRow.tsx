@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import FriendAvatar from "@/components/friends/FriendAvatar";
 import FollowPill from "@/components/friends/FollowPill";
+import type { AvatarConfig } from "@/types/avatar";
 
 export interface SuggestionItem {
   id: string;
   name: string;
+  avatar?: AvatarConfig;
   avatarUri?: string;
   username?: string;
   reasonName?: string; // "OO님이 팔로우 중"의 OO
@@ -37,7 +39,12 @@ export default function SuggestionRow({
   const s = styles(theme);
   return (
     <TouchableOpacity style={s.row} onPress={onPress} activeOpacity={0.7}>
-      <FriendAvatar name={item.name} avatarUri={item.avatarUri} size={56} />
+      <FriendAvatar
+        name={item.name}
+        avatar={item.avatar}
+        avatarUri={item.avatarUri}
+        size={56}
+      />
       <View style={s.info}>
         <Text style={s.name} numberOfLines={1}>
           {item.name}
