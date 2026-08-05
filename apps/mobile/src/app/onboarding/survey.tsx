@@ -29,6 +29,7 @@ import {
 } from "../../types/enums";
 import { useOnboardingStore } from "../../store/onboarding.store";
 import { onboardingService } from "@/services/onboarding.service";
+import { UserService } from "@/services/user.service";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import BoriMascot from "@/components/home/BoriMascot";
@@ -421,7 +422,14 @@ export default function SurveyScreen() {
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     if (selfLevel === SelfReportedLevel.COMPLETE_BEGINNER) {
-      router.replace("/hangul"); // 완전초보 → 한글부터
+      // 완전초보는 레벨 테스트를 건너뛴다. 한글 화면으로 튕기지 않고 홈으로 보내서
+      // 로드맵을 먼저 보게 하고, 거기 첫 노드가 "한글 배우기" 로 열려 있다.
+      try {
+        await UserService.completeOnboardingAsBeginner();
+      } catch {
+        // 실패해도 진행 — 다음 getMe 때 재동기화
+      }
+      router.replace("/(tabs)");
     } else {
       router.push({ pathname: "/lesson", params: { mode: "levelTest" } });
     }

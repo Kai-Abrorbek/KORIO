@@ -84,6 +84,10 @@ export class User {
   @Prop({ enum: HangulLevel })
   hangulLevel: HangulLevel;
 
+  // 로드맵 첫 노드(한글 배우기)를 끝낸 시각. 없으면 아직 안 끝낸 것.
+  @Prop()
+  hangulCompletedAt?: Date;
+
   @Prop({ type: [String], enum: Interest, default: [] })
   interests: Interest[];
 

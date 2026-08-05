@@ -416,6 +416,13 @@ export default function RoadmapScreen() {
   const handleNodeStart = useCallback(
     (node: RoadmapNode) => {
       setSelectedNodeId(null);
+
+      // 한글 노드는 레슨이 아니라 한글 학습 화면으로. 에너지도 안 깎음.
+      if (node.type === "hangul") {
+        router.push("/hangul");
+        return;
+      }
+
       guardLessonStart(energy, () => {
         router.push({
           pathname: "/lesson",

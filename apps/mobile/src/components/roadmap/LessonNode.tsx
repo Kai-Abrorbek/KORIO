@@ -38,6 +38,7 @@ const ICON_MAP: Record<NodeType, keyof typeof Ionicons.glyphMap> = {
   boss: "trophy",
   "play-forward": "play-forward",
   score: "trophy",
+  hangul: "language",
 };
 
 const NODE_SIZE = 72;

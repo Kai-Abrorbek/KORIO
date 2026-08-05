@@ -11,7 +11,7 @@ import {
   UserProgress,
   UserProgressDocument,
 } from './schemas/user-progress.schema';
-import { calculateLevel } from '../common/enums/level.enum';
+import { calculateLevel, UserLevel } from '../common/enums/level.enum';
 import { localKey } from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
@@ -42,6 +42,33 @@ export class UsersService {
     private progressModel: Model<UserProgressDocument>,
     @InjectModel(LessonNode.name) private nodeModel: Model<LessonNodeDocument>,
   ) {}
+
+  /**
+   * 레벨 테스트를 건너뛰는 완전 초보자용 온보딩 마감.
+   * 이걸 안 해주면 isOnboardingCompleted 가 false 로 남아서
+   * 앱을 다시 켤 때마다 온보딩으로 되돌아간다.
+   */
+  async completeOnboardingAsBeginner(userId: string) {
+    await this.userModel.findByIdAndUpdate(new Types.ObjectId(userId), {
+      level: UserLevel.BEGINNER,
+      placementLevel: 1,
+      isOnboardingCompleted: true,
+    });
+    return { success: true };
+  }
+
+  /** 로드맵 첫 노드(한글 배우기) 완료 처리. 이미 끝냈으면 시각 유지. */
+  async completeHangul(userId: string) {
+    const user = await this.userModel.findById(new Types.ObjectId(userId));
+    if (!user) throw new NotFoundException('USER_NOT_FOUND');
+
+    if (!user.hangulCompletedAt) {
+      user.hangulCompletedAt = new Date();
+      await user.save();
+    }
+
+    return { success: true, hangulCompletedAt: user.hangulCompletedAt };
+  }
 
   async saveLevelTest(
     userId: string,
@@ -117,6 +144,8 @@ export class UsersService {
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
       languageLevel: user.placementLevel || 1,
+      hangulLevel: user.hangulLevel,
+      hangulCompletedAt: user.hangulCompletedAt,
       coursePrimaryFlag:
         countryToFlag(user.country) || langToFlag(user.targetLanguage),
       courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)

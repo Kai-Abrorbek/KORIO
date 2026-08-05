@@ -26,6 +26,7 @@ import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
 import GameMenu from "@/components/hangul/games/GameMenu";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
+import { UserService } from "@/services/user.service";
 
 export default function HangulScreen() {
   const { t } = useTranslation();
@@ -38,6 +39,25 @@ export default function HangulScreen() {
   const [selected, setSelected] = useState<HangulCharacter | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [progress] = useState<HangulProgress[]>(MOCK_PROGRESS);
+  const [finishing, setFinishing] = useState(false);
+
+  const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  // 한글을 못 읽는다고 답했고 아직 안 끝낸 유저에게만 완료 버튼을 보여준다
+  const needsHangulNode =
+    user?.hangulLevel === "none" && !user?.hangulCompletedAt;
+
+  const finishHangul = async () => {
+    if (finishing) return;
+    setFinishing(true);
+    try {
+      const res = await UserService.completeHangul();
+      updateUser({ hangulCompletedAt: res.hangulCompletedAt });
+      router.replace("/roadmap");
+    } catch {
+      setFinishing(false);
+    }
+  };
 
   const charactersByCategory = useMemo(
     () => HANGUL_CHARACTERS.filter((c) => c.category === category),
@@ -82,6 +102,20 @@ export default function HangulScreen() {
         {/* 진행도 카드 */}
         <MasteryCard learned={learnedCount} total={totalCount} />
 
+        {/* 로드맵 첫 노드로 들어온 유저 — 다 익혔으면 노드를 닫고 돌아간다.
+            TODO: 한글 진행도가 서버에 쌓이면 자동 완료로 바꾸기 */}
+        {needsHangulNode && (
+          <TouchableOpacity
+            style={styles.doneBtn}
+            activeOpacity={0.9}
+            onPress={finishHangul}
+            disabled={finishing}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+            <Text style={styles.doneBtnText}>{t("hangul.markDone")}</Text>
+          </TouchableOpacity>
+        )}
+
         {/* 탭 */}
         <CategoryTabs value={category} onChange={setCategory} />
 
@@ -124,6 +158,18 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.bg,
       marginBottom: 30,
     },
+    doneBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      marginHorizontal: 20,
+      marginTop: 14,
+      paddingVertical: 15,
+      borderRadius: 14,
+      backgroundColor: theme.primary,
+    },
+    doneBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
     header: {
       flexDirection: "row",
       alignItems: "center",

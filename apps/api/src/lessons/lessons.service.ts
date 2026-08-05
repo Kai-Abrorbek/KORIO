@@ -25,6 +25,7 @@ import { calcLessonXp, calcPracticeXp } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
+import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 40;
 
@@ -357,7 +358,7 @@ export class LessonsService {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
       .findById(new Types.ObjectId(userId))
-      .select('legendNodes placementLevel')
+      .select('legendNodes placementLevel hangulLevel hangulCompletedAt')
       .lean();
 
     const startSection = sectionRangeForLevel(meUser?.placementLevel ?? 1)[0];
@@ -443,6 +444,40 @@ export class LessonsService {
         xpReward: startLessonObj?.xpReward ?? 0, // ✅ 시작할 레슨의 XP
         legendCompleted: legendSet.has(node._id.toString()),
       });
+    }
+
+    // ── 한글을 못 읽는 유저: 섹션1 유닛1 맨 앞에 "한글 배우기" 노드를 끼운다 ──
+    // 별도 화면으로 튕기지 않고 로드맵 위 첫 관문으로 보이게. 끝내야 다음이 열린다.
+    // 메인(어휘) 트랙에만 넣는다. 문법 등 별도 카테고리 로드맵에는 안 넣음.
+    const needsHangul =
+      (!category || category === 'vocabulary') &&
+      meUser?.hangulLevel === HangulLevel.NONE;
+
+    if (needsHangul) {
+      const firstUnit = unitMap.get('1-1');
+      if (firstUnit) {
+        const hangulDone = !!meUser?.hangulCompletedAt;
+        firstUnit.nodes.unshift({
+          id: 'hangul-intro',
+          type: 'hangul',
+          status: 'locked', // 아래 상태 계산이 덮어씀
+          title: this.extractI18n(
+            {
+              ko: '한글 배우기',
+              uz: 'Hangulni o‘rganish',
+              en: 'Learn Hangul',
+              ru: 'Изучить хангыль',
+            } as any,
+            lang,
+          ),
+          // 레슨이 없는 노드라 완료 판정을 1/1 로 흉내내서 기존 로직에 태운다
+          completedLessons: hangulDone ? 1 : 0,
+          totalLessons: 1,
+          lessons: [],
+          xpReward: 0,
+          legendCompleted: false,
+        });
+      }
     }
 
     // unit/node status 계산

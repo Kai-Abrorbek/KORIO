@@ -532,6 +532,7 @@ export default {
   },
   hangul: {
     title: "Hangul Master",
+    markDone: "I've learned Hangul",
     hero: {
       progress: "Progress",
       learned: "{{learned}} / {{total}} learned",

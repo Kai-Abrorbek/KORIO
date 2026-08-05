@@ -6,6 +6,7 @@ export type NodeType =
   | "review"
   | "boss"
   | "score"
+  | "hangul"
   | "play-forward";
 
 export type NodeStatus = "completed" | "current" | "locked";

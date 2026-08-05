@@ -65,6 +65,16 @@ export const UserService = {
   }): Promise<{ success: boolean; detectedLevel: string; score: number }> =>
     api.post(`/users/me/level-test`, data),
 
+  /** 로드맵 첫 노드(한글 배우기) 완료 */
+  completeHangul: (): Promise<{
+    success: boolean;
+    hangulCompletedAt: string;
+  }> => api.post(`/users/me/hangul-complete`, {}),
+
+  /** 레벨 테스트를 건너뛰는 완전 초보자용 온보딩 마감 */
+  completeOnboardingAsBeginner: (): Promise<{ success: boolean }> =>
+    api.post(`/users/me/onboarding-complete`, {}),
+
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 
   updateMe: (data: Partial<UserMe>): Promise<UserMe> =>

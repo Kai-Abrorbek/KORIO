@@ -532,6 +532,7 @@ export default {
   },
   hangul: {
     title: "한글 마스터",
+    markDone: "한글 다 배웠어요",
     hero: {
       progress: "진행률",
       learned: "{{learned}} / {{total}} 학습 완료",

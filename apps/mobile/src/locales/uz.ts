@@ -536,6 +536,7 @@ export default {
   },
   hangul: {
     title: "Hangul ustasi",
+    markDone: "Hangulni o‘rgandim",
     hero: {
       progress: "Bajarilgan",
       learned: "{{learned}} / {{total}} o'rganildi",

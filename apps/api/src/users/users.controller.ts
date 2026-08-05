@@ -40,6 +40,18 @@ export class UsersController {
     return this.usersService.saveLevelTest(req.user._id.toString(), dto);
   }
 
+  @Post('me/hangul-complete')
+  async completeHangul(@Request() req) {
+    return this.usersService.completeHangul(req.user._id.toString());
+  }
+
+  @Post('me/onboarding-complete')
+  async completeOnboarding(@Request() req) {
+    return this.usersService.completeOnboardingAsBeginner(
+      req.user._id.toString(),
+    );
+  }
+
   @Get('me/following')
   async getMyFollowing(@Request() req) {
     const me = req.user._id.toString();

@@ -25,6 +25,8 @@ export interface User {
   followersCount?: number;
   completedLessons?: number;
   country?: string;
+  hangulLevel?: "none" | "partial" | "fluent"; // 온보딩 자가응답
+  hangulCompletedAt?: string; // 로드맵 첫 노드(한글) 완료 시각
   coursePrimaryFlag?: string; // 주 코스 국기 (백엔드 getMe)
   courseExtraCount?: number; // 주 코스 외 추가 코스 수 (코스수 - 1)
   provider: AuthProvider;
