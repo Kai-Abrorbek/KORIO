@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
+import { UpdateAvatarDto } from './avatar/update-avatar.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -27,6 +28,11 @@ export class UsersController {
   @Patch('me')
   async updateMe(@Request() req, @Body() dto: any) {
     return this.usersService.updateMe(req.user._id.toString(), dto);
+  }
+
+  @Patch('me/avatar')
+  async updateAvatar(@Request() req, @Body() dto: UpdateAvatarDto) {
+    return this.usersService.updateAvatar(req.user._id.toString(), dto);
   }
 
   @Post('me/level-test')

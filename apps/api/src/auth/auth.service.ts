@@ -20,6 +20,7 @@ import { AuthProvider } from '../common/enums/provider.enum';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
 import { trialFields } from '../users/super.util';
+import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
 
 @Injectable()
 export class AuthService {
@@ -274,6 +275,7 @@ export class AuthService {
         id: user._id,
         email: user.email,
         nickname: user.nickname,
+        avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
         level: user.level,
         totalXP: user.totalXP,
         streak: user.streak,

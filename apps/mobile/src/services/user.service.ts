@@ -1,5 +1,6 @@
 import { UserProfile } from "@/types/profile";
 import api from "./api";
+import { AvatarConfig } from "@/types/avatar";
 
 export interface UserMe {
   id: string;
@@ -7,6 +8,7 @@ export interface UserMe {
   nickname: string;
   username: string;
   profileImage: string;
+  avatar: AvatarConfig;
   bio: string;
   country: string;
   level: string;
@@ -96,4 +98,7 @@ export const UserService = {
   getSuggestions: (): Promise<any[]> => api.get(`/users/suggestions`),
 
   touchActive: (): Promise<{ ok: boolean }> => api.post(`/users/me/active`, {}),
+
+  updateAvatar: (avatar: AvatarConfig): Promise<{ avatar: AvatarConfig }> =>
+    api.patch("/users/me/avatar", avatar),
 };

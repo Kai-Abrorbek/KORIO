@@ -2,12 +2,16 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserLevel, AuthProvider } from "../types/enums";
+import { AvatarConfig } from "@/types/avatar";
 
 export interface User {
   id: string;
   email: string;
   nickname: string;
   username?: string;
+  profileImage?: string;
+  avatar?: AvatarConfig;
+  bio?: string;
   level: UserLevel;
   totalXP: number;
   streak: number;
@@ -20,8 +24,6 @@ export interface User {
   followingCount?: number;
   followersCount?: number;
   completedLessons?: number;
-  profileImage?: string;
-  bio?: string;
   country?: string;
   provider: AuthProvider;
   isOnboardingCompleted: boolean;

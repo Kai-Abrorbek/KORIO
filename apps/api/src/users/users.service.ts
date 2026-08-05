@@ -24,6 +24,8 @@ import {
   sumCounts,
   toCounts,
 } from './utils/study-category.util';
+import { DEFAULT_AVATAR_CONFIG } from './avatar/avatar.constants';
+import { UpdateAvatarDto } from './avatar/update-avatar.dto';
 
 @Injectable()
 export class UsersService {
@@ -82,6 +84,7 @@ export class UsersService {
       nickname: user.nickname,
       username: user.username || '',
       profileImage: user.profileImage || '',
+      avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
       bio: user.bio || '',
       country: user.country || '',
       level: user.level,
@@ -204,6 +207,7 @@ export class UsersService {
       nickname: user.nickname,
       username: user.username || '',
       profileImage: user.profileImage || '',
+      avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
       bio: user.bio || '',
       country: user.country || '',
       level: user.level,
@@ -324,9 +328,7 @@ export class UsersService {
     }
 
     // 닉네임 못 채운(삭제된 유저 등) 항목 제거 + 나와의 관계 부여
-    const followerSet = new Set(
-      (me?.followers ?? []).map((f) => f.toString()),
-    );
+    const followerSet = new Set((me?.followers ?? []).map((f) => f.toString()));
     return suggestions
       .filter((s) => s.nickname)
       .map((s) => ({
@@ -358,6 +360,33 @@ export class UsersService {
       .lean();
     if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
     return updated;
+  }
+
+  /** 아바타 전체 설정 저장 */
+  async updateAvatar(userId: string, dto: UpdateAvatarDto) {
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            avatar: dto,
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      )
+      .select('avatar')
+      .lean();
+
+    if (!updated) {
+      throw new NotFoundException('유저를 찾을 수 없습니다');
+    }
+
+    return {
+      avatar: updated.avatar || DEFAULT_AVATAR_CONFIG,
+    };
   }
 
   /** 팔로우 */
@@ -398,9 +427,7 @@ export class UsersService {
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
     );
-    const followerSet = new Set(
-      (me?.followers ?? []).map((f) => f.toString()),
-    );
+    const followerSet = new Set((me?.followers ?? []).map((f) => f.toString()));
     return users.map((u) => {
       const id = u._id.toString();
       return {
@@ -584,15 +611,14 @@ export class UsersService {
 
   /** 최근 N일 (기본 7일) 일별 학습 통계 */
   async getWeeklyStats(userId: string, endDateStr?: string) {
+    // 오늘(또는 지정일) 기준 지난 7일: 왼쪽=6일 전, 오른쪽 끝=오늘
     const base = endDateStr ? new Date(endDateStr) : new Date();
-    const day = base.getDay() || 7; // 일=7로 보정
-    const startDate = new Date(base);
-    startDate.setDate(base.getDate() - (day - 1)); // 이번 주 월요일
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6); // 일요일
+    const endDate = new Date(base);
     endDate.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(base);
+    startDate.setDate(base.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
 
     const stats = await this.statsModel
       .find({
@@ -1149,9 +1175,7 @@ export class UsersService {
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
     );
-    const followerSet = new Set(
-      (me?.followers ?? []).map((f) => f.toString()),
-    );
+    const followerSet = new Set((me?.followers ?? []).map((f) => f.toString()));
 
     const users = await this.userModel
       .find({
@@ -1192,9 +1216,7 @@ export class UsersService {
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
     );
-    const followerSet = new Set(
-      (me?.followers ?? []).map((f) => f.toString()),
-    );
+    const followerSet = new Set((me?.followers ?? []).map((f) => f.toString()));
 
     const users = await this.userModel
       .find({
