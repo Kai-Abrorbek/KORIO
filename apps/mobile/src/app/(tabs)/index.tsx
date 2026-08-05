@@ -18,6 +18,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import BoriMascot from "@/components/home/BoriMascot";
+import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
 import FloatingAIButton from "@/components/home/FloatingAIButton";
@@ -261,10 +262,22 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* 캐릭터 */}
-          <View style={styles.mascotWrap}>
-            <BoriMascot size={200} />
-          </View>
+          {/* 캐릭터 — 유저 아바타 (미설정이면 보리쌤). 탭하면 아바타 꾸미기로 */}
+          <TouchableOpacity
+            style={styles.mascotWrap}
+            activeOpacity={0.85}
+            onPress={() => router.push("/avatar-editor")}
+          >
+            {user?.avatar ? (
+              <AvatarPreview
+                avatar={user.avatar}
+                size={200}
+                showBackground={false}
+              />
+            ) : (
+              <BoriMascot size={200} />
+            )}
+          </TouchableOpacity>
 
           {/* 하단 정보 */}
           <View style={styles.lessonBottom}>
