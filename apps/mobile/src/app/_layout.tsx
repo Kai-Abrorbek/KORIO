@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ErrorModal from "@/components/common/ErrorModal";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -150,6 +151,8 @@ export default function RootLayout() {
             />
           </Stack>
 
+          {/* 전역 에러 처리 모달*/}
+          <ErrorModal />
           {/* 전역 에너지 부족 모달 — 어느 화면에서든 뜸 */}
           <EnergyModal
             visible={energyModalVisible}

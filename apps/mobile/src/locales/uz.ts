@@ -876,7 +876,8 @@ export default {
     comingSoon: "Tez orada",
     superOnly: "KORIO SUPER",
     premiumTitle: "SUPER bilan davom eting",
-    premiumDesc: "Bepul bo'limlarni tugatdingiz! KORIO SUPER bilan barcha grammatikani oching.",
+    premiumDesc:
+      "Bepul bo'limlarni tugatdingiz! KORIO SUPER bilan barcha grammatikani oching.",
     premiumCta: "SUPER'ni boshlash",
     premiumLater: "Keyinroq",
   },
@@ -896,5 +897,17 @@ export default {
     doneSub: "Bu grammatika mashqini tugatdingiz",
     retry: "Qayta ishlash",
     next: "Keyingi grammatika",
+  },
+  errors: {
+    title: "Xatolik yuz berdi",
+    close: "Yopish",
+    NETWORK_ERROR: "Internet aloqasini tekshiring.",
+    SERVER_ERROR: "Serverda muammo. Birozdan so'ng qayta urinib ko'ring.",
+    UNAUTHORIZED: "Iltimos, qayta kiring.",
+    FORBIDDEN: "Ruxsatingiz yo'q.",
+    NOT_FOUND: "So'ralgan ma'lumot topilmadi.",
+    TIMEOUT: "So'rov vaqti tugadi. Qayta urinib ko'ring.",
+    UNKNOWN_ERROR: "Noma'lum xatolik. Qayta urinib ko'ring.",
+    retry: "Qayta urinish",
   },
 };

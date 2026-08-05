@@ -872,7 +872,8 @@ export default {
     comingSoon: "Скоро",
     superOnly: "KORIO SUPER",
     premiumTitle: "Продолжайте с SUPER",
-    premiumDesc: "Вы прошли бесплатные разделы! Откройте всю грамматику с KORIO SUPER.",
+    premiumDesc:
+      "Вы прошли бесплатные разделы! Откройте всю грамматику с KORIO SUPER.",
     premiumCta: "Начать SUPER",
     premiumLater: "Позже",
   },
@@ -892,5 +893,17 @@ export default {
     doneSub: "Ты прошёл эту практику",
     retry: "Заново",
     next: "Следующая грамматика",
+  },
+  errors: {
+    title: "Упс, что-то пошло не так",
+    close: "Закрыть",
+    NETWORK_ERROR: "Проверьте подключение к интернету.",
+    SERVER_ERROR: "Проблема на сервере. Попробуйте позже.",
+    UNAUTHORIZED: "Пожалуйста, войдите снова.",
+    FORBIDDEN: "Нет доступа.",
+    NOT_FOUND: "Запрошенная информация не найдена.",
+    TIMEOUT: "Время запроса истекло. Попробуйте снова.",
+    UNKNOWN_ERROR: "Неизвестная ошибка. Попробуйте снова.",
+    retry: "Повторить",
   },
 };

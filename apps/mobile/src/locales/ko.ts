@@ -870,7 +870,8 @@ export default {
     comingSoon: "준비 중",
     superOnly: "KORIO SUPER",
     premiumTitle: "SUPER로 계속 배우기",
-    premiumDesc: "무료 섹션을 다 마쳤어요! KORIO SUPER로 모든 문법을 잠금 해제하세요.",
+    premiumDesc:
+      "무료 섹션을 다 마쳤어요! KORIO SUPER로 모든 문법을 잠금 해제하세요.",
     premiumCta: "SUPER 시작하기",
     premiumLater: "나중에",
   },
@@ -890,5 +891,17 @@ export default {
     doneSub: "이 문법 연습을 다 풀었어요",
     retry: "다시 풀기",
     next: "다음 문법",
+  },
+  errors: {
+    title: "앗, 문제가 생겼어요",
+    close: "닫기",
+    NETWORK_ERROR: "인터넷 연결을 확인해 주세요.",
+    SERVER_ERROR: "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+    UNAUTHORIZED: "다시 로그인해 주세요.",
+    FORBIDDEN: "권한이 없어요.",
+    NOT_FOUND: "요청한 정보를 찾을 수 없어요.",
+    TIMEOUT: "요청 시간이 초과됐어요. 다시 시도해 주세요.",
+    UNKNOWN_ERROR: "알 수 없는 오류가 생겼어요. 다시 시도해 주세요.",
+    retry: "다시 시도",
   },
 };

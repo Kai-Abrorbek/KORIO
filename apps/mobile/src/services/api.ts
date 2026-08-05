@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
+import { useErrorStore } from "@/store/error.store";
 
-const DEV_LAN_IP = "172.30.1.67";
+const DEV_LAN_IP = "172.30.1.70";
 
 const BASE_URL =
   Platform.select({
@@ -8,6 +9,17 @@ const BASE_URL =
     ios: `http://${DEV_LAN_IP}:3000`,
     android: `http://${DEV_LAN_IP}:3000`,
   }) ?? "http://localhost:3000";
+
+export class ApiError extends Error {
+  code: string;
+  status: number;
+  constructor(code: string, status = 0) {
+    super(code);
+    this.name = "ApiError";
+    this.code = code;
+    this.status = status;
+  }
+}
 
 const TokenStorage = {
   get: async (): Promise<string | null> => {
@@ -35,25 +47,52 @@ const TokenStorage = {
   },
 };
 
+function resolveCode(status: number, backendMsg?: string): string {
+  if (backendMsg) return backendMsg; // 백엔드 코드 우선 (INVALID_CREDENTIALS 등)
+  if (status === 401) return "UNAUTHORIZED";
+  if (status === 403) return "FORBIDDEN";
+  if (status === 404) return "NOT_FOUND";
+  if (status >= 500) return "SERVER_ERROR";
+  return "UNKNOWN_ERROR";
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = await TokenStorage.get();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((options.headers as Record<string, string>) ?? {}),
+  };
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...((options.headers as Record<string, string>) ?? {}),
-    },
-  });
+  // 네트워크/서버(5xx) 실패 → 모달에 재시도 여부 묻고 대기. 재시도면 루프 반복.
+  while (true) {
+    let res: Response;
+    try {
+      res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+    } catch {
+      const retry = await useErrorStore.getState().present("NETWORK_ERROR");
+      if (retry) continue;
+      throw new ApiError("NETWORK_ERROR", 0);
+    }
 
-  const data = await res.json();
+    let data: any = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
 
-  if (!res.ok) {
-    throw new Error(data?.message ?? "UNKNOWN_ERROR");
+    if (res.ok) return data;
+
+    if (res.status >= 500) {
+      const retry = await useErrorStore.getState().present("SERVER_ERROR");
+      if (retry) continue;
+      throw new ApiError("SERVER_ERROR", res.status);
+    }
+
+    // 4xx: 호출부가 인라인 처리 (모달/재시도 없음)
+    throw new ApiError(resolveCode(res.status, data?.message), res.status);
   }
-
-  return data;
 }
 
 const api = {

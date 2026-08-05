@@ -873,7 +873,8 @@ export default {
     comingSoon: "Coming soon",
     superOnly: "KORIO SUPER",
     premiumTitle: "Keep learning with SUPER",
-    premiumDesc: "You've finished the free sections! Unlock all grammar with KORIO SUPER.",
+    premiumDesc:
+      "You've finished the free sections! Unlock all grammar with KORIO SUPER.",
     premiumCta: "Start SUPER",
     premiumLater: "Maybe later",
   },
@@ -893,5 +894,17 @@ export default {
     doneSub: "You finished this grammar practice",
     retry: "Retry",
     next: "Next grammar",
+  },
+  errors: {
+    title: "Oops, something went wrong",
+    close: "Close",
+    NETWORK_ERROR: "Please check your internet connection.",
+    SERVER_ERROR: "Something went wrong on the server. Please try again soon.",
+    UNAUTHORIZED: "Please log in again.",
+    FORBIDDEN: "You don't have permission.",
+    NOT_FOUND: "We couldn't find what you requested.",
+    TIMEOUT: "The request timed out. Please try again.",
+    UNKNOWN_ERROR: "An unknown error occurred. Please try again.",
+    retry: "Try again",
   },
 };
