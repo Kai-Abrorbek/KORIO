@@ -928,6 +928,9 @@ export default {
     unsavedTitle: "변경사항을 버릴까?",
     unsavedMessage: "저장하지 않은 캐릭터 변경사항이 사라져.",
     discard: "버리기",
+    saving: "저장 중...",
+    saveFailedTitle: "저장하지 못했어",
+    saveFailedMessage: "인터넷 연결을 확인하고 다시 시도해줘.",
     categories: {
       skinTone: "피부",
       bodyShape: "체형",

@@ -6,7 +6,7 @@ import { AuthProvider } from '../../common/enums/provider.enum';
 import { HangulLevel } from '../../common/enums/hangul-level.enum';
 import { SelfReportedLevel } from '../../common/enums/self-level.enum';
 import { Interest } from '../../common/enums/interest.enum';
-import { AvatarConfig, AvatarConfigSchema } from '../avatar/avatar.schema';
+import { AvatarConfig, AvatarConfigSchema } from './avatar.schema';
 import { DEFAULT_AVATAR_CONFIG } from '../avatar/avatar.constants';
 
 export type UserDocument = User & Document;
@@ -54,7 +54,9 @@ export class User {
 
   @Prop({
     type: AvatarConfigSchema,
-    default: () => ({ ...DEFAULT_AVATAR_CONFIG }),
+    default: () => ({
+      ...DEFAULT_AVATAR_CONFIG,
+    }),
   })
   avatar: AvatarConfig;
 

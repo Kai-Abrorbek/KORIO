@@ -275,7 +275,9 @@ export class AuthService {
         id: user._id,
         email: user.email,
         nickname: user.nickname,
-        avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
+        avatar: user.avatar || {
+          ...DEFAULT_AVATAR_CONFIG,
+        },
         level: user.level,
         totalXP: user.totalXP,
         streak: user.streak,

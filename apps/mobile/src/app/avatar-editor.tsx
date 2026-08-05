@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Alert,
   ScrollView,
@@ -32,6 +31,8 @@ import { useAuthStore } from "@/store/auth.store";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
 import type { AvatarConfig, AvatarOption } from "@/types/avatar";
+import { useEffect, useState } from "react";
+import { UserService } from "@/services/user.service";
 
 export default function AvatarEditorScreen() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function AvatarEditorScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-
+  const [isSaving, setIsSaving] = useState(false);
   const avatar = useAuthStore((state) => state.user?.avatar);
   const updateUser = useAuthStore((state) => state.updateUser);
 
@@ -109,6 +110,8 @@ export default function AvatarEditorScreen() {
     }) as AvatarConfig;
 
   const handleClose = () => {
+    if (isSaving) return;
+
     if (!hasChanges) {
       router.back();
       return;
@@ -151,14 +154,31 @@ export default function AvatarEditorScreen() {
     reset();
   };
 
-  const handleSave = () => {
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  const handleSave = async () => {
+    if (isSaving) return;
 
-    updateUser({
-      avatar: draft,
-    });
+    setIsSaving(true);
 
-    router.back();
+    try {
+      const result = await UserService.updateAvatar(draft);
+
+      updateUser({
+        avatar: result.avatar,
+      });
+
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      router.back();
+    } catch {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+      Alert.alert(
+        t("avatarEditor.saveFailedTitle"),
+        t("avatarEditor.saveFailedMessage"),
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -332,8 +352,9 @@ export default function AvatarEditorScreen() {
         ]}
       >
         <PrimaryButton
-          label={t("avatarEditor.save")}
+          label={isSaving ? t("avatarEditor.saving") : t("avatarEditor.save")}
           onPress={handleSave}
+          disabled={isSaving}
           color={theme.primary}
           darkColor="#554CB5"
           style={styles.saveButton}

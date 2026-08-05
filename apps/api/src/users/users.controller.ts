@@ -13,7 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
-import { UpdateAvatarDto } from './avatar/update-avatar.dto';
+import { UpdateAvatarDto } from './dto/update-avatar.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)

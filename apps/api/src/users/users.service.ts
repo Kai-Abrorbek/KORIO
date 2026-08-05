@@ -24,8 +24,8 @@ import {
   sumCounts,
   toCounts,
 } from './utils/study-category.util';
+import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { DEFAULT_AVATAR_CONFIG } from './avatar/avatar.constants';
-import { UpdateAvatarDto } from './avatar/update-avatar.dto';
 
 @Injectable()
 export class UsersService {
@@ -84,7 +84,9 @@ export class UsersService {
       nickname: user.nickname,
       username: user.username || '',
       profileImage: user.profileImage || '',
-      avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
+      avatar: user.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
       bio: user.bio || '',
       country: user.country || '',
       level: user.level,
@@ -207,7 +209,9 @@ export class UsersService {
       nickname: user.nickname,
       username: user.username || '',
       profileImage: user.profileImage || '',
-      avatar: user.avatar || DEFAULT_AVATAR_CONFIG,
+      avatar: user.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
       bio: user.bio || '',
       country: user.country || '',
       level: user.level,
@@ -369,7 +373,9 @@ export class UsersService {
         userId,
         {
           $set: {
-            avatar: dto,
+            avatar: {
+              ...dto,
+            },
           },
         },
         {
@@ -385,7 +391,9 @@ export class UsersService {
     }
 
     return {
-      avatar: updated.avatar || DEFAULT_AVATAR_CONFIG,
+      avatar: updated.avatar || {
+        ...DEFAULT_AVATAR_CONFIG,
+      },
     };
   }
 

@@ -930,6 +930,9 @@ export default {
     unsavedTitle: "Отменить изменения?",
     unsavedMessage: "Несохранённые изменения персонажа будут потеряны.",
     discard: "Отменить",
+    saving: "Сохранение...",
+    saveFailedTitle: "Не удалось сохранить",
+    saveFailedMessage: "Проверь подключение к интернету и попробуй снова.",
     categories: {
       skinTone: "Кожа",
       bodyShape: "Телосложение",

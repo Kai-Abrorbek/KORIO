@@ -931,6 +931,9 @@ export default {
     unsavedTitle: "Discard your changes?",
     unsavedMessage: "Your unsaved character changes will be lost.",
     discard: "Discard",
+    saving: "Saving...",
+    saveFailedTitle: "Couldn’t save",
+    saveFailedMessage: "Check your internet connection and try again.",
     categories: {
       skinTone: "Skin",
       bodyShape: "Body",

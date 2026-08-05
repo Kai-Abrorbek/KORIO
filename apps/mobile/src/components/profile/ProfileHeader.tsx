@@ -40,7 +40,7 @@ export default function ProfileHeader({
   const { t } = useTranslation();
 
   useEffect(() => {
-    scale.value = withSpring(1, { damping: 1, stiffness: 160 });
+    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
     bob.value = withRepeat(
       withSequence(
         withTiming(-1, { duration: 1300, easing: Easing.inOut(Easing.ease) }),

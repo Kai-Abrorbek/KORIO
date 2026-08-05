@@ -13,7 +13,7 @@ export const AVATAR_OPTIONS = {
     'skin_09',
     'skin_10',
   ],
-  bodyShape: ['body_balanced', 'body_slim', 'body_soft', 'body_broad'],
+  bodyShape: ['body_slim', 'body_balanced', 'body_soft', 'body_broad'],
   expression: [
     'expression_calm',
     'expression_smile',
@@ -94,22 +94,22 @@ export const AVATAR_OPTIONS = {
 
 export interface AvatarConfigValue {
   version: typeof AVATAR_VERSION;
-  skinTone: string;
-  bodyShape: string;
-  expression: string;
-  eyeColor: string;
-  hairstyle: string;
-  hairColor: string;
-  eyewear: string;
-  facialHair: string;
-  headwear: string;
-  outfit: string;
-  background: string;
+  skinTone: (typeof AVATAR_OPTIONS.skinTone)[number];
+  bodyShape: (typeof AVATAR_OPTIONS.bodyShape)[number];
+  expression: (typeof AVATAR_OPTIONS.expression)[number];
+  eyeColor: (typeof AVATAR_OPTIONS.eyeColor)[number];
+  hairstyle: (typeof AVATAR_OPTIONS.hairstyle)[number];
+  hairColor: (typeof AVATAR_OPTIONS.hairColor)[number];
+  eyewear: (typeof AVATAR_OPTIONS.eyewear)[number];
+  facialHair: (typeof AVATAR_OPTIONS.facialHair)[number];
+  headwear: (typeof AVATAR_OPTIONS.headwear)[number];
+  outfit: (typeof AVATAR_OPTIONS.outfit)[number];
+  background: (typeof AVATAR_OPTIONS.background)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   version: AVATAR_VERSION,
-  skinTone: 'skin_05',
+  skinTone: 'skin_08',
   bodyShape: 'body_balanced',
   expression: 'expression_smile',
   eyeColor: 'eyes_charcoal',
