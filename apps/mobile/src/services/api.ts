@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 import { useErrorStore } from "@/store/error.store";
 
-const DEV_LAN_IP = "172.30.1.70";
+const DEV_LAN_IP = "172.30.1.32";
 
 const BASE_URL =
   Platform.select({

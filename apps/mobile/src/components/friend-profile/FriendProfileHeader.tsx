@@ -14,9 +14,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import SuperBadge from "@/components/ui/SuperBadge";
 import { League } from "@/types/profile";
-import { LEAGUE_HERO_COLORS } from "@/mocks/friend-profile.mock";
-import AvatarPreview from "@/components/avatar/AvatarPreview";
-import type { AvatarConfig } from "@/types/avatar";
+import { LinearGradient } from "expo-linear-gradient";
+import AvatarPreview, {
+  AVATAR_BACKGROUNDS,
+  getAvatarHeaderContentColor,
+} from "@/components/avatar/AvatarPreview";
+import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
@@ -42,7 +45,7 @@ export default function FriendProfileHeader({
   const scale = useSharedValue(0.7);
 
   useEffect(() => {
-    scale.value = withSpring(1, { damping: 10, stiffness: 160 });
+    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
     bob.value = withRepeat(
       withSequence(
         withTiming(-3, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
@@ -57,19 +60,34 @@ export default function FriendProfileHeader({
     transform: [{ scale: scale.value }, { translateY: bob.value }],
   }));
 
-  const heroBg = LEAGUE_HERO_COLORS[league];
+  const avatarConfig = mergeAvatarConfig(avatar);
+  const headerColors = AVATAR_BACKGROUNDS[avatarConfig.background];
+  const headerContentColor = getAvatarHeaderContentColor(avatar);
 
   return (
-    <View style={[styles.hero, { backgroundColor: heroBg }]}>
+    <LinearGradient
+      colors={headerColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.hero}
+    >
       <View style={styles.topRow}>
         <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color={headerContentColor} />
         </TouchableOpacity>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: headerContentColor,
+            },
+          ]}
+          numberOfLines={1}
+        >
           {name}
         </Text>
         <TouchableOpacity onPress={onShare} hitSlop={10} activeOpacity={0.7}>
-          <Ionicons name="share-outline" size={26} color="#fff" />
+          <Ionicons name="share-outline" size={26} color={headerContentColor} />
         </TouchableOpacity>
       </View>
 
@@ -80,18 +98,19 @@ export default function FriendProfileHeader({
       )}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
-        <AvatarPreview avatar={avatar} size={190} />
+        <AvatarPreview avatar={avatar} size={230} showBackground={false} />
       </Animated.View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     hero: {
+      minHeight: 390,
       paddingTop: 54,
       paddingHorizontal: 20,
-      paddingBottom: 0,
+      paddingBottom: 28,
       position: "relative",
       overflow: "hidden",
     },
@@ -115,7 +134,8 @@ const getStyles = (theme: ThemeColors) =>
     },
     avatarWrap: {
       alignItems: "center",
-      marginTop: 16,
-      marginBottom: -20, // 캐릭터 하단이 살짝 잘려보이게
+      justifyContent: "center",
+      marginTop: 18,
+      marginBottom: 0,
     },
   });

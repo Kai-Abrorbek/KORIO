@@ -13,9 +13,13 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useRouter } from "expo-router";
-import AvatarPreview from "@/components/avatar/AvatarPreview";
-import type { AvatarConfig } from "@/types/avatar";
 import { useTranslation } from "react-i18next";
+import { LinearGradient } from "expo-linear-gradient";
+import AvatarPreview, {
+  AVATAR_BACKGROUNDS,
+  getAvatarHeaderContentColor,
+} from "@/components/avatar/AvatarPreview";
+import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
@@ -34,6 +38,9 @@ export default function ProfileHeader({
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
+  const avatarConfig = mergeAvatarConfig(avatar);
+  const headerColors = AVATAR_BACKGROUNDS[avatarConfig.background];
+  const headerContentColor = getAvatarHeaderContentColor(avatar);
   const bob = useSharedValue(0);
   const scale = useSharedValue(0.7);
   const router = useRouter();
@@ -56,7 +63,12 @@ export default function ProfileHeader({
   }));
 
   return (
-    <View style={styles.hero}>
+    <LinearGradient
+      colors={headerColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.hero}
+    >
       <View style={styles.topRow}>
         <TouchableOpacity
           onPress={() => {
@@ -70,21 +82,37 @@ export default function ProfileHeader({
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Ionicons name="chevron-back" size={28} color={theme.text} />
+          <Ionicons name="chevron-back" size={28} color={headerContentColor} />
         </TouchableOpacity>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text
+          style={[
+            styles.name,
+            {
+              color: headerContentColor,
+            },
+          ]}
+          numberOfLines={1}
+        >
           {name}
         </Text>
         <View style={styles.actions}>
           <TouchableOpacity onPress={onShare} hitSlop={8} activeOpacity={0.7}>
-            <Ionicons name="share-outline" size={26} color={theme.text} />
+            <Ionicons
+              name="share-outline"
+              size={26}
+              color={headerContentColor}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onSettings}
             hitSlop={8}
             activeOpacity={0.7}
           >
-            <Ionicons name="settings-outline" size={26} color={theme.text} />
+            <Ionicons
+              name="settings-outline"
+              size={26}
+              color={headerContentColor}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -103,7 +131,7 @@ export default function ProfileHeader({
           style={styles.avatarButton}
           onPress={() => router.push("/avatar-editor")}
         >
-          <AvatarPreview avatar={avatar} size={220} />
+          <AvatarPreview avatar={avatar} size={230} showBackground={false} />
 
           <View style={styles.editBadgeDepth} />
 
@@ -112,14 +140,13 @@ export default function ProfileHeader({
           </View>
         </TouchableOpacity>
       </Animated.View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     hero: {
-      backgroundColor: theme.border,
       paddingTop: 54,
       paddingBottom: 32,
       paddingHorizontal: 20,

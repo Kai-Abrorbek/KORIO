@@ -56,7 +56,7 @@ const EYES = {
   eyes_blue: "#2C73BE",
 } as const;
 
-const BACKGROUNDS = {
+export const AVATAR_BACKGROUNDS = {
   background_cloud: ["#F7F8FB", "#DDE3EC"],
   background_lilac: ["#E4DEFF", "#B8ACF4"],
   background_sky: ["#DFF3FF", "#9ED7F8"],
@@ -1143,6 +1143,16 @@ function AvatarHeadwear({
   );
 }
 
+export function getAvatarHeaderContentColor(
+  avatar?: Partial<AvatarConfig> | null,
+) {
+  const { background } = mergeAvatarConfig(avatar);
+
+  return background === "background_navy" || background === "background_plum"
+    ? "#FFFFFF"
+    : "#25252F";
+}
+
 export default function AvatarPreview({
   avatar = DEFAULT_AVATAR_CONFIG,
   size = 220,
@@ -1154,7 +1164,7 @@ export default function AvatarPreview({
   const skin = SKIN[config.skinTone];
   const hair = HAIR[config.hairColor];
   const eye = EYES[config.eyeColor];
-  const background = BACKGROUNDS[config.background];
+  const background = AVATAR_BACKGROUNDS[config.background];
   const outfit = OUTFITS[config.outfit];
 
   const bodyWidth = BODY_WIDTH[config.bodyShape];
