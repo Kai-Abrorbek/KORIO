@@ -80,9 +80,12 @@ export function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-// 현재 보드에 없는 짝 하나 뽑기
-export function drawPair(usedIds: Set<string>): WordPair | null {
-  const avail = WORD_POOL.filter((p) => !usedIds.has(p.id));
+// 현재 보드에 없는 짝 하나 뽑기 (풀을 넘겨주면 그 안에서)
+export function drawPair(
+  usedIds: Set<string>,
+  pool: WordPair[] = WORD_POOL,
+): WordPair | null {
+  const avail = pool.filter((p) => !usedIds.has(p.id));
   if (avail.length === 0) return null;
   return avail[Math.floor(Math.random() * avail.length)];
 }

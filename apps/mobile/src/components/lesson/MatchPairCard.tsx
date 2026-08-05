@@ -27,6 +27,11 @@ interface Props {
   onPress: () => void;
   theme: ThemeColors;
   children?: ReactNode;
+  /** 0 보다 크면 등장할 때 그만큼 서서히 나타난다 */
+  appearMs?: number;
+  /** true 면 서서히 사라진다 (교체 직전) */
+  vanishing?: boolean;
+  vanishMs?: number;
 }
 
 export default function MatchPairCard({
@@ -35,12 +40,33 @@ export default function MatchPairCard({
   onPress,
   theme,
   children,
+  appearMs = 0,
+  vanishing = false,
+  vanishMs = 420,
 }: Props) {
   const ty = useSharedValue(0); // 팝 바운스
   const shake = useSharedValue(0); // 오답 흔들림
   const shineX = useSharedValue(-200); // 흰색 샤인 스윕
   const shineO = useSharedValue(0);
   const spark = useSharedValue(0); // 반짝이
+  const op = useSharedValue(appearMs > 0 ? 0 : 1); // 등장·퇴장 페이드
+
+  useEffect(() => {
+    if (appearMs > 0) {
+      op.value = withTiming(1, {
+        duration: appearMs,
+        easing: Easing.out(Easing.quad),
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!vanishing) return;
+    op.value = withTiming(0, {
+      duration: vanishMs,
+      easing: Easing.in(Easing.quad),
+    });
+  }, [vanishing, vanishMs]);
 
   useEffect(() => {
     if (status === "correct") {
@@ -79,6 +105,7 @@ export default function MatchPairCard({
   }, [status]);
 
   const wrapStyle = useAnimatedStyle(() => ({
+    opacity: op.value,
     transform: [{ translateY: ty.value }, { translateX: shake.value }],
   }));
   const shineStyle = useAnimatedStyle(() => ({
