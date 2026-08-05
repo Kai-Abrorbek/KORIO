@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useRef, useCallback } from "react";
@@ -35,7 +36,8 @@ export default function TranslateBuilder({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme, ANSWER_LINES, LINE_H);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
   const { speak, isSpeaking } = useSpeech();
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
@@ -247,14 +249,18 @@ export default function TranslateBuilder({
   );
 }
 
-const styles = (theme: ThemeColors, lines: number, lineH: number) =>
+const styles = (
+  theme: ThemeColors,
+  lines: number,
+  lineH: number,
+  bottomInset = 0,
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 16,
       paddingTop: 8,
-      paddingBottom: 16,
-      marginBottom: 40,
+      paddingBottom: bottomInset + 16,
     },
     // 제목
     title: {

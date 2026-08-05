@@ -22,10 +22,10 @@ export default function ImageChoice({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = getStyles(theme);
+  const insets = useSafeAreaInsets();
+  const s = getStyles(theme, insets.bottom);
   const [selected, setSelected] = useState<string | null>(null);
   const { speak } = useSpeech();
-  const insets = useSafeAreaInsets();
 
   const choices: ImageChoiceOption[] = question.choices?.length
     ? question.choices
@@ -151,13 +151,13 @@ export default function ImageChoice({
   );
 }
 
-const getStyles = (theme: ThemeColors) =>
+const getStyles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      marginBottom: 40,
+      paddingBottom: bottomInset + 12,
     },
     badge: {
       flexDirection: "row",

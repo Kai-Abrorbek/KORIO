@@ -16,6 +16,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 
@@ -35,7 +36,8 @@ export default function TranslateType({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const [input, setInput] = useState("");
   const [recording, setRecording] = useState(false);
   const recTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -155,9 +157,14 @@ export default function TranslateType({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: bottomInset + 12,
+    },
     hardRow: {
       flexDirection: "row",
       alignItems: "center",

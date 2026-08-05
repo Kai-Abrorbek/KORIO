@@ -11,6 +11,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -105,7 +106,8 @@ export default function AudioMatch({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const { speak } = useSpeech();
   const pairs = question.pairs ?? [];
   const [left, setLeft] = useState<AItem[]>(() =>
@@ -265,9 +267,14 @@ export default function AudioMatch({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
-    container: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: bottomInset + 12,
+    },
     title: {
       fontSize: 22,
       fontWeight: "800",

@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
@@ -34,77 +40,85 @@ export default function DialogComplete({
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
-      <Text style={s.title}>{question.question}</Text>
+      {/* 대화가 길어지면 화면을 넘으므로 내용만 스크롤. 확인 버튼은 아래 고정 */}
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={s.title}>{question.question}</Text>
 
-      {question.dialogLines?.map((line, i) => (
-        <Animated.View
-          key={i}
-          entering={FadeInRight.delay(i * 100).duration(400)}
-          style={s.npcRow}
-        >
+        {question.dialogLines?.map((line, i) => (
+          <Animated.View
+            key={i}
+            entering={FadeInRight.delay(i * 100).duration(400)}
+            style={s.npcRow}
+          >
+            <View style={s.avatar}>
+              <Text style={{ fontSize: 45 }}>👨</Text>
+            </View>
+            <View style={s.npcBubble}>
+              <TouchableOpacity onPress={() => speak(line.text)}>
+                <Ionicons
+                  name="volume-high"
+                  size={18}
+                  color={isSpeaking ? theme.primary : "#58CC02"}
+                />
+              </TouchableOpacity>
+              <Text style={s.npcText}>{line.text}</Text>
+            </View>
+          </Animated.View>
+        ))}
+
+        {/* 유저 응답 말풍선 */}
+        <View style={s.userRow}>
+          <View style={[s.userBubble, !selected && s.emptyBubble]}>
+            <Text style={selected ? s.userText : s.emptyText}>
+              {selected ?? "— — —"}
+            </Text>
+          </View>
           <View style={s.avatar}>
-            <Text style={{ fontSize: 45 }}>👨</Text>
+            <Text style={{ fontSize: 45 }}>👩</Text>
           </View>
-          <View style={s.npcBubble}>
-            <TouchableOpacity onPress={() => speak(line.text)}>
-              <Ionicons
-                name="volume-high"
-                size={18}
-                color={isSpeaking ? theme.primary : "#58CC02"}
-              />
-            </TouchableOpacity>
-            <Text style={s.npcText}>{line.text}</Text>
-          </View>
-        </Animated.View>
-      ))}
+        </View>
 
-      {/* 유저 응답 말풍선 */}
-      <View style={s.userRow}>
-        <View style={[s.userBubble, !selected && s.emptyBubble]}>
-          <Text style={selected ? s.userText : s.emptyText}>
-            {selected ?? "— — —"}
-          </Text>
-        </View>
-        <View style={s.avatar}>
-          <Text style={{ fontSize: 45 }}>👩</Text>
-        </View>
-      </View>
-      {/* 선택지 */}
-      <View style={s.options}>
-        {question.options?.map((opt) => {
-          const isSelected = selected === opt;
-          const isCorrect = answerState !== "idle" && opt === question.answer;
-          const isWrong =
-            answerState !== "idle" &&
-            opt === selected &&
-            opt !== question.answer;
-          return (
-            <TouchableOpacity
-              key={opt}
-              style={[
-                s.option,
-                isSelected && s.optionSelected,
-                isCorrect && s.optionCorrect,
-                isWrong && s.optionWrong,
-              ]}
-              onPress={() => answerState === "idle" && setSelected(opt)}
-            >
-              <Text
+        {/* 선택지 */}
+        <View style={s.options}>
+          {question.options?.map((opt) => {
+            const isSelected = selected === opt;
+            const isCorrect = answerState !== "idle" && opt === question.answer;
+            const isWrong =
+              answerState !== "idle" &&
+              opt === selected &&
+              opt !== question.answer;
+            return (
+              <TouchableOpacity
+                key={opt}
                 style={[
-                  s.optionText,
-                  isCorrect && { color: "#1CB454" },
-                  isWrong && { color: "#FF4B4B" },
+                  s.option,
+                  isSelected && s.optionSelected,
+                  isCorrect && s.optionCorrect,
+                  isWrong && s.optionWrong,
                 ]}
+                onPress={() => answerState === "idle" && setSelected(opt)}
               >
-                {opt}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <View style={{ flex: 1 }} />
-      {/* 확인 버튼 */}
-      <View style={{ paddingBottom: insets.bottom + 12 }}>
+                <Text
+                  style={[
+                    s.optionText,
+                    isCorrect && { color: "#1CB454" },
+                    isWrong && { color: "#FF4B4B" },
+                  ]}
+                >
+                  {opt}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* 확인 버튼 — 항상 하단 고정 */}
+      <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
         <TouchableOpacity
           style={[
             s.checkBtn,
@@ -126,8 +140,10 @@ const styles = (theme: ThemeColors) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      marginBottom: 40,
     },
+    scroll: { flex: 1 },
+    scrollContent: { paddingBottom: 16 },
+    footer: { paddingTop: 8, backgroundColor: theme.bg },
     title: {
       fontSize: 22,
       fontWeight: "800",

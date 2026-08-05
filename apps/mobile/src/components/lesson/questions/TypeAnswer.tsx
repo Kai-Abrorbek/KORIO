@@ -10,6 +10,7 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useRef, useState } from "react";
@@ -29,7 +30,8 @@ export default function TypeAnswer({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
   const { speak, isSpeaking } = useSpeech();
@@ -151,13 +153,13 @@ export default function TypeAnswer({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      marginBottom: 40,
+      paddingBottom: bottomInset + 12,
     },
     title: {
       fontSize: 22,

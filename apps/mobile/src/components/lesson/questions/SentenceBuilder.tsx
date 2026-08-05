@@ -10,6 +10,7 @@ import {
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -46,7 +47,8 @@ export default function SentenceBuilder({
   combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme, LINE_H, ANSWER_LINES);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, LINE_H, ANSWER_LINES, insets.bottom);
   const { speak, speakSlow, isSpeaking } = useSpeech();
   const hasAutoPlayed = useRef(false);
   const [bankOpen, setBankOpen] = useState(false);
@@ -307,13 +309,18 @@ export default function SentenceBuilder({
   );
 }
 
-const styles = (theme: ThemeColors, lineH: number, lines: number) =>
+const styles = (
+  theme: ThemeColors,
+  lineH: number,
+  lines: number,
+  bottomInset = 0,
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      marginBottom: 40,
+      paddingBottom: bottomInset + 12,
     },
     title: {
       fontSize: 22,
