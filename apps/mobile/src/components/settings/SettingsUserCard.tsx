@@ -14,15 +14,19 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import BoriMascot from "@/components/home/BoriMascot";
+import AvatarPreview from "@/components/avatar/AvatarPreview";
+import { AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
+  avatar?: Partial<AvatarConfig> | null;
   onProfilePress?: () => void;
   onSubscribePress?: () => void;
 }
 
 export default function SettingsUserCard({
   name,
+  avatar,
   onProfilePress,
   onSubscribePress,
 }: Props) {
@@ -55,7 +59,11 @@ export default function SettingsUserCard({
         activeOpacity={0.7}
       >
         <View style={styles.avatarBg}>
-          <BoriMascot size={56} />
+          {avatar ? (
+            <AvatarPreview avatar={avatar} size={64} showBackground={false} />
+          ) : (
+            <BoriMascot size={56} />
+          )}
         </View>
         <Text style={styles.name} numberOfLines={1}>
           {name}

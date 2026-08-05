@@ -66,6 +66,7 @@ export default function SettingsScreen() {
         <View style={styles.topCard}>
           <SettingsUserCard
             name={user?.nickname ?? ""}
+            avatar={user?.avatar}
             onProfilePress={() => router.push("/profile")}
             onSubscribePress={() => router.push("/(tabs)/premium")}
           />
