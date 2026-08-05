@@ -12,6 +12,7 @@ import {
   UserProgressDocument,
 } from './schemas/user-progress.schema';
 import { calculateLevel } from '../common/enums/level.enum';
+import { localKey } from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive } from './super.util';
@@ -690,14 +691,6 @@ export class UsersService {
       categories: CategoryCounts;
     }> = [];
 
-    // 로컬(KST) 기준 YYYY-MM-DD 키 — toISOString(UTC)은 자정이 전날로 밀리므로 쓰지 않는다
-    const localKey = (dt: Date) => {
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth() + 1).padStart(2, '0');
-      const day = String(dt.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    };
-
     for (let i = 0; i < 7; i++) {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
@@ -821,7 +814,7 @@ export class UsersService {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayKey = today.toISOString().split('T')[0];
+    const todayKey = localKey(today);
 
     const timePoints: any[] = [];
     const volumePoints: any[] = [];
@@ -834,9 +827,9 @@ export class UsersService {
       for (let i = 0; i < bucketCount; i++) {
         const d = new Date(startDate);
         d.setDate(startDate.getDate() + i);
-        const dayKey = d.toISOString().split('T')[0];
+        const dayKey = localKey(d);
         const stat = stats.find(
-          (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
+          (s) => localKey(new Date(s.date)) === dayKey,
         );
         const isToday = dayKey === todayKey;
 
@@ -925,7 +918,7 @@ export class UsersService {
 
         if (monthStart <= today && monthEnd >= today) {
           const todayStat = monthStats.find(
-            (s) => new Date(s.date).toISOString().split('T')[0] === todayKey,
+            (s) => localKey(new Date(s.date)) === todayKey,
           );
           if (todayStat && (todayStat.totalQuestions || 0) > 0) {
             todayHasData = true;
@@ -1098,16 +1091,16 @@ export class UsersService {
       })
       .lean();
 
-    const todayKey = today.toISOString().split('T')[0];
+    const todayKey = localKey(today);
     const chart: any[] = [];
 
     if (bucketBy === 'day') {
       for (let i = 0; i < bucketCount; i++) {
         const d = new Date(startDate);
         d.setDate(startDate.getDate() + i);
-        const dayKey = d.toISOString().split('T')[0];
+        const dayKey = localKey(d);
         const stat = periodStats.find(
-          (s) => new Date(s.date).toISOString().split('T')[0] === dayKey,
+          (s) => localKey(new Date(s.date)) === dayKey,
         );
         const isToday = dayKey === todayKey;
         const label =
@@ -1190,7 +1183,7 @@ export class UsersService {
 
     const secondsByDate = new Map<string, number>();
     for (const s of yearStats) {
-      const key = new Date(s.date).toISOString().split('T')[0];
+      const key = localKey(new Date(s.date));
       secondsByDate.set(
         key,
         (secondsByDate.get(key) || 0) + (s.studyTimeSeconds || 0),
@@ -1202,7 +1195,7 @@ export class UsersService {
       const d = new Date();
       d.setHours(0, 0, 0, 0);
       d.setDate(d.getDate() - i);
-      const key = d.toISOString().split('T')[0];
+      const key = localKey(d);
       const seconds = secondsByDate.get(key) || 0;
       heatmap.push({ date: key, intensity: this.secondsToIntensity(seconds) });
     }
