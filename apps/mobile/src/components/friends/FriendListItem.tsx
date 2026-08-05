@@ -14,7 +14,6 @@ interface Props {
 export default function FriendListItem({ friend, onPress, isLast }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
-
   return (
     <TouchableOpacity
       style={[styles.row, !isLast && styles.divider]}

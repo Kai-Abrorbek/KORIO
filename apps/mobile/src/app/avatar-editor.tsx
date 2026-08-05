@@ -13,16 +13,10 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  FadeIn,
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
-import AvatarPreview from "@/components/avatar/AvatarPreview";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import AvatarPreview, {
+  AVATAR_BACKGROUNDS,
+} from "@/components/avatar/AvatarPreview";
 import AvatarOptionCard from "@/components/avatar/AvatarOptionCard";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { AVATAR_CATEGORIES } from "@/constants/avatar.catalog";
@@ -30,6 +24,7 @@ import { useAvatarEditorStore } from "@/store/avatar-editor.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
+import { mergeAvatarConfig } from "@/types/avatar";
 import type { AvatarConfig, AvatarOption } from "@/types/avatar";
 import { useEffect, useState } from "react";
 import { UserService } from "@/services/user.service";
@@ -56,9 +51,6 @@ export default function AvatarEditorScreen() {
   const reset = useAvatarEditorStore((state) => state.reset);
   const randomize = useAvatarEditorStore((state) => state.randomize);
 
-  const previewScale = useSharedValue(1);
-  const previewRotate = useSharedValue(0);
-
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
     AVATAR_CATEGORIES[0];
@@ -72,36 +64,14 @@ export default function AvatarEditorScreen() {
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
 
-  const avatarSignature = JSON.stringify(draft);
+  // 선택된 캐릭터 배경색으로 hero 전체를 채운다 (이중 배경 제거)
+  const heroBg =
+    AVATAR_BACKGROUNDS[mergeAvatarConfig(draft).background] ??
+    AVATAR_BACKGROUNDS.background_cloud;
 
   useEffect(() => {
     startEditing(avatar);
   }, [avatar, startEditing]);
-
-  useEffect(() => {
-    previewScale.value = withSequence(
-      withTiming(0.95, { duration: 70 }),
-      withSpring(1, {
-        damping: 11,
-        stiffness: 210,
-      }),
-    );
-
-    previewRotate.value = withSequence(
-      withTiming(-1.4, { duration: 70 }),
-      withSpring(0, {
-        damping: 10,
-        stiffness: 180,
-      }),
-    );
-  }, [avatarSignature, previewRotate, previewScale]);
-
-  const previewStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: previewScale.value },
-      { rotate: `${previewRotate.value}deg` },
-    ],
-  }));
 
   const makeCandidate = (option: AvatarOption): AvatarConfig =>
     ({
@@ -218,106 +188,102 @@ export default function AvatarEditorScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* 고정 영역: 캐릭터 프리뷰 (단일 배경) */}
+      <Animated.View entering={FadeIn.duration(350)} style={styles.heroOuter}>
+        <LinearGradient
+          colors={[heroBg[0], heroBg[1]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hero}
+        >
+          <View style={styles.heroOrbLarge} />
+          <View style={styles.heroOrbSmall} />
+
+          <View style={styles.freeBadge}>
+            <Ionicons name="sparkles" size={14} color="#6B61D8" />
+
+            <Text style={styles.freeBadgeText}>
+              {t("avatarEditor.allFree")}
+            </Text>
+          </View>
+
+          <AvatarPreview
+            avatar={draft}
+            size={Math.min(width * 0.66, 220)}
+            showBackground={false}
+          />
+
+          <TouchableOpacity
+            activeOpacity={0.84}
+            style={styles.randomButton}
+            onPress={handleRandomize}
+          >
+            <View style={styles.randomDepth} />
+
+            <View style={styles.randomFace}>
+              <Ionicons name="dice-outline" size={20} color="#FFFFFF" />
+
+              <Text style={styles.randomText}>
+                {t("avatarEditor.randomize")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </LinearGradient>
+      </Animated.View>
+
+      {/* 고정 영역: 카테고리 탭 헤더 */}
+      <View style={styles.tabHeader}>
+        <Text style={styles.subtitle}>{t("avatarEditor.subtitle")}</Text>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesContent}
+        >
+          {AVATAR_CATEGORIES.map((item) => {
+            const selected = item.id === selectedCategory;
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                activeOpacity={0.82}
+                style={[
+                  styles.categoryButton,
+                  selected && styles.categoryButtonSelected,
+                ]}
+                onPress={() => handleCategoryPress(item.id)}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={20}
+                  color={selected ? "#FFFFFF" : theme.textSecondary}
+                />
+
+                <Text
+                  style={[
+                    styles.categoryText,
+                    selected && styles.categoryTextSelected,
+                  ]}
+                >
+                  {t(`avatarEditor.categories.${item.id}`)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* 독립 스크롤 영역: 옵션 그리드만 */}
       <ScrollView
-        style={styles.scroll}
+        style={styles.optionsScroll}
         contentContainerStyle={[
-          styles.scrollContent,
+          styles.optionsScrollContent,
           {
             paddingBottom: 118 + insets.bottom,
           },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View entering={FadeIn.duration(350)} style={styles.heroOuter}>
-          <View style={styles.heroDepth} />
-
-          <LinearGradient
-            colors={
-              theme.bg === "#15151D"
-                ? ["#2C294B", "#222132"]
-                : ["#F1EEFF", "#E5F7FF"]
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hero}
-          >
-            <View style={styles.heroOrbLarge} />
-            <View style={styles.heroOrbSmall} />
-
-            <View style={styles.freeBadge}>
-              <Ionicons name="sparkles" size={14} color="#6B61D8" />
-
-              <Text style={styles.freeBadgeText}>
-                {t("avatarEditor.allFree")}
-              </Text>
-            </View>
-
-            <Animated.View style={previewStyle}>
-              <AvatarPreview
-                avatar={draft}
-                size={Math.min(width * 0.66, 270)}
-              />
-            </Animated.View>
-
-            <TouchableOpacity
-              activeOpacity={0.84}
-              style={styles.randomButton}
-              onPress={handleRandomize}
-            >
-              <View style={styles.randomDepth} />
-
-              <View style={styles.randomFace}>
-                <Ionicons name="dice-outline" size={20} color="#FFFFFF" />
-
-                <Text style={styles.randomText}>
-                  {t("avatarEditor.randomize")}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </LinearGradient>
-        </Animated.View>
-
-        <Animated.View entering={FadeInDown.delay(100).duration(350)}>
-          <Text style={styles.subtitle}>{t("avatarEditor.subtitle")}</Text>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesContent}
-          >
-            {AVATAR_CATEGORIES.map((item) => {
-              const selected = item.id === selectedCategory;
-
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  activeOpacity={0.82}
-                  style={[
-                    styles.categoryButton,
-                    selected && styles.categoryButtonSelected,
-                  ]}
-                  onPress={() => handleCategoryPress(item.id)}
-                >
-                  <Ionicons
-                    name={item.icon}
-                    size={20}
-                    color={selected ? "#FFFFFF" : theme.textSecondary}
-                  />
-
-                  <Text
-                    style={[
-                      styles.categoryText,
-                      selected && styles.categoryTextSelected,
-                    ]}
-                  >
-                    {t(`avatarEditor.categories.${item.id}`)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </Animated.View>
-
         <Animated.View
           key={category.id}
           entering={FadeInDown.duration(280)}
@@ -399,35 +365,19 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.text,
       letterSpacing: -0.3,
     },
-    scroll: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingTop: 4,
-    },
     heroOuter: {
       marginHorizontal: 16,
       marginTop: 4,
-      marginBottom: 22,
-      position: "relative",
-    },
-    heroDepth: {
-      position: "absolute",
-      top: 8,
-      left: 0,
-      right: 0,
-      bottom: -7,
-      borderRadius: 30,
-      backgroundColor: theme.border,
+      marginBottom: 16,
     },
     hero: {
-      minHeight: 352,
+      minHeight: 220,
       borderRadius: 30,
       overflow: "hidden",
       alignItems: "center",
       justifyContent: "center",
-      paddingTop: 45,
-      paddingBottom: 65,
+      paddingTop: 40,
+      paddingBottom: 28,
       borderWidth: 1.5,
       borderColor: theme.bg === "#15151D" ? "#3C385D" : "#FFFFFF",
     },
@@ -501,6 +451,10 @@ const getStyles = (theme: ThemeColors) =>
       fontWeight: "900",
       color: "#FFFFFF",
     },
+    tabHeader: {
+      backgroundColor: theme.bg,
+      zIndex: 4,
+    },
     subtitle: {
       marginHorizontal: 20,
       marginBottom: 14,
@@ -511,7 +465,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     categoriesContent: {
       paddingHorizontal: 16,
-      paddingBottom: 20,
+      paddingBottom: 16,
       gap: 8,
     },
     categoryButton: {
@@ -545,6 +499,12 @@ const getStyles = (theme: ThemeColors) =>
     },
     categoryTextSelected: {
       color: "#FFFFFF",
+    },
+    optionsScroll: {
+      flex: 1,
+    },
+    optionsScrollContent: {
+      paddingTop: 4,
     },
     optionsGrid: {
       paddingHorizontal: 16,

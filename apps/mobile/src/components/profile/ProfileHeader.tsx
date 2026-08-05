@@ -132,12 +132,6 @@ export default function ProfileHeader({
           onPress={() => router.push("/avatar-editor")}
         >
           <AvatarPreview avatar={avatar} size={230} showBackground={false} />
-
-          <View style={styles.editBadgeDepth} />
-
-          <View style={styles.editBadge}>
-            <Ionicons name="pencil" size={18} color="#FFFFFF" />
-          </View>
         </TouchableOpacity>
       </Animated.View>
     </LinearGradient>

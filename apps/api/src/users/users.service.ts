@@ -472,6 +472,9 @@ export class UsersService {
         nickname: u.nickname,
         username: u.username || '',
         profileImage: u.profileImage || '',
+        avatar: u.avatar || {
+          ...DEFAULT_AVATAR_CONFIG,
+        },
         streak: u.streak || 0,
         totalXP: u.totalXP || 0,
         league: u.league,
@@ -530,7 +533,6 @@ export class UsersService {
         ...DEFAULT_AVATAR_CONFIG,
       },
     }));
-
     return this.decorateRelations(followers, currentUserId);
   }
 
@@ -828,9 +830,7 @@ export class UsersService {
         const d = new Date(startDate);
         d.setDate(startDate.getDate() + i);
         const dayKey = localKey(d);
-        const stat = stats.find(
-          (s) => localKey(new Date(s.date)) === dayKey,
-        );
+        const stat = stats.find((s) => localKey(new Date(s.date)) === dayKey);
         const isToday = dayKey === todayKey;
 
         const seconds = stat?.studyTimeSeconds || 0;
