@@ -5,7 +5,6 @@ import Animated, {
   withTiming,
   withDelay,
   withSequence,
-  FadeIn,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import { ThemeColors } from "@/constants/theme";
@@ -25,9 +24,16 @@ const RED_BG = "#FFE5EC";
 const RED_BORDER = "#FF4B4B";
 
 export default function MatchCard({ text, status, onPress, theme }: Props) {
-  const opacity = useSharedValue(1);
+  // 등장 페이드도 이 값으로 직접 한다.
+  // entering={FadeIn} 을 같이 쓰면 레이아웃 애니메이션과 opacity 가 서로를 덮어써서
+  // 매칭 시 사라지는 연출이 씹힌다.
+  const opacity = useSharedValue(0);
   const scale = useSharedValue(1);
   const tx = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 280 });
+  }, []);
 
   useEffect(() => {
     if (status === "matched") {
@@ -63,10 +69,7 @@ export default function MatchCard({ text, status, onPress, theme }: Props) {
           : { bg: theme.surface, border: theme.border, color: theme.text };
 
   return (
-    <Animated.View
-      entering={FadeIn.duration(280)}
-      style={[styles.wrap, aStyle]}
-    >
+    <Animated.View style={[styles.wrap, aStyle]}>
       <Pressable
         onPress={onPress}
         disabled={status === "matched"}
