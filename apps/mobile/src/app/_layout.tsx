@@ -98,6 +98,10 @@ export default function RootLayout() {
               options={{ animation: "fade", gestureEnabled: false }}
             />
             <Stack.Screen
+              name="jamo-slot"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="follow-link"
               options={{
                 presentation: "transparentModal",

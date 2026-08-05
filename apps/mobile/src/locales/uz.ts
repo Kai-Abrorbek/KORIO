@@ -600,6 +600,16 @@ export default {
       slot: "Slot", // uz: "Slot", en: "Slot", ru: "Слот"
       speed: "Tezlik",
     },
+    slot: {
+      makeThis: "Shu harfni yig‘",
+      stop: "STOP",
+      combo: "{{count}} kombo",
+      gameOver: "O‘yin tugadi!",
+      made: "Yig‘ilgan harf",
+      maxCombo: "Eng yuqori kombo",
+      retry: "Qayta o‘ynash",
+      exit: "Chiqish",
+    },
     speed: {
       getReady: "Tayyor",
       go: "Boshla!",

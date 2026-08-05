@@ -574,6 +574,16 @@ export default {
       slot: "슬롯",
       speed: "스피드",
     },
+    slot: {
+      makeThis: "이 글자를 만들어",
+      stop: "STOP",
+      combo: "{{count}}콤보",
+      gameOver: "게임 끝!",
+      made: "만든 글자",
+      maxCombo: "최고 콤보",
+      retry: "다시 하기",
+      exit: "나가기",
+    },
     memory: {
       level: "레벨 {{level}}",
       memorize: "카드를 기억하세요!",

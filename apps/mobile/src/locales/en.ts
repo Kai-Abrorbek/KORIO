@@ -574,6 +574,16 @@ export default {
       slot: "Slot",
       speed: "Speed",
     },
+    slot: {
+      makeThis: "Build this letter",
+      stop: "STOP",
+      combo: "{{count}} combo",
+      gameOver: "Game over!",
+      made: "Letters built",
+      maxCombo: "Best combo",
+      retry: "Play again",
+      exit: "Exit",
+    },
     memory: {
       level: "Level {{level}}",
       memorize: "Memorize the cards!",

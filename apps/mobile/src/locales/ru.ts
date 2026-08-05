@@ -576,6 +576,16 @@ export default {
       slot: "Слот", // uz: "Slot", en: "Slot", ru: "Слот"
       speed: "Скорость",
     },
+    slot: {
+      makeThis: "Собери эту букву",
+      stop: "STOP",
+      combo: "Комбо {{count}}",
+      gameOver: "Игра окончена!",
+      made: "Собрано букв",
+      maxCombo: "Лучшее комбо",
+      retry: "Ещё раз",
+      exit: "Выйти",
+    },
     memory: {
       level: "Уровень {{level}}",
       memorize: "Запомните карточки!",
