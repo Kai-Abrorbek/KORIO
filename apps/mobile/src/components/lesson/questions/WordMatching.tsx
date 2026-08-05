@@ -1,12 +1,5 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ThemeColors } from "@/constants/theme";
@@ -26,6 +19,9 @@ interface Item {
   status: PairStatus;
 }
 
+// 카드를 조금 낮춰야 짝이 많을 때도 확인 버튼이 화면 안에 들어온다
+const CARD_H = 85;
+
 const shuffle = <T,>(a: T[]) => {
   const r = [...a];
   for (let i = r.length - 1; i > 0; i--) {
@@ -43,7 +39,6 @@ export default function WordMatching({
 }: Props) {
   const { t } = useTranslation();
   const s = styles(theme);
-  const insets = useSafeAreaInsets();
   const pairs = question.pairs ?? [];
 
   const [left, setLeft] = useState<Item[]>(() =>
@@ -147,51 +142,46 @@ export default function WordMatching({
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
-      {/* 짝이 많으면 화면을 넘으므로 내용만 스크롤. 확인 버튼은 아래 고정 */}
-      <ScrollView
-        style={s.scroll}
-        contentContainerStyle={s.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={s.title}>{question.question}</Text>
-        <Text style={s.sub}>{t("lesson.matchPairs")}</Text>
+      {/* 헤더 유지 */}
+      <Text style={s.title}>{question.question}</Text>
+      <Text style={s.sub}>{t("lesson.matchPairs")}</Text>
 
-        <View style={s.grid}>
-          <View style={s.col}>
-            {left.map((item, i) => (
-              <MatchPairCard
-                key={item.id}
-                text={item.text}
-                status={item.status}
-                onPress={() => tapL(i)}
-                theme={theme}
-              />
-            ))}
-          </View>
-          <View style={s.col}>
-            {right.map((item, j) => (
-              <MatchPairCard
-                key={item.id}
-                text={item.text}
-                status={item.status}
-                onPress={() => tapR(j)}
-                theme={theme}
-              />
-            ))}
-          </View>
+      <View style={s.grid}>
+        <View style={s.col}>
+          {left.map((item, i) => (
+            <MatchPairCard
+              key={item.id}
+              text={item.text}
+              status={item.status}
+              onPress={() => tapL(i)}
+              theme={theme}
+              height={CARD_H}
+            />
+          ))}
         </View>
-      </ScrollView>
-
-      {/* 확인 버튼 — 항상 하단 고정 */}
-      <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <TouchableOpacity
-          style={[s.checkBtn, (!allDone || locked) && s.checkBtnDisabled]}
-          onPress={check}
-          disabled={!allDone || locked}
-        >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-        </TouchableOpacity>
+        <View style={s.col}>
+          {right.map((item, j) => (
+            <MatchPairCard
+              key={item.id}
+              text={item.text}
+              status={item.status}
+              onPress={() => tapR(j)}
+              theme={theme}
+              height={CARD_H}
+            />
+          ))}
+        </View>
       </View>
+
+      <View style={{ flex: 1 }} />
+
+      <TouchableOpacity
+        style={[s.checkBtn, (!allDone || locked) && s.checkBtnDisabled]}
+        onPress={check}
+        disabled={!allDone || locked}
+      >
+        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -202,10 +192,8 @@ const styles = (theme: ThemeColors) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
+      marginBottom: 40,
     },
-    scroll: { flex: 1 },
-    scrollContent: { paddingBottom: 16 },
-    footer: { paddingTop: 8, backgroundColor: theme.bg },
     title: {
       fontSize: 22,
       fontWeight: "800",
@@ -218,7 +206,7 @@ const styles = (theme: ThemeColors) =>
       marginBottom: 28,
       fontWeight: "500",
     },
-    // 높이를 540 으로 고정해두면 작은 화면에서 확인 버튼이 밀려 잘린다
+    // 높이를 고정해두면 짝 수가 달라질 때 남거나 모자란다. 내용에 맞춰 잡는다.
     grid: { flexDirection: "row", gap: 14 },
     col: { flex: 1, gap: 14 },
     checkBtn: {

@@ -49,6 +49,11 @@ export default function WordArrange({
   const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
   const { speak, speakSlow, isSpeaking } = useSpeech();
 
+  // 답 영역은 놓인 칩만큼만 자란다. 높이를 180 으로 고정해두면
+  // 단어 한두 개일 때도 세 줄치를 차지해서 확인 버튼이 밀려난다.
+  const [answerH, setAnswerH] = useState(LINE_H);
+  const lineCount = Math.max(1, Math.round(answerH / LINE_H));
+
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
       id: `w-${i}`,
@@ -186,9 +191,12 @@ export default function WordArrange({
         </View>
 
         {/* 배치된 단어들 (상단 - 연두색) */}
-        <View style={s.answerArea}>
-          {/* 줄 (룰드 라인) */}
-          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+        <View
+          style={s.answerArea}
+          onLayout={(e) => setAnswerH(e.nativeEvent.layout.height)}
+        >
+          {/* 줄 (룰드 라인) — 실제 쓰이는 줄 수만큼만 */}
+          {Array.from({ length: lineCount }).map((_, i) => (
             <View
               key={`line-${i}`}
               style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
@@ -343,8 +351,7 @@ const styles = (
       backgroundColor: "#4A90D9",
     },
     answerArea: {
-      height: 180,
-      minHeight: lineH * lines,
+      minHeight: lineH, // 비어 있어도 한 줄은 보이게
       marginTop: 8,
       marginBottom: 8,
       position: "relative",
@@ -356,8 +363,8 @@ const styles = (
       height: 1,
       backgroundColor: theme.border,
     },
+    // absoluteFill 이면 부모 높이를 못 밀어 올려서 답 영역이 안 자란다
     placedWrap: {
-      ...StyleSheet.absoluteFill,
       flexDirection: "row",
       flexWrap: "wrap",
       alignContent: "flex-start",

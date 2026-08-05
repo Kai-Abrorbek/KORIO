@@ -27,6 +27,8 @@ interface Props {
   onPress: () => void;
   theme: ThemeColors;
   children?: ReactNode;
+  /** 카드 높이. 짝이 많은 화면에서는 줄여서 쓴다 */
+  height?: number;
   /** 0 보다 크면 등장할 때 그만큼 서서히 나타난다 */
   appearMs?: number;
   /** true 면 서서히 사라진다 (교체 직전) */
@@ -40,6 +42,7 @@ export default function MatchPairCard({
   onPress,
   theme,
   children,
+  height = 85,
   appearMs = 0,
   vanishing = false,
   vanishMs = 420,
@@ -137,6 +140,7 @@ export default function MatchPairCard({
         style={[
           styles.card,
           {
+            height,
             backgroundColor: palette.bg,
             borderColor: palette.border,
             opacity: isGhost ? 0.45 : 1,
@@ -187,7 +191,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    height: 90,
   },
   text: { fontSize: 18, fontWeight: "800" },
   shine: {
