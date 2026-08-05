@@ -108,8 +108,8 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('score')
-  async getScore(@Request() req) {
-    return this.lessonsService.getScore(req.user._id.toString());
+  async getScore(@Request() req, @Query('lang') lang?: string) {
+    return this.lessonsService.getScore(req.user._id.toString(), lang || 'uz');
   }
 
   @UseGuards(JwtAuthGuard)

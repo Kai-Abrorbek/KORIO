@@ -840,7 +840,7 @@ export class LessonsService {
     return { completed: lessonIds.length };
   }
 
-  async getScore(userId: string) {
+  async getScore(userId: string, lang = 'uz') {
     const uId = new Types.ObjectId(userId);
 
     // 전체 노드 (chest 제외)
@@ -881,10 +881,16 @@ export class LessonsService {
 
     // 섹션별 유닛 수 → 마일스톤 (섹션 늘어나면 자동 확장)
     const milestones = buildMilestones(
-      [...sectionUnits.entries()].map(([section, units]) => ({
-        section,
-        units,
-      })),
+      [...sectionUnits.entries()].map(([section, units]) => {
+        const meta = getSectionMeta(section);
+        return {
+          section,
+          units,
+          title: meta
+            ? pickSectionText(meta.title, lang)
+            : `Section ${section}`,
+        };
+      }),
     );
 
     return calcScore(completedUnits, milestones);

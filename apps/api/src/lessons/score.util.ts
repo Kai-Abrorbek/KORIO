@@ -2,19 +2,29 @@ export interface Milestone {
   score: number; // 그 섹션 끝까지의 누적 유닛 수
   section: number; // 섹션 번호
   units: number; // 그 섹션의 유닛 수
+  title?: string; // 섹션 제목 (유저 언어)
+  startScore?: number; // 그 섹션 시작 시점의 누적 유닛 수
+  status?: 'completed' | 'current' | 'locked';
 }
 
 // 섹션별 유닛 수 → 누적 마일스톤 생성
 // 예: 섹션1=1유닛, 섹션2=9유닛 → [{score:1,...}, {score:10,...}]
 export function buildMilestones(
-  unitsPerSection: { section: number; units: number }[],
+  unitsPerSection: { section: number; units: number; title?: string }[],
 ): Milestone[] {
   let cum = 0;
   return unitsPerSection
     .sort((a, b) => a.section - b.section)
     .map((s) => {
+      const startScore = cum;
       cum += s.units;
-      return { score: cum, section: s.section, units: s.units };
+      return {
+        score: cum,
+        section: s.section,
+        units: s.units,
+        title: s.title,
+        startScore,
+      };
     });
 }
 
@@ -32,11 +42,26 @@ export function calcScore(completedUnits: number, milestones: Milestone[]) {
   const progress =
     target > base ? (completedUnits - base) / (target - base) : 1;
 
+  // 각 섹션 상태 — 넘긴 섹션은 completed, 지금 진행 중인 하나만 current, 나머지 locked
+  let currentMarked = false;
+  const withStatus: Milestone[] = milestones.map((m) => {
+    let status: 'completed' | 'current' | 'locked';
+    if (completedUnits >= m.score) {
+      status = 'completed';
+    } else if (!currentMarked) {
+      status = 'current';
+      currentMarked = true;
+    } else {
+      status = 'locked';
+    }
+    return { ...m, status };
+  });
+
   return {
     score,
     completedUnits,
     nextScore: next ? next.score : score,
     progress: Math.max(0, Math.min(1, progress)),
-    milestones, // 프론트 타임라인용
+    milestones: withStatus, // 프론트 타임라인용
   };
 }
