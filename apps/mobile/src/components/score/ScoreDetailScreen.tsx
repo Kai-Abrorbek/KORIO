@@ -291,7 +291,7 @@ const getStyles = (theme: ThemeColors, accent: string) =>
     hero: {
       backgroundColor: accent,
       paddingHorizontal: 20,
-      paddingBottom: 28,
+      paddingBottom: 18,
     },
     header: {
       flexDirection: "row",
@@ -313,7 +313,7 @@ const getStyles = (theme: ThemeColors, accent: string) =>
       gap: 14,
       marginTop: 16,
     },
-    heroFlag: { fontSize: 40 },
+    heroFlag: { fontSize: 55 },
     heroScore: { fontSize: 56, fontWeight: "900", color: "#fff" },
 
     cloudWrap: {
