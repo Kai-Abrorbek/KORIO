@@ -104,19 +104,25 @@ function CategoryCard({
             router.push("/pronunciation-practice");
             return;
           }
+          // 문법 문제 풀이 — 어휘와 같은 로드맵을 쓰되 문법 트랙 데이터로.
+          // 학습 모드로는 저장하지 않는다. 홈이 learnMode 로 경로를 만드는데
+          // 이 값은 카테고리 이름과 달라서 엉뚱한 곳으로 간다.
           if (c.category === "grammarPractice") {
-            router.push("/grammar-practice");
-            return;
-          }
-
-          setLearnMode(c.category as LearnMode); // 현재 학습 모드 기억
-          // 문법은 로드맵이 아니라 전용 문법 목록으로
-          if (c.category === "grammar") {
-            router.push("/grammar-list");
+            router.push({
+              pathname: "/roadmap",
+              params: { category: "grammar" },
+            });
             return;
           }
           if (c.category === "topik") {
             onTopikPress();
+            return;
+          }
+
+          setLearnMode(c.category as LearnMode); // 현재 학습 모드 기억
+          // 문법(설명)은 로드맵이 아니라 전용 문법 목록으로
+          if (c.category === "grammar") {
+            router.push("/grammar-list");
             return;
           }
           router.push({

@@ -13,13 +13,14 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
+import { ThemeColors } from "@/constants/theme";
+import { LessonQuestion, AnswerState } from "@/types/lesson";
 
 // ── 레퍼런스 팔레트 ──
 const C = {
@@ -50,35 +51,46 @@ const C = {
   lav: "#a99ff0",
 };
 
-/** 빈칸 문제 — 서버가 예문의 highlight 를 파서 만들어 준다 */
-export interface WriteQuestion {
-  kind: "write";
-  id: string;
-  code: string;
-  pattern: string; // 문법 패턴 (뱃지·출처 자리에 표시)
-  prompt: string; // 유저 언어 뜻
-  prefix: string;
-  answer: string;
-  suffix: string;
-  full: string;
-  highlight?: string;
-  wrongHint?: string;
-  note?: string;
-  image?: string;
+interface Props {
+  question: LessonQuestion;
+  answerState: AnswerState;
+  onAnswer: (answer: string) => void;
+  theme: ThemeColors;
 }
 
-interface Props {
-  question: WriteQuestion;
-  onResult: (correct: boolean) => void;
-}
-export default function WriteBlankCard({ question, onResult }: Props) {
+/**
+ * 문법 빈칸 문제 (grammar_blank).
+ * 채점·피드백·XP 는 레슨 엔진이 하고 여기서는 입력만 받아 onAnswer 로 넘긴다.
+ */
+export default function GrammarBlank({
+  question,
+  answerState,
+  onAnswer,
+}: Props) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const insets = useSafeAreaInsets();
 
-  const q = question;
+  // 엔진 문제 형태를 카드가 쓰던 이름으로 매핑
+  const q = {
+    id: question.id,
+    prefix: question.sentencePrefix ?? "",
+    answer: question.answer,
+    suffix: question.sentenceSuffix ?? "",
+    prompt: question.answerTranslation ?? "",
+    full:
+      (question.sentencePrefix ?? "") +
+      question.answer +
+      (question.sentenceSuffix ?? ""),
+    pattern: question.tags?.[0] ?? "",
+    highlight: undefined as string | undefined,
+    wrongHint: question.hint,
+    note: question.explanation,
+    image: undefined as string | undefined,
+  };
+
+  const state = answerState; // "idle" | "correct" | "wrong"
   const [input, setInput] = useState("");
-  const [state, setState] = useState<"idle" | "wrong" | "correct">("idle");
   const [hintLevel, setHintLevel] = useState(0); // 0/1/2
   const [fav, setFav] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -111,42 +123,37 @@ export default function WriteBlankCard({ question, onResult }: Props) {
   useEffect(() => {
     setInput("");
     setHintLevel(0);
-    setState("idle");
     check.value = 0;
     focusInput();
   }, [q.id]);
+
+  // 채점 결과는 엔진이 알려준다
+  useEffect(() => {
+    if (answerState === "correct") {
+      Keyboard.dismiss();
+      check.value = 1;
+    }
+  }, [answerState]);
 
   const revealed = () => {
     if (hintLevel === 0) return "";
     return hintLevel === 1 ? q.answer.slice(0, 1) : q.answer;
   };
 
+  // 채점은 엔진이 한다. 여기서는 입력만 넘긴다.
   const handleCheck = () => {
-    if (state === "correct" || !input.trim()) return;
-    const ok = input.trim().toLowerCase() === q.answer.toLowerCase();
-    if (ok) {
-      setState("correct");
-      Keyboard.dismiss();
-      check.value = 1;
-    } else {
-      setState("wrong");
-      shake.value = 0;
-    }
+    if (state !== "idle" || !input.trim()) return;
+    onAnswer(input.trim());
   };
-
-  // 힌트를 썼으면 맞아도 정답 처리하지 않는다 (답을 보여줬으므로)
-  const nextQuestion = () => onResult(state === "correct" && hintLevel < 2);
 
   const pressHint = () => {
     setHintLevel((h) => Math.min(2, h + 1));
-    if (state === "wrong") setState("idle");
     focusInput();
   };
 
   const handleChange = (v: string) => {
     if (state === "correct") return;
     setInput(v);
-    if (state === "wrong") setState("idle");
   };
 
   const isOk = state === "correct";
@@ -344,12 +351,6 @@ export default function WriteBlankCard({ question, onResult }: Props) {
                 onPress={() => speak(q.prefix + q.answer + q.suffix)}
                 icon={<Ionicons name="volume-high" size={30} color="#fff" />}
                 label={t("writePractice.listenAgain")}
-              />
-              <BigBtn
-                colors={["#7b6ef0", "#6a5ee0"]}
-                onPress={nextQuestion}
-                icon={<Ionicons name="play" size={30} color="#fff" />}
-                label={t("writePractice.nextQuestion")}
               />
             </View>
           </View>

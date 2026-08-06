@@ -52,6 +52,11 @@ export class Lesson {
   @Prop({ type: [Types.ObjectId], ref: 'Question', default: [] })
   questionIds: Types.ObjectId[];
 
+  // 문법 트랙 전용. 레슨 하나가 문법 하나에 대응한다 (Grammar.code).
+  // 문제를 풀 때 어떤 문법인지 보여주고 설명 페이지로 이어주는 데 쓴다.
+  @Prop({ index: true, sparse: true })
+  grammarCode?: string;
+
   @Prop({ default: 0 })
   xpReward: number;
 

@@ -19,6 +19,10 @@ export enum QuestionType {
   LISTEN_FILL = 'listen_fill',
   TRANSLATE_TYPE = 'translate_type',
   AUDIO_MATCH = 'audio_match',
+  // 문법 문제 풀이 전용. 어휘 트랙의 fill_in_blank / word_arrange 와
+  // 화면이 달라서 유형을 나눈다 (렌더러 선택용).
+  GRAMMAR_BLANK = 'grammar_blank',
+  GRAMMAR_BUILD = 'grammar_build',
 }
 
 export enum QuestionLevel {
@@ -136,6 +140,14 @@ export class Question {
   // 문법 포인트 · 어휘 주제. "이 문법만 연습" 같은 기능에서 사용.
   @Prop({ type: [String], default: [], index: true })
   tags: string[];
+
+  // grammar_build 전용. 어절 자리마다 보기 묶음 하나.
+  // 정답을 순서대로 이으면 완성 문장이 된다.
+  @Prop({
+    type: [{ options: [String], correct: String }],
+    default: [],
+  })
+  buildRows: { options: string[]; correct: string }[];
 
   // TTS 로 읽어줄 원문 (듣기 계열). answer 와 다를 수 있다.
   @Prop({ default: '' })

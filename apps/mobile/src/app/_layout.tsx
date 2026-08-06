@@ -154,10 +154,6 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
-              name="grammar-practice"
-              options={{ animation: "fade", gestureEnabled: false }}
-            />
-            <Stack.Screen
               name="topik"
               options={{ animation: "slide_from_right" }}
             />

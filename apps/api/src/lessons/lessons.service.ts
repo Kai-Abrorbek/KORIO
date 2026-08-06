@@ -71,6 +71,7 @@ export class LessonsService {
       explanation: this.extractI18n(q.explanation, lang),
       answerTranslation: this.extractI18n(q.answerTranslation, lang),
       acceptedAnswers: q.acceptedAnswers || [],
+      buildRows: q.buildRows || [], // grammar_build 전용
       difficulty: q.difficulty ?? 3,
       tags: q.tags || [],
       audioText: q.audioText || '',
@@ -99,6 +100,7 @@ export class LessonsService {
       lessonId: lesson._id.toString(),
       lessonTitle: this.extractI18n(lesson.title, lang),
       category: lesson.category,
+      grammarCode: lesson.grammarCode ?? null, // 문법 트랙이면 어떤 문법인지
       totalXp: lesson.xpReward,
       questions: sortedQuestions,
     };

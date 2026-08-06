@@ -3,13 +3,14 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import * as Speech from "expo-speech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { ThemeColors } from "@/constants/theme";
+import { LessonQuestion, AnswerState } from "@/types/lesson";
 
 const C = {
   bgTop: "#cfe7fa",
@@ -42,42 +43,44 @@ const C = {
   trackFill: "#7ec8ef",
 };
 
-export interface BuildRow {
-  options: string[];
-  correct: string;
-}
-
-/** 조립 문제 — 서버가 예문을 어절로 쪼개서 만들어 준다 */
-export interface BuildQuestion {
-  kind: "build";
-  id: string;
-  code: string;
-  pattern: string;
-  prompt: string; // 유저 언어 뜻
-  rows: BuildRow[];
-  full: string; // 완성된 한국어 문장
-  hints?: Record<string, string>;
-}
-
 interface Props {
-  question: BuildQuestion;
-  onResult: (correct: boolean) => void;
+  question: LessonQuestion;
+  answerState: AnswerState;
+  onAnswer: (answer: string) => void;
+  theme: ThemeColors;
 }
 
-export default function BuildSentenceCard({ question, onResult }: Props) {
+/**
+ * 문법 문장 조립 문제 (grammar_build).
+ * 채점·피드백·XP 는 레슨 엔진이 하고 여기서는 고른 어절만 넘긴다.
+ */
+export default function GrammarBuild({
+  question,
+  answerState,
+  onAnswer,
+}: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   // 문장 전체를 어절로 조립하므로 고정 앞뒤 문구는 없다
-  const q = { before: "", after: "", hints: {}, ...question };
+  const q = {
+    id: question.id,
+    rows: question.buildRows ?? [],
+    full: question.answer,
+    prompt: question.answerTranslation ?? "",
+    pattern: question.tags?.[0] ?? "",
+    before: "",
+    after: "",
+    hints: {} as Record<string, string>,
+  };
+
   const [picks, setPicks] = useState<string[]>([]);
   const [currentRow, setCurrentRow] = useState(0);
-  const [phase, setPhase] = useState<"picking" | "correct">("picking");
   const [attemptWrong, setAttemptWrong] = useState(false);
   const [lastPicks, setLastPicks] = useState<string[]>([]);
 
   const allPicked = currentRow >= q.rows.length;
-  const isOk = phase === "correct";
+  const isOk = answerState === "correct";
 
   const shake = useSharedValue(0);
   const check = useSharedValue(0);
@@ -89,17 +92,22 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
     opacity: check.value,
   }));
 
-  const resetForQuestion = () => {
+  useEffect(() => {
     setPicks([]);
     setCurrentRow(0);
-    setPhase("picking");
     setAttemptWrong(false);
     setLastPicks([]);
     check.value = 0;
-  };
-  useEffect(() => {
-    resetForQuestion();
   }, [q.id]);
+
+  // 채점 결과는 엔진이 알려준다
+  useEffect(() => {
+    if (answerState === "correct") check.value = 1;
+    if (answerState === "wrong") {
+      setLastPicks(picks);
+      setAttemptWrong(true);
+    }
+  }, [answerState]);
 
   const pickWord = (rowIndex: number, w: string) => {
     if (rowIndex !== currentRow || isOk) return;
@@ -113,22 +121,11 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
     setCurrentRow((r) => r - 1);
   };
 
+  // 채점은 엔진이 한다. 고른 어절을 이어서 넘긴다.
   const checkAnswer = () => {
-    const ok = picks.every((w, i) => w === q.rows[i].correct);
-    if (ok) {
-      setPhase("correct");
-      check.value = 1;
-    } else {
-      setLastPicks(picks);
-      setAttemptWrong(true);
-      setPicks([]);
-      setCurrentRow(0);
-      shake.value = 0;
-    }
+    if (answerState !== "idle" || !allPicked) return;
+    onAnswer(picks.join(" "));
   };
-
-  // 한 번이라도 틀렸으면 정답 처리하지 않는다
-  const next = () => onResult(isOk && !attemptWrong);
 
   // 카드 색 (오답 후 힌트)
   const cardColor = (i: number, w: string) => {
@@ -300,12 +297,6 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
               icon={<Ionicons name="volume-high" size={28} color="#fff" />}
               label={t("sentenceBuild.listenAgain")}
               onPress={() => Speech.speak(q.full, { language: "ko-KR" })}
-            />
-            <BigBtn
-              colors={["#7b6ef0", "#5f52e0"]}
-              icon={<Ionicons name="play" size={28} color="#fff" />}
-              label={t("sentenceBuild.nextQuestion")}
-              onPress={next}
             />
           </View>
         </View>

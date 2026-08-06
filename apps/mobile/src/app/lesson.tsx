@@ -39,6 +39,8 @@ import ListenType from "@/components/lesson/questions/ListenType";
 import FillInBlank from "@/components/lesson/questions/FillInBlank";
 import TranslateType from "@/components/lesson/questions/TranslateType";
 import AudioMatch from "@/components/lesson/questions/AudioMatch";
+import GrammarBlank from "@/components/lesson/questions/GrammarBlank";
+import GrammarBuild from "@/components/lesson/questions/GrammarBuild";
 import ListenFill from "@/components/lesson/questions/ListenFill";
 import { useEnergyStore } from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
@@ -627,6 +629,10 @@ export default function LessonScreen() {
         return <ListenFill {...props} onSkip={handleNext} />;
       case "audio_match":
         return <AudioMatch {...props} onSkip={handleNext} />;
+      case "grammar_blank":
+        return <GrammarBlank {...props} />;
+      case "grammar_build":
+        return <GrammarBuild {...props} />;
       default:
         return <SentenceBuilder {...props} />;
     }

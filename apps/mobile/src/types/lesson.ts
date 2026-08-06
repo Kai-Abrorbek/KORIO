@@ -13,7 +13,10 @@ export type QuestionType =
   | "listen_type"
   | "audio_match"
   | "listening"
-  | "listen_fill";
+  | "listen_fill"
+  // 문법 문제 풀이 전용
+  | "grammar_blank"
+  | "grammar_build";
 
 export interface MatchingPair {
   korean: string;
@@ -61,6 +64,8 @@ export interface LessonQuestion {
   dialogLines?: DialogLine[];
   sentencePrefix?: string;
   sentenceSuffix?: string;
+  /** grammar_build 전용 — 어절 자리마다 보기 묶음 */
+  buildRows?: { options: string[]; correct: string }[];
   hard?: boolean;
 }
 
