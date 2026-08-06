@@ -101,7 +101,12 @@ export default function WriteBlankCard({ question, onResult }: Props) {
   }, []);
 
   // 문제 바뀌면 리셋 + 키보드 다시
-  const focusInput = () => setTimeout(() => inputRef.current?.focus(), 60);
+  // 뒤로가기로 키보드만 닫히면 RN 은 여전히 포커스를 쥐고 있다고 보고
+  // focus() 를 무시한다. blur 로 한 번 놓아준 뒤 다시 잡아야 키보드가 올라온다.
+  const focusInput = () => {
+    inputRef.current?.blur();
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
   // 문제가 바뀌면 입력·힌트 초기화하고 키보드 다시 올린다
   useEffect(() => {
     setInput("");
@@ -170,7 +175,10 @@ export default function WriteBlankCard({ question, onResult }: Props) {
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={[st.scroll, { paddingBottom: insets.bottom + 12 }]}
+          contentContainerStyle={[
+            st.scroll,
+            { paddingBottom: insets.bottom + 12 },
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           {/* 지금 연습 중인 문법 */}
@@ -220,16 +228,12 @@ export default function WriteBlankCard({ question, onResult }: Props) {
 
               {/* note (줄임말 등) */}
               {isOk && q.note && (
-                <Animated.Text style={st.note}>
-                  ※ {q.note}
-                </Animated.Text>
+                <Animated.Text style={st.note}>※ {q.note}</Animated.Text>
               )}
 
               {/* 오답 힌트 버블 */}
               {state === "wrong" && (
-                <Animated.View
-                  style={st.wrongBubble}
-                >
+                <Animated.View style={st.wrongBubble}>
                   <Text style={st.wrongText}>
                     {q.wrongHint ?? t("writePractice.wrongDefault")}
                   </Text>
@@ -291,7 +295,7 @@ export default function WriteBlankCard({ question, onResult }: Props) {
         {/* 키보드 위 툴바 */}
         {isOk ? (
           <View>
-            {/* 액션 아이콘 줄 */}
+            {/* 액션 아이콘 줄 — 아직 기능이 없어서 숨김. 만들면 주석 해제
             <View style={st.actionRow}>
               {[
                 { icon: "chatbubbles", label: t("writePractice.otherExample") },
@@ -319,6 +323,7 @@ export default function WriteBlankCard({ question, onResult }: Props) {
                 </Pressable>
               ))}
             </View>
+            */}
 
             {/* 큰 버튼 3개 */}
             <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
@@ -355,10 +360,15 @@ export default function WriteBlankCard({ question, onResult }: Props) {
               <Text style={st.barSideText}>{t("writePractice.hint")}</Text>
             </Pressable>
 
-            <View style={st.wordBubble}>
-              <Text style={st.wordBubbleText}>{input || " "}</Text>
-              <View style={st.wordBubbleTail} />
-            </View>
+            {/* 원본은 키보드 완료 키로만 제출해서, 키보드가 닫히면 답을 낼 방법이
+                없었다. 입력 미리보기 자리를 실제 확인 버튼으로 바꾼다. */}
+            <Pressable
+              style={[st.wordBubble, !input.trim() && st.wordBubbleOff]}
+              onPress={handleCheck}
+              disabled={!input.trim()}
+            >
+              <Text style={st.wordBubbleText}>{t("lesson.check")}</Text>
+            </Pressable>
 
             <Pressable style={st.barSide}>
               <Ionicons name="mic" size={26} color={C.purple} />
@@ -523,18 +533,22 @@ const st = StyleSheet.create({
     fontWeight: "500",
     marginTop: 26,
   },
+  // absolute 로 두면 부모 너비 계산에서 빠져 입력칸이 안 늘어난다.
+  // 입력이 있을 땐 아예 렌더되지 않으므로 겹칠 일도 없다.
   hintGhost: {
-    position: "absolute",
     color: C.ink,
     opacity: 0.25, // 흐리게 배경처럼
   },
+  // 화면 밖(top:-1000)에 두면 안드로이드에서 focus() 로 키보드가 다시 안 올라온다.
+  // 보이지 않게만 하고 레이아웃 안에 남겨둔다.
   hiddenInput: {
     position: "absolute",
-    width: 200,
-    height: 44,
-    opacity: 0,
-    top: -1000, // 화면 밖으로
+    top: 0,
     left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0,
+    padding: 0,
   },
 
   // 입력 툴바
@@ -543,24 +557,26 @@ const st = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 14,
+    marginBottom: 50,
     backgroundColor: "transparent",
   },
   barSide: { alignItems: "center", gap: 3, width: 90 },
   barSideText: { fontSize: 13, fontWeight: "700", color: C.purple },
   wordBubble: {
     backgroundColor: C.purple,
-    paddingHorizontal: 22,
-    paddingVertical: 8,
+    paddingHorizontal: 30,
+    paddingVertical: 13,
     borderRadius: 14,
-    minWidth: 70,
+    minWidth: 140,
     alignItems: "center",
+    borderBottomWidth: 4,
+    borderColor: C.purpleDk,
   },
+  wordBubbleOff: { backgroundColor: "#b9c4d4", borderColor: "#a0abbb" },
   wordBubbleText: {
     color: "#fff",
-    fontSize: 22,
-    fontWeight: "800",
-    textDecorationLine: "underline",
+    fontSize: 18,
+    fontWeight: "900",
   },
   wordBubbleTail: {
     position: "absolute",

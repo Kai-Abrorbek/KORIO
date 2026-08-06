@@ -208,9 +208,7 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
 
             {/* 오답 설명 버블 */}
             {showExplain && (
-              <Animated.View
-                style={st.hintBubble}
-              >
+              <Animated.View style={st.hintBubble}>
                 <View style={st.hintHead}>
                   <Ionicons name="bulb" size={20} color="#e8a417" />
                   <Text style={st.hintAttempt}>
@@ -262,6 +260,7 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
       {/* ===== 하단 영역 ===== */}
       {isOk ? (
         <View>
+          {/* 액션 아이콘 줄 — 아직 기능이 없어서 숨김. 만들면 주석 해제
           <View style={st.actionRow}>
             {[
               { icon: "chatbubbles", label: t("sentenceBuild.otherExample") },
@@ -288,6 +287,7 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
               </Pressable>
             ))}
           </View>
+          */}
           <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
             <BigBtn
               colors={["#a07af0", "#8b6ae8"]}
@@ -324,7 +324,6 @@ export default function BuildSentenceCard({ question, onResult }: Props) {
                     st.row,
                     {
                       zIndex: 50 - depth,
-                      // 뒤 카드일수록 위로 올리고(-마진) + 살짝 작게 + 흐리게
                       marginBottom: depth === 0 ? 0 : -15, // 앞 카드가 뒤 카드를 덮음
                       transform: [{ scale: 1 - Math.min(depth, 3) * 0.05 }],
                       opacity: depth === 0 ? 1 : 1 - Math.min(depth, 3) * 0.2,
@@ -563,8 +562,8 @@ const st = StyleSheet.create({
   },
 
   pickArea: { paddingHorizontal: 16 },
-  stack: { flexDirection: "column-reverse", paddingTop: 40 },
-  row: { flexDirection: "row", gap: 12, justifyContent: "center" },
+  stack: { flexDirection: "column-reverse", marginBottom: 50 },
+  row: { flexDirection: "row", gap: 5, justifyContent: "center" },
   card2: {
     flex: 1,
     backgroundColor: "#fff",
@@ -580,8 +579,8 @@ const st = StyleSheet.create({
     elevation: 2,
   },
   card2Active: { shadowOpacity: 0.28, shadowRadius: 10, elevation: 5 },
-  card2Text: { fontSize: 19, fontWeight: "600", color: "#5a6674" },
-  card2TextActive: { fontSize: 22, fontWeight: "800", color: C.ink },
+  card2Text: { fontSize: 14, fontWeight: "600", color: "#5a6674" },
+  card2TextActive: { fontSize: 16, fontWeight: "800", color: C.ink },
 
   checkWrap: { paddingTop: 16 },
   checkBtn: {},

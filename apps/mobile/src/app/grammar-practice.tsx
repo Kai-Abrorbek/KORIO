@@ -126,7 +126,11 @@ export default function GrammarPracticeScreen() {
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    center: { flex: 1, alignItems: "center", justifyContent: "center" },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     header: {
       flexDirection: "row",
       alignItems: "center",
