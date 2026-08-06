@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { TopikService } from "@/services/topik.service";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import type { TopikAttemptResult } from "@/types/topik";

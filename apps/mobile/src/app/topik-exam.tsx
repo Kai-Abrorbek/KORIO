@@ -5,12 +5,12 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { TopikHintPanel, TopikQuestionCard } from "@/components/topik";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import { flattenTopikQuestions, type TopikAttemptMode } from "@/types/topik";
