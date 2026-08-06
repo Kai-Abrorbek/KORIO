@@ -13,11 +13,16 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveTopikAnswersDto } from './dto/save-topik-answers.dto';
 import { StartTopikAttemptDto } from './dto/start-topik-attempt.dto';
 import { TopikSessionQueryDto } from './dto/topik-session-query.dto';
+import { TopikStatsQueryDto } from './dto/topik-stats-query.dto';
 import { TopikService } from './topik.service';
+import { TopikStatsService } from './topik-stats.service';
 
 @Controller('topik')
 export class TopikController {
-  constructor(private readonly topikService: TopikService) {}
+  constructor(
+    private readonly topikService: TopikService,
+    private readonly topikStatsService: TopikStatsService,
+  ) {}
 
   @Get('exams')
   getExams() {
@@ -43,6 +48,68 @@ export class TopikController {
       request.user._id.toString(),
       code,
       dto,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/summary')
+  getStatsSummary(@Request() request) {
+    return this.topikStatsService.getSummary(request.user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/question-types')
+  getQuestionTypeStats(@Request() request) {
+    return this.topikStatsService.getQuestionTypes(
+      request.user._id.toString(),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/weak-questions')
+  getWeakQuestions(
+    @Request() request,
+    @Query() query: TopikStatsQueryDto,
+  ) {
+    return this.topikStatsService.getWeakQuestions(
+      request.user._id.toString(),
+      query.limit,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/mastered-questions')
+  getMasteredQuestions(
+    @Request() request,
+    @Query() query: TopikStatsQueryDto,
+  ) {
+    return this.topikStatsService.getMasteredQuestions(
+      request.user._id.toString(),
+      query.limit,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/review-queue')
+  getReviewQueue(
+    @Request() request,
+    @Query() query: TopikStatsQueryDto,
+  ) {
+    return this.topikStatsService.getReviewQueue(
+      request.user._id.toString(),
+      query.limit,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats/history')
+  getStatsHistory(
+    @Request() request,
+    @Query() query: TopikStatsQueryDto,
+  ) {
+    return this.topikStatsService.getHistory(
+      request.user._id.toString(),
+      query.limit,
     );
   }
 

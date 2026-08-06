@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
+  UserStats,
+  UserStatsSchema,
+} from '../users/schemas/user-stats.schema';
+import {
   TopikAttempt,
   TopikAttemptSchema,
 } from './schemas/topik-attempt.schema';
@@ -13,8 +17,17 @@ import {
   TopikQuestion,
   TopikQuestionSchema,
 } from './schemas/topik-question.schema';
+import {
+  TopikUserQuestionPerformance,
+  TopikUserQuestionPerformanceSchema,
+} from './schemas/topik-user-question-performance.schema';
+import {
+  TopikUserSummary,
+  TopikUserSummarySchema,
+} from './schemas/topik-user-summary.schema';
 import { TopikController } from './topik.controller';
 import { TopikService } from './topik.service';
+import { TopikStatsService } from './topik-stats.service';
 
 @Module({
   imports: [
@@ -23,10 +36,16 @@ import { TopikService } from './topik.service';
       { name: TopikQuestionGroup.name, schema: TopikQuestionGroupSchema },
       { name: TopikQuestion.name, schema: TopikQuestionSchema },
       { name: TopikAttempt.name, schema: TopikAttemptSchema },
+      { name: TopikUserSummary.name, schema: TopikUserSummarySchema },
+      {
+        name: TopikUserQuestionPerformance.name,
+        schema: TopikUserQuestionPerformanceSchema,
+      },
+      { name: UserStats.name, schema: UserStatsSchema },
     ]),
   ],
   controllers: [TopikController],
-  providers: [TopikService],
-  exports: [MongooseModule, TopikService],
+  providers: [TopikService, TopikStatsService],
+  exports: [MongooseModule, TopikService, TopikStatsService],
 })
 export class TopikModule {}

@@ -49,10 +49,11 @@ export class TopikAttempt {
   @Prop({ required: true, min: 1 })
   examVersion: number;
 
-  @Prop({ required: true, enum: TopikAttemptMode })
+  @Prop({ type: String, required: true, enum: TopikAttemptMode })
   mode: TopikAttemptMode;
 
   @Prop({
+    type: String,
     required: true,
     enum: TopikAttemptStatus,
     default: TopikAttemptStatus.IN_PROGRESS,
@@ -86,6 +87,12 @@ export class TopikAttempt {
   @Prop()
   submittedAt?: Date;
 
+  @Prop({ type: Date, default: null })
+  statsAppliedAt?: Date | null;
+
+  @Prop({ min: 0, default: 0 })
+  statsVersion: number;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -100,6 +107,7 @@ TopikAttemptSchema.index({
   createdAt: -1,
 });
 TopikAttemptSchema.index({ examId: 1, submittedAt: -1 });
+TopikAttemptSchema.index({ status: 1, statsAppliedAt: 1, submittedAt: 1 });
 
 TopikAttemptSchema.pre('validate', function () {
   const questionIds = this.answers.map((answer) => answer.questionId.toString());

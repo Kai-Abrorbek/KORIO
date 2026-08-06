@@ -26,6 +26,7 @@ import {
   TopikQuestionDocument,
 } from './schemas/topik-question.schema';
 import { scoreTopikAnswers } from './topik-score.util';
+import { TopikStatsService } from './topik-stats.service';
 
 @Injectable()
 export class TopikService {
@@ -38,6 +39,7 @@ export class TopikService {
     private readonly questionModel: Model<TopikQuestionDocument>,
     @InjectModel(TopikAttempt.name)
     private readonly attemptModel: Model<TopikAttemptDocument>,
+    private readonly topikStatsService: TopikStatsService,
   ) {}
 
   public async getExams() {
@@ -271,6 +273,9 @@ export class TopikService {
     const attempt = await this.findOwnedAttempt(userId, attemptId);
 
     if (attempt.status === TopikAttemptStatus.SUBMITTED) {
+      await this.topikStatsService.applySubmittedAttempt(
+        attempt._id.toString(),
+      );
       return this.formatSubmission(attempt);
     }
     if (attempt.status !== TopikAttemptStatus.IN_PROGRESS) {
@@ -304,6 +309,10 @@ export class TopikService {
     attempt.lastSavedAt = new Date();
     attempt.markModified('answers');
     await attempt.save();
+
+    await this.topikStatsService.applySubmittedAttempt(
+      attempt._id.toString(),
+    );
 
     return this.formatSubmission(attempt);
   }

@@ -39,10 +39,10 @@ export class TopikExam {
   @Prop({ type: TopikI18nTextSchema, default: {} })
   description: TopikI18nText;
 
-  @Prop({ required: true, enum: TopikExamType })
+  @Prop({ type: String, required: true, enum: TopikExamType })
   examType: TopikExamType;
 
-  @Prop({ required: true, enum: TopikSection })
+  @Prop({ type: String, required: true, enum: TopikSection })
   section: TopikSection;
 
   @Prop({ min: 2000, max: 2100 })
@@ -64,6 +64,7 @@ export class TopikExam {
   version: number;
 
   @Prop({
+    type: String,
     required: true,
     enum: TopikPublishStatus,
     default: TopikPublishStatus.DRAFT,

@@ -35,7 +35,7 @@ export class TopikQuestion {
   @Prop({ required: true, min: 1 })
   order: number;
 
-  @Prop({ required: true, enum: TopikQuestionType })
+  @Prop({ type: String, required: true, enum: TopikQuestionType })
   type: TopikQuestionType;
 
   @Prop({ required: true, min: 0, default: 2 })

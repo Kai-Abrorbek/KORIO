@@ -96,7 +96,7 @@ export const TopikI18nTextSchema =
 
 @Schema({ _id: false })
 export class TopikTextSegment {
-  @Prop({ required: true, enum: TopikTextSegmentType })
+  @Prop({ type: String, required: true, enum: TopikTextSegmentType })
   type: TopikTextSegmentType;
 
   @Prop({ default: '' })
@@ -114,7 +114,7 @@ export const TopikTextSegmentSchema =
 
 @Schema({ _id: false })
 export class TopikTextBlock {
-  @Prop({ required: true, enum: TopikTextBlockType })
+  @Prop({ type: String, required: true, enum: TopikTextBlockType })
   type: TopikTextBlockType;
 
   @Prop({ type: [TopikTextSegmentSchema], default: [] })
@@ -190,7 +190,7 @@ export const TopikChartDataSchema =
 
 @Schema({ _id: false })
 export class TopikStimulus {
-  @Prop({ required: true, enum: TopikStimulusKind })
+  @Prop({ type: String, required: true, enum: TopikStimulusKind })
   kind: TopikStimulusKind;
 
   @Prop({ default: '' })
@@ -246,10 +246,10 @@ export const TopikChoiceSchema = SchemaFactory.createForClass(TopikChoice);
 
 @Schema({ _id: false })
 export class TopikPresentation {
-  @Prop({ required: true, enum: TopikVisualTemplate })
+  @Prop({ type: String, required: true, enum: TopikVisualTemplate })
   template: TopikVisualTemplate;
 
-  @Prop({ required: true, enum: TopikChoiceLayout })
+  @Prop({ type: String, required: true, enum: TopikChoiceLayout })
   choiceLayout: TopikChoiceLayout;
 
   @Prop({ default: 'default' })
