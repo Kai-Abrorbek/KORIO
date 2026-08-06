@@ -158,6 +158,14 @@ export default function RootLayout() {
               options={{ animation: "fade", gestureEnabled: false }}
             />
             <Stack.Screen
+              name="pronunciation-practice"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="pronunciation-quiz"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="league-result"
               options={{ animation: "fade", gestureEnabled: false }}
             />

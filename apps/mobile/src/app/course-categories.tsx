@@ -45,6 +45,12 @@ const CATEGORIES = [
     color: "#42A5F5",
   },
   { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC" },
+  {
+    key: "pronunciation",
+    category: "pronunciation",
+    icon: "mic",
+    color: "#FFA726",
+  },
 ];
 
 function CategoryCard({
@@ -82,6 +88,11 @@ function CategoryCard({
           // 문법은 로드맵이 아니라 전용 문법 목록으로
           if (c.category === "grammar") {
             router.push("/grammar-list");
+            return;
+          }
+          // 발음도 로드맵이 아니라 전용 연습 화면으로
+          if (c.category === "pronunciation") {
+            router.push("/pronunciation-practice");
             return;
           }
           router.push({

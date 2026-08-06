@@ -128,6 +128,7 @@ export default {
       conversation: "Разговор",
       listening: "Аудирование",
       topik: "TOPIK",
+      pronunciation: "Произношение",
     },
     dailyGoal: "Дневная цель",
     levelBannerTitle: "Какой у меня уровень?",
@@ -148,6 +149,7 @@ export default {
       listening: "Аудирование",
       topik: "TOPIK",
       other: "Другое",
+      pronunciation: "Произношение",
     },
     review: "Повторение",
     reviewSub: "Неверные ответы · Практика",
@@ -302,6 +304,7 @@ export default {
       conversation: "Разговор",
       listening: "Аудирование",
       topik: "TOPIK",
+      pronunciation: "Произношение",
     },
     categoryDesc: {
       vocab: "Учи слова",
@@ -310,6 +313,7 @@ export default {
       conversation: "Практика диалога",
       listening: "Тренируй слух",
       topik: "Подготовка к экзамену",
+      pronunciation: "Различайте звуки",
     },
   },
   profile: {

@@ -127,6 +127,7 @@ export default {
       conversation: "Conversation",
       listening: "Listening",
       topik: "TOPIK",
+      pronunciation: "Pronunciation",
     },
     dailyGoal: "Daily goal",
     levelBannerTitle: "What's my Korean level?",
@@ -147,6 +148,7 @@ export default {
       listening: "Listening",
       topik: "TOPIK",
       other: "Other",
+      pronunciation: "Pronunciation",
     },
     review: "Review",
     reviewSub: "Wrong answers · Practice",
@@ -300,6 +302,7 @@ export default {
       conversation: "Conversation",
       listening: "Listening",
       topik: "TOPIK",
+      pronunciation: "Pronunciation",
     },
     categoryDesc: {
       vocab: "Learn words",
@@ -308,6 +311,7 @@ export default {
       conversation: "Real dialogue practice",
       listening: "Train your ear",
       topik: "Exam prep",
+      pronunciation: "Tell sounds apart",
     },
   },
   profile: {

@@ -12,7 +12,8 @@ export type LearnMode =
   | "expression"
   | "conversation"
   | "listening"
-  | "topik";
+  | "topik"
+  | "pronunciation";
 export interface NotificationPrefs {
   master: boolean;
   daily: boolean;

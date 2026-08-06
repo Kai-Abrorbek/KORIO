@@ -128,6 +128,7 @@ export default {
       conversation: "Suhbat",
       listening: "Tinglash",
       topik: "TOPIK",
+      pronunciation: "Talaffuz",
     },
     dailyGoal: "Kunlik maqsad",
     levelBannerTitle: "Mening koreys darajam?",
@@ -148,6 +149,7 @@ export default {
       listening: "Tinglash",
       topik: "TOPIK",
       other: "Boshqa",
+      pronunciation: "Talaffuz",
     },
     review: "Takrorlash",
     reviewSub: "Xato savollar · Takrorlash",
@@ -304,6 +306,7 @@ export default {
       conversation: "Jonli suhbat",
       listening: "Tinglash",
       topik: "TOPIK",
+      pronunciation: "Talaffuz",
     },
     categoryDesc: {
       vocab: "So'zlarni o'rganing",
@@ -312,6 +315,7 @@ export default {
       conversation: "Haqiqiy suhbat mashqi",
       listening: "Tinglash mashqi",
       topik: "Imtihonga tayyorgarlik",
+      pronunciation: "Tovushlarni farqlang",
     },
   },
   profile: {

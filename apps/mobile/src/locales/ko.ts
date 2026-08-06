@@ -127,6 +127,7 @@ export default {
       conversation: "회화 학습",
       listening: "듣기 학습",
       topik: "토픽 학습",
+      pronunciation: "발음",
     },
     dailyGoal: "하루 목표",
     levelBannerTitle: "나의 한국어 실력은?",
@@ -147,6 +148,7 @@ export default {
       listening: "리스닝",
       topik: "토픽",
       other: "기타",
+      pronunciation: "발음",
     },
     review: "복습하기",
     reviewSub: "틀린 문제 모음 · 오답 복습",
@@ -300,6 +302,7 @@ export default {
       conversation: "실전 회화",
       listening: "리스닝",
       topik: "토픽",
+      pronunciation: "발음",
     },
     categoryDesc: {
       vocab: "단어를 익혀요",
@@ -308,6 +311,7 @@ export default {
       conversation: "실제 대화 연습",
       listening: "듣기 훈련",
       topik: "시험 대비",
+      pronunciation: "소리를 구분해요",
     },
   },
   profile: {
