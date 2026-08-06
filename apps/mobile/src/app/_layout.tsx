@@ -162,6 +162,10 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="topik-sections"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="topik-exam"
               options={{ animation: "fade", gestureEnabled: false }}
             />

@@ -13,6 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
@@ -20,6 +21,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useSettingsStore, LearnMode } from "@/store/settings.store";
+import {
+  TopikLevelModal,
+  type TopikLevel,
+} from "@/components/topik/TopikLevelModal";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -65,12 +70,14 @@ function CategoryCard({
   desc,
   index,
   s,
+  onTopikPress,
 }: {
   c: (typeof CATEGORIES)[number];
   label: string;
   desc: string;
   index: number;
   s: ReturnType<typeof getStyles>;
+  onTopikPress: () => void;
 }) {
   const setLearnMode = useSettingsStore((st) => st.setLearnMode);
   const pressed = useSharedValue(0);
@@ -109,7 +116,7 @@ function CategoryCard({
             return;
           }
           if (c.category === "topik") {
-            router.push("/topik");
+            onTopikPress();
             return;
           }
           router.push({
@@ -136,7 +143,16 @@ export default function CourseCategories() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
+  const setLearnMode = useSettingsStore((state) => state.setLearnMode);
+  const [topikModalVisible, setTopikModalVisible] = useState(false);
   const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
+
+  const selectTopikLevel = (level: TopikLevel) => {
+    Haptics.selectionAsync();
+    setLearnMode("topik");
+    setTopikModalVisible(false);
+    router.push({ pathname: "/topik-sections", params: { level } });
+  };
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 4 }]}>
@@ -168,10 +184,16 @@ export default function CourseCategories() {
               s={s}
               label={t(`courses.categories.${c.key}`)}
               desc={t(`courses.categoryDesc.${c.key}`)}
+              onTopikPress={() => setTopikModalVisible(true)}
             />
           ))}
         </View>
       </ScrollView>
+      <TopikLevelModal
+        visible={topikModalVisible}
+        onClose={() => setTopikModalVisible(false)}
+        onSelect={selectTopikLevel}
+      />
     </View>
   );
 }

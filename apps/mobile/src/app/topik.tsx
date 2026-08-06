@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import type { TopikLevel } from "@/components/topik";
 import { TopikService } from "@/services/topik.service";
 import type { TopikAttemptMode, TopikExam } from "@/types/topik";
 import { topikText } from "@/types/topik";
@@ -32,12 +33,17 @@ const MODES: Array<{
     key: "mock_exam",
     icon: "timer-outline",
     title: "실전 모의고사",
-    description: "70분 동안 실제 시험처럼 50문제를 풀어요.",
+    description: "제한 시간 안에 실제 시험처럼 집중해서 풀어요.",
     color: "#1E5B91",
   },
 ];
 
 export default function TopikHomeScreen() {
+  const params = useLocalSearchParams<{ level?: TopikLevel }>();
+  const levelParam = Array.isArray(params.level) ? params.level[0] : params.level;
+  const level: TopikLevel = levelParam === "1" ? "1" : "2";
+  const examType = level === "1" ? "topik_i" : "topik_ii";
+  const roman = level === "1" ? "I" : "II";
   const [exams, setExams] = useState<TopikExam[]>([]);
   const [selectedExamCode, setSelectedExamCode] = useState<string | null>(null);
   const [mode, setMode] = useState<TopikAttemptMode>("guided");
@@ -49,14 +55,21 @@ export default function TopikHomeScreen() {
     setError(false);
     try {
       const data = await TopikService.listExams();
-      setExams(data);
-      setSelectedExamCode((current) => current ?? data[0]?.code ?? null);
+      const matchingExams = data.filter(
+        (exam) => exam.examType === examType && exam.section === "reading",
+      );
+      setExams(matchingExams);
+      setSelectedExamCode((current) =>
+        matchingExams.some((exam) => exam.code === current)
+          ? current
+          : (matchingExams[0]?.code ?? null),
+      );
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [examType]);
 
   useEffect(() => {
     void loadExams();
@@ -70,7 +83,7 @@ export default function TopikHomeScreen() {
         <Pressable onPress={() => router.back()} style={styles.iconButton}>
           <Ionicons name="chevron-back" size={25} color="#173B67" />
         </Pressable>
-        <Text style={styles.headerTitle}>TOPIK 읽기</Text>
+        <Text style={styles.headerTitle}>TOPIK {roman} 읽기</Text>
         <Pressable
           onPress={() => router.push("/topik-stats")}
           style={styles.iconButton}
@@ -85,7 +98,7 @@ export default function TopikHomeScreen() {
       >
         <View style={styles.hero}>
           <View style={styles.heroBadge}>
-            <Text style={styles.heroBadgeText}>TOPIK II · READING</Text>
+            <Text style={styles.heroBadgeText}>TOPIK {roman} · READING</Text>
           </View>
           <Text style={styles.heroTitle}>
             문제를 외우지 말고,{"\n"}푸는 법을 익혀 보세요.
@@ -96,17 +109,23 @@ export default function TopikHomeScreen() {
           </Text>
           <View style={styles.heroMetrics}>
             <View>
-              <Text style={styles.metricValue}>50</Text>
+              <Text style={styles.metricValue}>
+                {selectedExam?.totalQuestions ?? "—"}
+              </Text>
               <Text style={styles.metricLabel}>문항</Text>
             </View>
             <View style={styles.metricDivider} />
             <View>
-              <Text style={styles.metricValue}>70</Text>
+              <Text style={styles.metricValue}>
+                {selectedExam?.durationMinutes ?? "—"}
+              </Text>
               <Text style={styles.metricLabel}>분</Text>
             </View>
             <View style={styles.metricDivider} />
             <View>
-              <Text style={styles.metricValue}>100</Text>
+              <Text style={styles.metricValue}>
+                {selectedExam?.totalPoints ?? "—"}
+              </Text>
               <Text style={styles.metricLabel}>점</Text>
             </View>
           </View>
@@ -133,9 +152,11 @@ export default function TopikHomeScreen() {
         ) : exams.length === 0 ? (
           <View style={styles.stateCard}>
             <Ionicons name="documents-outline" size={29} color="#7A8290" />
-            <Text style={styles.stateTitle}>등록된 시험지가 아직 없어요.</Text>
+            <Text style={styles.stateTitle}>
+              TOPIK {roman} 읽기 시험지를 준비 중이에요.
+            </Text>
             <Text style={styles.stateText}>
-              TOPIK 시드를 먼저 실행해 주세요.
+              완성도 높은 문제로 곧 만나볼 수 있어요.
             </Text>
           </View>
         ) : (
