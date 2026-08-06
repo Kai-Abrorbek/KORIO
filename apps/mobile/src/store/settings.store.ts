@@ -12,9 +12,18 @@ export type LearnMode =
   | "expression"
   | "conversation"
   | "listening"
-  | "topik"
-  | "pronunciation"
-  | "grammarPractice";
+  | "topik";
+
+// 로드맵이 있는 모드만 여기 들어간다. 발음·문법 문제 풀이 같은 바로가기는
+// 학습 모드가 아니므로 제외 — 홈이 "이어서 진행하기" 로 갈 곳이 없다.
+const LEARN_MODES: LearnMode[] = [
+  "vocabulary",
+  "grammar",
+  "expression",
+  "conversation",
+  "listening",
+  "topik",
+];
 export interface NotificationPrefs {
   master: boolean;
   daily: boolean;
@@ -70,6 +79,12 @@ export const useSettingsStore = create<SettingsState>()(
       onRehydrateStorage: () => (state) => {
         // persist는 상태만 복원하고 사이드이펙트는 안 탐 → 저장된 언어로 i18n 재동기화
         if (state?.language) i18n.changeLanguage(state.language);
+
+        // 예전에 바로가기 항목이 학습 모드로 저장된 적이 있다. 그대로 두면
+        // 홈 제목이 번역 키 그대로 노출되므로 되돌린다.
+        if (state?.learnMode && !LEARN_MODES.includes(state.learnMode)) {
+          state.learnMode = "vocabulary";
+        }
       },
     },
   ),

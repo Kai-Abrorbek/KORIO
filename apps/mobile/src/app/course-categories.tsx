@@ -90,6 +90,18 @@ function CategoryCard({
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+          // 아래 항목들은 로드맵이 없는 바로가기다. 학습 모드로 저장하면
+          // 홈의 "이어서 진행하기" 가 갈 곳을 잃는다.
+          if (c.category === "pronunciation") {
+            router.push("/pronunciation-practice");
+            return;
+          }
+          if (c.category === "grammarPractice") {
+            router.push("/grammar-practice");
+            return;
+          }
+
           setLearnMode(c.category as LearnMode); // 현재 학습 모드 기억
           // 문법은 로드맵이 아니라 전용 문법 목록으로
           if (c.category === "grammar") {
@@ -98,16 +110,6 @@ function CategoryCard({
           }
           if (c.category === "topik") {
             router.push("/topik");
-            return;
-          }
-          // 발음도 로드맵이 아니라 전용 연습 화면으로
-          if (c.category === "pronunciation") {
-            router.push("/pronunciation-practice");
-            return;
-          }
-          // 문법 문제 풀이 (빈칸 + 문장 조립)
-          if (c.category === "grammarPractice") {
-            router.push("/grammar-practice");
             return;
           }
           router.push({
