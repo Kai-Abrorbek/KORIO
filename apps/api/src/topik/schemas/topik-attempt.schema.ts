@@ -48,6 +48,30 @@ export class TopikAttemptAnswer {
 export const TopikAttemptAnswerSchema =
   SchemaFactory.createForClass(TopikAttemptAnswer);
 
+@Schema({ _id: false })
+export class TopikAttemptLearningState {
+  @Prop({ type: Types.ObjectId, ref: 'TopikQuestion', required: true })
+  questionId: Types.ObjectId;
+
+  @Prop({ required: true, min: 1 })
+  questionVersion: number;
+
+  @Prop({ type: [String], default: [] })
+  revealedHintKeys: string[];
+
+  @Prop({ min: 0, default: 0 })
+  hintViewCount: number;
+
+  @Prop({ type: Date, default: null })
+  lastHintViewedAt?: Date | null;
+
+  @Prop({ type: Date, default: null })
+  solutionViewedAt?: Date | null;
+}
+
+export const TopikAttemptLearningStateSchema =
+  SchemaFactory.createForClass(TopikAttemptLearningState);
+
 @Schema({ timestamps: true })
 export class TopikAttempt {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -75,6 +99,9 @@ export class TopikAttempt {
 
   @Prop({ type: [TopikAttemptAnswerSchema], default: [] })
   answers: TopikAttemptAnswer[];
+
+  @Prop({ type: [TopikAttemptLearningStateSchema], default: [] })
+  learningStates: TopikAttemptLearningState[];
 
   @Prop({ min: 1, max: 50, default: 1 })
   currentQuestionNumber: number;
@@ -137,6 +164,28 @@ TopikAttemptSchema.pre('validate', function () {
       this.invalidate(
         'answers',
         'usedHintKeys must be unique within an answer',
+      );
+    }
+  }
+
+  const learningStates = this.learningStates ?? [];
+  const learningQuestionIds = learningStates.map((state) =>
+    state.questionId.toString(),
+  );
+  if (new Set(learningQuestionIds).size !== learningQuestionIds.length) {
+    this.invalidate(
+      'learningStates',
+      'Only one learning state per question can be stored',
+    );
+  }
+
+  for (const state of learningStates) {
+    const revealedHintKeys = state.revealedHintKeys ?? [];
+
+    if (new Set(revealedHintKeys).size !== revealedHintKeys.length) {
+      this.invalidate(
+        'learningStates',
+        'revealedHintKeys must be unique within a learning state',
       );
     }
   }

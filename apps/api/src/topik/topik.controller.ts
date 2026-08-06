@@ -123,6 +123,50 @@ export class TopikController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('attempts/:attemptId/questions/:questionId/learning-support')
+  getLearningSupport(
+    @Request() request,
+    @Param('attemptId') attemptId: string,
+    @Param('questionId') questionId: string,
+  ) {
+    return this.topikService.getLearningSupport(
+      request.user._id.toString(),
+      attemptId,
+      questionId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('attempts/:attemptId/questions/:questionId/hints/:hintKey/reveal')
+  revealHint(
+    @Request() request,
+    @Param('attemptId') attemptId: string,
+    @Param('questionId') questionId: string,
+    @Param('hintKey') hintKey: string,
+  ) {
+    return this.topikService.revealHint(
+      request.user._id.toString(),
+      attemptId,
+      questionId,
+      hintKey,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('attempts/:attemptId/questions/:questionId/solution/reveal')
+  revealSolution(
+    @Request() request,
+    @Param('attemptId') attemptId: string,
+    @Param('questionId') questionId: string,
+  ) {
+    return this.topikService.revealSolution(
+      request.user._id.toString(),
+      attemptId,
+      questionId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('attempts/:attemptId/answers')
   saveAnswers(
     @Request() request,

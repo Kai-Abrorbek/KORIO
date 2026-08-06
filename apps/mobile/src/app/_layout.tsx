@@ -158,6 +158,22 @@ export default function RootLayout() {
               options={{ animation: "fade", gestureEnabled: false }}
             />
             <Stack.Screen
+              name="topik"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="topik-exam"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="topik-result"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="topik-stats"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="pronunciation-practice"
               options={{ animation: "slide_from_right" }}
             />

@@ -80,15 +80,34 @@ export class TopikStatsService {
       const questionById = new Map(
         questions.map((question) => [question._id.toString(), question]),
       );
+      const learningStateByQuestion = new Map(
+        (attempt.learningStates ?? []).map((state) => [
+          state.questionId.toString(),
+          state,
+        ]),
+      );
       const answerStats = attempt.answers.map((answer) => {
-        const question = questionById.get(answer.questionId.toString());
+        const questionId = answer.questionId.toString();
+        const question = questionById.get(questionId);
 
         if (!question) {
           throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
         }
 
-        const usedHintKeys = answer.usedHintKeys ?? [];
-        const hintViewCount = answer.hintViewCount ?? 0;
+        const learningState = learningStateByQuestion.get(questionId);
+        const usedHintKeys = [
+          ...new Set([
+            ...(answer.usedHintKeys ?? []),
+            ...(learningState?.revealedHintKeys ?? []),
+          ]),
+        ];
+        const hintViewCount = Math.max(
+          answer.hintViewCount ?? 0,
+          learningState?.hintViewCount ?? 0,
+        );
+        const solutionViewed = Boolean(
+          answer.solutionViewedAt ?? learningState?.solutionViewedAt,
+        );
 
         return {
           question,
@@ -98,11 +117,11 @@ export class TopikStatsService {
           answeredAt: answer.answeredAt,
           isCorrect: answer.isCorrect === true,
           hintViewCount,
-          solutionViewed: Boolean(answer.solutionViewedAt),
+          solutionViewed,
           usedLearningSupport:
             hintViewCount > 0 ||
             usedHintKeys.length > 0 ||
-            Boolean(answer.solutionViewedAt),
+            solutionViewed,
         };
       });
       const appliedAt = new Date();
@@ -231,27 +250,47 @@ export class TopikStatsService {
       .limit(limit)
       .lean();
 
-    return attempts.map((attempt) => ({
-      attemptId: attempt._id.toString(),
-      examId: attempt.examId.toString(),
-      mode: attempt.mode,
-      correctCount: attempt.correctCount,
-      totalQuestions: attempt.questionIds.length,
-      accuracy: this.percentage(
-        attempt.correctCount,
-        attempt.questionIds.length,
-      ),
-      score: attempt.score,
-      elapsedSeconds: attempt.elapsedSeconds,
-      hintViewCount: attempt.answers.reduce(
-        (total, answer) => total + (answer.hintViewCount ?? 0),
-        0,
-      ),
-      solutionViewCount: attempt.answers.filter(
-        (answer) => Boolean(answer.solutionViewedAt),
-      ).length,
-      submittedAt: attempt.submittedAt,
-    }));
+    return attempts.map((attempt) => {
+      const learningStateByQuestion = new Map(
+        (attempt.learningStates ?? []).map((state) => [
+          state.questionId.toString(),
+          state,
+        ]),
+      );
+
+      return {
+        attemptId: attempt._id.toString(),
+        examId: attempt.examId.toString(),
+        mode: attempt.mode,
+        correctCount: attempt.correctCount,
+        totalQuestions: attempt.questionIds.length,
+        accuracy: this.percentage(
+          attempt.correctCount,
+          attempt.questionIds.length,
+        ),
+        score: attempt.score,
+        elapsedSeconds: attempt.elapsedSeconds,
+        hintViewCount: attempt.answers.reduce(
+          (total, answer) =>
+            total +
+            Math.max(
+              answer.hintViewCount ?? 0,
+              learningStateByQuestion.get(answer.questionId.toString())
+                ?.hintViewCount ?? 0,
+            ),
+          0,
+        ),
+        solutionViewCount: attempt.answers.filter(
+          (answer) =>
+            Boolean(answer.solutionViewedAt) ||
+            Boolean(
+              learningStateByQuestion.get(answer.questionId.toString())
+                ?.solutionViewedAt,
+            ),
+        ).length,
+        submittedAt: attempt.submittedAt,
+      };
+    });
   }
 
   private async updateDailyStats(

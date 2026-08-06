@@ -10,6 +10,7 @@ import { StartTopikAttemptDto } from './dto/start-topik-attempt.dto';
 import {
   TopikAttempt,
   TopikAttemptDocument,
+  TopikAttemptMode,
   TopikAttemptStatus,
 } from './schemas/topik-attempt.schema';
 import {
@@ -175,6 +176,7 @@ export class TopikService {
       status: TopikAttemptStatus.IN_PROGRESS,
       questionIds: questions.map((question) => question._id),
       answers: [],
+      learningStates: [],
       currentQuestionNumber: 1,
       elapsedSeconds: 0,
     });
@@ -185,6 +187,142 @@ export class TopikService {
   public async getAttempt(userId: string, attemptId: string) {
     const attempt = await this.findOwnedAttempt(userId, attemptId);
     return this.formatAttempt(attempt);
+  }
+
+  public async getLearningSupport(
+    userId: string,
+    attemptId: string,
+    questionId: string,
+  ) {
+    const attempt = await this.findOwnedAttempt(userId, attemptId);
+    this.assertGuidedAttempt(attempt);
+    const question = await this.findAttemptQuestion(attempt, questionId);
+    const state = (attempt.learningStates ?? []).find(
+      (item) => item.questionId.toString() === questionId,
+    );
+    const revealedHintKeys = new Set(state?.revealedHintKeys ?? []);
+    const sortedHints = [...(question.solution?.hints ?? [])].sort(
+      (left, right) => left.level - right.level,
+    );
+
+    return {
+      questionId,
+      hintCount: sortedHints.length,
+      revealedHints: sortedHints.filter((hint) =>
+        revealedHintKeys.has(hint.key),
+      ),
+      nextHint: sortedHints.find((hint) => !revealedHintKeys.has(hint.key))
+        ? this.formatHintMetadata(
+            sortedHints.find((hint) => !revealedHintKeys.has(hint.key))!,
+          )
+        : null,
+      hintViewCount: state?.hintViewCount ?? 0,
+      canRevealSolution: attempt.answers.some(
+        (answer) => answer.questionId.toString() === questionId,
+      ),
+      solutionViewedAt: state?.solutionViewedAt ?? null,
+    };
+  }
+
+  public async revealHint(
+    userId: string,
+    attemptId: string,
+    questionId: string,
+    hintKey: string,
+  ) {
+    const attempt = await this.findOwnedAttempt(userId, attemptId);
+    this.assertGuidedAttempt(attempt);
+    const question = await this.findAttemptQuestion(attempt, questionId);
+    const hints = [...(question.solution?.hints ?? [])].sort(
+      (left, right) => left.level - right.level,
+    );
+    const hint = hints.find((item) => item.key === hintKey);
+
+    if (!hint) {
+      throw new NotFoundException('TOPIK_HINT_NOT_FOUND');
+    }
+
+    const state = this.getOrCreateLearningState(
+      attempt,
+      question._id,
+      question.version,
+    );
+    const revealedHintKeys = new Set(state.revealedHintKeys ?? []);
+    const highestRevealedLevel = hints.reduce(
+      (highest, item) =>
+        revealedHintKeys.has(item.key) ? Math.max(highest, item.level) : highest,
+      0,
+    );
+
+    if (!revealedHintKeys.has(hint.key) && hint.level > highestRevealedLevel + 1) {
+      throw new BadRequestException('TOPIK_HINT_ORDER_REQUIRED');
+    }
+
+    revealedHintKeys.add(hint.key);
+    state.revealedHintKeys = [...revealedHintKeys];
+    state.hintViewCount = (state.hintViewCount ?? 0) + 1;
+    state.lastHintViewedAt = new Date();
+
+    const answer = attempt.answers.find(
+      (item) => item.questionId.toString() === questionId,
+    );
+    if (answer) {
+      answer.usedHintKeys = [
+        ...new Set([...(answer.usedHintKeys ?? []), hint.key]),
+      ];
+      answer.hintViewCount = (answer.hintViewCount ?? 0) + 1;
+    }
+
+    attempt.lastSavedAt = new Date();
+    attempt.markModified('learningStates');
+    attempt.markModified('answers');
+    await attempt.save();
+
+    return {
+      questionId,
+      hint,
+      revealedHintKeys: state.revealedHintKeys,
+      hintViewCount: state.hintViewCount,
+    };
+  }
+
+  public async revealSolution(
+    userId: string,
+    attemptId: string,
+    questionId: string,
+  ) {
+    const attempt = await this.findOwnedAttempt(userId, attemptId);
+    this.assertGuidedAttempt(attempt);
+    const answer = attempt.answers.find(
+      (item) => item.questionId.toString() === questionId,
+    );
+
+    if (!answer) {
+      throw new BadRequestException('TOPIK_ANSWER_REQUIRED');
+    }
+
+    const question = await this.findAttemptQuestion(attempt, questionId, true);
+    const viewedAt = new Date();
+    const state = this.getOrCreateLearningState(
+      attempt,
+      question._id,
+      question.version,
+    );
+    state.solutionViewedAt = state.solutionViewedAt ?? viewedAt;
+    answer.solutionViewedAt = answer.solutionViewedAt ?? viewedAt;
+    attempt.lastSavedAt = viewedAt;
+    attempt.markModified('learningStates');
+    attempt.markModified('answers');
+    await attempt.save();
+
+    return {
+      questionId,
+      selectedChoiceKey: answer.selectedChoiceKey,
+      correctChoiceKey: question.correctChoiceKey,
+      isCorrect: answer.selectedChoiceKey === question.correctChoiceKey,
+      solution: question.solution,
+      viewedAt: state.solutionViewedAt,
+    };
   }
 
   public async saveAnswers(
@@ -240,22 +378,41 @@ export class TopikService {
       const answeredAt = answer.answeredAt
         ? new Date(answer.answeredAt)
         : new Date();
+      let learningState = (attempt.learningStates ?? []).find(
+        (state) => state.questionId.toString() === answer.questionId,
+      );
+      const usedHintKeys = [
+        ...new Set([
+          ...(learningState?.revealedHintKeys ?? []),
+          ...(answer.usedHintKeys ?? []),
+        ]),
+      ];
+      const hintViewCount = Math.max(
+        learningState?.hintViewCount ?? 0,
+        answer.hintViewCount ?? 0,
+      );
+      const solutionViewedAt = answer.solutionViewedAt
+        ? new Date(answer.solutionViewedAt)
+        : learningState?.solutionViewedAt ?? null;
+
+      if (usedHintKeys.length > 0 || hintViewCount > 0 || solutionViewedAt) {
+        learningState ??= this.getOrCreateLearningState(
+          attempt,
+          question._id,
+          questionVersion,
+        );
+        learningState.revealedHintKeys = usedHintKeys;
+        learningState.hintViewCount = hintViewCount;
+        learningState.solutionViewedAt = solutionViewedAt;
+      }
 
       if (existingAnswer) {
         existingAnswer.selectedChoiceKey = answer.selectedChoiceKey;
         existingAnswer.durationMs = answer.durationMs;
         existingAnswer.answeredAt = answeredAt;
-        if (answer.usedHintKeys !== undefined) {
-          existingAnswer.usedHintKeys = [...new Set(answer.usedHintKeys)];
-        }
-        if (answer.hintViewCount !== undefined) {
-          existingAnswer.hintViewCount = answer.hintViewCount;
-        }
-        if (answer.solutionViewedAt !== undefined) {
-          existingAnswer.solutionViewedAt = new Date(
-            answer.solutionViewedAt,
-          );
-        }
+        existingAnswer.usedHintKeys = usedHintKeys;
+        existingAnswer.hintViewCount = hintViewCount;
+        existingAnswer.solutionViewedAt = solutionViewedAt;
         existingAnswer.isCorrect = null;
       } else {
         attempt.answers.push({
@@ -264,11 +421,9 @@ export class TopikService {
           selectedChoiceKey: answer.selectedChoiceKey,
           durationMs: answer.durationMs,
           answeredAt,
-          usedHintKeys: [...new Set(answer.usedHintKeys ?? [])],
-          hintViewCount: answer.hintViewCount ?? 0,
-          solutionViewedAt: answer.solutionViewedAt
-            ? new Date(answer.solutionViewedAt)
-            : null,
+          usedHintKeys,
+          hintViewCount,
+          solutionViewedAt,
           isCorrect: null,
         });
       }
@@ -283,6 +438,7 @@ export class TopikService {
 
     attempt.lastSavedAt = new Date();
     attempt.markModified('answers');
+    attempt.markModified('learningStates');
     await attempt.save();
 
     return {
@@ -460,6 +616,14 @@ export class TopikService {
         hintViewCount: answer.hintViewCount ?? 0,
         solutionViewedAt: answer.solutionViewedAt ?? null,
       })),
+      learningStates: (attempt.learningStates ?? []).map((state) => ({
+        questionId: state.questionId.toString(),
+        questionVersion: state.questionVersion,
+        revealedHintKeys: state.revealedHintKeys,
+        hintViewCount: state.hintViewCount,
+        lastHintViewedAt: state.lastHintViewedAt ?? null,
+        solutionViewedAt: state.solutionViewedAt ?? null,
+      })),
       startedAt: attempt.startedAt,
       lastSavedAt: attempt.lastSavedAt,
     };
@@ -474,6 +638,74 @@ export class TopikService {
       score: attempt.score,
       elapsedSeconds: attempt.elapsedSeconds,
       submittedAt: attempt.submittedAt,
+    };
+  }
+
+  private assertGuidedAttempt(attempt: TopikAttemptDocument) {
+    if (attempt.mode !== TopikAttemptMode.GUIDED) {
+      throw new BadRequestException('TOPIK_GUIDED_MODE_REQUIRED');
+    }
+    if (attempt.status !== TopikAttemptStatus.IN_PROGRESS) {
+      throw new BadRequestException('TOPIK_ATTEMPT_NOT_IN_PROGRESS');
+    }
+  }
+
+  private async findAttemptQuestion(
+    attempt: TopikAttemptDocument,
+    questionId: string,
+    includeAnswer = false,
+  ) {
+    if (
+      !Types.ObjectId.isValid(questionId) ||
+      !attempt.questionIds.some((id) => id.toString() === questionId)
+    ) {
+      throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
+    }
+
+    const selection = includeAnswer
+      ? '+solution +correctChoiceKey'
+      : '+solution';
+    const question = await this.questionModel
+      .findById(new Types.ObjectId(questionId))
+      .select(selection);
+
+    if (!question) {
+      throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
+    }
+
+    return question;
+  }
+
+  private getOrCreateLearningState(
+    attempt: TopikAttemptDocument,
+    questionId: Types.ObjectId,
+    questionVersion: number,
+  ) {
+    attempt.learningStates ??= [];
+    let state = attempt.learningStates.find(
+      (item) => item.questionId.toString() === questionId.toString(),
+    );
+
+    if (!state) {
+      attempt.learningStates.push({
+        questionId,
+        questionVersion,
+        revealedHintKeys: [],
+        hintViewCount: 0,
+        lastHintViewedAt: null,
+        solutionViewedAt: null,
+      });
+      state = attempt.learningStates[attempt.learningStates.length - 1];
+    }
+
+    return state;
+  }
+
+  private formatHintMetadata(hint: { key: string; level: number; title: unknown }) {
+    return {
+      key: hint.key,
+      level: hint.level,
+      title: hint.title,
     };
   }
 }
