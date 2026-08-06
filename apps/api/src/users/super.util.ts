@@ -22,6 +22,16 @@ export function isSuperActive(user: {
   return new Date(user.superExpiresAt).getTime() > Date.now();
 }
 
+// 기간이 지났는데 isSuper 가 아직 true 로 남아있는 상태인지.
+// 이 상태면 DB 만 보고는 슈퍼처럼 보여서(수동으로 isSuper 를 켜도 안 먹는 등)
+// 헷갈리므로 발견하는 즉시 내려준다.
+export function isSuperStale(user: {
+  isSuper?: boolean;
+  superExpiresAt?: Date | null;
+}): boolean {
+  return !!user?.isSuper && !isSuperActive(user);
+}
+
 // 체험 남은 일수 (체험 아니면 null)
 export function trialDaysLeft(user: {
   superPlan?: string | null;

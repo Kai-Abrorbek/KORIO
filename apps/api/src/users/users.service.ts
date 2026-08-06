@@ -17,7 +17,8 @@ import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { localKey } from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
-import { isSuperActive } from './super.util';
+import { isSuperActive, isSuperStale } from './super.util';
+import { computeEnergy } from '../energy/energy.util';
 import { calcStreak } from './utils/streak.util';
 import {
   CategoryCounts,
@@ -145,6 +146,24 @@ export class UsersService {
     // 스트릭은 파생 데이터 → 읽을 때 계산해야 "끊김"도 즉시 반영됨
     const streak = await this.syncStreak(userId, user.longestStreak || 0);
 
+    // 체험이 끝났으면 DB 의 isSuper 도 내려준다.
+    // 안 그러면 만료된 계정이 DB 상으로는 계속 슈퍼로 보인다.
+    if (isSuperStale(user)) {
+      await this.userModel.updateOne(
+        { _id: new Types.ObjectId(userId) },
+        { $set: { isSuper: false } },
+      );
+      user.isSuper = false;
+    }
+
+    // 에너지도 파생 데이터다. 저장값을 그대로 주면 시간 회복분이 빠지고,
+    // 슈퍼인데도 0 으로 보여서 앱이 레슨 시작을 막는다.
+    const superActive = isSuperActive(user);
+    const energyNow = computeEnergy(
+      { energy: user.energy ?? 0, energyUpdatedAt: user.energyUpdatedAt },
+      superActive,
+    ).energy;
+
     return {
       id: user._id.toString(),
       email: user.email,
@@ -161,10 +180,10 @@ export class UsersService {
       streak: streak.current,
       longestStreak: streak.longest,
       league: user.league,
-      isSuper: isSuperActive(user),
+      isSuper: superActive,
       streakFreeze: user.streakFreeze || 0,
       gems: user.gems || 0,
-      energy: user.energy || 0,
+      energy: energyNow,
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,
