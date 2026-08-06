@@ -303,6 +303,7 @@ export default {
       listening: "리스닝",
       topik: "토픽",
       pronunciation: "발음",
+      grammarPractice: "문법 문제",
     },
     categoryDesc: {
       vocab: "단어를 익혀요",
@@ -312,6 +313,7 @@ export default {
       listening: "듣기 훈련",
       topik: "시험 대비",
       pronunciation: "소리를 구분해요",
+      grammarPractice: "빈칸·문장 조립",
     },
   },
   profile: {

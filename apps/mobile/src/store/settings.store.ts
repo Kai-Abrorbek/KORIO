@@ -13,7 +13,8 @@ export type LearnMode =
   | "conversation"
   | "listening"
   | "topik"
-  | "pronunciation";
+  | "pronunciation"
+  | "grammarPractice";
 export interface NotificationPrefs {
   master: boolean;
   daily: boolean;

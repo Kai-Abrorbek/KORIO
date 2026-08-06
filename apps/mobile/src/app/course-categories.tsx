@@ -51,6 +51,12 @@ const CATEGORIES = [
     icon: "mic",
     color: "#FFA726",
   },
+  {
+    key: "grammarPractice",
+    category: "grammarPractice",
+    icon: "barbell",
+    color: "#7E57C2",
+  },
 ];
 
 function CategoryCard({
@@ -90,9 +96,18 @@ function CategoryCard({
             router.push("/grammar-list");
             return;
           }
+          if (c.category === "topik") {
+            router.push("/topik");
+            return;
+          }
           // 발음도 로드맵이 아니라 전용 연습 화면으로
           if (c.category === "pronunciation") {
             router.push("/pronunciation-practice");
+            return;
+          }
+          // 문법 문제 풀이 (빈칸 + 문장 조립)
+          if (c.category === "grammarPractice") {
+            router.push("/grammar-practice");
             return;
           }
           router.push({
@@ -103,7 +118,7 @@ function CategoryCard({
         style={[s.catCard, aStyle]}
       >
         <View style={[s.catIcon, { backgroundColor: c.color }]}>
-          <Ionicons name={c.icon as any} size={26} color="#fff" />
+          <Ionicons name={c.icon as any} size={22} color="#fff" />
         </View>
         <Text style={s.catLabel}>{label}</Text>
         <Text style={s.catDesc} numberOfLines={2}>
@@ -187,25 +202,25 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.surface,
       borderWidth: 2,
       borderColor: theme.border,
-      borderBottomWidth: 5,
-      borderRadius: 20,
-      paddingVertical: 18,
-      paddingHorizontal: 16,
-      minHeight: 150,
-      gap: 10,
+      borderBottomWidth: 4,
+      borderRadius: 18,
+      paddingVertical: 14,
+      paddingHorizontal: 13,
+      minHeight: 118,
+      gap: 7,
     },
     catIcon: {
-      width: 52,
-      height: 52,
-      borderRadius: 15,
+      width: 42,
+      height: 42,
+      borderRadius: 13,
       alignItems: "center",
       justifyContent: "center",
     },
-    catLabel: { fontSize: 17, fontWeight: "800", color: theme.text },
+    catLabel: { fontSize: 15, fontWeight: "800", color: theme.text },
     catDesc: {
-      fontSize: 13,
+      fontSize: 12,
       color: theme.textSecondary,
       fontWeight: "500",
-      lineHeight: 18,
+      lineHeight: 16,
     },
   });

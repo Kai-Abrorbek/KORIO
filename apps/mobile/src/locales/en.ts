@@ -303,6 +303,7 @@ export default {
       listening: "Listening",
       topik: "TOPIK",
       pronunciation: "Pronunciation",
+      grammarPractice: "Grammar drills",
     },
     categoryDesc: {
       vocab: "Learn words",
@@ -312,6 +313,7 @@ export default {
       listening: "Train your ear",
       topik: "Exam prep",
       pronunciation: "Tell sounds apart",
+      grammarPractice: "Blanks and sentence building",
     },
   },
   profile: {

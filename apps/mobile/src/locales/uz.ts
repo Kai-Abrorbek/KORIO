@@ -307,6 +307,7 @@ export default {
       listening: "Tinglash",
       topik: "TOPIK",
       pronunciation: "Talaffuz",
+      grammarPractice: "Grammatika mashqi",
     },
     categoryDesc: {
       vocab: "So'zlarni o'rganing",
@@ -316,6 +317,7 @@ export default {
       listening: "Tinglash mashqi",
       topik: "Imtihonga tayyorgarlik",
       pronunciation: "Tovushlarni farqlang",
+      grammarPractice: "Bo‘sh joy va gap yig‘ish",
     },
   },
   profile: {

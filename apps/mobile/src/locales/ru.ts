@@ -305,6 +305,7 @@ export default {
       listening: "Аудирование",
       topik: "TOPIK",
       pronunciation: "Произношение",
+      grammarPractice: "Грамматика: практика",
     },
     categoryDesc: {
       vocab: "Учи слова",
@@ -314,6 +315,7 @@ export default {
       listening: "Тренируй слух",
       topik: "Подготовка к экзамену",
       pronunciation: "Различайте звуки",
+      grammarPractice: "Пропуски и сборка фраз",
     },
   },
   profile: {
