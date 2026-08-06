@@ -329,6 +329,25 @@ export default function GrammarList() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={st.hero}>{t("grammarList.hero")}</Text>
+
+          {/* 배운 문법을 빈칸·조립 문제로 섞어서 연습 */}
+          <NBPress
+            onPress={() => router.push("/grammar-practice")}
+            bg="#776ee2"
+            radius={16}
+            style={st.practiceBtn}
+          >
+            <Ionicons name="barbell" size={22} color="#fff" />
+            <View style={{ flex: 1 }}>
+              <Text style={st.practiceTitle}>
+                {t("grammarPractice.entryTitle")}
+              </Text>
+              <Text style={st.practiceSub}>
+                {t("grammarPractice.entrySub")}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </NBPress>
           {Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((sec) => (
             <SectionBlock
               key={sec}
@@ -391,6 +410,22 @@ const st = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 20,
     lineHeight: 22,
+  },
+
+  practiceBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    marginBottom: 22,
+  },
+  practiceTitle: { color: "#fff", fontSize: 16, fontWeight: "900" },
+  practiceSub: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 2,
   },
 
   secHead: {

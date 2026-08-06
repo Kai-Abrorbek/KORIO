@@ -8,12 +8,6 @@ import * as Speech from "expo-speech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
-  withSequence,
-  withTiming,
-  FadeIn,
-  FadeOut,
-  LinearTransition,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 
@@ -48,100 +42,40 @@ const C = {
   trackFill: "#7ec8ef",
 };
 
-interface SRow {
+export interface BuildRow {
   options: string[];
   correct: string;
 }
-interface SQ {
-  level: number;
-  title: string;
-  status: "minAgo" | "reviewDays" | "isNew";
-  statusValue?: number;
-  before: string;
-  after: string;
-  rows: SRow[];
-  translation: string;
-  tHighlight?: string;
-  hints: Record<string, string>;
+
+/** 조립 문제 — 서버가 예문을 어절로 쪼개서 만들어 준다 */
+export interface BuildQuestion {
+  kind: "build";
+  id: string;
+  code: string;
+  pattern: string;
+  prompt: string; // 유저 언어 뜻
+  rows: BuildRow[];
+  full: string; // 완성된 한국어 문장
+  hints?: Record<string, string>;
 }
 
-// mock (백엔드 붙일 땐 이 배열만 교체)
-const QUESTIONS: SQ[] = [
-  {
-    level: 1,
-    title: "잘 지내고 있어.",
-    status: "minAgo",
-    statusValue: 4,
-    before: "",
-    after: ". Thanks for asking.",
-    rows: [
-      { options: ["It's", "You're", "I'm"], correct: "I'm" },
-      { options: ["doing", "feeling", "going"], correct: "doing" },
-      { options: ["well", "better", "healthy"], correct: "well" },
-    ],
-    translation: "난 잘 지내고 있어. 물어봐줘서 고마워.",
-    tHighlight: "난 잘 지내고 있어",
-    hints: {
-      going:
-        "going은 '가다'라는 동작을 나타내요. 자신의 전반적인 상태를 표현하려면 어떤 동사가 더 적절할까요?",
-      "It's": "It's는 사물·상황을 가리켜요. 내 상태는 'I'm'으로 시작해요.",
-      better:
-        "better는 '더 나은'이라는 비교예요. 여기선 그냥 '잘' 지낸다는 표현이 맞아요.",
-    },
-  },
-  {
-    level: 1,
-    title: "가져갈게요.",
-    status: "reviewDays",
-    statusValue: 3,
-    before: "Two green tea lattes ",
-    after: ", please.",
-    rows: [
-      { options: ["to", "for", "at"], correct: "to" },
-      { options: ["go", "going", "went"], correct: "go" },
-    ],
-    translation: "녹차라떼 두 잔 포장해 주세요.",
-    tHighlight: "포장해",
-    hints: {
-      going: "going은 진행형이에요. 'to go'가 '포장'이라는 관용 표현이에요.",
-      for: "여기선 'to go'가 하나의 표현이에요.",
-    },
-  },
-  {
-    level: 2,
-    title: "커피 주문",
-    status: "isNew",
-    before: "",
-    after: " a coffee.",
-    rows: [
-      { options: ["I'd", "You'd", "We'd"], correct: "I'd" },
-      { options: ["like", "want", "love"], correct: "like" },
-      { options: ["to", "for", "of"], correct: "to" },
-      { options: ["order", "buy", "make"], correct: "order" },
-    ],
-    translation: "커피 한 잔 주문할게요.",
-    tHighlight: "주문",
-    hints: { want: "'I want'도 되지만 정중한 주문은 'I'd like to'예요." },
-  },
-];
+interface Props {
+  question: BuildQuestion;
+  onResult: (correct: boolean) => void;
+}
 
-const speakEn = (w: string) =>
-  Speech.speak(w, { language: "en-US", rate: 0.92 });
-
-export default function SentenceBuild() {
+export default function BuildSentenceCard({ question, onResult }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
-  const [index, setIndex] = useState(0);
+  // 문장 전체를 어절로 조립하므로 고정 앞뒤 문구는 없다
+  const q = { before: "", after: "", hints: {}, ...question };
   const [picks, setPicks] = useState<string[]>([]);
   const [currentRow, setCurrentRow] = useState(0);
   const [phase, setPhase] = useState<"picking" | "correct">("picking");
   const [attemptWrong, setAttemptWrong] = useState(false);
   const [lastPicks, setLastPicks] = useState<string[]>([]);
 
-  const q = QUESTIONS[index];
-  const total = 10;
   const allPicked = currentRow >= q.rows.length;
   const isOk = phase === "correct";
 
@@ -165,7 +99,7 @@ export default function SentenceBuild() {
   };
   useEffect(() => {
     resetForQuestion();
-  }, [index]);
+  }, [q.id]);
 
   const pickWord = (rowIndex: number, w: string) => {
     if (rowIndex !== currentRow || isOk) return;
@@ -183,22 +117,18 @@ export default function SentenceBuild() {
     const ok = picks.every((w, i) => w === q.rows[i].correct);
     if (ok) {
       setPhase("correct");
-      check.value = withSpring(1, { damping: 9 });
+      check.value = 1;
     } else {
       setLastPicks(picks);
       setAttemptWrong(true);
       setPicks([]);
       setCurrentRow(0);
-      shake.value = withSequence(
-        withTiming(-8, { duration: 50 }),
-        withTiming(8, { duration: 50 }),
-        withTiming(-6, { duration: 50 }),
-        withTiming(0, { duration: 50 }),
-      );
+      shake.value = 0;
     }
   };
 
-  const next = () => setIndex((i) => (i + 1) % QUESTIONS.length);
+  // 한 번이라도 틀렸으면 정답 처리하지 않는다
+  const next = () => onResult(isOk && !attemptWrong);
 
   // 카드 색 (오답 후 힌트)
   const cardColor = (i: number, w: string) => {
@@ -215,71 +145,21 @@ export default function SentenceBuild() {
   const showExplain = attemptWrong && !allPicked && wrongIdx >= 0;
   const wrongWord = wrongIdx >= 0 ? lastPicks[wrongIdx] : "";
 
-  const badge = (() => {
-    if (q.status === "minAgo")
-      return t("sentenceBuild.minAgo", { count: q.statusValue });
-    if (q.status === "reviewDays")
-      return t("sentenceBuild.reviewInDays", { count: q.statusValue });
-    return t("sentenceBuild.isNew");
-  })();
+  // 지금 연습 중인 문법
+  const badge = q.pattern;
 
-  const renderTranslation = () => {
-    if (!q.tHighlight || !q.translation.includes(q.tHighlight))
-      return <Text style={st.trans}>{q.translation}</Text>;
-    const [a, b] = q.translation.split(q.tHighlight);
-    return (
-      <Text style={st.trans}>
-        {a}
-        <Text style={{ color: C.green, fontWeight: "700" }}>
-          {q.tHighlight}
-        </Text>
-        {b}
-      </Text>
-    );
-  };
+  // 완성된 한국어 문장 (정답 후 노출)
+  const renderTranslation = () => <Text style={st.trans}>{q.full}</Text>;
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
-      {/* 헤더 */}
-      <View style={[st.header, { paddingTop: insets.top + 38 }]}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="chevron-back" size={30} color="#7fa8cf" />
-        </Pressable>
-        <View style={st.progressWrap}>
-          <View style={st.progressIcon}>
-            <Ionicons name="flame" size={20} color="#fff" />
-          </View>
-          <View style={st.track}>
-            <View
-              style={[
-                st.trackFill,
-                { width: `${((index + 1) / total) * 100}%` },
-              ]}
-            />
-            <View
-              style={[st.star, { left: `${((index + 1) / total) * 100}%` }]}
-            >
-              <Ionicons name="star" size={20} color="#bfe4fb" />
-            </View>
-          </View>
-          <Text style={st.count}>
-            {index + 1}/{total}
-          </Text>
-        </View>
-        <Pressable hitSlop={10}>
-          <Ionicons name="settings-sharp" size={26} color="#9fc3e2" />
-        </Pressable>
-      </View>
-
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
         showsVerticalScrollIndicator={false}
       >
         {/* 레벨 탭 */}
         <View style={st.levelTab}>
-          <Text style={st.levelText}>
-            {t("sentenceBuild.level", { n: q.level })} · {q.title}
-          </Text>
+          <Text style={st.levelText}>{q.prompt}</Text>
           {!isOk && (
             <View style={st.badge}>
               <Text style={st.badgeText}>{badge}</Text>
@@ -329,7 +209,6 @@ export default function SentenceBuild() {
             {/* 오답 설명 버블 */}
             {showExplain && (
               <Animated.View
-                entering={FadeIn.duration(250)}
                 style={st.hintBubble}
               >
                 <View style={st.hintHead}>
@@ -409,7 +288,7 @@ export default function SentenceBuild() {
               </Pressable>
             ))}
           </View>
-          <View style={[st.bigRow, { paddingBottom: insets.bottom + 12 }]}>
+          <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
             <BigBtn
               colors={["#a07af0", "#8b6ae8"]}
               icon={<Ionicons name="book" size={28} color="#fff" />}
@@ -420,11 +299,7 @@ export default function SentenceBuild() {
               colors={["#8f7ff0", "#7161e6"]}
               icon={<Ionicons name="volume-high" size={28} color="#fff" />}
               label={t("sentenceBuild.listenAgain")}
-              onPress={() =>
-                speakEn(
-                  q.before + q.rows.map((r) => r.correct).join(" ") + q.after,
-                )
-              }
+              onPress={() => Speech.speak(q.full, { language: "ko-KR" })}
             />
             <BigBtn
               colors={["#7b6ef0", "#5f52e0"]}
@@ -444,9 +319,7 @@ export default function SentenceBuild() {
               const active = depth === 0;
               return (
                 <Animated.View
-                  key={`${index}-${i}`}
-                  layout={LinearTransition.springify().damping(16)}
-                  exiting={FadeOut.duration(160)}
+                  key={`${q.id}-${i}`}
                   style={[
                     st.row,
                     {
@@ -504,8 +377,7 @@ export default function SentenceBuild() {
           {/* 정답 확인 (모두 고르면) */}
           {allPicked && (
             <Animated.View
-              entering={FadeIn.duration(200)}
-              style={[st.checkWrap, { paddingBottom: insets.bottom + 14 }]}
+              style={[st.checkWrap, { paddingBottom: insets.bottom + 10 }]}
             >
               <Pressable style={st.checkBtn} onPress={checkAnswer}>
                 {({ pressed }) => (

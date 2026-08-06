@@ -889,6 +889,13 @@ export default {
       "보리 선생님과 한국어로 대화해 보세요.\n아무 말이나 편하게 걸어도 좋아요!",
     errorReply: "메시지를 보내지 못했어요. 잠시 후 다시 시도해 주세요.",
   },
+  grammarPractice: {
+    entryTitle: "문법 문제 풀이",
+    entrySub: "배운 문법을 빈칸·문장 조립으로 연습해요",
+    empty: "아직 연습할 문법이 없어요.\n문법을 먼저 배워 보세요.",
+    finished: "문법 연습을 마쳤어요!",
+    back: "돌아가기",
+  },
   grammarList: {
     title: "문법",
     hero: "섹션별로 문법을 차근차근 익혀보세요.",

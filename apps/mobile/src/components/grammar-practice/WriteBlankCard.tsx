@@ -17,11 +17,6 @@ import { useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  withSpring,
-  FadeIn,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -55,87 +50,38 @@ const C = {
   lav: "#a99ff0",
 };
 
-// ── mock 문제 (백엔드 붙일 땐 이 배열만 교체) ──
-type Status = "new" | "retry" | "reviewDays" | "reviewYears";
-interface WQ {
-  prompt: string;
-  highlight?: string;
+/** 빈칸 문제 — 서버가 예문의 highlight 를 파서 만들어 준다 */
+export interface WriteQuestion {
+  kind: "write";
+  id: string;
+  code: string;
+  pattern: string; // 문법 패턴 (뱃지·출처 자리에 표시)
+  prompt: string; // 유저 언어 뜻
   prefix: string;
   answer: string;
   suffix: string;
+  full: string;
+  highlight?: string;
   wrongHint?: string;
   note?: string;
   image?: string;
-  source: string;
-  level: number;
-  status: Status;
-  reviewValue?: number;
 }
-const QUESTIONS: WQ[] = [
-  {
-    prompt: "초콜릿 좀 사자.",
-    highlight: "사",
-    prefix: "Let's ",
-    answer: "buy",
-    suffix: " some chocolate.",
-    wrongHint: "물건을 돈 주고 얻는다는 뜻의 단어예요.",
-    source: "중학교 영어1 지학사",
-    level: 2,
-    status: "retry",
-  },
-  {
-    prompt: "저것은 뭔가요?",
-    highlight: "저것",
-    prefix: "What is ",
-    answer: "that",
-    suffix: "?",
-    wrongHint: "멀리 있는 것을 가리키는 단어예요.",
-    source: "Dexter",
-    level: 1,
-    status: "reviewDays",
-    reviewValue: 5,
-  },
-  {
-    prompt: "저건 내 사과야.",
-    highlight: "사과",
-    prefix: "That's my ",
-    answer: "apple",
-    suffix: ".",
-    image: "🍎",
-    wrongHint: "빨갛고 아삭한 과일이에요.",
-    source: "중학교 영어1 천재교과서",
-    level: 1,
-    status: "new",
-  },
-  {
-    prompt: "저것은 제 자동차입니다.",
-    highlight: "저것",
-    prefix: "",
-    answer: "That's",
-    suffix: " my car.",
-    note: "that is의 줄임말",
-    source: "Dead To Me",
-    level: 1,
-    status: "reviewYears",
-    reviewValue: 6,
-  },
-];
 
-export default function WritePractice() {
+interface Props {
+  question: WriteQuestion;
+  onResult: (correct: boolean) => void;
+}
+export default function WriteBlankCard({ question, onResult }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
   const { speak } = useSpeech();
+  const insets = useSafeAreaInsets();
 
-  const [index, setIndex] = useState(0);
+  const q = question;
   const [input, setInput] = useState("");
   const [state, setState] = useState<"idle" | "wrong" | "correct">("idle");
   const [hintLevel, setHintLevel] = useState(0); // 0/1/2
   const [fav, setFav] = useState(false);
   const inputRef = useRef<TextInput>(null);
-
-  const q = QUESTIONS[index];
-  const total = 20;
 
   // 애니메이션
   const shake = useSharedValue(0);
@@ -151,20 +97,19 @@ export default function WritePractice() {
   const caretStyle = useAnimatedStyle(() => ({ opacity: caret.value }));
 
   useEffect(() => {
-    caret.value = withRepeat(
-      withSequence(
-        withTiming(0, { duration: 500 }),
-        withTiming(1, { duration: 500 }),
-      ),
-      -1,
-    );
+    caret.value = 1; // 깜빡임 없이 고정
   }, []);
 
   // 문제 바뀌면 리셋 + 키보드 다시
   const focusInput = () => setTimeout(() => inputRef.current?.focus(), 60);
+  // 문제가 바뀌면 입력·힌트 초기화하고 키보드 다시 올린다
   useEffect(() => {
+    setInput("");
+    setHintLevel(0);
+    setState("idle");
+    check.value = 0;
     focusInput();
-  }, [index]);
+  }, [q.id]);
 
   const revealed = () => {
     if (hintLevel === 0) return "";
@@ -177,25 +122,15 @@ export default function WritePractice() {
     if (ok) {
       setState("correct");
       Keyboard.dismiss();
-      check.value = withSpring(1, { damping: 9 });
+      check.value = 1;
     } else {
       setState("wrong");
-      shake.value = withSequence(
-        withTiming(-8, { duration: 50 }),
-        withTiming(8, { duration: 50 }),
-        withTiming(-6, { duration: 50 }),
-        withTiming(0, { duration: 50 }),
-      );
+      shake.value = 0;
     }
   };
 
-  const nextQuestion = () => {
-    check.value = 0;
-    setInput("");
-    setHintLevel(0);
-    setState("idle");
-    setIndex((i) => (i + 1) % QUESTIONS.length);
-  };
+  // 힌트를 썼으면 맞아도 정답 처리하지 않는다 (답을 보여줬으므로)
+  const nextQuestion = () => onResult(state === "correct" && hintLevel < 2);
 
   const pressHint = () => {
     setHintLevel((h) => Math.min(2, h + 1));
@@ -211,25 +146,8 @@ export default function WritePractice() {
 
   const isOk = state === "correct";
 
-  // 뱃지
-  const badge = (() => {
-    switch (q.status) {
-      case "retry":
-        return { text: t("writePractice.retry"), bg: C.badgeRed };
-      case "new":
-        return { text: t("writePractice.isNew"), bg: C.badgeRed };
-      case "reviewDays":
-        return {
-          text: t("writePractice.reviewInDays", { count: q.reviewValue }),
-          bg: C.badgeTeal,
-        };
-      case "reviewYears":
-        return {
-          text: t("writePractice.reviewInYears", { count: q.reviewValue }),
-          bg: C.badgeTeal,
-        };
-    }
-  })();
+  // 어떤 문법을 연습 중인지 보여준다
+  const badge = { text: q.pattern, bg: C.badgeTeal };
 
   // 프롬프트 하이라이트 (초록)
   const renderPrompt = () => {
@@ -247,50 +165,17 @@ export default function WritePractice() {
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
-      {/* 헤더: 진행바 */}
-      <View style={[st.header, { paddingTop: insets.top + 38 }]}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="chevron-back" size={30} color="#7fa8cf" />
-        </Pressable>
-        <View style={st.progressWrap}>
-          <View style={st.progressIcon}>
-            <Ionicons name="flame" size={20} color="#fff" />
-          </View>
-          <View style={st.track}>
-            <View
-              style={[
-                st.trackFill,
-                { width: `${((index + 1) / total) * 100}%` },
-              ]}
-            />
-            <View
-              style={[st.star, { left: `${((index + 1) / total) * 100}%` }]}
-            >
-              <Ionicons name="star" size={20} color="#bfe4fb" />
-            </View>
-          </View>
-          <Text style={st.count}>
-            {index + 1}/{total}
-          </Text>
-        </View>
-        <Pressable hitSlop={10}>
-          <Ionicons name="settings-sharp" size={26} color="#9fc3e2" />
-        </Pressable>
-      </View>
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={st.scroll}
+          contentContainerStyle={[st.scroll, { paddingBottom: insets.bottom + 12 }]}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 레벨 탭 */}
+          {/* 지금 연습 중인 문법 */}
           <View style={st.levelTab}>
-            <Text style={st.levelText}>
-              {t("writePractice.level", { n: q.level })}
-            </Text>
+            <Text style={st.levelText}>{q.pattern}</Text>
             <Ionicons name="help-circle" size={16} color={C.levelText} />
           </View>
 
@@ -335,7 +220,7 @@ export default function WritePractice() {
 
               {/* note (줄임말 등) */}
               {isOk && q.note && (
-                <Animated.Text entering={FadeIn} style={st.note}>
+                <Animated.Text style={st.note}>
                   ※ {q.note}
                 </Animated.Text>
               )}
@@ -343,7 +228,6 @@ export default function WritePractice() {
               {/* 오답 힌트 버블 */}
               {state === "wrong" && (
                 <Animated.View
-                  entering={FadeIn.duration(250)}
                   style={st.wrongBubble}
                 >
                   <Text style={st.wrongText}>
@@ -383,10 +267,8 @@ export default function WritePractice() {
                 {!!q.suffix && <Text style={st.answerFix}>{q.suffix}</Text>}
               </View>
 
-              {/* 출처 */}
-              <Text style={st.source}>
-                {t("writePractice.source", { name: q.source })}
-              </Text>
+              {/* 정답일 때 완성 문장을 보여준다 */}
+              {isOk && <Text style={st.source}>{q.full}</Text>}
             </LinearGradient>
           </Animated.View>
         </ScrollView>
@@ -439,7 +321,7 @@ export default function WritePractice() {
             </View>
 
             {/* 큰 버튼 3개 */}
-            <View style={[st.bigRow, { paddingBottom: insets.bottom + 12 }]}>
+            <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
               <BigBtn
                 colors={["#a07af0", "#7f5fe8"]}
                 onPress={() => {}}

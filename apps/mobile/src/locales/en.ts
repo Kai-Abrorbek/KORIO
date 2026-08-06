@@ -892,6 +892,13 @@ export default {
       "Practise Korean with Teacher Bori.\nStart with anything you like!",
     errorReply: "Couldn't send your message. Please try again in a moment.",
   },
+  grammarPractice: {
+    entryTitle: "Grammar practice",
+    entrySub: "Practise what you've learned with blanks and sentence building",
+    empty: "No grammar to practise yet.\nLearn some grammar first.",
+    finished: "Grammar practice complete!",
+    back: "Back",
+  },
   grammarList: {
     title: "Grammar",
     hero: "Master grammar step by step, section by section.",

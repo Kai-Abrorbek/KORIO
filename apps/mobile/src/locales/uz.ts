@@ -895,6 +895,13 @@ export default {
       "Bori muallim bilan koreyscha suhbatlashing.\nIstalgan narsadan boshlang!",
     errorReply: "Xabar yuborilmadi. Birozdan keyin qayta urinib ko'ring.",
   },
+  grammarPractice: {
+    entryTitle: "Grammatika mashqi",
+    entrySub: "O‘rgangan grammatikani bo‘sh joy va gap yig‘ish bilan mashq qiling",
+    empty: "Hozircha mashq qiladigan grammatika yo‘q.\nAvval grammatikani o‘rganing.",
+    finished: "Grammatika mashqi tugadi!",
+    back: "Orqaga",
+  },
   grammarList: {
     title: "Grammatika",
     hero: "Grammatikani bo'lim-bo'lim o'rganing.",
