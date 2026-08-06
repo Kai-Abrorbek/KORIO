@@ -13,10 +13,7 @@ import {
 } from "react-native";
 import { TopikHintPanel, TopikQuestionCard } from "@/components/topik";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
-import {
-  flattenTopikQuestions,
-  type TopikAttemptMode,
-} from "@/types/topik";
+import { flattenTopikQuestions, type TopikAttemptMode } from "@/types/topik";
 
 function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -32,7 +29,8 @@ export default function TopikExamScreen() {
   const examCode = Array.isArray(params.examCode)
     ? params.examCode[0]
     : params.examCode;
-  const mode = (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
+  const mode =
+    (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
   const scrollRef = useRef<ScrollView>(null);
   const [now, setNow] = useState(Date.now());
   const [busy, setBusy] = useState(false);
@@ -40,17 +38,27 @@ export default function TopikExamScreen() {
   const session = useTopikAttemptStore((state) => state.session);
   const attempt = useTopikAttemptStore((state) => state.attempt);
   const answers = useTopikAttemptStore((state) => state.answers);
-  const learningSupport = useTopikAttemptStore((state) => state.learningSupport);
-  const revealedSolutions = useTopikAttemptStore((state) => state.revealedSolutions);
+  const learningSupport = useTopikAttemptStore(
+    (state) => state.learningSupport,
+  );
+  const revealedSolutions = useTopikAttemptStore(
+    (state) => state.revealedSolutions,
+  );
   const currentIndex = useTopikAttemptStore((state) => state.currentIndex);
-  const sessionStartedAtMs = useTopikAttemptStore((state) => state.sessionStartedAtMs);
+  const sessionStartedAtMs = useTopikAttemptStore(
+    (state) => state.sessionStartedAtMs,
+  );
   const isLoading = useTopikAttemptStore((state) => state.isLoading);
   const errorCode = useTopikAttemptStore((state) => state.errorCode);
   const start = useTopikAttemptStore((state) => state.start);
   const selectAnswer = useTopikAttemptStore((state) => state.selectAnswer);
-  const setCurrentIndex = useTopikAttemptStore((state) => state.setCurrentIndex);
+  const setCurrentIndex = useTopikAttemptStore(
+    (state) => state.setCurrentIndex,
+  );
   const saveProgress = useTopikAttemptStore((state) => state.saveProgress);
-  const loadLearningSupport = useTopikAttemptStore((state) => state.loadLearningSupport);
+  const loadLearningSupport = useTopikAttemptStore(
+    (state) => state.loadLearningSupport,
+  );
   const revealNextHint = useTopikAttemptStore((state) => state.revealNextHint);
   const revealSolution = useTopikAttemptStore((state) => state.revealSolution);
   const submit = useTopikAttemptStore((state) => state.submit);
@@ -127,7 +135,9 @@ export default function TopikExamScreen() {
     const unanswered = questions.length - answeredCount;
     Alert.alert(
       "답안을 제출할까요?",
-      unanswered > 0 ? `아직 풀지 않은 문제가 ${unanswered}개 있어요.` : "제출 후에는 답을 바꿀 수 없어요.",
+      unanswered > 0
+        ? `아직 풀지 않은 문제가 ${unanswered}개 있어요.`
+        : "제출 후에는 답을 바꿀 수 없어요.",
       [
         { text: "취소", style: "cancel" },
         {
@@ -155,7 +165,10 @@ export default function TopikExamScreen() {
     return (
       <SafeAreaView style={styles.centered}>
         <Text style={styles.errorTitle}>시험 정보가 없습니다.</Text>
-        <Pressable onPress={() => router.replace("/topik")} style={styles.errorButton}>
+        <Pressable
+          onPress={() => router.replace("/topik")}
+          style={styles.errorButton}
+        >
           <Text style={styles.errorButtonText}>시험 선택으로</Text>
         </Pressable>
       </SafeAreaView>
@@ -169,7 +182,10 @@ export default function TopikExamScreen() {
           <>
             <Ionicons name="alert-circle-outline" size={34} color="#A3463B" />
             <Text style={styles.errorTitle}>시험을 시작하지 못했어요.</Text>
-            <Pressable onPress={() => void start(examCode, mode)} style={styles.errorButton}>
+            <Pressable
+              onPress={() => void start(examCode, mode)}
+              style={styles.errorButton}
+            >
               <Text style={styles.errorButtonText}>다시 시도</Text>
             </Pressable>
           </>
@@ -218,7 +234,9 @@ export default function TopikExamScreen() {
           <Text style={styles.modeLabel}>
             {attempt.mode === "guided" ? "해설 학습" : "실전 모의고사"}
           </Text>
-          <Text style={styles.answerCount}>답안 {answeredCount}/{questions.length}</Text>
+          <Text style={styles.answerCount}>
+            답안 {answeredCount}/{questions.length}
+          </Text>
         </View>
 
         <TopikQuestionCard
@@ -249,7 +267,10 @@ export default function TopikExamScreen() {
               try {
                 await revealSolution(question.id);
               } catch {
-                Alert.alert("풀이를 열지 못했어요.", "답을 저장한 뒤 다시 시도해 주세요.");
+                Alert.alert(
+                  "풀이를 열지 못했어요.",
+                  "답을 저장한 뒤 다시 시도해 주세요.",
+                );
               } finally {
                 setBusy(false);
               }
@@ -262,13 +283,20 @@ export default function TopikExamScreen() {
         <Pressable
           disabled={currentIndex === 0 || busy}
           onPress={() => void moveTo(currentIndex - 1)}
-          style={[styles.secondaryButton, currentIndex === 0 && styles.disabled]}
+          style={[
+            styles.secondaryButton,
+            currentIndex === 0 && styles.disabled,
+          ]}
         >
           <Ionicons name="chevron-back" size={21} color="#435266" />
           <Text style={styles.secondaryText}>이전</Text>
         </Pressable>
         {currentIndex === questions.length - 1 ? (
-          <Pressable disabled={busy} onPress={confirmSubmit} style={styles.primaryButton}>
+          <Pressable
+            disabled={busy}
+            onPress={confirmSubmit}
+            style={styles.primaryButton}
+          >
             <Text style={styles.primaryText}>제출하기</Text>
           </Pressable>
         ) : (
@@ -287,29 +315,125 @@ export default function TopikExamScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F2F0EA" },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", gap: 13, backgroundColor: "#F2F0EA", padding: 24 },
-  loadingText: { color: "#66717D", fontSize: 14 },
-  errorTitle: { color: "#3D4650", fontSize: 17, fontWeight: "800", textAlign: "center" },
-  errorButton: { borderRadius: 10, backgroundColor: "#173B67", paddingHorizontal: 18, paddingVertical: 11 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F2F0EA",
+    paddingBottom: 40,
+    paddingTop: 40,
+  },
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 13,
+    backgroundColor: "#F2F0EA",
+    padding: 24,
+  },
+  loadingText: { color: "#66717D", fontSize: 13 },
+  errorTitle: {
+    color: "#3D4650",
+    fontSize: 15,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  errorButton: {
+    borderRadius: 10,
+    backgroundColor: "#173B67",
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+  },
   errorButtonText: { color: "#FFFFFF", fontWeight: "800" },
-  header: { minHeight: 61, flexDirection: "row", alignItems: "center", gap: 9, borderBottomWidth: 1, borderBottomColor: "#DEDCD6", backgroundColor: "#FFFEFB", paddingHorizontal: 12 },
-  headerButton: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
+  header: {
+    minHeight: 61,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: "#DEDCD6",
+    backgroundColor: "#FFFEFB",
+    paddingHorizontal: 12,
+  },
+  headerButton: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   progressArea: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8 },
-  progressTrack: { flex: 1, height: 7, overflow: "hidden", borderRadius: 4, backgroundColor: "#E4E6E8" },
+  progressTrack: {
+    flex: 1,
+    height: 7,
+    overflow: "hidden",
+    borderRadius: 4,
+    backgroundColor: "#E4E6E8",
+  },
   progressFill: { height: "100%", borderRadius: 4, backgroundColor: "#1D5D98" },
   progressText: { color: "#66717B", fontSize: 11, fontWeight: "800" },
-  timer: { minWidth: 69, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 },
-  timerText: { color: "#173B67", fontSize: 13, fontWeight: "900", fontVariant: ["tabular-nums"] },
+  timer: {
+    minWidth: 69,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 4,
+  },
+  timerText: {
+    color: "#173B67",
+    fontSize: 12,
+    fontWeight: "900",
+    fontVariant: ["tabular-nums"],
+  },
   scroll: { flex: 1 },
-  content: { gap: 14, paddingHorizontal: 14, paddingTop: 13, paddingBottom: 28 },
-  statusRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  modeLabel: { color: "#173B67", fontSize: 12, fontWeight: "900", letterSpacing: 0.3 },
+  content: {
+    gap: 14,
+    paddingHorizontal: 14,
+    paddingTop: 13,
+    paddingBottom: 28,
+  },
+  statusRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modeLabel: {
+    color: "#173B67",
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 0.3,
+  },
   answerCount: { color: "#777D84", fontSize: 11, fontWeight: "700" },
-  footer: { minHeight: 76, flexDirection: "row", alignItems: "center", gap: 10, borderTopWidth: 1, borderTopColor: "#DFDDD7", backgroundColor: "#FFFEFB", paddingHorizontal: 14, paddingVertical: 10 },
-  secondaryButton: { width: 105, minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#CBD0D5", borderRadius: 13, backgroundColor: "#FFFFFF" },
-  secondaryText: { color: "#435266", fontSize: 15, fontWeight: "800" },
-  primaryButton: { flex: 1, minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 13, backgroundColor: "#173B67" },
-  primaryText: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
+  footer: {
+    minHeight: 76,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#DFDDD7",
+    backgroundColor: "#FFFEFB",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  secondaryButton: {
+    width: 105,
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#CBD0D5",
+    borderRadius: 13,
+    backgroundColor: "#FFFFFF",
+  },
+  secondaryText: { color: "#435266", fontSize: 14, fontWeight: "800" },
+  primaryButton: {
+    flex: 1,
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    borderRadius: 13,
+    backgroundColor: "#173B67",
+  },
+  primaryText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
   disabled: { opacity: 0.36 },
 });

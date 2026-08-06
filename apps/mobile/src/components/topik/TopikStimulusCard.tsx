@@ -16,7 +16,10 @@ function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
         <Text style={styles.adSubtitle}>{stimulus.subtitle}</Text>
       )}
       {stimulus.blocks.length > 0 && (
-        <TopikTextBlocks blocks={stimulus.blocks} textStyle={styles.centerText} />
+        <TopikTextBlocks
+          blocks={stimulus.blocks}
+          textStyle={styles.centerText}
+        />
       )}
       {stimulus.bulletItems.map((item) => (
         <Text key={item} style={styles.adBullet}>
@@ -30,7 +33,9 @@ function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
 function Notice({ stimulus }: { stimulus: TopikStimulus }) {
   return (
     <View style={styles.notice}>
-      {!!stimulus.title && <Text style={styles.noticeTitle}>{stimulus.title}</Text>}
+      {!!stimulus.title && (
+        <Text style={styles.noticeTitle}>{stimulus.title}</Text>
+      )}
       {!!stimulus.subtitle && (
         <Text style={styles.noticeSubtitle}>{stimulus.subtitle}</Text>
       )}
@@ -46,7 +51,9 @@ function Notice({ stimulus }: { stimulus: TopikStimulus }) {
           <Text style={styles.infoValue}>{item.value}</Text>
         </View>
       ))}
-      {stimulus.blocks.length > 0 && <TopikTextBlocks blocks={stimulus.blocks} />}
+      {stimulus.blocks.length > 0 && (
+        <TopikTextBlocks blocks={stimulus.blocks} />
+      )}
     </View>
   );
 }
@@ -58,7 +65,9 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
   return (
     <View style={styles.chartCard}>
       {!!chart.title && <Text style={styles.chartTitle}>{chart.title}</Text>}
-      {!!chart.subtitle && <Text style={styles.chartSubtitle}>{chart.subtitle}</Text>}
+      {!!chart.subtitle && (
+        <Text style={styles.chartSubtitle}>{chart.subtitle}</Text>
+      )}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
@@ -71,7 +80,9 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
           </View>
           {chart.rows.map((row) => (
             <View key={row.label} style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.firstCell, styles.rowLabel]}>
+              <Text
+                style={[styles.tableCell, styles.firstCell, styles.rowLabel]}
+              >
                 {row.label}
               </Text>
               {row.values.map((value, index) => (
@@ -84,15 +95,14 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
         </View>
       </ScrollView>
       {!!chart.unit && <Text style={styles.chartNote}>단위: {chart.unit}</Text>}
-      {!!chart.sourceNote && <Text style={styles.chartNote}>{chart.sourceNote}</Text>}
+      {!!chart.sourceNote && (
+        <Text style={styles.chartNote}>{chart.sourceNote}</Text>
+      )}
     </View>
   );
 }
 
-function SentenceSet({
-  stimulus,
-  highlightedKeys,
-}: TopikStimulusCardProps) {
+function SentenceSet({ stimulus, highlightedKeys }: TopikStimulusCardProps) {
   return (
     <View style={styles.sentenceSet}>
       {stimulus.labeledSentences.map((sentence) => (
@@ -125,10 +135,7 @@ export function TopikStimulusCard({
   }
   if (stimulus.kind === "sentence_set") {
     return (
-      <SentenceSet
-        stimulus={stimulus}
-        highlightedKeys={highlightedKeys}
-      />
+      <SentenceSet stimulus={stimulus} highlightedKeys={highlightedKeys} />
     );
   }
   if (stimulus.kind === "headline") {
@@ -148,7 +155,9 @@ export function TopikStimulusCard({
           <TopikTextBlocks blocks={stimulus.givenText} />
         </View>
       )}
-      {!!stimulus.title && <Text style={styles.passageTitle}>{stimulus.title}</Text>}
+      {!!stimulus.title && (
+        <Text style={styles.passageTitle}>{stimulus.title}</Text>
+      )}
       <TopikPassage
         blocks={stimulus.blocks}
         highlightedKeys={highlightedKeys}
@@ -169,7 +178,7 @@ const styles = StyleSheet.create({
   passageStack: { gap: 12 },
   passageTitle: {
     color: "#1F2630",
-    fontSize: 19,
+    fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
   },
@@ -184,19 +193,19 @@ const styles = StyleSheet.create({
   },
   adTitle: {
     color: "#122E52",
-    fontSize: 25,
-    lineHeight: 33,
+    fontSize: 18,
+    lineHeight: 26,
     fontWeight: "900",
     textAlign: "center",
   },
   adSubtitle: {
     color: "#4D525A",
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 21,
     textAlign: "center",
   },
   centerText: { textAlign: "center" },
-  adBullet: { color: "#32343A", fontSize: 15, lineHeight: 24 },
+  adBullet: { color: "#32343A", fontSize: 14, lineHeight: 21 },
   notice: {
     gap: 10,
     borderWidth: 1,
@@ -206,11 +215,11 @@ const styles = StyleSheet.create({
   },
   noticeTitle: {
     color: "#173B67",
-    fontSize: 21,
+    fontSize: 18,
     fontWeight: "900",
     textAlign: "center",
   },
-  noticeSubtitle: { color: "#5A6068", fontSize: 14, textAlign: "center" },
+  noticeSubtitle: { color: "#5A6068", fontSize: 12, textAlign: "center" },
   noticeRow: { flexDirection: "row", gap: 9, alignItems: "flex-start" },
   noticeDot: {
     width: 5,
@@ -219,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: "#173B67",
   },
-  noticeText: { flex: 1, color: "#2E3238", fontSize: 16, lineHeight: 24 },
+  noticeText: { flex: 1, color: "#2E3238", fontSize: 14, lineHeight: 21 },
   infoRow: {
     flexDirection: "row",
     borderTopWidth: 1,
@@ -235,8 +244,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     padding: 14,
   },
-  chartTitle: { color: "#20252C", fontSize: 18, fontWeight: "900", textAlign: "center" },
-  chartSubtitle: { color: "#666B73", fontSize: 13, textAlign: "center" },
+  chartTitle: {
+    color: "#20252C",
+    fontSize: 16,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  chartSubtitle: { color: "#666B73", fontSize: 12, textAlign: "center" },
   table: { minWidth: 320, borderWidth: 1, borderColor: "#ADB3BB" },
   tableRow: { flexDirection: "row" },
   tableHeader: { backgroundColor: "#E9EEF5" },
@@ -249,7 +263,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#C5CAD0",
     color: "#30343A",
-    fontSize: 13,
+    fontSize: 12,
     textAlign: "center",
   },
   firstCell: { width: 96 },
@@ -270,7 +284,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "#173B67",
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "900",
     lineHeight: 31,
     textAlign: "center",
@@ -286,7 +300,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headlineLabel: { color: "#74706A", fontSize: 11, fontWeight: "700" },
-  headlineText: { color: "#1F2328", fontSize: 22, lineHeight: 31, fontWeight: "900" },
+  headlineText: {
+    color: "#1F2328",
+    fontSize: 18,
+    lineHeight: 27,
+    fontWeight: "900",
+  },
   givenText: {
     gap: 8,
     borderWidth: 1,
@@ -295,6 +314,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F8FA",
     padding: 15,
   },
-  givenLabel: { color: "#173B67", fontSize: 12, fontWeight: "900" },
+  givenLabel: { color: "#173B67", fontSize: 11, fontWeight: "900" },
   image: { width: "100%", height: 180 },
 });

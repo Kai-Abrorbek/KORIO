@@ -88,22 +88,22 @@ const styles = StyleSheet.create({
   instruction: {
     color: "#38393B",
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
     fontWeight: "700",
   },
   questionRow: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   questionNumber: {
     color: "#153C69",
-    fontSize: 31,
-    lineHeight: 37,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: "900",
     letterSpacing: -1.5,
   },
   prompt: { flex: 1, paddingTop: 2 },
   promptText: {
     color: "#252629",
-    fontSize: 18,
-    lineHeight: 30,
+    fontSize: 14,
+    lineHeight: 24,
     fontWeight: "700",
   },
 });

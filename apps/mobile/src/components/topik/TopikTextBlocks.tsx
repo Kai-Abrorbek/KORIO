@@ -1,9 +1,6 @@
 import { Fragment } from "react";
 import { StyleSheet, Text, View, type TextStyle } from "react-native";
-import type {
-  TopikTextBlock,
-  TopikTextSegment,
-} from "@/types/topik";
+import type { TopikTextBlock, TopikTextSegment } from "@/types/topik";
 
 interface TopikTextBlocksProps {
   blocks: TopikTextBlock[];
@@ -72,11 +69,12 @@ const styles = StyleSheet.create({
   container: { gap: 10 },
   text: {
     color: "#242427",
-    fontSize: 17,
-    lineHeight: 30,
+    fontSize: 14,
+    lineHeight: 26,
     letterSpacing: -0.25,
+    fontWeight: 600,
   },
-  caption: { color: "#64646D", fontSize: 13, lineHeight: 21 },
+  caption: { color: "#64646D", fontSize: 12, lineHeight: 19 },
   quote: { fontStyle: "italic", paddingLeft: 12 },
   underline: { textDecorationLine: "underline", fontWeight: "700" },
   emphasis: { fontWeight: "800" },

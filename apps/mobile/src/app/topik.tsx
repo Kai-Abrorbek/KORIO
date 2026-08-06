@@ -87,9 +87,12 @@ export default function TopikHomeScreen() {
           <View style={styles.heroBadge}>
             <Text style={styles.heroBadgeText}>TOPIK II · READING</Text>
           </View>
-          <Text style={styles.heroTitle}>문제를 외우지 말고,{"\n"}푸는 법을 익혀 보세요.</Text>
+          <Text style={styles.heroTitle}>
+            문제를 외우지 말고,{"\n"}푸는 법을 익혀 보세요.
+          </Text>
           <Text style={styles.heroDescription}>
-            실제 시험 구성 그대로 연습하고, 막힐 때만 단계별 힌트를 확인할 수 있어요.
+            실제 시험 구성 그대로 연습하고, 막힐 때만 단계별 힌트를 확인할 수
+            있어요.
           </Text>
           <View style={styles.heroMetrics}>
             <View>
@@ -131,7 +134,9 @@ export default function TopikHomeScreen() {
           <View style={styles.stateCard}>
             <Ionicons name="documents-outline" size={29} color="#7A8290" />
             <Text style={styles.stateTitle}>등록된 시험지가 아직 없어요.</Text>
-            <Text style={styles.stateText}>TOPIK 시드를 먼저 실행해 주세요.</Text>
+            <Text style={styles.stateText}>
+              TOPIK 시드를 먼저 실행해 주세요.
+            </Text>
           </View>
         ) : (
           <View style={styles.examList}>
@@ -149,9 +154,12 @@ export default function TopikHomeScreen() {
                     </Text>
                   </View>
                   <View style={styles.examInfo}>
-                    <Text style={styles.examTitle}>{topikText(exam.title)}</Text>
+                    <Text style={styles.examTitle}>
+                      {topikText(exam.title)}
+                    </Text>
                     <Text style={styles.examMeta}>
-                      {exam.totalQuestions}문항 · {exam.durationMinutes}분 · {exam.totalPoints}점
+                      {exam.totalQuestions}문항 · {exam.durationMinutes}분 ·{" "}
+                      {exam.totalPoints}점
                     </Text>
                   </View>
                   <Ionicons
@@ -178,7 +186,12 @@ export default function TopikHomeScreen() {
                 onPress={() => setMode(item.key)}
                 style={[styles.modeCard, selected && styles.modeCardSelected]}
               >
-                <View style={[styles.modeIcon, { backgroundColor: `${item.color}18` }]}>
+                <View
+                  style={[
+                    styles.modeIcon,
+                    { backgroundColor: `${item.color}18` },
+                  ]}
+                >
                   <Ionicons name={item.icon} size={25} color={item.color} />
                 </View>
                 <View style={styles.modeInfo}>
@@ -227,9 +240,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 14,
     backgroundColor: "#F5F3ED",
+    marginTop: 30,
   },
-  iconButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerTitle: { color: "#173B67", fontSize: 18, fontWeight: "900" },
+  iconButton: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: { color: "#173B67", fontSize: 16, fontWeight: "900" },
   content: { paddingHorizontal: 18, paddingBottom: 42, gap: 18 },
   hero: {
     overflow: "hidden",
@@ -237,42 +256,166 @@ const styles = StyleSheet.create({
     backgroundColor: "#173B67",
     padding: 23,
   },
-  heroBadge: { alignSelf: "flex-start", borderRadius: 20, backgroundColor: "#FFFFFF1A", paddingHorizontal: 11, paddingVertical: 6 },
-  heroBadgeText: { color: "#D9E7F5", fontSize: 10, fontWeight: "900", letterSpacing: 1.1 },
-  heroTitle: { color: "#FFFFFF", fontSize: 27, lineHeight: 37, fontWeight: "900", marginTop: 16, letterSpacing: -0.8 },
-  heroDescription: { color: "#D8E3EE", fontSize: 14, lineHeight: 22, marginTop: 10 },
-  heroMetrics: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 22, borderTopWidth: 1, borderTopColor: "#FFFFFF24", paddingTop: 16 },
-  metricValue: { color: "#FFFFFF", fontSize: 21, fontWeight: "900", textAlign: "center" },
-  metricLabel: { color: "#AFC4D8", fontSize: 11, marginTop: 2, textAlign: "center" },
+  heroBadge: {
+    alignSelf: "flex-start",
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF1A",
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+  },
+  heroBadgeText: {
+    color: "#D9E7F5",
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 1.1,
+  },
+  heroTitle: {
+    color: "#FFFFFF",
+    fontSize: 23,
+    lineHeight: 32,
+    fontWeight: "900",
+    marginTop: 16,
+    letterSpacing: -0.8,
+  },
+  heroDescription: {
+    color: "#D8E3EE",
+    fontSize: 13,
+    lineHeight: 20,
+    marginTop: 10,
+  },
+  heroMetrics: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    marginTop: 22,
+    borderTopWidth: 1,
+    borderTopColor: "#FFFFFF24",
+    paddingTop: 16,
+  },
+  metricValue: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  metricLabel: {
+    color: "#AFC4D8",
+    fontSize: 10,
+    marginTop: 2,
+    textAlign: "center",
+  },
   metricDivider: { width: 1, height: 29, backgroundColor: "#FFFFFF28" },
-  sectionHeader: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", marginTop: 3 },
-  sectionTitle: { color: "#242A32", fontSize: 19, fontWeight: "900" },
-  sectionCaption: { color: "#8A8F96", fontSize: 10, fontWeight: "800", letterSpacing: 1 },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    marginTop: 3,
+  },
+  sectionTitle: { color: "#242A32", fontSize: 17, fontWeight: "900" },
+  sectionCaption: {
+    color: "#8A8F96",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
   examList: { gap: 10 },
-  examCard: { flexDirection: "row", alignItems: "center", gap: 13, borderWidth: 1, borderColor: "#DEDCD5", borderRadius: 14, backgroundColor: "#FFFFFF", padding: 14 },
+  examCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    borderWidth: 1,
+    borderColor: "#DEDCD5",
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    padding: 14,
+  },
   examCardSelected: { borderColor: "#1D5D98", backgroundColor: "#F4F9FD" },
-  examNumber: { width: 44, height: 50, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: "#173B67" },
-  examNumberText: { color: "#FFFFFF", fontSize: 18, fontWeight: "900" },
+  examNumber: {
+    width: 44,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    backgroundColor: "#173B67",
+  },
+  examNumberText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
   examInfo: { flex: 1, gap: 4 },
-  examTitle: { color: "#282C32", fontSize: 15, fontWeight: "900" },
-  examMeta: { color: "#747982", fontSize: 12 },
+  examTitle: { color: "#282C32", fontSize: 14, fontWeight: "900" },
+  examMeta: { color: "#747982", fontSize: 11 },
   modeList: { gap: 10 },
-  modeCard: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: "#DEDCD5", borderRadius: 14, backgroundColor: "#FFFFFF", padding: 14 },
+  modeCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "#DEDCD5",
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    padding: 14,
+  },
   modeCardSelected: { borderColor: "#8DAAC5", backgroundColor: "#FBFDFF" },
-  modeIcon: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  modeIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   modeInfo: { flex: 1, gap: 3 },
-  modeTitle: { color: "#292D33", fontSize: 15, fontWeight: "900" },
-  modeDescription: { color: "#737881", fontSize: 12, lineHeight: 18 },
-  radio: { width: 21, height: 21, borderWidth: 2, borderColor: "#BBC0C8", borderRadius: 11, alignItems: "center", justifyContent: "center" },
+  modeTitle: { color: "#292D33", fontSize: 14, fontWeight: "900" },
+  modeDescription: { color: "#737881", fontSize: 11, lineHeight: 17 },
+  radio: {
+    width: 21,
+    height: 21,
+    borderWidth: 2,
+    borderColor: "#BBC0C8",
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   radioSelected: { borderColor: "#1D5D98" },
-  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#1D5D98" },
-  startButton: { minHeight: 57, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, borderRadius: 16, backgroundColor: "#173B67", marginTop: 5 },
-  startButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#1D5D98",
+  },
+  startButton: {
+    minHeight: 57,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    borderRadius: 16,
+    backgroundColor: "#173B67",
+    marginTop: 5,
+    marginBottom: 20,
+  },
+  startButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
   buttonDisabled: { opacity: 0.45 },
   buttonPressed: { opacity: 0.82 },
-  stateCard: { minHeight: 128, alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, backgroundColor: "#FFFFFF", padding: 20 },
-  stateTitle: { color: "#3C4149", fontSize: 15, fontWeight: "800", textAlign: "center" },
-  stateText: { color: "#777C84", fontSize: 12, textAlign: "center" },
-  retryButton: { borderRadius: 9, backgroundColor: "#173B67", paddingHorizontal: 17, paddingVertical: 9, marginTop: 4 },
+  stateCard: {
+    minHeight: 128,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+  },
+  stateTitle: {
+    color: "#3C4149",
+    fontSize: 14,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  stateText: { color: "#777C84", fontSize: 11, textAlign: "center" },
+  retryButton: {
+    borderRadius: 9,
+    backgroundColor: "#173B67",
+    paddingHorizontal: 17,
+    paddingVertical: 9,
+    marginTop: 4,
+  },
   retryText: { color: "#FFFFFF", fontSize: 13, fontWeight: "800" },
 });

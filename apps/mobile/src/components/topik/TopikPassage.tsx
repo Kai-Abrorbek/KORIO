@@ -15,10 +15,7 @@ export function TopikPassage({
 }: TopikPassageProps) {
   return (
     <View style={[styles.container, !bordered && styles.unbordered]}>
-      <TopikTextBlocks
-        blocks={blocks}
-        highlightedKeys={highlightedKeys}
-      />
+      <TopikTextBlocks blocks={blocks} highlightedKeys={highlightedKeys} />
     </View>
   );
 }
@@ -28,8 +25,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#D5D8DD",
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 18,
-    paddingVertical: 17,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderRadius: 10,
   },
   unbordered: { borderWidth: 0, paddingHorizontal: 0, paddingVertical: 0 },
 });

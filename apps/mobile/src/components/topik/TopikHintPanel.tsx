@@ -86,7 +86,8 @@ export function TopikHintPanel({
           ]}
         >
           <Text style={styles.hintButtonText}>
-            힌트 {support.nextHint.level} 열기 · {topikText(support.nextHint.title)}
+            힌트 {support.nextHint.level} 열기 ·{" "}
+            {topikText(support.nextHint.title)}
           </Text>
         </Pressable>
       )}
@@ -105,7 +106,9 @@ export function TopikHintPanel({
         </Pressable>
       )}
       {!selected && (
-        <Text style={styles.guideText}>답을 선택하면 정답 풀이를 볼 수 있어요.</Text>
+        <Text style={styles.guideText}>
+          답을 선택하면 정답 풀이를 볼 수 있어요.
+        </Text>
       )}
     </View>
   );
@@ -120,10 +123,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7FAFD",
     padding: 16,
   },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  eyebrow: { color: "#5D7A98", fontSize: 10, fontWeight: "900", letterSpacing: 1.2 },
-  title: { color: "#173B67", fontSize: 19, fontWeight: "900", marginTop: 3 },
-  count: { color: "#315E8C", fontSize: 13, fontWeight: "800" },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  eyebrow: {
+    color: "#5D7A98",
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+  },
+  title: { color: "#173B67", fontSize: 14, fontWeight: "900", marginTop: 3 },
+  count: { color: "#315E8C", fontSize: 11, fontWeight: "800" },
   hintCard: {
     gap: 6,
     borderLeftWidth: 4,
@@ -133,23 +145,49 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   hintLevel: { color: "#9B6B0D", fontSize: 11, fontWeight: "900" },
-  hintTitle: { color: "#25354A", fontSize: 16, fontWeight: "900" },
-  hintContent: { color: "#48515D", fontSize: 14, lineHeight: 22 },
-  example: { flexDirection: "row", gap: 8, backgroundColor: "#FFF8E4", borderRadius: 8, padding: 10 },
-  exampleLabel: { color: "#9A6908", fontSize: 12, fontWeight: "900" },
-  exampleText: { flex: 1, color: "#554A35", fontSize: 13, lineHeight: 20 },
-  solutionCard: { gap: 8, borderRadius: 12, backgroundColor: "#EAF7F0", padding: 15 },
-  solutionResult: { color: "#167047", fontSize: 18, fontWeight: "900" },
-  solutionAnswer: { color: "#167047", fontSize: 14, fontWeight: "800" },
-  solutionHeading: { color: "#244A39", fontSize: 14, fontWeight: "900", marginTop: 5 },
-  solutionText: { color: "#40584C", fontSize: 14, lineHeight: 22 },
+  hintTitle: { color: "#25354A", fontSize: 14, fontWeight: "900" },
+  hintContent: { color: "#48515D", fontSize: 13, lineHeight: 20 },
+  example: {
+    flexDirection: "row",
+    gap: 8,
+    backgroundColor: "#FFF8E4",
+    borderRadius: 8,
+    padding: 10,
+  },
+  exampleLabel: { color: "#9A6908", fontSize: 11, fontWeight: "900" },
+  exampleText: { flex: 1, color: "#554A35", fontSize: 12, lineHeight: 18 },
+  solutionCard: {
+    gap: 8,
+    borderRadius: 12,
+    backgroundColor: "#EAF7F0",
+    padding: 15,
+  },
+  solutionResult: { color: "#167047", fontSize: 16, fontWeight: "900" },
+  solutionAnswer: { color: "#167047", fontSize: 13, fontWeight: "800" },
+  solutionHeading: {
+    color: "#244A39",
+    fontSize: 13,
+    fontWeight: "900",
+    marginTop: 5,
+  },
+  solutionText: { color: "#40584C", fontSize: 13, lineHeight: 20 },
   clue: { gap: 4, borderRadius: 8, backgroundColor: "#FFF6C8", padding: 11 },
-  clueLabel: { color: "#806313", fontSize: 12, fontWeight: "900" },
+  clueLabel: { color: "#806313", fontSize: 11, fontWeight: "900" },
   hintButton: { borderRadius: 11, backgroundColor: "#E7EFF8", padding: 14 },
-  hintButtonText: { color: "#234E79", fontSize: 14, fontWeight: "800", textAlign: "center" },
+  hintButtonText: {
+    color: "#234E79",
+    fontSize: 13,
+    fontWeight: "800",
+    textAlign: "center",
+  },
   solutionButton: { borderRadius: 11, backgroundColor: "#173B67", padding: 14 },
-  solutionButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900", textAlign: "center" },
-  guideText: { color: "#717984", fontSize: 12, textAlign: "center" },
+  solutionButtonText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  guideText: { color: "#717984", fontSize: 11, textAlign: "center" },
   pressed: { opacity: 0.76 },
   disabled: { opacity: 0.5 },
 });
