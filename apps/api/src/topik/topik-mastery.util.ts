@@ -5,7 +5,9 @@ interface TopikMasteryInput {
   correctCount: number;
   consecutiveCorrect: number;
   consecutiveWrong: number;
+  consecutiveIndependentCorrect: number;
   isCorrect: boolean;
+  usedLearningSupport: boolean;
   answeredAt: Date;
 }
 
@@ -22,7 +24,7 @@ export function calculateTopikMastery(
 
   if (
     input.attemptCount >= 3 &&
-    input.consecutiveCorrect >= 3 &&
+    input.consecutiveIndependentCorrect >= 3 &&
     accuracy >= 0.8
   ) {
     masteryState = TopikMasteryState.MASTERED;
@@ -32,7 +34,9 @@ export function calculateTopikMastery(
     masteryState = TopikMasteryState.UNSTABLE;
   }
 
-  const reviewDays = input.isCorrect
+  const reviewDays = input.isCorrect && input.usedLearningSupport
+    ? 2
+    : input.isCorrect
     ? input.consecutiveCorrect >= 3
       ? 14
       : input.consecutiveCorrect === 2

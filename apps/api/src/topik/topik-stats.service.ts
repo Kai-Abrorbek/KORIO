@@ -36,6 +36,9 @@ interface SubmittedAnswerStat {
   durationMs: number;
   answeredAt: Date;
   isCorrect: boolean;
+  hintViewCount: number;
+  solutionViewed: boolean;
+  usedLearningSupport: boolean;
 }
 
 @Injectable()
@@ -84,6 +87,9 @@ export class TopikStatsService {
           throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
         }
 
+        const usedHintKeys = answer.usedHintKeys ?? [];
+        const hintViewCount = answer.hintViewCount ?? 0;
+
         return {
           question,
           questionVersion: answer.questionVersion,
@@ -91,6 +97,12 @@ export class TopikStatsService {
           durationMs: answer.durationMs,
           answeredAt: answer.answeredAt,
           isCorrect: answer.isCorrect === true,
+          hintViewCount,
+          solutionViewed: Boolean(answer.solutionViewedAt),
+          usedLearningSupport:
+            hintViewCount > 0 ||
+            usedHintKeys.length > 0 ||
+            Boolean(answer.solutionViewedAt),
         };
       });
       const appliedAt = new Date();
@@ -117,10 +129,14 @@ export class TopikStatsService {
       return {
         mockExamCount: 0,
         practiceCount: 0,
+        guidedCount: 0,
         totalQuestions: 0,
         correctQuestions: 0,
         accuracy: 0,
         totalStudySeconds: 0,
+        hintViewCount: 0,
+        solutionViewCount: 0,
+        correctWithoutHintCount: 0,
         bestScore: 0,
         lastScore: 0,
         averageScore: 0,
@@ -132,6 +148,7 @@ export class TopikStatsService {
     return {
       mockExamCount: summary.mockExamCount,
       practiceCount: summary.practiceCount,
+      guidedCount: summary.guidedCount ?? 0,
       totalQuestions: summary.totalQuestions,
       correctQuestions: summary.correctQuestions,
       accuracy: this.percentage(
@@ -139,6 +156,9 @@ export class TopikStatsService {
         summary.totalQuestions,
       ),
       totalStudySeconds: summary.totalStudySeconds,
+      hintViewCount: summary.hintViewCount ?? 0,
+      solutionViewCount: summary.solutionViewCount ?? 0,
+      correctWithoutHintCount: summary.correctWithoutHintCount ?? 0,
       bestScore: summary.bestScore,
       lastScore: summary.lastScore,
       averageScore:
@@ -157,6 +177,9 @@ export class TopikStatsService {
             : Math.round(
                 performance.totalDurationMs / performance.attempted,
               ),
+        hintViewCount: performance.hintViewCount ?? 0,
+        solutionViewCount: performance.solutionViewCount ?? 0,
+        correctWithoutHintCount: performance.correctWithoutHintCount ?? 0,
         lastAnsweredAt: performance.lastAnsweredAt ?? null,
       })),
     };
@@ -220,6 +243,13 @@ export class TopikStatsService {
       ),
       score: attempt.score,
       elapsedSeconds: attempt.elapsedSeconds,
+      hintViewCount: attempt.answers.reduce(
+        (total, answer) => total + (answer.hintViewCount ?? 0),
+        0,
+      ),
+      solutionViewCount: attempt.answers.filter(
+        (answer) => Boolean(answer.solutionViewedAt),
+      ).length,
       submittedAt: attempt.submittedAt,
     }));
   }
@@ -267,6 +297,8 @@ export class TopikStatsService {
       summary.totalScore += attempt.score;
       summary.lastScore = attempt.score;
       summary.bestScore = Math.max(summary.bestScore, attempt.score);
+    } else if (attempt.mode === TopikAttemptMode.GUIDED) {
+      summary.guidedCount = (summary.guidedCount ?? 0) + 1;
     } else {
       summary.practiceCount += 1;
     }
@@ -276,6 +308,18 @@ export class TopikStatsService {
       (answer) => answer.isCorrect,
     ).length;
     summary.totalStudySeconds += attempt.elapsedSeconds;
+    summary.hintViewCount = (summary.hintViewCount ?? 0) + answerStats.reduce(
+      (total, answer) => total + answer.hintViewCount,
+      0,
+    );
+    summary.solutionViewCount =
+      (summary.solutionViewCount ?? 0) +
+      answerStats.filter((answer) => answer.solutionViewed).length;
+    summary.correctWithoutHintCount =
+      (summary.correctWithoutHintCount ?? 0) +
+      answerStats.filter(
+        (answer) => answer.isCorrect && !answer.usedLearningSupport,
+      ).length;
     summary.lastAttemptAt = attempt.submittedAt ?? new Date();
 
     const performanceByType = new Map(
@@ -295,6 +339,9 @@ export class TopikStatsService {
           attempted: 0,
           correct: 0,
           totalDurationMs: 0,
+          hintViewCount: 0,
+          solutionViewCount: 0,
+          correctWithoutHintCount: 0,
         });
         performance =
           summary.typePerformance[summary.typePerformance.length - 1];
@@ -304,6 +351,14 @@ export class TopikStatsService {
       performance.attempted += 1;
       performance.correct += answer.isCorrect ? 1 : 0;
       performance.totalDurationMs += answer.durationMs;
+      performance.hintViewCount =
+        (performance.hintViewCount ?? 0) + answer.hintViewCount;
+      performance.solutionViewCount =
+        (performance.solutionViewCount ?? 0) +
+        (answer.solutionViewed ? 1 : 0);
+      performance.correctWithoutHintCount =
+        (performance.correctWithoutHintCount ?? 0) +
+        (answer.isCorrect && !answer.usedLearningSupport ? 1 : 0);
       performance.lastAnsweredAt = answer.answeredAt;
     }
 
@@ -360,6 +415,10 @@ export class TopikStatsService {
       performance.consecutiveWrong = answer.isCorrect
         ? 0
         : performance.consecutiveWrong + 1;
+      performance.consecutiveIndependentCorrect =
+        answer.isCorrect && !answer.usedLearningSupport
+          ? (performance.consecutiveIndependentCorrect ?? 0) + 1
+          : 0;
       performance.totalDurationMs += answer.durationMs;
       performance.lastDurationMs = answer.durationMs;
       if (
@@ -379,13 +438,24 @@ export class TopikStatsService {
       performance.lastSelectedChoiceKey = answer.selectedChoiceKey;
       performance.lastResult = answer.isCorrect;
       performance.lastAnsweredAt = answer.answeredAt;
+      performance.hintViewCount =
+        (performance.hintViewCount ?? 0) + answer.hintViewCount;
+      performance.solutionViewCount =
+        (performance.solutionViewCount ?? 0) +
+        (answer.solutionViewed ? 1 : 0);
+      performance.correctWithoutHintCount =
+        (performance.correctWithoutHintCount ?? 0) +
+        (answer.isCorrect && !answer.usedLearningSupport ? 1 : 0);
 
       const mastery = calculateTopikMastery({
         attemptCount: performance.attemptCount,
         correctCount: performance.correctCount,
         consecutiveCorrect: performance.consecutiveCorrect,
         consecutiveWrong: performance.consecutiveWrong,
+        consecutiveIndependentCorrect:
+          performance.consecutiveIndependentCorrect,
         isCorrect: answer.isCorrect,
+        usedLearningSupport: answer.usedLearningSupport,
         answeredAt: answer.answeredAt,
       });
       performance.masteryState = mastery.masteryState;
@@ -425,6 +495,8 @@ export class TopikStatsService {
       ),
       consecutiveCorrect: performance.consecutiveCorrect,
       consecutiveWrong: performance.consecutiveWrong,
+      consecutiveIndependentCorrect:
+        performance.consecutiveIndependentCorrect ?? 0,
       averageDurationMs:
         performance.attemptCount === 0
           ? 0
@@ -433,6 +505,9 @@ export class TopikStatsService {
             ),
       lastDurationMs: performance.lastDurationMs,
       fastestCorrectMs: performance.fastestCorrectMs,
+      hintViewCount: performance.hintViewCount ?? 0,
+      solutionViewCount: performance.solutionViewCount ?? 0,
+      correctWithoutHintCount: performance.correctWithoutHintCount ?? 0,
       selectedChoiceCounts: this.formatChoiceCounts(
         performance.selectedChoiceCounts,
       ),

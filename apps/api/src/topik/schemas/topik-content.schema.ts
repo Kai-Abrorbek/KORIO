@@ -278,6 +278,70 @@ export const TopikChoiceNoteSchema =
   SchemaFactory.createForClass(TopikChoiceNote);
 
 @Schema({ _id: false })
+export class TopikKeyClue {
+  @Prop({ required: true })
+  key: string;
+
+  @Prop({ required: true, min: 1 })
+  order: number;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  label: TopikI18nText;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  explanation: TopikI18nText;
+
+  @Prop({ type: [String], default: [] })
+  targetSegmentKeys: string[];
+}
+
+export const TopikKeyClueSchema = SchemaFactory.createForClass(TopikKeyClue);
+
+@Schema({ _id: false })
+export class TopikSolutionStep {
+  @Prop({ required: true })
+  key: string;
+
+  @Prop({ required: true, min: 1 })
+  order: number;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  title: TopikI18nText;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  explanation: TopikI18nText;
+
+  @Prop({ type: [String], default: [] })
+  targetSegmentKeys: string[];
+}
+
+export const TopikSolutionStepSchema =
+  SchemaFactory.createForClass(TopikSolutionStep);
+
+@Schema({ _id: false })
+export class TopikHint {
+  @Prop({ required: true })
+  key: string;
+
+  @Prop({ required: true, min: 1, max: 10 })
+  level: number;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  title: TopikI18nText;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  content: TopikI18nText;
+
+  @Prop({ type: [TopikI18nTextSchema], default: [] })
+  examples: TopikI18nText[];
+
+  @Prop({ type: [String], default: [] })
+  targetSegmentKeys: string[];
+}
+
+export const TopikHintSchema = SchemaFactory.createForClass(TopikHint);
+
+@Schema({ _id: false })
 export class TopikSolution {
   @Prop({ type: TopikI18nTextSchema, default: {} })
   explanation: TopikI18nText;
@@ -285,8 +349,14 @@ export class TopikSolution {
   @Prop({ type: TopikI18nTextSchema, default: {} })
   strategy: TopikI18nText;
 
-  @Prop({ type: [TopikI18nTextSchema], default: [] })
-  hints: TopikI18nText[];
+  @Prop({ type: [TopikKeyClueSchema], default: [] })
+  keyClues: TopikKeyClue[];
+
+  @Prop({ type: [TopikSolutionStepSchema], default: [] })
+  steps: TopikSolutionStep[];
+
+  @Prop({ type: [TopikHintSchema], default: [] })
+  hints: TopikHint[];
 
   @Prop({ type: [TopikChoiceNoteSchema], default: [] })
   choiceNotes: TopikChoiceNote[];

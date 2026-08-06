@@ -21,6 +21,15 @@ export class TopikTypePerformance {
   @Prop({ min: 0, default: 0 })
   totalDurationMs: number;
 
+  @Prop({ min: 0, default: 0 })
+  hintViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  solutionViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  correctWithoutHintCount: number;
+
   @Prop()
   lastAnsweredAt?: Date;
 }
@@ -43,6 +52,9 @@ export class TopikUserSummary {
   practiceCount: number;
 
   @Prop({ min: 0, default: 0 })
+  guidedCount: number;
+
+  @Prop({ min: 0, default: 0 })
   totalQuestions: number;
 
   @Prop({ min: 0, default: 0 })
@@ -50,6 +62,15 @@ export class TopikUserSummary {
 
   @Prop({ min: 0, default: 0 })
   totalStudySeconds: number;
+
+  @Prop({ min: 0, default: 0 })
+  hintViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  solutionViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  correctWithoutHintCount: number;
 
   @Prop({ min: 0, default: 0 })
   bestScore: number;

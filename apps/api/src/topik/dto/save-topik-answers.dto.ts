@@ -2,12 +2,14 @@ import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  ArrayUnique,
   IsArray,
   IsDateString,
   IsInt,
   IsMongoId,
   IsOptional,
   IsString,
+  MaxLength,
   Matches,
   Max,
   Min,
@@ -30,6 +32,24 @@ export class SaveTopikAnswerItemDto {
   @IsOptional()
   @IsDateString()
   answeredAt?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ArrayUnique()
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  usedHintKeys?: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  hintViewCount?: number;
+
+  @IsOptional()
+  @IsDateString()
+  solutionViewedAt?: string;
 }
 
 export class SaveTopikAnswersDto {

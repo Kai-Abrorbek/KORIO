@@ -106,4 +106,22 @@ TopikQuestionSchema.pre('validate', function () {
       'correctChoiceKey must match one of the question choices',
     );
   }
+
+  const hintKeys = this.solution?.hints?.map((hint) => hint.key) ?? [];
+  const hintLevels = this.solution?.hints?.map((hint) => hint.level) ?? [];
+  const clueKeys = this.solution?.keyClues?.map((clue) => clue.key) ?? [];
+  const stepKeys = this.solution?.steps?.map((step) => step.key) ?? [];
+
+  if (new Set(hintKeys).size !== hintKeys.length) {
+    this.invalidate('solution.hints', 'Hint keys must be unique');
+  }
+  if (new Set(hintLevels).size !== hintLevels.length) {
+    this.invalidate('solution.hints', 'Hint levels must be unique');
+  }
+  if (new Set(clueKeys).size !== clueKeys.length) {
+    this.invalidate('solution.keyClues', 'Key clue keys must be unique');
+  }
+  if (new Set(stepKeys).size !== stepKeys.length) {
+    this.invalidate('solution.steps', 'Solution step keys must be unique');
+  }
 });

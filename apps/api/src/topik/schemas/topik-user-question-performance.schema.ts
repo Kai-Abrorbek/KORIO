@@ -58,6 +58,9 @@ export class TopikUserQuestionPerformance {
   consecutiveWrong: number;
 
   @Prop({ min: 0, default: 0 })
+  consecutiveIndependentCorrect: number;
+
+  @Prop({ min: 0, default: 0 })
   totalDurationMs: number;
 
   @Prop({ min: 0, default: 0 })
@@ -65,6 +68,15 @@ export class TopikUserQuestionPerformance {
 
   @Prop({ min: 0, default: 0 })
   fastestCorrectMs: number;
+
+  @Prop({ min: 0, default: 0 })
+  hintViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  solutionViewCount: number;
+
+  @Prop({ min: 0, default: 0 })
+  correctWithoutHintCount: number;
 
   @Prop({ type: Map, of: Number, default: {} })
   selectedChoiceCounts: Map<string, number>;

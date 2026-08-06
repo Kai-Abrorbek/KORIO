@@ -206,13 +206,10 @@ export class TopikService {
     );
     const answerQuestions = await this.questionModel
       .find({ _id: { $in: answerQuestionIds } })
-      .select('_id version')
+      .select('_id version +solution')
       .lean();
-    const questionVersionById = new Map(
-      answerQuestions.map((question) => [
-        question._id.toString(),
-        question.version,
-      ]),
+    const answerQuestionById = new Map(
+      answerQuestions.map((question) => [question._id.toString(), question]),
     );
 
     for (const answer of dto.answers) {
@@ -220,9 +217,21 @@ export class TopikService {
         throw new BadRequestException('TOPIK_QUESTION_NOT_IN_ATTEMPT');
       }
 
-      const questionVersion = questionVersionById.get(answer.questionId);
-      if (!questionVersion) {
+      const question = answerQuestionById.get(answer.questionId);
+      if (!question) {
         throw new BadRequestException('TOPIK_QUESTION_NOT_FOUND');
+      }
+      const questionVersion = question.version;
+      const availableHintKeys = new Set(
+        question.solution?.hints.map((hint) => hint.key) ?? [],
+      );
+
+      if (
+        answer.usedHintKeys?.some(
+          (hintKey) => !availableHintKeys.has(hintKey),
+        )
+      ) {
+        throw new BadRequestException('TOPIK_HINT_NOT_FOUND');
       }
 
       const existingAnswer = attempt.answers.find(
@@ -236,6 +245,17 @@ export class TopikService {
         existingAnswer.selectedChoiceKey = answer.selectedChoiceKey;
         existingAnswer.durationMs = answer.durationMs;
         existingAnswer.answeredAt = answeredAt;
+        if (answer.usedHintKeys !== undefined) {
+          existingAnswer.usedHintKeys = [...new Set(answer.usedHintKeys)];
+        }
+        if (answer.hintViewCount !== undefined) {
+          existingAnswer.hintViewCount = answer.hintViewCount;
+        }
+        if (answer.solutionViewedAt !== undefined) {
+          existingAnswer.solutionViewedAt = new Date(
+            answer.solutionViewedAt,
+          );
+        }
         existingAnswer.isCorrect = null;
       } else {
         attempt.answers.push({
@@ -244,6 +264,11 @@ export class TopikService {
           selectedChoiceKey: answer.selectedChoiceKey,
           durationMs: answer.durationMs,
           answeredAt,
+          usedHintKeys: [...new Set(answer.usedHintKeys ?? [])],
+          hintViewCount: answer.hintViewCount ?? 0,
+          solutionViewedAt: answer.solutionViewedAt
+            ? new Date(answer.solutionViewedAt)
+            : null,
           isCorrect: null,
         });
       }
@@ -431,6 +456,9 @@ export class TopikService {
         selectedChoiceKey: answer.selectedChoiceKey,
         durationMs: answer.durationMs,
         answeredAt: answer.answeredAt,
+        usedHintKeys: answer.usedHintKeys ?? [],
+        hintViewCount: answer.hintViewCount ?? 0,
+        solutionViewedAt: answer.solutionViewedAt ?? null,
       })),
       startedAt: attempt.startedAt,
       lastSavedAt: attempt.lastSavedAt,

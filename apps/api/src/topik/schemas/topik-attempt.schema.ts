@@ -5,6 +5,7 @@ export type TopikAttemptDocument = HydratedDocument<TopikAttempt>;
 
 export enum TopikAttemptMode {
   PRACTICE = 'practice',
+  GUIDED = 'guided',
   MOCK_EXAM = 'mock_exam',
 }
 
@@ -30,6 +31,15 @@ export class TopikAttemptAnswer {
 
   @Prop({ default: () => new Date() })
   answeredAt: Date;
+
+  @Prop({ type: [String], default: [] })
+  usedHintKeys: string[];
+
+  @Prop({ min: 0, default: 0 })
+  hintViewCount: number;
+
+  @Prop({ type: Date, default: null })
+  solutionViewedAt?: Date | null;
 
   @Prop({ type: Boolean, default: null })
   isCorrect: boolean | null;
@@ -118,5 +128,16 @@ TopikAttemptSchema.pre('validate', function () {
 
   if (this.answers.length > 50) {
     this.invalidate('answers', 'A TOPIK reading attempt cannot exceed 50 answers');
+  }
+
+  for (const answer of this.answers) {
+    const usedHintKeys = answer.usedHintKeys ?? [];
+
+    if (new Set(usedHintKeys).size !== usedHintKeys.length) {
+      this.invalidate(
+        'answers',
+        'usedHintKeys must be unique within an answer',
+      );
+    }
   }
 });
