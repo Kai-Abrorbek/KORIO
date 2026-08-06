@@ -13,6 +13,8 @@ import {
   TopikQuestion,
   TopikQuestionSchema,
 } from './schemas/topik-question.schema';
+import { TopikController } from './topik.controller';
+import { TopikService } from './topik.service';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import {
       { name: TopikAttempt.name, schema: TopikAttemptSchema },
     ]),
   ],
-  exports: [MongooseModule],
+  controllers: [TopikController],
+  providers: [TopikService],
+  exports: [MongooseModule, TopikService],
 })
 export class TopikModule {}
