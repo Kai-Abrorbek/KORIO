@@ -47,12 +47,16 @@ const ROOM_SIZE = 30;
 const CHALLENGE_XP = 210;
 const ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5분 내 활동 = 온라인
 
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/schemas/notification.schema';
+
 @Injectable()
 export class LeagueService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(UserStats.name) private statsModel: Model<UserStatsDocument>,
     @InjectModel(LeagueRoom.name) private roomModel: Model<LeagueRoomDocument>,
+    private readonly notifications: NotificationsService,
   ) {}
 
   @Cron('0 0 * * 1', { timeZone: 'UTC' })
@@ -269,10 +273,27 @@ export class LeagueService {
         if (gems > 0) update.$inc = { gems };
 
         // 봇 제외 (필터로 봇이면 no-op)
-        await this.userModel.updateOne(
+        const res = await this.userModel.updateOne(
           { _id: uid, isBot: { $ne: true } },
           update,
         );
+
+        // 실제 유저에게만 알림 (봇은 matchedCount 0)
+        if (res.matchedCount > 0) {
+          const type =
+            change === 'promote'
+              ? NotificationType.LEAGUE_PROMOTED
+              : change === 'demote'
+                ? NotificationType.LEAGUE_DEMOTED
+                : NotificationType.LEAGUE_RESULT;
+
+          await this.notifications
+            .create(uid.toString(), type, {
+              params: { rank, gems, fromTier: room.tier, toTier },
+              link: '/(tabs)/league',
+            })
+            .catch(() => {});
+        }
       }
 
       await this.roomModel.findByIdAndUpdate(room._id, { settled: true });

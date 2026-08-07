@@ -21,6 +21,8 @@ import BoriMascot from "@/components/home/BoriMascot";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
+import NotificationModal from "@/components/notifications/NotificationModal";
+import { NotificationService } from "@/services/notification.service";
 import FloatingAIButton from "@/components/home/FloatingAIButton";
 import AIChatModal from "@/components/home/AIChatModal";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -51,6 +53,8 @@ export default function HomeScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [weekly, setWeekly] = useState<DayStats[]>([]);
   const [chatVisible, setChatVisible] = useState(false);
   const learnMode = useSettingsStore((s) => s.learnMode);
@@ -90,6 +94,10 @@ export default function HomeScreen() {
       StatsService.getWeekly()
         .then((data) => setWeekly(data.days))
         .catch((err) => console.error("weekly 실패:", err));
+      // 배지는 목록 없이 개수만 받아온다
+      NotificationService.unreadCount()
+        .then((r) => setUnreadNotifs(r.count))
+        .catch(() => {});
     }, []),
   );
 
@@ -144,12 +152,19 @@ export default function HomeScreen() {
             <Ionicons name="menu" size={30} color={theme.text} />
           </TouchableOpacity>
           <Text style={styles.username}>{user?.nickname}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setNotifOpen(true)}>
             <Ionicons
               name="notifications-outline"
               size={30}
               color={theme.text}
             />
+            {unreadNotifs > 0 && (
+              <View style={styles.notifBadge}>
+                <Text style={styles.notifBadgeText}>
+                  {unreadNotifs > 99 ? "99+" : unreadNotifs}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -494,12 +509,34 @@ export default function HomeScreen() {
         onClose={() => setChatVisible(false)}
         prefill={chatPrefill}
       />
+
+      <NotificationModal
+        visible={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        onUnreadChange={setUnreadNotifs}
+      />
     </View>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
+    // 벨 아이콘 위에 얹는 안 읽음 개수
+    notifBadge: {
+      position: "absolute",
+      top: -3,
+      right: -5,
+      minWidth: 19,
+      height: 19,
+      borderRadius: 999,
+      paddingHorizontal: 5,
+      backgroundColor: "#FF4B5C",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 2,
+      borderColor: theme.bg,
+    },
+    notifBadgeText: { color: "#fff", fontSize: 10, fontWeight: "900" },
     container: {
       flex: 1,
       backgroundColor: theme.bg,

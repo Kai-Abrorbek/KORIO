@@ -13,6 +13,7 @@ import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
 import { GrammarModule } from './grammer/grammar.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationsModule } from './notifications/notifications.module';
 import { TopikModule } from './topik/topik.module';
 
 @Module({
@@ -38,6 +39,7 @@ import { TopikModule } from './topik/topik.module';
     AiModule,
     GrammarModule,
     TopikModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

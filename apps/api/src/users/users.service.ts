@@ -18,6 +18,8 @@ import { localKey } from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive, isSuperStale } from './super.util';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/schemas/notification.schema';
 import { computeEnergy } from '../energy/energy.util';
 import { calcStreak } from './utils/streak.util';
 import {
@@ -44,6 +46,7 @@ export class UsersService {
     @InjectModel(UserProgress.name)
     private progressModel: Model<UserProgressDocument>,
     @InjectModel(LessonNode.name) private nodeModel: Model<LessonNodeDocument>,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /**
@@ -522,6 +525,19 @@ export class UsersService {
     await this.userModel.findByIdAndUpdate(targetUserId, {
       $addToSet: { followers: new Types.ObjectId(currentUserId) },
     });
+
+    // 팔로우 당한 쪽에 알림. 실패해도 팔로우 자체는 성공시킨다.
+    const me = await this.userModel
+      .findById(currentUserId)
+      .select('nickname profileImage')
+      .lean();
+    await this.notifications
+      .create(targetUserId, NotificationType.FOLLOW, {
+        params: { nickname: me?.nickname ?? '' },
+        link: `/friend-profile?id=${currentUserId}`,
+        imageUrl: me?.profileImage ?? '',
+      })
+      .catch(() => {});
 
     return { success: true };
   }

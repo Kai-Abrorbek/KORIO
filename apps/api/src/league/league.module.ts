@@ -6,8 +6,11 @@ import { LeagueRoom, LeagueRoomSchema } from './schemas/league-room.schema';
 import { LeagueController } from './league.controller';
 import { LeagueService } from './league.service';
 
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
   imports: [
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: UserStats.name, schema: UserStatsSchema },

@@ -14,8 +14,11 @@ import { User, UserSchema } from '../users/schemas/user.schema';
 import { LeagueModule } from '../league/league.module';
 import { UsersModule } from '../users/users.module';
 
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
   imports: [
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: Lesson.name, schema: LessonSchema },
       { name: LessonNode.name, schema: LessonNodeSchema },

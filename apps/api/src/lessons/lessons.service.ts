@@ -29,6 +29,9 @@ import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 40;
 
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/schemas/notification.schema';
+
 @Injectable()
 export class LessonsService {
   constructor(
@@ -46,6 +49,7 @@ export class LessonsService {
     private userModel: Model<UserDocument>,
     private leagueService: LeagueService,
     private usersService: UsersService,
+      private readonly notifications: NotificationsService,
   ) {}
 
   private extractI18n(obj: any, lang: string): string {
@@ -209,6 +213,13 @@ export class LessonsService {
           $inc: { gems: chest.gems },
           $addToSet: { openedChests: node._id },
         });
+
+        await this.notifications
+          .create(userId, NotificationType.CHEST, {
+            params: { grade: chest.grade, gems: chest.gems },
+            link: '/roadmap',
+          })
+          .catch(() => {});
       }
     }
 

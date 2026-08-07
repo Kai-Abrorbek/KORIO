@@ -10,8 +10,11 @@ import {
 import { UserStats, UserStatsSchema } from './schemas/user-stats.schema';
 import { LessonNode, LessonNodeSchema } from '../lessons/schemas/node.schema';
 
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
   imports: [
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
