@@ -49,7 +49,7 @@ export default function SentenceBuilder({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, LINE_H, ANSWER_LINES, insets.bottom);
-  const { speak, speakSlow, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
   const hasAutoPlayed = useRef(false);
   const [bankOpen, setBankOpen] = useState(false);
 
@@ -71,7 +71,7 @@ export default function SentenceBuilder({
     if (hasAutoPlayed.current) return;
     hasAutoPlayed.current = true;
     const timer = setTimeout(() => {
-      speak(question.answer);
+      speakAuto(question.answer);
     }, 600);
     return () => clearTimeout(timer);
   }, []);

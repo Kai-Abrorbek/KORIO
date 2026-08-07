@@ -5,6 +5,7 @@ export * from "./TopikLevelModal";
 export * from "./TopikNoticeModal";
 export * from "./TopikPassage";
 export * from "./TopikQuestionCard";
+export * from "./TopikListeningQuestionCard";
 export * from "./TopikSheetModal";
 export * from "./TopikStimulusCard";
 export * from "./TopikSubmitModal";

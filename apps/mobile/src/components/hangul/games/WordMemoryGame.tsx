@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import * as Haptics from "@/utils/haptics";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

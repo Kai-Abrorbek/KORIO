@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   TopikExitModal,
   TopikHintPanel,
+  TopikListeningQuestionCard,
   TopikNoticeModal,
   TopikQuestionCard,
   TopikSubmitModal,
@@ -54,6 +55,9 @@ export default function TopikExamScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [supportErrorVisible, setSupportErrorVisible] = useState(false);
+  const [supportQuestionId, setSupportQuestionId] = useState<string | null>(
+    null,
+  );
 
   const session = useTopikAttemptStore((state) => state.session);
   const attempt = useTopikAttemptStore((state) => state.attempt);
@@ -85,6 +89,31 @@ export default function TopikExamScreen() {
 
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
+  const isListening = session?.exam.section === "listening";
+  const activeQuestions = useMemo(() => {
+    if (!question) return [];
+    if (!isListening) return [question];
+    return question.group.questions.map((groupQuestion) => ({
+      ...groupQuestion,
+      group: question.group,
+    }));
+  }, [isListening, question]);
+  const stepStartIndices = useMemo(() => {
+    if (!isListening) return questions.map((_, index) => index);
+    return questions.reduce<number[]>((indices, item, index) => {
+      if (index === 0 || item.group.code !== questions[index - 1].group.code) {
+        indices.push(index);
+      }
+      return indices;
+    }, []);
+  }, [isListening, questions]);
+  const activeStepIndex = Math.max(
+    0,
+    stepStartIndices.findIndex((startIndex, index) => {
+      const nextStart = stepStartIndices[index + 1] ?? questions.length;
+      return currentIndex >= startIndex && currentIndex < nextStart;
+    }),
+  );
   const selectedAnswer = question ? answers[question.id] : undefined;
   const support = question ? learningSupport[question.id] : undefined;
   const solution = question ? revealedSolutions[question.id] : undefined;
@@ -98,6 +127,19 @@ export default function TopikExamScreen() {
     );
     return keys;
   }, [solution, support]);
+  const activeQuestionKey = activeQuestions.map((item) => item.id).join(",");
+  const allActiveAnswered =
+    activeQuestions.length > 0 &&
+    activeQuestions.every((item) => Boolean(answers[item.id]));
+  const showListeningTranscript =
+    allActiveAnswered &&
+    activeQuestions.some((item) => Boolean(revealedSolutions[item.id]));
+  const progressEndNumber =
+    activeQuestions[activeQuestions.length - 1]?.number ?? currentIndex + 1;
+  const progressLabel =
+    activeQuestions.length > 1
+      ? `${activeQuestions[0].number}–${progressEndNumber} / ${questions.length}`
+      : `${progressEndNumber} / ${questions.length}`;
 
   useEffect(() => {
     if (!examCode) return;
@@ -110,10 +152,10 @@ export default function TopikExamScreen() {
   }, []);
 
   useEffect(() => {
-    if (attempt?.mode === "guided" && question) {
-      void loadLearningSupport(question.id);
+    if (attempt?.mode === "guided" && activeQuestions.length > 0) {
+      activeQuestions.forEach((item) => void loadLearningSupport(item.id));
     }
-  }, [attempt?.mode, loadLearningSupport, question]);
+  }, [activeQuestionKey, activeQuestions, attempt?.mode, loadLearningSupport]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -136,6 +178,14 @@ export default function TopikExamScreen() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const moveByStep = (direction: -1 | 1) => {
+    const nextStep = Math.min(
+      Math.max(activeStepIndex + direction, 0),
+      stepStartIndices.length - 1,
+    );
+    return moveTo(stepStartIndices[nextStep] ?? 0);
   };
 
   const confirmExit = () => {
@@ -181,13 +231,14 @@ export default function TopikExamScreen() {
     }
   };
 
-  const revealCurrentSolution = async () => {
-    if (!question) return;
+  const revealQuestionSolution = async (questionId: string) => {
+    setSupportQuestionId(questionId);
 
     setSupportErrorVisible(false);
     setBusy(true);
     try {
-      await revealSolution(question.id);
+      await saveProgress();
+      await revealSolution(questionId);
     } catch {
       setSupportErrorVisible(true);
     } finally {
@@ -256,13 +307,11 @@ export default function TopikExamScreen() {
             <View
               style={[
                 styles.progressFill,
-                { width: `${((currentIndex + 1) / questions.length) * 100}%` },
+                { width: `${(progressEndNumber / questions.length) * 100}%` },
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            {currentIndex + 1} / {questions.length}
-          </Text>
+          <Text style={styles.progressText}>{progressLabel}</Text>
         </View>
         <View style={styles.timer}>
           <Ionicons name="time-outline" size={16} color={palette.primary} />
@@ -290,41 +339,87 @@ export default function TopikExamScreen() {
           </Text>
         </View>
 
-        <TopikQuestionCard
-          question={question}
-          selectedChoiceKey={selectedAnswer?.selectedChoiceKey}
-          correctChoiceKey={solution?.correctChoiceKey}
-          highlightedKeys={highlightedKeys}
-          disabled={Boolean(solution)}
-          onSelect={(choiceKey) => selectAnswer(question.id, choiceKey)}
-        />
-
-        {attempt.mode === "guided" && (
-          <TopikHintPanel
-            support={support}
-            solution={solution}
-            selected={Boolean(selectedAnswer)}
-            busy={busy}
-            onRevealHint={async () => {
-              setBusy(true);
-              try {
-                await revealNextHint(question.id);
-              } finally {
-                setBusy(false);
-              }
-            }}
-            onRevealSolution={() => void revealCurrentSolution()}
+        {isListening ? (
+          <TopikListeningQuestionCard
+            questions={activeQuestions}
+            mode={attempt.mode}
+            selectedChoiceKeys={Object.fromEntries(
+              activeQuestions.map((item) => [
+                item.id,
+                answers[item.id]?.selectedChoiceKey,
+              ]),
+            )}
+            correctChoiceKeys={Object.fromEntries(
+              activeQuestions.map((item) => [
+                item.id,
+                revealedSolutions[item.id]?.correctChoiceKey,
+              ]),
+            )}
+            showTranscript={showListeningTranscript}
+            onSelect={(questionId, choiceKey) =>
+              selectAnswer(questionId, choiceKey)
+            }
+            renderSupport={(item) =>
+              attempt.mode === "guided" ? (
+                <TopikHintPanel
+                  support={learningSupport[item.id]}
+                  solution={revealedSolutions[item.id]}
+                  selected={allActiveAnswered}
+                  busy={busy}
+                  onRevealHint={async () => {
+                    setBusy(true);
+                    try {
+                      await revealNextHint(item.id);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  onRevealSolution={() => void revealQuestionSolution(item.id)}
+                />
+              ) : null
+            }
           />
+        ) : (
+          <>
+            <TopikQuestionCard
+              question={question}
+              selectedChoiceKey={selectedAnswer?.selectedChoiceKey}
+              correctChoiceKey={solution?.correctChoiceKey}
+              highlightedKeys={highlightedKeys}
+              disabled={Boolean(solution)}
+              onSelect={(choiceKey) => selectAnswer(question.id, choiceKey)}
+            />
+
+            {attempt.mode === "guided" && (
+              <TopikHintPanel
+                support={support}
+                solution={solution}
+                selected={Boolean(selectedAnswer)}
+                busy={busy}
+                onRevealHint={async () => {
+                  setBusy(true);
+                  try {
+                    await revealNextHint(question.id);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                onRevealSolution={() =>
+                  void revealQuestionSolution(question.id)
+                }
+              />
+            )}
+          </>
         )}
       </ScrollView>
 
       <View style={styles.footer}>
         <Pressable
-          disabled={currentIndex === 0 || busy}
-          onPress={() => void moveTo(currentIndex - 1)}
+          disabled={activeStepIndex === 0 || busy}
+          onPress={() => void moveByStep(-1)}
           style={[
             styles.secondaryButton,
-            currentIndex === 0 && styles.disabled,
+            activeStepIndex === 0 && styles.disabled,
           ]}
         >
           <Ionicons
@@ -334,7 +429,7 @@ export default function TopikExamScreen() {
           />
           <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
         </Pressable>
-        {currentIndex === questions.length - 1 ? (
+        {activeStepIndex === stepStartIndices.length - 1 ? (
           <Pressable
             disabled={busy}
             onPress={confirmSubmit}
@@ -347,7 +442,7 @@ export default function TopikExamScreen() {
         ) : (
           <Pressable
             disabled={busy}
-            onPress={() => void moveTo(currentIndex + 1)}
+            onPress={() => void moveByStep(1)}
             style={styles.primaryButton}
           >
             <Text style={styles.primaryText}>{t("topik.exam.next")}</Text>
@@ -396,7 +491,9 @@ export default function TopikExamScreen() {
         secondaryLabel={t("topik.common.cancel")}
         busy={busy}
         onClose={() => setSupportErrorVisible(false)}
-        onPrimary={() => void revealCurrentSolution()}
+        onPrimary={() =>
+          void revealQuestionSolution(supportQuestionId ?? question.id)
+        }
       />
     </SafeAreaView>
   );

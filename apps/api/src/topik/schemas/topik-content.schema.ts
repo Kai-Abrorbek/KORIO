@@ -30,6 +30,17 @@ export enum TopikQuestionType {
   SENTENCE_INSERTION = 'sentence_insertion',
   AUTHOR_ATTITUDE = 'author_attitude',
   AUTHOR_PURPOSE = 'author_purpose',
+  LISTENING_VISUAL_MATCH = 'listening_visual_match',
+  LISTENING_RESPONSE = 'listening_response',
+  LISTENING_NEXT_ACTION = 'listening_next_action',
+  LISTENING_CONTENT_MATCH = 'listening_content_match',
+  LISTENING_MAIN_IDEA = 'listening_main_idea',
+  LISTENING_SPEAKER_ACTION = 'listening_speaker_action',
+  LISTENING_INTENT = 'listening_intent',
+  LISTENING_SPEAKER_IDENTITY = 'listening_speaker_identity',
+  LISTENING_ATTITUDE = 'listening_attitude',
+  LISTENING_TOPIC = 'listening_topic',
+  LISTENING_PRECEDING_CONTEXT = 'listening_preceding_context',
 }
 
 export enum TopikStimulusKind {
@@ -74,7 +85,44 @@ export enum TopikVisualTemplate {
   EXAM_HEADLINE = 'exam_headline',
   EXAM_SENTENCE_SET = 'exam_sentence_set',
   EXAM_INSERTION = 'exam_insertion',
+  EXAM_LISTENING = 'exam_listening',
+  EXAM_VISUAL_CHOICES = 'exam_visual_choices',
 }
+
+@Schema({ _id: false })
+export class TopikAudioLine {
+  @Prop({ default: '' })
+  speaker: string;
+
+  @Prop({ required: true })
+  text: string;
+}
+
+export const TopikAudioLineSchema =
+  SchemaFactory.createForClass(TopikAudioLine);
+
+@Schema({ _id: false })
+export class TopikAudio {
+  @Prop({ default: '' })
+  key: string;
+
+  @Prop({ default: '' })
+  audioUrl: string;
+
+  @Prop({ type: [TopikAudioLineSchema], default: [] })
+  transcript: TopikAudioLine[];
+
+  @Prop({ min: 1, default: 1 })
+  mockPlaybackLimit: number;
+
+  @Prop({ min: 1, default: 3 })
+  guidedPlaybackLimit: number;
+
+  @Prop({ default: true })
+  speechFallback: boolean;
+}
+
+export const TopikAudioSchema = SchemaFactory.createForClass(TopikAudio);
 
 @Schema({ _id: false })
 export class TopikI18nText {
@@ -91,8 +139,7 @@ export class TopikI18nText {
   ru: string;
 }
 
-export const TopikI18nTextSchema =
-  SchemaFactory.createForClass(TopikI18nText);
+export const TopikI18nTextSchema = SchemaFactory.createForClass(TopikI18nText);
 
 @Schema({ _id: false })
 export class TopikTextSegment {
@@ -227,8 +274,7 @@ export class TopikStimulus {
   visualVariant: string;
 }
 
-export const TopikStimulusSchema =
-  SchemaFactory.createForClass(TopikStimulus);
+export const TopikStimulusSchema = SchemaFactory.createForClass(TopikStimulus);
 
 @Schema({ _id: false })
 export class TopikChoice {
@@ -240,6 +286,12 @@ export class TopikChoice {
 
   @Prop({ required: true, min: 1, max: 4 })
   order: number;
+
+  @Prop({ default: '' })
+  imageAssetKey: string;
+
+  @Prop({ default: '' })
+  imageAlt: string;
 }
 
 export const TopikChoiceSchema = SchemaFactory.createForClass(TopikChoice);
@@ -362,8 +414,7 @@ export class TopikSolution {
   choiceNotes: TopikChoiceNote[];
 }
 
-export const TopikSolutionSchema =
-  SchemaFactory.createForClass(TopikSolution);
+export const TopikSolutionSchema = SchemaFactory.createForClass(TopikSolution);
 
 @Schema({ _id: false })
 export class TopikSourceReference {

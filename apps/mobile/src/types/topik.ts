@@ -9,10 +9,7 @@ export interface TopikI18nText {
 
 export type TopikAttemptMode = "practice" | "guided" | "mock_exam";
 export type TopikAttemptStatus = "in_progress" | "submitted" | "abandoned";
-export type TopikChoiceLayout =
-  | "one_column"
-  | "two_columns"
-  | "four_columns";
+export type TopikChoiceLayout = "one_column" | "two_columns" | "four_columns";
 export type TopikQuestionType =
   | "grammar_fill_blank"
   | "underlined_meaning"
@@ -25,7 +22,18 @@ export type TopikQuestionType =
   | "headline_interpretation"
   | "sentence_insertion"
   | "author_attitude"
-  | "author_purpose";
+  | "author_purpose"
+  | "listening_visual_match"
+  | "listening_response"
+  | "listening_next_action"
+  | "listening_content_match"
+  | "listening_main_idea"
+  | "listening_speaker_action"
+  | "listening_intent"
+  | "listening_speaker_identity"
+  | "listening_attitude"
+  | "listening_topic"
+  | "listening_preceding_context";
 export type TopikStimulusKind =
   | "none"
   | "passage"
@@ -41,11 +49,7 @@ export type TopikTextSegmentType =
   | "underline"
   | "emphasis"
   | "insertion_marker";
-export type TopikTextBlockType =
-  | "paragraph"
-  | "bullet"
-  | "quote"
-  | "caption";
+export type TopikTextBlockType = "paragraph" | "bullet" | "quote" | "caption";
 export type TopikVisualTemplate =
   | "exam_sentence"
   | "exam_passage"
@@ -55,7 +59,23 @@ export type TopikVisualTemplate =
   | "exam_chart"
   | "exam_headline"
   | "exam_sentence_set"
-  | "exam_insertion";
+  | "exam_insertion"
+  | "exam_listening"
+  | "exam_visual_choices";
+
+export interface TopikAudioLine {
+  speaker: string;
+  text: string;
+}
+
+export interface TopikAudio {
+  key: string;
+  audioUrl: string;
+  transcript: TopikAudioLine[];
+  mockPlaybackLimit: number;
+  guidedPlaybackLimit: number;
+  speechFallback: boolean;
+}
 
 export interface TopikTextSegment {
   type: TopikTextSegmentType;
@@ -114,6 +134,8 @@ export interface TopikChoice {
   key: string;
   text: string;
   order: number;
+  imageAssetKey: string;
+  imageAlt: string;
 }
 
 export interface TopikPresentation {
@@ -133,6 +155,7 @@ export interface TopikQuestion {
   points: number;
   prompt: TopikTextBlock[];
   stimulus: TopikStimulus | null;
+  audio: TopikAudio | null;
   choices: TopikChoice[];
   presentation: TopikPresentation;
   tags: string[];
@@ -148,6 +171,7 @@ export interface TopikQuestionGroup {
   endNumber: number;
   instruction: TopikTextBlock[];
   sharedStimulus: TopikStimulus | null;
+  sharedAudio: TopikAudio | null;
   pointsPerQuestion: number;
   presentation: TopikPresentation;
   version: number;

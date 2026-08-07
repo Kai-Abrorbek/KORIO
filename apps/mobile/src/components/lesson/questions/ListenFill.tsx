@@ -37,7 +37,7 @@ export default function ListenFill({
   const s = styles(theme, insets.bottom);
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
-  const { speak, speakSlow, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
   const { width: winW } = useWindowDimensions();
   const [measuredW, setMeasuredW] = useState(0);
 
@@ -51,7 +51,7 @@ export default function ListenFill({
   useEffect(() => {
     if (!audioText) return;
     // 화면 전환 애니(FadeInDown 400ms) + TTS 엔진 준비 시간 확보
-    const id = setTimeout(() => speak(audioText), 500);
+    const id = setTimeout(() => speakAuto(audioText), 500);
     return () => clearTimeout(id);
   }, [audioText]);
 

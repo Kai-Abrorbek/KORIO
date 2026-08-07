@@ -45,11 +45,18 @@ export default function TopikHomeScreen() {
   const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
-  const params = useLocalSearchParams<{ level?: TopikLevel }>();
+  const params = useLocalSearchParams<{
+    level?: TopikLevel;
+    section?: "reading" | "listening";
+  }>();
   const levelParam = Array.isArray(params.level)
     ? params.level[0]
     : params.level;
   const level: TopikLevel = levelParam === "1" ? "1" : "2";
+  const sectionParam = Array.isArray(params.section)
+    ? params.section[0]
+    : params.section;
+  const section = sectionParam === "listening" ? "listening" : "reading";
   const examType = level === "1" ? "topik_i" : "topik_ii";
   const roman = level === "1" ? "I" : "II";
   const [exams, setExams] = useState<TopikExam[]>([]);
@@ -64,7 +71,7 @@ export default function TopikHomeScreen() {
     try {
       const data = await TopikService.listExams();
       const matchingExams = data.filter(
-        (exam) => exam.examType === examType && exam.section === "reading",
+        (exam) => exam.examType === examType && exam.section === section,
       );
       setExams(matchingExams);
       setSelectedExamCode((current) =>
@@ -77,7 +84,7 @@ export default function TopikHomeScreen() {
     } finally {
       setLoading(false);
     }
-  }, [examType]);
+  }, [examType, section]);
 
   useEffect(() => {
     void loadExams();
@@ -96,7 +103,10 @@ export default function TopikHomeScreen() {
           <Ionicons name="chevron-back" size={25} color={palette.primary} />
         </Pressable>
         <Text style={styles.headerTitle}>
-          {t("topik.home.header", { level: roman })}
+          {t("topik.home.header", {
+            level: roman,
+            section: t(`topik.home.${section}`),
+          })}
         </Text>
         <Pressable
           accessibilityLabel={t("topik.home.openStats")}
@@ -114,12 +124,22 @@ export default function TopikHomeScreen() {
         <View style={styles.hero}>
           <View style={styles.heroBadge}>
             <Text style={styles.heroBadgeText}>
-              TOPIK {roman} · {t("topik.home.reading").toUpperCase()}
+              TOPIK {roman} · {t(`topik.home.${section}`).toUpperCase()}
             </Text>
           </View>
-          <Text style={styles.heroTitle}>{t("topik.home.heroTitle")}</Text>
+          <Text style={styles.heroTitle}>
+            {t(
+              section === "listening"
+                ? "topik.home.listeningHeroTitle"
+                : "topik.home.heroTitle",
+            )}
+          </Text>
           <Text style={styles.heroDescription}>
-            {t("topik.home.heroDescription")}
+            {t(
+              section === "listening"
+                ? "topik.home.listeningHeroDescription"
+                : "topik.home.heroDescription",
+            )}
           </Text>
           <View style={styles.heroMetrics}>
             <View>
@@ -154,7 +174,11 @@ export default function TopikHomeScreen() {
             {t("topik.home.examSelection")}
           </Text>
           <Text style={styles.sectionCaption}>
-            {t("topik.home.readingTest")}
+            {t(
+              section === "listening"
+                ? "topik.home.listeningTest"
+                : "topik.home.readingTest",
+            )}
           </Text>
         </View>
 
@@ -183,7 +207,10 @@ export default function TopikHomeScreen() {
               color={palette.textMuted}
             />
             <Text style={styles.stateTitle}>
-              {t("topik.home.emptyTitle", { level: roman })}
+              {t("topik.home.emptyTitle", {
+                level: roman,
+                section: t(`topik.home.${section}`),
+              })}
             </Text>
             <Text style={styles.stateText}>
               {t("topik.home.emptyDescription")}

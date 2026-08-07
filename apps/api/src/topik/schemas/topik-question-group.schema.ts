@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import {
+  TopikAudio,
+  TopikAudioSchema,
   TopikPresentation,
   TopikPresentationSchema,
   TopikStimulus,
@@ -9,8 +11,7 @@ import {
   TopikTextBlockSchema,
 } from './topik-content.schema';
 
-export type TopikQuestionGroupDocument =
-  HydratedDocument<TopikQuestionGroup>;
+export type TopikQuestionGroupDocument = HydratedDocument<TopikQuestionGroup>;
 
 @Schema({ timestamps: true })
 export class TopikQuestionGroup {
@@ -34,6 +35,9 @@ export class TopikQuestionGroup {
 
   @Prop({ type: TopikStimulusSchema })
   sharedStimulus?: TopikStimulus;
+
+  @Prop({ type: TopikAudioSchema })
+  sharedAudio?: TopikAudio;
 
   @Prop({ required: true, min: 0, default: 2 })
   pointsPerQuestion: number;

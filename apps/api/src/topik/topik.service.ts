@@ -13,10 +13,7 @@ import {
   TopikAttemptMode,
   TopikAttemptStatus,
 } from './schemas/topik-attempt.schema';
-import {
-  TopikPublishStatus,
-  TopikSection,
-} from './schemas/topik-content.schema';
+import { TopikPublishStatus } from './schemas/topik-content.schema';
 import { TopikExam, TopikExamDocument } from './schemas/topik-exam.schema';
 import {
   TopikQuestionGroup,
@@ -46,7 +43,6 @@ export class TopikService {
   public async getExams() {
     const exams = await this.examModel
       .find({
-        section: TopikSection.READING,
         status: TopikPublishStatus.PUBLISHED,
         isActive: true,
       })
@@ -120,6 +116,7 @@ export class TopikService {
         endNumber: group.endNumber,
         instruction: group.instruction,
         sharedStimulus: group.sharedStimulus ?? null,
+        sharedAudio: group.sharedAudio ?? null,
         pointsPerQuestion: group.pointsPerQuestion,
         presentation: group.presentation,
         version: group.version,
@@ -250,11 +247,16 @@ export class TopikService {
     const revealedHintKeys = new Set(state.revealedHintKeys ?? []);
     const highestRevealedLevel = hints.reduce(
       (highest, item) =>
-        revealedHintKeys.has(item.key) ? Math.max(highest, item.level) : highest,
+        revealedHintKeys.has(item.key)
+          ? Math.max(highest, item.level)
+          : highest,
       0,
     );
 
-    if (!revealedHintKeys.has(hint.key) && hint.level > highestRevealedLevel + 1) {
+    if (
+      !revealedHintKeys.has(hint.key) &&
+      hint.level > highestRevealedLevel + 1
+    ) {
       throw new BadRequestException('TOPIK_HINT_ORDER_REQUIRED');
     }
 
@@ -365,9 +367,7 @@ export class TopikService {
       );
 
       if (
-        answer.usedHintKeys?.some(
-          (hintKey) => !availableHintKeys.has(hintKey),
-        )
+        answer.usedHintKeys?.some((hintKey) => !availableHintKeys.has(hintKey))
       ) {
         throw new BadRequestException('TOPIK_HINT_NOT_FOUND');
       }
@@ -393,7 +393,7 @@ export class TopikService {
       );
       const solutionViewedAt = answer.solutionViewedAt
         ? new Date(answer.solutionViewedAt)
-        : learningState?.solutionViewedAt ?? null;
+        : (learningState?.solutionViewedAt ?? null);
 
       if (usedHintKeys.length > 0 || hintViewCount > 0 || solutionViewedAt) {
         learningState ??= this.getOrCreateLearningState(
@@ -480,7 +480,8 @@ export class TopikService {
     );
 
     for (const answer of attempt.answers) {
-      answer.isCorrect = scoring.results.get(answer.questionId.toString()) ?? false;
+      answer.isCorrect =
+        scoring.results.get(answer.questionId.toString()) ?? false;
     }
 
     attempt.correctCount = scoring.correctCount;
@@ -491,9 +492,7 @@ export class TopikService {
     attempt.markModified('answers');
     await attempt.save();
 
-    await this.topikStatsService.applySubmittedAttempt(
-      attempt._id.toString(),
-    );
+    await this.topikStatsService.applySubmittedAttempt(attempt._id.toString());
 
     return this.formatSubmission(attempt);
   }
@@ -535,7 +534,6 @@ export class TopikService {
   private async findPublishedExam(code: string) {
     const exam = await this.examModel.findOne({
       code,
-      section: TopikSection.READING,
       status: TopikPublishStatus.PUBLISHED,
       isActive: true,
     });
@@ -589,6 +587,7 @@ export class TopikService {
       points: question.points,
       prompt: question.prompt,
       stimulus: question.stimulus ?? null,
+      audio: question.audio ?? null,
       choices: question.choices,
       presentation: question.presentation,
       tags: question.tags,
@@ -701,7 +700,11 @@ export class TopikService {
     return state;
   }
 
-  private formatHintMetadata(hint: { key: string; level: number; title: unknown }) {
+  private formatHintMetadata(hint: {
+    key: string;
+    level: number;
+    title: unknown;
+  }) {
     return {
       key: hint.key,
       level: hint.level,

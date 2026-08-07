@@ -151,9 +151,7 @@ export function notice(...bulletItems: string[]): TopikStimulus {
   };
 }
 
-export function sentenceSet(
-  sentences: Array<[string, string]>,
-): TopikStimulus {
+export function sentenceSet(sentences: Array<[string, string]>): TopikStimulus {
   return {
     ...passage(),
     kind: TopikStimulusKind.SENTENCE_SET,
@@ -181,6 +179,8 @@ function choiceItems(values: [string, string, string, string]): TopikChoice[] {
     key: String(index + 1),
     text,
     order: index + 1,
+    imageAssetKey: '',
+    imageAlt: '',
   }));
 }
 
@@ -191,7 +191,9 @@ function createSolution(
   const strategy =
     input.strategy ??
     '문제가 요구하는 정보를 확인한 뒤 지문의 핵심 표현과 각 보기를 비교합니다.';
-  const correctText = choices.find((choice) => choice.key === input.answer)!.text;
+  const correctText = choices.find(
+    (choice) => choice.key === input.answer,
+  )!.text;
   const explanation = translateQuestionText(
     input.number,
     'explanation',
@@ -269,7 +271,10 @@ function createSolution(
 }
 
 function pdfPageForQuestion(number: number) {
-  const pageEnds = [4, 8, 10, 12, 14, 16, 18, 20, 22, 24, 27, 29, 31, 33, 35, 37, 38, 40, 41, 43, 45, 47, 50];
+  const pageEnds = [
+    4, 8, 10, 12, 14, 16, 18, 20, 22, 24, 27, 29, 31, 33, 35, 37, 38, 40, 41,
+    43, 45, 47, 50,
+  ];
   return pageEnds.findIndex((end) => number <= end) + 1;
 }
 

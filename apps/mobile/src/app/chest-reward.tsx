@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet } from "react-native";
-import * as Haptics from "expo-haptics";
+import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {

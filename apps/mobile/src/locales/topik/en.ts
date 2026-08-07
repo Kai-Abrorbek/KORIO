@@ -14,18 +14,22 @@ export default {
   },
   modes: {
     guided: "Guided study",
-    guidedDescription: "Solve each question with step-by-step hints and key clues.",
+    guidedDescription:
+      "Solve each question with step-by-step hints and key clues.",
     practice: "Practice",
     mockExam: "Mock exam",
-    mockExamDescription: "Focus and solve the exam within the official time limit.",
+    mockExamDescription:
+      "Focus and solve the exam within the official time limit.",
   },
   levelModal: {
     eyebrow: "Personalized study plan",
     title: "Which TOPIK are you preparing for?",
-    subtitle: "We’ll tailor the exam structure and insights to your target level.",
+    subtitle:
+      "We’ll tailor the exam structure and insights to your target level.",
     examPrep: "Exam prep",
     levelOneLabel: "Build beginner skills",
-    levelOneDescription: "Prepare the essential Korean skills used in everyday life.",
+    levelOneDescription:
+      "Prepare the essential Korean skills used in everyday life.",
     levelOneSections: "Reading · Listening",
     levelTwoLabel: "Aim for an advanced pass",
     levelTwoDescription: "Build practical Korean skills for study and work.",
@@ -55,31 +59,40 @@ export default {
       "Learn how to approach each question with guided hints, then check your skills in a mock exam.",
     reading: {
       title: "Reading",
-      description: "Learn each question type and test yourself with the official exam structure.",
+      description:
+        "Learn each question type and test yourself with the official exam structure.",
       features: ["Step-by-step hints", "Mock exams", "Mistake analysis"],
     },
     listening: {
       title: "Listening",
-      description: "Build listening strategies and the instinct to catch key expressions.",
+      description:
+        "Build listening strategies and the instinct to catch key expressions.",
       features: ["Segment replay", "Key clues", "Speed control"],
     },
     writing: {
       title: "Writing",
-      description: "Build high-scoring answers from sentence structure to full responses.",
+      description:
+        "Build high-scoring answers from sentence structure to full responses.",
       features: ["Answer structure", "Writing feedback", "Score strategy"],
     },
   },
   home: {
-    header: "TOPIK {{level}} Reading",
+    header: "TOPIK {{level}} {{section}}",
     reading: "Reading",
+    listening: "Listening",
     heroTitle: "Don’t memorize answers.\nLearn how to solve them.",
     heroDescription:
       "Practice with the official exam structure and reveal step-by-step hints only when you need them.",
+    listeningHeroTitle:
+      "Catch the key idea as you listen.\nBuild real exam instincts.",
+    listeningHeroDescription:
+      "Listen in the original question groups, then reveal the transcript and key clues in guided mode.",
     examSelection: "Choose an exam",
     readingTest: "Reading test",
+    listeningTest: "Listening test",
     loading: "Loading exam papers…",
     loadError: "Couldn’t load the exam papers.",
-    emptyTitle: "TOPIK {{level}} Reading is being prepared.",
+    emptyTitle: "TOPIK {{level}} {{section}} is being prepared.",
     emptyDescription: "High-quality questions are coming soon.",
     examMeta: "{{questions}} questions · {{minutes}} min · {{points}} points",
     studyMode: "Study mode",
@@ -113,6 +126,16 @@ export default {
     next: "Next",
     submitAnswers: "Submit answers",
   },
+  listening: {
+    audio: "Listening audio",
+    play: "Play",
+    stop: "Stop",
+    playCount: "{{current}} / {{total}} plays",
+    originalAudio: "Original exam audio",
+    deviceVoice: "Playing with the device’s Korean voice",
+    explanationMode: "Guided mode",
+    transcript: "Full transcript",
+  },
   result: {
     duration: "{{minutes}}m {{seconds}}s",
     loadFailed: "Couldn’t load your result.",
@@ -124,7 +147,8 @@ export default {
     accuracy: "Accuracy",
     durationLabel: "Time spent",
     questionResults: "Question results",
-    questionResultsDescription: "Read the explanations and learn from each mistake.",
+    questionResultsDescription:
+      "Read the explanations and learn from each mistake.",
     wrongOnly: "Wrong only",
     myAnswer: "My answer: {{answer}}",
     correctAnswer: "Correct answer: {{answer}}",

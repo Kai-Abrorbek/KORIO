@@ -29,6 +29,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "volume-high",
         iconColor: "#FF7AAD",
         iconBgColor: "#FFE0EC",
+        route: "/sound",
       },
       // ── 아직 안 만든 항목들. 기능 붙이면 주석 해제 ──
       // {

@@ -5,6 +5,7 @@ import React, {
   useEffect,
 } from "react";
 import { useAudioPlayer, setAudioModeAsync } from "expo-audio";
+import { useSettingsStore } from "@/store/settings.store";
 
 export type SoundKey = "click" | "combo";
 
@@ -35,8 +36,18 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   const play = useCallback(
     (key: SoundKey) => {
+      // 설정을 구독하지 않고 그때그때 읽는다.
+      // 볼륨이 바뀔 때마다 Provider 가 리렌더되면 플레이어가 다시 만들어진다.
+      const { sound, muted } = useSettingsStore.getState();
+      if (muted) return;
+
       const player = key === "click" ? clickPlayer : comboPlayer;
+      // click 은 자판 소리, combo 는 효과음으로 분리해서 조절
+      const volume = key === "click" ? sound.keyVolume : sound.sfxVolume;
+      if (volume <= 0) return;
+
       try {
+        player.volume = volume;
         player.seekTo(0);
         player.play();
       } catch {

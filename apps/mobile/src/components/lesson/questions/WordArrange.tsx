@@ -47,7 +47,7 @@ export default function WordArrange({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
-  const { speak, speakSlow, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
 
   // 답 영역은 놓인 칩만큼만 자란다. 높이를 180 으로 고정해두면
   // 단어 한두 개일 때도 세 줄치를 차지해서 확인 버튼이 밀려난다.
@@ -66,7 +66,7 @@ export default function WordArrange({
   // 진입시 자동 재생
   useEffect(() => {
     const timer = setTimeout(() => {
-      speak(question.npcText ?? question.answer);
+      speakAuto(question.npcText ?? question.answer);
     }, 600);
     return () => clearTimeout(timer);
   }, []);

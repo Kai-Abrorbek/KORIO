@@ -37,7 +37,7 @@ export default function Listening({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
-  const { speak, speakSlow, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
   const auto = useRef(false);
 
   const [words, setWords] = useState<W[]>(() =>
@@ -49,7 +49,7 @@ export default function Listening({
   useEffect(() => {
     if (auto.current) return;
     auto.current = true;
-    const tm = setTimeout(() => speak(question.answer), 500);
+    const tm = setTimeout(() => speakAuto(question.answer), 500);
     return () => clearTimeout(tm);
   }, []);
 

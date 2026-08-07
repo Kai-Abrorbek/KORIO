@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
-import * as Haptics from "expo-haptics";
+import * as Haptics from "@/utils/haptics";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

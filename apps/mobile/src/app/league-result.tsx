@@ -12,7 +12,7 @@ import Animated, {
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Haptics from "expo-haptics";
+import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import TierCrystal from "@/components/league/TierCrystal";
 import { getTier } from "@/constants/league-tiers";

@@ -1,5 +1,7 @@
 import {
+  TopikAudio,
   TopikChoice,
+  TopikI18nText,
   TopikPresentation,
   TopikQuestionType,
   TopikSolution,
@@ -9,8 +11,8 @@ import {
 
 export interface TopikSeedExam {
   code: string;
-  title: Record<string, string>;
-  description: Record<string, string>;
+  title: TopikI18nText;
+  description: TopikI18nText;
   examType: string;
   section: string;
   year: number;
@@ -37,6 +39,7 @@ export interface TopikSeedGroup {
   endNumber: number;
   instruction: TopikTextBlock[];
   sharedStimulus?: TopikStimulus;
+  sharedAudio?: TopikAudio;
   pointsPerQuestion: number;
   presentation: TopikPresentation;
   version: number;
@@ -52,6 +55,7 @@ export interface TopikSeedQuestion {
   points: number;
   prompt: TopikTextBlock[];
   stimulus?: TopikStimulus;
+  audio?: TopikAudio;
   choices: TopikChoice[];
   correctChoiceKey: string;
   solution: TopikSolution;
@@ -67,8 +71,10 @@ export interface TopikSeedQuestion {
   isActive: boolean;
 }
 
-export interface TopikReadingSeed {
+export interface TopikExamSeed {
   exam: TopikSeedExam;
   groups: TopikSeedGroup[];
   questions: TopikSeedQuestion[];
 }
+
+export type TopikReadingSeed = TopikExamSeed;

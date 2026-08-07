@@ -14,10 +14,12 @@ export default {
   },
   modes: {
     guided: "Izohli o‘rganish",
-    guidedDescription: "Savollarni bosqichma-bosqich maslahatlar va muhim ishoralar bilan yeching.",
+    guidedDescription:
+      "Savollarni bosqichma-bosqich maslahatlar va muhim ishoralar bilan yeching.",
     practice: "Mashq",
     mockExam: "Sinov imtihoni",
-    mockExamDescription: "Haqiqiy imtihon kabi belgilangan vaqt ichida diqqat bilan yeching.",
+    mockExamDescription:
+      "Haqiqiy imtihon kabi belgilangan vaqt ichida diqqat bilan yeching.",
   },
   levelModal: {
     eyebrow: "Shaxsiy o‘quv reja",
@@ -25,10 +27,12 @@ export default {
     subtitle: "Imtihon tuzilishi va tahlilni maqsadingizga moslaymiz.",
     examPrep: "Imtihonga tayyorgarlik",
     levelOneLabel: "Boshlang‘ich darajani mustahkamlang",
-    levelOneDescription: "Kundalik hayot uchun zarur asosiy koreys tili ko‘nikmalarini tayyorlang.",
+    levelOneDescription:
+      "Kundalik hayot uchun zarur asosiy koreys tili ko‘nikmalarini tayyorlang.",
     levelOneSections: "O‘qish · Tinglash",
     levelTwoLabel: "Yuqori darajaga tayyorlaning",
-    levelTwoDescription: "O‘qish va ish uchun amaliy koreys tili ko‘nikmalarini rivojlantiring.",
+    levelTwoDescription:
+      "O‘qish va ish uchun amaliy koreys tili ko‘nikmalarini rivojlantiring.",
     levelTwoSections: "O‘qish · Tinglash · Yozish",
     assurance: "Tanlangan darajani istalgan vaqtda o‘zgartirish mumkin.",
   },
@@ -49,37 +53,47 @@ export default {
     availableDescription: "Hozir boshlash mumkin",
     comingSoonDescription: "Materiallarni puxta tayyorlayapmiz",
     comingSoonTitle: "{{section}} bo‘limi tez orada",
-    comingSoonMessage: "Siz uchun yanada yaxshi o‘quv tajribasini yaratmoqdamiz.",
+    comingSoonMessage:
+      "Siz uchun yanada yaxshi o‘quv tajribasini yaratmoqdamiz.",
     recommendationTitle: "Endi boshlayapsizmi? O‘qishdan boshlang",
     recommendationDescription:
       "Maslahatlar bilan savollarga yondashishni o‘rganing, keyin sinov imtihonida o‘zingizni tekshiring.",
     reading: {
       title: "O‘qish",
-      description: "Savol turlarini o‘rganing va haqiqiy imtihon tuzilishida bilimingizni tekshiring.",
+      description:
+        "Savol turlarini o‘rganing va haqiqiy imtihon tuzilishida bilimingizni tekshiring.",
       features: ["Bosqichli maslahat", "Sinov imtihoni", "Xatolar tahlili"],
     },
     listening: {
       title: "Tinglash",
-      description: "Muhim iboralarni anglash strategiyasi va tinglash sezgisini rivojlantiring.",
+      description:
+        "Muhim iboralarni anglash strategiyasi va tinglash sezgisini rivojlantiring.",
       features: ["Qismni takrorlash", "Muhim ishora", "Tezlik nazorati"],
     },
     writing: {
       title: "Yozish",
-      description: "Gap tuzilishidan yuqori ball beradigan to‘liq javobgacha rivojlaning.",
+      description:
+        "Gap tuzilishidan yuqori ball beradigan to‘liq javobgacha rivojlaning.",
       features: ["Javob tuzilishi", "Yozuv tahlili", "Ball strategiyasi"],
     },
   },
   home: {
-    header: "TOPIK {{level}} · O‘qish",
+    header: "TOPIK {{level}} · {{section}}",
     reading: "O‘qish",
+    listening: "Tinglash",
     heroTitle: "Javobni yodlamang.\nYechish usulini o‘rganing.",
     heroDescription:
       "Haqiqiy imtihon tuzilishida mashq qiling va faqat kerak bo‘lganda bosqichli maslahatlarni oching.",
+    listeningHeroTitle:
+      "Eshitish bilan asosiy fikrni toping.\nImtihon sezgisini rivojlantiring.",
+    listeningHeroDescription:
+      "Savollarni asl guruhlarida tinglang, izohli rejimda matn va asosiy belgilarni oching.",
     examSelection: "Imtihonni tanlang",
     readingTest: "O‘qish testi",
+    listeningTest: "Tinglash testi",
     loading: "Imtihon variantlari yuklanmoqda…",
     loadError: "Imtihon variantlarini yuklab bo‘lmadi.",
-    emptyTitle: "TOPIK {{level}} o‘qish materiallari tayyorlanmoqda.",
+    emptyTitle: "TOPIK {{level}} {{section}} materiallari tayyorlanmoqda.",
     emptyDescription: "Sifatli savollar tez orada qo‘shiladi.",
     examMeta: "{{questions}} savol · {{minutes}} daqiqa · {{points}} ball",
     studyMode: "O‘rganish rejimi",
@@ -114,6 +128,16 @@ export default {
     next: "Keyingi",
     submitAnswers: "Javoblarni yuborish",
   },
+  listening: {
+    audio: "Tinglash audiosi",
+    play: "Eshitish",
+    stop: "To‘xtatish",
+    playCount: "{{current}} / {{total}} marta",
+    originalAudio: "Asl imtihon audiosi",
+    deviceVoice: "Qurilmaning koreyscha ovozi bilan",
+    explanationMode: "Izohli rejim",
+    transcript: "To‘liq matn",
+  },
   result: {
     duration: "{{minutes}} daq {{seconds}} son",
     loadFailed: "Natijani yuklab bo‘lmadi.",
@@ -125,7 +149,8 @@ export default {
     accuracy: "Aniqlik",
     durationLabel: "Sarflangan vaqt",
     questionResults: "Savollar natijasi",
-    questionResultsDescription: "Izohlarni o‘qing va xatolaringiz sababini tushuning.",
+    questionResultsDescription:
+      "Izohlarni o‘qing va xatolaringiz sababini tushuning.",
     wrongOnly: "Faqat xatolar",
     myAnswer: "Javobim: {{answer}}",
     correctAnswer: "To‘g‘ri javob: {{answer}}",

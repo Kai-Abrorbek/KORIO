@@ -1,11 +1,9 @@
-import {
-  TopikStimulusKind,
-} from '../topik/schemas/topik-content.schema';
+import { TopikStimulusKind } from '../topik/schemas/topik-content.schema';
 import {
   TOPIK_READING_BLUEPRINT,
   TopikStimulusScope,
 } from '../topik/topik-reading-blueprint';
-import { TopikReadingSeed } from './data/topik';
+import { TopikExamSeed, TopikReadingSeed } from './data/topik';
 
 const TOPIK_LANGUAGES = ['ko', 'uz', 'en', 'ru'] as const;
 
@@ -191,6 +189,95 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
   return {
     groupCount: seed.groups.length,
     questionCount: seed.questions.length,
+    totalPoints,
+  };
+}
+
+export function validateTopikListeningSeed(seed: TopikExamSeed) {
+  const errors: string[] = [];
+  const sortedQuestions = [...seed.questions].sort(
+    (left, right) => left.number - right.number,
+  );
+  const groupsByCode = new Map(seed.groups.map((group) => [group.code, group]));
+
+  if (seed.exam.section !== 'listening') {
+    errors.push('Listening seed must use the listening section');
+  }
+  if (sortedQuestions.length !== 50 || seed.exam.totalQuestions !== 50) {
+    errors.push('Listening seed must contain 50 questions');
+  }
+
+  sortedQuestions.forEach((question, index) => {
+    if (question.number !== index + 1) {
+      errors.push(`Listening question sequence mismatch: ${question.number}`);
+    }
+    if (question.choices.length !== 4) {
+      errors.push(
+        `Listening question ${question.number} must have four choices`,
+      );
+    }
+    if (
+      !question.choices.some(
+        (choice) => choice.key === question.correctChoiceKey,
+      )
+    ) {
+      errors.push(
+        `Listening question ${question.number} has an invalid answer`,
+      );
+    }
+    const group = groupsByCode.get(question.groupCode);
+    if (!group) {
+      errors.push(`Listening question ${question.number} has no group`);
+    } else if (
+      !group.sharedAudio?.transcript?.length &&
+      !question.audio?.transcript?.length
+    ) {
+      errors.push(
+        `Listening question ${question.number} has no audio transcript`,
+      );
+    }
+    if (question.solution.hints.length < 3) {
+      errors.push(
+        `Listening question ${question.number} must have progressive hints`,
+      );
+    }
+    validateLocalizedText(
+      question.solution.explanation,
+      `Listening question ${question.number} explanation`,
+      errors,
+    );
+  });
+
+  const coveredNumbers = seed.groups.flatMap((group) =>
+    Array.from(
+      { length: group.endNumber - group.startNumber + 1 },
+      (_, index) => group.startNumber + index,
+    ),
+  );
+  if (
+    coveredNumbers.length !== 50 ||
+    coveredNumbers.some((number, index) => number !== index + 1)
+  ) {
+    errors.push('Listening groups must cover questions 1 through 50 once');
+  }
+
+  const totalPoints = sortedQuestions.reduce(
+    (sum, question) => sum + question.points,
+    0,
+  );
+  if (totalPoints !== 100 || seed.exam.totalPoints !== 100) {
+    errors.push('Listening seed must total 100 points');
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `TOPIK listening seed validation failed:\n- ${errors.join('\n- ')}`,
+    );
+  }
+
+  return {
+    groupCount: seed.groups.length,
+    questionCount: sortedQuestions.length,
     totalPoints,
   };
 }

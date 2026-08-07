@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import {
+  TopikAudio,
+  TopikAudioSchema,
   TopikChoice,
   TopikChoiceSchema,
   TopikPresentation,
@@ -46,6 +48,9 @@ export class TopikQuestion {
 
   @Prop({ type: TopikStimulusSchema })
   stimulus?: TopikStimulus;
+
+  @Prop({ type: TopikAudioSchema })
+  audio?: TopikAudio;
 
   @Prop({
     type: [TopikChoiceSchema],
