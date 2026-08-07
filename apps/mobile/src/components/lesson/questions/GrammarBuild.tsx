@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Speech from "expo-speech";
+import { speakText } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -296,7 +296,7 @@ export default function GrammarBuild({
               colors={["#8f7ff0", "#7161e6"]}
               icon={<Ionicons name="volume-high" size={28} color="#fff" />}
               label={t("sentenceBuild.listenAgain")}
-              onPress={() => Speech.speak(q.full, { language: "ko-KR" })}
+              onPress={() => speakText(q.full)}
             />
           </View>
         </View>

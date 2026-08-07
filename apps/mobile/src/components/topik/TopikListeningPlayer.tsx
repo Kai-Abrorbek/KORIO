@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import type { TopikAttemptMode, TopikAudio } from "@/types/topik";
+import { useSettingsStore } from "@/store/settings.store";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikListeningPlayerProps {
@@ -38,6 +39,8 @@ export function TopikListeningPlayer({
 
   const play = async () => {
     if (!canPlay || isPlaying || audio.transcript.length === 0) return;
+    const { muted, sound } = useSettingsStore.getState();
+    if (muted || sound.speechVolume <= 0) return;
 
     await Speech.stop();
     const activeRun = runId.current + 1;
@@ -57,8 +60,9 @@ export function TopikListeningPlayer({
         line.speaker.includes("여자") || line.speaker.includes("여성");
       Speech.speak(line.text, {
         language: "ko-KR",
-        rate: 0.86,
+        rate: sound.speechRate,
         pitch: isFemale ? 1.08 : 0.94,
+        volume: sound.speechVolume,
         onDone: () => speakLine(index + 1),
         onError: () => setIsPlaying(false),
         onStopped: () => setIsPlaying(false),

@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Speech from "expo-speech";
+import { speakText } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -101,12 +102,11 @@ const QUESTIONS: PQ[] = [
   },
 ];
 
-const speakEn = (w: string) =>
-  Speech.speak(w, { language: "en-US", rate: 0.9 });
+const speakEn = (w: string) => speakText(w, "en-US");
 
 const speakWord = (w: string) => {
   Speech.stop();
-  Speech.speak(w, { language: "en-US", rate: 0.9 });
+  speakText(w, "en-US");
 };
 
 export default function PronunciationQuiz() {
@@ -133,13 +133,9 @@ export default function PronunciationQuiz() {
   const speakOptions = () => {
     Speech.stop();
     const [a, b] = q.options;
-    Speech.speak(a.word, {
-      language: "en-US",
-      rate: 0.9,
+    speakText(a.word, "en-US", {
       onDone: () => {
-        setTimeout(() => {
-          Speech.speak(b.word, { language: "en-US", rate: 0.9 });
-        }, 450);
+        setTimeout(() => speakText(b.word, "en-US"), 450);
       },
     });
   };

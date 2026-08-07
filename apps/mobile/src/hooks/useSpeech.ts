@@ -5,6 +5,26 @@ import { useSettingsStore } from "@/store/settings.store";
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
 const SLOW_FACTOR = 0.55;
 
+/**
+ * 훅을 못 쓰는 곳(모듈 최상단 함수 등)에서 쓰는 발화 함수.
+ * 설정(음소거·볼륨·속도)을 똑같이 지킨다. expo-speech 를 직접 부르면
+ * 설정이 통째로 무시되니 여기를 거쳐야 한다.
+ */
+export function speakText(
+  text: string,
+  lang: string = "ko-KR",
+  opts?: Omit<Speech.SpeechOptions, "language" | "rate" | "volume">,
+) {
+  const { sound, muted } = useSettingsStore.getState();
+  if (muted || sound.speechVolume <= 0) return;
+  Speech.speak(text, {
+    ...opts,
+    language: lang,
+    rate: sound.speechRate,
+    volume: sound.speechVolume,
+  });
+}
+
 export function useSpeech() {
   const [isSpeaking, setIsSpeaking] = useState(false);
 
