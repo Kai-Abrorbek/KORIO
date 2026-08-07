@@ -18,9 +18,9 @@ export const TOPIK_READING_MOCK_1_EXAM: TopikSeedExam = {
   },
   description: {
     ko: 'TOPIK II 읽기 1번부터 50번까지 실제 시험 형식으로 구성한 모의고사입니다.',
-    uz: '',
-    en: '',
-    ru: '',
+    uz: 'TOPIK II o‘qish bo‘limining 1–50-savollarini haqiqiy imtihon shaklida tuzilgan sinov testi.',
+    en: 'A TOPIK II Reading mock exam with questions 1–50 arranged in the official test format.',
+    ru: 'Пробный экзамен по чтению TOPIK II с заданиями 1–50 в формате реального теста.',
   },
   examType: TopikExamType.TOPIK_II,
   section: TopikSection.READING,

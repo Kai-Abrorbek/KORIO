@@ -14,6 +14,12 @@ import {
   TopikVisualTemplate,
 } from '../../../topik/schemas/topik-content.schema';
 import { TopikSeedQuestion } from './topik-seed.types';
+import {
+  translateCommonText,
+  translateConnectionExample,
+  translateFocusExample,
+  translateQuestionText,
+} from './topik-seed.translations';
 
 interface QuestionInput {
   number: number;
@@ -37,7 +43,7 @@ const TOKEN_PATTERN =
   /\[\[(blank|underline|emphasis|marker):([^|\]]+)(?:\|([^\]]*))?\]\]/g;
 
 export function i18n(ko: string): TopikI18nText {
-  return { ko, uz: '', en: '', ru: '' };
+  return translateCommonText(ko);
 }
 
 export function textBlock(text: string): TopikTextBlock {
@@ -186,16 +192,25 @@ function createSolution(
     input.strategy ??
     '문제가 요구하는 정보를 확인한 뒤 지문의 핵심 표현과 각 보기를 비교합니다.';
   const correctText = choices.find((choice) => choice.key === input.answer)!.text;
+  const explanation = translateQuestionText(
+    input.number,
+    'explanation',
+    input.explanation,
+  );
+  const clue = translateQuestionText(input.number, 'clue', input.clue);
+  const translatedStrategy = input.strategy
+    ? translateQuestionText(input.number, 'strategy', input.strategy)
+    : i18n(strategy);
 
   return {
-    explanation: i18n(input.explanation),
-    strategy: i18n(strategy),
+    explanation,
+    strategy: translatedStrategy,
     keyClues: [
       {
         key: 'clue-1',
         order: 1,
         label: i18n('핵심 단서'),
-        explanation: i18n(input.clue),
+        explanation: clue,
         targetSegmentKeys: input.clueTargetKeys ?? [],
       },
     ],
@@ -204,14 +219,14 @@ function createSolution(
         key: 'step-1',
         order: 1,
         title: i18n('문제 요구 확인'),
-        explanation: i18n(strategy),
+        explanation: translatedStrategy,
         targetSegmentKeys: [],
       },
       {
         key: 'step-2',
         order: 2,
         title: i18n('단서와 보기 연결'),
-        explanation: i18n(input.explanation),
+        explanation,
         targetSegmentKeys: input.clueTargetKeys ?? [],
       },
     ],
@@ -220,7 +235,7 @@ function createSolution(
         key: 'hint-1',
         level: 1,
         title: i18n('문제 유형 확인'),
-        content: i18n(strategy),
+        content: translatedStrategy,
         examples: [
           i18n('예: 주제, 세부 내용, 빈칸 중 무엇을 묻는지 먼저 확인합니다.'),
         ],
@@ -230,26 +245,25 @@ function createSolution(
         key: 'hint-2',
         level: 2,
         title: i18n('핵심 단서 찾기'),
-        content: i18n(input.clue),
-        examples: [i18n(`예: "${input.clue}" 부분을 중심으로 읽습니다.`)],
+        content: clue,
+        examples: [translateFocusExample(input.clue)],
         targetSegmentKeys: input.clueTargetKeys ?? [],
       },
       {
         key: 'hint-3',
         level: 3,
         title: i18n('보기 좁히기'),
-        content: i18n(input.explanation),
-        examples: [i18n(`예: "${correctText}"가 단서와 어떻게 연결되는지 봅니다.`)],
+        content: explanation,
+        examples: [translateConnectionExample(correctText)],
         targetSegmentKeys: input.clueTargetKeys ?? [],
       },
     ],
     choiceNotes: choices.map((choice) => ({
       choiceKey: choice.key,
-      note: i18n(
+      note:
         choice.key === input.answer
-          ? input.explanation
-          : '지문의 핵심 단서나 문법적 연결과 맞지 않는 선택지입니다.',
-      ),
+          ? explanation
+          : i18n('지문의 핵심 단서나 문법적 연결과 맞지 않는 선택지입니다.'),
     })),
   };
 }

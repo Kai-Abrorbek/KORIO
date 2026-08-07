@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +11,13 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TopikHintPanel, TopikQuestionCard } from "@/components/topik";
+import {
+  TopikExitModal,
+  TopikHintPanel,
+  TopikNoticeModal,
+  TopikQuestionCard,
+  TopikSubmitModal,
+} from "@/components/topik";
 import {
   type TopikPalette,
   useTopikTheme,
@@ -42,6 +47,13 @@ export default function TopikExamScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [now, setNow] = useState(Date.now());
   const [busy, setBusy] = useState(false);
+  const [exitModalVisible, setExitModalVisible] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [exitError, setExitError] = useState(false);
+  const [submitModalVisible, setSubmitModalVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [supportErrorVisible, setSupportErrorVisible] = useState(false);
 
   const session = useTopikAttemptStore((state) => state.session);
   const attempt = useTopikAttemptStore((state) => state.attempt);
@@ -127,49 +139,60 @@ export default function TopikExamScreen() {
   };
 
   const confirmExit = () => {
-    Alert.alert(t("topik.exam.leaveTitle"), t("topik.exam.leaveMessage"), [
-      { text: t("topik.exam.continue"), style: "cancel" },
-      {
-        text: t("topik.exam.leave"),
-        onPress: () => {
-          void saveProgress();
-          router.back();
-        },
-      },
-    ]);
+    setExitError(false);
+    setExitModalVisible(true);
+  };
+
+  const leaveExam = async () => {
+    setLeaving(true);
+    setExitError(false);
+    try {
+      await saveProgress();
+      setExitModalVisible(false);
+      router.back();
+    } catch {
+      setExitError(true);
+    } finally {
+      setLeaving(false);
+    }
   };
 
   const confirmSubmit = () => {
-    const unanswered = questions.length - answeredCount;
-    Alert.alert(
-      t("topik.exam.submitTitle"),
-      unanswered > 0
-        ? t("topik.exam.unansweredMessage", { count: unanswered })
-        : t("topik.exam.submitMessage"),
-      [
-        { text: t("topik.common.cancel"), style: "cancel" },
-        {
-          text: t("topik.exam.submit"),
-          onPress: async () => {
-            setBusy(true);
-            try {
-              const result = await submit();
-              router.replace({
-                pathname: "/topik-result",
-                params: { attemptId: result.attemptId },
-              });
-            } catch {
-              Alert.alert(
-                t("topik.exam.submitFailedTitle"),
-                t("topik.exam.submitFailedMessage"),
-              );
-            } finally {
-              setBusy(false);
-            }
-          },
-        },
-      ],
-    );
+    setSubmitError(false);
+    setSubmitModalVisible(true);
+  };
+
+  const submitExam = async () => {
+    setSubmitting(true);
+    setBusy(true);
+    setSubmitError(false);
+    try {
+      const result = await submit();
+      setSubmitModalVisible(false);
+      router.replace({
+        pathname: "/topik-result",
+        params: { attemptId: result.attemptId },
+      });
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+      setBusy(false);
+    }
+  };
+
+  const revealCurrentSolution = async () => {
+    if (!question) return;
+
+    setSupportErrorVisible(false);
+    setBusy(true);
+    try {
+      await revealSolution(question.id);
+    } catch {
+      setSupportErrorVisible(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (!examCode) {
@@ -180,7 +203,9 @@ export default function TopikExamScreen() {
           onPress={() => router.replace("/topik")}
           style={styles.errorButton}
         >
-          <Text style={styles.errorButtonText}>{t("topik.exam.backToSelection")}</Text>
+          <Text style={styles.errorButtonText}>
+            {t("topik.exam.backToSelection")}
+          </Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -191,13 +216,19 @@ export default function TopikExamScreen() {
       <SafeAreaView style={styles.centered}>
         {errorCode ? (
           <>
-            <Ionicons name="alert-circle-outline" size={34} color={palette.danger} />
+            <Ionicons
+              name="alert-circle-outline"
+              size={34}
+              color={palette.danger}
+            />
             <Text style={styles.errorTitle}>{t("topik.exam.startFailed")}</Text>
             <Pressable
               onPress={() => void start(examCode, mode)}
               style={styles.errorButton}
             >
-              <Text style={styles.errorButtonText}>{t("topik.common.retry")}</Text>
+              <Text style={styles.errorButtonText}>
+                {t("topik.common.retry")}
+              </Text>
             </Pressable>
           </>
         ) : (
@@ -213,7 +244,11 @@ export default function TopikExamScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Pressable accessibilityLabel={t("topik.common.close")} onPress={confirmExit} style={styles.headerButton}>
+        <Pressable
+          accessibilityLabel={t("topik.common.close")}
+          onPress={confirmExit}
+          style={styles.headerButton}
+        >
           <Ionicons name="close" size={25} color={palette.text} />
         </Pressable>
         <View style={styles.progressArea}>
@@ -278,19 +313,7 @@ export default function TopikExamScreen() {
                 setBusy(false);
               }
             }}
-            onRevealSolution={async () => {
-              setBusy(true);
-              try {
-                await revealSolution(question.id);
-              } catch {
-                Alert.alert(
-                  t("topik.exam.supportFailedTitle"),
-                  t("topik.exam.supportFailedMessage"),
-                );
-              } finally {
-                setBusy(false);
-              }
-            }}
+            onRevealSolution={() => void revealCurrentSolution()}
           />
         )}
       </ScrollView>
@@ -304,7 +327,11 @@ export default function TopikExamScreen() {
             currentIndex === 0 && styles.disabled,
           ]}
         >
-          <Ionicons name="chevron-back" size={21} color={palette.textSecondary} />
+          <Ionicons
+            name="chevron-back"
+            size={21}
+            color={palette.textSecondary}
+          />
           <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
         </Pressable>
         {currentIndex === questions.length - 1 ? (
@@ -313,7 +340,9 @@ export default function TopikExamScreen() {
             onPress={confirmSubmit}
             style={styles.primaryButton}
           >
-            <Text style={styles.primaryText}>{t("topik.exam.submitAnswers")}</Text>
+            <Text style={styles.primaryText}>
+              {t("topik.exam.submitAnswers")}
+            </Text>
           </Pressable>
         ) : (
           <Pressable
@@ -326,130 +355,191 @@ export default function TopikExamScreen() {
           </Pressable>
         )}
       </View>
+
+      <TopikExitModal
+        visible={exitModalVisible}
+        answeredCount={answeredCount}
+        totalCount={questions.length}
+        leaving={leaving}
+        errorTitle={exitError ? t("topik.exam.saveFailedTitle") : undefined}
+        errorMessage={exitError ? t("topik.exam.saveFailedMessage") : undefined}
+        onContinue={() => {
+          setExitError(false);
+          setExitModalVisible(false);
+        }}
+        onLeave={() => void leaveExam()}
+      />
+
+      <TopikSubmitModal
+        visible={submitModalVisible}
+        answeredCount={answeredCount}
+        totalCount={questions.length}
+        submitting={submitting}
+        errorTitle={submitError ? t("topik.exam.submitFailedTitle") : undefined}
+        errorMessage={
+          submitError ? t("topik.exam.submitFailedMessage") : undefined
+        }
+        onCancel={() => {
+          setSubmitError(false);
+          setSubmitModalVisible(false);
+        }}
+        onSubmit={() => void submitExam()}
+      />
+
+      <TopikNoticeModal
+        visible={supportErrorVisible}
+        variant="error"
+        icon="bulb-outline"
+        title={t("topik.exam.supportFailedTitle")}
+        message={t("topik.exam.supportFailedMessage")}
+        primaryLabel={t("topik.common.retry")}
+        secondaryLabel={t("topik.common.cancel")}
+        busy={busy}
+        onClose={() => setSupportErrorVisible(false)}
+        onPrimary={() => void revealCurrentSolution()}
+      />
     </SafeAreaView>
   );
 }
 
-const getStyles = (palette: TopikPalette) => StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: palette.bg,
-    paddingBottom: 40,
-    paddingTop: 40,
-  },
-  centered: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 13,
-    backgroundColor: palette.bg,
-    padding: 24,
-  },
-  loadingText: { color: palette.textSecondary, fontSize: 13 },
-  errorTitle: {
-    color: palette.text,
-    fontSize: 15,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-  errorButton: {
-    borderRadius: 10,
-    backgroundColor: palette.primaryStrong,
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-  },
-  errorButtonText: { color: palette.white, fontWeight: "800" },
-  header: {
-    minHeight: 61,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.divider,
-    backgroundColor: palette.paper,
-    paddingHorizontal: 12,
-  },
-  headerButton: {
-    width: 38,
-    height: 38,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  progressArea: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8 },
-  progressTrack: {
-    flex: 1,
-    height: 7,
-    overflow: "hidden",
-    borderRadius: 4,
-    backgroundColor: palette.surfaceMuted,
-  },
-  progressFill: { height: "100%", borderRadius: 4, backgroundColor: palette.primary },
-  progressText: { color: palette.textSecondary, fontSize: 11, fontWeight: "800" },
-  timer: {
-    minWidth: 69,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 4,
-  },
-  timerText: {
-    color: palette.primary,
-    fontSize: 12,
-    fontWeight: "900",
-    fontVariant: ["tabular-nums"],
-  },
-  scroll: { flex: 1 },
-  content: {
-    gap: 14,
-    paddingHorizontal: 14,
-    paddingTop: 13,
-    paddingBottom: 28,
-  },
-  statusRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  modeLabel: {
-    color: palette.primary,
-    fontSize: 11,
-    fontWeight: "900",
-    letterSpacing: 0.3,
-  },
-  answerCount: { color: palette.textMuted, fontSize: 11, fontWeight: "700" },
-  footer: {
-    minHeight: 76,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    borderTopWidth: 1,
-    borderTopColor: palette.divider,
-    backgroundColor: palette.paper,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  secondaryButton: {
-    width: 105,
-    minHeight: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: palette.borderStrong,
-    borderRadius: 13,
-    backgroundColor: palette.surface,
-  },
-  secondaryText: { color: palette.textSecondary, fontSize: 14, fontWeight: "800" },
-  primaryButton: {
-    flex: 1,
-    minHeight: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
-    borderRadius: 13,
-    backgroundColor: palette.primaryStrong,
-  },
-  primaryText: { color: palette.white, fontSize: 14, fontWeight: "900" },
-  disabled: { opacity: 0.36 },
-});
+const getStyles = (palette: TopikPalette) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: palette.bg,
+      // paddingBottom: 40,
+      // paddingTop: 40,
+    },
+    centered: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 13,
+      backgroundColor: palette.bg,
+      padding: 24,
+    },
+    loadingText: { color: palette.textSecondary, fontSize: 13 },
+    errorTitle: {
+      color: palette.text,
+      fontSize: 15,
+      fontWeight: "800",
+      textAlign: "center",
+    },
+    errorButton: {
+      borderRadius: 10,
+      backgroundColor: palette.primaryStrong,
+      paddingHorizontal: 18,
+      paddingVertical: 11,
+    },
+    errorButtonText: { color: palette.white, fontWeight: "800" },
+    header: {
+      minHeight: 61,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      borderBottomWidth: 1,
+      borderBottomColor: palette.divider,
+      backgroundColor: palette.paper,
+      paddingHorizontal: 12,
+    },
+    headerButton: {
+      width: 38,
+      height: 38,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    progressArea: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    progressTrack: {
+      flex: 1,
+      height: 7,
+      overflow: "hidden",
+      borderRadius: 4,
+      backgroundColor: palette.surfaceMuted,
+    },
+    progressFill: {
+      height: "100%",
+      borderRadius: 4,
+      backgroundColor: palette.primary,
+    },
+    progressText: {
+      color: palette.textSecondary,
+      fontSize: 11,
+      fontWeight: "800",
+    },
+    timer: {
+      minWidth: 69,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: 4,
+    },
+    timerText: {
+      color: palette.primary,
+      fontSize: 12,
+      fontWeight: "900",
+      fontVariant: ["tabular-nums"],
+    },
+    scroll: { flex: 1 },
+    content: {
+      gap: 14,
+      paddingHorizontal: 14,
+      paddingTop: 13,
+      paddingBottom: 28,
+    },
+    statusRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    modeLabel: {
+      color: palette.primary,
+      fontSize: 11,
+      fontWeight: "900",
+      letterSpacing: 0.3,
+    },
+    answerCount: { color: palette.textMuted, fontSize: 11, fontWeight: "700" },
+    footer: {
+      minHeight: 76,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      borderTopWidth: 1,
+      borderTopColor: palette.divider,
+      backgroundColor: palette.paper,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+    },
+    secondaryButton: {
+      width: 105,
+      minHeight: 52,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: palette.borderStrong,
+      borderRadius: 13,
+      backgroundColor: palette.surface,
+    },
+    secondaryText: {
+      color: palette.textSecondary,
+      fontSize: 14,
+      fontWeight: "800",
+    },
+    primaryButton: {
+      flex: 1,
+      minHeight: 52,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 5,
+      borderRadius: 13,
+      backgroundColor: palette.primaryStrong,
+    },
+    primaryText: { color: palette.white, fontSize: 14, fontWeight: "900" },
+    disabled: { opacity: 0.36 },
+  });

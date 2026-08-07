@@ -2,9 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { TopikNoticeModal } from "@/components/topik";
 import type { TopikLevel } from "@/components/topik/TopikLevelModal";
 import {
   type TopikPalette,
@@ -54,6 +54,8 @@ export default function TopikSectionsScreen() {
   const { t } = useTranslation();
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
+  const [comingSoonSection, setComingSoonSection] =
+    useState<SectionOption | null>(null);
   const params = useLocalSearchParams<{ level?: TopikLevel }>();
   const levelParam = Array.isArray(params.level)
     ? params.level[0]
@@ -79,13 +81,7 @@ export default function TopikSectionsScreen() {
       });
       return;
     }
-    Alert.alert(
-      t("topik.sections.comingSoonTitle", {
-        section: t(`topik.sections.${section.key}.title`),
-      }),
-      t("topik.sections.comingSoonMessage"),
-      [{ text: t("topik.common.confirm") }],
-    );
+    setComingSoonSection(section);
   };
 
   return (
@@ -271,6 +267,24 @@ export default function TopikSectionsScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <TopikNoticeModal
+        visible={Boolean(comingSoonSection)}
+        icon={comingSoonSection?.icon ?? "sparkles"}
+        gradientColors={
+          comingSoonSection
+            ? sectionColors[comingSoonSection.key]
+            : palette.listeningGradient
+        }
+        title={t("topik.sections.comingSoonTitle", {
+          section: comingSoonSection
+            ? t(`topik.sections.${comingSoonSection.key}.title`)
+            : "",
+        })}
+        message={t("topik.sections.comingSoonMessage")}
+        primaryLabel={t("topik.common.confirm")}
+        onClose={() => setComingSoonSection(null)}
+      />
     </SafeAreaView>
   );
 }

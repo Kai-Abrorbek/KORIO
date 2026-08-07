@@ -89,10 +89,14 @@ export default {
     openStats: "O‘quv statistikasini ochish",
   },
   exam: {
-    leaveTitle: "Imtihondan chiqasizmi?",
-    leaveMessage: "Tanlangan javoblaringiz avtomatik saqlanadi.",
+    leaveTitle: "Hozircha shu yerda to‘xtaysizmi?",
+    leaveMessage: "Hozirgacha tanlagan javoblaringizni xavfsiz saqlaymiz.",
     continue: "Davom etish",
-    leave: "Chiqish",
+    leave: "Saqlash va chiqish",
+    autoSaveNotice:
+      "Istalgan vaqtda qaytib, saqlangan javoblardan davom eting.",
+    saveFailedTitle: "Javoblarni saqlab bo‘lmadi",
+    saveFailedMessage: "Internet aloqasini tekshirib, qayta urinib ko‘ring.",
     submitTitle: "Javoblarni yuborasizmi?",
     unansweredMessage: "Hali {{count}} ta savol javobsiz qolgan.",
     submitMessage: "Yuborilgandan keyin javoblarni o‘zgartirib bo‘lmaydi.",

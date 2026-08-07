@@ -7,6 +7,20 @@ import {
 } from '../topik/topik-reading-blueprint';
 import { TopikReadingSeed } from './data/topik';
 
+const TOPIK_LANGUAGES = ['ko', 'uz', 'en', 'ru'] as const;
+
+function validateLocalizedText(
+  value: Record<(typeof TOPIK_LANGUAGES)[number], string>,
+  label: string,
+  errors: string[],
+) {
+  for (const language of TOPIK_LANGUAGES) {
+    if (!value[language]?.trim()) {
+      errors.push(`${label} is missing ${language} text`);
+    }
+  }
+}
+
 export function validateTopikReadingSeed(seed: TopikReadingSeed) {
   const errors: string[] = [];
   const groupsByCode = new Map(seed.groups.map((group) => [group.code, group]));
@@ -68,9 +82,42 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
     if (question.solution.steps.length < 2) {
       errors.push(`Question ${question.number} must have solution steps`);
     }
-    if (!question.solution.explanation.ko || !question.solution.strategy.ko) {
-      errors.push(`Question ${question.number} must have a Korean solution`);
-    }
+    validateLocalizedText(
+      question.solution.explanation,
+      `Question ${question.number} explanation`,
+      errors,
+    );
+    validateLocalizedText(
+      question.solution.strategy,
+      `Question ${question.number} strategy`,
+      errors,
+    );
+    question.solution.keyClues.forEach((clue) => {
+      validateLocalizedText(
+        clue.explanation,
+        `Question ${question.number} clue ${clue.key}`,
+        errors,
+      );
+    });
+    question.solution.hints.forEach((hint) => {
+      validateLocalizedText(
+        hint.title,
+        `Question ${question.number} hint ${hint.key} title`,
+        errors,
+      );
+      validateLocalizedText(
+        hint.content,
+        `Question ${question.number} hint ${hint.key} content`,
+        errors,
+      );
+      hint.examples.forEach((example, exampleIndex) => {
+        validateLocalizedText(
+          example,
+          `Question ${question.number} hint ${hint.key} example ${exampleIndex + 1}`,
+          errors,
+        );
+      });
+    });
   }
 
   for (const blueprint of TOPIK_READING_BLUEPRINT) {
