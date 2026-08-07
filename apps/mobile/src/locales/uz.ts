@@ -400,8 +400,8 @@ export default {
     },
   },
   notifs: {
-    title: "Bildirishnomalar",
-    readAll: "Hammasini o'qildi",
+    title: "Xabarlar",
+    readAll: "Hammasini o'qilgan deb belgilash",
     today: "Bugun",
     earlier: "Oldingi",
     justNow: "Hozir",

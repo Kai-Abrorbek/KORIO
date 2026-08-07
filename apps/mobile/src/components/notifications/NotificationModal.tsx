@@ -7,23 +7,18 @@ import {
   Modal,
   SectionList,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, {
-  SlideInDown,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
+  Easing,
 } from "react-native-reanimated";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import {
@@ -31,6 +26,16 @@ import {
   AppNotification,
   NotificationType,
 } from "@/services/notification.service";
+
+/** 카드와 화면 가장자리 사이 여백 */
+const GAP = 16;
+/** 벨 아이콘 아래에서 카드가 시작되도록 하는 오프셋 */
+const BELL_DROP = 52;
+
+// 펼침이 시작되는 지점 = 홈 헤더의 벨 아이콘 (우상단)
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
+const ORIGIN_X = SCREEN_W - 40;
+const ORIGIN_Y = 0;
 
 interface Props {
   visible: boolean;
@@ -140,8 +145,8 @@ export default function NotificationModal({
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const s = getStyles(theme);
+  const insets = useSafeAreaInsets();
   const router = useRouter();
 
   const [items, setItems] = useState<AppNotification[]>([]);
@@ -203,23 +208,32 @@ export default function NotificationModal({
     NotificationService.markAllRead().catch(() => {});
   };
 
-  // 아래로 끌어서 닫기
-  const dy = useSharedValue(0);
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: dy.value }],
-  }));
-  const dragClose = Gesture.Pan()
-    .onUpdate((e) => {
-      dy.value = Math.max(0, e.translationY);
-    })
-    .onEnd((e) => {
-      if (e.translationY > 90 || e.velocityY > 800) {
-        runOnJS(onClose)();
-        dy.value = 0;
-      } else {
-        dy.value = withTiming(0, { duration: 160 });
-      }
+  // 우상단 벨 아이콘에서 펼쳐지듯 열린다.
+  // transformOrigin 이 없으므로 (이동 → 축소 → 되돌리기) 순서로 흉내낸다.
+  const open = useSharedValue(0);
+
+  useEffect(() => {
+    open.value = withTiming(visible ? 1 : 0, {
+      duration: visible ? 240 : 160,
+      easing: visible ? Easing.out(Easing.cubic) : Easing.in(Easing.quad),
     });
+  }, [visible]);
+
+  const cardStyle = useAnimatedStyle(() => {
+    const s = 0.55 + open.value * 0.45; // 0.55 → 1
+    return {
+      opacity: open.value,
+      transform: [
+        { translateX: ORIGIN_X },
+        { translateY: ORIGIN_Y },
+        { scale: s },
+        { translateX: -ORIGIN_X },
+        { translateY: -ORIGIN_Y },
+      ],
+    };
+  });
+
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: open.value }));
 
   return (
     <Modal
@@ -229,37 +243,65 @@ export default function NotificationModal({
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Pressable style={s.backdrop} onPress={onClose} />
+      <View style={s.root}>
+        <Animated.View style={[s.backdropFill, backdropStyle]}>
+          <Pressable style={{ flex: 1 }} onPress={onClose} />
+        </Animated.View>
 
         <Animated.View
-          entering={SlideInDown.duration(240)}
           style={[
-            s.sheet,
-            sheetStyle,
-            { paddingBottom: insets.bottom + 8, maxHeight: "82%" },
+            s.card,
+            cardStyle,
+            {
+              // 벨 아이콘 바로 아래에서 시작
+              marginTop: insets.top + BELL_DROP,
+              minHeight: SCREEN_H * 0.4,
+              maxHeight: SCREEN_H * 0.74,
+            },
           ]}
         >
-          <GestureDetector gesture={dragClose}>
-            <View style={s.grabZone}>
-              <View style={s.grab} />
-            </View>
-          </GestureDetector>
-
           <View style={s.header}>
             <View style={s.titleRow}>
-              <Text style={s.headTitle}>{t("notifs.title")}</Text>
+              <Text style={s.headTitle} numberOfLines={1}>
+                {t("notifs.title")}
+              </Text>
               {unread > 0 && (
                 <View style={s.headBadge}>
                   <Text style={s.headBadgeText}>{unread}</Text>
                 </View>
               )}
             </View>
-            {unread > 0 && (
-              <Pressable onPress={readAll} hitSlop={8}>
-                <Text style={s.readAll}>{t("notifs.readAll")}</Text>
+            <View style={s.headActions}>
+              {/* 텍스트로 두면 어떤 언어에서든 헤더를 밀어낸다 → 아이콘으로 */}
+              {unread > 0 && (
+                <Pressable
+                  onPress={readAll}
+                  hitSlop={12}
+                  accessibilityLabel={t("notifs.readAll")}
+                  style={({ pressed }) => [
+                    s.iconBtn,
+                    s.readAllBtn,
+                    pressed && s.iconBtnPressed,
+                  ]}
+                >
+                  <Ionicons
+                    name="checkmark-done"
+                    size={18}
+                    color={theme.primary}
+                  />
+                </Pressable>
+              )}
+              <Pressable
+                onPress={onClose}
+                hitSlop={12}
+                style={({ pressed }) => [
+                  s.iconBtn,
+                  pressed && s.iconBtnPressed,
+                ]}
+              >
+                <Ionicons name="close" size={17} color={theme.textSecondary} />
               </Pressable>
-            )}
+            </View>
           </View>
 
           {loading ? (
@@ -288,41 +330,60 @@ export default function NotificationModal({
                 <Text style={s.sectionHead}>{section.title}</Text>
               )}
               renderItem={({ item }) => (
-                <Row
-                  item={item}
-                  theme={theme}
-                  onPress={() => openItem(item)}
-                />
+                <Row item={item} theme={theme} onPress={() => openItem(item)} />
               )}
               contentContainerStyle={{ paddingBottom: 12 }}
             />
           )}
         </Animated.View>
-      </GestureHandlerRootView>
+      </View>
     </Modal>
   );
 }
 
 const getStyles = (theme: ThemeColors) => {
   const isDark = theme.bg === "#15151D";
-  const unreadBg = isDark
-    ? "rgba(119,110,226,0.09)"
-    : "rgba(119,110,226,0.07)";
+  const unreadBg = isDark ? "rgba(119,110,226,0.09)" : "rgba(119,110,226,0.07)";
 
   return StyleSheet.create({
-    backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
-    sheet: {
-      backgroundColor: theme.bg,
-      borderTopLeftRadius: 26,
-      borderTopRightRadius: 26,
+    // 가운데가 아니라 벨 아이콘 높이에서 시작해 아래로 펼쳐진다
+    root: { flex: 1 },
+    backdropFill: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: "rgba(0,0,0,0.45)",
     },
-
-    grabZone: { alignItems: "center", paddingTop: 10, paddingBottom: 8 },
-    grab: {
-      width: 44,
-      height: 5,
-      borderRadius: 3,
-      backgroundColor: isDark ? theme.border : "#C9C2E8",
+    // 내용만큼만 커지고, 길면 화면의 78% 에서 멈춘다.
+    // flex:1 로 두면 알림이 하나도 없어도 카드가 꽉 차버린다.
+    card: {
+      marginHorizontal: GAP,
+      backgroundColor: theme.bg,
+      borderRadius: 24,
+      overflow: "hidden",
+      borderWidth: isDark ? 1 : 0,
+      borderColor: theme.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: isDark ? 0.5 : 0.22,
+      shadowRadius: 26,
+      elevation: 16,
+    },
+    headActions: { flexDirection: "row", alignItems: "center", gap: 8 },
+    iconBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 999,
+      backgroundColor: isDark ? "rgba(255,255,255,0.07)" : "#F0EEF9",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    readAllBtn: {
+      backgroundColor: isDark
+        ? "rgba(119,110,226,0.20)"
+        : "rgba(119,110,226,0.12)",
+    },
+    iconBtnPressed: {
+      backgroundColor: isDark ? "rgba(255,255,255,0.14)" : "#E2DEF3",
+      transform: [{ scale: 0.92 }],
     },
 
     header: {
@@ -330,10 +391,16 @@ const getStyles = (theme: ThemeColors) => {
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 18,
-      paddingBottom: 6,
+      paddingTop: 20, // 위에 딱 붙지 않게
+      paddingBottom: 10,
     },
-    titleRow: { flexDirection: "row", alignItems: "center", gap: 9 },
-    headTitle: { fontSize: 21, fontWeight: "900", color: theme.text },
+    titleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      flexShrink: 1,
+    },
+    headTitle: { fontSize: 19, fontWeight: "900", color: theme.text },
     headBadge: {
       backgroundColor: theme.primary,
       paddingHorizontal: 8,
@@ -400,10 +467,15 @@ const getStyles = (theme: ThemeColors) => {
       marginTop: 7,
     },
 
-    center: { alignItems: "center", justifyContent: "center", paddingVertical: 54 },
+    center: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 26,
+      paddingBottom: 40,
+    },
     emptyIcon: {
-      width: 72,
-      height: 72,
+      width: 64,
+      height: 64,
       borderRadius: 999,
       backgroundColor: theme.surface,
       alignItems: "center",
