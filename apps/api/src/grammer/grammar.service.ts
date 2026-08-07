@@ -6,7 +6,6 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { LessonsService } from '../lessons/lessons.service';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { isSuperActive } from '../users/super.util';
-import { generatePracticeSet, SourceGrammar } from './practice.util';
 
 const FREE_GRAMMAR_SECTIONS = 2; // 무료 섹션 수 (이후 프리미엄)
 const GRAMMAR_XP = 15; // 문법 퀴즈 통과 XP
@@ -87,50 +86,6 @@ export class GrammarService {
   }
 
   /** 목록 (문법 리스트 화면용) + 완료 여부 + 섹션 순차 잠금 */
-  /**
-   * 문법 연습 문제 세트.
-   * 예문의 highlight 를 빈칸으로 파거나 어절로 쪼개서 두 유형을 섞어 만든다.
-   * 잠긴 섹션은 빼고, 이미 배운 문법을 우선한다.
-   */
-  async getPracticeSet(userId: string, lang = 'uz', limit = 12) {
-    const me = await this.userModel
-      .findById(userId)
-      .select('completedGrammar isSuper superExpiresAt')
-      .lean();
-    const done = new Set<string>(me?.completedGrammar ?? []);
-    const isSuper = isSuperActive(me ?? {});
-
-    const rows = await this.grammarModel
-      .find({ isActive: true })
-      .sort({ section: 1, order: 1 })
-      .lean();
-
-    const usable = rows.filter(
-      (g: any) => isSuper || (g.section ?? 1) <= FREE_GRAMMAR_SECTIONS,
-    );
-
-    // 이미 배운 문법이 있으면 그것만으로 낸다 (복습). 없으면 전체에서.
-    const learned = usable.filter((g: any) => done.has(g.code));
-    const pool = learned.length ? learned : usable;
-
-    const source: SourceGrammar[] = pool.map((g: any) => ({
-      code: g.code,
-      pattern: g.pattern,
-      examples: (g.examples || []).map((e: any) => ({
-        ko: e.ko,
-        gloss: this.pick(e.gloss, lang),
-        highlight: e.highlight,
-      })),
-      conjugations: (g.conjugations || []).map((c: any) => ({
-        base: c.base,
-        result: c.result,
-      })),
-    }));
-
-    const questions = generatePracticeSet(source, limit);
-    return { count: questions.length, questions };
-  }
-
   async listGrammar(userId: string, lang = 'uz') {
     const rows = await this.grammarModel
       .find({ isActive: true })

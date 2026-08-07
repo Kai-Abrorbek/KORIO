@@ -20,19 +20,6 @@ export class GrammarController {
     return this.grammarService.listGrammar(req.user._id.toString(), lang);
   }
 
-  @Get('practice')
-  async practice(
-    @Request() req,
-    @Query('lang') lang = 'uz',
-    @Query('limit') limit?: string,
-  ) {
-    return this.grammarService.getPracticeSet(
-      req.user._id.toString(),
-      lang,
-      limit ? Number(limit) : 12,
-    );
-  }
-
   @Post(':code/complete')
   async complete(@Request() req, @Param('code') code: string) {
     return this.grammarService.completeGrammar(req.user._id.toString(), code);
