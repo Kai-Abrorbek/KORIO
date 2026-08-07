@@ -1,4 +1,7 @@
+import topik from "./topik/uz";
+
 export default {
+  topik,
   common: {
     start: "Boshlash",
     next: "Keyingi",

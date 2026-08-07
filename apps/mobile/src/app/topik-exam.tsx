@@ -10,8 +10,13 @@ import {
   Text,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TopikHintPanel, TopikQuestionCard } from "@/components/topik";
+import {
+  type TopikPalette,
+  useTopikTheme,
+} from "@/components/topik/topikTheme";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import { flattenTopikQuestions, type TopikAttemptMode } from "@/types/topik";
 
@@ -22,6 +27,9 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function TopikExamScreen() {
+  const { t } = useTranslation();
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{
     examCode?: string;
     mode?: TopikAttemptMode;
@@ -119,10 +127,10 @@ export default function TopikExamScreen() {
   };
 
   const confirmExit = () => {
-    Alert.alert("시험을 나갈까요?", "지금까지 선택한 답은 자동 저장됩니다.", [
-      { text: "계속 풀기", style: "cancel" },
+    Alert.alert(t("topik.exam.leaveTitle"), t("topik.exam.leaveMessage"), [
+      { text: t("topik.exam.continue"), style: "cancel" },
       {
-        text: "나가기",
+        text: t("topik.exam.leave"),
         onPress: () => {
           void saveProgress();
           router.back();
@@ -134,14 +142,14 @@ export default function TopikExamScreen() {
   const confirmSubmit = () => {
     const unanswered = questions.length - answeredCount;
     Alert.alert(
-      "답안을 제출할까요?",
+      t("topik.exam.submitTitle"),
       unanswered > 0
-        ? `아직 풀지 않은 문제가 ${unanswered}개 있어요.`
-        : "제출 후에는 답을 바꿀 수 없어요.",
+        ? t("topik.exam.unansweredMessage", { count: unanswered })
+        : t("topik.exam.submitMessage"),
       [
-        { text: "취소", style: "cancel" },
+        { text: t("topik.common.cancel"), style: "cancel" },
         {
-          text: "제출",
+          text: t("topik.exam.submit"),
           onPress: async () => {
             setBusy(true);
             try {
@@ -151,7 +159,10 @@ export default function TopikExamScreen() {
                 params: { attemptId: result.attemptId },
               });
             } catch {
-              Alert.alert("제출 실패", "잠시 후 다시 시도해 주세요.");
+              Alert.alert(
+                t("topik.exam.submitFailedTitle"),
+                t("topik.exam.submitFailedMessage"),
+              );
             } finally {
               setBusy(false);
             }
@@ -164,12 +175,12 @@ export default function TopikExamScreen() {
   if (!examCode) {
     return (
       <SafeAreaView style={styles.centered}>
-        <Text style={styles.errorTitle}>시험 정보가 없습니다.</Text>
+        <Text style={styles.errorTitle}>{t("topik.exam.missingExam")}</Text>
         <Pressable
           onPress={() => router.replace("/topik")}
           style={styles.errorButton}
         >
-          <Text style={styles.errorButtonText}>시험 선택으로</Text>
+          <Text style={styles.errorButtonText}>{t("topik.exam.backToSelection")}</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -180,19 +191,19 @@ export default function TopikExamScreen() {
       <SafeAreaView style={styles.centered}>
         {errorCode ? (
           <>
-            <Ionicons name="alert-circle-outline" size={34} color="#A3463B" />
-            <Text style={styles.errorTitle}>시험을 시작하지 못했어요.</Text>
+            <Ionicons name="alert-circle-outline" size={34} color={palette.danger} />
+            <Text style={styles.errorTitle}>{t("topik.exam.startFailed")}</Text>
             <Pressable
               onPress={() => void start(examCode, mode)}
               style={styles.errorButton}
             >
-              <Text style={styles.errorButtonText}>다시 시도</Text>
+              <Text style={styles.errorButtonText}>{t("topik.common.retry")}</Text>
             </Pressable>
           </>
         ) : (
           <>
-            <ActivityIndicator size="large" color="#173B67" />
-            <Text style={styles.loadingText}>시험지를 준비하고 있어요.</Text>
+            <ActivityIndicator size="large" color={palette.primary} />
+            <Text style={styles.loadingText}>{t("topik.exam.loading")}</Text>
           </>
         )}
       </SafeAreaView>
@@ -202,8 +213,8 @@ export default function TopikExamScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Pressable onPress={confirmExit} style={styles.headerButton}>
-          <Ionicons name="close" size={25} color="#25384E" />
+        <Pressable accessibilityLabel={t("topik.common.close")} onPress={confirmExit} style={styles.headerButton}>
+          <Ionicons name="close" size={25} color={palette.text} />
         </Pressable>
         <View style={styles.progressArea}>
           <View style={styles.progressTrack}>
@@ -219,7 +230,7 @@ export default function TopikExamScreen() {
           </Text>
         </View>
         <View style={styles.timer}>
-          <Ionicons name="time-outline" size={16} color="#173B67" />
+          <Ionicons name="time-outline" size={16} color={palette.primary} />
           <Text style={styles.timerText}>{formatTime(remainingSeconds)}</Text>
         </View>
       </View>
@@ -232,10 +243,15 @@ export default function TopikExamScreen() {
       >
         <View style={styles.statusRow}>
           <Text style={styles.modeLabel}>
-            {attempt.mode === "guided" ? "해설 학습" : "실전 모의고사"}
+            {attempt.mode === "guided"
+              ? t("topik.modes.guided")
+              : t("topik.modes.mockExam")}
           </Text>
           <Text style={styles.answerCount}>
-            답안 {answeredCount}/{questions.length}
+            {t("topik.exam.answerProgress", {
+              answered: answeredCount,
+              total: questions.length,
+            })}
           </Text>
         </View>
 
@@ -268,8 +284,8 @@ export default function TopikExamScreen() {
                 await revealSolution(question.id);
               } catch {
                 Alert.alert(
-                  "풀이를 열지 못했어요.",
-                  "답을 저장한 뒤 다시 시도해 주세요.",
+                  t("topik.exam.supportFailedTitle"),
+                  t("topik.exam.supportFailedMessage"),
                 );
               } finally {
                 setBusy(false);
@@ -288,8 +304,8 @@ export default function TopikExamScreen() {
             currentIndex === 0 && styles.disabled,
           ]}
         >
-          <Ionicons name="chevron-back" size={21} color="#435266" />
-          <Text style={styles.secondaryText}>이전</Text>
+          <Ionicons name="chevron-back" size={21} color={palette.textSecondary} />
+          <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
         </Pressable>
         {currentIndex === questions.length - 1 ? (
           <Pressable
@@ -297,7 +313,7 @@ export default function TopikExamScreen() {
             onPress={confirmSubmit}
             style={styles.primaryButton}
           >
-            <Text style={styles.primaryText}>제출하기</Text>
+            <Text style={styles.primaryText}>{t("topik.exam.submitAnswers")}</Text>
           </Pressable>
         ) : (
           <Pressable
@@ -305,8 +321,8 @@ export default function TopikExamScreen() {
             onPress={() => void moveTo(currentIndex + 1)}
             style={styles.primaryButton}
           >
-            <Text style={styles.primaryText}>다음</Text>
-            <Ionicons name="chevron-forward" size={21} color="#FFFFFF" />
+            <Text style={styles.primaryText}>{t("topik.exam.next")}</Text>
+            <Ionicons name="chevron-forward" size={21} color={palette.white} />
           </Pressable>
         )}
       </View>
@@ -314,10 +330,10 @@ export default function TopikExamScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F0EA",
+    backgroundColor: palette.bg,
     paddingBottom: 40,
     paddingTop: 40,
   },
@@ -326,31 +342,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 13,
-    backgroundColor: "#F2F0EA",
+    backgroundColor: palette.bg,
     padding: 24,
   },
-  loadingText: { color: "#66717D", fontSize: 13 },
+  loadingText: { color: palette.textSecondary, fontSize: 13 },
   errorTitle: {
-    color: "#3D4650",
+    color: palette.text,
     fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
   },
   errorButton: {
     borderRadius: 10,
-    backgroundColor: "#173B67",
+    backgroundColor: palette.primaryStrong,
     paddingHorizontal: 18,
     paddingVertical: 11,
   },
-  errorButtonText: { color: "#FFFFFF", fontWeight: "800" },
+  errorButtonText: { color: palette.white, fontWeight: "800" },
   header: {
     minHeight: 61,
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
     borderBottomWidth: 1,
-    borderBottomColor: "#DEDCD6",
-    backgroundColor: "#FFFEFB",
+    borderBottomColor: palette.divider,
+    backgroundColor: palette.paper,
     paddingHorizontal: 12,
   },
   headerButton: {
@@ -365,10 +381,10 @@ const styles = StyleSheet.create({
     height: 7,
     overflow: "hidden",
     borderRadius: 4,
-    backgroundColor: "#E4E6E8",
+    backgroundColor: palette.surfaceMuted,
   },
-  progressFill: { height: "100%", borderRadius: 4, backgroundColor: "#1D5D98" },
-  progressText: { color: "#66717B", fontSize: 11, fontWeight: "800" },
+  progressFill: { height: "100%", borderRadius: 4, backgroundColor: palette.primary },
+  progressText: { color: palette.textSecondary, fontSize: 11, fontWeight: "800" },
   timer: {
     minWidth: 69,
     flexDirection: "row",
@@ -377,7 +393,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   timerText: {
-    color: "#173B67",
+    color: palette.primary,
     fontSize: 12,
     fontWeight: "900",
     fontVariant: ["tabular-nums"],
@@ -395,20 +411,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modeLabel: {
-    color: "#173B67",
+    color: palette.primary,
     fontSize: 11,
     fontWeight: "900",
     letterSpacing: 0.3,
   },
-  answerCount: { color: "#777D84", fontSize: 11, fontWeight: "700" },
+  answerCount: { color: palette.textMuted, fontSize: 11, fontWeight: "700" },
   footer: {
     minHeight: 76,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     borderTopWidth: 1,
-    borderTopColor: "#DFDDD7",
-    backgroundColor: "#FFFEFB",
+    borderTopColor: palette.divider,
+    backgroundColor: palette.paper,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
@@ -419,11 +435,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#CBD0D5",
+    borderColor: palette.borderStrong,
     borderRadius: 13,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
   },
-  secondaryText: { color: "#435266", fontSize: 14, fontWeight: "800" },
+  secondaryText: { color: palette.textSecondary, fontSize: 14, fontWeight: "800" },
   primaryButton: {
     flex: 1,
     minHeight: 52,
@@ -432,8 +448,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 5,
     borderRadius: 13,
-    backgroundColor: "#173B67",
+    backgroundColor: palette.primaryStrong,
   },
-  primaryText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+  primaryText: { color: palette.white, fontSize: 14, fontWeight: "900" },
   disabled: { opacity: 0.36 },
 });

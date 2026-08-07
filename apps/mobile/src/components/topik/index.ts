@@ -5,3 +5,4 @@ export * from "./TopikPassage";
 export * from "./TopikQuestionCard";
 export * from "./TopikStimulusCard";
 export * from "./TopikTextBlocks";
+export * from "./topikTheme";

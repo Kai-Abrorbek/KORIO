@@ -9,19 +9,22 @@ import {
   Text,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  type TopikPalette,
+  useTopikTheme,
+} from "@/components/topik/topikTheme";
 import { TopikService } from "@/services/topik.service";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import type { TopikAttemptResult } from "@/types/topik";
-import { topikText } from "@/types/topik";
-
-function formatDuration(totalSeconds: number) {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}분 ${seconds}초`;
-}
+import { toTopikLanguage, topikText } from "@/types/topik";
 
 export default function TopikResultScreen() {
+  const { t, i18n } = useTranslation();
+  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{ attemptId?: string }>();
   const attemptId = Array.isArray(params.attemptId)
     ? params.attemptId[0]
@@ -52,16 +55,16 @@ export default function TopikResultScreen() {
       <SafeAreaView style={styles.centered}>
         {error ? (
           <>
-            <Ionicons name="alert-circle-outline" size={35} color="#A3463B" />
-            <Text style={styles.errorTitle}>결과를 불러오지 못했어요.</Text>
+            <Ionicons name="alert-circle-outline" size={35} color={palette.danger} />
+            <Text style={styles.errorTitle}>{t("topik.result.loadFailed")}</Text>
             <Pressable onPress={() => router.replace("/topik")} style={styles.homeButtonSmall}>
-              <Text style={styles.homeButtonText}>시험 선택으로</Text>
+              <Text style={styles.homeButtonText}>{t("topik.result.backToSelection")}</Text>
             </Pressable>
           </>
         ) : (
           <>
-            <ActivityIndicator size="large" color="#173B67" />
-            <Text style={styles.loadingText}>채점 결과를 정리하고 있어요.</Text>
+            <ActivityIndicator size="large" color={palette.primary} />
+            <Text style={styles.loadingText}>{t("topik.result.loading")}</Text>
           </>
         )}
       </SafeAreaView>
@@ -75,41 +78,46 @@ export default function TopikResultScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <View style={styles.checkCircle}>
-            <Ionicons name="checkmark" size={35} color="#FFFFFF" />
+            <Ionicons name="checkmark" size={35} color={palette.white} />
           </View>
-          <Text style={styles.heroEyebrow}>TOPIK II · READING</Text>
-          <Text style={styles.heroTitle}>채점이 완료됐어요</Text>
+          <Text style={styles.heroEyebrow}>TOPIK II · {t("topik.home.reading").toUpperCase()}</Text>
+          <Text style={styles.heroTitle}>{t("topik.result.complete")}</Text>
           <Text style={styles.score}>{result.score}</Text>
-          <Text style={styles.scoreUnit}>/ 100점</Text>
+          <Text style={styles.scoreUnit}>{t("topik.result.scoreTotal", { score: 100 })}</Text>
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <Text style={styles.summaryValue}>{result.correctCount}</Text>
-              <Text style={styles.summaryLabel}>정답</Text>
+              <Text style={styles.summaryLabel}>{t("topik.result.correct")}</Text>
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryItem}>
               <Text style={styles.summaryValue}>{accuracy}%</Text>
-              <Text style={styles.summaryLabel}>정답률</Text>
+              <Text style={styles.summaryLabel}>{t("topik.result.accuracy")}</Text>
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>{formatDuration(result.elapsedSeconds)}</Text>
-              <Text style={styles.summaryLabel}>풀이 시간</Text>
+              <Text style={styles.summaryValue}>
+                {t("topik.result.duration", {
+                  minutes: Math.floor(result.elapsedSeconds / 60),
+                  seconds: result.elapsedSeconds % 60,
+                })}
+              </Text>
+              <Text style={styles.summaryLabel}>{t("topik.result.durationLabel")}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.reviewHeader}>
           <View>
-            <Text style={styles.sectionTitle}>문항별 결과</Text>
-            <Text style={styles.sectionCaption}>해설을 읽고 틀린 이유를 확인해 보세요.</Text>
+            <Text style={styles.sectionTitle}>{t("topik.result.questionResults")}</Text>
+            <Text style={styles.sectionCaption}>{t("topik.result.questionResultsDescription")}</Text>
           </View>
           <Pressable
             onPress={() => setWrongOnly((value) => !value)}
             style={[styles.filterButton, wrongOnly && styles.filterButtonActive]}
           >
             <Text style={[styles.filterText, wrongOnly && styles.filterTextActive]}>
-              오답만
+              {t("topik.result.wrongOnly")}
             </Text>
           </Pressable>
         </View>
@@ -125,20 +133,28 @@ export default function TopikResultScreen() {
                 </View>
                 <View style={styles.answerInfo}>
                   <Text style={styles.answerLine}>
-                    내 답 {question.selectedChoiceKey ? `${question.selectedChoiceKey}번` : "미응답"}
+                    {t("topik.result.myAnswer", {
+                      answer: question.selectedChoiceKey
+                        ? t("topik.common.answerNumber", { number: question.selectedChoiceKey })
+                        : t("topik.common.unanswered"),
+                    })}
                   </Text>
-                  <Text style={styles.correctLine}>정답 {question.correctChoiceKey}번</Text>
+                  <Text style={styles.correctLine}>
+                    {t("topik.result.correctAnswer", {
+                      answer: t("topik.common.answerNumber", { number: question.correctChoiceKey }),
+                    })}
+                  </Text>
                 </View>
                 <Ionicons
                   name={question.isCorrect ? "checkmark-circle" : "close-circle"}
                   size={25}
-                  color={question.isCorrect ? "#27895B" : "#C45151"}
+                  color={question.isCorrect ? palette.success : palette.danger}
                 />
               </View>
               <View style={styles.explanation}>
-                <Text style={styles.explanationLabel}>정답 해설</Text>
+                <Text style={styles.explanationLabel}>{t("topik.result.explanation")}</Text>
                 <Text style={styles.explanationText}>
-                  {topikText(question.solution.explanation)}
+                  {topikText(question.solution.explanation, language)}
                 </Text>
               </View>
             </View>
@@ -147,8 +163,8 @@ export default function TopikResultScreen() {
 
         <View style={styles.actions}>
           <Pressable onPress={() => router.push("/topik-stats")} style={styles.statsButton}>
-            <Ionicons name="stats-chart" size={19} color="#173B67" />
-            <Text style={styles.statsButtonText}>학습 통계 보기</Text>
+            <Ionicons name="stats-chart" size={19} color={palette.primary} />
+            <Text style={styles.statsButtonText}>{t("topik.result.viewStats")}</Text>
           </Pressable>
           <Pressable
             onPress={() => {
@@ -157,8 +173,8 @@ export default function TopikResultScreen() {
             }}
             style={styles.homeButton}
           >
-            <Text style={styles.homeButtonText}>다른 시험 풀기</Text>
-            <Ionicons name="arrow-forward" size={19} color="#FFFFFF" />
+            <Text style={styles.homeButtonText}>{t("topik.result.tryAnother")}</Text>
+            <Ionicons name="arrow-forward" size={19} color={palette.white} />
           </Pressable>
         </View>
       </ScrollView>
@@ -166,49 +182,49 @@ export default function TopikResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F3F1EB" },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: "#F3F1EB", padding: 24 },
-  loadingText: { color: "#67717C", fontSize: 13 },
-  errorTitle: { color: "#3D4650", fontSize: 15, fontWeight: "800" },
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: palette.bg },
+  centered: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: palette.bg, padding: 24 },
+  loadingText: { color: palette.textSecondary, fontSize: 13 },
+  errorTitle: { color: palette.text, fontSize: 15, fontWeight: "800" },
   content: { padding: 16, paddingBottom: 40, gap: 19 },
-  hero: { alignItems: "center", borderRadius: 23, backgroundColor: "#173B67", paddingHorizontal: 18, paddingVertical: 25 },
-  checkCircle: { width: 58, height: 58, alignItems: "center", justifyContent: "center", borderRadius: 29, backgroundColor: "#2C8B62", marginBottom: 13 },
-  heroEyebrow: { color: "#AFC4D8", fontSize: 10, fontWeight: "900", letterSpacing: 1.2 },
-  heroTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "900", marginTop: 5 },
-  score: { color: "#FFFFFF", fontSize: 56, lineHeight: 64, fontWeight: "900", marginTop: 9 },
-  scoreUnit: { color: "#C4D4E3", fontSize: 12, fontWeight: "700" },
-  summaryRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-around", borderTopWidth: 1, borderTopColor: "#FFFFFF24", marginTop: 20, paddingTop: 17 },
+  hero: { alignItems: "center", borderRadius: 23, backgroundColor: palette.hero, paddingHorizontal: 18, paddingVertical: 25 },
+  checkCircle: { width: 58, height: 58, alignItems: "center", justifyContent: "center", borderRadius: 29, backgroundColor: palette.success, marginBottom: 13 },
+  heroEyebrow: { color: palette.heroSubtle, fontSize: 10, fontWeight: "900", letterSpacing: 1.2 },
+  heroTitle: { color: palette.white, fontSize: 17, fontWeight: "900", marginTop: 5 },
+  score: { color: palette.white, fontSize: 56, lineHeight: 64, fontWeight: "900", marginTop: 9 },
+  scoreUnit: { color: palette.heroMuted, fontSize: 12, fontWeight: "700" },
+  summaryRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-around", borderTopWidth: 1, borderTopColor: palette.heroDivider, marginTop: 20, paddingTop: 17 },
   summaryItem: { flex: 1, alignItems: "center", gap: 3 },
-  summaryValue: { color: "#FFFFFF", fontSize: 14, fontWeight: "900", textAlign: "center" },
-  summaryLabel: { color: "#AFC4D8", fontSize: 10 },
-  summaryDivider: { width: 1, height: 29, backgroundColor: "#FFFFFF26" },
+  summaryValue: { color: palette.white, fontSize: 14, fontWeight: "900", textAlign: "center" },
+  summaryLabel: { color: palette.heroSubtle, fontSize: 10 },
+  summaryDivider: { width: 1, height: 29, backgroundColor: palette.heroDividerStrong },
   reviewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  sectionTitle: { color: "#272C33", fontSize: 17, fontWeight: "900" },
-  sectionCaption: { color: "#777D85", fontSize: 10, marginTop: 4 },
-  filterButton: { borderWidth: 1, borderColor: "#CBD0D5", borderRadius: 18, backgroundColor: "#FFFFFF", paddingHorizontal: 13, paddingVertical: 8 },
-  filterButtonActive: { borderColor: "#173B67", backgroundColor: "#173B67" },
-  filterText: { color: "#5F6872", fontSize: 12, fontWeight: "800" },
-  filterTextActive: { color: "#FFFFFF" },
+  sectionTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
+  sectionCaption: { color: palette.textSecondary, fontSize: 10, marginTop: 4 },
+  filterButton: { borderWidth: 1, borderColor: palette.borderStrong, borderRadius: 18, backgroundColor: palette.surface, paddingHorizontal: 13, paddingVertical: 8 },
+  filterButtonActive: { borderColor: palette.primaryStrong, backgroundColor: palette.primaryStrong },
+  filterText: { color: palette.textSecondary, fontSize: 12, fontWeight: "800" },
+  filterTextActive: { color: palette.white },
   resultList: { gap: 10 },
-  resultCard: { gap: 12, borderWidth: 1, borderColor: "#DDDCD7", borderRadius: 14, backgroundColor: "#FFFFFF", padding: 14 },
+  resultCard: { gap: 12, borderWidth: 1, borderColor: palette.border, borderRadius: 14, backgroundColor: palette.surface, padding: 14 },
   resultTop: { flexDirection: "row", alignItems: "center", gap: 11 },
   numberBadge: { width: 47, height: 43, alignItems: "center", justifyContent: "center", borderRadius: 9 },
-  correctBadge: { backgroundColor: "#E8F5EE" },
-  wrongBadge: { backgroundColor: "#FBECEC" },
+  correctBadge: { backgroundColor: palette.successSoft },
+  wrongBadge: { backgroundColor: palette.dangerSoft },
   numberText: { fontSize: 15, fontWeight: "900" },
-  correctText: { color: "#277B56" },
-  wrongText: { color: "#B64242" },
+  correctText: { color: palette.successText },
+  wrongText: { color: palette.dangerText },
   answerInfo: { flex: 1, gap: 2 },
-  answerLine: { color: "#343A42", fontSize: 13, fontWeight: "800" },
-  correctLine: { color: "#737A83", fontSize: 11 },
-  explanation: { gap: 5, borderRadius: 9, backgroundColor: "#F6F7F7", padding: 11 },
-  explanationLabel: { color: "#173B67", fontSize: 11, fontWeight: "900" },
-  explanationText: { color: "#4E555E", fontSize: 12, lineHeight: 18 },
+  answerLine: { color: palette.text, fontSize: 13, fontWeight: "800" },
+  correctLine: { color: palette.textSecondary, fontSize: 11 },
+  explanation: { gap: 5, borderRadius: 9, backgroundColor: palette.surfaceMuted, padding: 11 },
+  explanationLabel: { color: palette.primary, fontSize: 11, fontWeight: "900" },
+  explanationText: { color: palette.textSecondary, fontSize: 12, lineHeight: 18 },
   actions: { gap: 10, marginTop: 4 },
-  statsButton: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderWidth: 1, borderColor: "#9FB2C5", borderRadius: 14, backgroundColor: "#FFFFFF" },
-  statsButtonText: { color: "#173B67", fontSize: 14, fontWeight: "900" },
-  homeButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, backgroundColor: "#173B67" },
-  homeButtonSmall: { borderRadius: 10, backgroundColor: "#173B67", paddingHorizontal: 18, paddingVertical: 11 },
-  homeButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+  statsButton: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderWidth: 1, borderColor: palette.primary, borderRadius: 14, backgroundColor: palette.surface },
+  statsButtonText: { color: palette.primary, fontSize: 14, fontWeight: "900" },
+  homeButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, backgroundColor: palette.primaryStrong },
+  homeButtonSmall: { borderRadius: 10, backgroundColor: palette.primaryStrong, paddingHorizontal: 18, paddingVertical: 11 },
+  homeButtonText: { color: palette.white, fontSize: 14, fontWeight: "900" },
 });

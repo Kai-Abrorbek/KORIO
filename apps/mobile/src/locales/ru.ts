@@ -1,4 +1,7 @@
+import topik from "./topik/ru";
+
 export default {
+  topik,
   common: {
     start: "Начать",
     next: "Далее",

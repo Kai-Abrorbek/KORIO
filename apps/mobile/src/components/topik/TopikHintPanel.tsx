@@ -1,9 +1,12 @@
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import type {
   TopikLearningSupport,
   TopikRevealedSolution,
 } from "@/types/topik";
-import { topikText } from "@/types/topik";
+import { toTopikLanguage, topikText } from "@/types/topik";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikHintPanelProps {
   support?: TopikLearningSupport;
@@ -22,12 +25,17 @@ export function TopikHintPanel({
   onRevealHint,
   onRevealSolution,
 }: TopikHintPanelProps) {
+  const { t, i18n } = useTranslation();
+  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
+
   return (
     <View style={styles.panel}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.eyebrow}>GUIDED MODE</Text>
-          <Text style={styles.title}>한 단계씩 풀어보기</Text>
+          <Text style={styles.eyebrow}>{t("topik.modes.guided").toUpperCase()}</Text>
+          <Text style={styles.title}>{t("topik.hint.title")}</Text>
         </View>
         <Text style={styles.count}>
           {support?.revealedHints.length ?? 0}/{support?.hintCount ?? 3}
@@ -36,13 +44,15 @@ export function TopikHintPanel({
 
       {support?.revealedHints.map((hint) => (
         <View key={hint.key} style={styles.hintCard}>
-          <Text style={styles.hintLevel}>힌트 {hint.level}</Text>
-          <Text style={styles.hintTitle}>{topikText(hint.title)}</Text>
-          <Text style={styles.hintContent}>{topikText(hint.content)}</Text>
+          <Text style={styles.hintLevel}>
+            {t("topik.hint.level", { level: hint.level })}
+          </Text>
+          <Text style={styles.hintTitle}>{topikText(hint.title, language)}</Text>
+          <Text style={styles.hintContent}>{topikText(hint.content, language)}</Text>
           {hint.examples.map((example, index) => (
             <View key={`${hint.key}-${index}`} style={styles.example}>
-              <Text style={styles.exampleLabel}>예시</Text>
-              <Text style={styles.exampleText}>{topikText(example)}</Text>
+              <Text style={styles.exampleLabel}>{t("topik.hint.example")}</Text>
+              <Text style={styles.exampleText}>{topikText(example, language)}</Text>
             </View>
           ))}
         </View>
@@ -51,26 +61,32 @@ export function TopikHintPanel({
       {solution && (
         <View style={styles.solutionCard}>
           <Text style={styles.solutionResult}>
-            {solution.isCorrect ? "정답입니다" : "다시 확인해 볼까요?"}
+            {solution.isCorrect
+              ? t("topik.hint.correct")
+              : t("topik.hint.tryAgain")}
           </Text>
           <Text style={styles.solutionAnswer}>
-            정답 {solution.correctChoiceKey}번
+            {t("topik.hint.correctAnswer", {
+              answer: t("topik.common.answerNumber", {
+                number: solution.correctChoiceKey,
+              }),
+            })}
           </Text>
-          <Text style={styles.solutionHeading}>풀이 전략</Text>
+          <Text style={styles.solutionHeading}>{t("topik.hint.strategy")}</Text>
           <Text style={styles.solutionText}>
-            {topikText(solution.solution.strategy)}
+            {topikText(solution.solution.strategy, language)}
           </Text>
           {solution.solution.keyClues.map((clue) => (
             <View key={clue.key} style={styles.clue}>
-              <Text style={styles.clueLabel}>눈여겨볼 단서</Text>
+              <Text style={styles.clueLabel}>{t("topik.hint.clue")}</Text>
               <Text style={styles.solutionText}>
-                {topikText(clue.explanation)}
+                {topikText(clue.explanation, language)}
               </Text>
             </View>
           ))}
-          <Text style={styles.solutionHeading}>정답 해설</Text>
+          <Text style={styles.solutionHeading}>{t("topik.hint.explanation")}</Text>
           <Text style={styles.solutionText}>
-            {topikText(solution.solution.explanation)}
+            {topikText(solution.solution.explanation, language)}
           </Text>
         </View>
       )}
@@ -86,8 +102,10 @@ export function TopikHintPanel({
           ]}
         >
           <Text style={styles.hintButtonText}>
-            힌트 {support.nextHint.level} 열기 ·{" "}
-            {topikText(support.nextHint.title)}
+            {t("topik.hint.openNext", {
+              level: support.nextHint.level,
+              title: topikText(support.nextHint.title, language),
+            })}
           </Text>
         </Pressable>
       )}
@@ -102,25 +120,25 @@ export function TopikHintPanel({
             busy && styles.disabled,
           ]}
         >
-          <Text style={styles.solutionButtonText}>정답과 자세한 풀이 보기</Text>
+          <Text style={styles.solutionButtonText}>
+            {t("topik.hint.revealSolution")}
+          </Text>
         </Pressable>
       )}
       {!selected && (
-        <Text style={styles.guideText}>
-          답을 선택하면 정답 풀이를 볼 수 있어요.
-        </Text>
+        <Text style={styles.guideText}>{t("topik.hint.selectAnswerFirst")}</Text>
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   panel: {
     gap: 13,
     borderWidth: 1,
-    borderColor: "#D6E2EF",
+    borderColor: palette.border,
     borderRadius: 16,
-    backgroundColor: "#F7FAFD",
+    backgroundColor: palette.surface,
     padding: 16,
   },
   header: {
@@ -129,65 +147,65 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   eyebrow: {
-    color: "#5D7A98",
+    color: palette.primary,
     fontSize: 10,
     fontWeight: "900",
     letterSpacing: 1.2,
   },
-  title: { color: "#173B67", fontSize: 14, fontWeight: "900", marginTop: 3 },
-  count: { color: "#315E8C", fontSize: 11, fontWeight: "800" },
+  title: { color: palette.text, fontSize: 14, fontWeight: "900", marginTop: 3 },
+  count: { color: palette.primary, fontSize: 11, fontWeight: "800" },
   hintCard: {
     gap: 6,
     borderLeftWidth: 4,
-    borderLeftColor: "#F0B94B",
+    borderLeftColor: palette.warning,
     borderRadius: 10,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surfaceElevated,
     padding: 14,
   },
-  hintLevel: { color: "#9B6B0D", fontSize: 11, fontWeight: "900" },
-  hintTitle: { color: "#25354A", fontSize: 14, fontWeight: "900" },
-  hintContent: { color: "#48515D", fontSize: 13, lineHeight: 20 },
+  hintLevel: { color: palette.warning, fontSize: 11, fontWeight: "900" },
+  hintTitle: { color: palette.text, fontSize: 14, fontWeight: "900" },
+  hintContent: { color: palette.textSecondary, fontSize: 13, lineHeight: 20 },
   example: {
     flexDirection: "row",
     gap: 8,
-    backgroundColor: "#FFF8E4",
+    backgroundColor: palette.warningSoft,
     borderRadius: 8,
     padding: 10,
   },
-  exampleLabel: { color: "#9A6908", fontSize: 11, fontWeight: "900" },
-  exampleText: { flex: 1, color: "#554A35", fontSize: 12, lineHeight: 18 },
+  exampleLabel: { color: palette.warning, fontSize: 11, fontWeight: "900" },
+  exampleText: { flex: 1, color: palette.warningText, fontSize: 12, lineHeight: 18 },
   solutionCard: {
     gap: 8,
     borderRadius: 12,
-    backgroundColor: "#EAF7F0",
+    backgroundColor: palette.successSoft,
     padding: 15,
   },
-  solutionResult: { color: "#167047", fontSize: 16, fontWeight: "900" },
-  solutionAnswer: { color: "#167047", fontSize: 13, fontWeight: "800" },
+  solutionResult: { color: palette.successText, fontSize: 16, fontWeight: "900" },
+  solutionAnswer: { color: palette.successText, fontSize: 13, fontWeight: "800" },
   solutionHeading: {
-    color: "#244A39",
+    color: palette.successText,
     fontSize: 13,
     fontWeight: "900",
     marginTop: 5,
   },
-  solutionText: { color: "#40584C", fontSize: 13, lineHeight: 20 },
-  clue: { gap: 4, borderRadius: 8, backgroundColor: "#FFF6C8", padding: 11 },
-  clueLabel: { color: "#806313", fontSize: 11, fontWeight: "900" },
-  hintButton: { borderRadius: 11, backgroundColor: "#E7EFF8", padding: 14 },
+  solutionText: { color: palette.textSecondary, fontSize: 13, lineHeight: 20 },
+  clue: { gap: 4, borderRadius: 8, backgroundColor: palette.warningSoft, padding: 11 },
+  clueLabel: { color: palette.warningText, fontSize: 11, fontWeight: "900" },
+  hintButton: { borderRadius: 11, backgroundColor: palette.primarySoft, padding: 14 },
   hintButtonText: {
-    color: "#234E79",
+    color: palette.primaryText,
     fontSize: 13,
     fontWeight: "800",
     textAlign: "center",
   },
-  solutionButton: { borderRadius: 11, backgroundColor: "#173B67", padding: 14 },
+  solutionButton: { borderRadius: 11, backgroundColor: palette.primaryStrong, padding: 14 },
   solutionButtonText: {
-    color: "#FFFFFF",
+    color: palette.white,
     fontSize: 13,
     fontWeight: "900",
     textAlign: "center",
   },
-  guideText: { color: "#717984", fontSize: 11, textAlign: "center" },
+  guideText: { color: palette.textMuted, fontSize: 11, textAlign: "center" },
   pressed: { opacity: 0.76 },
   disabled: { opacity: 0.5 },
 });

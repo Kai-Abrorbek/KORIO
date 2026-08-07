@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { TopikChoice, TopikChoiceLayout } from "@/types/topik";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikChoiceListProps {
   choices: TopikChoice[];
@@ -25,6 +27,8 @@ export function TopikChoiceList({
   disabled = false,
   onSelect,
 }: TopikChoiceListProps) {
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const multiColumn = layout !== "one_column";
 
   return (
@@ -77,7 +81,7 @@ export function TopikChoiceList({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   list: { gap: 6 },
   grid: { flexDirection: "row", flexWrap: "wrap", columnGap: 8 },
   choice: {
@@ -92,19 +96,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   gridChoice: { width: "48.5%" },
-  selected: { borderColor: "#1D5D98", backgroundColor: "#EAF3FB" },
-  correct: { borderColor: "#2B8A57", backgroundColor: "#EAF8F0" },
-  wrong: { borderColor: "#C94A4A", backgroundColor: "#FFF0F0" },
+  selected: { borderColor: palette.primary, backgroundColor: palette.primarySoft },
+  correct: { borderColor: palette.successBorder, backgroundColor: palette.successSoft },
+  wrong: { borderColor: palette.danger, backgroundColor: palette.dangerSoft },
   pressed: { opacity: 0.72 },
-  number: { color: "#676C72", fontSize: 20, lineHeight: 23 },
+  number: { color: palette.textMuted, fontSize: 20, lineHeight: 23 },
   choiceText: {
     flex: 1,
-    color: "#31343A",
+    color: palette.text,
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: -0.2,
   },
-  selectedText: { color: "#153E68", fontWeight: "800" },
-  correctText: { color: "#17683E", fontWeight: "800" },
-  wrongText: { color: "#A92E2E", fontWeight: "800" },
+  selectedText: { color: palette.primaryText, fontWeight: "800" },
+  correctText: { color: palette.successText, fontWeight: "800" },
+  wrongText: { color: palette.dangerText, fontWeight: "800" },
 });

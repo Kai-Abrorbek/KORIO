@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import {
   Gesture,
   GestureDetector,
@@ -17,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 export type TopikLevel = "1" | "2";
 
@@ -29,32 +31,26 @@ interface TopikLevelModalProps {
 const LEVELS: Array<{
   level: TopikLevel;
   roman: string;
-  label: string;
-  description: string;
-  sections: string;
+  labelKey: string;
+  descriptionKey: string;
+  sectionsKey: string;
   icon: keyof typeof Ionicons.glyphMap;
-  colors: readonly [string, string];
-  accent: string;
 }> = [
   {
     level: "1",
     roman: "I",
-    label: "초급 실력 완성",
-    description: "일상생활에 필요한 기본 한국어 능력을 준비해요.",
-    sections: "읽기 · 듣기",
+    labelKey: "topik.levelModal.levelOneLabel",
+    descriptionKey: "topik.levelModal.levelOneDescription",
+    sectionsKey: "topik.levelModal.levelOneSections",
     icon: "leaf-outline",
-    colors: ["#0F766E", "#14A394"],
-    accent: "#0F766E",
   },
   {
     level: "2",
     roman: "II",
-    label: "중·고급 합격 대비",
-    description: "유학과 취업에 필요한 실전 한국어 능력을 준비해요.",
-    sections: "읽기 · 듣기 · 쓰기",
+    labelKey: "topik.levelModal.levelTwoLabel",
+    descriptionKey: "topik.levelModal.levelTwoDescription",
+    sectionsKey: "topik.levelModal.levelTwoSections",
     icon: "diamond-outline",
-    colors: ["#263E75", "#6553B6"],
-    accent: "#4F46A5",
   },
 ];
 
@@ -63,7 +59,10 @@ export function TopikLevelModal({
   onClose,
   onSelect,
 }: TopikLevelModalProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const translateY = useSharedValue(0);
 
   useEffect(() => {
@@ -113,6 +112,7 @@ export function TopikLevelModal({
         <Animated.View entering={FadeIn.duration(180)} style={styles.backdrop}>
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={t("topik.common.close")}
             style={StyleSheet.absoluteFill}
             onPress={onClose}
           />
@@ -130,27 +130,31 @@ export function TopikLevelModal({
           <View style={styles.handle} />
           <View style={styles.header}>
             <View style={styles.headerIcon}>
-              <Ionicons name="ribbon" size={22} color="#FFFFFF" />
+              <Ionicons name="ribbon" size={22} color={palette.white} />
             </View>
             <View style={styles.headerCopy}>
-              <Text style={styles.eyebrow}>PERSONALIZE YOUR PLAN</Text>
-              <Text style={styles.title}>어떤 TOPIK을 준비하나요?</Text>
+              <Text style={styles.eyebrow}>{t("topik.levelModal.eyebrow")}</Text>
+              <Text style={styles.title}>{t("topik.levelModal.title")}</Text>
               <Text style={styles.subtitle}>
-                목표 급수에 맞는 시험 구성과 학습 분석을 준비할게요.
+                {t("topik.levelModal.subtitle")}
               </Text>
             </View>
             <Pressable
-              accessibilityLabel="닫기"
+              accessibilityLabel={t("topik.common.close")}
               hitSlop={10}
               onPress={onClose}
               style={styles.closeButton}
             >
-              <Ionicons name="close" size={21} color="#6C7480" />
+              <Ionicons name="close" size={21} color={palette.textMuted} />
             </Pressable>
           </View>
 
           <View style={styles.levelList}>
-            {LEVELS.map((item) => (
+            {LEVELS.map((item) => {
+              const accent = item.level === "1" ? palette.success : palette.purple;
+              const colors = item.level === "1" ? palette.levelOneGradient : palette.levelTwoGradient;
+
+              return (
               <Pressable
                 key={item.level}
                 accessibilityRole="button"
@@ -161,60 +165,61 @@ export function TopikLevelModal({
                 ]}
               >
                 <LinearGradient
-                  colors={item.colors}
+                  colors={colors}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.levelBadge}
                 >
-                  <Ionicons name={item.icon} size={19} color="#FFFFFF" />
+                  <Ionicons name={item.icon} size={19} color={palette.white} />
                   <Text style={styles.levelBadgeSmall}>TOPIK</Text>
                   <Text style={styles.levelBadgeRoman}>{item.roman}</Text>
                 </LinearGradient>
                 <View style={styles.levelInfo}>
                   <View style={styles.levelTitleRow}>
-                    <Text style={styles.levelTitle}>{item.label}</Text>
+                    <Text style={styles.levelTitle}>{t(item.labelKey)}</Text>
                     <View
                       style={[
                         styles.sectionPill,
-                        { backgroundColor: `${item.accent}12` },
+                        { backgroundColor: palette.isDark ? palette.surfaceMuted : `${accent}12` },
                       ]}
                     >
                       <Text
-                        style={[styles.sectionPillText, { color: item.accent }]}
+                        style={[styles.sectionPillText, { color: accent }]}
                       >
-                        시험 대비
+                        {t("topik.levelModal.examPrep")}
                       </Text>
                     </View>
                   </View>
                   <Text style={styles.levelDescription}>
-                    {item.description}
+                    {t(item.descriptionKey)}
                   </Text>
                   <View style={styles.sectionRow}>
                     <Ionicons
                       name="layers-outline"
                       size={14}
-                      color={item.accent}
+                      color={accent}
                     />
-                    <Text style={[styles.sections, { color: item.accent }]}>
-                      {item.sections}
+                    <Text style={[styles.sections, { color: accent }]}>
+                      {t(item.sectionsKey)}
                     </Text>
                   </View>
                 </View>
                 <View style={styles.arrowButton}>
-                  <Ionicons name="arrow-forward" size={18} color="#303947" />
+                  <Ionicons name="arrow-forward" size={18} color={palette.text} />
                 </View>
               </Pressable>
-            ))}
+              );
+            })}
           </View>
 
                 <View style={styles.assurance}>
                   <Ionicons
                     name="shield-checkmark-outline"
                     size={16}
-                    color="#597087"
+                    color={palette.textMuted}
                   />
                   <Text style={styles.assuranceText}>
-                    선택한 급수는 언제든 다시 변경할 수 있어요.
+                    {t("topik.levelModal.assurance")}
                   </Text>
                 </View>
               </Animated.View>
@@ -226,20 +231,20 @@ export function TopikLevelModal({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   modalRoot: { flex: 1 },
   backdrop: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(11, 18, 31, 0.62)",
+    backgroundColor: palette.overlay,
   },
   sheet: {
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    backgroundColor: "#F8F9FB",
+    backgroundColor: palette.surface,
     paddingHorizontal: 18,
     paddingTop: 10,
-    shadowColor: "#000000",
+    shadowColor: palette.shadow,
     shadowOffset: { width: 0, height: -8 },
     shadowOpacity: 0.16,
     shadowRadius: 24,
@@ -250,7 +255,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 5,
     borderRadius: 3,
-    backgroundColor: "#D5D9DF",
+    backgroundColor: palette.borderStrong,
     marginBottom: 18,
   },
   header: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
@@ -260,31 +265,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 14,
-    backgroundColor: "#202F57",
+    backgroundColor: palette.primaryStrong,
   },
   headerCopy: { flex: 1 },
   eyebrow: {
-    color: "#6E7690",
+    color: palette.textMuted,
     fontSize: 9,
     fontWeight: "900",
     letterSpacing: 1.15,
   },
   title: {
-    color: "#161C2A",
+    color: palette.text,
     fontSize: 21,
     lineHeight: 29,
     fontWeight: "900",
     letterSpacing: -0.5,
     marginTop: 3,
   },
-  subtitle: { color: "#69717E", fontSize: 12, lineHeight: 18, marginTop: 5 },
+  subtitle: { color: palette.textSecondary, fontSize: 12, lineHeight: 18, marginTop: 5 },
   closeButton: {
     width: 34,
     height: 34,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 17,
-    backgroundColor: "#ECEEF2",
+    backgroundColor: palette.surfaceMuted,
   },
   levelList: { gap: 11, marginTop: 20 },
   levelCard: {
@@ -293,11 +298,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 13,
     borderWidth: 1,
-    borderColor: "#E0E4EA",
+    borderColor: palette.border,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surfaceElevated,
     padding: 12,
-    shadowColor: "#182238",
+    shadowColor: palette.shadow,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.055,
     shadowRadius: 12,
@@ -312,14 +317,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   levelBadgeSmall: {
-    color: "#DDE9F5",
+    color: palette.white,
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 1.3,
     marginTop: 7,
   },
   levelBadgeRoman: {
-    color: "#FFFFFF",
+    color: palette.white,
     fontSize: 27,
     lineHeight: 31,
     fontWeight: "900",
@@ -331,10 +336,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 6,
   },
-  levelTitle: { color: "#242A35", fontSize: 15, fontWeight: "900" },
+  levelTitle: { color: palette.text, fontSize: 15, fontWeight: "900" },
   sectionPill: { borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3 },
   sectionPillText: { fontSize: 9, fontWeight: "900" },
-  levelDescription: { color: "#737A84", fontSize: 11, lineHeight: 17 },
+  levelDescription: { color: palette.textSecondary, fontSize: 11, lineHeight: 17 },
   sectionRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   sections: { fontSize: 11, fontWeight: "800" },
   arrowButton: {
@@ -343,7 +348,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: "#F0F2F5",
+    backgroundColor: palette.surfaceMuted,
   },
   assurance: {
     flexDirection: "row",
@@ -353,5 +358,5 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 20,
   },
-  assuranceText: { color: "#747D88", fontSize: 10, fontWeight: "600" },
+  assuranceText: { color: palette.textMuted, fontSize: 10, fontWeight: "600" },
 });

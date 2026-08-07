@@ -1,4 +1,7 @@
+import topik from "./topik/ko";
+
 export default {
+  topik,
   common: {
     start: "시작하기",
     next: "다음",

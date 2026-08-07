@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
+import { useMemo } from "react";
 import {
   Alert,
   Pressable,
@@ -11,20 +12,20 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { TopikLevel } from "@/components/topik/TopikLevelModal";
+import {
+  type TopikPalette,
+  useTopikTheme,
+} from "@/components/topik/topikTheme";
 
 type SectionKey = "reading" | "listening" | "writing";
 
 interface SectionOption {
   key: SectionKey;
   order: string;
-  title: string;
-  english: string;
-  description: string;
   icon: keyof typeof Ionicons.glyphMap;
-  colors: readonly [string, string];
-  features: string[];
   available: boolean;
 }
 
@@ -32,39 +33,27 @@ const SECTIONS: SectionOption[] = [
   {
     key: "reading",
     order: "01",
-    title: "읽기",
-    english: "READING",
-    description: "문제 유형을 익히고 실제 시험 구성 그대로 실력을 점검해요.",
     icon: "book-outline",
-    colors: ["#0D7493", "#19A5A1"],
-    features: ["단계별 힌트", "실전 모의고사", "오답 분석"],
     available: true,
   },
   {
     key: "listening",
     order: "02",
-    title: "듣기",
-    english: "LISTENING",
-    description: "핵심 표현을 놓치지 않는 청취 전략과 실전 감각을 만들어요.",
     icon: "headset-outline",
-    colors: ["#D66A2C", "#F29C38"],
-    features: ["구간 반복", "핵심 단서", "속도 조절"],
     available: false,
   },
   {
     key: "writing",
     order: "03",
-    title: "쓰기",
-    english: "WRITING",
-    description: "문장 구성부터 고득점 답안 구조까지 순서대로 완성해요.",
     icon: "create-outline",
-    colors: ["#6246A3", "#9068CE"],
-    features: ["답안 구조", "표현 첨삭", "고득점 전략"],
     available: false,
   },
 ];
 
 export default function TopikSectionsScreen() {
+  const { t } = useTranslation();
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{ level?: TopikLevel }>();
   const levelParam = Array.isArray(params.level)
     ? params.level[0]
@@ -74,10 +63,12 @@ export default function TopikSectionsScreen() {
   const sections = SECTIONS.filter(
     (section) => level === "2" || section.key !== "writing",
   );
-  const heroColors: readonly [string, string, string] =
-    level === "1"
-      ? ["#0E645F", "#0B8580", "#15A097"]
-      : ["#1D315F", "#3F438A", "#6A4EAD"];
+  const sectionColors = {
+    reading: palette.readingGradient,
+    listening: palette.listeningGradient,
+    writing: palette.writingGradient,
+  };
+  const heroColors = level === "1" ? palette.levelOneHero : palette.levelTwoHero;
 
   const openSection = (section: SectionOption) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -89,9 +80,11 @@ export default function TopikSectionsScreen() {
       return;
     }
     Alert.alert(
-      `${section.title} 학습은 준비 중이에요`,
-      "더 좋은 학습 경험으로 곧 만나볼 수 있도록 만들고 있어요.",
-      [{ text: "확인" }],
+      t("topik.sections.comingSoonTitle", {
+        section: t(`topik.sections.${section.key}.title`),
+      }),
+      t("topik.sections.comingSoonMessage"),
+      [{ text: t("topik.common.confirm") }],
     );
   };
 
@@ -99,19 +92,19 @@ export default function TopikSectionsScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <View style={styles.header}>
         <Pressable
-          accessibilityLabel="뒤로 가기"
+          accessibilityLabel={t("topik.common.back")}
           hitSlop={10}
           onPress={() => router.back()}
           style={styles.headerButton}
         >
-          <Ionicons name="chevron-back" size={24} color="#253149" />
+          <Ionicons name="chevron-back" size={24} color={palette.text} />
         </Pressable>
         <View style={styles.headerTitleWrap}>
-          <Text style={styles.headerEyebrow}>EXAM PREPARATION</Text>
+          <Text style={styles.headerEyebrow}>{t("topik.sections.eyebrow")}</Text>
           <Text style={styles.headerTitle}>TOPIK {roman}</Text>
         </View>
         <View style={styles.headerMark}>
-          <Ionicons name="ribbon-outline" size={20} color="#4B5480" />
+          <Ionicons name="ribbon-outline" size={20} color={palette.primary} />
         </View>
       </View>
 
@@ -132,41 +125,38 @@ export default function TopikSectionsScreen() {
               <Text style={styles.levelBadgeText}>TOPIK {roman}</Text>
             </View>
             <View style={styles.planBadge}>
-              <Ionicons name="sparkles" size={12} color="#F7E6A8" />
-              <Text style={styles.planBadgeText}>SMART STUDY PLAN</Text>
+              <Ionicons name="sparkles" size={12} color={palette.warningText} />
+              <Text style={styles.planBadgeText}>{t("topik.sections.planBadge")}</Text>
             </View>
           </View>
-          <Text style={styles.heroTitle}>
-            합격 전략을 영역별로{`\n`}완성해 보세요.
-          </Text>
-          <Text style={styles.heroDescription}>
-            문제를 푸는 것에서 끝나지 않고, 약점을 찾고 다시 강점으로 만드는
-            학습을 시작해요.
-          </Text>
+          <Text style={styles.heroTitle}>{t("topik.sections.heroTitle")}</Text>
+          <Text style={styles.heroDescription}>{t("topik.sections.heroDescription")}</Text>
           <View style={styles.heroFeatures}>
             <View style={styles.heroFeature}>
-              <Ionicons name="analytics-outline" size={15} color="#FFFFFF" />
-              <Text style={styles.heroFeatureText}>개인별 분석</Text>
+              <Ionicons name="analytics-outline" size={15} color={palette.white} />
+              <Text style={styles.heroFeatureText}>{t("topik.sections.personalAnalysis")}</Text>
             </View>
             <View style={styles.heroFeatureDivider} />
             <View style={styles.heroFeature}>
-              <Ionicons name="bulb-outline" size={15} color="#FFFFFF" />
-              <Text style={styles.heroFeatureText}>단계별 해설</Text>
+              <Ionicons name="bulb-outline" size={15} color={palette.white} />
+              <Text style={styles.heroFeatureText}>{t("topik.sections.guidedExplanation")}</Text>
             </View>
             <View style={styles.heroFeatureDivider} />
             <View style={styles.heroFeature}>
-              <Ionicons name="repeat-outline" size={15} color="#FFFFFF" />
-              <Text style={styles.heroFeatureText}>약점 복습</Text>
+              <Ionicons name="repeat-outline" size={15} color={palette.white} />
+              <Text style={styles.heroFeatureText}>{t("topik.sections.weaknessReview")}</Text>
             </View>
           </View>
         </LinearGradient>
 
         <View style={styles.sectionHeading}>
           <View>
-            <Text style={styles.sectionEyebrow}>CHOOSE YOUR FOCUS</Text>
-            <Text style={styles.sectionTitle}>학습할 영역을 선택하세요</Text>
+            <Text style={styles.sectionEyebrow}>{t("topik.sections.focusEyebrow")}</Text>
+            <Text style={styles.sectionTitle}>{t("topik.sections.chooseSection")}</Text>
           </View>
-          <Text style={styles.sectionCount}>{sections.length}개 영역</Text>
+          <Text style={styles.sectionCount}>
+            {t("topik.sections.areaCount", { count: sections.length })}
+          </Text>
         </View>
 
         <View style={styles.cardList}>
@@ -185,38 +175,42 @@ export default function TopikSectionsScreen() {
               >
                 <View style={styles.cardTopRow}>
                   <LinearGradient
-                    colors={section.colors}
+                    colors={sectionColors[section.key]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.sectionIcon}
                   >
-                    <Ionicons name={section.icon} size={27} color="#FFFFFF" />
+                    <Ionicons name={section.icon} size={27} color={palette.white} />
                   </LinearGradient>
                   <View style={styles.sectionCopy}>
                     <Text style={styles.sectionEnglish}>
-                      {section.order} · {section.english}
+                      {section.order} · {t(`topik.sections.${section.key}.title`).toUpperCase()}
                     </Text>
-                    <Text style={styles.cardTitle}>{section.title}</Text>
+                    <Text style={styles.cardTitle}>
+                      {t(`topik.sections.${section.key}.title`)}
+                    </Text>
                   </View>
                   {section.available ? (
                     <View style={styles.liveBadge}>
                       <View style={styles.liveDot} />
-                      <Text style={styles.liveText}>학습 가능</Text>
+                      <Text style={styles.liveText}>{t("topik.sections.available")}</Text>
                     </View>
                   ) : (
                     <View style={styles.soonBadge}>
-                      <Ionicons name="time-outline" size={12} color="#858B95" />
-                      <Text style={styles.soonText}>준비 중</Text>
+                      <Ionicons name="time-outline" size={12} color={palette.textMuted} />
+                      <Text style={styles.soonText}>{t("topik.sections.comingSoon")}</Text>
                     </View>
                   )}
                 </View>
 
                 <Text style={styles.cardDescription}>
-                  {section.description}
+                  {t(`topik.sections.${section.key}.description`)}
                 </Text>
 
                 <View style={styles.featureRow}>
-                  {section.features.map((feature) => (
+                  {(t(`topik.sections.${section.key}.features`, {
+                    returnObjects: true,
+                  }) as string[]).map((feature) => (
                     <View key={feature} style={styles.featureChip}>
                       <Text style={styles.featureChipText}>{feature}</Text>
                     </View>
@@ -232,7 +226,7 @@ export default function TopikSectionsScreen() {
                           : "lock-closed-outline"
                       }
                       size={15}
-                      color={section.available ? "#16886B" : "#8C929B"}
+                      color={section.available ? palette.success : palette.textMuted}
                     />
                     <Text
                       style={[
@@ -241,8 +235,8 @@ export default function TopikSectionsScreen() {
                       ]}
                     >
                       {section.available
-                        ? "지금 바로 시작할 수 있어요"
-                        : "콘텐츠를 정성껏 준비하고 있어요"}
+                        ? t("topik.sections.availableDescription")
+                        : t("topik.sections.comingSoonDescription")}
                     </Text>
                   </View>
                   <View
@@ -254,7 +248,7 @@ export default function TopikSectionsScreen() {
                     <Ionicons
                       name="arrow-forward"
                       size={18}
-                      color={section.available ? "#FFFFFF" : "#9197A0"}
+                      color={section.available ? palette.white : palette.textMuted}
                     />
                   </View>
                 </View>
@@ -265,15 +259,14 @@ export default function TopikSectionsScreen() {
 
         <View style={styles.recommendation}>
           <View style={styles.recommendationIcon}>
-            <Ionicons name="bulb" size={18} color="#9A701A" />
+            <Ionicons name="bulb" size={18} color={palette.warning} />
           </View>
           <View style={styles.recommendationCopy}>
             <Text style={styles.recommendationTitle}>
-              처음 준비한다면 읽기부터 추천해요
+              {t("topik.sections.recommendationTitle")}
             </Text>
             <Text style={styles.recommendationText}>
-              단계별 힌트로 문제 접근법을 익힌 뒤 실전 모의고사로 점검할 수
-              있어요.
+              {t("topik.sections.recommendationDescription")}
             </Text>
           </View>
         </View>
@@ -282,14 +275,14 @@ export default function TopikSectionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F4F5F8" },
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: palette.bg },
   header: {
     height: 62,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 14,
-    backgroundColor: "#F4F5F8",
+    backgroundColor: palette.bg,
   },
   headerButton: {
     width: 42,
@@ -299,13 +292,13 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1, alignItems: "center" },
   headerEyebrow: {
-    color: "#8A91A0",
+    color: palette.textMuted,
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 1.25,
   },
   headerTitle: {
-    color: "#253149",
+    color: palette.text,
     fontSize: 17,
     fontWeight: "900",
     marginTop: 1,
@@ -325,7 +318,7 @@ const styles = StyleSheet.create({
     right: -85,
     top: -70,
     borderRadius: 110,
-    backgroundColor: "rgba(255,255,255,0.09)",
+    backgroundColor: palette.heroGlow,
   },
   heroGlowSmall: {
     position: "absolute",
@@ -334,7 +327,7 @@ const styles = StyleSheet.create({
     left: -42,
     bottom: -46,
     borderRadius: 55,
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: palette.heroGlowSoft,
   },
   heroTopRow: {
     flexDirection: "row",
@@ -343,12 +336,12 @@ const styles = StyleSheet.create({
   },
   levelBadge: {
     borderRadius: 9,
-    backgroundColor: "rgba(255,255,255,0.17)",
+    backgroundColor: palette.heroGlass,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   levelBadgeText: {
-    color: "#FFFFFF",
+    color: palette.white,
     fontSize: 10,
     fontWeight: "900",
     letterSpacing: 0.7,
@@ -358,18 +351,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     borderRadius: 12,
-    backgroundColor: "rgba(18,20,44,0.28)",
+    backgroundColor: palette.heroGlassDark,
     paddingHorizontal: 9,
     paddingVertical: 6,
   },
   planBadgeText: {
-    color: "#F7E6A8",
+    color: palette.warningText,
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 0.7,
   },
   heroTitle: {
-    color: "#FFFFFF",
+    color: palette.white,
     fontSize: 25,
     lineHeight: 34,
     fontWeight: "900",
@@ -377,7 +370,7 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   heroDescription: {
-    color: "rgba(255,255,255,0.78)",
+    color: palette.heroDescription,
     fontSize: 12,
     lineHeight: 19,
     marginTop: 10,
@@ -387,7 +380,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.16)",
+    borderTopColor: palette.heroDivider,
     marginTop: 23,
     paddingTop: 15,
   },
@@ -398,11 +391,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 5,
   },
-  heroFeatureText: { color: "#FFFFFF", fontSize: 10, fontWeight: "800" },
+  heroFeatureText: { color: palette.white, fontSize: 10, fontWeight: "800" },
   heroFeatureDivider: {
     width: 1,
     height: 17,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: palette.heroDividerStrong,
   },
   sectionHeading: {
     flexDirection: "row",
@@ -412,27 +405,27 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionEyebrow: {
-    color: "#868E9C",
+    color: palette.textMuted,
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 1.2,
   },
   sectionTitle: {
-    color: "#202633",
+    color: palette.text,
     fontSize: 19,
     fontWeight: "900",
     letterSpacing: -0.4,
     marginTop: 4,
   },
-  sectionCount: { color: "#858C97", fontSize: 10, fontWeight: "700" },
+  sectionCount: { color: palette.textMuted, fontSize: 10, fontWeight: "700" },
   cardList: { gap: 12 },
   sectionCard: {
     borderWidth: 1,
-    borderColor: "#E0E3E9",
+    borderColor: palette.border,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     padding: 16,
-    shadowColor: "#1F2A44",
+    shadowColor: palette.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.055,
     shadowRadius: 14,
@@ -449,13 +442,13 @@ const styles = StyleSheet.create({
   },
   sectionCopy: { flex: 1, marginLeft: 12 },
   sectionEnglish: {
-    color: "#9298A3",
+    color: palette.textSubtle,
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 1,
   },
   cardTitle: {
-    color: "#202631",
+    color: palette.text,
     fontSize: 20,
     fontWeight: "900",
     marginTop: 2,
@@ -465,24 +458,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     borderRadius: 11,
-    backgroundColor: "#E8F7F2",
+    backgroundColor: palette.successSoft,
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
-  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#16886B" },
-  liveText: { color: "#16886B", fontSize: 9, fontWeight: "900" },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: palette.success },
+  liveText: { color: palette.successText, fontSize: 9, fontWeight: "900" },
   soonBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     borderRadius: 11,
-    backgroundColor: "#F0F1F3",
+    backgroundColor: palette.surfaceMuted,
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
-  soonText: { color: "#858B95", fontSize: 9, fontWeight: "800" },
+  soonText: { color: palette.textMuted, fontSize: 9, fontWeight: "800" },
   cardDescription: {
-    color: "#6D7480",
+    color: palette.textSecondary,
     fontSize: 12,
     lineHeight: 19,
     marginTop: 13,
@@ -490,17 +483,17 @@ const styles = StyleSheet.create({
   featureRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 12 },
   featureChip: {
     borderRadius: 8,
-    backgroundColor: "#F3F5F7",
+    backgroundColor: palette.surfaceMuted,
     paddingHorizontal: 8,
     paddingVertical: 5,
   },
-  featureChipText: { color: "#606874", fontSize: 9, fontWeight: "700" },
+  featureChipText: { color: palette.textSecondary, fontSize: 9, fontWeight: "700" },
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#ECEEF1",
+    borderTopColor: palette.divider,
     marginTop: 14,
     paddingTop: 13,
   },
@@ -510,24 +503,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  cardFooterText: { color: "#8C929B", fontSize: 10, fontWeight: "700" },
-  cardFooterTextLive: { color: "#16886B" },
+  cardFooterText: { color: palette.textMuted, fontSize: 10, fontWeight: "700" },
+  cardFooterTextLive: { color: palette.successText },
   arrowCircle: {
     width: 34,
     height: 34,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 17,
-    backgroundColor: "#263A68",
+    backgroundColor: palette.primaryStrong,
   },
-  arrowCircleDisabled: { backgroundColor: "#EFF1F3" },
+  arrowCircleDisabled: { backgroundColor: palette.surfaceMuted },
   recommendation: {
     flexDirection: "row",
     gap: 11,
     borderWidth: 1,
-    borderColor: "#E8D79B",
+    borderColor: palette.warning,
     borderRadius: 17,
-    backgroundColor: "#FFF9E8",
+    backgroundColor: palette.warningSoft,
     marginTop: 18,
     marginBottom: 20,
     padding: 14,
@@ -538,12 +531,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12,
-    backgroundColor: "#F9EDC4",
+    backgroundColor: palette.surfaceElevated,
   },
   recommendationCopy: { flex: 1 },
-  recommendationTitle: { color: "#5E4818", fontSize: 12, fontWeight: "900" },
+  recommendationTitle: { color: palette.warningText, fontSize: 12, fontWeight: "900" },
   recommendationText: {
-    color: "#806D42",
+    color: palette.textSecondary,
     fontSize: 10,
     lineHeight: 16,
     marginTop: 4,

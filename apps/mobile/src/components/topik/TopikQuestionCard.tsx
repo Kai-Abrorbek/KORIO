@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { TopikQuestionWithGroup } from "@/types/topik";
 import { TopikChoiceList } from "./TopikChoiceList";
 import { TopikStimulusCard } from "./TopikStimulusCard";
 import { TopikTextBlocks } from "./TopikTextBlocks";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikQuestionCardProps {
   question: TopikQuestionWithGroup;
@@ -21,6 +23,8 @@ export function TopikQuestionCard({
   disabled,
   onSelect,
 }: TopikQuestionCardProps) {
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
   const stimulus = question.stimulus ?? question.group.sharedStimulus;
 
   return (
@@ -64,17 +68,17 @@ export function TopikQuestionCard({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   paper: {
     gap: 20,
     borderWidth: 1,
-    borderColor: "#E0DED8",
+    borderColor: palette.border,
     borderRadius: 6,
-    backgroundColor: "#FFFEFB",
+    backgroundColor: palette.paper,
     paddingHorizontal: 18,
     paddingTop: 17,
     paddingBottom: 22,
-    shadowColor: "#182230",
+    shadowColor: palette.shadow,
     shadowOpacity: 0.07,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
@@ -82,18 +86,18 @@ const styles = StyleSheet.create({
   },
   instructionWrap: {
     borderBottomWidth: 1,
-    borderBottomColor: "#D9D9D5",
+    borderBottomColor: palette.divider,
     paddingBottom: 13,
   },
   instruction: {
-    color: "#38393B",
+    color: palette.text,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "700",
   },
   questionRow: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   questionNumber: {
-    color: "#153C69",
+    color: palette.primary,
     fontSize: 20,
     lineHeight: 28,
     fontWeight: "900",
@@ -101,7 +105,7 @@ const styles = StyleSheet.create({
   },
   prompt: { flex: 1, paddingTop: 2 },
   promptText: {
-    color: "#252629",
+    color: palette.text,
     fontSize: 14,
     lineHeight: 24,
     fontWeight: "700",

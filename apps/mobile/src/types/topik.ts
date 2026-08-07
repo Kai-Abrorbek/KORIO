@@ -419,3 +419,13 @@ export function topikText(
   if (!value) return "";
   return value[language] || value.ko || value.en || value.uz || value.ru || "";
 }
+
+export function toTopikLanguage(language?: string): TopikLanguage {
+  const normalized = language?.split("-")[0];
+  return normalized === "ko" ||
+    normalized === "en" ||
+    normalized === "ru" ||
+    normalized === "uz"
+    ? normalized
+    : "en";
+}

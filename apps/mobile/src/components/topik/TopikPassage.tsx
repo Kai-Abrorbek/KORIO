@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import type { TopikTextBlock } from "@/types/topik";
 import { TopikTextBlocks } from "./TopikTextBlocks";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikPassageProps {
   blocks: TopikTextBlock[];
@@ -13,6 +15,9 @@ export function TopikPassage({
   highlightedKeys,
   bordered = true,
 }: TopikPassageProps) {
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
+
   return (
     <View style={[styles.container, !bordered && styles.unbordered]}>
       <TopikTextBlocks blocks={blocks} highlightedKeys={highlightedKeys} />
@@ -20,11 +25,11 @@ export function TopikPassage({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   container: {
     borderWidth: 1,
-    borderColor: "#D5D8DD",
-    backgroundColor: "#FFFFFF",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surface,
     paddingHorizontal: 10,
     paddingVertical: 12,
     borderRadius: 10,

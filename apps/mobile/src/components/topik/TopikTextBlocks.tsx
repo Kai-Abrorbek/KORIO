@@ -1,6 +1,7 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { StyleSheet, Text, View, type TextStyle } from "react-native";
 import type { TopikTextBlock, TopikTextSegment } from "@/types/topik";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikTextBlocksProps {
   blocks: TopikTextBlock[];
@@ -26,6 +27,9 @@ export function TopikTextBlocks({
   highlightedKeys = new Set(),
   textStyle,
 }: TopikTextBlocksProps) {
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
+
   return (
     <View style={styles.container}>
       {blocks.map((block, blockIndex) => (
@@ -65,24 +69,24 @@ export function TopikTextBlocks({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   container: { gap: 10 },
   text: {
-    color: "#242427",
+    color: palette.text,
     fontSize: 14,
     lineHeight: 26,
     letterSpacing: -0.25,
     fontWeight: 600,
   },
-  caption: { color: "#64646D", fontSize: 12, lineHeight: 19 },
+  caption: { color: palette.textSecondary, fontSize: 12, lineHeight: 19 },
   quote: { fontStyle: "italic", paddingLeft: 12 },
   underline: { textDecorationLine: "underline", fontWeight: "700" },
   emphasis: { fontWeight: "800" },
   blank: { fontWeight: "800", letterSpacing: 1 },
-  marker: { color: "#173B67", fontWeight: "900" },
+  marker: { color: palette.primary, fontWeight: "900" },
   highlighted: {
-    backgroundColor: "#FFF0A6",
-    color: "#192F4A",
+    backgroundColor: palette.warningSoft,
+    color: palette.warningText,
     fontWeight: "900",
   },
 });

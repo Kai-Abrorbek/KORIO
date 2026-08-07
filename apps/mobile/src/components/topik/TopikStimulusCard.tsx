@@ -1,14 +1,23 @@
+import { useMemo } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import type { TopikStimulus } from "@/types/topik";
 import { TopikPassage } from "./TopikPassage";
 import { TopikTextBlocks } from "./TopikTextBlocks";
+import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikStimulusCardProps {
   stimulus: TopikStimulus;
   highlightedKeys?: ReadonlySet<string>;
 }
 
+function useStyles() {
+  const palette = useTopikTheme();
+  return useMemo(() => getStyles(palette), [palette]);
+}
+
 function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
+  const styles = useStyles();
   return (
     <View style={styles.advertisement}>
       {!!stimulus.title && <Text style={styles.adTitle}>{stimulus.title}</Text>}
@@ -31,6 +40,7 @@ function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
 }
 
 function Notice({ stimulus }: { stimulus: TopikStimulus }) {
+  const styles = useStyles();
   return (
     <View style={styles.notice}>
       {!!stimulus.title && (
@@ -59,6 +69,8 @@ function Notice({ stimulus }: { stimulus: TopikStimulus }) {
 }
 
 function Chart({ stimulus }: { stimulus: TopikStimulus }) {
+  const { t } = useTranslation();
+  const styles = useStyles();
   const chart = stimulus.chart;
   if (!chart) return null;
 
@@ -94,7 +106,11 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
           ))}
         </View>
       </ScrollView>
-      {!!chart.unit && <Text style={styles.chartNote}>단위: {chart.unit}</Text>}
+      {!!chart.unit && (
+        <Text style={styles.chartNote}>
+          {t("topik.stimulus.chartUnit", { unit: chart.unit })}
+        </Text>
+      )}
       {!!chart.sourceNote && (
         <Text style={styles.chartNote}>{chart.sourceNote}</Text>
       )}
@@ -103,6 +119,7 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
 }
 
 function SentenceSet({ stimulus, highlightedKeys }: TopikStimulusCardProps) {
+  const styles = useStyles();
   return (
     <View style={styles.sentenceSet}>
       {stimulus.labeledSentences.map((sentence) => (
@@ -124,6 +141,9 @@ export function TopikStimulusCard({
   stimulus,
   highlightedKeys,
 }: TopikStimulusCardProps) {
+  const { t } = useTranslation();
+  const styles = useStyles();
+
   if (stimulus.kind === "advertisement") {
     return <Advertisement stimulus={stimulus} />;
   }
@@ -141,7 +161,7 @@ export function TopikStimulusCard({
   if (stimulus.kind === "headline") {
     return (
       <View style={styles.headline}>
-        <Text style={styles.headlineLabel}>신문 기사 제목</Text>
+        <Text style={styles.headlineLabel}>{t("topik.stimulus.headline")}</Text>
         <Text style={styles.headlineText}>{stimulus.title}</Text>
       </View>
     );
@@ -151,7 +171,7 @@ export function TopikStimulusCard({
     <View style={styles.passageStack}>
       {stimulus.givenText.length > 0 && (
         <View style={styles.givenText}>
-          <Text style={styles.givenLabel}>주어진 문장</Text>
+          <Text style={styles.givenLabel}>{t("topik.stimulus.givenSentence")}</Text>
           <TopikTextBlocks blocks={stimulus.givenText} />
         </View>
       )}
@@ -174,10 +194,10 @@ export function TopikStimulusCard({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (palette: TopikPalette) => StyleSheet.create({
   passageStack: { gap: 12 },
   passageTitle: {
-    color: "#1F2630",
+    color: palette.text,
     fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
@@ -187,73 +207,73 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
     borderWidth: 2,
-    borderColor: "#2D3745",
-    backgroundColor: "#FFFFFF",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surface,
     padding: 22,
   },
   adTitle: {
-    color: "#122E52",
+    color: palette.primaryText,
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "900",
     textAlign: "center",
   },
   adSubtitle: {
-    color: "#4D525A",
+    color: palette.textSecondary,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
   },
   centerText: { textAlign: "center" },
-  adBullet: { color: "#32343A", fontSize: 14, lineHeight: 21 },
+  adBullet: { color: palette.text, fontSize: 14, lineHeight: 21 },
   notice: {
     gap: 10,
     borderWidth: 1,
-    borderColor: "#9EA5AE",
-    backgroundColor: "#FAFAF7",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.paper,
     padding: 18,
   },
   noticeTitle: {
-    color: "#173B67",
+    color: palette.primary,
     fontSize: 18,
     fontWeight: "900",
     textAlign: "center",
   },
-  noticeSubtitle: { color: "#5A6068", fontSize: 12, textAlign: "center" },
+  noticeSubtitle: { color: palette.textSecondary, fontSize: 12, textAlign: "center" },
   noticeRow: { flexDirection: "row", gap: 9, alignItems: "flex-start" },
   noticeDot: {
     width: 5,
     height: 5,
     marginTop: 9,
     borderRadius: 3,
-    backgroundColor: "#173B67",
+    backgroundColor: palette.primary,
   },
-  noticeText: { flex: 1, color: "#2E3238", fontSize: 14, lineHeight: 21 },
+  noticeText: { flex: 1, color: palette.text, fontSize: 14, lineHeight: 21 },
   infoRow: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#D8DADF",
+    borderTopColor: palette.divider,
     paddingTop: 9,
   },
-  infoLabel: { width: 90, color: "#173B67", fontWeight: "800" },
-  infoValue: { flex: 1, color: "#292C31" },
+  infoLabel: { width: 90, color: palette.primary, fontWeight: "800" },
+  infoValue: { flex: 1, color: palette.text },
   chartCard: {
     gap: 9,
     borderWidth: 1,
-    borderColor: "#B9BEC5",
-    backgroundColor: "#FFFFFF",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surface,
     padding: 14,
   },
   chartTitle: {
-    color: "#20252C",
+    color: palette.text,
     fontSize: 16,
     fontWeight: "900",
     textAlign: "center",
   },
-  chartSubtitle: { color: "#666B73", fontSize: 12, textAlign: "center" },
-  table: { minWidth: 320, borderWidth: 1, borderColor: "#ADB3BB" },
+  chartSubtitle: { color: palette.textSecondary, fontSize: 12, textAlign: "center" },
+  table: { minWidth: 320, borderWidth: 1, borderColor: palette.borderStrong },
   tableRow: { flexDirection: "row" },
-  tableHeader: { backgroundColor: "#E9EEF5" },
+  tableHeader: { backgroundColor: palette.primarySoft },
   tableCell: {
     width: 84,
     minHeight: 40,
@@ -261,29 +281,29 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#C5CAD0",
-    color: "#30343A",
+    borderColor: palette.border,
+    color: palette.text,
     fontSize: 12,
     textAlign: "center",
   },
   firstCell: { width: 96 },
-  headerText: { color: "#173B67", fontWeight: "800" },
+  headerText: { color: palette.primaryText, fontWeight: "800" },
   rowLabel: { fontWeight: "700" },
-  chartNote: { color: "#7B7F85", fontSize: 11, textAlign: "right" },
+  chartNote: { color: palette.textMuted, fontSize: 11, textAlign: "right" },
   sentenceSet: {
     gap: 13,
     borderWidth: 1,
-    borderColor: "#C9CDD2",
+    borderColor: palette.borderStrong,
     padding: 17,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
   },
   sentenceRow: { flexDirection: "row", alignItems: "flex-start", gap: 11 },
   sentenceLabel: {
     width: 31,
     height: 31,
     borderRadius: 16,
-    backgroundColor: "#173B67",
-    color: "#FFFFFF",
+    backgroundColor: palette.primaryStrong,
+    color: palette.white,
     fontSize: 12,
     fontWeight: "900",
     lineHeight: 31,
@@ -293,15 +313,15 @@ const styles = StyleSheet.create({
   headline: {
     borderTopWidth: 3,
     borderBottomWidth: 1,
-    borderColor: "#303840",
-    backgroundColor: "#F4F1EA",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surfaceMuted,
     paddingHorizontal: 18,
     paddingVertical: 20,
     gap: 8,
   },
-  headlineLabel: { color: "#74706A", fontSize: 11, fontWeight: "700" },
+  headlineLabel: { color: palette.textMuted, fontSize: 11, fontWeight: "700" },
   headlineText: {
-    color: "#1F2328",
+    color: palette.text,
     fontSize: 18,
     lineHeight: 27,
     fontWeight: "900",
@@ -310,10 +330,10 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderStyle: "dashed",
-    borderColor: "#6A7480",
-    backgroundColor: "#F6F8FA",
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surfaceMuted,
     padding: 15,
   },
-  givenLabel: { color: "#173B67", fontSize: 11, fontWeight: "900" },
+  givenLabel: { color: palette.primary, fontSize: 11, fontWeight: "900" },
   image: { width: "100%", height: 180 },
 });

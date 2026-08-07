@@ -1,4 +1,7 @@
+import topik from "./topik/en";
+
 export default {
+  topik,
   common: {
     start: "Get Started",
     next: "Next",
