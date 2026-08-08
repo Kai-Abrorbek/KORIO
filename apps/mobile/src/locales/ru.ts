@@ -418,15 +418,39 @@ export default {
     emptyDesc: "Учитесь и заводите друзей — новости появятся здесь.",
     type: {
       follow: { title: "{{nickname}} подписался на вас", body: "" },
-      league_promoted: { title: "Повышение в лигу {{toTier}}", body: "{{rank}} место · {{gems}} кристаллов" },
-      league_demoted: { title: "Понижение в лигу {{toTier}}", body: "{{rank}} место · вернёмся выше" },
-      league_result: { title: "Недельная лига завершена", body: "{{rank}} место · {{gems}} кристаллов" },
-      chest: { title: "Вы открыли сундук", body: "Получено {{gems}} кристаллов" },
-      streak: { title: "{{days}} дней подряд", body: "Огонь разгорелся сильнее" },
-      streak_risk: { title: "Серия под угрозой", body: "Позанимайтесь сегодня" },
-      energy_full: { title: "Энергия восстановлена", body: "Самое время учиться" },
+      league_promoted: {
+        title: "Повышение в лигу {{toTier}}",
+        body: "{{rank}} место · {{gems}} кристаллов",
+      },
+      league_demoted: {
+        title: "Понижение в лигу {{toTier}}",
+        body: "{{rank}} место · вернёмся выше",
+      },
+      league_result: {
+        title: "Недельная лига завершена",
+        body: "{{rank}} место · {{gems}} кристаллов",
+      },
+      chest: {
+        title: "Вы открыли сундук",
+        body: "Получено {{gems}} кристаллов",
+      },
+      streak: {
+        title: "{{days}} дней подряд",
+        body: "Огонь разгорелся сильнее",
+      },
+      streak_risk: {
+        title: "Серия под угрозой",
+        body: "Позанимайтесь сегодня",
+      },
+      energy_full: {
+        title: "Энергия восстановлена",
+        body: "Самое время учиться",
+      },
       level_up: { title: "Уровень повышен", body: "" },
-      super_expiring: { title: "Пробный период заканчивается", body: "Осталось {{days}} дн." },
+      super_expiring: {
+        title: "Пробный период заканчивается",
+        body: "Осталось {{days}} дн.",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -913,10 +937,12 @@ export default {
     nextQuestion: "Далее",
   },
   pronQuiz: {
-    question: "Какое произношение верное?",
-    practice: "Произнести",
-    lecture: "Урок",
+    question: "Какое слово вы услышали?",
+    listenOnly: "Слушайте и выбирайте",
     next: "Далее",
+    done: "Готово",
+    noData: "Этот шаг ещё готовится.",
+    resultCount: "{{correct}} из {{total}} верно",
   },
   sentenceBuild: {
     level: "Уровень {{n}}",
@@ -935,18 +961,25 @@ export default {
     nextQuestion: "Далее",
   },
   pronPractice: {
-    title: "Практика произношения",
-    tabs: {
-      beginner: "Новичок",
-      elementary: "Начальный",
-      intermediate: "Средний",
-      advanced: "Продвинутый",
+    title: "Различение звуков",
+    tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
+    stories: {
+      lv1: "Первый заказ Бори",
+      lv2: "Бори идёт на рынок",
+      lv3: "Бори ищет дорогу",
+      lv4: "Первое выступление Бори",
     },
-    step: "Этап {{n}}",
+    focus: {
+      lv1: "Простые и придыхательные",
+      lv2: "Простые и напряжённые",
+      lv3: "Похожие гласные",
+      lv4: "Конечные согласные",
+    },
+    step: "Шаг {{n}}",
     front: "В начале слова",
     back: "В конце слова",
     start: "START",
-    easyFirst: "Сначала пройдите режим Easy.",
+    hardLocked: "Наберите {{score}} баллов в EASY, чтобы открыть HARD.",
     confirm: "OK",
   },
   // ru.ts

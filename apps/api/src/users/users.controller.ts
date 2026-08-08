@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
+import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -44,6 +45,16 @@ export class UsersController {
   @Patch('me/learn-mode')
   async updateLearnMode(@Request() req, @Body() dto: UpdateLearnModeDto) {
     return this.usersService.updateLearnMode(req.user._id.toString(), dto);
+  }
+
+  @Get('me/pronunciation')
+  async getPronunciation(@Request() req) {
+    return this.usersService.getPronunciation(req.user._id.toString());
+  }
+
+  @Post('me/pronunciation')
+  async savePronunciation(@Request() req, @Body() dto: SavePronunciationDto) {
+    return this.usersService.savePronunciation(req.user._id.toString(), dto);
   }
 
   @Post('me/hangul-complete')

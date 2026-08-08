@@ -32,6 +32,7 @@ import {
 } from './utils/study-category.util';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
+import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { AvatarConfig } from './schemas/avatar.schema';
 import {
   AVATAR_VERSION,
@@ -511,6 +512,39 @@ export class UsersService {
       learnMode: updated.learnMode,
       topikLevel: updated.topikLevel,
     };
+  }
+
+  /**
+   * 발음 연습 결과 저장.
+   * 최고점만 남긴다 — 다시 풀어서 못 봤다고 진행률이 깎이면 재도전을 피하게 된다.
+   */
+  async savePronunciation(userId: string, dto: SavePronunciationDto) {
+    const key = `${dto.level}:${dto.step}:${dto.mode}`;
+
+    const user = await this.userModel
+      .findById(userId)
+      .select('pronunciationScores')
+      .lean();
+    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    const scores = user.pronunciationScores || {};
+    const best = Math.max(scores[key] ?? 0, dto.score);
+
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { $set: { [`pronunciationScores.${key}`]: best } },
+    );
+
+    return { scores: { ...scores, [key]: best } };
+  }
+
+  async getPronunciation(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('pronunciationScores')
+      .lean();
+    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+    return { scores: user.pronunciationScores || {} };
   }
 
   async updateAvatar(userId: string, dto: UpdateAvatarDto) {

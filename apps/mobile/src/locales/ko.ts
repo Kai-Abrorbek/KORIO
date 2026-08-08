@@ -416,15 +416,36 @@ export default {
     emptyDesc: "학습하고 친구를 사귀면 여기에 소식이 쌓여요.",
     type: {
       follow: { title: "{{nickname}}님이 회원님을 팔로우했어요", body: "" },
-      league_promoted: { title: "{{toTier}} 리그로 승급했어요", body: "{{rank}}위 · 보석 {{gems}}개" },
-      league_demoted: { title: "{{toTier}} 리그로 내려갔어요", body: "{{rank}}위 · 다시 올라가 봐요" },
-      league_result: { title: "이번 주 리그가 끝났어요", body: "{{rank}}위 · 보석 {{gems}}개" },
+      league_promoted: {
+        title: "{{toTier}} 리그로 승급했어요",
+        body: "{{rank}}위 · 보석 {{gems}}개",
+      },
+      league_demoted: {
+        title: "{{toTier}} 리그로 내려갔어요",
+        body: "{{rank}}위 · 다시 올라가 봐요",
+      },
+      league_result: {
+        title: "이번 주 리그가 끝났어요",
+        body: "{{rank}}위 · 보석 {{gems}}개",
+      },
       chest: { title: "상자를 열었어요", body: "보석 {{gems}}개 획득" },
-      streak: { title: "{{days}}일 연속 학습 달성", body: "불꽃이 더 뜨거워졌어요" },
-      streak_risk: { title: "연속 학습이 끊길 수 있어요", body: "오늘 학습하면 이어져요" },
-      energy_full: { title: "에너지가 가득 찼어요", body: "지금 학습하기 좋아요" },
+      streak: {
+        title: "{{days}}일 연속 학습 달성",
+        body: "불꽃이 더 뜨거워졌어요",
+      },
+      streak_risk: {
+        title: "연속 학습이 끊길 수 있어요",
+        body: "오늘 학습하면 이어져요",
+      },
+      energy_full: {
+        title: "에너지가 가득 찼어요",
+        body: "지금 학습하기 좋아요",
+      },
       level_up: { title: "레벨이 올랐어요", body: "" },
-      super_expiring: { title: "무료 체험이 곧 끝나요", body: "{{days}}일 남았어요" },
+      super_expiring: {
+        title: "무료 체험이 곧 끝나요",
+        body: "{{days}}일 남았어요",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -910,10 +931,12 @@ export default {
     nextQuestion: "다음 문제",
   },
   pronQuiz: {
-    question: "어느 쪽이 맞는 발음일까요?",
-    practice: "발음 해보기",
-    lecture: "강의 보기",
+    question: "방금 들은 단어는 어느 쪽일까요?",
+    listenOnly: "듣고 골라보세요",
     next: "다음 문제",
+    done: "완료",
+    noData: "이 단계는 아직 준비 중이에요.",
+    resultCount: "{{total}}문제 중 {{correct}}개 정답",
   },
   sentenceBuild: {
     level: "레벨 {{n}}",
@@ -933,17 +956,24 @@ export default {
   },
   pronPractice: {
     title: "발음 구분 연습",
-    tabs: {
-      beginner: "왕초보",
-      elementary: "초급",
-      intermediate: "중급",
-      advanced: "고급",
+    tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
+    stories: {
+      lv1: "보리의 첫 주문",
+      lv2: "보리의 시장 나들이",
+      lv3: "보리의 길 찾기",
+      lv4: "보리의 발표 데뷔",
+    },
+    focus: {
+      lv1: "예사소리 vs 거센소리",
+      lv2: "예사소리 vs 된소리",
+      lv3: "헷갈리는 모음",
+      lv4: "받침 소리",
     },
     step: "{{n}}단계",
-    front: "단어 앞",
-    back: "단어 뒤",
+    front: "첫소리",
+    back: "받침",
     start: "START",
-    easyFirst: "Easy 모드를 먼저 진행해 주세요.",
+    hardLocked: "EASY에서 {{score}}점 이상 받으면 HARD가 열려요.",
     confirm: "확인",
   },
   // ko.ts

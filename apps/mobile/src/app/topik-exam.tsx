@@ -221,8 +221,7 @@ export default function TopikExamScreen() {
   useEffect(() => {
     if (!examCode) return;
     void start(examCode, mode);
-    return listeningPlayback.stop;
-  }, [examCode, listeningPlayback.stop, mode, start]);
+  }, [examCode, mode, start]);
 
   const playGuidedAudio = useCallback(
     (audio: TopikAudio, repeatCount: number) => {

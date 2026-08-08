@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -10,13 +10,20 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-} from "react-native-reanimated";
+import { useFocusEffect, useRouter } from "expo-router";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import * as Haptics from "@/utils/haptics";
+import { UserService } from "@/services/user.service";
+import {
+  PRON_DATA,
+  PRON_LEVELS,
+  HARD_UNLOCK_SCORE,
+  STAGE_PASS_SCORE,
+  levelTotal,
+  type PronLevel,
+  type PronStage,
+} from "@/constants/pronunciation";
 
 const C = {
   bg: "#f4f5f9",
@@ -25,181 +32,66 @@ const C = {
   sub: "#9aa2b1",
   purple: "#8b7ff0",
   purpleDk: "#6f61e6",
-  purpleSoft: "#efeafb",
   tabInk: "#8b7ff0",
   tabOff: "#3d3d4d",
   stageBg: "#fbe8d8",
   bubble: "#ffffff",
-  gray: "#c9ccd6",
   grayBtn: "#d4d6de",
   track: "#e5e7ee",
   ringGray: "#c7cbd6",
-  lockDim: "rgba(90,81,120,0.35)",
+  green: "#3cba54",
 };
 
-type Level = "beginner" | "elementary" | "intermediate" | "advanced";
-interface Stage {
-  step: number;
-  a: string;
-  b: string;
-  pos: "front" | "back";
-  leftBubble: string;
-  leftWord: string;
-  rightBubble: string;
-  rightWord: string;
-  easyDone: boolean;
-  easyScore?: number;
-  hardScore?: number;
-}
-// mock (백엔드 붙일 땐 이 맵만 교체)
-const DATA: Record<
-  Level,
-  { story: string; total: number; done: number; stages: Stage[] }
-> = {
-  beginner: {
-    story: "니니의 첫 해외 여행, 어리버리 맛집 체험!",
-    total: 64,
-    done: 0,
-    stages: [
-      {
-        step: 1,
-        a: "f",
-        b: "p",
-        pos: "front",
-        leftBubble: "포크({0}) 주세요.",
-        leftWord: "f",
-        rightBubble: "네~ 돼지고기({0}) 나왔습니다.",
-        rightWord: "p",
-        easyDone: false,
-      },
-      {
-        step: 2,
-        a: "f",
-        b: "p",
-        pos: "back",
-        leftBubble: "커피({0}) 주세요.",
-        leftWord: "f",
-        rightBubble: "네, 컵({0}) 드릴까요?",
-        rightWord: "p",
-        easyDone: false,
-      },
-      {
-        step: 3,
-        a: "b",
-        b: "v",
-        pos: "front",
-        leftBubble: "배({0})를 예약했어요.",
-        leftWord: "b",
-        rightBubble: "표({0})는 여기 있어요.",
-        rightWord: "v",
-        easyDone: false,
-      },
-      {
-        step: 4,
-        a: "b",
-        b: "v",
-        pos: "back",
-        leftBubble: "갈비({0}) 맛있어요.",
-        leftWord: "b",
-        rightBubble: "저는 채식({0})해요.",
-        rightWord: "v",
-        easyDone: false,
-      },
-    ],
-  },
-  elementary: {
-    story: "니니의 카페 도전기!",
-    total: 48,
-    done: 0,
-    stages: [
-      {
-        step: 1,
-        a: "r",
-        b: "l",
-        pos: "front",
-        leftBubble: "쌀({0}) 주세요.",
-        leftWord: "r",
-        rightBubble: "이({0})요? 여기요.",
-        rightWord: "l",
-        easyDone: false,
-      },
-      {
-        step: 2,
-        a: "r",
-        b: "l",
-        pos: "back",
-        leftBubble: "여기 불({0}).",
-        leftWord: "r",
-        rightBubble: "차가운({0}) 거요?",
-        rightWord: "l",
-        easyDone: false,
-      },
-    ],
-  },
-  intermediate: {
-    story: "니니의 회사 생활!",
-    total: 40,
-    done: 0,
-    stages: [
-      {
-        step: 1,
-        a: "θ",
-        b: "s",
-        pos: "front",
-        leftBubble: "얇은({0}) 거요.",
-        leftWord: "θ",
-        rightBubble: "죄({0})송해요?",
-        rightWord: "s",
-        easyDone: false,
-      },
-    ],
-  },
-  advanced: {
-    story: "니니의 발표 데뷔!",
-    total: 32,
-    done: 0,
-    stages: [
-      {
-        step: 1,
-        a: "ʃ",
-        b: "s",
-        pos: "front",
-        leftBubble: "배({0}) 탔어요.",
-        leftWord: "ʃ",
-        rightBubble: "한 모금({0})?",
-        rightWord: "s",
-        easyDone: false,
-      },
-    ],
-  },
-};
-
-const TABS: { key: Level }[] = [
-  { key: "beginner" },
-  { key: "elementary" },
-  { key: "intermediate" },
-  { key: "advanced" },
-];
+/** 점수 맵 키 — 백엔드와 같은 규칙 */
+const key = (lv: PronLevel, step: number, mode: "easy" | "hard") =>
+  `${lv}:${step}:${mode}`;
 
 export default function PronunciationPractice() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const [tab, setTab] = useState<Level>("beginner");
+  const [tab, setTab] = useState<PronLevel>("lv1");
   const [expanded, setExpanded] = useState<number | null>(1);
   const [lockAlert, setLockAlert] = useState(false);
+  const [scores, setScores] = useState<Record<string, number>>({});
 
-  const data = DATA[tab];
-  const pct = data.total ? Math.round((data.done / data.total) * 100) : 0;
+  // 퀴즈를 풀고 돌아올 때마다 새로 받아야 점수가 바로 반영된다
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getPronunciation()
+        .then((r) => setScores(r.scores ?? {}))
+        .catch(() => {});
+    }, []),
+  );
 
-  const startEasy = () => router.push("/pronunciation-quiz");
-  const startHard = (stage: Stage) => {
-    if (!stage.easyDone) {
+  const data = PRON_DATA[tab];
+  const total = levelTotal(tab);
+  const done = data.stages.reduce((n, s) => {
+    const e = scores[key(tab, s.step, "easy")] ?? 0;
+    const h = scores[key(tab, s.step, "hard")] ?? 0;
+    return (
+      n + (e >= STAGE_PASS_SCORE ? 1 : 0) + (h >= STAGE_PASS_SCORE ? 1 : 0)
+    );
+  }, 0);
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  const open = (stage: PronStage, mode: "easy" | "hard") => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push({
+      pathname: "/pronunciation-quiz",
+      params: { level: tab, step: String(stage.step), mode },
+    });
+  };
+
+  const startHard = (stage: PronStage) => {
+    const easy = scores[key(tab, stage.step, "easy")] ?? 0;
+    if (easy < HARD_UNLOCK_SCORE) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       setLockAlert(true);
       return;
     }
-    router.push("/pronunciation-quiz");
+    open(stage, "hard");
   };
 
   // 말풍선 {0} → 단어 강조
@@ -216,7 +108,6 @@ export default function PronunciationPractice() {
 
   return (
     <View style={[st.container, { paddingTop: insets.top }]}>
-      {/* 헤더 */}
       <View style={st.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Ionicons name="chevron-back" size={28} color={C.ink} />
@@ -224,21 +115,27 @@ export default function PronunciationPractice() {
         <Text style={st.headerTitle}>{t("pronPractice.title")}</Text>
       </View>
 
-      {/* 탭 */}
+      {/* 탭 — 라벨은 짧게 고정. 무슨 레벨인지는 아래 배너가 설명한다 */}
       <View style={st.tabs}>
-        {TABS.map((tb) => {
-          const on = tab === tb.key;
+        {PRON_LEVELS.map((lv) => {
+          const on = tab === lv;
           return (
             <Pressable
-              key={tb.key}
+              key={lv}
               style={st.tab}
               onPress={() => {
-                setTab(tb.key);
+                Haptics.selectionAsync();
+                setTab(lv);
                 setExpanded(1);
               }}
             >
-              <Text style={[st.tabText, on && st.tabTextOn]}>
-                {t(`pronPractice.tabs.${tb.key}`)}
+              <Text
+                style={[st.tabText, on && st.tabTextOn]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
+                {t(`pronPractice.tabs.${lv}`)}
               </Text>
               {on && <View style={st.tabBar} />}
             </Pressable>
@@ -253,44 +150,55 @@ export default function PronunciationPractice() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* 스토리 진행 배너 */}
+        {/* 진행 배너 — 실제 저장된 점수로 계산 */}
         <View style={st.banner}>
           <View style={{ flex: 1 }}>
-            <Text style={st.bannerTitle}>{data.story}</Text>
+            <Text style={st.bannerTitle}>{t(data.storyKey)}</Text>
+            <Text style={st.bannerSub}>{t(`pronPractice.focus.${tab}`)}</Text>
             <View style={st.bannerTrack}>
               <View style={[st.bannerFill, { width: `${pct}%` }]} />
             </View>
           </View>
-          <View style={st.ring}>
-            <Text style={st.ringPct}>
+          <View style={[st.ring, pct > 0 && { borderColor: C.purple }]}>
+            <Text style={[st.ringPct, pct > 0 && { color: C.purpleDk }]}>
               {pct}
               <Text style={st.ringPctSmall}>%</Text>
             </Text>
             <Text style={st.ringFrac}>
-              {data.done}/{data.total}
+              {done}/{total}
             </Text>
           </View>
         </View>
 
         {/* 단계 카드들 */}
         {data.stages.map((stage) => {
-          const open = expanded === stage.step;
+          const isOpen = expanded === stage.step;
+          const easy = scores[key(tab, stage.step, "easy")];
+          const hard = scores[key(tab, stage.step, "hard")];
+          const hardOpen = (easy ?? 0) >= HARD_UNLOCK_SCORE;
+          const cleared =
+            (easy ?? 0) >= STAGE_PASS_SCORE && (hard ?? 0) >= STAGE_PASS_SCORE;
+
           return (
-            <Animated.View
-              key={`${tab}-${stage.step}`}
-              layout={LinearTransition.springify().damping(18)}
-              style={st.stageCard}
-            >
-              {/* 헤더 (탭하면 열림/닫힘) */}
+            <View key={`${tab}-${stage.step}`} style={st.stageCard}>
               <Pressable
                 style={st.stageHead}
-                onPress={() => setExpanded(open ? null : stage.step)}
+                onPress={() => setExpanded(isOpen ? null : stage.step)}
               >
                 <View style={{ flex: 1 }}>
-                  <View style={st.stepBadge}>
-                    <Text style={st.stepBadgeText}>
-                      {t("pronPractice.step", { n: stage.step })}
-                    </Text>
+                  <View style={st.badgeRow}>
+                    <View style={st.stepBadge}>
+                      <Text style={st.stepBadgeText}>
+                        {t("pronPractice.step", { n: stage.step })}
+                      </Text>
+                    </View>
+                    {cleared && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color={C.green}
+                      />
+                    )}
                   </View>
                   <View style={st.pairRow}>
                     <Text style={st.pairLetter}>{stage.a}</Text>
@@ -305,20 +213,16 @@ export default function PronunciationPractice() {
                 </View>
                 <View style={st.chevron}>
                   <Ionicons
-                    name={open ? "chevron-up" : "chevron-down"}
+                    name={isOpen ? "chevron-up" : "chevron-down"}
                     size={22}
                     color={C.sub}
                   />
                 </View>
               </Pressable>
 
-              {/* 펼침 내용 */}
-              {open && (
-                <Animated.View
-                  entering={FadeIn.duration(200)}
-                  exiting={FadeOut.duration(120)}
-                >
-                  {/* 캐릭터 식당 씬 */}
+              {/* 펼침 내용 — 레이아웃 애니메이션 없음(카드가 튀어서 뺐다) */}
+              {isOpen && (
+                <View>
                   <View style={st.stage}>
                     <View style={st.stageBubbles}>
                       <View style={[st.bubble, { marginRight: 20 }]}>
@@ -337,32 +241,31 @@ export default function PronunciationPractice() {
                     </View>
                   </View>
 
-                  {/* EASY / HARD */}
                   <View style={st.modes}>
                     <ModeCol
                       label="EASY"
-                      score={stage.easyScore}
+                      score={easy}
                       enabled
-                      onStart={startEasy}
+                      onStart={() => open(stage, "easy")}
                       t={t}
                     />
                     <View style={st.modeDivider} />
                     <ModeCol
                       label="HARD"
-                      score={stage.hardScore}
-                      enabled={stage.easyDone}
+                      score={hard}
+                      enabled={hardOpen}
                       onStart={() => startHard(stage)}
                       t={t}
                     />
                   </View>
-                </Animated.View>
+                </View>
               )}
-            </Animated.View>
+            </View>
           );
         })}
       </ScrollView>
 
-      {/* Easy 먼저 알럿 */}
+      {/* HARD 잠김 안내 */}
       <Modal
         transparent
         visible={lockAlert}
@@ -371,8 +274,16 @@ export default function PronunciationPractice() {
       >
         <View style={st.modalBg}>
           <Animated.View entering={FadeIn.duration(150)} style={st.modalCard}>
-            <Text style={st.modalText}>{t("pronPractice.easyFirst")}</Text>
-            <Pressable onPress={() => setLockAlert(false)}>
+            <View style={st.modalIcon}>
+              <Ionicons name="lock-closed" size={26} color={C.purpleDk} />
+            </View>
+            <Text style={st.modalText}>
+              {t("pronPractice.hardLocked", { score: HARD_UNLOCK_SCORE })}
+            </Text>
+            <Pressable
+              onPress={() => setLockAlert(false)}
+              style={{ width: "100%" }}
+            >
               {({ pressed }) => (
                 <LinearGradient
                   colors={[C.purple, C.purpleDk]}
@@ -398,27 +309,29 @@ function ModeCol({ label, score, enabled, onStart, t }: any) {
         <Text style={[st.modeLabel, !enabled && { color: C.sub }]}>
           {label}
         </Text>
-        <Text style={st.modeScore}>{score != null ? score : "--"}</Text>
+        <Text
+          style={[
+            st.modeScore,
+            score != null && { color: C.purpleDk, fontWeight: "800" },
+          ]}
+        >
+          {score != null ? score : "--"}
+        </Text>
       </View>
       <View style={st.modeLine} />
-      <Pressable
-        onPress={onStart}
-        disabled={!enabled}
-        style={{ marginTop: 14 }}
-      >
+      <Pressable onPress={onStart} style={{ marginTop: 14 }}>
         {({ pressed }) =>
           enabled ? (
             <LinearGradient
               colors={[C.purple, C.purpleDk]}
-              style={[st.startBtn, pressed && { transform: [{ scale: 0.97 }] }]}
+              style={[st.startBtn, pressed && { opacity: 0.88 }]}
             >
               <Text style={st.startText}>{t("pronPractice.start")}</Text>
             </LinearGradient>
           ) : (
+            // 잠겨도 누를 수는 있어야 이유를 알려줄 수 있다
             <View style={[st.startBtn, { backgroundColor: C.grayBtn }]}>
-              <Text style={[st.startText, { color: "#f4f4f6" }]}>
-                {t("pronPractice.start")}
-              </Text>
+              <Ionicons name="lock-closed" size={18} color="#f4f4f6" />
             </View>
           )
         }
@@ -443,8 +356,13 @@ const st = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e8e9ef",
   },
-  tab: { flex: 1, alignItems: "center", paddingVertical: 14 },
-  tabText: { fontSize: 17, fontWeight: "700", color: C.tabOff },
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+  },
+  tabText: { fontSize: 16, fontWeight: "700", color: C.tabOff },
   tabTextOn: { color: C.tabInk, fontWeight: "800" },
   tabBar: {
     position: "absolute",
@@ -464,11 +382,13 @@ const st = StyleSheet.create({
     gap: 14,
     marginBottom: 14,
   },
-  bannerTitle: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: C.ink,
-    marginBottom: 14,
+  bannerTitle: { fontSize: 17, fontWeight: "800", color: C.ink },
+  bannerSub: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.sub,
+    marginTop: 4,
+    marginBottom: 12,
   },
   bannerTrack: { height: 8, backgroundColor: C.track, borderRadius: 4 },
   bannerFill: { height: 8, backgroundColor: C.purple, borderRadius: 4 },
@@ -492,19 +412,24 @@ const st = StyleSheet.create({
     overflow: "hidden",
   },
   stageHead: { flexDirection: "row", alignItems: "center", padding: 20 },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
   stepBadge: {
     alignSelf: "flex-start",
     backgroundColor: "#3d3d4d",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    marginBottom: 12,
   },
   stepBadgeText: { color: "#fff", fontSize: 13, fontWeight: "800" },
   pairRow: { flexDirection: "row", alignItems: "baseline", gap: 8 },
   pairLetter: { fontSize: 34, fontWeight: "800", color: C.ink },
   pairVs: { fontSize: 18, fontWeight: "700", color: C.sub },
-  pairPos: { fontSize: 18, fontWeight: "700", color: C.ink, marginLeft: 4 },
+  pairPos: { fontSize: 16, fontWeight: "700", color: C.ink, marginLeft: 4 },
   chevron: {
     width: 44,
     height: 44,
@@ -514,12 +439,7 @@ const st = StyleSheet.create({
     justifyContent: "center",
   },
 
-  stage: {
-    backgroundColor: C.stageBg,
-    paddingTop: 16,
-    paddingBottom: 8,
-    marginHorizontal: 0,
-  },
+  stage: { backgroundColor: C.stageBg, paddingTop: 16, paddingBottom: 8 },
   stageBubbles: {
     flexDirection: "row",
     justifyContent: "center",
@@ -572,7 +492,13 @@ const st = StyleSheet.create({
   modeLabel: { fontSize: 22, fontWeight: "800", color: C.ink },
   modeScore: { fontSize: 18, fontWeight: "700", color: C.sub },
   modeLine: { height: 2, backgroundColor: "#ececf0", marginTop: 8 },
-  startBtn: { borderRadius: 26, paddingVertical: 16, alignItems: "center" },
+  startBtn: {
+    borderRadius: 26,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 54,
+  },
   startText: {
     color: "#fff",
     fontSize: 18,
@@ -594,12 +520,22 @@ const st = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  modalIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#efeafb",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
   modalText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "700",
     color: C.ink,
     marginBottom: 20,
     textAlign: "center",
+    lineHeight: 24,
   },
   modalBtn: {
     borderRadius: 14,

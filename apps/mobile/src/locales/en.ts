@@ -416,15 +416,33 @@ export default {
     emptyDesc: "Study and make friends, and news will show up here.",
     type: {
       follow: { title: "{{nickname}} started following you", body: "" },
-      league_promoted: { title: "Promoted to the {{toTier}} league", body: "Rank {{rank}} · {{gems}} gems" },
-      league_demoted: { title: "Moved down to the {{toTier}} league", body: "Rank {{rank}} · climb back up" },
-      league_result: { title: "This week's league ended", body: "Rank {{rank}} · {{gems}} gems" },
+      league_promoted: {
+        title: "Promoted to the {{toTier}} league",
+        body: "Rank {{rank}} · {{gems}} gems",
+      },
+      league_demoted: {
+        title: "Moved down to the {{toTier}} league",
+        body: "Rank {{rank}} · climb back up",
+      },
+      league_result: {
+        title: "This week's league ended",
+        body: "Rank {{rank}} · {{gems}} gems",
+      },
       chest: { title: "You opened a chest", body: "Got {{gems}} gems" },
-      streak: { title: "{{days}}-day streak", body: "Your flame burns brighter" },
-      streak_risk: { title: "Your streak is at risk", body: "Study today to keep it" },
+      streak: {
+        title: "{{days}}-day streak",
+        body: "Your flame burns brighter",
+      },
+      streak_risk: {
+        title: "Your streak is at risk",
+        body: "Study today to keep it",
+      },
       energy_full: { title: "Energy is full", body: "Good time to study" },
       level_up: { title: "You levelled up", body: "" },
-      super_expiring: { title: "Your free trial is ending", body: "{{days}} days left" },
+      super_expiring: {
+        title: "Your free trial is ending",
+        body: "{{days}} days left",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -913,10 +931,12 @@ export default {
     nextQuestion: "Next",
   },
   pronQuiz: {
-    question: "Which is the correct pronunciation?",
-    practice: "Try saying it",
-    lecture: "Lesson",
+    question: "Which word did you just hear?",
+    listenOnly: "Listen and choose",
     next: "Next",
+    done: "Done",
+    noData: "This step isn't ready yet.",
+    resultCount: "{{correct}} of {{total}} correct",
   },
   sentenceBuild: {
     level: "Level {{n}}",
@@ -936,17 +956,24 @@ export default {
   },
   pronPractice: {
     title: "Pronunciation Practice",
-    tabs: {
-      beginner: "Beginner",
-      elementary: "Elementary",
-      intermediate: "Intermediate",
-      advanced: "Advanced",
+    tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
+    stories: {
+      lv1: "Bori's first order",
+      lv2: "Bori goes to the market",
+      lv3: "Bori asks for directions",
+      lv4: "Bori's first presentation",
+    },
+    focus: {
+      lv1: "Plain vs aspirated",
+      lv2: "Plain vs tense",
+      lv3: "Confusing vowels",
+      lv4: "Final consonants",
     },
     step: "Step {{n}}",
     front: "Word-initial",
     back: "Word-final",
     start: "START",
-    easyFirst: "Please finish Easy mode first.",
+    hardLocked: "Score {{score}} or higher on EASY to unlock HARD.",
     confirm: "OK",
   },
   // en.ts

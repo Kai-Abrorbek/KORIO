@@ -417,18 +417,37 @@ export default {
     yesterday: "Kecha",
     dayAgo: "{{count}} kun oldin",
     emptyTitle: "Hozircha bildirishnoma yo'q",
-    emptyDesc: "O'rganing va do'st orttiring — yangiliklar shu yerda to'planadi.",
+    emptyDesc:
+      "O'rganing va do'st orttiring — yangiliklar shu yerda to'planadi.",
     type: {
       follow: { title: "{{nickname}} sizga obuna bo'ldi", body: "" },
-      league_promoted: { title: "{{toTier}} ligasiga ko'tarildingiz", body: "{{rank}}-o'rin · {{gems}} gavhar" },
-      league_demoted: { title: "{{toTier}} ligasiga tushdingiz", body: "{{rank}}-o'rin · yana ko'tarilamiz" },
-      league_result: { title: "Haftalik liga yakunlandi", body: "{{rank}}-o'rin · {{gems}} gavhar" },
+      league_promoted: {
+        title: "{{toTier}} ligasiga ko'tarildingiz",
+        body: "{{rank}}-o'rin · {{gems}} gavhar",
+      },
+      league_demoted: {
+        title: "{{toTier}} ligasiga tushdingiz",
+        body: "{{rank}}-o'rin · yana ko'tarilamiz",
+      },
+      league_result: {
+        title: "Haftalik liga yakunlandi",
+        body: "{{rank}}-o'rin · {{gems}} gavhar",
+      },
       chest: { title: "Sandiqni ochdingiz", body: "{{gems}} gavhar oldingiz" },
       streak: { title: "{{days}} kun ketma-ket", body: "Olov yanada kuchaydi" },
-      streak_risk: { title: "Seriya uzilishi mumkin", body: "Bugun o'rgansangiz davom etadi" },
-      energy_full: { title: "Energiya to'ldi", body: "Hozir o'rganish uchun ayni vaqt" },
+      streak_risk: {
+        title: "Seriya uzilishi mumkin",
+        body: "Bugun o'rgansangiz davom etadi",
+      },
+      energy_full: {
+        title: "Energiya to'ldi",
+        body: "Hozir o'rganish uchun ayni vaqt",
+      },
       level_up: { title: "Darajangiz oshdi", body: "" },
-      super_expiring: { title: "Bepul sinov tugayapti", body: "{{days}} kun qoldi" },
+      super_expiring: {
+        title: "Bepul sinov tugayapti",
+        body: "{{days}} kun qoldi",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -916,10 +935,12 @@ export default {
     nextQuestion: "Keyingi",
   },
   pronQuiz: {
-    question: "Qaysi biri to'g'ri talaffuz?",
-    practice: "Talaffuz qilish",
-    lecture: "Dars",
+    question: "Qaysi so'zni eshitdingiz?",
+    listenOnly: "Eshiting va tanlang",
     next: "Keyingi",
+    done: "Tayyor",
+    noData: "Bu bosqich hali tayyorlanmoqda.",
+    resultCount: "{{total}} tadan {{correct}} ta to'g'ri",
   },
   sentenceBuild: {
     level: "Daraja {{n}}",
@@ -939,17 +960,24 @@ export default {
   },
   pronPractice: {
     title: "Talaffuz mashqi",
-    tabs: {
-      beginner: "Boshlang'ich",
-      elementary: "Oson",
-      intermediate: "O'rta",
-      advanced: "Yuqori",
+    tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
+    stories: {
+      lv1: "Borining birinchi buyurtmasi",
+      lv2: "Borining bozorga sayohati",
+      lv3: "Bori yo'l qidirmoqda",
+      lv4: "Borining birinchi chiqishi",
+    },
+    focus: {
+      lv1: "Oddiy vs kuchli undoshlar",
+      lv2: "Oddiy vs qattiq undoshlar",
+      lv3: "Chalkash unlilar",
+      lv4: "So'z oxiridagi undoshlar",
     },
     step: "{{n}}-bosqich",
     front: "So'z boshida",
     back: "So'z oxirida",
     start: "START",
-    easyFirst: "Avval Easy rejimini bajaring.",
+    hardLocked: "EASY'da {{score}} ball to'plasangiz, HARD ochiladi.",
     confirm: "OK",
   },
   // uz.ts
@@ -965,8 +993,10 @@ export default {
   },
   grammarPractice: {
     entryTitle: "Grammatika mashqi",
-    entrySub: "O‘rgangan grammatikani bo‘sh joy va gap yig‘ish bilan mashq qiling",
-    empty: "Hozircha mashq qiladigan grammatika yo‘q.\nAvval grammatikani o‘rganing.",
+    entrySub:
+      "O‘rgangan grammatikani bo‘sh joy va gap yig‘ish bilan mashq qiling",
+    empty:
+      "Hozircha mashq qiladigan grammatika yo‘q.\nAvval grammatikani o‘rganing.",
     finished: "Grammatika mashqi tugadi!",
     back: "Orqaga",
   },

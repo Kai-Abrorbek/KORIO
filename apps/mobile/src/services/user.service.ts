@@ -101,6 +101,19 @@ export const UserService = {
   }): Promise<{ learnMode: string; topikLevel: "1" | "2" }> =>
     api.patch(`/users/me/learn-mode`, data),
 
+  /** 발음 연습 점수 전체. 키는 `레벨:단계:모드` */
+  getPronunciation: (): Promise<{ scores: Record<string, number> }> =>
+    api.get(`/users/me/pronunciation`),
+
+  /** 한 단계 결과 저장. 서버가 최고점만 남기고 갱신된 전체를 돌려준다 */
+  savePronunciation: (data: {
+    level: string;
+    step: number;
+    mode: "easy" | "hard";
+    score: number;
+  }): Promise<{ scores: Record<string, number> }> =>
+    api.post(`/users/me/pronunciation`, data),
+
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 
   updateMe: (data: Partial<UserMe>): Promise<UserMe> =>

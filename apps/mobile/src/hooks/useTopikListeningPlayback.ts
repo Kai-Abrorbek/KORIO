@@ -64,6 +64,8 @@ export function useTopikListeningPlayback() {
   const runIdRef = useRef(0);
   const activeRunRef = useRef<ResolvedPlaybackRun | null>(null);
   const nativeRunRef = useRef<NativePlaybackRun | null>(null);
+  const speechActiveRef = useRef(false);
+  const speechReadyPromiseRef = useRef<Promise<void> | null>(null);
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handledNativeFinishRef = useRef(false);
 
@@ -73,34 +75,63 @@ export function useTopikListeningPlayback() {
     pauseTimerRef.current = null;
   }, []);
 
+  const ensureSpeechReady = useCallback(() => {
+    if (!speechReadyPromiseRef.current) {
+      speechReadyPromiseRef.current = Speech.getAvailableVoicesAsync()
+        .then(() => undefined)
+        .catch((error: unknown) => {
+          speechReadyPromiseRef.current = null;
+          throw error;
+        });
+    }
+    return speechReadyPromiseRef.current;
+  }, []);
+
   const finishRun = useCallback(
     (runId: number, nextStatus: TopikListeningPlaybackStatus) => {
       if (runIdRef.current !== runId) return;
       clearPauseTimer();
       activeRunRef.current = null;
       nativeRunRef.current = null;
+      speechActiveRef.current = false;
       setStatus(nextStatus);
     },
     [clearPauseTimer],
   );
 
-  const stop = useCallback(() => {
+  const invalidateCurrentRun = useCallback(() => {
     runIdRef.current += 1;
     clearPauseTimer();
     activeRunRef.current = null;
     nativeRunRef.current = null;
+    speechActiveRef.current = false;
     handledNativeFinishRef.current = false;
-    void Speech.stop().catch(() => undefined);
-    audioPlayer.pause();
+  }, [clearPauseTimer]);
+
+  const cancelPendingPlayback = useCallback(() => {
+    const hasActiveSpeech = speechActiveRef.current;
+    invalidateCurrentRun();
+    if (hasActiveSpeech) void Speech.stop().catch(() => undefined);
+  }, [invalidateCurrentRun]);
+
+  const stop = useCallback(() => {
+    const hasActiveNativeAudio = nativeRunRef.current !== null;
+    cancelPendingPlayback();
+    if (hasActiveNativeAudio) {
+      try {
+        audioPlayer.pause();
+      } catch {
+        // The player can already be released while the screen is closing.
+      }
+    }
     setActiveKey(null);
     setStatus("idle");
-  }, [audioPlayer, clearPauseTimer]);
+  }, [audioPlayer, cancelPendingPlayback]);
 
   const startSpeech = useCallback(
     (run: ResolvedPlaybackRun) => {
       nativeRunRef.current = null;
       handledNativeFinishRef.current = false;
-      audioPlayer.pause();
       setStatus("playing");
 
       const speakLine = (
@@ -122,12 +153,12 @@ export function useTopikListeningPlayback() {
 
         const line = segment.transcript[lineIndex];
         if (line) {
+          speechActiveRef.current = true;
           Speech.speak(line.text, {
             language: "ko-KR",
             rate: run.speechRate,
             pitch: linePitch(line.speaker),
             volume: run.volume,
-            useApplicationAudioSession: true,
             onDone: () => speakLine(repeatIndex, segmentIndex, lineIndex + 1),
             onError: () => finishRun(run.id, "error"),
             onStopped: () => {
@@ -166,13 +197,13 @@ export function useTopikListeningPlayback() {
         }
       };
 
-      void Speech.stop()
+      void ensureSpeechReady()
         .then(() => {
           if (runIdRef.current === run.id) speakLine(0, 0, 0);
         })
         .catch(() => finishRun(run.id, "error"));
     },
-    [audioPlayer, finishRun],
+    [ensureSpeechReady, finishRun],
   );
 
   const fallbackToSpeechOrFail = useCallback(
@@ -186,13 +217,18 @@ export function useTopikListeningPlayback() {
         activeRun.speechSegments.length > 0
       ) {
         nativeRun.fallbackAttempted = true;
+        try {
+          audioPlayer.pause();
+        } catch {
+          // A failed native source may already have released its playback handle.
+        }
         startSpeech(activeRun);
         return;
       }
 
       finishRun(nativeRun.id, "error");
     },
-    [finishRun, startSpeech],
+    [audioPlayer, finishRun, startSpeech],
   );
 
   const play = useCallback(
@@ -216,14 +252,17 @@ export function useTopikListeningPlayback() {
       const hasAudio = Boolean(request.audioUrl);
       const hasSpeech = speechSegments.length > 0;
 
-      runIdRef.current += 1;
+      const hasActiveNativeAudio = nativeRunRef.current !== null;
+      const hasActiveSpeech = speechActiveRef.current;
+      invalidateCurrentRun();
       const runId = runIdRef.current;
-      clearPauseTimer();
-      activeRunRef.current = null;
-      nativeRunRef.current = null;
-      handledNativeFinishRef.current = false;
-      void Speech.stop().catch(() => undefined);
-      audioPlayer.pause();
+      if (hasActiveNativeAudio) {
+        try {
+          audioPlayer.pause();
+        } catch {
+          // A stale native handle must not prevent the next TTS run from starting.
+        }
+      }
       setActiveKey(request.key);
 
       if (
@@ -231,6 +270,7 @@ export function useTopikListeningPlayback() {
         volume <= 0 ||
         (!hasAudio && !hasSpeech)
       ) {
+        if (hasActiveSpeech) void Speech.stop().catch(() => undefined);
         setStatus("unavailable");
         return false;
       }
@@ -250,33 +290,45 @@ export function useTopikListeningPlayback() {
       setStatus("playing");
 
       if (!run.audioUrl) {
-        startSpeech(run);
+        if (hasActiveSpeech) {
+          void Speech.stop()
+            .catch(() => undefined)
+            .then(() => startSpeech(run));
+        } else {
+          startSpeech(run);
+        }
         return true;
       }
 
-      try {
-        audioPlayer.volume = run.volume;
-        audioPlayer.playbackRate = 1;
-        nativeRunRef.current = {
-          id: run.id,
-          repeatIndex: 0,
-          repeatCount: run.repeatCount,
-          fallbackAttempted: false,
-        };
-        audioPlayer.replace(run.audioUrl);
-        audioPlayer.play();
-        return true;
-      } catch {
-        fallbackToSpeechOrFail({
-          id: run.id,
-          repeatIndex: 0,
-          repeatCount: run.repeatCount,
-          fallbackAttempted: false,
-        });
-        return hasSpeech && run.fallbackToSpeech;
+      const nativeRun: NativePlaybackRun = {
+        id: run.id,
+        repeatIndex: 0,
+        repeatCount: run.repeatCount,
+        fallbackAttempted: false,
+      };
+      nativeRunRef.current = nativeRun;
+
+      const startNativePlayback = () => {
+        if (runIdRef.current !== run.id) return;
+        try {
+          audioPlayer.volume = run.volume;
+          audioPlayer.playbackRate = 1;
+          audioPlayer.replace(run.audioUrl);
+          audioPlayer.play();
+        } catch {
+          fallbackToSpeechOrFail(nativeRun);
+        }
+      };
+      if (hasActiveSpeech) {
+        void Speech.stop()
+          .catch(() => undefined)
+          .then(startNativePlayback);
+      } else {
+        startNativePlayback();
       }
+      return true;
     },
-    [audioPlayer, clearPauseTimer, fallbackToSpeechOrFail, startSpeech],
+    [audioPlayer, fallbackToSpeechOrFail, invalidateCurrentRun, startSpeech],
   );
 
   useEffect(() => {
@@ -335,7 +387,14 @@ export function useTopikListeningPlayback() {
     finishRun,
   ]);
 
-  useEffect(() => stop, [stop]);
+  useEffect(
+    () => () => {
+      // useAudioPlayer owns the native object's lifecycle and releases it on
+      // unmount. Cleanup must not call pause() after that release.
+      cancelPendingPlayback();
+    },
+    [cancelPendingPlayback],
+  );
 
   return {
     activeKey,

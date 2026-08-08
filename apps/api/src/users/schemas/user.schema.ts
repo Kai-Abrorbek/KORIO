@@ -211,6 +211,16 @@ export class User {
   @Prop({ type: String, enum: TOPIK_LEVELS, default: '1' })
   topikLevel: TopikLevel;
 
+  /**
+   * 발음 구분 연습 점수. 키는 `레벨:단계:모드` (예: "lv1:3:easy"),
+   * 값은 0~100 최고점.
+   *
+   * 단계가 늘거나 줄어도 스키마를 안 건드리게 평평한 맵으로 둔다.
+   * 배열로 잡으면 단계 순서가 바뀔 때 전부 어긋난다.
+   */
+  @Prop({ type: Object, default: {} })
+  pronunciationScores: Record<string, number>;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
