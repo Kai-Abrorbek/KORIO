@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import {
-  findStage,
+  stageQuestionPlan,
   type PronLevel,
   type PronOption,
 } from "@/constants/pronunciation";
@@ -49,13 +49,12 @@ interface PQ {
   answer: 0 | 1;
 }
 
-/** 대립쌍 하나 → 문제 하나. 정답이 좌·우 어디 올지는 매번 무작위 */
-const toQuestion = (pair: readonly [PronOption, PronOption]): PQ => ({
+const toQuestion = (pair: [PronOption, PronOption], answer: 0 | 1): PQ => ({
   options: [
     { word: pair[0].word, ipa: pair[0].jamo, meaning: "" },
     { word: pair[1].word, ipa: pair[1].jamo, meaning: "" },
   ],
-  answer: Math.random() < 0.5 ? 0 : 1,
+  answer,
 });
 
 const speakEn = (w: string) => speakText(w);
@@ -75,13 +74,14 @@ export default function PronunciationQuiz() {
     step?: string;
     mode?: string;
   }>();
-  const QUESTIONS = useMemo<PQ[]>(() => {
-    const stage = findStage(
-      (params.level ?? "lv1") as PronLevel,
-      Number(params.step ?? 1),
-    );
-    return stage ? stage.pairs.map(toQuestion) : [];
-  }, [params.level, params.step]);
+  const QUESTIONS = useMemo<PQ[]>(
+    () =>
+      stageQuestionPlan(
+        (params.level ?? "lv1") as PronLevel,
+        Number(params.step ?? 1),
+      ).map((p) => toQuestion(p.pair, p.answer)),
+    [params.level, params.step],
+  );
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
