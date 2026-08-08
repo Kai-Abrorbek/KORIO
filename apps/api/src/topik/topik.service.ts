@@ -133,7 +133,9 @@ export class TopikService {
   ) {
     const exam = await this.findPublishedExam(examCode);
 
-    if (dto.resume) {
+    const isMockExam = dto.mode === TopikAttemptMode.MOCK_EXAM;
+
+    if (dto.resume && !isMockExam) {
       const existingAttempt = await this.attemptModel
         .findOne({
           userId: new Types.ObjectId(userId),
@@ -147,6 +149,19 @@ export class TopikService {
       if (existingAttempt) {
         return this.formatAttempt(existingAttempt);
       }
+    }
+
+    if (isMockExam) {
+      await this.attemptModel.updateMany(
+        {
+          userId: new Types.ObjectId(userId),
+          examId: exam._id,
+          examVersion: exam.version,
+          mode: TopikAttemptMode.MOCK_EXAM,
+          status: TopikAttemptStatus.IN_PROGRESS,
+        },
+        { $set: { status: TopikAttemptStatus.ABANDONED } },
+      );
     }
 
     const questions = await this.questionModel

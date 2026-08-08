@@ -64,11 +64,20 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
   ...initialState,
 
   start: async (examCode, mode) => {
-    set({ isLoading: true, errorCode: null });
+    if (mode === "mock_exam") {
+      set({
+        ...initialState,
+        examCode,
+        questionStartedAtMs: Date.now(),
+        isLoading: true,
+      });
+    } else {
+      set({ isLoading: true, errorCode: null });
+    }
     try {
       const [session, attempt] = await Promise.all([
         TopikService.getSession(examCode),
-        TopikService.startAttempt(examCode, mode),
+        TopikService.startAttempt(examCode, mode, mode !== "mock_exam"),
       ]);
       const answers: Record<string, TopikDraftAnswer> = Object.fromEntries(
         attempt.answers.map((answer) => [
@@ -129,7 +138,7 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
 
   saveProgress: async () => {
     const state = get();
-    if (!state.attempt) return;
+    if (!state.attempt || state.attempt.mode === "mock_exam") return;
 
     const answers = Object.values(state.answers).map(
       ({ startedAtMs: _startedAtMs, ...answer }) => answer,
@@ -251,7 +260,24 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
     const state = get();
     if (!state.attempt) throw new Error("TOPIK_ATTEMPT_NOT_FOUND");
 
-    await state.saveProgress();
+    if (state.attempt.mode === "mock_exam") {
+      const answers = Object.values(state.answers).map(
+        ({ startedAtMs: _startedAtMs, ...answer }) => answer,
+      );
+      if (answers.length > 0) {
+        const elapsedSeconds = state.sessionStartedAtMs
+          ? Math.floor((Date.now() - state.sessionStartedAtMs) / 1000)
+          : state.attempt.elapsedSeconds;
+        await TopikService.saveAnswers(
+          state.attempt.id,
+          answers,
+          state.currentIndex + 1,
+          elapsedSeconds,
+        );
+      }
+    } else {
+      await state.saveProgress();
+    }
     await TopikService.submitAttempt(state.attempt.id);
     const result = await TopikService.getResult(state.attempt.id);
     set({ result });

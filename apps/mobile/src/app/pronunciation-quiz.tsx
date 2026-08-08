@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,12 +10,11 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withSpring,
   interpolate,
   FadeIn,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import * as Haptics from "@/utils/haptics";
-import { UserService } from "@/services/user.service";
 import {
   findStage,
   type PronLevel,
@@ -39,175 +38,112 @@ const C = {
   backSym: "#a9dbf5",
 };
 
-interface Q {
-  options: [PronOption, PronOption];
+// 문제는 연습 화면에서 넘겨준 단계(level/step)의 최소대립쌍에서 만든다
+interface Opt {
+  word: string;
+  ipa: string;
+  meaning: string;
+}
+interface PQ {
+  options: [Opt, Opt];
   answer: 0 | 1;
 }
 
-/** 시드 없는 셔플 — 매 판 순서가 달라야 외워서 못 푼다 */
-const shuffle = <T,>(arr: T[]): T[] => {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+/** 대립쌍 하나 → 문제 하나. 정답이 좌·우 어디 올지는 매번 무작위 */
+const toQuestion = (pair: readonly [PronOption, PronOption]): PQ => ({
+  options: [
+    { word: pair[0].word, ipa: pair[0].jamo, meaning: "" },
+    { word: pair[1].word, ipa: pair[1].jamo, meaning: "" },
+  ],
+  answer: Math.random() < 0.5 ? 0 : 1,
+});
+
+const speakEn = (w: string) => speakText(w);
+
+const speakWord = (w: string) => {
+  Speech.stop();
+  speakText(w);
 };
 
 export default function PronunciationQuiz() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
   const params = useLocalSearchParams<{
     level?: string;
     step?: string;
     mode?: string;
   }>();
-
-  const level = (params.level ?? "lv1") as PronLevel;
-  const step = Number(params.step ?? 1);
-  const isHard = params.mode === "hard";
-  const stage = findStage(level, step);
-
-  // 각 대립쌍을 한 번씩. 정답은 좌·우 무작위라 위치로 못 찍는다.
-  const questions = useMemo<Q[]>(() => {
-    if (!stage) return [];
-    return shuffle(
-      stage.pairs.map((pair) => {
-        const answer: 0 | 1 = Math.random() < 0.5 ? 0 : 1;
-        return { options: pair, answer };
-      }),
+  const QUESTIONS = useMemo<PQ[]>(() => {
+    const stage = findStage(
+      (params.level ?? "lv1") as PronLevel,
+      Number(params.step ?? 1),
     );
-  }, [stage]);
+    return stage ? stage.pairs.map(toQuestion) : [];
+  }, [params.level, params.step]);
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [results, setResults] = useState<(boolean | null)[]>([]);
-  const [finished, setFinished] = useState(false);
-  const saved = useRef(false);
+  const [results, setResults] = useState<(boolean | null)[]>(
+    Array(QUESTIONS.length).fill(null),
+  );
 
-  useEffect(() => {
-    setResults(Array(questions.length).fill(null));
-  }, [questions.length]);
-
-  const q = questions[index];
-  const target = q?.options[q.answer];
+  const q = QUESTIONS[index];
+  const target = q.options[q.answer];
 
   const flip = useSharedValue(0);
+  const ring = useSharedValue(1);
 
-  const speakTarget = () => {
-    if (!target) return;
+  useEffect(() => {
+    ring.value = 1;
+  }, []);
+
+  const speakOptions = () => {
     Speech.stop();
-    speakText(target.word);
+    const [a, b] = q.options;
+    speakText(a.word, "ko-KR", {
+      onDone: () => {
+        setTimeout(() => speakText(b.word), 450);
+      },
+    });
   };
 
   useEffect(() => {
     flip.value = 0;
     setSelected(null);
-    const id = setTimeout(speakTarget, 550);
+    const t1 = setTimeout(() => speakOptions(), 600);
     return () => {
-      clearTimeout(id);
+      clearTimeout(t1);
       Speech.stop();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, questions]);
-
-  const correctCount = results.filter((r) => r === true).length;
-  const score = questions.length
-    ? Math.round((correctCount / questions.length) * 100)
-    : 0;
-
-  const finish = (finalResults: (boolean | null)[]) => {
-    const ok = finalResults.filter((r) => r === true).length;
-    const s = questions.length ? Math.round((ok / questions.length) * 100) : 0;
-    setFinished(true);
-    if (saved.current) return;
-    saved.current = true;
-    UserService.savePronunciation({
-      level,
-      step,
-      mode: isHard ? "hard" : "easy",
-      score: s,
-    }).catch(() => {
-      // 저장 실패해도 결과는 보여준다. 다음에 다시 풀면 갱신됨.
-    });
-  };
+  }, [index]);
 
   const pick = (i: number) => {
-    if (selected !== null || !q) return;
+    if (selected !== null) return;
     setSelected(i);
     const correct = i === q.answer;
-    Haptics.notificationAsync(
-      correct
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Error,
-    );
-    const next = [...results];
-    next[index] = correct;
-    setResults(next);
-    flip.value = withTiming(1, { duration: 420 });
-    if (correct) setTimeout(speakTarget, 260);
-
-    // 마지막 문제면 잠깐 보여주고 결과로
-    if (index === questions.length - 1) {
-      setTimeout(() => finish(next), 900);
-    }
+    setResults((r) => {
+      const n = [...r];
+      n[index] = correct;
+      return n;
+    });
+    flip.value = withTiming(1, { duration: 480 }); // 고르면 앞면으로 뒤집기
+    if (correct) setTimeout(() => speakWord(target.word), 300);
   };
 
-  const next = () => {
-    if (index < questions.length - 1) setIndex((i) => i + 1);
+  const next = () => setIndex((i) => (i + 1) % QUESTIONS.length);
+
+  const replay = () => {
+    ring.value = withSpring(1.15, { damping: 6 }, () => {
+      ring.value = withSpring(1);
+    });
+    speakOptions(); // 두 단어 순서대로
   };
 
-  if (!stage || questions.length === 0) {
-    return (
-      <LinearGradient colors={[C.bgTop, C.bgBot]} style={st.center}>
-        <Text style={st.emptyText}>{t("pronQuiz.noData")}</Text>
-        <Pressable onPress={() => router.back()} style={st.emptyBtn}>
-          <Text style={st.emptyBtnText}>{t("pronPractice.confirm")}</Text>
-        </Pressable>
-      </LinearGradient>
-    );
-  }
-
-  // ── 결과 ──
-  if (finished) {
-    const passed = score >= 60;
-    return (
-      <LinearGradient colors={[C.bgTop, C.bgBot]} style={st.center}>
-        <Animated.View entering={FadeIn.duration(220)} style={st.resultCard}>
-          <View
-            style={[
-              st.resultIcon,
-              { backgroundColor: passed ? "#e3f7d9" : "#fde0e4" },
-            ]}
-          >
-            <Ionicons
-              name={passed ? "checkmark" : "refresh"}
-              size={40}
-              color={passed ? C.greenBadge : C.redBadge}
-            />
-          </View>
-          <Text style={st.resultScore}>{score}</Text>
-          <Text style={st.resultSub}>
-            {t("pronQuiz.resultCount", {
-              correct: correctCount,
-              total: questions.length,
-            })}
-          </Text>
-          <Pressable style={{ width: "100%" }} onPress={() => router.back()}>
-            {({ pressed }) => (
-              <LinearGradient
-                colors={[C.purple, C.purpleDk]}
-                style={[st.resultBtn, pressed && { opacity: 0.9 }]}
-              >
-                <Text style={st.resultBtnText}>{t("pronQuiz.done")}</Text>
-              </LinearGradient>
-            )}
-          </Pressable>
-        </Animated.View>
-      </LinearGradient>
-    );
-  }
+  const ringStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: ring.value }],
+  }));
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
@@ -229,78 +165,63 @@ export default function PronunciationQuiz() {
             </View>
           ))}
         </View>
-        <View style={[st.modeChip, isHard && { backgroundColor: "#ff8a5b" }]}>
-          <Text style={st.modeChipText}>{isHard ? "HARD" : "EASY"}</Text>
-        </View>
       </View>
 
-      {/* 목표 카드 — HARD 는 글자를 감춰서 귀로만 풀게 한다 */}
+      {/* 타겟 단어 카드 */}
       <View style={st.targetCard}>
-        {isHard ? (
-          <>
-            <Ionicons name="volume-high" size={54} color="#6b8ba4" />
-            <Text style={st.targetHidden}>{t("pronQuiz.listenOnly")}</Text>
-          </>
-        ) : (
-          <>
-            <Text style={st.targetWord}>{target.word}</Text>
-            <Text style={st.targetIpa}>
-              {stage.a} vs {stage.b}
-            </Text>
-          </>
-        )}
+        <Text style={st.targetWord}>{target.word}</Text>
+        <Text style={st.targetIpa}>[ {target.ipa} ]</Text>
       </View>
 
       <Text style={st.question}>{t("pronQuiz.question")}</Text>
 
+      {/* 옵션 카드 2개 */}
       <View style={st.optRow}>
         {q.options.map((opt, i) => (
           <OptionCard
-            key={`${index}-${i}`}
+            key={i}
             flip={flip}
             opt={opt}
-            showJamo={!isHard}
             result={
               selected === i ? (i === q.answer ? "correct" : "wrong") : null
             }
             disabled={selected !== null}
             onPress={() => pick(i)}
+            practiceLabel={t("pronQuiz.practice")}
           />
         ))}
       </View>
 
       <View style={{ flex: 1 }} />
 
-      {/* 하단: 다시 듣기 + 다음 */}
+      {/* 하단: 강의보기 | 리플레이 | 다음문제 */}
       <View style={[st.bottom, { paddingBottom: insets.bottom + 18 }]}>
-        <View style={st.sideBtn} />
-
-        <Pressable onPress={speakTarget}>
-          {({ pressed }) => (
-            <LinearGradient
-              colors={[C.purple, C.purpleDk]}
-              style={[st.replayBtn, pressed && { opacity: 0.88 }]}
-            >
-              <Ionicons name="volume-high" size={44} color="#fff" />
-            </LinearGradient>
-          )}
+        <Pressable style={st.sideBtn}>
+          <View style={st.lectureIcon}>
+            <Ionicons name="play" size={16} color="#fff" />
+          </View>
+          <Text style={st.sideText}>{t("pronQuiz.lecture")}</Text>
         </Pressable>
 
-        <Pressable
-          style={st.sideBtn}
-          onPress={next}
-          disabled={selected === null || index === questions.length - 1}
-        >
-          <Ionicons
-            name="play"
-            size={26}
-            color={selected === null ? "#b9c6d4" : C.purple}
-          />
-          <Text
-            style={[st.sideText, selected === null && { color: "#b9c6d4" }]}
-          >
-            {t("pronQuiz.next")}
-          </Text>
+        <Animated.View style={[st.replayWrap, ringStyle]}>
+          <Pressable onPress={replay}>
+            {({ pressed }) => (
+              <LinearGradient
+                colors={[C.purple, C.purpleDk]}
+                style={[
+                  st.replayBtn,
+                  pressed && { transform: [{ scale: 0.95 }] },
+                ]}
+              >
+                <Ionicons name="volume-high" size={44} color="#fff" />
+              </LinearGradient>
+            )}
+          </Pressable>
+        </Animated.View>
+
+        <Pressable style={st.sideBtn} onPress={next}>
+          <Ionicons name="play" size={26} color={C.purple} />
+          <Text style={st.sideText}>{t("pronQuiz.next")}</Text>
         </Pressable>
       </View>
     </LinearGradient>
@@ -308,7 +229,14 @@ export default function PronunciationQuiz() {
 }
 
 // ── 옵션 카드 (뒤집기) ──
-function OptionCard({ flip, opt, result, disabled, onPress, showJamo }: any) {
+function OptionCard({
+  flip,
+  opt,
+  result,
+  disabled,
+  onPress,
+  practiceLabel,
+}: any) {
   const frontStyle = useAnimatedStyle(() => ({
     transform: [
       { perspective: 900 },
@@ -329,6 +257,7 @@ function OptionCard({ flip, opt, result, disabled, onPress, showJamo }: any) {
 
   return (
     <View style={st.cardOuter}>
+      {/* 뱃지 */}
       {result && (
         <Animated.View
           entering={FadeIn.duration(200)}
@@ -348,21 +277,24 @@ function OptionCard({ flip, opt, result, disabled, onPress, showJamo }: any) {
       )}
 
       <View style={st.cardBox}>
-        {/* 뒷면 — 고르기 전 */}
+        {/* 뒷면 (패턴) */}
         <Animated.View style={[st.face, st.cardBack, backStyle]}>
           <Pressable
             style={StyleSheet.absoluteFill}
             onPress={onPress}
             disabled={disabled}
           >
-            <View style={st.backInner}>
-              <Text style={st.backWord}>{opt.word}</Text>
-              {showJamo && <Text style={st.backJamo}>{opt.jamo}</Text>}
-            </View>
+            {["c", "!", "?", "*", "'", ",", "c", "!", "?", "•", "*", "'"].map(
+              (s, i) => (
+                <Text key={i} style={[st.sym, SYM_POS[i]]}>
+                  {s}
+                </Text>
+              ),
+            )}
           </Pressable>
         </Animated.View>
 
-        {/* 앞면 — 고른 뒤 */}
+        {/* 앞면 (단어) */}
         <Animated.View
           style={[
             st.face,
@@ -373,44 +305,44 @@ function OptionCard({ flip, opt, result, disabled, onPress, showJamo }: any) {
         >
           <Pressable
             style={st.cardSpeaker}
-            onPress={() => speakText(opt.word)}
+            onPress={() => speakEn(opt.word)}
             hitSlop={8}
           >
             <Ionicons name="volume-medium" size={26} color={C.gray} />
           </Pressable>
-          <View style={st.cardInner}>
+          <Pressable style={st.cardInner} onPress={onPress} disabled={disabled}>
             <Text style={st.optWord}>{opt.word}</Text>
-            <View style={st.jamoPill}>
-              <Text style={st.jamoPillText}>{opt.jamo}</Text>
-            </View>
-          </View>
+            <Text style={st.optIpa}>[ {opt.ipa} ]</Text>
+            <Text style={st.optMeaning}>{opt.meaning}</Text>
+          </Pressable>
+          <View style={st.divider} />
+          <Pressable style={st.practiceBtn} hitSlop={6}>
+            <Ionicons name="mic" size={20} color={C.purple} />
+            <Text style={st.practiceText}>{practiceLabel}</Text>
+          </Pressable>
         </Animated.View>
       </View>
     </View>
   );
 }
 
-const st = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 32,
-  },
-  emptyText: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: C.ink,
-    marginBottom: 18,
-  },
-  emptyBtn: {
-    backgroundColor: C.purple,
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 34,
-  },
-  emptyBtnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
+// 뒷면 심볼 위치
+const SYM_POS = [
+  { top: "10%", left: "20%" },
+  { top: "8%", right: "15%" },
+  { top: "28%", left: "12%" },
+  { top: "24%", right: "22%" },
+  { top: "44%", left: "24%" },
+  { top: "40%", right: "12%" },
+  { top: "58%", left: "14%" },
+  { top: "62%", right: "20%" },
+  { top: "76%", left: "26%" },
+  { top: "72%", right: "14%" },
+  { top: "88%", left: "18%" },
+  { top: "50%", left: "48%" },
+] as any;
 
+const st = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -438,13 +370,6 @@ const st = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#7fbde8",
   },
-  modeChip: {
-    backgroundColor: "#7fbde8",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 9,
-  },
-  modeChipText: { color: "#fff", fontSize: 12, fontWeight: "900" },
 
   targetCard: {
     marginHorizontal: 20,
@@ -453,22 +378,9 @@ const st = StyleSheet.create({
     borderRadius: 22,
     paddingVertical: 40,
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: 150,
   },
   targetWord: { fontSize: 48, fontWeight: "800", color: C.ink },
-  targetIpa: {
-    fontSize: 20,
-    color: "#6b7a88",
-    marginTop: 6,
-    fontWeight: "700",
-  },
-  targetHidden: {
-    fontSize: 16,
-    color: "#5f7f9f",
-    marginTop: 10,
-    fontWeight: "700",
-  },
+  targetIpa: { fontSize: 22, color: "#6b7a88", marginTop: 6 },
 
   question: {
     textAlign: "center",
@@ -501,7 +413,7 @@ const st = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
-  cardBox: { width: "100%", height: 200 },
+  cardBox: { width: "100%", height: 230 },
   face: {
     position: "absolute",
     width: "100%",
@@ -516,18 +428,11 @@ const st = StyleSheet.create({
     borderColor: "#fff",
     overflow: "hidden",
   },
-  backInner: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
-  backWord: { fontSize: 34, fontWeight: "800", color: "#ffffff" },
-  backJamo: {
-    fontSize: 20,
+  sym: {
+    position: "absolute",
+    color: C.backSym,
+    fontSize: 22,
     fontWeight: "800",
-    color: "#ffffff",
-    opacity: 0.75,
   },
 
   cardFront: {
@@ -546,26 +451,39 @@ const st = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 8,
   },
   optWord: { fontSize: 30, fontWeight: "800", color: C.ink },
-  jamoPill: {
-    backgroundColor: "#efeafb",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 10,
+  optIpa: { fontSize: 18, color: C.gray },
+  optMeaning: { fontSize: 17, color: C.gray, fontWeight: "600" },
+  divider: { height: 1, backgroundColor: "#eceff3", marginVertical: 8 },
+  practiceBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 4,
   },
-  jamoPillText: { fontSize: 17, fontWeight: "800", color: C.purpleDk },
+  practiceText: { fontSize: 16, fontWeight: "800", color: C.purple },
 
   bottom: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
     paddingHorizontal: 30,
     paddingTop: 10,
   },
   sideBtn: { alignItems: "center", gap: 4, width: 80 },
+  lectureIcon: {
+    width: 34,
+    height: 26,
+    borderRadius: 8,
+    backgroundColor: C.purple,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   sideText: { fontSize: 15, fontWeight: "800", color: C.purple },
+  replayWrap: { marginBottom: 8 },
   replayBtn: {
     width: 108,
     height: 108,
@@ -578,30 +496,4 @@ const st = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-
-  resultCard: {
-    backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 28,
-    width: "100%",
-    alignItems: "center",
-  },
-  resultIcon: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 14,
-  },
-  resultScore: { fontSize: 52, fontWeight: "900", color: C.ink },
-  resultSub: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: C.gray,
-    marginTop: 4,
-    marginBottom: 24,
-  },
-  resultBtn: { borderRadius: 16, paddingVertical: 16, alignItems: "center" },
-  resultBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
 });
