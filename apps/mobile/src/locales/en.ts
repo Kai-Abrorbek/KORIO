@@ -165,6 +165,12 @@ export default {
     repairPen: "Repair pens",
     medalTitle: "Monthly medals",
   },
+  comingSoon: {
+    badge: "In progress",
+    title: "Coming soon!",
+    desc: "We're building a dedicated practice page for this mode. Hang tight!",
+    pickOther: "Pick another mode",
+  },
   roadmap: {
     comingSoonTitle: "Coming soon!",
     comingSoonDesc: "This course is still being prepared. Stay tuned!",

@@ -54,8 +54,10 @@ export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
       return "/roadmap?category=grammar" as Href;
     case "vocabulary":
       return "/roadmap";
+    // 표현·회화·듣기는 전용 문제 풀이 페이지를 따로 만들 예정이다.
+    // 어휘 로드맵을 재사용하면 안 되므로 그때까지 자리 표시 화면으로 보낸다.
     default:
-      return `/roadmap?category=${mode}` as Href;
+      return `/coming-soon?mode=${mode}` as Href;
   }
 }
 export interface NotificationPrefs {

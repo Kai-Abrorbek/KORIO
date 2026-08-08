@@ -150,6 +150,10 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="coming-soon"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="grammar-study"
               options={{ animation: "slide_from_right" }}
             />

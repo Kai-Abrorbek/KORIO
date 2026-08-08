@@ -166,6 +166,12 @@ export default {
     repairPen: "Tiklash qalam",
     medalTitle: "Bu oylik medal",
   },
+  comingSoon: {
+    badge: "Tayyorlanmoqda",
+    title: "Tez orada!",
+    desc: "Bu bo'lim uchun maxsus mashq sahifasi tayyorlanmoqda. Biroz kutib turing!",
+    pickOther: "Boshqa bo'limni tanlash",
+  },
   roadmap: {
     comingSoonTitle: "Tez orada!",
     comingSoonDesc: "Bu kurs hali tayyorlanmoqda. Kuting!",

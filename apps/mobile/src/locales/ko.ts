@@ -165,6 +165,12 @@ export default {
     repairPen: "복구펜 보유",
     medalTitle: "이달의 학습 메달",
   },
+  comingSoon: {
+    badge: "준비 중",
+    title: "곧 만나요!",
+    desc: "이 학습 모드는 전용 문제 풀이 페이지를 준비하고 있어요. 조금만 기다려 주세요!",
+    pickOther: "다른 학습 모드 고르기",
+  },
   roadmap: {
     comingSoonTitle: "곧 만나요!",
     comingSoonDesc: "이 학습 과정은 준비 중이에요. 조금만 기다려 주세요.",
