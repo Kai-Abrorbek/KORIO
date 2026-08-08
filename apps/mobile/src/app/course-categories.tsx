@@ -20,7 +20,11 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useSettingsStore, LearnMode } from "@/store/settings.store";
+import {
+  useSettingsStore,
+  LearnMode,
+  learnModePath,
+} from "@/store/settings.store";
 import {
   TopikLevelModal,
   type TopikLevel,
@@ -98,37 +102,22 @@ function CategoryCard({
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-          // 아래 항목들은 로드맵이 없는 바로가기다. 학습 모드로 저장하면
-          // 홈의 "이어서 진행하기" 가 갈 곳을 잃는다.
+          // 발음은 목적지가 로드맵도 메인 페이지도 아닌 단발 바로가기다.
+          // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
           if (c.category === "pronunciation") {
             router.push("/pronunciation-practice");
             return;
           }
-          // 문법 문제 풀이 — 어휘와 같은 로드맵을 쓰되 문법 트랙 데이터로.
-          // 학습 모드로는 저장하지 않는다. 홈이 learnMode 로 경로를 만드는데
-          // 이 값은 카테고리 이름과 달라서 엉뚱한 곳으로 간다.
-          if (c.category === "grammarPractice") {
-            router.push({
-              pathname: "/roadmap",
-              params: { category: "grammar" },
-            });
-            return;
-          }
+          // 토픽은 급수를 골라야 해서 모달을 먼저 띄운다 (모드 저장도 거기서)
           if (c.category === "topik") {
             onTopikPress();
             return;
           }
 
-          setLearnMode(c.category as LearnMode); // 현재 학습 모드 기억
-          // 문법(설명)은 로드맵이 아니라 전용 문법 목록으로
-          if (c.category === "grammar") {
-            router.push("/grammar-list");
-            return;
-          }
-          router.push({
-            pathname: "/roadmap",
-            params: { category: c.category },
-          });
+          // 나머지는 전부 학습 모드로 기억하고, 목적지는 한 곳에서 계산한다.
+          const mode = c.category as LearnMode;
+          setLearnMode(mode);
+          router.push(learnModePath(mode, "1"));
         }}
         style={[s.catCard, aStyle]}
       >
@@ -150,12 +139,15 @@ export default function CourseCategories() {
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
   const setLearnMode = useSettingsStore((state) => state.setLearnMode);
+  const setTopikLevel = useSettingsStore((state) => state.setTopikLevel);
   const [topikModalVisible, setTopikModalVisible] = useState(false);
   const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
 
   const selectTopikLevel = (level: TopikLevel) => {
     Haptics.selectionAsync();
     setLearnMode("topik");
+    // 홈에서 토픽으로 돌아올 때 어느 급수였는지 알아야 한다
+    setTopikLevel(level);
     setTopikModalVisible(false);
     router.push({ pathname: "/topik-sections", params: { level } });
   };

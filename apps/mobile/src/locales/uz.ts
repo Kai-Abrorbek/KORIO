@@ -127,6 +127,7 @@ export default {
     mode: {
       vocabulary: "So'z o'rganish",
       grammar: "Grammatika",
+      grammarPractice: "Grammatika mashqlari",
       expression: "Iboralar",
       conversation: "Suhbat",
       listening: "Tinglash",

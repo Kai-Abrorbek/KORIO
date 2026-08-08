@@ -126,6 +126,7 @@ export default {
     mode: {
       vocabulary: "어휘 학습",
       grammar: "문법 학습",
+      grammarPractice: "문법 문제 풀이",
       expression: "표현 학습",
       conversation: "회화 학습",
       listening: "듣기 학습",

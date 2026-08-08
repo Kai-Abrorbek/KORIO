@@ -126,6 +126,7 @@ export default {
     mode: {
       vocabulary: "Vocabulary",
       grammar: "Grammar",
+      grammarPractice: "Grammar drills",
       expression: "Expression",
       conversation: "Conversation",
       listening: "Listening",

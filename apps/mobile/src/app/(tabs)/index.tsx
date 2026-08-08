@@ -29,7 +29,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
 import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
-import { useSettingsStore } from "@/store/settings.store";
+import { useSettingsStore, learnModePath } from "@/store/settings.store";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
@@ -58,14 +58,11 @@ export default function HomeScreen() {
   const [weekly, setWeekly] = useState<DayStats[]>([]);
   const [chatVisible, setChatVisible] = useState(false);
   const learnMode = useSettingsStore((s) => s.learnMode);
+  const topikLevel = useSettingsStore((s) => s.topikLevel);
 
-  // 현재 학습 모드에 맞는 "이어서 학습하기" 경로
-  const continuePath =
-    learnMode === "grammar"
-      ? "/grammar-list"
-      : learnMode === "vocabulary"
-        ? "/roadmap"
-        : `/roadmap?category=${learnMode}`;
+  // 현재 학습 모드에 맞는 "이어서 학습하기" 경로.
+  // 로드맵을 쓰는 모드와 전용 페이지가 있는 모드가 섞여 있어서 스토어에 모아뒀다.
+  const continuePath = learnModePath(learnMode, topikLevel);
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
@@ -326,7 +323,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={styles.lessonButton}
-            onPress={() => router.push(continuePath as any)}
+            onPress={() => router.push(continuePath)}
           >
             <Ionicons name="book" size={18} color="#fff" />
             <Text style={styles.lessonButtonText}>

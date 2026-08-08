@@ -127,6 +127,7 @@ export default {
     mode: {
       vocabulary: "Словарный запас",
       grammar: "Грамматика",
+      grammarPractice: "Грамматические задания",
       expression: "Выражения",
       conversation: "Разговор",
       listening: "Аудирование",

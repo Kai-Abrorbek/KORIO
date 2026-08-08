@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { Href } from "expo-router";
 import i18n from "../locales/i18n";
 
 type Language = "uz" | "ko" | "en" | "ru";
@@ -8,22 +9,55 @@ export type Theme = "light" | "dark" | "system";
 export type LearningTheme = "skyBlue" | "purple";
 export type LearnMode =
   | "vocabulary"
+  | "grammarPractice"
   | "grammar"
   | "expression"
   | "conversation"
   | "listening"
   | "topik";
 
-// 로드맵이 있는 모드만 여기 들어간다. 발음·문법 문제 풀이 같은 바로가기는
-// 학습 모드가 아니므로 제외 — 홈이 "이어서 진행하기" 로 갈 곳이 없다.
+export type TopikLevel = "1" | "2";
+
+/**
+ * "이어서 학습하기" 가 갈 곳이 확실한 모드만 여기 들어간다.
+ * 발음처럼 목적지가 없는 바로가기는 학습 모드로 저장하면 안 된다.
+ */
 const LEARN_MODES: LearnMode[] = [
   "vocabulary",
+  "grammarPractice",
   "grammar",
   "expression",
   "conversation",
   "listening",
   "topik",
 ];
+
+/**
+ * 모드별 "이어서 학습하기" 목적지.
+ * 로드맵을 쓰는 모드와 전용 메인 페이지가 있는 모드가 섞여 있어서
+ * 한 군데 모아둔다. 새 모드를 넣으면 여기부터 채워야 한다.
+ *
+ * topik 은 급수가 필요해서 함수로 만든다.
+ *
+ * 쿼리를 붙여 만든 문자열이라 expo-router 의 타입드 라우트가 못 알아본다.
+ * 캐스팅을 여기 한 곳에만 두고 호출부는 깨끗하게 쓴다.
+ */
+export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
+  switch (mode) {
+    // 전용 메인 페이지가 있는 모드
+    case "grammar":
+      return "/grammar-list"; // 문법 설명 목록
+    case "topik":
+      return `/topik-sections?level=${topikLevel}` as Href;
+    // 문법 문제 풀이는 어휘와 같은 로드맵을 문법 트랙 데이터로 돈다
+    case "grammarPractice":
+      return "/roadmap?category=grammar" as Href;
+    case "vocabulary":
+      return "/roadmap";
+    default:
+      return `/roadmap?category=${mode}` as Href;
+  }
+}
 export interface NotificationPrefs {
   master: boolean;
   daily: boolean;
@@ -61,6 +95,8 @@ interface SettingsState {
   theme: Theme;
   learningTheme: LearningTheme;
   learnMode: LearnMode; // 현재 진행 중인 학습 모드
+  /** 마지막으로 고른 토픽 급수. 홈에서 토픽으로 돌아갈 때 필요 */
+  topikLevel: TopikLevel;
   notifications: NotificationPrefs;
   sound: SoundPrefs;
   /** 이번 실행 동안만 음소거 (저장 안 함) */
@@ -69,6 +105,7 @@ interface SettingsState {
   setTheme: (theme: Theme) => void;
   setLearningTheme: (t: LearningTheme) => void;
   setLearnMode: (m: LearnMode) => void;
+  setTopikLevel: (l: TopikLevel) => void;
   setNotifications: (patch: Partial<NotificationPrefs>) => void;
   setSound: (patch: Partial<SoundPrefs>) => void;
   setMuted: (v: boolean) => void;
@@ -81,6 +118,7 @@ export const useSettingsStore = create<SettingsState>()(
       theme: "system",
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
+      topikLevel: "1",
       notifications: {
         master: true,
         daily: true,
@@ -108,6 +146,7 @@ export const useSettingsStore = create<SettingsState>()(
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
+      setTopikLevel: (topikLevel) => set({ topikLevel }),
       setNotifications: (patch) =>
         set((s) => ({ notifications: { ...s.notifications, ...patch } })),
       setSound: (patch) => set((s) => ({ sound: { ...s.sound, ...patch } })),
@@ -129,6 +168,11 @@ export const useSettingsStore = create<SettingsState>()(
         // 홈 제목이 번역 키 그대로 노출되므로 되돌린다.
         if (state?.learnMode && !LEARN_MODES.includes(state.learnMode)) {
           state.learnMode = "vocabulary";
+        }
+
+        // 급수는 "1"/"2" 둘뿐. 이상한 값이 저장돼 있으면 토픽 화면이 깨진다.
+        if (state && state.topikLevel !== "1" && state.topikLevel !== "2") {
+          state.topikLevel = "1";
         }
 
         // "무음으로 시작" 을 켜뒀으면 이번 실행은 소리 없이 연다
