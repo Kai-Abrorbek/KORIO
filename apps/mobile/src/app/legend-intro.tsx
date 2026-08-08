@@ -26,9 +26,10 @@ export default function LegendIntro() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { nodeId, energy } = useLocalSearchParams<{
+  const { nodeId, energy, category } = useLocalSearchParams<{
     nodeId?: string;
     energy?: string;
+    category?: string;
   }>();
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const float = useSharedValue(0);
@@ -73,7 +74,7 @@ export default function LegendIntro() {
     guardLessonStart(Number(energy), () => {
       router.replace({
         pathname: "/lesson",
-        params: { mode: "legend", nodeId },
+        params: { mode: "legend", nodeId, category: category ?? "" },
       });
     });
   };

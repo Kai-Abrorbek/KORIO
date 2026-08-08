@@ -201,7 +201,8 @@ export default function GrammarBuild({
               <Text style={st.sentText}>{q.after}</Text>
             </View>
 
-            {renderTranslation()}
+            {/* 정답 문장은 맞힌 뒤에만. 풀기 전에 보여주면 문제가 성립 안 함 */}
+            {isOk && renderTranslation()}
 
             {/* 오답 설명 버블 */}
             {showExplain && (

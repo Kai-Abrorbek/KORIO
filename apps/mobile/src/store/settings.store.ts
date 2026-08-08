@@ -42,6 +42,14 @@ const LEARN_MODES: LearnMode[] = [
  * 쿼리를 붙여 만든 문자열이라 expo-router 의 타입드 라우트가 못 알아본다.
  * 캐스팅을 여기 한 곳에만 두고 호출부는 깨끗하게 쓴다.
  */
+/**
+ * 레슨·보상 화면을 닫고 원래 로드맵으로 돌아가는 경로.
+ * category 가 비면 어휘 로드맵.
+ */
+export function backToRoadmap(category?: string): Href {
+  return category ? (`/roadmap?category=${category}` as Href) : "/roadmap";
+}
+
 export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
   switch (mode) {
     // 전용 메인 페이지가 있는 모드

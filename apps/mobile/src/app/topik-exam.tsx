@@ -25,6 +25,7 @@ import {
 } from "@/components/topik/topikTheme";
 import {
   type TopikListeningPlaybackRequest,
+  type TopikListeningSpeechSegment,
   useTopikListeningPlayback,
 } from "@/hooks/useTopikListeningPlayback";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
@@ -39,6 +40,9 @@ function formatTime(totalSeconds: number) {
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
+
+const TOPIK_EXAM_TTS_RATE = 1;
+const TOPIK_ANSWER_TIME_PER_QUESTION_MS = 10_000;
 
 export default function TopikExamScreen() {
   const { t } = useTranslation();
@@ -123,16 +127,52 @@ export default function TopikExamScreen() {
     useMemo<TopikListeningPlaybackRequest | null>(() => {
       if (!session || session.exam.section !== "listening") return null;
 
-      const transcript = session.groups.flatMap((group) => {
-        if (group.sharedAudio) return group.sharedAudio.transcript;
-        return group.questions.flatMap((item) => item.audio?.transcript ?? []);
-      });
+      const speechSegments =
+        session.groups.flatMap<TopikListeningSpeechSegment>((group) => {
+          const groupAudios = group.sharedAudio
+            ? [group.sharedAudio]
+            : group.questions.flatMap((item) =>
+                item.audio ? [item.audio] : [],
+              );
+          const uniqueAudios = groupAudios.filter(
+            (audio, index) =>
+              groupAudios.findIndex(
+                (candidate) => candidate.key === audio.key,
+              ) === index,
+          );
+
+          return uniqueAudios.map((audio, audioIndex) => {
+            const usesSharedAudio = Boolean(group.sharedAudio);
+            const startNumber = usesSharedAudio
+              ? group.startNumber
+              : (group.questions[audioIndex]?.number ?? group.startNumber);
+            const endNumber = usesSharedAudio ? group.endNumber : startNumber;
+            const questionCount = endNumber - startNumber + 1;
+            const announcement =
+              startNumber === endNumber
+                ? `${startNumber}번 문제입니다.`
+                : `${startNumber}번과 ${endNumber}번 문제입니다.`;
+
+            return {
+              transcript: [
+                { speaker: "안내", text: announcement },
+                ...audio.transcript,
+              ],
+              pauseAfterMs: questionCount * TOPIK_ANSWER_TIME_PER_QUESTION_MS,
+            };
+          });
+        });
 
       return {
         key: `topik-exam-${session.exam.id}`,
         audioUrl: session.exam.listeningAudioUrl,
-        transcript,
+        transcript: speechSegments.flatMap((segment) => segment.transcript),
+        speechSegments,
         repeatCount: 1,
+        speechRate: TOPIK_EXAM_TTS_RATE,
+        volume: 1,
+        respectSoundSettings: false,
+        fallbackToSpeech: true,
       };
     }, [session]);
   const stepStartIndices = useMemo(() => {
@@ -194,6 +234,8 @@ export default function TopikExamScreen() {
         audioUrl: audio.audioUrl,
         transcript: audio.transcript,
         repeatCount,
+        repeatPauseMs: repeatCount > 1 ? 900 : 0,
+        fallbackToSpeech: audio.speechFallback,
       });
       if (!started) return;
 

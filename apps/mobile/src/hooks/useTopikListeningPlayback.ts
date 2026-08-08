@@ -15,17 +15,41 @@ export type TopikListeningPlaybackStatus =
   | "unavailable"
   | "error";
 
+export interface TopikListeningSpeechSegment {
+  transcript: TopikAudioLine[];
+  pauseAfterMs?: number;
+}
+
 export interface TopikListeningPlaybackRequest {
   key: string;
   audioUrl?: string;
   transcript: TopikAudioLine[];
+  speechSegments?: TopikListeningSpeechSegment[];
   repeatCount?: number;
+  repeatPauseMs?: number;
+  speechRate?: number;
+  volume?: number;
+  respectSoundSettings?: boolean;
+  fallbackToSpeech?: boolean;
+}
+
+interface ResolvedPlaybackRun {
+  id: number;
+  key: string;
+  audioUrl: string;
+  speechSegments: TopikListeningSpeechSegment[];
+  repeatCount: number;
+  repeatPauseMs: number;
+  speechRate: number;
+  volume: number;
+  fallbackToSpeech: boolean;
 }
 
 interface NativePlaybackRun {
   id: number;
   repeatIndex: number;
   repeatCount: number;
+  fallbackAttempted: boolean;
 }
 
 function linePitch(speaker: string) {
@@ -38,100 +62,221 @@ export function useTopikListeningPlayback() {
   const [status, setStatus] = useState<TopikListeningPlaybackStatus>("idle");
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const runIdRef = useRef(0);
+  const activeRunRef = useRef<ResolvedPlaybackRun | null>(null);
   const nativeRunRef = useRef<NativePlaybackRun | null>(null);
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handledNativeFinishRef = useRef(false);
+
+  const clearPauseTimer = useCallback(() => {
+    if (!pauseTimerRef.current) return;
+    clearTimeout(pauseTimerRef.current);
+    pauseTimerRef.current = null;
+  }, []);
 
   const finishRun = useCallback(
     (runId: number, nextStatus: TopikListeningPlaybackStatus) => {
       if (runIdRef.current !== runId) return;
+      clearPauseTimer();
+      activeRunRef.current = null;
       nativeRunRef.current = null;
       setStatus(nextStatus);
     },
-    [],
+    [clearPauseTimer],
   );
 
   const stop = useCallback(() => {
     runIdRef.current += 1;
+    clearPauseTimer();
+    activeRunRef.current = null;
     nativeRunRef.current = null;
     handledNativeFinishRef.current = false;
-    void Speech.stop();
+    void Speech.stop().catch(() => undefined);
     audioPlayer.pause();
-    audioPlayer.replace(null);
     setActiveKey(null);
     setStatus("idle");
-  }, [audioPlayer]);
+  }, [audioPlayer, clearPauseTimer]);
 
-  const play = useCallback(
-    (request: TopikListeningPlaybackRequest) => {
-      const { muted, sound } = useSettingsStore.getState();
-      const repeatCount = Math.max(1, request.repeatCount ?? 1);
-      const hasAudio = Boolean(request.audioUrl);
-      const hasTranscript = request.transcript.length > 0;
-
-      runIdRef.current += 1;
-      const runId = runIdRef.current;
+  const startSpeech = useCallback(
+    (run: ResolvedPlaybackRun) => {
       nativeRunRef.current = null;
       handledNativeFinishRef.current = false;
-      void Speech.stop();
       audioPlayer.pause();
-      audioPlayer.replace(null);
-      setActiveKey(request.key);
-
-      if (muted || sound.speechVolume <= 0 || (!hasAudio && !hasTranscript)) {
-        setStatus("unavailable");
-        return false;
-      }
-
       setStatus("playing");
 
-      if (request.audioUrl) {
-        try {
-          audioPlayer.volume = sound.speechVolume;
-          audioPlayer.playbackRate = 1;
-          nativeRunRef.current = { id: runId, repeatIndex: 0, repeatCount };
-          audioPlayer.replace(request.audioUrl);
-          audioPlayer.play();
-          return true;
-        } catch {
-          finishRun(runId, "error");
-          return false;
-        }
-      }
+      const speakLine = (
+        repeatIndex: number,
+        segmentIndex: number,
+        lineIndex: number,
+      ) => {
+        if (runIdRef.current !== run.id) return;
+        const segment = run.speechSegments[segmentIndex];
 
-      const speakLine = (repeatIndex: number, lineIndex: number) => {
-        if (runIdRef.current !== runId) return;
-        const line = request.transcript[lineIndex];
-
-        if (!line) {
-          if (repeatIndex + 1 < repeatCount) {
-            speakLine(repeatIndex + 1, 0);
+        if (!segment) {
+          if (repeatIndex + 1 < run.repeatCount) {
+            speakLine(repeatIndex + 1, 0, 0);
           } else {
-            finishRun(runId, "completed");
+            finishRun(run.id, "completed");
           }
           return;
         }
 
-        Speech.speak(line.text, {
-          language: "ko-KR",
-          rate: sound.speechRate,
-          pitch: linePitch(line.speaker),
-          volume: sound.speechVolume,
-          onDone: () => speakLine(repeatIndex, lineIndex + 1),
-          onError: () => finishRun(runId, "error"),
-          onStopped: () => {
-            if (runIdRef.current === runId) finishRun(runId, "idle");
-          },
-        });
+        const line = segment.transcript[lineIndex];
+        if (line) {
+          Speech.speak(line.text, {
+            language: "ko-KR",
+            rate: run.speechRate,
+            pitch: linePitch(line.speaker),
+            volume: run.volume,
+            useApplicationAudioSession: true,
+            onDone: () => speakLine(repeatIndex, segmentIndex, lineIndex + 1),
+            onError: () => finishRun(run.id, "error"),
+            onStopped: () => {
+              if (runIdRef.current === run.id) finishRun(run.id, "idle");
+            },
+          });
+          return;
+        }
+
+        const isLastSegment = segmentIndex === run.speechSegments.length - 1;
+        const isLastRepeat = repeatIndex === run.repeatCount - 1;
+        if (isLastSegment && isLastRepeat) {
+          finishRun(run.id, "completed");
+          return;
+        }
+
+        const continuePlayback = () => {
+          pauseTimerRef.current = null;
+          if (runIdRef.current !== run.id) return;
+          if (isLastSegment) {
+            speakLine(repeatIndex + 1, 0, 0);
+          } else {
+            speakLine(repeatIndex, segmentIndex + 1, 0);
+          }
+        };
+        const repeatPauseMs = isLastSegment ? run.repeatPauseMs : 0;
+        const pauseAfterMs = Math.max(
+          0,
+          segment.pauseAfterMs ?? 0,
+          repeatPauseMs,
+        );
+        if (pauseAfterMs > 0) {
+          pauseTimerRef.current = setTimeout(continuePlayback, pauseAfterMs);
+        } else {
+          continuePlayback();
+        }
       };
 
       void Speech.stop()
         .then(() => {
-          if (runIdRef.current === runId) speakLine(0, 0);
+          if (runIdRef.current === run.id) speakLine(0, 0, 0);
         })
-        .catch(() => finishRun(runId, "error"));
-      return true;
+        .catch(() => finishRun(run.id, "error"));
     },
     [audioPlayer, finishRun],
+  );
+
+  const fallbackToSpeechOrFail = useCallback(
+    (nativeRun: NativePlaybackRun) => {
+      const activeRun = activeRunRef.current;
+      if (
+        activeRun &&
+        activeRun.id === nativeRun.id &&
+        activeRun.fallbackToSpeech &&
+        !nativeRun.fallbackAttempted &&
+        activeRun.speechSegments.length > 0
+      ) {
+        nativeRun.fallbackAttempted = true;
+        startSpeech(activeRun);
+        return;
+      }
+
+      finishRun(nativeRun.id, "error");
+    },
+    [finishRun, startSpeech],
+  );
+
+  const play = useCallback(
+    (request: TopikListeningPlaybackRequest) => {
+      const { muted, sound } = useSettingsStore.getState();
+      const respectsSettings = request.respectSoundSettings ?? true;
+      const volume = Math.min(
+        1,
+        Math.max(
+          0,
+          request.volume ?? (respectsSettings ? sound.speechVolume : 1),
+        ),
+      );
+      const speechSegments =
+        request.speechSegments?.filter(
+          (segment) => segment.transcript.length > 0,
+        ) ??
+        (request.transcript.length > 0
+          ? [{ transcript: request.transcript }]
+          : []);
+      const hasAudio = Boolean(request.audioUrl);
+      const hasSpeech = speechSegments.length > 0;
+
+      runIdRef.current += 1;
+      const runId = runIdRef.current;
+      clearPauseTimer();
+      activeRunRef.current = null;
+      nativeRunRef.current = null;
+      handledNativeFinishRef.current = false;
+      void Speech.stop().catch(() => undefined);
+      audioPlayer.pause();
+      setActiveKey(request.key);
+
+      if (
+        (respectsSettings && muted) ||
+        volume <= 0 ||
+        (!hasAudio && !hasSpeech)
+      ) {
+        setStatus("unavailable");
+        return false;
+      }
+
+      const run: ResolvedPlaybackRun = {
+        id: runId,
+        key: request.key,
+        audioUrl: request.audioUrl ?? "",
+        speechSegments,
+        repeatCount: Math.max(1, request.repeatCount ?? 1),
+        repeatPauseMs: Math.max(0, request.repeatPauseMs ?? 0),
+        speechRate: request.speechRate ?? sound.speechRate,
+        volume,
+        fallbackToSpeech: request.fallbackToSpeech ?? false,
+      };
+      activeRunRef.current = run;
+      setStatus("playing");
+
+      if (!run.audioUrl) {
+        startSpeech(run);
+        return true;
+      }
+
+      try {
+        audioPlayer.volume = run.volume;
+        audioPlayer.playbackRate = 1;
+        nativeRunRef.current = {
+          id: run.id,
+          repeatIndex: 0,
+          repeatCount: run.repeatCount,
+          fallbackAttempted: false,
+        };
+        audioPlayer.replace(run.audioUrl);
+        audioPlayer.play();
+        return true;
+      } catch {
+        fallbackToSpeechOrFail({
+          id: run.id,
+          repeatIndex: 0,
+          repeatCount: run.repeatCount,
+          fallbackAttempted: false,
+        });
+        return hasSpeech && run.fallbackToSpeech;
+      }
+    },
+    [audioPlayer, clearPauseTimer, fallbackToSpeechOrFail, startSpeech],
   );
 
   useEffect(() => {
@@ -146,7 +291,7 @@ export function useTopikListeningPlayback() {
     if (!nativeRun) return;
 
     if (audioStatus.error) {
-      finishRun(nativeRun.id, "error");
+      fallbackToSpeechOrFail(nativeRun);
       return;
     }
 
@@ -160,14 +305,35 @@ export function useTopikListeningPlayback() {
 
     if (nativeRun.repeatIndex + 1 < nativeRun.repeatCount) {
       nativeRun.repeatIndex += 1;
-      void audioPlayer.seekTo(0).then(() => {
-        if (runIdRef.current === nativeRun.id) audioPlayer.play();
-      });
+      const replay = () => {
+        pauseTimerRef.current = null;
+        if (runIdRef.current !== nativeRun.id) return;
+        void audioPlayer
+          .seekTo(0)
+          .then(() => {
+            if (runIdRef.current === nativeRun.id) audioPlayer.play();
+          })
+          .catch(() => fallbackToSpeechOrFail(nativeRun));
+      };
+      const activeRun = activeRunRef.current;
+      const repeatPauseMs =
+        activeRun?.id === nativeRun.id ? activeRun.repeatPauseMs : 0;
+      if (repeatPauseMs > 0) {
+        pauseTimerRef.current = setTimeout(replay, repeatPauseMs);
+      } else {
+        replay();
+      }
       return;
     }
 
     finishRun(nativeRun.id, "completed");
-  }, [audioPlayer, audioStatus.didJustFinish, audioStatus.error, finishRun]);
+  }, [
+    audioPlayer,
+    audioStatus.didJustFinish,
+    audioStatus.error,
+    fallbackToSpeechOrFail,
+    finishRun,
+  ]);
 
   useEffect(() => stop, [stop]);
 

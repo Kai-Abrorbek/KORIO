@@ -66,13 +66,16 @@ export default function LessonScreen() {
   const questionAreaStyle = useAnimatedStyle(() => ({
     paddingBottom: Math.max(keyboard.height.value, insets.bottom),
   }));
-  const { lessonId, mode, nodeId, section, unit } = useLocalSearchParams<{
-    lessonId?: string;
-    mode?: string;
-    nodeId?: string;
-    section?: string;
-    unit?: string;
-  }>();
+  const { lessonId, mode, nodeId, section, unit, category } =
+    useLocalSearchParams<{
+      lessonId?: string;
+      mode?: string;
+      nodeId?: string;
+      section?: string;
+      unit?: string;
+      /** 어느 로드맵에서 들어왔는지. 완료 후 제자리로 돌아가려면 필요 */
+      category?: string;
+    }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
@@ -502,6 +505,7 @@ export default function LessonScreen() {
             chestGrade: res.chest?.grade ?? "",
             chestGems: res.chest ? String(res.chest.gems) : "",
             gemTotal: String(gemsBefore),
+            category: category ?? "",
           },
         });
         return;
@@ -522,6 +526,7 @@ export default function LessonScreen() {
         xp: String(earnedXp),
         accuracy: String(accuracy),
         time: timeStr,
+        category: category ?? "",
       },
     });
   };

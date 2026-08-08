@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
+import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
 import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
 import Confetti from "@/components/lesson-complete/Confetti";
@@ -22,6 +23,8 @@ export default function LessonCompleteScreen() {
     chestGrade?: string;
     chestGems?: string;
     gemTotal?: string;
+    /** 어느 로드맵에서 왔는지. 없으면 어휘 로드맵 */
+    category?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -41,10 +44,12 @@ export default function LessonCompleteScreen() {
           grade: params.chestGrade,
           gems: params.chestGems ?? "0",
           gemTotal: params.gemTotal ?? "0",
+          category: params.category ?? "",
         },
       });
     } else {
-      router.replace("/roadmap");
+      // 문법 트랙에서 왔는데 그냥 /roadmap 으로 보내면 어휘 로드맵이 뜬다
+      router.replace(backToRoadmap(params.category));
     }
   };
 

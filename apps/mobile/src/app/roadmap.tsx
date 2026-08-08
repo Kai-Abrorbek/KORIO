@@ -425,12 +425,13 @@ export default function RoadmapScreen() {
 
       guardLessonStart(energy, () => {
         router.push({
+          // 어느 트랙의 로드맵인지 끝까지 들고 가야 완료 후 제자리로 돌아온다
           pathname: "/lesson",
-          params: { lessonId: node.lessonId },
+          params: { lessonId: node.lessonId, category: category ?? "" },
         });
       });
     },
-    [energy, guardLessonStart, router],
+    [category, energy, guardLessonStart, router],
   );
 
   const handleNodeReview = useCallback(
@@ -439,11 +440,15 @@ export default function RoadmapScreen() {
       guardLessonStart(energy, () => {
         router.push({
           pathname: "/lesson",
-          params: { mode: "nodeReview", nodeId: node.id },
+          params: {
+            mode: "nodeReview",
+            nodeId: node.id,
+            category: category ?? "",
+          },
         });
       });
     },
-    [energy, guardLessonStart, router],
+    [category, energy, guardLessonStart, router],
   );
 
   const handleNodeLegend = useCallback(
@@ -452,11 +457,11 @@ export default function RoadmapScreen() {
       guardLessonStart(energy, () => {
         router.push({
           pathname: "/legend-intro",
-          params: { nodeId: node.id, energy: energy },
+          params: { nodeId: node.id, energy: energy, category: category ?? "" },
         });
       });
     },
-    [energy, guardLessonStart, router],
+    [category, energy, guardLessonStart, router],
   );
 
   const handleGoLegend = useCallback(

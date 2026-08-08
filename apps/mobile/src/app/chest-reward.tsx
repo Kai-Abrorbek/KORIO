@@ -11,6 +11,7 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_CHEST_REWARD, CHEST_TITLES } from "@/mocks/chest-reward.mock";
 import { ChestPhase } from "@/types/chest-reward";
@@ -36,7 +37,9 @@ export default function ChestRewardScreen() {
     grade?: string;
     gems?: string;
     gemTotal?: string;
+    category?: string;
   }>();
+  const category = params.category;
   const grade = (params.grade ?? "wood") as "wood" | "silver" | "gold";
   const gemsAmount = Number(params.gems ?? 0);
   const currentGemTotal = Number(params.gemTotal ?? 0);
@@ -179,7 +182,13 @@ export default function ChestRewardScreen() {
               label={t("chestReward.continue")}
               color="#1FA9F7"
               darkColor="#1899D6"
-              onPress={() => router.back()}
+              onPress={() =>
+                // 보통은 뒤로 가면 원래 로드맵이다. 딥링크로 바로 열린
+                // 경우엔 돌아갈 곳이 없으니 카테고리로 직접 간다.
+                router.canGoBack()
+                  ? router.back()
+                  : router.replace(backToRoadmap(category))
+              }
             />
           </View>
         </Animated.View>
