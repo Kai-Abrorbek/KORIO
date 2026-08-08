@@ -8,6 +8,12 @@ import { SelfReportedLevel } from '../../common/enums/self-level.enum';
 import { Interest } from '../../common/enums/interest.enum';
 import { AvatarConfig, AvatarConfigSchema } from './avatar.schema';
 import { DEFAULT_AVATAR_CONFIG } from '../avatar/avatar.constants';
+import {
+  LEARN_MODES,
+  TOPIK_LEVELS,
+  type LearnMode,
+  type TopikLevel,
+} from '../learn-mode.constants';
 
 export type UserDocument = User & Document;
 
@@ -195,6 +201,15 @@ export class User {
   // 보석 보상 지급 완료한 문법 섹션 (중복 지급 방지)
   @Prop({ type: [Number], default: [] })
   completedGrammarSections: number[];
+
+  // 현재 학습 중인 모드. 기기가 아니라 계정에 붙어야 한다 —
+  // 같은 폰에서 계정을 바꿔도, 폰을 바꿔도 자기 것이 따라와야 함
+  @Prop({ type: String, enum: LEARN_MODES, default: 'vocabulary' })
+  learnMode: LearnMode;
+
+  // 토픽을 공부 중이면 어느 급수인지. 홈에서 바로 그 급수로 들어간다
+  @Prop({ type: String, enum: TOPIK_LEVELS, default: '1' })
+  topikLevel: TopikLevel;
 
   createdAt?: Date;
   updatedAt?: Date;

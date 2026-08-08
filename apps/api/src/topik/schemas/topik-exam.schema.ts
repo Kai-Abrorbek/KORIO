@@ -60,6 +60,9 @@ export class TopikExam {
   @Prop({ required: true, min: 1, default: 100 })
   totalPoints: number;
 
+  @Prop({ default: '' })
+  listeningAudioUrl: string;
+
   @Prop({ required: true, min: 1, default: 1 })
   version: number;
 

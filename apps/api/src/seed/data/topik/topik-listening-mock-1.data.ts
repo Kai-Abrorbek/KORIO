@@ -820,6 +820,7 @@ export const TOPIK_LISTENING_MOCK_1_EXAM: TopikSeedExam = {
   durationMinutes: 60,
   totalQuestions: 50,
   totalPoints: 100,
+  listeningAudioUrl: '',
   version: 1,
   status: TopikPublishStatus.PUBLISHED,
   source: {
@@ -886,6 +887,7 @@ export const TOPIK_LISTENING_MOCK_1_QUESTIONS: TopikSeedQuestion[] =
       type: input.type,
       points: 2,
       prompt: input.prompt ? textBlocks(input.prompt) : [],
+      audio: TOPIK_LISTENING_MOCK_1_AUDIO[groupCodeFor(input.number)],
       choices,
       correctChoiceKey: input.answer,
       solution: createSolution(

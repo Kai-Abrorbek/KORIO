@@ -36,6 +36,10 @@ export interface UserMe {
   targetLanguage: string;
   dailyGoalMinutes: number;
   isOnboardingCompleted: boolean;
+  /** 현재 학습 중인 모드 (계정에 저장됨) */
+  learnMode: string;
+  /** 토픽 학습 중이면 어느 급수인지 */
+  topikLevel: "1" | "2";
   createdAt: string;
   lastStudiedAt?: string;
 }
@@ -86,6 +90,16 @@ export const UserService = {
     completeNow?: boolean;
   }): Promise<{ success: boolean }> =>
     api.post(`/users/me/onboarding-survey`, data),
+
+  /**
+   * 현재 학습 중인 모드를 계정에 저장.
+   * 토픽은 급수까지 같이 보내야 홈에서 그 급수로 들어간다.
+   */
+  updateLearnMode: (data: {
+    learnMode: string;
+    topikLevel?: "1" | "2";
+  }): Promise<{ learnMode: string; topikLevel: "1" | "2" }> =>
+    api.patch(`/users/me/learn-mode`, data),
 
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 

@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
+import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -38,6 +39,11 @@ export class UsersController {
   @Post('me/level-test')
   async saveLevelTest(@Request() req, @Body() dto: SaveLevelTestMeDto) {
     return this.usersService.saveLevelTest(req.user._id.toString(), dto);
+  }
+
+  @Patch('me/learn-mode')
+  async updateLearnMode(@Request() req, @Body() dto: UpdateLearnModeDto) {
+    return this.usersService.updateLearnMode(req.user._id.toString(), dto);
   }
 
   @Post('me/hangul-complete')

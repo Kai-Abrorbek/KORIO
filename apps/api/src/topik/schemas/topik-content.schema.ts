@@ -118,6 +118,9 @@ export class TopikAudio {
   @Prop({ min: 1, default: 3 })
   guidedPlaybackLimit: number;
 
+  @Prop({ min: 1, max: 5, default: 1 })
+  guidedAutoRepeatCount: number;
+
   @Prop({ default: true })
   speechFallback: boolean;
 }

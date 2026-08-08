@@ -74,6 +74,7 @@ export interface TopikAudio {
   transcript: TopikAudioLine[];
   mockPlaybackLimit: number;
   guidedPlaybackLimit: number;
+  guidedAutoRepeatCount?: number;
   speechFallback: boolean;
 }
 
@@ -190,6 +191,7 @@ export interface TopikExam {
   durationMinutes: number;
   totalQuestions: number;
   totalPoints: number;
+  listeningAudioUrl: string;
   version: number;
 }
 

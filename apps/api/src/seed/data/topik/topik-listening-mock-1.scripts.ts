@@ -8,6 +8,7 @@ const audio = (key: string, lines: AudioLine[]): TopikAudio => ({
   transcript: lines.map(([speaker, text]) => ({ speaker, text })),
   mockPlaybackLimit: 1,
   guidedPlaybackLimit: 3,
+  guidedAutoRepeatCount: /^listening-(?:2[1-9]|[3-9]\d)-/.test(key) ? 2 : 1,
   speechFallback: true,
 });
 

@@ -30,6 +30,7 @@ import { UserService } from "@/services/user.service";
 import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
 import { useSettingsStore, learnModePath } from "@/store/settings.store";
+import { hydrateLearnMode } from "@/utils/learn-mode";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
@@ -86,6 +87,8 @@ export default function HomeScreen() {
       UserService.getMe()
         .then((me) => {
           setUserData(me as any);
+          // 학습 모드는 계정 데이터다. 서버 값으로 로컬 거울을 맞춘다
+          hydrateLearnMode(me as any);
         })
         .catch((err) => console.error("getMe 실패:", err));
       StatsService.getWeekly()

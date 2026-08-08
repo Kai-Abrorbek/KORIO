@@ -3,6 +3,11 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserLevel, AuthProvider } from "../types/enums";
 import type { AvatarConfig } from "@/types/avatar";
+import {
+  useSettingsStore,
+  type LearnMode,
+  type TopikLevel,
+} from "./settings.store";
 
 export interface User {
   id: string;
@@ -32,6 +37,10 @@ export interface User {
   provider: AuthProvider;
   isOnboardingCompleted: boolean;
   currentUnitProgress?: number;
+  /** 현재 학습 중인 모드 — 기기가 아니라 계정에 붙는다 */
+  learnMode?: LearnMode;
+  /** 토픽 학습 중이면 어느 급수인지 */
+  topikLevel?: TopikLevel;
 }
 
 interface AuthState {
@@ -58,7 +67,13 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user, token) =>
         set({ user, accessToken: token, isLoggedIn: true }),
 
-      logout: () => set({ user: null, accessToken: null, isLoggedIn: false }),
+      logout: () => {
+        // 학습 모드는 계정 데이터라 로컬 거울에 남겨두면 안 된다.
+        // 안 지우면 다음 사람이 앞사람 모드로 시작한다.
+        useSettingsStore.getState().setLearnMode("vocabulary");
+        useSettingsStore.getState().setTopikLevel("1");
+        set({ user: null, accessToken: null, isLoggedIn: false });
+      },
 
       setLoading: (loading) => set({ isLoading: loading }),
 

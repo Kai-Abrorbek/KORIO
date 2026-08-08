@@ -131,6 +131,13 @@ export default {
     play: "Play",
     stop: "Stop",
     playCount: "{{current}} / {{total}} plays",
+    guidedRepeat: "Plays {{count}} times in a row",
+    examAudio: "Live test audio",
+    examAudioPlaying: "The test audio is playing automatically",
+    examAudioLocked:
+      "It keeps playing as you move between questions and cannot be controlled.",
+    examAudioComplete: "The test audio has finished",
+    examAudioUnavailable: "The test audio could not be played",
     originalAudio: "Original exam audio",
     deviceVoice: "Playing with the device’s Korean voice",
     explanationMode: "Guided mode",

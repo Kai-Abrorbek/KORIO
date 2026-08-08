@@ -31,6 +31,7 @@ import {
   toCounts,
 } from './utils/study-category.util';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
+import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 import { AvatarConfig } from './schemas/avatar.schema';
 import {
   AVATAR_VERSION,
@@ -194,6 +195,10 @@ export class UsersService {
       targetLanguage: user.targetLanguage,
       dailyGoalMinutes: user.dailyGoalMinutes,
       isOnboardingCompleted: user.isOnboardingCompleted,
+      // 기존 유저 문서엔 이 필드가 없다. 기본값을 내려줘야 앱이
+      // 로컬에 남아 있던 (다른 계정의) 값을 그대로 쓰지 않는다.
+      learnMode: user.learnMode || 'vocabulary',
+      topikLevel: user.topikLevel || '1',
       createdAt: (user as any).createdAt,
       lastStudiedAt: user.lastStudiedAt,
       joinedYear: (user as any).createdAt
@@ -481,6 +486,33 @@ export class UsersService {
   }
 
   /** 아바타 전체 설정 저장 */
+  /**
+   * 현재 학습 중인 모드 저장.
+   *
+   * 토픽은 급수까지 같이 와야 홈에서 바로 그 급수로 들어갈 수 있다.
+   * 급수가 안 왔으면 이전 값을 유지한다 (덮어써서 1급으로 되돌리면 안 됨).
+   */
+  async updateLearnMode(userId: string, dto: UpdateLearnModeDto) {
+    const $set: Record<string, string> = { learnMode: dto.learnMode };
+    if (dto.topikLevel) $set.topikLevel = dto.topikLevel;
+
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set },
+        { returnDocument: 'after', runValidators: true },
+      )
+      .select('learnMode topikLevel')
+      .lean();
+
+    if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    return {
+      learnMode: updated.learnMode,
+      topikLevel: updated.topikLevel,
+    };
+  }
+
   async updateAvatar(userId: string, dto: UpdateAvatarDto) {
     const updated = await this.userModel
       .findByIdAndUpdate(

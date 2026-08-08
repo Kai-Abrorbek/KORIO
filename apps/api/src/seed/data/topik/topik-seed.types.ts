@@ -20,6 +20,7 @@ export interface TopikSeedExam {
   durationMinutes: number;
   totalQuestions: number;
   totalPoints: number;
+  listeningAudioUrl?: string;
   version: number;
   status: string;
   source: {

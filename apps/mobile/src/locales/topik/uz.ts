@@ -133,6 +133,13 @@ export default {
     play: "Eshitish",
     stop: "To‘xtatish",
     playCount: "{{current}} / {{total}} marta",
+    guidedRepeat: "Ketma-ket {{count}} marta eshittiriladi",
+    examAudio: "Haqiqiy imtihon audiosi",
+    examAudioPlaying: "Imtihon audiosi avtomatik ijro etilmoqda",
+    examAudioLocked:
+      "Savollar orasida o'tsangiz ham davom etadi va uni boshqarib bo'lmaydi.",
+    examAudioComplete: "Imtihon audiosi tugadi",
+    examAudioUnavailable: "Imtihon audiosini ijro etib bo'lmadi",
     originalAudio: "Asl imtihon audiosi",
     deviceVoice: "Qurilmaning koreyscha ovozi bilan",
     explanationMode: "Izohli rejim",

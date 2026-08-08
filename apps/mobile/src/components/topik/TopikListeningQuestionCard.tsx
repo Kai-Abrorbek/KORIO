@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import type { TopikListeningPlaybackStatus } from "@/hooks/useTopikListeningPlayback";
 import type { TopikAttemptMode, TopikQuestionWithGroup } from "@/types/topik";
 import { TopikChoiceList } from "./TopikChoiceList";
+import { TopikListeningExamAudioStatus } from "./TopikListeningExamAudioStatus";
 import { TopikListeningPlayer } from "./TopikListeningPlayer";
 import { TopikTextBlocks } from "./TopikTextBlocks";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
@@ -13,6 +15,11 @@ interface TopikListeningQuestionCardProps {
   selectedChoiceKeys: Record<string, string | undefined>;
   correctChoiceKeys: Record<string, string | undefined>;
   showTranscript: boolean;
+  playbackStatus: TopikListeningPlaybackStatus;
+  activeAudioKey: string | null;
+  playCount: number;
+  onPlayAudio: () => void;
+  onStopAudio: () => void;
   onSelect: (questionId: string, choiceKey: string) => void;
   renderSupport?: (question: TopikQuestionWithGroup) => ReactNode;
 }
@@ -23,6 +30,11 @@ export function TopikListeningQuestionCard({
   selectedChoiceKeys,
   correctChoiceKeys,
   showTranscript,
+  playbackStatus,
+  activeAudioKey,
+  playCount,
+  onPlayAudio,
+  onStopAudio,
   onSelect,
   renderSupport,
 }: TopikListeningQuestionCardProps) {
@@ -30,6 +42,9 @@ export function TopikListeningQuestionCard({
   const styles = useMemo(() => getStyles(palette), [palette]);
   const firstQuestion = questions[0];
   const audio = firstQuestion?.audio ?? firstQuestion?.group.sharedAudio;
+  const repeatCount =
+    audio?.guidedAutoRepeatCount ??
+    ((firstQuestion?.number ?? 0) >= 21 ? 2 : 1);
 
   if (!firstQuestion || !audio) return null;
 
@@ -42,12 +57,21 @@ export function TopikListeningQuestionCard({
         />
       </View>
 
-      <TopikListeningPlayer
-        key={audio.key}
-        audio={audio}
-        mode={mode}
-        showTranscript={showTranscript}
-      />
+      {mode === "guided" ? (
+        <TopikListeningPlayer
+          audio={audio}
+          showTranscript={showTranscript}
+          isPlaying={
+            activeAudioKey === audio.key && playbackStatus === "playing"
+          }
+          playCount={playCount}
+          repeatCount={repeatCount}
+          onPlay={onPlayAudio}
+          onStop={onStopAudio}
+        />
+      ) : (
+        <TopikListeningExamAudioStatus status={playbackStatus} />
+      )}
 
       <View style={styles.questions}>
         {questions.map((question, index) => (

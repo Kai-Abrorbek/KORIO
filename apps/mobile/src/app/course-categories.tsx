@@ -20,11 +20,8 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import {
-  useSettingsStore,
-  LearnMode,
-  learnModePath,
-} from "@/store/settings.store";
+import { LearnMode, learnModePath } from "@/store/settings.store";
+import { commitLearnMode } from "@/utils/learn-mode";
 import {
   TopikLevelModal,
   type TopikLevel,
@@ -83,7 +80,6 @@ function CategoryCard({
   s: ReturnType<typeof getStyles>;
   onTopikPress: () => void;
 }) {
-  const setLearnMode = useSettingsStore((st) => st.setLearnMode);
   const pressed = useSharedValue(0);
   const aStyle = useAnimatedStyle(() => ({
     transform: [
@@ -114,9 +110,10 @@ function CategoryCard({
             return;
           }
 
-          // 나머지는 전부 학습 모드로 기억하고, 목적지는 한 곳에서 계산한다.
+          // 나머지는 전부 학습 모드로 기억하고(계정에 저장),
+          // 목적지는 한 곳에서 계산한다.
           const mode = c.category as LearnMode;
-          setLearnMode(mode);
+          commitLearnMode(mode);
           router.push(learnModePath(mode, "1"));
         }}
         style={[s.catCard, aStyle]}
@@ -138,16 +135,13 @@ export default function CourseCategories() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
-  const setLearnMode = useSettingsStore((state) => state.setLearnMode);
-  const setTopikLevel = useSettingsStore((state) => state.setTopikLevel);
   const [topikModalVisible, setTopikModalVisible] = useState(false);
   const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
 
   const selectTopikLevel = (level: TopikLevel) => {
     Haptics.selectionAsync();
-    setLearnMode("topik");
-    // 홈에서 토픽으로 돌아올 때 어느 급수였는지 알아야 한다
-    setTopikLevel(level);
+    // 급수까지 계정에 저장해야 홈에서 그 급수로 바로 들어간다
+    commitLearnMode("topik", level);
     setTopikModalVisible(false);
     router.push({ pathname: "/topik-sections", params: { level } });
   };

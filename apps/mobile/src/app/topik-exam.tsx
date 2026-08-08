@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -23,8 +23,16 @@ import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
+import {
+  type TopikListeningPlaybackRequest,
+  useTopikListeningPlayback,
+} from "@/hooks/useTopikListeningPlayback";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
-import { flattenTopikQuestions, type TopikAttemptMode } from "@/types/topik";
+import {
+  flattenTopikQuestions,
+  type TopikAttemptMode,
+  type TopikAudio,
+} from "@/types/topik";
 
 function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -46,7 +54,13 @@ export default function TopikExamScreen() {
   const mode =
     (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
   const scrollRef = useRef<ScrollView>(null);
+  const guidedStartedAttemptRef = useRef<string | null>(null);
+  const mockStartedAttemptRef = useRef<string | null>(null);
+  const guidedPlayCountsRef = useRef<Record<string, number>>({});
   const [now, setNow] = useState(Date.now());
+  const [guidedPlayCounts, setGuidedPlayCounts] = useState<
+    Record<string, number>
+  >({});
   const [busy, setBusy] = useState(false);
   const [exitModalVisible, setExitModalVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -86,6 +100,7 @@ export default function TopikExamScreen() {
   const revealNextHint = useTopikAttemptStore((state) => state.revealNextHint);
   const revealSolution = useTopikAttemptStore((state) => state.revealSolution);
   const submit = useTopikAttemptStore((state) => state.submit);
+  const listeningPlayback = useTopikListeningPlayback();
 
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
@@ -98,6 +113,28 @@ export default function TopikExamScreen() {
       group: question.group,
     }));
   }, [isListening, question]);
+  const activeAudio =
+    activeQuestions[0]?.audio ?? activeQuestions[0]?.group.sharedAudio ?? null;
+  const activeAudioRepeatCount = activeAudio
+    ? (activeAudio.guidedAutoRepeatCount ??
+      ((activeQuestions[0]?.number ?? 0) >= 21 ? 2 : 1))
+    : 1;
+  const mockPlaybackRequest =
+    useMemo<TopikListeningPlaybackRequest | null>(() => {
+      if (!session || session.exam.section !== "listening") return null;
+
+      const transcript = session.groups.flatMap((group) => {
+        if (group.sharedAudio) return group.sharedAudio.transcript;
+        return group.questions.flatMap((item) => item.audio?.transcript ?? []);
+      });
+
+      return {
+        key: `topik-exam-${session.exam.id}`,
+        audioUrl: session.exam.listeningAudioUrl,
+        transcript,
+        repeatCount: 1,
+      };
+    }, [session]);
   const stepStartIndices = useMemo(() => {
     if (!isListening) return questions.map((_, index) => index);
     return questions.reduce<number[]>((indices, item, index) => {
@@ -144,7 +181,71 @@ export default function TopikExamScreen() {
   useEffect(() => {
     if (!examCode) return;
     void start(examCode, mode);
-  }, [examCode, mode, start]);
+    return listeningPlayback.stop;
+  }, [examCode, listeningPlayback.stop, mode, start]);
+
+  const playGuidedAudio = useCallback(
+    (audio: TopikAudio, repeatCount: number) => {
+      const currentCount = guidedPlayCountsRef.current[audio.key] ?? 0;
+      if (currentCount >= audio.guidedPlaybackLimit) return;
+
+      const started = listeningPlayback.play({
+        key: audio.key,
+        audioUrl: audio.audioUrl,
+        transcript: audio.transcript,
+        repeatCount,
+      });
+      if (!started) return;
+
+      const nextCounts = {
+        ...guidedPlayCountsRef.current,
+        [audio.key]: currentCount + 1,
+      };
+      guidedPlayCountsRef.current = nextCounts;
+      setGuidedPlayCounts(nextCounts);
+    },
+    [listeningPlayback.play],
+  );
+
+  useEffect(() => {
+    if (
+      isLoading ||
+      !attempt ||
+      !session ||
+      !isListening ||
+      !mockPlaybackRequest ||
+      session.exam.code !== examCode ||
+      attempt.examId !== session.exam.id ||
+      attempt.mode !== mode
+    ) {
+      return;
+    }
+
+    if (attempt.mode === "mock_exam") {
+      if (mockStartedAttemptRef.current === attempt.id) return;
+      mockStartedAttemptRef.current = attempt.id;
+      listeningPlayback.play(mockPlaybackRequest);
+      return;
+    }
+
+    if (!activeAudio || guidedStartedAttemptRef.current === attempt.id) return;
+    guidedStartedAttemptRef.current = attempt.id;
+    guidedPlayCountsRef.current = {};
+    setGuidedPlayCounts({});
+    playGuidedAudio(activeAudio, activeAudioRepeatCount);
+  }, [
+    activeAudio,
+    activeAudioRepeatCount,
+    attempt,
+    examCode,
+    isListening,
+    isLoading,
+    listeningPlayback.play,
+    mode,
+    mockPlaybackRequest,
+    playGuidedAudio,
+    session,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -180,12 +281,21 @@ export default function TopikExamScreen() {
     }
   };
 
-  const moveByStep = (direction: -1 | 1) => {
+  const moveByStep = async (direction: -1 | 1) => {
     const nextStep = Math.min(
       Math.max(activeStepIndex + direction, 0),
       stepStartIndices.length - 1,
     );
-    return moveTo(stepStartIndices[nextStep] ?? 0);
+    const nextIndex = stepStartIndices[nextStep] ?? 0;
+    await moveTo(nextIndex);
+
+    if (direction !== 1 || attempt?.mode !== "guided" || !isListening) return;
+    const nextQuestion = questions[nextIndex];
+    const nextAudio = nextQuestion?.audio ?? nextQuestion?.group.sharedAudio;
+    if (!nextQuestion || !nextAudio) return;
+    const repeatCount =
+      nextAudio.guidedAutoRepeatCount ?? (nextQuestion.number >= 21 ? 2 : 1);
+    playGuidedAudio(nextAudio, repeatCount);
   };
 
   const confirmExit = () => {
@@ -199,6 +309,7 @@ export default function TopikExamScreen() {
     try {
       await saveProgress();
       setExitModalVisible(false);
+      listeningPlayback.stop();
       router.back();
     } catch {
       setExitError(true);
@@ -219,6 +330,7 @@ export default function TopikExamScreen() {
     try {
       const result = await submit();
       setSubmitModalVisible(false);
+      listeningPlayback.stop();
       router.replace({
         pathname: "/topik-result",
         params: { attemptId: result.attemptId },
@@ -356,6 +468,17 @@ export default function TopikExamScreen() {
               ]),
             )}
             showTranscript={showListeningTranscript}
+            playbackStatus={listeningPlayback.status}
+            activeAudioKey={listeningPlayback.activeKey}
+            playCount={
+              activeAudio ? (guidedPlayCounts[activeAudio.key] ?? 0) : 0
+            }
+            onPlayAudio={() => {
+              if (activeAudio) {
+                playGuidedAudio(activeAudio, activeAudioRepeatCount);
+              }
+            }}
+            onStopAudio={listeningPlayback.stop}
             onSelect={(questionId, choiceKey) =>
               selectAnswer(questionId, choiceKey)
             }

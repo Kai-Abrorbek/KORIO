@@ -61,6 +61,7 @@ export class TopikService {
       durationMinutes: exam.durationMinutes,
       totalQuestions: exam.totalQuestions,
       totalPoints: exam.totalPoints,
+      listeningAudioUrl: exam.listeningAudioUrl ?? '',
       version: exam.version,
     }));
   }
@@ -573,6 +574,7 @@ export class TopikService {
       durationMinutes: exam.durationMinutes,
       totalQuestions: exam.totalQuestions,
       totalPoints: exam.totalPoints,
+      listeningAudioUrl: exam.listeningAudioUrl ?? '',
       version: exam.version,
     };
   }

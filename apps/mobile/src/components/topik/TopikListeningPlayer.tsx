@@ -1,83 +1,37 @@
 import { Ionicons } from "@expo/vector-icons";
-import * as Speech from "expo-speech";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import type { TopikAttemptMode, TopikAudio } from "@/types/topik";
-import { useSettingsStore } from "@/store/settings.store";
+import type { TopikAudio } from "@/types/topik";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
 
 interface TopikListeningPlayerProps {
   audio: TopikAudio;
-  mode: TopikAttemptMode;
   showTranscript: boolean;
+  isPlaying: boolean;
+  playCount: number;
+  repeatCount: number;
+  onPlay: () => void;
+  onStop: () => void;
 }
 
 const waveform = [11, 20, 15, 29, 18, 35, 22, 30, 14, 25, 17, 32, 20, 27, 12];
 
 export function TopikListeningPlayer({
   audio,
-  mode,
   showTranscript,
+  isPlaying,
+  playCount,
+  repeatCount,
+  onPlay,
+  onStop,
 }: TopikListeningPlayerProps) {
   const { t } = useTranslation();
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playCount, setPlayCount] = useState(0);
-  const runId = useRef(0);
-  const playbackLimit =
-    mode === "mock_exam" ? audio.mockPlaybackLimit : audio.guidedPlaybackLimit;
+  const playbackLimit = audio.guidedPlaybackLimit;
   const canPlay = playCount < playbackLimit;
-
-  const stop = () => {
-    runId.current += 1;
-    void Speech.stop();
-    setIsPlaying(false);
-  };
-
-  const play = async () => {
-    if (!canPlay || isPlaying || audio.transcript.length === 0) return;
-    const { muted, sound } = useSettingsStore.getState();
-    if (muted || sound.speechVolume <= 0) return;
-
-    await Speech.stop();
-    const activeRun = runId.current + 1;
-    runId.current = activeRun;
-    setPlayCount((count) => count + 1);
-    setIsPlaying(true);
-
-    const speakLine = (index: number) => {
-      if (runId.current !== activeRun) return;
-      const line = audio.transcript[index];
-      if (!line) {
-        setIsPlaying(false);
-        return;
-      }
-
-      const isFemale =
-        line.speaker.includes("여자") || line.speaker.includes("여성");
-      Speech.speak(line.text, {
-        language: "ko-KR",
-        rate: sound.speechRate,
-        pitch: isFemale ? 1.08 : 0.94,
-        volume: sound.speechVolume,
-        onDone: () => speakLine(index + 1),
-        onError: () => setIsPlaying(false),
-        onStopped: () => setIsPlaying(false),
-      });
-    };
-
-    speakLine(0);
-  };
-
-  useEffect(() => {
-    return () => {
-      runId.current += 1;
-      void Speech.stop();
-    };
-  }, []);
 
   return (
     <View style={styles.wrap}>
@@ -110,7 +64,7 @@ export function TopikListeningPlayer({
               isPlaying ? t("topik.listening.stop") : t("topik.listening.play")
             }
             disabled={!isPlaying && !canPlay}
-            onPress={isPlaying ? stop : () => void play()}
+            onPress={isPlaying ? onStop : onPlay}
             style={[
               styles.playButton,
               !isPlaying && !canPlay && styles.playButtonDisabled,
@@ -151,6 +105,15 @@ export function TopikListeningPlayer({
               : t("topik.listening.deviceVoice")}
           </Text>
         </View>
+
+        {repeatCount > 1 && (
+          <View style={styles.repeatNotice}>
+            <Ionicons name="repeat" size={13} color={palette.white} />
+            <Text style={styles.repeatNoticeText}>
+              {t("topik.listening.guidedRepeat", { count: repeatCount })}
+            </Text>
+          </View>
+        )}
       </LinearGradient>
 
       {showTranscript && (
@@ -257,6 +220,21 @@ const getStyles = (palette: TopikPalette) =>
     waveBarActive: { backgroundColor: palette.white },
     playerFooter: { flexDirection: "row", alignItems: "center", gap: 5 },
     playerFooterText: { color: palette.heroDescription, fontSize: 10.5 },
+    repeatNotice: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      borderRadius: 999,
+      backgroundColor: "rgba(255,255,255,0.14)",
+      paddingHorizontal: 9,
+      paddingVertical: 6,
+    },
+    repeatNoticeText: {
+      color: palette.white,
+      fontSize: 10.5,
+      fontWeight: "800",
+    },
     transcript: {
       gap: 14,
       borderWidth: 1,
