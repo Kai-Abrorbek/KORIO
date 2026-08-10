@@ -166,6 +166,47 @@ export default {
     repairPen: "Tiklash qalam",
     medalTitle: "Bu oylik medal",
   },
+  update: {
+    upToDate: "Eng so'nggi versiyadasiz",
+    outdated: "v{{version}} chiqdi",
+    current: "Joriy",
+    noNotes: "O'zgarishlar yozilmagan.",
+    footer:
+      "KORIO'ni yaxshilashda davom etamiz. Fikringizni yordam markazi orqali yuboring!",
+    tags: { new: "Yangi", improve: "Yaxshilandi", fix: "Tuzatildi" },
+    notes: {
+      v1_2_400: {
+        items: [
+          "new|Talaffuz mashqi 120 ta koreyscha minimal juftlik bilan qaytadan yozildi.",
+          "new|Akkauntni boshqarish va yordam markazi sahifalari qo'shildi.",
+          "new|Ovoz sozlamalarida balandlik, nutq tezligi va tebranishni boshqarasiz.",
+          "improve|O'quv rejimi va TOPIK darajasi akkauntda saqlanadi — qurilma almashsa ham qoladi.",
+          "fix|Grammatika mashqida javob oldindan ko'rinib qolayotgani tuzatildi.",
+        ],
+      },
+      v1_2_300: {
+        items: [
+          "new|Grammatika mashqlari yo'l xaritasiga o'tdi. XP va mukofotlar ham beriladi.",
+          "new|Bildirishnomalar markazi ochildi: do'stlar, liga va mukofotlar bir joyda.",
+          "improve|Dars sahifasida tasdiqlash tugmasi berkilib qolishi tuzatildi.",
+        ],
+      },
+      v1_2_200: {
+        items: [
+          "new|Hangul slot o'yini qo'shildi.",
+          "improve|So'z juftlash o'yini endi siz o'rgangan so'zlardan tuziladi.",
+          "fix|SUPER foydalanuvchilarda energiya kamayib ketayotgani tuzatildi.",
+        ],
+      },
+      v1_2_100: {
+        items: [
+          "new|Ball sahifasida bo'limlar bo'yicha jarayonni ko'rasiz.",
+          "improve|Hangulni endi boshlaganlar yo'l xaritasining birinchi bosqichidan boshlaydi.",
+          "fix|Tungi rejimda kartalar ko'rinmay qolayotgani tuzatildi.",
+        ],
+      },
+    },
+  },
   help: {
     searchPlaceholder: "Savolingizni qidiring",
     categories: {

@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { SettingsSection } from "@/types/settings";
 
 export const SETTINGS_SECTIONS: SettingsSection[] = [
@@ -152,9 +153,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "information-circle",
         iconColor: "#A8A8B0",
         iconBgColor: "#ECECEE",
+        route: "/update",
       },
     ],
   },
 ];
 
-export const APP_VERSION = "1.2.400";
+/**
+ * 버전은 app.json 하나만 올리면 되게 거기서 가져온다.
+ * 두 군데에 적어두면 반드시 어긋난다 (실제로 1.0.0 / 1.2.400 로 갈라져 있었다).
+ */
+export const APP_VERSION = Constants.expoConfig?.version ?? "1.2.400";
