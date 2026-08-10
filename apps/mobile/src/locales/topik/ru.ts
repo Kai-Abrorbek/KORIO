@@ -78,6 +78,7 @@ export default {
     header: "TOPIK {{level}} · {{section}}",
     reading: "Чтение",
     listening: "Аудирование",
+    writing: "Письмо",
     heroTitle: "Не запоминайте ответы.\nУчитесь решать задания.",
     heroDescription:
       "Тренируйтесь в формате экзамена и открывайте пошаговые подсказки только при необходимости.",
@@ -95,6 +96,7 @@ export default {
     examMeta: "{{questions}} заданий · {{minutes}} мин · {{points}} баллов",
     studyMode: "Режим обучения",
     mode: "Режим",
+    completed: "Завершено",
     startGuided: "Начать с разбором",
     startMock: "Начать пробный экзамен",
     openStats: "Открыть статистику",
@@ -124,6 +126,8 @@ export default {
     previous: "Назад",
     next: "Далее",
     submitAnswers: "Отправить ответы",
+    reviewMode: "Разбор ответов",
+    backToResult: "К результатам",
   },
   listening: {
     audio: "Аудиозадание",
@@ -156,6 +160,7 @@ export default {
     questionResultsDescription:
       "Изучите объяснения и разберите причины ошибок.",
     wrongOnly: "Только ошибки",
+    reviewQuestion: "Повторить задание {{number}}",
     myAnswer: "Мой ответ: {{answer}}",
     correctAnswer: "Верный ответ: {{answer}}",
     explanation: "Объяснение",

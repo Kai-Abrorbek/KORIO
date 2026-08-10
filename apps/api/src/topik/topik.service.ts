@@ -66,6 +66,15 @@ export class TopikService {
     }));
   }
 
+  public async getCompletedExamIds(userId: string) {
+    const examIds = await this.attemptModel.distinct('examId', {
+      userId: new Types.ObjectId(userId),
+      status: TopikAttemptStatus.SUBMITTED,
+    });
+
+    return examIds.map((examId) => String(examId));
+  }
+
   public async getExamSession(code: string, from = 1, to = 50) {
     if (from > to) {
       throw new BadRequestException('TOPIK_INVALID_QUESTION_RANGE');
@@ -520,6 +529,14 @@ export class TopikService {
       throw new BadRequestException('TOPIK_ATTEMPT_NOT_SUBMITTED');
     }
 
+    const exam = await this.examModel
+      .findById(attempt.examId)
+      .select('code examType section')
+      .lean();
+    if (!exam) {
+      throw new NotFoundException('TOPIK_EXAM_NOT_FOUND');
+    }
+
     const questions = await this.questionModel
       .find({ _id: { $in: attempt.questionIds } })
       .select('+correctChoiceKey +solution')
@@ -531,6 +548,9 @@ export class TopikService {
 
     return {
       ...this.formatSubmission(attempt),
+      examCode: exam.code,
+      examType: exam.examType,
+      section: exam.section,
       questions: questions.map((question) => {
         const answer = answerByQuestion.get(question._id.toString());
 
@@ -648,6 +668,8 @@ export class TopikService {
   private formatSubmission(attempt: TopikAttemptDocument) {
     return {
       attemptId: attempt._id.toString(),
+      examId: attempt.examId.toString(),
+      mode: attempt.mode,
       status: attempt.status,
       correctCount: attempt.correctCount,
       totalQuestions: attempt.questionIds.length,

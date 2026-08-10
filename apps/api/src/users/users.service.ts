@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
 import { UserStats, UserStatsDocument } from './schemas/user-stats.schema';
 import {
@@ -33,6 +34,7 @@ import {
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { AvatarConfig } from './schemas/avatar.schema';
 import {
   AVATAR_VERSION,
@@ -200,6 +202,9 @@ export class UsersService {
       // 로컬에 남아 있던 (다른 계정의) 값을 그대로 쓰지 않는다.
       learnMode: user.learnMode || 'vocabulary',
       topikLevel: user.topikLevel || '1',
+      // 계정 화면에서 로그인 방식을 보여주고, 소셜 계정엔 비밀번호 변경을 숨긴다
+      provider: user.provider,
+      superExpiresAt: user.superExpiresAt ?? null,
       createdAt: (user as any).createdAt,
       lastStudiedAt: user.lastStudiedAt,
       joinedYear: (user as any).createdAt
@@ -484,6 +489,77 @@ export class UsersService {
       .lean();
     if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
     return updated;
+  }
+
+  /**
+   * @아이디 사용 가능 여부.
+   * 저장 시도 후 중복 에러를 보여주는 것보다, 입력하는 동안 알려주는 게 낫다.
+   */
+  async checkUsername(userId: string, raw: string) {
+    const username = (raw || '').trim().toLowerCase();
+
+    // 영문/숫자/밑줄 3~20자. 다른 문자를 허용하면 멘션·검색이 지저분해진다
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+      return { available: false, reason: 'format' as const };
+    }
+
+    const owner = await this.userModel
+      .findOne({ username })
+      .select('_id')
+      .lean();
+
+    // 내가 이미 쓰고 있는 아이디면 그대로 두는 것도 "사용 가능"
+    if (owner && owner._id.toString() !== userId) {
+      return { available: false, reason: 'taken' as const };
+    }
+    return { available: true, reason: null };
+  }
+
+  /** 비밀번호 변경. 소셜 로그인 계정은 비밀번호가 없다. */
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.userModel.findById(userId).select('+password');
+    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    if (!user.password) {
+      throw new BadRequestException('SOCIAL_ACCOUNT_NO_PASSWORD');
+    }
+
+    const ok = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!ok) throw new BadRequestException('WRONG_CURRENT_PASSWORD');
+
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException('SAME_PASSWORD');
+    }
+
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    await user.save();
+    return { success: true };
+  }
+
+  /**
+   * 회원 탈퇴.
+   *
+   * 유저 문서만 지우면 진행도·통계·알림이 주인 없는 채로 남는다.
+   * 팔로우 목록에 남은 내 id 도 같이 정리해야 친구 목록이 깨지지 않는다.
+   */
+  async deleteAccount(userId: string) {
+    const _id = new Types.ObjectId(userId);
+    const user = await this.userModel.findById(_id).select('_id').lean();
+    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    await Promise.all([
+      this.progressModel.deleteMany({ userId: _id }),
+      this.statsModel.deleteMany({ userId: _id }),
+      this.notifications.clearAll(userId).catch(() => undefined),
+      // 남이 나를 팔로우한 기록도 지운다
+      this.userModel.updateMany(
+        { $or: [{ following: _id }, { followers: _id }] },
+        { $pull: { following: _id, followers: _id } },
+      ),
+    ]);
+
+    await this.userModel.deleteOne({ _id });
+    return { success: true };
   }
 
   /** 아바타 전체 설정 저장 */

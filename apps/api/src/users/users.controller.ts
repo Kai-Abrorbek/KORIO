@@ -16,6 +16,7 @@ import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -55,6 +56,24 @@ export class UsersController {
   @Post('me/pronunciation')
   async savePronunciation(@Request() req, @Body() dto: SavePronunciationDto) {
     return this.usersService.savePronunciation(req.user._id.toString(), dto);
+  }
+
+  @Get('me/check-username')
+  async checkUsername(@Request() req, @Query('username') username: string) {
+    return this.usersService.checkUsername(
+      req.user._id.toString(),
+      username ?? '',
+    );
+  }
+
+  @Post('me/password')
+  async changePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    return this.usersService.changePassword(req.user._id.toString(), dto);
+  }
+
+  @Delete('me')
+  async deleteAccount(@Request() req) {
+    return this.usersService.deleteAccount(req.user._id.toString());
   }
 
   @Post('me/hangul-complete')

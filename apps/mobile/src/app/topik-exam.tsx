@@ -51,12 +51,23 @@ export default function TopikExamScreen() {
   const params = useLocalSearchParams<{
     examCode?: string;
     mode?: TopikAttemptMode;
+    reviewAttemptId?: string;
+    questionNumber?: string;
   }>();
   const examCode = Array.isArray(params.examCode)
     ? params.examCode[0]
     : params.examCode;
-  const mode =
-    (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
+  const reviewAttemptId = Array.isArray(params.reviewAttemptId)
+    ? params.reviewAttemptId[0]
+    : params.reviewAttemptId;
+  const isReview = Boolean(reviewAttemptId);
+  const mode = isReview
+    ? "guided"
+    : ((Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided");
+  const questionNumberParam = Array.isArray(params.questionNumber)
+    ? params.questionNumber[0]
+    : params.questionNumber;
+  const reviewQuestionNumber = Math.max(1, Number(questionNumberParam) || 1);
   const scrollRef = useRef<ScrollView>(null);
   const guidedStartedAttemptRef = useRef<string | null>(null);
   const mockStartedAttemptRef = useRef<string | null>(null);
@@ -93,6 +104,7 @@ export default function TopikExamScreen() {
   const isLoading = useTopikAttemptStore((state) => state.isLoading);
   const errorCode = useTopikAttemptStore((state) => state.errorCode);
   const start = useTopikAttemptStore((state) => state.start);
+  const startReview = useTopikAttemptStore((state) => state.startReview);
   const selectAnswer = useTopikAttemptStore((state) => state.selectAnswer);
   const setCurrentIndex = useTopikAttemptStore(
     (state) => state.setCurrentIndex,
@@ -209,8 +221,9 @@ export default function TopikExamScreen() {
     activeQuestions.length > 0 &&
     activeQuestions.every((item) => Boolean(answers[item.id]));
   const showListeningTranscript =
-    allActiveAnswered &&
-    activeQuestions.some((item) => Boolean(revealedSolutions[item.id]));
+    isReview ||
+    (allActiveAnswered &&
+      activeQuestions.some((item) => Boolean(revealedSolutions[item.id])));
   const progressEndNumber =
     activeQuestions[activeQuestions.length - 1]?.number ?? currentIndex + 1;
   const progressLabel =
@@ -220,8 +233,19 @@ export default function TopikExamScreen() {
 
   useEffect(() => {
     if (!examCode) return;
+    if (reviewAttemptId) {
+      void startReview(examCode, reviewAttemptId, reviewQuestionNumber);
+      return;
+    }
     void start(examCode, mode);
-  }, [examCode, mode, start]);
+  }, [
+    examCode,
+    mode,
+    reviewAttemptId,
+    reviewQuestionNumber,
+    start,
+    startReview,
+  ]);
 
   const playGuidedAudio = useCallback(
     (audio: TopikAudio, repeatCount: number) => {
@@ -294,10 +318,16 @@ export default function TopikExamScreen() {
   }, []);
 
   useEffect(() => {
-    if (attempt?.mode === "guided" && activeQuestions.length > 0) {
+    if (!isReview && attempt?.mode === "guided" && activeQuestions.length > 0) {
       activeQuestions.forEach((item) => void loadLearningSupport(item.id));
     }
-  }, [activeQuestionKey, activeQuestions, attempt?.mode, loadLearningSupport]);
+  }, [
+    activeQuestionKey,
+    activeQuestions,
+    attempt?.mode,
+    isReview,
+    loadLearningSupport,
+  ]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -340,6 +370,11 @@ export default function TopikExamScreen() {
   };
 
   const confirmExit = () => {
+    if (isReview) {
+      listeningPlayback.stop();
+      router.back();
+      return;
+    }
     setExitError(false);
     setExitModalVisible(true);
   };
@@ -427,7 +462,17 @@ export default function TopikExamScreen() {
             />
             <Text style={styles.errorTitle}>{t("topik.exam.startFailed")}</Text>
             <Pressable
-              onPress={() => void start(examCode, mode)}
+              onPress={() => {
+                if (reviewAttemptId) {
+                  void startReview(
+                    examCode,
+                    reviewAttemptId,
+                    reviewQuestionNumber,
+                  );
+                } else {
+                  void start(examCode, mode);
+                }
+              }}
               style={styles.errorButton}
             >
               <Text style={styles.errorButtonText}>
@@ -467,8 +512,16 @@ export default function TopikExamScreen() {
           <Text style={styles.progressText}>{progressLabel}</Text>
         </View>
         <View style={styles.timer}>
-          <Ionicons name="time-outline" size={16} color={palette.primary} />
-          <Text style={styles.timerText}>{formatTime(remainingSeconds)}</Text>
+          <Ionicons
+            name={isReview ? "book-outline" : "time-outline"}
+            size={16}
+            color={palette.primary}
+          />
+          <Text style={styles.timerText}>
+            {isReview
+              ? t("topik.exam.reviewMode")
+              : formatTime(remainingSeconds)}
+          </Text>
         </View>
       </View>
 
@@ -480,9 +533,11 @@ export default function TopikExamScreen() {
       >
         <View style={styles.statusRow}>
           <Text style={styles.modeLabel}>
-            {attempt.mode === "guided"
-              ? t("topik.modes.guided")
-              : t("topik.modes.mockExam")}
+            {isReview
+              ? t("topik.exam.reviewMode")
+              : attempt.mode === "guided"
+                ? t("topik.modes.guided")
+                : t("topik.modes.mockExam")}
           </Text>
           <Text style={styles.answerCount}>
             {t("topik.exam.answerProgress", {
@@ -596,11 +651,13 @@ export default function TopikExamScreen() {
         {activeStepIndex === stepStartIndices.length - 1 ? (
           <Pressable
             disabled={busy}
-            onPress={confirmSubmit}
+            onPress={isReview ? () => router.back() : confirmSubmit}
             style={styles.primaryButton}
           >
             <Text style={styles.primaryText}>
-              {t("topik.exam.submitAnswers")}
+              {isReview
+                ? t("topik.exam.backToResult")
+                : t("topik.exam.submitAnswers")}
             </Text>
           </Pressable>
         ) : (

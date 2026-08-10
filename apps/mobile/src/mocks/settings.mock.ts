@@ -104,6 +104,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "person-circle",
         iconColor: "#FF9F66",
         iconBgColor: "#FFE5D0",
+        route: "/account",
       },
       // {
       //   id: "subscription",

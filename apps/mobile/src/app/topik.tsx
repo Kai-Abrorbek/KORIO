@@ -60,6 +60,7 @@ export default function TopikHomeScreen() {
   const examType = level === "1" ? "topik_i" : "topik_ii";
   const roman = level === "1" ? "I" : "II";
   const [exams, setExams] = useState<TopikExam[]>([]);
+  const [completedExamIds, setCompletedExamIds] = useState<string[]>([]);
   const [selectedExamCode, setSelectedExamCode] = useState<string | null>(null);
   const [mode, setMode] = useState<TopikAttemptMode>("guided");
   const [loading, setLoading] = useState(true);
@@ -69,11 +70,15 @@ export default function TopikHomeScreen() {
     setLoading(true);
     setError(false);
     try {
-      const data = await TopikService.listExams();
+      const [data, completedIds] = await Promise.all([
+        TopikService.listExams(),
+        TopikService.getCompletedExamIds().catch(() => []),
+      ]);
       const matchingExams = data.filter(
         (exam) => exam.examType === examType && exam.section === section,
       );
       setExams(matchingExams);
+      setCompletedExamIds(completedIds);
       setSelectedExamCode((current) =>
         matchingExams.some((exam) => exam.code === current)
           ? current
@@ -220,6 +225,7 @@ export default function TopikHomeScreen() {
           <View style={styles.examList}>
             {exams.map((exam) => {
               const selected = exam.code === selectedExamCode;
+              const completed = completedExamIds.includes(exam.id);
               return (
                 <Pressable
                   key={exam.id}
@@ -242,6 +248,18 @@ export default function TopikHomeScreen() {
                         points: exam.totalPoints,
                       })}
                     </Text>
+                    {completed && (
+                      <View style={styles.completedBadge}>
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={13}
+                          color={palette.success}
+                        />
+                        <Text style={styles.completedBadgeText}>
+                          {t("topik.home.completed")}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                   <Ionicons
                     name={selected ? "checkmark-circle" : "ellipse-outline"}
@@ -441,6 +459,21 @@ const getStyles = (palette: TopikPalette) =>
     examInfo: { flex: 1, gap: 4 },
     examTitle: { color: palette.text, fontSize: 14, fontWeight: "900" },
     examMeta: { color: palette.textSecondary, fontSize: 11 },
+    completedBadge: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      borderRadius: 10,
+      backgroundColor: palette.successSoft,
+      paddingHorizontal: 7,
+      paddingVertical: 4,
+    },
+    completedBadgeText: {
+      color: palette.successText,
+      fontSize: 9,
+      fontWeight: "900",
+    },
     modeList: { gap: 10 },
     modeCard: {
       flexDirection: "row",

@@ -80,6 +80,7 @@ export default {
     header: "TOPIK {{level}} {{section}}",
     reading: "Reading",
     listening: "Listening",
+    writing: "Writing",
     heroTitle: "Don’t memorize answers.\nLearn how to solve them.",
     heroDescription:
       "Practice with the official exam structure and reveal step-by-step hints only when you need them.",
@@ -97,6 +98,7 @@ export default {
     examMeta: "{{questions}} questions · {{minutes}} min · {{points}} points",
     studyMode: "Study mode",
     mode: "Mode",
+    completed: "Completed",
     startGuided: "Start with guidance",
     startMock: "Start mock exam",
     openStats: "Open learning stats",
@@ -125,6 +127,8 @@ export default {
     previous: "Previous",
     next: "Next",
     submitAnswers: "Submit answers",
+    reviewMode: "Guided review",
+    backToResult: "Back to results",
   },
   listening: {
     audio: "Listening audio",
@@ -157,6 +161,7 @@ export default {
     questionResultsDescription:
       "Read the explanations and learn from each mistake.",
     wrongOnly: "Wrong only",
+    reviewQuestion: "Review question {{number}}",
     myAnswer: "My answer: {{answer}}",
     correctAnswer: "Correct answer: {{answer}}",
     explanation: "Explanation",

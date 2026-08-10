@@ -37,9 +37,11 @@ export function TopikHintPanel({
           <Text style={styles.eyebrow}>{t("topik.modes.guided").toUpperCase()}</Text>
           <Text style={styles.title}>{t("topik.hint.title")}</Text>
         </View>
-        <Text style={styles.count}>
-          {support?.revealedHints.length ?? 0}/{support?.hintCount ?? 3}
-        </Text>
+        {support && (
+          <Text style={styles.count}>
+            {support.revealedHints.length}/{support.hintCount}
+          </Text>
+        )}
       </View>
 
       {support?.revealedHints.map((hint) => (
@@ -125,7 +127,7 @@ export function TopikHintPanel({
           </Text>
         </Pressable>
       )}
-      {!selected && (
+      {!solution && !selected && (
         <Text style={styles.guideText}>{t("topik.hint.selectAnswerFirst")}</Text>
       )}
     </View>

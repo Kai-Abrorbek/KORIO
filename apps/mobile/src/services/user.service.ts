@@ -114,8 +114,25 @@ export const UserService = {
   }): Promise<{ scores: Record<string, number> }> =>
     api.post(`/users/me/pronunciation`, data),
 
+  /** @아이디 사용 가능 여부. reason: 'format' | 'taken' */
+  checkUsername: (
+    username: string,
+  ): Promise<{ available: boolean; reason: string | null }> =>
+    api.get(
+      `/users/me/check-username?username=${encodeURIComponent(username)}`,
+    ),
+
+  changePassword: (data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ success: boolean }> => api.post(`/users/me/password`, data),
+
+  /** 회원 탈퇴 — 되돌릴 수 없다 */
+  deleteAccount: (): Promise<{ success: boolean }> => api.delete(`/users/me`),
+
   getMe: (): Promise<UserMe> => api.get(`/users/me`),
 
+  /** 프로필 수정. 서버가 허용하는 필드만 반영한다 (닉네임/아이디/소개 등) */
   updateMe: (data: Partial<UserMe>): Promise<UserMe> =>
     api.patch(`/users/me`, data),
 

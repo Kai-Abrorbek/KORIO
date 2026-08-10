@@ -20,6 +20,9 @@ import type {
 export const TopikService = {
   listExams: (): Promise<TopikExam[]> => api.get("/topik/exams"),
 
+  getCompletedExamIds: (): Promise<string[]> =>
+    api.get("/topik/exams/completed"),
+
   getSession: (
     examCode: string,
     from = 1,

@@ -29,6 +29,11 @@ interface TopikAttemptState {
   isSaving: boolean;
   errorCode: string | null;
   start: (examCode: string, mode: TopikAttemptMode) => Promise<void>;
+  startReview: (
+    examCode: string,
+    attemptId: string,
+    questionNumber: number,
+  ) => Promise<void>;
   selectAnswer: (questionId: string, choiceKey: string) => void;
   setCurrentIndex: (index: number) => void;
   saveProgress: () => Promise<void>;
@@ -60,6 +65,19 @@ function errorCode(error: unknown) {
   return "UNKNOWN_ERROR";
 }
 
+function toDraftAnswers(attempt: TopikAttempt) {
+  return Object.fromEntries(
+    attempt.answers.map((answer) => [
+      answer.questionId,
+      {
+        ...answer,
+        solutionViewedAt: answer.solutionViewedAt ?? undefined,
+        startedAtMs: Date.now(),
+      },
+    ]),
+  ) as Record<string, TopikDraftAnswer>;
+}
+
 export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
   ...initialState,
 
@@ -79,27 +97,77 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         TopikService.getSession(examCode),
         TopikService.startAttempt(examCode, mode, mode !== "mock_exam"),
       ]);
-      const answers: Record<string, TopikDraftAnswer> = Object.fromEntries(
-        attempt.answers.map((answer) => [
-          answer.questionId,
-          {
-            ...answer,
-            solutionViewedAt: answer.solutionViewedAt ?? undefined,
-            startedAtMs: Date.now(),
-          },
-        ]),
+      set({
+        examCode,
+        session,
+        attempt,
+        answers: toDraftAnswers(attempt),
+        learningSupport: {},
+        revealedSolutions: {},
+        result: null,
+        currentIndex: Math.max(0, attempt.currentQuestionNumber - 1),
+        sessionStartedAtMs: Date.now() - attempt.elapsedSeconds * 1000,
+        questionStartedAtMs: Date.now(),
+        isLoading: false,
+      });
+    } catch (error) {
+      set({ isLoading: false, errorCode: errorCode(error) });
+      throw error;
+    }
+  },
+
+  startReview: async (examCode, attemptId, questionNumber) => {
+    set({
+      ...initialState,
+      examCode,
+      questionStartedAtMs: Date.now(),
+      isLoading: true,
+    });
+    try {
+      const [session, attempt, result] = await Promise.all([
+        TopikService.getSession(examCode),
+        TopikService.getAttempt(attemptId),
+        TopikService.getResult(attemptId),
+      ]);
+      if (
+        attempt.mode !== "guided" ||
+        attempt.status !== "submitted" ||
+        result.examCode !== examCode
+      ) {
+        throw new Error("TOPIK_GUIDED_REVIEW_REQUIRED");
+      }
+
+      const revealedSolutions: Record<string, TopikRevealedSolution> =
+        Object.fromEntries(
+          result.questions.map((question) => [
+            question.questionId,
+            {
+              questionId: question.questionId,
+              selectedChoiceKey: question.selectedChoiceKey ?? "",
+              correctChoiceKey: question.correctChoiceKey,
+              isCorrect: question.isCorrect,
+              solution: question.solution,
+              viewedAt: result.submittedAt,
+            },
+          ]),
+        );
+      const questions = session.groups
+        .flatMap((group) => group.questions)
+        .sort((left, right) => left.number - right.number);
+      const requestedQuestionIndex = questions.findIndex(
+        (question) => question.number === questionNumber,
       );
 
       set({
         examCode,
         session,
         attempt,
-        answers,
+        answers: toDraftAnswers(attempt),
         learningSupport: {},
-        revealedSolutions: {},
-        result: null,
-        currentIndex: Math.max(0, attempt.currentQuestionNumber - 1),
-        sessionStartedAtMs: Date.now() - attempt.elapsedSeconds * 1000,
+        revealedSolutions,
+        result,
+        currentIndex: requestedQuestionIndex >= 0 ? requestedQuestionIndex : 0,
+        sessionStartedAtMs: null,
         questionStartedAtMs: Date.now(),
         isLoading: false,
       });
@@ -138,7 +206,13 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
 
   saveProgress: async () => {
     const state = get();
-    if (!state.attempt || state.attempt.mode === "mock_exam") return;
+    if (
+      !state.attempt ||
+      state.attempt.status !== "in_progress" ||
+      state.attempt.mode === "mock_exam"
+    ) {
+      return;
+    }
 
     const answers = Object.values(state.answers).map(
       ({ startedAtMs: _startedAtMs, ...answer }) => answer,
@@ -176,7 +250,13 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
 
   loadLearningSupport: async (questionId) => {
     const attempt = get().attempt;
-    if (!attempt || attempt.mode !== "guided") return;
+    if (
+      !attempt ||
+      attempt.mode !== "guided" ||
+      attempt.status !== "in_progress"
+    ) {
+      return;
+    }
 
     const support = await TopikService.getLearningSupport(
       attempt.id,

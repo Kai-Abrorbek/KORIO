@@ -81,6 +81,7 @@ export default {
     header: "TOPIK {{level}} · {{section}}",
     reading: "O‘qish",
     listening: "Tinglash",
+    writing: "Yozish",
     heroTitle: "Javobni yodlamang.\nYechish usulini o‘rganing.",
     heroDescription:
       "Haqiqiy imtihon tuzilishida mashq qiling va faqat kerak bo‘lganda bosqichli maslahatlarni oching.",
@@ -98,6 +99,7 @@ export default {
     examMeta: "{{questions}} savol · {{minutes}} daqiqa · {{points}} ball",
     studyMode: "O‘rganish rejimi",
     mode: "Rejim",
+    completed: "Yakunlangan",
     startGuided: "Izoh bilan boshlash",
     startMock: "Sinov imtihonini boshlash",
     openStats: "O‘quv statistikasini ochish",
@@ -127,6 +129,8 @@ export default {
     previous: "Oldingi",
     next: "Keyingi",
     submitAnswers: "Javoblarni yuborish",
+    reviewMode: "Izohli takrorlash",
+    backToResult: "Natijaga qaytish",
   },
   listening: {
     audio: "Tinglash audiosi",
@@ -159,6 +163,7 @@ export default {
     questionResultsDescription:
       "Izohlarni o‘qing va xatolaringiz sababini tushuning.",
     wrongOnly: "Faqat xatolar",
+    reviewQuestion: "{{number}}-savolni qayta ko‘rish",
     myAnswer: "Javobim: {{answer}}",
     correctAnswer: "To‘g‘ri javob: {{answer}}",
     explanation: "Izoh",

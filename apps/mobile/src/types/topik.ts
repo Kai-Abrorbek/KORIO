@@ -320,6 +320,8 @@ export interface TopikRevealedSolution {
 
 export interface TopikSubmission {
   attemptId: string;
+  examId: string;
+  mode: TopikAttemptMode;
   status: "submitted";
   correctCount: number;
   totalQuestions: number;
@@ -339,6 +341,9 @@ export interface TopikQuestionResult {
 }
 
 export interface TopikAttemptResult extends TopikSubmission {
+  examCode: string;
+  examType: "topik_i" | "topik_ii";
+  section: "reading" | "listening" | "writing";
   questions: TopikQuestionResult[];
 }
 

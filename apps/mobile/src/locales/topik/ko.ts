@@ -74,6 +74,7 @@ export default {
     header: "TOPIK {{level}} {{section}}",
     reading: "읽기",
     listening: "듣기",
+    writing: "쓰기",
     heroTitle: "문제를 외우지 말고,\n푸는 법을 익혀 보세요.",
     heroDescription:
       "실제 시험 구성 그대로 연습하고, 막힐 때만 단계별 힌트를 확인할 수 있어요.",
@@ -90,6 +91,7 @@ export default {
     examMeta: "{{questions}}문항 · {{minutes}}분 · {{points}}점",
     studyMode: "학습 방식",
     mode: "모드",
+    completed: "풀이 완료",
     startGuided: "해설과 함께 시작",
     startMock: "실전처럼 시작",
     openStats: "학습 통계 열기",
@@ -118,6 +120,8 @@ export default {
     previous: "이전",
     next: "다음",
     submitAnswers: "제출하기",
+    reviewMode: "해설 복습",
+    backToResult: "결과로 돌아가기",
   },
   listening: {
     audio: "듣기 음원",
@@ -148,6 +152,7 @@ export default {
     questionResults: "문항별 결과",
     questionResultsDescription: "해설을 읽고 틀린 이유를 확인해 보세요.",
     wrongOnly: "오답만",
+    reviewQuestion: "{{number}}번 문항 다시 보기",
     myAnswer: "내 답 {{answer}}",
     correctAnswer: "정답 {{answer}}",
     explanation: "정답 해설",
