@@ -937,6 +937,8 @@ export default {
     nextQuestion: "Далее",
   },
   pronQuiz: {
+    practice: "Произнести",
+    lecture: "Урок",
     question: "Какое слово вы услышали?",
     listenOnly: "Слушайте и выбирайте",
     next: "Далее",

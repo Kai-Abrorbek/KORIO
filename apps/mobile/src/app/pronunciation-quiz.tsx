@@ -159,9 +159,9 @@ export default function PronunciationQuiz() {
               style={[st.dot, r === null && i === index && st.dotCurrent]}
             >
               {r === true && (
-                <Ionicons name="ellipse-outline" size={22} color={C.green} />
+                <Ionicons name="ellipse-outline" size={15} color={C.green} />
               )}
-              {r === false && <Ionicons name="close" size={22} color={C.red} />}
+              {r === false && <Ionicons name="close" size={15} color={C.red} />}
             </View>
           ))}
         </View>
@@ -200,7 +200,9 @@ export default function PronunciationQuiz() {
           <View style={st.lectureIcon}>
             <Ionicons name="play" size={16} color="#fff" />
           </View>
-          <Text style={st.sideText}>{t("pronQuiz.lecture")}</Text>
+          <Text style={st.sideText} numberOfLines={2}>
+            {t("pronQuiz.lecture")}
+          </Text>
         </Pressable>
 
         <Animated.View style={[st.replayWrap, ringStyle]}>
@@ -213,7 +215,7 @@ export default function PronunciationQuiz() {
                   pressed && { transform: [{ scale: 0.95 }] },
                 ]}
               >
-                <Ionicons name="volume-high" size={44} color="#fff" />
+                <Ionicons name="volume-high" size={36} color="#fff" />
               </LinearGradient>
             )}
           </Pressable>
@@ -221,7 +223,9 @@ export default function PronunciationQuiz() {
 
         <Pressable style={st.sideBtn} onPress={next}>
           <Ionicons name="play" size={26} color={C.purple} />
-          <Text style={st.sideText}>{t("pronQuiz.next")}</Text>
+          <Text style={st.sideText} numberOfLines={2}>
+            {t("pronQuiz.next")}
+          </Text>
         </Pressable>
       </View>
     </LinearGradient>
@@ -318,7 +322,9 @@ function OptionCard({
           <View style={st.divider} />
           <Pressable style={st.practiceBtn} hitSlop={6}>
             <Ionicons name="mic" size={20} color={C.purple} />
-            <Text style={st.practiceText}>{practiceLabel}</Text>
+            <Text style={st.practiceText} numberOfLines={1}>
+              {practiceLabel}
+            </Text>
           </Pressable>
         </Animated.View>
       </View>
@@ -354,13 +360,15 @@ const st = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 5,
+    // 문제가 12~16개라 한 줄에 다 못 넣는다. 두 줄까지만 쓰고 크기를 줄임
     flexWrap: "wrap",
+    rowGap: 5,
   },
   dot: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 21,
+    height: 21,
+    borderRadius: 11,
     backgroundColor: "#b6dcf3",
     alignItems: "center",
     justifyContent: "center",
@@ -368,33 +376,33 @@ const st = StyleSheet.create({
   dotCurrent: {
     backgroundColor: "#a3d3f0",
     borderWidth: 2,
-    borderColor: "#7fbde8",
+    borderColor: "#5fa8dc",
   },
 
   targetCard: {
     marginHorizontal: 20,
-    marginTop: 24,
+    marginTop: 14,
     backgroundColor: C.targetCard,
     borderRadius: 22,
-    paddingVertical: 40,
+    paddingVertical: 22,
     alignItems: "center",
   },
-  targetWord: { fontSize: 48, fontWeight: "800", color: C.ink },
-  targetIpa: { fontSize: 22, color: "#6b7a88", marginTop: 6 },
+  targetWord: { fontSize: 44, fontWeight: "800", color: C.ink },
+  targetIpa: { fontSize: 20, color: "#6b7a88", marginTop: 4 },
 
   question: {
     textAlign: "center",
     fontSize: 20,
     fontWeight: "800",
     color: C.ink,
-    marginTop: 28,
+    marginTop: 18,
   },
 
   optRow: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 18,
-    marginTop: 24,
+    marginTop: 16,
     paddingHorizontal: 20,
   },
   cardOuter: { flex: 1, maxWidth: 200, alignItems: "center" },
@@ -413,7 +421,7 @@ const st = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
-  cardBox: { width: "100%", height: 230 },
+  cardBox: { width: "100%", height: 192 },
   face: {
     position: "absolute",
     width: "100%",
@@ -464,16 +472,17 @@ const st = StyleSheet.create({
     gap: 6,
     paddingVertical: 4,
   },
-  practiceText: { fontSize: 16, fontWeight: "800", color: C.purple },
+  practiceText: { fontSize: 14, fontWeight: "800", color: C.purple },
 
   bottom: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    // flex-end 라 라벨이 큰 버튼 아래로 흘러 내비바에 깔렸다. 가운데 정렬로
+    alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 30,
-    paddingTop: 10,
+    paddingHorizontal: 22,
+    paddingTop: 8,
   },
-  sideBtn: { alignItems: "center", gap: 4, width: 80 },
+  sideBtn: { alignItems: "center", gap: 4, width: 74 },
   lectureIcon: {
     width: 34,
     height: 26,
@@ -482,12 +491,17 @@ const st = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  sideText: { fontSize: 15, fontWeight: "800", color: C.purple },
-  replayWrap: { marginBottom: 8 },
+  sideText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: C.purple,
+    textAlign: "center",
+  },
+  replayWrap: {},
   replayBtn: {
-    width: 108,
-    height: 108,
-    borderRadius: 54,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: C.purpleDk,

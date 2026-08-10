@@ -931,6 +931,8 @@ export default {
     nextQuestion: "다음 문제",
   },
   pronQuiz: {
+    practice: "발음 해보기",
+    lecture: "강의 보기",
     question: "방금 들은 단어는 어느 쪽일까요?",
     listenOnly: "듣고 골라보세요",
     next: "다음 문제",

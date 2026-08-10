@@ -935,6 +935,8 @@ export default {
     nextQuestion: "Keyingi",
   },
   pronQuiz: {
+    practice: "Talaffuz qilish",
+    lecture: "Dars",
     question: "Qaysi so'zni eshitdingiz?",
     listenOnly: "Eshiting va tanlang",
     next: "Keyingi",
