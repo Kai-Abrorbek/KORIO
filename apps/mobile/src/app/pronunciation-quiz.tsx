@@ -20,6 +20,7 @@ import {
   type PronLevel,
   type PronOption,
 } from "@/constants/pronunciation";
+import { glossOf } from "@/constants/pronunciation-gloss";
 
 const C = {
   bgTop: "#cfe9f8",
@@ -49,10 +50,22 @@ interface PQ {
   answer: 0 | 1;
 }
 
-const toQuestion = (pair: [PronOption, PronOption], answer: 0 | 1): PQ => ({
+const toQuestion = (
+  pair: [PronOption, PronOption],
+  answer: 0 | 1,
+  lang: string,
+): PQ => ({
   options: [
-    { word: pair[0].word, ipa: pair[0].jamo, meaning: "" },
-    { word: pair[1].word, ipa: pair[1].jamo, meaning: "" },
+    {
+      word: pair[0].word,
+      ipa: pair[0].jamo,
+      meaning: glossOf(pair[0].word, lang),
+    },
+    {
+      word: pair[1].word,
+      ipa: pair[1].jamo,
+      meaning: glossOf(pair[1].word, lang),
+    },
   ],
   answer,
 });
@@ -65,7 +78,7 @@ const speakWord = (w: string) => {
 };
 
 export default function PronunciationQuiz() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -79,8 +92,8 @@ export default function PronunciationQuiz() {
       stageQuestionPlan(
         (params.level ?? "lv1") as PronLevel,
         Number(params.step ?? 1),
-      ).map((p) => toQuestion(p.pair, p.answer)),
-    [params.level, params.step],
+      ).map((p) => toQuestion(p.pair, p.answer, i18n.language)),
+    [params.level, params.step, i18n.language],
   );
 
   const [index, setIndex] = useState(0);
