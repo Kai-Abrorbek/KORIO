@@ -66,13 +66,38 @@ export class TopikService {
     }));
   }
 
-  public async getCompletedExamIds(userId: string) {
-    const examIds = await this.attemptModel.distinct('examId', {
-      userId: new Types.ObjectId(userId),
-      status: TopikAttemptStatus.SUBMITTED,
-    });
+  public async getCompletedExams(userId: string) {
+    const attempts = await this.attemptModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        status: TopikAttemptStatus.SUBMITTED,
+      })
+      .select('examId mode submittedAt')
+      .sort({ submittedAt: -1, _id: -1 })
+      .lean();
+    const latestByExam = new Map<
+      string,
+      {
+        examId: string;
+        latestAttemptId: string;
+        latestMode: TopikAttemptMode;
+        submittedAt: Date | null;
+      }
+    >();
 
-    return examIds.map((examId) => String(examId));
+    for (const attempt of attempts) {
+      const examId = attempt.examId.toString();
+      if (latestByExam.has(examId)) continue;
+
+      latestByExam.set(examId, {
+        examId,
+        latestAttemptId: attempt._id.toString(),
+        latestMode: attempt.mode,
+        submittedAt: attempt.submittedAt ?? null,
+      });
+    }
+
+    return Array.from(latestByExam.values());
   }
 
   public async getExamSession(code: string, from = 1, to = 50) {

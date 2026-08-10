@@ -347,6 +347,13 @@ export interface TopikAttemptResult extends TopikSubmission {
   questions: TopikQuestionResult[];
 }
 
+export interface TopikCompletedExam {
+  examId: string;
+  latestAttemptId: string;
+  latestMode: TopikAttemptMode;
+  submittedAt: string | null;
+}
+
 export interface TopikTypePerformance {
   questionType: TopikQuestionType;
   attempted: number;

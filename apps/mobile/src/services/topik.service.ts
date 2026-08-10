@@ -3,6 +3,7 @@ import type {
   TopikAttempt,
   TopikAttemptMode,
   TopikAttemptResult,
+  TopikCompletedExam,
   TopikExam,
   TopikExamSession,
   TopikHistoryItem,
@@ -20,7 +21,7 @@ import type {
 export const TopikService = {
   listExams: (): Promise<TopikExam[]> => api.get("/topik/exams"),
 
-  getCompletedExamIds: (): Promise<string[]> =>
+  getCompletedExams: (): Promise<TopikCompletedExam[]> =>
     api.get("/topik/exams/completed"),
 
   getSession: (

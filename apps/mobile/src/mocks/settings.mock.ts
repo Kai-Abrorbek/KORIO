@@ -126,6 +126,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         iconName: "help-circle",
         iconColor: "#A78BFA",
         iconBgColor: "#EBE5FA",
+        route: "/help",
       },
       {
         id: "language",

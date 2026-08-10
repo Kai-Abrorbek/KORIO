@@ -17,7 +17,11 @@ import {
   useTopikTheme,
 } from "@/components/topik/topikTheme";
 import { TopikService } from "@/services/topik.service";
-import type { TopikAttemptMode, TopikExam } from "@/types/topik";
+import type {
+  TopikAttemptMode,
+  TopikCompletedExam,
+  TopikExam,
+} from "@/types/topik";
 import { toTopikLanguage, topikText } from "@/types/topik";
 
 const MODES: Array<{
@@ -60,7 +64,9 @@ export default function TopikHomeScreen() {
   const examType = level === "1" ? "topik_i" : "topik_ii";
   const roman = level === "1" ? "I" : "II";
   const [exams, setExams] = useState<TopikExam[]>([]);
-  const [completedExamIds, setCompletedExamIds] = useState<string[]>([]);
+  const [completedExams, setCompletedExams] = useState<TopikCompletedExam[]>(
+    [],
+  );
   const [selectedExamCode, setSelectedExamCode] = useState<string | null>(null);
   const [mode, setMode] = useState<TopikAttemptMode>("guided");
   const [loading, setLoading] = useState(true);
@@ -72,13 +78,13 @@ export default function TopikHomeScreen() {
     try {
       const [data, completedIds] = await Promise.all([
         TopikService.listExams(),
-        TopikService.getCompletedExamIds().catch(() => []),
+        TopikService.getCompletedExams().catch(() => []),
       ]);
       const matchingExams = data.filter(
         (exam) => exam.examType === examType && exam.section === section,
       );
       setExams(matchingExams);
-      setCompletedExamIds(completedIds);
+      setCompletedExams(completedIds);
       setSelectedExamCode((current) =>
         matchingExams.some((exam) => exam.code === current)
           ? current
@@ -225,48 +231,81 @@ export default function TopikHomeScreen() {
           <View style={styles.examList}>
             {exams.map((exam) => {
               const selected = exam.code === selectedExamCode;
-              const completed = completedExamIds.includes(exam.id);
+              const completed = completedExams.find(
+                (item) => item.examId === exam.id,
+              );
               return (
-                <Pressable
+                <View
                   key={exam.id}
-                  onPress={() => setSelectedExamCode(exam.code)}
                   style={[styles.examCard, selected && styles.examCardSelected]}
                 >
-                  <View style={styles.examNumber}>
-                    <Text style={styles.examNumberText}>
-                      {String(exam.round ?? 1).padStart(2, "0")}
-                    </Text>
-                  </View>
-                  <View style={styles.examInfo}>
-                    <Text style={styles.examTitle}>
-                      {topikText(exam.title, language)}
-                    </Text>
-                    <Text style={styles.examMeta}>
-                      {t("topik.home.examMeta", {
-                        questions: exam.totalQuestions,
-                        minutes: exam.durationMinutes,
-                        points: exam.totalPoints,
-                      })}
-                    </Text>
-                    {completed && (
+                  <Pressable
+                    onPress={() => setSelectedExamCode(exam.code)}
+                    style={({ pressed }) => [
+                      styles.examMain,
+                      pressed && styles.examMainPressed,
+                    ]}
+                  >
+                    <View style={styles.examNumber}>
+                      <Text style={styles.examNumberText}>
+                        {String(exam.round ?? 1).padStart(2, "0")}
+                      </Text>
+                    </View>
+                    <View style={styles.examInfo}>
+                      <Text style={styles.examTitle}>
+                        {topikText(exam.title, language)}
+                      </Text>
+                      <Text style={styles.examMeta}>
+                        {t("topik.home.examMeta", {
+                          questions: exam.totalQuestions,
+                          minutes: exam.durationMinutes,
+                          points: exam.totalPoints,
+                        })}
+                      </Text>
+                    </View>
+                    <Ionicons
+                      name={selected ? "checkmark-circle" : "ellipse-outline"}
+                      size={23}
+                      color={selected ? palette.primary : palette.textMuted}
+                    />
+                  </Pressable>
+                  {completed && (
+                    <View style={styles.completedRow}>
                       <View style={styles.completedBadge}>
                         <Ionicons
                           name="checkmark-circle"
-                          size={13}
+                          size={14}
                           color={palette.success}
                         />
                         <Text style={styles.completedBadgeText}>
                           {t("topik.home.completed")}
                         </Text>
                       </View>
-                    )}
-                  </View>
-                  <Ionicons
-                    name={selected ? "checkmark-circle" : "ellipse-outline"}
-                    size={23}
-                    color={selected ? palette.primary : palette.textMuted}
-                  />
-                </Pressable>
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() =>
+                          router.push({
+                            pathname: "/topik-result",
+                            params: { attemptId: completed.latestAttemptId },
+                          })
+                        }
+                        style={({ pressed }) => [
+                          styles.resultButton,
+                          pressed && styles.buttonPressed,
+                        ]}
+                      >
+                        <Text style={styles.resultButtonText}>
+                          {t("topik.home.viewResult")}
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={15}
+                          color={palette.primary}
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
               );
             })}
           </View>
@@ -434,19 +473,23 @@ const getStyles = (palette: TopikPalette) =>
     },
     examList: { gap: 10 },
     examCard: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 13,
+      overflow: "hidden",
       borderWidth: 1,
       borderColor: palette.border,
       borderRadius: 14,
       backgroundColor: palette.surface,
-      padding: 14,
     },
     examCardSelected: {
       borderColor: palette.primary,
       backgroundColor: palette.primarySoft,
     },
+    examMain: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 13,
+      padding: 14,
+    },
+    examMainPressed: { opacity: 0.78 },
     examNumber: {
       width: 44,
       height: 50,
@@ -459,6 +502,17 @@ const getStyles = (palette: TopikPalette) =>
     examInfo: { flex: 1, gap: 4 },
     examTitle: { color: palette.text, fontSize: 14, fontWeight: "900" },
     examMeta: { color: palette.textSecondary, fontSize: 11 },
+    completedRow: {
+      minHeight: 44,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+      borderTopWidth: 1,
+      borderTopColor: palette.divider,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
     completedBadge: {
       alignSelf: "flex-start",
       flexDirection: "row",
@@ -472,6 +526,20 @@ const getStyles = (palette: TopikPalette) =>
     completedBadgeText: {
       color: palette.successText,
       fontSize: 9,
+      fontWeight: "900",
+    },
+    resultButton: {
+      minHeight: 30,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      borderRadius: 9,
+      backgroundColor: palette.primarySoft,
+      paddingHorizontal: 10,
+    },
+    resultButtonText: {
+      color: palette.primary,
+      fontSize: 10,
       fontWeight: "900",
     },
     modeList: { gap: 10 },

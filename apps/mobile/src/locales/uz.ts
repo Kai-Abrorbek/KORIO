@@ -166,6 +166,90 @@ export default {
     repairPen: "Tiklash qalam",
     medalTitle: "Bu oylik medal",
   },
+  help: {
+    searchPlaceholder: "Savolingizni qidiring",
+    categories: {
+      all: "Hammasi",
+      learning: "O'quv",
+      premium: "Obuna",
+      account: "Akkaunt",
+      etc: "Boshqa",
+    },
+    noResult: "Javob topilmadi",
+    noResultDesc: "Boshqacha yozib ko'ring yoki pastdan biz bilan bog'laning.",
+    contactSection: "Biz bilan bog'lanish",
+    contactSubject: "Savol",
+    email: "Email orqali",
+    telegram: "Telegram",
+    telegramDesc: "Eng tez javob shu yerda",
+    replyNote:
+      "Odatda 1-2 kun ichida javob beramiz. Ilova versiyasi va qurilma ma'lumoti avtomatik qo'shiladi.",
+    aboutSection: "Hujjatlar",
+    terms: "Foydalanish shartlari",
+    privacy: "Maxfiylik siyosati",
+    faq: {
+      energy: {
+        q: "Energiya qanday to'ldiriladi?",
+        a: "Energiya vaqt o'tishi bilan o'zi tiklanadi. Shoshilsangiz olmosga to'ldirasiz yoki kuniga uch martagacha bepul olishingiz mumkin. KORIO SUPER bilan energiya cheklovi umuman bo'lmaydi.",
+      },
+      streak: {
+        q: "Streak uzilib qoldi",
+        a: "Bir kun o'tkazib yuborsangiz streak nolga tushadi. Tiklash qalamingiz bo'lsa o'tgan kunni qaytarish mumkin. Sozlamalardan kunlik eslatmani yoqib qo'ying.",
+      },
+      xp: {
+        q: "XP qanday to'planadi?",
+        a: "Har bir darsni tugatganingizda XP olasiz. Ketma-ket to'g'ri javoblar uchun kombo bonus qo'shiladi, takrorlash va o'yinlar ham XP beradi. Liga reytingi XP asosida tuziladi.",
+      },
+      league: {
+        q: "Ligada qanday ko'tarilaman?",
+        a: "Bir hafta davomida yiqqan XP bo'yicha bir ligadagilar bilan bellashasiz. Hafta oxirida yuqoridagilar keyingi darajaga chiqadi, quyidagilar tushadi. Natijani bildirishnoma orqali yuboramiz.",
+      },
+      hangul: {
+        q: "Hangulni umuman o'qiy olmayman",
+        a: "Muammo emas. Yo'l xaritasining birinchi bosqichi — hangul o'rganish. Harflardan boshlab yozuv tartibi va o'yinlargacha ketma-ket o'rganasiz, istalgan payt qaytib kirishingiz mumkin.",
+      },
+      levelTest: {
+        q: "Daraja testini qayta topshirsam bo'ladimi?",
+        a: "Ha. Bosh sahifadagi daraja testi bannеridan qayta topshirasiz. Yo'l xaritasidagi sakrash testidan o'tsangiz, oldingi bo'limlarga o'tib ketishingiz ham mumkin.",
+      },
+      superWhat: {
+        q: "KORIO SUPER nimasi bilan farq qiladi?",
+        a: "Energiya cheklovi yo'qoladi va xohlagancha o'qiysiz, yopiq kurslar va qo'shimcha mashqlar ochiladi. To'liq ro'yxatni Premium sahifasida ko'rasiz.",
+      },
+      trial: {
+        q: "Bepul sinov bormi?",
+        a: "Ro'yxatdan o'tsangiz 7 kun KORIO SUPER bepul. Sinov tugagach avtomatik oddiy akkauntga qaytasiz, hech qanday to'lov yechilmaydi.",
+      },
+      cancel: {
+        q: "Obunani qanday bekor qilaman?",
+        a: "To'lov App Store yoki Google Play orqali amalga oshadi, shuning uchun bekor qilishni ham o'sha do'kon obunalar bo'limidan qilasiz. Akkauntni o'chirish obunani to'xtatmaydi.",
+      },
+      refund: {
+        q: "Pulni qaytarish mumkinmi?",
+        a: "To'lovni qabul qilgan do'konning qoidalariga bo'ysunadi. App Store yoki Google Play'ga murojaat qiling, muammo bo'lsa bizga ham yozing.",
+      },
+      password: {
+        q: "Parolni unutdim",
+        a: "Kirish sahifasidagi 'parolni tiklash' dan foydalaning. Google yoki Telegram orqali ro'yxatdan o'tgan bo'lsangiz parol umuman yo'q — o'sha usul bilan kiring.",
+      },
+      device: {
+        q: "Telefonni almashtirsam natijalarim saqlanadimi?",
+        a: "Ha. Barcha natijalar akkauntda saqlanadi. Yangi qurilmada o'sha akkaunt bilan kirsangiz davom etadi. Mehmon rejimida bo'lsangiz, avval ro'yxatdan o'ting.",
+      },
+      deleteAccount: {
+        q: "Akkauntni o'chirsam ma'lumotlar yo'qoladimi?",
+        a: "Ha, o'quv tarixi, streak, olmoslar va do'stlar ro'yxati butunlay o'chadi va tiklab bo'lmaydi. Sozlamalar > Akkauntni boshqarish bo'limidan o'chirasiz.",
+      },
+      offline: {
+        q: "Internetsiz ishlaydimi?",
+        a: "Hozircha darslar serverdan olinadi, shuning uchun internet kerak. Oflayn rejim ustida ishlayapmiz.",
+      },
+      bug: {
+        q: "Xatolik topdim",
+        a: "Quyidagi manzillarga yozing. Qaysi sahifada, nimani bosganda yuz berganini va ekran rasmini yuborsangiz, ancha tez tuzatamiz.",
+      },
+    },
+  },
   account: {
     profileSection: "Profil",
     accountSection: "Akkaunt ma'lumoti",

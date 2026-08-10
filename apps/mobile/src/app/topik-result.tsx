@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -87,8 +88,16 @@ export default function TopikResultScreen() {
   const accuracy = Math.round(
     (result.correctCount / result.totalQuestions) * 100,
   );
+  const wrongCount = Math.max(
+    0,
+    result.totalQuestions - result.correctCount,
+  );
   const canReviewQuestions = result.mode === "guided";
   const topikLevel = result.examType === "topik_i" ? "I" : "II";
+  const heroColors =
+    result.examType === "topik_i"
+      ? palette.levelOneHero
+      : palette.levelTwoHero;
 
   const openQuestionReview = (questionNumber: number) => {
     if (!canReviewQuestions) return;
@@ -109,47 +118,112 @@ export default function TopikResultScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.hero}>
-          <View style={styles.checkCircle}>
-            <Ionicons name="checkmark" size={35} color={palette.white} />
-          </View>
-          <Text style={styles.heroEyebrow}>
-            TOPIK {topikLevel} ·{" "}
-            {t(`topik.home.${result.section}`).toUpperCase()}
-          </Text>
-          <Text style={styles.heroTitle}>{t("topik.result.complete")}</Text>
-          <Text style={styles.score}>{result.score}</Text>
-          <Text style={styles.scoreUnit}>
-            {t("topik.result.scoreTotal", { score: 100 })}
-          </Text>
-          <View style={styles.summaryRow}>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>{result.correctCount}</Text>
-              <Text style={styles.summaryLabel}>
-                {t("topik.result.correct")}
+        <LinearGradient
+          colors={heroColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hero}
+        >
+          <View style={styles.heroOrbLarge} />
+          <View style={styles.heroOrbSmall} />
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroHeading}>
+              <View style={styles.heroBadge}>
+                <Ionicons
+                  name={
+                    result.section === "listening"
+                      ? "headset-outline"
+                      : "book-outline"
+                  }
+                  size={13}
+                  color={palette.white}
+                />
+                <Text style={styles.heroEyebrow}>
+                  TOPIK {topikLevel} ·{" "}
+                  {t(`topik.home.${result.section}`).toUpperCase()}
+                </Text>
+              </View>
+              <Text style={styles.heroTitle}>
+                {t("topik.result.complete")}
               </Text>
             </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>{accuracy}%</Text>
-              <Text style={styles.summaryLabel}>
-                {t("topik.result.accuracy")}
-              </Text>
-            </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryValue}>
-                {t("topik.result.duration", {
-                  minutes: Math.floor(result.elapsedSeconds / 60),
-                  seconds: result.elapsedSeconds % 60,
-                })}
-              </Text>
-              <Text style={styles.summaryLabel}>
-                {t("topik.result.durationLabel")}
-              </Text>
+            <View style={styles.successEmblem}>
+              <View style={styles.successEmblemInner}>
+                <Ionicons name="trophy" size={31} color={palette.white} />
+              </View>
+              <View style={styles.successCheck}>
+                <Ionicons name="checkmark" size={13} color={palette.white} />
+              </View>
             </View>
           </View>
-        </View>
+
+          <View style={styles.scoreBlock}>
+            <Text style={styles.score}>{result.score}</Text>
+            <Text style={styles.scoreUnit}>
+              {t("topik.result.scoreTotal", { score: 100 })}
+            </Text>
+          </View>
+
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryIconSuccess}>
+                <Ionicons name="checkmark" size={14} color={palette.white} />
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={styles.summaryValue}>{result.correctCount}</Text>
+                <Text style={styles.summaryLabel}>
+                  {t("topik.result.correct")}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryIconDanger}>
+                <Ionicons name="close" size={14} color={palette.white} />
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={styles.summaryValue}>{wrongCount}</Text>
+                <Text style={styles.summaryLabel}>
+                  {t("topik.result.wrong")}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryIconNeutral}>
+                <Ionicons
+                  name="analytics-outline"
+                  size={14}
+                  color={palette.white}
+                />
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={styles.summaryValue}>{accuracy}%</Text>
+                <Text style={styles.summaryLabel}>
+                  {t("topik.result.accuracy")}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryIconNeutral}>
+                <Ionicons
+                  name="time-outline"
+                  size={14}
+                  color={palette.white}
+                />
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={styles.summaryValueSmall}>
+                  {t("topik.result.duration", {
+                    minutes: Math.floor(result.elapsedSeconds / 60),
+                    seconds: result.elapsedSeconds % 60,
+                  })}
+                </Text>
+                <Text style={styles.summaryLabel}>
+                  {t("topik.result.durationLabel")}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </LinearGradient>
 
         <View style={styles.reviewHeader}>
           <View>
@@ -289,7 +363,14 @@ export default function TopikResultScreen() {
           <Pressable
             onPress={() => {
               reset();
-              router.replace("/topik");
+              router.replace({
+                pathname: "/topik",
+                params: {
+                  level: result.examType === "topik_i" ? "1" : "2",
+                  section:
+                    result.section === "listening" ? "listening" : "reading",
+                },
+              });
             }}
             style={styles.homeButton}
           >
@@ -319,64 +400,171 @@ const getStyles = (palette: TopikPalette) =>
     errorTitle: { color: palette.text, fontSize: 15, fontWeight: "800" },
     content: { padding: 16, paddingBottom: 40, gap: 19 },
     hero: {
-      alignItems: "center",
+      overflow: "hidden",
       borderRadius: 23,
-      backgroundColor: palette.hero,
-      paddingHorizontal: 18,
-      paddingVertical: 25,
+      padding: 20,
+      shadowColor: palette.shadow,
+      shadowOpacity: palette.isDark ? 0.26 : 0.18,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 7,
     },
-    checkCircle: {
-      width: 58,
-      height: 58,
+    heroOrbLarge: {
+      position: "absolute",
+      top: -88,
+      right: -62,
+      width: 220,
+      height: 220,
+      borderWidth: 34,
+      borderColor: palette.heroGlowSoft,
+      borderRadius: 110,
+    },
+    heroOrbSmall: {
+      position: "absolute",
+      left: -35,
+      bottom: 55,
+      width: 112,
+      height: 112,
+      borderRadius: 56,
+      backgroundColor: palette.heroGlowSoft,
+    },
+    heroTopRow: {
+      flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 29,
-      backgroundColor: palette.success,
-      marginBottom: 13,
+      justifyContent: "space-between",
+      gap: 14,
+    },
+    heroHeading: { flex: 1, gap: 9 },
+    heroBadge: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      borderWidth: 1,
+      borderColor: palette.heroDivider,
+      borderRadius: 14,
+      backgroundColor: palette.heroBadge,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
     },
     heroEyebrow: {
-      color: palette.heroSubtle,
+      color: palette.white,
       fontSize: 10,
       fontWeight: "900",
-      letterSpacing: 1.2,
+      letterSpacing: 0.9,
     },
     heroTitle: {
       color: palette.white,
-      fontSize: 17,
+      fontSize: 21,
+      lineHeight: 28,
       fontWeight: "900",
-      marginTop: 5,
+      letterSpacing: -0.6,
+    },
+    successEmblem: {
+      width: 70,
+      height: 70,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: palette.heroDividerStrong,
+      borderRadius: 24,
+      backgroundColor: palette.heroGlass,
+      transform: [{ rotate: "4deg" }],
+    },
+    successEmblemInner: {
+      width: 54,
+      height: 54,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 18,
+      backgroundColor: palette.success,
+    },
+    successCheck: {
+      position: "absolute",
+      right: 1,
+      bottom: 1,
+      width: 23,
+      height: 23,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 2,
+      borderColor: palette.white,
+      borderRadius: 12,
+      backgroundColor: palette.primaryStrong,
+    },
+    scoreBlock: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      gap: 7,
+      marginTop: 22,
     },
     score: {
       color: palette.white,
-      fontSize: 56,
-      lineHeight: 64,
+      fontSize: 64,
+      lineHeight: 70,
       fontWeight: "900",
-      marginTop: 9,
+      letterSpacing: -3,
     },
-    scoreUnit: { color: palette.heroMuted, fontSize: 12, fontWeight: "700" },
-    summaryRow: {
-      width: "100%",
+    scoreUnit: { color: palette.heroMuted, fontSize: 13, fontWeight: "800" },
+    summaryGrid: {
       flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-around",
+      flexWrap: "wrap",
+      gap: 9,
       borderTopWidth: 1,
       borderTopColor: palette.heroDivider,
-      marginTop: 20,
-      paddingTop: 17,
+      marginTop: 16,
+      paddingTop: 14,
     },
-    summaryItem: { flex: 1, alignItems: "center", gap: 3 },
+    summaryCard: {
+      width: "48.5%",
+      minHeight: 60,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      borderWidth: 1,
+      borderColor: palette.heroDivider,
+      borderRadius: 13,
+      backgroundColor: palette.heroGlassDark,
+      paddingHorizontal: 11,
+      paddingVertical: 10,
+    },
+    summaryText: { flex: 1, gap: 1 },
+    summaryIconSuccess: {
+      width: 28,
+      height: 28,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 9,
+      backgroundColor: palette.success,
+    },
+    summaryIconDanger: {
+      width: 28,
+      height: 28,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 9,
+      backgroundColor: palette.danger,
+    },
+    summaryIconNeutral: {
+      width: 28,
+      height: 28,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 9,
+      backgroundColor: palette.translucentWhite,
+    },
     summaryValue: {
       color: palette.white,
-      fontSize: 14,
+      fontSize: 17,
       fontWeight: "900",
-      textAlign: "center",
     },
-    summaryLabel: { color: palette.heroSubtle, fontSize: 10 },
-    summaryDivider: {
-      width: 1,
-      height: 29,
-      backgroundColor: palette.heroDividerStrong,
+    summaryValueSmall: {
+      color: palette.white,
+      fontSize: 12,
+      lineHeight: 16,
+      fontWeight: "900",
     },
+    summaryLabel: { color: palette.heroMuted, fontSize: 9 },
     reviewHeader: {
       flexDirection: "row",
       alignItems: "center",

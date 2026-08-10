@@ -36,7 +36,7 @@ export class TopikController {
   @UseGuards(JwtAuthGuard)
   @Get('exams/completed')
   getCompletedExams(@Request() request: AuthenticatedTopikRequest) {
-    return this.topikService.getCompletedExamIds(request.user._id.toString());
+    return this.topikService.getCompletedExams(request.user._id.toString());
   }
 
   @Get('exams/:code/session')

@@ -165,6 +165,91 @@ export default {
     repairPen: "Repair pens",
     medalTitle: "Monthly medals",
   },
+  help: {
+    searchPlaceholder: "Search for an answer",
+    categories: {
+      all: "All",
+      learning: "Learning",
+      premium: "Subscription",
+      account: "Account",
+      etc: "Other",
+    },
+    noResult: "No answer found",
+    noResultDesc:
+      "Try different words, or scroll down and contact us directly.",
+    contactSection: "Contact us",
+    contactSubject: "Question",
+    email: "Email us",
+    telegram: "Telegram",
+    telegramDesc: "Fastest way to reach us",
+    replyNote:
+      "We usually reply within 1-2 days. Your app version and device info are attached automatically.",
+    aboutSection: "Legal",
+    terms: "Terms of service",
+    privacy: "Privacy policy",
+    faq: {
+      energy: {
+        q: "How does energy refill?",
+        a: "Energy refills on its own over time. You can also top it up with gems, or claim a free refill up to three times a day. With KORIO SUPER there's no energy limit at all.",
+      },
+      streak: {
+        q: "I lost my streak",
+        a: "Skipping even one day resets the streak to zero. A repair pen can bring back a missed day. Turn on the daily reminder in Settings so it doesn't happen again.",
+      },
+      xp: {
+        q: "How do I earn XP?",
+        a: "You earn XP every time you finish a lesson. Answering correctly in a row adds a combo bonus, and reviews and games count too. XP decides your league ranking.",
+      },
+      league: {
+        q: "How do I move up a league?",
+        a: "You compete on XP earned during the week against others in your league. At the end of the week the top players move up a tier and the bottom ones move down. We'll notify you of the result.",
+      },
+      hangul: {
+        q: "I can't read Hangul at all",
+        a: "That's fine. The very first node on the roadmap teaches Hangul — letters, stroke order and games, step by step. You can come back to it any time.",
+      },
+      levelTest: {
+        q: "Can I retake the level test?",
+        a: "Yes. Use the level test banner on the home screen. You can also pass a jump test on the roadmap to skip ahead to a later unit.",
+      },
+      superWhat: {
+        q: "What does KORIO SUPER give me?",
+        a: "No energy limit, so you can study as long as you want, plus locked courses and extra practice. The Premium screen lists everything.",
+      },
+      trial: {
+        q: "Is there a free trial?",
+        a: "Signing up gives you 7 days of KORIO SUPER for free. When the trial ends your account goes back to normal automatically — nothing is charged.",
+      },
+      cancel: {
+        q: "How do I cancel my subscription?",
+        a: "Payment goes through the App Store or Google Play, so cancel it in that store's subscription settings. Deleting your KORIO account does not cancel the subscription.",
+      },
+      refund: {
+        q: "Can I get a refund?",
+        a: "Refunds follow the policy of the store that processed your payment. Request it from the App Store or Google Play, and let us know if something goes wrong.",
+      },
+      password: {
+        q: "I forgot my password",
+        a: "Use the password reset on the login screen. If you signed up with Google or Telegram there's no password at all — just sign in the same way.",
+      },
+      device: {
+        q: "Will my progress survive a new phone?",
+        a: "Yes. Progress is stored on your account. Sign in on the new device and everything continues. If you're using guest mode, create an account first.",
+      },
+      deleteAccount: {
+        q: "Does deleting my account erase everything?",
+        a: "Yes — progress, streak, gems and friends are permanently deleted. You can delete your account in Settings > Account.",
+      },
+      offline: {
+        q: "Can I use the app offline?",
+        a: "Not yet — lessons are loaded from our server, so you need a connection. Offline study is on the way.",
+      },
+      bug: {
+        q: "I found a bug",
+        a: "Tell us through one of the channels below. Include which screen you were on, what you tapped, and a screenshot — it makes the fix much faster.",
+      },
+    },
+  },
   account: {
     profileSection: "Profile",
     accountSection: "Account info",

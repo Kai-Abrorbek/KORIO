@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -15,12 +16,14 @@ import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
+import topikKo from "@/locales/topik/ko";
 import { TopikService } from "@/services/topik.service";
 import type {
   TopikHistoryItem,
   TopikQuestionPerformance,
   TopikStatsSummary,
 } from "@/types/topik";
+import { toTopikLanguage } from "@/types/topik";
 
 const MODE_KEYS = {
   guided: "topik.modes.guided",
@@ -30,6 +33,7 @@ const MODE_KEYS = {
 
 export default function TopikStatsScreen() {
   const { t, i18n } = useTranslation();
+  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const [summary, setSummary] = useState<TopikStatsSummary | null>(null);
