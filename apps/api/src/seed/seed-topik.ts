@@ -10,11 +10,13 @@ import { TopikResponseType } from '../topik/schemas/topik-content.schema';
 import { TopikModule } from '../topik/topik.module';
 import {
   TOPIK_LISTENING_MOCK_1_SEED,
+  TOPIK_LISTENING_MOCK_2_SEED,
   TOPIK_I_37_LISTENING_SEED,
   TOPIK_I_37_READING_SEED,
   TOPIK_READING_MOCK_1_SEED,
   TOPIK_READING_MOCK_2_SEED,
   TOPIK_WRITING_MOCK_1_SEED,
+  TOPIK_WRITING_MOCK_2_SEED,
   TopikExamSeed,
 } from './data/topik';
 import {
@@ -75,8 +77,16 @@ async function seedTopik() {
         validation: validateTopikListeningSeed(TOPIK_LISTENING_MOCK_1_SEED),
       },
       {
+        data: TOPIK_LISTENING_MOCK_2_SEED,
+        validation: validateTopikListeningSeed(TOPIK_LISTENING_MOCK_2_SEED),
+      },
+      {
         data: TOPIK_WRITING_MOCK_1_SEED,
         validation: validateTopikWritingSeed(TOPIK_WRITING_MOCK_1_SEED),
+      },
+      {
+        data: TOPIK_WRITING_MOCK_2_SEED,
+        validation: validateTopikWritingSeed(TOPIK_WRITING_MOCK_2_SEED),
       },
     ];
 
