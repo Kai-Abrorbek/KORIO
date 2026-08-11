@@ -13,6 +13,7 @@ import {
   TOPIK_I_37_LISTENING_SEED,
   TOPIK_I_37_READING_SEED,
   TOPIK_READING_MOCK_1_SEED,
+  TOPIK_READING_MOCK_2_SEED,
   TOPIK_WRITING_MOCK_1_SEED,
   TopikExamSeed,
 } from './data/topik';
@@ -64,6 +65,10 @@ async function seedTopik() {
       {
         data: TOPIK_READING_MOCK_1_SEED,
         validation: validateTopikReadingSeed(TOPIK_READING_MOCK_1_SEED),
+      },
+      {
+        data: TOPIK_READING_MOCK_2_SEED,
+        validation: validateTopikReadingSeed(TOPIK_READING_MOCK_2_SEED),
       },
       {
         data: TOPIK_LISTENING_MOCK_1_SEED,
