@@ -55,25 +55,31 @@ interface PQ {
   answer: 0 | 1;
 }
 
+const toOpt = (o: PronOption, lang: string): Opt => ({
+  word: o.word,
+  ipa: o.jamo,
+  meaning: glossOf(o.word, lang),
+});
+
+/**
+ * 대립쌍 → 문제.
+ *
+ * 좌우 자리를 무작위로 바꾼다. 데이터 순서를 그대로 쓰면 왼쪽은 늘 평음,
+ * 오른쪽은 늘 격음이라 두세 문제만에 규칙이 들통난다.
+ * 자리를 바꾸면 정답 인덱스도 같이 뒤집어야 한다.
+ */
 const toQuestion = (
   pair: [PronOption, PronOption],
   answer: 0 | 1,
   lang: string,
-): PQ => ({
-  options: [
-    {
-      word: pair[0].word,
-      ipa: pair[0].jamo,
-      meaning: glossOf(pair[0].word, lang),
-    },
-    {
-      word: pair[1].word,
-      ipa: pair[1].jamo,
-      meaning: glossOf(pair[1].word, lang),
-    },
-  ],
-  answer,
-});
+): PQ => {
+  const swap = Math.random() < 0.5;
+  const [l, r] = swap ? [pair[1], pair[0]] : pair;
+  return {
+    options: [toOpt(l, lang), toOpt(r, lang)],
+    answer: (swap ? 1 - answer : answer) as 0 | 1,
+  };
+};
 
 const speakEn = (w: string) => speakText(w);
 
@@ -116,7 +122,8 @@ export default function PronunciationQuiz() {
   const q = QUESTIONS[index];
   const target = q.options[q.answer];
 
-  const flip = useSharedValue(0);
+  // HARD 는 보기를 처음부터 앞면(글자)으로 둔다. 소리를 글자에 맞춰야 해서 더 어렵다
+  const flip = useSharedValue(isHard ? 1 : 0);
   const ring = useSharedValue(1);
 
   useEffect(() => {
@@ -125,6 +132,11 @@ export default function PronunciationQuiz() {
 
   const speakOptions = () => {
     Speech.stop();
+    // HARD 는 정답 하나만. 두 개를 순서대로 들려주면 순서만 기억해도 풀린다
+    if (isHard) {
+      speakText(target.word);
+      return;
+    }
     const [a, b] = q.options;
     speakText(a.word, "ko-KR", {
       onDone: () => {
@@ -134,7 +146,7 @@ export default function PronunciationQuiz() {
   };
 
   useEffect(() => {
-    flip.value = 0;
+    flip.value = isHard ? 1 : 0;
     setSelected(null);
     const t1 = setTimeout(() => speakOptions(), 600);
     return () => {
@@ -280,12 +292,24 @@ export default function PronunciationQuiz() {
             </View>
           ))}
         </View>
+        <View style={[st.modeChip, isHard && st.modeChipHard]}>
+          <Text style={st.modeChipText}>{isHard ? "HARD" : "EASY"}</Text>
+        </View>
       </View>
 
-      {/* 타겟 단어 카드 */}
+      {/* 타겟 카드 — EASY 는 글자를 보여주고, HARD 는 귀로만 풀게 한다 */}
       <View style={st.targetCard}>
-        <Text style={st.targetWord}>{target.word}</Text>
-        <Text style={st.targetIpa}>[ {target.ipa} ]</Text>
+        {isHard ? (
+          <>
+            <Ionicons name="volume-high" size={52} color="#6b8ba4" />
+            <Text style={st.targetHidden}>{t("pronQuiz.listenOnly")}</Text>
+          </>
+        ) : (
+          <>
+            <Text style={st.targetWord}>{target.word}</Text>
+            <Text style={st.targetIpa}>[ {target.ipa} ]</Text>
+          </>
+        )}
       </View>
 
       <Text style={st.question}>{t("pronQuiz.question")}</Text>
@@ -303,6 +327,7 @@ export default function PronunciationQuiz() {
             disabled={selected !== null}
             onPress={() => pick(i)}
             practiceLabel={t("pronQuiz.practice")}
+            hideJamo={isHard}
           />
         ))}
       </View>
@@ -336,9 +361,21 @@ export default function PronunciationQuiz() {
           </Pressable>
         </Animated.View>
 
-        <Pressable style={st.sideBtn} onPress={next}>
-          <Ionicons name="play" size={26} color={C.purple} />
-          <Text style={st.sideText} numberOfLines={2}>
+        {/* 답을 고르기 전엔 못 넘어간다. 그냥 눌러서 건너뛰면 점수가 무의미해진다 */}
+        <Pressable
+          style={st.sideBtn}
+          onPress={next}
+          disabled={selected === null}
+        >
+          <Ionicons
+            name="play"
+            size={26}
+            color={selected === null ? "#aebecb" : C.purple}
+          />
+          <Text
+            style={[st.sideText, selected === null && { color: "#aebecb" }]}
+            numberOfLines={2}
+          >
             {t("pronQuiz.next")}
           </Text>
         </Pressable>
@@ -355,6 +392,7 @@ function OptionCard({
   disabled,
   onPress,
   practiceLabel,
+  hideJamo,
 }: any) {
   const frontStyle = useAnimatedStyle(() => ({
     transform: [
@@ -431,7 +469,7 @@ function OptionCard({
           </Pressable>
           <Pressable style={st.cardInner} onPress={onPress} disabled={disabled}>
             <Text style={st.optWord}>{opt.word}</Text>
-            <Text style={st.optIpa}>[ {opt.ipa} ]</Text>
+            {!hideJamo && <Text style={st.optIpa}>[ {opt.ipa} ]</Text>}
             <Text style={st.optMeaning}>{opt.meaning}</Text>
           </Pressable>
           <View style={st.divider} />
@@ -502,6 +540,20 @@ const st = StyleSheet.create({
     paddingVertical: 22,
     alignItems: "center",
   },
+  targetHidden: {
+    fontSize: 15,
+    color: "#5f7f9f",
+    marginTop: 8,
+    fontWeight: "700",
+  },
+  modeChip: {
+    backgroundColor: "#7fbde8",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 9,
+  },
+  modeChipHard: { backgroundColor: "#ff8a5b" },
+  modeChipText: { color: "#fff", fontSize: 12, fontWeight: "900" },
   targetWord: { fontSize: 44, fontWeight: "800", color: C.ink },
   targetIpa: { fontSize: 20, color: "#6b7a88", marginTop: 4 },
 
