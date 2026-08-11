@@ -266,11 +266,7 @@ export default function TranslateBuilder({
         <View style={{ flex: 1 }} />
 
         {/* 확인 버튼 */}
-        <CheckButton
-          onPress={handleCheck}
-          disabled={disabled}
-          theme={theme}
-        />
+        <CheckButton onPress={handleCheck} disabled={disabled} theme={theme} />
 
         {/* 칩이 많을 때 쓰는 슬라이드업 단어장 */}
         <WordBankSheet
