@@ -16,6 +16,11 @@ import {
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import {
+  OAUTH,
+  callbackUrl,
+  type OAuthProviderKey,
+} from './oauth.providers';
 import { AuthProvider } from '../common/enums/provider.enum';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
@@ -264,6 +269,131 @@ export class AuthService {
     }
 
     return this.generateToken(user); // { accessToken, user }
+  }
+
+  /**
+   * 온보딩(가입 전에 푼 설문·레벨테스트)을 유저에 붙인다.
+   * socialLogin·telegramLogin·OAuth 가 전부 같은 일을 해서 한 곳으로 뺐다.
+   */
+  private async attachOnboarding(userId: any, sessionId?: string) {
+    if (!sessionId) return;
+    const onboarding = await this.onboardingModel.findOne({ sessionId });
+    if (!onboarding) return;
+
+    await this.onboardingModel.findOneAndUpdate({ sessionId }, { userId });
+    await this.userModel.findByIdAndUpdate(userId, {
+      level: onboarding.detectedLevel,
+      targetLanguage: onboarding.targetLanguage,
+      learningGoals: onboarding.learningGoals,
+      dailyGoalMinutes: onboarding.dailyGoalMinutes,
+      isOnboardingCompleted: true,
+      placementLevel: onboarding.placementLevel,
+      hangulLevel: onboarding.hangulLevel,
+      interests: onboarding.interests,
+      selfReportedLevel: onboarding.selfReportedLevel,
+      reminderHour: onboarding.reminderHour,
+      reminderEnabled: onboarding.reminderEnabled,
+    });
+  }
+
+  /**
+   * 소셜 프로필 → 유저 생성/조회 → JWT.
+   *
+   * 이메일이 같으면 기존 계정에 붙인다. 안 그러면 구글로 가입한 사람이
+   * 카카오로 들어왔을 때 계정이 두 개로 갈라진다.
+   * (카카오는 이메일 동의를 안 하면 이메일이 없다 — 그 경우는 새 계정)
+   */
+  async upsertSocialUser(
+    provider: AuthProvider,
+    profile: {
+      providerId: string;
+      email?: string;
+      nickname?: string;
+      profileImage?: string;
+    },
+    sessionId?: string,
+  ) {
+    const { providerId, email, profileImage } = profile;
+    if (!providerId) throw new BadRequestException('providerId required');
+
+    let user = await this.userModel.findOne({ provider, providerId });
+
+    if (!user && email) {
+      user = await this.userModel.findOne({ email });
+      if (user) {
+        user.provider = provider;
+        user.providerId = providerId;
+        if (!user.profileImage && profileImage)
+          user.profileImage = profileImage;
+        await user.save();
+      }
+    }
+
+    if (!user) {
+      user = await this.userModel.create({
+        provider,
+        providerId,
+        email,
+        nickname: profile.nickname || `${provider}_${providerId.slice(0, 6)}`,
+        profileImage: profileImage || '',
+        ...trialFields(),
+      });
+    }
+
+    await this.attachOnboarding(user._id, sessionId);
+    return this.generateToken(user);
+  }
+
+  /**
+   * OAuth 코드 → 액세스 토큰 → 프로필.
+   * 제공자마다 응답 모양만 다르고 절차는 같아서 설정 테이블로 처리한다.
+   */
+  async oauthLogin(
+    key: OAuthProviderKey,
+    code: string,
+    sessionId?: string,
+  ) {
+    const cfg = OAUTH[key];
+    const clientId = cfg.clientId();
+    if (!clientId) {
+      throw new BadRequestException(`${key.toUpperCase()}_NOT_CONFIGURED`);
+    }
+
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      redirect_uri: callbackUrl(key),
+      code,
+    });
+    const secret = cfg.clientSecret();
+    if (secret) body.set('client_secret', secret);
+
+    const tokenRes = await fetch(cfg.tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+    const tokenJson: any = await tokenRes.json().catch(() => null);
+    const accessToken = tokenJson?.access_token;
+    if (!accessToken) {
+      // 제공자 에러 메시지를 그대로 흘리면 디버깅이 훨씬 빠르다
+      throw new UnauthorizedException(
+        `OAUTH_TOKEN_FAILED: ${tokenJson?.error_description ?? tokenJson?.error ?? 'unknown'}`,
+      );
+    }
+
+    const profRes = await fetch(cfg.profileUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const profJson: any = await profRes.json().catch(() => null);
+    const profile = cfg.parseProfile(profJson);
+    if (!profile.providerId) {
+      throw new UnauthorizedException('OAUTH_PROFILE_FAILED');
+    }
+
+    const provider =
+      key === 'kakao' ? AuthProvider.KAKAO : AuthProvider.NAVER;
+    return this.upsertSocialUser(provider, profile, sessionId);
   }
 
   // JWT 토큰 생성

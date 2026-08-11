@@ -3,8 +3,14 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
-import { Get, Query, Res } from '@nestjs/common';
+import { Get, Param, Query, Res, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
+import {
+  OAUTH,
+  callbackUrl,
+  type OAuthProviderKey,
+} from './oauth.providers';
+import { packState, unpackState, safeRedirect } from './oauth-state';
 
 @Controller('auth')
 export class AuthController {
@@ -33,11 +39,9 @@ export class AuthController {
   ) {
     const botUser = process.env.TELEGRAM_BOT_USERNAME;
     const base = process.env.PUBLIC_API_URL || '';
-    const safeRedirect = (redirect || '').startsWith('mobile://')
-      ? redirect
-      : 'mobile://telegram-auth';
+    const target = safeRedirect(redirect);
     const authUrl =
-      `${base}/auth/telegram/callback?redirect=${encodeURIComponent(safeRedirect)}` +
+      `${base}/auth/telegram/callback?redirect=${encodeURIComponent(target)}` +
       (session ? `&session=${encodeURIComponent(session)}` : '');
 
     const html = `<!DOCTYPE html><html><head>
@@ -54,5 +58,81 @@ export class AuthController {
           data-auth-url="${authUrl}"></script>
         </body></html>`;
     res.type('html').send(html);
+  }
+
+  /**
+   * 텔레그램 위젯이 서명과 함께 되돌려 보내는 곳.
+   * 라우트가 없어서 위젯을 통과해도 로그인이 끝나지 않았다.
+   */
+  @Get('telegram/callback')
+  async telegramCallback(@Query() q: any, @Res() res: Response) {
+    const target = safeRedirect(q.redirect);
+    try {
+      const { accessToken } = await this.authService.telegramLogin(q);
+      return res.redirect(`${target}?token=${encodeURIComponent(accessToken)}`);
+    } catch {
+      // 앱은 token 이 없으면 실패로 처리한다
+      return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
+    }
+  }
+
+  /** 카카오·네이버 로그인 시작 — 제공자 로그인 화면으로 보낸다 */
+  @Get(':provider/start')
+  start(
+    @Param('provider') provider: string,
+    @Query('redirect') redirect: string,
+    @Query('session') session: string,
+    @Res() res: Response,
+  ) {
+    const key = provider as OAuthProviderKey;
+    const cfg = OAUTH[key];
+    if (!cfg) throw new BadRequestException('UNSUPPORTED_PROVIDER');
+
+    const clientId = cfg.clientId();
+    if (!clientId) {
+      return res.redirect(
+        `${safeRedirect(redirect)}?error=${provider.toUpperCase()}_NOT_CONFIGURED`,
+      );
+    }
+
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: callbackUrl(provider),
+      state: packState({ redirect: safeRedirect(redirect), session }),
+      ...(cfg.extraAuthParams ?? {}),
+    });
+    return res.redirect(`${cfg.authorizeUrl}?${params.toString()}`);
+  }
+
+  /** 제공자가 코드를 들고 돌아오는 곳 → 토큰 교환 후 앱으로 */
+  @Get(':provider/callback')
+  async oauthCallback(
+    @Param('provider') provider: string,
+    @Query('code') code: string,
+    @Query('state') rawState: string,
+    @Res() res: Response,
+  ) {
+    const key = provider as OAuthProviderKey;
+    if (!OAUTH[key]) throw new BadRequestException('UNSUPPORTED_PROVIDER');
+
+    // state 가 깨졌으면 우리가 시작한 흐름이 아니다. 어디로도 토큰을 주지 않는다
+    const state = unpackState(rawState);
+    if (!state) return res.status(400).send('Invalid state');
+
+    const target = safeRedirect(state.redirect);
+    if (!code) return res.redirect(`${target}?error=SOCIAL_LOGIN_CANCELLED`);
+
+    try {
+      const { accessToken } = await this.authService.oauthLogin(
+        key,
+        code,
+        state.session,
+      );
+      return res.redirect(`${target}?token=${encodeURIComponent(accessToken)}`);
+    } catch (e: any) {
+      const msg = String(e?.message ?? 'SOCIAL_LOGIN_FAILED');
+      return res.redirect(`${target}?error=${encodeURIComponent(msg)}`);
+    }
   }
 }

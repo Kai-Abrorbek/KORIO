@@ -1,0 +1,76 @@
+import { useState } from "react";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
+import { TokenStorage } from "@/services/api";
+import { useAuthStore } from "@/store/auth.store";
+import { UserService } from "@/services/user.service";
+
+/**
+ * 카카오·네이버·텔레그램 로그인.
+ *
+ * 셋 다 "브라우저를 열고 → 앱 스킴으로 토큰을 받아온다" 로 흐름이 같아서
+ * 훅 하나로 묶었다. 코드 교환과 프로필 조회는 서버가 한다 —
+ * client secret 을 앱에 심으면 디컴파일로 그대로 털린다.
+ *
+ * 구글만 별도(useGoogleAuth): 네이티브 SDK 로 id_token 을 받아 서버가 검증한다.
+ */
+export type SocialProvider = "kakao" | "naver" | "telegram";
+
+const API_BASE =
+  process.env.EXPO_PUBLIC_SOCIAL_AUTH_BASE ??
+  process.env.EXPO_PUBLIC_TELEGRAM_AUTH_BASE;
+
+export function useSocialAuth(
+  provider: SocialProvider,
+  onError?: (code: string) => void,
+  sessionId?: string,
+) {
+  const setUser = useAuthStore((s) => s.setUser);
+  const [loading, setLoading] = useState(false);
+
+  const signIn = async () => {
+    if (!API_BASE) {
+      onError?.("SOCIAL_LOGIN_FAILED");
+      return;
+    }
+    setLoading(true);
+    try {
+      const redirectUrl = Linking.createURL(`${provider}-auth`);
+      // 텔레그램만 위젯 페이지를 거친다 (OAuth 가 아니라 서명 방식)
+      const path =
+        provider === "telegram"
+          ? "/auth/telegram/widget"
+          : `/auth/${provider}/start`;
+      const url =
+        `${API_BASE}${path}?redirect=${encodeURIComponent(redirectUrl)}` +
+        (sessionId ? `&session=${encodeURIComponent(sessionId)}` : "");
+
+      const result = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
+      if (result.type !== "success" || !result.url) {
+        setLoading(false);
+        return; // 사용자가 닫은 것 — 에러 띄우지 않는다
+      }
+
+      const { queryParams } = Linking.parse(result.url);
+      const err = queryParams?.error as string | undefined;
+      const token = queryParams?.token as string | undefined;
+
+      if (err || !token) {
+        // 서버가 왜 실패했는지 붙여 보내준다. 설정 누락이면 바로 드러난다
+        onError?.(err || "SOCIAL_LOGIN_FAILED");
+        setLoading(false);
+        return;
+      }
+
+      await TokenStorage.set(token);
+      const me: any = await UserService.getMe();
+      setUser(me, token);
+    } catch (e: any) {
+      onError?.(e?.message ?? "SOCIAL_LOGIN_FAILED");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { signIn, loading };
+}

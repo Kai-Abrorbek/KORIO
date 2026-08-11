@@ -22,7 +22,7 @@ import NaverIcon from "../../../assets/icons/naver.svg";
 import TelegramIcon from "../../../assets/icons/telegram.svg";
 import { ActivityIndicator } from "react-native";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useSocialAuth } from "@/hooks/useSocialAuth";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -40,7 +40,15 @@ export default function LoginScreen() {
     setError(t(`auth.errors.${code}`) ?? code),
   );
 
-  const telegram = useTelegramAuth((code) =>
+  const telegram = useSocialAuth("telegram", (code) =>
+    setError(t(`auth.errors.${code}`) ?? code),
+  );
+
+  const kakao = useSocialAuth("kakao", (code) =>
+    setError(t(`auth.errors.${code}`) ?? code),
+  );
+
+  const naver = useSocialAuth("naver", (code) =>
     setError(t(`auth.errors.${code}`) ?? code),
   );
 
@@ -171,11 +179,27 @@ export default function LoginScreen() {
                 <Ionicons name="logo-google" size={22} color="#4285F4" />
               )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <KakaoIcon width={22} height={22} />
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={kakao.signIn}
+              disabled={kakao.loading}
+            >
+              {kakao.loading ? (
+                <ActivityIndicator size="small" color="#3C1E1E" />
+              ) : (
+                <KakaoIcon width={22} height={22} />
+              )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <NaverIcon width={22} height={22} />
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={naver.signIn}
+              disabled={naver.loading}
+            >
+              {naver.loading ? (
+                <ActivityIndicator size="small" color="#03C75A" />
+              ) : (
+                <NaverIcon width={22} height={22} />
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialButton}
