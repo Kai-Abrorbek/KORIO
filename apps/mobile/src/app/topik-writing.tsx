@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -31,6 +31,7 @@ import type {
   TopikExamSession,
   TopikQuestionWithGroup,
   TopikSaveAnswer,
+  TopikSolution,
 } from "@/types/topik";
 import { flattenTopikQuestions, toTopikLanguage } from "@/types/topik";
 
@@ -86,20 +87,34 @@ export default function TopikWritingScreen() {
   const params = useLocalSearchParams<{
     examCode?: string;
     mode?: TopikAttemptMode;
+    questionNumber?: string;
     reviewAttemptId?: string;
   }>();
   const examCode = Array.isArray(params.examCode)
     ? params.examCode[0]
     : params.examCode;
-  const mode =
-    (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
   const reviewAttemptId = Array.isArray(params.reviewAttemptId)
     ? params.reviewAttemptId[0]
     : params.reviewAttemptId;
+  const questionNumberParam = Array.isArray(params.questionNumber)
+    ? params.questionNumber[0]
+    : params.questionNumber;
+  const parsedQuestionNumber = Number(questionNumberParam);
+  const selectedQuestionNumber =
+    parsedQuestionNumber >= 51 && parsedQuestionNumber <= 54
+      ? parsedQuestionNumber
+      : null;
+  const singlePractice = Boolean(selectedQuestionNumber && !reviewAttemptId);
+  const requestedMode =
+    (Array.isArray(params.mode) ? params.mode[0] : params.mode) ?? "guided";
+  const mode: TopikAttemptMode = singlePractice ? "guided" : requestedMode;
+  const scrollRef = useRef<ScrollView>(null);
 
   const [session, setSession] = useState<TopikExamSession | null>(null);
   const [attempt, setAttempt] = useState<TopikAttempt | null>(null);
   const [result, setResult] = useState<TopikAttemptResult | null>(null);
+  const [practiceSolution, setPracticeSolution] =
+    useState<TopikSolution | null>(null);
   const [responses, setResponses] = useState<WritingResponses>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startedAtMs, setStartedAtMs] = useState(Date.now());
@@ -114,19 +129,32 @@ export default function TopikWritingScreen() {
 
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
-  const reviewMode = Boolean(result);
+  const submittedReviewMode = Boolean(result);
+  const solutionVisible = Boolean(result || practiceSolution);
+  const showTimer =
+    mode === "mock_exam" && !submittedReviewMode && !singlePractice;
   const elapsedSeconds = result
     ? result.elapsedSeconds
-    : Math.max(0, Math.floor((now - startedAtMs) / 1000));
+    : showTimer
+      ? Math.max(0, Math.floor((now - startedAtMs) / 1000))
+      : 0;
   const answeredCount = questions.filter((item) => {
     const fieldResponses = responses[item.id] ?? {};
     return (item.writingConfig?.fields ?? []).every(
       (field) => (fieldResponses[field.key] ?? "").trim().length > 0,
     );
   }).length;
-  const currentSolution = result?.questions.find(
-    (item) => item.questionId === question?.id,
-  )?.solution;
+  const currentSolution =
+    practiceSolution ??
+    result?.questions.find((item) => item.questionId === question?.id)
+      ?.solution;
+  const isCurrentAnswered = Boolean(
+    question &&
+    (question.writingConfig?.fields.length ?? 0) > 0 &&
+    (question.writingConfig?.fields ?? []).every(
+      (field) => (responses[question.id]?.[field.key] ?? "").trim().length > 0,
+    ),
+  );
 
   const load = useCallback(async () => {
     if (!examCode) {
@@ -137,6 +165,7 @@ export default function TopikWritingScreen() {
 
     setLoading(true);
     try {
+      setPracticeSolution(null);
       if (reviewAttemptId) {
         const [loadedSession, loadedAttempt, loadedResult] = await Promise.all([
           TopikService.getSession(examCode, 51, 54),
@@ -149,37 +178,45 @@ export default function TopikWritingScreen() {
         setResponses(responsesFromAttempt(loadedAttempt));
         setStartedAtMs(Date.now() - loadedAttempt.elapsedSeconds * 1000);
       } else {
+        const rangeStart = selectedQuestionNumber ?? 51;
+        const rangeEnd = selectedQuestionNumber ?? 54;
         const [loadedSession, loadedAttempt] = await Promise.all([
-          TopikService.getSession(examCode, 51, 54),
+          TopikService.getSession(examCode, rangeStart, rangeEnd),
           TopikService.startAttempt(examCode, mode, mode !== "mock_exam"),
         ]);
+        const loadedQuestions = flattenTopikQuestions(loadedSession);
+        const resumedIndex = loadedQuestions.findIndex(
+          (item) => item.number === loadedAttempt.currentQuestionNumber,
+        );
         setSession(loadedSession);
         setAttempt(loadedAttempt);
         setResponses(responsesFromAttempt(loadedAttempt));
-        setCurrentIndex(
-          Math.max(0, Math.min(3, loadedAttempt.currentQuestionNumber - 51)),
+        setCurrentIndex(singlePractice ? 0 : Math.max(0, resumedIndex));
+        setStartedAtMs(
+          mode === "mock_exam"
+            ? Date.now() - loadedAttempt.elapsedSeconds * 1000
+            : Date.now(),
         );
-        setStartedAtMs(Date.now() - loadedAttempt.elapsedSeconds * 1000);
       }
     } catch {
       setErrorVisible(true);
     } finally {
       setLoading(false);
     }
-  }, [examCode, mode, reviewAttemptId]);
+  }, [examCode, mode, reviewAttemptId, selectedQuestionNumber, singlePractice]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   useEffect(() => {
-    if (reviewMode) return;
+    if (!showTimer) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
-  }, [reviewMode]);
+  }, [showTimer]);
 
   const updateResponse = (fieldKey: string, text: string) => {
-    if (!question || reviewMode) return;
+    if (!question || submittedReviewMode) return;
     setResponses((current) => ({
       ...current,
       [question.id]: {
@@ -191,7 +228,7 @@ export default function TopikWritingScreen() {
 
   const save = useCallback(
     async (nextIndex = currentIndex) => {
-      if (!attempt || reviewMode || questions.length === 0) return;
+      if (!attempt || submittedReviewMode || questions.length === 0) return;
       const answers = questions
         .map((item) => createSaveAnswer(item, responses[item.id] ?? {}))
         .filter((item): item is TopikSaveAnswer => Boolean(item));
@@ -202,18 +239,27 @@ export default function TopikWritingScreen() {
         await TopikService.saveAnswers(
           attempt.id,
           answers,
-          questions[nextIndex]?.number ?? 51,
-          elapsedSeconds,
+          questions[nextIndex]?.number ?? selectedQuestionNumber ?? 51,
+          mode === "mock_exam" ? elapsedSeconds : 0,
         );
       } finally {
         setSaving(false);
       }
     },
-    [attempt, currentIndex, elapsedSeconds, questions, responses, reviewMode],
+    [
+      attempt,
+      currentIndex,
+      elapsedSeconds,
+      mode,
+      questions,
+      responses,
+      submittedReviewMode,
+      selectedQuestionNumber,
+    ],
   );
 
   const moveTo = async (index: number) => {
-    if (!reviewMode) {
+    if (!submittedReviewMode) {
       try {
         await save(index);
       } catch {
@@ -254,6 +300,23 @@ export default function TopikWritingScreen() {
     }
   };
 
+  const revealPracticeSolution = async () => {
+    if (!attempt || !question || !isCurrentAnswered) return;
+    setSubmitting(true);
+    try {
+      await save(currentIndex);
+      const revealed = await TopikService.revealSolution(
+        attempt.id,
+        question.id,
+      );
+      setPracticeSolution(revealed.solution);
+    } catch {
+      setErrorVisible(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.centered}>
@@ -282,31 +345,48 @@ export default function TopikWritingScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={styles.safeArea}
+      edges={["top", "left", "right", "bottom"]}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.flex}
       >
         <View style={styles.header}>
           <Pressable
             accessibilityLabel={t("topik.common.back")}
             hitSlop={10}
-            onPress={() => (reviewMode ? router.back() : setExitVisible(true))}
+            onPress={() =>
+              submittedReviewMode ? router.back() : setExitVisible(true)
+            }
             style={styles.headerButton}
           >
             <Ionicons name="chevron-back" size={24} color={palette.text} />
           </Pressable>
           <View style={styles.headerCenter}>
             <Text style={styles.headerEyebrow}>
-              {reviewMode
+              {solutionVisible
                 ? t("topik.writingExam.reviewEyebrow")
                 : t("topik.writingExam.eyebrow")}
             </Text>
             <Text style={styles.headerTitle}>{question.number} / 54</Text>
           </View>
           <View style={styles.timerPill}>
-            <Ionicons name="time-outline" size={14} color={palette.purple} />
-            <Text style={styles.timerText}>{formatTime(elapsedSeconds)}</Text>
+            <Ionicons
+              name={showTimer ? "time-outline" : "book-outline"}
+              size={14}
+              color={palette.purple}
+            />
+            <Text style={styles.timerText}>
+              {showTimer
+                ? formatTime(elapsedSeconds)
+                : singlePractice
+                  ? t("topik.writingExam.typePractice")
+                  : solutionVisible
+                    ? t("topik.exam.reviewMode")
+                    : t("topik.modes.guided")}
+            </Text>
           </View>
         </View>
 
@@ -319,54 +399,75 @@ export default function TopikWritingScreen() {
           />
         </View>
 
-        {reviewMode && (
+        {(result || practiceSolution) && (
           <View style={styles.completeBanner}>
             <View style={styles.completeIcon}>
               <Ionicons name="checkmark" size={22} color={palette.white} />
             </View>
             <View style={styles.completeCopy}>
               <Text style={styles.completeTitle}>
-                {t("topik.writingExam.submittedTitle")}
+                {practiceSolution
+                  ? t("topik.writingExam.practiceReviewTitle")
+                  : t("topik.writingExam.submittedTitle")}
               </Text>
               <Text style={styles.completeText}>
-                {t("topik.writingExam.submittedMessage")}
+                {practiceSolution
+                  ? t("topik.writingExam.practiceReviewMessage")
+                  : t("topik.writingExam.submittedMessage")}
               </Text>
             </View>
           </View>
         )}
 
         <ScrollView
+          ref={scrollRef}
+          automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
           contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
+          keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
         >
           <TopikWritingQuestionCard
             language={language}
             onChange={updateResponse}
             question={question}
-            readOnly={reviewMode}
+            readOnly={submittedReviewMode}
             responses={responses[question.id] ?? {}}
+            showRecommendedTime={showTimer}
             solution={currentSolution}
+            onInputFocus={() => {
+              requestAnimationFrame(() =>
+                scrollRef.current?.scrollToEnd({ animated: true }),
+              );
+              setTimeout(
+                () => scrollRef.current?.scrollToEnd({ animated: true }),
+                260,
+              );
+            }}
           />
         </ScrollView>
 
         <View style={styles.footer}>
-          <Pressable
-            disabled={currentIndex === 0 || saving}
-            onPress={() => void moveTo(currentIndex - 1)}
-            style={({ pressed }) => [
-              styles.secondaryButton,
-              currentIndex === 0 && styles.disabledButton,
-              pressed && styles.pressedButton,
-            ]}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={18}
-              color={palette.textSecondary}
-            />
-            <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
-          </Pressable>
+          {!singlePractice && (
+            <Pressable
+              disabled={currentIndex === 0 || saving}
+              onPress={() => void moveTo(currentIndex - 1)}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                currentIndex === 0 && styles.disabledButton,
+                pressed && styles.pressedButton,
+              ]}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={18}
+                color={palette.textSecondary}
+              />
+              <Text style={styles.secondaryText}>
+                {t("topik.exam.previous")}
+              </Text>
+            </Pressable>
+          )}
 
           {currentIndex < questions.length - 1 ? (
             <Pressable
@@ -388,7 +489,49 @@ export default function TopikWritingScreen() {
               )}
               <Text style={styles.primaryText}>{t("topik.exam.next")}</Text>
             </Pressable>
-          ) : reviewMode ? (
+          ) : singlePractice ? (
+            practiceSolution ? (
+              <Pressable
+                disabled={saving || leaving}
+                onPress={() => void leave()}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  pressed && styles.primaryPressed,
+                ]}
+              >
+                <Ionicons name="grid-outline" size={18} color={palette.white} />
+                <Text style={styles.primaryText}>
+                  {t("topik.writingExam.backToTypes")}
+                </Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                disabled={!isCurrentAnswered || saving || submitting}
+                onPress={() => void revealPracticeSolution()}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  (!isCurrentAnswered || saving || submitting) &&
+                    styles.disabledButton,
+                  pressed && styles.primaryPressed,
+                ]}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color={palette.white} />
+                ) : (
+                  <Ionicons
+                    name="eye-outline"
+                    size={18}
+                    color={palette.white}
+                  />
+                )}
+                <Text style={styles.primaryText}>
+                  {isCurrentAnswered
+                    ? t("topik.writingExam.revealPracticeSolution")
+                    : t("topik.writingExam.writeBeforeReview")}
+                </Text>
+              </Pressable>
+            )
+          ) : submittedReviewMode ? (
             <Pressable
               onPress={() => router.back()}
               style={({ pressed }) => [

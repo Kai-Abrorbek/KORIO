@@ -44,6 +44,16 @@ const MODES: Array<{
   },
 ];
 
+const WRITING_PRACTICE_TYPES: Array<{
+  number: 51 | 52 | 53 | 54;
+  icon: keyof typeof Ionicons.glyphMap;
+}> = [
+  { number: 51, icon: "mail-outline" },
+  { number: 52, icon: "git-compare-outline" },
+  { number: 53, icon: "bar-chart-outline" },
+  { number: 54, icon: "reader-outline" },
+];
+
 export default function TopikHomeScreen() {
   const { t, i18n } = useTranslation();
   const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
@@ -173,10 +183,14 @@ export default function TopikHomeScreen() {
             <View style={styles.metricDivider} />
             <View>
               <Text style={styles.metricValue}>
-                {selectedExam?.durationMinutes ?? "—"}
+                {mode === "mock_exam"
+                  ? (selectedExam?.durationMinutes ?? "—")
+                  : "∞"}
               </Text>
               <Text style={styles.metricLabel}>
-                {t("topik.common.minutes")}
+                {mode === "mock_exam"
+                  ? t("topik.common.minutes")
+                  : t("topik.common.untimed")}
               </Text>
             </View>
             <View style={styles.metricDivider} />
@@ -267,11 +281,16 @@ export default function TopikHomeScreen() {
                         {topikText(exam.title, language)}
                       </Text>
                       <Text style={styles.examMeta}>
-                        {t("topik.home.examMeta", {
-                          questions: exam.totalQuestions,
-                          minutes: exam.durationMinutes,
-                          points: exam.totalPoints,
-                        })}
+                        {t(
+                          mode === "mock_exam"
+                            ? "topik.home.examMeta"
+                            : "topik.home.examMetaUntimed",
+                          {
+                            questions: exam.totalQuestions,
+                            minutes: exam.durationMinutes,
+                            points: exam.totalPoints,
+                          },
+                        )}
                       </Text>
                     </View>
                     <Ionicons
@@ -329,6 +348,75 @@ export default function TopikHomeScreen() {
                 </View>
               );
             })}
+          </View>
+        )}
+
+        {section === "writing" && selectedExam && (
+          <View style={styles.practiceSection}>
+            <View style={styles.practiceHeading}>
+              <View style={styles.practiceHeadingCopy}>
+                <Text style={styles.sectionTitle}>
+                  {t("topik.home.writingPracticeTitle")}
+                </Text>
+                <Text style={styles.practiceDescription}>
+                  {t("topik.home.writingPracticeDescription")}
+                </Text>
+              </View>
+              <View style={styles.practiceBadge}>
+                <Text style={styles.practiceBadgeText}>
+                  {t("topik.home.writingPracticeBadge")}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.practiceGrid}>
+              {WRITING_PRACTICE_TYPES.map((item) => (
+                <Pressable
+                  key={item.number}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/topik-writing",
+                      params: {
+                        examCode: selectedExam.code,
+                        mode: "guided",
+                        questionNumber: String(item.number),
+                      },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.practiceCard,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <View style={styles.practiceCardTop}>
+                    <View style={styles.practiceIcon}>
+                      <Ionicons
+                        name={item.icon}
+                        size={20}
+                        color={palette.purple}
+                      />
+                    </View>
+                    <Text style={styles.practiceNumber}>{item.number}</Text>
+                  </View>
+                  <Text style={styles.practiceTitle}>
+                    {t(`topik.home.writingPractice${item.number}Title`)}
+                  </Text>
+                  <Text style={styles.practiceText}>
+                    {t(`topik.home.writingPractice${item.number}Description`)}
+                  </Text>
+                  <View style={styles.practiceAction}>
+                    <Text style={styles.practiceActionText}>
+                      {t("topik.home.practiceNow")}
+                    </Text>
+                    <Ionicons
+                      name="arrow-forward"
+                      size={14}
+                      color={palette.purple}
+                    />
+                  </View>
+                </Pressable>
+              ))}
+            </View>
           </View>
         )}
 
@@ -494,6 +582,81 @@ const getStyles = (palette: TopikPalette) =>
       letterSpacing: 1,
     },
     examList: { gap: 10 },
+    practiceSection: { gap: 12, marginTop: 4 },
+    practiceHeading: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: 12,
+    },
+    practiceHeadingCopy: { flex: 1, gap: 4 },
+    practiceDescription: {
+      color: palette.textSecondary,
+      fontSize: 11,
+      lineHeight: 17,
+    },
+    practiceBadge: {
+      borderRadius: 999,
+      backgroundColor: palette.purpleSoft,
+      paddingHorizontal: 9,
+      paddingVertical: 6,
+    },
+    practiceBadgeText: {
+      color: palette.purple,
+      fontSize: 9,
+      fontWeight: "900",
+    },
+    practiceGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+    },
+    practiceCard: {
+      width: "48.5%",
+      minHeight: 168,
+      gap: 7,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 17,
+      backgroundColor: palette.surfaceElevated,
+      padding: 13,
+      shadowColor: palette.shadow,
+      shadowOpacity: palette.isDark ? 0.16 : 0.05,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 2,
+    },
+    practiceCardTop: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    practiceIcon: {
+      width: 36,
+      height: 36,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 12,
+      backgroundColor: palette.purpleSoft,
+    },
+    practiceNumber: {
+      color: palette.textSubtle,
+      fontSize: 18,
+      fontWeight: "900",
+    },
+    practiceTitle: { color: palette.text, fontSize: 13, fontWeight: "900" },
+    practiceText: {
+      flex: 1,
+      color: palette.textSecondary,
+      fontSize: 10,
+      lineHeight: 15,
+    },
+    practiceAction: { flexDirection: "row", alignItems: "center", gap: 4 },
+    practiceActionText: {
+      color: palette.purple,
+      fontSize: 10,
+      fontWeight: "900",
+    },
     examCard: {
       overflow: "hidden",
       borderWidth: 1,

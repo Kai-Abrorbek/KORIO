@@ -6,6 +6,7 @@ export * from "./TopikNoticeModal";
 export * from "./TopikPassage";
 export * from "./TopikQuestionCard";
 export * from "./TopikListeningQuestionCard";
+export * from "./TopikManuscriptInput";
 export * from "./TopikWritingQuestionCard";
 export * from "./TopikListeningExamAudioStatus";
 export * from "./TopikSheetModal";

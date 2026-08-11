@@ -8,6 +8,7 @@ export default {
     refresh: "Refresh",
     questions: "Questions",
     minutes: "Min",
+    untimed: "No time limit",
     points: "Points",
     answerNumber: "Option {{number}}",
     unanswered: "Unanswered",
@@ -96,11 +97,30 @@ export default {
     readingTest: "Reading test",
     listeningTest: "Listening test",
     writingTest: "Writing test",
+    writingPracticeTitle: "Practice by question type",
+    writingPracticeDescription:
+      "Choose any question from 51–54, write only that response, and compare it with the sample.",
+    writingPracticeBadge: "FREE PRACTICE",
+    writingPractice51Title: "51 · Invitation",
+    writingPractice51Description:
+      "Complete two blanks while preserving context and honorific style.",
+    writingPractice52Title: "52 · Information",
+    writingPractice52Description:
+      "Connect cause and method to complete natural sentences.",
+    writingPractice53Title: "53 · Data report",
+    writingPractice53Description:
+      "Summarize key figures and causes in 200–300 characters.",
+    writingPractice54Title: "54 · Argument essay",
+    writingPractice54Description:
+      "Build a 600–700 character essay with claims, evidence, and solutions.",
+    practiceNow: "Practice now",
     loading: "Loading exam papers…",
     loadError: "Couldn’t load the exam papers.",
     emptyTitle: "TOPIK {{level}} {{section}} is being prepared.",
     emptyDescription: "High-quality questions are coming soon.",
     examMeta: "{{questions}} questions · {{minutes}} min · {{points}} points",
+    examMetaUntimed:
+      "{{questions}} questions · No time limit · {{points}} points",
     studyMode: "Study mode",
     mode: "Mode",
     completed: "Completed",
@@ -157,6 +177,7 @@ export default {
     eyebrow: "TOPIK II WRITING",
     guide: "Writing guide",
     recommendedTime: "Recommended {{minutes}} min",
+    typePractice: "Type practice",
     answerLabel: "{{label}} answer",
     shortPlaceholder: "Enter a sentence that fits the context.",
     essayPlaceholder: "Write your response here.",
@@ -167,12 +188,31 @@ export default {
     submittedTitle: "Writing responses completed",
     submittedMessage:
       "Compare your work with the sample answer and scoring criteria.",
+    practiceReviewTitle: "Sample answer opened",
+    practiceReviewMessage:
+      "Compare it with your answer and review the structure and manuscript rules.",
     reviewEyebrow: "SELF REVIEW",
     myAnswer: "My answer",
     sampleAnswer: "Sample answer",
     rubric: "Scoring criteria",
     emptyAnswer: "No response was written.",
     backToExams: "Back to exam list",
+    backToTypes: "Back to question types",
+    revealPracticeSolution: "View sample answer and guide",
+    writeBeforeReview: "Write your answer first",
+    manuscriptTitle: "Official manuscript paper",
+    manuscriptDescription:
+      "Your text is placed automatically on 20-cell manuscript lines.",
+    manuscriptRule1: "Indent the first cell when starting a new paragraph.",
+    manuscriptRule2: "Use one cell per character, including punctuation.",
+    manuscriptRule3:
+      "If punctuation would begin a line, place it with the final character of the previous line.",
+    manuscriptRule4: "Place two Arabic digits in each cell.",
+    manuscriptRule5:
+      "Do not leave blank lines between paragraphs; keep spacing accurate.",
+    manuscriptTyping: "Typing on manuscript paper",
+    manuscriptTap: "Tap the paper to type",
+    manuscriptScale: "{{columns}} cells per line",
     loadFailed: "Could not load the writing exam.",
   },
   result: {

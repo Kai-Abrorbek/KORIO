@@ -80,32 +80,44 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
       {!!chart.subtitle && (
         <Text style={styles.chartSubtitle}>{chart.subtitle}</Text>
       )}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.table}>
-          <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={[styles.tableCell, styles.firstCell]} />
-            {chart.headers.map((header) => (
-              <Text key={header} style={[styles.tableCell, styles.headerText]}>
-                {header}
-              </Text>
-            ))}
-          </View>
-          {chart.rows.map((row) => (
-            <View key={row.label} style={styles.tableRow}>
-              <Text
-                style={[styles.tableCell, styles.firstCell, styles.rowLabel]}
-              >
-                {row.label}
-              </Text>
-              {row.values.map((value, index) => (
-                <Text key={`${row.label}-${index}`} style={styles.tableCell}>
-                  {value}
+      {stimulus.imageUrl ? (
+        <Image
+          accessibilityLabel={stimulus.imageAlt}
+          resizeMode="contain"
+          source={{ uri: stimulus.imageUrl }}
+          style={styles.chartImage}
+        />
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.table}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={[styles.tableCell, styles.firstCell]} />
+              {chart.headers.map((header) => (
+                <Text
+                  key={header}
+                  style={[styles.tableCell, styles.headerText]}
+                >
+                  {header}
                 </Text>
               ))}
             </View>
-          ))}
-        </View>
-      </ScrollView>
+            {chart.rows.map((row) => (
+              <View key={row.label} style={styles.tableRow}>
+                <Text
+                  style={[styles.tableCell, styles.firstCell, styles.rowLabel]}
+                >
+                  {row.label}
+                </Text>
+                {row.values.map((value, index) => (
+                  <Text key={`${row.label}-${index}`} style={styles.tableCell}>
+                    {value}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      )}
       {!!chart.unit && (
         <Text style={styles.chartNote}>
           {t("topik.stimulus.chartUnit", { unit: chart.unit })}
@@ -281,6 +293,12 @@ const getStyles = (palette: TopikPalette) =>
       color: palette.textSecondary,
       fontSize: 12,
       textAlign: "center",
+    },
+    chartImage: {
+      width: "100%",
+      minHeight: 220,
+      borderRadius: 8,
+      backgroundColor: palette.paper,
     },
     table: { minWidth: 320, borderWidth: 1, borderColor: palette.borderStrong },
     tableRow: { flexDirection: "row" },

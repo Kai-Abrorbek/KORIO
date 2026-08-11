@@ -106,7 +106,10 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         revealedSolutions: {},
         result: null,
         currentIndex: Math.max(0, attempt.currentQuestionNumber - 1),
-        sessionStartedAtMs: Date.now() - attempt.elapsedSeconds * 1000,
+        sessionStartedAtMs:
+          mode === "mock_exam"
+            ? Date.now() - attempt.elapsedSeconds * 1000
+            : null,
         questionStartedAtMs: Date.now(),
         isLoading: false,
       });
@@ -221,9 +224,7 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
 
     set({ isSaving: true, errorCode: null });
     try {
-      const elapsedSeconds = state.sessionStartedAtMs
-        ? Math.floor((Date.now() - state.sessionStartedAtMs) / 1000)
-        : state.attempt.elapsedSeconds;
+      const elapsedSeconds = 0;
       const saved = await TopikService.saveAnswers(
         state.attempt.id,
         answers,

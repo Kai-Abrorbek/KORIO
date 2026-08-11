@@ -8,6 +8,7 @@ export default {
     refresh: "Yangilash",
     questions: "Savollar",
     minutes: "Daqiqa",
+    untimed: "Vaqt cheklanmagan",
     points: "Ball",
     answerNumber: "{{number}}-variant",
     unanswered: "Javobsiz",
@@ -96,11 +97,30 @@ export default {
     readingTest: "O‘qish testi",
     listeningTest: "Tinglash testi",
     writingTest: "Yozish testi",
+    writingPracticeTitle: "Savol turi bo‘yicha mashq",
+    writingPracticeDescription:
+      "51–54-savollardan istalganini tanlab yozing va namunaviy javob bilan solishtiring.",
+    writingPracticeBadge: "ERKIN MASHQ",
+    writingPractice51Title: "51 · Taklif va va’da",
+    writingPractice51Description:
+      "Mazmun va hurmat uslubini saqlab, ikki bo‘shliqni to‘ldiring.",
+    writingPractice52Title: "52 · Ma’lumot yetkazish",
+    writingPractice52Description:
+      "Sabab va usulni tabiiy bog‘lab gaplarni tugating.",
+    writingPractice53Title: "53 · Ma’lumot tavsifi",
+    writingPractice53Description:
+      "Asosiy raqamlar va sabablarni 200–300 belgida yozing.",
+    writingPractice54Title: "54 · Mavzuli insho",
+    writingPractice54Description:
+      "Fikr, dalil va yechimlardan 600–700 belgili insho tuzing.",
+    practiceNow: "Mashq qilish",
     loading: "Imtihon variantlari yuklanmoqda…",
     loadError: "Imtihon variantlarini yuklab bo‘lmadi.",
     emptyTitle: "TOPIK {{level}} {{section}} materiallari tayyorlanmoqda.",
     emptyDescription: "Sifatli savollar tez orada qo‘shiladi.",
     examMeta: "{{questions}} savol · {{minutes}} daqiqa · {{points}} ball",
+    examMetaUntimed:
+      "{{questions}} savol · Vaqt cheklanmagan · {{points}} ball",
     studyMode: "O‘rganish rejimi",
     mode: "Rejim",
     completed: "Yakunlangan",
@@ -158,6 +178,7 @@ export default {
     eyebrow: "TOPIK II YOZISH",
     guide: "Yozish qo‘llanmasi",
     recommendedTime: "Tavsiya: {{minutes}} daqiqa",
+    typePractice: "Tur bo‘yicha mashq",
     answerLabel: "{{label}} javobi",
     shortPlaceholder: "Mazmunga mos gapni kiriting.",
     essayPlaceholder: "Javobingizni shu yerda yozing.",
@@ -168,12 +189,32 @@ export default {
     submittedTitle: "Yozish javoblari yakunlandi",
     submittedMessage:
       "Namunaviy javob va baholash mezonlari bilan o‘zingizni tekshiring.",
+    practiceReviewTitle: "Namunaviy javob ochildi",
+    practiceReviewMessage:
+      "Javobingiz bilan solishtirib, tuzilma va katak qoidalarini tekshiring.",
     reviewEyebrow: "O‘ZINI TEKSHIRISH",
     myAnswer: "Mening javobim",
     sampleAnswer: "Namunaviy javob",
     rubric: "Baholash mezonlari",
     emptyAnswer: "Javob yozilmagan.",
     backToExams: "Imtihonlar ro‘yxatiga qaytish",
+    backToTypes: "Savol turlariga qaytish",
+    revealPracticeSolution: "Namuna va izohni ko‘rish",
+    writeBeforeReview: "Avval javob yozing",
+    manuscriptTitle: "Imtihon yozuv kataklari",
+    manuscriptDescription:
+      "Matn har satrda 20 katakdan iborat qog‘ozga avtomatik joylanadi.",
+    manuscriptRule1: "Yangi abzatsni birinchi katakni bo‘sh qoldirib boshlang.",
+    manuscriptRule2:
+      "Har bir harf va tinish belgisi uchun bitta katak ishlating.",
+    manuscriptRule3:
+      "Tinish belgisi yangi satr boshiga tushsa, uni oldingi satr oxirgi harfi bilan joylang.",
+    manuscriptRule4: "Arab raqamlarini har bir katakka ikkitadan yozing.",
+    manuscriptRule5:
+      "Abzatslar orasida bo‘sh satr qoldirmang va oraliqlarga rioya qiling.",
+    manuscriptTyping: "Kataklarga yozilmoqda",
+    manuscriptTap: "Yozish uchun katakni bosing",
+    manuscriptScale: "Har satrda {{columns}} katak",
     loadFailed: "Yozish imtihonini yuklab bo‘lmadi.",
   },
   result: {

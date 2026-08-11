@@ -31,6 +31,8 @@ const writingPresentation = presentation(
   TopikChoiceLayout.ONE_COLUMN,
 );
 
+export const TOPIK_WRITING_MOCK_1_Q53_IMAGE_URL = '';
+
 const passage = (...paragraphs: string[]): TopikStimulus => ({
   kind: TopikStimulusKind.PASSAGE,
   title: '',
@@ -455,8 +457,8 @@ const questions: TopikSeedQuestion[] = [
         sourceNote: '중국·일본과의 무역 분쟁 · 전염병 확산으로 인한 경기 침체',
         variant: 'writing-survey',
       },
-      imageUrl: '',
-      imageAlt: '',
+      imageUrl: TOPIK_WRITING_MOCK_1_Q53_IMAGE_URL,
+      imageAlt: 'TOPIK II 쓰기 53번 해외여행 국가 및 총 지출액 변화 자료',
       visualVariant: 'official-writing-chart',
     },
     writingConfig: {

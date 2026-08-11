@@ -8,6 +8,7 @@ export default {
     refresh: "Обновить",
     questions: "Задания",
     minutes: "Мин",
+    untimed: "Без ограничения времени",
     points: "Баллы",
     answerNumber: "Вариант {{number}}",
     unanswered: "Нет ответа",
@@ -93,11 +94,30 @@ export default {
     readingTest: "Тест по чтению",
     listeningTest: "Тест по аудированию",
     writingTest: "Письменный тест",
+    writingPracticeTitle: "Практика по типу задания",
+    writingPracticeDescription:
+      "Выберите любое задание 51–54, напишите ответ и сравните его с образцом.",
+    writingPracticeBadge: "СВОБОДНАЯ ПРАКТИКА",
+    writingPractice51Title: "51 · Приглашение",
+    writingPractice51Description:
+      "Заполните два пропуска, сохраняя контекст и вежливый стиль.",
+    writingPractice52Title: "52 · Передача информации",
+    writingPractice52Description:
+      "Логично свяжите причину и способ и завершите предложения.",
+    writingPractice53Title: "53 · Описание данных",
+    writingPractice53Description:
+      "Опишите ключевые цифры и причины в 200–300 знаках.",
+    writingPractice54Title: "54 · Аргументативное эссе",
+    writingPractice54Description:
+      "Напишите 600–700 знаков с тезисом, аргументами и решением.",
+    practiceNow: "Начать практику",
     loading: "Загружаем варианты экзамена…",
     loadError: "Не удалось загрузить варианты экзамена.",
     emptyTitle: "Материалы TOPIK {{level}} · {{section}} готовятся.",
     emptyDescription: "Качественные задания скоро появятся.",
     examMeta: "{{questions}} заданий · {{minutes}} мин · {{points}} баллов",
+    examMetaUntimed:
+      "{{questions}} заданий · Без ограничения времени · {{points}} баллов",
     studyMode: "Режим обучения",
     mode: "Режим",
     completed: "Завершено",
@@ -155,6 +175,7 @@ export default {
     eyebrow: "TOPIK II ПИСЬМО",
     guide: "Рекомендации",
     recommendedTime: "Рекомендуется {{minutes}} мин",
+    typePractice: "Практика типа",
     answerLabel: "Ответ {{label}}",
     shortPlaceholder: "Введите предложение, подходящее по контексту.",
     essayPlaceholder: "Напишите ответ здесь.",
@@ -164,12 +185,31 @@ export default {
     saved: "Ответ надёжно сохранён.",
     submittedTitle: "Ответы по письму завершены",
     submittedMessage: "Сравните работу с образцом и критериями оценки.",
+    practiceReviewTitle: "Образец ответа открыт",
+    practiceReviewMessage:
+      "Сравните его со своим ответом и проверьте структуру и правила разлиновки.",
     reviewEyebrow: "САМОПРОВЕРКА",
     myAnswer: "Мой ответ",
     sampleAnswer: "Образец ответа",
     rubric: "Критерии оценки",
     emptyAnswer: "Ответ не написан.",
     backToExams: "Вернуться к списку экзаменов",
+    backToTypes: "Вернуться к типам заданий",
+    revealPracticeSolution: "Показать образец и разбор",
+    writeBeforeReview: "Сначала напишите ответ",
+    manuscriptTitle: "Экзаменационная разлиновка",
+    manuscriptDescription:
+      "Текст автоматически размещается в строках по 20 клеток.",
+    manuscriptRule1: "Начинайте новый абзац со второй клетки.",
+    manuscriptRule2: "Пишите по одному знаку в клетке, включая пунктуацию.",
+    manuscriptRule3:
+      "Если знак препинания попадает в начало строки, поместите его с последним знаком предыдущей строки.",
+    manuscriptRule4: "Арабские цифры пишите по две в одной клетке.",
+    manuscriptRule5:
+      "Не оставляйте пустых строк между абзацами и соблюдайте пробелы.",
+    manuscriptTyping: "Ввод в клетки",
+    manuscriptTap: "Нажмите на разлиновку для ввода",
+    manuscriptScale: "{{columns}} клеток в строке",
     loadFailed: "Не удалось загрузить письменный экзамен.",
   },
   result: {

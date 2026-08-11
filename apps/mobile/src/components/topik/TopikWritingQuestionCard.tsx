@@ -1,13 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  type NativeSyntheticEvent,
-  type TextInputContentSizeChangeEventData,
-} from "react-native";
+import { useMemo } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import type {
   TopikLanguage,
@@ -15,6 +8,7 @@ import type {
   TopikSolution,
 } from "@/types/topik";
 import { topikText } from "@/types/topik";
+import { TopikManuscriptInput } from "./TopikManuscriptInput";
 import { TopikStimulusCard } from "./TopikStimulusCard";
 import { TopikTextBlocks } from "./TopikTextBlocks";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
@@ -24,8 +18,10 @@ interface TopikWritingQuestionCardProps {
   responses: Record<string, string>;
   language: TopikLanguage;
   readOnly?: boolean;
+  showRecommendedTime?: boolean;
   solution?: TopikSolution;
   onChange: (fieldKey: string, text: string) => void;
+  onInputFocus?: () => void;
 }
 
 export function TopikWritingQuestionCard({
@@ -33,13 +29,14 @@ export function TopikWritingQuestionCard({
   responses,
   language,
   readOnly = false,
+  showRecommendedTime = false,
   solution,
   onChange,
+  onInputFocus,
 }: TopikWritingQuestionCardProps) {
   const { t } = useTranslation();
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
-  const [inputHeights, setInputHeights] = useState<Record<string, number>>({});
   const fields = question.writingConfig?.fields ?? [];
 
   return (
@@ -79,11 +76,13 @@ export function TopikWritingQuestionCard({
               <Text style={styles.guideTitle}>
                 {t("topik.writingExam.guide")}
               </Text>
-              <Text style={styles.guideTime}>
-                {t("topik.writingExam.recommendedTime", {
-                  minutes: question.writingConfig.recommendedMinutes,
-                })}
-              </Text>
+              {showRecommendedTime && (
+                <Text style={styles.guideTime}>
+                  {t("topik.writingExam.recommendedTime", {
+                    minutes: question.writingConfig.recommendedMinutes,
+                  })}
+                </Text>
+              )}
             </View>
             <Text style={styles.guideText}>
               {topikText(question.writingConfig.guide, language)}
@@ -99,7 +98,10 @@ export function TopikWritingQuestionCard({
           const isEssay = field.multiline && field.maxCharacters > 150;
 
           return (
-            <View key={field.key} style={styles.responseField}>
+            <View
+              key={`${question.id}-${field.key}`}
+              style={styles.responseField}
+            >
               <View style={styles.responseHeader}>
                 <Text style={styles.responseLabel}>
                   {t("topik.writingExam.answerLabel", { label: field.label })}
@@ -116,42 +118,38 @@ export function TopikWritingQuestionCard({
                   })}
                 </Text>
               </View>
-              <TextInput
-                accessibilityLabel={t("topik.writingExam.answerLabel", {
-                  label: field.label,
-                })}
-                editable={!readOnly}
-                keyboardAppearance={palette.isDark ? "dark" : "light"}
-                maxLength={field.maxCharacters}
-                multiline={field.multiline}
-                onChangeText={(text) => onChange(field.key, text)}
-                onContentSizeChange={(
-                  event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>,
-                ) =>
-                  setInputHeights((current) => ({
-                    ...current,
-                    [field.key]: Math.max(
-                      isEssay ? 220 : 54,
-                      Math.min(420, event.nativeEvent.contentSize.height + 28),
-                    ),
-                  }))
-                }
-                placeholder={t(
-                  isEssay
-                    ? "topik.writingExam.essayPlaceholder"
-                    : "topik.writingExam.shortPlaceholder",
-                )}
-                placeholderTextColor={palette.textSubtle}
-                scrollEnabled={isEssay}
-                style={[
-                  styles.input,
-                  field.multiline && styles.multilineInput,
-                  isEssay && { height: inputHeights[field.key] ?? 220 },
-                  readOnly && styles.readOnlyInput,
-                ]}
-                textAlignVertical={field.multiline ? "top" : "center"}
-                value={value}
-              />
+              {isEssay ? (
+                <TopikManuscriptInput
+                  accessibilityLabel={t("topik.writingExam.answerLabel", {
+                    label: field.label,
+                  })}
+                  maxLength={field.maxCharacters}
+                  onChangeText={(text) => onChange(field.key, text)}
+                  readOnly={readOnly}
+                  value={value}
+                />
+              ) : (
+                <TextInput
+                  accessibilityLabel={t("topik.writingExam.answerLabel", {
+                    label: field.label,
+                  })}
+                  editable={!readOnly}
+                  keyboardAppearance={palette.isDark ? "dark" : "light"}
+                  maxLength={field.maxCharacters}
+                  multiline={field.multiline}
+                  onChangeText={(text) => onChange(field.key, text)}
+                  onFocus={onInputFocus}
+                  placeholder={t("topik.writingExam.shortPlaceholder")}
+                  placeholderTextColor={palette.textSubtle}
+                  style={[
+                    styles.input,
+                    field.multiline && styles.multilineInput,
+                    readOnly && styles.readOnlyInput,
+                  ]}
+                  textAlignVertical={field.multiline ? "top" : "center"}
+                  value={value}
+                />
+              )}
               {!readOnly && remaining > 0 && (
                 <View style={styles.minimumNotice}>
                   <Ionicons

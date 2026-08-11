@@ -183,7 +183,12 @@ export default function TopikResultScreen() {
                 </Text>
               </View>
             </View>
-            <View style={styles.summaryCard}>
+            <View
+              style={[
+                styles.summaryCard,
+                result.mode !== "mock_exam" && styles.summaryCardFull,
+              ]}
+            >
               <View style={styles.summaryIconNeutral}>
                 <Ionicons
                   name="analytics-outline"
@@ -198,22 +203,28 @@ export default function TopikResultScreen() {
                 </Text>
               </View>
             </View>
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryIconNeutral}>
-                <Ionicons name="time-outline" size={14} color={palette.white} />
+            {result.mode === "mock_exam" && (
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryIconNeutral}>
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color={palette.white}
+                  />
+                </View>
+                <View style={styles.summaryText}>
+                  <Text style={styles.summaryValueSmall}>
+                    {t("topik.result.duration", {
+                      minutes: Math.floor(result.elapsedSeconds / 60),
+                      seconds: result.elapsedSeconds % 60,
+                    })}
+                  </Text>
+                  <Text style={styles.summaryLabel}>
+                    {t("topik.result.durationLabel")}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.summaryText}>
-                <Text style={styles.summaryValueSmall}>
-                  {t("topik.result.duration", {
-                    minutes: Math.floor(result.elapsedSeconds / 60),
-                    seconds: result.elapsedSeconds % 60,
-                  })}
-                </Text>
-                <Text style={styles.summaryLabel}>
-                  {t("topik.result.durationLabel")}
-                </Text>
-              </View>
-            </View>
+            )}
           </View>
         </LinearGradient>
 
@@ -496,6 +507,7 @@ const getStyles = (palette: TopikPalette) =>
       paddingHorizontal: 11,
       paddingVertical: 10,
     },
+    summaryCardFull: { width: "100%" },
     summaryText: { flex: 1, gap: 1 },
     summaryIconSuccess: {
       width: 28,

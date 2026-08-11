@@ -121,6 +121,7 @@ export default function TopikExamScreen() {
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
   const isListening = session?.exam.section === "listening";
+  const showExamTimer = !isReview && attempt?.mode === "mock_exam";
   const activeQuestions = useMemo(() => {
     if (!question) return [];
     if (!isListening) return [question];
@@ -332,9 +333,10 @@ export default function TopikExamScreen() {
   ]);
 
   useEffect(() => {
+    if (!showExamTimer) return;
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [showExamTimer]);
 
   useEffect(() => {
     if (!isReview && attempt?.mode === "guided" && activeQuestions.length > 0) {
@@ -537,14 +539,16 @@ export default function TopikExamScreen() {
         </View>
         <View style={styles.timer}>
           <Ionicons
-            name={isReview ? "book-outline" : "time-outline"}
+            name={showExamTimer ? "time-outline" : "book-outline"}
             size={16}
             color={palette.primary}
           />
           <Text style={styles.timerText}>
-            {isReview
-              ? t("topik.exam.reviewMode")
-              : formatTime(remainingSeconds)}
+            {showExamTimer
+              ? formatTime(remainingSeconds)
+              : isReview
+                ? t("topik.exam.reviewMode")
+                : t("topik.modes.guided")}
           </Text>
         </View>
       </View>
