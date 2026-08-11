@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,9 +17,14 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import {
   stageQuestionPlan,
+  correctNeededFor,
+  HARD_UNLOCK_SCORE,
+  STAGE_PASS_SCORE,
   type PronLevel,
   type PronOption,
 } from "@/constants/pronunciation";
+import { UserService } from "@/services/user.service";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { glossOf } from "@/constants/pronunciation-gloss";
 
 const C = {
@@ -87,13 +92,16 @@ export default function PronunciationQuiz() {
     step?: string;
     mode?: string;
   }>();
+  const level = (params.level ?? "lv1") as PronLevel;
+  const step = Number(params.step ?? 1);
+  const isHard = params.mode === "hard";
+
   const QUESTIONS = useMemo<PQ[]>(
     () =>
-      stageQuestionPlan(
-        (params.level ?? "lv1") as PronLevel,
-        Number(params.step ?? 1),
-      ).map((p) => toQuestion(p.pair, p.answer, i18n.language)),
-    [params.level, params.step, i18n.language],
+      stageQuestionPlan(level, step).map((p) =>
+        toQuestion(p.pair, p.answer, i18n.language),
+      ),
+    [level, step, i18n.language],
   );
 
   const [index, setIndex] = useState(0);
@@ -101,6 +109,9 @@ export default function PronunciationQuiz() {
   const [results, setResults] = useState<(boolean | null)[]>(
     Array(QUESTIONS.length).fill(null),
   );
+  // 마지막 문제를 풀면 결과로. 전엔 첫 문제로 되감겨서 끝이 없었다
+  const [finished, setFinished] = useState(false);
+  const saved = useRef(false);
 
   const q = QUESTIONS[index];
   const target = q.options[q.answer];
@@ -145,7 +156,13 @@ export default function PronunciationQuiz() {
     if (correct) setTimeout(() => speakWord(target.word), 300);
   };
 
-  const next = () => setIndex((i) => (i + 1) % QUESTIONS.length);
+  const next = () => {
+    if (index >= QUESTIONS.length - 1) {
+      setFinished(true);
+      return;
+    }
+    setIndex((i) => i + 1);
+  };
 
   const replay = () => {
     ring.value = withSpring(1.15, { damping: 6 }, () => {
@@ -157,6 +174,91 @@ export default function PronunciationQuiz() {
   const ringStyle = useAnimatedStyle(() => ({
     transform: [{ scale: ring.value }],
   }));
+
+  const correctCount = results.filter((r) => r === true).length;
+  const score = QUESTIONS.length
+    ? Math.round((correctCount / QUESTIONS.length) * 100)
+    : 0;
+
+  // 결과가 뜨는 순간 한 번만 저장한다 (서버는 최고점만 남긴다)
+  useEffect(() => {
+    if (!finished || saved.current) return;
+    saved.current = true;
+    UserService.savePronunciation({
+      level,
+      step,
+      mode: isHard ? "hard" : "easy",
+      score,
+    }).catch(() => {
+      // 저장 실패해도 결과는 보여준다. 다음에 풀면 다시 올라간다
+    });
+  }, [finished]);
+
+  if (finished) {
+    const passed = score >= STAGE_PASS_SCORE;
+    const { need } = correctNeededFor(level, step, HARD_UNLOCK_SCORE);
+    const hardOpen = score >= HARD_UNLOCK_SCORE;
+    return (
+      <LinearGradient colors={[C.bgTop, C.bgBot]} style={st.resultWrap}>
+        <Animated.View entering={FadeIn.duration(220)} style={st.resultCard}>
+          <HaneulmonMascot
+            size={112}
+            mood={hardOpen ? "celebrating" : passed ? "great" : "confused"}
+          />
+          <Text style={st.resultScore}>{score}</Text>
+          <Text style={st.resultSub}>
+            {t("pronQuiz.resultCount", {
+              correct: correctCount,
+              total: QUESTIONS.length,
+            })}
+          </Text>
+
+          {/* 점수가 어떻게 나온 건지 숨기지 않는다 */}
+          <Text style={st.resultRule}>
+            {t("pronQuiz.perQuestion", {
+              pts: (100 / QUESTIONS.length).toFixed(1),
+            })}
+          </Text>
+
+          <View
+            style={[
+              st.resultBanner,
+              { backgroundColor: hardOpen ? "#e3f7d9" : "#eef2f6" },
+            ]}
+          >
+            <Ionicons
+              name={hardOpen ? "lock-open" : "lock-closed"}
+              size={16}
+              color={hardOpen ? C.greenBadge : "#7b8b99"}
+            />
+            <Text
+              style={[
+                st.resultBannerText,
+                { color: hardOpen ? C.greenBadge : "#5f7383" },
+              ]}
+            >
+              {isHard
+                ? t("pronQuiz.hardDone")
+                : hardOpen
+                  ? t("pronQuiz.hardUnlocked")
+                  : t("pronQuiz.hardNeed", { need })}
+            </Text>
+          </View>
+
+          <Pressable style={{ width: "100%" }} onPress={() => router.back()}>
+            {({ pressed }) => (
+              <LinearGradient
+                colors={[C.purple, C.purpleDk]}
+                style={[st.resultBtn, pressed && { opacity: 0.9 }]}
+              >
+                <Text style={st.resultBtnText}>{t("pronQuiz.done")}</Text>
+              </LinearGradient>
+            )}
+          </Pressable>
+        </Animated.View>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
@@ -511,6 +613,40 @@ const st = StyleSheet.create({
     textAlign: "center",
   },
   replayWrap: {},
+  resultWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 28,
+  },
+  resultCard: {
+    backgroundColor: "#fff",
+    borderRadius: 26,
+    padding: 26,
+    width: "100%",
+    alignItems: "center",
+  },
+  resultScore: { fontSize: 54, fontWeight: "900", color: C.ink, marginTop: 4 },
+  resultSub: { fontSize: 16, fontWeight: "700", color: C.gray, marginTop: 2 },
+  resultRule: { fontSize: 12, fontWeight: "600", color: C.gray, marginTop: 6 },
+  resultBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 18,
+    marginBottom: 20,
+  },
+  resultBannerText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+  resultBtn: { borderRadius: 16, paddingVertical: 16, alignItems: "center" },
+  resultBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   replayBtn: {
     width: 88,
     height: 88,

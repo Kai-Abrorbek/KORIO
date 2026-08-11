@@ -436,3 +436,21 @@ export const HARD_UNLOCK_SCORE = 80;
 
 /** 단계 완료 인정 기준 (진행률 분자에 들어가는 점수) */
 export const STAGE_PASS_SCORE = 60;
+
+/** 한 단계의 문제 수 (대립쌍 × 2 — 정답이 양쪽으로 한 번씩) */
+export const stageQuestionCount = (lv: PronLevel, step: number) =>
+  (findStage(lv, step)?.pairs.length ?? 0) * 2;
+
+/**
+ * 점수는 맞힌 비율 × 100.
+ * "80점 이상"이라고만 하면 몇 개를 맞혀야 하는지 감이 안 오므로,
+ * 화면에는 이 함수로 개수를 계산해 보여준다.
+ */
+export const correctNeededFor = (
+  lv: PronLevel,
+  step: number,
+  score: number,
+) => {
+  const total = stageQuestionCount(lv, step);
+  return { total, need: Math.ceil((score / 100) * total) };
+};

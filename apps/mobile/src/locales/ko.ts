@@ -1107,6 +1107,10 @@ export default {
     nextQuestion: "다음 문제",
   },
   pronQuiz: {
+    perQuestion: "문제당 {{pts}}점",
+    hardUnlocked: "HARD 모드가 열렸어요!",
+    hardNeed: "HARD 를 열려면 {{need}}개 이상 맞혀야 해요",
+    hardDone: "HARD 도 끝냈어요. 이 단계 완주!",
     practice: "발음 해보기",
     lecture: "강의 보기",
     question: "방금 들은 단어는 어느 쪽일까요?",
@@ -1151,7 +1155,8 @@ export default {
     front: "첫소리",
     back: "받침",
     start: "START",
-    hardLocked: "EASY에서 {{score}}점 이상 받으면 HARD가 열려요.",
+    hardLocked:
+      "EASY에서 {{total}}문제 중 {{need}}개 이상 맞히면 HARD가 열려요. ({{score}}점 이상)",
     confirm: "확인",
   },
   // ko.ts

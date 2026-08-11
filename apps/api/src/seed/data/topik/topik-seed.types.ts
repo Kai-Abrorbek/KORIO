@@ -4,9 +4,11 @@ import {
   TopikI18nText,
   TopikPresentation,
   TopikQuestionType,
+  TopikResponseType,
   TopikSolution,
   TopikStimulus,
   TopikTextBlock,
+  TopikWritingConfig,
 } from '../../../topik/schemas/topik-content.schema';
 
 export interface TopikSeedExam {
@@ -53,10 +55,12 @@ export interface TopikSeedQuestion {
   number: number;
   order: number;
   type: TopikQuestionType;
+  responseType?: TopikResponseType;
   points: number;
   prompt: TopikTextBlock[];
   stimulus?: TopikStimulus;
   audio?: TopikAudio;
+  writingConfig?: TopikWritingConfig;
   choices: TopikChoice[];
   correctChoiceKey: string;
   solution: TopikSolution;

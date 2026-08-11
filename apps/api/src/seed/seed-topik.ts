@@ -6,15 +6,18 @@ import { Model } from 'mongoose';
 import { TopikExam } from '../topik/schemas/topik-exam.schema';
 import { TopikQuestionGroup } from '../topik/schemas/topik-question-group.schema';
 import { TopikQuestion } from '../topik/schemas/topik-question.schema';
+import { TopikResponseType } from '../topik/schemas/topik-content.schema';
 import { TopikModule } from '../topik/topik.module';
 import {
   TOPIK_LISTENING_MOCK_1_SEED,
   TOPIK_READING_MOCK_1_SEED,
+  TOPIK_WRITING_MOCK_1_SEED,
   TopikExamSeed,
 } from './data/topik';
 import {
   validateTopikListeningSeed,
   validateTopikReadingSeed,
+  validateTopikWritingSeed,
 } from './validate-topik-seed';
 
 @Module({
@@ -55,6 +58,10 @@ async function seedTopik() {
         data: TOPIK_LISTENING_MOCK_1_SEED,
         validation: validateTopikListeningSeed(TOPIK_LISTENING_MOCK_1_SEED),
       },
+      {
+        data: TOPIK_WRITING_MOCK_1_SEED,
+        validation: validateTopikWritingSeed(TOPIK_WRITING_MOCK_1_SEED),
+      },
     ];
 
     for (const { data, validation } of seeds) {
@@ -88,6 +95,8 @@ async function seedTopik() {
           {
             $set: {
               ...content,
+              responseType:
+                questionData.responseType ?? TopikResponseType.MULTIPLE_CHOICE,
               examId: exam._id,
               groupId,
             },

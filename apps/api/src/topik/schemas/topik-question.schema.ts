@@ -8,6 +8,7 @@ import {
   TopikPresentation,
   TopikPresentationSchema,
   TopikQuestionType,
+  TopikResponseType,
   TopikSolution,
   TopikSolutionSchema,
   TopikSourceReference,
@@ -16,6 +17,8 @@ import {
   TopikStimulusSchema,
   TopikTextBlock,
   TopikTextBlockSchema,
+  TopikWritingConfig,
+  TopikWritingConfigSchema,
 } from './topik-content.schema';
 
 export type TopikQuestionDocument = HydratedDocument<TopikQuestion>;
@@ -31,7 +34,7 @@ export class TopikQuestion {
   @Prop({ type: Types.ObjectId, ref: 'TopikQuestionGroup', required: true })
   groupId: Types.ObjectId;
 
-  @Prop({ required: true, min: 1, max: 50 })
+  @Prop({ required: true, min: 1, max: 54 })
   number: number;
 
   @Prop({ required: true, min: 1 })
@@ -39,6 +42,14 @@ export class TopikQuestion {
 
   @Prop({ type: String, required: true, enum: TopikQuestionType })
   type: TopikQuestionType;
+
+  @Prop({
+    type: String,
+    required: true,
+    enum: TopikResponseType,
+    default: TopikResponseType.MULTIPLE_CHOICE,
+  })
+  responseType: TopikResponseType;
 
   @Prop({ required: true, min: 0, default: 2 })
   points: number;
@@ -52,17 +63,16 @@ export class TopikQuestion {
   @Prop({ type: TopikAudioSchema })
   audio?: TopikAudio;
 
+  @Prop({ type: TopikWritingConfigSchema })
+  writingConfig?: TopikWritingConfig;
+
   @Prop({
     type: [TopikChoiceSchema],
-    required: true,
-    validate: {
-      validator: (choices?: TopikChoice[]) => choices?.length === 4,
-      message: 'TOPIK multiple-choice questions must have exactly 4 choices',
-    },
+    default: [],
   })
   choices: TopikChoice[];
 
-  @Prop({ required: true, select: false })
+  @Prop({ default: '', select: false })
   correctChoiceKey: string;
 
   @Prop({ type: TopikSolutionSchema, default: {}, select: false })
@@ -101,11 +111,34 @@ TopikQuestionSchema.index({ tags: 1, isActive: 1 });
 TopikQuestionSchema.pre('validate', function () {
   const choiceKeys = this.choices.map((choice) => choice.key);
 
+  if (
+    this.responseType === TopikResponseType.MULTIPLE_CHOICE &&
+    this.choices.length !== 4
+  ) {
+    this.invalidate(
+      'choices',
+      'TOPIK multiple-choice questions must have exactly 4 choices',
+    );
+  }
+
+  if (
+    this.responseType === TopikResponseType.WRITTEN &&
+    (!this.writingConfig?.fields?.length || this.choices.length > 0)
+  ) {
+    this.invalidate(
+      'writingConfig',
+      'TOPIK written questions require writing fields and no choices',
+    );
+  }
+
   if (new Set(choiceKeys).size !== choiceKeys.length) {
     this.invalidate('choices', 'Choice keys must be unique within a question');
   }
 
-  if (!choiceKeys.includes(this.correctChoiceKey)) {
+  if (
+    this.responseType === TopikResponseType.MULTIPLE_CHOICE &&
+    !choiceKeys.includes(this.correctChoiceKey)
+  ) {
     this.invalidate(
       'correctChoiceKey',
       'correctChoiceKey must match one of the question choices',

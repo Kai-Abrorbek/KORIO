@@ -1112,6 +1112,10 @@ export default {
     nextQuestion: "Keyingi",
   },
   pronQuiz: {
+    perQuestion: "Har savol {{pts}} ball",
+    hardUnlocked: "HARD rejim ochildi!",
+    hardNeed: "HARD uchun kamida {{need}} ta to'g'ri kerak",
+    hardDone: "HARD ham tugadi. Bosqich yakunlandi!",
     practice: "Talaffuz qilish",
     lecture: "Dars",
     question: "Qaysi so'zni eshitdingiz?",
@@ -1156,7 +1160,7 @@ export default {
     front: "So'z boshida",
     back: "So'z oxirida",
     start: "START",
-    hardLocked: "EASY'da {{score}} ball to'plasangiz, HARD ochiladi.",
+    hardLocked: "EASY'da {{total}} tadan {{need}} tasini to'g'ri qilsangiz HARD ochiladi. ({{score}} ball)",
     confirm: "OK",
   },
   // uz.ts

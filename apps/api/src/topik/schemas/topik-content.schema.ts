@@ -41,6 +41,14 @@ export enum TopikQuestionType {
   LISTENING_ATTITUDE = 'listening_attitude',
   LISTENING_TOPIC = 'listening_topic',
   LISTENING_PRECEDING_CONTEXT = 'listening_preceding_context',
+  WRITING_SENTENCE_COMPLETION = 'writing_sentence_completion',
+  WRITING_DATA_DESCRIPTION = 'writing_data_description',
+  WRITING_ARGUMENTATIVE_ESSAY = 'writing_argumentative_essay',
+}
+
+export enum TopikResponseType {
+  MULTIPLE_CHOICE = 'multiple_choice',
+  WRITTEN = 'written',
 }
 
 export enum TopikStimulusKind {
@@ -87,6 +95,7 @@ export enum TopikVisualTemplate {
   EXAM_INSERTION = 'exam_insertion',
   EXAM_LISTENING = 'exam_listening',
   EXAM_VISUAL_CHOICES = 'exam_visual_choices',
+  EXAM_WRITING = 'exam_writing',
 }
 
 @Schema({ _id: false })
@@ -300,6 +309,42 @@ export class TopikChoice {
 export const TopikChoiceSchema = SchemaFactory.createForClass(TopikChoice);
 
 @Schema({ _id: false })
+export class TopikWritingField {
+  @Prop({ required: true })
+  key: string;
+
+  @Prop({ default: '' })
+  label: string;
+
+  @Prop({ min: 0, default: 0 })
+  minCharacters: number;
+
+  @Prop({ min: 1, default: 1000 })
+  maxCharacters: number;
+
+  @Prop({ default: true })
+  multiline: boolean;
+}
+
+export const TopikWritingFieldSchema =
+  SchemaFactory.createForClass(TopikWritingField);
+
+@Schema({ _id: false })
+export class TopikWritingConfig {
+  @Prop({ type: [TopikWritingFieldSchema], default: [] })
+  fields: TopikWritingField[];
+
+  @Prop({ min: 1, default: 10 })
+  recommendedMinutes: number;
+
+  @Prop({ type: TopikI18nTextSchema, default: {} })
+  guide: TopikI18nText;
+}
+
+export const TopikWritingConfigSchema =
+  SchemaFactory.createForClass(TopikWritingConfig);
+
+@Schema({ _id: false })
 export class TopikPresentation {
   @Prop({ type: String, required: true, enum: TopikVisualTemplate })
   template: TopikVisualTemplate;
@@ -415,6 +460,12 @@ export class TopikSolution {
 
   @Prop({ type: [TopikChoiceNoteSchema], default: [] })
   choiceNotes: TopikChoiceNote[];
+
+  @Prop({ default: '' })
+  sampleAnswer?: string;
+
+  @Prop({ type: [TopikI18nTextSchema], default: [] })
+  rubric?: TopikI18nText[];
 }
 
 export const TopikSolutionSchema = SchemaFactory.createForClass(TopikSolution);

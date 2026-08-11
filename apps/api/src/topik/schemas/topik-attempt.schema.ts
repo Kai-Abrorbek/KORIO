@@ -16,6 +16,18 @@ export enum TopikAttemptStatus {
 }
 
 @Schema({ _id: false })
+export class TopikWrittenResponse {
+  @Prop({ required: true })
+  fieldKey: string;
+
+  @Prop({ default: '' })
+  text: string;
+}
+
+export const TopikWrittenResponseSchema =
+  SchemaFactory.createForClass(TopikWrittenResponse);
+
+@Schema({ _id: false })
 export class TopikAttemptAnswer {
   @Prop({ type: Types.ObjectId, ref: 'TopikQuestion', required: true })
   questionId: Types.ObjectId;
@@ -23,8 +35,11 @@ export class TopikAttemptAnswer {
   @Prop({ required: true, min: 1 })
   questionVersion: number;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   selectedChoiceKey: string;
+
+  @Prop({ type: [TopikWrittenResponseSchema], default: [] })
+  writtenResponses?: TopikWrittenResponse[];
 
   @Prop({ min: 0, default: 0 })
   durationMs: number;
@@ -69,8 +84,9 @@ export class TopikAttemptLearningState {
   solutionViewedAt?: Date | null;
 }
 
-export const TopikAttemptLearningStateSchema =
-  SchemaFactory.createForClass(TopikAttemptLearningState);
+export const TopikAttemptLearningStateSchema = SchemaFactory.createForClass(
+  TopikAttemptLearningState,
+);
 
 @Schema({ timestamps: true })
 export class TopikAttempt {
@@ -103,7 +119,7 @@ export class TopikAttempt {
   @Prop({ type: [TopikAttemptLearningStateSchema], default: [] })
   learningStates: TopikAttemptLearningState[];
 
-  @Prop({ min: 1, max: 50, default: 1 })
+  @Prop({ min: 1, max: 54, default: 1 })
   currentQuestionNumber: number;
 
   @Prop({ min: 0, default: 0 })
@@ -147,17 +163,32 @@ TopikAttemptSchema.index({ examId: 1, submittedAt: -1 });
 TopikAttemptSchema.index({ status: 1, statsAppliedAt: 1, submittedAt: 1 });
 
 TopikAttemptSchema.pre('validate', function () {
-  const questionIds = this.answers.map((answer) => answer.questionId.toString());
+  const questionIds = this.answers.map((answer) =>
+    answer.questionId.toString(),
+  );
 
   if (new Set(questionIds).size !== questionIds.length) {
     this.invalidate('answers', 'Only one answer per question can be stored');
   }
 
   if (this.answers.length > 50) {
-    this.invalidate('answers', 'A TOPIK reading attempt cannot exceed 50 answers');
+    this.invalidate(
+      'answers',
+      'A TOPIK reading attempt cannot exceed 50 answers',
+    );
   }
 
   for (const answer of this.answers) {
+    const writtenFieldKeys = (answer.writtenResponses ?? []).map(
+      (response) => response.fieldKey,
+    );
+    if (new Set(writtenFieldKeys).size !== writtenFieldKeys.length) {
+      this.invalidate(
+        'answers',
+        'Written response field keys must be unique within an answer',
+      );
+    }
+
     const usedHintKeys = answer.usedHintKeys ?? [];
 
     if (new Set(usedHintKeys).size !== usedHintKeys.length) {

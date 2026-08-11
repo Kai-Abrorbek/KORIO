@@ -24,10 +24,10 @@ export class TopikQuestionGroup {
   @Prop({ required: true, min: 1 })
   order: number;
 
-  @Prop({ required: true, min: 1, max: 50 })
+  @Prop({ required: true, min: 1, max: 54 })
   startNumber: number;
 
-  @Prop({ required: true, min: 1, max: 50 })
+  @Prop({ required: true, min: 1, max: 54 })
   endNumber: number;
 
   @Prop({ type: [TopikTextBlockSchema], default: [] })

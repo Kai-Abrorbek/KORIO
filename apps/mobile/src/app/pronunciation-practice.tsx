@@ -21,6 +21,7 @@ import {
   HARD_UNLOCK_SCORE,
   STAGE_PASS_SCORE,
   levelTotal,
+  correctNeededFor,
   type PronLevel,
   type PronStage,
 } from "@/constants/pronunciation";
@@ -53,7 +54,8 @@ export default function PronunciationPractice() {
 
   const [tab, setTab] = useState<PronLevel>("lv1");
   const [expanded, setExpanded] = useState<number | null>(1);
-  const [lockAlert, setLockAlert] = useState(false);
+  // 어느 단계에서 잠금을 눌렀는지 알아야 "몇 개 맞혀야 하는지"를 말해줄 수 있다
+  const [lockAlert, setLockAlert] = useState<PronStage | null>(null);
   const [scores, setScores] = useState<Record<string, number>>({});
 
   // 퀴즈를 풀고 돌아올 때마다 새로 받아야 점수가 바로 반영된다
@@ -88,7 +90,7 @@ export default function PronunciationPractice() {
     const easy = scores[key(tab, stage.step, "easy")] ?? 0;
     if (easy < HARD_UNLOCK_SCORE) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      setLockAlert(true);
+      setLockAlert(stage);
       return;
     }
     open(stage, "hard");
@@ -268,9 +270,9 @@ export default function PronunciationPractice() {
       {/* HARD 잠김 안내 */}
       <Modal
         transparent
-        visible={lockAlert}
+        visible={!!lockAlert}
         animationType="fade"
-        onRequestClose={() => setLockAlert(false)}
+        onRequestClose={() => setLockAlert(null)}
       >
         <View style={st.modalBg}>
           <Animated.View entering={FadeIn.duration(150)} style={st.modalCard}>
@@ -278,10 +280,15 @@ export default function PronunciationPractice() {
               <Ionicons name="lock-closed" size={26} color={C.purpleDk} />
             </View>
             <Text style={st.modalText}>
-              {t("pronPractice.hardLocked", { score: HARD_UNLOCK_SCORE })}
+              {t("pronPractice.hardLocked", {
+                score: HARD_UNLOCK_SCORE,
+                ...(lockAlert
+                  ? correctNeededFor(tab, lockAlert.step, HARD_UNLOCK_SCORE)
+                  : { need: 0, total: 0 }),
+              })}
             </Text>
             <Pressable
-              onPress={() => setLockAlert(false)}
+              onPress={() => setLockAlert(null)}
               style={{ width: "100%" }}
             >
               {({ pressed }) => (

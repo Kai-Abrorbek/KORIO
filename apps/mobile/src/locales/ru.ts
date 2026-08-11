@@ -1113,6 +1113,10 @@ export default {
     nextQuestion: "Далее",
   },
   pronQuiz: {
+    perQuestion: "{{pts}} балла за вопрос",
+    hardUnlocked: "Режим HARD открыт!",
+    hardNeed: "Наберите {{need}} верных, чтобы открыть HARD",
+    hardDone: "HARD тоже пройден. Этап завершён!",
     practice: "Произнести",
     lecture: "Урок",
     question: "Какое слово вы услышали?",
@@ -1157,7 +1161,8 @@ export default {
     front: "В начале слова",
     back: "В конце слова",
     start: "START",
-    hardLocked: "Наберите {{score}} баллов в EASY, чтобы открыть HARD.",
+    hardLocked:
+      "Ответьте верно на {{need}} из {{total}} в EASY, чтобы открыть HARD. ({{score}}+ баллов)",
     confirm: "OK",
   },
   // ru.ts

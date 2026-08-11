@@ -21,8 +21,17 @@ export class SaveTopikAnswerItemDto {
   questionId: string;
 
   @IsString()
+  @IsOptional()
   @Matches(/^[1-4]$/)
-  selectedChoiceKey: string;
+  selectedChoiceKey?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SaveTopikWrittenResponseDto)
+  writtenResponses?: SaveTopikWrittenResponseDto[];
 
   @IsOptional()
   @IsInt()
@@ -52,6 +61,16 @@ export class SaveTopikAnswerItemDto {
   solutionViewedAt?: string;
 }
 
+export class SaveTopikWrittenResponseDto {
+  @IsString()
+  @MaxLength(64)
+  fieldKey: string;
+
+  @IsString()
+  @MaxLength(5000)
+  text: string;
+}
+
 export class SaveTopikAnswersDto {
   @IsArray()
   @ArrayMinSize(1)
@@ -63,7 +82,7 @@ export class SaveTopikAnswersDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(50)
+  @Max(54)
   currentQuestionNumber?: number;
 
   @IsOptional()

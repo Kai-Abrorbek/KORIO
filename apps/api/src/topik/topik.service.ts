@@ -13,7 +13,11 @@ import {
   TopikAttemptMode,
   TopikAttemptStatus,
 } from './schemas/topik-attempt.schema';
-import { TopikPublishStatus } from './schemas/topik-content.schema';
+import {
+  TopikPublishStatus,
+  TopikResponseType,
+  TopikSection,
+} from './schemas/topik-content.schema';
 import { TopikExam, TopikExamDocument } from './schemas/topik-exam.schema';
 import {
   TopikQuestionGroup,
@@ -204,8 +208,9 @@ export class TopikService {
       .sort({ number: 1 })
       .lean();
 
+    const firstQuestionNumber = exam.section === TopikSection.WRITING ? 51 : 1;
     const hasCompleteNumberSequence = questions.every(
-      (question, index) => question.number === index + 1,
+      (question, index) => question.number === firstQuestionNumber + index,
     );
 
     if (
@@ -224,7 +229,7 @@ export class TopikService {
       questionIds: questions.map((question) => question._id),
       answers: [],
       learningStates: [],
-      currentQuestionNumber: 1,
+      currentQuestionNumber: firstQuestionNumber,
       elapsedSeconds: 0,
     });
 
@@ -370,8 +375,12 @@ export class TopikService {
     return {
       questionId,
       selectedChoiceKey: answer.selectedChoiceKey,
+      writtenResponses: answer.writtenResponses ?? [],
       correctChoiceKey: question.correctChoiceKey,
-      isCorrect: answer.selectedChoiceKey === question.correctChoiceKey,
+      isCorrect:
+        question.responseType === TopikResponseType.WRITTEN
+          ? null
+          : answer.selectedChoiceKey === question.correctChoiceKey,
       solution: question.solution,
       viewedAt: state.solutionViewedAt,
     };
@@ -396,7 +405,7 @@ export class TopikService {
     );
     const answerQuestions = await this.questionModel
       .find({ _id: { $in: answerQuestionIds } })
-      .select('_id version +solution')
+      .select('_id version responseType writingConfig +solution')
       .lean();
     const answerQuestionById = new Map(
       answerQuestions.map((question) => [question._id.toString(), question]),
@@ -412,6 +421,31 @@ export class TopikService {
         throw new BadRequestException('TOPIK_QUESTION_NOT_FOUND');
       }
       const questionVersion = question.version;
+      const writtenResponses = answer.writtenResponses ?? [];
+
+      if (question.responseType === TopikResponseType.WRITTEN) {
+        const writingFields = question.writingConfig?.fields ?? [];
+        const fieldByKey = new Map(
+          writingFields.map((field) => [field.key, field]),
+        );
+        const responseFieldKeys = writtenResponses.map(
+          (response) => response.fieldKey,
+        );
+
+        if (
+          writtenResponses.length === 0 ||
+          new Set(responseFieldKeys).size !== responseFieldKeys.length ||
+          writtenResponses.some((response) => {
+            const field = fieldByKey.get(response.fieldKey);
+            return !field || response.text.length > field.maxCharacters;
+          })
+        ) {
+          throw new BadRequestException('TOPIK_WRITING_RESPONSE_INVALID');
+        }
+      } else if (!answer.selectedChoiceKey) {
+        throw new BadRequestException('TOPIK_CHOICE_REQUIRED');
+      }
+
       const availableHintKeys = new Set(
         question.solution?.hints.map((hint) => hint.key) ?? [],
       );
@@ -457,7 +491,8 @@ export class TopikService {
       }
 
       if (existingAnswer) {
-        existingAnswer.selectedChoiceKey = answer.selectedChoiceKey;
+        existingAnswer.selectedChoiceKey = answer.selectedChoiceKey ?? '';
+        existingAnswer.writtenResponses = writtenResponses;
         existingAnswer.durationMs = answer.durationMs;
         existingAnswer.answeredAt = answeredAt;
         existingAnswer.usedHintKeys = usedHintKeys;
@@ -468,7 +503,8 @@ export class TopikService {
         attempt.answers.push({
           questionId: new Types.ObjectId(answer.questionId),
           questionVersion,
-          selectedChoiceKey: answer.selectedChoiceKey,
+          selectedChoiceKey: answer.selectedChoiceKey ?? '',
+          writtenResponses,
           durationMs: answer.durationMs,
           answeredAt,
           usedHintKeys,
@@ -502,15 +538,40 @@ export class TopikService {
 
   public async submitAttempt(userId: string, attemptId: string) {
     const attempt = await this.findOwnedAttempt(userId, attemptId);
+    const exam = await this.examModel
+      .findById(attempt.examId)
+      .select('section')
+      .lean();
+
+    if (!exam) {
+      throw new NotFoundException('TOPIK_EXAM_NOT_FOUND');
+    }
 
     if (attempt.status === TopikAttemptStatus.SUBMITTED) {
-      await this.topikStatsService.applySubmittedAttempt(
-        attempt._id.toString(),
-      );
+      if (exam.section !== TopikSection.WRITING) {
+        await this.topikStatsService.applySubmittedAttempt(
+          attempt._id.toString(),
+        );
+      }
       return this.formatSubmission(attempt);
     }
     if (attempt.status !== TopikAttemptStatus.IN_PROGRESS) {
       throw new BadRequestException('TOPIK_ATTEMPT_NOT_IN_PROGRESS');
+    }
+
+    if (exam.section === TopikSection.WRITING) {
+      for (const answer of attempt.answers) {
+        answer.isCorrect = null;
+      }
+      attempt.correctCount = 0;
+      attempt.score = 0;
+      attempt.status = TopikAttemptStatus.SUBMITTED;
+      attempt.submittedAt = new Date();
+      attempt.lastSavedAt = new Date();
+      attempt.markModified('answers');
+      await attempt.save();
+
+      return { ...this.formatSubmission(attempt), requiresReview: true };
     }
 
     const questions = await this.questionModel
@@ -583,8 +644,12 @@ export class TopikService {
           questionId: question._id.toString(),
           number: question.number,
           selectedChoiceKey: answer?.selectedChoiceKey ?? null,
+          writtenResponses: answer?.writtenResponses ?? [],
           correctChoiceKey: question.correctChoiceKey,
-          isCorrect: answer?.isCorrect ?? false,
+          isCorrect:
+            exam.section === TopikSection.WRITING
+              ? null
+              : (answer?.isCorrect ?? false),
           points: question.points,
           solution: question.solution,
         };
@@ -646,10 +711,12 @@ export class TopikService {
       number: question.number,
       order: question.order,
       type: question.type,
+      responseType: question.responseType,
       points: question.points,
       prompt: question.prompt,
       stimulus: question.stimulus ?? null,
       audio: question.audio ?? null,
+      writingConfig: question.writingConfig ?? null,
       choices: question.choices,
       presentation: question.presentation,
       tags: question.tags,
@@ -671,6 +738,7 @@ export class TopikService {
       answers: attempt.answers.map((answer) => ({
         questionId: answer.questionId.toString(),
         selectedChoiceKey: answer.selectedChoiceKey,
+        writtenResponses: answer.writtenResponses ?? [],
         durationMs: answer.durationMs,
         answeredAt: answer.answeredAt,
         usedHintKeys: answer.usedHintKeys ?? [],

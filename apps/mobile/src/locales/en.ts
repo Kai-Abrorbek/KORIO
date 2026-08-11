@@ -1109,6 +1109,10 @@ export default {
     nextQuestion: "Next",
   },
   pronQuiz: {
+    perQuestion: "{{pts}} points per question",
+    hardUnlocked: "HARD mode unlocked!",
+    hardNeed: "Get {{need}} right to unlock HARD",
+    hardDone: "HARD finished too. Stage complete!",
     practice: "Try saying it",
     lecture: "Lesson",
     question: "Which word did you just hear?",
@@ -1153,7 +1157,8 @@ export default {
     front: "Word-initial",
     back: "Word-final",
     start: "START",
-    hardLocked: "Score {{score}} or higher on EASY to unlock HARD.",
+    hardLocked:
+      "Get {{need}} of {{total}} right on EASY to unlock HARD. ({{score}}+ points)",
     confirm: "OK",
   },
   // en.ts
@@ -1163,8 +1168,7 @@ export default {
     online: "Online · AI conversation tutor",
     inputPlaceholder: "Type in Korean...",
     today: "Today",
-    emptyHint:
-      "Practise Korean with Haneulmon.\nStart with anything you like!",
+    emptyHint: "Practise Korean with Haneulmon.\nStart with anything you like!",
     errorReply: "Couldn't send your message. Please try again in a moment.",
   },
   grammarPractice: {

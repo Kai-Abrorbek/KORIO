@@ -1,4 +1,7 @@
-import { TopikStimulusKind } from '../topik/schemas/topik-content.schema';
+import {
+  TopikResponseType,
+  TopikStimulusKind,
+} from '../topik/schemas/topik-content.schema';
 import {
   TOPIK_READING_BLUEPRINT,
   TopikStimulusScope,
@@ -272,6 +275,82 @@ export function validateTopikListeningSeed(seed: TopikExamSeed) {
   if (errors.length > 0) {
     throw new Error(
       `TOPIK listening seed validation failed:\n- ${errors.join('\n- ')}`,
+    );
+  }
+
+  return {
+    groupCount: seed.groups.length,
+    questionCount: sortedQuestions.length,
+    totalPoints,
+  };
+}
+
+export function validateTopikWritingSeed(seed: TopikExamSeed) {
+  const errors: string[] = [];
+  const sortedQuestions = [...seed.questions].sort(
+    (left, right) => left.number - right.number,
+  );
+  const expectedNumbers = [51, 52, 53, 54];
+
+  if (seed.exam.section !== 'writing') {
+    errors.push('Writing seed must use the writing section');
+  }
+  if (sortedQuestions.length !== 4 || seed.exam.totalQuestions !== 4) {
+    errors.push('Writing seed must contain four questions');
+  }
+
+  sortedQuestions.forEach((question, index) => {
+    if (question.number !== expectedNumbers[index]) {
+      errors.push(`Writing question sequence mismatch: ${question.number}`);
+    }
+    if (question.responseType !== TopikResponseType.WRITTEN) {
+      errors.push(`Writing question ${question.number} must be written`);
+    }
+    if (question.choices.length > 0 || question.correctChoiceKey) {
+      errors.push(`Writing question ${question.number} must not have choices`);
+    }
+    if (!question.writingConfig?.fields.length) {
+      errors.push(`Writing question ${question.number} has no response fields`);
+    }
+    const fieldKeys =
+      question.writingConfig?.fields.map((field) => field.key) ?? [];
+    if (new Set(fieldKeys).size !== fieldKeys.length) {
+      errors.push(`Writing question ${question.number} has duplicate fields`);
+    }
+    validateLocalizedText(
+      question.writingConfig?.guide ?? { ko: '', uz: '', en: '', ru: '' },
+      `Writing question ${question.number} guide`,
+      errors,
+    );
+    validateLocalizedText(
+      question.solution.explanation,
+      `Writing question ${question.number} explanation`,
+      errors,
+    );
+    validateLocalizedText(
+      question.solution.strategy,
+      `Writing question ${question.number} strategy`,
+      errors,
+    );
+    if (!question.solution.sampleAnswer?.trim()) {
+      errors.push(`Writing question ${question.number} has no sample answer`);
+    }
+    if (!question.solution.rubric?.length) {
+      errors.push(`Writing question ${question.number} has no rubric`);
+    }
+  });
+
+  const totalPoints = sortedQuestions.reduce(
+    (sum, question) => sum + question.points,
+    0,
+  );
+  if (totalPoints !== 100 || seed.exam.totalPoints !== 100) {
+    errors.push('Writing seed must total 100 points');
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `TOPIK writing seed validation failed:\n- ${errors.join('\n- ')}`,
     );
   }
 
