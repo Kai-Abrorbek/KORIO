@@ -284,6 +284,62 @@ export default {
     historyEmpty: "Hali hech bir imtihon yuborilmagan.",
     historyScore: "{{score}} ball",
     historyAccuracy: "{{accuracy}}% to‘g‘ri",
+    allSections: "Barchasi",
+    latestScore: "So‘nggi ball",
+    best: "Eng yuqori",
+    average: "O‘rtacha",
+    statusReady: "Tahlilga tayyor",
+    statusWriting: "Yozuv qaydi",
+    statusStrong: "Barqaror",
+    statusGrowing: "O‘smoqda",
+    statusNeedsReview: "Takrorlash kerak",
+    insightTitle: "Bugungi o‘quv tavsiyasi",
+    insightEmpty:
+      "Bitta testni yakunlang — kuchli va ustuvor yo‘nalishlaringizni tahlil qilamiz.",
+    insightNoScored:
+      "Tinglash yoki o‘qish testini yakunlang — aniqlik va zaif tomonlar tahlili boshlanadi.",
+    insightWriting:
+      "Yozish yakunlari va o‘qish vaqti saqlanmoqda. Tekshirilmagan javoblar ball va aniqlikka qo‘shilmaydi.",
+    insightWritingEmpty:
+      "Yozish testini yakunlang — bajarilgan ish va o‘qish vaqtini shu yerda ko‘rasiz.",
+    insightStrong:
+      "Natija barqaror. {{type}} turini mustahkamlash ballingizni yanada oshiradi.",
+    insightStrongNoType:
+      "Yuqori aniqlikni barqaror saqlayapsiz. Imtihon sur’atini davom ettiring.",
+    insightGrowing:
+      "Natijangiz o‘smoqda. Avval {{type}} turini ({{accuracy}}%) takrorlang.",
+    insightGrowingNoType:
+      "Asosiy ko‘nikmalar rivojlanmoqda. So‘nggi xatolarni yana ko‘rib chiqing.",
+    insightNeedsReview:
+      "Eng tez o‘sish uchun {{type}} turidan ({{accuracy}}%) boshlang.",
+    insightReviewNoType:
+      "Savol turlarini bosqichma-bosqich takrorlash aniqlikni tez oshiradi.",
+    completedTests: "Yakunlanganlar",
+    studyTime: "O‘qish vaqti",
+    independentRate: "Yordamsiz to‘g‘ri",
+    minutesShort: "{{count}} daq",
+    hoursShort: "{{count}} soat",
+    hoursMinutesShort: "{{hours}} soat {{minutes}} daq",
+    scoreTrend: "Ball dinamikasi",
+    latestSix: "So‘nggi 6 ta",
+    latestResult: "So‘nggi natija",
+    scoreOutOf: "100 ballik tizim",
+    trendEmpty:
+      "Testni yakunlaganingizdan so‘ng ballar dinamikasi shu yerda ko‘rinadi.",
+    writingTrendUnavailable:
+      "Yozishda avtomatik ball o‘rniga yakunlangan ishlar va o‘qish vaqti ko‘rsatiladi.",
+    writingTypeUnavailable:
+      "Tekshirilmagan yozma javoblar aniqlik yoki zaif savol turiga kiritilmaydi.",
+    weakFirst: "Past aniqlikdan boshlab",
+    skillStrong: "Kuchli",
+    skillGrowing: "O‘smoqda",
+    skillNeedsReview: "E’tibor kerak",
+    reviewPriority: "Ustuvor takrorlash",
+    wrongStreak: "Ketma-ket {{count}} xato",
+    recentAttempts: "So‘nggi yakunlanganlar",
+    tapForResult: "Natijani ko‘rish uchun bosing",
+    completedStatus: "Yakunlandi",
+    examRound: "{{round}}-TOPIK",
   },
   questionTypes: {
     grammar_fill_blank: "Grammatika bo‘shlig‘i",

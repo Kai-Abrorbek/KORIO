@@ -279,6 +279,61 @@ export default {
     historyEmpty: "Вы ещё не завершили ни одного экзамена.",
     historyScore: "{{score}} баллов",
     historyAccuracy: "{{accuracy}}% верно",
+    allSections: "Все",
+    latestScore: "Последний балл",
+    best: "Лучший",
+    average: "Средний",
+    statusReady: "Готово к анализу",
+    statusWriting: "Записи письма",
+    statusStrong: "Стабильно",
+    statusGrowing: "Есть рост",
+    statusNeedsReview: "Нужно повторить",
+    insightTitle: "Рекомендация на сегодня",
+    insightEmpty:
+      "Завершите один тест, чтобы увидеть свой уровень и главный приоритет.",
+    insightNoScored:
+      "Завершите тест по аудированию или чтению, чтобы начать анализ точности и слабых мест.",
+    insightWriting:
+      "Завершённые письменные работы и время сохраняются. Непроверенные ответы не влияют на баллы и точность.",
+    insightWritingEmpty:
+      "Завершите письменный тест, чтобы увидеть здесь запись и время занятий.",
+    insightStrong:
+      "Результат стабилен. Работа над типом «{{type}}» сделает балл ещё выше.",
+    insightStrongNoType:
+      "Вы сохраняете высокую точность. Продолжайте развивать экзаменационный темп.",
+    insightGrowing:
+      "База укрепляется. Сначала повторите «{{type}}» ({{accuracy}}%).",
+    insightGrowingNoType:
+      "Основные навыки растут. Ещё раз разберите последние ошибки.",
+    insightNeedsReview:
+      "Начните с типа «{{type}}» ({{accuracy}}%) — так балл вырастет быстрее.",
+    insightReviewNoType:
+      "Повторяйте по одному типу заданий, чтобы быстрее повысить точность.",
+    completedTests: "Завершено",
+    studyTime: "Время занятий",
+    independentRate: "Верно без помощи",
+    minutesShort: "{{count}} мин",
+    hoursShort: "{{count}} ч",
+    hoursMinutesShort: "{{hours}} ч {{minutes}} мин",
+    scoreTrend: "Динамика баллов",
+    latestSix: "Последние 6",
+    latestResult: "Последний результат",
+    scoreOutOf: "Из 100 баллов",
+    trendEmpty: "Завершите тест, чтобы увидеть динамику результатов.",
+    writingTrendUnavailable:
+      "Для письма показываются завершённые работы и время, а не автоматическая динамика баллов.",
+    writingTypeUnavailable:
+      "Непроверенные письменные ответы не считаются верными, неверными или слабыми.",
+    weakFirst: "Сначала низкая точность",
+    skillStrong: "Сильная сторона",
+    skillGrowing: "Есть рост",
+    skillNeedsReview: "Нужен фокус",
+    reviewPriority: "Приоритет повторения",
+    wrongStreak: "Ошибок подряд: {{count}}",
+    recentAttempts: "Недавние результаты",
+    tapForResult: "Нажмите, чтобы открыть результат",
+    completedStatus: "Завершено",
+    examRound: "TOPIK {{round}}",
   },
   questionTypes: {
     grammar_fill_blank: "Грамматический пропуск",

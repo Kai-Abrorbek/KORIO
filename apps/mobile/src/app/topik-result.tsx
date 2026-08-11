@@ -355,7 +355,15 @@ export default function TopikResultScreen() {
 
         <View style={styles.actions}>
           <Pressable
-            onPress={() => router.push("/topik-stats")}
+            onPress={() =>
+              router.push({
+                pathname: "/topik-stats",
+                params: {
+                  level: result.examType === "topik_i" ? "1" : "2",
+                  section: result.section,
+                },
+              })
+            }
             style={styles.statsButton}
           >
             <Ionicons name="stats-chart" size={19} color={palette.primary} />

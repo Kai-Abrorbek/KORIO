@@ -428,6 +428,10 @@ export interface TopikQuestionPerformance {
   questionId: string;
   questionVersion: number;
   examId: string;
+  examCode: string;
+  examType: "topik_i" | "topik_ii";
+  section: "reading" | "listening" | "writing";
+  examRound: number | null;
   questionCode: string;
   questionNumber: number;
   questionType: TopikQuestionType;
@@ -458,6 +462,10 @@ export interface TopikQuestionPerformance {
 export interface TopikHistoryItem {
   attemptId: string;
   examId: string;
+  examCode: string;
+  examType: "topik_i" | "topik_ii";
+  section: "reading" | "listening" | "writing";
+  examRound: number | null;
   mode: TopikAttemptMode;
   correctCount: number;
   totalQuestions: number;

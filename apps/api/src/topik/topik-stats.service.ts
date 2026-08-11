@@ -11,7 +11,12 @@ import {
   TopikAttemptMode,
   TopikAttemptStatus,
 } from './schemas/topik-attempt.schema';
-import { TopikSection } from './schemas/topik-content.schema';
+import {
+  TopikExamType,
+  TopikQuestionType,
+  TopikSection,
+} from './schemas/topik-content.schema';
+import { TopikExam, TopikExamDocument } from './schemas/topik-exam.schema';
 import {
   TopikQuestion,
   TopikQuestionDocument,
@@ -48,6 +53,8 @@ export class TopikStatsService {
     private readonly connection: Connection,
     @InjectModel(TopikAttempt.name)
     private readonly attemptModel: Model<TopikAttemptDocument>,
+    @InjectModel(TopikExam.name)
+    private readonly examModel: Model<TopikExamDocument>,
     @InjectModel(TopikQuestion.name)
     private readonly questionModel: Model<TopikQuestionDocument>,
     @InjectModel(TopikUserSummary.name)
@@ -86,44 +93,44 @@ export class TopikStatsService {
           state,
         ]),
       );
-      const answerStats = attempt.answers.map((answer) => {
-        const questionId = answer.questionId.toString();
-        const question = questionById.get(questionId);
+      const answerStats = attempt.answers
+        .filter((answer) => typeof answer.isCorrect === 'boolean')
+        .map((answer) => {
+          const questionId = answer.questionId.toString();
+          const question = questionById.get(questionId);
 
-        if (!question) {
-          throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
-        }
+          if (!question) {
+            throw new NotFoundException('TOPIK_QUESTION_NOT_FOUND');
+          }
 
-        const learningState = learningStateByQuestion.get(questionId);
-        const usedHintKeys = [
-          ...new Set([
-            ...(answer.usedHintKeys ?? []),
-            ...(learningState?.revealedHintKeys ?? []),
-          ]),
-        ];
-        const hintViewCount = Math.max(
-          answer.hintViewCount ?? 0,
-          learningState?.hintViewCount ?? 0,
-        );
-        const solutionViewed = Boolean(
-          answer.solutionViewedAt ?? learningState?.solutionViewedAt,
-        );
+          const learningState = learningStateByQuestion.get(questionId);
+          const usedHintKeys = [
+            ...new Set([
+              ...(answer.usedHintKeys ?? []),
+              ...(learningState?.revealedHintKeys ?? []),
+            ]),
+          ];
+          const hintViewCount = Math.max(
+            answer.hintViewCount ?? 0,
+            learningState?.hintViewCount ?? 0,
+          );
+          const solutionViewed = Boolean(
+            answer.solutionViewedAt ?? learningState?.solutionViewedAt,
+          );
 
-        return {
-          question,
-          questionVersion: answer.questionVersion,
-          selectedChoiceKey: answer.selectedChoiceKey,
-          durationMs: answer.durationMs,
-          answeredAt: answer.answeredAt,
-          isCorrect: answer.isCorrect === true,
-          hintViewCount,
-          solutionViewed,
-          usedLearningSupport:
-            hintViewCount > 0 ||
-            usedHintKeys.length > 0 ||
+          return {
+            question,
+            questionVersion: answer.questionVersion,
+            selectedChoiceKey: answer.selectedChoiceKey,
+            durationMs: answer.durationMs,
+            answeredAt: answer.answeredAt,
+            isCorrect: answer.isCorrect === true,
+            hintViewCount,
             solutionViewed,
-        };
-      });
+            usedLearningSupport:
+              hintViewCount > 0 || usedHintKeys.length > 0 || solutionViewed,
+          };
+        });
       const appliedAt = new Date();
 
       await this.updateDailyStats(attempt, answerStats.length, session);
@@ -136,80 +143,189 @@ export class TopikStatsService {
     });
   }
 
-  public async getSummary(userId: string) {
-    const summary = await this.summaryModel
-      .findOne({
-        userId: new Types.ObjectId(userId),
-        section: TopikSection.READING,
-      })
-      .lean();
+  public async getSummary(
+    userId: string,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
+    const { examIds } = await this.getExamScope(examType, section);
+    if (examIds.length === 0) return this.emptySummary();
 
-    if (!summary) {
-      return {
-        mockExamCount: 0,
-        practiceCount: 0,
-        guidedCount: 0,
-        totalQuestions: 0,
-        correctQuestions: 0,
-        accuracy: 0,
-        totalStudySeconds: 0,
-        hintViewCount: 0,
-        solutionViewCount: 0,
-        correctWithoutHintCount: 0,
-        bestScore: 0,
-        lastScore: 0,
-        averageScore: 0,
-        lastAttemptAt: null,
-        questionTypes: [],
-      };
+    const attempts = await this.attemptModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        examId: { $in: examIds },
+        status: TopikAttemptStatus.SUBMITTED,
+      })
+      .sort({ submittedAt: -1 })
+      .lean();
+    const questionIds = attempts.flatMap((attempt) =>
+      attempt.answers.map((answer) => answer.questionId),
+    );
+    const questions =
+      questionIds.length > 0
+        ? await this.questionModel
+            .find({ _id: { $in: questionIds } })
+            .select('_id type')
+            .lean()
+        : [];
+    const questionById = new Map(
+      questions.map((question) => [question._id.toString(), question]),
+    );
+    const typePerformance = new Map<
+      TopikQuestionType,
+      {
+        attempted: number;
+        correct: number;
+        totalDurationMs: number;
+        hintViewCount: number;
+        solutionViewCount: number;
+        correctWithoutHintCount: number;
+        lastAnsweredAt: Date | null;
+      }
+    >();
+    let totalQuestions = 0;
+    let correctQuestions = 0;
+    let hintViewCount = 0;
+    let solutionViewCount = 0;
+    let correctWithoutHintCount = 0;
+
+    for (const attempt of attempts) {
+      const learningStateByQuestion = new Map(
+        (attempt.learningStates ?? []).map((state) => [
+          state.questionId.toString(),
+          state,
+        ]),
+      );
+
+      for (const answer of attempt.answers) {
+        const questionId = answer.questionId.toString();
+        const question = questionById.get(questionId);
+        const learningState = learningStateByQuestion.get(questionId);
+        const answerHintCount = Math.max(
+          answer.hintViewCount ?? 0,
+          learningState?.hintViewCount ?? 0,
+        );
+        const solutionViewed = Boolean(
+          answer.solutionViewedAt ?? learningState?.solutionViewedAt,
+        );
+        const usedLearningSupport =
+          answerHintCount > 0 ||
+          (answer.usedHintKeys?.length ?? 0) > 0 ||
+          solutionViewed;
+
+        hintViewCount += answerHintCount;
+        solutionViewCount += solutionViewed ? 1 : 0;
+
+        if (!question || typeof answer.isCorrect !== 'boolean') continue;
+
+        totalQuestions += 1;
+        correctQuestions += answer.isCorrect ? 1 : 0;
+        correctWithoutHintCount +=
+          answer.isCorrect && !usedLearningSupport ? 1 : 0;
+
+        const performance = typePerformance.get(question.type) ?? {
+          attempted: 0,
+          correct: 0,
+          totalDurationMs: 0,
+          hintViewCount: 0,
+          solutionViewCount: 0,
+          correctWithoutHintCount: 0,
+          lastAnsweredAt: null,
+        };
+        performance.attempted += 1;
+        performance.correct += answer.isCorrect ? 1 : 0;
+        performance.totalDurationMs += answer.durationMs;
+        performance.hintViewCount += answerHintCount;
+        performance.solutionViewCount += solutionViewed ? 1 : 0;
+        performance.correctWithoutHintCount +=
+          answer.isCorrect && !usedLearningSupport ? 1 : 0;
+        if (
+          !performance.lastAnsweredAt ||
+          answer.answeredAt > performance.lastAnsweredAt
+        ) {
+          performance.lastAnsweredAt = answer.answeredAt;
+        }
+        typePerformance.set(question.type, performance);
+      }
     }
 
+    const mockAttempts = attempts.filter(
+      (attempt) => attempt.mode === TopikAttemptMode.MOCK_EXAM,
+    );
+    const scoredMockAttempts = mockAttempts.filter((attempt) =>
+      attempt.answers.some((answer) => typeof answer.isCorrect === 'boolean'),
+    );
+    const totalScore = scoredMockAttempts.reduce(
+      (total, attempt) => total + attempt.score,
+      0,
+    );
+
     return {
-      mockExamCount: summary.mockExamCount,
-      practiceCount: summary.practiceCount,
-      guidedCount: summary.guidedCount ?? 0,
-      totalQuestions: summary.totalQuestions,
-      correctQuestions: summary.correctQuestions,
-      accuracy: this.percentage(
-        summary.correctQuestions,
-        summary.totalQuestions,
+      mockExamCount: mockAttempts.length,
+      practiceCount: attempts.filter(
+        (attempt) => attempt.mode === TopikAttemptMode.PRACTICE,
+      ).length,
+      guidedCount: attempts.filter(
+        (attempt) => attempt.mode === TopikAttemptMode.GUIDED,
+      ).length,
+      totalQuestions,
+      correctQuestions,
+      accuracy: this.percentage(correctQuestions, totalQuestions),
+      totalStudySeconds: attempts.reduce(
+        (total, attempt) => total + attempt.elapsedSeconds,
+        0,
       ),
-      totalStudySeconds: summary.totalStudySeconds,
-      hintViewCount: summary.hintViewCount ?? 0,
-      solutionViewCount: summary.solutionViewCount ?? 0,
-      correctWithoutHintCount: summary.correctWithoutHintCount ?? 0,
-      bestScore: summary.bestScore,
-      lastScore: summary.lastScore,
+      hintViewCount,
+      solutionViewCount,
+      correctWithoutHintCount,
+      bestScore: scoredMockAttempts.reduce(
+        (best, attempt) => Math.max(best, attempt.score),
+        0,
+      ),
+      lastScore: scoredMockAttempts[0]?.score ?? 0,
       averageScore:
-        summary.mockExamCount === 0
+        scoredMockAttempts.length === 0
           ? 0
-          : Math.round((summary.totalScore / summary.mockExamCount) * 10) / 10,
-      lastAttemptAt: summary.lastAttemptAt ?? null,
-      questionTypes: summary.typePerformance.map((performance) => ({
-        questionType: performance.questionType,
-        attempted: performance.attempted,
-        correct: performance.correct,
-        accuracy: this.percentage(performance.correct, performance.attempted),
-        averageDurationMs:
-          performance.attempted === 0
-            ? 0
-            : Math.round(
-                performance.totalDurationMs / performance.attempted,
-              ),
-        hintViewCount: performance.hintViewCount ?? 0,
-        solutionViewCount: performance.solutionViewCount ?? 0,
-        correctWithoutHintCount: performance.correctWithoutHintCount ?? 0,
-        lastAnsweredAt: performance.lastAnsweredAt ?? null,
-      })),
+          : Math.round((totalScore / scoredMockAttempts.length) * 10) / 10,
+      lastAttemptAt: attempts[0]?.submittedAt ?? null,
+      questionTypes: Array.from(typePerformance.entries())
+        .map(([questionType, performance]) => ({
+          questionType,
+          attempted: performance.attempted,
+          correct: performance.correct,
+          accuracy: this.percentage(performance.correct, performance.attempted),
+          averageDurationMs:
+            performance.attempted === 0
+              ? 0
+              : Math.round(performance.totalDurationMs / performance.attempted),
+          hintViewCount: performance.hintViewCount,
+          solutionViewCount: performance.solutionViewCount,
+          correctWithoutHintCount: performance.correctWithoutHintCount,
+          lastAnsweredAt: performance.lastAnsweredAt,
+        }))
+        .sort(
+          (left, right) =>
+            right.attempted - left.attempted || left.accuracy - right.accuracy,
+        ),
     };
   }
 
-  public async getQuestionTypes(userId: string) {
-    const summary = await this.getSummary(userId);
+  public async getQuestionTypes(
+    userId: string,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
+    const summary = await this.getSummary(userId, examType, section);
     return summary.questionTypes;
   }
 
-  public getWeakQuestions(userId: string, limit: number) {
+  public getWeakQuestions(
+    userId: string,
+    limit: number,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
     return this.getQuestionPerformanceList(
       userId,
       {
@@ -219,31 +335,56 @@ export class TopikStatsService {
       },
       { consecutiveWrong: -1, wrongCount: -1, lastAnsweredAt: -1 },
       limit,
+      examType,
+      section,
     );
   }
 
-  public getMasteredQuestions(userId: string, limit: number) {
+  public getMasteredQuestions(
+    userId: string,
+    limit: number,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
     return this.getQuestionPerformanceList(
       userId,
       { masteryState: TopikMasteryState.MASTERED },
       { consecutiveCorrect: -1, correctCount: -1, lastAnsweredAt: -1 },
       limit,
+      examType,
+      section,
     );
   }
 
-  public getReviewQueue(userId: string, limit: number) {
+  public getReviewQueue(
+    userId: string,
+    limit: number,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
     return this.getQuestionPerformanceList(
       userId,
       { nextReviewAt: { $lte: new Date() } },
       { nextReviewAt: 1, consecutiveWrong: -1 },
       limit,
+      examType,
+      section,
     );
   }
 
-  public async getHistory(userId: string, limit: number) {
+  public async getHistory(
+    userId: string,
+    limit: number,
+    examType: TopikExamType,
+    section?: TopikSection,
+  ) {
+    const { examIds, examById } = await this.getExamScope(examType, section);
+    if (examIds.length === 0) return [];
+
     const attempts = await this.attemptModel
       .find({
         userId: new Types.ObjectId(userId),
+        examId: { $in: examIds },
         status: TopikAttemptStatus.SUBMITTED,
       })
       .sort({ submittedAt: -1 })
@@ -251,6 +392,7 @@ export class TopikStatsService {
       .lean();
 
     return attempts.map((attempt) => {
+      const exam = examById.get(attempt.examId.toString());
       const learningStateByQuestion = new Map(
         (attempt.learningStates ?? []).map((state) => [
           state.questionId.toString(),
@@ -261,6 +403,10 @@ export class TopikStatsService {
       return {
         attemptId: attempt._id.toString(),
         examId: attempt.examId.toString(),
+        examCode: exam?.code ?? '',
+        examType: exam?.examType ?? examType,
+        section: exam?.section ?? section ?? TopikSection.READING,
+        examRound: exam?.round ?? null,
         mode: attempt.mode,
         correctCount: attempt.correctCount,
         totalQuestions: attempt.questionIds.length,
@@ -347,10 +493,9 @@ export class TopikStatsService {
       (answer) => answer.isCorrect,
     ).length;
     summary.totalStudySeconds += attempt.elapsedSeconds;
-    summary.hintViewCount = (summary.hintViewCount ?? 0) + answerStats.reduce(
-      (total, answer) => total + answer.hintViewCount,
-      0,
-    );
+    summary.hintViewCount =
+      (summary.hintViewCount ?? 0) +
+      answerStats.reduce((total, answer) => total + answer.hintViewCount, 0);
     summary.solutionViewCount =
       (summary.solutionViewCount ?? 0) +
       answerStats.filter((answer) => answer.solutionViewed).length;
@@ -393,8 +538,7 @@ export class TopikStatsService {
       performance.hintViewCount =
         (performance.hintViewCount ?? 0) + answer.hintViewCount;
       performance.solutionViewCount =
-        (performance.solutionViewCount ?? 0) +
-        (answer.solutionViewed ? 1 : 0);
+        (performance.solutionViewCount ?? 0) + (answer.solutionViewed ? 1 : 0);
       performance.correctWithoutHintCount =
         (performance.correctWithoutHintCount ?? 0) +
         (answer.isCorrect && !answer.usedLearningSupport ? 1 : 0);
@@ -480,8 +624,7 @@ export class TopikStatsService {
       performance.hintViewCount =
         (performance.hintViewCount ?? 0) + answer.hintViewCount;
       performance.solutionViewCount =
-        (performance.solutionViewCount ?? 0) +
-        (answer.solutionViewed ? 1 : 0);
+        (performance.solutionViewCount ?? 0) + (answer.solutionViewed ? 1 : 0);
       performance.correctWithoutHintCount =
         (performance.correctWithoutHintCount ?? 0) +
         (answer.isCorrect && !answer.usedLearningSupport ? 1 : 0);
@@ -509,54 +652,113 @@ export class TopikStatsService {
     filter: Record<string, unknown>,
     sort: Record<string, 1 | -1>,
     limit: number,
+    examType: TopikExamType,
+    section?: TopikSection,
   ) {
+    const { examIds, examById } = await this.getExamScope(examType, section);
+    if (examIds.length === 0) return [];
+
     const performances = await this.questionPerformanceModel
-      .find({ userId: new Types.ObjectId(userId), ...filter })
+      .find({
+        userId: new Types.ObjectId(userId),
+        questionType: {
+          $nin: [
+            TopikQuestionType.WRITING_SENTENCE_COMPLETION,
+            TopikQuestionType.WRITING_DATA_DESCRIPTION,
+            TopikQuestionType.WRITING_ARGUMENTATIVE_ESSAY,
+          ],
+        },
+        ...filter,
+        examId: { $in: examIds },
+      })
       .sort(sort)
       .limit(limit)
       .lean();
 
-    return performances.map((performance) => ({
-      questionId: performance.questionId.toString(),
-      questionVersion: performance.questionVersion,
-      examId: performance.examId.toString(),
-      questionCode: performance.questionCode,
-      questionNumber: performance.questionNumber,
-      questionType: performance.questionType,
-      difficulty: performance.difficulty,
-      tags: performance.tags,
-      attemptCount: performance.attemptCount,
-      correctCount: performance.correctCount,
-      wrongCount: performance.wrongCount,
-      accuracy: this.percentage(
-        performance.correctCount,
-        performance.attemptCount,
-      ),
-      consecutiveCorrect: performance.consecutiveCorrect,
-      consecutiveWrong: performance.consecutiveWrong,
-      consecutiveIndependentCorrect:
-        performance.consecutiveIndependentCorrect ?? 0,
-      averageDurationMs:
-        performance.attemptCount === 0
-          ? 0
-          : Math.round(
-              performance.totalDurationMs / performance.attemptCount,
-            ),
-      lastDurationMs: performance.lastDurationMs,
-      fastestCorrectMs: performance.fastestCorrectMs,
-      hintViewCount: performance.hintViewCount ?? 0,
-      solutionViewCount: performance.solutionViewCount ?? 0,
-      correctWithoutHintCount: performance.correctWithoutHintCount ?? 0,
-      selectedChoiceCounts: this.formatChoiceCounts(
-        performance.selectedChoiceCounts,
-      ),
-      lastSelectedChoiceKey: performance.lastSelectedChoiceKey,
-      lastResult: performance.lastResult,
-      masteryState: performance.masteryState,
-      firstAnsweredAt: performance.firstAnsweredAt,
-      lastAnsweredAt: performance.lastAnsweredAt,
-      nextReviewAt: performance.nextReviewAt,
-    }));
+    return performances.map((performance) => {
+      const exam = examById.get(performance.examId.toString());
+
+      return {
+        questionId: performance.questionId.toString(),
+        questionVersion: performance.questionVersion,
+        examId: performance.examId.toString(),
+        examCode: exam?.code ?? '',
+        examType: exam?.examType ?? examType,
+        section: exam?.section ?? section ?? TopikSection.READING,
+        examRound: exam?.round ?? null,
+        questionCode: performance.questionCode,
+        questionNumber: performance.questionNumber,
+        questionType: performance.questionType,
+        difficulty: performance.difficulty,
+        tags: performance.tags,
+        attemptCount: performance.attemptCount,
+        correctCount: performance.correctCount,
+        wrongCount: performance.wrongCount,
+        accuracy: this.percentage(
+          performance.correctCount,
+          performance.attemptCount,
+        ),
+        consecutiveCorrect: performance.consecutiveCorrect,
+        consecutiveWrong: performance.consecutiveWrong,
+        consecutiveIndependentCorrect:
+          performance.consecutiveIndependentCorrect ?? 0,
+        averageDurationMs:
+          performance.attemptCount === 0
+            ? 0
+            : Math.round(
+                performance.totalDurationMs / performance.attemptCount,
+              ),
+        lastDurationMs: performance.lastDurationMs,
+        fastestCorrectMs: performance.fastestCorrectMs,
+        hintViewCount: performance.hintViewCount ?? 0,
+        solutionViewCount: performance.solutionViewCount ?? 0,
+        correctWithoutHintCount: performance.correctWithoutHintCount ?? 0,
+        selectedChoiceCounts: this.formatChoiceCounts(
+          performance.selectedChoiceCounts,
+        ),
+        lastSelectedChoiceKey: performance.lastSelectedChoiceKey,
+        lastResult: performance.lastResult,
+        masteryState: performance.masteryState,
+        firstAnsweredAt: performance.firstAnsweredAt,
+        lastAnsweredAt: performance.lastAnsweredAt,
+        nextReviewAt: performance.nextReviewAt,
+      };
+    });
+  }
+
+  private async getExamScope(examType: TopikExamType, section?: TopikSection) {
+    const exams = await this.examModel
+      .find({
+        examType,
+        ...(section ? { section } : {}),
+      })
+      .select('_id code examType section round')
+      .lean();
+
+    return {
+      examIds: exams.map((exam) => exam._id),
+      examById: new Map(exams.map((exam) => [exam._id.toString(), exam])),
+    };
+  }
+
+  private emptySummary() {
+    return {
+      mockExamCount: 0,
+      practiceCount: 0,
+      guidedCount: 0,
+      totalQuestions: 0,
+      correctQuestions: 0,
+      accuracy: 0,
+      totalStudySeconds: 0,
+      hintViewCount: 0,
+      solutionViewCount: 0,
+      correctWithoutHintCount: 0,
+      bestScore: 0,
+      lastScore: 0,
+      averageScore: 0,
+      lastAttemptAt: null,
+      questionTypes: [],
+    };
   }
 
   private percentage(value: number, total: number) {

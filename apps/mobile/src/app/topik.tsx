@@ -136,7 +136,15 @@ export default function TopikHomeScreen() {
         </Text>
         <Pressable
           accessibilityLabel={t("topik.home.openStats")}
-          onPress={() => router.push("/topik-stats")}
+          onPress={() =>
+            router.push({
+              pathname: "/topik-stats",
+              params: {
+                level: examType === "topik_i" ? "1" : "2",
+                section,
+              },
+            })
+          }
           style={styles.iconButton}
         >
           <Ionicons name="stats-chart" size={21} color={palette.primary} />

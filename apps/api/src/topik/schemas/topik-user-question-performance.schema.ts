@@ -30,7 +30,7 @@ export class TopikUserQuestionPerformance {
   @Prop({ required: true })
   questionCode: string;
 
-  @Prop({ required: true, min: 1, max: 50 })
+  @Prop({ required: true, min: 1, max: 70 })
   questionNumber: number;
 
   @Prop({ type: String, required: true, enum: TopikQuestionType })
@@ -108,8 +108,9 @@ export class TopikUserQuestionPerformance {
   updatedAt?: Date;
 }
 
-export const TopikUserQuestionPerformanceSchema =
-  SchemaFactory.createForClass(TopikUserQuestionPerformance);
+export const TopikUserQuestionPerformanceSchema = SchemaFactory.createForClass(
+  TopikUserQuestionPerformance,
+);
 
 TopikUserQuestionPerformanceSchema.index(
   { userId: 1, questionId: 1, questionVersion: 1 },

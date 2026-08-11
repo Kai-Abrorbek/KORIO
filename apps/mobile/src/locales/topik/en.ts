@@ -282,6 +282,61 @@ export default {
     historyEmpty: "You haven’t submitted an exam yet.",
     historyScore: "{{score}} points",
     historyAccuracy: "{{accuracy}}% correct",
+    allSections: "All",
+    latestScore: "Latest score",
+    best: "Best",
+    average: "Average",
+    statusReady: "Ready to analyze",
+    statusWriting: "Writing record",
+    statusStrong: "On track",
+    statusGrowing: "Growing",
+    statusNeedsReview: "Review needed",
+    insightTitle: "Today's learning insight",
+    insightEmpty:
+      "Complete one test to reveal your current level and highest-priority skill.",
+    insightNoScored:
+      "Complete a listening or reading test to start accuracy and weakness analysis.",
+    insightWriting:
+      "Writing completions and study time are being tracked. Ungraded answers are excluded from scores and accuracy.",
+    insightWritingEmpty:
+      "Complete a writing test to see your completion record and study time here.",
+    insightStrong:
+      "Your overall result is steady. Improving {{type}} will make your score even stronger.",
+    insightStrongNoType:
+      "You are maintaining strong accuracy. Keep building real-test rhythm.",
+    insightGrowing:
+      "Your foundation is growing. Review {{type}} ({{accuracy}}%) first.",
+    insightGrowingNoType:
+      "Your core skills are growing. Revisit your latest mistakes once more.",
+    insightNeedsReview:
+      "Start with {{type}} ({{accuracy}}%) for the fastest score improvement.",
+    insightReviewNoType:
+      "Review one question type at a time to raise your accuracy quickly.",
+    completedTests: "Completed",
+    studyTime: "Study time",
+    independentRate: "Correct unaided",
+    minutesShort: "{{count}} min",
+    hoursShort: "{{count}} hr",
+    hoursMinutesShort: "{{hours}} hr {{minutes}} min",
+    scoreTrend: "Score trend",
+    latestSix: "Latest 6",
+    latestResult: "Latest result",
+    scoreOutOf: "Out of 100",
+    trendEmpty: "Complete a test to see how your score changes over time.",
+    writingTrendUnavailable:
+      "Writing shows completions and study time instead of an automatic score trend.",
+    writingTypeUnavailable:
+      "Ungraded writing answers are not classified as correct, incorrect, or weak.",
+    weakFirst: "Lowest accuracy first",
+    skillStrong: "Strong",
+    skillGrowing: "Growing",
+    skillNeedsReview: "Needs focus",
+    reviewPriority: "Review priorities",
+    wrongStreak: "{{count}} wrong in a row",
+    recentAttempts: "Recent completions",
+    tapForResult: "Tap to view result",
+    completedStatus: "Completed",
+    examRound: "TOPIK {{round}}",
   },
   questionTypes: {
     grammar_fill_blank: "Grammar blank",

@@ -63,14 +63,22 @@ export class TopikController {
 
   @UseGuards(JwtAuthGuard)
   @Get('stats/summary')
-  getStatsSummary(@Request() request) {
-    return this.topikStatsService.getSummary(request.user._id.toString());
+  getStatsSummary(@Request() request, @Query() query: TopikStatsQueryDto) {
+    return this.topikStatsService.getSummary(
+      request.user._id.toString(),
+      query.examType,
+      query.section,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('stats/question-types')
-  getQuestionTypeStats(@Request() request) {
-    return this.topikStatsService.getQuestionTypes(request.user._id.toString());
+  getQuestionTypeStats(@Request() request, @Query() query: TopikStatsQueryDto) {
+    return this.topikStatsService.getQuestionTypes(
+      request.user._id.toString(),
+      query.examType,
+      query.section,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -79,6 +87,8 @@ export class TopikController {
     return this.topikStatsService.getWeakQuestions(
       request.user._id.toString(),
       query.limit,
+      query.examType,
+      query.section,
     );
   }
 
@@ -88,6 +98,8 @@ export class TopikController {
     return this.topikStatsService.getMasteredQuestions(
       request.user._id.toString(),
       query.limit,
+      query.examType,
+      query.section,
     );
   }
 
@@ -97,6 +109,8 @@ export class TopikController {
     return this.topikStatsService.getReviewQueue(
       request.user._id.toString(),
       query.limit,
+      query.examType,
+      query.section,
     );
   }
 
@@ -106,6 +120,8 @@ export class TopikController {
     return this.topikStatsService.getHistory(
       request.user._id.toString(),
       query.limit,
+      query.examType,
+      query.section,
     );
   }
 

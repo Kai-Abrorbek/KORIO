@@ -18,6 +18,20 @@ import type {
   TopikTypePerformance,
 } from "@/types/topik";
 
+type TopikStatsExamType = "topik_i" | "topik_ii";
+type TopikStatsSection = "listening" | "reading" | "writing";
+
+function topikStatsQuery(
+  examType: TopikStatsExamType,
+  section?: TopikStatsSection,
+  limit?: number,
+) {
+  const params = new URLSearchParams({ examType });
+  if (section) params.set("section", section);
+  if (limit !== undefined) params.set("limit", String(limit));
+  return params.toString();
+}
+
 export const TopikService = {
   listExams: (): Promise<TopikExam[]> => api.get("/topik/exams"),
 
@@ -96,21 +110,53 @@ export const TopikService = {
       {},
     ),
 
-  getStatsSummary: (): Promise<TopikStatsSummary> =>
-    api.get("/topik/stats/summary"),
+  getStatsSummary: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+  ): Promise<TopikStatsSummary> =>
+    api.get(`/topik/stats/summary?${topikStatsQuery(examType, section)}`),
 
-  getQuestionTypeStats: (): Promise<TopikTypePerformance[]> =>
-    api.get("/topik/stats/question-types"),
+  getQuestionTypeStats: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+  ): Promise<TopikTypePerformance[]> =>
+    api.get(
+      `/topik/stats/question-types?${topikStatsQuery(examType, section)}`,
+    ),
 
-  getWeakQuestions: (limit = 10): Promise<TopikQuestionPerformance[]> =>
-    api.get(`/topik/stats/weak-questions?limit=${limit}`),
+  getWeakQuestions: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+    limit = 10,
+  ): Promise<TopikQuestionPerformance[]> =>
+    api.get(
+      `/topik/stats/weak-questions?${topikStatsQuery(examType, section, limit)}`,
+    ),
 
-  getMasteredQuestions: (limit = 10): Promise<TopikQuestionPerformance[]> =>
-    api.get(`/topik/stats/mastered-questions?limit=${limit}`),
+  getMasteredQuestions: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+    limit = 10,
+  ): Promise<TopikQuestionPerformance[]> =>
+    api.get(
+      `/topik/stats/mastered-questions?${topikStatsQuery(examType, section, limit)}`,
+    ),
 
-  getReviewQueue: (limit = 10): Promise<TopikQuestionPerformance[]> =>
-    api.get(`/topik/stats/review-queue?limit=${limit}`),
+  getReviewQueue: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+    limit = 10,
+  ): Promise<TopikQuestionPerformance[]> =>
+    api.get(
+      `/topik/stats/review-queue?${topikStatsQuery(examType, section, limit)}`,
+    ),
 
-  getHistory: (limit = 10): Promise<TopikHistoryItem[]> =>
-    api.get(`/topik/stats/history?limit=${limit}`),
+  getHistory: (
+    examType: TopikStatsExamType,
+    section?: TopikStatsSection,
+    limit = 10,
+  ): Promise<TopikHistoryItem[]> =>
+    api.get(
+      `/topik/stats/history?${topikStatsQuery(examType, section, limit)}`,
+    ),
 };

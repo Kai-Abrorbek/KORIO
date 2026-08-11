@@ -270,6 +270,61 @@ export default {
     historyEmpty: "아직 제출한 시험이 없어요.",
     historyScore: "{{score}}점",
     historyAccuracy: "{{accuracy}}% 정답",
+    allSections: "전체",
+    latestScore: "최근 점수",
+    best: "최고",
+    average: "평균",
+    statusReady: "분석 준비",
+    statusWriting: "작성 기록",
+    statusStrong: "안정권",
+    statusGrowing: "성장 중",
+    statusNeedsReview: "복습 필요",
+    insightTitle: "오늘의 학습 인사이트",
+    insightEmpty:
+      "시험을 한 번 완료하면 현재 실력과 우선 학습 영역을 분석해 드려요.",
+    insightNoScored:
+      "듣기나 읽기 시험을 완료하면 정답률과 약점 분석이 시작돼요.",
+    insightWriting:
+      "쓰기 완료 기록과 학습 시간을 모으고 있어요. 점수·정답률에는 미채점 답안을 포함하지 않아요.",
+    insightWritingEmpty:
+      "쓰기 시험을 완료하면 작성 기록과 학습 시간을 여기에서 확인할 수 있어요.",
+    insightStrong:
+      "전체 흐름이 안정적이에요. {{type}} 유형을 보완하면 점수가 더 단단해져요.",
+    insightStrongNoType:
+      "높은 정답률을 안정적으로 유지하고 있어요. 실전 감각을 계속 이어 가세요.",
+    insightGrowing:
+      "점수가 오르고 있어요. 먼저 {{type}} 유형({{accuracy}}%)을 집중 복습해 보세요.",
+    insightGrowingNoType:
+      "기본기가 자라고 있어요. 최근 오답을 한 번 더 확인해 보세요.",
+    insightNeedsReview:
+      "{{type}} 유형({{accuracy}}%)부터 다시 잡으면 가장 빠르게 점수를 올릴 수 있어요.",
+    insightReviewNoType:
+      "작은 유형부터 차근차근 복습하면 정답률을 빠르게 끌어올릴 수 있어요.",
+    completedTests: "완료한 학습",
+    studyTime: "총 학습 시간",
+    independentRate: "도움 없이 정답",
+    minutesShort: "{{count}}분",
+    hoursShort: "{{count}}시간",
+    hoursMinutesShort: "{{hours}}시간 {{minutes}}분",
+    scoreTrend: "점수 흐름",
+    latestSix: "최근 6회",
+    latestResult: "최근 결과",
+    scoreOutOf: "100점 기준",
+    trendEmpty: "시험을 완료하면 회차별 점수 흐름을 여기에서 확인할 수 있어요.",
+    writingTrendUnavailable:
+      "쓰기는 자동 채점 점수 대신 완료 기록과 학습 시간을 보여 드려요.",
+    writingTypeUnavailable:
+      "미채점 쓰기 답안은 정답률이나 약점 유형으로 분류하지 않아요.",
+    weakFirst: "낮은 정답률부터",
+    skillStrong: "강점",
+    skillGrowing: "성장 중",
+    skillNeedsReview: "집중 필요",
+    reviewPriority: "우선 복습 문제",
+    wrongStreak: "연속 {{count}}회 오답",
+    recentAttempts: "최근 완료 기록",
+    tapForResult: "눌러서 결과 보기",
+    completedStatus: "작성 완료",
+    examRound: "제{{round}}회",
   },
   questionTypes: {
     grammar_fill_blank: "문법 빈칸",
