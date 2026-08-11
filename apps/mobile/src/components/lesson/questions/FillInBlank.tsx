@@ -1,13 +1,21 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
 import CheckButton from "../CheckButton";
+import BlankSentence from "../BlankSentence";
+import {
+  blankCount,
+  isComplete,
+  parseBlanks,
+  templateOf,
+  toAnswerPayload,
+} from "@/utils/blank-sentence";
 
 interface Props {
   question: LessonQuestion;
@@ -26,44 +34,90 @@ export default function FillInBlank({
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const { speak } = useSpeech();
-  const [selected, setSelected] = useState<string | null>(null);
   const locked = answerState !== "idle";
 
   const options = question.options ?? [];
-  const prefix = question.sentencePrefix ?? "";
-  const suffix = question.sentenceSuffix ?? "";
 
-  const blankColor =
-    answerState === "correct"
-      ? "#1CB454"
-      : answerState === "wrong"
-        ? "#FF4B4B"
-        : theme.primary;
+  // 빈칸 개수만큼 슬롯을 잡는다. 기존 단일 빈칸 문항은
+  // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.
+  const tokens = useMemo(
+    () => parseBlanks(templateOf(question)),
+    [
+      question.sentenceTemplate,
+      question.sentencePrefix,
+      question.sentenceSuffix,
+    ],
+  );
+  const total = blankCount(tokens);
+
+  const [values, setValues] = useState<(string | null)[]>(() =>
+    Array(total).fill(null),
+  );
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // 문제가 바뀌면 초기화
+  useEffect(() => {
+    setValues(Array(total).fill(null));
+    setActiveIndex(0);
+  }, [question.id, total]);
+
+  /** 선택지 탭: 이미 쓰인 값이면 회수, 아니면 활성 빈칸에 채운다 */
+  const pickOption = (opt: string) => {
+    if (locked) return;
+    setValues((prev) => {
+      const used = prev.indexOf(opt);
+      if (used !== -1) {
+        const next = [...prev];
+        next[used] = null;
+        setActiveIndex(used);
+        return next;
+      }
+      const target =
+        prev[activeIndex] === null ? activeIndex : prev.indexOf(null);
+      if (target === -1) return prev;
+      const next = [...prev];
+      next[target] = opt;
+      const following = next.findIndex((v) => v === null);
+      setActiveIndex(following === -1 ? target : following);
+      return next;
+    });
+  };
+
+  const clearBlank = (index: number) => {
+    if (locked) return;
+    setActiveIndex(index);
+    setValues((prev) => {
+      if (prev[index] === null) return prev;
+      const next = [...prev];
+      next[index] = null;
+      return next;
+    });
+  };
+
+  const complete = isComplete(tokens, values);
 
   const check = () => {
-    if (!selected || locked) return;
-    onAnswer(selected);
+    if (!complete || locked) return;
+    onAnswer(toAnswerPayload(question, tokens, values));
   };
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
       <Text style={s.title}>{t("lesson.fillBlank")}</Text>
 
-      {/* 문장 + 빈칸 */}
+      {/* 문장 + 빈칸 (빈칸 개수 제한 없음) */}
       <View style={s.sentenceBox}>
         <View style={s.sentenceRow}>
-          {prefix ? <Text style={s.sentence}>{prefix} </Text> : null}
-          <View style={[s.blank, { borderColor: blankColor }]}>
-            <Text
-              style={[
-                s.blankText,
-                { color: selected ? theme.text : "transparent" },
-              ]}
-            >
-              {selected ?? "____"}
-            </Text>
-          </View>
-          {suffix ? <Text style={s.sentence}> {suffix}</Text> : null}
+          <BlankSentence
+            tokens={tokens}
+            values={values}
+            theme={theme}
+            answerState={answerState}
+            mode="select"
+            activeIndex={activeIndex}
+            onBlankPress={clearBlank}
+            fontSize={21}
+          />
         </View>
         {question.answer ? (
           <TouchableOpacity
@@ -79,12 +133,12 @@ export default function FillInBlank({
       {/* 선택지 */}
       <View style={s.optionsRow}>
         {options.map((opt) => {
-          const isSel = selected === opt;
+          const isSel = values.includes(opt);
           return (
             <TouchableOpacity
               key={opt}
               disabled={locked}
-              onPress={() => setSelected(isSel ? null : opt)}
+              onPress={() => pickOption(opt)}
               style={[
                 s.option,
                 isSel && {
@@ -103,7 +157,7 @@ export default function FillInBlank({
 
       <CheckButton
         onPress={check}
-        disabled={!selected || locked}
+        disabled={!complete || locked}
         theme={theme}
       />
     </Animated.View>
@@ -141,20 +195,6 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flexWrap: "wrap",
       alignItems: "center",
     },
-    sentence: {
-      fontSize: 22,
-      fontWeight: "700",
-      color: theme.text,
-      lineHeight: 36,
-    },
-    blank: {
-      minWidth: 80,
-      borderBottomWidth: 3,
-      alignItems: "center",
-      paddingHorizontal: 8,
-      paddingBottom: 2,
-    },
-    blankText: { fontSize: 22, fontWeight: "800" },
     speak: { padding: 4 },
     optionsRow: {
       flexDirection: "row",

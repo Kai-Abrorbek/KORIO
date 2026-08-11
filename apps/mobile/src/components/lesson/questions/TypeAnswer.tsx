@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -12,10 +11,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import CheckButton from "../CheckButton";
+import BlankSentence from "../BlankSentence";
+import {
+  blankCount,
+  isComplete,
+  parseBlanks,
+  templateOf,
+  toAnswerPayload,
+} from "@/utils/blank-sentence";
 
 interface Props {
   question: LessonQuestion;
@@ -33,20 +40,43 @@ export default function TypeAnswer({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
-  const [input, setInput] = useState("");
-  const inputRef = useRef<TextInput>(null);
+  const inputRefs = useRef<Record<number, TextInput | null>>({});
   const { speak, isSpeaking } = useSpeech();
-  const { width: winW } = useWindowDimensions();
-  const [measuredW, setMeasuredW] = useState(0);
-
-  const MAX_BLANK = winW - 72; // 좌우 패딩 + 여유
-  const blankWidth = Math.min(MAX_BLANK, Math.max(90, measuredW + 18));
   const locked = answerState !== "idle";
   const promptText = question.npcText ?? question.answer;
 
+  // 빈칸 개수 제한 없음. 기존 단일 빈칸 문항은
+  // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.
+  const tokens = useMemo(
+    () => parseBlanks(templateOf(question)),
+    [
+      question.sentenceTemplate,
+      question.sentencePrefix,
+      question.sentenceSuffix,
+    ],
+  );
+  const total = blankCount(tokens);
+
+  const [values, setValues] = useState<(string | null)[]>(() =>
+    Array(total).fill(""),
+  );
+
+  useEffect(() => {
+    setValues(Array(total).fill(""));
+  }, [question.id, total]);
+
+  const setValue = (index: number, text: string) =>
+    setValues((prev) => {
+      const next = [...prev];
+      next[index] = text;
+      return next;
+    });
+
+  const complete = isComplete(tokens, values);
+
   const handleCheck = () => {
-    if (!input.trim() || locked) return;
-    onAnswer(input.trim());
+    if (!complete || locked) return;
+    onAnswer(toAnswerPayload(question, tokens, values));
   };
 
   const underlineColor =
@@ -90,53 +120,25 @@ export default function TypeAnswer({
           </View>
         </View>
 
-        {/* 빈칸 채우기 - 인라인 한 줄 */}
-        <View style={s.sentence}>
-          {/* 실제 텍스트 폭 측정용 (화면에 안 보임) */}
-          <Text
-            style={s.ghost}
-            numberOfLines={1}
-            pointerEvents="none"
-            onLayout={(e) => setMeasuredW(e.nativeEvent.layout.width)}
-          >
-            {input}
-          </Text>
-          {question.sentencePrefix ? (
-            <Text style={s.fix}>{question.sentencePrefix} </Text>
-          ) : null}
-
-          <View style={[s.blank, { width: blankWidth }]}>
-            <TextInput
-              ref={inputRef}
-              style={[s.blankInput, { color: theme.text }]}
-              value={input}
-              onChangeText={setInput}
-              editable={!locked}
-              autoFocus
-              autoCorrect={false}
-              spellCheck={false}
-              autoCapitalize="none"
-              onSubmitEditing={handleCheck}
-            />
-            {input.length === 0 && (
-              <Text style={s.dots} pointerEvents="none">
-                ·····
-              </Text>
-            )}
-            <View style={[s.blankLine, { backgroundColor: underlineColor }]} />
-          </View>
-
-          {question.sentenceSuffix ? (
-            <Text style={s.fix}> {question.sentenceSuffix}</Text>
-          ) : null}
-        </View>
+        {/* 빈칸 채우기 (빈칸 개수 제한 없음) */}
+        <BlankSentence
+          tokens={tokens}
+          values={values}
+          theme={theme}
+          answerState={answerState}
+          mode="input"
+          onChange={setValue}
+          onSubmit={handleCheck}
+          autoFocusFirst
+          fontSize={22}
+        />
 
         <View style={{ flex: 1 }} />
 
         {/* 확인 버튼 (바닥 고정) */}
         <CheckButton
           onPress={handleCheck}
-          disabled={!input.trim() || locked}
+          disabled={!complete || locked}
           theme={theme}
         />
       </Animated.View>
@@ -223,39 +225,6 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
     },
 
     // 입력 밑줄 스타일
-    sentence: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      alignItems: "flex-end",
-      marginTop: 8,
-    },
-    ghost: {
-      position: "absolute",
-      opacity: 0,
-      top: 0,
-      left: 0,
-      fontSize: 22,
-      fontWeight: "800",
-    },
-    fix: { fontSize: 22, color: theme.text, fontWeight: "600", lineHeight: 40 },
-    blank: { height: 40, justifyContent: "flex-end", marginHorizontal: 2 },
-    blankInput: {
-      fontSize: 22,
-      fontWeight: "800",
-      textAlign: "center",
-      paddingVertical: 0,
-      height: 34,
-    },
-    dots: {
-      position: "absolute",
-      alignSelf: "center",
-      top: 6,
-      fontSize: 20,
-      letterSpacing: 4,
-      color: theme.textSecondary,
-      opacity: 0.45,
-    },
-    blankLine: { height: 2.5, borderRadius: 2, width: "100%" },
 
     // 확인 버튼
   });

@@ -64,6 +64,14 @@ export interface LessonQuestion {
   dialogLines?: DialogLine[];
   sentencePrefix?: string;
   sentenceSuffix?: string;
+  /**
+   * 다중 빈칸용 문장 템플릿. 빈칸 자리를 `___` 로 적는다.
+   * 예: `Oh, ___ a ___ .`
+   * 있으면 sentencePrefix/Suffix 대신 이걸 쓴다.
+   */
+  sentenceTemplate?: string;
+  /** 빈칸 순서대로의 정답. 빈칸이 2개 이상일 때 필수 */
+  blankAnswers?: string[];
   /** grammar_build 전용 — 어절 자리마다 보기 묶음 */
   buildRows?: { options: string[]; correct: string }[];
   hard?: boolean;

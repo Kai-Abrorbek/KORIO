@@ -101,6 +101,18 @@ export class Question {
   @Prop({ default: '' })
   sentenceSuffix: string;
 
+  /**
+   * 다중 빈칸 문장 템플릿. 빈칸 자리를 `___` 로 적는다.
+   * 예: `Oh, ___ a ___ .`
+   * 채워져 있으면 sentencePrefix/Suffix 대신 이걸 쓴다.
+   */
+  @Prop({ default: '' })
+  sentenceTemplate: string;
+
+  /** 빈칸 순서대로의 정답. 빈칸이 2개 이상이면 필수 */
+  @Prop({ type: [String], default: [] })
+  blankAnswers: string[];
+
   // 대화 완성 문제 (dialog_complete)
   @Prop({ type: [{ speaker: String, text: String }], default: [] })
   dialogLines: DialogLine[];
