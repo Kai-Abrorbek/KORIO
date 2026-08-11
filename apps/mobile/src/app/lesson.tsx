@@ -694,7 +694,7 @@ export default function LessonScreen() {
           style={[s.reviewIntro, { paddingBottom: insets.bottom + 16 }]}
         >
           <View style={s.reviewCenter}>
-            <BoriMascot size={150} />
+            <BoriMascot size={150} mood="review" />
             <View style={s.bubble}>
               <Text style={s.bubbleText}>{t("lesson.reviewIntro")}</Text>
             </View>

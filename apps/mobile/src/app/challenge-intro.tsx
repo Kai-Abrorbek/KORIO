@@ -87,7 +87,7 @@ export default function ChallengeIntro() {
           entering={FadeIn.duration(400)}
           style={[s.mascotRow, bobStyle]}
         >
-          <BoriMascot size={140} />
+          <BoriMascot size={140} mood="determined" />
           <View style={s.bubble}>
             <Text style={s.bubbleText}>
               <Text style={{ fontWeight: "900" }}>

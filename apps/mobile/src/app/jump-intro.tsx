@@ -58,7 +58,7 @@ export default function JumpIntroScreen() {
       {/* 마스코트 + 말풍선 */}
       <View style={s.center}>
         <Animated.View entering={FadeIn.duration(300)} style={s.mascotRow}>
-          <BoriMascot size={130} />
+          <BoriMascot size={130} mood="confident" />
           <View style={s.bubble}>
             <Text style={s.bubbleText}>{t("jump.introRule")}</Text>
             <View style={s.bubbleTail} />

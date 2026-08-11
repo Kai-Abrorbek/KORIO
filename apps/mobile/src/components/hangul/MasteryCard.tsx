@@ -102,7 +102,7 @@ export default function MasteryCard({ learned, total }: Props) {
         style={styles.card}
       >
         <Animated.View style={[styles.mascotWrap, mascotStyle]}>
-          <BoriMascot size={84} />
+          <BoriMascot size={84} mood="proud" />
         </Animated.View>
 
         <View style={styles.content}>

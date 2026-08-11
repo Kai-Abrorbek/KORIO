@@ -176,7 +176,7 @@ function AIAvatar() {
         flexShrink: 0,
       }}
     >
-      <BoriMascot size={32} />
+      <BoriMascot size={32} mood="default" />
     </View>
   );
 }
@@ -308,7 +308,7 @@ export default function AIChatModal({
 
           <View style={styles.headerCenter}>
             <View style={styles.avatarLarge}>
-              <BoriMascot size={42} />
+              <BoriMascot size={42} mood="thinking" />
               <View style={styles.onlineDot} />
             </View>
             <View>

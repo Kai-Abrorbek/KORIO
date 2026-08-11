@@ -159,7 +159,7 @@ export default function CelebrationMascot({
     <Animated.View
       style={[styles.wrap, animStyle, { width: size, height: size }]}
     >
-      <BoriMascot size={size} />
+      <BoriMascot size={size} mood="celebrating" />
     </Animated.View>
   );
 }

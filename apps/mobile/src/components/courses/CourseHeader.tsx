@@ -45,7 +45,7 @@ export default function CourseHeader({ message }: Props) {
   return (
     <View style={styles.row}>
       <Animated.View style={[styles.mascotWrap, mascotStyle]}>
-        <BoriMascot size={110} />
+        <BoriMascot size={110} mood="confident" />
       </Animated.View>
       <CourseSpeechBubble message={message} />
     </View>

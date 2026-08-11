@@ -154,7 +154,7 @@ export default function ResultScreen() {
 
       {/* Bori 둥둥 */}
       <Animated.View style={[styles.mascotContainer, boriStyle]}>
-        <BoriMascot size={180} />
+        <BoriMascot size={180} mood="celebrating" />
       </Animated.View>
 
       <Animated.View

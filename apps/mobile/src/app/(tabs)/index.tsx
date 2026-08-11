@@ -290,7 +290,7 @@ export default function HomeScreen() {
                 showBackground={false}
               />
             ) : (
-              <BoriMascot size={200} />
+              <BoriMascot size={200} mood="default" />
             )}
           </TouchableOpacity>
 

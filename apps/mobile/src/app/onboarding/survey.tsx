@@ -463,7 +463,7 @@ export default function SurveyScreen() {
 
       <View style={s.mascotRow}>
         <Animated.View style={bobStyle}>
-          <BoriMascot size={68} />
+          <BoriMascot size={68} mood="thinking" />
         </Animated.View>
         <View style={s.bubble}>
           <View style={s.bubbleTail} />

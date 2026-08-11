@@ -1,89 +1,77 @@
-import Svg, { Ellipse, Path, Rect, Text as SvgText, G } from "react-native-svg";
+import { Image, ImageStyle, StyleProp } from "react-native";
+
+/**
+ * 보리쌤.
+ *
+ * 예전엔 SVG 로 그렸는데 이제 표정별 일러스트를 쓴다.
+ * 화면 상황에 맞는 mood 를 주면 된다 — 안 주면 기본 표정.
+ *
+ * require 는 정적 경로만 되므로 맵을 직접 나열한다 (동적 조합 불가).
+ * 이미지는 배경을 지우고 768px 로 줄여둔 상태다 (원본 1254px, 흰 배경).
+ */
+export type BoriMood =
+  | "default" // 기본 — 아바타 자리, 목록, 작은 표시
+  | "cheering" // 환영, 시작
+  | "celebrating" // 레슨/과정 완료
+  | "great" // 잘했을 때 보상
+  | "proud" // 성취, 숙련도
+  | "level_up" // 레벨·스코어 상승
+  | "streak" // 연속 학습
+  | "confident" // 도전 권유
+  | "determined" // 시험·도전 직전
+  | "focused" // 집중 학습 중
+  | "thinking" // 질문·설문
+  | "waiting" // 대기, 빈 상태
+  | "review" // 복습 안내
+  | "correct" // 정답
+  | "wrong" // 오답
+  | "confused" // 이해 못 함
+  | "shy" // 소소한 안내
+  | "sleepy" // 오래 안 들어옴
+  | "exhausted" // 에너지 없음
+  | "overwhelmed"; // 너무 어려움
+
+const MOODS: Record<BoriMood, number> = {
+  default: require("../../../assets/images/characters/hangulmon_default.png"),
+  cheering: require("../../../assets/images/characters/hangulmon_cheering.png"),
+  celebrating: require("../../../assets/images/characters/hangulmon_celebrating.png"),
+  great: require("../../../assets/images/characters/hangulmon_great.png"),
+  proud: require("../../../assets/images/characters/hangulmon_proud.png"),
+  level_up: require("../../../assets/images/characters/hangulmon_level_up.png"),
+  streak: require("../../../assets/images/characters/hangulmon_streak.png"),
+  confident: require("../../../assets/images/characters/hangulmon_confident.png"),
+  determined: require("../../../assets/images/characters/hangulmon_determined.png"),
+  focused: require("../../../assets/images/characters/hangulmon_focused.png"),
+  thinking: require("../../../assets/images/characters/hangulmon_thinking.png"),
+  waiting: require("../../../assets/images/characters/hangulmon_waiting.png"),
+  review: require("../../../assets/images/characters/hangulmon_review.png"),
+  correct: require("../../../assets/images/characters/hangulmon_correct.png"),
+  wrong: require("../../../assets/images/characters/hangulmon_wrong.png"),
+  confused: require("../../../assets/images/characters/hangulmon_confused.png"),
+  shy: require("../../../assets/images/characters/hangulmon_shy.png"),
+  sleepy: require("../../../assets/images/characters/hangulmon_sleepy.png"),
+  exhausted: require("../../../assets/images/characters/hangulmon_exhausted.png"),
+  overwhelmed: require("../../../assets/images/characters/hangulmon_overwhelmed.png"),
+};
 
 interface BoriMascotProps {
   size?: number;
+  mood?: BoriMood;
+  style?: StyleProp<ImageStyle>;
 }
 
-export default function BoriMascot({ size = 200 }: BoriMascotProps) {
+export default function BoriMascot({
+  size = 200,
+  mood = "default",
+  style,
+}: BoriMascotProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 200 200" fill="none">
-      <Ellipse cx="100" cy="180" rx="48" ry="6" fill="#1A1A2E" opacity="0.08" />
-      <Path
-        d="M100 30C140 30 170 60 170 105C170 150 140 175 100 175C60 175 30 150 30 105C30 60 60 30 100 30Z"
-        fill="#7F77DD"
-      />
-      <Ellipse cx="100" cy="125" rx="40" ry="32" fill="#A8A2EA" opacity="0.5" />
-      <Ellipse
-        cx="178"
-        cy="65"
-        rx="11"
-        ry="16"
-        fill="#7F77DD"
-        transform="rotate(35 178 65)"
-      />
-      <Ellipse
-        cx="34"
-        cy="120"
-        rx="12"
-        ry="18"
-        fill="#7F77DD"
-        transform="rotate(-15 34 120)"
-      />
-      <Path d="M75 35C70 22 65 18 60 22C58 28 65 38 75 42" fill="#6F66D2" />
-      <Path
-        d="M125 35C130 22 135 18 140 22C142 28 135 38 125 42"
-        fill="#6F66D2"
-      />
-      <Path
-        d="M70 95Q78 88 86 95"
-        stroke="#1A1A2E"
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <Path
-        d="M114 95Q122 88 130 95"
-        stroke="#1A1A2E"
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <Ellipse cx="65" cy="115" rx="7" ry="4" fill="#FF8FA9" opacity="0.7" />
-      <Ellipse cx="135" cy="115" rx="7" ry="4" fill="#FF8FA9" opacity="0.7" />
-      <Path
-        d="M86 122Q100 138 114 122"
-        stroke="#1A1A2E"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <G transform="translate(135 25)">
-        <Rect
-          width="55"
-          height="32"
-          rx="14"
-          fill="#FFFFFF"
-          stroke="#E2E0EF"
-          strokeWidth="1.5"
-        />
-        <SvgText
-          x="27.5"
-          y="22"
-          fontSize="16"
-          fontWeight="700"
-          fill="#1A1A2E"
-          textAnchor="middle"
-        >
-          안녕
-        </SvgText>
-        <Path
-          d="M10 30L4 38L16 32Z"
-          fill="#FFFFFF"
-          stroke="#E2E0EF"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </G>
-    </Svg>
+    <Image
+      source={MOODS[mood] ?? MOODS.default}
+      style={[{ width: size, height: size }, style]}
+      resizeMode="contain"
+      // 캐릭터가 화면마다 여러 개 뜨는 곳이 있어서 캐시를 살려둔다
+      fadeDuration={0}
+    />
   );
 }

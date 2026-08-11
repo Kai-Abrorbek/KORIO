@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.mascotContainer}>
-        <BoriMascot size={220} />
+        <BoriMascot size={220} mood="cheering" />
       </View>
 
       <View style={styles.textContainer}>

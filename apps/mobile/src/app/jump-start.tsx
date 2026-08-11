@@ -55,7 +55,7 @@ export default function JumpStartScreen() {
 
         {/* 마스코트 */}
         <Animated.View entering={FadeInDown.delay(150)} style={s.mascot}>
-          <BoriMascot size={160} />
+          <BoriMascot size={160} mood="determined" />
         </Animated.View>
 
         {/* 설명 */}

@@ -152,7 +152,7 @@ export default function ScoreUpScreen({
             ✦
           </Animated.Text>
           <Animated.View style={mascotStyle}>
-            <BoriMascot size={180} />
+            <BoriMascot size={180} mood="level_up" />
           </Animated.View>
         </View>
 

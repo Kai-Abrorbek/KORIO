@@ -76,7 +76,7 @@ export default function XpRewardScreen({
       ) : null}
 
       <Animated.View style={[s.mascot, bobStyle]}>
-        <BoriMascot size={170} />
+        <BoriMascot size={170} mood="great" />
       </Animated.View>
 
       {(headline || subline) && (

@@ -62,7 +62,7 @@ export default function SettingsUserCard({
           {avatar ? (
             <AvatarPreview avatar={avatar} size={64} showBackground={false} />
           ) : (
-            <BoriMascot size={56} />
+            <BoriMascot size={56} mood="default" />
           )}
         </View>
         <Text style={styles.name} numberOfLines={1}>
