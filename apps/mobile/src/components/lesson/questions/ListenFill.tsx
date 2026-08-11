@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   ScrollView,
   useWindowDimensions,
 } from "react-native";
@@ -16,6 +15,8 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useEffect, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
+import LessonCharacter from "../LessonCharacter";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -83,10 +84,10 @@ export default function ListenFill({
 
           {/* 캐릭터 + 말풍선(스피커 2개) */}
           <View style={s.npcRow}>
-            <Image
-              source={require("@/../assets/images/character.jpg")}
-              style={s.character}
-              resizeMode="contain"
+            <LessonCharacter
+              state={answerState}
+              seed={question.id}
+              height={160}
             />
             <View style={s.bubble}>
               <View style={s.tailBorder} />
@@ -168,26 +169,13 @@ export default function ListenFill({
         </ScrollView>
 
         {/* 하단 고정: 건너뛰기 + 확인 (키보드 위로 따라 올라옴) */}
-        {onSkip && (
-          <TouchableOpacity onPress={onSkip} style={s.skip} disabled={locked}>
-            <Text style={s.skipText}>{t("lesson.skipListening")}</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={[s.checkBtn, (!input.trim() || locked) && s.checkBtnDisabled]}
+        <CheckButton
           onPress={handleCheck}
           disabled={!input.trim() || locked}
-          activeOpacity={0.85}
-        >
-          <Text
-            style={[
-              s.checkBtnText,
-              (!input.trim() || locked) && s.checkBtnTextDisabled,
-            ]}
-          >
-            {t("lesson.check")}
-          </Text>
-        </TouchableOpacity>
+          theme={theme}
+          skipLabel={onSkip && !locked ? t("lesson.skipListening") : undefined}
+          onSkip={onSkip}
+        />
       </Animated.View>
     </View>
   );
@@ -199,7 +187,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     scrollContent: { paddingBottom: 16 },
     title: {
@@ -214,7 +202,6 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       gap: 6,
       marginBottom: 24,
     },
-    character: { width: 130, height: 160 },
     bubble: {
       flex: 1,
       backgroundColor: theme.surface,
@@ -313,16 +300,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       opacity: 0.45,
     },
     blankLine: { height: 2.5, borderRadius: 2, width: "100%" },
-
-    skip: { alignItems: "center", paddingVertical: 14 },
-    skipText: { fontSize: 15, color: theme.textSecondary, fontWeight: "700" },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
-    checkBtnTextDisabled: { color: theme.textSecondary },
   });

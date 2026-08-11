@@ -7,6 +7,7 @@ import { LessonQuestion, AnswerState, ImageChoiceOption } from "@/types/lesson";
 import { useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -128,24 +129,11 @@ export default function ImageChoice({
       <View style={{ flex: 1 }} />
       {/* 확인 버튼 */}
       <View>
-        <TouchableOpacity
-          style={[
-            s.checkBtn,
-            (!selected || answerState !== "idle") && s.checkBtnDisabled,
-          ]}
+        <CheckButton
           onPress={handleCheck}
           disabled={!selected || answerState !== "idle"}
-          activeOpacity={0.85}
-        >
-          <Text
-            style={[
-              s.checkBtnText,
-              (!selected || answerState !== "idle") && s.checkBtnTextDisabled,
-            ]}
-          >
-            {t("lesson.check")}
-          </Text>
-        </TouchableOpacity>
+          theme={theme}
+        />
       </View>
     </Animated.View>
   );
@@ -157,7 +145,7 @@ const getStyles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     badge: {
       flexDirection: "row",
@@ -248,26 +236,5 @@ const getStyles = (theme: ThemeColors, bottomInset = 0) =>
       fontWeight: "700",
       color: theme.text,
       textAlign: "center",
-    },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      borderBottomWidth: 4,
-      borderColor: theme.primary + "99",
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: {
-      backgroundColor: theme.border,
-      borderColor: theme.border,
-    },
-    checkBtnText: {
-      color: "#fff",
-      fontSize: 17,
-      fontWeight: "800",
-      letterSpacing: 0.5,
-    },
-    checkBtnTextDisabled: {
-      color: theme.textSecondary,
     },
   });

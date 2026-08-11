@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
@@ -8,10 +14,14 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useRef, useCallback } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import LessonCharacter from "../LessonCharacter";
 import AnswerChip, {
   GhostChip,
   ChipLayout,
 } from "@/components/lesson/AnswerChip";
+import CheckButton from "../CheckButton";
+import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
+import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
 interface Props {
   question: LessonQuestion;
@@ -26,8 +36,10 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
+/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
 const ANSWER_LINES = 2;
-const LINE_H = 65;
+/** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
+const LINE_H = ANSWER_LINE_H;
 
 export default function TranslateBuilder({
   question,
@@ -38,6 +50,20 @@ export default function TranslateBuilder({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
+  const { width: winW, height: winH } = useWindowDimensions();
+  // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
+  // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
+  const compact = winH < 700;
+
+  // 칩이 많으면 뱅크를 바텀시트로 내린다
+  const longBank = isLongBank(question, compact);
+  const [bankOpen, setBankOpen] = useState(false);
+
+  const { lines: answerLines } = useAnswerLines(
+    question.options ?? [],
+    winW - 32,
+    { max: compact ? 2 : 3 },
+  );
   const { speak, isSpeaking } = useSpeech();
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
@@ -126,6 +152,34 @@ export default function TranslateBuilder({
     });
   }, []);
 
+  const renderBankChips = () =>
+    words.map((item) => {
+      const isPlaced = item.zone === "placed";
+      return (
+        <View key={item.id} style={s.bankSlot}>
+          {/* AnswerChip 항상 자리 차지 (placed 일 땐 투명 + 터치 X) */}
+          <View
+            style={{ opacity: isPlaced ? 0 : 1 }}
+            pointerEvents={isPlaced ? "none" : "auto"}
+          >
+            <AnswerChip
+              item={item}
+              onTap={handleTap}
+              onDragToZone={handleDragToZone}
+              onLayoutMeasured={handleChipLayout}
+              theme={theme}
+              answerState={answerState}
+            />
+          </View>
+          {/* placed 일 때만 GhostChip 을 위에 오버레이 */}
+          {isPlaced && (
+            <View style={s.ghostOverlay} pointerEvents="none">
+              <GhostChip word={item.word} theme={theme} />
+            </View>
+          )}
+        </View>
+      );
+    });
   const disabled = placedWords.length === 0 || answerState !== "idle";
 
   return (
@@ -135,14 +189,12 @@ export default function TranslateBuilder({
         <Text style={s.title}>{question.question}</Text>
 
         {/* 캐릭터 + 말풍선 */}
-        <View style={s.npcRow}>
-          <View style={s.character}>
-            <Image
-              source={require("@/../assets/images/character.jpg")}
-              style={s.characterImage}
-              resizeMode="contain"
-            />
-          </View>
+        <View style={[s.npcRow, compact && { height: 148 }]}>
+          <LessonCharacter
+            state={answerState}
+            seed={question.id}
+            height={compact ? 138 : 170}
+          />
 
           <View style={s.bubble}>
             {/* 말풍선 꼬리 (테두리) */}
@@ -170,12 +222,14 @@ export default function TranslateBuilder({
         </View>
 
         {/* 답 영역 - 위/아래 두 줄 */}
-        <View style={s.answerArea}>
+        <View
+          style={[s.answerArea, { minHeight: answerLines * ANSWER_LINE_H }]}
+        >
           {/* 줄 (룰드 라인) */}
-          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+          {Array.from({ length: answerLines }).map((_, i) => (
             <View
               key={`line-${i}`}
-              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+              style={[s.answerLine, { top: (i + 1) * ANSWER_LINE_H - 2 }]}
             />
           ))}
 
@@ -199,51 +253,33 @@ export default function TranslateBuilder({
           </View>
         </View>
 
-        {/* 단어 뱅크 */}
-        <View style={s.bank}>
-          {words.map((item) => {
-            const isPlaced = item.zone === "placed";
-            return (
-              <View key={item.id} style={s.bankSlot}>
-                {/* AnswerChip 항상 자리 차지 (placed 일 땐 투명 + 터치 X) */}
-                <View
-                  style={{ opacity: isPlaced ? 0 : 1 }}
-                  pointerEvents={isPlaced ? "none" : "auto"}
-                >
-                  <AnswerChip
-                    item={item}
-                    onTap={handleTap}
-                    onDragToZone={handleDragToZone}
-                    onLayoutMeasured={handleChipLayout}
-                    theme={theme}
-                    answerState={answerState}
-                  />
-                </View>
-                {/* placed 일 때만 GhostChip 을 위에 오버레이 */}
-                {isPlaced && (
-                  <View style={s.ghostOverlay} pointerEvents="none">
-                    <GhostChip word={item.word} theme={theme} />
-                  </View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+        {/* 단어 뱅크 — 칩이 많으면 바텀시트로 내린다 */}
+        {!longBank ? (
+          <View style={s.bank}>{renderBankChips()}</View>
+        ) : (
+          !bankOpen && (
+            <WordBankHint onPress={() => setBankOpen(true)} theme={theme} />
+          )
+        )}
 
         {/* 여백 (확인 버튼을 아래로 밀어줌) */}
         <View style={{ flex: 1 }} />
 
         {/* 확인 버튼 */}
-        <TouchableOpacity
-          style={[s.checkBtn, disabled && s.checkBtnDisabled]}
+        <CheckButton
           onPress={handleCheck}
           disabled={disabled}
-          activeOpacity={0.85}
+          theme={theme}
+        />
+
+        {/* 칩이 많을 때 쓰는 슬라이드업 단어장 */}
+        <WordBankSheet
+          visible={longBank && bankOpen}
+          onClose={() => setBankOpen(false)}
+          theme={theme}
         >
-          <Text style={[s.checkBtnText, disabled && s.checkBtnTextDisabled]}>
-            {t("lesson.check")}
-          </Text>
-        </TouchableOpacity>
+          {renderBankChips()}
+        </WordBankSheet>
       </Animated.View>
     </GestureHandlerRootView>
   );
@@ -260,7 +296,7 @@ const styles = (
       flex: 1,
       paddingHorizontal: 16,
       paddingTop: 8,
-      paddingBottom: bottomInset + 16,
+      paddingBottom: 12,
     },
     // 제목
     title: {
@@ -276,12 +312,6 @@ const styles = (
       alignItems: "center",
       gap: 6,
       height: 180,
-    },
-    character: {
-      width: 166,
-      height: 200,
-      alignItems: "center",
-      justifyContent: "center",
     },
     characterEmoji: {
       fontSize: 100,
@@ -342,7 +372,6 @@ const styles = (
     },
 
     answerArea: {
-      height: 180,
       minHeight: lineH * lines,
       marginTop: 8,
       marginBottom: 8,
@@ -368,17 +397,12 @@ const styles = (
       marginRight: 8,
     },
 
-    characterImage: {
-      width: 160,
-      height: 180,
-    },
     // 단어 뱅크
     bank: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
       justifyContent: "center",
-      height: 150,
     },
     bankSlot: {
       position: "relative",
@@ -393,23 +417,4 @@ const styles = (
       alignItems: "center",
     },
     // 확인 버튼
-    checkBtn: {
-      backgroundColor: "#58CC02",
-      borderRadius: 16,
-      paddingVertical: 18,
-      alignItems: "center",
-      marginTop: 16,
-    },
-    checkBtnDisabled: {
-      backgroundColor: theme.bg,
-    },
-    checkBtnText: {
-      color: "#fff",
-      fontSize: 17,
-      fontWeight: "800",
-      letterSpacing: 1,
-    },
-    checkBtnTextDisabled: {
-      color: "#AFAFAF",
-    },
   });

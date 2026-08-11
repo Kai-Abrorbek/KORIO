@@ -1,10 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import MatchPairCard, { PairStatus } from "../MatchPairCard";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -38,7 +40,8 @@ export default function WordMatching({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const pairs = question.pairs ?? [];
 
   const [left, setLeft] = useState<Item[]>(() =>
@@ -175,24 +178,22 @@ export default function WordMatching({
 
       <View style={{ flex: 1 }} />
 
-      <TouchableOpacity
-        style={[s.checkBtn, (!allDone || locked) && s.checkBtnDisabled]}
+      <CheckButton
         onPress={check}
         disabled={!allDone || locked}
-      >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-      </TouchableOpacity>
+        theme={theme}
+      />
     </Animated.View>
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      marginBottom: 40,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -209,12 +210,4 @@ const styles = (theme: ThemeColors) =>
     // 높이를 고정해두면 짝 수가 달라질 때 남거나 모자란다. 내용에 맞춰 잡는다.
     grid: { flexDirection: "row", gap: 14 },
     col: { flex: 1, gap: 14 },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

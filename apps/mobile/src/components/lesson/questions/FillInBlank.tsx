@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -100,13 +101,11 @@ export default function FillInBlank({
         })}
       </View>
 
-      <TouchableOpacity
-        style={[s.checkBtn, (!selected || locked) && s.checkBtnDisabled]}
+      <CheckButton
         onPress={check}
         disabled={!selected || locked}
-      >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-      </TouchableOpacity>
+        theme={theme}
+      />
     </Animated.View>
   );
 }
@@ -117,7 +116,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -173,13 +172,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       paddingHorizontal: 20,
     },
     optionText: { fontSize: 18, fontWeight: "800", color: theme.text },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-      marginTop: "auto",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

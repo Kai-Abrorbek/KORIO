@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   useWindowDimensions,
-  Image,
+  LayoutChangeEvent,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -15,10 +15,14 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import LessonCharacter from "../LessonCharacter";
 import AnswerChip, {
   GhostChip,
   ChipLayout,
 } from "@/components/lesson/AnswerChip";
+import CheckButton from "../CheckButton";
+import { ANSWER_LINE_H } from "../useAnswerLines";
+import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
 interface Props {
   question: LessonQuestion;
@@ -34,8 +38,10 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
+/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
 const ANSWER_LINES = 2;
-const LINE_H = 65;
+/** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
+const LINE_H = ANSWER_LINE_H;
 
 export default function WordArrange({
   question,
@@ -47,12 +53,22 @@ export default function WordArrange({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
-  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
+  const { width: winW, height: winH } = useWindowDimensions();
 
-  // 답 영역은 놓인 칩만큼만 자란다. 높이를 180 으로 고정해두면
-  // 단어 한두 개일 때도 세 줄치를 차지해서 확인 버튼이 밀려난다.
-  const [answerH, setAnswerH] = useState(LINE_H);
-  const lineCount = Math.max(1, Math.round(answerH / LINE_H));
+  // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
+  const compact = winH < 700;
+
+  // 칩이 많으면 뱅크를 바텀시트로 내린다
+  const longBank = isLongBank(question, compact);
+  const [bankOpen, setBankOpen] = useState(false);
+
+  // 줄은 칩이 실제로 차지한 만큼만 그린다.
+  // 아래에 flex 스페이서가 있어서 답 영역이 커져도 뱅크·확인 버튼은 안 밀린다.
+  const [placedH, setPlacedH] = useState(0);
+  const answerLines = Math.max(1, Math.ceil(placedH / ANSWER_LINE_H));
+  const onPlacedLayout = (e: LayoutChangeEvent) =>
+    setPlacedH(e.nativeEvent.layout.height);
+  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
 
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
@@ -132,6 +148,23 @@ export default function WordArrange({
 
   const getPlacedChipLayouts = useCallback(() => chipLayouts.current, []);
 
+  const renderBankChips = () =>
+    words.map((item) =>
+      item.zone === "placed" ? (
+        <GhostChip key={item.id} word={item.word} theme={theme} />
+      ) : (
+        <AnswerChip
+          key={item.id}
+          item={item}
+          onTap={handleTap}
+          onDragToZone={handleDragToZone}
+          onLayoutMeasured={handleChipLayout}
+          theme={theme}
+          answerState={answerState}
+        />
+      ),
+    );
+
   const handleSwap = useCallback((draggedId: string, targetId: string) => {
     setWords((prev) => {
       const dragged = prev.find((w) => w.id === draggedId);
@@ -156,14 +189,13 @@ export default function WordArrange({
         <Text style={s.title}>{question.question}</Text>
 
         {/* 캐릭터 + 스피커 버튼 2개 */}
-        <View style={s.npcRow}>
-          <View style={s.character}>
-            <Image
-              source={require("@/../assets/images/character.jpg")}
-              style={s.characterImage}
-              resizeMode="contain"
-            />
-          </View>
+        <View style={[s.npcRow, compact && { height: 148 }]}>
+          <LessonCharacter
+            state={answerState}
+            seed={question.id}
+            height={compact ? 138 : 170}
+            combo={combo}
+          />
           <View style={s.speakerBubble}>
             {/* 말풍선 꼬리 (테두리) */}
             <View style={s.tailBorder} />
@@ -192,19 +224,18 @@ export default function WordArrange({
 
         {/* 배치된 단어들 (상단 - 연두색) */}
         <View
-          style={s.answerArea}
-          onLayout={(e) => setAnswerH(e.nativeEvent.layout.height)}
+          style={[s.answerArea, { minHeight: answerLines * ANSWER_LINE_H }]}
         >
           {/* 줄 (룰드 라인) — 실제 쓰이는 줄 수만큼만 */}
-          {Array.from({ length: lineCount }).map((_, i) => (
+          {Array.from({ length: answerLines }).map((_, i) => (
             <View
               key={`line-${i}`}
-              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+              style={[s.answerLine, { top: (i + 1) * ANSWER_LINE_H - 2 }]}
             />
           ))}
 
           {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
-          <View style={s.placedWrap}>
+          <View style={s.placedWrap} onLayout={onPlacedLayout}>
             {placedWords.map((item, idx) => (
               <View key={item.id} style={s.lineSlot}>
                 <AnswerChip
@@ -223,37 +254,33 @@ export default function WordArrange({
           </View>
         </View>
 
-        {/* 단어 뱅크 (하단 - 회색) */}
-        <View style={s.chipRow}>
-          {words.map((item) =>
-            item.zone === "placed" ? (
-              <GhostChip key={item.id} word={item.word} theme={theme} />
-            ) : (
-              <AnswerChip
-                key={item.id}
-                item={item}
-                onTap={handleTap}
-                onDragToZone={handleDragToZone}
-                onLayoutMeasured={handleChipLayout}
-                theme={theme}
-                answerState={answerState}
-              />
-            ),
-          )}
-        </View>
+        {/* 남는 공간은 전부 여기서 먹는다 → 뱅크와 확인 버튼이 항상 하단 */}
+        <View style={{ flex: 1 }} />
+
+        {/* 단어 뱅크 — 칩이 많으면 바텀시트로 내린다 */}
+        {!longBank ? (
+          <View style={s.chipRow}>{renderBankChips()}</View>
+        ) : (
+          !bankOpen && (
+            <WordBankHint onPress={() => setBankOpen(true)} theme={theme} />
+          )
+        )}
 
         {/* 확인 버튼 */}
-        <TouchableOpacity
-          style={[
-            s.checkBtn,
-            (placedWords.length === 0 || answerState !== "idle") &&
-              s.checkBtnDisabled,
-          ]}
+        <CheckButton
           onPress={handleCheck}
           disabled={placedWords.length === 0 || answerState !== "idle"}
+          theme={theme}
+        />
+
+        {/* 칩이 많을 때 쓰는 슬라이드업 단어장 */}
+        <WordBankSheet
+          visible={longBank && bankOpen}
+          onClose={() => setBankOpen(false)}
+          theme={theme}
         >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-        </TouchableOpacity>
+          {renderBankChips()}
+        </WordBankSheet>
       </Animated.View>
     </GestureHandlerRootView>
   );
@@ -270,7 +297,8 @@ const styles = (
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      // 확인 버튼이 absolute 로 깔려 있으므로 그만큼 자리를 비워둔다
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -281,17 +309,7 @@ const styles = (
       flexDirection: "row",
       alignItems: "center",
       gap: 16,
-      height: 190,
-    },
-    character: {
-      width: 166,
-      height: 200,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    characterImage: {
-      width: 120,
-      height: 140,
+      height: 176,
     },
     speakerBubble: {
       flex: 1,
@@ -397,16 +415,7 @@ const styles = (
       flexWrap: "wrap",
       gap: 10,
       marginBottom: 8,
-      height: 160,
     },
     divider: { height: 1.5, backgroundColor: theme.border },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-      marginTop: 16,
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+    // 콘텐츠 길이와 무관하게 항상 화면 하단 고정 (네비바/홈바 위)
   });

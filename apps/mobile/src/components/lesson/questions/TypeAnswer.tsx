@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   useWindowDimensions,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -15,6 +14,8 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
+import LessonCharacter from "../LessonCharacter";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -65,10 +66,10 @@ export default function TypeAnswer({
 
         {/* 캐릭터 + 말풍선 */}
         <View style={s.npcRow}>
-          <Image
-            source={require("@/../assets/images/character.jpg")}
-            style={s.character}
-            resizeMode="contain"
+          <LessonCharacter
+            state={answerState}
+            seed={question.id}
+            height={150}
           />
           <View style={s.bubble}>
             {/* 꼬리 */}
@@ -133,21 +134,11 @@ export default function TypeAnswer({
         <View style={{ flex: 1 }} />
 
         {/* 확인 버튼 (바닥 고정) */}
-        <TouchableOpacity
-          style={[s.checkBtn, (!input.trim() || locked) && s.checkBtnDisabled]}
+        <CheckButton
           onPress={handleCheck}
           disabled={!input.trim() || locked}
-          activeOpacity={0.85}
-        >
-          <Text
-            style={[
-              s.checkBtnText,
-              (!input.trim() || locked) && s.checkBtnTextDisabled,
-            ]}
-          >
-            {t("lesson.check")}
-          </Text>
-        </TouchableOpacity>
+          theme={theme}
+        />
       </Animated.View>
     </View>
   );
@@ -159,7 +150,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -175,7 +166,6 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       gap: 6,
       marginBottom: 32,
     },
-    character: { width: 120, height: 150 },
     bubble: {
       flex: 1,
       backgroundColor: theme.surface,
@@ -268,13 +258,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
     blankLine: { height: 2.5, borderRadius: 2, width: "100%" },
 
     // 확인 버튼
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
-    checkBtnTextDisabled: { color: theme.textSecondary },
   });

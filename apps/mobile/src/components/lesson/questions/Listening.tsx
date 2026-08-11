@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -159,16 +160,11 @@ export default function Listening({
         )}
       </View>
 
-      <TouchableOpacity
-        style={[
-          s.checkBtn,
-          (placed.length === 0 || locked) && s.checkBtnDisabled,
-        ]}
+      <CheckButton
         onPress={check}
         disabled={placed.length === 0 || locked}
-      >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-      </TouchableOpacity>
+        theme={theme}
+      />
     </Animated.View>
   );
 }
@@ -179,7 +175,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -246,13 +242,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
     },
     chipText: { fontSize: 18, fontWeight: "700", color: theme.text },
     divider: { height: 1.5, backgroundColor: theme.border, marginBottom: 16 },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-      marginTop: 16,
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

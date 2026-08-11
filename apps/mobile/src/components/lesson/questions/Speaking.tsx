@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Animated, {
   FadeInDown,
   useSharedValue,
@@ -15,6 +15,8 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import LessonCharacter from "../LessonCharacter";
 
 interface Props {
   question: LessonQuestion;
@@ -72,7 +74,8 @@ export default function Speaking({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const [isRecording, setIsRecording] = useState(false);
   const { speak, isSpeaking } = useSpeech();
 
@@ -110,11 +113,7 @@ export default function Speaking({
           <View style={s.tailInner} />
         </View>
 
-        <Image
-          source={require("@/../assets/images/character.jpg")}
-          style={s.characterImage}
-          resizeMode="contain"
-        />
+        <LessonCharacter state={answerState} seed={question.id} height={230} />
       </View>
 
       <View style={{ flex: 1 }} />
@@ -144,12 +143,13 @@ export default function Speaking({
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
+      paddingBottom: bottomInset + 12,
     },
     title: {
       fontSize: 22,
@@ -209,7 +209,6 @@ const styles = (theme: ThemeColors) =>
       borderRightColor: "transparent",
       borderTopColor: theme.surface,
     },
-    characterImage: { width: 180, height: 230 },
 
     // 가로 마이크 바
     micBar: {

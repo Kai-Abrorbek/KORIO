@@ -3,11 +3,9 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Image,
-  Modal,
-  Pressable,
+  useWindowDimensions,
 } from "react-native";
-import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,10 +14,14 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import LessonCharacter from "../LessonCharacter";
 import AnswerChip, {
   GhostChip,
   ChipLayout,
 } from "@/components/lesson/AnswerChip";
+import CheckButton from "../CheckButton";
+import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
+import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
 interface Props {
   question: LessonQuestion;
@@ -36,8 +38,10 @@ interface WordItem {
   placedIndex: number;
 }
 
+/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
 const ANSWER_LINES = 2;
-const LINE_H = 65;
+/** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
+const LINE_H = ANSWER_LINE_H;
 
 export default function SentenceBuilder({
   question,
@@ -49,6 +53,17 @@ export default function SentenceBuilder({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, LINE_H, ANSWER_LINES, insets.bottom);
+  const { width: winW, height: winH } = useWindowDimensions();
+
+  // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
+  const compact = winH < 700;
+
+  // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
+  const { lines: answerLines } = useAnswerLines(
+    question.options ?? [],
+    winW - 40,
+    { max: compact ? 2 : 3 },
+  );
   const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
   const hasAutoPlayed = useRef(false);
   const [bankOpen, setBankOpen] = useState(false);
@@ -80,10 +95,7 @@ export default function SentenceBuilder({
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
 
-  // 인라인 단어장은 ~9칩까지 수용. 그 이상이거나 놓을 단어가 2줄 넘칠 때만 모달로.
-  const isLong =
-    (question.options?.length ?? 0) > 9 ||
-    (question.answer?.split(" ").length ?? 0) > 6;
+  const isLong = isLongBank(question, compact);
 
   const handleTap = (id: string) => {
     setWords((prev) => {
@@ -182,14 +194,13 @@ export default function SentenceBuilder({
         <Text style={s.title}>{question.question}</Text>
 
         {/* 캐릭터 + 스피커 버튼 2개 */}
-        <View style={s.npcRow}>
-          <View style={s.character}>
-            <Image
-              source={require("@/../assets/images/character.jpg")}
-              style={s.characterImage}
-              resizeMode="contain"
-            />
-          </View>
+        <View style={[s.npcRow, compact && { height: 148 }]}>
+          <LessonCharacter
+            state={answerState}
+            seed={question.id}
+            height={compact ? 138 : 170}
+            combo={combo}
+          />
           <View style={s.speakerBubble}>
             {/* 말풍선 꼬리 (테두리) */}
             <View style={s.tailBorder} />
@@ -215,12 +226,14 @@ export default function SentenceBuilder({
         </View>
 
         {/* 배치 영역 */}
-        <View style={s.answerArea}>
+        <View
+          style={[s.answerArea, { minHeight: answerLines * ANSWER_LINE_H }]}
+        >
           {/* 줄 (룰드 라인) */}
-          {Array.from({ length: ANSWER_LINES }).map((_, i) => (
+          {Array.from({ length: answerLines }).map((_, i) => (
             <View
               key={`line-${i}`}
-              style={[s.answerLine, { top: (i + 1) * LINE_H - 2 }]}
+              style={[s.answerLine, { top: (i + 1) * ANSWER_LINE_H - 2 }]}
             />
           ))}
 
@@ -252,58 +265,24 @@ export default function SentenceBuilder({
           <View style={s.chipRow}>{renderBankChips()}</View>
         ) : (
           !bankOpen && (
-            <TouchableOpacity
-              style={s.bankHint}
-              onPress={() => setBankOpen(true)}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name="chevron-up"
-                size={18}
-                color={theme.textSecondary}
-              />
-              <Text style={s.bankHintText}>
-                {t("lesson.tapToOpenWordBank")}
-              </Text>
-            </TouchableOpacity>
+            <WordBankHint onPress={() => setBankOpen(true)} theme={theme} />
           )
         )}
 
-        <TouchableOpacity
-          style={[
-            s.checkBtn,
-            (placedWords.length === 0 || answerState !== "idle") &&
-              s.checkBtnDisabled,
-          ]}
+        <CheckButton
           onPress={handleCheck}
           disabled={placedWords.length === 0 || answerState !== "idle"}
-        >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-        </TouchableOpacity>
+          theme={theme}
+        />
 
-        {/* 긴 문장용 슬라이드업 단어장 (답 영역은 위에 그대로 보임) */}
-        <Modal
+        {/* 칩이 많을 때 쓰는 슬라이드업 단어장 */}
+        <WordBankSheet
           visible={isLong && bankOpen}
-          transparent
-          animationType="none"
-          onRequestClose={() => setBankOpen(false)}
+          onClose={() => setBankOpen(false)}
+          theme={theme}
         >
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <View style={s.sheetWrap}>
-              <Pressable
-                style={{ flex: 1 }}
-                onPress={() => setBankOpen(false)}
-              />
-              <Animated.View
-                entering={SlideInDown.springify().damping(18).mass(0.8)}
-                style={s.sheet}
-              >
-                <View style={s.grabber} />
-                <View style={s.chipRow}>{renderBankChips()}</View>
-              </Animated.View>
-            </View>
-          </GestureHandlerRootView>
-        </Modal>
+          {renderBankChips()}
+        </WordBankSheet>
       </Animated.View>
     </GestureHandlerRootView>
   );
@@ -320,7 +299,7 @@ const styles = (
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -332,16 +311,6 @@ const styles = (
       flexDirection: "row",
       alignItems: "center",
       gap: 16,
-      height: 180,
-    },
-    character: {
-      width: 166,
-      height: 180,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    characterImage: {
-      width: 160,
       height: 180,
     },
     characterEmoji: {
@@ -403,7 +372,6 @@ const styles = (
     },
     speakerBtnActive: { backgroundColor: "#4A90D9" },
     answerArea: {
-      height: 180,
       minHeight: lineH * lines,
       marginTop: 8,
       marginBottom: 8,
@@ -448,50 +416,6 @@ const styles = (
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      height: 180,
     },
     divider: { height: 1.5, backgroundColor: theme.border },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-      marginTop: 16,
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
-    bankHint: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 6,
-      paddingVertical: 18,
-    },
-    bankHintText: {
-      color: theme.textSecondary,
-      fontSize: 15,
-      fontWeight: "600",
-    },
-    sheetWrap: { flex: 1, justifyContent: "flex-end" },
-    sheet: {
-      backgroundColor: theme.surface,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
-      paddingHorizontal: 20,
-      paddingTop: 12,
-      paddingBottom: 32,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: -4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 20,
-      elevation: 16,
-    },
-    grabber: {
-      alignSelf: "center",
-      width: 40,
-      height: 5,
-      borderRadius: 99,
-      backgroundColor: theme.border,
-      marginBottom: 16,
-    },
   });

@@ -19,6 +19,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -145,13 +146,11 @@ export default function TranslateType({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[s.checkBtn, (!input.trim() || locked) && s.checkBtnDisabled]}
+        <CheckButton
           onPress={check}
           disabled={!input.trim() || locked}
-        >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-        </TouchableOpacity>
+          theme={theme}
+        />
       </Animated.View>
     </View>
   );
@@ -163,7 +162,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     hardRow: {
       flexDirection: "row",
@@ -225,12 +224,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
     },
     micBtnActive: { backgroundColor: MIC_BLUE, borderColor: MIC_BLUE },
     micText: { fontSize: 17, fontWeight: "800", color: MIC_BLUE },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

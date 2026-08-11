@@ -13,6 +13,7 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -28,10 +29,10 @@ export default function DialogComplete({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const s = styles(theme);
+  const insets = useSafeAreaInsets();
+  const s = styles(theme, insets.bottom);
   const [selected, setSelected] = useState<string | null>(null);
   const { speak, isSpeaking } = useSpeech();
-  const insets = useSafeAreaInsets();
 
   const handleCheck = () => {
     if (!selected || answerState !== "idle") return;
@@ -119,27 +120,23 @@ export default function DialogComplete({
 
       {/* 확인 버튼 — 항상 하단 고정 */}
       <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <TouchableOpacity
-          style={[
-            s.checkBtn,
-            (!selected || answerState !== "idle") && s.checkBtnDisabled,
-          ]}
+        <CheckButton
           onPress={handleCheck}
           disabled={!selected || answerState !== "idle"}
-        >
-          <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-        </TouchableOpacity>
+          theme={theme}
+        />
       </View>
     </Animated.View>
   );
 }
 
-const styles = (theme: ThemeColors) =>
+const styles = (theme: ThemeColors, bottomInset = 0) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
+      paddingBottom: 12,
     },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 16 },
@@ -215,12 +212,4 @@ const styles = (theme: ThemeColors) =>
     optionCorrect: { borderColor: "#1CB454", backgroundColor: "#D7F5E3" },
     optionWrong: { borderColor: "#FF4B4B", backgroundColor: "#FFEBEB" },
     optionText: { fontSize: 16, fontWeight: "600", color: theme.text },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Animated, {
   FadeInDown,
   useSharedValue,
@@ -16,6 +16,7 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
 import MatchPairCard, { PairStatus } from "../MatchPairCard";
+import CheckButton from "../CheckButton";
 
 interface Props {
   question: LessonQuestion;
@@ -250,19 +251,13 @@ export default function AudioMatch({
         </View>
       </View>
 
-      {onSkip && (
-        <TouchableOpacity onPress={onSkip} style={s.skip} disabled={locked}>
-          <Text style={s.skipText}>{t("lesson.skipListening")}</Text>
-        </TouchableOpacity>
-      )}
-
-      <TouchableOpacity
-        style={[s.checkBtn, (!allMatched || locked) && s.checkBtnDisabled]}
+      <CheckButton
         onPress={check}
         disabled={!allMatched || locked}
-      >
-        <Text style={s.checkBtnText}>{t("lesson.check")}</Text>
-      </TouchableOpacity>
+        theme={theme}
+        skipLabel={onSkip && !locked ? t("lesson.skipListening") : undefined}
+        onSkip={onSkip}
+      />
     </Animated.View>
   );
 }
@@ -273,7 +268,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: bottomInset + 12,
+      paddingBottom: 12,
     },
     title: {
       fontSize: 22,
@@ -305,15 +300,4 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       justifyContent: "center",
     },
     textCardText: { fontSize: 19, fontWeight: "800" },
-    skip: { alignItems: "center", paddingVertical: 18, marginTop: 8 },
-    skipText: { color: theme.textSecondary, fontSize: 16, fontWeight: "700" },
-    checkBtn: {
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: "center",
-      marginTop: "auto",
-    },
-    checkBtnDisabled: { backgroundColor: theme.border },
-    checkBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   });
