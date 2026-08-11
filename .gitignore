@@ -36,3 +36,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# 캐릭터 원본 이미지 (번들 미포함)
+.character-raw/
