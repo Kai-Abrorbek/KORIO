@@ -4,7 +4,7 @@ import Animated, {
   SlideInLeft,
   SlideInRight,
 } from "react-native-reanimated";
-import OwlMascot from "@/components/lesson/OwlMascot";
+import BoriMascot from "@/components/home/BoriMascot";
 import { ChainTurn } from "@/types/word-chain";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -34,7 +34,7 @@ export default function WordBubble({ turn, isLatest }: Props) {
     >
       {isAi && (
         <View style={styles.avatar}>
-          <OwlMascot state="idle" size={36} />
+          <BoriMascot size={36} mood="default" />
         </View>
       )}
 
