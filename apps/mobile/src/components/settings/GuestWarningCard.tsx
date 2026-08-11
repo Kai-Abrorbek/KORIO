@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -17,6 +18,8 @@ export default function GuestWarningCard({ onLogin, onSignup }: Props) {
   return (
     <View style={styles.wrap}>
       <View style={styles.warningBox}>
+        {/* 조심스럽게 가입을 권하는 자리 */}
+        <HaneulmonMascot size={72} mood="shy" style={styles.mascot} />
         <View style={styles.titleRow}>
           <Ionicons name="warning" size={20} color={theme.textSecondary} />
           <Text style={styles.title}>{t("settings.guest.title")}</Text>
@@ -59,6 +62,7 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 12,
       gap: 6,
     },
+    mascot: { alignSelf: "center", marginBottom: 6 },
     titleRow: {
       flexDirection: "row",
       alignItems: "center",

@@ -51,7 +51,7 @@ export default function TopikHomeScreen() {
   const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{
     level?: TopikLevel;
-    section?: "reading" | "listening";
+    section?: "reading" | "listening" | "writing";
   }>();
   const levelParam = Array.isArray(params.level)
     ? params.level[0]
@@ -60,7 +60,12 @@ export default function TopikHomeScreen() {
   const sectionParam = Array.isArray(params.section)
     ? params.section[0]
     : params.section;
-  const section = sectionParam === "listening" ? "listening" : "reading";
+  const section =
+    sectionParam === "listening"
+      ? "listening"
+      : sectionParam === "writing"
+        ? "writing"
+        : "reading";
   const examType = level === "1" ? "topik_i" : "topik_ii";
   const roman = level === "1" ? "I" : "II";
   const [exams, setExams] = useState<TopikExam[]>([]);
@@ -142,14 +147,18 @@ export default function TopikHomeScreen() {
             {t(
               section === "listening"
                 ? "topik.home.listeningHeroTitle"
-                : "topik.home.heroTitle",
+                : section === "writing"
+                  ? "topik.home.writingHeroTitle"
+                  : "topik.home.heroTitle",
             )}
           </Text>
           <Text style={styles.heroDescription}>
             {t(
               section === "listening"
                 ? "topik.home.listeningHeroDescription"
-                : "topik.home.heroDescription",
+                : section === "writing"
+                  ? "topik.home.writingHeroDescription"
+                  : "topik.home.heroDescription",
             )}
           </Text>
           <View style={styles.heroMetrics}>
@@ -188,7 +197,9 @@ export default function TopikHomeScreen() {
             {t(
               section === "listening"
                 ? "topik.home.listeningTest"
-                : "topik.home.readingTest",
+                : section === "writing"
+                  ? "topik.home.writingTest"
+                  : "topik.home.readingTest",
             )}
           </Text>
         </View>
@@ -284,10 +295,20 @@ export default function TopikHomeScreen() {
                       <Pressable
                         accessibilityRole="button"
                         onPress={() =>
-                          router.push({
-                            pathname: "/topik-result",
-                            params: { attemptId: completed.latestAttemptId },
-                          })
+                          section === "writing"
+                            ? router.push({
+                                pathname: "/topik-writing",
+                                params: {
+                                  examCode: exam.code,
+                                  reviewAttemptId: completed.latestAttemptId,
+                                },
+                              })
+                            : router.push({
+                                pathname: "/topik-result",
+                                params: {
+                                  attemptId: completed.latestAttemptId,
+                                },
+                              })
                         }
                         style={({ pressed }) => [
                           styles.resultButton,
@@ -357,7 +378,8 @@ export default function TopikHomeScreen() {
           onPress={() =>
             selectedExam &&
             router.push({
-              pathname: "/topik-exam",
+              pathname:
+                section === "writing" ? "/topik-writing" : "/topik-exam",
               params: { examCode: selectedExam.code, mode },
             })
           }

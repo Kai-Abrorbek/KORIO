@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import CourseSpeechBubble from "./CourseSpeechBubble";
 
 interface Props {
@@ -45,7 +45,7 @@ export default function CourseHeader({ message }: Props) {
   return (
     <View style={styles.row}>
       <Animated.View style={[styles.mascotWrap, mascotStyle]}>
-        <BoriMascot size={110} mood="confident" />
+        <HaneulmonMascot size={110} mood="confident" />
       </Animated.View>
       <CourseSpeechBubble message={message} />
     </View>

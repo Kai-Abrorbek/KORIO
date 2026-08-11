@@ -37,7 +37,9 @@ export default function TopikStatsScreen() {
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const [summary, setSummary] = useState<TopikStatsSummary | null>(null);
-  const [weakQuestions, setWeakQuestions] = useState<TopikQuestionPerformance[]>([]);
+  const [weakQuestions, setWeakQuestions] = useState<
+    TopikQuestionPerformance[]
+  >([]);
   const [history, setHistory] = useState<TopikHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -67,19 +69,90 @@ export default function TopikStatsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable accessibilityLabel={t("topik.common.back")} onPress={() => router.back()} style={styles.iconButton}>
-          <Ionicons name="chevron-back" size={25} color={palette.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>{t("topik.stats.header")}</Text>
-        <Pressable
-          accessibilityLabel={t("topik.common.refresh")}
-          onPress={loadStats}
-          style={styles.iconButton}
-        >
-          <Ionicons name="refresh" size={21} color={palette.primary} />
-        </Pressable>
-      </View>
+      <LinearGradient
+        colors={palette.levelTwoHero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerShell}
+      >
+        <View style={styles.headerOrbLarge} />
+        <View style={styles.headerOrbSmall} />
+        <View style={styles.header}>
+          <Pressable
+            accessibilityLabel={t("topik.common.back")}
+            onPress={() => router.back()}
+            style={styles.iconButton}
+          >
+            <Ionicons name="chevron-back" size={24} color={palette.white} />
+          </Pressable>
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.headerEyebrow}>
+              {t("topik.stats.reportEyebrow").toUpperCase()}
+            </Text>
+            <Text style={styles.headerTitle}>{t("topik.stats.header")}</Text>
+          </View>
+          <Pressable
+            accessibilityLabel={t("topik.common.refresh")}
+            onPress={loadStats}
+            style={styles.iconButton}
+          >
+            <Ionicons name="refresh" size={20} color={palette.white} />
+          </Pressable>
+        </View>
+
+        {!loading && !error && summary && (
+          <View style={styles.hero}>
+            <View style={styles.heroTop}>
+              <View>
+                <Text style={styles.heroLabel}>
+                  {t("topik.stats.overallAccuracy")}
+                </Text>
+                <Text style={styles.accuracy}>{summary.accuracy}%</Text>
+              </View>
+              <View style={styles.ringOuter}>
+                <View style={styles.ring}>
+                  <Text style={styles.ringValue}>{summary.totalQuestions}</Text>
+                  <Text style={styles.ringLabel}>
+                    {t("topik.stats.solvedQuestions")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.heroBottom}>
+              <View style={styles.heroStatCard}>
+                <Ionicons
+                  name="trophy-outline"
+                  size={14}
+                  color={palette.white}
+                />
+                <Text style={styles.heroStat}>
+                  {t("topik.stats.bestScore", { score: summary.bestScore })}
+                </Text>
+              </View>
+              <View style={styles.heroStatCard}>
+                <Ionicons
+                  name="pulse-outline"
+                  size={14}
+                  color={palette.white}
+                />
+                <Text style={styles.heroStat}>
+                  {t("topik.stats.averageScore", {
+                    score: summary.averageScore,
+                  })}
+                </Text>
+              </View>
+              <View style={styles.heroStatCard}>
+                <Ionicons name="time-outline" size={14} color={palette.white} />
+                <Text style={styles.heroStat}>
+                  {t("topik.stats.studyMinutes", {
+                    minutes: Math.round(summary.totalStudySeconds / 60),
+                  })}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+      </LinearGradient>
 
       {loading ? (
         <View style={styles.centered}>
@@ -88,56 +161,56 @@ export default function TopikStatsScreen() {
         </View>
       ) : error || !summary ? (
         <View style={styles.centered}>
-          <Ionicons name="cloud-offline-outline" size={34} color={palette.danger} />
+          <Ionicons
+            name="cloud-offline-outline"
+            size={34}
+            color={palette.danger}
+          />
           <Text style={styles.errorTitle}>{t("topik.stats.loadFailed")}</Text>
           <Pressable onPress={loadStats} style={styles.retryButton}>
             <Text style={styles.retryText}>{t("topik.common.retry")}</Text>
           </Pressable>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.hero}>
-            <Text style={styles.heroEyebrow}>{t("topik.stats.reportEyebrow").toUpperCase()}</Text>
-            <View style={styles.heroTop}>
-              <View>
-                <Text style={styles.heroLabel}>{t("topik.stats.overallAccuracy")}</Text>
-                <Text style={styles.accuracy}>{summary.accuracy}%</Text>
-              </View>
-              <View style={styles.ring}>
-                <Text style={styles.ringValue}>{summary.totalQuestions}</Text>
-                <Text style={styles.ringLabel}>{t("topik.stats.solvedQuestions")}</Text>
-              </View>
-            </View>
-            <View style={styles.heroBottom}>
-              <Text style={styles.heroStat}>{t("topik.stats.bestScore", { score: summary.bestScore })}</Text>
-              <Text style={styles.heroDot}>•</Text>
-              <Text style={styles.heroStat}>{t("topik.stats.averageScore", { score: summary.averageScore })}</Text>
-              <Text style={styles.heroDot}>•</Text>
-              <Text style={styles.heroStat}>{t("topik.stats.studyMinutes", { minutes: Math.round(summary.totalStudySeconds / 60) })}</Text>
-            </View>
-          </View>
-
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.quickGrid}>
             <View style={styles.quickCard}>
-              <Ionicons name="school-outline" size={21} color={palette.warning} />
+              <Ionicons
+                name="school-outline"
+                size={21}
+                color={palette.warning}
+              />
               <Text style={styles.quickValue}>{summary.guidedCount}</Text>
               <Text style={styles.quickLabel}>{t("topik.stats.guided")}</Text>
             </View>
             <View style={styles.quickCard}>
-              <Ionicons name="timer-outline" size={21} color={palette.primary} />
+              <Ionicons
+                name="timer-outline"
+                size={21}
+                color={palette.primary}
+              />
               <Text style={styles.quickValue}>{summary.mockExamCount}</Text>
               <Text style={styles.quickLabel}>{t("topik.stats.mockExam")}</Text>
             </View>
             <View style={styles.quickCard}>
               <Ionicons name="bulb-outline" size={21} color={palette.purple} />
               <Text style={styles.quickValue}>{summary.hintViewCount}</Text>
-              <Text style={styles.quickLabel}>{t("topik.stats.hintsUsed")}</Text>
+              <Text style={styles.quickLabel}>
+                {t("topik.stats.hintsUsed")}
+              </Text>
             </View>
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("topik.stats.typePerformance")}</Text>
-            <Text style={styles.sectionCaption}>{t("topik.stats.recentCumulative")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("topik.stats.typePerformance")}
+            </Text>
+            <Text style={styles.sectionCaption}>
+              {t("topik.stats.recentCumulative")}
+            </Text>
           </View>
           <View style={styles.card}>
             {summary.questionTypes.length === 0 ? (
@@ -146,11 +219,22 @@ export default function TopikStatsScreen() {
               summary.questionTypes.map((type) => (
                 <View key={type.questionType} style={styles.typeRow}>
                   <View style={styles.typeTop}>
-                    <Text style={styles.typeName}>{t(`topik.questionTypes.${type.questionType}`)}</Text>
+                    <View style={styles.typeNameWrap}>
+                      <Text style={styles.typeName}>
+                        {t(`topik.questionTypes.${type.questionType}`)}
+                      </Text>
+                      {language !== "ko" && (
+                        <Text style={styles.typeNameKo}>
+                          {topikKo.questionTypes[type.questionType]}
+                        </Text>
+                      )}
+                    </View>
                     <Text style={styles.typeAccuracy}>{type.accuracy}%</Text>
                   </View>
                   <View style={styles.barTrack}>
-                    <View style={[styles.barFill, { width: `${type.accuracy}%` }]} />
+                    <View
+                      style={[styles.barFill, { width: `${type.accuracy}%` }]}
+                    />
                   </View>
                   <Text style={styles.typeMeta}>
                     {t("topik.stats.typeMeta", {
@@ -165,23 +249,45 @@ export default function TopikStatsScreen() {
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("topik.stats.focusedReview")}</Text>
-            <Text style={styles.sectionCaption}>{t("topik.stats.repeatedMistakes")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("topik.stats.focusedReview")}
+            </Text>
+            <Text style={styles.sectionCaption}>
+              {t("topik.stats.repeatedMistakes")}
+            </Text>
           </View>
           <View style={styles.card}>
             {weakQuestions.length === 0 ? (
               <View style={styles.emptyRow}>
-                <Ionicons name="sparkles-outline" size={22} color={palette.success} />
-                <Text style={styles.emptyText}>{t("topik.stats.weakEmpty")}</Text>
+                <Ionicons
+                  name="sparkles-outline"
+                  size={22}
+                  color={palette.success}
+                />
+                <Text style={styles.emptyText}>
+                  {t("topik.stats.weakEmpty")}
+                </Text>
               </View>
             ) : (
               weakQuestions.map((question) => (
-                <View key={`${question.questionId}-${question.questionVersion}`} style={styles.weakRow}>
+                <View
+                  key={`${question.questionId}-${question.questionVersion}`}
+                  style={styles.weakRow}
+                >
                   <View style={styles.weakNumber}>
-                    <Text style={styles.weakNumberText}>{question.questionNumber}</Text>
+                    <Text style={styles.weakNumberText}>
+                      {question.questionNumber}
+                    </Text>
                   </View>
                   <View style={styles.weakInfo}>
-                    <Text style={styles.weakTitle}>{t(`topik.questionTypes.${question.questionType}`)}</Text>
+                    <Text style={styles.weakTitle}>
+                      {t(`topik.questionTypes.${question.questionType}`)}
+                    </Text>
+                    {language !== "ko" && (
+                      <Text style={styles.weakTitleKo}>
+                        {topikKo.questionTypes[question.questionType]}
+                      </Text>
+                    )}
                     <Text style={styles.weakMeta}>
                       {t("topik.stats.weakMeta", {
                         wrong: question.wrongCount,
@@ -196,17 +302,25 @@ export default function TopikStatsScreen() {
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("topik.stats.recentStudy")}</Text>
-            <Text style={styles.sectionCaption}>{t("topik.stats.submittedExams")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("topik.stats.recentStudy")}
+            </Text>
+            <Text style={styles.sectionCaption}>
+              {t("topik.stats.submittedExams")}
+            </Text>
           </View>
           <View style={styles.card}>
             {history.length === 0 ? (
-              <Text style={styles.emptyText}>{t("topik.stats.historyEmpty")}</Text>
+              <Text style={styles.emptyText}>
+                {t("topik.stats.historyEmpty")}
+              </Text>
             ) : (
               history.map((item) => (
                 <View key={item.attemptId} style={styles.historyRow}>
                   <View>
-                    <Text style={styles.historyMode}>{t(MODE_KEYS[item.mode])}</Text>
+                    <Text style={styles.historyMode}>
+                      {t(MODE_KEYS[item.mode])}
+                    </Text>
                     <Text style={styles.historyDate}>
                       {new Date(item.submittedAt).toLocaleDateString(
                         i18n.resolvedLanguage ?? i18n.language,
@@ -214,8 +328,14 @@ export default function TopikStatsScreen() {
                     </Text>
                   </View>
                   <View style={styles.historyScoreWrap}>
-                    <Text style={styles.historyScore}>{t("topik.stats.historyScore", { score: item.score })}</Text>
-                    <Text style={styles.historyAccuracy}>{t("topik.stats.historyAccuracy", { accuracy: item.accuracy })}</Text>
+                    <Text style={styles.historyScore}>
+                      {t("topik.stats.historyScore", { score: item.score })}
+                    </Text>
+                    <Text style={styles.historyAccuracy}>
+                      {t("topik.stats.historyAccuracy", {
+                        accuracy: item.accuracy,
+                      })}
+                    </Text>
                   </View>
                 </View>
               ))
@@ -227,56 +347,246 @@ export default function TopikStatsScreen() {
   );
 }
 
-const getStyles = (palette: TopikPalette) => StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: palette.bg },
-  header: { minHeight: 58, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 13 },
-  iconButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerTitle: { color: palette.text, fontSize: 16, fontWeight: "900" },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", gap: 11, padding: 24 },
-  stateText: { color: palette.textSecondary, fontSize: 13 },
-  errorTitle: { color: palette.text, fontSize: 15, fontWeight: "800" },
-  retryButton: { borderRadius: 10, backgroundColor: palette.primaryStrong, paddingHorizontal: 18, paddingVertical: 10 },
-  retryText: { color: palette.white, fontWeight: "800" },
-  content: { gap: 17, paddingHorizontal: 16, paddingBottom: 40 },
-  hero: { borderRadius: 22, backgroundColor: palette.hero, padding: 21 },
-  heroEyebrow: { color: palette.heroSubtle, fontSize: 10, fontWeight: "900", letterSpacing: 1.2 },
-  heroTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 14 },
-  heroLabel: { color: palette.heroMuted, fontSize: 12, fontWeight: "700" },
-  accuracy: { color: palette.white, fontSize: 42, lineHeight: 52, fontWeight: "900" },
-  ring: { width: 84, height: 84, alignItems: "center", justifyContent: "center", borderWidth: 7, borderColor: palette.primary, borderRadius: 42, backgroundColor: palette.primaryStrong },
-  ringValue: { color: palette.white, fontSize: 18, fontWeight: "900" },
-  ringLabel: { color: palette.heroMuted, fontSize: 10 },
-  heroBottom: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 7, borderTopWidth: 1, borderTopColor: palette.heroDivider, marginTop: 17, paddingTop: 14 },
-  heroStat: { color: palette.heroMuted, fontSize: 11, fontWeight: "700" },
-  heroDot: { color: palette.heroSubtle, fontSize: 10 },
-  quickGrid: { flexDirection: "row", gap: 9 },
-  quickCard: { flex: 1, alignItems: "center", gap: 4, borderWidth: 1, borderColor: palette.border, borderRadius: 14, backgroundColor: palette.surface, paddingVertical: 14 },
-  quickValue: { color: palette.text, fontSize: 18, fontWeight: "900" },
-  quickLabel: { color: palette.textSecondary, fontSize: 10 },
-  sectionHeader: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", marginTop: 2 },
-  sectionTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
-  sectionCaption: { color: palette.textMuted, fontSize: 10, fontWeight: "700" },
-  card: { gap: 15, borderWidth: 1, borderColor: palette.border, borderRadius: 15, backgroundColor: palette.surface, padding: 15 },
-  typeRow: { gap: 6 },
-  typeTop: { flexDirection: "row", justifyContent: "space-between" },
-  typeName: { color: palette.text, fontSize: 12, fontWeight: "800" },
-  typeAccuracy: { color: palette.primary, fontSize: 12, fontWeight: "900" },
-  barTrack: { height: 7, overflow: "hidden", borderRadius: 4, backgroundColor: palette.surfaceMuted },
-  barFill: { height: "100%", borderRadius: 4, backgroundColor: palette.primary },
-  typeMeta: { color: palette.textMuted, fontSize: 10 },
-  emptyRow: { flexDirection: "row", alignItems: "center", gap: 9 },
-  emptyText: { flex: 1, color: palette.textSecondary, fontSize: 12, lineHeight: 19 },
-  weakRow: { flexDirection: "row", alignItems: "center", gap: 11 },
-  weakNumber: { width: 39, height: 39, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: palette.dangerSoft },
-  weakNumberText: { color: palette.dangerText, fontSize: 13, fontWeight: "900" },
-  weakInfo: { flex: 1, gap: 2 },
-  weakTitle: { color: palette.text, fontSize: 12, fontWeight: "800" },
-  weakMeta: { color: palette.textMuted, fontSize: 10 },
-  weakAccuracy: { color: palette.dangerText, fontSize: 12, fontWeight: "900" },
-  historyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: palette.divider, paddingBottom: 11 },
-  historyMode: { color: palette.text, fontSize: 12, fontWeight: "900" },
-  historyDate: { color: palette.textMuted, fontSize: 10, marginTop: 3 },
-  historyScoreWrap: { alignItems: "flex-end", gap: 2 },
-  historyScore: { color: palette.primary, fontSize: 14, fontWeight: "900" },
-  historyAccuracy: { color: palette.textSecondary, fontSize: 10 },
-});
+const getStyles = (palette: TopikPalette) =>
+  StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: palette.bg },
+    headerShell: {
+      overflow: "hidden",
+      borderBottomLeftRadius: 28,
+      borderBottomRightRadius: 28,
+      paddingBottom: 19,
+      shadowColor: palette.shadow,
+      shadowOpacity: palette.isDark ? 0.24 : 0.18,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 9 },
+      elevation: 7,
+    },
+    headerOrbLarge: {
+      position: "absolute",
+      top: -105,
+      right: -74,
+      width: 245,
+      height: 245,
+      borderWidth: 36,
+      borderColor: palette.heroGlowSoft,
+      borderRadius: 123,
+    },
+    headerOrbSmall: {
+      position: "absolute",
+      left: -45,
+      bottom: -54,
+      width: 140,
+      height: 140,
+      borderRadius: 70,
+      backgroundColor: palette.heroGlowSoft,
+    },
+    header: {
+      minHeight: 62,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 13,
+    },
+    iconButton: {
+      width: 42,
+      height: 42,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: palette.heroDivider,
+      borderRadius: 14,
+      backgroundColor: palette.heroBadge,
+    },
+    headerTitleWrap: { flex: 1, alignItems: "center", gap: 2 },
+    headerEyebrow: {
+      color: palette.heroSubtle,
+      fontSize: 8,
+      fontWeight: "900",
+      letterSpacing: 1.1,
+    },
+    headerTitle: { color: palette.white, fontSize: 16, fontWeight: "900" },
+    centered: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 11,
+      padding: 24,
+    },
+    stateText: { color: palette.textSecondary, fontSize: 13 },
+    errorTitle: { color: palette.text, fontSize: 15, fontWeight: "800" },
+    retryButton: {
+      borderRadius: 10,
+      backgroundColor: palette.primaryStrong,
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+    },
+    retryText: { color: palette.white, fontWeight: "800" },
+    content: {
+      gap: 17,
+      paddingHorizontal: 16,
+      paddingTop: 19,
+      paddingBottom: 40,
+    },
+    hero: { paddingHorizontal: 20, paddingTop: 8 },
+    heroTop: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    heroLabel: { color: palette.heroMuted, fontSize: 12, fontWeight: "800" },
+    accuracy: {
+      color: palette.white,
+      fontSize: 49,
+      lineHeight: 58,
+      fontWeight: "900",
+      letterSpacing: -2.2,
+    },
+    ringOuter: {
+      width: 92,
+      height: 92,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: palette.heroDividerStrong,
+      borderRadius: 28,
+      backgroundColor: palette.heroGlass,
+      transform: [{ rotate: "4deg" }],
+    },
+    ring: {
+      width: 76,
+      height: 76,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 5,
+      borderColor: palette.success,
+      borderRadius: 24,
+      backgroundColor: palette.heroGlassDark,
+    },
+    ringValue: { color: palette.white, fontSize: 20, fontWeight: "900" },
+    ringLabel: { color: palette.heroMuted, fontSize: 9 },
+    heroBottom: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 7,
+      borderTopWidth: 1,
+      borderTopColor: palette.heroDivider,
+      marginTop: 15,
+      paddingTop: 13,
+    },
+    heroStatCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      borderWidth: 1,
+      borderColor: palette.heroDivider,
+      borderRadius: 12,
+      backgroundColor: palette.heroGlassDark,
+      paddingHorizontal: 9,
+      paddingVertical: 7,
+    },
+    heroStat: { color: palette.heroMuted, fontSize: 10, fontWeight: "800" },
+    quickGrid: { flexDirection: "row", gap: 9 },
+    quickCard: {
+      flex: 1,
+      alignItems: "center",
+      gap: 4,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 16,
+      backgroundColor: palette.surface,
+      paddingVertical: 15,
+      shadowColor: palette.shadow,
+      shadowOpacity: palette.isDark ? 0.12 : 0.05,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 2,
+    },
+    quickValue: { color: palette.text, fontSize: 18, fontWeight: "900" },
+    quickLabel: { color: palette.textSecondary, fontSize: 10 },
+    sectionHeader: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      marginTop: 2,
+    },
+    sectionTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
+    sectionCaption: {
+      color: palette.textMuted,
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    card: {
+      gap: 15,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 15,
+      backgroundColor: palette.surface,
+      padding: 15,
+    },
+    typeRow: { gap: 6 },
+    typeTop: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: 12,
+    },
+    typeNameWrap: { flex: 1, gap: 2 },
+    typeName: { color: palette.text, fontSize: 12, fontWeight: "800" },
+    typeNameKo: { color: palette.textMuted, fontSize: 10, fontWeight: "700" },
+    typeAccuracy: { color: palette.primary, fontSize: 12, fontWeight: "900" },
+    barTrack: {
+      height: 7,
+      overflow: "hidden",
+      borderRadius: 4,
+      backgroundColor: palette.surfaceMuted,
+    },
+    barFill: {
+      height: "100%",
+      borderRadius: 4,
+      backgroundColor: palette.primary,
+    },
+    typeMeta: { color: palette.textMuted, fontSize: 10 },
+    emptyRow: { flexDirection: "row", alignItems: "center", gap: 9 },
+    emptyText: {
+      flex: 1,
+      color: palette.textSecondary,
+      fontSize: 12,
+      lineHeight: 19,
+    },
+    weakRow: { flexDirection: "row", alignItems: "center", gap: 11 },
+    weakNumber: {
+      width: 39,
+      height: 39,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 9,
+      backgroundColor: palette.dangerSoft,
+    },
+    weakNumberText: {
+      color: palette.dangerText,
+      fontSize: 13,
+      fontWeight: "900",
+    },
+    weakInfo: { flex: 1, gap: 2 },
+    weakTitle: { color: palette.text, fontSize: 12, fontWeight: "800" },
+    weakTitleKo: { color: palette.textMuted, fontSize: 10, fontWeight: "700" },
+    weakMeta: { color: palette.textMuted, fontSize: 10 },
+    weakAccuracy: {
+      color: palette.dangerText,
+      fontSize: 12,
+      fontWeight: "900",
+    },
+    historyRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderBottomWidth: 1,
+      borderBottomColor: palette.divider,
+      paddingBottom: 11,
+    },
+    historyMode: { color: palette.text, fontSize: 12, fontWeight: "900" },
+    historyDate: { color: palette.textMuted, fontSize: 10, marginTop: 3 },
+    historyScoreWrap: { alignItems: "flex-end", gap: 2 },
+    historyScore: { color: palette.primary, fontSize: 14, fontWeight: "900" },
+    historyAccuracy: { color: palette.textSecondary, fontSize: 10 },
+  });

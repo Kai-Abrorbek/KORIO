@@ -7,6 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
@@ -153,6 +154,11 @@ export default function CalendarModal({
                       color={theme.textSecondary}
                     />
                   </TouchableOpacity>
+                </View>
+
+                {/* 연속 학습을 보여주는 자리라 신난 표정 */}
+                <View style={styles.streakMascot}>
+                  <HaneulmonMascot size={78} mood="streak" />
                 </View>
 
                 {/* 상단 날짜 크게 */}
@@ -337,6 +343,7 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    streakMascot: { alignItems: "center", marginBottom: 2 },
     bigDateContainer: {
       alignItems: "center",
       marginBottom: 16,

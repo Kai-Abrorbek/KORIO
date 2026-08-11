@@ -17,7 +17,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
@@ -290,7 +290,7 @@ export default function HomeScreen() {
                 showBackground={false}
               />
             ) : (
-              <BoriMascot size={200} mood="default" />
+              <HaneulmonMascot size={200} mood="default" />
             )}
           </TouchableOpacity>
 

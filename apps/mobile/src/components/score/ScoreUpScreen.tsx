@@ -16,7 +16,7 @@ import { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTheme } from "@/hooks/useTheme";
 import { Modal } from "react-native";
 import { useState } from "react";
@@ -152,7 +152,7 @@ export default function ScoreUpScreen({
             ✦
           </Animated.Text>
           <Animated.View style={mascotStyle}>
-            <BoriMascot size={180} mood="level_up" />
+            <HaneulmonMascot size={180} mood="level_up" />
           </Animated.View>
         </View>
 

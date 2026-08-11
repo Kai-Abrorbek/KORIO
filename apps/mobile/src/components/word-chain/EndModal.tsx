@@ -10,7 +10,7 @@ import Animated, {
   withSequence,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { EndReason } from "@/types/word-chain";
 import { useTheme } from "@/hooks/useTheme";
@@ -61,7 +61,7 @@ export default function EndModal({
       <Animated.View style={[styles.backdrop, backdropStyle]} />
       <Animated.View style={[styles.sheet, sheetStyle]}>
         <View style={styles.mascotWrap}>
-          <BoriMascot size={100} mood={isWin ? "celebrating" : "wrong"} />
+          <HaneulmonMascot size={100} mood={isWin ? "celebrating" : "wrong"} />
         </View>
 
         <Text style={[styles.title, { color: isWin ? "#58CC02" : "#FF4B4B" }]}>

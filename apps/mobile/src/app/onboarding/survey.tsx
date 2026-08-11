@@ -32,7 +32,7 @@ import { onboardingService } from "@/services/onboarding.service";
 import { UserService } from "@/services/user.service";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import AnimatedProgressBar from "@/components/home/AnimatedProgressBar";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -463,7 +463,7 @@ export default function SurveyScreen() {
 
       <View style={s.mascotRow}>
         <Animated.View style={bobStyle}>
-          <BoriMascot size={68} mood="thinking" />
+          <HaneulmonMascot size={68} mood="thinking" />
         </Animated.View>
         <View style={s.bubble}>
           <View style={s.bubbleTail} />

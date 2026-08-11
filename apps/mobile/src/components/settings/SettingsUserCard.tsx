@@ -13,7 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AvatarConfig } from "@/types/avatar";
 
@@ -62,7 +62,7 @@ export default function SettingsUserCard({
           {avatar ? (
             <AvatarPreview avatar={avatar} size={64} showBackground={false} />
           ) : (
-            <BoriMascot size={56} mood="default" />
+            <HaneulmonMascot size={56} mood="default" />
           )}
         </View>
         <Text style={styles.name} numberOfLines={1}>

@@ -19,7 +19,7 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -117,7 +117,7 @@ export default function CoursesScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={s.hero}>
-          <BoriMascot size={82} mood="default" />
+          <HaneulmonMascot size={82} mood="default" />
           <Text style={s.title}>{t("courses.chooseLanguage")}</Text>
           <Text style={s.subtitle}>{t("courses.chooseLanguageSub")}</Text>
         </View>

@@ -21,7 +21,7 @@ import { LessonService } from "@/services/lesson.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import SentenceBuilder from "@/components/lesson/questions/SentenceBuilder";
 import WordArrange from "@/components/lesson/questions/WordArrange";
 import Speaking from "@/components/lesson/questions/Speaking";
@@ -694,7 +694,7 @@ export default function LessonScreen() {
           style={[s.reviewIntro, { paddingBottom: insets.bottom + 16 }]}
         >
           <View style={s.reviewCenter}>
-            <BoriMascot size={150} mood="review" />
+            <HaneulmonMascot size={150} mood="review" />
             <View style={s.bubble}>
               <Text style={s.bubbleText}>{t("lesson.reviewIntro")}</Text>
             </View>

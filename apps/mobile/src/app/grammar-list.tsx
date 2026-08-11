@@ -166,9 +166,7 @@ function SectionBlock({
             { backgroundColor: headBg, opacity: locked ? 0.65 : 1 },
           ]}
         >
-          <View
-            style={[st.secNum, premiumLocked && { borderColor: C.gold }]}
-          >
+          <View style={[st.secNum, premiumLocked && { borderColor: C.gold }]}>
             {premiumLocked ? (
               <Ionicons name="star" size={22} color={C.gold} />
             ) : (
@@ -180,7 +178,10 @@ function SectionBlock({
               {t("grammarList.section", { n: section })}
             </Text>
             <Text
-              style={[st.secSub, premiumLocked && { color: C.gold, opacity: 1 }]}
+              style={[
+                st.secSub,
+                premiumLocked && { color: C.gold, opacity: 1 },
+              ]}
             >
               {premiumLocked
                 ? t("grammarList.superOnly")
@@ -394,7 +395,6 @@ const st = StyleSheet.create({
     marginBottom: 20,
     lineHeight: 22,
   },
-
 
   secHead: {
     flexDirection: "row",

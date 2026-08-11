@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Animated, { SlideInDown, FadeIn } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
@@ -63,6 +64,10 @@ export default function EnergyModal({
         </View>
 
         <Animated.View style={[s.sheet, { paddingBottom: insets.bottom + 24 }]}>
+          {/* 에너지가 바닥난 자리라 지친 표정 */}
+          <View style={s.mascot}>
+            <HaneulmonMascot size={92} mood="exhausted" />
+          </View>
           <Text style={s.title}>{t("energy.modalTitle")}</Text>
 
           <View style={s.cardsRow}>
@@ -190,6 +195,7 @@ const getStyles = (theme: ThemeColors) =>
       paddingHorizontal: 20,
       paddingBottom: 36,
     },
+    mascot: { alignItems: "center", marginBottom: 6 },
     title: {
       fontSize: 26,
       fontWeight: "800",

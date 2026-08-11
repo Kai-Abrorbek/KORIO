@@ -22,7 +22,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useAuthStore } from "@/store/auth.store";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -152,9 +152,9 @@ export default function ResultScreen() {
         <ConfettiPiece key={i} index={i} />
       ))}
 
-      {/* Bori 둥둥 */}
+      {/* 하늘몬 둥둥 */}
       <Animated.View style={[styles.mascotContainer, boriStyle]}>
-        <BoriMascot size={180} mood="celebrating" />
+        <HaneulmonMascot size={180} mood="celebrating" />
       </Animated.View>
 
       <Animated.View

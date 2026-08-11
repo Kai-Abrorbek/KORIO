@@ -12,7 +12,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 interface Props {
   theme: ThemeColors;
@@ -76,7 +76,7 @@ export default function XpRewardScreen({
       ) : null}
 
       <Animated.View style={[s.mascot, bobStyle]}>
-        <BoriMascot size={170} mood="great" />
+        <HaneulmonMascot size={170} mood="great" />
       </Animated.View>
 
       {(headline || subline) && (

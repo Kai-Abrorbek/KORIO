@@ -19,6 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
@@ -275,13 +276,8 @@ export default function FeedbackBar({
       <View style={[s.body, { backgroundColor: bg }]}>
         {/* 체크 + 제목 + 우측 아이콘 */}
         <View style={s.headRow}>
-          <View style={[s.badge, { backgroundColor: accent }]}>
-            <Ionicons
-              name={isCorrect ? "checkmark" : "close"}
-              size={26}
-              color="#fff"
-            />
-          </View>
+          {/* 정답·오답 반응을 캐릭터로. 아이콘보다 감정이 바로 읽힌다 */}
+          <HaneulmonMascot size={52} mood={isCorrect ? "correct" : "wrong"} />
 
           <Text style={[s.title, { color: accent }]} numberOfLines={2}>
             {label}

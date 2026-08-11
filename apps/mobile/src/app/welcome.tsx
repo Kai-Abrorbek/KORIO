@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import BoriMascot from "../components/home/BoriMascot";
+import HaneulmonMascot from "../components/home/HaneulmonMascot";
 import { ThemeColors } from "../constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.mascotContainer}>
-        <BoriMascot size={220} mood="cheering" />
+        <HaneulmonMascot size={220} mood="cheering" />
       </View>
 
       <View style={styles.textContainer}>

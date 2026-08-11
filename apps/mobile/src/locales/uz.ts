@@ -1141,10 +1141,10 @@ export default {
     title: "Talaffuz mashqi",
     tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
     stories: {
-      lv1: "Borining birinchi buyurtmasi",
-      lv2: "Borining bozorga sayohati",
-      lv3: "Bori yo'l qidirmoqda",
-      lv4: "Borining birinchi chiqishi",
+      lv1: "Haneulmonning birinchi buyurtmasi",
+      lv2: "Haneulmonning bozorga sayohati",
+      lv3: "Haneulmon yo'l qidirmoqda",
+      lv4: "Haneulmonning birinchi chiqishi",
     },
     focus: {
       lv1: "Oddiy vs kuchli undoshlar",
@@ -1162,12 +1162,12 @@ export default {
   // uz.ts
   aiChat: {
     correctionTitle: "Grammatika tuzatish",
-    teacherName: "Bori muallim",
+    teacherName: "Haneulmon",
     online: "Onlayn · AI suhbat ustozi",
     inputPlaceholder: "Koreys tilida yozing...",
     today: "Bugun",
     emptyHint:
-      "Bori muallim bilan koreyscha suhbatlashing.\nIstalgan narsadan boshlang!",
+      "Haneulmon bilan koreyscha suhbatlashing.\nIstalgan narsadan boshlang!",
     errorReply: "Xabar yuborilmadi. Birozdan keyin qayta urinib ko'ring.",
   },
   grammarPractice: {

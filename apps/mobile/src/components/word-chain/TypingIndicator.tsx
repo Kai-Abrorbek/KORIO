@@ -9,7 +9,7 @@ import Animated, {
   withDelay,
   SlideInLeft,
 } from "react-native-reanimated";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 
@@ -50,7 +50,7 @@ export default function TypingIndicator() {
   return (
     <Animated.View entering={SlideInLeft.springify()} style={styles.row}>
       <View style={styles.avatar}>
-        <BoriMascot size={36} mood="thinking" />
+        <HaneulmonMascot size={36} mood="thinking" />
       </View>
       <View style={styles.bubble}>
         <Dot delay={0} />

@@ -40,7 +40,7 @@ const SECTIONS: SectionOption[] = [
     key: "writing",
     order: "03",
     icon: "create-outline",
-    available: false,
+    available: true,
   },
 ];
 

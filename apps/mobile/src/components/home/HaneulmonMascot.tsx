@@ -1,7 +1,7 @@
 import { Image, ImageStyle, StyleProp } from "react-native";
 
 /**
- * 보리쌤.
+ * 하늘몬 — 이 앱의 대표 마스코트.
  *
  * 예전엔 SVG 로 그렸는데 이제 표정별 일러스트를 쓴다.
  * 화면 상황에 맞는 mood 를 주면 된다 — 안 주면 기본 표정.
@@ -9,7 +9,7 @@ import { Image, ImageStyle, StyleProp } from "react-native";
  * require 는 정적 경로만 되므로 맵을 직접 나열한다 (동적 조합 불가).
  * 이미지는 배경을 지우고 768px 로 줄여둔 상태다 (원본 1254px, 흰 배경).
  */
-export type BoriMood =
+export type HaneulmonMood =
   | "default" // 기본 — 아바타 자리, 목록, 작은 표시
   | "cheering" // 환영, 시작
   | "celebrating" // 레슨/과정 완료
@@ -31,7 +31,7 @@ export type BoriMood =
   | "exhausted" // 에너지 없음
   | "overwhelmed"; // 너무 어려움
 
-const MOODS: Record<BoriMood, number> = {
+const MOODS: Record<HaneulmonMood, number> = {
   default: require("../../../assets/images/characters/hangulmon_default.png"),
   cheering: require("../../../assets/images/characters/hangulmon_cheering.png"),
   celebrating: require("../../../assets/images/characters/hangulmon_celebrating.png"),
@@ -54,17 +54,17 @@ const MOODS: Record<BoriMood, number> = {
   overwhelmed: require("../../../assets/images/characters/hangulmon_overwhelmed.png"),
 };
 
-interface BoriMascotProps {
+interface HaneulmonMascotProps {
   size?: number;
-  mood?: BoriMood;
+  mood?: HaneulmonMood;
   style?: StyleProp<ImageStyle>;
 }
 
-export default function BoriMascot({
+export default function HaneulmonMascot({
   size = 200,
   mood = "default",
   style,
-}: BoriMascotProps) {
+}: HaneulmonMascotProps) {
   return (
     <Image
       source={MOODS[mood] ?? MOODS.default}

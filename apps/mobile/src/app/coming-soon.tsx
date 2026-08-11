@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { LearnMode } from "@/store/settings.store";
@@ -52,9 +53,8 @@ export default function ComingSoon() {
       </View>
 
       <Animated.View entering={FadeInDown.duration(320)} style={s.body}>
-        <View style={[s.badge, { backgroundColor: look.bg }]}>
-          <Ionicons name={look.icon as any} size={54} color={look.color} />
-        </View>
+        {/* 아직 없는 걸 기다리게 하는 자리라 갸웃하는 표정 */}
+        <HaneulmonMascot size={132} mood="confused" />
         <View style={[s.chip, { backgroundColor: look.bg }]}>
           <Ionicons name="hammer" size={14} color={look.color} />
           <Text style={[s.chipText, { color: look.color }]}>

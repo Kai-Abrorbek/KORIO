@@ -68,46 +68,47 @@ export function TopikQuestionCard({
   );
 }
 
-const getStyles = (palette: TopikPalette) => StyleSheet.create({
-  paper: {
-    gap: 20,
-    borderWidth: 1,
-    borderColor: palette.border,
-    borderRadius: 6,
-    backgroundColor: palette.paper,
-    paddingHorizontal: 18,
-    paddingTop: 17,
-    paddingBottom: 22,
-    shadowColor: palette.shadow,
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-  },
-  instructionWrap: {
-    borderBottomWidth: 1,
-    borderBottomColor: palette.divider,
-    paddingBottom: 13,
-  },
-  instruction: {
-    color: palette.text,
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "700",
-  },
-  questionRow: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  questionNumber: {
-    color: palette.primary,
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: "900",
-    letterSpacing: -1.5,
-  },
-  prompt: { flex: 1, paddingTop: 2 },
-  promptText: {
-    color: palette.text,
-    fontSize: 14,
-    lineHeight: 24,
-    fontWeight: "700",
-  },
-});
+const getStyles = (palette: TopikPalette) =>
+  StyleSheet.create({
+    paper: {
+      gap: 20,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 6,
+      backgroundColor: palette.paper,
+      paddingHorizontal: 18,
+      paddingTop: 17,
+      paddingBottom: 22,
+      shadowColor: palette.shadow,
+      shadowOpacity: 0.07,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 2,
+    },
+    instructionWrap: {
+      borderBottomWidth: 1,
+      borderBottomColor: palette.divider,
+      paddingBottom: 13,
+    },
+    instruction: {
+      color: palette.text,
+      fontSize: 14,
+      lineHeight: 20,
+      fontWeight: "700",
+    },
+    questionRow: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
+    questionNumber: {
+      color: palette.primary,
+      fontSize: 20,
+      lineHeight: 28,
+      fontWeight: "900",
+      letterSpacing: -1.5,
+    },
+    prompt: { flex: 1, paddingTop: 2 },
+    promptText: {
+      color: palette.text,
+      fontSize: 14,
+      lineHeight: 24,
+      fontWeight: "700",
+    },
+  });

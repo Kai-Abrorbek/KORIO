@@ -28,7 +28,7 @@ import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "./BoriMascot";
+import HaneulmonMascot from "./HaneulmonMascot";
 import { AiService } from "@/services/ai.service";
 
 interface Message {
@@ -176,7 +176,7 @@ function AIAvatar() {
         flexShrink: 0,
       }}
     >
-      <BoriMascot size={32} mood="default" />
+      <HaneulmonMascot size={32} mood="default" />
     </View>
   );
 }
@@ -308,7 +308,7 @@ export default function AIChatModal({
 
           <View style={styles.headerCenter}>
             <View style={styles.avatarLarge}>
-              <BoriMascot size={42} mood="thinking" />
+              <HaneulmonMascot size={42} mood="thinking" />
               <View style={styles.onlineDot} />
             </View>
             <View>

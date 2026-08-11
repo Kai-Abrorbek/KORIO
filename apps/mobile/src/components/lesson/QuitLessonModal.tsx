@@ -10,7 +10,7 @@ import Animated, { SlideInDown, FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 interface Props {
   visible: boolean;
@@ -44,7 +44,7 @@ export default function QuitLessonModal({
 
           <View style={s.mascot}>
             {/* 나가려는 걸 붙잡는 자리라 안절부절 표정 */}
-            <BoriMascot size={150} mood="waiting" />
+            <HaneulmonMascot size={150} mood="waiting" />
           </View>
 
           <Text style={s.title}>{t("lesson.quitTitle")}</Text>

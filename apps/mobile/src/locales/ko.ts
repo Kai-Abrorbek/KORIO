@@ -975,7 +975,7 @@ export default {
       unlimitedEnergy: "무한 에너지",
       noAds: "광고 제거",
       unlimitedReview: "무제한 복습",
-      aiTutor: "AI 보리쌤 무제한",
+      aiTutor: "AI 하늘몬 무제한",
       monthlyGems: "매달 보석 지급",
       advancedStats: "고급 학습 통계",
     },
@@ -1136,10 +1136,10 @@ export default {
     title: "발음 구분 연습",
     tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
     stories: {
-      lv1: "보리의 첫 주문",
-      lv2: "보리의 시장 나들이",
-      lv3: "보리의 길 찾기",
-      lv4: "보리의 발표 데뷔",
+      lv1: "하늘몬의 첫 주문",
+      lv2: "하늘몬의 시장 나들이",
+      lv3: "하늘몬의 길 찾기",
+      lv4: "하늘몬의 발표 데뷔",
     },
     focus: {
       lv1: "예사소리 vs 거센소리",
@@ -1157,12 +1157,12 @@ export default {
   // ko.ts
   aiChat: {
     correctionTitle: "문법 교정",
-    teacherName: "보리 선생님",
+    teacherName: "하늘몬",
     online: "온라인 · AI 회화 선생님",
     inputPlaceholder: "한국어로 메시지 입력...",
     today: "오늘",
     emptyHint:
-      "보리 선생님과 한국어로 대화해 보세요.\n아무 말이나 편하게 걸어도 좋아요!",
+      "하늘몬과 한국어로 대화해 보세요.\n아무 말이나 편하게 걸어도 좋아요!",
     errorReply: "메시지를 보내지 못했어요. 잠시 후 다시 시도해 주세요.",
   },
   grammarPractice: {

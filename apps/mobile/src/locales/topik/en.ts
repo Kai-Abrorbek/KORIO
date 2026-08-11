@@ -88,9 +88,14 @@ export default {
       "Catch the key idea as you listen.\nBuild real exam instincts.",
     listeningHeroDescription:
       "Listen in the original question groups, then reveal the transcript and key clues in guided mode.",
+    writingHeroTitle:
+      "Structure your ideas and\nbuild a high-scoring response.",
+    writingHeroDescription:
+      "Practice from sentence completion to a 700-character essay with live length and rubric guidance.",
     examSelection: "Choose an exam",
     readingTest: "Reading test",
     listeningTest: "Listening test",
+    writingTest: "Writing test",
     loading: "Loading exam papers…",
     loadError: "Couldn’t load the exam papers.",
     emptyTitle: "TOPIK {{level}} {{section}} is being prepared.",
@@ -147,6 +152,28 @@ export default {
     deviceVoice: "Playing with the device’s Korean voice",
     explanationMode: "Guided mode",
     transcript: "Full transcript",
+  },
+  writingExam: {
+    eyebrow: "TOPIK II WRITING",
+    guide: "Writing guide",
+    recommendedTime: "Recommended {{minutes}} min",
+    answerLabel: "{{label}} answer",
+    shortPlaceholder: "Enter a sentence that fits the context.",
+    essayPlaceholder: "Write your response here.",
+    characters: "{{count}} / {{max}} characters",
+    minimumRemaining: "Write at least {{count}} more characters.",
+    saving: "Saving your response.",
+    saved: "Your response is safely saved.",
+    submittedTitle: "Writing responses completed",
+    submittedMessage:
+      "Compare your work with the sample answer and scoring criteria.",
+    reviewEyebrow: "SELF REVIEW",
+    myAnswer: "My answer",
+    sampleAnswer: "Sample answer",
+    rubric: "Scoring criteria",
+    emptyAnswer: "No response was written.",
+    backToExams: "Back to exam list",
+    loadFailed: "Could not load the writing exam.",
   },
   result: {
     duration: "{{minutes}}m {{seconds}}s",
@@ -240,5 +267,8 @@ export default {
     listening_attitude: "Speaker attitude",
     listening_topic: "Listening topic",
     listening_preceding_context: "Previous context",
+    writing_sentence_completion: "Sentence completion",
+    writing_data_description: "Data description",
+    writing_argumentative_essay: "Argumentative essay",
   },
 };

@@ -186,6 +186,10 @@ export default function RootLayout() {
               options={{ animation: "fade", gestureEnabled: false }}
             />
             <Stack.Screen
+              name="topik-writing"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="topik-result"
               options={{ animation: "fade", gestureEnabled: false }}
             />

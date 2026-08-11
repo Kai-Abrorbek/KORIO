@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { CelebrationStyle } from "@/types/lesson-complete";
 
 interface Props {
@@ -159,7 +159,7 @@ export default function CelebrationMascot({
     <Animated.View
       style={[styles.wrap, animStyle, { width: size, height: size }]}
     >
-      <BoriMascot size={size} mood="celebrating" />
+      <HaneulmonMascot size={size} mood="celebrating" />
     </Animated.View>
   );
 }

@@ -230,9 +230,19 @@ export default function TopikExamScreen() {
     activeQuestions.length > 1
       ? `${activeQuestions[0].number}–${progressEndNumber} / ${questions.length}`
       : `${progressEndNumber} / ${questions.length}`;
+  const isReadyForReviewTarget =
+    !isReview ||
+    activeQuestions.some((item) => item.number === reviewQuestionNumber);
 
   useEffect(() => {
     if (!examCode) return;
+
+    listeningPlayback.stop();
+    guidedStartedAttemptRef.current = null;
+    mockStartedAttemptRef.current = null;
+    guidedPlayCountsRef.current = {};
+    setGuidedPlayCounts({});
+
     if (reviewAttemptId) {
       void startReview(examCode, reviewAttemptId, reviewQuestionNumber);
       return;
@@ -243,6 +253,7 @@ export default function TopikExamScreen() {
     mode,
     reviewAttemptId,
     reviewQuestionNumber,
+    listeningPlayback.stop,
     start,
     startReview,
   ]);
@@ -278,6 +289,7 @@ export default function TopikExamScreen() {
       !attempt ||
       !session ||
       !isListening ||
+      !isReadyForReviewTarget ||
       !mockPlaybackRequest ||
       session.exam.code !== examCode ||
       attempt.examId !== session.exam.id ||
@@ -293,8 +305,12 @@ export default function TopikExamScreen() {
       return;
     }
 
-    if (!activeAudio || guidedStartedAttemptRef.current === attempt.id) return;
-    guidedStartedAttemptRef.current = attempt.id;
+    if (!activeAudio) return;
+    const guidedAutoStartKey = isReview
+      ? `${attempt.id}:review:${reviewQuestionNumber}:${activeAudio.key}`
+      : attempt.id;
+    if (guidedStartedAttemptRef.current === guidedAutoStartKey) return;
+    guidedStartedAttemptRef.current = guidedAutoStartKey;
     guidedPlayCountsRef.current = {};
     setGuidedPlayCounts({});
     playGuidedAudio(activeAudio, activeAudioRepeatCount);
@@ -305,10 +321,13 @@ export default function TopikExamScreen() {
     examCode,
     isListening,
     isLoading,
+    isReadyForReviewTarget,
+    isReview,
     listeningPlayback.play,
     mode,
     mockPlaybackRequest,
     playGuidedAudio,
+    reviewQuestionNumber,
     session,
   ]);
 
@@ -377,6 +396,11 @@ export default function TopikExamScreen() {
     }
     setExitError(false);
     setExitModalVisible(true);
+  };
+
+  const leaveReview = () => {
+    listeningPlayback.stop();
+    router.back();
   };
 
   const leaveExam = async () => {
@@ -651,7 +675,7 @@ export default function TopikExamScreen() {
         {activeStepIndex === stepStartIndices.length - 1 ? (
           <Pressable
             disabled={busy}
-            onPress={isReview ? () => router.back() : confirmSubmit}
+            onPress={isReview ? leaveReview : confirmSubmit}
             style={styles.primaryButton}
           >
             <Text style={styles.primaryText}>

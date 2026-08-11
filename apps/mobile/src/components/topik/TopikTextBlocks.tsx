@@ -69,24 +69,25 @@ export function TopikTextBlocks({
   );
 }
 
-const getStyles = (palette: TopikPalette) => StyleSheet.create({
-  container: { gap: 10 },
-  text: {
-    color: palette.text,
-    fontSize: 14,
-    lineHeight: 26,
-    letterSpacing: -0.25,
-    fontWeight: 600,
-  },
-  caption: { color: palette.textSecondary, fontSize: 12, lineHeight: 19 },
-  quote: { fontStyle: "italic", paddingLeft: 12 },
-  underline: { textDecorationLine: "underline", fontWeight: "700" },
-  emphasis: { fontWeight: "800" },
-  blank: { fontWeight: "800", letterSpacing: 1 },
-  marker: { color: palette.primary, fontWeight: "900" },
-  highlighted: {
-    backgroundColor: palette.warningSoft,
-    color: palette.warningText,
-    fontWeight: "900",
-  },
-});
+const getStyles = (palette: TopikPalette) =>
+  StyleSheet.create({
+    container: { gap: 10 },
+    text: {
+      color: palette.text,
+      fontSize: 14,
+      lineHeight: 26,
+      letterSpacing: -0.25,
+      fontWeight: 600,
+    },
+    caption: { color: palette.textSecondary, fontSize: 12, lineHeight: 19 },
+    quote: { fontStyle: "italic", paddingLeft: 12 },
+    underline: { textDecorationLine: "underline", fontWeight: "700" },
+    emphasis: { fontWeight: "800" },
+    blank: { fontWeight: "800", letterSpacing: 1 },
+    marker: { color: palette.primary, fontWeight: "900" },
+    highlighted: {
+      backgroundColor: palette.warningSoft,
+      color: palette.warningText,
+      fontWeight: "900",
+    },
+  });

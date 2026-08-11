@@ -12,7 +12,7 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import BoriMascot from "../home/BoriMascot";
+import HaneulmonMascot from "../home/HaneulmonMascot";
 
 interface Props {
   learned: number;
@@ -102,7 +102,7 @@ export default function MasteryCard({ learned, total }: Props) {
         style={styles.card}
       >
         <Animated.View style={[styles.mascotWrap, mascotStyle]}>
-          <BoriMascot size={84} mood="proud" />
+          <HaneulmonMascot size={84} mood="proud" />
         </Animated.View>
 
         <View style={styles.content}>

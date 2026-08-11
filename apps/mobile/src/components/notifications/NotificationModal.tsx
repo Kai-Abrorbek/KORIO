@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -310,13 +311,8 @@ export default function NotificationModal({
             </View>
           ) : items.length === 0 ? (
             <View style={s.center}>
-              <View style={s.emptyIcon}>
-                <Ionicons
-                  name="notifications-outline"
-                  size={34}
-                  color={theme.textSecondary}
-                />
-              </View>
+              {/* 새 소식이 없는 조용한 상태 */}
+              <HaneulmonMascot size={96} mood="sleepy" />
               <Text style={s.emptyTitle}>{t("notifs.emptyTitle")}</Text>
               <Text style={s.emptyDesc}>{t("notifs.emptyDesc")}</Text>
             </View>

@@ -25,14 +25,15 @@ export function TopikPassage({
   );
 }
 
-const getStyles = (palette: TopikPalette) => StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: palette.borderStrong,
-    backgroundColor: palette.surface,
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  unbordered: { borderWidth: 0, paddingHorizontal: 0, paddingVertical: 0 },
-});
+const getStyles = (palette: TopikPalette) =>
+  StyleSheet.create({
+    container: {
+      borderWidth: 1,
+      borderColor: palette.borderStrong,
+      backgroundColor: palette.surface,
+      paddingHorizontal: 10,
+      paddingVertical: 12,
+      borderRadius: 10,
+    },
+    unbordered: { borderWidth: 0, paddingHorizontal: 0, paddingVertical: 0 },
+  });

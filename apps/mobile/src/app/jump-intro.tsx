@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 export default function JumpIntroScreen() {
   const { t } = useTranslation();
@@ -58,7 +58,7 @@ export default function JumpIntroScreen() {
       {/* 마스코트 + 말풍선 */}
       <View style={s.center}>
         <Animated.View entering={FadeIn.duration(300)} style={s.mascotRow}>
-          <BoriMascot size={130} mood="confident" />
+          <HaneulmonMascot size={130} mood="confident" />
           <View style={s.bubble}>
             <Text style={s.bubbleText}>{t("jump.introRule")}</Text>
             <View style={s.bubbleTail} />

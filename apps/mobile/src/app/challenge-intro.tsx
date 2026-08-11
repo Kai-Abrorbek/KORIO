@@ -13,7 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect, useState } from "react";
 import { getTier } from "@/constants/league-tiers";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 // 조정 가능
 export const CHALLENGE_SEGMENTS = [5, 10, 20];
@@ -87,7 +87,7 @@ export default function ChallengeIntro() {
           entering={FadeIn.duration(400)}
           style={[s.mascotRow, bobStyle]}
         >
-          <BoriMascot size={140} mood="determined" />
+          <HaneulmonMascot size={140} mood="determined" />
           <View style={s.bubble}>
             <Text style={s.bubbleText}>
               <Text style={{ fontWeight: "900" }}>

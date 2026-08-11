@@ -16,6 +16,7 @@ import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
+import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 import { TopikService } from "@/services/topik.service";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import type { TopikAttemptResult } from "@/types/topik";
@@ -88,16 +89,11 @@ export default function TopikResultScreen() {
   const accuracy = Math.round(
     (result.correctCount / result.totalQuestions) * 100,
   );
-  const wrongCount = Math.max(
-    0,
-    result.totalQuestions - result.correctCount,
-  );
+  const wrongCount = Math.max(0, result.totalQuestions - result.correctCount);
   const canReviewQuestions = result.mode === "guided";
   const topikLevel = result.examType === "topik_i" ? "I" : "II";
   const heroColors =
-    result.examType === "topik_i"
-      ? palette.levelOneHero
-      : palette.levelTwoHero;
+    result.examType === "topik_i" ? palette.levelOneHero : palette.levelTwoHero;
 
   const openQuestionReview = (questionNumber: number) => {
     if (!canReviewQuestions) return;
@@ -143,17 +139,17 @@ export default function TopikResultScreen() {
                   {t(`topik.home.${result.section}`).toUpperCase()}
                 </Text>
               </View>
-              <Text style={styles.heroTitle}>
-                {t("topik.result.complete")}
-              </Text>
+              <Text style={styles.heroTitle}>{t("topik.result.complete")}</Text>
             </View>
-            <View style={styles.successEmblem}>
-              <View style={styles.successEmblemInner}>
-                <Ionicons name="trophy" size={31} color={palette.white} />
-              </View>
-              <View style={styles.successCheck}>
-                <Ionicons name="checkmark" size={13} color={palette.white} />
-              </View>
+            <View pointerEvents="none" style={styles.successArtwork}>
+              <TopikSuccessConfetti
+                dom={{
+                  scrollEnabled: false,
+                  showsHorizontalScrollIndicator: false,
+                  showsVerticalScrollIndicator: false,
+                  style: styles.successArtworkFill,
+                }}
+              />
             </View>
           </View>
 
@@ -204,11 +200,7 @@ export default function TopikResultScreen() {
             </View>
             <View style={styles.summaryCard}>
               <View style={styles.summaryIconNeutral}>
-                <Ionicons
-                  name="time-outline"
-                  size={14}
-                  color={palette.white}
-                />
+                <Ionicons name="time-outline" size={14} color={palette.white} />
               </View>
               <View style={styles.summaryText}>
                 <Text style={styles.summaryValueSmall}>
@@ -460,38 +452,14 @@ const getStyles = (palette: TopikPalette) =>
       fontWeight: "900",
       letterSpacing: -0.6,
     },
-    successEmblem: {
-      width: 70,
-      height: 70,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: 1,
-      borderColor: palette.heroDividerStrong,
-      borderRadius: 24,
-      backgroundColor: palette.heroGlass,
-      transform: [{ rotate: "4deg" }],
+    successArtwork: {
+      width: 92,
+      height: 92,
+      marginRight: -7,
+      marginTop: -7,
+      overflow: "hidden",
     },
-    successEmblemInner: {
-      width: 54,
-      height: 54,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 18,
-      backgroundColor: palette.success,
-    },
-    successCheck: {
-      position: "absolute",
-      right: 1,
-      bottom: 1,
-      width: 23,
-      height: 23,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: 2,
-      borderColor: palette.white,
-      borderRadius: 12,
-      backgroundColor: palette.primaryStrong,
-    },
+    successArtworkFill: { width: "100%", height: "100%" },
     scoreBlock: {
       flexDirection: "row",
       alignItems: "baseline",

@@ -1138,10 +1138,10 @@ export default {
     title: "Pronunciation Practice",
     tabs: { lv1: "Lv.1", lv2: "Lv.2", lv3: "Lv.3", lv4: "Lv.4" },
     stories: {
-      lv1: "Bori's first order",
-      lv2: "Bori goes to the market",
-      lv3: "Bori asks for directions",
-      lv4: "Bori's first presentation",
+      lv1: "Haneulmon's first order",
+      lv2: "Haneulmon goes to the market",
+      lv3: "Haneulmon asks for directions",
+      lv4: "Haneulmon's first presentation",
     },
     focus: {
       lv1: "Plain vs aspirated",
@@ -1159,12 +1159,12 @@ export default {
   // en.ts
   aiChat: {
     correctionTitle: "Grammar fix",
-    teacherName: "Teacher Bori",
+    teacherName: "Haneulmon",
     online: "Online · AI conversation tutor",
     inputPlaceholder: "Type in Korean...",
     today: "Today",
     emptyHint:
-      "Practise Korean with Teacher Bori.\nStart with anything you like!",
+      "Practise Korean with Haneulmon.\nStart with anything you like!",
     errorReply: "Couldn't send your message. Please try again in a moment.",
   },
   grammarPractice: {

@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -30,6 +31,8 @@ export default function NextSectionLocked({
 
       {/* 잠금 + 섹션명 */}
       <View style={styles.titleRow}>
+        {/* 아직 못 여는 구간이라 벅차하는 표정 */}
+        <HaneulmonMascot size={64} mood="overwhelmed" />
         <Ionicons name="lock-closed" size={22} color={theme.textSecondary} />
         <Text style={styles.title}>{title || `Section ${sectionNumber}`}</Text>
       </View>

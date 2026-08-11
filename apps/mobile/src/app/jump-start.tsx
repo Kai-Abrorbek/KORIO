@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import BoriMascot from "@/components/home/BoriMascot";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 export default function JumpStartScreen() {
   const { t } = useTranslation();
@@ -55,7 +55,7 @@ export default function JumpStartScreen() {
 
         {/* 마스코트 */}
         <Animated.View entering={FadeInDown.delay(150)} style={s.mascot}>
-          <BoriMascot size={160} mood="determined" />
+          <HaneulmonMascot size={160} mood="determined" />
         </Animated.View>
 
         {/* 설명 */}

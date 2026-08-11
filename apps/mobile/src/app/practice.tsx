@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -92,6 +93,8 @@ export default function PracticeScreen() {
             <Ionicons name="close" size={28} color="#fff" />
           </TouchableOpacity>
         </View>
+        {/* 틀린 걸 다시 파는 자리라 집중한 표정 */}
+        <HaneulmonMascot size={104} mood="focused" style={s.heroMascot} />
         <Text style={s.heroTitle}>{t("practice.title")}</Text>
 
         <View style={s.heroCard}>
@@ -190,6 +193,7 @@ const styles = (theme: ThemeColors) =>
       justifyContent: "flex-start",
       marginBottom: 8,
     },
+    heroMascot: { alignSelf: "center", marginBottom: 4 },
     heroTitle: {
       fontSize: 30,
       fontWeight: "900",
