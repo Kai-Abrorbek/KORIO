@@ -117,7 +117,7 @@ export default function CoursesScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={s.hero}>
-          <BoriMascot size={82} mood="waiting" />
+          <BoriMascot size={82} mood="default" />
           <Text style={s.title}>{t("courses.chooseLanguage")}</Text>
           <Text style={s.subtitle}>{t("courses.chooseLanguageSub")}</Text>
         </View>
