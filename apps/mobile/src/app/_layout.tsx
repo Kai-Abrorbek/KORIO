@@ -90,6 +90,14 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="match-game"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="memory-game"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="hangul-drawing"
               options={{ animation: "fade", gestureEnabled: false }}
             />
@@ -159,6 +167,10 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="course-categories"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="games"
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen

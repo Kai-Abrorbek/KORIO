@@ -206,6 +206,26 @@ export default {
       },
     },
   },
+  games: {
+    title: "Игры",
+    subtitle: "Повторяйте выученные слова играя. За игры тоже дают XP!",
+    hangulTitle: "Игры с хангылем",
+    hangulDesc: "Игры с буквами — внутри раздела хангыля",
+    items: {
+      matchGame: {
+        name: "Найди пару",
+        desc: "Быстро соединяйте слова с их значением",
+      },
+      wordMemory: {
+        name: "Запомни слова",
+        desc: "Переворачивайте карточки и ищите пары",
+      },
+      wordChain: {
+        name: "Цепочка слов",
+        desc: "По очереди с Ханыльмоном продолжайте цепочку",
+      },
+    },
+  },
   help: {
     searchPlaceholder: "Найдите ответ",
     categories: {
@@ -484,6 +504,8 @@ export default {
     languages: { korean: "Корейский", english: "Английский" },
     chooseCategory: "Что будешь изучать?",
     categories: {
+      hangul: "Хангыль",
+      games: "Игры",
       vocab: "Лексика",
       grammar: "Грамматика",
       expression: "Выражения",
@@ -494,6 +516,8 @@ export default {
       grammarPractice: "Грамматика: практика",
     },
     categoryDesc: {
+      hangul: "Начните с букв",
+      games: "Повторяйте играя",
       vocab: "Учи слова",
       grammar: "Освой правила",
       expression: "Частые фразы",

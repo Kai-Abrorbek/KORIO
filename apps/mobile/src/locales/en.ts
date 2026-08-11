@@ -206,6 +206,26 @@ export default {
       },
     },
   },
+  games: {
+    title: "Games",
+    subtitle: "Review the words you've learned by playing. Games earn XP too!",
+    hangulTitle: "Hangul games",
+    hangulDesc: "Letter games live inside Hangul practice",
+    items: {
+      matchGame: {
+        name: "Word match",
+        desc: "Pair each word with its meaning, fast",
+      },
+      wordMemory: {
+        name: "Word memory",
+        desc: "Flip the cards and find the pairs",
+      },
+      wordChain: {
+        name: "Word chain",
+        desc: "Take turns linking words with Haneulmon",
+      },
+    },
+  },
   help: {
     searchPlaceholder: "Search for an answer",
     categories: {
@@ -484,6 +504,8 @@ export default {
     languages: { korean: "Korean", english: "English" },
     chooseCategory: "What will you study?",
     categories: {
+      hangul: "Hangul",
+      games: "Games",
       vocab: "Vocabulary",
       grammar: "Grammar",
       expression: "Expressions",
@@ -494,6 +516,8 @@ export default {
       grammarPractice: "Grammar drills",
     },
     categoryDesc: {
+      hangul: "Start with the letters",
+      games: "Review by playing",
       vocab: "Learn words",
       grammar: "Master the rules",
       expression: "Common phrases",

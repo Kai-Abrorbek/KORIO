@@ -207,6 +207,27 @@ export default {
       },
     },
   },
+  games: {
+    title: "O'yinlar",
+    subtitle:
+      "O'rgangan so'zlaringizni o'ynab takrorlang. O'yinlarda ham XP bor!",
+    hangulTitle: "Hangul o'yinlari",
+    hangulDesc: "Harf o'yinlari hangul bo'limining ichida",
+    items: {
+      matchGame: {
+        name: "So'z juftlash",
+        desc: "Ma'nosi mos so'zlarni tez bog'lang",
+      },
+      wordMemory: {
+        name: "So'zlarni eslab qolish",
+        desc: "Kartalarni ochib juftini toping",
+      },
+      wordChain: {
+        name: "So'z zanjiri",
+        desc: "Haneulmon bilan navbatma-navbat so'z ulang",
+      },
+    },
+  },
   help: {
     searchPlaceholder: "Savolingizni qidiring",
     categories: {
@@ -487,6 +508,8 @@ export default {
     languages: { korean: "Koreys tili", english: "Ingliz tili" },
     chooseCategory: "Nimani o'rganasiz?",
     categories: {
+      hangul: "Hangul",
+      games: "O'yinlar",
       vocab: "Lug'at",
       grammar: "Grammatika",
       expression: "Iboralar",
@@ -497,6 +520,8 @@ export default {
       grammarPractice: "Grammatika mashqi",
     },
     categoryDesc: {
+      hangul: "Harflardan boshlang",
+      games: "O'ynab takrorlang",
       vocab: "So'zlarni o'rganing",
       grammar: "Qoidalarni o'rganing",
       expression: "Ko'p ishlatiladigan iboralar",
@@ -1160,7 +1185,8 @@ export default {
     front: "So'z boshida",
     back: "So'z oxirida",
     start: "START",
-    hardLocked: "EASY'da {{total}} tadan {{need}} tasini to'g'ri qilsangiz HARD ochiladi. ({{score}} ball)",
+    hardLocked:
+      "EASY'da {{total}} tadan {{need}} tasini to'g'ri qilsangiz HARD ochiladi. ({{score}} ball)",
     confirm: "OK",
   },
   // uz.ts

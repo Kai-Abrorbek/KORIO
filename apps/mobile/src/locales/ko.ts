@@ -205,6 +205,23 @@ export default {
       },
     },
   },
+  games: {
+    title: "게임",
+    subtitle: "배운 단어로 놀면서 복습해요. 게임에서도 XP를 받아요!",
+    hangulTitle: "한글 게임",
+    hangulDesc: "자모 게임은 한글 학습 안에 있어요",
+    items: {
+      matchGame: {
+        name: "단어 짝 맞추기",
+        desc: "뜻이 맞는 단어끼리 빠르게 연결해요",
+      },
+      wordMemory: {
+        name: "단어 기억하기",
+        desc: "카드를 뒤집어 같은 짝을 찾아요",
+      },
+      wordChain: { name: "끝말잇기", desc: "하늘몬과 번갈아 단어를 이어요" },
+    },
+  },
   help: {
     searchPlaceholder: "궁금한 걸 검색해 보세요",
     categories: {
@@ -482,6 +499,8 @@ export default {
     languages: { korean: "한국어", english: "영어" },
     chooseCategory: "무엇을 공부할까?",
     categories: {
+      hangul: "한글",
+      games: "게임",
       vocab: "어휘",
       grammar: "문법",
       expression: "표현",
@@ -492,6 +511,8 @@ export default {
       grammarPractice: "문법 문제",
     },
     categoryDesc: {
+      hangul: "글자부터 배워요",
+      games: "놀면서 복습해요",
       vocab: "단어를 익혀요",
       grammar: "규칙을 배워요",
       expression: "자주 쓰는 표현",

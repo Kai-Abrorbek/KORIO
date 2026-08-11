@@ -30,6 +30,8 @@ import {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const CATEGORIES = [
+  // 한글은 맨 앞. 아직 못 읽는 사람은 여기부터 시작해야 한다
+  { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2" },
   { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043" },
   { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0" },
   {
@@ -62,6 +64,12 @@ const CATEGORIES = [
     category: "grammarPractice",
     icon: "barbell",
     color: "#7E57C2",
+  },
+  {
+    key: "games",
+    category: "games",
+    icon: "game-controller",
+    color: "#5F4FD8",
   },
 ];
 
@@ -98,10 +106,15 @@ function CategoryCard({
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-          // 발음은 목적지가 로드맵도 메인 페이지도 아닌 단발 바로가기다.
+          // 아래 셋은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
           // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
-          if (c.category === "pronunciation") {
-            router.push("/pronunciation-practice");
+          const SHORTCUTS: Record<string, string> = {
+            pronunciation: "/pronunciation-practice",
+            hangul: "/hangul",
+            games: "/games",
+          };
+          if (SHORTCUTS[c.category]) {
+            router.push(SHORTCUTS[c.category] as any);
             return;
           }
           // 토픽은 급수를 골라야 해서 모달을 먼저 띄운다 (모드 저장도 거기서)
