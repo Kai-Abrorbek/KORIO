@@ -206,8 +206,10 @@ export function validateTopikListeningSeed(seed: TopikExamSeed) {
   if (seed.exam.section !== 'listening') {
     errors.push('Listening seed must use the listening section');
   }
-  if (sortedQuestions.length !== 50 || seed.exam.totalQuestions !== 50) {
-    errors.push('Listening seed must contain 50 questions');
+  if (sortedQuestions.length !== seed.exam.totalQuestions) {
+    errors.push(
+      `Listening seed must contain ${seed.exam.totalQuestions} questions`,
+    );
   }
 
   sortedQuestions.forEach((question, index) => {
@@ -258,23 +260,153 @@ export function validateTopikListeningSeed(seed: TopikExamSeed) {
     ),
   );
   if (
-    coveredNumbers.length !== 50 ||
+    coveredNumbers.length !== seed.exam.totalQuestions ||
     coveredNumbers.some((number, index) => number !== index + 1)
   ) {
-    errors.push('Listening groups must cover questions 1 through 50 once');
+    errors.push(
+      `Listening groups must cover questions 1 through ${seed.exam.totalQuestions} once`,
+    );
   }
 
   const totalPoints = sortedQuestions.reduce(
     (sum, question) => sum + question.points,
     0,
   );
-  if (totalPoints !== 100 || seed.exam.totalPoints !== 100) {
-    errors.push('Listening seed must total 100 points');
+  if (totalPoints !== seed.exam.totalPoints) {
+    errors.push(
+      `Listening seed must total ${seed.exam.totalPoints} points, received ${totalPoints}`,
+    );
   }
 
   if (errors.length > 0) {
     throw new Error(
       `TOPIK listening seed validation failed:\n- ${errors.join('\n- ')}`,
+    );
+  }
+
+  return {
+    groupCount: seed.groups.length,
+    questionCount: sortedQuestions.length,
+    totalPoints,
+  };
+}
+
+export function validateTopikIReadingSeed(seed: TopikExamSeed) {
+  const errors: string[] = [];
+  const sortedQuestions = [...seed.questions].sort(
+    (left, right) => left.number - right.number,
+  );
+  const groupsByCode = new Map(seed.groups.map((group) => [group.code, group]));
+  const questionCodes = new Set<string>();
+  const groupCodes = new Set<string>();
+
+  if (seed.exam.examType !== 'topik_i') {
+    errors.push('TOPIK I reading seed must use the topik_i exam type');
+  }
+  if (seed.exam.section !== 'reading') {
+    errors.push('TOPIK I reading seed must use the reading section');
+  }
+  if (seed.exam.totalQuestions !== 40 || sortedQuestions.length !== 40) {
+    errors.push('TOPIK I reading seed must contain 40 questions');
+  }
+
+  seed.groups.forEach((group) => {
+    if (groupCodes.has(group.code)) {
+      errors.push(`Duplicate TOPIK I reading group code: ${group.code}`);
+    }
+    groupCodes.add(group.code);
+  });
+
+  sortedQuestions.forEach((question, index) => {
+    const expectedNumber = index + 31;
+
+    if (question.number !== expectedNumber) {
+      errors.push(
+        `TOPIK I reading question sequence mismatch: expected ${expectedNumber}, received ${question.number}`,
+      );
+    }
+    if (questionCodes.has(question.code)) {
+      errors.push(`Duplicate TOPIK I reading question code: ${question.code}`);
+    }
+    questionCodes.add(question.code);
+
+    const group = groupsByCode.get(question.groupCode);
+    if (!group) {
+      errors.push(`TOPIK I reading question ${question.number} has no group`);
+    } else if (
+      question.number < group.startNumber ||
+      question.number > group.endNumber
+    ) {
+      errors.push(
+        `TOPIK I reading question ${question.number} is outside group ${group.code}`,
+      );
+    }
+    if (question.choices.length !== 4) {
+      errors.push(
+        `TOPIK I reading question ${question.number} must have four choices`,
+      );
+    }
+    if (
+      !question.choices.some(
+        (choice) => choice.key === question.correctChoiceKey,
+      )
+    ) {
+      errors.push(
+        `TOPIK I reading question ${question.number} has an invalid answer`,
+      );
+    }
+    if (question.solution.hints.length < 3) {
+      errors.push(
+        `TOPIK I reading question ${question.number} must have progressive hints`,
+      );
+    }
+    if (question.solution.steps.length < 2) {
+      errors.push(
+        `TOPIK I reading question ${question.number} must have solution steps`,
+      );
+    }
+    validateLocalizedText(
+      question.solution.explanation,
+      `TOPIK I reading question ${question.number} explanation`,
+      errors,
+    );
+    validateLocalizedText(
+      question.solution.strategy,
+      `TOPIK I reading question ${question.number} strategy`,
+      errors,
+    );
+  });
+
+  const coveredNumbers = seed.groups
+    .flatMap((group) =>
+      Array.from(
+        { length: group.endNumber - group.startNumber + 1 },
+        (_, index) => group.startNumber + index,
+      ),
+    )
+    .sort((left, right) => left - right);
+  if (
+    coveredNumbers.length !== 40 ||
+    coveredNumbers.some((number, index) => number !== index + 31)
+  ) {
+    errors.push(
+      'TOPIK I reading groups must cover questions 31 through 70 once',
+    );
+  }
+
+  const totalPoints = sortedQuestions.reduce(
+    (sum, question) => sum + question.points,
+    0,
+  );
+  if (totalPoints !== seed.exam.totalPoints) {
+    errors.push(
+      `TOPIK I reading seed must total ${seed.exam.totalPoints} points, received ${totalPoints}`,
+    );
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `TOPIK I reading seed validation failed:\n- ${errors.join('\n- ')}`,
     );
   }
 

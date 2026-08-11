@@ -1,0 +1,243 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_37_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-37-2014',
+  title: {
+    ko: '제37회 TOPIK I 읽기',
+    uz: '37-TOPIK I o‘qish',
+    en: '37th TOPIK I Reading',
+    ru: '37-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제37회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조 그대로 구성했습니다.',
+    uz: '37-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 37th TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 37-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2014,
+  round: 37,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제37회 한국어능력시험 I B형 읽기',
+    edition: '제37회',
+    publisher: '국립국제교육원',
+    reference: '사용자 제공 37th TOPIK I Papers.pdf',
+  },
+  publishedAt: new Date('2014-11-23T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const emailStimulus = {
+  ...passage(
+    '받는 사람: maria@hanguk.edu; john@hanguk.edu; liming@hanguk.edu; …',
+    '보낸 사람: korean@hanguk.edu',
+    '유학생 여러분, 안녕하십니까?',
+    '여러분을 위해서 전통 음악을 공부하는 한국 학생들이 공연을 합니다. 음악회는 다음 주 금요일에 있습니다. 오후 4시에 시작해서 6시까지 합니다. 3시 30분까지 한국대학교 강당으로 오시면 됩니다. 음악회가 끝나면 우리를 위해 연주해 준 학생들과 함께 저녁 식사를 할 겁니다. 많은 참석 바랍니다.',
+    '한국대학교 한국어학과',
+  ),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '유학생을 위한 한국 전통 음악회',
+  subtitle: '한국대학교 한국어학과',
+  visualVariant: 'official-email',
+};
+
+export const TOPIK_I_37_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-37-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 이야기입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-37-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-37-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-37-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음의 내용과 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-37-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 생각을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-37-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 다음 주에 새 집으로 이사합니다. 그래서 오늘 제 물건을 정리했습니다. 먼저 필요 없는 물건들을 상자 안에 넣었습니다. 그런데 그 중에는 한 번도 쓰지 않은 새 물건이 많았습니다. 앞으로는 [[blank:q49]] 물건만 사야겠습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '겨울에 기차를 타고 떠나는 ‘눈꽃 여행’이 있습니다. ‘눈꽃 여행’은 [[blank:q51]] 즐거운 시간을 보내고 다음 역으로 가는 여행입니다. 첫 번째 역에서 내리면 눈길을 산책하고 얼음낚시를 합니다. 다음 역에서는 눈사람을 만듭니다. 그리고 마지막 역에서는 따뜻한 차를 마십니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 한국에 온 지 1년이 되었습니다. 가끔 고향 생각이 날 때는 서울타워에 올라가서 밤경치를 봅니다. 서울 시내는 [[blank:q53]] 밤경치가 아름답습니다. 그리고 서울타워에 갔다 오면 마음도 가벼워지고 기분도 좋아집니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '제가 어렸을 때 우리 집 근처에 있는 작은 시장에 자주 갔습니다. [[blank:q55]] 백화점이 생긴 후에는 그 시장에 가지 않았습니다. 오늘은 오랜만에 그 시장에 가 보고 많이 놀랐습니다. 시장 안에 가게가 많고 살 수 있는 물건도 다양했습니다. 또 아주머니들이 맛있는 음식을 만들어서 팔고 있었습니다. 앞으로 집 근처 시장을 자주 이용하기로 했습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서대로 맞게 나열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-37-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '우리 어머니와 아버지는 모두 일을 하셔서 집에 혼자 있는 날이 많았습니다. [[marker:m1|㉠]] 혼자 있으면 보통 게임을 하면서 시간을 보냈습니다. [[marker:m2|㉡]] 그런데 어머니가 강아지를 사 오시면서 제 생활이 달라졌습니다. [[marker:m3|㉢]] 강아지와 함께 놀고 같이 산책도 하면서 시간을 보내게 되었습니다. [[marker:m4|㉣]] 저는 게임보다 더 좋은 친구를 갖게 되었습니다.',
+      '한 번 컴퓨터 앞에 앉으면 밥도 안 먹고 게임을 할 때도 있었습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 어제 친구하고 재미있는 옷 가게에 갔습니다. 그 가게에서는 우리가 티셔츠의 그림을 직접 그릴 수 있습니다. 그림을 그려서 주면 그것을 티셔츠로 만들어 줍니다. 어제 우리는 티셔츠를 하나씩 만들어 입었습니다. 같은 티셔츠를 입으니까 친구가 더 소중하게 느껴졌습니다. 그 옷을 [[blank:q61]] 친구가 생각날 것 같습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    emailStimulus,
+  ),
+  group(
+    'topik-i-37-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 자기 전에 하루를 정리하면서 메모를 합니다. 먼저 오늘 일어난 일 중에서 잘 한 일 세 가지를 씁니다. 그렇게 하면 힘든 하루를 조금 잊을 수 있습니다. 그 다음에는 내일 할 일을 [[blank:q65]]. 그러면 중요한 일을 잊어버리지 않아서 좋습니다. 이렇게 메모를 하면 생각만 할 때보다 하루하루를 훨씬 더 잘 정리할 수 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '꽃이나 나무가 오래 살려면 물과 공기, 햇빛이 중요합니다. [[blank:q67]] 막으려면 화분을 한곳에 모아 놓아야 합니다. 물에 젖은 수건을 화분 아래에 놓는 것도 좋은 방법입니다. 또 집안에서 공기가 잘 통할 수 있게 방문을 열어 놓으면 좋습니다. 마지막으로, 여행을 오래 할 때는 햇빛이 잘 들어오지 않는 곳에 화분을 놓는 것이 좋습니다.',
+    ),
+  ),
+  group(
+    'topik-i-37-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 지난 주말에 아주 특별한 사진관에 갔습니다. 그 사진관에는 사진을 찍기 위한 모든 준비가 다 되어 있었습니다. 사진을 찍기 전에 화장도 해 주고 머리도 해 주었습니다. 그리고 저에게 어울리는 옷도 빌려 주었습니다. 거울 속의 제 모습이 마음에 들었습니다. 이렇게 멋진 모습으로 사진을 [[blank:q69]] 친구들에게도 소개할 생각입니다.',
+    ),
+  ),
+];

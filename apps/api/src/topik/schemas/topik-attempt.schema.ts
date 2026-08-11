@@ -119,7 +119,7 @@ export class TopikAttempt {
   @Prop({ type: [TopikAttemptLearningStateSchema], default: [] })
   learningStates: TopikAttemptLearningState[];
 
-  @Prop({ min: 1, max: 54, default: 1 })
+  @Prop({ min: 1, max: 70, default: 1 })
   currentQuestionNumber: number;
 
   @Prop({ min: 0, default: 0 })

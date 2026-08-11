@@ -14,6 +14,7 @@ import {
   TopikAttemptStatus,
 } from './schemas/topik-attempt.schema';
 import {
+  TopikExamType,
   TopikPublishStatus,
   TopikResponseType,
   TopikSection,
@@ -104,17 +105,27 @@ export class TopikService {
     return Array.from(latestByExam.values());
   }
 
-  public async getExamSession(code: string, from = 1, to = 50) {
-    if (from > to) {
+  public async getExamSession(code: string, from?: number, to?: number) {
+    const exam = await this.findPublishedExam(code);
+    const firstQuestionNumber =
+      exam.section === TopikSection.WRITING
+        ? 51
+        : exam.examType === TopikExamType.TOPIK_I &&
+            exam.section === TopikSection.READING
+          ? 31
+          : 1;
+    const resolvedFrom = from ?? firstQuestionNumber;
+    const resolvedTo = to ?? firstQuestionNumber + exam.totalQuestions - 1;
+
+    if (resolvedFrom > resolvedTo) {
       throw new BadRequestException('TOPIK_INVALID_QUESTION_RANGE');
     }
 
-    const exam = await this.findPublishedExam(code);
     const groups = await this.groupModel
       .find({
         examId: exam._id,
-        startNumber: { $lte: to },
-        endNumber: { $gte: from },
+        startNumber: { $lte: resolvedTo },
+        endNumber: { $gte: resolvedFrom },
         isActive: true,
       })
       .sort({ order: 1 })
@@ -124,14 +135,14 @@ export class TopikService {
       .find({
         examId: exam._id,
         groupId: { $in: groupIds },
-        number: { $gte: from, $lte: to },
+        number: { $gte: resolvedFrom, $lte: resolvedTo },
         isActive: true,
       })
       .select('-correctChoiceKey -solution')
       .sort({ number: 1 })
       .lean();
 
-    if (questions.length !== to - from + 1) {
+    if (questions.length !== resolvedTo - resolvedFrom + 1) {
       throw new BadRequestException('TOPIK_QUESTION_SET_INCOMPLETE');
     }
 
@@ -146,7 +157,7 @@ export class TopikService {
 
     return {
       exam: this.formatExam(exam),
-      range: { from, to },
+      range: { from: resolvedFrom, to: resolvedTo },
       groups: groups.map((group) => ({
         id: group._id.toString(),
         code: group.code,
@@ -208,7 +219,13 @@ export class TopikService {
       .sort({ number: 1 })
       .lean();
 
-    const firstQuestionNumber = exam.section === TopikSection.WRITING ? 51 : 1;
+    const firstQuestionNumber =
+      exam.section === TopikSection.WRITING
+        ? 51
+        : exam.examType === TopikExamType.TOPIK_I &&
+            exam.section === TopikSection.READING
+          ? 31
+          : 1;
     const hasCompleteNumberSequence = questions.every(
       (question, index) => question.number === firstQuestionNumber + index,
     );

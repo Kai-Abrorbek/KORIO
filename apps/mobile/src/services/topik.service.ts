@@ -26,12 +26,17 @@ export const TopikService = {
 
   getSession: (
     examCode: string,
-    from = 1,
-    to = 50,
-  ): Promise<TopikExamSession> =>
-    api.get(
-      `/topik/exams/${encodeURIComponent(examCode)}/session?from=${from}&to=${to}`,
-    ),
+    from?: number,
+    to?: number,
+  ): Promise<TopikExamSession> => {
+    const params = new URLSearchParams();
+    if (from !== undefined) params.set("from", String(from));
+    if (to !== undefined) params.set("to", String(to));
+    const query = params.toString();
+    return api.get(
+      `/topik/exams/${encodeURIComponent(examCode)}/session${query ? `?${query}` : ""}`,
+    );
+  },
 
   startAttempt: (
     examCode: string,

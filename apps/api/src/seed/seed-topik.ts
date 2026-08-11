@@ -10,12 +10,15 @@ import { TopikResponseType } from '../topik/schemas/topik-content.schema';
 import { TopikModule } from '../topik/topik.module';
 import {
   TOPIK_LISTENING_MOCK_1_SEED,
+  TOPIK_I_37_LISTENING_SEED,
+  TOPIK_I_37_READING_SEED,
   TOPIK_READING_MOCK_1_SEED,
   TOPIK_WRITING_MOCK_1_SEED,
   TopikExamSeed,
 } from './data/topik';
 import {
   validateTopikListeningSeed,
+  validateTopikIReadingSeed,
   validateTopikReadingSeed,
   validateTopikWritingSeed,
 } from './validate-topik-seed';
@@ -50,6 +53,14 @@ async function seedTopik() {
       data: TopikExamSeed;
       validation: ReturnType<typeof validateTopikReadingSeed>;
     }> = [
+      {
+        data: TOPIK_I_37_READING_SEED,
+        validation: validateTopikIReadingSeed(TOPIK_I_37_READING_SEED),
+      },
+      {
+        data: TOPIK_I_37_LISTENING_SEED,
+        validation: validateTopikListeningSeed(TOPIK_I_37_LISTENING_SEED),
+      },
       {
         data: TOPIK_READING_MOCK_1_SEED,
         validation: validateTopikReadingSeed(TOPIK_READING_MOCK_1_SEED),

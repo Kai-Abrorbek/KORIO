@@ -34,7 +34,7 @@ export class TopikQuestion {
   @Prop({ type: Types.ObjectId, ref: 'TopikQuestionGroup', required: true })
   groupId: Types.ObjectId;
 
-  @Prop({ required: true, min: 1, max: 54 })
+  @Prop({ required: true, min: 1, max: 70 })
   number: number;
 
   @Prop({ required: true, min: 1 })

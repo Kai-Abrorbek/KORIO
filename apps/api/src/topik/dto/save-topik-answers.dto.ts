@@ -82,7 +82,7 @@ export class SaveTopikAnswersDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(54)
+  @Max(70)
   currentQuestionNumber?: number;
 
   @IsOptional()

@@ -154,7 +154,7 @@ export default function TopikExamScreen() {
               ) === index,
           );
 
-          return uniqueAudios.map((audio, audioIndex) => {
+          return uniqueAudios.flatMap((audio, audioIndex) => {
             const usesSharedAudio = Boolean(group.sharedAudio);
             const startNumber = usesSharedAudio
               ? group.startNumber
@@ -166,13 +166,23 @@ export default function TopikExamScreen() {
                 ? `${startNumber}번 문제입니다.`
                 : `${startNumber}번과 ${endNumber}번 문제입니다.`;
 
-            return {
+            const repeatCount = Math.max(
+              1,
+              audio.guidedAutoRepeatCount ?? (startNumber >= 21 ? 2 : 1),
+            );
+
+            return Array.from({ length: repeatCount }, (_, repeatIndex) => ({
               transcript: [
-                { speaker: "안내", text: announcement },
+                ...(repeatIndex === 0
+                  ? [{ speaker: "안내", text: announcement }]
+                  : []),
                 ...audio.transcript,
               ],
-              pauseAfterMs: questionCount * TOPIK_ANSWER_TIME_PER_QUESTION_MS,
-            };
+              pauseAfterMs:
+                repeatIndex === repeatCount - 1
+                  ? questionCount * TOPIK_ANSWER_TIME_PER_QUESTION_MS
+                  : 900,
+            }));
           });
         });
 
@@ -227,10 +237,16 @@ export default function TopikExamScreen() {
       activeQuestions.some((item) => Boolean(revealedSolutions[item.id])));
   const progressEndNumber =
     activeQuestions[activeQuestions.length - 1]?.number ?? currentIndex + 1;
+  const finalQuestionNumber =
+    questions[questions.length - 1]?.number ?? questions.length;
+  const progressPosition = Math.min(
+    questions.length,
+    currentIndex + Math.max(1, activeQuestions.length),
+  );
   const progressLabel =
     activeQuestions.length > 1
-      ? `${activeQuestions[0].number}–${progressEndNumber} / ${questions.length}`
-      : `${progressEndNumber} / ${questions.length}`;
+      ? `${activeQuestions[0].number}–${progressEndNumber} / ${finalQuestionNumber}`
+      : `${progressEndNumber} / ${finalQuestionNumber}`;
   const isReadyForReviewTarget =
     !isReview ||
     activeQuestions.some((item) => item.number === reviewQuestionNumber);
@@ -531,7 +547,7 @@ export default function TopikExamScreen() {
             <View
               style={[
                 styles.progressFill,
-                { width: `${(progressEndNumber / questions.length) * 100}%` },
+                { width: `${(progressPosition / questions.length) * 100}%` },
               ]}
             />
           </View>

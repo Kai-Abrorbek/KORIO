@@ -78,6 +78,12 @@ function toDraftAnswers(attempt: TopikAttempt) {
   ) as Record<string, TopikDraftAnswer>;
 }
 
+function orderedQuestions(session: TopikExamSession) {
+  return session.groups
+    .flatMap((group) => group.questions)
+    .sort((left, right) => left.number - right.number);
+}
+
 export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
   ...initialState,
 
@@ -97,6 +103,15 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         TopikService.getSession(examCode),
         TopikService.startAttempt(examCode, mode, mode !== "mock_exam"),
       ]);
+      const questions = orderedQuestions(session);
+      const savedQuestionIndex = questions.findIndex(
+        (question) => question.number === attempt.currentQuestionNumber,
+      );
+      const fallbackIndex = Math.min(
+        Math.max(0, attempt.currentQuestionNumber - 1),
+        Math.max(0, questions.length - 1),
+      );
+
       set({
         examCode,
         session,
@@ -105,7 +120,8 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         learningSupport: {},
         revealedSolutions: {},
         result: null,
-        currentIndex: Math.max(0, attempt.currentQuestionNumber - 1),
+        currentIndex:
+          savedQuestionIndex >= 0 ? savedQuestionIndex : fallbackIndex,
         sessionStartedAtMs:
           mode === "mock_exam"
             ? Date.now() - attempt.elapsedSeconds * 1000
@@ -154,9 +170,7 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
             },
           ]),
         );
-      const questions = session.groups
-        .flatMap((group) => group.questions)
-        .sort((left, right) => left.number - right.number);
+      const questions = orderedQuestions(session);
       const requestedQuestionIndex = questions.findIndex(
         (question) => question.number === questionNumber,
       );
@@ -225,10 +239,14 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
     set({ isSaving: true, errorCode: null });
     try {
       const elapsedSeconds = 0;
+      const currentQuestionNumber = state.session
+        ? (orderedQuestions(state.session)[state.currentIndex]?.number ??
+          state.currentIndex + 1)
+        : state.currentIndex + 1;
       const saved = await TopikService.saveAnswers(
         state.attempt.id,
         answers,
-        state.currentIndex + 1,
+        currentQuestionNumber,
         elapsedSeconds,
       );
       set((current) => ({

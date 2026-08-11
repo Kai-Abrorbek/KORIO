@@ -6,13 +6,13 @@ export class TopikSessionQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(54)
-  from: number = 1;
+  @Max(70)
+  from?: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(54)
-  to: number = 50;
+  @Max(70)
+  to?: number;
 }
