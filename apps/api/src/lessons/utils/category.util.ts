@@ -34,6 +34,16 @@ export const QUESTION_CATEGORY: Partial<Record<QuestionType, StudyCategory>> = {
   [QuestionType.LISTEN_TYPE]: StudyCategory.LISTENING,
   [QuestionType.LISTEN_FILL]: StudyCategory.LISTENING,
   [QuestionType.AUDIO_MATCH]: StudyCategory.LISTENING,
+
+  // 중급 5종.
+  // 전용 '독해' 버킷은 아직 없어서, 무엇을 훈련하는지로 붙였다.
+  // reading_quiz / cloze_passage 는 지문에서 의미를 끌어내는 문제라 표현,
+  // error_hunt / verb_transform 은 형태를 다루므로 문법으로 본다.
+  [QuestionType.READING_QUIZ]: StudyCategory.EXPRESSION,
+  [QuestionType.CLOZE_PASSAGE]: StudyCategory.EXPRESSION,
+  [QuestionType.ERROR_HUNT]: StudyCategory.GRAMMAR,
+  [QuestionType.VERB_TRANSFORM]: StudyCategory.GRAMMAR,
+  [QuestionType.DIALOG_ORDER]: StudyCategory.CONVERSATION,
 };
 
 /** 레슨 주제 → 통계 버킷 (TOPIK 처럼 레슨 단위로 성격이 결정되는 경우) */

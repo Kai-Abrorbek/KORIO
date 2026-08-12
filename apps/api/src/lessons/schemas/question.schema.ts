@@ -23,6 +23,12 @@ export enum QuestionType {
   // 화면이 달라서 유형을 나눈다 (렌더러 선택용).
   GRAMMAR_BLANK = 'grammar_blank',
   GRAMMAR_BUILD = 'grammar_build',
+  // 중급 이상 전용. 문장 하나가 아니라 지문·활용을 다룬다.
+  READING_QUIZ = 'reading_quiz',
+  ERROR_HUNT = 'error_hunt',
+  CLOZE_PASSAGE = 'cloze_passage',
+  DIALOG_ORDER = 'dialog_order',
+  VERB_TRANSFORM = 'verb_transform',
 }
 
 export enum QuestionLevel {
@@ -63,7 +69,7 @@ class DialogLine {
 
 @Schema({ timestamps: true })
 export class Question {
-  @Prop({ index: true, sparse: true })
+  @Prop({ index: true, unique: true, sparse: true })
   code?: string;
 
   @Prop({ required: true, enum: QuestionType })
@@ -172,6 +178,33 @@ export class Question {
   // 이미지 URL (image_choice)
   @Prop({ default: '' })
   imageUrl: string;
+
+  /**
+   * 지문. reading_quiz 는 읽고 답하는 본문,
+   * cloze_passage 는 빈칸 자리를 `___` 로 적은 본문.
+   * 빈칸 개수와 blankAnswers 길이는 반드시 같아야 한다.
+   */
+  @Prop({ default: '' })
+  passage: string;
+
+  /** 지문 제목 (reading_quiz) */
+  @Prop({ default: '' })
+  passageTitle: string;
+
+  /**
+   * error_hunt — npcText 안에서 틀린 단어.
+   * npcText 에 실제로 등장하는 어절과 글자까지 똑같아야 탭 판정이 된다.
+   */
+  @Prop({ default: '' })
+  wrongWord: string;
+
+  /** verb_transform — 기본형 (예: 먹다) */
+  @Prop({ default: '' })
+  baseWord: string;
+
+  /** verb_transform — 목표 형태 라벨 (예: 과거 · 존댓말) */
+  @Prop({ default: '' })
+  targetForm: string;
 
   @Prop({ default: 10 })
   xpReward: number;

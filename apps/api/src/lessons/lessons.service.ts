@@ -83,6 +83,12 @@ export class LessonsService {
       audioText: q.audioText || '',
       audioUrl: q.audioUrl || '',
       imageUrl: q.imageUrl || '',
+      // 중급 5종 전용 필드
+      passage: q.passage || '',
+      passageTitle: q.passageTitle || '',
+      wrongWord: q.wrongWord || '',
+      baseWord: q.baseWord || '',
+      targetForm: q.targetForm || '',
       xpReward: q.xpReward || 10,
     };
   }

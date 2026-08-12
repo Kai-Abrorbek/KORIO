@@ -20,6 +20,13 @@ const TIER: Record<string, { correct: number; wrong: number }> = {
   [QuestionType.LISTEN_FILL]: { correct: 20, wrong: 10 },
   // T4 발화
   [QuestionType.SPEAKING]: { correct: 25, wrong: 10 },
+  // 중급 5종. 지문을 읽고 여러 요소를 동시에 처리해야 해서
+  // 같은 조작/생산 계열보다 한 단계씩 위로 잡았다.
+  [QuestionType.DIALOG_ORDER]: { correct: 15, wrong: 5 },
+  [QuestionType.ERROR_HUNT]: { correct: 20, wrong: 10 },
+  [QuestionType.VERB_TRANSFORM]: { correct: 20, wrong: 10 },
+  [QuestionType.READING_QUIZ]: { correct: 25, wrong: 10 },
+  [QuestionType.CLOZE_PASSAGE]: { correct: 25, wrong: 10 },
 };
 const DEFAULT_TIER = { correct: 10, wrong: 5 };
 

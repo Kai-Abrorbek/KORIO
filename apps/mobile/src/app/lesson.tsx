@@ -48,8 +48,7 @@ import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
-import { isAnswerCorrect } from "@/utils/answer-check";
-import { fillTemplate, parseBlanks, templateOf } from "@/utils/blank-sentence";
+import { gradeAnswer } from "@/utils/answer-check";
 
 type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -331,24 +330,9 @@ export default function LessonScreen() {
     else router.replace("/");
   };
 
-  const checkCorrect = (answer: string, q: LessonQuestion) => {
-    if (q.type === "word_matching" || q.type === "audio_match") {
-      return answer === "all_correct";
-    }
-    if (q.type === "speaking") return true;
-    // 다중 빈칸: 빈칸별 정답을 템플릿에 채운 완성 문장이 기준.
-    // 시드에 answer 를 따로 중복해서 적지 않아도 된다.
-    if (q.blankAnswers?.length) {
-      const expected = fillTemplate(parseBlanks(templateOf(q)), q.blankAnswers);
-      return isAnswerCorrect(answer, expected, q.acceptedAnswers);
-    }
-    // 띄어쓰기·문장부호 차이로 억울하게 틀리지 않도록 정규화 후 비교
-    return isAnswerCorrect(answer, q.answer, q.acceptedAnswers);
-  };
-
   const handleAnswer = (answer: string) => {
     if (!currentQ) return;
-    const isCorrect = checkCorrect(answer, currentQ);
+    const isCorrect = gradeAnswer(answer, currentQ);
 
     if (isLevelTest) {
       if (locked.current) return;

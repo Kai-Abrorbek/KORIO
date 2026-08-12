@@ -48,11 +48,11 @@ blankAnswers: ['담급니다'],
 
 ### 지원 문제 타입
 
-| 타입 | 입력 방식 | 비고 |
-|---|---|---|
-| `fill_in_blank` | 선택지 탭 | `options` 필수 |
-| `listen_fill` | 타이핑 | 정답 문장을 TTS 로 읽어줌 |
-| `type_answer` | 타이핑 | |
+| 타입            | 입력 방식 | 비고                      |
+| --------------- | --------- | ------------------------- |
+| `fill_in_blank` | 선택지 탭 | `options` 필수            |
+| `listen_fill`   | 타이핑    | 정답 문장을 TTS 로 읽어줌 |
+| `type_answer`   | 타이핑    |                           |
 
 `grammar_blank`, `grammar_build` 는 문법 드릴이라 데이터 구조가 다르다. 위 규칙을 따르지 않는다.
 
@@ -63,8 +63,114 @@ blankAnswers: ['담급니다'],
 - `options` 에 정답을 빠뜨리면 선택형에서 문제를 풀 수 없다.
 - 빈칸 사이 조사·띄어쓰기는 템플릿 텍스트 쪽에 넣는다. (`'저는 ___ 를 먹어요.'`)
 
+## 중급 5종 (`reading_quiz` · `error_hunt` · `cloze_passage` · `dialog_order` · `verb_transform`)
+
+문장 하나가 아니라 지문·활용을 다루는 타입이다. 위 빈칸 규칙과 데이터 구조가 다르다.
+**틀리게 적으면 화면은 멀쩡히 뜨는데 문제를 풀 수 없다.** 저장 전에
+`pnpm --filter api seed:validate-questions` 를 돌린다.
+
+### `reading_quiz` — 지문 읽고 답하기
+
+```ts
+type: 'reading_quiz',
+passageTitle: '주말 계획',              // 선택. 비워도 된다
+passage: '이번 주말에 친구와 부산에 가려고 했습니다. 그런데 기차표 예매를 잊어버려서 못 갔습니다.',
+question: '왜 부산에 못 갔습니까?',      // instruction 이 아니라 질문
+options: ['기차표 예매를 잊어버려서', '친구가 아파서', '날씨가 나빠서', '돈이 없어서'],
+answer: '기차표 예매를 잊어버려서',      // options 안에 글자까지 똑같이 있어야 한다
+```
+
+### `error_hunt` — 틀린 곳 찾아 고치기
+
+```ts
+type: 'error_hunt',
+npcText: '어제 친구하고 영화가 봤어요.',  // 오류가 들어 있는 문장
+wrongWord: '영화가',                     // ← 공백으로 자른 어절과 완전히 일치해야 한다
+options: ['영화를', '영화에', '영화도'],  // 고칠 후보
+answer: '영화를',
+```
+
+- `wrongWord` 는 `npcText.split(' ')` 결과 중 하나와 **글자까지 똑같아야** 한다.
+  문장 끝 단어라면 마침표까지 포함해야 맞는다 (`'봤어요.'`, `'봤어요'` 아님).
+  안 맞으면 어디를 눌러도 오답 처리돼서 문제를 끝낼 수 없다.
+
+### `cloze_passage` — 지문 빈칸 채우기
+
+```ts
+type: 'cloze_passage',
+passage: '한국에 온 ___ 3년이 됐습니다. 처음에는 어려웠지만 ___ 익숙해졌습니다.',
+blankAnswers: ['지', '점점'],            // 빈칸 순서대로
+options: ['지', '점점', '까지', '아주'],  // 정답 전부 + 오답
+```
+
+- 빈칸은 **언더바 정확히 3개(`___`)**. 다른 빈칸 타입과 달리 4개 이상은 인식이 어긋난다.
+- `answer` 는 안 써도 된다. `blankAnswers` 를 `|` 로 이은 값이 정답이 된다.
+- `passage` 의 `___` 개수와 `blankAnswers` 길이가 반드시 같아야 한다.
+
+### `dialog_order` — 대화 순서 맞추기
+
+```ts
+type: 'dialog_order',
+dialogLines: [                            // 배열 순서가 곧 정답 순서
+  { speaker: 'npc',  text: '안녕하세요, 무엇을 도와드릴까요?' },
+  { speaker: 'user', text: '이 옷 좀 입어봐도 될까요?' },
+  { speaker: 'npc',  text: '네, 탈의실은 저쪽입니다.' },
+],
+answer: 'all_correct',                    // 고정값
+```
+
+- 화면이 직접 채점한다. 3~5줄 정도가 적당하고, 순서를 뒤집어도 말이 되는
+  대화는 넣지 않는다 (정답이 둘이 돼버린다).
+
+### `verb_transform` — 활용형 만들기
+
+```ts
+type: 'verb_transform',
+baseWord: '듣다',                          // 기본형
+targetForm: '과거 · 존댓말',                // 목표 형태 라벨
+answer: '들었어요',
+options: ['들', '었', '어', '요', '습', '니'],  // 음절 단위. 정답 음절 전부 + 오답
+```
+
+- `options` 는 **음절 하나씩** 쪼개서 넣는다. 정답 `answer` 의 모든 음절이
+  `options` 안에 있어야 조립이 된다. 같은 음절이 두 번 쓰이면 두 번 넣는다.
+- 완료 판정을 `answer.length` 로 하므로 `answer` 에 공백을 넣지 않는다.
+
+### 공통
+
+- 5종 모두 `passage` · `wrongWord` · `baseWord` · `targetForm` 은 서버가 그대로
+  내려준다. i18n 대상이 아니라 **한국어 원문 그대로** 적는다.
+- 지시문(`instruction`), 힌트, 설명, `answerTranslation` 은 다른 타입과 똑같이
+  ko/uz/en/ru 4개 언어를 채운다.
+- 레벨 테스트 화면에는 아직 렌더러가 없다. 레벨 테스트 문항으로 쓰지 않는다.
+
 ## 관련 코드
 
 - 파서·채점: `apps/mobile/src/utils/blank-sentence.ts`
+- 타입별 채점 규칙: `apps/mobile/src/utils/answer-check.ts` (`gradeAnswer`)
 - 렌더링: `apps/mobile/src/components/lesson/BlankSentence.tsx`
 - 스키마: `apps/api/src/lessons/schemas/question.schema.ts`
+- 시드 검증: `apps/api/src/seed/validate-question-shapes.ts`
+
+## Section 1 어휘 시드 규칙
+
+Section 1은 한국어를 처음 배우는 학습자를 위한 과정이다. 문제 타입을 전부 한 번씩
+채우는 것보다, 교재의 핵심 어휘와 짧은 표현을 반복해서 실제로 익히는 것을 우선한다.
+
+- Unit 1~4에는 키보드 입력 문제(`type_answer`, `translate_type`, `listen_type`,
+  `listen_fill`)를 넣지 않는다.
+- Unit 5부터 키보드 입력과 받아쓰기를 한 단어 또는 짧은 문장부터 단계적으로 도입한다.
+- 교재 내용에 따라 유닛당 4~7개 노드를 사용하고, 레슨당 문제는 17~20개로 구성한다.
+- `image_choice`, `word_matching`, `fill_in_blank`, `word_arrange`, `speaking`을
+  핵심 유형으로 자주 사용한다.
+- `speaking`은 단어 또는 한 사람이 말하는 짧은 표현만 사용한다. 두 사람 이상의
+  대화문, 줄바꿈이 있는 문장, 긴 문장은 금지한다.
+- `word_matching`과 `audio_match`의 `pairs[].korean`에는 공백 없는 단어만 넣는다.
+  문장이나 긴 구를 넣지 않는다.
+- Section 1의 빈칸 문제는 모두 단일 빈칸으로 만든다. 어미 일부가 아니라 학습자가
+  기억해야 할 완전한 단어·활용형을 빈칸 정답으로 사용한다.
+- `dialog_complete`는 짧은 1~3턴의 상황에서만 사용한다. 한 줄은 짧게 유지하고,
+  정답과 오답은 모두 실제 대답처럼 자연스러운 형태로 작성한다.
+- 모든 문제에 한국어·우즈베크어·영어·러시아어 지시문, 힌트, 설명,
+  `answerTranslation`을 제공한다.
+- Section 1을 수정한 뒤에는 반드시 `pnpm --filter api seed:validate-section1`을 실행한다.

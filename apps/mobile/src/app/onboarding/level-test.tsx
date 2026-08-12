@@ -17,6 +17,7 @@ import { LessonService } from "@/services/lesson.service";
 import { UserService } from "@/services/user.service";
 import { onboardingService } from "@/services/onboarding.service";
 import { AnswerState, LessonQuestion } from "@/types/lesson";
+import { gradeAnswer } from "@/utils/answer-check";
 import AnimatedProgressBar from "@/components/home/AnimatedProgressBar";
 import SentenceBuilder from "@/components/lesson/questions/SentenceBuilder";
 import TranslateBuilder from "@/components/lesson/questions/TranslateBuilder";
@@ -75,11 +76,7 @@ export default function LevelTestScreen() {
     if (!q || locked.current) return;
     locked.current = true;
 
-    let isCorrect = false;
-    if (q.type === "word_matching") isCorrect = answer === "all_correct";
-    else if (q.type === "speaking") isCorrect = true;
-    else
-      isCorrect = answer.trim().toLowerCase() === q.answer.trim().toLowerCase();
+    const isCorrect = gradeAnswer(answer, q);
 
     if (isCorrect) correctCount.current += 1;
     else wrongIds.current.push(q.id);

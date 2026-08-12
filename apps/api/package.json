@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
+    "seed:validate-questions": "ts-node -r tsconfig-paths/register src/seed/validate-question-shapes.ts",
     "seed:grammar": "ts-node -r tsconfig-paths/register src/seed/seed-grammar.ts",
     "seed:topik": "ts-node -r tsconfig-paths/register src/seed/seed-topik.ts",
     "start:dev": "nest start --watch",
