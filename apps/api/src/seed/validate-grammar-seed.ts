@@ -93,8 +93,13 @@ for (const g of GRAMMAR_SEED) {
     fail(code, 'similar.note 에 빠진 언어가 있다');
   }
 
-  // 퀴즈 — 정답이 정확히 하나여야 채점이 성립한다
+  // 퀴즈 — 정답이 정확히 하나여야 채점이 성립한다.
+  // 문법당 5문항이 기준이다. 2~3개면 한 번 풀고 끝이라 규칙이 안 붙는다.
+  const QUIZ_TARGET = 5;
   if (!g.quiz?.length) warn(code, '퀴즈가 없다');
+  else if (g.quiz.length < QUIZ_TARGET) {
+    warn(code, `퀴즈 ${g.quiz.length}문항 — ${QUIZ_TARGET}문항이 기준이다`);
+  }
   for (const [i, q] of (g.quiz ?? []).entries()) {
     if (!L4(q.question)) fail(code, `quiz[${i}].question 에 빠진 언어가 있다`);
     const correct = (q.options ?? []).filter((o: any) => o.correct);
