@@ -11,6 +11,7 @@
     "start": "nest start",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
     "seed:validate-questions": "ts-node -r tsconfig-paths/register src/seed/validate-question-shapes.ts",
+    "seed:validate-section1": "ts-node -r tsconfig-paths/register src/seed/validate-section1-rules.ts",
     "seed:grammar": "ts-node -r tsconfig-paths/register src/seed/seed-grammar.ts",
     "seed:topik": "ts-node -r tsconfig-paths/register src/seed/seed-topik.ts",
     "seed:recipe": "ts-node -r tsconfig-paths/register src/seed/seed-recipe.ts",
