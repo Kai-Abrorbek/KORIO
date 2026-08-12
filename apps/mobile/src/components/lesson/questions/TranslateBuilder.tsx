@@ -1,19 +1,10 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useRef, useCallback } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { useSpeech } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, {
   GhostChip,
@@ -36,8 +27,6 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
-/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
-const ANSWER_LINES = 2;
 /** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
 const LINE_H = ANSWER_LINE_H;
 
@@ -48,8 +37,7 @@ export default function TranslateBuilder({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
+  const s = styles(theme, LINE_H);
   const { width: winW, height: winH } = useWindowDimensions();
   // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
@@ -64,7 +52,6 @@ export default function TranslateBuilder({
     winW - 32,
     { max: compact ? 2 : 3 },
   );
-  const { speak, isSpeaking } = useSpeech();
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
       id: `w-${i}`,
@@ -185,8 +172,8 @@ export default function TranslateBuilder({
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
-        {/* 제목 */}
-        <Text style={s.title}>{question.question}</Text>
+        {/* 제목은 고정 문구. 옮길 문장은 말풍선에 들어간다. */}
+        <Text style={s.title}>{t("lesson.buildInKorean")}</Text>
 
         {/* 캐릭터 + 말풍선 */}
         <View style={[s.npcRow, compact && { height: 148 }]}>
@@ -202,20 +189,13 @@ export default function TranslateBuilder({
             {/* 말풍선 꼬리 (안쪽 흰색) */}
             <View style={s.tailInner} />
 
-            <TouchableOpacity
-              onPress={() => speak(question.npcText ?? "")}
-              hitSlop={8}
-              style={s.audioBtn}
-            >
-              <Ionicons
-                name="volume-medium"
-                size={24}
-                color={isSpeaking ? "#1A9BE6" : "#1A9BE6"}
-              />
-            </TouchableOpacity>
-
+            {/*
+              옮겨야 할 문장. instruction 이 유일하게 4개 언어로 내려오는
+              필드라서 여기에 담는다. 학습자 언어라서 한국어 TTS 로 읽어줄 수
+              없고, 읽어주면 답을 그냥 알려주는 셈이라 스피커도 두지 않는다.
+            */}
             <View style={s.bubbleTextWrap}>
-              <Text style={s.bubbleText}>{question.npcText}</Text>
+              <Text style={s.bubbleText}>{question.question}</Text>
               <View style={s.dashedUnderline} />
             </View>
           </View>
@@ -281,12 +261,7 @@ export default function TranslateBuilder({
   );
 }
 
-const styles = (
-  theme: ThemeColors,
-  lines: number,
-  lineH: number,
-  bottomInset = 0,
-) =>
+const styles = (theme: ThemeColors, lineH: number) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -308,9 +283,6 @@ const styles = (
       alignItems: "center",
       gap: 6,
       height: 180,
-    },
-    characterEmoji: {
-      fontSize: 100,
     },
     bubble: {
       flex: 1,
@@ -352,7 +324,6 @@ const styles = (
       borderBottomColor: "transparent",
       borderRightColor: theme.border,
     },
-    audioBtn: { padding: 2 },
     bubbleTextWrap: { flex: 1 },
     bubbleText: {
       fontSize: 14,
@@ -368,9 +339,9 @@ const styles = (
     },
 
     answerArea: {
-      minHeight: lineH * lines,
+      // 실제 높이는 렌더에서 minHeight 로 덮어쓴다 (줄 수가 칩 개수에 따라 변한다)
       marginTop: 8,
-      marginBottom: 8,
+      marginBottom: 28,
       position: "relative",
     },
     answerLine: {
