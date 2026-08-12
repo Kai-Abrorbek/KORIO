@@ -12,8 +12,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TopikTextBlocks } from "@/components/topik/TopikTextBlocks";
+import { TopikChoiceList } from "@/components/topik/TopikChoiceList";
+import { TopikStimulusCard } from "@/components/topik/TopikStimulusCard";
 import { TopikService } from "@/services/topik.service";
 import { TopikSideSheet } from "@/components/topik/TopikSideSheet";
+import { useSpeech } from "@/hooks/useSpeech";
 import {
   type TopikPalette,
   useTopikTheme,
@@ -37,6 +40,8 @@ export default function TopikRecipeScreen() {
 
   const [recipe, setRecipe] = useState<TopikRecipeDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
+  const { speak, stop, isSpeaking } = useSpeech();
 
   /** 열려 있는 해설의 문항 id */
   const [openSolutionId, setOpenSolutionId] = useState<string | null>(null);
@@ -73,6 +78,21 @@ export default function TopikRecipeScreen() {
     () => recipe?.grammarSections.find((g) => g.key === openGrammarKey) ?? null,
     [recipe, openGrammarKey],
   );
+
+  const playQuestionAudio = (question: TopikRecipeQuestion) => {
+    if (activeAudioId === question.id && isSpeaking) {
+      stop();
+      setActiveAudioId(null);
+      return;
+    }
+    const transcript = (question.audio?.transcript ?? [])
+      .map((line) => line.text)
+      .join(" ")
+      .trim();
+    if (!transcript) return;
+    setActiveAudioId(question.id);
+    speak(transcript, "ko-KR");
+  };
 
   if (loading || !recipe) {
     return (
@@ -173,6 +193,10 @@ export default function TopikRecipeScreen() {
             s={s}
             onOpenSolution={() => setOpenSolutionId(question.id)}
             solutionLabel={t("topik.recipe.showSolution")}
+            onPlayAudio={() => playQuestionAudio(question)}
+            audioPlaying={activeAudioId === question.id && isSpeaking}
+            audioLabel={t("topik.recipe.listenAudio")}
+            stopLabel={t("topik.recipe.stopAudio")}
           />
         ))}
 
@@ -263,15 +287,29 @@ function QuestionCard({
   s,
   onOpenSolution,
   solutionLabel,
+  onPlayAudio,
+  audioPlaying,
+  audioLabel,
+  stopLabel,
 }: {
   question: TopikRecipeQuestion;
   palette: TopikPalette;
   s: ReturnType<typeof styles>;
   onOpenSolution: () => void;
   solutionLabel: string;
+  onPlayAudio: () => void;
+  audioPlaying: boolean;
+  audioLabel: string;
+  stopLabel: string;
 }) {
   return (
     <View style={s.qCard}>
+      {question.stimulus && (
+        <View style={s.qStimulus}>
+          <TopikStimulusCard stimulus={question.stimulus} />
+        </View>
+      )}
+
       <View style={s.qHead}>
         <Text style={s.qNumber}>{question.number}.</Text>
         <View style={{ flex: 1 }}>
@@ -279,14 +317,40 @@ function QuestionCard({
         </View>
       </View>
 
-      <View style={s.qChoices}>
-        {question.choices.map((choice, i) => (
-          <View key={choice.key} style={s.qChoice}>
-            <Text style={s.qChoiceMark}>{CHOICE_MARK[i] ?? `${i + 1}`}</Text>
-            <Text style={s.qChoiceText}>{choice.text}</Text>
+      {!!question.audio?.transcript?.length && (
+        <View style={s.audioCard}>
+          <Pressable style={s.audioButton} onPress={onPlayAudio}>
+            <Ionicons
+              name={audioPlaying ? "stop" : "play"}
+              size={17}
+              color="#fff"
+            />
+            <Text style={s.audioButtonText}>
+              {audioPlaying ? stopLabel : audioLabel}
+            </Text>
+          </Pressable>
+          <View style={s.transcript}>
+            {question.audio.transcript.map((line, index) => (
+              <View key={`${question.id}-audio-${index}`} style={s.audioLine}>
+                {!!line.speaker && (
+                  <Text style={s.speaker}>{line.speaker}</Text>
+                )}
+                <Text style={s.audioText}>{line.text}</Text>
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
+        </View>
+      )}
+
+      {question.choices.length > 0 && (
+        <View style={s.qChoices}>
+          <TopikChoiceList
+            choices={question.choices}
+            layout={question.presentation?.choiceLayout ?? "one_column"}
+            disabled
+          />
+        </View>
+      )}
 
       <View style={s.qFooter}>
         {!!question.tags[0] && (
@@ -325,6 +389,28 @@ function SolutionBody({
   const explainKo = topikText(question.solution?.explanation, "ko");
   const explainLocal =
     lang === "ko" ? "" : topikText(question.solution?.explanation, lang);
+
+  if (question.responseType === "written") {
+    return (
+      <View>
+        <View style={s.answerBox}>
+          <Text style={s.answerLead}>{t("topik.recipe.sampleAnswer")}</Text>
+          <Text style={s.sampleAnswer}>
+            {question.solution?.sampleAnswer ||
+              t("topik.recipe.noSampleAnswer")}
+          </Text>
+        </View>
+        {(question.solution?.rubric ?? []).map((item, index) => (
+          <View key={`${question.id}-rubric-${index}`} style={s.noteRow}>
+            <Text style={s.noteMark}>{index + 1}</Text>
+            <Text style={s.noteText}>{topikText(item, lang)}</Text>
+          </View>
+        ))}
+        {!!explainKo && <Text style={s.solutionKo}>{explainKo}</Text>}
+        {!!explainLocal && <Text style={s.solutionText}>{explainLocal}</Text>}
+      </View>
+    );
+  }
 
   return (
     <View>
@@ -504,11 +590,43 @@ const styles = (p: TopikPalette) =>
       marginBottom: 14,
     },
     qHead: { flexDirection: "row", gap: 8 },
+    qStimulus: {
+      marginBottom: 16,
+      borderRadius: 12,
+      overflow: "hidden",
+    },
     qNumber: { fontSize: 17, fontWeight: "800", color: p.text },
     qChoices: { marginTop: 14, gap: 10 },
     qChoice: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
     qChoiceMark: { fontSize: 15, color: p.textSecondary },
     qChoiceText: { flex: 1, fontSize: 15, color: p.text, lineHeight: 22 },
+    audioCard: {
+      marginTop: 14,
+      gap: 12,
+      padding: 13,
+      borderRadius: 13,
+      backgroundColor: p.surfaceMuted,
+    },
+    audioButton: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      paddingHorizontal: 13,
+      paddingVertical: 9,
+      borderRadius: 999,
+      backgroundColor: p.primary,
+    },
+    audioButtonText: { color: "#fff", fontSize: 12, fontWeight: "800" },
+    transcript: { gap: 7 },
+    audioLine: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+    speaker: {
+      minWidth: 22,
+      color: p.primaryText,
+      fontSize: 12,
+      fontWeight: "900",
+    },
+    audioText: { flex: 1, color: p.text, fontSize: 13, lineHeight: 21 },
     qFooter: {
       marginTop: 16,
       flexDirection: "row",
@@ -561,6 +679,12 @@ const styles = (p: TopikPalette) =>
       marginBottom: 4,
     },
     answerLabel: { fontSize: 17, fontWeight: "800", color: p.successText },
+    sampleAnswer: {
+      color: p.successText,
+      fontSize: 14,
+      fontWeight: "600",
+      lineHeight: 23,
+    },
     flowBox: {
       marginTop: 14,
       padding: 14,

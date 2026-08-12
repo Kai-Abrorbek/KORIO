@@ -10,7 +10,31 @@ import {
   TopikQuestionDocument,
 } from './schemas/topik-question.schema';
 import { TopikSection } from './schemas/topik-content.schema';
-import { TOPIK_READING_BLUEPRINT } from './topik-reading-blueprint';
+import { recipeBlueprintFor } from './topik-recipe-blueprint';
+
+type RecipeQuestionView = Pick<
+  TopikQuestion,
+  | 'code'
+  | 'number'
+  | 'type'
+  | 'responseType'
+  | 'points'
+  | 'prompt'
+  | 'stimulus'
+  | 'audio'
+  | 'writingConfig'
+  | 'presentation'
+  | 'choices'
+  | 'tags'
+  | 'difficulty'
+  | 'correctChoiceKey'
+  | 'solution'
+> & { _id: Types.ObjectId };
+
+type RecipeSolutionView = Pick<
+  TopikQuestion,
+  'correctChoiceKey' | 'solution'
+> & { _id: Types.ObjectId };
 
 @Injectable()
 export class TopikRecipeService {
@@ -29,10 +53,12 @@ export class TopikRecipeService {
    * 어떤 유형이 준비됐는지 한눈에 보이게 한다.
    */
   async list(section?: string) {
-    if (section && section !== TopikSection.READING) return [];
+    const blueprint = recipeBlueprintFor(section);
+    if (blueprint.length === 0) return [];
+    const targetSection = blueprint[0].section;
 
     const recipes = await this.recipeModel
-      .find({ isActive: true })
+      .find({ isActive: true, section: targetSection })
       .select(
         'groupCode label title targetLevel order practiceQuestionIds exampleQuestionIds grammarSections',
       )
@@ -40,34 +66,31 @@ export class TopikRecipeService {
 
     const byCode = new Map(recipes.map((r) => [r.groupCode, r]));
 
-    return TOPIK_READING_BLUEPRINT.map((group, index) => {
-      const recipe = byCode.get(group.code);
-      const grammarCount = (recipe?.grammarSections ?? []).reduce(
-        (n: number, g: any) => n + (g.entries?.length ?? 0),
-        0,
-      );
+    return blueprint
+      .map((group, index) => {
+        const recipe = byCode.get(group.code);
+        const grammarCount = (recipe?.grammarSections ?? []).reduce(
+          (n, grammarSection) => n + grammarSection.entries.length,
+          0,
+        );
 
-      return {
-        groupCode: group.code,
-        section: TopikSection.READING,
-        // 콘텐츠가 아직 없으면 문항 번호로 라벨을 만들어 둔다
-        label: recipe?.label ?? {
-          ko: `읽기 ${group.from}번~${group.to}번`,
-          uz: `O'qish ${group.from}~${group.to}-savol`,
-          en: `Reading ${group.from}-${group.to}`,
-          ru: `Чтение ${group.from}-${group.to}`,
-        },
-        title: recipe?.title ?? { ko: '', uz: '', en: '', ru: '' },
-        fromNumber: group.from,
-        toNumber: group.to,
-        targetLevel: recipe?.targetLevel ?? 0,
-        order: recipe?.order ?? index + 1,
-        ready: !!recipe,
-        exampleCount: recipe?.exampleQuestionIds?.length ?? 0,
-        practiceCount: recipe?.practiceQuestionIds?.length ?? 0,
-        grammarCount,
-      };
-    }).sort((a, b) => a.fromNumber - b.fromNumber);
+        return {
+          groupCode: group.code,
+          section: group.section,
+          // 콘텐츠가 아직 없으면 문항 번호로 라벨을 만들어 둔다
+          label: recipe?.label ?? this.fallbackLabel(group),
+          title: recipe?.title ?? { ko: '', uz: '', en: '', ru: '' },
+          fromNumber: group.from,
+          toNumber: group.to,
+          targetLevel: recipe?.targetLevel ?? 0,
+          order: recipe?.order ?? index + 1,
+          ready: !!recipe,
+          exampleCount: recipe?.exampleQuestionIds?.length ?? 0,
+          practiceCount: recipe?.practiceQuestionIds?.length ?? 0,
+          grammarCount,
+        };
+      })
+      .sort((a, b) => a.order - b.order);
   }
 
   /**
@@ -133,9 +156,9 @@ export class TopikRecipeService {
     const questions = await this.questionModel
       .find({ _id: { $in: recipe.practiceQuestionIds ?? [] } })
       .select('_id correctChoiceKey solution')
-      .lean();
+      .lean<RecipeSolutionView[]>();
 
-    return questions.map((q: any) => ({
+    return questions.map((q) => ({
       id: q._id.toString(),
       correctChoiceKey: q.correctChoiceKey ?? '',
       solution: q.solution ?? null,
@@ -153,20 +176,20 @@ export class TopikRecipeService {
     if (!ids?.length) return [];
 
     const base =
-      '_id code number type responseType points prompt stimulus choices tags difficulty';
+      '_id code number type responseType points prompt stimulus audio writingConfig presentation choices tags difficulty';
     const select = withSolution ? `${base} correctChoiceKey solution` : base;
 
     const docs = await this.questionModel
       .find({ _id: { $in: ids } })
       .select(select)
-      .lean();
+      .lean<RecipeQuestionView[]>();
 
-    const byId = new Map(docs.map((d: any) => [d._id.toString(), d]));
+    const byId = new Map(docs.map((doc) => [doc._id.toString(), doc]));
 
     return ids
       .map((id) => byId.get(id.toString()))
-      .filter(Boolean)
-      .map((q: any) => ({
+      .filter((question): question is RecipeQuestionView => !!question)
+      .map((q) => ({
         id: q._id.toString(),
         code: q.code,
         number: q.number,
@@ -175,13 +198,17 @@ export class TopikRecipeService {
         points: q.points,
         prompt: q.prompt,
         stimulus: q.stimulus ?? null,
-        choices: (q.choices ?? [])
-          .slice()
-          .sort((a: any, b: any) => a.order - b.order)
-          .map((c: any) => ({
-            key: c.key,
-            text: c.text,
-            order: c.order,
+        audio: q.audio ?? null,
+        writingConfig: q.writingConfig ?? null,
+        presentation: q.presentation ?? null,
+        choices: [...q.choices]
+          .sort((a, b) => a.order - b.order)
+          .map((choice) => ({
+            key: choice.key,
+            text: choice.text,
+            order: choice.order,
+            imageAssetKey: choice.imageAssetKey ?? '',
+            imageAlt: choice.imageAlt ?? '',
           })),
         tags: q.tags ?? [],
         difficulty: q.difficulty,
@@ -193,5 +220,41 @@ export class TopikRecipeService {
             }
           : {}),
       }));
+  }
+
+  private fallbackLabel(group: {
+    section: TopikSection;
+    from: number;
+    to: number;
+  }) {
+    const range =
+      group.from === group.to ? `${group.from}` : `${group.from}~${group.to}`;
+    const section = {
+      [TopikSection.READING]: {
+        ko: '읽기',
+        uz: "O'qish",
+        en: 'Reading',
+        ru: 'Чтение',
+      },
+      [TopikSection.LISTENING]: {
+        ko: '듣기',
+        uz: 'Tinglash',
+        en: 'Listening',
+        ru: 'Аудирование',
+      },
+      [TopikSection.WRITING]: {
+        ko: '쓰기',
+        uz: 'Yozish',
+        en: 'Writing',
+        ru: 'Письмо',
+      },
+    }[group.section];
+
+    return {
+      ko: `${section.ko} ${range}번`,
+      uz: `${section.uz} ${range}-savol`,
+      en: `${section.en} ${range}`,
+      ru: `${section.ru} ${range}`,
+    };
   }
 }

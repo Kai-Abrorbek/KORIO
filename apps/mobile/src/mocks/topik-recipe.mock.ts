@@ -26,7 +26,13 @@ const line = (segments: Array<{ t: string; blank?: boolean }>) => [
 ];
 
 const choices = (items: string[]) =>
-  items.map((t, i) => ({ key: `c${i + 1}`, text: t, order: i + 1 }));
+  items.map((t, i) => ({
+    key: `c${i + 1}`,
+    text: t,
+    order: i + 1,
+    imageAssetKey: "",
+    imageAlt: "",
+  }));
 
 export const MOCK_RECIPE_LIST: TopikRecipeSummary[] = [
   {

@@ -79,4 +79,15 @@ export interface RecipeSeed {
   examples: RecipeSeedQuestion[];
   /** 예상문제 — 별도 페이지에서 풀이 */
   practice: RecipeSeedQuestion[];
+  /**
+   * 기존 TOPIK 모의고사 1·2회에서 같은 번호 범위의 문항을 복제한다.
+   * 책은 풀이 전략과 Ranking의 근거로, 모의고사 시드는 실제 렌더링 가능한
+   * 지문·음원·쓰기 설정의 원천으로 사용한다.
+   */
+  questionSource?: {
+    from: number;
+    to: number;
+  };
+  /** 합격 레시피 PDF에서 이 유형을 설명하는 페이지 범위 */
+  sourceReference?: string;
 }

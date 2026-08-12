@@ -20,6 +20,17 @@ import { MOCK_RECIPE_LIST } from "@/mocks/topik-recipe.mock";
 import { toTopikLanguage, topikText } from "@/types/topik";
 import type { TopikRecipeSummary } from "@/types/topik-recipe";
 
+type RecipeSection = "reading" | "listening" | "writing";
+
+const RECIPE_SECTIONS: Array<{
+  key: RecipeSection;
+  icon: keyof typeof Ionicons.glyphMap;
+}> = [
+  { key: "reading", icon: "book-outline" },
+  { key: "listening", icon: "headset-outline" },
+  { key: "writing", icon: "create-outline" },
+];
+
 /**
  * 합격 레시피 유형 목록.
  * 읽기 1~2번, 3~4번 … 처럼 책의 챕터 단위로 나열하고,
@@ -33,15 +44,17 @@ export default function TopikRecipesScreen() {
 
   const [items, setItems] = useState<TopikRecipeSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [section, setSection] = useState<RecipeSection>("reading");
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      setLoading(true);
       try {
-        const data = await TopikService.getRecipes("reading");
+        const data = await TopikService.getRecipes(section);
         if (alive) setItems(data);
       } catch {
-        if (alive) setItems(MOCK_RECIPE_LIST);
+        if (alive) setItems(section === "reading" ? MOCK_RECIPE_LIST : []);
       } finally {
         if (alive) setLoading(false);
       }
@@ -49,7 +62,7 @@ export default function TopikRecipesScreen() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [section]);
 
   const readyCount = items.filter((x) => x.ready).length;
 
@@ -76,6 +89,30 @@ export default function TopikRecipesScreen() {
             })}
           </Text>
         </View>
+      </View>
+
+      <View style={s.tabs}>
+        {RECIPE_SECTIONS.map((item) => {
+          const active = item.key === section;
+          return (
+            <Pressable
+              key={item.key}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              onPress={() => setSection(item.key)}
+              style={[s.tab, active && s.tabActive]}
+            >
+              <Ionicons
+                name={item.icon}
+                size={17}
+                color={active ? palette.primaryText : palette.textSubtle}
+              />
+              <Text style={[s.tabText, active && s.tabTextActive]}>
+                {t(`topik.home.${item.key}`)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ScrollView
@@ -184,6 +221,30 @@ const styles = (p: TopikPalette) =>
       color: p.textSubtle,
       marginTop: 2,
     },
+    tabs: {
+      flexDirection: "row",
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingTop: 14,
+    },
+    tab: {
+      flex: 1,
+      minHeight: 42,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      borderRadius: 13,
+      backgroundColor: p.surfaceMuted,
+      borderWidth: 1,
+      borderColor: p.divider,
+    },
+    tabActive: {
+      backgroundColor: p.primarySoft,
+      borderColor: p.primary,
+    },
+    tabText: { fontSize: 13, fontWeight: "800", color: p.textSubtle },
+    tabTextActive: { color: p.primaryText },
 
     scroll: { paddingHorizontal: 20, paddingVertical: 18, gap: 10 },
 

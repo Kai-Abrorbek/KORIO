@@ -1,4 +1,12 @@
-import type { TopikI18nText, TopikTextBlock } from "./topik";
+import type {
+  TopikAudio,
+  TopikI18nText,
+  TopikPresentation,
+  TopikResponseType,
+  TopikStimulus,
+  TopikTextBlock,
+  TopikWritingConfig,
+} from "./topik";
 
 /** 황금 레시피 한 줄 */
 export interface TopikRecipeTip {
@@ -31,6 +39,8 @@ export interface TopikRecipeChoice {
   key: string;
   text: string;
   order: number;
+  imageAssetKey: string;
+  imageAlt: string;
 }
 
 export interface TopikRecipeQuestion {
@@ -38,8 +48,13 @@ export interface TopikRecipeQuestion {
   code: string;
   number: number;
   type: string;
+  responseType?: TopikResponseType;
   points: number;
   prompt: TopikTextBlock[];
+  stimulus?: TopikStimulus | null;
+  audio?: TopikAudio | null;
+  writingConfig?: TopikWritingConfig | null;
+  presentation?: TopikPresentation | null;
   choices: TopikRecipeChoice[];
   tags: string[];
   difficulty: number;
@@ -65,6 +80,8 @@ export interface TopikRecipeSolution {
   strategy: TopikI18nText;
   steps: TopikRecipeSolutionStep[];
   choiceNotes: TopikRecipeChoiceNote[];
+  sampleAnswer?: string;
+  rubric?: TopikI18nText[];
 }
 
 /** 목록 카드 */

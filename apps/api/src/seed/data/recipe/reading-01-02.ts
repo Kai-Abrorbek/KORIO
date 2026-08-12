@@ -20,14 +20,15 @@ export const RECIPE_READING_01_02: RecipeSeed = {
   section: TopikSection.READING,
   order: 1,
   targetLevel: 3,
+  sourceReference: 'PDF 14~19쪽',
 
-  label: t4(
-    '읽기 1번~2번',
-    "O'qish 1~2-savol",
-    'Reading 1–2',
-    'Чтение 1–2',
+  label: t4('읽기 1번~2번', "O'qish 1~2-savol", 'Reading 1–2', 'Чтение 1–2'),
+  title: t4(
+    '알맞은 문법',
+    'Mos grammatika',
+    'Correct grammar',
+    'Верная грамматика',
   ),
-  title: t4('알맞은 문법', 'Mos grammatika', 'Correct grammar', 'Верная грамматика'),
 
   intro: t4(
     '읽기 [1~2]번 유형은 문맥에 알맞은 문법을 고르는 문항이다. 기본 문법 사용 능력을 측정하는 문항으로 3급 수준의 문법이 출제된다.',
@@ -94,7 +95,7 @@ export const RECIPE_READING_01_02: RecipeSeed = {
             "'-든지' выражает 〈выбор: безразлично〉, части не связываются.",
           ),
           t4(
-            "앞의 행동을 하는 중에 뜻밖의 결과가 이어지므로 정답이다.",
+            '앞의 행동을 하는 중에 뜻밖의 결과가 이어지므로 정답이다.',
             "Oldingi ish davomida kutilmagan natija kelgani uchun to'g'ri javob.",
             'Correct: an unexpected result follows while the first action is ongoing.',
             'Верно: неожиданный результат наступает во время первого действия.',
@@ -130,7 +131,7 @@ export const RECIPE_READING_01_02: RecipeSeed = {
       solution: {
         strategy: t4(
           '한국 친구 덕분에\n→ 한국 문화를 많이 알다.',
-          'Koreys do\'st tufayli\n→ koreys madaniyatini ko\'p bilish.',
+          "Koreys do'st tufayli\n→ koreys madaniyatini ko'p bilish.",
           'Thanks to a Korean friend\n→ came to know Korean culture well.',
           'Благодаря корейскому другу\n→ узнать корейскую культуру.',
         ),
@@ -142,7 +143,7 @@ export const RECIPE_READING_01_02: RecipeSeed = {
         ),
         choiceNotes: [
           t4(
-            "몰랐던 상태에서 알게 된 〈변화〉를 나타내므로 정답이다.",
+            '몰랐던 상태에서 알게 된 〈변화〉를 나타내므로 정답이다.',
             "Bilmaslikdan bilishga o'tgan 〈o'zgarish〉ni bildirgani uchun to'g'ri javob.",
             'Correct: it marks the 〈change〉 from not knowing to knowing.',
             'Верно: выражает 〈изменение〉 от незнания к знанию.',
