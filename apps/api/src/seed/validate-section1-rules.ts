@@ -9,10 +9,42 @@
  * 실행: pnpm --filter api seed:validate-section1
  */
 
-import * as u from './data/section1/unit1';
+import * as section1 from './data/section1';
 
-const Q: Record<string, any> = (u as any).UNIT1_QUESTIONS;
-const NODES: any[] = (u as any).UNIT1_NODES;
+/**
+ * 유닛별로 언제 무엇이 열리는지.
+ * 타이핑은 자판을 못 치는 구간이 지나야 하고, reply_builder 는 상대 발화를
+ * 알아들을 수 있어야 성립한다.
+ */
+const TYPING_TYPES = ['type_answer', 'translate_type', 'listen_type', 'listen_fill'];
+const TYPING_FROM_UNIT = 5;
+const REPLY_BUILDER_FROM_UNIT = 2;
+
+/**
+ * 새 규칙으로 다시 쓴 유닛. 여기 적힌 것만 검사한다.
+ *
+ * 나머지는 예전 시드라 지금 기준에 전부 걸린다. 한 번에 고칠 수 없으므로
+ * 유닛을 다시 쓸 때마다 여기에 번호를 추가한다. 그래야 통과한 유닛이
+ * 다시 깨지는 걸 잡을 수 있다.
+ */
+const STRICT_UNITS = [1, 2];
+
+const S = section1 as Record<string, any>;
+const ALL_UNITS = Object.keys(S)
+  .map((k) => k.match(/^UNIT(\d+)_NODES$/)?.[1])
+  .filter((n): n is string => !!n)
+  .map(Number)
+  .sort((a, b) => a - b);
+const UNITS = ALL_UNITS.filter((n) => STRICT_UNITS.includes(n));
+const SKIPPED = ALL_UNITS.filter((n) => !STRICT_UNITS.includes(n));
+
+const Q: Record<string, any> = {};
+const NODES: any[] = [];
+for (const n of UNITS) {
+  Object.assign(Q, S[`UNIT${n}_QUESTIONS`] ?? {});
+  NODES.push(...(S[`UNIT${n}_NODES`] ?? []));
+}
+
 const err: string[] = [];
 const warn: string[] = [];
 const L4 = (v: any) => v && ['ko','uz','en','ru'].every(l => typeof v[l] === 'string' && v[l].length > 0);
@@ -37,13 +69,11 @@ for (const node of NODES) {
       if (!q) { err.push(`${tag}: 없는 키 ${k}`); continue; }
       cnt[q.type] = (cnt[q.type] ?? 0) + 1;
 
-      // 금지 타입
-      if (['type_answer','translate_type','listen_type','listen_fill'].includes(q.type))
-        err.push(`${k}: 유닛1에 타이핑 타입(${q.type}) 금지`);
-      // 상대 발화를 알아듣고 대답을 만드는 건 유닛 1 학습자에게 이르다.
-      // 화면은 준비돼 있고 유닛 2부터 쓴다.
-      if (q.type === 'reply_builder')
-        err.push(`${k}: reply_builder 는 유닛 2부터 — 유닛 1 학습자는 상대 발화를 못 알아듣는다`);
+      // 유닛에 따라 열리는 타입
+      if (TYPING_TYPES.includes(q.type) && node.unit < TYPING_FROM_UNIT)
+        err.push(`${k}: 타이핑 타입(${q.type})은 유닛 ${TYPING_FROM_UNIT}부터 — 아직 자판을 못 친다`);
+      if (q.type === 'reply_builder' && node.unit < REPLY_BUILDER_FROM_UNIT)
+        err.push(`${k}: reply_builder 는 유닛 ${REPLY_BUILDER_FROM_UNIT}부터 — 상대 발화를 못 알아듣는다`);
 
       // 4개 언어
       if (!L4(q.instruction)) err.push(`${k}: instruction 4개 언어 누락`);
@@ -82,8 +112,11 @@ for (const node of NODES) {
         if (q.choices?.[0]?.text === q.answer) warn.push(`${k}: 정답이 첫 번째 — 순서 섞어라`);
       }
       // 조립형: 정답 어절이 전부 options 에 있어야
-      if (['sentence_builder','word_arrange','translate_builder'].includes(q.type)) {
+      if (['sentence_builder','word_arrange','translate_builder','reply_builder'].includes(q.type)) {
         const need = q.answer.split(' ');
+        // 칩 하나를 눌러 끝나는 문제는 조립이 아니라 객관식이다.
+        // 어순을 배우게 하려면 최소 두 덩어리여야 한다.
+        if (need.length < 2) err.push(`${k}: 정답이 한 덩어리다 — 조립할 게 없다`);
         const miss = need.filter((w: string) => !q.options?.includes(w));
         if (miss.length) err.push(`${k}: options 에 [${miss}] 없어 '${q.answer}' 조립 불가`);
         // 칩은 options 항목 하나당 하나만 생긴다. 정답에 같은 어절이 두 번
@@ -111,6 +144,12 @@ for (const node of NODES) {
         }
       }
 
+      // reply_builder 는 말풍선에 npcText 를 띄우고 스피커로 읽어 준다.
+      // 없으면 아무 말도 안 한 상대에게 대답하는 꼴이 된다.
+      if (q.type === 'reply_builder' && !q.npcText) {
+        err.push(`${k}: reply_builder 에 npcText 가 없다 — 대답할 상대 발화가 있어야 한다`);
+      }
+
       // word_arrange 는 speakAuto(npcText ?? answer) 로 읽는다. npcText 를 두면
       // 정답 대신 상황 설명이 음성으로 나가고, 섹션 1 학습자는 그걸 들어도
       // 알아듣지 못한다. 정답을 들려주고 배열하게 두는 게 맞다.
@@ -135,13 +174,30 @@ const used = new Set(NODES.flatMap((n) => n.lessons.flatMap((l: any) => l.questi
 const orphans = Object.keys(Q).filter((k) => !used.has(k));
 if (orphans.length) err.push(`레슨에 안 들어간 문제 ${orphans.length}개: ${orphans.slice(0, 5)}...`);
 
-// 노드/레슨 구조: 노드 4~6개, 노드당 레슨 4개 고정
-if (NODES.length < 4 || NODES.length > 6) err.push(`노드가 ${NODES.length}개 (4~6개)`);
-for (const n of NODES) {
-  if (n.lessons.length !== 4) err.push(`노드 ${n.order}: 레슨 ${n.lessons.length}개 (4개 고정)`);
+// 노드/레슨 구조는 유닛 단위로 본다 — 노드 4~6개, 노드당 레슨 4개 고정
+console.log('');
+for (const unit of UNITS) {
+  const nodes = NODES.filter((n) => n.unit === unit);
+  if (nodes.length < 4 || nodes.length > 6) {
+    err.push(`유닛 ${unit}: 노드가 ${nodes.length}개 (4~6개)`);
+  }
+  for (const n of nodes) {
+    if (n.lessons.length !== 4) {
+      err.push(`유닛 ${unit} 노드 ${n.order}: 레슨 ${n.lessons.length}개 (4개 고정)`);
+    }
+  }
+  const lessons = nodes.reduce((a, n) => a + n.lessons.length, 0);
+  const qs = nodes.reduce(
+    (a, n) => a + n.lessons.reduce((b: number, l: any) => b + l.questions.length, 0),
+    0,
+  );
+  console.log(`유닛 ${unit}  노드 ${nodes.length} · 레슨 ${lessons} · 문제 ${qs}`);
 }
 
-console.log(`\n노드 ${NODES.length}개 · 레슨 ${used.size && NODES.reduce((a, n) => a + n.lessons.length, 0)}개 · 총 문제 ${Object.keys(Q).length}개`);
+console.log(`\n합계 문제 ${Object.keys(Q).length}개`);
+if (SKIPPED.length) {
+  console.log(`(아직 안 고친 유닛 ${SKIPPED.join(', ')} 는 검사에서 뺐다)`);
+}
 for (const w of warn) console.log(`⚠️  ${w}`);
 if (err.length) { console.log(`\n❌ ${err.length}건`); err.forEach(e => console.log('- ' + e)); process.exit(1); }
 console.log('\n🎉 규칙 검사 통과');
