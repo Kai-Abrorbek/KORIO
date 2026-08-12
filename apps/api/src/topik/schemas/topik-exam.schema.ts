@@ -83,6 +83,14 @@ export class TopikExam {
   @Prop({ default: true })
   isActive: boolean;
 
+  /**
+   * 문항 보관용 시험지인지 (합격 레시피 등).
+   * 실제로 응시하는 시험이 아니므로 시험 목록에 노출하지 않는다.
+   * 문항 번호가 연속이 아니어서 세션 검증도 통과하지 못한다.
+   */
+  @Prop({ default: false })
+  isQuestionBank: boolean;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

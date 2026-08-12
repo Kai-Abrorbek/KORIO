@@ -28,6 +28,8 @@ import {
 import { TopikController } from './topik.controller';
 import { TopikService } from './topik.service';
 import { TopikStatsService } from './topik-stats.service';
+import { TopikRecipeService } from './topik-recipe.service';
+import { TopikRecipe, TopikRecipeSchema } from './schemas/topik-recipe.schema';
 
 @Module({
   imports: [
@@ -41,11 +43,12 @@ import { TopikStatsService } from './topik-stats.service';
         name: TopikUserQuestionPerformance.name,
         schema: TopikUserQuestionPerformanceSchema,
       },
+      { name: TopikRecipe.name, schema: TopikRecipeSchema },
       { name: UserStats.name, schema: UserStatsSchema },
     ]),
   ],
   controllers: [TopikController],
-  providers: [TopikService, TopikStatsService],
+  providers: [TopikService, TopikStatsService, TopikRecipeService],
   exports: [MongooseModule, TopikService, TopikStatsService],
 })
 export class TopikModule {}

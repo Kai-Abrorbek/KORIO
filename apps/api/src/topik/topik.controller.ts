@@ -16,6 +16,7 @@ import { TopikSessionQueryDto } from './dto/topik-session-query.dto';
 import { TopikStatsQueryDto } from './dto/topik-stats-query.dto';
 import { TopikService } from './topik.service';
 import { TopikStatsService } from './topik-stats.service';
+import { TopikRecipeService } from './topik-recipe.service';
 
 interface AuthenticatedTopikRequest {
   user: { _id: { toString(): string } };
@@ -26,7 +27,30 @@ export class TopikController {
   constructor(
     private readonly topikService: TopikService,
     private readonly topikStatsService: TopikStatsService,
+    private readonly topikRecipeService: TopikRecipeService,
   ) {}
+
+  // ── 유형별 학습 (합격 레시피) ──
+  @Get('recipes')
+  listRecipes(@Query('section') section?: string) {
+    return this.topikRecipeService.list(section);
+  }
+
+  @Get('recipes/:groupCode')
+  getRecipe(@Param('groupCode') groupCode: string) {
+    return this.topikRecipeService.detail(groupCode);
+  }
+
+  @Get('recipes/:groupCode/practice')
+  getRecipePractice(@Param('groupCode') groupCode: string) {
+    return this.topikRecipeService.practice(groupCode);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('recipes/:groupCode/practice/solutions')
+  getRecipePracticeSolutions(@Param('groupCode') groupCode: string) {
+    return this.topikRecipeService.practiceSolutions(groupCode);
+  }
 
   @Get('exams')
   getExams() {

@@ -50,6 +50,8 @@ export class TopikService {
       .find({
         status: TopikPublishStatus.PUBLISHED,
         isActive: true,
+        // 문항 보관용 시험지(합격 레시피 등)는 응시 대상이 아니다
+        isQuestionBank: { $ne: true },
       })
       .sort({ publishedAt: -1, year: -1, round: 1 })
       .lean();

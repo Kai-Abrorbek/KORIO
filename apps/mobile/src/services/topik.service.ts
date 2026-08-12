@@ -17,6 +17,12 @@ import type {
   TopikSubmission,
   TopikTypePerformance,
 } from "@/types/topik";
+import type {
+  TopikRecipeDetail,
+  TopikRecipePractice,
+  TopikRecipeSolutionEntry,
+  TopikRecipeSummary,
+} from "@/types/topik-recipe";
 
 type TopikStatsExamType = "topik_i" | "topik_ii";
 type TopikStatsSection = "listening" | "reading" | "writing";
@@ -159,4 +165,19 @@ export const TopikService = {
     api.get(
       `/topik/stats/history?${topikStatsQuery(examType, section, limit)}`,
     ),
+
+  // ── 유형별 학습 (합격 레시피) ──
+  getRecipes: (section?: string): Promise<TopikRecipeSummary[]> =>
+    api.get(`/topik/recipes${section ? `?section=${section}` : ""}`),
+
+  getRecipe: (groupCode: string): Promise<TopikRecipeDetail> =>
+    api.get(`/topik/recipes/${groupCode}`),
+
+  getRecipePractice: (groupCode: string): Promise<TopikRecipePractice> =>
+    api.get(`/topik/recipes/${groupCode}/practice`),
+
+  getRecipePracticeSolutions: (
+    groupCode: string,
+  ): Promise<TopikRecipeSolutionEntry[]> =>
+    api.get(`/topik/recipes/${groupCode}/practice/solutions`),
 };
