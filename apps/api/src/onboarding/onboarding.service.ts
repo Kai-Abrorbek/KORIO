@@ -34,7 +34,7 @@ export class OnboardingService {
           reminderHour: dto.reminderHour,
           reminderEnabled: dto.reminderEnabled,
         },
-        { new: true },
+        { returnDocument: 'after' },
       ) as any;
     }
 
@@ -74,7 +74,7 @@ export class OnboardingService {
         placementLevel,
         wrongQuestionIds: dto.wrongQuestionIds,
       },
-      { new: true },
+      { returnDocument: 'after' },
     );
   }
 
@@ -84,7 +84,7 @@ export class OnboardingService {
     const onboarding = await this.onboardingModel.findOneAndUpdate(
       { sessionId },
       { $inc: { guestQuestionCount: 1 } },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
     return {

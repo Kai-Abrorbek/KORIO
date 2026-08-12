@@ -16,7 +16,13 @@ export type QuestionType =
   | "listen_fill"
   // 문법 문제 풀이 전용
   | "grammar_blank"
-  | "grammar_build";
+  | "grammar_build"
+  // ↓ 중급자용 신규 5종
+  | "reading_quiz"
+  | "error_hunt"
+  | "cloze_passage"
+  | "dialog_order"
+  | "verb_transform";
 
 export interface MatchingPair {
   korean: string;
@@ -75,6 +81,16 @@ export interface LessonQuestion {
   /** grammar_build 전용 — 어절 자리마다 보기 묶음 */
   buildRows?: { options: string[]; correct: string }[];
   hard?: boolean;
+  /** 독해/빈칸 지문. cloze_passage 는 빈칸을 ___ 로 표기 */
+  passage?: string;
+  /** 지문 제목 (reading_quiz) */
+  passageTitle?: string;
+  /** error_hunt: 문장 내 틀린 단어 (npcText 에 오류 문장) */
+  wrongWord?: string;
+  /** verb_transform: 기본형 (예: 먹다) */
+  baseWord?: string;
+  /** verb_transform: 목표 형태 (예: 과거 · 존댓말) */
+  targetForm?: string;
 }
 
 export interface LessonSession {

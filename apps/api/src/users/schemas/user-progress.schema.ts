@@ -37,3 +37,6 @@ export class UserProgress {
 }
 
 export const UserProgressSchema = SchemaFactory.createForClass(UserProgress);
+
+// 같은 레슨의 진행도는 사용자마다 한 행만 존재해야 upsert와 통계가 중복되지 않는다.
+UserProgressSchema.index({ userId: 1, lessonId: 1 }, { unique: true });

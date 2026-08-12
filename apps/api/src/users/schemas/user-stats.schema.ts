@@ -34,3 +34,6 @@ export class UserStats {
 }
 
 export const UserStatsSchema = SchemaFactory.createForClass(UserStats);
+
+// recordStudy가 하루 통계를 원자적으로 누적할 수 있도록 사용자·날짜를 유일하게 만든다.
+UserStatsSchema.index({ userId: 1, date: 1 }, { unique: true });

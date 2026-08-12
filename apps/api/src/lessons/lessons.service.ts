@@ -49,7 +49,7 @@ export class LessonsService {
     private userModel: Model<UserDocument>,
     private leagueService: LeagueService,
     private usersService: UsersService,
-      private readonly notifications: NotificationsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   private extractI18n(obj: any, lang: string): string {
@@ -129,6 +129,15 @@ export class LessonsService {
       .lean();
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
 
+    // 진행도와 오답 노트에는 현재 레슨이 실제로 참조하는 질문 _id만 저장한다.
+    // 시드 교체 전 id나 조작된 id가 들어오면 유령 오답 참조가 다시 생길 수 있다.
+    const lessonQuestionIdSet = new Set(
+      (lesson.questionIds ?? []).map((id) => id.toString()),
+    );
+    const wrongQuestionIds = [
+      ...new Set((dto.wrongQuestionIds ?? []).map(String)),
+    ].filter((id) => lessonQuestionIdSet.has(id));
+
     // ✅ XP = 기본값 + 콤보 (서버 계산, 클라 xpEarned 무시)
     const xpEarned = calcLessonXp(
       lesson.xpReward ?? 0,
@@ -150,7 +159,7 @@ export class LessonsService {
         totalAnswers: dto.totalAnswers,
         combo: dto.combo,
         speedSeconds: dto.speedSeconds,
-        wrongQuestionIds: dto.wrongQuestionIds,
+        wrongQuestionIds,
         completedAt: new Date(),
       },
       { upsert: true, returnDocument: 'after' },
@@ -159,7 +168,7 @@ export class LessonsService {
     // 통계 기록 (카테고리는 문제 타입에서 유도 — recordStudy 가 처리)
     await this.recordStudy(userId, {
       questionIds: lesson.questionIds,
-      wrongQuestionIds: dto.wrongQuestionIds,
+      wrongQuestionIds,
       speedSeconds: dto.speedSeconds,
       xpEarned,
       // TOPIK 처럼 레슨 단위로 성격이 정해지는 건 통째로 그 버킷에

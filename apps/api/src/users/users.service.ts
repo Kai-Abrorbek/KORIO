@@ -484,7 +484,7 @@ export class UsersService {
     }
 
     const updated = await this.userModel
-      .findByIdAndUpdate(userId, { $set: update }, { new: true })
+      .findByIdAndUpdate(userId, { $set: update }, { returnDocument: 'after' })
       .select('-password')
       .lean();
     if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');

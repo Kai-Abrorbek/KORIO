@@ -49,6 +49,11 @@ import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
 import { gradeAnswer } from "@/utils/answer-check";
+import ReadingQuiz from "@/components/lesson/questions/ReadingQuiz";
+import ErrorHunt from "@/components/lesson/questions/ErrorHunt";
+import ClozePassage from "@/components/lesson/questions/ClozePassage";
+import DialogOrder from "@/components/lesson/questions/DialogOrder";
+import VerbTransform from "@/components/lesson/questions/VerbTransform";
 
 type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -629,6 +634,16 @@ export default function LessonScreen() {
         return <GrammarBlank {...props} />;
       case "grammar_build":
         return <GrammarBuild {...props} />;
+      case "reading_quiz":
+        return <ReadingQuiz {...props} />;
+      case "error_hunt":
+        return <ErrorHunt {...props} />;
+      case "cloze_passage":
+        return <ClozePassage {...props} />;
+      case "dialog_order":
+        return <DialogOrder {...props} />;
+      case "verb_transform":
+        return <VerbTransform {...props} />;
       default:
         return <SentenceBuilder {...props} />;
     }
