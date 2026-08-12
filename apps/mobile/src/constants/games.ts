@@ -33,4 +33,28 @@ export const GAMES: GameItem[] = [
     icon: "link",
     colors: ["#FF8A5B", "#F06A3A"],
   },
+  {
+    id: "wordRain",
+    route: "/word-rain",
+    icon: "rainy",
+    colors: ["#1CB0F6", "#0E8FD0"],
+  },
+  {
+    id: "swipeJudge",
+    route: "/swipe-judge",
+    icon: "swap-horizontal",
+    colors: ["#FF5B8A", "#E23A6C"],
+  },
+  {
+    id: "particleRush",
+    route: "/particle-rush",
+    icon: "flash",
+    colors: ["#FFC800", "#EBA400"],
+  },
+  {
+    id: "echoChain",
+    route: "/echo-chain",
+    icon: "volume-high",
+    colors: ["#22C9C9", "#0FA8A8"],
+  },
 ];

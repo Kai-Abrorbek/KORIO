@@ -232,6 +232,22 @@ export default function RootLayout() {
                 gestureEnabled: false,
               }}
             />
+            <Stack.Screen
+              name="word-rain"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="swipe-judge"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="particle-rush"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="echo-chain"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
           </Stack>
 
           {/* 전역 에러 처리 모달*/}
