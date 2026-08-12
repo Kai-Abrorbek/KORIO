@@ -8,7 +8,6 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -38,8 +37,6 @@ interface WordItem {
   placedIndex: number;
 }
 
-/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
-const ANSWER_LINES = 2;
 /** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
 const LINE_H = ANSWER_LINE_H;
 
@@ -51,8 +48,7 @@ export default function SentenceBuilder({
   combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const s = styles(theme, LINE_H, ANSWER_LINES, insets.bottom);
+  const s = styles(theme, LINE_H);
   const { width: winW, height: winH } = useWindowDimensions();
 
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
@@ -257,9 +253,6 @@ export default function SentenceBuilder({
           </View>
         </View>
 
-        <View style={s.divider} />
-        <View style={[s.divider, { marginTop: 10, marginBottom: 16 }]} />
-
         {/* 단어 뱅크 */}
         {!isLong ? (
           <View style={s.chipRow}>{renderBankChips()}</View>
@@ -288,12 +281,7 @@ export default function SentenceBuilder({
   );
 }
 
-const styles = (
-  theme: ThemeColors,
-  lineH: number,
-  lines: number,
-  bottomInset = 0,
-) =>
+const styles = (theme: ThemeColors, lineH: number) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -312,9 +300,6 @@ const styles = (
       alignItems: "center",
       gap: 16,
       height: 180,
-    },
-    characterEmoji: {
-      fontSize: 100,
     },
     speakerBubble: {
       flex: 1,
@@ -372,9 +357,11 @@ const styles = (
     },
     speakerBtnActive: { backgroundColor: "#4A90D9" },
     answerArea: {
-      minHeight: lineH * lines,
+      // 실제 높이는 렌더에서 minHeight 로 덮어쓴다 (줄 수가 칩 개수에 따라 변한다).
+      // marginBottom 은 단어 뱅크와 붙지 않게 하는 간격. 예전엔 이 자리에
+      // 밑줄 두 개가 있었고 그 marginBottom 이 이 역할을 했다.
       marginTop: 8,
-      marginBottom: 8,
+      marginBottom: 28,
       position: "relative",
     },
     answerLine: {
@@ -396,26 +383,9 @@ const styles = (
       paddingBottom: 8,
       marginRight: 8,
     },
-    placedArea: {
-      minHeight: 56,
-      borderWidth: 2,
-      borderColor: theme.border,
-      borderStyle: "dashed",
-      borderRadius: 14,
-      padding: 10,
-      marginBottom: 4,
-      justifyContent: "center",
-    },
-    placeholder: {
-      color: theme.textSecondary,
-      fontSize: 14,
-      textAlign: "center",
-      fontWeight: "500",
-    },
     chipRow: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
     },
-    divider: { height: 1.5, backgroundColor: theme.border },
   });

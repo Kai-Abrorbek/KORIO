@@ -458,6 +458,7 @@ export default {
     selectCorrectImage: "To'g'ri rasmni tanlang",
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "Quyidagi gapni tarjima qiling",
+    buildInKorean: "Koreyschada tuzing",
     enterTranslation: "Tarjimani kiriting",
     tapToSpeak: "Gapirish uchun bosing",
     recording: "Tinglanmoqda...",

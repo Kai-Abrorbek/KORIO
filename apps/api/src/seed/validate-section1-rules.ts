@@ -93,6 +93,20 @@ for (const node of NODES) {
         if ((q.options?.length ?? 0) <= need.length) err.push(`${k}: 오답 어절이 없다`);
         if (q.options?.slice(0, need.length).join(' ') === q.answer) err.push(`${k}: options 가 정답 순서 그대로다`);
       }
+      // translate_builder 는 제목에 고정 문구를 쓰고 말풍선에 instruction 을
+      // 띄운다. 그래서 instruction 이 "옮겨야 할 문장"이어야 하고, 공용 지시문을
+      // 그대로 쓰면 뭘 만들지 알 수가 없다. npcText 는 이제 렌더되지 않는다.
+      if (q.type === 'translate_builder') {
+        if (q.npcText) err.push(`${k}: translate_builder 의 npcText 는 화면에 안 나온다 — instruction 으로 옮겨라`);
+        const shared = keys.some(
+          (o) => o !== k && Q[o]?.type !== 'translate_builder' && Q[o]?.instruction?.ko === q.instruction?.ko,
+        );
+        if (shared) err.push(`${k}: instruction 이 공용 지시문이다 — 옮길 문장을 4개 언어로 적어야 한다`);
+        if (q.instruction?.ko?.includes(q.answer)) {
+          err.push(`${k}: instruction.ko 에 정답이 그대로 들어 있다 — 베끼게 된다`);
+        }
+      }
+
       // word_arrange 는 speakAuto(npcText ?? answer) 로 읽는다. npcText 를 두면
       // 정답 대신 상황 설명이 음성으로 나가고, 섹션 1 학습자는 그걸 들어도
       // 알아듣지 못한다. 정답을 들려주고 배열하게 두는 게 맞다.

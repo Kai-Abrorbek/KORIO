@@ -455,6 +455,7 @@ export default {
     selectCorrectImage: "Выберите правильное изображение",
     listenAndSelect: "Слушайте и выбирайте",
     translateSentence: "Переведите это предложение",
+    buildInKorean: "Составьте по-корейски",
     enterTranslation: "Введите перевод",
     tapToSpeak: "Нажмите, чтобы говорить",
     recording: "Слушаю...",

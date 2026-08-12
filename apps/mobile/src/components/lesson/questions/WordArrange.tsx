@@ -9,7 +9,6 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -38,8 +37,6 @@ interface WordItem {
   zone: "bank" | "placed";
   placedIndex: number;
 }
-/** styles 안 fallback minHeight 용 (실제 줄 수는 useAnswerLines 가 정한다) */
-const ANSWER_LINES = 2;
 /** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
 const LINE_H = ANSWER_LINE_H;
 
@@ -51,8 +48,7 @@ export default function WordArrange({
   combo = 0,
 }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const s = styles(theme, ANSWER_LINES, LINE_H, insets.bottom);
+  const s = styles(theme, LINE_H);
   const { width: winW, height: winH } = useWindowDimensions();
 
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
@@ -254,9 +250,6 @@ export default function WordArrange({
           </View>
         </View>
 
-        {/* 남는 공간은 전부 여기서 먹는다 → 뱅크와 확인 버튼이 항상 하단 */}
-        <View style={{ flex: 1 }} />
-
         {/* 단어 뱅크 — 칩이 많으면 바텀시트로 내린다 */}
         {!longBank ? (
           <View style={s.chipRow}>{renderBankChips()}</View>
@@ -286,18 +279,12 @@ export default function WordArrange({
   );
 }
 
-const styles = (
-  theme: ThemeColors,
-  lines: number,
-  lineH: number,
-  bottomInset = 0,
-) =>
+const styles = (theme: ThemeColors, lineH: number) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 8,
-      // 확인 버튼이 absolute 로 깔려 있으므로 그만큼 자리를 비워둔다
       paddingBottom: 12,
     },
     title: {
@@ -394,28 +381,10 @@ const styles = (
       marginRight: 8,
     },
 
-    placedArea: {
-      minHeight: 56,
-      borderWidth: 2,
-      borderColor: theme.border,
-      borderStyle: "dashed",
-      borderRadius: 14,
-      padding: 10,
-      marginBottom: 4,
-      justifyContent: "center",
-    },
-    placeholder: {
-      color: theme.textSecondary,
-      fontSize: 14,
-      textAlign: "center",
-      fontWeight: "500",
-    },
     chipRow: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
       marginBottom: 8,
     },
-    divider: { height: 1.5, backgroundColor: theme.border },
-    // 콘텐츠 길이와 무관하게 항상 화면 하단 고정 (네비바/홈바 위)
   });
