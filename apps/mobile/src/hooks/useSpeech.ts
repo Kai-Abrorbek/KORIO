@@ -15,6 +15,10 @@ export function speakText(
   lang: string = "ko-KR",
   opts?: Omit<Speech.SpeechOptions, "language" | "rate" | "volume">,
 ) {
+  if (!text?.trim()) {
+    if (__DEV__) console.warn("[speakText] 읽을 텍스트가 비어 있다");
+    return;
+  }
   const { sound, muted } = useSettingsStore.getState();
   if (muted || sound.speechVolume <= 0) return;
   Speech.speak(text, {
@@ -30,6 +34,13 @@ export function useSpeech() {
 
   // 설정은 재생 시점에 읽는다 (구독하면 값이 바뀔 때마다 콜백이 새로 생긴다)
   const run = useCallback((text: string, lang: string, slow: boolean) => {
+    // 빈 문자열이면 expo-speech 가 조용히 아무것도 안 한다. 스피커를 눌러도
+    // 반응이 없는 걸로 보여서 원인을 찾기 어렵다. 개발 중엔 짚어준다.
+    if (!text?.trim()) {
+      if (__DEV__) console.warn("[useSpeech] 읽을 텍스트가 비어 있다");
+      return;
+    }
+
     const { sound, muted } = useSettingsStore.getState();
     if (muted || sound.speechVolume <= 0) return;
 

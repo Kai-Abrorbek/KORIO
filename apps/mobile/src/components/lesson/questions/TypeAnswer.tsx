@@ -43,7 +43,9 @@ export default function TypeAnswer({
   const inputRefs = useRef<Record<number, TextInput | null>>({});
   const { speak, isSpeaking } = useSpeech();
   const locked = answerState !== "idle";
-  const promptText = question.npcText ?? question.answer;
+  // ?? 가 아니라 || 다. 서버가 npcText 를 빈 문자열로 내려보내기 때문에
+  // ?? 로는 걸러지지 않아 말풍선이 비고 TTS 도 조용해진다.
+  const promptText = question.npcText || question.answer;
 
   // 빈칸 개수 제한 없음. 기존 단일 빈칸 문항은
   // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.

@@ -75,11 +75,11 @@ export default function WordArrange({
     })),
   );
 
-  // 진입시 자동 재생
+  // 진입시 자동 재생.
+  // 읽어주는 건 언제나 정답 문장이다. 예전엔 npcText 를 먼저 봤는데,
+  // 서버가 빈 문자열로 내려보내서 ?? 가 걸러내지 못해 TTS 가 조용했다.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      speakAuto(question.npcText ?? question.answer);
-    }, 600);
+    const timer = setTimeout(() => speakAuto(question.answer), 600);
     return () => clearTimeout(timer);
   }, []);
 
@@ -200,7 +200,7 @@ export default function WordArrange({
             {/* 일반 재생 */}
             <TouchableOpacity
               style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
-              onPress={() => speak(question.npcText ?? question.answer)}
+              onPress={() => speak(question.answer)}
             >
               <Ionicons
                 name="volume-high"
@@ -211,7 +211,7 @@ export default function WordArrange({
             {/* 느리게 재생 */}
             <TouchableOpacity
               style={s.speakerBtn}
-              onPress={() => speakSlow(question.npcText ?? question.answer)}
+              onPress={() => speakSlow(question.answer)}
             >
               <MaterialCommunityIcons name="turtle" size={26} color="#4A90D9" />
             </TouchableOpacity>
