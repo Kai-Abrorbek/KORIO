@@ -63,6 +63,44 @@ blankAnswers: ['담급니다'],
 - `options` 에 정답을 빠뜨리면 선택형에서 문제를 풀 수 없다.
 - 빈칸 사이 조사·띄어쓰기는 템플릿 텍스트 쪽에 넣는다. (`'저는 ___ 를 먹어요.'`)
 
+## `translate_builder` 와 `reply_builder`
+
+화면이 같고 말풍선에 무엇이 들어가느냐만 다르다. 한 컴포넌트가 `mode` 로 갈린다.
+
+### `translate_builder` — 뜻을 보고 한국어로 옮기기
+
+```ts
+type: 'translate_builder',
+instruction: {                      // ← 말풍선에 뜨는, 옮겨야 할 문장
+  ko: '나는 한국 사람이라고 말하기', // ko 에 정답을 그대로 쓰면 베끼게 된다
+  uz: 'Men koreysman',
+  en: 'I am Korean',
+  ru: 'Я кореец',
+},
+options: ['사람이에요', '한국', '저는', '어느', '나라'],
+answer: '저는 한국 사람이에요',
+```
+
+- **`instruction` 이 공용 지시문이면 안 된다.** 제목은 "한국어로 만들어 보세요"로
+  고정이고 말풍선이 `instruction` 이라, 여기에 옮길 내용이 없으면 뭘 만들지 알 수 없다.
+- `npcText` 를 쓰지 않는다. 렌더되지 않는다.
+- 스피커가 없다. 학습자 언어라 한국어 TTS 로 읽을 수 없고, 읽어준들 답을 알려주는 셈이다.
+
+### `reply_builder` — 상대 말을 듣고 대답 만들기 (유닛 2부터)
+
+```ts
+type: 'reply_builder',
+npcText: '안녕하세요? 저는 이수진이에요.',   // ← 말풍선. 한국어라 스피커가 읽어준다
+instruction: I.reply,                      // 공용 지시문으로 충분하다
+options: ['수진', '안녕하세요', '씨', '이', '저는'],
+answer: '안녕하세요 수진 씨',
+```
+
+- 정답을 아무도 알려주지 않는다. `sentence_builder` 는 정답을 들려주고 배열만
+  시키지만 이건 상대 말을 알아듣고 스스로 만들어야 한다. 그래서 XP 25.
+- **유닛 1에는 넣지 않는다.** 이제 막 시작한 학습자는 상대 발화를 들어도
+  알아듣지 못한다. `seed:validate-section1` 이 막는다.
+
 ## 중급 5종 (`reading_quiz` · `error_hunt` · `cloze_passage` · `dialog_order` · `verb_transform`)
 
 문장 하나가 아니라 지문·활용을 다루는 타입이다. 위 빈칸 규칙과 데이터 구조가 다르다.

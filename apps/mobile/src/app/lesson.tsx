@@ -604,6 +604,8 @@ export default function LessonScreen() {
     switch (currentQ.type) {
       case "sentence_builder":
         return <SentenceBuilder {...props} />;
+      case "reply_builder":
+        return <TranslateBuilder {...props} mode="reply" />;
       case "translate_builder":
         return <TranslateBuilder {...props} />;
       case "word_arrange":

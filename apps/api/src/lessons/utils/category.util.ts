@@ -28,6 +28,7 @@ export const QUESTION_CATEGORY: Partial<Record<QuestionType, StudyCategory>> = {
   // 실전 회화: 대화 · 발화
   [QuestionType.DIALOG_COMPLETE]: StudyCategory.CONVERSATION,
   [QuestionType.SPEAKING]: StudyCategory.CONVERSATION,
+  [QuestionType.REPLY_BUILDER]: StudyCategory.CONVERSATION,
 
   // 리스닝: 듣기 기반
   [QuestionType.LISTENING]: StudyCategory.LISTENING,

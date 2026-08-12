@@ -1,10 +1,18 @@
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useRef, useCallback } from "react";
+import { useSpeech } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, {
   GhostChip,
@@ -14,11 +22,20 @@ import CheckButton from "../CheckButton";
 import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
 import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
+/**
+ * 말풍선에 무엇을 담느냐만 다르고 나머지 화면은 같아서 한 컴포넌트로 쓴다.
+ *
+ * translate — 유저 언어로 된 뜻을 보고 한국어로 옮긴다. 들려줄 게 없다.
+ * reply     — 상대가 한국어로 한 말을 듣고 거기에 맞는 대답을 만든다.
+ */
+type BuilderMode = "translate" | "reply";
+
 interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
+  mode?: BuilderMode;
 }
 
 interface WordItem {
@@ -35,9 +52,12 @@ export default function TranslateBuilder({
   answerState,
   onAnswer,
   theme,
+  mode = "translate",
 }: Props) {
   const { t } = useTranslation();
+  const { speak, isSpeaking } = useSpeech();
   const s = styles(theme, LINE_H);
+  const isReply = mode === "reply";
   const { width: winW, height: winH } = useWindowDimensions();
   // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
@@ -172,8 +192,10 @@ export default function TranslateBuilder({
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
-        {/* 제목은 고정 문구. 옮길 문장은 말풍선에 들어간다. */}
-        <Text style={s.title}>{t("lesson.buildInKorean")}</Text>
+        {/* 제목은 고정 문구. 무엇을 보고 만드는지는 말풍선에 들어간다. */}
+        <Text style={s.title}>
+          {t(isReply ? "lesson.replyInKorean" : "lesson.buildInKorean")}
+        </Text>
 
         {/* 캐릭터 + 말풍선 */}
         <View style={[s.npcRow, compact && { height: 148 }]}>
@@ -190,12 +212,28 @@ export default function TranslateBuilder({
             <View style={s.tailInner} />
 
             {/*
-              옮겨야 할 문장. instruction 이 유일하게 4개 언어로 내려오는
-              필드라서 여기에 담는다. 학습자 언어라서 한국어 TTS 로 읽어줄 수
-              없고, 읽어주면 답을 그냥 알려주는 셈이라 스피커도 두지 않는다.
+              reply 는 상대가 한국어로 한 말이라 들려줘야 한다.
+              translate 는 옮길 뜻이 학습자 언어로 적혀 있어서 한국어 TTS 로
+              읽을 수 없고, 읽어준들 답을 알려주는 셈이라 스피커를 두지 않는다.
             */}
+            {isReply && (
+              <TouchableOpacity
+                onPress={() => speak(question.npcText ?? "")}
+                hitSlop={8}
+                style={s.audioBtn}
+              >
+                <Ionicons
+                  name="volume-medium"
+                  size={24}
+                  color={isSpeaking ? "#1A9BE6" : "#1A9BE6"}
+                />
+              </TouchableOpacity>
+            )}
+
             <View style={s.bubbleTextWrap}>
-              <Text style={s.bubbleText}>{question.question}</Text>
+              <Text style={s.bubbleText}>
+                {isReply ? question.npcText : question.question}
+              </Text>
               <View style={s.dashedUnderline} />
             </View>
           </View>
@@ -324,6 +362,7 @@ const styles = (theme: ThemeColors, lineH: number) =>
       borderBottomColor: "transparent",
       borderRightColor: theme.border,
     },
+    audioBtn: { padding: 2 },
     bubbleTextWrap: { flex: 1 },
     bubbleText: {
       fontSize: 14,

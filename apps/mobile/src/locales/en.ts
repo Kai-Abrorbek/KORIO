@@ -456,6 +456,7 @@ export default {
     listenAndSelect: "Listen and select",
     translateSentence: "Translate this sentence",
     buildInKorean: "Build it in Korean",
+    replyInKorean: "Answer in Korean",
     enterTranslation: "Enter translation",
     tapToSpeak: "Tap to speak",
     recording: "Listening...",

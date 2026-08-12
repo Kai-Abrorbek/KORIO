@@ -459,6 +459,7 @@ export default {
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "Quyidagi gapni tarjima qiling",
     buildInKorean: "Koreyschada tuzing",
+    replyInKorean: "Eshitganingizga koreyschada javob bering",
     enterTranslation: "Tarjimani kiriting",
     tapToSpeak: "Gapirish uchun bosing",
     recording: "Tinglanmoqda...",

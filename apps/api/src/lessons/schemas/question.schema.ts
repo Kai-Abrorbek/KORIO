@@ -23,6 +23,9 @@ export enum QuestionType {
   // 화면이 달라서 유형을 나눈다 (렌더러 선택용).
   GRAMMAR_BLANK = 'grammar_blank',
   GRAMMAR_BUILD = 'grammar_build',
+  // 상대가 한국어로 한 말을 듣고 대답을 조립한다. translate_builder 와 화면은
+  // 같지만 말풍선에 npcText(한국어)가 들어가고 스피커가 붙는다.
+  REPLY_BUILDER = 'reply_builder',
   // 중급 이상 전용. 문장 하나가 아니라 지문·활용을 다룬다.
   READING_QUIZ = 'reading_quiz',
   ERROR_HUNT = 'error_hunt',

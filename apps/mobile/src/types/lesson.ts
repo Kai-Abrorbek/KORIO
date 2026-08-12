@@ -17,6 +17,7 @@ export type QuestionType =
   // 문법 문제 풀이 전용
   | "grammar_blank"
   | "grammar_build"
+  | "reply_builder"
   // ↓ 중급자용 신규 5종
   | "reading_quiz"
   | "error_hunt"

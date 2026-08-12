@@ -18,6 +18,7 @@ const TIER: Record<string, { correct: number; wrong: number }> = {
   [QuestionType.TRANSLATE_BUILDER]: { correct: 20, wrong: 10 },
   [QuestionType.LISTEN_TYPE]: { correct: 20, wrong: 10 },
   [QuestionType.LISTEN_FILL]: { correct: 20, wrong: 10 },
+  [QuestionType.REPLY_BUILDER]: { correct: 25, wrong: 10 },
   // T4 발화
   [QuestionType.SPEAKING]: { correct: 25, wrong: 10 },
   // 중급 5종. 지문을 읽고 여러 요소를 동시에 처리해야 해서

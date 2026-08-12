@@ -448,6 +448,7 @@ export default {
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "다음 문장을 번역하세요",
     buildInKorean: "한국어로 만들어 보세요",
+    replyInKorean: "들은 말에 한국어로 답해 보세요",
     enterTranslation: "번역 입력",
     tapToSpeak: "탭하여 말하기",
     recording: "듣는 중...",

@@ -40,6 +40,10 @@ for (const node of NODES) {
       // 금지 타입
       if (['type_answer','translate_type','listen_type','listen_fill'].includes(q.type))
         err.push(`${k}: 유닛1에 타이핑 타입(${q.type}) 금지`);
+      // 상대 발화를 알아듣고 대답을 만드는 건 유닛 1 학습자에게 이르다.
+      // 화면은 준비돼 있고 유닛 2부터 쓴다.
+      if (q.type === 'reply_builder')
+        err.push(`${k}: reply_builder 는 유닛 2부터 — 유닛 1 학습자는 상대 발화를 못 알아듣는다`);
 
       // 4개 언어
       if (!L4(q.instruction)) err.push(`${k}: instruction 4개 언어 누락`);
