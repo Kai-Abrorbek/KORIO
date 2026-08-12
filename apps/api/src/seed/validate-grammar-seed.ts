@@ -39,6 +39,8 @@ const BATCHIM_RULES: Record<string, { withB: string; withoutB: string }> = {
   'topic-eun-neun': { withB: '은', withoutB: '는' },
   'copula-ieyo': { withB: '이에요', withoutB: '예요' },
   'neg-i-ga-animnida': { withB: '이 아닙니다', withoutB: '가 아닙니다' },
+  'exist-i-ga-isseoyo': { withB: '이 있어요', withoutB: '가 있어요' },
+  'and-hago-gwa-wa': { withB: '과', withoutB: '와' },
 };
 
 const seenCodes = new Set<string>();

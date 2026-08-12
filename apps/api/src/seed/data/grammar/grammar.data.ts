@@ -590,6 +590,749 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
+  // ───────── 섹션 1-5. 존재 N이/가 있어요[없어요] ─────────
+  {
+    code: 'exist-i-ga-isseoyo',
+    pattern: 'N이/가 있어요[없어요]',
+    section: 1,
+    order: 5,
+    isActive: true,
+    summary: {
+      ko: '무엇이 "있다 / 없다"를 말해요. 물건을 소개하거나 찾을 때 써요.',
+      uz: 'Biror narsa "bor / yo\'q" ekanini aytadi. Narsani tanishtirganda yoki qidirganda.',
+      en: 'Says that something exists or does not. Use it to introduce or look for things.',
+      ru: 'Говорит, что что-то есть или чего-то нет. Для представления и поиска вещей.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
+      { ko: '존재', uz: 'Mavjudlik', en: 'Existence', ru: 'Наличие' },
+    ],
+    explanation: {
+      ko: '이름 뒤에 "이/가"를 붙이고 "있어요" 또는 "없어요"를 써요. 받침이 있으면 "이", 없으면 "가"예요. 부정은 "안 있어요"가 아니라 아예 다른 말인 "없어요"를 써요.',
+      uz: 'Nomdan keyin "이/가" qo\'shiladi, so\'ng "있어요" yoki "없어요". Undosh bor — "이", yo\'q — "가". Inkor "안 있어요" emas, butunlay boshqa so\'z: "없어요".',
+      en: 'Attach 이/가 to the noun, then 있어요 or 없어요. Consonant ending takes 이, vowel ending takes 가. The negative is not "안 있어요" — it is a separate word, 없어요.',
+      ru: 'К существительному добавьте 이/가, затем 있어요 или 없어요. С 받침 — 이, без — 가. Отрицание не «안 있어요», а отдельное слово 없어요.',
+    },
+    conjugationRule: {
+      ko: '받침 O + 이 있어요  ·  받침 X + 가 있어요',
+      uz: "받침 bor + 이 있어요  ·  받침 yo'q + 가 있어요",
+      en: 'final consonant + 이 있어요  ·  no final consonant + 가 있어요',
+      ru: 'есть согласный + 이 있어요  ·  нет + 가 있어요',
+    },
+    conjugations: [
+      { base: '책', result: '책이 있어요' },
+      { base: '의자', result: '의자가 있어요' },
+      { base: '텔레비전', result: '텔레비전이 있어요' },
+      { base: '침대', result: '침대가 있어요' },
+    ],
+    examples: [
+      {
+        ko: '책상이 있어요.',
+        highlight: '책상이',
+        gloss: {
+          ko: '책상이 있어요.',
+          uz: 'Parta bor.',
+          en: 'There is a desk.',
+          ru: 'Есть парта.',
+        },
+      },
+      {
+        ko: '의자가 없어요.',
+        highlight: '의자가',
+        gloss: {
+          ko: '의자가 없어요.',
+          uz: "Stul yo'q.",
+          en: 'There is no chair.',
+          ru: 'Стула нет.',
+        },
+      },
+      {
+        ko: '가방 안에 지갑이 있어요.',
+        highlight: '지갑이',
+        gloss: {
+          ko: '가방 안에 지갑이 있어요.',
+          uz: 'Sumka ichida hamyon bor.',
+          en: 'There is a wallet in the bag.',
+          ru: 'В сумке есть кошелёк.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '연필이 있어요?',
+        highlight: '연필이',
+        gloss: {
+          ko: '연필이 있어요?',
+          uz: 'Qalam bormi?',
+          en: 'Do you have a pencil?',
+          ru: 'Есть карандаш?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '아니요, 연필은 없어요. 볼펜이 있어요.',
+        highlight: '연필은 없어요',
+        gloss: {
+          ko: '아니요, 연필은 없어요. 볼펜이 있어요.',
+          uz: "Yo'q, qalam yo'q. Ruchka bor.",
+          en: 'No, I have no pencil. I have a pen.',
+          ru: 'Нет, карандаша нет. Есть ручка.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N은/는 없어요',
+      note: {
+        ko: '"연필이 없어요"는 그냥 없다는 말이고, "연필은 없어요"는 "다른 건 있는데 연필만 없다"는 뜻이에요. 대비할 때만 "은/는"으로 바꿔요.',
+        uz: '"연필이 없어요" — oddiy inkor; "연필은 없어요" — "boshqasi bor, faqat qalam yo\'q". Qarama-qarshi qo\'yganda "은/는".',
+        en: '연필이 없어요 is a plain "there is none"; 연필은 없어요 means "everything else, but not the pencil". Switch to 은/는 only for contrast.',
+        ru: '연필이 없어요 — просто «нет»; 연필은 없어요 — «остальное есть, а карандаша нет». 은/는 — только для противопоставления.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"없어요"는 "있어요"의 반대말이지 부정형이 아니에요. "안 있어요"라고 하지 않아요.',
+        uz: '"없어요" — "있어요" ning antonimi, inkor shakli emas. "안 있어요" deyilmaydi.',
+        en: '없어요 is the opposite word of 있어요, not its negated form. Never say 안 있어요.',
+        ru: '없어요 — антоним 있어요, а не его отрицание. «안 있어요» не говорят.',
+      },
+      {
+        ko: '"있어요" 앞에는 "은/는"이 아니라 "이/가"가 기본이에요. 처음 꺼내는 물건일수록 "이/가"예요.',
+        uz: '"있어요" oldida asosan "이/가", "은/는" emas. Ayniqsa birinchi marta aytilayotgan narsa uchun.',
+        en: 'The default before 있어요 is 이/가, not 은/는 — especially for something mentioned for the first time.',
+        ru: 'По умолчанию перед 있어요 — 이/가, а не 은/는, особенно если вещь называется впервые.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '책상___ 있어요.',
+          uz: '책상___ 있어요.',
+          en: '책상___ 있어요.',
+          ru: '책상___ 있어요.',
+        },
+        options: [
+          { text: '이', correct: true },
+          { text: '가', correct: false },
+          { text: '은', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '의자___ 없어요.',
+          uz: '의자___ 없어요.',
+          en: '의자___ 없어요.',
+          ru: '의자___ 없어요.',
+        },
+        options: [
+          { text: '가', correct: true },
+          { text: '이', correct: false },
+          { text: '는', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '텔레비전___ 있어요.',
+          uz: '텔레비전___ 있어요.',
+          en: '텔레비전___ 있어요.',
+          ru: '텔레비전___ 있어요.',
+        },
+        options: [
+          { text: '이', correct: true },
+          { text: '가', correct: false },
+          { text: '를', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"있어요"의 반대말은?',
+          uz: '"있어요" ning antonimi?',
+          en: 'What is the opposite of 있어요?',
+          ru: 'Какой антоним у 있어요?',
+        },
+        options: [
+          { text: '없어요', correct: true },
+          { text: '안 있어요', correct: false },
+          { text: '아니에요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '침대는 있고 냉장고만 없어요. 어떻게 말해요?',
+          uz: "Karavot bor, faqat muzlatgich yo'q. Qanday aytiladi?",
+          en: 'There is a bed but no refrigerator. How do you say it?',
+          ru: 'Кровать есть, а холодильника нет. Как сказать?',
+        },
+        options: [
+          { text: '냉장고는 없어요', correct: true },
+          { text: '냉장고가 안 있어요', correct: false },
+          { text: '냉장고를 없어요', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-6. 지시 이거는/그거는/저거는 N이에요 ─────────
+  {
+    code: 'demonstrative-igeo',
+    pattern: '이거는[그거는, 저거는] N이에요/예요',
+    section: 1,
+    order: 6,
+    isActive: true,
+    summary: {
+      ko: '눈앞의 물건을 가리키며 이름을 말해요. 거리에 따라 말이 달라져요.',
+      uz: "Ko'z oldidagi narsani ko'rsatib nomini aytadi. Masofaga qarab o'zgaradi.",
+      en: 'Points at a thing in front of you and names it. The word changes with distance.',
+      ru: 'Указывает на предмет и называет его. Слово зависит от расстояния.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '지시어', uz: "Ko'rsatish", en: 'Demonstrative', ru: 'Указательное' },
+    ],
+    explanation: {
+      ko: '내 가까이에 있으면 "이거", 상대 가까이에 있으면 "그거", 둘 다에게서 멀면 "저거"예요. 뒤에는 유닛 1에서 배운 "N이에요/예요"를 그대로 붙여요. 무엇인지 물을 때는 "뭐예요?"를 써요.',
+      uz: 'Menga yaqin — "이거", suhbatdoshga yaqin — "그거", ikkalasidan uzoq — "저거". Ortidan 1-bo\'limdagi "N이에요/예요" qo\'shiladi. So\'rash uchun "뭐예요?".',
+      en: 'Near me is 이거, near you is 그거, far from both is 저거. Then attach the N이에요/예요 you learned in unit 1. To ask, use 뭐예요?',
+      ru: 'Рядом со мной — 이거, рядом с вами — 그거, далеко от обоих — 저거. Дальше — знакомое N이에요/예요. Вопрос — 뭐예요?',
+    },
+    conjugationRule: {
+      ko: '내 곁 → 이거  ·  네 곁 → 그거  ·  둘 다에게서 멀리 → 저거',
+      uz: "Menga yaqin → 이거  ·  senga yaqin → 그거  ·  uzoq → 저거",
+      en: 'near me → 이거  ·  near you → 그거  ·  far from both → 저거',
+      ru: 'рядом со мной → 이거  ·  рядом с тобой → 그거  ·  далеко → 저거',
+    },
+    conjugations: [
+      { base: '이거는', result: '이거는 책이에요' },
+      { base: '그거는', result: '그거는 공책이에요' },
+      { base: '저거는', result: '저거는 시계예요' },
+      { base: '뭐', result: '이거는 뭐예요?' },
+    ],
+    examples: [
+      {
+        ko: '이거는 지우개예요.',
+        highlight: '이거는',
+        gloss: {
+          ko: '이거는 지우개예요.',
+          uz: "Bu — o'chirg'ich.",
+          en: 'This is an eraser.',
+          ru: 'Это ластик.',
+        },
+      },
+      {
+        ko: '그거는 사전이에요.',
+        highlight: '그거는',
+        gloss: {
+          ko: '그거는 사전이에요.',
+          uz: "Bu (sizdagi) — lug'at.",
+          en: 'That (by you) is a dictionary.',
+          ru: 'То (у вас) — словарь.',
+        },
+      },
+      {
+        ko: '저거는 텔레비전이에요.',
+        highlight: '저거는',
+        gloss: {
+          ko: '저거는 텔레비전이에요.',
+          uz: 'Anavi — televizor.',
+          en: 'That over there is a television.',
+          ru: 'То — телевизор.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '이거는 한국어로 뭐예요?',
+        highlight: '뭐예요',
+        gloss: {
+          ko: '이거는 한국어로 뭐예요?',
+          uz: "Bu koreyschada nima deyiladi?",
+          en: 'What is this called in Korean?',
+          ru: 'Как это по-корейски?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '그거는 자예요.',
+        highlight: '그거는',
+        gloss: {
+          ko: '그거는 자예요.',
+          uz: "Bu — chizg'ich.",
+          en: 'That is a ruler.',
+          ru: 'Это линейка.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '이 N / 그 N / 저 N',
+      note: {
+        ko: '"이거"는 물건 자체를 가리키는 대명사예요. 이름을 함께 말할 때는 "이 책", "저 사람"처럼 "거" 없이 써요.',
+        uz: '"이거" — narsaning o\'zini bildiruvchi olmosh. Nom bilan aytilsa "이 책", "저 사람" kabi "거" siz.',
+        en: '이거 is a pronoun standing in for the object. With the noun spelled out you drop 거: 이 책, 저 사람.',
+        ru: '이거 — местоимение вместо предмета. Если называете сам предмет, 거 убирается: 이 책, 저 사람.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"이거는"에 붙는 건 "이/가"가 아니라 "은/는"이에요. "이거가 뭐예요?"는 어색해요.',
+        uz: '"이거는" da "이/가" emas, "은/는" ishlatiladi. "이거가 뭐예요?" g\'aliz.',
+        en: 'Use 은/는 with 이거, not 이/가. "이거가 뭐예요?" sounds off.',
+        ru: 'С 이거 идёт 은/는, а не 이/가. «이거가 뭐예요?» звучит неправильно.',
+      },
+      {
+        ko: '대답할 때는 상대 기준으로 바꿔야 해요. 상대가 "이거는?"이라고 물으면 나에게는 그것이 "그거"예요.',
+        uz: 'Javob berganda suhbatdosh nuqtai nazariga o\'ting: u "이거는?" desa, siz uchun bu "그거".',
+        en: 'Switch to the other side when replying: if they say 이거는?, from where you stand it is 그거.',
+        ru: 'Отвечая, меняйте точку отсчёта: если он говорит 이거는?, для вас это 그거.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '내 손에 있는 물건을 가리켜요.',
+          uz: "Qo'limdagi narsani ko'rsataman.",
+          en: 'You point at something in your own hand.',
+          ru: 'Вы показываете на предмет в своей руке.',
+        },
+        options: [
+          { text: '이거는', correct: true },
+          { text: '그거는', correct: false },
+          { text: '저거는', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '이거는 공책___.',
+          uz: '이거는 공책___.',
+          en: '이거는 공책___.',
+          ru: '이거는 공책___.',
+        },
+        options: [
+          { text: '이에요', correct: true },
+          { text: '예요', correct: false },
+          { text: '있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '저거는 시계___.',
+          uz: '저거는 시계___.',
+          en: '저거는 시계___.',
+          ru: '저거는 시계___.',
+        },
+        options: [
+          { text: '예요', correct: true },
+          { text: '이에요', correct: false },
+          { text: '이 있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '멀리 있는 물건을 가리킬 때는?',
+          uz: "Uzoqdagi narsani ko'rsatganda?",
+          en: 'Pointing at something far from both of you?',
+          ru: 'Указывая на далёкий предмет?',
+        },
+        options: [
+          { text: '저거는', correct: true },
+          { text: '이거는', correct: false },
+          { text: '그거는', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '이름을 모를 때 무엇을 물어요?',
+          uz: 'Nomini bilmasangiz nima so\'raysiz?',
+          en: 'What do you ask when you do not know the name?',
+          ru: 'Что спросить, если не знаете названия?',
+        },
+        options: [
+          { text: '이거는 뭐예요?', correct: true },
+          { text: '이거는 있어요?', correct: false },
+          { text: '이거는 누구예요?', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-7. 요청 N 주세요 ─────────
+  {
+    code: 'request-juseyo',
+    pattern: 'N 주세요',
+    section: 1,
+    order: 7,
+    isActive: true,
+    summary: {
+      ko: '물건을 달라고 부탁해요. 가게에서 가장 많이 쓰는 말이에요.',
+      uz: 'Narsani so\'rash. Do\'konda eng ko\'p ishlatiladigan gap.',
+      en: 'Asks for something. The single most used line in a shop.',
+      ru: 'Просьба дать что-то. Самая частая фраза в магазине.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '표현', uz: 'Ibora', en: 'Expression', ru: 'Выражение' },
+      { ko: '가게', uz: "Do'kon", en: 'Shopping', ru: 'Магазин' },
+    ],
+    explanation: {
+      ko: '물건 이름 뒤에 조사 없이 "주세요"를 바로 붙여요. 받침을 따질 필요가 없어서 유닛 2에서 가장 쉬운 문형이에요. 더 부드럽게 말하고 싶으면 사이에 "좀"을 넣어요.',
+      uz: 'Narsa nomidan keyin qo\'shimchasiz to\'g\'ridan-to\'g\'ri "주세요". 받침 ga qaralmaydi — 2-bo\'limdagi eng oson qolip. Yumshoqroq bo\'lsin desangiz orasiga "좀".',
+      en: 'Put 주세요 straight after the noun with no particle. 받침 does not matter, which makes it the easiest pattern in unit 2. Add 좀 in between to soften it.',
+      ru: 'Ставьте 주세요 сразу после существительного, без частицы. 받침 не важен — самый простой шаблон юнита 2. Для мягкости вставьте 좀.',
+    },
+    conjugationRule: {
+      ko: 'N + 주세요 (조사 없음)  ·  부드럽게: N + 좀 + 주세요',
+      uz: "N + 주세요 (qo'shimchasiz)  ·  yumshoq: N + 좀 + 주세요",
+      en: 'N + 주세요 (no particle)  ·  softer: N + 좀 + 주세요',
+      ru: 'N + 주세요 (без частицы)  ·  мягче: N + 좀 + 주세요',
+    },
+    conjugations: [
+      { base: '물', result: '물 주세요' },
+      { base: '커피', result: '커피 주세요' },
+      { base: '신문', result: '신문 좀 주세요' },
+      { base: '지우개', result: '지우개 주세요' },
+    ],
+    examples: [
+      {
+        ko: '물 주세요.',
+        highlight: '주세요',
+        gloss: {
+          ko: '물 주세요.',
+          uz: 'Suv bering.',
+          en: 'Water, please.',
+          ru: 'Воды, пожалуйста.',
+        },
+      },
+      {
+        ko: '커피 좀 주세요.',
+        highlight: '좀 주세요',
+        gloss: {
+          ko: '커피 좀 주세요.',
+          uz: 'Iltimos, qahva bering.',
+          en: 'Could I have a coffee, please?',
+          ru: 'Дайте, пожалуйста, кофе.',
+        },
+      },
+      {
+        ko: '지우개하고 연필 주세요.',
+        highlight: '주세요',
+        gloss: {
+          ko: '지우개하고 연필 주세요.',
+          uz: "O'chirg'ich va qalam bering.",
+          en: 'An eraser and a pencil, please.',
+          ru: 'Дайте ластик и карандаш.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '어서 오세요. 뭐 드릴까요?',
+        highlight: '어서 오세요',
+        gloss: {
+          ko: '어서 오세요. 뭐 드릴까요?',
+          uz: 'Xush kelibsiz. Nima beray?',
+          en: 'Welcome. What can I get you?',
+          ru: 'Добро пожаловать. Что вам дать?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '신문 주세요.',
+        highlight: '주세요',
+        gloss: {
+          ko: '신문 주세요.',
+          uz: 'Gazeta bering.',
+          en: 'A newspaper, please.',
+          ru: 'Дайте газету.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '여기 있어요',
+      note: {
+        ko: '"주세요"로 부탁하면 상대는 물건을 건네며 "여기 있어요"라고 해요. 가게 대화는 이 두 마디로 끝나요.',
+        uz: '"주세요" desangiz, sotuvchi narsani uzatib "여기 있어요" deydi. Do\'kon suhbati shu ikki gap.',
+        en: 'You say 주세요; they hand it over saying 여기 있어요. Those two lines close a shop exchange.',
+        ru: 'Вы говорите 주세요, вам подают со словами 여기 있어요. Этими двумя фразами разговор и заканчивается.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"주세요" 앞에는 "이/가"나 "은/는"을 붙이지 않아요. "물이 주세요"는 틀려요.',
+        uz: '"주세요" oldiga "이/가" yoki "은/는" qo\'yilmaydi. "물이 주세요" xato.',
+        en: 'No 이/가 or 은/는 before 주세요. "물이 주세요" is wrong.',
+        ru: 'Перед 주세요 не ставят 이/가 и 은/는. «물이 주세요» — ошибка.',
+      },
+      {
+        ko: '있는지 먼저 물을 때는 "N 있어요?", 달라고 할 때는 "N 주세요"예요. 순서를 바꾸면 어색해요.',
+        uz: 'Avval "N 있어요?" deb so\'raladi, keyin "N 주세요". Tartibni almashtirsangiz g\'aliz.',
+        en: 'First ask N 있어요?, then say N 주세요. Reversing the order sounds strange.',
+        ru: 'Сначала N 있어요?, потом N 주세요. Обратный порядок звучит странно.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '물___ 주세요.',
+          uz: '물___ 주세요.',
+          en: '물___ 주세요.',
+          ru: '물___ 주세요.',
+        },
+        options: [
+          { text: '(조사 없음)', correct: true },
+          { text: '이', correct: false },
+          { text: '은', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '더 부드럽게 부탁하려면 무엇을 넣어요?',
+          uz: 'Yumshoqroq so\'rash uchun nima qo\'shiladi?',
+          en: 'What do you insert to soften the request?',
+          ru: 'Что вставить, чтобы просьба звучала мягче?',
+        },
+        options: [
+          { text: '좀', correct: true },
+          { text: '도', correct: false },
+          { text: '만', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '가게에서 신문을 사고 싶어요.',
+          uz: "Do'kondan gazeta olmoqchisiz.",
+          en: 'You want to buy a newspaper.',
+          ru: 'Вы хотите купить газету.',
+        },
+        options: [
+          { text: '신문 주세요.', correct: true },
+          { text: '신문이 주세요.', correct: false },
+          { text: '신문은 주세요.', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '물건을 건네주면서 하는 말은?',
+          uz: 'Narsani uzatayotganda nima deyiladi?',
+          en: 'What do you say while handing something over?',
+          ru: 'Что говорят, передавая вещь?',
+        },
+        options: [
+          { text: '여기 있어요.', correct: true },
+          { text: '어서 오세요.', correct: false },
+          { text: '뭐예요?', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '두 가지를 함께 달라고 할 때는?',
+          uz: 'Ikkitasini birga so\'raganda?',
+          en: 'Asking for two things at once?',
+          ru: 'Просите сразу две вещи?',
+        },
+        options: [
+          { text: '볼펜하고 공책 주세요.', correct: true },
+          { text: '볼펜이 공책 주세요.', correct: false },
+          { text: '볼펜 공책이 주세요.', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-8. 나열 N하고 N · N과/와 N ─────────
+  {
+    code: 'and-hago-gwa-wa',
+    pattern: 'N하고 N · N과/와 N',
+    section: 1,
+    order: 8,
+    isActive: true,
+    summary: {
+      ko: '두 가지를 나란히 이어요. 말할 때는 "하고", 글로 쓸 때는 "과/와"를 써요.',
+      uz: 'Ikkitasini bog\'laydi. Gapirganda "하고", yozganda "과/와".',
+      en: 'Links two nouns. 하고 in speech, 과/와 in writing.',
+      ru: 'Соединяет два существительных. В речи — 하고, на письме — 과/와.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
+      { ko: '나열', uz: "Ro'yxat", en: 'Listing', ru: 'Перечисление' },
+    ],
+    explanation: {
+      ko: '"하고"는 받침을 따지지 않고 아무 말 뒤에나 붙어요. "과/와"는 받침이 있으면 "과", 없으면 "와"예요. 뜻은 같고 자리만 달라요 — 말할 때는 "하고", 글에서는 "과/와"가 자연스러워요. 조사는 마지막 물건에만 붙여요.',
+      uz: '"하고" 받침 ga qaramay har qanday so\'zga qo\'shiladi. "과/와" — undosh bor "과", yo\'q "와". Ma\'nosi bir xil, faqat uslub farq qiladi. Qo\'shimcha faqat oxirgi narsaga qo\'yiladi.',
+      en: '하고 attaches to anything regardless of 받침. 과/와 splits: 과 after a consonant, 와 after a vowel. Same meaning, different register — 하고 in speech, 과/와 in writing. The case particle goes only on the last item.',
+      ru: '하고 присоединяется к любому слову независимо от 받침. 과/와 зависит: 과 после согласного, 와 после гласного. Смысл один, отличается стиль. Падежная частица — только у последнего слова.',
+    },
+    conjugationRule: {
+      ko: '받침 O + 과  ·  받침 X + 와  ·  받침 상관없이 하고',
+      uz: "받침 bor + 과  ·  받침 yo'q + 와  ·  har doim 하고",
+      en: 'final consonant + 과  ·  no final consonant + 와  ·  하고 always works',
+      ru: 'есть согласный + 과  ·  нет + 와  ·  하고 всегда подходит',
+    },
+    conjugations: [
+      { base: '학생', result: '학생과' },
+      { base: '지우개', result: '지우개와' },
+      { base: '텔레비전', result: '텔레비전과' },
+      { base: '침대', result: '침대와' },
+    ],
+    examples: [
+      {
+        ko: '볼펜하고 공책이 있어요.',
+        highlight: '볼펜하고',
+        gloss: {
+          ko: '볼펜하고 공책이 있어요.',
+          uz: 'Ruchka va daftar bor.',
+          en: 'There is a pen and a notebook.',
+          ru: 'Есть ручка и тетрадь.',
+        },
+      },
+      {
+        ko: '지우개와 연필이 있어요.',
+        highlight: '지우개와',
+        gloss: {
+          ko: '지우개와 연필이 있어요.',
+          uz: "O'chirg'ich va qalam bor.",
+          en: 'There is an eraser and a pencil.',
+          ru: 'Есть ластик и карандаш.',
+        },
+      },
+      {
+        ko: '텔레비전과 냉장고가 없어요.',
+        highlight: '텔레비전과',
+        gloss: {
+          ko: '텔레비전과 냉장고가 없어요.',
+          uz: "Televizor va muzlatgich yo'q.",
+          en: 'There is no television and no refrigerator.',
+          ru: 'Нет ни телевизора, ни холодильника.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '가방 안에 뭐가 있어요?',
+        highlight: '뭐가',
+        gloss: {
+          ko: '가방 안에 뭐가 있어요?',
+          uz: 'Sumkada nima bor?',
+          en: 'What is in your bag?',
+          ru: 'Что в сумке?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '지갑하고 휴대폰이 있어요.',
+        highlight: '지갑하고',
+        gloss: {
+          ko: '지갑하고 휴대폰이 있어요.',
+          uz: 'Hamyon va telefon bor.',
+          en: 'A wallet and a phone.',
+          ru: 'Кошелёк и телефон.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N도',
+      note: {
+        ko: '"하고"는 한 문장 안에서 두 물건을 잇고, "도"는 앞 문장에 하나를 더 얹어요. "볼펜하고 공책이 있어요" ↔ "볼펜이 있어요. 공책도 있어요."',
+        uz: '"하고" bir gap ichida bog\'laydi, "도" oldingi gapga qo\'shimcha qiladi.',
+        en: '하고 joins two items inside one sentence; 도 adds one more on top of the previous sentence.',
+        ru: '하고 соединяет внутри одного предложения, 도 добавляет ещё одно к предыдущему.',
+      },
+    },
+    cautions: [
+      {
+        ko: '조사는 마지막 물건에만 붙여요. "볼펜이하고 공책이 있어요"는 틀려요.',
+        uz: 'Qo\'shimcha faqat oxirgisiga. "볼펜이하고 공책이 있어요" xato.',
+        en: 'The case particle goes on the last item only. "볼펜이하고 공책이 있어요" is wrong.',
+        ru: 'Падежная частица — только у последнего. «볼펜이하고 공책이 있어요» — ошибка.',
+      },
+      {
+        ko: '"과"와 "와"를 바꿔 쓰면 바로 어색해져요. "침대과"나 "학생와" 같은 말은 없어요.',
+        uz: '"과" va "와" almashtirilsa darrov g\'aliz. "침대과", "학생와" degan so\'zlar yo\'q.',
+        en: 'Swapping 과 and 와 sounds wrong immediately. There is no 침대과 or 학생와.',
+        ru: 'Перепутать 과 и 와 сразу заметно. Нет ни «침대과», ни «학생와».',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '학생___ 선생님입니다.',
+          uz: '학생___ 선생님입니다.',
+          en: '학생___ 선생님입니다.',
+          ru: '학생___ 선생님입니다.',
+        },
+        options: [
+          { text: '과', correct: true },
+          { text: '와', correct: false },
+          { text: '이', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '침대___ 책상이 있어요.',
+          uz: '침대___ 책상이 있어요.',
+          en: '침대___ 책상이 있어요.',
+          ru: '침대___ 책상이 있어요.',
+        },
+        options: [
+          { text: '와', correct: true },
+          { text: '과', correct: false },
+          { text: '은', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '말할 때 받침을 따지지 않고 쓸 수 있는 것은?',
+          uz: 'Gapirganda 받침 ga qaramay ishlatiladigani?',
+          en: 'Which one works in speech regardless of 받침?',
+          ru: 'Что в речи работает независимо от 받침?',
+        },
+        options: [
+          { text: '하고', correct: true },
+          { text: '과', correct: false },
+          { text: '와', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '볼펜___ 공책이 있어요. (말할 때)',
+          uz: '볼펜___ 공책이 있어요. (og\'zaki)',
+          en: '볼펜___ 공책이 있어요. (spoken)',
+          ru: '볼펜___ 공책이 있어요. (в речи)',
+        },
+        options: [
+          { text: '하고', correct: true },
+          { text: '이하고', correct: false },
+          { text: '가', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '조사 "이/가"는 어디에 붙여요?',
+          uz: '"이/가" qayerga qo\'yiladi?',
+          en: 'Where does the particle 이/가 go?',
+          ru: 'Куда ставится частица 이/가?',
+        },
+        options: [
+          { text: '마지막 물건에만', correct: true },
+          { text: '두 물건 모두에', correct: false },
+          { text: '첫 물건에만', correct: false },
+        ],
+      },
+    ],
+  },
+
   // ───────── 섹션 2-1. 과거 -았/었어요 ─────────
   {
     code: 'past-asseoyo',
