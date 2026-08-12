@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -102,7 +102,7 @@ export default function FillInBlank({
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+    <Animated.View entering={FadeIn.duration(150)} style={s.container}>
       <Text style={s.title}>{t("lesson.fillBlank")}</Text>
 
       {/* 문장 + 빈칸 (빈칸 개수 제한 없음) */}

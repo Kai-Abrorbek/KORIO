@@ -6,7 +6,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Animated, {
-  FadeInDown,
+  FadeIn,
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
@@ -94,7 +94,7 @@ export default function TranslateType({
 
   return (
     <View style={{ flex: 1 }}>
-      <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+      <Animated.View entering={FadeIn.duration(150)} style={s.container}>
         {question.hard && (
           <View style={s.hardRow}>
             <View style={s.hardBadge}>

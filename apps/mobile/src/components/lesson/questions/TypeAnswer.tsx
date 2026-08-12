@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -88,7 +88,7 @@ export default function TypeAnswer({
 
   return (
     <View style={{ flex: 1 }}>
-      <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+      <Animated.View entering={FadeIn.duration(150)} style={s.container}>
         {/* 지시문 */}
         <Text style={s.title}>
           {question.question || t("lesson.translateSentence")}

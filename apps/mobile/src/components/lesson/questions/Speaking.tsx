@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Animated, {
-  FadeInDown,
+  FadeIn,
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
@@ -91,7 +91,7 @@ export default function Speaking({
   const stopRecording = () => setIsRecording(false);
 
   return (
-    <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+    <Animated.View entering={FadeIn.duration(150)} style={s.container}>
       <Text style={s.title}>{question.question}</Text>
 
       {/* 말풍선(위) + 캐릭터(아래) */}

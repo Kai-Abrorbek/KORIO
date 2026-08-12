@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
@@ -144,7 +144,7 @@ export default function WordMatching({
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+    <Animated.View entering={FadeIn.duration(150)} style={s.container}>
       {/* 헤더 유지 */}
       <Text style={s.title}>{question.question}</Text>
       <Text style={s.sub}>{t("lesson.matchPairs")}</Text>

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import Animated, {
-  FadeInDown,
+  FadeIn,
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
@@ -218,7 +218,7 @@ export default function AudioMatch({
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(400)} style={s.container}>
+    <Animated.View entering={FadeIn.duration(150)} style={s.container}>
       <Text style={s.title}>{question.question || t("lesson.matchPairs")}</Text>
 
       <View style={s.board}>

@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
+import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
@@ -66,7 +66,7 @@ export default function ImageChoice({
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(350)} style={s.container}>
+    <Animated.View entering={FadeIn.duration(150)} style={s.container}>
       {/* NEW WORD 뱃지 */}
       <View style={s.badge}>
         <Ionicons name="star" size={13} color={theme.primary} />
