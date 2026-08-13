@@ -248,7 +248,7 @@ export const GRAMMAR_SEED: any[] = [
       pattern: 'N입니다',
       note: {
         ko: '뜻은 같고 자리만 달라요. 친구·일상은 "이에요/예요", 회사·발표·처음 뵙는 자리는 "입니다".',
-        uz: "Ma'nosi bir xil, faqat vaziyat farq qiladi. Do'st va kundalik — \"이에요/예요\"; ish, taqdimot, rasmiy uchrashuv — \"입니다\".",
+        uz: 'Ma\'nosi bir xil, faqat vaziyat farq qiladi. Do\'st va kundalik — "이에요/예요"; ish, taqdimot, rasmiy uchrashuv — "입니다".',
         en: 'Same meaning, different setting. 이에요/예요 with friends and every day; 입니다 at work, in a presentation, on a first formal meeting.',
         ru: 'Смысл тот же, отличается обстановка. 이에요/예요 — с друзьями и в быту; 입니다 — на работе и в официальной ситуации.',
       },
@@ -316,7 +316,7 @@ export const GRAMMAR_SEED: any[] = [
     ],
     explanation: {
       ko: '받침이 있든 없든 언제나 "입니다" 하나예요. 은/는이나 이에요/예요와 달리 형태가 바뀌지 않아요. 물어볼 때는 "입니까?"로 바꾸고 끝을 올려요.',
-      uz: '받침 bor-yo\'qligidan qat\'i nazar doim "입니다". 은/는 yoki 이에요/예요 dan farqli, shakli o\'zgarmaydi. Savolda "입니까?" bo\'ladi va oxiri ko\'tariladi.',
+      uz: "받침 bor-yo'qligidan qat'i nazar doim \"입니다\". 은/는 yoki 이에요/예요 dan farqli, shakli o'zgarmaydi. Savolda \"입니까?\" bo'ladi va oxiri ko'tariladi.",
       en: 'Always just 입니다, with or without a final consonant — unlike 은/는 or 이에요/예요 it never changes. For a question it becomes 입니까? with a rising ending.',
       ru: 'Всегда просто 입니다, независимо от согласного — в отличие от 은/는 и 이에요/예요 форма не меняется. В вопросе — 입니까? с повышением тона.',
     },
@@ -394,7 +394,7 @@ export const GRAMMAR_SEED: any[] = [
       pattern: 'N이에요/예요',
       note: {
         ko: '뜻은 같아요. 상대가 "-습니다"로 말하면 나도 "입니다"로 맞추고, 친구끼리면 "이에요/예요"로 내려요.',
-        uz: "Ma'nosi bir xil. Suhbatdosh \"-습니다\" ishlatsa siz ham \"입니다\"; do'stlar orasida \"이에요/예요\".",
+        uz: 'Ma\'nosi bir xil. Suhbatdosh "-습니다" ishlatsa siz ham "입니다"; do\'stlar orasida "이에요/예요".',
         en: 'Same meaning. Match 입니다 when the other person uses -습니다; drop to 이에요/예요 among friends.',
         ru: 'Смысл тот же. Отвечайте 입니다, если собеседник на -습니다; с друзьями — 이에요/예요.',
       },
@@ -541,7 +541,7 @@ export const GRAMMAR_SEED: any[] = [
       pattern: 'N이/가 아니에요',
       note: {
         ko: '같은 부정인데 부드러운 말이에요. 친구·일상에서는 "아니에요", 격식 있는 자리에서는 "아닙니다".',
-        uz: "Xuddi shu inkor, lekin muloyimroq. Do'st va kundalikda \"아니에요\", rasmiy joyda \"아닙니다\".",
+        uz: 'Xuddi shu inkor, lekin muloyimroq. Do\'st va kundalikda "아니에요", rasmiy joyda "아닙니다".',
         en: 'The same negation in the friendly register. 아니에요 in daily life, 아닙니다 in formal settings.',
         ru: 'То же отрицание, но мягче. 아니에요 в быту, 아닙니다 в официальной обстановке.',
       },
@@ -791,7 +791,12 @@ export const GRAMMAR_SEED: any[] = [
     },
     tags: [
       { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
-      { ko: '지시어', uz: "Ko'rsatish", en: 'Demonstrative', ru: 'Указательное' },
+      {
+        ko: '지시어',
+        uz: "Ko'rsatish",
+        en: 'Demonstrative',
+        ru: 'Указательное',
+      },
     ],
     explanation: {
       ko: '내 가까이에 있으면 "이거", 상대 가까이에 있으면 "그거", 둘 다에게서 멀면 "저거"예요. 뒤에는 유닛 1에서 배운 "N이에요/예요"를 그대로 붙여요. 무엇인지 물을 때는 "뭐예요?"를 써요.',
@@ -801,7 +806,7 @@ export const GRAMMAR_SEED: any[] = [
     },
     conjugationRule: {
       ko: '내 곁 → 이거  ·  네 곁 → 그거  ·  둘 다에게서 멀리 → 저거',
-      uz: "Menga yaqin → 이거  ·  senga yaqin → 그거  ·  uzoq → 저거",
+      uz: 'Menga yaqin → 이거  ·  senga yaqin → 그거  ·  uzoq → 저거',
       en: 'near me → 이거  ·  near you → 그거  ·  far from both → 저거',
       ru: 'рядом со мной → 이거  ·  рядом с тобой → 그거  ·  далеко → 저거',
     },
@@ -851,7 +856,7 @@ export const GRAMMAR_SEED: any[] = [
         highlight: '뭐예요',
         gloss: {
           ko: '이거는 한국어로 뭐예요?',
-          uz: "Bu koreyschada nima deyiladi?",
+          uz: 'Bu koreyschada nima deyiladi?',
           en: 'What is this called in Korean?',
           ru: 'Как это по-корейски?',
         },
@@ -948,7 +953,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '이름을 모를 때 무엇을 물어요?',
-          uz: 'Nomini bilmasangiz nima so\'raysiz?',
+          uz: "Nomini bilmasangiz nima so'raysiz?",
           en: 'What do you ask when you do not know the name?',
           ru: 'Что спросить, если не знаете названия?',
         },
@@ -970,7 +975,7 @@ export const GRAMMAR_SEED: any[] = [
     isActive: true,
     summary: {
       ko: '물건을 달라고 부탁해요. 가게에서 가장 많이 쓰는 말이에요.',
-      uz: 'Narsani so\'rash. Do\'konda eng ko\'p ishlatiladigan gap.',
+      uz: "Narsani so'rash. Do'konda eng ko'p ishlatiladigan gap.",
       en: 'Asks for something. The single most used line in a shop.',
       ru: 'Просьба дать что-то. Самая частая фраза в магазине.',
     },
@@ -981,7 +986,7 @@ export const GRAMMAR_SEED: any[] = [
     ],
     explanation: {
       ko: '물건 이름 뒤에 조사 없이 "주세요"를 바로 붙여요. 받침을 따질 필요가 없어서 유닛 2에서 가장 쉬운 문형이에요. 더 부드럽게 말하고 싶으면 사이에 "좀"을 넣어요.',
-      uz: 'Narsa nomidan keyin qo\'shimchasiz to\'g\'ridan-to\'g\'ri "주세요". 받침 ga qaralmaydi — 2-bo\'limdagi eng oson qolip. Yumshoqroq bo\'lsin desangiz orasiga "좀".',
+      uz: "Narsa nomidan keyin qo'shimchasiz to'g'ridan-to'g'ri \"주세요\". 받침 ga qaralmaydi — 2-bo'limdagi eng oson qolip. Yumshoqroq bo'lsin desangiz orasiga \"좀\".",
       en: 'Put 주세요 straight after the noun with no particle. 받침 does not matter, which makes it the easiest pattern in unit 2. Add 좀 in between to soften it.',
       ru: 'Ставьте 주세요 сразу после существительного, без частицы. 받침 не важен — самый простой шаблон юнита 2. Для мягкости вставьте 좀.',
     },
@@ -1095,7 +1100,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '더 부드럽게 부탁하려면 무엇을 넣어요?',
-          uz: 'Yumshoqroq so\'rash uchun nima qo\'shiladi?',
+          uz: "Yumshoqroq so'rash uchun nima qo'shiladi?",
           en: 'What do you insert to soften the request?',
           ru: 'Что вставить, чтобы просьба звучала мягче?',
         },
@@ -1134,7 +1139,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '두 가지를 함께 달라고 할 때는?',
-          uz: 'Ikkitasini birga so\'raganda?',
+          uz: "Ikkitasini birga so'raganda?",
           en: 'Asking for two things at once?',
           ru: 'Просите сразу две вещи?',
         },
@@ -1307,7 +1312,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '볼펜___ 공책이 있어요. (말할 때)',
-          uz: '볼펜___ 공책이 있어요. (og\'zaki)',
+          uz: "볼펜___ 공책이 있어요. (og'zaki)",
           en: '볼펜___ 공책이 있어요. (spoken)',
           ru: '볼펜___ 공책이 있어요. (в речи)',
         },
@@ -1328,6 +1333,750 @@ export const GRAMMAR_SEED: any[] = [
           { text: '마지막 물건에만', correct: true },
           { text: '두 물건 모두에', correct: false },
           { text: '첫 물건에만', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-9. 지시 여기가 N이에요/예요 ─────────
+  {
+    code: 'here-is-n',
+    pattern: '여기가 N이에요/예요',
+    section: 1,
+    order: 9,
+    isActive: true,
+    summary: {
+      ko: '지금 서 있는 자리가 어떤 곳인지 말해요.',
+      uz: 'Turgan joyingiz qanday joy ekanini aytadi.',
+      en: 'Says what the place you are standing in is.',
+      ru: 'Говорит, что это за место, где вы стоите.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '지시어', uz: "Ko'rsatish", en: 'Demonstrative', ru: 'Указательное' },
+      { ko: '장소', uz: 'Joy', en: 'Place', ru: 'Место' },
+    ],
+    explanation: {
+      ko: '내가 있는 자리는 "여기", 상대가 있는 자리는 "거기", 둘 다에게서 먼 자리는 "저기"예요. 물건을 가리키는 이거·그거·저거와 짝을 이뤄요. 뒤에는 유닛 2에서 배운 "N이에요/예요"를 그대로 붙이고, 모를 때는 "여기가 어디예요?"로 물어요.',
+      uz: 'Men turgan joy — "여기", suhbatdosh joyi — "거기", ikkalasidan uzoq — "저기". 이거·그거·저거 bilan juft. Ortidan "N이에요/예요"; so\'rash uchun "여기가 어디예요?".',
+      en: 'Where I stand is 여기, where you stand is 거기, far from both is 저기 — the place counterparts of 이거·그거·저거. Attach N이에요/예요, and ask with 여기가 어디예요?',
+      ru: 'Где я — 여기, где вы — 거기, далеко от обоих — 저기; это «местные» пары к 이거·그거·저거. Дальше N이에요/예요, а вопрос — 여기가 어디예요?',
+    },
+    conjugationRule: {
+      ko: '받침 O + 이에요  ·  받침 X + 예요',
+      uz: "받침 bor + 이에요  ·  받침 yo'q + 예요",
+      en: 'final consonant + 이에요  ·  no final consonant + 예요',
+      ru: 'есть согласный + 이에요  ·  нет + 예요',
+    },
+    conjugations: [
+      { base: '공항', result: '공항이에요' },
+      { base: '가게', result: '가게예요' },
+      { base: '미용실', result: '미용실이에요' },
+      { base: '학교', result: '학교예요' },
+    ],
+    examples: [
+      {
+        ko: '여기가 공항이에요.',
+        highlight: '여기가',
+        gloss: {
+          ko: '여기가 공항이에요.',
+          uz: 'Bu yer — aeroport.',
+          en: 'This place is the airport.',
+          ru: 'Это аэропорт.',
+        },
+      },
+      {
+        ko: '저기가 은행이에요.',
+        highlight: '저기가',
+        gloss: {
+          ko: '저기가 은행이에요.',
+          uz: 'Anavi yer — bank.',
+          en: 'That place over there is the bank.',
+          ru: 'То место — банк.',
+        },
+      },
+      {
+        ko: '여기가 어디예요?',
+        highlight: '어디예요',
+        gloss: {
+          ko: '여기가 어디예요?',
+          uz: 'Bu yer qayer?',
+          en: 'Where is this place?',
+          ru: 'Что это за место?',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '여기가 인사동이에요?',
+        highlight: '여기가',
+        gloss: {
+          ko: '여기가 인사동이에요?',
+          uz: 'Bu yer Insadongmi?',
+          en: 'Is this place Insa-dong?',
+          ru: 'Это Инсадон?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '네, 인사동이에요.',
+        highlight: '인사동이에요',
+        gloss: {
+          ko: '네, 인사동이에요.',
+          uz: 'Ha, bu Insadong.',
+          en: 'Yes, it is Insa-dong.',
+          ru: 'Да, это Инсадон.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N이 어디에 있어요?',
+      note: {
+        ko: '"여기가 어디예요?"는 내가 선 자리의 이름을 묻는 말이고, "우체국이 어디에 있어요?"는 어떤 건물의 자리를 묻는 말이에요. 방향이 정반대예요.',
+        uz: '"여기가 어디예요?" — turgan joyning nomi; "우체국이 어디에 있어요?" — binoning joyi. Yo\'nalish teskari.',
+        en: '여기가 어디예요? asks the name of where you stand; N이 어디에 있어요? asks the location of a building. Opposite directions.',
+        ru: '여기가 어디예요? — название места, где вы стоите; N이 어디에 있어요? — где находится здание. Направления противоположны.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"여기가"에는 "이/가"가 붙어요. "여기는"은 다른 곳과 견줄 때만 써요.',
+        uz: '"여기가" da "이/가"; "여기는" faqat qiyoslashda.',
+        en: 'Use 여기가 with 이/가; 여기는 only when contrasting with another place.',
+        ru: 'С 여기 идёт 이/가; 여기는 — только при противопоставлении.',
+      },
+      {
+        ko: '대답할 때는 기준이 바뀌어요. 상대가 "여기가?"라고 물으면 나에게는 그곳이 "거기"예요.',
+        uz: 'Javobda tayanch o\'zgaradi: u "여기가?" desa, siz uchun bu "거기".',
+        en: 'The reference shifts when you answer: if they say 여기가?, from where you stand it is 거기.',
+        ru: 'При ответе точка отсчёта меняется: если он говорит 여기가?, для вас это 거기.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '여기가 공항___.',
+          uz: '여기가 공항___.',
+          en: '여기가 공항___.',
+          ru: '여기가 공항___.',
+        },
+        options: [
+          { text: '이에요', correct: true },
+          { text: '예요', correct: false },
+          { text: '에 있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '여기가 가게___.',
+          uz: '여기가 가게___.',
+          en: '여기가 가게___.',
+          ru: '여기가 가게___.',
+        },
+        options: [
+          { text: '예요', correct: true },
+          { text: '이에요', correct: false },
+          { text: '이 있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '나와 상대 모두에게서 먼 자리는?',
+          uz: 'Ikkalamizdan uzoq joy?',
+          en: 'The place far from both of you?',
+          ru: 'Место, далёкое от обоих?',
+        },
+        options: [
+          { text: '저기', correct: true },
+          { text: '여기', correct: false },
+          { text: '거기', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '이 자리가 어떤 곳인지 물을 때는?',
+          uz: 'Bu joy qaysi joy ekanini so\'rash?',
+          en: 'How do you ask what this place is?',
+          ru: 'Как спросить, что это за место?',
+        },
+        options: [
+          { text: '여기가 어디예요?', correct: true },
+          { text: '여기가 뭐예요?', correct: false },
+          { text: '여기가 누구예요?', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"여기" 뒤에 붙는 조사는?',
+          uz: '"여기" ortidan qaysi qo\'shimcha?',
+          en: 'Which particle follows 여기 in this pattern?',
+          ru: 'Какая частица идёт после 여기?',
+        },
+        options: [
+          { text: '가', correct: true },
+          { text: '를', correct: false },
+          { text: '에서', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-10. 위치 N에 있어요[없어요] ─────────
+  {
+    code: 'loc-e-isseoyo',
+    pattern: 'N에 있어요[없어요]',
+    section: 1,
+    order: 10,
+    isActive: true,
+    summary: {
+      ko: '무엇이 어느 자리에 있는지 말해요. 자리에는 "에"가 붙어요.',
+      uz: 'Nima qayerda ekanini aytadi; joyga "에" qo\'shiladi.',
+      en: 'Says where something is. The place takes 에.',
+      ru: 'Говорит, где что-то находится; у места частица 에.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
+      { ko: '위치', uz: "O'rin", en: 'Location', ru: 'Расположение' },
+    ],
+    explanation: {
+      ko: '물건이나 사람에는 "이/가"를 붙이고, 있는 자리에는 "에"를 붙여요. "에"는 받침을 따지지 않고 언제나 "에" 하나예요. 자리를 물을 때는 "어디"에도 똑같이 "에"가 붙어 "어디에 있어요?"가 돼요. 순서는 바꿔도 되고, 자리를 앞에 두면 "명동에 은행이 있어요"가 돼요.',
+      uz: 'Narsa yoki odamga "이/가", joyga "에". "에" undoshga qaramaydi. So\'rash: "어디에 있어요?". Tartib almashsa ham bo\'ladi.',
+      en: 'Things and people take 이/가; the place takes 에, which never changes for 받침. To ask, 어디 also takes 에 → 어디에 있어요? The order may be swapped.',
+      ru: 'У предмета или человека 이/가, у места — 에, которое не зависит от 받침. Вопрос: 어디에 있어요? Порядок можно менять.',
+    },
+    conjugationRule: {
+      ko: '무엇이 + 자리에 + 있어요[없어요]  ·  "에"는 받침과 무관',
+      uz: "Nima + joyga 에 + 있어요[없어요]  ·  받침 ta'sir qilmaydi",
+      en: 'thing이/가 + place에 + 있어요[없어요]  ·  에 never changes',
+      ru: 'что-то이/가 + место에 + 있어요[없어요]  ·  에 неизменно',
+    },
+    conjugations: [
+      { base: '명동', result: '명동에 있어요' },
+      { base: '교실', result: '교실에 있어요' },
+      { base: '여기', result: '여기에 있어요' },
+      { base: '학교', result: '학교에 없어요' },
+    ],
+    examples: [
+      {
+        ko: '은행이 명동에 있어요.',
+        highlight: '명동에',
+        gloss: {
+          ko: '은행이 명동에 있어요.',
+          uz: 'Bank Myeongdongda.',
+          en: 'The bank is in Myeongdong.',
+          ru: 'Банк находится в Мёндоне.',
+        },
+      },
+      {
+        ko: '스티븐 씨가 교실에 없어요.',
+        highlight: '교실에',
+        gloss: {
+          ko: '스티븐 씨가 교실에 없어요.',
+          uz: "Stiven sinfda yo'q.",
+          en: 'Steven is not in the classroom.',
+          ru: 'Стивена нет в классе.',
+        },
+      },
+      {
+        ko: '명동에 은행이 있어요.',
+        highlight: '명동에',
+        gloss: {
+          ko: '명동에 은행이 있어요.',
+          uz: 'Myeongdongda bank bor.',
+          en: 'There is a bank in Myeongdong.',
+          ru: 'В Мёндоне есть банк.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '중국 대사관이 어디에 있어요?',
+        highlight: '어디에',
+        gloss: {
+          ko: '중국 대사관이 어디에 있어요?',
+          uz: 'Xitoy elchixonasi qayerda?',
+          en: 'Where is the Chinese embassy?',
+          ru: 'Где находится посольство Китая?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '명동에 있어요.',
+        highlight: '명동에',
+        gloss: {
+          ko: '명동에 있어요.',
+          uz: 'Myeongdongda.',
+          en: 'It is in Myeongdong.',
+          ru: 'В Мёндоне.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N에서',
+      note: {
+        ko: '"에"는 있는 자리와 가는 곳, "에서"는 무엇을 하는 자리예요. "학교에 가요"는 움직임, "학교에서 배워요"는 거기서 하는 일이에요.',
+        uz: '"에" — turgan/boradigan joy; "에서" — ish qilinadigan joy. "학교에 가요" harakat, "학교에서 배워요" ish.',
+        en: '에 marks where you are or head; 에서 marks where an action happens — 학교에 가요 vs 학교에서 배워요.',
+        ru: '에 — где вы или куда идёте; 에서 — где происходит действие: 학교에 가요 против 학교에서 배워요.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"명동이 있어요"는 명동이라는 곳이 존재한다는 뜻이에요. 자리를 말하려면 반드시 "명동에 있어요"예요.',
+        uz: '"명동이 있어요" — Myeongdong degan joy bor demak; joy uchun "명동에 있어요".',
+        en: '명동이 있어요 means a Myeongdong exists; for location you must say 명동에 있어요.',
+        ru: '«명동이 있어요» — что Мёндон существует; для места нужно 명동에 있어요.',
+      },
+      {
+        ko: '"여기가 어디예요?"와 "N이 어디에 있어요?"를 헷갈리지 마세요. 앞은 자리 이름, 뒤는 건물 위치를 묻는 말이에요.',
+        uz: '"여기가 어디예요?" va "N이 어디에 있어요?" ni aralashtirmang.',
+        en: 'Do not mix up 여기가 어디예요? and N이 어디에 있어요? — one asks a name, the other a location.',
+        ru: 'Не путайте 여기가 어디예요? и N이 어디에 있어요?: первое о названии, второе о расположении.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '은행이 명동___ 있어요.',
+          uz: '은행이 명동___ 있어요.',
+          en: '은행이 명동___ 있어요.',
+          ru: '은행이 명동___ 있어요.',
+        },
+        options: [
+          { text: '에', correct: true },
+          { text: '이', correct: false },
+          { text: '에서', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '스티븐 씨가 교실___ 없어요.',
+          uz: '스티븐 씨가 교실___ 없어요.',
+          en: '스티븐 씨가 교실___ 없어요.',
+          ru: '스티븐 씨가 교실___ 없어요.',
+        },
+        options: [
+          { text: '에', correct: true },
+          { text: '가', correct: false },
+          { text: '를', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '어떤 건물의 자리를 물을 때는?',
+          uz: 'Bino joyini so\'rash?',
+          en: 'How do you ask where a building is?',
+          ru: 'Как спросить, где здание?',
+        },
+        options: [
+          { text: '우체국이 어디에 있어요?', correct: true },
+          { text: '우체국이 어디예요?', correct: false },
+          { text: '우체국이 뭐예요?', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"에"는 받침에 따라 모양이 바뀌나요?',
+          uz: '"에" undoshga qarab o\'zgaradimi?',
+          en: 'Does 에 change shape depending on 받침?',
+          ru: 'Меняется ли 에 в зависимости от 받침?',
+        },
+        options: [
+          { text: '아니요, 언제나 "에"예요', correct: true },
+          { text: '네, 받침이 있으면 "이에"예요', correct: false },
+          { text: '네, 받침이 없으면 "예"예요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"명동이 있어요"는 무슨 뜻이에요?',
+          uz: '"명동이 있어요" nima degani?',
+          en: 'What does 명동이 있어요 mean?',
+          ru: 'Что значит «명동이 있어요»?',
+        },
+        options: [
+          { text: '명동이라는 곳이 존재한다', correct: true },
+          { text: '명동에 자리한다', correct: false },
+          { text: '명동으로 간다', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-11. 이동 N에 가요[와요] ─────────
+  {
+    code: 'motion-e-gayo',
+    pattern: 'N에 가요[와요]',
+    section: 1,
+    order: 11,
+    isActive: true,
+    summary: {
+      ko: '어디로 움직이는지 말해요. 가는 곳에도 "에"가 붙어요.',
+      uz: 'Qayerga harakat qilishni aytadi; boradigan joyga ham "에".',
+      en: 'Says where you are heading. The destination also takes 에.',
+      ru: 'Говорит, куда вы движетесь; у направления тоже 에.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '동사', uz: "Fe'l", en: 'Verb', ru: 'Глагол' },
+      { ko: '이동', uz: 'Harakat', en: 'Movement', ru: 'Движение' },
+    ],
+    explanation: {
+      ko: '"가요"는 말하는 사람에게서 멀어지는 움직임, "와요"는 말하는 사람 쪽으로 가까워지는 움직임이에요. 같은 장면도 누가 말하느냐에 따라 갈려요. 내가 한국에 있으면 친구는 한국에 "와요"이고, 내가 밖에 있으면 "가요"예요. 안 갈 때는 앞에 "안"을 붙여 "안 가요·안 와요"라고 해요.',
+      uz: '"가요" — so\'zlovchidan uzoqlashish, "와요" — unga yaqinlashish. Kim gapirayotganiga qarab o\'zgaradi. Inkor uchun oldiga "안".',
+      en: '가요 is motion away from the speaker, 와요 is motion toward the speaker — the same scene flips depending on who is talking. Negate with 안 in front.',
+      ru: '가요 — движение от говорящего, 와요 — к говорящему; одна и та же сцена меняется в зависимости от того, кто говорит. Отрицание — 안 перед глаголом.',
+    },
+    conjugationRule: {
+      ko: '자리에 + 가요 (멀어짐)  ·  자리에 + 와요 (가까워짐)  ·  안 + 가요/와요',
+      uz: 'joyga + 가요 (uzoqlashish)  ·  joyga + 와요 (yaqinlashish)  ·  안 + …',
+      en: 'place에 + 가요 (away)  ·  place에 + 와요 (toward)  ·  안 + verb',
+      ru: 'место에 + 가요 (от)  ·  место에 + 와요 (к)  ·  안 + глагол',
+    },
+    conjugations: [
+      { base: '회사', result: '회사에 가요' },
+      { base: '공항', result: '공항에 가요' },
+      { base: '한국', result: '한국에 와요' },
+      { base: '학교', result: '학교에 안 와요' },
+    ],
+    examples: [
+      {
+        ko: '아키라 씨는 회사에 가요.',
+        highlight: '회사에',
+        gloss: {
+          ko: '아키라 씨는 회사에 가요.',
+          uz: 'Akira kompaniyaga boradi.',
+          en: 'Akira goes to the office.',
+          ru: 'Акира идёт на работу.',
+        },
+      },
+      {
+        ko: '친구가 한국에 와요.',
+        highlight: '와요',
+        gloss: {
+          ko: '친구가 한국에 와요.',
+          uz: "Do'stim Koreyaga keladi.",
+          en: 'My friend is coming to Korea.',
+          ru: 'Мой друг приезжает в Корею.',
+        },
+      },
+      {
+        ko: '스티븐은 오늘 학교에 안 와요.',
+        highlight: '안 와요',
+        gloss: {
+          ko: '스티븐은 오늘 학교에 안 와요.',
+          uz: 'Stiven bugun maktabga kelmaydi.',
+          en: 'Steven is not coming to school today.',
+          ru: 'Стивен сегодня не придёт в школу.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '어디에 가요?',
+        highlight: '어디에',
+        gloss: {
+          ko: '어디에 가요?',
+          uz: 'Qayerga borasiz?',
+          en: 'Where are you going?',
+          ru: 'Куда вы идёте?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '공항에 가요. 친구가 한국에 와요.',
+        highlight: '공항에',
+        gloss: {
+          ko: '공항에 가요. 친구가 한국에 와요.',
+          uz: "Aeroportga. Do'stim Koreyaga keladi.",
+          en: 'To the airport. My friend is coming to Korea.',
+          ru: 'В аэропорт. Мой друг приезжает в Корею.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N에서 V',
+      note: {
+        ko: '"인사동에 가요"는 그쪽으로 움직이는 것이고, "인사동에서 친구를 만나요"는 거기 도착해서 하는 일이에요. 움직임에는 "에", 하는 일에는 "에서"예요.',
+        uz: '"인사동에 가요" — harakat; "인사동에서 만나요" — u yerdagi ish. Harakatga "에", ishga "에서".',
+        en: '인사동에 가요 is the trip; 인사동에서 친구를 만나요 is what you do on arrival. Motion takes 에, activity takes 에서.',
+        ru: '인사동에 가요 — поездка; 인사동에서 친구를 만나요 — действие по прибытии. Движение — 에, действие — 에서.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"가요"는 목적어를 받지 않아요. "학교를 가요"가 아니라 "학교에 가요"예요.',
+        uz: '"가요" to\'ldiruvchi olmaydi: "학교를 가요" emas, "학교에 가요".',
+        en: '가요 takes no object — say 학교에 가요, never 학교를 가요.',
+        ru: '가요 не принимает дополнение: не «학교를 가요», а «학교에 가요».',
+      },
+      {
+        ko: '"가요"와 "와요"는 말하는 사람이 어디 있느냐로 갈려요. 문장만 보고 외우면 자주 틀려요.',
+        uz: '"가요" va "와요" so\'zlovchining joyiga bog\'liq — yodlab olish yetmaydi.',
+        en: 'The choice between 가요 and 와요 depends on where the speaker is — memorising sentences alone will trip you up.',
+        ru: 'Выбор между 가요 и 와요 зависит от положения говорящего — заучивание фраз тут подводит.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '아키라 씨는 회사___ 가요.',
+          uz: '아키라 씨는 회사___ 가요.',
+          en: '아키라 씨는 회사___ 가요.',
+          ru: '아키라 씨는 회사___ 가요.',
+        },
+        options: [
+          { text: '에', correct: true },
+          { text: '를', correct: false },
+          { text: '에서', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '저는 지금 한국에 있어요. 친구가 한국에 ___.',
+          uz: '저는 지금 한국에 있어요. 친구가 한국에 ___.',
+          en: '저는 지금 한국에 있어요. 친구가 한국에 ___.',
+          ru: '저는 지금 한국에 있어요. 친구가 한국에 ___.',
+        },
+        options: [
+          { text: '와요', correct: true },
+          { text: '가요', correct: false },
+          { text: '있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"안"은 어디에 넣어요?',
+          uz: '"안" qayerga qo\'yiladi?',
+          en: 'Where does 안 go?',
+          ru: 'Куда ставится 안?',
+        },
+        options: [
+          { text: '가요/와요 바로 앞', correct: true },
+          { text: '문장 맨 앞', correct: false },
+          { text: '가요/와요 뒤', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '어디로 가는지 물을 때는?',
+          uz: 'Qayerga borishini so\'rash?',
+          en: 'How do you ask where someone is going?',
+          ru: 'Как спросить, куда человек идёт?',
+        },
+        options: [
+          { text: '어디에 가요?', correct: true },
+          { text: '어디에서 가요?', correct: false },
+          { text: '어디가 가요?', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"학교를 가요"가 틀린 까닭은?',
+          uz: '"학교를 가요" nega xato?',
+          en: 'Why is 학교를 가요 wrong?',
+          ru: 'Почему «학교를 가요» неверно?',
+        },
+        options: [
+          { text: '가요는 목적어를 받지 않아서', correct: true },
+          { text: '학교에 받침이 없어서', correct: false },
+          { text: '높임말이 아니어서', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-12. 상대 위치 N 앞[뒤, 옆] ─────────
+  {
+    code: 'pos-ap-dwi-yeop',
+    pattern: 'N 앞[뒤, 옆]에 있어요',
+    section: 1,
+    order: 12,
+    isActive: true,
+    summary: {
+      ko: '아는 건물을 기준으로 자리를 알려 줘요.',
+      uz: 'Tanish binoni tayanch qilib joyni aytadi.',
+      en: 'Locates something using a landmark you already know.',
+      ru: 'Указывает место через уже знакомый ориентир.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '위치', uz: "O'rin", en: 'Location', ru: 'Расположение' },
+      { ko: '길 찾기', uz: 'Yo\'l topish', en: 'Directions', ru: 'Ориентирование' },
+    ],
+    explanation: {
+      ko: '기준이 되는 이름 뒤에 위치 말을 조사 없이 바로 붙여요. 그러면 "은행 앞"이 통째로 한 자리가 되고, 그 뒤에 "에 있어요"가 와요. 위치 말은 위·아래[밑]·앞·뒤·옆·안 여섯 개예요. 앞과 뒤는 기준을 바꾸면 서로 뒤집히지만, 옆은 뒤집어도 옆이에요.',
+      uz: 'Tayanch nomdan keyin o\'rin so\'zi qo\'shimchasiz keladi: "은행 앞" bitta joy, ortidan "에 있어요". Old-orqa almashadi, yon esa almashmaydi.',
+      en: 'Attach the position word straight to the landmark with no particle — 은행 앞 becomes one place, then 에 있어요 follows. Front and back flip when you switch the reference; 옆 does not.',
+      ru: 'Слово места ставится сразу после ориентира без частицы: 은행 앞 — одно место, дальше 에 있어요. «Перед/за» меняются местами при смене опоры, 옆 — нет.',
+    },
+    conjugationRule: {
+      ko: '기준 이름 + 위치 말 + 에 있어요  ·  사이에 조사 없음',
+      uz: "Tayanch nom + o'rin so'zi + 에 있어요  ·  orasida qo'shimcha yo'q",
+      en: 'landmark + position word + 에 있어요  ·  no particle in between',
+      ru: 'ориентир + слово места + 에 있어요  ·  между ними частицы нет',
+    },
+    conjugations: [
+      { base: '은행', result: '은행 앞에 있어요' },
+      { base: '병원', result: '병원 뒤에 있어요' },
+      { base: '극장', result: '극장 옆에 있어요' },
+      { base: '책상', result: '책상 위에 있어요' },
+    ],
+    examples: [
+      {
+        ko: '우체국이 은행 앞에 있어요.',
+        highlight: '은행 앞에',
+        gloss: {
+          ko: '우체국이 은행 앞에 있어요.',
+          uz: 'Pochta bank oldida.',
+          en: 'The post office is in front of the bank.',
+          ru: 'Почта находится перед банком.',
+        },
+      },
+      {
+        ko: '약국이 병원 뒤에 있어요.',
+        highlight: '병원 뒤에',
+        gloss: {
+          ko: '약국이 병원 뒤에 있어요.',
+          uz: 'Dorixona shifoxona orqasida.',
+          en: 'The pharmacy is behind the hospital.',
+          ru: 'Аптека находится за больницей.',
+        },
+      },
+      {
+        ko: '책상 위에 사진이 있어요.',
+        highlight: '책상 위에',
+        gloss: {
+          ko: '책상 위에 사진이 있어요.',
+          uz: 'Parta ustida surat bor.',
+          en: 'There is a photo on the desk.',
+          ru: 'На парте есть фотография.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '우체국이 어디에 있어요?',
+        highlight: '어디에',
+        gloss: {
+          ko: '우체국이 어디에 있어요?',
+          uz: 'Pochta qayerda?',
+          en: 'Where is the post office?',
+          ru: 'Где находится почта?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '한국은행 알아요? 한국은행 앞에 있어요.',
+        highlight: '한국은행 앞에',
+        gloss: {
+          ko: '한국은행 알아요? 한국은행 앞에 있어요.',
+          uz: 'Hankuk bankini bilasizmi? O\'shaning oldida.',
+          en: 'Do you know Hankuk Bank? It is in front of it.',
+          ru: 'Знаете банк «Хангук»? Она перед ним.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '아래 · 밑',
+      note: {
+        ko: '"아래"와 "밑"은 뜻이 같아요. "책상 아래"라고 해도 되고 "책상 밑"이라고 해도 돼요. 말할 때는 "밑"을 조금 더 자주 써요.',
+        uz: '"아래" va "밑" bir xil; og\'zaki nutqda "밑" ko\'proq.',
+        en: '아래 and 밑 mean the same; 밑 is slightly more common in speech.',
+        ru: '아래 и 밑 — синонимы; в речи чаще 밑.',
+      },
+    },
+    cautions: [
+      {
+        ko: '기준이 되는 이름에는 조사를 붙이지 않아요. "은행이 앞에"가 아니라 "은행 앞에"예요.',
+        uz: 'Tayanch nomga qo\'shimcha qo\'yilmaydi: "은행이 앞에" emas, "은행 앞에".',
+        en: 'The landmark takes no particle — 은행 앞에, not 은행이 앞에.',
+        ru: 'У ориентира частицы нет: 은행 앞에, а не 은행이 앞에.',
+      },
+      {
+        ko: '기준을 바꾸면 앞과 뒤가 뒤집혀요. "우체국이 은행 앞에 있어요"는 곧 "은행이 우체국 뒤에 있어요"예요.',
+        uz: 'Tayanch o\'zgarsa old-orqa almashadi.',
+        en: 'Switch the reference and front/back swap: 우체국이 은행 앞에 있어요 equals 은행이 우체국 뒤에 있어요.',
+        ru: 'Смените опору — «перед» и «за» поменяются местами.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '우체국이 은행 앞___ 있어요.',
+          uz: '우체국이 은행 앞___ 있어요.',
+          en: '우체국이 은행 앞___ 있어요.',
+          ru: '우체국이 은행 앞___ 있어요.',
+        },
+        options: [
+          { text: '에', correct: true },
+          { text: '이', correct: false },
+          { text: '에서', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '기준이 되는 건물 뒤에 조사를 붙이나요?',
+          uz: 'Tayanch binoga qo\'shimcha qo\'yiladimi?',
+          en: 'Does the landmark take a particle?',
+          ru: 'Ставится ли частица у ориентира?',
+        },
+        options: [
+          { text: '아니요, 바로 위치 말이 와요', correct: true },
+          { text: '네, "이/가"를 붙여요', correct: false },
+          { text: '네, "은/는"을 붙여요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"우체국이 은행 앞에 있어요"와 같은 말은?',
+          uz: '"우체국이 은행 앞에 있어요" bilan bir xil?',
+          en: 'Which says the same as 우체국이 은행 앞에 있어요?',
+          ru: 'Что означает то же, что 우체국이 은행 앞에 있어요?',
+        },
+        options: [
+          { text: '은행이 우체국 뒤에 있어요', correct: true },
+          { text: '은행이 우체국 앞에 있어요', correct: false },
+          { text: '은행이 우체국 옆에 있어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"밑"과 뜻이 같은 말은?',
+          uz: '"밑" bilan bir xil so\'z?',
+          en: 'Which word means the same as 밑?',
+          ru: 'Какое слово значит то же, что 밑?',
+        },
+        options: [
+          { text: '아래', correct: true },
+          { text: '위', correct: false },
+          { text: '안', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: 'A가 B 옆에 있으면 B는 A의 어디에 있어요?',
+          uz: 'A B yonida bo\'lsa, B A ning qayerida?',
+          en: 'If A is next to B, where is B relative to A?',
+          ru: 'Если A рядом с B, то где B относительно A?',
+        },
+        options: [
+          { text: '옆', correct: true },
+          { text: '앞', correct: false },
+          { text: '뒤', correct: false },
         ],
       },
     ],
