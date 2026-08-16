@@ -1338,12 +1338,777 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
-  // ───────── 섹션 1-9. 지시 여기가 N이에요/예요 ─────────
+  // ═══════════════════════════════════════════════════════════
+  // 섹션 1 · 3과 — 한국어를 공부해요
+  // 동사를 처음 쓰는 과. 활용 → 대상 → 장소 → 부정 순서로,
+  // 문장이 길어지는 순서와 같다.
+  // ═══════════════════════════════════════════════════════════
+
+  // ───────── 섹션 1-9. V-아요/어요 ─────────
+  {
+    code: 'verb-ayo-eoyo',
+    pattern: 'V-아요/어요',
+    section: 1,
+    order: 9,
+    isActive: true,
+    summary: {
+      ko: '지금 하는 일을 말할 때 쓰는 가장 기본 어미예요. 사전에 실린 "-다"는 말할 때 쓰지 않아요.',
+      uz: 'Hozir qilayotgan ishni aytishda ishlatiladigan asosiy qo\'shimcha. Lug\'atdagi "-다" nutqda ishlatilmaydi.',
+      en: 'The basic ending for saying what you are doing now. The dictionary form -다 is never spoken.',
+      ru: 'Основное окончание для описания текущего действия. Словарная форма -다 в речи не используется.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '어미', uz: "Qo'shimcha", en: 'Ending', ru: 'Окончание' },
+    ],
+    explanation: {
+      ko: '"-다"를 떼고 남은 부분의 마지막 모음을 봐요. ㅏ 나 ㅗ 면 "아요", 그 밖의 모음이면 "어요"를 붙여요. "하다"만 예외로 통째로 "해요"가 돼요. 같은 모음이 겹치면 하나로 줄고(자+아요→자요), ㅗ+ㅏ는 ㅘ(보+아요→봐요), ㅣ+ㅓ는 ㅕ(마시+어요→마셔요), ㅜ+ㅓ는 ㅝ(배우+어요→배워요)로 합쳐져요.',
+      uz: '"-다" olib tashlanadi va qolgan qismning oxirgi unlisiga qaraladi. ㅏ yoki ㅗ bo\'lsa "아요", boshqa unli bo\'lsa "어요". Faqat "하다" istisno — butunlay "해요" bo\'ladi. Bir xil unli takrorlansa qisqaradi (자+아요→자요), ㅗ+ㅏ→ㅘ, ㅣ+ㅓ→ㅕ, ㅜ+ㅓ→ㅝ.',
+      en: 'Drop -다 and look at the last vowel of what remains. If it is ㅏ or ㅗ, add 아요; any other vowel takes 어요. Only 하다 is irregular and becomes 해요. Identical vowels merge (자+아요→자요), and ㅗ+ㅏ→ㅘ, ㅣ+ㅓ→ㅕ, ㅜ+ㅓ→ㅝ.',
+      ru: 'Уберите -다 и посмотрите на последнюю гласную основы. Если это ㅏ или ㅗ — добавьте 아요, иначе 어요. Только 하다 нерегулярен и даёт 해요. Одинаковые гласные сливаются (자+아요→자요), а ㅗ+ㅏ→ㅘ, ㅣ+ㅓ→ㅕ, ㅜ+ㅓ→ㅝ.',
+    },
+    conjugationRule: {
+      ko: 'ㅏ·ㅗ + 아요  ·  그 밖의 모음 + 어요  ·  하다 → 해요',
+      uz: 'ㅏ·ㅗ + 아요  ·  boshqa unli + 어요  ·  하다 → 해요',
+      en: 'ㅏ or ㅗ + 아요  ·  other vowels + 어요  ·  하다 → 해요',
+      ru: 'ㅏ или ㅗ + 아요  ·  прочие гласные + 어요  ·  하다 → 해요',
+    },
+    conjugations: [
+      { base: '자다', result: '자요' },
+      { base: '보다', result: '봐요' },
+      { base: '먹다', result: '먹어요' },
+      { base: '마시다', result: '마셔요' },
+      { base: '배우다', result: '배워요' },
+      { base: '공부하다', result: '공부해요' },
+    ],
+    examples: [
+      {
+        ko: '저는 지금 자요.',
+        highlight: '자요',
+        gloss: {
+          ko: '저는 지금 자요.',
+          uz: 'Men hozir uxlayapman.',
+          en: 'I am sleeping now.',
+          ru: 'Я сейчас сплю.',
+        },
+      },
+      {
+        ko: '친구를 만나요.',
+        highlight: '만나요',
+        gloss: {
+          ko: '친구를 만나요.',
+          uz: "Do'st bilan uchrashaman.",
+          en: 'I meet a friend.',
+          ru: 'Я встречаюсь с другом.',
+        },
+      },
+      {
+        ko: '한국어를 공부해요.',
+        highlight: '공부해요',
+        gloss: {
+          ko: '한국어를 공부해요.',
+          uz: "Koreys tilini o'rganaman.",
+          en: 'I study Korean.',
+          ru: 'Я учу корейский.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '지금 뭐 해요?',
+        highlight: '해요',
+        gloss: {
+          ko: '지금 뭐 해요?',
+          uz: 'Hozir nima qilyapsiz?',
+          en: 'What are you doing now?',
+          ru: 'Что вы сейчас делаете?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '책을 읽어요.',
+        highlight: '읽어요',
+        gloss: {
+          ko: '책을 읽어요.',
+          uz: "Kitob o'qiyapman.",
+          en: 'I am reading a book.',
+          ru: 'Я читаю книгу.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '-았/었어요',
+      note: {
+        ko: '지난 일을 말할 때는 같은 자리에 "-았/었어요"를 넣어요. 모음을 보는 규칙도 똑같아요. 먹어요 → 먹었어요.',
+        uz: "O'tgan ish uchun shu o'ringa \"-았/었어요\" qo'yiladi. Unliga qarash qoidasi ham bir xil: 먹어요 → 먹었어요.",
+        en: 'For past events the same slot takes -았/었어요, and the vowel rule is identical: 먹어요 → 먹었어요.',
+        ru: 'Для прошедшего в то же место ставится -았/었어요, правило гласной то же: 먹어요 → 먹었어요.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"보다"는 "보아요"가 아니라 "봐요"예요. 글로는 둘 다 보이지만 말할 때는 줄인 쪽만 써요.',
+        uz: '"보다" — "보아요" emas, "봐요". Yozuvda ikkalasi uchrasa ham, nutqda faqat qisqasi ishlatiladi.',
+        en: '보다 becomes 봐요, not 보아요. Both appear in writing, but only the contracted form is spoken.',
+        ru: '보다 даёт 봐요, а не 보아요. На письме встречаются обе, но в речи только сокращённая.',
+      },
+      {
+        ko: '"하다"가 붙은 말은 전부 "해요"예요. "공부하아요", "운동하어요" 같은 모양은 없어요.',
+        uz: '"하다" qo\'shilgan so\'zlarning hammasi "해요". "공부하아요", "운동하어요" degan shakllar yo\'q.',
+        en: 'Every word ending in 하다 becomes 해요. Forms like 공부하아요 or 운동하어요 do not exist.',
+        ru: 'Все слова на 하다 дают 해요. Форм вроде 공부하아요 или 운동하어요 не существует.',
+      },
+      {
+        ko: '"읽어요"는 [일거요]로 소리 나요. 소리 나는 대로 "일거요"라고 쓰면 안 돼요.',
+        uz: '"읽어요" [일거요] bo\'lib eshitiladi, lekin "일거요" deb yozilmaydi.',
+        en: '읽어요 sounds like [일거요], but you must not spell it that way.',
+        ru: '읽어요 звучит как [일거요], но так писать нельзя.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '자다 → 저는 지금 ___.',
+          uz: '자다 → 저는 지금 ___.',
+          en: '자다 → 저는 지금 ___.',
+          ru: '자다 → 저는 지금 ___.',
+        },
+        options: [
+          { text: '자아요', correct: false },
+          { text: '자요', correct: true },
+          { text: '자어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '먹다 → 밥을 ___.',
+          uz: '먹다 → 밥을 ___.',
+          en: '먹다 → 밥을 ___.',
+          ru: '먹다 → 밥을 ___.',
+        },
+        options: [
+          { text: '먹아요', correct: false },
+          { text: '먹어요', correct: true },
+          { text: '먹여요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '보다 → 영화를 ___.',
+          uz: '보다 → 영화를 ___.',
+          en: '보다 → 영화를 ___.',
+          ru: '보다 → 영화를 ___.',
+        },
+        options: [
+          { text: '보어요', correct: false },
+          { text: '봐요', correct: true },
+          { text: '보해요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '공부하다 → 한국어를 ___.',
+          uz: '공부하다 → 한국어를 ___.',
+          en: '공부하다 → 한국어를 ___.',
+          ru: '공부하다 → 한국어를 ___.',
+        },
+        options: [
+          { text: '공부하아요', correct: false },
+          { text: '공부해요', correct: true },
+          { text: '공부하어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '마시다 → 커피를 ___.',
+          uz: '마시다 → 커피를 ___.',
+          en: '마시다 → 커피를 ___.',
+          ru: '마시다 → 커피를 ___.',
+        },
+        options: [
+          { text: '마시어요', correct: false },
+          { text: '마셔요', correct: true },
+          { text: '마시아요', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-10. 대상 N을/를 ─────────
+  {
+    code: 'obj-eul-reul',
+    pattern: 'N을/를',
+    section: 1,
+    order: 10,
+    isActive: true,
+    summary: {
+      ko: '동작이 닿는 대상을 표시해요. "무엇을" 하는지 알려 주는 조사예요.',
+      uz: 'Harakat qaratilgan narsani bildiradi. "Nimani" qilishni ko\'rsatuvchi qo\'shimcha.',
+      en: 'Marks the thing the action lands on — the "what" of the sentence.',
+      ru: 'Отмечает объект действия — то, «что» делают.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
+    ],
+    explanation: {
+      ko: '앞 글자에 받침이 있으면 "을", 없으면 "를"을 붙여요. "은/는"과 규칙이 같지만 하는 일이 달라요. "은/는"은 문장이 무엇에 대한 것인지 알려 주고, "을/를"은 동작이 닿는 대상을 알려 줘요.',
+      uz: 'Oldingi bo\'g\'inda undosh bo\'lsa "을", bo\'lmasa "를". Qoida "은/는" bilan bir xil, lekin vazifasi boshqa: "은/는" mavzuni, "을/를" harakat obyektini bildiradi.',
+      en: 'Add 을 after a final consonant and 를 without one. The rule matches 은/는 but the job differs: 은/는 marks the topic, 을/를 marks the object the action reaches.',
+      ru: 'После согласного — 을, без него — 를. Правило то же, что у 은/는, но роль другая: 은/는 — тема, 을/를 — объект действия.',
+    },
+    conjugationRule: {
+      ko: '받침 O + 을  ·  받침 X + 를',
+      uz: "받침 bor + 을  ·  받침 yo'q + 를",
+      en: 'final consonant + 을  ·  no final consonant + 를',
+      ru: 'есть согласный + 을  ·  нет + 를',
+    },
+    conjugations: [
+      { base: '밥', result: '밥을' },
+      { base: '책', result: '책을' },
+      { base: '옷', result: '옷을' },
+      { base: '커피', result: '커피를' },
+      { base: '친구', result: '친구를' },
+    ],
+    examples: [
+      {
+        ko: '저는 밥을 먹어요.',
+        highlight: '밥을',
+        gloss: {
+          ko: '저는 밥을 먹어요.',
+          uz: 'Men ovqat yeyapman.',
+          en: 'I eat a meal.',
+          ru: 'Я ем.',
+        },
+      },
+      {
+        ko: '커피를 마셔요.',
+        highlight: '커피를',
+        gloss: {
+          ko: '커피를 마셔요.',
+          uz: 'Qahva ichaman.',
+          en: 'I drink coffee.',
+          ru: 'Я пью кофе.',
+        },
+      },
+      {
+        ko: '친구를 만나요.',
+        highlight: '친구를',
+        gloss: {
+          ko: '친구를 만나요.',
+          uz: "Do'st bilan uchrashaman.",
+          en: 'I meet a friend.',
+          ru: 'Я встречаюсь с другом.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '지금 뭐 해요?',
+        highlight: '뭐',
+        gloss: {
+          ko: '지금 뭐 해요?',
+          uz: 'Hozir nima qilyapsiz?',
+          en: 'What are you doing now?',
+          ru: 'Что вы сейчас делаете?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '신문을 읽어요.',
+        highlight: '신문을',
+        gloss: {
+          ko: '신문을 읽어요.',
+          uz: "Gazeta o'qiyapman.",
+          en: 'I am reading a newspaper.',
+          ru: 'Я читаю газету.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N은/는',
+      note: {
+        ko: '받침 규칙은 같지만 자리와 뜻이 달라요. "저는 밥을 먹어요"에서 "저는"이 말하는 사람, "밥을"이 먹는 대상이에요.',
+        uz: '받침 qoidasi bir xil, lekin o\'rni va ma\'nosi boshqa. "저는 밥을 먹어요" da "저는" — gapiruvchi, "밥을" — yeyiladigan narsa.',
+        en: 'Same final-consonant rule, different role. In 저는 밥을 먹어요, 저는 is the speaker and 밥을 is what gets eaten.',
+        ru: 'Правило то же, роль другая. В 저는 밥을 먹어요 — 저는 говорящий, 밥을 — то, что едят.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"커피을", "밥를"처럼 뒤집어 쓰지 않게 마지막 글자만 보면 돼요. "커피"의 "피", "밥"의 "밥"을 보세요.',
+        uz: '"커피을", "밥를" deb almashtirmaslik uchun faqat oxirgi bo\'g\'inga qarang.',
+        en: 'To avoid 커피을 or 밥를, just look at the very last syllable of the noun.',
+        ru: 'Чтобы не написать 커피을 или 밥를, смотрите только на последний слог.',
+      },
+      {
+        ko: '"잡지"처럼 앞 글자에 받침이 있어도 마지막 글자 "지"에 받침이 없으면 "를"이에요. "잡지를"이 맞아요.',
+        uz: '"잡지" kabi so\'zda oldingi bo\'g\'inda undosh bo\'lsa ham, oxirgi "지" da yo\'q — demak "를": "잡지를".',
+        en: 'In a word like 잡지 the first syllable has a consonant, but the last one 지 does not — so it is 잡지를.',
+        ru: 'В слове 잡지 согласный есть в первом слоге, но не в последнем 지 — значит 잡지를.',
+      },
+      {
+        ko: '말할 때는 조사를 빼고 "밥 먹어요"라고도 해요. 하지만 글로 쓸 때는 넣는 게 기본이에요.',
+        uz: 'Nutqda qo\'shimchani tushirib "밥 먹어요" deyish mumkin, lekin yozuvda qo\'shiladi.',
+        en: 'In speech people drop it and say 밥 먹어요, but in writing you keep it.',
+        ru: 'В речи частицу опускают: 밥 먹어요, но на письме её ставят.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '저는 밥___ 먹어요.',
+          uz: '저는 밥___ 먹어요.',
+          en: '저는 밥___ 먹어요.',
+          ru: '저는 밥___ 먹어요.',
+        },
+        options: [
+          { text: '을', correct: true },
+          { text: '를', correct: false },
+          { text: '이', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '커피___ 마셔요.',
+          uz: '커피___ 마셔요.',
+          en: '커피___ 마셔요.',
+          ru: '커피___ 마셔요.',
+        },
+        options: [
+          { text: '을', correct: false },
+          { text: '를', correct: true },
+          { text: '이', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '친구___ 만나요.',
+          uz: '친구___ 만나요.',
+          en: '친구___ 만나요.',
+          ru: '친구___ 만나요.',
+        },
+        options: [
+          { text: '을', correct: false },
+          { text: '를', correct: true },
+          { text: '가', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '책___ 읽어요.',
+          uz: '책___ 읽어요.',
+          en: '책___ 읽어요.',
+          ru: '책___ 읽어요.',
+        },
+        options: [
+          { text: '을', correct: true },
+          { text: '를', correct: false },
+          { text: '에', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '영화___ 봐요.',
+          uz: '영화___ 봐요.',
+          en: '영화___ 봐요.',
+          ru: '영화___ 봐요.',
+        },
+        options: [
+          { text: '을', correct: false },
+          { text: '를', correct: true },
+          { text: '이', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-11. 장소 N에서 ─────────
+  {
+    code: 'place-eseo',
+    pattern: 'N에서',
+    section: 1,
+    order: 11,
+    isActive: true,
+    summary: {
+      ko: '무엇을 하는 자리를 표시해요. "어디에서 해요?"에 대한 답이 되는 조사예요.',
+      uz: 'Ish bajariladigan joyni bildiradi. "어디에서 해요?" savoliga javob bo\'ladigan qo\'shimcha.',
+      en: 'Marks the place where something happens — the answer to 어디에서 해요?',
+      ru: 'Отмечает место, где происходит действие — ответ на 어디에서 해요?',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
+    ],
+    explanation: {
+      ko: '장소 이름 뒤에 "에서"를 붙이면 그 자리에서 어떤 일을 한다는 뜻이 돼요. 받침이 있든 없든 모양은 그대로 "에서"예요. 이미 배운 "에"와 헷갈리기 쉬운데, "에"는 가는 방향이나 그냥 있는 자리를 가리키고 "에서"는 무엇인가를 하는 자리를 가리켜요.',
+      uz: 'Joy nomi ortiga "에서" qo\'shilsa, o\'sha yerda ish bajarilishini bildiradi. Undosh bor-yo\'qligidan qat\'i nazar shakli o\'zgarmaydi. "에" yo\'nalish yoki turgan joyni, "에서" esa ish qilinadigan joyni bildiradi.',
+      en: 'Attach 에서 to a place name to say the action happens there. The form never changes, with or without a final consonant. Compare 에, which marks a destination or mere location, while 에서 marks where an activity takes place.',
+      ru: 'Присоедините 에서 к названию места — действие происходит там. Форма не меняется. Сравните с 에: оно указывает направление или простое нахождение, а 에서 — место действия.',
+    },
+    conjugationRule: {
+      ko: '장소 + 에서 (받침과 상관없이 그대로)',
+      uz: "Joy + 에서 (받침 ga bog'liq emas)",
+      en: 'place + 에서 (unchanged either way)',
+      ru: 'место + 에서 (форма не меняется)',
+    },
+    conjugations: [
+      { base: '학교', result: '학교에서' },
+      { base: '집', result: '집에서' },
+      { base: '도서관', result: '도서관에서' },
+      { base: '커피숍', result: '커피숍에서' },
+    ],
+    examples: [
+      {
+        ko: '도서관에서 공부해요.',
+        highlight: '도서관에서',
+        gloss: {
+          ko: '도서관에서 공부해요.',
+          uz: "Kutubxonada o'qiyman.",
+          en: 'I study at the library.',
+          ru: 'Я занимаюсь в библиотеке.',
+        },
+      },
+      {
+        ko: '식당에서 밥을 먹어요.',
+        highlight: '식당에서',
+        gloss: {
+          ko: '식당에서 밥을 먹어요.',
+          uz: 'Oshxonada ovqat yeyman.',
+          en: 'I eat at a restaurant.',
+          ru: 'Я ем в столовой.',
+        },
+      },
+      {
+        ko: '공원에서 운동해요.',
+        highlight: '공원에서',
+        gloss: {
+          ko: '공원에서 운동해요.',
+          uz: 'Parkda sport qilaman.',
+          en: 'I exercise at the park.',
+          ru: 'Я занимаюсь спортом в парке.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '어디에서 밥을 먹어요?',
+        highlight: '어디에서',
+        gloss: {
+          ko: '어디에서 밥을 먹어요?',
+          uz: 'Qayerda ovqat yeysiz?',
+          en: 'Where do you eat?',
+          ru: 'Где вы едите?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '학생 식당에서 먹어요.',
+        highlight: '식당에서',
+        gloss: {
+          ko: '학생 식당에서 먹어요.',
+          uz: 'Talabalar oshxonasida yeyman.',
+          en: 'I eat at the student cafeteria.',
+          ru: 'Я ем в студенческой столовой.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N에',
+      note: {
+        ko: '"집에 가요"는 집이 목적지이고, "집에서 자요"는 집이 자는 자리예요. 동사가 움직임이면 "에", 그 자리에서 하는 일이면 "에서"라고 생각하면 쉬워요.',
+        uz: '"집에 가요" — uy manzil, "집에서 자요" — uy uxlash joyi. Fe\'l harakat bo\'lsa "에", o\'sha joyda bajariladigan ish bo\'lsa "에서".',
+        en: 'In 집에 가요 the home is the destination; in 집에서 자요 it is where you sleep. Movement takes 에, an activity in place takes 에서.',
+        ru: 'В 집에 가요 дом — цель, в 집에서 자요 — место сна. Движение требует 에, действие на месте — 에서.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"학교에 공부해요"는 틀려요. 공부는 그 자리에서 하는 일이니까 "학교에서 공부해요"예요.',
+        uz: '"학교에 공부해요" noto\'g\'ri. O\'qish o\'sha joyda bajariladi — "학교에서 공부해요".',
+        en: '학교에 공부해요 is wrong. Studying happens in place, so it is 학교에서 공부해요.',
+        ru: '학교에 공부해요 неверно. Учёба происходит на месте — 학교에서 공부해요.',
+      },
+      {
+        ko: '한 문장에 조사가 둘 나올 수 있어요. "시장에서 옷을 사요"에서 장소에는 "에서", 물건에는 "을"이 붙어요.',
+        uz: 'Bir gapda ikkita qo\'shimcha bo\'lishi mumkin: "시장에서 옷을 사요" — joyga "에서", narsaga "을".',
+        en: 'One sentence can carry both: in 시장에서 옷을 사요 the place takes 에서 and the object takes 을.',
+        ru: 'В одном предложении могут быть обе: в 시장에서 옷을 사요 место — 에서, предмет — 을.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '저는 도서관___ 공부해요.',
+          uz: '저는 도서관___ 공부해요.',
+          en: '저는 도서관___ 공부해요.',
+          ru: '저는 도서관___ 공부해요.',
+        },
+        options: [
+          { text: '에서', correct: true },
+          { text: '에', correct: false },
+          { text: '을', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '공원___ 운동해요.',
+          uz: '공원___ 운동해요.',
+          en: '공원___ 운동해요.',
+          ru: '공원___ 운동해요.',
+        },
+        options: [
+          { text: '에', correct: false },
+          { text: '에서', correct: true },
+          { text: '를', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '집___ 가요.',
+          uz: '집___ 가요.',
+          en: '집___ 가요.',
+          ru: '집___ 가요.',
+        },
+        options: [
+          { text: '에서', correct: false },
+          { text: '에', correct: true },
+          { text: '를', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '시장___ 옷을 사요.',
+          uz: '시장___ 옷을 사요.',
+          en: '시장___ 옷을 사요.',
+          ru: '시장___ 옷을 사요.',
+        },
+        options: [
+          { text: '에', correct: false },
+          { text: '에서', correct: true },
+          { text: '을', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '극장___ 영화를 봐요.',
+          uz: '극장___ 영화를 봐요.',
+          en: '극장___ 영화를 봐요.',
+          ru: '극장___ 영화를 봐요.',
+        },
+        options: [
+          { text: '에서', correct: true },
+          { text: '에', correct: false },
+          { text: '를', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 1-12. 부정 안 V ─────────
+  {
+    code: 'neg-an',
+    pattern: '안 V',
+    section: 1,
+    order: 12,
+    isActive: true,
+    summary: {
+      ko: '하지 않는 일을 말할 때 동사 바로 앞에 "안"을 놓아요.',
+      uz: 'Qilinmaydigan ishni aytishda fe\'lning bevosita oldiga "안" qo\'yiladi.',
+      en: 'Put 안 directly in front of the verb to say you do not do it.',
+      ru: 'Поставьте 안 прямо перед глаголом, чтобы сказать, что действие не совершается.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '부정', uz: 'Inkor', en: 'Negation', ru: 'Отрицание' },
+    ],
+    explanation: {
+      ko: '동사나 형용사 바로 앞에 "안"을 놓으면 부정이 돼요. 다만 "공부하다"처럼 명사와 "하다"가 붙어서 만들어진 말은 그 사이에 "안"이 들어가서 "공부 안 해요"가 돼요. "안 공부해요"라고 하지 않아요.',
+      uz: 'Fe\'l yoki sifat oldiga "안" qo\'yilsa inkor bo\'ladi. Lekin "공부하다" kabi ot+하다 so\'zlarida "안" o\'rtaga kiradi: "공부 안 해요". "안 공부해요" deyilmaydi.',
+      en: 'Placing 안 right before a verb or adjective makes it negative. But for noun+하다 words like 공부하다, the 안 goes between them: 공부 안 해요, never 안 공부해요.',
+      ru: '안 перед глаголом или прилагательным даёт отрицание. Но у слов вида существительное+하다 (например 공부하다) 안 встаёт внутрь: 공부 안 해요, а не 안 공부해요.',
+    },
+    conjugationRule: {
+      ko: '안 + 동사  ·  명사하다 → 명사 안 하다',
+      uz: "안 + fe'l  ·  ot+하다 → ot 안 하다",
+      en: '안 + verb  ·  noun하다 → noun 안 하다',
+      ru: '안 + глагол  ·  сущ.하다 → сущ. 안 하다',
+    },
+    conjugations: [
+      { base: '먹다', result: '안 먹어요' },
+      { base: '자다', result: '안 자요' },
+      { base: '보다', result: '안 봐요' },
+      { base: '공부하다', result: '공부 안 해요' },
+      { base: '운동하다', result: '운동 안 해요' },
+    ],
+    examples: [
+      {
+        ko: '저는 고기를 안 먹어요.',
+        highlight: '안 먹어요',
+        gloss: {
+          ko: '저는 고기를 안 먹어요.',
+          uz: "Men go'sht yemayman.",
+          en: 'I do not eat meat.',
+          ru: 'Я не ем мясо.',
+        },
+      },
+      {
+        ko: '오늘 공부 안 해요.',
+        highlight: '공부 안 해요',
+        gloss: {
+          ko: '오늘 공부 안 해요.',
+          uz: "Bugun o'qimayman.",
+          en: 'I am not studying today.',
+          ru: 'Сегодня я не учусь.',
+        },
+      },
+      {
+        ko: '드라마를 안 봐요.',
+        highlight: '안 봐요',
+        gloss: {
+          ko: '드라마를 안 봐요.',
+          uz: "Serial ko'rmayman.",
+          en: 'I do not watch dramas.',
+          ru: 'Я не смотрю сериалы.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '커피를 마셔요?',
+        highlight: '마셔요',
+        gloss: {
+          ko: '커피를 마셔요?',
+          uz: 'Qahva ichasizmi?',
+          en: 'Do you drink coffee?',
+          ru: 'Вы пьёте кофе?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '아니요, 안 마셔요.',
+        highlight: '안 마셔요',
+        gloss: {
+          ko: '아니요, 안 마셔요.',
+          uz: "Yo'q, ichmayman.",
+          en: 'No, I do not.',
+          ru: 'Нет, не пью.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '아니요',
+      note: {
+        ko: '"아니요"는 질문에 대한 대답이고, "안"은 문장 안에서 동사를 부정해요. 둘은 같이 써요. "커피를 마셔요?" → "아니요, 안 마셔요."',
+        uz: '"아니요" — savolga javob, "안" — gap ichidagi inkor. Ikkisi birga ishlatiladi: "아니요, 안 마셔요."',
+        en: '아니요 answers a question; 안 negates the verb inside the sentence. They work together: 아니요, 안 마셔요.',
+        ru: '아니요 — ответ на вопрос, 안 — отрицание внутри предложения. Они используются вместе: 아니요, 안 마셔요.',
+      },
+    },
+    cautions: [
+      {
+        ko: '"안 공부해요"는 틀려요. "공부"와 "해요" 사이를 벌리고 "공부 안 해요"라고 해야 해요. 운동·숙제·일·아르바이트도 마찬가지예요.',
+        uz: '"안 공부해요" noto\'g\'ri. "공부" bilan "해요" orasiga qo\'yiladi: "공부 안 해요". 운동·숙제·일 uchun ham shunday.',
+        en: '안 공부해요 is wrong — split it into 공부 안 해요. The same goes for 운동, 숙제, 일 and 아르바이트.',
+        ru: '안 공부해요 неверно — нужно 공부 안 해요. То же с 운동, 숙제, 일 и 아르바이트.',
+      },
+      {
+        ko: '"아니요"를 문장 안에 넣어 동사를 부정할 수는 없어요. "저는 아니요 먹어요"는 말이 안 돼요.',
+        uz: "\"아니요\" ni gap ichiga qo'yib fe'lni inkor qilib bo'lmaydi. \"저는 아니요 먹어요\" — noto'g'ri.",
+        en: 'You cannot use 아니요 inside a sentence to negate a verb. 저는 아니요 먹어요 is not Korean.',
+        ru: 'Нельзя использовать 아니요 внутри предложения для отрицания глагола.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '저는 고기를 ___ 먹어요.',
+          uz: '저는 고기를 ___ 먹어요.',
+          en: '저는 고기를 ___ 먹어요.',
+          ru: '저는 고기를 ___ 먹어요.',
+        },
+        options: [
+          { text: '안', correct: true },
+          { text: '아니요', correct: false },
+          { text: '도', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '오늘 공부 ___ 해요.',
+          uz: '오늘 공부 ___ 해요.',
+          en: '오늘 공부 ___ 해요.',
+          ru: '오늘 공부 ___ 해요.',
+        },
+        options: [
+          { text: '를', correct: false },
+          { text: '안', correct: true },
+          { text: '아니요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '맞는 문장을 고르세요.',
+          uz: "To'g'ri gapni tanlang.",
+          en: 'Choose the correct sentence.',
+          ru: 'Выберите правильное предложение.',
+        },
+        options: [
+          { text: '안 공부해요', correct: false },
+          { text: '공부 안 해요', correct: true },
+          { text: '공부해 안요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '차를 ___ 마셔요.',
+          uz: '차를 ___ 마셔요.',
+          en: '차를 ___ 마셔요.',
+          ru: '차를 ___ 마셔요.',
+        },
+        options: [
+          { text: '아니요', correct: false },
+          { text: '안', correct: true },
+          { text: '를', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '운동 ___ 해요.',
+          uz: '운동 ___ 해요.',
+          en: '운동 ___ 해요.',
+          ru: '운동 ___ 해요.',
+        },
+        options: [
+          { text: '안', correct: true },
+          { text: '아니요', correct: false },
+          { text: '를', correct: false },
+        ],
+      },
+    ],
+  },
+  // ═══════════════════════════════════════════════════════════
+  // 섹션 1 · 4과
+  // ═══════════════════════════════════════════════════════════
+
+  // ───────── 섹션 1-13. 지시 여기가 N이에요/예요 ─────────
   {
     code: 'here-is-n',
     pattern: '여기가 N이에요/예요',
     section: 1,
-    order: 9,
+    order: 13,
     isActive: true,
     summary: {
       ko: '지금 서 있는 자리가 어떤 곳인지 말해요.',
@@ -1353,7 +2118,12 @@ export const GRAMMAR_SEED: any[] = [
     },
     tags: [
       { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
-      { ko: '지시어', uz: "Ko'rsatish", en: 'Demonstrative', ru: 'Указательное' },
+      {
+        ko: '지시어',
+        uz: "Ko'rsatish",
+        en: 'Demonstrative',
+        ru: 'Указательное',
+      },
       { ko: '장소', uz: 'Joy', en: 'Place', ru: 'Место' },
     ],
     explanation: {
@@ -1498,7 +2268,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '이 자리가 어떤 곳인지 물을 때는?',
-          uz: 'Bu joy qaysi joy ekanini so\'rash?',
+          uz: "Bu joy qaysi joy ekanini so'rash?",
           en: 'How do you ask what this place is?',
           ru: 'Как спросить, что это за место?',
         },
@@ -1524,12 +2294,12 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
-  // ───────── 섹션 1-10. 위치 N에 있어요[없어요] ─────────
+  // ───────── 섹션 1-14. 위치 N에 있어요[없어요] ─────────
   {
     code: 'loc-e-isseoyo',
     pattern: 'N에 있어요[없어요]',
     section: 1,
-    order: 10,
+    order: 14,
     isActive: true,
     summary: {
       ko: '무엇이 어느 자리에 있는지 말해요. 자리에는 "에"가 붙어요.',
@@ -1671,7 +2441,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '어떤 건물의 자리를 물을 때는?',
-          uz: 'Bino joyini so\'rash?',
+          uz: "Bino joyini so'rash?",
           en: 'How do you ask where a building is?',
           ru: 'Как спросить, где здание?',
         },
@@ -1710,12 +2480,12 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
-  // ───────── 섹션 1-11. 이동 N에 가요[와요] ─────────
+  // ───────── 섹션 1-15. 이동 N에 가요[와요] ─────────
   {
     code: 'motion-e-gayo',
     pattern: 'N에 가요[와요]',
     section: 1,
-    order: 11,
+    order: 15,
     isActive: true,
     summary: {
       ko: '어디로 움직이는지 말해요. 가는 곳에도 "에"가 붙어요.',
@@ -1870,7 +2640,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '어디로 가는지 물을 때는?',
-          uz: 'Qayerga borishini so\'rash?',
+          uz: "Qayerga borishini so'rash?",
           en: 'How do you ask where someone is going?',
           ru: 'Как спросить, куда человек идёт?',
         },
@@ -1896,12 +2666,12 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
-  // ───────── 섹션 1-12. 상대 위치 N 앞[뒤, 옆] ─────────
+  // ───────── 섹션 1-16. 상대 위치 N 앞[뒤, 옆] ─────────
   {
     code: 'pos-ap-dwi-yeop',
     pattern: 'N 앞[뒤, 옆]에 있어요',
     section: 1,
-    order: 12,
+    order: 16,
     isActive: true,
     summary: {
       ko: '아는 건물을 기준으로 자리를 알려 줘요.',
@@ -1912,7 +2682,12 @@ export const GRAMMAR_SEED: any[] = [
     tags: [
       { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
       { ko: '위치', uz: "O'rin", en: 'Location', ru: 'Расположение' },
-      { ko: '길 찾기', uz: 'Yo\'l topish', en: 'Directions', ru: 'Ориентирование' },
+      {
+        ko: '길 찾기',
+        uz: "Yo'l topish",
+        en: 'Directions',
+        ru: 'Ориентирование',
+      },
     ],
     explanation: {
       ko: '기준이 되는 이름 뒤에 위치 말을 조사 없이 바로 붙여요. 그러면 "은행 앞"이 통째로 한 자리가 되고, 그 뒤에 "에 있어요"가 와요. 위치 말은 위·아래[밑]·앞·뒤·옆·안 여섯 개예요. 앞과 뒤는 기준을 바꾸면 서로 뒤집히지만, 옆은 뒤집어도 옆이에요.',
@@ -1984,7 +2759,7 @@ export const GRAMMAR_SEED: any[] = [
         highlight: '한국은행 앞에',
         gloss: {
           ko: '한국은행 알아요? 한국은행 앞에 있어요.',
-          uz: 'Hankuk bankini bilasizmi? O\'shaning oldida.',
+          uz: "Hankuk bankini bilasizmi? O'shaning oldida.",
           en: 'Do you know Hankuk Bank? It is in front of it.',
           ru: 'Знаете банк «Хангук»? Она перед ним.',
         },
@@ -2008,7 +2783,7 @@ export const GRAMMAR_SEED: any[] = [
       },
       {
         ko: '기준을 바꾸면 앞과 뒤가 뒤집혀요. "우체국이 은행 앞에 있어요"는 곧 "은행이 우체국 뒤에 있어요"예요.',
-        uz: 'Tayanch o\'zgarsa old-orqa almashadi.',
+        uz: "Tayanch o'zgarsa old-orqa almashadi.",
         en: 'Switch the reference and front/back swap: 우체국이 은행 앞에 있어요 equals 은행이 우체국 뒤에 있어요.',
         ru: 'Смените опору — «перед» и «за» поменяются местами.',
       },
@@ -2030,7 +2805,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: '기준이 되는 건물 뒤에 조사를 붙이나요?',
-          uz: 'Tayanch binoga qo\'shimcha qo\'yiladimi?',
+          uz: "Tayanch binoga qo'shimcha qo'yiladimi?",
           en: 'Does the landmark take a particle?',
           ru: 'Ставится ли частица у ориентира?',
         },
@@ -2069,7 +2844,7 @@ export const GRAMMAR_SEED: any[] = [
       {
         question: {
           ko: 'A가 B 옆에 있으면 B는 A의 어디에 있어요?',
-          uz: 'A B yonida bo\'lsa, B A ning qayerida?',
+          uz: "A B yonida bo'lsa, B A ning qayerida?",
           en: 'If A is next to B, where is B relative to A?',
           ru: 'Если A рядом с B, то где B относительно A?',
         },
@@ -2082,71 +2857,84 @@ export const GRAMMAR_SEED: any[] = [
     ],
   },
 
-  // ───────── 섹션 2-1. 과거 -았/었어요 ─────────
+  // ═══════════════════════════════════════════════════════════
+  // 섹션 1 · 5과
+  // ═══════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 2
+  // ═══════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════
+  // 섹션 2 · 9과 — 이분은 누구세요?  (코스 섹션 2 / 1B 시작)
+  // 소유 → 실력 → 높임(명사) → 높임(동사) 순서.
+  // 앞 둘은 문장을 채우는 말이고, 뒤 둘은 그 문장을 통째로 높인다.
+  // ═══════════════════════════════════════════════════════════
+
+  // ───────── 섹션 2-1. 소유 N(의) N ─────────
   {
-    code: 'past-asseoyo',
-    pattern: '-았/었어요',
+    code: 'poss-ui',
+    pattern: 'N(의) N',
     section: 2,
     order: 1,
     isActive: true,
     summary: {
-      ko: '이미 끝난 과거의 일을 말할 때 써요.',
-      uz: 'Allaqachon tugagan ish-harakatlar uchun ishlatiladi.',
-      en: 'Used for actions that already happened.',
-      ru: 'Используется для завершённых действий в прошлом.',
+      ko: '누구의 것인지 나타내요. 말할 때는 "의"를 자주 빼요.',
+      uz: 'Kimga tegishli ekanini bildiradi. Nutqda "의" ko\'pincha tushiriladi.',
+      en: 'Shows whose something is. In speech the 의 is usually dropped.',
+      ru: 'Показывает принадлежность. В речи 의 обычно опускают.',
     },
     tags: [
       { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
-      { ko: '동사', uz: "Fe'l", en: 'Verb', ru: 'Глагол' },
-      { ko: '과거', uz: "O'tgan zamon", en: 'Past', ru: 'Прошедшее' },
+      { ko: '조사', uz: "Qo'shimcha", en: 'Particle', ru: 'Частица' },
     ],
     explanation: {
-      ko: "동사 어간의 마지막 모음이 ㅏ, ㅗ면 -았어요, 그 외에는 -었어요를 붙여요. '하다'는 '했어요'가 돼요. 과거에 일어난 일을 나타냅니다.",
-      uz: "Fe'l o'zagining oxirgi unlisi ㅏ yoki ㅗ bo'lsa -았어요, aks holda -었어요 qo'shiladi. '하다' → '했어요'. O'tgan zamondagi ish-harakatni bildiradi.",
-      en: "Add -았어요 when the last stem vowel is ㅏ or ㅗ, otherwise -었어요. '하다' becomes '했어요'. It marks a completed past action.",
-      ru: "Если последняя гласная основы ㅏ или ㅗ — добавляем -았어요, иначе -었어요. '하다' → '했어요'. Обозначает завершённое действие.",
+      ko: '사람 뒤에 "의"를 붙이면 그 사람의 것이 돼요. 받침과 상관없이 모양은 그대로예요. "저의"와 "나의"는 줄여서 "제", "내"라고 쓰는 게 보통이에요. 윗사람 앞에서는 "내"가 아니라 "제"를 써요. 주인을 물을 때는 "누구 N이에요?"라고 해요.',
+      uz: 'Odam ortiga "의" qo\'shilsa, o\'shanikiga aylanadi. 받침 ga bog\'liq emas. "저의" va "나의" odatda "제", "내" deb qisqartiriladi. Kattalar oldida "내" emas, "제". Egasini so\'rashda "누구 N이에요?".',
+      en: 'Attach 의 to a person and the noun becomes theirs; the form never changes. 저의 and 나의 are normally shortened to 제 and 내, and in front of a senior you must use 제. To ask who owns something, say 누구 N이에요?',
+      ru: 'Присоедините 의 к человеку — предмет становится его; форма не меняется. 저의 и 나의 обычно сокращают до 제 и 내, а перед старшим используется 제. Чтобы спросить о владельце: 누구 N이에요?',
     },
     conjugationRule: {
-      ko: '어간 끝 모음 ㅏ/ㅗ → -았어요, 나머지 → -었어요',
-      uz: "O'zak unlisi ㅏ/ㅗ → -았어요, qolganlari → -었어요",
-      en: 'Stem vowel ㅏ/ㅗ → -았어요, others → -었어요',
-      ru: 'Гласная основы ㅏ/ㅗ → -았어요, остальные → -었어요',
+      ko: 'N + 의  ·  저의 → 제  ·  나의 → 내',
+      uz: 'N + 의  ·  저의 → 제  ·  나의 → 내',
+      en: 'N + 의  ·  저의 → 제  ·  나의 → 내',
+      ru: 'N + 의  ·  저의 → 제  ·  나의 → 내',
     },
     conjugations: [
-      { base: '가다', result: '갔어요' },
-      { base: '먹다', result: '먹었어요' },
-      { base: '하다', result: '했어요' },
-      { base: '마시다', result: '마셨어요' },
+      { base: '지호 씨', result: '지호 씨의' },
+      { base: '선생님', result: '선생님의' },
+      { base: '저', result: '제' },
+      { base: '나', result: '내' },
     ],
     examples: [
       {
-        ko: '어제 영화를 봤어요.',
-        highlight: '봤어요',
+        ko: '이거는 지호 씨의 가방이에요.',
+        highlight: '씨의',
         gloss: {
-          ko: '어제 영화를 봤어요.',
-          uz: "Kecha kino ko'rdim.",
-          en: 'I watched a movie yesterday.',
-          ru: 'Вчера я смотрел фильм.',
+          ko: '이거는 지호 씨의 가방이에요.',
+          uz: 'Bu Jihoning sumkasi.',
+          en: "This is Jiho's bag.",
+          ru: 'Это сумка Чихо.',
         },
       },
       {
-        ko: '아침을 먹었어요.',
-        highlight: '먹었어요',
+        ko: '제 책이에요.',
+        highlight: '제',
         gloss: {
-          ko: '아침을 먹었어요.',
-          uz: 'Nonushta qildim.',
-          en: 'I ate breakfast.',
-          ru: 'Я позавтракал.',
+          ko: '제 책이에요.',
+          uz: 'Bu mening kitobim.',
+          en: 'It is my book.',
+          ru: 'Это моя книга.',
         },
       },
       {
-        ko: '친구를 만났어요.',
-        highlight: '만났어요',
+        ko: '이 사람은 내 친구예요.',
+        highlight: '내',
         gloss: {
-          ko: '친구를 만났어요.',
-          uz: "Do'stimni uchratdim.",
-          en: 'I met a friend.',
-          ru: 'Я встретил друга.',
+          ko: '이 사람은 내 친구예요.',
+          uz: "Bu mening do'stim.",
+          en: 'This is my friend.',
+          ru: 'Это мой друг.',
         },
       },
     ],
@@ -2154,319 +2942,184 @@ export const GRAMMAR_SEED: any[] = [
       {
         speaker: 'A',
         side: 'left',
-        ko: '주말에 뭐 했어요?',
-        highlight: '했어요',
+        ko: '이거는 누구 우산이에요?',
+        highlight: '누구',
         gloss: {
-          ko: '주말에 뭐 했어요?',
-          uz: 'Dam olish kunlari nima qildingiz?',
-          en: 'What did you do on the weekend?',
-          ru: 'Что делал на выходных?',
+          ko: '이거는 누구 우산이에요?',
+          uz: 'Bu kimning soyaboni?',
+          en: 'Whose umbrella is this?',
+          ru: 'Чей это зонт?',
         },
       },
       {
         speaker: 'B',
         side: 'right',
-        ko: '집에서 쉬었어요.',
-        highlight: '쉬었어요',
+        ko: '제 우산이에요.',
+        highlight: '제',
         gloss: {
-          ko: '집에서 쉬었어요.',
-          uz: 'Uyda dam oldim.',
-          en: 'I rested at home.',
-          ru: 'Отдыхал дома.',
-        },
-      },
-    ],
-    // similar 없음 (옵셔널 데모)
-    cautions: [
-      {
-        ko: "받침이 아니라 '모음'(ㅏ/ㅗ)으로 판단해요.",
-        uz: '받침 emas, unliga (ㅏ/ㅗ) qarab tanlanadi.',
-        en: 'Decide by the vowel (ㅏ/ㅗ), not by 받침.',
-        ru: 'Выбирайте по гласной (ㅏ/ㅗ), а не по 받침.',
-      },
-    ],
-    quiz: [
-      {
-        question: {
-          ko: '"어제 뭐 해요?" — 영화를 ____',
-          uz: '"Kecha nima qilding?" — kino ____',
-          en: '"What did you do yesterday?" — a movie ____',
-          ru: '"Что делал вчера?" — фильм ____',
-        },
-        options: [
-          { text: '봤어요', correct: true },
-          { text: '볼 거예요', correct: false },
-          { text: '보고 있어요', correct: false },
-        ],
-      },
-      {
-        question: {
-          ko: "'먹다'의 과거형은?",
-          uz: "'먹다' o'tgan zamoni?",
-          en: "Past form of '먹다'?",
-          ru: "Прошедшая форма '먹다'?",
-        },
-        options: [
-          { text: '먹었어요', correct: true },
-          { text: '먹아요', correct: false },
-          { text: '먹겠어요', correct: false },
-        ],
-      },
-    ],
-  },
-
-  // ───────── 2. 진행 -고 있다 (order 2, 메인) ─────────
-  {
-    code: 'prog-goitda',
-    pattern: '-고 있다',
-    section: 2,
-    order: 2,
-    isActive: true,
-    summary: {
-      ko: '지금 진행 중인 동작을 나타내요. 영어의 be ~ing 와 같아요.',
-      uz: "Hozir davom etayotgan harakatni bildiradi, inglizcha 'be ~ing' kabi.",
-      en: "Shows an action in progress right now, like English 'be ~ing'.",
-      ru: "Обозначает действие, происходящее сейчас, как английское 'be ~ing'.",
-    },
-    tags: [
-      { ko: '중급', uz: "O'rta", en: 'Intermediate', ru: 'Средний' },
-      { ko: '동사', uz: "Fe'l", en: 'Verb', ru: 'Глагол' },
-      { ko: '진행', uz: 'Davom', en: 'Progressive', ru: 'Прогрессив' },
-    ],
-    explanation: {
-      ko: '동사 어간에 -고 있다를 붙이면 그 동작이 지금 이 순간 벌어지고 있다는 뜻이 돼요. 존댓말은 -고 있어요, 과거 진행은 -고 있었어요로 씁니다.',
-      uz: "Fe'l o'zagiga -고 있다 qo'shilsa, harakat aynan hozir sodir bo'layotganini bildiradi. Hurmat shakli -고 있어요, o'tgan davom -고 있었어요.",
-      en: 'Attaching -고 있다 to a verb stem means the action is happening at this very moment. Polite: -고 있어요; past progressive: -고 있었어요.',
-      ru: 'Присоединение -고 있다 к основе глагола означает, что действие происходит прямо сейчас. Вежливо: -고 있어요; прош. прогрессив: -고 있었어요.',
-    },
-    conjugationRule: {
-      ko: '동사 어간 + -고 있다 · 받침 상관없이 항상 같아서 쉬워요',
-      uz: "Fe'l o'zagi + -고 있다 · 받침 dan qat'i nazar bir xil, oson",
-      en: "Verb stem + -고 있다 · always the same regardless of 받침, so it's easy",
-      ru: 'Основа глагола + -고 있다 · всегда одинаково, независимо от 받침',
-    },
-    conjugations: [
-      { base: '먹다', result: '먹고 있다' },
-      { base: '가다', result: '가고 있다' },
-      { base: '읽다', result: '읽고 있다' },
-      { base: '기다리다', result: '기다리고 있다' },
-    ],
-    examples: [
-      {
-        ko: '지금 밥을 먹고 있어요.',
-        highlight: '먹고 있어요',
-        gloss: {
-          ko: '지금 밥을 먹고 있어요.',
-          uz: 'Hozir ovqat yeyapman.',
-          en: "I'm eating now.",
-          ru: 'Я сейчас ем.',
-        },
-      },
-      {
-        ko: '친구를 기다리고 있어요.',
-        highlight: '기다리고 있어요',
-        gloss: {
-          ko: '친구를 기다리고 있어요.',
-          uz: "Do'stimni kutyapman.",
-          en: "I'm waiting for a friend.",
-          ru: 'Я жду друга.',
-        },
-      },
-      {
-        ko: '도서관에서 책을 읽고 있어요.',
-        highlight: '읽고 있어요',
-        gloss: {
-          ko: '도서관에서 책을 읽고 있어요.',
-          uz: "Kutubxonada kitob o'qiyapman.",
-          en: "I'm reading at the library.",
-          ru: 'Я читаю в библиотеке.',
-        },
-      },
-      {
-        ko: '밖에 비가 오고 있어요.',
-        highlight: '오고 있어요',
-        gloss: {
-          ko: '밖에 비가 오고 있어요.',
-          uz: "Tashqarida yomg'ir yog'yapti.",
-          en: "It's raining outside.",
-          ru: 'На улице идёт дождь.',
-        },
-      },
-      {
-        ko: '그때 저는 자고 있었어요.',
-        highlight: '자고 있었어요',
-        gloss: {
-          ko: '그때 저는 자고 있었어요.',
-          uz: "O'shanda uxlab yotgandim.",
-          en: 'I was sleeping at that time.',
-          ru: 'В тот момент я спал.',
-        },
-      },
-    ],
-    dialogue: [
-      {
-        speaker: 'A',
-        side: 'left',
-        ko: '지금 뭐 하고 있어요?',
-        highlight: '하고 있어요',
-        gloss: {
-          ko: '지금 뭐 하고 있어요?',
-          uz: 'Hozir nima qilyapsiz?',
-          en: 'What are you doing now?',
-          ru: 'Что ты сейчас делаешь?',
-        },
-      },
-      {
-        speaker: 'B',
-        side: 'right',
-        ko: '숙제를 하고 있어요.',
-        highlight: '하고 있어요',
-        gloss: {
-          ko: '숙제를 하고 있어요.',
-          uz: 'Uy vazifasini qilyapman.',
-          en: "I'm doing my homework.",
-          ru: 'Я делаю домашку.',
-        },
-      },
-      {
-        speaker: 'A',
-        side: 'left',
-        ko: '저는 커피를 마시고 있어요.',
-        highlight: '마시고 있어요',
-        gloss: {
-          ko: '저는 커피를 마시고 있어요.',
-          uz: 'Men qahva ichyapman.',
-          en: "I'm drinking coffee.",
-          ru: 'Я пью кофе.',
+          ko: '제 우산이에요.',
+          uz: 'Bu mening soyabonim.',
+          en: 'It is my umbrella.',
+          ru: 'Это мой зонт.',
         },
       },
     ],
     similar: {
-      pattern: '-는 중이다',
+      pattern: '누구',
       note: {
-        ko: '"밥을 먹고 있다" = "밥을 먹는 중이다" — 뜻은 거의 같아요. 다만 -고 있다가 더 일상적이에요.',
-        uz: '"밥을 먹고 있다" = "밥을 먹는 중이다" — ma\'nosi deyarli bir xil. -고 있다 kundalikroq.',
-        en: '"먹고 있다" = "먹는 중이다" — nearly the same meaning; -고 있다 is more everyday.',
-        ru: '"먹고 있다" = "먹는 중이다" — почти одно и то же; -고 있다 более разговорное.',
+        ko: '주인을 물을 때는 "의"를 빼고 "누구 가방이에요?"라고 해요. 사람에게는 "누구", 물건에게는 "뭐"를 써요.',
+        uz: 'Egasini so\'raganda "의" tushiriladi: "누구 가방이에요?". Odam uchun "누구", narsa uchun "뭐".',
+        en: 'When asking about an owner you drop 의: 누구 가방이에요? Use 누구 for people and 뭐 for things.',
+        ru: 'Спрашивая о владельце, 의 опускают: 누구 가방이에요? Для людей — 누구, для вещей — 뭐.',
       },
     },
     cautions: [
       {
-        ko: '띄어쓰기: 먹고있다 (X) → 먹고 있다 (O)',
-        uz: "Bo'sh joy: 먹고있다 (X) → 먹고 있다 (O)",
-        en: 'Spacing: 먹고있다 (X) → 먹고 있다 (O)',
-        ru: 'Пробел: 먹고있다 (X) → 먹고 있다 (O)',
+        ko: '선생님이나 윗사람 앞에서는 "내"가 아니라 "제"예요. "선생님, 내 이름은…"은 무례하게 들려요.',
+        uz: 'O\'qituvchi yoki kattalar oldida "내" emas, "제". "선생님, 내 이름은…" qo\'pol eshitiladi.',
+        en: 'In front of a teacher or any senior it must be 제, not 내. 선생님, 내 이름은… sounds rude.',
+        ru: 'Перед учителем или старшим — только 제, не 내. 선생님, 내 이름은… звучит грубо.',
       },
       {
-        ko: '과거는 -고 있었어요. (먹고 있었다요 X)',
-        uz: "O'tgan zamon -고 있었어요.",
-        en: 'Past is -고 있었어요.',
-        ru: 'Прошедшее — -고 있었어요.',
-      },
-      {
-        ko: "순간적 동작('도착하다')엔 어색할 수 있어요.",
-        uz: "Bir lahzali harakatlarda ('도착하다') g'alati bo'lishi mumkin.",
-        en: "Can be awkward with instantaneous verbs ('도착하다').",
-        ru: "Может звучать странно с мгновенными глаголами ('도착하다').",
+        ko: '"저의 책"도 틀린 말은 아니지만 말할 때는 거의 언제나 "제 책"이라고 해요.',
+        uz: '"저의 책" xato emas, lekin nutqda deyarli doim "제 책" deyiladi.',
+        en: '저의 책 is not wrong, but in speech people almost always say 제 책.',
+        ru: '저의 책 не ошибка, но в речи почти всегда говорят 제 책.',
       },
     ],
     quiz: [
       {
         question: {
-          ko: '"지금 뭐 해요?" — 밥을 ____',
-          uz: '"Hozir nima qilyapsan?" — ovqat ____',
-          en: '"What are you doing now?" — food ____',
-          ru: '"Что делаешь сейчас?" — еда ____',
+          ko: '이거는 지호 씨___ 가방이에요.',
+          uz: '이거는 지호 씨___ 가방이에요.',
+          en: '이거는 지호 씨___ 가방이에요.',
+          ru: '이거는 지호 씨___ 가방이에요.',
         },
         options: [
-          { text: '먹고 있어요', correct: true },
-          { text: '먹었어요', correct: false },
-          { text: '먹을 거예요', correct: false },
+          { text: '의', correct: true },
+          { text: '를', correct: false },
+          { text: '에', correct: false },
         ],
       },
       {
         question: {
-          ko: '빈칸: 동생이 게임을 ____ 있어요.',
-          uz: "Bo'sh joy: ukam o'yin ____ 있어요.",
-          en: 'Fill: my sibling ____ 있어요 (playing a game).',
-          ru: 'Пропуск: брат ____ 있어요 (играет).',
+          ko: '"저의"를 줄이면?',
+          uz: '"저의" qisqartmasi?',
+          en: 'What is the short form of 저의?',
+          ru: 'Как сокращается 저의?',
         },
         options: [
-          { text: '하고', correct: true },
-          { text: '해서', correct: false },
-          { text: '하러', correct: false },
+          { text: '제', correct: true },
+          { text: '내', correct: false },
+          { text: '저', correct: false },
         ],
       },
       {
         question: {
-          ko: '"비가 와요"를 진행형으로?',
-          uz: '"Yomg\'ir yog\'yapti"ni davom shakliga?',
-          en: 'Make "it rains" progressive?',
-          ru: 'Сделать "идёт дождь" прогрессивом?',
+          ko: '"나의"를 줄이면?',
+          uz: '"나의" qisqartmasi?',
+          en: 'What is the short form of 나의?',
+          ru: 'Как сокращается 나의?',
         },
         options: [
-          { text: '비가 오고 있어요', correct: true },
-          { text: '비가 왔어요', correct: false },
-          { text: '비가 올 거예요', correct: false },
+          { text: '내', correct: true },
+          { text: '제', correct: false },
+          { text: '나', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '선생님, ___ 이름은 김하윤이에요.',
+          uz: '선생님, ___ 이름은 김하윤이에요.',
+          en: '선생님, ___ 이름은 김하윤이에요.',
+          ru: '선생님, ___ 이름은 김하윤이에요.',
+        },
+        options: [
+          { text: '내', correct: false },
+          { text: '제', correct: true },
+          { text: '나', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '저 사람은 ___예요?',
+          uz: '저 사람은 ___예요?',
+          en: '저 사람은 ___예요?',
+          ru: '저 사람은 ___예요?',
+        },
+        options: [
+          { text: '뭐', correct: false },
+          { text: '누구', correct: true },
+          { text: '어디', correct: false },
         ],
       },
     ],
   },
 
-  // ───────── 3. 미래 -(으)ㄹ 거예요 (order 3) ─────────
+  // ───────── 섹션 2-2. 실력 N을/를 잘하다 ─────────
   {
-    code: 'future-lgeoye',
-    pattern: '-(으)ㄹ 거예요',
+    code: 'skill-jalhada',
+    pattern: 'N을/를 잘하다[잘 못하다, 못하다]',
     section: 2,
-    order: 3,
+    order: 2,
     isActive: true,
     summary: {
-      ko: '앞으로 할 일이나 추측을 말할 때 써요.',
-      uz: 'Kelajakdagi reja yoki taxmin uchun ishlatiladi.',
-      en: 'Used for future plans or guesses.',
-      ru: 'Используется для планов на будущее или предположений.',
+      ko: '무엇을 얼마나 잘하는지 세 단계로 말해요. 잘해요 → 잘 못해요 → 못해요.',
+      uz: 'Mahoratni uch daraja bilan aytish: 잘해요 → 잘 못해요 → 못해요.',
+      en: 'Says how well you do something on three levels: 잘해요 → 잘 못해요 → 못해요.',
+      ru: 'Три уровня умения: 잘해요 → 잘 못해요 → 못해요.',
     },
     tags: [
-      { ko: '중급', uz: "O'rta", en: 'Intermediate', ru: 'Средний' },
-      { ko: '동사', uz: "Fe'l", en: 'Verb', ru: 'Глагол' },
-      { ko: '미래', uz: 'Kelasi', en: 'Future', ru: 'Будущее' },
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '표현', uz: 'Ibora', en: 'Expression', ru: 'Выражение' },
     ],
     explanation: {
-      ko: '받침이 있으면 -을 거예요, 없으면 -ㄹ 거예요를 붙여요. 미래의 계획이나 추측을 나타냅니다.',
-      uz: "받침 bo'lsa -을 거예요, bo'lmasa -ㄹ 거예요 qo'shiladi. Kelajak reja yoki taxminni bildiradi.",
-      en: 'Add -을 거예요 after a 받침, -ㄹ 거예요 otherwise. Expresses future plans or guesses.',
-      ru: 'После 받침 — -을 거예요, иначе -ㄹ 거예요. Выражает планы или предположения.',
+      ko: '"잘해요"는 잘한다는 뜻, "잘 못해요"는 조금 부족하다는 뜻, "못해요"는 전혀 안 된다는 뜻이에요. 앞에 오는 명사에는 "을/를"이 붙어요. 받침이 있으면 "을", 없으면 "를"이에요. 무엇을 잘하는지 물을 때는 "뭐를 잘해요?"라고 해요.',
+      uz: '"잘해요" — yaxshi bilaman, "잘 못해요" — unchalik emas, "못해요" — umuman. Oldingi otga "을/를" qo\'shiladi: undosh bo\'lsa "을", bo\'lmasa "를". So\'rash uchun "뭐를 잘해요?".',
+      en: '잘해요 means good, 잘 못해요 means not very good, and 못해요 means not at all. The noun before it takes 을/를 — 을 after a consonant, 를 after a vowel. To ask, say 뭐를 잘해요?',
+      ru: '잘해요 — хорошо, 잘 못해요 — не очень, 못해요 — совсем нет. К существительному добавляется 을/를: 을 после согласного, 를 после гласной. Вопрос: 뭐를 잘해요?',
     },
     conjugationRule: {
-      ko: '받침 O → -을 거예요, 받침 X → -ㄹ 거예요',
-      uz: "받침 bor → -을 거예요, 받침 yo'q → -ㄹ 거예요",
-      en: 'Has 받침 → -을 거예요, no 받침 → -ㄹ 거예요',
-      ru: 'Есть 받침 → -을 거예요, нет → -ㄹ 거예요',
+      ko: 'N을/를 + 잘해요 / 잘 못해요 / 못해요',
+      uz: 'N을/를 + 잘해요 / 잘 못해요 / 못해요',
+      en: 'N을/를 + 잘해요 / 잘 못해요 / 못해요',
+      ru: 'N을/를 + 잘해요 / 잘 못해요 / 못해요',
     },
     conjugations: [
-      { base: '가다', result: '갈 거예요' },
-      { base: '먹다', result: '먹을 거예요' },
-      { base: '보다', result: '볼 거예요' },
+      { base: '요리', result: '요리를 잘해요' },
+      { base: '노래', result: '노래를 잘해요' },
+      { base: '운전', result: '운전을 잘 못해요' },
+      { base: '수영', result: '수영을 못해요' },
     ],
     examples: [
       {
-        ko: '내일 학교에 갈 거예요.',
-        highlight: '갈 거예요',
+        ko: '마리코 씨는 요리를 잘해요.',
+        highlight: '잘해요',
         gloss: {
-          ko: '내일 학교에 갈 거예요.',
-          uz: 'Ertaga maktabga boraman.',
-          en: 'I will go to school tomorrow.',
-          ru: 'Завтра пойду в школу.',
+          ko: '마리코 씨는 요리를 잘해요.',
+          uz: 'Mariko yaxshi ovqat pishiradi.',
+          en: 'Mariko is good at cooking.',
+          ru: 'Марико хорошо готовит.',
         },
       },
       {
-        ko: '주말에 쉴 거예요.',
-        highlight: '쉴 거예요',
+        ko: '저는 운전을 잘 못해요.',
+        highlight: '잘 못해요',
         gloss: {
-          ko: '주말에 쉴 거예요.',
-          uz: 'Dam olish kunlari dam olaman.',
-          en: "I'll rest on the weekend.",
-          ru: 'На выходных отдохну.',
+          ko: '저는 운전을 잘 못해요.',
+          uz: 'Men haydashni unchalik yaxshi bilmayman.',
+          en: 'I am not very good at driving.',
+          ru: 'Я не очень хорошо вожу.',
+        },
+      },
+      {
+        ko: '저는 수영을 못해요.',
+        highlight: '못해요',
+        gloss: {
+          ko: '저는 수영을 못해요.',
+          uz: 'Men suza olmayman.',
+          en: 'I cannot swim.',
+          ru: 'Я не умею плавать.',
         },
       },
     ],
@@ -2474,49 +3127,493 @@ export const GRAMMAR_SEED: any[] = [
       {
         speaker: 'A',
         side: 'left',
-        ko: '방학에 뭐 할 거예요?',
-        highlight: '할 거예요',
+        ko: '한국말을 잘해요?',
+        highlight: '잘해요',
         gloss: {
-          ko: '방학에 뭐 할 거예요?',
-          uz: "Ta'tilda nima qilasiz?",
-          en: 'What will you do on vacation?',
-          ru: 'Что будешь делать на каникулах?',
+          ko: '한국말을 잘해요?',
+          uz: 'Koreyschani yaxshi bilasizmi?',
+          en: 'Are you good at Korean?',
+          ru: 'Вы хорошо говорите по-корейски?',
         },
       },
       {
         speaker: 'B',
         side: 'right',
-        ko: '여행을 갈 거예요.',
-        highlight: '갈 거예요',
+        ko: '아니요, 잘 못해요.',
+        highlight: '잘 못해요',
         gloss: {
-          ko: '여행을 갈 거예요.',
-          uz: 'Sayohatga boraman.',
-          en: "I'll travel.",
-          ru: 'Поеду путешествовать.',
+          ko: '아니요, 잘 못해요.',
+          uz: "Yo'q, unchalik yaxshi emas.",
+          en: 'No, not very well.',
+          ru: 'Нет, не очень хорошо.',
         },
       },
     ],
-    // similar 없음
+    similar: {
+      pattern: '안 V',
+      note: {
+        ko: '"안"은 하지 않는다는 뜻이고 "못"은 하려고 해도 안 된다는 뜻이에요. "운동 안 해요"는 일부러 안 하는 것, "수영을 못해요"는 할 줄 모르는 것이에요.',
+        uz: '"안" — qilmayman, "못" — qila olmayman. "운동 안 해요" — atay qilmaslik, "수영을 못해요" — bilmaslik.',
+        en: '안 means you choose not to; 못 means you are unable. 운동 안 해요 is a choice, 수영을 못해요 is a lack of ability.',
+        ru: '안 — не хочу, 못 — не могу. 운동 안 해요 — выбор, 수영을 못해요 — неумение.',
+      },
+    },
     cautions: [
       {
-        ko: '받침 유무로 -을/-ㄹ 을 구분해요.',
-        uz: "받침 bor-yo'qligiga qarab -을/-ㄹ tanlanadi.",
-        en: "Choose -을/-ㄹ by whether there's a 받침.",
-        ru: 'Выбор -을/-ㄹ зависит от наличия 받침.',
+        ko: '"못해요"는 글자 그대로 읽지 않고 [모태요]로 소리 나요. "못"의 받침 ㅅ 과 "해"가 만나서 거센소리가 돼요.',
+        uz: '"못해요" [모태요] bo\'lib eshitiladi: "못" dagi ㅅ va "해" birikib qattiq tovush beradi.',
+        en: '못해요 is pronounced [모태요] — the final ㅅ of 못 merges with 해 into an aspirated sound.',
+        ru: '못해요 произносится [모태요]: конечный ㅅ в 못 сливается с 해 в придыхательный звук.',
+      },
+      {
+        ko: '"잘 못해요"는 띄어 써요. 붙여서 "잘못해요"라고 쓰면 "실수해요"라는 다른 뜻이 돼요.',
+        uz: '"잘 못해요" ajratib yoziladi. Qo\'shib "잘못해요" yozilsa, "xato qilaman" degan boshqa ma\'no chiqadi.',
+        en: 'Write 잘 못해요 with a space. Joined as 잘못해요 it means "I make mistakes" — a different word.',
+        ru: '잘 못해요 пишется раздельно. Слитное 잘못해요 значит «ошибаюсь» — другое слово.',
       },
     ],
     quiz: [
       {
         question: {
-          ko: "'가다'의 미래형은?",
-          uz: "'가다' kelasi zamoni?",
-          en: "Future form of '가다'?",
-          ru: "Будущая форма '가다'?",
+          ko: '저는 요리___ 잘해요.',
+          uz: '저는 요리___ 잘해요.',
+          en: '저는 요리___ 잘해요.',
+          ru: '저는 요리___ 잘해요.',
         },
         options: [
-          { text: '갈 거예요', correct: true },
-          { text: '갔어요', correct: false },
-          { text: '가고 있어요', correct: false },
+          { text: '를', correct: true },
+          { text: '을', correct: false },
+          { text: '이', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '저는 수영___ 못해요.',
+          uz: '저는 수영___ 못해요.',
+          en: '저는 수영___ 못해요.',
+          ru: '저는 수영___ 못해요.',
+        },
+        options: [
+          { text: '을', correct: true },
+          { text: '를', correct: false },
+          { text: '가', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '한국말을 잘해요? — 아니요, ___.',
+          uz: '한국말을 잘해요? — 아니요, ___.',
+          en: '한국말을 잘해요? — 아니요, ___.',
+          ru: '한국말을 잘해요? — 아니요, ___.',
+        },
+        options: [
+          { text: '잘해요', correct: false },
+          { text: '잘 못해요', correct: true },
+          { text: '좋아해요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '전혀 할 줄 모를 때 쓰는 말은?',
+          uz: 'Umuman bilmaganda qaysi shakl ishlatiladi?',
+          en: 'Which form means you cannot do it at all?',
+          ru: 'Какая форма значит «совсем не умею»?',
+        },
+        options: [
+          { text: '못해요', correct: true },
+          { text: '잘 못해요', correct: false },
+          { text: '잘해요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '지호 씨는 요리사예요. 요리를 ___.',
+          uz: '지호 씨는 요리사예요. 요리를 ___.',
+          en: '지호 씨는 요리사예요. 요리를 ___.',
+          ru: '지호 씨는 요리사예요. 요리를 ___.',
+        },
+        options: [
+          { text: '못해요', correct: false },
+          { text: '잘해요', correct: true },
+          { text: '안 해요', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 2-3. 높임 N(이)세요 ─────────
+  {
+    code: 'honor-iseyo',
+    pattern: 'N(이)세요',
+    section: 2,
+    order: 3,
+    isActive: true,
+    summary: {
+      ko: '윗사람을 가리키거나 소개할 때 "이에요/예요" 대신 쓰는 높임 표현이에요.',
+      uz: 'Kattalarni ko\'rsatish yoki tanishtirishda "이에요/예요" o\'rniga ishlatiladigan hurmat shakli.',
+      en: 'The polite replacement for 이에요/예요 when pointing at or introducing a senior.',
+      ru: 'Вежливая замена 이에요/예요 при указании на старшего или его представлении.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '높임말', uz: 'Hurmat', en: 'Honorific', ru: 'Вежливость' },
+    ],
+    explanation: {
+      ko: '앞 글자에 받침이 있으면 "이세요", 없으면 "세요"를 붙여요. "이에요/예요"와 규칙이 같고 높임만 더해진 모양이에요. 윗사람을 가리킬 때는 "이 사람"이 아니라 "이분"을 쓰고, 뒤도 "-세요"로 맞춰요. 동생이나 자식처럼 아랫사람에게는 쓰지 않아요.',
+      uz: 'Oldingi bo\'g\'inda undosh bo\'lsa "이세요", bo\'lmasa "세요". Qoida "이에요/예요" bilan bir xil, faqat hurmat qo\'shiladi. Kattani ko\'rsatganda "이 사람" emas, "이분" ishlatiladi. Kichiklarga ishlatilmaydi.',
+      en: 'Add 이세요 after a final consonant and 세요 without one — the same rule as 이에요/예요, just with respect added. Point at a senior with 이분 rather than 이 사람, and never use it for someone junior to you.',
+      ru: 'После согласного — 이세요, без него — 세요; правило то же, что у 이에요/예요, только вежливее. На старшего указывают через 이분, а не 이 사람; к младшим не применяется.',
+    },
+    conjugationRule: {
+      ko: '받침 O + 이세요  ·  받침 X + 세요',
+      uz: "받침 bor + 이세요  ·  받침 yo'q + 세요",
+      en: 'final consonant + 이세요  ·  no final consonant + 세요',
+      ru: 'есть согласный + 이세요  ·  нет + 세요',
+    },
+    conjugations: [
+      { base: '선생님', result: '선생님이세요' },
+      { base: '회사원', result: '회사원이세요' },
+      { base: '어머니', result: '어머니세요' },
+      { base: '의사', result: '의사세요' },
+    ],
+    examples: [
+      {
+        ko: '이분은 우리 어머니세요.',
+        highlight: '어머니세요',
+        gloss: {
+          ko: '이분은 우리 어머니세요.',
+          uz: 'Bu kishi mening onam.',
+          en: 'This is my mother.',
+          ru: 'Это моя мама.',
+        },
+      },
+      {
+        ko: '아버지는 회사원이세요.',
+        highlight: '회사원이세요',
+        gloss: {
+          ko: '아버지는 회사원이세요.',
+          uz: 'Otam xodim.',
+          en: 'My father is an office worker.',
+          ru: 'Мой отец служащий.',
+        },
+      },
+      {
+        ko: '이분은 우리 선생님이세요.',
+        highlight: '선생님이세요',
+        gloss: {
+          ko: '이분은 우리 선생님이세요.',
+          uz: "Bu kishi bizning o'qituvchimiz.",
+          en: 'This is our teacher.',
+          ru: 'Это наш учитель.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '이분은 누구세요?',
+        highlight: '누구세요',
+        gloss: {
+          ko: '이분은 누구세요?',
+          uz: 'Bu kishi kim?',
+          en: 'Who is this person?',
+          ru: 'Кто это?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '우리 아버지세요.',
+        highlight: '아버지세요',
+        gloss: {
+          ko: '우리 아버지세요.',
+          uz: 'Bu mening otam.',
+          en: 'He is my father.',
+          ru: 'Это мой отец.',
+        },
+      },
+    ],
+    similar: {
+      pattern: 'N이에요/예요',
+      note: {
+        ko: '뜻은 같고 높임만 달라요. 친구에게는 "제 친구예요", 선생님을 가리킬 때는 "우리 선생님이세요"라고 해요.',
+        uz: 'Ma\'no bir xil, faqat hurmat farq qiladi. Do\'st haqida "제 친구예요", o\'qituvchi haqida "우리 선생님이세요".',
+        en: 'Same meaning, different politeness. For a friend you say 제 친구예요; for a teacher, 우리 선생님이세요.',
+        ru: 'Смысл тот же, разница в вежливости. О друге — 제 친구예요, об учителе — 우리 선생님이세요.',
+      },
+    },
+    cautions: [
+      {
+        ko: '동생이나 자식에게는 쓰지 않아요. "우리 딸이세요", "제 동생이세요"는 틀린 말이에요.',
+        uz: 'Ini yoki farzandga ishlatilmaydi. "우리 딸이세요", "제 동생이세요" noto\'g\'ri.',
+        en: 'Never use it for a younger sibling or your own child. 우리 딸이세요 and 제 동생이세요 are wrong.',
+        ru: 'Не используется для младших и своих детей. 우리 딸이세요 и 제 동생이세요 — ошибка.',
+      },
+      {
+        ko: '"이분"으로 가리켰으면 뒤도 반드시 높여요. "이분은 우리 어머니예요"는 앞뒤가 어긋나요.',
+        uz: '"이분" bilan ko\'rsatilsa, oxiri ham hurmatli bo\'lishi shart. "이분은 우리 어머니예요" mos kelmaydi.',
+        en: 'If you point with 이분, the ending must be honorific too. 이분은 우리 어머니예요 clashes with itself.',
+        ru: 'Если указали через 이분, окончание тоже должно быть вежливым. 이분은 우리 어머니예요 противоречиво.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '이분은 우리 어머니___.',
+          uz: '이분은 우리 어머니___.',
+          en: '이분은 우리 어머니___.',
+          ru: '이분은 우리 어머니___.',
+        },
+        options: [
+          { text: '세요', correct: true },
+          { text: '이세요', correct: false },
+          { text: '예요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '아버지는 회사원___.',
+          uz: '아버지는 회사원___.',
+          en: '아버지는 회사원___.',
+          ru: '아버지는 회사원___.',
+        },
+        options: [
+          { text: '이세요', correct: true },
+          { text: '세요', correct: false },
+          { text: '이에요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '이분은 의사___.',
+          uz: '이분은 의사___.',
+          en: '이분은 의사___.',
+          ru: '이분은 의사___.',
+        },
+        options: [
+          { text: '이세요', correct: false },
+          { text: '세요', correct: true },
+          { text: '예요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '우리 할머니는 선생님___.',
+          uz: '우리 할머니는 선생님___.',
+          en: '우리 할머니는 선생님___.',
+          ru: '우리 할머니는 선생님___.',
+        },
+        options: [
+          { text: '세요', correct: false },
+          { text: '이세요', correct: true },
+          { text: '이에요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '어머니가 미인___.',
+          uz: '어머니가 미인___.',
+          en: '어머니가 미인___.',
+          ru: '어머니가 미인___.',
+        },
+        options: [
+          { text: '이세요', correct: true },
+          { text: '세요', correct: false },
+          { text: '이에요', correct: false },
+        ],
+      },
+    ],
+  },
+
+  // ───────── 섹션 2-4. 높임 A/V-(으)시- ─────────
+  {
+    code: 'honor-usi',
+    pattern: 'A/V-(으)시-',
+    section: 2,
+    order: 4,
+    isActive: true,
+    summary: {
+      ko: '동사와 형용사를 높이는 어미예요. 주어가 윗사람이면 여기에도 높임을 넣어요.',
+      uz: "Fe'l va sifatni hurmatlaydigan qo'shimcha. Ega katta bo'lsa, bu yerga ham hurmat qo'yiladi.",
+      en: 'The ending that makes a verb or adjective honorific. If the subject is a senior, the verb takes it too.',
+      ru: 'Окончание, делающее глагол или прилагательное вежливым. Если подлежащее — старший, глагол тоже вежливый.',
+    },
+    tags: [
+      { ko: '초급', uz: "Boshlang'ich", en: 'Beginner', ru: 'Начальный' },
+      { ko: '높임말', uz: 'Hurmat', en: 'Honorific', ru: 'Вежливость' },
+    ],
+    explanation: {
+      ko: '"-다"를 뗀 부분에 받침이 없으면 "-세요", 있으면 "-으세요"를 붙여요. 지난 일은 "세"가 "셨"으로 바뀌어 "-셨어요 / -으셨어요"가 돼요. 명사에 붙는 "N(이)세요"와 같은 "세요"지만, 이쪽은 동사와 형용사에 붙어요.',
+      uz: '"-다" olib tashlangan qismda undosh bo\'lmasa "-세요", bo\'lsa "-으세요". O\'tgan zamonda "세" → "셨": "-셨어요 / -으셨어요". Otga qo\'shiladigan "N(이)세요" bilan bir xil "세요", lekin bu fe\'l va sifatga qo\'shiladi.',
+      en: 'Drop -다: if no final consonant remains, add -세요; if there is one, add -으세요. In the past 세 becomes 셨, giving -셨어요 / -으셨어요. It is the same 세요 you meet in N(이)세요, but attached to verbs and adjectives.',
+      ru: 'Уберите -다: без конечного согласного — -세요, с ним — -으세요. В прошедшем 세 меняется на 셨: -셨어요 / -으셨어요. Это то же 세요, что и в N(이)세요, но при глаголах и прилагательных.',
+    },
+    conjugationRule: {
+      ko: '받침 X + 세요  ·  받침 O + 으세요  ·  과거 셨어요 / 으셨어요',
+      uz: "받침 yo'q + 세요  ·  받침 bor + 으세요  ·  o'tgan 셨어요 / 으셨어요",
+      en: 'no final consonant + 세요  ·  final consonant + 으세요  ·  past 셨어요 / 으셨어요',
+      ru: 'нет согласного + 세요  ·  есть + 으세요  ·  прошедшее 셨어요 / 으셨어요',
+    },
+    conjugations: [
+      { base: '가다', result: '가세요' },
+      { base: '다니다', result: '다니세요' },
+      { base: '친절하다', result: '친절하세요' },
+      { base: '읽다', result: '읽으세요' },
+      { base: '많다', result: '많으세요' },
+      { base: '멋있다', result: '멋있으세요' },
+    ],
+    examples: [
+      {
+        ko: '김 선생님은 친절하세요.',
+        highlight: '친절하세요',
+        gloss: {
+          ko: '김 선생님은 친절하세요.',
+          uz: "Kim o'qituvchi mehribon.",
+          en: 'Teacher Kim is kind.',
+          ru: 'Учитель Ким добрый.',
+        },
+      },
+      {
+        ko: '할머니는 친구가 많으세요.',
+        highlight: '많으세요',
+        gloss: {
+          ko: '할머니는 친구가 많으세요.',
+          uz: "Buvimning do'stlari ko'p.",
+          en: 'My grandmother has many friends.',
+          ru: 'У бабушки много друзей.',
+        },
+      },
+      {
+        ko: '아버지는 어제 회사에 가셨어요.',
+        highlight: '가셨어요',
+        gloss: {
+          ko: '아버지는 어제 회사에 가셨어요.',
+          uz: 'Otam kecha ishga bordilar.',
+          en: 'My father went to the company yesterday.',
+          ru: 'Отец вчера ходил на работу.',
+        },
+      },
+    ],
+    dialogue: [
+      {
+        speaker: 'A',
+        side: 'left',
+        ko: '김 선생님은 지금 뭐 하세요?',
+        highlight: '하세요',
+        gloss: {
+          ko: '김 선생님은 지금 뭐 하세요?',
+          uz: "Kim o'qituvchi hozir nima qilyaptilar?",
+          en: 'What is Teacher Kim doing now?',
+          ru: 'Что сейчас делает учитель Ким?',
+        },
+      },
+      {
+        speaker: 'B',
+        side: 'right',
+        ko: '책을 읽으세요.',
+        highlight: '읽으세요',
+        gloss: {
+          ko: '책을 읽으세요.',
+          uz: "Kitob o'qiyaptilar.",
+          en: 'He is reading a book.',
+          ru: 'Он читает книгу.',
+        },
+      },
+    ],
+    similar: {
+      pattern: '계시다 · 드시다 · 주무시다',
+      note: {
+        ko: '몇몇 동사는 "-(으)시-"를 붙이지 않고 단어 자체가 바뀌어요. 있다→계시다, 먹다·마시다→드시다, 자다→주무시다. 이 셋은 규칙보다 우선해요.',
+        uz: "Ba'zi fe'llarga \"-(으)시-\" qo'shilmaydi, so'zning o'zi o'zgaradi: 있다→계시다, 먹다·마시다→드시다, 자다→주무시다. Bu uchtasi qoidadan ustun.",
+        en: 'A few verbs replace the word entirely instead of taking -(으)시-: 있다→계시다, 먹다·마시다→드시다, 자다→주무시다. These override the rule.',
+        ru: 'Некоторые глаголы заменяются целиком вместо -(으)시-: 있다→계시다, 먹다·마시다→드시다, 자다→주무시다. Они важнее правила.',
+      },
+    },
+    cautions: [
+      {
+        ko: '있다·먹다·자다에는 "있으세요·먹으세요·자세요"를 쓰지 않아요. "계세요·드세요·주무세요"가 맞아요.',
+        uz: '있다·먹다·자다 uchun "있으세요·먹으세요·자세요" ishlatilmaydi — "계세요·드세요·주무세요" to\'g\'ri.',
+        en: 'Do not say 있으세요, 먹으세요 or 자세요 for those verbs — use 계세요, 드세요 and 주무세요.',
+        ru: 'Не говорите 있으세요, 먹으세요 или 자세요 — правильно 계세요, 드세요, 주무세요.',
+      },
+      {
+        ko: '나 자신에게는 쓰지 않아요. "저는 학교에 가세요"는 틀리고 "저는 학교에 가요"가 맞아요.',
+        uz: "O'zingizga ishlatmaysiz. \"저는 학교에 가세요\" noto'g'ri, \"저는 학교에 가요\" to'g'ri.",
+        en: 'Never use it about yourself. 저는 학교에 가세요 is wrong; 저는 학교에 가요 is right.',
+        ru: 'Не применяйте к себе. 저는 학교에 가세요 неверно, верно 저는 학교에 가요.',
+      },
+      {
+        ko: '내 아버지·어머니라도 남에게 말할 때 높여요. "아버지는 회사에 다니세요"가 자연스러워요.',
+        uz: 'O\'z ota-onangiz haqida boshqalarga gapirganda ham hurmat saqlanadi: "아버지는 회사에 다니세요".',
+        en: 'Even about your own parents you keep the honorific when speaking to others: 아버지는 회사에 다니세요.',
+        ru: 'Даже о своих родителях в разговоре с другими сохраняют вежливость: 아버지는 회사에 다니세요.',
+      },
+    ],
+    quiz: [
+      {
+        question: {
+          ko: '가다 → 할머니가 ___.',
+          uz: '가다 → 할머니가 ___.',
+          en: '가다 → 할머니가 ___.',
+          ru: '가다 → 할머니가 ___.',
+        },
+        options: [
+          { text: '가으세요', correct: false },
+          { text: '가세요', correct: true },
+          { text: '가시요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '읽다 → 아버지는 책을 ___.',
+          uz: '읽다 → 아버지는 책을 ___.',
+          en: '읽다 → 아버지는 책을 ___.',
+          ru: '읽다 → 아버지는 책을 ___.',
+        },
+        options: [
+          { text: '읽세요', correct: false },
+          { text: '읽으세요', correct: true },
+          { text: '읽이세요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '할머니는 친구가 ___.',
+          uz: '할머니는 친구가 ___.',
+          en: '할머니는 친구가 ___.',
+          ru: '할머니는 친구가 ___.',
+        },
+        options: [
+          { text: '많아요', correct: false },
+          { text: '많으세요', correct: true },
+          { text: '많세요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"가세요"의 지난 일은?',
+          uz: '"가세요" ning o\'tgan zamoni?',
+          en: 'What is the past form of 가세요?',
+          ru: 'Какая прошедшая форма от 가세요?',
+        },
+        options: [
+          { text: '가셨어요', correct: true },
+          { text: '가세었어요', correct: false },
+          { text: '가았어요', correct: false },
+        ],
+      },
+      {
+        question: {
+          ko: '"자다"를 높이면?',
+          uz: '"자다" ning hurmatli shakli?',
+          en: 'What is the honorific of 자다?',
+          ru: 'Какая вежливая форма у 자다?',
+        },
+        options: [
+          { text: '자세요', correct: false },
+          { text: '주무세요', correct: true },
+          { text: '자으세요', correct: false },
         ],
       },
     ],

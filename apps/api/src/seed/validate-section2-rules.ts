@@ -1,15 +1,15 @@
 /**
- * 섹션 1 시드 규칙 검사.
+ * 섹션 2 시드 규칙 검사.
  *
  * 문제 하나가 문법적으로 맞는지가 아니라, 레슨으로 앉혔을 때
  * 실제로 풀 수 있고 지루하지 않은지를 본다. 조립형에서 정답 어절이
  * options 에 없으면 화면은 멀쩡한데 정답을 만들 수가 없고, 같은 타입이
  * 연달아 나오면 같은 문제를 두 번 푸는 느낌이 든다.
  *
- * 실행: pnpm --filter api seed:validate-section1
+ * 실행: pnpm --filter api seed:validate-section2
  */
 
-import * as section1 from './data/section1';
+import * as section2 from './data/section2';
 
 /**
  * 유닛별로 언제 무엇이 열리는지.
@@ -17,8 +17,8 @@ import * as section1 from './data/section1';
  * 알아들을 수 있어야 성립한다.
  */
 const TYPING_TYPES = ['type_answer', 'translate_type', 'listen_type', 'listen_fill'];
-const TYPING_FROM_UNIT = 5;
-const REPLY_BUILDER_FROM_UNIT = 2;
+const TYPING_FROM_UNIT = 0;
+const REPLY_BUILDER_FROM_UNIT = 0;
 
 /**
  * 새 규칙으로 다시 쓴 유닛. 여기 적힌 것만 검사한다.
@@ -27,11 +27,11 @@ const REPLY_BUILDER_FROM_UNIT = 2;
  * 유닛을 다시 쓸 때마다 여기에 번호를 추가한다. 그래야 통과한 유닛이
  * 다시 깨지는 걸 잡을 수 있다.
  */
-const STRICT_UNITS = [1, 2, 3, 4];
+const STRICT_UNITS = [1];
 
-const S = section1 as Record<string, any>;
+const S = section2 as Record<string, any>;
 const ALL_UNITS = Object.keys(S)
-  .map((k) => k.match(/^UNIT(\d+)_NODES$/)?.[1])
+  .map((k) => k.match(/^S2_UNIT(\d+)_NODES$/)?.[1])
   .filter((n): n is string => !!n)
   .map(Number)
   .sort((a, b) => a - b);
@@ -41,8 +41,8 @@ const SKIPPED = ALL_UNITS.filter((n) => !STRICT_UNITS.includes(n));
 const Q: Record<string, any> = {};
 const NODES: any[] = [];
 for (const n of UNITS) {
-  Object.assign(Q, S[`UNIT${n}_QUESTIONS`] ?? {});
-  NODES.push(...(S[`UNIT${n}_NODES`] ?? []));
+  Object.assign(Q, S[`S2_UNIT${n}_QUESTIONS`] ?? {});
+  NODES.push(...(S[`S2_UNIT${n}_NODES`] ?? []));
 }
 
 const err: string[] = [];
@@ -93,10 +93,19 @@ for (const node of NODES) {
 
       // 선택형: 정답이 options 안에 있어야
       if (['fill_in_blank'].includes(q.type)) {
-        if (!q.options?.includes(q.answer)) err.push(`${k}: answer '${q.answer}' 가 options 에 없다`);
-        if ((q.options?.length ?? 0) < q.answer.split(' ').length + 2)
+        if (!q.sentenceTemplate && !q.options?.includes(q.answer)) err.push(`${k}: answer '${q.answer}' 가 options 에 없다`);
+        if (!q.sentenceTemplate && (q.options?.length ?? 0) < q.answer.split(' ').length + 2)
           warn.push(`${k}: 오답 distractor 가 적다 (options ${q.options?.length})`);
-        if (q.sentenceTemplate) err.push(`${k}: 유닛1은 단일 빈칸만 (sentenceTemplate 금지)`);
+        // 섹션 2 는 다중 빈칸이 열린다. 대신 언더바가 3개 이상이어야 인식된다.
+        if (q.sentenceTemplate && !/_{3,}/.test(q.sentenceTemplate))
+          err.push(`${k}: sentenceTemplate 에 빈칸(___)이 없다`);
+        if (q.sentenceTemplate) {
+          const n = (q.sentenceTemplate.match(/_{3,}/g) ?? []).length;
+          if ((q.blankAnswers?.length ?? 0) !== n)
+            err.push(`${k}: 빈칸 ${n}개인데 blankAnswers 는 ${q.blankAnswers?.length ?? 0}개`);
+          for (const b of q.blankAnswers ?? [])
+            if (!q.options?.includes(b)) err.push(`${k}: blankAnswers '${b}' 가 options 에 없다`);
+        }
       }
       if (q.type === 'dialog_complete') {
         if (!q.options?.includes(q.answer)) err.push(`${k}: answer 가 options 에 없다`);
@@ -196,7 +205,7 @@ for (const unit of UNITS) {
 
 console.log(`\n합계 문제 ${Object.keys(Q).length}개`);
 if (SKIPPED.length) {
-  console.log(`(아직 안 고친 유닛 ${SKIPPED.join(', ')} 는 검사에서 뺐다)`);
+  console.log(`(아직 안 고친 섹션2 유닛 ${SKIPPED.join(', ')} 는 검사에서 뺐다)`);
 }
 for (const w of warn) console.log(`⚠️  ${w}`);
 if (err.length) { console.log(`\n❌ ${err.length}건`); err.forEach(e => console.log('- ' + e)); process.exit(1); }

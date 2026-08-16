@@ -42,6 +42,8 @@ const BATCHIM_RULES: Record<string, { withB: string; withoutB: string }> = {
   'exist-i-ga-isseoyo': { withB: '이 있어요', withoutB: '가 있어요' },
   'and-hago-gwa-wa': { withB: '과', withoutB: '와' },
   'here-is-n': { withB: '이에요', withoutB: '예요' },
+  'obj-eul-reul': { withB: '을', withoutB: '를' },
+  'honor-iseyo': { withB: '이세요', withoutB: '세요' },
 };
 
 const seenCodes = new Set<string>();
