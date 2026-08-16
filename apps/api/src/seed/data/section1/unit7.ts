@@ -46,6 +46,391 @@ const I = {
   },
 } as const;
 
+export const S1_UNIT7_WORDS = [
+  // ───────── 날씨 ─────────
+
+  {
+    korean: '날씨',
+    uz: 'ob-havo',
+    en: 'weather',
+    ru: 'погода',
+    emoji: '🌤️',
+  },
+  {
+    korean: '흐리다',
+    uz: 'bulutli bo‘lmoq',
+    en: 'to be cloudy',
+    ru: 'быть облачным',
+    emoji: '☁️',
+  },
+  {
+    korean: '맑다',
+    uz: 'ochiq bo‘lmoq',
+    en: 'to be clear',
+    ru: 'быть ясным',
+    emoji: '☀️',
+  },
+  {
+    korean: '덥다',
+    uz: 'issiq bo‘lmoq',
+    en: 'to be hot',
+    ru: 'быть жарким',
+    emoji: '🥵',
+  },
+  {
+    korean: '춥다',
+    uz: 'sovuq bo‘lmoq',
+    en: 'to be cold',
+    ru: 'быть холодным',
+    emoji: '🥶',
+  },
+  {
+    korean: '따뜻하다',
+    uz: 'iliq bo‘lmoq',
+    en: 'to be warm',
+    ru: 'быть тёплым',
+    emoji: '🌞',
+  },
+  {
+    korean: '시원하다',
+    uz: 'salqin bo‘lmoq',
+    en: 'to be cool / refreshing',
+    ru: 'быть прохладным / освежающим',
+    emoji: '🍃',
+  },
+  {
+    korean: '비',
+    uz: 'yomg‘ir',
+    en: 'rain',
+    ru: 'дождь',
+    emoji: '🌧️',
+  },
+  {
+    korean: '비가 오다',
+    uz: 'yomg‘ir yog‘moq',
+    en: 'to rain',
+    ru: 'идёт дождь',
+    emoji: '🌧️',
+  },
+  {
+    korean: '눈',
+    uz: 'qor',
+    en: 'snow',
+    ru: 'снег',
+    emoji: '❄️',
+  },
+  {
+    korean: '눈이 오다',
+    uz: 'qor yog‘moq',
+    en: 'to snow',
+    ru: 'идёт снег',
+    emoji: '🌨️',
+  },
+  {
+    korean: '어떻다',
+    uz: 'qanday bo‘lmoq',
+    en: 'to be how / what ... like',
+    ru: 'быть каким / каков',
+    emoji: '❓',
+  },
+
+  // ───────── 계절 ─────────
+
+  {
+    korean: '계절',
+    uz: 'fasl',
+    en: 'season',
+    ru: 'время года',
+    emoji: '🍂',
+  },
+  {
+    korean: '봄',
+    uz: 'bahor',
+    en: 'spring',
+    ru: 'весна',
+    emoji: '🌸',
+  },
+  {
+    korean: '여름',
+    uz: 'yoz',
+    en: 'summer',
+    ru: 'лето',
+    emoji: '☀️',
+  },
+  {
+    korean: '가을',
+    uz: 'kuz',
+    en: 'autumn',
+    ru: 'осень',
+    emoji: '🍂',
+  },
+  {
+    korean: '겨울',
+    uz: 'qish',
+    en: 'winter',
+    ru: 'зима',
+    emoji: '⛄',
+  },
+
+  // ───────── 형용사 · 상태 ─────────
+
+  {
+    korean: '쉽다',
+    uz: 'oson bo‘lmoq',
+    en: 'to be easy',
+    ru: 'быть лёгким',
+    emoji: '🙂',
+  },
+  {
+    korean: '어렵다',
+    uz: 'qiyin bo‘lmoq',
+    en: 'to be difficult',
+    ru: 'быть трудным',
+    emoji: '🤯',
+  },
+  {
+    korean: '맵다',
+    uz: 'achchiq bo‘lmoq',
+    en: 'to be spicy',
+    ru: 'быть острым',
+    emoji: '🌶️',
+  },
+  {
+    korean: '가볍다',
+    uz: 'yengil bo‘lmoq',
+    en: 'to be light',
+    ru: 'быть лёгким по весу',
+    emoji: '🪶',
+  },
+  {
+    korean: '무겁다',
+    uz: 'og‘ir bo‘lmoq',
+    en: 'to be heavy',
+    ru: 'быть тяжёлым',
+    emoji: '🏋️',
+  },
+  {
+    korean: '재미있다',
+    uz: 'qiziqarli bo‘lmoq',
+    en: 'to be fun / interesting',
+    ru: 'быть интересным',
+    emoji: '😄',
+  },
+  {
+    korean: '재미없다',
+    uz: 'zerikarli bo‘lmoq',
+    en: 'to be boring / uninteresting',
+    ru: 'быть скучным / неинтересным',
+    emoji: '🥱',
+  },
+
+  // ───────── 사람 · 음식 ─────────
+
+  {
+    korean: '동생',
+    uz: 'kichik uka / singil',
+    en: 'younger sibling',
+    ru: 'младший брат / младшая сестра',
+    emoji: '🧒',
+  },
+  {
+    korean: '떡볶이',
+    uz: 'tteokbokki',
+    en: 'tteokbokki',
+    ru: 'ттокпокки',
+    emoji: '🌶️',
+  },
+
+  // ───────── 말하기 1 ─────────
+
+  {
+    korean: '조심하다',
+    uz: 'ehtiyot bo‘lmoq',
+    en: 'to be careful',
+    ru: 'быть осторожным',
+    emoji: '⚠️',
+  },
+
+  // ───────── 일상 · 현재 상황 ─────────
+
+  {
+    korean: '요즘',
+    uz: 'shu kunlarda',
+    en: 'these days',
+    ru: 'в последнее время',
+    emoji: '📆',
+  },
+  {
+    korean: '쉬는 시간',
+    uz: 'tanaffus',
+    en: 'break time',
+    ru: 'перемена / время отдыха',
+    emoji: '☕',
+  },
+  {
+    korean: '이야기하다',
+    uz: 'gaplashmoq',
+    en: 'to talk',
+    ru: 'разговаривать',
+    emoji: '💬',
+  },
+
+  // ───────── 고향 날씨 발표 ─────────
+
+  {
+    korean: '고향',
+    uz: 'ona yurt / tug‘ilgan joy',
+    en: 'hometown',
+    ru: 'родной город / родина',
+    emoji: '🏡',
+  },
+  {
+    korean: '스키장',
+    uz: 'chang‘i kurorti',
+    en: 'ski resort',
+    ru: 'горнолыжный курорт',
+    emoji: '⛷️',
+  },
+  {
+    korean: '단풍',
+    uz: 'kuzgi rangli barglar',
+    en: 'autumn foliage',
+    ru: 'осенняя листва',
+    emoji: '🍁',
+  },
+  {
+    korean: '구경하다',
+    uz: 'tomosha qilmoq',
+    en: 'to look around / sightsee',
+    ru: 'осматривать / любоваться',
+    emoji: '👀',
+  },
+  {
+    korean: '수영장',
+    uz: 'suzish havzasi',
+    en: 'swimming pool',
+    ru: 'бассейн',
+    emoji: '🏊',
+  },
+  {
+    korean: '꽃',
+    uz: 'gul',
+    en: 'flower',
+    ru: 'цветок',
+    emoji: '🌷',
+  },
+
+  // ───────── 여행 경험 ─────────
+
+  {
+    korean: '바다',
+    uz: 'dengiz',
+    en: 'sea',
+    ru: 'море',
+    emoji: '🌊',
+  },
+  {
+    korean: '생선',
+    uz: 'baliq (ovqat)',
+    en: 'fish',
+    ru: 'рыба',
+    emoji: '🐟',
+  },
+
+  // ───────── 읽고 쓰기 · 한국의 가을과 겨울 ─────────
+
+  {
+    korean: '작년',
+    uz: 'o‘tgan yil',
+    en: 'last year',
+    ru: 'прошлый год',
+    emoji: '⏮️',
+  },
+  {
+    korean: '항상',
+    uz: 'har doim',
+    en: 'always',
+    ru: 'всегда',
+    emoji: '🔁',
+  },
+  {
+    korean: '처음',
+    uz: 'birinchi marta',
+    en: 'for the first time',
+    ru: 'в первый раз',
+    emoji: '1️⃣',
+  },
+  {
+    korean: '하늘',
+    uz: 'osmon',
+    en: 'sky',
+    ru: 'небо',
+    emoji: '🌌',
+  },
+  {
+    korean: '눈사람',
+    uz: 'qor odam',
+    en: 'snowman',
+    ru: 'снеговик',
+    emoji: '⛄',
+  },
+  {
+    korean: '만들다',
+    uz: 'yasamoq',
+    en: 'to make',
+    ru: 'делать / создавать',
+    emoji: '🛠️',
+  },
+
+  // ───────── 과제 · 여행 준비 ─────────
+
+  {
+    korean: '수영하다',
+    uz: 'suzmoq',
+    en: 'to swim',
+    ru: 'плавать',
+    emoji: '🏊',
+  },
+  {
+    korean: '망고',
+    uz: 'mango',
+    en: 'mango',
+    ru: 'манго',
+    emoji: '🥭',
+  },
+  {
+    korean: '선글라스',
+    uz: 'quyosh ko‘zoynagi',
+    en: 'sunglasses',
+    ru: 'солнцезащитные очки',
+    emoji: '🕶️',
+  },
+  {
+    korean: '부채',
+    uz: 'yelpig‘ich',
+    en: 'hand fan',
+    ru: 'веер',
+    emoji: '🪭',
+  },
+  {
+    korean: '슬리퍼',
+    uz: 'shippak',
+    en: 'slippers',
+    ru: 'тапочки / шлёпанцы',
+    emoji: '🩴',
+  },
+
+  // ───────── 문화 산책 · 계절 음식 ─────────
+
+  {
+    korean: '삼계탕',
+    uz: 'samgyetang (jenshenli tovuq sho‘rvasi)',
+    en: 'samgyetang / ginseng chicken soup',
+    ru: 'самгетхан / куриный суп с женьшенем',
+    emoji: '🍲',
+  },
+];
+
 export const UNIT7_QUESTIONS = {
   // ══════════════════════════════════════════════════════════
   // 노드 1 · 레슨 1 — 오늘 날씨가 어때요?
@@ -12171,4 +12556,530 @@ export const UNIT7_QUESTIONS = {
   },
 };
 
-export const UNIT7_NODES = [];
+const UNIT7_QUESTION_IDS = Object.keys(UNIT7_QUESTIONS).sort(
+  (a, b) => Number(a.slice(3, 6)) - Number(b.slice(3, 6)),
+);
+
+export const UNIT7_NODES = [
+  {
+    title: {
+      ko: '날씨와 계절',
+      uz: 'Ob-havo va fasllar',
+      en: 'Weather and Seasons',
+      ru: 'Погода и времена года',
+    },
+    section: 1,
+    unit: 7,
+    order: 1,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '오늘 날씨가 어때요?',
+          uz: 'Bugun ob-havo qanday?',
+          en: 'How Is the Weather Today?',
+          ru: 'Какая сегодня погода?',
+        },
+        description: {
+          ko: '맑다 · 흐리다 · 비가 오다 · 눈이 오다',
+          uz: 'Ochiq · bulutli · yomg‘ir · qor',
+          en: 'Clear · cloudy · rain · snow',
+          ru: 'Ясно · облачно · дождь · снег',
+        },
+        category: LessonCategory.VOCABULARY,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(0, 17),
+      },
+      {
+        title: {
+          ko: '더워요? 추워요?',
+          uz: 'Issiqmi? Sovuqmi?',
+          en: 'Is It Hot or Cold?',
+          ru: 'Жарко или холодно?',
+        },
+        description: {
+          ko: '덥다 · 춥다 · 따뜻하다 · 시원하다',
+          uz: 'Issiq · sovuq · iliq · salqin',
+          en: 'Hot · cold · warm · cool',
+          ru: 'Жарко · холодно · тепло · прохладно',
+        },
+        category: LessonCategory.VOCABULARY,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(17, 34),
+      },
+      {
+        title: {
+          ko: '무슨 계절을 좋아해요?',
+          uz: 'Qaysi faslni yoqtirasiz?',
+          en: 'Which Season Do You Like?',
+          ru: 'Какое время года вам нравится?',
+        },
+        description: {
+          ko: '봄 · 여름 · 가을 · 겨울',
+          uz: 'Bahor · yoz · kuz · qish',
+          en: 'Spring · summer · fall · winter',
+          ru: 'Весна · лето · осень · зима',
+        },
+        category: LessonCategory.VOCABULARY,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(34, 51),
+      },
+      {
+        title: {
+          ko: '날씨를 묻고 답해요',
+          uz: 'Ob-havo haqida so‘raymiz',
+          en: 'Ask and Answer About Weather',
+          ru: 'Спрашиваем и отвечаем о погоде',
+        },
+        description: {
+          ko: '오늘과 여러 도시의 날씨를 묻고 답해요',
+          uz: 'Bugungi va turli shaharlardagi ob-havo haqida gaplashamiz',
+          en: 'Ask and answer about today’s weather and weather in different cities',
+          ru: 'Спрашиваем о погоде сегодня и в разных городах',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(51, 68),
+      },
+    ],
+  },
+
+  {
+    title: {
+      ko: '더워요, 추워요',
+      uz: 'Issiq va sovuq',
+      en: 'Hot and Cold',
+      ru: 'Жарко и холодно',
+    },
+    section: 1,
+    unit: 7,
+    order: 2,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '덥다 → 더워요',
+          uz: '덥다 → 더워요',
+          en: '덥다 → 더워요',
+          ru: '덥다 → 더워요',
+        },
+        description: {
+          ko: '덥다와 춥다의 ㅂ 불규칙 현재형',
+          uz: '덥다 va 춥다 ning hozirgi ㅂ irregular shakli',
+          en: 'Present ㅂ-irregular forms of 덥다 and 춥다',
+          ru: 'Настоящие формы ㅂ-нерегулярных 덥다 и 춥다',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(68, 85),
+      },
+      {
+        title: {
+          ko: '어렵다, 쉽다, 무겁다, 가볍다',
+          uz: '어렵다, 쉽다, 무겁다, 가볍다',
+          en: '어렵다, 쉽다, 무겁다, 가볍다',
+          ru: '어렵다, 쉽다, 무겁다, 가볍다',
+        },
+        description: {
+          ko: '어렵다 · 쉽다 · 무겁다 · 가볍다 · 맵다의 ㅂ 불규칙',
+          uz: '어렵다 · 쉽다 · 무겁다 · 가볍다 · 맵다 ning ㅂ irregular shakllari',
+          en: 'ㅂ-irregular forms with 어렵다, 쉽다, 무겁다, 가볍다 and 맵다',
+          ru: 'ㅂ-нерегулярные формы 어렵다, 쉽다, 무겁다, 가볍다 и 맵다',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(85, 102),
+      },
+      {
+        title: {
+          ko: '더웠어요, 추웠어요',
+          uz: '더웠어요, 추웠어요',
+          en: '더웠어요, 추웠어요',
+          ru: '더웠어요, 추웠어요',
+        },
+        description: {
+          ko: 'ㅂ 불규칙 형용사의 과거형을 말해요',
+          uz: 'ㅂ irregular sifatlarning o‘tgan zamonini aytamiz',
+          en: 'Use past forms of ㅂ-irregular adjectives',
+          ru: 'Используем прошедшие формы ㅂ-нерегулярных прилагательных',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(102, 119),
+      },
+      {
+        title: {
+          ko: 'ㅂ 불규칙 종합',
+          uz: 'ㅂ irregular takror',
+          en: 'ㅂ-Irregular Review',
+          ru: 'Повторение ㅂ-нерегулярных',
+        },
+        description: {
+          ko: '현재형 · 과거형 · 안 부정을 함께 연습해요',
+          uz: 'Hozirgi · o‘tgan · 안 inkorini birga mashq qilamiz',
+          en: 'Practice present, past and 안-negative forms together',
+          ru: 'Практикуем настоящее, прошедшее и отрицание с 안',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(119, 136),
+      },
+    ],
+  },
+
+  {
+    title: {
+      ko: '비싸지만 맛있어요',
+      uz: 'Qimmat, lekin mazali',
+      en: 'Expensive but Delicious',
+      ru: 'Дорого, но вкусно',
+    },
+    section: 1,
+    unit: 7,
+    order: 3,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '비싸지만 맛있어요',
+          uz: 'Qimmat, lekin mazali',
+          en: 'Expensive but Delicious',
+          ru: 'Дорого, но вкусно',
+        },
+        description: {
+          ko: 'A-지만으로 서로 다른 두 특징을 연결해요',
+          uz: 'A-지만 bilan ikki qarama-qarshi xususiyatni bog‘laymiz',
+          en: 'Connect contrasting qualities with A-지만',
+          ru: 'Соединяем контрастные признаки с A-지만',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(136, 153),
+      },
+      {
+        title: {
+          ko: '먹지만 친구는 안 먹어요',
+          uz: 'Men yeyman, lekin do‘stim yemaydi',
+          en: 'I Eat It, but My Friend Doesn’t',
+          ru: 'Я ем, а мой друг — нет',
+        },
+        description: {
+          ko: 'V-지만으로 두 행동을 대조해요',
+          uz: 'V-지만 bilan ikki harakatni qarama-qarshi qo‘yamiz',
+          en: 'Contrast two actions with V-지만',
+          ru: 'Противопоставляем два действия с V-지만',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(153, 170),
+      },
+      {
+        title: {
+          ko: '어제는 더웠지만 오늘은 안 더워요',
+          uz: 'Kecha issiq edi, lekin bugun emas',
+          en: 'It Was Hot Yesterday, but Not Today',
+          ru: 'Вчера было жарко, а сегодня нет',
+        },
+        description: {
+          ko: '어제와 오늘의 날씨를 -지만으로 대조해요',
+          uz: 'Kecha va bugungi ob-havoni -지만 bilan taqqoslaymiz',
+          en: 'Contrast yesterday’s and today’s weather with -지만',
+          ru: 'Сравниваем погоду вчера и сегодня с -지만',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(170, 187),
+      },
+      {
+        title: {
+          ko: '-지만 종합',
+          uz: '-지만 takror',
+          en: '-지만 Review',
+          ru: 'Повторение -지만',
+        },
+        description: {
+          ko: '형용사 · 동사 · 현재 · 과거의 -지만을 함께 연습해요',
+          uz: 'Sifat · fe’l · hozirgi · o‘tgan -지만 shakllarini mashq qilamiz',
+          en: 'Practice -지만 with adjectives, verbs, present and past forms',
+          ru: 'Практикуем -지만 с прилагательными, глаголами, настоящим и прошедшим',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(187, 204),
+      },
+    ],
+  },
+
+  {
+    title: {
+      ko: '날씨가 어떻습니까?',
+      uz: 'Ob-havo qanday?',
+      en: 'How Is the Weather?',
+      ru: 'Какая погода?',
+    },
+    section: 1,
+    unit: 7,
+    order: 4,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '-ㅂ니다',
+          uz: '-ㅂ니다',
+          en: '-ㅂ니다',
+          ru: '-ㅂ니다',
+        },
+        description: {
+          ko: '받침 없는 어간의 격식체 평서형을 익혀요',
+          uz: '받침siz fe’llarning rasmiy darak shaklini o‘rganamiz',
+          en: 'Learn formal statements after stems without a final consonant',
+          ru: 'Изучаем официальную форму после основы без 받침',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(204, 221),
+      },
+      {
+        title: {
+          ko: '-습니다',
+          uz: '-습니다',
+          en: '-습니다',
+          ru: '-습니다',
+        },
+        description: {
+          ko: '받침 있는 어간의 격식체 평서형을 익혀요',
+          uz: '받침li fe’llarning rasmiy darak shaklini o‘rganamiz',
+          en: 'Learn formal statements after stems with a final consonant',
+          ru: 'Изучаем официальную форму после основы с 받침',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(221, 238),
+      },
+      {
+        title: {
+          ko: '-습니까? / -ㅂ니까?',
+          uz: '-습니까? / -ㅂ니까?',
+          en: '-습니까? / -ㅂ니까?',
+          ru: '-습니까? / -ㅂ니까?',
+        },
+        description: {
+          ko: '격식체로 질문하고 대답해요',
+          uz: 'Rasmiy usulda savol berib javob beramiz',
+          en: 'Ask and answer in the formal style',
+          ru: 'Задаём вопросы и отвечаем в официальном стиле',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(238, 255),
+      },
+      {
+        title: {
+          ko: '기상캐스터',
+          uz: 'Ob-havo boshlovchisi',
+          en: 'Weather Forecaster',
+          ru: 'Ведущий прогноза погоды',
+        },
+        description: {
+          ko: '격식체를 사용해서 날씨를 전해요',
+          uz: 'Rasmiy uslubda ob-havo haqida xabar beramiz',
+          en: 'Give a weather report using the formal style',
+          ru: 'Сообщаем прогноз погоды в официальном стиле',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(255, 272),
+      },
+    ],
+  },
+
+  {
+    title: {
+      ko: '싸고 맛있어요',
+      uz: 'Arzon va mazali',
+      en: 'Cheap and Delicious',
+      ru: 'Дёшево и вкусно',
+    },
+    section: 1,
+    unit: 7,
+    order: 5,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '싸고 맛있어요',
+          uz: 'Arzon va mazali',
+          en: 'Cheap and Delicious',
+          ru: 'Дёшево и вкусно',
+        },
+        description: {
+          ko: 'A-고로 한 대상의 두 특징을 연결해요',
+          uz: 'A-고 bilan bitta narsaning ikki xususiyatini bog‘laymiz',
+          en: 'Connect two qualities of one thing with A-고',
+          ru: 'Соединяем два признака одного объекта с A-고',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(272, 289),
+      },
+      {
+        title: {
+          ko: '사진을 찍고 요리를 했어요',
+          uz: 'Suratga oldim va ovqat tayyorladim',
+          en: 'I Took Photos and Cooked',
+          ru: 'Я фотографировал и готовил',
+        },
+        description: {
+          ko: 'V-고로 두 행동을 연결해요',
+          uz: 'V-고 bilan ikki harakatni bog‘laymiz',
+          en: 'Connect two actions with V-고',
+          ru: 'Соединяем два действия с V-고',
+        },
+        category: LessonCategory.GRAMMAR,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(289, 306),
+      },
+      {
+        title: {
+          ko: '파리는 춥고 눈이 옵니다',
+          uz: 'Parijda sovuq va qor yog‘adi',
+          en: 'Paris Is Cold and Snowy',
+          ru: 'В Париже холодно и идёт снег',
+        },
+        description: {
+          ko: '도시 · 계절 · 날씨를 -고로 연결해요',
+          uz: 'Shahar · fasl · ob-havoni -고 bilan bog‘laymiz',
+          en: 'Connect city, season and weather information with -고',
+          ru: 'Соединяем сведения о городе, сезоне и погоде с -고',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(306, 323),
+      },
+      {
+        title: {
+          ko: '제 고향은 파리입니다',
+          uz: 'Mening ona shahrim Parij',
+          en: 'My Hometown Is Paris',
+          ru: 'Мой родной город — Париж',
+        },
+        description: {
+          ko: '고향의 계절과 날씨를 발표해요',
+          uz: 'Ona shahrimizning fasli va ob-havosi haqida gapiramiz',
+          en: 'Present the seasons and weather of your hometown',
+          ru: 'Рассказываем о сезонах и погоде родного города',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(323, 340),
+      },
+    ],
+  },
+
+  {
+    title: {
+      ko: '7과 실전',
+      uz: '7-dars amaliyoti',
+      en: 'Unit 7 Practice',
+      ru: 'Практика урока 7',
+    },
+    section: 1,
+    unit: 7,
+    order: 6,
+    isActive: true,
+    lessons: [
+      {
+        title: {
+          ko: '부산에 갔어요',
+          uz: 'Busanga bordim',
+          en: 'I Went to Busan',
+          ru: 'Я ездил в Пусан',
+        },
+        description: {
+          ko: '부산 여행 경험과 날씨, 음식 이야기를 해요',
+          uz: 'Busan safari, ob-havo va taomlar haqida gapiramiz',
+          en: 'Talk about a trip to Busan, its weather and food',
+          ru: 'Говорим о поездке в Пусан, погоде и еде',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 1,
+        questions: UNIT7_QUESTION_IDS.slice(340, 357),
+      },
+      {
+        title: {
+          ko: '한국의 가을과 겨울',
+          uz: 'Koreyaning kuzi va qishi',
+          en: 'Fall and Winter in Korea',
+          ru: 'Осень и зима в Корее',
+        },
+        description: {
+          ko: '한국의 가을과 겨울에 대한 글을 읽고 이해해요',
+          uz: 'Koreyaning kuz va qishi haqidagi matnni o‘qiymiz',
+          en: 'Read and understand a text about fall and winter in Korea',
+          ru: 'Читаем текст об осени и зиме в Корее',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 2,
+        questions: UNIT7_QUESTION_IDS.slice(357, 374),
+      },
+      {
+        title: {
+          ko: '여행 가방을 준비해요',
+          uz: 'Sayohat sumkasini tayyorlaymiz',
+          en: 'Pack for a Trip',
+          ru: 'Собираем вещи в поездку',
+        },
+        description: {
+          ko: '여행지의 날씨와 활동에 맞게 준비해요',
+          uz: 'Sayohat joyining ob-havosi va faoliyatiga mos tayyorlanamiz',
+          en: 'Prepare for a trip based on the weather and activities',
+          ru: 'Готовимся к поездке с учётом погоды и занятий',
+        },
+        category: LessonCategory.CONVERSATION,
+        level: QuestionLevel.LEVEL_2,
+        order: 3,
+        questions: UNIT7_QUESTION_IDS.slice(374, 391),
+      },
+      {
+        title: {
+          ko: '계절 음식과 발음',
+          uz: 'Fasl taomlari va talaffuz',
+          en: 'Seasonal Food and Pronunciation',
+          ru: 'Сезонная еда и произношение',
+        },
+        description: {
+          ko: '삼계탕 · 냉면과 비음화 1을 함께 복습해요',
+          uz: 'Samgyetang · naengmyeon va 비음화 1 ni takrorlaymiz',
+          en: 'Review samgyetang, naengmyeon and Nasalization 1',
+          ru: 'Повторяем самгетхан, нэнмён и назализацию 1',
+        },
+        category: LessonCategory.VOCABULARY,
+        level: QuestionLevel.LEVEL_2,
+        order: 4,
+        questions: UNIT7_QUESTION_IDS.slice(391, 408),
+      },
+    ],
+  },
+];

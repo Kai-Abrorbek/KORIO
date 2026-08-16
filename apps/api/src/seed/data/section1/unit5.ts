@@ -78,6 +78,357 @@ const I = {
   },
 };
 
+export const S1_UNIT5_WORDS = [
+  // ───────── 숫자 1 ─────────
+
+  { korean: '일', uz: 'bir', en: 'one', ru: 'один', emoji: '1️⃣' },
+  { korean: '이', uz: 'ikki', en: 'two', ru: 'два', emoji: '2️⃣' },
+  { korean: '삼', uz: 'uch', en: 'three', ru: 'три', emoji: '3️⃣' },
+  { korean: '사', uz: "to'rt", en: 'four', ru: 'четыре', emoji: '4️⃣' },
+  { korean: '오', uz: 'besh', en: 'five', ru: 'пять', emoji: '5️⃣' },
+  { korean: '육', uz: 'olti', en: 'six', ru: 'шесть', emoji: '6️⃣' },
+  { korean: '칠', uz: 'yetti', en: 'seven', ru: 'семь', emoji: '7️⃣' },
+  { korean: '팔', uz: 'sakkiz', en: 'eight', ru: 'восемь', emoji: '8️⃣' },
+  {
+    korean: '구',
+    uz: "to'qqiz",
+    en: 'nine',
+    ru: 'девять',
+    emoji: '9️⃣',
+  },
+  { korean: '십', uz: "o'n", en: 'ten', ru: 'десять', emoji: '🔟' },
+
+  // ───────── 날짜 · 요일 ─────────
+
+  {
+    korean: '날짜',
+    uz: 'sana',
+    en: 'date',
+    ru: 'дата',
+    emoji: '📅',
+  },
+  {
+    korean: '요일',
+    uz: 'hafta kuni',
+    en: 'day of the week',
+    ru: 'день недели',
+    emoji: '📆',
+  },
+  {
+    korean: '월요일',
+    uz: 'dushanba',
+    en: 'Monday',
+    ru: 'понедельник',
+    emoji: '📅',
+  },
+  {
+    korean: '화요일',
+    uz: 'seshanba',
+    en: 'Tuesday',
+    ru: 'вторник',
+    emoji: '📅',
+  },
+  {
+    korean: '수요일',
+    uz: 'chorshanba',
+    en: 'Wednesday',
+    ru: 'среда',
+    emoji: '📅',
+  },
+  {
+    korean: '목요일',
+    uz: 'payshanba',
+    en: 'Thursday',
+    ru: 'четверг',
+    emoji: '📅',
+  },
+  {
+    korean: '금요일',
+    uz: 'juma',
+    en: 'Friday',
+    ru: 'пятница',
+    emoji: '📅',
+  },
+  {
+    korean: '토요일',
+    uz: 'shanba',
+    en: 'Saturday',
+    ru: 'суббота',
+    emoji: '📅',
+  },
+  {
+    korean: '일요일',
+    uz: 'yakshanba',
+    en: 'Sunday',
+    ru: 'воскресенье',
+    emoji: '📅',
+  },
+  {
+    korean: '주말',
+    uz: 'dam olish kunlari',
+    en: 'weekend',
+    ru: 'выходные',
+    emoji: '🗓️',
+  },
+  {
+    korean: '며칠',
+    uz: 'nechanchi sana',
+    en: 'what date',
+    ru: 'какое число',
+    emoji: '📆',
+  },
+  {
+    korean: '언제',
+    uz: 'qachon',
+    en: 'when',
+    ru: 'когда',
+    emoji: '⏰',
+  },
+  {
+    korean: '무슨',
+    uz: 'qaysi / qanday',
+    en: 'what / which',
+    ru: 'какой / что за',
+    emoji: '❓',
+  },
+  {
+    korean: '시험',
+    uz: 'imtihon',
+    en: 'exam',
+    ru: 'экзамен',
+    emoji: '📝',
+  },
+  {
+    korean: '생일',
+    uz: "tug'ilgan kun",
+    en: 'birthday',
+    ru: 'день рождения',
+    emoji: '🎂',
+  },
+
+  // ───────── 일정 · 약속 ─────────
+
+  {
+    korean: '크리스마스',
+    uz: 'Rojdestvo',
+    en: 'Christmas',
+    ru: 'Рождество',
+    emoji: '🎄',
+  },
+  {
+    korean: '파티',
+    uz: 'bazm',
+    en: 'party',
+    ru: 'вечеринка',
+    emoji: '🎉',
+  },
+  {
+    korean: '시간',
+    uz: 'vaqt',
+    en: 'time',
+    ru: 'время',
+    emoji: '⏰',
+  },
+  {
+    korean: '미안하다',
+    uz: "kechirim so'ramoq",
+    en: 'to be sorry',
+    ru: 'извиняться / сожалеть',
+    emoji: '🙏',
+  },
+  {
+    korean: '약속',
+    uz: 'uchrashuv / kelishuv',
+    en: 'appointment / promise',
+    ru: 'встреча / договорённость',
+    emoji: '🤝',
+  },
+  {
+    korean: '같이',
+    uz: 'birga',
+    en: 'together',
+    ru: 'вместе',
+    emoji: '👥',
+  },
+
+  // ───────── 과거 활동 ─────────
+
+  {
+    korean: '어제',
+    uz: 'kecha',
+    en: 'yesterday',
+    ru: 'вчера',
+    emoji: '↩️',
+  },
+  {
+    korean: '카드',
+    uz: 'tabrik kartasi',
+    en: 'card',
+    ru: 'открытка',
+    emoji: '💌',
+  },
+  {
+    korean: '선물',
+    uz: "sovg'a",
+    en: 'gift',
+    ru: 'подарок',
+    emoji: '🎁',
+  },
+  {
+    korean: '세수하다',
+    uz: 'yuzini yuvmoq',
+    en: "to wash one's face",
+    ru: 'умываться',
+    emoji: '🧼',
+  },
+  {
+    korean: '이를 닦다',
+    uz: 'tishlarini yuvmoq',
+    en: "to brush one's teeth",
+    ru: 'чистить зубы',
+    emoji: '🪥',
+  },
+  {
+    korean: '거기',
+    uz: 'u yer',
+    en: 'there',
+    ru: 'там',
+    emoji: '📍',
+  },
+  {
+    korean: '산책하다',
+    uz: 'sayr qilmoq',
+    en: 'to take a walk',
+    ru: 'гулять',
+    emoji: '🚶',
+  },
+  {
+    korean: '사진을 찍다',
+    uz: 'suratga olmoq',
+    en: 'to take a photo',
+    ru: 'фотографировать',
+    emoji: '📷',
+  },
+  {
+    korean: '누구',
+    uz: 'kim',
+    en: 'who',
+    ru: 'кто',
+    emoji: '❓',
+  },
+  {
+    korean: '혼자',
+    uz: "yolg'iz",
+    en: 'alone',
+    ru: 'один / в одиночку',
+    emoji: '👤',
+  },
+  {
+    korean: '끝나다',
+    uz: 'tugamoq',
+    en: 'to finish / to end',
+    ru: 'заканчиваться',
+    emoji: '✅',
+  },
+
+  // ───────── 읽기 · 일정 ─────────
+
+  {
+    korean: '그래서',
+    uz: 'shuning uchun',
+    en: 'so / therefore',
+    ru: 'поэтому',
+    emoji: '➡️',
+  },
+  {
+    korean: '내일',
+    uz: 'ertaga',
+    en: 'tomorrow',
+    ru: 'завтра',
+    emoji: '⏭️',
+  },
+  {
+    korean: '스케줄',
+    uz: 'jadval / reja',
+    en: 'schedule',
+    ru: 'расписание',
+    emoji: '🗓️',
+  },
+  {
+    korean: '지난주',
+    uz: "o'tgan hafta",
+    en: 'last week',
+    ru: 'прошлая неделя',
+    emoji: '⏮️',
+  },
+
+  // ───────── 문화 산책 · 명절 ─────────
+
+  {
+    korean: '명절',
+    uz: "an'anaviy bayram",
+    en: 'traditional holiday',
+    ru: 'традиционный праздник',
+    emoji: '🎊',
+  },
+  {
+    korean: '양력',
+    uz: 'quyosh taqvimi',
+    en: 'solar calendar',
+    ru: 'солнечный календарь',
+    emoji: '☀️',
+  },
+  {
+    korean: '음력',
+    uz: 'oy taqvimi',
+    en: 'lunar calendar',
+    ru: 'лунный календарь',
+    emoji: '🌙',
+  },
+  {
+    korean: '설날',
+    uz: 'Seollal (Koreys Yangi yili)',
+    en: 'Seollal / Korean New Year',
+    ru: 'Соллаль / корейский Новый год',
+    emoji: '🧧',
+  },
+  {
+    korean: '세배를 하다',
+    uz: "Yangi yil ta'zimini qilmoq",
+    en: "to perform a New Year's bow",
+    ru: 'совершать новогодний поклон старшим',
+    emoji: '🙇',
+  },
+  {
+    korean: '떡국',
+    uz: "tteokguk (guruchli tteok sho'rvasi)",
+    en: 'tteokguk / rice cake soup',
+    ru: 'ттоккук / суп с рисовыми клёцками',
+    emoji: '🍲',
+  },
+  {
+    korean: '추석',
+    uz: 'Chuseok (Koreys hosil bayrami)',
+    en: 'Chuseok / Korean Thanksgiving',
+    ru: 'Чхусок / корейский праздник урожая',
+    emoji: '🌕',
+  },
+  {
+    korean: '차례를 지내다',
+    uz: "ajdodlar xotirasiga marosim o'tkazmoq",
+    en: 'to perform ancestral rites',
+    ru: 'проводить поминальный обряд предков',
+    emoji: '🙏',
+  },
+  {
+    korean: '송편',
+    uz: 'songpyeon (yarim oy shaklidagi guruchli tteok)',
+    en: 'songpyeon / half-moon rice cake',
+    ru: 'сонпхён / рисовый пирожок в форме полумесяца',
+    emoji: '🥮',
+  },
+];
+
 export const UNIT5_QUESTIONS = {
   // ══════════════════════════════════════════════════════════
   // 노드 1 · 레슨 1 — 숫자 1~10
