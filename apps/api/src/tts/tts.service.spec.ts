@@ -40,7 +40,7 @@ describe('TtsService', () => {
     );
     expect(init?.headers).toMatchObject({
       'Ocp-Apim-Subscription-Key': 'test-key',
-      'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+      'X-Microsoft-OutputFormat': 'riff-24khz-16bit-mono-pcm',
     });
     expect(typeof init?.body).toBe('string');
     const body = init?.body as string;

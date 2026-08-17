@@ -1,13 +1,10 @@
 /* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
-import {
-  setAudioModeAsync,
-  useAudioPlayer,
-  useAudioPlayerStatus,
-} from "expo-audio";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSettingsStore } from "@/store/settings.store";
 import type { TopikAudioLine } from "@/types/topik";
+import { activatePlaybackAudio } from "@/utils/audio-session";
 
 export type TopikListeningPlaybackStatus =
   | "idle"
@@ -320,10 +317,7 @@ export function useTopikListeningPlayback() {
   );
 
   useEffect(() => {
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-      interruptionMode: "doNotMix",
-    }).catch(() => undefined);
+    void activatePlaybackAudio("doNotMix").catch(() => undefined);
   }, []);
 
   useEffect(() => {

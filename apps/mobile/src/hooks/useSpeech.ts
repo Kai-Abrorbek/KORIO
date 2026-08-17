@@ -1,7 +1,14 @@
 /* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
 /* eslint-disable react-hooks/set-state-in-effect -- playback status is external state. */
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
+import {
+  clearPreloadedSource,
+  preload,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  type AudioSource,
+} from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
 import { TtsService, type SpeechGender } from "@/services/tts.service";
 import { DEFAULT_SPEECH_VOICE, useSettingsStore } from "@/store/settings.store";
 import { activatePlaybackAudio } from "@/utils/audio-session";
@@ -22,7 +29,15 @@ export interface SpeechPlaybackOptions {
 
 interface ActiveSpeech {
   options?: SpeechPlaybackOptions;
+  phase: "preparing" | "loading" | "playing";
   runId: number;
+  source?: AudioSource;
+  volume: number;
+}
+
+function releasePreloadedSource(source?: AudioSource) {
+  if (Platform.OS === "web" || !source) return;
+  void clearPreloadedSource(source).catch(() => undefined);
 }
 
 export function useSpeech() {
@@ -41,6 +56,7 @@ export function useSpeech() {
       runIdRef.current += 1;
       const active = activeRef.current;
       activeRef.current = null;
+      releasePreloadedSource(active?.source);
       handledFinishRef.current = false;
       try {
         player.pause();
@@ -73,7 +89,12 @@ export function useSpeech() {
 
       stopCurrent(true);
       const runId = runIdRef.current;
-      const active = { options, runId };
+      const active: ActiveSpeech = {
+        options,
+        phase: "preparing",
+        runId,
+        volume: Math.min(1, Math.max(0, volume)),
+      };
       activeRef.current = active;
       setIsSpeaking(true);
 
@@ -95,18 +116,36 @@ export function useSpeech() {
         });
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
+        // 짧은 원격 음성은 네이티브 준비 중 세션 전환과 겹치면 첫 프레임이
+        // 유실될 수 있다. 전체 파일을 받은 뒤 메모리 소스로 재생한다.
+        if (Platform.OS !== "web") await preload(source);
+        if (runIdRef.current !== runId || activeRef.current !== active) {
+          releasePreloadedSource(source);
+          return;
+        }
+        active.source = source;
+
         await activatePlaybackAudio("doNotMix").catch(() => undefined);
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
         handledFinishRef.current = false;
+        active.phase = "loading";
         player.replace(source);
         player.muted = false;
-        player.volume = Math.min(1, Math.max(0, volume));
+        player.volume = active.volume;
         player.playbackRate = 1;
+
+        // replace()와 play()는 네이티브 메인 큐에 따로 전달된다. seekTo()를
+        // 기다리면 새 소스 교체와 처음 위치 설정이 끝난 뒤 재생을 시작한다.
+        await player.seekTo(0);
+        if (runIdRef.current !== runId || activeRef.current !== active) return;
+
+        active.phase = "playing";
         player.play();
       } catch {
         if (runIdRef.current !== runId || activeRef.current !== active) return;
         activeRef.current = null;
+        releasePreloadedSource(active.source);
         setIsSpeaking(false);
         options?.onError?.();
       }
@@ -149,10 +188,13 @@ export function useSpeech() {
 
     if (playerStatus.error) {
       activeRef.current = null;
+      releasePreloadedSource(active.source);
       setIsSpeaking(false);
       active.options?.onError?.();
       return;
     }
+
+    if (active.phase !== "playing") return;
 
     if (!playerStatus.didJustFinish) {
       handledFinishRef.current = false;
@@ -161,6 +203,7 @@ export function useSpeech() {
     if (handledFinishRef.current) return;
     handledFinishRef.current = true;
     activeRef.current = null;
+    releasePreloadedSource(active.source);
     setIsSpeaking(false);
     active.options?.onDone?.();
   }, [playerStatus.didJustFinish, playerStatus.error]);

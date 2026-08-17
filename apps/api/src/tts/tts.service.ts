@@ -247,7 +247,7 @@ export class TtsService {
           'Content-Type': 'application/ssml+xml',
           'Ocp-Apim-Subscription-Key': this.getSubscriptionKey(),
           'User-Agent': 'Korio',
-          'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+          'X-Microsoft-OutputFormat': 'riff-24khz-16bit-mono-pcm',
         },
         body: this.buildSsml(text, language, rate, voice),
         signal: controller.signal,

@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  requestRecordingPermissionsAsync,
-  setAudioModeAsync,
-  useAudioStream,
-} from "expo-audio";
+import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
+import { activateRecordingAudio } from "@/utils/audio-session";
 import {
   TARGET_SAMPLE_RATE,
   concatInt16,
@@ -117,7 +114,7 @@ export function useSpeechRecorder({
     sourceRate.current = TARGET_SAMPLE_RATE;
 
     try {
-      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await activateRecordingAudio();
       active.current = true;
       await stream.start();
     } catch {
