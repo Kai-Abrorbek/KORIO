@@ -27,6 +27,8 @@ import {
 } from "@/mocks/speed-round.mock";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import { useHangulReporter } from "@/hooks/useHangulReporter";
+import { syllableToCharacterIds } from "@/utils/hangul-jamo";
 
 type GameState = "countdown" | "playing" | "ended";
 
@@ -57,6 +59,7 @@ export default function SpeedRoundGame({ onExit }: Props) {
   const [tappedIdx, setTappedIdx] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [floatPoints, setFloatPoints] = useState(0);
+  const { record, flush } = useHangulReporter("speed-round");
 
   // ── 애니메이션 SV ──
   const scoreScale = useSharedValue(1);
@@ -120,6 +123,7 @@ export default function SpeedRoundGame({ onExit }: Props) {
   const endGame = () => {
     setState("ended");
     setBestScore((b) => Math.max(b, score));
+    void flush();
   };
 
   // ── 답안 처리 ──
@@ -127,6 +131,11 @@ export default function SpeedRoundGame({ onExit }: Props) {
     if (state !== "playing" || feedback) return;
     setTappedIdx(idx);
     const correct = idx === currentQ.correctIndex;
+
+    // 음절 단위 문제라 그 음절을 이루는 초성/중성/(종성)에 같은 판정을 기록한다
+    syllableToCharacterIds(currentQ.syllable).forEach((id) =>
+      record(id, correct),
+    );
 
     if (correct) {
       const mult = comboMultiplier(combo);

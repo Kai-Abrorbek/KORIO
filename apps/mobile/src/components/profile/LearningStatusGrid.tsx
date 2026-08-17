@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { League } from "@/types/profile";
-import { LEAGUE_COLORS } from "@/mocks/profile.mock";
+import { TIER_COLORS } from "@/constants/league-tiers";
 import StatCell from "./StatCell";
 
 interface Props {
@@ -42,8 +42,8 @@ export default function LearningStatusGrid({
         <View style={styles.row}>
           <StatCell
             iconName="trophy"
-            iconColor={LEAGUE_COLORS[league]}
-            value={t(`profile.league.${league}`)}
+            iconColor={TIER_COLORS[league]}
+            value={t(`league.tiers.${league}`)}
           />
           <StatCell
             iconName="flash"

@@ -14,11 +14,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
+import { useSpeechRecorder } from "@/hooks/useSpeechRecorder";
+import { SttService } from "@/services/stt.service";
 import CheckButton from "../CheckButton";
 
 interface Props {
@@ -40,8 +42,8 @@ export default function TranslateType({
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const [input, setInput] = useState("");
-  const [recording, setRecording] = useState(false);
-  const recTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
+  const [voiceErrorKey, setVoiceErrorKey] = useState<string | null>(null);
 
   const locked = answerState !== "idle";
   const borderColor =
@@ -50,6 +52,39 @@ export default function TranslateType({
       : answerState === "wrong"
         ? "#FF4B4B"
         : theme.border;
+
+  // 여기선 발음 평가가 아니라 받아쓰기만 한다 — 인식 결과를 입력칸에 채워주고
+  // 채점은 기존 텍스트 비교 로직이 그대로 한다.
+  const { isRecording, start, stop } = useSpeechRecorder({
+    maxSeconds: 15,
+    onResult: async (wav) => {
+      setTranscribing(true);
+      try {
+        const res = await SttService.transcribe(wav);
+        if (res.status === "success" && res.text.trim()) {
+          setInput(res.text.trim());
+        } else {
+          setVoiceErrorKey("lesson.speaking.noSpeech");
+        }
+      } catch {
+        setVoiceErrorKey("lesson.speaking.checkFailed");
+      } finally {
+        setTranscribing(false);
+      }
+    },
+    onError: (code) =>
+      setVoiceErrorKey(
+        code === "unsupported"
+          ? "lesson.speaking.notSupportedHere"
+          : code === "permission"
+          ? "lesson.speaking.micDenied"
+          : code === "too_short"
+            ? "lesson.speaking.tooShort"
+            : "lesson.speaking.micFailed",
+      ),
+  });
+
+  const recording = isRecording;
 
   // 마이크 펄스
   const pulse = useSharedValue(1);
@@ -68,23 +103,14 @@ export default function TranslateType({
     transform: [{ scale: pulse.value }],
   }));
 
-  useEffect(() => {
-    recTimer.current && clearTimeout(recTimer.current);
-  }, []);
-
   const toggleVoice = () => {
-    if (locked) return;
+    if (locked || transcribing) return;
     if (recording) {
-      setRecording(false);
-      if (recTimer.current) clearTimeout(recTimer.current);
+      stop();
       return;
     }
-    setRecording(true);
-    // TODO: 실제 STT 연결 시 여기서 인식 결과를 setInput 으로 채우기
-    recTimer.current = setTimeout(() => {
-      setRecording(false);
-      setInput(question.answer); // mock: 일단 정답으로 채움 (Speaking mock과 동일)
-    }, 2200);
+    setVoiceErrorKey(null);
+    void start();
   };
 
   const check = () => {
@@ -142,9 +168,17 @@ export default function TranslateType({
             />
           </Animated.View>
           <Text style={[s.micText, recording && { color: "#fff" }]}>
-            {recording ? t("lesson.recording") : t("lesson.tapToSpeak")}
+            {recording
+              ? t("lesson.recording")
+              : transcribing
+                ? t("lesson.speaking.analyzing")
+                : t("lesson.tapToSpeak")}
           </Text>
         </TouchableOpacity>
+
+        {!!voiceErrorKey && !locked && (
+          <Text style={s.voiceError}>{t(voiceErrorKey)}</Text>
+        )}
 
         <CheckButton
           onPress={check}
@@ -223,5 +257,12 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       marginBottom: 12,
     },
     micBtnActive: { backgroundColor: MIC_BLUE, borderColor: MIC_BLUE },
+    voiceError: {
+      textAlign: "center",
+      fontSize: 12,
+      fontWeight: "700",
+      color: "#FF4B4B",
+      marginTop: 8,
+    },
     micText: { fontSize: 17, fontWeight: "800", color: MIC_BLUE },
   });

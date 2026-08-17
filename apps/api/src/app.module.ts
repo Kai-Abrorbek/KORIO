@@ -15,6 +15,8 @@ import { GrammarModule } from './grammer/grammar.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TopikModule } from './topik/topik.module';
+import { HangulModule } from './hangul/hangul.module';
+import { SpeechModule } from './speech/speech.module';
 import { TtsModule } from './tts/tts.module';
 
 @Module({
@@ -40,7 +42,9 @@ import { TtsModule } from './tts/tts.module';
     AiModule,
     GrammarModule,
     TopikModule,
+    HangulModule,
     TtsModule,
+    SpeechModule,
     NotificationsModule,
   ],
   controllers: [AppController],

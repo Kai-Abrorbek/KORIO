@@ -25,6 +25,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { HangulCharacter, MemoryCard as Card } from "@/types/hangul";
 import { useTheme } from "@/hooks/useTheme";
+import { useHangulReporter } from "@/hooks/useHangulReporter";
 import { ThemeColors } from "@/constants/theme";
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
@@ -317,6 +318,7 @@ export default function MemoryMatch({ characters, onExit }: Props) {
   const [processing, setProcessing] = useState(false);
   const [won, setWon] = useState(false);
   const [matchedTrigger, setMatchedTrigger] = useState(0);
+  const { record, flush } = useHangulReporter("memory-match");
 
   // 타이머
   useEffect(() => {
@@ -329,11 +331,12 @@ export default function MemoryMatch({ characters, onExit }: Props) {
   useEffect(() => {
     if (matches === PAIRS && !won) {
       setWon(true);
+      void flush();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
         () => {},
       );
     }
-  }, [matches, won]);
+  }, [matches, won, flush]);
 
   const handleCardPress = (id: string) => {
     if (processing || won) return;
@@ -359,7 +362,10 @@ export default function MemoryMatch({ characters, onExit }: Props) {
 
       setTimeout(() => {
         if (first && second && first.characterId === second.characterId) {
-          // 매치 성공!
+          // 매치 성공! = 한글↔로마자 대응을 안다는 신호라 정답으로 기록한다.
+          // 불일치는 기록하지 않는다 — 메모리 게임 특성상 "몰라서"가 아니라
+          // "위치를 아직 안 봐서" 틀리는 경우가 대부분이라 오답 처리하면 부당하다.
+          record(first.characterId, true);
           setCards((prev) =>
             prev.map((c) =>
               c.id === firstId || c.id === id ? { ...c, isMatched: true } : c,

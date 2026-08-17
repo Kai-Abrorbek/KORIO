@@ -16,6 +16,8 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
+import { useHangulReporter } from "@/hooks/useHangulReporter";
+import { jamoToCharacterId } from "@/utils/hangul-jamo";
 import { ThemeColors } from "@/constants/theme";
 import {
   generateTarget,
@@ -101,6 +103,7 @@ export default function JamoSlotGame({ onExit, onFinish }: Props) {
   const [maxCombo, setMaxCombo] = useState(0);
   const [lives, setLives] = useState(LIVES);
   const [gained, setGained] = useState(0);
+  const { record, flush } = useHangulReporter("jamo-slot");
 
   // 릴 3개분 오프셋 (칸 단위)
   const o0 = useSharedValue(0);
@@ -185,9 +188,10 @@ export default function JamoSlotGame({ onExit, onFinish }: Props) {
     (finalScore: number) => {
       setPhase("ended");
       offsets.forEach((o) => cancelAnimation(o));
+      void flush();
       onFinish?.(finalScore, Math.max(finalScore, 0));
     },
-    [offsets, onFinish],
+    [offsets, onFinish, flush],
   );
 
   // ── STOP ──
@@ -218,6 +222,10 @@ export default function JamoSlotGame({ onExit, onFinish }: Props) {
     });
 
     const isCorrect = landed === answers[idx];
+
+    // 릴 하나 = 자모 하나 판정이라 그대로 진행도로 보낸다
+    const targetJamoId = jamoToCharacterId(answers[idx]);
+    if (targetJamoId) record(targetJamoId, isCorrect);
 
     if (isCorrect) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

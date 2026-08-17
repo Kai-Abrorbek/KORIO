@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "@/utils/haptics";
@@ -19,6 +19,8 @@ import { scoreStroke, StrokeScore } from "@/utils/stroke-matching";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useHangulReporter } from "@/hooks/useHangulReporter";
+import { jamoToCharacterId } from "@/utils/hangul-jamo";
 import StrokeCanvas from "./StrokeCanvas";
 
 interface Props {
@@ -53,6 +55,10 @@ export default function HangulDrawingGame({ characters, onExit }: Props) {
   const [feedback, setFeedback] = useState<StrokeScore | null>(null);
   const [totalScore, setTotalScore] = useState(0);
   const [done, setDone] = useState(false);
+
+  const { record, flush } = useHangulReporter("hangul-drawing");
+  // 이 글자를 그리는 동안 획을 한 번이라도 망쳤는지 → 글자 완료 시 정/오답 판정에 쓴다
+  const failedCurrentChar = useRef(false);
 
   const character = characters[charIdx];
   const totalChars = characters.length;
@@ -124,6 +130,7 @@ export default function HangulDrawingGame({ characters, onExit }: Props) {
     ).catch(() => {});
 
     if (result.score === "fail") {
+      failedCurrentChar.current = true;
       setFeedback("fail");
       // 실패 시 같은 획 재시도 (advance 가 알아서 처리)
     } else {
@@ -145,11 +152,16 @@ export default function HangulDrawingGame({ characters, onExit }: Props) {
     if (strokeIdx + 1 < character.strokes.length) {
       setStrokeIdx(strokeIdx + 1);
     } else {
-      // 글자 완료
+      // 글자 완료 — 획을 한 번도 안 틀렸으면 정답, 한 번이라도 fail 났으면 오답
+      const characterId = jamoToCharacterId(character.char);
+      if (characterId) record(characterId, !failedCurrentChar.current);
+      failedCurrentChar.current = false;
+
       if (charIdx + 1 < totalChars) {
         setCharIdx(charIdx + 1);
       } else {
         setDone(true);
+        void flush();
       }
     }
   };

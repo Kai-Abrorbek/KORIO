@@ -99,6 +99,16 @@ const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: any) =>
     request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  /**
+   * 바이너리 그대로 POST (오디오 업로드용).
+   * base64 로 감싸면 33% 커져서 raw 로 보낸다 — RN 의 XHR 이 ArrayBuffer 바디를 지원한다.
+   */
+  postBinary: <T>(path: string, body: ArrayBuffer, contentType: string) =>
+    request<T>(path, {
+      method: "POST",
+      body: new Uint8Array(body) as any,
+      headers: { "Content-Type": contentType },
+    }),
   patch: <T>(path: string, body: any) =>
     request<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),

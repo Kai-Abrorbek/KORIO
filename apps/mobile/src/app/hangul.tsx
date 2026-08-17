@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -9,15 +9,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { HANGUL_CHARACTERS, MOCK_PROGRESS } from "@/mocks/hangul.mock";
-import {
-  HangulCategory,
-  HangulCharacter,
-  HangulProgress,
-} from "@/types/hangul";
+import { HANGUL_CHARACTERS } from "@/constants/hangul";
+import { HangulCategory, HangulCharacter } from "@/types/hangul";
 import AmbientParticles from "@/components/hangul/AmbientParticles";
 import MasteryCard from "@/components/hangul/MasteryCard";
 import CategoryTabs from "@/components/hangul/CategoryTabs";
@@ -27,6 +23,7 @@ import GameMenu from "@/components/hangul/games/GameMenu";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
+import { HangulMastery, HangulService } from "@/services/hangul.service";
 
 export default function HangulScreen() {
   const { t } = useTranslation();
@@ -38,7 +35,11 @@ export default function HangulScreen() {
   const [category, setCategory] = useState<HangulCategory>("consonant");
   const [selected, setSelected] = useState<HangulCharacter | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [progress] = useState<HangulProgress[]>(MOCK_PROGRESS);
+  const [masteryMap, setMasteryMap] = useState<Record<string, HangulMastery>>(
+    {},
+  );
+  const [learnedCount, setLearnedCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(HANGUL_CHARACTERS.length);
   const [finishing, setFinishing] = useState(false);
 
   const user = useAuthStore((s) => s.user);
@@ -59,17 +60,41 @@ export default function HangulScreen() {
     }
   };
 
+  // 게임 하고 돌아올 때마다 다시 읽어서 mastery 를 갱신한다.
+  // deps 를 비우려고 store 는 getState() 로 직접 읽는다 (user 바뀔 때마다 재요청 방지).
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      HangulService.getProgress()
+        .then((res) => {
+          if (!alive) return;
+          const map: Record<string, HangulMastery> = {};
+          res.progress.forEach((p) => {
+            map[p.characterId] = p.mastery;
+          });
+          setMasteryMap(map);
+          setLearnedCount(res.learnedCount);
+          setTotalCount(res.total || HANGUL_CHARACTERS.length);
+
+          // 게임 중에 40자를 다 채워 서버가 노드를 자동 완료했으면 store 도 맞춰준다
+          const store = useAuthStore.getState();
+          if (res.hangulCompletedAt && !store.user?.hangulCompletedAt) {
+            store.updateUser({ hangulCompletedAt: res.hangulCompletedAt });
+          }
+        })
+        .catch(() => {});
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
+
   const charactersByCategory = useMemo(
     () => HANGUL_CHARACTERS.filter((c) => c.category === category),
     [category],
   );
 
-  const learnedCount = progress.filter((p) => p.mastery >= 2).length;
-  const totalCount = HANGUL_CHARACTERS.length;
-
-  const getMastery = (id: string): 0 | 1 | 2 | 3 => {
-    return progress.find((p) => p.characterId === id)?.mastery ?? 0;
-  };
+  const getMastery = (id: string): HangulMastery => masteryMap[id] ?? 0;
 
   const openDetail = (character: HangulCharacter) => {
     setSelected(character);
@@ -102,8 +127,8 @@ export default function HangulScreen() {
         {/* 진행도 카드 */}
         <MasteryCard learned={learnedCount} total={totalCount} />
 
-        {/* 로드맵 첫 노드로 들어온 유저 — 다 익혔으면 노드를 닫고 돌아간다.
-            TODO: 한글 진행도가 서버에 쌓이면 자동 완료로 바꾸기 */}
+        {/* 40자를 다 익히면 서버가 알아서 노드를 닫는다.
+            이미 한글을 아는 유저가 게임을 다 돌지 않고 넘어갈 수 있게 수동 버튼도 남겨둔다. */}
         {needsHangulNode && (
           <TouchableOpacity
             style={styles.doneBtn}

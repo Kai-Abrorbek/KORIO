@@ -13,7 +13,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_CHEST_REWARD, CHEST_TITLES } from "@/mocks/chest-reward.mock";
+import { CHEST_TITLES } from "@/constants/chest";
 import { ChestPhase } from "@/types/chest-reward";
 import Chest, { ChestHandle } from "@/components/chest-reward/Chest";
 import TapDots from "@/components/chest-reward/TapDots";

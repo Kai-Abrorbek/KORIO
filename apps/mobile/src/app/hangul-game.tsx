@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { HANGUL_CHARACTERS } from "@/mocks/hangul.mock";
+import { HANGUL_CHARACTERS } from "@/constants/hangul";
 import { HangulCategory } from "@/types/hangul";
 import MemoryMatch from "@/components/hangul/games/MemoryMatch";
 import { useTheme } from "@/hooks/useTheme";

@@ -1,4 +1,7 @@
-import { HangulCharacter, HangulProgress } from "@/types/hangul";
+// 한글 자모 40자 (자음 19 + 모음 21) — 목업이 아니라 고정 콘텐츠다.
+// ⚠️ id 는 서버 진행도(hangul_progresses.characterId)의 키이므로 절대 바꾸지 마.
+//    변경하면 유저 진행도가 통째로 날아간다. 서버 목록: apps/api/src/hangul/hangul.constants.ts
+import { HangulCharacter } from "@/types/hangul";
 
 export const HANGUL_CHARACTERS: HangulCharacter[] = [
   // ─── 자음 14개 ───
@@ -424,15 +427,3 @@ export const HANGUL_CHARACTERS: HangulCharacter[] = [
 ];
 
 // 데모용 mastery 상태 (실제로는 백엔드/AsyncStorage에서)
-export const MOCK_PROGRESS: HangulProgress[] = [
-  { characterId: "c-giyeok", mastery: 3 },
-  { characterId: "c-nieun", mastery: 3 },
-  { characterId: "c-digeut", mastery: 2 },
-  { characterId: "c-rieul", mastery: 1 },
-  { characterId: "c-mieum", mastery: 2 },
-  { characterId: "c-bieup", mastery: 1 },
-  { characterId: "v-a", mastery: 3 },
-  { characterId: "v-ya", mastery: 2 },
-  { characterId: "v-eo", mastery: 1 },
-  { characterId: "v-o", mastery: 2 },
-];

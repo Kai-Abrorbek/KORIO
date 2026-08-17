@@ -15,6 +15,12 @@ import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSpeechRecorder } from "@/hooks/useSpeechRecorder";
+import {
+  AssessResult,
+  SttService,
+  wordToneOf,
+} from "@/services/stt.service";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LessonCharacter from "../LessonCharacter";
 
@@ -28,6 +34,30 @@ interface Props {
 
 const MIC_BLUE = "#1CB0F6";
 const MIC_BLUE_DARK = "#1899D6";
+const MAX_RECORD_SECONDS = 15;
+
+type Phase = "idle" | "recording" | "analyzing" | "done";
+
+// 단어 칩 색 — 초록(잘함) / 노랑(아쉬움) / 빨강(틀림)
+const TONE = {
+  good: { bg: "#D7FFB8", border: "#58CC02", text: "#3C8000" },
+  warn: { bg: "#FFF3C4", border: "#FFC800", text: "#8A6A00" },
+  bad: { bg: "#FFDFE0", border: "#FF4B4B", text: "#C02121" },
+} as const;
+
+// 발음 확인 중 도는 아이콘
+function AnalyzingSpinner() {
+  const spin = useSharedValue(0);
+  spin.value = withRepeat(withTiming(360, { duration: 900 }), -1, false);
+  const st = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${spin.value}deg` }],
+  }));
+  return (
+    <Animated.View style={st}>
+      <Ionicons name="sync" size={30} color="#fff" />
+    </Animated.View>
+  );
+}
 
 // 파형 막대 한 개
 function WaveBar({ index, active }: { index: number; active: boolean }) {
@@ -76,19 +106,80 @@ export default function Speaking({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
-  const [isRecording, setIsRecording] = useState(false);
   const { speak, isSpeaking } = useSpeech();
 
-  const startRecording = () => {
-    setIsRecording(true);
-    // 실제 STT 연결 전 mock: 3초 후 정답 처리
-    setTimeout(() => {
-      setIsRecording(false);
-      onAnswer(question.answer);
-    }, 3000);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [result, setResult] = useState<AssessResult | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+
+  // 채점이 끝나면(부모가 correct/wrong 표시) 마이크를 잠근다
+  const locked = answerState !== "idle";
+
+  const handleWav = async (wav: ArrayBuffer) => {
+    setPhase("analyzing");
+    try {
+      const res = await SttService.assess(question.id, wav);
+      if (res.status !== "success") {
+        // 말을 못 알아들은 건 오답이 아니다 — 채점하지 않고 다시 시도하게 둔다
+        setErrorKey("lesson.speaking.noSpeech");
+        setPhase("idle");
+        return;
+      }
+      setResult(res);
+      setPhase("done");
+      onAnswer(res.passed ? "all_correct" : "__speaking_low__");
+    } catch {
+      setErrorKey("lesson.speaking.checkFailed");
+      setPhase("idle");
+    }
   };
 
-  const stopRecording = () => setIsRecording(false);
+  const { start, stop } = useSpeechRecorder({
+    maxSeconds: MAX_RECORD_SECONDS,
+    onResult: handleWav,
+    onError: (code) => {
+      setPhase("idle");
+      setErrorKey(
+        code === "unsupported"
+          ? "lesson.speaking.notSupportedHere"
+          : code === "permission"
+          ? "lesson.speaking.micDenied"
+          : code === "too_short"
+            ? "lesson.speaking.tooShort"
+            : "lesson.speaking.micFailed",
+      );
+    },
+  });
+
+  const handleMicPress = async () => {
+    if (locked || phase === "analyzing") return;
+    if (phase === "recording") {
+      stop();
+      return;
+    }
+    setErrorKey(null);
+    setResult(null);
+    const started = await start();
+    if (started) setPhase("recording");
+  };
+
+  const scoreTone = (() => {
+    if (!result) return TONE.good;
+    if (result.passed) return TONE.good;
+    return result.scores.pron >= result.threshold.pron - 15
+      ? TONE.warn
+      : TONE.bad;
+  })();
+
+  const hintKey =
+    errorKey ??
+    (phase === "recording"
+      ? "lesson.speaking.listening"
+      : phase === "analyzing"
+        ? "lesson.speaking.analyzing"
+        : phase === "idle"
+          ? "lesson.speaking.tapToSpeak"
+          : null);
 
   return (
     <Animated.View entering={FadeIn.duration(150)} style={s.container}>
@@ -113,23 +204,88 @@ export default function Speaking({
           <View style={s.tailInner} />
         </View>
 
-        <LessonCharacter state={answerState} seed={question.id} height={230} />
+        <LessonCharacter
+          state={answerState}
+          seed={question.id}
+          height={result ? 140 : 230}
+        />
       </View>
 
       <View style={{ flex: 1 }} />
 
+      {/* 발음 결과 카드 */}
+      {result && (
+        <Animated.View entering={FadeIn.duration(220)} style={s.resultCard}>
+          <View style={s.resultHead}>
+            <Text style={[s.scoreValue, { color: scoreTone.border }]}>
+              {result.scores.pron}
+            </Text>
+            <Text style={s.scoreLabel}>{t("lesson.speaking.scoreLabel")}</Text>
+          </View>
+
+          {/* 단어별 점수 — 어디가 문제였는지 보여주는 게 핵심 */}
+          <View style={s.wordRow}>
+            {result.words.map((w, i) => {
+              const tone = TONE[wordToneOf(w)];
+              return (
+                <View
+                  key={`${w.word}-${i}`}
+                  style={[
+                    s.wordChip,
+                    { backgroundColor: tone.bg, borderBottomColor: tone.border },
+                  ]}
+                >
+                  <Text style={[s.wordChipText, { color: tone.text }]}>
+                    {w.word}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={s.metricRow}>
+            {(
+              [
+                ["lesson.speaking.accuracy", result.scores.accuracy],
+                ["lesson.speaking.fluency", result.scores.fluency],
+                ["lesson.speaking.completeness", result.scores.completeness],
+              ] as const
+            ).map(([key, value]) => (
+              <View key={key} style={s.metric}>
+                <Text style={s.metricValue}>{value}</Text>
+                <Text style={s.metricLabel}>{t(key)}</Text>
+              </View>
+            ))}
+          </View>
+
+          {!!result.transcript && result.transcript !== result.referenceText && (
+            <Text style={s.heard} numberOfLines={2}>
+              {t("lesson.speaking.heard")} · {result.transcript}
+            </Text>
+          )}
+        </Animated.View>
+      )}
+
+      {/* 상태 안내 */}
+      {!!hintKey && !locked && (
+        <Text style={[s.hint, errorKey ? s.hintError : null]}>{t(hintKey)}</Text>
+      )}
+
       {/* 가로 마이크 바 */}
       <TouchableOpacity
-        style={[s.micBar, isRecording && s.micBarActive]}
-        onPress={isRecording ? stopRecording : startRecording}
+        style={[s.micBar, locked && s.micBarLocked]}
+        onPress={handleMicPress}
+        disabled={locked || phase === "analyzing"}
         activeOpacity={0.9}
       >
-        {isRecording ? (
+        {phase === "recording" ? (
           <View style={s.waveRow}>
             {Array.from({ length: 11 }).map((_, i) => (
               <WaveBar key={i} index={i} active />
             ))}
           </View>
+        ) : phase === "analyzing" ? (
+          <AnalyzingSpinner />
         ) : (
           <Ionicons name="mic" size={32} color="#fff" />
         )}
@@ -210,6 +366,67 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       borderTopColor: theme.surface,
     },
 
+    // 발음 결과 카드
+    resultCard: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      borderWidth: 2,
+      borderColor: theme.border,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      marginBottom: 14,
+    },
+    resultHead: { flexDirection: "row", alignItems: "baseline", gap: 8 },
+    scoreValue: { fontSize: 34, fontWeight: "900", letterSpacing: -1 },
+    scoreLabel: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.textSecondary,
+    },
+    wordRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 6,
+      marginTop: 10,
+    },
+    wordChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 10,
+      borderBottomWidth: 3,
+    },
+    wordChipText: { fontSize: 15, fontWeight: "800" },
+    metricRow: {
+      flexDirection: "row",
+      marginTop: 12,
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+    metric: { flex: 1, alignItems: "center" },
+    metricValue: { fontSize: 16, fontWeight: "800", color: theme.text },
+    metricLabel: {
+      fontSize: 11,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    heard: {
+      marginTop: 10,
+      fontSize: 12,
+      fontWeight: "600",
+      color: theme.textSecondary,
+    },
+
+    hint: {
+      textAlign: "center",
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.textSecondary,
+      marginBottom: 10,
+    },
+    hintError: { color: "#FF4B4B" },
+
     // 가로 마이크 바
     micBar: {
       height: 60,
@@ -221,9 +438,9 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       borderBottomWidth: 4,
       borderBottomColor: MIC_BLUE_DARK,
       marginBottom: 12,
-      marginLeft: 105,
+      alignSelf: "center",
     },
-    micBarActive: { backgroundColor: MIC_BLUE },
+    micBarLocked: { opacity: 0.4 },
     waveRow: { flexDirection: "row", alignItems: "center", height: 36 },
 
     skipBtn: { alignItems: "center", paddingVertical: 14 },

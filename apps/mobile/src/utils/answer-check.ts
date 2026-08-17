@@ -56,8 +56,8 @@ export function gradeAnswer(answer: string, q: LessonQuestion): boolean {
     return answer === "all_correct";
   }
 
-  // STT 연결 전까지 발화는 항상 통과시킨다
-  if (q.type === "speaking") return true;
+  // 발음 평가는 서버가 한다 (Azure 점수 vs 섹션별 기준). 화면이 결과만 넘겨준다.
+  if (q.type === "speaking") return answer === "all_correct";
 
   // 지문 빈칸: 채운 단어를 순서대로 `|` 로 이어 받는다.
   // 시드는 blankAnswers 만 적으면 되고 answer 는 비워둬도 된다.

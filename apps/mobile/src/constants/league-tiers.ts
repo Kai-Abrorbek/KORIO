@@ -138,3 +138,8 @@ const LOCKED = {
   colorLight: "#E8ECEF",
 };
 export const LOCKED_TIER = LOCKED;
+
+/** 티어 키 → 메인 색. 아이콘 틴트처럼 색 하나만 필요할 때 쓴다. */
+export const TIER_COLORS = Object.fromEntries(
+  TIERS.map((t) => [t.key, t.color]),
+) as Record<TierKey, string>;

@@ -11,7 +11,6 @@ import { useRouter } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { SETTINGS_SECTIONS, APP_VERSION } from "@/mocks/settings.mock";
-import { MOCK_PROFILE } from "@/mocks/profile.mock";
 import { SettingsItem } from "@/types/settings";
 import SettingsUserCard from "@/components/settings/SettingsUserCard";
 import SettingsQuickActions from "@/components/settings/SettingsQuickActions";
