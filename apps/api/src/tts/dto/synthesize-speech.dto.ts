@@ -5,7 +5,9 @@ import {
   IsString,
   Length,
   Max,
+  MaxLength,
   Min,
+  Matches,
 } from 'class-validator';
 
 export class SynthesizeSpeechDto {
@@ -26,4 +28,10 @@ export class SynthesizeSpeechDto {
   @IsOptional()
   @IsIn(['female', 'male'])
   gender?: 'female' | 'male';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  @Matches(/^ko-KR-[A-Za-z0-9:._-]+$/)
+  voice?: string;
 }

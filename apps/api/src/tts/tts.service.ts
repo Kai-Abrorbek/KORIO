@@ -14,6 +14,7 @@ const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const CACHE_MAX_ENTRIES = 256;
 const CACHE_MAX_BYTES = 32 * 1024 * 1024;
 const AZURE_TIMEOUT_MS = 15_000;
+const VOICE_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
 interface CachedSpeech {
   audio: Buffer;
@@ -24,6 +25,27 @@ interface CachedSpeech {
 export interface PreparedSpeech {
   audioId: string;
   expiresAt: number;
+}
+
+export interface SpeechVoice {
+  shortName: string;
+  displayName: string;
+  localName: string;
+  gender: 'female' | 'male';
+  voiceType: string;
+  status: string;
+  styles: string[];
+}
+
+interface AzureVoiceResponse {
+  ShortName: string;
+  DisplayName?: string;
+  LocalName?: string;
+  Gender: 'Female' | 'Male';
+  Locale: string;
+  VoiceType?: string;
+  Status?: string;
+  StyleList?: string[];
 }
 
 const VOICES = {
@@ -38,8 +60,76 @@ export class TtsService {
   private readonly audioIdByCacheKey = new Map<string, string>();
   private readonly inFlight = new Map<string, Promise<Buffer>>();
   private cacheBytes = 0;
+  private voicesCache: { expiresAt: number; voices: SpeechVoice[] } | null =
+    null;
 
   constructor(private readonly configService: ConfigService) {}
+
+  async listKoreanVoices(): Promise<SpeechVoice[]> {
+    if (this.voicesCache && this.voicesCache.expiresAt > Date.now()) {
+      return this.voicesCache.voices;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), AZURE_TIMEOUT_MS);
+    try {
+      const response = await fetch(this.resolveVoiceListEndpoint(), {
+        headers: {
+          'Ocp-Apim-Subscription-Key': this.getSubscriptionKey(),
+        },
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        this.logger.error(
+          `Azure Speech voice list failed (${response.status})`,
+        );
+        throw new BadGatewayException('AZURE_SPEECH_VOICES_FAILED');
+      }
+
+      const payload: unknown = await response.json();
+      if (!Array.isArray(payload)) {
+        throw new BadGatewayException('AZURE_SPEECH_VOICES_INVALID');
+      }
+      const voices = payload
+        .filter(this.isAzureKoreanVoice)
+        .map<SpeechVoice>((voice) => ({
+          shortName: voice.ShortName,
+          displayName: voice.DisplayName ?? voice.ShortName,
+          localName: voice.LocalName ?? voice.DisplayName ?? voice.ShortName,
+          gender: voice.Gender === 'Male' ? 'male' : 'female',
+          voiceType: voice.VoiceType ?? '',
+          status: voice.Status ?? '',
+          styles: Array.isArray(voice.StyleList) ? voice.StyleList : [],
+        }))
+        .sort((a, b) => {
+          if (a.gender !== b.gender) return a.gender === 'female' ? -1 : 1;
+          return a.localName.localeCompare(b.localName, 'ko');
+        });
+      if (voices.length === 0) {
+        throw new BadGatewayException('AZURE_SPEECH_VOICES_EMPTY');
+      }
+
+      this.voicesCache = {
+        expiresAt: Date.now() + VOICE_CACHE_TTL_MS,
+        voices,
+      };
+      return voices;
+    } catch (error) {
+      if (
+        error instanceof BadGatewayException ||
+        error instanceof ServiceUnavailableException
+      ) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new ServiceUnavailableException('AZURE_SPEECH_TIMEOUT');
+      }
+      this.logger.error('Azure Speech voice list could not be loaded');
+      throw new BadGatewayException('AZURE_SPEECH_VOICES_FAILED');
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   async prepare(dto: SynthesizeSpeechDto): Promise<PreparedSpeech> {
     const text = dto.text.trim();
@@ -50,15 +140,16 @@ export class TtsService {
     const language = dto.language ?? 'ko-KR';
     const rate = Math.min(2, Math.max(0.25, dto.rate ?? 1));
     const gender = dto.gender ?? 'female';
+    const voice = dto.voice?.trim() || VOICES[gender];
     const cacheKey = createHash('sha256')
-      .update(JSON.stringify({ gender, language, rate, text }))
+      .update(JSON.stringify({ language, rate, text, voice }))
       .digest('hex');
     const cached = this.getByCacheKey(cacheKey);
     if (cached) return cached;
 
     let synthesis = this.inFlight.get(cacheKey);
     if (!synthesis) {
-      synthesis = this.synthesize(text, language, rate, gender);
+      synthesis = this.synthesize(text, language, rate, voice);
       this.inFlight.set(cacheKey, synthesis);
     }
 
@@ -144,15 +235,8 @@ export class TtsService {
     text: string,
     language: 'ko-KR',
     rate: number,
-    gender: keyof typeof VOICES,
+    voice: string,
   ): Promise<Buffer> {
-    const subscriptionKey = this.configService
-      .get<string>('AZURE_SPEECH_KEY')
-      ?.trim();
-    if (!subscriptionKey) {
-      throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
-    }
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), AZURE_TIMEOUT_MS);
 
@@ -161,11 +245,11 @@ export class TtsService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/ssml+xml',
-          'Ocp-Apim-Subscription-Key': subscriptionKey,
+          'Ocp-Apim-Subscription-Key': this.getSubscriptionKey(),
           'User-Agent': 'Korio',
           'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
         },
-        body: this.buildSsml(text, language, rate, VOICES[gender]),
+        body: this.buildSsml(text, language, rate, voice),
         signal: controller.signal,
       });
 
@@ -222,6 +306,61 @@ export class TtsService {
     throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
   }
 
+  private resolveVoiceListEndpoint(): string {
+    const region = this.configService
+      .get<string>('AZURE_SPEECH_REGION')
+      ?.trim();
+    const configuredEndpoint = this.configService
+      .get<string>('AZURE_SPEECH_ENDPOINT')
+      ?.trim();
+
+    if (configuredEndpoint) {
+      try {
+        const url = new URL(configuredEndpoint);
+        if (
+          url.hostname.endsWith('.api.cognitive.microsoft.com') ||
+          url.hostname.endsWith('.tts.speech.microsoft.com')
+        ) {
+          const endpointRegion = region ?? url.hostname.split('.')[0];
+          return `https://${endpointRegion}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
+        }
+        url.pathname = '/tts/cognitiveservices/voices/list';
+        url.search = '';
+        return url.toString().replace(/\/$/, '');
+      } catch {
+        throw new ServiceUnavailableException('AZURE_SPEECH_ENDPOINT_INVALID');
+      }
+    }
+
+    if (region) {
+      return `https://${region}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
+    }
+    throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
+  }
+
+  private getSubscriptionKey(): string {
+    const subscriptionKey = this.configService
+      .get<string>('AZURE_SPEECH_KEY')
+      ?.trim();
+    if (!subscriptionKey) {
+      throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
+    }
+    return subscriptionKey;
+  }
+
+  private isAzureKoreanVoice(
+    this: void,
+    value: unknown,
+  ): value is AzureVoiceResponse {
+    if (!value || typeof value !== 'object') return false;
+    const voice = value as Partial<AzureVoiceResponse>;
+    return (
+      voice.Locale === 'ko-KR' &&
+      typeof voice.ShortName === 'string' &&
+      (voice.Gender === 'Female' || voice.Gender === 'Male')
+    );
+  }
+
   private buildSsml(
     text: string,
     language: 'ko-KR',
@@ -232,7 +371,7 @@ export class TtsService {
     const rateValue = `${ratePercent >= 0 ? '+' : ''}${ratePercent}%`;
     return [
       `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${language}">`,
-      `<voice name="${voice}"><prosody rate="${rateValue}">`,
+      `<voice name="${this.escapeXml(voice)}"><prosody rate="${rateValue}">`,
       this.escapeXml(text),
       '</prosody></voice></speak>',
     ].join('');

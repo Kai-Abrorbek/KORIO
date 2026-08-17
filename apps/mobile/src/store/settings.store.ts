@@ -17,6 +17,7 @@ export type LearnMode =
   | "topik";
 
 export type TopikLevel = "1" | "2";
+export const DEFAULT_SPEECH_VOICE = "ko-KR-SunHiNeural";
 
 /**
  * "이어서 학습하기" 가 갈 곳이 확실한 모드만 여기 들어간다.
@@ -87,6 +88,8 @@ export interface SoundPrefs {
   keyVolume: number;
   /** TTS 재생 속도 (0.5 느리게 ~ 1.2 빠르게) */
   speechRate: number;
+  /** Azure Speech 한국어 음성 ShortName */
+  speechVoice: string;
   /** 문제가 나오면 알아서 읽어주기 */
   autoPlay: boolean;
   /** 탭할 때 진동 */
@@ -143,6 +146,7 @@ export const useSettingsStore = create<SettingsState>()(
         sfxVolume: 1,
         keyVolume: 1,
         speechRate: 0.9, // 학습용이라 기본을 살짝 느리게
+        speechVoice: DEFAULT_SPEECH_VOICE,
         autoPlay: true,
         keyHaptics: true,
         rewardHaptics: true,
@@ -183,6 +187,11 @@ export const useSettingsStore = create<SettingsState>()(
         // 급수는 "1"/"2" 둘뿐. 이상한 값이 저장돼 있으면 토픽 화면이 깨진다.
         if (state && state.topikLevel !== "1" && state.topikLevel !== "2") {
           state.topikLevel = "1";
+        }
+
+        // 이 설정이 생기기 전에 저장된 데이터에는 음성 이름이 없다.
+        if (state?.sound && !state.sound.speechVoice) {
+          state.sound.speechVoice = DEFAULT_SPEECH_VOICE;
         }
 
         // "무음으로 시작" 을 켜뒀으면 이번 실행은 소리 없이 연다

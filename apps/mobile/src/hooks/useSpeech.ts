@@ -6,17 +6,15 @@ import {
   useAudioPlayerStatus,
 } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  prepareAzureSpeechSource,
-  type SpeechGender,
-} from "@/services/speech.service";
-import { useSettingsStore } from "@/store/settings.store";
+import { TtsService, type SpeechGender } from "@/services/tts.service";
+import { DEFAULT_SPEECH_VOICE, useSettingsStore } from "@/store/settings.store";
 
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
 const SLOW_FACTOR = 0.55;
 
 export interface SpeechPlaybackOptions {
   gender?: SpeechGender;
+  voice?: string;
   rate?: number;
   volume?: number;
   respectSoundSettings?: boolean;
@@ -80,7 +78,7 @@ export function useSpeech() {
       setIsSpeaking(true);
 
       try {
-        const source = await prepareAzureSpeechSource({
+        const source = await TtsService.prepareSource({
           text: normalizedText,
           // 현재 Korio 학습 음성은 한국어다. 지원하지 않는 값은 한국어로 안전하게 통일한다.
           language: lang === "ko-KR" ? lang : "ko-KR",
@@ -93,6 +91,7 @@ export function useSpeech() {
             ),
           ),
           gender: options?.gender ?? "female",
+          voice: options?.voice ?? sound.speechVoice ?? DEFAULT_SPEECH_VOICE,
         });
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 

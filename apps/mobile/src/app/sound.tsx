@@ -14,10 +14,17 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useSettingsStore, SoundPrefs } from "@/store/settings.store";
+import {
+  DEFAULT_SPEECH_VOICE,
+  useSettingsStore,
+  type SoundPrefs,
+} from "@/store/settings.store";
 import { useSound } from "@/hooks/useSound";
 import { useSpeech } from "@/hooks/useSpeech";
 import { VolumeSlider } from "@/components/settings/VolumeSlider";
+import { VoicePickerModal } from "@/components/settings/VoicePickerModal";
+import { TtsService, type SpeechVoice } from "@/services/tts.service";
+import { useCallback, useMemo, useState } from "react";
 
 /** 미리듣기 문장 — 학습 콘텐츠라 번역 대상이 아니다 */
 const SAMPLE = "안녕하세요";
@@ -27,6 +34,7 @@ const DEFAULTS: SoundPrefs = {
   sfxVolume: 1,
   keyVolume: 1,
   speechRate: 0.9,
+  speechVoice: DEFAULT_SPEECH_VOICE,
   autoPlay: true,
   keyHaptics: true,
   rewardHaptics: true,
@@ -154,7 +162,61 @@ export default function SoundSettings() {
   const s = getStyles(theme);
   const { sound, setSound, muted, setMuted } = useSettingsStore();
   const { play } = useSound();
-  const { speak } = useSpeech();
+  const { speak, stop, isSpeaking } = useSpeech();
+  const [voicePickerVisible, setVoicePickerVisible] = useState(false);
+  const [voices, setVoices] = useState<SpeechVoice[]>([]);
+  const [voicesLoading, setVoicesLoading] = useState(false);
+  const [voiceLoadFailed, setVoiceLoadFailed] = useState(false);
+  const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
+
+  const loadVoices = useCallback(async () => {
+    setVoicesLoading(true);
+    setVoiceLoadFailed(false);
+    try {
+      setVoices(await TtsService.getKoreanVoices());
+    } catch {
+      setVoiceLoadFailed(true);
+    } finally {
+      setVoicesLoading(false);
+    }
+  }, []);
+
+  const selectedVoice = useMemo(
+    () => voices.find((voice) => voice.shortName === sound.speechVoice),
+    [sound.speechVoice, voices],
+  );
+  const selectedVoiceLabel =
+    selectedVoice?.localName ??
+    sound.speechVoice
+      .replace(/^ko-KR-/, "")
+      .replace(/Neural$/, "")
+      .split(":")[0];
+
+  const openVoicePicker = () => {
+    setVoicePickerVisible(true);
+    if (voices.length === 0 && !voicesLoading) void loadVoices();
+  };
+
+  const closeVoicePicker = () => {
+    stop();
+    setPreviewingVoice(null);
+    setVoicePickerVisible(false);
+  };
+
+  const previewVoice = (voice: SpeechVoice) => {
+    if (previewingVoice === voice.shortName && isSpeaking) {
+      stop();
+      setPreviewingVoice(null);
+      return;
+    }
+    speak(SAMPLE, "ko-KR", {
+      voice: voice.shortName,
+      onDone: () => setPreviewingVoice(null),
+      onError: () => setPreviewingVoice(null),
+      onStopped: () => setPreviewingVoice(null),
+    });
+    setPreviewingVoice(voice.shortName);
+  };
 
   const pct = (v: number) => `${Math.round(v * 100)}%`;
 
@@ -253,6 +315,27 @@ export default function SoundSettings() {
         {/* 음성 */}
         <Text style={s.sectionLabel}>{t("settings.sound.voiceSection")}</Text>
         <View style={s.card}>
+          <Pressable
+            style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]}
+            onPress={openVoicePicker}
+          >
+            <IconSq icon="people" color="#E85D97" bg="#FFE0EC" s={s} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.rowLabel}>{t("settings.sound.voice")}</Text>
+              <Text style={s.rowDesc}>{t("settings.sound.voiceDesc")}</Text>
+            </View>
+            <View style={s.voiceValue}>
+              <Text style={s.voiceValueText} numberOfLines={1}>
+                {selectedVoiceLabel}
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={theme.textSecondary}
+              />
+            </View>
+          </Pressable>
+          <View style={s.rowDivider} />
           <SliderRow
             icon="speedometer"
             color="#A78BFA"
@@ -359,6 +442,23 @@ export default function SoundSettings() {
           <Text style={s.resetText}>{t("settings.sound.reset")}</Text>
         </TouchableOpacity>
       </ScrollView>
+      <VoicePickerModal
+        visible={voicePickerVisible}
+        voices={voices}
+        selectedVoice={sound.speechVoice}
+        loading={voicesLoading}
+        loadFailed={voiceLoadFailed}
+        previewingVoice={previewingVoice}
+        isSpeaking={isSpeaking}
+        theme={theme}
+        onClose={closeVoicePicker}
+        onRetry={() => void loadVoices()}
+        onSelect={(voice) => {
+          Haptics.selectionAsync();
+          setSound({ speechVoice: voice.shortName });
+        }}
+        onPreview={previewVoice}
+      />
     </View>
   );
 }
@@ -411,6 +511,18 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.textSecondary,
       marginTop: 2,
       fontWeight: "500",
+    },
+    voiceValue: {
+      maxWidth: 110,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+    },
+    voiceValueText: {
+      flexShrink: 1,
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.primary,
     },
     rowDivider: { height: 1, backgroundColor: theme.border, marginLeft: 68 },
     sliderRow: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },

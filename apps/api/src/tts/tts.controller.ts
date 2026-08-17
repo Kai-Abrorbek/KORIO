@@ -16,6 +16,12 @@ import { TtsService } from './tts.service';
 export class TtsController {
   constructor(private readonly ttsService: TtsService) {}
 
+  @Get('voices')
+  @UseGuards(JwtAuthGuard)
+  getVoices() {
+    return this.ttsService.listKoreanVoices();
+  }
+
   @Post('speech')
   @UseGuards(JwtAuthGuard)
   prepare(@Body() dto: SynthesizeSpeechDto) {
