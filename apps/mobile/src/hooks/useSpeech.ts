@@ -1,13 +1,10 @@
 /* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
 /* eslint-disable react-hooks/set-state-in-effect -- playback status is external state. */
-import {
-  setAudioModeAsync,
-  useAudioPlayer,
-  useAudioPlayerStatus,
-} from "expo-audio";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TtsService, type SpeechGender } from "@/services/tts.service";
 import { DEFAULT_SPEECH_VOICE, useSettingsStore } from "@/store/settings.store";
+import { activatePlaybackAudio } from "@/utils/audio-session";
 
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
 const SLOW_FACTOR = 0.55;
@@ -29,7 +26,10 @@ interface ActiveSpeech {
 }
 
 export function useSpeech() {
-  const player = useAudioPlayer(null, { updateInterval: 100 });
+  const player = useAudioPlayer(null, {
+    updateInterval: 100,
+    keepAudioSessionActive: true,
+  });
   const playerStatus = useAudioPlayerStatus(player);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const runIdRef = useRef(0);
@@ -95,8 +95,12 @@ export function useSpeech() {
         });
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
+        await activatePlaybackAudio("doNotMix").catch(() => undefined);
+        if (runIdRef.current !== runId || activeRef.current !== active) return;
+
         handledFinishRef.current = false;
         player.replace(source);
+        player.muted = false;
         player.volume = Math.min(1, Math.max(0, volume));
         player.playbackRate = 1;
         player.play();
@@ -136,10 +140,7 @@ export function useSpeech() {
   const stop = useCallback(() => stopCurrent(true), [stopCurrent]);
 
   useEffect(() => {
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-      interruptionMode: "doNotMix",
-    }).catch(() => undefined);
+    void activatePlaybackAudio("doNotMix").catch(() => undefined);
   }, []);
 
   useEffect(() => {

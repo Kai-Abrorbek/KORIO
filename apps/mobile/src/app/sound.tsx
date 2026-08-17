@@ -191,6 +191,7 @@ export default function SoundSettings() {
       .replace(/^ko-KR-/, "")
       .replace(/Neural$/, "")
       .split(":")[0];
+  const audibleSpeechVolume = sound.speechVolume > 0 ? sound.speechVolume : 1;
 
   const openVoicePicker = () => {
     setVoicePickerVisible(true);
@@ -211,6 +212,8 @@ export default function SoundSettings() {
     }
     speak(SAMPLE, "ko-KR", {
       voice: voice.shortName,
+      volume: audibleSpeechVolume,
+      respectSoundSettings: false,
       onDone: () => setPreviewingVoice(null),
       onError: () => setPreviewingVoice(null),
       onStopped: () => setPreviewingVoice(null),
@@ -277,7 +280,13 @@ export default function SoundSettings() {
             badge={pct(sound.speechVolume)}
             value={sound.speechVolume}
             onChange={(v) => setSound({ speechVolume: v })}
-            onCommit={(v) => v > 0 && speak(SAMPLE)}
+            onCommit={(v) =>
+              v > 0 &&
+              speak(SAMPLE, "ko-KR", {
+                volume: v,
+                respectSoundSettings: false,
+              })
+            }
             theme={theme}
             s={s}
           />
@@ -290,7 +299,9 @@ export default function SoundSettings() {
             badge={pct(sound.sfxVolume)}
             value={sound.sfxVolume}
             onChange={(v) => setSound({ sfxVolume: v })}
-            onCommit={() => play("combo")}
+            onCommit={(v) =>
+              v > 0 && play("combo", { volume: v, respectSoundSettings: false })
+            }
             theme={theme}
             s={s}
           />
@@ -303,7 +314,9 @@ export default function SoundSettings() {
             badge={pct(sound.keyVolume)}
             value={sound.keyVolume}
             onChange={(v) => setSound({ keyVolume: v })}
-            onCommit={() => play("click")}
+            onCommit={(v) =>
+              v > 0 && play("click", { volume: v, respectSoundSettings: false })
+            }
             theme={theme}
             s={s}
           />
@@ -347,7 +360,13 @@ export default function SoundSettings() {
             max={1.2}
             step={0.05}
             onChange={(v) => setSound({ speechRate: v })}
-            onCommit={() => speak(SAMPLE)}
+            onCommit={(v) =>
+              speak(SAMPLE, "ko-KR", {
+                rate: v,
+                volume: audibleSpeechVolume,
+                respectSoundSettings: false,
+              })
+            }
             theme={theme}
             s={s}
           />
@@ -356,7 +375,10 @@ export default function SoundSettings() {
               style={({ pressed }) => [s.preview, pressed && s.previewPressed]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                speak(SAMPLE);
+                speak(SAMPLE, "ko-KR", {
+                  volume: audibleSpeechVolume,
+                  respectSoundSettings: false,
+                });
               }}
             >
               <Ionicons name="play" size={16} color={theme.primary} />

@@ -705,7 +705,7 @@ export default {
     sound: {
       muteNow: "지금 소리 끄기",
       muteNowDesc: "이번 실행 동안만 음소거해요",
-      mutedHint: "음소거 중이라 소리가 나지 않아요",
+      mutedHint: "음소거 중이에요. 설정 미리듣기는 재생돼요.",
       volumeSection: "볼륨",
       speech: "음성",
       sfx: "효과음",

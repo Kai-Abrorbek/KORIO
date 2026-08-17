@@ -712,7 +712,7 @@ export default {
     sound: {
       muteNow: "Ovozni o'chirish",
       muteNowDesc: "Faqat shu seans uchun ovozsiz",
-      mutedHint: "Ovoz o'chirilgan — hech narsa eshitilmaydi",
+      mutedHint: "Ovoz o'chirilgan, lekin sozlamadagi namunalar ijro etiladi.",
       volumeSection: "Ovoz balandligi",
       speech: "Nutq",
       sfx: "Effektlar",

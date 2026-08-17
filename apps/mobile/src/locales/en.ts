@@ -707,7 +707,7 @@ export default {
     sound: {
       muteNow: "Mute now",
       muteNowDesc: "Silent for this session only",
-      mutedHint: "Muted — you won't hear anything",
+      mutedHint: "Muted — setting previews still play.",
       volumeSection: "Volume",
       speech: "Speech",
       sfx: "Sound effects",
