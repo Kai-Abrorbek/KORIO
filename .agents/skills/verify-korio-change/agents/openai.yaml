@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Korio Change"
+  short_description: "Run focused Korio checks and review the resulting diff"
+  default_prompt: "Use $verify-korio-change to validate the current Korio changes and report evidence."
