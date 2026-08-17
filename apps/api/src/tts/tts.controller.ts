@@ -34,6 +34,13 @@ export class TtsController {
   @Header('Content-Type', 'audio/wav')
   @Header('Cache-Control', 'private, max-age=21600')
   getAudio(@Param('audioId') audioId: string) {
-    return new StreamableFile(this.ttsService.getAudio(audioId));
+    const audio = this.ttsService.getAudio(audioId);
+    // length 를 안 주면 응답이 Transfer-Encoding: chunked 로 나간다.
+    // 웹은 그래도 재생되지만 Android 의 오디오 프리로더는 길이를 모르면
+    // 전체를 메모리에 담지 못해 실패한다 (증상: 앱에서만 무음).
+    return new StreamableFile(audio, {
+      type: 'audio/wav',
+      length: audio.length,
+    });
   }
 }

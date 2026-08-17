@@ -294,7 +294,8 @@ export function useTopikListeningPlayback() {
         if (runIdRef.current !== run.id) return;
         try {
           audioPlayer.volume = run.volume;
-          audioPlayer.playbackRate = 1;
+          // expo-audio 56 Android 는 playbackRate 대입 시 던진다 (setter 미구현)
+          audioPlayer.setPlaybackRate(1);
           audioPlayer.replace(run.audioUrl);
           audioPlayer.play();
         } catch {

@@ -12,7 +12,9 @@ function configureAudioSession(
   configure: () => Promise<void>,
 ) {
   const update = audioSessionQueue.then(async () => {
-    if (activeMode === mode) return;
+    // 같은 모드라도 매번 적용한다. 네이티브 전역 세션은 녹음·다른 플레이어·
+    // 포커스 상실로 우리 모르게 바뀔 수 있는데, JS 캐시만 믿고 건너뛰면
+    // playsInSilentMode 가 false 인 채로 남아 play() 가 조용히 무시된다.
     await setIsAudioActiveAsync(true);
     await configure();
     activeMode = mode;

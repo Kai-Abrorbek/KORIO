@@ -117,13 +117,25 @@ export function useSpeech() {
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
         // 짧은 원격 음성은 네이티브 준비 중 세션 전환과 겹치면 첫 프레임이
-        // 유실될 수 있다. 전체 파일을 받은 뒤 메모리 소스로 재생한다.
-        if (Platform.OS !== "web") await preload(source);
-        if (runIdRef.current !== runId || activeRef.current !== active) {
-          releasePreloadedSource(source);
-          return;
+        // 유실될 수 있어 미리 받아둔다. 다만 이건 최적화일 뿐이라 실패해도
+        // 안 된다 — 예전엔 여기서 throw 되면 아래 catch 가 삼켜서 아무 소리도
+        // 안 나고 조용히 끝났다. 실패하면 ExoPlayer 가 URL 을 직접 받게 둔다.
+        if (Platform.OS !== "web") {
+          const preloaded = await preload(source).then(
+            () => true,
+            (error: unknown) => {
+              if (__DEV__) {
+                console.warn("[useSpeech] preload 실패 → URL 직접 재생", error);
+              }
+              return false;
+            },
+          );
+          if (runIdRef.current !== runId || activeRef.current !== active) {
+            if (preloaded) releasePreloadedSource(source);
+            return;
+          }
+          if (preloaded) active.source = source;
         }
-        active.source = source;
 
         await activatePlaybackAudio("doNotMix").catch(() => undefined);
         if (runIdRef.current !== runId || activeRef.current !== active) return;
@@ -133,16 +145,19 @@ export function useSpeech() {
         player.replace(source);
         player.muted = false;
         player.volume = active.volume;
-        player.playbackRate = 1;
+        // expo-audio 56 의 Android AudioPlayer 는 playbackRate 프로퍼티에
+        // setter 가 없다(Property 에 .set{} 미구현). 대입하면
+        // "Cannot assign to property 'playbackRate'" 로 던져서 재생이 통째로
+        // 죽는다. setPlaybackRate() 를 써야 한다.
+        player.setPlaybackRate(1);
 
-        // replace()와 play()는 네이티브 메인 큐에 따로 전달된다. seekTo()를
-        // 기다리면 새 소스 교체와 처음 위치 설정이 끝난 뒤 재생을 시작한다.
-        await player.seekTo(0);
-        if (runIdRef.current !== runId || activeRef.current !== active) return;
-
-        active.phase = "playing";
+        // replace() 직후엔 아직 로드 전이라 이 play() 가 무시될 수 있다.
+        // 그 경우 아래 상태 effect 가 isLoaded 시점에 한 번 더 건다.
         player.play();
-      } catch {
+      } catch (error) {
+        if (__DEV__) {
+          console.warn(`[useSpeech] 재생 실패 (phase=${active.phase})`, error);
+        }
         if (runIdRef.current !== runId || activeRef.current !== active) return;
         activeRef.current = null;
         releasePreloadedSource(active.source);
@@ -194,7 +209,14 @@ export function useSpeech() {
       return;
     }
 
-    if (active.phase !== "playing") return;
+    // 로드가 끝났는데 아직 안 울리면 여기서 재생을 건다.
+    // (replace() 직후의 play() 는 소스가 준비되기 전이라 무시될 수 있다)
+    if (active.phase === "loading") {
+      if (!playerStatus.isLoaded) return;
+      active.phase = "playing";
+      if (!playerStatus.playing) player.play();
+      return;
+    }
 
     if (!playerStatus.didJustFinish) {
       handledFinishRef.current = false;
@@ -206,7 +228,13 @@ export function useSpeech() {
     releasePreloadedSource(active.source);
     setIsSpeaking(false);
     active.options?.onDone?.();
-  }, [playerStatus.didJustFinish, playerStatus.error]);
+  }, [
+    playerStatus.didJustFinish,
+    playerStatus.error,
+    playerStatus.isLoaded,
+    playerStatus.playing,
+    player,
+  ]);
 
   useEffect(
     () => () => {
