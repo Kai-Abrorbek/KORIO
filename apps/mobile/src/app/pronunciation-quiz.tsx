@@ -4,8 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import * as Speech from "expo-speech";
-import { speakText } from "@/hooks/useSpeech";
+import { useSpeech } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -81,17 +80,14 @@ const toQuestion = (
   };
 };
 
-const speakEn = (w: string) => speakText(w);
-
-const speakWord = (w: string) => {
-  Speech.stop();
-  speakText(w);
-};
-
 export default function PronunciationQuiz() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { speak, stop } = useSpeech();
+  const secondSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const params = useLocalSearchParams<{
     level?: string;
@@ -131,16 +127,23 @@ export default function PronunciationQuiz() {
   }, []);
 
   const speakOptions = () => {
-    Speech.stop();
+    if (secondSpeechTimerRef.current) {
+      clearTimeout(secondSpeechTimerRef.current);
+      secondSpeechTimerRef.current = null;
+    }
+    stop();
     // HARD 는 정답 하나만. 두 개를 순서대로 들려주면 순서만 기억해도 풀린다
     if (isHard) {
-      speakText(target.word);
+      speak(target.word);
       return;
     }
     const [a, b] = q.options;
-    speakText(a.word, "ko-KR", {
+    speak(a.word, "ko-KR", {
       onDone: () => {
-        setTimeout(() => speakText(b.word), 450);
+        secondSpeechTimerRef.current = setTimeout(() => {
+          secondSpeechTimerRef.current = null;
+          speak(b.word);
+        }, 450);
       },
     });
   };
@@ -151,7 +154,11 @@ export default function PronunciationQuiz() {
     const t1 = setTimeout(() => speakOptions(), 600);
     return () => {
       clearTimeout(t1);
-      Speech.stop();
+      if (secondSpeechTimerRef.current) {
+        clearTimeout(secondSpeechTimerRef.current);
+        secondSpeechTimerRef.current = null;
+      }
+      stop();
     };
   }, [index]);
 
@@ -165,7 +172,7 @@ export default function PronunciationQuiz() {
       return n;
     });
     flip.value = withTiming(1, { duration: 480 }); // 고르면 앞면으로 뒤집기
-    if (correct) setTimeout(() => speakWord(target.word), 300);
+    if (correct) setTimeout(() => speak(target.word), 300);
   };
 
   const next = () => {
@@ -326,6 +333,7 @@ export default function PronunciationQuiz() {
             }
             disabled={selected !== null}
             onPress={() => pick(i)}
+            onSpeak={() => speak(opt.word)}
             practiceLabel={t("pronQuiz.practice")}
             hideJamo={isHard}
           />
@@ -391,6 +399,7 @@ function OptionCard({
   result,
   disabled,
   onPress,
+  onSpeak,
   practiceLabel,
   hideJamo,
 }: any) {
@@ -460,11 +469,7 @@ function OptionCard({
             frontStyle,
           ]}
         >
-          <Pressable
-            style={st.cardSpeaker}
-            onPress={() => speakEn(opt.word)}
-            hitSlop={8}
-          >
+          <Pressable style={st.cardSpeaker} onPress={onSpeak} hitSlop={8}>
             <Ionicons name="volume-medium" size={26} color={C.gray} />
           </Pressable>
           <Pressable style={st.cardInner} onPress={onPress} disabled={disabled}>

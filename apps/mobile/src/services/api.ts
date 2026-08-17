@@ -3,7 +3,7 @@ import { useErrorStore } from "@/store/error.store";
 
 const DEV_LAN_IP = process.env.EXPO_PUBLIC_DEV_LAN_IP ?? "localhost";
 
-const BASE_URL =
+export const BASE_URL =
   Platform.select({
     web: "http://localhost:3000",
     ios: `http://${DEV_LAN_IP}:3000`,

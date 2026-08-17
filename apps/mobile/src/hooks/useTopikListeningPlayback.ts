@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
 import {
   setAudioModeAsync,
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
-import * as Speech from "expo-speech";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSpeech } from "@/hooks/useSpeech";
 import { useSettingsStore } from "@/store/settings.store";
 import type { TopikAudioLine } from "@/types/topik";
 
@@ -52,20 +53,22 @@ interface NativePlaybackRun {
   fallbackAttempted: boolean;
 }
 
-function linePitch(speaker: string) {
-  return speaker.includes("여자") || speaker.includes("여성") ? 1.08 : 0.94;
+function lineGender(speaker: string) {
+  return speaker.includes("여자") || speaker.includes("여성")
+    ? "female"
+    : "male";
 }
 
 export function useTopikListeningPlayback() {
   const audioPlayer = useAudioPlayer(null, { updateInterval: 250 });
   const audioStatus = useAudioPlayerStatus(audioPlayer);
+  const { speak: speakAzure, stop: stopAzure } = useSpeech();
   const [status, setStatus] = useState<TopikListeningPlaybackStatus>("idle");
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const runIdRef = useRef(0);
   const activeRunRef = useRef<ResolvedPlaybackRun | null>(null);
   const nativeRunRef = useRef<NativePlaybackRun | null>(null);
   const speechActiveRef = useRef(false);
-  const speechReadyPromiseRef = useRef<Promise<void> | null>(null);
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handledNativeFinishRef = useRef(false);
 
@@ -73,18 +76,6 @@ export function useTopikListeningPlayback() {
     if (!pauseTimerRef.current) return;
     clearTimeout(pauseTimerRef.current);
     pauseTimerRef.current = null;
-  }, []);
-
-  const ensureSpeechReady = useCallback(() => {
-    if (!speechReadyPromiseRef.current) {
-      speechReadyPromiseRef.current = Speech.getAvailableVoicesAsync()
-        .then(() => undefined)
-        .catch((error: unknown) => {
-          speechReadyPromiseRef.current = null;
-          throw error;
-        });
-    }
-    return speechReadyPromiseRef.current;
   }, []);
 
   const finishRun = useCallback(
@@ -111,8 +102,8 @@ export function useTopikListeningPlayback() {
   const cancelPendingPlayback = useCallback(() => {
     const hasActiveSpeech = speechActiveRef.current;
     invalidateCurrentRun();
-    if (hasActiveSpeech) void Speech.stop().catch(() => undefined);
-  }, [invalidateCurrentRun]);
+    if (hasActiveSpeech) stopAzure();
+  }, [invalidateCurrentRun, stopAzure]);
 
   const stop = useCallback(() => {
     const hasActiveNativeAudio = nativeRunRef.current !== null;
@@ -154,12 +145,15 @@ export function useTopikListeningPlayback() {
         const line = segment.transcript[lineIndex];
         if (line) {
           speechActiveRef.current = true;
-          Speech.speak(line.text, {
-            language: "ko-KR",
+          speakAzure(line.text, "ko-KR", {
             rate: run.speechRate,
-            pitch: linePitch(line.speaker),
             volume: run.volume,
-            onDone: () => speakLine(repeatIndex, segmentIndex, lineIndex + 1),
+            gender: lineGender(line.speaker),
+            respectSoundSettings: false,
+            onDone: () => {
+              speechActiveRef.current = false;
+              speakLine(repeatIndex, segmentIndex, lineIndex + 1);
+            },
             onError: () => finishRun(run.id, "error"),
             onStopped: () => {
               if (runIdRef.current === run.id) finishRun(run.id, "idle");
@@ -197,13 +191,9 @@ export function useTopikListeningPlayback() {
         }
       };
 
-      void ensureSpeechReady()
-        .then(() => {
-          if (runIdRef.current === run.id) speakLine(0, 0, 0);
-        })
-        .catch(() => finishRun(run.id, "error"));
+      speakLine(0, 0, 0);
     },
-    [ensureSpeechReady, finishRun],
+    [finishRun, speakAzure],
   );
 
   const fallbackToSpeechOrFail = useCallback(
@@ -270,7 +260,7 @@ export function useTopikListeningPlayback() {
         volume <= 0 ||
         (!hasAudio && !hasSpeech)
       ) {
-        if (hasActiveSpeech) void Speech.stop().catch(() => undefined);
+        if (hasActiveSpeech) stopAzure();
         setStatus("unavailable");
         return false;
       }
@@ -290,13 +280,8 @@ export function useTopikListeningPlayback() {
       setStatus("playing");
 
       if (!run.audioUrl) {
-        if (hasActiveSpeech) {
-          void Speech.stop()
-            .catch(() => undefined)
-            .then(() => startSpeech(run));
-        } else {
-          startSpeech(run);
-        }
+        if (hasActiveSpeech) stopAzure();
+        startSpeech(run);
         return true;
       }
 
@@ -320,15 +305,18 @@ export function useTopikListeningPlayback() {
         }
       };
       if (hasActiveSpeech) {
-        void Speech.stop()
-          .catch(() => undefined)
-          .then(startNativePlayback);
-      } else {
-        startNativePlayback();
+        stopAzure();
       }
+      startNativePlayback();
       return true;
     },
-    [audioPlayer, fallbackToSpeechOrFail, invalidateCurrentRun, startSpeech],
+    [
+      audioPlayer,
+      fallbackToSpeechOrFail,
+      invalidateCurrentRun,
+      startSpeech,
+      stopAzure,
+    ],
   );
 
   useEffect(() => {

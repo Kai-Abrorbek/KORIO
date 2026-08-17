@@ -15,6 +15,7 @@ import { GrammarModule } from './grammer/grammar.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TopikModule } from './topik/topik.module';
+import { TtsModule } from './tts/tts.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TopikModule } from './topik/topik.module';
     AiModule,
     GrammarModule,
     TopikModule,
+    TtsModule,
     NotificationsModule,
   ],
   controllers: [AppController],

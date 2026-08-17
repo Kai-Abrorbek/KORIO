@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { speakText } from "@/hooks/useSpeech";
+import { useSpeech } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -61,6 +61,7 @@ export default function GrammarBuild({
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { speak } = useSpeech();
 
   // 문장 전체를 어절로 조립하므로 고정 앞뒤 문구는 없다
   const q = {
@@ -297,7 +298,7 @@ export default function GrammarBuild({
               colors={["#8f7ff0", "#7161e6"]}
               icon={<Ionicons name="volume-high" size={28} color="#fff" />}
               label={t("sentenceBuild.listenAgain")}
-              onPress={() => speakText(q.full)}
+              onPress={() => speak(q.full)}
             />
           </View>
         </View>
