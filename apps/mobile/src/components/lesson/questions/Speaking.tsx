@@ -207,11 +207,9 @@ export default function Speaking({
         <LessonCharacter
           state={answerState}
           seed={question.id}
-          height={result ? 140 : 230}
+          height={result ? 100 : 230}
         />
       </View>
-
-      <View style={{ flex: 1 }} />
 
       {/* 발음 결과 카드 */}
       {result && (
@@ -265,6 +263,9 @@ export default function Speaking({
           )}
         </Animated.View>
       )}
+
+
+      <View style={{ flex: 1 }} />
 
       {/* 상태 안내 */}
       {!!hintKey && !locked && (
@@ -374,6 +375,7 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       borderColor: theme.border,
       paddingVertical: 14,
       paddingHorizontal: 16,
+      marginTop: 14,
       marginBottom: 14,
     },
     resultHead: { flexDirection: "row", alignItems: "baseline", gap: 8 },

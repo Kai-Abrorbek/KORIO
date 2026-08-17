@@ -9,10 +9,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import {
-  Question,
-  QuestionDocument,
-} from '../lessons/schemas/question.schema';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
+import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
 import { Lesson, LessonDocument } from '../lessons/schemas/lesson.schema';
 import {
   AZURE_TIMEOUT_MS,
@@ -34,29 +34,24 @@ import {
   WordErrorType,
 } from './speech.types';
 
-/** Azure short-audio REST 응답 중 우리가 쓰는 부분만 */
-interface AzurePronunciation {
-  AccuracyScore?: number;
-  FluencyScore?: number;
-  CompletenessScore?: number;
-  PronScore?: number;
-  ProsodyScore?: number;
-  ErrorType?: string;
-}
-interface AzureWord {
+interface ResolvedWord {
   Word?: string;
-  PronunciationAssessment?: AzurePronunciation;
+  PronunciationAssessment?: { AccuracyScore?: number; ErrorType?: string };
 }
-interface AzureNBest {
-  Display?: string;
-  Lexical?: string;
-  PronunciationAssessment?: AzurePronunciation;
-  Words?: AzureWord[];
+
+interface RecognizeOutcome {
+  status: SpeechStatus;
+  text: string;
+  /** 참조 문장을 준 경우에만 채워진다 */
+  scores: SpeechScores | null;
+  words: ResolvedWord[];
+  /** 취소된 경우 사유 (로그용) */
+  cancelReason?: string;
 }
-interface AzureSttResponse {
-  RecognitionStatus?: string;
-  DisplayText?: string;
-  NBest?: AzureNBest[];
+
+interface ResultItem {
+  characterId: string;
+  correct: boolean;
 }
 
 @Injectable()
@@ -84,50 +79,51 @@ export class SpeechService {
 
     const { referenceText, section } = await this.resolveQuestion(questionId);
     const threshold = thresholdForSection(section);
+    const stats = this.audioStats(wav);
 
-    const params = {
-      ReferenceText: referenceText,
-      GradingSystem: 'HundredMark',
-      Granularity: 'Word',
-      Dimension: 'Comprehensive',
-      EnableProsodyAssessment: 'True',
-    };
-    const body = await this.callAzure(wav, {
-      'Pronunciation-Assessment': Buffer.from(
-        JSON.stringify(params),
-        'utf8',
-      ).toString('base64'),
-    });
-
-    const status = this.mapStatus(body.RecognitionStatus);
-    const best = body.NBest?.[0];
-    const pa = best?.PronunciationAssessment ?? {};
-
-    const scores: SpeechScores = {
-      pron: this.num(pa.PronScore),
-      accuracy: this.num(pa.AccuracyScore),
-      fluency: this.num(pa.FluencyScore),
-      completeness: this.num(pa.CompletenessScore),
-      prosody:
-        typeof pa.ProsodyScore === 'number' ? Math.round(pa.ProsodyScore) : null,
+    const outcome = await this.recognize(wav, referenceText);
+    const scores: SpeechScores = outcome.scores ?? {
+      pron: 0,
+      accuracy: 0,
+      fluency: 0,
+      completeness: 0,
+      prosody: null,
     };
 
-    const words: AssessedWord[] = (best?.Words ?? []).map((w) => ({
+    const words: AssessedWord[] = outcome.words.map((w) => ({
       word: w.Word ?? '',
       accuracy: this.num(w.PronunciationAssessment?.AccuracyScore),
       errorType: (w.PronunciationAssessment?.ErrorType ??
         'None') as WordErrorType,
     }));
 
+    const summary =
+      `audio=${stats.seconds}s peak=${stats.peakPct}% rms=${stats.rms} ` +
+      `ref="${referenceText}" heard="${outcome.text}" ` +
+      `pron=${scores.pron} acc=${scores.accuracy} comp=${scores.completeness}`;
+
+    if (outcome.status !== 'success' || scores.pron === 0) {
+      // 점수가 0 이면 원인이 오디오인지 Azure 응답인지 봐야 한다.
+      // peak 이 5% 미만이면 사실상 무음 → 녹음 쪽 문제.
+      const dumped = this.dumpAudio(wav);
+      this.logger.warn(
+        `발음 평가 이상: status=${outcome.status} ${summary}` +
+          `${outcome.cancelReason ? ` cancel=${outcome.cancelReason}` : ''}\n` +
+          `녹음파일=${dumped}`,
+      );
+    } else {
+      this.logger.log(`발음 평가: ${summary}`);
+    }
+
     const passed =
-      status === 'success' &&
+      outcome.status === 'success' &&
       scores.pron >= threshold.pron &&
       scores.completeness >= threshold.completeness;
 
     return {
-      status,
+      status: outcome.status,
       passed,
-      transcript: body.DisplayText ?? best?.Display ?? '',
+      transcript: outcome.text,
       referenceText,
       scores,
       words,
@@ -144,11 +140,175 @@ export class SpeechService {
     this.consumeRateLimit(userId);
     this.validateWav(wav);
 
-    const body = await this.callAzure(wav);
+    const stats = this.audioStats(wav);
+    const outcome = await this.recognize(wav);
+    this.logger.log(
+      `받아쓰기: audio=${stats.seconds}s peak=${stats.peakPct}% ` +
+        `rms=${stats.rms} text="${outcome.text}"`,
+    );
+
+    return { status: outcome.status, text: outcome.text };
+  }
+
+  // ── Azure ─────────────────────────────────────────────
+
+  /**
+   * Speech SDK 로 인식한다.
+   *
+   * short-audio REST 로도 같은 일을 할 수 있어야 하는데, 이 리소스에서는
+   * Pronunciation-Assessment 헤더를 받아 base64 파싱까지 하면서도
+   * (패딩을 깨면 400 이 난다) 응답에 PronunciationAssessment 블록을 넣어주지
+   * 않는다. 같은 오디오·같은 키·같은 리전으로 SDK 는 정상 동작하므로
+   * SDK 를 쓴다. scripts/azure-pa-matrix.mjs 로 재현 가능.
+   */
+  private recognize(
+    wav: Buffer,
+    referenceText?: string,
+  ): Promise<RecognizeOutcome> {
+    const speechConfig = this.buildSpeechConfig();
+    const audioConfig = sdk.AudioConfig.fromWavFileInput(wav);
+    const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
+
+    if (referenceText) {
+      const paConfig = new sdk.PronunciationAssessmentConfig(
+        referenceText,
+        sdk.PronunciationAssessmentGradingSystem.HundredMark,
+        sdk.PronunciationAssessmentGranularity.Word,
+        // enableMiscue: 참조에 없는 말을 삽입/누락으로 잡을지. 학습자 발화에는
+        // 과하게 엄격해서 끈다 (completeness 로 이미 누락을 본다).
+        false,
+      );
+      paConfig.applyTo(recognizer);
+    }
+
+    return new Promise<RecognizeOutcome>((resolve, reject) => {
+      let settled = false;
+      const done = (fn: () => void) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try {
+          recognizer.close();
+        } catch {
+          // 이미 닫힘
+        }
+        try {
+          speechConfig.close();
+        } catch {
+          // 이미 닫힘
+        }
+        fn();
+      };
+
+      const timer = setTimeout(
+        () =>
+          done(() =>
+            reject(new ServiceUnavailableException('AZURE_SPEECH_TIMEOUT')),
+          ),
+        AZURE_TIMEOUT_MS,
+      );
+
+      recognizer.recognizeOnceAsync(
+        (result) => {
+          // close() 이전에 필요한 값을 전부 꺼내둔다
+          let outcome: RecognizeOutcome;
+          try {
+            outcome = this.mapResult(result, !!referenceText);
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : String(error);
+            done(() => reject(new BadGatewayException('AZURE_SPEECH_FAILED')));
+            this.logger.error(`인식 결과 해석 실패: ${message}`);
+            return;
+          }
+          done(() => resolve(outcome));
+        },
+        (error) => {
+          this.logger.error(`Azure STT 실패: ${error}`);
+          done(() => reject(new BadGatewayException('AZURE_SPEECH_FAILED')));
+        },
+      );
+    });
+  }
+
+  private mapResult(
+    result: sdk.SpeechRecognitionResult,
+    withAssessment: boolean,
+  ): RecognizeOutcome {
+    if (result.reason === sdk.ResultReason.NoMatch) {
+      return { status: 'no_speech', text: '', scores: null, words: [] };
+    }
+
+    if (result.reason === sdk.ResultReason.Canceled) {
+      const details = sdk.CancellationDetails.fromResult(result);
+      return {
+        status: 'error',
+        text: '',
+        scores: null,
+        words: [],
+        cancelReason: `${sdk.CancellationReason[details.reason]} ${details.errorDetails ?? ''}`.trim(),
+      };
+    }
+
+    if (result.reason !== sdk.ResultReason.RecognizedSpeech) {
+      return { status: 'error', text: result.text ?? '', scores: null, words: [] };
+    }
+
+    if (!withAssessment) {
+      return {
+        status: 'success',
+        text: result.text ?? '',
+        scores: null,
+        words: [],
+      };
+    }
+
+    const pa = sdk.PronunciationAssessmentResult.fromResult(result);
+    const detail = pa.detailResult as unknown as { Words?: ResolvedWord[] };
+
     return {
-      status: this.mapStatus(body.RecognitionStatus),
-      text: body.DisplayText ?? body.NBest?.[0]?.Display ?? '',
+      status: 'success',
+      text: result.text ?? '',
+      scores: {
+        pron: this.num(pa.pronunciationScore),
+        accuracy: this.num(pa.accuracyScore),
+        fluency: this.num(pa.fluencyScore),
+        completeness: this.num(pa.completenessScore),
+        // 운율 평가는 ko-KR 미지원이라 보통 비어 있다
+        prosody: Number.isFinite(pa.prosodyScore)
+          ? Math.round(pa.prosodyScore)
+          : null,
+      },
+      words: detail?.Words ?? [],
     };
+  }
+
+  private buildSpeechConfig(): sdk.SpeechConfig {
+    const key = this.configService.get<string>('AZURE_SPEECH_KEY')?.trim();
+    const region = this.configService.get<string>('AZURE_SPEECH_REGION')?.trim();
+    const endpoint = this.configService
+      .get<string>('AZURE_SPEECH_ENDPOINT')
+      ?.trim();
+
+    if (!key) {
+      throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
+    }
+
+    let config: sdk.SpeechConfig;
+    if (region) {
+      config = sdk.SpeechConfig.fromSubscription(key, region);
+    } else if (endpoint) {
+      try {
+        config = sdk.SpeechConfig.fromEndpoint(new URL(endpoint), key);
+      } catch {
+        throw new ServiceUnavailableException('AZURE_SPEECH_ENDPOINT_INVALID');
+      }
+    } else {
+      throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
+    }
+
+    config.speechRecognitionLanguage = SPEECH_LANGUAGE;
+    return config;
   }
 
   // ── 내부 ──────────────────────────────────────────────
@@ -218,100 +378,49 @@ export class SpeechService {
     }
   }
 
-  private async callAzure(
-    wav: Buffer,
-    extraHeaders: Record<string, string> = {},
-  ): Promise<AzureSttResponse> {
-    const subscriptionKey = this.configService
-      .get<string>('AZURE_SPEECH_KEY')
-      ?.trim();
-    if (!subscriptionKey) {
-      throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
-    }
-
-    const url = `${this.resolveEndpoint()}?language=${SPEECH_LANGUAGE}&format=detailed`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), AZURE_TIMEOUT_MS);
-
+  /** 0 점이 났을 때 실제 녹음을 파일로 남긴다. 들어보면 원인이 바로 잡힌다. */
+  private dumpAudio(wav: Buffer): string {
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': `audio/wav; codecs=audio/pcm; samplerate=${SPEECH_SAMPLE_RATE}`,
-          'Ocp-Apim-Subscription-Key': subscriptionKey,
-          'User-Agent': 'Korio',
-          ...extraHeaders,
-        },
-        body: new Uint8Array(wav),
-        signal: controller.signal,
-      });
+      const dir = path.resolve(process.cwd(), '.speech-debug');
+      fs.mkdirSync(dir, { recursive: true });
+      const file = path.join(dir, `${Date.now()}.wav`);
+      fs.writeFileSync(file, wav);
 
-      if (!response.ok) {
-        this.logger.error(`Azure STT failed (${response.status})`);
-        throw new BadGatewayException('AZURE_SPEECH_FAILED');
+      // 최근 20개만 남긴다
+      const files = fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith('.wav'))
+        .sort();
+      for (const old of files.slice(0, Math.max(0, files.length - 20))) {
+        fs.unlinkSync(path.join(dir, old));
       }
-
-      return (await response.json()) as AzureSttResponse;
-    } catch (error) {
-      if (
-        error instanceof BadGatewayException ||
-        error instanceof ServiceUnavailableException
-      ) {
-        throw error;
-      }
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new ServiceUnavailableException('AZURE_SPEECH_TIMEOUT');
-      }
-      this.logger.error('Azure STT request could not be completed');
-      throw new BadGatewayException('AZURE_SPEECH_FAILED');
-    } finally {
-      clearTimeout(timeout);
+      return file;
+    } catch {
+      return '(저장 실패)';
     }
   }
 
-  /** TTS 와 같은 env 를 쓰되 호스트만 stt 로 바꾼다 */
-  private resolveEndpoint(): string {
-    const region = this.configService
-      .get<string>('AZURE_SPEECH_REGION')
-      ?.trim();
-    const configured = this.configService
-      .get<string>('AZURE_SPEECH_ENDPOINT')
-      ?.trim();
-    const path = '/speech/recognition/conversation/cognitiveservices/v1';
-
-    if (configured) {
-      try {
-        const url = new URL(configured);
-        if (url.pathname.includes('/cognitiveservices/v1')) {
-          return url.toString().replace(/\/$/, '');
-        }
-        // 커스텀 도메인(*.api.cognitive.microsoft.com)은 STT 를 못 받으므로 지역 호스트로 간다
-        if (url.hostname.endsWith('.api.cognitive.microsoft.com') && region) {
-          return `https://${region}.stt.speech.microsoft.com${path}`;
-        }
-        url.pathname = `${url.pathname.replace(/\/$/, '')}/stt${path}`;
-        return url.toString().replace(/\/$/, '');
-      } catch {
-        throw new ServiceUnavailableException('AZURE_SPEECH_ENDPOINT_INVALID');
-      }
+  /**
+   * WAV PCM 파형 통계. 0 점이 나왔을 때 "마이크가 무음을 녹음했나"와
+   * "Azure 가 못 알아들었나"를 구분하는 유일한 방법이다.
+   */
+  private audioStats(wav: Buffer) {
+    let peak = 0;
+    let sumSquares = 0;
+    let count = 0;
+    for (let i = 44; i + 1 < wav.length; i += 2) {
+      const v = wav.readInt16LE(i);
+      const abs = v < 0 ? -v : v;
+      if (abs > peak) peak = abs;
+      sumSquares += v * v;
+      count++;
     }
-
-    if (region) return `https://${region}.stt.speech.microsoft.com${path}`;
-    throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
-  }
-
-  private mapStatus(recognitionStatus?: string): SpeechStatus {
-    switch (recognitionStatus) {
-      case 'Success':
-        return 'success';
-      case 'NoMatch':
-      case 'InitialSilenceTimeout':
-      case 'BabbleTimeout':
-        return 'no_speech';
-      default:
-        return 'error';
-    }
+    return {
+      seconds: (count / SPEECH_SAMPLE_RATE).toFixed(2),
+      peak,
+      peakPct: Math.round((peak / 32767) * 100),
+      rms: count ? Math.round(Math.sqrt(sumSquares / count)) : 0,
+    };
   }
 
   private num(value?: number): number {
