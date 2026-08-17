@@ -7,10 +7,13 @@ import {
   Body,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/enums/role.enum';
 import { LeagueService } from './league.service';
 
 @Controller('league')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class LeagueController {
   constructor(private readonly service: LeagueService) {}
 
@@ -24,10 +27,12 @@ export class LeagueController {
     return this.service.getTiers();
   }
 
-  // 임시 수동 정산 (테스트용 — 나중에 cron으로 대체/보호)
+  // 수동 정산 (관리자 전용). 평시엔 매주 월 00:05 KST cron 이 자동으로 돈다.
+  // weekKey 를 주면 특정 주를 다시 정산 (예: "2026-W33")
+  @Roles(UserRole.ADMIN)
   @Post('settle')
-  settle() {
-    return this.service.settleWeek();
+  settle(@Body() body: { weekKey?: string }) {
+    return this.service.settleWeek(body?.weekKey);
   }
 
   @Post('snapshot-rank')

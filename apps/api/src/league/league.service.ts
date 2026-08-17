@@ -59,7 +59,9 @@ export class LeagueService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  @Cron('0 0 * * 1', { timeZone: 'UTC' })
+  // 주 경계(월 00:00 KST) 직후에 정산. weekRange/getWeekKey 가 서버 로컬(KST)
+  // 기준이라 cron 도 KST 로 맞춰야 어긋나지 않는다.
+  @Cron('5 0 * * 1', { timeZone: 'Asia/Seoul' })
   async handleWeeklySettlement() {
     console.log('🏆 주간 리그 자동 정산 시작...');
     const result = await this.settleWeek(); // 지난주 방들
@@ -90,11 +92,32 @@ export class LeagueService {
     return { start, end };
   }
 
-  // 주간 XP 집계 (UserStats)
+  // ISO 주차 키("2026-W33") -> 그 주 월요일 0시 ~ 다음 월요일 0시 (getWeekKey 역함수)
+  // ISO 규칙상 1월 4일은 항상 그 해 1주차에 속한다.
+  private weekRangeFromKey(weekKey: string) {
+    const [yStr, wStr] = (weekKey ?? '').split('-W');
+    const year = Number(yStr);
+    const week = Number(wStr);
+    if (!year || !week) return this.weekRange();
+
+    const jan4 = new Date(year, 0, 4);
+    const jan4Day = jan4.getDay() || 7; // 월=1 … 일=7
+    const week1Monday = new Date(year, 0, 4 - (jan4Day - 1));
+    week1Monday.setHours(0, 0, 0, 0);
+
+    const start = new Date(week1Monday);
+    start.setDate(start.getDate() + (week - 1) * 7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return { start, end };
+  }
+
+  // 주간 XP 집계 (UserStats) — range 미지정 시 이번 주
   private async getWeeklyXp(
     userIds: Types.ObjectId[],
+    range?: { start: Date; end: Date },
   ): Promise<Map<string, number>> {
-    const { start, end } = this.weekRange();
+    const { start, end } = range ?? this.weekRange();
     const rows = await this.statsModel.aggregate([
       { $match: { userId: { $in: userIds }, date: { $gte: start, $lt: end } } },
       { $group: { _id: '$userId', xp: { $sum: '$xpEarned' } } },
@@ -230,12 +253,15 @@ export class LeagueService {
   async settleWeek(targetWeekKey?: string) {
     const weekKey =
       targetWeekKey ?? this.getWeekKey(new Date(Date.now() - 7 * 86400000));
+    // 정산 대상 주의 XP 창. 이걸 안 넘기면 getWeeklyXp 가 "이번 주"를 보게 되는데
+    // 정산 시점(월 00:05)엔 전원 0 XP 라 순위가 방 입장순으로 뒤섞인다.
+    const range = this.weekRangeFromKey(weekKey);
     const rooms = await this.roomModel.find({ weekKey, settled: false });
 
     for (const room of rooms) {
       const cfg = TIER_CONFIG[room.tier] ?? TIER_CONFIG[UserLeague.BRONZE];
       const tierIdx = TIER_ORDER.indexOf(room.tier);
-      const xpMap = await this.getWeeklyXp(room.members);
+      const xpMap = await this.getWeeklyXp(room.members, range);
       const ranked = [...room.members].sort(
         (a, b) =>
           (xpMap.get(b.toString()) ?? 0) - (xpMap.get(a.toString()) ?? 0),
