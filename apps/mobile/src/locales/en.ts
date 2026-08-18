@@ -1152,7 +1152,7 @@ export default {
       "Too many mistakes. Build your skills by completing earlier lessons!",
     continue: "Continue",
     introRule:
-      "To pass this challenge, finish with fewer than 5 mistakes. Good luck!",
+      "To pass this challenge, finish with fewer than {{count}} mistakes. Good luck!",
     introContinue: "Continue",
     startTitle: "Jump to Unit {{unit}} and prove your skills!",
     startBtn: "Start test",

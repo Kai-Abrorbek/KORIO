@@ -14,10 +14,12 @@ export default function JumpIntroScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
-  const { section, unit } = useLocalSearchParams<{
+  const { section, unit, target } = useLocalSearchParams<{
     section?: string;
     unit?: string;
+    target?: string;
   }>();
+  const maxHearts = target === "section" || Number(section) >= 2 ? 3 : 5;
 
   const start = () => {
     router.replace({
@@ -26,6 +28,7 @@ export default function JumpIntroScreen() {
         mode: "jumpTest",
         section: String(section),
         unit: String(unit),
+        target: String(target ?? ""),
       },
     });
   };
@@ -37,13 +40,13 @@ export default function JumpIntroScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 8 }]}>
-      {/* 상단: X + 하트 5개 */}
+      {/* 상단: X + 점프 종류별 기회 */}
       <View style={s.header}>
         <TouchableOpacity onPress={close} hitSlop={12}>
           <Ionicons name="close" size={30} color={theme.textSecondary} />
         </TouchableOpacity>
         <View style={s.heartsRow}>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: maxHearts }).map((_, i) => (
             <Ionicons
               key={i}
               name="heart"
@@ -60,7 +63,9 @@ export default function JumpIntroScreen() {
         <Animated.View entering={FadeIn.duration(300)} style={s.mascotRow}>
           <HaneulmonMascot size={130} mood="confident" />
           <View style={s.bubble}>
-            <Text style={s.bubbleText}>{t("jump.introRule")}</Text>
+            <Text style={s.bubbleText}>
+              {t("jump.introRule", { count: maxHearts })}
+            </Text>
             <View style={s.bubbleTail} />
           </View>
         </Animated.View>

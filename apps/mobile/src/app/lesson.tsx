@@ -82,13 +82,14 @@ export default function LessonScreen() {
   const questionAreaStyle = useAnimatedStyle(() => ({
     paddingBottom: Math.max(keyboard.height.value, insets.bottom),
   }));
-  const { lessonId, mode, nodeId, section, unit, category } =
+  const { lessonId, mode, nodeId, section, unit, target, category } =
     useLocalSearchParams<{
       lessonId?: string;
       mode?: string;
       nodeId?: string;
       section?: string;
       unit?: string;
+      target?: string;
       /** 어느 로드맵에서 들어왔는지. 완료 후 제자리로 돌아가려면 필요 */
       category?: string;
     }>();
@@ -98,6 +99,8 @@ export default function LessonScreen() {
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
   const isLegend = mode === "legend";
+  const jumpHeartLimit =
+    target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
     useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
@@ -130,7 +133,7 @@ export default function LessonScreen() {
   const wrongIds = useRef<string[]>([]);
   const [showQuit, setShowQuit] = useState(false);
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
-  const [hearts, setHearts] = useState(5);
+  const [hearts, setHearts] = useState(jumpHeartLimit);
   const [showBonus, setShowBonus] = useState(false);
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
@@ -143,6 +146,10 @@ export default function LessonScreen() {
   useEffect(() => {
     setEnergy(userEnergy);
   }, [userEnergy]);
+
+  useEffect(() => {
+    if (isJumpTest) setHearts(jumpHeartLimit);
+  }, [isJumpTest, jumpHeartLimit]);
 
   // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
   useEffect(() => {
@@ -285,7 +292,7 @@ export default function LessonScreen() {
 
   const finishJumpTest = async (heartsOut = false) => {
     const wrongCount = wrongIds.current.length;
-    const passed = !heartsOut && wrongCount < 5;
+    const passed = !heartsOut && wrongCount < jumpHeartLimit;
 
     if (passed) {
       try {
@@ -759,6 +766,7 @@ export default function LessonScreen() {
           combo={combo}
           energy={energy}
           hearts={hearts}
+          maxHearts={jumpHeartLimit}
           showHearts={isJumpTest}
           answerState={answerState}
           onClose={() =>

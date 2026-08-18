@@ -1135,7 +1135,8 @@ export default {
     failSub:
       "Xatolar juda ko'p edi. Oldingi darslarni bajarib, mahoratingizni oshiring!",
     continue: "Davom etish",
-    introRule: "Bu sinovdan o'tish uchun 5 tadan kam xato qiling. Omad!",
+    introRule:
+      "Bu sinovdan o'tish uchun {{count}} tadan kam xato qiling. Omad!",
     introContinue: "Davom etish",
     startTitle: "Unit {{unit}}ga o'tib, mahoratingizni ko'rsating!",
     startBtn: "Testni boshlash",

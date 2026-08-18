@@ -1126,7 +1126,8 @@ export default {
     failTitle: "조금 더 연습이 필요해요",
     failSub: "오답이 너무 많았어요. 이전 레슨을 완료하면서 실력을 쌓아보세요!",
     continue: "계속",
-    introRule: "이 도전을 통과하려면 오답 5개 미만으로 완료하세요. 화이팅!",
+    introRule:
+      "이 도전을 통과하려면 오답 {{count}}개 미만으로 완료하세요. 화이팅!",
     introContinue: "계속",
     startTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",
     startBtn: "테스트 시작하기",

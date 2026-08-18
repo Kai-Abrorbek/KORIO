@@ -27,6 +27,7 @@ interface Props {
   showCombo?: boolean;
   isSuper?: boolean;
   hearts?: number;
+  maxHearts?: number;
   showHearts?: boolean;
 }
 
@@ -41,6 +42,7 @@ export default function LessonHeader({
   showCombo,
   isSuper = false,
   hearts = 5,
+  maxHearts = 5,
   showHearts = false,
 }: Props) {
   const { t } = useTranslation();
@@ -159,7 +161,7 @@ export default function LessonHeader({
         {/* /* 에너지 배지 또는 SUPER */}
         {showHearts ? (
           <View style={s.heartsRow}>
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: maxHearts }).map((_, i) => (
               <Ionicons
                 key={i}
                 name="heart"
