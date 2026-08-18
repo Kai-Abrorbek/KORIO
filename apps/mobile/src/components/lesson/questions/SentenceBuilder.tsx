@@ -80,7 +80,7 @@ export default function SentenceBuilder({
     hasAutoPlayed.current = true;
     const timer = setTimeout(() => {
       speakAuto(question.answer);
-    }, 600);
+    }, 200);
     return () => clearTimeout(timer);
   }, []);
 

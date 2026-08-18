@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 
 export default function JumpResultScreen() {
   const { t } = useTranslation();
@@ -21,19 +22,26 @@ export default function JumpResultScreen() {
   return (
     <View style={s.container}>
       <View style={s.center}>
-        <Animated.View
-          entering={ZoomIn.duration(400)}
-          style={[
-            s.iconCircle,
-            { backgroundColor: isPass ? "#58CC02" : "#FF4B4B" },
-          ]}
-        >
-          <Ionicons
-            name={isPass ? "checkmark" : "close"}
-            size={64}
-            color="#fff"
-          />
-        </Animated.View>
+        {isPass ? (
+          <View pointerEvents="none" style={s.successArtwork}>
+            <TopikSuccessConfetti
+              playOnce
+              dom={{
+                scrollEnabled: false,
+                showsHorizontalScrollIndicator: false,
+                showsVerticalScrollIndicator: false,
+                style: s.successArtworkFill,
+              }}
+            />
+          </View>
+        ) : (
+          <Animated.View
+            entering={ZoomIn.duration(400)}
+            style={[s.iconCircle, { backgroundColor: "#FF4B4B" }]}
+          >
+            <Ionicons name="close" size={64} color="#fff" />
+          </Animated.View>
+        )}
 
         <Animated.Text entering={FadeInDown.delay(200)} style={s.title}>
           {isPass ? t("jump.passTitle", { unit }) : t("jump.failTitle")}
@@ -81,6 +89,16 @@ const styles = (theme: ThemeColors) =>
       borderRadius: 65,
       alignItems: "center",
       justifyContent: "center",
+    },
+    successArtwork: {
+      width: 280,
+      height: 280,
+      marginVertical: -55,
+      overflow: "hidden",
+    },
+    successArtworkFill: {
+      width: "100%",
+      height: "100%",
     },
     title: {
       fontSize: 26,

@@ -50,7 +50,7 @@ export default function Listening({
   useEffect(() => {
     if (auto.current) return;
     auto.current = true;
-    const tm = setTimeout(() => speakAuto(question.answer), 500);
+    const tm = setTimeout(() => speakAuto(question.answer), 200);
     return () => clearTimeout(tm);
   }, []);
 

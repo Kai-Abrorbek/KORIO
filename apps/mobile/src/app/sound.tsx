@@ -33,7 +33,7 @@ const DEFAULTS: SoundPrefs = {
   speechVolume: 1,
   sfxVolume: 1,
   keyVolume: 1,
-  speechRate: 0.9,
+  speechRate: 1,
   speechVoice: DEFAULT_SPEECH_VOICE,
   autoPlay: true,
   keyHaptics: true,

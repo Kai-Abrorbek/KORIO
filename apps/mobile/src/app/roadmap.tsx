@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  BackHandler,
   TouchableOpacity,
 } from "react-native";
 import { useTranslation } from "react-i18next";
@@ -385,6 +386,20 @@ export default function RoadmapScreen() {
     useCallback(() => {
       loadRoadmap();
     }, [loadRoadmap]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          router.replace("/(tabs)");
+          return true;
+        },
+      );
+
+      return () => subscription.remove();
+    }, [router]),
   );
 
   // FlatList viewability → 현재 보이는 유닛 추적

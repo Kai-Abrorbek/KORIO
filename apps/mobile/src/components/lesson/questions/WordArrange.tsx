@@ -76,7 +76,7 @@ export default function WordArrange({
   // 읽어주는 건 언제나 정답 문장이다. 예전엔 npcText 를 먼저 봤는데,
   // 서버가 빈 문자열로 내려보내서 ?? 가 걸러내지 못해 TTS 가 조용했다.
   useEffect(() => {
-    const timer = setTimeout(() => speakAuto(question.answer), 600);
+    const timer = setTimeout(() => speakAuto(question.answer), 200);
     return () => clearTimeout(timer);
   }, []);
 

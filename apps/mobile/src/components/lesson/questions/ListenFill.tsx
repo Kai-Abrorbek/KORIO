@@ -86,8 +86,8 @@ export default function ListenFill({
   // 문제 진입 시 자동 재생 (문제 바뀌면 다시 1회)
   useEffect(() => {
     if (!audioText) return;
-    // 화면 전환 애니(FadeInDown 400ms) + TTS 엔진 준비 시간 확보
-    const id = setTimeout(() => speakAuto(audioText), 500);
+    // 화면이 먼저 그려진 직후 자연스럽게 자동 재생을 시작한다.
+    const id = setTimeout(() => speakAuto(audioText), 200);
     return () => clearTimeout(id);
   }, [audioText]);
 

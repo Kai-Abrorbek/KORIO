@@ -145,7 +145,7 @@ export const useSettingsStore = create<SettingsState>()(
         speechVolume: 1,
         sfxVolume: 1,
         keyVolume: 1,
-        speechRate: 0.9, // 학습용이라 기본을 살짝 느리게
+        speechRate: 1,
         speechVoice: DEFAULT_SPEECH_VOICE,
         autoPlay: true,
         keyHaptics: true,
@@ -169,6 +169,21 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: "settings-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      migrate: (persistedState, version) => {
+        const state = persistedState as SettingsState;
+
+        // v0의 0.9는 사용자가 고른 값과 구분할 수 없던 옛 기본값이다.
+        // 마이그레이션은 한 번만 실행해 이후 사용자가 0.9를 선택할 수 있게 한다.
+        if (version === 0 && state.sound?.speechRate === 0.9) {
+          return {
+            ...state,
+            sound: { ...state.sound, speechRate: 1 },
+          };
+        }
+
+        return state;
+      },
       // muted 는 "이번 실행만" 이라 저장하지 않는다
       partialize: (s) => {
         const { muted, ...rest } = s;

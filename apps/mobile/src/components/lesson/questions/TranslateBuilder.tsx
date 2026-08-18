@@ -97,7 +97,7 @@ export default function TranslateBuilder({
   }, [sourceText, speak, speechLanguage]);
 
   useEffect(() => {
-    const timer = setTimeout(playSourceText, 500);
+    const timer = setTimeout(playSourceText, 200);
     return () => {
       clearTimeout(timer);
       stop();
