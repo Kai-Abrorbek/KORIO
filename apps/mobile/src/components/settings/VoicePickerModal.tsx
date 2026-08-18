@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -6,8 +7,21 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import type { ThemeColors } from "@/constants/theme";
@@ -44,7 +58,43 @@ export function VoicePickerModal({
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { height: screenHeight } = useWindowDimensions();
   const s = getStyles(theme);
+  const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    if (visible) translateY.value = 0;
+  }, [translateY, visible]);
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const dismissGesture = Gesture.Pan()
+    .activeOffsetY(8)
+    .failOffsetX([-24, 24])
+    .onUpdate((event) => {
+      translateY.value = Math.max(0, event.translationY);
+    })
+    .onEnd((event) => {
+      const shouldClose = event.translationY > 100 || event.velocityY > 900;
+
+      if (shouldClose) {
+        translateY.value = withTiming(
+          screenHeight,
+          { duration: 200, easing: Easing.in(Easing.cubic) },
+          (finished) => {
+            if (finished) runOnJS(onClose)();
+          },
+        );
+        return;
+      }
+
+      translateY.value = withTiming(0, {
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+      });
+    });
 
   return (
     <Modal
@@ -53,25 +103,37 @@ export function VoicePickerModal({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <Pressable style={s.backdrop} onPress={onClose}>
-        <Pressable
-          style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 18) }]}
-          onPress={(event) => event.stopPropagation()}
+      <GestureHandlerRootView style={s.modalRoot}>
+        <Pressable style={s.backdrop} onPress={onClose} />
+        <Animated.View
+          style={[
+            s.sheet,
+            { paddingBottom: Math.max(insets.bottom, 18) },
+            sheetStyle,
+          ]}
         >
-          <View style={s.handle} />
-          <View style={s.header}>
-            <View style={s.headerText}>
-              <Text style={s.title}>
-                {t("settings.sound.voicePickerTitle")}
-              </Text>
-              <Text style={s.subtitle}>
-                {t("settings.sound.voicePickerDesc")}
-              </Text>
+          <GestureDetector gesture={dismissGesture}>
+            <View style={s.dragArea}>
+              <View style={s.handle} />
+              <View style={s.header}>
+                <View style={s.headerText}>
+                  <Text style={s.title}>
+                    {t("settings.sound.voicePickerTitle")}
+                  </Text>
+                  <Text style={s.subtitle}>
+                    {t("settings.sound.voicePickerDesc")}
+                  </Text>
+                </View>
+                <Pressable style={s.close} onPress={onClose} hitSlop={8}>
+                  <Ionicons
+                    name="close"
+                    size={23}
+                    color={theme.textSecondary}
+                  />
+                </Pressable>
+              </View>
             </View>
-            <Pressable style={s.close} onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={23} color={theme.textSecondary} />
-            </Pressable>
-          </View>
+          </GestureDetector>
 
           {loading ? (
             <View style={s.stateBox}>
@@ -167,17 +229,21 @@ export function VoicePickerModal({
               }}
             />
           )}
-        </Pressable>
-      </Pressable>
+        </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
+    modalRoot: { flex: 1, justifyContent: "flex-end" },
     backdrop: {
-      flex: 1,
-      justifyContent: "flex-end",
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
       backgroundColor: "rgba(18, 24, 38, 0.42)",
     },
     sheet: {
@@ -189,6 +255,7 @@ const getStyles = (theme: ThemeColors) =>
       paddingTop: 10,
       paddingHorizontal: 18,
     },
+    dragArea: { marginHorizontal: -4 },
     handle: {
       width: 42,
       height: 5,
