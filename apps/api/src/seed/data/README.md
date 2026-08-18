@@ -3,6 +3,127 @@
 어휘 트랙(`data/section1`, `data/section2`)과 문법 페이지(`data/grammar`)를 쓸 때 지키는 것.
 TOPIK·합격 레시피는 데이터 구조가 달라서 여기 해당 없다.
 
+## Seed authoring rules for answer grading
+
+These rules apply whenever an AI or developer creates or updates lesson seed data. The goal is to support useful feedback such as "the meaning is correct," "almost correct," and "use this expression here" instead of grading every free-text answer with exact string equality.
+
+### Core principles
+
+- Keep the existing canonical answer. It is the best model answer, not an exhaustive list of every valid answer.
+- Do not enumerate every possible paraphrase in `acceptedAnswers`. Add only common, unambiguous exceptions that are valid for the lesson objective.
+- Grade meaning and the lesson target separately. A semantically equivalent answer can still miss the grammar pattern, vocabulary, tense, or speech level being taught.
+- Never treat text similarity alone as proof of correctness. A small change such as adding or removing Korean negation can reverse the meaning.
+- Only free-text, translation, sentence-production, and transcript-based exercises need grading metadata. Deterministic exercises such as multiple choice should continue to use their existing answer rules.
+- Put shared grading behavior in the grader or at lesson level. Add question-level overrides only when the question has a specific learning requirement.
+
+### Grading metadata contract
+
+Add a `grading` object to every newly authored free-response question. Preserve all existing required fields and use this object in addition to the canonical answer.
+
+```ts
+grading: {
+  mode: "exact" | "semantic" | "targetExpression";
+  expectedMeaning: string;
+  targetExpressions?: string[];
+  requiredRegister?: string;
+  acceptedAnswers?: string[];
+  notes?: string[];
+  tolerance?: {
+    punctuation?: boolean;
+    spacing?: boolean;
+    minorTypos?: boolean;
+  };
+}
+```
+
+Field requirements:
+
+- `mode: "exact"`: use for spelling, dictation, or exercises where the written form itself is the learning objective.
+- `mode: "semantic"`: use when different natural expressions with the same meaning may be accepted.
+- `mode: "targetExpression"`: use when the answer must express the correct meaning and use a particular grammar pattern or expression.
+- `expectedMeaning`: describe the intended meaning unambiguously, including important details such as subject, object, tense, negation, quantity, and intent.
+- `targetExpressions`: list only the grammar or vocabulary forms the learner is expected to practise. This is required for `targetExpression` mode.
+- `requiredRegister`: specify a required speech level or style, such as `해요체` or `합니다체`, only when it is part of the lesson objective.
+- `acceptedAnswers`: include only explicitly approved equivalent answers. Do not use this as a substitute for semantic grading.
+- `notes`: record exceptional grading guidance that cannot be inferred reliably from the other fields.
+- `tolerance`: override the grader defaults only when the exercise needs different handling of punctuation, spacing, or minor typos.
+
+### Authoring examples
+
+Target-expression exercise:
+
+```ts
+{
+  // Keep the seed's existing prompt and canonical-answer fields.
+  grading: {
+    mode: "targetExpression",
+    expectedMeaning: "The speaker wants to eat.",
+    targetExpressions: ["-고 싶어요"],
+    requiredRegister: "해요체",
+    acceptedAnswers: [],
+    tolerance: {
+      punctuation: true,
+      spacing: true,
+      minorTypos: true,
+    },
+  },
+}
+```
+
+For a canonical answer of `먹고 싶어요`, the intended classifications are:
+
+- `먹고 싶어요` -> correct.
+- `먹고 십어요` -> almost correct; provide a spelling correction.
+- `먹을래요` -> meaning is similar, but the target expression is missing; ask the learner to retry with `-고 싶어요`.
+- `먹기 싫어요` -> incorrect because the meaning is reversed.
+
+Semantic exercise:
+
+```ts
+{
+  grading: {
+    mode: "semantic",
+    expectedMeaning: "The speaker goes to school.",
+    acceptedAnswers: [],
+    tolerance: {
+      punctuation: true,
+      spacing: true,
+      minorTypos: true,
+    },
+  },
+}
+```
+
+Exact-form exercise:
+
+```ts
+{
+  grading: {
+    mode: "exact",
+    expectedMeaning: "The learner must write the dictated sentence accurately.",
+    tolerance: {
+      punctuation: true,
+      spacing: false,
+      minorTypos: false,
+    },
+  },
+}
+```
+
+### Required authoring checks
+
+Before completing new seed data, confirm that:
+
+1. The canonical answer is natural and matches the grammar and speech level taught by the lesson.
+2. `expectedMeaning` preserves negation, tense, participants, quantities, and intent.
+3. `targetExpressions` contains only forms that are required for this particular learning objective.
+4. A same-meaning answer that misses the target form will receive guidance instead of being silently accepted or marked simply wrong.
+5. A minor spelling or spacing error can be distinguished from a meaning-changing error.
+6. `acceptedAnswers` contains only deliberate exceptions and is not a generated paraphrase dump.
+7. Feedback text is not duplicated in every seed item; seeds describe the rubric, while the grading service and localization layer generate user-facing feedback.
+
+Existing seed files do not need to be rewritten all at once. Add this metadata to new free-response content immediately, then backfill older content incrementally. Do not reseed or overwrite production data solely to introduce these fields; use a safe schema default or migration when runtime support is implemented.
+
 ## 무엇을 만드는가
 
 **문제를 푸는 동안 한국어를 실제로 배우게 하는 것.** 이게 다른 모든 규칙보다 앞선다.

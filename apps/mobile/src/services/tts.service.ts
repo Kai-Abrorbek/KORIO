@@ -2,6 +2,7 @@ import type { AudioSource } from "expo-audio";
 import api, { BASE_URL } from "@/services/api";
 
 export type SpeechGender = "female" | "male";
+export type SpeechLanguage = "ko-KR" | "uz-UZ" | "en-US" | "ru-RU";
 
 export interface SpeechVoice {
   shortName: string;
@@ -15,7 +16,7 @@ export interface SpeechVoice {
 
 interface PrepareSpeechRequest {
   text: string;
-  language: "ko-KR";
+  language: SpeechLanguage;
   rate: number;
   gender: SpeechGender;
   voice?: string;

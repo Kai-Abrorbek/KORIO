@@ -8,7 +8,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomUUID } from 'node:crypto';
-import { SynthesizeSpeechDto } from './dto/synthesize-speech.dto';
+import {
+  SynthesizeSpeechDto,
+  type SpeechLanguage,
+} from './dto/synthesize-speech.dto';
 
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const CACHE_MAX_ENTRIES = 256;
@@ -48,10 +51,27 @@ interface AzureVoiceResponse {
   StyleList?: string[];
 }
 
-const VOICES = {
-  female: 'ko-KR-SunHiNeural',
-  male: 'ko-KR-InJoonNeural',
-} as const;
+const VOICES: Record<
+  SpeechLanguage,
+  Record<'female' | 'male', string>
+> = {
+  'ko-KR': {
+    female: 'ko-KR-SunHiNeural',
+    male: 'ko-KR-InJoonNeural',
+  },
+  'uz-UZ': {
+    female: 'uz-UZ-MadinaNeural',
+    male: 'uz-UZ-SardorNeural',
+  },
+  'en-US': {
+    female: 'en-US-JennyNeural',
+    male: 'en-US-GuyNeural',
+  },
+  'ru-RU': {
+    female: 'ru-RU-SvetlanaNeural',
+    male: 'ru-RU-DmitryNeural',
+  },
+};
 
 @Injectable()
 export class TtsService {
@@ -140,7 +160,11 @@ export class TtsService {
     const language = dto.language ?? 'ko-KR';
     const rate = Math.min(2, Math.max(0.25, dto.rate ?? 1));
     const gender = dto.gender ?? 'female';
-    const voice = dto.voice?.trim() || VOICES[gender];
+    const requestedVoice = dto.voice?.trim();
+    if (requestedVoice && !requestedVoice.startsWith(`${language}-`)) {
+      throw new BadRequestException('SPEECH_VOICE_LANGUAGE_MISMATCH');
+    }
+    const voice = requestedVoice || VOICES[language][gender];
     const cacheKey = createHash('sha256')
       .update(JSON.stringify({ language, rate, text, voice }))
       .digest('hex');
@@ -233,7 +257,7 @@ export class TtsService {
 
   private async synthesize(
     text: string,
-    language: 'ko-KR',
+    language: SpeechLanguage,
     rate: number,
     voice: string,
   ): Promise<Buffer> {
@@ -363,7 +387,7 @@ export class TtsService {
 
   private buildSsml(
     text: string,
-    language: 'ko-KR',
+    language: SpeechLanguage,
     rate: number,
     voice: string,
   ) {

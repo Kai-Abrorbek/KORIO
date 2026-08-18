@@ -14,10 +14,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
-import AnswerChip, {
-  GhostChip,
-  ChipLayout,
-} from "@/components/lesson/AnswerChip";
+import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
 import CheckButton from "../CheckButton";
 import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
 import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
@@ -168,21 +165,39 @@ export default function SentenceBuilder({
   }, []);
 
   const renderBankChips = () =>
-    words.map((item) =>
-      item.zone === "placed" ? (
-        <GhostChip key={item.id} word={item.word} theme={theme} />
-      ) : (
-        <AnswerChip
-          key={item.id}
-          item={item}
-          onTap={handleTap}
-          onDragToZone={handleDragToZone}
-          onLayoutMeasured={handleChipLayout}
-          theme={theme}
-          answerState={answerState}
-        />
-      ),
-    );
+    words.map((item) => {
+      const isPlaced = item.zone === "placed";
+      return (
+        <View key={item.id} style={s.bankSlot}>
+          <View
+            style={{ opacity: isPlaced ? 0 : 1 }}
+            pointerEvents={isPlaced ? "none" : "auto"}
+          >
+            <AnswerChip
+              item={item}
+              onTap={handleTap}
+              onDragToZone={handleDragToZone}
+              onLayoutMeasured={handleChipLayout}
+              theme={theme}
+              answerState={answerState}
+            />
+          </View>
+          {isPlaced && (
+            <View style={s.ghostOverlay} pointerEvents="none">
+              <View
+                style={[
+                  s.emptyBankChip,
+                  {
+                    backgroundColor: theme.border + "50",
+                    borderColor: theme.border,
+                  },
+                ]}
+              />
+            </View>
+          )}
+        </View>
+      );
+    });
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -387,5 +402,22 @@ const styles = (theme: ThemeColors, lineH: number) =>
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
+    },
+    bankSlot: {
+      position: "relative",
+    },
+    ghostOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    emptyBankChip: {
+      width: "100%",
+      height: "100%",
+      borderWidth: 1.5,
+      borderBottomWidth: 3,
+      borderRadius: 12,
     },
   });

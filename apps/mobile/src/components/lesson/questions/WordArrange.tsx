@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   useWindowDimensions,
-  LayoutChangeEvent,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -15,12 +14,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
-import AnswerChip, {
-  GhostChip,
-  ChipLayout,
-} from "@/components/lesson/AnswerChip";
+import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
 import CheckButton from "../CheckButton";
-import { ANSWER_LINE_H } from "../useAnswerLines";
+import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
 import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
 interface Props {
@@ -58,12 +54,13 @@ export default function WordArrange({
   const longBank = isLongBank(question, compact);
   const [bankOpen, setBankOpen] = useState(false);
 
-  // 줄은 칩이 실제로 차지한 만큼만 그린다.
-  // 아래에 flex 스페이서가 있어서 답 영역이 커져도 뱅크·확인 버튼은 안 밀린다.
-  const [placedH, setPlacedH] = useState(0);
-  const answerLines = Math.max(1, Math.ceil(placedH / ANSWER_LINE_H));
-  const onPlacedLayout = (e: LayoutChangeEvent) =>
-    setPlacedH(e.nativeEvent.layout.height);
+  // SentenceBuilder 와 같은 방식으로 처음부터 필요한 답안 줄을 확보한다.
+  // 칩을 올릴 때 줄 수가 바뀌면서 아래 영역이 흔들리지 않는다.
+  const { lines: answerLines } = useAnswerLines(
+    question.options ?? [],
+    winW - 40,
+    { max: compact ? 2 : 3 },
+  );
   const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
 
   const [words, setWords] = useState<WordItem[]>(
@@ -145,21 +142,39 @@ export default function WordArrange({
   const getPlacedChipLayouts = useCallback(() => chipLayouts.current, []);
 
   const renderBankChips = () =>
-    words.map((item) =>
-      item.zone === "placed" ? (
-        <GhostChip key={item.id} word={item.word} theme={theme} />
-      ) : (
-        <AnswerChip
-          key={item.id}
-          item={item}
-          onTap={handleTap}
-          onDragToZone={handleDragToZone}
-          onLayoutMeasured={handleChipLayout}
-          theme={theme}
-          answerState={answerState}
-        />
-      ),
-    );
+    words.map((item) => {
+      const isPlaced = item.zone === "placed";
+      return (
+        <View key={item.id} style={s.bankSlot}>
+          <View
+            style={{ opacity: isPlaced ? 0 : 1 }}
+            pointerEvents={isPlaced ? "none" : "auto"}
+          >
+            <AnswerChip
+              item={item}
+              onTap={handleTap}
+              onDragToZone={handleDragToZone}
+              onLayoutMeasured={handleChipLayout}
+              theme={theme}
+              answerState={answerState}
+            />
+          </View>
+          {isPlaced && (
+            <View style={s.ghostOverlay} pointerEvents="none">
+              <View
+                style={[
+                  s.emptyBankChip,
+                  {
+                    backgroundColor: theme.border + "50",
+                    borderColor: theme.border,
+                  },
+                ]}
+              />
+            </View>
+          )}
+        </View>
+      );
+    });
 
   const handleSwap = useCallback((draggedId: string, targetId: string) => {
     setWords((prev) => {
@@ -231,7 +246,7 @@ export default function WordArrange({
           ))}
 
           {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
-          <View style={s.placedWrap} onLayout={onPlacedLayout}>
+          <View style={s.placedWrap}>
             {placedWords.map((item, idx) => (
               <View key={item.id} style={s.lineSlot}>
                 <AnswerChip
@@ -356,9 +371,8 @@ const styles = (theme: ThemeColors, lineH: number) =>
       backgroundColor: "#4A90D9",
     },
     answerArea: {
-      minHeight: lineH, // 비어 있어도 한 줄은 보이게
       marginTop: 8,
-      marginBottom: 8,
+      marginBottom: 28,
       position: "relative",
     },
     answerLine: {
@@ -368,8 +382,8 @@ const styles = (theme: ThemeColors, lineH: number) =>
       height: 1,
       backgroundColor: theme.border,
     },
-    // absoluteFill 이면 부모 높이를 못 밀어 올려서 답 영역이 안 자란다
     placedWrap: {
+      ...StyleSheet.absoluteFill,
       flexDirection: "row",
       flexWrap: "wrap",
       alignContent: "flex-start",
@@ -385,6 +399,22 @@ const styles = (theme: ThemeColors, lineH: number) =>
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      marginBottom: 8,
+    },
+    bankSlot: {
+      position: "relative",
+    },
+    ghostOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    emptyBankChip: {
+      width: "100%",
+      height: "100%",
+      borderWidth: 1.5,
+      borderBottomWidth: 3,
+      borderRadius: 12,
     },
   });

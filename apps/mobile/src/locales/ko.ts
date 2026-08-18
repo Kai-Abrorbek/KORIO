@@ -476,6 +476,10 @@ export default {
     tapWhatYouHear: "들리는 단어를 탭하세요",
     typeWhatYouHear: "들리는 내용을 입력하세요",
     fillBlank: "빈칸에 알맞은 단어를 고르세요",
+    fillBlankHint: "빈칸을 선택하고 아래에서 답을 골라보세요",
+    fillBlankOptions: "보기",
+    playFullSentence: "전체 문장 듣기",
+    stopAudio: "재생 멈추기",
   },
   stats: {
     tabs: { period: "기간별", category: "학습별" },

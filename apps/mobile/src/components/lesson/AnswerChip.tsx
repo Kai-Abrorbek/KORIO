@@ -43,6 +43,8 @@ interface Props {
   getPlacedChipLayouts?: () => Map<string, ChipLayout>;
   theme: ThemeColors;
   answerState: AnswerState;
+  /** 사진형 번역 문제에서 쓰는 조금 더 큰 칩 */
+  large?: boolean;
 }
 
 const CORRECT_BG = "#D7F5E3";
@@ -62,6 +64,7 @@ function AnswerChip({
   getPlacedChipLayouts,
   theme,
   answerState,
+  large = false,
 }: Props) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -250,9 +253,11 @@ function AnswerChip({
     <GestureDetector gesture={composed}>
       <Animated.View
         onLayout={handleLayout}
-        style={[chipStyles.chip, containerStyle]}
+        style={[chipStyles.chip, large && chipStyles.chipLarge, containerStyle]}
       >
-        <Animated.Text style={[chipStyles.text, textStyle]}>
+        <Animated.Text
+          style={[chipStyles.text, large && chipStyles.textLarge, textStyle]}
+        >
           {item.word}
         </Animated.Text>
       </Animated.View>
@@ -263,14 +268,17 @@ function AnswerChip({
 export function GhostChip({
   word,
   theme,
+  large = false,
 }: {
   word: string;
   theme: ThemeColors;
+  large?: boolean;
 }) {
   return (
     <View
       style={[
         chipStyles.chip,
+        large && chipStyles.chipLarge,
         {
           backgroundColor: theme.border + "60",
           borderColor: "transparent",
@@ -278,7 +286,15 @@ export function GhostChip({
         },
       ]}
     >
-      <Text style={[chipStyles.text, { color: "transparent" }]}>{word}</Text>
+      <Text
+        style={[
+          chipStyles.text,
+          large && chipStyles.textLarge,
+          { color: "transparent" },
+        ]}
+      >
+        {word}
+      </Text>
     </View>
   );
 }
@@ -291,7 +307,13 @@ export const chipStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
+  chipLarge: {
+    borderRadius: 15,
+    paddingHorizontal: 17,
+    paddingVertical: 12,
+  },
   text: { fontSize: 15, fontWeight: "700" },
+  textLarge: { fontSize: 17, fontWeight: "700" },
 });
 
 export default AnswerChip;

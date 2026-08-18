@@ -533,6 +533,7 @@ export default function LessonScreen() {
       locked.current = true;
       if (currentQ) wrongIds.current.push(currentQ.id);
       totalCount.current += 1;
+      setProgress(totalCount.current / (lesson?.questions.length ?? 1));
       goNextLevelTest();
       return;
     }
@@ -548,8 +549,13 @@ export default function LessonScreen() {
     const [, ...remaining] = questionQueue.current;
     questionQueue.current = remaining;
 
-    // 복습 진행바: (전체 - 남은) / 전체
-    if (phase === "review" && reviewTotal.current > 0) {
+    // 메인 진행바는 정답 여부가 아니라 큐에서 완료된 문제 수를 기준으로 한다.
+    // 따라서 답을 제출하지 않고 스킵한 문제도 한 문제를 마친 것으로 반영된다.
+    if (phase === "main") {
+      const mainTotal = lesson.questions.length || 1;
+      setProgress((mainTotal - questionQueue.current.length) / mainTotal);
+    } else if (phase === "review" && reviewTotal.current > 0) {
+      // 복습 진행바: (전체 - 남은) / 전체
       setProgress(
         (reviewTotal.current - questionQueue.current.length) /
           reviewTotal.current,

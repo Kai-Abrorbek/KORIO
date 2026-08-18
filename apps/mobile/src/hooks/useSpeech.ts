@@ -9,12 +9,24 @@ import {
 } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
-import { TtsService, type SpeechGender } from "@/services/tts.service";
+import {
+  TtsService,
+  type SpeechGender,
+  type SpeechLanguage,
+} from "@/services/tts.service";
 import { DEFAULT_SPEECH_VOICE, useSettingsStore } from "@/store/settings.store";
 import { activatePlaybackAudio } from "@/utils/audio-session";
 
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
 const SLOW_FACTOR = 0.55;
+
+function toSpeechLanguage(language: string): SpeechLanguage {
+  const base = language.trim().toLowerCase().split("-")[0];
+  if (base === "uz") return "uz-UZ";
+  if (base === "en") return "en-US";
+  if (base === "ru") return "ru-RU";
+  return "ko-KR";
+}
 
 export interface SpeechPlaybackOptions {
   gender?: SpeechGender;
@@ -99,10 +111,15 @@ export function useSpeech() {
       setIsSpeaking(true);
 
       try {
+        const language = toSpeechLanguage(lang);
+        const voice =
+          options?.voice?.trim() ||
+          (language === "ko-KR"
+            ? sound.speechVoice || DEFAULT_SPEECH_VOICE
+            : undefined);
         const source = await TtsService.prepareSource({
           text: normalizedText,
-          // 현재 Korio 학습 음성은 한국어다. 지원하지 않는 값은 한국어로 안전하게 통일한다.
-          language: lang === "ko-KR" ? lang : "ko-KR",
+          language,
           rate: Math.min(
             2,
             Math.max(
@@ -112,7 +129,7 @@ export function useSpeech() {
             ),
           ),
           gender: options?.gender ?? "female",
-          voice: options?.voice ?? sound.speechVoice ?? DEFAULT_SPEECH_VOICE,
+          voice,
         });
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
@@ -243,5 +260,26 @@ export function useSpeech() {
     [stopCurrent],
   );
 
-  return { speak, speakSlow, speakAuto, stop, isSpeaking };
+  const duration = Number.isFinite(playerStatus.duration)
+    ? Math.max(0, playerStatus.duration)
+    : 0;
+  const currentTime = Number.isFinite(playerStatus.currentTime)
+    ? Math.max(0, playerStatus.currentTime)
+    : 0;
+  const isSpeechPlaying =
+    activeRef.current?.phase === "playing" && playerStatus.playing;
+  const speechProgress =
+    isSpeechPlaying && duration > 0
+      ? Math.min(1, Math.max(0, currentTime / duration))
+      : 0;
+
+  return {
+    speak,
+    speakSlow,
+    speakAuto,
+    stop,
+    isSpeaking,
+    isSpeechPlaying,
+    speechProgress,
+  };
 }

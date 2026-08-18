@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
+import { useSpeech } from "@/hooks/useSpeech";
 import MatchPairCard, { PairStatus } from "../MatchPairCard";
 import CheckButton from "../CheckButton";
 
@@ -43,6 +44,7 @@ export default function WordMatching({
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const pairs = question.pairs ?? [];
+  const { speak, stop } = useSpeech();
 
   const [left, setLeft] = useState<Item[]>(() =>
     shuffle(
@@ -84,6 +86,7 @@ export default function WordMatching({
       setLS(i, "correct");
       setRS(j, "correct");
       setMatchedCount((c) => c + 1);
+      speak(left[i].text);
       setTimeout(() => {
         setLS(i, "ghost");
         setRS(j, "ghost");
@@ -100,6 +103,7 @@ export default function WordMatching({
 
   const tapL = (i: number) => {
     if (locked) return;
+    stop();
     const it = left[i];
     if (
       it.status === "correct" ||
@@ -120,6 +124,7 @@ export default function WordMatching({
 
   const tapR = (j: number) => {
     if (locked) return;
+    stop();
     const it = right[j];
     if (
       it.status === "correct" ||
