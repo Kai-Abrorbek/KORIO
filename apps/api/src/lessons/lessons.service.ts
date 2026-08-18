@@ -52,6 +52,26 @@ export class LessonsService {
     private readonly notifications: NotificationsService,
   ) {}
 
+  /**
+   * 번역 문제(translate_builder / translate_type)의 말풍선에 들어갈 "옮길 원문".
+   * 반드시 학습자 언어여야 "내 말 → 한국어" 문제가 된다.
+   *
+   * 시드에 두 가지 형태가 섞여 있다.
+   * - 신규(227개): instruction 이 문제마다 다르고 uz/en/ru 가 곧 옮길 문장이다.
+   *   ko 만 지시문("...라고 말하기") 형태라 한국어 UI 에서는 영어로 떨어뜨린다.
+   *   (학습자 언어가 한국어인 경우는 실제로 없고, 있어도 정답 노출이라 안 된다)
+   * - 구형(203개): instruction 이 공용 지시문("다음 문장을 번역하세요")이고
+   *   옮길 원문은 npcText 에 들어 있다.
+   */
+  private translateSourceText(q: any, lang: string): string {
+    if (q.type !== 'translate_builder' && q.type !== 'translate_type') return '';
+
+    if (q.npcText) return q.npcText;
+
+    const sourceLang = lang === 'ko' ? 'en' : lang;
+    return q.instruction?.[sourceLang] || q.instruction?.en || '';
+  }
+
   private extractI18n(obj: any, lang: string): string {
     if (!obj) return '';
     return obj[lang] || obj['uz'] || obj['en'] || '';
@@ -63,6 +83,7 @@ export class LessonsService {
       type: q.type,
       level: q.level,
       question: this.extractI18n(q.instruction, lang),
+      sourceText: this.translateSourceText(q, lang),
       npcText: q.npcText || '',
       options: q.options || [],
       choices: q.choices || [], // ← 이거 추가

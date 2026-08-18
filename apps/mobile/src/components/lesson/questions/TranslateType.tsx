@@ -136,7 +136,9 @@ export default function TranslateType({
 
         {/* 번역할 원문 (점선 밑줄) */}
         <View style={s.source}>
-          <Text style={s.sourceText}>{question.npcText}</Text>
+          <Text style={s.sourceText}>
+            {(question.sourceText ?? "") || question.npcText}
+          </Text>
         </View>
 
         {/* 입력 */}

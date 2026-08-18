@@ -48,6 +48,8 @@ export interface LessonQuestion {
   type: QuestionType;
   level: string;
   question: string;
+  /** 번역 문제에서 "옮길 원문" (학습자 언어). 서버가 언어에 맞춰 채워준다 */
+  sourceText?: string;
   npcText?: string;
   options?: string[];
   choices?: ImageChoiceOption[]; // image_choice 전용

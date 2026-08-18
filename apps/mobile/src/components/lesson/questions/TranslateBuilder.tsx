@@ -232,7 +232,9 @@ export default function TranslateBuilder({
 
             <View style={s.bubbleTextWrap}>
               <Text style={s.bubbleText}>
-                {isReply ? question.npcText : question.question}
+                {isReply
+                  ? question.npcText
+                  : (question.sourceText ?? "") || question.question}
               </Text>
               <View style={s.dashedUnderline} />
             </View>
