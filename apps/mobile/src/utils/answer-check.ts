@@ -39,6 +39,33 @@ export function isAnswerCorrect(
   return candidates.some((c) => normalizeAnswer(c) === got);
 }
 
+/** 스마트 채점의 빠른 경로. 내부 띄어쓰기와 문장부호까지 같은 답만 즉시 통과시킨다. */
+export function isAnswerExactlyCorrect(
+  input: string,
+  answer?: string,
+  acceptedAnswers?: string[],
+): boolean {
+  const normalizeExact = (value: string) =>
+    value.normalize("NFC").toLowerCase().trim();
+  const got = normalizeExact(input ?? "");
+  if (!got) return false;
+
+  return [answer, ...(acceptedAnswers ?? [])]
+    .filter((candidate): candidate is string => !!candidate)
+    .some((candidate) => normalizeExact(candidate) === got);
+}
+
+/** blankAnswers까지 반영한 타이핑 문제의 엄격 일치 판정. */
+export function gradeTypedAnswerExactly(
+  answer: string,
+  q: LessonQuestion,
+): boolean {
+  const expected = q.blankAnswers?.length
+    ? fillTemplate(parseBlanks(templateOf(q)), q.blankAnswers)
+    : q.answer;
+  return isAnswerExactlyCorrect(answer, expected, q.acceptedAnswers);
+}
+
 /**
  * 문제 하나의 채점.
  *

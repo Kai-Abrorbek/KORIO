@@ -1,5 +1,12 @@
 import { memo } from "react";
-import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useAnimatedStyle,
@@ -21,6 +28,7 @@ interface Props {
   onPress: () => void;
   theme: ThemeColors;
   disabled?: boolean;
+  loading?: boolean;
   /** 기본값 t("lesson.check") */
   label?: string;
   /** 버튼 위에 뜨는 건너뛰기 링크 */
@@ -46,6 +54,7 @@ function CheckButton({
   onPress,
   theme,
   disabled = false,
+  loading = false,
   label,
   skipLabel,
   onSkip,
@@ -54,23 +63,24 @@ function CheckButton({
 }: Props) {
   const { t } = useTranslation();
   const press = useSharedValue(0);
+  const isDisabled = disabled || loading;
 
-  const base = disabled ? theme.border : TONE_COLOR[tone](theme);
-  const shadow = disabled ? theme.border : darken(base, 40);
+  const base = isDisabled ? theme.border : TONE_COLOR[tone](theme);
+  const shadow = isDisabled ? theme.border : darken(base, 40);
 
   const faceStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: press.value * CHECK_DEPTH }],
   }));
 
   const handlePressIn = () => {
-    if (disabled) return;
+    if (isDisabled) return;
     press.value = withTiming(1, { duration: 60 });
   };
   const handlePressOut = () => {
     press.value = withTiming(0, { duration: 90 });
   };
   const handlePress = () => {
-    if (disabled) return;
+    if (isDisabled) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onPress();
   };
@@ -89,21 +99,25 @@ function CheckButton({
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        disabled={disabled}
+        disabled={isDisabled}
         style={[s.shadow, { backgroundColor: shadow }]}
       >
         <Animated.View
           style={[s.face, { backgroundColor: base }, faceStyle]}
           pointerEvents="none"
         >
-          <Text
-            style={[
-              s.label,
-              { color: disabled ? theme.textSecondary : "#fff" },
-            ]}
-          >
-            {label ?? t("lesson.check")}
-          </Text>
+          {loading ? (
+            <ActivityIndicator color={theme.textSecondary} />
+          ) : (
+            <Text
+              style={[
+                s.label,
+                { color: isDisabled ? theme.textSecondary : "#fff" },
+              ]}
+            >
+              {label ?? t("lesson.check")}
+            </Text>
+          )}
         </Animated.View>
       </Pressable>
     </View>

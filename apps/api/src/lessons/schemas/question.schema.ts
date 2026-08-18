@@ -58,6 +58,43 @@ class I18nText {
   @Prop({ default: '' }) ru: string;
 }
 
+// 언어별 단어 칩. 한국어 음성을 듣고 학습자 언어로 뜻을 조립하는 문제에 쓴다.
+class I18nStringArray {
+  @Prop({ type: [String], default: [] }) ko: string[];
+  @Prop({ type: [String], default: [] }) uz: string[];
+  @Prop({ type: [String], default: [] }) en: string[];
+  @Prop({ type: [String], default: [] }) ru: string[];
+}
+
+class GradingTolerance {
+  @Prop({ default: false }) punctuation: boolean;
+  @Prop({ default: false }) spacing: boolean;
+  @Prop({ default: false }) minorTypos: boolean;
+}
+
+class QuestionGrading {
+  @Prop({ required: true, enum: ['exact', 'semantic', 'targetExpression'] })
+  mode: 'exact' | 'semantic' | 'targetExpression';
+
+  @Prop({ required: true })
+  expectedMeaning: string;
+
+  @Prop({ type: [String], default: [] })
+  targetExpressions: string[];
+
+  @Prop({ default: '' })
+  requiredRegister: string;
+
+  @Prop({ type: [String], default: [] })
+  acceptedAnswers: string[];
+
+  @Prop({ type: [String], default: [] })
+  notes: string[];
+
+  @Prop({ type: GradingTolerance, default: {} })
+  tolerance: GradingTolerance;
+}
+
 // 단어 매칭 쌍
 class MatchingPair {
   @Prop({ required: true }) korean: string;
@@ -99,9 +136,21 @@ export class Question {
   @Prop([String])
   options: string[];
 
+  // 한국어 음성 → 학습자 언어 조립형 sentence_builder의 언어별 보기
+  @Prop({ type: I18nStringArray, default: {} })
+  optionsI18n: I18nStringArray;
+
   // 정답 - 한국어 or 유저언어 (타입에 따라 다름)
   @Prop({ default: '' })
   answer: string;
+
+  // optionsI18n을 쓰는 문제의 언어별 조립 정답. answer에는 한국어 원문을 보존한다.
+  @Prop({ type: I18nText, default: {} })
+  answerI18n: I18nText;
+
+  // 타이핑 4종의 의미·목표 표현·표기 정확도를 나눠 평가하는 메타데이터
+  @Prop({ type: QuestionGrading, required: false })
+  grading?: QuestionGrading;
 
   // 빈칸 앞뒤 텍스트 (image_choice, type_answer)
   @Prop({ default: '' })

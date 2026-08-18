@@ -28,6 +28,7 @@ interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
+  isChecking?: boolean;
   theme: ThemeColors;
 }
 
@@ -35,6 +36,7 @@ export default function TypeAnswer({
   question,
   answerState,
   onAnswer,
+  isChecking = false,
   theme,
 }: Props) {
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ export default function TypeAnswer({
   const s = styles(theme, insets.bottom);
   const inputRefs = useRef<Record<number, TextInput | null>>({});
   const { speak, isSpeaking } = useSpeech();
-  const locked = answerState !== "idle";
+  const locked = answerState !== "idle" || isChecking;
   // ?? 가 아니라 || 다. 서버가 npcText 를 빈 문자열로 내려보내기 때문에
   // ?? 로는 걸러지지 않아 말풍선이 비고 TTS 도 조용해진다.
   const promptText = question.npcText || question.answer;
@@ -141,6 +143,7 @@ export default function TypeAnswer({
         <CheckButton
           onPress={handleCheck}
           disabled={!complete || locked}
+          loading={isChecking}
           theme={theme}
         />
       </Animated.View>

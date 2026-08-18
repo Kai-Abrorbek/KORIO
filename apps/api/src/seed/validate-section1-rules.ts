@@ -48,14 +48,16 @@ for (const n of UNITS) {
 const err: string[] = [];
 const warn: string[] = [];
 const L4 = (v: any) => v && ['ko','uz','en','ru'].every(l => typeof v[l] === 'string' && v[l].length > 0);
-
+const L4Options = (v: any) => v && ['ko','uz','en','ru'].every(
+  l => Array.isArray(v[l]) && v[l].length > 0,
+);
 for (const node of NODES) {
   for (const les of node.lessons) {
     const keys: string[] = les.questions;
     const tag = `u${node.unit}n${node.order}l${les.order}`;
 
-    if (keys.length < 17 || keys.length > 20)
-      err.push(`${tag}: 문제 ${keys.length}개 (17~20이어야 함)`);
+    if (keys.length < 17 || keys.length > 24)
+      err.push(`${tag}: 문제 ${keys.length}개 (17~24여야 함)`);
 
     // 같은 타입 연속 금지
     for (let i = 1; i < keys.length; i++) {
@@ -129,6 +131,38 @@ for (const node of NODES) {
         }
         if ((q.options?.length ?? 0) <= need.length) err.push(`${k}: 오답 어절이 없다`);
         if (q.options?.slice(0, need.length).join(' ') === q.answer) err.push(`${k}: options 가 정답 순서 그대로다`);
+      }
+      // sentence_builder 는 한국어 정답을 듣고 학습자 언어의 뜻을 조립한다.
+      // 한국어 원문(answer/audioText)과 현지어 정답(answerI18n)을 분리해야 한다.
+      if (q.type === 'sentence_builder' && node.unit === 1) {
+        if (!L4(q.answerI18n)) err.push(`${k}: answerI18n 4개 언어 누락`);
+        if (!L4Options(q.optionsI18n)) err.push(`${k}: optionsI18n 4개 언어 누락`);
+        if (!q.audioText) err.push(`${k}: 한국어 TTS용 audioText 없음`);
+
+        for (const lang of ['ko', 'uz', 'en', 'ru']) {
+          const nativeAnswer = q.answerI18n?.[lang] ?? '';
+          const nativeOptions = q.optionsI18n?.[lang] ?? [];
+          const nativeNeed = nativeAnswer.split(' ').filter(Boolean);
+          if (nativeNeed.length < 2) {
+            err.push(`${k}: answerI18n.${lang} 이 한 덩어리다 — 현지어 조립 불가`);
+          }
+          const nativeCnt: Record<string, number> = {};
+          for (const word of nativeNeed) {
+            nativeCnt[word] = (nativeCnt[word] ?? 0) + 1;
+          }
+          for (const [word, count] of Object.entries(nativeCnt)) {
+            const have = nativeOptions.filter((option: string) => option === word).length;
+            if (have < count) {
+              err.push(`${k}: optionsI18n.${lang} 에 '${word}' 칩 부족 (${have}/${count})`);
+            }
+          }
+          if (nativeOptions.length <= nativeNeed.length) {
+            err.push(`${k}: optionsI18n.${lang} 에 오답 칩이 없다`);
+          }
+          if (nativeOptions.slice(0, nativeNeed.length).join(' ') === nativeAnswer) {
+            err.push(`${k}: optionsI18n.${lang} 가 정답 순서 그대로다`);
+          }
+        }
       }
       // translate_builder 는 제목에 고정 문구를 쓰고 말풍선에 instruction 을
       // 띄운다. 그래서 instruction 이 "옮겨야 할 문장"이어야 하고, 공용 지시문을

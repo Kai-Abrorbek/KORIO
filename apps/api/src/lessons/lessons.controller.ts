@@ -13,10 +13,15 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
+import { GradeAnswerDto } from './dto/grade-answer.dto';
+import { AnswerGradingService } from './answer-grading.service';
 
 @Controller('lessons')
 export class LessonsController {
-  constructor(private readonly lessonsService: LessonsService) {}
+  constructor(
+    private readonly lessonsService: LessonsService,
+    private readonly answerGradingService: AnswerGradingService,
+  ) {}
 
   // 로드맵용 레슨 목록
   @UseGuards(JwtAuthGuard)
@@ -157,6 +162,15 @@ export class LessonsController {
   @Post('nodes/:nodeId/legend-complete')
   async completeLegend(@Request() req, @Param('nodeId') nodeId: string) {
     return this.lessonsService.completeLegend(req.user._id.toString(), nodeId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('questions/:questionId/grade')
+  async gradeTypedAnswer(
+    @Param('questionId') questionId: string,
+    @Body() dto: GradeAnswerDto,
+  ) {
+    return this.answerGradingService.grade(questionId, dto.answer, dto.lang);
   }
 
   // 레슨 완료 저장

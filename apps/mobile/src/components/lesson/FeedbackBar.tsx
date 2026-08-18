@@ -22,7 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
-import { AnswerState } from "@/types/lesson";
+import { AnswerGradeResult, AnswerState } from "@/types/lesson";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -123,6 +123,7 @@ const LAYERS = [
 const HILL_COLORS = {
   correct: ["#A5E86B", "#C2F58F", "#D7FFB8"],
   wrong: ["#FFB3B5", "#FFC9CB", "#FFDFE0"],
+  guidance: ["#FFD36A", "#FFE39A", "#FFF1C7"],
 };
 
 /** 흩날리는 파편 하나 */
@@ -195,6 +196,7 @@ interface Props {
   answerTranslation?: string;
   /** 문법·의미 설명 (유저 언어) */
   explanation?: string;
+  gradingFeedback?: AnswerGradeResult | null;
   onNext: () => void;
   theme: ThemeColors;
   combo?: number;
@@ -205,6 +207,7 @@ export default function FeedbackBar({
   answer,
   answerTranslation,
   explanation,
+  gradingFeedback,
   onNext,
 }: Props) {
   const { t } = useTranslation();
@@ -226,16 +229,28 @@ export default function FeedbackBar({
   if (state === "idle") return null;
 
   const isCorrect = state === "correct";
-  const bg = isCorrect ? "#D7FFB8" : "#FFDFE0";
-  const accent = isCorrect ? "#58A700" : "#EA2B2B";
-  const btnFace = isCorrect ? "#58CC02" : "#FF4B4B";
-  const btnDepth = isCorrect ? "#46A302" : "#D33B3B";
-  const shardColor = isCorrect ? "#9BF0F5" : "#FFB0B0";
-  const colors = isCorrect ? HILL_COLORS.correct : HILL_COLORS.wrong;
-  const label = isCorrect ? t("lesson.correct") : t("lesson.wrong");
+  const isGuidance =
+    gradingFeedback?.result === "almost" ||
+    gradingFeedback?.result === "target_missing" ||
+    gradingFeedback?.source === "fallback";
+  const bg = isGuidance ? "#FFF1C7" : isCorrect ? "#D7FFB8" : "#FFDFE0";
+  const accent = isGuidance ? "#9A6700" : isCorrect ? "#58A700" : "#EA2B2B";
+  const btnFace = isGuidance ? "#F5A623" : isCorrect ? "#58CC02" : "#FF4B4B";
+  const btnDepth = isGuidance ? "#C98214" : isCorrect ? "#46A302" : "#D33B3B";
+  const shardColor = isGuidance ? "#FFD36A" : isCorrect ? "#9BF0F5" : "#FFB0B0";
+  const colors = isGuidance
+    ? HILL_COLORS.guidance
+    : isCorrect
+      ? HILL_COLORS.correct
+      : HILL_COLORS.wrong;
+  const label =
+    gradingFeedback?.title ??
+    (isCorrect ? t("lesson.correct") : t("lesson.wrong"));
 
   // 뜻은 answerTranslation 우선, 없으면 explanation 으로 대체
   const meaning = answerTranslation || explanation || "";
+  const correctedAnswer =
+    gradingFeedback?.correction || (!isCorrect ? answer : "");
 
   return (
     <Animated.View
@@ -281,7 +296,7 @@ export default function FeedbackBar({
 
           <Text style={[s.title, { color: accent }]} numberOfLines={2}>
             {label}
-            {!!meaning && ` ${t("lesson.meaningShort")}`}
+            {!gradingFeedback && !!meaning && ` ${t("lesson.meaningShort")}`}
           </Text>
 
           <View style={s.headIcons}>
@@ -295,9 +310,18 @@ export default function FeedbackBar({
         </View>
 
         {/* 틀렸을 때만 정답 노출 */}
-        {!isCorrect && !!answer && (
+        {!!correctedAnswer && (
           <Text style={[s.answer, { color: accent }]} numberOfLines={2}>
-            {answer}
+            {correctedAnswer}
+          </Text>
+        )}
+
+        {!!gradingFeedback?.feedback && (
+          <Text
+            style={[s.feedback, { color: accent }]}
+            numberOfLines={2}
+          >
+            {gradingFeedback.feedback}
           </Text>
         )}
 
@@ -367,6 +391,13 @@ const s = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 28,
     letterSpacing: -0.3,
+    marginTop: 10,
+  },
+  feedback: {
+    fontSize: 18,
+    fontWeight: "700",
+    lineHeight: 26,
+    letterSpacing: -0.2,
     marginTop: 10,
   },
   btn: { height: 60, marginTop: 26 },

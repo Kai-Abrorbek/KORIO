@@ -31,6 +31,7 @@ interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
+  isChecking?: boolean;
   onSkip?: () => void;
   theme: ThemeColors;
 }
@@ -39,6 +40,7 @@ export default function ListenFill({
   question,
   answerState,
   onAnswer,
+  isChecking = false,
   onSkip,
   theme,
 }: Props) {
@@ -48,7 +50,7 @@ export default function ListenFill({
   const inputRefs = useRef<Record<number, TextInput | null>>({});
   const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
 
-  const locked = answerState !== "idle";
+  const locked = answerState !== "idle" || isChecking;
 
   // 빈칸 개수 제한 없음. 기존 단일 빈칸 문항은
   // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.
@@ -179,6 +181,7 @@ export default function ListenFill({
         <CheckButton
           onPress={handleCheck}
           disabled={!complete || locked}
+          loading={isChecking}
           theme={theme}
           skipLabel={onSkip && !locked ? t("lesson.skipListening") : undefined}
           onSkip={onSkip}

@@ -29,6 +29,13 @@ import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 40;
 
+const SMART_GRADING_TYPES = new Set([
+  'type_answer',
+  'translate_type',
+  'listen_type',
+  'listen_fill',
+]);
+
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 
@@ -77,7 +84,28 @@ export class LessonsService {
     return obj[lang] || obj['uz'] || obj['en'] || '';
   }
 
+  private extractNativeI18n(obj: any, lang: string): string {
+    const sourceLang = lang === 'ko' ? 'en' : lang;
+    return this.extractI18n(obj, sourceLang);
+  }
+
+  private extractNativeOptions(obj: any, lang: string): string[] {
+    if (!obj) return [];
+    const sourceLang = lang === 'ko' ? 'en' : lang;
+    const options = obj[sourceLang] || obj.uz || obj.en;
+    return Array.isArray(options) ? options : [];
+  }
+
   private formatQuestion(q: any, lang: string) {
+    const nativeOptions =
+      q.type === 'sentence_builder'
+        ? this.extractNativeOptions(q.optionsI18n, lang)
+        : [];
+    const usesNativeBuilder = nativeOptions.length > 0;
+    const nativeAnswer = usesNativeBuilder
+      ? this.extractNativeI18n(q.answerI18n, lang)
+      : '';
+
     return {
       id: q._id.toString(),
       type: q.type,
@@ -85,9 +113,9 @@ export class LessonsService {
       question: this.extractI18n(q.instruction, lang),
       sourceText: this.translateSourceText(q, lang),
       npcText: q.npcText || '',
-      options: q.options || [],
+      options: usesNativeBuilder ? nativeOptions : q.options || [],
       choices: q.choices || [], // ← 이거 추가
-      answer: q.answer,
+      answer: usesNativeBuilder && nativeAnswer ? nativeAnswer : q.answer,
       sentencePrefix: q.sentencePrefix || '',
       sentenceSuffix: q.sentenceSuffix || '',
       sentenceTemplate: q.sentenceTemplate || '',
@@ -97,11 +125,14 @@ export class LessonsService {
       hint: this.extractI18n(q.hint, lang),
       explanation: this.extractI18n(q.explanation, lang),
       answerTranslation: this.extractI18n(q.answerTranslation, lang),
-      acceptedAnswers: q.acceptedAnswers || [],
+      acceptedAnswers: usesNativeBuilder ? [] : q.acceptedAnswers || [],
+      // 세부 rubric은 서버에만 둔다. 기존 타이핑 시드는 안전한 exact 폴백을 쓴다.
+      smartGradingEnabled: SMART_GRADING_TYPES.has(q.type),
       buildRows: q.buildRows || [], // grammar_build 전용
       difficulty: q.difficulty ?? 3,
       tags: q.tags || [],
-      audioText: q.audioText || '',
+      audioText:
+        q.audioText || (usesNativeBuilder ? q.answer : ''),
       audioUrl: q.audioUrl || '',
       imageUrl: q.imageUrl || '',
       // 중급 5종 전용 필드

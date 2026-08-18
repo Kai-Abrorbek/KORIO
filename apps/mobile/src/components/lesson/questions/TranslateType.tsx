@@ -27,6 +27,7 @@ interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
+  isChecking?: boolean;
   theme: ThemeColors;
 }
 
@@ -36,6 +37,7 @@ export default function TranslateType({
   question,
   answerState,
   onAnswer,
+  isChecking = false,
   theme,
 }: Props) {
   const { t } = useTranslation();
@@ -45,7 +47,7 @@ export default function TranslateType({
   const [transcribing, setTranscribing] = useState(false);
   const [voiceErrorKey, setVoiceErrorKey] = useState<string | null>(null);
 
-  const locked = answerState !== "idle";
+  const locked = answerState !== "idle" || isChecking;
   const borderColor =
     answerState === "correct"
       ? "#1CB454"
@@ -185,6 +187,7 @@ export default function TranslateType({
         <CheckButton
           onPress={check}
           disabled={!input.trim() || locked}
+          loading={isChecking}
           theme={theme}
         />
       </Animated.View>

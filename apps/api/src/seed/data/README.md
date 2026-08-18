@@ -5,7 +5,7 @@ TOPIK·합격 레시피는 데이터 구조가 달라서 여기 해당 없다.
 
 ## Seed authoring rules for answer grading
 
-These rules apply whenever an AI or developer creates or updates lesson seed data. The goal is to support useful feedback such as "the meaning is correct," "almost correct," and "use this expression here" instead of grading every free-text answer with exact string equality.
+These rules apply whenever an AI or developer creates or updates lesson seed data. The goal is to support useful feedback such as "the meaning is correct," "almost correct," and "use this expression here" for answers the learner types.
 
 ### Core principles
 
@@ -13,12 +13,14 @@ These rules apply whenever an AI or developer creates or updates lesson seed dat
 - Do not enumerate every possible paraphrase in `acceptedAnswers`. Add only common, unambiguous exceptions that are valid for the lesson objective.
 - Grade meaning and the lesson target separately. A semantically equivalent answer can still miss the grammar pattern, vocabulary, tense, or speech level being taught.
 - Never treat text similarity alone as proof of correctness. A small change such as adding or removing Korean negation can reverse the meaning.
-- Only free-text, translation, sentence-production, and transcript-based exercises need grading metadata. Deterministic exercises such as multiple choice should continue to use their existing answer rules.
+- Only the four typing types use grading metadata: `type_answer`, `translate_type`, `listen_type`, and `listen_fill`.
+- Do not add `grading` to `speaking`, multiple choice, matching, chip selection, `sentence_builder`, `word_arrange`, or `translate_builder`. Those types already have deterministic grading; speaking keeps its Azure pronunciation assessment.
 - Put shared grading behavior in the grader or at lesson level. Add question-level overrides only when the question has a specific learning requirement.
+- Existing typing questions without `grading` use a conservative `exact` fallback. It may accept configured surface-level differences, but it never uses AI to infer semantic equivalence or a missing target expression.
 
 ### Grading metadata contract
 
-Add a `grading` object to every newly authored free-response question. Preserve all existing required fields and use this object in addition to the canonical answer.
+Add a `grading` object to every newly authored typing question. Preserve all existing required fields and use this object in addition to the canonical answer.
 
 ```ts
 grading: {
@@ -38,9 +40,9 @@ grading: {
 
 Field requirements:
 
-- `mode: "exact"`: use for spelling, dictation, or exercises where the written form itself is the learning objective.
-- `mode: "semantic"`: use when different natural expressions with the same meaning may be accepted.
-- `mode: "targetExpression"`: use when the answer must express the correct meaning and use a particular grammar pattern or expression.
+- `mode: "exact"`: normally use for `listen_type`, `listen_fill`, and vocabulary-focused `type_answer`, where the written form itself is the objective.
+- `mode: "semantic"`: normally use for `translate_type` when any natural expression with the same meaning may be accepted.
+- `mode: "targetExpression"`: use for `type_answer` or `translate_type` when the answer must express the correct meaning and use a particular grammar pattern or expression.
 - `expectedMeaning`: describe the intended meaning unambiguously, including important details such as subject, object, tense, negation, quantity, and intent.
 - `targetExpressions`: list only the grammar or vocabulary forms the learner is expected to practise. This is required for `targetExpression` mode.
 - `requiredRegister`: specify a required speech level or style, such as `해요체` or `합니다체`, only when it is part of the lesson objective.
@@ -122,7 +124,7 @@ Before completing new seed data, confirm that:
 6. `acceptedAnswers` contains only deliberate exceptions and is not a generated paraphrase dump.
 7. Feedback text is not duplicated in every seed item; seeds describe the rubric, while the grading service and localization layer generate user-facing feedback.
 
-Existing seed files do not need to be rewritten all at once. Add this metadata to new free-response content immediately, then backfill older content incrementally. Do not reseed or overwrite production data solely to introduce these fields; use a safe schema default or migration when runtime support is implemented.
+Existing seed files do not need to be rewritten all at once. Add this metadata to new typing content immediately, then backfill older typing content incrementally. Do not reseed or overwrite production data solely to introduce these fields; use a safe schema default or migration when runtime support is implemented.
 
 ## 무엇을 만드는가
 
@@ -141,12 +143,12 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 ## 구조
 
 ```
-유닛  →  노드 4~6개  →  노드당 레슨 4개(고정)  →  레슨당 문제 17~20개
+유닛  →  노드 4~6개  →  노드당 레슨 4개(고정)  →  레슨당 문제 17~24개
 ```
 
 - **노드 수는 유닛 내용에 따라** 4~6개. 교재 한 과가 다루는 주제 수에 맞춘다.
 - **레슨은 노드당 4개 고정.**
-- 문제는 레슨당 17~20개.
+- 문제는 레슨당 17~24개.
 
 노드는 `UNIT{n}_NODES`, 문제는 `UNIT{n}_QUESTIONS` 로 내보낸다. 레슨의 `questions`
 배열에 문제 키를 나열하면 그 순서대로 출제된다. 문제 키가 곧 DB 의 `code` 라서
@@ -167,8 +169,8 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 | `fill_in_blank` | 단일 빈칸만. 보기를 탭한다 |
 | `word_matching` | 단어 5쌍 |
 | `audio_match` | 단어 5쌍 — **항상 5쌍** |
-| `sentence_builder` | 정답을 들려주고 칩으로 배열 |
-| `word_arrange` | 같음. 문장을 달리해서 쓴다 |
+| `sentence_builder` | 한국어 문장을 듣고 학습자 언어의 뜻을 칩으로 배열 |
+| `word_arrange` | 한국어 문장을 듣고 한국어 어절을 칩으로 배열 |
 | `translate_builder` | 뜻을 보고 한국어로 옮기기 |
 | `dialog_complete` | 짧은 대화의 마지막 대답 고르기 |
 | `image_choice` | **유닛 도입부에 2문제 정도.** 그 이상은 단조로워진다 |
@@ -190,7 +192,7 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 **배치**
 
 - **같은 타입을 연달아 두지 않는다.** 같은 문제를 두 번 푸는 느낌이 든다.
-- 레슨당 17~20문제, 노드당 레슨 4개, 유닛당 노드 4~6개.
+- 레슨당 17~24문제, 노드당 레슨 4개, 유닛당 노드 4~6개.
 
 **보기(`options`)**
 
@@ -233,6 +235,17 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 - **정답이 한 단어면 조립할 수 없다.** 칩을 공백으로 이어 붙이기 때문에
   `안녕하세요` 같은 한 어절 정답은 만들 수 없다.
 - `options` 를 정답 순서 그대로 적지 않는다.
+
+**`sentence_builder` — 한국어 듣기 → 학습자 언어 조립**
+
+- 현재는 Section 1 Unit 1부터 이 구조를 적용한다. 아직 전환하지 않은 유닛은 기존
+  `answer`/`options` 구조로 동작하며, 유닛별로 순차 전환한다.
+- `answer` 와 `audioText` 에는 TTS로 읽을 한국어 원문을 보존한다.
+- `answerI18n` 에는 ko/uz/en/ru별 조립 정답을 넣는다.
+- `optionsI18n` 에는 각 언어 정답의 모든 단어와 오답 2~3개를 넣는다.
+- API가 요청 언어에 맞는 `answerI18n`/`optionsI18n`을 일반 `answer`/`options`로 내려준다.
+- 한국어 UI는 정답 노출을 피하기 위해 영어 칩으로 대체한다.
+- 현지어 정답도 최소 두 단어여야 하며, 같은 단어가 반복되면 칩도 같은 수만큼 넣는다.
 
 **`word_arrange`**
 
@@ -290,7 +303,7 @@ options: ['학교', '한국어', '회사', '영어'],    // 정답 전부 + 오�
 ```
 
 - **`answer` 는 안 써도 된다.** `blankAnswers` 를 템플릿에 채운 문장이 정답이 된다.
-- 모든 빈칸이 맞아야 정답. 띄어쓰기·문장부호 차이는 자동으로 무시된다.
+- 모든 빈칸이 맞아야 정답. `grading`이 없는 기존 문제는 띄어쓰기·문장부호 차이를 자동으로 무시하고, `grading`이 있는 타이핑 문제는 `tolerance` 설정을 따른다.
 - 타이핑 타입(`listen_fill`, `type_answer`)은 `options` 없이 `blankAnswers` 만 있으면 된다.
 - 언더바 2개(`__`)는 빈칸으로 인식되지 않는다. **3개 이상.**
 - 빈칸 사이 조사·띄어쓰기는 템플릿 텍스트 쪽에 넣는다. (`'저는 ___ 를 먹어요.'`)

@@ -60,6 +60,8 @@ export interface LessonQuestion {
   answerTranslation?: string;
   /** 정답으로 인정할 추가 표기 */
   acceptedAnswers?: string[];
+  /** 정확히 일치하지 않은 타이핑 답안을 서버에서 추가 판정할지 여부 */
+  smartGradingEnabled?: boolean;
   /** 세분화된 난이도 1~5 */
   difficulty?: number;
   /** 문법 포인트 · 어휘 주제 */
@@ -105,3 +107,19 @@ export interface LessonSession {
 }
 
 export type AnswerState = "idle" | "correct" | "wrong";
+
+export type AnswerGradeKind =
+  | "correct"
+  | "almost"
+  | "meaning_correct"
+  | "target_missing"
+  | "incorrect";
+
+export interface AnswerGradeResult {
+  isCorrect: boolean;
+  result: AnswerGradeKind;
+  title: string;
+  feedback: string;
+  correction?: string;
+  source: "rule" | "ai" | "fallback";
+}

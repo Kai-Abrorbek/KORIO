@@ -16,7 +16,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { AnswerState, LessonQuestion, LessonSession } from "@/types/lesson";
+import {
+  AnswerGradeResult,
+  AnswerState,
+  LessonQuestion,
+  LessonSession,
+} from "@/types/lesson";
 import { LessonService } from "@/services/lesson.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
@@ -48,7 +53,7 @@ import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
-import { gradeAnswer } from "@/utils/answer-check";
+import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import ReadingQuiz from "@/components/lesson/questions/ReadingQuiz";
 import ErrorHunt from "@/components/lesson/questions/ErrorHunt";
 import ClozePassage from "@/components/lesson/questions/ClozePassage";
@@ -60,6 +65,12 @@ const LEGEND_SEGMENTS = [5, 7, 10];
 const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
 const LEGEND_DURATION = 120; // 2분
 const LEGEND_XP = 40;
+const SMART_GRADING_TYPES = new Set([
+  "type_answer",
+  "translate_type",
+  "listen_type",
+  "listen_fill",
+]);
 
 export default function LessonScreen() {
   const { t } = useTranslation();
@@ -96,6 +107,10 @@ export default function LessonScreen() {
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
+  const [isCheckingAnswer, setIsCheckingAnswer] = useState(false);
+  const [gradingFeedback, setGradingFeedback] =
+    useState<AnswerGradeResult | null>(null);
+  const answerSubmissionLocked = useRef(false);
   const userEnergy = useAuthStore((st) => st.user?.energy ?? 25);
   const [energy, setEnergy] = useState(userEnergy);
   const openEnergyModal = useEnergyStore((s) => s.openEnergyModal);
@@ -145,6 +160,10 @@ export default function LessonScreen() {
   const loadLesson = async () => {
     try {
       setLoading(true);
+      answerSubmissionLocked.current = false;
+      setIsCheckingAnswer(false);
+      setGradingFeedback(null);
+      setAnswerState("idle");
       if (isLevelTest) {
         const questions =
           await LessonService.getLevelTestQuestions(selfReportedLevel);
@@ -250,6 +269,9 @@ export default function LessonScreen() {
 
   const goNextLevelTest = () => {
     locked.current = false;
+    answerSubmissionLocked.current = false;
+    setGradingFeedback(null);
+    setIsCheckingAnswer(false);
     const [, ...rest] = questionQueue.current;
     questionQueue.current = rest;
 
@@ -335,16 +357,19 @@ export default function LessonScreen() {
     else router.replace("/");
   };
 
-  const handleAnswer = (answer: string) => {
-    if (!currentQ) return;
-    const isCorrect = gradeAnswer(answer, currentQ);
+  const commitAnswer = (
+    question: LessonQuestion,
+    isCorrect: boolean,
+    feedback: AnswerGradeResult | null = null,
+  ) => {
+    setGradingFeedback(feedback);
 
     if (isLevelTest) {
       if (locked.current) return;
       locked.current = true;
       totalCount.current += 1;
       if (isCorrect) correctCount.current += 1;
-      else wrongIds.current.push(currentQ.id);
+      else wrongIds.current.push(question.id);
       setProgress(totalCount.current / (lesson?.questions.length ?? 1));
       setTimeout(goNextLevelTest, 280);
       return;
@@ -355,8 +380,8 @@ export default function LessonScreen() {
     if (isCorrect) {
       setShowCombo(true);
       correctCount.current += 1;
-      if (isReview) reviewCorrectIds.current.add(currentQ.id);
-      if (phase === "review") finalWrongIds.current.delete(currentQ.id);
+      if (isReview) reviewCorrectIds.current.add(question.id);
+      if (phase === "review") finalWrongIds.current.delete(question.id);
 
       const nextCombo = combo + 1;
       setCombo(nextCombo);
@@ -390,20 +415,20 @@ export default function LessonScreen() {
         })();
       }
 
-      if (!uniqueCorrect.current.has(currentQ.id)) {
-        uniqueCorrect.current.add(currentQ.id);
+      if (!uniqueCorrect.current.has(question.id)) {
+        uniqueCorrect.current.add(question.id);
       }
     } else {
       setCombo(0);
       if (isJumpTest) {
-        wrongIds.current.push(currentQ.id);
+        wrongIds.current.push(question.id);
         setHearts((h) => Math.max(0, h - 1));
       } else if (phase === "main") {
-        if (!reviewQueue.current.some((q) => q.id === currentQ.id)) {
-          reviewQueue.current.push(currentQ);
+        if (!reviewQueue.current.some((q) => q.id === question.id)) {
+          reviewQueue.current.push(question);
         }
       } else {
-        finalWrongIds.current.add(currentQ.id);
+        finalWrongIds.current.add(question.id);
       }
     }
 
@@ -413,6 +438,40 @@ export default function LessonScreen() {
     }
 
     setAnswerState(isCorrect ? "correct" : "wrong");
+  };
+
+  const handleAnswer = async (answer: string) => {
+    const question = questionQueue.current[0];
+    if (!question || answerSubmissionLocked.current) return;
+    answerSubmissionLocked.current = true;
+
+    const useSmartGrading =
+      isLoggedIn &&
+      question.smartGradingEnabled === true &&
+      SMART_GRADING_TYPES.has(question.type);
+    const localResult = useSmartGrading
+      ? gradeTypedAnswerExactly(answer, question)
+      : gradeAnswer(answer, question);
+
+    if (!useSmartGrading || localResult) {
+      commitAnswer(question, localResult);
+      return;
+    }
+
+    setIsCheckingAnswer(true);
+    try {
+      const result = await LessonService.gradeTypedAnswer(question.id, answer);
+      // 판정 도중 화면이 바뀌거나 세션이 교체되면 늦게 온 응답을 버린다.
+      if (questionQueue.current[0]?.id !== question.id) return;
+      commitAnswer(question, result.isCorrect, result);
+    } catch {
+      // 네트워크/서버 오류가 기존 채점보다 더 나쁜 결과를 만들지 않도록 폴백한다.
+      if (questionQueue.current[0]?.id === question.id) {
+        commitAnswer(question, gradeAnswer(answer, question));
+      }
+    } finally {
+      setIsCheckingAnswer(false);
+    }
   };
 
   const finishLesson = async () => {
@@ -539,6 +598,9 @@ export default function LessonScreen() {
     }
 
     if (!lesson) return;
+    answerSubmissionLocked.current = false;
+    setGradingFeedback(null);
+    setIsCheckingAnswer(false);
     setShowCombo(false);
 
     if (isJumpTest && hearts <= 0) {
@@ -623,19 +685,25 @@ export default function LessonScreen() {
       case "dialog_complete":
         return <DialogComplete {...props} />;
       case "type_answer":
-        return <TypeAnswer {...props} />;
+        return <TypeAnswer {...props} isChecking={isCheckingAnswer} />;
       case "word_matching":
         return <WordMatching {...props} />;
       case "listening":
         return <Listening {...props} />;
       case "listen_type":
-        return <ListenType {...props} />;
+        return <ListenType {...props} isChecking={isCheckingAnswer} />;
       case "fill_in_blank":
         return <FillInBlank {...props} />;
       case "translate_type":
-        return <TranslateType {...props} />;
+        return <TranslateType {...props} isChecking={isCheckingAnswer} />;
       case "listen_fill":
-        return <ListenFill {...props} onSkip={handleNext} />;
+        return (
+          <ListenFill
+            {...props}
+            isChecking={isCheckingAnswer}
+            onSkip={handleNext}
+          />
+        );
       case "audio_match":
         return <AudioMatch {...props} onSkip={handleNext} />;
       case "grammar_blank":
@@ -740,6 +808,7 @@ export default function LessonScreen() {
               answer={currentQ.answer}
               answerTranslation={currentQ.answerTranslation}
               explanation={currentQ.explanation}
+              gradingFeedback={gradingFeedback}
               onNext={handleNext}
               theme={theme}
               combo={combo}

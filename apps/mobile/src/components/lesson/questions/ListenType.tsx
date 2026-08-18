@@ -21,6 +21,7 @@ interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
+  isChecking?: boolean;
   onSkip?: () => void;
   theme: ThemeColors;
 }
@@ -29,6 +30,7 @@ export default function ListenType({
   question,
   answerState,
   onAnswer,
+  isChecking = false,
   onSkip,
   theme,
 }: Props) {
@@ -39,7 +41,7 @@ export default function ListenType({
   const inputRef = useRef<TextInput>(null);
   const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
 
-  const locked = answerState !== "idle";
+  const locked = answerState !== "idle" || isChecking;
   const audioText = question.answer;
 
   // 문제 진입 시 자동 재생 (문제 바뀌면 다시 1회)
@@ -128,6 +130,7 @@ export default function ListenType({
         <CheckButton
           onPress={handleCheck}
           disabled={!input.trim() || locked}
+          loading={isChecking}
           theme={theme}
           skipLabel={onSkip && !locked ? t("lesson.skipListening") : undefined}
           onSkip={onSkip}

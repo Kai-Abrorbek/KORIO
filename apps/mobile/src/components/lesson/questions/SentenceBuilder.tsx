@@ -58,6 +58,7 @@ export default function SentenceBuilder({
     { max: compact ? 2 : 3 },
   );
   const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
+  const speechText = question.audioText || question.answer;
   const hasAutoPlayed = useRef(false);
   const [bankOpen, setBankOpen] = useState(false);
 
@@ -79,7 +80,7 @@ export default function SentenceBuilder({
     if (hasAutoPlayed.current) return;
     hasAutoPlayed.current = true;
     const timer = setTimeout(() => {
-      speakAuto(question.answer);
+      speakAuto(speechText);
     }, 200);
     return () => clearTimeout(timer);
   }, []);
@@ -219,7 +220,7 @@ export default function SentenceBuilder({
             <View style={s.tailInner} />
             <TouchableOpacity
               style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
-              onPress={() => speak(question.answer)}
+              onPress={() => speak(speechText)}
             >
               <Ionicons
                 name="volume-high"
@@ -229,7 +230,7 @@ export default function SentenceBuilder({
             </TouchableOpacity>
             <TouchableOpacity
               style={s.speakerBtn}
-              onPress={() => speakSlow(question.answer)}
+              onPress={() => speakSlow(speechText)}
             >
               <MaterialCommunityIcons name="turtle" size={26} color="#4A90D9" />
             </TouchableOpacity>

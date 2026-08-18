@@ -1,5 +1,5 @@
 /**
- * 중급 5종 문항 형태 검증.
+ * 공통 grading 계약과 중급 5종 문항 형태 검증.
  *
  * 이 타입들은 잘못 적어도 화면은 멀쩡히 뜬다. 대신 정답을 맞출 방법이
  * 사라진다 — error_hunt 의 wrongWord 가 어절과 한 글자라도 다르면 어디를
@@ -19,6 +19,13 @@ const TARGET_TYPES = new Set([
   'cloze_passage',
   'dialog_order',
   'verb_transform',
+]);
+
+const TYPING_TYPES = new Set([
+  'type_answer',
+  'translate_type',
+  'listen_type',
+  'listen_fill',
 ]);
 
 /** 한 번의 검사에서 모은 결과 */
@@ -218,6 +225,45 @@ function validateCommon(key: string, q: SeedQuestion) {
   }
 }
 
+function validateGrading(key: string, q: SeedQuestion) {
+  const grading = q.grading;
+  if (!grading) return;
+
+  if (!TYPING_TYPES.has(q.type)) {
+    fail(key, `grading 은 타이핑 4종에만 쓸 수 있다 (지금: ${q.type})`);
+  }
+  if (!['exact', 'semantic', 'targetExpression'].includes(grading.mode)) {
+    fail(key, `grading.mode '${grading.mode}' 가 잘못됐다`);
+  }
+  if (typeof grading.expectedMeaning !== 'string' || !grading.expectedMeaning.trim()) {
+    fail(key, 'grading.expectedMeaning 이 없다');
+  }
+  if (
+    grading.mode === 'targetExpression' &&
+    (!Array.isArray(grading.targetExpressions) || grading.targetExpressions.length === 0)
+  ) {
+    fail(key, 'targetExpression 모드인데 targetExpressions 가 없다');
+  }
+  if (
+    grading.acceptedAnswers !== undefined &&
+    !Array.isArray(grading.acceptedAnswers)
+  ) {
+    fail(key, 'grading.acceptedAnswers 는 배열이어야 한다');
+  }
+  if (grading.tolerance !== undefined) {
+    if (!grading.tolerance || typeof grading.tolerance !== 'object') {
+      fail(key, 'grading.tolerance 는 객체여야 한다');
+    } else {
+      for (const field of ['punctuation', 'spacing', 'minorTypos']) {
+        const value = grading.tolerance[field];
+        if (value !== undefined && typeof value !== 'boolean') {
+          fail(key, `grading.tolerance.${field} 는 boolean 이어야 한다`);
+        }
+      }
+    }
+  }
+}
+
 /** 중급 5종만 골라 검사한다. 다른 타입은 그냥 지나간다. */
 export function checkQuestions(
   entries: Array<[string, SeedQuestion]>,
@@ -225,6 +271,7 @@ export function checkQuestions(
   report = { errors: [], warnings: [] };
 
   for (const [key, q] of entries) {
+    validateGrading(key, q);
     if (!TARGET_TYPES.has(q.type)) continue;
     validateCommon(key, q);
     switch (q.type) {
@@ -262,7 +309,7 @@ if (require.main === module) {
   }
 
   console.log(
-    `🔍 전체 문항 ${questions.length}개 중 중급 5종 ${targets.length}개 검사`,
+    `🔍 전체 문항 ${questions.length}개 grading 계약 + 중급 5종 ${targets.length}개 검사`,
   );
   for (const type of TARGET_TYPES) {
     console.log(`   ${type.padEnd(16)} ${byType.get(type) ?? 0}`);

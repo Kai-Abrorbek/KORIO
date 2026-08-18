@@ -56,6 +56,12 @@ const I = {
     en: 'Put the words in the correct order.',
     ru: 'Расположите слова в правильном порядке.',
   },
+  listenNative: {
+    ko: '한국어를 듣고 뜻을 알맞은 순서로 배열하세요.',
+    uz: "Koreyscha gapni tinglab, ma'nosini to'g'ri tartibda tuzing.",
+    en: 'Listen to the Korean sentence and arrange its meaning.',
+    ru: 'Прослушайте корейское предложение и соберите его перевод.',
+  },
   speak: {
     ko: '소리 내어 말해 보세요.',
     uz: 'Ovoz chiqarib ayting.',
@@ -70,7 +76,731 @@ const I = {
   },
 };
 
-export const UNIT1_QUESTIONS = {
+type Unit1I18nText = {
+  ko: string;
+  uz: string;
+  en: string;
+  ru: string;
+};
+
+type Unit1I18nOptions = {
+  ko: string[];
+  uz: string[];
+  en: string[];
+  ru: string[];
+};
+
+type BuilderPracticeSentence = {
+  korean: string;
+  translation: Unit1I18nText;
+};
+
+type BuilderPracticeSet = {
+  start: number;
+  lessonCategory: LessonCategory;
+  difficulty: number;
+  tags: string[];
+  sentences: [BuilderPracticeSentence, BuilderPracticeSentence];
+};
+
+const NATIVE_DISTRACTORS: Unit1I18nOptions = {
+  ko: ['아니요', '선생님', '학생', '일본'],
+  uz: ['emas', 'siz', "o'qituvchi", 'Yaponiya'],
+  en: ['not', 'you', 'teacher', 'Japan'],
+  ru: ['не', 'вы', 'учитель', 'Япония'],
+};
+
+const BUILDER_HINT = {
+  listenNative: {
+    ko: '한국어 문장을 다시 듣고, 들은 뜻의 어순을 생각해 보세요.',
+    uz: "Koreyscha gapni yana tinglab, ma'no tartibini o'ylang.",
+    en: 'Listen again and think about the order of the translated meaning.',
+    ru: 'Послушайте ещё раз и восстановите порядок слов в переводе.',
+  },
+  arrangeKorean: {
+    ko: '다시 듣고 한국어에서 들린 순서대로 칩을 놓으세요.',
+    uz: "Yana tinglang va chiplarni koreyscha eshitilgan tartibda qo'ying.",
+    en: 'Listen again and place the chips in the Korean order you hear.',
+    ru: 'Послушайте ещё раз и расставьте слова в услышанном корейском порядке.',
+  },
+  translateKorean: {
+    ko: '뜻을 먼저 확인하고 주어부터 한국어 어순으로 만들어 보세요.',
+    uz: "Avval ma'noni tekshirib, gapni koreyscha tartibda tuzing.",
+    en: 'Check the meaning, then build the sentence in Korean word order.',
+    ru: 'Сначала проверьте смысл, затем соберите корейский порядок слов.',
+  },
+};
+
+const nativeText = (
+  ko: string,
+  uz: string,
+  en: string,
+  ru: string,
+): Unit1I18nText => ({ ko, uz, en, ru });
+
+function normalizeBuilderAnswer(value: string): string {
+  return value
+    .split(' — ')[0]
+    .replace(/[.,!?;:…()"“”«»]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeBuilderTranslations(value: Unit1I18nText): Unit1I18nText {
+  return {
+    ko: normalizeBuilderAnswer(value.ko),
+    uz: normalizeBuilderAnswer(value.uz),
+    en: normalizeBuilderAnswer(value.en),
+    ru: normalizeBuilderAnswer(value.ru),
+  };
+}
+
+function shuffledBuilderOptions(answer: string, distractors: string[]): string[] {
+  const words = normalizeBuilderAnswer(answer).split(' ').filter(Boolean);
+  if (words.length < 2) {
+    throw new Error(`조립형 현지어 정답은 두 단어 이상이어야 합니다: ${answer}`);
+  }
+
+  const extras = distractors
+    .filter((word) => !words.includes(word))
+    .slice(0, 2);
+  const combined = [...words, ...extras];
+  return [
+    ...combined.filter((_, index) => index % 2 === 1),
+    ...combined.filter((_, index) => index % 2 === 0),
+  ];
+}
+
+function localizedBuilderOptions(answer: Unit1I18nText): Unit1I18nOptions {
+  return {
+    ko: shuffledBuilderOptions(answer.ko, NATIVE_DISTRACTORS.ko),
+    uz: shuffledBuilderOptions(answer.uz, NATIVE_DISTRACTORS.uz),
+    en: shuffledBuilderOptions(answer.en, NATIVE_DISTRACTORS.en),
+    ru: shuffledBuilderOptions(answer.ru, NATIVE_DISTRACTORS.ru),
+  };
+}
+
+const SENTENCE_BUILDER_ANSWER_OVERRIDES: Record<string, Unit1I18nText> = {
+  u1_005_sentence_builder: nativeText(
+    '안녕히 계세요',
+    'Xayr yaxshi qoling',
+    'Goodbye stay well',
+    'До свидания',
+  ),
+};
+
+function withNativeSentenceBuilder(code: string, question: any) {
+  const answerI18n = normalizeBuilderTranslations(
+    SENTENCE_BUILDER_ANSWER_OVERRIDES[code] ?? question.answerTranslation,
+  );
+
+  return {
+    ...question,
+    instruction: I.listenNative,
+    audioText: question.audioText || question.answer,
+    optionsI18n: localizedBuilderOptions(answerI18n),
+    answerI18n,
+  };
+}
+
+function translateBuilderInstruction(
+  translation: Unit1I18nText,
+): Unit1I18nText {
+  return {
+    ko: `‘${translation.en}’의 뜻으로 한국어 문장을 만드세요.`,
+    uz: translation.uz,
+    en: translation.en,
+    ru: translation.ru,
+  };
+}
+
+const UNIT1_EXTRA_PRACTICE: BuilderPracticeSet[] = [
+  {
+    start: 341,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['인사말', '만남과 헤어짐'],
+    sentences: [
+      {
+        korean: '안녕하세요 만나서 반가워요',
+        translation: nativeText(
+          '안녕하세요 만나서 반가워요',
+          'Salom tanishganimdan xursandman',
+          'Hello nice to meet you',
+          'Здравствуйте рад познакомиться',
+        ),
+      },
+      {
+        korean: '선생님 안녕히 계세요',
+        translation: nativeText(
+          '선생님 안녕히 계세요',
+          'Ustoz xayr yaxshi qoling',
+          'Goodbye teacher stay well',
+          'Учитель до свидания',
+        ),
+      },
+    ],
+  },
+  {
+    start: 347,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['첫인사', '이름'],
+    sentences: [
+      {
+        korean: '나나 씨 만나서 반가워요',
+        translation: nativeText(
+          '나나 씨 만나서 반가워요',
+          'Nana xonim tanishganimdan xursandman',
+          'Nana nice to meet you',
+          'Нана рада познакомиться',
+        ),
+      },
+      {
+        korean: '네 저는 마이클이에요',
+        translation: nativeText(
+          '네 저는 마이클이에요',
+          'Ha men Mayklman',
+          'Yes I am Michael',
+          'Да я Майкл',
+        ),
+      },
+    ],
+  },
+  {
+    start: 353,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 2,
+    tags: ['높임말', '반말'],
+    sentences: [
+      {
+        korean: '안녕하십니까 만나서 반갑습니다',
+        translation: nativeText(
+          '안녕하십니까 만나서 반갑습니다',
+          'Assalomu alaykum tanishganimdan xursandman',
+          'Hello nice to meet you formally',
+          'Здравствуйте рад официально познакомиться',
+        ),
+      },
+      {
+        korean: '친구야 안녕',
+        translation: nativeText(
+          '친구야 안녕',
+          "Salom do'stim",
+          'Hello my friend',
+          'Привет мой друг',
+        ),
+      },
+    ],
+  },
+  {
+    start: 359,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 2,
+    tags: ['호칭', '인사말'],
+    sentences: [
+      {
+        korean: '김 선생님 안녕하세요',
+        translation: nativeText(
+          '김 선생님 안녕하세요',
+          'Kim ustoz salom',
+          'Hello Teacher Kim',
+          'Здравствуйте учитель Ким',
+        ),
+      },
+      {
+        korean: '여러분 만나서 반갑습니다',
+        translation: nativeText(
+          '여러분 만나서 반갑습니다',
+          'Hammangiz bilan tanishganimdan xursandman',
+          'Nice to meet you everyone',
+          'Рад познакомиться со всеми',
+        ),
+      },
+    ],
+  },
+  {
+    start: 365,
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['나라', '국적'],
+    sentences: [
+      {
+        korean: '저는 한국 사람이에요',
+        translation: nativeText(
+          '저는 한국 사람이에요',
+          'Men koreysman',
+          'I am Korean',
+          'Я кореец',
+        ),
+      },
+      {
+        korean: '유키는 일본 사람이에요',
+        translation: nativeText(
+          '유키는 일본 사람이에요',
+          'Yuki yaponiyalik',
+          'Yuki is Japanese',
+          'Юки японка',
+        ),
+      },
+    ],
+  },
+  {
+    start: 371,
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['나라', '국적'],
+    sentences: [
+      {
+        korean: '마리는 프랑스 사람이에요',
+        translation: nativeText(
+          '마리는 프랑스 사람이에요',
+          'Mari fransuz',
+          'Marie is French',
+          'Мари француженка',
+        ),
+      },
+      {
+        korean: '톰은 영국 사람이에요',
+        translation: nativeText(
+          '톰은 영국 사람이에요',
+          'Tom britaniyalik',
+          'Tom is British',
+          'Том британец',
+        ),
+      },
+    ],
+  },
+  {
+    start: 377,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 2,
+    tags: ['어느 나라', '에서 왔어요'],
+    sentences: [
+      {
+        korean: '어느 나라 사람이에요',
+        translation: nativeText(
+          '어느 나라 사람이에요',
+          'Qaysi mamlakatdansiz',
+          'What country are you from',
+          'Из какой вы страны',
+        ),
+      },
+      {
+        korean: '저는 미국에서 왔어요',
+        translation: nativeText(
+          '저는 미국에서 왔어요',
+          'Men Amerikadan keldim',
+          'I came from America',
+          'Я приехал из Америки',
+        ),
+      },
+    ],
+  },
+  {
+    start: 383,
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 2,
+    tags: ['나라', '국적'],
+    sentences: [
+      {
+        korean: '사라는 캐나다 사람이에요',
+        translation: nativeText(
+          '사라는 캐나다 사람이에요',
+          'Sara kanadalik',
+          'Sara is Canadian',
+          'Сара канадка',
+        ),
+      },
+      {
+        korean: '하산은 우즈베키스탄 사람이에요',
+        translation: nativeText(
+          '하산은 우즈베키스탄 사람이에요',
+          "Hasan o'zbekistonlik",
+          'Hasan is Uzbek',
+          'Хасан узбекистанец',
+        ),
+      },
+    ],
+  },
+  {
+    start: 389,
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['직업', '이에요/예요'],
+    sentences: [
+      {
+        korean: '저는 회사원이에요',
+        translation: nativeText(
+          '저는 회사원이에요',
+          'Men kompaniya xodimiman',
+          'I am an office worker',
+          'Я офисный работник',
+        ),
+      },
+      {
+        korean: '민수는 선생님이에요',
+        translation: nativeText(
+          '민수는 선생님이에요',
+          "Minsu o'qituvchi",
+          'Minsu is a teacher',
+          'Минсу учитель',
+        ),
+      },
+    ],
+  },
+  {
+    start: 395,
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['직업', '이에요/예요'],
+    sentences: [
+      {
+        korean: '지수는 가수예요',
+        translation: nativeText(
+          '지수는 가수예요',
+          "Jisu qo'shiqchi",
+          'Jisu is a singer',
+          'Джису певица',
+        ),
+      },
+      {
+        korean: '알렉스는 요리사예요',
+        translation: nativeText(
+          '알렉스는 요리사예요',
+          'Aleks oshpaz',
+          'Alex is a cook',
+          'Алекс повар',
+        ),
+      },
+    ],
+  },
+  {
+    start: 401,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 2,
+    tags: ['직업 질문', '뭐예요'],
+    sentences: [
+      {
+        korean: '직업이 뭐예요',
+        translation: nativeText(
+          '직업이 뭐예요',
+          'Kasbingiz nima',
+          'What is your job',
+          'Какая у вас профессия',
+        ),
+      },
+      {
+        korean: '저는 주부예요',
+        translation: nativeText(
+          '저는 주부예요',
+          'Men uy bekasiman',
+          'I am a homemaker',
+          'Я домохозяйка',
+        ),
+      },
+    ],
+  },
+  {
+    start: 407,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 2,
+    tags: ['명함', '자기소개'],
+    sentences: [
+      {
+        korean: '저는 김준석이에요',
+        translation: nativeText(
+          '저는 김준석이에요',
+          'Men Kim Junsokman',
+          'I am Kim Junseok',
+          'Я Ким Джунсок',
+        ),
+      },
+      {
+        korean: '저는 기자예요',
+        translation: nativeText(
+          '저는 기자예요',
+          'Men jurnalistman',
+          'I am a reporter',
+          'Я журналист',
+        ),
+      },
+    ],
+  },
+  {
+    start: 413,
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 2,
+    tags: ['N은/는', '받침'],
+    sentences: [
+      {
+        korean: '하산은 학생이에요',
+        translation: nativeText(
+          '하산은 학생이에요',
+          'Hasan talaba',
+          'Hasan is a student',
+          'Хасан студент',
+        ),
+      },
+      {
+        korean: '마리아는 의사예요',
+        translation: nativeText(
+          '마리아는 의사예요',
+          'Mariya shifokor',
+          'Maria is a doctor',
+          'Мария врач',
+        ),
+      },
+    ],
+  },
+  {
+    start: 419,
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 2,
+    tags: ['N이에요/예요', '받침'],
+    sentences: [
+      {
+        korean: '민수는 선생님이에요',
+        translation: nativeText(
+          '민수는 선생님이에요',
+          "Minsu o'qituvchi",
+          'Minsu is a teacher',
+          'Минсу учитель',
+        ),
+      },
+      {
+        korean: '유나는 회사원이에요',
+        translation: nativeText(
+          '유나는 회사원이에요',
+          'Yuna kompaniya xodimi',
+          'Yuna is an office worker',
+          'Юна офисный работник',
+        ),
+      },
+    ],
+  },
+  {
+    start: 425,
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 3,
+    tags: ['자기소개', '이름과 국적'],
+    sentences: [
+      {
+        korean: '저는 소피아예요 러시아 사람이에요',
+        translation: nativeText(
+          '저는 소피아예요 러시아 사람이에요',
+          'Men Sofiyaman Men rossiyalikman',
+          'I am Sofia I am Russian',
+          'Я София Я из России',
+        ),
+      },
+      {
+        korean: '저는 다니엘이에요 의사예요',
+        translation: nativeText(
+          '저는 다니엘이에요 의사예요',
+          'Men Danielman Men shifokorman',
+          'I am Daniel I am a doctor',
+          'Я Даниэль Я врач',
+        ),
+      },
+    ],
+  },
+  {
+    start: 431,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 3,
+    tags: ['첫 대화', '자기소개'],
+    sentences: [
+      {
+        korean: '안녕하세요 저는 나나예요',
+        translation: nativeText(
+          '안녕하세요 저는 나나예요',
+          'Salom men Nanaman',
+          'Hello I am Nana',
+          'Здравствуйте я Нана',
+        ),
+      },
+      {
+        korean: '저는 중국 사람이에요 만나서 반가워요',
+        translation: nativeText(
+          '저는 중국 사람이에요 만나서 반가워요',
+          'Men xitoylikman tanishganimdan xursandman',
+          'I am Chinese nice to meet you',
+          'Я китаянка рада познакомиться',
+        ),
+      },
+    ],
+  },
+  {
+    start: 437,
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 2,
+    tags: ['N입니다', '격식체'],
+    sentences: [
+      {
+        korean: '저는 학생입니다',
+        translation: nativeText(
+          '저는 학생입니다',
+          'Men talabaman',
+          'I am a student',
+          'Я студент',
+        ),
+      },
+      {
+        korean: '마이클은 기자입니다',
+        translation: nativeText(
+          '마이클은 기자입니다',
+          'Maykl jurnalist',
+          'Michael is a reporter',
+          'Майкл журналист',
+        ),
+      },
+    ],
+  },
+  {
+    start: 443,
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 3,
+    tags: ['N입니까', '격식 질문'],
+    sentences: [
+      {
+        korean: '직업이 무엇입니까',
+        translation: nativeText(
+          '직업이 무엇입니까',
+          'Kasbingiz nima',
+          'What is your job',
+          'Какая у вас профессия',
+        ),
+      },
+      {
+        korean: '미국 사람입니까',
+        translation: nativeText(
+          '미국 사람입니까',
+          'Siz amerikalikmisiz',
+          'Are you American',
+          'Вы американец',
+        ),
+      },
+    ],
+  },
+  {
+    start: 449,
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 3,
+    tags: ['N이/가 아닙니다', '부정'],
+    sentences: [
+      {
+        korean: '저는 의사가 아닙니다',
+        translation: nativeText(
+          '저는 의사가 아닙니다',
+          'Men shifokor emasman',
+          'I am not a doctor',
+          'Я не врач',
+        ),
+      },
+      {
+        korean: '나나는 일본 사람이 아닙니다',
+        translation: nativeText(
+          '나나는 일본 사람이 아닙니다',
+          'Nana yaponiyalik emas',
+          'Nana is not Japanese',
+          'Нана не японка',
+        ),
+      },
+    ],
+  },
+  {
+    start: 455,
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 3,
+    tags: ['격식 자기소개', '종합'],
+    sentences: [
+      {
+        korean: '저는 하산입니다 학생입니다',
+        translation: nativeText(
+          '저는 하산입니다 학생입니다',
+          'Men Hasanman Men talabaman',
+          'I am Hasan I am a student',
+          'Я Хасан Я студент',
+        ),
+      },
+      {
+        korean: '저는 우즈베키스탄 사람입니다',
+        translation: nativeText(
+          '저는 우즈베키스탄 사람입니다',
+          "Men o'zbekistonlikman",
+          'I am from Uzbekistan',
+          'Я из Узбекистана',
+        ),
+      },
+    ],
+  },
+];
+
+function createBuilderPracticeQuestions(): Record<string, any> {
+  const questions: Record<string, any> = {};
+
+  for (const set of UNIT1_EXTRA_PRACTICE) {
+    set.sentences.forEach((sentence, sentenceIndex) => {
+      const start = set.start + sentenceIndex * 3;
+      const answer = normalizeBuilderAnswer(sentence.korean);
+      const answerTranslation = normalizeBuilderTranslations(
+        sentence.translation,
+      );
+      const options = shuffledBuilderOptions(answer, NATIVE_DISTRACTORS.ko);
+      const common = {
+        level: QuestionLevel.LEVEL_1,
+        lessonCategory: set.lessonCategory,
+        answer,
+        acceptedAnswers: [],
+        answerTranslation,
+        difficulty: set.difficulty,
+        tags: [...set.tags, '문장 조립'],
+        xpReward: 15,
+        isActive: true,
+      };
+
+      questions[`u1_${start}_sentence_builder`] = {
+        ...common,
+        type: 'sentence_builder',
+        instruction: I.listenNative,
+        audioText: answer,
+        options,
+        hint: BUILDER_HINT.listenNative,
+      };
+      questions[`u1_${start + 1}_word_arrange`] = {
+        ...common,
+        type: 'word_arrange',
+        instruction: I.arrange,
+        audioText: answer,
+        options,
+        hint: BUILDER_HINT.arrangeKorean,
+      };
+      questions[`u1_${start + 2}_translate_builder`] = {
+        ...common,
+        type: 'translate_builder',
+        instruction: translateBuilderInstruction(answerTranslation),
+        options,
+        hint: BUILDER_HINT.translateKorean,
+      };
+    });
+  }
+
+  return questions;
+}
+
+function extraBuilderCodes(start: number): string[] {
+  return [
+    `u1_${start}_sentence_builder`,
+    `u1_${start + 1}_word_arrange`,
+    `u1_${start + 2}_translate_builder`,
+    `u1_${start + 3}_sentence_builder`,
+    `u1_${start + 4}_word_arrange`,
+    `u1_${start + 5}_translate_builder`,
+  ];
+}
+
+const UNIT1_BASE_QUESTIONS = {
   // ══════════════════════════════════════════════════════════
   // 노드 1 · 레슨 1 — 만날 때와 헤어질 때
   // 안녕하세요? / 안녕히 가세요 / 안녕히 계세요
@@ -10691,6 +11421,22 @@ export const UNIT1_QUESTIONS = {
   },
 };
 
+const UNIT1_EXTRA_QUESTIONS = createBuilderPracticeQuestions();
+
+export const UNIT1_QUESTIONS = Object.fromEntries(
+  Object.entries({
+    ...UNIT1_BASE_QUESTIONS,
+    ...UNIT1_EXTRA_QUESTIONS,
+  }).map(([code, question]) => {
+    const localizedQuestion =
+      question.type === 'sentence_builder'
+        ? withNativeSentenceBuilder(code, question)
+        : question;
+
+    return [code, localizedQuestion];
+  }),
+);
+
 export const UNIT1_NODES = [
   {
     title: {
@@ -10738,6 +11484,7 @@ export const UNIT1_NODES = [
           'u1_015_sentence_builder',
           'u1_016_fill_in_blank',
           'u1_017_speaking',
+          ...extraBuilderCodes(341),
         ],
       },
       {
@@ -10774,6 +11521,7 @@ export const UNIT1_NODES = [
           'u1_032_word_arrange',
           'u1_033_dialog_complete',
           'u1_034_speaking',
+          ...extraBuilderCodes(347),
         ],
       },
       {
@@ -10810,6 +11558,7 @@ export const UNIT1_NODES = [
           'u1_049_sentence_builder',
           'u1_050_dialog_complete',
           'u1_051_speaking',
+          ...extraBuilderCodes(353),
         ],
       },
       {
@@ -10846,6 +11595,7 @@ export const UNIT1_NODES = [
           'u1_066_dialog_complete',
           'u1_067_word_arrange',
           'u1_068_speaking',
+          ...extraBuilderCodes(359),
         ],
       },
     ],
@@ -10896,6 +11646,7 @@ export const UNIT1_NODES = [
           'u1_083_sentence_builder',
           'u1_084_word_arrange',
           'u1_085_speaking',
+          ...extraBuilderCodes(365),
         ],
       },
       {
@@ -10932,6 +11683,7 @@ export const UNIT1_NODES = [
           'u1_100_word_arrange',
           'u1_101_speaking',
           'u1_102_fill_in_blank',
+          ...extraBuilderCodes(371),
         ],
       },
       {
@@ -10968,6 +11720,7 @@ export const UNIT1_NODES = [
           'u1_117_dialog_complete',
           'u1_118_sentence_builder',
           'u1_119_speaking',
+          ...extraBuilderCodes(377),
         ],
       },
       {
@@ -11004,6 +11757,7 @@ export const UNIT1_NODES = [
           'u1_134_word_arrange',
           'u1_135_dialog_complete',
           'u1_136_speaking',
+          ...extraBuilderCodes(383),
         ],
       },
     ],
@@ -11054,6 +11808,7 @@ export const UNIT1_NODES = [
           'u1_151_sentence_builder',
           'u1_152_word_arrange',
           'u1_153_speaking',
+          ...extraBuilderCodes(389),
         ],
       },
       {
@@ -11090,6 +11845,7 @@ export const UNIT1_NODES = [
           'u1_168_word_arrange',
           'u1_169_dialog_complete',
           'u1_170_speaking',
+          ...extraBuilderCodes(395),
         ],
       },
       {
@@ -11126,6 +11882,7 @@ export const UNIT1_NODES = [
           'u1_185_dialog_complete',
           'u1_186_sentence_builder',
           'u1_187_speaking',
+          ...extraBuilderCodes(401),
         ],
       },
       {
@@ -11162,6 +11919,7 @@ export const UNIT1_NODES = [
           'u1_202_word_arrange',
           'u1_203_dialog_complete',
           'u1_204_speaking',
+          ...extraBuilderCodes(407),
         ],
       },
     ],
@@ -11212,6 +11970,7 @@ export const UNIT1_NODES = [
           'u1_219_sentence_builder',
           'u1_220_word_arrange',
           'u1_221_speaking',
+          ...extraBuilderCodes(413),
         ],
       },
       {
@@ -11248,6 +12007,7 @@ export const UNIT1_NODES = [
           'u1_236_word_arrange',
           'u1_237_dialog_complete',
           'u1_238_speaking',
+          ...extraBuilderCodes(419),
         ],
       },
       {
@@ -11284,6 +12044,7 @@ export const UNIT1_NODES = [
           'u1_253_dialog_complete',
           'u1_254_sentence_builder',
           'u1_255_speaking',
+          ...extraBuilderCodes(425),
         ],
       },
       {
@@ -11320,6 +12081,7 @@ export const UNIT1_NODES = [
           'u1_270_dialog_complete',
           'u1_271_sentence_builder',
           'u1_272_speaking',
+          ...extraBuilderCodes(431),
         ],
       },
     ],
@@ -11370,6 +12132,7 @@ export const UNIT1_NODES = [
           'u1_287_word_arrange',
           'u1_288_dialog_complete',
           'u1_289_speaking',
+          ...extraBuilderCodes(437),
         ],
       },
       {
@@ -11406,6 +12169,7 @@ export const UNIT1_NODES = [
           'u1_304_word_arrange',
           'u1_305_speaking',
           'u1_306_word_matching',
+          ...extraBuilderCodes(443),
         ],
       },
       {
@@ -11442,6 +12206,7 @@ export const UNIT1_NODES = [
           'u1_321_word_arrange',
           'u1_322_dialog_complete',
           'u1_323_speaking',
+          ...extraBuilderCodes(449),
         ],
       },
       {
@@ -11478,6 +12243,7 @@ export const UNIT1_NODES = [
           'u1_338_dialog_complete',
           'u1_339_sentence_builder',
           'u1_340_speaking',
+          ...extraBuilderCodes(455),
         ],
       },
     ],

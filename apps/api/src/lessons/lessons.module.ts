@@ -15,6 +15,7 @@ import { LeagueModule } from '../league/league.module';
 import { UsersModule } from '../users/users.module';
 
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AnswerGradingService } from './answer-grading.service';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     UsersModule,
   ],
   controllers: [LessonsController],
-  providers: [LessonsService],
+  providers: [LessonsService, AnswerGradingService],
   exports: [LessonsService],
 })
 export class LessonsModule {}

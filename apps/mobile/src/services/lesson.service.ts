@@ -1,5 +1,5 @@
 import api from "./api";
-import { LessonSession } from "@/types/lesson";
+import { AnswerGradeResult, LessonSession } from "@/types/lesson";
 import i18n from "@/locales/i18n";
 
 // 현재 유저 언어 가져오기
@@ -50,6 +50,15 @@ export const LessonService = {
   getLessonById: (lessonId: string): Promise<LessonSession> => {
     return api.get(`/lessons/${lessonId}?lang=${getLang()}`);
   },
+
+  gradeTypedAnswer: (
+    questionId: string,
+    answer: string,
+  ): Promise<AnswerGradeResult> =>
+    api.post(`/lessons/questions/${questionId}/grade`, {
+      answer,
+      lang: getLang(),
+    }),
 
   // 레슨 완료 저장
   completeLesson: (
