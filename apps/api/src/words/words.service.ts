@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { Model, Types, type QueryFilter } from 'mongoose';
 import { ListWordsQueryDto } from './dto/list-words-query.dto';
 import { ReviewQueueQueryDto } from './dto/review-queue-query.dto';
 import { WordReviewResult } from './dto/review-word.dto';
@@ -246,12 +246,12 @@ export class WordsService {
   private buildScopeFilter(
     section?: number,
     unit?: number,
-  ): FilterQuery<Word> {
+  ): QueryFilter<Word> {
     if (unit && !section) {
       throw new BadRequestException('WORD_SECTION_REQUIRED_WITH_UNIT');
     }
 
-    const filter: FilterQuery<Word> = { isActive: true };
+    const filter: QueryFilter<Word> = { isActive: true };
     if (section && unit) {
       filter.placements = { $elemMatch: { section, unit } };
     } else if (section) {

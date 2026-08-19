@@ -110,6 +110,8 @@ interface SettingsState {
   learnMode: LearnMode; // 현재 진행 중인 학습 모드
   /** 마지막으로 고른 토픽 급수. 홈에서 토픽으로 돌아갈 때 필요 */
   topikLevel: TopikLevel;
+  /** 단어 카드를 넘길 때 한국어 발음을 자동으로 재생할지 여부 */
+  wordStudyAutoPlay: boolean;
   notifications: NotificationPrefs;
   sound: SoundPrefs;
   /** 이번 실행 동안만 음소거 (저장 안 함) */
@@ -119,6 +121,7 @@ interface SettingsState {
   setLearningTheme: (t: LearningTheme) => void;
   setLearnMode: (m: LearnMode) => void;
   setTopikLevel: (l: TopikLevel) => void;
+  setWordStudyAutoPlay: (enabled: boolean) => void;
   setNotifications: (patch: Partial<NotificationPrefs>) => void;
   setSound: (patch: Partial<SoundPrefs>) => void;
   setMuted: (v: boolean) => void;
@@ -132,6 +135,7 @@ export const useSettingsStore = create<SettingsState>()(
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
       topikLevel: "1",
+      wordStudyAutoPlay: true,
       notifications: {
         master: true,
         daily: true,
@@ -161,6 +165,8 @@ export const useSettingsStore = create<SettingsState>()(
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
       setTopikLevel: (topikLevel) => set({ topikLevel }),
+      setWordStudyAutoPlay: (wordStudyAutoPlay) =>
+        set({ wordStudyAutoPlay }),
       setNotifications: (patch) =>
         set((s) => ({ notifications: { ...s.notifications, ...patch } })),
       setSound: (patch) => set((s) => ({ sound: { ...s.sound, ...patch } })),
@@ -202,6 +208,10 @@ export const useSettingsStore = create<SettingsState>()(
         // 급수는 "1"/"2" 둘뿐. 이상한 값이 저장돼 있으면 토픽 화면이 깨진다.
         if (state && state.topikLevel !== "1" && state.topikLevel !== "2") {
           state.topikLevel = "1";
+        }
+
+        if (state && typeof state.wordStudyAutoPlay !== "boolean") {
+          state.wordStudyAutoPlay = true;
         }
 
         // 이 설정이 생기기 전에 저장된 데이터에는 음성 이름이 없다.

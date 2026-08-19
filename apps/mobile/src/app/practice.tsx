@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import MistakesModal from "@/components/practice/MistakesModal";
-import WordsModal from "@/components/practice/WordsModal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SkillIcon = {
@@ -33,7 +32,6 @@ export default function PracticeScreen() {
   const s = styles(theme);
 
   const [showMistakes, setShowMistakes] = useState(false);
-  const [showWords, setShowWords] = useState(false);
 
   const goHome = () => {
     if (router.canGoBack()) router.back();
@@ -69,7 +67,7 @@ export default function PracticeScreen() {
       icon: "cards",
       color: "#1CB0F6",
       ready: true,
-      onPress: () => setShowWords(true),
+      onPress: () => router.push("/word-study"),
     },
     {
       key: "story",
@@ -175,11 +173,6 @@ export default function PracticeScreen() {
       <MistakesModal
         visible={showMistakes}
         onClose={() => setShowMistakes(false)}
-        theme={theme}
-      />
-      <WordsModal
-        visible={showWords}
-        onClose={() => setShowWords(false)}
         theme={theme}
       />
     </View>

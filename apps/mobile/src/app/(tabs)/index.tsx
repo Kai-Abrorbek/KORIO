@@ -136,11 +136,21 @@ export default function HomeScreen() {
     return DAYS[(js + 6) % 7]; // 월=0 시작 배열로 매핑
   };
 
-  const quickAccess = [
+  const quickAccess: Array<{
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    color: string;
+    onPress?: () => void;
+  }> = [
     { icon: "basket-outline", label: t("home.shop"), color: "#776ee2" },
     { icon: "bookmark-outline", label: t("home.challenge"), color: "#FAC775" },
     { icon: "search-outline", label: t("home.dictionary"), color: "#45B7D1" },
-    { icon: "heart-outline", label: t("home.wordbook"), color: "#FF6B6B" },
+    {
+      icon: "heart-outline",
+      label: t("home.wordbook"),
+      color: "#FF6B6B",
+      onPress: () => router.push("/word-study"),
+    },
   ];
 
   return (
@@ -480,7 +490,12 @@ export default function HomeScreen() {
         >
           <View style={styles.quickGrid}>
             {quickAccess.map((item) => (
-              <TouchableOpacity key={item.label} style={styles.quickItem}>
+              <TouchableOpacity
+                key={item.label}
+                style={styles.quickItem}
+                onPress={item.onPress}
+                disabled={!item.onPress}
+              >
                 <View
                   style={[
                     styles.quickIcon,
@@ -499,7 +514,7 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        <View style={{ height: 100 }} />
+        <View style={styles.quickAccessBottomSpace} />
       </ScrollView>
 
       {/* AI 플로팅 버튼 */}
@@ -962,6 +977,7 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.text,
       fontWeight: "500",
     },
+    quickAccessBottomSpace: { height: 210 },
   });
 function setUserData(arg0: any): any {
   throw new Error("Function not implemented.");

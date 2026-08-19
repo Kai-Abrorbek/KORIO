@@ -122,6 +122,10 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="word-study"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="jump-result"
               options={{ headerShown: false, gestureEnabled: false }}
             />

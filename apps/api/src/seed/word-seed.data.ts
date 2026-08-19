@@ -127,9 +127,7 @@ function normalizeEntry(
     },
     `${headword} meaning`,
   );
-  const meaningSignature = REQUIRED_LANGUAGES.map(
-    (lang) => meaning[lang].trim().toLocaleLowerCase(),
-  ).join('|');
+  const meaningSignature = createMeaningSignature(meaning);
   const senseKey =
     entry.senseKey?.trim() || `legacy-${shortHash(meaningSignature)}`;
   const code =
@@ -210,13 +208,19 @@ function shortHash(value: string) {
   return createHash('sha256').update(value).digest('hex').slice(0, 12);
 }
 
+function createMeaningSignature(meaning: Record<WordLanguage, string>) {
+  return REQUIRED_LANGUAGES.map((lang) =>
+    meaning[lang].trim().toLocaleLowerCase(),
+  ).join('|');
+}
+
 function assertCompatible(
   existing: NormalizedWordSeed,
   next: NormalizedWordSeed,
 ) {
-  const sameMeaning = REQUIRED_LANGUAGES.every(
-    (lang) => existing.meaning[lang] === next.meaning[lang],
-  );
+  const sameMeaning =
+    createMeaningSignature(existing.meaning) ===
+    createMeaningSignature(next.meaning);
   if (existing.headword !== next.headword || !sameMeaning) {
     throw new Error(
       `Word code ${next.code} is reused for incompatible content. Give each meaning a unique stable code.`,
