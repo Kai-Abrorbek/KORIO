@@ -19,7 +19,6 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import type { ThemeColors } from "@/constants/theme";
 import { useSpeechRecorder } from "@/hooks/useSpeechRecorder";
@@ -60,10 +59,9 @@ export default function TranslateType({
   theme,
 }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const compact = height < 740;
-  const s = styles(theme, insets.bottom);
+  const s = styles(theme);
   const [input, setInput] = useState("");
   const [focused, setFocused] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -403,13 +401,13 @@ export default function TranslateType({
   );
 }
 
-const styles = (theme: ThemeColors, bottomInset = 0) =>
+const styles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingHorizontal: 18,
       paddingTop: 4,
-      paddingBottom: Math.max(4, bottomInset),
+      paddingBottom: 0,
     },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 14 },

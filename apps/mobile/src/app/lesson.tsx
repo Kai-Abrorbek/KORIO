@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   FadeIn,
+  KeyboardState,
   useAnimatedKeyboard,
   useAnimatedStyle,
 } from "react-native-reanimated";
@@ -81,7 +82,11 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
   const questionAreaStyle = useAnimatedStyle(() => ({
-    paddingBottom: Math.max(keyboard.height.value, insets.bottom),
+    paddingBottom:
+      keyboard.state.value === KeyboardState.OPEN ||
+      keyboard.state.value === KeyboardState.OPENING
+        ? Math.max(keyboard.height.value, insets.bottom)
+        : insets.bottom,
   }));
   const { lessonId, mode, nodeId, section, unit, target, category, pack } =
     useLocalSearchParams<{
