@@ -65,765 +65,6402 @@ const I = {
   },
 };
 
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
+
 export const S1_UNIT6_WORDS = [
-  // ───────── 음식 ─────────
+  // ─────────────────────────────────────
+  // 음식
+  // ─────────────────────────────────────
 
   {
+    code: 'word_galbitang_noun',
+    senseKey: 'food-galbitang',
     korean: '갈비탕',
-    uz: "galbitang (mol qovurg'ali sho'rva)",
-    en: 'beef short-rib soup',
-    ru: 'суп с говяжьими рёбрышками',
-    emoji: '🍲',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '소갈비를 오래 끓여 만든 한국의 국물 음식',
+      uz: 'mol qovurg‘asidan tayyorlanadigan koreys sho‘rvasi',
+      en: 'Korean beef short-rib soup',
+      ru: 'корейский суп из говяжьих рёбрышек',
+    },
+
+    examples: [
+      {
+        korean: '갈비탕 한 그릇 주세요.',
+        translations: {
+          ko: '갈비탕 한 그릇을 주세요.',
+          uz: 'Bir kosa galbitang bering.',
+          en: 'Please give me one bowl of galbitang.',
+          ru: 'Дайте, пожалуйста, одну порцию кальбитхана.',
+        },
+      },
+      {
+        korean: '갈비탕이 맛있어요.',
+        translations: {
+          ko: '갈비탕이 맛있습니다.',
+          uz: 'Galbitang mazali.',
+          en: 'Galbitang is delicious.',
+          ru: 'Кальбитхан вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '갈비탕',
+      romanization: 'galbitang',
+      ttsText: '갈비탕',
+    },
+
+    media: {
+      emoji: '🍲',
+      imageUrl: 'https://cdn.korio.app/words/galbitang.webp',
+      imageAlt: {
+        ko: '소갈비가 들어 있는 갈비탕',
+        uz: 'mol qovurg‘ali galbitang sho‘rvasi',
+        en: 'galbitang with beef short ribs',
+        ru: 'кальбитхан с говяжьими рёбрышками',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "식당에서 '갈비탕 한 그릇 주세요'처럼 주문할 수 있어요.",
+      uz: "Restoranda '갈비탕 한 그릇 주세요' deb buyurtma berish mumkin.",
+      en: "You can order it with '갈비탕 한 그릇 주세요.'",
+      ru: 'В ресторане можно заказать: «갈비탕 한 그릇 주세요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_gimbap_noun',
+    senseKey: 'food-gimbap',
     korean: '김밥',
-    uz: 'gimbap',
-    en: 'gimbap',
-    ru: 'кимбап',
-    emoji: '🍙',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '밥과 여러 재료를 김에 말아 만든 한국 음식',
+      uz: 'guruch va masalliqlarni dengiz karami bilan o‘rab tayyorlanadigan gimbap',
+      en: 'Korean rice rolls wrapped in seaweed',
+      ru: 'корейские роллы из риса и начинки, завёрнутые в морскую капусту',
+    },
+
+    examples: [
+      {
+        korean: '김밥 두 줄 주세요.',
+        translations: {
+          ko: '김밥 두 줄을 주세요.',
+          uz: 'Ikki rulon gimbap bering.',
+          en: 'Please give me two rolls of gimbap.',
+          ru: 'Дайте, пожалуйста, два ролла кимбапа.',
+        },
+      },
+      {
+        korean: '저는 김밥을 좋아해요.',
+        translations: {
+          ko: '저는 김밥을 좋아합니다.',
+          uz: 'Men gimbapni yaxshi ko‘raman.',
+          en: 'I like gimbap.',
+          ru: 'Я люблю кимбап.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '김밥', romanization: 'gimbap', ttsText: '김밥' },
+
+    media: {
+      emoji: '🍙',
+      imageUrl: 'https://cdn.korio.app/words/gimbap.webp',
+      imageAlt: {
+        ko: '잘라 놓은 김밥',
+        uz: 'bo‘laklarga kesilgan gimbap',
+        en: 'sliced gimbap',
+        ru: 'нарезанный кимбап',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "김밥은 보통 길게 말아 만들며 수량을 셀 때 '줄'을 많이 사용해요.",
+      uz: "Gimbap odatda uzun rulon shaklida bo‘ladi va sanashda '줄' ishlatiladi.",
+      en: 'Gimbap is usually made as a long roll, and 줄 is commonly used as its counter.',
+      ru: 'Кимбап обычно делают длинным рулетом, а для подсчёта часто используется 줄.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kimchi_noun',
+    senseKey: 'food-kimchi',
     korean: '김치',
-    uz: 'kimchi',
-    en: 'kimchi',
-    ru: 'кимчи',
-    emoji: '🥬',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '채소를 양념해 발효시킨 한국의 대표적인 음식',
+      uz: 'sabzavotlarni ziravorlab achitib tayyorlanadigan koreys taomi, kimchi',
+      en: 'Korean fermented seasoned vegetables, kimchi',
+      ru: 'корейские ферментированные овощи с приправами, кимчи',
+    },
+
+    examples: [
+      {
+        korean: '저는 김치를 좋아해요.',
+        translations: {
+          ko: '저는 김치를 좋아합니다.',
+          uz: 'Men kimchini yaxshi ko‘raman.',
+          en: 'I like kimchi.',
+          ru: 'Я люблю кимчи.',
+        },
+      },
+      {
+        korean: '김치가 맛있어요.',
+        translations: {
+          ko: '김치가 맛있습니다.',
+          uz: 'Kimchi mazali.',
+          en: 'The kimchi is delicious.',
+          ru: 'Кимчи вкусное.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '김치', romanization: 'gimchi', ttsText: '김치' },
+
+    media: {
+      emoji: '🥬',
+      imageUrl: 'https://cdn.korio.app/words/gimchi.webp',
+      imageAlt: {
+        ko: '배추로 만든 김치',
+        uz: 'karamdan tayyorlangan kimchi',
+        en: 'kimchi made with napa cabbage',
+        ru: 'кимчи из пекинской капусты',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '한국 음식에서 매우 자주 나오는 기본 단어이고 여러 종류의 김치가 있어요.',
+      uz: 'Bu koreys taomlarida juda ko‘p uchraydigan asosiy so‘z bo‘lib, kimchining ko‘p turlari bor.',
+      en: 'This is a basic Korean food word, and there are many varieties of kimchi.',
+      ru: 'Это одно из основных слов о корейской еде; существует много видов кимчи.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kimchi_stew_noun',
+    senseKey: 'food-kimchi-stew',
     korean: '김치찌개',
-    uz: "kimchi sho'rvasi",
-    en: 'kimchi stew',
-    ru: 'рагу-суп с кимчи',
-    emoji: '🍲',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '김치를 주재료로 끓인 한국식 찌개',
+      uz: 'kimchidan tayyorlanadigan koreys quyuq sho‘rvasi',
+      en: 'kimchi stew',
+      ru: 'корейское рагу-суп с кимчи',
+    },
+
+    examples: [
+      {
+        korean: '김치찌개 한 그릇 주세요.',
+        translations: {
+          ko: '김치찌개 한 그릇을 주세요.',
+          uz: 'Bir kosa kimchi sho‘rvasi bering.',
+          en: 'Please give me one bowl of kimchi stew.',
+          ru: 'Дайте, пожалуйста, одну порцию кимчи-ччигэ.',
+        },
+      },
+      {
+        korean: '김치찌개가 맛있어요.',
+        translations: {
+          ko: '김치찌개가 맛있습니다.',
+          uz: 'Kimchi sho‘rvasi mazali.',
+          en: 'The kimchi stew is delicious.',
+          ru: 'Кимчи-ччигэ вкусное.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '김치찌개',
+      romanization: 'gimchijjigae',
+      ttsText: '김치찌개',
+    },
+
+    media: {
+      emoji: '🍲',
+      imageUrl: 'https://cdn.korio.app/words/gimchijjigae.webp',
+      imageAlt: {
+        ko: '뚝배기에 담긴 김치찌개',
+        uz: 'idishda turgan kimchi sho‘rvasi',
+        en: 'kimchi stew in a Korean earthenware bowl',
+        ru: 'кимчи-ччигэ в корейском горшочке',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "식당에서 흔히 볼 수 있는 한국 음식이고 보통 '한 그릇'과 함께 주문해요.",
+      uz: "Koreys restoranlarida keng tarqalgan taom bo‘lib, ko‘pincha '한 그릇' bilan buyurtma qilinadi.",
+      en: 'A common Korean restaurant dish, often ordered using 한 그릇.',
+      ru: 'Распространённое корейское блюдо; при заказе часто используется 한 그릇.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_naengmyeon_noun',
+    senseKey: 'food-naengmyeon',
     korean: '냉면',
-    uz: 'naengmyeon (sovuq ugra)',
-    en: 'cold noodles',
-    ru: 'холодная лапша',
-    emoji: '🍜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '차가운 육수나 양념에 면을 넣어 먹는 음식',
+      uz: 'sovuq bulyon yoki sous bilan beriladigan koreys ugrasi',
+      en: 'Korean cold noodles',
+      ru: 'корейская холодная лапша',
+    },
+
+    examples: [
+      {
+        korean: '냉면 한 그릇 주세요.',
+        translations: {
+          ko: '냉면 한 그릇을 주세요.',
+          uz: 'Bir kosa naengmyeon bering.',
+          en: 'Please give me one bowl of naengmyeon.',
+          ru: 'Дайте, пожалуйста, одну порцию нэнмёна.',
+        },
+      },
+      {
+        korean: '여름에 냉면을 먹어요.',
+        translations: {
+          ko: '여름에 냉면을 먹습니다.',
+          uz: 'Yozda naengmyeon yeyman.',
+          en: 'I eat naengmyeon in summer.',
+          ru: 'Летом я ем нэнмён.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '냉면',
+      romanization: 'naengmyeon',
+      ttsText: '냉면',
+    },
+
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/naengmyeon.webp',
+      imageAlt: {
+        ko: '차갑게 먹는 냉면',
+        uz: 'sovuq holda yeyiladigan naengmyeon',
+        en: 'a bowl of Korean cold noodles',
+        ru: 'тарелка корейской холодной лапши',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'noodles', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '차갑게 먹는 면 요리로 특히 여름에 많이 먹어요.',
+      uz: 'Sovuq holda iste’mol qilinadigan ugra bo‘lib, ayniqsa yozda mashhur.',
+      en: 'A cold noodle dish especially popular in summer.',
+      ru: 'Холодная лапша, особенно популярная летом.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ramyeon_noun',
+    senseKey: 'food-korean-instant-noodles',
     korean: '라면',
-    uz: 'ramyon',
-    en: 'ramen / instant noodles',
-    ru: 'рамён / лапша быстрого приготовления',
-    emoji: '🍜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '면과 수프를 끓여 먹는 인스턴트 면 음식',
+      uz: 'koreyscha tez tayyorlanadigan ugra, ramyon',
+      en: 'Korean instant noodles, ramyeon',
+      ru: 'корейская лапша быстрого приготовления, рамён',
+    },
+
+    examples: [
+      {
+        korean: '라면을 먹어요.',
+        translations: {
+          ko: '라면을 먹습니다.',
+          uz: 'Ramyon yeyman.',
+          en: 'I eat ramyeon.',
+          ru: 'Я ем рамён.',
+        },
+      },
+      {
+        korean: '라면 한 개 주세요.',
+        translations: {
+          ko: '라면 한 개를 주세요.',
+          uz: 'Bitta ramyon bering.',
+          en: 'Please give me one ramyeon.',
+          ru: 'Дайте, пожалуйста, одну пачку рамёна.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '라면', romanization: 'ramyeon', ttsText: '라면' },
+
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/ramyeon.webp',
+      imageAlt: {
+        ko: '그릇에 담긴 라면',
+        uz: 'kosadagi ramyon',
+        en: 'a bowl of Korean ramyeon',
+        ru: 'миска корейского рамёна',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'noodles', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '한국에서 인스턴트 라면을 말할 때 일반적으로 사용하는 단어예요.',
+      uz: 'Koreyada tez tayyorlanadigan lapsha uchun ishlatiladigan odatiy so‘z.',
+      en: 'The common Korean word for Korean-style instant noodles.',
+      ru: 'Обычное корейское слово для лапши быстрого приготовления.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_bulgogi_noun',
+    senseKey: 'food-bulgogi',
     korean: '불고기',
-    uz: "bulgogi (marinadlangan go'sht)",
-    en: 'bulgogi',
-    ru: 'пулькоги',
-    emoji: '🥩',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '양념한 고기를 구워 만든 한국 음식',
+      uz: 'marinadlangan go‘shtdan tayyorlanadigan koreys taomi, bulgogi',
+      en: 'Korean marinated grilled meat, bulgogi',
+      ru: 'корейское маринованное жареное мясо, пулькоги',
+    },
+
+    examples: [
+      {
+        korean: '불고기를 좋아해요.',
+        translations: {
+          ko: '불고기를 좋아합니다.',
+          uz: 'Bulgogini yaxshi ko‘raman.',
+          en: 'I like bulgogi.',
+          ru: 'Я люблю пулькоги.',
+        },
+      },
+      {
+        korean: '불고기가 맛있어요.',
+        translations: {
+          ko: '불고기가 맛있습니다.',
+          uz: 'Bulgogi mazali.',
+          en: 'Bulgogi is delicious.',
+          ru: 'Пулькоги вкусное.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '불고기',
+      romanization: 'bulgogi',
+      ttsText: '불고기',
+    },
+
+    media: {
+      emoji: '🥩',
+      imageUrl: 'https://cdn.korio.app/words/bulgogi.webp',
+      imageAlt: {
+        ko: '양념해 구운 불고기',
+        uz: 'marinadlab pishirilgan bulgogi',
+        en: 'Korean marinated bulgogi',
+        ru: 'маринованное корейское пулькоги',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'meat', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'불고기를 먹다', '불고기를 좋아하다'처럼 자주 사용해요.",
+      uz: "'불고기를 먹다' yoki '불고기를 좋아하다' kabi ishlatiladi.",
+      en: "Commonly used in expressions such as 'eat bulgogi' and 'like bulgogi.'",
+      ru: 'Часто используется в выражениях «есть пулькоги» и «любить пулькоги».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_bibimbap_noun',
+    senseKey: 'food-bibimbap',
     korean: '비빔밥',
-    uz: 'bibimbap',
-    en: 'bibimbap',
-    ru: 'пибимпап',
-    emoji: '🍚',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '밥에 채소와 고기 등을 넣고 비벼 먹는 한국 음식',
+      uz: 'guruchni sabzavot, go‘sht va boshqa masalliqlar bilan aralashtirib yeyiladigan bibimbap',
+      en: 'Korean mixed rice with vegetables and other toppings',
+      ru: 'корейский рис, смешанный с овощами и другими добавками',
+    },
+
+    examples: [
+      {
+        korean: '비빔밥 한 그릇 주세요.',
+        translations: {
+          ko: '비빔밥 한 그릇을 주세요.',
+          uz: 'Bir kosa bibimbap bering.',
+          en: 'Please give me one bowl of bibimbap.',
+          ru: 'Дайте, пожалуйста, одну порцию пибимпапа.',
+        },
+      },
+      {
+        korean: '비빔밥이 맛있어요.',
+        translations: {
+          ko: '비빔밥이 맛있습니다.',
+          uz: 'Bibimbap mazali.',
+          en: 'Bibimbap is delicious.',
+          ru: 'Пибимпап вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '비빔밥',
+      romanization: 'bibimbap',
+      ttsText: '비빔밥',
+    },
+
+    media: {
+      emoji: '🍚',
+      imageUrl: 'https://cdn.korio.app/words/bibimbap.webp',
+      imageAlt: {
+        ko: '채소가 올라간 비빔밥',
+        uz: 'sabzavotli bibimbap',
+        en: 'bibimbap topped with vegetables',
+        ru: 'пибимпап с овощами',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'rice', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "식당에서 주문할 때 '비빔밥 한 그릇 주세요'라고 할 수 있어요.",
+      uz: "Restoranda '비빔밥 한 그릇 주세요' deb buyurtma berish mumkin.",
+      en: "You can order it with '비빔밥 한 그릇 주세요.'",
+      ru: 'Можно заказать фразой «비빔밥 한 그릇 주세요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sandwich_noun',
+    senseKey: 'food-sandwich',
     korean: '샌드위치',
-    uz: 'sendvich',
-    en: 'sandwich',
-    ru: 'сэндвич',
-    emoji: '🥪',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '빵 사이에 고기나 채소 등을 넣어 만든 음식',
+      uz: 'sendvich',
+      en: 'sandwich',
+      ru: 'сэндвич',
+    },
+
+    examples: [
+      {
+        korean: '샌드위치 한 개 주세요.',
+        translations: {
+          ko: '샌드위치 한 개를 주세요.',
+          uz: 'Bitta sendvich bering.',
+          en: 'Please give me one sandwich.',
+          ru: 'Дайте, пожалуйста, один сэндвич.',
+        },
+      },
+      {
+        korean: '점심에 샌드위치를 먹어요.',
+        translations: {
+          ko: '점심에 샌드위치를 먹습니다.',
+          uz: 'Tushlikda sendvich yeyman.',
+          en: 'I eat a sandwich for lunch.',
+          ru: 'На обед я ем сэндвич.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '샌드위치',
+      romanization: 'saendeuwichi',
+      ttsText: '샌드위치',
+    },
+
+    media: {
+      emoji: '🥪',
+      imageUrl: 'https://cdn.korio.app/words/saendeuwichi.webp',
+      imageAlt: {
+        ko: '채소가 들어간 샌드위치',
+        uz: 'sabzavotli sendvich',
+        en: 'a sandwich with vegetables',
+        ru: 'сэндвич с овощами',
+      },
+    },
+
+    tags: ['food', 'meal', 'restaurant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "수량을 말할 때 '샌드위치 한 개'처럼 '개'와 함께 사용할 수 있어요.",
+      uz: "Miqdorni aytganda '샌드위치 한 개' kabi '개' bilan ishlatiladi.",
+      en: "It can be counted with 개, as in '샌드위치 한 개.'",
+      ru: 'Можно считать с помощью 개: «샌드위치 한 개».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_spaghetti_noun',
+    senseKey: 'food-spaghetti',
     korean: '스파게티',
-    uz: 'spagetti',
-    en: 'spaghetti',
-    ru: 'спагетти',
-    emoji: '🍝',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '길고 가는 면에 소스를 곁들여 먹는 음식',
+      uz: 'spagetti',
+      en: 'spaghetti',
+      ru: 'спагетти',
+    },
+
+    examples: [
+      {
+        korean: '스파게티가 얼마예요?',
+        translations: {
+          ko: '스파게티의 가격이 얼마입니까?',
+          uz: 'Spagetti qancha turadi?',
+          en: 'How much is the spaghetti?',
+          ru: 'Сколько стоят спагетти?',
+        },
+      },
+      {
+        korean: '스파게티를 좋아해요.',
+        translations: {
+          ko: '스파게티를 좋아합니다.',
+          uz: 'Spagettini yaxshi ko‘raman.',
+          en: 'I like spaghetti.',
+          ru: 'Я люблю спагетти.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '스파게티',
+      romanization: 'seupageti',
+      ttsText: '스파게티',
+    },
+
+    media: {
+      emoji: '🍝',
+      imageUrl: 'https://cdn.korio.app/words/seupageti.webp',
+      imageAlt: {
+        ko: '소스를 곁들인 스파게티',
+        uz: 'sousli spagetti',
+        en: 'spaghetti with sauce',
+        ru: 'спагетти с соусом',
+      },
+    },
+
+    tags: ['food', 'noodles', 'restaurant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'스파게티를 먹다', '스파게티가 얼마예요?'처럼 사용할 수 있어요.",
+      uz: "'스파게티를 먹다' yoki '스파게티가 얼마예요?' kabi ishlatiladi.",
+      en: "Used in expressions such as 'eat spaghetti' or 'How much is the spaghetti?'",
+      ru: 'Используется в выражениях «есть спагетти» и «сколько стоят спагетти?».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_pizza_noun',
+    senseKey: 'food-pizza',
     korean: '피자',
-    uz: 'pitsa',
-    en: 'pizza',
-    ru: 'пицца',
-    emoji: '🍕',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '둥근 반죽 위에 치즈와 여러 재료를 올려 구운 음식',
+      uz: 'pitsa',
+      en: 'pizza',
+      ru: 'пицца',
+    },
+
+    examples: [
+      {
+        korean: '피자가 얼마예요?',
+        translations: {
+          ko: '피자의 가격이 얼마입니까?',
+          uz: 'Pitsa qancha turadi?',
+          en: 'How much is the pizza?',
+          ru: 'Сколько стоит пицца?',
+        },
+      },
+      {
+        korean: '저는 피자를 좋아해요.',
+        translations: {
+          ko: '저는 피자를 좋아합니다.',
+          uz: 'Men pitsani yaxshi ko‘raman.',
+          en: 'I like pizza.',
+          ru: 'Я люблю пиццу.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '피자', romanization: 'pija', ttsText: '피자' },
+
+    media: {
+      emoji: '🍕',
+      imageUrl: 'https://cdn.korio.app/words/pija.webp',
+      imageAlt: {
+        ko: '치즈가 올라간 피자',
+        uz: 'pishloqli pitsa',
+        en: 'a pizza topped with cheese',
+        ru: 'пицца с сыром',
+      },
+    },
+
+    tags: ['food', 'restaurant', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'피자를 먹다', '피자를 좋아하다'처럼 사용해요.",
+      uz: "'피자를 먹다', '피자를 좋아하다' kabi ishlatiladi.",
+      en: 'Commonly used with verbs such as 먹다 and 좋아하다.',
+      ru: 'Часто используется с глаголами 먹다 и 좋아하다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_hamburger_noun',
+    senseKey: 'food-hamburger',
     korean: '햄버거',
-    uz: 'gamburger',
-    en: 'hamburger',
-    ru: 'гамбургер',
-    emoji: '🍔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '둥근 빵 사이에 고기와 채소 등을 넣은 음식',
+      uz: 'gamburger',
+      en: 'hamburger',
+      ru: 'гамбургер',
+    },
+
+    examples: [
+      {
+        korean: '햄버거 한 개 주세요.',
+        translations: {
+          ko: '햄버거 한 개를 주세요.',
+          uz: 'Bitta gamburger bering.',
+          en: 'Please give me one hamburger.',
+          ru: 'Дайте, пожалуйста, один гамбургер.',
+        },
+      },
+      {
+        korean: '햄버거가 맛있어요.',
+        translations: {
+          ko: '햄버거가 맛있습니다.',
+          uz: 'Gamburger mazali.',
+          en: 'The hamburger is delicious.',
+          ru: 'Гамбургер вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '햄버거',
+      romanization: 'haembeogeo',
+      ttsText: '햄버거',
+    },
+
+    media: {
+      emoji: '🍔',
+      imageUrl: 'https://cdn.korio.app/words/haembeogeo.webp',
+      imageAlt: {
+        ko: '고기와 채소가 들어간 햄버거',
+        uz: 'go‘sht va sabzavotli gamburger',
+        en: 'a hamburger with meat and vegetables',
+        ru: 'гамбургер с мясом и овощами',
+      },
+    },
+
+    tags: ['food', 'restaurant', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "수량을 셀 때 '햄버거 한 개, 두 개'처럼 '개'를 사용할 수 있어요.",
+      uz: "Sanashda '햄버거 한 개, 두 개' kabi '개' ishlatiladi.",
+      en: '개 can be used as its counter: 한 개, 두 개.',
+      ru: 'Для подсчёта можно использовать 개: 한 개, 두 개.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 과일 ─────────
+  // ─────────────────────────────────────
+  // 과일
+  // ─────────────────────────────────────
 
   {
+    code: 'word_mandarin_noun',
+    senseKey: 'fruit-mandarin',
     korean: '귤',
-    uz: 'mandarin',
-    en: 'mandarin orange',
-    ru: 'мандарин',
-    emoji: '🍊',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '껍질을 벗겨 먹는 작고 둥근 주황색 과일',
+      uz: 'mandarin',
+      en: 'mandarin orange',
+      ru: 'мандарин',
+    },
+
+    examples: [
+      {
+        korean: '귤 다섯 개 주세요.',
+        translations: {
+          ko: '귤 다섯 개를 주세요.',
+          uz: 'Beshta mandarin bering.',
+          en: 'Please give me five mandarins.',
+          ru: 'Дайте, пожалуйста, пять мандаринов.',
+        },
+      },
+      {
+        korean: '귤이 맛있어요.',
+        translations: {
+          ko: '귤이 맛있습니다.',
+          uz: 'Mandarin mazali.',
+          en: 'The mandarins are delicious.',
+          ru: 'Мандарины вкусные.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '귤', romanization: 'gyul', ttsText: '귤' },
+
+    media: {
+      emoji: '🍊',
+      imageUrl: 'https://cdn.korio.app/words/gyul.webp',
+      imageAlt: {
+        ko: '껍질을 벗긴 귤',
+        uz: 'archilgan mandarin',
+        en: 'a peeled mandarin orange',
+        ru: 'очищенный мандарин',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "과일의 개수를 말할 때 '귤 세 개'처럼 '개'를 사용할 수 있어요.",
+      uz: "Mevani sanashda '귤 세 개' kabi '개' ishlatiladi.",
+      en: '개 can be used when counting mandarins.',
+      ru: 'При подсчёте мандаринов можно использовать 개.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_strawberry_noun',
+    senseKey: 'fruit-strawberry',
     korean: '딸기',
-    uz: 'qulupnay',
-    en: 'strawberry',
-    ru: 'клубника',
-    emoji: '🍓',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '작고 붉으며 단맛과 신맛이 나는 과일',
+      uz: 'qulupnay',
+      en: 'strawberry',
+      ru: 'клубника',
+    },
+
+    examples: [
+      {
+        korean: '딸기 세 개 주세요.',
+        translations: {
+          ko: '딸기 세 개를 주세요.',
+          uz: 'Uchta qulupnay bering.',
+          en: 'Please give me three strawberries.',
+          ru: 'Дайте, пожалуйста, три клубники.',
+        },
+      },
+      {
+        korean: '딸기를 좋아해요.',
+        translations: {
+          ko: '딸기를 좋아합니다.',
+          uz: 'Qulupnayni yaxshi ko‘raman.',
+          en: 'I like strawberries.',
+          ru: 'Я люблю клубнику.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '딸기', romanization: 'ttalgi', ttsText: '딸기' },
+
+    media: {
+      emoji: '🍓',
+      imageUrl: 'https://cdn.korio.app/words/ttalgi.webp',
+      imageAlt: {
+        ko: '빨간 딸기',
+        uz: 'qizil qulupnay',
+        en: 'red strawberries',
+        ru: 'красная клубника',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'딸기 세 개', '딸기를 좋아하다'처럼 사용할 수 있어요.",
+      uz: "'딸기 세 개' yoki '딸기를 좋아하다' kabi ishlatiladi.",
+      en: 'Commonly used when counting strawberries or saying you like them.',
+      ru: 'Используется при подсчёте клубники и при выражении предпочтений.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_apple_noun',
+    senseKey: 'fruit-apple',
     korean: '사과',
-    uz: 'olma',
-    en: 'apple',
-    ru: 'яблоко',
-    emoji: '🍎',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '둥글고 단맛이 나는 대표적인 과일',
+      uz: 'olma',
+      en: 'apple',
+      ru: 'яблоко',
+    },
+
+    examples: [
+      {
+        korean: '사과 다섯 개 주세요.',
+        translations: {
+          ko: '사과 다섯 개를 주세요.',
+          uz: 'Beshta olma bering.',
+          en: 'Please give me five apples.',
+          ru: 'Дайте, пожалуйста, пять яблок.',
+        },
+      },
+      {
+        korean: '사과가 얼마예요?',
+        translations: {
+          ko: '사과의 가격이 얼마입니까?',
+          uz: 'Olma qancha turadi?',
+          en: 'How much are the apples?',
+          ru: 'Сколько стоят яблоки?',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '사과', romanization: 'sagwa', ttsText: '사과' },
+
+    media: {
+      emoji: '🍎',
+      imageUrl: 'https://cdn.korio.app/words/sagwa.webp',
+      imageAlt: {
+        ko: '빨간 사과',
+        uz: 'qizil olma',
+        en: 'a red apple',
+        ru: 'красное яблоко',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "6과에서는 '사과 다섯 개 주세요'처럼 고유어 숫자와 단위 명사 '개'를 연습할 때 사용해요.",
+      uz: "6-darsda '사과 다섯 개 주세요' kabi koreys sonlari va '개' bilan mashq qilinadi.",
+      en: 'In this unit it is useful for practicing native Korean numbers with the counter 개.',
+      ru: 'В этом уроке слово используется для практики исконно корейских чисел со счётным словом 개.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_watermelon_noun',
+    senseKey: 'fruit-watermelon',
     korean: '수박',
-    uz: 'tarvuz',
-    en: 'watermelon',
-    ru: 'арбуз',
-    emoji: '🍉',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '크고 둥글며 속이 붉고 수분이 많은 과일',
+      uz: 'tarvuz',
+      en: 'watermelon',
+      ru: 'арбуз',
+    },
+
+    examples: [
+      {
+        korean: '수박 한 개 주세요.',
+        translations: {
+          ko: '수박 한 개를 주세요.',
+          uz: 'Bitta tarvuz bering.',
+          en: 'Please give me one watermelon.',
+          ru: 'Дайте, пожалуйста, один арбуз.',
+        },
+      },
+      {
+        korean: '수박이 맛있어요.',
+        translations: {
+          ko: '수박이 맛있습니다.',
+          uz: 'Tarvuz mazali.',
+          en: 'The watermelon is delicious.',
+          ru: 'Арбуз вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '수박', romanization: 'subak', ttsText: '수박' },
+
+    media: {
+      emoji: '🍉',
+      imageUrl: 'https://cdn.korio.app/words/subak.webp',
+      imageAlt: {
+        ko: '잘라 놓은 수박',
+        uz: 'kesilgan tarvuz',
+        en: 'a sliced watermelon',
+        ru: 'разрезанный арбуз',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'수박 한 개 주세요'처럼 수량을 말할 수 있어요.",
+      uz: "'수박 한 개 주세요' kabi miqdorni aytish mumkin.",
+      en: "It can be counted with 개, as in '수박 한 개 주세요.'",
+      ru: 'Можно считать с помощью 개, например «수박 한 개 주세요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_orange_noun',
+    senseKey: 'fruit-orange',
     korean: '오렌지',
-    uz: 'apelsin',
-    en: 'orange',
-    ru: 'апельсин',
-    emoji: '🍊',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '껍질이 주황색이고 새콤달콤한 과일',
+      uz: 'apelsin',
+      en: 'orange',
+      ru: 'апельсин',
+    },
+
+    examples: [
+      {
+        korean: '오렌지 두 개 주세요.',
+        translations: {
+          ko: '오렌지 두 개를 주세요.',
+          uz: 'Ikkita apelsin bering.',
+          en: 'Please give me two oranges.',
+          ru: 'Дайте, пожалуйста, два апельсина.',
+        },
+      },
+      {
+        korean: '오렌지가 맛있어요.',
+        translations: {
+          ko: '오렌지가 맛있습니다.',
+          uz: 'Apelsin mazali.',
+          en: 'The orange is delicious.',
+          ru: 'Апельсин вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '오렌지',
+      romanization: 'orenji',
+      ttsText: '오렌지',
+    },
+
+    media: {
+      emoji: '🍊',
+      imageUrl: 'https://cdn.korio.app/words/orenji.webp',
+      imageAlt: {
+        ko: '주황색 오렌지',
+        uz: 'to‘q sariq apelsin',
+        en: 'an orange fruit',
+        ru: 'оранжевый апельсин',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "과일을 살 때 '오렌지 두 개 주세요'처럼 사용할 수 있어요.",
+      uz: "Meva sotib olayotganda '오렌지 두 개 주세요' kabi ishlatiladi.",
+      en: "Useful when buying fruit, as in '오렌지 두 개 주세요.'",
+      ru: 'Используется при покупке фруктов, например «오렌지 두 개 주세요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_pear_noun',
+    senseKey: 'fruit-pear',
     korean: '배',
-    uz: 'nok',
-    en: 'pear',
-    ru: 'груша',
-    emoji: '🍐',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '둥글고 수분이 많으며 단맛이 나는 과일',
+      uz: 'nok',
+      en: 'pear',
+      ru: 'груша',
+    },
+
+    examples: [
+      {
+        korean: '배 세 개 주세요.',
+        translations: {
+          ko: '배 세 개를 주세요.',
+          uz: 'Uchta nok bering.',
+          en: 'Please give me three pears.',
+          ru: 'Дайте, пожалуйста, три груши.',
+        },
+      },
+      {
+        korean: '배가 맛있어요.',
+        translations: {
+          ko: '배가 맛있습니다.',
+          uz: 'Nok mazali.',
+          en: 'The pear is delicious.',
+          ru: 'Груша вкусная.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '배', romanization: 'bae', ttsText: '배' },
+
+    media: {
+      emoji: '🍐',
+      imageUrl: 'https://cdn.korio.app/words/bae-pear.webp',
+      imageAlt: {
+        ko: '먹는 과일 배',
+        uz: 'nok mevasi',
+        en: 'a pear fruit',
+        ru: 'груша',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'배'는 '과일', '배(boat)', '배(stomach)'처럼 뜻이 여러 개라서 문맥으로 구분해야 해요.",
+      uz: "'배' so‘zi nok, kema yoki qorin ma’nosida kelishi mumkin, shuning uchun kontekst muhim.",
+      en: "배 can mean 'pear,' 'boat,' or 'stomach,' so the meaning depends on context.",
+      ru: '배 может означать «груша», «лодка» или «живот», поэтому значение определяется контекстом.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kiwi_noun',
+    senseKey: 'fruit-kiwi',
     korean: '키위',
-    uz: 'kivi',
-    en: 'kiwi',
-    ru: 'киви',
-    emoji: '🥝',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '갈색 껍질과 초록색 과육을 가진 과일',
+      uz: 'kivi',
+      en: 'kiwi',
+      ru: 'киви',
+    },
+
+    examples: [
+      {
+        korean: '키위 두 개 주세요.',
+        translations: {
+          ko: '키위 두 개를 주세요.',
+          uz: 'Ikkita kivi bering.',
+          en: 'Please give me two kiwis.',
+          ru: 'Дайте, пожалуйста, два киви.',
+        },
+      },
+      {
+        korean: '키위를 좋아해요.',
+        translations: {
+          ko: '키위를 좋아합니다.',
+          uz: 'Kivini yaxshi ko‘raman.',
+          en: 'I like kiwi.',
+          ru: 'Я люблю киви.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '키위', romanization: 'kiwi', ttsText: '키위' },
+
+    media: {
+      emoji: '🥝',
+      imageUrl: 'https://cdn.korio.app/words/kiwi.webp',
+      imageAlt: {
+        ko: '반으로 자른 키위',
+        uz: 'yarmiga kesilgan kivi',
+        en: 'a kiwi cut in half',
+        ru: 'разрезанный пополам киви',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'키위 두 개'처럼 수량을 셀 때 '개'를 사용할 수 있어요.",
+      uz: "'키위 두 개' kabi sanashda '개' ishlatiladi.",
+      en: '개 can be used when counting kiwis.',
+      ru: 'При подсчёте киви можно использовать 개.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_pineapple_noun',
+    senseKey: 'fruit-pineapple',
     korean: '파인애플',
-    uz: 'ananas',
-    en: 'pineapple',
-    ru: 'ананас',
-    emoji: '🍍',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '껍질이 단단하고 속이 노란 열대 과일',
+      uz: 'ananas',
+      en: 'pineapple',
+      ru: 'ананас',
+    },
+
+    examples: [
+      {
+        korean: '파인애플 한 개 주세요.',
+        translations: {
+          ko: '파인애플 한 개를 주세요.',
+          uz: 'Bitta ananas bering.',
+          en: 'Please give me one pineapple.',
+          ru: 'Дайте, пожалуйста, один ананас.',
+        },
+      },
+      {
+        korean: '파인애플이 달아요.',
+        translations: {
+          ko: '파인애플이 답니다.',
+          uz: 'Ananas shirin.',
+          en: 'The pineapple is sweet.',
+          ru: 'Ананас сладкий.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '파인애플',
+      romanization: 'painaepeul',
+      ttsText: '파인애플',
+    },
+
+    media: {
+      emoji: '🍍',
+      imageUrl: 'https://cdn.korio.app/words/pinaepeul.webp',
+      imageAlt: {
+        ko: '노란 과육의 파인애플',
+        uz: 'sariq go‘shtli ananas',
+        en: 'a pineapple with yellow flesh',
+        ru: 'ананас с жёлтой мякотью',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'파인애플 한 개 주세요'처럼 과일을 주문하거나 살 때 사용할 수 있어요.",
+      uz: "Meva sotib olayotganda '파인애플 한 개 주세요' kabi ishlatiladi.",
+      en: 'Useful when ordering or buying fruit.',
+      ru: 'Используется при заказе или покупке фруктов.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_melon_noun',
+    senseKey: 'fruit-melon',
     korean: '멜론',
-    uz: 'qovun',
-    en: 'melon',
-    ru: 'дыня',
-    emoji: '🍈',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '향이 좋고 단맛이 나는 둥근 과일',
+      uz: 'qovun',
+      en: 'melon',
+      ru: 'дыня',
+    },
+
+    examples: [
+      {
+        korean: '멜론 한 개 주세요.',
+        translations: {
+          ko: '멜론 한 개를 주세요.',
+          uz: 'Bitta qovun bering.',
+          en: 'Please give me one melon.',
+          ru: 'Дайте, пожалуйста, одну дыню.',
+        },
+      },
+      {
+        korean: '멜론이 맛있어요.',
+        translations: {
+          ko: '멜론이 맛있습니다.',
+          uz: 'Qovun mazali.',
+          en: 'The melon is delicious.',
+          ru: 'Дыня вкусная.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '멜론', romanization: 'mellon', ttsText: '멜론' },
+
+    media: {
+      emoji: '🍈',
+      imageUrl: 'https://cdn.korio.app/words/mellon.webp',
+      imageAlt: {
+        ko: '반으로 자른 멜론',
+        uz: 'yarmiga kesilgan qovun',
+        en: 'a melon cut in half',
+        ru: 'разрезанная пополам дыня',
+      },
+    },
+
+    tags: ['food', 'fruit', 'shopping', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "수량을 말할 때 '멜론 한 개'처럼 '개'와 함께 사용할 수 있어요.",
+      uz: "'멜론 한 개' kabi miqdorni aytishda '개' ishlatiladi.",
+      en: 'It can be counted with 개.',
+      ru: 'Для подсчёта можно использовать 개.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 고유어 숫자 1~10 ─────────
+  // ─────────────────────────────────────
+  // 고유어 숫자 1~10
+  // ─────────────────────────────────────
 
-  { korean: '하나', uz: 'bir', en: 'one', ru: 'один', emoji: '1️⃣' },
-  { korean: '둘', uz: 'ikki', en: 'two', ru: 'два', emoji: '2️⃣' },
-  { korean: '셋', uz: 'uch', en: 'three', ru: 'три', emoji: '3️⃣' },
-  { korean: '넷', uz: "to'rt", en: 'four', ru: 'четыре', emoji: '4️⃣' },
   {
+    code: 'word_one_native_korean_noun',
+    senseKey: 'number-native-korean-one',
+    korean: '하나',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 1을 나타내는 고유어 수',
+      uz: 'bir; koreys tilidagi tub son 1',
+      en: 'one in the native Korean number system',
+      ru: 'один в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '사과 한 개 주세요.',
+        translations: {
+          ko: '사과 한 개를 주세요.',
+          uz: 'Bitta olma bering.',
+          en: 'Please give me one apple.',
+          ru: 'Дайте, пожалуйста, одно яблоко.',
+        },
+      },
+      {
+        korean: '하나 더 주세요.',
+        translations: {
+          ko: '한 개를 더 주세요.',
+          uz: 'Yana bittasini bering.',
+          en: 'Please give me one more.',
+          ru: 'Дайте, пожалуйста, ещё один.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '하나', romanization: 'hana', ttsText: '하나' },
+
+    media: {
+      emoji: '1️⃣',
+      imageUrl: 'https://cdn.korio.app/words/hana.webp',
+      imageAlt: {
+        ko: '숫자 1',
+        uz: '1 raqami',
+        en: 'number 1',
+        ru: 'число 1',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "단위 명사 앞에서는 '하나'가 '한'으로 바뀌어요. 예: 한 개, 한 병, 한 잔.",
+      uz: "Hisob so‘zi oldida '하나' → '한' bo‘ladi: 한 개, 한 병, 한 잔.",
+      en: 'Before a counter, 하나 changes to 한: 한 개, 한 병, 한 잔.',
+      ru: 'Перед счётным словом 하나 меняется на 한: 한 개, 한 병, 한 잔.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_two_native_korean_noun',
+    senseKey: 'number-native-korean-two',
+    korean: '둘',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 2를 나타내는 고유어 수',
+      uz: 'ikki; koreys tilidagi tub son 2',
+      en: 'two in the native Korean number system',
+      ru: 'два в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '커피 두 잔 주세요.',
+        translations: {
+          ko: '커피 두 잔을 주세요.',
+          uz: 'Ikki finjon qahva bering.',
+          en: 'Please give me two cups of coffee.',
+          ru: 'Дайте, пожалуйста, две чашки кофе.',
+        },
+      },
+      {
+        korean: '김밥 두 개 주세요.',
+        translations: {
+          ko: '김밥 두 개를 주세요.',
+          uz: 'Ikkita gimbap bering.',
+          en: 'Please give me two gimbap.',
+          ru: 'Дайте, пожалуйста, два кимбапа.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '둘', romanization: 'dul', ttsText: '둘' },
+
+    media: {
+      emoji: '2️⃣',
+      imageUrl: 'https://cdn.korio.app/words/dul.webp',
+      imageAlt: {
+        ko: '숫자 2',
+        uz: '2 raqami',
+        en: 'number 2',
+        ru: 'число 2',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "단위 명사 앞에서는 '둘'이 '두'로 바뀌어요. 예: 두 개, 두 병, 두 잔.",
+      uz: "Hisob so‘zi oldida '둘' → '두' bo‘ladi: 두 개, 두 병, 두 잔.",
+      en: 'Before a counter, 둘 changes to 두.',
+      ru: 'Перед счётным словом 둘 меняется на 두.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_three_native_korean_noun',
+    senseKey: 'number-native-korean-three',
+    korean: '셋',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 3을 나타내는 고유어 수',
+      uz: 'uch; koreys tilidagi tub son 3',
+      en: 'three in the native Korean number system',
+      ru: 'три в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '딸기 세 개 주세요.',
+        translations: {
+          ko: '딸기 세 개를 주세요.',
+          uz: 'Uchta qulupnay bering.',
+          en: 'Please give me three strawberries.',
+          ru: 'Дайте, пожалуйста, три клубники.',
+        },
+      },
+      {
+        korean: '커피 세 잔 주세요.',
+        translations: {
+          ko: '커피 세 잔을 주세요.',
+          uz: 'Uch finjon qahva bering.',
+          en: 'Please give me three cups of coffee.',
+          ru: 'Дайте, пожалуйста, три чашки кофе.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '셋', romanization: 'set', ttsText: '셋' },
+
+    media: {
+      emoji: '3️⃣',
+      imageUrl: 'https://cdn.korio.app/words/set.webp',
+      imageAlt: {
+        ko: '숫자 3',
+        uz: '3 raqami',
+        en: 'number 3',
+        ru: 'число 3',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "단위 명사 앞에서는 '셋'이 '세'로 바뀌어요. 예: 세 개, 세 병, 세 잔.",
+      uz: "Hisob so‘zi oldida '셋' → '세' bo‘ladi.",
+      en: 'Before a counter, 셋 changes to 세.',
+      ru: 'Перед счётным словом 셋 меняется на 세.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_four_native_korean_noun',
+    senseKey: 'number-native-korean-four',
+    korean: '넷',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 4를 나타내는 고유어 수',
+      uz: 'to‘rt; koreys tilidagi tub son 4',
+      en: 'four in the native Korean number system',
+      ru: 'четыре в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '주스 네 병 주세요.',
+        translations: {
+          ko: '주스 네 병을 주세요.',
+          uz: 'To‘rt shisha sharbat bering.',
+          en: 'Please give me four bottles of juice.',
+          ru: 'Дайте, пожалуйста, четыре бутылки сока.',
+        },
+      },
+      {
+        korean: '햄버거 네 개 주세요.',
+        translations: {
+          ko: '햄버거 네 개를 주세요.',
+          uz: 'To‘rtta gamburger bering.',
+          en: 'Please give me four hamburgers.',
+          ru: 'Дайте, пожалуйста, четыре гамбургера.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '넷', romanization: 'net', ttsText: '넷' },
+
+    media: {
+      emoji: '4️⃣',
+      imageUrl: 'https://cdn.korio.app/words/net.webp',
+      imageAlt: {
+        ko: '숫자 4',
+        uz: '4 raqami',
+        en: 'number 4',
+        ru: 'число 4',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "단위 명사 앞에서는 '넷'이 '네'로 바뀌어요. 예: 네 개, 네 병, 네 잔.",
+      uz: "Hisob so‘zi oldida '넷' → '네' bo‘ladi.",
+      en: 'Before a counter, 넷 changes to 네.',
+      ru: 'Перед счётным словом 넷 меняется на 네.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_five_native_korean_noun',
+    senseKey: 'number-native-korean-five',
     korean: '다섯',
-    uz: 'besh',
-    en: 'five',
-    ru: 'пять',
-    emoji: '5️⃣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 5를 나타내는 고유어 수',
+      uz: 'besh; koreys tilidagi tub son 5',
+      en: 'five in the native Korean number system',
+      ru: 'пять в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '사과 다섯 개 주세요.',
+        translations: {
+          ko: '사과 다섯 개를 주세요.',
+          uz: 'Beshta olma bering.',
+          en: 'Please give me five apples.',
+          ru: 'Дайте, пожалуйста, пять яблок.',
+        },
+      },
+      {
+        korean: '김밥 다섯 개 있어요.',
+        translations: {
+          ko: '김밥 다섯 개가 있습니다.',
+          uz: 'Beshta gimbap bor.',
+          en: 'There are five gimbap.',
+          ru: 'Есть пять кимбапов.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '다섯', romanization: 'daseot', ttsText: '다섯' },
+
+    media: {
+      emoji: '5️⃣',
+      imageUrl: 'https://cdn.korio.app/words/daseot.webp',
+      imageAlt: {
+        ko: '숫자 5',
+        uz: '5 raqami',
+        en: 'number 5',
+        ru: 'число 5',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'다섯 개', '다섯 병', '다섯 잔'처럼 단위 명사 앞에서도 형태가 바뀌지 않아요.",
+      uz: "'다섯 개', '다섯 병' kabi hisob so‘zi oldida shakli o‘zgarmaydi.",
+      en: 'Unlike 하나–넷, 다섯 does not change before counters.',
+      ru: 'В отличие от 하나–넷, 다섯 не меняется перед счётными словами.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_six_native_korean_noun',
+    senseKey: 'number-native-korean-six',
     korean: '여섯',
-    uz: 'olti',
-    en: 'six',
-    ru: 'шесть',
-    emoji: '6️⃣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 6을 나타내는 고유어 수',
+      uz: 'olti; koreys tilidagi tub son 6',
+      en: 'six in the native Korean number system',
+      ru: 'шесть в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '귤 여섯 개 주세요.',
+        translations: {
+          ko: '귤 여섯 개를 주세요.',
+          uz: 'Oltita mandarin bering.',
+          en: 'Please give me six mandarins.',
+          ru: 'Дайте, пожалуйста, шесть мандаринов.',
+        },
+      },
+      {
+        korean: '주스 여섯 병 있어요.',
+        translations: {
+          ko: '주스 여섯 병이 있습니다.',
+          uz: 'Olti shisha sharbat bor.',
+          en: 'There are six bottles of juice.',
+          ru: 'Есть шесть бутылок сока.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '여섯', romanization: 'yeoseot', ttsText: '여섯' },
+
+    media: {
+      emoji: '6️⃣',
+      imageUrl: 'https://cdn.korio.app/words/yeoseot.webp',
+      imageAlt: {
+        ko: '숫자 6',
+        uz: '6 raqami',
+        en: 'number 6',
+        ru: 'число 6',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'여섯 개', '여섯 병', '여섯 잔'처럼 사용해요.",
+      uz: "'여섯 개', '여섯 병', '여섯 잔' kabi ishlatiladi.",
+      en: 'Used directly before counters: 여섯 개, 여섯 병, 여섯 잔.',
+      ru: 'Используется перед счётными словами без изменения: 여섯 개, 여섯 병.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_seven_native_korean_noun',
+    senseKey: 'number-native-korean-seven',
     korean: '일곱',
-    uz: 'yetti',
-    en: 'seven',
-    ru: 'семь',
-    emoji: '7️⃣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 7을 나타내는 고유어 수',
+      uz: 'yetti; koreys tilidagi tub son 7',
+      en: 'seven in the native Korean number system',
+      ru: 'семь в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '사과 일곱 개 주세요.',
+        translations: {
+          ko: '사과 일곱 개를 주세요.',
+          uz: 'Yettita olma bering.',
+          en: 'Please give me seven apples.',
+          ru: 'Дайте, пожалуйста, семь яблок.',
+        },
+      },
+      {
+        korean: '콜라 일곱 병 있어요.',
+        translations: {
+          ko: '콜라 일곱 병이 있습니다.',
+          uz: 'Yetti shisha kola bor.',
+          en: 'There are seven bottles of cola.',
+          ru: 'Есть семь бутылок колы.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '일곱', romanization: 'ilgop', ttsText: '일곱' },
+
+    media: {
+      emoji: '7️⃣',
+      imageUrl: 'https://cdn.korio.app/words/ilgop.webp',
+      imageAlt: {
+        ko: '숫자 7',
+        uz: '7 raqami',
+        en: 'number 7',
+        ru: 'число 7',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'일곱 개', '일곱 병'처럼 단위 명사와 함께 사용할 수 있어요.",
+      uz: "'일곱 개', '일곱 병' kabi hisob so‘zlari bilan ishlatiladi.",
+      en: 'It can be used directly before counters such as 개 and 병.',
+      ru: 'Можно использовать непосредственно перед счётными словами 개 и 병.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_eight_native_korean_noun',
+    senseKey: 'number-native-korean-eight',
     korean: '여덟',
-    uz: 'sakkiz',
-    en: 'eight',
-    ru: 'восемь',
-    emoji: '8️⃣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 8을 나타내는 고유어 수',
+      uz: 'sakkiz; koreys tilidagi tub son 8',
+      en: 'eight in the native Korean number system',
+      ru: 'восемь в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '귤 여덟 개 주세요.',
+        translations: {
+          ko: '귤 여덟 개를 주세요.',
+          uz: 'Sakkizta mandarin bering.',
+          en: 'Please give me eight mandarins.',
+          ru: 'Дайте, пожалуйста, восемь мандаринов.',
+        },
+      },
+      {
+        korean: '김밥 여덟 개 있어요.',
+        translations: {
+          ko: '김밥 여덟 개가 있습니다.',
+          uz: 'Sakkizta gimbap bor.',
+          en: 'There are eight gimbap.',
+          ru: 'Есть восемь кимбапов.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '여덟', romanization: 'yeodeol', ttsText: '여덟' },
+
+    media: {
+      emoji: '8️⃣',
+      imageUrl: 'https://cdn.korio.app/words/yeodeol.webp',
+      imageAlt: {
+        ko: '숫자 8',
+        uz: '8 raqami',
+        en: 'number 8',
+        ru: 'число 8',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'여덟 개', '여덟 잔'처럼 사용해요.",
+      uz: "'여덟 개', '여덟 잔' kabi ishlatiladi.",
+      en: 'Used with counters such as 개 and 잔.',
+      ru: 'Используется со счётными словами, например 개 и 잔.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_nine_native_korean_noun',
+    senseKey: 'number-native-korean-nine',
     korean: '아홉',
-    uz: "to'qqiz",
-    en: 'nine',
-    ru: 'девять',
-    emoji: '9️⃣',
-  },
-  { korean: '열', uz: "o'n", en: 'ten', ru: 'десять', emoji: '🔟' },
+    partOfSpeech: WordPartOfSpeech.NOUN,
 
-  // ───────── 돈 · 가격 ─────────
+    meaning: {
+      ko: '숫자 9를 나타내는 고유어 수',
+      uz: 'to‘qqiz; koreys tilidagi tub son 9',
+      en: 'nine in the native Korean number system',
+      ru: 'девять в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '사과 아홉 개 주세요.',
+        translations: {
+          ko: '사과 아홉 개를 주세요.',
+          uz: 'To‘qqizta olma bering.',
+          en: 'Please give me nine apples.',
+          ru: 'Дайте, пожалуйста, девять яблок.',
+        },
+      },
+      {
+        korean: '주스 아홉 병 있어요.',
+        translations: {
+          ko: '주스 아홉 병이 있습니다.',
+          uz: 'To‘qqiz shisha sharbat bor.',
+          en: 'There are nine bottles of juice.',
+          ru: 'Есть девять бутылок сока.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '아홉', romanization: 'ahop', ttsText: '아홉' },
+
+    media: {
+      emoji: '9️⃣',
+      imageUrl: 'https://cdn.korio.app/words/ahop.webp',
+      imageAlt: {
+        ko: '숫자 9',
+        uz: '9 raqami',
+        en: 'number 9',
+        ru: 'число 9',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'아홉 개', '아홉 병'처럼 단위 명사와 함께 사용해요.",
+      uz: "'아홉 개', '아홉 병' kabi hisob so‘zlari bilan ishlatiladi.",
+      en: 'Used directly with counters, such as 아홉 개 and 아홉 병.',
+      ru: 'Используется со счётными словами: 아홉 개, 아홉 병.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
 
   {
+    code: 'word_ten_native_korean_noun',
+    senseKey: 'number-native-korean-ten',
+    korean: '열',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 10을 나타내는 고유어 수',
+      uz: 'o‘n; koreys tilidagi tub son 10',
+      en: 'ten in the native Korean number system',
+      ru: 'десять в исконно корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '사과 열 개 주세요.',
+        translations: {
+          ko: '사과 열 개를 주세요.',
+          uz: 'O‘nta olma bering.',
+          en: 'Please give me ten apples.',
+          ru: 'Дайте, пожалуйста, десять яблок.',
+        },
+      },
+      {
+        korean: '콜라 열 병 있어요.',
+        translations: {
+          ko: '콜라 열 병이 있습니다.',
+          uz: 'O‘n shisha kola bor.',
+          en: 'There are ten bottles of cola.',
+          ru: 'Есть десять бутылок колы.',
+        },
+      },
+    ],
+
+    pronunciation: { hangul: '열', romanization: 'yeol', ttsText: '열' },
+
+    media: {
+      emoji: '🔟',
+      imageUrl: 'https://cdn.korio.app/words/yeol.webp',
+      imageAlt: {
+        ko: '숫자 10',
+        uz: '10 raqami',
+        en: 'number 10',
+        ru: 'число 10',
+      },
+    },
+
+    tags: ['number', 'native-korean-number', 'counter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'열 개', '열 병', '열 잔'처럼 단위 명사와 함께 사용해요.",
+      uz: "'열 개', '열 병', '열 잔' kabi hisob so‘zlari bilan ishlatiladi.",
+      en: 'Used directly with counters: 열 개, 열 병, 열 잔.',
+      ru: 'Используется со счётными словами: 열 개, 열 병, 열 잔.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  // 다음: 돈 · 가격 → 주문 · 단위 명사
+  // ─────────────────────────────────────
+  // 돈 · 가격
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_how_much_noun',
+    senseKey: 'question-price-how-much',
     korean: '얼마',
-    uz: 'qancha',
-    en: 'how much',
-    ru: 'сколько',
-    emoji: '💰',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가격이나 수량이 어느 정도인지 물을 때 사용하는 말',
+      uz: 'qancha',
+      en: 'how much',
+      ru: 'сколько',
+    },
+    examples: [
+      {
+        korean: '이거 얼마예요?',
+        translations: {
+          ko: '이것의 가격이 얼마예요?',
+          uz: 'Bu qancha turadi?',
+          en: 'How much is this?',
+          ru: 'Сколько это стоит?',
+        },
+      },
+      {
+        korean: '비빔밥이 얼마예요?',
+        translations: {
+          ko: '비빔밥의 가격이 얼마예요?',
+          uz: 'Bibimbap qancha turadi?',
+          en: 'How much is the bibimbap?',
+          ru: 'Сколько стоит пибимпап?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '얼마',
+      romanization: 'eolma',
+      ttsText: '얼마',
+    },
+    media: {
+      emoji: '💰',
+      imageUrl: 'https://cdn.korio.app/words/eolma.webp',
+      imageAlt: {
+        ko: '가격을 묻는 가격표',
+        uz: 'narxni so‘rayotgan narx yorlig‘i',
+        en: 'a price tag asking how much',
+        ru: 'ценник с вопросом о цене',
+      },
+    },
+    tags: ['money', 'price', 'question', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "물건이나 음식의 가격을 물을 때 '얼마예요?'를 아주 자주 사용해요.",
+      uz: "Narxni so‘rashda '얼마예요?' juda ko‘p ishlatiladi.",
+      en: '얼마예요? is one of the most common ways to ask a price.',
+      ru: '얼마예요? — один из самых частых способов спросить цену.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_won_noun',
+    senseKey: 'currency-korean-won',
     korean: '원',
-    uz: 'von',
-    en: 'won',
-    ru: 'вона',
-    emoji: '₩',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '대한민국에서 사용하는 화폐 단위',
+      uz: 'von, Koreya pul birligi',
+      en: 'won, Korean currency unit',
+      ru: 'вона, денежная единица Кореи',
+    },
+    examples: [
+      {
+        korean: '삼천 원이에요.',
+        translations: {
+          ko: '가격은 삼천 원이에요.',
+          uz: 'Uch ming von.',
+          en: "It's 3,000 won.",
+          ru: 'Это стоит три тысячи вон.',
+        },
+      },
+      {
+        korean: '이거 오천 원이에요.',
+        translations: {
+          ko: '이것은 오천 원이에요.',
+          uz: 'Bu besh ming von.',
+          en: 'This is 5,000 won.',
+          ru: 'Это стоит пять тысяч вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '원',
+      romanization: 'won',
+      ttsText: '원',
+    },
+    media: {
+      emoji: '₩',
+      imageUrl: 'https://cdn.korio.app/words/won.webp',
+      imageAlt: {
+        ko: '한국 돈 원',
+        uz: 'Koreya voni',
+        en: 'Korean won currency',
+        ru: 'корейская вона',
+      },
+    },
+    tags: ['money', 'currency', 'korea', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '가격을 말할 때 숫자 뒤에 붙여요. 예: 천 원, 오천 원.',
+      uz: 'Narx aytganda sondan keyin keladi: 천 원, 오천 원.',
+      en: 'Placed after the amount: 천 원, 오천 원.',
+      ru: 'Ставится после суммы: 천 원, 오천 원.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_hundred_sino_korean_noun',
+    senseKey: 'number-sino-korean-hundred',
     korean: '백',
-    uz: 'yuz',
-    en: 'hundred',
-    ru: 'сто',
-    emoji: '💯',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '숫자 100',
+      uz: 'yuz',
+      en: 'hundred',
+      ru: 'сто',
+    },
+    examples: [
+      {
+        korean: '백 원이에요.',
+        translations: {
+          ko: '가격은 백 원이에요.',
+          uz: 'Yuz von.',
+          en: "It's 100 won.",
+          ru: 'Это стоит сто вон.',
+        },
+      },
+      {
+        korean: '사과가 오백 원이에요.',
+        translations: {
+          ko: '사과의 가격은 오백 원이에요.',
+          uz: 'Olma besh yuz von.',
+          en: 'The apple is 500 won.',
+          ru: 'Яблоко стоит пятьсот вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '백',
+      romanization: 'baek',
+      ttsText: '백',
+    },
+    media: {
+      emoji: '💯',
+      imageUrl: 'https://cdn.korio.app/words/baek.webp',
+      imageAlt: {
+        ko: '숫자 백',
+        uz: 'yuz soni',
+        en: 'the number one hundred',
+        ru: 'число сто',
+      },
+    },
+    tags: ['number', 'sino-korean-number', 'money', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '가격처럼 큰 숫자를 읽을 때 사용하는 한자어 숫자예요.',
+      uz: 'Narx kabi katta sonlarni aytishda ishlatiladigan xitoy-koreys soni.',
+      en: 'A Sino-Korean number commonly used when reading prices.',
+      ru: 'Китайско-корейское числительное, часто используемое в ценах.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_thousand_sino_korean_noun',
+    senseKey: 'number-sino-korean-thousand',
     korean: '천',
-    uz: 'ming',
-    en: 'thousand',
-    ru: 'тысяча',
-    emoji: '💵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '숫자 1,000',
+      uz: 'ming',
+      en: 'thousand',
+      ru: 'тысяча',
+    },
+    examples: [
+      {
+        korean: '천 원이에요.',
+        translations: {
+          ko: '가격은 천 원이에요.',
+          uz: 'Bir ming von.',
+          en: "It's 1,000 won.",
+          ru: 'Это стоит тысячу вон.',
+        },
+      },
+      {
+        korean: '김밥은 이천 원이에요.',
+        translations: {
+          ko: '김밥의 가격은 이천 원이에요.',
+          uz: 'Gimbap ikki ming von.',
+          en: 'The gimbap is 2,000 won.',
+          ru: 'Кимбап стоит две тысячи вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '천',
+      romanization: 'cheon',
+      ttsText: '천',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: 'https://cdn.korio.app/words/cheon.webp',
+      imageAlt: {
+        ko: '숫자 천',
+        uz: 'ming soni',
+        en: 'the number one thousand',
+        ru: 'число тысяча',
+      },
+    },
+    tags: ['number', 'sino-korean-number', 'money', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "1,000은 '일천'보다 보통 '천'이라고 말해요.",
+      uz: "1,000 odatda '일천' emas, '천' deb aytiladi.",
+      en: '1,000 is normally said as 천 rather than 일천.',
+      ru: '1 000 обычно читается как 천, а не 일천.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ten_thousand_sino_korean_noun',
+    senseKey: 'number-sino-korean-ten-thousand',
     korean: '만',
-    uz: "o'n ming",
-    en: 'ten thousand',
-    ru: 'десять тысяч',
-    emoji: '💵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '숫자 10,000',
+      uz: 'o‘n ming',
+      en: 'ten thousand',
+      ru: 'десять тысяч',
+    },
+    examples: [
+      {
+        korean: '만 원이에요.',
+        translations: {
+          ko: '가격은 만 원이에요.',
+          uz: 'O‘n ming von.',
+          en: "It's 10,000 won.",
+          ru: 'Это стоит десять тысяч вон.',
+        },
+      },
+      {
+        korean: '이만 원이에요.',
+        translations: {
+          ko: '가격은 이만 원이에요.',
+          uz: 'Yigirma ming von.',
+          en: "It's 20,000 won.",
+          ru: 'Это стоит двадцать тысяч вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '만',
+      romanization: 'man',
+      ttsText: '만',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: 'https://cdn.korio.app/words/man-number.webp',
+      imageAlt: {
+        ko: '숫자 만',
+        uz: 'o‘n ming soni',
+        en: 'the number ten thousand',
+        ru: 'число десять тысяч',
+      },
+    },
+    tags: ['number', 'sino-korean-number', 'money', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "한국어는 큰 수를 만 단위로 묶어요. 20,000은 '이만'이에요.",
+      uz: 'Koreys tilida katta sonlar 10,000 birlik bilan guruhlanadi.',
+      en: 'Korean groups large numbers by ten-thousands; 20,000 is 이만.',
+      ru: 'В корейском большие числа группируются по 10 000; 20 000 — 이만.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_price_noun',
+    senseKey: 'commerce-price',
     korean: '가격',
-    uz: 'narx',
-    en: 'price',
-    ru: 'цена',
-    emoji: '🏷️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '물건이나 서비스를 사고팔 때 정한 돈의 액수',
+      uz: 'narx',
+      en: 'price',
+      ru: 'цена',
+    },
+    examples: [
+      {
+        korean: '가격이 얼마예요?',
+        translations: {
+          ko: '가격이 얼마인지 묻는 말이에요.',
+          uz: 'Narxi qancha?',
+          en: 'How much is the price?',
+          ru: 'Какова цена?',
+        },
+      },
+      {
+        korean: '가격이 싸요.',
+        translations: {
+          ko: '가격이 저렴해요.',
+          uz: 'Narxi arzon.',
+          en: 'The price is cheap.',
+          ru: 'Цена низкая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '가격',
+      romanization: 'gagyeok',
+      ttsText: '가격',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: 'https://cdn.korio.app/words/gagyeok.webp',
+      imageAlt: {
+        ko: '가격이 적힌 가격표',
+        uz: 'narx yozilgan yorliq',
+        en: 'a price tag',
+        ru: 'ценник',
+      },
+    },
+    tags: ['money', 'price', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'가격이 싸다', '가격이 비싸다', '가격이 얼마예요?'처럼 사용해요.",
+      uz: "'가격이 싸다', '가격이 비싸다' kabi ishlatiladi.",
+      en: 'Common expressions include 가격이 싸다 and 가격이 비싸다.',
+      ru: 'Частые выражения: 가격이 싸다 и 가격이 비싸다.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 주문 · 단위 명사 ─────────
+  // ─────────────────────────────────────
+  // 주문 · 단위 명사
+  // ─────────────────────────────────────
 
   {
+    code: 'word_item_counter_noun',
+    senseKey: 'counter-general-item',
     korean: '개',
-    uz: 'dona',
-    en: 'counter for items',
-    ru: 'счётное слово для предметов',
-    emoji: '🔢',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '물건의 수를 셀 때 널리 사용하는 단위 명사',
+      uz: 'dona, narsalarni sanash hisob so‘zi',
+      en: 'counter for items',
+      ru: 'счётное слово для предметов',
+    },
+    examples: [
+      {
+        korean: '사과 세 개 주세요.',
+        translations: {
+          ko: '사과를 세 개 주세요.',
+          uz: 'Uch dona olma bering.',
+          en: 'Please give me three apples.',
+          ru: 'Дайте, пожалуйста, три яблока.',
+        },
+      },
+      {
+        korean: '햄버거 한 개 주세요.',
+        translations: {
+          ko: '햄버거를 한 개 주세요.',
+          uz: 'Bir dona gamburger bering.',
+          en: 'One hamburger, please.',
+          ru: 'Один гамбургер, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '개',
+      romanization: 'gae',
+      ttsText: '개',
+    },
+    media: {
+      emoji: '🔢',
+      imageUrl: 'https://cdn.korio.app/words/gae-counter.webp',
+      imageAlt: {
+        ko: '여러 물건을 세는 모습',
+        uz: 'narsalarni sanash',
+        en: 'counting individual items',
+        ru: 'подсчёт предметов',
+      },
+    },
+    tags: ['counter', 'number', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "고유어 숫자와 함께 '한 개, 두 개, 세 개, 네 개'처럼 사용해요.",
+      uz: "Koreyscha sonlar bilan '한 개, 두 개, 세 개' kabi ishlatiladi.",
+      en: 'Used with native Korean numbers: 한 개, 두 개, 세 개, 네 개.',
+      ru: 'Используется с исконно корейскими числительными: 한 개, 두 개, 세 개.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_bottle_counter_noun',
+    senseKey: 'counter-bottle',
     korean: '병',
-    uz: 'shisha',
-    en: 'bottle',
-    ru: 'бутылка',
-    emoji: '🧴',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '병 또는 병에 든 음료 등의 수를 세는 단위',
+      uz: 'shisha, butilka uchun hisob so‘zi',
+      en: 'bottle, counter for bottles',
+      ru: 'бутылка, счётное слово для бутылок',
+    },
+    examples: [
+      {
+        korean: '콜라 두 병 주세요.',
+        translations: {
+          ko: '콜라를 두 병 주세요.',
+          uz: 'Ikki butilka kola bering.',
+          en: 'Two bottles of cola, please.',
+          ru: 'Две бутылки колы, пожалуйста.',
+        },
+      },
+      {
+        korean: '주스 세 병 주세요.',
+        translations: {
+          ko: '주스를 세 병 주세요.',
+          uz: 'Uch butilka sharbat bering.',
+          en: 'Three bottles of juice, please.',
+          ru: 'Три бутылки сока, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '병',
+      romanization: 'byeong',
+      ttsText: '병',
+    },
+    media: {
+      emoji: '🧴',
+      imageUrl: 'https://cdn.korio.app/words/byeong-counter.webp',
+      imageAlt: {
+        ko: '음료가 든 병',
+        uz: 'ichimlik butilkasi',
+        en: 'a beverage bottle',
+        ru: 'бутылка напитка',
+      },
+    },
+    tags: ['counter', 'drink', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'한 병, 두 병, 세 병'처럼 병에 든 것을 셀 때 사용해요.",
+      uz: "'한 병, 두 병, 세 병' kabi butilkalarni sanashda ishlatiladi.",
+      en: 'Used to count bottles: 한 병, 두 병, 세 병.',
+      ru: 'Используется для подсчёта бутылок: 한 병, 두 병, 세 병.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cup_glass_counter_noun',
+    senseKey: 'counter-cup-glass',
     korean: '잔',
-    uz: 'piyola / stakan',
-    en: 'cup / glass',
-    ru: 'чашка / стакан',
-    emoji: '☕',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '컵이나 잔에 담긴 음료의 수를 세는 단위',
+      uz: 'piyola yoki stakan uchun hisob so‘zi',
+      en: 'cup, glass, counter for drinks',
+      ru: 'чашка, стакан, счётное слово для напитков',
+    },
+    examples: [
+      {
+        korean: '커피 두 잔 주세요.',
+        translations: {
+          ko: '커피를 두 잔 주세요.',
+          uz: 'Ikki piyola qahva bering.',
+          en: 'Two cups of coffee, please.',
+          ru: 'Две чашки кофе, пожалуйста.',
+        },
+      },
+      {
+        korean: '녹차 한 잔 주세요.',
+        translations: {
+          ko: '녹차를 한 잔 주세요.',
+          uz: 'Bir piyola ko‘k choy bering.',
+          en: 'One cup of green tea, please.',
+          ru: 'Одну чашку зелёного чая, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잔',
+      romanization: 'jan',
+      ttsText: '잔',
+    },
+    media: {
+      emoji: '☕',
+      imageUrl: 'https://cdn.korio.app/words/jan-counter.webp',
+      imageAlt: {
+        ko: '음료가 담긴 한 잔',
+        uz: 'bir piyola ichimlik',
+        en: 'a cup of drink',
+        ru: 'чашка напитка',
+      },
+    },
+    tags: ['counter', 'drink', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '커피, 차, 물처럼 컵이나 잔에 마시는 음료를 셀 때 사용해요.',
+      uz: 'Qahva, choy kabi piyoladagi ichimliklarni sanashda ishlatiladi.',
+      en: 'Used to count drinks served in cups or glasses.',
+      ru: 'Используется для подсчёта напитков в чашках или стаканах.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_bowl_serving_noun',
+    senseKey: 'counter-bowl-serving',
     korean: '그릇',
-    uz: 'kosa / porsiya',
-    en: 'bowl / serving',
-    ru: 'миска / порция',
-    emoji: '🥣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '음식을 담는 그릇 또는 그릇에 담긴 음식의 수를 세는 단위',
+      uz: 'kosa, bir kosa taom uchun hisob so‘zi',
+      en: 'bowl, serving in a bowl',
+      ru: 'миска, порция в миске',
+    },
+    examples: [
+      {
+        korean: '비빔밥 한 그릇 주세요.',
+        translations: {
+          ko: '비빔밥을 한 그릇 주세요.',
+          uz: 'Bir kosa bibimbap bering.',
+          en: 'One bowl of bibimbap, please.',
+          ru: 'Одну порцию пибимпапа, пожалуйста.',
+        },
+      },
+      {
+        korean: '냉면 두 그릇 주세요.',
+        translations: {
+          ko: '냉면을 두 그릇 주세요.',
+          uz: 'Ikki kosa naengmyeon bering.',
+          en: 'Two bowls of naengmyeon, please.',
+          ru: 'Две порции нэнмёна, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '그릇',
+      romanization: 'geureut',
+      ttsText: '그릇',
+    },
+    media: {
+      emoji: '🥣',
+      imageUrl: 'https://cdn.korio.app/words/geureut.webp',
+      imageAlt: {
+        ko: '음식이 담긴 그릇',
+        uz: 'taom solingan kosa',
+        en: 'a bowl containing food',
+        ru: 'миска с едой',
+      },
+    },
+    tags: ['counter', 'food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'비빔밥 한 그릇'처럼 한 그릇 분량의 음식을 셀 수도 있어요.",
+      uz: "'비빔밥 한 그릇' kabi bir porsiyani sanashda ishlatiladi.",
+      en: 'Can count servings, as in 비빔밥 한 그릇.',
+      ru: 'Может считать порции: 비빔밥 한 그릇.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_how_many_determiner',
+    senseKey: 'question-how-many',
     korean: '몇',
-    uz: 'nechta',
-    en: 'how many',
-    ru: 'сколько',
-    emoji: '❓',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: {
+      ko: '수량이나 개수를 물을 때 사용하는 말',
+      uz: 'necha, nechta',
+      en: 'how many',
+      ru: 'сколько',
+    },
+    examples: [
+      {
+        korean: '사과가 몇 개 있어요?',
+        translations: {
+          ko: '사과의 개수가 몇 개인가요?',
+          uz: 'Nechta olma bor?',
+          en: 'How many apples are there?',
+          ru: 'Сколько яблок есть?',
+        },
+      },
+      {
+        korean: '커피가 몇 잔 있어요?',
+        translations: {
+          ko: '커피가 몇 잔 있나요?',
+          uz: 'Necha piyola qahva bor?',
+          en: 'How many cups of coffee are there?',
+          ru: 'Сколько чашек кофе есть?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '몇',
+      romanization: 'myeot',
+      ttsText: '몇',
+    },
+    media: {
+      emoji: '❓',
+      imageUrl: 'https://cdn.korio.app/words/myeot.webp',
+      imageAlt: {
+        ko: '개수를 묻는 물음표',
+        uz: 'sonini so‘raydigan savol',
+        en: 'a question about quantity',
+        ru: 'вопрос о количестве',
+      },
+    },
+    tags: ['determiner', 'question', 'number', 'counter', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "뒤에 단위 명사를 붙여 '몇 개, 몇 병, 몇 잔'처럼 사용해요.",
+      uz: "'몇 개, 몇 병, 몇 잔' kabi hisob so‘zi bilan ishlatiladi.",
+      en: 'Used before counters: 몇 개, 몇 병, 몇 잔.',
+      ru: 'Используется перед счётными словами: 몇 개, 몇 병, 몇 잔.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_give_verb',
+    senseKey: 'action-give',
     korean: '주다',
-    uz: 'bermoq',
-    en: 'to give',
-    ru: 'давать',
-    emoji: '🤲',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '자기가 가진 것을 다른 사람에게 건네다',
+      uz: 'bermoq',
+      en: 'to give',
+      ru: 'давать',
+    },
+    examples: [
+      {
+        korean: '사과를 주세요.',
+        translations: {
+          ko: '사과를 주십시오.',
+          uz: 'Olma bering.',
+          en: 'Please give me an apple.',
+          ru: 'Дайте, пожалуйста, яблоко.',
+        },
+      },
+      {
+        korean: '물 한 병 주세요.',
+        translations: {
+          ko: '물을 한 병 주세요.',
+          uz: 'Bir butilka suv bering.',
+          en: 'One bottle of water, please.',
+          ru: 'Одну бутылку воды, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '주다',
+      romanization: 'juda',
+      ttsText: '주다',
+    },
+    media: {
+      emoji: '🤲',
+      imageUrl: 'https://cdn.korio.app/words/juda.webp',
+      imageAlt: {
+        ko: '물건을 건네주는 손',
+        uz: 'narsa berayotgan qo‘l',
+        en: 'hands giving an item',
+        ru: 'руки, передающие предмет',
+      },
+    },
+    tags: ['verb', 'request', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "가게나 식당에서 부탁할 때 'N 주세요' 형태를 매우 자주 사용해요.",
+      uz: "Do‘kon yoki restoranda 'N 주세요' juda ko‘p ishlatiladi.",
+      en: 'N 주세요 is extremely common when requesting something.',
+      ru: 'Конструкция N 주세요 очень часто используется при просьбе дать что-либо.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_just_a_moment_adverb',
+    senseKey: 'expression-just-a-moment',
     korean: '잠깐만',
-    uz: 'bir oz / bir daqiqa',
-    en: 'for a moment',
-    ru: 'минутку',
-    emoji: '⏳',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '아주 짧은 시간 동안 또는 잠시 기다려 달라는 뜻',
+      uz: 'bir oz, bir daqiqa',
+      en: 'for a moment, just a moment',
+      ru: 'минутку, немного',
+    },
+    examples: [
+      {
+        korean: '잠깐만 기다리세요.',
+        translations: {
+          ko: '잠시 기다리세요.',
+          uz: 'Bir oz kuting.',
+          en: 'Please wait a moment.',
+          ru: 'Подождите минутку.',
+        },
+      },
+      {
+        korean: '잠깐만요.',
+        translations: {
+          ko: '잠시만요.',
+          uz: 'Bir daqiqa.',
+          en: 'Just a moment.',
+          ru: 'Минутку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잠깐만',
+      romanization: 'jamkkanman',
+      ttsText: '잠깐만',
+    },
+    media: {
+      emoji: '⏳',
+      imageUrl: 'https://cdn.korio.app/words/jamkkanman.webp',
+      imageAlt: {
+        ko: '잠시 기다리는 모습',
+        uz: 'biroz kutish',
+        en: 'waiting for a moment',
+        ru: 'короткое ожидание',
+      },
+    },
+    tags: ['adverb', 'conversation', 'waiting', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "더 공손하게 독립적으로 말할 때는 '잠깐만요'라고 해요.",
+      uz: "Muloyimroq mustaqil shakli '잠깐만요'.",
+      en: '잠깐만요 is the polite standalone form.',
+      ru: 'Вежливая самостоятельная форма — 잠깐만요.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_wait_verb',
+    senseKey: 'action-wait',
     korean: '기다리다',
-    uz: 'kutmoq',
-    en: 'to wait',
-    ru: 'ждать',
-    emoji: '⌛',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '사람이나 일이 오거나 시작될 때까지 시간을 보내다',
+      uz: 'kutmoq',
+      en: 'to wait',
+      ru: 'ждать',
+    },
+    examples: [
+      {
+        korean: '잠깐만 기다리세요.',
+        translations: {
+          ko: '잠시 기다리세요.',
+          uz: 'Biroz kuting.',
+          en: 'Please wait a moment.',
+          ru: 'Подождите немного.',
+        },
+      },
+      {
+        korean: '여기에서 기다려요.',
+        translations: {
+          ko: '여기에서 기다립니다.',
+          uz: 'Shu yerda kutaman.',
+          en: 'I wait here.',
+          ru: 'Я жду здесь.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '기다리다',
+      romanization: 'gidarida',
+      ttsText: '기다리다',
+    },
+    media: {
+      emoji: '⌛',
+      imageUrl: 'https://cdn.korio.app/words/gidarida.webp',
+      imageAlt: {
+        ko: '기다리고 있는 사람',
+        uz: 'kutayotgan odam',
+        en: 'a person waiting',
+        ru: 'ожидающий человек',
+      },
+    },
+    tags: ['verb', 'daily-life', 'waiting', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "기다리는 대상에는 보통 '-을/를'을 사용해요. 예: 친구를 기다리다.",
+      uz: "Kutilayotgan kishiga odatda '-을/를' ishlatiladi.",
+      en: 'The person or thing being waited for normally takes 을/를.',
+      ru: 'Объект ожидания обычно оформляется частицей 을/를.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_bread_noun',
+    senseKey: 'food-bread',
     korean: '빵',
-    uz: 'non',
-    en: 'bread',
-    ru: 'хлеб',
-    emoji: '🍞',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밀가루 등을 반죽해서 구워 만든 음식',
+      uz: 'non',
+      en: 'bread',
+      ru: 'хлеб',
+    },
+    examples: [
+      {
+        korean: '빵 한 개 주세요.',
+        translations: {
+          ko: '빵을 한 개 주세요.',
+          uz: 'Bir dona non bering.',
+          en: 'One piece of bread, please.',
+          ru: 'Один хлеб, пожалуйста.',
+        },
+      },
+      {
+        korean: '아침에 빵을 먹어요.',
+        translations: {
+          ko: '아침에 빵을 먹습니다.',
+          uz: 'Ertalab non yeyman.',
+          en: 'I eat bread in the morning.',
+          ru: 'Утром я ем хлеб.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '빵',
+      romanization: 'ppang',
+      ttsText: '빵',
+    },
+    media: {
+      emoji: '🍞',
+      imageUrl: 'https://cdn.korio.app/words/ppang.webp',
+      imageAlt: {
+        ko: '구운 빵',
+        uz: 'pishirilgan non',
+        en: 'bread',
+        ru: 'хлеб',
+      },
+    },
+    tags: ['food', 'bakery', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'빵을 먹다', '빵을 사다'처럼 사용해요.",
+      uz: "'빵을 먹다', '빵을 사다' kabi ishlatiladi.",
+      en: 'Common expressions include 빵을 먹다 and 빵을 사다.',
+      ru: 'Частые выражения: 빵을 먹다 и 빵을 사다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ice_cream_noun',
+    senseKey: 'food-ice-cream',
     korean: '아이스크림',
-    uz: 'muzqaymoq',
-    en: 'ice cream',
-    ru: 'мороженое',
-    emoji: '🍦',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '우유 등에 당분을 넣어 차갑게 얼린 디저트',
+      uz: 'muzqaymoq',
+      en: 'ice cream',
+      ru: 'мороженое',
+    },
+    examples: [
+      {
+        korean: '아이스크림 두 개 주세요.',
+        translations: {
+          ko: '아이스크림을 두 개 주세요.',
+          uz: 'Ikki dona muzqaymoq bering.',
+          en: 'Two ice creams, please.',
+          ru: 'Два мороженых, пожалуйста.',
+        },
+      },
+      {
+        korean: '아이스크림을 좋아해요.',
+        translations: {
+          ko: '아이스크림을 좋아합니다.',
+          uz: 'Muzqaymoqni yoqtiraman.',
+          en: 'I like ice cream.',
+          ru: 'Я люблю мороженое.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아이스크림',
+      romanization: 'aiseukeurim',
+      ttsText: '아이스크림',
+    },
+    media: {
+      emoji: '🍦',
+      imageUrl: 'https://cdn.korio.app/words/aiseukeurim.webp',
+      imageAlt: {
+        ko: '아이스크림',
+        uz: 'muzqaymoq',
+        en: 'ice cream',
+        ru: 'мороженое',
+      },
+    },
+    tags: ['food', 'dessert', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아이스크림을 먹다', '아이스크림을 좋아하다'처럼 사용해요.",
+      uz: "'아이스크림을 먹다' kabi ishlatiladi.",
+      en: 'Commonly used with 먹다 and 좋아하다.',
+      ru: 'Часто используется с 먹다 и 좋아하다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_juice_noun',
+    senseKey: 'drink-juice',
     korean: '주스',
-    uz: 'sharbat',
-    en: 'juice',
-    ru: 'сок',
-    emoji: '🧃',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '과일이나 채소 등을 짜서 만든 음료',
+      uz: 'sharbat',
+      en: 'juice',
+      ru: 'сок',
+    },
+    examples: [
+      {
+        korean: '주스 한 병 주세요.',
+        translations: {
+          ko: '주스를 한 병 주세요.',
+          uz: 'Bir butilka sharbat bering.',
+          en: 'One bottle of juice, please.',
+          ru: 'Одну бутылку сока, пожалуйста.',
+        },
+      },
+      {
+        korean: '오렌지 주스를 마셔요.',
+        translations: {
+          ko: '오렌지 주스를 마십니다.',
+          uz: 'Apelsin sharbati ichaman.',
+          en: 'I drink orange juice.',
+          ru: 'Я пью апельсиновый сок.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '주스',
+      romanization: 'juseu',
+      ttsText: '주스',
+    },
+    media: {
+      emoji: '🧃',
+      imageUrl: 'https://cdn.korio.app/words/juseu.webp',
+      imageAlt: {
+        ko: '과일 주스',
+        uz: 'meva sharbati',
+        en: 'fruit juice',
+        ru: 'фруктовый сок',
+      },
+    },
+    tags: ['drink', 'restaurant', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'오렌지 주스', '사과 주스'처럼 과일 이름과 함께 사용할 수 있어요.",
+      uz: "'오렌지 주스', '사과 주스' kabi ishlatiladi.",
+      en: 'Can be combined with fruit names, such as 오렌지 주스.',
+      ru: 'Можно сочетать с названиями фруктов, например 오렌지 주스.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_green_tea_noun',
+    senseKey: 'drink-green-tea',
     korean: '녹차',
-    uz: "ko'k choy",
-    en: 'green tea',
-    ru: 'зелёный чай',
-    emoji: '🍵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '차나무의 잎을 발효하지 않고 만든 차',
+      uz: 'ko‘k choy',
+      en: 'green tea',
+      ru: 'зелёный чай',
+    },
+    examples: [
+      {
+        korean: '녹차 한 잔 주세요.',
+        translations: {
+          ko: '녹차를 한 잔 주세요.',
+          uz: 'Bir piyola ko‘k choy bering.',
+          en: 'One cup of green tea, please.',
+          ru: 'Одну чашку зелёного чая, пожалуйста.',
+        },
+      },
+      {
+        korean: '저는 녹차를 좋아해요.',
+        translations: {
+          ko: '저는 녹차를 좋아합니다.',
+          uz: 'Men ko‘k choyni yoqtiraman.',
+          en: 'I like green tea.',
+          ru: 'Я люблю зелёный чай.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '녹차',
+      romanization: 'nokcha',
+      ttsText: '녹차',
+    },
+    media: {
+      emoji: '🍵',
+      imageUrl: 'https://cdn.korio.app/words/nokcha.webp',
+      imageAlt: {
+        ko: '녹차 한 잔',
+        uz: 'bir piyola ko‘k choy',
+        en: 'a cup of green tea',
+        ru: 'чашка зелёного чая',
+      },
+    },
+    tags: ['drink', 'tea', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "차를 셀 때는 보통 '한 잔, 두 잔'을 사용해요.",
+      uz: "Choyni sanashda '한 잔, 두 잔' ishlatiladi.",
+      en: 'Tea is commonly counted with 잔.',
+      ru: 'Чай обычно считают с помощью 잔.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cola_noun',
+    senseKey: 'drink-cola',
     korean: '콜라',
-    uz: 'kola',
-    en: 'cola',
-    ru: 'кола',
-    emoji: '🥤',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '탄산과 단맛이 있는 검은색 음료',
+      uz: 'kola',
+      en: 'cola',
+      ru: 'кола',
+    },
+    examples: [
+      {
+        korean: '콜라 두 병 주세요.',
+        translations: {
+          ko: '콜라를 두 병 주세요.',
+          uz: 'Ikki butilka kola bering.',
+          en: 'Two bottles of cola, please.',
+          ru: 'Две бутылки колы, пожалуйста.',
+        },
+      },
+      {
+        korean: '햄버거하고 콜라를 먹어요.',
+        translations: {
+          ko: '햄버거와 콜라를 먹고 마셔요.',
+          uz: 'Gamburger va kola olaman.',
+          en: 'I have a hamburger and cola.',
+          ru: 'Я ем гамбургер и пью колу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '콜라',
+      romanization: 'kolla',
+      ttsText: '콜라',
+    },
+    media: {
+      emoji: '🥤',
+      imageUrl: 'https://cdn.korio.app/words/kolla.webp',
+      imageAlt: {
+        ko: '차가운 콜라',
+        uz: 'sovuq kola',
+        en: 'a cola drink',
+        ru: 'напиток кола',
+      },
+    },
+    tags: ['drink', 'restaurant', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "병에 든 콜라는 '콜라 한 병', 잔에 따른 콜라는 '콜라 한 잔'이라고 할 수 있어요.",
+      uz: "Butilkadagi kola '한 병', stakandagi kola '한 잔' bilan sanaladi.",
+      en: 'Use 병 for bottled cola and 잔 for cola served in a glass.',
+      ru: 'Для колы в бутылке используют 병, а в стакане — 잔.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 식당 ─────────
+  // ─────────────────────────────────────
+  // 식당
+  // ─────────────────────────────────────
 
   {
+    code: 'word_restaurant_server_noun',
+    senseKey: 'occupation-restaurant-server',
     korean: '종업원',
-    uz: 'xodim',
-    en: 'employee / server',
-    ru: 'работник / официант',
-    emoji: '🧑‍🍳',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가게나 식당 등에 고용되어 일하는 사람',
+      uz: 'xodim, xizmat ko‘rsatuvchi',
+      en: 'employee, server',
+      ru: 'работник, официант',
+    },
+    examples: [
+      {
+        korean: '종업원이 메뉴를 줘요.',
+        translations: {
+          ko: '종업원이 메뉴를 줍니다.',
+          uz: 'Xodim menyuni beradi.',
+          en: 'The server gives me the menu.',
+          ru: 'Официант даёт меню.',
+        },
+      },
+      {
+        korean: '종업원을 불러요.',
+        translations: {
+          ko: '종업원을 부릅니다.',
+          uz: 'Xodimni chaqiraman.',
+          en: 'I call the server.',
+          ru: 'Я зову официанта.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '종업원',
+      romanization: 'jongeobwon',
+      ttsText: '종업원',
+    },
+    media: {
+      emoji: '🧑‍🍳',
+      imageUrl: 'https://cdn.korio.app/words/jongeobwon.webp',
+      imageAlt: {
+        ko: '식당에서 일하는 종업원',
+        uz: 'restoranda ishlayotgan xodim',
+        en: 'a restaurant server',
+        ru: 'работник ресторана',
+      },
+    },
+    tags: ['occupation', 'restaurant', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "현대 회화에서는 식당 직원을 '직원'이라고 부르는 경우도 많아요.",
+      uz: "Hozirgi nutqda restoran xodimi uchun '직원' ham ko‘p ishlatiladi.",
+      en: 'In modern conversation 직원 is also commonly used for restaurant staff.',
+      ru: 'В современной речи персонал ресторана также часто называют 직원.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_menu_noun',
+    senseKey: 'restaurant-menu',
     korean: '메뉴',
-    uz: 'menyu',
-    en: 'menu',
-    ru: 'меню',
-    emoji: '📋',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '식당이나 카페에서 주문할 수 있는 음식과 음료의 목록',
+      uz: 'menyu',
+      en: 'menu',
+      ru: 'меню',
+    },
+    examples: [
+      {
+        korean: '메뉴 주세요.',
+        translations: {
+          ko: '메뉴를 주세요.',
+          uz: 'Menyu bering.',
+          en: 'Please give me the menu.',
+          ru: 'Дайте меню, пожалуйста.',
+        },
+      },
+      {
+        korean: '메뉴를 보고 주문해요.',
+        translations: {
+          ko: '메뉴를 보고 주문합니다.',
+          uz: 'Menyuga qarab buyurtma beraman.',
+          en: 'I look at the menu and order.',
+          ru: 'Я смотрю меню и делаю заказ.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '메뉴',
+      romanization: 'menyu',
+      ttsText: '메뉴',
+    },
+    media: {
+      emoji: '📋',
+      imageUrl: 'https://cdn.korio.app/words/menyu.webp',
+      imageAlt: {
+        ko: '음식과 가격이 적힌 메뉴',
+        uz: 'taom va narxlar yozilgan menyu',
+        en: 'a restaurant menu',
+        ru: 'меню ресторана',
+      },
+    },
+    tags: ['restaurant', 'food', 'ordering', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "식당에서 '메뉴 주세요', '메뉴가 뭐예요?'처럼 사용해요.",
+      uz: "'메뉴 주세요' kabi ishlatiladi.",
+      en: 'Common expressions include 메뉴 주세요.',
+      ru: 'Частое выражение — 메뉴 주세요.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sit_verb',
+    senseKey: 'action-sit',
     korean: '앉다',
-    uz: "o'tirmoq",
-    en: 'to sit',
-    ru: 'садиться',
-    emoji: '🪑',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '의자나 바닥 등에 엉덩이를 대고 몸을 쉬게 하다',
+      uz: 'o‘tirmoq',
+      en: 'to sit, to sit down',
+      ru: 'сидеть, садиться',
+    },
+    examples: [
+      {
+        korean: '여기에 앉으세요.',
+        translations: {
+          ko: '여기에 앉아 주세요.',
+          uz: 'Shu yerga o‘tiring.',
+          en: 'Please sit here.',
+          ru: 'Садитесь здесь, пожалуйста.',
+        },
+      },
+      {
+        korean: '의자에 앉아요.',
+        translations: {
+          ko: '의자에 앉습니다.',
+          uz: 'Stulga o‘tiraman.',
+          en: 'I sit on the chair.',
+          ru: 'Я сажусь на стул.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '앉다',
+      romanization: 'antta',
+      ttsText: '앉다',
+    },
+    media: {
+      emoji: '🪑',
+      imageUrl: 'https://cdn.korio.app/words/antta.webp',
+      imageAlt: {
+        ko: '의자에 앉는 사람',
+        uz: 'stulga o‘tirayotgan odam',
+        en: 'a person sitting on a chair',
+        ru: 'человек, садящийся на стул',
+      },
+    },
+    tags: ['verb', 'restaurant', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "앉는 장소에는 보통 '-에'를 사용해요. 예: 의자에 앉다.",
+      uz: "O‘tiradigan joyga odatda '-에' ishlatiladi.",
+      en: 'The place where someone sits normally takes 에.',
+      ru: 'Место, куда садятся, обычно оформляется частицей 에.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_welcome_adverb',
+    senseKey: 'expression-welcome-come-in',
     korean: '어서',
-    uz: 'tezroq / marhamat',
-    en: 'quickly / please come in',
-    ru: 'скорее / проходите',
-    emoji: '👋',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '상대에게 빨리 오거나 어떤 행동을 하도록 권할 때 사용하는 말',
+      uz: 'tezroq, marhamat',
+      en: 'quickly; please, come in',
+      ru: 'скорее; проходите',
+    },
+    examples: [
+      {
+        korean: '어서 오세요.',
+        translations: {
+          ko: '어서 들어오세요.',
+          uz: 'Xush kelibsiz.',
+          en: 'Welcome.',
+          ru: 'Добро пожаловать.',
+        },
+      },
+      {
+        korean: '어서 앉으세요.',
+        translations: {
+          ko: '어서 앉아 주세요.',
+          uz: 'Marhamat, o‘tiring.',
+          en: 'Please sit down.',
+          ru: 'Садитесь, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '어서',
+      romanization: 'eoseo',
+      ttsText: '어서',
+    },
+    media: {
+      emoji: '👋',
+      imageUrl: 'https://cdn.korio.app/words/eoseo.webp',
+      imageAlt: {
+        ko: '손님을 환영하는 사람',
+        uz: 'mehmonni kutib olayotgan odam',
+        en: 'a person welcoming a guest',
+        ru: 'человек, приветствующий гостя',
+      },
+    },
+    tags: ['adverb', 'greeting', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'어서 오세요'는 가게나 식당에서 손님을 맞을 때 매우 자주 사용하는 인사예요.",
+      uz: "'어서 오세요' do‘kon va restoranda mijozni kutib olishda ishlatiladi.",
+      en: '어서 오세요 is a standard greeting for customers entering a shop or restaurant.',
+      ru: '어서 오세요 — стандартное приветствие посетителей магазина или ресторана.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_like_verb',
+    senseKey: 'emotion-like',
     korean: '좋아하다',
-    uz: 'yoqtirmoq',
-    en: 'to like',
-    ru: 'любить / нравиться',
-    emoji: '❤️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 사람이나 사물, 활동에 좋은 감정을 가지다',
+      uz: 'yoqtirmoq',
+      en: 'to like',
+      ru: 'любить, нравиться',
+    },
+    examples: [
+      {
+        korean: '비빔밥을 좋아해요.',
+        translations: {
+          ko: '비빔밥을 좋아합니다.',
+          uz: 'Bibimbapni yoqtiraman.',
+          en: 'I like bibimbap.',
+          ru: 'Я люблю пибимпап.',
+        },
+      },
+      {
+        korean: '무슨 음식을 좋아해요?',
+        translations: {
+          ko: '어떤 음식을 좋아합니까?',
+          uz: 'Qanday taomni yoqtirasiz?',
+          en: 'What kind of food do you like?',
+          ru: 'Какую еду вы любите?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '좋아하다',
+      romanization: 'joahada',
+      ttsText: '좋아하다',
+    },
+    media: {
+      emoji: '❤️',
+      imageUrl: 'https://cdn.korio.app/words/joahada.webp',
+      imageAlt: {
+        ko: '좋아하는 것을 나타내는 하트',
+        uz: 'yoqtirishni bildiruvchi yurak',
+        en: 'a heart representing liking',
+        ru: 'сердце, обозначающее симпатию',
+      },
+    },
+    tags: ['verb', 'emotion', 'preference', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'좋다'와 달리 좋아하는 대상에는 보통 '-을/를'을 사용해요.",
+      uz: "'좋아하다' bilan yoqtirilgan narsa odatda '-을/를' oladi.",
+      en: 'Unlike 좋다, the object of 좋아하다 normally takes 을/를.',
+      ru: 'В отличие от 좋다, объект 좋아하다 обычно оформляется 을/를.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_udon_noun',
+    senseKey: 'food-udon',
     korean: '우동',
-    uz: 'udon',
-    en: 'udon',
-    ru: 'удон',
-    emoji: '🍜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '굵은 면을 국물에 넣어 먹는 일본식 면 요리',
+      uz: 'udon',
+      en: 'udon',
+      ru: 'удон',
+    },
+    examples: [
+      {
+        korean: '우동 한 그릇 주세요.',
+        translations: {
+          ko: '우동을 한 그릇 주세요.',
+          uz: 'Bir kosa udon bering.',
+          en: 'One bowl of udon, please.',
+          ru: 'Одну порцию удона, пожалуйста.',
+        },
+      },
+      {
+        korean: '우동이 맛있어요.',
+        translations: {
+          ko: '우동이 맛있습니다.',
+          uz: 'Udon mazali.',
+          en: 'The udon is delicious.',
+          ru: 'Удон вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '우동',
+      romanization: 'udong',
+      ttsText: '우동',
+    },
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/udong.webp',
+      imageAlt: {
+        ko: '우동 한 그릇',
+        uz: 'bir kosa udon',
+        en: 'a bowl of udon',
+        ru: 'миска удона',
+      },
+    },
+    tags: ['food', 'noodles', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "식당에서 주문할 때 '우동 한 그릇 주세요'처럼 사용할 수 있어요.",
+      uz: "Buyurtmada '우동 한 그릇 주세요' kabi ishlatiladi.",
+      en: 'Can be ordered with the counter 그릇.',
+      ru: 'При заказе можно использовать счётное слово 그릇.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_jajangmyeon_noun',
+    senseKey: 'food-jajangmyeon',
     korean: '짜장면',
-    uz: 'jajangmyeon',
-    en: 'jajangmyeon',
-    ru: 'чачжанмён',
-    emoji: '🍜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '춘장으로 만든 검은 소스를 면에 비벼 먹는 한국식 중화요리',
+      uz: 'jajangmyeon',
+      en: 'jajangmyeon, noodles with black bean sauce',
+      ru: 'чачжанмён, лапша с соусом из чёрных бобов',
+    },
+    examples: [
+      {
+        korean: '짜장면 한 그릇 주세요.',
+        translations: {
+          ko: '짜장면을 한 그릇 주세요.',
+          uz: 'Bir kosa jajangmyeon bering.',
+          en: 'One bowl of jajangmyeon, please.',
+          ru: 'Одну порцию чачжанмёна, пожалуйста.',
+        },
+      },
+      {
+        korean: '짜장면을 좋아해요.',
+        translations: {
+          ko: '짜장면을 좋아합니다.',
+          uz: 'Jajangmyeonni yoqtiraman.',
+          en: 'I like jajangmyeon.',
+          ru: 'Я люблю чачжанмён.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '짜장면',
+      romanization: 'jjajangmyeon',
+      ttsText: '짜장면',
+    },
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/jjajangmyeon.webp',
+      imageAlt: {
+        ko: '검은 소스가 있는 짜장면',
+        uz: 'qora sousli jajangmyeon',
+        en: 'jajangmyeon with black bean sauce',
+        ru: 'чачжанмён с чёрным соусом',
+      },
+    },
+    tags: ['food', 'noodles', 'restaurant', 'korean-food'],
+    difficulty: 1,
+    usageNote: {
+      ko: '한국의 중화요리 식당에서 매우 흔하게 볼 수 있는 면 요리예요.',
+      uz: 'Koreyadagi xitoycha restoranlarda juda mashhur noodle taomi.',
+      en: 'A very common Korean-Chinese noodle dish.',
+      ru: 'Очень распространённое корейско-китайское блюдо из лапши.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_jjamppong_noun',
+    senseKey: 'food-jjamppong',
     korean: '짬뽕',
-    uz: 'jjamppong',
-    en: 'jjamppong',
-    ru: 'ччамппон',
-    emoji: '🍜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '해산물과 채소 등을 넣어 매콤하게 만든 국물 면 요리',
+      uz: 'jjamppong, achchiq dengiz mahsulotli noodle sho‘rva',
+      en: 'jjamppong, spicy seafood noodle soup',
+      ru: 'ччамппон, острый суп с лапшой и морепродуктами',
+    },
+    examples: [
+      {
+        korean: '짬뽕 한 그릇 주세요.',
+        translations: {
+          ko: '짬뽕을 한 그릇 주세요.',
+          uz: 'Bir kosa jjamppong bering.',
+          en: 'One bowl of jjamppong, please.',
+          ru: 'Одну порцию ччамппона, пожалуйста.',
+        },
+      },
+      {
+        korean: '짬뽕은 조금 매워요.',
+        translations: {
+          ko: '짬뽕은 조금 맵습니다.',
+          uz: 'Jjamppong biroz achchiq.',
+          en: 'Jjamppong is a little spicy.',
+          ru: 'Ччамппон немного острый.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '짬뽕',
+      romanization: 'jjamppong',
+      ttsText: '짬뽕',
+    },
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/jjamppong.webp',
+      imageAlt: {
+        ko: '매운 국물의 짬뽕',
+        uz: 'achchiq jjamppong',
+        en: 'spicy jjamppong noodles',
+        ru: 'острый ччамппон',
+      },
+    },
+    tags: ['food', 'noodles', 'spicy', 'restaurant'],
+    difficulty: 1,
+    usageNote: {
+      ko: '짜장면과 함께 한국식 중화요리 식당의 대표 메뉴 중 하나예요.',
+      uz: 'Jajangmyeon bilan birga koreys-xitoy restoranlarining mashhur taomi.',
+      en: 'One of the most common Korean-Chinese dishes along with jajangmyeon.',
+      ru: 'Одно из самых популярных корейско-китайских блюд наряду с чачжанмёном.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sushi_noun',
+    senseKey: 'food-sushi',
     korean: '초밥',
-    uz: 'sushi',
-    en: 'sushi',
-    ru: 'суши',
-    emoji: '🍣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '식초로 간한 밥에 생선이나 해산물 등을 올려 만든 음식',
+      uz: 'sushi',
+      en: 'sushi',
+      ru: 'суши',
+    },
+    examples: [
+      {
+        korean: '초밥을 좋아해요.',
+        translations: {
+          ko: '초밥을 좋아합니다.',
+          uz: 'Sushini yoqtiraman.',
+          en: 'I like sushi.',
+          ru: 'Я люблю суши.',
+        },
+      },
+      {
+        korean: '초밥이 맛있어요.',
+        translations: {
+          ko: '초밥이 맛있습니다.',
+          uz: 'Sushi mazali.',
+          en: 'The sushi is delicious.',
+          ru: 'Суши вкусные.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '초밥',
+      romanization: 'chobap',
+      ttsText: '초밥',
+    },
+    media: {
+      emoji: '🍣',
+      imageUrl: 'https://cdn.korio.app/words/chobap.webp',
+      imageAlt: {
+        ko: '생선이 올라간 초밥',
+        uz: 'baliqli sushi',
+        en: 'pieces of sushi',
+        ru: 'суши',
+      },
+    },
+    tags: ['food', 'restaurant', 'japanese-food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "한국어에서 일본식 sushi를 일반적으로 '초밥'이라고 해요.",
+      uz: "Koreys tilida sushi odatda '초밥' deyiladi.",
+      en: '초밥 is the common Korean word for sushi.',
+      ru: '초밥 — обычное корейское слово для суши.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_tangsuyuk_noun',
+    senseKey: 'food-tangsuyuk',
     korean: '탕수육',
-    uz: "shirin-nordon sousli go'sht",
-    en: 'sweet-and-sour pork',
-    ru: 'свинина в кисло-сладком соусе',
-    emoji: '🥘',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '튀긴 고기에 새콤달콤한 소스를 곁들인 한국식 중화요리',
+      uz: 'shirin-nordon sousli qovurilgan go‘sht',
+      en: 'tangsuyuk, sweet-and-sour fried pork',
+      ru: 'тансуюк, свинина в кисло-сладком соусе',
+    },
+    examples: [
+      {
+        korean: '탕수육도 주세요.',
+        translations: {
+          ko: '탕수육도 주문할게요.',
+          uz: 'Tangsuyuk ham bering.',
+          en: 'Please give us tangsuyuk too.',
+          ru: 'Ещё тансуюк, пожалуйста.',
+        },
+      },
+      {
+        korean: '탕수육이 맛있어요.',
+        translations: {
+          ko: '탕수육이 맛있습니다.',
+          uz: 'Tangsuyuk mazali.',
+          en: 'The tangsuyuk is delicious.',
+          ru: 'Тансуюк вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '탕수육',
+      romanization: 'tangsuyuk',
+      ttsText: '탕수육',
+    },
+    media: {
+      emoji: '🥘',
+      imageUrl: 'https://cdn.korio.app/words/tangsuyuk.webp',
+      imageAlt: {
+        ko: '새콤달콤한 탕수육',
+        uz: 'shirin-nordon tangsuyuk',
+        en: 'sweet-and-sour tangsuyuk',
+        ru: 'тансуюк в кисло-сладком соусе',
+      },
+    },
+    tags: ['food', 'restaurant', 'korean-chinese-food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '짜장면이나 짬뽕과 함께 주문하는 경우가 많은 음식이에요.',
+      uz: 'Ko‘pincha jajangmyeon yoki jjamppong bilan birga buyurtma qilinadi.',
+      en: 'Often ordered together with jajangmyeon or jjamppong.',
+      ru: 'Часто заказывают вместе с чачжанмёном или ччамппоном.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_mandu_noun',
+    senseKey: 'food-mandu',
     korean: '만두',
-    uz: 'mandu',
-    en: 'dumplings',
-    ru: 'манду / пельмени',
-    emoji: '🥟',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밀가루 반죽 안에 고기나 채소 등을 넣어 빚은 음식',
+      uz: 'mandu, koreys chuchvarasi',
+      en: 'mandu, Korean dumplings',
+      ru: 'манду, корейские пельмени',
+    },
+    examples: [
+      {
+        korean: '만두를 주세요.',
+        translations: {
+          ko: '만두를 주세요.',
+          uz: 'Mandu bering.',
+          en: 'Mandu, please.',
+          ru: 'Манду, пожалуйста.',
+        },
+      },
+      {
+        korean: '만두가 맛있어요.',
+        translations: {
+          ko: '만두가 맛있습니다.',
+          uz: 'Mandu mazali.',
+          en: 'The dumplings are delicious.',
+          ru: 'Манду вкусные.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '만두',
+      romanization: 'mandu',
+      ttsText: '만두',
+    },
+    media: {
+      emoji: '🥟',
+      imageUrl: 'https://cdn.korio.app/words/mandu.webp',
+      imageAlt: {
+        ko: '접시에 담긴 만두',
+        uz: 'likopchadagi mandu',
+        en: 'Korean dumplings',
+        ru: 'корейские пельмени манду',
+      },
+    },
+    tags: ['food', 'korean-food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '찌거나 굽거나 튀기는 등 여러 방식으로 먹는 음식이에요.',
+      uz: 'Bug‘da, qovurib yoki boshqa usulda tayyorlanishi mumkin.',
+      en: 'Mandu can be steamed, fried, or prepared in several other ways.',
+      ru: 'Манду могут готовить на пару, жарить и готовить другими способами.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_pork_cutlet_noun',
+    senseKey: 'food-pork-cutlet',
     korean: '돈가스',
-    uz: "go'sht kotleti",
-    en: 'pork cutlet',
-    ru: 'свиная отбивная в панировке',
-    emoji: '🍽️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돼지고기에 빵가루를 입혀 튀긴 음식',
+      uz: 'qovurilgan cho‘chqa go‘shti kotleti',
+      en: 'pork cutlet',
+      ru: 'свиная отбивная в панировке',
+    },
+    examples: [
+      {
+        korean: '돈가스 하나 주세요.',
+        translations: {
+          ko: '돈가스를 하나 주세요.',
+          uz: 'Bitta donkasu bering.',
+          en: 'One pork cutlet, please.',
+          ru: 'Одну порцию тонкацу, пожалуйста.',
+        },
+      },
+      {
+        korean: '돈가스가 맛있어요.',
+        translations: {
+          ko: '돈가스가 맛있습니다.',
+          uz: 'Donkasu mazali.',
+          en: 'The pork cutlet is delicious.',
+          ru: 'Свиная отбивная вкусная.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '돈가스',
+      romanization: 'dongaseu',
+      ttsText: '돈가스',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/dongaseu.webp',
+      imageAlt: {
+        ko: '접시에 담긴 돈가스',
+        uz: 'likopchadagi donkasu',
+        en: 'a breaded pork cutlet',
+        ru: 'свиная отбивная в панировке',
+      },
+    },
+    tags: ['food', 'restaurant', 'fried-food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '한국 식당 메뉴에서 흔히 볼 수 있는 음식 이름이에요.',
+      uz: 'Koreys restoran menyularida tez-tez uchraydi.',
+      en: 'A common menu item in Korean restaurants.',
+      ru: 'Частое блюдо в меню корейских ресторанов.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_fried_food_noun',
+    senseKey: 'food-fried-food',
     korean: '튀김',
-    uz: 'qovurilgan taom',
-    en: 'fried food / tempura',
-    ru: 'жареная еда / темпура',
-    emoji: '🍤',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '재료를 기름에 넣어 튀겨 만든 음식',
+      uz: 'qovurilgan taom',
+      en: 'fried food, tempura-style food',
+      ru: 'жареная еда, темпура',
+    },
+    examples: [
+      {
+        korean: '튀김을 좋아해요.',
+        translations: {
+          ko: '튀김을 좋아합니다.',
+          uz: 'Qovurilgan taomni yoqtiraman.',
+          en: 'I like fried food.',
+          ru: 'Я люблю жареную еду.',
+        },
+      },
+      {
+        korean: '튀김도 주세요.',
+        translations: {
+          ko: '튀김도 주문할게요.',
+          uz: 'Qovurilgan taom ham bering.',
+          en: 'Please give us some fried food too.',
+          ru: 'Ещё жареное, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '튀김',
+      romanization: 'twigim',
+      ttsText: '튀김',
+    },
+    media: {
+      emoji: '🍤',
+      imageUrl: 'https://cdn.korio.app/words/twigim.webp',
+      imageAlt: {
+        ko: '바삭하게 튀긴 음식',
+        uz: 'qarsildoq qovurilgan taom',
+        en: 'crispy fried food',
+        ru: 'хрустящая жареная еда',
+      },
+    },
+    tags: ['food', 'fried-food', 'restaurant', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'튀기다'에서 나온 명사로 튀긴 음식을 뜻해요.",
+      uz: "'튀기다' fe’lidan kelib chiqqan va qovurilgan taomni bildiradi.",
+      en: 'A noun related to 튀기다, meaning food cooked by deep-frying.',
+      ru: 'Существительное от 튀기다, обозначающее жареную во фритюре еду.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_salad_noun',
+    senseKey: 'food-salad',
     korean: '샐러드',
-    uz: 'salat',
-    en: 'salad',
-    ru: 'салат',
-    emoji: '🥗',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '채소나 과일 등을 섞어 만든 음식',
+      uz: 'salat',
+      en: 'salad',
+      ru: 'салат',
+    },
+    examples: [
+      {
+        korean: '샐러드 하나 주세요.',
+        translations: {
+          ko: '샐러드를 하나 주세요.',
+          uz: 'Bitta salat bering.',
+          en: 'One salad, please.',
+          ru: 'Один салат, пожалуйста.',
+        },
+      },
+      {
+        korean: '샐러드가 좋아요.',
+        translations: {
+          ko: '샐러드가 좋습니다.',
+          uz: 'Salat yaxshi.',
+          en: 'The salad is good.',
+          ru: 'Салат хороший.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '샐러드',
+      romanization: 'saelleodeu',
+      ttsText: '샐러드',
+    },
+    media: {
+      emoji: '🥗',
+      imageUrl: 'https://cdn.korio.app/words/saelleodeu.webp',
+      imageAlt: {
+        ko: '채소 샐러드',
+        uz: 'sabzavotli salat',
+        en: 'a vegetable salad',
+        ru: 'овощной салат',
+      },
+    },
+    tags: ['food', 'restaurant', 'vegetable', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '식당이나 카페 메뉴에서 자주 볼 수 있는 외래어예요.',
+      uz: 'Restoran va kafe menyularida ko‘p uchraydigan so‘z.',
+      en: 'A common loanword on restaurant and café menus.',
+      ru: 'Распространённое заимствованное слово в меню ресторанов и кафе.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_here_excuse_me_interjection',
+    senseKey: 'restaurant-call-server-here',
     korean: '여기요',
-    uz: 'kechirasiz / bu yoqqa qarang',
-    en: 'excuse me / over here',
-    ru: 'извините / сюда, пожалуйста',
-    emoji: '🙋',
+    partOfSpeech: WordPartOfSpeech.INTERJECTION,
+    meaning: {
+      ko: '식당이나 가게에서 직원의 주의를 끌 때 사용하는 말',
+      uz: 'kechirasiz, bu yoqqa qarang',
+      en: 'excuse me, over here',
+      ru: 'извините, сюда пожалуйста',
+    },
+    examples: [
+      {
+        korean: '여기요! 김밥 한 개 주세요.',
+        translations: {
+          ko: '여기요! 김밥을 한 개 주세요.',
+          uz: 'Kechirasiz! Bir dona gimbap bering.',
+          en: 'Excuse me! One gimbap, please.',
+          ru: 'Извините! Один кимбап, пожалуйста.',
+        },
+      },
+      {
+        korean: '여기요, 메뉴 주세요.',
+        translations: {
+          ko: '여기요, 메뉴를 주세요.',
+          uz: 'Kechirasiz, menyu bering.',
+          en: 'Excuse me, may I have the menu?',
+          ru: 'Извините, дайте меню, пожалуйста.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '여기요',
+      romanization: 'yeogiyo',
+      ttsText: '여기요',
+    },
+    media: {
+      emoji: '🙋',
+      imageUrl: 'https://cdn.korio.app/words/yeogiyo.webp',
+      imageAlt: {
+        ko: '직원을 부르는 손님',
+        uz: 'xodimni chaqirayotgan mijoz',
+        en: 'a customer calling a server',
+        ru: 'посетитель, зовущий официанта',
+      },
+    },
+    tags: ['interjection', 'restaurant', 'conversation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '식당에서 종업원을 부를 때 자연스럽게 사용하는 표현이에요.',
+      uz: 'Restoranda xodimni chaqirish uchun tabiiy ifoda.',
+      en: "A natural way to call a server's attention in a restaurant.",
+      ru: 'Естественное выражение, чтобы позвать официанта.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_geuraeyo_interjection',
+    senseKey: 'conversation-response-geuraeyo',
     korean: '그래요',
-    uz: 'shundaymi / yaxshi',
-    en: 'really? / okay',
-    ru: 'правда? / хорошо',
-    emoji: '🙂',
+    partOfSpeech: WordPartOfSpeech.INTERJECTION,
+    meaning: {
+      ko: '상대의 말을 확인하거나 동의할 때 사용하는 표현',
+      uz: 'shundaymi, yaxshi, shunday',
+      en: "really?, okay, that's right",
+      ru: 'правда?, хорошо, так',
+    },
+    examples: [
+      {
+        korean: '그래요?',
+        translations: {
+          ko: '정말 그래요?',
+          uz: 'Shundaymi?',
+          en: 'Really? Is that so?',
+          ru: 'Правда? Вот как?',
+        },
+      },
+      {
+        korean: '네, 그래요.',
+        translations: {
+          ko: '네, 맞아요.',
+          uz: 'Ha, shunday.',
+          en: "Yes, that's right.",
+          ru: 'Да, всё верно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '그래요',
+      romanization: 'geuraeyo',
+      ttsText: '그래요',
+    },
+    media: {
+      emoji: '🙂',
+      imageUrl: 'https://cdn.korio.app/words/geuraeyo.webp',
+      imageAlt: {
+        ko: '상대의 말에 반응하는 사람',
+        uz: 'suhbatga javob berayotgan odam',
+        en: 'a person responding in conversation',
+        ru: 'человек, реагирующий в разговоре',
+      },
+    },
+    tags: ['interjection', 'conversation', 'response', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "억양에 따라 '그래요?'는 확인 질문, '그래요.'는 동의나 확인이 될 수 있어요.",
+      uz: 'Ohangga qarab savol yoki tasdiq bo‘lishi mumkin.',
+      en: 'Depending on intonation, 그래요? asks for confirmation while 그래요. can agree or confirm.',
+      ru: 'В зависимости от интонации 그래요? задаёт вопрос, а 그래요. подтверждает.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 상태 · 평가 ─────────
+  // ─────────────────────────────────────
+  // 상태 · 평가
+  // ─────────────────────────────────────
 
   {
+    code: 'word_delicious_adjective',
+    senseKey: 'food-be-delicious',
     korean: '맛있다',
-    uz: 'mazali bo‘lmoq',
-    en: 'to be delicious',
-    ru: 'быть вкусным',
-    emoji: '😋',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '음식의 맛이 좋다',
+      uz: 'mazali bo‘lmoq',
+      en: 'to be delicious',
+      ru: 'быть вкусным',
+    },
+    examples: [
+      {
+        korean: '비빔밥이 맛있어요.',
+        translations: {
+          ko: '비빔밥의 맛이 좋아요.',
+          uz: 'Bibimbap mazali.',
+          en: 'The bibimbap is delicious.',
+          ru: 'Пибимпап вкусный.',
+        },
+      },
+      {
+        korean: '김치가 정말 맛있어요.',
+        translations: {
+          ko: '김치가 정말 맛있습니다.',
+          uz: 'Kimchi juda mazali.',
+          en: 'The kimchi is really delicious.',
+          ru: 'Кимчи очень вкусное.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '맛있다',
+      romanization: 'masitda',
+      ttsText: '맛있다',
+    },
+    media: {
+      emoji: '😋',
+      imageUrl: 'https://cdn.korio.app/words/masitda.webp',
+      imageAlt: {
+        ko: '맛있는 음식을 먹고 좋아하는 사람',
+        uz: 'mazali taomdan zavqlanayotgan odam',
+        en: 'a person enjoying delicious food',
+        ru: 'человек, наслаждающийся вкусной едой',
+      },
+    },
+    tags: ['adjective', 'food', 'taste', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "음식이 맛있다고 평가할 때 'N이/가 맛있어요' 형태로 사용해요.",
+      uz: "'N이/가 맛있어요' shaklida taom ta’mini baholaydi.",
+      en: 'Use N이/가 맛있어요 to say a food is delicious.',
+      ru: 'Конструкция N이/가 맛있어요 означает, что еда вкусная.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_good_adjective',
+    senseKey: 'evaluation-good',
     korean: '좋다',
-    uz: 'yaxshi bo‘lmoq',
-    en: 'to be good',
-    ru: 'быть хорошим',
-    emoji: '👍',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '상태나 품질, 느낌 등이 만족스럽다',
+      uz: 'yaxshi bo‘lmoq',
+      en: 'to be good',
+      ru: 'быть хорошим',
+    },
+    examples: [
+      {
+        korean: '이 식당이 좋아요.',
+        translations: {
+          ko: '이 식당이 좋습니다.',
+          uz: 'Bu restoran yaxshi.',
+          en: 'This restaurant is good.',
+          ru: 'Этот ресторан хороший.',
+        },
+      },
+      {
+        korean: '날씨가 좋아요.',
+        translations: {
+          ko: '날씨가 좋습니다.',
+          uz: 'Havo yaxshi.',
+          en: 'The weather is nice.',
+          ru: 'Погода хорошая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '좋다',
+      romanization: 'jota',
+      ttsText: '좋다',
+    },
+    media: {
+      emoji: '👍',
+      imageUrl: 'https://cdn.korio.app/words/jota.webp',
+      imageAlt: {
+        ko: '좋음을 나타내는 엄지손가락',
+        uz: 'yaxshilikni bildiruvchi bosh barmoq',
+        en: 'a thumbs-up indicating good',
+        ru: 'жест большого пальца, означающий «хорошо»',
+      },
+    },
+    tags: ['adjective', 'evaluation', 'state', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'좋아하다'는 좋아하는 대상을 말하는 동사이고, '좋다'는 상태를 평가하는 형용사예요.",
+      uz: "'좋아하다' yoqtirmoq, '좋다' esa yaxshi bo‘lmoq.",
+      en: "좋아하다 means 'to like,' while 좋다 describes something as good.",
+      ru: '좋아하다 означает «любить», а 좋다 — «быть хорошим».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cheap_adjective',
+    senseKey: 'price-be-cheap',
     korean: '싸다',
-    uz: 'arzon bo‘lmoq',
-    en: 'to be cheap',
-    ru: 'быть дешёвым',
-    emoji: '🏷️',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '가격이 보통보다 낮거나 비싸지 않다',
+      uz: 'arzon bo‘lmoq',
+      en: 'to be cheap, inexpensive',
+      ru: 'быть дешёвым',
+    },
+    examples: [
+      {
+        korean: '이 가게는 물건이 싸요.',
+        translations: {
+          ko: '이 가게의 물건은 가격이 쌉니다.',
+          uz: 'Bu do‘kondagi narsalar arzon.',
+          en: 'Things are cheap at this store.',
+          ru: 'В этом магазине товары дешёвые.',
+        },
+      },
+      {
+        korean: '김밥이 싸요.',
+        translations: {
+          ko: '김밥 가격이 쌉니다.',
+          uz: 'Gimbap arzon.',
+          en: 'The gimbap is inexpensive.',
+          ru: 'Кимбап недорогой.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '싸다',
+      romanization: 'ssada',
+      ttsText: '싸다',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: 'https://cdn.korio.app/words/ssada-cheap.webp',
+      imageAlt: {
+        ko: '저렴한 가격표',
+        uz: 'arzon narx yorlig‘i',
+        en: 'a low price tag',
+        ru: 'низкая цена на ценнике',
+      },
+    },
+    tags: ['adjective', 'price', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 가격이 높다는 뜻의 '비싸다'예요.",
+      uz: "Qarama-qarshi ma’nosi '비싸다' — qimmat.",
+      en: "The opposite is 비싸다, 'to be expensive.'",
+      ru: 'Антоним — 비싸다, «быть дорогим».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_complicated_crowded_adjective',
+    senseKey: 'state-complicated-crowded',
     korean: '복잡하다',
-    uz: 'gavjum / murakkab bo‘lmoq',
-    en: 'to be crowded / complicated',
-    ru: 'быть людным / сложным',
-    emoji: '🚦',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '사람이나 차가 많아 붐비거나 구조와 내용이 단순하지 않다',
+      uz: 'gavjum yoki murakkab bo‘lmoq',
+      en: 'to be crowded, complicated',
+      ru: 'быть людным, сложным',
+    },
+    examples: [
+      {
+        korean: '시장이 복잡해요.',
+        translations: {
+          ko: '시장에 사람이 많아서 복잡합니다.',
+          uz: 'Bozor gavjum.',
+          en: 'The market is crowded.',
+          ru: 'На рынке людно.',
+        },
+      },
+      {
+        korean: '이 길은 복잡해요.',
+        translations: {
+          ko: '이 길은 찾기가 복잡합니다.',
+          uz: 'Bu yo‘l murakkab.',
+          en: 'This route is complicated.',
+          ru: 'Этот маршрут сложный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '복잡하다',
+      romanization: 'bokjaphada',
+      ttsText: '복잡하다',
+    },
+    media: {
+      emoji: '🚦',
+      imageUrl: 'https://cdn.korio.app/words/bokjaphada.webp',
+      imageAlt: {
+        ko: '사람과 차가 많은 복잡한 거리',
+        uz: 'odam va mashinasi ko‘p gavjum ko‘cha',
+        en: 'a crowded busy street',
+        ru: 'оживлённая переполненная улица',
+      },
+    },
+    tags: ['adjective', 'state', 'city', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '장소가 붐빈다는 뜻과 내용이 어렵고 복잡하다는 뜻을 모두 가질 수 있어요.',
+      uz: 'Joyning gavjumligi yoki narsaning murakkabligini bildira oladi.',
+      en: 'Can describe either a crowded place or something complicated.',
+      ru: 'Может описывать как людное место, так и что-то сложное.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_road_noun',
+    senseKey: 'place-road-street',
     korean: '길',
-    uz: "yo'l",
-    en: 'road / street',
-    ru: 'дорога / улица',
-    emoji: '🛣️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이나 차가 다닐 수 있도록 만들어진 곳',
+      uz: 'yo‘l',
+      en: 'road, street, way',
+      ru: 'дорога, улица, путь',
+    },
+    examples: [
+      {
+        korean: '길이 복잡해요.',
+        translations: {
+          ko: '길이 복잡합니다.',
+          uz: 'Yo‘l murakkab.',
+          en: 'The roads are complicated.',
+          ru: 'Дороги сложные.',
+        },
+      },
+      {
+        korean: '이 길로 가세요.',
+        translations: {
+          ko: '이 길을 따라 가세요.',
+          uz: 'Shu yo‘ldan boring.',
+          en: 'Go this way.',
+          ru: 'Идите по этой дороге.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '길',
+      romanization: 'gil',
+      ttsText: '길',
+    },
+    media: {
+      emoji: '🛣️',
+      imageUrl: 'https://cdn.korio.app/words/gil.webp',
+      imageAlt: {
+        ko: '앞으로 이어지는 길',
+        uz: 'oldinga davom etadigan yo‘l',
+        en: 'a road',
+        ru: 'дорога',
+      },
+    },
+    tags: ['place', 'road', 'direction', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'길을 가다', '길을 묻다', '길이 복잡하다'처럼 사용해요.",
+      uz: "'길을 가다', '길을 묻다' kabi ishlatiladi.",
+      en: 'Common expressions include 길을 가다 and 길을 묻다.',
+      ru: 'Частые выражения: 길을 가다 и 길을 묻다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_song_noun',
+    senseKey: 'music-song',
     korean: '노래',
-    uz: "qo'shiq",
-    en: 'song',
-    ru: 'песня',
-    emoji: '🎵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가락에 맞추어 목소리로 부르는 음악',
+      uz: 'qo‘shiq',
+      en: 'song',
+      ru: 'песня',
+    },
+    examples: [
+      {
+        korean: '이 노래가 좋아요.',
+        translations: {
+          ko: '이 노래가 좋습니다.',
+          uz: 'Bu qo‘shiq yaxshi.',
+          en: 'This song is good.',
+          ru: 'Эта песня хорошая.',
+        },
+      },
+      {
+        korean: '아리랑은 한국 노래예요.',
+        translations: {
+          ko: '아리랑은 한국의 노래입니다.',
+          uz: 'Arirang koreys qo‘shig‘i.',
+          en: 'Arirang is a Korean song.',
+          ru: 'Ариран — корейская песня.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '노래',
+      romanization: 'norae',
+      ttsText: '노래',
+    },
+    media: {
+      emoji: '🎵',
+      imageUrl: 'https://cdn.korio.app/words/norae.webp',
+      imageAlt: {
+        ko: '노래를 나타내는 음표',
+        uz: 'qo‘shiqni bildiruvchi nota',
+        en: 'musical notes representing a song',
+        ru: 'ноты, обозначающие песню',
+      },
+    },
+    tags: ['music', 'song', 'culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'노래를 듣다', '노래를 부르다', '노래를 좋아하다'처럼 사용해요.",
+      uz: "'노래를 듣다', '노래를 부르다' kabi ishlatiladi.",
+      en: 'Common expressions include 노래를 듣다 and 노래를 부르다.',
+      ru: 'Частые выражения: 노래를 듣다 и 노래를 부르다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_arirang_noun',
+    senseKey: 'culture-song-arirang',
     korean: '아리랑',
-    uz: "Arirang (koreys xalq qo'shig'i)",
-    en: 'Arirang',
-    ru: 'Ариран',
-    emoji: '🎶',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한국을 대표하는 전통 민요의 이름',
+      uz: 'Arirang, koreys xalq qo‘shig‘i',
+      en: 'Arirang, a traditional Korean folk song',
+      ru: 'Ариран, традиционная корейская народная песня',
+    },
+    examples: [
+      {
+        korean: '아리랑을 들어요.',
+        translations: {
+          ko: '아리랑을 듣습니다.',
+          uz: 'Arirangni tinglayman.',
+          en: 'I listen to Arirang.',
+          ru: 'Я слушаю «Ариран».',
+        },
+      },
+      {
+        korean: '아리랑은 유명한 한국 노래예요.',
+        translations: {
+          ko: '아리랑은 유명한 한국 노래입니다.',
+          uz: 'Arirang mashhur koreys qo‘shig‘i.',
+          en: 'Arirang is a famous Korean song.',
+          ru: '«Ариран» — известная корейская песня.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아리랑',
+      romanization: 'arirang',
+      ttsText: '아리랑',
+    },
+    media: {
+      emoji: '🎶',
+      imageUrl: 'https://cdn.korio.app/words/arirang.webp',
+      imageAlt: {
+        ko: '한국 전통 노래 아리랑',
+        uz: 'koreys xalq qo‘shig‘i Arirang',
+        en: 'the Korean folk song Arirang',
+        ru: 'корейская народная песня «Ариран»',
+      },
+    },
+    tags: ['music', 'culture', 'korea', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '한국을 대표하는 민요 이름으로 고유명사처럼 사용해요.',
+      uz: 'Koreyaning mashhur xalq qo‘shig‘i nomi.',
+      en: "Used as the proper name of one of Korea's best-known folk songs.",
+      ru: 'Собственное название одной из самых известных корейских народных песен.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── N도 연습에서 추가 ─────────
+  // ─────────────────────────────────────
+  // N도 연습 추가
+  // ─────────────────────────────────────
 
   {
+    code: 'word_pants_noun',
+    senseKey: 'clothing-pants',
     korean: '바지',
-    uz: 'shim',
-    en: 'pants',
-    ru: 'брюки',
-    emoji: '👖',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '허리 아래부터 두 다리를 각각 감싸는 옷',
+      uz: 'shim',
+      en: 'pants, trousers',
+      ru: 'брюки',
+    },
+    examples: [
+      {
+        korean: '바지도 싸요.',
+        translations: {
+          ko: '바지 역시 가격이 쌉니다.',
+          uz: 'Shim ham arzon.',
+          en: 'The pants are cheap too.',
+          ru: 'Брюки тоже дешёвые.',
+        },
+      },
+      {
+        korean: '바지를 샀어요.',
+        translations: {
+          ko: '바지를 구매했습니다.',
+          uz: 'Shim sotib oldim.',
+          en: 'I bought pants.',
+          ru: 'Я купил брюки.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '바지',
+      romanization: 'baji',
+      ttsText: '바지',
+    },
+    media: {
+      emoji: '👖',
+      imageUrl: 'https://cdn.korio.app/words/baji.webp',
+      imageAlt: {
+        ko: '긴 바지',
+        uz: 'shim',
+        en: 'a pair of pants',
+        ru: 'брюки',
+      },
+    },
+    tags: ['clothing', 'shopping', 'item', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'바지를 입다', '바지를 사다'처럼 사용해요.",
+      uz: "'바지를 입다', '바지를 사다' kabi ishlatiladi.",
+      en: 'Common expressions include 바지를 입다 and 바지를 사다.',
+      ru: 'Частые выражения: 바지를 입다 и 바지를 사다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sneakers_noun',
+    senseKey: 'clothing-sneakers',
     korean: '운동화',
-    uz: 'krossovka',
-    en: 'sneakers',
-    ru: 'кроссовки',
-    emoji: '👟',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '운동하거나 편하게 걸을 때 신는 신발',
+      uz: 'krossovka',
+      en: 'sneakers, athletic shoes',
+      ru: 'кроссовки',
+    },
+    examples: [
+      {
+        korean: '운동화도 싸요.',
+        translations: {
+          ko: '운동화 역시 가격이 쌉니다.',
+          uz: 'Krossovka ham arzon.',
+          en: 'The sneakers are cheap too.',
+          ru: 'Кроссовки тоже дешёвые.',
+        },
+      },
+      {
+        korean: '운동화를 샀어요.',
+        translations: {
+          ko: '운동화를 구매했습니다.',
+          uz: 'Krossovka sotib oldim.',
+          en: 'I bought sneakers.',
+          ru: 'Я купил кроссовки.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '운동화',
+      romanization: 'undonghwa',
+      ttsText: '운동화',
+    },
+    media: {
+      emoji: '👟',
+      imageUrl: 'https://cdn.korio.app/words/undonghwa.webp',
+      imageAlt: {
+        ko: '운동화 한 켤레',
+        uz: 'bir juft krossovka',
+        en: 'a pair of sneakers',
+        ru: 'пара кроссовок',
+      },
+    },
+    tags: ['clothing', 'shoes', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "신발이므로 동사 '신다'와 함께 '운동화를 신다'라고 해요.",
+      uz: "Oyoq kiyim bo‘lgani uchun '운동화를 신다' deyiladi.",
+      en: 'Because it is footwear, use 신다: 운동화를 신다.',
+      ru: 'Поскольку это обувь, используется 신다: 운동화를 신다.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 시장 · 마트 ─────────
+  // ─────────────────────────────────────
+  // 시장 · 마트
+  // ─────────────────────────────────────
 
   {
+    code: 'word_middle_aged_man_noun',
+    senseKey: 'person-middle-aged-man',
     korean: '아저씨',
-    uz: "o'rta yoshli erkak",
-    en: 'middle-aged man',
-    ru: 'мужчина среднего возраста',
-    emoji: '👨',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '보통 중년 남성을 친근하게 부르는 말',
+      uz: 'o‘rta yoshli erkak',
+      en: 'middle-aged man, mister',
+      ru: 'мужчина среднего возраста',
+    },
+    examples: [
+      {
+        korean: '아저씨, 이거 얼마예요?',
+        translations: {
+          ko: '아저씨, 이것은 얼마예요?',
+          uz: 'Amaki, bu qancha turadi?',
+          en: 'Mister, how much is this?',
+          ru: 'Мужчина, сколько это стоит?',
+        },
+      },
+      {
+        korean: '시장 아저씨가 과일을 팔아요.',
+        translations: {
+          ko: '시장에 있는 아저씨가 과일을 팝니다.',
+          uz: 'Bozordagi kishi meva sotadi.',
+          en: 'The man at the market sells fruit.',
+          ru: 'Мужчина на рынке продаёт фрукты.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아저씨',
+      romanization: 'ajeossi',
+      ttsText: '아저씨',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: 'https://cdn.korio.app/words/ajeossi.webp',
+      imageAlt: {
+        ko: '중년 남성',
+        uz: 'o‘rta yoshli erkak',
+        en: 'a middle-aged man',
+        ru: 'мужчина среднего возраста',
+      },
+    },
+    tags: ['people', 'market', 'address-term', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '모르는 중년 남성을 부르는 말로 쓰일 수 있지만 상황에 따라 더 공손한 호칭을 쓰기도 해요.',
+      uz: 'Notanish o‘rta yoshli erkakka murojaat qilishda ishlatilishi mumkin.',
+      en: 'Can address an unfamiliar middle-aged man, though other polite titles may be preferred depending on context.',
+      ru: 'Может использоваться для обращения к незнакомому мужчине среднего возраста.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_all_adverb',
+    senseKey: 'quantity-all',
     korean: '모두',
-    uz: 'hammasi',
-    en: 'all',
-    ru: 'все',
-    emoji: '👐',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '하나도 빠짐없이 전부',
+      uz: 'hammasi, barchasi',
+      en: 'all, everyone, everything',
+      ru: 'все, всё',
+    },
+    examples: [
+      {
+        korean: '과일을 모두 샀어요.',
+        translations: {
+          ko: '과일을 전부 샀습니다.',
+          uz: 'Mevalarning hammasini sotib oldim.',
+          en: 'I bought all the fruit.',
+          ru: 'Я купил все фрукты.',
+        },
+      },
+      {
+        korean: '모두 얼마예요?',
+        translations: {
+          ko: '전부 합해서 얼마예요?',
+          uz: 'Hammasi qancha turadi?',
+          en: 'How much is everything altogether?',
+          ru: 'Сколько всё стоит вместе?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '모두',
+      romanization: 'modu',
+      ttsText: '모두',
+    },
+    media: {
+      emoji: '👐',
+      imageUrl: 'https://cdn.korio.app/words/modu.webp',
+      imageAlt: {
+        ko: '모든 물건을 한꺼번에 가리키는 모습',
+        uz: 'hamma narsani ko‘rsatish',
+        en: 'all items together',
+        ru: 'все предметы вместе',
+      },
+    },
+    tags: ['adverb', 'quantity', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'전부'와 비슷한 뜻으로 사람이나 물건 전체를 나타낼 수 있어요.",
+      uz: "'전부'ga o‘xshash, hammasini bildiradi.",
+      en: 'Similar to 전부 and can refer to all people or all things.',
+      ru: 'Похоже на 전부 и может означать всех людей или все предметы.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_again_also_adverb',
+    senseKey: 'addition-again-also',
     korean: '또',
-    uz: 'yana',
-    en: 'again / also',
-    ru: 'снова / ещё',
-    emoji: '🔁',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '같은 일이 다시 일어나거나 다른 것을 더 추가할 때 사용하는 말',
+      uz: 'yana, ham',
+      en: 'again, also, additionally',
+      ru: 'снова, ещё, также',
+    },
+    examples: [
+      {
+        korean: '또 주세요.',
+        translations: {
+          ko: '하나 더 주세요.',
+          uz: 'Yana bering.',
+          en: 'Please give me another one.',
+          ru: 'Дайте ещё, пожалуйста.',
+        },
+      },
+      {
+        korean: '과자도 사고 휴지도 또 샀어요.',
+        translations: {
+          ko: '과자를 사고 휴지도 추가로 샀습니다.',
+          uz: 'Pechenye oldim va yana qog‘oz ham oldim.',
+          en: 'I bought snacks and also bought tissues.',
+          ru: 'Я купил закуски и ещё салфетки.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '또',
+      romanization: 'tto',
+      ttsText: '또',
+    },
+    media: {
+      emoji: '🔁',
+      imageUrl: 'https://cdn.korio.app/words/tto.webp',
+      imageAlt: {
+        ko: '다시 반복되는 화살표',
+        uz: 'yana takrorlanishni ko‘rsatuvchi belgi',
+        en: 'arrows indicating again',
+        ru: 'стрелки, обозначающие повтор',
+      },
+    },
+    tags: ['adverb', 'addition', 'repetition', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "문맥에 따라 '다시' 또는 '그리고 하나 더'의 의미가 될 수 있어요.",
+      uz: "Kontekstga qarab 'yana' yoki 'ham' ma’nosini beradi.",
+      en: "Depending on context, 또 can mean 'again' or 'also.'",
+      ru: 'В зависимости от контекста 또 означает «снова» или «также».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_box_noun',
+    senseKey: 'container-box',
     korean: '박스',
-    uz: 'quti',
-    en: 'box',
-    ru: 'коробка',
-    emoji: '📦',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '물건을 담거나 포장하는 상자',
+      uz: 'quti',
+      en: 'box',
+      ru: 'коробка',
+    },
+    examples: [
+      {
+        korean: '박스 한 개 주세요.',
+        translations: {
+          ko: '박스를 한 개 주세요.',
+          uz: 'Bir dona quti bering.',
+          en: 'One box, please.',
+          ru: 'Одну коробку, пожалуйста.',
+        },
+      },
+      {
+        korean: '박스에 과자가 있어요.',
+        translations: {
+          ko: '박스 안에 과자가 있습니다.',
+          uz: 'Qutida pechenye bor.',
+          en: 'There are snacks in the box.',
+          ru: 'В коробке есть закуски.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '박스',
+      romanization: 'bakseu',
+      ttsText: '박스',
+    },
+    media: {
+      emoji: '📦',
+      imageUrl: 'https://cdn.korio.app/words/bakseu.webp',
+      imageAlt: {
+        ko: '갈색 종이 박스',
+        uz: 'karton quti',
+        en: 'a cardboard box',
+        ru: 'картонная коробка',
+      },
+    },
+    tags: ['container', 'shopping', 'daily-goods', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "한국어 고유어 '상자'와 비슷한 뜻의 외래어예요.",
+      uz: "Koreyscha '상자' bilan o‘xshash ma’nodagi o‘zlashma so‘z.",
+      en: 'A loanword with a meaning similar to 상자.',
+      ru: 'Заимствованное слово со значением, похожим на 상자.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_egg_noun',
+    senseKey: 'food-egg',
     korean: '달걀',
-    uz: 'tuxum',
-    en: 'egg',
-    ru: 'яйцо',
-    emoji: '🥚',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '닭이 낳은 알',
+      uz: 'tuxum',
+      en: 'egg',
+      ru: 'яйцо',
+    },
+    examples: [
+      {
+        korean: '달걀 열 개 주세요.',
+        translations: {
+          ko: '달걀을 열 개 주세요.',
+          uz: 'O‘nta tuxum bering.',
+          en: 'Ten eggs, please.',
+          ru: 'Десять яиц, пожалуйста.',
+        },
+      },
+      {
+        korean: '마트에서 달걀을 샀어요.',
+        translations: {
+          ko: '마트에서 달걀을 구매했습니다.',
+          uz: 'Do‘kondan tuxum sotib oldim.',
+          en: 'I bought eggs at the supermarket.',
+          ru: 'Я купил яйца в супермаркете.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '달걀',
+      romanization: 'dalgyal',
+      ttsText: '달걀',
+    },
+    media: {
+      emoji: '🥚',
+      imageUrl: 'https://cdn.korio.app/words/dalgyal.webp',
+      imageAlt: {
+        ko: '여러 개의 달걀',
+        uz: 'bir nechta tuxum',
+        en: 'several eggs',
+        ru: 'несколько яиц',
+      },
+    },
+    tags: ['food', 'market', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'계란'도 같은 의미로 일상에서 매우 자주 사용해요.",
+      uz: "'계란' ham xuddi shu ma’noda juda ko‘p ishlatiladi.",
+      en: '계란 is another very common word with the same meaning.',
+      ru: '계란 — другое очень распространённое слово с тем же значением.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_tissue_toilet_paper_noun',
+    senseKey: 'daily-good-tissue-toilet-paper',
     korean: '휴지',
-    uz: "qog'oz salfetka / hojatxona qog'ozi",
-    en: 'tissue / toilet paper',
-    ru: 'бумажные салфетки / туалетная бумага',
-    emoji: '🧻',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '코를 닦거나 화장실 등에서 사용하는 부드러운 종이',
+      uz: 'qog‘oz salfetka, hojatxona qog‘ozi',
+      en: 'tissue, toilet paper',
+      ru: 'бумажная салфетка, туалетная бумага',
+    },
+    examples: [
+      {
+        korean: '휴지 한 박스 주세요.',
+        translations: {
+          ko: '휴지를 한 박스 주세요.',
+          uz: 'Bir quti qog‘oz bering.',
+          en: 'One box of tissues, please.',
+          ru: 'Одну упаковку салфеток, пожалуйста.',
+        },
+      },
+      {
+        korean: '마트에서 휴지를 샀어요.',
+        translations: {
+          ko: '마트에서 휴지를 구매했습니다.',
+          uz: 'Do‘kondan hojatxona qog‘ozi sotib oldim.',
+          en: 'I bought tissues at the supermarket.',
+          ru: 'Я купил туалетную бумагу в супермаркете.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '휴지',
+      romanization: 'hyuji',
+      ttsText: '휴지',
+    },
+    media: {
+      emoji: '🧻',
+      imageUrl: 'https://cdn.korio.app/words/hyuji.webp',
+      imageAlt: {
+        ko: '두루마리 휴지',
+        uz: 'hojatxona qog‘ozi',
+        en: 'a roll of toilet paper',
+        ru: 'рулон туалетной бумаги',
+      },
+    },
+    tags: ['daily-goods', 'market', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '문맥에 따라 티슈나 화장지, 두루마리 휴지 등을 폭넓게 가리킬 수 있어요.',
+      uz: 'Kontekstga qarab salfetka yoki hojatxona qog‘ozini bildiradi.',
+      en: 'Depending on context, 휴지 can refer to tissues or toilet paper.',
+      ru: 'В зависимости от контекста 휴지 может означать салфетки или туалетную бумагу.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_snack_noun',
+    senseKey: 'food-snack',
     korean: '과자',
-    uz: 'gazak / pechenye',
-    en: 'snack',
-    ru: 'снэк / печенье',
-    emoji: '🍪',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '식사 사이에 간단히 먹는 과자나 스낵류',
+      uz: 'gazak, pechenye',
+      en: 'snack, cookie',
+      ru: 'снэк, печенье',
+    },
+    examples: [
+      {
+        korean: '과자 두 개 주세요.',
+        translations: {
+          ko: '과자를 두 개 주세요.',
+          uz: 'Ikki dona gazak bering.',
+          en: 'Two snacks, please.',
+          ru: 'Две упаковки снеков, пожалуйста.',
+        },
+      },
+      {
+        korean: '마트에서 과자를 사요.',
+        translations: {
+          ko: '마트에서 과자를 삽니다.',
+          uz: 'Do‘kondan pechenye sotib olaman.',
+          en: 'I buy snacks at the supermarket.',
+          ru: 'Я покупаю закуски в супермаркете.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '과자',
+      romanization: 'gwaja',
+      ttsText: '과자',
+    },
+    media: {
+      emoji: '🍪',
+      imageUrl: 'https://cdn.korio.app/words/gwaja.webp',
+      imageAlt: {
+        ko: '간식으로 먹는 과자',
+        uz: 'gazak va pechenye',
+        en: 'snack food',
+        ru: 'закуски и печенье',
+      },
+    },
+    tags: ['food', 'snack', 'market', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "한국어의 '과자'는 쿠키뿐 아니라 칩, 크래커 등 여러 스낵을 포함할 수 있어요.",
+      uz: "'과자' pechenye, chips va boshqa gazaklarni ham anglatishi mumkin.",
+      en: '과자 can include cookies, chips, crackers, and other packaged snacks.',
+      ru: '과자 может включать печенье, чипсы, крекеры и другие закуски.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 카페 ─────────
+  // ─────────────────────────────────────
+  // 카페
+  // ─────────────────────────────────────
 
   {
+    code: 'word_cake_noun',
+    senseKey: 'food-cake',
     korean: '케이크',
-    uz: 'tort',
-    en: 'cake',
-    ru: 'торт',
-    emoji: '🍰',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밀가루, 달걀, 설탕 등을 넣어 구운 달콤한 디저트',
+      uz: 'tort',
+      en: 'cake',
+      ru: 'торт',
+    },
+    examples: [
+      {
+        korean: '케이크 한 개 주세요.',
+        translations: {
+          ko: '케이크를 한 개 주세요.',
+          uz: 'Bir dona tort bering.',
+          en: 'One cake, please.',
+          ru: 'Один торт, пожалуйста.',
+        },
+      },
+      {
+        korean: '케이크가 맛있어요.',
+        translations: {
+          ko: '케이크가 맛있습니다.',
+          uz: 'Tort mazali.',
+          en: 'The cake is delicious.',
+          ru: 'Торт вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '케이크',
+      romanization: 'keikeu',
+      ttsText: '케이크',
+    },
+    media: {
+      emoji: '🍰',
+      imageUrl: 'https://cdn.korio.app/words/keikeu.webp',
+      imageAlt: {
+        ko: '케이크 한 조각',
+        uz: 'bir bo‘lak tort',
+        en: 'a slice of cake',
+        ru: 'кусок торта',
+      },
+    },
+    tags: ['food', 'dessert', 'cafe', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '카페나 생일 파티와 관련된 상황에서 자주 사용하는 단어예요.',
+      uz: 'Kafe va tug‘ilgan kun bazmlarida ko‘p ishlatiladi.',
+      en: 'Common in café and birthday-party contexts.',
+      ru: 'Часто используется в контексте кафе и дней рождения.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_iced_coffee_noun',
+    senseKey: 'drink-iced-coffee',
     korean: '아이스커피',
-    uz: 'muzli qahva',
-    en: 'iced coffee',
-    ru: 'кофе со льдом',
-    emoji: '🧋',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '얼음을 넣어 차갑게 마시는 커피',
+      uz: 'muzli qahva',
+      en: 'iced coffee',
+      ru: 'кофе со льдом',
+    },
+    examples: [
+      {
+        korean: '아이스커피 한 잔 주세요.',
+        translations: {
+          ko: '아이스커피를 한 잔 주세요.',
+          uz: 'Bir piyola muzli qahva bering.',
+          en: 'One iced coffee, please.',
+          ru: 'Один кофе со льдом, пожалуйста.',
+        },
+      },
+      {
+        korean: '여름에는 아이스커피를 마셔요.',
+        translations: {
+          ko: '여름에는 아이스커피를 마십니다.',
+          uz: 'Yozda muzli qahva ichaman.',
+          en: 'I drink iced coffee in summer.',
+          ru: 'Летом я пью кофе со льдом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아이스커피',
+      romanization: 'aiseukeopi',
+      ttsText: '아이스커피',
+    },
+    media: {
+      emoji: '🧋',
+      imageUrl: 'https://cdn.korio.app/words/aiseukeopi.webp',
+      imageAlt: {
+        ko: '얼음이 든 차가운 커피',
+        uz: 'muzli sovuq qahva',
+        en: 'iced coffee',
+        ru: 'кофе со льдом',
+      },
+    },
+    tags: ['drink', 'coffee', 'cafe', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "잔 수를 셀 때 '아이스커피 한 잔'처럼 말해요.",
+      uz: "'아이스커피 한 잔' kabi sanaladi.",
+      en: 'Use 잔 to count servings: 아이스커피 한 잔.',
+      ru: 'Для порций используется 잔: 아이스커피 한 잔.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_espresso_noun',
+    senseKey: 'drink-espresso',
     korean: '에스프레소',
-    uz: 'espresso',
-    en: 'espresso',
-    ru: 'эспрессо',
-    emoji: '☕',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고압으로 진하게 추출한 커피',
+      uz: 'espresso',
+      en: 'espresso',
+      ru: 'эспрессо',
+    },
+    examples: [
+      {
+        korean: '에스프레소 한 잔 주세요.',
+        translations: {
+          ko: '에스프레소를 한 잔 주세요.',
+          uz: 'Bir piyola espresso bering.',
+          en: 'One espresso, please.',
+          ru: 'Один эспрессо, пожалуйста.',
+        },
+      },
+      {
+        korean: '에스프레소는 조금 써요.',
+        translations: {
+          ko: '에스프레소는 조금 쓴맛이 납니다.',
+          uz: 'Espresso biroz achchiq.',
+          en: 'Espresso is a little bitter.',
+          ru: 'Эспрессо немного горький.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '에스프레소',
+      romanization: 'eseupeureso',
+      ttsText: '에스프레소',
+    },
+    media: {
+      emoji: '☕',
+      imageUrl: 'https://cdn.korio.app/words/eseupeureso.webp',
+      imageAlt: {
+        ko: '작은 잔에 담긴 에스프레소',
+        uz: 'kichik piyoladagi espresso',
+        en: 'an espresso in a small cup',
+        ru: 'эспрессо в маленькой чашке',
+      },
+    },
+    tags: ['drink', 'coffee', 'cafe', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "카페에서 주문할 때 '에스프레소 한 잔 주세요'라고 할 수 있어요.",
+      uz: "Kafeda '에스프레소 한 잔 주세요' deb buyurtma qilinadi.",
+      en: 'Can be ordered as 에스프레소 한 잔 주세요.',
+      ru: 'Можно заказать фразой 에스프레소 한 잔 주세요.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_lunch_noun',
+    senseKey: 'meal-lunch',
     korean: '점심',
-    uz: 'tushlik',
-    en: 'lunch',
-    ru: 'обед',
-    emoji: '🍱',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '낮에 먹는 식사',
+      uz: 'tushlik',
+      en: 'lunch',
+      ru: 'обед',
+    },
+    examples: [
+      {
+        korean: '점심을 먹어요.',
+        translations: {
+          ko: '점심 식사를 합니다.',
+          uz: 'Tushlik qilaman.',
+          en: 'I eat lunch.',
+          ru: 'Я обедаю.',
+        },
+      },
+      {
+        korean: '점심에 비빔밥을 먹어요.',
+        translations: {
+          ko: '점심으로 비빔밥을 먹습니다.',
+          uz: 'Tushlikda bibimbap yeyman.',
+          en: 'I eat bibimbap for lunch.',
+          ru: 'На обед я ем пибимпап.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '점심',
+      romanization: 'jeomsim',
+      ttsText: '점심',
+    },
+    media: {
+      emoji: '🍱',
+      imageUrl: 'https://cdn.korio.app/words/jeomsim.webp',
+      imageAlt: {
+        ko: '낮에 먹는 점심 식사',
+        uz: 'tushlik ovqati',
+        en: 'a lunch meal',
+        ru: 'обед',
+      },
+    },
+    tags: ['meal', 'food', 'time', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'점심을 먹다', '점심시간'처럼 사용해요.",
+      uz: "'점심을 먹다', '점심시간' kabi ishlatiladi.",
+      en: 'Common expressions include 점심을 먹다 and 점심시간.',
+      ru: 'Частые выражения: 점심을 먹다 и 점심시간.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 광고문 · 중고 물건 ─────────
+  // ─────────────────────────────────────
+  // 광고문 · 중고 물건
+  // ─────────────────────────────────────
 
   {
+    code: 'word_level_grade_noun',
+    senseKey: 'education-level-grade',
     korean: '급',
-    uz: 'daraja',
-    en: 'level / grade',
-    ru: 'уровень / разряд',
-    emoji: '📊',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '실력이나 등급을 나눈 단계',
+      uz: 'daraja',
+      en: 'level, grade',
+      ru: 'уровень, разряд',
+    },
+    examples: [
+      {
+        korean: '저는 1급 학생이에요.',
+        translations: {
+          ko: '저는 1급 과정의 학생이에요.',
+          uz: 'Men 1-daraja o‘quvchisiman.',
+          en: "I'm a Level 1 student.",
+          ru: 'Я студент первого уровня.',
+        },
+      },
+      {
+        korean: '한국어 2급을 공부해요.',
+        translations: {
+          ko: '한국어 2급 과정을 공부해요.',
+          uz: 'Koreys tilining 2-darajasini o‘rganaman.',
+          en: 'I study Level 2 Korean.',
+          ru: 'Я изучаю корейский язык второго уровня.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '급',
+      romanization: 'geup',
+      ttsText: '급',
+    },
+    media: {
+      emoji: '📊',
+      imageUrl: 'https://cdn.korio.app/words/geup-level.webp',
+      imageAlt: {
+        ko: '단계별 등급',
+        uz: 'darajalar',
+        en: 'different skill levels',
+        ru: 'различные уровни',
+      },
+    },
+    tags: ['education', 'level', 'grade', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "숫자 뒤에 붙여 '1급, 2급'처럼 등급이나 수준을 나타내요.",
+      uz: "Raqamdan keyin '1급, 2급' kabi darajani bildiradi.",
+      en: 'Placed after a number to indicate a level or grade: 1급, 2급.',
+      ru: 'Ставится после числа для обозначения уровня: 1급, 2급.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_item_thing_noun',
+    senseKey: 'object-item-thing',
     korean: '물건',
-    uz: 'buyum / narsa',
-    en: 'item / thing',
-    ru: 'вещь / предмет',
-    emoji: '📦',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이 사용하거나 사고팔 수 있는 구체적인 사물',
+      uz: 'buyum, narsa',
+      en: 'item, thing, object',
+      ru: 'вещь, предмет',
+    },
+    examples: [
+      {
+        korean: '제 물건을 팔아요.',
+        translations: {
+          ko: '제가 가진 물건을 팝니다.',
+          uz: 'O‘z narsalarimni sotaman.',
+          en: 'I sell my things.',
+          ru: 'Я продаю свои вещи.',
+        },
+      },
+      {
+        korean: '이 물건은 얼마예요?',
+        translations: {
+          ko: '이 물건의 가격은 얼마예요?',
+          uz: 'Bu narsa qancha turadi?',
+          en: 'How much is this item?',
+          ru: 'Сколько стоит эта вещь?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '물건',
+      romanization: 'mulgeon',
+      ttsText: '물건',
+    },
+    media: {
+      emoji: '📦',
+      imageUrl: 'https://cdn.korio.app/words/mulgeon.webp',
+      imageAlt: {
+        ko: '여러 가지 생활 물건',
+        uz: 'turli buyumlar',
+        en: 'various everyday items',
+        ru: 'различные предметы',
+      },
+    },
+    tags: ['object', 'shopping', 'selling', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'물건을 사다', '물건을 팔다', '물건이 있다'처럼 사용해요.",
+      uz: "'물건을 사다', '물건을 팔다' kabi ishlatiladi.",
+      en: 'Common expressions include 물건을 사다 and 물건을 팔다.',
+      ru: 'Частые выражения: 물건을 사다 и 물건을 팔다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sell_verb',
+    senseKey: 'commerce-sell',
     korean: '팔다',
-    uz: 'sotmoq',
-    en: 'to sell',
-    ru: 'продавать',
-    emoji: '💵',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '물건이나 서비스를 돈을 받고 다른 사람에게 주다',
+      uz: 'sotmoq',
+      en: 'to sell',
+      ru: 'продавать',
+    },
+    examples: [
+      {
+        korean: '제 물건을 팔아요.',
+        translations: {
+          ko: '제가 가진 물건을 팝니다.',
+          uz: 'Narsalarimni sotaman.',
+          en: 'I sell my things.',
+          ru: 'Я продаю свои вещи.',
+        },
+      },
+      {
+        korean: '책을 싸게 팔아요.',
+        translations: {
+          ko: '책을 저렴하게 팝니다.',
+          uz: 'Kitoblarni arzon sotaman.',
+          en: 'I sell the books cheaply.',
+          ru: 'Я продаю книги недорого.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '팔다',
+      romanization: 'palda',
+      ttsText: '팔다',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: 'https://cdn.korio.app/words/palda.webp',
+      imageAlt: {
+        ko: '물건을 돈을 받고 파는 모습',
+        uz: 'narsa sotayotgan odam',
+        en: 'selling an item for money',
+        ru: 'продажа предмета за деньги',
+      },
+    },
+    tags: ['verb', 'commerce', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 돈을 내고 물건을 얻는 '사다'예요.",
+      uz: "Qarama-qarshi ma’nosi '사다' — sotib olmoq.",
+      en: "The opposite is 사다, 'to buy.'",
+      ru: 'Антоним — 사다, «покупать».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_inch_noun',
+    senseKey: 'measurement-inch',
     korean: '인치',
-    uz: 'dyuym',
-    en: 'inch',
-    ru: 'дюйм',
-    emoji: '📏',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '길이를 재는 단위 inch를 한국어로 부르는 말',
+      uz: 'dyuym',
+      en: 'inch',
+      ru: 'дюйм',
+    },
+    examples: [
+      {
+        korean: '21인치 텔레비전이에요.',
+        translations: {
+          ko: '크기가 21인치인 텔레비전이에요.',
+          uz: 'Bu 21 dyuymli televizor.',
+          en: "It's a 21-inch television.",
+          ru: 'Это телевизор диагональю 21 дюйм.',
+        },
+      },
+      {
+        korean: '몇 인치예요?',
+        translations: {
+          ko: '크기가 몇 인치인가요?',
+          uz: 'Necha dyuym?',
+          en: 'How many inches is it?',
+          ru: 'Сколько дюймов?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '인치',
+      romanization: 'inchi',
+      ttsText: '인치',
+    },
+    media: {
+      emoji: '📏',
+      imageUrl: 'https://cdn.korio.app/words/inchi.webp',
+      imageAlt: {
+        ko: '화면 크기를 재는 자',
+        uz: 'ekran o‘lchamini o‘lchash',
+        en: 'measuring a screen in inches',
+        ru: 'измерение экрана в дюймах',
+      },
+    },
+    tags: ['measurement', 'electronics', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '텔레비전이나 모니터 등의 화면 크기를 말할 때 자주 사용해요.',
+      uz: 'TV va monitor ekran o‘lchamida ko‘p ishlatiladi.',
+      en: 'Commonly used for television and monitor screen sizes.',
+      ru: 'Часто используется для размеров экранов телевизоров и мониторов.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_remote_control_noun',
+    senseKey: 'device-remote-control',
     korean: '리모컨',
-    uz: 'pult',
-    en: 'remote control',
-    ru: 'пульт',
-    emoji: '📺',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '멀리서 텔레비전이나 기계 등을 조작하는 장치',
+      uz: 'pult',
+      en: 'remote control',
+      ru: 'пульт дистанционного управления',
+    },
+    examples: [
+      {
+        korean: '리모컨이 있어요.',
+        translations: {
+          ko: '리모컨이 있습니다.',
+          uz: 'Pulti bor.',
+          en: 'There is a remote control.',
+          ru: 'Пульт есть.',
+        },
+      },
+      {
+        korean: '텔레비전 리모컨이에요.',
+        translations: {
+          ko: '텔레비전에 사용하는 리모컨이에요.',
+          uz: 'Bu televizor pulti.',
+          en: "It's a television remote control.",
+          ru: 'Это пульт от телевизора.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '리모컨',
+      romanization: 'rimokeon',
+      ttsText: '리모컨',
+    },
+    media: {
+      emoji: '📺',
+      imageUrl: 'https://cdn.korio.app/words/rimokeon.webp',
+      imageAlt: {
+        ko: '텔레비전 리모컨',
+        uz: 'televizor pulti',
+        en: 'a television remote control',
+        ru: 'пульт от телевизора',
+      },
+    },
+    tags: ['device', 'electronics', 'used-goods', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "영어 'remote control'에서 온 한국식 줄임말이에요.",
+      uz: "Inglizcha 'remote control'dan kelgan koreyscha qisqartma.",
+      en: "A Korean abbreviation derived from 'remote control.'",
+      ru: 'Корейское сокращение от английского «remote control».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_clean_adjective',
+    senseKey: 'state-clean',
     korean: '깨끗하다',
-    uz: 'toza bo‘lmoq',
-    en: 'to be clean',
-    ru: 'быть чистым',
-    emoji: '✨',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '더럽거나 지저분한 것이 없이 말끔하다',
+      uz: 'toza bo‘lmoq',
+      en: 'to be clean',
+      ru: 'быть чистым',
+    },
+    examples: [
+      {
+        korean: '책상이 아주 깨끗해요.',
+        translations: {
+          ko: '책상이 매우 깨끗합니다.',
+          uz: 'Stol juda toza.',
+          en: 'The desk is very clean.',
+          ru: 'Стол очень чистый.',
+        },
+      },
+      {
+        korean: '이 물건은 깨끗해요.',
+        translations: {
+          ko: '이 물건의 상태가 깨끗합니다.',
+          uz: 'Bu buyum toza.',
+          en: 'This item is clean.',
+          ru: 'Эта вещь чистая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '깨끗하다',
+      romanization: 'kkaekkeuthada',
+      ttsText: '깨끗하다',
+    },
+    media: {
+      emoji: '✨',
+      imageUrl: 'https://cdn.korio.app/words/kkaekkeuthada.webp',
+      imageAlt: {
+        ko: '깨끗하게 정리된 책상',
+        uz: 'toza stol',
+        en: 'a clean desk',
+        ru: 'чистый стол',
+      },
+    },
+    tags: ['adjective', 'condition', 'used-goods', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '중고 물건의 상태가 좋다는 것을 설명할 때도 자주 사용해요.',
+      uz: 'Ishlatilgan buyumning holatini tasvirlashda ham ko‘p ishlatiladi.',
+      en: 'Often used to describe used goods that are in clean condition.',
+      ru: 'Часто используется для описания чистого состояния подержанных вещей.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_very_adverb',
+    senseKey: 'degree-very',
     korean: '아주',
-    uz: 'juda',
-    en: 'very',
-    ru: 'очень',
-    emoji: '💯',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '정도가 매우 크다는 뜻',
+      uz: 'juda',
+      en: 'very',
+      ru: 'очень',
+    },
+    examples: [
+      {
+        korean: '아주 좋아요.',
+        translations: {
+          ko: '매우 좋아요.',
+          uz: 'Juda yaxshi.',
+          en: "It's very good.",
+          ru: 'Очень хорошо.',
+        },
+      },
+      {
+        korean: '책상이 아주 깨끗해요.',
+        translations: {
+          ko: '책상이 매우 깨끗합니다.',
+          uz: 'Stol juda toza.',
+          en: 'The desk is very clean.',
+          ru: 'Стол очень чистый.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아주',
+      romanization: 'aju',
+      ttsText: '아주',
+    },
+    media: {
+      emoji: '💯',
+      imageUrl: 'https://cdn.korio.app/words/aju.webp',
+      imageAlt: {
+        ko: '정도가 매우 높음을 나타내는 표시',
+        uz: 'juda yuqori darajani bildiruvchi belgi',
+        en: 'a symbol indicating a high degree',
+        ru: 'символ высокой степени',
+      },
+    },
+    tags: ['adverb', 'degree', 'description', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '형용사나 부사 앞에서 정도를 강조해요. 예: 아주 좋아요.',
+      uz: 'Darajani kuchaytiradi: 아주 좋아요.',
+      en: 'Intensifies adjectives and adverbs, as in 아주 좋아요.',
+      ru: 'Усиливает прилагательные и наречия: 아주 좋아요.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_a_lot_adverb',
+    senseKey: 'quantity-a-lot',
     korean: '많이',
-    uz: "ko'p",
-    en: 'a lot / much',
-    ru: 'много',
-    emoji: '📚',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '수량이나 정도가 많게',
+      uz: 'ko‘p, juda ko‘p',
+      en: 'a lot, much, many',
+      ru: 'много',
+    },
+    examples: [
+      {
+        korean: '책이 많이 있어요.',
+        translations: {
+          ko: '책이 많이 있습니다.',
+          uz: 'Kitoblar ko‘p.',
+          en: 'There are many books.',
+          ru: 'Книг много.',
+        },
+      },
+      {
+        korean: '김치를 많이 먹어요.',
+        translations: {
+          ko: '김치를 많이 먹습니다.',
+          uz: 'Ko‘p kimchi yeyman.',
+          en: 'I eat a lot of kimchi.',
+          ru: 'Я ем много кимчи.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '많이',
+      romanization: 'mani',
+      ttsText: '많이',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/mani.webp',
+      imageAlt: {
+        ko: '많은 책이 쌓여 있는 모습',
+        uz: 'ko‘p kitoblar',
+        en: 'many books',
+        ru: 'много книг',
+      },
+    },
+    tags: ['adverb', 'quantity', 'degree', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'많다'는 형용사이고 '많이'는 동작이나 상태를 꾸미는 부사예요.",
+      uz: "'많다' sifat, '많이' esa ravish.",
+      en: '많다 is an adjective; 많이 is the adverbial form.',
+      ru: '많다 — прилагательное, а 많이 — наречие.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_book_counter_noun',
+    senseKey: 'counter-book',
     korean: '권',
-    uz: 'dona (kitob uchun)',
-    en: 'counter for books',
-    ru: 'счётное слово для книг',
-    emoji: '📚',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '책이나 공책 등의 수를 세는 단위 명사',
+      uz: 'kitob uchun hisob so‘zi',
+      en: 'counter for books',
+      ru: 'счётное слово для книг',
+    },
+    examples: [
+      {
+        korean: '책 한 권에 이천 원이에요.',
+        translations: {
+          ko: '책 한 권의 가격은 이천 원이에요.',
+          uz: 'Bir kitob ikki ming von.',
+          en: 'One book is 2,000 won.',
+          ru: 'Одна книга стоит две тысячи вон.',
+        },
+      },
+      {
+        korean: '세 권에 오천 원이에요.',
+        translations: {
+          ko: '책 세 권의 가격은 오천 원이에요.',
+          uz: 'Uchta kitob besh ming von.',
+          en: 'Three books are 5,000 won.',
+          ru: 'Три книги стоят пять тысяч вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '권',
+      romanization: 'gwon',
+      ttsText: '권',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/gwon-counter.webp',
+      imageAlt: {
+        ko: '여러 권의 책',
+        uz: 'bir nechta kitob',
+        en: 'several books',
+        ru: 'несколько книг',
+      },
+    },
+    tags: ['counter', 'book', 'number', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "책은 '한 권, 두 권, 세 권'처럼 세요.",
+      uz: "Kitoblar '한 권, 두 권, 세 권' bilan sanaladi.",
+      en: 'Books are counted as 한 권, 두 권, 세 권.',
+      ru: 'Книги считают как 한 권, 두 권, 세 권.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_call_phone_verb',
+    senseKey: 'communication-call-phone',
     korean: '전화하다',
-    uz: "qo'ng'iroq qilmoq",
-    en: 'to call',
-    ru: 'звонить',
-    emoji: '📞',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '전화로 다른 사람과 연락하거나 이야기하다',
+      uz: 'qo‘ng‘iroq qilmoq',
+      en: 'to call, to phone',
+      ru: 'звонить',
+    },
+    examples: [
+      {
+        korean: '관심이 있으면 전화하세요.',
+        translations: {
+          ko: '관심이 있으면 전화해 주세요.',
+          uz: 'Qiziqsangiz, qo‘ng‘iroq qiling.',
+          en: "If you're interested, please call.",
+          ru: 'Если вас заинтересовало, позвоните.',
+        },
+      },
+      {
+        korean: '친구에게 전화해요.',
+        translations: {
+          ko: '친구에게 전화합니다.',
+          uz: 'Do‘stimga qo‘ng‘iroq qilaman.',
+          en: 'I call my friend.',
+          ru: 'Я звоню другу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화하다',
+      romanization: 'jeonhwahada',
+      ttsText: '전화하다',
+    },
+    media: {
+      emoji: '📞',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwahada.webp',
+      imageAlt: {
+        ko: '휴대폰으로 전화하는 사람',
+        uz: 'telefonda qo‘ng‘iroq qilayotgan odam',
+        en: 'a person making a phone call',
+        ru: 'человек, звонящий по телефону',
+      },
+    },
+    tags: ['verb', 'communication', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "전화하는 사람을 나타낼 때 '-에게/한테/께 전화하다'처럼 사용할 수 있어요.",
+      uz: "Qo‘ng‘iroq qilinadigan kishi '-에게/한테/께' bilan kelishi mumkin.",
+      en: 'The person being called can be marked with 에게, 한테, or 께.',
+      ru: 'Человек, которому звонят, может оформляться 에게, 한테 или 께.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 물건 사고팔기 ─────────
+  // ─────────────────────────────────────
+  // 물건 사고팔기
+  // ─────────────────────────────────────
 
   {
+    code: 'word_expensive_adjective',
+    senseKey: 'price-be-expensive',
     korean: '비싸다',
-    uz: 'qimmat bo‘lmoq',
-    en: 'to be expensive',
-    ru: 'быть дорогим',
-    emoji: '💸',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '가격이 보통보다 높다',
+      uz: 'qimmat bo‘lmoq',
+      en: 'to be expensive',
+      ru: 'быть дорогим',
+    },
+    examples: [
+      {
+        korean: '너무 비싸요.',
+        translations: {
+          ko: '가격이 너무 높아요.',
+          uz: 'Juda qimmat.',
+          en: "It's too expensive.",
+          ru: 'Слишком дорого.',
+        },
+      },
+      {
+        korean: '이 가방은 비싸요.',
+        translations: {
+          ko: '이 가방의 가격은 비쌉니다.',
+          uz: 'Bu sumka qimmat.',
+          en: 'This bag is expensive.',
+          ru: 'Эта сумка дорогая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '비싸다',
+      romanization: 'bissada',
+      ttsText: '비싸다',
+    },
+    media: {
+      emoji: '💸',
+      imageUrl: 'https://cdn.korio.app/words/bissada.webp',
+      imageAlt: {
+        ko: '가격이 높은 물건',
+        uz: 'qimmat buyum',
+        en: 'an expensive item',
+        ru: 'дорогой предмет',
+      },
+    },
+    tags: ['adjective', 'price', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 가격이 낮다는 뜻의 '싸다'예요.",
+      uz: "Qarama-qarshi ma’nosi '싸다' — arzon.",
+      en: "The opposite is 싸다, 'to be cheap.'",
+      ru: 'Антоним — 싸다, «быть дешёвым».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_give_discount_verb',
+    senseKey: 'commerce-give-discount',
     korean: '깎아 주다',
-    uz: 'narxni tushirib bermoq',
-    en: 'to give a discount',
-    ru: 'сделать скидку',
-    emoji: '🏷️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '상대방을 위해 원래 가격보다 싸게 해 주다',
+      uz: 'narxni tushirib bermoq',
+      en: 'to give a discount',
+      ru: 'сделать скидку',
+    },
+    examples: [
+      {
+        korean: '좀 깎아 주세요.',
+        translations: {
+          ko: '가격을 조금 낮춰 주세요.',
+          uz: 'Narxini biroz tushirib bering.',
+          en: 'Please give me a small discount.',
+          ru: 'Сделайте небольшую скидку, пожалуйста.',
+        },
+      },
+      {
+        korean: '천 원 깎아 줄게요.',
+        translations: {
+          ko: '가격에서 천 원을 빼 드릴게요.',
+          uz: 'Ming von chegirma qilaman.',
+          en: "I'll take 1,000 won off.",
+          ru: 'Я сделаю скидку тысячу вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '깎아 주다',
+      romanization: 'kkakka juda',
+      ttsText: '깎아 주다',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: 'https://cdn.korio.app/words/kkakka-juda.webp',
+      imageAlt: {
+        ko: '가격을 낮춰 주는 할인',
+        uz: 'narx chegirmasi',
+        en: 'a price discount',
+        ru: 'скидка на цену',
+      },
+    },
+    tags: ['verb', 'shopping', 'discount', 'price', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "시장에서 가격을 흥정할 때 '좀 깎아 주세요'라는 표현을 사용할 수 있어요.",
+      uz: "Bozorda savdolashganda '좀 깎아 주세요' ishlatiladi.",
+      en: '좀 깎아 주세요 can be used when asking for a lower price.',
+      ru: '좀 깎아 주세요 можно использовать, прося снизить цену.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ballpoint_pen_noun',
+    senseKey: 'stationery-ballpoint-pen',
     korean: '볼펜',
-    uz: 'sharikli ruchka',
-    en: 'ballpoint pen',
-    ru: 'шариковая ручка',
-    emoji: '🖊️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '끝에 작은 볼이 있어 잉크로 글씨를 쓰는 펜',
+      uz: 'sharikli ruchka',
+      en: 'ballpoint pen',
+      ru: 'шариковая ручка',
+    },
+    examples: [
+      {
+        korean: '볼펜 얼마예요?',
+        translations: {
+          ko: '볼펜의 가격이 얼마예요?',
+          uz: 'Ruchka qancha turadi?',
+          en: 'How much is the ballpoint pen?',
+          ru: 'Сколько стоит шариковая ручка?',
+        },
+      },
+      {
+        korean: '볼펜 한 개에 이백 원이에요.',
+        translations: {
+          ko: '볼펜 한 개의 가격은 이백 원이에요.',
+          uz: 'Bitta ruchka ikki yuz von.',
+          en: 'One ballpoint pen is 200 won.',
+          ru: 'Одна шариковая ручка стоит двести вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '볼펜',
+      romanization: 'bolpen',
+      ttsText: '볼펜',
+    },
+    media: {
+      emoji: '🖊️',
+      imageUrl: 'https://cdn.korio.app/words/bolpen.webp',
+      imageAlt: {
+        ko: '파란색 볼펜',
+        uz: 'sharikli ruchka',
+        en: 'a ballpoint pen',
+        ru: 'шариковая ручка',
+      },
+    },
+    tags: ['stationery', 'shopping', 'school-supply', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'볼펜으로 쓰다', '볼펜을 사다'처럼 사용해요.",
+      uz: "'볼펜으로 쓰다', '볼펜을 사다' kabi ishlatiladi.",
+      en: 'Common expressions include 볼펜으로 쓰다 and 볼펜을 사다.',
+      ru: 'Частые выражения: 볼펜으로 쓰다 и 볼펜을 사다.',
+    },
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 문화 산책 · 김치 ─────────
+  // ─────────────────────────────────────
+  // 문화 산책 · 김치
+  // ─────────────────────────────────────
 
   {
+    code: 'word_white_kimchi_noun',
+    senseKey: 'food-kimchi-white-kimchi',
     korean: '백김치',
-    uz: 'oq kimchi',
-    en: 'white kimchi',
-    ru: 'белое кимчи',
-    emoji: '🥬',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고춧가루를 거의 사용하지 않아 맵지 않고 하얀 김치',
+      uz: 'oq kimchi',
+      en: 'white kimchi',
+      ru: 'белое кимчи',
+    },
+    examples: [
+      {
+        korean: '백김치는 맵지 않아요.',
+        translations: {
+          ko: '백김치는 매운맛이 강하지 않아요.',
+          uz: 'Oq kimchi achchiq emas.',
+          en: "White kimchi isn't spicy.",
+          ru: 'Белое кимчи не острое.',
+        },
+      },
+      {
+        korean: '백김치가 맛있어요.',
+        translations: {
+          ko: '백김치가 맛있습니다.',
+          uz: 'Oq kimchi mazali.',
+          en: 'White kimchi is delicious.',
+          ru: 'Белое кимчи вкусное.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '백김치',
+      romanization: 'baekgimchi',
+      ttsText: '백김치',
+    },
+    media: {
+      emoji: '🥬',
+      imageUrl: 'https://cdn.korio.app/words/baekgimchi.webp',
+      imageAlt: {
+        ko: '고춧가루가 거의 없는 백김치',
+        uz: 'oq kimchi',
+        en: 'white kimchi',
+        ru: 'белое кимчи',
+      },
+    },
+    tags: ['food', 'kimchi', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'백'은 여기서 하얀 색을 나타내며 일반 배추김치보다 맵지 않은 편이에요.",
+      uz: "Bu yerda '백' oq rangni bildiradi va odatda kamroq achchiq.",
+      en: '백 refers to its white appearance; it is generally less spicy than red kimchi.',
+      ru: '백 указывает на белый цвет; такое кимчи обычно менее острое.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kkakdugi_noun',
+    senseKey: 'food-kimchi-cubed-radish',
     korean: '깍두기',
-    uz: 'kub shaklidagi turp kimchisi',
-    en: 'cubed radish kimchi',
-    ru: 'кимчи из редьки кубиками',
-    emoji: '🥕',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '무를 네모난 모양으로 썰어 담근 김치',
+      uz: 'kub shaklidagi turp kimchisi',
+      en: 'cubed radish kimchi',
+      ru: 'кимчи из редьки кубиками',
+    },
+    examples: [
+      {
+        korean: '깍두기를 좋아해요.',
+        translations: {
+          ko: '깍두기를 좋아합니다.',
+          uz: 'Kkakdugini yoqtiraman.',
+          en: 'I like kkakdugi.',
+          ru: 'Я люблю кактуги.',
+        },
+      },
+      {
+        korean: '깍두기가 맛있어요.',
+        translations: {
+          ko: '깍두기가 맛있습니다.',
+          uz: 'Kkakdugi mazali.',
+          en: 'The cubed radish kimchi is delicious.',
+          ru: 'Кимчи из редьки вкусное.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '깍두기',
+      romanization: 'kkakdugi',
+      ttsText: '깍두기',
+    },
+    media: {
+      emoji: '🥕',
+      imageUrl: 'https://cdn.korio.app/words/kkakdugi.webp',
+      imageAlt: {
+        ko: '네모나게 썬 무로 만든 깍두기',
+        uz: 'kub shaklidagi turp kimchisi',
+        en: 'cubed radish kimchi',
+        ru: 'кимчи из редьки кубиками',
+      },
+    },
+    tags: ['food', 'kimchi', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '배추 대신 무를 깍둑썰기해서 만드는 대표적인 김치예요.',
+      uz: 'Karam o‘rniga kub shaklida kesilgan turpdan tayyorlanadi.',
+      en: 'A common kimchi made with cubed radish instead of cabbage.',
+      ru: 'Популярный вид кимчи из нарезанной кубиками редьки.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cucumber_kimchi_noun',
+    senseKey: 'food-kimchi-cucumber',
     korean: '오이김치',
-    uz: 'bodring kimchisi',
-    en: 'cucumber kimchi',
-    ru: 'кимчи из огурцов',
-    emoji: '🥒',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '오이를 주재료로 담근 김치',
+      uz: 'bodring kimchisi',
+      en: 'cucumber kimchi',
+      ru: 'кимчи из огурцов',
+    },
+    examples: [
+      {
+        korean: '오이김치를 먹어요.',
+        translations: {
+          ko: '오이김치를 먹습니다.',
+          uz: 'Bodring kimchisini yeyman.',
+          en: 'I eat cucumber kimchi.',
+          ru: 'Я ем кимчи из огурцов.',
+        },
+      },
+      {
+        korean: '오이김치도 맛있어요.',
+        translations: {
+          ko: '오이김치도 맛있습니다.',
+          uz: 'Bodring kimchisi ham mazali.',
+          en: 'Cucumber kimchi is delicious too.',
+          ru: 'Кимчи из огурцов тоже вкусное.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '오이김치',
+      romanization: 'oigimchi',
+      ttsText: '오이김치',
+    },
+    media: {
+      emoji: '🥒',
+      imageUrl: 'https://cdn.korio.app/words/oigimchi.webp',
+      imageAlt: {
+        ko: '오이로 만든 김치',
+        uz: 'bodringdan tayyorlangan kimchi',
+        en: 'kimchi made from cucumber',
+        ru: 'кимчи из огурцов',
+      },
+    },
+    tags: ['food', 'kimchi', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'오이'와 '김치'가 합쳐진 음식 이름이에요.",
+      uz: "'오이' va '김치' birikmasidan hosil bo‘lgan.",
+      en: "A compound of 오이, 'cucumber,' and 김치.",
+      ru: 'Сложное слово из 오이 «огурец» и 김치.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_water_kimchi_noun',
+    senseKey: 'food-kimchi-water-kimchi',
     korean: '물김치',
-    uz: 'suvli kimchi',
-    en: 'water kimchi',
-    ru: 'водянистое кимчи',
-    emoji: '🥣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '국물이 많고 시원한 맛이 나는 김치',
+      uz: 'suvli kimchi',
+      en: 'water kimchi',
+      ru: 'водянистое кимчи, кимчи в рассоле',
+    },
+    examples: [
+      {
+        korean: '물김치는 국물이 많아요.',
+        translations: {
+          ko: '물김치는 국물이 많이 있습니다.',
+          uz: 'Suvli kimchida suyuqlik ko‘p.',
+          en: 'Water kimchi has a lot of broth.',
+          ru: 'В водяном кимчи много рассола.',
+        },
+      },
+      {
+        korean: '물김치가 시원해요.',
+        translations: {
+          ko: '물김치의 맛이 시원합니다.',
+          uz: 'Suvli kimchi tetiklantiradi.',
+          en: 'Water kimchi tastes refreshing.',
+          ru: 'Водяное кимчи освежает.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '물김치',
+      romanization: 'mulgimchi',
+      ttsText: '물김치',
+    },
+    media: {
+      emoji: '🥣',
+      imageUrl: 'https://cdn.korio.app/words/mulgimchi.webp',
+      imageAlt: {
+        ko: '국물이 많은 물김치',
+        uz: 'suvli kimchi',
+        en: 'water kimchi in broth',
+        ru: 'кимчи в рассоле',
+      },
+    },
+    tags: ['food', 'kimchi', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "일반 김치보다 국물이 많아 '물김치'라고 불러요.",
+      uz: 'Oddiy kimchidan suyuqligi ko‘proq bo‘lgani uchun shunday ataladi.',
+      en: 'Called 물김치 because it contains much more liquid than many other kimchi types.',
+      ru: 'Называется 물김치 из-за большого количества рассола.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kimchi_gimbap_noun',
+    senseKey: 'food-kimchi-gimbap',
     korean: '김치김밥',
-    uz: 'kimchili gimbap',
-    en: 'kimchi gimbap',
-    ru: 'кимбап с кимчи',
-    emoji: '🍙',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '속재료로 김치를 넣어 만든 김밥',
+      uz: 'kimchili gimbap',
+      en: 'kimchi gimbap',
+      ru: 'кимбап с кимчи',
+    },
+    examples: [
+      {
+        korean: '김치김밥 한 줄 주세요.',
+        translations: {
+          ko: '김치김밥을 한 줄 주세요.',
+          uz: 'Bir rulon kimchili gimbap bering.',
+          en: 'One roll of kimchi gimbap, please.',
+          ru: 'Один ролл кимбапа с кимчи, пожалуйста.',
+        },
+      },
+      {
+        korean: '김치김밥이 맛있어요.',
+        translations: {
+          ko: '김치김밥이 맛있습니다.',
+          uz: 'Kimchili gimbap mazali.',
+          en: 'Kimchi gimbap is delicious.',
+          ru: 'Кимбап с кимчи вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '김치김밥',
+      romanization: 'gimchigimbap',
+      ttsText: '김치김밥',
+    },
+    media: {
+      emoji: '🍙',
+      imageUrl: 'https://cdn.korio.app/words/gimchigimbap.webp',
+      imageAlt: {
+        ko: '김치가 들어간 김밥',
+        uz: 'kimchili gimbap',
+        en: 'gimbap filled with kimchi',
+        ru: 'кимбап с кимчи',
+      },
+    },
+    tags: ['food', 'kimchi', 'gimbap', 'korean-culture'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'김치'와 '김밥'이 합쳐진 음식 이름이에요.",
+      uz: "'김치' va '김밥' birikmasidan hosil bo‘lgan taom.",
+      en: 'A compound food name combining 김치 and 김밥.',
+      ru: 'Название блюда, образованное сочетанием 김치 и 김밥.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kimchi_fried_rice_noun',
+    senseKey: 'food-kimchi-fried-rice',
     korean: '김치볶음밥',
-    uz: 'kimchili qovurilgan guruch',
-    en: 'kimchi fried rice',
-    ru: 'жареный рис с кимчи',
-    emoji: '🍚',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밥과 김치를 함께 볶아 만든 음식',
+      uz: 'kimchili qovurilgan guruch',
+      en: 'kimchi fried rice',
+      ru: 'жареный рис с кимчи',
+    },
+    examples: [
+      {
+        korean: '김치볶음밥을 먹어요.',
+        translations: {
+          ko: '김치볶음밥을 먹습니다.',
+          uz: 'Kimchili qovurilgan guruch yeyman.',
+          en: 'I eat kimchi fried rice.',
+          ru: 'Я ем жареный рис с кимчи.',
+        },
+      },
+      {
+        korean: '김치볶음밥이 아주 맛있어요.',
+        translations: {
+          ko: '김치볶음밥이 매우 맛있습니다.',
+          uz: 'Kimchili qovurilgan guruch juda mazali.',
+          en: 'Kimchi fried rice is very delicious.',
+          ru: 'Жареный рис с кимчи очень вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '김치볶음밥',
+      romanization: 'gimchibokkeumbap',
+      ttsText: '김치볶음밥',
+    },
+    media: {
+      emoji: '🍚',
+      imageUrl: 'https://cdn.korio.app/words/gimchibokkeumbap.webp',
+      imageAlt: {
+        ko: '김치와 함께 볶은 밥',
+        uz: 'kimchi bilan qovurilgan guruch',
+        en: 'fried rice with kimchi',
+        ru: 'жареный рис с кимчи',
+      },
+    },
+    tags: ['food', 'kimchi', 'rice', 'korean-culture'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'볶음밥'은 밥과 재료를 팬에서 볶아 만든 fried rice예요.",
+      uz: "'볶음밥' qovurilgan guruchni anglatadi.",
+      en: '볶음밥 means fried rice.',
+      ru: '볶음밥 означает жареный рис.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_kimchi_pancake_noun',
+    senseKey: 'food-kimchi-pancake',
     korean: '김치전',
-    uz: 'kimchili koreys quymog‘i',
-    en: 'kimchi pancake',
-    ru: 'корейская лепёшка с кимчи',
-    emoji: '🥞',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '김치를 넣은 반죽을 팬에 부쳐 만든 전',
+      uz: 'kimchili koreys quymog‘i',
+      en: 'kimchi pancake',
+      ru: 'корейская лепёшка с кимчи',
+    },
+    examples: [
+      {
+        korean: '김치전을 먹어요.',
+        translations: {
+          ko: '김치전을 먹습니다.',
+          uz: 'Kimchili quymoq yeyman.',
+          en: 'I eat kimchi pancake.',
+          ru: 'Я ем корейскую лепёшку с кимчи.',
+        },
+      },
+      {
+        korean: '김치전도 맛있어요.',
+        translations: {
+          ko: '김치전 역시 맛있습니다.',
+          uz: 'Kimchi jeon ham mazali.',
+          en: 'Kimchi pancake is delicious too.',
+          ru: 'Блин с кимчи тоже вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '김치전',
+      romanization: 'gimchijeon',
+      ttsText: '김치전',
+    },
+    media: {
+      emoji: '🥞',
+      imageUrl: 'https://cdn.korio.app/words/gimchijeon.webp',
+      imageAlt: {
+        ko: '팬에 부친 김치전',
+        uz: 'kimchili koreys quymog‘i',
+        en: 'a kimchi pancake',
+        ru: 'корейский блин с кимчи',
+      },
+    },
+    tags: ['food', 'kimchi', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'전'은 반죽과 재료를 팬에 납작하게 부쳐 만든 한국 음식이에요.",
+      uz: "'전' masalliqlarni xamir bilan tovaga qovurib tayyorlanadigan koreys taomi.",
+      en: '전 is a Korean pan-fried dish made from batter and various ingredients.',
+      ru: '전 — корейское блюдо, которое жарят на сковороде из теста и различных ингредиентов.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_this_kind_of_determiner',
+    senseKey: 'demonstrative-this-kind-of',
     korean: '이런',
-    uz: 'bunday',
-    en: 'this kind of / such',
-    ru: 'такой',
-    emoji: '👉',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: {
+      ko: '바로 이와 같은 종류나 성질의',
+      uz: 'bunday, mana shunday',
+      en: 'this kind of, such',
+      ru: 'такой, такого рода',
+    },
+    examples: [
+      {
+        korean: '이런 음식도 먹어요.',
+        translations: {
+          ko: '이와 같은 음식도 먹습니다.',
+          uz: 'Bunday taomlarni ham yeymiz.',
+          en: 'People eat this kind of food too.',
+          ru: 'Такую еду тоже едят.',
+        },
+      },
+      {
+        korean: '이런 김치를 좋아해요.',
+        translations: {
+          ko: '이런 종류의 김치를 좋아합니다.',
+          uz: 'Bunday kimchini yoqtiraman.',
+          en: 'I like this kind of kimchi.',
+          ru: 'Мне нравится такое кимчи.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '이런',
+      romanization: 'ireon',
+      ttsText: '이런',
+    },
+    media: {
+      emoji: '👉',
+      imageUrl: 'https://cdn.korio.app/words/ireon.webp',
+      imageAlt: {
+        ko: '이런 종류라고 가리키는 손',
+        uz: 'bunday turdagi narsani ko‘rsatayotgan qo‘l',
+        en: 'a hand indicating this kind of thing',
+        ru: 'рука, указывающая на предмет такого типа',
+      },
+    },
+    tags: ['determiner', 'demonstrative', 'description', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '반드시 뒤에 명사가 와요. 예: 이런 음식, 이런 사람, 이런 물건.',
+      uz: 'Undan keyin ot keladi: 이런 음식, 이런 사람.',
+      en: 'It directly modifies a noun: 이런 음식, 이런 사람, 이런 물건.',
+      ru: 'Непосредственно определяет существительное: 이런 음식, 이런 사람, 이런 물건.',
+    },
+    isCore: true,
+    isActive: true,
   },
-];
+] satisfies readonly WordSeedEntry[];
 
 export const UNIT6_QUESTIONS = {
   // ══════════════════════════════════════════════════════════

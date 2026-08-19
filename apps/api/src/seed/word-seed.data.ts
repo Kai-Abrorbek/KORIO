@@ -218,12 +218,20 @@ function assertCompatible(
   existing: NormalizedWordSeed,
   next: NormalizedWordSeed,
 ) {
-  const sameMeaning =
-    createMeaningSignature(existing.meaning) ===
-    createMeaningSignature(next.meaning);
-  if (existing.headword !== next.headword || !sameMeaning) {
+  const sameIdentity =
+    existing.headword === next.headword &&
+    existing.senseKey === next.senseKey &&
+    existing.partOfSpeech === next.partOfSpeech;
+
+  // Localized definitions can be natural paraphrases of the same dictionary
+  // sense. The stable code + headword + senseKey + part of speech define the
+  // identity; the first source remains the canonical displayed definition.
+  if (!sameIdentity) {
     throw new Error(
-      `Word code ${next.code} is reused for incompatible content. Give each meaning a unique stable code.`,
+      `Word code ${next.code} is reused for incompatible content ` +
+        `(${existing.headword}/${existing.senseKey}/${existing.partOfSpeech} vs ` +
+        `${next.headword}/${next.senseKey}/${next.partOfSpeech}). ` +
+        'Give each meaning a unique stable code.',
     );
   }
 }

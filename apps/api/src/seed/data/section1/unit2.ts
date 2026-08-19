@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 1 · 유닛 2 — 이거는 뭐예요?
  * 출처: 서울대 한국어 1A 2과
@@ -173,7 +174,7 @@ export const UNIT2_QUESTIONS = {
     answer: '의자',
     explanation: {
       ko: '책상은 물건을 올려놓고, 의자는 앉는 것이에요.',
-      uz: '책상 ga narsa qo\'yiladi, 의자 ga o\'tiriladi.',
+      uz: "책상 ga narsa qo'yiladi, 의자 ga o'tiriladi.",
       en: 'You put things on 책상 and sit on 의자.',
       ru: 'На 책상 кладут вещи, на 의자 садятся.',
     },
@@ -188,7 +189,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '책상 앞에 놓고 앉아요.',
-      uz: 'Parta oldiga qo\'yib o\'tiriladi.',
+      uz: "Parta oldiga qo'yib o'tiriladi.",
       en: 'You put it in front of the desk and sit.',
       ru: 'Ставят перед столом и садятся.',
     },
@@ -383,7 +384,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '공책 — 글씨를 쓰는 빈 책',
-      uz: 'Daftar — yozish uchun bo\'sh kitob',
+      uz: "Daftar — yozish uchun bo'sh kitob",
       en: 'Notebook — a blank book you write in',
       ru: 'Тетрадь — пустая книга для записей',
     },
@@ -391,7 +392,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '읽는 책이 아니라 쓰는 책이에요.',
-      uz: 'O\'qiladigan emas, yoziladigan kitob.',
+      uz: "O'qiladigan emas, yoziladigan kitob.",
       en: 'Not the book you read — the one you write in.',
       ru: 'Не та книга, которую читают, а та, в которой пишут.',
     },
@@ -409,7 +410,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['이거는 뭐예요'],
     answerTranslation: {
       ko: '이거는 뭐예요? — 물건 이름을 묻는 말',
-      uz: 'Bu nima? — narsa nomini so\'rash',
+      uz: "Bu nima? — narsa nomini so'rash",
       en: 'What is this? — asking the name of an item',
       ru: 'Что это? — вопрос о названии предмета',
     },
@@ -417,7 +418,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '말하기'],
     hint: {
       ko: '질문이니까 끝을 올려요. 이-거-는 뭐-예-요?',
-      uz: 'Savol — oxirini ko\'taring: i-go-nun mwo-ye-yo?',
+      uz: "Savol — oxirini ko'taring: i-go-nun mwo-ye-yo?",
       en: 'A question — let it rise: i-geo-neun mwo-ye-yo?',
       ru: 'Это вопрос — повысьте интонацию.',
     },
@@ -482,7 +483,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '"책" 앞에 한 글자가 더 붙어요.',
-      uz: '"책" oldiga yana bir bo\'g\'in qo\'shiladi.',
+      uz: "\"책\" oldiga yana bir bo'g'in qo'shiladi.",
       en: 'One more syllable goes in front of 책.',
       ru: 'Перед 책 добавляется ещё один слог.',
     },
@@ -508,7 +509,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '어순'],
     hint: {
       ko: '가리키는 말이 먼저, 묻는 말이 나중이에요.',
-      uz: 'Avval ko\'rsatuvchi so\'z, keyin savol so\'zi.',
+      uz: "Avval ko'rsatuvchi so'z, keyin savol so'zi.",
       en: 'The pointing word first, the question word second.',
       ru: 'Сначала указательное слово, потом вопросительное.',
     },
@@ -668,7 +669,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '연필로 쓴 글씨를 없앨 때 써요.',
-      uz: 'Qalam bilan yozilganni o\'chirish uchun.',
+      uz: "Qalam bilan yozilganni o'chirish uchun.",
       en: 'Used to remove what you wrote in pencil.',
       ru: 'Используют, чтобы стереть написанное карандашом.',
     },
@@ -773,7 +774,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '그거는 지우개예요.',
-      uz: 'U o\'chirg\'ich.',
+      uz: "U o'chirg'ich.",
       en: 'That is an eraser.',
       ru: 'То — ластик.',
     },
@@ -794,9 +795,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '저거는 연필이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '저거는 연필이에요?' }],
     options: [
       '아니요, 볼펜이에요.',
       '네, 볼펜이에요.',
@@ -907,7 +906,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '가방보다 작아요. 연필만 들어가요.',
-      uz: 'Sumkadan kichik — faqat qalam sig\'adi.',
+      uz: "Sumkadan kichik — faqat qalam sig'adi.",
       en: 'Smaller than a bag — only pens fit in it.',
       ru: 'Меньше сумки — туда влезают только ручки.',
     },
@@ -1080,7 +1079,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '말하기'],
     hint: {
       ko: '멀리 있는 것을 가리키며 물어봐요. 끝을 올려요.',
-      uz: 'Uzoqdagi narsani ko\'rsatib so\'rang — oxirini ko\'taring.',
+      uz: "Uzoqdagi narsani ko'rsatib so'rang — oxirini ko'taring.",
       en: 'Point at something far and ask — rising at the end.',
       ru: 'Укажите на далёкое и спросите — с повышением тона.',
     },
@@ -1101,7 +1100,7 @@ export const UNIT2_QUESTIONS = {
     answer: '사전',
     choices: [
       { text: '지도', label: 'Xarita', emoji: '🗺️' },
-      { text: '자', label: 'Chizg\'ich', emoji: '📏' },
+      { text: '자', label: "Chizg'ich", emoji: '📏' },
       { text: '사전', label: "Lug'at", emoji: '📖' },
       { text: '공책', label: 'Daftar', emoji: '📓' },
     ],
@@ -1116,7 +1115,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '모르는 단어를 찾을 때 펴는 책이에요.',
-      uz: 'Notanish so\'zni topish uchun ochiladigan kitob.',
+      uz: "Notanish so'zni topish uchun ochiladigan kitob.",
       en: 'The book you open to look up a word you do not know.',
       ru: 'Книга, которую открывают, чтобы найти незнакомое слово.',
     },
@@ -1162,7 +1161,7 @@ export const UNIT2_QUESTIONS = {
     answer: '자',
     explanation: {
       ko: '한 글자짜리 물건 이름이에요. 길이를 재고 줄을 그어요.',
-      uz: 'Bir bo\'g\'inli narsa nomi — uzunlik o\'lchaydi va chiziq chizadi.',
+      uz: "Bir bo'g'inli narsa nomi — uzunlik o'lchaydi va chiziq chizadi.",
       en: 'A one-syllable item — it measures length and draws straight lines.',
       ru: 'Односложное слово — измеряет длину и чертит прямые.',
     },
@@ -1177,7 +1176,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '보기 중에서 제일 짧은 단어예요.',
-      uz: 'Variantlar ichida eng qisqa so\'z.',
+      uz: "Variantlar ichida eng qisqa so'z.",
       en: 'The shortest word among the options.',
       ru: 'Самое короткое слово среди вариантов.',
     },
@@ -1290,7 +1289,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '한국, 미국, 중국이 어디 있는지 볼 때 써요.',
-      uz: 'Koreya, Amerika, Xitoy qayerda ekanini ko\'rish uchun.',
+      uz: "Koreya, Amerika, Xitoy qayerda ekanini ko'rish uchun.",
       en: 'You use it to see where Korea, America and China are.',
       ru: 'Используют, чтобы увидеть, где Корея, Америка, Китай.',
     },
@@ -1303,9 +1302,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 한국어로 뭐예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '이거는 한국어로 뭐예요?' }],
     options: ['자예요.', '자이에요.', '뭐예요?', '안녕하세요?'],
     answer: '자예요.',
     explanation: {
@@ -1351,7 +1348,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '말하기'],
     hint: {
       ko: '이름을 모를 때 이렇게 물어봐요. 실제로 제일 많이 쓰는 말이에요.',
-      uz: 'Nomini bilmasangiz shunday so\'raysiz — eng ko\'p ishlatiladigan ibora.',
+      uz: "Nomini bilmasangiz shunday so'raysiz — eng ko'p ishlatiladigan ibora.",
       en: 'Ask this when you do not know the name — the most useful sentence here.',
       ru: 'Так спрашивают, когда не знают названия — самая полезная фраза.',
     },
@@ -1377,7 +1374,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '어순'],
     hint: {
       ko: '가리키는 말 → 어떤 언어로 → 묻는 말 순서예요.',
-      uz: 'Ko\'rsatuvchi so\'z → qaysi tilda → savol so\'zi.',
+      uz: "Ko'rsatuvchi so'z → qaysi tilda → savol so'zi.",
       en: 'Order: pointing word → in which language → question word.',
       ru: 'Порядок: указание → на каком языке → вопрос.',
     },
@@ -1411,7 +1408,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '어휘'],
     hint: {
       ko: '"사전" 앞에 두 글자가 더 붙어요.',
-      uz: '"사전" oldiga ikki bo\'g\'in qo\'shiladi.',
+      uz: "\"사전\" oldiga ikki bo'g'in qo'shiladi.",
       en: 'Two more syllables go in front of 사전.',
       ru: 'Перед 사전 добавляются два слога.',
     },
@@ -1468,7 +1465,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '말하기'],
     hint: {
       ko: '전-자-사-전. 네 글자를 또박또박 말해요.',
-      uz: 'Jon-ja-sa-jon — to\'rt bo\'g\'inni aniq ayting.',
+      uz: "Jon-ja-sa-jon — to'rt bo'g'inni aniq ayting.",
       en: 'jeon-ja-sa-jeon — say all four syllables clearly.',
       ru: 'чон-джа-са-чон — произнесите чётко.',
     },
@@ -1615,7 +1612,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['학용품', '복습'],
     hint: {
       ko: '이 노드에서 배운 학용품이에요.',
-      uz: 'Shu tugunda o\'rgangan o\'quv qurollari.',
+      uz: "Shu tugunda o'rgangan o'quv qurollari.",
       en: 'The school supplies from this node.',
       ru: 'Школьные принадлежности из этого узла.',
     },
@@ -1649,7 +1646,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['이거/그거/저거'],
     hint: {
       ko: '내 손에 있어요. 제일 가까워요.',
-      uz: 'Mening qo\'limda — eng yaqin.',
+      uz: "Mening qo'limda — eng yaqin.",
       en: 'It is in my hand — the closest one.',
       ru: 'У меня в руке — самое близкое.',
     },
@@ -1675,7 +1672,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['이거/그거/저거', '말하기'],
     hint: {
       ko: '상대가 들고 있는 것을 물어봐요.',
-      uz: 'Suhbatdosh ushlab turgan narsani so\'rang.',
+      uz: "Suhbatdosh ushlab turgan narsani so'rang.",
       en: 'Ask about what the other person is holding.',
       ru: 'Спросите о том, что держит собеседник.',
     },
@@ -1700,7 +1697,7 @@ export const UNIT2_QUESTIONS = {
     answer: '그거는 볼펜이에요.',
     explanation: {
       ko: '상대가 들고 있으니 나에게는 "그거"예요. 말하는 사람이 바뀌면 가리키는 말도 바뀌어요.',
-      uz: 'Suhbatdosh ushlab turibdi — men uchun "그거". Gapiruvchi o\'zgarsa, ko\'rsatuvchi so\'z ham o\'zgaradi.',
+      uz: "Suhbatdosh ushlab turibdi — men uchun \"그거\". Gapiruvchi o'zgarsa, ko'rsatuvchi so'z ham o'zgaradi.",
       en: 'They are holding it, so from your side it is 그거 — the pointing word changes with the speaker.',
       ru: 'Он держит это, значит для вас — 그거. Указательное слово меняется вместе с говорящим.',
     },
@@ -1742,7 +1739,7 @@ export const UNIT2_QUESTIONS = {
     hint: {
       ko: '상대 책상 위에 있어요.',
       uz: 'Suhbatdosh partasida turibdi.',
-      en: 'It is on the other person\'s desk.',
+      en: "It is on the other person's desk.",
       ru: 'Лежит на столе собеседника.',
     },
     xpReward: 15,
@@ -1802,7 +1799,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['이거/그거/저거'],
     hint: {
       ko: '손이 안 닿는 곳에 있어요.',
-      uz: 'Qo\'l yetmaydigan joyda.',
+      uz: "Qo'l yetmaydigan joyda.",
       en: 'It is out of reach for both of you.',
       ru: 'До него не дотянуться ни вам, ни ему.',
     },
@@ -1854,7 +1851,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '어순'],
     hint: {
       ko: '상대가 들고 있는 것을 물어봐요.',
-      uz: 'Suhbatdosh ushlab turgani haqida so\'rang.',
+      uz: "Suhbatdosh ushlab turgani haqida so'rang.",
       en: 'Ask about what they are holding.',
       ru: 'Спросите о том, что он держит.',
     },
@@ -1960,7 +1957,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '안녕하세요? 저는 하산이에요.' },
       { speaker: 'npc', text: '(책상 위를 가리키며) 그거는 뭐예요?' },
     ],
-    options: ['이거는 전자사전이에요.', '그거는 전자사전이에요.', '저거는 전자사전이에요.', '네, 반가워요.'],
+    options: [
+      '이거는 전자사전이에요.',
+      '그거는 전자사전이에요.',
+      '저거는 전자사전이에요.',
+      '네, 반가워요.',
+    ],
     answer: '이거는 전자사전이에요.',
     explanation: {
       ko: '상대가 "그거"라고 한 건 내 쪽에 있는 것이에요. 내가 답할 때는 "이거"로 바뀌어요.',
@@ -2059,7 +2061,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'npc', text: '자예요.' },
       { speaker: 'npc', text: '그거는 사전이에요?' },
     ],
-    options: ['아니요, 공책이에요.', '네, 지도예요.', '아니요, 사전이에요.', '안녕히 가세요.'],
+    options: [
+      '아니요, 공책이에요.',
+      '네, 지도예요.',
+      '아니요, 사전이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '아니요, 공책이에요.',
     explanation: {
       ko: '"아니요" 다음에는 사전이 아닌 다른 물건이 와야 해요. 그리고 지도는 이미 앞에서 나왔어요.',
@@ -2127,7 +2134,7 @@ export const UNIT2_QUESTIONS = {
       { text: '모자', label: 'Shlyapa', emoji: '🧢' },
       { text: '시계', label: 'Soat', emoji: '⌚' },
       { text: '우산', label: 'Soyabon', emoji: '☂️' },
-      { text: '안경', label: 'Ko\'zoynak', emoji: '👓' },
+      { text: '안경', label: "Ko'zoynak", emoji: '👓' },
     ],
     acceptedAnswers: [],
     answerTranslation: {
@@ -2140,7 +2147,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '비가 올 때 펴서 써요.',
-      uz: 'Yomg\'ir yog\'ganda ochib ishlatiladi.',
+      uz: "Yomg'ir yog'ganda ochib ishlatiladi.",
       en: 'You open it when it rains.',
       ru: 'Его раскрывают, когда идёт дождь.',
     },
@@ -2167,7 +2174,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '전부 두 글자예요. 첫소리로 구별해요.',
-      uz: 'Hammasi ikki bo\'g\'inli — birinchi tovushdan ajrating.',
+      uz: "Hammasi ikki bo'g'inli — birinchi tovushdan ajrating.",
       en: 'All two syllables — tell them apart by the first sound.',
       ru: 'Все двухсложные — различайте по первому звуку.',
     },
@@ -2186,7 +2193,7 @@ export const UNIT2_QUESTIONS = {
     answer: '모자',
     explanation: {
       ko: '머리에 쓰는 것은 모자, 눈에 쓰는 것은 안경이에요.',
-      uz: 'Boshga — 모자, ko\'zga — 안경.',
+      uz: "Boshga — 모자, ko'zga — 안경.",
       en: '모자 goes on your head, 안경 on your eyes.',
       ru: '모자 — на голову, 안경 — на глаза.',
     },
@@ -2299,7 +2306,7 @@ export const UNIT2_QUESTIONS = {
     answer: '안경',
     explanation: {
       ko: '눈에 쓰는 것이에요. 머리에 쓰는 모자와 헷갈리지 않게 조심해요.',
-      uz: 'Ko\'zga taqiladi — boshga kiyiladigan 모자 bilan aralashtirmang.',
+      uz: "Ko'zga taqiladi — boshga kiyiladigan 모자 bilan aralashtirmang.",
       en: 'It goes on your eyes — do not confuse it with 모자, which goes on your head.',
       ru: 'Надевают на глаза — не путайте с 모자 на голову.',
     },
@@ -2503,9 +2510,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 안경이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '이거는 안경이에요?' }],
     options: [
       '아니요, 시계예요.',
       '네, 시계예요.',
@@ -2557,7 +2562,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '복습'],
     hint: {
       ko: '학용품과 생활용품이 섞여 있어요.',
-      uz: 'O\'quv qurollari va kundalik buyumlar aralash.',
+      uz: "O'quv qurollari va kundalik buyumlar aralash.",
       en: 'School supplies and daily items are mixed here.',
       ru: 'Смешаны школьные и бытовые предметы.',
     },
@@ -2706,7 +2711,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '영어와 소리가 비슷해요.',
-      uz: 'Inglizchaga tovushi o\'xshash.',
+      uz: "Inglizchaga tovushi o'xshash.",
       en: 'It sounds close to the English word.',
       ru: 'Звучит похоже на английское слово.',
     },
@@ -2832,9 +2837,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '그거는 신문이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '그거는 신문이에요?' }],
     options: [
       '아니요, 잡지예요.',
       '네, 잡지예요.',
@@ -2885,7 +2888,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '말하기'],
     hint: {
       ko: '휴-대-폰. 세 글자를 또박또박 말해요.',
-      uz: 'Hyu-dae-pon — uch bo\'g\'inni aniq ayting.',
+      uz: "Hyu-dae-pon — uch bo'g'inni aniq ayting.",
       en: 'hyu-dae-pon — say all three syllables clearly.',
       ru: 'хю-дэ-пхон — произнесите чётко.',
     },
@@ -3096,7 +3099,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '전화를 걸고 받는 것이에요.',
-      uz: 'Qo\'ng\'iroq qilish uchun.',
+      uz: "Qo'ng'iroq qilish uchun.",
       en: 'The thing you make calls with.',
       ru: 'То, чем звонят.',
     },
@@ -3154,7 +3157,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '"물"은 한 글자, "교통카드"는 네 글자예요.',
-      uz: '"물" bir bo\'g\'in, "교통카드" to\'rt bo\'g\'in.',
+      uz: "\"물\" bir bo'g'in, \"교통카드\" to'rt bo'g'in.",
       en: '물 is one syllable, 교통카드 is four.',
       ru: '물 — один слог, 교통카드 — четыре.',
     },
@@ -3219,7 +3222,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '보기 중에서 제일 긴 단어예요.',
-      uz: 'Variantlar ichida eng uzun so\'z.',
+      uz: "Variantlar ichida eng uzun so'z.",
       en: 'The longest word among the options.',
       ru: 'Самое длинное слово среди вариантов.',
     },
@@ -3317,7 +3320,7 @@ export const UNIT2_QUESTIONS = {
     answer: '동전',
     explanation: {
       ko: '종이돈이 아니라 쇠로 된 둥근 돈이에요.',
-      uz: 'Qog\'oz pul emas, metall dumaloq pul.',
+      uz: "Qog'oz pul emas, metall dumaloq pul.",
       en: 'Not paper money — the round metal kind.',
       ru: 'Не бумажные деньги, а круглые металлические.',
     },
@@ -3391,7 +3394,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '말하기'],
     hint: {
       ko: '교-통-카-드. 네 글자를 천천히 말해요.',
-      uz: 'Gyo-tong-ka-du — to\'rt bo\'g\'inni sekin ayting.',
+      uz: "Gyo-tong-ka-du — to'rt bo'g'inni sekin ayting.",
       en: 'gyo-tong-ka-deu — say the four syllables slowly.',
       ru: 'кё-тон-кха-ды — произнесите медленно.',
     },
@@ -3508,7 +3511,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '말하기'],
     hint: {
       ko: '휴-지-예-요. 받침이 없으니 짧게.',
-      uz: 'Hyu-ji-ye-yo — undosh yo\'q, qisqa.',
+      uz: "Hyu-ji-ye-yo — undosh yo'q, qisqa.",
       en: 'hyu-ji-ye-yo — no final consonant, so the short form.',
       ru: 'хю-джи-е-ё — без согласного, короткая форма.',
     },
@@ -3521,9 +3524,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 지갑이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '이거는 지갑이에요?' }],
     options: [
       '아니요, 교통카드예요.',
       '네, 교통카드예요.',
@@ -3663,7 +3664,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '복습'],
     hint: {
       ko: '이 노드에서 배운 생활용품이에요.',
-      uz: 'Shu tugunda o\'rgangan kundalik buyumlar.',
+      uz: "Shu tugunda o'rgangan kundalik buyumlar.",
       en: 'The daily items from this node.',
       ru: 'Бытовые предметы из этого узла.',
     },
@@ -3682,7 +3683,7 @@ export const UNIT2_QUESTIONS = {
     answer: '우산',
     explanation: {
       ko: '비가 올 때 필요한 물건이에요. 모자는 햇빛을 가려요.',
-      uz: 'Yomg\'irda kerak bo\'ladigan narsa. 모자 quyoshdan saqlaydi.',
+      uz: "Yomg'irda kerak bo'ladigan narsa. 모자 quyoshdan saqlaydi.",
       en: 'The item you need in the rain — 모자 is for the sun.',
       ru: 'Нужен в дождь — 모자 защищает от солнца.',
     },
@@ -3697,7 +3698,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '비가 온다고 했어요.',
-      uz: 'Yomg\'ir yog\'yapti deyildi.',
+      uz: "Yomg'ir yog'yapti deyildi.",
       en: 'It says it is raining.',
       ru: 'Сказано, что идёт дождь.',
     },
@@ -3736,9 +3737,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '저거는 시계예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '저거는 시계예요?' }],
     options: [
       '아니요, 안경이에요.',
       '네, 안경이에요.',
@@ -3748,7 +3747,7 @@ export const UNIT2_QUESTIONS = {
     answer: '아니요, 안경이에요.',
     explanation: {
       ko: '시계는 시간을 보고 안경은 눈에 써요. 다른 물건이에요.',
-      uz: '시계 vaqt uchun, 안경 ko\'z uchun — boshqa narsalar.',
+      uz: "시계 vaqt uchun, 안경 ko'z uchun — boshqa narsalar.",
       en: 'A watch tells time, glasses go on your eyes — different items.',
       ru: 'Часы показывают время, очки — на глаза. Разные вещи.',
     },
@@ -3816,7 +3815,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '듣기'],
     hint: {
       ko: '길이가 다 달라요. 몇 글자인지 세어 보세요.',
-      uz: 'Uzunligi har xil — bo\'g\'inlarni sanang.',
+      uz: "Uzunligi har xil — bo'g'inlarni sanang.",
       en: 'They differ in length — count the syllables.',
       ru: 'Разной длины — сосчитайте слоги.',
     },
@@ -3959,7 +3958,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['뭐예요', '말하기'],
     hint: {
       ko: '이름을 모르는 물건을 가리키며 물어봐요.',
-      uz: 'Nomini bilmagan narsani ko\'rsatib so\'rang.',
+      uz: "Nomini bilmagan narsani ko'rsatib so'rang.",
       en: 'Point at something whose name you do not know and ask.',
       ru: 'Укажите на предмет, название которого не знаете, и спросите.',
     },
@@ -3979,7 +3978,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'npc', text: '저거는 우산이에요.' },
       { speaker: 'npc', text: '그거는 카메라예요?' },
     ],
-    options: ['아니요, 휴대폰이에요.', '네, 우산이에요.', '아니요, 카메라예요.', '안녕히 가세요.'],
+    options: [
+      '아니요, 휴대폰이에요.',
+      '네, 우산이에요.',
+      '아니요, 카메라예요.',
+      '안녕히 가세요.',
+    ],
     answer: '아니요, 휴대폰이에요.',
     explanation: {
       ko: '"아니요"라고 했으니 카메라가 아닌 물건이어야 하고, 우산은 이미 앞에서 나왔어요.',
@@ -4089,7 +4093,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '눈에 쓰는 물건이에요.',
-      uz: 'Ko\'zga taqiladigan narsa.',
+      uz: "Ko'zga taqiladigan narsa.",
       en: 'The thing you wear on your eyes.',
       ru: 'То, что носят на глазах.',
     },
@@ -4345,7 +4349,12 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '동전 있어요?' }],
-    options: ['네, 동전이 있어요.', '네, 동전가 있어요.', '아니요, 있어요.', '안녕하세요?'],
+    options: [
+      '네, 동전이 있어요.',
+      '네, 동전가 있어요.',
+      '아니요, 있어요.',
+      '안녕하세요?',
+    ],
     answer: '네, 동전이 있어요.',
     explanation: {
       ko: '물어볼 때는 조사를 빼고 "동전 있어요?"라고 짧게 말해요. 답할 때는 "동전이 있어요"처럼 붙여요.',
@@ -4525,7 +4534,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '네, 있어요.' },
       { speaker: 'npc', text: '그럼 지도도 있어요?' },
     ],
-    options: ['네, 지도가 있어요.', '네, 지도이 있어요.', '아니요, 사전이 있어요.', '안녕히 가세요.'],
+    options: [
+      '네, 지도가 있어요.',
+      '네, 지도이 있어요.',
+      '아니요, 사전이 있어요.',
+      '안녕히 가세요.',
+    ],
     answer: '네, 지도가 있어요.',
     explanation: {
       ko: '"지도"는 받침이 없어요. 받침이 없으면 "가"를 붙여요. 여기서 "이"를 쓰면 틀려요.',
@@ -4846,7 +4860,12 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '카메라 있어요?' }],
-    options: ['네, 카메라가 있어요.', '네, 카메라이 있어요.', '아니요, 있어요.', '반가워요.'],
+    options: [
+      '네, 카메라가 있어요.',
+      '네, 카메라이 있어요.',
+      '아니요, 있어요.',
+      '반가워요.',
+    ],
     answer: '네, 카메라가 있어요.',
     explanation: {
       ko: '"카메라"는 받침이 없어서 "가"예요. 그리고 "아니요"와 "있어요"는 같이 못 써요.',
@@ -5026,7 +5045,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '지갑이 있어요.' },
       { speaker: 'npc', text: '휴대폰도 있어요?' },
     ],
-    options: ['네, 휴대폰이 있어요.', '네, 휴대폰가 있어요.', '아니요, 지갑이 있어요.', '안녕히 계세요.'],
+    options: [
+      '네, 휴대폰이 있어요.',
+      '네, 휴대폰가 있어요.',
+      '아니요, 지갑이 있어요.',
+      '안녕히 계세요.',
+    ],
     answer: '네, 휴대폰이 있어요.',
     explanation: {
       ko: '"휴대폰"은 받침 ㄴ으로 끝나요. 그래서 "이"예요. 앞에서 지갑을 말했으니 이번엔 휴대폰이에요.',
@@ -5178,7 +5202,7 @@ export const UNIT2_QUESTIONS = {
     answer: '없어요',
     explanation: {
       ko: '"그런데"는 앞과 반대되는 말이 온다는 뜻이에요. 비가 오는데 우산이 없어서 곤란한 상황이에요.',
-      uz: '"그런데" — oldingi bilan qarama-qarshi mazmun keladi. Yomg\'ir yog\'yapti, lekin soyabon yo\'q.',
+      uz: "\"그런데\" — oldingi bilan qarama-qarshi mazmun keladi. Yomg'ir yog'yapti, lekin soyabon yo'q.",
       en: '그런데 signals a contrast — it is raining but there is no umbrella.',
       ru: '그런데 вводит противопоставление — дождь идёт, а зонта нет.',
     },
@@ -5347,7 +5371,12 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '우산 있어요?' }],
-    options: ['아니요, 없어요.', '네, 없어요.', '아니요, 있어요.', '안녕하세요?'],
+    options: [
+      '아니요, 없어요.',
+      '네, 없어요.',
+      '아니요, 있어요.',
+      '안녕하세요?',
+    ],
     answer: '아니요, 없어요.',
     explanation: {
       ko: '"아니요"는 "없어요"와 짝이고 "네"는 "있어요"와 짝이에요. 섞으면 말이 안 돼요.',
@@ -5437,7 +5466,7 @@ export const UNIT2_QUESTIONS = {
     answer: '가',
     explanation: {
       ko: '"차"는 받침이 없어요. 한 글자여도 규칙은 같아요.',
-      uz: '"차" undoshsiz — bir bo\'g\'in bo\'lsa ham qoida bir xil.',
+      uz: "\"차\" undoshsiz — bir bo'g'in bo'lsa ham qoida bir xil.",
       en: '차 has no final consonant — the rule holds even for one syllable.',
       ru: 'У 차 нет согласного — правило то же и для одного слога.',
     },
@@ -5629,7 +5658,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['없어요', '어휘'],
     hint: {
       ko: '길에서 타고 다니는 것이에요.',
-      uz: 'Yo\'lda minib yuriladigan narsa.',
+      uz: "Yo'lda minib yuriladigan narsa.",
       en: 'The thing you drive on the road.',
       ru: 'То, на чём ездят по дороге.',
     },
@@ -5655,7 +5684,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['없어요', '말하기'],
     hint: {
       ko: '남자 친구 / 가 / 없어요 — 세 덩어리로 말해요.',
-      uz: 'Nam-ja chin-gu / ga / op-sso-yo — uch bo\'lak.',
+      uz: "Nam-ja chin-gu / ga / op-sso-yo — uch bo'lak.",
       en: 'nam-ja chin-gu / ga / eop-sseo-yo — three chunks.',
       ru: 'нам-джа чхин-гу / га / оп-ссо-ё — три части.',
     },
@@ -5721,7 +5750,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['있어요/없어요', '대답'],
     hint: {
       ko: '뒷부분을 먼저 읽어보세요. 있다고 했나요, 없다고 했나요?',
-      uz: 'Avval ikkinchi qismni o\'qing: bor deyildimi yoki yo\'q?',
+      uz: "Avval ikkinchi qismni o'qing: bor deyildimi yoki yo'q?",
       en: 'Read the second half first — does it say there is or is not?',
       ru: 'Сначала прочитайте вторую часть — есть или нет?',
     },
@@ -5739,7 +5768,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['우산 있어요'],
     answerTranslation: {
       ko: '우산 있어요? — 물어볼 때는 조사를 빼도 된다',
-      uz: 'Soyabon bormi? — savolda qo\'shimcha tushirilishi mumkin',
+      uz: "Soyabon bormi? — savolda qo'shimcha tushirilishi mumkin",
       en: 'Do you have an umbrella? — questions can drop the particle',
       ru: 'Есть зонт? — в вопросе частицу можно опустить',
     },
@@ -5994,7 +6023,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '안녕하세요?' },
       { speaker: 'npc', text: '동전 있어요?' },
     ],
-    options: ['아니요, 없어요.', '네, 없어요.', '아니요, 동전이에요.', '안녕히 가세요.'],
+    options: [
+      '아니요, 없어요.',
+      '네, 없어요.',
+      '아니요, 동전이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '아니요, 없어요.',
     explanation: {
       ko: '"있어요?" 질문에는 "있어요" 또는 "없어요"로 답해요. "이에요"는 이름을 말할 때 써요.',
@@ -6073,7 +6107,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['있어요/없어요', '어순'],
     hint: {
       ko: '"차"는 받침이 없어요. 한 글자여도 규칙은 같아요.',
-      uz: '"차" undoshsiz — bir bo\'g\'in bo\'lsa ham qoida bir xil.',
+      uz: "\"차\" undoshsiz — bir bo'g'in bo'lsa ham qoida bir xil.",
       en: '차 has no final consonant — the rule holds for one syllable too.',
       ru: 'У 차 нет согласного — правило то же и для одного слога.',
     },
@@ -6093,7 +6127,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '아니요, 없어요.' },
       { speaker: 'npc', text: '그럼 휴대폰은요?' },
     ],
-    options: ['네, 휴대폰이 있어요.', '네, 휴대폰가 있어요.', '아니요, 있어요.', '반갑습니다.'],
+    options: [
+      '네, 휴대폰이 있어요.',
+      '네, 휴대폰가 있어요.',
+      '아니요, 있어요.',
+      '반갑습니다.',
+    ],
     answer: '네, 휴대폰이 있어요.',
     explanation: {
       ko: '"휴대폰"은 받침 ㄴ으로 끝나서 "이"예요. "은요?"는 "그것은 어때요?"라고 되묻는 말이에요.',
@@ -6201,7 +6240,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '복습'],
     hint: {
       ko: '헷갈리기 쉬운 것끼리 모았어요. 볼펜과 연필, 사전과 지도.',
-      uz: 'Adashtirish oson bo\'lganlari yig\'ilgan: ruchka–qalam, lug\'at–xarita.',
+      uz: "Adashtirish oson bo'lganlari yig'ilgan: ruchka–qalam, lug'at–xarita.",
       en: 'The easily confused pairs: pen and pencil, dictionary and map.',
       ru: 'Собраны легко путаемые: ручка и карандаш, словарь и карта.',
     },
@@ -6275,7 +6314,12 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이거는 사전이에요?' }],
-    options: ['네, 사전이에요.', '아니요, 사전이에요.', '네, 지도예요.', '뭐예요?'],
+    options: [
+      '네, 사전이에요.',
+      '아니요, 사전이에요.',
+      '네, 지도예요.',
+      '뭐예요?',
+    ],
     answer: '네, 사전이에요.',
     explanation: {
       ko: '맞으면 "네"로 받고 같은 이름을 다시 말해요. "네"와 다른 이름을 같이 쓰면 앞뒤가 안 맞아요.',
@@ -6320,7 +6364,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '어순'],
     hint: {
       ko: '멀리 있는 것을 가리키며 물어봐요.',
-      uz: 'Uzoqdagi narsani ko\'rsatib so\'rang.',
+      uz: "Uzoqdagi narsani ko'rsatib so'rang.",
       en: 'Point at something far away and ask.',
       ru: 'Укажите на далёкий предмет и спросите.',
     },
@@ -6407,7 +6451,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '말하기'],
     hint: {
       ko: '아니라고 먼저 말하고, 맞는 이름을 이어서 말해요.',
-      uz: 'Avval inkor, keyin to\'g\'ri nom.',
+      uz: "Avval inkor, keyin to'g'ri nom.",
       en: 'Deny first, then give the correct name.',
       ru: 'Сначала отрицание, потом верное название.',
     },
@@ -6433,7 +6477,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '어순'],
     hint: {
       ko: '내 쪽에 있는 것을 가리키며 확인해요.',
-      uz: 'Menga yaqin narsani ko\'rsatib tasdiqlayman.',
+      uz: "Menga yaqin narsani ko'rsatib tasdiqlayman.",
       en: 'Point at something near you and check.',
       ru: 'Укажите на близкий предмет и уточните.',
     },
@@ -6464,7 +6508,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '어휘'],
     hint: {
       ko: '지우개로 지울 수 없는 것이에요.',
-      uz: 'O\'chirg\'ich bilan o\'chmaydigan narsa.',
+      uz: "O'chirg'ich bilan o'chmaydigan narsa.",
       en: 'The one an eraser cannot remove.',
       ru: 'То, что нельзя стереть ластиком.',
     },
@@ -6521,7 +6565,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '말하기'],
     hint: {
       ko: '맞다고 하고 같은 이름을 다시 말해요.',
-      uz: 'Tasdiqlab, o\'sha nomni takrorlang.',
+      uz: "Tasdiqlab, o'sha nomni takrorlang.",
       en: 'Confirm and repeat the same name.',
       ru: 'Подтвердите и повторите название.',
     },
@@ -6539,11 +6583,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '아니요, 신문이에요.' },
       { speaker: 'npc', text: '그럼 저거는 잡지예요?' },
     ],
-    options: ['네, 잡지예요.', '아니요, 신문이에요.', '네, 신문이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 잡지예요.',
+      '아니요, 신문이에요.',
+      '네, 신문이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '네, 잡지예요.',
     explanation: {
       ko: '앞에서 신문이라고 했으니 이번엔 다른 것을 가리켜요. 이번에는 맞으니까 "네"로 답해요.',
-      uz: 'Oldin gazeta deyilgan — endi boshqasini ko\'rsatyapti. Bu safar to\'g\'ri, "네".',
+      uz: "Oldin gazeta deyilgan — endi boshqasini ko'rsatyapti. Bu safar to'g'ri, \"네\".",
       en: 'You already said newspaper — this points at something else, and this time it is right.',
       ru: 'Газету уже назвали — теперь указывают на другое, и на этот раз верно.',
     },
@@ -6631,10 +6680,13 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 지우개예요?' },
+    dialogLines: [{ speaker: 'npc', text: '이거는 지우개예요?' }],
+    options: [
+      '아니요, 자예요.',
+      '네, 자예요.',
+      '아니요, 지우개예요.',
+      '뭐예요?',
     ],
-    options: ['아니요, 자예요.', '네, 자예요.', '아니요, 지우개예요.', '뭐예요?'],
     answer: '아니요, 자예요.',
     explanation: {
       ko: '"아니요" 뒤에는 지우개가 아닌 물건이 와야 해요. "자"는 받침이 없어서 "예요".',
@@ -6679,7 +6731,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['확인 질문', '말하기'],
     hint: {
       ko: '끝을 올려서 물어봐요.',
-      uz: 'Oxirini ko\'tarib so\'rang.',
+      uz: "Oxirini ko'tarib so'rang.",
       en: 'Raise the ending to make it a question.',
       ru: 'Повысьте интонацию в конце.',
     },
@@ -6771,7 +6823,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '말하기'],
     hint: {
       ko: '상대가 들고 있는 것의 이름을 물어봐요.',
-      uz: 'Suhbatdosh ushlab turgan narsa nomini so\'rang.',
+      uz: "Suhbatdosh ushlab turgan narsa nomini so'rang.",
       en: 'Ask the name of what they are holding.',
       ru: 'Спросите название того, что он держит.',
     },
@@ -6789,7 +6841,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '필통이에요.' },
       { speaker: 'npc', text: '그럼 저거는요?' },
     ],
-    options: ['저거는 자예요.', '저거는 필통이에요.', '저거는 자이에요.', '네, 맞아요.'],
+    options: [
+      '저거는 자예요.',
+      '저거는 필통이에요.',
+      '저거는 자이에요.',
+      '네, 맞아요.',
+    ],
     answer: '저거는 자예요.',
     explanation: {
       ko: '"저거는요?"는 "저것은 어때요?"라고 짧게 되묻는 말이에요. 필통은 이미 말했어요.',
@@ -6834,7 +6891,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '어순'],
     hint: {
       ko: '가리키는 말 → 한국어로 → 뭐예요 순서예요.',
-      uz: 'Ko\'rsatuvchi so\'z → 한국어로 → 뭐예요.',
+      uz: "Ko'rsatuvchi so'z → 한국어로 → 뭐예요.",
       en: 'Order: pointing word → 한국어로 → 뭐예요.',
       ru: 'Порядок: указание → 한국어로 → 뭐예요.',
     },
@@ -6921,7 +6978,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '말하기'],
     hint: {
       ko: '멀리 있는 것의 이름을 물어봐요.',
-      uz: 'Uzoqdagi narsa nomini so\'rang.',
+      uz: "Uzoqdagi narsa nomini so'rang.",
       en: 'Ask the name of something far away.',
       ru: 'Спросите название далёкого предмета.',
     },
@@ -6978,7 +7035,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '어휘'],
     hint: {
       ko: '교실 벽에 있고, 밖이 보여요.',
-      uz: 'Sinf devorida, tashqarisi ko\'rinadi.',
+      uz: "Sinf devorida, tashqarisi ko'rinadi.",
       en: 'On the classroom wall — you see outside through it.',
       ru: 'В стене класса — через него видно улицу.',
     },
@@ -7053,7 +7110,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '창문이에요.' },
       { speaker: 'npc', text: '아, 창문이에요. 그럼 이거는요?' },
     ],
-    options: ['그거는 지도예요.', '이거는 지도예요.', '그거는 창문이에요.', '네, 창문이에요.'],
+    options: [
+      '그거는 지도예요.',
+      '이거는 지도예요.',
+      '그거는 창문이에요.',
+      '네, 창문이에요.',
+    ],
     answer: '그거는 지도예요.',
     explanation: {
       ko: '상대가 "이거"라고 한 것은 나에게는 "그거"예요. 그리고 창문은 이미 말했어요.',
@@ -7072,7 +7134,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '이거/그거/저거', '대화'],
     hint: {
       ko: '말하는 사람이 바뀌면 가리키는 말도 바뀌어요.',
-      uz: 'Gapiruvchi o\'zgarsa, ko\'rsatuvchi so\'z ham o\'zgaradi.',
+      uz: "Gapiruvchi o'zgarsa, ko'rsatuvchi so'z ham o'zgaradi.",
       en: 'The pointing word changes with the speaker.',
       ru: 'Указательное слово меняется вместе с говорящим.',
     },
@@ -7106,7 +7168,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '질문'],
     hint: {
       ko: '지금 배우고 있는 언어예요.',
-      uz: 'Hozir o\'rganayotgan tilingiz.',
+      uz: "Hozir o'rganayotgan tilingiz.",
       en: 'The language you are learning right now.',
       ru: 'Язык, который вы сейчас учите.',
     },
@@ -7145,9 +7207,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 한국어로 뭐예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '이거는 한국어로 뭐예요?' }],
     options: ['자예요.', '한국어로 뭐예요?', '자이에요.', '아니요.'],
     answer: '자예요.',
     explanation: {
@@ -7167,7 +7227,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['한국어로', '대화'],
     hint: {
       ko: '상대가 이름을 물었어요. 답해 줘야 해요.',
-      uz: 'Nom so\'raldi — javob berish kerak.',
+      uz: "Nom so'raldi — javob berish kerak.",
       en: 'They asked for the name — answer it.',
       ru: 'Спросили название — ответьте.',
     },
@@ -7226,7 +7286,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '복습'],
     hint: {
       ko: '문구점에서 파는 것들이에요.',
-      uz: 'Kantselyariya do\'konida sotiladigan narsalar.',
+      uz: "Kantselyariya do'konida sotiladigan narsalar.",
       en: 'Things sold at a stationery shop.',
       ru: 'То, что продают в канцелярском магазине.',
     },
@@ -7240,7 +7300,12 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '전자사전 있어요?' }],
-    options: ['아니요, 없어요.', '네, 없어요.', '아니요, 전자사전이에요.', '뭐예요?'],
+    options: [
+      '아니요, 없어요.',
+      '네, 없어요.',
+      '아니요, 전자사전이에요.',
+      '뭐예요?',
+    ],
     answer: '아니요, 없어요.',
     explanation: {
       ko: '"있어요?" 질문이니까 "있어요" 또는 "없어요"로 답해요. 가게에 물건이 없을 때 이렇게 말해요.',
@@ -7285,7 +7350,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '말하기'],
     hint: {
       ko: '가게에 들어가서 찾는 물건을 이렇게 물어봐요.',
-      uz: 'Do\'konga kirib kerakli narsani shunday so\'raysiz.',
+      uz: "Do'konga kirib kerakli narsani shunday so'raysiz.",
       en: 'This is how you ask a shop for what you are looking for.',
       ru: 'Так спрашивают в магазине о нужном товаре.',
     },
@@ -7346,7 +7411,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '이에요/예요'],
     hint: {
       ko: '연필과 비슷하게 생겼지만 지워지지 않는 것이에요.',
-      uz: 'Qalamga o\'xshash, lekin o\'chmaydi.',
+      uz: "Qalamga o'xshash, lekin o'chmaydi.",
       en: 'It looks like a pencil but cannot be erased.',
       ru: 'Похоже на карандаш, но не стирается.',
     },
@@ -7399,7 +7464,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '말하기'],
     hint: {
       ko: '아니라고 하고 맞는 이름을 알려줘요.',
-      uz: 'Inkor qilib, to\'g\'ri nomni ayting.',
+      uz: "Inkor qilib, to'g'ri nomni ayting.",
       en: 'Deny, then give the correct name.',
       ru: 'Отрицайте и назовите верное.',
     },
@@ -7462,7 +7527,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '대화'],
     hint: {
       ko: '마지막 줄이 무엇을 물었는지 보세요.',
-      uz: 'Oxirgi qatorda nima so\'ralganini ko\'ring.',
+      uz: "Oxirgi qatorda nima so'ralganini ko'ring.",
       en: 'Look at what the last line asks.',
       ru: 'Посмотрите, о чём последняя строка.',
     },
@@ -7548,7 +7613,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '말하기'],
     hint: {
       ko: '가게에서 모르는 물건을 가리키며 물어봐요.',
-      uz: 'Do\'konda notanish narsani ko\'rsatib so\'rang.',
+      uz: "Do'konda notanish narsani ko'rsatib so'rang.",
       en: 'Point at an unfamiliar item in the shop and ask.',
       ru: 'Укажите в магазине на незнакомый предмет и спросите.',
     },
@@ -7579,7 +7644,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '어휘'],
     hint: {
       ko: '숫자가 적혀 있고 곧게 생겼어요.',
-      uz: 'Raqamlari bor, to\'g\'ri shaklda.',
+      uz: "Raqamlari bor, to'g'ri shaklda.",
       en: 'It has numbers on it and is straight.',
       ru: 'С цифрами и прямая.',
     },
@@ -7630,7 +7695,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '자예요.' },
       { speaker: 'npc', text: '저거는 연필이에요?' },
     ],
-    options: ['아니요, 볼펜이에요.', '네, 볼펜이에요.', '아니요, 자예요.', '네, 없어요.'],
+    options: [
+      '아니요, 볼펜이에요.',
+      '네, 볼펜이에요.',
+      '아니요, 자예요.',
+      '네, 없어요.',
+    ],
     answer: '아니요, 볼펜이에요.',
     explanation: {
       ko: '교재의 문구점 대화예요. "아니요" 뒤에는 연필이 아닌 것이 오고, 자는 이미 앞에서 나왔어요.',
@@ -7709,7 +7779,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['문구점', '말하기'],
     hint: {
       ko: '진열대 저쪽을 가리키며 확인해요. 끝을 올려요.',
-      uz: 'Peshtaxta narigi tomonini ko\'rsatib tasdiqlang — oxirini ko\'taring.',
+      uz: "Peshtaxta narigi tomonini ko'rsatib tasdiqlang — oxirini ko'taring.",
       en: 'Point across the shelf and check — rise at the end.',
       ru: 'Укажите на дальнюю полку и уточните — вверх в конце.',
     },
@@ -7741,7 +7811,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '복습'],
     hint: {
       ko: '이 유닛에서 배운 대화의 뼈대예요.',
-      uz: 'Shu unitda o\'rgangan suhbatning asosi.',
+      uz: "Shu unitda o'rgangan suhbatning asosi.",
       en: 'The backbone of the conversations in this unit.',
       ru: 'Основа диалогов этого юнита.',
     },
@@ -7767,7 +7837,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '있어요? — 가지고 있는지 묻는 말',
-      uz: 'Bormi? — egalikni so\'rash',
+      uz: "Bormi? — egalikni so'rash",
       en: 'Do you have it? — asking about possession',
       ru: 'Есть? — вопрос о наличии',
     },
@@ -7801,7 +7871,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '말할 때는 조사를 빼요. 끝을 올려요.',
-      uz: 'Gapirganda qo\'shimcha tushiriladi — oxirini ko\'taring.',
+      uz: "Gapirganda qo'shimcha tushiriladi — oxirini ko'taring.",
       en: 'Drop the particle in speech — and rise at the end.',
       ru: 'В речи частицу опускают — и вверх в конце.',
     },
@@ -7814,9 +7884,7 @@ export const UNIT2_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '이거는 뭐예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '이거는 뭐예요?' }],
     options: ['카메라예요.', '네, 있어요.', '아니요, 없어요.', '카메라이에요.'],
     answer: '카메라예요.',
     explanation: {
@@ -7836,7 +7904,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '대화'],
     hint: {
       ko: '이름을 물었어요. 있는지 물은 게 아니에요.',
-      uz: 'Nom so\'raldi, bor-yo\'qligi emas.',
+      uz: "Nom so'raldi, bor-yo'qligi emas.",
       en: 'They asked the name, not whether you have it.',
       ru: 'Спросили название, а не наличие.',
     },
@@ -8002,7 +8070,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '어순'],
     hint: {
       ko: '이름을 묻는 질문이에요.',
-      uz: 'Nom so\'raydigan savol.',
+      uz: "Nom so'raydigan savol.",
       en: 'The question that asks for a name.',
       ru: 'Вопрос о названии.',
     },
@@ -8039,7 +8107,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '대화'],
     hint: {
       ko: '마지막 질문이 무엇인지 보고, 받침도 확인하세요.',
-      uz: 'Oxirgi savolni ko\'ring va undoshni tekshiring.',
+      uz: "Oxirgi savolni ko'ring va undoshni tekshiring.",
       en: 'Check the last question — and the final consonant.',
       ru: 'Посмотрите последний вопрос — и проверьте согласный.',
     },
@@ -8104,7 +8172,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '번역'],
     hint: {
       ko: '"Bu" 는 내 쪽에 있는 것이에요. 이름을 묻는 말과 붙여요.',
-      uz: '"Bu" — menga yaqin. Nom so\'raydigan so\'z bilan qo\'shing.',
+      uz: "\"Bu\" — menga yaqin. Nom so'raydigan so'z bilan qo'shing.",
       en: '"This" is on your side — pair it with the name question.',
       ru: '«Это» — рядом с вами; соедините с вопросом о названии.',
     },
@@ -8130,7 +8198,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '가게에 물건이 없을 때 하는 말이에요.',
-      uz: 'Do\'konda narsa yo\'q bo\'lganda aytiladi.',
+      uz: "Do'konda narsa yo'q bo'lganda aytiladi.",
       en: 'What a shop says when they are out of something.',
       ru: 'Так говорят в магазине, если товара нет.',
     },
@@ -8180,7 +8248,7 @@ export const UNIT2_QUESTIONS = {
     answer: '지갑이에요.',
     explanation: {
       ko: '카메라는 없다고 했고 휴대폰은 이미 말했어요. 남은 것으로 답해요.',
-      uz: 'Kamera yo\'q deyilgan, telefon aytilgan — qolganini ayting.',
+      uz: "Kamera yo'q deyilgan, telefon aytilgan — qolganini ayting.",
       en: 'The camera is out and the phone was already named — answer with what is left.',
       ru: 'Фотоаппарата нет, телефон уже назвали — отвечайте оставшимся.',
     },
@@ -8195,7 +8263,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '대화'],
     hint: {
       ko: '앞에서 나온 물건은 답이 될 수 없어요.',
-      uz: 'Oldin aytilgan narsa javob bo\'lolmaydi.',
+      uz: "Oldin aytilgan narsa javob bo'lolmaydi.",
       en: 'Items already mentioned cannot be the answer.',
       ru: 'Уже названные предметы не подходят.',
     },
@@ -8221,7 +8289,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '상대가 들고 있는 것의 이름을 물어봐요.',
-      uz: 'Suhbatdosh ushlab turgan narsa nomini so\'rang.',
+      uz: "Suhbatdosh ushlab turgan narsa nomini so'rang.",
       en: 'Ask the name of what they are holding.',
       ru: 'Спросите название того, что он держит.',
     },
@@ -8260,7 +8328,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '문법'],
     hint: {
       ko: '물건을 달라고 하는 말이에요.',
-      uz: 'Narsa so\'rash iborasi.',
+      uz: "Narsa so'rash iborasi.",
       en: 'The phrase for asking someone to give you something.',
       ru: 'Фраза-просьба дать что-то.',
     },
@@ -8313,7 +8381,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '말하기'],
     hint: {
       ko: '커-피 주-세-요. 이름 뒤에 조사가 없어요.',
-      uz: 'Ko-pi ju-se-yo — nom ortidan qo\'shimcha yo\'q.',
+      uz: "Ko-pi ju-se-yo — nom ortidan qo'shimcha yo'q.",
       en: 'keo-pi ju-se-yo — no particle after the name.',
       ru: 'кхо-пхи чу-се-ё — после названия нет частицы.',
     },
@@ -8433,7 +8501,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '문법'],
     hint: {
       ko: '부탁을 부드럽게 만드는 한 글자예요.',
-      uz: 'Iltimosni yumshatadigan bir bo\'g\'in.',
+      uz: "Iltimosni yumshatadigan bir bo'g'in.",
       en: 'The one syllable that softens a request.',
       ru: 'Один слог, смягчающий просьбу.',
     },
@@ -8459,7 +8527,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '말하기'],
     hint: {
       ko: '지우개 / 좀 / 주세요 — 세 덩어리로 말해요.',
-      uz: 'Ji-u-gae / jom / ju-se-yo — uch bo\'lak.',
+      uz: "Ji-u-gae / jom / ju-se-yo — uch bo'lak.",
       en: 'ji-u-gae / jom / ju-se-yo — three chunks.',
       ru: 'чи-у-гэ / чом / чу-се-ё — три части.',
     },
@@ -8485,7 +8553,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '어순'],
     hint: {
       ko: '물건 → 좀 → 주세요 순서예요. 조사는 안 붙여요.',
-      uz: 'Narsa → 좀 → 주세요. Qo\'shimcha yo\'q.',
+      uz: "Narsa → 좀 → 주세요. Qo'shimcha yo'q.",
       en: 'Order: item → 좀 → 주세요, with no particle.',
       ru: 'Порядок: предмет → 좀 → 주세요, без частицы.',
     },
@@ -8644,7 +8712,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '문법'],
     hint: {
       ko: '달라고 하는 말이에요. 받침과 상관없어요.',
-      uz: 'So\'rash iborasi — undoshga bog\'liq emas.',
+      uz: "So'rash iborasi — undoshga bog'liq emas.",
       en: 'The asking phrase — it does not depend on the final consonant.',
       ru: 'Фраза-просьба — от согласного не зависит.',
     },
@@ -8692,7 +8760,7 @@ export const UNIT2_QUESTIONS = {
     answer: '커피 주세요.',
     explanation: {
       ko: '있다고 확인했으니 이제 달라고 해요. "주세요" 앞에는 조사를 안 붙여요.',
-      uz: 'Bor ekanini bildingiz — endi so\'rang. "주세요" oldiga qo\'shimcha yo\'q.',
+      uz: "Bor ekanini bildingiz — endi so'rang. \"주세요\" oldiga qo'shimcha yo'q.",
       en: 'You confirmed they have it — now ask for it. No particle before 주세요.',
       ru: 'Вы убедились, что есть — теперь попросите. Перед 주세요 частицы нет.',
     },
@@ -8707,7 +8775,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '대화'],
     hint: {
       ko: '"어서 오세요"는 가게에서 손님을 맞는 인사예요. 이미 있는지 물었어요.',
-      uz: '"어서 오세요" — do\'konda mijozni kutib olish. Bor-yo\'qligi so\'ralgan.',
+      uz: "\"어서 오세요\" — do'konda mijozni kutib olish. Bor-yo'qligi so'ralgan.",
       en: '어서 오세요 welcomes a customer — and you already asked whether they have it.',
       ru: '어서 오세요 — приветствие покупателя; наличие вы уже уточнили.',
     },
@@ -8733,7 +8801,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N 주세요', '말하기'],
     hint: {
       ko: '신-문 주-세-요. 사이에 조사가 없어요.',
-      uz: 'Shin-mun ju-se-yo — orasida qo\'shimcha yo\'q.',
+      uz: "Shin-mun ju-se-yo — orasida qo'shimcha yo'q.",
       en: 'shin-mun ju-se-yo — nothing in between.',
       ru: 'щин-мун чу-се-ё — между ними ничего нет.',
     },
@@ -8757,7 +8825,7 @@ export const UNIT2_QUESTIONS = {
     answer: '하고',
     explanation: {
       ko: '"하고"는 두 가지를 이어 줘요. 받침이 있든 없든 언제나 "하고"예요.',
-      uz: '"하고" ikki narsani bog\'laydi — undosh bor-yo\'qligidan qat\'i nazar.',
+      uz: "\"하고\" ikki narsani bog'laydi — undosh bor-yo'qligidan qat'i nazar.",
       en: '하고 links two things — always 하고, whatever the final consonant.',
       ru: '하고 соединяет два предмета — всегда 하고, независимо от согласного.',
     },
@@ -8772,7 +8840,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N하고 N', '문법'],
     hint: {
       ko: '두 물건을 한 번에 달라고 해요.',
-      uz: 'Ikki narsani birga so\'ryapmiz.',
+      uz: "Ikki narsani birga so'ryapmiz.",
       en: 'You are asking for two things at once.',
       ru: 'Просите сразу два предмета.',
     },
@@ -8912,7 +8980,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N하고 N', '문법'],
     hint: {
       ko: '두 가지를 이어 주는 말이에요. 받침과 상관없어요.',
-      uz: 'Ikki narsani bog\'laydigan so\'z — undoshga bog\'liq emas.',
+      uz: "Ikki narsani bog'laydigan so'z — undoshga bog'liq emas.",
       en: 'The word that links two things — independent of the final consonant.',
       ru: 'Слово, соединяющее два предмета — от согласного не зависит.',
     },
@@ -8976,7 +9044,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N하고 N', '말하기'],
     hint: {
       ko: '"하고"는 앞 물건에 붙여서 한 덩어리로 말해요.',
-      uz: '"하고" oldingi narsaga qo\'shilib bir bo\'lak bo\'ladi.',
+      uz: "\"하고\" oldingi narsaga qo'shilib bir bo'lak bo'ladi.",
       en: '하고 attaches to the first item and is spoken as one chunk.',
       ru: '하고 присоединяется к первому и звучит одним куском.',
     },
@@ -9037,7 +9105,7 @@ export const UNIT2_QUESTIONS = {
     hint: {
       ko: '"하고"를 두 번 쓰지 않아요. 마지막 물건의 받침을 보세요.',
       uz: '"하고" ikki marta ishlatilmaydi — oxirgi narsa undoshiga qarang.',
-      en: 'Do not use 하고 twice — look at the last item\'s final consonant.',
+      en: "Do not use 하고 twice — look at the last item's final consonant.",
       ru: '하고 не ставят дважды — смотрите на согласный последнего слова.',
     },
     xpReward: 15,
@@ -9168,11 +9236,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '주스 있어요?' },
       { speaker: 'npc', text: '네, 사과 주스하고 오렌지 주스가 있어요.' },
     ],
-    options: ['사과 주스 주세요.', '사과 주스가 주세요.', '주스 있어요?', '여기 있어요.'],
+    options: [
+      '사과 주스 주세요.',
+      '사과 주스가 주세요.',
+      '주스 있어요?',
+      '여기 있어요.',
+    ],
     answer: '사과 주스 주세요.',
     explanation: {
       ko: '두 가지를 알려 줬으니 하나를 골라 달라고 해요. "주세요" 앞에는 조사를 안 붙여요.',
-      uz: 'Ikki xil aytildi — bittasini tanlab so\'rang. "주세요" oldiga qo\'shimcha yo\'q.',
+      uz: "Ikki xil aytildi — bittasini tanlab so'rang. \"주세요\" oldiga qo'shimcha yo'q.",
       en: 'They offered two — pick one and ask for it. No particle before 주세요.',
       ru: 'Предложили два — выберите одно. Перед 주세요 частицы нет.',
     },
@@ -9231,7 +9304,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['어서 오세요'],
     answerTranslation: {
       ko: '어서 오세요. — 가게에서 손님을 맞는 인사',
-      uz: 'Xush kelibsiz. — do\'konda mijozni kutib olish',
+      uz: "Xush kelibsiz. — do'konda mijozni kutib olish",
       en: 'Welcome. — greeting a customer in a shop',
       ru: 'Добро пожаловать. — приветствие покупателя',
     },
@@ -9239,7 +9312,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['N하고 N', '말하기'],
     hint: {
       ko: '가게 주인이 손님에게 하는 인사예요.',
-      uz: 'Do\'kon egasi mijozga aytadigan salom.',
+      uz: "Do'kon egasi mijozga aytadigan salom.",
       en: 'What a shopkeeper says to a customer.',
       ru: 'Что говорит продавец покупателю.',
     },
@@ -9774,7 +9847,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', '복습'],
     hint: {
       ko: '가게에서 쓰는 말들이에요.',
-      uz: 'Do\'konda ishlatiladigan so\'zlar.',
+      uz: "Do'konda ishlatiladigan so'zlar.",
       en: 'The words you use in a shop.',
       ru: 'Слова, которые нужны в магазине.',
     },
@@ -9792,11 +9865,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '신문 있어요?' },
       { speaker: 'npc', text: '네, 있어요. 한국신문하고 나라신문이 있어요.' },
     ],
-    options: ['한국신문 주세요.', '한국신문이 주세요.', '신문 있어요?', '여기 있어요.'],
+    options: [
+      '한국신문 주세요.',
+      '한국신문이 주세요.',
+      '신문 있어요?',
+      '여기 있어요.',
+    ],
     answer: '한국신문 주세요.',
     explanation: {
       ko: '두 가지를 알려 줬으니 하나를 골라 달라고 해요. "주세요" 앞에는 조사를 안 붙여요.',
-      uz: 'Ikki xil aytildi — bittasini tanlab so\'rang. "주세요" oldiga qo\'shimcha yo\'q.',
+      uz: "Ikki xil aytildi — bittasini tanlab so'rang. \"주세요\" oldiga qo'shimcha yo'q.",
       en: 'They named two — pick one and ask for it. No particle before 주세요.',
       ru: 'Назвали два — выберите одно. Перед 주세요 частицы нет.',
     },
@@ -9811,7 +9889,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', '대화'],
     hint: {
       ko: '둘 중 하나를 골라요. 조사는 안 붙여요.',
-      uz: 'Ikkitadan birini tanlang, qo\'shimchasiz.',
+      uz: "Ikkitadan birini tanlang, qo'shimchasiz.",
       en: 'Choose one of the two — without a particle.',
       ru: 'Выберите одно из двух — без частицы.',
     },
@@ -9837,7 +9915,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', '말하기'],
     hint: {
       ko: '가게에 들어가서 찾는 물건을 물어봐요.',
-      uz: 'Do\'konga kirib kerakli narsani so\'rang.',
+      uz: "Do'konga kirib kerakli narsani so'rang.",
       en: 'Ask the shop for what you are looking for.',
       ru: 'Спросите в магазине о нужном товаре.',
     },
@@ -9864,7 +9942,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', '대답하기'],
     hint: {
       ko: '두 가지를 알려 줬어요. 하나를 골라 달라고 해요. 조사는 붙이지 않아요.',
-      uz: 'Ikki xil aytildi — bittasini tanlab so\'rang, qo\'shimchasiz.',
+      uz: "Ikki xil aytildi — bittasini tanlab so'rang, qo'shimchasiz.",
       en: 'They offered two — pick one and ask for it, with no particle.',
       ru: 'Предложили два — выберите одно, без частицы.',
     },
@@ -10002,7 +10080,7 @@ export const UNIT2_QUESTIONS = {
     explanation: {
       ko: '물건을 받았으니 고맙다고 해요. "어서 오세요"는 가게 주인이 하는 말이에요.',
       uz: 'Narsa olindi — rahmat ayting. "어서 오세요" do\'kon egasining gapi.',
-      en: 'You received the item, so thank them — 어서 오세요 is the shopkeeper\'s line.',
+      en: "You received the item, so thank them — 어서 오세요 is the shopkeeper's line.",
       ru: 'Вы получили товар — поблагодарите. 어서 오세요 говорит продавец.',
     },
     acceptedAnswers: [],
@@ -10050,7 +10128,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', 'N하고 N'],
     hint: {
       ko: '말로 하는 대화예요. 입말에서 쓰는 쪽을 골라요.',
-      uz: 'Bu og\'zaki suhbat — og\'zaki shaklni tanlang.',
+      uz: "Bu og'zaki suhbat — og'zaki shaklni tanlang.",
       en: 'This is spoken conversation — pick the spoken form.',
       ru: 'Это устный разговор — выберите разговорную форму.',
     },
@@ -10076,7 +10154,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', '말하기'],
     hint: {
       ko: '가게 주인이 물건을 건네며 하는 말이에요.',
-      uz: 'Do\'kon egasi narsani uzatayotib aytadi.',
+      uz: "Do'kon egasi narsani uzatayotib aytadi.",
       en: 'What the shopkeeper says while handing it over.',
       ru: 'Что говорит продавец, передавая товар.',
     },
@@ -10182,7 +10260,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '지우개 있어요?' },
       { speaker: 'npc', text: '네, 있어요.' },
     ],
-    options: ['지우개하고 연필 주세요.', '지우개가 연필 주세요.', '지우개 있어요?', '여기 있어요.'],
+    options: [
+      '지우개하고 연필 주세요.',
+      '지우개가 연필 주세요.',
+      '지우개 있어요?',
+      '여기 있어요.',
+    ],
     answer: '지우개하고 연필 주세요.',
     explanation: {
       ko: '있다고 했으니 이제 달라고 해요. 두 가지를 살 때는 "하고"로 이어요.',
@@ -10201,7 +10284,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['가게', 'N하고 N', '대화'],
     hint: {
       ko: '두 가지를 이어 주는 말을 쓰고, "주세요" 앞에는 조사를 빼요.',
-      uz: 'Ikkisini bog\'lovchi so\'z va "주세요" oldida qo\'shimchasiz.',
+      uz: "Ikkisini bog'lovchi so'z va \"주세요\" oldida qo'shimchasiz.",
       en: 'Use the linking word, and drop the particle before 주세요.',
       ru: 'Соедините и уберите частицу перед 주세요.',
     },
@@ -10216,7 +10299,13 @@ export const UNIT2_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '가게 주인이 손님을 맞아요. ',
     sentenceSuffix: '.',
-    options: ['안녕히 가세요', '어서 오세요', '여기 있어요', '주세요', '있어요'],
+    options: [
+      '안녕히 가세요',
+      '어서 오세요',
+      '여기 있어요',
+      '주세요',
+      '있어요',
+    ],
     answer: '어서 오세요',
     explanation: {
       ko: '"어서 오세요"는 가게에 들어온 손님에게 하는 인사예요. "여기 있어요"는 물건을 건넬 때예요.',
@@ -10400,7 +10489,7 @@ export const UNIT2_QUESTIONS = {
     answer: '침대',
     explanation: {
       ko: '누워서 자는 것은 침대예요. 책상과 의자는 앉아서 쓰는 거예요.',
-      uz: 'Yotib uxlaydigan narsa — 침대. 책상, 의자 — o\'tirib ishlatiladi.',
+      uz: "Yotib uxlaydigan narsa — 침대. 책상, 의자 — o'tirib ishlatiladi.",
       en: 'You lie down on a 침대; 책상 and 의자 are for sitting.',
       ru: 'Лежат на 침대; 책상 и 의자 — для сидения.',
     },
@@ -10415,7 +10504,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '어휘'],
     hint: {
       ko: '앉는 게 아니라 눕는 물건이에요.',
-      uz: 'O\'tirish emas — yotish uchun.',
+      uz: "O'tirish emas — yotish uchun.",
       en: 'Not for sitting — for lying down.',
       ru: 'Не для сидения — для лежания.',
     },
@@ -10468,7 +10557,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '말하기'],
     hint: {
       ko: '컴 · 퓨 · 터 — 세 글자를 또박또박.',
-      uz: 'Kom-pyu-teo — uch bo\'g\'in aniq.',
+      uz: "Kom-pyu-teo — uch bo'g'in aniq.",
       en: 'keom-pyu-teo — three clear syllables.',
       ru: 'ком-пхю-тхо — три слога чётко.',
     },
@@ -10509,7 +10598,13 @@ export const UNIT2_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '음식을 시원하게 해요. 이거는 ',
     sentenceSuffix: '',
-    options: ['냉장고예요.', '침대예요.', '텔레비전이에요.', '컴퓨터예요.', '책상이에요.'],
+    options: [
+      '냉장고예요.',
+      '침대예요.',
+      '텔레비전이에요.',
+      '컴퓨터예요.',
+      '책상이에요.',
+    ],
     answer: '냉장고예요.',
     explanation: {
       ko: '음식을 넣어 두는 것은 냉장고예요. 냉장고는 받침이 없어서 "예요"가 붙어요.',
@@ -10572,7 +10667,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '냉장고가 없어요.',
-      uz: 'Muzlatgich yo\'q.',
+      uz: "Muzlatgich yo'q.",
       en: 'There is no refrigerator.',
       ru: 'Холодильника нет.',
     },
@@ -10598,11 +10693,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '침대가 있어요?' },
       { speaker: 'npc', text: '네, 침대가 있어요.' },
     ],
-    options: ['텔레비전이 있어요?', '텔레비전이 없어요.', '텔레비전 주세요.', '텔레비전이에요.'],
+    options: [
+      '텔레비전이 있어요?',
+      '텔레비전이 없어요.',
+      '텔레비전 주세요.',
+      '텔레비전이에요.',
+    ],
     answer: '텔레비전이 있어요?',
     explanation: {
       ko: '방을 구경하면서 물건을 하나씩 물어봐요. 아직 못 봤으니 "없어요"라고 단정할 수 없어요.',
-      uz: 'Xonani ko\'rib, narsalarni birma-bir so\'raysiz — hali ko\'rmadingiz, "없어요" deb bo\'lmaydi.',
+      uz: "Xonani ko'rib, narsalarni birma-bir so'raysiz — hali ko'rmadingiz, \"없어요\" deb bo'lmaydi.",
       en: 'You are asking about each item — you have not seen it, so you cannot state 없어요.',
       ru: 'Вы спрашиваете о каждой вещи — не видели, поэтому 없어요 сказать нельзя.',
     },
@@ -10617,7 +10717,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '대화'],
     hint: {
       ko: '묻는 사람은 나예요. 끝을 올려서 물어보세요.',
-      uz: 'So\'rayotgan siz — ohangni ko\'taring.',
+      uz: "So'rayotgan siz — ohangni ko'taring.",
       en: 'You are the one asking — raise the intonation.',
       ru: 'Спрашиваете вы — повышайте интонацию.',
     },
@@ -10643,7 +10743,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '침대가 있어요. 텔레비전은 없어요.',
-      uz: 'Karavot bor. Televizor esa yo\'q.',
+      uz: "Karavot bor. Televizor esa yo'q.",
       en: 'There is a bed. The television, though, is not there.',
       ru: 'Кровать есть. А телевизора нет.',
     },
@@ -10669,7 +10769,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['냉장고가 없어요'],
     answerTranslation: {
       ko: '냉장고가 없어요.',
-      uz: 'Muzlatgich yo\'q.',
+      uz: "Muzlatgich yo'q.",
       en: 'There is no refrigerator.',
       ru: 'Холодильника нет.',
     },
@@ -10677,7 +10777,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '말하기'],
     hint: {
       ko: '냉 · 장 · 고 — 세 글자를 고르게.',
-      uz: 'Nen-jang-go — uch bo\'g\'in tekis.',
+      uz: "Nen-jang-go — uch bo'g'in tekis.",
       en: 'naeng-jang-go — three even syllables.',
       ru: 'нэн-джан-го — три ровных слога.',
     },
@@ -10870,18 +10970,23 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '뭐가 있어요?' },
       { speaker: 'npc', text: '침대하고 책상이 있어요.' },
     ],
-    options: ['컴퓨터는 없어요?', '컴퓨터가 없어요.', '컴퓨터 주세요.', '컴퓨터예요.'],
+    options: [
+      '컴퓨터는 없어요?',
+      '컴퓨터가 없어요.',
+      '컴퓨터 주세요.',
+      '컴퓨터예요.',
+    ],
     answer: '컴퓨터는 없어요?',
     explanation: {
       ko: '상대가 말한 목록에 컴퓨터가 없었어요. 그래서 "컴퓨터는?" 하고 따로 짚어서 물어요. 대비할 때는 "는"을 써요.',
-      uz: 'Ro\'yxatda kompyuter yo\'q edi — shuning uchun "는" bilan alohida so\'raysiz.',
+      uz: "Ro'yxatda kompyuter yo'q edi — shuning uchun \"는\" bilan alohida so'raysiz.",
       en: 'The list did not include a computer, so you single it out with 는.',
       ru: 'В списке компьютера не было — выделяем его частицей 는.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '컴퓨터는 없어요?',
-      uz: 'Kompyuter esa yo\'qmi?',
+      uz: "Kompyuter esa yo'qmi?",
       en: 'And the computer — is there none?',
       ru: 'А компьютера нет?',
     },
@@ -10889,7 +10994,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '은/는', '대화'],
     hint: {
       ko: '목록에 빠진 것을 콕 집어 물어요.',
-      uz: 'Ro\'yxatdan tushib qolganini so\'rang.',
+      uz: "Ro'yxatdan tushib qolganini so'rang.",
       en: 'Ask about the one that was left out.',
       ru: 'Спросите о том, чего в списке не было.',
     },
@@ -10907,7 +11012,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '냉장고는 없어요.',
-      uz: 'Muzlatgich esa yo\'q.',
+      uz: "Muzlatgich esa yo'q.",
       en: 'The refrigerator, though, is not there.',
       ru: 'А холодильника нет.',
     },
@@ -10968,7 +11073,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '텔레비전이 없어요.',
-      uz: 'Televizor yo\'q.',
+      uz: "Televizor yo'q.",
       en: 'There is no television.',
       ru: 'Телевизора нет.',
     },
@@ -11020,7 +11125,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '컴퓨터가 없어요.',
-      uz: 'Kompyuter yo\'q.',
+      uz: "Kompyuter yo'q.",
       en: 'There is no computer.',
       ru: 'Компьютера нет.',
     },
@@ -11059,7 +11164,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['생활용품', '어휘'],
     hint: {
       ko: '시간을 알려 주는 물건이에요.',
-      uz: 'Vaqtni ko\'rsatadigan narsa.',
+      uz: "Vaqtni ko'rsatadigan narsa.",
       en: 'The thing that tells you the time.',
       ru: 'Предмет, который показывает время.',
     },
@@ -11111,7 +11216,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['안경이 없어요'],
     answerTranslation: {
       ko: '안경이 없어요.',
-      uz: 'Ko\'zoynak yo\'q.',
+      uz: "Ko'zoynak yo'q.",
       en: 'There are no glasses.',
       ru: 'Очков нет.',
     },
@@ -11137,7 +11242,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '시계하고 안경이 있어요.',
-      uz: 'Soat va ko\'zoynak bor.',
+      uz: "Soat va ko'zoynak bor.",
       en: 'There is a watch and glasses.',
       ru: 'Есть часы и очки.',
     },
@@ -11163,11 +11268,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '컴퓨터는 있어요?' },
       { speaker: 'npc', text: '아니요, 컴퓨터는 없어요.' },
     ],
-    options: ['텔레비전은 있어요?', '텔레비전이 없어요.', '텔레비전 주세요.', '네, 있어요.'],
+    options: [
+      '텔레비전은 있어요?',
+      '텔레비전이 없어요.',
+      '텔레비전 주세요.',
+      '네, 있어요.',
+    ],
     answer: '텔레비전은 있어요?',
     explanation: {
       ko: '묻는 쪽은 계속 나예요. 하나가 없다고 했으니 다른 것을 이어서 물어요.',
-      uz: 'So\'rayotgan hamon siz — biri yo\'q ekan, keyingisini so\'raysiz.',
+      uz: "So'rayotgan hamon siz — biri yo'q ekan, keyingisini so'raysiz.",
       en: 'You are still the one asking — one is missing, so ask about the next.',
       ru: 'Спрашиваете по-прежнему вы — одного нет, спросите о следующем.',
     },
@@ -11200,7 +11310,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '지갑이 없어요.',
-      uz: 'Hamyon yo\'q.',
+      uz: "Hamyon yo'q.",
       en: 'There is no wallet.',
       ru: 'Кошелька нет.',
     },
@@ -11222,7 +11332,7 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '텔레비전이 놓여 있지 않다고 알려 주기',
-      uz: 'Televizor yo\'q',
+      uz: "Televizor yo'q",
       en: 'There is no television',
       ru: 'Телевизора нет',
     },
@@ -11231,7 +11341,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '텔레비전이 없어요.',
-      uz: 'Televizor yo\'q.',
+      uz: "Televizor yo'q.",
       en: 'There is no television.',
       ru: 'Телевизора нет.',
     },
@@ -11257,7 +11367,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['컴퓨터는 없어요'],
     answerTranslation: {
       ko: '컴퓨터는 없어요.',
-      uz: 'Kompyuter esa yo\'q.',
+      uz: "Kompyuter esa yo'q.",
       en: 'The computer, though, is not there.',
       ru: 'А компьютера нет.',
     },
@@ -11358,7 +11468,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '읽기', '말하기'],
     hint: {
       ko: '방을 보여 주면서 처음에 하는 말이에요.',
-      uz: 'Xonani ko\'rsatib, birinchi aytiladigan gap.',
+      uz: "Xonani ko'rsatib, birinchi aytiladigan gap.",
       en: 'The first line you say when showing your room.',
       ru: 'Первая фраза, когда показываете свою комнату.',
     },
@@ -11437,7 +11547,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '컴퓨터가 있어요. 텔레비전은 없어요.',
-      uz: 'Kompyuter bor. Televizor esa yo\'q.',
+      uz: "Kompyuter bor. Televizor esa yo'q.",
       en: 'There is a computer. The television, though, is not there.',
       ru: 'Компьютер есть. А телевизора нет.',
     },
@@ -11463,7 +11573,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '제 방이에요. 침대하고 컴퓨터가 있어요.' },
       { speaker: 'npc', text: '텔레비전은 있어요?' },
     ],
-    options: ['아니요, 텔레비전은 없어요.', '네, 텔레비전이 있어요.', '텔레비전 주세요.', '텔레비전이에요.'],
+    options: [
+      '아니요, 텔레비전은 없어요.',
+      '네, 텔레비전이 있어요.',
+      '텔레비전 주세요.',
+      '텔레비전이에요.',
+    ],
     answer: '아니요, 텔레비전은 없어요.',
     explanation: {
       ko: '내가 말한 목록은 침대와 컴퓨터뿐이었어요. 텔레비전은 없으니 "아니요"로 답해요.',
@@ -11474,7 +11589,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '아니요, 텔레비전은 없어요.',
-      uz: 'Yo\'q, televizor yo\'q.',
+      uz: "Yo'q, televizor yo'q.",
       en: 'No, there is no television.',
       ru: 'Нет, телевизора нет.',
     },
@@ -11599,7 +11714,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '어휘'],
     hint: {
       ko: '책상 앞에 놓고 앉는 물건이에요.',
-      uz: 'Parta oldiga qo\'yib o\'tiriladi.',
+      uz: "Parta oldiga qo'yib o'tiriladi.",
       en: 'You pull it up to the desk and sit on it.',
       ru: 'Его придвигают к парте и садятся.',
     },
@@ -11617,7 +11732,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['텔레비전은 없어요'],
     answerTranslation: {
       ko: '텔레비전은 없어요.',
-      uz: 'Televizor esa yo\'q.',
+      uz: "Televizor esa yo'q.",
       en: 'The television, though, is not there.',
       ru: 'А телевизора нет.',
     },
@@ -11669,7 +11784,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '냉장고가 있어요?' },
       { speaker: 'npc', text: '아니요, 냉장고는 없어요.' },
     ],
-    options: ['컴퓨터는 있어요?', '컴퓨터가 없어요.', '컴퓨터 주세요.', '네, 있어요.'],
+    options: [
+      '컴퓨터는 있어요?',
+      '컴퓨터가 없어요.',
+      '컴퓨터 주세요.',
+      '네, 있어요.',
+    ],
     answer: '컴퓨터는 있어요?',
     explanation: {
       ko: '하나가 없다는 답을 들었어요. 그럼 다른 것은 어떤지 "는"으로 이어서 물어요.',
@@ -11688,7 +11808,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['방', '은/는', '대화'],
     hint: {
       ko: '나는 계속 묻는 쪽이에요.',
-      uz: 'Siz hamon so\'rovchisiz.',
+      uz: "Siz hamon so'rovchisiz.",
       en: 'You are still the one asking.',
       ru: 'Спрашиваете по-прежнему вы.',
     },
@@ -11706,7 +11826,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '텔레비전과 냉장고가 없어요.',
-      uz: 'Televizor va muzlatgich yo\'q.',
+      uz: "Televizor va muzlatgich yo'q.",
       en: 'There is no television and no refrigerator.',
       ru: 'Нет ни телевизора, ни холодильника.',
     },
@@ -11804,7 +11924,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['유닛2', '복습'],
     hint: {
       ko: '유닛 2에서 배운 물건들이에요.',
-      uz: '2-bo\'limda o\'rgangan narsalar.',
+      uz: "2-bo'limda o'rgangan narsalar.",
       en: 'The things you learned in unit 2.',
       ru: 'Вещи из второго юнита.',
     },
@@ -11850,7 +11970,13 @@ export const UNIT2_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '이거는 뭐예요? ',
     sentenceSuffix: '',
-    options: ['시계예요.', '시계이에요.', '시계가 있어요.', '시계 주세요.', '시계는 없어요.'],
+    options: [
+      '시계예요.',
+      '시계이에요.',
+      '시계가 있어요.',
+      '시계 주세요.',
+      '시계는 없어요.',
+    ],
     answer: '시계예요.',
     explanation: {
       ko: '"뭐예요?"에는 "N이에요/예요"로 답해요. 시계는 받침이 없으니 "예요"예요. "시계이에요"는 없는 말이에요.',
@@ -11913,7 +12039,12 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '시계 있어요?' },
       { speaker: 'npc', text: '네, 있어요.' },
     ],
-    options: ['시계하고 안경 주세요.', '시계가 안경 주세요.', '시계는 없어요.', '시계예요.'],
+    options: [
+      '시계하고 안경 주세요.',
+      '시계가 안경 주세요.',
+      '시계는 없어요.',
+      '시계예요.',
+    ],
     answer: '시계하고 안경 주세요.',
     explanation: {
       ko: '있다고 했으니 이제 달라고 해요. 두 가지는 "하고"로 잇고, "주세요" 앞에는 조사를 안 붙여요.',
@@ -11924,7 +12055,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '시계하고 안경 주세요.',
-      uz: 'Soat va ko\'zoynak bering.',
+      uz: "Soat va ko'zoynak bering.",
       en: 'A watch and glasses, please.',
       ru: 'Дайте часы и очки.',
     },
@@ -12038,7 +12169,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: ['우산이 없어요'],
     answerTranslation: {
       ko: '우산이 없어요.',
-      uz: 'Soyabon yo\'q.',
+      uz: "Soyabon yo'q.",
       en: 'There is no umbrella.',
       ru: 'Зонта нет.',
     },
@@ -12113,7 +12244,13 @@ export const UNIT2_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '멀리 있어요. 저거는 ',
     sentenceSuffix: '',
-    options: ['텔레비전이에요.', '텔레비전예요.', '텔레비전 주세요.', '텔레비전이 없어요.', '텔레비전하고.'],
+    options: [
+      '텔레비전이에요.',
+      '텔레비전예요.',
+      '텔레비전 주세요.',
+      '텔레비전이 없어요.',
+      '텔레비전하고.',
+    ],
     answer: '텔레비전이에요.',
     explanation: {
       ko: '멀리 있는 것은 "저거"예요. 텔레비전은 받침이 있으니 "이에요"를 붙여요.',
@@ -12176,11 +12313,16 @@ export const UNIT2_QUESTIONS = {
       { speaker: 'user', text: '컴퓨터는 있어요?' },
       { speaker: 'npc', text: '아니요, 컴퓨터는 없어요.' },
     ],
-    options: ['텔레비전은 있어요?', '텔레비전이 없어요.', '텔레비전 주세요.', '텔레비전이에요.'],
+    options: [
+      '텔레비전은 있어요?',
+      '텔레비전이 없어요.',
+      '텔레비전 주세요.',
+      '텔레비전이에요.',
+    ],
     answer: '텔레비전은 있어요?',
     explanation: {
       ko: '목록에 없던 물건을 하나씩 "은/는"으로 짚어서 물어요. 나는 아직 방을 못 봤으니 단정할 수 없어요.',
-      uz: 'Ro\'yxatda yo\'q narsalarni "은/는" bilan birma-bir so\'raysiz — hali ko\'rmadingiz.',
+      uz: "Ro'yxatda yo'q narsalarni \"은/는\" bilan birma-bir so'raysiz — hali ko'rmadingiz.",
       en: 'Pick off the unlisted items one by one with 은/는 — you have not seen the room yet.',
       ru: 'Перебираете не названные вещи через 은/는 — комнату вы ещё не видели.',
     },
@@ -12195,7 +12337,7 @@ export const UNIT2_QUESTIONS = {
     tags: ['유닛2', '은/는', '대화'],
     hint: {
       ko: '방 주인은 상대예요. 나는 묻기만 해요.',
-      uz: 'Xona egasi — u; siz faqat so\'raysiz.',
+      uz: "Xona egasi — u; siz faqat so'raysiz.",
       en: 'It is their room — you only ask.',
       ru: 'Комната его — вы только спрашиваете.',
     },
@@ -12213,7 +12355,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '텔레비전하고 냉장고가 없어요.',
-      uz: 'Televizor va muzlatgich yo\'q.',
+      uz: "Televizor va muzlatgich yo'q.",
       en: 'There is no television and no refrigerator.',
       ru: 'Нет ни телевизора, ни холодильника.',
     },
@@ -12235,7 +12377,7 @@ export const UNIT2_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '시계와 안경을 함께 달라고 하기',
-      uz: 'Soat va ko\'zoynak bering',
+      uz: "Soat va ko'zoynak bering",
       en: 'A watch and glasses, please',
       ru: 'Дайте часы и очки',
     },
@@ -12244,7 +12386,7 @@ export const UNIT2_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '시계하고 안경 주세요.',
-      uz: 'Soat va ko\'zoynak bering.',
+      uz: "Soat va ko'zoynak bering.",
       en: 'A watch and glasses, please.',
       ru: 'Дайте часы и очки.',
     },
@@ -12417,7 +12559,7 @@ export const UNIT2_NODES = [
         },
         description: {
           ko: '거리에 따라 가리키는 말이 바뀐다',
-          uz: 'Masofaga qarab ko\'rsatuvchi so\'z o\'zgaradi',
+          uz: "Masofaga qarab ko'rsatuvchi so'z o'zgaradi",
           en: 'The pointing word changes with distance',
           ru: 'Указательное слово меняется с расстоянием',
         },
@@ -12661,7 +12803,7 @@ export const UNIT2_NODES = [
         },
         description: {
           ko: '받침이 없는 말 뒤에는 "가"',
-          uz: "Undosh bo'lmasa — \"가\"",
+          uz: 'Undosh bo\'lmasa — "가"',
           en: 'Without a final consonant, use 가',
           ru: 'Без согласного — 가',
         },
@@ -12783,7 +12925,7 @@ export const UNIT2_NODES = [
         },
         description: {
           ko: '이거는 N이에요? — 맞으면 네, 틀리면 고쳐 주기',
-          uz: 'Bu N mi? — to\'g\'ri bo\'lsa ha, aks holda tuzatish',
+          uz: "Bu N mi? — to'g'ri bo'lsa ha, aks holda tuzatish",
           en: 'Is this N? — confirm or correct',
           ru: 'Это N? — подтвердить или поправить',
         },
@@ -12819,7 +12961,7 @@ export const UNIT2_NODES = [
         },
         description: {
           ko: '이름을 모르는 물건을 물어보고 배우기',
-          uz: 'Nomini bilmagan narsani so\'rab o\'rganish',
+          uz: "Nomini bilmagan narsani so'rab o'rganish",
           en: 'Asking for the name of something you do not know',
           ru: 'Спрашиваем название незнакомого предмета',
         },
@@ -12849,7 +12991,7 @@ export const UNIT2_NODES = [
       {
         title: {
           ko: '문구점에서',
-          uz: 'Kantselyariya do\'konida',
+          uz: "Kantselyariya do'konida",
           en: 'At the Stationery Shop',
           ru: 'В канцелярском магазине',
         },
@@ -13135,7 +13277,7 @@ export const UNIT2_NODES = [
         },
         description: {
           ko: '있어요 · 없어요 를 방 물건으로 다시',
-          uz: 'Bor · Yo\'q — xona narsalari bilan',
+          uz: "Bor · Yo'q — xona narsalari bilan",
           en: '있어요 · 없어요 again, with room items',
           ru: '있어요 · 없어요 снова, на вещах из комнаты',
         },
@@ -13201,13 +13343,13 @@ export const UNIT2_NODES = [
       {
         title: {
           ko: '유닛 2 종합',
-          uz: '2-bo\'lim yakuni',
+          uz: "2-bo'lim yakuni",
           en: 'Unit 2 Review',
           ru: 'Итоги юнита 2',
         },
         description: {
           ko: '물건 · 있어요/없어요 · 이거는 N이에요 · 주세요 · 하고',
-          uz: 'Narsalar · Bor/Yo\'q · Bu N · Bering · Va',
+          uz: "Narsalar · Bor/Yo'q · Bu N · Bering · Va",
           en: 'Objects · 있어요/없어요 · 이거는 N이에요 · 주세요 · 하고',
           ru: 'Предметы · есть/нет · это N · дайте · и',
         },
@@ -13237,3 +13379,1045 @@ export const UNIT2_NODES = [
     ],
   },
 ];
+
+export const S1_UNIT2_WORDS = [
+  {
+    code: 'word_bag_noun',
+    senseKey: 'object-bag',
+    korean: '가방',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '물건을 넣어서 가지고 다니는 것',
+      uz: 'sumka',
+      en: 'bag',
+      ru: 'сумка',
+    },
+
+    examples: [
+      {
+        korean: '가방이 있어요.',
+        translations: {
+          ko: '가방이 있습니다.',
+          uz: 'Sumka bor.',
+          en: 'There is a bag.',
+          ru: 'Есть сумка.',
+        },
+      },
+      {
+        korean: '이거는 제 가방이에요.',
+        translations: {
+          ko: '이것은 제 가방입니다.',
+          uz: 'Bu mening sumkam.',
+          en: 'This is my bag.',
+          ru: 'Это моя сумка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '가방',
+      romanization: 'gabang',
+      ttsText: '가방',
+    },
+
+    media: {
+      emoji: '🎒',
+      imageUrl: 'https://cdn.korio.app/words/gabang.webp',
+      imageAlt: {
+        ko: '물건을 넣는 가방',
+        uz: 'buyumlar solinadigan sumka',
+        en: 'a bag for carrying items',
+        ru: 'сумка для вещей',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'가방이 있어요', '가방 주세요'처럼 사용해요.",
+      uz: "'가방이 있어요' yoki '가방 주세요' kabi ishlatiladi.",
+      en: "Commonly used in expressions such as 'There is a bag' or 'Please give me the bag.'",
+      ru: 'Часто используется в выражениях «есть сумка» или «дайте сумку».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_notebook_noun',
+    senseKey: 'school-supply-notebook',
+    korean: '공책',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '글이나 공부 내용을 적는 책',
+      uz: 'daftar',
+      en: 'notebook',
+      ru: 'тетрадь',
+    },
+
+    examples: [
+      {
+        korean: '공책이 있어요.',
+        translations: {
+          ko: '공책이 있습니다.',
+          uz: 'Daftar bor.',
+          en: 'There is a notebook.',
+          ru: 'Есть тетрадь.',
+        },
+      },
+      {
+        korean: '공책하고 볼펜 주세요.',
+        translations: {
+          ko: '공책과 볼펜을 주세요.',
+          uz: 'Daftar va ruchka bering.',
+          en: 'Please give me a notebook and a ballpoint pen.',
+          ru: 'Дайте, пожалуйста, тетрадь и ручку.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '공책',
+      romanization: 'gongchaek',
+      ttsText: '공책',
+    },
+
+    media: {
+      emoji: '📓',
+      imageUrl: 'https://cdn.korio.app/words/gongchaek.webp',
+      imageAlt: {
+        ko: '공부할 때 쓰는 공책',
+        uz: 'o‘qish uchun ishlatiladigan daftar',
+        en: 'a notebook used for studying',
+        ru: 'тетрадь для учёбы',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '학교에서 글이나 공부 내용을 적을 때 사용하는 책이에요.',
+      uz: 'Maktabda yozish va darslarni qayd qilish uchun ishlatiladi.',
+      en: 'A notebook used for writing notes or schoolwork.',
+      ru: 'Тетрадь для записей и учебных заданий.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_ballpoint_pen_noun',
+    senseKey: 'school-supply-ballpoint-pen',
+    korean: '볼펜',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '잉크로 글씨를 쓰는 펜',
+      uz: 'sharikli ruchka',
+      en: 'ballpoint pen',
+      ru: 'шариковая ручка',
+    },
+
+    examples: [
+      {
+        korean: '이거는 볼펜이에요.',
+        translations: {
+          ko: '이것은 볼펜입니다.',
+          uz: 'Bu sharikli ruchka.',
+          en: 'This is a ballpoint pen.',
+          ru: 'Это шариковая ручка.',
+        },
+      },
+      {
+        korean: '볼펜 좀 주세요.',
+        translations: {
+          ko: '볼펜을 좀 주세요.',
+          uz: 'Iltimos, ruchka bering.',
+          en: 'Please give me a ballpoint pen.',
+          ru: 'Дайте, пожалуйста, ручку.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '볼펜',
+      romanization: 'bolpen',
+      ttsText: '볼펜',
+    },
+
+    media: {
+      emoji: '🖊️',
+      imageUrl: 'https://cdn.korio.app/words/bolpen.webp',
+      imageAlt: {
+        ko: '글씨를 쓰는 볼펜',
+        uz: 'yozish uchun sharikli ruchka',
+        en: 'a ballpoint pen for writing',
+        ru: 'шариковая ручка для письма',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'볼펜 주세요', '볼펜이 있어요'처럼 자주 사용해요.",
+      uz: "'볼펜 주세요' va '볼펜이 있어요' kabi ishlatiladi.",
+      en: 'Often used when asking for or talking about a pen.',
+      ru: 'Часто используется, когда просят ручку или говорят о ней.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_pencil_noun',
+    senseKey: 'school-supply-pencil',
+    korean: '연필',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '흑연으로 글씨나 그림을 쓰는 도구',
+      uz: 'qalam',
+      en: 'pencil',
+      ru: 'карандаш',
+    },
+
+    examples: [
+      {
+        korean: '저거는 연필이에요?',
+        translations: {
+          ko: '저것은 연필입니까?',
+          uz: 'U qalammi?',
+          en: 'Is that a pencil?',
+          ru: 'Это карандаш?',
+        },
+      },
+      {
+        korean: '연필하고 지우개 주세요.',
+        translations: {
+          ko: '연필과 지우개를 주세요.',
+          uz: 'Qalam va o‘chirg‘ich bering.',
+          en: 'Please give me a pencil and an eraser.',
+          ru: 'Дайте, пожалуйста, карандаш и ластик.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '연필',
+      romanization: 'yeonpil',
+      ttsText: '연필',
+    },
+
+    media: {
+      emoji: '✏️',
+      imageUrl: 'https://cdn.korio.app/words/yeonpil.webp',
+      imageAlt: {
+        ko: '글씨를 쓰는 연필',
+        uz: 'yozish uchun qalam',
+        en: 'a pencil for writing',
+        ru: 'карандаш для письма',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '글씨를 쓰거나 그림을 그릴 때 사용해요.',
+      uz: 'Yozish yoki rasm chizishda ishlatiladi.',
+      en: 'Used for writing or drawing.',
+      ru: 'Используется для письма и рисования.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_chair_noun',
+    senseKey: 'furniture-chair',
+    korean: '의자',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '사람이 앉는 가구',
+      uz: 'stul',
+      en: 'chair',
+      ru: 'стул',
+    },
+
+    examples: [
+      {
+        korean: '의자가 있어요.',
+        translations: {
+          ko: '의자가 있습니다.',
+          uz: 'Stul bor.',
+          en: 'There is a chair.',
+          ru: 'Есть стул.',
+        },
+      },
+      {
+        korean: '이거는 의자예요.',
+        translations: {
+          ko: '이것은 의자입니다.',
+          uz: 'Bu stul.',
+          en: 'This is a chair.',
+          ru: 'Это стул.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '의자',
+      romanization: 'uija',
+      ttsText: '의자',
+    },
+
+    media: {
+      emoji: '🪑',
+      imageUrl: 'https://cdn.korio.app/words/uija.webp',
+      imageAlt: {
+        ko: '사람이 앉는 의자',
+        uz: 'o‘tirish uchun stul',
+        en: 'a chair for sitting',
+        ru: 'стул для сидения',
+      },
+    },
+
+    tags: ['object', 'furniture', 'room', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '사람이 앉을 때 사용하는 가구예요.',
+      uz: 'O‘tirish uchun ishlatiladigan mebel.',
+      en: 'A piece of furniture used for sitting.',
+      ru: 'Предмет мебели, на котором сидят.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eraser_noun',
+    senseKey: 'school-supply-eraser',
+    korean: '지우개',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '연필로 쓴 것을 지우는 도구',
+      uz: 'o‘chirg‘ich',
+      en: 'eraser',
+      ru: 'ластик',
+    },
+
+    examples: [
+      {
+        korean: '지우개가 있어요?',
+        translations: {
+          ko: '지우개가 있습니까?',
+          uz: 'O‘chirg‘ich bormi?',
+          en: 'Do you have an eraser?',
+          ru: 'У вас есть ластик?',
+        },
+      },
+      {
+        korean: '지우개 좀 주세요.',
+        translations: {
+          ko: '지우개를 좀 주세요.',
+          uz: 'Iltimos, o‘chirg‘ich bering.',
+          en: 'Please give me an eraser.',
+          ru: 'Дайте, пожалуйста, ластик.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '지우개',
+      romanization: 'jiugae',
+      ttsText: '지우개',
+    },
+
+    media: {
+      emoji: '🧽',
+      imageUrl: 'https://cdn.korio.app/words/jiugae.webp',
+      imageAlt: {
+        ko: '연필 자국을 지우는 지우개',
+        uz: 'qalam yozuvini o‘chiradigan o‘chirg‘ich',
+        en: 'an eraser for removing pencil marks',
+        ru: 'ластик для стирания карандаша',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '연필로 쓴 글씨를 지울 때 사용해요.',
+      uz: 'Qalam bilan yozilgan yozuvni o‘chirishda ishlatiladi.',
+      en: 'Used to erase pencil writing.',
+      ru: 'Используется для стирания карандашных записей.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_book_noun',
+    senseKey: 'object-book',
+    korean: '책',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '글이나 그림을 여러 장의 종이에 담아 묶은 것',
+      uz: 'kitob',
+      en: 'book',
+      ru: 'книга',
+    },
+
+    examples: [
+      {
+        korean: '책이 있어요.',
+        translations: {
+          ko: '책이 있습니다.',
+          uz: 'Kitob bor.',
+          en: 'There is a book.',
+          ru: 'Есть книга.',
+        },
+      },
+      {
+        korean: '책 주세요.',
+        translations: {
+          ko: '책을 주세요.',
+          uz: 'Kitobni bering.',
+          en: 'Please give me the book.',
+          ru: 'Дайте, пожалуйста, книгу.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '책',
+      romanization: 'chaek',
+      ttsText: '책',
+    },
+
+    media: {
+      emoji: '📖',
+      imageUrl: 'https://cdn.korio.app/words/chaek.webp',
+      imageAlt: {
+        ko: '읽을 수 있는 책',
+        uz: 'o‘qish uchun kitob',
+        en: 'a book to read',
+        ru: 'книга для чтения',
+      },
+    },
+
+    tags: ['object', 'school-supplies', 'education', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'한국어 책', '영어 책'처럼 언어 이름과 함께 사용할 수 있어요.",
+      uz: "'한국어 책', '영어 책' kabi til nomi bilan birga ishlatilishi mumkin.",
+      en: "It can be combined with a language name, such as '한국어 책.'",
+      ru: 'Может использоваться с названием языка, например «한국어 책».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_desk_noun',
+    senseKey: 'furniture-desk',
+    korean: '책상',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '책을 읽거나 공부할 때 사용하는 탁자',
+      uz: 'yozuv stoli',
+      en: 'desk',
+      ru: 'письменный стол',
+    },
+
+    examples: [
+      {
+        korean: '책상이 있어요.',
+        translations: {
+          ko: '책상이 있습니다.',
+          uz: 'Yozuv stoli bor.',
+          en: 'There is a desk.',
+          ru: 'Есть письменный стол.',
+        },
+      },
+      {
+        korean: '이거는 책상이에요.',
+        translations: {
+          ko: '이것은 책상입니다.',
+          uz: 'Bu yozuv stoli.',
+          en: 'This is a desk.',
+          ru: 'Это письменный стол.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '책상',
+      romanization: 'chaeksang',
+      ttsText: '책상',
+    },
+
+    media: {
+      emoji: '🖥️',
+      imageUrl: 'https://cdn.korio.app/words/chaeksang.webp',
+      imageAlt: {
+        ko: '공부할 때 사용하는 책상',
+        uz: 'o‘qish uchun ishlatiladigan yozuv stoli',
+        en: 'a desk used for studying',
+        ru: 'письменный стол для учёбы',
+      },
+    },
+
+    tags: ['object', 'furniture', 'room', 'school', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '공부하거나 책을 읽을 때 주로 사용하는 가구예요.',
+      uz: 'Asosan o‘qish yoki kitob o‘qishda ishlatiladigan mebel.',
+      en: 'A piece of furniture commonly used for studying or reading.',
+      ru: 'Предмет мебели, обычно используемый для учёбы или чтения.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hat_noun',
+    senseKey: 'clothing-hat',
+    korean: '모자',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '머리에 쓰는 물건',
+      uz: 'bosh kiyim, shlyapa',
+      en: 'hat',
+      ru: 'шапка, шляпа',
+    },
+
+    examples: [
+      {
+        korean: '이거는 모자예요.',
+        translations: {
+          ko: '이것은 모자입니다.',
+          uz: 'Bu bosh kiyim.',
+          en: 'This is a hat.',
+          ru: 'Это головной убор.',
+        },
+      },
+      {
+        korean: '모자가 있어요?',
+        translations: {
+          ko: '모자가 있습니까?',
+          uz: 'Bosh kiyim bormi?',
+          en: 'Do you have a hat?',
+          ru: 'У вас есть шапка?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '모자',
+      romanization: 'moja',
+      ttsText: '모자',
+    },
+
+    media: {
+      emoji: '🧢',
+      imageUrl: 'https://cdn.korio.app/words/moja.webp',
+      imageAlt: {
+        ko: '머리에 쓰는 모자',
+        uz: 'boshga kiyiladigan bosh kiyim',
+        en: 'a hat worn on the head',
+        ru: 'головной убор',
+      },
+    },
+
+    tags: ['object', 'clothing', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '머리에 쓰는 여러 종류의 모자를 모두 가리킬 수 있어요.',
+      uz: 'Boshga kiyiladigan turli xil bosh kiyimlarga nisbatan ishlatiladi.',
+      en: 'A general word for different kinds of hats.',
+      ru: 'Общее слово для разных видов головных уборов.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_dictionary_noun',
+    senseKey: 'book-dictionary',
+    korean: '사전',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '단어의 뜻이나 정보를 찾아보는 책',
+      uz: 'lug‘at',
+      en: 'dictionary',
+      ru: 'словарь',
+    },
+
+    examples: [
+      {
+        korean: '이거는 사전이에요.',
+        translations: {
+          ko: '이것은 사전입니다.',
+          uz: 'Bu lug‘at.',
+          en: 'This is a dictionary.',
+          ru: 'Это словарь.',
+        },
+      },
+      {
+        korean: '한국어 사전이 있어요?',
+        translations: {
+          ko: '한국어 사전이 있습니까?',
+          uz: 'Koreys tili lug‘ati bormi?',
+          en: 'Do you have a Korean dictionary?',
+          ru: 'У вас есть словарь корейского языка?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '사전',
+      romanization: 'sajeon',
+      ttsText: '사전',
+    },
+
+    media: {
+      emoji: '📕',
+      imageUrl: 'https://cdn.korio.app/words/sajeon.webp',
+      imageAlt: {
+        ko: '단어를 찾는 사전',
+        uz: 'so‘zlarni topish uchun lug‘at',
+        en: 'a dictionary for looking up words',
+        ru: 'словарь для поиска слов',
+      },
+    },
+
+    tags: ['object', 'book', 'education', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'한국어 사전', '영어 사전'처럼 언어 이름과 함께 많이 사용해요.",
+      uz: "'한국어 사전', '영어 사전' kabi til nomlari bilan ko‘p ishlatiladi.",
+      en: "Often used with a language name, such as '한국어 사전.'",
+      ru: 'Часто используется с названием языка, например «한국어 사전».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_clock_watch_noun',
+    senseKey: 'object-clock-watch',
+    korean: '시계',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '시간을 알려 주는 물건',
+      uz: 'soat',
+      en: 'clock, watch',
+      ru: 'часы',
+    },
+
+    examples: [
+      {
+        korean: '이거는 시계예요.',
+        translations: {
+          ko: '이것은 시계입니다.',
+          uz: 'Bu soat.',
+          en: 'This is a clock.',
+          ru: 'Это часы.',
+        },
+      },
+      {
+        korean: '시계가 있어요?',
+        translations: {
+          ko: '시계가 있습니까?',
+          uz: 'Soat bormi?',
+          en: 'Is there a clock?',
+          ru: 'Есть часы?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '시계',
+      romanization: 'sigye',
+      ttsText: '시계',
+    },
+
+    media: {
+      emoji: '⌚',
+      imageUrl: 'https://cdn.korio.app/words/sigye.webp',
+      imageAlt: {
+        ko: '시간을 보여 주는 시계',
+        uz: 'vaqtni ko‘rsatadigan soat',
+        en: 'a clock or watch showing the time',
+        ru: 'часы, показывающие время',
+      },
+    },
+
+    tags: ['object', 'daily-life', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '손목시계와 벽시계처럼 시간을 확인하는 물건을 두루 가리켜요.',
+      uz: 'Qo‘l soati yoki devor soati kabi vaqtni ko‘rsatadigan buyumlarga ishlatiladi.',
+      en: 'Used for both watches and clocks.',
+      ru: 'Используется как для наручных, так и для настенных часов.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_newspaper_noun',
+    senseKey: 'media-newspaper',
+    korean: '신문',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '뉴스와 여러 정보를 실어 정기적으로 발행하는 인쇄물',
+      uz: 'gazeta',
+      en: 'newspaper',
+      ru: 'газета',
+    },
+
+    examples: [
+      {
+        korean: '신문 있어요?',
+        translations: {
+          ko: '신문이 있습니까?',
+          uz: 'Gazeta bormi?',
+          en: 'Do you have a newspaper?',
+          ru: 'У вас есть газета?',
+        },
+      },
+      {
+        korean: '한국 신문 주세요.',
+        translations: {
+          ko: '한국 신문을 주세요.',
+          uz: 'Koreys gazetasini bering.',
+          en: 'Please give me a Korean newspaper.',
+          ru: 'Дайте, пожалуйста, корейскую газету.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '신문',
+      romanization: 'sinmun',
+      ttsText: '신문',
+    },
+
+    media: {
+      emoji: '📰',
+      imageUrl: 'https://cdn.korio.app/words/sinmun.webp',
+      imageAlt: {
+        ko: '뉴스가 실린 신문',
+        uz: 'yangiliklar yozilgan gazeta',
+        en: 'a newspaper containing news',
+        ru: 'газета с новостями',
+      },
+    },
+
+    tags: ['object', 'media', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'신문이 있어요?', '신문 주세요'처럼 사용할 수 있어요.",
+      uz: "'신문이 있어요?' yoki '신문 주세요' kabi ishlatiladi.",
+      en: 'Commonly used when asking whether a newspaper is available or requesting one.',
+      ru: 'Используется, когда спрашивают о наличии газеты или просят её.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_glasses_noun',
+    senseKey: 'object-eyeglasses',
+    korean: '안경',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '눈앞에 써서 시력을 돕거나 눈을 보호하는 물건',
+      uz: 'ko‘zoynak',
+      en: 'glasses',
+      ru: 'очки',
+    },
+
+    examples: [
+      {
+        korean: '안경이 있어요.',
+        translations: {
+          ko: '안경이 있습니다.',
+          uz: 'Ko‘zoynak bor.',
+          en: 'There are glasses.',
+          ru: 'Есть очки.',
+        },
+      },
+      {
+        korean: '이거는 제 안경이에요.',
+        translations: {
+          ko: '이것은 제 안경입니다.',
+          uz: 'Bu mening ko‘zoynagim.',
+          en: 'These are my glasses.',
+          ru: 'Это мои очки.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '안경',
+      romanization: 'angyeong',
+      ttsText: '안경',
+    },
+
+    media: {
+      emoji: '👓',
+      imageUrl: 'https://cdn.korio.app/words/angyeong.webp',
+      imageAlt: {
+        ko: '눈에 쓰는 안경',
+        uz: 'ko‘zga taqiladigan ko‘zoynak',
+        en: 'glasses worn over the eyes',
+        ru: 'очки для глаз',
+      },
+    },
+
+    tags: ['object', 'daily-life', 'accessory', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "한국어에서는 보통 단수·복수 구분 없이 '안경'이라고 해요.",
+      uz: "Koreys tilida odatda birlik va ko‘plikni ajratmasdan '안경' deyiladi.",
+      en: 'Korean normally uses 안경 without distinguishing singular and plural.',
+      ru: 'В корейском 안경 обычно употребляется без различия числа.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_umbrella_noun',
+    senseKey: 'object-umbrella',
+    korean: '우산',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '비를 피하기 위해 머리 위에 펼쳐 드는 물건',
+      uz: 'soyabon',
+      en: 'umbrella',
+      ru: 'зонт',
+    },
+
+    examples: [
+      {
+        korean: '우산이 있어요?',
+        translations: {
+          ko: '우산이 있습니까?',
+          uz: 'Soyabon bormi?',
+          en: 'Do you have an umbrella?',
+          ru: 'У вас есть зонт?',
+        },
+      },
+      {
+        korean: '아니요, 우산이 없어요.',
+        translations: {
+          ko: '아니요, 우산이 없습니다.',
+          uz: 'Yo‘q, soyabon yo‘q.',
+          en: "No, I don't have an umbrella.",
+          ru: 'Нет, зонта нет.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '우산',
+      romanization: 'usan',
+      ttsText: '우산',
+    },
+
+    media: {
+      emoji: '☂️',
+      imageUrl: 'https://cdn.korio.app/words/usan.webp',
+      imageAlt: {
+        ko: '비가 올 때 쓰는 우산',
+        uz: 'yomg‘irda ishlatiladigan soyabon',
+        en: 'an umbrella used in the rain',
+        ru: 'зонт от дождя',
+      },
+    },
+
+    tags: ['object', 'daily-life', 'weather', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '비가 올 때 사용하는 물건이에요.',
+      uz: 'Yomg‘ir yog‘ganda ishlatiladigan buyum.',
+      en: 'An item used when it rains.',
+      ru: 'Предмет, используемый во время дождя.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_camera_noun',
+    senseKey: 'device-camera',
+    korean: '카메라',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '사진이나 영상을 찍는 기계',
+      uz: 'kamera',
+      en: 'camera',
+      ru: 'камера, фотоаппарат',
+    },
+
+    examples: [
+      {
+        korean: '카메라가 있어요?',
+        translations: {
+          ko: '카메라가 있습니까?',
+          uz: 'Kamera bormi?',
+          en: 'Do you have a camera?',
+          ru: 'У вас есть камера?',
+        },
+      },
+      {
+        korean: '저거는 카메라예요.',
+        translations: {
+          ko: '저것은 카메라입니다.',
+          uz: 'U kamera.',
+          en: 'That is a camera.',
+          ru: 'Это камера.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '카메라',
+      romanization: 'kamera',
+      ttsText: '카메라',
+    },
+
+    media: {
+      emoji: '📷',
+      imageUrl: 'https://cdn.korio.app/words/kamera.webp',
+      imageAlt: {
+        ko: '사진을 찍는 카메라',
+        uz: 'suratga olish uchun kamera',
+        en: 'a camera used to take photos',
+        ru: 'камера для фотографирования',
+      },
+    },
+
+    tags: ['object', 'device', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '사진이나 동영상을 찍는 기기를 말해요.',
+      uz: 'Surat yoki video olish uchun ishlatiladigan qurilmani bildiradi.',
+      en: 'Refers to a device used for taking photos or videos.',
+      ru: 'Устройство для съёмки фотографий или видео.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_mobile_phone_noun',
+    senseKey: 'device-mobile-phone',
+    korean: '휴대폰',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '가지고 다니며 전화나 메시지 등에 사용하는 전화기',
+      uz: 'mobil telefon',
+      en: 'mobile phone, cell phone',
+      ru: 'мобильный телефон',
+    },
+
+    examples: [
+      {
+        korean: '휴대폰이 있어요?',
+        translations: {
+          ko: '휴대폰이 있습니까?',
+          uz: 'Mobil telefon bormi?',
+          en: 'Do you have a mobile phone?',
+          ru: 'У вас есть мобильный телефон?',
+        },
+      },
+      {
+        korean: '이거는 제 휴대폰이에요.',
+        translations: {
+          ko: '이것은 제 휴대폰입니다.',
+          uz: 'Bu mening mobil telefonim.',
+          en: 'This is my mobile phone.',
+          ru: 'Это мой мобильный телефон.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '휴대폰',
+      romanization: 'hyudaepon',
+      ttsText: '휴대폰',
+    },
+
+    media: {
+      emoji: '📱',
+      imageUrl: 'https://cdn.korio.app/words/hyudaepon.webp',
+      imageAlt: {
+        ko: '손에 들고 사용하는 휴대폰',
+        uz: 'qo‘lda ishlatiladigan mobil telefon',
+        en: 'a mobile phone held in the hand',
+        ru: 'мобильный телефон в руке',
+      },
+    },
+
+    tags: ['object', 'device', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'휴대 전화'도 같은 뜻이지만 일상에서는 '휴대폰'을 많이 사용해요.",
+      uz: "'휴대 전화' ham shu ma'noni anglatadi, lekin kundalik nutqda '휴대폰' ko‘p ishlatiladi.",
+      en: "'휴대 전화' has the same meaning, but '휴대폰' is very common in everyday speech.",
+      ru: '«휴대 전화» имеет то же значение, но в разговорной речи часто используется «휴대폰».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];

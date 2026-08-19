@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 1 · 유닛 5 — 주말에 친구를 만났어요
  * 출처: 서울대 한국어 1A 5과
@@ -79,355 +80,1184 @@ const I = {
 };
 
 export const S1_UNIT5_WORDS = [
-  // ───────── 숫자 1 ─────────
+  // ─────────────────────────────────────
+  // 숫자 1~10
+  // ─────────────────────────────────────
 
-  { korean: '일', uz: 'bir', en: 'one', ru: 'один', emoji: '1️⃣' },
-  { korean: '이', uz: 'ikki', en: 'two', ru: 'два', emoji: '2️⃣' },
-  { korean: '삼', uz: 'uch', en: 'three', ru: 'три', emoji: '3️⃣' },
-  { korean: '사', uz: "to'rt", en: 'four', ru: 'четыре', emoji: '4️⃣' },
-  { korean: '오', uz: 'besh', en: 'five', ru: 'пять', emoji: '5️⃣' },
-  { korean: '육', uz: 'olti', en: 'six', ru: 'шесть', emoji: '6️⃣' },
-  { korean: '칠', uz: 'yetti', en: 'seven', ru: 'семь', emoji: '7️⃣' },
-  { korean: '팔', uz: 'sakkiz', en: 'eight', ru: 'восемь', emoji: '8️⃣' },
   {
+    code: 'word_one_sino_korean_noun',
+    senseKey: 'number-sino-korean-one',
+    korean: '일',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 1을 나타내는 한자어 수',
+      uz: 'bir; koreyscha xitoy son tizimidagi 1',
+      en: 'one; 1 in the Sino-Korean number system',
+      ru: 'один; 1 в корейской системе числительных китайского происхождения',
+    },
+
+    examples: [
+      {
+        korean: '일월은 일 년의 첫 번째 달이에요.',
+        translations: {
+          ko: '1월은 한 해의 첫 번째 달입니다.',
+          uz: 'Yanvar yilning birinchi oyidir.',
+          en: 'January is the first month of the year.',
+          ru: 'Январь — первый месяц года.',
+        },
+      },
+      {
+        korean: '오늘은 십일월 십일 일이에요.',
+        translations: {
+          ko: '오늘은 11월 11일입니다.',
+          uz: 'Bugun 11-noyabr.',
+          en: 'Today is November 11th.',
+          ru: 'Сегодня 11 ноября.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '일',
+      romanization: 'il',
+      ttsText: '일',
+    },
+
+    media: {
+      emoji: '1️⃣',
+      imageUrl: 'https://cdn.korio.app/words/il-number.webp',
+      imageAlt: {
+        ko: '숫자 1',
+        uz: '1 raqami',
+        en: 'number 1',
+        ru: 'цифра 1',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '날짜, 월, 돈, 전화번호 등을 셀 때 사용하는 한자어 숫자예요.',
+      uz: 'Sana, oy, pul va telefon raqamlarida ishlatiladigan xitoy-koreys sonidir.',
+      en: 'A Sino-Korean number commonly used for dates, months, money, and phone numbers.',
+      ru: 'Китайско-корейское числительное, используемое для дат, месяцев, денег и телефонных номеров.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_two_sino_korean_noun',
+    senseKey: 'number-sino-korean-two',
+    korean: '이',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 2를 나타내는 한자어 수',
+      uz: 'ikki; koreyscha xitoy son tizimidagi 2',
+      en: 'two; 2 in the Sino-Korean number system',
+      ru: 'два; 2 в корейской системе числительных китайского происхождения',
+    },
+
+    examples: [
+      {
+        korean: '이월은 이십팔 일까지 있어요.',
+        translations: {
+          ko: '2월은 보통 28일까지 있습니다.',
+          uz: 'Fevral odatda 28 kungacha davom etadi.',
+          en: 'February usually has 28 days.',
+          ru: 'В феврале обычно 28 дней.',
+        },
+      },
+      {
+        korean: '생일은 이월 이 일이에요.',
+        translations: {
+          ko: '생일은 2월 2일입니다.',
+          uz: 'Tug‘ilgan kunim 2-fevral.',
+          en: 'My birthday is February 2nd.',
+          ru: 'Мой день рождения — 2 февраля.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '이',
+      romanization: 'i',
+      ttsText: '이',
+    },
+
+    media: {
+      emoji: '2️⃣',
+      imageUrl: 'https://cdn.korio.app/words/i-number.webp',
+      imageAlt: {
+        ko: '숫자 2',
+        uz: '2 raqami',
+        en: 'number 2',
+        ru: 'цифра 2',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "날짜나 월을 말할 때 '이월', '이 일'처럼 사용해요.",
+      uz: "Sana va oylarni aytishda '이월', '이 일' kabi ishlatiladi.",
+      en: 'Used for dates and months, as in 이월 (February) and 이 일 (the 2nd).',
+      ru: 'Используется в датах и месяцах, например 이월 — февраль.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_three_sino_korean_noun',
+    senseKey: 'number-sino-korean-three',
+    korean: '삼',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 3을 나타내는 한자어 수',
+      uz: 'uch; koreyscha xitoy son tizimidagi 3',
+      en: 'three; 3 in the Sino-Korean number system',
+      ru: 'три; 3 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '생일은 삼월 이십삼 일이에요.',
+        translations: {
+          ko: '생일은 3월 23일입니다.',
+          uz: 'Tug‘ilgan kunim 23-mart.',
+          en: 'My birthday is March 23rd.',
+          ru: 'Мой день рождения — 23 марта.',
+        },
+      },
+      {
+        korean: '삼 일이 무슨 요일이에요?',
+        translations: {
+          ko: '3일이 무슨 요일입니까?',
+          uz: '3-kun haftaning qaysi kuni?',
+          en: 'What day of the week is the 3rd?',
+          ru: 'Какой день недели будет третьего числа?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '삼',
+      romanization: 'sam',
+      ttsText: '삼',
+    },
+
+    media: {
+      emoji: '3️⃣',
+      imageUrl: 'https://cdn.korio.app/words/sam-number.webp',
+      imageAlt: {
+        ko: '숫자 3',
+        uz: '3 raqami',
+        en: 'number 3',
+        ru: 'цифра 3',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'삼월', '삼 일'처럼 날짜를 말할 때 사용해요.",
+      uz: "'삼월', '삼 일' kabi sanalarda ishlatiladi.",
+      en: 'Used when expressing dates, such as March or the 3rd.',
+      ru: 'Используется при обозначении дат, например марта или третьего числа.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_four_sino_korean_noun',
+    senseKey: 'number-sino-korean-four',
+    korean: '사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 4를 나타내는 한자어 수',
+      uz: 'to‘rt; koreyscha xitoy son tizimidagi 4',
+      en: 'four; 4 in the Sino-Korean number system',
+      ru: 'четыре; 4 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 사월 사 일이에요.',
+        translations: {
+          ko: '오늘은 4월 4일입니다.',
+          uz: 'Bugun 4-aprel.',
+          en: 'Today is April 4th.',
+          ru: 'Сегодня 4 апреля.',
+        },
+      },
+      {
+        korean: '시험은 사 일이에요.',
+        translations: {
+          ko: '시험은 4일입니다.',
+          uz: 'Imtihon 4-kuni.',
+          en: 'The exam is on the 4th.',
+          ru: 'Экзамен будет четвёртого числа.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '사',
+      romanization: 'sa',
+      ttsText: '사',
+    },
+
+    media: {
+      emoji: '4️⃣',
+      imageUrl: 'https://cdn.korio.app/words/sa-number.webp',
+      imageAlt: {
+        ko: '숫자 4',
+        uz: '4 raqami',
+        en: 'number 4',
+        ru: 'цифра 4',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'사월', '사 일'처럼 날짜와 월을 표현할 때 사용해요.",
+      uz: 'Oy va sanalarni aytishda ishlatiladi.',
+      en: 'Used when expressing dates and months.',
+      ru: 'Используется при обозначении дат и месяцев.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_five_sino_korean_noun',
+    senseKey: 'number-sino-korean-five',
+    korean: '오',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 5를 나타내는 한자어 수',
+      uz: 'besh; koreyscha xitoy son tizimidagi 5',
+      en: 'five; 5 in the Sino-Korean number system',
+      ru: 'пять; 5 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 오월 구 일이에요.',
+        translations: {
+          ko: '오늘은 5월 9일입니다.',
+          uz: 'Bugun 9-may.',
+          en: 'Today is May 9th.',
+          ru: 'Сегодня 9 мая.',
+        },
+      },
+      {
+        korean: '오월에 파티가 있어요.',
+        translations: {
+          ko: '5월에 파티가 있습니다.',
+          uz: 'May oyida ziyofat bor.',
+          en: 'There is a party in May.',
+          ru: 'В мае будет вечеринка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '오',
+      romanization: 'o',
+      ttsText: '오',
+    },
+
+    media: {
+      emoji: '5️⃣',
+      imageUrl: 'https://cdn.korio.app/words/o-number.webp',
+      imageAlt: {
+        ko: '숫자 5',
+        uz: '5 raqami',
+        en: 'number 5',
+        ru: 'цифра 5',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "5월은 '오월'이라고 읽어요.",
+      uz: "5-oy koreys tilida '오월' deb o‘qiladi.",
+      en: 'May is read as 오월 in Korean.',
+      ru: 'Май по-корейски читается как «오월».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_six_sino_korean_noun',
+    senseKey: 'number-sino-korean-six',
+    korean: '육',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 6을 나타내는 한자어 수',
+      uz: 'olti; koreyscha xitoy son tizimidagi 6',
+      en: 'six; 6 in the Sino-Korean number system',
+      ru: 'шесть; 6 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 유월 육 일이에요.',
+        translations: {
+          ko: '오늘은 6월 6일입니다.',
+          uz: 'Bugun 6-iyun.',
+          en: 'Today is June 6th.',
+          ru: 'Сегодня 6 июня.',
+        },
+      },
+      {
+        korean: '시험은 육 일이에요.',
+        translations: {
+          ko: '시험은 6일입니다.',
+          uz: 'Imtihon 6-kuni.',
+          en: 'The exam is on the 6th.',
+          ru: 'Экзамен будет шестого числа.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '육',
+      romanization: 'yuk',
+      ttsText: '육',
+    },
+
+    media: {
+      emoji: '6️⃣',
+      imageUrl: 'https://cdn.korio.app/words/yuk-number.webp',
+      imageAlt: {
+        ko: '숫자 6',
+        uz: '6 raqami',
+        en: 'number 6',
+        ru: 'цифра 6',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "6월은 예외적으로 '육월'이 아니라 '유월'이라고 읽어요.",
+      uz: "6-oy istisno tariqasida '육월' emas, '유월' deb o‘qiladi.",
+      en: 'June is exceptionally pronounced 유월, not 육월.',
+      ru: 'Июнь — исключение: произносится «유월», а не «육월».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_seven_sino_korean_noun',
+    senseKey: 'number-sino-korean-seven',
+    korean: '칠',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 7을 나타내는 한자어 수',
+      uz: 'yetti; koreyscha xitoy son tizimidagi 7',
+      en: 'seven; 7 in the Sino-Korean number system',
+      ru: 'семь; 7 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '칠월에 한국에 가요.',
+        translations: {
+          ko: '7월에 한국에 갑니다.',
+          uz: 'Iyul oyida Koreyaga boraman.',
+          en: 'I go to Korea in July.',
+          ru: 'Я еду в Корею в июле.',
+        },
+      },
+      {
+        korean: '오늘은 칠 일이에요.',
+        translations: {
+          ko: '오늘은 7일입니다.',
+          uz: 'Bugun oyning 7-kuni.',
+          en: 'Today is the 7th.',
+          ru: 'Сегодня седьмое число.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '칠',
+      romanization: 'chil',
+      ttsText: '칠',
+    },
+
+    media: {
+      emoji: '7️⃣',
+      imageUrl: 'https://cdn.korio.app/words/chil-number.webp',
+      imageAlt: {
+        ko: '숫자 7',
+        uz: '7 raqami',
+        en: 'number 7',
+        ru: 'цифра 7',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'칠월', '칠 일'처럼 날짜에서 사용할 수 있어요.",
+      uz: "'칠월', '칠 일' kabi sanalarda ishlatiladi.",
+      en: 'Used in dates, such as July or the 7th.',
+      ru: 'Используется в датах, например июль или седьмое число.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eight_sino_korean_noun',
+    senseKey: 'number-sino-korean-eight',
+    korean: '팔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 8을 나타내는 한자어 수',
+      uz: 'sakkiz; koreyscha xitoy son tizimidagi 8',
+      en: 'eight; 8 in the Sino-Korean number system',
+      ru: 'восемь; 8 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '시험은 팔월 이십삼 일이에요.',
+        translations: {
+          ko: '시험은 8월 23일입니다.',
+          uz: 'Imtihon 23-avgust kuni.',
+          en: 'The exam is on August 23rd.',
+          ru: 'Экзамен будет 23 августа.',
+        },
+      },
+      {
+        korean: '팔 일이 무슨 요일이에요?',
+        translations: {
+          ko: '8일이 무슨 요일입니까?',
+          uz: '8-kun haftaning qaysi kuni?',
+          en: 'What day of the week is the 8th?',
+          ru: 'Какой день недели будет восьмого числа?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '팔',
+      romanization: 'pal',
+      ttsText: '팔',
+    },
+
+    media: {
+      emoji: '8️⃣',
+      imageUrl: 'https://cdn.korio.app/words/pal-number.webp',
+      imageAlt: {
+        ko: '숫자 8',
+        uz: '8 raqami',
+        en: 'number 8',
+        ru: 'цифра 8',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'팔월', '팔 일'처럼 날짜와 월을 말할 때 사용해요.",
+      uz: 'Oy va sanalarni aytishda ishlatiladi.',
+      en: 'Used when expressing months and dates.',
+      ru: 'Используется при обозначении месяцев и дат.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_nine_sino_korean_noun',
+    senseKey: 'number-sino-korean-nine',
     korean: '구',
-    uz: "to'qqiz",
-    en: 'nine',
-    ru: 'девять',
-    emoji: '9️⃣',
-  },
-  { korean: '십', uz: "o'n", en: 'ten', ru: 'десять', emoji: '🔟' },
+    partOfSpeech: WordPartOfSpeech.NOUN,
 
-  // ───────── 날짜 · 요일 ─────────
+    meaning: {
+      ko: '숫자 9를 나타내는 한자어 수',
+      uz: 'to‘qqiz; koreyscha xitoy son tizimidagi 9',
+      en: 'nine; 9 in the Sino-Korean number system',
+      ru: 'девять; 9 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 오월 구 일이에요.',
+        translations: {
+          ko: '오늘은 5월 9일입니다.',
+          uz: 'Bugun 9-may.',
+          en: 'Today is May 9th.',
+          ru: 'Сегодня 9 мая.',
+        },
+      },
+      {
+        korean: '구 일이 금요일이에요.',
+        translations: {
+          ko: '9일이 금요일입니다.',
+          uz: '9-kun juma.',
+          en: 'The 9th is Friday.',
+          ru: 'Девятое число — пятница.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '구',
+      romanization: 'gu',
+      ttsText: '구',
+    },
+
+    media: {
+      emoji: '9️⃣',
+      imageUrl: 'https://cdn.korio.app/words/gu-number.webp',
+      imageAlt: {
+        ko: '숫자 9',
+        uz: '9 raqami',
+        en: 'number 9',
+        ru: 'цифра 9',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'구월', '구 일'처럼 사용해요.",
+      uz: "'구월', '구 일' kabi ishlatiladi.",
+      en: 'Used in dates, such as September or the 9th.',
+      ru: 'Используется в датах, например сентябрь или девятое число.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
 
   {
-    korean: '날짜',
-    uz: 'sana',
-    en: 'date',
-    ru: 'дата',
-    emoji: '📅',
+    code: 'word_ten_sino_korean_noun',
+    senseKey: 'number-sino-korean-ten',
+    korean: '십',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '숫자 10을 나타내는 한자어 수',
+      uz: 'o‘n; koreyscha xitoy son tizimidagi 10',
+      en: 'ten; 10 in the Sino-Korean number system',
+      ru: 'десять; 10 в китайско-корейской системе числительных',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 십일월 십삼 일이에요.',
+        translations: {
+          ko: '오늘은 11월 13일입니다.',
+          uz: 'Bugun 13-noyabr.',
+          en: 'Today is November 13th.',
+          ru: 'Сегодня 13 ноября.',
+        },
+      },
+      {
+        korean: '십사 일이 무슨 요일이에요?',
+        translations: {
+          ko: '14일이 무슨 요일입니까?',
+          uz: '14-kun haftaning qaysi kuni?',
+          en: 'What day of the week is the 14th?',
+          ru: 'Какой день недели будет четырнадцатого числа?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '십',
+      romanization: 'sip',
+      ttsText: '십',
+    },
+
+    media: {
+      emoji: '🔟',
+      imageUrl: 'https://cdn.korio.app/words/sip-number.webp',
+      imageAlt: {
+        ko: '숫자 10',
+        uz: '10 raqami',
+        en: 'number 10',
+        ru: 'число 10',
+      },
+    },
+
+    tags: ['number', 'sino-korean', 'date', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "11부터는 '십일', '십이', '십삼'처럼 다른 숫자와 결합해서 사용해요.",
+      uz: "11 dan boshlab '십일', '십이', '십삼' kabi boshqa sonlar bilan birikadi.",
+      en: 'It combines with other numbers to form 11, 12, 13, and so on.',
+      ru: 'Соединяется с другими числами для образования 11, 12, 13 и так далее.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
+  // ─────────────────────────────────────
+  // 요일
+  // ─────────────────────────────────────
+
   {
-    korean: '요일',
-    uz: 'hafta kuni',
-    en: 'day of the week',
-    ru: 'день недели',
-    emoji: '📆',
-  },
-  {
+    code: 'word_monday_noun',
+    senseKey: 'day-of-week-monday',
     korean: '월요일',
-    uz: 'dushanba',
-    en: 'Monday',
-    ru: 'понедельник',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '한 주에서 일요일 다음에 오는 날',
+      uz: 'dushanba',
+      en: 'Monday',
+      ru: 'понедельник',
+    },
+
+    examples: [
+      {
+        korean: '월요일에 뭐 해요?',
+        translations: {
+          ko: '월요일에 무엇을 합니까?',
+          uz: 'Dushanba kuni nima qilasiz?',
+          en: 'What do you do on Monday?',
+          ru: 'Что вы делаете в понедельник?',
+        },
+      },
+      {
+        korean: '월요일에는 영어를 배워요.',
+        translations: {
+          ko: '월요일에는 영어를 배웁니다.',
+          uz: 'Dushanba kuni ingliz tilini o‘rganaman.',
+          en: 'I learn English on Monday.',
+          ru: 'По понедельникам я изучаю английский язык.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '월요일',
+      romanization: 'woryoil',
+      ttsText: '월요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/woryoil.webp',
+      imageAlt: {
+        ko: '달력의 월요일',
+        uz: 'taqvimdagi dushanba',
+        en: 'Monday on a calendar',
+        ru: 'понедельник в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "요일에 어떤 일을 하는지 말할 때 '월요일에'처럼 조사 '에'와 자주 사용해요.",
+      uz: "Hafta kunida bajariladigan ishni aytganda ko‘pincha '월요일에' shaklida ishlatiladi.",
+      en: 'Often used with 에 when describing something that happens on Monday.',
+      ru: 'Часто используется с частицей 에 при описании действий в понедельник.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_tuesday_noun',
+    senseKey: 'day-of-week-tuesday',
     korean: '화요일',
-    uz: 'seshanba',
-    en: 'Tuesday',
-    ru: 'вторник',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '월요일 다음에 오는 요일',
+      uz: 'seshanba',
+      en: 'Tuesday',
+      ru: 'вторник',
+    },
+
+    examples: [
+      {
+        korean: '오늘이 화요일이에요?',
+        translations: {
+          ko: '오늘이 화요일입니까?',
+          uz: 'Bugun seshanbami?',
+          en: 'Is today Tuesday?',
+          ru: 'Сегодня вторник?',
+        },
+      },
+      {
+        korean: '화요일에 친구를 만나요.',
+        translations: {
+          ko: '화요일에 친구를 만납니다.',
+          uz: 'Seshanba kuni do‘stim bilan uchrashaman.',
+          en: 'I meet my friend on Tuesday.',
+          ru: 'Во вторник я встречаюсь с другом.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '화요일',
+      romanization: 'hwayoil',
+      ttsText: '화요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/hwayoil.webp',
+      imageAlt: {
+        ko: '달력의 화요일',
+        uz: 'taqvimdagi seshanba',
+        en: 'Tuesday on a calendar',
+        ru: 'вторник в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'화요일에', '화요일이에요'처럼 사용해요.",
+      uz: "'화요일에', '화요일이에요' kabi ishlatiladi.",
+      en: 'Commonly used as 화요일에 or 화요일이에요.',
+      ru: 'Часто используется в формах «화요일에» и «화요일이에요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_wednesday_noun',
+    senseKey: 'day-of-week-wednesday',
     korean: '수요일',
-    uz: 'chorshanba',
-    en: 'Wednesday',
-    ru: 'среда',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '화요일 다음에 오는 요일',
+      uz: 'chorshanba',
+      en: 'Wednesday',
+      ru: 'среда',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 수요일이에요.',
+        translations: {
+          ko: '오늘은 수요일입니다.',
+          uz: 'Bugun chorshanba.',
+          en: 'Today is Wednesday.',
+          ru: 'Сегодня среда.',
+        },
+      },
+      {
+        korean: '수요일에 시간이 있어요.',
+        translations: {
+          ko: '수요일에 시간이 있습니다.',
+          uz: 'Chorshanba kuni vaqtim bor.',
+          en: 'I have time on Wednesday.',
+          ru: 'В среду у меня есть время.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '수요일',
+      romanization: 'suyoil',
+      ttsText: '수요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/suyoil.webp',
+      imageAlt: {
+        ko: '달력의 수요일',
+        uz: 'taqvimdagi chorshanba',
+        en: 'Wednesday on a calendar',
+        ru: 'среда в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '수요일에 하는 일정이나 약속을 말할 때 사용해요.',
+      uz: 'Chorshanba kungi reja va uchrashuvlarni aytishda ishlatiladi.',
+      en: 'Used when talking about schedules or appointments on Wednesday.',
+      ru: 'Используется при разговоре о планах и встречах в среду.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_thursday_noun',
+    senseKey: 'day-of-week-thursday',
     korean: '목요일',
-    uz: 'payshanba',
-    en: 'Thursday',
-    ru: 'четверг',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '수요일 다음에 오는 요일',
+      uz: 'payshanba',
+      en: 'Thursday',
+      ru: 'четверг',
+    },
+
+    examples: [
+      {
+        korean: '목요일에 뭐 해요?',
+        translations: {
+          ko: '목요일에 무엇을 합니까?',
+          uz: 'Payshanba kuni nima qilasiz?',
+          en: 'What do you do on Thursday?',
+          ru: 'Что вы делаете в четверг?',
+        },
+      },
+      {
+        korean: '목요일에는 태권도를 배워요.',
+        translations: {
+          ko: '목요일에는 태권도를 배웁니다.',
+          uz: 'Payshanba kuni taekvondo o‘rganaman.',
+          en: 'I learn Taekwondo on Thursday.',
+          ru: 'По четвергам я занимаюсь тхэквондо.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '목요일',
+      romanization: 'mogyoil',
+      ttsText: '목요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/mogyoil.webp',
+      imageAlt: {
+        ko: '달력의 목요일',
+        uz: 'taqvimdagi payshanba',
+        en: 'Thursday on a calendar',
+        ru: 'четверг в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'목요일에 뭐 해요?'처럼 일정에 대해 물을 때 사용할 수 있어요.",
+      uz: "'목요일에 뭐 해요?' kabi rejani so‘rashda ishlatiladi.",
+      en: "Can be used to ask about someone's Thursday schedule.",
+      ru: 'Можно использовать, чтобы спросить о планах на четверг.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_friday_noun',
+    senseKey: 'day-of-week-friday',
     korean: '금요일',
-    uz: 'juma',
-    en: 'Friday',
-    ru: 'пятница',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '목요일 다음에 오는 요일',
+      uz: 'juma',
+      en: 'Friday',
+      ru: 'пятница',
+    },
+
+    examples: [
+      {
+        korean: '구 일이 무슨 요일이에요?',
+        translations: {
+          ko: '9일이 무슨 요일입니까?',
+          uz: '9-kun haftaning qaysi kuni?',
+          en: 'What day of the week is the 9th?',
+          ru: 'Какой день недели будет девятого числа?',
+        },
+      },
+      {
+        korean: '금요일에 파티가 있어요.',
+        translations: {
+          ko: '금요일에 파티가 있습니다.',
+          uz: 'Juma kuni ziyofat bor.',
+          en: 'There is a party on Friday.',
+          ru: 'В пятницу будет вечеринка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '금요일',
+      romanization: 'geumyoil',
+      ttsText: '금요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/geumyoil.webp',
+      imageAlt: {
+        ko: '달력의 금요일',
+        uz: 'taqvimdagi juma',
+        en: 'Friday on a calendar',
+        ru: 'пятница в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'금요일에 파티가 있어요'처럼 일정과 함께 사용할 수 있어요.",
+      uz: "Rejalarni aytishda '금요일에' shaklida ishlatiladi.",
+      en: 'Often used when talking about Friday plans or schedules.',
+      ru: 'Часто используется при разговоре о планах на пятницу.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_saturday_noun',
+    senseKey: 'day-of-week-saturday',
     korean: '토요일',
-    uz: 'shanba',
-    en: 'Saturday',
-    ru: 'суббота',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '금요일 다음에 오는 요일',
+      uz: 'shanba',
+      en: 'Saturday',
+      ru: 'суббота',
+    },
+
+    examples: [
+      {
+        korean: '토요일에 뭐 해요?',
+        translations: {
+          ko: '토요일에 무엇을 합니까?',
+          uz: 'Shanba kuni nima qilasiz?',
+          en: 'What do you do on Saturday?',
+          ru: 'Что вы делаете в субботу?',
+        },
+      },
+      {
+        korean: '토요일에 친구하고 영화를 봐요.',
+        translations: {
+          ko: '토요일에 친구와 영화를 봅니다.',
+          uz: 'Shanba kuni do‘stim bilan film ko‘raman.',
+          en: 'I watch a movie with my friend on Saturday.',
+          ru: 'В субботу я смотрю фильм с другом.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '토요일',
+      romanization: 'toyoil',
+      ttsText: '토요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/toyoil.webp',
+      imageAlt: {
+        ko: '달력의 토요일',
+        uz: 'taqvimdagi shanba',
+        en: 'Saturday on a calendar',
+        ru: 'суббота в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "주말의 첫날로, '토요일에' 형태로 일정과 함께 많이 사용해요.",
+      uz: "Dam olish kunining birinchi kuni bo‘lib, ko‘pincha '토요일에' shaklida ishlatiladi.",
+      en: 'The first day of the weekend, often used as 토요일에 when discussing plans.',
+      ru: 'Первый день выходных; часто используется в форме «토요일에».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sunday_noun',
+    senseKey: 'day-of-week-sunday',
     korean: '일요일',
-    uz: 'yakshanba',
-    en: 'Sunday',
-    ru: 'воскресенье',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '토요일 다음에 오는 요일',
+      uz: 'yakshanba',
+      en: 'Sunday',
+      ru: 'воскресенье',
+    },
+
+    examples: [
+      {
+        korean: '일요일에 뭐 해요?',
+        translations: {
+          ko: '일요일에 무엇을 합니까?',
+          uz: 'Yakshanba kuni nima qilasiz?',
+          en: 'What do you do on Sunday?',
+          ru: 'Что вы делаете в воскресенье?',
+        },
+      },
+      {
+        korean: '아키라 씨 생일은 일요일이에요.',
+        translations: {
+          ko: '아키라 씨의 생일은 일요일입니다.',
+          uz: 'Akiraning tug‘ilgan kuni yakshanba.',
+          en: "Akira's birthday is on Sunday.",
+          ru: 'День рождения Акиры — в воскресенье.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '일요일',
+      romanization: 'iryoil',
+      ttsText: '일요일',
+    },
+
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/iryoil.webp',
+      imageAlt: {
+        ko: '달력의 일요일',
+        uz: 'taqvimdagi yakshanba',
+        en: 'Sunday on a calendar',
+        ru: 'воскресенье в календаре',
+      },
+    },
+
+    tags: ['day-of-week', 'calendar', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'일요일에', '일요일이에요'처럼 사용해요.",
+      uz: "'일요일에', '일요일이에요' kabi ishlatiladi.",
+      en: 'Commonly used as 일요일에 or 일요일이에요.',
+      ru: 'Часто используется в формах «일요일에» и «일요일이에요».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_weekend_noun',
+    senseKey: 'time-weekend',
     korean: '주말',
-    uz: 'dam olish kunlari',
-    en: 'weekend',
-    ru: 'выходные',
-    emoji: '🗓️',
-  },
-  {
-    korean: '며칠',
-    uz: 'nechanchi sana',
-    en: 'what date',
-    ru: 'какое число',
-    emoji: '📆',
-  },
-  {
-    korean: '언제',
-    uz: 'qachon',
-    en: 'when',
-    ru: 'когда',
-    emoji: '⏰',
-  },
-  {
-    korean: '무슨',
-    uz: 'qaysi / qanday',
-    en: 'what / which',
-    ru: 'какой / что за',
-    emoji: '❓',
-  },
-  {
-    korean: '시험',
-    uz: 'imtihon',
-    en: 'exam',
-    ru: 'экзамен',
-    emoji: '📝',
-  },
-  {
-    korean: '생일',
-    uz: "tug'ilgan kun",
-    en: 'birthday',
-    ru: 'день рождения',
-    emoji: '🎂',
-  },
+    partOfSpeech: WordPartOfSpeech.NOUN,
 
-  // ───────── 일정 · 약속 ─────────
+    meaning: {
+      ko: '한 주의 끝부분인 토요일과 일요일',
+      uz: 'dam olish kunlari',
+      en: 'weekend',
+      ru: 'выходные',
+    },
 
-  {
-    korean: '크리스마스',
-    uz: 'Rojdestvo',
-    en: 'Christmas',
-    ru: 'Рождество',
-    emoji: '🎄',
-  },
-  {
-    korean: '파티',
-    uz: 'bazm',
-    en: 'party',
-    ru: 'вечеринка',
-    emoji: '🎉',
-  },
-  {
-    korean: '시간',
-    uz: 'vaqt',
-    en: 'time',
-    ru: 'время',
-    emoji: '⏰',
-  },
-  {
-    korean: '미안하다',
-    uz: "kechirim so'ramoq",
-    en: 'to be sorry',
-    ru: 'извиняться / сожалеть',
-    emoji: '🙏',
-  },
-  {
-    korean: '약속',
-    uz: 'uchrashuv / kelishuv',
-    en: 'appointment / promise',
-    ru: 'встреча / договорённость',
-    emoji: '🤝',
-  },
-  {
-    korean: '같이',
-    uz: 'birga',
-    en: 'together',
-    ru: 'вместе',
-    emoji: '👥',
-  },
+    examples: [
+      {
+        korean: '주말에 뭐 했어요?',
+        translations: {
+          ko: '주말에 무엇을 했습니까?',
+          uz: 'Dam olish kunlari nima qildingiz?',
+          en: 'What did you do over the weekend?',
+          ru: 'Что вы делали на выходных?',
+        },
+      },
+      {
+        korean: '주말에 친구를 만났어요.',
+        translations: {
+          ko: '주말에 친구를 만났습니다.',
+          uz: 'Dam olish kunlari do‘stim bilan uchrashdim.',
+          en: 'I met my friend over the weekend.',
+          ru: 'На выходных я встретился с другом.',
+        },
+      },
+    ],
 
-  // ───────── 과거 활동 ─────────
+    pronunciation: {
+      hangul: '주말',
+      romanization: 'jumal',
+      ttsText: '주말',
+    },
 
-  {
-    korean: '어제',
-    uz: 'kecha',
-    en: 'yesterday',
-    ru: 'вчера',
-    emoji: '↩️',
-  },
-  {
-    korean: '카드',
-    uz: 'tabrik kartasi',
-    en: 'card',
-    ru: 'открытка',
-    emoji: '💌',
-  },
-  {
-    korean: '선물',
-    uz: "sovg'a",
-    en: 'gift',
-    ru: 'подарок',
-    emoji: '🎁',
-  },
-  {
-    korean: '세수하다',
-    uz: 'yuzini yuvmoq',
-    en: "to wash one's face",
-    ru: 'умываться',
-    emoji: '🧼',
-  },
-  {
-    korean: '이를 닦다',
-    uz: 'tishlarini yuvmoq',
-    en: "to brush one's teeth",
-    ru: 'чистить зубы',
-    emoji: '🪥',
-  },
-  {
-    korean: '거기',
-    uz: 'u yer',
-    en: 'there',
-    ru: 'там',
-    emoji: '📍',
-  },
-  {
-    korean: '산책하다',
-    uz: 'sayr qilmoq',
-    en: 'to take a walk',
-    ru: 'гулять',
-    emoji: '🚶',
-  },
-  {
-    korean: '사진을 찍다',
-    uz: 'suratga olmoq',
-    en: 'to take a photo',
-    ru: 'фотографировать',
-    emoji: '📷',
-  },
-  {
-    korean: '누구',
-    uz: 'kim',
-    en: 'who',
-    ru: 'кто',
-    emoji: '❓',
-  },
-  {
-    korean: '혼자',
-    uz: "yolg'iz",
-    en: 'alone',
-    ru: 'один / в одиночку',
-    emoji: '👤',
-  },
-  {
-    korean: '끝나다',
-    uz: 'tugamoq',
-    en: 'to finish / to end',
-    ru: 'заканчиваться',
-    emoji: '✅',
-  },
+    media: {
+      emoji: '🎉',
+      imageUrl: 'https://cdn.korio.app/words/jumal.webp',
+      imageAlt: {
+        ko: '토요일과 일요일이 표시된 달력',
+        uz: 'shanba va yakshanba ko‘rsatilgan taqvim',
+        en: 'a calendar showing Saturday and Sunday',
+        ru: 'календарь с субботой и воскресеньем',
+      },
+    },
 
-  // ───────── 읽기 · 일정 ─────────
+    tags: ['time', 'calendar', 'daily-life', 'topik-1'],
+    difficulty: 1,
 
-  {
-    korean: '그래서',
-    uz: 'shuning uchun',
-    en: 'so / therefore',
-    ru: 'поэтому',
-    emoji: '➡️',
-  },
-  {
-    korean: '내일',
-    uz: 'ertaga',
-    en: 'tomorrow',
-    ru: 'завтра',
-    emoji: '⏭️',
-  },
-  {
-    korean: '스케줄',
-    uz: 'jadval / reja',
-    en: 'schedule',
-    ru: 'расписание',
-    emoji: '🗓️',
-  },
-  {
-    korean: '지난주',
-    uz: "o'tgan hafta",
-    en: 'last week',
-    ru: 'прошлая неделя',
-    emoji: '⏮️',
-  },
+    usageNote: {
+      ko: "'주말에 뭐 했어요?', '주말에 친구를 만났어요'처럼 주말의 활동을 말할 때 사용해요.",
+      uz: "Dam olish kunlaridagi ishlarni aytishda '주말에' shaklida ishlatiladi.",
+      en: 'Used when talking about weekend activities, often as 주말에.',
+      ru: 'Используется при разговоре о действиях на выходных, часто в форме «주말에».',
+    },
 
-  // ───────── 문화 산책 · 명절 ─────────
-
-  {
-    korean: '명절',
-    uz: "an'anaviy bayram",
-    en: 'traditional holiday',
-    ru: 'традиционный праздник',
-    emoji: '🎊',
+    isCore: true,
+    isActive: true,
   },
-  {
-    korean: '양력',
-    uz: 'quyosh taqvimi',
-    en: 'solar calendar',
-    ru: 'солнечный календарь',
-    emoji: '☀️',
-  },
-  {
-    korean: '음력',
-    uz: 'oy taqvimi',
-    en: 'lunar calendar',
-    ru: 'лунный календарь',
-    emoji: '🌙',
-  },
-  {
-    korean: '설날',
-    uz: 'Seollal (Koreys Yangi yili)',
-    en: 'Seollal / Korean New Year',
-    ru: 'Соллаль / корейский Новый год',
-    emoji: '🧧',
-  },
-  {
-    korean: '세배를 하다',
-    uz: "Yangi yil ta'zimini qilmoq",
-    en: "to perform a New Year's bow",
-    ru: 'совершать новогодний поклон старшим',
-    emoji: '🙇',
-  },
-  {
-    korean: '떡국',
-    uz: "tteokguk (guruchli tteok sho'rvasi)",
-    en: 'tteokguk / rice cake soup',
-    ru: 'ттоккук / суп с рисовыми клёцками',
-    emoji: '🍲',
-  },
-  {
-    korean: '추석',
-    uz: 'Chuseok (Koreys hosil bayrami)',
-    en: 'Chuseok / Korean Thanksgiving',
-    ru: 'Чхусок / корейский праздник урожая',
-    emoji: '🌕',
-  },
-  {
-    korean: '차례를 지내다',
-    uz: "ajdodlar xotirasiga marosim o'tkazmoq",
-    en: 'to perform ancestral rites',
-    ru: 'проводить поминальный обряд предков',
-    emoji: '🙏',
-  },
-  {
-    korean: '송편',
-    uz: 'songpyeon (yarim oy shaklidagi guruchli tteok)',
-    en: 'songpyeon / half-moon rice cake',
-    ru: 'сонпхён / рисовый пирожок в форме полумесяца',
-    emoji: '🥮',
-  },
-];
+] satisfies readonly WordSeedEntry[];
 
 export const UNIT5_QUESTIONS = {
   // ══════════════════════════════════════════════════════════

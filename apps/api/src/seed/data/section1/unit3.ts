@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 1 · 유닛 3 — 한국어를 공부해요
  * 출처: 서울대 한국어 1A 3과
@@ -160,7 +161,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '자-요. 두 글자예요. 짧게 말해요.',
-      uz: 'ja-yo. Ikki bo\'g\'in, qisqa ayting.',
+      uz: "ja-yo. Ikki bo'g'in, qisqa ayting.",
       en: 'ja-yo — just two syllables, keep it short.',
       ru: 'ча-ё — всего два слога, говорите коротко.',
     },
@@ -247,7 +248,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '듣기'],
     hint: {
       ko: '일해요와 운동해요는 앞소리가 달라요. 첫 글자를 들으세요.',
-      uz: '일해요 va 운동해요 boshlanishi farq qiladi — birinchi bo\'g\'inga e\'tibor bering.',
+      uz: "일해요 va 운동해요 boshlanishi farq qiladi — birinchi bo'g'inga e'tibor bering.",
       en: '일해요 and 운동해요 differ at the start — listen to the first syllable.',
       ru: '일해요 и 운동해요 различаются в начале — слушайте первый слог.',
     },
@@ -273,7 +274,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '공-부-해-요. "해요"를 또박또박 붙이세요.',
-      uz: "gong-bu-he-yo. Oxiridagi \"해요\" ni aniq ayting.",
+      uz: 'gong-bu-he-yo. Oxiridagi "해요" ni aniq ayting.',
       en: 'gong-bu-hae-yo — say the 해요 part clearly.',
       ru: 'кон-бу-хэ-ё — чётко произнесите 해요.',
     },
@@ -360,7 +361,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['뭐 해요', '대화'],
     hint: {
       ko: '무엇을 하냐고 물었어요. 하는 일로 답해요.',
-      uz: 'Nima qilayotganingiz so\'raldi — ish bilan javob bering.',
+      uz: "Nima qilayotganingiz so'raldi — ish bilan javob bering.",
       en: 'They asked what you are doing — answer with an activity.',
       ru: 'Спросили, что вы делаете — ответьте действием.',
     },
@@ -417,7 +418,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '일-해-요. [이래요]처럼 이어서 소리 나요.',
-      uz: 'il-he-yo — [이래요] kabi qo\'shilib eshitiladi.',
+      uz: "il-he-yo — [이래요] kabi qo'shilib eshitiladi.",
       en: 'il-hae-yo — it links together and sounds like [이래요].',
       ru: 'иль-хэ-ё — звучит слитно, как [이래요].',
     },
@@ -476,7 +477,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '침대'],
     hint: {
       ko: '침대는 유닛 2에서 배웠어요. 침대에서 하는 일이에요.',
-      uz: '침대 — 2-bo\'limda o\'rgangansiz. Karavotda nima qilinadi?',
+      uz: "침대 — 2-bo'limda o'rgangansiz. Karavotda nima qilinadi?",
       en: 'You learned 침대 in unit 2 — what do you do there?',
       ru: '침대 вы учили во 2-м юните — что там делают?',
     },
@@ -520,7 +521,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '일해요.' },
       { speaker: 'npc', text: '공부해요?' },
     ],
-    options: ['네, 공부해요.', '아니요, 일해요.', '안녕히 계세요.', '저는 의사예요.'],
+    options: [
+      '네, 공부해요.',
+      '아니요, 일해요.',
+      '안녕히 계세요.',
+      '저는 의사예요.',
+    ],
     answer: '아니요, 일해요.',
     explanation: {
       ko: '이미 "일해요"라고 답했어요. 그러니 "공부해요?"에는 아니요예요.',
@@ -565,7 +571,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '"저는 / 지금 / 운동해요" 세 덩어리로 끊어서 말해요.',
-      uz: 'Uch bo\'lakka bo\'lib ayting: 저는 / 지금 / 운동해요.',
+      uz: "Uch bo'lakka bo'lib ayting: 저는 / 지금 / 운동해요.",
       en: 'Say it in three chunks: 저는 / 지금 / 운동해요.',
       ru: 'Произнесите тремя частями: 저는 / 지금 / 운동해요.',
     },
@@ -601,7 +607,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '어휘'],
     hint: {
       ko: '숟가락과 밥그릇이 있는 그림이에요.',
-      uz: "Qoshiq va guruch kosasi bor rasm.",
+      uz: 'Qoshiq va guruch kosasi bor rasm.',
       en: 'The picture with a spoon and a bowl of rice.',
       ru: 'Картинка с ложкой и миской риса.',
     },
@@ -673,7 +679,7 @@ export const UNIT3_QUESTIONS = {
     answer: '마셔요',
     explanation: {
       ko: '한국어에서 물·커피·차는 "먹어요"가 아니라 "마셔요"예요.',
-      uz: "Koreyschada suv, qahva, choy uchun 먹어요 emas, 마셔요 ishlatiladi.",
+      uz: 'Koreyschada suv, qahva, choy uchun 먹어요 emas, 마셔요 ishlatiladi.',
       en: 'In Korean, water, coffee and tea take 마셔요, not 먹어요.',
       ru: 'В корейском вода, кофе и чай — 마셔요, а не 먹어요.',
     },
@@ -821,7 +827,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '듣기'],
     hint: {
       ko: '읽어요는 [일거요]로 들려요. 글자와 소리가 달라요.',
-      uz: '읽어요 [일거요] bo\'lib eshitiladi — yozilishi bilan farq qiladi.',
+      uz: "읽어요 [일거요] bo'lib eshitiladi — yozilishi bilan farq qiladi.",
       en: '읽어요 sounds like [일거요] — spelling and sound differ.',
       ru: '읽어요 звучит как [일거요] — написание и звук различаются.',
     },
@@ -839,7 +845,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '영화를 봐요.' },
       { speaker: 'npc', text: '한국 영화예요?' },
     ],
-    options: ['네, 한국 영화예요.', '아니요, 책을 읽어요.', '저는 학생이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 한국 영화예요.',
+      '아니요, 책을 읽어요.',
+      '저는 학생이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '네, 한국 영화예요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -878,7 +889,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '[채글 일거요]처럼 이어서 말해요.',
-      uz: '[채글 일거요] kabi qo\'shib ayting.',
+      uz: "[채글 일거요] kabi qo'shib ayting.",
       en: 'Say it linked: [채글 일거요].',
       ru: 'Произнесите слитно: [채글 일거요].',
     },
@@ -981,8 +992,15 @@ export const UNIT3_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [{ speaker: 'npc', text: '저는 지금 커피를 마셔요. 하윤 씨는 뭐 해요?' }],
-    options: ['네, 커피예요.', '저는 밥을 먹어요.', '안녕히 계세요.', '저는 회사원이에요.'],
+    dialogLines: [
+      { speaker: 'npc', text: '저는 지금 커피를 마셔요. 하윤 씨는 뭐 해요?' },
+    ],
+    options: [
+      '네, 커피예요.',
+      '저는 밥을 먹어요.',
+      '안녕히 계세요.',
+      '저는 회사원이에요.',
+    ],
     answer: '저는 밥을 먹어요.',
     explanation: {
       ko: '"뭐 해요?"에는 하는 일로 답해요. 이름·직업·인사는 답이 아니에요.',
@@ -1240,7 +1258,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '숙제를 해요.' },
       { speaker: 'npc', text: '한국어 숙제예요?' },
     ],
-    options: ['아니요, 옷을 사요.', '네, 한국어 숙제예요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '아니요, 옷을 사요.',
+      '네, 한국어 숙제예요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '네, 한국어 숙제예요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -1360,7 +1383,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '태-권-도, 세 글자를 또박또박 말해요.',
-      uz: 'tae-kvon-do — uch bo\'g\'inni aniq ayting.',
+      uz: "tae-kvon-do — uch bo'g'inni aniq ayting.",
       en: 'tae-kwon-do — say all three syllables clearly.',
       ru: 'тхэ-квон-до — произнесите все три слога чётко.',
     },
@@ -1495,8 +1518,15 @@ export const UNIT3_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [{ speaker: 'npc', text: '저는 태권도를 배워요. 지호 씨는 뭐 해요?' }],
-    options: ['네, 태권도예요.', '저는 기자예요.', '저는 친구를 만나요.', '안녕히 계세요.'],
+    dialogLines: [
+      { speaker: 'npc', text: '저는 태권도를 배워요. 지호 씨는 뭐 해요?' },
+    ],
+    options: [
+      '네, 태권도예요.',
+      '저는 기자예요.',
+      '저는 친구를 만나요.',
+      '안녕히 계세요.',
+    ],
     answer: '저는 친구를 만나요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -1621,7 +1651,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '말하기'],
     hint: {
       ko: '[저는 바블 머거요]처럼 이어서 말해요.',
-      uz: '[저는 바블 머거요] kabi qo\'shib ayting.',
+      uz: "[저는 바블 머거요] kabi qo'shib ayting.",
       en: 'Say it linked: [저는 바블 머거요].',
       ru: 'Произнесите слитно: [저는 바블 머거요].',
     },
@@ -1678,7 +1708,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '어순'],
     hint: {
       ko: '누가 → 언제 → 무엇을 → 해요. 네 자리예요.',
-      uz: 'Kim → qachon → nimani → qiladi. To\'rtta o\'rin.',
+      uz: "Kim → qachon → nimani → qiladi. To'rtta o'rin.",
       en: 'Who → when → what → do. Four slots.',
       ru: 'Кто → когда → что → делать. Четыре места.',
     },
@@ -1696,7 +1726,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '책을 읽어요.' },
       { speaker: 'npc', text: '한국어 책이에요?' },
     ],
-    options: ['아니요, 커피를 마셔요.', '저는 학생이에요.', '네, 한국어 책이에요.', '안녕히 가세요.'],
+    options: [
+      '아니요, 커피를 마셔요.',
+      '저는 학생이에요.',
+      '네, 한국어 책이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '네, 한국어 책이에요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -1860,7 +1895,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '공부해요.' },
       { speaker: 'npc', text: '일해요?' },
     ],
-    options: ['네, 일해요.', '아니요, 공부해요.', '저는 회사원이에요.', '안녕하세요?'],
+    options: [
+      '네, 일해요.',
+      '아니요, 공부해요.',
+      '저는 회사원이에요.',
+      '안녕하세요?',
+    ],
     answer: '아니요, 공부해요.',
     explanation: {
       ko: '앞에서 "공부해요"라고 했어요. 다른 일을 물으면 아니요로 바로잡아요.',
@@ -1907,7 +1947,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['동사', '종합'],
     hint: {
       ko: '운동은 사는 게 아니라 배우는 거예요.',
-      uz: 'Sportni sotib olmaydilar — o\'rganadilar.',
+      uz: "Sportni sotib olmaydilar — o'rganadilar.",
       en: 'You do not buy a sport — you learn it.',
       ru: 'Спорт не покупают — ему учатся.',
     },
@@ -2049,7 +2089,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '사전형'],
     hint: {
       ko: '사전에 실리는 모양은 전부 "다"로 끝나요. 말할 때는 이 모양을 안 써요.',
-      uz: "Lug'atdagi shakl doim \"다\" bilan tugaydi. Gapirganda bu shakl ishlatilmaydi.",
+      uz: 'Lug\'atdagi shakl doim "다" bilan tugaydi. Gapirganda bu shakl ishlatilmaydi.',
       en: 'Dictionary forms all end in 다. You never say them that way.',
       ru: 'Словарные формы оканчиваются на 다. В речи так не говорят.',
     },
@@ -2169,7 +2209,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '봐요'],
     hint: {
       ko: 'ㅗ 와 ㅏ 가 만나면 ㅘ 가 돼요.',
-      uz: 'ㅗ va ㅏ uchrashsa ㅘ bo\'ladi.',
+      uz: "ㅗ va ㅏ uchrashsa ㅘ bo'ladi.",
       en: 'When ㅗ meets ㅏ, they become ㅘ.',
       ru: 'Когда ㅗ встречает ㅏ, получается ㅘ.',
     },
@@ -2290,7 +2330,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지금 뭐 해요?' }],
-    options: ['영화를 보어요.', '네, 영화예요.', '영화를 봐요.', '영화를 보해요.'],
+    options: [
+      '영화를 보어요.',
+      '네, 영화예요.',
+      '영화를 봐요.',
+      '영화를 보해요.',
+    ],
     answer: '영화를 봐요.',
     explanation: {
       ko: '보다는 "봐요"로 바뀌어요. 보어요·보해요 같은 모양은 없어요.',
@@ -2469,7 +2514,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 해요?' },
     ],
-    options: ['네, 자요.', '영화를 봐요.', '저는 학생이에요.', '안녕히 계세요.'],
+    options: [
+      '네, 자요.',
+      '영화를 봐요.',
+      '저는 학생이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '영화를 봐요.',
     acceptedAnswers: ['영화를 봐요'],
     answerTranslation: {
@@ -2508,7 +2558,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '말하기'],
     hint: {
       ko: '"사요"도 두 글자예요. 늘이지 마세요.',
-      uz: '"사요" ham ikki bo\'g\'in — cho\'zmang.',
+      uz: "\"사요\" ham ikki bo'g'in — cho'zmang.",
       en: '사요 is also two syllables — do not stretch it.',
       ru: '사요 тоже два слога — не растягивайте.',
     },
@@ -2544,7 +2594,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '쉬다'],
     hint: {
       ko: '소파에 편하게 앉아 있는 그림이에요.',
-      uz: 'Divanda bemalol o\'tirgan rasm.',
+      uz: "Divanda bemalol o'tirgan rasm.",
       en: 'The picture of someone relaxing on a sofa.',
       ru: 'Картинка, где кто-то отдыхает на диване.',
     },
@@ -2745,7 +2795,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '마셔요'],
     hint: {
       ko: 'ㅣ 와 ㅓ 가 만나면 ㅕ 가 돼요.',
-      uz: 'ㅣ va ㅓ uchrashsa ㅕ bo\'ladi.',
+      uz: "ㅣ va ㅓ uchrashsa ㅕ bo'ladi.",
       en: 'ㅣ plus ㅓ becomes ㅕ.',
       ru: 'ㅣ плюс ㅓ даёт ㅕ.',
     },
@@ -2798,7 +2848,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '어순'],
     hint: {
       ko: '시간 → 무엇을 → 동사 순서예요.',
-      uz: 'Vaqt → nimani → fe\'l tartibida.',
+      uz: "Vaqt → nimani → fe'l tartibida.",
       en: 'Order: time → what → verb.',
       ru: 'Порядок: время → что → глагол.',
     },
@@ -2876,7 +2926,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '쉬어요.' },
       { speaker: 'npc', text: '책을 읽어요?' },
     ],
-    options: ['네, 책을 읽어요.', '아니요, 텔레비전을 봐요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 책을 읽어요.',
+      '아니요, 텔레비전을 봐요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '아니요, 텔레비전을 봐요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -2889,7 +2944,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '대화'],
     hint: {
       ko: '쉬는 중이라고 했어요. 책을 읽는다고 하면 앞말과 달라져요.',
-      uz: 'Dam olyapman dedingiz — kitob o\'qiyapman desangiz mos kelmaydi.',
+      uz: "Dam olyapman dedingiz — kitob o'qiyapman desangiz mos kelmaydi.",
       en: 'You said you are resting — reading a book would contradict that.',
       ru: 'Вы сказали, что отдыхаете — чтение книги это опровергает.',
     },
@@ -2964,7 +3019,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 해요?' },
     ],
-    options: ['네, 쉬어요.', '저는 의사예요.', '태권도를 배워요.', '안녕히 가세요.'],
+    options: [
+      '네, 쉬어요.',
+      '저는 의사예요.',
+      '태권도를 배워요.',
+      '안녕히 가세요.',
+    ],
     answer: '태권도를 배워요.',
     acceptedAnswers: ['태권도를 배워요'],
     answerTranslation: {
@@ -3003,7 +3063,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '말하기'],
     hint: {
       ko: '[채글 일거요]처럼 받침이 넘어가서 소리 나요.',
-      uz: '[채글 일거요] — oxirgi undosh keyingi bo\'g\'inga o\'tadi.',
+      uz: "[채글 일거요] — oxirgi undosh keyingi bo'g'inga o'tadi.",
       en: 'The final consonants shift over: [채글 일거요].',
       ru: 'Конечные согласные переходят дальше: [채글 일거요].',
     },
@@ -3069,7 +3129,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '해요'],
     hint: {
       ko: '"하"를 그대로 두고 뒤에 붙이지 않아요. "하" 자체가 바뀌어요.',
-      uz: '"하" o\'zgarmay qolmaydi — o\'zi o\'zgaradi.',
+      uz: "\"하\" o'zgarmay qolmaydi — o'zi o'zgaradi.",
       en: '하 does not stay and take an ending — 하 itself changes.',
       ru: '하 не остаётся с окончанием — само 하 меняется.',
     },
@@ -3234,7 +3294,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '해요'],
     hint: {
       ko: '"하다"가 붙은 말은 전부 같은 방식으로 바뀌어요.',
-      uz: '"하다" qo\'shilgan so\'zlar bir xil o\'zgaradi.',
+      uz: "\"하다\" qo'shilgan so'zlar bir xil o'zgaradi.",
       en: 'Every word ending in 하다 changes the same way.',
       ru: 'Все слова на 하다 меняются одинаково.',
     },
@@ -3279,7 +3339,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '공부해요.' },
       { speaker: 'npc', text: '한국어를 공부해요?' },
     ],
-    options: ['아니요, 저는 학생이에요.', '네, 한국어를 공부해요.', '안녕히 계세요.', '네, 책이에요.'],
+    options: [
+      '아니요, 저는 학생이에요.',
+      '네, 한국어를 공부해요.',
+      '안녕히 계세요.',
+      '네, 책이에요.',
+    ],
     answer: '네, 한국어를 공부해요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -3292,7 +3357,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '대화'],
     hint: {
       ko: '무엇을 공부하냐고 확인하는 질문이에요.',
-      uz: 'Nima o\'rganayotganingizni aniqlashtiryapti.',
+      uz: "Nima o'rganayotganingizni aniqlashtiryapti.",
       en: 'They are checking what you study.',
       ru: 'Уточняют, что именно вы учите.',
     },
@@ -3429,7 +3494,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '어순'],
     hint: {
       ko: '시간이 먼저, 동사가 뒤예요.',
-      uz: 'Avval vaqt, keyin fe\'l.',
+      uz: "Avval vaqt, keyin fe'l.",
       en: 'Time first, verb after.',
       ru: 'Сначала время, потом глагол.',
     },
@@ -3447,7 +3512,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 해요?' },
     ],
-    options: ['네, 일해요.', '저는 회사원이에요.', '아르바이트해요.', '안녕하세요?'],
+    options: [
+      '네, 일해요.',
+      '저는 회사원이에요.',
+      '아르바이트해요.',
+      '안녕하세요?',
+    ],
     answer: '아르바이트해요.',
     acceptedAnswers: ['아르바이트해요'],
     answerTranslation: {
@@ -3546,7 +3616,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '종합'],
     hint: {
       ko: '세 가지 규칙이 섞여 있어요. 뜻부터 떠올리세요.',
-      uz: 'Uchta qoida aralashgan — avval ma\'nosini eslang.',
+      uz: "Uchta qoida aralashgan — avval ma'nosini eslang.",
       en: 'All three rules are mixed here — start from the meaning.',
       ru: 'Здесь смешаны все три правила — начните со значения.',
     },
@@ -3587,7 +3657,13 @@ export const UNIT3_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '아르바이트하다 → 지호 씨는 지금 ',
     sentenceSuffix: '.',
-    options: ['아르바이트하아요', '아르바이트하어요', '아르바이트해요', '아르바이트하요', '아르바이트하해요'],
+    options: [
+      '아르바이트하아요',
+      '아르바이트하어요',
+      '아르바이트해요',
+      '아르바이트하요',
+      '아르바이트하해요',
+    ],
     answer: '아르바이트해요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -3653,7 +3729,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '듣기'],
     hint: {
       ko: '와요·봐요·해요는 전부 두 글자예요. 첫소리에 집중하세요.',
-      uz: '와요, 봐요, 해요 — hammasi ikki bo\'g\'in. Birinchi tovushga e\'tibor bering.',
+      uz: "와요, 봐요, 해요 — hammasi ikki bo'g'in. Birinchi tovushga e'tibor bering.",
       en: '와요, 봐요 and 해요 are all two syllables — focus on the first sound.',
       ru: '와요, 봐요, 해요 — все двусложные, слушайте первый звук.',
     },
@@ -3681,7 +3757,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '봐요'],
     hint: {
       ko: '말할 때는 두 글자로 줄여요.',
-      uz: 'Gapirganda ikki bo\'g\'inga qisqaradi.',
+      uz: "Gapirganda ikki bo'g'inga qisqaradi.",
       en: 'In speech it contracts to two syllables.',
       ru: 'В речи сокращается до двух слогов.',
     },
@@ -3707,7 +3783,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '말하기'],
     hint: {
       ko: '텔-레-비-전. 네 글자를 고르게 말해요.',
-      uz: 'tel-le-bi-jon — to\'rt bo\'g\'inni bir tekis ayting.',
+      uz: "tel-le-bi-jon — to'rt bo'g'inni bir tekis ayting.",
       en: 'tel-le-bi-jeon — keep all four syllables even.',
       ru: 'тхэль-ле-би-чон — все четыре слога ровно.',
     },
@@ -3751,7 +3827,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아르바이트해요.' },
       { speaker: 'npc', text: '공부해요?' },
     ],
-    options: ['네, 공부해요.', '저는 학생이에요.', '아니요, 아르바이트해요.', '안녕히 가세요.'],
+    options: [
+      '네, 공부해요.',
+      '저는 학생이에요.',
+      '아니요, 아르바이트해요.',
+      '안녕히 가세요.',
+    ],
     answer: '아니요, 아르바이트해요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -3906,7 +3987,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '어순'],
     hint: {
       ko: '텔레비전과 짝이 되는 동사를 고르세요.',
-      uz: 'Televizor bilan mos fe\'lni tanlang.',
+      uz: "Televizor bilan mos fe'lni tanlang.",
       en: 'Pick the verb that goes with television.',
       ru: 'Выберите глагол для телевизора.',
     },
@@ -3925,7 +4006,7 @@ export const UNIT3_QUESTIONS = {
     acceptedAnswers: ['한국어를 배워요'],
     answerTranslation: {
       ko: '저는 한국어를 배워요. — "뭐 배워요?"에는 배우는 것으로 답한다',
-      uz: "Men koreys tilini o'rganyapman. — \"뭐 배워요?\" ga o'rganayotgan narsangiz bilan javob berasiz",
+      uz: 'Men koreys tilini o\'rganyapman. — "뭐 배워요?" ga o\'rganayotgan narsangiz bilan javob berasiz',
       en: 'I am learning Korean. — answer 뭐 배워요? with what you are learning',
       ru: 'Я учу корейский. — на 뭐 배워요? отвечают тем, что учат.',
     },
@@ -3933,7 +4014,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '대답하기'],
     hint: {
       ko: '상대가 쓴 동사를 그대로 받아서 답해요.',
-      uz: 'Uning ishlatgan fe\'lini o\'zgartirmay javobda ishlating.',
+      uz: "Uning ishlatgan fe'lini o'zgartirmay javobda ishlating.",
       en: 'Reuse the same verb they used.',
       ru: 'Используйте тот же глагол, что и собеседник.',
     },
@@ -3959,7 +4040,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['V-아요/어요', '말하기'],
     hint: {
       ko: '이 과의 제목이에요. 세 덩어리로 끊어 말해요.',
-      uz: 'Bu — shu bo\'lim sarlavhasi. Uch bo\'lakka bo\'lib ayting.',
+      uz: "Bu — shu bo'lim sarlavhasi. Uch bo'lakka bo'lib ayting.",
       en: 'This is the title of the chapter — say it in three chunks.',
       ru: 'Это название главы — произнесите тремя частями.',
     },
@@ -4217,7 +4298,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '듣기'],
     hint: {
       ko: '책과 공책은 뒷글자가 같아요. 앞에 소리가 더 있는지 들으세요.',
-      uz: '책 va 공책 oxiri bir xil — oldida tovush bor-yo\'qligini eshiting.',
+      uz: "책 va 공책 oxiri bir xil — oldida tovush bor-yo'qligini eshiting.",
       en: '책 and 공책 share an ending — listen for the extra syllable in front.',
       ru: '책 и 공책 схожи — слушайте, есть ли слог впереди.',
     },
@@ -4269,7 +4350,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '말하기'],
     hint: {
       ko: '"가방을"은 [가방을] 그대로 받침 ㅇ 이 이어져요.',
-      uz: '"가방을" da ㅇ undoshi keyingi bo\'g\'inga o\'tadi.',
+      uz: "\"가방을\" da ㅇ undoshi keyingi bo'g'inga o'tadi.",
       en: 'In 가방을 the ㅇ carries over smoothly.',
       ru: 'В 가방을 согласный ㅇ переходит дальше.',
     },
@@ -4387,7 +4468,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '어순'],
     hint: {
       ko: '두 칩 중 하나는 틀린 모양이에요. 받침을 보고 고르세요.',
-      uz: 'Ikki chipdan biri noto\'g\'ri — undoshga qarab tanlang.',
+      uz: "Ikki chipdan biri noto'g'ri — undoshga qarab tanlang.",
       en: 'One of the two chips is wrong — check the final consonant.',
       ru: 'Одна из двух фишек неверна — смотрите на конечный согласный.',
     },
@@ -4405,7 +4486,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 해요?' },
     ],
-    options: ['네, 밥을 먹어요.', '책을 읽어요.', '저는 학생이에요.', '안녕히 계세요.'],
+    options: [
+      '네, 밥을 먹어요.',
+      '책을 읽어요.',
+      '저는 학생이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '책을 읽어요.',
     acceptedAnswers: ['책을 읽어요'],
     answerTranslation: {
@@ -4674,7 +4760,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '듣기'],
     hint: {
       ko: '전부 두 글자예요. 첫소리에 집중하세요.',
-      uz: 'Hammasi ikki bo\'g\'inli — birinchi tovushga e\'tibor bering.',
+      uz: "Hammasi ikki bo'g'inli — birinchi tovushga e'tibor bering.",
       en: 'All are two syllables — focus on the first sound.',
       ru: 'Все двусложные — слушайте первый звук.',
     },
@@ -4754,7 +4840,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '말하기'],
     hint: {
       ko: '세 덩어리로 끊어요. 저는 / 주스를 / 마셔요.',
-      uz: 'Uch bo\'lakka bo\'ling: 저는 / 주스를 / 마셔요.',
+      uz: "Uch bo'lakka bo'ling: 저는 / 주스를 / 마셔요.",
       en: 'Three chunks: 저는 / 주스를 / 마셔요.',
       ru: 'Три части: 저는 / 주스를 / 마셔요.',
     },
@@ -4768,7 +4854,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '뭐 마셔요?' }],
-    options: ['커피을 마셔요.', '네, 커피예요.', '커피를 마셔요.', '안녕하세요?'],
+    options: [
+      '커피을 마셔요.',
+      '네, 커피예요.',
+      '커피를 마셔요.',
+      '안녕하세요?',
+    ],
     answer: '커피를 마셔요.',
     explanation: {
       ko: '"커피"는 받침이 없으니까 "커피을"이 아니라 "커피를"이에요.',
@@ -4846,7 +4937,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '번역'],
     hint: {
       ko: '"주스을" 칩은 틀린 모양이에요. 받침이 없으니까요.',
-      uz: '"주스을" chipi noto\'g\'ri — undosh yo\'q.',
+      uz: "\"주스을\" chipi noto'g'ri — undosh yo'q.",
       en: 'The 주스을 chip is wrong — there is no final consonant.',
       ru: 'Фишка 주스을 неверна — конечного согласного нет.',
     },
@@ -4872,7 +4963,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '어순'],
     hint: {
       ko: '칩 두 개 중 하나는 조사가 틀렸어요.',
-      uz: 'Ikki chipdan birida qo\'shimcha noto\'g\'ri.',
+      uz: "Ikki chipdan birida qo'shimcha noto'g'ri.",
       en: 'One of the two chips has the wrong particle.',
       ru: 'У одной из двух фишек неверная частица.',
     },
@@ -4890,7 +4981,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 마셔요?' },
     ],
-    options: ['네, 커피를 마셔요.', '주스를 마셔요.', '저는 학생이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 커피를 마셔요.',
+      '주스를 마셔요.',
+      '저는 학생이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '주스를 마셔요.',
     acceptedAnswers: ['주스를 마셔요'],
     answerTranslation: {
@@ -5096,7 +5192,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '듣기'],
     hint: {
       ko: '지갑과 잡지는 글자가 비슷해요. 순서를 잘 들으세요.',
-      uz: '지갑 va 잡지 o\'xshash — tartibiga diqqat qiling.',
+      uz: "지갑 va 잡지 o'xshash — tartibiga diqqat qiling.",
       en: '지갑 and 잡지 use similar syllables — listen to the order.',
       ru: '지갑 и 잡지 похожи — слушайте порядок слогов.',
     },
@@ -5190,7 +5286,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '뭐 읽어요?' }],
-    options: ['잡지을 읽어요.', '잡지를 읽어요.', '네, 잡지예요.', '안녕히 계세요.'],
+    options: [
+      '잡지을 읽어요.',
+      '잡지를 읽어요.',
+      '네, 잡지예요.',
+      '안녕히 계세요.',
+    ],
     answer: '잡지를 읽어요.',
     acceptedAnswers: ['잡지를 읽어요'],
     answerTranslation: {
@@ -5203,7 +5304,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '대화'],
     hint: {
       ko: '마지막 글자 "지"에 받침이 없어요.',
-      uz: 'Oxirgi bo\'g\'in "지" da undosh yo\'q.',
+      uz: "Oxirgi bo'g'in \"지\" da undosh yo'q.",
       en: 'The last syllable 지 has no final consonant.',
       ru: 'В последнем слоге 지 нет конечного согласного.',
     },
@@ -5257,7 +5358,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '말하기'],
     hint: {
       ko: '"안경을"은 [안경을] 그대로 ㅇ 이 넘어가요.',
-      uz: '"안경을" da ㅇ keyingi bo\'g\'inga o\'tadi.',
+      uz: "\"안경을\" da ㅇ keyingi bo'g'inga o'tadi.",
       en: 'In 안경을 the ㅇ carries into the next syllable.',
       ru: 'В 안경을 согласный ㅇ переходит дальше.',
     },
@@ -5345,7 +5446,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '어순'],
     hint: {
       ko: '"계"는 받침이 없어요. 맞는 칩을 고르세요.',
-      uz: '"계" da undosh yo\'q — to\'g\'ri chipni tanlang.',
+      uz: "\"계\" da undosh yo'q — to'g'ri chipni tanlang.",
       en: '계 has no final consonant — pick the right chip.',
       ru: 'У 계 нет конечного согласного — выберите верную фишку.',
     },
@@ -5363,7 +5464,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 뭐 사요?' },
     ],
-    options: ['네, 우산을 사요.', '저는 회사원이에요.', '안경을 사요.', '안녕하세요?'],
+    options: [
+      '네, 우산을 사요.',
+      '저는 회사원이에요.',
+      '안경을 사요.',
+      '안녕하세요?',
+    ],
     answer: '안경을 사요.',
     acceptedAnswers: ['안경을 사요'],
     answerTranslation: {
@@ -5488,7 +5594,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '종합'],
     hint: {
       ko: '받침이 있는 것 셋, 없는 것 둘이에요.',
-      uz: 'Uchtasida undosh bor, ikkitasida yo\'q.',
+      uz: "Uchtasida undosh bor, ikkitasida yo'q.",
       en: 'Three end in a consonant, two do not.',
       ru: 'Три на согласный, два — нет.',
     },
@@ -5569,7 +5675,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '듣기'],
     hint: {
       ko: '들으면서 받침이 있는지 같이 생각해 보세요.',
-      uz: 'Eshitayotib undosh bor-yo\'qligini ham o\'ylang.',
+      uz: "Eshitayotib undosh bor-yo'qligini ham o'ylang.",
       en: 'As you listen, also think about the final consonant.',
       ru: 'Слушая, думайте и о конечном согласном.',
     },
@@ -5637,7 +5743,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지금 뭐 먹어요?' }],
-    options: ['피자을 먹어요.', '네, 피자예요.', '피자를 먹어요.', '안녕히 가세요.'],
+    options: [
+      '피자을 먹어요.',
+      '네, 피자예요.',
+      '피자를 먹어요.',
+      '안녕히 가세요.',
+    ],
     answer: '피자를 먹어요.',
     acceptedAnswers: ['피자를 먹어요'],
     answerTranslation: {
@@ -5792,7 +5903,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '종합'],
     hint: {
       ko: '매일 새 소식이 실리는 큰 종이예요.',
-      uz: 'Har kuni yangiliklar chiqadigan katta qog\'oz.',
+      uz: "Har kuni yangiliklar chiqadigan katta qog'oz.",
       en: 'The large paper with daily news.',
       ru: 'Большой лист с ежедневными новостями.',
     },
@@ -5837,7 +5948,7 @@ export const UNIT3_QUESTIONS = {
     acceptedAnswers: ['주스를 마셔요'],
     answerTranslation: {
       ko: '저는 주스를 마셔요. — 받침이 없으니 "를"이다',
-      uz: "Men sharbat ichyapman. — undosh yo'q, shuning uchun \"를\"",
+      uz: 'Men sharbat ichyapman. — undosh yo\'q, shuning uchun "를"',
       en: 'I am drinking juice. — no final consonant, so 를',
       ru: 'Я пью сок. — нет конечного согласного, значит 를.',
     },
@@ -5871,7 +5982,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N을/를', '말하기'],
     hint: {
       ko: '세 덩어리로 끊어요. 저는 / 피자를 / 먹어요.',
-      uz: 'Uch bo\'lakka bo\'ling: 저는 / 피자를 / 먹어요.',
+      uz: "Uch bo'lakka bo'ling: 저는 / 피자를 / 먹어요.",
       en: 'Three chunks: 저는 / 피자를 / 먹어요.',
       ru: 'Три части: 저는 / 피자를 / 먹어요.',
     },
@@ -5907,7 +6018,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '책이 아주 많은 조용한 곳이에요.',
-      uz: 'Kitob juda ko\'p bo\'lgan tinch joy.',
+      uz: "Kitob juda ko'p bo'lgan tinch joy.",
       en: 'The quiet place full of books.',
       ru: 'Тихое место, где много книг.',
     },
@@ -5934,7 +6045,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '학교와 회사는 둘 다 사람이 모이는 곳이지만 하는 일이 달라요.',
-      uz: 'Maktab ham, kompaniya ham odam yig\'iladigan joy, lekin ish boshqacha.',
+      uz: "Maktab ham, kompaniya ham odam yig'iladigan joy, lekin ish boshqacha.",
       en: 'School and company both gather people, but for different work.',
       ru: 'Школа и компания собирают людей, но для разного дела.',
     },
@@ -5960,7 +6071,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '도-서-관. 세 글자를 고르게 말해요.',
-      uz: 'do-so-gvan — uch bo\'g\'inni bir tekis ayting.',
+      uz: "do-so-gvan — uch bo'g'inni bir tekis ayting.",
       en: 'do-seo-gwan — keep the three syllables even.',
       ru: 'то-со-гван — три слога ровно.',
     },
@@ -6006,7 +6117,7 @@ export const UNIT3_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '학교에서 공부해요.',
-      uz: 'Maktabda o\'qiyman.',
+      uz: "Maktabda o'qiyman.",
       en: 'I study at school.',
       ru: 'Я учусь в школе.',
     },
@@ -6041,7 +6152,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '듣기'],
     hint: {
       ko: '집은 한 글자예요. 제일 짧게 들려요.',
-      uz: '집 — bir bo\'g\'in, eng qisqa eshitiladi.',
+      uz: "집 — bir bo'g'in, eng qisqa eshitiladi.",
       en: '집 is one syllable — the shortest one.',
       ru: '집 — один слог, самое короткое.',
     },
@@ -6135,7 +6246,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 공부해요?' }],
-    options: ['네, 공부해요.', '도서관에서 공부해요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 공부해요.',
+      '도서관에서 공부해요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '도서관에서 공부해요.',
     explanation: {
       ko: '"어디에서"는 장소를 물어요. 네/아니요로 답하지 않아요.',
@@ -6154,7 +6270,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대화'],
     hint: {
       ko: '장소를 물었으니 장소로 답해요.',
-      uz: 'Joy so\'raldi — joy bilan javob bering.',
+      uz: "Joy so'raldi — joy bilan javob bering.",
       en: 'They asked where — answer with a place.',
       ru: 'Спросили где — отвечайте местом.',
     },
@@ -6211,7 +6327,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '장소 / 무엇을 / 동사 — 세 덩어리로 끊어요.',
-      uz: 'Joy / nimani / fe\'l — uch bo\'lak.',
+      uz: "Joy / nimani / fe'l — uch bo'lak.",
       en: 'Place / what / verb — three chunks.',
       ru: 'Место / что / глагол — три части.',
     },
@@ -6242,7 +6358,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '번역'],
     hint: {
       ko: '집은 한 글자예요. 뒤에 "에서"가 붙어 있어요.',
-      uz: '집 — bir bo\'g\'in, orqasiga "에서" qo\'shilgan.',
+      uz: "집 — bir bo'g'in, orqasiga \"에서\" qo'shilgan.",
       en: '집 is one syllable with 에서 attached behind it.',
       ru: '집 — один слог, к нему присоединено 에서.',
     },
@@ -6310,7 +6426,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 일해요?' }],
-    options: ['네, 일해요.', '저는 회사원이에요.', '회사에서 일해요.', '안녕히 가세요.'],
+    options: [
+      '네, 일해요.',
+      '저는 회사원이에요.',
+      '회사에서 일해요.',
+      '안녕히 가세요.',
+    ],
     answer: '회사에서 일해요.',
     acceptedAnswers: ['회사에서 일해요'],
     answerTranslation: {
@@ -6323,7 +6444,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대화'],
     hint: {
       ko: '직업이 아니라 장소를 물었어요.',
-      uz: 'Kasb emas, joy so\'raldi.',
+      uz: "Kasb emas, joy so'raldi.",
       en: 'They asked about the place, not your job.',
       ru: 'Спросили место, а не профессию.',
     },
@@ -6546,7 +6667,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '커피숍'],
     hint: {
       ko: '이름 안에 답이 들어 있어요.',
-      uz: 'Javob nomining o\'zida bor.',
+      uz: "Javob nomining o'zida bor.",
       en: 'The answer is inside the name itself.',
       ru: 'Ответ есть в самом названии.',
     },
@@ -6572,7 +6693,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '어순'],
     hint: {
       ko: '장소 → 무엇을 → 동사 순서예요.',
-      uz: 'Joy → nimani → fe\'l tartibida.',
+      uz: "Joy → nimani → fe'l tartibida.",
       en: 'Place → what → verb.',
       ru: 'Место → что → глагол.',
     },
@@ -6599,7 +6720,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '듣기'],
     hint: {
       ko: '극장과 시장은 뒷글자가 같아요. 첫 글자를 들으세요.',
-      uz: '극장 va 시장 oxiri bir xil — birinchi bo\'g\'inni eshiting.',
+      uz: "극장 va 시장 oxiri bir xil — birinchi bo'g'inni eshiting.",
       en: '극장 and 시장 share an ending — listen to the first syllable.',
       ru: '극장 и 시장 схожи в конце — слушайте первый слог.',
     },
@@ -6613,7 +6734,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 운동해요?' }],
-    options: ['네, 운동해요.', '공원에서 운동해요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 운동해요.',
+      '공원에서 운동해요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '공원에서 운동해요.',
     acceptedAnswers: ['공원에서 운동해요'],
     answerTranslation: {
@@ -6714,7 +6840,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['장소', '번역'],
     hint: {
       ko: '큰 건물이 아니라 노점이 늘어선 곳이에요.',
-      uz: 'Katta bino emas, do\'konlar tizilgan joy.',
+      uz: "Katta bino emas, do'konlar tizilgan joy.",
       en: 'Not the big building — the place with open stalls.',
       ru: 'Не большое здание, а место с прилавками.',
     },
@@ -6760,7 +6886,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 어디에서 사요?' },
     ],
-    options: ['네, 백화점에서 사요.', '시장에서 사요.', '저는 회사원이에요.', '안녕히 계세요.'],
+    options: [
+      '네, 백화점에서 사요.',
+      '시장에서 사요.',
+      '저는 회사원이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '시장에서 사요.',
     acceptedAnswers: ['시장에서 사요'],
     answerTranslation: {
@@ -6998,7 +7129,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N에서', '듣기'],
     hint: {
       ko: '도서관만 세 글자예요.',
-      uz: 'Faqat 도서관 uch bo\'g\'inli.',
+      uz: "Faqat 도서관 uch bo'g'inli.",
       en: 'Only 도서관 has three syllables.',
       ru: 'Только 도서관 трёхсложное.',
     },
@@ -7092,7 +7223,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 밥을 먹어요?' }],
-    options: ['네, 먹어요.', '저는 학생이에요.', '식당에서 먹어요.', '안녕히 가세요.'],
+    options: [
+      '네, 먹어요.',
+      '저는 학생이에요.',
+      '식당에서 먹어요.',
+      '안녕히 가세요.',
+    ],
     answer: '식당에서 먹어요.',
     acceptedAnswers: ['식당에서 먹어요'],
     answerTranslation: {
@@ -7105,7 +7241,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대화'],
     hint: {
       ko: '장소를 물었어요. 장소로 답해요.',
-      uz: 'Joy so\'raldi — joy bilan javob bering.',
+      uz: "Joy so'raldi — joy bilan javob bering.",
       en: 'They asked where — answer with a place.',
       ru: 'Спросили где — отвечайте местом.',
     },
@@ -7190,7 +7326,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['N에서', '장소'],
     hint: {
       ko: '한 문장에 조사가 두 개 나와요. 장소 쪽을 채우세요.',
-      uz: 'Bir gapda ikkita qo\'shimcha bor — joy tomonini to\'ldiring.',
+      uz: "Bir gapda ikkita qo'shimcha bor — joy tomonini to'ldiring.",
       en: 'This sentence has two markers — fill in the one for the place.',
       ru: 'В предложении две частицы — заполните ту, что для места.',
     },
@@ -7265,7 +7401,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 어디에서 공부해요?' },
     ],
-    options: ['네, 집에서 공부해요.', '도서관에서 공부해요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 집에서 공부해요.',
+      '도서관에서 공부해요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '도서관에서 공부해요.',
     acceptedAnswers: ['도서관에서 공부해요'],
     answerTranslation: {
@@ -7369,7 +7510,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '말하기'],
     hint: {
       ko: '묻는 말이니까 끝을 살짝 올려요.',
-      uz: 'Savol — oxirini biroz ko\'taring.',
+      uz: "Savol — oxirini biroz ko'taring.",
       en: 'It is a question — let your voice rise at the end.',
       ru: 'Это вопрос — слегка повысьте тон в конце.',
     },
@@ -7396,7 +7537,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '어휘'],
     hint: {
       ko: '넷은 장소 이름이고 하나는 묻는 말이에요.',
-      uz: 'To\'rttasi joy nomi, bittasi savol so\'zi.',
+      uz: "To'rttasi joy nomi, bittasi savol so'zi.",
       en: 'Four are place names; one is a question word.',
       ru: 'Четыре — названия мест, одно — вопросительное слово.',
     },
@@ -7410,7 +7551,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 아르바이트해요?' }],
-    options: ['네, 아르바이트해요.', '커피숍에서 아르바이트해요.', '저는 학생이에요.', '안녕히 계세요.'],
+    options: [
+      '네, 아르바이트해요.',
+      '커피숍에서 아르바이트해요.',
+      '저는 학생이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '커피숍에서 아르바이트해요.',
     acceptedAnswers: ['커피숍에서 아르바이트해요'],
     answerTranslation: {
@@ -7423,7 +7569,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대화'],
     hint: {
       ko: '장소를 물었어요. 네/아니요는 답이 아니에요.',
-      uz: 'Joy so\'raldi — ha/yo\'q javob emas.',
+      uz: "Joy so'raldi — ha/yo'q javob emas.",
       en: 'They asked where — yes/no is not an answer.',
       ru: 'Спросили где — да/нет не подходит.',
     },
@@ -7449,7 +7595,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '어순'],
     hint: {
       ko: '묻는 말이 맨 앞에 와요.',
-      uz: 'Savol so\'zi eng oldinda turadi.',
+      uz: "Savol so'zi eng oldinda turadi.",
       en: 'The question word goes first.',
       ru: 'Вопросительное слово идёт первым.',
     },
@@ -7530,7 +7676,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '말하기'],
     hint: {
       ko: '어디에서 / 밥을 / 먹어요 — 세 덩어리예요.',
-      uz: '어디에서 / 밥을 / 먹어요 — uch bo\'lak.',
+      uz: "어디에서 / 밥을 / 먹어요 — uch bo'lak.",
       en: 'Three chunks: 어디에서 / 밥을 / 먹어요.',
       ru: 'Три части: 어디에서 / 밥을 / 먹어요.',
     },
@@ -7570,7 +7716,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어디에서 친구를 만나요?' }],
-    options: ['네, 만나요.', '저는 회사원이에요.', '공원에서 만나요.', '안녕하세요?'],
+    options: [
+      '네, 만나요.',
+      '저는 회사원이에요.',
+      '공원에서 만나요.',
+      '안녕하세요?',
+    ],
     answer: '공원에서 만나요.',
     acceptedAnswers: ['공원에서 만나요'],
     answerTranslation: {
@@ -7583,7 +7734,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대화'],
     hint: {
       ko: '장소를 물었어요. 직업은 답이 아니에요.',
-      uz: 'Joy so\'raldi — kasb javob emas.',
+      uz: "Joy so'raldi — kasb javob emas.",
       en: 'They asked where — your job is not the answer.',
       ru: 'Спросили где — профессия не подходит.',
     },
@@ -7637,7 +7788,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '장소'],
     hint: {
       ko: '묻는 말 안에 이미 힌트가 들어 있어요.',
-      uz: 'Savolning o\'zida ishora bor.',
+      uz: "Savolning o'zida ishora bor.",
       en: 'The question itself contains the hint.',
       ru: 'Подсказка есть в самом вопросе.',
     },
@@ -7668,7 +7819,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '번역'],
     hint: {
       ko: '묻는 문장이라 답이 될 장소 칩은 쓰지 않아요.',
-      uz: 'Bu savol — javob bo\'ladigan joy chipini ishlatmang.',
+      uz: "Bu savol — javob bo'ladigan joy chipini ishlatmang.",
       en: 'This is a question, so do not use the place chips that would answer it.',
       ru: 'Это вопрос — не берите фишки-места, которые были бы ответом.',
     },
@@ -7725,7 +7876,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '어순'],
     hint: {
       ko: '누가 → 어디에서 → 무엇을 → 해요. 네 자리예요.',
-      uz: 'Kim → qayerda → nimani → qiladi. To\'rt o\'rin.',
+      uz: "Kim → qayerda → nimani → qiladi. To'rt o'rin.",
       en: 'Who → where → what → does. Four slots.',
       ru: 'Кто → где → что → делает. Четыре места.',
     },
@@ -7752,7 +7903,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '대답하기'],
     hint: {
       ko: '상대가 쓴 동사를 그대로 받아서 답해요.',
-      uz: 'Uning fe\'lini o\'zgartirmay javobda ishlating.',
+      uz: "Uning fe'lini o'zgartirmay javobda ishlating.",
       en: 'Reuse the verb they used.',
       ru: 'Используйте тот же глагол, что и собеседник.',
     },
@@ -7778,7 +7929,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['어디에서', '말하기'],
     hint: {
       ko: '장소 / 무엇을 / 동사 — 세 덩어리로 끊어요.',
-      uz: 'Joy / nimani / fe\'l — uch bo\'lak.',
+      uz: "Joy / nimani / fe'l — uch bo'lak.",
       en: 'Place / what / verb — three chunks.',
       ru: 'Место / что / глагол — три части.',
     },
@@ -7817,7 +7968,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '부정'],
     hint: {
       ko: '한 글자짜리 말이 동사 앞에 들어가요.',
-      uz: 'Bir bo\'g\'inli so\'z fe\'l oldiga qo\'yiladi.',
+      uz: "Bir bo'g'inli so'z fe'l oldiga qo'yiladi.",
       en: 'A one-syllable word goes in front of the verb.',
       ru: 'Перед глаголом ставится односложное слово.',
     },
@@ -7844,7 +7995,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '어휘'],
     hint: {
       ko: '차는 마시는 것이고 고기는 먹는 것이에요.',
-      uz: 'Choy ichiladi, go\'sht yeyiladi.',
+      uz: "Choy ichiladi, go'sht yeyiladi.",
       en: 'Tea is drunk; meat is eaten.',
       ru: 'Чай пьют, мясо едят.',
     },
@@ -8005,7 +8156,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '부정'],
     hint: {
       ko: '"안"이 붙어도 동사는 그대로예요. 차는 마시는 것이에요.',
-      uz: '"안" qo\'shilsa ham fe\'l o\'zgarmaydi. Choy ichiladi.',
+      uz: "\"안\" qo'shilsa ham fe'l o'zgarmaydi. Choy ichiladi.",
       en: 'Adding 안 does not change the verb — tea is drunk.',
       ru: '안 не меняет глагол — чай пьют.',
     },
@@ -8031,7 +8182,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '어순'],
     hint: {
       ko: '무엇을 → 안 → 동사 순서예요.',
-      uz: 'Nimani → 안 → fe\'l tartibida.',
+      uz: "Nimani → 안 → fe'l tartibida.",
       en: 'Order: what → 안 → verb.',
       ru: 'Порядок: что → 안 → глагол.',
     },
@@ -8045,7 +8196,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '커피를 마셔요?' }],
-    options: ['네, 안 마셔요.', '아니요, 안 마셔요.', '아니요, 마셔 안요.', '저는 학생이에요.'],
+    options: [
+      '네, 안 마셔요.',
+      '아니요, 안 마셔요.',
+      '아니요, 마셔 안요.',
+      '저는 학생이에요.',
+    ],
     answer: '아니요, 안 마셔요.',
     explanation: {
       ko: '대답은 "아니요", 문장 부정은 "안"이에요. 둘을 같이 써요. "마셔 안요"라는 자리는 없어요.',
@@ -8224,7 +8380,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요, 안 봐요.' },
       { speaker: 'npc', text: '그럼 뭐 봐요?' },
     ],
-    options: ['네, 드라마를 봐요.', '영화를 봐요.', '저는 회사원이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 드라마를 봐요.',
+      '영화를 봐요.',
+      '저는 회사원이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '영화를 봐요.',
     acceptedAnswers: ['영화를 봐요'],
     answerTranslation: {
@@ -8237,7 +8398,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '대화'],
     hint: {
       ko: '드라마는 안 본다고 했어요. 다른 것을 말해요.',
-      uz: 'Serial ko\'rmayman dedingiz — boshqasini ayting.',
+      uz: "Serial ko'rmayman dedingiz — boshqasini ayting.",
       en: 'You said no to dramas — name something else.',
       ru: 'Вы отказались от сериалов — назовите другое.',
     },
@@ -8383,7 +8544,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '하다'],
     hint: {
       ko: '공부 안 해요 와 똑같은 자리예요.',
-      uz: '공부 안 해요 bilan bir xil o\'rin.',
+      uz: "공부 안 해요 bilan bir xil o'rin.",
       en: 'Same slot as in 공부 안 해요.',
       ru: 'То же место, что и в 공부 안 해요.',
     },
@@ -8462,7 +8623,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '듣기'],
     hint: {
       ko: '요리와 고기는 소리가 비슷해요. 첫 글자를 들으세요.',
-      uz: '요리 va 고기 o\'xshash eshitiladi — birinchi bo\'g\'inni tinglang.',
+      uz: "요리 va 고기 o'xshash eshitiladi — birinchi bo'g'inni tinglang.",
       en: '요리 and 고기 sound similar — listen to the first syllable.',
       ru: '요리 и 고기 звучат похоже — слушайте первый слог.',
     },
@@ -8490,7 +8651,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['안 V', '하다'],
     hint: {
       ko: '숙제와 짝이 되는 동사는 하나뿐이에요.',
-      uz: 'Uy vazifasi bilan juft bo\'ladigan fe\'l bitta.',
+      uz: "Uy vazifasi bilan juft bo'ladigan fe'l bitta.",
       en: 'Only one verb pairs with 숙제.',
       ru: 'С 숙제 сочетается только один глагол.',
     },
@@ -8530,7 +8691,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '오늘 공부해요?' }],
-    options: ['아니요, 안 공부해요.', '아니요, 공부 안 해요.', '네, 공부 안 해요.', '저는 학생이에요.'],
+    options: [
+      '아니요, 안 공부해요.',
+      '아니요, 공부 안 해요.',
+      '네, 공부 안 해요.',
+      '저는 학생이에요.',
+    ],
     answer: '아니요, 공부 안 해요.',
     explanation: {
       ko: '"안 공부해요"는 틀린 자리예요. "공부"와 "해요" 사이에 "안"이 들어가요.',
@@ -8709,7 +8875,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요, 아르바이트 안 해요.' },
       { speaker: 'npc', text: '그럼 뭐 해요?' },
     ],
-    options: ['네, 아르바이트해요.', '집에서 쉬어요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 아르바이트해요.',
+      '집에서 쉬어요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '집에서 쉬어요.',
     acceptedAnswers: ['집에서 쉬어요'],
     answerTranslation: {
@@ -8767,7 +8938,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지호 씨, 지금 뭐 해요?' }],
-    options: ['네, 지호예요.', '저는 책을 읽어요.', '안녕히 계세요.', '저는 학생이에요.'],
+    options: [
+      '네, 지호예요.',
+      '저는 책을 읽어요.',
+      '안녕히 계세요.',
+      '저는 학생이에요.',
+    ],
     answer: '저는 책을 읽어요.',
     acceptedAnswers: ['저는 책을 읽어요'],
     answerTranslation: {
@@ -8806,7 +8982,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '[채글 일거요]처럼 이어서 말해요.',
-      uz: '[채글 일거요] kabi qo\'shib ayting.',
+      uz: "[채글 일거요] kabi qo'shib ayting.",
       en: 'Say it linked: [채글 일거요].',
       ru: 'Произнесите слитно: [채글 일거요].',
     },
@@ -8931,7 +9107,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '아니요, 도서관에서 공부 안 해요.' },
       { speaker: 'npc', text: '그럼 어디에서 공부해요?' },
     ],
-    options: ['네, 도서관에서 공부해요.', '집에서 공부해요.', '저는 학생이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 도서관에서 공부해요.',
+      '집에서 공부해요.',
+      '저는 학생이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '집에서 공부해요.',
     acceptedAnswers: ['집에서 공부해요'],
     answerTranslation: {
@@ -8971,7 +9152,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '듣기'],
     hint: {
       ko: '지금과 그럼은 끝소리가 같아요. 첫 글자를 들으세요.',
-      uz: '지금 va 그럼 oxiri bir xil — birinchi bo\'g\'inni eshiting.',
+      uz: "지금 va 그럼 oxiri bir xil — birinchi bo'g'inni eshiting.",
       en: '지금 and 그럼 end alike — listen to the first syllable.',
       ru: '지금 и 그럼 схожи в конце — слушайте первый слог.',
     },
@@ -8999,7 +9180,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '장소'],
     hint: {
       ko: '학생이 짧게 일하는 곳으로 가장 흔한 데예요.',
-      uz: 'Talabalar ko\'p yarim kunlik ishlaydigan joy.',
+      uz: "Talabalar ko'p yarim kunlik ishlaydigan joy.",
       en: 'The most common place students take a part-time job.',
       ru: 'Самое частое место подработки студентов.',
     },
@@ -9025,7 +9206,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '긴 말이에요. 아-르-바-이-트 를 서두르지 마세요.',
-      uz: 'Uzun so\'z — a-ru-ba-i-tu ni shoshmay ayting.',
+      uz: "Uzun so'z — a-ru-ba-i-tu ni shoshmay ayting.",
       en: 'It is long — do not rush a-reu-ba-i-teu.',
       ru: 'Слово длинное — не спешите с а-ры-ба-и-тхы.',
     },
@@ -9168,7 +9349,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '번역'],
     hint: {
       ko: '묻는 문장이니까 장소 이름을 넣으면 안 돼요.',
-      uz: 'Bu savol — joy nomini qo\'ymang.',
+      uz: "Bu savol — joy nomini qo'ymang.",
       en: 'This is a question — do not insert an actual place name.',
       ru: 'Это вопрос — не вставляйте конкретное место.',
     },
@@ -9220,7 +9401,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['대화 종합', '말하기'],
     hint: {
       ko: '묻는 말이니까 끝을 올려요.',
-      uz: 'Savol — oxirini ko\'taring.',
+      uz: "Savol — oxirini ko'taring.",
       en: 'It is a question — raise your tone at the end.',
       ru: 'Это вопрос — повысьте тон в конце.',
     },
@@ -9253,7 +9434,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['종합', 'N에서'],
     hint: {
       ko: '한 문장에 조사가 둘이에요. 장소 쪽을 채우세요.',
-      uz: 'Bir gapda ikkita qo\'shimcha — joy tomonini to\'ldiring.',
+      uz: "Bir gapda ikkita qo'shimcha — joy tomonini to'ldiring.",
       en: 'Two markers in one sentence — fill the place one.',
       ru: 'В предложении две частицы — заполните для места.',
     },
@@ -9279,7 +9460,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['종합', '말하기'],
     hint: {
       ko: '장소 / 무엇을 / 동사 — 세 덩어리로 끊어요.',
-      uz: 'Joy / nimani / fe\'l — uch bo\'lak.',
+      uz: "Joy / nimani / fe'l — uch bo'lak.",
       en: 'Place / what / verb — three chunks.',
       ru: 'Место / что / глагол — три части.',
     },
@@ -9346,7 +9527,12 @@ export const UNIT3_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '오늘 운동해요?' }],
-    options: ['아니요, 안 운동해요.', '네, 운동 안 해요.', '아니요, 운동 안 해요.', '저는 회사원이에요.'],
+    options: [
+      '아니요, 안 운동해요.',
+      '네, 운동 안 해요.',
+      '아니요, 운동 안 해요.',
+      '저는 회사원이에요.',
+    ],
     answer: '아니요, 운동 안 해요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9414,7 +9600,7 @@ export const UNIT3_QUESTIONS = {
     hint: {
       ko: '장소에는 이미 "에서"가 붙었어요. 이번엔 물건 차례예요.',
       uz: 'Joyga "에서" qo\'shilgan — endi narsa navbati.',
-      en: 'The place already has 에서 — now it is the object\'s turn.',
+      en: "The place already has 에서 — now it is the object's turn.",
       ru: 'У места уже есть 에서 — теперь очередь предмета.',
     },
     xpReward: 15,
@@ -9538,7 +9724,12 @@ export const UNIT3_QUESTIONS = {
       { speaker: 'user', text: '식당에서 먹어요.' },
       { speaker: 'npc', text: '학생 식당이에요?' },
     ],
-    options: ['아니요, 집에서 자요.', '네, 학생 식당이에요.', '저는 회사원이에요.', '안녕히 계세요.'],
+    options: [
+      '아니요, 집에서 자요.',
+      '네, 학생 식당이에요.',
+      '저는 회사원이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '네, 학생 식당이에요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9582,7 +9773,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['종합', '장소'],
     hint: {
       ko: '작은 가게들이 붙어 있는 곳이에요.',
-      uz: 'Kichik do\'konlar yonma-yon turgan joy.',
+      uz: "Kichik do'konlar yonma-yon turgan joy.",
       en: 'The place with small shops side by side.',
       ru: 'Место, где маленькие лавки стоят рядом.',
     },
@@ -9658,7 +9849,7 @@ export const UNIT3_QUESTIONS = {
     acceptedAnswers: ['식당에서 먹어요'],
     answerTranslation: {
       ko: '저는 식당에서 먹어요. — 장소를 물으면 장소로 답한다',
-      uz: 'Men oshxonada yeyman. — joy so\'ralsa joy bilan javob beriladi',
+      uz: "Men oshxonada yeyman. — joy so'ralsa joy bilan javob beriladi",
       en: 'I eat at a restaurant. — a place question takes a place answer',
       ru: 'Я ем в столовой. — на вопрос о месте отвечают местом.',
     },
@@ -9692,7 +9883,7 @@ export const UNIT3_QUESTIONS = {
     tags: ['종합', '말하기'],
     hint: {
       ko: '오늘 / 한국어를 / 배워요 — 세 덩어리예요.',
-      uz: '오늘 / 한국어를 / 배워요 — uch bo\'lak.',
+      uz: "오늘 / 한국어를 / 배워요 — uch bo'lak.",
       en: 'Three chunks: 오늘 / 한국어를 / 배워요.',
       ru: 'Три части: 오늘 / 한국어를 / 배워요.',
     },
@@ -9723,7 +9914,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '자요 · 공부해요 · 일해요 · 운동해요',
-          uz: 'Uxlash · O\'qish · Ishlash · Sport',
+          uz: "Uxlash · O'qish · Ishlash · Sport",
           en: 'Sleep · Study · Work · Exercise',
           ru: 'Спать · Учиться · Работать · Спорт',
         },
@@ -9753,7 +9944,7 @@ export const UNIT3_NODES = [
       {
         title: {
           ko: '먹고 마시고 읽고 봐요',
-          uz: 'Yeyish · Ichish · O\'qish · Ko\'rish',
+          uz: "Yeyish · Ichish · O'qish · Ko'rish",
           en: 'Eat, Drink, Read, Watch',
           ru: 'Есть, пить, читать, смотреть',
         },
@@ -9789,13 +9980,13 @@ export const UNIT3_NODES = [
       {
         title: {
           ko: '사고 만나고 배워요',
-          uz: 'Sotib olish · Uchrashish · O\'rganish',
+          uz: "Sotib olish · Uchrashish · O'rganish",
           en: 'Buy, Meet, Learn',
           ru: 'Покупать, встречать, учить',
         },
         description: {
           ko: '옷을 사요 · 친구를 만나요 · 태권도를 배워요 · 숙제를 해요',
-          uz: 'Kiyim · Do\'st · Taekvondo · Uy vazifasi',
+          uz: "Kiyim · Do'st · Taekvondo · Uy vazifasi",
           en: 'Clothes · Friend · Taekwondo · Homework',
           ru: 'Одежда · Друг · Тхэквондо · Домашка',
         },
@@ -9831,7 +10022,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '열두 개를 섞어서 구별하기',
-          uz: 'O\'n ikkitasini aralashtirib farqlash',
+          uz: "O'n ikkitasini aralashtirib farqlash",
           en: 'Telling all twelve apart',
           ru: 'Различаем все двенадцать',
         },
@@ -9875,13 +10066,13 @@ export const UNIT3_NODES = [
       {
         title: {
           ko: 'ㅏ · ㅗ 뒤에는 아요',
-          uz: "ㅏ · ㅗ dan keyin 아요",
+          uz: 'ㅏ · ㅗ dan keyin 아요',
           en: 'After ㅏ or ㅗ comes 아요',
           ru: 'После ㅏ и ㅗ идёт 아요',
         },
         description: {
           ko: '자요 · 사요 · 만나요 · 봐요 · 와요',
-          uz: 'Uxlamoq · Sotib olmoq · Uchrashmoq · Ko\'rmoq',
+          uz: "Uxlamoq · Sotib olmoq · Uchrashmoq · Ko'rmoq",
           en: 'Sleep · Buy · Meet · Watch · Come',
           ru: 'Спать · Покупать · Встречать · Смотреть',
         },
@@ -9911,13 +10102,13 @@ export const UNIT3_NODES = [
       {
         title: {
           ko: '그 밖의 모음 뒤에는 어요',
-          uz: "Boshqa unlilardan keyin 어요",
+          uz: 'Boshqa unlilardan keyin 어요',
           en: 'Other vowels take 어요',
           ru: 'С остальными гласными — 어요',
         },
         description: {
           ko: '먹어요 · 읽어요 · 마셔요 · 배워요 · 쉬어요',
-          uz: 'Yemoq · O\'qimoq · Ichmoq · O\'rganmoq · Dam olmoq',
+          uz: "Yemoq · O'qimoq · Ichmoq · O'rganmoq · Dam olmoq",
           en: 'Eat · Read · Drink · Learn · Rest',
           ru: 'Есть · Читать · Пить · Учить · Отдыхать',
         },
@@ -9953,7 +10144,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '공부해요 · 일해요 · 운동해요 · 숙제해요 · 아르바이트해요',
-          uz: 'O\'qish · Ishlash · Sport · Uy vazifasi · Yarim kunlik ish',
+          uz: "O'qish · Ishlash · Sport · Uy vazifasi · Yarim kunlik ish",
           en: 'Study · Work · Exercise · Homework · Part-time job',
           ru: 'Учиться · Работать · Спорт · Домашка · Подработка',
         },
@@ -10075,7 +10266,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '커피를 · 친구를 · 영화를 · 주스를 · 모자를',
-          uz: 'Qahva · Do\'st · Kino · Sharbat · Shapka',
+          uz: "Qahva · Do'st · Kino · Sharbat · Shapka",
           en: 'Coffee · Friend · Movie · Juice · Hat',
           ru: 'Кофе · Друг · Фильм · Сок · Шапка',
         },
@@ -10111,7 +10302,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '우산을 · 시계를 · 지갑을 · 안경을 · 잡지를',
-          uz: 'Soyabon · Soat · Hamyon · Ko\'zoynak · Jurnal',
+          uz: "Soyabon · Soat · Hamyon · Ko'zoynak · Jurnal",
           en: 'Umbrella · Watch · Wallet · Glasses · Magazine',
           ru: 'Зонт · Часы · Кошелёк · Очки · Журнал',
         },
@@ -10305,7 +10496,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '장소를 묻고 답하기',
-          uz: 'Joyni so\'rash va javob berish',
+          uz: "Joyni so'rash va javob berish",
           en: 'Asking and answering about places',
           ru: 'Спрашиваем и отвечаем о месте',
         },
@@ -10355,7 +10546,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '부정하는 말은 동사 바로 앞에 온다',
-          uz: 'Inkor so\'zi fe\'l oldida turadi',
+          uz: "Inkor so'zi fe'l oldida turadi",
           en: 'The negator sits right before the verb',
           ru: 'Отрицание стоит прямо перед глаголом',
         },
@@ -10427,7 +10618,7 @@ export const UNIT3_NODES = [
         },
         description: {
           ko: '묻고 답하는 대화 한 바퀴',
-          uz: 'To\'liq savol-javob suhbati',
+          uz: "To'liq savol-javob suhbati",
           en: 'A full round of asking and answering',
           ru: 'Полный круг вопросов и ответов',
         },
@@ -10457,13 +10648,13 @@ export const UNIT3_NODES = [
       {
         title: {
           ko: '유닛 종합',
-          uz: 'Bo\'lim yakuni',
+          uz: "Bo'lim yakuni",
           en: 'Unit Review',
           ru: 'Итог юнита',
         },
         description: {
           ko: '동사 · 활용 · 을/를 · 에서 · 안 을 한 번에',
-          uz: 'Fe\'l · tuslanish · 을/를 · 에서 · 안',
+          uz: "Fe'l · tuslanish · 을/를 · 에서 · 안",
           en: 'Verbs, conjugation, 을/를, 에서 and 안 together',
           ru: 'Глаголы, спряжение, 을/를, 에서 и 안 вместе',
         },
@@ -10493,3 +10684,1894 @@ export const UNIT3_NODES = [
     ],
   },
 ];
+
+export const S1_UNIT3_WORDS = [
+  {
+    code: 'word_study_verb',
+    senseKey: 'action-study',
+    korean: '공부하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '지식이나 기술을 배우고 익히다',
+      uz: 'o‘qimoq, o‘rganmoq',
+      en: 'to study',
+      ru: 'учиться, изучать',
+    },
+
+    examples: [
+      {
+        korean: '저는 한국어를 공부해요.',
+        translations: {
+          ko: '저는 한국어를 공부합니다.',
+          uz: 'Men koreys tilini o‘rganaman.',
+          en: 'I study Korean.',
+          ru: 'Я изучаю корейский язык.',
+        },
+      },
+      {
+        korean: '도서관에서 공부해요.',
+        translations: {
+          ko: '도서관에서 공부합니다.',
+          uz: 'Kutubxonada o‘qiyman.',
+          en: 'I study at the library.',
+          ru: 'Я занимаюсь в библиотеке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '공부하다',
+      romanization: 'gongbuhada',
+      ttsText: '공부하다',
+    },
+
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/gongbuhada.webp',
+      imageAlt: {
+        ko: '책상에서 공부하는 사람',
+        uz: 'stolda o‘qiyotgan odam',
+        en: 'a person studying at a desk',
+        ru: 'человек, занимающийся за столом',
+      },
+    },
+
+    tags: ['verb', 'study', 'education', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'한국어를 공부하다', '도서관에서 공부하다'처럼 사용해요.",
+      uz: "'한국어를 공부하다' yoki '도서관에서 공부하다' kabi ishlatiladi.",
+      en: "Commonly used as 'study Korean' or 'study at the library.'",
+      ru: 'Часто используется в выражениях «изучать корейский язык» и «заниматься в библиотеке».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_rice_meal_noun',
+    senseKey: 'food-meal-rice',
+    korean: '밥',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '쌀로 만든 음식 또는 식사',
+      uz: 'guruch, ovqat',
+      en: 'rice, meal',
+      ru: 'рис, еда',
+    },
+
+    examples: [
+      {
+        korean: '밥을 먹어요.',
+        translations: {
+          ko: '밥을 먹습니다.',
+          uz: 'Ovqat yeyman.',
+          en: 'I eat a meal.',
+          ru: 'Я ем.',
+        },
+      },
+      {
+        korean: '학생 식당에서 밥을 먹어요.',
+        translations: {
+          ko: '학생 식당에서 밥을 먹습니다.',
+          uz: 'Talabalar oshxonasida ovqat yeyman.',
+          en: 'I eat at the student cafeteria.',
+          ru: 'Я ем в студенческой столовой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '밥',
+      romanization: 'bap',
+      ttsText: '밥',
+    },
+
+    media: {
+      emoji: '🍚',
+      imageUrl: 'https://cdn.korio.app/words/bap.webp',
+      imageAlt: {
+        ko: '그릇에 담긴 밥',
+        uz: 'idishdagi guruch',
+        en: 'rice in a bowl',
+        ru: 'рис в миске',
+      },
+    },
+
+    tags: ['food', 'meal', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'밥을 먹다'는 단순히 쌀밥뿐 아니라 식사를 한다는 뜻으로도 많이 사용해요.",
+      uz: "'밥을 먹다' nafaqat guruch yeyish, balki umumiy ma'noda ovqatlanishni ham bildiradi.",
+      en: "'밥을 먹다' often means simply 'to eat a meal,' not only to eat rice.",
+      ru: '«밥을 먹다» часто означает просто «поесть», а не только есть рис.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eat_verb',
+    senseKey: 'action-eat',
+    korean: '먹다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '음식을 입으로 먹다',
+      uz: 'yemoq',
+      en: 'to eat',
+      ru: 'есть',
+    },
+
+    examples: [
+      {
+        korean: '밥을 먹어요.',
+        translations: {
+          ko: '밥을 먹습니다.',
+          uz: 'Ovqat yeyman.',
+          en: 'I eat a meal.',
+          ru: 'Я ем.',
+        },
+      },
+      {
+        korean: '식당에서 밥을 먹어요.',
+        translations: {
+          ko: '식당에서 밥을 먹습니다.',
+          uz: 'Restoranda ovqat yeyman.',
+          en: 'I eat at a restaurant.',
+          ru: 'Я ем в ресторане.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '먹다',
+      romanization: 'meokda',
+      ttsText: '먹다',
+    },
+
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/meokda.webp',
+      imageAlt: {
+        ko: '음식을 먹는 사람',
+        uz: 'ovqat yeyayotgan odam',
+        en: 'a person eating food',
+        ru: 'человек, который ест',
+      },
+    },
+
+    tags: ['verb', 'food', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'밥을 먹다', '고기를 먹다'처럼 음식과 함께 사용해요.",
+      uz: "'밥을 먹다', '고기를 먹다' kabi ovqat nomlari bilan ishlatiladi.",
+      en: "Used with foods, such as 'eat a meal' or 'eat meat.'",
+      ru: 'Используется с названиями еды, например «есть рис» или «есть мясо».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_homework_noun',
+    senseKey: 'education-homework',
+    korean: '숙제',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '학교나 수업에서 집에서 해 오도록 내주는 공부',
+      uz: 'uy vazifasi',
+      en: 'homework',
+      ru: 'домашнее задание',
+    },
+
+    examples: [
+      {
+        korean: '숙제를 해요.',
+        translations: {
+          ko: '숙제를 합니다.',
+          uz: 'Uy vazifasini qilaman.',
+          en: 'I do my homework.',
+          ru: 'Я делаю домашнее задание.',
+        },
+      },
+      {
+        korean: '집에서 숙제를 해요.',
+        translations: {
+          ko: '집에서 숙제를 합니다.',
+          uz: 'Uyda uy vazifasini qilaman.',
+          en: 'I do my homework at home.',
+          ru: 'Я делаю домашнее задание дома.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '숙제',
+      romanization: 'sukje',
+      ttsText: '숙제',
+    },
+
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/sukje.webp',
+      imageAlt: {
+        ko: '공책에 하는 숙제',
+        uz: 'daftarda bajarilayotgan uy vazifasi',
+        en: 'homework being done in a notebook',
+        ru: 'домашнее задание в тетради',
+      },
+    },
+
+    tags: ['education', 'school', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "보통 '숙제를 하다' 형태로 사용해요.",
+      uz: "Odatda '숙제를 하다' shaklida ishlatiladi.",
+      en: "Usually used in the expression '숙제를 하다' — 'to do homework.'",
+      ru: 'Обычно используется в выражении «숙제를 하다» — «делать домашнее задание».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_do_verb',
+    senseKey: 'action-do',
+    korean: '하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '어떤 행동이나 일을 하다',
+      uz: 'qilmoq',
+      en: 'to do',
+      ru: 'делать',
+    },
+
+    examples: [
+      {
+        korean: '숙제를 해요.',
+        translations: {
+          ko: '숙제를 합니다.',
+          uz: 'Uy vazifasini qilaman.',
+          en: 'I do my homework.',
+          ru: 'Я делаю домашнее задание.',
+        },
+      },
+      {
+        korean: '지금 뭐 해요?',
+        translations: {
+          ko: '지금 무엇을 합니까?',
+          uz: 'Hozir nima qilyapsiz?',
+          en: 'What are you doing now?',
+          ru: 'Что вы сейчас делаете?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '하다',
+      romanization: 'hada',
+      ttsText: '하다',
+    },
+
+    media: {
+      emoji: '✅',
+      imageUrl: 'https://cdn.korio.app/words/hada.webp',
+      imageAlt: {
+        ko: '어떤 일을 하는 사람',
+        uz: 'biror ish qilayotgan odam',
+        en: 'a person doing an activity',
+        ru: 'человек, выполняющий действие',
+      },
+    },
+
+    tags: ['verb', 'basic-verb', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'공부하다', '운동하다'처럼 명사와 결합해 많은 동사를 만들어요.",
+      uz: "'공부하다', '운동하다' kabi otlar bilan birikib ko‘plab fe'llarni hosil qiladi.",
+      en: 'It combines with many nouns to form verbs, such as 공부하다 and 운동하다.',
+      ru: 'Соединяется со многими существительными, образуя глаголы, например 공부하다 и 운동하다.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_movie_noun',
+    senseKey: 'media-movie',
+    korean: '영화',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '이야기를 영상으로 만든 작품',
+      uz: 'film, kino',
+      en: 'movie, film',
+      ru: 'фильм, кино',
+    },
+
+    examples: [
+      {
+        korean: '영화를 봐요.',
+        translations: {
+          ko: '영화를 봅니다.',
+          uz: 'Film ko‘raman.',
+          en: 'I watch a movie.',
+          ru: 'Я смотрю фильм.',
+        },
+      },
+      {
+        korean: '극장에서 영화를 봐요.',
+        translations: {
+          ko: '극장에서 영화를 봅니다.',
+          uz: 'Kinoteatrda film ko‘raman.',
+          en: 'I watch a movie at the theater.',
+          ru: 'Я смотрю фильм в кинотеатре.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '영화',
+      romanization: 'yeonghwa',
+      ttsText: '영화',
+    },
+
+    media: {
+      emoji: '🎬',
+      imageUrl: 'https://cdn.korio.app/words/yeonghwa.webp',
+      imageAlt: {
+        ko: '영화를 나타내는 영화 필름',
+        uz: 'filmni ifodalovchi kino tasmasi',
+        en: 'movie film representing a movie',
+        ru: 'киноплёнка, обозначающая фильм',
+      },
+    },
+
+    tags: ['entertainment', 'media', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "보통 '영화를 보다'라고 해요.",
+      uz: "Odatda '영화를 보다' shaklida ishlatiladi.",
+      en: "Usually used in the expression '영화를 보다' — 'to watch a movie.'",
+      ru: 'Обычно используется в выражении «영화를 보다» — «смотреть фильм».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_watch_see_verb',
+    senseKey: 'action-watch-see',
+    korean: '보다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '눈으로 보거나 영상 등을 감상하다',
+      uz: 'ko‘rmoq, tomosha qilmoq',
+      en: 'to see, to watch',
+      ru: 'смотреть, видеть',
+    },
+
+    examples: [
+      {
+        korean: '영화를 봐요.',
+        translations: {
+          ko: '영화를 봅니다.',
+          uz: 'Film ko‘raman.',
+          en: 'I watch a movie.',
+          ru: 'Я смотрю фильм.',
+        },
+      },
+      {
+        korean: '텔레비전을 봐요.',
+        translations: {
+          ko: '텔레비전을 봅니다.',
+          uz: 'Televizor ko‘raman.',
+          en: 'I watch television.',
+          ru: 'Я смотрю телевизор.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '보다',
+      romanization: 'boda',
+      ttsText: '보다',
+    },
+
+    media: {
+      emoji: '👀',
+      imageUrl: 'https://cdn.korio.app/words/boda.webp',
+      imageAlt: {
+        ko: '무언가를 보는 눈',
+        uz: 'biror narsaga qarayotgan ko‘zlar',
+        en: 'eyes looking at something',
+        ru: 'глаза, смотрящие на что-либо',
+      },
+    },
+
+    tags: ['verb', 'daily-life', 'basic-verb', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'영화를 보다', '텔레비전을 보다'처럼 사용해요.",
+      uz: "'영화를 보다', '텔레비전을 보다' kabi ishlatiladi.",
+      en: "Commonly used as 'watch a movie' or 'watch television.'",
+      ru: 'Часто используется в выражениях «смотреть фильм» и «смотреть телевизор».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_clothes_noun',
+    senseKey: 'clothing-clothes',
+    korean: '옷',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '몸에 입는 물건',
+      uz: 'kiyim',
+      en: 'clothes',
+      ru: 'одежда',
+    },
+
+    examples: [
+      {
+        korean: '옷을 사요.',
+        translations: {
+          ko: '옷을 삽니다.',
+          uz: 'Kiyim sotib olaman.',
+          en: 'I buy clothes.',
+          ru: 'Я покупаю одежду.',
+        },
+      },
+      {
+        korean: '백화점에서 옷을 사요.',
+        translations: {
+          ko: '백화점에서 옷을 삽니다.',
+          uz: 'Univermagda kiyim sotib olaman.',
+          en: 'I buy clothes at the department store.',
+          ru: 'Я покупаю одежду в универмаге.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '옷',
+      romanization: 'ot',
+      ttsText: '옷',
+    },
+
+    media: {
+      emoji: '👕',
+      imageUrl: 'https://cdn.korio.app/words/ot.webp',
+      imageAlt: {
+        ko: '입는 옷',
+        uz: 'kiyiladigan kiyim',
+        en: 'clothing to wear',
+        ru: 'одежда',
+      },
+    },
+
+    tags: ['clothing', 'shopping', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'옷을 사다', '옷을 입다'처럼 사용해요.",
+      uz: "'옷을 사다', '옷을 입다' kabi ishlatiladi.",
+      en: "Commonly used in expressions such as 'buy clothes' and 'wear clothes.'",
+      ru: 'Часто используется в выражениях «покупать одежду» и «надевать одежду».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_buy_verb',
+    senseKey: 'action-buy',
+    korean: '사다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '돈을 주고 물건을 얻다',
+      uz: 'sotib olmoq',
+      en: 'to buy',
+      ru: 'покупать',
+    },
+
+    examples: [
+      {
+        korean: '옷을 사요.',
+        translations: {
+          ko: '옷을 삽니다.',
+          uz: 'Kiyim sotib olaman.',
+          en: 'I buy clothes.',
+          ru: 'Я покупаю одежду.',
+        },
+      },
+      {
+        korean: '시장에서 옷을 사요.',
+        translations: {
+          ko: '시장에서 옷을 삽니다.',
+          uz: 'Bozorda kiyim sotib olaman.',
+          en: 'I buy clothes at the market.',
+          ru: 'Я покупаю одежду на рынке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '사다',
+      romanization: 'sada',
+      ttsText: '사다',
+    },
+
+    media: {
+      emoji: '🛍️',
+      imageUrl: 'https://cdn.korio.app/words/sada.webp',
+      imageAlt: {
+        ko: '물건을 사는 모습',
+        uz: 'narsa sotib olayotgan odam',
+        en: 'a person buying something',
+        ru: 'человек, покупающий товар',
+      },
+    },
+
+    tags: ['verb', 'shopping', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'옷을 사다', '책을 사다'처럼 구입하는 물건과 함께 사용해요.",
+      uz: "'옷을 사다', '책을 사다' kabi sotib olinadigan buyum bilan ishlatiladi.",
+      en: 'Used with the item being purchased, such as clothes or a book.',
+      ru: 'Используется с названием покупаемого предмета, например одежды или книги.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_exercise_verb',
+    senseKey: 'action-exercise',
+    korean: '운동하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '건강이나 체력을 위해 몸을 움직이다',
+      uz: 'sport bilan shug‘ullanmoq, mashq qilmoq',
+      en: 'to exercise',
+      ru: 'заниматься спортом, тренироваться',
+    },
+
+    examples: [
+      {
+        korean: '오늘 운동해요.',
+        translations: {
+          ko: '오늘 운동합니다.',
+          uz: 'Bugun mashq qilaman.',
+          en: 'I exercise today.',
+          ru: 'Сегодня я тренируюсь.',
+        },
+      },
+      {
+        korean: '공원에서 운동해요.',
+        translations: {
+          ko: '공원에서 운동합니다.',
+          uz: 'Bog‘da mashq qilaman.',
+          en: 'I exercise at the park.',
+          ru: 'Я занимаюсь спортом в парке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '운동하다',
+      romanization: 'undonghada',
+      ttsText: '운동하다',
+    },
+
+    media: {
+      emoji: '🏃',
+      imageUrl: 'https://cdn.korio.app/words/undonghada.webp',
+      imageAlt: {
+        ko: '운동하는 사람',
+        uz: 'mashq qilayotgan odam',
+        en: 'a person exercising',
+        ru: 'человек, занимающийся спортом',
+      },
+    },
+
+    tags: ['verb', 'exercise', 'health', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'공원에서 운동하다'처럼 운동하는 장소와 함께 사용할 수 있어요.",
+      uz: "'공원에서 운동하다' kabi mashq qilinadigan joy bilan ishlatilishi mumkin.",
+      en: "It can be used with a location, as in 'exercise at the park.'",
+      ru: 'Можно использовать с местом, например «заниматься спортом в парке».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_work_verb',
+    senseKey: 'action-work',
+    korean: '일하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '직업이나 맡은 일을 하다',
+      uz: 'ishlamoq',
+      en: 'to work',
+      ru: 'работать',
+    },
+
+    examples: [
+      {
+        korean: '회사에서 일해요.',
+        translations: {
+          ko: '회사에서 일합니다.',
+          uz: 'Kompaniyada ishlayman.',
+          en: 'I work at a company.',
+          ru: 'Я работаю в компании.',
+        },
+      },
+      {
+        korean: '한국에서 일해요?',
+        translations: {
+          ko: '한국에서 일합니까?',
+          uz: 'Koreyada ishlaysizmi?',
+          en: 'Do you work in Korea?',
+          ru: 'Вы работаете в Корее?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '일하다',
+      romanization: 'ilhada',
+      ttsText: '일하다',
+    },
+
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/ilhada.webp',
+      imageAlt: {
+        ko: '회사에서 일하는 사람',
+        uz: 'kompaniyada ishlayotgan odam',
+        en: 'a person working at a company',
+        ru: 'человек, работающий в компании',
+      },
+    },
+
+    tags: ['verb', 'work', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'회사에서 일하다', '한국에서 일하다'처럼 장소와 함께 사용해요.",
+      uz: "'회사에서 일하다', '한국에서 일하다' kabi joy bilan ishlatiladi.",
+      en: 'Often used with a workplace or location.',
+      ru: 'Часто используется с указанием места работы.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sleep_verb',
+    senseKey: 'action-sleep',
+    korean: '자다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '잠을 자다',
+      uz: 'uxlamoq',
+      en: 'to sleep',
+      ru: 'спать',
+    },
+
+    examples: [
+      {
+        korean: '스티븐은 지금 자요.',
+        translations: {
+          ko: '스티븐은 지금 잡니다.',
+          uz: 'Stiven hozir uxlayapti.',
+          en: 'Steven is sleeping now.',
+          ru: 'Стивен сейчас спит.',
+        },
+      },
+      {
+        korean: '집에서 자요.',
+        translations: {
+          ko: '집에서 잡니다.',
+          uz: 'Uyda uxlayman.',
+          en: 'I sleep at home.',
+          ru: 'Я сплю дома.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '자다',
+      romanization: 'jada',
+      ttsText: '자다',
+    },
+
+    media: {
+      emoji: '😴',
+      imageUrl: 'https://cdn.korio.app/words/jada.webp',
+      imageAlt: {
+        ko: '잠을 자는 사람',
+        uz: 'uxlayotgan odam',
+        en: 'a person sleeping',
+        ru: 'спящий человек',
+      },
+    },
+
+    tags: ['verb', 'daily-life', 'sleep', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'지금 자요', '집에서 자요'처럼 사용해요.",
+      uz: "'지금 자요', '집에서 자요' kabi ishlatiladi.",
+      en: "Used in expressions such as 'sleep now' or 'sleep at home.'",
+      ru: 'Используется в выражениях «сейчас спит» и «спит дома».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_read_verb',
+    senseKey: 'action-read',
+    korean: '읽다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '글자를 보고 내용을 이해하다',
+      uz: 'o‘qimoq',
+      en: 'to read',
+      ru: 'читать',
+    },
+
+    examples: [
+      {
+        korean: '책을 읽어요.',
+        translations: {
+          ko: '책을 읽습니다.',
+          uz: 'Kitob o‘qiyman.',
+          en: 'I read a book.',
+          ru: 'Я читаю книгу.',
+        },
+      },
+      {
+        korean: '도서관에서 책을 읽어요.',
+        translations: {
+          ko: '도서관에서 책을 읽습니다.',
+          uz: 'Kutubxonada kitob o‘qiyman.',
+          en: 'I read a book at the library.',
+          ru: 'Я читаю книгу в библиотеке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '읽다',
+      romanization: 'ikda',
+      ttsText: '읽다',
+    },
+
+    media: {
+      emoji: '📖',
+      imageUrl: 'https://cdn.korio.app/words/ikda.webp',
+      imageAlt: {
+        ko: '책을 읽는 사람',
+        uz: 'kitob o‘qiyotgan odam',
+        en: 'a person reading a book',
+        ru: 'человек, читающий книгу',
+      },
+    },
+
+    tags: ['verb', 'reading', 'education', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'책을 읽다', '신문을 읽다'처럼 읽는 대상과 함께 사용해요.",
+      uz: "'책을 읽다', '신문을 읽다' kabi o‘qiladigan narsa bilan ishlatiladi.",
+      en: 'Used with reading material, such as a book or newspaper.',
+      ru: 'Используется с объектом чтения, например книгой или газетой.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_friend_noun',
+    senseKey: 'person-friend',
+    korean: '친구',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '가깝게 지내는 사람',
+      uz: 'do‘st',
+      en: 'friend',
+      ru: 'друг, подруга',
+    },
+
+    examples: [
+      {
+        korean: '친구를 만나요.',
+        translations: {
+          ko: '친구를 만납니다.',
+          uz: 'Do‘stim bilan uchrashaman.',
+          en: 'I meet a friend.',
+          ru: 'Я встречаюсь с другом.',
+        },
+      },
+      {
+        korean: '오늘 친구를 만나요?',
+        translations: {
+          ko: '오늘 친구를 만납니까?',
+          uz: 'Bugun do‘stingiz bilan uchrashasizmi?',
+          en: 'Are you meeting a friend today?',
+          ru: 'Вы сегодня встречаетесь с другом?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '친구',
+      romanization: 'chingu',
+      ttsText: '친구',
+    },
+
+    media: {
+      emoji: '🧑‍🤝‍🧑',
+      imageUrl: 'https://cdn.korio.app/words/chingu.webp',
+      imageAlt: {
+        ko: '함께 있는 친구 두 명',
+        uz: 'birga turgan ikki do‘st',
+        en: 'two friends together',
+        ru: 'два друга вместе',
+      },
+    },
+
+    tags: ['people', 'relationship', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'친구를 만나다', '한국 친구'처럼 사용해요.",
+      uz: "'친구를 만나다', '한국 친구' kabi ishlatiladi.",
+      en: "Commonly used as 'meet a friend' or 'Korean friend.'",
+      ru: 'Часто используется в выражениях «встретиться с другом» и «корейский друг».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_meet_verb',
+    senseKey: 'action-meet-person',
+    korean: '만나다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '사람을 서로 보다',
+      uz: 'uchrashmoq',
+      en: 'to meet',
+      ru: 'встречать, встречаться',
+    },
+
+    examples: [
+      {
+        korean: '친구를 만나요.',
+        translations: {
+          ko: '친구를 만납니다.',
+          uz: 'Do‘stim bilan uchrashaman.',
+          en: 'I meet a friend.',
+          ru: 'Я встречаюсь с другом.',
+        },
+      },
+      {
+        korean: '오늘 정우 씨를 만나요.',
+        translations: {
+          ko: '오늘 정우 씨를 만납니다.',
+          uz: 'Bugun Jongu bilan uchrashaman.',
+          en: 'I meet Jeongu today.',
+          ru: 'Сегодня я встречаюсь с Чонъу.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '만나다',
+      romanization: 'mannada',
+      ttsText: '만나다',
+    },
+
+    media: {
+      emoji: '🤝',
+      imageUrl: 'https://cdn.korio.app/words/mannada.webp',
+      imageAlt: {
+        ko: '서로 만나는 사람들',
+        uz: 'uchrashayotgan odamlar',
+        en: 'people meeting each other',
+        ru: 'встречающиеся люди',
+      },
+    },
+
+    tags: ['verb', 'people', 'social', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "사람을 목적어로 해서 '친구를 만나다'처럼 사용해요.",
+      uz: "Odam bilan '친구를 만나다' kabi ishlatiladi.",
+      en: "Used with a person as the object, as in 'meet a friend.'",
+      ru: 'Используется с человеком как объектом, например «встретить друга».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_coffee_noun',
+    senseKey: 'drink-coffee',
+    korean: '커피',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '커피콩으로 만든 음료',
+      uz: 'qahva',
+      en: 'coffee',
+      ru: 'кофе',
+    },
+
+    examples: [
+      {
+        korean: '커피를 마셔요.',
+        translations: {
+          ko: '커피를 마십니다.',
+          uz: 'Qahva ichaman.',
+          en: 'I drink coffee.',
+          ru: 'Я пью кофе.',
+        },
+      },
+      {
+        korean: '커피숍에서 커피를 마셔요.',
+        translations: {
+          ko: '커피숍에서 커피를 마십니다.',
+          uz: 'Qahvaxonada qahva ichaman.',
+          en: 'I drink coffee at a coffee shop.',
+          ru: 'Я пью кофе в кофейне.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '커피',
+      romanization: 'keopi',
+      ttsText: '커피',
+    },
+
+    media: {
+      emoji: '☕',
+      imageUrl: 'https://cdn.korio.app/words/keopi.webp',
+      imageAlt: {
+        ko: '컵에 담긴 커피',
+        uz: 'fincandagi qahva',
+        en: 'coffee in a cup',
+        ru: 'кофе в чашке',
+      },
+    },
+
+    tags: ['drink', 'food', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "보통 '커피를 마시다'라고 사용해요.",
+      uz: "Odatda '커피를 마시다' shaklida ishlatiladi.",
+      en: "Usually used in the expression '커피를 마시다' — 'to drink coffee.'",
+      ru: 'Обычно используется в выражении «커피를 마시다» — «пить кофе».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_drink_verb',
+    senseKey: 'action-drink',
+    korean: '마시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '물이나 음료를 입으로 먹다',
+      uz: 'ichmoq',
+      en: 'to drink',
+      ru: 'пить',
+    },
+
+    examples: [
+      {
+        korean: '커피를 마셔요.',
+        translations: {
+          ko: '커피를 마십니다.',
+          uz: 'Qahva ichaman.',
+          en: 'I drink coffee.',
+          ru: 'Я пью кофе.',
+        },
+      },
+      {
+        korean: '커피숍에서 차를 마셔요.',
+        translations: {
+          ko: '커피숍에서 차를 마십니다.',
+          uz: 'Qahvaxonada choy ichaman.',
+          en: 'I drink tea at a coffee shop.',
+          ru: 'Я пью чай в кофейне.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '마시다',
+      romanization: 'masida',
+      ttsText: '마시다',
+    },
+
+    media: {
+      emoji: '🥤',
+      imageUrl: 'https://cdn.korio.app/words/masida.webp',
+      imageAlt: {
+        ko: '음료를 마시는 사람',
+        uz: 'ichimlik ichayotgan odam',
+        en: 'a person drinking a beverage',
+        ru: 'человек, пьющий напиток',
+      },
+    },
+
+    tags: ['verb', 'drink', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'커피를 마시다', '차를 마시다'처럼 음료와 함께 사용해요.",
+      uz: "'커피를 마시다', '차를 마시다' kabi ichimlik nomlari bilan ishlatiladi.",
+      en: 'Used with beverages, such as coffee or tea.',
+      ru: 'Используется с напитками, например кофе или чаем.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_taekwondo_noun',
+    senseKey: 'sport-taekwondo',
+    korean: '태권도',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '한국의 대표적인 무술',
+      uz: 'taekvondo',
+      en: 'Taekwondo',
+      ru: 'тхэквондо',
+    },
+
+    examples: [
+      {
+        korean: '태권도를 배워요.',
+        translations: {
+          ko: '태권도를 배웁니다.',
+          uz: 'Taekvondo o‘rganaman.',
+          en: 'I learn Taekwondo.',
+          ru: 'Я изучаю тхэквондо.',
+        },
+      },
+      {
+        korean: '오늘 태권도를 배워요.',
+        translations: {
+          ko: '오늘 태권도를 배웁니다.',
+          uz: 'Bugun taekvondo o‘rganaman.',
+          en: 'I learn Taekwondo today.',
+          ru: 'Сегодня я занимаюсь тхэквондо.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '태권도',
+      romanization: 'taegwondo',
+      ttsText: '태권도',
+    },
+
+    media: {
+      emoji: '🥋',
+      imageUrl: 'https://cdn.korio.app/words/taegwondo.webp',
+      imageAlt: {
+        ko: '태권도를 하는 사람',
+        uz: 'taekvondo bilan shug‘ullanayotgan odam',
+        en: 'a person practicing Taekwondo',
+        ru: 'человек, занимающийся тхэквондо',
+      },
+    },
+
+    tags: ['sport', 'korean-culture', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "보통 '태권도를 배우다', '태권도를 하다'처럼 사용해요.",
+      uz: "Odatda '태권도를 배우다' yoki '태권도를 하다' kabi ishlatiladi.",
+      en: "Commonly used as 'learn Taekwondo' or 'practice Taekwondo.'",
+      ru: 'Часто используется в выражениях «изучать тхэквондо» и «заниматься тхэквондо».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_learn_verb',
+    senseKey: 'action-learn',
+    korean: '배우다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '지식이나 기술을 익히다',
+      uz: 'o‘rganmoq',
+      en: 'to learn',
+      ru: 'учить, изучать',
+    },
+
+    examples: [
+      {
+        korean: '태권도를 배워요.',
+        translations: {
+          ko: '태권도를 배웁니다.',
+          uz: 'Taekvondo o‘rganaman.',
+          en: 'I learn Taekwondo.',
+          ru: 'Я изучаю тхэквондо.',
+        },
+      },
+      {
+        korean: '한국어를 배워요.',
+        translations: {
+          ko: '한국어를 배웁니다.',
+          uz: 'Koreys tilini o‘rganaman.',
+          en: 'I learn Korean.',
+          ru: 'Я изучаю корейский язык.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '배우다',
+      romanization: 'baeuda',
+      ttsText: '배우다',
+    },
+
+    media: {
+      emoji: '🧠',
+      imageUrl: 'https://cdn.korio.app/words/baeuda.webp',
+      imageAlt: {
+        ko: '새로운 것을 배우는 사람',
+        uz: 'yangi narsani o‘rganayotgan odam',
+        en: 'a person learning something new',
+        ru: 'человек, изучающий что-то новое',
+      },
+    },
+
+    tags: ['verb', 'education', 'learning', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'한국어를 배우다', '태권도를 배우다'처럼 배우는 대상과 함께 사용해요.",
+      uz: "'한국어를 배우다', '태권도를 배우다' kabi o‘rganiladigan narsa bilan ishlatiladi.",
+      en: 'Used with the subject or skill being learned.',
+      ru: 'Используется с предметом или навыком, который изучают.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 장소
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_park_noun',
+    senseKey: 'place-park',
+    korean: '공원',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '사람들이 쉬거나 산책하고 운동할 수 있도록 만든 곳',
+      uz: 'bog‘, park',
+      en: 'park',
+      ru: 'парк',
+    },
+
+    examples: [
+      {
+        korean: '공원에서 운동해요.',
+        translations: {
+          ko: '공원에서 운동합니다.',
+          uz: 'Bog‘da mashq qilaman.',
+          en: 'I exercise at the park.',
+          ru: 'Я занимаюсь спортом в парке.',
+        },
+      },
+      {
+        korean: '공원에서 친구를 만나요.',
+        translations: {
+          ko: '공원에서 친구를 만납니다.',
+          uz: 'Bog‘da do‘stim bilan uchrashaman.',
+          en: 'I meet my friend at the park.',
+          ru: 'Я встречаюсь с другом в парке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '공원',
+      romanization: 'gongwon',
+      ttsText: '공원',
+    },
+
+    media: {
+      emoji: '🌳',
+      imageUrl: 'https://cdn.korio.app/words/gongwon.webp',
+      imageAlt: {
+        ko: '나무와 벤치가 있는 공원',
+        uz: 'daraxt va o‘rindiqlari bor bog‘',
+        en: 'a park with trees and benches',
+        ru: 'парк с деревьями и скамейками',
+      },
+    },
+
+    tags: ['place', 'outdoors', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'공원에서 운동하다', '공원에서 친구를 만나다'처럼 사용해요.",
+      uz: "'공원에서 운동하다', '공원에서 친구를 만나다' kabi ishlatiladi.",
+      en: 'Commonly used for activities taking place in a park.',
+      ru: 'Используется, когда говорят о действиях, происходящих в парке.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_theater_noun',
+    senseKey: 'place-theater',
+    korean: '극장',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '영화나 공연을 보는 곳',
+      uz: 'kinoteatr, teatr',
+      en: 'theater',
+      ru: 'театр, кинотеатр',
+    },
+
+    examples: [
+      {
+        korean: '극장에서 영화를 봐요.',
+        translations: {
+          ko: '극장에서 영화를 봅니다.',
+          uz: 'Kinoteatrda film ko‘raman.',
+          en: 'I watch a movie at the theater.',
+          ru: 'Я смотрю фильм в кинотеатре.',
+        },
+      },
+      {
+        korean: '극장에서 뭐 해요?',
+        translations: {
+          ko: '극장에서 무엇을 합니까?',
+          uz: 'Kinoteatrda nima qilasiz?',
+          en: 'What do you do at the theater?',
+          ru: 'Что вы делаете в кинотеатре?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '극장',
+      romanization: 'geukjang',
+      ttsText: '극장',
+    },
+
+    media: {
+      emoji: '🎭',
+      imageUrl: 'https://cdn.korio.app/words/geukjang.webp',
+      imageAlt: {
+        ko: '영화나 공연을 보는 극장',
+        uz: 'film yoki tomosha ko‘riladigan teatr',
+        en: 'a theater for movies or performances',
+        ru: 'театр для фильмов или представлений',
+      },
+    },
+
+    tags: ['place', 'entertainment', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "이 과에서는 주로 '극장에서 영화를 보다'처럼 사용해요.",
+      uz: "Bu darsda asosan '극장에서 영화를 보다' shaklida ishlatiladi.",
+      en: "In this lesson it is mainly used in 'watch a movie at the theater.'",
+      ru: 'В этом уроке главным образом используется в выражении «смотреть фильм в кинотеатре».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_library_noun',
+    senseKey: 'place-library',
+    korean: '도서관',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '책을 읽거나 빌리고 공부할 수 있는 곳',
+      uz: 'kutubxona',
+      en: 'library',
+      ru: 'библиотека',
+    },
+
+    examples: [
+      {
+        korean: '도서관에서 공부해요.',
+        translations: {
+          ko: '도서관에서 공부합니다.',
+          uz: 'Kutubxonada o‘qiyman.',
+          en: 'I study at the library.',
+          ru: 'Я занимаюсь в библиотеке.',
+        },
+      },
+      {
+        korean: '도서관에서 책을 읽어요.',
+        translations: {
+          ko: '도서관에서 책을 읽습니다.',
+          uz: 'Kutubxonada kitob o‘qiyman.',
+          en: 'I read a book at the library.',
+          ru: 'Я читаю книгу в библиотеке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '도서관',
+      romanization: 'doseogwan',
+      ttsText: '도서관',
+    },
+
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/doseogwan.webp',
+      imageAlt: {
+        ko: '책장이 있는 도서관',
+        uz: 'kitob javonlari bor kutubxona',
+        en: 'a library with bookshelves',
+        ru: 'библиотека с книжными полками',
+      },
+    },
+
+    tags: ['place', 'education', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'도서관에서 공부하다', '도서관에서 책을 읽다'처럼 사용해요.",
+      uz: "'도서관에서 공부하다' yoki '도서관에서 책을 읽다' kabi ishlatiladi.",
+      en: "Commonly used as 'study at the library' or 'read at the library.'",
+      ru: 'Часто используется в выражениях «заниматься в библиотеке» и «читать в библиотеке».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_department_store_noun',
+    senseKey: 'place-department-store',
+    korean: '백화점',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '여러 종류의 물건을 층별로 판매하는 큰 가게',
+      uz: 'univermag',
+      en: 'department store',
+      ru: 'универмаг',
+    },
+
+    examples: [
+      {
+        korean: '백화점에서 옷을 사요.',
+        translations: {
+          ko: '백화점에서 옷을 삽니다.',
+          uz: 'Univermagda kiyim sotib olaman.',
+          en: 'I buy clothes at the department store.',
+          ru: 'Я покупаю одежду в универмаге.',
+        },
+      },
+      {
+        korean: '백화점에서 뭐 해요?',
+        translations: {
+          ko: '백화점에서 무엇을 합니까?',
+          uz: 'Univermagda nima qilasiz?',
+          en: 'What do you do at the department store?',
+          ru: 'Что вы делаете в универмаге?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '백화점',
+      romanization: 'baekhwajeom',
+      ttsText: '백화점',
+    },
+
+    media: {
+      emoji: '🏬',
+      imageUrl: 'https://cdn.korio.app/words/baekhwajeom.webp',
+      imageAlt: {
+        ko: '여러 층으로 된 백화점',
+        uz: 'ko‘p qavatli univermag',
+        en: 'a multi-story department store',
+        ru: 'многоэтажный универмаг',
+      },
+    },
+
+    tags: ['place', 'shopping', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'백화점에서 옷을 사다'처럼 쇼핑 활동과 함께 많이 사용해요.",
+      uz: "'백화점에서 옷을 사다' kabi xarid qilish bilan ko‘p ishlatiladi.",
+      en: 'Frequently used with shopping activities.',
+      ru: 'Часто используется при описании покупок.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_market_noun',
+    senseKey: 'place-market',
+    korean: '시장',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '여러 물건이나 음식을 사고파는 곳',
+      uz: 'bozor',
+      en: 'market',
+      ru: 'рынок',
+    },
+
+    examples: [
+      {
+        korean: '시장에서 옷을 사요.',
+        translations: {
+          ko: '시장에서 옷을 삽니다.',
+          uz: 'Bozorda kiyim sotib olaman.',
+          en: 'I buy clothes at the market.',
+          ru: 'Я покупаю одежду на рынке.',
+        },
+      },
+      {
+        korean: '시장에 가요.',
+        translations: {
+          ko: '시장에 갑니다.',
+          uz: 'Bozorga boraman.',
+          en: 'I go to the market.',
+          ru: 'Я иду на рынок.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '시장',
+      romanization: 'sijang',
+      ttsText: '시장',
+    },
+
+    media: {
+      emoji: '🛒',
+      imageUrl: 'https://cdn.korio.app/words/sijang.webp',
+      imageAlt: {
+        ko: '물건을 사고파는 시장',
+        uz: 'savdo qilinadigan bozor',
+        en: 'a market where goods are sold',
+        ru: 'рынок, где продают товары',
+      },
+    },
+
+    tags: ['place', 'shopping', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'시장에 가다', '시장에서 옷을 사다'처럼 사용해요.",
+      uz: "'시장에 가다', '시장에서 옷을 사다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the market' or 'buy clothes at the market.'",
+      ru: 'Часто используется в выражениях «идти на рынок» и «покупать одежду на рынке».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_restaurant_noun',
+    senseKey: 'place-restaurant',
+    korean: '식당',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '돈을 내고 음식을 먹는 곳',
+      uz: 'restoran, oshxona',
+      en: 'restaurant',
+      ru: 'ресторан, столовая',
+    },
+
+    examples: [
+      {
+        korean: '식당에서 밥을 먹어요.',
+        translations: {
+          ko: '식당에서 밥을 먹습니다.',
+          uz: 'Restoranda ovqat yeyman.',
+          en: 'I eat at a restaurant.',
+          ru: 'Я ем в ресторане.',
+        },
+      },
+      {
+        korean: '학생 식당에서 밥을 먹어요.',
+        translations: {
+          ko: '학생 식당에서 밥을 먹습니다.',
+          uz: 'Talabalar oshxonasida ovqat yeyman.',
+          en: 'I eat at the student cafeteria.',
+          ru: 'Я ем в студенческой столовой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '식당',
+      romanization: 'sikdang',
+      ttsText: '식당',
+    },
+
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/sikdang.webp',
+      imageAlt: {
+        ko: '음식을 먹는 식당',
+        uz: 'ovqat yeyiladigan restoran',
+        en: 'a restaurant where people eat',
+        ru: 'ресторан, где едят',
+      },
+    },
+
+    tags: ['place', 'food', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'식당에서 밥을 먹다'처럼 사용해요.",
+      uz: "'식당에서 밥을 먹다' kabi ishlatiladi.",
+      en: "Commonly used in the expression 'eat at a restaurant.'",
+      ru: 'Часто используется в выражении «есть в ресторане».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_home_house_noun',
+    senseKey: 'place-home-house',
+    korean: '집',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '사람이 생활하고 사는 곳',
+      uz: 'uy',
+      en: 'house, home',
+      ru: 'дом',
+    },
+
+    examples: [
+      {
+        korean: '집에서 공부해요.',
+        translations: {
+          ko: '집에서 공부합니다.',
+          uz: 'Uyda o‘qiyman.',
+          en: 'I study at home.',
+          ru: 'Я занимаюсь дома.',
+        },
+      },
+      {
+        korean: '집에서 자요.',
+        translations: {
+          ko: '집에서 잡니다.',
+          uz: 'Uyda uxlayman.',
+          en: 'I sleep at home.',
+          ru: 'Я сплю дома.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '집',
+      romanization: 'jip',
+      ttsText: '집',
+    },
+
+    media: {
+      emoji: '🏠',
+      imageUrl: 'https://cdn.korio.app/words/jip.webp',
+      imageAlt: {
+        ko: '사람이 사는 집',
+        uz: 'odam yashaydigan uy',
+        en: 'a house where people live',
+        ru: 'дом, в котором живут люди',
+      },
+    },
+
+    tags: ['place', 'home', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'집에서 공부하다', '집에서 자다'처럼 집에서 하는 활동과 함께 사용해요.",
+      uz: "'집에서 공부하다', '집에서 자다' kabi uyda qilinadigan ishlar bilan ishlatiladi.",
+      en: 'Used with activities done at home, such as studying or sleeping.',
+      ru: 'Используется с действиями дома, например учёбой или сном.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_coffee_shop_noun',
+    senseKey: 'place-coffee-shop',
+    korean: '커피숍',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '커피와 음료 등을 파는 가게',
+      uz: 'qahvaxona',
+      en: 'coffee shop',
+      ru: 'кофейня',
+    },
+
+    examples: [
+      {
+        korean: '커피숍에서 커피를 마셔요.',
+        translations: {
+          ko: '커피숍에서 커피를 마십니다.',
+          uz: 'Qahvaxonada qahva ichaman.',
+          en: 'I drink coffee at a coffee shop.',
+          ru: 'Я пью кофе в кофейне.',
+        },
+      },
+      {
+        korean: '커피숍에서 친구를 만나요.',
+        translations: {
+          ko: '커피숍에서 친구를 만납니다.',
+          uz: 'Qahvaxonada do‘stim bilan uchrashaman.',
+          en: 'I meet my friend at a coffee shop.',
+          ru: 'Я встречаюсь с другом в кофейне.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '커피숍',
+      romanization: 'keopisyop',
+      ttsText: '커피숍',
+    },
+
+    media: {
+      emoji: '☕',
+      imageUrl: 'https://cdn.korio.app/words/keopisyop.webp',
+      imageAlt: {
+        ko: '커피를 마실 수 있는 커피숍',
+        uz: 'qahva ichish mumkin bo‘lgan qahvaxona',
+        en: 'a coffee shop where people can drink coffee',
+        ru: 'кофейня, где можно выпить кофе',
+      },
+    },
+
+    tags: ['place', 'drink', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'커피숍에서 커피를 마시다'처럼 사용해요.",
+      uz: "'커피숍에서 커피를 마시다' kabi ishlatiladi.",
+      en: "Commonly used in the expression 'drink coffee at a coffee shop.'",
+      ru: 'Часто используется в выражении «пить кофе в кофейне».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_school_noun',
+    senseKey: 'place-school',
+    korean: '학교',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '학생들이 공부하고 배우는 곳',
+      uz: 'maktab',
+      en: 'school',
+      ru: 'школа',
+    },
+
+    examples: [
+      {
+        korean: '학교에서 공부해요.',
+        translations: {
+          ko: '학교에서 공부합니다.',
+          uz: 'Maktabda o‘qiyman.',
+          en: 'I study at school.',
+          ru: 'Я учусь в школе.',
+        },
+      },
+      {
+        korean: '오늘 학교에 가요.',
+        translations: {
+          ko: '오늘 학교에 갑니다.',
+          uz: 'Bugun maktabga boraman.',
+          en: 'I go to school today.',
+          ru: 'Сегодня я иду в школу.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '학교',
+      romanization: 'hakgyo',
+      ttsText: '학교',
+    },
+
+    media: {
+      emoji: '🏫',
+      imageUrl: 'https://cdn.korio.app/words/hakgyo.webp',
+      imageAlt: {
+        ko: '학생들이 공부하는 학교',
+        uz: 'o‘quvchilar o‘qiydigan maktab',
+        en: 'a school where students study',
+        ru: 'школа, где учатся ученики',
+      },
+    },
+
+    tags: ['place', 'education', 'school', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'학교에서 공부하다', '학교에 가다'처럼 사용해요.",
+      uz: "'학교에서 공부하다', '학교에 가다' kabi ishlatiladi.",
+      en: "Commonly used as 'study at school' or 'go to school.'",
+      ru: 'Часто используется в выражениях «учиться в школе» и «идти в школу».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_company_noun',
+    senseKey: 'place-company',
+    korean: '회사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '사람들이 모여 사업이나 일을 하는 조직 또는 장소',
+      uz: 'kompaniya',
+      en: 'company',
+      ru: 'компания',
+    },
+
+    examples: [
+      {
+        korean: '회사에서 일해요.',
+        translations: {
+          ko: '회사에서 일합니다.',
+          uz: 'Kompaniyada ishlayman.',
+          en: 'I work at a company.',
+          ru: 'Я работаю в компании.',
+        },
+      },
+      {
+        korean: '오늘 회사에서 일해요.',
+        translations: {
+          ko: '오늘 회사에서 일합니다.',
+          uz: 'Bugun kompaniyada ishlayman.',
+          en: 'I work at the company today.',
+          ru: 'Сегодня я работаю в компании.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '회사',
+      romanization: 'hoesa',
+      ttsText: '회사',
+    },
+
+    media: {
+      emoji: '🏢',
+      imageUrl: 'https://cdn.korio.app/words/hoesa.webp',
+      imageAlt: {
+        ko: '사람들이 일하는 회사 건물',
+        uz: 'odamlar ishlaydigan kompaniya binosi',
+        en: 'a company building where people work',
+        ru: 'здание компании, где работают люди',
+      },
+    },
+
+    tags: ['place', 'work', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'회사에서 일하다'처럼 직장과 관련된 표현에 많이 사용해요.",
+      uz: "'회사에서 일하다' kabi ish joyiga oid ifodalarda ko‘p ishlatiladi.",
+      en: "Frequently used in workplace expressions such as 'work at a company.'",
+      ru: 'Часто используется в выражениях о работе, например «работать в компании».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];

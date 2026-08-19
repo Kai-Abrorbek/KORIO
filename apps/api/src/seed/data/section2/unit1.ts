@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 2 · 유닛 1 — 이분은 누구세요?
  * 출처: 서울대 한국어 1B 9과
@@ -80,6 +81,4302 @@ const I = {
     ru: 'Составьте ответ на услышанное.',
   },
 };
+
+export const S2_UNIT1_WORDS = [
+  // ─────────────────────────────────────
+  // 가족
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_family_noun',
+    senseKey: 'family-general',
+    korean: '가족',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '부모, 자녀, 형제자매 등 서로 가까운 관계로 이루어진 사람들',
+      uz: 'oila',
+      en: 'family',
+      ru: 'семья',
+    },
+    examples: [
+      {
+        korean: '우리 가족은 다섯 명이에요.',
+        translations: {
+          ko: '우리 가족은 다섯 명입니다.',
+          uz: 'Bizning oilamizda besh kishi bor.',
+          en: 'There are five people in my family.',
+          ru: 'В моей семье пять человек.',
+        },
+      },
+      {
+        korean: '주말에 가족을 만나요.',
+        translations: {
+          ko: '주말에 가족을 만납니다.',
+          uz: 'Dam olish kunlari oilam bilan uchrashaman.',
+          en: 'I see my family on the weekend.',
+          ru: 'На выходных я встречаюсь с семьёй.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '가족',
+      romanization: 'gajok',
+      ttsText: '가족',
+    },
+    media: {
+      emoji: '👨‍👩‍👧‍👦',
+      imageUrl: 'https://cdn.korio.app/words/gajok.webp',
+      imageAlt: {
+        ko: '함께 있는 가족',
+        uz: 'birga turgan oila',
+        en: 'a family together',
+        ru: 'семья вместе',
+      },
+    },
+    tags: ['family', 'people', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'우리 가족', '가족사진', '가족이 있다'처럼 자주 사용해요.",
+      uz: "'우리 가족', '가족사진' kabi iboralarda ko‘p ishlatiladi.",
+      en: 'Commonly used in expressions such as 우리 가족 and 가족사진.',
+      ru: 'Часто используется в выражениях 우리 가족 и 가족사진.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_grandmother_noun',
+    senseKey: 'family-grandmother',
+    korean: '할머니',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '아버지나 어머니의 어머니',
+      uz: 'buvi',
+      en: 'grandmother',
+      ru: 'бабушка',
+    },
+    examples: [
+      {
+        korean: '할머니께서 집에 계세요.',
+        translations: {
+          ko: '할머니께서 집에 계십니다.',
+          uz: 'Buvim uyda.',
+          en: 'My grandmother is at home.',
+          ru: 'Моя бабушка дома.',
+        },
+      },
+      {
+        korean: '할머니는 요리를 잘하세요.',
+        translations: {
+          ko: '할머니는 요리를 잘하십니다.',
+          uz: 'Buvim yaxshi ovqat pishiradi.',
+          en: 'My grandmother is good at cooking.',
+          ru: 'Моя бабушка хорошо готовит.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '할머니',
+      romanization: 'halmeoni',
+      ttsText: '할머니',
+    },
+    media: {
+      emoji: '👵',
+      imageUrl: 'https://cdn.korio.app/words/halmeoni.webp',
+      imageAlt: {
+        ko: '가족의 할머니',
+        uz: 'oilaning buvisi',
+        en: 'a grandmother',
+        ru: 'бабушка',
+      },
+    },
+    tags: ['family', 'people', 'grandparent', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기 할머니를 소개할 때도 높임 표현과 함께 사용하는 경우가 많아요.',
+      uz: 'O‘z buvisi haqida gapirganda ham ko‘pincha hurmat shakllari ishlatiladi.',
+      en: "Honorific forms are often used when talking about one's grandmother.",
+      ru: 'При разговоре о бабушке часто используются уважительные формы.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_grandfather_noun',
+    senseKey: 'family-grandfather',
+    korean: '할아버지',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '아버지나 어머니의 아버지',
+      uz: 'buva',
+      en: 'grandfather',
+      ru: 'дедушка',
+    },
+    examples: [
+      {
+        korean: '할아버지께서 서울에 계세요.',
+        translations: {
+          ko: '할아버지께서 서울에 계십니다.',
+          uz: 'Buvam Seulda.',
+          en: 'My grandfather is in Seoul.',
+          ru: 'Мой дедушка находится в Сеуле.',
+        },
+      },
+      {
+        korean: '할아버지는 일흔 살이세요.',
+        translations: {
+          ko: '할아버지는 일흔 살이십니다.',
+          uz: 'Buvam yetmish yoshda.',
+          en: 'My grandfather is seventy years old.',
+          ru: 'Моему дедушке семьдесят лет.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '할아버지',
+      romanization: 'harabeoji',
+      ttsText: '할아버지',
+    },
+    media: {
+      emoji: '👴',
+      imageUrl: 'https://cdn.korio.app/words/harabeoji.webp',
+      imageAlt: {
+        ko: '가족의 할아버지',
+        uz: 'oilaning buvasi',
+        en: 'a grandfather',
+        ru: 'дедушка',
+      },
+    },
+    tags: ['family', 'people', 'grandparent', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '할아버지의 행동이나 상태를 말할 때 높임 표현을 자주 사용해요.',
+      uz: 'Buva haqida gapirganda ko‘pincha hurmat shakllari ishlatiladi.',
+      en: "Honorific language is commonly used when talking about one's grandfather.",
+      ru: 'При разговоре о дедушке обычно используются уважительные формы.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_mother_noun',
+    senseKey: 'family-mother',
+    korean: '어머니',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기를 낳은 여자 부모를 높여 부르는 말',
+      uz: 'ona',
+      en: 'mother',
+      ru: 'мать',
+    },
+    examples: [
+      {
+        korean: '어머니께서는 선생님이세요.',
+        translations: {
+          ko: '어머니께서는 선생님이십니다.',
+          uz: 'Onam o‘qituvchi.',
+          en: 'My mother is a teacher.',
+          ru: 'Моя мама учительница.',
+        },
+      },
+      {
+        korean: '어머니는 요리를 잘하세요.',
+        translations: {
+          ko: '어머니는 요리를 잘하십니다.',
+          uz: 'Onam yaxshi ovqat pishiradi.',
+          en: 'My mother is good at cooking.',
+          ru: 'Моя мама хорошо готовит.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '어머니',
+      romanization: 'eomeoni',
+      ttsText: '어머니',
+    },
+    media: {
+      emoji: '👩',
+      imageUrl: 'https://cdn.korio.app/words/eomeoni.webp',
+      imageAlt: {
+        ko: '가족의 어머니',
+        uz: 'oilaning onasi',
+        en: 'a mother',
+        ru: 'мать',
+      },
+    },
+    tags: ['family', 'people', 'parent', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'엄마'보다 격식 있고 높이는 느낌이 있는 표현이에요.",
+      uz: "'엄마'ga qaraganda rasmiyroq va hurmatliroq so‘z.",
+      en: '어머니 is more formal and respectful than 엄마.',
+      ru: '어머니 звучит более официально и уважительно, чем 엄마.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_father_noun',
+    senseKey: 'family-father',
+    korean: '아버지',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기의 남자 부모를 높여 부르는 말',
+      uz: 'ota',
+      en: 'father',
+      ru: 'отец',
+    },
+    examples: [
+      {
+        korean: '아버지께서는 회사원이세요.',
+        translations: {
+          ko: '아버지께서는 회사원이십니다.',
+          uz: 'Otam kompaniya xodimi.',
+          en: 'My father is a company employee.',
+          ru: 'Мой отец работает в компании.',
+        },
+      },
+      {
+        korean: '아버지는 운전을 잘하세요.',
+        translations: {
+          ko: '아버지는 운전을 잘하십니다.',
+          uz: 'Otam mashinani yaxshi haydaydi.',
+          en: 'My father drives well.',
+          ru: 'Мой отец хорошо водит машину.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아버지',
+      romanization: 'abeoji',
+      ttsText: '아버지',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: 'https://cdn.korio.app/words/abeoji.webp',
+      imageAlt: {
+        ko: '가족의 아버지',
+        uz: 'oilaning otasi',
+        en: 'a father',
+        ru: 'отец',
+      },
+    },
+    tags: ['family', 'people', 'parent', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아빠'보다 격식 있고 높이는 표현이에요.",
+      uz: "'아빠'ga qaraganda rasmiyroq va hurmatliroq.",
+      en: '아버지 is more formal and respectful than 아빠.',
+      ru: '아버지 более официальное и уважительное слово, чем 아빠.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_older_sister_male_noun',
+    senseKey: 'family-older-sister-used-by-male',
+    korean: '누나',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '남자가 자기보다 나이가 많은 여자 형제를 부르는 말',
+      uz: 'erkak o‘zidan katta opa-singlisini ataydigan so‘z',
+      en: 'older sister, used by a male',
+      ru: 'старшая сестра в речи мужчины',
+    },
+    examples: [
+      {
+        korean: '저는 누나가 한 명 있어요.',
+        translations: {
+          ko: '저는 누나가 한 명 있습니다.',
+          uz: 'Mening bitta opam bor.',
+          en: 'I have one older sister.',
+          ru: 'У меня есть одна старшая сестра.',
+        },
+      },
+      {
+        korean: '누나는 대학생이에요.',
+        translations: {
+          ko: '누나는 대학생입니다.',
+          uz: 'Opam talaba.',
+          en: 'My older sister is a university student.',
+          ru: 'Моя старшая сестра студентка.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '누나',
+      romanization: 'nuna',
+      ttsText: '누나',
+    },
+    media: {
+      emoji: '👩',
+      imageUrl: 'https://cdn.korio.app/words/nuna.webp',
+      imageAlt: {
+        ko: '남자의 나이 많은 여자 형제',
+        uz: 'erkakning katta opasi',
+        en: "a man's older sister",
+        ru: 'старшая сестра мужчины',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '말하는 사람이 남자일 때 자기보다 나이가 많은 여자 형제에게 사용해요.',
+      uz: 'Gapiruvchi erkak bo‘lsa, o‘zidan katta opa uchun ishlatiladi.',
+      en: 'Used by a male to refer to his older sister.',
+      ru: 'Используется мужчиной по отношению к своей старшей сестре.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_older_brother_male_noun',
+    senseKey: 'family-older-brother-used-by-male',
+    korean: '형',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '남자가 자기보다 나이가 많은 남자 형제를 부르는 말',
+      uz: 'erkak o‘zidan katta akasini ataydigan so‘z',
+      en: 'older brother, used by a male',
+      ru: 'старший брат в речи мужчины',
+    },
+    examples: [
+      {
+        korean: '형은 회사원이에요.',
+        translations: {
+          ko: '형은 회사원입니다.',
+          uz: 'Akam kompaniya xodimi.',
+          en: 'My older brother is a company employee.',
+          ru: 'Мой старший брат работает в компании.',
+        },
+      },
+      {
+        korean: '저는 형하고 같이 살아요.',
+        translations: {
+          ko: '저는 형과 같이 삽니다.',
+          uz: 'Men akam bilan birga yashayman.',
+          en: 'I live with my older brother.',
+          ru: 'Я живу со старшим братом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '형',
+      romanization: 'hyeong',
+      ttsText: '형',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: 'https://cdn.korio.app/words/hyeong.webp',
+      imageAlt: {
+        ko: '남자의 나이 많은 남자 형제',
+        uz: 'erkakning katta akasi',
+        en: "a man's older brother",
+        ru: 'старший брат мужчины',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '말하는 사람이 남자일 때 자기보다 나이가 많은 남자 형제에게 사용해요.',
+      uz: 'Gapiruvchi erkak bo‘lsa, katta aka uchun ishlatiladi.',
+      en: 'Used by a male to refer to his older brother.',
+      ru: 'Используется мужчиной по отношению к своему старшему брату.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_older_sister_female_noun',
+    senseKey: 'family-older-sister-used-by-female',
+    korean: '언니',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '여자가 자기보다 나이가 많은 여자 형제를 부르는 말',
+      uz: 'ayol o‘zidan katta opa-singlisini ataydigan so‘z',
+      en: 'older sister, used by a female',
+      ru: 'старшая сестра в речи женщины',
+    },
+    examples: [
+      {
+        korean: '언니는 의사예요.',
+        translations: {
+          ko: '언니는 의사입니다.',
+          uz: 'Opam shifokor.',
+          en: 'My older sister is a doctor.',
+          ru: 'Моя старшая сестра врач.',
+        },
+      },
+      {
+        korean: '언니하고 쇼핑해요.',
+        translations: {
+          ko: '언니와 쇼핑합니다.',
+          uz: 'Opam bilan xarid qilaman.',
+          en: 'I go shopping with my older sister.',
+          ru: 'Я хожу за покупками со старшей сестрой.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '언니',
+      romanization: 'eonni',
+      ttsText: '언니',
+    },
+    media: {
+      emoji: '👩',
+      imageUrl: 'https://cdn.korio.app/words/eonni.webp',
+      imageAlt: {
+        ko: '여자의 나이 많은 여자 형제',
+        uz: 'ayolning katta opasi',
+        en: "a woman's older sister",
+        ru: 'старшая сестра женщины',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '말하는 사람이 여자일 때 자기보다 나이가 많은 여자 형제에게 사용해요.',
+      uz: 'Gapiruvchi ayol bo‘lsa, katta opa uchun ishlatiladi.',
+      en: 'Used by a female to refer to her older sister.',
+      ru: 'Используется женщиной по отношению к своей старшей сестре.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_older_brother_female_noun',
+    senseKey: 'family-older-brother-used-by-female',
+    korean: '오빠',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '여자가 자기보다 나이가 많은 남자 형제를 부르는 말',
+      uz: 'ayol o‘zidan katta akasini ataydigan so‘z',
+      en: 'older brother, used by a female',
+      ru: 'старший брат в речи женщины',
+    },
+    examples: [
+      {
+        korean: '오빠는 대학생이에요.',
+        translations: {
+          ko: '오빠는 대학생입니다.',
+          uz: 'Akam talaba.',
+          en: 'My older brother is a university student.',
+          ru: 'Мой старший брат студент.',
+        },
+      },
+      {
+        korean: '오빠하고 같이 영화 봐요.',
+        translations: {
+          ko: '오빠와 같이 영화를 봅니다.',
+          uz: 'Akam bilan birga film ko‘raman.',
+          en: 'I watch a movie with my older brother.',
+          ru: 'Я смотрю фильм со старшим братом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '오빠',
+      romanization: 'oppa',
+      ttsText: '오빠',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: 'https://cdn.korio.app/words/oppa.webp',
+      imageAlt: {
+        ko: '여자의 나이 많은 남자 형제',
+        uz: 'ayolning katta akasi',
+        en: "a woman's older brother",
+        ru: 'старший брат женщины',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '말하는 사람이 여자일 때 자기보다 나이가 많은 남자 형제에게 사용해요.',
+      uz: 'Gapiruvchi ayol bo‘lsa, katta aka uchun ishlatiladi.',
+      en: 'Used by a female to refer to her older brother.',
+      ru: 'Используется женщиной по отношению к своему старшему брату.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_younger_sister_noun',
+    senseKey: 'family-younger-sister',
+    korean: '여동생',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기보다 나이가 어린 여자 형제',
+      uz: 'singil',
+      en: 'younger sister',
+      ru: 'младшая сестра',
+    },
+    examples: [
+      {
+        korean: '여동생은 학생이에요.',
+        translations: {
+          ko: '여동생은 학생입니다.',
+          uz: 'Singlim o‘quvchi.',
+          en: 'My younger sister is a student.',
+          ru: 'Моя младшая сестра ученица.',
+        },
+      },
+      {
+        korean: '저는 여동생이 한 명 있어요.',
+        translations: {
+          ko: '저는 여동생이 한 명 있습니다.',
+          uz: 'Mening bitta singlim bor.',
+          en: 'I have one younger sister.',
+          ru: 'У меня одна младшая сестра.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '여동생',
+      romanization: 'yeodongsaeng',
+      ttsText: '여동생',
+    },
+    media: {
+      emoji: '👧',
+      imageUrl: 'https://cdn.korio.app/words/yeodongsaeng.webp',
+      imageAlt: {
+        ko: '나이가 어린 여자 형제',
+        uz: 'kichik singil',
+        en: 'a younger sister',
+        ru: 'младшая сестра',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'동생' 중에서 여자라는 점을 분명히 할 때 사용해요.",
+      uz: "'동생'ning qiz ekanini aniq aytishda ishlatiladi.",
+      en: 'Used when specifying that a younger sibling is female.',
+      ru: 'Используется, когда нужно уточнить, что младший ребёнок — сестра.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_younger_brother_noun',
+    senseKey: 'family-younger-brother',
+    korean: '남동생',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기보다 나이가 어린 남자 형제',
+      uz: 'uka',
+      en: 'younger brother',
+      ru: 'младший брат',
+    },
+    examples: [
+      {
+        korean: '남동생은 중학생이에요.',
+        translations: {
+          ko: '남동생은 중학생입니다.',
+          uz: 'Ukam o‘rta maktab o‘quvchisi.',
+          en: 'My younger brother is a middle school student.',
+          ru: 'Мой младший брат учится в средней школе.',
+        },
+      },
+      {
+        korean: '남동생하고 축구를 해요.',
+        translations: {
+          ko: '남동생과 축구를 합니다.',
+          uz: 'Ukam bilan futbol o‘ynayman.',
+          en: 'I play soccer with my younger brother.',
+          ru: 'Я играю в футбол с младшим братом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '남동생',
+      romanization: 'namdongsaeng',
+      ttsText: '남동생',
+    },
+    media: {
+      emoji: '👦',
+      imageUrl: 'https://cdn.korio.app/words/namdongsaeng.webp',
+      imageAlt: {
+        ko: '나이가 어린 남자 형제',
+        uz: 'kichik uka',
+        en: 'a younger brother',
+        ru: 'младший брат',
+      },
+    },
+    tags: ['family', 'sibling', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'동생' 중에서 남자라는 점을 분명히 할 때 사용해요.",
+      uz: "'동생'ning o‘g‘il ekanini aniq aytishda ishlatiladi.",
+      en: 'Used when specifying that a younger sibling is male.',
+      ru: 'Используется, когда нужно уточнить, что младший ребёнок — брат.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_wife_noun',
+    senseKey: 'family-wife',
+    korean: '아내',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '결혼한 남자의 여자 배우자',
+      uz: 'xotin, turmush o‘rtoq',
+      en: 'wife',
+      ru: 'жена',
+    },
+    examples: [
+      {
+        korean: '제 아내는 선생님이에요.',
+        translations: {
+          ko: '제 아내는 선생님입니다.',
+          uz: 'Xotinim o‘qituvchi.',
+          en: 'My wife is a teacher.',
+          ru: 'Моя жена учительница.',
+        },
+      },
+      {
+        korean: '아내하고 같이 여행해요.',
+        translations: {
+          ko: '아내와 같이 여행합니다.',
+          uz: 'Xotinim bilan birga sayohat qilaman.',
+          en: 'I travel with my wife.',
+          ru: 'Я путешествую вместе с женой.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아내',
+      romanization: 'anae',
+      ttsText: '아내',
+    },
+    media: {
+      emoji: '👩',
+      imageUrl: 'https://cdn.korio.app/words/anae.webp',
+      imageAlt: {
+        ko: '가족의 아내',
+        uz: 'oilaning xotini',
+        en: 'a wife',
+        ru: 'жена',
+      },
+    },
+    tags: ['family', 'spouse', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기의 여자 배우자를 말할 때 사용하는 일반적인 표현이에요.',
+      uz: 'O‘z ayol turmush o‘rtog‘i haqida gapirganda ishlatiladi.',
+      en: "A standard word for one's wife.",
+      ru: 'Обычное слово для обозначения своей жены.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_husband_noun',
+    senseKey: 'family-husband',
+    korean: '남편',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '결혼한 여자의 남자 배우자',
+      uz: 'er, turmush o‘rtoq',
+      en: 'husband',
+      ru: 'муж',
+    },
+    examples: [
+      {
+        korean: '제 남편은 의사예요.',
+        translations: {
+          ko: '제 남편은 의사입니다.',
+          uz: 'Erim shifokor.',
+          en: 'My husband is a doctor.',
+          ru: 'Мой муж врач.',
+        },
+      },
+      {
+        korean: '남편하고 같이 살아요.',
+        translations: {
+          ko: '남편과 같이 삽니다.',
+          uz: 'Erim bilan birga yashayman.',
+          en: 'I live with my husband.',
+          ru: 'Я живу вместе с мужем.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '남편',
+      romanization: 'nampyeon',
+      ttsText: '남편',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: 'https://cdn.korio.app/words/nampyeon.webp',
+      imageAlt: {
+        ko: '가족의 남편',
+        uz: 'oilaning eri',
+        en: 'a husband',
+        ru: 'муж',
+      },
+    },
+    tags: ['family', 'spouse', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기의 남자 배우자를 말할 때 사용하는 일반적인 표현이에요.',
+      uz: 'O‘z erkak turmush o‘rtog‘i haqida gapirganda ishlatiladi.',
+      en: "A standard word for one's husband.",
+      ru: 'Обычное слово для обозначения своего мужа.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_daughter_noun',
+    senseKey: 'family-daughter',
+    korean: '딸',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '부모에게서 태어난 여자 자녀',
+      uz: 'qiz farzand',
+      en: 'daughter',
+      ru: 'дочь',
+    },
+    examples: [
+      {
+        korean: '딸이 한 명 있어요.',
+        translations: {
+          ko: '딸이 한 명 있습니다.',
+          uz: 'Bitta qizim bor.',
+          en: 'I have one daughter.',
+          ru: 'У меня одна дочь.',
+        },
+      },
+      {
+        korean: '제 딸은 대학생이에요.',
+        translations: {
+          ko: '제 딸은 대학생입니다.',
+          uz: 'Qizim talaba.',
+          en: 'My daughter is a university student.',
+          ru: 'Моя дочь студентка.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '딸',
+      romanization: 'ttal',
+      ttsText: '딸',
+    },
+    media: {
+      emoji: '👧',
+      imageUrl: 'https://cdn.korio.app/words/ttal.webp',
+      imageAlt: {
+        ko: '가족의 딸',
+        uz: 'oilaning qizi',
+        en: 'a daughter',
+        ru: 'дочь',
+      },
+    },
+    tags: ['family', 'child', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'딸이 있다', '우리 딸'처럼 사용해요.",
+      uz: "'딸이 있다', '우리 딸' kabi ishlatiladi.",
+      en: 'Commonly used in expressions such as 딸이 있다 and 우리 딸.',
+      ru: 'Часто используется в выражениях 딸이 있다 и 우리 딸.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_son_noun',
+    senseKey: 'family-son',
+    korean: '아들',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '부모에게서 태어난 남자 자녀',
+      uz: 'o‘g‘il farzand',
+      en: 'son',
+      ru: 'сын',
+    },
+    examples: [
+      {
+        korean: '아들이 두 명 있어요.',
+        translations: {
+          ko: '아들이 두 명 있습니다.',
+          uz: 'Ikki o‘g‘lim bor.',
+          en: 'I have two sons.',
+          ru: 'У меня два сына.',
+        },
+      },
+      {
+        korean: '제 아들은 중학생이에요.',
+        translations: {
+          ko: '제 아들은 중학생입니다.',
+          uz: 'O‘g‘lim o‘rta maktab o‘quvchisi.',
+          en: 'My son is a middle school student.',
+          ru: 'Мой сын учится в средней школе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아들',
+      romanization: 'adeul',
+      ttsText: '아들',
+    },
+    media: {
+      emoji: '👦',
+      imageUrl: 'https://cdn.korio.app/words/adeul.webp',
+      imageAlt: {
+        ko: '가족의 아들',
+        uz: 'oilaning o‘g‘li',
+        en: 'a son',
+        ru: 'сын',
+      },
+    },
+    tags: ['family', 'child', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아들이 있다', '우리 아들'처럼 사용해요.",
+      uz: "'아들이 있다', '우리 아들' kabi ishlatiladi.",
+      en: 'Commonly used in expressions such as 아들이 있다 and 우리 아들.',
+      ru: 'Часто используется в выражениях 아들이 있다 и 우리 아들.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_parents_honorific_noun',
+    senseKey: 'family-parents-honorific',
+    korean: '부모님',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '아버지와 어머니를 높여 함께 부르는 말',
+      uz: 'ota-ona',
+      en: 'parents',
+      ru: 'родители',
+    },
+    examples: [
+      {
+        korean: '부모님께서는 서울에 계세요.',
+        translations: {
+          ko: '부모님께서는 서울에 계십니다.',
+          uz: 'Ota-onam Seulda.',
+          en: 'My parents are in Seoul.',
+          ru: 'Мои родители находятся в Сеуле.',
+        },
+      },
+      {
+        korean: '주말에 부모님을 만나요.',
+        translations: {
+          ko: '주말에 부모님을 만납니다.',
+          uz: 'Dam olish kunlari ota-onam bilan uchrashaman.',
+          en: 'I see my parents on the weekend.',
+          ru: 'На выходных я встречаюсь с родителями.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '부모님',
+      romanization: 'bumonim',
+      ttsText: '부모님',
+    },
+    media: {
+      emoji: '👨‍👩‍👧',
+      imageUrl: 'https://cdn.korio.app/words/bumonim.webp',
+      imageAlt: {
+        ko: '함께 있는 부모님',
+        uz: 'birga turgan ota-ona',
+        en: 'parents together',
+        ru: 'родители вместе',
+      },
+    },
+    tags: ['family', 'parent', 'honorific', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'부모'보다 높임의 뜻이 있는 일상적인 표현이에요.",
+      uz: "'부모'ga qaraganda hurmat ma’nosi kuchliroq.",
+      en: '부모님 is the respectful everyday form of 부모.',
+      ru: '부모님 — уважительная повседневная форма слова 부모.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 나이 · 숫자
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_age_noun',
+    senseKey: 'personal-info-age',
+    korean: '나이',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이 태어난 뒤 살아온 햇수',
+      uz: 'yosh',
+      en: 'age',
+      ru: 'возраст',
+    },
+    examples: [
+      {
+        korean: '나이가 몇 살이에요?',
+        translations: {
+          ko: '나이가 몇 살입니까?',
+          uz: 'Yoshingiz nechada?',
+          en: 'How old are you?',
+          ru: 'Сколько вам лет?',
+        },
+      },
+      {
+        korean: '제 동생은 나이가 스무 살이에요.',
+        translations: {
+          ko: '제 동생은 스무 살입니다.',
+          uz: 'Ukam yoki singlim yigirma yoshda.',
+          en: 'My younger sibling is twenty years old.',
+          ru: 'Моему младшему брату или сестре двадцать лет.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '나이',
+      romanization: 'nai',
+      ttsText: '나이',
+    },
+    media: {
+      emoji: '🎂',
+      imageUrl: 'https://cdn.korio.app/words/nai.webp',
+      imageAlt: {
+        ko: '나이를 나타내는 생일 케이크',
+        uz: 'yoshni bildiruvchi tug‘ilgan kun torti',
+        en: 'a birthday cake representing age',
+        ru: 'торт, символизирующий возраст',
+      },
+    },
+    tags: ['age', 'personal-info', 'number', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "어른에게 나이를 높여 물을 때는 '나이' 대신 '연세'를 사용해요.",
+      uz: "Katta kishining yoshini hurmat bilan so‘rashda '연세' ishlatiladi.",
+      en: "Use 연세 instead of 나이 when respectfully asking an elder's age.",
+      ru: 'При уважительном вопросе о возрасте старшего используют 연세 вместо 나이.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_twenty_native_korean_noun',
+    senseKey: 'number-native-korean-twenty',
+    korean: '스물',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 20',
+      uz: 'yigirma',
+      en: 'twenty',
+      ru: 'двадцать',
+    },
+    examples: [
+      {
+        korean: '저는 스무 살이에요.',
+        translations: {
+          ko: '저는 스무 살입니다.',
+          uz: 'Men yigirma yoshdaman.',
+          en: 'I am twenty years old.',
+          ru: 'Мне двадцать лет.',
+        },
+      },
+      {
+        korean: '학생이 스무 명 있어요.',
+        translations: {
+          ko: '학생이 스무 명 있습니다.',
+          uz: 'Yigirma nafar talaba bor.',
+          en: 'There are twenty students.',
+          ru: 'Есть двадцать студентов.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '스물',
+      romanization: 'seumul',
+      ttsText: '스물',
+    },
+    media: {
+      emoji: '2️⃣',
+      imageUrl: 'https://cdn.korio.app/words/seumul.webp',
+      imageAlt: {
+        ko: '숫자 20',
+        uz: '20 soni',
+        en: 'number 20',
+        ru: 'число 20',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "단위 명사 앞에서는 '스물'이 '스무'로 바뀌어요. 예: 스무 살, 스무 명.",
+      uz: "Hisob so‘zi oldida '스물' → '스무' bo‘ladi.",
+      en: 'Before a counter, 스물 changes to 스무: 스무 살, 스무 명.',
+      ru: 'Перед счётным словом 스물 меняется на 스무: 스무 살, 스무 명.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_thirty_native_korean_noun',
+    senseKey: 'number-native-korean-thirty',
+    korean: '서른',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 30',
+      uz: 'o‘ttiz',
+      en: 'thirty',
+      ru: 'тридцать',
+    },
+    examples: [
+      {
+        korean: '제 형은 서른 살이에요.',
+        translations: {
+          ko: '제 형은 서른 살입니다.',
+          uz: 'Akam o‘ttiz yoshda.',
+          en: 'My older brother is thirty years old.',
+          ru: 'Моему старшему брату тридцать лет.',
+        },
+      },
+      {
+        korean: '서른 명이 왔어요.',
+        translations: {
+          ko: '서른 명이 왔습니다.',
+          uz: 'O‘ttiz kishi keldi.',
+          en: 'Thirty people came.',
+          ru: 'Пришло тридцать человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '서른', romanization: 'seoreun', ttsText: '서른' },
+    media: {
+      emoji: '3️⃣',
+      imageUrl: 'https://cdn.korio.app/words/seoreun.webp',
+      imageAlt: {
+        ko: '숫자 30',
+        uz: '30 soni',
+        en: 'number 30',
+        ru: 'число 30',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'서른 살', '서른 명'처럼 단위 명사 앞에서도 형태가 바뀌지 않아요.",
+      uz: "'서른 살', '서른 명' kabi shakli o‘zgarmaydi.",
+      en: '서른 does not change before counters.',
+      ru: '서른 не меняет форму перед счётными словами.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_forty_native_korean_noun',
+    senseKey: 'number-native-korean-forty',
+    korean: '마흔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: { ko: '고유어 숫자 40', uz: 'qirq', en: 'forty', ru: 'сорок' },
+    examples: [
+      {
+        korean: '아버지는 마흔 살이세요.',
+        translations: {
+          ko: '아버지는 마흔 살이십니다.',
+          uz: 'Otam qirq yoshda.',
+          en: 'My father is forty years old.',
+          ru: 'Моему отцу сорок лет.',
+        },
+      },
+      {
+        korean: '사람이 마흔 명 있어요.',
+        translations: {
+          ko: '사람이 마흔 명 있습니다.',
+          uz: 'Qirq kishi bor.',
+          en: 'There are forty people.',
+          ru: 'Есть сорок человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '마흔', romanization: 'maheun', ttsText: '마흔' },
+    media: {
+      emoji: '4️⃣',
+      imageUrl: 'https://cdn.korio.app/words/maheun.webp',
+      imageAlt: {
+        ko: '숫자 40',
+        uz: '40 soni',
+        en: 'number 40',
+        ru: 'число 40',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "나이를 말할 때 '마흔 살'처럼 사용해요.",
+      uz: "Yoshni aytishda '마흔 살' kabi ishlatiladi.",
+      en: 'Used for age as in 마흔 살.',
+      ru: 'Используется для возраста: 마흔 살.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_fifty_native_korean_noun',
+    senseKey: 'number-native-korean-fifty',
+    korean: '쉰',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 50',
+      uz: 'ellik',
+      en: 'fifty',
+      ru: 'пятьдесят',
+    },
+    examples: [
+      {
+        korean: '어머니는 쉰 살이세요.',
+        translations: {
+          ko: '어머니는 쉰 살이십니다.',
+          uz: 'Onam ellik yoshda.',
+          en: 'My mother is fifty years old.',
+          ru: 'Моей маме пятьдесят лет.',
+        },
+      },
+      {
+        korean: '학생이 쉰 명 있어요.',
+        translations: {
+          ko: '학생이 쉰 명 있습니다.',
+          uz: 'Ellik nafar talaba bor.',
+          en: 'There are fifty students.',
+          ru: 'Есть пятьдесят студентов.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '쉰', romanization: 'swin', ttsText: '쉰' },
+    media: {
+      emoji: '5️⃣',
+      imageUrl: 'https://cdn.korio.app/words/swin.webp',
+      imageAlt: {
+        ko: '숫자 50',
+        uz: '50 soni',
+        en: 'number 50',
+        ru: 'число 50',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'쉰 살', '쉰 명'처럼 사용해요.",
+      uz: "'쉰 살', '쉰 명' kabi ishlatiladi.",
+      en: 'Used in forms such as 쉰 살 and 쉰 명.',
+      ru: 'Используется в формах 쉰 살 и 쉰 명.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sixty_native_korean_noun',
+    senseKey: 'number-native-korean-sixty',
+    korean: '예순',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 60',
+      uz: 'oltmish',
+      en: 'sixty',
+      ru: 'шестьдесят',
+    },
+    examples: [
+      {
+        korean: '아버지는 예순 살이세요.',
+        translations: {
+          ko: '아버지는 예순 살이십니다.',
+          uz: 'Otam oltmish yoshda.',
+          en: 'My father is sixty years old.',
+          ru: 'Моему отцу шестьдесят лет.',
+        },
+      },
+      {
+        korean: '예순 명이 모였어요.',
+        translations: {
+          ko: '예순 명이 모였습니다.',
+          uz: 'Oltmish kishi yig‘ildi.',
+          en: 'Sixty people gathered.',
+          ru: 'Собралось шестьдесят человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '예순', romanization: 'yesun', ttsText: '예순' },
+    media: {
+      emoji: '6️⃣',
+      imageUrl: 'https://cdn.korio.app/words/yesun.webp',
+      imageAlt: {
+        ko: '숫자 60',
+        uz: '60 soni',
+        en: 'number 60',
+        ru: 'число 60',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "나이를 말할 때 '예순 살'처럼 사용해요.",
+      uz: "Yoshni aytishda '예순 살' kabi ishlatiladi.",
+      en: 'Used for age as in 예순 살.',
+      ru: 'Используется для возраста: 예순 살.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_seventy_native_korean_noun',
+    senseKey: 'number-native-korean-seventy',
+    korean: '일흔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 70',
+      uz: 'yetmish',
+      en: 'seventy',
+      ru: 'семьдесят',
+    },
+    examples: [
+      {
+        korean: '할아버지는 일흔 살이세요.',
+        translations: {
+          ko: '할아버지는 일흔 살이십니다.',
+          uz: 'Buvam yetmish yoshda.',
+          en: 'My grandfather is seventy years old.',
+          ru: 'Моему дедушке семьдесят лет.',
+        },
+      },
+      {
+        korean: '일흔 명이 왔어요.',
+        translations: {
+          ko: '일흔 명이 왔습니다.',
+          uz: 'Yetmish kishi keldi.',
+          en: 'Seventy people came.',
+          ru: 'Пришло семьдесят человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '일흔', romanization: 'ilheun', ttsText: '일흔' },
+    media: {
+      emoji: '7️⃣',
+      imageUrl: 'https://cdn.korio.app/words/ilheun.webp',
+      imageAlt: {
+        ko: '숫자 70',
+        uz: '70 soni',
+        en: 'number 70',
+        ru: 'число 70',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'일흔 살', '일흔 명'처럼 사용해요.",
+      uz: "'일흔 살', '일흔 명' kabi ishlatiladi.",
+      en: 'Used as 일흔 살 or 일흔 명.',
+      ru: 'Используется как 일흔 살 или 일흔 명.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eighty_native_korean_noun',
+    senseKey: 'number-native-korean-eighty',
+    korean: '여든',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 80',
+      uz: 'sakson',
+      en: 'eighty',
+      ru: 'восемьдесят',
+    },
+    examples: [
+      {
+        korean: '할머니는 여든 살이세요.',
+        translations: {
+          ko: '할머니는 여든 살이십니다.',
+          uz: 'Buvim sakson yoshda.',
+          en: 'My grandmother is eighty years old.',
+          ru: 'Моей бабушке восемьдесят лет.',
+        },
+      },
+      {
+        korean: '여든 명이 참가했어요.',
+        translations: {
+          ko: '여든 명이 참가했습니다.',
+          uz: 'Sakson kishi qatnashdi.',
+          en: 'Eighty people participated.',
+          ru: 'Участвовало восемьдесят человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '여든', romanization: 'yeodeun', ttsText: '여든' },
+    media: {
+      emoji: '8️⃣',
+      imageUrl: 'https://cdn.korio.app/words/yeodeun.webp',
+      imageAlt: {
+        ko: '숫자 80',
+        uz: '80 soni',
+        en: 'number 80',
+        ru: 'число 80',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'여든 살', '여든 명'처럼 사용해요.",
+      uz: "'여든 살', '여든 명' kabi ishlatiladi.",
+      en: 'Used as 여든 살 or 여든 명.',
+      ru: 'Используется как 여든 살 или 여든 명.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_ninety_native_korean_noun',
+    senseKey: 'number-native-korean-ninety',
+    korean: '아흔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고유어 숫자 90',
+      uz: 'to‘qson',
+      en: 'ninety',
+      ru: 'девяносто',
+    },
+    examples: [
+      {
+        korean: '할아버지는 아흔 살이세요.',
+        translations: {
+          ko: '할아버지는 아흔 살이십니다.',
+          uz: 'Buvam to‘qson yoshda.',
+          en: 'My grandfather is ninety years old.',
+          ru: 'Моему дедушке девяносто лет.',
+        },
+      },
+      {
+        korean: '아흔 명이 왔어요.',
+        translations: {
+          ko: '아흔 명이 왔습니다.',
+          uz: 'To‘qson kishi keldi.',
+          en: 'Ninety people came.',
+          ru: 'Пришло девяносто человек.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '아흔', romanization: 'aheun', ttsText: '아흔' },
+    media: {
+      emoji: '9️⃣',
+      imageUrl: 'https://cdn.korio.app/words/aheun.webp',
+      imageAlt: {
+        ko: '숫자 90',
+        uz: '90 soni',
+        en: 'number 90',
+        ru: 'число 90',
+      },
+    },
+    tags: ['number', 'native-korean-number', 'age', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아흔 살', '아흔 명'처럼 사용해요.",
+      uz: "'아흔 살', '아흔 명' kabi ishlatiladi.",
+      en: 'Used as 아흔 살 or 아흔 명.',
+      ru: 'Используется как 아흔 살 или 아흔 명.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hundred_sino_korean_noun',
+    senseKey: 'number-sino-korean-hundred',
+    korean: '백',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '숫자 100을 나타내는 한자어 수',
+      uz: 'yuz',
+      en: 'one hundred',
+      ru: 'сто',
+    },
+    examples: [
+      {
+        korean: '학생이 백 명 있어요.',
+        translations: {
+          ko: '학생이 백 명 있습니다.',
+          uz: 'Yuz nafar talaba bor.',
+          en: 'There are one hundred students.',
+          ru: 'Есть сто студентов.',
+        },
+      },
+      {
+        korean: '이 책은 백 페이지예요.',
+        translations: {
+          ko: '이 책은 백 페이지입니다.',
+          uz: 'Bu kitob yuz bet.',
+          en: 'This book is one hundred pages long.',
+          ru: 'В этой книге сто страниц.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '백', romanization: 'baek', ttsText: '백' },
+    media: {
+      emoji: '💯',
+      imageUrl: 'https://cdn.korio.app/words/baek-number.webp',
+      imageAlt: {
+        ko: '숫자 100',
+        uz: '100 soni',
+        en: 'number 100',
+        ru: 'число 100',
+      },
+    },
+    tags: ['number', 'sino-korean', 'quantity', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "100 이상 숫자를 만들 때 '백일', '백십'처럼 다른 한자어 숫자와 결합해요.",
+      uz: '100 dan katta sonlarda boshqa xitoy-koreys sonlari bilan birikadi.',
+      en: 'It combines with other Sino-Korean numbers to form numbers above 100.',
+      ru: 'Соединяется с другими китайско-корейскими числами для образования чисел больше 100.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 높임말
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_name_noun',
+    senseKey: 'personal-info-name',
+    korean: '이름',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이나 사물을 구별해 부르는 말',
+      uz: 'ism',
+      en: 'name',
+      ru: 'имя',
+    },
+    examples: [
+      {
+        korean: '이름이 뭐예요?',
+        translations: {
+          ko: '이름이 무엇입니까?',
+          uz: 'Ismingiz nima?',
+          en: 'What is your name?',
+          ru: 'Как вас зовут?',
+        },
+      },
+      {
+        korean: '제 이름은 민수예요.',
+        translations: {
+          ko: '제 이름은 민수입니다.',
+          uz: 'Mening ismim Minsu.',
+          en: 'My name is Minsu.',
+          ru: 'Меня зовут Минсу.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '이름', romanization: 'ireum', ttsText: '이름' },
+    media: {
+      emoji: '🪪',
+      imageUrl: 'https://cdn.korio.app/words/ireum.webp',
+      imageAlt: {
+        ko: '이름이 적힌 명찰',
+        uz: 'ism yozilgan nishon',
+        en: 'a name tag',
+        ru: 'бейдж с именем',
+      },
+    },
+    tags: ['personal-info', 'identity', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "상대방의 이름을 높여 물을 때는 '성함'을 사용해요.",
+      uz: "Hurmat bilan ism so‘rashda '성함' ishlatiladi.",
+      en: "Use 성함 when respectfully asking someone's name.",
+      ru: 'При уважительном вопросе об имени используют 성함.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_name_honorific_noun',
+    senseKey: 'personal-info-name-honorific',
+    korean: '성함',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '다른 사람의 이름을 높여 이르는 말',
+      uz: 'ism, hurmat shakli',
+      en: 'name, honorific',
+      ru: 'имя, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '성함이 어떻게 되세요?',
+        translations: {
+          ko: '성함이 어떻게 되십니까?',
+          uz: 'Ismingiz nima?',
+          en: 'May I ask your name?',
+          ru: 'Как вас зовут?',
+        },
+      },
+      {
+        korean: '선생님 성함은 김민수예요.',
+        translations: {
+          ko: '선생님의 성함은 김민수입니다.',
+          uz: 'O‘qituvchining ismi Kim Minsu.',
+          en: "The teacher's name is Kim Minsu.",
+          ru: 'Учителя зовут Ким Минсу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '성함',
+      romanization: 'seongham',
+      ttsText: '성함',
+    },
+    media: {
+      emoji: '🪪',
+      imageUrl: 'https://cdn.korio.app/words/seongham.webp',
+      imageAlt: {
+        ko: '공손하게 이름을 묻는 상황',
+        uz: 'ismni hurmat bilan so‘rash holati',
+        en: "respectfully asking someone's name",
+        ru: 'уважительный вопрос об имени',
+      },
+    },
+    tags: ['honorific', 'personal-info', 'name', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기 이름에는 보통 사용하지 않고 상대방이나 높여야 하는 사람의 이름에 사용해요.',
+      uz: 'Odatda o‘z ismi uchun emas, hurmat qilinadigan kishining ismi uchun ishlatiladi.',
+      en: "Normally used for another person's name, not one's own.",
+      ru: 'Обычно используется для имени другого человека, а не своего.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_home_house_noun',
+    senseKey: 'place-home-house',
+    korean: '집',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이 생활하고 사는 곳',
+      uz: 'uy',
+      en: 'home, house',
+      ru: 'дом',
+    },
+    examples: [
+      {
+        korean: '부모님은 집에 계세요.',
+        translations: {
+          ko: '부모님은 집에 계십니다.',
+          uz: 'Ota-onam uyda.',
+          en: 'My parents are at home.',
+          ru: 'Мои родители дома.',
+        },
+      },
+      {
+        korean: '저는 집에서 공부해요.',
+        translations: {
+          ko: '저는 집에서 공부합니다.',
+          uz: 'Men uyda o‘qiyman.',
+          en: 'I study at home.',
+          ru: 'Я занимаюсь дома.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '집', romanization: 'jip', ttsText: '집' },
+    media: {
+      emoji: '🏠',
+      imageUrl: 'https://cdn.korio.app/words/jip.webp',
+      imageAlt: {
+        ko: '사람이 사는 집',
+        uz: 'odam yashaydigan uy',
+        en: 'a house',
+        ru: 'дом',
+      },
+    },
+    tags: ['place', 'home', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "다른 사람의 집을 높여 말할 때는 '댁'을 사용할 수 있어요.",
+      uz: "Boshqa kishining uyini hurmat bilan aytishda '댁' ishlatiladi.",
+      en: "Use 댁 as the honorific form when referring to another person's home.",
+      ru: 'Для уважительного обозначения чужого дома используется 댁.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_home_honorific_noun',
+    senseKey: 'place-home-honorific',
+    korean: '댁',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '다른 사람의 집을 높여 이르는 말',
+      uz: 'uy, hurmat shakli',
+      en: 'home, honorific',
+      ru: 'дом, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '부모님 댁이 어디예요?',
+        translations: {
+          ko: '부모님 댁이 어디입니까?',
+          uz: 'Ota-onangizning uyi qayerda?',
+          en: "Where is your parents' home?",
+          ru: 'Где находится дом ваших родителей?',
+        },
+      },
+      {
+        korean: '선생님 댁에 갔어요.',
+        translations: {
+          ko: '선생님 댁에 갔습니다.',
+          uz: 'O‘qituvchining uyiga bordim.',
+          en: "I went to the teacher's home.",
+          ru: 'Я ходил домой к учителю.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '댁', romanization: 'daek', ttsText: '댁' },
+    media: {
+      emoji: '🏠',
+      imageUrl: 'https://cdn.korio.app/words/daek.webp',
+      imageAlt: {
+        ko: '높여 말하는 다른 사람의 집',
+        uz: 'hurmat bilan aytilgan uy',
+        en: "someone's home respectfully",
+        ru: 'дом другого человека в уважительной форме',
+      },
+    },
+    tags: ['honorific', 'home', 'place', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "자기 집을 '제 댁'이라고 하지 않고 주로 다른 사람의 집을 높일 때 사용해요.",
+      uz: 'O‘z uyi uchun emas, boshqa kishining uyini hurmat bilan aytishda ishlatiladi.',
+      en: "Used to honor another person's home, not normally one's own.",
+      ru: 'Используется для уважительного обозначения чужого дома, обычно не своего.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_person_noun',
+    senseKey: 'person-general',
+    korean: '사람',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '인간 한 명 또는 여러 명',
+      uz: 'odam',
+      en: 'person',
+      ru: 'человек',
+    },
+    examples: [
+      {
+        korean: '저 사람은 누구예요?',
+        translations: {
+          ko: '저 사람은 누구입니까?',
+          uz: 'U odam kim?',
+          en: 'Who is that person?',
+          ru: 'Кто тот человек?',
+        },
+      },
+      {
+        korean: '한국 사람이에요.',
+        translations: {
+          ko: '한국 사람입니다.',
+          uz: 'U koreyalik.',
+          en: 'They are Korean.',
+          ru: 'Это кореец.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '사람', romanization: 'saram', ttsText: '사람' },
+    media: {
+      emoji: '👤',
+      imageUrl: 'https://cdn.korio.app/words/saram.webp',
+      imageAlt: {
+        ko: '한 사람',
+        uz: 'bir kishi',
+        en: 'a person',
+        ru: 'человек',
+      },
+    },
+    tags: ['people', 'basic-noun', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "사람을 높여 셀 때나 가리킬 때는 '분'을 사용할 수 있어요.",
+      uz: "Kishiga hurmat bilan murojaat qilganda '분' ishlatiladi.",
+      en: '분 can be used as the honorific counterpart when referring to a person.',
+      ru: 'В уважительной речи вместо 사람 может использоваться 분.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_person_honorific_noun',
+    senseKey: 'person-honorific',
+    korean: '분',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람을 높여 이르는 말 또는 사람을 세는 높임 단위',
+      uz: 'kishi, hurmat shakli',
+      en: 'person, honorific',
+      ru: 'человек, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '이분은 제 선생님이에요.',
+        translations: {
+          ko: '이분은 제 선생님입니다.',
+          uz: 'Bu kishi mening o‘qituvchim.',
+          en: 'This person is my teacher.',
+          ru: 'Этот человек — мой учитель.',
+        },
+      },
+      {
+        korean: '세 분이 오셨어요.',
+        translations: {
+          ko: '세 분이 오셨습니다.',
+          uz: 'Uch kishi keldi.',
+          en: 'Three people came.',
+          ru: 'Пришли три человека.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '분', romanization: 'bun', ttsText: '분' },
+    media: {
+      emoji: '🙇',
+      imageUrl: 'https://cdn.korio.app/words/bun-person.webp',
+      imageAlt: {
+        ko: '사람을 공손하게 가리키는 모습',
+        uz: 'kishiga hurmat bilan murojaat qilish',
+        en: 'respectfully referring to a person',
+        ru: 'уважительное обращение к человеку',
+      },
+    },
+    tags: ['honorific', 'people', 'counter', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'이분, 그분, 저분'처럼 쓰거나 '한 분, 두 분, 세 분'처럼 사람을 높여 셀 때 사용해요.",
+      uz: "'이분' yoki '한 분, 두 분' kabi hurmat bilan ishlatiladi.",
+      en: 'Used in 이분/그분/저분 and as an honorific counter: 한 분, 두 분.',
+      ru: 'Используется в 이분/그분/저분 и как уважительное счётное слово: 한 분, 두 분.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_age_honorific_noun',
+    senseKey: 'personal-info-age-honorific',
+    korean: '연세',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '나이를 높여 이르는 말',
+      uz: 'yosh, hurmat shakli',
+      en: 'age, honorific',
+      ru: 'возраст, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '할아버지는 연세가 어떻게 되세요?',
+        translations: {
+          ko: '할아버지는 연세가 어떻게 되십니까?',
+          uz: 'Buvangiz necha yoshda?',
+          en: 'How old is your grandfather?',
+          ru: 'Сколько лет вашему дедушке?',
+        },
+      },
+      {
+        korean: '연세가 일흔이세요.',
+        translations: {
+          ko: '연세가 일흔이십니다.',
+          uz: 'U kishi yetmish yoshda.',
+          en: 'They are seventy years old.',
+          ru: 'Ему семьдесят лет.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '연세', romanization: 'yeonse', ttsText: '연세' },
+    media: {
+      emoji: '🎂',
+      imageUrl: 'https://cdn.korio.app/words/yeonse.webp',
+      imageAlt: {
+        ko: '어른의 나이를 공손하게 묻는 모습',
+        uz: 'kattaning yoshini hurmat bilan so‘rash',
+        en: "respectfully asking an elder's age",
+        ru: 'уважительный вопрос о возрасте старшего',
+      },
+    },
+    tags: ['honorific', 'age', 'personal-info', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기 나이에 쓰기보다 상대방이나 어른의 나이를 높여 말할 때 사용해요.',
+      uz: 'O‘z yoshidan ko‘ra katta yoki hurmatli kishining yoshiga nisbatan ishlatiladi.',
+      en: "Used for another person's age, especially an elder's, rather than one's own.",
+      ru: 'Используется для возраста другого человека, особенно старшего, а не своего.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_exist_have_verb',
+    senseKey: 'state-exist-have',
+    korean: '있다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 것이 존재하거나 가지고 있다',
+      uz: 'bor bo‘lmoq, ega bo‘lmoq',
+      en: 'to exist, to have',
+      ru: 'быть, иметься',
+    },
+    examples: [
+      {
+        korean: '동생이 있어요.',
+        translations: {
+          ko: '동생이 있습니다.',
+          uz: 'Ukam yoki singlim bor.',
+          en: 'I have a younger sibling.',
+          ru: 'У меня есть младший брат или сестра.',
+        },
+      },
+      {
+        korean: '책이 책상 위에 있어요.',
+        translations: {
+          ko: '책이 책상 위에 있습니다.',
+          uz: 'Kitob stol ustida.',
+          en: 'The book is on the desk.',
+          ru: 'Книга находится на столе.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '있다', romanization: 'itda', ttsText: '있다' },
+    media: {
+      emoji: '📍',
+      imageUrl: 'https://cdn.korio.app/words/itda.webp',
+      imageAlt: {
+        ko: '어떤 것이 있는 위치',
+        uz: 'biror narsa bor joy',
+        en: 'something existing at a location',
+        ru: 'предмет, находящийся в определённом месте',
+      },
+    },
+    tags: ['verb', 'existence', 'possession', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "높여야 하는 사람이 존재하는 경우에는 '계시다'를 사용해요.",
+      uz: "Hurmat qilinadigan kishi uchun '계시다' ishlatiladi.",
+      en: 'Use 계시다 instead when the person who is present should be honored.',
+      ru: 'Для уважаемого человека вместо 있다 используется 계시다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_be_exist_honorific_verb',
+    senseKey: 'state-exist-honorific',
+    korean: '계시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: "'있다'의 높임말로, 높여야 하는 사람이 어떤 곳에 있다",
+      uz: 'bo‘lmoq, joylashmoq; hurmat shakli',
+      en: 'to be, honorific',
+      ru: 'находиться, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '부모님은 집에 계세요.',
+        translations: {
+          ko: '부모님은 집에 계십니다.',
+          uz: 'Ota-onam uyda.',
+          en: 'My parents are at home.',
+          ru: 'Мои родители дома.',
+        },
+      },
+      {
+        korean: '선생님은 교실에 계세요.',
+        translations: {
+          ko: '선생님은 교실에 계십니다.',
+          uz: 'O‘qituvchi sinfda.',
+          en: 'The teacher is in the classroom.',
+          ru: 'Учитель находится в классе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '계시다',
+      romanization: 'gyesida',
+      ttsText: '계시다',
+    },
+    media: {
+      emoji: '🙇',
+      imageUrl: 'https://cdn.korio.app/words/gyesida.webp',
+      imageAlt: {
+        ko: '높여야 하는 사람이 어떤 장소에 있는 모습',
+        uz: 'hurmatli kishining bir joyda bo‘lishi',
+        en: 'an honored person being somewhere',
+        ru: 'уважаемый человек, находящийся где-либо',
+      },
+    },
+    tags: ['verb', 'honorific', 'existence', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'있다'의 주체 높임 표현이에요. 물건에는 사용하지 않아요.",
+      uz: "'있다'ning hurmat shakli bo‘lib, buyumlarga nisbatan ishlatilmaydi.",
+      en: 'Honorific form of 있다 for people; it is not used for objects.',
+      ru: 'Уважительная форма 있다 для людей; к предметам не применяется.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eat_verb',
+    senseKey: 'action-eat',
+    korean: '먹다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '음식을 입으로 먹다',
+      uz: 'yemoq',
+      en: 'to eat',
+      ru: 'есть',
+    },
+    examples: [
+      {
+        korean: '밥을 먹어요.',
+        translations: {
+          ko: '밥을 먹습니다.',
+          uz: 'Ovqat yeyman.',
+          en: 'I eat a meal.',
+          ru: 'Я ем.',
+        },
+      },
+      {
+        korean: '아침을 같이 먹어요.',
+        translations: {
+          ko: '아침을 같이 먹습니다.',
+          uz: 'Nonushtani birga yeymiz.',
+          en: 'We eat breakfast together.',
+          ru: 'Мы вместе завтракаем.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '먹다', romanization: 'meokda', ttsText: '먹다' },
+    media: {
+      emoji: '🍚',
+      imageUrl: 'https://cdn.korio.app/words/meokda.webp',
+      imageAlt: {
+        ko: '음식을 먹는 사람',
+        uz: 'ovqat yeyayotgan odam',
+        en: 'a person eating',
+        ru: 'человек, который ест',
+      },
+    },
+    tags: ['verb', 'food', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "높여야 하는 사람이 먹는 경우에는 '드시다'를 사용해요.",
+      uz: "Hurmat qilinadigan kishi uchun '드시다' ishlatiladi.",
+      en: 'Use 드시다 when the person eating should be honored.',
+      ru: 'Для уважаемого человека вместо 먹다 используется 드시다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_drink_verb',
+    senseKey: 'action-drink',
+    korean: '마시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '물이나 음료를 입으로 먹다',
+      uz: 'ichmoq',
+      en: 'to drink',
+      ru: 'пить',
+    },
+    examples: [
+      {
+        korean: '커피를 마셔요.',
+        translations: {
+          ko: '커피를 마십니다.',
+          uz: 'Qahva ichaman.',
+          en: 'I drink coffee.',
+          ru: 'Я пью кофе.',
+        },
+      },
+      {
+        korean: '물을 많이 마셔요.',
+        translations: {
+          ko: '물을 많이 마십니다.',
+          uz: 'Ko‘p suv ichaman.',
+          en: 'I drink a lot of water.',
+          ru: 'Я пью много воды.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '마시다',
+      romanization: 'masida',
+      ttsText: '마시다',
+    },
+    media: {
+      emoji: '🥤',
+      imageUrl: 'https://cdn.korio.app/words/masida.webp',
+      imageAlt: {
+        ko: '음료를 마시는 사람',
+        uz: 'ichimlik ichayotgan odam',
+        en: 'a person drinking',
+        ru: 'человек, пьющий напиток',
+      },
+    },
+    tags: ['verb', 'drink', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "높여야 하는 사람이 마시는 경우에도 '드시다'를 사용할 수 있어요.",
+      uz: "Hurmat qilinadigan kishi ichganda ham '드시다' ishlatiladi.",
+      en: '드시다 can also honor a person who is drinking.',
+      ru: '드시다 также используется в уважительной речи о питье.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eat_drink_honorific_verb',
+    senseKey: 'action-eat-drink-honorific',
+    korean: '드시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: "'먹다'와 '마시다'를 높여 이르는 말",
+      uz: 'yemoq yoki ichmoq, hurmat shakli',
+      en: 'to eat or drink, honorific',
+      ru: 'есть или пить, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '할머니께서 식사하세요.',
+        translations: {
+          ko: '할머니께서 식사를 드십니다.',
+          uz: 'Buvim ovqat yeyapti.',
+          en: 'My grandmother is eating.',
+          ru: 'Моя бабушка ест.',
+        },
+      },
+      {
+        korean: '아버지는 커피를 드세요.',
+        translations: {
+          ko: '아버지는 커피를 드십니다.',
+          uz: 'Otam qahva ichadi.',
+          en: 'My father drinks coffee.',
+          ru: 'Мой отец пьёт кофе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '드시다',
+      romanization: 'deusida',
+      ttsText: '드시다',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/deusida.webp',
+      imageAlt: {
+        ko: '어른이 식사하는 모습',
+        uz: 'katta kishi ovqatlanmoqda',
+        en: 'an elder having a meal',
+        ru: 'старший человек за едой',
+      },
+    },
+    tags: ['verb', 'honorific', 'food', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'먹다', '마시다'의 특수 높임말이에요.",
+      uz: "'먹다' va '마시다'ning maxsus hurmat shakli.",
+      en: 'A special honorific verb corresponding to 먹다 and 마시다.',
+      ru: 'Специальная уважительная форма глаголов 먹다 и 마시다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sleep_verb',
+    senseKey: 'action-sleep',
+    korean: '자다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: { ko: '잠을 자다', uz: 'uxlamoq', en: 'to sleep', ru: 'спать' },
+    examples: [
+      {
+        korean: '밤에 일찍 자요.',
+        translations: {
+          ko: '밤에 일찍 잡니다.',
+          uz: 'Kechasi erta uxlayman.',
+          en: 'I go to sleep early at night.',
+          ru: 'Ночью я рано ложусь спать.',
+        },
+      },
+      {
+        korean: '동생은 지금 자요.',
+        translations: {
+          ko: '동생은 지금 잡니다.',
+          uz: 'Ukam yoki singlim hozir uxlayapti.',
+          en: 'My younger sibling is sleeping now.',
+          ru: 'Мой младший брат или сестра сейчас спит.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '자다', romanization: 'jada', ttsText: '자다' },
+    media: {
+      emoji: '😴',
+      imageUrl: 'https://cdn.korio.app/words/jada.webp',
+      imageAlt: {
+        ko: '잠을 자는 사람',
+        uz: 'uxlayotgan odam',
+        en: 'a sleeping person',
+        ru: 'спящий человек',
+      },
+    },
+    tags: ['verb', 'sleep', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "높여야 하는 사람이 자는 경우에는 '주무시다'를 사용해요.",
+      uz: "Hurmat qilinadigan kishi uchun '주무시다' ishlatiladi.",
+      en: 'Use 주무시다 when the sleeping person should be honored.',
+      ru: 'Для уважаемого человека вместо 자다 используется 주무시다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sleep_honorific_verb',
+    senseKey: 'action-sleep-honorific',
+    korean: '주무시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: "'자다'를 높여 이르는 말",
+      uz: 'uxlamoq, hurmat shakli',
+      en: 'to sleep, honorific',
+      ru: 'спать, почтительная форма',
+    },
+    examples: [
+      {
+        korean: '할아버지께서 주무세요.',
+        translations: {
+          ko: '할아버지께서 주무십니다.',
+          uz: 'Buvam uxlayapti.',
+          en: 'My grandfather is sleeping.',
+          ru: 'Мой дедушка спит.',
+        },
+      },
+      {
+        korean: '부모님은 일찍 주무세요.',
+        translations: {
+          ko: '부모님은 일찍 주무십니다.',
+          uz: 'Ota-onam erta uxlaydi.',
+          en: 'My parents go to bed early.',
+          ru: 'Мои родители рано ложатся спать.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '주무시다',
+      romanization: 'jumusida',
+      ttsText: '주무시다',
+    },
+    media: {
+      emoji: '🛌',
+      imageUrl: 'https://cdn.korio.app/words/jumusida.webp',
+      imageAlt: {
+        ko: '어른이 잠을 자는 모습',
+        uz: 'katta kishi uxlayapti',
+        en: 'an elder sleeping',
+        ru: 'спящий старший человек',
+      },
+    },
+    tags: ['verb', 'honorific', 'sleep', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'자다'의 특수 높임말이에요.",
+      uz: "'자다'ning maxsus hurmat shakli.",
+      en: 'A special honorific verb corresponding to 자다.',
+      ru: 'Специальная уважительная форма глагола 자다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 능력
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_be_good_at_verb',
+    senseKey: 'ability-be-good-at',
+    korean: '잘하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 일을 능숙하게 하다',
+      uz: 'yaxshi qilmoq, yaxshi uddalamoq',
+      en: 'to be good at',
+      ru: 'хорошо уметь',
+    },
+    examples: [
+      {
+        korean: '저는 수영을 잘해요.',
+        translations: {
+          ko: '저는 수영을 잘합니다.',
+          uz: 'Men yaxshi suzaman.',
+          en: 'I am good at swimming.',
+          ru: 'Я хорошо плаваю.',
+        },
+      },
+      {
+        korean: '동생은 수학을 잘해요.',
+        translations: {
+          ko: '동생은 수학을 잘합니다.',
+          uz: 'Ukam yoki singlim matematikani yaxshi biladi.',
+          en: 'My younger sibling is good at math.',
+          ru: 'Мой младший брат или сестра хорошо знает математику.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잘하다',
+      romanization: 'jalhada',
+      ttsText: '잘하다',
+    },
+    media: {
+      emoji: '👍',
+      imageUrl: 'https://cdn.korio.app/words/jalhada.webp',
+      imageAlt: {
+        ko: '무언가를 능숙하게 하는 사람',
+        uz: 'ishni yaxshi bajarayotgan odam',
+        en: 'a person doing something well',
+        ru: 'человек, хорошо выполняющий действие',
+      },
+    },
+    tags: ['verb', 'ability', 'skill', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수영을 잘하다', '요리를 잘하다'처럼 능력을 표현할 때 사용해요.",
+      uz: "'수영을 잘하다', '요리를 잘하다' kabi qobiliyatni bildiradi.",
+      en: 'Used to express being skilled at something.',
+      ru: 'Используется для выражения хорошего умения что-либо делать.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_not_good_at_verb',
+    senseKey: 'ability-not-good-at',
+    korean: '잘 못하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 일을 능숙하게 하지 못하다',
+      uz: 'yaxshi qila olmaslik',
+      en: 'to not be good at',
+      ru: 'не очень хорошо уметь',
+    },
+    examples: [
+      {
+        korean: '저는 요리를 잘 못해요.',
+        translations: {
+          ko: '저는 요리를 잘하지 못합니다.',
+          uz: 'Men yaxshi ovqat pishira olmayman.',
+          en: "I'm not good at cooking.",
+          ru: 'Я не очень хорошо готовлю.',
+        },
+      },
+      {
+        korean: '한국말을 잘 못해요.',
+        translations: {
+          ko: '한국말을 잘하지 못합니다.',
+          uz: 'Koreys tilida yaxshi gapira olmayman.',
+          en: "I don't speak Korean very well.",
+          ru: 'Я не очень хорошо говорю по-корейски.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잘 못하다',
+      romanization: 'jal mothada',
+      ttsText: '잘 못하다',
+    },
+    media: {
+      emoji: '😅',
+      imageUrl: 'https://cdn.korio.app/words/jal-mothada.webp',
+      imageAlt: {
+        ko: '어떤 일을 능숙하게 하지 못하는 사람',
+        uz: 'ishni yaxshi bajara olmayotgan odam',
+        en: 'a person not doing something well',
+        ru: 'человек, который делает что-то не очень хорошо',
+      },
+    },
+    tags: ['verb', 'ability', 'skill', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'못하다'보다 약한 표현으로, 할 수는 있지만 능숙하지 않다는 뜻이에요.",
+      uz: "'못하다'dan yumshoqroq bo‘lib, qila oladi, lekin yaxshi emasligini bildiradi.",
+      en: 'Softer than 못하다; it means you can do it, but not very well.',
+      ru: 'Мягче, чем 못하다: действие возможно, но получается не очень хорошо.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cannot_do_verb',
+    senseKey: 'ability-cannot-do',
+    korean: '못하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '능력이나 상황 때문에 어떤 일을 할 수 없다',
+      uz: 'qila olmaslik',
+      en: 'cannot do, to be unable to do',
+      ru: 'не уметь, не мочь',
+    },
+    examples: [
+      {
+        korean: '저는 운전을 못해요.',
+        translations: {
+          ko: '저는 운전을 못합니다.',
+          uz: 'Men mashina hayday olmayman.',
+          en: "I can't drive.",
+          ru: 'Я не умею водить машину.',
+        },
+      },
+      {
+        korean: '저는 스키를 못 타요.',
+        translations: {
+          ko: '저는 스키를 타지 못합니다.',
+          uz: 'Men chang‘ida ucha olmayman.',
+          en: "I can't ski.",
+          ru: 'Я не умею кататься на лыжах.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '못하다',
+      romanization: 'mothada',
+      ttsText: '못하다',
+    },
+    media: {
+      emoji: '❌',
+      imageUrl: 'https://cdn.korio.app/words/mothada.webp',
+      imageAlt: {
+        ko: '할 수 없다는 표시',
+        uz: 'qila olmaslik belgisi',
+        en: 'a symbol indicating inability',
+        ru: 'символ невозможности',
+      },
+    },
+    tags: ['verb', 'ability', 'negative', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '능력이 없거나 상황상 할 수 없다는 뜻을 표현해요.',
+      uz: 'Qobiliyat yoki vaziyat sababli ishni qila olmaslikni bildiradi.',
+      en: 'Expresses inability due to skill or circumstances.',
+      ru: 'Выражает невозможность из-за отсутствия навыка или обстоятельств.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_driving_noun',
+    senseKey: 'skill-driving',
+    korean: '운전',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자동차 등을 움직여 가는 일',
+      uz: 'mashina haydash',
+      en: 'driving',
+      ru: 'вождение',
+    },
+    examples: [
+      {
+        korean: '아버지는 운전을 잘하세요.',
+        translations: {
+          ko: '아버지는 운전을 잘하십니다.',
+          uz: 'Otam mashinani yaxshi haydaydi.',
+          en: 'My father drives well.',
+          ru: 'Мой отец хорошо водит машину.',
+        },
+      },
+      {
+        korean: '저는 운전을 못해요.',
+        translations: {
+          ko: '저는 운전을 못합니다.',
+          uz: 'Men mashina hayday olmayman.',
+          en: "I can't drive.",
+          ru: 'Я не умею водить машину.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '운전', romanization: 'unjeon', ttsText: '운전' },
+    media: {
+      emoji: '🚗',
+      imageUrl: 'https://cdn.korio.app/words/unjeon.webp',
+      imageAlt: {
+        ko: '자동차를 운전하는 모습',
+        uz: 'mashina haydash',
+        en: 'driving a car',
+        ru: 'вождение автомобиля',
+      },
+    },
+    tags: ['skill', 'transportation', 'ability', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운전하다', '운전을 잘하다', '운전을 못하다'처럼 사용해요.",
+      uz: "'운전하다', '운전을 잘하다' kabi ishlatiladi.",
+      en: 'Commonly used as 운전하다, 운전을 잘하다, or 운전을 못하다.',
+      ru: 'Часто используется как 운전하다, 운전을 잘하다 и 운전을 못하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_mathematics_noun',
+    senseKey: 'subject-mathematics',
+    korean: '수학',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '수와 계산, 도형 등을 연구하는 학문',
+      uz: 'matematika',
+      en: 'mathematics',
+      ru: 'математика',
+    },
+    examples: [
+      {
+        korean: '저는 수학을 잘해요.',
+        translations: {
+          ko: '저는 수학을 잘합니다.',
+          uz: 'Men matematikani yaxshi bilaman.',
+          en: "I'm good at math.",
+          ru: 'Я хорошо знаю математику.',
+        },
+      },
+      {
+        korean: '수학은 조금 어려워요.',
+        translations: {
+          ko: '수학은 조금 어렵습니다.',
+          uz: 'Matematika biroz qiyin.',
+          en: 'Math is a little difficult.',
+          ru: 'Математика немного трудная.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '수학', romanization: 'suhak', ttsText: '수학' },
+    media: {
+      emoji: '➗',
+      imageUrl: 'https://cdn.korio.app/words/suhak.webp',
+      imageAlt: {
+        ko: '수학 계산식',
+        uz: 'matematik hisob',
+        en: 'a mathematics equation',
+        ru: 'математическое уравнение',
+      },
+    },
+    tags: ['education', 'subject', 'ability', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수학을 잘하다', '수학이 어렵다'처럼 사용해요.",
+      uz: "'수학을 잘하다', '수학이 어렵다' kabi ishlatiladi.",
+      en: 'Commonly used in expressions such as 수학을 잘하다.',
+      ru: 'Часто используется в выражениях вроде 수학을 잘하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_english_language_noun',
+    senseKey: 'language-english',
+    korean: '영어',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '영국, 미국 등에서 사용하는 언어',
+      uz: 'ingliz tili',
+      en: 'English',
+      ru: 'английский язык',
+    },
+    examples: [
+      {
+        korean: '영어를 잘해요?',
+        translations: {
+          ko: '영어를 잘합니까?',
+          uz: 'Ingliz tilini yaxshi bilasizmi?',
+          en: 'Are you good at English?',
+          ru: 'Вы хорошо знаете английский?',
+        },
+      },
+      {
+        korean: '학교에서 영어를 배워요.',
+        translations: {
+          ko: '학교에서 영어를 배웁니다.',
+          uz: 'Maktabda ingliz tilini o‘rganaman.',
+          en: 'I learn English at school.',
+          ru: 'Я изучаю английский язык в школе.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '영어', romanization: 'yeongeo', ttsText: '영어' },
+    media: {
+      emoji: '🇬🇧',
+      imageUrl: 'https://cdn.korio.app/words/yeongeo.webp',
+      imageAlt: {
+        ko: '영어를 나타내는 글자',
+        uz: 'ingliz tilini bildiruvchi yozuv',
+        en: 'English language text',
+        ru: 'текст на английском языке',
+      },
+    },
+    tags: ['language', 'education', 'ability', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'영어를 하다', '영어를 배우다', '영어를 잘하다'처럼 사용해요.",
+      uz: "'영어를 배우다', '영어를 잘하다' kabi ishlatiladi.",
+      en: 'Commonly used with 배우다 and 잘하다.',
+      ru: 'Часто используется с 배우다 и 잘하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_korean_language_noun',
+    senseKey: 'language-korean-spoken',
+    korean: '한국말',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한국에서 사용하는 말, 한국어',
+      uz: 'koreys tili',
+      en: 'Korean language',
+      ru: 'корейский язык',
+    },
+    examples: [
+      {
+        korean: '한국말을 잘해요.',
+        translations: {
+          ko: '한국말을 잘합니다.',
+          uz: 'Koreys tilini yaxshi bilaman.',
+          en: 'I speak Korean well.',
+          ru: 'Я хорошо говорю по-корейски.',
+        },
+      },
+      {
+        korean: '한국말을 조금 해요.',
+        translations: {
+          ko: '한국말을 조금 합니다.',
+          uz: 'Koreys tilida biroz gapiraman.',
+          en: 'I speak a little Korean.',
+          ru: 'Я немного говорю по-корейски.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '한국말',
+      romanization: 'hangungmal',
+      ttsText: '한국말',
+    },
+    media: {
+      emoji: '🇰🇷',
+      imageUrl: 'https://cdn.korio.app/words/hangungmal.webp',
+      imageAlt: {
+        ko: '한국말을 하는 사람',
+        uz: 'koreys tilida gapirayotgan odam',
+        en: 'a person speaking Korean',
+        ru: 'человек, говорящий по-корейски',
+      },
+    },
+    tags: ['language', 'korean', 'ability', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'한국어'와 비슷하지만 '한국말'은 일상 회화에서 말이라는 느낌이 더 강해요.",
+      uz: "'한국어'ga o‘xshaydi, lekin '한국말' kundalik nutqda ko‘proq ishlatiladi.",
+      en: "Similar to 한국어, but 한국말 has a more conversational sense of 'Korean speech.'",
+      ru: 'Похоже на 한국어, но 한국말 чаще воспринимается как разговорное «корейская речь».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cooking_noun',
+    senseKey: 'activity-cooking',
+    korean: '요리',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '음식을 만드는 일 또는 만든 음식',
+      uz: 'ovqat pishirish, taom',
+      en: 'cooking, dish',
+      ru: 'готовка, блюдо',
+    },
+    examples: [
+      {
+        korean: '어머니는 요리를 잘하세요.',
+        translations: {
+          ko: '어머니는 요리를 잘하십니다.',
+          uz: 'Onam yaxshi ovqat pishiradi.',
+          en: 'My mother is good at cooking.',
+          ru: 'Моя мама хорошо готовит.',
+        },
+      },
+      {
+        korean: '한국 요리를 좋아해요.',
+        translations: {
+          ko: '한국 요리를 좋아합니다.',
+          uz: 'Koreys taomlarini yaxshi ko‘raman.',
+          en: 'I like Korean food.',
+          ru: 'Я люблю корейскую кухню.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '요리', romanization: 'yori', ttsText: '요리' },
+    media: {
+      emoji: '🍳',
+      imageUrl: 'https://cdn.korio.app/words/yori.webp',
+      imageAlt: {
+        ko: '음식을 요리하는 모습',
+        uz: 'ovqat pishirish',
+        en: 'cooking food',
+        ru: 'приготовление еды',
+      },
+    },
+    tags: ['food', 'cooking', 'skill', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'요리를 하다'는 음식을 만드는 행동이고 '한국 요리'에서는 음식이나 요리 종류를 뜻해요.",
+      uz: "'요리를 하다' ovqat pishirishni, '한국 요리' esa koreys taomlarini bildiradi.",
+      en: '요리를 하다 means to cook, while 한국 요리 refers to Korean cuisine.',
+      ru: '요리를 하다 означает готовить, а 한국 요리 — корейскую кухню.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_song_noun',
+    senseKey: 'music-song',
+    korean: '노래',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '목소리로 가락과 가사를 표현한 음악',
+      uz: 'qo‘shiq, kuylash',
+      en: 'song, singing',
+      ru: 'песня, пение',
+    },
+    examples: [
+      {
+        korean: '노래를 잘해요.',
+        translations: {
+          ko: '노래를 잘합니다.',
+          uz: 'Yaxshi qo‘shiq aytaman.',
+          en: 'I sing well.',
+          ru: 'Я хорошо пою.',
+        },
+      },
+      {
+        korean: '한국 노래를 좋아해요.',
+        translations: {
+          ko: '한국 노래를 좋아합니다.',
+          uz: 'Koreys qo‘shiqlarini yaxshi ko‘raman.',
+          en: 'I like Korean songs.',
+          ru: 'Я люблю корейские песни.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '노래', romanization: 'norae', ttsText: '노래' },
+    media: {
+      emoji: '🎵',
+      imageUrl: 'https://cdn.korio.app/words/norae.webp',
+      imageAlt: {
+        ko: '노래를 나타내는 음표',
+        uz: 'qo‘shiqni bildiruvchi nota',
+        en: 'musical notes representing a song',
+        ru: 'ноты, обозначающие песню',
+      },
+    },
+    tags: ['music', 'skill', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'노래를 하다'보다는 보통 '노래하다', '노래를 부르다'라고 표현해요.",
+      uz: "Odatda '노래하다' yoki '노래를 부르다' deyiladi.",
+      en: "노래하다 or 노래를 부르다 are the usual ways to say 'to sing.'",
+      ru: 'Для «петь» обычно используются 노래하다 или 노래를 부르다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_exercise_noun',
+    senseKey: 'activity-exercise',
+    korean: '운동',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '건강이나 체력을 위해 몸을 움직이는 활동',
+      uz: 'sport, jismoniy mashq',
+      en: 'exercise, sports',
+      ru: 'спорт, физические упражнения',
+    },
+    examples: [
+      {
+        korean: '저는 운동을 잘해요.',
+        translations: {
+          ko: '저는 운동을 잘합니다.',
+          uz: 'Men sportni yaxshi qilaman.',
+          en: "I'm good at sports.",
+          ru: 'Я хорошо занимаюсь спортом.',
+        },
+      },
+      {
+        korean: '매일 운동을 해요.',
+        translations: {
+          ko: '매일 운동을 합니다.',
+          uz: 'Har kuni mashq qilaman.',
+          en: 'I exercise every day.',
+          ru: 'Я каждый день занимаюсь спортом.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '운동', romanization: 'undong', ttsText: '운동' },
+    media: {
+      emoji: '🏃',
+      imageUrl: 'https://cdn.korio.app/words/undong.webp',
+      imageAlt: {
+        ko: '운동하는 사람',
+        uz: 'mashq qilayotgan odam',
+        en: 'a person exercising',
+        ru: 'человек, занимающийся спортом',
+      },
+    },
+    tags: ['sports', 'exercise', 'skill', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운동을 하다', '운동을 잘하다'처럼 사용해요.",
+      uz: "'운동을 하다', '운동을 잘하다' kabi ishlatiladi.",
+      en: 'Commonly used as 운동을 하다 or 운동을 잘하다.',
+      ru: 'Часто используется как 운동을 하다 или 운동을 잘하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 소개 · 관계
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_greet_verb',
+    senseKey: 'social-greet',
+    korean: '인사하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '만나거나 헤어질 때 예의를 표현하는 말을 하다',
+      uz: 'salomlashmoq',
+      en: 'to greet',
+      ru: 'приветствовать, здороваться',
+    },
+    examples: [
+      {
+        korean: '선생님께 인사해요.',
+        translations: {
+          ko: '선생님께 인사합니다.',
+          uz: 'O‘qituvchi bilan salomlashaman.',
+          en: 'I greet the teacher.',
+          ru: 'Я здороваюсь с учителем.',
+        },
+      },
+      {
+        korean: '친구를 만나서 인사했어요.',
+        translations: {
+          ko: '친구를 만나서 인사했습니다.',
+          uz: 'Do‘stimni uchratib salomlashdim.',
+          en: 'I met my friend and greeted them.',
+          ru: 'Я встретил друга и поздоровался.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '인사하다',
+      romanization: 'insahada',
+      ttsText: '인사하다',
+    },
+    media: {
+      emoji: '👋',
+      imageUrl: 'https://cdn.korio.app/words/insahada.webp',
+      imageAlt: {
+        ko: '서로 인사하는 사람들',
+        uz: 'salomlashayotgan odamlar',
+        en: 'people greeting each other',
+        ru: 'люди, приветствующие друг друга',
+      },
+    },
+    tags: ['verb', 'greeting', 'social', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'사람에게 인사하다'처럼 인사의 대상을 '-에게/께'와 함께 사용할 수 있어요.",
+      uz: "Salom beriladigan kishi '-에게/께' bilan kelishi mumkin.",
+      en: 'The person being greeted can be marked with 에게 or the honorific 께.',
+      ru: 'Человек, которого приветствуют, может отмечаться 에게 или уважительным 께.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_this_person_way_noun',
+    senseKey: 'demonstrative-this-side-person',
+    korean: '이쪽',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '말하는 사람에게 가까운 방향 또는 사람을 공손하게 가리키는 말',
+      uz: 'bu tomon, bu kishi',
+      en: 'this way, this person',
+      ru: 'эта сторона, этот человек',
+    },
+    examples: [
+      {
+        korean: '이쪽은 제 룸메이트예요.',
+        translations: {
+          ko: '이분은 제 룸메이트입니다.',
+          uz: 'Bu kishi mening xonadoshim.',
+          en: 'This is my roommate.',
+          ru: 'Это мой сосед по комнате.',
+        },
+      },
+      {
+        korean: '이쪽으로 오세요.',
+        translations: {
+          ko: '이쪽으로 오십시오.',
+          uz: 'Bu tomonga keling.',
+          en: 'Please come this way.',
+          ru: 'Пожалуйста, пройдите сюда.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '이쪽', romanization: 'ijjok', ttsText: '이쪽' },
+    media: {
+      emoji: '👉',
+      imageUrl: 'https://cdn.korio.app/words/ijjok.webp',
+      imageAlt: {
+        ko: '가까운 방향이나 사람을 가리키는 손',
+        uz: 'yaqin tomonni ko‘rsatayotgan qo‘l',
+        en: 'a hand indicating this way',
+        ru: 'рука, указывающая сюда',
+      },
+    },
+    tags: ['demonstrative', 'introduction', 'location', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "사람을 소개할 때 '이쪽은 ~예요'라고 공손하게 말할 수 있어요.",
+      uz: "Odamni tanishtirishda '이쪽은 ~예요' shaklida ishlatiladi.",
+      en: 'Can politely introduce someone with 이쪽은 ~예요.',
+      ru: 'Можно вежливо представить человека выражением «이쪽은 ~예요».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_roommate_noun',
+    senseKey: 'relationship-roommate',
+    korean: '룸메이트',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '같은 방에서 함께 사는 사람',
+      uz: 'xonadosh',
+      en: 'roommate',
+      ru: 'сосед по комнате',
+    },
+    examples: [
+      {
+        korean: '이쪽은 제 룸메이트예요.',
+        translations: {
+          ko: '이분은 제 룸메이트입니다.',
+          uz: 'Bu mening xonadoshim.',
+          en: 'This is my roommate.',
+          ru: 'Это мой сосед по комнате.',
+        },
+      },
+      {
+        korean: '룸메이트하고 같이 살아요.',
+        translations: {
+          ko: '룸메이트와 같이 삽니다.',
+          uz: 'Xonadoshim bilan birga yashayman.',
+          en: 'I live with my roommate.',
+          ru: 'Я живу с соседом по комнате.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '룸메이트',
+      romanization: 'rummeiteu',
+      ttsText: '룸메이트',
+    },
+    media: {
+      emoji: '🏠',
+      imageUrl: 'https://cdn.korio.app/words/rummeiteu.webp',
+      imageAlt: {
+        ko: '한 방을 함께 쓰는 룸메이트',
+        uz: 'bir xonada yashaydigan xonadoshlar',
+        en: 'roommates sharing a room',
+        ru: 'соседи по комнате',
+      },
+    },
+    tags: ['relationship', 'home', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '기숙사나 공유 주거에서 같은 방을 쓰는 사람을 말해요.',
+      uz: 'Yotoqxona yoki umumiy uyda bir xonani bo‘lishadigan odam.',
+      en: 'Refers to someone who shares the same room.',
+      ru: 'Означает человека, с которым делят одну комнату.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_classmate_noun',
+    senseKey: 'relationship-classmate',
+    korean: '반 친구',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '같은 반에서 공부하는 친구',
+      uz: 'sinfdosh',
+      en: 'classmate',
+      ru: 'одноклассник, одногруппник',
+    },
+    examples: [
+      {
+        korean: '민수는 제 반 친구예요.',
+        translations: {
+          ko: '민수는 제 반 친구입니다.',
+          uz: 'Minsu mening sinfdoshim.',
+          en: 'Minsu is my classmate.',
+          ru: 'Минсу — мой одноклассник.',
+        },
+      },
+      {
+        korean: '반 친구하고 같이 공부해요.',
+        translations: {
+          ko: '반 친구와 같이 공부합니다.',
+          uz: 'Sinfdoshim bilan birga o‘qiyman.',
+          en: 'I study with my classmate.',
+          ru: 'Я занимаюсь вместе с одноклассником.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '반 친구',
+      romanization: 'ban chingu',
+      ttsText: '반 친구',
+    },
+    media: {
+      emoji: '🧑‍🤝‍🧑',
+      imageUrl: 'https://cdn.korio.app/words/ban-chingu.webp',
+      imageAlt: {
+        ko: '같은 반에서 공부하는 친구들',
+        uz: 'bir sinfda o‘qiydigan do‘stlar',
+        en: 'classmates',
+        ru: 'одноклассники',
+      },
+    },
+    tags: ['relationship', 'school', 'friend', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'반'은 학급을 뜻하고 '반 친구'는 같은 학급의 친구를 뜻해요.",
+      uz: "'반' sinfni, '반 친구' esa bir sinfdagi do‘stni bildiradi.",
+      en: '반 means a class group, so 반 친구 means a friend in the same class.',
+      ru: '반 означает класс, а 반 친구 — друга из того же класса.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_club_noun',
+    senseKey: 'school-social-club',
+    korean: '동아리',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '같은 취미나 관심을 가진 사람들이 만든 모임',
+      uz: 'to‘garak, klub',
+      en: 'club',
+      ru: 'клуб, кружок',
+    },
+    examples: [
+      {
+        korean: '저는 축구 동아리에 다녀요.',
+        translations: {
+          ko: '저는 축구 동아리에 다닙니다.',
+          uz: 'Men futbol to‘garagiga qatnayman.',
+          en: 'I belong to a soccer club.',
+          ru: 'Я хожу в футбольный клуб.',
+        },
+      },
+      {
+        korean: '동아리에서 친구를 만났어요.',
+        translations: {
+          ko: '동아리에서 친구를 만났습니다.',
+          uz: 'To‘garakda do‘stim bilan tanishdim.',
+          en: 'I met my friend at the club.',
+          ru: 'Я встретил друга в клубе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '동아리',
+      romanization: 'dongari',
+      ttsText: '동아리',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: 'https://cdn.korio.app/words/dongari.webp',
+      imageAlt: {
+        ko: '같은 활동을 하는 동아리 사람들',
+        uz: 'bir xil faoliyatdagi klub a’zolari',
+        en: 'members of a club',
+        ru: 'участники клуба',
+      },
+    },
+    tags: ['school', 'club', 'social', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '학교나 대학교의 취미·활동 모임을 말할 때 많이 사용해요.',
+      uz: 'Maktab yoki universitetdagi qiziqish klubi uchun ishlatiladi.',
+      en: 'Commonly refers to hobby or activity clubs at school or university.',
+      ru: 'Часто означает кружок или клуб по интересам в школе или университете.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_same_department_noun',
+    senseKey: 'relationship-same-academic-department',
+    korean: '같은 과',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '대학교에서 같은 전공이나 학과',
+      uz: 'bir xil fakultet yoki bo‘lim',
+      en: 'the same department',
+      ru: 'одна и та же кафедра, факультет',
+    },
+    examples: [
+      {
+        korean: '민수 씨하고 저는 같은 과예요.',
+        translations: {
+          ko: '민수 씨와 저는 같은 학과입니다.',
+          uz: 'Minsu bilan men bir xil fakultetdamiz.',
+          en: 'Minsu and I are in the same department.',
+          ru: 'Минсу и я учимся на одной кафедре.',
+        },
+      },
+      {
+        korean: '같은 과 친구를 소개할게요.',
+        translations: {
+          ko: '같은 과 친구를 소개하겠습니다.',
+          uz: 'Bir fakultetdagi do‘stimni tanishtiraman.',
+          en: "I'll introduce a friend from my department.",
+          ru: 'Я представлю друга с моей кафедры.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '같은 과',
+      romanization: 'gateun gwa',
+      ttsText: '같은 과',
+    },
+    media: {
+      emoji: '🎓',
+      imageUrl: 'https://cdn.korio.app/words/gateun-gwa.webp',
+      imageAlt: {
+        ko: '같은 학과에서 공부하는 학생들',
+        uz: 'bir xil fakultetda o‘qiydigan talabalar',
+        en: 'students in the same department',
+        ru: 'студенты одной кафедры',
+      },
+    },
+    tags: ['education', 'university', 'relationship', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "여기서 '과'는 대학교의 학과나 전공 조직을 뜻해요.",
+      uz: "Bu yerda '과' universitetdagi bo‘lim yoki mutaxassislikni bildiradi.",
+      en: 'Here 과 means an academic department or major at a university.',
+      ru: 'Здесь 과 означает университетскую кафедру или специальность.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 가족 소개 · 직업
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_company_employee_noun',
+    senseKey: 'occupation-company-employee',
+    korean: '회사원',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '회사에 다니며 일하는 사람',
+      uz: 'kompaniya xodimi',
+      en: 'company employee',
+      ru: 'сотрудник компании',
+    },
+    examples: [
+      {
+        korean: '아버지는 회사원이세요.',
+        translations: {
+          ko: '아버지는 회사원이십니다.',
+          uz: 'Otam kompaniya xodimi.',
+          en: 'My father is a company employee.',
+          ru: 'Мой отец работает в компании.',
+        },
+      },
+      {
+        korean: '제 형도 회사원이에요.',
+        translations: {
+          ko: '제 형도 회사원입니다.',
+          uz: 'Akam ham kompaniya xodimi.',
+          en: 'My older brother is also a company employee.',
+          ru: 'Мой старший брат тоже работает в компании.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '회사원',
+      romanization: 'hoesawon',
+      ttsText: '회사원',
+    },
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/hoesawon.webp',
+      imageAlt: {
+        ko: '회사에서 일하는 회사원',
+        uz: 'kompaniyada ishlayotgan xodim',
+        en: 'a company employee',
+        ru: 'сотрудник компании',
+      },
+    },
+    tags: ['occupation', 'work', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '회사에 소속되어 일하는 사람을 말해요.',
+      uz: 'Kompaniyada ishlaydigan xodimni bildiradi.',
+      en: 'Refers to a person employed by a company.',
+      ru: 'Означает человека, работающего в компании.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_teacher_noun',
+    senseKey: 'occupation-teacher',
+    korean: '선생님',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '학생을 가르치는 사람을 높여 부르는 말',
+      uz: 'o‘qituvchi',
+      en: 'teacher',
+      ru: 'учитель, преподаватель',
+    },
+    examples: [
+      {
+        korean: '어머니는 선생님이세요.',
+        translations: {
+          ko: '어머니는 선생님이십니다.',
+          uz: 'Onam o‘qituvchi.',
+          en: 'My mother is a teacher.',
+          ru: 'Моя мама учительница.',
+        },
+      },
+      {
+        korean: '선생님께 인사했어요.',
+        translations: {
+          ko: '선생님께 인사했습니다.',
+          uz: 'O‘qituvchi bilan salomlashdim.',
+          en: 'I greeted the teacher.',
+          ru: 'Я поздоровался с учителем.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '선생님',
+      romanization: 'seonsaengnim',
+      ttsText: '선생님',
+    },
+    media: {
+      emoji: '🧑‍🏫',
+      imageUrl: 'https://cdn.korio.app/words/seonsaengnim.webp',
+      imageAlt: {
+        ko: '학생을 가르치는 선생님',
+        uz: 'o‘quvchini o‘qitayotgan o‘qituvchi',
+        en: 'a teacher teaching',
+        ru: 'учитель, ведущий урок',
+      },
+    },
+    tags: ['occupation', 'education', 'honorific', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '교사뿐 아니라 상대를 공손하게 부르는 호칭으로 사용되기도 해요.',
+      uz: 'O‘qituvchidan tashqari hurmatli murojaat sifatida ham ishlatiladi.',
+      en: 'Can also be used as a respectful form of address, not only for teachers.',
+      ru: 'Может использоваться как уважительное обращение, не только к учителю.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_doctor_noun',
+    senseKey: 'occupation-doctor',
+    korean: '의사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '환자를 진료하고 치료하는 사람',
+      uz: 'shifokor',
+      en: 'doctor',
+      ru: 'врач',
+    },
+    examples: [
+      {
+        korean: '언니는 의사예요.',
+        translations: {
+          ko: '언니는 의사입니다.',
+          uz: 'Opam shifokor.',
+          en: 'My older sister is a doctor.',
+          ru: 'Моя старшая сестра врач.',
+        },
+      },
+      {
+        korean: '의사 선생님이 친절하세요.',
+        translations: {
+          ko: '의사 선생님이 친절하십니다.',
+          uz: 'Shifokor juda mehribon.',
+          en: 'The doctor is kind.',
+          ru: 'Врач добрый.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '의사', romanization: 'uisa', ttsText: '의사' },
+    media: {
+      emoji: '🩺',
+      imageUrl: 'https://cdn.korio.app/words/uisa.webp',
+      imageAlt: {
+        ko: '환자를 진료하는 의사',
+        uz: 'bemorni tekshirayotgan shifokor',
+        en: 'a doctor examining a patient',
+        ru: 'врач, осматривающий пациента',
+      },
+    },
+    tags: ['occupation', 'medical', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '병원에서 환자를 진료하고 치료하는 직업을 말해요.',
+      uz: 'Bemorlarni tekshiradigan va davolaydigan kasbni bildiradi.',
+      en: 'Refers to the profession of diagnosing and treating patients.',
+      ru: 'Означает профессию человека, который диагностирует и лечит пациентов.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_company_owner_noun',
+    senseKey: 'occupation-business-owner-boss',
+    korean: '사장님',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '회사나 가게의 책임자나 주인을 높여 부르는 말',
+      uz: 'rahbar, direktor, xo‘jayin',
+      en: 'company president, business owner, boss',
+      ru: 'директор, владелец, начальник',
+    },
+    examples: [
+      {
+        korean: '사장님이 회사에 계세요.',
+        translations: {
+          ko: '사장님이 회사에 계십니다.',
+          uz: 'Rahbar kompaniyada.',
+          en: 'The boss is at the company.',
+          ru: 'Директор находится в компании.',
+        },
+      },
+      {
+        korean: '우리 사장님은 친절하세요.',
+        translations: {
+          ko: '우리 사장님은 친절하십니다.',
+          uz: 'Bizning rahbarimiz mehribon.',
+          en: 'Our boss is kind.',
+          ru: 'Наш директор добрый.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '사장님',
+      romanization: 'sajangnim',
+      ttsText: '사장님',
+    },
+    media: {
+      emoji: '👔',
+      imageUrl: 'https://cdn.korio.app/words/sajangnim.webp',
+      imageAlt: {
+        ko: '회사나 가게의 사장님',
+        uz: 'kompaniya yoki do‘kon rahbari',
+        en: 'a company or shop owner',
+        ru: 'руководитель компании или магазина',
+      },
+    },
+    tags: ['occupation', 'business', 'honorific', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'사장'에 높임을 나타내는 '-님'이 붙은 말이에요.",
+      uz: "'사장' so‘ziga hurmat bildiruvchi '-님' qo‘shilgan.",
+      en: '사장님 is 사장 with the honorific suffix 님.',
+      ru: '사장님 — это 사장 с уважительным суффиксом 님.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_attend_commute_verb',
+    senseKey: 'action-attend-commute-regularly',
+    korean: '다니다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 곳에 정기적으로 오가다',
+      uz: 'qatnamoq, muntazam bormoq',
+      en: 'to attend, to go regularly, to work at',
+      ru: 'ходить, посещать, работать',
+    },
+    examples: [
+      {
+        korean: '아버지는 회사에 다니세요.',
+        translations: {
+          ko: '아버지는 회사에 다니십니다.',
+          uz: 'Otam kompaniyada ishlaydi.',
+          en: 'My father works at a company.',
+          ru: 'Мой отец работает в компании.',
+        },
+      },
+      {
+        korean: '동생은 중학교에 다녀요.',
+        translations: {
+          ko: '동생은 중학교에 다닙니다.',
+          uz: 'Ukam yoki singlim o‘rta maktabga qatnaydi.',
+          en: 'My younger sibling attends middle school.',
+          ru: 'Мой младший брат или сестра ходит в среднюю школу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '다니다',
+      romanization: 'danida',
+      ttsText: '다니다',
+    },
+    media: {
+      emoji: '🏢',
+      imageUrl: 'https://cdn.korio.app/words/danida.webp',
+      imageAlt: {
+        ko: '학교나 회사에 정기적으로 다니는 사람',
+        uz: 'maktab yoki ishga muntazam boradigan odam',
+        en: 'a person regularly going to school or work',
+        ru: 'человек, регулярно ходящий на работу или учёбу',
+      },
+    },
+    tags: ['verb', 'school', 'work', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'학교에 다니다'는 학교에 재학하다, '회사에 다니다'는 회사에서 일한다는 뜻으로 자주 사용해요.",
+      uz: "'학교에 다니다' o‘qishni, '회사에 다니다' esa kompaniyada ishlashni bildiradi.",
+      en: '학교에 다니다 means to attend school; 회사에 다니다 commonly means to work for a company.',
+      ru: '학교에 다니다 означает учиться, а 회사에 다니다 — работать в компании.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_kind_adjective',
+    senseKey: 'personality-kind',
+    korean: '친절하다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '다른 사람을 따뜻하고 상냥하게 대하다',
+      uz: 'mehribon, xushmuomala bo‘lmoq',
+      en: 'to be kind',
+      ru: 'быть добрым, любезным',
+    },
+    examples: [
+      {
+        korean: '우리 선생님은 친절하세요.',
+        translations: {
+          ko: '우리 선생님은 친절하십니다.',
+          uz: 'O‘qituvchimiz mehribon.',
+          en: 'Our teacher is kind.',
+          ru: 'Наш учитель добрый.',
+        },
+      },
+      {
+        korean: '사장님이 아주 친절하세요.',
+        translations: {
+          ko: '사장님이 매우 친절하십니다.',
+          uz: 'Rahbar juda xushmuomala.',
+          en: 'The boss is very kind.',
+          ru: 'Директор очень любезный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '친절하다',
+      romanization: 'chinjeolhada',
+      ttsText: '친절하다',
+    },
+    media: {
+      emoji: '😊',
+      imageUrl: 'https://cdn.korio.app/words/chinjeolhada.webp',
+      imageAlt: {
+        ko: '친절하게 도와주는 사람',
+        uz: 'mehribon yordam berayotgan odam',
+        en: 'a kind person helping someone',
+        ru: 'добрый человек, помогающий другому',
+      },
+    },
+    tags: ['adjective', 'personality', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '사람의 성격이나 서비스 태도가 좋고 상냥할 때 사용해요.',
+      uz: 'Odamning fe’li yoki xizmat ko‘rsatishi muloyim bo‘lganda ishlatiladi.',
+      en: 'Used to describe a kind person or friendly service.',
+      ru: 'Используется для описания доброго человека или любезного обслуживания.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cool_stylish_adjective',
+    senseKey: 'appearance-cool-stylish',
+    korean: '멋있다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '모습이나 행동이 보기 좋고 훌륭하다',
+      uz: 'zo‘r, kelishgan, zamonaviy bo‘lmoq',
+      en: 'to be cool, stylish, handsome',
+      ru: 'быть стильным, эффектным',
+    },
+    examples: [
+      {
+        korean: '제 형은 정말 멋있어요.',
+        translations: {
+          ko: '제 형은 정말 멋있습니다.',
+          uz: 'Akam juda kelishgan.',
+          en: 'My older brother is really cool.',
+          ru: 'Мой старший брат очень стильный.',
+        },
+      },
+      {
+        korean: '그 배우가 멋있어요.',
+        translations: {
+          ko: '그 배우가 멋있습니다.',
+          uz: 'U aktyor juda zo‘r.',
+          en: 'That actor is cool.',
+          ru: 'Этот актёр очень эффектный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '멋있다',
+      romanization: 'meositda',
+      ttsText: '멋있다',
+    },
+    media: {
+      emoji: '😎',
+      imageUrl: 'https://cdn.korio.app/words/meositda.webp',
+      imageAlt: {
+        ko: '멋있는 사람',
+        uz: 'zamonaviy va kelishgan odam',
+        en: 'a cool stylish person',
+        ru: 'стильный человек',
+      },
+    },
+    tags: ['adjective', 'appearance', 'evaluation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '사람의 외모뿐 아니라 행동, 옷, 장소 등이 훌륭할 때도 사용할 수 있어요.',
+      uz: 'Faqat tashqi ko‘rinish emas, harakat, kiyim yoki joy uchun ham ishlatiladi.',
+      en: 'Can describe not only appearance but also actions, clothes, or places as impressive.',
+      ru: 'Может описывать не только внешность, но и поступки, одежду или место.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_beautiful_woman_noun',
+    senseKey: 'person-beautiful-woman',
+    korean: '미인',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '얼굴이나 모습이 아름다운 여자',
+      uz: 'go‘zal ayol',
+      en: 'beautiful woman',
+      ru: 'красавица',
+    },
+    examples: [
+      {
+        korean: '제 누나는 미인이에요.',
+        translations: {
+          ko: '제 누나는 미인입니다.',
+          uz: 'Opam go‘zal ayol.',
+          en: 'My older sister is beautiful.',
+          ru: 'Моя старшая сестра красавица.',
+        },
+      },
+      {
+        korean: '어머니가 젊었을 때 미인이셨어요.',
+        translations: {
+          ko: '어머니께서는 젊었을 때 미인이셨습니다.',
+          uz: 'Onam yoshligida juda go‘zal bo‘lgan.',
+          en: 'My mother was beautiful when she was young.',
+          ru: 'Моя мама в молодости была красавицей.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '미인', romanization: 'miin', ttsText: '미인' },
+    media: {
+      emoji: '✨',
+      imageUrl: 'https://cdn.korio.app/words/miin.webp',
+      imageAlt: {
+        ko: '아름다운 여성을 나타내는 모습',
+        uz: 'go‘zal ayolni ifodalovchi tasvir',
+        en: 'a beautiful woman',
+        ru: 'красивая женщина',
+      },
+    },
+    tags: ['people', 'appearance', 'description', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "여성을 아름답다고 표현하는 명사예요. 일상에서는 '예쁘다', '아름답다'도 많이 사용해요.",
+      uz: "Go‘zal ayolni bildiradigan ot; kundalik nutqda '예쁘다' ham ko‘p ishlatiladi.",
+      en: 'A noun meaning a beautiful woman; 예쁘다 is also very common in everyday speech.',
+      ru: 'Существительное «красавица»; в обычной речи также часто используют 예쁘다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_university_noun',
+    senseKey: 'education-university',
+    korean: '대학교',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고등교육을 하는 교육기관',
+      uz: 'universitet',
+      en: 'university',
+      ru: 'университет',
+    },
+    examples: [
+      {
+        korean: '누나는 대학교에 다녀요.',
+        translations: {
+          ko: '누나는 대학교에 다닙니다.',
+          uz: 'Opam universitetda o‘qiydi.',
+          en: 'My older sister attends university.',
+          ru: 'Моя старшая сестра учится в университете.',
+        },
+      },
+      {
+        korean: '대학교에서 한국어를 공부해요.',
+        translations: {
+          ko: '대학교에서 한국어를 공부합니다.',
+          uz: 'Universitetda koreys tilini o‘rganaman.',
+          en: 'I study Korean at university.',
+          ru: 'Я изучаю корейский язык в университете.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '대학교',
+      romanization: 'daehakgyo',
+      ttsText: '대학교',
+    },
+    media: {
+      emoji: '🎓',
+      imageUrl: 'https://cdn.korio.app/words/daehakgyo.webp',
+      imageAlt: {
+        ko: '대학교 캠퍼스',
+        uz: 'universitet kampusi',
+        en: 'a university campus',
+        ru: 'университетский кампус',
+      },
+    },
+    tags: ['education', 'place', 'university', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "회화에서는 '대학'이라고 줄여 말하는 경우도 많아요.",
+      uz: "Suhbatda ko‘pincha qisqaroq '대학' shakli ham ishlatiladi.",
+      en: 'The shorter form 대학 is also very common.',
+      ru: 'Также часто используется более короткая форма 대학.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_newspaper_company_noun',
+    senseKey: 'workplace-newspaper-company',
+    korean: '신문사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '신문을 만들고 발행하는 회사',
+      uz: 'gazeta tahririyati, gazeta kompaniyasi',
+      en: 'newspaper company',
+      ru: 'редакция газеты, газетная компания',
+    },
+    examples: [
+      {
+        korean: '아버지는 신문사에 다니세요.',
+        translations: {
+          ko: '아버지는 신문사에 다니십니다.',
+          uz: 'Otam gazeta tahririyatida ishlaydi.',
+          en: 'My father works for a newspaper company.',
+          ru: 'Мой отец работает в редакции газеты.',
+        },
+      },
+      {
+        korean: '신문사에서 기자로 일해요.',
+        translations: {
+          ko: '신문사에서 기자로 일합니다.',
+          uz: 'Gazeta tahririyatida jurnalist bo‘lib ishlayman.',
+          en: 'I work as a reporter at a newspaper company.',
+          ru: 'Я работаю журналистом в редакции газеты.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '신문사',
+      romanization: 'sinmunsa',
+      ttsText: '신문사',
+    },
+    media: {
+      emoji: '📰',
+      imageUrl: 'https://cdn.korio.app/words/sinmunsa.webp',
+      imageAlt: {
+        ko: '신문을 만드는 회사',
+        uz: 'gazeta tayyorlaydigan kompaniya',
+        en: 'a newspaper company',
+        ru: 'редакция газеты',
+      },
+    },
+    tags: ['workplace', 'media', 'occupation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'신문'에 회사나 기관을 뜻하는 '사'가 붙은 단어예요.",
+      uz: "'신문'ga kompaniya ma’nosidagi '사' qo‘shilgan.",
+      en: '신문사 combines 신문 (newspaper) with 사, meaning a company or organization.',
+      ru: '신문사 состоит из 신문 «газета» и 사 «компания/организация».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_middle_school_noun',
+    senseKey: 'education-middle-school',
+    korean: '중학교',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '초등학교 다음, 고등학교 전에 다니는 학교',
+      uz: 'o‘rta maktab',
+      en: 'middle school',
+      ru: 'средняя школа',
+    },
+    examples: [
+      {
+        korean: '남동생은 중학교에 다녀요.',
+        translations: {
+          ko: '남동생은 중학교에 다닙니다.',
+          uz: 'Ukam o‘rta maktabga qatnaydi.',
+          en: 'My younger brother attends middle school.',
+          ru: 'Мой младший брат учится в средней школе.',
+        },
+      },
+      {
+        korean: '중학교 선생님이세요.',
+        translations: {
+          ko: '중학교 선생님이십니다.',
+          uz: 'U kishi o‘rta maktab o‘qituvchisi.',
+          en: 'They are a middle school teacher.',
+          ru: 'Он учитель средней школы.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '중학교',
+      romanization: 'junghakgyo',
+      ttsText: '중학교',
+    },
+    media: {
+      emoji: '🏫',
+      imageUrl: 'https://cdn.korio.app/words/junghakgyo.webp',
+      imageAlt: {
+        ko: '중학교 건물',
+        uz: 'o‘rta maktab binosi',
+        en: 'a middle school building',
+        ru: 'здание средней школы',
+      },
+    },
+    tags: ['education', 'school', 'place', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'중학생'은 중학교에 다니는 학생을 뜻해요.",
+      uz: "'중학생' o‘rta maktab o‘quvchisini bildiradi.",
+      en: '중학생 means a middle school student.',
+      ru: '중학생 означает ученика средней школы.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_family_photo_noun',
+    senseKey: 'photo-family-photo',
+    korean: '가족사진',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가족이 함께 찍은 사진',
+      uz: 'oilaviy surat',
+      en: 'family photo',
+      ru: 'семейная фотография',
+    },
+    examples: [
+      {
+        korean: '이것은 우리 가족사진이에요.',
+        translations: {
+          ko: '이것은 우리 가족사진입니다.',
+          uz: 'Bu bizning oilaviy suratimiz.',
+          en: 'This is our family photo.',
+          ru: 'Это наша семейная фотография.',
+        },
+      },
+      {
+        korean: '가족사진을 같이 봐요.',
+        translations: {
+          ko: '가족사진을 같이 봅니다.',
+          uz: 'Oilaviy suratni birga ko‘ramiz.',
+          en: 'We look at the family photo together.',
+          ru: 'Мы вместе смотрим семейную фотографию.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '가족사진',
+      romanization: 'gajoksajin',
+      ttsText: '가족사진',
+    },
+    media: {
+      emoji: '📸',
+      imageUrl: 'https://cdn.korio.app/words/gajoksajin.webp',
+      imageAlt: {
+        ko: '가족이 함께 찍은 사진',
+        uz: 'oila birga tushgan surat',
+        en: 'a family photo',
+        ru: 'семейная фотография',
+      },
+    },
+    tags: ['family', 'photo', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'가족'과 '사진'이 결합한 단어예요.",
+      uz: "'가족' va '사진' birikmasidan hosil bo‘lgan.",
+      en: 'A compound of 가족 (family) and 사진 (photo).',
+      ru: 'Сложное слово из 가족 «семья» и 사진 «фотография».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_puppy_noun',
+    senseKey: 'animal-puppy-dog',
+    korean: '강아지',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '어린 개 또는 일상적으로 개를 친근하게 부르는 말',
+      uz: 'kuchukcha',
+      en: 'puppy, dog',
+      ru: 'щенок, собака',
+    },
+    examples: [
+      {
+        korean: '우리 집에 강아지가 있어요.',
+        translations: {
+          ko: '우리 집에 강아지가 있습니다.',
+          uz: 'Uyimizda kuchukcha bor.',
+          en: 'We have a dog at home.',
+          ru: 'У нас дома есть собака.',
+        },
+      },
+      {
+        korean: '강아지가 아주 귀여워요.',
+        translations: {
+          ko: '강아지가 매우 귀엽습니다.',
+          uz: 'Kuchukcha juda yoqimli.',
+          en: 'The puppy is very cute.',
+          ru: 'Щенок очень милый.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '강아지',
+      romanization: 'gangaji',
+      ttsText: '강아지',
+    },
+    media: {
+      emoji: '🐶',
+      imageUrl: 'https://cdn.korio.app/words/gangaji.webp',
+      imageAlt: {
+        ko: '귀여운 강아지',
+        uz: 'yoqimli kuchukcha',
+        en: 'a cute puppy',
+        ru: 'милый щенок',
+      },
+    },
+    tags: ['animal', 'pet', 'family', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '원래 어린 개를 뜻하지만 일상에서는 반려견을 친근하게 부를 때도 많이 사용해요.',
+      uz: 'Aslida kuchukcha, lekin kundalik nutqda uy itiga nisbatan ham ishlatiladi.',
+      en: 'Literally a puppy, but commonly used affectionately for pet dogs as well.',
+      ru: 'Буквально «щенок», но часто ласково используется и для домашних собак.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hobby_noun',
+    senseKey: 'leisure-hobby',
+    korean: '취미',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '즐거움을 위해 여가 시간에 하는 활동',
+      uz: 'hobbi',
+      en: 'hobby',
+      ru: 'хобби',
+    },
+    examples: [
+      {
+        korean: '취미가 뭐예요?',
+        translations: {
+          ko: '취미가 무엇입니까?',
+          uz: 'Hobbiyingiz nima?',
+          en: 'What is your hobby?',
+          ru: 'Какое у вас хобби?',
+        },
+      },
+      {
+        korean: '제 취미는 수영이에요.',
+        translations: {
+          ko: '제 취미는 수영입니다.',
+          uz: 'Mening hobbiyim suzish.',
+          en: 'My hobby is swimming.',
+          ru: 'Моё хобби — плавание.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '취미', romanization: 'chwimi', ttsText: '취미' },
+    media: {
+      emoji: '🎨',
+      imageUrl: 'https://cdn.korio.app/words/chwimi.webp',
+      imageAlt: {
+        ko: '여러 취미 활동',
+        uz: 'turli hobbi mashg‘ulotlari',
+        en: 'different hobby activities',
+        ru: 'различные хобби',
+      },
+    },
+    tags: ['leisure', 'personal-info', 'hobby', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "자기소개에서 '제 취미는 ~예요'라는 표현을 많이 사용해요.",
+      uz: "O‘zini tanishtirishda '제 취미는 ~예요' ko‘p ishlatiladi.",
+      en: '제 취미는 ~예요 is common when introducing yourself.',
+      ru: 'При самопрезентации часто используется «제 취미는 ~예요».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_swimming_noun',
+    senseKey: 'sport-swimming',
+    korean: '수영',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '물에서 헤엄치는 운동',
+      uz: 'suzish',
+      en: 'swimming',
+      ru: 'плавание',
+    },
+    examples: [
+      {
+        korean: '제 취미는 수영이에요.',
+        translations: {
+          ko: '제 취미는 수영입니다.',
+          uz: 'Mening hobbiyim suzish.',
+          en: 'My hobby is swimming.',
+          ru: 'Моё хобби — плавание.',
+        },
+      },
+      {
+        korean: '저는 수영을 잘해요.',
+        translations: {
+          ko: '저는 수영을 잘합니다.',
+          uz: 'Men yaxshi suzaman.',
+          en: "I'm good at swimming.",
+          ru: 'Я хорошо плаваю.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '수영', romanization: 'suyeong', ttsText: '수영' },
+    media: {
+      emoji: '🏊',
+      imageUrl: 'https://cdn.korio.app/words/suyeong.webp',
+      imageAlt: {
+        ko: '수영하는 사람',
+        uz: 'suzayotgan odam',
+        en: 'a person swimming',
+        ru: 'плавающий человек',
+      },
+    },
+    tags: ['sports', 'hobby', 'ability', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수영을 하다', '수영을 잘하다'처럼 사용하며 동사형은 '수영하다'예요.",
+      uz: "'수영을 하다', '수영을 잘하다' kabi ishlatiladi; fe’l shakli '수영하다'.",
+      en: 'Used as 수영을 하다 or 수영을 잘하다; the verb form is 수영하다.',
+      ru: 'Используется как 수영을 하다 и 수영을 잘하다; глагольная форма — 수영하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_skiing_noun',
+    senseKey: 'sport-skiing',
+    korean: '스키',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '눈 위에서 스키를 타는 운동 또는 그 장비',
+      uz: 'chang‘i, chang‘ida uchish',
+      en: 'skiing, skis',
+      ru: 'лыжи, катание на лыжах',
+    },
+    examples: [
+      {
+        korean: '제 취미는 스키예요.',
+        translations: {
+          ko: '제 취미는 스키입니다.',
+          uz: 'Mening hobbiyim chang‘ida uchish.',
+          en: 'My hobby is skiing.',
+          ru: 'Моё хобби — лыжи.',
+        },
+      },
+      {
+        korean: '저는 스키를 잘 타요.',
+        translations: {
+          ko: '저는 스키를 잘 탑니다.',
+          uz: 'Men chang‘ida yaxshi uchaman.',
+          en: 'I ski well.',
+          ru: 'Я хорошо катаюсь на лыжах.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '스키', romanization: 'seuki', ttsText: '스키' },
+    media: {
+      emoji: '⛷️',
+      imageUrl: 'https://cdn.korio.app/words/seuki.webp',
+      imageAlt: {
+        ko: '눈 위의 스키',
+        uz: 'qordagi chang‘i',
+        en: 'skis on snow',
+        ru: 'лыжи на снегу',
+      },
+    },
+    tags: ['sports', 'winter', 'hobby', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "운동을 말할 때 보통 '스키를 타다'라고 표현해요.",
+      uz: "Sport sifatida odatda '스키를 타다' deyiladi.",
+      en: 'The activity is commonly expressed as 스키를 타다.',
+      ru: 'Катание на лыжах обычно выражается как «스키를 타다».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hometown_noun',
+    senseKey: 'place-hometown',
+    korean: '고향',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기가 태어났거나 오래 살았던 곳',
+      uz: 'tug‘ilgan joy, ona yurt',
+      en: 'hometown',
+      ru: 'родной город, родина',
+    },
+    examples: [
+      {
+        korean: '고향이 어디예요?',
+        translations: {
+          ko: '고향이 어디입니까?',
+          uz: 'Tug‘ilgan joyingiz qayer?',
+          en: 'Where is your hometown?',
+          ru: 'Где ваш родной город?',
+        },
+      },
+      {
+        korean: '제 고향은 타슈켄트예요.',
+        translations: {
+          ko: '제 고향은 타슈켄트입니다.',
+          uz: 'Mening ona shahrim Toshkent.',
+          en: 'My hometown is Tashkent.',
+          ru: 'Мой родной город — Ташкент.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '고향', romanization: 'gohyang', ttsText: '고향' },
+    media: {
+      emoji: '🏡',
+      imageUrl: 'https://cdn.korio.app/words/gohyang.webp',
+      imageAlt: {
+        ko: '사람의 고향',
+        uz: 'insonning ona yurti',
+        en: "a person's hometown",
+        ru: 'родной город человека',
+      },
+    },
+    tags: ['place', 'personal-info', 'hometown', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "출신 지역을 이야기할 때 '고향이 어디예요?'라는 표현을 많이 사용해요.",
+      uz: "Tug‘ilgan joyni so‘rashda '고향이 어디예요?' ishlatiladi.",
+      en: "고향이 어디예요? is a common question about someone's hometown.",
+      ru: '«고향이 어디예요?» — распространённый вопрос о родном городе.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_occupation_noun',
+    senseKey: 'personal-info-occupation',
+    korean: '직업',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '생활을 위해 지속적으로 하는 일',
+      uz: 'kasb',
+      en: 'occupation, job',
+      ru: 'профессия',
+    },
+    examples: [
+      {
+        korean: '직업이 뭐예요?',
+        translations: {
+          ko: '직업이 무엇입니까?',
+          uz: 'Kasbingiz nima?',
+          en: 'What is your occupation?',
+          ru: 'Какая у вас профессия?',
+        },
+      },
+      {
+        korean: '아버지의 직업은 의사예요.',
+        translations: {
+          ko: '아버지의 직업은 의사입니다.',
+          uz: 'Otamning kasbi shifokor.',
+          en: "My father's occupation is doctor.",
+          ru: 'Мой отец по профессии врач.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '직업', romanization: 'jigeop', ttsText: '직업' },
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/jigeop.webp',
+      imageAlt: {
+        ko: '여러 가지 직업',
+        uz: 'turli kasblar',
+        en: 'different occupations',
+        ru: 'разные профессии',
+      },
+    },
+    tags: ['occupation', 'personal-info', 'work', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '자기소개나 다른 사람을 소개할 때 직업 정보를 묻고 답하는 데 사용해요.',
+      uz: 'O‘zini yoki boshqani tanishtirishda kasbni so‘rash uchun ishlatiladi.',
+      en: 'Used when asking or giving occupation information.',
+      ru: 'Используется при вопросе или сообщении о профессии.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_teach_verb',
+    senseKey: 'action-teach',
+    korean: '가르치다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '지식이나 기술을 다른 사람이 배우도록 알려 주다',
+      uz: 'o‘qitmoq, o‘rgatmoq',
+      en: 'to teach',
+      ru: 'учить, преподавать',
+    },
+    examples: [
+      {
+        korean: '어머니는 중학교에서 영어를 가르치세요.',
+        translations: {
+          ko: '어머니는 중학교에서 영어를 가르치십니다.',
+          uz: 'Onam o‘rta maktabda ingliz tilini o‘qitadi.',
+          en: 'My mother teaches English at a middle school.',
+          ru: 'Моя мама преподаёт английский в средней школе.',
+        },
+      },
+      {
+        korean: '선생님이 한국어를 가르쳐요.',
+        translations: {
+          ko: '선생님이 한국어를 가르칩니다.',
+          uz: 'O‘qituvchi koreys tilini o‘rgatadi.',
+          en: 'The teacher teaches Korean.',
+          ru: 'Учитель преподаёт корейский язык.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '가르치다',
+      romanization: 'gareuchida',
+      ttsText: '가르치다',
+    },
+    media: {
+      emoji: '🧑‍🏫',
+      imageUrl: 'https://cdn.korio.app/words/gareuchida.webp',
+      imageAlt: {
+        ko: '학생을 가르치는 선생님',
+        uz: 'o‘quvchini o‘qitayotgan ustoz',
+        en: 'a teacher teaching a student',
+        ru: 'учитель, обучающий ученика',
+      },
+    },
+    tags: ['verb', 'education', 'teaching', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'학생에게 한국어를 가르치다'처럼 가르치는 내용과 사람을 함께 표현할 수 있어요.",
+      uz: "'학생에게 한국어를 가르치다' kabi kimga nimani o‘rgatishni aytish mumkin.",
+      en: 'You can express both the learner and subject, as in 학생에게 한국어를 가르치다.',
+      ru: 'Можно указать и ученика, и предмет: «학생에게 한국어를 가르치다».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_laugh_verb',
+    senseKey: 'action-laugh',
+    korean: '웃다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '기쁘거나 재미있어서 얼굴에 웃는 표정을 짓거나 소리를 내다',
+      uz: 'kulmoq',
+      en: 'to laugh, to smile',
+      ru: 'смеяться, улыбаться',
+    },
+    examples: [
+      {
+        korean: '강아지를 보고 웃어요.',
+        translations: {
+          ko: '강아지를 보고 웃습니다.',
+          uz: 'Kuchukchani ko‘rib kulaman.',
+          en: 'I smile when I see the puppy.',
+          ru: 'Я улыбаюсь, когда вижу щенка.',
+        },
+      },
+      {
+        korean: '가족이 같이 웃었어요.',
+        translations: {
+          ko: '가족이 함께 웃었습니다.',
+          uz: 'Oila birga kuldi.',
+          en: 'The family laughed together.',
+          ru: 'Семья смеялась вместе.',
+        },
+      },
+    ],
+    pronunciation: { hangul: '웃다', romanization: 'utda', ttsText: '웃다' },
+    media: {
+      emoji: '😄',
+      imageUrl: 'https://cdn.korio.app/words/utda.webp',
+      imageAlt: {
+        ko: '밝게 웃는 사람',
+        uz: 'kulayotgan odam',
+        en: 'a smiling person',
+        ru: 'улыбающийся человек',
+      },
+    },
+    tags: ['verb', 'emotion', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '소리 내어 웃는 것과 미소 짓는 것을 모두 넓게 표현할 수 있어요.',
+      uz: 'Kulish va tabassum qilish ma’nolarida keng ishlatilishi mumkin.',
+      en: 'Can broadly refer to both laughing and smiling.',
+      ru: 'Может широко означать как смех, так и улыбку.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];
 
 export const S2_UNIT1_QUESTIONS = {
   // ══════════════════════════════════════════════════════════
@@ -6043,7 +10340,7 @@ export const S2_UNIT1_QUESTIONS = {
     answer: '연세',
     explanation: {
       ko: '한국어는 윗사람 이야기를 할 때 단어 자체를 바꿔요. 나이→연세, 이름→성함, 집→댁, 사람→분.',
-      uz: 'Koreyschada kattalar haqida gapirganda so\'zning o\'zi o\'zgaradi: 나이→연세, 이름→성함, 집→댁, 사람→분.',
+      uz: "Koreyschada kattalar haqida gapirganda so'zning o'zi o'zgaradi: 나이→연세, 이름→성함, 집→댁, 사람→분.",
       en: 'Korean swaps the word itself for seniors: 나이→연세, 이름→성함, 집→댁, 사람→분.',
       ru: 'В корейском для старших меняется само слово: 나이→연세, 이름→성함, 집→댁, 사람→분.',
     },
@@ -6058,8 +10355,8 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '연세'],
     hint: {
       ko: '몇 살인지 물을 때 쓰는 높임말이에요.',
-      uz: 'Necha yoshda ekanini so\'raganda ishlatiladi.',
-      en: 'The polite word used when asking someone\'s age.',
+      uz: "Necha yoshda ekanini so'raganda ishlatiladi.",
+      en: "The polite word used when asking someone's age.",
       ru: 'Вежливое слово при вопросе о возрасте.',
     },
     xpReward: 15,
@@ -6138,8 +10435,8 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '성함'],
     hint: {
       ko: '누구인지 이름을 물을 때 쓰는 높임말이에요.',
-      uz: 'Ismni so\'raganda ishlatiladigan hurmatli so\'z.',
-      en: 'The polite word for asking someone\'s name.',
+      uz: "Ismni so'raganda ishlatiladigan hurmatli so'z.",
+      en: "The polite word for asking someone's name.",
       ru: 'Вежливое слово при вопросе об имени.',
     },
     xpReward: 15,
@@ -6217,7 +10514,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '성함'],
     hint: {
       ko: '이름을 묻는 높임말을 고르세요. 나이가 아니에요.',
-      uz: 'Ism so\'raydigan hurmatli so\'zni tanlang, yosh emas.',
+      uz: "Ism so'raydigan hurmatli so'zni tanlang, yosh emas.",
       en: 'Pick the polite word for name, not age.',
       ru: 'Выберите вежливое слово для имени, а не для возраста.',
     },
@@ -6245,7 +10542,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '댁'],
     hint: {
       ko: '한 글자짜리 높임말이에요.',
-      uz: 'Bir bo\'g\'inli hurmatli so\'z.',
+      uz: "Bir bo'g'inli hurmatli so'z.",
       en: 'The one-syllable honorific.',
       ru: 'Односложное вежливое слово.',
     },
@@ -6259,7 +10556,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '성함이 어떻게 되세요?' }],
-    options: ['네, 성함이에요.', '김하윤이에요.', '스무 살이에요.', '안녕하세요?'],
+    options: [
+      '네, 성함이에요.',
+      '김하윤이에요.',
+      '스무 살이에요.',
+      '안녕하세요?',
+    ],
     answer: '김하윤이에요.',
     explanation: {
       ko: '"성함"은 이름을 묻는 말이에요. 나이로 답하면 안 돼요.',
@@ -6440,7 +10742,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '연세가 어떻게 되세요?' }],
-    options: ['예순다섯이에요.', '네 명이에요.', '김하윤이에요.', '안녕히 계세요.'],
+    options: [
+      '예순다섯이에요.',
+      '네 명이에요.',
+      '김하윤이에요.',
+      '안녕히 계세요.',
+    ],
     answer: '예순다섯이에요.',
     acceptedAnswers: ['예순다섯이에요'],
     answerTranslation: {
@@ -6479,7 +10786,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '말하기'],
     hint: {
       ko: '이분은 / 우리 / 선생님이세요 — 세 덩어리예요.',
-      uz: '이분은 / 우리 / 선생님이세요 — uch bo\'lak.',
+      uz: "이분은 / 우리 / 선생님이세요 — uch bo'lak.",
       en: 'Three chunks: 이분은 / 우리 / 선생님이세요.',
       ru: 'Три части: 이분은 / 우리 / 선생님이세요.',
     },
@@ -6963,7 +11270,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '말하기'],
     hint: {
       ko: '주-무-세-요. 네 글자를 고르게 말해요.',
-      uz: 'ju-mu-se-yo — to\'rt bo\'g\'inni bir tekis.',
+      uz: "ju-mu-se-yo — to'rt bo'g'inni bir tekis.",
       en: 'ju-mu-se-yo — keep the four syllables even.',
       ru: 'чу-му-се-ё — четыре слога ровно.',
     },
@@ -7029,7 +11336,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['N이세요', '어휘'],
     hint: {
       ko: '받침이 있는 말과 없는 말을 같이 보세요.',
-      uz: 'Undoshli va undoshsiz so\'zlarni birga ko\'ring.',
+      uz: "Undoshli va undoshsiz so'zlarni birga ko'ring.",
       en: 'Notice which end in a consonant and which do not.',
       ru: 'Обратите внимание, какие оканчиваются на согласный.',
     },
@@ -7068,7 +11375,13 @@ export const S2_UNIT1_QUESTIONS = {
     level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
-    options: ['회사원이세요', '아버지는', '의사세요', '어머니는', '선생님이세요'],
+    options: [
+      '회사원이세요',
+      '아버지는',
+      '의사세요',
+      '어머니는',
+      '선생님이세요',
+    ],
     answer: '아버지는 회사원이세요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -7180,7 +11493,12 @@ export const S2_UNIT1_QUESTIONS = {
       { speaker: 'user', text: '아니요.' },
       { speaker: 'npc', text: '그럼 누구세요?' },
     ],
-    options: ['네, 선생님이세요.', '우리 아버지세요.', '저는 학생이에요.', '안녕히 가세요.'],
+    options: [
+      '네, 선생님이세요.',
+      '우리 아버지세요.',
+      '저는 학생이에요.',
+      '안녕히 가세요.',
+    ],
     answer: '우리 아버지세요.',
     acceptedAnswers: ['우리 아버지세요'],
     answerTranslation: {
@@ -7247,7 +11565,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['N이세요', '어순'],
     hint: {
       ko: '가까이 있는 분을 가리켜요.',
-      uz: 'Yaqindagi kishini ko\'rsatasiz.',
+      uz: "Yaqindagi kishini ko'rsatasiz.",
       en: 'You are pointing at someone nearby.',
       ru: 'Вы указываете на человека рядом.',
     },
@@ -7376,7 +11694,13 @@ export const S2_UNIT1_QUESTIONS = {
     level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
-    options: ['의사세요', '어머니는', '회사원이세요', '아버지는', '선생님이세요'],
+    options: [
+      '의사세요',
+      '어머니는',
+      '회사원이세요',
+      '아버지는',
+      '선생님이세요',
+    ],
     answer: '어머니는 의사세요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -7403,7 +11727,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '아버지는 무슨 일을 하세요?' }],
-    options: ['회사원이에요.', '회사원이세요.', '네, 아버지세요.', '안녕하세요?'],
+    options: [
+      '회사원이에요.',
+      '회사원이세요.',
+      '네, 아버지세요.',
+      '안녕하세요?',
+    ],
     answer: '회사원이세요.',
     explanation: {
       ko: '아버지는 나보다 윗사람이니까 남에게 말할 때도 높여요.',
@@ -7448,7 +11777,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['N이세요', '말하기'],
     hint: {
       ko: '우리 / 아버지는 / 의사세요 — 세 덩어리예요.',
-      uz: '우리 / 아버지는 / 의사세요 — uch bo\'lak.',
+      uz: "우리 / 아버지는 / 의사세요 — uch bo'lak.",
       en: 'Three chunks: 우리 / 아버지는 / 의사세요.',
       ru: 'Три части: 우리 / 아버지는 / 의사세요.',
     },
@@ -7565,7 +11894,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '대화'],
     hint: {
       ko: '앞에서는 이름을 물었고, 이번엔 나이를 물었어요.',
-      uz: 'Avval ism, endi yosh so\'raldi.',
+      uz: "Avval ism, endi yosh so'raldi.",
       en: 'First they asked your name; now they ask your age.',
       ru: 'Сначала спросили имя, теперь возраст.',
     },
@@ -7712,7 +12041,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어머니는 무슨 일을 하세요?' }],
-    options: ['선생님이에요.', '선생님이세요.', '네, 어머니세요.', '안녕하세요?'],
+    options: [
+      '선생님이에요.',
+      '선생님이세요.',
+      '네, 어머니세요.',
+      '안녕하세요?',
+    ],
     answer: '선생님이세요.',
     acceptedAnswers: ['선생님이세요'],
     answerTranslation: {
@@ -7810,7 +12144,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['높임말', '성함'],
     hint: {
       ko: '이름표가 있는 그림이에요.',
-      uz: 'Ism yorlig\'i bor rasm.',
+      uz: "Ism yorlig'i bor rasm.",
       en: 'The picture with a name tag.',
       ru: 'Картинка с именной табличкой.',
     },
@@ -7886,7 +12220,7 @@ export const S2_UNIT1_QUESTIONS = {
     acceptedAnswers: ['할머니는 예순이세요'],
     answerTranslation: {
       ko: '우리 할머니는 예순이세요. — 연세를 물으면 수로 답하되 높여서 답한다',
-      uz: 'Buvim oltmish yoshdalar. — yosh so\'ralsa son bilan, hurmat saqlab javob beriladi',
+      uz: "Buvim oltmish yoshdalar. — yosh so'ralsa son bilan, hurmat saqlab javob beriladi",
       en: 'My grandmother is sixty. — answer an age question with a number, kept honorific',
       ru: 'Моей бабушке шестьдесят. — на вопрос о возрасте отвечают числом, сохраняя вежливость.',
     },
@@ -8053,7 +12387,13 @@ export const S2_UNIT1_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '김 선생님은 아주 ',
     sentenceSuffix: '.',
-    options: ['친절해요', '친절하세요', '친절으세요', '친절하시요', '친절이세요'],
+    options: [
+      '친절해요',
+      '친절하세요',
+      '친절으세요',
+      '친절하시요',
+      '친절이세요',
+    ],
     answer: '친절하세요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -8119,7 +12459,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['-(으)시-', '말하기'],
     hint: {
       ko: '아버지는 / 회사에 / 다니세요 — 세 덩어리예요.',
-      uz: '아버지는 / 회사에 / 다니세요 — uch bo\'lak.',
+      uz: "아버지는 / 회사에 / 다니세요 — uch bo'lak.",
       en: 'Three chunks: 아버지는 / 회사에 / 다니세요.',
       ru: 'Три части: 아버지는 / 회사에 / 다니세요.',
     },
@@ -8187,7 +12527,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '아버지는 무슨 일을 하세요?' }],
-    options: ['회사에 다녀요.', '회사에 다니세요.', '네, 아버지세요.', '안녕하세요?'],
+    options: [
+      '회사에 다녀요.',
+      '회사에 다니세요.',
+      '네, 아버지세요.',
+      '안녕하세요?',
+    ],
     answer: '회사에 다니세요.',
     acceptedAnswers: ['회사에 다니세요'],
     answerTranslation: {
@@ -8356,7 +12701,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할머니가 어디에 가세요?' }],
-    options: ['시장에 가요.', '시장에 가세요.', '네, 할머니세요.', '안녕히 계세요.'],
+    options: [
+      '시장에 가요.',
+      '시장에 가세요.',
+      '네, 할머니세요.',
+      '안녕히 계세요.',
+    ],
     answer: '시장에 가세요.',
     acceptedAnswers: ['시장에 가세요'],
     answerTranslation: {
@@ -8395,7 +12745,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['-(으)시-', '말하기'],
     hint: {
       ko: '어머니는 / 태권도를 / 좋아하세요 — 세 덩어리예요.',
-      uz: '어머니는 / 태권도를 / 좋아하세요 — uch bo\'lak.',
+      uz: "어머니는 / 태권도를 / 좋아하세요 — uch bo'lak.",
       en: 'Three chunks: 어머니는 / 태권도를 / 좋아하세요.',
       ru: 'Три части: 어머니는 / 태권도를 / 좋아하세요.',
     },
@@ -8665,7 +13015,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할머니는 친구가 많으세요?' }],
-    options: ['네, 아주 많아요.', '네, 아주 많으세요.', '저는 학생이에요.', '안녕하세요?'],
+    options: [
+      '네, 아주 많아요.',
+      '네, 아주 많으세요.',
+      '저는 학생이에요.',
+      '안녕하세요?',
+    ],
     answer: '네, 아주 많으세요.',
     acceptedAnswers: [],
     answerTranslation: {
@@ -8807,7 +13162,13 @@ export const S2_UNIT1_QUESTIONS = {
     level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
-    options: ['재미있으세요', '선생님은', '재미있어요', '멋있으세요', '어머니는'],
+    options: [
+      '재미있으세요',
+      '선생님은',
+      '재미있어요',
+      '멋있으세요',
+      '어머니는',
+    ],
     answer: '선생님은 재미있으세요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -8834,7 +13195,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '김 선생님은 지금 뭐 하세요?' }],
-    options: ['책을 읽어요.', '책을 읽으세요.', '네, 선생님이세요.', '안녕히 가세요.'],
+    options: [
+      '책을 읽어요.',
+      '책을 읽으세요.',
+      '네, 선생님이세요.',
+      '안녕히 가세요.',
+    ],
     answer: '책을 읽으세요.',
     acceptedAnswers: ['책을 읽으세요'],
     answerTranslation: {
@@ -9086,7 +13452,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할아버지는 어제 어디에 가셨어요?' }],
-    options: ['시장에 갔어요.', '시장에 가셨어요.', '네, 할아버지세요.', '안녕하세요?'],
+    options: [
+      '시장에 갔어요.',
+      '시장에 가셨어요.',
+      '네, 할아버지세요.',
+      '안녕하세요?',
+    ],
     answer: '시장에 가셨어요.',
     acceptedAnswers: ['시장에 가셨어요'],
     answerTranslation: {
@@ -9114,7 +13485,13 @@ export const S2_UNIT1_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '"읽으세요"의 지난 일은 ',
     sentenceSuffix: '.',
-    options: ['읽셨어요', '읽으셨어요', '읽으세었어요', '읽었으세요', '읽이셨어요'],
+    options: [
+      '읽셨어요',
+      '읽으셨어요',
+      '읽으세었어요',
+      '읽었으세요',
+      '읽이셨어요',
+    ],
     answer: '읽으셨어요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9140,7 +13517,13 @@ export const S2_UNIT1_QUESTIONS = {
     level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
-    options: ['선생님이셨어요', '할아버지는', '선생님이세요', '의사셨어요', '어머니는'],
+    options: [
+      '선생님이셨어요',
+      '할아버지는',
+      '선생님이세요',
+      '의사셨어요',
+      '어머니는',
+    ],
     answer: '할아버지는 선생님이셨어요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9256,7 +13639,13 @@ export const S2_UNIT1_QUESTIONS = {
       en: 'My grandfather used to be a teacher',
       ru: 'Мой дедушка раньше был учителем',
     },
-    options: ['선생님이셨어요', '전에', '할아버지는', '선생님이세요', '어머니는'],
+    options: [
+      '선생님이셨어요',
+      '전에',
+      '할아버지는',
+      '선생님이세요',
+      '어머니는',
+    ],
     answer: '할아버지는 전에 선생님이셨어요',
     acceptedAnswers: ['전에 선생님이셨어요'],
     answerTranslation: {
@@ -9309,7 +13698,12 @@ export const S2_UNIT1_QUESTIONS = {
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어머니는 어제 뭐 하셨어요?' }],
-    options: ['비빔밥을 먹었어요.', '비빔밥을 드셨어요.', '네, 어머니세요.', '안녕히 계세요.'],
+    options: [
+      '비빔밥을 먹었어요.',
+      '비빔밥을 드셨어요.',
+      '네, 어머니세요.',
+      '안녕히 계세요.',
+    ],
     answer: '비빔밥을 드셨어요.',
     acceptedAnswers: ['비빔밥을 드셨어요'],
     answerTranslation: {
@@ -9348,7 +13742,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['-(으)시-', '말하기'],
     hint: {
       ko: '아버지는 / 회사에 / 가셨어요 — 세 덩어리예요.',
-      uz: '아버지는 / 회사에 / 가셨어요 — uch bo\'lak.',
+      uz: "아버지는 / 회사에 / 가셨어요 — uch bo'lak.",
       en: 'Three chunks: 아버지는 / 회사에 / 가셨어요.',
       ru: 'Три части: 아버지는 / 회사에 / 가셨어요.',
     },
@@ -9440,7 +13834,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['종합', '어휘'],
     hint: {
       ko: '셋은 통째로 바뀐 높임말이고, 둘은 보통 말이에요.',
-      uz: 'Uchtasi butunlay o\'zgargan hurmatli shakl, ikkitasi oddiy.',
+      uz: "Uchtasi butunlay o'zgargan hurmatli shakl, ikkitasi oddiy.",
       en: 'Three are fully replaced honorifics; two are plain verbs.',
       ru: 'Три — особые вежливые формы, два — обычные глаголы.',
     },
@@ -9458,7 +13852,12 @@ export const S2_UNIT1_QUESTIONS = {
       { speaker: 'user', text: '네 명이에요.' },
       { speaker: 'npc', text: '아버지는 무슨 일을 하세요?' },
     ],
-    options: ['회사에 다녀요.', '회사에 다니세요.', '네 명이에요.', '안녕하세요?'],
+    options: [
+      '회사에 다녀요.',
+      '회사에 다니세요.',
+      '네 명이에요.',
+      '안녕하세요?',
+    ],
     answer: '회사에 다니세요.',
     acceptedAnswers: ['회사에 다니세요'],
     answerTranslation: {
@@ -9471,8 +13870,8 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['종합', '대화'],
     hint: {
       ko: '이번엔 사람 수가 아니라 아버지의 일을 물었어요.',
-      uz: 'Bu safar odam soni emas, otaning ishi so\'raldi.',
-      en: 'This time they asked about your father\'s job, not the headcount.',
+      uz: "Bu safar odam soni emas, otaning ishi so'raldi.",
+      en: "This time they asked about your father's job, not the headcount.",
       ru: 'Теперь спросили о работе отца, а не о количестве.',
     },
     xpReward: 15,
@@ -9489,7 +13888,7 @@ export const S2_UNIT1_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '어머니가 미인이세요.',
-      uz: 'Onam go\'zallar.',
+      uz: "Onam go'zallar.",
       en: 'My mother is beautiful.',
       ru: 'Моя мама красавица.',
     },
@@ -9668,7 +14067,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['종합', '말하기'],
     hint: {
       ko: '가족이 / 모두 / 일본에 / 계세요 — 네 덩어리예요.',
-      uz: '가족이 / 모두 / 일본에 / 계세요 — to\'rt bo\'lak.',
+      uz: "가족이 / 모두 / 일본에 / 계세요 — to'rt bo'lak.",
       en: 'Four chunks: 가족이 / 모두 / 일본에 / 계세요.',
       ru: 'Четыре части: 가족이 / 모두 / 일본에 / 계세요.',
     },
@@ -9758,7 +14157,7 @@ export const S2_UNIT1_QUESTIONS = {
     tags: ['종합', '번역'],
     hint: {
       ko: '집도 있다도 둘 다 높임말로 바꿔요.',
-      uz: 'Uy ham, bor ham hurmatli shaklga o\'tadi.',
+      uz: "Uy ham, bor ham hurmatli shaklga o'tadi.",
       en: 'Both the home and the verb switch to honorific forms.',
       ru: 'И «дом», и «быть» переходят в вежливые формы.',
     },
@@ -10342,7 +14741,7 @@ export const S2_UNIT1_NODES = [
         },
         description: {
           ko: '윗사람에게는 말 자체가 바뀐다',
-          uz: 'Kattalarga so\'zning o\'zi o\'zgaradi',
+          uz: "Kattalarga so'zning o'zi o'zgaradi",
           en: 'For seniors the word itself changes',
           ru: 'Для старших меняется само слово',
         },
@@ -10414,7 +14813,7 @@ export const S2_UNIT1_NODES = [
         },
         description: {
           ko: '받침이 있으면 이세요, 없으면 세요',
-          uz: 'Undosh bo\'lsa 이세요, bo\'lmasa 세요',
+          uz: "Undosh bo'lsa 이세요, bo'lmasa 세요",
           en: 'With a final consonant 이세요, without it 세요',
           ru: 'С конечным согласным 이세요, без него 세요',
         },
@@ -10450,7 +14849,7 @@ export const S2_UNIT1_NODES = [
         },
         description: {
           ko: '명사 · 동사 · N(이)세요 를 한 대화에서',
-          uz: 'Ot, fe\'l va N(이)세요 bir suhbatda',
+          uz: "Ot, fe'l va N(이)세요 bir suhbatda",
           en: 'Nouns, verbs and N(이)세요 in one conversation',
           ru: 'Существительные, глаголы и N(이)세요 в одном диалоге',
         },
@@ -10494,7 +14893,7 @@ export const S2_UNIT1_NODES = [
       {
         title: {
           ko: '받침이 없으면 -세요',
-          uz: 'Undosh bo\'lmasa -세요',
+          uz: "Undosh bo'lmasa -세요",
           en: 'No Final Consonant Takes -세요',
           ru: 'Без согласного — -세요',
         },
@@ -10530,7 +14929,7 @@ export const S2_UNIT1_NODES = [
       {
         title: {
           ko: '받침이 있으면 -으세요',
-          uz: 'Undosh bo\'lsa -으세요',
+          uz: "Undosh bo'lsa -으세요",
           en: 'Final Consonant Takes -으세요',
           ru: 'С согласным — -으세요',
         },

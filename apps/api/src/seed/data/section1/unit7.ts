@@ -1,5 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 
 const I = {
   match: {
@@ -47,389 +49,3301 @@ const I = {
 } as const;
 
 export const S1_UNIT7_WORDS = [
-  // ───────── 날씨 ─────────
+  // ─────────────────────────────────────
+  // 날씨
+  // ─────────────────────────────────────
 
   {
+    code: 'word_weather_noun',
+    senseKey: 'weather-general',
     korean: '날씨',
-    uz: 'ob-havo',
-    en: 'weather',
-    ru: 'погода',
-    emoji: '🌤️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '기온, 비, 눈, 바람 등 그날의 대기 상태',
+      uz: 'ob-havo',
+      en: 'weather',
+      ru: 'погода',
+    },
+
+    examples: [
+      {
+        korean: '오늘 날씨가 어때요?',
+        translations: {
+          ko: '오늘 날씨가 어떻습니까?',
+          uz: 'Bugun ob-havo qanday?',
+          en: 'How is the weather today?',
+          ru: 'Какая сегодня погода?',
+        },
+      },
+      {
+        korean: '오늘은 날씨가 좋아요.',
+        translations: {
+          ko: '오늘은 날씨가 좋습니다.',
+          uz: 'Bugun ob-havo yaxshi.',
+          en: 'The weather is nice today.',
+          ru: 'Сегодня хорошая погода.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '날씨',
+      romanization: 'nalssi',
+      ttsText: '날씨',
+    },
+
+    media: {
+      emoji: '🌤️',
+      imageUrl: 'https://cdn.korio.app/words/nalssi.webp',
+      imageAlt: {
+        ko: '해와 구름이 있는 날씨',
+        uz: 'quyosh va bulutli ob-havo',
+        en: 'weather with sun and clouds',
+        ru: 'погода с солнцем и облаками',
+      },
+    },
+
+    tags: ['weather', 'daily-life', 'conversation', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'날씨가 어때요?', '날씨가 좋아요'처럼 사용해요.",
+      uz: "'날씨가 어때요?' yoki '날씨가 좋아요' kabi ishlatiladi.",
+      en: "Commonly used in expressions such as 'How is the weather?'",
+      ru: 'Часто используется в выражениях вроде «Какая погода?».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cloudy_adjective',
+    senseKey: 'weather-cloudy',
     korean: '흐리다',
-    uz: 'bulutli bo‘lmoq',
-    en: 'to be cloudy',
-    ru: 'быть облачным',
-    emoji: '☁️',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '구름이 많아 하늘이 맑지 않다',
+      uz: 'bulutli bo‘lmoq',
+      en: 'to be cloudy',
+      ru: 'быть облачным',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 날씨가 흐려요.',
+        translations: {
+          ko: '오늘은 날씨가 흐립니다.',
+          uz: 'Bugun havo bulutli.',
+          en: 'It is cloudy today.',
+          ru: 'Сегодня облачно.',
+        },
+      },
+      {
+        korean: '아침에는 하늘이 흐렸어요.',
+        translations: {
+          ko: '아침에는 하늘이 흐렸습니다.',
+          uz: 'Ertalab osmon bulutli edi.',
+          en: 'The sky was cloudy in the morning.',
+          ru: 'Утром небо было облачным.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '흐리다',
+      romanization: 'heurida',
+      ttsText: '흐리다',
+    },
+
+    media: {
+      emoji: '☁️',
+      imageUrl: 'https://cdn.korio.app/words/heurida.webp',
+      imageAlt: {
+        ko: '구름이 많은 흐린 하늘',
+        uz: 'bulutli osmon',
+        en: 'a cloudy sky',
+        ru: 'облачное небо',
+      },
+    },
+
+    tags: ['weather', 'adjective', 'sky', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "날씨나 하늘 상태를 말할 때 '날씨가 흐리다'처럼 사용해요.",
+      uz: 'Ob-havo yoki osmon holatini aytishda ishlatiladi.',
+      en: 'Used to describe cloudy weather or skies.',
+      ru: 'Используется для описания облачной погоды или неба.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_clear_adjective',
+    senseKey: 'weather-clear',
     korean: '맑다',
-    uz: 'ochiq bo‘lmoq',
-    en: 'to be clear',
-    ru: 'быть ясным',
-    emoji: '☀️',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '구름이 적고 하늘이 깨끗하다',
+      uz: 'ochiq, musaffo bo‘lmoq',
+      en: 'to be clear',
+      ru: 'быть ясным',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 날씨가 맑아요.',
+        translations: {
+          ko: '오늘은 날씨가 맑습니다.',
+          uz: 'Bugun havo ochiq.',
+          en: 'The weather is clear today.',
+          ru: 'Сегодня ясная погода.',
+        },
+      },
+      {
+        korean: '가을에는 하늘이 맑아요.',
+        translations: {
+          ko: '가을에는 하늘이 맑습니다.',
+          uz: 'Kuzda osmon musaffo bo‘ladi.',
+          en: 'The sky is clear in autumn.',
+          ru: 'Осенью небо ясное.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '맑다',
+      romanization: 'malgda',
+      ttsText: '맑다',
+    },
+
+    media: {
+      emoji: '☀️',
+      imageUrl: 'https://cdn.korio.app/words/malgda.webp',
+      imageAlt: {
+        ko: '구름 없이 맑은 하늘',
+        uz: 'bulutsiz musaffo osmon',
+        en: 'a clear blue sky',
+        ru: 'ясное небо',
+      },
+    },
+
+    tags: ['weather', 'adjective', 'sky', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'날씨가 맑다', '하늘이 맑다'처럼 사용해요.",
+      uz: "'날씨가 맑다' yoki '하늘이 맑다' kabi ishlatiladi.",
+      en: "Commonly used as 'the weather is clear' or 'the sky is clear.'",
+      ru: 'Часто используется в выражениях «ясная погода» и «ясное небо».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_hot_weather_adjective',
+    senseKey: 'weather-temperature-hot',
     korean: '덥다',
-    uz: 'issiq bo‘lmoq',
-    en: 'to be hot',
-    ru: 'быть жарким',
-    emoji: '🥵',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '기온이 높아 뜨겁게 느껴지다',
+      uz: 'issiq bo‘lmoq',
+      en: 'to be hot',
+      ru: 'быть жарким',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 아주 더워요.',
+        translations: {
+          ko: '오늘은 매우 덥습니다.',
+          uz: 'Bugun juda issiq.',
+          en: 'It is very hot today.',
+          ru: 'Сегодня очень жарко.',
+        },
+      },
+      {
+        korean: '한국은 여름에 더워요.',
+        translations: {
+          ko: '한국은 여름에 덥습니다.',
+          uz: 'Koreyada yozda issiq bo‘ladi.',
+          en: 'Korea is hot in summer.',
+          ru: 'Летом в Корее жарко.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '덥다',
+      romanization: 'deopda',
+      ttsText: '덥다',
+    },
+
+    media: {
+      emoji: '🥵',
+      imageUrl: 'https://cdn.korio.app/words/deopda.webp',
+      imageAlt: {
+        ko: '더운 날씨에 땀을 흘리는 사람',
+        uz: 'issiq havoda terlayotgan odam',
+        en: 'a person sweating in hot weather',
+        ru: 'человек, которому жарко',
+      },
+    },
+
+    tags: ['weather', 'temperature', 'adjective', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '주로 날씨나 공간이 덥다고 말할 때 사용해요.',
+      uz: 'Asosan ob-havo yoki joy issiq ekanini aytishda ishlatiladi.',
+      en: 'Used mainly to describe hot weather or environments.',
+      ru: 'Используется главным образом для описания жаркой погоды или помещения.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cold_weather_adjective',
+    senseKey: 'weather-temperature-cold',
     korean: '춥다',
-    uz: 'sovuq bo‘lmoq',
-    en: 'to be cold',
-    ru: 'быть холодным',
-    emoji: '🥶',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '기온이 낮아 차갑게 느껴지다',
+      uz: 'sovuq bo‘lmoq',
+      en: 'to be cold',
+      ru: 'быть холодным',
+    },
+
+    examples: [
+      {
+        korean: '오늘은 날씨가 추워요.',
+        translations: {
+          ko: '오늘은 날씨가 춥습니다.',
+          uz: 'Bugun havo sovuq.',
+          en: 'It is cold today.',
+          ru: 'Сегодня холодно.',
+        },
+      },
+      {
+        korean: '겨울에는 아주 추워요.',
+        translations: {
+          ko: '겨울에는 매우 춥습니다.',
+          uz: 'Qishda juda sovuq bo‘ladi.',
+          en: 'It is very cold in winter.',
+          ru: 'Зимой очень холодно.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '춥다',
+      romanization: 'chupda',
+      ttsText: '춥다',
+    },
+
+    media: {
+      emoji: '🥶',
+      imageUrl: 'https://cdn.korio.app/words/chupda.webp',
+      imageAlt: {
+        ko: '추운 날씨에 떨고 있는 사람',
+        uz: 'sovuq havoda titrayotgan odam',
+        en: 'a person shivering in cold weather',
+        ru: 'человек, дрожащий от холода',
+      },
+    },
+
+    tags: ['weather', 'temperature', 'adjective', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'날씨가 춥다', '겨울이 춥다'처럼 사용해요.",
+      uz: "'날씨가 춥다', '겨울이 춥다' kabi ishlatiladi.",
+      en: 'Used to describe cold weather or seasons.',
+      ru: 'Используется для описания холодной погоды или времени года.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_warm_adjective',
+    senseKey: 'weather-temperature-warm',
     korean: '따뜻하다',
-    uz: 'iliq bo‘lmoq',
-    en: 'to be warm',
-    ru: 'быть тёплым',
-    emoji: '🌞',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '너무 덥거나 춥지 않고 온도가 알맞게 높다',
+      uz: 'iliq bo‘lmoq',
+      en: 'to be warm',
+      ru: 'быть тёплым',
+    },
+
+    examples: [
+      {
+        korean: '봄에는 날씨가 따뜻해요.',
+        translations: {
+          ko: '봄에는 날씨가 따뜻합니다.',
+          uz: 'Bahorda havo iliq bo‘ladi.',
+          en: 'The weather is warm in spring.',
+          ru: 'Весной погода тёплая.',
+        },
+      },
+      {
+        korean: '오늘은 어제보다 따뜻해요.',
+        translations: {
+          ko: '오늘은 어제보다 따뜻합니다.',
+          uz: 'Bugun kechagidan iliqroq.',
+          en: 'Today is warmer than yesterday.',
+          ru: 'Сегодня теплее, чем вчера.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '따뜻하다',
+      romanization: 'ttatteuthada',
+      ttsText: '따뜻하다',
+    },
+
+    media: {
+      emoji: '🌞',
+      imageUrl: 'https://cdn.korio.app/words/ttatteuthada.webp',
+      imageAlt: {
+        ko: '따뜻한 햇빛이 비치는 날',
+        uz: 'iliq quyoshli kun',
+        en: 'a warm sunny day',
+        ru: 'тёплый солнечный день',
+      },
+    },
+
+    tags: ['weather', 'temperature', 'adjective', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '봄 날씨나 따뜻한 온도를 표현할 때 사용해요.',
+      uz: 'Bahorgi ob-havo yoki iliq haroratni aytishda ishlatiladi.',
+      en: 'Used to describe warm temperatures, especially spring weather.',
+      ru: 'Используется для описания тёплой температуры, особенно весной.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_cool_refreshing_adjective',
+    senseKey: 'temperature-cool-refreshing',
     korean: '시원하다',
-    uz: 'salqin bo‘lmoq',
-    en: 'to be cool / refreshing',
-    ru: 'быть прохладным / освежающим',
-    emoji: '🍃',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '기분 좋게 서늘하거나 상쾌하다',
+      uz: 'salqin, tetiklantiruvchi bo‘lmoq',
+      en: 'to be cool, refreshing',
+      ru: 'быть прохладным, освежающим',
+    },
+
+    examples: [
+      {
+        korean: '가을에는 날씨가 시원해요.',
+        translations: {
+          ko: '가을에는 날씨가 시원합니다.',
+          uz: 'Kuzda havo salqin bo‘ladi.',
+          en: 'The weather is cool in autumn.',
+          ru: 'Осенью погода прохладная.',
+        },
+      },
+      {
+        korean: '바람이 시원해요.',
+        translations: {
+          ko: '바람이 시원합니다.',
+          uz: 'Shamol salqin.',
+          en: 'The breeze is refreshing.',
+          ru: 'Ветер прохладный и освежающий.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '시원하다',
+      romanization: 'siwonhada',
+      ttsText: '시원하다',
+    },
+
+    media: {
+      emoji: '🍃',
+      imageUrl: 'https://cdn.korio.app/words/siwonhada.webp',
+      imageAlt: {
+        ko: '시원한 바람이 부는 모습',
+        uz: 'salqin shamol esayotgan manzara',
+        en: 'a refreshing cool breeze',
+        ru: 'освежающий прохладный ветер',
+      },
+    },
+
+    tags: ['weather', 'temperature', 'feeling', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '날씨뿐 아니라 바람, 음료, 기분이 상쾌할 때도 사용할 수 있어요.',
+      uz: 'Ob-havo, shamol, ichimlik yoki tetiklantiruvchi his haqida ham ishlatiladi.',
+      en: 'Can describe weather, wind, drinks, or a refreshing feeling.',
+      ru: 'Может описывать погоду, ветер, напитки или освежающее ощущение.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_rain_noun',
+    senseKey: 'weather-rain',
     korean: '비',
-    uz: 'yomg‘ir',
-    en: 'rain',
-    ru: 'дождь',
-    emoji: '🌧️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '하늘의 구름에서 물방울이 떨어지는 현상',
+      uz: 'yomg‘ir',
+      en: 'rain',
+      ru: 'дождь',
+    },
+
+    examples: [
+      {
+        korean: '오늘 비가 와요.',
+        translations: {
+          ko: '오늘 비가 옵니다.',
+          uz: 'Bugun yomg‘ir yog‘adi.',
+          en: 'It is raining today.',
+          ru: 'Сегодня идёт дождь.',
+        },
+      },
+      {
+        korean: '여름에는 비가 많이 와요.',
+        translations: {
+          ko: '여름에는 비가 많이 옵니다.',
+          uz: 'Yozda yomg‘ir ko‘p yog‘adi.',
+          en: 'It rains a lot in summer.',
+          ru: 'Летом часто идут дожди.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '비',
+      romanization: 'bi',
+      ttsText: '비',
+    },
+
+    media: {
+      emoji: '🌧️',
+      imageUrl: 'https://cdn.korio.app/words/bi-rain.webp',
+      imageAlt: {
+        ko: '하늘에서 내리는 비',
+        uz: 'osmondan yog‘ayotgan yomg‘ir',
+        en: 'rain falling from the sky',
+        ru: 'дождь, падающий с неба',
+      },
+    },
+
+    tags: ['weather', 'rain', 'nature', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "한국어에서는 비가 내리는 것을 보통 '비가 오다'라고 표현해요.",
+      uz: "Koreys tilida yomg‘ir yog‘ishini odatda '비가 오다' deb aytiladi.",
+      en: "Korean commonly expresses 'it rains' as 비가 오다.",
+      ru: 'По-корейски «идёт дождь» обычно выражается как 비가 오다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_rain_fall_verb',
+    senseKey: 'weather-expression-rain-fall',
     korean: '비가 오다',
-    uz: 'yomg‘ir yog‘moq',
-    en: 'to rain',
-    ru: 'идёт дождь',
-    emoji: '🌧️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '비가 내리다',
+      uz: 'yomg‘ir yog‘moq',
+      en: 'to rain',
+      ru: 'идёт дождь',
+    },
+
+    examples: [
+      {
+        korean: '밖에 비가 와요.',
+        translations: {
+          ko: '밖에 비가 옵니다.',
+          uz: 'Tashqarida yomg‘ir yog‘moqda.',
+          en: 'It is raining outside.',
+          ru: 'На улице идёт дождь.',
+        },
+      },
+      {
+        korean: '어제는 비가 많이 왔어요.',
+        translations: {
+          ko: '어제는 비가 많이 왔습니다.',
+          uz: 'Kecha ko‘p yomg‘ir yog‘di.',
+          en: 'It rained a lot yesterday.',
+          ru: 'Вчера шёл сильный дождь.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '비가 오다',
+      romanization: 'biga oda',
+      ttsText: '비가 오다',
+    },
+
+    media: {
+      emoji: '🌧️',
+      imageUrl: 'https://cdn.korio.app/words/biga-oda.webp',
+      imageAlt: {
+        ko: '비가 내리는 거리',
+        uz: 'yomg‘ir yog‘ayotgan ko‘cha',
+        en: 'a street in the rain',
+        ru: 'улица под дождём',
+      },
+    },
+
+    tags: ['weather', 'expression', 'verb', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "한국어에서는 영어의 'rain'처럼 하나의 동사보다 '비가 오다'라는 표현을 사용해요.",
+      uz: "Koreys tilida yomg‘ir yog‘ishini '비가 오다' birikmasi bilan ifodalaydi.",
+      en: "Korean normally uses the expression 비가 오다 to mean 'to rain.'",
+      ru: 'В корейском для значения «идёт дождь» обычно используется выражение 비가 오다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_snow_noun',
+    senseKey: 'weather-snow',
     korean: '눈',
-    uz: 'qor',
-    en: 'snow',
-    ru: 'снег',
-    emoji: '❄️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '추운 날씨에 하늘에서 내리는 얼음 결정',
+      uz: 'qor',
+      en: 'snow',
+      ru: 'снег',
+    },
+
+    examples: [
+      {
+        korean: '겨울에는 눈이 와요.',
+        translations: {
+          ko: '겨울에는 눈이 옵니다.',
+          uz: 'Qishda qor yog‘adi.',
+          en: 'It snows in winter.',
+          ru: 'Зимой идёт снег.',
+        },
+      },
+      {
+        korean: '눈이 많이 왔어요.',
+        translations: {
+          ko: '눈이 많이 왔습니다.',
+          uz: 'Ko‘p qor yog‘di.',
+          en: 'It snowed a lot.',
+          ru: 'Выпало много снега.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '눈',
+      romanization: 'nun',
+      ttsText: '눈',
+    },
+
+    media: {
+      emoji: '❄️',
+      imageUrl: 'https://cdn.korio.app/words/nun-snow.webp',
+      imageAlt: {
+        ko: '하늘에서 내리는 눈',
+        uz: 'osmondan yog‘ayotgan qor',
+        en: 'snow falling from the sky',
+        ru: 'падающий снег',
+      },
+    },
+
+    tags: ['weather', 'snow', 'winter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'눈'은 신체의 '눈(eye)'과 표기가 같아서 문맥으로 구분해요.",
+      uz: "'눈' so‘zi 'qor' va 'ko‘z' ma’nolariga ega, ma’no kontekstdan aniqlanadi.",
+      en: "눈 can mean either 'snow' or 'eye,' so context determines the meaning.",
+      ru: '눈 может означать и «снег», и «глаз», поэтому значение зависит от контекста.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_snow_fall_verb',
+    senseKey: 'weather-expression-snow-fall',
     korean: '눈이 오다',
-    uz: 'qor yog‘moq',
-    en: 'to snow',
-    ru: 'идёт снег',
-    emoji: '🌨️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '눈이 내리다',
+      uz: 'qor yog‘moq',
+      en: 'to snow',
+      ru: 'идёт снег',
+    },
+
+    examples: [
+      {
+        korean: '오늘 눈이 와요.',
+        translations: {
+          ko: '오늘 눈이 옵니다.',
+          uz: 'Bugun qor yog‘moqda.',
+          en: 'It is snowing today.',
+          ru: 'Сегодня идёт снег.',
+        },
+      },
+      {
+        korean: '겨울에는 눈이 많이 와요.',
+        translations: {
+          ko: '겨울에는 눈이 많이 옵니다.',
+          uz: 'Qishda ko‘p qor yog‘adi.',
+          en: 'It snows a lot in winter.',
+          ru: 'Зимой часто идёт снег.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '눈이 오다',
+      romanization: 'nuni oda',
+      ttsText: '눈이 오다',
+    },
+
+    media: {
+      emoji: '🌨️',
+      imageUrl: 'https://cdn.korio.app/words/nuni-oda.webp',
+      imageAlt: {
+        ko: '눈이 내리는 겨울 거리',
+        uz: 'qor yog‘ayotgan qishki ko‘cha',
+        en: 'a snowy winter street',
+        ru: 'зимняя улица во время снегопада',
+      },
+    },
+
+    tags: ['weather', 'expression', 'verb', 'winter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "눈이 내리는 날씨를 말할 때 '눈이 오다'라고 표현해요.",
+      uz: "Qor yog‘ishini aytishda '눈이 오다' ishlatiladi.",
+      en: "The standard Korean expression for 'to snow' is 눈이 오다.",
+      ru: 'Стандартное корейское выражение для «идёт снег» — 눈이 오다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_how_be_adjective',
+    senseKey: 'question-state-how',
     korean: '어떻다',
-    uz: 'qanday bo‘lmoq',
-    en: 'to be how / what ... like',
-    ru: 'быть каким / каков',
-    emoji: '❓',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '상태나 성질이 어떻게 되어 있는지 묻는 말',
+      uz: 'qanday bo‘lmoq',
+      en: 'to be how, what something is like',
+      ru: 'быть каким, каков',
+    },
+
+    examples: [
+      {
+        korean: '오늘 날씨가 어때요?',
+        translations: {
+          ko: '오늘 날씨가 어떻습니까?',
+          uz: 'Bugun ob-havo qanday?',
+          en: 'How is the weather today?',
+          ru: 'Какая сегодня погода?',
+        },
+      },
+      {
+        korean: '한국의 겨울은 어때요?',
+        translations: {
+          ko: '한국의 겨울은 어떻습니까?',
+          uz: 'Koreyaning qishi qanday?',
+          en: 'What is winter in Korea like?',
+          ru: 'Какая зима в Корее?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '어떻다',
+      romanization: 'eotteota',
+      ttsText: '어떻다',
+    },
+
+    media: {
+      emoji: '❓',
+      imageUrl: 'https://cdn.korio.app/words/eotteota.webp',
+      imageAlt: {
+        ko: '상태를 묻는 물음표',
+        uz: 'holatni so‘rayotgan savol belgisi',
+        en: 'a question mark asking about a condition',
+        ru: 'вопросительный знак о состоянии',
+      },
+    },
+
+    tags: ['question', 'adjective', 'conversation', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "회화에서는 주로 활용형 '어때요?'를 아주 많이 사용해요.",
+      uz: "Suhbatda ko‘pincha '어때요?' shakli ishlatiladi.",
+      en: 'The conversational form 어때요? is extremely common.',
+      ru: 'В разговорной речи очень часто используется форма «어때요?».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 계절 ─────────
+  // ─────────────────────────────────────
+  // 계절
+  // ─────────────────────────────────────
 
   {
+    code: 'word_season_noun',
+    senseKey: 'time-season',
     korean: '계절',
-    uz: 'fasl',
-    en: 'season',
-    ru: 'время года',
-    emoji: '🍂',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '봄, 여름, 가을, 겨울처럼 한 해를 나눈 시기',
+      uz: 'fasl',
+      en: 'season',
+      ru: 'время года',
+    },
+
+    examples: [
+      {
+        korean: '무슨 계절을 좋아해요?',
+        translations: {
+          ko: '어떤 계절을 좋아합니까?',
+          uz: 'Qaysi faslni yaxshi ko‘rasiz?',
+          en: 'What season do you like?',
+          ru: 'Какое время года вам нравится?',
+        },
+      },
+      {
+        korean: '한국에는 네 계절이 있어요.',
+        translations: {
+          ko: '한국에는 네 계절이 있습니다.',
+          uz: 'Koreyada to‘rt fasl bor.',
+          en: 'Korea has four seasons.',
+          ru: 'В Корее четыре времени года.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '계절',
+      romanization: 'gyejeol',
+      ttsText: '계절',
+    },
+
+    media: {
+      emoji: '🍂',
+      imageUrl: 'https://cdn.korio.app/words/gyejeol.webp',
+      imageAlt: {
+        ko: '봄 여름 가을 겨울 네 계절',
+        uz: 'bahor yoz kuz qish to‘rt fasl',
+        en: 'the four seasons',
+        ru: 'четыре времени года',
+      },
+    },
+
+    tags: ['season', 'time', 'weather', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'무슨 계절을 좋아해요?'처럼 좋아하는 계절을 물을 때 사용할 수 있어요.",
+      uz: 'Sevimli faslni so‘rashda ishlatiladi.',
+      en: "Useful when asking about someone's favorite season.",
+      ru: 'Используется, когда спрашивают о любимом времени года.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_spring_noun',
+    senseKey: 'season-spring',
     korean: '봄',
-    uz: 'bahor',
-    en: 'spring',
-    ru: 'весна',
-    emoji: '🌸',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '겨울과 여름 사이의 따뜻해지는 계절',
+      uz: 'bahor',
+      en: 'spring',
+      ru: 'весна',
+    },
+
+    examples: [
+      {
+        korean: '봄에는 날씨가 따뜻해요.',
+        translations: {
+          ko: '봄에는 날씨가 따뜻합니다.',
+          uz: 'Bahorda havo iliq bo‘ladi.',
+          en: 'The weather is warm in spring.',
+          ru: 'Весной погода тёплая.',
+        },
+      },
+      {
+        korean: '봄에는 꽃이 많이 피어요.',
+        translations: {
+          ko: '봄에는 꽃이 많이 핍니다.',
+          uz: 'Bahorda ko‘p gullar ochiladi.',
+          en: 'Many flowers bloom in spring.',
+          ru: 'Весной цветёт много цветов.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '봄',
+      romanization: 'bom',
+      ttsText: '봄',
+    },
+
+    media: {
+      emoji: '🌸',
+      imageUrl: 'https://cdn.korio.app/words/bom.webp',
+      imageAlt: {
+        ko: '꽃이 피는 봄 풍경',
+        uz: 'gullar ochilgan bahor manzarasi',
+        en: 'a spring scene with blooming flowers',
+        ru: 'весенний пейзаж с цветущими цветами',
+      },
+    },
+
+    tags: ['season', 'weather', 'spring', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'봄에', '봄에는'처럼 계절에 하는 일을 이야기할 때 사용해요.",
+      uz: "'봄에', '봄에는' kabi bahordagi ishlarni aytishda ishlatiladi.",
+      en: 'Used as 봄에 or 봄에는 when talking about things that happen in spring.',
+      ru: 'Используется в формах 봄에 и 봄에는 при описании весенних событий.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_summer_noun',
+    senseKey: 'season-summer',
     korean: '여름',
-    uz: 'yoz',
-    en: 'summer',
-    ru: 'лето',
-    emoji: '☀️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '봄과 가을 사이의 가장 더운 계절',
+      uz: 'yoz',
+      en: 'summer',
+      ru: 'лето',
+    },
+
+    examples: [
+      {
+        korean: '여름에는 날씨가 더워요.',
+        translations: {
+          ko: '여름에는 날씨가 덥습니다.',
+          uz: 'Yozda havo issiq bo‘ladi.',
+          en: 'The weather is hot in summer.',
+          ru: 'Летом жарко.',
+        },
+      },
+      {
+        korean: '여름에 수영해요.',
+        translations: {
+          ko: '여름에 수영합니다.',
+          uz: 'Yozda suzaman.',
+          en: 'I swim in summer.',
+          ru: 'Летом я плаваю.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '여름',
+      romanization: 'yeoreum',
+      ttsText: '여름',
+    },
+
+    media: {
+      emoji: '☀️',
+      imageUrl: 'https://cdn.korio.app/words/yeoreum.webp',
+      imageAlt: {
+        ko: '햇빛이 강한 여름 풍경',
+        uz: 'quyoshli yoz manzarasi',
+        en: 'a sunny summer scene',
+        ru: 'солнечный летний пейзаж',
+      },
+    },
+
+    tags: ['season', 'weather', 'summer', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'여름에는 덥다', '여름에 수영하다'처럼 사용해요.",
+      uz: "'여름에는 덥다', '여름에 수영하다' kabi ishlatiladi.",
+      en: 'Commonly used when discussing summer weather and activities.',
+      ru: 'Часто используется при разговоре о летней погоде и занятиях.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_autumn_noun',
+    senseKey: 'season-autumn',
     korean: '가을',
-    uz: 'kuz',
-    en: 'autumn',
-    ru: 'осень',
-    emoji: '🍂',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '여름과 겨울 사이의 선선한 계절',
+      uz: 'kuz',
+      en: 'autumn, fall',
+      ru: 'осень',
+    },
+
+    examples: [
+      {
+        korean: '가을에는 날씨가 시원해요.',
+        translations: {
+          ko: '가을에는 날씨가 시원합니다.',
+          uz: 'Kuzda havo salqin bo‘ladi.',
+          en: 'The weather is cool in autumn.',
+          ru: 'Осенью прохладно.',
+        },
+      },
+      {
+        korean: '가을에 단풍을 구경해요.',
+        translations: {
+          ko: '가을에 단풍을 구경합니다.',
+          uz: 'Kuzda rangli barglarni tomosha qilaman.',
+          en: 'I enjoy the autumn foliage in fall.',
+          ru: 'Осенью я любуюсь осенней листвой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '가을',
+      romanization: 'gaeul',
+      ttsText: '가을',
+    },
+
+    media: {
+      emoji: '🍂',
+      imageUrl: 'https://cdn.korio.app/words/gaeul.webp',
+      imageAlt: {
+        ko: '단풍이 든 가을 풍경',
+        uz: 'rang-barang bargli kuz manzarasi',
+        en: 'an autumn landscape with colorful leaves',
+        ru: 'осенний пейзаж с разноцветной листвой',
+      },
+    },
+
+    tags: ['season', 'weather', 'autumn', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '가을의 날씨나 단풍 이야기를 할 때 자주 사용해요.',
+      uz: 'Kuzgi ob-havo yoki rangli barglar haqida gapirganda ko‘p ishlatiladi.',
+      en: 'Frequently used when talking about autumn weather and foliage.',
+      ru: 'Часто используется при разговоре об осенней погоде и листве.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_winter_noun',
+    senseKey: 'season-winter',
     korean: '겨울',
-    uz: 'qish',
-    en: 'winter',
-    ru: 'зима',
-    emoji: '⛄',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '가을과 봄 사이의 가장 추운 계절',
+      uz: 'qish',
+      en: 'winter',
+      ru: 'зима',
+    },
+
+    examples: [
+      {
+        korean: '겨울에는 날씨가 추워요.',
+        translations: {
+          ko: '겨울에는 날씨가 춥습니다.',
+          uz: 'Qishda havo sovuq bo‘ladi.',
+          en: 'The weather is cold in winter.',
+          ru: 'Зимой холодно.',
+        },
+      },
+      {
+        korean: '겨울에는 눈이 많이 와요.',
+        translations: {
+          ko: '겨울에는 눈이 많이 옵니다.',
+          uz: 'Qishda ko‘p qor yog‘adi.',
+          en: 'It snows a lot in winter.',
+          ru: 'Зимой часто идёт снег.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '겨울',
+      romanization: 'gyeoul',
+      ttsText: '겨울',
+    },
+
+    media: {
+      emoji: '⛄',
+      imageUrl: 'https://cdn.korio.app/words/gyeoul.webp',
+      imageAlt: {
+        ko: '눈이 쌓인 겨울 풍경',
+        uz: 'qorli qish manzarasi',
+        en: 'a snowy winter scene',
+        ru: 'снежний зимний пейзаж',
+      },
+    },
+
+    tags: ['season', 'weather', 'winter', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'겨울에는 춥다', '겨울에 눈이 오다'처럼 사용해요.",
+      uz: "'겨울에는 춥다', '겨울에 눈이 오다' kabi ishlatiladi.",
+      en: 'Commonly used when talking about cold weather and snow.',
+      ru: 'Часто используется при разговоре о холоде и снеге.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 형용사 · 상태 ─────────
+  // ─────────────────────────────────────
+  // 형용사 · 상태
+  // ─────────────────────────────────────
 
   {
+    code: 'word_easy_adjective',
+    senseKey: 'difficulty-easy',
     korean: '쉽다',
-    uz: 'oson bo‘lmoq',
-    en: 'to be easy',
-    ru: 'быть лёгким',
-    emoji: '🙂',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '하기 어렵지 않다',
+      uz: 'oson bo‘lmoq',
+      en: 'to be easy',
+      ru: 'быть лёгким, простым',
+    },
+
+    examples: [
+      {
+        korean: '한국어 숙제가 쉬워요.',
+        translations: {
+          ko: '한국어 숙제가 쉽습니다.',
+          uz: 'Koreys tili uy vazifasi oson.',
+          en: 'The Korean homework is easy.',
+          ru: 'Домашнее задание по корейскому лёгкое.',
+        },
+      },
+      {
+        korean: '이 문제는 쉬워요.',
+        translations: {
+          ko: '이 문제는 쉽습니다.',
+          uz: 'Bu savol oson.',
+          en: 'This question is easy.',
+          ru: 'Это задание лёгкое.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '쉽다',
+      romanization: 'swipda',
+      ttsText: '쉽다',
+    },
+
+    media: {
+      emoji: '🙂',
+      imageUrl: 'https://cdn.korio.app/words/swipda.webp',
+      imageAlt: {
+        ko: '쉽게 문제를 푸는 모습',
+        uz: 'oson masalani yechayotgan odam',
+        en: 'a person solving an easy problem',
+        ru: 'человек, решающий лёгкую задачу',
+      },
+    },
+
+    tags: ['adjective', 'difficulty', 'study', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'문제가 쉽다', '한국어가 쉽다'처럼 난이도를 말할 때 사용해요.",
+      uz: 'Biror narsaning osonligini aytishda ishlatiladi.',
+      en: 'Used to describe something as easy.',
+      ru: 'Используется для описания чего-либо как лёгкого.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_difficult_adjective',
+    senseKey: 'difficulty-difficult',
     korean: '어렵다',
-    uz: 'qiyin bo‘lmoq',
-    en: 'to be difficult',
-    ru: 'быть трудным',
-    emoji: '🤯',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '이해하거나 하기가 쉽지 않다',
+      uz: 'qiyin bo‘lmoq',
+      en: 'to be difficult',
+      ru: 'быть трудным',
+    },
+
+    examples: [
+      {
+        korean: '한국어가 어려워요.',
+        translations: {
+          ko: '한국어가 어렵습니다.',
+          uz: 'Koreys tili qiyin.',
+          en: 'Korean is difficult.',
+          ru: 'Корейский язык трудный.',
+        },
+      },
+      {
+        korean: '이 문제는 아주 어려워요.',
+        translations: {
+          ko: '이 문제는 매우 어렵습니다.',
+          uz: 'Bu savol juda qiyin.',
+          en: 'This question is very difficult.',
+          ru: 'Это задание очень трудное.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '어렵다',
+      romanization: 'eoryeopda',
+      ttsText: '어렵다',
+    },
+
+    media: {
+      emoji: '🤯',
+      imageUrl: 'https://cdn.korio.app/words/eoryeopda.webp',
+      imageAlt: {
+        ko: '어려운 문제를 고민하는 사람',
+        uz: 'qiyin masalani o‘ylayotgan odam',
+        en: 'a person thinking about a difficult problem',
+        ru: 'человек, думающий над сложной задачей',
+      },
+    },
+
+    tags: ['adjective', 'difficulty', 'study', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'문제가 어렵다', '한국어가 어렵다'처럼 사용해요.",
+      uz: "'문제가 어렵다', '한국어가 어렵다' kabi ishlatiladi.",
+      en: 'Used to describe subjects, tasks, or problems as difficult.',
+      ru: 'Используется для описания сложных предметов, задач или проблем.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_spicy_adjective',
+    senseKey: 'taste-spicy',
     korean: '맵다',
-    uz: 'achchiq bo‘lmoq',
-    en: 'to be spicy',
-    ru: 'быть острым',
-    emoji: '🌶️',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '고추 등의 맛 때문에 입안이 화끈하다',
+      uz: 'achchiq bo‘lmoq',
+      en: 'to be spicy',
+      ru: 'быть острым',
+    },
+
+    examples: [
+      {
+        korean: '떡볶이가 매워요.',
+        translations: {
+          ko: '떡볶이가 맵습니다.',
+          uz: 'Tteokbokki achchiq.',
+          en: 'Tteokbokki is spicy.',
+          ru: 'Ттокпокки острое.',
+        },
+      },
+      {
+        korean: '이 음식은 너무 매워요.',
+        translations: {
+          ko: '이 음식은 너무 맵습니다.',
+          uz: 'Bu ovqat juda achchiq.',
+          en: 'This food is very spicy.',
+          ru: 'Эта еда очень острая.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '맵다',
+      romanization: 'maepda',
+      ttsText: '맵다',
+    },
+
+    media: {
+      emoji: '🌶️',
+      imageUrl: 'https://cdn.korio.app/words/maepda.webp',
+      imageAlt: {
+        ko: '매운 고추와 음식',
+        uz: 'achchiq qalampir va taom',
+        en: 'spicy peppers and food',
+        ru: 'острый перец и еда',
+      },
+    },
+
+    tags: ['adjective', 'taste', 'food', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '음식의 매운맛을 표현할 때 사용해요.',
+      uz: 'Taomning achchiqligini aytishda ishlatiladi.',
+      en: 'Used to describe spicy food.',
+      ru: 'Используется для описания острой еды.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_light_weight_adjective',
+    senseKey: 'weight-light',
     korean: '가볍다',
-    uz: 'yengil bo‘lmoq',
-    en: 'to be light',
-    ru: 'быть лёгким по весу',
-    emoji: '🪶',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '무게가 적다',
+      uz: 'yengil bo‘lmoq',
+      en: 'to be light',
+      ru: 'быть лёгким по весу',
+    },
+
+    examples: [
+      {
+        korean: '이 가방은 가벼워요.',
+        translations: {
+          ko: '이 가방은 가볍습니다.',
+          uz: 'Bu sumka yengil.',
+          en: 'This bag is light.',
+          ru: 'Эта сумка лёгкая.',
+        },
+      },
+      {
+        korean: '작은 우산은 가벼워요.',
+        translations: {
+          ko: '작은 우산은 가볍습니다.',
+          uz: 'Kichik soyabon yengil.',
+          en: 'The small umbrella is light.',
+          ru: 'Маленький зонт лёгкий.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '가볍다',
+      romanization: 'gabyeopda',
+      ttsText: '가볍다',
+    },
+
+    media: {
+      emoji: '🪶',
+      imageUrl: 'https://cdn.korio.app/words/gabyeopda.webp',
+      imageAlt: {
+        ko: '무게가 가벼운 깃털',
+        uz: 'yengil pat',
+        en: 'a lightweight feather',
+        ru: 'лёгкое перо',
+      },
+    },
+
+    tags: ['adjective', 'weight', 'description', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'가방이 가볍다'처럼 물건의 무게를 표현해요.",
+      uz: 'Buyumning yengilligini aytishda ishlatiladi.',
+      en: 'Used to describe something as light in weight.',
+      ru: 'Используется для описания небольшого веса.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_heavy_adjective',
+    senseKey: 'weight-heavy',
     korean: '무겁다',
-    uz: 'og‘ir bo‘lmoq',
-    en: 'to be heavy',
-    ru: 'быть тяжёлым',
-    emoji: '🏋️',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '무게가 많이 나가다',
+      uz: 'og‘ir bo‘lmoq',
+      en: 'to be heavy',
+      ru: 'быть тяжёлым',
+    },
+
+    examples: [
+      {
+        korean: '이 가방은 무거워요.',
+        translations: {
+          ko: '이 가방은 무겁습니다.',
+          uz: 'Bu sumka og‘ir.',
+          en: 'This bag is heavy.',
+          ru: 'Эта сумка тяжёлая.',
+        },
+      },
+      {
+        korean: '책이 많아서 가방이 무거워요.',
+        translations: {
+          ko: '책이 많아서 가방이 무겁습니다.',
+          uz: 'Kitoblar ko‘p bo‘lgani uchun sumka og‘ir.',
+          en: 'The bag is heavy because there are many books.',
+          ru: 'Сумка тяжёлая, потому что в ней много книг.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '무겁다',
+      romanization: 'mugeopda',
+      ttsText: '무겁다',
+    },
+
+    media: {
+      emoji: '🏋️',
+      imageUrl: 'https://cdn.korio.app/words/mugeopda.webp',
+      imageAlt: {
+        ko: '무거운 물건을 드는 사람',
+        uz: 'og‘ir buyumni ko‘tarayotgan odam',
+        en: 'a person lifting something heavy',
+        ru: 'человек, поднимающий тяжёлый предмет',
+      },
+    },
+
+    tags: ['adjective', 'weight', 'description', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'가방이 무겁다', '짐이 무겁다'처럼 사용해요.",
+      uz: "'가방이 무겁다' kabi ishlatiladi.",
+      en: 'Used to describe objects or luggage as heavy.',
+      ru: 'Используется для описания тяжёлых предметов или багажа.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_interesting_adjective',
+    senseKey: 'interest-fun-interesting',
     korean: '재미있다',
-    uz: 'qiziqarli bo‘lmoq',
-    en: 'to be fun / interesting',
-    ru: 'быть интересным',
-    emoji: '😄',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '즐겁고 흥미가 있다',
+      uz: 'qiziqarli, maroqli bo‘lmoq',
+      en: 'to be fun, interesting',
+      ru: 'быть интересным, увлекательным',
+    },
+
+    examples: [
+      {
+        korean: '한국어 공부가 재미있어요.',
+        translations: {
+          ko: '한국어 공부가 재미있습니다.',
+          uz: 'Koreys tilini o‘rganish qiziqarli.',
+          en: 'Studying Korean is interesting.',
+          ru: 'Изучать корейский язык интересно.',
+        },
+      },
+      {
+        korean: '그 영화가 재미있어요.',
+        translations: {
+          ko: '그 영화가 재미있습니다.',
+          uz: 'U film qiziqarli.',
+          en: 'That movie is interesting.',
+          ru: 'Этот фильм интересный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '재미있다',
+      romanization: 'jaemiitda',
+      ttsText: '재미있다',
+    },
+
+    media: {
+      emoji: '😄',
+      imageUrl: 'https://cdn.korio.app/words/jaemiitda.webp',
+      imageAlt: {
+        ko: '즐겁고 재미있어 하는 사람',
+        uz: 'xursand bo‘lib zavqlanayotgan odam',
+        en: 'a person having fun',
+        ru: 'человек, которому интересно',
+      },
+    },
+
+    tags: ['adjective', 'feeling', 'evaluation', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '영화, 공부, 책, 활동 등이 흥미롭거나 즐거울 때 사용해요.',
+      uz: 'Film, o‘qish, kitob yoki faoliyat qiziqarli bo‘lganda ishlatiladi.',
+      en: 'Used when movies, studying, books, or activities are interesting or fun.',
+      ru: 'Используется, когда фильм, учёба, книга или занятие интересны.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_boring_adjective',
+    senseKey: 'interest-boring-uninteresting',
     korean: '재미없다',
-    uz: 'zerikarli bo‘lmoq',
-    en: 'to be boring / uninteresting',
-    ru: 'быть скучным / неинтересным',
-    emoji: '🥱',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+
+    meaning: {
+      ko: '즐겁거나 흥미롭지 않다',
+      uz: 'zerikarli, qiziq emas',
+      en: 'to be boring, uninteresting',
+      ru: 'быть скучным, неинтересным',
+    },
+
+    examples: [
+      {
+        korean: '그 영화는 재미없어요.',
+        translations: {
+          ko: '그 영화는 재미없습니다.',
+          uz: 'U film zerikarli.',
+          en: 'That movie is boring.',
+          ru: 'Этот фильм скучный.',
+        },
+      },
+      {
+        korean: '수업이 재미없어요.',
+        translations: {
+          ko: '수업이 재미없습니다.',
+          uz: 'Dars qiziq emas.',
+          en: 'The class is boring.',
+          ru: 'Урок скучный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '재미없다',
+      romanization: 'jaemieopda',
+      ttsText: '재미없다',
+    },
+
+    media: {
+      emoji: '🥱',
+      imageUrl: 'https://cdn.korio.app/words/jaemieopda.webp',
+      imageAlt: {
+        ko: '지루해하는 사람',
+        uz: 'zerikayotgan odam',
+        en: 'a bored person',
+        ru: 'скучающий человек',
+      },
+    },
+
+    tags: ['adjective', 'feeling', 'evaluation', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'영화가 재미없다', '수업이 재미없다'처럼 사용해요.",
+      uz: "'영화가 재미없다', '수업이 재미없다' kabi ishlatiladi.",
+      en: 'Used to describe something as boring or uninteresting.',
+      ru: 'Используется для описания чего-либо как скучного или неинтересного.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 사람 · 음식 ─────────
+  // ─────────────────────────────────────
+  // 사람 · 음식
+  // ─────────────────────────────────────
 
   {
+    code: 'word_younger_sibling_noun',
+    senseKey: 'family-younger-sibling',
     korean: '동생',
-    uz: 'kichik uka / singil',
-    en: 'younger sibling',
-    ru: 'младший брат / младшая сестра',
-    emoji: '🧒',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '자기보다 나이가 어린 남동생이나 여동생',
+      uz: 'kichik uka yoki singil',
+      en: 'younger sibling',
+      ru: 'младший брат или младшая сестра',
+    },
+
+    examples: [
+      {
+        korean: '저는 동생이 있어요.',
+        translations: {
+          ko: '저는 동생이 있습니다.',
+          uz: 'Mening ukam yoki singlim bor.',
+          en: 'I have a younger sibling.',
+          ru: 'У меня есть младший брат или младшая сестра.',
+        },
+      },
+      {
+        korean: '동생하고 같이 영화를 봐요.',
+        translations: {
+          ko: '동생과 함께 영화를 봅니다.',
+          uz: 'Ukam yoki singlim bilan birga film ko‘raman.',
+          en: 'I watch a movie with my younger sibling.',
+          ru: 'Я смотрю фильм с младшим братом или сестрой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '동생',
+      romanization: 'dongsaeng',
+      ttsText: '동생',
+    },
+
+    media: {
+      emoji: '🧒',
+      imageUrl: 'https://cdn.korio.app/words/dongsaeng.webp',
+      imageAlt: {
+        ko: '나이가 어린 동생',
+        uz: 'kichik uka yoki singil',
+        en: 'a younger sibling',
+        ru: 'младший брат или сестра',
+      },
+    },
+
+    tags: ['family', 'people', 'relationship', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'동생'만으로는 남자인지 여자인지 구분하지 않아요. 필요하면 '남동생', '여동생'이라고 해요.",
+      uz: "'동생' jinsni bildirmaydi. Kerak bo‘lsa '남동생' yoki '여동생' deyiladi.",
+      en: '동생 does not specify gender. Use 남동생 or 여동생 when necessary.',
+      ru: '동생 не указывает пол. При необходимости используются 남동생 или 여동생.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_tteokbokki_noun',
+    senseKey: 'food-tteokbokki',
     korean: '떡볶이',
-    uz: 'tteokbokki',
-    en: 'tteokbokki',
-    ru: 'ттокпокки',
-    emoji: '🌶️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '떡을 매콤한 양념에 볶거나 끓여 만든 한국 음식',
+      uz: 'achchiq sousda tayyorlanadigan koreys guruch kletskasi taomi, tteokbokki',
+      en: 'Korean spicy rice cakes, tteokbokki',
+      ru: 'корейские рисовые клёцки в остром соусе, ттокпокки',
+    },
+
+    examples: [
+      {
+        korean: '떡볶이는 매워요.',
+        translations: {
+          ko: '떡볶이는 맵습니다.',
+          uz: 'Tteokbokki achchiq.',
+          en: 'Tteokbokki is spicy.',
+          ru: 'Ттокпокки острое.',
+        },
+      },
+      {
+        korean: '저는 떡볶이를 좋아해요.',
+        translations: {
+          ko: '저는 떡볶이를 좋아합니다.',
+          uz: 'Men tteokbokkini yaxshi ko‘raman.',
+          en: 'I like tteokbokki.',
+          ru: 'Я люблю ттокпокки.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '떡볶이',
+      romanization: 'tteokbokki',
+      ttsText: '떡볶이',
+    },
+
+    media: {
+      emoji: '🌶️',
+      imageUrl: 'https://cdn.korio.app/words/tteokbokki.webp',
+      imageAlt: {
+        ko: '매콤한 양념의 떡볶이',
+        uz: 'achchiq sousli tteokbokki',
+        en: 'spicy tteokbokki',
+        ru: 'острые ттокпокки',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'spicy', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'떡볶이가 맵다', '떡볶이를 좋아하다'처럼 사용할 수 있어요.",
+      uz: "'떡볶이가 맵다', '떡볶이를 좋아하다' kabi ishlatiladi.",
+      en: 'Commonly used with 맵다 and 좋아하다.',
+      ru: 'Часто используется с 맵다 и 좋아하다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 말하기 1 ─────────
+  // 다음: 조심하다 → 요즘 → 고향 → 여행 → 읽고 쓰기 → 여행 준비 → 삼계탕
+  // ─────────────────────────────────────
+  // 말하기 1
+  // ─────────────────────────────────────
 
   {
+    code: 'word_be_careful_verb',
+    senseKey: 'action-be-careful',
     korean: '조심하다',
-    uz: 'ehtiyot bo‘lmoq',
-    en: 'to be careful',
-    ru: 'быть осторожным',
-    emoji: '⚠️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '위험하거나 실수하지 않도록 주의하다',
+      uz: 'ehtiyot bo‘lmoq',
+      en: 'to be careful',
+      ru: 'быть осторожным',
+    },
+
+    examples: [
+      {
+        korean: '길이 미끄러워요. 조심하세요.',
+        translations: {
+          ko: '길이 미끄럽습니다. 조심하세요.',
+          uz: 'Yo‘l sirpanchiq. Ehtiyot bo‘ling.',
+          en: 'The road is slippery. Be careful.',
+          ru: 'Дорога скользкая. Будьте осторожны.',
+        },
+      },
+      {
+        korean: '눈이 와요. 운전할 때 조심하세요.',
+        translations: {
+          ko: '눈이 옵니다. 운전할 때 조심하세요.',
+          uz: 'Qor yog‘moqda. Mashina haydaganda ehtiyot bo‘ling.',
+          en: 'It is snowing. Be careful when driving.',
+          ru: 'Идёт снег. Будьте осторожны за рулём.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '조심하다',
+      romanization: 'josimhada',
+      ttsText: '조심하다',
+    },
+
+    media: {
+      emoji: '⚠️',
+      imageUrl: 'https://cdn.korio.app/words/josimhada.webp',
+      imageAlt: {
+        ko: '위험을 조심하라는 경고 표시',
+        uz: 'ehtiyot bo‘lish kerakligini bildiruvchi ogohlantirish',
+        en: 'a warning sign telling people to be careful',
+        ru: 'предупреждающий знак об осторожности',
+      },
+    },
+
+    tags: ['verb', 'safety', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "상대방에게 주의를 줄 때는 '조심하세요'라는 표현을 많이 사용해요.",
+      uz: "Birovni ogohlantirganda '조심하세요' iborasi ko‘p ishlatiladi.",
+      en: '조심하세요 is commonly used to tell someone to be careful.',
+      ru: 'Форма «조심하세요» часто используется, чтобы предупредить человека быть осторожным.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 일상 · 현재 상황 ─────────
+  // ─────────────────────────────────────
+  // 일상 · 현재 상황
+  // ─────────────────────────────────────
 
   {
+    code: 'word_these_days_noun',
+    senseKey: 'time-these-days',
     korean: '요즘',
-    uz: 'shu kunlarda',
-    en: 'these days',
-    ru: 'в последнее время',
-    emoji: '📆',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '바로 얼마 전부터 현재까지의 동안',
+      uz: 'shu kunlarda, so‘nggi paytlarda',
+      en: 'these days, lately',
+      ru: 'в последнее время, в эти дни',
+    },
+
+    examples: [
+      {
+        korean: '요즘 날씨가 추워요.',
+        translations: {
+          ko: '요즘 날씨가 춥습니다.',
+          uz: 'Shu kunlarda havo sovuq.',
+          en: 'The weather is cold these days.',
+          ru: 'В последнее время погода холодная.',
+        },
+      },
+      {
+        korean: '요즘 한국어를 많이 공부해요.',
+        translations: {
+          ko: '요즘 한국어를 많이 공부합니다.',
+          uz: 'So‘nggi paytlarda koreys tilini ko‘p o‘rganyapman.',
+          en: 'I study Korean a lot these days.',
+          ru: 'В последнее время я много занимаюсь корейским.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '요즘',
+      romanization: 'yojeum',
+      ttsText: '요즘',
+    },
+
+    media: {
+      emoji: '📆',
+      imageUrl: 'https://cdn.korio.app/words/yojeum.webp',
+      imageAlt: {
+        ko: '최근 날짜가 표시된 달력',
+        uz: 'yaqindagi kunlar ko‘rsatilgan taqvim',
+        en: 'a calendar representing recent days',
+        ru: 'календарь, обозначающий последние дни',
+      },
+    },
+
+    tags: ['time', 'daily-life', 'conversation', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '최근의 상황이나 생활을 이야기할 때 문장 앞에서 자주 사용해요.',
+      uz: 'Yaqindagi holat yoki hayot haqida gapirganda ko‘p ishlatiladi.',
+      en: 'Often used at the beginning of a sentence to talk about recent situations.',
+      ru: 'Часто используется в начале предложения при разговоре о недавней ситуации.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_break_time_noun',
+    senseKey: 'time-break-time',
     korean: '쉬는 시간',
-    uz: 'tanaffus',
-    en: 'break time',
-    ru: 'перемена / время отдыха',
-    emoji: '☕',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '수업이나 일을 잠시 멈추고 쉬는 시간',
+      uz: 'tanaffus, dam olish vaqti',
+      en: 'break time',
+      ru: 'перерыв, время отдыха',
+    },
+
+    examples: [
+      {
+        korean: '지금은 쉬는 시간이에요.',
+        translations: {
+          ko: '지금은 쉬는 시간입니다.',
+          uz: 'Hozir tanaffus vaqti.',
+          en: 'It is break time now.',
+          ru: 'Сейчас перемена.',
+        },
+      },
+      {
+        korean: '쉬는 시간에 친구하고 이야기해요.',
+        translations: {
+          ko: '쉬는 시간에 친구와 이야기합니다.',
+          uz: 'Tanaffusda do‘stim bilan gaplashaman.',
+          en: 'I talk with my friend during break time.',
+          ru: 'На перемене я разговариваю с другом.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '쉬는 시간',
+      romanization: 'swineun sigan',
+      ttsText: '쉬는 시간',
+    },
+
+    media: {
+      emoji: '☕',
+      imageUrl: 'https://cdn.korio.app/words/swineun-sigan.webp',
+      imageAlt: {
+        ko: '수업 사이에 쉬는 학생들',
+        uz: 'darslar orasida dam olayotgan o‘quvchilar',
+        en: 'students taking a break between classes',
+        ru: 'ученики, отдыхающие между занятиями',
+      },
+    },
+
+    tags: ['time', 'school', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'쉬는 시간에'처럼 어떤 행동을 하는 시간을 나타낼 때 사용할 수 있어요.",
+      uz: "'쉬는 시간에' shaklida tanaffus paytidagi ishni aytish mumkin.",
+      en: 'Often used as 쉬는 시간에 when talking about something done during a break.',
+      ru: 'Часто используется в форме «쉬는 시간에» для действий во время перерыва.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_talk_verb',
+    senseKey: 'action-talk-conversation',
     korean: '이야기하다',
-    uz: 'gaplashmoq',
-    en: 'to talk',
-    ru: 'разговаривать',
-    emoji: '💬',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '다른 사람과 말을 주고받다',
+      uz: 'gaplashmoq, suhbatlashmoq',
+      en: 'to talk, to converse',
+      ru: 'разговаривать, беседовать',
+    },
+
+    examples: [
+      {
+        korean: '친구하고 이야기해요.',
+        translations: {
+          ko: '친구와 이야기합니다.',
+          uz: 'Do‘stim bilan gaplashaman.',
+          en: 'I talk with my friend.',
+          ru: 'Я разговариваю с другом.',
+        },
+      },
+      {
+        korean: '쉬는 시간에 같이 이야기해요.',
+        translations: {
+          ko: '쉬는 시간에 함께 이야기합니다.',
+          uz: 'Tanaffusda birga gaplashamiz.',
+          en: 'We talk together during break time.',
+          ru: 'Мы разговариваем вместе на перемене.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '이야기하다',
+      romanization: 'iyagihada',
+      ttsText: '이야기하다',
+    },
+
+    media: {
+      emoji: '💬',
+      imageUrl: 'https://cdn.korio.app/words/iyagihada.webp',
+      imageAlt: {
+        ko: '서로 이야기하는 두 사람',
+        uz: 'bir-biri bilan gaplashayotgan ikki kishi',
+        en: 'two people talking',
+        ru: 'два разговаривающих человека',
+      },
+    },
+
+    tags: ['verb', 'communication', 'social', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'친구하고 이야기하다', '한국어로 이야기하다'처럼 사용할 수 있어요.",
+      uz: "'친구하고 이야기하다' yoki '한국어로 이야기하다' kabi ishlatiladi.",
+      en: "Used in expressions such as 'talk with a friend' or 'talk in Korean.'",
+      ru: 'Используется в выражениях «разговаривать с другом» и «говорить по-корейски».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 고향 날씨 발표 ─────────
+  // ─────────────────────────────────────
+  // 고향 날씨 발표
+  // ─────────────────────────────────────
 
   {
+    code: 'word_hometown_noun',
+    senseKey: 'place-hometown',
     korean: '고향',
-    uz: 'ona yurt / tug‘ilgan joy',
-    en: 'hometown',
-    ru: 'родной город / родина',
-    emoji: '🏡',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '자기가 태어났거나 오래 살았던 곳',
+      uz: 'ona yurt, tug‘ilgan joy',
+      en: 'hometown, home region',
+      ru: 'родной город, родина',
+    },
+
+    examples: [
+      {
+        korean: '고향이 어디예요?',
+        translations: {
+          ko: '고향이 어디입니까?',
+          uz: 'Tug‘ilgan joyingiz qayer?',
+          en: 'Where is your hometown?',
+          ru: 'Где ваш родной город?',
+        },
+      },
+      {
+        korean: '제 고향은 겨울에 아주 추워요.',
+        translations: {
+          ko: '제 고향은 겨울에 매우 춥습니다.',
+          uz: 'Mening ona yurtimda qishda juda sovuq.',
+          en: 'My hometown is very cold in winter.',
+          ru: 'В моём родном городе зимой очень холодно.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '고향',
+      romanization: 'gohyang',
+      ttsText: '고향',
+    },
+
+    media: {
+      emoji: '🏡',
+      imageUrl: 'https://cdn.korio.app/words/gohyang.webp',
+      imageAlt: {
+        ko: '사람의 고향을 나타내는 마을',
+        uz: 'ona yurtni ifodalovchi qishloq',
+        en: "a town representing someone's hometown",
+        ru: 'городок, символизирующий родной край',
+      },
+    },
+
+    tags: ['place', 'personal-info', 'hometown', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "출신 지역을 물을 때 '고향이 어디예요?'라는 표현을 많이 사용해요.",
+      uz: "Tug‘ilgan joyni so‘rashda '고향이 어디예요?' ko‘p ishlatiladi.",
+      en: "고향이 어디예요? is a common way to ask about someone's hometown.",
+      ru: '«고향이 어디예요?» — распространённый способ спросить о родном городе.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ski_resort_noun',
+    senseKey: 'place-ski-resort',
     korean: '스키장',
-    uz: 'chang‘i kurorti',
-    en: 'ski resort',
-    ru: 'горнолыжный курорт',
-    emoji: '⛷️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '스키를 탈 수 있도록 시설을 갖춘 곳',
+      uz: 'chang‘i kurorti',
+      en: 'ski resort',
+      ru: 'горнолыжный курорт',
+    },
+
+    examples: [
+      {
+        korean: '겨울에 스키장에 가요.',
+        translations: {
+          ko: '겨울에 스키장에 갑니다.',
+          uz: 'Qishda chang‘i kurortiga boraman.',
+          en: 'I go to a ski resort in winter.',
+          ru: 'Зимой я езжу на горнолыжный курорт.',
+        },
+      },
+      {
+        korean: '스키장에서 스키를 타요.',
+        translations: {
+          ko: '스키장에서 스키를 탑니다.',
+          uz: 'Chang‘i kurortida chang‘i uchaman.',
+          en: 'I ski at the ski resort.',
+          ru: 'Я катаюсь на лыжах на горнолыжном курорте.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '스키장',
+      romanization: 'seukijang',
+      ttsText: '스키장',
+    },
+
+    media: {
+      emoji: '⛷️',
+      imageUrl: 'https://cdn.korio.app/words/seukijang.webp',
+      imageAlt: {
+        ko: '눈 덮인 스키장',
+        uz: 'qor bilan qoplangan chang‘i kurorti',
+        en: 'a snow-covered ski resort',
+        ru: 'заснеженный горнолыжный курорт',
+      },
+    },
+
+    tags: ['place', 'winter', 'activity', 'travel', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'스키장에 가다', '스키장에서 스키를 타다'처럼 사용해요.",
+      uz: "'스키장에 가다', '스키장에서 스키를 타다' kabi ishlatiladi.",
+      en: 'Commonly used with 가다 and 스키를 타다.',
+      ru: 'Часто используется с 가다 и выражением 스키를 타다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_autumn_foliage_noun',
+    senseKey: 'nature-autumn-foliage',
     korean: '단풍',
-    uz: 'kuzgi rangli barglar',
-    en: 'autumn foliage',
-    ru: 'осенняя листва',
-    emoji: '🍁',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '가을에 나뭇잎이 붉거나 노랗게 변하는 것',
+      uz: 'kuzda rangini o‘zgartirgan barglar',
+      en: 'autumn foliage, fall colors',
+      ru: 'осенняя листва',
+    },
+
+    examples: [
+      {
+        korean: '가을에는 단풍이 예뻐요.',
+        translations: {
+          ko: '가을에는 단풍이 아름답습니다.',
+          uz: 'Kuzda rangli barglar chiroyli.',
+          en: 'The autumn foliage is beautiful in fall.',
+          ru: 'Осенью листва красивая.',
+        },
+      },
+      {
+        korean: '주말에 단풍을 구경했어요.',
+        translations: {
+          ko: '주말에 단풍을 구경했습니다.',
+          uz: 'Dam olish kunlari kuzgi barglarni tomosha qildim.',
+          en: 'I went to see the autumn foliage over the weekend.',
+          ru: 'На выходных я любовался осенней листвой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '단풍',
+      romanization: 'danpung',
+      ttsText: '단풍',
+    },
+
+    media: {
+      emoji: '🍁',
+      imageUrl: 'https://cdn.korio.app/words/danpung.webp',
+      imageAlt: {
+        ko: '붉고 노란 가을 단풍',
+        uz: 'qizil va sariq kuzgi barglar',
+        en: 'red and yellow autumn foliage',
+        ru: 'красная и жёлтая осенняя листва',
+      },
+    },
+
+    tags: ['nature', 'autumn', 'season', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "가을에 경치를 볼 때 '단풍을 구경하다'라는 표현을 많이 사용해요.",
+      uz: "Kuzgi manzarani tomosha qilishda '단풍을 구경하다' ko‘p ishlatiladi.",
+      en: '단풍을 구경하다 is a common expression for going to enjoy fall foliage.',
+      ru: 'Выражение «단풍을 구경하다» часто означает любоваться осенней листвой.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sightsee_verb',
+    senseKey: 'action-look-around-sightsee',
     korean: '구경하다',
-    uz: 'tomosha qilmoq',
-    en: 'to look around / sightsee',
-    ru: 'осматривать / любоваться',
-    emoji: '👀',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '흥미 있는 장소나 물건을 돌아보며 보다',
+      uz: 'tomosha qilmoq, aylanib ko‘rmoq',
+      en: 'to look around, to sightsee',
+      ru: 'осматривать, любоваться',
+    },
+
+    examples: [
+      {
+        korean: '가을에 단풍을 구경해요.',
+        translations: {
+          ko: '가을에 단풍을 구경합니다.',
+          uz: 'Kuzda rangli barglarni tomosha qilaman.',
+          en: 'I enjoy the autumn foliage in fall.',
+          ru: 'Осенью я любуюсь осенней листвой.',
+        },
+      },
+      {
+        korean: '서울 시내를 구경했어요.',
+        translations: {
+          ko: '서울 시내를 구경했습니다.',
+          uz: 'Seul markazini aylanib ko‘rdim.',
+          en: 'I looked around downtown Seoul.',
+          ru: 'Я осмотрел центр Сеула.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '구경하다',
+      romanization: 'gugyeonghada',
+      ttsText: '구경하다',
+    },
+
+    media: {
+      emoji: '👀',
+      imageUrl: 'https://cdn.korio.app/words/gugyeonghada.webp',
+      imageAlt: {
+        ko: '관광지를 구경하는 사람',
+        uz: 'diqqatga sazovor joyni tomosha qilayotgan odam',
+        en: 'a person sightseeing',
+        ru: 'человек, осматривающий достопримечательности',
+      },
+    },
+
+    tags: ['verb', 'travel', 'sightseeing', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'단풍을 구경하다', '서울을 구경하다'처럼 볼 대상과 함께 사용해요.",
+      uz: "'단풍을 구경하다', '서울을 구경하다' kabi ko‘riladigan joy yoki narsa bilan ishlatiladi.",
+      en: 'Used with the place or thing being viewed.',
+      ru: 'Используется с местом или объектом, который осматривают.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_swimming_pool_noun',
+    senseKey: 'place-swimming-pool',
     korean: '수영장',
-    uz: 'suzish havzasi',
-    en: 'swimming pool',
-    ru: 'бассейн',
-    emoji: '🏊',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '수영을 할 수 있도록 만든 시설',
+      uz: 'suzish havzasi',
+      en: 'swimming pool',
+      ru: 'бассейн',
+    },
+
+    examples: [
+      {
+        korean: '여름에 수영장에 가요.',
+        translations: {
+          ko: '여름에 수영장에 갑니다.',
+          uz: 'Yozda suzish havzasiga boraman.',
+          en: 'I go to the swimming pool in summer.',
+          ru: 'Летом я хожу в бассейн.',
+        },
+      },
+      {
+        korean: '수영장에서 수영해요.',
+        translations: {
+          ko: '수영장에서 수영합니다.',
+          uz: 'Suzish havzasida suzaman.',
+          en: 'I swim at the swimming pool.',
+          ru: 'Я плаваю в бассейне.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '수영장',
+      romanization: 'suyeongjang',
+      ttsText: '수영장',
+    },
+
+    media: {
+      emoji: '🏊',
+      imageUrl: 'https://cdn.korio.app/words/suyeongjang.webp',
+      imageAlt: {
+        ko: '사람들이 수영하는 수영장',
+        uz: 'odamlar suzayotgan basseyn',
+        en: 'a swimming pool with people swimming',
+        ru: 'бассейн, в котором плавают люди',
+      },
+    },
+
+    tags: ['place', 'sports', 'summer', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'수영장에 가다', '수영장에서 수영하다'처럼 사용해요.",
+      uz: "'수영장에 가다', '수영장에서 수영하다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the pool' and 'swim at the pool.'",
+      ru: 'Часто используется в выражениях «ходить в бассейн» и «плавать в бассейне».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_flower_noun',
+    senseKey: 'nature-flower',
     korean: '꽃',
-    uz: 'gul',
-    en: 'flower',
-    ru: 'цветок',
-    emoji: '🌷',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '식물에서 피어나는 아름다운 부분',
+      uz: 'gul',
+      en: 'flower',
+      ru: 'цветок',
+    },
+
+    examples: [
+      {
+        korean: '봄에는 꽃이 많이 피어요.',
+        translations: {
+          ko: '봄에는 꽃이 많이 핍니다.',
+          uz: 'Bahorda ko‘p gullar ochiladi.',
+          en: 'Many flowers bloom in spring.',
+          ru: 'Весной цветёт много цветов.',
+        },
+      },
+      {
+        korean: '공원에서 꽃을 구경해요.',
+        translations: {
+          ko: '공원에서 꽃을 구경합니다.',
+          uz: 'Bog‘da gullarni tomosha qilaman.',
+          en: 'I look at the flowers in the park.',
+          ru: 'Я любуюсь цветами в парке.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '꽃',
+      romanization: 'kkot',
+      ttsText: '꽃',
+    },
+
+    media: {
+      emoji: '🌷',
+      imageUrl: 'https://cdn.korio.app/words/kkot.webp',
+      imageAlt: {
+        ko: '활짝 핀 꽃',
+        uz: 'ochilgan gul',
+        en: 'a blooming flower',
+        ru: 'распустившийся цветок',
+      },
+    },
+
+    tags: ['nature', 'spring', 'plant', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'꽃이 피다', '꽃을 구경하다'처럼 사용해요.",
+      uz: "'꽃이 피다', '꽃을 구경하다' kabi ishlatiladi.",
+      en: 'Commonly used in expressions such as 꽃이 피다 and 꽃을 구경하다.',
+      ru: 'Часто используется в выражениях 꽃이 피다 и 꽃을 구경하다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 여행 경험 ─────────
+  // ─────────────────────────────────────
+  // 여행 경험
+  // ─────────────────────────────────────
 
   {
+    code: 'word_sea_noun',
+    senseKey: 'nature-sea',
     korean: '바다',
-    uz: 'dengiz',
-    en: 'sea',
-    ru: 'море',
-    emoji: '🌊',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '넓고 큰 소금물의 공간',
+      uz: 'dengiz',
+      en: 'sea',
+      ru: 'море',
+    },
+
+    examples: [
+      {
+        korean: '여름에 바다에 갔어요.',
+        translations: {
+          ko: '여름에 바다에 갔습니다.',
+          uz: 'Yozda dengizga bordim.',
+          en: 'I went to the sea in summer.',
+          ru: 'Летом я ездил к морю.',
+        },
+      },
+      {
+        korean: '바다에서 수영했어요.',
+        translations: {
+          ko: '바다에서 수영했습니다.',
+          uz: 'Dengizda suzdim.',
+          en: 'I swam in the sea.',
+          ru: 'Я плавал в море.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '바다',
+      romanization: 'bada',
+      ttsText: '바다',
+    },
+
+    media: {
+      emoji: '🌊',
+      imageUrl: 'https://cdn.korio.app/words/bada.webp',
+      imageAlt: {
+        ko: '파도가 있는 넓은 바다',
+        uz: 'to‘lqinli keng dengiz',
+        en: 'a wide sea with waves',
+        ru: 'широкое море с волнами',
+      },
+    },
+
+    tags: ['nature', 'travel', 'summer', 'place', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'바다에 가다', '바다에서 수영하다'처럼 사용해요.",
+      uz: "'바다에 가다', '바다에서 수영하다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the sea' or 'swim in the sea.'",
+      ru: 'Часто используется в выражениях «ехать к морю» и «плавать в море».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_fish_food_noun',
+    senseKey: 'food-fish',
     korean: '생선',
-    uz: 'baliq (ovqat)',
-    en: 'fish',
-    ru: 'рыба',
-    emoji: '🐟',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '먹는 음식으로서의 물고기',
+      uz: 'baliq, oziq-ovqat sifatidagi baliq',
+      en: 'fish as food',
+      ru: 'рыба как пища',
+    },
+
+    examples: [
+      {
+        korean: '바다에서 생선을 먹었어요.',
+        translations: {
+          ko: '바다에서 생선을 먹었습니다.',
+          uz: 'Dengiz bo‘yida baliq yedim.',
+          en: 'I ate fish by the sea.',
+          ru: 'У моря я ел рыбу.',
+        },
+      },
+      {
+        korean: '저는 생선을 좋아해요.',
+        translations: {
+          ko: '저는 생선을 좋아합니다.',
+          uz: 'Men baliqni yaxshi ko‘raman.',
+          en: 'I like fish.',
+          ru: 'Я люблю рыбу.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '생선',
+      romanization: 'saengseon',
+      ttsText: '생선',
+    },
+
+    media: {
+      emoji: '🐟',
+      imageUrl: 'https://cdn.korio.app/words/saengseon.webp',
+      imageAlt: {
+        ko: '음식으로 먹는 생선',
+        uz: 'ovqat sifatidagi baliq',
+        en: 'fish prepared as food',
+        ru: 'рыба как продукт питания',
+      },
+    },
+
+    tags: ['food', 'fish', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'물고기'가 살아 있는 동물을 주로 뜻한다면 '생선'은 음식으로 먹는 물고기를 주로 뜻해요.",
+      uz: "'물고기' odatda tirik baliqni, '생선' esa oziq-ovqat sifatidagi baliqni bildiradi.",
+      en: '물고기 usually refers to a fish as an animal, while 생선 commonly refers to fish as food.',
+      ru: '물고기 обычно означает рыбу как животное, а 생선 — рыбу как пищу.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 읽고 쓰기 · 한국의 가을과 겨울 ─────────
+  // ─────────────────────────────────────
+  // 읽고 쓰기 · 한국의 가을과 겨울
+  // ─────────────────────────────────────
 
   {
+    code: 'word_last_year_noun',
+    senseKey: 'time-last-year',
     korean: '작년',
-    uz: 'o‘tgan yil',
-    en: 'last year',
-    ru: 'прошлый год',
-    emoji: '⏮️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '올해의 바로 전 해',
+      uz: 'o‘tgan yil',
+      en: 'last year',
+      ru: 'прошлый год',
+    },
+
+    examples: [
+      {
+        korean: '작년에 한국에 왔어요.',
+        translations: {
+          ko: '작년에 한국에 왔습니다.',
+          uz: 'O‘tgan yili Koreyaga keldim.',
+          en: 'I came to Korea last year.',
+          ru: 'В прошлом году я приехал в Корею.',
+        },
+      },
+      {
+        korean: '작년 겨울에는 눈이 많이 왔어요.',
+        translations: {
+          ko: '작년 겨울에는 눈이 많이 왔습니다.',
+          uz: 'O‘tgan qishda ko‘p qor yog‘di.',
+          en: 'It snowed a lot last winter.',
+          ru: 'Прошлой зимой выпало много снега.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '작년',
+      romanization: 'jangnyeon',
+      ttsText: '작년',
+    },
+
+    media: {
+      emoji: '⏮️',
+      imageUrl: 'https://cdn.korio.app/words/jangnyeon.webp',
+      imageAlt: {
+        ko: '지난해를 나타내는 달력',
+        uz: 'o‘tgan yilni ko‘rsatuvchi taqvim',
+        en: 'a calendar representing last year',
+        ru: 'календарь, обозначающий прошлый год',
+      },
+    },
+
+    tags: ['time', 'year', 'past', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "행동이 일어난 시기를 나타낼 때 보통 '작년에'라고 사용해요.",
+      uz: "Harakat vaqtini aytishda ko‘pincha '작년에' shaklida ishlatiladi.",
+      en: 'Often used as 작년에 when describing something that happened last year.',
+      ru: 'Часто используется в форме «작년에» для событий прошлого года.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_always_adverb',
+    senseKey: 'frequency-always',
     korean: '항상',
-    uz: 'har doim',
-    en: 'always',
-    ru: 'всегда',
-    emoji: '🔁',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+
+    meaning: {
+      ko: '언제나 변함없이',
+      uz: 'har doim',
+      en: 'always',
+      ru: 'всегда',
+    },
+
+    examples: [
+      {
+        korean: '가을에는 항상 날씨가 좋아요.',
+        translations: {
+          ko: '가을에는 항상 날씨가 좋습니다.',
+          uz: 'Kuzda ob-havo har doim yaxshi.',
+          en: 'The weather is always nice in autumn.',
+          ru: 'Осенью погода всегда хорошая.',
+        },
+      },
+      {
+        korean: '저는 항상 아침에 운동해요.',
+        translations: {
+          ko: '저는 항상 아침에 운동합니다.',
+          uz: 'Men har doim ertalab mashq qilaman.',
+          en: 'I always exercise in the morning.',
+          ru: 'Я всегда занимаюсь спортом утром.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '항상',
+      romanization: 'hangsang',
+      ttsText: '항상',
+    },
+
+    media: {
+      emoji: '🔁',
+      imageUrl: 'https://cdn.korio.app/words/hangsang.webp',
+      imageAlt: {
+        ko: '계속 반복되는 것을 나타내는 화살표',
+        uz: 'doimiy takrorlanishni bildiruvchi belgilar',
+        en: 'arrows representing something that always repeats',
+        ru: 'стрелки, обозначающие постоянное повторение',
+      },
+    },
+
+    tags: ['adverb', 'frequency', 'time', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '빈도 100%에 가까운 행동이나 상태를 표현할 때 사용해요.',
+      uz: 'Deyarli doim sodir bo‘ladigan ish yoki holatni ifodalaydi.',
+      en: 'Used for actions or states that occur nearly all the time.',
+      ru: 'Используется для действий или состояний, происходящих практически всегда.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_first_time_noun',
+    senseKey: 'time-first-time',
     korean: '처음',
-    uz: 'birinchi marta',
-    en: 'for the first time',
-    ru: 'в первый раз',
-    emoji: '1️⃣',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 일이나 과정이 시작되는 첫 때',
+      uz: 'birinchi marta, avval',
+      en: 'first, first time',
+      ru: 'первый раз, начало',
+    },
+
+    examples: [
+      {
+        korean: '처음 한국에 왔어요.',
+        translations: {
+          ko: '처음으로 한국에 왔습니다.',
+          uz: 'Koreyaga birinchi marta keldim.',
+          en: 'I came to Korea for the first time.',
+          ru: 'Я впервые приехал в Корею.',
+        },
+      },
+      {
+        korean: '처음 눈을 봤어요.',
+        translations: {
+          ko: '처음으로 눈을 봤습니다.',
+          uz: 'Birinchi marta qor ko‘rdim.',
+          en: 'I saw snow for the first time.',
+          ru: 'Я впервые увидел снег.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '처음',
+      romanization: 'cheoeum',
+      ttsText: '처음',
+    },
+
+    media: {
+      emoji: '1️⃣',
+      imageUrl: 'https://cdn.korio.app/words/cheoeum.webp',
+      imageAlt: {
+        ko: '첫 번째를 나타내는 숫자 1',
+        uz: 'birinchi marta ma’nosini bildiruvchi 1',
+        en: 'number one representing the first time',
+        ru: 'цифра один, обозначающая первый раз',
+      },
+    },
+
+    tags: ['time', 'experience', 'sequence', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'처음', '처음으로' 모두 처음 경험하는 일을 말할 때 자주 사용해요.",
+      uz: "'처음' va '처음으로' birinchi tajribani ifodalashda ishlatiladi.",
+      en: '처음 and 처음으로 are commonly used when talking about a first experience.',
+      ru: '처음 и 처음으로 часто используются для описания первого опыта.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sky_noun',
+    senseKey: 'nature-sky',
     korean: '하늘',
-    uz: 'osmon',
-    en: 'sky',
-    ru: 'небо',
-    emoji: '🌌',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '땅 위로 높이 펼쳐져 보이는 공간',
+      uz: 'osmon',
+      en: 'sky',
+      ru: 'небо',
+    },
+
+    examples: [
+      {
+        korean: '가을에는 하늘이 맑아요.',
+        translations: {
+          ko: '가을에는 하늘이 맑습니다.',
+          uz: 'Kuzda osmon musaffo bo‘ladi.',
+          en: 'The sky is clear in autumn.',
+          ru: 'Осенью небо ясное.',
+        },
+      },
+      {
+        korean: '오늘 하늘이 아주 예뻐요.',
+        translations: {
+          ko: '오늘 하늘이 매우 아름답습니다.',
+          uz: 'Bugun osmon juda chiroyli.',
+          en: 'The sky is very beautiful today.',
+          ru: 'Сегодня небо очень красивое.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '하늘',
+      romanization: 'haneul',
+      ttsText: '하늘',
+    },
+
+    media: {
+      emoji: '🌌',
+      imageUrl: 'https://cdn.korio.app/words/haneul.webp',
+      imageAlt: {
+        ko: '맑고 푸른 하늘',
+        uz: 'musaffo ko‘k osmon',
+        en: 'a clear blue sky',
+        ru: 'ясное голубое небо',
+      },
+    },
+
+    tags: ['nature', 'weather', 'sky', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'하늘이 맑다', '하늘이 흐리다'처럼 날씨 표현과 함께 많이 사용해요.",
+      uz: "'하늘이 맑다', '하늘이 흐리다' kabi ob-havo ifodalari bilan ishlatiladi.",
+      en: 'Frequently used with weather descriptions such as 맑다 and 흐리다.',
+      ru: 'Часто используется с описаниями погоды 맑다 и 흐리다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_snowman_noun',
+    senseKey: 'winter-snowman',
     korean: '눈사람',
-    uz: 'qor odam',
-    en: 'snowman',
-    ru: 'снеговик',
-    emoji: '⛄',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '눈을 뭉쳐 사람 모양으로 만든 것',
+      uz: 'qor odam',
+      en: 'snowman',
+      ru: 'снеговик',
+    },
+
+    examples: [
+      {
+        korean: '겨울에 눈사람을 만들어요.',
+        translations: {
+          ko: '겨울에 눈사람을 만듭니다.',
+          uz: 'Qishda qor odam yasayman.',
+          en: 'I make a snowman in winter.',
+          ru: 'Зимой я леплю снеговика.',
+        },
+      },
+      {
+        korean: '친구하고 같이 눈사람을 만들었어요.',
+        translations: {
+          ko: '친구와 함께 눈사람을 만들었습니다.',
+          uz: 'Do‘stim bilan birga qor odam yasadim.',
+          en: 'I made a snowman with my friend.',
+          ru: 'Я слепил снеговика вместе с другом.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '눈사람',
+      romanization: 'nunsaram',
+      ttsText: '눈사람',
+    },
+
+    media: {
+      emoji: '⛄',
+      imageUrl: 'https://cdn.korio.app/words/nunsaram.webp',
+      imageAlt: {
+        ko: '눈으로 만든 눈사람',
+        uz: 'qordan yasalgan qor odam',
+        en: 'a snowman made of snow',
+        ru: 'снеговик из снега',
+      },
+    },
+
+    tags: ['winter', 'snow', 'object', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "보통 '눈사람을 만들다'라는 표현으로 사용해요.",
+      uz: "Odatda '눈사람을 만들다' birikmasida ishlatiladi.",
+      en: 'Commonly used in the expression 눈사람을 만들다.',
+      ru: 'Обычно используется в выражении «눈사람을 만들다».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_make_verb',
+    senseKey: 'action-make-create',
     korean: '만들다',
-    uz: 'yasamoq',
-    en: 'to make',
-    ru: 'делать / создавать',
-    emoji: '🛠️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '재료를 이용하거나 일을 해서 새로운 것을 생기게 하다',
+      uz: 'yasamoq, tayyorlamoq',
+      en: 'to make, to create',
+      ru: 'делать, создавать',
+    },
+
+    examples: [
+      {
+        korean: '눈사람을 만들어요.',
+        translations: {
+          ko: '눈사람을 만듭니다.',
+          uz: 'Qor odam yasayman.',
+          en: 'I make a snowman.',
+          ru: 'Я леплю снеговика.',
+        },
+      },
+      {
+        korean: '친구하고 같이 음식을 만들어요.',
+        translations: {
+          ko: '친구와 함께 음식을 만듭니다.',
+          uz: 'Do‘stim bilan birga ovqat tayyorlayman.',
+          en: 'I make food with my friend.',
+          ru: 'Я готовлю еду вместе с другом.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '만들다',
+      romanization: 'mandeulda',
+      ttsText: '만들다',
+    },
+
+    media: {
+      emoji: '🛠️',
+      imageUrl: 'https://cdn.korio.app/words/mandeulda.webp',
+      imageAlt: {
+        ko: '무언가를 만드는 사람',
+        uz: 'biror narsa yasayotgan odam',
+        en: 'a person making something',
+        ru: 'человек, создающий что-либо',
+      },
+    },
+
+    tags: ['verb', 'creation', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'음식을 만들다', '눈사람을 만들다'처럼 만드는 대상을 목적어로 사용해요.",
+      uz: "'음식을 만들다', '눈사람을 만들다' kabi yasaladigan narsa bilan ishlatiladi.",
+      en: 'Used with the thing being made as the object.',
+      ru: 'Используется с создаваемым предметом как дополнением.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 과제 · 여행 준비 ─────────
+  // ─────────────────────────────────────
+  // 과제 · 여행 준비
+  // ─────────────────────────────────────
 
   {
+    code: 'word_swim_verb',
+    senseKey: 'action-swim',
     korean: '수영하다',
-    uz: 'suzmoq',
-    en: 'to swim',
-    ru: 'плавать',
-    emoji: '🏊',
+    partOfSpeech: WordPartOfSpeech.VERB,
+
+    meaning: {
+      ko: '물속에서 몸을 움직여 나아가다',
+      uz: 'suzmoq',
+      en: 'to swim',
+      ru: 'плавать',
+    },
+
+    examples: [
+      {
+        korean: '여름에 수영해요.',
+        translations: {
+          ko: '여름에 수영합니다.',
+          uz: 'Yozda suzaman.',
+          en: 'I swim in summer.',
+          ru: 'Летом я плаваю.',
+        },
+      },
+      {
+        korean: '바다에서 수영하고 싶어요.',
+        translations: {
+          ko: '바다에서 수영하고 싶습니다.',
+          uz: 'Dengizda suzishni xohlayman.',
+          en: 'I want to swim in the sea.',
+          ru: 'Я хочу плавать в море.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '수영하다',
+      romanization: 'suyeonghada',
+      ttsText: '수영하다',
+    },
+
+    media: {
+      emoji: '🏊',
+      imageUrl: 'https://cdn.korio.app/words/suyeonghada.webp',
+      imageAlt: {
+        ko: '물에서 수영하는 사람',
+        uz: 'suvda suzayotgan odam',
+        en: 'a person swimming',
+        ru: 'плавающий человек',
+      },
+    },
+
+    tags: ['verb', 'sports', 'summer', 'activity', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'수영장에서 수영하다', '바다에서 수영하다'처럼 장소와 함께 사용해요.",
+      uz: "'수영장에서 수영하다', '바다에서 수영하다' kabi joy bilan ishlatiladi.",
+      en: 'Used with locations such as a swimming pool or the sea.',
+      ru: 'Используется с местом, например бассейном или морем.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_mango_noun',
+    senseKey: 'fruit-mango',
     korean: '망고',
-    uz: 'mango',
-    en: 'mango',
-    ru: 'манго',
-    emoji: '🥭',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '노란 과육이 달고 부드러운 열대 과일',
+      uz: 'mango',
+      en: 'mango',
+      ru: 'манго',
+    },
+
+    examples: [
+      {
+        korean: '여름에 망고를 많이 먹어요.',
+        translations: {
+          ko: '여름에 망고를 많이 먹습니다.',
+          uz: 'Yozda ko‘p mango yeyman.',
+          en: 'I eat a lot of mangoes in summer.',
+          ru: 'Летом я ем много манго.',
+        },
+      },
+      {
+        korean: '망고가 아주 맛있어요.',
+        translations: {
+          ko: '망고가 매우 맛있습니다.',
+          uz: 'Mango juda mazali.',
+          en: 'The mango is very delicious.',
+          ru: 'Манго очень вкусное.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '망고',
+      romanization: 'manggo',
+      ttsText: '망고',
+    },
+
+    media: {
+      emoji: '🥭',
+      imageUrl: 'https://cdn.korio.app/words/manggo.webp',
+      imageAlt: {
+        ko: '노란 망고 과일',
+        uz: 'sariq mango mevasi',
+        en: 'a yellow mango fruit',
+        ru: 'жёлтый плод манго',
+      },
+    },
+
+    tags: ['food', 'fruit', 'travel', 'summer', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'망고를 먹다', '망고가 맛있다'처럼 사용해요.",
+      uz: "'망고를 먹다', '망고가 맛있다' kabi ishlatiladi.",
+      en: 'Commonly used with 먹다 and 맛있다.',
+      ru: 'Часто используется с 먹다 и 맛있다.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_sunglasses_noun',
+    senseKey: 'accessory-sunglasses',
     korean: '선글라스',
-    uz: 'quyosh ko‘zoynagi',
-    en: 'sunglasses',
-    ru: 'солнцезащитные очки',
-    emoji: '🕶️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '강한 햇빛으로부터 눈을 보호하기 위해 쓰는 색이 있는 안경',
+      uz: 'quyosh ko‘zoynagi',
+      en: 'sunglasses',
+      ru: 'солнцезащитные очки',
+    },
+
+    examples: [
+      {
+        korean: '여행할 때 선글라스를 가져가요.',
+        translations: {
+          ko: '여행할 때 선글라스를 가져갑니다.',
+          uz: 'Sayohatga quyosh ko‘zoynagini olib boraman.',
+          en: 'I take sunglasses when I travel.',
+          ru: 'В путешествие я беру солнцезащитные очки.',
+        },
+      },
+      {
+        korean: '날씨가 맑아서 선글라스를 써요.',
+        translations: {
+          ko: '날씨가 맑아서 선글라스를 씁니다.',
+          uz: 'Havo ochiq bo‘lgani uchun quyosh ko‘zoynagini taqaman.',
+          en: 'I wear sunglasses because the weather is clear.',
+          ru: 'Я надеваю солнцезащитные очки, потому что погода ясная.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '선글라스',
+      romanization: 'seongeullaseu',
+      ttsText: '선글라스',
+    },
+
+    media: {
+      emoji: '🕶️',
+      imageUrl: 'https://cdn.korio.app/words/seongeullaseu.webp',
+      imageAlt: {
+        ko: '햇빛을 막는 선글라스',
+        uz: 'quyoshdan himoya qiluvchi ko‘zoynak',
+        en: 'sunglasses protecting the eyes from sunlight',
+        ru: 'солнцезащитные очки',
+      },
+    },
+
+    tags: ['object', 'accessory', 'travel', 'summer', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "안경과 마찬가지로 한국어에서는 보통 '선글라스를 쓰다'라고 해요.",
+      uz: "Koreys tilida odatda '선글라스를 쓰다' deyiladi.",
+      en: "The usual expression is 선글라스를 쓰다, 'to wear sunglasses.'",
+      ru: 'Обычно используется выражение «선글라스를 쓰다» — «носить солнцезащитные очки».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_hand_fan_noun',
+    senseKey: 'object-hand-fan',
     korean: '부채',
-    uz: 'yelpig‘ich',
-    en: 'hand fan',
-    ru: 'веер',
-    emoji: '🪭',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '손으로 흔들어 바람을 일으키는 물건',
+      uz: 'yelpig‘ich',
+      en: 'hand fan',
+      ru: 'веер',
+    },
+
+    examples: [
+      {
+        korean: '여름에는 부채를 사용해요.',
+        translations: {
+          ko: '여름에는 부채를 사용합니다.',
+          uz: 'Yozda yelpig‘ich ishlataman.',
+          en: 'I use a hand fan in summer.',
+          ru: 'Летом я пользуюсь веером.',
+        },
+      },
+      {
+        korean: '날씨가 더워서 부채가 필요해요.',
+        translations: {
+          ko: '날씨가 더워서 부채가 필요합니다.',
+          uz: 'Havo issiq bo‘lgani uchun yelpig‘ich kerak.',
+          en: 'I need a fan because the weather is hot.',
+          ru: 'Мне нужен веер, потому что жарко.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '부채',
+      romanization: 'buchae',
+      ttsText: '부채',
+    },
+
+    media: {
+      emoji: '🪭',
+      imageUrl: 'https://cdn.korio.app/words/buchae.webp',
+      imageAlt: {
+        ko: '손으로 펼쳐 사용하는 부채',
+        uz: 'qo‘lda ochib ishlatiladigan yelpig‘ich',
+        en: 'an open handheld fan',
+        ru: 'раскрытый ручной веер',
+      },
+    },
+
+    tags: ['object', 'summer', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '더울 때 손으로 흔들어 바람을 만드는 물건이에요.',
+      uz: 'Issiqda qo‘l bilan yelpib shamol hosil qilish uchun ishlatiladi.',
+      en: 'A handheld object used to create a breeze in hot weather.',
+      ru: 'Предмет, которым обмахиваются в жаркую погоду.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_slippers_noun',
+    senseKey: 'footwear-slippers',
     korean: '슬리퍼',
-    uz: 'shippak',
-    en: 'slippers',
-    ru: 'тапочки / шлёпанцы',
-    emoji: '🩴',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '쉽게 신고 벗을 수 있는 편한 신발',
+      uz: 'shippak',
+      en: 'slippers, flip-flops',
+      ru: 'тапочки, шлёпанцы',
+    },
+
+    examples: [
+      {
+        korean: '여행할 때 슬리퍼를 가져가요.',
+        translations: {
+          ko: '여행할 때 슬리퍼를 가져갑니다.',
+          uz: 'Sayohatga shippak olib boraman.',
+          en: 'I take slippers when I travel.',
+          ru: 'В путешествие я беру шлёпанцы.',
+        },
+      },
+      {
+        korean: '바다에서 슬리퍼를 신어요.',
+        translations: {
+          ko: '바다에서 슬리퍼를 신습니다.',
+          uz: 'Dengizda shippak kiyaman.',
+          en: 'I wear flip-flops at the beach.',
+          ru: 'На море я ношу шлёпанцы.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '슬리퍼',
+      romanization: 'seullipeo',
+      ttsText: '슬리퍼',
+    },
+
+    media: {
+      emoji: '🩴',
+      imageUrl: 'https://cdn.korio.app/words/seullipeo.webp',
+      imageAlt: {
+        ko: '간편하게 신는 슬리퍼',
+        uz: 'oson kiyiladigan shippak',
+        en: 'a pair of easy-to-wear slippers',
+        ru: 'пара лёгких шлёпанцев',
+      },
+    },
+
+    tags: ['object', 'footwear', 'travel', 'summer', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "신발이기 때문에 '슬리퍼를 신다'라고 표현해요.",
+      uz: "Oyoq kiyimi bo‘lgani uchun '슬리퍼를 신다' deyiladi.",
+      en: 'Because it is footwear, the verb 신다 is used: 슬리퍼를 신다.',
+      ru: 'Поскольку это обувь, используется глагол 신다: «슬리퍼를 신다».',
+    },
+
+    isCore: true,
+    isActive: true,
   },
 
-  // ───────── 문화 산책 · 계절 음식 ─────────
+  // ─────────────────────────────────────
+  // 문화 산책 · 계절 음식
+  // ─────────────────────────────────────
 
   {
+    code: 'word_samgyetang_noun',
+    senseKey: 'food-samgyetang',
     korean: '삼계탕',
-    uz: 'samgyetang (jenshenli tovuq sho‘rvasi)',
-    en: 'samgyetang / ginseng chicken soup',
-    ru: 'самгетхан / куриный суп с женьшенем',
-    emoji: '🍲',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '닭 안에 인삼과 찹쌀 등을 넣고 끓인 한국 음식',
+      uz: 'jenshen va guruch bilan pishiriladigan koreys tovuq sho‘rvasi, samgyetang',
+      en: 'Korean ginseng chicken soup, samgyetang',
+      ru: 'корейский куриный суп с женьшенем, самгетхан',
+    },
+
+    examples: [
+      {
+        korean: '한국에서는 여름에 삼계탕을 많이 먹어요.',
+        translations: {
+          ko: '한국에서는 여름에 삼계탕을 많이 먹습니다.',
+          uz: 'Koreyada yozda samgyetang ko‘p yeyiladi.',
+          en: 'People in Korea eat a lot of samgyetang in summer.',
+          ru: 'В Корее летом часто едят самгетхан.',
+        },
+      },
+      {
+        korean: '삼계탕이 맛있어요.',
+        translations: {
+          ko: '삼계탕이 맛있습니다.',
+          uz: 'Samgyetang mazali.',
+          en: 'Samgyetang is delicious.',
+          ru: 'Самгетхан вкусный.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '삼계탕',
+      romanization: 'samgyetang',
+      ttsText: '삼계탕',
+    },
+
+    media: {
+      emoji: '🍲',
+      imageUrl: 'https://cdn.korio.app/words/samgyetang.webp',
+      imageAlt: {
+        ko: '닭과 인삼이 들어간 삼계탕',
+        uz: 'tovuq va jenshenli samgyetang',
+        en: 'samgyetang with chicken and ginseng',
+        ru: 'самгетхан с курицей и женьшенем',
+      },
+    },
+
+    tags: ['food', 'korean-food', 'korean-culture', 'summer', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '한국에서는 더운 여름에 몸을 보양하기 위해 먹는 대표적인 음식으로 알려져 있어요.',
+      uz: 'Koreyada issiq yozda quvvat olish uchun yeyiladigan mashhur taom sifatida tanilgan.',
+      en: 'In Korea, it is well known as a nourishing dish eaten during the hot summer.',
+      ru: 'В Корее это известное питательное блюдо, которое часто едят жарким летом.',
+    },
+
+    isCore: true,
+    isActive: true,
   },
-];
+] satisfies readonly WordSeedEntry[];
 
 export const UNIT7_QUESTIONS = {
   // ══════════════════════════════════════════════════════════

@@ -977,7 +977,7 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.text,
       fontWeight: "500",
     },
-    quickAccessBottomSpace: { height: 210 },
+    quickAccessBottomSpace: { height: 180 },
   });
 function setUserData(arg0: any): any {
   throw new Error("Function not implemented.");

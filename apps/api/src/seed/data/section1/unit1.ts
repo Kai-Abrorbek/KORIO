@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 1 · 유닛 1 — 안녕하세요?
  * 출처: 서울대 한국어 1A 1과
@@ -138,10 +139,22 @@ const nativeText = (
   ru: string,
 ): Unit1I18nText => ({ ko, uz, en, ru });
 
-function normalizeBuilderAnswer(value: string): string {
-  return value
-    .split(' — ')[0]
-    .replace(/[.,!?;:…()"“”«»]/g, '')
+function normalizeBuilderAnswer(
+  value: string,
+  preserveSingleWordDash = false,
+): string {
+  const [beforeDash, ...afterDash] = value.split(' — ');
+  const beforeDashWordCount = beforeDash
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const normalizedSource =
+    afterDash.length > 0 && (!preserveSingleWordDash || beforeDashWordCount > 1)
+      ? beforeDash
+      : value;
+
+  return normalizedSource
+    .replace(/[.,!?;:…()"“”«»—–]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -151,14 +164,21 @@ function normalizeBuilderTranslations(value: Unit1I18nText): Unit1I18nText {
     ko: normalizeBuilderAnswer(value.ko),
     uz: normalizeBuilderAnswer(value.uz),
     en: normalizeBuilderAnswer(value.en),
-    ru: normalizeBuilderAnswer(value.ru),
+    // Russian commonly uses an em dash as the present-tense copula:
+    // "Майкл — журналист". Do not mistake it for an annotation separator.
+    ru: normalizeBuilderAnswer(value.ru, true),
   };
 }
 
-function shuffledBuilderOptions(answer: string, distractors: string[]): string[] {
+function shuffledBuilderOptions(
+  answer: string,
+  distractors: string[],
+): string[] {
   const words = normalizeBuilderAnswer(answer).split(' ').filter(Boolean);
   if (words.length < 2) {
-    throw new Error(`조립형 현지어 정답은 두 단어 이상이어야 합니다: ${answer}`);
+    throw new Error(
+      `조립형 현지어 정답은 두 단어 이상이어야 합니다: ${answer}`,
+    );
   }
 
   const extras = distractors
@@ -821,7 +841,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '안녕하세요 — 만났을 때 하는 인사',
-      uz: "Salom — uchrashganda aytiladigan salomlashuv",
+      uz: 'Salom — uchrashganda aytiladigan salomlashuv',
       en: 'Hello — the greeting you use when you meet someone',
       ru: 'Здравствуйте — приветствие при встрече',
     },
@@ -917,7 +937,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '가세요/계세요'],
     hint: {
       ko: '친구가 "가요". 그래서 "가세요"예요.',
-      uz: "Do'st \"ketyapti\". Shuning uchun \"가세요\".",
+      uz: 'Do\'st "ketyapti". Shuning uchun "가세요".',
       en: 'Your friend is going, so it is 가세요.',
       ru: 'Друг уходит, поэтому 가세요.',
     },
@@ -944,7 +964,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '가세요/계세요'],
     hint: {
       ko: '선생님이 교실에 "계세요". 떠나는 건 나예요.',
-      uz: "O'qituvchi sinfda \"qoladi\". Ketayotgan — men.",
+      uz: 'O\'qituvchi sinfda "qoladi". Ketayotgan — men.',
       en: 'The teacher stays in the room. You are the one leaving.',
       ru: 'Учитель остаётся в классе. Уходите вы.',
     },
@@ -1091,7 +1111,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '어순'],
     hint: {
       ko: '손님이 나가요. 주인은 가게에 남아요.',
-      uz: 'Mijoz chiqib ketyapti, do\'kon egasi qoladi.',
+      uz: "Mijoz chiqib ketyapti, do'kon egasi qoladi.",
       en: 'The customer is leaving; the owner stays in the shop.',
       ru: 'Клиент уходит, хозяин остаётся в магазине.',
     },
@@ -1122,7 +1142,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '가세요/계세요'],
     hint: {
       ko: '집에 남아 있는 그림을 찾으세요.',
-      uz: 'Uyda qolayotganini ko\'rsatuvchi rasmni toping.',
+      uz: "Uyda qolayotganini ko'rsatuvchi rasmni toping.",
       en: 'Find the picture of someone staying at home.',
       ru: 'Найдите картинку, где человек остаётся дома.',
     },
@@ -1149,7 +1169,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '말하기'],
     hint: {
       ko: '나가는 사람은 나예요. 선생님은 교실에 남아요.',
-      uz: 'Ketayotgan — men. O\'qituvchi sinfda qoladi.',
+      uz: "Ketayotgan — men. O'qituvchi sinfda qoladi.",
       en: 'You are the one leaving; the teacher stays.',
       ru: 'Уходите вы, учитель остаётся.',
     },
@@ -1278,7 +1298,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['네/아니요', '대답'],
     hint: {
       ko: '뒷부분을 먼저 읽어보세요. 맞다고 했나요, 아니라고 했나요?',
-      uz: 'Avval ikkinchi qismni o\'qing: tasdiqlanyaptimi yoki inkor qilinyaptimi?',
+      uz: "Avval ikkinchi qismni o'qing: tasdiqlanyaptimi yoki inkor qilinyaptimi?",
       en: 'Read the second half first — is it confirming or denying?',
       ru: 'Сначала прочитайте вторую часть — подтверждение или отрицание?',
     },
@@ -1297,7 +1317,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['안녕히 계세요'],
     answerTranslation: {
       ko: '안녕히 계세요 — 가게에 남는 주인에게',
-      uz: 'Xayr — do\'konda qoladigan egasiga',
+      uz: "Xayr — do'konda qoladigan egasiga",
       en: 'Goodbye — to the owner who stays in the shop',
       ru: 'До свидания — хозяину, который остаётся в магазине',
     },
@@ -1305,7 +1325,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '말하기'],
     hint: {
       ko: '주인은 가게에 남아요. 나가는 건 나예요.',
-      uz: 'Egasi do\'konda qoladi, ketayotgan — men.',
+      uz: "Egasi do'konda qoladi, ketayotgan — men.",
       en: 'The owner stays in the shop; you are the one going out.',
       ru: 'Хозяин остаётся в магазине, уходите вы.',
     },
@@ -1364,7 +1384,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '말하기'],
     hint: {
       ko: '만-나-서 반-가-워-요. 천천히 두 덩어리로 말해요.',
-      uz: 'Man-na-so ban-ga-wo-yo — ikki bo\'lakka bo\'lib ayting.',
+      uz: "Man-na-so ban-ga-wo-yo — ikki bo'lakka bo'lib ayting.",
       en: 'man-na-seo / ban-ga-wo-yo — say it in two chunks.',
       ru: 'ман-на-со / бан-га-во-ё — говорите двумя частями.',
     },
@@ -1416,7 +1436,12 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '안녕하세요? 저는 나나예요.' },
       { speaker: 'npc', text: '만나서 반가워요, 나나 씨.' },
     ],
-    options: ['안녕히 가세요.', '반가워요, 마이클 씨.', '아니요.', '네, 가세요.'],
+    options: [
+      '안녕히 가세요.',
+      '반가워요, 마이클 씨.',
+      '아니요.',
+      '네, 가세요.',
+    ],
     answer: '반가워요, 마이클 씨.',
     explanation: {
       ko: '"만나서 반가워요"에는 "반가워요"로 짧게 답해요. 이름 뒤에는 꼭 "씨"를 붙여요.',
@@ -1461,7 +1486,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '어순'],
     hint: {
       ko: '이유가 먼저, 기분이 나중이에요.',
-      uz: 'Avval sabab, keyin his-tuyg\'u.',
+      uz: "Avval sabab, keyin his-tuyg'u.",
       en: 'The reason comes first, the feeling second.',
       ru: 'Сначала причина, потом чувство.',
     },
@@ -1514,7 +1539,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '씨 — 이름 뒤에 붙이는 높임 호칭',
-      uz: '씨 — ism ortidan qo\'shiladigan hurmatli murojaat',
+      uz: "씨 — ism ortidan qo'shiladigan hurmatli murojaat",
       en: '씨 — polite title placed after a name',
       ru: '씨 — вежливое обращение после имени',
     },
@@ -1522,7 +1547,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['호칭', '씨'],
     hint: {
       ko: '한 글자예요. 마이클 뒤에 붙여요.',
-      uz: 'Bir bo\'g\'in. Maykl ortidan qo\'shiladi.',
+      uz: "Bir bo'g'in. Maykl ortidan qo'shiladi.",
       en: 'One syllable, placed right after Michael.',
       ru: 'Один слог, ставится сразу после Майкл.',
     },
@@ -1589,10 +1614,13 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '안녕하세요? 마이클 씨예요?' },
+    dialogLines: [{ speaker: 'npc', text: '안녕하세요? 마이클 씨예요?' }],
+    options: [
+      '네, 마이클이에요.',
+      '안녕히 가세요.',
+      '만나서 반가워요.',
+      '아니요, 네.',
     ],
-    options: ['네, 마이클이에요.', '안녕히 가세요.', '만나서 반가워요.', '아니요, 네.'],
     answer: '네, 마이클이에요.',
     explanation: {
       ko: '"마이클 씨예요?"는 확인하는 질문이에요. 맞으면 "네"로 답하고 이름을 말해요.',
@@ -1627,14 +1655,18 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '만나서 반가워요',
     choices: [
       { text: '안녕히 계세요', label: 'Xayr (qoluvchiga)', emoji: '🏠' },
-      { text: '만나서 반가워요', label: 'Tanishganimdan xursandman', emoji: '🤝' },
+      {
+        text: '만나서 반가워요',
+        label: 'Tanishganimdan xursandman',
+        emoji: '🤝',
+      },
       { text: '아니요', label: "Yo'q", emoji: '🙅' },
       { text: '안녕히 가세요', label: 'Xayr (ketuvchiga)', emoji: '🚶' },
     ],
     acceptedAnswers: [],
     answerTranslation: {
       ko: '만나서 반가워요 — 처음 만나 악수할 때',
-      uz: 'Tanishganimdan xursandman — qo\'l berib ko\'rishganda',
+      uz: "Tanishganimdan xursandman — qo'l berib ko'rishganda",
       en: 'Nice to meet you — when shaking hands on first meeting',
       ru: 'Рад познакомиться — при рукопожатии на первой встрече',
     },
@@ -1642,7 +1674,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '반가워요'],
     hint: {
       ko: '두 사람이 손을 잡은 그림을 찾으세요.',
-      uz: 'Ikki kishi qo\'l berib ko\'rishayotgan rasmni toping.',
+      uz: "Ikki kishi qo'l berib ko'rishayotgan rasmni toping.",
       en: 'Find the picture of two people shaking hands.',
       ru: 'Найдите картинку с рукопожатием.',
     },
@@ -1734,7 +1766,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['네/아니요', '말하기'],
     hint: {
       ko: '아-니-요. 세 글자를 또박또박 말해요.',
-      uz: 'A-ni-yo — uch bo\'g\'inni aniq ayting.',
+      uz: "A-ni-yo — uch bo'g'inni aniq ayting.",
       en: 'a-ni-yo — say all three syllables clearly.',
       ru: 'а-ни-ё — произнесите все три слога чётко.',
     },
@@ -1760,7 +1792,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '어순', '호칭'],
     hint: {
       ko: '부르는 말이 먼저 와요. 선생님은 교실에 남아요.',
-      uz: 'Avval murojaat keladi. O\'qituvchi sinfda qoladi.',
+      uz: "Avval murojaat keladi. O'qituvchi sinfda qoladi.",
       en: 'The person you address comes first. The teacher stays in the room.',
       ru: 'Сначала обращение. Учитель остаётся в классе.',
     },
@@ -1780,7 +1812,12 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '저도 반가워요, 켈리 씨.' },
       { speaker: 'npc', text: '그럼 내일 봐요. 안녕히 가세요.' },
     ],
-    options: ['안녕히 가세요.', '안녕히 계세요.', '만나서 반가워요.', '아니요.'],
+    options: [
+      '안녕히 가세요.',
+      '안녕히 계세요.',
+      '만나서 반가워요.',
+      '아니요.',
+    ],
     answer: '안녕히 가세요.',
     explanation: {
       ko: '길에서 헤어져요. 두 사람 다 각자 가니까 서로 "안녕히 가세요"라고 해요.',
@@ -1905,7 +1942,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '안녕',
     explanation: {
       ko: '친구끼리는 "안녕"만 써요. "안녕하세요"는 높임말이라 친한 친구에게는 어색해요.',
-      uz: "Do'stlar orasida faqat \"안녕\" ishlatiladi. \"안녕하세요\" hurmat shakli.",
+      uz: 'Do\'stlar orasida faqat "안녕" ishlatiladi. "안녕하세요" hurmat shakli.',
       en: 'Between close friends just 안녕. 안녕하세요 is the polite form.',
       ru: 'Между друзьями — просто 안녕. 안녕하세요 — вежливая форма.',
     },
@@ -2098,7 +2135,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['인사말', '반말', '어순'],
     hint: {
       ko: '친구예요. "안녕히 가세요"는 너무 딱딱해요.',
-      uz: "Bu do'st — \"안녕히 가세요\" juda rasmiy bo'ladi.",
+      uz: 'Bu do\'st — "안녕히 가세요" juda rasmiy bo\'ladi.',
       en: 'This is a friend — 안녕히 가세요 would be too stiff.',
       ru: 'Это друг — 안녕히 가세요 звучало бы слишком официально.',
     },
@@ -2208,7 +2245,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '오랜만이야.',
     explanation: {
       ko: '친구끼리 반말로 이야기하고 있어요. 여기에 "-습니다"나 "-세요"를 쓰면 갑자기 어색해져요.',
-      uz: "Do'stlar norasmiy gaplashyapti. Bu yerda \"-습니다\" yoki \"-세요\" ishlatilsa g'alati bo'ladi.",
+      uz: 'Do\'stlar norasmiy gaplashyapti. Bu yerda "-습니다" yoki "-세요" ishlatilsa g\'alati bo\'ladi.',
       en: 'The friends are speaking casually — switching to -습니다 or -세요 would feel odd.',
       ru: 'Друзья говорят неформально — переход на -습니다 или -세요 прозвучал бы странно.',
     },
@@ -2216,7 +2253,7 @@ const UNIT1_BASE_QUESTIONS = {
     answerTranslation: {
       ko: '오랜만이야 — 오랜만에 만난 친구에게',
       uz: "Ko'rishmaganimizga ancha bo'ldi — do'stga",
-      en: "Long time no see — to a friend",
+      en: 'Long time no see — to a friend',
       ru: 'Давно не виделись — другу',
     },
     difficulty: 3,
@@ -2416,7 +2453,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['호칭', '인사 예절'],
     hint: {
       ko: '김민수에서 성은 앞 한 글자예요.',
-      uz: '김민수 da familiya — birinchi bo\'g\'in.',
+      uz: "김민수 da familiya — birinchi bo'g'in.",
       en: 'In 김민수 the family name is the first syllable.',
       ru: 'В 김민수 фамилия — первый слог.',
     },
@@ -2456,10 +2493,13 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '안녕하세요? 저는 김민수예요.' },
+    dialogLines: [{ speaker: 'npc', text: '안녕하세요? 저는 김민수예요.' }],
+    options: [
+      '김 씨, 안녕하세요?',
+      '민수 씨, 안녕하세요?',
+      '씨 민수, 안녕하세요?',
+      '안녕히 가세요.',
     ],
-    options: ['김 씨, 안녕하세요?', '민수 씨, 안녕하세요?', '씨 민수, 안녕하세요?', '안녕히 가세요.'],
     answer: '민수 씨, 안녕하세요?',
     explanation: {
       ko: '"씨"는 이름(민수)이나 이름 전체(김민수)에 붙여요. 성만 붙인 "김 씨"는 무례하게 들려요.',
@@ -2557,7 +2597,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '여러분 — 여러 사람을 부르는 말',
-      uz: 'Hammangiz — ko\'pchilikka murojaat',
+      uz: "Hammangiz — ko'pchilikka murojaat",
       en: 'Everyone — addressing a group',
       ru: 'Все — обращение к группе',
     },
@@ -2565,7 +2605,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['호칭', '여러분'],
     hint: {
       ko: '한 명이 아니에요. 여러 명이에요.',
-      uz: 'Bir kishi emas — ko\'p kishi.',
+      uz: "Bir kishi emas — ko'p kishi.",
       en: 'Not one person — many people.',
       ru: 'Не один человек — много людей.',
     },
@@ -2637,7 +2677,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이수진 씨에게, 이름을 부르며 인사하기',
-      uz: 'Salom, Sujin xonim (to\'liq ismi: 이수진)',
+      uz: "Salom, Sujin xonim (to'liq ismi: 이수진)",
       en: 'Hello, Sujin (full name: 이수진)',
       ru: 'Здравствуйте, Суджин (полное имя: 이수진)',
     },
@@ -2690,7 +2730,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['호칭', '저', '대화'],
     hint: {
       ko: '이름을 물었어요. 내 이름을 말해요.',
-      uz: 'Ism so\'raldi — ismingizni ayting.',
+      uz: "Ism so'raldi — ismingizni ayting.",
       en: 'They asked your name — say it.',
       ru: 'Спросили имя — назовите его.',
     },
@@ -2751,7 +2791,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['호칭', '어순', '높임말'],
     hint: {
       ko: '부르는 말이 맨 앞이에요. 여러 사람 앞이니까 격식체로.',
-      uz: 'Murojaat eng oldida. Ko\'pchilik oldida — rasmiy shaklda.',
+      uz: "Murojaat eng oldida. Ko'pchilik oldida — rasmiy shaklda.",
       en: 'The address goes first — and use the formal form in front of a group.',
       ru: 'Обращение в начале — и перед группой используйте официальную форму.',
     },
@@ -2796,7 +2836,12 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '안녕하세요, 수진 씨.' },
       { speaker: 'npc', text: '아니요, 저는 선생님이에요.' },
     ],
-    options: ['죄송합니다, 김 선생님.', '죄송합니다, 김 씨.', '안녕히 가세요.', '네, 수진 씨.'],
+    options: [
+      '죄송합니다, 김 선생님.',
+      '죄송합니다, 김 씨.',
+      '안녕히 가세요.',
+      '네, 수진 씨.',
+    ],
     answer: '죄송합니다, 김 선생님.',
     explanation: {
       ko: '선생님에게는 "씨"를 쓰지 않아요. 성(김) 뒤에 "선생님"을 붙여서 불러요.',
@@ -2807,7 +2852,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '죄송합니다, 김 선생님. — 선생님께는 성 + 선생님',
-      uz: 'Kechirasiz, Kim ustoz — o\'qituvchiga familiya + 선생님',
+      uz: "Kechirasiz, Kim ustoz — o'qituvchiga familiya + 선생님",
       en: 'Sorry, Teacher Kim — family name + 선생님 for a teacher',
       ru: 'Извините, учитель Ким — фамилия + 선생님 для учителя',
     },
@@ -2833,7 +2878,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 하산이에요. — 나를 소개할 때',
-      uz: 'Men Hasanman — o\'zini tanishtirganda',
+      uz: "Men Hasanman — o'zini tanishtirganda",
       en: 'I am Hasan — introducing yourself',
       ru: 'Я Хасан — представляясь',
     },
@@ -2841,7 +2886,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['저', '어순', '자기소개'],
     hint: {
       ko: '나를 가리키는 말이 먼저 와요.',
-      uz: 'Avval o\'zimni bildiruvchi so\'z keladi.',
+      uz: "Avval o'zimni bildiruvchi so'z keladi.",
       en: 'The word for yourself comes first.',
       ru: 'Сначала слово, обозначающее вас.',
     },
@@ -2868,7 +2913,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['저', '자기소개', '말하기'],
     hint: {
       ko: '저-는 하-산-이-에-요. 두 덩어리로 나눠 말해요.',
-      uz: 'Jo-nun / ha-san-i-e-yo — ikki bo\'lakka bo\'lib ayting.',
+      uz: "Jo-nun / ha-san-i-e-yo — ikki bo'lakka bo'lib ayting.",
       en: 'jeo-neun / ha-san-i-e-yo — say it in two chunks.',
       ru: 'чо-нын / ха-сан-и-е-ё — говорите двумя частями.',
     },
@@ -2904,7 +2949,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '나라'],
     hint: {
       ko: '태극기를 찾으세요.',
-      uz: 'Koreya bayrog\'ini toping.',
+      uz: "Koreya bayrog'ini toping.",
       en: 'Find the Korean flag.',
       ru: 'Найдите флаг Кореи.',
     },
@@ -2931,7 +2976,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '나라'],
     hint: {
       ko: '"국"으로 끝나는 나라가 네 개예요. 앞 글자를 보세요.',
-      uz: '"국" bilan tugaydigan to\'rtta mamlakat bor — birinchi bo\'g\'inga qarang.',
+      uz: "\"국\" bilan tugaydigan to'rtta mamlakat bor — birinchi bo'g'inga qarang.",
       en: 'Four of them end in 국 — look at the first syllable.',
       ru: 'Четыре из них оканчиваются на 국 — смотрите на первый слог.',
     },
@@ -2950,7 +2995,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '사람',
     explanation: {
       ko: '나라 이름 뒤에 "사람"을 붙이면 그 나라 사람이 돼요. 한국 + 사람 = 한국 사람.',
-      uz: 'Mamlakat nomi ortidan "사람" qo\'shilsa, o\'sha mamlakat kishisi bo\'ladi.',
+      uz: "Mamlakat nomi ortidan \"사람\" qo'shilsa, o'sha mamlakat kishisi bo'ladi.",
       en: 'Add 사람 after a country name to mean a person from there.',
       ru: 'Добавьте 사람 после названия страны — получится человек оттуда.',
     },
@@ -2965,7 +3010,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', 'N 사람'],
     hint: {
       ko: '나라 + ___ = 그 나라 사람',
-      uz: 'Mamlakat + ___ = o\'sha yerlik kishi',
+      uz: "Mamlakat + ___ = o'sha yerlik kishi",
       en: 'country + ___ = person from that country',
       ru: 'страна + ___ = человек оттуда',
     },
@@ -2992,7 +3037,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '말하기'],
     hint: {
       ko: '저는 / 한국 사람 / 이에요 — 세 덩어리예요.',
-      uz: 'Jo-nun / han-guk sa-ram / i-e-yo — uch bo\'lak.',
+      uz: "Jo-nun / han-guk sa-ram / i-e-yo — uch bo'lak.",
       en: 'jeo-neun / han-guk sa-ram / i-e-yo — three chunks.',
       ru: 'чо-нын / хан-гук са-рам / и-е-ё — три части.',
     },
@@ -3019,7 +3064,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '어순'],
     hint: {
       ko: '나 → 어느 나라 → 사람이에요 순서예요.',
-      uz: 'Men → qaysi mamlakat → sa\'ram i-e-yo tartibida.',
+      uz: "Men → qaysi mamlakat → sa'ram i-e-yo tartibida.",
       en: 'Order: I → which country → 사람이에요.',
       ru: 'Порядок: я → какая страна → 사람이에요.',
     },
@@ -3696,7 +3741,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '어순'],
     hint: {
       ko: '영국과 미국은 한 글자만 달라요. 잘 보고 고르세요.',
-      uz: '영국 va 미국 faqat bir bo\'g\'inda farq qiladi — diqqat qiling.',
+      uz: "영국 va 미국 faqat bir bo'g'inda farq qiladi — diqqat qiling.",
       en: '영국 and 미국 differ by one syllable — choose carefully.',
       ru: '영국 и 미국 отличаются одним слогом — выбирайте внимательно.',
     },
@@ -3744,7 +3789,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아니라고 하면서, 나는 호주 사람이라고 답하기',
-      uz: 'Yo\'q, men avstraliyalikman',
+      uz: "Yo'q, men avstraliyalikman",
       en: 'No, I am Australian',
       ru: 'Нет, я австралиец',
     },
@@ -3763,7 +3808,7 @@ const UNIT1_BASE_QUESTIONS = {
       ko: '"Yo\'q"이 "아니요"예요. avstraliyalik = 호주 사람.',
       uz: '"Yo\'q" = "아니요". Avstraliyalik = 호주 사람.',
       en: '"Yo\'q" is 아니요. Australian = 호주 사람.',
-      ru: '«Yo\'q» — это 아니요. Австралиец = 호주 사람.',
+      ru: "«Yo'q» — это 아니요. Австралиец = 호주 사람.",
     },
     xpReward: 20,
     isActive: true,
@@ -3774,9 +3819,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '마이클 씨는 미국 사람이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '마이클 씨는 미국 사람이에요?' }],
     options: [
       '아니요, 영국 사람이에요.',
       '네, 영국 사람이에요.',
@@ -3915,7 +3958,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '나라'],
     hint: {
       ko: '옥토버페스트가 열리는 도시예요.',
-      uz: 'Oktoberfest o\'tkaziladigan shahar.',
+      uz: "Oktoberfest o'tkaziladigan shahar.",
       en: 'The city where Oktoberfest is held.',
       ru: 'Город, где проходит Октоберфест.',
     },
@@ -3973,7 +4016,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '어느 나라 사람이에요? — 국적을 묻는 말',
-      uz: 'Qaysi mamlakatliksiz? — millatni so\'rash',
+      uz: "Qaysi mamlakatliksiz? — millatni so'rash",
       en: 'What country are you from? — asking nationality',
       ru: 'Из какой вы страны? — вопрос о национальности',
     },
@@ -4008,7 +4051,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '질문', '말하기'],
     hint: {
       ko: '질문이니까 끝을 올려서 말해요.',
-      uz: 'Bu savol — oxirini ko\'tarib ayting.',
+      uz: "Bu savol — oxirini ko'tarib ayting.",
       en: 'It is a question — let the ending rise.',
       ru: 'Это вопрос — повысьте интонацию в конце.',
     },
@@ -4042,7 +4085,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -4183,7 +4226,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['어디에서 왔어요'],
     answerTranslation: {
       ko: '어디에서 왔어요? — 어느 나라 사람이에요?와 같은 질문',
-      uz: 'Qayerdan keldingiz? — millatni so\'rashning boshqa yo\'li',
+      uz: "Qayerdan keldingiz? — millatni so'rashning boshqa yo'li",
       en: 'Where are you from? — another way to ask nationality',
       ru: 'Откуда вы? — другой способ спросить о национальности',
     },
@@ -4191,7 +4234,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '질문', '말하기'],
     hint: {
       ko: '어-디-에-서 와-써-요? 끝을 올려요.',
-      uz: 'O-di-e-so wa-sso-yo? Oxirini ko\'taring.',
+      uz: "O-di-e-so wa-sso-yo? Oxirini ko'taring.",
       en: 'eo-di-e-seo wa-sseo-yo? Let it rise at the end.',
       ru: 'о-ди-е-со ва-ссо-ё? Повысьте в конце.',
     },
@@ -4235,9 +4278,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '어디에서 왔어요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '어디에서 왔어요?' }],
     options: [
       '저는 러시아에서 왔어요.',
       '저는 러시아 왔어요.',
@@ -4296,7 +4337,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '질문'],
     hint: {
       ko: '나라를 묻는 게 아니라, 그 나라의 누구인지 물어요.',
-      uz: 'Mamlakatni emas, o\'sha mamlakat kishisini so\'ryapmiz.',
+      uz: "Mamlakatni emas, o'sha mamlakat kishisini so'ryapmiz.",
       en: 'You are not asking about the country itself, but about a person from it.',
       ru: 'Спрашиваем не о стране, а о человеке оттуда.',
     },
@@ -4315,7 +4356,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['저는 우즈베키스탄 사람이에요'],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -4323,7 +4364,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '말하기'],
     hint: {
       ko: '우-즈-베-키-스-탄. 여섯 글자를 천천히 말해요.',
-      uz: 'U-zu-be-ki-su-tan — olti bo\'g\'inni sekin ayting.',
+      uz: "U-zu-be-ki-su-tan — olti bo'g'inni sekin ayting.",
       en: 'u-jeu-be-ki-seu-tan — six syllables, say them slowly.',
       ru: 'у-чжу-бе-ки-су-тан — шесть слогов, медленно.',
     },
@@ -4383,7 +4424,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄에서 왔어요.',
-      uz: 'Men O\'zbekistondan keldim.',
+      uz: "Men O'zbekistondan keldim.",
       en: 'I came from Uzbekistan.',
       ru: 'Я приехал из Узбекистана.',
     },
@@ -4437,7 +4478,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['우즈베키스탄에서 왔어요'],
     answerTranslation: {
       ko: '우즈베키스탄에서 왔어요.',
-      uz: 'O\'zbekistondan keldim.',
+      uz: "O'zbekistondan keldim.",
       en: 'I came from Uzbekistan.',
       ru: 'Я приехал из Узбекистана.',
     },
@@ -4481,7 +4522,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '나라'],
     hint: {
       ko: '단풍잎이 국기에 있는 나라예요.',
-      uz: 'Bayrog\'ida chinor bargi bor mamlakat.',
+      uz: "Bayrog'ida chinor bargi bor mamlakat.",
       en: 'The country with a maple leaf on its flag.',
       ru: 'Страна с кленовым листом на флаге.',
     },
@@ -4623,7 +4664,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '듣기'],
     hint: {
       ko: '세 글자 나라가 세 개예요. 첫소리로 구별하세요.',
-      uz: 'Uch bo\'g\'inli mamlakat uchta — birinchi tovushdan ajrating.',
+      uz: "Uch bo'g'inli mamlakat uchta — birinchi tovushdan ajrating.",
       en: 'Three of them have three syllables — tell them apart by the first sound.',
       ru: 'Три из них трёхсложные — различайте по первому звуку.',
     },
@@ -4636,9 +4677,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '하산 씨는 인도 사람이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '하산 씨는 인도 사람이에요?' }],
     options: [
       '아니요, 우즈베키스탄 사람이에요.',
       '네, 인도 사람이에요.',
@@ -4682,14 +4721,14 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '우즈베키스탄',
     explanation: {
       ko: '타슈켄트는 우즈베키스탄의 수도예요.',
-      uz: 'Toshkent — O\'zbekiston poytaxti.',
+      uz: "Toshkent — O'zbekiston poytaxti.",
       en: 'Tashkent is the capital of Uzbekistan.',
       ru: 'Ташкент — столица Узбекистана.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '우즈베키스탄 사람 — 우즈베키스탄에서 온 사람',
-      uz: 'O\'zbekistonlik',
+      uz: "O'zbekistonlik",
       en: 'Uzbek — a person from Uzbekistan',
       ru: 'Узбекистанец',
     },
@@ -4742,7 +4781,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄에서 왔어요.',
-      uz: 'Men O\'zbekistondan keldim.',
+      uz: "Men O'zbekistondan keldim.",
       en: 'I came from Uzbekistan.',
       ru: 'Я приехал из Узбекистана.',
     },
@@ -4800,7 +4839,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['인도 사람이 아니에요'],
     answerTranslation: {
       ko: '아니요, 인도 사람이 아니에요. — "아니에요"는 부정할 때',
-      uz: "Yo'q, men hindistonlik emasman — \"아니에요\" inkor",
+      uz: 'Yo\'q, men hindistonlik emasman — "아니에요" inkor',
       en: 'No, I am not Indian — 아니에요 negates',
       ru: 'Нет, я не индиец — 아니에요 отрицает',
     },
@@ -4852,7 +4891,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '대화'],
     hint: {
       ko: '방금 캐나다에서 왔다고 했어요. 다시 물을 필요가 없어요.',
-      uz: 'U hozir Kanadadan kelganini aytdi — qayta so\'rash shart emas.',
+      uz: "U hozir Kanadadan kelganini aytdi — qayta so'rash shart emas.",
       en: 'They just said Canada — no need to ask again.',
       ru: 'Он только что сказал «Канада» — переспрашивать не нужно.',
     },
@@ -4939,7 +4978,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '네, 타슈켄트에서 왔어요.',
     explanation: {
       ko: '타슈켄트는 우즈베키스탄의 도시예요. 맞으니까 "네"로 답하고 문장을 이어요.',
-      uz: 'Toshkent — O\'zbekiston shahri. To\'g\'ri, shuning uchun "네" bilan javob bering.',
+      uz: "Toshkent — O'zbekiston shahri. To'g'ri, shuning uchun \"네\" bilan javob bering.",
       en: 'Tashkent is a city in Uzbekistan — it is correct, so answer 네 and continue.',
       ru: 'Ташкент — город в Узбекистане, всё верно: отвечайте 네 и продолжайте.',
     },
@@ -4954,7 +4993,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '에서 왔어요', '대화'],
     hint: {
       ko: '타슈켄트는 우즈베키스탄에 있어요. 맞는 말이에요.',
-      uz: 'Toshkent O\'zbekistonda — bu to\'g\'ri.',
+      uz: "Toshkent O'zbekistonda — bu to'g'ri.",
       en: 'Tashkent is in Uzbekistan — the statement is correct.',
       ru: 'Ташкент в Узбекистане — утверждение верно.',
     },
@@ -5125,7 +5164,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 의사예요. — 받침 X + 예요',
-      uz: 'Men shifokorman — undosh yo\'q + 예요',
+      uz: "Men shifokorman — undosh yo'q + 예요",
       en: 'I am a doctor — no final consonant + 예요',
       ru: 'Я врач — нет согласного + 예요',
     },
@@ -5281,7 +5320,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '유진 씨는 선생님이에요.',
-      uz: 'Yujin xonim o\'qituvchi.',
+      uz: "Yujin xonim o'qituvchi.",
       en: 'Yujin is a teacher.',
       ru: 'Юджин — учитель.',
     },
@@ -5289,7 +5328,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '가르치는 사람이에요. 배우는 사람이 아니에요.',
-      uz: 'Dars beradigan kishi, o\'rganadigan emas.',
+      uz: "Dars beradigan kishi, o'rganadigan emas.",
       en: 'The one who teaches, not the one who learns.',
       ru: 'Тот, кто учит, а не учится.',
     },
@@ -5337,7 +5376,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아니라고 하면서, 나는 회사원이라고 답하기',
-      uz: 'Yo\'q, men kompaniya xodimiman',
+      uz: "Yo'q, men kompaniya xodimiman",
       en: 'No, I am an office worker',
       ru: 'Нет, я служащий',
     },
@@ -5394,9 +5433,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '하산 씨는 선생님이에요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '하산 씨는 선생님이에요?' }],
     options: [
       '아니요, 저는 학생이에요.',
       '네, 저는 학생이에요.',
@@ -5448,7 +5485,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['국적', '직업', '어순'],
     hint: {
       ko: '나라를 말하는 문장이에요. 직업은 넣지 않아요.',
-      uz: 'Bu mamlakat haqidagi gap — kasbni qo\'shmang.',
+      uz: "Bu mamlakat haqidagi gap — kasbni qo'shmang.",
       en: 'This sentence is about the country — do not include the job.',
       ru: 'Это предложение о стране — профессию не включайте.',
     },
@@ -5474,7 +5511,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '학교에 다니며 배우는 사람이에요.',
-      uz: 'Maktabga borib o\'rganadigan kishi.',
+      uz: "Maktabga borib o'rganadigan kishi.",
       en: 'The person who goes to school to learn.',
       ru: 'Тот, кто ходит учиться.',
     },
@@ -5493,7 +5530,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['유진 씨는 선생님이에요'],
     answerTranslation: {
       ko: '유진 씨는 선생님이에요.',
-      uz: 'Yujin xonim o\'qituvchi.',
+      uz: "Yujin xonim o'qituvchi.",
       en: 'Yujin is a teacher.',
       ru: 'Юджин — учитель.',
     },
@@ -5590,7 +5627,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 가수예요. — 노래하는 사람',
-      uz: 'Men qo\'shiqchiman',
+      uz: "Men qo'shiqchiman",
       en: 'I am a singer',
       ru: 'Я певец',
     },
@@ -5617,7 +5654,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['저는 가수예요'],
     answerTranslation: {
       ko: '저는 가수예요.',
-      uz: 'Men qo\'shiqchiman.',
+      uz: "Men qo'shiqchiman.",
       en: 'I am a singer.',
       ru: 'Я певец.',
     },
@@ -5643,7 +5680,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저스틴 씨는 가수예요.',
-      uz: 'Jastin janob qo\'shiqchi.',
+      uz: "Jastin janob qo'shiqchi.",
       en: 'Justin is a singer.',
       ru: 'Джастин — певец.',
     },
@@ -5651,7 +5688,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '노래하는 사람이에요.',
-      uz: 'Qo\'shiq aytadigan kishi.',
+      uz: "Qo'shiq aytadigan kishi.",
       en: 'The person who sings.',
       ru: 'Тот, кто поёт.',
     },
@@ -5822,7 +5859,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아니라고 하면서, 나는 요리사라고 답하기',
-      uz: 'Yo\'q, men oshpazman',
+      uz: "Yo'q, men oshpazman",
       en: 'No, I am a cook',
       ru: 'Нет, я повар',
     },
@@ -5866,7 +5903,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '말하기'],
     hint: {
       ko: '기-자-예-요. 네 글자를 또박또박 말해요.',
-      uz: 'Gi-ja-e-yo — to\'rt bo\'g\'inni aniq ayting.',
+      uz: "Gi-ja-e-yo — to'rt bo'g'inni aniq ayting.",
       en: 'gi-ja-ye-yo — say all four syllables clearly.',
       ru: 'ки-джа-е-ё — произнесите чётко.',
     },
@@ -5900,7 +5937,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 가수예요.',
-      uz: 'Men qo\'shiqchiman.',
+      uz: "Men qo'shiqchiman.",
       en: 'I am a singer.',
       ru: 'Я певец.',
     },
@@ -6012,7 +6049,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '대화'],
     hint: {
       ko: '나라를 물은 게 아니라 하는 일을 물었어요.',
-      uz: 'Mamlakat emas, ish so\'raldi.',
+      uz: "Mamlakat emas, ish so'raldi.",
       en: 'They asked about work, not about country.',
       ru: 'Спросили о работе, а не о стране.',
     },
@@ -6105,7 +6142,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '질문'],
     hint: {
       ko: '하는 일을 묻고 싶어요.',
-      uz: 'Ish haqida so\'ramoqchisiz.',
+      uz: "Ish haqida so'ramoqchisiz.",
       en: 'You want to ask about their work.',
       ru: 'Вы хотите спросить о работе.',
     },
@@ -6132,7 +6169,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '질문', '말하기'],
     hint: {
       ko: '질문이니까 끝을 올려요. 지-거-비 뭐-예-요?',
-      uz: 'Savol — oxirini ko\'taring: ji-go-bi mwo-ye-yo?',
+      uz: "Savol — oxirini ko'taring: ji-go-bi mwo-ye-yo?",
       en: 'A question, so let it rise: ji-geo-bi mwo-ye-yo?',
       ru: 'Это вопрос — повысьте интонацию.',
     },
@@ -6150,7 +6187,12 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '반가워요. 직업이 뭐예요?' },
       { speaker: 'npc', text: '저는 집에서 아이를 키워요.' },
     ],
-    options: ['아, 주부예요?', '아, 학생이에요?', '아, 의사예요?', '안녕히 가세요.'],
+    options: [
+      '아, 주부예요?',
+      '아, 학생이에요?',
+      '아, 의사예요?',
+      '안녕히 가세요.',
+    ],
     answer: '아, 주부예요?',
     explanation: {
       ko: '집에서 살림하고 아이를 키우는 사람을 "주부"라고 해요. 받침이 없어서 "예요"를 써요.',
@@ -6283,7 +6325,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '집에서 살림하는 직업이에요.',
-      uz: 'Uyda ro\'zg\'or yuritadigan kasb.',
+      uz: "Uyda ro'zg'or yuritadigan kasb.",
       en: 'The job of keeping house.',
       ru: 'Профессия ведения хозяйства.',
     },
@@ -6354,9 +6396,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '하산 씨는 직업이 뭐예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '하산 씨는 직업이 뭐예요?' }],
     options: [
       '저는 학생이에요.',
       '저는 우즈베키스탄 사람이에요.',
@@ -6366,7 +6406,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '저는 학생이에요.',
     explanation: {
       ko: '직업을 물었어요. 이름이나 나라로 답하면 질문에 맞지 않아요.',
-      uz: 'Kasb so\'raldi — ism yoki mamlakat bilan javob berish mos emas.',
+      uz: "Kasb so'raldi — ism yoki mamlakat bilan javob berish mos emas.",
       en: 'They asked about your job — answering with a name or country does not fit.',
       ru: 'Спросили о профессии — имя или страна не подходят.',
     },
@@ -6468,7 +6508,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '직업을 말하는 문장이에요. 나라는 넣지 않아요.',
-      uz: 'Bu kasb haqidagi gap — mamlakatni qo\'shmang.',
+      uz: "Bu kasb haqidagi gap — mamlakatni qo'shmang.",
       en: 'This sentence is about the job — leave the country out.',
       ru: 'Это о профессии — страну не включайте.',
     },
@@ -6629,7 +6669,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['명함', '어휘'],
     hint: {
       ko: '"전화번호"가 제일 길어요. 네 글자예요.',
-      uz: '"전화번호" eng uzun — to\'rt bo\'g\'in.',
+      uz: "\"전화번호\" eng uzun — to'rt bo'g'in.",
       en: '전화번호 is the longest — four syllables.',
       ru: '전화번호 самое длинное — четыре слога.',
     },
@@ -6663,7 +6703,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['명함', '어휘'],
     hint: {
       ko: '숫자를 가리키는 말이에요.',
-      uz: 'Raqamlarni bildiruvchi so\'z.',
+      uz: "Raqamlarni bildiruvchi so'z.",
       en: 'The word for the numbers.',
       ru: 'Слово для цифр.',
     },
@@ -6812,7 +6852,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '영어 선생님 — 영어를 가르치는 사람',
-      uz: 'Ingliz tili o\'qituvchisi',
+      uz: "Ingliz tili o'qituvchisi",
       en: 'English teacher',
       ru: 'Учитель английского',
     },
@@ -6865,7 +6905,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '니콜 씨는 영어 선생님이에요.',
-      uz: 'Nikol xonim ingliz tili o\'qituvchisi.',
+      uz: "Nikol xonim ingliz tili o'qituvchisi.",
       en: 'Nicole is an English teacher.',
       ru: 'Николь — учитель английского.',
     },
@@ -6873,7 +6913,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['직업', '어순'],
     hint: {
       ko: '무슨 과목을 가르치는지 직업 앞에 붙여요.',
-      uz: 'Qaysi fanni o\'rgatishini kasb oldiga qo\'shing.',
+      uz: "Qaysi fanni o'rgatishini kasb oldiga qo'shing.",
       en: 'Put the subject taught in front of the job.',
       ru: 'Предмет ставится перед профессией.',
     },
@@ -6958,7 +6998,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '저는 학생이에요.',
     explanation: {
       ko: '이름은 이미 말했어요. 이번에는 직업을 물었으니 하는 일로 답해요.',
-      uz: 'Ism aytilgan — endi kasb so\'ralyapti.',
+      uz: "Ism aytilgan — endi kasb so'ralyapti.",
       en: 'You already gave your name — now they ask about your job.',
       ru: 'Имя уже назвали — теперь спрашивают о профессии.',
     },
@@ -7069,7 +7109,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -7096,7 +7136,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['니콜 씨는 영어 선생님이에요'],
     answerTranslation: {
       ko: '니콜 씨는 영어 선생님이에요.',
-      uz: 'Nikol xonim ingliz tili o\'qituvchisi.',
+      uz: "Nikol xonim ingliz tili o'qituvchisi.",
       en: 'Nicole is an English teacher.',
       ru: 'Николь — учитель английского.',
     },
@@ -7170,7 +7210,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '어휘'],
     hint: {
       ko: '지금까지 배운 단어들이에요.',
-      uz: 'Shu paytgacha o\'rgangan so\'zlar.',
+      uz: "Shu paytgacha o'rgangan so'zlar.",
       en: 'These are words you have already learned.',
       ru: 'Это слова, которые вы уже выучили.',
     },
@@ -7311,7 +7351,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '선생님은 — 받침 O + 은',
-      uz: 'O\'qituvchi — undosh bor + 은',
+      uz: "O'qituvchi — undosh bor + 은",
       en: 'As for the teacher — final consonant + 은',
       ru: 'Что касается учителя — есть согласный + 은',
     },
@@ -7353,7 +7393,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -7498,7 +7538,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['선생님은 한국 사람이에요'],
     answerTranslation: {
       ko: '선생님은 한국 사람이에요.',
-      uz: 'O\'qituvchi koreys.',
+      uz: "O'qituvchi koreys.",
       en: 'The teacher is Korean.',
       ru: 'Учитель кореец.',
     },
@@ -7593,7 +7633,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '니콜은 영어 선생님이에요. — 니콜(받침 ㄹ) + 은',
-      uz: 'Nikol ingliz tili o\'qituvchisi — 니콜 (ㄹ) + 은',
+      uz: "Nikol ingliz tili o'qituvchisi — 니콜 (ㄹ) + 은",
       en: 'Nicole is an English teacher — 니콜 (final ㄹ) + 은',
       ru: 'Николь учитель английского — 니콜 (ㄹ) + 은',
     },
@@ -7660,7 +7700,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '직업'],
     hint: {
       ko: '받침이 있는 말과 없는 말이 섞여 있어요.',
-      uz: 'Undoshli va undoshsiz so\'zlar aralash.',
+      uz: "Undoshli va undoshsiz so'zlar aralash.",
       en: 'Some end in a consonant, some do not.',
       ru: 'Некоторые оканчиваются на согласный, некоторые нет.',
     },
@@ -7822,9 +7862,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '안녕하세요? 이름이 뭐예요?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '안녕하세요? 이름이 뭐예요?' }],
     options: [
       '저는 마리아예요.',
       '저는 마리아이에요.',
@@ -7928,7 +7966,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '니콜은 영어 선생님이에요.',
-      uz: 'Nikol ingliz tili o\'qituvchisi.',
+      uz: "Nikol ingliz tili o'qituvchisi.",
       en: 'Nicole is an English teacher.',
       ru: 'Николь учитель английского.',
     },
@@ -7936,7 +7974,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['이에요/예요', '문법'],
     hint: {
       ko: '빈칸 바로 앞 글자는 "님"이에요. 받침이 있어요.',
-      uz: 'Bo\'sh joy oldidagi bo\'g\'in — "님", undosh bor.',
+      uz: "Bo'sh joy oldidagi bo'g'in — \"님\", undosh bor.",
       en: 'The syllable right before the blank is 님 — it has a final consonant.',
       ru: 'Слог перед пропуском — 님, у него есть согласный.',
     },
@@ -8036,7 +8074,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['이에요/예요', '대화'],
     hint: {
       ko: '직업을 물었어요. 그리고 받침에 맞는 형태를 골라요.',
-      uz: 'Kasb so\'raldi — va undoshga mos shaklni tanlang.',
+      uz: "Kasb so'raldi — va undoshga mos shaklni tanlang.",
       en: 'They asked your job — and pick the form that matches the consonant.',
       ru: 'Спросили профессию — и выберите форму по согласному.',
     },
@@ -8062,7 +8100,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '켈리는 가수예요.',
-      uz: 'Kelli qo\'shiqchi.',
+      uz: "Kelli qo'shiqchi.",
       en: 'Kelly is a singer.',
       ru: 'Келли певица.',
     },
@@ -8088,7 +8126,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '유진은 선생님이에요. — 둘 다 받침이 있어요',
-      uz: 'Yujin o\'qituvchi — ikkalasi undoshli',
+      uz: "Yujin o'qituvchi — ikkalasi undoshli",
       en: 'Yujin is a teacher — both words end in a consonant',
       ru: 'Юджин учитель — оба слова на согласный',
     },
@@ -8157,7 +8195,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['켈리는 가수예요'],
     answerTranslation: {
       ko: '켈리는 가수예요.',
-      uz: 'Kelli qo\'shiqchi.',
+      uz: "Kelli qo'shiqchi.",
       en: 'Kelly is a singer.',
       ru: 'Келли певица.',
     },
@@ -8197,7 +8235,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', '어휘'],
     hint: {
       ko: '자기소개에 꼭 필요한 말들이에요.',
-      uz: 'O\'zini tanishtirish uchun kerakli so\'zlar.',
+      uz: "O'zini tanishtirish uchun kerakli so'zlar.",
       en: 'The words you need to introduce yourself.',
       ru: 'Слова, нужные для представления себя.',
     },
@@ -8231,7 +8269,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개'],
     hint: {
       ko: '나를 가리키는 말이에요.',
-      uz: 'O\'zimni bildiruvchi so\'z.',
+      uz: "O'zimni bildiruvchi so'z.",
       en: 'The word that refers to yourself.',
       ru: 'Слово, обозначающее вас.',
     },
@@ -8258,7 +8296,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', '말하기'],
     hint: {
       ko: '인사를 먼저 하고 이름을 말해요. 인사 끝은 올리고 이름 끝은 내려요.',
-      uz: 'Avval salom, keyin ism. Salom oxirini ko\'taring, ism oxirini tushiring.',
+      uz: "Avval salom, keyin ism. Salom oxirini ko'taring, ism oxirini tushiring.",
       en: 'Greet first, then give the name — rise on the greeting, fall on the name.',
       ru: 'Сначала приветствие, потом имя — вверх, затем вниз.',
     },
@@ -8271,7 +8309,8 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
-    npcText: '이름과 국적을 함께 말해요. 나는 하산이고 우즈베키스탄에서 왔어요.',
+    npcText:
+      '이름과 국적을 함께 말해요. 나는 하산이고 우즈베키스탄에서 왔어요.',
     options: [
       '사람이에요',
       '저는',
@@ -8285,7 +8324,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['저는 하산이에요. 우즈베키스탄 사람이에요'],
     answerTranslation: {
       ko: '저는 하산이에요. 우즈베키스탄 사람이에요.',
-      uz: 'Men Hasanman. Men o\'zbekistonlikman.',
+      uz: "Men Hasanman. Men o'zbekistonlikman.",
       en: 'I am Hasan. I am from Uzbekistan.',
       ru: 'Я Хасан. Я из Узбекистана.',
     },
@@ -8333,9 +8372,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '안녕하세요? 저는 나나예요.' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '안녕하세요? 저는 나나예요.' }],
     options: [
       '안녕하세요? 저는 하산이에요.',
       '안녕히 가세요.',
@@ -8360,7 +8397,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', '대화'],
     hint: {
       ko: '상대 이름이 아니라 내 이름을 말해요.',
-      uz: 'Uning ismini emas, o\'z ismingizni ayting.',
+      uz: "Uning ismini emas, o'z ismingizni ayting.",
       en: 'Give your own name, not theirs.',
       ru: 'Назовите своё имя, а не его.',
     },
@@ -8413,7 +8450,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['저는 우즈베키스탄 사람이에요'],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -8461,7 +8498,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '나는 우즈베키스탄 사람이라고 말하기',
-      uz: 'Men o\'zbekistonlikman',
+      uz: "Men o'zbekistonlikman",
       en: 'I am from Uzbekistan',
       ru: 'Я из Узбекистана',
     },
@@ -8470,7 +8507,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -8535,7 +8572,7 @@ const UNIT1_BASE_QUESTIONS = {
     explanation: {
       ko: '이름 → 국적 → 직업 순서로 자기소개가 이어지고 있어요. 이번엔 직업 차례예요.',
       uz: 'Ism → millat → kasb tartibida ketyapti. Endi kasb navbati.',
-      en: 'The introduction runs name → nationality → job. Now it is the job\'s turn.',
+      en: "The introduction runs name → nationality → job. Now it is the job's turn.",
       ru: 'Представление идёт: имя → национальность → профессия. Сейчас профессия.',
     },
     acceptedAnswers: [],
@@ -8644,14 +8681,14 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '저는 하산이에요. 우즈베키스탄 사람이에요.',
     explanation: {
       ko: '자기소개를 하라고 했어요. 이름과 국적을 내 이야기로 말해요.',
-      uz: 'O\'zingizni tanishtirish so\'raldi — ism va millatni o\'zingiz haqingizda ayting.',
+      uz: "O'zingizni tanishtirish so'raldi — ism va millatni o'zingiz haqingizda ayting.",
       en: 'You were asked to introduce yourself — give your own name and nationality.',
       ru: 'Вас попросили представиться — назовите своё имя и национальность.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 하산이에요. 우즈베키스탄 사람이에요.',
-      uz: 'Men Hasanman. O\'zbekistonlikman.',
+      uz: "Men Hasanman. O'zbekistonlikman.",
       en: 'I am Hasan. I am from Uzbekistan.',
       ru: 'Я Хасан. Я из Узбекистана.',
     },
@@ -8659,7 +8696,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', '대화'],
     hint: {
       ko: '나에 대해 말해요. 선생님이 아니라 나예요.',
-      uz: 'O\'zingiz haqingizda ayting — o\'qituvchi emas, siz.',
+      uz: "O'zingiz haqingizda ayting — o'qituvchi emas, siz.",
       en: 'Talk about yourself, not the teacher.',
       ru: 'Говорите о себе, а не об учителе.',
     },
@@ -8673,7 +8710,13 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     npcText: '아키라 씨가 자기소개를 해요. 일본 사람이고 회사에서 일해요.',
-    options: ['회사원이에요', '저는', '아키라예요', '아키라이에요', '학생이에요'],
+    options: [
+      '회사원이에요',
+      '저는',
+      '아키라예요',
+      '아키라이에요',
+      '학생이에요',
+    ],
     answer: '저는 아키라예요 회사원이에요',
     acceptedAnswers: ['저는 아키라예요. 회사원이에요'],
     answerTranslation: {
@@ -8745,7 +8788,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '대화'],
     hint: {
       ko: '나나와 마이클의 대화에 나온 말들이에요.',
-      uz: 'Nana va Maykl suhbatida uchragan so\'zlar.',
+      uz: "Nana va Maykl suhbatida uchragan so'zlar.",
       en: 'Words from the conversation between Nana and Michael.',
       ru: 'Слова из диалога Наны и Майкла.',
     },
@@ -8963,7 +9006,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['대화', '질문', '말하기'],
     hint: {
       ko: '질문이니까 끝을 올려요.',
-      uz: 'Savol — oxirini ko\'taring.',
+      uz: "Savol — oxirini ko'taring.",
       en: 'It is a question — rise at the end.',
       ru: 'Это вопрос — повысьте интонацию.',
     },
@@ -9018,7 +9061,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '아, 그래요? 저는 영국 사람이에요.',
     explanation: {
       ko: '마이클은 영국 사람이에요. 상대가 국적을 말했으니 나도 내 국적을 말해 주는 게 자연스러워요.',
-      uz: 'Maykl angliyalik. U millatini aytdi — siz ham o\'zingiznikini ayting.',
+      uz: "Maykl angliyalik. U millatini aytdi — siz ham o'zingiznikini ayting.",
       en: 'Michael is British. They shared their nationality, so it is natural to share yours.',
       ru: 'Майкл британец. Он назвал свою национальность — назовите и вы свою.',
     },
@@ -9168,7 +9211,10 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '안녕하세요? 저는 하산이에요.' },
       { speaker: 'npc', text: '안녕하세요? 저는 유진이에요.' },
       { speaker: 'user', text: '만나서 반가워요, 유진 씨.' },
-      { speaker: 'npc', text: '저도 반가워요. 하산 씨는 어느 나라 사람이에요?' },
+      {
+        speaker: 'npc',
+        text: '저도 반가워요. 하산 씨는 어느 나라 사람이에요?',
+      },
     ],
     options: [
       '저는 우즈베키스탄 사람이에요.',
@@ -9179,14 +9225,14 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '저는 우즈베키스탄 사람이에요.',
     explanation: {
       ko: '인사는 이미 끝났어요. 이번엔 국적을 물었으니 나라로 답해요.',
-      uz: 'Salomlashuv tugadi — endi millat so\'raldi.',
+      uz: "Salomlashuv tugadi — endi millat so'raldi.",
       en: 'The greetings are done — now they asked about nationality.',
       ru: 'Приветствия закончены — теперь спросили о национальности.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람이에요.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -9194,7 +9240,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['대화', '국적'],
     hint: {
       ko: '마지막 줄이 질문이에요. 무엇을 물었는지 보세요.',
-      uz: 'Oxirgi qator — savol. Nima so\'ralganini ko\'ring.',
+      uz: "Oxirgi qator — savol. Nima so'ralganini ko'ring.",
       en: 'The last line is a question — see what it asks.',
       ru: 'Последняя строка — вопрос, посмотрите о чём.',
     },
@@ -9314,7 +9360,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '어휘'],
     hint: {
       ko: '격식 있는 자기소개에 자주 나오는 말들이에요.',
-      uz: 'Rasmiy tanishuvda tez-tez uchraydigan so\'zlar.',
+      uz: "Rasmiy tanishuvda tez-tez uchraydigan so'zlar.",
       en: 'Words that come up often in formal introductions.',
       ru: 'Слова, частые в официальном представлении.',
     },
@@ -9367,7 +9413,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 학생입니다. — 받침이 있어도 그냥 입니다',
-      uz: 'Men talabaman — undosh bo\'lsa ham faqat 입니다',
+      uz: "Men talabaman — undosh bo'lsa ham faqat 입니다",
       en: 'I am a student — 입니다 regardless of the consonant',
       ru: 'Я студент — 입니다 независимо от согласного',
     },
@@ -9389,7 +9435,13 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     npcText: '격식 있는 자리에서 이름을 말해요. 나는 줄리앙이에요.',
-    options: ['줄리앙입니다', '저는', '줄리앙이에요', '줄리앙예요', '학생입니다'],
+    options: [
+      '줄리앙입니다',
+      '저는',
+      '줄리앙이에요',
+      '줄리앙예요',
+      '학생입니다',
+    ],
     answer: '저는 줄리앙입니다',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9558,7 +9610,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N입니다', '높임말'],
     hint: {
       ko: '격식체는 받침을 따지지 않아요. 형태가 하나예요.',
-      uz: 'Rasmiy shakl undoshga qaramaydi — bitta ko\'rinish.',
+      uz: "Rasmiy shakl undoshga qaramaydi — bitta ko'rinish.",
       en: 'The formal form ignores the final consonant — one shape only.',
       ru: 'Официальная форма не зависит от согласного — она одна.',
     },
@@ -9608,7 +9660,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['우즈베키스탄 사람입니다'],
     answerTranslation: {
       ko: '우즈베키스탄 사람입니다.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -9692,7 +9744,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N입니다', '높임말'],
     hint: {
       ko: '사장님은 윗사람이에요. 친구와 다르게 말해요.',
-      uz: 'Rahbar — katta. Do\'stdan farqli gapiriladi.',
+      uz: "Rahbar — katta. Do'stdan farqli gapiriladi.",
       en: 'The boss is senior — speak differently than to a friend.',
       ru: 'Начальник — старший, говорите иначе, чем с другом.',
     },
@@ -9760,7 +9812,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N입니다', '자기소개', '대화'],
     hint: {
       ko: '여러 사람 앞이에요. 말투를 낮추면 안 돼요.',
-      uz: 'Ko\'pchilik oldida — uslubni pasaytirmang.',
+      uz: "Ko'pchilik oldida — uslubni pasaytirmang.",
       en: 'You are in front of a group — do not drop the register.',
       ru: 'Вы перед группой — не снижайте стиль.',
     },
@@ -9826,7 +9878,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N입니까', '질문'],
     hint: {
       ko: '문장 끝에 물음표가 있어요. 묻는 형태를 골라요.',
-      uz: 'Gap oxirida so\'roq belgisi bor — savol shaklini tanlang.',
+      uz: "Gap oxirida so'roq belgisi bor — savol shaklini tanlang.",
       en: 'There is a question mark at the end — choose the question form.',
       ru: 'В конце вопросительный знак — выберите вопросительную форму.',
     },
@@ -9893,9 +9945,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '스티븐 씨는 학생입니까?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '스티븐 씨는 학생입니까?' }],
     options: [
       '네, 저는 학생입니다.',
       '네, 저는 학생입니까.',
@@ -9974,7 +10024,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '듣기'],
     hint: {
       ko: '격식체 질문에 자주 나오는 말들이에요.',
-      uz: 'Rasmiy savollarda tez-tez uchraydigan so\'zlar.',
+      uz: "Rasmiy savollarda tez-tez uchraydigan so'zlar.",
       en: 'Words that appear often in formal questions.',
       ru: 'Слова, частые в официальных вопросах.',
     },
@@ -10224,7 +10274,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '학생입니다.',
     explanation: {
       ko: '이름 → 국적 → 직업 순서로 묻고 있어요. 이번 차례는 직업이에요.',
-      uz: 'Ism → millat → kasb tartibida so\'ralyapti. Endi kasb navbati.',
+      uz: "Ism → millat → kasb tartibida so'ralyapti. Endi kasb navbati.",
       en: 'The questions run name → nationality → job. This one is the job.',
       ru: 'Вопросы идут: имя → страна → профессия. Сейчас профессия.',
     },
@@ -10432,9 +10482,7 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
-    dialogLines: [
-      { speaker: 'npc', text: '마이클 씨는 미국 사람입니까?' },
-    ],
+    dialogLines: [{ speaker: 'npc', text: '마이클 씨는 미국 사람입니까?' }],
     options: [
       '아니요, 미국 사람이 아닙니다.',
       '아니요, 미국 사람가 아닙니다.',
@@ -10478,7 +10526,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '마이클은 선생님이 아닙니다.',
-      uz: 'Maykl o\'qituvchi emas.',
+      uz: "Maykl o'qituvchi emas.",
       en: 'Michael is not a teacher.',
       ru: 'Майкл не учитель.',
     },
@@ -10539,7 +10587,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 기자가 아닙니다. 가수입니다.',
-      uz: 'Men jurnalist emasman. Qo\'shiqchiman.',
+      uz: "Men jurnalist emasman. Qo'shiqchiman.",
       en: 'I am not a reporter. I am a singer.',
       ru: 'Я не журналист. Я певец.',
     },
@@ -10618,11 +10666,16 @@ const UNIT1_BASE_QUESTIONS = {
       { speaker: 'user', text: '아니요, 선생님이 아닙니다.' },
       { speaker: 'npc', text: '그럼 직업은 무엇입니까?' },
     ],
-    options: ['기자입니다.', '선생님입니다.', '네, 선생님입니다.', '안녕히 가십시오.'],
+    options: [
+      '기자입니다.',
+      '선생님입니다.',
+      '네, 선생님입니다.',
+      '안녕히 가십시오.',
+    ],
     answer: '기자입니다.',
     explanation: {
       ko: '선생님이 아니라고 했으니 다른 직업을 말해야 해요. 격식체도 유지해요.',
-      uz: 'O\'qituvchi emasligini aytdingiz — boshqa kasbni ayting, rasmiy uslubda.',
+      uz: "O'qituvchi emasligini aytdingiz — boshqa kasbni ayting, rasmiy uslubda.",
       en: 'You said not a teacher — name a different job, staying formal.',
       ru: 'Вы сказали, что не учитель — назовите другую профессию, официально.',
     },
@@ -10637,7 +10690,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N이/가 아닙니다', '대화'],
     hint: {
       ko: '앞에서 선생님이 아니라고 했어요.',
-      uz: 'Oldin o\'qituvchi emasligini aytdingiz.',
+      uz: "Oldin o'qituvchi emasligini aytdingiz.",
       en: 'You already denied being a teacher.',
       ru: 'Вы уже отрицали, что учитель.',
     },
@@ -10671,7 +10724,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N이/가 아닙니다', '부정'],
     hint: {
       ko: '빈칸 앞 글자는 "자"예요. 받침이 없어요.',
-      uz: 'Bo\'sh joy oldidagi bo\'g\'in "자" — undosh yo\'q.',
+      uz: "Bo'sh joy oldidagi bo'g'in \"자\" — undosh yo'q.",
       en: 'The syllable before the blank is 자 — no final consonant.',
       ru: 'Слог перед пропуском — 자, без согласного.',
     },
@@ -10712,7 +10765,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '격식 있게, 미국 사람이 아니고 영국 사람이라고 답하기',
-      uz: 'Yo\'q, men amerikalik emasman. Angliyalikman (rasmiy)',
+      uz: "Yo'q, men amerikalik emasman. Angliyalikman (rasmiy)",
       en: 'No, I am not American. I am British (formal)',
       ru: 'Нет, я не американец. Я британец (официально)',
     },
@@ -10766,7 +10819,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '영국 사람입니다.',
     explanation: {
       ko: '아니라고만 하면 대화가 끊겨요. 맞는 나라를 알려줘야 대화가 이어져요.',
-      uz: 'Faqat inkor qilsangiz suhbat uziladi — to\'g\'ri mamlakatni ayting.',
+      uz: "Faqat inkor qilsangiz suhbat uziladi — to'g'ri mamlakatni ayting.",
       en: 'Only denying stalls the conversation — give the correct country.',
       ru: 'Одно отрицание обрывает разговор — назовите верную страну.',
     },
@@ -10781,7 +10834,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N이/가 아닙니다', '대화'],
     hint: {
       ko: '이번엔 부정이 아니라 맞는 답을 말할 차례예요.',
-      uz: 'Endi inkor emas, to\'g\'ri javob navbati.',
+      uz: "Endi inkor emas, to'g'ri javob navbati.",
       en: 'Now it is time for the positive answer, not another denial.',
       ru: 'Теперь нужен утвердительный ответ, а не отрицание.',
     },
@@ -10799,7 +10852,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 가수가 아닙니다.',
-      uz: 'Men qo\'shiqchi emasman.',
+      uz: "Men qo'shiqchi emasman.",
       en: 'I am not a singer.',
       ru: 'Я не певец.',
     },
@@ -10870,7 +10923,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['선생님이 아닙니다'],
     answerTranslation: {
       ko: '선생님이 아닙니다.',
-      uz: 'O\'qituvchi emasman.',
+      uz: "O'qituvchi emasman.",
       en: 'I am not a teacher.',
       ru: 'Я не учитель.',
     },
@@ -10910,8 +10963,8 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['복습', '자기소개'],
     hint: {
       ko: '줄리앙의 블로그 자기소개에 나온 말들이에요.',
-      uz: 'Julyanning blog tanishuvida uchragan so\'zlar.',
-      en: 'Words from Julien\'s blog introduction.',
+      uz: "Julyanning blog tanishuvida uchragan so'zlar.",
+      en: "Words from Julien's blog introduction.",
       ru: 'Слова из блог-представления Жюльена.',
     },
     xpReward: 10,
@@ -10944,7 +10997,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', '높임말'],
     hint: {
       ko: '한 사람이 아니라 여러 사람 앞이에요.',
-      uz: 'Bir kishi emas, ko\'pchilik oldida.',
+      uz: "Bir kishi emas, ko'pchilik oldida.",
       en: 'You are in front of a group, not one person.',
       ru: 'Перед вами группа, а не один человек.',
     },
@@ -10987,7 +11040,10 @@ const UNIT1_BASE_QUESTIONS = {
     dialogLines: [
       { speaker: 'npc', text: '여러분, 만나서 반갑습니다. 저는 마이클입니다.' },
       { speaker: 'user', text: '안녕하십니까? 마이클 씨는 미국 사람입니까?' },
-      { speaker: 'npc', text: '아니요, 저는 미국 사람이 아닙니다. 영국 사람입니다.' },
+      {
+        speaker: 'npc',
+        text: '아니요, 저는 미국 사람이 아닙니다. 영국 사람입니다.',
+      },
     ],
     options: [
       '아, 네. 직업은 무엇입니까?',
@@ -11013,7 +11069,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', 'N입니까', '대화'],
     hint: {
       ko: '나라는 이미 알았어요. 묻는 형태를 확인하세요.',
-      uz: 'Mamlakat ma\'lum — savol shaklini tekshiring.',
+      uz: "Mamlakat ma'lum — savol shaklini tekshiring.",
       en: 'The country is known — check the question form.',
       ru: 'Страна известна — проверьте форму вопроса.',
     },
@@ -11040,7 +11096,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', 'N입니다', '어순'],
     hint: {
       ko: '글로 쓰는 자기소개는 격식체를 써요.',
-      uz: 'Yozma tanishuv rasmiy shaklda bo\'ladi.',
+      uz: "Yozma tanishuv rasmiy shaklda bo'ladi.",
       en: 'A written introduction uses the formal register.',
       ru: 'Письменное представление — в официальном стиле.',
     },
@@ -11080,7 +11136,8 @@ const UNIT1_BASE_QUESTIONS = {
     level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
-    sentencePrefix: '안녕하십니까? 저는 줄리앙입니다. 저는 프랑스 사람입니다. 저는 ',
+    sentencePrefix:
+      '안녕하십니까? 저는 줄리앙입니다. 저는 프랑스 사람입니다. 저는 ',
     sentenceSuffix: '입니다.',
     options: ['프랑스', '이름', '학생', '나라', '여러분'],
     answer: '학생',
@@ -11128,7 +11185,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['자기소개', 'N입니다', '말하기'],
     hint: {
       ko: '인사 끝은 올리고, 이름 끝은 내려요.',
-      uz: 'Salom oxirini ko\'taring, ism oxirini tushiring.',
+      uz: "Salom oxirini ko'taring, ism oxirini tushiring.",
       en: 'Rise on the greeting, fall on the name.',
       ru: 'Приветствие — вверх, имя — вниз.',
     },
@@ -11170,7 +11227,10 @@ const UNIT1_BASE_QUESTIONS = {
     dialogLines: [
       { speaker: 'npc', text: '여러분, 만나서 반갑습니다. 저는 마이클입니다.' },
       { speaker: 'user', text: '안녕하십니까? 마이클 씨는 미국 사람입니까?' },
-      { speaker: 'npc', text: '아니요, 미국 사람이 아닙니다. 영국 사람입니다.' },
+      {
+        speaker: 'npc',
+        text: '아니요, 미국 사람이 아닙니다. 영국 사람입니다.',
+      },
       { speaker: 'user', text: '아, 네. 직업은 무엇입니까?' },
       { speaker: 'npc', text: '기자입니다. 하산 씨는 직업이 무엇입니까?' },
     ],
@@ -11183,7 +11243,7 @@ const UNIT1_BASE_QUESTIONS = {
     answer: '저는 학생입니다.',
     explanation: {
       ko: '대화 전체가 격식체예요. 그리고 마이클이 기자라고 했으니 나는 내 직업을 말해요.',
-      uz: 'Butun suhbat rasmiy. Maykl jurnalist dedi — siz o\'z kasbingizni ayting.',
+      uz: "Butun suhbat rasmiy. Maykl jurnalist dedi — siz o'z kasbingizni ayting.",
       en: 'The whole exchange is formal — and Michael said reporter, so give your own job.',
       ru: 'Весь диалог официальный — Майкл сказал «журналист», назовите свою профессию.',
     },
@@ -11199,7 +11259,7 @@ const UNIT1_BASE_QUESTIONS = {
     hint: {
       ko: '말투를 낮추면 안 돼요. 그리고 마이클의 직업을 따라 하면 안 돼요.',
       uz: 'Uslubni pasaytirmang va Mayklning kasbini takrorlamang.',
-      en: 'Do not drop the register — and do not copy Michael\'s job.',
+      en: "Do not drop the register — and do not copy Michael's job.",
       ru: 'Не снижайте стиль — и не повторяйте профессию Майкла.',
     },
     xpReward: 15,
@@ -11246,7 +11306,7 @@ const UNIT1_BASE_QUESTIONS = {
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '격식 있게, 나는 우즈베키스탄 사람이라고 말하기',
-      uz: 'Men o\'zbekistonlikman (rasmiy)',
+      uz: "Men o'zbekistonlikman (rasmiy)",
       en: 'I am from Uzbekistan (formal)',
       ru: 'Я из Узбекистана (официально)',
     },
@@ -11255,7 +11315,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '저는 우즈베키스탄 사람입니다.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -11385,7 +11445,7 @@ const UNIT1_BASE_QUESTIONS = {
     tags: ['N이/가 아닙니다', 'N입니다', '어순'],
     hint: {
       ko: '아니라고 먼저 말하고, 맞는 직업을 이어서 말해요.',
-      uz: 'Avval inkor, keyin to\'g\'ri kasb.',
+      uz: "Avval inkor, keyin to'g'ri kasb.",
       en: 'Deny first, then give the correct job.',
       ru: 'Сначала отрицание, потом верная профессия.',
     },
@@ -11404,7 +11464,7 @@ const UNIT1_BASE_QUESTIONS = {
     acceptedAnswers: ['우즈베키스탄 사람입니다'],
     answerTranslation: {
       ko: '우즈베키스탄 사람입니다.',
-      uz: 'Men o\'zbekistonlikman.',
+      uz: "Men o'zbekistonlikman.",
       en: 'I am from Uzbekistan.',
       ru: 'Я из Узбекистана.',
     },
@@ -11496,7 +11556,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '만나서 반가워요 · N 씨 · 네/아니요',
-          uz: 'Tanishganimdan xursandman · N 씨 · Ha/Yo\'q',
+          uz: "Tanishganimdan xursandman · N 씨 · Ha/Yo'q",
           en: 'Nice to meet you · N 씨 · Yes/No',
           ru: 'Рад познакомиться · N 씨 · Да/Нет',
         },
@@ -11732,7 +11792,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '캐나다 · 러시아 · 인도 · 우즈베키스탄',
-          uz: 'Kanada · Rossiya · Hindiston · O\'zbekiston',
+          uz: "Kanada · Rossiya · Hindiston · O'zbekiston",
           en: 'Canada · Russia · India · Uzbekistan',
           ru: 'Канада · Россия · Индия · Узбекистан',
         },
@@ -11945,7 +12005,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '받침이 있으면 은, 없으면 는',
-          uz: 'Undosh bor — 은, yo\'q — 는',
+          uz: "Undosh bor — 은, yo'q — 는",
           en: 'Final consonant → 은, none → 는',
           ru: 'Есть согласный → 은, нет → 는',
         },
@@ -11982,7 +12042,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '받침이 있으면 이에요, 없으면 예요',
-          uz: 'Undosh bor — 이에요, yo\'q — 예요',
+          uz: "Undosh bor — 이에요, yo'q — 예요",
           en: 'Final consonant → 이에요, none → 예요',
           ru: 'Есть согласный → 이에요, нет → 예요',
         },
@@ -12107,7 +12167,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '격식체. 받침과 상관없이 언제나 입니다',
-          uz: 'Rasmiy shakl — undoshdan qat\'i nazar doim 입니다',
+          uz: "Rasmiy shakl — undoshdan qat'i nazar doim 입니다",
           en: 'Formal — always 입니다, whatever the consonant',
           ru: 'Официально — всегда 입니다, независимо от согласного',
         },
@@ -12181,7 +12241,7 @@ export const UNIT1_NODES = [
         },
         description: {
           ko: '받침이 있으면 이, 없으면 가',
-          uz: 'Undosh bor — 이, yo\'q — 가',
+          uz: "Undosh bor — 이, yo'q — 가",
           en: 'Final consonant → 이, none → 가',
           ru: 'Есть согласный → 이, нет → 가',
         },
@@ -12249,3 +12309,1053 @@ export const UNIT1_NODES = [
     ],
   },
 ];
+
+export const S1_UNIT1_WORDS = [
+  // ─────────────────────────────────────
+  // 국가 / 국적
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_germany_noun',
+    senseKey: 'country-germany',
+    korean: '독일',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '유럽에 있는 나라, 독일',
+      uz: 'Germaniya',
+      en: 'Germany',
+      ru: 'Германия',
+    },
+
+    examples: [
+      {
+        korean: '저는 독일 사람이에요.',
+        translations: {
+          ko: '저는 독일 사람입니다.',
+          uz: 'Men germaniyalikman.',
+          en: 'I am German.',
+          ru: 'Я немец.',
+        },
+      },
+      {
+        korean: '마리아 씨는 독일 사람이에요.',
+        translations: {
+          ko: '마리아 씨는 독일 사람입니다.',
+          uz: 'Mariya germaniyalik.',
+          en: 'Maria is German.',
+          ru: 'Мария немка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '독일',
+      romanization: 'dogil',
+      ttsText: '독일',
+    },
+
+    media: {
+      emoji: '🇩🇪',
+      imageUrl: 'https://cdn.korio.app/words/dogil.webp',
+      imageAlt: {
+        ko: '독일 국기',
+        uz: 'Germaniya bayrog‘i',
+        en: 'German flag',
+        ru: 'флаг Германии',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '독일 사람'처럼 '사람'을 붙여 사용해요.",
+      uz: "Millatni aytganda '독일 사람' kabi '사람' so‘zi qo‘shiladi.",
+      en: "When talking about nationality, use it with 사람: '독일 사람.'",
+      ru: 'При указании национальности используется с 사람: «독일 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_united_states_noun',
+    senseKey: 'country-united-states',
+    korean: '미국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '북아메리카에 있는 나라, 미국',
+      uz: 'AQSh',
+      en: 'the United States',
+      ru: 'США',
+    },
+
+    examples: [
+      {
+        korean: '저는 미국 사람이에요.',
+        translations: {
+          ko: '저는 미국 사람입니다.',
+          uz: 'Men amerikalikman.',
+          en: 'I am American.',
+          ru: 'Я американец.',
+        },
+      },
+      {
+        korean: '스티븐 씨는 미국 사람이에요.',
+        translations: {
+          ko: '스티븐 씨는 미국 사람입니다.',
+          uz: 'Stiven amerikalik.',
+          en: 'Steven is American.',
+          ru: 'Стивен американец.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '미국',
+      romanization: 'miguk',
+      ttsText: '미국',
+    },
+
+    media: {
+      emoji: '🇺🇸',
+      imageUrl: 'https://cdn.korio.app/words/miguk.webp',
+      imageAlt: {
+        ko: '미국 국기',
+        uz: 'AQSh bayrog‘i',
+        en: 'United States flag',
+        ru: 'флаг США',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '미국 사람'이라고 해요.",
+      uz: "Millatni aytganda '미국 사람' shakli ishlatiladi.",
+      en: "Use '미국 사람' when referring to an American person.",
+      ru: 'Для обозначения американца используется «미국 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_united_kingdom_noun',
+    senseKey: 'country-united-kingdom',
+    korean: '영국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '유럽에 있는 나라, 영국',
+      uz: 'Buyuk Britaniya',
+      en: 'the United Kingdom',
+      ru: 'Великобритания',
+    },
+
+    examples: [
+      {
+        korean: '저는 영국 사람이에요.',
+        translations: {
+          ko: '저는 영국 사람입니다.',
+          uz: 'Men britaniyalikman.',
+          en: 'I am British.',
+          ru: 'Я британец.',
+        },
+      },
+      {
+        korean: '마이클 씨는 영국 사람입니다.',
+        translations: {
+          ko: '마이클 씨는 영국 사람입니다.',
+          uz: 'Maykl britaniyalik.',
+          en: 'Michael is British.',
+          ru: 'Майкл британец.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '영국',
+      romanization: 'yeongguk',
+      ttsText: '영국',
+    },
+
+    media: {
+      emoji: '🇬🇧',
+      imageUrl: 'https://cdn.korio.app/words/yeongguk.webp',
+      imageAlt: {
+        ko: '영국 국기',
+        uz: 'Buyuk Britaniya bayrog‘i',
+        en: 'United Kingdom flag',
+        ru: 'флаг Великобритании',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '영국 사람'이라고 해요.",
+      uz: "Millatni aytganda '영국 사람' shakli ishlatiladi.",
+      en: "Use '영국 사람' when referring to a British person.",
+      ru: 'Для обозначения британца используется «영국 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_japan_noun',
+    senseKey: 'country-japan',
+    korean: '일본',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '동아시아에 있는 나라, 일본',
+      uz: 'Yaponiya',
+      en: 'Japan',
+      ru: 'Япония',
+    },
+
+    examples: [
+      {
+        korean: '저는 일본 사람이에요.',
+        translations: {
+          ko: '저는 일본 사람입니다.',
+          uz: 'Men yaponiyalikman.',
+          en: 'I am Japanese.',
+          ru: 'Я японец.',
+        },
+      },
+      {
+        korean: '마리코 씨는 일본 사람입니다.',
+        translations: {
+          ko: '마리코 씨는 일본 사람입니다.',
+          uz: 'Mariko yaponiyalik.',
+          en: 'Mariko is Japanese.',
+          ru: 'Марико японка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '일본',
+      romanization: 'ilbon',
+      ttsText: '일본',
+    },
+
+    media: {
+      emoji: '🇯🇵',
+      imageUrl: 'https://cdn.korio.app/words/ilbon.webp',
+      imageAlt: {
+        ko: '일본 국기',
+        uz: 'Yaponiya bayrog‘i',
+        en: 'Japanese flag',
+        ru: 'флаг Японии',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '일본 사람'이라고 해요.",
+      uz: "Millatni aytganda '일본 사람' shakli ishlatiladi.",
+      en: "Use '일본 사람' when referring to a Japanese person.",
+      ru: 'Для обозначения японца используется «일본 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_china_noun',
+    senseKey: 'country-china',
+    korean: '중국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '동아시아에 있는 나라, 중국',
+      uz: 'Xitoy',
+      en: 'China',
+      ru: 'Китай',
+    },
+
+    examples: [
+      {
+        korean: '저는 중국 사람이에요.',
+        translations: {
+          ko: '저는 중국 사람입니다.',
+          uz: 'Men xitoylikman.',
+          en: 'I am Chinese.',
+          ru: 'Я китаец.',
+        },
+      },
+      {
+        korean: '나나 씨는 중국 사람이에요.',
+        translations: {
+          ko: '나나 씨는 중국 사람입니다.',
+          uz: 'Nana xitoylik.',
+          en: 'Nana is Chinese.',
+          ru: 'Нана китаянка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '중국',
+      romanization: 'jungguk',
+      ttsText: '중국',
+    },
+
+    media: {
+      emoji: '🇨🇳',
+      imageUrl: 'https://cdn.korio.app/words/jungguk.webp',
+      imageAlt: {
+        ko: '중국 국기',
+        uz: 'Xitoy bayrog‘i',
+        en: 'Chinese flag',
+        ru: 'флаг Китая',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '중국 사람'이라고 해요.",
+      uz: "Millatni aytganda '중국 사람' shakli ishlatiladi.",
+      en: "Use '중국 사람' when referring to a Chinese person.",
+      ru: 'Для обозначения китайца используется «중국 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_france_noun',
+    senseKey: 'country-france',
+    korean: '프랑스',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '유럽에 있는 나라, 프랑스',
+      uz: 'Fransiya',
+      en: 'France',
+      ru: 'Франция',
+    },
+
+    examples: [
+      {
+        korean: '저는 프랑스 사람이에요.',
+        translations: {
+          ko: '저는 프랑스 사람입니다.',
+          uz: 'Men fransiyalikman.',
+          en: 'I am French.',
+          ru: 'Я француз.',
+        },
+      },
+      {
+        korean: '줄리앙 씨는 프랑스 사람입니다.',
+        translations: {
+          ko: '줄리앙 씨는 프랑스 사람입니다.',
+          uz: 'Julian fransiyalik.',
+          en: 'Julian is French.',
+          ru: 'Жюльен француз.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '프랑스',
+      romanization: 'peurangseu',
+      ttsText: '프랑스',
+    },
+
+    media: {
+      emoji: '🇫🇷',
+      imageUrl: 'https://cdn.korio.app/words/peurangseu.webp',
+      imageAlt: {
+        ko: '프랑스 국기',
+        uz: 'Fransiya bayrog‘i',
+        en: 'French flag',
+        ru: 'флаг Франции',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '프랑스 사람'이라고 해요.",
+      uz: "Millatni aytganda '프랑스 사람' shakli ishlatiladi.",
+      en: "Use '프랑스 사람' when referring to a French person.",
+      ru: 'Для обозначения француза используется «프랑스 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_korea_noun',
+    senseKey: 'country-korea',
+    korean: '한국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '한국',
+      uz: 'Koreya',
+      en: 'Korea',
+      ru: 'Корея',
+    },
+
+    examples: [
+      {
+        korean: '저는 한국 사람이에요.',
+        translations: {
+          ko: '저는 한국 사람입니다.',
+          uz: 'Men koreyalikman.',
+          en: 'I am Korean.',
+          ru: 'Я кореец.',
+        },
+      },
+      {
+        korean: '지연 씨는 한국 사람이에요.',
+        translations: {
+          ko: '지연 씨는 한국 사람입니다.',
+          uz: 'Jiyon koreyalik.',
+          en: 'Jiyeon is Korean.',
+          ru: 'Чиён кореянка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '한국',
+      romanization: 'hanguk',
+      ttsText: '한국',
+    },
+
+    media: {
+      emoji: '🇰🇷',
+      imageUrl: 'https://cdn.korio.app/words/hanguk.webp',
+      imageAlt: {
+        ko: '한국 국기',
+        uz: 'Koreya bayrog‘i',
+        en: 'Korean flag',
+        ru: 'флаг Кореи',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '한국 사람'이라고 해요.",
+      uz: "Millatni aytganda '한국 사람' shakli ishlatiladi.",
+      en: "Use '한국 사람' when referring to a Korean person.",
+      ru: 'Для обозначения корейца используется «한국 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_australia_noun',
+    senseKey: 'country-australia',
+    korean: '호주',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '오세아니아에 있는 나라, 호주',
+      uz: 'Avstraliya',
+      en: 'Australia',
+      ru: 'Австралия',
+    },
+
+    examples: [
+      {
+        korean: '저는 호주 사람이에요.',
+        translations: {
+          ko: '저는 호주 사람입니다.',
+          uz: 'Men avstraliyalikman.',
+          en: 'I am Australian.',
+          ru: 'Я австралиец.',
+        },
+      },
+      {
+        korean: '켈리 씨는 호주 사람이에요.',
+        translations: {
+          ko: '켈리 씨는 호주 사람입니다.',
+          uz: 'Kelli avstraliyalik.',
+          en: 'Kelly is Australian.',
+          ru: 'Келли австралийка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '호주',
+      romanization: 'hoju',
+      ttsText: '호주',
+    },
+
+    media: {
+      emoji: '🇦🇺',
+      imageUrl: 'https://cdn.korio.app/words/hoju.webp',
+      imageAlt: {
+        ko: '호주 국기',
+        uz: 'Avstraliya bayrog‘i',
+        en: 'Australian flag',
+        ru: 'флаг Австралии',
+      },
+    },
+
+    tags: ['country', 'nationality', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "국적을 말할 때는 '호주 사람'이라고 해요.",
+      uz: "Millatni aytganda '호주 사람' shakli ishlatiladi.",
+      en: "Use '호주 사람' when referring to an Australian person.",
+      ru: 'Для обозначения австралийца используется «호주 사람».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 직업
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_singer_noun',
+    senseKey: 'occupation-singer',
+    korean: '가수',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '노래를 부르는 일을 하는 사람',
+      uz: 'qo‘shiqchi',
+      en: 'singer',
+      ru: 'певец или певица',
+    },
+
+    examples: [
+      {
+        korean: '저는 가수예요.',
+        translations: {
+          ko: '저는 가수입니다.',
+          uz: 'Men qo‘shiqchiman.',
+          en: 'I am a singer.',
+          ru: 'Я певец.',
+        },
+      },
+      {
+        korean: '저스틴 씨는 가수입니다.',
+        translations: {
+          ko: '저스틴 씨의 직업은 가수입니다.',
+          uz: 'Jastin qo‘shiqchi.',
+          en: 'Justin is a singer.',
+          ru: 'Джастин певец.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '가수',
+      romanization: 'gasu',
+      ttsText: '가수',
+    },
+
+    media: {
+      emoji: '🧑‍🎤',
+      imageUrl: 'https://cdn.korio.app/words/gasu.webp',
+      imageAlt: {
+        ko: '노래를 부르는 가수',
+        uz: 'qo‘shiq aytayotgan xonanda',
+        en: 'a singer singing',
+        ru: 'поющий певец',
+      },
+    },
+
+    tags: ['occupation', 'people', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "직업을 소개할 때 '저는 가수예요'처럼 사용해요.",
+      uz: "Kasbni aytganda '저는 가수예요' kabi ishlatiladi.",
+      en: "Used to describe someone's occupation, as in '저는 가수예요.'",
+      ru: 'Используется для обозначения профессии: «저는 가수예요».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_military_personnel_noun',
+    senseKey: 'occupation-military-personnel',
+    korean: '군인',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '군대에서 일하는 사람',
+      uz: 'harbiy xizmatchi',
+      en: 'military personnel',
+      ru: 'военнослужащий',
+    },
+
+    examples: [
+      {
+        korean: '저는 군인이에요.',
+        translations: {
+          ko: '저는 군인입니다.',
+          uz: 'Men harbiy xizmatchiman.',
+          en: 'I am in the military.',
+          ru: 'Я военнослужащий.',
+        },
+      },
+      {
+        korean: '알렉스 씨는 군인입니다.',
+        translations: {
+          ko: '알렉스 씨의 직업은 군인입니다.',
+          uz: 'Aleks harbiy xizmatchi.',
+          en: 'Alex is in the military.',
+          ru: 'Алекс военнослужащий.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '군인',
+      romanization: 'gunin',
+      ttsText: '군인',
+    },
+
+    media: {
+      emoji: '🪖',
+      imageUrl: 'https://cdn.korio.app/words/gunin.webp',
+      imageAlt: {
+        ko: '군복을 입은 군인',
+        uz: 'harbiy kiyimdagi harbiy xizmatchi',
+        en: 'a person in military uniform',
+        ru: 'военнослужащий в форме',
+      },
+    },
+
+    tags: ['occupation', 'people', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "직업이나 신분을 말할 때 '군인입니다'처럼 사용해요.",
+      uz: "Kasb yoki xizmat turini aytganda '군인입니다' shaklida ishlatiladi.",
+      en: 'Used when describing someone as a member of the military.',
+      ru: 'Используется, когда говорят, что человек служит в армии.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_reporter_noun',
+    senseKey: 'occupation-reporter',
+    korean: '기자',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '뉴스나 기사를 취재하고 전하는 사람',
+      uz: 'jurnalist, muxbir',
+      en: 'reporter',
+      ru: 'журналист, репортёр',
+    },
+
+    examples: [
+      {
+        korean: '저는 기자예요.',
+        translations: {
+          ko: '저는 기자입니다.',
+          uz: 'Men jurnalistman.',
+          en: 'I am a reporter.',
+          ru: 'Я журналист.',
+        },
+      },
+      {
+        korean: '마이클 씨는 기자입니다.',
+        translations: {
+          ko: '마이클 씨의 직업은 기자입니다.',
+          uz: 'Maykl jurnalist.',
+          en: 'Michael is a reporter.',
+          ru: 'Майкл журналист.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '기자',
+      romanization: 'gija',
+      ttsText: '기자',
+    },
+
+    media: {
+      emoji: '📰',
+      imageUrl: 'https://cdn.korio.app/words/gija.webp',
+      imageAlt: {
+        ko: '취재하는 기자',
+        uz: 'xabar tayyorlayotgan jurnalist',
+        en: 'a reporter covering a story',
+        ru: 'журналист, готовящий репортаж',
+      },
+    },
+
+    tags: ['occupation', 'people', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '신문이나 방송 등의 취재를 하는 사람을 말해요.',
+      uz: 'Gazeta, televideniye yoki boshqa OAV uchun xabar tayyorlaydigan odamni bildiradi.',
+      en: 'Refers to a person who reports news for newspapers, television, or other media.',
+      ru: 'Так называют человека, который готовит новости для газет, телевидения и других СМИ.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_teacher_noun',
+    senseKey: 'occupation-teacher',
+    korean: '선생님',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '학생을 가르치는 사람을 높여 부르는 말',
+      uz: 'o‘qituvchi',
+      en: 'teacher',
+      ru: 'учитель, преподаватель',
+    },
+
+    examples: [
+      {
+        korean: '저는 선생님이에요.',
+        translations: {
+          ko: '저는 선생님입니다.',
+          uz: 'Men o‘qituvchiman.',
+          en: 'I am a teacher.',
+          ru: 'Я учитель.',
+        },
+      },
+      {
+        korean: '수진 씨는 선생님입니다.',
+        translations: {
+          ko: '수진 씨의 직업은 선생님입니다.',
+          uz: 'Sujin o‘qituvchi.',
+          en: 'Sujin is a teacher.',
+          ru: 'Суджин учитель.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '선생님',
+      romanization: 'seonsaengnim',
+      ttsText: '선생님',
+    },
+
+    media: {
+      emoji: '🧑‍🏫',
+      imageUrl: 'https://cdn.korio.app/words/seonsaengnim.webp',
+      imageAlt: {
+        ko: '학생을 가르치는 선생님',
+        uz: 'o‘quvchiga dars berayotgan o‘qituvchi',
+        en: 'a teacher teaching a student',
+        ru: 'учитель, обучающий ученика',
+      },
+    },
+
+    tags: ['occupation', 'people', 'school', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'선생님'은 교사를 가리킬 뿐 아니라 상대를 높여 부를 때도 사용할 수 있어요.",
+      uz: "'선생님' o‘qituvchini bildiradi va ba'zan kishiga hurmat bilan murojaat qilishda ham ishlatiladi.",
+      en: "선생님 means 'teacher' and can also be used as a respectful form of address.",
+      ru: '선생님 означает «учитель», а также может использоваться как уважительное обращение.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cook_noun',
+    senseKey: 'occupation-cook',
+    korean: '요리사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '음식을 만드는 일을 하는 사람',
+      uz: 'oshpaz',
+      en: 'cook, chef',
+      ru: 'повар',
+    },
+
+    examples: [
+      {
+        korean: '저는 요리사예요.',
+        translations: {
+          ko: '저는 요리사입니다.',
+          uz: 'Men oshpazman.',
+          en: 'I am a cook.',
+          ru: 'Я повар.',
+        },
+      },
+      {
+        korean: '민수 씨는 요리사입니다.',
+        translations: {
+          ko: '민수 씨의 직업은 요리사입니다.',
+          uz: 'Minsu oshpaz.',
+          en: 'Minsu is a cook.',
+          ru: 'Минсу повар.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '요리사',
+      romanization: 'yorisa',
+      ttsText: '요리사',
+    },
+
+    media: {
+      emoji: '🧑‍🍳',
+      imageUrl: 'https://cdn.korio.app/words/yorisa.webp',
+      imageAlt: {
+        ko: '음식을 만드는 요리사',
+        uz: 'ovqat tayyorlayotgan oshpaz',
+        en: 'a cook preparing food',
+        ru: 'повар, готовящий еду',
+      },
+    },
+
+    tags: ['occupation', 'people', 'food', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '직업으로 음식을 만드는 사람을 말해요.',
+      uz: 'Kasb sifatida ovqat tayyorlaydigan odamni bildiradi.',
+      en: 'Refers to someone whose job is preparing food.',
+      ru: 'Так называют человека, который профессионально готовит еду.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_doctor_noun',
+    senseKey: 'occupation-doctor',
+    korean: '의사',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '아픈 사람을 진료하고 치료하는 사람',
+      uz: 'shifokor',
+      en: 'doctor',
+      ru: 'врач',
+    },
+
+    examples: [
+      {
+        korean: '저는 의사예요.',
+        translations: {
+          ko: '저는 의사입니다.',
+          uz: 'Men shifokorman.',
+          en: 'I am a doctor.',
+          ru: 'Я врач.',
+        },
+      },
+      {
+        korean: '마리아 씨는 의사예요.',
+        translations: {
+          ko: '마리아 씨의 직업은 의사입니다.',
+          uz: 'Mariya shifokor.',
+          en: 'Maria is a doctor.',
+          ru: 'Мария врач.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '의사',
+      romanization: 'uisa',
+      ttsText: '의사',
+    },
+
+    media: {
+      emoji: '🧑‍⚕️',
+      imageUrl: 'https://cdn.korio.app/words/uisa.webp',
+      imageAlt: {
+        ko: '환자를 진료하는 의사',
+        uz: 'bemorni ko‘rayotgan shifokor',
+        en: 'a doctor examining a patient',
+        ru: 'врач, осматривающий пациента',
+      },
+    },
+
+    tags: ['occupation', 'people', 'medical', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '병원 등에서 환자를 진료하고 치료하는 사람을 말해요.',
+      uz: 'Kasalxonada bemorlarni tekshiradigan va davolaydigan odamni bildiradi.',
+      en: 'Refers to a medical professional who examines and treats patients.',
+      ru: 'Так называют медицинского специалиста, который обследует и лечит пациентов.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_student_noun',
+    senseKey: 'occupation-status-student',
+    korean: '학생',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '학교나 교육기관에서 배우는 사람',
+      uz: 'o‘quvchi, talaba',
+      en: 'student',
+      ru: 'учащийся, студент',
+    },
+
+    examples: [
+      {
+        korean: '저는 학생이에요.',
+        translations: {
+          ko: '저는 학생입니다.',
+          uz: 'Men talabaman.',
+          en: 'I am a student.',
+          ru: 'Я студент.',
+        },
+      },
+      {
+        korean: '스티븐 씨는 학생입니다.',
+        translations: {
+          ko: '스티븐 씨는 학생입니다.',
+          uz: 'Stiven talaba.',
+          en: 'Steven is a student.',
+          ru: 'Стивен студент.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '학생',
+      romanization: 'haksaeng',
+      ttsText: '학생',
+    },
+
+    media: {
+      emoji: '🎓',
+      imageUrl: 'https://cdn.korio.app/words/haksaeng.webp',
+      imageAlt: {
+        ko: '공부하는 학생',
+        uz: 'o‘qiyotgan talaba',
+        en: 'a student studying',
+        ru: 'учащийся студент',
+      },
+    },
+
+    tags: ['people', 'school', 'education', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '학교나 교육기관에서 공부하는 사람을 말해요.',
+      uz: "Maktab, universitet yoki boshqa ta'lim muassasasida o‘qiydigan odamni bildiradi.",
+      en: 'Refers to someone studying at a school, university, or other educational institution.',
+      ru: 'Так называют человека, который учится в школе, университете или другом учебном заведении.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_company_employee_noun',
+    senseKey: 'occupation-company-employee',
+    korean: '회사원',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '회사에 다니며 일하는 사람',
+      uz: 'kompaniya xodimi',
+      en: 'company employee, office worker',
+      ru: 'сотрудник компании, офисный работник',
+    },
+
+    examples: [
+      {
+        korean: '저는 회사원이에요.',
+        translations: {
+          ko: '저는 회사원입니다.',
+          uz: 'Men kompaniya xodimiman.',
+          en: 'I am a company employee.',
+          ru: 'Я сотрудник компании.',
+        },
+      },
+      {
+        korean: '아키라 씨는 회사원입니다.',
+        translations: {
+          ko: '아키라 씨의 직업은 회사원입니다.',
+          uz: 'Akira kompaniya xodimi.',
+          en: 'Akira is a company employee.',
+          ru: 'Акира сотрудник компании.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '회사원',
+      romanization: 'hoesawon',
+      ttsText: '회사원',
+    },
+
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/hoesawon.webp',
+      imageAlt: {
+        ko: '회사에서 일하는 회사원',
+        uz: 'kompaniyada ishlayotgan xodim',
+        en: 'an employee working at a company',
+        ru: 'сотрудник, работающий в компании',
+      },
+    },
+
+    tags: ['occupation', 'people', 'work', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: '회사에 소속되어 일하는 사람을 말해요.',
+      uz: 'Kompaniyada ishlaydigan xodimni bildiradi.',
+      en: 'Refers to someone who works for a company.',
+      ru: 'Так называют человека, работающего в компании.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];

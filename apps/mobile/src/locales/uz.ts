@@ -1250,7 +1250,7 @@ export default {
   pronQuiz: {
     perQuestion: "Har savol {{pts}} ball",
     hardUnlocked: "HARD rejim ochildi!",
-    hardNeed: "HARD uchun kamida {{need}} ta to'g'ri kerak",
+    hardNeed: "HARD uchun kamida {{need}} ta to'g'ri topish kerak",
     hardDone: "HARD ham tugadi. Bosqich yakunlandi!",
     practice: "Talaffuz qilish",
     lecture: "Dars",

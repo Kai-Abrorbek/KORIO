@@ -1,612 +1,4998 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 import { withTypedAnswerGrading } from './answer-grading';
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 
 export const S3_UNIT2_WORDS = [
   {
+    code: 'word_hobby_noun',
+    senseKey: 'leisure-hobby',
     korean: '취미',
-    uz: 'hobbi',
-    en: 'hobby',
-    ru: 'хобби',
-    emoji: '🎯',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '즐거움을 위해 자주 하는 활동',
+      uz: 'hobbi',
+      en: 'hobby',
+      ru: 'хобби',
+    },
+    examples: [
+      {
+        korean: '제 취미는 독서예요.',
+        translations: {
+          ko: '제가 좋아하는 취미는 책 읽기예요.',
+          uz: 'Mening hobbim kitob o‘qish.',
+          en: 'My hobby is reading.',
+          ru: 'Моё хобби — чтение.',
+        },
+      },
+      {
+        korean: '취미가 뭐예요?',
+        translations: {
+          ko: '좋아해서 자주 하는 활동이 뭐예요?',
+          uz: 'Hobbingiz nima?',
+          en: 'What is your hobby?',
+          ru: 'Какое у вас хобби?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '취미',
+      romanization: 'chwimi',
+      ttsText: '취미',
+    },
+    media: {
+      emoji: '🎯',
+      imageUrl: 'https://cdn.korio.app/words/chwimi.webp',
+      imageAlt: {
+        ko: '여러 가지 취미 활동',
+        uz: 'turli hobbi mashg‘ulotlari',
+        en: 'various hobby activities',
+        ru: 'разные хобби',
+      },
+    },
+    tags: ['hobby', 'leisure', 'personal-info', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'취미가 뭐예요?'는 상대방의 취미를 물을 때 자주 사용해요.",
+      uz: "'취미가 뭐예요?' boshqa odamning hobbisini so‘rashda ishlatiladi.",
+      en: "'취미가 뭐예요?' is a common way to ask about someone's hobby.",
+      ru: "'취미가 뭐예요?' — частый способ спросить о хобби.",
+    },
+    isCore: true,
+    isActive: true,
   },
-  {
-    korean: '영화를 보다',
-    uz: "kino ko'rmoq",
-    en: 'to watch a movie',
-    ru: 'смотреть фильм',
-    emoji: '🎬',
-  },
-  {
-    korean: '컴퓨터를 하다',
-    uz: 'kompyuterda ishlamoq',
-    en: 'to use a computer',
-    ru: 'заниматься за компьютером',
-    emoji: '💻',
-  },
-  {
-    korean: '음악을 듣다',
-    uz: 'musiqa tinglamoq',
-    en: 'to listen to music',
-    ru: 'слушать музыку',
-    emoji: '🎧',
-  },
-  {
-    korean: '그림을 그리다',
-    uz: 'rasm chizmoq',
-    en: 'to draw',
-    ru: 'рисовать',
-    emoji: '🎨',
-  },
-  {
-    korean: '사진을 찍다',
-    uz: 'suratga olmoq',
-    en: 'to take pictures',
-    ru: 'фотографировать',
-    emoji: '📷',
-  },
-  {
-    korean: '책을 읽다',
-    uz: "kitob o'qimoq",
-    en: 'to read a book',
-    ru: 'читать книгу',
-    emoji: '📖',
-  },
-  {
-    korean: '피아노를 치다',
-    uz: 'pianino chalmoq',
-    en: 'to play the piano',
-    ru: 'играть на пианино',
-    emoji: '🎹',
-  },
-  {
-    korean: '영화 감상',
-    uz: 'kino tomosha qilish',
-    en: 'watching movies',
-    ru: 'просмотр фильмов',
-    emoji: '🍿',
-  },
-  {
-    korean: '음악 감상',
-    uz: 'musiqa tinglash',
-    en: 'listening to music',
-    ru: 'прослушивание музыки',
-    emoji: '🎵',
-  },
-  {
-    korean: '낚시',
-    uz: 'baliq ovlash',
-    en: 'fishing',
-    ru: 'рыбалка',
-    emoji: '🎣',
-  },
-  {
-    korean: '등산',
-    uz: "tog'ga chiqish",
-    en: 'hiking',
-    ru: 'поход в горы',
-    emoji: '🥾',
-  },
-  {
-    korean: '독서',
-    uz: "kitob o'qish",
-    en: 'reading',
-    ru: 'чтение',
-    emoji: '📚',
-  },
-  {
-    korean: '아주',
-    uz: 'juda',
-    en: 'very',
-    ru: 'очень',
-    emoji: '💯',
-  },
-  {
-    korean: '별로',
-    uz: 'unchalik',
-    en: 'not very',
-    ru: 'не очень',
-    emoji: '😐',
-  },
-  {
-    korean: '전혀',
-    uz: 'umuman',
-    en: 'not at all',
-    ru: 'совсем не',
-    emoji: '🚫',
-  },
-  {
-    korean: '태권도',
-    uz: 'taekvondo',
-    en: 'taekwondo',
-    ru: 'тхэквондо',
-    emoji: '🥋',
-  },
-  {
-    korean: '멀다',
-    uz: 'uzoq bo‘lmoq',
-    en: 'to be far',
-    ru: 'быть далеко',
-    emoji: '📍',
-  },
-  {
-    korean: '걸리다',
-    uz: 'vaqt ketmoq',
-    en: 'to take time',
-    ru: 'занимать время',
-    emoji: '⏱️',
-  },
-  {
-    korean: '요리하다',
-    uz: 'ovqat pishirmoq',
-    en: 'to cook',
-    ru: 'готовить',
-    emoji: '🍳',
-  },
-  {
-    korean: '즐겁다',
-    uz: 'zavqli bo‘lmoq',
-    en: 'to be enjoyable',
-    ru: 'быть приятным',
-    emoji: '😄',
-  },
-  {
-    korean: '단어',
-    uz: 'so‘z',
-    en: 'word',
-    ru: 'слово',
-    emoji: '🔤',
-  },
-  {
-    korean: '외우다',
-    uz: 'yodlamoq',
-    en: 'to memorize',
-    ru: 'запоминать',
-    emoji: '🧠',
-  },
-  {
-    korean: '고향 음식',
-    uz: 'vatan taomi',
-    en: 'food from home',
-    ru: 'еда с родины',
-    emoji: '🍲',
-  },
-  {
-    korean: '힘들다',
-    uz: 'qiyin bo‘lmoq',
-    en: 'to be difficult',
-    ru: 'быть тяжёлым',
-    emoji: '😫',
-  },
-  {
-    korean: '혼자 살다',
-    uz: 'yolg‘iz yashamoq',
-    en: 'to live alone',
-    ru: 'жить одному',
-    emoji: '🏠',
-  },
-  {
-    korean: '편하다',
-    uz: 'qulay bo‘lmoq',
-    en: 'to be comfortable',
-    ru: 'быть удобным',
-    emoji: '😌',
-  },
-  {
-    korean: '바다',
-    uz: 'dengiz',
-    en: 'sea',
-    ru: 'море',
-    emoji: '🌊',
-  },
-  {
-    korean: '여행하다',
-    uz: 'sayohat qilmoq',
-    en: 'to travel',
-    ru: 'путешествовать',
-    emoji: '🧳',
-  },
-  {
-    korean: '전화하다',
-    uz: 'telefon qilmoq',
-    en: 'to call',
-    ru: 'звонить',
-    emoji: '📞',
-  },
-  {
-    korean: '노래하다',
-    uz: 'qo‘shiq aytmoq',
-    en: 'to sing',
-    ru: 'петь',
-    emoji: '🎤',
-  },
-  {
-    korean: '야구',
-    uz: 'beysbol',
-    en: 'baseball',
-    ru: 'бейсбол',
-    emoji: '⚾',
-  },
-  {
-    korean: '구경하다',
-    uz: 'tomosha qilmoq',
-    en: 'to watch',
-    ru: 'наблюдать',
-    emoji: '👀',
-  },
-  {
-    korean: '텔레비전',
-    uz: 'televizor',
-    en: 'television',
-    ru: 'телевизор',
-    emoji: '📺',
-  },
-  {
-    korean: '운동장',
-    uz: 'sport maydoni',
-    en: 'sports field',
-    ru: 'спортивная площадка',
-    emoji: '🏟️',
-  },
-  {
-    korean: '축구하다',
-    uz: 'futbol o‘ynamoq',
-    en: 'to play soccer',
-    ru: 'играть в футбол',
-    emoji: '⚽',
-  },
-  {
-    korean: '춤추다',
-    uz: 'raqsga tushmoq',
-    en: 'to dance',
-    ru: 'танцевать',
-    emoji: '💃',
-  },
-  {
-    korean: '남자 친구',
-    uz: 'yigit',
-    en: 'boyfriend',
-    ru: 'парень',
-    emoji: '💙',
-  },
-  {
-    korean: '조금 전',
-    uz: 'biroz oldin',
-    en: 'a little while ago',
-    ru: 'недавно',
-    emoji: '⏪',
-  },
-  {
-    korean: '수영하다',
-    uz: 'suzmoq',
-    en: 'to swim',
-    ru: 'плавать',
-    emoji: '🏊',
-  },
-  {
-    korean: '테니스를 치다',
-    uz: 'tennis o‘ynamoq',
-    en: 'to play tennis',
-    ru: 'играть в теннис',
-    emoji: '🎾',
-  },
-  {
-    korean: '스케이트를 타다',
-    uz: 'konkida uchmoq',
-    en: 'to skate',
-    ru: 'кататься на коньках',
-    emoji: '⛸️',
-  },
-  {
-    korean: '젓가락질하다',
-    uz: 'tayoqchalarni ishlatmoq',
-    en: 'to use chopsticks',
-    ru: 'пользоваться палочками',
-    emoji: '🥢',
-  },
-  {
-    korean: '기타를 치다',
-    uz: 'gitara chalmoq',
-    en: 'to play the guitar',
-    ru: 'играть на гитаре',
-    emoji: '🎸',
-  },
-  {
-    korean: '잡채를 만들다',
-    uz: 'japchae tayyorlamoq',
-    en: 'to make japchae',
-    ru: 'готовить чапчхэ',
-    emoji: '🍜',
-  },
-  {
-    korean: '선수',
-    uz: 'sportchi',
-    en: 'athlete',
-    ru: 'спортсмен',
-    emoji: '🏅',
-  },
-  {
-    korean: '고등학교',
-    uz: 'yuqori maktab',
-    en: 'high school',
-    ru: 'старшая школа',
-    emoji: '🏫',
-  },
-  {
-    korean: '자전거를 타다',
-    uz: 'velosiped minmoq',
-    en: 'to ride a bicycle',
-    ru: 'ездить на велосипеде',
-    emoji: '🚲',
-  },
-  {
-    korean: '스페인어',
-    uz: 'ispan tili',
-    en: 'Spanish',
-    ru: 'испанский язык',
-    emoji: '🇪🇸',
-  },
-  {
-    korean: '탁구를 치다',
-    uz: 'stol tennisi o‘ynamoq',
-    en: 'to play table tennis',
-    ru: 'играть в настольный теннис',
-    emoji: '🏓',
-  },
-  {
-    korean: '한자',
-    uz: 'xitoy ieroglifi',
-    en: 'Chinese character',
-    ru: 'китайский иероглиф',
-    emoji: '㊗️',
-  },
-  {
-    korean: '아키라',
-    uz: 'Akira',
-    en: 'Akira',
-    ru: 'Акира',
-    emoji: '👤',
-  },
-  {
-    korean: '식당',
-    uz: 'restoran',
-    en: 'restaurant',
-    ru: 'ресторан',
-    emoji: '🍽️',
-  },
-  {
-    korean: '케이크',
-    uz: 'tort',
-    en: 'cake',
-    ru: 'торт',
-    emoji: '🍰',
-  },
-  {
-    korean: '아까',
-    uz: 'biroz oldin',
-    en: 'a little while ago',
-    ru: 'недавно',
-    emoji: '⏪',
-  },
-  {
-    korean: '지난번',
-    uz: 'o‘tgan safar',
-    en: 'last time',
-    ru: 'в прошлый раз',
-    emoji: '↩️',
-  },
-  {
-    korean: '차',
-    uz: 'choy',
-    en: 'tea',
-    ru: 'чай',
-    emoji: '🍵',
-  },
-  {
-    korean: '녹차',
-    uz: 'ko‘k choy',
-    en: 'green tea',
-    ru: 'зелёный чай',
-    emoji: '🍵',
-  },
-  {
-    korean: '슬프다',
-    uz: 'g‘amgin bo‘lmoq',
-    en: 'to be sad',
-    ru: 'быть грустным',
-    emoji: '😢',
-  },
-  {
-    korean: '지갑',
-    uz: 'hamyon',
-    en: 'wallet',
-    ru: 'кошелёк',
-    emoji: '👛',
-  },
-  {
-    korean: '잃어버리다',
-    uz: 'yo‘qotmoq',
-    en: 'to lose',
-    ru: 'потерять',
-    emoji: '🔎',
-  },
-  {
-    korean: '명동',
-    uz: 'Myeongdong',
-    en: 'Myeongdong',
-    ru: 'Мёндон',
-    emoji: '🛍️',
-  },
-  {
-    korean: '지하철',
-    uz: 'metro',
-    en: 'subway',
-    ru: 'метро',
-    emoji: '🚇',
-  },
-  {
-    korean: '쇼핑하다',
-    uz: 'xarid qilmoq',
-    en: 'to shop',
-    ru: 'ходить за покупками',
-    emoji: '🛍️',
-  },
-  {
-    korean: '숙제를 내다',
-    uz: 'uy vazifasini topshirmoq',
-    en: 'to hand in homework',
-    ru: 'сдавать домашнее задание',
-    emoji: '📝',
-  },
-  {
-    korean: '마리코',
-    uz: 'Mariko',
-    en: 'Mariko',
-    ru: 'Марико',
-    emoji: '👤',
-  },
-  {
-    korean: '히엔',
-    uz: 'Hien',
-    en: 'Hien',
-    ru: 'Хиен',
-    emoji: '👤',
-  },
-  {
-    korean: '은행',
-    uz: 'bank',
-    en: 'bank',
-    ru: 'банк',
-    emoji: '🏦',
-  },
-  {
-    korean: '맵다',
-    uz: 'achchiq bo‘lmoq',
-    en: 'to be spicy',
-    ru: 'быть острым',
-    emoji: '🌶️',
-  },
-  {
-    korean: '크다',
-    uz: 'katta bo‘lmoq',
-    en: 'to be big',
-    ru: 'быть большим',
-    emoji: '📏',
-  },
-  {
-    korean: '많다',
-    uz: 'ko‘p bo‘lmoq',
-    en: 'to be many',
-    ru: 'быть многочисленным',
-    emoji: '👥',
-  },
-  {
-    korean: '바쁘다',
-    uz: 'band bo‘lmoq',
-    en: 'to be busy',
-    ru: 'быть занятым',
-    emoji: '💨',
-  },
-  {
-    korean: '늦다',
-    uz: 'kechikmoq',
-    en: 'to be late',
-    ru: 'опаздывать',
-    emoji: '⏰',
-  },
-  {
-    korean: '문법',
-    uz: 'grammatika',
-    en: 'grammar',
-    ru: 'грамматика',
-    emoji: '📘',
-  },
-  {
-    korean: '이해하다',
-    uz: 'tushunmoq',
-    en: 'to understand',
-    ru: 'понимать',
-    emoji: '💡',
-  },
-  {
-    korean: '시끄럽다',
-    uz: 'shovqinli bo‘lmoq',
-    en: 'to be loud',
-    ru: 'быть шумным',
-    emoji: '🔊',
-  },
-  {
-    korean: '배고프다',
-    uz: 'och bo‘lmoq',
-    en: 'to be hungry',
-    ru: 'быть голодным',
-    emoji: '🍽️',
-  },
-  {
-    korean: '중간시험',
-    uz: 'oraliq imtihon',
-    en: 'midterm exam',
-    ru: 'промежуточный экзамен',
-    emoji: '📝',
-  },
-  {
-    korean: '운전하다',
-    uz: 'mashina haydamoq',
-    en: 'to drive',
-    ru: 'водить машину',
-    emoji: '🚗',
-  },
-  {
-    korean: '스키를 타다',
-    uz: 'chang‘ida uchmoq',
-    en: 'to ski',
-    ru: 'кататься на лыжах',
-    emoji: '⛷️',
-  },
-  {
-    korean: '콘서트',
-    uz: 'konsert',
-    en: 'concert',
-    ru: 'концерт',
-    emoji: '🎤',
-  },
-  {
-    korean: '다녀오다',
-    uz: 'borib kelmoq',
-    en: 'to go and come back',
-    ru: 'сходить и вернуться',
-    emoji: '↩️',
-  },
-  {
-    korean: '소개해 주다',
-    uz: 'tanishtirib bermoq',
-    en: 'to introduce someone',
-    ru: 'познакомить',
-    emoji: '🤝',
-  },
-  {
-    korean: '정우',
-    uz: 'Jeongu',
-    en: 'Jeongu',
-    ru: 'Чону',
-    emoji: '👤',
-  },
-  {
-    korean: '옷',
-    uz: 'kiyim',
-    en: 'clothes',
-    ru: 'одежда',
-    emoji: '👕',
-  },
-  {
-    korean: '한국 음식',
-    uz: 'koreys taomi',
-    en: 'Korean food',
-    ru: 'корейская еда',
-    emoji: '🍲',
-  },
-];
 
+  {
+    code: 'word_watch_movie_verb',
+    senseKey: 'leisure-watch-movie',
+    korean: '영화를 보다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '영화를 감상하다',
+      uz: "kino ko'rmoq",
+      en: 'to watch a movie',
+      ru: 'смотреть фильм',
+    },
+    examples: [
+      {
+        korean: '주말에 영화를 봐요.',
+        translations: {
+          ko: '주말에 영화를 감상해요.',
+          uz: 'Dam olish kuni kino ko‘raman.',
+          en: 'I watch a movie on the weekend.',
+          ru: 'На выходных я смотрю фильм.',
+        },
+      },
+      {
+        korean: '친구하고 영화를 봤어요.',
+        translations: {
+          ko: '친구와 함께 영화를 봤어요.',
+          uz: 'Do‘stim bilan kino ko‘rdim.',
+          en: 'I watched a movie with my friend.',
+          ru: 'Я посмотрел фильм с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '영화를 보다',
+      romanization: 'yeonghwareul boda',
+      ttsText: '영화를 보다',
+    },
+    media: {
+      emoji: '🎬',
+      imageUrl: 'https://cdn.korio.app/words/yeonghwareul-boda.webp',
+      imageAlt: {
+        ko: '영화를 보는 사람',
+        uz: 'kino ko‘rayotgan odam',
+        en: 'a person watching a movie',
+        ru: 'человек, смотрящий фильм',
+      },
+    },
+    tags: ['hobby', 'movie', 'leisure', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'영화'에 목적격 조사 '-를'을 붙여 '영화를 보다'라고 해요.",
+      uz: "'영화' bilan '-를' qo‘llanib '영화를 보다' deyiladi.",
+      en: "The common expression is '영화를 보다'.",
+      ru: "Обычное выражение — '영화를 보다'.",
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_use_computer_verb',
+    senseKey: 'daily-life-use-computer',
+    korean: '컴퓨터를 하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '컴퓨터를 사용해 여러 활동을 하다',
+      uz: 'kompyuterda ishlamoq',
+      en: 'to use a computer',
+      ru: 'заниматься за компьютером',
+    },
+    examples: [
+      {
+        korean: '저녁에 컴퓨터를 해요.',
+        translations: {
+          ko: '저녁에 컴퓨터를 사용해요.',
+          uz: 'Kechqurun kompyuterda ishlayman.',
+          en: 'I use the computer in the evening.',
+          ru: 'Вечером я занимаюсь за компьютером.',
+        },
+      },
+      {
+        korean: '집에서 컴퓨터를 많이 해요.',
+        translations: {
+          ko: '집에서 컴퓨터를 자주 사용해요.',
+          uz: 'Uyda kompyuterdan ko‘p foydalanaman.',
+          en: 'I use the computer a lot at home.',
+          ru: 'Дома я много занимаюсь за компьютером.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '컴퓨터를 하다',
+      romanization: 'keompyuteoreul hada',
+      ttsText: '컴퓨터를 하다',
+    },
+    media: {
+      emoji: '💻',
+      imageUrl: 'https://cdn.korio.app/words/keompyuteoreul-hada.webp',
+      imageAlt: {
+        ko: '컴퓨터를 사용하는 사람',
+        uz: 'kompyuterdan foydalanayotgan odam',
+        en: 'a person using a computer',
+        ru: 'человек за компьютером',
+      },
+    },
+    tags: ['computer', 'daily-life', 'hobby', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '일상 회화에서 컴퓨터로 게임이나 인터넷 등을 하는 것을 넓게 표현할 수 있어요.',
+      uz: 'Kompyuterda o‘yin, internet va boshqa ishlarni qilishni umumiy ifodalaydi.',
+      en: 'In casual speech, it can broadly mean spending time using a computer.',
+      ru: 'В разговорной речи может широко означать занятия за компьютером.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_listen_to_music_verb',
+    senseKey: 'leisure-listen-to-music',
+    korean: '음악을 듣다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '음악 소리를 귀로 듣다',
+      uz: 'musiqa tinglamoq',
+      en: 'to listen to music',
+      ru: 'слушать музыку',
+    },
+    examples: [
+      {
+        korean: '저는 음악을 자주 들어요.',
+        translations: {
+          ko: '저는 평소에 음악을 자주 들어요.',
+          uz: 'Men tez-tez musiqa tinglayman.',
+          en: 'I often listen to music.',
+          ru: 'Я часто слушаю музыку.',
+        },
+      },
+      {
+        korean: '버스에서 음악을 들었어요.',
+        translations: {
+          ko: '버스를 타고 가면서 음악을 들었어요.',
+          uz: 'Avtobusda musiqa tingladim.',
+          en: 'I listened to music on the bus.',
+          ru: 'Я слушал музыку в автобусе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '음악을 듣다',
+      romanization: 'eumageul deutda',
+      ttsText: '음악을 듣다',
+    },
+    media: {
+      emoji: '🎧',
+      imageUrl: 'https://cdn.korio.app/words/eumageul-deutda.webp',
+      imageAlt: {
+        ko: '헤드폰으로 음악을 듣는 사람',
+        uz: 'quloqchin bilan musiqa tinglayotgan odam',
+        en: 'a person listening to music with headphones',
+        ru: 'человек, слушающий музыку в наушниках',
+      },
+    },
+    tags: ['music', 'hobby', 'listening', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'듣다'는 ㄷ 불규칙으로 '들어요'가 돼요.",
+      uz: "'듣다' tuslanganda '들어요' bo‘ladi.",
+      en: '듣다 is ㄷ-irregular: 듣다 → 들어요.',
+      ru: '듣다 имеет нерегулярное ㄷ-спряжение: 듣다 → 들어요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_draw_picture_verb',
+    senseKey: 'hobby-draw-picture',
+    korean: '그림을 그리다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '연필이나 붓 등으로 그림을 만들다',
+      uz: 'rasm chizmoq',
+      en: 'to draw',
+      ru: 'рисовать',
+    },
+    examples: [
+      {
+        korean: '저는 그림을 자주 그려요.',
+        translations: {
+          ko: '저는 취미로 그림을 자주 그려요.',
+          uz: 'Men tez-tez rasm chizaman.',
+          en: 'I often draw pictures.',
+          ru: 'Я часто рисую.',
+        },
+      },
+      {
+        korean: '친구의 얼굴을 그렸어요.',
+        translations: {
+          ko: '친구의 얼굴을 그림으로 그렸어요.',
+          uz: 'Do‘stimning yuzini chizdim.',
+          en: "I drew my friend's face.",
+          ru: 'Я нарисовал лицо друга.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '그림을 그리다',
+      romanization: 'geurimeul geurida',
+      ttsText: '그림을 그리다',
+    },
+    media: {
+      emoji: '🎨',
+      imageUrl: 'https://cdn.korio.app/words/geurimeul-geurida.webp',
+      imageAlt: {
+        ko: '그림을 그리고 있는 사람',
+        uz: 'rasm chizayotgan odam',
+        en: 'a person drawing a picture',
+        ru: 'человек, рисующий картину',
+      },
+    },
+    tags: ['art', 'drawing', 'hobby', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'그림'에는 동사 '그리다'를 사용해요.",
+      uz: "Rasm bilan '그리다' fe’li ishlatiladi.",
+      en: 'The usual verb used with 그림 is 그리다.',
+      ru: 'С 그림 обычно используется глагол 그리다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_picture_verb',
+    senseKey: 'activity-take-picture',
+    korean: '사진을 찍다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '카메라 등으로 사진을 만들다',
+      uz: 'suratga olmoq',
+      en: 'to take pictures',
+      ru: 'фотографировать',
+    },
+    examples: [
+      {
+        korean: '여행에서 사진을 많이 찍어요.',
+        translations: {
+          ko: '여행할 때 사진을 많이 찍어요.',
+          uz: 'Sayohatda ko‘p suratga olaman.',
+          en: 'I take many pictures when traveling.',
+          ru: 'В путешествиях я много фотографирую.',
+        },
+      },
+      {
+        korean: '친구하고 사진을 찍었어요.',
+        translations: {
+          ko: '친구와 함께 사진을 찍었어요.',
+          uz: 'Do‘stim bilan suratga tushdim.',
+          en: 'I took a picture with my friend.',
+          ru: 'Я сфотографировался с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '사진을 찍다',
+      romanization: 'sajineul jjikda',
+      ttsText: '사진을 찍다',
+    },
+    media: {
+      emoji: '📷',
+      imageUrl: 'https://cdn.korio.app/words/sajineul-jjikda.webp',
+      imageAlt: {
+        ko: '카메라로 사진을 찍는 사람',
+        uz: 'kamera bilan suratga olayotgan odam',
+        en: 'a person taking a photograph',
+        ru: 'человек, делающий фотографию',
+      },
+    },
+    tags: ['photo', 'hobby', 'travel', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "사진에는 보통 동사 '찍다'를 사용해요.",
+      uz: "Surat bilan odatda '찍다' ishlatiladi.",
+      en: 'The usual verb for taking a photo is 찍다.',
+      ru: 'Для фотографирования обычно используется 찍다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_read_book_verb',
+    senseKey: 'hobby-read-book',
+    korean: '책을 읽다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '책의 글을 읽다',
+      uz: "kitob o'qimoq",
+      en: 'to read a book',
+      ru: 'читать книгу',
+    },
+    examples: [
+      {
+        korean: '자기 전에 책을 읽어요.',
+        translations: {
+          ko: '잠자기 전에 책을 읽어요.',
+          uz: 'Uxlashdan oldin kitob o‘qiyman.',
+          en: 'I read a book before sleeping.',
+          ru: 'Перед сном я читаю книгу.',
+        },
+      },
+      {
+        korean: '어제 재미있는 책을 읽었어요.',
+        translations: {
+          ko: '어제 재미있는 내용의 책을 읽었어요.',
+          uz: 'Kecha qiziqarli kitob o‘qidim.',
+          en: 'I read an interesting book yesterday.',
+          ru: 'Вчера я прочитал интересную книгу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '책을 읽다',
+      romanization: 'chaegeul ikda',
+      ttsText: '책을 읽다',
+    },
+    media: {
+      emoji: '📖',
+      imageUrl: 'https://cdn.korio.app/words/chaegeul-ikda.webp',
+      imageAlt: {
+        ko: '책을 읽고 있는 사람',
+        uz: 'kitob o‘qiyotgan odam',
+        en: 'a person reading a book',
+        ru: 'человек, читающий книгу',
+      },
+    },
+    tags: ['reading', 'book', 'hobby', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'읽다'는 받침 발음 때문에 [익따]에 가깝게 발음해요.",
+      uz: "'읽다' talaffuzi [익따]ga yaqin.",
+      en: '읽다 is pronounced approximately [익따].',
+      ru: '읽다 произносится примерно как [익따].',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_play_piano_verb',
+    senseKey: 'leisure-play-piano',
+    korean: '피아노를 치다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '피아노를 연주하다',
+      uz: 'pianino chalmoq',
+      en: 'to play the piano',
+      ru: 'играть на пианино',
+    },
+    examples: [
+      {
+        korean: '저는 피아노를 잘 쳐요.',
+        translations: {
+          ko: '저는 피아노 연주를 잘해요.',
+          uz: 'Men pianinoni yaxshi chalaman.',
+          en: 'I play the piano well.',
+          ru: 'Я хорошо играю на пианино.',
+        },
+      },
+      {
+        korean: '어릴 때 피아노를 쳤어요.',
+        translations: {
+          ko: '어렸을 때 피아노를 연주했어요.',
+          uz: 'Bolaligimda pianino chalardim.',
+          en: 'I played the piano when I was young.',
+          ru: 'В детстве я играл на пианино.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '피아노를 치다',
+      romanization: 'pianoreul chida',
+      ttsText: '피아노를 치다',
+    },
+    media: {
+      emoji: '🎹',
+      imageUrl: 'https://cdn.korio.app/words/pianoreul-chida.webp',
+      imageAlt: {
+        ko: '피아노를 연주하는 사람',
+        uz: 'pianino chalayotgan odam',
+        en: 'a person playing the piano',
+        ru: 'человек, играющий на пианино',
+      },
+    },
+    tags: ['music', 'piano', 'hobby', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "피아노, 기타, 테니스 등에는 '치다'를 사용할 수 있어요.",
+      uz: "Pianino, gitara va tennis bilan '치다' ishlatiladi.",
+      en: '치다 is commonly used with instruments such as piano and guitar.',
+      ru: '치다 часто используется с пианино, гитарой и некоторыми видами спорта.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_movie_appreciation_noun',
+    senseKey: 'hobby-movie-appreciation',
+    korean: '영화 감상',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '영화를 보고 즐기거나 감상하는 활동',
+      uz: 'kino tomosha qilish',
+      en: 'watching movies',
+      ru: 'просмотр фильмов',
+    },
+    examples: [
+      {
+        korean: '제 취미는 영화 감상이에요.',
+        translations: {
+          ko: '제 취미는 영화를 보는 거예요.',
+          uz: 'Mening hobbim kino tomosha qilish.',
+          en: 'My hobby is watching movies.',
+          ru: 'Моё хобби — просмотр фильмов.',
+        },
+      },
+      {
+        korean: '주말에는 영화 감상을 해요.',
+        translations: {
+          ko: '주말에는 영화를 보면서 쉬어요.',
+          uz: 'Dam olish kuni kino tomosha qilaman.',
+          en: 'I watch movies on weekends.',
+          ru: 'По выходным я смотрю фильмы.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '영화 감상',
+      romanization: 'yeonghwa gamsang',
+      ttsText: '영화 감상',
+    },
+    media: {
+      emoji: '🍿',
+      imageUrl: 'https://cdn.korio.app/words/yeonghwa-gamsang.webp',
+      imageAlt: {
+        ko: '영화를 감상하며 팝콘을 먹는 모습',
+        uz: 'kino tomosha qilish',
+        en: 'watching a movie with popcorn',
+        ru: 'просмотр фильма с попкорном',
+      },
+    },
+    tags: ['hobby', 'movie', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'영화를 보다'보다 취미 이름으로 조금 더 격식 있게 쓰는 표현이에요.",
+      uz: "Hobbi nomi sifatida '영화를 보다'ga qaraganda rasmiyroq.",
+      en: 'A slightly more formal noun expression for movie watching as a hobby.',
+      ru: 'Более формальное существительное для просмотра фильмов как хобби.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_music_appreciation_noun',
+    senseKey: 'hobby-music-appreciation',
+    korean: '음악 감상',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '음악을 들으며 즐기는 활동',
+      uz: 'musiqa tinglash',
+      en: 'listening to music',
+      ru: 'прослушивание музыки',
+    },
+    examples: [
+      {
+        korean: '제 취미는 음악 감상이에요.',
+        translations: {
+          ko: '제 취미는 음악을 듣는 거예요.',
+          uz: 'Mening hobbim musiqa tinglash.',
+          en: 'My hobby is listening to music.',
+          ru: 'Моё хобби — слушать музыку.',
+        },
+      },
+      {
+        korean: '저녁에 음악 감상을 해요.',
+        translations: {
+          ko: '저녁에 편하게 음악을 들어요.',
+          uz: 'Kechqurun musiqa tinglayman.',
+          en: 'I listen to music in the evening.',
+          ru: 'Вечером я слушаю музыку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '음악 감상',
+      romanization: 'eumak gamsang',
+      ttsText: '음악 감상',
+    },
+    media: {
+      emoji: '🎵',
+      imageUrl: 'https://cdn.korio.app/words/eumak-gamsang.webp',
+      imageAlt: {
+        ko: '음악을 감상하는 모습',
+        uz: 'musiqa tinglash',
+        en: 'listening to music',
+        ru: 'прослушивание музыки',
+      },
+    },
+    tags: ['hobby', 'music', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '취미를 명사 형태로 소개할 때 자주 사용하는 표현이에요.',
+      uz: 'Hobbini ot shaklida aytishda ishlatiladi.',
+      en: 'Often used as a noun when listing hobbies.',
+      ru: 'Часто используется как существительное при перечислении хобби.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_fishing_noun',
+    senseKey: 'hobby-fishing',
+    korean: '낚시',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '낚싯대 등으로 물고기를 잡는 활동',
+      uz: 'baliq ovlash',
+      en: 'fishing',
+      ru: 'рыбалка',
+    },
+    examples: [
+      {
+        korean: '주말에 낚시를 해요.',
+        translations: {
+          ko: '주말에 물고기를 잡으러 가요.',
+          uz: 'Dam olish kuni baliq ovlayman.',
+          en: 'I go fishing on weekends.',
+          ru: 'По выходным я хожу на рыбалку.',
+        },
+      },
+      {
+        korean: '아버지는 낚시를 좋아하세요.',
+        translations: {
+          ko: '아버지의 취미는 낚시예요.',
+          uz: 'Otam baliq ovlashni yoqtiradi.',
+          en: 'My father likes fishing.',
+          ru: 'Мой отец любит рыбалку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '낚시',
+      romanization: 'naksi',
+      ttsText: '낚시',
+    },
+    media: {
+      emoji: '🎣',
+      imageUrl: 'https://cdn.korio.app/words/naksi.webp',
+      imageAlt: {
+        ko: '낚싯대로 낚시하는 사람',
+        uz: 'qarmoq bilan baliq ovlayotgan odam',
+        en: 'a person fishing with a fishing rod',
+        ru: 'человек с удочкой',
+      },
+    },
+    tags: ['hobby', 'fishing', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "활동으로는 '낚시를 하다'라고 해요.",
+      uz: "'낚시를 하다' baliq ovlamoq degani.",
+      en: 'The activity expression is 낚시를 하다.',
+      ru: 'Для действия используется 낚시를 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hiking_noun',
+    senseKey: 'hobby-hiking',
+    korean: '등산',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '운동이나 취미로 산에 올라가는 활동',
+      uz: "tog'ga chiqish",
+      en: 'hiking',
+      ru: 'поход в горы',
+    },
+    examples: [
+      {
+        korean: '제 취미는 등산이에요.',
+        translations: {
+          ko: '저는 취미로 산에 올라가요.',
+          uz: 'Mening hobbim tog‘ga chiqish.',
+          en: 'My hobby is hiking.',
+          ru: 'Моё хобби — походы в горы.',
+        },
+      },
+      {
+        korean: '주말마다 등산을 해요.',
+        translations: {
+          ko: '주말마다 산에 올라가요.',
+          uz: 'Har dam olish kuni tog‘ga chiqaman.',
+          en: 'I go hiking every weekend.',
+          ru: 'Каждые выходные я хожу в горы.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '등산',
+      romanization: 'deungsan',
+      ttsText: '등산',
+    },
+    media: {
+      emoji: '🥾',
+      imageUrl: 'https://cdn.korio.app/words/deungsan.webp',
+      imageAlt: {
+        ko: '산을 걷는 등산객',
+        uz: 'tog‘da yurgan sayyoh',
+        en: 'a hiker in the mountains',
+        ru: 'турист в горах',
+      },
+    },
+    tags: ['hobby', 'hiking', 'mountain', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "동사형은 '등산하다'예요.",
+      uz: "Fe’l shakli '등산하다'.",
+      en: 'The verb form is 등산하다.',
+      ru: 'Глагольная форма — 등산하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_reading_noun',
+    senseKey: 'hobby-reading',
+    korean: '독서',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '책을 읽는 활동',
+      uz: "kitob o'qish",
+      en: 'reading',
+      ru: 'чтение',
+    },
+    examples: [
+      {
+        korean: '제 취미는 독서예요.',
+        translations: {
+          ko: '제 취미는 책을 읽는 거예요.',
+          uz: 'Mening hobbim kitob o‘qish.',
+          en: 'My hobby is reading.',
+          ru: 'Моё хобби — чтение.',
+        },
+      },
+      {
+        korean: '저녁에는 독서를 해요.',
+        translations: {
+          ko: '저녁에는 조용히 책을 읽어요.',
+          uz: 'Kechqurun kitob o‘qiyman.',
+          en: 'I read in the evening.',
+          ru: 'По вечерам я читаю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '독서',
+      romanization: 'dokseo',
+      ttsText: '독서',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/dokseo.webp',
+      imageAlt: {
+        ko: '여러 권의 책과 독서',
+        uz: 'kitob o‘qish',
+        en: 'books for reading',
+        ru: 'книги для чтения',
+      },
+    },
+    tags: ['hobby', 'reading', 'book', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'책을 읽다'의 명사형 표현으로 취미를 말할 때 자주 사용해요.",
+      uz: 'Kitob o‘qishni hobbi sifatida aytishda ishlatiladi.',
+      en: 'A noun expression for reading, often used when describing hobbies.',
+      ru: 'Существительное для чтения, часто используется при описании хобби.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_very_adverb',
+    senseKey: 'degree-very',
+    korean: '아주',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '정도가 매우 크다는 뜻을 나타내는 말',
+      uz: 'juda',
+      en: 'very',
+      ru: 'очень',
+    },
+    examples: [
+      {
+        korean: '이 영화는 아주 재미있어요.',
+        translations: {
+          ko: '이 영화는 매우 재미있어요.',
+          uz: 'Bu film juda qiziqarli.',
+          en: 'This movie is very interesting.',
+          ru: 'Этот фильм очень интересный.',
+        },
+      },
+      {
+        korean: '한국어를 아주 잘해요.',
+        translations: {
+          ko: '한국어 실력이 매우 좋아요.',
+          uz: 'Koreys tilini juda yaxshi biladi.',
+          en: 'He speaks Korean very well.',
+          ru: 'Он очень хорошо говорит по-корейски.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아주',
+      romanization: 'aju',
+      ttsText: '아주',
+    },
+    media: {
+      emoji: '💯',
+      imageUrl: 'https://cdn.korio.app/words/aju.webp',
+      imageAlt: {
+        ko: '높은 정도를 나타내는 표시',
+        uz: 'juda yuqori darajani bildiruvchi belgi',
+        en: 'a symbol representing a very high degree',
+        ru: 'символ очень высокой степени',
+      },
+    },
+    tags: ['adverb', 'degree', 'intensity', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'매우'와 비슷한 뜻이며 형용사나 부사를 강조해요.",
+      uz: "'매우'ga o‘xshash bo‘lib, darajani kuchaytiradi.",
+      en: 'Similar to 매우 and used to intensify adjectives or adverbs.',
+      ru: 'Похоже на 매우 и усиливает значение прилагательного или наречия.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_not_very_adverb',
+    senseKey: 'degree-not-very',
+    korean: '별로',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '정도가 그다지 높지 않음을 나타내는 말',
+      uz: 'unchalik',
+      en: 'not very',
+      ru: 'не очень',
+    },
+    examples: [
+      {
+        korean: '저는 낚시를 별로 안 좋아해요.',
+        translations: {
+          ko: '저는 낚시를 그다지 좋아하지 않아요.',
+          uz: 'Men baliq ovlashni unchalik yoqtirmayman.',
+          en: "I don't like fishing very much.",
+          ru: 'Я не очень люблю рыбалку.',
+        },
+      },
+      {
+        korean: '이 음식은 별로 안 매워요.',
+        translations: {
+          ko: '이 음식은 그렇게 맵지 않아요.',
+          uz: 'Bu taom unchalik achchiq emas.',
+          en: 'This food is not very spicy.',
+          ru: 'Эта еда не очень острая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '별로',
+      romanization: 'byeollo',
+      ttsText: '별로',
+    },
+    media: {
+      emoji: '😐',
+      imageUrl: 'https://cdn.korio.app/words/byeollo.webp',
+      imageAlt: {
+        ko: '별로 마음에 들지 않는 표정',
+        uz: 'unchalik yoqmagan yuz ifodasi',
+        en: 'an unimpressed expression',
+        ru: 'не впечатлённое выражение лица',
+      },
+    },
+    tags: ['adverb', 'degree', 'negative', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "보통 '안', '-지 않다', '못' 같은 부정 표현과 함께 사용해요.",
+      uz: "Odatda '안', '-지 않다', '못' kabi inkor bilan ishlatiladi.",
+      en: 'It is normally used with a negative expression.',
+      ru: 'Обычно употребляется вместе с отрицанием.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_not_at_all_adverb',
+    senseKey: 'degree-not-at-all',
+    korean: '전혀',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '조금도 그렇지 않음을 강조하는 말',
+      uz: 'umuman',
+      en: 'not at all',
+      ru: 'совсем не',
+    },
+    examples: [
+      {
+        korean: '저는 스키를 전혀 못 타요.',
+        translations: {
+          ko: '저는 스키를 조금도 탈 수 없어요.',
+          uz: 'Men umuman chang‘i ucha olmayman.',
+          en: "I can't ski at all.",
+          ru: 'Я совсем не умею кататься на лыжах.',
+        },
+      },
+      {
+        korean: '이 문법을 전혀 이해하지 못했어요.',
+        translations: {
+          ko: '이 문법을 하나도 이해하지 못했어요.',
+          uz: 'Bu grammatikani umuman tushunmadim.',
+          en: "I didn't understand this grammar at all.",
+          ru: 'Я совсем не понял эту грамматику.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전혀',
+      romanization: 'jeonhyeo',
+      ttsText: '전혀',
+    },
+    media: {
+      emoji: '🚫',
+      imageUrl: 'https://cdn.korio.app/words/jeonhyeo.webp',
+      imageAlt: {
+        ko: '완전한 부정을 나타내는 금지 표시',
+        uz: 'to‘liq inkorni bildiruvchi belgi',
+        en: 'a symbol representing complete negation',
+        ru: 'знак полного отрицания',
+      },
+    },
+    tags: ['adverb', 'negative', 'degree', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '주로 부정 표현과 함께 사용해서 강한 부정을 나타내요.',
+      uz: 'Asosan inkor bilan kelib kuchli inkorni bildiradi.',
+      en: 'Usually used with negatives to express complete negation.',
+      ru: 'Обычно употребляется с отрицанием для усиления значения.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_taekwondo_noun',
+    senseKey: 'sport-taekwondo',
+    korean: '태권도',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '발차기와 손 기술을 사용하는 한국의 무술',
+      uz: 'taekvondo',
+      en: 'taekwondo',
+      ru: 'тхэквондо',
+    },
+    examples: [
+      {
+        korean: '저는 태권도를 배워요.',
+        translations: {
+          ko: '저는 태권도 운동을 배우고 있어요.',
+          uz: 'Men taekvondo o‘rganaman.',
+          en: 'I learn taekwondo.',
+          ru: 'Я изучаю тхэквондо.',
+        },
+      },
+      {
+        korean: '태권도를 아주 잘해요.',
+        translations: {
+          ko: '태권도 실력이 아주 좋아요.',
+          uz: 'Taekvondoni juda yaxshi qiladi.',
+          en: 'He is very good at taekwondo.',
+          ru: 'Он очень хорошо занимается тхэквондо.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '태권도',
+      romanization: 'taegwondo',
+      ttsText: '태권도',
+    },
+    media: {
+      emoji: '🥋',
+      imageUrl: 'https://cdn.korio.app/words/taegwondo.webp',
+      imageAlt: {
+        ko: '태권도를 하는 사람',
+        uz: 'taekvondo bilan shug‘ullanayotgan odam',
+        en: 'a person practicing taekwondo',
+        ru: 'человек, занимающийся тхэквондо',
+      },
+    },
+    tags: ['sport', 'martial-art', 'korea', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'태권도를 하다', '태권도를 배우다'처럼 사용해요.",
+      uz: "'태권도를 하다', '태권도를 배우다' kabi ishlatiladi.",
+      en: 'Common expressions are 태권도를 하다 and 태권도를 배우다.',
+      ru: 'Частые выражения: 태권도를 하다 и 태권도를 배우다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_far_adjective',
+    senseKey: 'distance-far',
+    korean: '멀다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '두 장소 사이의 거리가 길다',
+      uz: 'uzoq bo‘lmoq',
+      en: 'to be far',
+      ru: 'быть далеко',
+    },
+    examples: [
+      {
+        korean: '학교가 집에서 멀어요.',
+        translations: {
+          ko: '집과 학교 사이의 거리가 멀어요.',
+          uz: 'Maktab uyimdan uzoq.',
+          en: 'The school is far from my house.',
+          ru: 'Школа далеко от моего дома.',
+        },
+      },
+      {
+        korean: '여기에서 지하철역이 멀어요?',
+        translations: {
+          ko: '여기와 지하철역 사이가 멀어요?',
+          uz: 'Metro bekati bu yerdan uzoqmi?',
+          en: 'Is the subway station far from here?',
+          ru: 'Станция метро далеко отсюда?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '멀다',
+      romanization: 'meolda',
+      ttsText: '멀다',
+    },
+    media: {
+      emoji: '📍',
+      imageUrl: 'https://cdn.korio.app/words/meolda.webp',
+      imageAlt: {
+        ko: '서로 멀리 떨어진 두 위치',
+        uz: 'bir-biridan uzoq ikki joy',
+        en: 'two distant locations',
+        ru: 'два удалённых друг от друга места',
+      },
+    },
+    tags: ['adjective', 'distance', 'location', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 '가깝다'예요.",
+      uz: "Qarama-qarshisi '가깝다'.",
+      en: 'The opposite is 가깝다.',
+      ru: 'Антоним — 가깝다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_time_verb',
+    senseKey: 'time-take-duration',
+    korean: '걸리다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 일을 하는 데 시간이 필요하다',
+      uz: 'vaqt ketmoq',
+      en: 'to take time',
+      ru: 'занимать время',
+    },
+    examples: [
+      {
+        korean: '학교까지 한 시간 걸려요.',
+        translations: {
+          ko: '학교까지 가는 데 한 시간이 필요해요.',
+          uz: 'Maktabgacha bir soat ketadi.',
+          en: 'It takes one hour to get to school.',
+          ru: 'До школы ехать один час.',
+        },
+      },
+      {
+        korean: '서울까지 얼마나 걸려요?',
+        translations: {
+          ko: '서울까지 가는 데 시간이 얼마나 필요해요?',
+          uz: 'Seulgacha qancha vaqt ketadi?',
+          en: 'How long does it take to get to Seoul?',
+          ru: 'Сколько времени занимает дорога до Сеула?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '걸리다',
+      romanization: 'geollida',
+      ttsText: '걸리다',
+    },
+    media: {
+      emoji: '⏱️',
+      imageUrl: 'https://cdn.korio.app/words/geollida-time.webp',
+      imageAlt: {
+        ko: '걸리는 시간을 나타내는 시계',
+        uz: 'ketadigan vaqtni bildiruvchi soat',
+        en: 'a clock representing travel time',
+        ru: 'часы, обозначающие затраченное время',
+      },
+    },
+    tags: ['verb', 'time', 'duration', 'travel', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'N까지 N시간 걸리다' 형태로 이동 시간을 말할 때 자주 사용해요.",
+      uz: "'N까지 N시간 걸리다' yo‘l vaqtini aytishda ishlatiladi.",
+      en: 'Commonly used to say how long something takes.',
+      ru: 'Часто используется для выражения продолжительности пути или действия.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cook_verb',
+    senseKey: 'daily-life-cook',
+    korean: '요리하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '음식을 만들다',
+      uz: 'ovqat pishirmoq',
+      en: 'to cook',
+      ru: 'готовить',
+    },
+    examples: [
+      {
+        korean: '저는 집에서 자주 요리해요.',
+        translations: {
+          ko: '저는 집에서 음식을 자주 만들어요.',
+          uz: 'Men uyda tez-tez ovqat pishiraman.',
+          en: 'I often cook at home.',
+          ru: 'Я часто готовлю дома.',
+        },
+      },
+      {
+        korean: '주말에 친구하고 요리했어요.',
+        translations: {
+          ko: '주말에 친구와 함께 음식을 만들었어요.',
+          uz: 'Dam olish kuni do‘stim bilan ovqat pishirdim.',
+          en: 'I cooked with my friend on the weekend.',
+          ru: 'На выходных я готовил с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '요리하다',
+      romanization: 'yorihada',
+      ttsText: '요리하다',
+    },
+    media: {
+      emoji: '🍳',
+      imageUrl: 'https://cdn.korio.app/words/yorihada.webp',
+      imageAlt: {
+        ko: '주방에서 요리하는 사람',
+        uz: 'oshxonada ovqat pishirayotgan odam',
+        en: 'a person cooking in a kitchen',
+        ru: 'человек, готовящий на кухне',
+      },
+    },
+    tags: ['verb', 'cooking', 'food', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'요리하다'와 '요리를 하다'는 같은 의미로 사용할 수 있어요.",
+      uz: "'요리하다' va '요리를 하다' bir xil ma’noda.",
+      en: '요리하다 and 요리를 하다 can be used with the same meaning.',
+      ru: '요리하다 и 요리를 하다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_enjoyable_adjective',
+    senseKey: 'emotion-enjoyable',
+    korean: '즐겁다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '마음이 기쁘고 재미있다',
+      uz: 'zavqli bo‘lmoq',
+      en: 'to be enjoyable',
+      ru: 'быть приятным',
+    },
+    examples: [
+      {
+        korean: '친구하고 여행하면 즐거워요.',
+        translations: {
+          ko: '친구와 함께 여행하면 기분이 좋아요.',
+          uz: 'Do‘stim bilan sayohat qilish zavqli.',
+          en: 'Traveling with a friend is enjoyable.',
+          ru: 'Путешествовать с другом приятно.',
+        },
+      },
+      {
+        korean: '오늘 정말 즐거웠어요.',
+        translations: {
+          ko: '오늘은 정말 재미있고 기분이 좋았어요.',
+          uz: 'Bugun juda maroqli bo‘ldi.',
+          en: 'I had a really enjoyable day today.',
+          ru: 'Сегодня было очень приятно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '즐겁다',
+      romanization: 'jeulgeopda',
+      ttsText: '즐겁다',
+    },
+    media: {
+      emoji: '😄',
+      imageUrl: 'https://cdn.korio.app/words/jeulgeopda.webp',
+      imageAlt: {
+        ko: '즐거워서 웃는 사람',
+        uz: 'xursand kulayotgan odam',
+        en: 'a happy smiling person',
+        ru: 'весёлый улыбающийся человек',
+      },
+    },
+    tags: ['adjective', 'emotion', 'enjoyment', 'irregular-b', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅂ 불규칙으로 '즐겁다 → 즐거워요'가 돼요.",
+      uz: "'즐겁다 → 즐거워요' shaklida tuslanadi.",
+      en: 'It follows the ㅂ irregular pattern: 즐겁다 → 즐거워요.',
+      ru: 'Нерегулярное ㅂ-спряжение: 즐겁다 → 즐거워요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_vocabulary_word_noun',
+    senseKey: 'language-word',
+    korean: '단어',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '뜻을 가진 말의 한 단위',
+      uz: 'so‘z',
+      en: 'word',
+      ru: 'слово',
+    },
+    examples: [
+      {
+        korean: '새 단어를 외워요.',
+        translations: {
+          ko: '새로 배운 단어를 기억해요.',
+          uz: 'Yangi so‘zlarni yodlayman.',
+          en: 'I memorize new words.',
+          ru: 'Я запоминаю новые слова.',
+        },
+      },
+      {
+        korean: '이 단어의 뜻이 뭐예요?',
+        translations: {
+          ko: '이 단어가 무슨 뜻이에요?',
+          uz: 'Bu so‘zning ma’nosi nima?',
+          en: 'What does this word mean?',
+          ru: 'Что означает это слово?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '단어',
+      romanization: 'daneo',
+      ttsText: '단어',
+    },
+    media: {
+      emoji: '🔤',
+      imageUrl: 'https://cdn.korio.app/words/daneo.webp',
+      imageAlt: {
+        ko: '여러 단어가 적힌 글자',
+        uz: 'turli so‘zlar',
+        en: 'written vocabulary words',
+        ru: 'написанные слова',
+      },
+    },
+    tags: ['language', 'vocabulary', 'study', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'단어를 외우다', '단어를 배우다'처럼 사용해요.",
+      uz: "'단어를 외우다', '단어를 배우다' kabi ishlatiladi.",
+      en: 'Common expressions include 단어를 외우다 and 단어를 배우다.',
+      ru: 'Частые выражения: 단어를 외우다 и 단어를 배우다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_memorize_verb',
+    senseKey: 'study-memorize',
+    korean: '외우다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '내용을 기억해서 보지 않고도 알 수 있게 하다',
+      uz: 'yodlamoq',
+      en: 'to memorize',
+      ru: 'запоминать',
+    },
+    examples: [
+      {
+        korean: '한국어 단어를 외워요.',
+        translations: {
+          ko: '한국어 단어를 기억해요.',
+          uz: 'Koreyscha so‘zlarni yodlayman.',
+          en: 'I memorize Korean words.',
+          ru: 'Я запоминаю корейские слова.',
+        },
+      },
+      {
+        korean: '전화번호를 외웠어요.',
+        translations: {
+          ko: '전화번호를 기억하고 있어요.',
+          uz: 'Telefon raqamini yodladim.',
+          en: 'I memorized the phone number.',
+          ru: 'Я запомнил номер телефона.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '외우다',
+      romanization: 'oeuda',
+      ttsText: '외우다',
+    },
+    media: {
+      emoji: '🧠',
+      imageUrl: 'https://cdn.korio.app/words/oeuda.webp',
+      imageAlt: {
+        ko: '내용을 외우는 모습을 나타내는 뇌',
+        uz: 'yodlashni bildiruvchi miya',
+        en: 'a brain representing memorization',
+        ru: 'мозг, символизирующий запоминание',
+      },
+    },
+    tags: ['verb', 'study', 'memory', 'vocabulary', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'배우다'가 새로 익히는 과정이라면 '외우다'는 기억하는 데 초점이 있어요.",
+      uz: "'외우다' ma’lumotni xotirada saqlashga urg‘u beradi.",
+      en: '외우다 focuses specifically on committing something to memory.',
+      ru: '외우다 означает именно заучивание и запоминание.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hometown_food_noun',
+    senseKey: 'food-hometown-food',
+    korean: '고향 음식',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '자기가 태어나거나 자란 지역의 음식',
+      uz: 'vatan taomi',
+      en: 'food from home',
+      ru: 'еда с родины',
+    },
+    examples: [
+      {
+        korean: '고향 음식이 먹고 싶어요.',
+        translations: {
+          ko: '고향에서 먹던 음식이 생각나요.',
+          uz: 'Vatanim taomini yegim keladi.',
+          en: 'I want to eat food from home.',
+          ru: 'Я хочу поесть еду с родины.',
+        },
+      },
+      {
+        korean: '친구에게 고향 음식을 만들었어요.',
+        translations: {
+          ko: '친구에게 제 고향의 음식을 만들어 줬어요.',
+          uz: 'Do‘stimga vatanim taomini tayyorladim.',
+          en: 'I made food from my hometown for my friend.',
+          ru: 'Я приготовил для друга блюдо своей родины.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '고향 음식',
+      romanization: 'gohyang eumsik',
+      ttsText: '고향 음식',
+    },
+    media: {
+      emoji: '🍲',
+      imageUrl: 'https://cdn.korio.app/words/gohyang-eumsik.webp',
+      imageAlt: {
+        ko: '고향을 떠올리게 하는 음식',
+        uz: 'vatanni eslatadigan taom',
+        en: 'food that reminds someone of home',
+        ru: 'еда, напоминающая о родине',
+      },
+    },
+    tags: ['food', 'hometown', 'culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'고향'과 '음식'이 합쳐진 표현이에요.",
+      uz: "'고향' va '음식' birikmasi.",
+      en: 'A compound expression combining 고향 and 음식.',
+      ru: 'Сочетание слов 고향 и 음식.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_difficult_tiring_adjective',
+    senseKey: 'state-difficult-tiring',
+    korean: '힘들다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '하기 어렵거나 몸과 마음이 지치다',
+      uz: 'qiyin bo‘lmoq',
+      en: 'to be difficult',
+      ru: 'быть тяжёлым',
+    },
+    examples: [
+      {
+        korean: '한국어 공부가 조금 힘들어요.',
+        translations: {
+          ko: '한국어를 공부하는 것이 조금 어려워요.',
+          uz: 'Koreys tilini o‘rganish biroz qiyin.',
+          en: 'Studying Korean is a little difficult.',
+          ru: 'Учить корейский немного тяжело.',
+        },
+      },
+      {
+        korean: '오늘 일이 많아서 힘들어요.',
+        translations: {
+          ko: '오늘 일이 많아서 많이 지쳤어요.',
+          uz: 'Bugun ish ko‘p bo‘lgani uchun qiynaldim.',
+          en: 'I am tired because I have a lot of work today.',
+          ru: 'Сегодня тяжело, потому что работы много.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '힘들다',
+      romanization: 'himdeulda',
+      ttsText: '힘들다',
+    },
+    media: {
+      emoji: '😫',
+      imageUrl: 'https://cdn.korio.app/words/himdeulda.webp',
+      imageAlt: {
+        ko: '힘들어하는 사람',
+        uz: 'qiynalayotgan odam',
+        en: 'a person having a difficult time',
+        ru: 'человек, которому тяжело',
+      },
+    },
+    tags: ['adjective', 'difficulty', 'feeling', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '일이 어렵다는 뜻과 몸이나 마음이 지쳤다는 뜻 모두 사용할 수 있어요.',
+      uz: 'Ham qiyinlik, ham jismoniy yoki ruhiy charchoqni bildirishi mumkin.',
+      en: 'It can mean either difficult or physically/emotionally tiring.',
+      ru: 'Может означать как трудность, так и физическую или эмоциональную усталость.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_live_alone_verb',
+    senseKey: 'lifestyle-live-alone',
+    korean: '혼자 살다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '다른 사람과 함께 살지 않고 혼자 생활하다',
+      uz: 'yolg‘iz yashamoq',
+      en: 'to live alone',
+      ru: 'жить одному',
+    },
+    examples: [
+      {
+        korean: '저는 서울에서 혼자 살아요.',
+        translations: {
+          ko: '서울에서 다른 사람 없이 혼자 생활해요.',
+          uz: 'Men Seulda yolg‘iz yashayman.',
+          en: 'I live alone in Seoul.',
+          ru: 'Я живу один в Сеуле.',
+        },
+      },
+      {
+        korean: '혼자 살면 조금 힘들어요.',
+        translations: {
+          ko: '혼자 생활하면 가끔 힘들어요.',
+          uz: 'Yolg‘iz yashash biroz qiyin.',
+          en: 'Living alone can be a little difficult.',
+          ru: 'Жить одному немного тяжело.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '혼자 살다',
+      romanization: 'honja salda',
+      ttsText: '혼자 살다',
+    },
+    media: {
+      emoji: '🏠',
+      imageUrl: 'https://cdn.korio.app/words/honja-salda.webp',
+      imageAlt: {
+        ko: '혼자 집에서 생활하는 사람',
+        uz: 'uyda yolg‘iz yashayotgan odam',
+        en: 'a person living alone',
+        ru: 'человек, живущий один',
+      },
+    },
+    tags: ['verb', 'housing', 'lifestyle', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'혼자'는 다른 사람 없이 자기 한 사람만이라는 뜻이에요.",
+      uz: "'혼자' yolg‘iz, boshqa odamsiz degani.",
+      en: '혼자 means alone or by oneself.',
+      ru: '혼자 означает «один, самостоятельно».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_comfortable_adjective',
+    senseKey: 'comfort-comfortable',
+    korean: '편하다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '몸이나 마음이 불편하지 않고 편안하다',
+      uz: 'qulay bo‘lmoq',
+      en: 'to be comfortable',
+      ru: 'быть удобным',
+    },
+    examples: [
+      {
+        korean: '혼자 살면 편해요.',
+        translations: {
+          ko: '혼자 생활하면 자유롭고 편안해요.',
+          uz: 'Yolg‘iz yashash qulay.',
+          en: 'Living alone is comfortable.',
+          ru: 'Жить одному удобно.',
+        },
+      },
+      {
+        korean: '이 의자는 아주 편해요.',
+        translations: {
+          ko: '이 의자에 앉으면 아주 편안해요.',
+          uz: 'Bu stul juda qulay.',
+          en: 'This chair is very comfortable.',
+          ru: 'Этот стул очень удобный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '편하다',
+      romanization: 'pyeonhada',
+      ttsText: '편하다',
+    },
+    media: {
+      emoji: '😌',
+      imageUrl: 'https://cdn.korio.app/words/pyeonhada.webp',
+      imageAlt: {
+        ko: '편안하게 쉬는 사람',
+        uz: 'qulay dam olayotgan odam',
+        en: 'a person relaxing comfortably',
+        ru: 'человек, отдыхающий с комфортом',
+      },
+    },
+    tags: ['adjective', 'comfort', 'state', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 상황에 따라 '불편하다'예요.",
+      uz: "Qarama-qarshisi '불편하다'.",
+      en: 'The opposite is usually 불편하다.',
+      ru: 'Обычно антоним — 불편하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sea_noun',
+    senseKey: 'nature-sea',
+    korean: '바다',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '넓고 큰 소금물의 공간',
+      uz: 'dengiz',
+      en: 'sea',
+      ru: 'море',
+    },
+    examples: [
+      {
+        korean: '여름에 바다에 가요.',
+        translations: {
+          ko: '여름에는 바닷가로 놀러 가요.',
+          uz: 'Yozda dengizga boraman.',
+          en: 'I go to the sea in summer.',
+          ru: 'Летом я езжу к морю.',
+        },
+      },
+      {
+        korean: '바다에서 수영했어요.',
+        translations: {
+          ko: '바닷물에서 수영했어요.',
+          uz: 'Dengizda suzdim.',
+          en: 'I swam in the sea.',
+          ru: 'Я плавал в море.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '바다',
+      romanization: 'bada',
+      ttsText: '바다',
+    },
+    media: {
+      emoji: '🌊',
+      imageUrl: 'https://cdn.korio.app/words/bada.webp',
+      imageAlt: {
+        ko: '파도가 있는 푸른 바다',
+        uz: 'to‘lqinli ko‘k dengiz',
+        en: 'a blue sea with waves',
+        ru: 'синее море с волнами',
+      },
+    },
+    tags: ['nature', 'sea', 'travel', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'바다에 가다', '바다에서 수영하다'처럼 사용해요.",
+      uz: "'바다에 가다', '바다에서 수영하다' kabi ishlatiladi.",
+      en: 'Common expressions include 바다에 가다 and 바다에서 수영하다.',
+      ru: 'Частые выражения: 바다에 가다 и 바다에서 수영하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_travel_verb',
+    senseKey: 'leisure-travel',
+    korean: '여행을 하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '다른 지역이나 나라에 가서 여러 곳을 둘러보다',
+      uz: 'sayohat qilmoq',
+      en: 'to travel',
+      ru: 'путешествовать',
+    },
+    examples: [
+      {
+        korean: '방학에 한국을 여행해요.',
+        translations: {
+          ko: '방학 동안 한국의 여러 곳을 돌아다녀요.',
+          uz: 'Ta’tilda Koreya bo‘ylab sayohat qilaman.',
+          en: 'I travel around Korea during vacation.',
+          ru: 'На каникулах я путешествую по Корее.',
+        },
+      },
+      {
+        korean: '친구하고 제주도를 여행했어요.',
+        translations: {
+          ko: '친구와 함께 제주도를 여행했어요.',
+          uz: 'Do‘stim bilan Jeju orolida sayohat qildim.',
+          en: 'I traveled around Jeju with my friend.',
+          ru: 'Я путешествовал по Чеджу с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '여행하다',
+      romanization: 'yeohaenghada',
+      ttsText: '여행하다',
+    },
+    media: {
+      emoji: '🧳',
+      imageUrl: 'https://cdn.korio.app/words/yeohaenghada.webp',
+      imageAlt: {
+        ko: '가방을 들고 여행하는 사람',
+        uz: 'sayohat qilayotgan odam',
+        en: 'a person traveling with luggage',
+        ru: 'путешественник с багажом',
+      },
+    },
+    tags: ['verb', 'travel', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'여행하다'와 '여행을 하다'를 모두 사용할 수 있어요.",
+      uz: "'여행하다' va '여행을 하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 여행하다 and 여행을 하다 can be used.',
+      ru: 'Можно использовать и 여행하다, и 여행을 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_call_phone_verb',
+    senseKey: 'communication-call-phone',
+    korean: '전화하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '전화로 다른 사람과 연락하다',
+      uz: 'telefon qilmoq',
+      en: 'to call',
+      ru: 'звонить',
+    },
+    examples: [
+      {
+        korean: '저녁에 친구에게 전화해요.',
+        translations: {
+          ko: '저녁에 친구에게 전화를 걸어요.',
+          uz: 'Kechqurun do‘stimga telefon qilaman.',
+          en: 'I call my friend in the evening.',
+          ru: 'Вечером я звоню другу.',
+        },
+      },
+      {
+        korean: '어머니께 전화했어요.',
+        translations: {
+          ko: '어머니에게 전화를 걸었어요.',
+          uz: 'Onamga telefon qildim.',
+          en: 'I called my mother.',
+          ru: 'Я позвонил маме.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화하다',
+      romanization: 'jeonhwahada',
+      ttsText: '전화하다',
+    },
+    media: {
+      emoji: '📞',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwahada.webp',
+      imageAlt: {
+        ko: '전화 통화를 하는 사람',
+        uz: 'telefon qilayotgan odam',
+        en: 'a person making a phone call',
+        ru: 'человек, разговаривающий по телефону',
+      },
+    },
+    tags: ['verb', 'phone', 'communication', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'전화하다'와 '전화를 하다'는 같은 의미예요.",
+      uz: "'전화하다' va '전화를 하다' bir xil ma’noda.",
+      en: '전화하다 and 전화를 하다 have the same meaning.',
+      ru: '전화하다 и 전화를 하다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sing_verb',
+    senseKey: 'music-sing',
+    korean: '노래하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '목소리로 노래를 부르다',
+      uz: 'qo‘shiq aytmoq',
+      en: 'to sing',
+      ru: 'петь',
+    },
+    examples: [
+      {
+        korean: '저는 노래하는 것을 좋아해요.',
+        translations: {
+          ko: '저는 노래 부르는 것을 좋아해요.',
+          uz: 'Men qo‘shiq aytishni yoqtiraman.',
+          en: 'I like singing.',
+          ru: 'Я люблю петь.',
+        },
+      },
+      {
+        korean: '친구들이 같이 노래했어요.',
+        translations: {
+          ko: '친구들이 함께 노래를 불렀어요.',
+          uz: 'Do‘stlar birga qo‘shiq aytishdi.',
+          en: 'My friends sang together.',
+          ru: 'Друзья пели вместе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '노래하다',
+      romanization: 'noraehada',
+      ttsText: '노래하다',
+    },
+    media: {
+      emoji: '🎤',
+      imageUrl: 'https://cdn.korio.app/words/noraehada.webp',
+      imageAlt: {
+        ko: '마이크를 들고 노래하는 사람',
+        uz: 'mikrofonda qo‘shiq aytayotgan odam',
+        en: 'a person singing into a microphone',
+        ru: 'человек, поющий в микрофон',
+      },
+    },
+    tags: ['verb', 'music', 'singing', 'hobby', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'노래하다' 외에 일상에서는 '노래를 부르다'도 많이 사용해요.",
+      uz: "'노래를 부르다' ham kundalik nutqda ko‘p ishlatiladi.",
+      en: '노래를 부르다 is also very common in everyday Korean.',
+      ru: 'В повседневной речи также очень часто говорят 노래를 부르다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_baseball_noun',
+    senseKey: 'sport-baseball',
+    korean: '야구',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '방망이와 공을 사용하는 구기 스포츠',
+      uz: 'beysbol',
+      en: 'baseball',
+      ru: 'бейсбол',
+    },
+    examples: [
+      {
+        korean: '저는 야구를 좋아해요.',
+        translations: {
+          ko: '저는 야구 경기를 좋아해요.',
+          uz: 'Men beysbolni yoqtiraman.',
+          en: 'I like baseball.',
+          ru: 'Я люблю бейсбол.',
+        },
+      },
+      {
+        korean: '주말에 야구를 해요.',
+        translations: {
+          ko: '주말에 친구들과 야구를 해요.',
+          uz: 'Dam olish kuni beysbol o‘ynayman.',
+          en: 'I play baseball on weekends.',
+          ru: 'По выходным я играю в бейсбол.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '야구',
+      romanization: 'yagu',
+      ttsText: '야구',
+    },
+    media: {
+      emoji: '⚾',
+      imageUrl: 'https://cdn.korio.app/words/yagu.webp',
+      imageAlt: {
+        ko: '야구공과 방망이',
+        uz: 'beysbol to‘pi va tayoq',
+        en: 'a baseball and bat',
+        ru: 'бейсбольный мяч и бита',
+      },
+    },
+    tags: ['sport', 'baseball', 'activity', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'야구를 하다', '야구 경기를 보다'처럼 사용해요.",
+      uz: "'야구를 하다', '야구 경기를 보다' kabi ishlatiladi.",
+      en: 'Common expressions are 야구를 하다 and 야구 경기를 보다.',
+      ru: 'Частые выражения: 야구를 하다 и 야구 경기를 보다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sightsee_verb',
+    senseKey: 'action-look-around-sightsee',
+    korean: '구경하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '흥미로운 장소나 사물을 둘러보다',
+      uz: 'tomosha qilmoq',
+      en: 'to watch',
+      ru: 'наблюдать',
+    },
+    examples: [
+      {
+        korean: '명동을 구경해요.',
+        translations: {
+          ko: '명동 거리를 돌아다니며 봐요.',
+          uz: 'Myeongdongni tomosha qilaman.',
+          en: 'I look around Myeongdong.',
+          ru: 'Я осматриваю Мёндон.',
+        },
+      },
+      {
+        korean: '야구 경기를 구경했어요.',
+        translations: {
+          ko: '야구 경기를 보면서 즐겼어요.',
+          uz: 'Beysbol o‘yinini tomosha qildim.',
+          en: 'I watched a baseball game.',
+          ru: 'Я смотрел бейсбольный матч.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '구경하다',
+      romanization: 'gugyeonghada',
+      ttsText: '구경하다',
+    },
+    media: {
+      emoji: '👀',
+      imageUrl: 'https://cdn.korio.app/words/gugyeonghada.webp',
+      imageAlt: {
+        ko: '주변을 구경하는 사람',
+        uz: 'atrofni tomosha qilayotgan odam',
+        en: 'a person looking around',
+        ru: 'человек, осматривающийся вокруг',
+      },
+    },
+    tags: ['verb', 'sightseeing', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '장소를 둘러보거나 구경거리·경기를 보는 상황에 사용할 수 있어요.',
+      uz: 'Joyni tomosha qilish yoki tadbirni kuzatishda ishlatiladi.',
+      en: 'Used for looking around places or watching something interesting.',
+      ru: 'Используется для осмотра мест или наблюдения за интересным событием.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_television_noun',
+    senseKey: 'device-television',
+    korean: '텔레비전',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '영상과 소리를 보여 주는 전자 기기',
+      uz: 'televizor',
+      en: 'television',
+      ru: 'телевизор',
+    },
+    examples: [
+      {
+        korean: '저녁에 텔레비전을 봐요.',
+        translations: {
+          ko: '저녁에 텔레비전 프로그램을 봐요.',
+          uz: 'Kechqurun televizor ko‘raman.',
+          en: 'I watch television in the evening.',
+          ru: 'Вечером я смотрю телевизор.',
+        },
+      },
+      {
+        korean: '방에 텔레비전이 있어요.',
+        translations: {
+          ko: '제 방에는 텔레비전이 한 대 있어요.',
+          uz: 'Xonada televizor bor.',
+          en: 'There is a television in the room.',
+          ru: 'В комнате есть телевизор.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '텔레비전',
+      romanization: 'tellebijeon',
+      ttsText: '텔레비전',
+    },
+    media: {
+      emoji: '📺',
+      imageUrl: 'https://cdn.korio.app/words/tellebijeon.webp',
+      imageAlt: {
+        ko: '화면이 켜진 텔레비전',
+        uz: 'yoqilgan televizor',
+        en: 'a television with the screen on',
+        ru: 'включённый телевизор',
+      },
+    },
+    tags: ['device', 'television', 'media', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "일상에서는 줄여서 'TV'라고도 많이 말해요.",
+      uz: "Kundalik nutqda 'TV' ham ko‘p ishlatiladi.",
+      en: 'TV is also commonly used in everyday speech.',
+      ru: 'В повседневной речи также часто говорят TV.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sports_field_noun',
+    senseKey: 'place-sports-field',
+    korean: '운동장',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '운동이나 경기를 할 수 있도록 만든 넓은 장소',
+      uz: 'sport maydoni',
+      en: 'sports field',
+      ru: 'спортивная площадка',
+    },
+    examples: [
+      {
+        korean: '운동장에서 축구해요.',
+        translations: {
+          ko: '운동장에서 축구 경기를 해요.',
+          uz: 'Sport maydonida futbol o‘ynayman.',
+          en: 'I play soccer on the sports field.',
+          ru: 'Я играю в футбол на спортивной площадке.',
+        },
+      },
+      {
+        korean: '학교 운동장이 커요.',
+        translations: {
+          ko: '학교에 있는 운동장이 아주 넓어요.',
+          uz: 'Maktab sport maydoni katta.',
+          en: "The school's sports field is large.",
+          ru: 'Школьная спортивная площадка большая.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '운동장',
+      romanization: 'undongjang',
+      ttsText: '운동장',
+    },
+    media: {
+      emoji: '🏟️',
+      imageUrl: 'https://cdn.korio.app/words/undongjang.webp',
+      imageAlt: {
+        ko: '학교의 넓은 운동장',
+        uz: 'maktab sport maydoni',
+        en: 'a school sports field',
+        ru: 'школьная спортивная площадка',
+      },
+    },
+    tags: ['place', 'sport', 'school', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운동'에 장소를 뜻하는 '장'이 붙은 말이에요.",
+      uz: "'운동' va joy ma’nosidagi '장' birikmasi.",
+      en: '운동장 combines 운동 with 장, meaning a place or field.',
+      ru: '운동장 состоит из 운동 и 장 со значением площадки.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_play_soccer_verb',
+    senseKey: 'leisure-play-soccer',
+    korean: '축구를 하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '축구 경기를 하다',
+      uz: 'futbol o‘ynamoq',
+      en: 'to play soccer',
+      ru: 'играть в футбол',
+    },
+    examples: [
+      {
+        korean: '친구들과 축구해요.',
+        translations: {
+          ko: '친구들과 함께 축구를 해요.',
+          uz: 'Do‘stlarim bilan futbol o‘ynayman.',
+          en: 'I play soccer with my friends.',
+          ru: 'Я играю в футбол с друзьями.',
+        },
+      },
+      {
+        korean: '어제 운동장에서 축구했어요.',
+        translations: {
+          ko: '어제 운동장에서 축구 경기를 했어요.',
+          uz: 'Kecha sport maydonida futbol o‘ynadim.',
+          en: 'I played soccer on the field yesterday.',
+          ru: 'Вчера я играл в футбол на площадке.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '축구하다',
+      romanization: 'chukguhada',
+      ttsText: '축구하다',
+    },
+    media: {
+      emoji: '⚽',
+      imageUrl: 'https://cdn.korio.app/words/chukguhada.webp',
+      imageAlt: {
+        ko: '축구공을 차며 경기하는 사람',
+        uz: 'futbol o‘ynayotgan odam',
+        en: 'a person playing soccer',
+        ru: 'человек, играющий в футбол',
+      },
+    },
+    tags: ['verb', 'sport', 'soccer', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'축구하다'와 '축구를 하다'는 같은 의미예요.",
+      uz: "'축구하다' va '축구를 하다' bir xil ma’noda.",
+      en: '축구하다 and 축구를 하다 have the same meaning.',
+      ru: '축구하다 и 축구를 하다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_dance_verb',
+    senseKey: 'activity-dance',
+    korean: '춤추다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '음악이나 리듬에 맞춰 몸을 움직이다',
+      uz: 'raqsga tushmoq',
+      en: 'to dance',
+      ru: 'танцевать',
+    },
+    examples: [
+      {
+        korean: '저는 춤추는 것을 좋아해요.',
+        translations: {
+          ko: '저는 음악에 맞춰 춤추는 것을 좋아해요.',
+          uz: 'Men raqsga tushishni yoqtiraman.',
+          en: 'I like dancing.',
+          ru: 'Я люблю танцевать.',
+        },
+      },
+      {
+        korean: '친구들과 같이 춤췄어요.',
+        translations: {
+          ko: '친구들과 함께 춤을 췄어요.',
+          uz: 'Do‘stlarim bilan birga raqsga tushdim.',
+          en: 'I danced with my friends.',
+          ru: 'Я танцевал с друзьями.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '춤추다',
+      romanization: 'chumchuda',
+      ttsText: '춤추다',
+    },
+    media: {
+      emoji: '💃',
+      imageUrl: 'https://cdn.korio.app/words/chumchuda.webp',
+      imageAlt: {
+        ko: '음악에 맞춰 춤추는 사람',
+        uz: 'raqsga tushayotgan odam',
+        en: 'a person dancing',
+        ru: 'танцующий человек',
+      },
+    },
+    tags: ['verb', 'dance', 'music', 'hobby', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'춤추다'와 '춤을 추다'는 같은 의미예요.",
+      uz: "'춤추다' va '춤을 추다' bir xil ma’noda.",
+      en: '춤추다 and 춤을 추다 have the same meaning.',
+      ru: '춤추다 и 춤을 추다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_boyfriend_noun',
+    senseKey: 'relationship-boyfriend',
+    korean: '남자 친구',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '연애 관계에 있는 남성',
+      uz: 'yigit',
+      en: 'boyfriend',
+      ru: 'парень',
+    },
+    examples: [
+      {
+        korean: '남자 친구가 있어요.',
+        translations: {
+          ko: '사귀고 있는 남자 친구가 있어요.',
+          uz: 'Mening yigitim bor.',
+          en: 'I have a boyfriend.',
+          ru: 'У меня есть парень.',
+        },
+      },
+      {
+        korean: '남자 친구하고 영화를 봤어요.',
+        translations: {
+          ko: '남자 친구와 함께 영화를 봤어요.',
+          uz: 'Yigitim bilan kino ko‘rdim.',
+          en: 'I watched a movie with my boyfriend.',
+          ru: 'Я посмотрела фильм со своим парнем.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '남자 친구',
+      romanization: 'namja chingu',
+      ttsText: '남자 친구',
+    },
+    media: {
+      emoji: '💙',
+      imageUrl: 'https://cdn.korio.app/words/namja-chingu.webp',
+      imageAlt: {
+        ko: '연애 관계의 남자 친구',
+        uz: 'sevgan yigit',
+        en: 'a boyfriend',
+        ru: 'парень',
+      },
+    },
+    tags: ['relationship', 'boyfriend', 'people', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "띄어 쓴 '남자 친구'는 문맥에 따라 단순히 남자인 친구를 뜻할 수도 있지만 보통 boyfriend 의미로 많이 써요.",
+      uz: 'Kontekstga qarab erkak do‘st yoki yigit ma’nosida bo‘lishi mumkin.',
+      en: 'Depending on context it may mean a male friend, but it commonly means boyfriend.',
+      ru: 'В зависимости от контекста может означать друга-мужчину, но часто значит «парень».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_a_little_while_ago_adverb',
+    senseKey: 'time-a-little-while-ago',
+    korean: '조금 전',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '현재보다 조금 앞선 시간',
+      uz: 'biroz oldin',
+      en: 'a little while ago',
+      ru: 'недавно',
+    },
+    examples: [
+      {
+        korean: '조금 전에 친구를 만났어요.',
+        translations: {
+          ko: '현재보다 조금 전에 친구를 만났어요.',
+          uz: 'Biroz oldin do‘stimni uchratdim.',
+          en: 'I met my friend a little while ago.',
+          ru: 'Я встретил друга совсем недавно.',
+        },
+      },
+      {
+        korean: '조금 전에 전화했어요.',
+        translations: {
+          ko: '얼마 전이 아니라 바로 조금 전에 전화했어요.',
+          uz: 'Biroz oldin telefon qildim.',
+          en: 'I called a little while ago.',
+          ru: 'Я звонил немного раньше.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '조금 전',
+      romanization: 'jogeum jeon',
+      ttsText: '조금 전',
+    },
+    media: {
+      emoji: '⏪',
+      imageUrl: 'https://cdn.korio.app/words/jogeum-jeon.webp',
+      imageAlt: {
+        ko: '조금 전을 나타내는 뒤로 가기 표시',
+        uz: 'biroz oldingi vaqt belgisi',
+        en: 'a rewind symbol representing a little while ago',
+        ru: 'значок назад, обозначающий недавнее время',
+      },
+    },
+    tags: ['adverb', 'time', 'past', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아까'와 비슷하지만 '조금 전'은 말 그대로 현재와 가까운 이전 시점을 나타내요.",
+      uz: "'아까'ga o‘xshaydi va yaqindagi o‘tgan vaqtni bildiradi.",
+      en: 'Similar to 아까 and refers to a recent point in the past.',
+      ru: 'Похоже на 아까 и означает недавний момент в прошлом.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_swim_verb',
+    senseKey: 'action-swim',
+    korean: '수영하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '물속에서 팔과 다리를 움직여 나아가다',
+      uz: 'suzmoq',
+      en: 'to swim',
+      ru: 'плавать',
+    },
+    examples: [
+      {
+        korean: '여름에는 바다에서 수영해요.',
+        translations: {
+          ko: '여름에 바닷물에서 수영해요.',
+          uz: 'Yozda dengizda suzaman.',
+          en: 'I swim in the sea in summer.',
+          ru: 'Летом я плаваю в море.',
+        },
+      },
+      {
+        korean: '저는 수영을 잘해요.',
+        translations: {
+          ko: '저는 물에서 수영하는 것을 잘해요.',
+          uz: 'Men yaxshi suzaman.',
+          en: 'I swim well.',
+          ru: 'Я хорошо плаваю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '수영하다',
+      romanization: 'suyeonghada',
+      ttsText: '수영하다',
+    },
+    media: {
+      emoji: '🏊',
+      imageUrl: 'https://cdn.korio.app/words/suyeonghada.webp',
+      imageAlt: {
+        ko: '물에서 수영하는 사람',
+        uz: 'suzayotgan odam',
+        en: 'a person swimming',
+        ru: 'плывущий человек',
+      },
+    },
+    tags: ['verb', 'sport', 'swimming', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수영하다'와 '수영을 하다'는 같은 의미예요.",
+      uz: "'수영하다' va '수영을 하다' bir xil ma’noda.",
+      en: '수영하다 and 수영을 하다 mean the same thing.',
+      ru: '수영하다 и 수영을 하다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_play_tennis_verb',
+    senseKey: 'leisure-play-tennis',
+    korean: '테니스를 치다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '라켓으로 공을 주고받는 테니스를 하다',
+      uz: 'tennis o‘ynamoq',
+      en: 'to play tennis',
+      ru: 'играть в теннис',
+    },
+    examples: [
+      {
+        korean: '주말마다 테니스를 쳐요.',
+        translations: {
+          ko: '주말마다 테니스 경기를 해요.',
+          uz: 'Har dam olish kuni tennis o‘ynayman.',
+          en: 'I play tennis every weekend.',
+          ru: 'Каждые выходные я играю в теннис.',
+        },
+      },
+      {
+        korean: '친구하고 테니스를 쳤어요.',
+        translations: {
+          ko: '친구와 함께 테니스를 했어요.',
+          uz: 'Do‘stim bilan tennis o‘ynadim.',
+          en: 'I played tennis with my friend.',
+          ru: 'Я играл в теннис с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '테니스를 치다',
+      romanization: 'teniseureul chida',
+      ttsText: '테니스를 치다',
+    },
+    media: {
+      emoji: '🎾',
+      imageUrl: 'https://cdn.korio.app/words/teniseureul-chida.webp',
+      imageAlt: {
+        ko: '라켓으로 테니스를 치는 사람',
+        uz: 'tennis o‘ynayotgan odam',
+        en: 'a person playing tennis',
+        ru: 'человек, играющий в теннис',
+      },
+    },
+    tags: ['verb', 'sport', 'tennis', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "테니스에는 보통 '치다'를 사용해요.",
+      uz: "Tennis bilan odatda '치다' ishlatiladi.",
+      en: 'The verb 치다 is commonly used with tennis.',
+      ru: 'С теннисом обычно используется глагол 치다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_skate_verb',
+    senseKey: 'leisure-skate',
+    korean: '스케이트를 타다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '스케이트를 신고 얼음 위를 미끄러져 움직이다',
+      uz: 'konkida uchmoq',
+      en: 'to skate',
+      ru: 'кататься на коньках',
+    },
+    examples: [
+      {
+        korean: '겨울에 스케이트를 타요.',
+        translations: {
+          ko: '겨울에는 얼음 위에서 스케이트를 타요.',
+          uz: 'Qishda konkida uchaman.',
+          en: 'I skate in winter.',
+          ru: 'Зимой я катаюсь на коньках.',
+        },
+      },
+      {
+        korean: '저는 스케이트를 잘 못 타요.',
+        translations: {
+          ko: '저는 스케이트 타는 실력이 좋지 않아요.',
+          uz: 'Men konkida yaxshi ucha olmayman.',
+          en: "I'm not very good at skating.",
+          ru: 'Я не очень хорошо катаюсь на коньках.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '스케이트를 타다',
+      romanization: 'seukeiteureul tada',
+      ttsText: '스케이트를 타다',
+    },
+    media: {
+      emoji: '⛸️',
+      imageUrl: 'https://cdn.korio.app/words/seukeiteureul-tada.webp',
+      imageAlt: {
+        ko: '얼음 위에서 스케이트를 타는 사람',
+        uz: 'muz ustida konkida uchayotgan odam',
+        en: 'a person ice skating',
+        ru: 'человек, катающийся на коньках',
+      },
+    },
+    tags: ['verb', 'sport', 'skating', 'winter', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "스키, 스케이트, 자전거처럼 올라타서 움직이는 활동에는 '타다'를 사용해요.",
+      uz: "Chang‘i, konkilar va velosiped bilan '타다' ishlatiladi.",
+      en: '타다 is used with activities such as skating, skiing, and riding a bicycle.',
+      ru: '타다 используется с коньками, лыжами, велосипедом и похожими видами движения.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_use_chopsticks_verb',
+    senseKey: 'skill-use-chopsticks',
+    korean: '젓가락질하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '젓가락을 사용해서 음식을 집어 먹다',
+      uz: 'tayoqchalarni ishlatmoq',
+      en: 'to use chopsticks',
+      ru: 'пользоваться палочками',
+    },
+    examples: [
+      {
+        korean: '저는 젓가락질을 잘해요.',
+        translations: {
+          ko: '저는 젓가락을 능숙하게 사용해요.',
+          uz: 'Men tayoqchalarni yaxshi ishlataman.',
+          en: 'I use chopsticks well.',
+          ru: 'Я хорошо пользуюсь палочками.',
+        },
+      },
+      {
+        korean: '처음에는 젓가락질하기 어려웠어요.',
+        translations: {
+          ko: '처음에는 젓가락을 사용하는 것이 어려웠어요.',
+          uz: 'Avval tayoqchalardan foydalanish qiyin edi.',
+          en: 'Using chopsticks was difficult at first.',
+          ru: 'Сначала пользоваться палочками было трудно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '젓가락질하다',
+      romanization: 'jeotgarakjilhada',
+      ttsText: '젓가락질하다',
+    },
+    media: {
+      emoji: '🥢',
+      imageUrl: 'https://cdn.korio.app/words/jeotgarakjilhada.webp',
+      imageAlt: {
+        ko: '젓가락으로 음식을 집는 모습',
+        uz: 'tayoqchalar bilan ovqat olayotgan odam',
+        en: 'using chopsticks to pick up food',
+        ru: 'еда, которую берут палочками',
+      },
+    },
+    tags: ['verb', 'skill', 'food', 'culture', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'젓가락질하다'와 '젓가락질을 하다'를 모두 사용할 수 있어요.",
+      uz: "'젓가락질하다' va '젓가락질을 하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 젓가락질하다 and 젓가락질을 하다 can be used.',
+      ru: 'Можно использовать и 젓가락질하다, и 젓가락질을 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_play_guitar_verb',
+    senseKey: 'leisure-play-guitar',
+    korean: '기타를 치다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '기타를 연주하다',
+      uz: 'gitara chalmoq',
+      en: 'to play the guitar',
+      ru: 'играть на гитаре',
+    },
+    examples: [
+      {
+        korean: '저는 기타를 칠 수 있어요.',
+        translations: {
+          ko: '저는 기타를 연주할 수 있어요.',
+          uz: 'Men gitara chala olaman.',
+          en: 'I can play the guitar.',
+          ru: 'Я умею играть на гитаре.',
+        },
+      },
+      {
+        korean: '친구가 기타를 아주 잘 쳐요.',
+        translations: {
+          ko: '친구는 기타 연주를 아주 잘해요.',
+          uz: 'Do‘stim gitarani juda yaxshi chaladi.',
+          en: 'My friend plays the guitar very well.',
+          ru: 'Мой друг очень хорошо играет на гитаре.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '기타를 치다',
+      romanization: 'gitareul chida',
+      ttsText: '기타를 치다',
+    },
+    media: {
+      emoji: '🎸',
+      imageUrl: 'https://cdn.korio.app/words/gitareul-chida.webp',
+      imageAlt: {
+        ko: '기타를 연주하는 사람',
+        uz: 'gitara chalayotgan odam',
+        en: 'a person playing the guitar',
+        ru: 'человек, играющий на гитаре',
+      },
+    },
+    tags: ['verb', 'music', 'guitar', 'hobby', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "기타에는 보통 동사 '치다'를 사용해요.",
+      uz: "Gitara bilan odatda '치다' ishlatiladi.",
+      en: 'The verb 치다 is commonly used with guitar.',
+      ru: 'С гитарой обычно используется глагол 치다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_make_japchae_verb',
+    senseKey: 'cooking-make-japchae',
+    korean: '잡채를 만들다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '한국 음식 잡채를 요리하다',
+      uz: 'japchae tayyorlamoq',
+      en: 'to make japchae',
+      ru: 'готовить чапчхэ',
+    },
+    examples: [
+      {
+        korean: '주말에 잡채를 만들어요.',
+        translations: {
+          ko: '주말에 집에서 잡채를 요리해요.',
+          uz: 'Dam olish kuni japchae tayyorlayman.',
+          en: 'I make japchae on the weekend.',
+          ru: 'На выходных я готовлю чапчхэ.',
+        },
+      },
+      {
+        korean: '친구와 같이 잡채를 만들었어요.',
+        translations: {
+          ko: '친구와 함께 잡채를 요리했어요.',
+          uz: 'Do‘stim bilan birga japchae tayyorladim.',
+          en: 'I made japchae with my friend.',
+          ru: 'Я приготовил чапчхэ вместе с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잡채를 만들다',
+      romanization: 'japchaereul mandeulda',
+      ttsText: '잡채를 만들다',
+    },
+    media: {
+      emoji: '🍜',
+      imageUrl: 'https://cdn.korio.app/words/japchaereul-mandeulda.webp',
+      imageAlt: {
+        ko: '잡채를 만드는 모습',
+        uz: 'japchae tayyorlash',
+        en: 'making japchae',
+        ru: 'приготовление чапчхэ',
+      },
+    },
+    tags: ['verb', 'cooking', 'korean-food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'잡채'는 당면과 채소 등을 볶아 만드는 한국 음식이에요.",
+      uz: "'잡채' sabzavot va shisha ugra bilan tayyorlanadigan koreys taomi.",
+      en: '잡채 is a Korean dish made with glass noodles and vegetables.',
+      ru: '잡채 — корейское блюдо из стеклянной лапши и овощей.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_athlete_player_noun',
+    senseKey: 'sport-athlete-player',
+    korean: '선수',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '운동 경기 등에 전문적으로 참가하는 사람',
+      uz: 'sportchi',
+      en: 'athlete',
+      ru: 'спортсмен',
+    },
+    examples: [
+      {
+        korean: '제 친구는 축구 선수예요.',
+        translations: {
+          ko: '제 친구는 축구를 전문적으로 하는 선수예요.',
+          uz: 'Do‘stim futbolchi.',
+          en: 'My friend is a soccer player.',
+          ru: 'Мой друг — футболист.',
+        },
+      },
+      {
+        korean: '그 선수는 테니스를 잘 쳐요.',
+        translations: {
+          ko: '그 운동선수는 테니스 실력이 좋아요.',
+          uz: 'U sportchi tennisni yaxshi o‘ynaydi.',
+          en: 'That athlete plays tennis well.',
+          ru: 'Этот спортсмен хорошо играет в теннис.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '선수',
+      romanization: 'seonsu',
+      ttsText: '선수',
+    },
+    media: {
+      emoji: '🏅',
+      imageUrl: 'https://cdn.korio.app/words/seonsu.webp',
+      imageAlt: {
+        ko: '경기에 참가하는 운동선수',
+        uz: 'musobaqadagi sportchi',
+        en: 'an athlete competing',
+        ru: 'спортсмен на соревновании',
+      },
+    },
+    tags: ['sport', 'athlete', 'occupation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'축구 선수', '야구 선수', '테니스 선수'처럼 종목 앞뒤로 함께 사용해요.",
+      uz: "'축구 선수', '야구 선수' kabi ishlatiladi.",
+      en: 'Used in combinations such as 축구 선수 or 야구 선수.',
+      ru: 'Используется в сочетаниях 축구 선수, 야구 선수 и т. д.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_high_school_noun',
+    senseKey: 'education-high-school',
+    korean: '고등학교',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '중학교 다음 단계의 학교',
+      uz: 'yuqori maktab',
+      en: 'high school',
+      ru: 'старшая школа',
+    },
+    examples: [
+      {
+        korean: '저는 고등학교 학생이에요.',
+        translations: {
+          ko: '저는 고등학교에 다니는 학생이에요.',
+          uz: 'Men yuqori maktab o‘quvchisiman.',
+          en: 'I am a high school student.',
+          ru: 'Я ученик старшей школы.',
+        },
+      },
+      {
+        korean: '고등학교 때 야구를 했어요.',
+        translations: {
+          ko: '고등학교에 다닐 때 야구를 했어요.',
+          uz: 'Yuqori maktabda o‘qiganimda beysbol o‘ynardim.',
+          en: 'I played baseball in high school.',
+          ru: 'В старшей школе я играл в бейсбол.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '고등학교',
+      romanization: 'godeunghakgyo',
+      ttsText: '고등학교',
+    },
+    media: {
+      emoji: '🏫',
+      imageUrl: 'https://cdn.korio.app/words/godeunghakgyo.webp',
+      imageAlt: {
+        ko: '고등학교 건물',
+        uz: 'yuqori maktab binosi',
+        en: 'a high school building',
+        ru: 'здание старшей школы',
+      },
+    },
+    tags: ['education', 'school', 'high-school', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'고등학교에 다니다', '고등학교를 졸업하다'처럼 사용해요.",
+      uz: "'고등학교에 다니다', '고등학교를 졸업하다' kabi ishlatiladi.",
+      en: 'Common expressions include 고등학교에 다니다 and 고등학교를 졸업하다.',
+      ru: 'Частые выражения: 고등학교에 다니다 и 고등학교를 졸업하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_ride_bicycle_verb',
+    senseKey: 'leisure-ride-bicycle',
+    korean: '자전거를 타다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '자전거에 올라타서 이동하다',
+      uz: 'velosiped minmoq',
+      en: 'to ride a bicycle',
+      ru: 'ездить на велосипеде',
+    },
+    examples: [
+      {
+        korean: '공원에서 자전거를 타요.',
+        translations: {
+          ko: '공원 길에서 자전거를 타고 다녀요.',
+          uz: 'Bog‘da velosiped minaman.',
+          en: 'I ride a bicycle in the park.',
+          ru: 'Я катаюсь на велосипеде в парке.',
+        },
+      },
+      {
+        korean: '주말에 친구와 자전거를 탔어요.',
+        translations: {
+          ko: '주말에 친구와 함께 자전거를 탔어요.',
+          uz: 'Dam olish kuni do‘stim bilan velosiped mindim.',
+          en: 'I rode a bicycle with my friend on the weekend.',
+          ru: 'На выходных я катался на велосипеде с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '자전거를 타다',
+      romanization: 'jajeongeoreul tada',
+      ttsText: '자전거를 타다',
+    },
+    media: {
+      emoji: '🚲',
+      imageUrl: 'https://cdn.korio.app/words/jajeongeoreul-tada.webp',
+      imageAlt: {
+        ko: '자전거를 타는 사람',
+        uz: 'velosiped minayotgan odam',
+        en: 'a person riding a bicycle',
+        ru: 'человек, едущий на велосипеде',
+      },
+    },
+    tags: ['verb', 'bicycle', 'transport', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "자전거에는 동사 '타다'를 사용해요.",
+      uz: "Velosiped bilan '타다' ishlatiladi.",
+      en: 'The verb 타다 is used with bicycles.',
+      ru: 'С велосипедом используется глагол 타다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_spanish_language_noun',
+    senseKey: 'language-spanish',
+    korean: '스페인어',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '스페인과 여러 나라에서 사용하는 언어',
+      uz: 'ispan tili',
+      en: 'Spanish',
+      ru: 'испанский язык',
+    },
+    examples: [
+      {
+        korean: '스페인어를 공부해요.',
+        translations: {
+          ko: '스페인어를 배우고 있어요.',
+          uz: 'Ispan tilini o‘rganaman.',
+          en: 'I study Spanish.',
+          ru: 'Я изучаю испанский язык.',
+        },
+      },
+      {
+        korean: '친구가 스페인어를 잘해요.',
+        translations: {
+          ko: '친구는 스페인어 실력이 좋아요.',
+          uz: 'Do‘stim ispan tilini yaxshi biladi.',
+          en: 'My friend speaks Spanish well.',
+          ru: 'Мой друг хорошо говорит по-испански.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '스페인어',
+      romanization: 'seupeineo',
+      ttsText: '스페인어',
+    },
+    media: {
+      emoji: '🇪🇸',
+      imageUrl: 'https://cdn.korio.app/words/seupeineo.webp',
+      imageAlt: {
+        ko: '스페인어를 나타내는 스페인 국기',
+        uz: 'ispan tilini bildiruvchi Ispaniya bayrog‘i',
+        en: 'the Spanish flag representing the Spanish language',
+        ru: 'флаг Испании, обозначающий испанский язык',
+      },
+    },
+    tags: ['language', 'spanish', 'study', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'스페인'에 언어를 뜻하는 '-어'가 붙은 말이에요.",
+      uz: "'스페인' va til ma’nosidagi '-어' birikmasi.",
+      en: 'It combines 스페인 with 어, meaning language.',
+      ru: 'Слово состоит из 스페인 и 어 со значением языка.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_play_table_tennis_verb',
+    senseKey: 'sport-play-table-tennis',
+    korean: '탁구를 치다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '탁구 경기를 하다',
+      uz: 'stol tennisi o‘ynamoq',
+      en: 'to play table tennis',
+      ru: 'играть в настольный теннис',
+    },
+    examples: [
+      {
+        korean: '친구하고 탁구를 쳐요.',
+        translations: {
+          ko: '친구와 함께 탁구 경기를 해요.',
+          uz: 'Do‘stim bilan stol tennisi o‘ynayman.',
+          en: 'I play table tennis with my friend.',
+          ru: 'Я играю в настольный теннис с другом.',
+        },
+      },
+      {
+        korean: '저는 탁구를 아주 잘 쳐요.',
+        translations: {
+          ko: '저는 탁구 실력이 아주 좋아요.',
+          uz: 'Men stol tennisini juda yaxshi o‘ynayman.',
+          en: 'I play table tennis very well.',
+          ru: 'Я очень хорошо играю в настольный теннис.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '탁구를 치다',
+      romanization: 'takgureul chida',
+      ttsText: '탁구를 치다',
+    },
+    media: {
+      emoji: '🏓',
+      imageUrl: 'https://cdn.korio.app/words/takgureul-chida.webp',
+      imageAlt: {
+        ko: '탁구를 치는 사람',
+        uz: 'stol tennisi o‘ynayotgan odam',
+        en: 'a person playing table tennis',
+        ru: 'человек, играющий в настольный теннис',
+      },
+    },
+    tags: ['verb', 'sport', 'table-tennis', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "탁구에는 보통 '치다'를 사용해요.",
+      uz: "Stol tennisi bilan odatda '치다' ishlatiladi.",
+      en: 'The verb 치다 is commonly used with table tennis.',
+      ru: 'С настольным теннисом обычно используется 치다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hanja_noun',
+    senseKey: 'language-chinese-character-hanja',
+    korean: '한자',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한국어에서 사용되는 중국계 문자',
+      uz: 'xitoy ieroglifi',
+      en: 'Chinese character',
+      ru: 'китайский иероглиф',
+    },
+    examples: [
+      {
+        korean: '한자를 공부해요.',
+        translations: {
+          ko: '한국어에서 쓰이는 한자를 배워요.',
+          uz: 'Xitoy ierogliflarini o‘rganaman.',
+          en: 'I study Chinese characters.',
+          ru: 'Я изучаю китайские иероглифы.',
+        },
+      },
+      {
+        korean: '이 한자는 외우기 어려워요.',
+        translations: {
+          ko: '이 한자를 기억하기가 어려워요.',
+          uz: 'Bu ieroglifni yodlash qiyin.',
+          en: 'This Chinese character is difficult to memorize.',
+          ru: 'Этот иероглиф трудно запомнить.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '한자',
+      romanization: 'hanja',
+      ttsText: '한자',
+    },
+    media: {
+      emoji: '㊗️',
+      imageUrl: 'https://cdn.korio.app/words/hanja.webp',
+      imageAlt: {
+        ko: '한자로 쓰인 글자',
+        uz: 'xitoy ieroglifi',
+        en: 'a Chinese character',
+        ru: 'китайский иероглиф',
+      },
+    },
+    tags: ['language', 'hanja', 'writing', 'study', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'한자'는 한글과 다른 문자 체계이며 한국어 어휘의 의미를 이해할 때 도움을 줄 수 있어요.",
+      uz: "'한자' Hanguldan boshqa yozuv tizimi.",
+      en: 'Hanja is a character system distinct from Hangul.',
+      ru: 'Ханча — система иероглифов, отличная от хангыля.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_akira_name_noun',
+    senseKey: 'person-name-akira',
+    korean: '아키라',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람 이름 아키라',
+      uz: 'Akira',
+      en: 'Akira',
+      ru: 'Акира',
+    },
+    examples: [
+      {
+        korean: '아키라는 일본 사람이에요.',
+        translations: {
+          ko: '아키라라는 사람은 일본 사람이에요.',
+          uz: 'Akira yapon.',
+          en: 'Akira is Japanese.',
+          ru: 'Акира — японец.',
+        },
+      },
+      {
+        korean: '아키라하고 탁구를 쳤어요.',
+        translations: {
+          ko: '아키라와 함께 탁구를 했어요.',
+          uz: 'Akira bilan stol tennisi o‘ynadim.',
+          en: 'I played table tennis with Akira.',
+          ru: 'Я играл в настольный теннис с Акирой.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아키라',
+      romanization: 'akira',
+      ttsText: '아키라',
+    },
+    media: {
+      emoji: '👤',
+      imageUrl: 'https://cdn.korio.app/words/akira.webp',
+      imageAlt: {
+        ko: '아키라라는 사람',
+        uz: 'Akira ismli odam',
+        en: 'a person named Akira',
+        ru: 'человек по имени Акира',
+      },
+    },
+    tags: ['person', 'name', 'dialogue', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '교재 대화에서 사용하는 사람 이름이에요.',
+      uz: 'Darslik dialogida ishlatiladigan ism.',
+      en: 'A name used in lesson dialogues.',
+      ru: 'Имя персонажа в учебном диалоге.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_restaurant_noun',
+    senseKey: 'place-restaurant',
+    korean: '식당',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돈을 내고 음식을 사 먹는 곳',
+      uz: 'restoran',
+      en: 'restaurant',
+      ru: 'ресторан',
+    },
+    examples: [
+      {
+        korean: '식당에서 점심을 먹어요.',
+        translations: {
+          ko: '식당에 가서 점심 식사를 해요.',
+          uz: 'Restoranda tushlik qilaman.',
+          en: 'I eat lunch at a restaurant.',
+          ru: 'Я обедаю в ресторане.',
+        },
+      },
+      {
+        korean: '이 식당은 음식이 맛있어요.',
+        translations: {
+          ko: '이 식당에서 파는 음식이 맛있어요.',
+          uz: 'Bu restoranning ovqati mazali.',
+          en: 'The food at this restaurant is delicious.',
+          ru: 'В этом ресторане вкусная еда.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '식당',
+      romanization: 'sikdang',
+      ttsText: '식당',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/sikdang.webp',
+      imageAlt: {
+        ko: '음식을 먹는 식당',
+        uz: 'restoran ichki ko‘rinishi',
+        en: 'a restaurant',
+        ru: 'ресторан',
+      },
+    },
+    tags: ['place', 'restaurant', 'food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'식당에서 먹다', '식당에 가다'처럼 사용해요.",
+      uz: "'식당에서 먹다', '식당에 가다' kabi ishlatiladi.",
+      en: 'Common expressions include 식당에서 먹다 and 식당에 가다.',
+      ru: 'Частые выражения: 식당에서 먹다 и 식당에 가다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cake_noun',
+    senseKey: 'food-cake',
+    korean: '케이크',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밀가루와 설탕 등을 넣어 구워 만든 달콤한 음식',
+      uz: 'tort',
+      en: 'cake',
+      ru: 'торт',
+    },
+    examples: [
+      {
+        korean: '생일에 케이크를 먹어요.',
+        translations: {
+          ko: '생일을 축하하면서 케이크를 먹어요.',
+          uz: 'Tug‘ilgan kunda tort yeyman.',
+          en: 'I eat cake on my birthday.',
+          ru: 'На день рождения я ем торт.',
+        },
+      },
+      {
+        korean: '이 케이크는 아주 달아요.',
+        translations: {
+          ko: '이 케이크는 단맛이 강해요.',
+          uz: 'Bu tort juda shirin.',
+          en: 'This cake is very sweet.',
+          ru: 'Этот торт очень сладкий.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '케이크',
+      romanization: 'keikeu',
+      ttsText: '케이크',
+    },
+    media: {
+      emoji: '🍰',
+      imageUrl: 'https://cdn.korio.app/words/keikeu.webp',
+      imageAlt: {
+        ko: '한 조각의 케이크',
+        uz: 'bir bo‘lak tort',
+        en: 'a slice of cake',
+        ru: 'кусок торта',
+      },
+    },
+    tags: ['food', 'dessert', 'cake', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'케이크를 먹다', '케이크를 만들다'처럼 사용해요.",
+      uz: "'케이크를 먹다', '케이크를 만들다' kabi ishlatiladi.",
+      en: 'Common verbs include 먹다 and 만들다.',
+      ru: 'Часто используется с 먹다 и 만들다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_earlier_adverb',
+    senseKey: 'time-earlier-today',
+    korean: '아까',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '지금보다 조금 전에',
+      uz: 'biroz oldin',
+      en: 'a little while ago',
+      ru: 'недавно',
+    },
+    examples: [
+      {
+        korean: '아까 친구를 만났어요.',
+        translations: {
+          ko: '조금 전에 친구를 만났어요.',
+          uz: 'Biroz oldin do‘stimni uchratdim.',
+          en: 'I met my friend a little while ago.',
+          ru: 'Я недавно встретил друга.',
+        },
+      },
+      {
+        korean: '아까 전화했어요.',
+        translations: {
+          ko: '조금 전에 전화를 했어요.',
+          uz: 'Biroz oldin telefon qildim.',
+          en: 'I called a little while ago.',
+          ru: 'Я недавно звонил.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아까',
+      romanization: 'akka',
+      ttsText: '아까',
+    },
+    media: {
+      emoji: '⏪',
+      imageUrl: 'https://cdn.korio.app/words/akka.webp',
+      imageAlt: {
+        ko: '조금 전을 나타내는 표시',
+        uz: 'biroz oldingi vaqt belgisi',
+        en: 'a symbol representing a short time ago',
+        ru: 'символ недавнего прошлого',
+      },
+    },
+    tags: ['adverb', 'time', 'past', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'조금 전'과 비슷한 일상적인 시간 표현이에요.",
+      uz: "'조금 전'ga o‘xshash kundalik vaqt ifodasi.",
+      en: 'A casual time expression similar to 조금 전.',
+      ru: 'Разговорное выражение времени, похожее на 조금 전.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_last_time_noun',
+    senseKey: 'time-last-occasion',
+    korean: '지난번',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '바로 앞에 있었던 때나 기회',
+      uz: 'o‘tgan safar',
+      en: 'last time',
+      ru: 'в прошлый раз',
+    },
+    examples: [
+      {
+        korean: '지난번에 같이 영화를 봤어요.',
+        translations: {
+          ko: '지난번 만났을 때 같이 영화를 봤어요.',
+          uz: 'O‘tgan safar birga kino ko‘rdik.',
+          en: 'We watched a movie together last time.',
+          ru: 'В прошлый раз мы вместе смотрели фильм.',
+        },
+      },
+      {
+        korean: '지난번 음식이 맛있었어요.',
+        translations: {
+          ko: '지난번에 먹은 음식이 맛있었어요.',
+          uz: 'O‘tgan safardagi taom mazali edi.',
+          en: 'The food last time was delicious.',
+          ru: 'Еда в прошлый раз была вкусной.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '지난번',
+      romanization: 'jinanbeon',
+      ttsText: '지난번',
+    },
+    media: {
+      emoji: '↩️',
+      imageUrl: 'https://cdn.korio.app/words/jinanbeon.webp',
+      imageAlt: {
+        ko: '지난번을 나타내는 뒤로 가는 화살표',
+        uz: 'o‘tgan safarni bildiruvchi belgi',
+        en: 'an arrow representing the previous occasion',
+        ru: 'стрелка, обозначающая прошлый раз',
+      },
+    },
+    tags: ['time', 'past', 'occasion', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'지난번에' 형태로 부사처럼 자주 사용해요.",
+      uz: "'지난번에' shaklida ko‘p ishlatiladi.",
+      en: 'It is often used as 지난번에, meaning “last time.”',
+      ru: 'Часто используется в форме 지난번에 — «в прошлый раз».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_tea_noun',
+    senseKey: 'drink-tea',
+    korean: '차',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '찻잎이나 다른 재료를 물에 우려 마시는 음료',
+      uz: 'choy',
+      en: 'tea',
+      ru: 'чай',
+    },
+    examples: [
+      {
+        korean: '따뜻한 차를 마셔요.',
+        translations: {
+          ko: '따뜻하게 우린 차를 마셔요.',
+          uz: 'Iliq choy ichaman.',
+          en: 'I drink warm tea.',
+          ru: 'Я пью тёплый чай.',
+        },
+      },
+      {
+        korean: '친구하고 차를 마셨어요.',
+        translations: {
+          ko: '친구와 함께 차를 마셨어요.',
+          uz: 'Do‘stim bilan choy ichdim.',
+          en: 'I drank tea with my friend.',
+          ru: 'Я пил чай с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '차',
+      romanization: 'cha',
+      ttsText: '차',
+    },
+    media: {
+      emoji: '🍵',
+      imageUrl: 'https://cdn.korio.app/words/cha-tea.webp',
+      imageAlt: {
+        ko: '찻잔에 담긴 따뜻한 차',
+        uz: 'piyoladagi iliq choy',
+        en: 'a cup of warm tea',
+        ru: 'чашка тёплого чая',
+      },
+    },
+    tags: ['drink', 'tea', 'homonym', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "여기서는 car가 아니라 마시는 'tea'라는 뜻이에요.",
+      uz: 'Bu yerda mashina emas, choy ma’nosida.',
+      en: 'Here 차 means tea, not a car.',
+      ru: 'Здесь 차 означает чай, а не автомобиль.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_green_tea_noun',
+    senseKey: 'drink-green-tea',
+    korean: '녹차',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '찻잎을 발효하지 않고 만든 차',
+      uz: 'ko‘k choy',
+      en: 'green tea',
+      ru: 'зелёный чай',
+    },
+    examples: [
+      {
+        korean: '저는 녹차를 좋아해요.',
+        translations: {
+          ko: '저는 녹차 마시는 것을 좋아해요.',
+          uz: 'Men ko‘k choyni yoqtiraman.',
+          en: 'I like green tea.',
+          ru: 'Я люблю зелёный чай.',
+        },
+      },
+      {
+        korean: '식사 후에 녹차를 마셨어요.',
+        translations: {
+          ko: '밥을 먹은 후 녹차를 마셨어요.',
+          uz: 'Ovqatdan keyin ko‘k choy ichdim.',
+          en: 'I drank green tea after the meal.',
+          ru: 'После еды я выпил зелёный чай.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '녹차',
+      romanization: 'nokcha',
+      ttsText: '녹차',
+    },
+    media: {
+      emoji: '🍵',
+      imageUrl: 'https://cdn.korio.app/words/nokcha.webp',
+      imageAlt: {
+        ko: '찻잔에 담긴 녹차',
+        uz: 'piyoladagi ko‘k choy',
+        en: 'a cup of green tea',
+        ru: 'чашка зелёного чая',
+      },
+    },
+    tags: ['drink', 'tea', 'green-tea', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'녹'은 green, '차'는 tea의 의미예요.",
+      uz: "'녹' yashil, '차' choy ma’nosida.",
+      en: '녹 refers to green and 차 means tea.',
+      ru: '녹 связано со значением «зелёный», а 차 означает чай.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sad_adjective',
+    senseKey: 'emotion-sad',
+    korean: '슬프다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '마음이 아프고 기분이 좋지 않다',
+      uz: 'g‘amgin bo‘lmoq',
+      en: 'to be sad',
+      ru: 'быть грустным',
+    },
+    examples: [
+      {
+        korean: '슬픈 영화를 봤어요.',
+        translations: {
+          ko: '내용이 슬픈 영화를 봤어요.',
+          uz: 'G‘amgin film ko‘rdim.',
+          en: 'I watched a sad movie.',
+          ru: 'Я посмотрел грустный фильм.',
+        },
+      },
+      {
+        korean: '지갑을 잃어버려서 슬퍼요.',
+        translations: {
+          ko: '지갑을 잃어버려서 마음이 안 좋아요.',
+          uz: 'Hamyonimni yo‘qotganim uchun xafaman.',
+          en: "I'm sad because I lost my wallet.",
+          ru: 'Мне грустно, потому что я потерял кошелёк.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '슬프다',
+      romanization: 'seulpeuda',
+      ttsText: '슬프다',
+    },
+    media: {
+      emoji: '😢',
+      imageUrl: 'https://cdn.korio.app/words/seulpeuda.webp',
+      imageAlt: {
+        ko: '슬픈 표정의 사람',
+        uz: 'g‘amgin odam',
+        en: 'a sad person',
+        ru: 'грустный человек',
+      },
+    },
+    tags: ['adjective', 'emotion', 'sad', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅡ가 탈락해서 '슬프다 → 슬퍼요'로 활용해요.",
+      uz: "'슬프다 → 슬퍼요' shaklida tuslanadi.",
+      en: 'The ㅡ drops in conjugation: 슬프다 → 슬퍼요.',
+      ru: 'При спряжении ㅡ выпадает: 슬프다 → 슬퍼요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_wallet_noun',
+    senseKey: 'personal-item-wallet',
+    korean: '지갑',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돈이나 카드 등을 넣어 가지고 다니는 물건',
+      uz: 'hamyon',
+      en: 'wallet',
+      ru: 'кошелёк',
+    },
+    examples: [
+      {
+        korean: '지갑에 돈이 있어요.',
+        translations: {
+          ko: '지갑 안에 돈이 들어 있어요.',
+          uz: 'Hamyonda pul bor.',
+          en: 'There is money in my wallet.',
+          ru: 'В кошельке есть деньги.',
+        },
+      },
+      {
+        korean: '지갑을 잃어버렸어요.',
+        translations: {
+          ko: '가지고 있던 지갑이 없어졌어요.',
+          uz: 'Hamyonimni yo‘qotdim.',
+          en: 'I lost my wallet.',
+          ru: 'Я потерял кошелёк.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '지갑',
+      romanization: 'jigap',
+      ttsText: '지갑',
+    },
+    media: {
+      emoji: '👛',
+      imageUrl: 'https://cdn.korio.app/words/jigap.webp',
+      imageAlt: {
+        ko: '돈과 카드를 넣는 지갑',
+        uz: 'pul va karta solinadigan hamyon',
+        en: 'a wallet for money and cards',
+        ru: 'кошелёк для денег и карт',
+      },
+    },
+    tags: ['personal-item', 'wallet', 'money', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'지갑을 잃어버리다', '지갑을 찾다'처럼 사용해요.",
+      uz: "'지갑을 잃어버리다', '지갑을 찾다' kabi ishlatiladi.",
+      en: 'Common expressions include 지갑을 잃어버리다 and 지갑을 찾다.',
+      ru: 'Частые выражения: 지갑을 잃어버리다 и 지갑을 찾다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_lose_verb',
+    senseKey: 'possession-lose-item',
+    korean: '잃어버리다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '가지고 있던 물건이 어디 있는지 모르게 되다',
+      uz: 'yo‘qotmoq',
+      en: 'to lose',
+      ru: 'потерять',
+    },
+    examples: [
+      {
+        korean: '지갑을 잃어버렸어요.',
+        translations: {
+          ko: '가지고 있던 지갑을 찾을 수 없어요.',
+          uz: 'Hamyonimni yo‘qotdim.',
+          en: 'I lost my wallet.',
+          ru: 'Я потерял кошелёк.',
+        },
+      },
+      {
+        korean: '지하철에서 가방을 잃어버렸어요.',
+        translations: {
+          ko: '지하철을 타다가 가방을 잃어버렸어요.',
+          uz: 'Metroda sumkamni yo‘qotdim.',
+          en: 'I lost my bag on the subway.',
+          ru: 'Я потерял сумку в метро.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '잃어버리다',
+      romanization: 'ireobeorida',
+      ttsText: '잃어버리다',
+    },
+    media: {
+      emoji: '🔎',
+      imageUrl: 'https://cdn.korio.app/words/ireobeorida.webp',
+      imageAlt: {
+        ko: '잃어버린 물건을 찾는 사람',
+        uz: 'yo‘qolgan narsani qidirayotgan odam',
+        en: 'a person looking for a lost item',
+        ru: 'человек, ищущий потерянную вещь',
+      },
+    },
+    tags: ['verb', 'lose', 'possession', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'물건을 잃어버리다' 형태로 많이 사용해요.",
+      uz: "'물건을 잃어버리다' kabi ishlatiladi.",
+      en: 'A common pattern is 물건을 잃어버리다.',
+      ru: 'Частая конструкция: 물건을 잃어버리다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_myeongdong_noun',
+    senseKey: 'place-seoul-myeongdong',
+    korean: '명동',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '서울의 쇼핑과 관광으로 유명한 지역',
+      uz: 'Myeongdong',
+      en: 'Myeongdong',
+      ru: 'Мёндон',
+    },
+    examples: [
+      {
+        korean: '명동에서 쇼핑해요.',
+        translations: {
+          ko: '명동에 있는 가게에서 쇼핑해요.',
+          uz: 'Myeongdongda xarid qilaman.',
+          en: 'I shop in Myeongdong.',
+          ru: 'Я хожу по магазинам в Мёндоне.',
+        },
+      },
+      {
+        korean: '지하철을 타고 명동에 갔어요.',
+        translations: {
+          ko: '지하철을 이용해서 명동으로 갔어요.',
+          uz: 'Metroda Myeongdongga bordim.',
+          en: 'I took the subway to Myeongdong.',
+          ru: 'Я поехал в Мёндон на метро.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '명동',
+      romanization: 'myeongdong',
+      ttsText: '명동',
+    },
+    media: {
+      emoji: '🛍️',
+      imageUrl: 'https://cdn.korio.app/words/myeongdong.webp',
+      imageAlt: {
+        ko: '상점이 많은 명동 거리',
+        uz: 'do‘konlarga boy Myeongdong ko‘chasi',
+        en: 'a shopping street in Myeongdong',
+        ru: 'торговая улица Мёндона',
+      },
+    },
+    tags: ['place', 'seoul', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '서울의 대표적인 쇼핑·관광 지역이에요.',
+      uz: 'Seuldagi mashhur xarid va sayyohlik hududi.',
+      en: 'A major shopping and sightseeing area in Seoul.',
+      ru: 'Известный торговый и туристический район Сеула.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_subway_noun',
+    senseKey: 'transport-subway',
+    korean: '지하철',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '주로 지하의 철로를 따라 운행하는 도시 교통수단',
+      uz: 'metro',
+      en: 'subway',
+      ru: 'метро',
+    },
+    examples: [
+      {
+        korean: '학교에 지하철을 타고 가요.',
+        translations: {
+          ko: '지하철을 이용해서 학교에 가요.',
+          uz: 'Maktabga metroda boraman.',
+          en: 'I take the subway to school.',
+          ru: 'Я еду в школу на метро.',
+        },
+      },
+      {
+        korean: '지하철이 아주 편해요.',
+        translations: {
+          ko: '지하철을 이용하면 이동하기 편해요.',
+          uz: 'Metro juda qulay.',
+          en: 'The subway is very convenient.',
+          ru: 'Метро очень удобное.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '지하철',
+      romanization: 'jihacheol',
+      ttsText: '지하철',
+    },
+    media: {
+      emoji: '🚇',
+      imageUrl: 'https://cdn.korio.app/words/jihacheol.webp',
+      imageAlt: {
+        ko: '역으로 들어오는 지하철',
+        uz: 'bekatga kirayotgan metro',
+        en: 'a subway train entering a station',
+        ru: 'поезд метро, прибывающий на станцию',
+      },
+    },
+    tags: ['transport', 'subway', 'city', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'지하철을 타다', '지하철에서 내리다'처럼 사용해요.",
+      uz: "'지하철을 타다', '지하철에서 내리다' kabi ishlatiladi.",
+      en: 'Common expressions include 지하철을 타다 and 지하철에서 내리다.',
+      ru: 'Частые выражения: 지하철을 타다 и 지하철에서 내리다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_shop_verb',
+    senseKey: 'shopping-do-shopping',
+    korean: '쇼핑하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '가게를 돌아보며 필요한 물건을 사다',
+      uz: 'xarid qilmoq',
+      en: 'to shop',
+      ru: 'ходить за покупками',
+    },
+    examples: [
+      {
+        korean: '주말에 명동에서 쇼핑해요.',
+        translations: {
+          ko: '주말에 명동에서 물건을 사요.',
+          uz: 'Dam olish kuni Myeongdongda xarid qilaman.',
+          en: 'I shop in Myeongdong on weekends.',
+          ru: 'На выходных я хожу за покупками в Мёндоне.',
+        },
+      },
+      {
+        korean: '친구하고 쇼핑했어요.',
+        translations: {
+          ko: '친구와 함께 가게를 다니며 물건을 샀어요.',
+          uz: 'Do‘stim bilan xarid qildim.',
+          en: 'I went shopping with my friend.',
+          ru: 'Я ходил за покупками с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '쇼핑하다',
+      romanization: 'syopinghada',
+      ttsText: '쇼핑하다',
+    },
+    media: {
+      emoji: '🛍️',
+      imageUrl: 'https://cdn.korio.app/words/syopinghada.webp',
+      imageAlt: {
+        ko: '쇼핑백을 들고 쇼핑하는 사람',
+        uz: 'xarid qilayotgan odam',
+        en: 'a person carrying shopping bags',
+        ru: 'человек с пакетами после покупок',
+      },
+    },
+    tags: ['verb', 'shopping', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'쇼핑하다'와 '쇼핑을 하다'는 같은 의미예요.",
+      uz: "'쇼핑하다' va '쇼핑을 하다' bir xil ma’noda.",
+      en: '쇼핑하다 and 쇼핑을 하다 have the same meaning.',
+      ru: '쇼핑하다 и 쇼핑을 하다 имеют одинаковое значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_submit_homework_verb',
+    senseKey: 'education-submit-homework',
+    korean: '숙제를 내다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '완성한 숙제를 선생님에게 제출하다',
+      uz: 'uy vazifasini topshirmoq',
+      en: 'to hand in homework',
+      ru: 'сдавать домашнее задание',
+    },
+    examples: [
+      {
+        korean: '오늘 숙제를 내야 해요.',
+        translations: {
+          ko: '오늘 숙제를 선생님께 제출해야 해요.',
+          uz: 'Bugun uy vazifasini topshirishim kerak.',
+          en: 'I have to hand in my homework today.',
+          ru: 'Сегодня мне нужно сдать домашнее задание.',
+        },
+      },
+      {
+        korean: '수업 전에 숙제를 냈어요.',
+        translations: {
+          ko: '수업이 시작되기 전에 숙제를 제출했어요.',
+          uz: 'Darsdan oldin uy vazifasini topshirdim.',
+          en: 'I handed in my homework before class.',
+          ru: 'Я сдал домашнее задание до урока.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '숙제를 내다',
+      romanization: 'sukjereul naeda',
+      ttsText: '숙제를 내다',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/sukjereul-naeda.webp',
+      imageAlt: {
+        ko: '완성한 숙제를 제출하는 모습',
+        uz: 'uy vazifasini topshirish',
+        en: 'handing in completed homework',
+        ru: 'сдача выполненного домашнего задания',
+      },
+    },
+    tags: ['verb', 'education', 'homework', 'school', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'내다'는 문맥에 따라 숙제를 제출한다는 뜻과 선생님이 숙제를 준다는 뜻 모두 가능해요.",
+      uz: "'내다' kontekstga qarab topshirish yoki vazifa berish ma’nosida kelishi mumkin.",
+      en: 'With 숙제, 내다 can mean submitting homework or assigning homework depending on context.',
+      ru: 'С 숙제 глагол 내다 в зависимости от контекста может означать сдавать или задавать домашнюю работу.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_mariko_name_noun',
+    senseKey: 'person-name-mariko',
+    korean: '마리코',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람 이름 마리코',
+      uz: 'Mariko',
+      en: 'Mariko',
+      ru: 'Марико',
+    },
+    examples: [
+      {
+        korean: '마리코는 제 친구예요.',
+        translations: {
+          ko: '마리코라는 사람은 제 친구예요.',
+          uz: 'Mariko mening do‘stim.',
+          en: 'Mariko is my friend.',
+          ru: 'Марико — моя подруга.',
+        },
+      },
+      {
+        korean: '마리코하고 녹차를 마셨어요.',
+        translations: {
+          ko: '마리코와 함께 녹차를 마셨어요.',
+          uz: 'Mariko bilan ko‘k choy ichdim.',
+          en: 'I drank green tea with Mariko.',
+          ru: 'Я пил зелёный чай с Марико.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '마리코',
+      romanization: 'mariko',
+      ttsText: '마리코',
+    },
+    media: {
+      emoji: '👤',
+      imageUrl: 'https://cdn.korio.app/words/mariko.webp',
+      imageAlt: {
+        ko: '마리코라는 사람',
+        uz: 'Mariko ismli odam',
+        en: 'a person named Mariko',
+        ru: 'человек по имени Марико',
+      },
+    },
+    tags: ['person', 'name', 'dialogue', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '교재 대화에서 사용하는 사람 이름이에요.',
+      uz: 'Darslik dialogida ishlatiladigan ism.',
+      en: 'A name used in lesson dialogues.',
+      ru: 'Имя персонажа в учебном диалоге.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hien_name_noun',
+    senseKey: 'person-name-hien',
+    korean: '히엔',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람 이름 히엔',
+      uz: 'Hien',
+      en: 'Hien',
+      ru: 'Хиен',
+    },
+    examples: [
+      {
+        korean: '히엔은 한국어를 공부해요.',
+        translations: {
+          ko: '히엔이라는 사람은 한국어를 배우고 있어요.',
+          uz: 'Hien koreys tilini o‘rganadi.',
+          en: 'Hien studies Korean.',
+          ru: 'Хиен изучает корейский язык.',
+        },
+      },
+      {
+        korean: '히엔하고 식당에 갔어요.',
+        translations: {
+          ko: '히엔과 함께 식당에 갔어요.',
+          uz: 'Hien bilan restoranga bordim.',
+          en: 'I went to a restaurant with Hien.',
+          ru: 'Я ходил в ресторан с Хиен.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '히엔',
+      romanization: 'hien',
+      ttsText: '히엔',
+    },
+    media: {
+      emoji: '👤',
+      imageUrl: 'https://cdn.korio.app/words/hien.webp',
+      imageAlt: {
+        ko: '히엔이라는 사람',
+        uz: 'Hien ismli odam',
+        en: 'a person named Hien',
+        ru: 'человек по имени Хиен',
+      },
+    },
+    tags: ['person', 'name', 'dialogue', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '교재 대화에서 사용하는 사람 이름이에요.',
+      uz: 'Darslik dialogida ishlatiladigan ism.',
+      en: 'A name used in lesson dialogues.',
+      ru: 'Имя персонажа в учебном диалоге.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_bank_noun',
+    senseKey: 'place-bank',
+    korean: '은행',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돈을 맡기거나 찾고 금융 업무를 하는 곳',
+      uz: 'bank',
+      en: 'bank',
+      ru: 'банк',
+    },
+    examples: [
+      {
+        korean: '은행에 가요.',
+        translations: {
+          ko: '은행에서 볼 일이 있어서 가요.',
+          uz: 'Bankka boraman.',
+          en: 'I go to the bank.',
+          ru: 'Я иду в банк.',
+        },
+      },
+      {
+        korean: '은행에서 돈을 바꿨어요.',
+        translations: {
+          ko: '은행에서 다른 나라 돈으로 환전했어요.',
+          uz: 'Bankda pul almashtirdim.',
+          en: 'I exchanged money at the bank.',
+          ru: 'Я обменял деньги в банке.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '은행',
+      romanization: 'eunhaeng',
+      ttsText: '은행',
+    },
+    media: {
+      emoji: '🏦',
+      imageUrl: 'https://cdn.korio.app/words/eunhaeng.webp',
+      imageAlt: {
+        ko: '금융 업무를 하는 은행',
+        uz: 'bank binosi',
+        en: 'a bank building',
+        ru: 'здание банка',
+      },
+    },
+    tags: ['place', 'bank', 'money', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'은행에 가다', '은행에서 돈을 찾다'처럼 사용해요.",
+      uz: "'은행에 가다', '은행에서 돈을 찾다' kabi ishlatiladi.",
+      en: 'Common expressions include 은행에 가다 and 은행에서 돈을 찾다.',
+      ru: 'Частые выражения: 은행에 가다 и 은행에서 돈을 찾다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_spicy_adjective',
+    senseKey: 'taste-spicy',
+    korean: '맵다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '고추 등의 맛이 강해서 입안이 자극적이다',
+      uz: 'achchiq bo‘lmoq',
+      en: 'to be spicy',
+      ru: 'быть острым',
+    },
+    examples: [
+      {
+        korean: '이 음식은 아주 매워요.',
+        translations: {
+          ko: '이 음식에는 매운맛이 아주 강해요.',
+          uz: 'Bu taom juda achchiq.',
+          en: 'This food is very spicy.',
+          ru: 'Эта еда очень острая.',
+        },
+      },
+      {
+        korean: '저는 매운 음식을 좋아해요.',
+        translations: {
+          ko: '저는 매운맛이 나는 음식을 좋아해요.',
+          uz: 'Men achchiq taomlarni yoqtiraman.',
+          en: 'I like spicy food.',
+          ru: 'Я люблю острую еду.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '맵다',
+      romanization: 'maepda',
+      ttsText: '맵다',
+    },
+    media: {
+      emoji: '🌶️',
+      imageUrl: 'https://cdn.korio.app/words/maepda.webp',
+      imageAlt: {
+        ko: '매운 고추와 음식',
+        uz: 'achchiq qalampir',
+        en: 'a spicy chili pepper',
+        ru: 'острый перец',
+      },
+    },
+    tags: ['adjective', 'taste', 'food', 'irregular-b', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅂ 불규칙으로 '맵다 → 매워요'가 돼요.",
+      uz: "'맵다 → 매워요' shaklida tuslanadi.",
+      en: 'It follows the ㅂ irregular pattern: 맵다 → 매워요.',
+      ru: 'Нерегулярное ㅂ-спряжение: 맵다 → 매워요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_big_adjective',
+    senseKey: 'size-big',
+    korean: '크다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '크기나 규모가 보통보다 크다',
+      uz: 'katta bo‘lmoq',
+      en: 'to be big',
+      ru: 'быть большим',
+    },
+    examples: [
+      {
+        korean: '이 운동장은 아주 커요.',
+        translations: {
+          ko: '이 운동장의 크기가 아주 커요.',
+          uz: 'Bu sport maydoni juda katta.',
+          en: 'This sports field is very big.',
+          ru: 'Эта спортивная площадка очень большая.',
+        },
+      },
+      {
+        korean: '큰 가방을 샀어요.',
+        translations: {
+          ko: '크기가 큰 가방을 샀어요.',
+          uz: 'Katta sumka sotib oldim.',
+          en: 'I bought a big bag.',
+          ru: 'Я купил большую сумку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '크다',
+      romanization: 'keuda',
+      ttsText: '크다',
+    },
+    media: {
+      emoji: '📏',
+      imageUrl: 'https://cdn.korio.app/words/keuda.webp',
+      imageAlt: {
+        ko: '크기가 큰 물건',
+        uz: 'katta buyum',
+        en: 'a large object',
+        ru: 'большой предмет',
+      },
+    },
+    tags: ['adjective', 'size', 'description', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 '작다'예요.",
+      uz: "Qarama-qarshisi '작다'.",
+      en: 'The opposite is 작다.',
+      ru: 'Антоним — 작다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_many_adjective',
+    senseKey: 'quantity-many-much',
+    korean: '많다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '수나 양이 크다',
+      uz: 'ko‘p bo‘lmoq',
+      en: 'to be many',
+      ru: 'быть многочисленным',
+    },
+    examples: [
+      {
+        korean: '운동장에 사람이 많아요.',
+        translations: {
+          ko: '운동장에 많은 사람이 있어요.',
+          uz: 'Sport maydonida odam ko‘p.',
+          en: 'There are many people on the sports field.',
+          ru: 'На спортивной площадке много людей.',
+        },
+      },
+      {
+        korean: '오늘 숙제가 많아요.',
+        translations: {
+          ko: '오늘 해야 할 숙제의 양이 많아요.',
+          uz: 'Bugun uy vazifasi ko‘p.',
+          en: 'I have a lot of homework today.',
+          ru: 'Сегодня много домашнего задания.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '많다',
+      romanization: 'manta',
+      ttsText: '많다',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: 'https://cdn.korio.app/words/manta.webp',
+      imageAlt: {
+        ko: '많은 사람들',
+        uz: 'ko‘p odamlar',
+        en: 'many people',
+        ru: 'много людей',
+      },
+    },
+    tags: ['adjective', 'quantity', 'amount', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "명사를 꾸밀 때는 '많은 N' 형태를 사용해요.",
+      uz: "Ot oldida '많은 N' shakli ishlatiladi.",
+      en: 'The attributive form is 많은.',
+      ru: 'Определительная форма — 많은.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_busy_adjective',
+    senseKey: 'state-busy',
+    korean: '바쁘다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '할 일이 많아서 시간이 부족하다',
+      uz: 'band bo‘lmoq',
+      en: 'to be busy',
+      ru: 'быть занятым',
+    },
+    examples: [
+      {
+        korean: '이번 주에는 아주 바빠요.',
+        translations: {
+          ko: '이번 주에는 할 일이 많아서 바빠요.',
+          uz: 'Bu hafta juda bandman.',
+          en: 'I am very busy this week.',
+          ru: 'На этой неделе я очень занят.',
+        },
+      },
+      {
+        korean: '시험 때문에 바빴어요.',
+        translations: {
+          ko: '시험을 준비하느라 바빴어요.',
+          uz: 'Imtihon sababli band edim.',
+          en: 'I was busy because of the exam.',
+          ru: 'Я был занят из-за экзамена.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '바쁘다',
+      romanization: 'bappeuda',
+      ttsText: '바쁘다',
+    },
+    media: {
+      emoji: '💨',
+      imageUrl: 'https://cdn.korio.app/words/bappeuda.webp',
+      imageAlt: {
+        ko: '바쁘게 움직이는 사람',
+        uz: 'band odam',
+        en: 'a busy person',
+        ru: 'занятый человек',
+      },
+    },
+    tags: ['adjective', 'busy', 'daily-life', 'irregular-eu', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅡ가 탈락해서 '바쁘다 → 바빠요'로 활용해요.",
+      uz: "'바쁘다 → 바빠요' shaklida tuslanadi.",
+      en: 'The ㅡ drops in conjugation: 바쁘다 → 바빠요.',
+      ru: 'При спряжении ㅡ выпадает: 바쁘다 → 바빠요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_late_adjective',
+    senseKey: 'time-be-late',
+    korean: '늦다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '정해진 시간보다 뒤에 있다',
+      uz: 'kechikmoq',
+      en: 'to be late',
+      ru: 'опаздывать',
+    },
+    examples: [
+      {
+        korean: '수업에 늦었어요.',
+        translations: {
+          ko: '수업 시작 시간보다 늦게 도착했어요.',
+          uz: 'Darsga kech qoldim.',
+          en: 'I was late for class.',
+          ru: 'Я опоздал на урок.',
+        },
+      },
+      {
+        korean: '오늘은 조금 늦어요.',
+        translations: {
+          ko: '오늘은 평소보다 늦게 도착해요.',
+          uz: 'Bugun biroz kech qolaman.',
+          en: 'I am a little late today.',
+          ru: 'Сегодня я немного опаздываю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '늦다',
+      romanization: 'neutda',
+      ttsText: '늦다',
+    },
+    media: {
+      emoji: '⏰',
+      imageUrl: 'https://cdn.korio.app/words/neutda.webp',
+      imageAlt: {
+        ko: '늦은 시간을 나타내는 시계',
+        uz: 'kechikishni bildiruvchi soat',
+        en: 'a clock representing being late',
+        ru: 'часы, символизирующие опоздание',
+      },
+    },
+    tags: ['adjective', 'time', 'late', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수업에 늦다', '약속에 늦다'처럼 사용해요.",
+      uz: "'수업에 늦다', '약속에 늦다' kabi ishlatiladi.",
+      en: 'Common expressions include 수업에 늦다 and 약속에 늦다.',
+      ru: 'Частые выражения: 수업에 늦다 и 약속에 늦다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_grammar_noun',
+    senseKey: 'language-grammar',
+    korean: '문법',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '말과 문장을 만드는 규칙',
+      uz: 'grammatika',
+      en: 'grammar',
+      ru: 'грамматика',
+    },
+    examples: [
+      {
+        korean: '한국어 문법을 공부해요.',
+        translations: {
+          ko: '한국어 문장을 만드는 규칙을 공부해요.',
+          uz: 'Koreys tili grammatikasini o‘rganaman.',
+          en: 'I study Korean grammar.',
+          ru: 'Я изучаю корейскую грамматику.',
+        },
+      },
+      {
+        korean: '이 문법은 조금 어려워요.',
+        translations: {
+          ko: '이 문법 규칙은 이해하기 조금 어려워요.',
+          uz: 'Bu grammatika biroz qiyin.',
+          en: 'This grammar is a little difficult.',
+          ru: 'Эта грамматика немного сложная.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '문법',
+      romanization: 'munbeop',
+      ttsText: '문법',
+    },
+    media: {
+      emoji: '📘',
+      imageUrl: 'https://cdn.korio.app/words/munbeop.webp',
+      imageAlt: {
+        ko: '문법을 공부하는 교재',
+        uz: 'grammatika kitobi',
+        en: 'a grammar textbook',
+        ru: 'учебник грамматики',
+      },
+    },
+    tags: ['language', 'grammar', 'study', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'문법을 배우다', '문법을 이해하다'처럼 사용해요.",
+      uz: "'문법을 배우다', '문법을 이해하다' kabi ishlatiladi.",
+      en: 'Common expressions include 문법을 배우다 and 문법을 이해하다.',
+      ru: 'Частые выражения: 문법을 배우다 и 문법을 이해하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_understand_verb',
+    senseKey: 'cognition-understand',
+    korean: '이해하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '내용이나 뜻을 알아듣다',
+      uz: 'tushunmoq',
+      en: 'to understand',
+      ru: 'понимать',
+    },
+    examples: [
+      {
+        korean: '이 문법을 이해했어요.',
+        translations: {
+          ko: '이 문법의 뜻과 사용법을 알았어요.',
+          uz: 'Bu grammatikani tushundim.',
+          en: 'I understood this grammar.',
+          ru: 'Я понял эту грамматику.',
+        },
+      },
+      {
+        korean: '선생님 설명을 잘 이해하지 못했어요.',
+        translations: {
+          ko: '선생님의 설명을 제대로 알아듣지 못했어요.',
+          uz: 'O‘qituvchining tushuntirishini yaxshi tushunmadim.',
+          en: "I didn't understand the teacher's explanation well.",
+          ru: 'Я плохо понял объяснение учителя.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '이해하다',
+      romanization: 'ihaehada',
+      ttsText: '이해하다',
+    },
+    media: {
+      emoji: '💡',
+      imageUrl: 'https://cdn.korio.app/words/ihaehada.webp',
+      imageAlt: {
+        ko: '내용을 이해한 사람과 전구',
+        uz: 'tushungan odam va chiroq',
+        en: 'a person understanding an idea',
+        ru: 'человек, понявший идею',
+      },
+    },
+    tags: ['verb', 'cognition', 'study', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'N을/를 이해하다' 형태로 사용해요.",
+      uz: "'N을/를 이해하다' shaklida ishlatiladi.",
+      en: 'It is commonly used in the pattern N을/를 이해하다.',
+      ru: 'Часто используется в конструкции N을/를 이해하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_noisy_adjective',
+    senseKey: 'sound-noisy',
+    korean: '시끄럽다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '소리가 크고 복잡해서 조용하지 않다',
+      uz: 'shovqinli bo‘lmoq',
+      en: 'to be loud',
+      ru: 'быть шумным',
+    },
+    examples: [
+      {
+        korean: '식당이 너무 시끄러워요.',
+        translations: {
+          ko: '식당에 소리가 많아서 너무 시끄러워요.',
+          uz: 'Restoran juda shovqinli.',
+          en: 'The restaurant is too noisy.',
+          ru: 'В ресторане слишком шумно.',
+        },
+      },
+      {
+        korean: '밖이 시끄러워서 공부를 못 해요.',
+        translations: {
+          ko: '밖의 소리가 커서 공부하기 어려워요.',
+          uz: 'Tashqarida shovqin bo‘lgani uchun o‘qiy olmayman.',
+          en: "I can't study because it is noisy outside.",
+          ru: 'Я не могу учиться, потому что снаружи шумно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '시끄럽다',
+      romanization: 'sikkeureopda',
+      ttsText: '시끄럽다',
+    },
+    media: {
+      emoji: '🔊',
+      imageUrl: 'https://cdn.korio.app/words/sikkeureopda.webp',
+      imageAlt: {
+        ko: '큰 소리가 나는 스피커',
+        uz: 'baland ovozli karnay',
+        en: 'a loud speaker',
+        ru: 'громкий динамик',
+      },
+    },
+    tags: ['adjective', 'sound', 'noisy', 'irregular-b', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅂ 불규칙으로 '시끄럽다 → 시끄러워요'가 돼요.",
+      uz: "'시끄럽다 → 시끄러워요' shaklida tuslanadi.",
+      en: 'It follows the ㅂ irregular pattern: 시끄럽다 → 시끄러워요.',
+      ru: 'Нерегулярное ㅂ-спряжение: 시끄럽다 → 시끄러워요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hungry_adjective',
+    senseKey: 'physical-state-hungry',
+    korean: '배고프다',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '음식을 먹고 싶을 정도로 배가 비어 있다',
+      uz: 'och bo‘lmoq',
+      en: 'to be hungry',
+      ru: 'быть голодным',
+    },
+    examples: [
+      {
+        korean: '지금 너무 배고파요.',
+        translations: {
+          ko: '지금 배가 고파서 음식을 먹고 싶어요.',
+          uz: 'Hozir juda ochman.',
+          en: 'I am very hungry now.',
+          ru: 'Сейчас я очень голоден.',
+        },
+      },
+      {
+        korean: '배고파서 식당에 갔어요.',
+        translations: {
+          ko: '배가 고파서 음식을 먹으러 식당에 갔어요.',
+          uz: 'Och bo‘lganim uchun restoranga bordim.',
+          en: 'I went to a restaurant because I was hungry.',
+          ru: 'Я пошёл в ресторан, потому что был голоден.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '배고프다',
+      romanization: 'baegopeuda',
+      ttsText: '배고프다',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/baegopeuda.webp',
+      imageAlt: {
+        ko: '배가 고픈 사람과 음식',
+        uz: 'och odam va ovqat',
+        en: 'a hungry person looking at food',
+        ru: 'голодный человек и еда',
+      },
+    },
+    tags: ['adjective', 'physical-state', 'hunger', 'irregular-eu', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "ㅡ가 탈락해서 '배고프다 → 배고파요'로 활용해요.",
+      uz: "'배고프다 → 배고파요' shaklida tuslanadi.",
+      en: 'The ㅡ drops in conjugation: 배고프다 → 배고파요.',
+      ru: 'При спряжении ㅡ выпадает: 배고프다 → 배고파요.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_midterm_exam_noun',
+    senseKey: 'education-midterm-exam',
+    korean: '중간시험',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '학기 중간에 보는 시험',
+      uz: 'oraliq imtihon',
+      en: 'midterm exam',
+      ru: 'промежуточный экзамен',
+    },
+    examples: [
+      {
+        korean: '다음 주에 중간시험이 있어요.',
+        translations: {
+          ko: '다음 주에 학기 중간시험을 봐요.',
+          uz: 'Keyingi hafta oraliq imtihon bor.',
+          en: 'I have a midterm exam next week.',
+          ru: 'На следующей неделе у меня промежуточный экзамен.',
+        },
+      },
+      {
+        korean: '중간시험 때문에 바빠요.',
+        translations: {
+          ko: '중간시험을 준비하느라 바빠요.',
+          uz: 'Oraliq imtihon sababli bandman.',
+          en: 'I am busy because of the midterm exam.',
+          ru: 'Я занят из-за промежуточного экзамена.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '중간시험',
+      romanization: 'junggan siheom',
+      ttsText: '중간시험',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/junggan-siheom.webp',
+      imageAlt: {
+        ko: '중간시험 문제지',
+        uz: 'oraliq imtihon varag‘i',
+        en: 'a midterm exam paper',
+        ru: 'бланк промежуточного экзамена',
+      },
+    },
+    tags: ['education', 'exam', 'school', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'중간고사'라는 표현도 많이 사용해요.",
+      uz: "'중간고사' ham ko‘p ishlatiladi.",
+      en: '중간고사 is also a common term for a midterm exam.',
+      ru: 'Для промежуточного экзамена также часто используется 중간고사.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_drive_verb',
+    senseKey: 'transportation-drive',
+    korean: '운전하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '자동차 등을 직접 조종해서 이동하다',
+      uz: 'mashina haydamoq',
+      en: 'to drive',
+      ru: 'водить машину',
+    },
+    examples: [
+      {
+        korean: '저는 매일 운전해요.',
+        translations: {
+          ko: '저는 매일 자동차를 운전해요.',
+          uz: 'Men har kuni mashina haydayman.',
+          en: 'I drive every day.',
+          ru: 'Я каждый день вожу машину.',
+        },
+      },
+      {
+        korean: '아버지가 운전을 잘하세요.',
+        translations: {
+          ko: '아버지는 자동차를 아주 잘 운전하세요.',
+          uz: 'Otam mashinani yaxshi haydaydi.',
+          en: 'My father drives well.',
+          ru: 'Мой отец хорошо водит машину.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '운전하다',
+      romanization: 'unjeonhada',
+      ttsText: '운전하다',
+    },
+    media: {
+      emoji: '🚗',
+      imageUrl: 'https://cdn.korio.app/words/unjeonhada.webp',
+      imageAlt: {
+        ko: '자동차를 운전하는 사람',
+        uz: 'mashina haydayotgan odam',
+        en: 'a person driving a car',
+        ru: 'человек за рулём автомобиля',
+      },
+    },
+    tags: ['verb', 'driving', 'transportation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운전하다'와 '운전을 하다'를 모두 사용할 수 있어요.",
+      uz: "'운전하다' va '운전을 하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 운전하다 and 운전을 하다 are possible.',
+      ru: 'Можно использовать и 운전하다, и 운전을 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_ski_verb',
+    senseKey: 'leisure-ski',
+    korean: '스키를 타다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '스키를 신고 눈 위를 미끄러져 내려가다',
+      uz: 'chang‘ida uchmoq',
+      en: 'to ski',
+      ru: 'кататься на лыжах',
+    },
+    examples: [
+      {
+        korean: '겨울에 스키를 타요.',
+        translations: {
+          ko: '겨울에는 눈 위에서 스키를 타요.',
+          uz: 'Qishda chang‘ida uchaman.',
+          en: 'I ski in winter.',
+          ru: 'Зимой я катаюсь на лыжах.',
+        },
+      },
+      {
+        korean: '저는 스키를 잘 못 타요.',
+        translations: {
+          ko: '저는 스키 타는 실력이 좋지 않아요.',
+          uz: 'Men chang‘ida yaxshi ucha olmayman.',
+          en: "I'm not very good at skiing.",
+          ru: 'Я не очень хорошо катаюсь на лыжах.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '스키를 타다',
+      romanization: 'seukireul tada',
+      ttsText: '스키를 타다',
+    },
+    media: {
+      emoji: '⛷️',
+      imageUrl: 'https://cdn.korio.app/words/seukireul-tada.webp',
+      imageAlt: {
+        ko: '눈 위에서 스키를 타는 사람',
+        uz: 'chang‘ida uchayotgan odam',
+        en: 'a person skiing',
+        ru: 'человек, катающийся на лыжах',
+      },
+    },
+    tags: ['verb', 'sport', 'ski', 'winter', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "스키에는 동사 '타다'를 사용해요.",
+      uz: "Chang‘i bilan '타다' ishlatiladi.",
+      en: 'The verb 타다 is used with skiing.',
+      ru: 'С лыжами используется глагол 타다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_concert_noun',
+    senseKey: 'culture-concert',
+    korean: '콘서트',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가수나 연주자가 관객 앞에서 음악을 들려주는 공연',
+      uz: 'konsert',
+      en: 'concert',
+      ru: 'концерт',
+    },
+    examples: [
+      {
+        korean: '주말에 콘서트에 가요.',
+        translations: {
+          ko: '주말에 음악 공연을 보러 가요.',
+          uz: 'Dam olish kuni konsertga boraman.',
+          en: 'I go to a concert on the weekend.',
+          ru: 'На выходных я иду на концерт.',
+        },
+      },
+      {
+        korean: '어제 콘서트가 정말 재미있었어요.',
+        translations: {
+          ko: '어제 본 콘서트가 정말 재미있었어요.',
+          uz: 'Kechagi konsert juda qiziqarli edi.',
+          en: "Yesterday's concert was really fun.",
+          ru: 'Вчерашний концерт был очень интересным.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '콘서트',
+      romanization: 'konseoteu',
+      ttsText: '콘서트',
+    },
+    media: {
+      emoji: '🎤',
+      imageUrl: 'https://cdn.korio.app/words/konseoteu.webp',
+      imageAlt: {
+        ko: '무대에서 열리는 콘서트',
+        uz: 'sahnadagi konsert',
+        en: 'a live concert',
+        ru: 'живой концерт',
+      },
+    },
+    tags: ['music', 'performance', 'concert', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'콘서트에 가다', '콘서트를 보다'처럼 사용해요.",
+      uz: "'콘서트에 가다', '콘서트를 보다' kabi ishlatiladi.",
+      en: 'Common expressions include 콘서트에 가다 and 콘서트를 보다.',
+      ru: 'Частые выражения: 콘서트에 가다 и 콘서트를 보다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_go_and_return_verb',
+    senseKey: 'movement-go-and-come-back',
+    korean: '다녀오다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 곳에 갔다가 다시 돌아오다',
+      uz: 'borib kelmoq',
+      en: 'to go and come back',
+      ru: 'сходить и вернуться',
+    },
+    examples: [
+      {
+        korean: '학교에 다녀왔어요.',
+        translations: {
+          ko: '학교에 갔다가 다시 돌아왔어요.',
+          uz: 'Maktabga borib keldim.',
+          en: 'I went to school and came back.',
+          ru: 'Я сходил в школу и вернулся.',
+        },
+      },
+      {
+        korean: '제주도에 잘 다녀왔어요.',
+        translations: {
+          ko: '제주도 여행을 잘 마치고 돌아왔어요.',
+          uz: 'Jejuga yaxshi borib keldim.',
+          en: 'I had a good trip to Jeju and came back.',
+          ru: 'Я хорошо съездил на Чеджу и вернулся.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '다녀오다',
+      romanization: 'danyeooda',
+      ttsText: '다녀오다',
+    },
+    media: {
+      emoji: '↩️',
+      imageUrl: 'https://cdn.korio.app/words/danyeooda.webp',
+      imageAlt: {
+        ko: '어딘가에 갔다가 돌아오는 모습',
+        uz: 'borib qaytib kelish',
+        en: 'going somewhere and returning',
+        ru: 'поездка туда и возвращение',
+      },
+    },
+    tags: ['verb', 'movement', 'travel', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'가다'와 '오다'가 결합되어 갔다가 돌아오는 의미를 나타내요.",
+      uz: "'가다' va '오다' ma’nolari birlashgan.",
+      en: 'It combines the ideas of going somewhere and coming back.',
+      ru: 'Объединяет значения «пойти» и «вернуться».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_introduce_for_someone_verb',
+    senseKey: 'social-introduce-for-someone',
+    korean: '소개해 주다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '다른 사람을 위해 사람이나 대상을 소개하다',
+      uz: 'tanishtirib bermoq',
+      en: 'to introduce someone',
+      ru: 'познакомить',
+    },
+    examples: [
+      {
+        korean: '친구를 소개해 주세요.',
+        translations: {
+          ko: '저에게 친구를 소개해 주세요.',
+          uz: 'Do‘stingiz bilan meni tanishtiring.',
+          en: 'Please introduce your friend to me.',
+          ru: 'Пожалуйста, познакомьте меня с вашим другом.',
+        },
+      },
+      {
+        korean: '정우를 친구에게 소개해 줬어요.',
+        translations: {
+          ko: '친구가 정우를 알 수 있도록 소개했어요.',
+          uz: 'Jeonguni do‘stim bilan tanishtirdim.',
+          en: 'I introduced Jeongu to my friend.',
+          ru: 'Я познакомил Чону со своим другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '소개해 주다',
+      romanization: 'sogaehae juda',
+      ttsText: '소개해 주다',
+    },
+    media: {
+      emoji: '🤝',
+      imageUrl: 'https://cdn.korio.app/words/sogaehae-juda.webp',
+      imageAlt: {
+        ko: '두 사람을 서로 소개하는 모습',
+        uz: 'ikki kishini tanishtirish',
+        en: 'introducing two people',
+        ru: 'знакомство двух людей',
+      },
+    },
+    tags: ['verb', 'social', 'introduction', 'benefactive', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'V-아/어 주다'는 다른 사람을 위해 어떤 행동을 해 준다는 의미를 더해요.",
+      uz: "'V-아/어 주다' boshqa odam uchun ish qilish ma’nosini qo‘shadi.",
+      en: 'V-아/어 주다 adds the meaning of doing something for someone.',
+      ru: 'V-아/어 주다 добавляет значение действия в пользу другого человека.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_jeongu_name_noun',
+    senseKey: 'person-name-jeongu',
+    korean: '정우',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람 이름 정우',
+      uz: 'Jeongu',
+      en: 'Jeongu',
+      ru: 'Чону',
+    },
+    examples: [
+      {
+        korean: '정우는 제 친구예요.',
+        translations: {
+          ko: '정우라는 사람은 제 친구예요.',
+          uz: 'Jeongu mening do‘stim.',
+          en: 'Jeongu is my friend.',
+          ru: 'Чону — мой друг.',
+        },
+      },
+      {
+        korean: '정우하고 콘서트에 갔어요.',
+        translations: {
+          ko: '정우와 함께 콘서트를 보러 갔어요.',
+          uz: 'Jeongu bilan konsertga bordim.',
+          en: 'I went to a concert with Jeongu.',
+          ru: 'Я ходил на концерт с Чону.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '정우',
+      romanization: 'jeongu',
+      ttsText: '정우',
+    },
+    media: {
+      emoji: '👤',
+      imageUrl: 'https://cdn.korio.app/words/jeongu.webp',
+      imageAlt: {
+        ko: '정우라는 사람',
+        uz: 'Jeongu ismli odam',
+        en: 'a person named Jeongu',
+        ru: 'человек по имени Чону',
+      },
+    },
+    tags: ['person', 'name', 'dialogue', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '교재 대화에서 사용하는 사람 이름이에요.',
+      uz: 'Darslik dialogida ishlatiladigan ism.',
+      en: 'A name used in lesson dialogues.',
+      ru: 'Имя персонажа в учебном диалоге.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_clothes_noun',
+    senseKey: 'clothing-clothes',
+    korean: '옷',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '몸에 입는 물건',
+      uz: 'kiyim',
+      en: 'clothes',
+      ru: 'одежда',
+    },
+    examples: [
+      {
+        korean: '새 옷을 샀어요.',
+        translations: {
+          ko: '새로 입을 옷을 샀어요.',
+          uz: 'Yangi kiyim sotib oldim.',
+          en: 'I bought new clothes.',
+          ru: 'Я купил новую одежду.',
+        },
+      },
+      {
+        korean: '오늘 따뜻한 옷을 입어요.',
+        translations: {
+          ko: '오늘은 날씨가 추워서 따뜻한 옷을 입어요.',
+          uz: 'Bugun issiq kiyim kiyaman.',
+          en: 'I wear warm clothes today.',
+          ru: 'Сегодня я надеваю тёплую одежду.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '옷',
+      romanization: 'ot',
+      ttsText: '옷',
+    },
+    media: {
+      emoji: '👕',
+      imageUrl: 'https://cdn.korio.app/words/ot.webp',
+      imageAlt: {
+        ko: '입을 수 있는 여러 옷',
+        uz: 'turli kiyimlar',
+        en: 'various clothes',
+        ru: 'разная одежда',
+      },
+    },
+    tags: ['clothing', 'clothes', 'shopping', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'옷을 입다', '옷을 사다'처럼 사용해요.",
+      uz: "'옷을 입다', '옷을 사다' kabi ishlatiladi.",
+      en: 'Common expressions include 옷을 입다 and 옷을 사다.',
+      ru: 'Частые выражения: 옷을 입다 и 옷을 사다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_korean_food_noun',
+    senseKey: 'food-korean-food',
+    korean: '한국 음식',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한국에서 전통적으로 먹거나 만들어진 음식',
+      uz: 'koreys taomi',
+      en: 'Korean food',
+      ru: 'корейская еда',
+    },
+    examples: [
+      {
+        korean: '저는 한국 음식을 좋아해요.',
+        translations: {
+          ko: '저는 한국에서 먹는 음식을 좋아해요.',
+          uz: 'Men koreys taomlarini yoqtiraman.',
+          en: 'I like Korean food.',
+          ru: 'Я люблю корейскую еду.',
+        },
+      },
+      {
+        korean: '친구에게 한국 음식을 소개해 줬어요.',
+        translations: {
+          ko: '친구에게 여러 한국 음식을 알려 줬어요.',
+          uz: 'Do‘stimga koreys taomlarini tanishtirdim.',
+          en: 'I introduced Korean food to my friend.',
+          ru: 'Я познакомил друга с корейской кухней.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '한국 음식',
+      romanization: 'hanguk eumsik',
+      ttsText: '한국 음식',
+    },
+    media: {
+      emoji: '🍲',
+      imageUrl: 'https://cdn.korio.app/words/hanguk-eumsik.webp',
+      imageAlt: {
+        ko: '여러 가지 한국 음식',
+        uz: 'turli koreys taomlari',
+        en: 'various Korean dishes',
+        ru: 'разные корейские блюда',
+      },
+    },
+    tags: ['food', 'korean-food', 'culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'한식'이라는 표현도 한국 음식을 뜻해요.",
+      uz: "'한식' ham koreys taomlari degani.",
+      en: '한식 is another common word meaning Korean cuisine.',
+      ru: '한식 — ещё одно распространённое слово со значением «корейская кухня».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];
 const I = {
   image: {
     ko: '그림에 맞는 답을 고르세요.',

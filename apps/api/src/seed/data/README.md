@@ -89,8 +89,10 @@ export const S3_UNIT1_WORDS = [
   `imageAlt`도 네 언어로 작성한다. 비슷하지만 뜻이 다른 그림은 쓰지 않는다.
 - `difficulty`는 1~5, `tags`는 검색·복습 묶음용 소문자 kebab-case,
   `isCore`는 그 유닛에서 반드시 외울 핵심 단어인지 나타낸다.
-- 동일 단어를 다른 유닛에서 다시 가르칠 때는 같은 `code`, `senseKey`, `meaning`을
-  사용한다. 시더가 placement만 합친다. 같은 code의 뜻이 다르면 검증 오류다.
+- 동일 단어를 다른 유닛에서 다시 가르칠 때는 같은 `code`, `korean`, `senseKey`,
+  `partOfSpeech`를 사용한다. `meaning`의 설명 문장은 같은 사전적 뜻 안에서 자연스럽게
+  달라질 수 있으며, 먼저 등록된 항목이 대표 뜻으로 저장된다. 실제 사전적 뜻이 다르면
+  반드시 별도의 `code`와 `senseKey`를 사용한다. 시더는 placement와 예문을 합친다.
 - 예전 `{ korean, uz, en, ru, emoji }` 형식도 마이그레이션을 위해 읽히지만,
   새로 만들거나 수정하는 단어는 위 확장 구조로 작성한다.
 

@@ -1,6 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
-
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 /**
  * 섹션 1 · 유닛 4 — 어디에 있어요?
  * 출처: 서울대 한국어 1A 4과
@@ -163,7 +164,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '편지를 보내는 곳이에요.',
-      uz: 'Xat jo\'natiladigan joy.',
+      uz: "Xat jo'natiladigan joy.",
       en: 'The place you send letters from.',
       ru: 'Место, откуда отправляют письма.',
     },
@@ -362,7 +363,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '대 · 사 · 관 — 세 글자를 고르게.',
-      uz: 'Dae-sa-gwan — uch bo\'g\'in tekis.',
+      uz: "Dae-sa-gwan — uch bo'g'in tekis.",
       en: 'dae-sa-gwan — three even syllables.',
       ru: 'тэ-са-гван — три ровных слога.',
     },
@@ -406,7 +407,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '은행이에요.' },
       { speaker: 'npc', text: '그럼 저기는 어디예요?' },
     ],
-    options: ['저기는 우체국이에요.', '여기는 우체국이에요.', '우체국이 없어요.', '우체국 주세요.'],
+    options: [
+      '저기는 우체국이에요.',
+      '여기는 우체국이에요.',
+      '우체국이 없어요.',
+      '우체국 주세요.',
+    ],
     answer: '저기는 우체국이에요.',
     explanation: {
       ko: '"여기"는 내가 있는 자리, "저기"는 나와 상대 모두에게서 먼 곳이에요. 상대가 "저기"를 물었으니 "저기"로 답해요.',
@@ -440,7 +446,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '여기가 어디예요? — ',
     sentenceSuffix: '.',
-    options: ['공항이에요', '공항예요', '공항이 있어요', '공항 주세요', '공항이 없어요'],
+    options: [
+      '공항이에요',
+      '공항예요',
+      '공항이 있어요',
+      '공항 주세요',
+      '공항이 없어요',
+    ],
     answer: '공항이에요',
     explanation: {
       ko: '"어디예요?"는 이 자리가 어떤 곳인지 묻는 말이에요. 그러니 장소 이름 + 이에요/예요로 답해요. 공항은 받침이 있으니 "공항이에요"예요.',
@@ -459,7 +471,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '여기가 N이에요'],
     hint: {
       ko: '있는지 없는지를 묻는 게 아니에요. 이름을 답해요.',
-      uz: 'Bor-yo\'qni emas, nomini so\'rayapti.',
+      uz: "Bor-yo'qni emas, nomini so'rayapti.",
       en: 'They are not asking whether it exists — give the name.',
       ru: 'Спрашивают не о наличии, а о названии.',
     },
@@ -671,7 +683,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '약이 있어요. 여기가 ',
     sentenceSuffix: '',
-    options: ['약국이에요.', '병원이에요.', '은행이에요.', '가게예요.', '공항이에요.'],
+    options: [
+      '약국이에요.',
+      '병원이에요.',
+      '은행이에요.',
+      '가게예요.',
+      '공항이에요.',
+    ],
     answer: '약국이에요.',
     explanation: {
       ko: '"약"은 병을 고치는 약이에요. 약을 파는 곳이 "약국"이에요. 병원은 의사가 보는 곳이라 달라요.',
@@ -860,7 +878,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '미 · 용 · 실 — 세 글자를 또박또박.',
-      uz: 'Mi-yong-sil — uch bo\'g\'in aniq.',
+      uz: "Mi-yong-sil — uch bo'g'in aniq.",
       en: 'mi-yong-sil — three clear syllables.',
       ru: 'ми-ён-силь — три чётких слога.',
     },
@@ -904,7 +922,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '미용실이에요.' },
       { speaker: 'npc', text: '저기가 병원이에요?' },
     ],
-    options: ['아니요, 저기는 약국이에요.', '네, 저기는 약국이에요.', '병원 주세요.', '병원이 없어요.'],
+    options: [
+      '아니요, 저기는 약국이에요.',
+      '네, 저기는 약국이에요.',
+      '병원 주세요.',
+      '병원이 없어요.',
+    ],
     answer: '아니요, 저기는 약국이에요.',
     explanation: {
       ko: '병원이냐고 물었는데 답은 약국이에요. 다른 곳이니까 "아니요"로 시작해요. "네"로 시작하면 앞뒤가 안 맞아요.',
@@ -923,7 +946,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '대화'],
     hint: {
       ko: '물어본 곳과 답의 이름이 다른지 먼저 견주세요.',
-      uz: 'So\'ralgan joy bilan javobdagi nom bir xilmi — solishtiring.',
+      uz: "So'ralgan joy bilan javobdagi nom bir xilmi — solishtiring.",
       en: 'First check whether the name asked about matches the answer.',
       ru: 'Сначала сверьте: совпадает ли название в вопросе и в ответе.',
     },
@@ -938,7 +961,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '여기가 어디예요? — ',
     sentenceSuffix: '.',
-    options: ['가게예요', '가게이에요', '가게가 있어요', '가게 주세요', '가게가 없어요'],
+    options: [
+      '가게예요',
+      '가게이에요',
+      '가게가 있어요',
+      '가게 주세요',
+      '가게가 없어요',
+    ],
     answer: '가게예요',
     explanation: {
       ko: '받침이 없는 말에는 "예요"만 붙어요. "가게이에요"라는 말은 없어요.',
@@ -983,7 +1012,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '멀리 있는 곳을 가리키며 말해요.',
-      uz: 'Uzoqdagi joyni ko\'rsatib ayting.',
+      uz: "Uzoqdagi joyni ko'rsatib ayting.",
       en: 'Say it while pointing at something far away.',
       ru: 'Скажите, указывая на что-то далёкое.',
     },
@@ -1132,7 +1161,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어디', '질문'],
     hint: {
       ko: '물건이 아니라 자리를 묻고 있어요.',
-      uz: 'Narsa emas, joy so\'ralyapti.',
+      uz: "Narsa emas, joy so'ralyapti.",
       en: 'You are asking about a place, not an object.',
       ru: 'Спрашивают о месте, а не о предмете.',
     },
@@ -1158,7 +1187,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '질문', '말하기'],
     hint: {
       ko: '묻는 말이니까 끝을 올려서 말해요.',
-      uz: 'Savol — ohangni ko\'taring.',
+      uz: "Savol — ohangni ko'taring.",
       en: 'It is a question — raise your intonation at the end.',
       ru: 'Это вопрос — повышайте интонацию в конце.',
     },
@@ -1184,7 +1213,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '여기가 N이에요', '어순'],
     hint: {
       ko: '명동은 서울에서 쇼핑을 하는 거리예요.',
-      uz: 'Myeongdong — Seuldagi savdo ko\'chasi.',
+      uz: "Myeongdong — Seuldagi savdo ko'chasi.",
       en: 'Myeongdong is a shopping district in Seoul.',
       ru: 'Мёндон — торговый район Сеула.',
     },
@@ -1263,7 +1292,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '인사동이에요.' },
       { speaker: 'npc', text: '여기가 인사동이에요?' },
     ],
-    options: ['네, 인사동이에요.', '아니요, 인사동이에요.', '인사동이 없어요.', '인사동 주세요.'],
+    options: [
+      '네, 인사동이에요.',
+      '아니요, 인사동이에요.',
+      '인사동이 없어요.',
+      '인사동 주세요.',
+    ],
     answer: '네, 인사동이에요.',
     explanation: {
       ko: '방금 인사동이라고 말했어요. 같은 것을 다시 확인하는 질문이니까 "네"로 답해요.',
@@ -1308,7 +1342,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '인사동은 전통 찻집이 많은 거리예요.',
-      uz: 'Insadong — an\'anaviy choyxonalar ko\'chasi.',
+      uz: "Insadong — an'anaviy choyxonalar ko'chasi.",
       en: 'Insa-dong is a street full of traditional teahouses.',
       ru: 'Инсадон — улица с традиционными чайными.',
     },
@@ -1334,7 +1368,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '여기/저기', '어순'],
     hint: {
       ko: '남산은 산이라서 멀리서도 보여요.',
-      uz: 'Namsan tog\' — uzoqdan ko\'rinadi.',
+      uz: "Namsan tog' — uzoqdan ko'rinadi.",
       en: 'Namsan is a mountain — you can see it from far off.',
       ru: 'Намсан — гора, её видно издалека.',
     },
@@ -1469,7 +1503,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '아니요, 여기는 청계천이에요.' },
       { speaker: 'npc', text: '그럼 저기가 남산이에요?' },
     ],
-    options: ['네, 저기가 남산이에요.', '아니요, 저기가 남산이에요.', '남산이 없어요.', '남산 주세요.'],
+    options: [
+      '네, 저기가 남산이에요.',
+      '아니요, 저기가 남산이에요.',
+      '남산이 없어요.',
+      '남산 주세요.',
+    ],
     answer: '네, 저기가 남산이에요.',
     explanation: {
       ko: '"아니요"라고 해 놓고 남산이라고 하면 앞뒤가 안 맞아요. 맞다고 할 때는 "네"로 시작해요.',
@@ -1620,7 +1659,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '공항이에요.' },
       { speaker: 'npc', text: '저기는 어디예요?' },
     ],
-    options: ['저기는 은행이에요.', '여기는 은행이에요.', '은행이 없어요.', '은행 주세요.'],
+    options: [
+      '저기는 은행이에요.',
+      '여기는 은행이에요.',
+      '은행이 없어요.',
+      '은행 주세요.',
+    ],
     answer: '저기는 은행이에요.',
     explanation: {
       ko: '상대가 "저기"를 물었으니 답도 "저기"로 받아요. "여기"로 답하면 다른 자리를 말하는 게 돼요.',
@@ -1639,7 +1683,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '여기/저기', '대화'],
     hint: {
       ko: '물어본 말을 그대로 받아서 답해요.',
-      uz: 'So\'ralgan so\'zni o\'zini qaytaring.',
+      uz: "So'ralgan so'zni o'zini qaytaring.",
       en: 'Echo back the word they used.',
       ru: 'Повторите то слово, которое использовал собеседник.',
     },
@@ -1665,7 +1709,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '우 · 체 · 국 — 세 글자를 고르게.',
-      uz: 'U-che-guk — uch bo\'g\'in tekis.',
+      uz: "U-che-guk — uch bo'g'in tekis.",
       en: 'u-che-guk — three even syllables.',
       ru: 'у-чхе-гук — три ровных слога.',
     },
@@ -1684,7 +1728,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['병원이에요'],
     answerTranslation: {
       ko: '여기가 병원이에요. — 자리를 짚어 이름을 알려 준다',
-      uz: 'Bu yer — shifoxona. — joyni ko\'rsatib nomini aytish',
+      uz: "Bu yer — shifoxona. — joyni ko'rsatib nomini aytish",
       en: 'This place is the hospital. — naming the spot you are in',
       ru: 'Это больница. — называем место, где находимся.',
     },
@@ -1692,7 +1736,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '대답하기'],
     hint: {
       ko: '상대가 "여기"를 물었어요. 같은 말로 받아서 이름을 붙여요.',
-      uz: 'U "여기" ni so\'radi — o\'sha so\'z bilan javob berib, nomini qo\'shing.',
+      uz: "U \"여기\" ni so'radi — o'sha so'z bilan javob berib, nomini qo'shing.",
       en: 'They asked about 여기 — echo it back and add the name.',
       ru: 'Спросили про 여기 — повторите это слово и добавьте название.',
     },
@@ -1707,7 +1751,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '여기가 어디예요? — ',
     sentenceSuffix: '.',
-    options: ['미용실이에요', '미용실예요', '미용실이 있어요', '미용실 주세요', '미용실이 없어요'],
+    options: [
+      '미용실이에요',
+      '미용실예요',
+      '미용실이 있어요',
+      '미용실 주세요',
+      '미용실이 없어요',
+    ],
     answer: '미용실이에요',
     explanation: {
       ko: '미용실은 받침 ㄹ로 끝나니까 "이에요"예요. "미용실예요"는 없는 말이에요.',
@@ -1726,7 +1776,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '여기가 N이에요'],
     hint: {
       ko: 'ㄹ도 엄연한 받침이에요.',
-      uz: 'ㄹ ham to\'liq undosh.',
+      uz: "ㄹ ham to'liq undosh.",
       en: 'ㄹ counts as a 받침 too.',
       ru: 'ㄹ — это тоже полноценный 받침.',
     },
@@ -1753,7 +1803,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '듣기'],
     hint: {
       ko: '세 글자짜리가 셋이에요. 끝소리로 갈라 보세요.',
-      uz: 'Uchtasi uch bo\'g\'inli — oxirgi tovushga qarang.',
+      uz: "Uchtasi uch bo'g'inli — oxirgi tovushga qarang.",
       en: 'Three of them have three syllables — split them by the final sound.',
       ru: 'Три из них трёхсложные — различайте по последнему звуку.',
     },
@@ -1823,7 +1873,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '아니요, 여기는 은행이에요.' },
       { speaker: 'npc', text: '저기가 대사관이에요?' },
     ],
-    options: ['네, 저기가 대사관이에요.', '아니요, 저기가 대사관이에요.', '대사관이 없어요.', '대사관 주세요.'],
+    options: [
+      '네, 저기가 대사관이에요.',
+      '아니요, 저기가 대사관이에요.',
+      '대사관이 없어요.',
+      '대사관 주세요.',
+    ],
     answer: '네, 저기가 대사관이에요.',
     explanation: {
       ko: '앞에서 "여기"는 아니라고 했어요. 이번엔 맞다고 하는 자리니까 "네"예요.',
@@ -1943,7 +1998,7 @@ export const UNIT4_QUESTIONS = {
     instruction: I.image,
     answer: '시장',
     choices: [
-      { text: '백화점', label: "Univermag", emoji: '🏬' },
+      { text: '백화점', label: 'Univermag', emoji: '🏬' },
       { text: '시장', label: 'Bozor', emoji: '🛒' },
       { text: '가게', label: "Do'kon", emoji: '🏪' },
       { text: '서점', label: "Kitob do'koni", emoji: '📖' },
@@ -1959,7 +2014,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '작은 가게가 잔뜩 모여 있는 곳이에요.',
-      uz: 'Kichik do\'konlar yig\'ilgan joy.',
+      uz: "Kichik do'konlar yig'ilgan joy.",
       en: 'Lots of small shops gathered in one place.',
       ru: 'Много маленьких лавок в одном месте.',
     },
@@ -2003,7 +2058,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '네, 시장이에요.' },
       { speaker: 'npc', text: '저기는 어디예요?' },
     ],
-    options: ['저기는 백화점이에요.', '여기는 백화점이에요.', '백화점이 없어요.', '백화점 주세요.'],
+    options: [
+      '저기는 백화점이에요.',
+      '여기는 백화점이에요.',
+      '백화점이 없어요.',
+      '백화점 주세요.',
+    ],
     answer: '저기는 백화점이에요.',
     explanation: {
       ko: '"저기"를 물었으니 "저기"로 답해요. 시장은 방금 "여기"라고 했으니 다른 곳이에요.',
@@ -2079,7 +2139,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '말하기'],
     hint: {
       ko: '백 · 화 · 점 — 세 글자를 또박또박.',
-      uz: 'Baek-hwa-jeom — uch bo\'g\'in aniq.',
+      uz: "Baek-hwa-jeom — uch bo'g'in aniq.",
       en: 'baek-hwa-jeom — three clear syllables.',
       ru: 'пэк-хва-джом — три чётких слога.',
     },
@@ -2118,7 +2178,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요'],
     hint: {
       ko: '은행은 물건, 명동은 자리예요. 자리에 붙는 걸 고르세요.',
-      uz: '은행 — narsa, 명동 — joy. Joyga qo\'shiladiganini tanlang.',
+      uz: "은행 — narsa, 명동 — joy. Joyga qo'shiladiganini tanlang.",
       en: '은행 is the thing, 명동 is the place — pick what attaches to a place.',
       ru: '은행 — предмет, 명동 — место; выберите то, что цепляется к месту.',
     },
@@ -2189,7 +2249,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '교실에 있어요.' },
       { speaker: 'npc', text: '나나 씨는 어디에 있어요?' },
     ],
-    options: ['나나 씨는 병원에 있어요.', '나나 씨는 병원이 있어요.', '나나 씨는 병원이에요.', '병원 주세요.'],
+    options: [
+      '나나 씨는 병원에 있어요.',
+      '나나 씨는 병원이 있어요.',
+      '나나 씨는 병원이에요.',
+      '병원 주세요.',
+    ],
     answer: '나나 씨는 병원에 있어요.',
     explanation: {
       ko: '사람이 있는 자리를 말할 때는 "자리 + 에 + 있어요"예요. "병원이 있어요"는 병원이라는 건물이 존재한다는 뜻이고, "병원이에요"는 그 사람이 병원 자체라는 말이 돼요.',
@@ -2321,7 +2386,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '질문', '말하기'],
     hint: {
       ko: '병원이 / 어디에 / 있어요 — 세 덩어리로, 끝을 올려서.',
-      uz: 'Byeong-won-i / eo-di-e / it-sseo-yo — oxirini ko\'taring.',
+      uz: "Byeong-won-i / eo-di-e / it-sseo-yo — oxirini ko'taring.",
       en: 'byeong-won-i / eo-di-e / it-sseo-yo — rise at the end.',
       ru: 'пёнвон-и / оди-е / иссоё — с повышением в конце.',
     },
@@ -2397,7 +2462,7 @@ export const UNIT4_QUESTIONS = {
     answer: '에',
     explanation: {
       ko: '자리를 앞으로 빼도 조사는 그대로 "에"예요. "명동에 은행이 있어요"와 "은행이 명동에 있어요"는 뜻이 같아요.',
-      uz: 'Joy oldinga chiqsa ham qo\'shimcha "에" bo\'lib qoladi. Ikkala tartib ham bir xil ma\'no.',
+      uz: "Joy oldinga chiqsa ham qo'shimcha \"에\" bo'lib qoladi. Ikkala tartib ham bir xil ma'no.",
       en: 'Fronting the place does not change the particle — both orders mean the same thing.',
       ru: 'Если место вынести вперёд, частица та же — смысл не меняется.',
     },
@@ -2412,7 +2477,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요', '어순'],
     hint: {
       ko: '앞에 온 말이 자리인지 물건인지 보세요.',
-      uz: 'Oldindagi so\'z joymi yoki narsami — qarang.',
+      uz: "Oldindagi so'z joymi yoki narsami — qarang.",
       en: 'Check whether the fronted word is a place or a thing.',
       ru: 'Посмотрите: вынесенное слово — место или предмет?',
     },
@@ -2482,7 +2547,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '병원에 있어요.' },
       { speaker: 'npc', text: '은행은 어디에 있어요?' },
     ],
-    options: ['은행은 명동에 있어요.', '은행은 명동이 있어요.', '은행은 명동이에요.', '은행 주세요.'],
+    options: [
+      '은행은 명동에 있어요.',
+      '은행은 명동이 있어요.',
+      '은행은 명동이에요.',
+      '은행 주세요.',
+    ],
     answer: '은행은 명동에 있어요.',
     explanation: {
       ko: '"어디에 있어요?"에는 "자리 + 에 + 있어요"로 답해요. "명동이 있어요"는 명동이라는 곳이 존재한다는 딴 뜻이에요.',
@@ -2614,7 +2684,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '스티븐 씨가 교실에 없어요.',
-      uz: 'Stiven sinfda yo\'q.',
+      uz: "Stiven sinfda yo'q.",
       en: 'Steven is not in the classroom.',
       ru: 'Стивена нет в классе.',
     },
@@ -2667,7 +2737,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['교실에 없어요'],
     answerTranslation: {
       ko: '교실에 없어요.',
-      uz: 'Sinfda yo\'q.',
+      uz: "Sinfda yo'q.",
       en: 'He is not in the classroom.',
       ru: 'В классе его нет.',
     },
@@ -2693,7 +2763,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '약국이 여기에 없어요.',
-      uz: 'Bu yerda dorixona yo\'q.',
+      uz: "Bu yerda dorixona yo'q.",
       en: 'There is no pharmacy here.',
       ru: 'Здесь нет аптеки.',
     },
@@ -2780,7 +2850,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '아니요, 교실에 없어요.' },
       { speaker: 'npc', text: '그럼 어디에 있어요?' },
     ],
-    options: ['병원에 있어요.', '병원이 있어요.', '병원에 없어요.', '병원이에요.'],
+    options: [
+      '병원에 있어요.',
+      '병원이 있어요.',
+      '병원에 없어요.',
+      '병원이에요.',
+    ],
     answer: '병원에 있어요.',
     explanation: {
       ko: '"어디에 있어요?"는 있는 자리를 묻는 말이에요. 없는 곳을 말하면 답이 안 돼요.',
@@ -2817,7 +2892,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['여기에 없어요'],
     answerTranslation: {
       ko: '여기에 없어요.',
-      uz: 'Bu yerda yo\'q.',
+      uz: "Bu yerda yo'q.",
       en: 'It is not here.',
       ru: 'Здесь этого нет.',
     },
@@ -2843,7 +2918,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '병원이 여기에 없어요.',
-      uz: 'Bu yerda shifoxona yo\'q.',
+      uz: "Bu yerda shifoxona yo'q.",
       en: 'There is no hospital here.',
       ru: 'Здесь нет больницы.',
     },
@@ -2877,7 +2952,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '은행이 있어요. 우체국은 없어요.',
-      uz: 'Bank bor. Pochta esa yo\'q.',
+      uz: "Bank bor. Pochta esa yo'q.",
       en: 'There is a bank. The post office, though, is not there.',
       ru: 'Банк есть. А почты нет.',
     },
@@ -2934,7 +3009,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['병원이 여기에 없어요'],
     answerTranslation: {
       ko: '병원이 여기에 없어요.',
-      uz: 'Bu yerda shifoxona yo\'q.',
+      uz: "Bu yerda shifoxona yo'q.",
       en: 'There is no hospital here.',
       ru: 'Здесь нет больницы.',
     },
@@ -2960,7 +3035,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '우체국이 시장에 없어요.',
-      uz: 'Bozorda pochta yo\'q.',
+      uz: "Bozorda pochta yo'q.",
       en: 'There is no post office in the market.',
       ru: 'На рынке нет почты.',
     },
@@ -2986,7 +3061,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '시장에 약국이 있어요?' },
       { speaker: 'npc', text: '아니요, 시장에 약국이 없어요.' },
     ],
-    options: ['그럼 약국이 어디에 있어요?', '그럼 약국이 어디예요?', '약국 주세요.', '약국이 시장에 있어요.'],
+    options: [
+      '그럼 약국이 어디에 있어요?',
+      '그럼 약국이 어디예요?',
+      '약국 주세요.',
+      '약국이 시장에 있어요.',
+    ],
     answer: '그럼 약국이 어디에 있어요?',
     explanation: {
       ko: '물건이나 건물의 자리를 물을 때는 "N이 어디에 있어요?"예요. "어디예요?"는 "여기가 어디예요?"처럼 이 자리의 이름을 물을 때 써요.',
@@ -3023,7 +3103,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '약국이 시장에 없어요.',
-      uz: 'Bozorda dorixona yo\'q.',
+      uz: "Bozorda dorixona yo'q.",
       en: 'There is no pharmacy in the market.',
       ru: 'На рынке нет аптеки.',
     },
@@ -3054,7 +3134,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '교실에 없어요.',
-      uz: 'Sinfda yo\'q.',
+      uz: "Sinfda yo'q.",
       en: 'He is not in the classroom.',
       ru: 'В классе его нет.',
     },
@@ -3080,7 +3160,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['우체국이 시장에 없어요'],
     answerTranslation: {
       ko: '우체국이 시장에 없어요.',
-      uz: 'Bozorda pochta yo\'q.',
+      uz: "Bozorda pochta yo'q.",
       en: 'There is no post office in the market.',
       ru: 'На рынке нет почты.',
     },
@@ -3198,7 +3278,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '명동에 있어요.' },
       { speaker: 'npc', text: '대사관은 어디에 있어요?' },
     ],
-    options: ['대사관은 남산에 있어요.', '대사관은 남산이 있어요.', '대사관은 남산이에요.', '남산 주세요.'],
+    options: [
+      '대사관은 남산에 있어요.',
+      '대사관은 남산이 있어요.',
+      '대사관은 남산이에요.',
+      '남산 주세요.',
+    ],
     answer: '대사관은 남산에 있어요.',
     explanation: {
       ko: '"남산이 있어요"는 남산이 존재한다는 뜻, "남산이에요"는 대사관이 곧 남산이라는 뜻이 돼요. 자리를 말하려면 "남산에 있어요"예요.',
@@ -3217,7 +3302,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '어디에 있어요', '대화'],
     hint: {
       ko: '세 보기 모두 문법은 맞지만 뜻이 달라요.',
-      uz: 'Uchala variant grammatik to\'g\'ri, lekin ma\'nosi boshqa.',
+      uz: "Uchala variant grammatik to'g'ri, lekin ma'nosi boshqa.",
       en: 'Three options are all grammatical but mean different things.',
       ru: 'Три варианта грамматичны, но значат разное.',
     },
@@ -3285,7 +3370,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '은행이 ',
     sentenceSuffix: '?',
-    options: ['어디에 있어요', '어디예요', '뭐예요', '누구예요', '어디에 없어요'],
+    options: [
+      '어디에 있어요',
+      '어디예요',
+      '뭐예요',
+      '누구예요',
+      '어디에 없어요',
+    ],
     answer: '어디에 있어요',
     explanation: {
       ko: '"여기가 어디예요?"는 내가 선 자리의 이름을 묻는 말이에요. 어떤 건물이 어디 있는지 물을 때는 "N이 어디에 있어요?"를 써요.',
@@ -3330,7 +3421,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '말하기'],
     hint: {
       ko: '자리만 말하고 나머지는 줄여도 돼요.',
-      uz: 'Faqat joyni aytib, qolganini tashlab qo\'ysa bo\'ladi.',
+      uz: "Faqat joyni aytib, qolganini tashlab qo'ysa bo'ladi.",
       en: 'You can drop the rest and just give the place.',
       ru: 'Можно назвать только место, остальное опустить.',
     },
@@ -3387,7 +3478,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '학생은 학교에, 회사원은 회사에 가요.',
-      uz: 'O\'quvchi maktabga, xodim kompaniyaga boradi.',
+      uz: "O'quvchi maktabga, xodim kompaniyaga boradi.",
       en: 'Students go to 학교; office workers go to 회사.',
       ru: 'Ученики идут в 학교, служащие — в 회사.',
     },
@@ -3491,7 +3582,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '회사에 있어요.' },
       { speaker: 'npc', text: '나나 씨는 지금 어디에 있어요?' },
     ],
-    options: ['나나 씨는 학교에 있어요.', '나나 씨는 학교가 있어요.', '나나 씨는 학교예요.', '학교 주세요.'],
+    options: [
+      '나나 씨는 학교에 있어요.',
+      '나나 씨는 학교가 있어요.',
+      '나나 씨는 학교예요.',
+      '학교 주세요.',
+    ],
     answer: '나나 씨는 학교에 있어요.',
     explanation: {
       ko: '사람이 어디 있는지 답할 때는 "자리 + 에 + 있어요"만 맞아요. "학교예요"라고 하면 그 사람이 학교라는 말이 돼요.',
@@ -3510,7 +3606,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요', '대화'],
     hint: {
       ko: '사람 = 장소가 될 수는 없어요.',
-      uz: 'Odam = joy bo\'la olmaydi.',
+      uz: "Odam = joy bo'la olmaydi.",
       en: 'A person cannot equal a place.',
       ru: 'Человек не может быть местом.',
     },
@@ -3536,7 +3632,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요', '어순'],
     hint: {
       ko: '시간을 나타내는 말이 맨 앞에 와요.',
-      uz: 'Vaqt so\'zi eng oldinda.',
+      uz: "Vaqt so'zi eng oldinda.",
       en: 'The time word comes first.',
       ru: 'Слово времени идёт первым.',
     },
@@ -3642,12 +3738,17 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '명동에 있어요.' },
       { speaker: 'npc', text: '명동이 어디에 있어요?' },
     ],
-    options: ['명동은 서울에 있어요.', '명동은 서울이 있어요.', '명동은 서울이에요.', '서울 주세요.'],
+    options: [
+      '명동은 서울에 있어요.',
+      '명동은 서울이 있어요.',
+      '명동은 서울이에요.',
+      '서울 주세요.',
+    ],
     answer: '명동은 서울에 있어요.',
     explanation: {
       ko: '"서울"은 한국의 수도예요. 큰 자리 안에 작은 자리가 들어가요. 명동은 서울 안에 있는 동네예요.',
       uz: '"서울" — Koreya poytaxti. Katta joy ichida kichik joy: Myeongdong Seul ichida.',
-      en: '서울 is Korea\'s capital — a smaller place sits inside a bigger one. Myeongdong is inside Seoul.',
+      en: "서울 is Korea's capital — a smaller place sits inside a bigger one. Myeongdong is inside Seoul.",
       ru: '서울 — столица Кореи; меньшее место внутри большего. Мёндон находится в Сеуле.',
     },
     acceptedAnswers: [],
@@ -3748,7 +3849,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요'],
     hint: {
       ko: '질문에 쓴 조사를 그대로 가져오세요.',
-      uz: 'Savoldagi qo\'shimchani o\'zini oling.',
+      uz: "Savoldagi qo'shimchani o'zini oling.",
       en: 'Reuse the particle from the question.',
       ru: 'Возьмите ту же частицу, что и в вопросе.',
     },
@@ -3819,7 +3920,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '가게가 학교에 없어요.',
-      uz: 'Maktabda do\'kon yo\'q.',
+      uz: "Maktabda do'kon yo'q.",
       en: 'There is no shop at the school.',
       ru: 'В школе нет магазина.',
     },
@@ -3845,18 +3946,23 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '학교에 서점이 있어요?' },
       { speaker: 'npc', text: '아니요, 서점이 없어요.' },
     ],
-    options: ['그럼 서점이 어디에 있어요?', '그럼 서점이 어디예요?', '서점 주세요.', '서점이 학교에 있어요.'],
+    options: [
+      '그럼 서점이 어디에 있어요?',
+      '그럼 서점이 어디예요?',
+      '서점 주세요.',
+      '서점이 학교에 있어요.',
+    ],
     answer: '그럼 서점이 어디에 있어요?',
     explanation: {
       ko: '없다고 했으니 그럼 어디 있는지 이어서 물어요. 건물의 자리를 물을 때는 "어디에 있어요?"예요.',
       uz: 'Yo\'q deyildi — unda qayerdaligini so\'raysiz. Bino joyi uchun "어디에 있어요?".',
-      en: 'It is not there, so ask where it is — for a building\'s location use 어디에 있어요?',
+      en: "It is not there, so ask where it is — for a building's location use 어디에 있어요?",
       ru: 'Его нет — спросите, где он; для расположения здания — 어디에 있어요?',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '그럼 서점이 어디에 있어요?',
-      uz: 'Unda kitob do\'koni qayerda?',
+      uz: "Unda kitob do'koni qayerda?",
       en: 'Then where is the bookstore?',
       ru: 'Тогда где книжный магазин?',
     },
@@ -3898,7 +4004,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '어디에 있어요'],
     hint: {
       ko: '물음표가 붙어 있어요. 묻는 말을 고르세요.',
-      uz: 'So\'roq belgisi bor — so\'rov so\'zini tanlang.',
+      uz: "So'roq belgisi bor — so'rov so'zini tanlang.",
       en: 'There is a question mark — pick the question word.',
       ru: 'Есть вопросительный знак — берите вопросительное слово.',
     },
@@ -3924,7 +4030,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '질문', '말하기'],
     hint: {
       ko: '전화로 가장 많이 하는 말이에요. 끝을 올려서.',
-      uz: 'Telefonda eng ko\'p aytiladigan gap — ohangni ko\'taring.',
+      uz: "Telefonda eng ko'p aytiladigan gap — ohangni ko'taring.",
       en: 'The most common phone line there is — raise the ending.',
       ru: 'Самая частая фраза по телефону — повышайте интонацию.',
     },
@@ -3942,7 +4048,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점이 시장에 있어요.',
-      uz: 'Kitob do\'koni bozorda.',
+      uz: "Kitob do'koni bozorda.",
       en: 'The bookstore is in the market.',
       ru: 'Книжный магазин на рынке.',
     },
@@ -4025,7 +4131,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '명동에 있어요.' },
       { speaker: 'npc', text: '백화점은 어디에 있어요?' },
     ],
-    options: ['백화점은 시장에 있어요.', '백화점은 시장이 있어요.', '백화점은 시장이에요.', '시장 주세요.'],
+    options: [
+      '백화점은 시장에 있어요.',
+      '백화점은 시장이 있어요.',
+      '백화점은 시장이에요.',
+      '시장 주세요.',
+    ],
     answer: '백화점은 시장에 있어요.',
     explanation: {
       ko: '앞에서 극장을 말했으니 이번엔 백화점 차례예요. 견주는 말이라 "백화점은"으로 시작하고, 자리에는 "에"를 붙여요.',
@@ -4044,7 +4155,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N에 있어요', '대화'],
     hint: {
       ko: '자리 뒤에 붙는 조사를 확인하세요.',
-      uz: 'Joydan keyingi qo\'shimchani tekshiring.',
+      uz: "Joydan keyingi qo'shimchani tekshiring.",
       en: 'Check the particle after the place word.',
       ru: 'Проверьте частицу после слова-места.',
     },
@@ -4067,7 +4178,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '가게가 학교에 없어요.',
-      uz: 'Maktabda do\'kon yo\'q.',
+      uz: "Maktabda do'kon yo'q.",
       en: 'There is no shop at the school.',
       ru: 'В школе нет магазина.',
     },
@@ -4170,7 +4281,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 위에'],
     hint: {
       ko: '자리를 나타내는 조사는 하나뿐이에요.',
-      uz: 'Joy qo\'shimchasi bitta.',
+      uz: "Joy qo'shimchasi bitta.",
       en: 'There is only one particle for places.',
       ru: 'Частица места только одна.',
     },
@@ -4384,7 +4495,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '책상 위에 있어요.' },
       { speaker: 'npc', text: '가방은 어디에 있어요?' },
     ],
-    options: ['가방은 책상 아래에 있어요.', '가방은 책상 아래가 있어요.', '가방은 책상 아래예요.', '책상 주세요.'],
+    options: [
+      '가방은 책상 아래에 있어요.',
+      '가방은 책상 아래가 있어요.',
+      '가방은 책상 아래예요.',
+      '책상 주세요.',
+    ],
     answer: '가방은 책상 아래에 있어요.',
     explanation: {
       ko: '"책상 아래"는 자리니까 "에 있어요"가 붙어요. "책상 아래가 있어요"는 아래쪽이라는 것이 존재한다는 이상한 말이 돼요.',
@@ -4507,7 +4623,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '가방 안에 있어요.' },
       { speaker: 'npc', text: '사진은 어디에 있어요?' },
     ],
-    options: ['사진은 책상 위에 있어요.', '사진은 책상 위가 있어요.', '사진은 책상 위예요.', '사진 주세요.'],
+    options: [
+      '사진은 책상 위에 있어요.',
+      '사진은 책상 위가 있어요.',
+      '사진은 책상 위예요.',
+      '사진 주세요.',
+    ],
     answer: '사진은 책상 위에 있어요.',
     explanation: {
       ko: '"책상 위예요"는 사진이 곧 책상 윗면이라는 말이 돼요. 놓여 있는 자리를 말하려면 "위에 있어요"예요.',
@@ -4544,7 +4665,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '책이 책상 위에 없어요.',
-      uz: 'Parta ustida kitob yo\'q.',
+      uz: "Parta ustida kitob yo'q.",
       en: 'The book is not on the desk.',
       ru: 'Книги на парте нет.',
     },
@@ -4609,8 +4730,8 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '읽기', '말하기'],
     hint: {
       ko: '줄리앙의 편지에 그대로 나오는 문장이에요.',
-      uz: 'Julianning xatidagi gapning o\'zi.',
-      en: 'This line comes straight out of Julian\'s letter.',
+      uz: "Julianning xatidagi gapning o'zi.",
+      en: "This line comes straight out of Julian's letter.",
       ru: 'Эта фраза прямо из письма Жюльена.',
     },
     xpReward: 15,
@@ -4660,7 +4781,7 @@ export const UNIT4_QUESTIONS = {
     answer: '뒤',
     explanation: {
       ko: '앞과 뒤는 뒤집어져요. 우체국이 은행 앞에 있으면, 은행은 자연히 우체국 뒤에 있는 거예요.',
-      uz: 'Old va orqa o\'rin almashadi: pochta bank oldida bo\'lsa, bank pochtaning orqasida.',
+      uz: "Old va orqa o'rin almashadi: pochta bank oldida bo'lsa, bank pochtaning orqasida.",
       en: 'Front and back flip: if the post office is in front of the bank, the bank is behind the post office.',
       ru: 'Перед и зад меняются местами: если почта перед банком, то банк за почтой.',
     },
@@ -4675,7 +4796,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '앞/뒤'],
     hint: {
       ko: '둘의 자리를 바꿔서 다시 말하는 거예요.',
-      uz: 'Ikkovining o\'rnini almashtirib qayta aytyapsiz.',
+      uz: "Ikkovining o'rnini almashtirib qayta aytyapsiz.",
       en: 'You are restating the same fact from the other side.',
       ru: 'Вы пересказываете тот же факт с другой стороны.',
     },
@@ -4728,7 +4849,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '교재 「말하기 2」의 줄리앙 대사예요.',
       uz: 'Darslikdagi «말하기 2» — Julianning gapi.',
-      en: 'This is Julian\'s line from 말하기 2.',
+      en: "This is Julian's line from 말하기 2.",
       ru: 'Это реплика Жюльена из 말하기 2.',
     },
     xpReward: 15,
@@ -4754,7 +4875,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '듣기'],
     hint: {
       ko: '다섯 개 모두 한 글자예요. 첫소리에 집중하세요.',
-      uz: 'Beshtasi ham bir bo\'g\'inli — bosh tovushga diqqat.',
+      uz: "Beshtasi ham bir bo'g'inli — bosh tovushga diqqat.",
       en: 'All five are one syllable — focus on the opening sound.',
       ru: 'Все пять односложные — слушайте начальный звук.',
     },
@@ -4788,7 +4909,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 뒤에'],
     hint: {
       ko: '교재 예문 그대로예요.',
-      uz: 'Darslikdagi misolning o\'zi.',
+      uz: "Darslikdagi misolning o'zi.",
       en: 'Straight from the textbook example.',
       ru: 'Прямо из примера в учебнике.',
     },
@@ -4806,7 +4927,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '은행 앞에 있어요.' },
       { speaker: 'npc', text: '그럼 은행은 어디에 있어요?' },
     ],
-    options: ['은행은 우체국 뒤에 있어요.', '은행은 우체국 앞에 있어요.', '은행은 우체국이에요.', '우체국 주세요.'],
+    options: [
+      '은행은 우체국 뒤에 있어요.',
+      '은행은 우체국 앞에 있어요.',
+      '은행은 우체국이에요.',
+      '우체국 주세요.',
+    ],
     answer: '은행은 우체국 뒤에 있어요.',
     explanation: {
       ko: '우체국이 은행 앞이면 은행은 우체국 뒤예요. 둘 다 "앞"일 수는 없어요.',
@@ -4908,7 +5034,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '"집"이 붙으면 그것을 파는 가게가 돼요. 찻집, 빵집.',
-      uz: '"집" qo\'shilsa — o\'shani sotadigan do\'kon: 찻집, 빵집.',
+      uz: "\"집\" qo'shilsa — o'shani sotadigan do'kon: 찻집, 빵집.",
       en: 'Adding 집 makes a shop that sells it: 찻집, 빵집.',
       ru: 'С 집 получается лавка, где это продают: 찻집, 빵집.',
     },
@@ -5012,11 +5138,16 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '학교 앞에 있어요.' },
       { speaker: 'npc', text: '그럼 학교는 어디에 있어요?' },
     ],
-    options: ['학교는 빵집 뒤에 있어요.', '학교는 빵집 앞에 있어요.', '학교는 빵집이에요.', '빵집 주세요.'],
+    options: [
+      '학교는 빵집 뒤에 있어요.',
+      '학교는 빵집 앞에 있어요.',
+      '학교는 빵집이에요.',
+      '빵집 주세요.',
+    ],
     answer: '학교는 빵집 뒤에 있어요.',
     explanation: {
       ko: '빵집이 학교 앞이면 학교는 빵집 뒤예요. 관계를 뒤집어서 말하는 연습이에요.',
-      uz: 'Nonvoyxona maktab oldida bo\'lsa, maktab nonvoyxona orqasida — munosabatni teskari aytish.',
+      uz: "Nonvoyxona maktab oldida bo'lsa, maktab nonvoyxona orqasida — munosabatni teskari aytish.",
       en: 'If the bakery is in front of the school, the school is behind the bakery — flip the relation.',
       ru: 'Если пекарня перед школой, школа за пекарней — переворачиваем отношение.',
     },
@@ -5049,7 +5180,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점이 극장 뒤에 있어요.',
-      uz: 'Kitob do\'koni teatr orqasida.',
+      uz: "Kitob do'koni teatr orqasida.",
       en: 'The bookstore is behind the theater.',
       ru: 'Книжный магазин за театром.',
     },
@@ -5057,7 +5188,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 뒤에', '어순'],
     hint: {
       ko: '[극짱] 뒤에 서점이 있어요.',
-      uz: '[극짱] orqasida kitob do\'koni bor.',
+      uz: "[극짱] orqasida kitob do'koni bor.",
       en: 'The bookstore sits behind the [극짱].',
       ru: 'Книжный за [극짱].',
     },
@@ -5106,7 +5237,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['서점이 극장 뒤에 있어요'],
     answerTranslation: {
       ko: '서점이 극장 뒤에 있어요.',
-      uz: 'Kitob do\'koni teatr orqasida.',
+      uz: "Kitob do'koni teatr orqasida.",
       en: 'The bookstore is behind the theater.',
       ru: 'Книжный магазин за театром.',
     },
@@ -5180,7 +5311,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에'],
     hint: {
       ko: '앞뒤와 달리 이건 바뀌지 않아요.',
-      uz: 'Old-orqadan farqli — bu o\'zgarmaydi.',
+      uz: "Old-orqadan farqli — bu o'zgarmaydi.",
       en: 'Unlike front and back, this one does not change.',
       ru: 'В отличие от «перед/за», это не меняется.',
     },
@@ -5224,7 +5355,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '병원 옆에 있어요.' },
       { speaker: 'npc', text: '그럼 병원은 어디에 있어요?' },
     ],
-    options: ['병원은 백화점 옆에 있어요.', '병원은 백화점 안에 있어요.', '병원은 백화점이에요.', '백화점 주세요.'],
+    options: [
+      '병원은 백화점 옆에 있어요.',
+      '병원은 백화점 안에 있어요.',
+      '병원은 백화점이에요.',
+      '백화점 주세요.',
+    ],
     answer: '병원은 백화점 옆에 있어요.',
     explanation: {
       ko: '나란히 있다는 관계는 양쪽에 똑같이 성립해요. "안에"라고 하면 병원이 백화점 건물 속으로 들어가 버려요.',
@@ -5243,7 +5379,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에', '대화'],
     hint: {
       ko: '방금 한 말과 같은 관계를 그대로 되돌려요.',
-      uz: 'Hozirgi munosabatni o\'zini qaytaring.',
+      uz: "Hozirgi munosabatni o'zini qaytaring.",
       en: 'Return the exact same relation you just stated.',
       ru: 'Верните то же самое отношение.',
     },
@@ -5296,7 +5432,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '듣기'],
     hint: {
       ko: '"아래"만 두 글자예요. 나머지는 한 글자예요.',
-      uz: 'Faqat "아래" ikki bo\'g\'inli, qolgani bir bo\'g\'in.',
+      uz: "Faqat \"아래\" ikki bo'g'inli, qolgani bir bo'g'in.",
       en: 'Only 아래 has two syllables; the rest have one.',
       ru: 'Только 아래 двухсложное, остальные — односложные.',
     },
@@ -5413,7 +5549,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '건물 안에서 가장 자주 찾는 곳이에요.',
-      uz: 'Binoda eng ko\'p qidiriladigan joy.',
+      uz: "Binoda eng ko'p qidiriladigan joy.",
       en: 'The spot people look for most inside a building.',
       ru: 'Место, которое чаще всего ищут в здании.',
     },
@@ -5447,7 +5583,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에'],
     hint: {
       ko: '한 문장에 조사가 두 번 나와요. 뒤엣것을 고르세요.',
-      uz: 'Bir gapda ikkita qo\'shimcha bor — keyingisini tanlang.',
+      uz: "Bir gapda ikkita qo'shimcha bor — keyingisini tanlang.",
       en: 'Two particles appear in this sentence — pick the second one.',
       ru: 'В предложении две частицы — выберите вторую.',
     },
@@ -5499,7 +5635,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에', '어순'],
     hint: {
       ko: '기준이 되는 건물에는 조사를 붙이지 않아요.',
-      uz: 'Tayanch binoga qo\'shimcha qo\'yilmaydi.',
+      uz: "Tayanch binoga qo'shimcha qo'yilmaydi.",
       en: 'The reference building gets no particle.',
       ru: 'У опорного здания частицы нет.',
     },
@@ -5517,7 +5653,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '극장 옆에 있어요.' },
       { speaker: 'npc', text: '서점은 어디에 있어요?' },
     ],
-    options: ['서점은 빵집 옆에 있어요.', '서점은 빵집 옆이 있어요.', '서점은 빵집 옆이에요.', '빵집 주세요.'],
+    options: [
+      '서점은 빵집 옆에 있어요.',
+      '서점은 빵집 옆이 있어요.',
+      '서점은 빵집 옆이에요.',
+      '빵집 주세요.',
+    ],
     answer: '서점은 빵집 옆에 있어요.',
     explanation: {
       ko: '"빵집 옆이 있어요"는 옆쪽이라는 게 존재한다는 말이고, "빵집 옆이에요"는 서점이 곧 그 자리라는 말이에요. 위치를 말하려면 "옆에 있어요"예요.',
@@ -5528,7 +5669,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점은 빵집 옆에 있어요.',
-      uz: 'Kitob do\'koni nonvoyxona yonida.',
+      uz: "Kitob do'koni nonvoyxona yonida.",
       en: 'The bookstore is next to the bakery.',
       ru: 'Книжный магазин рядом с пекарней.',
     },
@@ -5554,7 +5695,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점이 빵집 옆에 있어요.',
-      uz: 'Kitob do\'koni nonvoyxona yonida.',
+      uz: "Kitob do'koni nonvoyxona yonida.",
       en: 'The bookstore is next to the bakery.',
       ru: 'Книжный магазин рядом с пекарней.',
     },
@@ -5611,7 +5752,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['서점이 빵집 옆에 있어요'],
     answerTranslation: {
       ko: '서점이 빵집 옆에 있어요.',
-      uz: 'Kitob do\'koni nonvoyxona yonida.',
+      uz: "Kitob do'koni nonvoyxona yonida.",
       en: 'The bookstore is next to the bakery.',
       ru: 'Книжный магазин рядом с пекарней.',
     },
@@ -5728,7 +5869,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '가방 안에 있어요.' },
       { speaker: 'npc', text: '우유는 어디에 있어요?' },
     ],
-    options: ['우유는 냉장고 안에 있어요.', '우유는 냉장고 안이 있어요.', '우유는 냉장고 안이에요.', '냉장고 주세요.'],
+    options: [
+      '우유는 냉장고 안에 있어요.',
+      '우유는 냉장고 안이 있어요.',
+      '우유는 냉장고 안이에요.',
+      '냉장고 주세요.',
+    ],
     answer: '우유는 냉장고 안에 있어요.',
     explanation: {
       ko: '"안"도 자리라서 "안에 있어요"로 써요. "안이에요"는 우유가 곧 안쪽이라는 말이 돼요.',
@@ -5773,7 +5919,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 앞에', '어순'],
     hint: {
       ko: '책상과 의자는 늘 마주 놓여 있어요.',
-      uz: 'Parta va stul doim ro\'para turadi.',
+      uz: "Parta va stul doim ro'para turadi.",
       en: 'A desk and a chair always face each other.',
       ru: 'Парта и стул всегда стоят напротив.',
     },
@@ -5834,7 +5980,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '어휘'],
     hint: {
       ko: 'A가 B 앞이면 B는 A의 무엇일까요?',
-      uz: 'A B ning oldida bo\'lsa, B A ning nimasi?',
+      uz: "A B ning oldida bo'lsa, B A ning nimasi?",
       en: 'If A is in front of B, what is B to A?',
       ru: 'Если A перед B, то чем B является для A?',
     },
@@ -5951,8 +6097,8 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 위에'],
     hint: {
       ko: '줄리앙의 편지에 나오는 그 자리예요.',
-      uz: 'Julianning xatidagi o\'sha joy.',
-      en: 'The same spot as in Julian\'s letter.',
+      uz: "Julianning xatidagi o'sha joy.",
+      en: "The same spot as in Julian's letter.",
       ru: 'То же место, что в письме Жюльена.',
     },
     xpReward: 15,
@@ -5995,7 +6141,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '지갑이 가방 안에 없어요.',
-      uz: 'Sumka ichida hamyon yo\'q.',
+      uz: "Sumka ichida hamyon yo'q.",
       en: 'The wallet is not in the bag.',
       ru: 'Кошелька в сумке нет.',
     },
@@ -6003,7 +6149,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 안에', '어순'],
     hint: {
       ko: '없다고 말하는 문장이에요. 끝 칩을 잘 고르세요.',
-      uz: 'Bu inkor gap — oxirgi chipni to\'g\'ri tanlang.',
+      uz: "Bu inkor gap — oxirgi chipni to'g'ri tanlang.",
       en: 'This sentence is a negation — pick the right closing chip.',
       ru: 'Это отрицание — выберите правильную последнюю фишку.',
     },
@@ -6021,7 +6167,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '은행 앞에 있어요.' },
       { speaker: 'npc', text: '약국은 어디에 있어요?' },
     ],
-    options: ['약국은 병원 뒤에 있어요.', '약국은 병원 뒤가 있어요.', '약국은 병원 뒤예요.', '병원 주세요.'],
+    options: [
+      '약국은 병원 뒤에 있어요.',
+      '약국은 병원 뒤가 있어요.',
+      '약국은 병원 뒤예요.',
+      '병원 주세요.',
+    ],
     answer: '약국은 병원 뒤에 있어요.',
     explanation: {
       ko: '위치를 말할 때는 언제나 "N 뒤에 있어요" 꼴이에요. "뒤가 있어요"나 "뒤예요"는 다른 뜻이 돼요.',
@@ -6058,7 +6209,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '화장실이 극장 옆에 없어요.',
-      uz: 'Teatr yonida hojatxona yo\'q.',
+      uz: "Teatr yonida hojatxona yo'q.",
       en: 'There is no restroom next to the theater.',
       ru: 'Рядом с театром туалета нет.',
     },
@@ -6189,7 +6340,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '"사진"은 줄리앙 편지에 나온 새 단어예요.',
       uz: '"사진" — Julian xatidagi yangi so\'z.',
-      en: '사진 is the new word from Julian\'s letter.',
+      en: "사진 is the new word from Julian's letter.",
       ru: '사진 — новое слово из письма Жюльена.',
     },
     xpReward: 10,
@@ -6232,7 +6383,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '책상 위에 있어요.' },
       { speaker: 'npc', text: '가방은 어디에 있어요?' },
     ],
-    options: ['가방은 의자 위에 있어요.', '가방은 의자 위가 있어요.', '가방은 의자 위예요.', '의자 주세요.'],
+    options: [
+      '가방은 의자 위에 있어요.',
+      '가방은 의자 위가 있어요.',
+      '가방은 의자 위예요.',
+      '의자 주세요.',
+    ],
     answer: '가방은 의자 위에 있어요.',
     explanation: {
       ko: '"의자 위"가 자리이고 뒤에 "에 있어요"가 붙어요. "의자 위예요"는 가방이 곧 의자 윗면이라는 말이 돼요.',
@@ -6338,7 +6494,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 위에'],
     hint: {
       ko: '한 문장에 조사가 두 번 나와요.',
-      uz: 'Bir gapda ikkita qo\'shimcha bor.',
+      uz: "Bir gapda ikkita qo'shimcha bor.",
       en: 'Two particles show up in this sentence.',
       ru: 'В предложении две частицы.',
     },
@@ -6382,7 +6538,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '사진이 책상 위에 없어요.',
-      uz: 'Parta ustida surat yo\'q.',
+      uz: "Parta ustida surat yo'q.",
       en: 'The photo is not on the desk.',
       ru: 'Фотографии на парте нет.',
     },
@@ -6421,7 +6577,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['어휘'],
     hint: {
       ko: '줄리앙은 책상 위에 부모님 사진을 뒀어요.',
-      uz: 'Julian parta ustiga ota-onasining suratini qo\'ygan.',
+      uz: "Julian parta ustiga ota-onasining suratini qo'ygan.",
       en: 'Julian keeps a photo of his parents on his desk.',
       ru: 'Жюльен держит на парте фото родителей.',
     },
@@ -6455,7 +6611,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 안에'],
     hint: {
       ko: '가방을 열어야 보이는 자리예요.',
-      uz: 'Sumkani ochganda ko\'rinadigan joy.',
+      uz: "Sumkani ochganda ko'rinadigan joy.",
       en: 'The spot you only see when you open the bag.',
       ru: 'Место, которое видно, только открыв сумку.',
     },
@@ -6525,7 +6681,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '가방 안에 있어요.' },
       { speaker: 'npc', text: '지갑은 어디에 있어요?' },
     ],
-    options: ['지갑은 책상 위에 있어요.', '지갑은 책상 위가 있어요.', '지갑은 책상 위예요.', '책상 주세요.'],
+    options: [
+      '지갑은 책상 위에 있어요.',
+      '지갑은 책상 위가 있어요.',
+      '지갑은 책상 위예요.',
+      '책상 주세요.',
+    ],
     answer: '지갑은 책상 위에 있어요.',
     explanation: {
       ko: '앞에서 지도를 말했으니 이번엔 지갑 차례예요. 자리에는 "에"를 붙이고 "있어요"로 닫아요.',
@@ -6544,7 +6705,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 위에', '대화'],
     hint: {
       ko: '보기 셋은 문법은 되지만 뜻이 달라요.',
-      uz: 'Uch variant grammatik, lekin ma\'nosi boshqa.',
+      uz: "Uch variant grammatik, lekin ma'nosi boshqa.",
       en: 'Three options parse fine but mean other things.',
       ru: 'Три варианта грамматичны, но значат другое.',
     },
@@ -6601,7 +6762,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '번역'],
     hint: {
       ko: '기준이 되는 책상에는 조사를 붙이지 않아요.',
-      uz: 'Tayanch parta qo\'shimchasiz.',
+      uz: "Tayanch parta qo'shimchasiz.",
       en: 'The reference desk takes no particle.',
       ru: 'У опорной парты частицы нет.',
     },
@@ -6627,7 +6788,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '말하기'],
     hint: {
       ko: '자리를 앞으로 빼도 뜻은 같아요.',
-      uz: 'Joy oldinga chiqsa ham ma\'no bir xil.',
+      uz: "Joy oldinga chiqsa ham ma'no bir xil.",
       en: 'Fronting the place does not change the meaning.',
       ru: 'Вынос места вперёд смысла не меняет.',
     },
@@ -6693,7 +6854,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '교재 「말하기 2」의 줄리앙 대사예요.',
       uz: 'Darslikdagi «말하기 2» — Julianning gapi.',
-      en: 'Julian\'s line from 말하기 2.',
+      en: "Julian's line from 말하기 2.",
       ru: 'Реплика Жюльена из 말하기 2.',
     },
     xpReward: 15,
@@ -6744,7 +6905,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 뒤에', '어순'],
     hint: {
       ko: '기준 건물에는 조사를 안 붙여요.',
-      uz: 'Tayanch bino qo\'shimchasiz.',
+      uz: "Tayanch bino qo'shimchasiz.",
       en: 'The reference building gets no particle.',
       ru: 'У опорного здания частицы нет.',
     },
@@ -6790,7 +6951,7 @@ export const UNIT4_QUESTIONS = {
     answer: '뒤',
     explanation: {
       ko: '은행이 극장 앞이면 극장은 은행 뒤예요. 두 건물이 마주 볼 때 한쪽이 앞이면 다른 쪽은 반드시 뒤예요.',
-      uz: 'Bank teatr oldida bo\'lsa, teatr bank orqasida. Biri old bo\'lsa, ikkinchisi albatta orqa.',
+      uz: "Bank teatr oldida bo'lsa, teatr bank orqasida. Biri old bo'lsa, ikkinchisi albatta orqa.",
       en: 'If the bank is in front of the theater, the theater is behind the bank — one front means the other is back.',
       ru: 'Если банк перед театром, театр за банком — если один спереди, другой обязательно сзади.',
     },
@@ -6832,7 +6993,7 @@ export const UNIT4_QUESTIONS = {
     answer: '한국은행은 우체국 뒤에 있어요.',
     explanation: {
       ko: '교재 「말하기 2」 그대로예요. 우체국이 한국은행 앞이면 한국은행은 우체국 뒤가 돼요.',
-      uz: 'Darslikdagi «말하기 2»: pochta bank oldida bo\'lsa, bank pochta orqasida.',
+      uz: "Darslikdagi «말하기 2»: pochta bank oldida bo'lsa, bank pochta orqasida.",
       en: 'Straight from 말하기 2 — if the post office is in front, the bank is behind it.',
       ru: 'Как в 말하기 2: если почта спереди, банк за ней.',
     },
@@ -6964,7 +7125,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 뒤에'],
     hint: {
       ko: '조사는 자리 뒤에 하나만 붙어요.',
-      uz: 'Qo\'shimcha joydan keyin bitta.',
+      uz: "Qo'shimcha joydan keyin bitta.",
       en: 'Just one particle, right after the place.',
       ru: 'Одна частица — сразу после места.',
     },
@@ -7058,7 +7219,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '앞/뒤', '대화'],
     hint: {
       ko: '기준을 바꾸면 앞뒤가 뒤집혀요.',
-      uz: 'Tayanch o\'zgarsa, old-orqa almashadi.',
+      uz: "Tayanch o'zgarsa, old-orqa almashadi.",
       en: 'Switch the reference and front/back flip.',
       ru: 'Смените опору — «перед/за» поменяются.',
     },
@@ -7172,7 +7333,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '복습'],
     hint: {
       ko: '세 글자짜리 건물 이름이 셋이에요.',
-      uz: 'Uch bo\'g\'inli bino nomi uchta.',
+      uz: "Uch bo'g'inli bino nomi uchta.",
       en: 'Three of the building names have three syllables.',
       ru: 'Три названия зданий — трёхсложные.',
     },
@@ -7206,7 +7367,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에'],
     hint: {
       ko: '자리 뒤에 오는 조사는 하나뿐이에요.',
-      uz: 'Joydan keyin bitta qo\'shimcha.',
+      uz: "Joydan keyin bitta qo'shimcha.",
       en: 'Only one particle can follow a place.',
       ru: 'После места — только одна частица.',
     },
@@ -7259,14 +7420,14 @@ export const UNIT4_QUESTIONS = {
     answer: '서점은 화장실 옆에 있어요.',
     explanation: {
       ko: '나란히 있는 관계는 뒤집어도 그대로예요. A가 B 옆이면 B도 A 옆이에요.',
-      uz: 'Yonma-yonlik teskari aylantirilsa ham o\'zgarmaydi: A B yonida bo\'lsa, B ham A yonida.',
+      uz: "Yonma-yonlik teskari aylantirilsa ham o'zgarmaydi: A B yonida bo'lsa, B ham A yonida.",
       en: 'Being beside is symmetric: if A is next to B, B is next to A.',
       ru: 'Соседство симметрично: если A рядом с B, то B рядом с A.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점은 화장실 옆에 있어요.',
-      uz: 'Kitob do\'koni hojatxona yonida.',
+      uz: "Kitob do'koni hojatxona yonida.",
       en: 'The bookstore is next to the restroom.',
       ru: 'Книжный магазин рядом с туалетом.',
     },
@@ -7274,7 +7435,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 옆에', '대화'],
     hint: {
       ko: '앞뒤와 달리 옆은 바뀌지 않아요.',
-      uz: 'Old-orqadan farqli, yon o\'zgarmaydi.',
+      uz: "Old-orqadan farqli, yon o'zgarmaydi.",
       en: 'Unlike front/back, 옆 does not flip.',
       ru: 'В отличие от «перед/за», 옆 не меняется.',
     },
@@ -7292,7 +7453,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '빵집이 서점 옆에 있어요.',
-      uz: 'Nonvoyxona kitob do\'koni yonida.',
+      uz: "Nonvoyxona kitob do'koni yonida.",
       en: 'The bakery is next to the bookstore.',
       ru: 'Пекарня рядом с книжным магазином.',
     },
@@ -7346,14 +7507,14 @@ export const UNIT4_QUESTIONS = {
     answer: '옆',
     explanation: {
       ko: '나란히 붙어 있는 관계는 서로 같아요. 빵집이 서점 옆이면 서점도 빵집 옆이에요.',
-      uz: 'Yonma-yon munosabat o\'zaro teng: nonvoyxona kitob do\'koni yonida bo\'lsa, aksi ham to\'g\'ri.',
+      uz: "Yonma-yon munosabat o'zaro teng: nonvoyxona kitob do'koni yonida bo'lsa, aksi ham to'g'ri.",
       en: 'Side-by-side is mutual: bakery beside bookstore means bookstore beside bakery.',
       ru: 'Соседство взаимно: пекарня рядом с книжным — значит и наоборот.',
     },
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점은 빵집 옆에 있어요.',
-      uz: 'Kitob do\'koni nonvoyxona yonida.',
+      uz: "Kitob do'koni nonvoyxona yonida.",
       en: 'The bookstore is next to the bakery.',
       ru: 'Книжный магазин рядом с пекарней.',
     },
@@ -7379,7 +7540,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['빵집이 서점 옆에 있어요'],
     answerTranslation: {
       ko: '빵집이 서점 옆에 있어요.',
-      uz: 'Nonvoyxona kitob do\'koni yonida.',
+      uz: "Nonvoyxona kitob do'koni yonida.",
       en: 'The bakery is next to the bookstore.',
       ru: 'Пекарня рядом с книжным магазином.',
     },
@@ -7405,7 +7566,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '화장실이 서점 옆에 있어요.',
-      uz: 'Hojatxona kitob do\'koni yonida.',
+      uz: "Hojatxona kitob do'koni yonida.",
       en: 'The restroom is next to the bookstore.',
       ru: 'Туалет рядом с книжным магазином.',
     },
@@ -7548,7 +7709,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '극장 옆에 있어요.' },
       { speaker: 'npc', text: '서점은 어디에 있어요?' },
     ],
-    options: ['서점은 은행 옆에 있어요.', '서점은 은행 옆이 있어요.', '서점은 은행 옆이에요.', '은행 주세요.'],
+    options: [
+      '서점은 은행 옆에 있어요.',
+      '서점은 은행 옆이 있어요.',
+      '서점은 은행 옆이에요.',
+      '은행 주세요.',
+    ],
     answer: '서점은 은행 옆에 있어요.',
     explanation: {
       ko: '"은행 옆이 있어요"는 옆쪽이 존재한다는 말, "은행 옆이에요"는 서점이 곧 그 자리라는 말이에요. 위치는 "옆에 있어요"예요.',
@@ -7559,7 +7725,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '서점은 은행 옆에 있어요.',
-      uz: 'Kitob do\'koni bank yonida.',
+      uz: "Kitob do'koni bank yonida.",
       en: 'The bookstore is next to the bank.',
       ru: 'Книжный магазин рядом с банком.',
     },
@@ -7642,7 +7808,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: ['서점이 은행 옆에 있어요'],
     answerTranslation: {
       ko: '서점이 은행 옆에 있어요.',
-      uz: 'Kitob do\'koni bank yonida.',
+      uz: "Kitob do'koni bank yonida.",
       en: 'The bookstore is next to the bank.',
       ru: 'Книжный магазин рядом с банком.',
     },
@@ -7681,7 +7847,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '복습'],
     hint: {
       ko: '지도를 읽을 때 꼭 필요한 세 마디예요.',
-      uz: 'Xarita o\'qishda kerak bo\'ladigan uch so\'z.',
+      uz: "Xarita o'qishda kerak bo'ladigan uch so'z.",
       en: 'The three words you need to read a map.',
       ru: 'Три слова, нужные для чтения карты.',
     },
@@ -7709,7 +7875,7 @@ export const UNIT4_QUESTIONS = {
     explanation: {
       ko: '건물마다 자리를 하나씩 짚어 주는 대화예요. 틀은 언제나 "N은 M 앞에 있어요"예요.',
       uz: 'Har bir binoning joyini aytish suhbati; qolip doim "N은 M 앞에 있어요".',
-      en: 'You name each building\'s spot in turn; the frame is always N은 M 앞에 있어요.',
+      en: "You name each building's spot in turn; the frame is always N은 M 앞에 있어요.",
       ru: 'Называем место каждого здания; схема всегда «N은 M 앞에 있어요».',
     },
     acceptedAnswers: [],
@@ -7749,7 +7915,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '말하기'],
     hint: {
       ko: '주어를 빼고 자리만 말해도 돼요.',
-      uz: 'Ega tashlab, faqat joyni aytsa ham bo\'ladi.',
+      uz: "Ega tashlab, faqat joyni aytsa ham bo'ladi.",
       en: 'You can drop the subject and give just the place.',
       ru: 'Можно опустить подлежащее и назвать только место.',
     },
@@ -7776,7 +7942,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '대답하기'],
     hint: {
       ko: '기준이 되는 건물에는 조사를 붙이지 않아요.',
-      uz: 'Tayanch binoga qo\'shimcha qo\'yilmaydi.',
+      uz: "Tayanch binoga qo'shimcha qo'yilmaydi.",
       en: 'The landmark building takes no particle.',
       ru: 'У здания-ориентира частицы нет.',
     },
@@ -7810,7 +7976,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 뒤에'],
     hint: {
       ko: '자리 뒤에 붙는 조사는 하나예요.',
-      uz: 'Joydan keyin bitta qo\'shimcha.',
+      uz: "Joydan keyin bitta qo'shimcha.",
       en: 'Only one particle follows a place.',
       ru: 'После места — одна частица.',
     },
@@ -7916,7 +8082,7 @@ export const UNIT4_QUESTIONS = {
     answer: '우체국은 극장 앞에 있어요.',
     explanation: {
       ko: '극장이 우체국 뒤면 우체국은 극장 앞이에요. 지도에서는 같은 사실을 양쪽으로 말할 수 있어야 해요.',
-      uz: 'Teatr pochta orqasida bo\'lsa, pochta teatr oldida. Xaritada bir faktni ikki tomondan aytish kerak.',
+      uz: "Teatr pochta orqasida bo'lsa, pochta teatr oldida. Xaritada bir faktni ikki tomondan aytish kerak.",
       en: 'If the theater is behind the post office, the post office is in front of it — say the same fact both ways.',
       ru: 'Если театр за почтой, почта перед театром — один факт с двух сторон.',
     },
@@ -7931,7 +8097,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '앞/뒤', '대화'],
     hint: {
       ko: '기준을 바꿨으니 앞뒤도 바뀌어요.',
-      uz: 'Tayanch o\'zgardi — old-orqa ham o\'zgaradi.',
+      uz: "Tayanch o'zgardi — old-orqa ham o'zgaradi.",
       en: 'The reference changed, so front and back swap.',
       ru: 'Опора сменилась — «перед/за» меняются.',
     },
@@ -7950,7 +8116,7 @@ export const UNIT4_QUESTIONS = {
     answer: '앞',
     explanation: {
       ko: '같은 그림을 두 가지 말로 그릴 수 있어요. 기준을 바꾸면 앞과 뒤가 서로 자리를 바꿔요.',
-      uz: 'Bir manzarani ikki xil aytish mumkin: tayanch o\'zgarsa old va orqa almashadi.',
+      uz: "Bir manzarani ikki xil aytish mumkin: tayanch o'zgarsa old va orqa almashadi.",
       en: 'One picture, two sentences: switch the reference and front/back trade places.',
       ru: 'Одна картина — два предложения: смена опоры меняет «перед» и «за».',
     },
@@ -8092,7 +8258,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '명동에 백화점이 있어요?' },
       { speaker: 'npc', text: '네, 백화점이 있어요.' },
     ],
-    options: ['백화점이 어디에 있어요?', '백화점이 어디예요?', '백화점 주세요.', '백화점이 없어요.'],
+    options: [
+      '백화점이 어디에 있어요?',
+      '백화점이 어디예요?',
+      '백화점 주세요.',
+      '백화점이 없어요.',
+    ],
     answer: '백화점이 어디에 있어요?',
     explanation: {
       ko: '있다는 건 알았으니 이제 정확한 자리를 물어요. 건물의 자리를 물을 때는 "어디에 있어요?"예요.',
@@ -8142,7 +8313,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', '번역'],
     hint: {
       ko: '기준이 되는 건물에는 조사가 없어요.',
-      uz: 'Tayanch binoga qo\'shimcha yo\'q.',
+      uz: "Tayanch binoga qo'shimcha yo'q.",
       en: 'No particle on the landmark building.',
       ru: 'У здания-ориентира частицы нет.',
     },
@@ -8277,7 +8448,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '우체국에 가요.' },
       { speaker: 'npc', text: '저는 은행에 가요.' },
     ],
-    options: ['은행이 어디에 있어요?', '은행이 어디예요?', '은행 주세요.', '은행에 없어요.'],
+    options: [
+      '은행이 어디에 있어요?',
+      '은행이 어디예요?',
+      '은행 주세요.',
+      '은행에 없어요.',
+    ],
     answer: '은행이 어디에 있어요?',
     explanation: {
       ko: '상대가 은행에 간다고 했어요. 그 건물이 어디 있는지 물을 때는 "N이 어디에 있어요?"예요.',
@@ -8296,7 +8472,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', '어디에 있어요', '대화'],
     hint: {
       ko: '건물의 자리를 묻는 말은 정해져 있어요.',
-      uz: 'Bino joyini so\'rash shakli aniq.',
+      uz: "Bino joyini so'rash shakli aniq.",
       en: 'There is a fixed way to ask where a building is.',
       ru: 'Есть устойчивая форма вопроса о месте здания.',
     },
@@ -8364,7 +8540,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '어디에 가요? — ',
     sentenceSuffix: '.',
-    options: ['식당에 가요', '식당이 가요', '식당에 있어요', '식당이에요', '식당 주세요'],
+    options: [
+      '식당에 가요',
+      '식당이 가요',
+      '식당에 있어요',
+      '식당이에요',
+      '식당 주세요',
+    ],
     answer: '식당에 가요',
     explanation: {
       ko: '"어디에 가요?"에는 "자리 + 에 + 가요"로 답해요. "식당에 있어요"는 지금 거기 있다는 뜻이라 답이 달라요.',
@@ -8544,7 +8726,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '시장에 가요.' },
       { speaker: 'npc', text: '저는 백화점에 가요.' },
     ],
-    options: ['백화점이 어디에 있어요?', '백화점이 어디예요?', '백화점 주세요.', '백화점에 없어요.'],
+    options: [
+      '백화점이 어디에 있어요?',
+      '백화점이 어디예요?',
+      '백화점 주세요.',
+      '백화점에 없어요.',
+    ],
     answer: '백화점이 어디에 있어요?',
     explanation: {
       ko: '상대가 가는 곳이 어디 있는지 궁금해요. 건물의 자리를 묻는 말은 "N이 어디에 있어요?"예요.',
@@ -8773,7 +8960,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '교재 「말하기 2」의 스티븐 대사예요.',
       uz: 'Darslikdagi «말하기 2» — Stivenning gapi.',
-      en: 'Steven\'s line from 말하기 2.',
+      en: "Steven's line from 말하기 2.",
       ru: 'Реплика Стивена из 말하기 2.',
     },
     xpReward: 15,
@@ -8859,7 +9046,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', 'N에 와요'],
     hint: {
       ko: '말하는 사람이 이미 학교에 있어요.',
-      uz: 'So\'zlovchi allaqachon maktabda.',
+      uz: "So'zlovchi allaqachon maktabda.",
       en: 'The speaker is already at the school.',
       ru: 'Говорящий уже в школе.',
     },
@@ -8979,7 +9166,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '스티븐은 친구를 만나러 여기에 가요.',
-      uz: 'Stiven do\'stini kutib olgani shu yerga boradi.',
+      uz: "Stiven do'stini kutib olgani shu yerga boradi.",
       en: 'Steven heads here to meet his friend.',
       ru: 'Стивен едет сюда встречать друга.',
     },
@@ -9040,7 +9227,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '교재 「말하기 2」의 스티븐 대사예요.',
       uz: 'Darslikdagi «말하기 2» — Stivenning gapi.',
-      en: 'Steven\'s line from 말하기 2.',
+      en: "Steven's line from 말하기 2.",
       ru: 'Реплика Стивена из 말하기 2.',
     },
     xpReward: 15,
@@ -9065,7 +9252,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', 'N에 와요', '어순'],
     hint: {
       ko: '시간을 나타내는 말이 맨 앞에 와요.',
-      uz: 'Vaqt so\'zi eng oldinda.',
+      uz: "Vaqt so'zi eng oldinda.",
       en: 'The time word leads the sentence.',
       ru: 'Слово времени открывает предложение.',
     },
@@ -9133,7 +9320,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', 'N에 와요', '어순'],
     hint: {
       ko: '시간을 나타내는 말은 주어 뒤에 와도 돼요.',
-      uz: 'Vaqt so\'zi ega ortidan ham kelishi mumkin.',
+      uz: "Vaqt so'zi ega ortidan ham kelishi mumkin.",
       en: 'The time word may also follow the subject.',
       ru: 'Слово времени может стоять и после подлежащего.',
     },
@@ -9224,7 +9411,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', '복습'],
     hint: {
       ko: '인사동은 전통 찻집이 많은 거리예요.',
-      uz: 'Insadong — an\'anaviy choyxonalar ko\'chasi.',
+      uz: "Insadong — an'anaviy choyxonalar ko'chasi.",
       en: 'Insa-dong is the street full of traditional teahouses.',
       ru: 'Инсадон — улица с традиционными чайными.',
     },
@@ -9284,7 +9471,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', '질문', '말하기'],
     hint: {
       ko: '묻는 말이니까 끝을 올려서.',
-      uz: 'Savol — ohangni ko\'taring.',
+      uz: "Savol — ohangni ko'taring.",
       en: 'It is a question — lift the ending.',
       ru: 'Это вопрос — поднимите интонацию.',
     },
@@ -9302,7 +9489,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '인사동에 가요.' },
       { speaker: 'npc', text: '인사동에서 뭐 해요?' },
     ],
-    options: ['차를 마셔요.', '차가 마셔요.', '인사동에 가요.', '인사동이에요.'],
+    options: [
+      '차를 마셔요.',
+      '차가 마셔요.',
+      '인사동에 가요.',
+      '인사동이에요.',
+    ],
     answer: '차를 마셔요.',
     explanation: {
       ko: '"에서 뭐 해요?"는 거기서 하는 일을 묻는 말이에요. 마시는 대상인 "차"에는 "를"이 붙어요.',
@@ -9321,7 +9513,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', '에/에서', '대화'],
     hint: {
       ko: '무엇을 하느냐고 물었어요. 가는 곳을 다시 말하는 게 아니에요.',
-      uz: 'Nima qilishini so\'radi — joyni qaytarish emas.',
+      uz: "Nima qilishini so'radi — joyni qaytarish emas.",
       en: 'They asked what you do — not where you go.',
       ru: 'Спросили, что вы делаете, а не куда идёте.',
     },
@@ -9408,7 +9600,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['이동', '에/에서'],
     hint: {
       ko: '움직이는 게 아니라 거기서 무엇인가를 하고 있어요.',
-      uz: 'Ketmayapsiz — o\'sha yerda ish qilyapsiz.',
+      uz: "Ketmayapsiz — o'sha yerda ish qilyapsiz.",
       en: 'You are not travelling — you are doing something there.',
       ru: 'Вы не в пути — вы что-то делаете на месте.',
     },
@@ -9461,7 +9653,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '줄리앙 편지의 마지막 문장이에요.',
       uz: 'Julian xatining oxirgi gapi.',
-      en: 'The last line of Julian\'s letter.',
+      en: "The last line of Julian's letter.",
       ru: 'Последняя фраза письма Жюльена.',
     },
     xpReward: 15,
@@ -9491,7 +9683,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['장소', '어휘'],
     hint: {
       ko: '백화점은 한 건물, 시장은 여러 가게가 늘어선 거리예요.',
-      uz: 'Univermag — bitta bino; bozor — do\'konlar qatori.',
+      uz: "Univermag — bitta bino; bozor — do'konlar qatori.",
       en: 'A 백화점 is one building; a 시장 is a row of many shops.',
       ru: '백화점 — одно здание; 시장 — ряды лавок.',
     },
@@ -9517,7 +9709,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '학교에 가요. 학교에서 한국어를 배워요.',
-      uz: 'Maktabga boraman. Maktabda koreys tilini o\'rganaman.',
+      uz: "Maktabga boraman. Maktabda koreys tilini o'rganaman.",
       en: 'I go to school. I learn Korean at school.',
       ru: 'Я иду в школу. В школе я учу корейский.',
     },
@@ -9746,7 +9938,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '공항에 가요. 친구가 한국에 와요.' },
       { speaker: 'npc', text: '줄리앙 씨는 어디에 가요?' },
     ],
-    options: ['저는 우체국에 가요.', '저는 우체국에 와요.', '저는 우체국이에요.', '우체국 주세요.'],
+    options: [
+      '저는 우체국에 가요.',
+      '저는 우체국에 와요.',
+      '저는 우체국이에요.',
+      '우체국 주세요.',
+    ],
     answer: '저는 우체국에 가요.',
     explanation: {
       ko: '교재 「말하기 2」 그대로예요. 지금 있는 곳에서 우체국 쪽으로 움직이니까 "가요"예요.',
@@ -9810,7 +10007,7 @@ export const UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '공항에 가요. — 향하는 곳을 알려 준다',
-      uz: 'Aeroportga boraman. — yo\'nalishni aytish',
+      uz: "Aeroportga boraman. — yo'nalishni aytish",
       en: 'I am going to the airport. — naming your destination',
       ru: 'Я еду в аэропорт. — называем пункт назначения.',
     },
@@ -9958,7 +10155,7 @@ export const UNIT4_QUESTIONS = {
     answer: '한국은행은 명동에 있어요.',
     explanation: {
       ko: '기준으로 삼은 건물도 어디 있는지 물을 수 있어요. 답은 똑같이 "자리 + 에 + 있어요"예요.',
-      uz: 'Tayanch binoning ham joyini so\'rash mumkin; javob shu qolipda.',
+      uz: "Tayanch binoning ham joyini so'rash mumkin; javob shu qolipda.",
       en: 'You can ask where the landmark itself is — the answer uses the same frame.',
       ru: 'Можно спросить и про сам ориентир — ответ по той же схеме.',
     },
@@ -9988,7 +10185,13 @@ export const UNIT4_QUESTIONS = {
     instruction: I.fill,
     sentencePrefix: '어디에 가요? — ',
     sentenceSuffix: '.',
-    options: ['공항에 가요', '공항이 가요', '공항에 있어요', '공항이에요', '공항 주세요'],
+    options: [
+      '공항에 가요',
+      '공항이 가요',
+      '공항에 있어요',
+      '공항이에요',
+      '공항 주세요',
+    ],
     answer: '공항에 가요',
     explanation: {
       ko: '"어디에 가요?"에는 향하는 곳으로 답해요. "공항이 가요"는 공항이 움직인다는 말이 돼요.',
@@ -10059,7 +10262,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['위치', 'N 앞에', '어순'],
     hint: {
       ko: '기준이 되는 건물에는 조사가 없어요.',
-      uz: 'Tayanch binoga qo\'shimcha yo\'q.',
+      uz: "Tayanch binoga qo'shimcha yo'q.",
       en: 'The landmark takes no particle.',
       ru: 'У ориентира частицы нет.',
     },
@@ -10134,7 +10337,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '회사에 가요.' },
       { speaker: 'npc', text: '회사가 어디에 있어요?' },
     ],
-    options: ['회사는 명동에 있어요.', '회사는 명동이 있어요.', '회사는 명동이에요.', '명동 주세요.'],
+    options: [
+      '회사는 명동에 있어요.',
+      '회사는 명동이 있어요.',
+      '회사는 명동이에요.',
+      '명동 주세요.',
+    ],
     answer: '회사는 명동에 있어요.',
     explanation: {
       ko: '어디 가는지 말한 다음, 그곳이 어디 있는지 이어서 답해요. 교재 「말하기 2」의 인터뷰 질문과 같은 흐름이에요.',
@@ -10276,8 +10484,8 @@ export const UNIT4_QUESTIONS = {
     tags: ['방', 'N에 있어요', '읽기'],
     hint: {
       ko: '줄리앙 편지에 그대로 나오는 문장이에요.',
-      uz: 'Julian xatidagi gapning o\'zi.',
-      en: 'Straight out of Julian\'s letter.',
+      uz: "Julian xatidagi gapning o'zi.",
+      en: "Straight out of Julian's letter.",
       ru: 'Прямо из письма Жюльена.',
     },
     xpReward: 15,
@@ -10431,7 +10639,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['방', 'N하고 N', '읽기'],
     hint: {
       ko: '물건이 둘이에요. 이어 주는 말이 필요해요.',
-      uz: 'Ikki narsa bor — bog\'lovchi kerak.',
+      uz: "Ikki narsa bor — bog'lovchi kerak.",
       en: 'Two items — you need the linking word.',
       ru: 'Два предмета — нужно соединительное слово.',
     },
@@ -10514,7 +10722,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['방', '어휘'],
     hint: {
       ko: '유닛 2에서 배운 방 물건이에요.',
-      uz: '2-bo\'limda o\'rgangan xona narsasi.',
+      uz: "2-bo'limda o'rgangan xona narsasi.",
       en: 'A room item you learned in unit 2.',
       ru: 'Предмет комнаты из юнита 2.',
     },
@@ -10533,7 +10741,7 @@ export const UNIT4_QUESTIONS = {
     answer: '사진',
     explanation: {
       ko: '어머니와 아버지를 책상 위에 올려 둘 수는 없어요. 두 분을 찍어 둔 것, 곧 "사진"이에요.',
-      uz: 'Ota-onani parta ustiga qo\'yib bo\'lmaydi — bu ularning surati.',
+      uz: "Ota-onani parta ustiga qo'yib bo'lmaydi — bu ularning surati.",
       en: 'You cannot put your parents on a desk — what sits there is their 사진.',
       ru: 'Родителей на стол не поставишь — там стоит их 사진.',
     },
@@ -10618,7 +10826,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '책상 위에 뭐가 있어요?' },
       { speaker: 'npc', text: '사진이 있어요.' },
     ],
-    options: ['누구 사진이에요?', '뭐 사진이에요?', '사진 주세요.', '사진이 없어요.'],
+    options: [
+      '누구 사진이에요?',
+      '뭐 사진이에요?',
+      '사진 주세요.',
+      '사진이 없어요.',
+    ],
     answer: '누구 사진이에요?',
     explanation: {
       ko: '사진에 찍힌 것은 사람이에요. 사람을 물을 때는 "뭐"가 아니라 "누구"를 써요.',
@@ -10786,7 +10999,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['읽기', '어휘'],
     hint: {
       ko: '같은 사람을 두 번 셀 수는 없어요.',
-      uz: 'Bir odamni ikki marta sanab bo\'lmaydi.',
+      uz: "Bir odamni ikki marta sanab bo'lmaydi.",
       en: 'You cannot count the same person twice.',
       ru: 'Одного человека дважды не считают.',
     },
@@ -10899,7 +11112,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['읽기', '에/에서'],
     hint: {
       ko: '움직이는 게 아니라 거기서 하는 일이에요.',
-      uz: 'Harakat emas — o\'sha yerdagi ish.',
+      uz: "Harakat emas — o'sha yerdagi ish.",
       en: 'Not motion — an activity happening there.',
       ru: 'Не движение, а действие на месте.',
     },
@@ -11025,7 +11238,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '줄리앙의 방이 있는 건물이에요.',
       uz: 'Julianning xonasi shu binoda.',
-      en: 'The building where Julian\'s room is.',
+      en: "The building where Julian's room is.",
       ru: 'Здание, где комната Жюльена.',
     },
     xpReward: 10,
@@ -11058,7 +11271,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['읽기', 'N하고 N'],
     hint: {
       ko: '마지막 물건에만 조사가 붙어요.',
-      uz: 'Qo\'shimcha faqat oxirgisiga.',
+      uz: "Qo'shimcha faqat oxirgisiga.",
       en: 'Only the last item takes the particle.',
       ru: 'Частица — только у последнего.',
     },
@@ -11137,7 +11350,7 @@ export const UNIT4_QUESTIONS = {
     answer: '아니요, 미국 사람이 있어요.',
     explanation: {
       ko: '없느냐고 물었는데 실제로는 있어요. 한국어는 물음 자체를 부정하니까 "아니요, 있어요"가 돼요. 이 점이 여러 언어와 반대예요.',
-      uz: 'Yo\'qmi deb so\'raldi, aslida bor. Koreys tilida savolning o\'zi inkor qilinadi: "아니요, 있어요".',
+      uz: "Yo'qmi deb so'raldi, aslida bor. Koreys tilida savolning o'zi inkor qilinadi: \"아니요, 있어요\".",
       en: 'They asked whether there are none, but there are — Korean negates the question itself, so 아니요, 있어요.',
       ru: 'Спросили «нет ли», но они есть — корейский отрицает сам вопрос: 아니요, 있어요.',
     },
@@ -11302,7 +11515,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '줄리앙 편지의 마지막 문단이에요.',
       uz: 'Julian xatining oxirgi qismi.',
-      en: 'The last paragraph of Julian\'s letter.',
+      en: "The last paragraph of Julian's letter.",
       ru: 'Последний абзац письма Жюльена.',
     },
     xpReward: 15,
@@ -11345,7 +11558,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '인사동에 가요.' },
       { speaker: 'npc', text: '인사동에서 뭐 해요?' },
     ],
-    options: ['친구를 만나요.', '친구가 만나요.', '친구에 만나요.', '친구 주세요.'],
+    options: [
+      '친구를 만나요.',
+      '친구가 만나요.',
+      '친구에 만나요.',
+      '친구 주세요.',
+    ],
     answer: '친구를 만나요.',
     explanation: {
       ko: '만나는 대상에는 "을/를"이 붙어요. "친구가 만나요"는 친구가 누군가를 만난다는 뜻이 돼요.',
@@ -11504,7 +11722,7 @@ export const UNIT4_QUESTIONS = {
     hint: {
       ko: '교재 「말하기 1」의 정우 대사예요.',
       uz: 'Darslikdagi «말하기 1» — Jeonguning gapi.',
-      en: 'Jeongu\'s line from 말하기 1.',
+      en: "Jeongu's line from 말하기 1.",
       ru: 'Реплика Чону из 말하기 1.',
     },
     xpReward: 15,
@@ -11620,7 +11838,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['읽기', '에/에서', '어순'],
     hint: {
       ko: '마시는 일이 벌어지는 자리예요.',
-      uz: 'Ichish sodir bo\'ladigan joy.',
+      uz: "Ichish sodir bo'ladigan joy.",
       en: 'It is where the drinking happens.',
       ru: 'Это место, где происходит питьё.',
     },
@@ -11638,7 +11856,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '네, 인사동이에요.' },
       { speaker: 'npc', text: '인사동에서 뭐 해요?' },
     ],
-    options: ['찻집에서 차를 마셔요.', '찻집에 차를 마셔요.', '찻집이 차를 마셔요.', '찻집 주세요.'],
+    options: [
+      '찻집에서 차를 마셔요.',
+      '찻집에 차를 마셔요.',
+      '찻집이 차를 마셔요.',
+      '찻집 주세요.',
+    ],
     answer: '찻집에서 차를 마셔요.',
     explanation: {
       ko: '마시는 자리는 "찻집에서"예요. "찻집에"는 그쪽으로 간다는 뜻이고, "찻집이"는 가게가 차를 마신다는 말이 돼요.',
@@ -11683,7 +11906,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['읽기', '에/에서', '어순'],
     hint: {
       ko: '시간 → 자리 → 대상 → 움직임. 이 순서예요.',
-      uz: 'Vaqt → joy → ob\'ekt → harakat.',
+      uz: "Vaqt → joy → ob'ekt → harakat.",
       en: 'Time → place → object → verb.',
       ru: 'Время → место → объект → действие.',
     },
@@ -11771,7 +11994,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['유닛4', '복습'],
     hint: {
       ko: '유닛 4에서 배운 장소와 위치예요.',
-      uz: '4-bo\'limdagi joy va o\'rin so\'zlari.',
+      uz: "4-bo'limdagi joy va o'rin so'zlari.",
       en: 'The places and positions from unit 4.',
       ru: 'Места и позиции из четвёртого юнита.',
     },
@@ -11798,7 +12021,7 @@ export const UNIT4_QUESTIONS = {
     answer: '인사동은 서울에 있어요.',
     explanation: {
       ko: '가는 곳을 말한 뒤 그곳이 어디 있는지 이어서 답해요. 인사동은 서울 안에 있는 거리예요.',
-      uz: 'Boradigan joyni aytib, keyin uning qayerdaligini aytasiz. Insadong — Seul ichidagi ko\'cha.',
+      uz: "Boradigan joyni aytib, keyin uning qayerdaligini aytasiz. Insadong — Seul ichidagi ko'cha.",
       en: 'After naming your destination you say where it is — Insa-dong is a street inside Seoul.',
       ru: 'Назвав пункт назначения, скажите, где он: Инсадон — улица в Сеуле.',
     },
@@ -11927,7 +12150,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['유닛4', '듣기'],
     hint: {
       ko: '다섯 개 모두 한 글자예요. 빠르게 지나가니 집중하세요.',
-      uz: 'Beshtasi ham bir bo\'g\'inli — tez o\'tadi.',
+      uz: "Beshtasi ham bir bo'g'inli — tez o'tadi.",
       en: 'All five are single syllables and go by fast.',
       ru: 'Все пять односложные и звучат быстро.',
     },
@@ -12006,7 +12229,7 @@ export const UNIT4_QUESTIONS = {
     answer: '학교는 기숙사 옆에 있어요.',
     explanation: {
       ko: '나란히 있는 관계는 서로 같아요. 기숙사가 학교 옆이면 학교도 기숙사 옆이에요.',
-      uz: 'Yonma-yonlik o\'zaro teng: yotoqxona maktab yonida bo\'lsa, aksi ham to\'g\'ri.',
+      uz: "Yonma-yonlik o'zaro teng: yotoqxona maktab yonida bo'lsa, aksi ham to'g'ri.",
       en: 'Being beside is mutual: dorm beside school means school beside dorm.',
       ru: 'Соседство взаимно: общежитие рядом со школой — значит и наоборот.',
     },
@@ -12040,7 +12263,7 @@ export const UNIT4_QUESTIONS = {
     answer: '뒤',
     explanation: {
       ko: '위–아래가 한 쌍, 앞–뒤가 한 쌍이에요. 두 쌍만 외워 두면 나머지는 짝이 없어요.',
-      uz: 'Ust–ost va old–orqa — ikki juft; qolganining juftligi yo\'q.',
+      uz: "Ust–ost va old–orqa — ikki juft; qolganining juftligi yo'q.",
       en: '위–아래 and 앞–뒤 are the two pairs; the rest have no fixed opposite.',
       ru: '위–아래 и 앞–뒤 — две пары; у остальных постоянной пары нет.',
     },
@@ -12055,7 +12278,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['유닛4', '위치', '어휘'],
     hint: {
       ko: '앞 문장이 짝짓는 방법을 보여 줬어요.',
-      uz: 'Oldingi gap juftlash usulini ko\'rsatdi.',
+      uz: "Oldingi gap juftlash usulini ko'rsatdi.",
       en: 'The first sentence shows you how the pairing works.',
       ru: 'Первое предложение показывает принцип пары.',
     },
@@ -12138,7 +12361,7 @@ export const UNIT4_QUESTIONS = {
     tags: ['유닛4', '어휘'],
     hint: {
       ko: '학교에 다니면서 자고 먹는 건물이에요.',
-      uz: 'O\'qish davomida yashaydigan bino.',
+      uz: "O'qish davomida yashaydigan bino.",
       en: 'The building you sleep in while attending school.',
       ru: 'Здание, где живут во время учёбы.',
     },
@@ -12182,7 +12405,12 @@ export const UNIT4_QUESTIONS = {
       { speaker: 'user', text: '공항에 가요.' },
       { speaker: 'npc', text: '공항이 어디에 있어요?' },
     ],
-    options: ['공항은 서울에 있어요.', '공항은 서울이 있어요.', '공항은 서울이에요.', '서울 주세요.'],
+    options: [
+      '공항은 서울에 있어요.',
+      '공항은 서울이 있어요.',
+      '공항은 서울이에요.',
+      '서울 주세요.',
+    ],
     answer: '공항은 서울에 있어요.',
     explanation: {
       ko: '유닛 4의 두 문형이 한 대화에 다 나와요. 가는 곳은 "에 가요", 자리는 "에 있어요"예요.',
@@ -12605,7 +12833,7 @@ export const UNIT4_NODES = [
         },
         description: {
           ko: '위치 말은 "N 위에"처럼 통째로 한 자리가 된다',
-          uz: 'O\'rin so\'zi "N 위에" bo\'lib bitta joy yasaydi',
+          uz: "O'rin so'zi \"N 위에\" bo'lib bitta joy yasaydi",
           en: 'A position word forms one whole place, as in N 위에',
           ru: 'Слово места образует локацию целиком: N 위에',
         },
@@ -12641,7 +12869,7 @@ export const UNIT4_NODES = [
         },
         description: {
           ko: 'A가 B 앞이면 B는 A 뒤 — 서로 뒤집힌다',
-          uz: 'A B oldida bo\'lsa, B A orqasida — teskari',
+          uz: "A B oldida bo'lsa, B A orqasida — teskari",
           en: 'If A is in front of B, B is behind A — they flip',
           ru: 'Если A перед B, то B за A — переворачивается',
         },
@@ -12707,7 +12935,7 @@ export const UNIT4_NODES = [
       {
         title: {
           ko: '위치 종합',
-          uz: 'O\'rin yakuni',
+          uz: "O'rin yakuni",
           en: 'Positions Review',
           ru: 'Итоги: расположение',
         },
@@ -13029,7 +13257,7 @@ export const UNIT4_NODES = [
         },
         description: {
           ko: '어디에 가요? · 친구가 와요 · 한국은행 앞에 있어요',
-          uz: 'Qayerga? · Do\'st keladi · Bank oldida',
+          uz: "Qayerga? · Do'st keladi · Bank oldida",
           en: 'Where to? · A friend arrives · In front of the bank',
           ru: 'Куда? · Друг приезжает · Перед банком',
         },
@@ -13181,13 +13409,13 @@ export const UNIT4_NODES = [
       {
         title: {
           ko: '유닛 4 종합',
-          uz: '4-bo\'lim yakuni',
+          uz: "4-bo'lim yakuni",
           en: 'Unit 4 Review',
           ru: 'Итоги юнита 4',
         },
         description: {
           ko: '장소 · 위치 · 에 있어요 · 에 가요 · 에서',
-          uz: 'Joy · O\'rin · Bor · Boraman · -da',
+          uz: "Joy · O'rin · Bor · Boraman · -da",
           en: 'Places · Positions · 에 있어요 · 에 가요 · 에서',
           ru: 'Места · Позиции · 에 있어요 · 에 가요 · 에서',
         },
@@ -13217,3 +13445,988 @@ export const UNIT4_NODES = [
     ],
   },
 ];
+
+export const S1_UNIT4_WORDS = [
+  // ─────────────────────────────────────
+  // 장소
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_store_noun',
+    senseKey: 'place-store',
+    korean: '가게',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '물건을 파는 곳',
+      uz: 'do‘kon',
+      en: 'store, shop',
+      ru: 'магазин',
+    },
+
+    examples: [
+      {
+        korean: '가게가 어디에 있어요?',
+        translations: {
+          ko: '가게가 어디에 있습니까?',
+          uz: 'Do‘kon qayerda?',
+          en: 'Where is the store?',
+          ru: 'Где находится магазин?',
+        },
+      },
+      {
+        korean: '가게에 가요.',
+        translations: {
+          ko: '가게에 갑니다.',
+          uz: 'Do‘konga boraman.',
+          en: 'I go to the store.',
+          ru: 'Я иду в магазин.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '가게',
+      romanization: 'gage',
+      ttsText: '가게',
+    },
+
+    media: {
+      emoji: '🏪',
+      imageUrl: 'https://cdn.korio.app/words/gage.webp',
+      imageAlt: {
+        ko: '물건을 파는 가게',
+        uz: 'mahsulotlar sotiladigan do‘kon',
+        en: 'a store selling goods',
+        ru: 'магазин, где продают товары',
+      },
+    },
+
+    tags: ['place', 'shopping', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'가게에 가다', '가게가 어디에 있어요?'처럼 사용해요.",
+      uz: "'가게에 가다' yoki '가게가 어디에 있어요?' kabi ishlatiladi.",
+      en: "Commonly used as 'go to a store' or 'Where is the store?'",
+      ru: 'Часто используется в выражениях «идти в магазин» и «где находится магазин?».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_airport_noun',
+    senseKey: 'place-airport',
+    korean: '공항',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '비행기가 출발하고 도착하는 곳',
+      uz: 'aeroport',
+      en: 'airport',
+      ru: 'аэропорт',
+    },
+
+    examples: [
+      {
+        korean: '공항에 가요.',
+        translations: {
+          ko: '공항에 갑니다.',
+          uz: 'Aeroportga boraman.',
+          en: 'I go to the airport.',
+          ru: 'Я еду в аэропорт.',
+        },
+      },
+      {
+        korean: '공항이 어디에 있어요?',
+        translations: {
+          ko: '공항이 어디에 있습니까?',
+          uz: 'Aeroport qayerda?',
+          en: 'Where is the airport?',
+          ru: 'Где находится аэропорт?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '공항',
+      romanization: 'gonghang',
+      ttsText: '공항',
+    },
+
+    media: {
+      emoji: '✈️',
+      imageUrl: 'https://cdn.korio.app/words/gonghang.webp',
+      imageAlt: {
+        ko: '비행기가 있는 공항',
+        uz: 'samolyotlar bor aeroport',
+        en: 'an airport with airplanes',
+        ru: 'аэропорт с самолётами',
+      },
+    },
+
+    tags: ['place', 'transportation', 'travel', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'공항에 가다', '공항에서 친구를 만나다'처럼 사용해요.",
+      uz: "'공항에 가다' yoki '공항에서 친구를 만나다' kabi ishlatiladi.",
+      en: "Commonly used in expressions such as 'go to the airport.'",
+      ru: 'Часто используется в выражениях вроде «ехать в аэропорт».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_embassy_noun',
+    senseKey: 'place-embassy',
+    korean: '대사관',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '한 나라를 대표하여 다른 나라에서 외교 업무를 하는 기관',
+      uz: 'elchixona',
+      en: 'embassy',
+      ru: 'посольство',
+    },
+
+    examples: [
+      {
+        korean: '중국 대사관이 어디에 있어요?',
+        translations: {
+          ko: '중국 대사관이 어디에 있습니까?',
+          uz: 'Xitoy elchixonasi qayerda?',
+          en: 'Where is the Chinese embassy?',
+          ru: 'Где находится посольство Китая?',
+        },
+      },
+      {
+        korean: '대사관에 가요.',
+        translations: {
+          ko: '대사관에 갑니다.',
+          uz: 'Elchixonaga boraman.',
+          en: 'I go to the embassy.',
+          ru: 'Я иду в посольство.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '대사관',
+      romanization: 'daesagwan',
+      ttsText: '대사관',
+    },
+
+    media: {
+      emoji: '🏛️',
+      imageUrl: 'https://cdn.korio.app/words/daesagwan.webp',
+      imageAlt: {
+        ko: '국기가 있는 대사관 건물',
+        uz: 'bayroq o‘rnatilgan elchixona binosi',
+        en: 'an embassy building with a flag',
+        ru: 'здание посольства с флагом',
+      },
+    },
+
+    tags: ['place', 'public-facility', 'travel', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "나라 이름과 함께 '중국 대사관', '미국 대사관'처럼 사용할 수 있어요.",
+      uz: "Davlat nomi bilan '중국 대사관', '미국 대사관' kabi ishlatiladi.",
+      en: "It can be used with a country name, such as 'Chinese embassy.'",
+      ru: 'Можно использовать с названием страны, например «посольство Китая».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hair_salon_noun',
+    senseKey: 'place-hair-salon',
+    korean: '미용실',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '머리를 자르거나 손질하는 곳',
+      uz: 'sartaroshxona, go‘zallik saloni',
+      en: 'hair salon',
+      ru: 'парикмахерская, салон красоты',
+    },
+
+    examples: [
+      {
+        korean: '미용실에 가요.',
+        translations: {
+          ko: '미용실에 갑니다.',
+          uz: 'Sartaroshxonaga boraman.',
+          en: 'I go to the hair salon.',
+          ru: 'Я иду в парикмахерскую.',
+        },
+      },
+      {
+        korean: '미용실이 어디에 있어요?',
+        translations: {
+          ko: '미용실이 어디에 있습니까?',
+          uz: 'Sartaroshxona qayerda?',
+          en: 'Where is the hair salon?',
+          ru: 'Где находится парикмахерская?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '미용실',
+      romanization: 'miyongsil',
+      ttsText: '미용실',
+    },
+
+    media: {
+      emoji: '💇',
+      imageUrl: 'https://cdn.korio.app/words/miyongsil.webp',
+      imageAlt: {
+        ko: '머리를 손질하는 미용실',
+        uz: 'soch turmaklanadigan sartaroshxona',
+        en: 'a hair salon',
+        ru: 'парикмахерская',
+      },
+    },
+
+    tags: ['place', 'daily-life', 'service', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'미용실에 가다'처럼 많이 사용해요.",
+      uz: "Ko‘pincha '미용실에 가다' shaklida ishlatiladi.",
+      en: "Frequently used in the expression 'go to the hair salon.'",
+      ru: 'Часто используется в выражении «идти в парикмахерскую».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_hospital_noun',
+    senseKey: 'place-hospital',
+    korean: '병원',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '아픈 사람을 진료하고 치료하는 곳',
+      uz: 'kasalxona',
+      en: 'hospital',
+      ru: 'больница',
+    },
+
+    examples: [
+      {
+        korean: '병원이 어디에 있어요?',
+        translations: {
+          ko: '병원이 어디에 있습니까?',
+          uz: 'Kasalxona qayerda?',
+          en: 'Where is the hospital?',
+          ru: 'Где находится больница?',
+        },
+      },
+      {
+        korean: '약국은 병원 뒤에 있어요.',
+        translations: {
+          ko: '약국은 병원 뒤에 있습니다.',
+          uz: 'Dorixona kasalxonaning orqasida.',
+          en: 'The pharmacy is behind the hospital.',
+          ru: 'Аптека находится за больницей.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '병원',
+      romanization: 'byeongwon',
+      ttsText: '병원',
+    },
+
+    media: {
+      emoji: '🏥',
+      imageUrl: 'https://cdn.korio.app/words/byeongwon.webp',
+      imageAlt: {
+        ko: '환자를 치료하는 병원',
+        uz: 'bemorlar davolanadigan kasalxona',
+        en: 'a hospital where patients are treated',
+        ru: 'больница, где лечат пациентов',
+      },
+    },
+
+    tags: ['place', 'medical', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'병원에 가다', '병원 옆에 있다'처럼 사용해요.",
+      uz: "'병원에 가다' yoki '병원 옆에 있다' kabi ishlatiladi.",
+      en: "Used in expressions such as 'go to the hospital' or 'next to the hospital.'",
+      ru: 'Используется в выражениях «идти в больницу» или «рядом с больницей».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_pharmacy_noun',
+    senseKey: 'place-pharmacy',
+    korean: '약국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '약을 조제하거나 판매하는 곳',
+      uz: 'dorixona',
+      en: 'pharmacy',
+      ru: 'аптека',
+    },
+
+    examples: [
+      {
+        korean: '약국이 어디에 있어요?',
+        translations: {
+          ko: '약국이 어디에 있습니까?',
+          uz: 'Dorixona qayerda?',
+          en: 'Where is the pharmacy?',
+          ru: 'Где находится аптека?',
+        },
+      },
+      {
+        korean: '약국은 병원 뒤에 있어요.',
+        translations: {
+          ko: '약국은 병원 뒤에 있습니다.',
+          uz: 'Dorixona kasalxonaning orqasida.',
+          en: 'The pharmacy is behind the hospital.',
+          ru: 'Аптека находится за больницей.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '약국',
+      romanization: 'yakguk',
+      ttsText: '약국',
+    },
+
+    media: {
+      emoji: '💊',
+      imageUrl: 'https://cdn.korio.app/words/yakguk.webp',
+      imageAlt: {
+        ko: '약을 파는 약국',
+        uz: 'dori sotiladigan dorixona',
+        en: 'a pharmacy selling medicine',
+        ru: 'аптека, где продают лекарства',
+      },
+    },
+
+    tags: ['place', 'medical', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'약국에 가다', '약국이 어디에 있어요?'처럼 사용해요.",
+      uz: "'약국에 가다' yoki '약국이 어디에 있어요?' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the pharmacy' or 'Where is the pharmacy?'",
+      ru: 'Часто используется в выражениях «идти в аптеку» и «где находится аптека?».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_post_office_noun',
+    senseKey: 'place-post-office',
+    korean: '우체국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '편지나 소포를 보내고 우편 업무를 처리하는 곳',
+      uz: 'pochta bo‘limi',
+      en: 'post office',
+      ru: 'почта, почтовое отделение',
+    },
+
+    examples: [
+      {
+        korean: '우체국에 가요.',
+        translations: {
+          ko: '우체국에 갑니다.',
+          uz: 'Pochta bo‘limiga boraman.',
+          en: 'I go to the post office.',
+          ru: 'Я иду на почту.',
+        },
+      },
+      {
+        korean: '우체국은 은행 앞에 있어요.',
+        translations: {
+          ko: '우체국은 은행 앞에 있습니다.',
+          uz: 'Pochta bo‘limi bankning oldida.',
+          en: 'The post office is in front of the bank.',
+          ru: 'Почта находится перед банком.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '우체국',
+      romanization: 'ucheguk',
+      ttsText: '우체국',
+    },
+
+    media: {
+      emoji: '📮',
+      imageUrl: 'https://cdn.korio.app/words/ucheguk.webp',
+      imageAlt: {
+        ko: '우편 업무를 처리하는 우체국',
+        uz: 'pochta xizmatlari ko‘rsatiladigan pochta bo‘limi',
+        en: 'a post office providing postal services',
+        ru: 'почтовое отделение',
+      },
+    },
+
+    tags: ['place', 'public-facility', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'우체국에 가다', '우체국이 어디에 있어요?'처럼 사용해요.",
+      uz: "'우체국에 가다' yoki '우체국이 어디에 있어요?' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the post office' or 'Where is the post office?'",
+      ru: 'Часто используется в выражениях «идти на почту» и «где находится почта?».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_bank_noun',
+    senseKey: 'place-bank',
+    korean: '은행',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '돈을 맡기거나 찾는 등의 금융 업무를 하는 곳',
+      uz: 'bank',
+      en: 'bank',
+      ru: 'банк',
+    },
+
+    examples: [
+      {
+        korean: '은행이 어디에 있어요?',
+        translations: {
+          ko: '은행이 어디에 있습니까?',
+          uz: 'Bank qayerda?',
+          en: 'Where is the bank?',
+          ru: 'Где находится банк?',
+        },
+      },
+      {
+        korean: '우체국은 은행 앞에 있어요.',
+        translations: {
+          ko: '우체국은 은행 앞에 있습니다.',
+          uz: 'Pochta bo‘limi bankning oldida.',
+          en: 'The post office is in front of the bank.',
+          ru: 'Почта находится перед банком.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '은행',
+      romanization: 'eunhaeng',
+      ttsText: '은행',
+    },
+
+    media: {
+      emoji: '🏦',
+      imageUrl: 'https://cdn.korio.app/words/eunhaeng.webp',
+      imageAlt: {
+        ko: '금융 업무를 처리하는 은행',
+        uz: 'moliyaviy xizmat ko‘rsatuvchi bank',
+        en: 'a bank providing financial services',
+        ru: 'банк, предоставляющий финансовые услуги',
+      },
+    },
+
+    tags: ['place', 'finance', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'은행에 가다', '은행 앞에 있다'처럼 사용해요.",
+      uz: "'은행에 가다' yoki '은행 앞에 있다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the bank' or 'in front of the bank.'",
+      ru: 'Часто используется в выражениях «идти в банк» и «перед банком».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 위치
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_back_noun',
+    senseKey: 'location-back',
+    korean: '뒤',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 것의 뒷부분이나 뒤쪽',
+      uz: 'orqa, orqa tomon',
+      en: 'back, behind',
+      ru: 'сзади, позади',
+    },
+
+    examples: [
+      {
+        korean: '약국은 병원 뒤에 있어요.',
+        translations: {
+          ko: '약국은 병원 뒤에 있습니다.',
+          uz: 'Dorixona kasalxonaning orqasida.',
+          en: 'The pharmacy is behind the hospital.',
+          ru: 'Аптека находится за больницей.',
+        },
+      },
+      {
+        korean: '집 뒤에 공원이 있어요.',
+        translations: {
+          ko: '집 뒤에 공원이 있습니다.',
+          uz: 'Uyning orqasida park bor.',
+          en: 'There is a park behind the house.',
+          ru: 'За домом есть парк.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '뒤',
+      romanization: 'dwi',
+      ttsText: '뒤',
+    },
+
+    media: {
+      emoji: '↩️',
+      imageUrl: 'https://cdn.korio.app/words/dwi.webp',
+      imageAlt: {
+        ko: '물건의 뒤쪽 위치',
+        uz: 'buyumning orqa tomoni',
+        en: 'the position behind an object',
+        ru: 'положение позади предмета',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'병원 뒤에', '집 뒤에'처럼 기준이 되는 명사 뒤에 붙여 사용해요.",
+      uz: "'병원 뒤에', '집 뒤에' kabi joy nomidan keyin ishlatiladi.",
+      en: "Used after a reference noun, such as 'behind the hospital.'",
+      ru: 'Используется после ориентира, например «за больницей».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_bottom_noun',
+    senseKey: 'location-bottom',
+    korean: '밑',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 것보다 낮은 곳',
+      uz: 'tag, pastki tomon',
+      en: 'bottom, underneath',
+      ru: 'низ, под',
+    },
+
+    examples: [
+      {
+        korean: '책상 밑에 가방이 있어요.',
+        translations: {
+          ko: '책상 밑에 가방이 있습니다.',
+          uz: 'Stol tagida sumka bor.',
+          en: 'There is a bag under the desk.',
+          ru: 'Под столом находится сумка.',
+        },
+      },
+      {
+        korean: '의자 밑에 뭐가 있어요?',
+        translations: {
+          ko: '의자 밑에 무엇이 있습니까?',
+          uz: 'Stul tagida nima bor?',
+          en: 'What is under the chair?',
+          ru: 'Что находится под стулом?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '밑',
+      romanization: 'mit',
+      ttsText: '밑',
+    },
+
+    media: {
+      emoji: '⬇️',
+      imageUrl: 'https://cdn.korio.app/words/mit.webp',
+      imageAlt: {
+        ko: '물건 바로 밑의 위치',
+        uz: 'buyumning tagidagi joy',
+        en: 'the position underneath an object',
+        ru: 'положение под предметом',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'책상 밑에'처럼 어떤 물건의 바로 아래쪽을 말할 때 사용해요.",
+      uz: "'책상 밑에' kabi buyumning tagidagi joyni aytishda ishlatiladi.",
+      en: 'Used for a position directly underneath something.',
+      ru: 'Используется для обозначения положения непосредственно под чем-либо.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_under_noun',
+    senseKey: 'location-under',
+    korean: '아래',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '기준이 되는 것보다 낮은 위치',
+      uz: 'past, ost',
+      en: 'under, below',
+      ru: 'ниже, под',
+    },
+
+    examples: [
+      {
+        korean: '책상 아래에 가방이 있어요.',
+        translations: {
+          ko: '책상 아래에 가방이 있습니다.',
+          uz: 'Stol ostida sumka bor.',
+          en: 'There is a bag under the desk.',
+          ru: 'Под столом находится сумка.',
+        },
+      },
+      {
+        korean: '창문 아래에 책상이 있어요.',
+        translations: {
+          ko: '창문 아래에 책상이 있습니다.',
+          uz: 'Deraza ostida stol bor.',
+          en: 'There is a desk below the window.',
+          ru: 'Под окном находится стол.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '아래',
+      romanization: 'arae',
+      ttsText: '아래',
+    },
+
+    media: {
+      emoji: '⬇️',
+      imageUrl: 'https://cdn.korio.app/words/arae.webp',
+      imageAlt: {
+        ko: '기준보다 아래쪽 위치',
+        uz: 'biror narsadan pastdagi joy',
+        en: 'a position below something',
+        ru: 'положение ниже чего-либо',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'밑'과 비슷하지만 '아래'는 더 넓게 낮은 위치를 나타낼 수 있어요.",
+      uz: "'밑'ga o‘xshaydi, lekin '아래' umumiyroq pastdagi joyni bildirishi mumkin.",
+      en: 'Similar to 밑, but 아래 can refer more generally to a lower position.',
+      ru: 'Похоже на 밑, но 아래 может обозначать более общее положение ниже.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_inside_noun',
+    senseKey: 'location-inside',
+    korean: '안',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 공간이나 물건의 내부',
+      uz: 'ich, ichkari',
+      en: 'inside',
+      ru: 'внутри',
+    },
+
+    examples: [
+      {
+        korean: '가방 안에 휴대폰이 있어요.',
+        translations: {
+          ko: '가방 안에 휴대폰이 있습니다.',
+          uz: 'Sumka ichida mobil telefon bor.',
+          en: 'There is a mobile phone inside the bag.',
+          ru: 'В сумке находится мобильный телефон.',
+        },
+      },
+      {
+        korean: '냉장고 안에 뭐가 있어요?',
+        translations: {
+          ko: '냉장고 안에 무엇이 있습니까?',
+          uz: 'Muzlatgich ichida nima bor?',
+          en: 'What is inside the refrigerator?',
+          ru: 'Что находится в холодильнике?',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '안',
+      romanization: 'an',
+      ttsText: '안',
+    },
+
+    media: {
+      emoji: '📦',
+      imageUrl: 'https://cdn.korio.app/words/an.webp',
+      imageAlt: {
+        ko: '상자 안쪽의 위치',
+        uz: 'qutining ichidagi joy',
+        en: 'the position inside a box',
+        ru: 'положение внутри коробки',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'가방 안에', '방 안에'처럼 공간 내부를 나타낼 때 사용해요.",
+      uz: "'가방 안에', '방 안에' kabi biror narsaning ichini aytishda ishlatiladi.",
+      en: "Used for an interior location, such as 'inside the bag.'",
+      ru: 'Используется для обозначения положения внутри, например «в сумке».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_front_noun',
+    senseKey: 'location-front',
+    korean: '앞',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 것의 앞쪽',
+      uz: 'old, old tomon',
+      en: 'front, in front of',
+      ru: 'перед, впереди',
+    },
+
+    examples: [
+      {
+        korean: '우체국은 은행 앞에 있어요.',
+        translations: {
+          ko: '우체국은 은행 앞에 있습니다.',
+          uz: 'Pochta bo‘limi bankning oldida.',
+          en: 'The post office is in front of the bank.',
+          ru: 'Почта находится перед банком.',
+        },
+      },
+      {
+        korean: '집 앞에 가게가 있어요.',
+        translations: {
+          ko: '집 앞에 가게가 있습니다.',
+          uz: 'Uyning oldida do‘kon bor.',
+          en: 'There is a store in front of the house.',
+          ru: 'Перед домом есть магазин.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '앞',
+      romanization: 'ap',
+      ttsText: '앞',
+    },
+
+    media: {
+      emoji: '⬆️',
+      imageUrl: 'https://cdn.korio.app/words/ap.webp',
+      imageAlt: {
+        ko: '물건의 앞쪽 위치',
+        uz: 'buyumning old tomoni',
+        en: 'the position in front of an object',
+        ru: 'положение перед предметом',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'은행 앞에', '집 앞에'처럼 사용해요.",
+      uz: "'은행 앞에', '집 앞에' kabi ishlatiladi.",
+      en: "Used after a reference noun, such as 'in front of the bank.'",
+      ru: 'Используется после ориентира, например «перед банком».',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_side_noun',
+    senseKey: 'location-side',
+    korean: '옆',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 것의 오른쪽이나 왼쪽 가까운 곳',
+      uz: 'yon, yon tomon',
+      en: 'side, next to',
+      ru: 'рядом, сбоку',
+    },
+
+    examples: [
+      {
+        korean: '백화점은 병원 옆에 있어요.',
+        translations: {
+          ko: '백화점은 병원 옆에 있습니다.',
+          uz: 'Univermag kasalxonaning yonida.',
+          en: 'The department store is next to the hospital.',
+          ru: 'Универмаг находится рядом с больницей.',
+        },
+      },
+      {
+        korean: '스티븐은 아키라 옆에 있어요.',
+        translations: {
+          ko: '스티븐은 아키라 옆에 있습니다.',
+          uz: 'Stiven Akiraning yonida.',
+          en: 'Steven is next to Akira.',
+          ru: 'Стивен находится рядом с Акирой.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '옆',
+      romanization: 'yeop',
+      ttsText: '옆',
+    },
+
+    media: {
+      emoji: '↔️',
+      imageUrl: 'https://cdn.korio.app/words/yeop.webp',
+      imageAlt: {
+        ko: '물건 바로 옆의 위치',
+        uz: 'buyumning yonidagi joy',
+        en: 'the position next to an object',
+        ru: 'положение рядом с предметом',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'병원 옆에', '친구 옆에'처럼 바로 가까운 옆쪽을 나타내요.",
+      uz: "'병원 옆에', '친구 옆에' kabi yaqin yon tomonni bildiradi.",
+      en: 'Used to indicate a position immediately next to something or someone.',
+      ru: 'Используется для обозначения положения непосредственно рядом с чем-либо или кем-либо.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_top_noun',
+    senseKey: 'location-top',
+    korean: '위',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+
+    meaning: {
+      ko: '어떤 것보다 높은 곳',
+      uz: 'usti, yuqori',
+      en: 'top, above, on',
+      ru: 'сверху, над, на',
+    },
+
+    examples: [
+      {
+        korean: '책상 위에 사진이 있어요.',
+        translations: {
+          ko: '책상 위에 사진이 있습니다.',
+          uz: 'Stol ustida surat bor.',
+          en: 'There is a photo on the desk.',
+          ru: 'На столе находится фотография.',
+        },
+      },
+      {
+        korean: '의자 위에 가방이 있어요.',
+        translations: {
+          ko: '의자 위에 가방이 있습니다.',
+          uz: 'Stul ustida sumka bor.',
+          en: 'There is a bag on the chair.',
+          ru: 'На стуле находится сумка.',
+        },
+      },
+    ],
+
+    pronunciation: {
+      hangul: '위',
+      romanization: 'wi',
+      ttsText: '위',
+    },
+
+    media: {
+      emoji: '⬆️',
+      imageUrl: 'https://cdn.korio.app/words/wi.webp',
+      imageAlt: {
+        ko: '물건보다 위쪽의 위치',
+        uz: 'buyumdan yuqoridagi joy',
+        en: 'the position above an object',
+        ru: 'положение над предметом',
+      },
+    },
+
+    tags: ['location', 'position', 'daily-life', 'topik-1'],
+    difficulty: 1,
+
+    usageNote: {
+      ko: "'책상 위에', '의자 위에'처럼 기준보다 높은 위치를 나타내요.",
+      uz: "'책상 위에', '의자 위에' kabi biror narsaning ustidagi joyni bildiradi.",
+      en: 'Used for a position above or on top of something.',
+      ru: 'Используется для обозначения положения над чем-либо или на чём-либо.',
+    },
+
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];

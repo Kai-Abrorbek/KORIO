@@ -1,6 +1,8 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
 import { withTypedAnswerGrading } from './answer-grading';
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 
 const I = {
   match: {
@@ -73,237 +75,1919 @@ const I = {
 
 export const S3_UNIT8_WORDS = [
   {
+    code: 'word_make_phone_call_verb',
+    senseKey: 'communication-make-phone-call',
     korean: '전화를 걸다',
-    uz: 'qo‘ng‘iroq qilmoq',
-    en: 'to make a phone call',
-    ru: 'звонить',
-    emoji: '📞',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '전화로 다른 사람에게 연락을 시작하다',
+      uz: 'qo‘ng‘iroq qilmoq',
+      en: 'to make a phone call',
+      ru: 'звонить',
+    },
+    examples: [
+      {
+        korean: '친구에게 전화를 걸어요.',
+        translations: {
+          ko: '친구와 이야기하려고 전화해요.',
+          uz: 'Do‘stimga qo‘ng‘iroq qilaman.',
+          en: 'I call my friend.',
+          ru: 'Я звоню другу.',
+        },
+      },
+      {
+        korean: '회사에 전화를 걸었어요.',
+        translations: {
+          ko: '회사에 전화해서 연락했어요.',
+          uz: 'Kompaniyaga qo‘ng‘iroq qildim.',
+          en: 'I called the company.',
+          ru: 'Я позвонил в компанию.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화를 걸다',
+      romanization: 'jeonhwareul geolda',
+      ttsText: '전화를 걸다',
+    },
+    media: {
+      emoji: '📞',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwareul-geolda.webp',
+      imageAlt: {
+        ko: '휴대전화로 전화를 거는 사람',
+        uz: 'telefon orqali qo‘ng‘iroq qilayotgan odam',
+        en: 'a person making a phone call',
+        ru: 'человек, совершающий телефонный звонок',
+      },
+    },
+    tags: ['communication', 'phone', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'N에게 전화를 걸다' 형태로 전화하는 상대를 나타내요.",
+      uz: "'N에게 전화를 걸다' qo‘ng‘iroq qilinayotgan odamni bildiradi.",
+      en: 'Use N에게 전화를 걸다 for the person being called.',
+      ru: 'Конструкция N에게 전화를 걸다 указывает человека, которому звонят.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_answer_phone_call_verb',
+    senseKey: 'communication-answer-phone-call',
     korean: '전화를 받다',
-    uz: 'qo‘ng‘iroqqa javob bermoq',
-    en: 'to answer a phone call',
-    ru: 'отвечать на звонок',
-    emoji: '📲',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '걸려 온 전화에 응답하다',
+      uz: 'qo‘ng‘iroqqa javob bermoq',
+      en: 'to answer a phone call',
+      ru: 'отвечать на звонок',
+    },
+    examples: [
+      {
+        korean: '지금 전화를 받을 수 있어요.',
+        translations: {
+          ko: '지금 걸려 온 전화에 응답할 수 있어요.',
+          uz: 'Hozir qo‘ng‘iroqqa javob bera olaman.',
+          en: 'I can answer the phone now.',
+          ru: 'Я могу сейчас ответить на звонок.',
+        },
+      },
+      {
+        korean: '회의 중이라서 전화를 못 받았어요.',
+        translations: {
+          ko: '회의를 하고 있어서 전화에 응답하지 못했어요.',
+          uz: 'Yig‘ilishda bo‘lganim uchun qo‘ng‘iroqqa javob bera olmadim.',
+          en: 'I could not answer the phone because I was in a meeting.',
+          ru: 'Я не смог ответить на звонок, потому что был на совещании.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화를 받다',
+      romanization: 'jeonhwareul batda',
+      ttsText: '전화를 받다',
+    },
+    media: {
+      emoji: '📲',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwareul-batda.webp',
+      imageAlt: {
+        ko: '걸려 온 전화를 받는 휴대전화',
+        uz: 'kiruvchi qo‘ng‘iroqqa javob berish',
+        en: 'answering an incoming phone call',
+        ru: 'ответ на входящий телефонный звонок',
+      },
+    },
+    tags: ['communication', 'phone', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'전화를 걸다'는 전화하기 시작하는 것, '전화를 받다'는 걸려 온 전화에 응답하는 것이에요.",
+      uz: "'전화를 걸다' qo‘ng‘iroq qilish, '전화를 받다' esa qo‘ng‘iroqqa javob berish.",
+      en: '전화를 걸다 means to call; 전화를 받다 means to answer an incoming call.',
+      ru: '전화를 걸다 означает звонить, а 전화를 받다 — отвечать на звонок.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_hang_up_phone_verb',
+    senseKey: 'communication-hang-up-phone',
     korean: '전화를 끊다',
-    uz: 'telefonni qo‘ymoq',
-    en: 'to hang up',
-    ru: 'заканчивать разговор',
-    emoji: '📴',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '전화 통화를 끝내다',
+      uz: 'telefonni qo‘ymoq',
+      en: 'to hang up',
+      ru: 'заканчивать разговор',
+    },
+    examples: [
+      {
+        korean: '이야기가 끝나서 전화를 끊었어요.',
+        translations: {
+          ko: '전화로 할 이야기가 끝나서 통화를 마쳤어요.',
+          uz: 'Gap tugagach telefonni qo‘ydim.',
+          en: 'I hung up after we finished talking.',
+          ru: 'Я положил трубку после окончания разговора.',
+        },
+      },
+      {
+        korean: '잠깐만요, 전화 끊지 마세요.',
+        translations: {
+          ko: '조금만 기다리고 통화를 끝내지 마세요.',
+          uz: 'Bir daqiqa, telefonni qo‘ymang.',
+          en: 'Wait a moment, please do not hang up.',
+          ru: 'Подождите, пожалуйста, не кладите трубку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화를 끊다',
+      romanization: 'jeonhwareul kkeunta',
+      ttsText: '전화를 끊다',
+    },
+    media: {
+      emoji: '📴',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwareul-kkeunta.webp',
+      imageAlt: {
+        ko: '전화 통화를 종료하는 모습',
+        uz: 'telefon suhbatini tugatish',
+        en: 'ending a phone call',
+        ru: 'завершение телефонного разговора',
+      },
+    },
+    tags: ['communication', 'phone', 'verb', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'끊다'는 여기서 전화 연결을 끝낸다는 뜻이에요.",
+      uz: "Bu yerda '끊다' telefon aloqasini tugatish ma’nosida.",
+      en: 'Here 끊다 means to end the phone connection.',
+      ru: 'Здесь 끊다 означает завершить телефонное соединение.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_put_someone_on_phone_verb',
+    senseKey: 'communication-transfer-phone-call',
     korean: '전화를 바꾸다',
-    uz: 'telefonni boshqa odamga bermoq',
-    en: 'to put someone on the phone',
-    ru: 'передавать трубку',
-    emoji: '🔄',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '통화할 사람을 다른 사람으로 바꾸어 전화를 넘겨주다',
+      uz: 'telefonni boshqa odamga bermoq',
+      en: 'to put someone on the phone',
+      ru: 'передавать трубку',
+    },
+    examples: [
+      {
+        korean: '김 선생님으로 전화를 바꿔 주세요.',
+        translations: {
+          ko: '김 선생님과 통화할 수 있게 전화를 넘겨 주세요.',
+          uz: 'Telefonni Kim o‘qituvchiga bering.',
+          en: 'Please put Mr. Kim on the phone.',
+          ru: 'Передайте трубку господину Киму, пожалуйста.',
+        },
+      },
+      {
+        korean: '잠시만요, 담당자에게 전화를 바꿔 드릴게요.',
+        translations: {
+          ko: '조금 기다리면 담당자와 통화할 수 있게 연결해 드릴게요.',
+          uz: 'Bir oz kuting, sizni mas’ul xodim bilan ulayman.',
+          en: 'One moment, I will put the person in charge on the phone.',
+          ru: 'Одну минуту, я передам трубку ответственному сотруднику.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화를 바꾸다',
+      romanization: 'jeonhwareul bakkuda',
+      ttsText: '전화를 바꾸다',
+    },
+    media: {
+      emoji: '🔄',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwareul-bakkuda.webp',
+      imageAlt: {
+        ko: '다른 사람에게 전화를 넘겨주는 모습',
+        uz: 'telefonni boshqa odamga uzatish',
+        en: 'passing a phone to another person',
+        ru: 'передача телефона другому человеку',
+      },
+    },
+    tags: ['communication', 'phone', 'transfer-call', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '회사 전화에서 다른 사람에게 통화를 연결할 때 자주 사용하는 표현이에요.',
+      uz: 'Ish telefonida qo‘ng‘iroqni boshqa odamga ulashda ko‘p ishlatiladi.',
+      en: 'Common when transferring a business call to another person.',
+      ru: 'Часто используется при переводе рабочего звонка на другого человека.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_send_text_message_verb',
+    senseKey: 'communication-send-text-message',
     korean: '문자를 보내다',
-    uz: 'xabar yubormoq',
-    en: 'to send a text message',
-    ru: 'отправлять сообщение',
-    emoji: '💬',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '휴대전화로 글 메시지를 다른 사람에게 전송하다',
+      uz: 'xabar yubormoq',
+      en: 'to send a text message',
+      ru: 'отправлять сообщение',
+    },
+    examples: [
+      {
+        korean: '친구에게 문자를 보내요.',
+        translations: {
+          ko: '친구의 휴대전화로 메시지를 보내요.',
+          uz: 'Do‘stimga xabar yuboraman.',
+          en: 'I send my friend a text message.',
+          ru: 'Я отправляю другу сообщение.',
+        },
+      },
+      {
+        korean: '늦는다고 문자를 보냈어요.',
+        translations: {
+          ko: '늦을 것이라고 문자로 알려 줬어요.',
+          uz: 'Kechikishimni xabar orqali aytdim.',
+          en: 'I sent a text saying that I would be late.',
+          ru: 'Я отправил сообщение, что опоздаю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '문자를 보내다',
+      romanization: 'munjareul bonaeda',
+      ttsText: '문자를 보내다',
+    },
+    media: {
+      emoji: '💬',
+      imageUrl: 'https://cdn.korio.app/words/munjareul-bonaeda.webp',
+      imageAlt: {
+        ko: '휴대전화로 문자 메시지를 보내는 모습',
+        uz: 'telefon orqali xabar yuborish',
+        en: 'sending a text message',
+        ru: 'отправка текстового сообщения',
+      },
+    },
+    tags: ['communication', 'message', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'N에게 문자를 보내다' 형태로 받을 사람을 나타내요.",
+      uz: "'N에게 문자를 보내다' xabar oladigan odamni bildiradi.",
+      en: 'Use N에게 문자를 보내다 for the recipient.',
+      ru: 'Конструкция N에게 문자를 보내다 указывает получателя.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_receive_text_message_verb',
+    senseKey: 'communication-receive-text-message',
     korean: '문자를 받다',
-    uz: 'xabar olmoq',
-    en: 'to receive a text message',
-    ru: 'получать сообщение',
-    emoji: '📩',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '다른 사람이 보낸 문자 메시지를 받다',
+      uz: 'xabar olmoq',
+      en: 'to receive a text message',
+      ru: 'получать сообщение',
+    },
+    examples: [
+      {
+        korean: '친구에게서 문자를 받았어요.',
+        translations: {
+          ko: '친구가 보낸 문자 메시지가 왔어요.',
+          uz: 'Do‘stimdan xabar oldim.',
+          en: 'I received a text message from my friend.',
+          ru: 'Я получил сообщение от друга.',
+        },
+      },
+      {
+        korean: '아침에 중요한 문자를 받았어요.',
+        translations: {
+          ko: '아침에 중요한 메시지가 휴대전화로 왔어요.',
+          uz: 'Ertalab muhim xabar oldim.',
+          en: 'I received an important text this morning.',
+          ru: 'Утром я получил важное сообщение.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '문자를 받다',
+      romanization: 'munjareul batda',
+      ttsText: '문자를 받다',
+    },
+    media: {
+      emoji: '📩',
+      imageUrl: 'https://cdn.korio.app/words/munjareul-batda.webp',
+      imageAlt: {
+        ko: '휴대전화에 도착한 문자 메시지',
+        uz: 'telefonga kelgan xabar',
+        en: 'a received text message',
+        ru: 'полученное текстовое сообщение',
+      },
+    },
+    tags: ['communication', 'message', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'N에게서 문자를 받다' 형태로 보낸 사람을 나타낼 수 있어요.",
+      uz: "'N에게서 문자를 받다' xabar yuborgan odamni bildiradi.",
+      en: 'Use N에게서 문자를 받다 for the sender.',
+      ru: 'Конструкция N에게서 문자를 받다 указывает отправителя.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_delete_text_message_verb',
+    senseKey: 'communication-delete-text-message',
     korean: '문자를 지우다',
-    uz: 'xabarni o‘chirmoq',
-    en: 'to delete a text message',
-    ru: 'удалять сообщение',
-    emoji: '🗑️',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '휴대전화에 있는 문자 메시지를 삭제하다',
+      uz: 'xabarni o‘chirmoq',
+      en: 'to delete a text message',
+      ru: 'удалять сообщение',
+    },
+    examples: [
+      {
+        korean: '필요 없는 문자를 지워요.',
+        translations: {
+          ko: '필요하지 않은 메시지를 삭제해요.',
+          uz: 'Keraksiz xabarlarni o‘chiraman.',
+          en: 'I delete unnecessary text messages.',
+          ru: 'Я удаляю ненужные сообщения.',
+        },
+      },
+      {
+        korean: '스팸 문자를 바로 지웠어요.',
+        translations: {
+          ko: '광고성 스팸 메시지를 바로 삭제했어요.',
+          uz: 'Spam xabarni darhol o‘chirdim.',
+          en: 'I deleted the spam text immediately.',
+          ru: 'Я сразу удалил спам-сообщение.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '문자를 지우다',
+      romanization: 'munjareul jiuda',
+      ttsText: '문자를 지우다',
+    },
+    media: {
+      emoji: '🗑️',
+      imageUrl: 'https://cdn.korio.app/words/munjareul-jiuda.webp',
+      imageAlt: {
+        ko: '휴대전화에서 문자를 삭제하는 모습',
+        uz: 'telefondan xabarni o‘chirish',
+        en: 'deleting a text message from a phone',
+        ru: 'удаление сообщения с телефона',
+      },
+    },
+    tags: ['communication', 'message', 'delete', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'지우다'는 글, 사진, 파일 등을 없앨 때도 사용해요.",
+      uz: "'지우다' matn, rasm va fayllarni o‘chirishda ham ishlatiladi.",
+      en: '지우다 is also used for deleting writing, photos, or files.',
+      ru: '지우다 также используется для удаления текста, фотографий и файлов.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_spam_text_message_noun',
+    senseKey: 'communication-spam-text-message',
     korean: '스팸 문자',
-    uz: 'spam xabar',
-    en: 'spam text message',
-    ru: 'спам-сообщение',
-    emoji: '🚫',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '원하지 않았는데 광고 등의 목적으로 보내지는 문자 메시지',
+      uz: 'spam xabar',
+      en: 'spam text message',
+      ru: 'спам-сообщение',
+    },
+    examples: [
+      {
+        korean: '스팸 문자가 자주 와요.',
+        translations: {
+          ko: '원하지 않는 광고 문자가 자주 와요.',
+          uz: 'Spam xabarlar tez-tez keladi.',
+          en: 'I often receive spam texts.',
+          ru: 'Мне часто приходят спам-сообщения.',
+        },
+      },
+      {
+        korean: '스팸 문자는 바로 지워요.',
+        translations: {
+          ko: '필요 없는 광고 문자는 바로 삭제해요.',
+          uz: 'Spam xabarlarni darhol o‘chiraman.',
+          en: 'I delete spam texts immediately.',
+          ru: 'Я сразу удаляю спам-сообщения.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '스팸 문자',
+      romanization: 'seupaem munja',
+      ttsText: '스팸 문자',
+    },
+    media: {
+      emoji: '🚫',
+      imageUrl: 'https://cdn.korio.app/words/seupaem-munja.webp',
+      imageAlt: {
+        ko: '차단 표시가 있는 스팸 문자',
+        uz: 'taqiqlash belgisi bilan spam xabar',
+        en: 'a blocked spam text message',
+        ru: 'заблокированное спам-сообщение',
+      },
+    },
+    tags: ['communication', 'spam', 'message', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'스팸 문자', '광고 문자'처럼 원하지 않는 메시지를 말할 때 사용해요.",
+      uz: 'Keraksiz reklama xabarlarini bildiradi.',
+      en: 'Used for unwanted advertising or promotional text messages.',
+      ru: 'Используется для нежелательных рекламных сообщений.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_target_group_noun',
+    senseKey: 'event-target-participants',
     korean: '대상',
-    uz: 'maqsadli guruh',
-    en: 'target group',
-    ru: 'целевая группа',
-    emoji: '🎯',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '어떤 행동이나 행사의 목표가 되는 사람이나 집단',
+      uz: 'maqsadli guruh',
+      en: 'target group',
+      ru: 'целевая группа',
+    },
+    examples: [
+      {
+        korean: '이 프로그램의 대상은 외국인 학생이에요.',
+        translations: {
+          ko: '이 프로그램은 외국인 학생을 위해 만들었어요.',
+          uz: 'Bu dastur chet ellik talabalar uchun.',
+          en: 'The target group for this program is foreign students.',
+          ru: 'Эта программа предназначена для иностранных студентов.',
+        },
+      },
+      {
+        korean: '참가 대상을 확인하세요.',
+        translations: {
+          ko: '누가 참가할 수 있는지 확인하세요.',
+          uz: 'Kimlar qatnasha olishini tekshiring.',
+          en: 'Please check who is eligible to participate.',
+          ru: 'Проверьте, кто может участвовать.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '대상',
+      romanization: 'daesang',
+      ttsText: '대상',
+    },
+    media: {
+      emoji: '🎯',
+      imageUrl: 'https://cdn.korio.app/words/daesang-target.webp',
+      imageAlt: {
+        ko: '목표 대상을 나타내는 과녁',
+        uz: 'maqsadli guruhni bildiruvchi nishon',
+        en: 'a target representing a target group',
+        ru: 'мишень, обозначающая целевую группу',
+      },
+    },
+    tags: ['event', 'target', 'participants', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'참가 대상', '지원 대상'처럼 어떤 조건에 해당하는 사람을 말할 때 자주 사용해요.",
+      uz: "'참가 대상', '지원 대상' kabi biror shartga mos odamlarni bildiradi.",
+      en: 'Common in expressions such as 참가 대상 and 지원 대상.',
+      ru: 'Часто используется в выражениях 참가 대상 и 지원 대상.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_place_noun',
+    senseKey: 'place-general',
     korean: '장소',
-    uz: 'joy',
-    en: 'place',
-    ru: 'место',
-    emoji: '📍',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람이나 물건이 있거나 어떤 일이 일어나는 곳',
+      uz: 'joy',
+      en: 'place',
+      ru: 'место',
+    },
+    examples: [
+      {
+        korean: '모임 장소가 어디예요?',
+        translations: {
+          ko: '모임을 하는 곳이 어디예요?',
+          uz: 'Uchrashuv joyi qayerda?',
+          en: 'Where is the meeting place?',
+          ru: 'Где место встречи?',
+        },
+      },
+      {
+        korean: '장소를 학생회관으로 정했어요.',
+        translations: {
+          ko: '행사를 할 곳을 학생회관으로 결정했어요.',
+          uz: 'Joy sifatida talabalar markazini tanladik.',
+          en: 'We chose the student center as the location.',
+          ru: 'Мы выбрали студенческий центр местом проведения.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '장소',
+      romanization: 'jangso',
+      ttsText: '장소',
+    },
+    media: {
+      emoji: '📍',
+      imageUrl: 'https://cdn.korio.app/words/jangso.webp',
+      imageAlt: {
+        ko: '장소를 나타내는 위치 표시',
+        uz: 'joyni bildiruvchi belgi',
+        en: 'a location marker representing a place',
+        ru: 'метка, обозначающая место',
+      },
+    },
+    tags: ['place', 'location', 'event', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'장소를 정하다', '장소가 어디예요?'처럼 사용해요.",
+      uz: "'장소를 정하다', '장소가 어디예요?' kabi ishlatiladi.",
+      en: 'Common expressions include 장소를 정하다 and 장소가 어디예요?',
+      ru: 'Частые выражения: 장소를 정하다 и 장소가 어디예요?',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_period_duration_noun',
+    senseKey: 'time-period-duration',
     korean: '기간',
-    uz: 'muddat',
-    en: 'period',
-    ru: 'период',
-    emoji: '📅',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '어떤 일이 계속되는 일정한 시간',
+      uz: 'muddat',
+      en: 'period',
+      ru: 'период',
+    },
+    examples: [
+      {
+        korean: '신청 기간은 일주일이에요.',
+        translations: {
+          ko: '신청할 수 있는 기간은 일주일이에요.',
+          uz: 'Ariza topshirish muddati bir hafta.',
+          en: 'The application period is one week.',
+          ru: 'Период подачи заявок составляет одну неделю.',
+        },
+      },
+      {
+        korean: '접수 기간을 확인하세요.',
+        translations: {
+          ko: '언제부터 언제까지 접수하는지 확인하세요.',
+          uz: 'Qabul muddatini tekshiring.',
+          en: 'Please check the registration period.',
+          ru: 'Проверьте период регистрации.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '기간',
+      romanization: 'gigan',
+      ttsText: '기간',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/gigan.webp',
+      imageAlt: {
+        ko: '기간이 표시된 달력',
+        uz: 'muddat ko‘rsatilgan taqvim',
+        en: 'a calendar showing a period',
+        ru: 'календарь с отмеченным периодом',
+      },
+    },
+    tags: ['time', 'duration', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'신청 기간', '접수 기간', '여행 기간'처럼 사용해요.",
+      uz: "'신청 기간', '접수 기간', '여행 기간' kabi ishlatiladi.",
+      en: 'Common combinations include 신청 기간, 접수 기간, and 여행 기간.',
+      ru: 'Частые сочетания: 신청 기간, 접수 기간 и 여행 기간.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_participation_fee_noun',
+    senseKey: 'event-participation-fee',
     korean: '참가비',
-    uz: 'ishtirok to‘lovi',
-    en: 'participation fee',
-    ru: 'взнос за участие',
-    emoji: '💵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '행사나 프로그램에 참가하기 위해 내는 돈',
+      uz: 'ishtirok to‘lovi',
+      en: 'participation fee',
+      ru: 'взнос за участие',
+    },
+    examples: [
+      {
+        korean: '참가비가 얼마예요?',
+        translations: {
+          ko: '행사에 참가하려면 얼마를 내야 해요?',
+          uz: 'Ishtirok to‘lovi qancha?',
+          en: 'How much is the participation fee?',
+          ru: 'Сколько составляет взнос за участие?',
+        },
+      },
+      {
+        korean: '참가비는 만 원이에요.',
+        translations: {
+          ko: '프로그램에 참가하는 비용은 만 원이에요.',
+          uz: 'Ishtirok to‘lovi 10 ming von.',
+          en: 'The participation fee is 10,000 won.',
+          ru: 'Взнос за участие составляет 10 000 вон.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '참가비',
+      romanization: 'chamgabi',
+      ttsText: '참가비',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: 'https://cdn.korio.app/words/chamgabi.webp',
+      imageAlt: {
+        ko: '행사 참가를 위해 내는 참가비',
+        uz: 'tadbir uchun ishtirok to‘lovi',
+        en: 'a participation fee for an event',
+        ru: 'взнос за участие в мероприятии',
+      },
+    },
+    tags: ['event', 'fee', 'money', 'participation', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'참가'와 비용을 뜻하는 '-비'가 결합된 말이에요.",
+      uz: "'참가' va xarajatni bildiruvchi '-비' birikmasi.",
+      en: 'A compound of 참가 and 비, meaning a participation cost.',
+      ru: 'Сочетание 참가 и 비, обозначающее плату за участие.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_submit_register_application_verb',
+    senseKey: 'administration-submit-register-application',
     korean: '접수하다',
-    uz: 'arizani qabul qilmoq / topshirmoq',
-    en: 'to submit / register',
-    ru: 'подавать / регистрировать',
-    emoji: '📨',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '신청서나 서류 등을 받아 공식적으로 처리하거나 제출하다',
+      uz: 'arizani qabul qilmoq / topshirmoq',
+      en: 'to submit / register',
+      ru: 'подавать / регистрировать',
+    },
+    examples: [
+      {
+        korean: '인터넷으로 신청서를 접수해요.',
+        translations: {
+          ko: '인터넷을 통해 신청서를 제출해요.',
+          uz: 'Arizani internet orqali topshiraman.',
+          en: 'I submit the application online.',
+          ru: 'Я подаю заявку через интернет.',
+        },
+      },
+      {
+        korean: '오늘부터 참가 신청을 접수합니다.',
+        translations: {
+          ko: '오늘부터 참가 신청서를 받습니다.',
+          uz: 'Bugundan boshlab ishtirok uchun arizalar qabul qilinadi.',
+          en: 'Applications for participation are accepted starting today.',
+          ru: 'С сегодняшнего дня принимаются заявки на участие.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '접수하다',
+      romanization: 'jeopsuhada',
+      ttsText: '접수하다',
+    },
+    media: {
+      emoji: '📨',
+      imageUrl: 'https://cdn.korio.app/words/jeopsuhada.webp',
+      imageAlt: {
+        ko: '신청서를 접수하는 모습',
+        uz: 'arizani qabul qilish',
+        en: 'submitting or receiving an application',
+        ru: 'подача или приём заявления',
+      },
+    },
+    tags: ['verb', 'application', 'registration', 'administration', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '신청하는 사람은 서류를 접수할 수 있고, 기관은 신청을 접수한다고도 말해요.',
+      uz: 'Ariza beruvchi hujjatni topshiradi, tashkilot esa uni qabul qiladi.',
+      en: 'It can be used for submitting an application or for an organization accepting one.',
+      ru: 'Может означать как подачу заявления, так и его приём организацией.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_inquire_verb',
+    senseKey: 'communication-inquire',
     korean: '문의하다',
-    uz: 'ma’lumot so‘ramoq',
-    en: 'to inquire',
-    ru: 'наводить справки',
-    emoji: '❓',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '궁금한 내용을 기관이나 사람에게 물어보다',
+      uz: 'ma’lumot so‘ramoq',
+      en: 'to inquire',
+      ru: 'наводить справки',
+    },
+    examples: [
+      {
+        korean: '자세한 내용은 전화로 문의하세요.',
+        translations: {
+          ko: '더 알고 싶은 내용은 전화로 물어보세요.',
+          uz: 'Batafsil ma’lumot uchun telefon orqali so‘rang.',
+          en: 'Please inquire by phone for more details.',
+          ru: 'За подробной информацией обращайтесь по телефону.',
+        },
+      },
+      {
+        korean: '참가비에 대해 문의했어요.',
+        translations: {
+          ko: '참가비가 얼마인지 물어봤어요.',
+          uz: 'Ishtirok to‘lovi haqida ma’lumot so‘radim.',
+          en: 'I inquired about the participation fee.',
+          ru: 'Я уточнил информацию о взносе за участие.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '문의하다',
+      romanization: 'munuihada',
+      ttsText: '문의하다',
+    },
+    media: {
+      emoji: '❓',
+      imageUrl: 'https://cdn.korio.app/words/munuihada.webp',
+      imageAlt: {
+        ko: '궁금한 내용을 문의하는 사람',
+        uz: 'ma’lumot so‘rayotgan odam',
+        en: 'a person making an inquiry',
+        ru: 'человек, запрашивающий информацию',
+      },
+    },
+    tags: ['verb', 'communication', 'inquiry', 'information', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'문의하다'는 안내문이나 공식적인 상황에서 '물어보다' 대신 자주 사용해요.",
+      uz: 'Rasmiy vaziyatlarda 물어보다 o‘rniga ko‘p ishlatiladi.',
+      en: 'A more formal word than 물어보다 and common in notices or customer service.',
+      ru: 'Более официальное слово, чем 물어보다, часто встречается в объявлениях.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_apply_verb',
+    senseKey: 'administration-apply',
     korean: '신청하다',
-    uz: 'ariza bermoq',
-    en: 'to apply',
-    ru: 'подавать заявку',
-    emoji: '📝',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '어떤 서비스나 행사 등에 참여하거나 이용하기 위해 요청하다',
+      uz: 'ariza bermoq',
+      en: 'to apply',
+      ru: 'подавать заявку',
+    },
+    examples: [
+      {
+        korean: '한국어 프로그램을 신청했어요.',
+        translations: {
+          ko: '한국어 프로그램에 참가하려고 신청했어요.',
+          uz: 'Koreys tili dasturiga ariza berdim.',
+          en: 'I applied for the Korean language program.',
+          ru: 'Я подал заявку на программу корейского языка.',
+        },
+      },
+      {
+        korean: '인터넷으로 참가를 신청하세요.',
+        translations: {
+          ko: '인터넷에서 참가 신청을 하세요.',
+          uz: 'Internet orqali qatnashish uchun ariza bering.',
+          en: 'Please apply to participate online.',
+          ru: 'Подайте заявку на участие через интернет.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '신청하다',
+      romanization: 'sincheonghada',
+      ttsText: '신청하다',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/sincheonghada.webp',
+      imageAlt: {
+        ko: '프로그램 참가를 신청하는 서류',
+        uz: 'dasturga ariza berish hujjati',
+        en: 'an application for a program',
+        ru: 'заявка на участие в программе',
+      },
+    },
+    tags: ['verb', 'application', 'event', 'administration', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수업을 신청하다', '참가를 신청하다', '서비스를 신청하다'처럼 사용해요.",
+      uz: "'수업을 신청하다', '참가를 신청하다' kabi ishlatiladi.",
+      en: 'Common objects include classes, participation, and services.',
+      ru: 'Часто используется с курсами, участием и услугами.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_student_center_noun',
+    senseKey: 'place-student-center',
     korean: '학생회관',
-    uz: 'talabalar markazi',
-    en: 'student center',
-    ru: 'студенческий центр',
-    emoji: '🏫',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '대학교에서 학생 활동과 편의 시설을 위해 사용하는 건물',
+      uz: 'talabalar markazi',
+      en: 'student center',
+      ru: 'студенческий центр',
+    },
+    examples: [
+      {
+        korean: '행사는 학생회관에서 열려요.',
+        translations: {
+          ko: '행사 장소는 학생회관이에요.',
+          uz: 'Tadbir talabalar markazida bo‘ladi.',
+          en: 'The event is held at the student center.',
+          ru: 'Мероприятие проходит в студенческом центре.',
+        },
+      },
+      {
+        korean: '학생회관 앞에서 만나요.',
+        translations: {
+          ko: '학생회관 건물 앞에서 만나요.',
+          uz: 'Talabalar markazi oldida uchrashamiz.',
+          en: 'Let’s meet in front of the student center.',
+          ru: 'Давайте встретимся перед студенческим центром.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '학생회관',
+      romanization: 'haksaenghoegwan',
+      ttsText: '학생회관',
+    },
+    media: {
+      emoji: '🏫',
+      imageUrl: 'https://cdn.korio.app/words/haksaenghoegwan.webp',
+      imageAlt: {
+        ko: '대학교 안의 학생회관',
+        uz: 'universitetdagi talabalar markazi',
+        en: 'a student center on a university campus',
+        ru: 'студенческий центр в университете',
+      },
+    },
+    tags: ['place', 'university', 'student', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '대학교 안에서 학생들이 모이거나 여러 서비스를 이용하는 건물을 말해요.',
+      uz: 'Universitetda talabalar yig‘iladigan va xizmatlardan foydalanadigan bino.',
+      en: 'A campus building for student activities and services.',
+      ru: 'Университетское здание для студенческих мероприятий и услуг.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_meeting_noun',
+    senseKey: 'work-meeting',
     korean: '회의',
-    uz: 'yig‘ilish',
-    en: 'meeting',
-    ru: 'совещание',
-    emoji: '👥',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '여러 사람이 모여 업무나 문제에 대해 이야기하는 모임',
+      uz: 'yig‘ilish',
+      en: 'meeting',
+      ru: 'совещание',
+    },
+    examples: [
+      {
+        korean: '오후에 회의가 있어요.',
+        translations: {
+          ko: '오후에 회사 사람들과 회의를 해요.',
+          uz: 'Tushdan keyin yig‘ilish bor.',
+          en: 'I have a meeting in the afternoon.',
+          ru: 'Во второй половине дня у меня совещание.',
+        },
+      },
+      {
+        korean: '지금 회의 중이에요.',
+        translations: {
+          ko: '지금 여러 사람과 업무 이야기를 하고 있어요.',
+          uz: 'Hozir yig‘ilishdaman.',
+          en: 'I am in a meeting now.',
+          ru: 'Я сейчас на совещании.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '회의',
+      romanization: 'hoeui',
+      ttsText: '회의',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: 'https://cdn.korio.app/words/hoeui.webp',
+      imageAlt: {
+        ko: '회의실에서 회의하는 사람들',
+        uz: 'yig‘ilishdagi odamlar',
+        en: 'people having a meeting',
+        ru: 'люди на совещании',
+      },
+    },
+    tags: ['work', 'meeting', 'office', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'회의가 있다', '회의를 하다', '회의 중이다'처럼 사용해요.",
+      uz: "'회의가 있다', '회의를 하다' kabi ishlatiladi.",
+      en: 'Common expressions include 회의가 있다, 회의를 하다, and 회의 중이다.',
+      ru: 'Частые выражения: 회의가 있다, 회의를 하다 и 회의 중이다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_construction_work_noun',
+    senseKey: 'work-construction',
     korean: '공사',
-    uz: 'qurilish ishlari',
-    en: 'construction',
-    ru: 'строительные работы',
-    emoji: '🚧',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '건물이나 도로 등을 새로 만들거나 고치는 작업',
+      uz: 'qurilish ishlari',
+      en: 'construction',
+      ru: 'строительные работы',
+    },
+    examples: [
+      {
+        korean: '건물 앞에서 공사를 하고 있어요.',
+        translations: {
+          ko: '건물 앞에서 시설을 만들거나 고치는 작업을 하고 있어요.',
+          uz: 'Bino oldida qurilish ishlari ketmoqda.',
+          en: 'Construction work is being done in front of the building.',
+          ru: 'Перед зданием идут строительные работы.',
+        },
+      },
+      {
+        korean: '공사 때문에 길이 막혔어요.',
+        translations: {
+          ko: '도로 공사 때문에 길을 지나가기 어려워요.',
+          uz: 'Qurilish tufayli yo‘l yopildi.',
+          en: 'The road is blocked because of construction.',
+          ru: 'Дорога перекрыта из-за строительных работ.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '공사',
+      romanization: 'gongsa',
+      ttsText: '공사',
+    },
+    media: {
+      emoji: '🚧',
+      imageUrl: 'https://cdn.korio.app/words/gongsa-construction.webp',
+      imageAlt: {
+        ko: '도로에서 진행 중인 공사',
+        uz: 'yo‘lda ketayotgan qurilish ishlari',
+        en: 'road construction work',
+        ru: 'дорожные строительные работы',
+      },
+    },
+    tags: ['construction', 'road', 'building', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'공사 중', '도로 공사', '건물 공사'처럼 자주 사용해요.",
+      uz: "'공사 중', '도로 공사' kabi ishlatiladi.",
+      en: 'Common expressions include 공사 중, 도로 공사, and 건물 공사.',
+      ru: 'Частые выражения: 공사 중, 도로 공사 и 건물 공사.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_business_trip_noun',
+    senseKey: 'work-business-trip',
     korean: '출장',
-    uz: 'xizmat safari',
-    en: 'business trip',
-    ru: 'командировка',
-    emoji: '💼',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '업무를 위해 평소 일하는 곳이 아닌 다른 지역으로 가는 것',
+      uz: 'xizmat safari',
+      en: 'business trip',
+      ru: 'командировка',
+    },
+    examples: [
+      {
+        korean: '다음 주에 부산으로 출장 가요.',
+        translations: {
+          ko: '업무 때문에 다음 주에 부산으로 가요.',
+          uz: 'Keyingi hafta Busanga xizmat safariga boraman.',
+          en: 'I am going on a business trip to Busan next week.',
+          ru: 'На следующей неделе я еду в командировку в Пусан.',
+        },
+      },
+      {
+        korean: '사장님은 지금 출장 중이에요.',
+        translations: {
+          ko: '사장님은 지금 업무 때문에 다른 지역에 가 계세요.',
+          uz: 'Direktor hozir xizmat safarida.',
+          en: 'The boss is currently on a business trip.',
+          ru: 'Директор сейчас в командировке.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '출장',
+      romanization: 'chuljang',
+      ttsText: '출장',
+    },
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/chuljang.webp',
+      imageAlt: {
+        ko: '업무 가방을 들고 출장 가는 직장인',
+        uz: 'xizmat safariga ketayotgan xodim',
+        en: 'an employee leaving on a business trip',
+        ru: 'сотрудник, отправляющийся в командировку',
+      },
+    },
+    tags: ['work', 'business-trip', 'travel', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'출장을 가다', '출장 중이다'처럼 사용해요.",
+      uz: "'출장을 가다', '출장 중이다' kabi ishlatiladi.",
+      en: 'Common expressions include 출장을 가다 and 출장 중이다.',
+      ru: 'Частые выражения: 출장을 가다 и 출장 중이다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_repair_noun',
+    senseKey: 'service-repair',
     korean: '수리',
-    uz: 'ta’mirlash',
-    en: 'repair',
-    ru: 'ремонт',
-    emoji: '🔧',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '고장 나거나 망가진 물건을 고치는 것',
+      uz: 'ta’mirlash',
+      en: 'repair',
+      ru: 'ремонт',
+    },
+    examples: [
+      {
+        korean: '휴대 전화를 수리하고 있어요.',
+        translations: {
+          ko: '고장 난 휴대 전화를 고치고 있어요.',
+          uz: 'Mobil telefonni ta’mirlatyapman.',
+          en: 'My mobile phone is being repaired.',
+          ru: 'Мой мобильный телефон ремонтируют.',
+        },
+      },
+      {
+        korean: '수리가 언제 끝나요?',
+        translations: {
+          ko: '고치는 일이 언제 끝나요?',
+          uz: 'Ta’mirlash qachon tugaydi?',
+          en: 'When will the repair be finished?',
+          ru: 'Когда закончится ремонт?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '수리',
+      romanization: 'suri',
+      ttsText: '수리',
+    },
+    media: {
+      emoji: '🔧',
+      imageUrl: 'https://cdn.korio.app/words/suri-repair.webp',
+      imageAlt: {
+        ko: '고장 난 물건을 수리하는 공구',
+        uz: 'ta’mirlash uchun asbob',
+        en: 'a tool used for repairs',
+        ru: 'инструмент для ремонта',
+      },
+    },
+    tags: ['repair', 'service', 'device', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "동사형은 '수리하다'예요.",
+      uz: "Fe’l shakli '수리하다'.",
+      en: 'The verb form is 수리하다.',
+      ru: 'Глагольная форма — 수리하다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_be_out_noun',
+    senseKey: 'daily-life-being-out',
     korean: '외출',
-    uz: 'tashqariga chiqish',
-    en: 'being out',
-    ru: 'отлучка',
-    emoji: '🚶',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '집이나 사무실 등에서 밖으로 나가는 것',
+      uz: 'tashqariga chiqish',
+      en: 'being out',
+      ru: 'отлучка',
+    },
+    examples: [
+      {
+        korean: '사장님은 지금 외출 중이에요.',
+        translations: {
+          ko: '사장님은 지금 사무실 밖에 나가 계세요.',
+          uz: 'Direktor hozir tashqarida.',
+          en: 'The boss is out right now.',
+          ru: 'Директор сейчас вышел.',
+        },
+      },
+      {
+        korean: '오후에 잠깐 외출했어요.',
+        translations: {
+          ko: '오후에 잠깐 밖에 나갔다 왔어요.',
+          uz: 'Tushdan keyin biroz tashqariga chiqdim.',
+          en: 'I went out briefly in the afternoon.',
+          ru: 'Днём я ненадолго вышел.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '외출',
+      romanization: 'oechul',
+      ttsText: '외출',
+    },
+    media: {
+      emoji: '🚶',
+      imageUrl: 'https://cdn.korio.app/words/oechul.webp',
+      imageAlt: {
+        ko: '건물 밖으로 외출하는 사람',
+        uz: 'binodan tashqariga chiqayotgan odam',
+        en: 'a person going out',
+        ru: 'человек, выходящий из здания',
+      },
+    },
+    tags: ['daily-life', 'outing', 'office', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'외출하다', '외출 중이다'처럼도 사용해요.",
+      uz: "'외출하다', '외출 중이다' kabi ham ishlatiladi.",
+      en: 'The forms 외출하다 and 외출 중이다 are also common.',
+      ru: 'Также часто используются 외출하다 и 외출 중이다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_screening_noun',
+    senseKey: 'media-screening',
     korean: '상영',
-    uz: 'namoyish',
-    en: 'screening',
-    ru: 'показ',
-    emoji: '🎬',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '영화나 영상을 화면에 보여 주는 것',
+      uz: 'namoyish',
+      en: 'screening',
+      ru: 'показ',
+    },
+    examples: [
+      {
+        korean: '영화 상영이 오후 두 시에 시작해요.',
+        translations: {
+          ko: '영화를 보여 주는 시간이 오후 두 시에 시작돼요.',
+          uz: 'Film namoyishi soat ikkida boshlanadi.',
+          en: 'The movie screening starts at 2 p.m.',
+          ru: 'Показ фильма начинается в два часа дня.',
+        },
+      },
+      {
+        korean: '오늘은 무료 상영이 있어요.',
+        translations: {
+          ko: '오늘은 돈을 내지 않고 볼 수 있는 영화 상영이 있어요.',
+          uz: 'Bugun bepul namoyish bor.',
+          en: 'There is a free screening today.',
+          ru: 'Сегодня есть бесплатный показ.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '상영',
+      romanization: 'sangyeong',
+      ttsText: '상영',
+    },
+    media: {
+      emoji: '🎬',
+      imageUrl: 'https://cdn.korio.app/words/sangyeong.webp',
+      imageAlt: {
+        ko: '영화를 상영하는 영화관 화면',
+        uz: 'film namoyish qilinayotgan ekran',
+        en: 'a movie screening on a cinema screen',
+        ru: 'показ фильма на экране кинотеатра',
+      },
+    },
+    tags: ['media', 'movie', 'screening', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'영화를 상영하다', '상영 시간', '무료 상영'처럼 사용해요.",
+      uz: "'상영 시간', '무료 상영' kabi ishlatiladi.",
+      en: 'Common expressions include 영화 상영, 상영 시간, and 무료 상영.',
+      ru: 'Частые выражения: 영화 상영, 상영 시간 и 무료 상영.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_vacation_noun',
+    senseKey: 'time-work-vacation',
     korean: '휴가',
-    uz: 'ta’til',
-    en: 'vacation',
-    ru: 'отпуск',
-    emoji: '🏖️',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '직장이나 일에서 일정 기간 쉬는 것',
+      uz: 'ta’til',
+      en: 'vacation',
+      ru: 'отпуск',
+    },
+    examples: [
+      {
+        korean: '다음 주부터 휴가예요.',
+        translations: {
+          ko: '다음 주부터 일을 쉬어요.',
+          uz: 'Keyingi haftadan ta’tildaman.',
+          en: 'I am on vacation starting next week.',
+          ru: 'Со следующей недели я в отпуске.',
+        },
+      },
+      {
+        korean: '휴가 중에는 회사에 없어요.',
+        translations: {
+          ko: '휴가를 보내는 동안에는 출근하지 않아요.',
+          uz: 'Ta’til paytida ofisda bo‘lmayman.',
+          en: 'I am not at the office while on vacation.',
+          ru: 'Во время отпуска меня нет в офисе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '휴가',
+      romanization: 'hyuga',
+      ttsText: '휴가',
+    },
+    media: {
+      emoji: '🏖️',
+      imageUrl: 'https://cdn.korio.app/words/hyuga.webp',
+      imageAlt: {
+        ko: '일을 쉬며 휴가를 보내는 모습',
+        uz: 'ta’tilni o‘tkazayotgan odam',
+        en: 'a person enjoying a vacation',
+        ru: 'человек в отпуске',
+      },
+    },
+    tags: ['time', 'vacation', 'work', 'travel', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'휴가를 가다', '휴가 중이다'처럼 사용해요.",
+      uz: "'휴가를 가다', '휴가 중이다' kabi ishlatiladi.",
+      en: 'Common expressions include 휴가를 가다 and 휴가 중이다.',
+      ru: 'Частые выражения: 휴가를 가다 и 휴가 중이다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_later_adverb',
+    senseKey: 'time-later-shortly',
     korean: '이따가',
-    uz: 'birozdan keyin',
-    en: 'later',
-    ru: 'чуть позже',
-    emoji: '⏳',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: {
+      ko: '지금부터 얼마 지나지 않은 뒤에',
+      uz: 'birozdan keyin',
+      en: 'later',
+      ru: 'чуть позже',
+    },
+    examples: [
+      {
+        korean: '이따가 전화할게요.',
+        translations: {
+          ko: '조금 후에 전화할게요.',
+          uz: 'Birozdan keyin qo‘ng‘iroq qilaman.',
+          en: 'I will call you later.',
+          ru: 'Я позвоню чуть позже.',
+        },
+      },
+      {
+        korean: '이따가 다시 이야기해요.',
+        translations: {
+          ko: '조금 시간이 지난 후 다시 이야기해요.',
+          uz: 'Birozdan keyin yana gaplashamiz.',
+          en: 'Let’s talk again later.',
+          ru: 'Давайте поговорим позже.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '이따가',
+      romanization: 'ittaga',
+      ttsText: '이따가',
+    },
+    media: {
+      emoji: '⏳',
+      imageUrl: 'https://cdn.korio.app/words/ittaga.webp',
+      imageAlt: {
+        ko: '조금 뒤를 나타내는 모래시계',
+        uz: 'birozdan keyinni bildiruvchi qum soati',
+        en: 'an hourglass representing later',
+        ru: 'песочные часы, обозначающие «позже»',
+      },
+    },
+    tags: ['adverb', 'time', 'later', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'나중에'보다 비교적 가까운 미래를 말할 때 자주 사용해요.",
+      uz: "'나중에'ga qaraganda yaqinroq kelajak uchun ko‘p ishlatiladi.",
+      en: 'Often refers to a relatively short time later, compared with 나중에.',
+      ru: 'Часто обозначает более близкое будущее, чем 나중에.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_ginger_tea_noun',
+    senseKey: 'drink-ginger-tea',
     korean: '생강차',
-    uz: 'zanjabil choyi',
-    en: 'ginger tea',
-    ru: 'имбирный чай',
-    emoji: '🍵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '생강을 넣어 만든 따뜻한 차',
+      uz: 'zanjabil choyi',
+      en: 'ginger tea',
+      ru: 'имбирный чай',
+    },
+    examples: [
+      {
+        korean: '감기에 걸려서 생강차를 마셔요.',
+        translations: {
+          ko: '감기 때문에 따뜻한 생강차를 마셔요.',
+          uz: 'Shamollaganim uchun zanjabil choyi ichaman.',
+          en: 'I drink ginger tea because I have a cold.',
+          ru: 'Я пью имбирный чай, потому что простудился.',
+        },
+      },
+      {
+        korean: '생강차가 따뜻하고 맛있어요.',
+        translations: {
+          ko: '생강으로 만든 차가 따뜻하고 맛이 좋아요.',
+          uz: 'Zanjabil choyi iliq va mazali.',
+          en: 'The ginger tea is warm and delicious.',
+          ru: 'Имбирный чай тёплый и вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '생강차',
+      romanization: 'saenggangcha',
+      ttsText: '생강차',
+    },
+    media: {
+      emoji: '🍵',
+      imageUrl: 'https://cdn.korio.app/words/saenggangcha.webp',
+      imageAlt: {
+        ko: '따뜻한 생강차 한 잔',
+        uz: 'bir piyola issiq zanjabil choyi',
+        en: 'a cup of warm ginger tea',
+        ru: 'чашка тёплого имбирного чая',
+      },
+    },
+    tags: ['drink', 'tea', 'ginger', 'health', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'생강'과 차를 뜻하는 '차'가 합쳐진 말이에요.",
+      uz: "'생강' zanjabil va '차' choy so‘zlaridan tuzilgan.",
+      en: 'A compound of 생강, ginger, and 차, tea.',
+      ru: 'Слово состоит из 생강 «имбирь» и 차 «чай».',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_register_verb',
+    senseKey: 'administration-register',
     korean: '등록하다',
-    uz: 'ro‘yxatdan o‘tmoq',
-    en: 'to register',
-    ru: 'регистрироваться',
-    emoji: '📝',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '이름이나 정보를 공식적인 명단이나 시스템에 올리다',
+      uz: 'ro‘yxatdan o‘tmoq',
+      en: 'to register',
+      ru: 'регистрироваться',
+    },
+    examples: [
+      {
+        korean: '프로그램에 등록했어요.',
+        translations: {
+          ko: '프로그램에 참가하려고 정보를 등록했어요.',
+          uz: 'Dasturga ro‘yxatdan o‘tdim.',
+          en: 'I registered for the program.',
+          ru: 'Я зарегистрировался на программу.',
+        },
+      },
+      {
+        korean: '인터넷으로 등록할 수 있어요.',
+        translations: {
+          ko: '인터넷을 이용해서 등록할 수 있어요.',
+          uz: 'Internet orqali ro‘yxatdan o‘tish mumkin.',
+          en: 'You can register online.',
+          ru: 'Можно зарегистрироваться через интернет.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '등록하다',
+      romanization: 'deungnokhada',
+      ttsText: '등록하다',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/deungnokhada.webp',
+      imageAlt: {
+        ko: '등록 정보를 작성하는 사람',
+        uz: 'ro‘yxatdan o‘tish ma’lumotlarini yozayotgan odam',
+        en: 'a person filling out registration information',
+        ru: 'человек, заполняющий регистрационные данные',
+      },
+    },
+    tags: ['verb', 'registration', 'administration', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수업에 등록하다', '프로그램에 등록하다'처럼 사용해요.",
+      uz: "'수업에 등록하다', '프로그램에 등록하다' kabi ishlatiladi.",
+      en: 'Common expressions include 수업에 등록하다 and 프로그램에 등록하다.',
+      ru: 'Частые выражения: 수업에 등록하다 и 프로그램에 등록하다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_passport_noun',
+    senseKey: 'travel-passport',
     korean: '여권',
-    uz: 'pasport',
-    en: 'passport',
-    ru: 'паспорт',
-    emoji: '🛂',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '외국을 여행할 때 신분과 국적을 증명하는 문서',
+      uz: 'pasport',
+      en: 'passport',
+      ru: 'паспорт',
+    },
+    examples: [
+      {
+        korean: '등록할 때 여권이 필요해요.',
+        translations: {
+          ko: '등록 절차를 할 때 여권을 준비해야 해요.',
+          uz: 'Ro‘yxatdan o‘tishda pasport kerak.',
+          en: 'You need a passport when registering.',
+          ru: 'При регистрации нужен паспорт.',
+        },
+      },
+      {
+        korean: '여권과 사진을 가져오세요.',
+        translations: {
+          ko: '필요한 서류로 여권과 사진을 준비하세요.',
+          uz: 'Pasport va fotosuratni olib keling.',
+          en: 'Please bring your passport and a photo.',
+          ru: 'Принесите паспорт и фотографию.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '여권',
+      romanization: 'yeogwon',
+      ttsText: '여권',
+    },
+    media: {
+      emoji: '🛂',
+      imageUrl: 'https://cdn.korio.app/words/yeogwon.webp',
+      imageAlt: {
+        ko: '신분과 국적을 증명하는 여권',
+        uz: 'shaxs va fuqarolikni tasdiqlovchi pasport',
+        en: 'a passport for identification and travel',
+        ru: 'паспорт для подтверждения личности и путешествий',
+      },
+    },
+    tags: ['travel', 'passport', 'document', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'여권을 보여 주다', '여권을 가져오다'처럼 사용해요.",
+      uz: "'여권을 보여 주다', '여권을 가져오다' kabi ishlatiladi.",
+      en: 'Common expressions include 여권을 보여 주다 and 여권을 가져오다.',
+      ru: 'Частые выражения: 여권을 보여 주다 и 여권을 가져오다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_photo_noun',
+    senseKey: 'media-photo',
     korean: '사진',
-    uz: 'fotosurat',
-    en: 'photo',
-    ru: 'фотография',
-    emoji: '📷',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '카메라로 사람이나 사물의 모습을 찍어 만든 이미지',
+      uz: 'fotosurat',
+      en: 'photo',
+      ru: 'фотография',
+    },
+    examples: [
+      {
+        korean: '여권 사진을 찍었어요.',
+        translations: {
+          ko: '여권에 사용할 사진을 찍었어요.',
+          uz: 'Pasport uchun suratga tushdim.',
+          en: 'I took a passport photo.',
+          ru: 'Я сделал фотографию на паспорт.',
+        },
+      },
+      {
+        korean: '신청서에 사진을 붙이세요.',
+        translations: {
+          ko: '신청서에 자신의 사진을 붙여 주세요.',
+          uz: 'Arizaga fotosuratni yopishtiring.',
+          en: 'Attach a photo to the application form.',
+          ru: 'Приклейте фотографию к заявлению.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '사진',
+      romanization: 'sajin',
+      ttsText: '사진',
+    },
+    media: {
+      emoji: '📷',
+      imageUrl: 'https://cdn.korio.app/words/sajin.webp',
+      imageAlt: {
+        ko: '카메라로 찍은 사진',
+        uz: 'kamera bilan olingan fotosurat',
+        en: 'a photograph taken with a camera',
+        ru: 'фотография, сделанная камерой',
+      },
+    },
+    tags: ['photo', 'camera', 'document', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'사진을 찍다', '사진을 붙이다', '사진을 보다'처럼 사용해요.",
+      uz: "'사진을 찍다', '사진을 붙이다' kabi ishlatiladi.",
+      en: 'Common expressions include 사진을 찍다, 사진을 붙이다, and 사진을 보다.',
+      ru: 'Частые выражения: 사진을 찍다, 사진을 붙이다 и 사진을 보다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_samulnori_noun',
+    senseKey: 'culture-korean-samulnori',
     korean: '사물놀이',
-    uz: 'samulnori',
-    en: 'samulnori',
-    ru: 'самульнори',
-    emoji: '🥁',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '네 가지 전통 타악기로 연주하는 한국의 전통 음악 공연',
+      uz: 'samulnori',
+      en: 'samulnori',
+      ru: 'самульнори',
+    },
+    examples: [
+      {
+        korean: '학교에서 사물놀이를 배워요.',
+        translations: {
+          ko: '학교에서 한국 전통 타악기 연주를 배워요.',
+          uz: 'Maktabda samulnorini o‘rganaman.',
+          en: 'I learn samulnori at school.',
+          ru: 'Я изучаю самульнори в школе.',
+        },
+      },
+      {
+        korean: '사물놀이 공연을 봤어요.',
+        translations: {
+          ko: '한국 전통 타악기 공연을 구경했어요.',
+          uz: 'Samulnori tomoshasini ko‘rdim.',
+          en: 'I watched a samulnori performance.',
+          ru: 'Я посмотрел выступление самульнори.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '사물놀이',
+      romanization: 'samullori',
+      ttsText: '사물놀이',
+    },
+    media: {
+      emoji: '🥁',
+      imageUrl: 'https://cdn.korio.app/words/samullori.webp',
+      imageAlt: {
+        ko: '한국 전통 타악기를 연주하는 사물놀이 공연',
+        uz: 'koreys an’anaviy zarbli cholg‘ulari bilan samulnori',
+        en: 'a samulnori performance with Korean percussion instruments',
+        ru: 'выступление самульнори с корейскими ударными инструментами',
+      },
+    },
+    tags: ['culture', 'music', 'traditional', 'korea', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '꽹과리, 징, 장구, 북의 네 가지 전통 타악기를 중심으로 연주해요.',
+      uz: 'Asosan kkwaenggwari, jing, janggu va buk kabi to‘rt zarbli asbob bilan ijro etiladi.',
+      en: 'It is traditionally performed with four main percussion instruments: kkwaenggwari, jing, janggu, and buk.',
+      ru: 'Традиционно исполняется на четырёх основных ударных инструментах: кквэнгвари, чин, чангу и пук.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_free_of_charge_noun',
+    senseKey: 'price-free-of-charge',
     korean: '무료',
-    uz: 'bepul',
-    en: 'free of charge',
-    ru: 'бесплатно',
-    emoji: '🆓',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돈을 내지 않아도 되는 것',
+      uz: 'bepul',
+      en: 'free of charge',
+      ru: 'бесплатно',
+    },
+    examples: [
+      {
+        korean: '이 공연은 무료예요.',
+        translations: {
+          ko: '이 공연은 돈을 내지 않고 볼 수 있어요.',
+          uz: 'Bu tomosha bepul.',
+          en: 'This performance is free.',
+          ru: 'Этот концерт бесплатный.',
+        },
+      },
+      {
+        korean: '학생은 무료로 참가할 수 있어요.',
+        translations: {
+          ko: '학생은 참가비를 내지 않아도 돼요.',
+          uz: 'Talabalar bepul qatnasha oladi.',
+          en: 'Students can participate for free.',
+          ru: 'Студенты могут участвовать бесплатно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '무료',
+      romanization: 'muryo',
+      ttsText: '무료',
+    },
+    media: {
+      emoji: '🆓',
+      imageUrl: 'https://cdn.korio.app/words/muryo.webp',
+      imageAlt: {
+        ko: '돈을 내지 않는 무료 서비스',
+        uz: 'bepul xizmat',
+        en: 'a free service',
+        ru: 'бесплатная услуга',
+      },
+    },
+    tags: ['price', 'free', 'service', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "반대말은 돈을 내야 하는 '유료'예요.",
+      uz: "Qarama-qarshisi '유료' — pullik.",
+      en: 'The opposite is 유료, meaning paid.',
+      ru: 'Антоним — 유료, то есть платный.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_musical_instrument_noun',
+    senseKey: 'music-musical-instrument',
     korean: '악기',
-    uz: 'musiqa asbobi',
-    en: 'musical instrument',
-    ru: 'музыкальный инструмент',
-    emoji: '🎵',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '음악 소리를 내기 위해 사용하는 도구',
+      uz: 'musiqa asbobi',
+      en: 'musical instrument',
+      ru: 'музыкальный инструмент',
+    },
+    examples: [
+      {
+        korean: '어떤 악기를 연주할 수 있어요?',
+        translations: {
+          ko: '어떤 음악 도구를 연주할 수 있어요?',
+          uz: 'Qaysi musiqa asbobini chala olasiz?',
+          en: 'What musical instrument can you play?',
+          ru: 'На каком музыкальном инструменте вы умеете играть?',
+        },
+      },
+      {
+        korean: '사물놀이에는 네 가지 악기를 사용해요.',
+        translations: {
+          ko: '사물놀이에서는 네 종류의 전통 타악기를 연주해요.',
+          uz: 'Samulnorida to‘rt xil musiqa asbobi ishlatiladi.',
+          en: 'Samulnori uses four kinds of instruments.',
+          ru: 'В самульнори используются четыре вида инструментов.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '악기',
+      romanization: 'akgi',
+      ttsText: '악기',
+    },
+    media: {
+      emoji: '🎵',
+      imageUrl: 'https://cdn.korio.app/words/akgi.webp',
+      imageAlt: {
+        ko: '여러 종류의 음악 악기',
+        uz: 'turli musiqa asboblari',
+        en: 'different musical instruments',
+        ru: 'разные музыкальные инструменты',
+      },
+    },
+    tags: ['music', 'instrument', 'culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'악기를 연주하다', '악기를 배우다'처럼 사용해요.",
+      uz: "'악기를 연주하다', '악기를 배우다' kabi ishlatiladi.",
+      en: 'Common expressions include 악기를 연주하다 and 악기를 배우다.',
+      ru: 'Частые выражения: 악기를 연주하다 и 악기를 배우다.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_janggu_noun',
+    senseKey: 'culture-instrument-janggu',
     korean: '장구',
-    uz: 'janggu',
-    en: 'janggu',
-    ru: 'чангу',
-    emoji: '🥁',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '가운데가 잘록하고 양쪽에 가죽을 댄 한국의 전통 타악기',
+      uz: 'janggu',
+      en: 'janggu',
+      ru: 'чангу',
+    },
+    examples: [
+      {
+        korean: '장구를 배우고 있어요.',
+        translations: {
+          ko: '한국 전통 악기인 장구 연주를 배우고 있어요.',
+          uz: 'Janggu chalishni o‘rganayapman.',
+          en: 'I am learning to play the janggu.',
+          ru: 'Я учусь играть на чангу.',
+        },
+      },
+      {
+        korean: '사물놀이에서 장구를 쳐요.',
+        translations: {
+          ko: '사물놀이 공연에서 장구를 연주해요.',
+          uz: 'Samulnorida janggu chalaman.',
+          en: 'I play the janggu in samulnori.',
+          ru: 'Я играю на чангу в самульнори.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '장구',
+      romanization: 'janggu',
+      ttsText: '장구',
+    },
+    media: {
+      emoji: '🥁',
+      imageUrl: 'https://cdn.korio.app/words/janggu.webp',
+      imageAlt: {
+        ko: '모래시계 모양의 한국 전통 악기 장구',
+        uz: 'qum soati shaklidagi koreys janggu asbobi',
+        en: 'a Korean hourglass-shaped janggu drum',
+        ru: 'корейский барабан чангу в форме песочных часов',
+      },
+    },
+    tags: ['culture', 'music', 'instrument', 'traditional', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "'장구를 치다'라고 말하며 사물놀이의 대표적인 악기 중 하나예요.",
+      uz: "'장구를 치다' deyiladi va samulnorining asosiy asboblaridan biri.",
+      en: 'The usual expression is 장구를 치다. It is one of the main instruments in samulnori.',
+      ru: 'Обычно говорят 장구를 치다. Это один из основных инструментов самульнори.',
+    },
+    isCore: true,
+    isActive: true,
   },
+
   {
+    code: 'word_of_course_adjective',
+    senseKey: 'conversation-of-course',
     korean: '물론이다',
-    uz: 'albatta',
-    en: 'of course',
-    ru: 'конечно',
-    emoji: '👌',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: {
+      ko: '말할 필요도 없을 만큼 당연하다',
+      uz: 'albatta',
+      en: 'of course',
+      ru: 'конечно',
+    },
+    examples: [
+      {
+        korean: '물론이죠. 같이 갈게요.',
+        translations: {
+          ko: '당연하죠. 같이 갈게요.',
+          uz: 'Albatta. Birga boraman.',
+          en: 'Of course. I will go with you.',
+          ru: 'Конечно. Я пойду вместе с вами.',
+        },
+      },
+      {
+        korean: '학생도 참가할 수 있어요? 물론이에요.',
+        translations: {
+          ko: '학생도 참가할 수 있냐고요? 당연히 가능해요.',
+          uz: 'Talabalar ham qatnasha oladimi? Albatta.',
+          en: 'Can students participate too? Of course.',
+          ru: 'Студенты тоже могут участвовать? Конечно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '물론이다',
+      romanization: 'mullonida',
+      ttsText: '물론이다',
+    },
+    media: {
+      emoji: '👌',
+      imageUrl: 'https://cdn.korio.app/words/mullonida.webp',
+      imageAlt: {
+        ko: '당연히 가능하다는 뜻의 긍정 손짓',
+        uz: 'albatta degan ma’nodagi tasdiq ishorasi',
+        en: 'a gesture meaning of course',
+        ru: 'жест, означающий «конечно»',
+      },
+    },
+    tags: ['conversation', 'agreement', 'expression', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: "회화에서는 '물론이에요', '물론이죠', 또는 부사형 '물론'을 많이 사용해요.",
+      uz: "Suhbatda '물론이에요', '물론이죠' va '물론' ko‘p ishlatiladi.",
+      en: 'In conversation, 물론이에요, 물론이죠, and simply 물론 are common.',
+      ru: 'В разговорной речи часто используются 물론이에요, 물론이죠 и просто 물론.',
+    },
+    isCore: true,
+    isActive: true,
   },
-];
+] satisfies readonly WordSeedEntry[];
 
 export const S3_UNIT8_QUESTIONS = withTypedAnswerGrading({
   // ══════════════════════════════════════════════════════════

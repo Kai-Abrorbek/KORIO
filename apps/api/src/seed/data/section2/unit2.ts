@@ -1,5 +1,7 @@
 import { LessonCategory } from '../../../lessons/schemas/lesson.schema';
 import { QuestionLevel } from '../../../lessons/schemas/question.schema';
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
 
 /**
  * 섹션 2 · 유닛 2 — 지금 몇 시예요?
@@ -19,269 +21,6 @@ import { QuestionLevel } from '../../../lessons/schemas/question.schema';
  *   4. 아서/어서       모음 규칙은 -아요/어요와 같고 하다는 해서
  *   5. 받침 → 거예요   가다→갈 거예요(ㄹ) · 먹다→먹을 거예요(을)
  */
-
-export const S2_UNIT2_WORDS = [
-  // ── 하루의 때 ──
-  {
-    korean: '새벽',
-    uz: 'tong, saharlab',
-    en: 'dawn',
-    ru: 'рассвет',
-    emoji: '🌌',
-  },
-  { korean: '아침', uz: 'ertalab', en: 'morning', ru: 'утро', emoji: '🌅' },
-  { korean: '낮', uz: 'kunduzi', en: 'daytime', ru: 'день', emoji: '☀️' },
-  { korean: '저녁', uz: 'kechqurun', en: 'evening', ru: 'вечер', emoji: '🌆' },
-  { korean: '밤', uz: 'tun', en: 'night', ru: 'ночь', emoji: '🌙' },
-  {
-    korean: '오전',
-    uz: 'tushdan oldin',
-    en: 'a.m.',
-    ru: 'до полудня',
-    emoji: '🌄',
-  },
-  {
-    korean: '오후',
-    uz: 'tushdan keyin',
-    en: 'p.m.',
-    ru: 'после полудня',
-    emoji: '🌇',
-  },
-
-  // ── 시각 ──
-  { korean: '시', uz: 'soat', en: "o'clock", ru: 'час', emoji: '🕐' },
-  { korean: '분', uz: 'daqiqa', en: 'minute', ru: 'минута', emoji: '⏱️' },
-  { korean: '반', uz: 'yarim', en: 'half', ru: 'половина', emoji: '🕧' },
-  { korean: '쯤', uz: 'taxminan', en: 'about', ru: 'примерно', emoji: '〰️' },
-  { korean: '몇', uz: 'necha', en: 'how many', ru: 'сколько', emoji: '❓' },
-  { korean: '지금', uz: 'hozir', en: 'now', ru: 'сейчас', emoji: '⏰' },
-  { korean: '시간', uz: 'vaqt', en: 'time', ru: 'время', emoji: '⌛' },
-
-  // ── 동사 2 ──
-  {
-    korean: '일어나다',
-    uz: 'turmoq',
-    en: 'to get up',
-    ru: 'вставать',
-    emoji: '⏰',
-  },
-  {
-    korean: '세수하다',
-    uz: 'yuz yuvmoq',
-    en: "to wash one's face",
-    ru: 'умываться',
-    emoji: '🧼',
-  },
-  {
-    korean: '샤워하다',
-    uz: 'dush qabul qilmoq',
-    en: 'to take a shower',
-    ru: 'принимать душ',
-    emoji: '🚿',
-  },
-  {
-    korean: '빨래하다',
-    uz: 'kir yuvmoq',
-    en: 'to do the laundry',
-    ru: 'стирать',
-    emoji: '🧺',
-  },
-  {
-    korean: '청소하다',
-    uz: 'tozalamoq',
-    en: 'to clean',
-    ru: 'убирать',
-    emoji: '🧹',
-  },
-  {
-    korean: '요리하다',
-    uz: 'ovqat pishirmoq',
-    en: 'to cook',
-    ru: 'готовить',
-    emoji: '🍳',
-  },
-  {
-    korean: '운전하다',
-    uz: 'haydamoq',
-    en: 'to drive',
-    ru: 'водить машину',
-    emoji: '🚗',
-  },
-  {
-    korean: '전화하다',
-    uz: "qo'ng'iroq qilmoq",
-    en: 'to call',
-    ru: 'звонить',
-    emoji: '📞',
-  },
-  {
-    korean: '컴퓨터를 하다',
-    uz: 'kompyuterda ishlamoq',
-    en: 'to use a computer',
-    ru: 'сидеть за компьютером',
-    emoji: '💻',
-  },
-  {
-    korean: '회의하다',
-    uz: "yig'ilish o'tkazmoq",
-    en: 'to hold a meeting',
-    ru: 'проводить совещание',
-    emoji: '👥',
-  },
-  {
-    korean: '버스를 기다리다',
-    uz: 'avtobus kutmoq',
-    en: 'to wait for a bus',
-    ru: 'ждать автобус',
-    emoji: '⏳',
-  },
-  {
-    korean: '버스를 타다',
-    uz: 'avtobusga chiqmoq',
-    en: 'to take a bus',
-    ru: 'садиться на автобус',
-    emoji: '🚌',
-  },
-
-  // ── 기간 조사 ──
-  {
-    korean: '부터',
-    uz: '-dan (boshlab)',
-    en: 'from',
-    ru: 'с, от',
-    emoji: '▶️',
-  },
-  { korean: '까지', uz: '-gacha', en: 'until', ru: 'до', emoji: '⏹️' },
-
-  // ── 요일과 때 ──
-  {
-    korean: '월요일',
-    uz: 'dushanba',
-    en: 'Monday',
-    ru: 'понедельник',
-    emoji: '📅',
-  },
-  {
-    korean: '화요일',
-    uz: 'seshanba',
-    en: 'Tuesday',
-    ru: 'вторник',
-    emoji: '📅',
-  },
-  {
-    korean: '수요일',
-    uz: 'chorshanba',
-    en: 'Wednesday',
-    ru: 'среда',
-    emoji: '📅',
-  },
-  {
-    korean: '목요일',
-    uz: 'payshanba',
-    en: 'Thursday',
-    ru: 'четверг',
-    emoji: '📅',
-  },
-  { korean: '금요일', uz: 'juma', en: 'Friday', ru: 'пятница', emoji: '📅' },
-  {
-    korean: '토요일',
-    uz: 'shanba',
-    en: 'Saturday',
-    ru: 'суббота',
-    emoji: '📅',
-  },
-  {
-    korean: '일요일',
-    uz: 'yakshanba',
-    en: 'Sunday',
-    ru: 'воскресенье',
-    emoji: '📅',
-  },
-  {
-    korean: '주말',
-    uz: 'dam olish kunlari',
-    en: 'weekend',
-    ru: 'выходные',
-    emoji: '🗓️',
-  },
-  { korean: '오늘', uz: 'bugun', en: 'today', ru: 'сегодня', emoji: '📆' },
-  { korean: '내일', uz: 'ertaga', en: 'tomorrow', ru: 'завтра', emoji: '➡️' },
-  { korean: '어제', uz: 'kecha', en: 'yesterday', ru: 'вчера', emoji: '⬅️' },
-  {
-    korean: '매일',
-    uz: 'har kuni',
-    en: 'every day',
-    ru: 'каждый день',
-    emoji: '🔁',
-  },
-  { korean: '언제', uz: 'qachon', en: 'when', ru: 'когда', emoji: '❔' },
-
-  // ── 일정 ──
-  { korean: '수업', uz: 'dars', en: 'class', ru: 'занятие', emoji: '📚' },
-  { korean: '시험', uz: 'imtihon', en: 'exam', ru: 'экзамен', emoji: '📝' },
-  { korean: '점심', uz: 'tushlik', en: 'lunch', ru: 'обед', emoji: '🍱' },
-  {
-    korean: '아르바이트',
-    uz: 'yarim kunlik ish',
-    en: 'part-time job',
-    ru: 'подработка',
-    emoji: '🧑‍🍳',
-  },
-  {
-    korean: '약속',
-    uz: 'uchrashuv',
-    en: 'appointment',
-    ru: 'встреча',
-    emoji: '🤝',
-  },
-  { korean: '계획', uz: 'reja', en: 'plan', ru: 'план', emoji: '🗒️' },
-  {
-    korean: '방학',
-    uz: "ta'til",
-    en: 'school vacation',
-    ru: 'каникулы',
-    emoji: '🏖️',
-  },
-
-  // ── 주말에 하는 일 ──
-  {
-    korean: '사진을 찍다',
-    uz: 'suratga olmoq',
-    en: 'to take a photo',
-    ru: 'фотографировать',
-    emoji: '📸',
-  },
-  {
-    korean: '자전거를 타다',
-    uz: 'velosiped haydamoq',
-    en: 'to ride a bike',
-    ru: 'кататься на велосипеде',
-    emoji: '🚲',
-  },
-  {
-    korean: '구경하다',
-    uz: 'tomosha qilmoq',
-    en: 'to look around',
-    ru: 'осматривать',
-    emoji: '👀',
-  },
-  { korean: '박물관', uz: 'muzey', en: 'museum', ru: 'музей', emoji: '🏛️' },
-  {
-    korean: '시내',
-    uz: 'shahar markazi',
-    en: 'downtown',
-    ru: 'центр города',
-    emoji: '🏙️',
-  },
-  { korean: '선물', uz: "sovg'a", en: 'gift', ru: 'подарок', emoji: '🎁' },
-  { korean: '뉴스', uz: 'yangiliklar', en: 'news', ru: 'новости', emoji: '📰' },
-  { korean: '케이크', uz: 'tort', en: 'cake', ru: 'торт', emoji: '🍰' },
-
-  // ── 이어 주는 말 ──
-  { korean: '그런데', uz: 'lekin', en: 'but', ru: 'но', emoji: '↩️' },
-  { korean: '그럼', uz: 'unda', en: 'then', ru: 'тогда', emoji: '👉' },
-  { korean: '그래요', uz: 'mayli', en: 'okay', ru: 'хорошо', emoji: '👌' },
-];
 
 const I = {
   image: {
@@ -333,6 +72,3760 @@ const I = {
     ru: 'Составьте ответ на услышанное.',
   },
 };
+
+export const S2_UNIT2_WORDS = [
+  // ─────────────────────────────────────
+  // 하루의 시간대
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_dawn_noun',
+    senseKey: 'time-dawn',
+    korean: '새벽',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밤이 끝나고 날이 밝기 시작하는 이른 시간',
+      uz: 'saharlab, tong oldi',
+      en: 'dawn, early morning',
+      ru: 'рассвет, раннее утро',
+    },
+    examples: [
+      {
+        korean: '저는 새벽에 일어나요.',
+        translations: {
+          ko: '저는 새벽에 일어납니다.',
+          uz: 'Men saharda turaman.',
+          en: 'I get up at dawn.',
+          ru: 'Я встаю на рассвете.',
+        },
+      },
+      {
+        korean: '새벽 다섯 시에 일어났어요.',
+        translations: {
+          ko: '새벽 다섯 시에 일어났습니다.',
+          uz: 'Saharlab soat beshda turdim.',
+          en: 'I got up at five in the morning.',
+          ru: 'Я встал в пять утра.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '새벽',
+      romanization: 'saebyeok',
+      ttsText: '새벽',
+    },
+    media: {
+      emoji: '🌌',
+      imageUrl: 'https://cdn.korio.app/words/saebyeok.webp',
+      imageAlt: {
+        ko: '해가 뜨기 전의 새벽 하늘',
+        uz: 'quyosh chiqishidan oldingi tong osmoni',
+        en: 'the sky before sunrise at dawn',
+        ru: 'небо перед восходом на рассвете',
+      },
+    },
+    tags: ['time', 'daypart', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "아주 이른 아침 시간을 말할 때 '새벽에', '새벽 다섯 시'처럼 사용해요.",
+      uz: "Juda erta vaqtni aytishda '새벽에', '새벽 다섯 시' kabi ishlatiladi.",
+      en: 'Used for very early morning, as in 새벽에 or 새벽 다섯 시.',
+      ru: 'Используется для очень раннего утра: 새벽에, 새벽 다섯 시.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_morning_noun',
+    senseKey: 'time-morning',
+    korean: '아침',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '하루가 시작되는 이른 시간',
+      uz: 'ertalab',
+      en: 'morning',
+      ru: 'утро',
+    },
+    examples: [
+      {
+        korean: '아침에 운동해요.',
+        translations: {
+          ko: '아침에 운동합니다.',
+          uz: 'Ertalab sport bilan shug‘ullanaman.',
+          en: 'I exercise in the morning.',
+          ru: 'Утром я занимаюсь спортом.',
+        },
+      },
+      {
+        korean: '아침 일곱 시에 일어나요.',
+        translations: {
+          ko: '아침 일곱 시에 일어납니다.',
+          uz: 'Ertalab soat yettida turaman.',
+          en: 'I get up at seven in the morning.',
+          ru: 'Я встаю в семь утра.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아침',
+      romanization: 'achim',
+      ttsText: '아침',
+    },
+    media: {
+      emoji: '🌅',
+      imageUrl: 'https://cdn.korio.app/words/achim.webp',
+      imageAlt: {
+        ko: '해가 뜨는 아침',
+        uz: 'quyosh chiqayotgan ertalab',
+        en: 'a morning sunrise',
+        ru: 'утренний восход солнца',
+      },
+    },
+    tags: ['time', 'daypart', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아침에'는 시간대를 뜻하고 '아침을 먹다'에서는 아침 식사를 뜻해요.",
+      uz: "'아침에' ertalab vaqtini, '아침을 먹다' esa nonushtani bildiradi.",
+      en: '아침 can mean the morning or breakfast depending on context.',
+      ru: '아침 может означать утро или завтрак в зависимости от контекста.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_daytime_noun',
+    senseKey: 'time-daytime',
+    korean: '낮',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '해가 떠 있는 동안의 시간',
+      uz: 'kunduz, kunduzi',
+      en: 'daytime',
+      ru: 'день, дневное время',
+    },
+    examples: [
+      {
+        korean: '낮에는 회사에서 일해요.',
+        translations: {
+          ko: '낮에는 회사에서 일합니다.',
+          uz: 'Kunduzi kompaniyada ishlayman.',
+          en: 'I work at the company during the day.',
+          ru: 'Днём я работаю в компании.',
+        },
+      },
+      {
+        korean: '낮에는 날씨가 따뜻해요.',
+        translations: {
+          ko: '낮에는 날씨가 따뜻합니다.',
+          uz: 'Kunduzi havo iliq.',
+          en: 'It is warm during the day.',
+          ru: 'Днём тепло.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '낮',
+      romanization: 'nat',
+      ttsText: '낮',
+    },
+    media: {
+      emoji: '☀️',
+      imageUrl: 'https://cdn.korio.app/words/nat.webp',
+      imageAlt: {
+        ko: '해가 떠 있는 낮',
+        uz: 'quyoshli kunduz',
+        en: 'bright daytime',
+        ru: 'светлое дневное время',
+      },
+    },
+    tags: ['time', 'daypart', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'낮에', '낮에는'처럼 낮 시간에 하는 일을 말할 때 사용해요.",
+      uz: "'낮에', '낮에는' shaklida kunduzgi ishlarni aytishda ishlatiladi.",
+      en: 'Used as 낮에 or 낮에는 for things that happen during the day.',
+      ru: 'Используется как 낮에 или 낮에는 для действий в дневное время.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_evening_noun',
+    senseKey: 'time-evening',
+    korean: '저녁',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '해가 질 무렵부터 밤이 되기 전까지의 시간',
+      uz: 'kechqurun',
+      en: 'evening',
+      ru: 'вечер',
+    },
+    examples: [
+      {
+        korean: '저녁에 친구를 만나요.',
+        translations: {
+          ko: '저녁에 친구를 만납니다.',
+          uz: 'Kechqurun do‘stim bilan uchrashaman.',
+          en: 'I meet my friend in the evening.',
+          ru: 'Вечером я встречаюсь с другом.',
+        },
+      },
+      {
+        korean: '저녁 일곱 시에 집에 가요.',
+        translations: {
+          ko: '저녁 일곱 시에 집에 갑니다.',
+          uz: 'Kechqurun soat yettida uyga boraman.',
+          en: 'I go home at seven in the evening.',
+          ru: 'Я иду домой в семь вечера.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '저녁',
+      romanization: 'jeonyeok',
+      ttsText: '저녁',
+    },
+    media: {
+      emoji: '🌆',
+      imageUrl: 'https://cdn.korio.app/words/jeonyeok.webp',
+      imageAlt: {
+        ko: '해가 지는 저녁 풍경',
+        uz: 'quyosh botayotgan kechki manzara',
+        en: 'an evening sunset',
+        ru: 'вечерний закат',
+      },
+    },
+    tags: ['time', 'daypart', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'저녁에'는 시간대를 뜻하고 '저녁을 먹다'에서는 저녁 식사를 뜻해요.",
+      uz: "'저녁에' kechki vaqtni, '저녁을 먹다' kechki ovqatni bildiradi.",
+      en: '저녁 can mean evening or dinner depending on context.',
+      ru: '저녁 может означать вечер или ужин в зависимости от контекста.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_night_noun',
+    senseKey: 'time-night',
+    korean: '밤',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '해가 진 뒤부터 다음 날 아침까지의 어두운 시간',
+      uz: 'tun, kechasi',
+      en: 'night',
+      ru: 'ночь',
+    },
+    examples: [
+      {
+        korean: '밤에 일찍 자요.',
+        translations: {
+          ko: '밤에 일찍 잡니다.',
+          uz: 'Kechasi erta uxlayman.',
+          en: 'I go to bed early at night.',
+          ru: 'Ночью я рано ложусь спать.',
+        },
+      },
+      {
+        korean: '밤 열한 시에 자요.',
+        translations: {
+          ko: '밤 열한 시에 잡니다.',
+          uz: 'Kechasi soat o‘n birda uxlayman.',
+          en: 'I go to bed at eleven at night.',
+          ru: 'Я ложусь спать в одиннадцать вечера.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '밤',
+      romanization: 'bam',
+      ttsText: '밤',
+    },
+    media: {
+      emoji: '🌙',
+      imageUrl: 'https://cdn.korio.app/words/bam.webp',
+      imageAlt: {
+        ko: '달이 떠 있는 밤하늘',
+        uz: 'oyli tungi osmon',
+        en: 'a night sky with the moon',
+        ru: 'ночное небо с луной',
+      },
+    },
+    tags: ['time', 'daypart', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'밤에', '밤 열 시'처럼 밤 시간대를 말할 때 사용해요.",
+      uz: "'밤에', '밤 열 시' kabi tungi vaqtni aytishda ishlatiladi.",
+      en: 'Used for nighttime, as in 밤에 and 밤 열 시.',
+      ru: 'Используется для ночного времени: 밤에, 밤 열 시.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_am_noun',
+    senseKey: 'time-am',
+    korean: '오전',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밤 열두 시부터 낮 열두 시 전까지의 시간',
+      uz: 'tushdan oldin, a.m.',
+      en: 'a.m., before noon',
+      ru: 'до полудня, a.m.',
+    },
+    examples: [
+      {
+        korean: '오전 아홉 시에 수업이 있어요.',
+        translations: {
+          ko: '오전 아홉 시에 수업이 있습니다.',
+          uz: 'Ertalab soat to‘qqizda darsim bor.',
+          en: 'I have class at 9 a.m.',
+          ru: 'У меня занятие в девять утра.',
+        },
+      },
+      {
+        korean: '오전에는 회사에서 일해요.',
+        translations: {
+          ko: '오전에는 회사에서 일합니다.',
+          uz: 'Tushgacha kompaniyada ishlayman.',
+          en: 'I work at the company in the morning.',
+          ru: 'До полудня я работаю в компании.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '오전',
+      romanization: 'ojeon',
+      ttsText: '오전',
+    },
+    media: {
+      emoji: '🌄',
+      imageUrl: 'https://cdn.korio.app/words/ojeon.webp',
+      imageAlt: {
+        ko: '오전 시간을 나타내는 아침 시계',
+        uz: 'ertalabki vaqtni ko‘rsatuvchi soat',
+        en: 'a clock showing morning time',
+        ru: 'часы, показывающие утреннее время',
+      },
+    },
+    tags: ['time', 'clock', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시각 앞에 '오전 아홉 시'처럼 사용하면 a.m.를 뜻해요.",
+      uz: "Soat oldida '오전 아홉 시' kabi ishlatilsa a.m. ma’nosini beradi.",
+      en: 'Placed before a time to indicate a.m.',
+      ru: 'Ставится перед временем для обозначения a.m.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_afternoon_noun',
+    senseKey: 'time-afternoon',
+    korean: '오후',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '낮 열두 시 이후부터 저녁 전까지의 시간',
+      uz: 'tushdan keyin',
+      en: 'afternoon, p.m.',
+      ru: 'после полудня, p.m.',
+    },
+    examples: [
+      {
+        korean: '오후 두 시에 회의가 있어요.',
+        translations: {
+          ko: '오후 두 시에 회의가 있습니다.',
+          uz: 'Tushdan keyin soat ikkida yig‘ilish bor.',
+          en: 'There is a meeting at 2 p.m.',
+          ru: 'В два часа дня будет совещание.',
+        },
+      },
+      {
+        korean: '오후에 친구를 만나요.',
+        translations: {
+          ko: '오후에 친구를 만납니다.',
+          uz: 'Tushdan keyin do‘stim bilan uchrashaman.',
+          en: 'I meet my friend in the afternoon.',
+          ru: 'После обеда я встречаюсь с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '오후',
+      romanization: 'ohu',
+      ttsText: '오후',
+    },
+    media: {
+      emoji: '🌇',
+      imageUrl: 'https://cdn.korio.app/words/ohu.webp',
+      imageAlt: {
+        ko: '오후의 햇빛과 시간',
+        uz: 'tushdan keyingi vaqt',
+        en: 'afternoon time',
+        ru: 'время после полудня',
+      },
+    },
+    tags: ['time', 'clock', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시각 앞에 '오후 세 시'처럼 사용하면 p.m.를 뜻해요.",
+      uz: "Soat oldida '오후 세 시' kabi ishlatilsa p.m. ma’nosini beradi.",
+      en: 'Before a clock time, 오후 indicates p.m.',
+      ru: 'Перед временем 오후 обозначает p.m.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 시각
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_hour_clock_counter_noun',
+    senseKey: 'time-unit-hour-clock',
+    korean: '시',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '시각을 나타낼 때 사용하는 시간 단위',
+      uz: 'soat',
+      en: "o'clock, hour",
+      ru: 'час',
+    },
+    examples: [
+      {
+        korean: '지금 세 시예요.',
+        translations: {
+          ko: '지금 세 시입니다.',
+          uz: 'Hozir soat uch.',
+          en: "It is three o'clock now.",
+          ru: 'Сейчас три часа.',
+        },
+      },
+      {
+        korean: '일곱 시에 일어나요.',
+        translations: {
+          ko: '일곱 시에 일어납니다.',
+          uz: 'Soat yettida turaman.',
+          en: "I get up at seven o'clock.",
+          ru: 'Я встаю в семь часов.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '시',
+      romanization: 'si',
+      ttsText: '시',
+    },
+    media: {
+      emoji: '🕐',
+      imageUrl: 'https://cdn.korio.app/words/si-time.webp',
+      imageAlt: {
+        ko: '정각을 가리키는 시계',
+        uz: 'to‘liq soatni ko‘rsatayotgan soat',
+        en: 'a clock showing an exact hour',
+        ru: 'часы, показывающие ровный час',
+      },
+    },
+    tags: ['time', 'counter', 'clock', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시각의 '시' 앞에는 보통 고유어 숫자를 사용해요. 예: 한 시, 두 시, 세 시.",
+      uz: "'시' oldida odatda tub koreys sonlari ishlatiladi: 한 시, 두 시.",
+      en: 'Native Korean numbers are normally used before 시: 한 시, 두 시, 세 시.',
+      ru: 'Перед 시 обычно используются исконно корейские числа: 한 시, 두 시, 세 시.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_minute_time_noun',
+    senseKey: 'time-unit-minute',
+    korean: '분',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한 시간을 60으로 나눈 시간 단위',
+      uz: 'daqiqa',
+      en: 'minute',
+      ru: 'минута',
+    },
+    examples: [
+      {
+        korean: '지금 세 시 십 분이에요.',
+        translations: {
+          ko: '지금 세 시 십 분입니다.',
+          uz: 'Hozir soat uchdan o‘n daqiqa o‘tdi.',
+          en: 'It is 3:10 now.',
+          ru: 'Сейчас три часа десять минут.',
+        },
+      },
+      {
+        korean: '수업은 오십 분이에요.',
+        translations: {
+          ko: '수업은 오십 분입니다.',
+          uz: 'Dars ellik daqiqa davom etadi.',
+          en: 'The class is fifty minutes long.',
+          ru: 'Занятие длится пятьдесят минут.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '분',
+      romanization: 'bun',
+      ttsText: '분',
+    },
+    media: {
+      emoji: '⏱️',
+      imageUrl: 'https://cdn.korio.app/words/bun-minute.webp',
+      imageAlt: {
+        ko: '분을 재는 시계',
+        uz: 'daqiqalarni o‘lchaydigan soat',
+        en: 'a clock measuring minutes',
+        ru: 'часы, показывающие минуты',
+      },
+    },
+    tags: ['time', 'unit', 'clock', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시간 단위 '분' 앞에는 한자어 숫자를 사용해요. 예: 십 분, 이십 분.",
+      uz: "Daqiqa '분' oldida xitoy-koreys sonlari ishlatiladi.",
+      en: 'Sino-Korean numbers are used before 분 for minutes.',
+      ru: 'Перед 분 для минут используются китайско-корейские числительные.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_half_noun',
+    senseKey: 'quantity-half-time',
+    korean: '반',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '전체를 둘로 나눈 것 중 하나',
+      uz: 'yarim',
+      en: 'half',
+      ru: 'половина',
+    },
+    examples: [
+      {
+        korean: '지금 세 시 반이에요.',
+        translations: {
+          ko: '지금 세 시 삼십 분입니다.',
+          uz: 'Hozir soat uch yarim.',
+          en: 'It is half past three.',
+          ru: 'Сейчас половина четвёртого.',
+        },
+      },
+      {
+        korean: '일곱 시 반에 집을 나가요.',
+        translations: {
+          ko: '일곱 시 삼십 분에 집을 나갑니다.',
+          uz: 'Soat yetti yarimda uydan chiqaman.',
+          en: 'I leave home at 7:30.',
+          ru: 'Я выхожу из дома в половине восьмого.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '반',
+      romanization: 'ban',
+      ttsText: '반',
+    },
+    media: {
+      emoji: '🕧',
+      imageUrl: 'https://cdn.korio.app/words/ban-half.webp',
+      imageAlt: {
+        ko: '30분을 나타내는 반 시간',
+        uz: 'yarim soatni bildiruvchi soat',
+        en: 'a clock showing half past',
+        ru: 'часы, показывающие половину часа',
+      },
+    },
+    tags: ['time', 'quantity', 'clock', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시각에서 '세 시 반'처럼 쓰면 30분을 뜻해요.",
+      uz: "Vaqtda '세 시 반' kabi ishlatilsa 30 daqiqani bildiradi.",
+      en: 'After an hour, 반 means thirty minutes: 세 시 반 = 3:30.',
+      ru: 'После часа 반 означает 30 минут: 세 시 반 = 3:30.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_approximately_particle',
+    senseKey: 'particle-approximately-time-quantity',
+    korean: '쯤',
+    partOfSpeech: WordPartOfSpeech.PARTICLE,
+    meaning: {
+      ko: '시간이나 수량이 정확하지 않고 대략 그 정도임을 나타내는 말',
+      uz: 'taxminan, chamasi',
+      en: 'about, around, approximately',
+      ru: 'примерно, около',
+    },
+    examples: [
+      {
+        korean: '여섯 시쯤 일어나요.',
+        translations: {
+          ko: '대략 여섯 시에 일어납니다.',
+          uz: 'Taxminan soat oltida turaman.',
+          en: 'I get up around six.',
+          ru: 'Я встаю примерно в шесть.',
+        },
+      },
+      {
+        korean: '열 시쯤 자요.',
+        translations: {
+          ko: '대략 열 시에 잡니다.',
+          uz: 'Taxminan soat o‘nda uxlayman.',
+          en: 'I go to bed around ten.',
+          ru: 'Я ложусь спать примерно в десять.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '쯤',
+      romanization: 'jjeum',
+      ttsText: '쯤',
+    },
+    media: {
+      emoji: '〰️',
+      imageUrl: 'https://cdn.korio.app/words/jjeum.webp',
+      imageAlt: {
+        ko: '정확하지 않은 대략적인 시간',
+        uz: 'taxminiy vaqt',
+        en: 'an approximate time',
+        ru: 'примерное время',
+      },
+    },
+    tags: ['particle', 'approximation', 'time', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시간이나 수량 뒤에 붙여 '세 시쯤', '열 명쯤'처럼 사용해요.",
+      uz: "Vaqt yoki miqdordan keyin '세 시쯤', '열 명쯤' kabi ishlatiladi.",
+      en: 'Attached after a time or quantity: 세 시쯤, 열 명쯤.',
+      ru: 'Ставится после времени или количества: 세 시쯤, 열 명쯤.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_how_many_determiner',
+    senseKey: 'question-how-many',
+    korean: '몇',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: {
+      ko: '수량이나 횟수를 물을 때 사용하는 말',
+      uz: 'necha, qancha',
+      en: 'how many',
+      ru: 'сколько',
+    },
+    examples: [
+      {
+        korean: '지금 몇 시예요?',
+        translations: {
+          ko: '지금 몇 시입니까?',
+          uz: 'Hozir soat necha?',
+          en: 'What time is it now?',
+          ru: 'Который сейчас час?',
+        },
+      },
+      {
+        korean: '학생이 몇 명이에요?',
+        translations: {
+          ko: '학생이 몇 명입니까?',
+          uz: 'Necha nafar talaba bor?',
+          en: 'How many students are there?',
+          ru: 'Сколько студентов?',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '몇',
+      romanization: 'myeot',
+      ttsText: '몇',
+    },
+    media: {
+      emoji: '❓',
+      imageUrl: 'https://cdn.korio.app/words/myeot.webp',
+      imageAlt: {
+        ko: '수량을 묻는 물음표',
+        uz: 'miqdorni so‘raydigan savol belgisi',
+        en: 'a question mark asking about quantity',
+        ru: 'вопросительный знак о количестве',
+      },
+    },
+    tags: ['question', 'determiner', 'quantity', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'몇 시', '몇 명', '몇 개'처럼 단위 명사 앞에서 수량을 물어요.",
+      uz: "'몇 시', '몇 명', '몇 개' kabi hisob so‘zlaridan oldin keladi.",
+      en: 'Used before counters: 몇 시, 몇 명, 몇 개.',
+      ru: 'Используется перед счётными словами: 몇 시, 몇 명, 몇 개.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_now_noun',
+    senseKey: 'time-now',
+    korean: '지금',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '말하고 있는 바로 이때',
+      uz: 'hozir',
+      en: 'now',
+      ru: 'сейчас',
+    },
+    examples: [
+      {
+        korean: '지금 몇 시예요?',
+        translations: {
+          ko: '지금 몇 시입니까?',
+          uz: 'Hozir soat necha?',
+          en: 'What time is it now?',
+          ru: 'Который сейчас час?',
+        },
+      },
+      {
+        korean: '지금 공부하고 있어요.',
+        translations: {
+          ko: '지금 공부하고 있습니다.',
+          uz: 'Hozir o‘qiyapman.',
+          en: 'I am studying now.',
+          ru: 'Я сейчас занимаюсь.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '지금',
+      romanization: 'jigeum',
+      ttsText: '지금',
+    },
+    media: {
+      emoji: '⏰',
+      imageUrl: 'https://cdn.korio.app/words/jigeum.webp',
+      imageAlt: {
+        ko: '현재 시간을 나타내는 시계',
+        uz: 'hozirgi vaqtni ko‘rsatuvchi soat',
+        en: 'a clock representing the current time',
+        ru: 'часы, показывающие текущее время',
+      },
+    },
+    tags: ['time', 'current', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '현재의 시간이나 상황을 나타낼 때 문장 앞에서 자주 사용해요.',
+      uz: 'Hozirgi vaqt yoki holatni aytishda ko‘pincha gap boshida keladi.',
+      en: 'Often used near the beginning of a sentence to indicate the present moment.',
+      ru: 'Часто используется в начале предложения для обозначения настоящего момента.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_time_noun',
+    senseKey: 'time-general',
+    korean: '시간',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '어떤 일이 진행되거나 지속되는 때나 동안',
+      uz: 'vaqt',
+      en: 'time',
+      ru: 'время',
+    },
+    examples: [
+      {
+        korean: '오늘 시간이 있어요?',
+        translations: {
+          ko: '오늘 시간이 있습니까?',
+          uz: 'Bugun vaqtingiz bormi?',
+          en: 'Do you have time today?',
+          ru: 'У вас сегодня есть время?',
+        },
+      },
+      {
+        korean: '수업 시간이 두 시간이에요.',
+        translations: {
+          ko: '수업 시간은 두 시간입니다.',
+          uz: 'Dars vaqti ikki soat.',
+          en: 'The class lasts two hours.',
+          ru: 'Занятие длится два часа.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '시간',
+      romanization: 'sigan',
+      ttsText: '시간',
+    },
+    media: {
+      emoji: '⌛',
+      imageUrl: 'https://cdn.korio.app/words/sigan.webp',
+      imageAlt: {
+        ko: '시간의 흐름을 나타내는 모래시계',
+        uz: 'vaqt o‘tishini bildiruvchi qum soati',
+        en: 'an hourglass representing time',
+        ru: 'песочные часы, обозначающие время',
+      },
+    },
+    tags: ['time', 'schedule', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'시간이 있다'는 여유 시간이 있다는 뜻이고, 기간은 '두 시간'처럼 표현해요.",
+      uz: "'시간이 있다' bo‘sh vaqt borligini, '두 시간' esa ikki soat davomiylikni bildiradi.",
+      en: '시간이 있다 means to have free time; durations use forms such as 두 시간.',
+      ru: '시간이 있다 означает иметь свободное время, а длительность выражается как 두 시간.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 일상 동사
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_get_up_verb',
+    senseKey: 'daily-life-get-up',
+    korean: '일어나다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '잠에서 깨어 자리에서 일어서다',
+      uz: 'uyg‘onib turmoq',
+      en: 'to get up, to wake up',
+      ru: 'вставать, просыпаться',
+    },
+    examples: [
+      {
+        korean: '아침 일곱 시에 일어나요.',
+        translations: {
+          ko: '아침 일곱 시에 일어납니다.',
+          uz: 'Ertalab soat yettida turaman.',
+          en: 'I get up at seven in the morning.',
+          ru: 'Я встаю в семь утра.',
+        },
+      },
+      {
+        korean: '주말에는 늦게 일어나요.',
+        translations: {
+          ko: '주말에는 늦게 일어납니다.',
+          uz: 'Dam olish kunlari kechroq turaman.',
+          en: 'I get up late on weekends.',
+          ru: 'На выходных я встаю поздно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '일어나다',
+      romanization: 'ireonada',
+      ttsText: '일어나다',
+    },
+    media: {
+      emoji: '⏰',
+      imageUrl: 'https://cdn.korio.app/words/ireonada.webp',
+      imageAlt: {
+        ko: '알람을 듣고 일어나는 사람',
+        uz: 'budilnikdan keyin turayotgan odam',
+        en: 'a person getting up after an alarm',
+        ru: 'человек, встающий по будильнику',
+      },
+    },
+    tags: ['verb', 'daily-routine', 'sleep', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "아침 생활을 말할 때 '몇 시에 일어나다'처럼 시각과 함께 자주 사용해요.",
+      uz: "Ertalabki tartibda '몇 시에 일어나다' kabi vaqt bilan ishlatiladi.",
+      en: 'Frequently used with a clock time when describing a morning routine.',
+      ru: 'Часто используется со временем при описании утреннего распорядка.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_wash_face_verb',
+    senseKey: 'daily-life-wash-face',
+    korean: '세수하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '얼굴을 물로 씻다',
+      uz: 'yuzini yuvmoq',
+      en: "to wash one's face",
+      ru: 'умываться',
+    },
+    examples: [
+      {
+        korean: '일어나서 세수해요.',
+        translations: {
+          ko: '일어나서 세수합니다.',
+          uz: 'Turgandan keyin yuzimni yuvaman.',
+          en: 'I wash my face after getting up.',
+          ru: 'После того как встаю, я умываюсь.',
+        },
+      },
+      {
+        korean: '아침에 세수하고 아침을 먹어요.',
+        translations: {
+          ko: '아침에 세수하고 아침을 먹습니다.',
+          uz: 'Ertalab yuzimni yuvib nonushta qilaman.',
+          en: 'I wash my face and eat breakfast in the morning.',
+          ru: 'Утром я умываюсь и завтракаю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '세수하다',
+      romanization: 'sesuhada',
+      ttsText: '세수하다',
+    },
+    media: {
+      emoji: '🧼',
+      imageUrl: 'https://cdn.korio.app/words/sesuhada.webp',
+      imageAlt: {
+        ko: '얼굴을 씻는 사람',
+        uz: 'yuzini yuvayotgan odam',
+        en: 'a person washing their face',
+        ru: 'человек, который умывается',
+      },
+    },
+    tags: ['verb', 'daily-routine', 'hygiene', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '아침이나 자기 전에 얼굴을 씻는 행동을 말해요.',
+      uz: 'Ertalab yoki uxlashdan oldin yuz yuvishni bildiradi.',
+      en: "Refers specifically to washing one's face.",
+      ru: 'Означает именно умывание лица.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_shower_verb',
+    senseKey: 'daily-life-take-shower',
+    korean: '샤워하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '샤워기로 몸을 씻다',
+      uz: 'dush qabul qilmoq',
+      en: 'to take a shower',
+      ru: 'принимать душ',
+    },
+    examples: [
+      {
+        korean: '아침에 샤워해요.',
+        translations: {
+          ko: '아침에 샤워합니다.',
+          uz: 'Ertalab dush qabul qilaman.',
+          en: 'I take a shower in the morning.',
+          ru: 'Утром я принимаю душ.',
+        },
+      },
+      {
+        korean: '운동하고 샤워했어요.',
+        translations: {
+          ko: '운동하고 샤워했습니다.',
+          uz: 'Sportdan keyin dush qabul qildim.',
+          en: 'I took a shower after exercising.',
+          ru: 'После тренировки я принял душ.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '샤워하다',
+      romanization: 'syawohada',
+      ttsText: '샤워하다',
+    },
+    media: {
+      emoji: '🚿',
+      imageUrl: 'https://cdn.korio.app/words/syawohada.webp',
+      imageAlt: {
+        ko: '샤워하는 모습',
+        uz: 'dush qabul qilish',
+        en: 'taking a shower',
+        ru: 'принятие душа',
+      },
+    },
+    tags: ['verb', 'daily-routine', 'hygiene', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'샤워를 하다'라고 띄어 말할 수도 있고 '샤워하다'라고도 해요.",
+      uz: "'샤워를 하다' va '샤워하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 샤워하다 and 샤워를 하다 are natural.',
+      ru: 'Естественны обе формы: 샤워하다 и 샤워를 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_do_laundry_verb',
+    senseKey: 'daily-life-do-laundry',
+    korean: '빨래하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '옷이나 천 등을 물로 빨아 깨끗하게 하다',
+      uz: 'kir yuvmoq',
+      en: 'to do the laundry',
+      ru: 'стирать',
+    },
+    examples: [
+      {
+        korean: '주말에 빨래해요.',
+        translations: {
+          ko: '주말에 빨래합니다.',
+          uz: 'Dam olish kunlari kir yuvaman.',
+          en: 'I do the laundry on the weekend.',
+          ru: 'На выходных я стираю.',
+        },
+      },
+      {
+        korean: '오전에 빨래하고 청소해요.',
+        translations: {
+          ko: '오전에 빨래하고 청소합니다.',
+          uz: 'Ertalab kir yuvib, uy tozalayman.',
+          en: 'I do laundry and clean in the morning.',
+          ru: 'Утром я стираю и убираюсь.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '빨래하다',
+      romanization: 'ppallaehada',
+      ttsText: '빨래하다',
+    },
+    media: {
+      emoji: '🧺',
+      imageUrl: 'https://cdn.korio.app/words/ppallaehada.webp',
+      imageAlt: {
+        ko: '빨래가 담긴 세탁 바구니',
+        uz: 'kir solingan savat',
+        en: 'a laundry basket',
+        ru: 'корзина с бельём',
+      },
+    },
+    tags: ['verb', 'housework', 'daily-routine', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'빨래를 하다'와 '빨래하다'를 모두 사용할 수 있어요.",
+      uz: "'빨래를 하다' va '빨래하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 빨래하다 and 빨래를 하다 are used.',
+      ru: 'Используются обе формы: 빨래하다 и 빨래를 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_clean_verb',
+    senseKey: 'daily-life-clean',
+    korean: '청소하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '더러운 것을 치우거나 닦아 깨끗하게 하다',
+      uz: 'tozalamoq',
+      en: 'to clean',
+      ru: 'убирать, чистить',
+    },
+    examples: [
+      {
+        korean: '방을 청소해요.',
+        translations: {
+          ko: '방을 청소합니다.',
+          uz: 'Xonani tozalayman.',
+          en: 'I clean the room.',
+          ru: 'Я убираю комнату.',
+        },
+      },
+      {
+        korean: '주말에 집을 청소했어요.',
+        translations: {
+          ko: '주말에 집을 청소했습니다.',
+          uz: 'Dam olish kunlari uyni tozaladim.',
+          en: 'I cleaned the house on the weekend.',
+          ru: 'На выходных я убрал дом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '청소하다',
+      romanization: 'cheongsohada',
+      ttsText: '청소하다',
+    },
+    media: {
+      emoji: '🧹',
+      imageUrl: 'https://cdn.korio.app/words/cheongsohada.webp',
+      imageAlt: {
+        ko: '빗자루로 청소하는 사람',
+        uz: 'supurgi bilan tozalayotgan odam',
+        en: 'a person cleaning with a broom',
+        ru: 'человек, убирающий метлой',
+      },
+    },
+    tags: ['verb', 'housework', 'daily-routine', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'방을 청소하다', '집을 청소하다'처럼 청소하는 장소를 목적어로 사용해요.",
+      uz: "'방을 청소하다', '집을 청소하다' kabi joy bilan ishlatiladi.",
+      en: 'The place being cleaned can be used as the object.',
+      ru: 'Место уборки может выступать дополнением: 방을 청소하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_cook_verb',
+    senseKey: 'daily-life-cook',
+    korean: '요리하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '재료를 이용해 음식을 만들다',
+      uz: 'ovqat pishirmoq',
+      en: 'to cook',
+      ru: 'готовить',
+    },
+    examples: [
+      {
+        korean: '저녁에 집에서 요리해요.',
+        translations: {
+          ko: '저녁에 집에서 요리합니다.',
+          uz: 'Kechqurun uyda ovqat pishiraman.',
+          en: 'I cook at home in the evening.',
+          ru: 'Вечером я готовлю дома.',
+        },
+      },
+      {
+        korean: '어머니하고 같이 요리했어요.',
+        translations: {
+          ko: '어머니와 같이 요리했습니다.',
+          uz: 'Onam bilan birga ovqat pishirdim.',
+          en: 'I cooked with my mother.',
+          ru: 'Я готовил вместе с мамой.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '요리하다',
+      romanization: 'yorihada',
+      ttsText: '요리하다',
+    },
+    media: {
+      emoji: '🍳',
+      imageUrl: 'https://cdn.korio.app/words/yorihada.webp',
+      imageAlt: {
+        ko: '주방에서 요리하는 사람',
+        uz: 'oshxonada ovqat pishirayotgan odam',
+        en: 'a person cooking in a kitchen',
+        ru: 'человек, готовящий на кухне',
+      },
+    },
+    tags: ['verb', 'cooking', 'daily-routine', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'요리하다'와 '요리를 하다'를 모두 사용할 수 있어요.",
+      uz: "'요리하다' va '요리를 하다' ikkalasi ham ishlatiladi.",
+      en: 'Both 요리하다 and 요리를 하다 are natural.',
+      ru: 'Естественны обе формы: 요리하다 и 요리를 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_drive_verb',
+    senseKey: 'transportation-drive',
+    korean: '운전하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '자동차 등의 교통수단을 직접 조종하여 이동하다',
+      uz: 'mashina haydamoq',
+      en: 'to drive',
+      ru: 'водить машину',
+    },
+    examples: [
+      {
+        korean: '아버지는 매일 운전하세요.',
+        translations: {
+          ko: '아버지는 매일 운전하십니다.',
+          uz: 'Otam har kuni mashina haydaydi.',
+          en: 'My father drives every day.',
+          ru: 'Мой отец каждый день водит машину.',
+        },
+      },
+      {
+        korean: '회사까지 운전해요.',
+        translations: {
+          ko: '회사까지 운전해서 갑니다.',
+          uz: 'Ishxonagacha mashina haydayman.',
+          en: 'I drive to work.',
+          ru: 'Я езжу на работу на машине.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '운전하다',
+      romanization: 'unjeonhada',
+      ttsText: '운전하다',
+    },
+    media: {
+      emoji: '🚗',
+      imageUrl: 'https://cdn.korio.app/words/unjeonhada.webp',
+      imageAlt: {
+        ko: '자동차를 운전하는 사람',
+        uz: 'mashina haydayotgan odam',
+        en: 'a person driving a car',
+        ru: 'человек за рулём автомобиля',
+      },
+    },
+    tags: ['verb', 'transportation', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운전하다'는 '운전을 하다'와 같은 뜻이에요.",
+      uz: "'운전하다' va '운전을 하다' bir xil ma’noda.",
+      en: '운전하다 has the same basic meaning as 운전을 하다.',
+      ru: '운전하다 по смыслу соответствует 운전을 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_call_phone_verb',
+    senseKey: 'communication-call-phone',
+    korean: '전화하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '전화로 상대방과 이야기하다',
+      uz: 'telefon qilmoq, qo‘ng‘iroq qilmoq',
+      en: 'to call, to phone',
+      ru: 'звонить',
+    },
+    examples: [
+      {
+        korean: '저녁에 부모님께 전화해요.',
+        translations: {
+          ko: '저녁에 부모님께 전화합니다.',
+          uz: 'Kechqurun ota-onamga qo‘ng‘iroq qilaman.',
+          en: 'I call my parents in the evening.',
+          ru: 'Вечером я звоню родителям.',
+        },
+      },
+      {
+        korean: '친구에게 전화했어요.',
+        translations: {
+          ko: '친구에게 전화했습니다.',
+          uz: 'Do‘stimga qo‘ng‘iroq qildim.',
+          en: 'I called my friend.',
+          ru: 'Я позвонил другу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전화하다',
+      romanization: 'jeonhwahada',
+      ttsText: '전화하다',
+    },
+    media: {
+      emoji: '📞',
+      imageUrl: 'https://cdn.korio.app/words/jeonhwahada.webp',
+      imageAlt: {
+        ko: '전화로 통화하는 사람',
+        uz: 'telefonda gaplashayotgan odam',
+        en: 'a person making a phone call',
+        ru: 'человек, разговаривающий по телефону',
+      },
+    },
+    tags: ['verb', 'communication', 'phone', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "전화하는 상대는 '-에게/한테/께'와 함께 나타낼 수 있어요.",
+      uz: "Qo‘ng‘iroq qilinadigan kishi '-에게/한테/께' bilan kelishi mumkin.",
+      en: 'The person being called can be marked with 에게, 한테, or honorific 께.',
+      ru: 'Получатель звонка может отмечаться 에게, 한테 или уважительным 께.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_use_computer_verb',
+    senseKey: 'daily-life-use-computer',
+    korean: '컴퓨터를 하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '컴퓨터를 사용해 여러 활동을 하다',
+      uz: 'kompyuterda ishlamoq',
+      en: 'to use a computer',
+      ru: 'работать за компьютером',
+    },
+    examples: [
+      {
+        korean: '저녁에 컴퓨터를 해요.',
+        translations: {
+          ko: '저녁에 컴퓨터를 사용합니다.',
+          uz: 'Kechqurun kompyuterda ishlayman.',
+          en: 'I use the computer in the evening.',
+          ru: 'Вечером я работаю за компьютером.',
+        },
+      },
+      {
+        korean: '두 시간쯤 컴퓨터를 했어요.',
+        translations: {
+          ko: '두 시간 정도 컴퓨터를 사용했습니다.',
+          uz: 'Taxminan ikki soat kompyuterda ishladim.',
+          en: 'I used the computer for about two hours.',
+          ru: 'Я работал за компьютером около двух часов.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '컴퓨터를 하다',
+      romanization: 'keompyuteoreul hada',
+      ttsText: '컴퓨터를 하다',
+    },
+    media: {
+      emoji: '💻',
+      imageUrl: 'https://cdn.korio.app/words/keompyuteoreul-hada.webp',
+      imageAlt: {
+        ko: '컴퓨터를 사용하는 사람',
+        uz: 'kompyuterdan foydalanayotgan odam',
+        en: 'a person using a computer',
+        ru: 'человек за компьютером',
+      },
+    },
+    tags: ['verb', 'computer', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '회화에서 컴퓨터로 일이나 여러 활동을 한다는 뜻으로 사용할 수 있어요.',
+      uz: 'Suhbatda kompyuterda turli ishlarni qilish ma’nosida ishlatiladi.',
+      en: 'A conversational expression for spending time doing things on a computer.',
+      ru: 'Разговорное выражение для работы или занятий за компьютером.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_have_meeting_verb',
+    senseKey: 'work-have-meeting',
+    korean: '회의하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '여러 사람이 모여 어떤 문제나 일을 의논하다',
+      uz: 'yig‘ilish o‘tkazmoq',
+      en: 'to have a meeting',
+      ru: 'проводить совещание',
+    },
+    examples: [
+      {
+        korean: '오후에 회의해요.',
+        translations: {
+          ko: '오후에 회의합니다.',
+          uz: 'Tushdan keyin yig‘ilish o‘tkazamiz.',
+          en: 'We have a meeting in the afternoon.',
+          ru: 'После обеда у нас совещание.',
+        },
+      },
+      {
+        korean: '회사에서 두 시간 회의했어요.',
+        translations: {
+          ko: '회사에서 두 시간 동안 회의했습니다.',
+          uz: 'Kompaniyada ikki soat yig‘ilish qildik.',
+          en: 'We had a meeting for two hours at work.',
+          ru: 'В компании мы совещались два часа.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '회의하다',
+      romanization: 'hoeuihada',
+      ttsText: '회의하다',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: 'https://cdn.korio.app/words/hoeuihada.webp',
+      imageAlt: {
+        ko: '회의하는 사람들',
+        uz: 'yig‘ilish o‘tkazayotgan odamlar',
+        en: 'people having a meeting',
+        ru: 'люди на совещании',
+      },
+    },
+    tags: ['verb', 'work', 'meeting', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'회의를 하다'라고도 자연스럽게 사용할 수 있어요.",
+      uz: "'회의를 하다' shakli ham tabiiy.",
+      en: '회의를 하다 is also natural.',
+      ru: 'Также естественно говорить «회의를 하다».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_wait_for_bus_verb',
+    senseKey: 'transportation-wait-for-bus',
+    korean: '버스를 기다리다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '버스가 올 때까지 기다리다',
+      uz: 'avtobus kutmoq',
+      en: 'to wait for a bus',
+      ru: 'ждать автобус',
+    },
+    examples: [
+      {
+        korean: '정류장에서 버스를 기다려요.',
+        translations: {
+          ko: '정류장에서 버스를 기다립니다.',
+          uz: 'Bekatda avtobus kutaman.',
+          en: 'I wait for the bus at the bus stop.',
+          ru: 'Я жду автобус на остановке.',
+        },
+      },
+      {
+        korean: '십 분쯤 버스를 기다렸어요.',
+        translations: {
+          ko: '약 십 분 동안 버스를 기다렸습니다.',
+          uz: 'Taxminan o‘n daqiqa avtobus kutdim.',
+          en: 'I waited for the bus for about ten minutes.',
+          ru: 'Я ждал автобус около десяти минут.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '버스를 기다리다',
+      romanization: 'beoseureul gidarida',
+      ttsText: '버스를 기다리다',
+    },
+    media: {
+      emoji: '🚏',
+      imageUrl: 'https://cdn.korio.app/words/beoseureul-gidarida.webp',
+      imageAlt: {
+        ko: '버스 정류장에서 기다리는 사람',
+        uz: 'avtobus bekatida kutayotgan odam',
+        en: 'a person waiting at a bus stop',
+        ru: 'человек, ожидающий автобус на остановке',
+      },
+    },
+    tags: ['verb', 'transportation', 'bus', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'기다리다'의 기다리는 대상에 목적격 조사 '-를'을 사용해요.",
+      uz: "Kutilayotgan narsa '버스를' kabi '-를' bilan keladi.",
+      en: 'The thing being waited for takes the object marker, as in 버스를 기다리다.',
+      ru: 'Объект ожидания оформляется объектной частицей: 버스를 기다리다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_bus_verb',
+    senseKey: 'transportation-take-bus',
+    korean: '버스를 타다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '버스에 올라 이동하다',
+      uz: 'avtobusga chiqmoq, avtobusda bormoq',
+      en: 'to take a bus, to ride a bus',
+      ru: 'ехать на автобусе',
+    },
+    examples: [
+      {
+        korean: '학교에 갈 때 버스를 타요.',
+        translations: {
+          ko: '학교에 갈 때 버스를 탑니다.',
+          uz: 'Maktabga borganda avtobusga chiqaman.',
+          en: 'I take a bus when I go to school.',
+          ru: 'Когда я еду в школу, я сажусь на автобус.',
+        },
+      },
+      {
+        korean: '아침 여덟 시에 버스를 탔어요.',
+        translations: {
+          ko: '아침 여덟 시에 버스를 탔습니다.',
+          uz: 'Ertalab soat sakkizda avtobusga chiqdim.',
+          en: 'I took the bus at eight in the morning.',
+          ru: 'Я сел на автобус в восемь утра.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '버스를 타다',
+      romanization: 'beoseureul tada',
+      ttsText: '버스를 타다',
+    },
+    media: {
+      emoji: '🚌',
+      imageUrl: 'https://cdn.korio.app/words/beoseureul-tada.webp',
+      imageAlt: {
+        ko: '버스를 타는 사람',
+        uz: 'avtobusga chiqayotgan odam',
+        en: 'a person taking a bus',
+        ru: 'человек, садящийся в автобус',
+      },
+    },
+    tags: ['verb', 'transportation', 'bus', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "교통수단을 이용할 때 '버스를 타다', '지하철을 타다'처럼 '타다'를 사용해요.",
+      uz: "Transport uchun '버스를 타다', '지하철을 타다' kabi '타다' ishlatiladi.",
+      en: '타다 is used with transportation: 버스를 타다, 지하철을 타다.',
+      ru: 'С транспортом используется 타다: 버스를 타다, 지하철을 타다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sleep_verb',
+    senseKey: 'action-sleep',
+    korean: '자다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '잠을 자다',
+      uz: 'uxlamoq',
+      en: 'to sleep',
+      ru: 'спать',
+    },
+    examples: [
+      {
+        korean: '밤 열한 시에 자요.',
+        translations: {
+          ko: '밤 열한 시에 잡니다.',
+          uz: 'Kechasi soat o‘n birda uxlayman.',
+          en: 'I go to sleep at eleven at night.',
+          ru: 'Я ложусь спать в одиннадцать вечера.',
+        },
+      },
+      {
+        korean: '주말에는 늦게 자요.',
+        translations: {
+          ko: '주말에는 늦게 잡니다.',
+          uz: 'Dam olish kunlari kech uxlayman.',
+          en: 'I go to bed late on weekends.',
+          ru: 'На выходных я ложусь поздно.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '자다',
+      romanization: 'jada',
+      ttsText: '자다',
+    },
+    media: {
+      emoji: '😴',
+      imageUrl: 'https://cdn.korio.app/words/jada.webp',
+      imageAlt: {
+        ko: '잠을 자는 사람',
+        uz: 'uxlayotgan odam',
+        en: 'a sleeping person',
+        ru: 'спящий человек',
+      },
+    },
+    tags: ['verb', 'sleep', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "잠드는 시각을 말할 때 '몇 시에 자다'처럼 사용해요.",
+      uz: "Uxlash vaqtini aytishda '몇 시에 자다' kabi ishlatiladi.",
+      en: 'Used with a clock time to say when someone sleeps or goes to bed.',
+      ru: 'Используется со временем, чтобы сказать, когда человек ложится спать.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 식사
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_eat_breakfast_verb',
+    senseKey: 'meal-eat-breakfast',
+    korean: '아침을 먹다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '아침 식사를 하다',
+      uz: 'nonushta qilmoq',
+      en: 'to eat breakfast',
+      ru: 'завтракать',
+    },
+    examples: [
+      {
+        korean: '아침 일곱 시 반에 아침을 먹어요.',
+        translations: {
+          ko: '아침 일곱 시 반에 아침 식사를 합니다.',
+          uz: 'Ertalab soat yetti yarimda nonushta qilaman.',
+          en: 'I eat breakfast at 7:30.',
+          ru: 'Я завтракаю в половине восьмого.',
+        },
+      },
+      {
+        korean: '집에서 아침을 먹었어요.',
+        translations: {
+          ko: '집에서 아침 식사를 했습니다.',
+          uz: 'Uyda nonushta qildim.',
+          en: 'I ate breakfast at home.',
+          ru: 'Я позавтракал дома.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아침을 먹다',
+      romanization: 'achimeul meokda',
+      ttsText: '아침을 먹다',
+    },
+    media: {
+      emoji: '🥐',
+      imageUrl: 'https://cdn.korio.app/words/achimeul-meokda.webp',
+      imageAlt: {
+        ko: '아침 식사를 하는 모습',
+        uz: 'nonushta qilayotgan odam',
+        en: 'eating breakfast',
+        ru: 'завтрак',
+      },
+    },
+    tags: ['meal', 'daily-routine', 'food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아침을 먹다'에서 '아침'은 아침 식사를 뜻해요.",
+      uz: "'아침을 먹다'da '아침' nonushta ma’nosida.",
+      en: 'In 아침을 먹다, 아침 means breakfast rather than simply morning.',
+      ru: 'В выражении 아침을 먹다 слово 아침 означает завтрак.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eat_lunch_verb',
+    senseKey: 'meal-eat-lunch',
+    korean: '점심을 먹다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '낮에 점심 식사를 하다',
+      uz: 'tushlik qilmoq',
+      en: 'to eat lunch',
+      ru: 'обедать',
+    },
+    examples: [
+      {
+        korean: '열두 시에 점심을 먹어요.',
+        translations: {
+          ko: '열두 시에 점심 식사를 합니다.',
+          uz: 'Soat o‘n ikkida tushlik qilaman.',
+          en: 'I eat lunch at twelve.',
+          ru: 'Я обедаю в двенадцать.',
+        },
+      },
+      {
+        korean: '친구하고 같이 점심을 먹었어요.',
+        translations: {
+          ko: '친구와 같이 점심을 먹었습니다.',
+          uz: 'Do‘stim bilan birga tushlik qildim.',
+          en: 'I ate lunch with my friend.',
+          ru: 'Я пообедал вместе с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '점심을 먹다',
+      romanization: 'jeomsimeul meokda',
+      ttsText: '점심을 먹다',
+    },
+    media: {
+      emoji: '🍱',
+      imageUrl: 'https://cdn.korio.app/words/jeomsimeul-meokda.webp',
+      imageAlt: {
+        ko: '점심 식사를 하는 모습',
+        uz: 'tushlik qilayotgan odam',
+        en: 'eating lunch',
+        ru: 'обед',
+      },
+    },
+    tags: ['meal', 'daily-routine', 'food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'점심을 먹다', '점심을 같이 먹다'처럼 사용해요.",
+      uz: "'점심을 먹다', '점심을 같이 먹다' kabi ishlatiladi.",
+      en: 'Commonly used as 점심을 먹다 or 점심을 같이 먹다.',
+      ru: 'Часто используется как 점심을 먹다 или 점심을 같이 먹다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_eat_dinner_verb',
+    senseKey: 'meal-eat-dinner',
+    korean: '저녁을 먹다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '저녁 식사를 하다',
+      uz: 'kechki ovqat yemoq',
+      en: 'to eat dinner',
+      ru: 'ужинать',
+    },
+    examples: [
+      {
+        korean: '저녁 일곱 시에 저녁을 먹어요.',
+        translations: {
+          ko: '저녁 일곱 시에 저녁 식사를 합니다.',
+          uz: 'Kechqurun soat yettida kechki ovqat yeyman.',
+          en: 'I eat dinner at seven.',
+          ru: 'Я ужинаю в семь вечера.',
+        },
+      },
+      {
+        korean: '가족하고 같이 저녁을 먹어요.',
+        translations: {
+          ko: '가족과 같이 저녁을 먹습니다.',
+          uz: 'Oilam bilan birga kechki ovqat yeyman.',
+          en: 'I eat dinner with my family.',
+          ru: 'Я ужинаю вместе с семьёй.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '저녁을 먹다',
+      romanization: 'jeonyeogeul meokda',
+      ttsText: '저녁을 먹다',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: 'https://cdn.korio.app/words/jeonyeogeul-meokda.webp',
+      imageAlt: {
+        ko: '저녁 식사를 하는 모습',
+        uz: 'kechki ovqat yeyayotgan odam',
+        en: 'eating dinner',
+        ru: 'ужин',
+      },
+    },
+    tags: ['meal', 'daily-routine', 'food', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'저녁'은 시간대를 뜻할 수도 있고 '저녁을 먹다'에서는 식사를 뜻해요.",
+      uz: "'저녁' kechki vaqtni ham, '저녁을 먹다'da kechki ovqatni ham bildiradi.",
+      en: '저녁 can mean evening, but in 저녁을 먹다 it means dinner.',
+      ru: '저녁 может означать вечер, а в 저녁을 먹다 — ужин.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 기간
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_from_particle',
+    senseKey: 'particle-range-from',
+    korean: '부터',
+    partOfSpeech: WordPartOfSpeech.PARTICLE,
+    meaning: {
+      ko: '시간이나 범위의 시작점을 나타내는 조사',
+      uz: '-dan boshlab',
+      en: 'from, starting from',
+      ru: 'с, начиная с',
+    },
+    examples: [
+      {
+        korean: '수업은 아홉 시부터 시작해요.',
+        translations: {
+          ko: '수업은 아홉 시부터 시작합니다.',
+          uz: 'Dars soat to‘qqizdan boshlanadi.',
+          en: "Class starts from nine o'clock.",
+          ru: 'Занятие начинается с девяти часов.',
+        },
+      },
+      {
+        korean: '월요일부터 금요일까지 일해요.',
+        translations: {
+          ko: '월요일부터 금요일까지 일합니다.',
+          uz: 'Dushanbadan jumagacha ishlayman.',
+          en: 'I work from Monday to Friday.',
+          ru: 'Я работаю с понедельника по пятницу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '부터',
+      romanization: 'buteo',
+      ttsText: '부터',
+    },
+    media: {
+      emoji: '▶️',
+      imageUrl: 'https://cdn.korio.app/words/buteo.webp',
+      imageAlt: {
+        ko: '시작점을 나타내는 화살표',
+        uz: 'boshlanish nuqtasini ko‘rsatuvchi belgi',
+        en: 'an arrow indicating a starting point',
+        ru: 'стрелка, обозначающая начало',
+      },
+    },
+    tags: ['particle', 'range', 'time', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "시작점 뒤에 붙이며 '부터 ~까지' 형태로 자주 사용해요.",
+      uz: "Boshlanish nuqtasidan keyin keladi va ko‘pincha '부터 ~까지' bilan ishlatiladi.",
+      en: 'Attached to the starting point and often paired with 까지.',
+      ru: 'Присоединяется к начальной точке и часто используется вместе с 까지.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_until_particle',
+    senseKey: 'particle-range-until',
+    korean: '까지',
+    partOfSpeech: WordPartOfSpeech.PARTICLE,
+    meaning: {
+      ko: '시간이나 범위의 끝점을 나타내는 조사',
+      uz: '-gacha',
+      en: 'until, to',
+      ru: 'до',
+    },
+    examples: [
+      {
+        korean: '다섯 시까지 일해요.',
+        translations: {
+          ko: '다섯 시까지 일합니다.',
+          uz: 'Soat beshgacha ishlayman.',
+          en: 'I work until five.',
+          ru: 'Я работаю до пяти.',
+        },
+      },
+      {
+        korean: '월요일부터 금요일까지 수업이 있어요.',
+        translations: {
+          ko: '월요일부터 금요일까지 수업이 있습니다.',
+          uz: 'Dushanbadan jumagacha dars bor.',
+          en: 'I have classes from Monday to Friday.',
+          ru: 'Занятия проходят с понедельника по пятницу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '까지',
+      romanization: 'kkaji',
+      ttsText: '까지',
+    },
+    media: {
+      emoji: '⏹️',
+      imageUrl: 'https://cdn.korio.app/words/kkaji.webp',
+      imageAlt: {
+        ko: '끝점을 나타내는 표시',
+        uz: 'tugash nuqtasini ko‘rsatuvchi belgi',
+        en: 'a marker indicating an ending point',
+        ru: 'обозначение конечной точки',
+      },
+    },
+    tags: ['particle', 'range', 'time', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "끝점 뒤에 붙이며 '아홉 시부터 다섯 시까지'처럼 사용해요.",
+      uz: "Tugash nuqtasidan keyin keladi: '아홉 시부터 다섯 시까지'.",
+      en: 'Attached to the endpoint: 아홉 시부터 다섯 시까지.',
+      ru: 'Присоединяется к конечной точке: 아홉 시부터 다섯 시까지.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 일정 · 약속
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_class_noun',
+    senseKey: 'education-class-lesson',
+    korean: '수업',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '학교나 학원 등에서 배우고 가르치는 시간이나 활동',
+      uz: 'dars',
+      en: 'class, lesson',
+      ru: 'занятие, урок',
+    },
+    examples: [
+      {
+        korean: '오전 아홉 시에 수업이 있어요.',
+        translations: {
+          ko: '오전 아홉 시에 수업이 있습니다.',
+          uz: 'Ertalab soat to‘qqizda darsim bor.',
+          en: 'I have class at 9 a.m.',
+          ru: 'У меня занятие в девять утра.',
+        },
+      },
+      {
+        korean: '수업은 열 시에 끝나요.',
+        translations: {
+          ko: '수업은 열 시에 끝납니다.',
+          uz: 'Dars soat o‘nda tugaydi.',
+          en: 'The class ends at ten.',
+          ru: 'Занятие заканчивается в десять.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '수업',
+      romanization: 'sueop',
+      ttsText: '수업',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/sueop.webp',
+      imageAlt: {
+        ko: '교실에서 진행되는 수업',
+        uz: 'sinfda o‘tayotgan dars',
+        en: 'a class in a classroom',
+        ru: 'урок в классе',
+      },
+    },
+    tags: ['education', 'schedule', 'school', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'수업이 있다', '수업을 듣다', '수업이 끝나다'처럼 사용해요.",
+      uz: "'수업이 있다', '수업을 듣다' kabi ishlatiladi.",
+      en: 'Common expressions include 수업이 있다 and 수업을 듣다.',
+      ru: 'Часто используются выражения 수업이 있다 и 수업을 듣다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_exam_noun',
+    senseKey: 'education-exam',
+    korean: '시험',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '배운 내용이나 능력을 확인하기 위해 문제를 풀거나 평가받는 일',
+      uz: 'imtihon, test',
+      en: 'test, exam',
+      ru: 'экзамен, тест',
+    },
+    examples: [
+      {
+        korean: '금요일에 시험이 있어요.',
+        translations: {
+          ko: '금요일에 시험이 있습니다.',
+          uz: 'Juma kuni imtihon bor.',
+          en: 'I have an exam on Friday.',
+          ru: 'В пятницу у меня экзамен.',
+        },
+      },
+      {
+        korean: '시험 때문에 공부해요.',
+        translations: {
+          ko: '시험 때문에 공부합니다.',
+          uz: 'Imtihon uchun o‘qiyapman.',
+          en: 'I study because of the exam.',
+          ru: 'Я занимаюсь из-за экзамена.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '시험',
+      romanization: 'siheom',
+      ttsText: '시험',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: 'https://cdn.korio.app/words/siheom.webp',
+      imageAlt: {
+        ko: '시험 문제를 푸는 모습',
+        uz: 'imtihon topshirayotgan odam',
+        en: 'a person taking an exam',
+        ru: 'человек, сдающий экзамен',
+      },
+    },
+    tags: ['education', 'exam', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'시험이 있다', '시험을 보다'처럼 사용해요.",
+      uz: "'시험이 있다', '시험을 보다' kabi ishlatiladi.",
+      en: 'Commonly used as 시험이 있다 and 시험을 보다.',
+      ru: 'Часто используется как 시험이 있다 и 시험을 보다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_meeting_noun',
+    senseKey: 'work-meeting',
+    korean: '회의',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '여러 사람이 모여 어떤 문제나 일을 의논하는 자리',
+      uz: 'yig‘ilish',
+      en: 'meeting',
+      ru: 'совещание',
+    },
+    examples: [
+      {
+        korean: '오후 두 시에 회의가 있어요.',
+        translations: {
+          ko: '오후 두 시에 회의가 있습니다.',
+          uz: 'Tushdan keyin soat ikkida yig‘ilish bor.',
+          en: 'There is a meeting at 2 p.m.',
+          ru: 'В два часа дня будет совещание.',
+        },
+      },
+      {
+        korean: '회의는 한 시간쯤 해요.',
+        translations: {
+          ko: '회의는 약 한 시간 합니다.',
+          uz: 'Yig‘ilish taxminan bir soat davom etadi.',
+          en: 'The meeting lasts about an hour.',
+          ru: 'Совещание длится около часа.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '회의',
+      romanization: 'hoeui',
+      ttsText: '회의',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: 'https://cdn.korio.app/words/hoeui.webp',
+      imageAlt: {
+        ko: '회의 테이블에 앉은 사람들',
+        uz: 'yig‘ilish stolida o‘tirgan odamlar',
+        en: 'people sitting at a meeting table',
+        ru: 'люди за столом совещания',
+      },
+    },
+    tags: ['work', 'meeting', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'회의가 있다', '회의를 하다'처럼 사용해요.",
+      uz: "'회의가 있다', '회의를 하다' kabi ishlatiladi.",
+      en: 'Commonly used as 회의가 있다 or 회의를 하다.',
+      ru: 'Часто используется как 회의가 있다 или 회의를 하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_part_time_job_noun',
+    senseKey: 'work-part-time-job',
+    korean: '아르바이트',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '정규직이 아닌 형태로 일정 시간 동안 하는 일',
+      uz: 'yarim stavkali ish, vaqtinchalik ish',
+      en: 'part-time job',
+      ru: 'подработка, работа на неполный день',
+    },
+    examples: [
+      {
+        korean: '저녁에 아르바이트가 있어요.',
+        translations: {
+          ko: '저녁에 아르바이트가 있습니다.',
+          uz: 'Kechqurun yarim stavkali ishim bor.',
+          en: 'I have a part-time job in the evening.',
+          ru: 'Вечером у меня подработка.',
+        },
+      },
+      {
+        korean: '주말에 카페에서 아르바이트해요.',
+        translations: {
+          ko: '주말에 카페에서 아르바이트합니다.',
+          uz: 'Dam olish kunlari kafeda ishlayman.',
+          en: 'I work part-time at a cafe on weekends.',
+          ru: 'На выходных я подрабатываю в кафе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '아르바이트',
+      romanization: 'areubaiteu',
+      ttsText: '아르바이트',
+    },
+    media: {
+      emoji: '💼',
+      imageUrl: 'https://cdn.korio.app/words/areubaiteu.webp',
+      imageAlt: {
+        ko: '시간제로 일하는 사람',
+        uz: 'yarim kun ishlayotgan odam',
+        en: 'a person working a part-time job',
+        ru: 'человек на подработке',
+      },
+    },
+    tags: ['work', 'part-time', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'아르바이트를 하다', 줄여서 '알바하다'라는 표현도 일상에서 많이 사용해요.",
+      uz: "'아르바이트를 하다' ishlatiladi; kundalik nutqda '알바하다' ham uchraydi.",
+      en: '아르바이트를 하다 is standard; the shortened 알바하다 is common in conversation.',
+      ru: 'Стандартно 아르바이트를 하다; в разговорной речи часто встречается 알바하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_appointment_plan_noun',
+    senseKey: 'schedule-appointment-plan',
+    korean: '약속',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '다른 사람과 만나거나 어떤 일을 하기로 정한 것',
+      uz: 'uchrashuv, kelishuv, va’da',
+      en: 'appointment, plan, promise',
+      ru: 'встреча, договорённость, обещание',
+    },
+    examples: [
+      {
+        korean: '오늘 친구하고 약속이 있어요.',
+        translations: {
+          ko: '오늘 친구와 약속이 있습니다.',
+          uz: 'Bugun do‘stim bilan uchrashuvim bor.',
+          en: 'I have plans with a friend today.',
+          ru: 'Сегодня у меня встреча с другом.',
+        },
+      },
+      {
+        korean: '약속은 오후 세 시예요.',
+        translations: {
+          ko: '약속은 오후 세 시입니다.',
+          uz: 'Uchrashuv tushdan keyin soat uchda.',
+          en: 'The appointment is at 3 p.m.',
+          ru: 'Встреча в три часа дня.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '약속',
+      romanization: 'yaksok',
+      ttsText: '약속',
+    },
+    media: {
+      emoji: '🤝',
+      imageUrl: 'https://cdn.korio.app/words/yaksok.webp',
+      imageAlt: {
+        ko: '만날 약속을 하는 두 사람',
+        uz: 'uchrashishga kelishayotgan ikki kishi',
+        en: 'two people making an appointment',
+        ru: 'два человека, договаривающиеся о встрече',
+      },
+    },
+    tags: ['schedule', 'social', 'appointment', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'약속이 있다'는 만날 일정이 있다는 뜻이고 '약속하다'는 어떤 일을 하기로 정한다는 뜻이에요.",
+      uz: "'약속이 있다' uchrashuv borligini, '약속하다' va’da yoki kelishuvni bildiradi.",
+      en: '약속이 있다 means to have plans; 약속하다 means to promise or arrange.',
+      ru: '약속이 있다 означает иметь планы, а 약속하다 — договариваться или обещать.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_schedule_noun',
+    senseKey: 'schedule-general',
+    korean: '일정',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '어떤 일을 하기로 정한 날짜와 시간의 계획',
+      uz: 'reja, jadval',
+      en: 'schedule, itinerary',
+      ru: 'расписание, план',
+    },
+    examples: [
+      {
+        korean: '오늘 일정이 많아요.',
+        translations: {
+          ko: '오늘 일정이 많습니다.',
+          uz: 'Bugun rejalarim ko‘p.',
+          en: 'I have a busy schedule today.',
+          ru: 'Сегодня у меня много дел.',
+        },
+      },
+      {
+        korean: '주말 일정을 확인해요.',
+        translations: {
+          ko: '주말 일정을 확인합니다.',
+          uz: 'Dam olish kunlari rejasini tekshiraman.',
+          en: 'I check my weekend schedule.',
+          ru: 'Я проверяю расписание на выходные.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '일정',
+      romanization: 'iljeong',
+      ttsText: '일정',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: 'https://cdn.korio.app/words/iljeong.webp',
+      imageAlt: {
+        ko: '일정이 적힌 달력',
+        uz: 'reja yozilgan taqvim',
+        en: 'a calendar with a schedule',
+        ru: 'календарь с расписанием',
+      },
+    },
+    tags: ['schedule', 'time', 'plan', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'일정이 있다', '일정을 확인하다', '여행 일정'처럼 사용해요.",
+      uz: "'일정이 있다', '일정을 확인하다' kabi ishlatiladi.",
+      en: 'Common expressions include 일정이 있다 and 일정을 확인하다.',
+      ru: 'Часто используется в выражениях 일정이 있다 и 일정을 확인하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_weekend_noun',
+    senseKey: 'time-weekend',
+    korean: '주말',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '한 주의 끝부분인 토요일과 일요일',
+      uz: 'dam olish kunlari',
+      en: 'weekend',
+      ru: 'выходные',
+    },
+    examples: [
+      {
+        korean: '주말에 뭐 해요?',
+        translations: {
+          ko: '주말에 무엇을 합니까?',
+          uz: 'Dam olish kunlari nima qilasiz?',
+          en: 'What do you do on the weekend?',
+          ru: 'Что вы делаете на выходных?',
+        },
+      },
+      {
+        korean: '주말에 박물관에 가요.',
+        translations: {
+          ko: '주말에 박물관에 갑니다.',
+          uz: 'Dam olish kunlari muzeyga boraman.',
+          en: 'I go to the museum on the weekend.',
+          ru: 'На выходных я хожу в музей.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '주말',
+      romanization: 'jumal',
+      ttsText: '주말',
+    },
+    media: {
+      emoji: '🌤️',
+      imageUrl: 'https://cdn.korio.app/words/jumal.webp',
+      imageAlt: {
+        ko: '토요일과 일요일이 표시된 달력',
+        uz: 'shanba va yakshanba ko‘rsatilgan taqvim',
+        en: 'a calendar showing the weekend',
+        ru: 'календарь с выходными',
+      },
+    },
+    tags: ['time', 'calendar', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'주말에' 형태로 주말 활동이나 계획을 말할 때 많이 사용해요.",
+      uz: "Dam olish kunlaridagi faoliyat uchun '주말에' ko‘p ishlatiladi.",
+      en: 'Often used as 주말에 when talking about weekend activities.',
+      ru: 'Часто используется как 주말에 при разговоре о планах на выходные.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_school_break_noun',
+    senseKey: 'education-school-break',
+    korean: '방학',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '학교 수업을 일정 기간 쉬는 기간',
+      uz: 'ta’til, maktab ta’tili',
+      en: 'school break, vacation',
+      ru: 'каникулы',
+    },
+    examples: [
+      {
+        korean: '방학에 여행을 해요.',
+        translations: {
+          ko: '방학에 여행합니다.',
+          uz: 'Ta’tilda sayohat qilaman.',
+          en: 'I travel during school break.',
+          ru: 'На каникулах я путешествую.',
+        },
+      },
+      {
+        korean: '방학은 다음 주부터예요.',
+        translations: {
+          ko: '방학은 다음 주부터 시작합니다.',
+          uz: 'Ta’til keyingi haftadan boshlanadi.',
+          en: 'School break starts next week.',
+          ru: 'Каникулы начинаются на следующей неделе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '방학',
+      romanization: 'banghak',
+      ttsText: '방학',
+    },
+    media: {
+      emoji: '🏖️',
+      imageUrl: 'https://cdn.korio.app/words/banghak.webp',
+      imageAlt: {
+        ko: '학교를 쉬는 방학',
+        uz: 'maktab ta’tili',
+        en: 'a school vacation',
+        ru: 'школьные каникулы',
+      },
+    },
+    tags: ['education', 'vacation', 'schedule', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "학교의 긴 휴식 기간을 뜻하며 '여름 방학', '겨울 방학'처럼 사용해요.",
+      uz: "Maktabdagi uzoq ta’tilni bildiradi: '여름 방학', '겨울 방학'.",
+      en: 'Refers to a school vacation, such as 여름 방학 or 겨울 방학.',
+      ru: 'Означает школьные каникулы: 여름 방학, 겨울 방학.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 활동
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_movie_noun',
+    senseKey: 'media-movie',
+    korean: '영화',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '이야기나 장면을 영상으로 만든 작품',
+      uz: 'kino, film',
+      en: 'movie, film',
+      ru: 'фильм, кино',
+    },
+    examples: [
+      {
+        korean: '주말에 영화를 봐요.',
+        translations: {
+          ko: '주말에 영화를 봅니다.',
+          uz: 'Dam olish kunlari film ko‘raman.',
+          en: 'I watch a movie on the weekend.',
+          ru: 'На выходных я смотрю фильм.',
+        },
+      },
+      {
+        korean: '친구하고 극장에서 영화를 봤어요.',
+        translations: {
+          ko: '친구와 극장에서 영화를 봤습니다.',
+          uz: 'Do‘stim bilan kinoteatrda film ko‘rdim.',
+          en: 'I watched a movie at the theater with my friend.',
+          ru: 'Я смотрел фильм в кинотеатре с другом.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '영화',
+      romanization: 'yeonghwa',
+      ttsText: '영화',
+    },
+    media: {
+      emoji: '🎬',
+      imageUrl: 'https://cdn.korio.app/words/yeonghwa.webp',
+      imageAlt: {
+        ko: '영화를 나타내는 영화 촬영판',
+        uz: 'filmni bildiruvchi kino taxtasi',
+        en: 'a movie clapperboard',
+        ru: 'кинохлопушка',
+      },
+    },
+    tags: ['media', 'leisure', 'movie', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "보통 '영화를 보다', '영화를 좋아하다'처럼 사용해요.",
+      uz: "'영화를 보다', '영화를 좋아하다' kabi ishlatiladi.",
+      en: 'Commonly used with 보다 and 좋아하다.',
+      ru: 'Часто используется с 보다 и 좋아하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_study_verb',
+    senseKey: 'education-study',
+    korean: '공부하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '지식이나 기술을 배우고 익히다',
+      uz: 'o‘qimoq, o‘rganmoq',
+      en: 'to study',
+      ru: 'учиться, заниматься',
+    },
+    examples: [
+      {
+        korean: '도서관에서 공부해요.',
+        translations: {
+          ko: '도서관에서 공부합니다.',
+          uz: 'Kutubxonada o‘qiyman.',
+          en: 'I study at the library.',
+          ru: 'Я занимаюсь в библиотеке.',
+        },
+      },
+      {
+        korean: '시험 때문에 한국어를 공부해요.',
+        translations: {
+          ko: '시험 때문에 한국어를 공부합니다.',
+          uz: 'Imtihon uchun koreys tilini o‘rganaman.',
+          en: 'I study Korean for the exam.',
+          ru: 'Я изучаю корейский для экзамена.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '공부하다',
+      romanization: 'gongbuhada',
+      ttsText: '공부하다',
+    },
+    media: {
+      emoji: '📖',
+      imageUrl: 'https://cdn.korio.app/words/gongbuhada.webp',
+      imageAlt: {
+        ko: '책을 보며 공부하는 사람',
+        uz: 'kitob bilan o‘qiyotgan odam',
+        en: 'a person studying with a book',
+        ru: 'человек, занимающийся с книгой',
+      },
+    },
+    tags: ['verb', 'education', 'study', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'한국어를 공부하다', '도서관에서 공부하다'처럼 내용이나 장소와 함께 사용해요.",
+      uz: "'한국어를 공부하다', '도서관에서 공부하다' kabi ishlatiladi.",
+      en: 'Used with the subject being studied or the study location.',
+      ru: 'Используется с предметом изучения или местом занятий.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_exercise_verb',
+    senseKey: 'activity-exercise-verb',
+    korean: '운동하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '건강이나 체력을 위해 몸을 움직이다',
+      uz: 'sport bilan shug‘ullanmoq, mashq qilmoq',
+      en: 'to exercise',
+      ru: 'заниматься спортом',
+    },
+    examples: [
+      {
+        korean: '아침마다 운동해요.',
+        translations: {
+          ko: '아침마다 운동합니다.',
+          uz: 'Har ertalab sport bilan shug‘ullanaman.',
+          en: 'I exercise every morning.',
+          ru: 'Я занимаюсь спортом каждое утро.',
+        },
+      },
+      {
+        korean: '공원에서 한 시간 운동했어요.',
+        translations: {
+          ko: '공원에서 한 시간 운동했습니다.',
+          uz: 'Bog‘da bir soat mashq qildim.',
+          en: 'I exercised for an hour in the park.',
+          ru: 'Я занимался спортом в парке один час.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '운동하다',
+      romanization: 'undonghada',
+      ttsText: '운동하다',
+    },
+    media: {
+      emoji: '🏃',
+      imageUrl: 'https://cdn.korio.app/words/undonghada.webp',
+      imageAlt: {
+        ko: '운동하는 사람',
+        uz: 'sport bilan shug‘ullanayotgan odam',
+        en: 'a person exercising',
+        ru: 'человек, занимающийся спортом',
+      },
+    },
+    tags: ['verb', 'sports', 'exercise', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'운동하다'와 '운동을 하다'는 같은 의미로 사용할 수 있어요.",
+      uz: "'운동하다' va '운동을 하다' bir xil ma’noda.",
+      en: '운동하다 and 운동을 하다 can be used with the same basic meaning.',
+      ru: '운동하다 и 운동을 하다 имеют одинаковое основное значение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_drink_tea_verb',
+    senseKey: 'drink-tea',
+    korean: '차를 마시다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '차 음료를 마시다',
+      uz: 'choy ichmoq',
+      en: 'to drink tea',
+      ru: 'пить чай',
+    },
+    examples: [
+      {
+        korean: '오후에 친구하고 차를 마셔요.',
+        translations: {
+          ko: '오후에 친구와 차를 마십니다.',
+          uz: 'Tushdan keyin do‘stim bilan choy ichaman.',
+          en: 'I drink tea with my friend in the afternoon.',
+          ru: 'После обеда я пью чай с другом.',
+        },
+      },
+      {
+        korean: '인사동에서 전통차를 마셨어요.',
+        translations: {
+          ko: '인사동에서 전통차를 마셨습니다.',
+          uz: 'Insadonda an’anaviy choy ichdim.',
+          en: 'I drank traditional tea in Insadong.',
+          ru: 'Я пил традиционный чай в Инсадоне.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '차를 마시다',
+      romanization: 'chareul masida',
+      ttsText: '차를 마시다',
+    },
+    media: {
+      emoji: '🍵',
+      imageUrl: 'https://cdn.korio.app/words/chareul-masida.webp',
+      imageAlt: {
+        ko: '따뜻한 차를 마시는 모습',
+        uz: 'issiq choy ichayotgan odam',
+        en: 'drinking a cup of tea',
+        ru: 'человек, пьющий чай',
+      },
+    },
+    tags: ['verb', 'drink', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'차'는 문맥에 따라 자동차를 뜻할 수도 있어서 '차를 마시다'에서는 음료라는 것을 알 수 있어요.",
+      uz: "'차' avtomobil ma’nosida ham keladi, lekin '차를 마시다'da choy ma’nosida.",
+      en: '차 can also mean car, but in 차를 마시다 it clearly means tea.',
+      ru: '차 может означать и автомобиль, но в 차를 마시다 это «чай».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_picture_verb',
+    senseKey: 'activity-take-picture',
+    korean: '사진을 찍다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '카메라 등으로 사진을 만들다',
+      uz: 'suratga olmoq',
+      en: 'to take a picture',
+      ru: 'фотографировать',
+    },
+    examples: [
+      {
+        korean: '공원에서 사진을 찍어요.',
+        translations: {
+          ko: '공원에서 사진을 찍습니다.',
+          uz: 'Bog‘da suratga olaman.',
+          en: 'I take pictures in the park.',
+          ru: 'Я фотографирую в парке.',
+        },
+      },
+      {
+        korean: '전주에서 가족사진을 찍었어요.',
+        translations: {
+          ko: '전주에서 가족사진을 찍었습니다.',
+          uz: 'Jeonjuda oilaviy suratga tushdik.',
+          en: 'We took a family photo in Jeonju.',
+          ru: 'Мы сделали семейную фотографию в Чонджу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '사진을 찍다',
+      romanization: 'sajineul jjikda',
+      ttsText: '사진을 찍다',
+    },
+    media: {
+      emoji: '📷',
+      imageUrl: 'https://cdn.korio.app/words/sajineul-jjikda.webp',
+      imageAlt: {
+        ko: '카메라로 사진을 찍는 사람',
+        uz: 'kamera bilan surat olayotgan odam',
+        en: 'a person taking a photo',
+        ru: 'человек, делающий фотографию',
+      },
+    },
+    tags: ['verb', 'photo', 'activity', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "사진을 만드는 행동에는 동사 '찍다'를 사용해요.",
+      uz: "Surat olish uchun koreys tilida '찍다' fe’li ishlatiladi.",
+      en: 'Korean uses 찍다 for taking a photograph.',
+      ru: 'Для фотографирования в корейском используется 찍다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_ride_bicycle_verb',
+    senseKey: 'leisure-ride-bicycle',
+    korean: '자전거를 타다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '자전거에 올라타서 이동하다',
+      uz: 'velosiped minmoq',
+      en: 'to ride a bicycle',
+      ru: 'кататься на велосипеде',
+    },
+    examples: [
+      {
+        korean: '주말에 공원에서 자전거를 타요.',
+        translations: {
+          ko: '주말에 공원에서 자전거를 탑니다.',
+          uz: 'Dam olish kunlari bog‘da velosiped minaman.',
+          en: 'I ride a bicycle in the park on weekends.',
+          ru: 'На выходных я катаюсь на велосипеде в парке.',
+        },
+      },
+      {
+        korean: '오후에 한 시간쯤 자전거를 탔어요.',
+        translations: {
+          ko: '오후에 약 한 시간 자전거를 탔습니다.',
+          uz: 'Tushdan keyin taxminan bir soat velosiped mindim.',
+          en: 'I rode a bicycle for about an hour in the afternoon.',
+          ru: 'После обеда я катался на велосипеде около часа.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '자전거를 타다',
+      romanization: 'jajeongeoreul tada',
+      ttsText: '자전거를 타다',
+    },
+    media: {
+      emoji: '🚲',
+      imageUrl: 'https://cdn.korio.app/words/jajeongeoreul-tada.webp',
+      imageAlt: {
+        ko: '자전거를 타는 사람',
+        uz: 'velosiped minayotgan odam',
+        en: 'a person riding a bicycle',
+        ru: 'человек на велосипеде',
+      },
+    },
+    tags: ['leisure', 'transportation', 'sports', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "자전거처럼 올라타서 이동하는 것은 '타다'를 사용해요.",
+      uz: "Velosiped kabi miniladigan transport bilan '타다' ishlatiladi.",
+      en: '타다 is used for riding things such as bicycles.',
+      ru: 'Для езды на велосипеде используется 타다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_take_nap_verb',
+    senseKey: 'daily-life-take-nap',
+    korean: '낮잠을 자다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '낮에 잠시 잠을 자다',
+      uz: 'kunduzgi uyqu qilmoq, mizg‘imoq',
+      en: 'to take a nap',
+      ru: 'спать днём, вздремнуть',
+    },
+    examples: [
+      {
+        korean: '점심을 먹고 낮잠을 자요.',
+        translations: {
+          ko: '점심을 먹고 낮잠을 잡니다.',
+          uz: 'Tushlikdan keyin mizg‘ib olaman.',
+          en: 'I take a nap after lunch.',
+          ru: 'После обеда я немного сплю.',
+        },
+      },
+      {
+        korean: '주말에 한 시간 낮잠을 잤어요.',
+        translations: {
+          ko: '주말에 한 시간 동안 낮잠을 잤습니다.',
+          uz: 'Dam olish kuni bir soat kunduzgi uyqu qildim.',
+          en: 'I took a one-hour nap on the weekend.',
+          ru: 'На выходных я поспал днём один час.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '낮잠을 자다',
+      romanization: 'natjameul jada',
+      ttsText: '낮잠을 자다',
+    },
+    media: {
+      emoji: '😴',
+      imageUrl: 'https://cdn.korio.app/words/natjameul-jada.webp',
+      imageAlt: {
+        ko: '낮에 잠을 자는 사람',
+        uz: 'kunduzi uxlayotgan odam',
+        en: 'a person taking a nap',
+        ru: 'человек, спящий днём',
+      },
+    },
+    tags: ['daily-life', 'sleep', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'낮잠'은 낮에 자는 짧은 잠이고 보통 '낮잠을 자다'라고 해요.",
+      uz: "'낮잠' kunduzgi qisqa uyqu bo‘lib, '낮잠을 자다' deb ishlatiladi.",
+      en: '낮잠 means a daytime nap and is commonly used as 낮잠을 자다.',
+      ru: '낮잠 означает дневной сон и обычно употребляется как 낮잠을 자다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_sightsee_verb',
+    senseKey: 'action-look-around-sightsee',
+    korean: '구경하다',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: {
+      ko: '흥미 있는 장소나 물건을 돌아보며 보다',
+      uz: 'tomosha qilmoq, aylanib ko‘rmoq',
+      en: 'to look around, to sightsee',
+      ru: 'осматривать, любоваться',
+    },
+    examples: [
+      {
+        korean: '주말에 인사동을 구경해요.',
+        translations: {
+          ko: '주말에 인사동을 구경합니다.',
+          uz: 'Dam olish kunlari Insadongni aylanib ko‘raman.',
+          en: 'I look around Insadong on the weekend.',
+          ru: 'На выходных я гуляю по Инсадону.',
+        },
+      },
+      {
+        korean: '전주 시내를 구경했어요.',
+        translations: {
+          ko: '전주 시내를 구경했습니다.',
+          uz: 'Jeonju markazini tomosha qildim.',
+          en: 'I looked around downtown Jeonju.',
+          ru: 'Я осмотрел центр Чонджу.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '구경하다',
+      romanization: 'gugyeonghada',
+      ttsText: '구경하다',
+    },
+    media: {
+      emoji: '👀',
+      imageUrl: 'https://cdn.korio.app/words/gugyeonghada.webp',
+      imageAlt: {
+        ko: '관광지를 구경하는 사람',
+        uz: 'diqqatga sazovor joyni tomosha qilayotgan odam',
+        en: 'a person sightseeing',
+        ru: 'человек, осматривающий достопримечательности',
+      },
+    },
+    tags: ['verb', 'travel', 'sightseeing', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'도시를 구경하다', '박물관을 구경하다'처럼 볼 장소나 대상을 목적어로 사용할 수 있어요.",
+      uz: "'도시를 구경하다', '박물관을 구경하다' kabi ishlatiladi.",
+      en: 'The place or thing being viewed can be used as the object.',
+      ru: 'Место или объект осмотра может использоваться как дополнение.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 장소
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_movie_theater_noun',
+    senseKey: 'place-movie-theater',
+    korean: '극장',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '영화나 공연 등을 보는 장소',
+      uz: 'kinoteatr, teatr',
+      en: 'movie theater, theater',
+      ru: 'кинотеатр, театр',
+    },
+    examples: [
+      {
+        korean: '친구하고 극장에 가요.',
+        translations: {
+          ko: '친구와 극장에 갑니다.',
+          uz: 'Do‘stim bilan kinoteatrga boraman.',
+          en: 'I go to the movie theater with my friend.',
+          ru: 'Я иду в кинотеатр с другом.',
+        },
+      },
+      {
+        korean: '극장에서 영화를 봐요.',
+        translations: {
+          ko: '극장에서 영화를 봅니다.',
+          uz: 'Kinoteatrda film ko‘raman.',
+          en: 'I watch a movie at the theater.',
+          ru: 'Я смотрю фильм в кинотеатре.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '극장',
+      romanization: 'geukjang',
+      ttsText: '극장',
+    },
+    media: {
+      emoji: '🎦',
+      imageUrl: 'https://cdn.korio.app/words/geukjang.webp',
+      imageAlt: {
+        ko: '영화를 상영하는 극장',
+        uz: 'film ko‘rsatiladigan kinoteatr',
+        en: 'a movie theater',
+        ru: 'кинотеатр',
+      },
+    },
+    tags: ['place', 'movie', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "영화를 보는 장소를 뜻할 때 '극장에서 영화를 보다'처럼 사용해요.",
+      uz: "'극장에서 영화를 보다' kabi ishlatiladi.",
+      en: 'Commonly used in 극장에서 영화를 보다.',
+      ru: 'Часто используется в выражении 극장에서 영화를 보다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_library_noun',
+    senseKey: 'place-library',
+    korean: '도서관',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '책을 읽거나 빌리고 공부할 수 있는 곳',
+      uz: 'kutubxona',
+      en: 'library',
+      ru: 'библиотека',
+    },
+    examples: [
+      {
+        korean: '도서관에서 공부해요.',
+        translations: {
+          ko: '도서관에서 공부합니다.',
+          uz: 'Kutubxonada o‘qiyman.',
+          en: 'I study at the library.',
+          ru: 'Я занимаюсь в библиотеке.',
+        },
+      },
+      {
+        korean: '오후에 도서관에 가요.',
+        translations: {
+          ko: '오후에 도서관에 갑니다.',
+          uz: 'Tushdan keyin kutubxonaga boraman.',
+          en: 'I go to the library in the afternoon.',
+          ru: 'После обеда я иду в библиотеку.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '도서관',
+      romanization: 'doseogwan',
+      ttsText: '도서관',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: 'https://cdn.korio.app/words/doseogwan.webp',
+      imageAlt: {
+        ko: '책장이 있는 도서관',
+        uz: 'kitob javonlari bor kutubxona',
+        en: 'a library with bookshelves',
+        ru: 'библиотека с книжными полками',
+      },
+    },
+    tags: ['place', 'study', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'도서관에 가다', '도서관에서 공부하다'처럼 사용해요.",
+      uz: "'도서관에 가다', '도서관에서 공부하다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the library' or 'study at the library.'",
+      ru: 'Часто используется в выражениях «пойти в библиотеку» и «учиться в библиотеке».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_museum_noun',
+    senseKey: 'place-museum',
+    korean: '박물관',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '역사, 문화, 예술 등의 자료를 보관하고 전시하는 곳',
+      uz: 'muzey',
+      en: 'museum',
+      ru: 'музей',
+    },
+    examples: [
+      {
+        korean: '주말에 박물관에 가요.',
+        translations: {
+          ko: '주말에 박물관에 갑니다.',
+          uz: 'Dam olish kunlari muzeyga boraman.',
+          en: 'I go to the museum on the weekend.',
+          ru: 'На выходных я хожу в музей.',
+        },
+      },
+      {
+        korean: '박물관을 두 시간쯤 구경했어요.',
+        translations: {
+          ko: '박물관을 약 두 시간 구경했습니다.',
+          uz: 'Muzeyni taxminan ikki soat tomosha qildim.',
+          en: 'I looked around the museum for about two hours.',
+          ru: 'Я осматривал музей около двух часов.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '박물관',
+      romanization: 'bangmulgwan',
+      ttsText: '박물관',
+    },
+    media: {
+      emoji: '🏛️',
+      imageUrl: 'https://cdn.korio.app/words/bangmulgwan.webp',
+      imageAlt: {
+        ko: '전시물이 있는 박물관',
+        uz: 'eksponatlari bor muzey',
+        en: 'a museum with exhibits',
+        ru: 'музей с экспонатами',
+      },
+    },
+    tags: ['place', 'culture', 'sightseeing', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'박물관에 가다', '박물관을 구경하다'처럼 사용해요.",
+      uz: "'박물관에 가다', '박물관을 구경하다' kabi ishlatiladi.",
+      en: 'Commonly used with 가다 and 구경하다.',
+      ru: 'Часто используется с 가다 и 구경하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_park_noun',
+    senseKey: 'place-park',
+    korean: '공원',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '사람들이 쉬거나 산책하고 운동할 수 있도록 만든 곳',
+      uz: 'bog‘, park',
+      en: 'park',
+      ru: 'парк',
+    },
+    examples: [
+      {
+        korean: '공원에서 운동해요.',
+        translations: {
+          ko: '공원에서 운동합니다.',
+          uz: 'Bog‘da sport bilan shug‘ullanaman.',
+          en: 'I exercise in the park.',
+          ru: 'Я занимаюсь спортом в парке.',
+        },
+      },
+      {
+        korean: '주말에 공원에서 자전거를 타요.',
+        translations: {
+          ko: '주말에 공원에서 자전거를 탑니다.',
+          uz: 'Dam olish kunlari bog‘da velosiped minaman.',
+          en: 'I ride a bicycle in the park on weekends.',
+          ru: 'На выходных я катаюсь на велосипеде в парке.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '공원',
+      romanization: 'gongwon',
+      ttsText: '공원',
+    },
+    media: {
+      emoji: '🌳',
+      imageUrl: 'https://cdn.korio.app/words/gongwon.webp',
+      imageAlt: {
+        ko: '나무와 산책로가 있는 공원',
+        uz: 'daraxt va yo‘laklari bor bog‘',
+        en: 'a park with trees and walking paths',
+        ru: 'парк с деревьями и дорожками',
+      },
+    },
+    tags: ['place', 'outdoors', 'leisure', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'공원에 가다', '공원에서 산책하다'처럼 사용해요.",
+      uz: "'공원에 가다', '공원에서 산책하다' kabi ishlatiladi.",
+      en: "Commonly used as 'go to the park' or 'walk in the park.'",
+      ru: 'Часто используется как «идти в парк» или «гулять в парке».',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_insadong_noun',
+    senseKey: 'place-seoul-insadong',
+    korean: '인사동',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '서울에 있는 전통문화와 관광으로 유명한 지역',
+      uz: 'Seuldagi Insadong hududi',
+      en: 'Insadong',
+      ru: 'Инсадон',
+    },
+    examples: [
+      {
+        korean: '주말에 인사동에 가요.',
+        translations: {
+          ko: '주말에 인사동에 갑니다.',
+          uz: 'Dam olish kunlari Insadongga boraman.',
+          en: 'I go to Insadong on the weekend.',
+          ru: 'На выходных я еду в Инсадон.',
+        },
+      },
+      {
+        korean: '인사동에서 전통차를 마셔요.',
+        translations: {
+          ko: '인사동에서 전통차를 마십니다.',
+          uz: 'Insadonda an’anaviy choy ichaman.',
+          en: 'I drink traditional tea in Insadong.',
+          ru: 'В Инсадоне я пью традиционный чай.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '인사동',
+      romanization: 'insadong',
+      ttsText: '인사동',
+    },
+    media: {
+      emoji: '🏮',
+      imageUrl: 'https://cdn.korio.app/words/insadong.webp',
+      imageAlt: {
+        ko: '전통 상점이 있는 인사동 거리',
+        uz: 'an’anaviy do‘konlari bor Insadong ko‘chasi',
+        en: 'an Insadong street with traditional shops',
+        ru: 'улица Инсадона с традиционными магазинами',
+      },
+    },
+    tags: ['place', 'seoul', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '서울에서 전통문화, 공예품, 찻집 등을 구경하는 지역으로 자주 소개돼요.',
+      uz: 'Seulda an’anaviy madaniyat, hunarmandchilik va choyxonalar bilan mashhur.',
+      en: 'A Seoul neighborhood known for traditional culture, crafts, and tea houses.',
+      ru: 'Район Сеула, известный традиционной культурой, ремёслами и чайными.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_gangnam_noun',
+    senseKey: 'place-seoul-gangnam',
+    korean: '강남',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '서울의 한강 남쪽에 있는 대표적인 지역',
+      uz: 'Seuldagi Gangnam hududi',
+      en: 'Gangnam',
+      ru: 'Каннам',
+    },
+    examples: [
+      {
+        korean: '강남에서 친구를 만나요.',
+        translations: {
+          ko: '강남에서 친구를 만납니다.',
+          uz: 'Gangnamda do‘stim bilan uchrashaman.',
+          en: 'I meet my friend in Gangnam.',
+          ru: 'Я встречаюсь с другом в Каннаме.',
+        },
+      },
+      {
+        korean: '오후에 강남에 가요.',
+        translations: {
+          ko: '오후에 강남에 갑니다.',
+          uz: 'Tushdan keyin Gangnamga boraman.',
+          en: 'I go to Gangnam in the afternoon.',
+          ru: 'После обеда я еду в Каннам.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '강남',
+      romanization: 'gangnam',
+      ttsText: '강남',
+    },
+    media: {
+      emoji: '🏙️',
+      imageUrl: 'https://cdn.korio.app/words/gangnam.webp',
+      imageAlt: {
+        ko: '고층 건물이 있는 강남 거리',
+        uz: 'baland binolari bor Gangnam ko‘chasi',
+        en: 'a Gangnam street with high-rise buildings',
+        ru: 'улица Каннама с высотными зданиями',
+      },
+    },
+    tags: ['place', 'seoul', 'city', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "서울의 지역 이름으로 '강남에 가다', '강남에서 만나다'처럼 사용해요.",
+      uz: "Seul hududi nomi: '강남에 가다', '강남에서 만나다'.",
+      en: 'A Seoul place name used with particles such as 에 and 에서.',
+      ru: 'Название района Сеула, используется с частицами 에 и 에서.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_yeouido_noun',
+    senseKey: 'place-seoul-yeouido',
+    korean: '여의도',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '서울 한강에 있는 섬이자 업무와 공원으로 유명한 지역',
+      uz: 'Seuldagi Yeouido hududi',
+      en: 'Yeouido',
+      ru: 'Ёыйдо',
+    },
+    examples: [
+      {
+        korean: '주말에 여의도에 가요.',
+        translations: {
+          ko: '주말에 여의도에 갑니다.',
+          uz: 'Dam olish kunlari Yeouidoga boraman.',
+          en: 'I go to Yeouido on the weekend.',
+          ru: 'На выходных я еду в Ёыйдо.',
+        },
+      },
+      {
+        korean: '여의도 공원에서 자전거를 타요.',
+        translations: {
+          ko: '여의도 공원에서 자전거를 탑니다.',
+          uz: 'Yeouido bog‘ida velosiped minaman.',
+          en: 'I ride a bicycle in Yeouido Park.',
+          ru: 'Я катаюсь на велосипеде в парке Ёыйдо.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '여의도',
+      romanization: 'yeouido',
+      ttsText: '여의도',
+    },
+    media: {
+      emoji: '🌳',
+      imageUrl: 'https://cdn.korio.app/words/yeouido.webp',
+      imageAlt: {
+        ko: '서울의 여의도 공원과 도시 풍경',
+        uz: 'Seuldagi Yeouido bog‘i va shahar manzarasi',
+        en: 'Yeouido Park and the Seoul skyline',
+        ru: 'парк Ёыйдо и городской пейзаж Сеула',
+      },
+    },
+    tags: ['place', 'seoul', 'city', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '서울의 지역 이름이며 한강 공원과 업무 지역으로 자주 알려져 있어요.',
+      uz: 'Seul hududi bo‘lib, park va biznes markazi bilan mashhur.',
+      en: 'A Seoul district known for parks, the Han River, and business areas.',
+      ru: 'Район Сеула, известный парками, рекой Ханган и деловым центром.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_incheon_noun',
+    senseKey: 'place-korea-incheon',
+    korean: '인천',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '서울 서쪽에 있는 대한민국의 광역시',
+      uz: 'Incheon shahri',
+      en: 'Incheon',
+      ru: 'Инчхон',
+    },
+    examples: [
+      {
+        korean: '주말에 인천에 가요.',
+        translations: {
+          ko: '주말에 인천에 갑니다.',
+          uz: 'Dam olish kunlari Incheonga boraman.',
+          en: 'I go to Incheon on the weekend.',
+          ru: 'На выходных я еду в Инчхон.',
+        },
+      },
+      {
+        korean: '인천에서 바다를 구경해요.',
+        translations: {
+          ko: '인천에서 바다를 구경합니다.',
+          uz: 'Incheonda dengizni tomosha qilaman.',
+          en: 'I see the sea in Incheon.',
+          ru: 'В Инчхоне я любуюсь морем.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '인천',
+      romanization: 'incheon',
+      ttsText: '인천',
+    },
+    media: {
+      emoji: '🌊',
+      imageUrl: 'https://cdn.korio.app/words/incheon.webp',
+      imageAlt: {
+        ko: '바다와 도시가 있는 인천',
+        uz: 'dengiz bo‘yidagi Incheon shahri',
+        en: 'the coastal city of Incheon',
+        ru: 'прибрежный город Инчхон',
+      },
+    },
+    tags: ['place', 'korea', 'city', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "한국의 도시 이름으로 '인천에 가다', '인천에서 만나다'처럼 사용해요.",
+      uz: "'인천에 가다', '인천에서 만나다' kabi ishlatiladi.",
+      en: 'Used as a Korean city name with particles such as 에 and 에서.',
+      ru: 'Название корейского города, используется с 에 и 에서.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_jeonju_noun',
+    senseKey: 'place-korea-jeonju',
+    korean: '전주',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '전통문화와 음식으로 유명한 대한민국의 도시',
+      uz: 'Jeonju shahri',
+      en: 'Jeonju',
+      ru: 'Чонджу',
+    },
+    examples: [
+      {
+        korean: '방학에 전주에 가요.',
+        translations: {
+          ko: '방학에 전주에 갑니다.',
+          uz: 'Ta’tilda Jeonjuga boraman.',
+          en: 'I go to Jeonju during school break.',
+          ru: 'На каникулах я еду в Чонджу.',
+        },
+      },
+      {
+        korean: '전주에서 비빔밥을 먹어요.',
+        translations: {
+          ko: '전주에서 비빔밥을 먹습니다.',
+          uz: 'Jeonjuda bibimbap yeyman.',
+          en: 'I eat bibimbap in Jeonju.',
+          ru: 'В Чонджу я ем пибимпап.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전주',
+      romanization: 'jeonju',
+      ttsText: '전주',
+    },
+    media: {
+      emoji: '🏘️',
+      imageUrl: 'https://cdn.korio.app/words/jeonju.webp',
+      imageAlt: {
+        ko: '전통 한옥이 있는 전주',
+        uz: 'an’anaviy uylar bor Jeonju',
+        en: 'Jeonju with traditional Korean houses',
+        ru: 'Чонджу с традиционными корейскими домами',
+      },
+    },
+    tags: ['place', 'korea', 'city', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: '전통 한옥과 비빔밥 등으로 자주 소개되는 한국의 도시예요.',
+      uz: 'An’anaviy hanok uylari va bibimbap bilan mashhur Koreya shahri.',
+      en: 'A Korean city often associated with traditional hanok houses and bibimbap.',
+      ru: 'Корейский город, известный традиционными домами ханок и пибимпапом.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_downtown_noun',
+    senseKey: 'place-downtown',
+    korean: '시내',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '도시의 중심이 되는 번화한 지역',
+      uz: 'shahar markazi',
+      en: 'downtown, city center',
+      ru: 'центр города',
+    },
+    examples: [
+      {
+        korean: '주말에 시내에 가요.',
+        translations: {
+          ko: '주말에 시내에 갑니다.',
+          uz: 'Dam olish kunlari shahar markaziga boraman.',
+          en: 'I go downtown on the weekend.',
+          ru: 'На выходных я еду в центр города.',
+        },
+      },
+      {
+        korean: '시내에서 쇼핑하고 구경해요.',
+        translations: {
+          ko: '시내에서 쇼핑하고 구경합니다.',
+          uz: 'Shahar markazida xarid qilib, aylanaman.',
+          en: 'I shop and look around downtown.',
+          ru: 'В центре города я хожу по магазинам и гуляю.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '시내',
+      romanization: 'sinae',
+      ttsText: '시내',
+    },
+    media: {
+      emoji: '🏙️',
+      imageUrl: 'https://cdn.korio.app/words/sinae.webp',
+      imageAlt: {
+        ko: '건물과 상점이 많은 시내',
+        uz: 'bino va do‘konlari ko‘p shahar markazi',
+        en: 'a busy downtown area',
+        ru: 'оживлённый центр города',
+      },
+    },
+    tags: ['place', 'city', 'downtown', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'시내에 가다', '시내에서 쇼핑하다'처럼 사용해요.",
+      uz: "'시내에 가다', '시내에서 쇼핑하다' kabi ishlatiladi.",
+      en: 'Commonly used as 시내에 가다 and 시내에서 쇼핑하다.',
+      ru: 'Часто используется как 시내에 가다 и 시내에서 쇼핑하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 주말 계획
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_tradition_noun',
+    senseKey: 'culture-tradition',
+    korean: '전통',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '오랜 시간 동안 이어져 내려온 문화나 관습',
+      uz: 'an’ana',
+      en: 'tradition',
+      ru: 'традиция',
+    },
+    examples: [
+      {
+        korean: '한국 전통문화를 구경해요.',
+        translations: {
+          ko: '한국의 전통문화를 구경합니다.',
+          uz: 'Koreys an’anaviy madaniyatini tomosha qilaman.',
+          en: 'I look at traditional Korean culture.',
+          ru: 'Я знакомлюсь с традиционной корейской культурой.',
+        },
+      },
+      {
+        korean: '인사동에는 전통 찻집이 많아요.',
+        translations: {
+          ko: '인사동에는 전통 찻집이 많습니다.',
+          uz: 'Insadonda an’anaviy choyxonalar ko‘p.',
+          en: 'There are many traditional tea houses in Insadong.',
+          ru: 'В Инсадоне много традиционных чайных.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '전통',
+      romanization: 'jeontong',
+      ttsText: '전통',
+    },
+    media: {
+      emoji: '🏯',
+      imageUrl: 'https://cdn.korio.app/words/jeontong.webp',
+      imageAlt: {
+        ko: '한국의 전통문화를 나타내는 건물',
+        uz: 'koreys an’anasini ifodalovchi bino',
+        en: 'a building representing Korean tradition',
+        ru: 'здание, символизирующее корейскую традицию',
+      },
+    },
+    tags: ['culture', 'tradition', 'korean-culture', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'전통문화', '전통 음식', '전통 옷'처럼 다른 명사 앞에서 많이 사용해요.",
+      uz: "'전통문화', '전통 음식' kabi boshqa otlar bilan ko‘p ishlatiladi.",
+      en: 'Often used before another noun: 전통문화, 전통 음식.',
+      ru: 'Часто используется перед другим существительным: 전통문화, 전통 음식.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_bibimbap_noun',
+    senseKey: 'food-bibimbap',
+    korean: '비빔밥',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '밥에 채소와 고기 등을 넣고 비벼 먹는 한국 음식',
+      uz: 'guruch, sabzavot va boshqa masalliqlar aralashtiriladigan koreys taomi, bibimbap',
+      en: 'Korean mixed rice with vegetables and other toppings',
+      ru: 'корейский рис с овощами и другими добавками, пибимпап',
+    },
+    examples: [
+      {
+        korean: '전주에서 비빔밥을 먹어요.',
+        translations: {
+          ko: '전주에서 비빔밥을 먹습니다.',
+          uz: 'Jeonjuda bibimbap yeyman.',
+          en: 'I eat bibimbap in Jeonju.',
+          ru: 'В Чонджу я ем пибимпап.',
+        },
+      },
+      {
+        korean: '비빔밥이 정말 맛있어요.',
+        translations: {
+          ko: '비빔밥이 정말 맛있습니다.',
+          uz: 'Bibimbap juda mazali.',
+          en: 'Bibimbap is really delicious.',
+          ru: 'Пибимпап очень вкусный.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '비빔밥',
+      romanization: 'bibimbap',
+      ttsText: '비빔밥',
+    },
+    media: {
+      emoji: '🍚',
+      imageUrl: 'https://cdn.korio.app/words/bibimbap.webp',
+      imageAlt: {
+        ko: '채소가 올라간 비빔밥',
+        uz: 'sabzavotli bibimbap',
+        en: 'bibimbap topped with vegetables',
+        ru: 'пибимпап с овощами',
+      },
+    },
+    tags: ['food', 'korean-food', 'rice', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'비빔밥을 먹다', '비빔밥이 맛있다'처럼 사용해요.",
+      uz: "'비빔밥을 먹다', '비빔밥이 맛있다' kabi ishlatiladi.",
+      en: 'Commonly used with 먹다 and 맛있다.',
+      ru: 'Часто используется с 먹다 и 맛있다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_email_noun',
+    senseKey: 'communication-email',
+    korean: '이메일',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '인터넷을 통해 주고받는 전자 우편',
+      uz: 'elektron pochta',
+      en: 'email',
+      ru: 'электронная почта',
+    },
+    examples: [
+      {
+        korean: '친구에게 이메일을 보내요.',
+        translations: {
+          ko: '친구에게 이메일을 보냅니다.',
+          uz: 'Do‘stimga elektron pochta yuboraman.',
+          en: 'I send an email to my friend.',
+          ru: 'Я отправляю другу электронное письмо.',
+        },
+      },
+      {
+        korean: '아침에 이메일을 확인해요.',
+        translations: {
+          ko: '아침에 이메일을 확인합니다.',
+          uz: 'Ertalab elektron pochtani tekshiraman.',
+          en: 'I check my email in the morning.',
+          ru: 'Утром я проверяю электронную почту.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '이메일',
+      romanization: 'imeil',
+      ttsText: '이메일',
+    },
+    media: {
+      emoji: '📧',
+      imageUrl: 'https://cdn.korio.app/words/imeil.webp',
+      imageAlt: {
+        ko: '전자 우편을 나타내는 봉투',
+        uz: 'elektron pochtani bildiruvchi xat belgisi',
+        en: 'an envelope representing email',
+        ru: 'конверт, обозначающий электронную почту',
+      },
+    },
+    tags: ['communication', 'internet', 'daily-life', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'이메일을 보내다', '이메일을 받다', '이메일을 확인하다'처럼 사용해요.",
+      uz: "'이메일을 보내다', '이메일을 확인하다' kabi ishlatiladi.",
+      en: 'Common verbs include 보내다, 받다, and 확인하다.',
+      ru: 'Часто используется с 보내다, 받다 и 확인하다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  // ─────────────────────────────────────
+  // 공공기관
+  // ─────────────────────────────────────
+
+  {
+    code: 'word_bank_noun',
+    senseKey: 'place-bank',
+    korean: '은행',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '돈을 맡기거나 찾고 금융 업무를 하는 곳',
+      uz: 'bank',
+      en: 'bank',
+      ru: 'банк',
+    },
+    examples: [
+      {
+        korean: '오전에 은행에 가요.',
+        translations: {
+          ko: '오전에 은행에 갑니다.',
+          uz: 'Ertalab bankka boraman.',
+          en: 'I go to the bank in the morning.',
+          ru: 'Утром я иду в банк.',
+        },
+      },
+      {
+        korean: '은행은 네 시까지 해요.',
+        translations: {
+          ko: '은행은 네 시까지 영업합니다.',
+          uz: 'Bank soat to‘rtgacha ishlaydi.',
+          en: 'The bank is open until four.',
+          ru: 'Банк работает до четырёх.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '은행',
+      romanization: 'eunhaeng',
+      ttsText: '은행',
+    },
+    media: {
+      emoji: '🏦',
+      imageUrl: 'https://cdn.korio.app/words/eunhaeng.webp',
+      imageAlt: {
+        ko: '금융 업무를 하는 은행',
+        uz: 'moliyaviy xizmat ko‘rsatuvchi bank',
+        en: 'a bank building',
+        ru: 'здание банка',
+      },
+    },
+    tags: ['place', 'public-facility', 'finance', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'은행에 가다', '은행에서 돈을 찾다'처럼 사용해요.",
+      uz: "'은행에 가다', '은행에서 돈을 찾다' kabi ishlatiladi.",
+      en: 'Commonly used as 은행에 가다 and 은행에서 돈을 찾다.',
+      ru: 'Часто используется как 은행에 가다 и 은행에서 돈을 찾다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_post_office_noun',
+    senseKey: 'place-post-office',
+    korean: '우체국',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '편지나 소포를 보내고 우편 업무를 하는 곳',
+      uz: 'pochta, pochta bo‘limi',
+      en: 'post office',
+      ru: 'почта, почтовое отделение',
+    },
+    examples: [
+      {
+        korean: '점심시간에 우체국에 가요.',
+        translations: {
+          ko: '점심시간에 우체국에 갑니다.',
+          uz: 'Tushlik vaqtida pochtaga boraman.',
+          en: 'I go to the post office at lunchtime.',
+          ru: 'В обеденное время я иду на почту.',
+        },
+      },
+      {
+        korean: '우체국에서 소포를 보내요.',
+        translations: {
+          ko: '우체국에서 소포를 보냅니다.',
+          uz: 'Pochtadan posilka yuboraman.',
+          en: 'I send a package at the post office.',
+          ru: 'Я отправляю посылку на почте.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '우체국',
+      romanization: 'ucheguk',
+      ttsText: '우체국',
+    },
+    media: {
+      emoji: '📮',
+      imageUrl: 'https://cdn.korio.app/words/ucheguk.webp',
+      imageAlt: {
+        ko: '편지와 소포를 보내는 우체국',
+        uz: 'xat va posilka yuboriladigan pochta',
+        en: 'a post office',
+        ru: 'почтовое отделение',
+      },
+    },
+    tags: ['place', 'public-facility', 'mail', 'topik-1'],
+    difficulty: 1,
+    usageNote: {
+      ko: "'우체국에 가다', '우체국에서 편지를 보내다'처럼 사용해요.",
+      uz: "'우체국에 가다', '우체국에서 편지를 보내다' kabi ishlatiladi.",
+      en: 'Commonly used as 우체국에 가다 and 우체국에서 편지를 보내다.',
+      ru: 'Часто используется как 우체국에 가다 и 우체국에서 편지를 보내다.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+
+  {
+    code: 'word_immigration_office_noun',
+    senseKey: 'place-immigration-office',
+    korean: '출입국관리사무소',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '외국인의 출입국, 체류 등의 행정 업무를 처리하는 기관',
+      uz: 'immigratsiya idorasi',
+      en: 'immigration office',
+      ru: 'иммиграционная служба',
+    },
+    examples: [
+      {
+        korean: '오전에 출입국관리사무소에 가요.',
+        translations: {
+          ko: '오전에 출입국관리사무소에 갑니다.',
+          uz: 'Ertalab immigratsiya idorasiga boraman.',
+          en: 'I go to the immigration office in the morning.',
+          ru: 'Утром я иду в иммиграционную службу.',
+        },
+      },
+      {
+        korean: '출입국관리사무소에서 일을 처리해요.',
+        translations: {
+          ko: '출입국관리사무소에서 행정 업무를 처리합니다.',
+          uz: 'Immigratsiya idorasida hujjat ishlarini hal qilaman.',
+          en: 'I take care of immigration paperwork at the immigration office.',
+          ru: 'Я оформляю документы в иммиграционной службе.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '출입국관리사무소',
+      romanization: 'churipgukgwallisamuso',
+      ttsText: '출입국관리사무소',
+    },
+    media: {
+      emoji: '🛂',
+      imageUrl: 'https://cdn.korio.app/words/churipgukgwallisamuso.webp',
+      imageAlt: {
+        ko: '출입국 업무를 처리하는 행정기관',
+        uz: 'immigratsiya ishlarini ko‘radigan davlat idorasi',
+        en: 'an immigration administration office',
+        ru: 'учреждение иммиграционной службы',
+      },
+    },
+    tags: ['place', 'public-facility', 'immigration', 'topik-1'],
+    difficulty: 2,
+    usageNote: {
+      ko: '외국인의 체류나 출입국 관련 행정 업무를 처리하는 기관을 뜻해요.',
+      uz: 'Chet elliklarning yashash va immigratsiya hujjatlari bilan shug‘ullanuvchi idora.',
+      en: 'Refers to an office handling immigration and stay-related administrative matters.',
+      ru: 'Означает учреждение, занимающееся вопросами въезда, выезда и пребывания иностранцев.',
+    },
+    isCore: true,
+    isActive: true,
+  },
+] satisfies readonly WordSeedEntry[];
 
 export const S2_UNIT2_QUESTIONS = {
   // ══════════════════════════════════════════════════════════
