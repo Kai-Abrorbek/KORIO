@@ -145,6 +145,28 @@ export class LessonsService {
     };
   }
 
+  public async getQuestionsByIds(
+    questionIds: Types.ObjectId[],
+    lang: string = 'uz',
+  ) {
+    if (!questionIds.length) return [];
+
+    const questions = await this.questionModel
+      .find({ _id: { $in: questionIds }, isActive: true })
+      .lean();
+    const questionMap = new Map(
+      questions.map((question) => [question._id.toString(), question]),
+    );
+
+    return questionIds
+      .map((id) => questionMap.get(id.toString()))
+      .filter(
+        (question): question is NonNullable<typeof question> =>
+          Boolean(question),
+      )
+      .map((question) => this.formatQuestion(question, lang));
+  }
+
   // 레슨 상세 + 문제들 (lessonId로 조회)
   public async getLessonById(lessonId: string, lang: string = 'uz') {
     const lesson = await this.lessonModel.findById(lessonId).lean();

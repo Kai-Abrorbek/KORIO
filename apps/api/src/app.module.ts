@@ -19,6 +19,7 @@ import { HangulModule } from './hangul/hangul.module';
 import { SpeechModule } from './speech/speech.module';
 import { TtsModule } from './tts/tts.module';
 import { WordsModule } from './words/words.module';
+import { ExpressionsModule } from './expressions/expressions.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { WordsModule } from './words/words.module';
     SpeechModule,
     NotificationsModule,
     WordsModule,
+    ExpressionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

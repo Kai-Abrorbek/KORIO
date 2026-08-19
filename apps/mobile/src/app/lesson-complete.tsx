@@ -25,6 +25,9 @@ export default function LessonCompleteScreen() {
     gemTotal?: string;
     /** 어느 로드맵에서 왔는지. 없으면 어휘 로드맵 */
     category?: string;
+    pack?: string;
+    section?: string;
+    unit?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -45,6 +48,15 @@ export default function LessonCompleteScreen() {
           gems: params.chestGems ?? "0",
           gemTotal: params.gemTotal ?? "0",
           category: params.category ?? "",
+        },
+      });
+    } else if (params.category === "expression" && params.pack) {
+      router.replace({
+        pathname: "/expression-pack",
+        params: {
+          pack: params.pack,
+          section: params.section ?? "1",
+          unit: params.unit ?? "1",
         },
       });
     } else {

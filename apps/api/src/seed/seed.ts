@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { Question } from '../lessons/schemas/question.schema';
 import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
+import { Expression } from '../expressions/schemas/expression.schema';
 import {
   UNIT1_QUESTIONS,
   UNIT1_NODES,
@@ -42,6 +43,9 @@ async function seed() {
   const questionModel = app.get<Model<Question>>(getModelToken(Question.name));
   const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
   const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
+  const expressionModel = app.get<Model<Expression>>(
+    getModelToken(Expression.name),
+  );
 
   console.log('🌱 시딩 시작 (upsert 방식 — 진행도 유지)...');
 
@@ -170,9 +174,13 @@ async function seed() {
     _id: { $nin: writtenLessonIds },
   });
 
-  // 문항은 section 을 안 들고 있어서, 어떤 레슨도 참조하지 않는 것을 고아로 본다.
-  // 문법 트랙·다른 시드가 넣은 문항은 각자의 레슨이 참조하고 있으므로 안전하다.
-  const referenced = await lessonModel.distinct('questionIds');
+  // 문항은 section 을 안 들고 있어서 레슨 또는 표현 카드가 참조하지 않는 것을
+  // 고아로 본다. 표현 연습문제도 기존 Question 컬렉션과 채점기를 재사용한다.
+  const lessonQuestionIds = await lessonModel.distinct('questionIds');
+  const expressionQuestionIds = await expressionModel.distinct(
+    'practiceQuestionIds',
+  );
+  const referenced = [...lessonQuestionIds, ...expressionQuestionIds];
   const staleQuestions = await questionModel.deleteMany({
     _id: { $nin: referenced },
   });

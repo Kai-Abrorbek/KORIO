@@ -16,6 +16,7 @@ export const PRACTICE_BASE_XP: Record<string, number> = {
   review: 20, // 오답 복습
   nodeReview: 5, // 노드 복습
   wordPractice: 10, // 단어 연습
+  expressionPractice: 10, // 표현 카드 뒤 빈칸·타이핑 연습
 };
 
 /** 연습 모드 XP = 기본값 + 콤보(정답 수 상한) */

@@ -23,6 +23,7 @@ import {
   LessonSession,
 } from "@/types/lesson";
 import { LessonService } from "@/services/lesson.service";
+import { ExpressionService } from "@/services/expression.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
@@ -82,7 +83,7 @@ export default function LessonScreen() {
   const questionAreaStyle = useAnimatedStyle(() => ({
     paddingBottom: Math.max(keyboard.height.value, insets.bottom),
   }));
-  const { lessonId, mode, nodeId, section, unit, target, category } =
+  const { lessonId, mode, nodeId, section, unit, target, category, pack } =
     useLocalSearchParams<{
       lessonId?: string;
       mode?: string;
@@ -92,6 +93,8 @@ export default function LessonScreen() {
       target?: string;
       /** 어느 로드맵에서 들어왔는지. 완료 후 제자리로 돌아가려면 필요 */
       category?: string;
+      /** 표현 카드 학습에서 연습할 표현 팩 코드 */
+      pack?: string;
     }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
@@ -99,6 +102,7 @@ export default function LessonScreen() {
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
   const isLegend = mode === "legend";
+  const isExpressionPractice = mode === "expressionPractice";
   const jumpHeartLimit =
     target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
@@ -140,8 +144,8 @@ export default function LessonScreen() {
   const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
 
   useEffect(() => {
-    loadLesson();
-  }, [lessonId]);
+    void loadLesson();
+  }, [lessonId, mode, nodeId, pack, section, unit]);
 
   useEffect(() => {
     setEnergy(userEnergy);
@@ -216,6 +220,18 @@ export default function LessonScreen() {
         return;
       }
 
+      if (isExpressionPractice) {
+        if (!pack) throw new Error("표현 팩 코드가 없습니다");
+        const session = await ExpressionService.getPractice(
+          pack,
+          Number(section) || 1,
+          Number(unit) || 1,
+        );
+        setLesson(session);
+        questionQueue.current = [...session.questions];
+        return;
+      }
+
       if (isReview) {
         const { questions } = await LessonService.getMistakeQuestions();
         setLesson({
@@ -265,9 +281,12 @@ export default function LessonScreen() {
       questionQueue.current = [...data.questions];
     } catch (err) {
       console.error("레슨 로드 실패:", err);
-      if (!isLevelTest) {
+      if (!isLevelTest && !isExpressionPractice) {
         setLesson(MOCK_LESSON);
         questionQueue.current = [...MOCK_LESSON.questions];
+      } else if (isExpressionPractice) {
+        setLesson(null);
+        questionQueue.current = [];
       }
     } finally {
       setLoading(false);
@@ -500,7 +519,20 @@ export default function LessonScreen() {
     // 완료 화면에 띄울 XP — 서버가 확정한 값으로 채운다
     let earnedXp = 0;
 
-    if (isReview || isWordPractice) {
+    if (isExpressionPractice && pack) {
+      try {
+        const r = await ExpressionService.completePractice(pack, {
+          questionIds: practicedIds,
+          wrongQuestionIds: wrongArr,
+          speedSeconds: seconds,
+          combo,
+        });
+        earnedXp = r.xpEarned;
+        updateUser({ totalXP: r.totalXP } as any);
+      } catch (err) {
+        console.error("표현 연습 완료 저장 실패:", err);
+      }
+    } else if (isReview || isWordPractice) {
       // 복습은 unmount에서 resolveMistakes 처리
       try {
         const r = await LessonService.completePractice({
@@ -589,6 +621,9 @@ export default function LessonScreen() {
         accuracy: String(accuracy),
         time: timeStr,
         category: category ?? "",
+        pack: isExpressionPractice ? pack ?? "" : "",
+        section: isExpressionPractice ? section ?? "1" : "",
+        unit: isExpressionPractice ? unit ?? "1" : "",
       },
     });
   };

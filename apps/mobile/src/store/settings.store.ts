@@ -56,6 +56,8 @@ export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
     // 전용 메인 페이지가 있는 모드
     case "grammar":
       return "/grammar-list"; // 문법 설명 목록
+    case "expression":
+      return "/expressions"; // 상황별 표현 학습 허브
     case "topik":
       return `/topik-sections?level=${topikLevel}` as Href;
     // 문법 문제 풀이는 어휘와 같은 로드맵을 문법 트랙 데이터로 돈다
@@ -63,7 +65,7 @@ export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
       return "/roadmap?category=grammar" as Href;
     case "vocabulary":
       return "/roadmap";
-    // 표현·회화·듣기는 전용 문제 풀이 페이지를 따로 만들 예정이다.
+    // 회화·듣기는 전용 문제 풀이 페이지를 따로 만들 예정이다.
     // 어휘 로드맵을 재사용하면 안 되므로 그때까지 자리 표시 화면으로 보낸다.
     default:
       return `/coming-soon?mode=${mode}` as Href;

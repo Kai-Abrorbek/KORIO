@@ -99,6 +99,33 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
 사용자의 `UserWordProgress`를 자동 삭제하지 않는다. 현재 작성 중인 Section 2는 단어
 시딩 대상에서 제외되어 있으므로 완성 후 `word-seed.data.ts`의 source 목록에 연결한다.
 
+## 표현 데이터 (`data/expressions`) 작성 규칙
+
+표현 기능은 `ExpressionPack` → `Expression` → 기존 `Question` 순서로 연결된다.
+현재 기준 예시는 `data/expressions/expression.data.ts`에 상황 팩 1개, 표현 1개,
+연습문제 2개만 들어 있다. 다른 AI에게 표현 시딩을 맡길 때 이 파일의 구조를 그대로
+복사하고 배열 항목을 늘리게 한다.
+
+- 상황 팩·표현·문제의 `code`는 각각 영구 식별자다. 배포 후 다른 내용에 재사용하거나
+  번역을 고친다는 이유로 바꾸지 않는다.
+- `title`, `description`, `meaning`, `context`, `usageNote`, `imageAlt`, 문제의
+  `instruction`, `hint`, `answerTranslation`은 ko/uz/en/ru를 모두 작성한다.
+- 표현 하나는 하나의 `packCode`에 속하고, `placements`로 여러 섹션·유닛에서
+  재사용할 수 있다. 같은 표현을 다른 유닛에서 가르치려고 중복 문서를 만들지 않는다.
+- `pronunciation.ttsText`에는 Azure Speech가 읽을 자연스러운 한국어 전체 표현만 넣는다.
+- 연습은 새 문제 타입을 만들지 않는다. 표현마다 기존 `fill_in_blank` 1개 이상과
+  `translate_type` 1개 이상을 `practiceQuestions`에 넣는다.
+- `fill_in_blank`는 `sentenceTemplate`의 `___` 개수와 `blankAnswers` 개수가 같아야
+  하고, 모든 정답이 `options`에 실제로 있어야 한다.
+- `translate_type`에는 아래 채점 규칙에 맞는 `grading`을 반드시 넣는다. 특정 표현을
+  연습하는 문제는 `targetExpression`, 자연스러운 동의 표현을 모두 허용하는 문제는
+  `semantic`을 쓴다.
+- 실제 반영 전 `pnpm --filter api seed:validate-expressions`, 반영할 때
+  `pnpm --filter api seed:expressions`를 사용한다. 시더는 code 기준 upsert만 하며 기존
+  표현과 `UserExpressionProgress`를 삭제하지 않는다.
+- 일반 `seed`의 고아 문항 정리는 `Expression.practiceQuestionIds`도 참조 목록으로
+  인정하므로 표현 연습문제가 삭제되지 않는다.
+
 ## Seed authoring rules for answer grading
 
 These rules apply whenever an AI or developer creates or updates lesson seed data. The goal is to support useful feedback such as "the meaning is correct," "almost correct," and "use this expression here" for answers the learner types.
@@ -549,8 +576,10 @@ options: ['들', '었', '어', '요', '습', '니'],  // 음절 단위
 | `seed:validate-grammar` | 문법 페이지 받침 규칙·퀴즈 정답 수·하이라이트 |
 | `seed:validate-recipe` | 합격 레시피 |
 | `seed:validate-words` | 단어 code·4개 언어 뜻·예문 번역·섹션/유닛 placement |
+| `seed:validate-expressions` | 표현 팩·표현·연습문제 code, 4개 언어, 빈칸·채점 구조 |
 
-시딩은 `seed` → `seed:words` → `seed:grammar` → `seed:grammar-track` → `seed:recipe`.
+시딩은 `seed` → `seed:words` → `seed:expressions` → `seed:grammar` →
+`seed:grammar-track` → `seed:recipe`.
 `seed` 는 끝에 **이번 실행이 쓰지 않은 옛 노드·레슨·문항을 지운다** — 구성을 바꿔서
 사라진 노드가 로드맵에 유령으로 남지 않게. 문법 트랙(`gt_` 접두사)은 건드리지 않는다.
 
