@@ -159,7 +159,6 @@ export default function FillInBlank({
           </View>
           <View style={s.headingCopy}>
             <Text style={s.title}>{instruction}</Text>
-            <Text style={s.subtitle}>{t("lesson.fillBlankHint")}</Text>
           </View>
         </View>
 
@@ -193,7 +192,7 @@ export default function FillInBlank({
               mode="select"
               activeIndex={activeIndex}
               onBlankPress={clearBlank}
-              fontSize={compact ? 20 : 22}
+              fontSize={compact ? 18 : 18}
             />
           </View>
 
@@ -209,9 +208,7 @@ export default function FillInBlank({
             style={({ pressed }) => [
               s.listenButton,
               {
-                backgroundColor: isSpeaking
-                  ? AUDIO_BLUE
-                  : `${AUDIO_BLUE}12`,
+                backgroundColor: isSpeaking ? AUDIO_BLUE : `${AUDIO_BLUE}12`,
               },
               pressed && s.listenButtonPressed,
               !speechText && s.disabled,
@@ -239,9 +236,7 @@ export default function FillInBlank({
                 { color: isSpeaking ? "#FFFFFF" : AUDIO_BLUE },
               ]}
             >
-              {t(
-                isSpeaking ? "lesson.stopAudio" : "lesson.playFullSentence",
-              )}
+              {t(isSpeaking ? "lesson.stopAudio" : "lesson.playFullSentence")}
             </Text>
             <Ionicons
               name={isSpeaking ? "pulse" : "chevron-forward"}
@@ -347,13 +342,6 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       lineHeight: 28,
       fontWeight: "900",
       color: theme.text,
-    },
-    subtitle: {
-      marginTop: 5,
-      fontSize: 14,
-      lineHeight: 20,
-      fontWeight: "600",
-      color: theme.textSecondary,
     },
     sentenceCard: {
       backgroundColor: theme.surface,

@@ -35,7 +35,7 @@ export const S3_UNIT1_WORDS = [
         korean: '신청서에 성명을 써 주세요.',
         translations: {
           ko: '신청서에 성과 이름을 써 주세요.',
-          uz: "Arizaga ism-familiyangizni yozing.",
+          uz: 'Arizaga ism-familiyangizni yozing.',
           en: 'Please write your full name on the application.',
           ru: 'Пожалуйста, напишите ФИО в заявлении.',
         },
@@ -268,12 +268,12 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 ## 구조
 
 ```
-유닛  →  노드 4~6개  →  노드당 레슨 4개(고정)  →  레슨당 문제 17~24개
+유닛  →  노드 6~8개  →  노드당 레슨 4개(고정)  →  레슨당 문제 20~24개
 ```
 
 - **노드 수는 유닛 내용에 따라** 4~6개. 교재 한 과가 다루는 주제 수에 맞춘다.
 - **레슨은 노드당 4개 고정.**
-- 문제는 레슨당 17~24개.
+- 문제는 레슨당 20~24개.
 
 노드는 `UNIT{n}_NODES`, 문제는 `UNIT{n}_QUESTIONS` 로 내보낸다. 레슨의 `questions`
 배열에 문제 키를 나열하면 그 순서대로 출제된다. 문제 키가 곧 DB 의 `code` 라서
@@ -288,17 +288,17 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 
 ### 섹션 1 (한국어를 처음 배우는 구간)
 
-| 타입 | 쓰는 법 |
-| --- | --- |
-| `speaking` | **핵심.** 가장 많이 넣는다. 나중에 실제 STT 로 연결된다 |
-| `fill_in_blank` | 단일 빈칸만. 보기를 탭한다 |
-| `word_matching` | 단어 5쌍 |
-| `audio_match` | 단어 5쌍 — **항상 5쌍** |
-| `sentence_builder` | 한국어 문장을 듣고 학습자 언어의 뜻을 칩으로 배열 |
-| `word_arrange` | 한국어 문장을 듣고 한국어 어절을 칩으로 배열 |
-| `translate_builder` | 뜻을 보고 한국어로 옮기기 |
-| `dialog_complete` | 짧은 대화의 마지막 대답 고르기 |
-| `image_choice` | **유닛 도입부에 2문제 정도.** 그 이상은 단조로워진다 |
+| 타입                | 쓰는 법                                                 |
+| ------------------- | ------------------------------------------------------- |
+| `speaking`          | **핵심.** 가장 많이 넣는다. 나중에 실제 STT 로 연결된다 |
+| `fill_in_blank`     | 단일 빈칸만. 보기를 탭한다                              |
+| `word_matching`     | 단어 5쌍                                                |
+| `audio_match`       | 단어 5쌍 — **항상 5쌍**                                 |
+| `sentence_builder`  | 한국어 문장을 듣고 학습자 언어의 뜻을 칩으로 배열       |
+| `word_arrange`      | 한국어 문장을 듣고 한국어 어절을 칩으로 배열            |
+| `translate_builder` | 뜻을 보고 한국어로 옮기기                               |
+| `dialog_complete`   | 짧은 대화의 마지막 대답 고르기                          |
+| `image_choice`      | **유닛 도입부에 2문제 정도.** 그 이상은 단조로워진다    |
 
 **넣지 않는 것**
 
@@ -317,11 +317,11 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 **배치**
 
 - **같은 타입을 연달아 두지 않는다.** 같은 문제를 두 번 푸는 느낌이 든다.
-- 레슨당 17~24문제, 노드당 레슨 4개, 유닛당 노드 4~6개.
+- 레슨당 20~24문제, 노드당 레슨 4개, 유닛당 노드 5~8개.
 
 **보기(`options`)**
 
-- 정답 길이만큼만 넣지 않는다. **오답을 2~3개 더** 넣는다.
+- 정답 길이만큼만 넣지 않는다. **오답을 3~4개 더** 넣는다.
 - **순서를 섞어서 적는다.** 정답이 앞에 몰려 있으면 답이 보인다.
 - 정답이 보기 안에 없으면 풀 수 없다.
 
@@ -433,11 +433,11 @@ options: ['학교', '한국어', '회사', '영어'],    // 정답 전부 + 오�
 - 언더바 2개(`__`)는 빈칸으로 인식되지 않는다. **3개 이상.**
 - 빈칸 사이 조사·띄어쓰기는 템플릿 텍스트 쪽에 넣는다. (`'저는 ___ 를 먹어요.'`)
 
-| 타입 | 입력 방식 | 비고 |
-| --- | --- | --- |
-| `fill_in_blank` | 보기 탭 | `options` 필수 |
-| `listen_fill` | 타이핑 | 정답 문장을 TTS 로 읽어줌 |
-| `type_answer` | 타이핑 | |
+| 타입            | 입력 방식 | 비고                      |
+| --------------- | --------- | ------------------------- |
+| `fill_in_blank` | 보기 탭   | `options` 필수            |
+| `listen_fill`   | 타이핑    | 정답 문장을 TTS 로 읽어줌 |
+| `type_answer`   | 타이핑    |                           |
 
 `grammar_blank` · `grammar_build` 는 문법 드릴이라 구조가 다르다. 위 규칙 밖이다.
 
@@ -571,13 +571,13 @@ options: ['들', '었', '어', '요', '습', '니'],  // 음절 단위
 
 시드를 고쳤으면 돌린다. 전부 `pnpm --filter api` 로 실행한다.
 
-| 스크립트 | 검사하는 것 |
-| --- | --- |
-| `seed:validate-section1` | 유닛 1 배치·조립 가능 여부·매칭 단어 길이·4개 언어 |
-| `seed:validate-questions` | 중급 5종의 형태 (`wrongWord` 일치, 빈칸 수, 음절) |
-| `seed:validate-grammar` | 문법 페이지 받침 규칙·퀴즈 정답 수·하이라이트 |
-| `seed:validate-recipe` | 합격 레시피 |
-| `seed:validate-words` | 단어 code·4개 언어 뜻·예문 번역·섹션/유닛 placement |
+| 스크립트                    | 검사하는 것                                          |
+| --------------------------- | ---------------------------------------------------- |
+| `seed:validate-section1`    | 유닛 1 배치·조립 가능 여부·매칭 단어 길이·4개 언어   |
+| `seed:validate-questions`   | 중급 5종의 형태 (`wrongWord` 일치, 빈칸 수, 음절)    |
+| `seed:validate-grammar`     | 문법 페이지 받침 규칙·퀴즈 정답 수·하이라이트        |
+| `seed:validate-recipe`      | 합격 레시피                                          |
+| `seed:validate-words`       | 단어 code·4개 언어 뜻·예문 번역·섹션/유닛 placement  |
 | `seed:validate-expressions` | 표현 팩·표현·연습문제 code, 4개 언어, 빈칸·채점 구조 |
 
 시딩은 `seed` → `seed:words` → `seed:expressions` → `seed:grammar` →

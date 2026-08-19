@@ -52,7 +52,7 @@ export default function BlankSentence({
   inputRefs,
   onSubmit,
   autoFocusFirst = false,
-  fontSize = 20,
+  fontSize = 17,
 }: Props) {
   const locked = answerState !== "idle";
   const accent =

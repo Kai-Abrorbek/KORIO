@@ -19,6 +19,7 @@
     "seed:validate-grammar": "ts-node -r tsconfig-paths/register src/seed/validate-grammar-seed.ts",
     "seed:validate-questions": "ts-node -r tsconfig-paths/register src/seed/validate-question-shapes.ts",
     "seed:grammar": "ts-node -r tsconfig-paths/register src/seed/seed-grammar.ts",
+    "seed:grammar-track": "ts-node -r tsconfig-paths/register src/seed/seed-grammar-track.ts",
     "seed:topik": "ts-node -r tsconfig-paths/register src/seed/seed-topik.ts",
     "seed:recipe": "ts-node -r tsconfig-paths/register src/seed/seed-recipe.ts",
     "seed:validate-recipe": "ts-node -r tsconfig-paths/register src/seed/validate-recipe-seed.ts",
@@ -30,8 +31,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed:grammar-track": "ts-node -r tsconfig-paths/register src/seed/seed-grammar-track.ts"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.114.0",
