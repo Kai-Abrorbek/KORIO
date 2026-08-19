@@ -1246,6 +1246,10 @@ export default {
     done: "Done",
     noData: "This step isn't ready yet.",
     resultCount: "{{correct}} of {{total}} correct",
+    saving: "Saving your progress…",
+    saved: "Progress saved",
+    saveFailed: "Couldn't save your progress",
+    retrySave: "Try saving again",
   },
   sentenceBuild: {
     level: "Level {{n}}",
@@ -1285,6 +1289,7 @@ export default {
     hardLocked:
       "Get {{need}} of {{total}} right on EASY to unlock HARD. ({{score}}+ points)",
     confirm: "OK",
+    progressLoadFailed: "Couldn't load your saved progress",
   },
   // en.ts
   aiChat: {

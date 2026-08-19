@@ -597,21 +597,18 @@ export class UsersService {
   async savePronunciation(userId: string, dto: SavePronunciationDto) {
     const key = `${dto.level}:${dto.step}:${dto.mode}`;
 
-    const user = await this.userModel
-      .findById(userId)
+    // 동시에 여러 저장 요청이 와도 더 낮은 점수가 최고점을 덮지 않도록 원자적으로 갱신한다.
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $max: { [`pronunciationScores.${key}`]: dto.score } },
+        { new: true, runValidators: true },
+      )
       .select('pronunciationScores')
       .lean();
-    if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+    if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
 
-    const scores = user.pronunciationScores || {};
-    const best = Math.max(scores[key] ?? 0, dto.score);
-
-    await this.userModel.updateOne(
-      { _id: new Types.ObjectId(userId) },
-      { $set: { [`pronunciationScores.${key}`]: best } },
-    );
-
-    return { scores: { ...scores, [key]: best } };
+    return { scores: updated.pronunciationScores || {} };
   }
 
   async getPronunciation(userId: string) {

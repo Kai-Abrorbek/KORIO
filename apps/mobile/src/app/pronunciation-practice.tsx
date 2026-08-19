@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -47,6 +47,8 @@ const C = {
 const key = (lv: PronLevel, step: number, mode: "easy" | "hard") =>
   `${lv}:${step}:${mode}`;
 
+type ScoreStatus = "loading" | "ready" | "error";
+
 export default function PronunciationPractice() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -56,27 +58,58 @@ export default function PronunciationPractice() {
   const [expanded, setExpanded] = useState<number | null>(1);
   // 어느 단계에서 잠금을 눌렀는지 알아야 "몇 개 맞혀야 하는지"를 말해줄 수 있다
   const [lockAlert, setLockAlert] = useState<PronStage | null>(null);
-  const [scores, setScores] = useState<Record<string, number>>({});
+  const [scores, setScores] = useState<Record<string, number> | null>(null);
+  const [scoreStatus, setScoreStatus] = useState<ScoreStatus>("loading");
+  const scoreRequestRef = useRef(0);
+
+  const loadScores = useCallback(() => {
+    const requestId = ++scoreRequestRef.current;
+    setScoreStatus("loading");
+    UserService.getPronunciation()
+      .then((r) => {
+        if (scoreRequestRef.current !== requestId) return;
+        setScores(r.scores ?? {});
+        setScoreStatus("ready");
+      })
+      .catch(() => {
+        if (scoreRequestRef.current !== requestId) return;
+        setScores(null);
+        setScoreStatus("error");
+      });
+  }, []);
 
   // 퀴즈를 풀고 돌아올 때마다 새로 받아야 점수가 바로 반영된다
   useFocusEffect(
     useCallback(() => {
-      UserService.getPronunciation()
-        .then((r) => setScores(r.scores ?? {}))
-        .catch(() => {});
-    }, []),
+      loadScores();
+      return () => {
+        scoreRequestRef.current += 1;
+      };
+    }, [loadScores]),
   );
 
   const data = PRON_DATA[tab];
   const total = levelTotal(tab);
-  const done = data.stages.reduce((n, s) => {
-    const e = scores[key(tab, s.step, "easy")] ?? 0;
-    const h = scores[key(tab, s.step, "hard")] ?? 0;
-    return (
-      n + (e >= STAGE_PASS_SCORE ? 1 : 0) + (h >= STAGE_PASS_SCORE ? 1 : 0)
-    );
-  }, 0);
-  const pct = total ? Math.round((done / total) * 100) : 0;
+  const practiced = scores
+    ? data.stages.reduce(
+        (count, stage) =>
+          count +
+          (Object.prototype.hasOwnProperty.call(
+            scores,
+            key(tab, stage.step, "easy"),
+          )
+            ? 1
+            : 0) +
+          (Object.prototype.hasOwnProperty.call(
+            scores,
+            key(tab, stage.step, "hard"),
+          )
+            ? 1
+            : 0),
+        0,
+      )
+    : 0;
+  const pct = total ? Math.round((practiced / total) * 100) : 0;
 
   const open = (stage: PronStage, mode: "easy" | "hard") => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -87,6 +120,7 @@ export default function PronunciationPractice() {
   };
 
   const startHard = (stage: PronStage) => {
+    if (scoreStatus !== "ready" || !scores) return;
     const easy = scores[key(tab, stage.step, "easy")] ?? 0;
     if (easy < HARD_UNLOCK_SCORE) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -158,16 +192,49 @@ export default function PronunciationPractice() {
             <Text style={st.bannerTitle}>{t(data.storyKey)}</Text>
             <Text style={st.bannerSub}>{t(`pronPractice.focus.${tab}`)}</Text>
             <View style={st.bannerTrack}>
-              <View style={[st.bannerFill, { width: `${pct}%` }]} />
+              <View
+                style={[
+                  st.bannerFill,
+                  { width: scoreStatus === "ready" ? `${pct}%` : "0%" },
+                ]}
+              />
             </View>
+            {scoreStatus === "error" && (
+              <Pressable style={st.progressError} onPress={loadScores}>
+                <Ionicons name="refresh" size={14} color={C.purpleDk} />
+                <Text style={st.progressErrorText}>
+                  {t("pronPractice.progressLoadFailed")}
+                </Text>
+              </Pressable>
+            )}
           </View>
-          <View style={[st.ring, pct > 0 && { borderColor: C.purple }]}>
-            <Text style={[st.ringPct, pct > 0 && { color: C.purpleDk }]}>
-              {pct}
-              <Text style={st.ringPctSmall}>%</Text>
+          <View
+            style={[
+              st.ring,
+              scoreStatus === "ready" &&
+                pct > 0 && { borderColor: C.purple },
+            ]}
+          >
+            <Text
+              style={[
+                st.ringPct,
+                scoreStatus === "ready" &&
+                  pct > 0 && { color: C.purpleDk },
+              ]}
+            >
+              {scoreStatus === "ready" ? (
+                <>
+                  {pct}
+                  <Text style={st.ringPctSmall}>%</Text>
+                </>
+              ) : scoreStatus === "error" ? (
+                "!"
+              ) : (
+                "…"
+              )}
             </Text>
             <Text style={st.ringFrac}>
-              {done}/{total}
+              {scoreStatus === "ready" ? practiced : "--"}/{total}
             </Text>
           </View>
         </View>
@@ -175,8 +242,8 @@ export default function PronunciationPractice() {
         {/* 단계 카드들 */}
         {data.stages.map((stage) => {
           const isOpen = expanded === stage.step;
-          const easy = scores[key(tab, stage.step, "easy")];
-          const hard = scores[key(tab, stage.step, "hard")];
+          const easy = scores?.[key(tab, stage.step, "easy")];
+          const hard = scores?.[key(tab, stage.step, "hard")];
           const hardOpen = (easy ?? 0) >= HARD_UNLOCK_SCORE;
           const cleared =
             (easy ?? 0) >= STAGE_PASS_SCORE && (hard ?? 0) >= STAGE_PASS_SCORE;
@@ -399,6 +466,18 @@ const st = StyleSheet.create({
   },
   bannerTrack: { height: 8, backgroundColor: C.track, borderRadius: 4 },
   bannerFill: { height: 8, backgroundColor: C.purple, borderRadius: 4 },
+  progressError: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 8,
+  },
+  progressErrorText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.purpleDk,
+  },
   ring: {
     width: 74,
     height: 74,

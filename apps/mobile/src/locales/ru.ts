@@ -1251,6 +1251,10 @@ export default {
     done: "Готово",
     noData: "Этот шаг ещё готовится.",
     resultCount: "{{correct}} из {{total}} верно",
+    saving: "Сохраняем прогресс…",
+    saved: "Прогресс сохранён",
+    saveFailed: "Не удалось сохранить прогресс",
+    retrySave: "Сохранить ещё раз",
   },
   sentenceBuild: {
     level: "Уровень {{n}}",
@@ -1290,6 +1294,7 @@ export default {
     hardLocked:
       "Ответьте верно на {{need}} из {{total}} в EASY, чтобы открыть HARD. ({{score}}+ баллов)",
     confirm: "OK",
+    progressLoadFailed: "Не удалось загрузить сохранённый прогресс",
   },
   // ru.ts
   aiChat: {

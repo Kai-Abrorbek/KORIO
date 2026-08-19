@@ -1242,6 +1242,10 @@ export default {
     done: "완료",
     noData: "이 단계는 아직 준비 중이에요.",
     resultCount: "{{total}}문제 중 {{correct}}개 정답",
+    saving: "진행 상황을 저장하고 있어요",
+    saved: "진행 상황을 저장했어요",
+    saveFailed: "진행 상황을 저장하지 못했어요",
+    retrySave: "다시 저장",
   },
   sentenceBuild: {
     level: "레벨 {{n}}",
@@ -1281,6 +1285,7 @@ export default {
     hardLocked:
       "EASY에서 {{total}}문제 중 {{need}}개 이상 맞히면 HARD가 열려요. ({{score}}점 이상)",
     confirm: "확인",
+    progressLoadFailed: "진행 상황을 불러오지 못했어요",
   },
   // ko.ts
   aiChat: {

@@ -1,5 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -42,6 +48,12 @@ const C = {
   back: "#7ec8ef",
   backSym: "#a9dbf5",
 };
+
+const QUESTION_AUTOPLAY_DELAY_MS = 280;
+const BETWEEN_WORDS_DELAY_MS = 150;
+const CORRECT_REPLAY_DELAY_MS = 180;
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 // 문제는 연습 화면에서 넘겨준 단계(level/step)의 최소대립쌍에서 만든다
 interface Opt {
@@ -88,6 +100,10 @@ export default function PronunciationQuiz() {
   const secondSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const correctSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const saveRequestRef = useRef(0);
 
   const params = useLocalSearchParams<{
     level?: string;
@@ -113,7 +129,7 @@ export default function PronunciationQuiz() {
   );
   // 마지막 문제를 풀면 결과로. 전엔 첫 문제로 되감겨서 끝이 없었다
   const [finished, setFinished] = useState(false);
-  const saved = useRef(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
   const q = QUESTIONS[index];
   const target = q.options[q.answer];
@@ -131,6 +147,10 @@ export default function PronunciationQuiz() {
       clearTimeout(secondSpeechTimerRef.current);
       secondSpeechTimerRef.current = null;
     }
+    if (correctSpeechTimerRef.current) {
+      clearTimeout(correctSpeechTimerRef.current);
+      correctSpeechTimerRef.current = null;
+    }
     stop();
     // HARD 는 정답 하나만. 두 개를 순서대로 들려주면 순서만 기억해도 풀린다
     if (isHard) {
@@ -143,7 +163,7 @@ export default function PronunciationQuiz() {
         secondSpeechTimerRef.current = setTimeout(() => {
           secondSpeechTimerRef.current = null;
           speak(b.word);
-        }, 450);
+        }, BETWEEN_WORDS_DELAY_MS);
       },
     });
   };
@@ -151,12 +171,16 @@ export default function PronunciationQuiz() {
   useEffect(() => {
     flip.value = isHard ? 1 : 0;
     setSelected(null);
-    const t1 = setTimeout(() => speakOptions(), 600);
+    const t1 = setTimeout(() => speakOptions(), QUESTION_AUTOPLAY_DELAY_MS);
     return () => {
       clearTimeout(t1);
       if (secondSpeechTimerRef.current) {
         clearTimeout(secondSpeechTimerRef.current);
         secondSpeechTimerRef.current = null;
+      }
+      if (correctSpeechTimerRef.current) {
+        clearTimeout(correctSpeechTimerRef.current);
+        correctSpeechTimerRef.current = null;
       }
       stop();
     };
@@ -172,10 +196,24 @@ export default function PronunciationQuiz() {
       return n;
     });
     flip.value = withTiming(1, { duration: 480 }); // 고르면 앞면으로 뒤집기
-    if (correct) setTimeout(() => speak(target.word), 300);
+    if (correct) {
+      correctSpeechTimerRef.current = setTimeout(() => {
+        correctSpeechTimerRef.current = null;
+        speak(target.word);
+      }, CORRECT_REPLAY_DELAY_MS);
+    }
   };
 
   const next = () => {
+    if (secondSpeechTimerRef.current) {
+      clearTimeout(secondSpeechTimerRef.current);
+      secondSpeechTimerRef.current = null;
+    }
+    if (correctSpeechTimerRef.current) {
+      clearTimeout(correctSpeechTimerRef.current);
+      correctSpeechTimerRef.current = null;
+    }
+    stop();
     if (index >= QUESTIONS.length - 1) {
       setFinished(true);
       return;
@@ -199,19 +237,34 @@ export default function PronunciationQuiz() {
     ? Math.round((correctCount / QUESTIONS.length) * 100)
     : 0;
 
-  // 결과가 뜨는 순간 한 번만 저장한다 (서버는 최고점만 남긴다)
-  useEffect(() => {
-    if (!finished || saved.current) return;
-    saved.current = true;
+  const saveResult = useCallback(() => {
+    const requestId = ++saveRequestRef.current;
+    setSaveStatus("saving");
     UserService.savePronunciation({
       level,
       step,
       mode: isHard ? "hard" : "easy",
       score,
-    }).catch(() => {
-      // 저장 실패해도 결과는 보여준다. 다음에 풀면 다시 올라간다
-    });
-  }, [finished]);
+    })
+      .then(() => {
+        if (saveRequestRef.current === requestId) setSaveStatus("saved");
+      })
+      .catch(() => {
+        if (saveRequestRef.current === requestId) setSaveStatus("error");
+      });
+  }, [isHard, level, score, step]);
+
+  // 결과 화면에서 저장 완료 여부를 직접 보여주고, 실패하면 같은 결과를 재전송한다
+  useEffect(() => {
+    if (finished) saveResult();
+  }, [finished, saveResult]);
+
+  useEffect(
+    () => () => {
+      saveRequestRef.current += 1;
+    },
+    [],
+  );
 
   if (finished) {
     const passed = score >= STAGE_PASS_SCORE;
@@ -264,11 +317,47 @@ export default function PronunciationQuiz() {
             </Text>
           </View>
 
-          <Pressable style={{ width: "100%" }} onPress={() => router.back()}>
+          <View style={st.saveStatusRow}>
+            {saveStatus === "saving" && (
+              <>
+                <ActivityIndicator size="small" color={C.purpleDk} />
+                <Text style={st.saveStatusText}>{t("pronQuiz.saving")}</Text>
+              </>
+            )}
+            {saveStatus === "saved" && (
+              <>
+                <Ionicons name="checkmark-circle" size={20} color={C.green} />
+                <Text style={st.saveStatusText}>{t("pronQuiz.saved")}</Text>
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <Ionicons name="alert-circle" size={20} color={C.red} />
+                <Text style={st.saveErrorText}>
+                  {t("pronQuiz.saveFailed")}
+                </Text>
+                <Pressable onPress={saveResult} hitSlop={8}>
+                  <Text style={st.saveRetryText}>
+                    {t("pronQuiz.retrySave")}
+                  </Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+
+          <Pressable
+            style={{ width: "100%" }}
+            onPress={() => router.back()}
+            disabled={saveStatus !== "saved"}
+          >
             {({ pressed }) => (
               <LinearGradient
                 colors={[C.purple, C.purpleDk]}
-                style={[st.resultBtn, pressed && { opacity: 0.9 }]}
+                style={[
+                  st.resultBtn,
+                  saveStatus !== "saved" && st.resultBtnDisabled,
+                  pressed && saveStatus === "saved" && { opacity: 0.9 },
+                ]}
               >
                 <Text style={st.resultBtnText}>{t("pronQuiz.done")}</Text>
               </LinearGradient>
@@ -442,26 +531,28 @@ function OptionCard({
         </Animated.View>
       )}
 
-      <View style={st.cardBox}>
+      <Pressable
+        style={st.cardBox}
+        onPress={disabled ? undefined : onPress}
+        accessibilityRole="button"
+      >
         {/* 뒷면 (패턴) */}
-        <Animated.View style={[st.face, st.cardBack, backStyle]}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={onPress}
-            disabled={disabled}
-          >
-            {["c", "!", "?", "*", "'", ",", "c", "!", "?", "•", "*", "'"].map(
-              (s, i) => (
-                <Text key={i} style={[st.sym, SYM_POS[i]]}>
-                  {s}
-                </Text>
-              ),
-            )}
-          </Pressable>
+        <Animated.View
+          pointerEvents="none"
+          style={[st.face, st.cardBack, backStyle]}
+        >
+          {["c", "!", "?", "*", "'", ",", "c", "!", "?", "•", "*", "'"].map(
+            (s, i) => (
+              <Text key={i} style={[st.sym, SYM_POS[i]]}>
+                {s}
+              </Text>
+            ),
+          )}
         </Animated.View>
 
         {/* 앞면 (단어) */}
         <Animated.View
+          pointerEvents="none"
           style={[
             st.face,
             st.cardFront,
@@ -469,23 +560,33 @@ function OptionCard({
             frontStyle,
           ]}
         >
-          <Pressable style={st.cardSpeaker} onPress={onSpeak} hitSlop={8}>
-            <Ionicons name="volume-medium" size={26} color={C.gray} />
-          </Pressable>
-          <Pressable style={st.cardInner} onPress={onPress} disabled={disabled}>
+          <View style={st.cardInner}>
             <Text style={st.optWord}>{opt.word}</Text>
             {!hideJamo && <Text style={st.optIpa}>[ {opt.ipa} ]</Text>}
             <Text style={st.optMeaning}>{opt.meaning}</Text>
-          </Pressable>
+          </View>
           <View style={st.divider} />
-          <Pressable style={st.practiceBtn} hitSlop={6}>
+          <View style={st.practiceBtn}>
             <Ionicons name="mic" size={20} color={C.purple} />
             <Text style={st.practiceText} numberOfLines={1}>
               {practiceLabel}
             </Text>
-          </Pressable>
+          </View>
         </Animated.View>
-      </View>
+
+        {(hideJamo || disabled) && (
+          <Pressable
+            style={st.cardSpeaker}
+            onPress={(event) => {
+              event.stopPropagation();
+              onSpeak();
+            }}
+            hitSlop={8}
+          >
+            <Ionicons name="volume-medium" size={26} color={C.gray} />
+          </Pressable>
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -694,7 +795,7 @@ const st = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     marginTop: 18,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   resultBannerText: {
     flex: 1,
@@ -702,7 +803,24 @@ const st = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 18,
   },
+  saveStatusRow: {
+    minHeight: 32,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+    marginBottom: 12,
+  },
+  saveStatusText: { fontSize: 13, fontWeight: "700", color: "#657786" },
+  saveErrorText: { fontSize: 13, fontWeight: "700", color: C.red },
+  saveRetryText: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: C.purpleDk,
+    textDecorationLine: "underline",
+  },
   resultBtn: { borderRadius: 16, paddingVertical: 16, alignItems: "center" },
+  resultBtnDisabled: { opacity: 0.45 },
   resultBtnText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   replayBtn: {
     width: 88,

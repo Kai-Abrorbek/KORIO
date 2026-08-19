@@ -1251,6 +1251,10 @@ export default {
     done: "Tayyor",
     noData: "Bu bosqich hali tayyorlanmoqda.",
     resultCount: "{{total}} tadan {{correct}} ta to'g'ri",
+    saving: "Natijangiz saqlanmoqda…",
+    saved: "Natijangiz saqlandi",
+    saveFailed: "Natijangizni saqlab bo'lmadi",
+    retrySave: "Qayta saqlash",
   },
   sentenceBuild: {
     level: "Daraja {{n}}",
@@ -1290,6 +1294,7 @@ export default {
     hardLocked:
       "EASY'da {{total}} tadan {{need}} tasini to'g'ri qilsangiz HARD ochiladi. ({{score}} ball)",
     confirm: "OK",
+    progressLoadFailed: "Saqlangan natijani yuklab bo'lmadi",
   },
   // uz.ts
   aiChat: {
