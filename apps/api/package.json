@@ -10,6 +10,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
+    "seed:words": "ts-node -r tsconfig-paths/register src/seed/seed-words.ts",
+    "seed:validate-words": "ts-node -r tsconfig-paths/register src/seed/validate-word-seed.ts",
     "seed:validate-section1": "ts-node -r tsconfig-paths/register src/seed/validate-section1-rules.ts",
     "seed:validate-section2": "ts-node -r tsconfig-paths/register src/seed/validate-section2-rules.ts",
     "seed:validate-grammar": "ts-node -r tsconfig-paths/register src/seed/validate-grammar-seed.ts",

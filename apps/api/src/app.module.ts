@@ -18,6 +18,7 @@ import { TopikModule } from './topik/topik.module';
 import { HangulModule } from './hangul/hangul.module';
 import { SpeechModule } from './speech/speech.module';
 import { TtsModule } from './tts/tts.module';
+import { WordsModule } from './words/words.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TtsModule } from './tts/tts.module';
     TtsModule,
     SpeechModule,
     NotificationsModule,
+    WordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

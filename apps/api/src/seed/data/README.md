@@ -3,6 +3,102 @@
 어휘 트랙(`data/section1`, `data/section2`)과 문법 페이지(`data/grammar`)를 쓸 때 지키는 것.
 TOPIK·합격 레시피는 데이터 구조가 달라서 여기 해당 없다.
 
+## 단어 데이터 (`*_WORDS`) 작성 규칙
+
+각 유닛의 `*_WORDS`는 레슨 문제용 임시 목록이 아니라 `Word` 컬렉션의 원본이다.
+`pnpm --filter api seed:words`가 배열을 정규화해서 DB에 upsert하고, 배열이 위치한
+파일의 섹션·유닛과 배열 순서가 각각 `placements.section`, `placements.unit`,
+`placements.order`가 된다. 같은 단어가 여러 유닛에 나오면 하나의 Word에 placement가
+여러 개 붙으므로 유닛마다 중복 문서를 만들지 않는다.
+
+새 단어는 아래의 확장 구조로 작성한다. 타입을 붙이면 AI가 필수 필드를 빠뜨렸을 때
+바로 발견할 수 있다.
+
+```ts
+import { WordPartOfSpeech } from '../../../words/schemas/word.schema';
+import type { WordSeedEntry } from '../../word-seed.types';
+
+export const S3_UNIT1_WORDS = [
+  {
+    code: 'personal-info-full-name',
+    korean: '성명',
+    senseKey: 'full-name',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: {
+      ko: '성과 이름을 함께 이르는 말',
+      uz: 'ism-familiya',
+      en: 'full name',
+      ru: 'ФИО',
+    },
+    examples: [
+      {
+        korean: '신청서에 성명을 써 주세요.',
+        translations: {
+          ko: '신청서에 성과 이름을 써 주세요.',
+          uz: "Arizaga ism-familiyangizni yozing.",
+          en: 'Please write your full name on the application.',
+          ru: 'Пожалуйста, напишите ФИО в заявлении.',
+        },
+      },
+    ],
+    pronunciation: {
+      hangul: '성명',
+      romanization: 'seongmyeong',
+      ttsText: '성명',
+    },
+    media: {
+      emoji: '🪪',
+      imageUrl: '',
+      imageAlt: {
+        ko: '이름표',
+        uz: 'ism kartasi',
+        en: 'name card',
+        ru: 'карточка с именем',
+      },
+    },
+    tags: ['personal-info'],
+    difficulty: 3,
+    usageNote: {
+      ko: '서류나 공식적인 상황에서 자주 써요.',
+      uz: "Ko'pincha hujjatlarda va rasmiy vaziyatlarda ishlatiladi.",
+      en: 'Often used on forms and in formal situations.',
+      ru: 'Часто используется в анкетах и официальных ситуациях.',
+    },
+    isCore: true,
+  },
+] satisfies readonly WordSeedEntry[];
+```
+
+필드 규칙:
+
+- `code`는 뜻 하나를 영구 식별하는 안정적인 값이다. 배포 후에는 번역을 고쳐도
+  바꾸지 말고, 다른 뜻에 재사용하지 않는다.
+- `korean`은 표제어다. 동사·형용사는 사전형(`먹다`, `예쁘다`)을 기본으로 한다.
+- `senseKey`는 같은 표기의 다른 뜻을 구분한다. 예: `배`의 `stomach`, `pear`,
+  `boat`. 동의어를 나누는 용도로 남용하지 않는다.
+- `meaning`과 `examples[].translations`는 `ko`, `uz`, `en`, `ru` 네 언어를 모두
+  작성한다. 기계 번역을 확인 없이 넣거나 한 언어 문장을 다른 언어 칸에 복사하지 않는다.
+- `examples`는 최소 1개를 권장한다. 해당 유닛 수준의 자연스러운 한국어 문장으로
+  만들고 표제어 또는 실제 활용형이 문장에 들어가야 한다. 네 언어 번역은 같은 주어,
+  시제, 부정, 수량을 유지한다.
+- `partOfSpeech`는 `WordPartOfSpeech` enum을 쓴다. 여러 단어로 굳어진 표현은
+  `PHRASE`, 아직 분류하기 어려울 때만 `OTHER`를 쓴다.
+- `pronunciation.ttsText`는 Azure Speech가 읽을 한국어다. 괄호 설명이나 번역을
+  넣지 않는다. 발음대로 별도 표기가 필요 없으면 `korean`과 같게 쓴다.
+- `media.emoji` 또는 `media.imageUrl` 중 하나는 권장한다. 이미지가 있으면
+  `imageAlt`도 네 언어로 작성한다. 비슷하지만 뜻이 다른 그림은 쓰지 않는다.
+- `difficulty`는 1~5, `tags`는 검색·복습 묶음용 소문자 kebab-case,
+  `isCore`는 그 유닛에서 반드시 외울 핵심 단어인지 나타낸다.
+- 동일 단어를 다른 유닛에서 다시 가르칠 때는 같은 `code`, `senseKey`, `meaning`을
+  사용한다. 시더가 placement만 합친다. 같은 code의 뜻이 다르면 검증 오류다.
+- 예전 `{ korean, uz, en, ru, emoji }` 형식도 마이그레이션을 위해 읽히지만,
+  새로 만들거나 수정하는 단어는 위 확장 구조로 작성한다.
+
+저장 전 `pnpm --filter api seed:validate-words`로 고유 code, 네 언어 뜻, 예문 번역,
+placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이며 기존 단어와
+사용자의 `UserWordProgress`를 자동 삭제하지 않는다. 현재 작성 중인 Section 2는 단어
+시딩 대상에서 제외되어 있으므로 완성 후 `word-seed.data.ts`의 source 목록에 연결한다.
+
 ## Seed authoring rules for answer grading
 
 These rules apply whenever an AI or developer creates or updates lesson seed data. The goal is to support useful feedback such as "the meaning is correct," "almost correct," and "use this expression here" for answers the learner types.
@@ -452,8 +548,9 @@ options: ['들', '었', '어', '요', '습', '니'],  // 음절 단위
 | `seed:validate-questions` | 중급 5종의 형태 (`wrongWord` 일치, 빈칸 수, 음절) |
 | `seed:validate-grammar` | 문법 페이지 받침 규칙·퀴즈 정답 수·하이라이트 |
 | `seed:validate-recipe` | 합격 레시피 |
+| `seed:validate-words` | 단어 code·4개 언어 뜻·예문 번역·섹션/유닛 placement |
 
-시딩은 `seed` → `seed:grammar` → `seed:grammar-track` → `seed:recipe`.
+시딩은 `seed` → `seed:words` → `seed:grammar` → `seed:grammar-track` → `seed:recipe`.
 `seed` 는 끝에 **이번 실행이 쓰지 않은 옛 노드·레슨·문항을 지운다** — 구성을 바꿔서
 사라진 노드가 로드맵에 유령으로 남지 않게. 문법 트랙(`gt_` 접두사)은 건드리지 않는다.
 
