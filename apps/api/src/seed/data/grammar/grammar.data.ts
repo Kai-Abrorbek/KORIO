@@ -10,6 +10,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'topic-eun-neun',
     pattern: 'N은/는',
     section: 1,
+    unit: 1,
     order: 1,
     isActive: true,
     summary: {
@@ -156,6 +157,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'copula-ieyo',
     pattern: 'N이에요/예요',
     section: 1,
+    unit: 1,
     order: 2,
     isActive: true,
     summary: {
@@ -302,6 +304,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'copula-imnida',
     pattern: 'N입니다 / N입니까?',
     section: 1,
+    unit: 1,
     order: 3,
     isActive: true,
     summary: {
@@ -448,6 +451,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'neg-i-ga-animnida',
     pattern: 'N이/가 아닙니다',
     section: 1,
+    unit: 1,
     order: 4,
     isActive: true,
     summary: {
@@ -595,6 +599,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'exist-i-ga-isseoyo',
     pattern: 'N이/가 있어요[없어요]',
     section: 1,
+    unit: 2,
     order: 5,
     isActive: true,
     summary: {
@@ -781,6 +786,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'demonstrative-igeo',
     pattern: '이거는[그거는, 저거는] N이에요/예요',
     section: 1,
+    unit: 2,
     order: 6,
     isActive: true,
     summary: {
@@ -971,6 +977,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'request-juseyo',
     pattern: 'N 주세요',
     section: 1,
+    unit: 2,
     order: 7,
     isActive: true,
     summary: {
@@ -1157,6 +1164,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'and-hago-gwa-wa',
     pattern: 'N하고 N · N과/와 N',
     section: 1,
+    unit: 2,
     order: 8,
     isActive: true,
     summary: {
@@ -1349,6 +1357,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'verb-ayo-eoyo',
     pattern: 'V-아요/어요',
     section: 1,
+    unit: 3,
     order: 9,
     isActive: true,
     summary: {
@@ -1542,6 +1551,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'obj-eul-reul',
     pattern: 'N을/를',
     section: 1,
+    unit: 3,
     order: 10,
     isActive: true,
     summary: {
@@ -1734,6 +1744,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'place-eseo',
     pattern: 'N에서',
     section: 1,
+    unit: 3,
     order: 11,
     isActive: true,
     summary: {
@@ -1919,6 +1930,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'neg-an',
     pattern: '안 V',
     section: 1,
+    unit: 3,
     order: 12,
     isActive: true,
     summary: {
@@ -2108,6 +2120,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'here-is-n',
     pattern: '여기가 N이에요/예요',
     section: 1,
+    unit: 4,
     order: 13,
     isActive: true,
     summary: {
@@ -2299,6 +2312,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'loc-e-isseoyo',
     pattern: 'N에 있어요[없어요]',
     section: 1,
+    unit: 4,
     order: 14,
     isActive: true,
     summary: {
@@ -2485,6 +2499,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'motion-e-gayo',
     pattern: 'N에 가요[와요]',
     section: 1,
+    unit: 4,
     order: 15,
     isActive: true,
     summary: {
@@ -2671,6 +2686,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'pos-ap-dwi-yeop',
     pattern: 'N 앞[뒤, 옆]에 있어요',
     section: 1,
+    unit: 4,
     order: 16,
     isActive: true,
     summary: {
@@ -2873,6 +2889,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'date-and-day',
     pattern: '오늘이 며칠이에요? / 무슨 요일이에요?',
     section: 1,
+    unit: 5,
     order: 17,
     isActive: true,
     summary: {
@@ -3066,6 +3083,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'time-e',
     pattern: '시간 N에',
     section: 1,
+    unit: 5,
     order: 18,
     isActive: true,
     summary: {
@@ -3259,6 +3277,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'past-ass-eoss-eoyo',
     pattern: 'V-았/었어요',
     section: 1,
+    unit: 5,
     order: 19,
     isActive: true,
     summary: {
@@ -3453,6 +3472,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'verb-go',
     pattern: 'V-고',
     section: 1,
+    unit: 5,
     order: 20,
     isActive: true,
     summary: {
@@ -3664,6 +3684,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'request-euseyo',
     pattern: 'V-(으)세요',
     section: 1,
+    unit: 6,
     order: 21,
     isActive: true,
     summary: {
@@ -3941,6 +3962,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'counter-gae-byeong-jan-geureut',
     pattern: 'N 개[병, 잔, 그릇]',
     section: 1,
+    unit: 6,
     order: 22,
     isActive: true,
     summary: {
@@ -4217,6 +4239,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'subject-adjective-i-ga',
     pattern: 'N이/가 A-아요/어요',
     section: 1,
+    unit: 6,
     order: 23,
     isActive: true,
     summary: {
@@ -4494,6 +4517,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'also-do',
     pattern: 'N도',
     section: 1,
+    unit: 6,
     order: 24,
     isActive: true,
     summary: {
@@ -4784,6 +4808,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'irregular-bieup',
     pattern: 'ㅂ 불규칙',
     section: 1,
+    unit: 7,
     order: 25,
     isActive: true,
     summary: {
@@ -5070,6 +5095,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'contrast-jiman',
     pattern: 'A/V-지만',
     section: 1,
+    unit: 7,
     order: 26,
     isActive: true,
     summary: {
@@ -5352,6 +5378,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'formal-seumnida',
     pattern: 'A/V-습니다/ㅂ니다 · -습니까/ㅂ니까?',
     section: 1,
+    unit: 7,
     order: 27,
     isActive: true,
     summary: {
@@ -5640,6 +5667,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'adjective-verb-go',
     pattern: 'A/V-고',
     section: 1,
+    unit: 7,
     order: 28,
     isActive: true,
     summary: {
@@ -5936,6 +5964,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'suggestion-eulkkayo',
     pattern: 'V-(으)ㄹ까요?',
     section: 1,
+    unit: 8,
     order: 29,
     isActive: true,
     summary: {
@@ -6242,6 +6271,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'irregular-digeut',
     pattern: 'ㄷ 불규칙',
     section: 1,
+    unit: 8,
     order: 30,
     isActive: true,
     summary: {
@@ -6552,6 +6582,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'demonstrative-i-geu-jeo-n',
     pattern: '이[그, 저] N',
     section: 1,
+    unit: 8,
     order: 31,
     isActive: true,
     summary: {
@@ -6844,6 +6875,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'reaction-neyo',
     pattern: 'A/V-네요',
     section: 1,
+    unit: 8,
     order: 32,
     isActive: true,
     summary: {
@@ -7184,6 +7216,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'poss-ui',
     pattern: 'N(의) N',
     section: 2,
+    unit: 1,
     order: 1,
     isActive: true,
     summary: {
@@ -7369,6 +7402,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'skill-jalhada',
     pattern: 'N을/를 잘하다[잘 못하다, 못하다]',
     section: 2,
+    unit: 1,
     order: 2,
     isActive: true,
     summary: {
@@ -7554,6 +7588,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'honor-iseyo',
     pattern: 'N(이)세요',
     section: 2,
+    unit: 1,
     order: 3,
     isActive: true,
     summary: {
@@ -7739,6 +7774,7 @@ export const GRAMMAR_SEED: any[] = [
     code: 'honor-usi',
     pattern: 'A/V-(으)시-',
     section: 2,
+    unit: 1,
     order: 4,
     isActive: true,
     summary: {

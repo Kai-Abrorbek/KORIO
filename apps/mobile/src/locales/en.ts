@@ -1400,6 +1400,8 @@ export default {
     title: "Grammar",
     hero: "Master grammar step by step, section by section.",
     section: "Section {{n}}",
+    dayTitle: "Day {{n}} grammar",
+    dayHero: "Today's grammar.",
     count: "{{count}} points",
     locked: "Finish the previous section",
     sectionDone: "Done!",

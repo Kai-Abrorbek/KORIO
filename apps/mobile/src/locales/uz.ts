@@ -1408,6 +1408,8 @@ export default {
     title: "Grammatika",
     hero: "Grammatikani bo'lim-bo'lim o'rganing.",
     section: "{{n}}-bo'lim",
+    dayTitle: "{{n}}-kun grammatikasi",
+    dayHero: "Bugun o'rganadigan grammatika.",
     count: "{{count}} ta qoida",
     locked: "Avvalgi bo'limni tugating",
     sectionDone: "Tugallandi!",

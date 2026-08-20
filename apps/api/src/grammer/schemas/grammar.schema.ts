@@ -92,6 +92,10 @@ export class Grammar {
 
   @Prop({ default: 1, index: true }) section: number; // 문법 섹션 (1~12)
 
+  // 교재 과 = 학습 로드 모드의 하루. 이 값으로 그날 배울 문법만 골라낸다.
+  // order 로 유추하지 않는다 — 한 유닛의 문법 개수가 달라지면 조용히 어긋난다.
+  @Prop({ default: 1, index: true }) unit: number;
+
   @Prop({ default: 0, index: true }) order: number; // 순서 (다음 문법 자동 연결)
 
   @Prop({ default: true })
@@ -99,3 +103,6 @@ export class Grammar {
 }
 
 export const GrammarSchema = SchemaFactory.createForClass(Grammar);
+
+// 학습 로드 모드는 항상 (섹션, 유닛)으로 좁혀서 순서대로 읽는다
+GrammarSchema.index({ section: 1, unit: 1, order: 1 });

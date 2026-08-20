@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Get,
-  Post,
   Param,
-  Body,
+  Post,
   Query,
-  UseGuards,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -112,6 +113,33 @@ export class LessonsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  // 학습 로드 모드 — 하루(=유닛) 노드용 문제.
+  // kind: practice(실전) | review(지난 오답) | final(마무리 확인)
+  @Get('unit-practice')
+  async getUnitPractice(
+    @Request() req,
+    @Query('section') section: string,
+    @Query('unit') unit: string,
+    @Query('kind') kind?: string,
+    @Query('lang') lang?: string,
+  ) {
+    const s = Number(section);
+    const u = Number(unit);
+    if (!Number.isInteger(s) || s < 1 || !Number.isInteger(u) || u < 1) {
+      throw new BadRequestException('INVALID_UNIT_SCOPE');
+    }
+    const mode =
+      kind === 'review' || kind === 'final' ? kind : ('practice' as const);
+
+    return this.lessonsService.getUnitPractice(
+      req.user._id.toString(),
+      s,
+      u,
+      mode,
+      lang ?? 'uz',
+    );
+  }
+
   @Get('score')
   async getScore(@Request() req, @Query('lang') lang?: string) {
     return this.lessonsService.getScore(req.user._id.toString(), lang || 'uz');

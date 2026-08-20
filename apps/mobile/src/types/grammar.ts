@@ -49,6 +49,8 @@ export interface GrammarListItem {
   summary: string;
   tags: string[];
   section: number;
+  /** 교재 과 = 학습 로드 모드의 하루 */
+  unit: number;
   completed: boolean;
 }
 

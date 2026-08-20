@@ -15,7 +15,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
@@ -119,6 +119,8 @@ function SectionBlock({
   premiumLocked,
   onToggle,
   onPremium,
+  badge,
+  title,
   t,
 }: {
   section: number;
@@ -129,6 +131,10 @@ function SectionBlock({
   premiumLocked: boolean; // 프리미엄 필요
   onToggle: () => void;
   onPremium: () => void;
+  /** 원 안에 보일 값. 기본은 섹션 번호 */
+  badge?: string;
+  /** 헤더 제목. 기본은 "섹션 N" */
+  title?: string;
   t: (k: string, o?: any) => string;
 }) {
   const empty = items.length === 0;
@@ -170,12 +176,12 @@ function SectionBlock({
             {premiumLocked ? (
               <Ionicons name="star" size={22} color={C.gold} />
             ) : (
-              <Text style={st.secNumT}>{section}</Text>
+              <Text style={st.secNumT}>{badge ?? section}</Text>
             )}
           </View>
           <View style={{ flex: 1 }}>
             <Text style={st.secTitle}>
-              {t("grammarList.section", { n: section })}
+              {title ?? t("grammarList.section", { n: section })}
             </Text>
             <Text
               style={[
@@ -274,6 +280,16 @@ function PremiumSheet({
 export default function GrammarList() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  // 학습 로드 모드에서 "그날의 문법" 노드로 들어오면 그 유닛만 보여준다.
+  // 파라미터가 없으면 지금처럼 섹션 전체 목록.
+  const params = useLocalSearchParams<{ section?: string; unit?: string }>();
+  const scopeSection = Number(params.section);
+  const scopeUnit = Number(params.unit);
+  const scoped =
+    Number.isInteger(scopeSection) &&
+    scopeSection > 0 &&
+    Number.isInteger(scopeUnit) &&
+    scopeUnit > 0;
   const [items, setItems] = useState<GrammarListItem[]>([]);
   const [unlocked, setUnlocked] = useState(0);
   const [isSuper, setIsSuper] = useState(false);
@@ -283,7 +299,9 @@ export default function GrammarList() {
   const [premiumVisible, setPremiumVisible] = useState(false);
 
   useEffect(() => {
-    GrammarService.listGrammar()
+    GrammarService.listGrammar(
+      scoped ? { section: scopeSection, unit: scopeUnit } : undefined,
+    )
       .then((res) => {
         setItems(res.grammars);
         setUnlocked(res.unlockedThrough);
@@ -293,7 +311,7 @@ export default function GrammarList() {
       })
       .catch((e) => console.error("문법 목록 로드 실패:", e))
       .finally(() => setLoading(false));
-  }, []);
+  }, [scoped, scopeSection, scopeUnit]);
 
   // 섹션별 그룹핑
   const bySection = new Map<number, GrammarListItem[]>();
@@ -329,10 +347,30 @@ export default function GrammarList() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={st.hero}>{t("grammarList.hero")}</Text>
+          <Text style={st.hero}>
+            {scoped
+              ? t("grammarList.dayHero", { n: scopeUnit })
+              : t("grammarList.hero")}
+          </Text>
 
-          {/* 문법 문제 풀이는 학습 모드 그리드로 옮겼다 */}
-          {Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((sec) => (
+          {/* 학습 로드 모드: 그날 문법 4개만. 잠금 없이 바로 펼쳐 둔다 */}
+          {scoped ? (
+            <SectionBlock
+              section={scopeSection}
+              items={items}
+              color={SECTION_COLORS[(scopeUnit - 1) % SECTION_COLORS.length]!}
+              expanded
+              locked={false}
+              premiumLocked={false}
+              onToggle={() => {}}
+              onPremium={() => {}}
+              badge={String(scopeUnit)}
+              title={t("grammarList.dayTitle", { n: scopeUnit })}
+              t={t}
+            />
+          ) : (
+          /* 문법 문제 풀이는 학습 모드 그리드로 옮겼다 */
+          Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((sec) => (
             <SectionBlock
               key={sec}
               section={sec}
@@ -345,7 +383,7 @@ export default function GrammarList() {
               onPremium={() => setPremiumVisible(true)}
               t={t}
             />
-          ))}
+          )))}
         </ScrollView>
       )}
 

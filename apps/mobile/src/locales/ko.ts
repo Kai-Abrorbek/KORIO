@@ -1397,6 +1397,8 @@ export default {
     title: "문법",
     hero: "섹션별로 문법을 차근차근 익혀보세요.",
     section: "섹션 {{n}}",
+    dayTitle: "{{n}}일차 문법",
+    dayHero: "오늘 배울 문법이에요.",
     count: "문법 {{count}}개",
     locked: "이전 섹션을 완료하세요",
     sectionDone: "완료!",

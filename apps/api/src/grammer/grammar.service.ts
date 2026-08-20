@@ -86,11 +86,24 @@ export class GrammarService {
   }
 
   /** 목록 (문법 리스트 화면용) + 완료 여부 + 섹션 순차 잠금 */
-  async listGrammar(userId: string, lang = 'uz') {
+  /**
+   * scope 를 주면 그 (섹션, 유닛) 문법만 돌려준다. 학습 로드 모드에서 하루치
+   * 문법만 보여줄 때 쓴다. 이 경우 섹션 순차 잠금은 계산하지 않는다 —
+   * 그날 노드에 도달한 것 자체가 이미 관문이기 때문이다.
+   */
+  async listGrammar(
+    userId: string,
+    lang = 'uz',
+    scope?: { section: number; unit: number },
+  ) {
     const rows = await this.grammarModel
-      .find({ isActive: true })
-      .sort({ section: 1, order: 1 })
-      .select('code pattern summary tags section')
+      .find(
+        scope
+          ? { isActive: true, section: scope.section, unit: scope.unit }
+          : { isActive: true },
+      )
+      .sort({ section: 1, unit: 1, order: 1 })
+      .select('code pattern summary tags section unit')
       .lean();
 
     const me = await this.userModel
@@ -106,8 +119,18 @@ export class GrammarService {
       summary: this.pick(g.summary, lang),
       tags: (g.tags || []).map((t: any) => this.pick(t, lang)).filter(Boolean),
       section: g.section ?? 1,
+      unit: g.unit ?? 1,
       completed: done.has(g.code),
     }));
+
+    if (scope) {
+      return {
+        grammars,
+        unlockedThrough: scope.section,
+        isSuper,
+        freeSections: FREE_GRAMMAR_SECTIONS,
+      };
+    }
 
     // 순차 잠금: 데이터 순서대로, 이전 섹션을 전부 완료해야 다음 섹션이 열림
     const bySection = new Map<number, typeof grammars>();

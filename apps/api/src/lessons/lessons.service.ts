@@ -38,6 +38,7 @@ const SMART_GRADING_TYPES = new Set([
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
+import { UNIT_FINAL_MIN_DIFFICULTY, UNIT_PRACTICE_SIZE } from './study-path.const';
 
 @Injectable()
 export class LessonsService {
@@ -880,6 +881,209 @@ export class LessonsService {
   }
 
   /** (section, unit) 보다 앞선 모든 노드 조건 — 섹션 경계 포함 */
+  // ─────────────────────────────────────────────────────────
+  // 학습 로드 모드 — 하루(=유닛) 단위 문제 뽑기
+  // ─────────────────────────────────────────────────────────
+
+  /**
+   * 하루치 노드에 쓸 문제를 뽑는다. Day N = Unit N 이므로 모두 (섹션, 유닛)으로
+   * 좁힌다.
+   *
+   * - practice: 그 유닛 문제를 영역별로 고르게 섞는다 (실전 연습 노드)
+   * - final:    그 유닛의 어려운 문제만 짧게 (마무리 확인 노드)
+   * - review:   그 유닛 "이전"에 틀린 문제 (복습 노드). 유닛과 무관하게
+   *             유저별로 달라지므로 다른 경로를 탄다.
+   */
+  async getUnitPractice(
+    userId: string,
+    section: number,
+    unit: number,
+    kind: 'practice' | 'review' | 'final',
+    lang = 'uz',
+  ) {
+    if (kind === 'review') {
+      return this.getUnitReview(userId, section, unit, lang);
+    }
+
+    const questions = await this.collectUnitQuestions(section, unit);
+    if (!questions.length) return { questions: [] };
+
+    const picked =
+      kind === 'final'
+        ? this.pickHarder(questions, UNIT_PRACTICE_SIZE.final)
+        : this.pickBalanced(questions, UNIT_PRACTICE_SIZE.practice);
+
+    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /** 그 유닛의 모든 노드 → 레슨 → 문제. 내용이 같은 문제는 하나만 남긴다. */
+  private async collectUnitQuestions(section: number, unit: number) {
+    const nodes = await this.nodeModel
+      .find({ section, unit, isActive: true })
+      .select('lessonIds')
+      .lean();
+    if (!nodes.length) return [];
+
+    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: lessonIds } })
+      .select('questionIds')
+      .lean();
+
+    const qIds = new Set<string>();
+    lessons.forEach((l) =>
+      (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
+    );
+    if (!qIds.size) return [];
+
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    return this.dedupeByContent(questions);
+  }
+
+  /**
+   * 한 영역이 문제를 독차지하지 않게 라운드로빈으로 뽑는다.
+   * 시드 규칙(한 레슨 안에서 한 영역 60% 이하)을 뽑기 단계에서도 지킨다.
+   */
+  private pickBalanced(questions: any[], limit: number) {
+    const byCategory = new Map<string, any[]>();
+    for (const q of this.shuffle(questions)) {
+      const key = q.lessonCategory ?? 'etc';
+      const bucket = byCategory.get(key) ?? [];
+      bucket.push(q);
+      byCategory.set(key, bucket);
+    }
+
+    // 난이도 순으로 정렬해 각 영역 안에서 쉬운 것부터 나오게 한다
+    const buckets = [...byCategory.values()].map((items) =>
+      [...items].sort((a, b) => (a.difficulty ?? 3) - (b.difficulty ?? 3)),
+    );
+
+    const picked: any[] = [];
+    let round = 0;
+    while (picked.length < limit) {
+      const before = picked.length;
+      for (const bucket of buckets) {
+        if (picked.length >= limit) break;
+        const item = bucket[round];
+        if (item) picked.push(item);
+      }
+      if (picked.length === before) break; // 모든 버킷 소진
+      round += 1;
+    }
+    return picked;
+  }
+
+  /** 마무리 확인용. 어려운 문제 위주로, 모자라면 나머지로 채운다. */
+  private pickHarder(questions: any[], limit: number) {
+    const hard = this.shuffle(
+      questions.filter((q) => (q.difficulty ?? 3) >= UNIT_FINAL_MIN_DIFFICULTY),
+    );
+    if (hard.length >= limit) return hard.slice(0, limit);
+
+    const rest = this.shuffle(
+      questions.filter((q) => (q.difficulty ?? 3) < UNIT_FINAL_MIN_DIFFICULTY),
+    );
+    return [...hard, ...rest].slice(0, limit);
+  }
+
+  /**
+   * 이 유닛 이전에 틀린 문제. 최근에 틀린 것부터 본다.
+   * 완료한 레슨이 없거나 다 맞았으면 빈 배열이고, 화면은 복습 노드를 건너뛴다.
+   */
+  private async getUnitReview(
+    userId: string,
+    section: number,
+    unit: number,
+    lang: string,
+  ) {
+    const pastLessons = await this.lessonModel
+      .find(this.beforeFilter(section, unit))
+      .select('_id')
+      .lean();
+    if (!pastLessons.length) return { questions: [] };
+
+    const progresses = await this.userProgressModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        lessonId: { $in: pastLessons.map((l) => l._id) },
+        wrongQuestionIds: { $ne: [] },
+      })
+      .select('wrongQuestionIds completedAt')
+      .sort({ completedAt: -1 })
+      .lean();
+
+    // 최근에 틀린 것을 앞에 두고 중복은 제거한다
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    for (const p of progresses) {
+      for (const id of p.wrongQuestionIds ?? []) {
+        if (!Types.ObjectId.isValid(id) || seen.has(id)) continue;
+        seen.add(id);
+        ordered.push(id);
+      }
+    }
+    if (!ordered.length) return { questions: [] };
+
+    const wanted = ordered.slice(0, UNIT_PRACTICE_SIZE.review);
+    const rows = await this.questionModel
+      .find({
+        _id: { $in: wanted.map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    // find 는 순서를 보장하지 않으므로 "최근에 틀린 순"을 다시 세운다
+    const byId = new Map(rows.map((q: any) => [q._id.toString(), q]));
+    const questions = wanted
+      .map((id) => byId.get(id))
+      .filter((q): q is any => Boolean(q));
+
+    return { questions: questions.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /** 정답·지문·보기가 모두 같으면 같은 문제로 보고 하나만 남긴다 */
+  private dedupeByContent(questions: any[]) {
+    const seen = new Set<string>();
+    return questions.filter((q: any) => {
+      const key = [
+        q.answer ?? '',
+        q.npcText ?? '',
+        q.sentencePrefix ?? '',
+        q.sentenceSuffix ?? '',
+        q.sentenceTemplate ?? '',
+        (q.blankAnswers ?? []).join(','),
+        (q.options ?? []).join(','),
+        (q.pairs ?? []).map((p: any) => `${p.korean}:${p.native}`).join(','),
+        (q.dialogLines ?? []).map((d: any) => d.text).join(','),
+      ]
+        .join('|')
+        .trim()
+        .toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private shuffle<T>(items: readonly T[]): T[] {
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const a = result[i];
+      const b = result[j];
+      if (a === undefined || b === undefined) continue;
+      result[i] = b;
+      result[j] = a;
+    }
+    return result;
+  }
+
   private beforeFilter(section: number, unit: number) {
     return {
       $or: [{ section: { $lt: section } }, { section, unit: { $lt: unit } }],
