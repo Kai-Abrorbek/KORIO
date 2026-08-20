@@ -38,6 +38,8 @@ export interface UserMe {
   isOnboardingCompleted: boolean;
   /** 현재 학습 중인 모드 (계정에 저장됨) */
   learnMode: string;
+  /** 순서대로(guided) 인지 자율(free) 인지 */
+  studyMode: "guided" | "free";
   /** 토픽 학습 중이면 어느 급수인지 */
   topikLevel: "1" | "2";
   createdAt: string;
@@ -100,6 +102,12 @@ export const UserService = {
     topikLevel?: "1" | "2";
   }): Promise<{ learnMode: string; topikLevel: "1" | "2" }> =>
     api.patch(`/users/me/learn-mode`, data),
+
+  /** 가이드(학습 로드) ↔ 자율 전환 */
+  updateStudyMode: (
+    studyMode: "guided" | "free",
+  ): Promise<{ studyMode: "guided" | "free" }> =>
+    api.patch(`/users/me/study-mode`, { studyMode }),
 
   /** 발음 연습 점수 전체. 키는 `레벨:단계:모드` */
   getPronunciation: (): Promise<{ scores: Record<string, number> }> =>

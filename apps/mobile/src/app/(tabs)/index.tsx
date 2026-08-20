@@ -63,7 +63,8 @@ export default function HomeScreen() {
 
   // 현재 학습 모드에 맞는 "이어서 학습하기" 경로.
   // 로드맵을 쓰는 모드와 전용 페이지가 있는 모드가 섞여 있어서 스토어에 모아뒀다.
-  const continuePath = learnModePath(learnMode, topikLevel);
+  const studyMode = useSettingsStore((s) => s.studyMode);
+  const continuePath = learnModePath(learnMode, topikLevel, studyMode);
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();

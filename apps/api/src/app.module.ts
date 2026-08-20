@@ -20,6 +20,7 @@ import { SpeechModule } from './speech/speech.module';
 import { TtsModule } from './tts/tts.module';
 import { WordsModule } from './words/words.module';
 import { ExpressionsModule } from './expressions/expressions.module';
+import { StudyPathModule } from './study-path/study-path.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ExpressionsModule } from './expressions/expressions.module';
     NotificationsModule,
     WordsModule,
     ExpressionsModule,
+    StudyPathModule,
   ],
   controllers: [AppController],
   providers: [AppService],

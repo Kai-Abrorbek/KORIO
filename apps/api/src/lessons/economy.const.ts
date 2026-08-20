@@ -17,6 +17,11 @@ export const PRACTICE_BASE_XP: Record<string, number> = {
   nodeReview: 5, // 노드 복습
   wordPractice: 10, // 단어 연습
   expressionPractice: 10, // 표현 카드 뒤 빈칸·타이핑 연습
+  // 학습 로드 모드 — 하루(=유닛)의 마무리 3단계.
+  // final 이 가장 높은 건 하루를 끝낸 보상이라서다
+  unitPractice: 18, // 실전 연습 (15문제)
+  unitReview: 14, // 복습 (10문제)
+  unitFinal: 25, // 마무리 확인 (8문제)
 };
 
 /** 연습 모드 XP = 기본값 + 콤보(정답 수 상한) */

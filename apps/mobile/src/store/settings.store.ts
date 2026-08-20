@@ -47,11 +47,24 @@ const LEARN_MODES: LearnMode[] = [
  * 레슨·보상 화면을 닫고 원래 로드맵으로 돌아가는 경로.
  * category 가 비면 어휘 로드맵.
  */
-export function backToRoadmap(category?: string): Href {
+export function backToRoadmap(category?: string, from?: string): Href {
+  // 학습 로드 모드에서 들어왔으면 자율 로드맵이 아니라 그 하루로 돌아가야 한다
+  if (from === "studyPath") return "/study-path";
   return category ? (`/roadmap?category=${category}` as Href) : "/roadmap";
 }
 
-export function learnModePath(mode: LearnMode, topikLevel: TopikLevel): Href {
+/** 가이드(순서대로) ↔ 자율(마음대로). learnMode 와 직교하는 축이다 */
+export type StudyMode = "guided" | "free";
+
+export function learnModePath(
+  mode: LearnMode,
+  topikLevel: TopikLevel,
+  studyMode: StudyMode = "free",
+): Href {
+  // 학습 로드 모드는 어휘 트랙 위에서만 하루치를 짜준다.
+  // 문법·표현·토픽은 각자 전용 흐름이 있어 그대로 둔다.
+  if (studyMode === "guided" && mode === "vocabulary") return "/study-path";
+
   switch (mode) {
     // 전용 메인 페이지가 있는 모드
     case "grammar":
@@ -117,6 +130,8 @@ interface SettingsState {
   theme: Theme;
   learningTheme: LearningTheme;
   learnMode: LearnMode; // 현재 진행 중인 학습 모드
+  /** 순서대로 배우는 가이드 모드인지, 원하는 대로 고르는 자율 모드인지 */
+  studyMode: StudyMode;
   /** 마지막으로 고른 토픽 급수. 홈에서 토픽으로 돌아갈 때 필요 */
   topikLevel: TopikLevel;
   /** 단어 카드를 넘길 때 한국어 발음을 자동으로 재생할지 여부 */
@@ -131,6 +146,7 @@ interface SettingsState {
   setTheme: (theme: Theme) => void;
   setLearningTheme: (t: LearningTheme) => void;
   setLearnMode: (m: LearnMode) => void;
+  setStudyMode: (m: StudyMode) => void;
   setTopikLevel: (l: TopikLevel) => void;
   setWordStudyAutoPlay: (enabled: boolean) => void;
   setWordStudyLast: (position: WordStudyPosition | null) => void;
@@ -146,6 +162,8 @@ export const useSettingsStore = create<SettingsState>()(
       theme: "system",
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
+      // 뭘 해야 할지 모르는 유저가 기본값이다 — 처음엔 순서를 짜준다
+      studyMode: "guided",
       topikLevel: "1",
       wordStudyAutoPlay: true,
       wordStudyLast: null,
@@ -177,6 +195,7 @@ export const useSettingsStore = create<SettingsState>()(
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
+      setStudyMode: (studyMode) => set({ studyMode }),
       setTopikLevel: (topikLevel) => set({ topikLevel }),
       setWordStudyAutoPlay: (wordStudyAutoPlay) =>
         set({ wordStudyAutoPlay }),

@@ -21,3 +21,12 @@ export type LearnMode = (typeof LEARN_MODES)[number];
 export const TOPIK_LEVELS = ['1', '2'] as const;
 
 export type TopikLevel = (typeof TOPIK_LEVELS)[number];
+
+/**
+ * 가이드 모드는 "학원처럼 순서대로" — 하루(=한 유닛) 분량을 서버가 짜준다.
+ * 자율 모드는 기존 로드맵 그대로 원하는 노드를 찍어서 간다.
+ * learnMode 와 직교한다: 어휘 트랙이든 문법 트랙이든 두 방식 다 가능.
+ */
+export const STUDY_MODES = ['guided', 'free'] as const;
+
+export type StudyMode = (typeof STUDY_MODES)[number];

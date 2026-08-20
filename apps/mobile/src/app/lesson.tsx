@@ -25,6 +25,9 @@ import {
 } from "@/types/lesson";
 import { LessonService } from "@/services/lesson.service";
 import { ExpressionService } from "@/services/expression.service";
+import { StudyPathService } from "@/services/study-path.service";
+import type { PracticeMode } from "@/services/lesson.service";
+import type { StudyCompletableKind } from "@/types/study-path";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import QuestionRenderer from "@/components/lesson/QuestionRenderer";
@@ -46,6 +49,13 @@ type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
 const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
 const LEGEND_DURATION = 120; // 2분
+/** 서버 XP 표(PRACTICE_BASE_XP)의 키. 노드 종류마다 보상이 다르다 */
+const UNIT_PRACTICE_MODE: Record<StudyCompletableKind, PracticeMode> = {
+  practice: "unitPractice",
+  review: "unitReview",
+  final: "unitFinal",
+};
+
 const LEGEND_XP = 40;
 const SMART_GRADING_TYPES = new Set([
   "type_answer",
@@ -68,8 +78,18 @@ export default function LessonScreen() {
         ? Math.max(keyboard.height.value, insets.bottom)
         : insets.bottom,
   }));
-  const { lessonId, mode, nodeId, section, unit, target, category, pack } =
-    useLocalSearchParams<{
+  const {
+    lessonId,
+    mode,
+    nodeId,
+    section,
+    unit,
+    target,
+    category,
+    pack,
+    kind,
+    from,
+  } = useLocalSearchParams<{
       lessonId?: string;
       mode?: string;
       nodeId?: string;
@@ -80,6 +100,10 @@ export default function LessonScreen() {
       category?: string;
       /** 표현 카드 학습에서 연습할 표현 팩 코드 */
       pack?: string;
+      /** 학습 로드 모드 노드 종류: practice | review | final */
+      kind?: string;
+      /** 학습 로드 모드에서 들어왔으면 "studyPath". 끝나고 거기로 돌아간다 */
+      from?: string;
     }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
@@ -88,6 +112,11 @@ export default function LessonScreen() {
   const isJumpTest = mode === "jumpTest";
   const isLegend = mode === "legend";
   const isExpressionPractice = mode === "expressionPractice";
+  // 학습 로드 모드 — 그 하루(=유닛) 범위로 좁힌 실전/복습/마무리
+  const isUnitPractice = mode === "unitPractice";
+  const unitKind: StudyCompletableKind =
+    kind === "review" || kind === "final" ? kind : "practice";
+  const fromStudyPath = from === "studyPath";
   const jumpHeartLimit =
     target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
@@ -214,6 +243,23 @@ export default function LessonScreen() {
         );
         setLesson(session);
         questionQueue.current = [...session.questions];
+        return;
+      }
+
+      if (isUnitPractice) {
+        const { questions } = await LessonService.getUnitPractice(
+          Number(section),
+          Number(unit),
+          unitKind,
+        );
+        setLesson({
+          lessonId: `unit-${unitKind}`,
+          lessonTitle: "Unit Practice",
+          category: "",
+          totalXp: 0,
+          questions,
+        } as any);
+        questionQueue.current = [...questions];
         return;
       }
 
@@ -517,6 +563,26 @@ export default function LessonScreen() {
       } catch (err) {
         console.error("표현 연습 완료 저장 실패:", err);
       }
+    } else if (isUnitPractice) {
+      try {
+        const r = await LessonService.completePractice({
+          mode: UNIT_PRACTICE_MODE[unitKind],
+          questionIds: practicedIds,
+          wrongQuestionIds: wrongArr,
+          speedSeconds: seconds,
+          combo,
+        });
+        earnedXp = r.xpEarned;
+        updateUser({ totalXP: r.totalXP } as any);
+        // 노드 완료는 XP 저장과 별개다 — 하나가 실패해도 다른 하나는 남는다
+        await StudyPathService.completeNode(
+          Number(section),
+          Number(unit),
+          unitKind,
+        );
+      } catch (err) {
+        console.error("하루 연습 완료 저장 실패:", err);
+      }
     } else if (isReview || isWordPractice) {
       // 복습은 unmount에서 resolveMistakes 처리
       try {
@@ -585,6 +651,7 @@ export default function LessonScreen() {
             chestGems: res.chest ? String(res.chest.gems) : "",
             gemTotal: String(gemsBefore),
             category: category ?? "",
+            from: fromStudyPath ? "studyPath" : "",
           },
         });
         return;
@@ -609,6 +676,7 @@ export default function LessonScreen() {
         pack: isExpressionPractice ? pack ?? "" : "",
         section: isExpressionPractice ? section ?? "1" : "",
         unit: isExpressionPractice ? unit ?? "1" : "",
+        from: fromStudyPath ? "studyPath" : "",
       },
     });
   };

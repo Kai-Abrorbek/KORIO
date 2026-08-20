@@ -38,8 +38,11 @@ export default function ChestRewardScreen() {
     gems?: string;
     gemTotal?: string;
     category?: string;
+    /** 학습 로드 모드에서 왔으면 "studyPath" */
+    from?: string;
   }>();
   const category = params.category;
+  const from = params.from;
   const grade = (params.grade ?? "wood") as "wood" | "silver" | "gold";
   const gemsAmount = Number(params.gems ?? 0);
   const currentGemTotal = Number(params.gemTotal ?? 0);
@@ -187,7 +190,7 @@ export default function ChestRewardScreen() {
                 // 경우엔 돌아갈 곳이 없으니 카테고리로 직접 간다.
                 router.canGoBack()
                   ? router.back()
-                  : router.replace(backToRoadmap(category))
+                  : router.replace(backToRoadmap(category, from))
               }
             />
           </View>

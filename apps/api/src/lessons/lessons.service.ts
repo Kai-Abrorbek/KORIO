@@ -902,7 +902,16 @@ export class LessonsService {
     lang = 'uz',
   ) {
     if (kind === 'review') {
-      return this.getUnitReview(userId, section, unit, lang);
+      const review = await this.getUnitReview(userId, section, unit, lang);
+      // 오답이 없는 유저(첫 유닛이거나 다 맞은 경우)에게 빈 화면을 주지 않는다.
+      // 복습 노드는 하루의 필수 관문이라 건너뛰게 두면 흐름이 끊긴다.
+      if (review.questions.length) return review;
+      const fallback = await this.collectUnitQuestions(section, unit);
+      return {
+        questions: this.pickBalanced(fallback, UNIT_PRACTICE_SIZE.review).map(
+          (q) => this.formatQuestion(q, lang),
+        ),
+      };
     }
 
     const questions = await this.collectUnitQuestions(section, unit);

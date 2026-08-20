@@ -6,6 +6,7 @@ import type { AvatarConfig } from "@/types/avatar";
 import {
   useSettingsStore,
   type LearnMode,
+  type StudyMode,
   type TopikLevel,
 } from "./settings.store";
 
@@ -39,6 +40,8 @@ export interface User {
   currentUnitProgress?: number;
   /** 현재 학습 중인 모드 — 기기가 아니라 계정에 붙는다 */
   learnMode?: LearnMode;
+  /** 순서대로(guided) 인지 자율(free) 인지 */
+  studyMode?: StudyMode;
   /** 토픽 학습 중이면 어느 급수인지 */
   topikLevel?: TopikLevel;
 }

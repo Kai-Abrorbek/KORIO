@@ -33,6 +33,7 @@ import {
 } from './utils/study-category.util';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
+import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AvatarConfig } from './schemas/avatar.schema';
@@ -201,6 +202,8 @@ export class UsersService {
       // 기존 유저 문서엔 이 필드가 없다. 기본값을 내려줘야 앱이
       // 로컬에 남아 있던 (다른 계정의) 값을 그대로 쓰지 않는다.
       learnMode: user.learnMode || 'vocabulary',
+      // 기본은 가이드(학습 로드) 모드. 뭘 해야 할지 모르는 유저가 기본값이다
+      studyMode: user.studyMode || 'guided',
       topikLevel: user.topikLevel || '1',
       // 계정 화면에서 로그인 방식을 보여주고, 소셜 계정엔 비밀번호 변경을 숨긴다
       provider: user.provider,
@@ -588,6 +591,22 @@ export class UsersService {
       learnMode: updated.learnMode,
       topikLevel: updated.topikLevel,
     };
+  }
+
+  /** 가이드(순서대로) ↔ 자율(마음대로). 계정에 붙어야 폰을 바꿔도 따라온다 */
+  async updateStudyMode(userId: string, dto: UpdateStudyModeDto) {
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: { studyMode: dto.studyMode } },
+        { returnDocument: 'after', runValidators: true },
+      )
+      .select('studyMode')
+      .lean();
+
+    if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    return { studyMode: updated.studyMode };
   }
 
   /**

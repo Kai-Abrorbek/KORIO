@@ -2,6 +2,18 @@ import api from "./api";
 import { AnswerGradeResult, LessonSession } from "@/types/lesson";
 import i18n from "@/locales/i18n";
 
+/**
+ * 연습 완료 모드. 서버 PRACTICE_BASE_XP 의 키와 1:1 로 맞아야 한다 —
+ * 여기 없는 문자열을 보내면 XP 가 조용히 0 이 된다.
+ */
+export type PracticeMode =
+  | "review"
+  | "nodeReview"
+  | "wordPractice"
+  | "unitPractice"
+  | "unitReview"
+  | "unitFinal";
+
 // 현재 유저 언어 가져오기
 const getLang = () => i18n.language?.split("-")[0] || "uz";
 
@@ -105,6 +117,16 @@ export const LessonService = {
   resolveMistakes: (correctIds: string[]): Promise<{ removed: number }> =>
     api.post(`/lessons/mistakes/resolve`, { correctIds }),
 
+  /** 학습 로드 모드 — 그 하루(=유닛) 범위의 실전 · 복습 · 마무리 문제 */
+  getUnitPractice: (
+    section: number,
+    unit: number,
+    kind: "practice" | "review" | "final",
+  ): Promise<{ questions: any[] }> =>
+    api.get(
+      `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}&lang=${getLang()}`,
+    ),
+
   getNodeReview: (
     nodeId: string,
     limit?: number,
@@ -137,7 +159,7 @@ export const LessonService = {
 
   /** 복습·연습 완료. XP 는 서버가 모드로 결정하고 통계도 함께 기록됨 */
   completePractice: (body: {
-    mode: "review" | "nodeReview" | "wordPractice";
+    mode: PracticeMode;
     questionIds: string[];
     wrongQuestionIds?: string[];
     speedSeconds?: number;

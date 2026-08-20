@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
+import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
@@ -46,6 +47,11 @@ export class UsersController {
   @Patch('me/learn-mode')
   async updateLearnMode(@Request() req, @Body() dto: UpdateLearnModeDto) {
     return this.usersService.updateLearnMode(req.user._id.toString(), dto);
+  }
+
+  @Patch('me/study-mode')
+  async updateStudyMode(@Request() req, @Body() dto: UpdateStudyModeDto) {
+    return this.usersService.updateStudyMode(req.user._id.toString(), dto);
   }
 
   @Get('me/pronunciation')

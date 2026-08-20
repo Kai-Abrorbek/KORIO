@@ -10,8 +10,10 @@ import { AvatarConfig, AvatarConfigSchema } from './avatar.schema';
 import { DEFAULT_AVATAR_CONFIG } from '../avatar/avatar.constants';
 import {
   LEARN_MODES,
+  STUDY_MODES,
   TOPIK_LEVELS,
   type LearnMode,
+  type StudyMode,
   type TopikLevel,
 } from '../learn-mode.constants';
 
@@ -201,6 +203,16 @@ export class User {
   // 보석 보상 지급 완료한 문법 섹션 (중복 지급 방지)
   @Prop({ type: [Number], default: [] })
   completedGrammarSections: number[];
+
+  // 학습 로드 모드에서 끝낸 노드 키 ("<섹션>-<유닛>:<종류>", 예: "1-3:practice").
+  // 레슨·문법·단어는 각자 자기 진행도가 있으므로 여기엔 실전/복습/마무리만 쌓인다.
+  @Prop({ type: [String], default: [] })
+  completedStudyNodes: string[];
+
+  // 가이드(학습 로드) 모드인지 자율 모드인지. learnMode(어휘/문법/표현…)와
+  // 직교하는 축이다 — 어떤 트랙을 공부하든 "순서대로 vs 마음대로"를 고른다.
+  @Prop({ type: String, enum: STUDY_MODES, default: 'guided' })
+  studyMode: StudyMode;
 
   // 현재 학습 중인 모드. 기기가 아니라 계정에 붙어야 한다 —
   // 같은 폰에서 계정을 바꿔도, 폰을 바꿔도 자기 것이 따라와야 함

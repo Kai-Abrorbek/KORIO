@@ -28,6 +28,8 @@ export default function LessonCompleteScreen() {
     pack?: string;
     section?: string;
     unit?: string;
+    /** 학습 로드 모드에서 왔으면 "studyPath" */
+    from?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -48,6 +50,7 @@ export default function LessonCompleteScreen() {
           gems: params.chestGems ?? "0",
           gemTotal: params.gemTotal ?? "0",
           category: params.category ?? "",
+          from: params.from ?? "",
         },
       });
     } else if (params.category === "expression" && params.pack) {
@@ -61,7 +64,7 @@ export default function LessonCompleteScreen() {
       });
     } else {
       // 문법 트랙에서 왔는데 그냥 /roadmap 으로 보내면 어휘 로드맵이 뜬다
-      router.replace(backToRoadmap(params.category));
+      router.replace(backToRoadmap(params.category, params.from));
     }
   };
 
