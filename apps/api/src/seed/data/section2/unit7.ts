@@ -91,7 +91,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_travel_noun',
-    senseKey: 'leisure-travel',
+    senseKey: 'travel-trip',
     korean: '여행',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -207,7 +207,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_vacation_noun',
-    senseKey: 'time-vacation-leave',
+    senseKey: 'time-work-vacation',
     korean: '휴가',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -265,7 +265,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_travel_verb',
-    senseKey: 'activity-travel',
+    senseKey: 'leisure-travel',
     korean: '여행하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -381,7 +381,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_arrive_verb',
-    senseKey: 'travel-arrive',
+    senseKey: 'movement-arrive',
     korean: '도착하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1553,7 +1553,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_go_hiking_verb',
-    senseKey: 'activity-hiking',
+    senseKey: 'leisure-go-hiking',
     korean: '등산하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1611,7 +1611,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_sightsee_verb',
-    senseKey: 'activity-look-around-sightsee',
+    senseKey: 'action-look-around-sightsee',
     korean: '구경하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1669,7 +1669,7 @@ export const S2_UNIT7_WORDS = [
 
   {
     code: 'word_swim_verb',
-    senseKey: 'activity-swim',
+    senseKey: 'action-swim',
     korean: '수영하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {

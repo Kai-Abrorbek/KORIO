@@ -2663,7 +2663,7 @@ export const S2_UNIT6_WORDS = [
 
   {
     code: 'word_style_noun',
-    senseKey: 'fashion-style',
+    senseKey: 'appearance-style',
     korean: '스타일',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -2957,7 +2957,7 @@ export const S2_UNIT6_WORDS = [
 
   {
     code: 'word_gift_noun',
-    senseKey: 'social-gift',
+    senseKey: 'object-gift',
     korean: '선물',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -3131,7 +3131,7 @@ export const S2_UNIT6_WORDS = [
 
   {
     code: 'word_give_humble_verb',
-    senseKey: 'honorific-give-humble',
+    senseKey: 'social-give-humble',
     korean: '드리다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -3189,7 +3189,7 @@ export const S2_UNIT6_WORDS = [
 
   {
     code: 'word_bag_noun',
-    senseKey: 'accessory-bag',
+    senseKey: 'object-bag',
     korean: '가방',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -3479,7 +3479,7 @@ export const S2_UNIT6_WORDS = [
 
   {
     code: 'word_watch_noun',
-    senseKey: 'accessory-wristwatch',
+    senseKey: 'personal-item-watch',
     korean: '시계',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -3830,7 +3830,7 @@ export const S2_UNIT6_WORDS = [
   },
 
   {
-    code: 'word_ask_verb',
+    code: 'word_ask_plain_verb',
     senseKey: 'communication-ask-question',
     korean: '묻다',
     partOfSpeech: WordPartOfSpeech.VERB,

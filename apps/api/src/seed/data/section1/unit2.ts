@@ -13513,7 +13513,7 @@ export const S1_UNIT2_WORDS = [
 
   {
     code: 'word_ballpoint_pen_noun',
-    senseKey: 'school-supply-ballpoint-pen',
+    senseKey: 'stationery-ballpoint-pen',
     korean: '볼펜',
     partOfSpeech: WordPartOfSpeech.NOUN,
 
@@ -13968,7 +13968,7 @@ export const S1_UNIT2_WORDS = [
 
   {
     code: 'word_dictionary_noun',
-    senseKey: 'book-dictionary',
+    senseKey: 'study-dictionary',
     korean: '사전',
     partOfSpeech: WordPartOfSpeech.NOUN,
 
@@ -14163,7 +14163,7 @@ export const S1_UNIT2_WORDS = [
 
   {
     code: 'word_glasses_noun',
-    senseKey: 'object-eyeglasses',
+    senseKey: 'accessory-eyeglasses',
     korean: '안경',
     partOfSpeech: WordPartOfSpeech.NOUN,
 

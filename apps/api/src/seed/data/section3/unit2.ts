@@ -1632,7 +1632,7 @@ export const S3_UNIT2_WORDS = [
   {
     code: 'word_travel_verb',
     senseKey: 'leisure-travel',
-    korean: '여행을 하다',
+    korean: '여행하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
       ko: '다른 지역이나 나라에 가서 여러 곳을 둘러보다',

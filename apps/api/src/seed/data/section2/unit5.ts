@@ -293,7 +293,7 @@ export const S2_UNIT5_WORDS = [
 
   {
     code: 'word_ship_noun',
-    senseKey: 'transportation-ship',
+    senseKey: 'transport-ship-boat',
     korean: '배',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -351,7 +351,7 @@ export const S2_UNIT5_WORDS = [
 
   {
     code: 'word_taxi_noun',
-    senseKey: 'transportation-taxi',
+    senseKey: 'transport-taxi',
     korean: '택시',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -409,7 +409,7 @@ export const S2_UNIT5_WORDS = [
 
   {
     code: 'word_bicycle_noun',
-    senseKey: 'transportation-bicycle',
+    senseKey: 'transport-bicycle',
     korean: '자전거',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -467,7 +467,7 @@ export const S2_UNIT5_WORDS = [
 
   {
     code: 'word_subway_noun',
-    senseKey: 'transportation-subway',
+    senseKey: 'transport-subway',
     korean: '지하철',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -2570,7 +2570,7 @@ export const S2_UNIT5_WORDS = [
   },
 
   {
-    code: 'word_help_someone_verb',
+    code: 'word_help_out_verb',
     senseKey: 'action-help-benefactive',
     korean: '도와주다',
     partOfSpeech: WordPartOfSpeech.VERB,
@@ -2749,7 +2749,7 @@ export const S2_UNIT5_WORDS = [
 
   {
     code: 'word_plan_noun',
-    senseKey: 'schedule-plan',
+    senseKey: 'planning-plan',
     korean: '계획',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {

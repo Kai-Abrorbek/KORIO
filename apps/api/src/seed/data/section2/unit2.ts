@@ -2130,7 +2130,7 @@ export const S2_UNIT2_WORDS = [
 
   {
     code: 'word_part_time_job_noun',
-    senseKey: 'work-part-time-job',
+    senseKey: 'occupation-part-time-job',
     korean: '아르바이트',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -2540,7 +2540,7 @@ export const S2_UNIT2_WORDS = [
 
   {
     code: 'word_exercise_verb',
-    senseKey: 'activity-exercise-verb',
+    senseKey: 'action-exercise',
     korean: '운동하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {

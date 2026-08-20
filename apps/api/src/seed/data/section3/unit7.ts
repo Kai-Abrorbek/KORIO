@@ -1191,7 +1191,7 @@ export const S3_UNIT7_WORDS = [
   {
     code: 'word_transportation_card_noun',
     senseKey: 'transportation-transit-card',
-    korean: '교통 카드',
+    korean: '교통카드',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
       ko: '버스나 지하철 요금을 낼 때 사용하는 카드',

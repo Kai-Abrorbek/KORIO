@@ -10688,7 +10688,7 @@ export const UNIT3_NODES = [
 export const S1_UNIT3_WORDS = [
   {
     code: 'word_study_verb',
-    senseKey: 'action-study',
+    senseKey: 'education-study',
     korean: '공부하다',
     partOfSpeech: WordPartOfSpeech.VERB,
 
@@ -11208,7 +11208,7 @@ export const S1_UNIT3_WORDS = [
 
   {
     code: 'word_buy_verb',
-    senseKey: 'action-buy',
+    senseKey: 'shopping-buy',
     korean: '사다',
     partOfSpeech: WordPartOfSpeech.VERB,
 
@@ -12447,7 +12447,7 @@ export const S1_UNIT3_WORDS = [
 
   {
     code: 'word_school_noun',
-    senseKey: 'place-school',
+    senseKey: 'education-school',
     korean: '학교',
     partOfSpeech: WordPartOfSpeech.NOUN,
 

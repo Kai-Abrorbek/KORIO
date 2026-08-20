@@ -1226,7 +1226,7 @@ export const S3_UNIT6_WORDS = [
   {
     code: 'word_mobile_phone_noun',
     senseKey: 'device-mobile-phone',
-    korean: '휴대 전화',
+    korean: '휴대폰',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
       ko: '가지고 다니면서 전화나 문자 등을 할 수 있는 전화기',

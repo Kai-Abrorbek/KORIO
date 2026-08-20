@@ -882,7 +882,7 @@ export const S1_UNIT8_WORDS = [
   {
     code: 'word_go_hiking_verb',
     senseKey: 'leisure-go-hiking',
-    korean: '등산을 하다',
+    korean: '등산하다',
     partOfSpeech: WordPartOfSpeech.VERB,
 
     meaning: {
@@ -1012,7 +1012,7 @@ export const S1_UNIT8_WORDS = [
   {
     code: 'word_travel_verb',
     senseKey: 'leisure-travel',
-    korean: '여행을 하다',
+    korean: '여행하다',
     partOfSpeech: WordPartOfSpeech.VERB,
 
     meaning: {

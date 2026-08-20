@@ -466,7 +466,7 @@ export const S2_UNIT4_WORDS = [
   },
 
   {
-    code: 'word_make_phone_call_verb',
+    code: 'word_call_on_phone_verb',
     senseKey: 'communication-make-phone-call',
     korean: '전화를 하다',
     partOfSpeech: WordPartOfSpeech.VERB,
@@ -1344,7 +1344,7 @@ export const S2_UNIT4_WORDS = [
   },
 
   {
-    code: 'word_a_little_while_ago_adverb',
+    code: 'word_a_while_ago_adverb',
     senseKey: 'time-a-little-while-ago',
     korean: '아까',
     partOfSpeech: WordPartOfSpeech.ADVERB,
@@ -1403,8 +1403,8 @@ export const S2_UNIT4_WORDS = [
 
   {
     code: 'word_later_adverb',
-    senseKey: 'time-later-same-day',
-    korean: '이따',
+    senseKey: 'time-later-shortly',
+    korean: '이따가',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: {
       ko: '지금보다 조금 뒤에',
@@ -1817,7 +1817,7 @@ export const S2_UNIT4_WORDS = [
 
   {
     code: 'word_read_book_verb',
-    senseKey: 'activity-read-book',
+    senseKey: 'hobby-read-book',
     korean: '책을 읽다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -2227,7 +2227,7 @@ export const S2_UNIT4_WORDS = [
 
   {
     code: 'word_tired_adjective',
-    senseKey: 'state-tired',
+    senseKey: 'physical-state-tired',
     korean: '피곤하다',
     partOfSpeech: WordPartOfSpeech.ADJECTIVE,
     meaning: {
@@ -3217,7 +3217,7 @@ export const S2_UNIT4_WORDS = [
 
   {
     code: 'word_difficult_adjective',
-    senseKey: 'evaluation-difficult',
+    senseKey: 'difficulty-difficult',
     korean: '어렵다',
     partOfSpeech: WordPartOfSpeech.ADJECTIVE,
     meaning: {

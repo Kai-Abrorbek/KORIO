@@ -327,7 +327,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_contact_verb',
-    senseKey: 'contact-person',
+    senseKey: 'communication-contact',
     korean: '연락하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -621,7 +621,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_a_lot_adverb',
-    senseKey: 'many-much-adverb',
+    senseKey: 'quantity-a-lot',
     korean: '많이',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: {
@@ -795,7 +795,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_early_adverb',
-    senseKey: 'early-adverb',
+    senseKey: 'time-early',
     korean: '일찍',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: {
@@ -853,7 +853,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_well_adverb',
-    senseKey: 'well-adverb',
+    senseKey: 'manner-well',
     korean: '잘',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: {
@@ -969,7 +969,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_slowly_adverb',
-    senseKey: 'slowly-adverb',
+    senseKey: 'manner-slowly',
     korean: '천천히',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: {
@@ -1147,7 +1147,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_cake_noun',
-    senseKey: 'cake-food',
+    senseKey: 'food-cake',
     korean: '케이크',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -1263,7 +1263,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_fruit_noun',
-    senseKey: 'fruit-food',
+    senseKey: 'food-fruit',
     korean: '과일',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -1441,7 +1441,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_move_house_verb',
-    senseKey: 'move-residence',
+    senseKey: 'housing-move-house',
     korean: '이사하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1557,7 +1557,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_roommate_noun',
-    senseKey: 'person-sharing-room',
+    senseKey: 'relationship-roommate',
     korean: '룸메이트',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -1615,7 +1615,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_clean_verb',
-    senseKey: 'clean-place',
+    senseKey: 'daily-life-clean',
     korean: '청소하다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1672,8 +1672,8 @@ export const S2_UNIT8_WORDS = [
   },
 
   {
-    code: 'word_help_verb',
-    senseKey: 'help-person',
+    code: 'word_help_out_verb',
+    senseKey: 'action-help-benefactive',
     korean: '도와주다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1909,7 +1909,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_dance_verb',
-    senseKey: 'dance-action',
+    senseKey: 'activity-dance',
     korean: '춤추다',
     partOfSpeech: WordPartOfSpeech.VERB,
     meaning: {
@@ -1971,7 +1971,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_email_noun',
-    senseKey: 'electronic-mail',
+    senseKey: 'communication-email',
     korean: '이메일',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -2149,7 +2149,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_place_noun',
-    senseKey: 'event-place',
+    senseKey: 'place-general',
     korean: '장소',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {
@@ -2323,7 +2323,7 @@ export const S2_UNIT8_WORDS = [
 
   {
     code: 'word_cooking_noun',
-    senseKey: 'cuisine-cooking',
+    senseKey: 'activity-cooking',
     korean: '요리',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: {

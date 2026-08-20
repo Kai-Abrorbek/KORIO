@@ -1,5 +1,17 @@
 import { createHash } from 'node:crypto';
+import { S1_UNIT1_WORDS } from './data/section1/unit1';
+import { S1_UNIT2_WORDS } from './data/section1/unit2';
+import { S1_UNIT3_WORDS } from './data/section1/unit3';
+import { S1_UNIT4_WORDS } from './data/section1/unit4';
 import { S1_UNIT5_WORDS } from './data/section1/unit5';
+import { S2_UNIT1_WORDS } from './data/section2/unit1';
+import { S2_UNIT2_WORDS } from './data/section2/unit2';
+import { S2_UNIT3_WORDS } from './data/section2/unit3';
+import { S2_UNIT4_WORDS } from './data/section2/unit4';
+import { S2_UNIT5_WORDS } from './data/section2/unit5';
+import { S2_UNIT6_WORDS } from './data/section2/unit6';
+import { S2_UNIT7_WORDS } from './data/section2/unit7';
+import { S2_UNIT8_WORDS } from './data/section2/unit8';
 import { S1_UNIT6_WORDS } from './data/section1/unit6';
 import { S1_UNIT7_WORDS } from './data/section1/unit7';
 import { S1_UNIT8_WORDS } from './data/section1/unit8';
@@ -23,12 +35,23 @@ import {
 
 const REQUIRED_LANGUAGES: WordLanguage[] = ['ko', 'uz', 'en', 'ru'];
 
-// Section 2 is deliberately excluded while its lesson data is still being authored.
 const WORD_SOURCES: WordSeedSource[] = [
+  { section: 1, unit: 1, words: S1_UNIT1_WORDS },
+  { section: 1, unit: 2, words: S1_UNIT2_WORDS },
+  { section: 1, unit: 3, words: S1_UNIT3_WORDS },
+  { section: 1, unit: 4, words: S1_UNIT4_WORDS },
   { section: 1, unit: 5, words: S1_UNIT5_WORDS },
   { section: 1, unit: 6, words: S1_UNIT6_WORDS },
   { section: 1, unit: 7, words: S1_UNIT7_WORDS },
   { section: 1, unit: 8, words: S1_UNIT8_WORDS },
+  { section: 2, unit: 1, words: S2_UNIT1_WORDS },
+  { section: 2, unit: 2, words: S2_UNIT2_WORDS },
+  { section: 2, unit: 3, words: S2_UNIT3_WORDS },
+  { section: 2, unit: 4, words: S2_UNIT4_WORDS },
+  { section: 2, unit: 5, words: S2_UNIT5_WORDS },
+  { section: 2, unit: 6, words: S2_UNIT6_WORDS },
+  { section: 2, unit: 7, words: S2_UNIT7_WORDS },
+  { section: 2, unit: 8, words: S2_UNIT8_WORDS },
   { section: 3, unit: 1, words: S3_UNIT1_WORDS },
   { section: 3, unit: 2, words: S3_UNIT2_WORDS },
   { section: 3, unit: 3, words: S3_UNIT3_WORDS },

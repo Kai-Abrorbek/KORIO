@@ -1659,7 +1659,7 @@ export const S2_UNIT3_WORDS = [
 
   {
     code: 'word_hungry_adjective',
-    senseKey: 'state-hungry',
+    senseKey: 'physical-state-hungry',
     korean: '배고프다',
     partOfSpeech: WordPartOfSpeech.ADJECTIVE,
     meaning: {
