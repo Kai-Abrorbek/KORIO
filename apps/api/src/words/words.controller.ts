@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ListWordsQueryDto } from './dto/list-words-query.dto';
+import { MarkSeenWordsDto } from './dto/mark-seen.dto';
 import { ReviewQueueQueryDto } from './dto/review-queue-query.dto';
 import { ReviewWordDto } from './dto/review-word.dto';
 import { WordLanguageQueryDto } from './dto/word-language-query.dto';
@@ -34,6 +35,12 @@ export class WordsController {
       req.user._id.toString(),
       Number(section),
     );
+  }
+
+  /** 카드로 넘겨 본 단어들. 여러 장을 모아서 한 번에 보낸다 */
+  @Post('seen')
+  async markSeen(@Request() req, @Body() dto: MarkSeenWordsDto) {
+    return this.wordsService.markSeen(req.user._id.toString(), dto.ids);
   }
 
   @Get('review')

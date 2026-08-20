@@ -17,6 +17,10 @@ export const WordService = {
   getSectionSummary: (section: number): Promise<WordSectionSummary> =>
     api.get(`/words/sections/${section}/summary`),
 
+  /** 카드로 넘겨 본 단어들. 여러 장을 모아서 한 번에 보낸다 */
+  markSeen: (ids: string[]): Promise<{ seen: number }> =>
+    api.post(`/words/seen`, { ids }),
+
   getUnitWords: async (section: number, unit: number): Promise<StudyWord[]> => {
     const items: StudyWord[] = [];
     let cursor: string | null = null;

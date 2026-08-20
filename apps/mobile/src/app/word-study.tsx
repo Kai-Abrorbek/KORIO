@@ -45,6 +45,7 @@ import type {
   WordUnitSummary,
 } from "@/types/word-study";
 import * as Haptics from "@/utils/haptics";
+import { useSeenWords } from "@/hooks/useSeenWords";
 
 const SECTIONS = [1, 2, 3];
 const SWIPE_THRESHOLD = 88;
@@ -713,6 +714,9 @@ export default function WordStudyScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { speak, stop, isSpeaking } = useSpeech();
+  // 카드를 넘겨 본 단어는 "학습 중"으로 올라간다. 학습 로드 모드의 단어 노드가
+  // 이걸로 완료 여부를 판단한다.
+  const { markSeen, flush: flushSeen } = useSeenWords();
   const wordStudyAutoPlay = useSettingsStore(
     (state) => state.wordStudyAutoPlay,
   );
@@ -804,6 +808,8 @@ export default function WordStudyScreen() {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
     setWordsLoading(true);
     setLoadFailed(false);
+    // 범위를 바꾸기 전에 지금까지 본 것을 넘긴다
+    flushSeen();
     setWords([]);
     setCardIndex(0);
     stop();
@@ -827,6 +833,7 @@ export default function WordStudyScreen() {
     }
   }, [
     activeLanguage,
+    flushSeen,
     scopeLoading,
     section,
     stop,
@@ -851,6 +858,10 @@ export default function WordStudyScreen() {
       currentWord.pronunciation.hangul ||
       currentWord.headword
     : "";
+
+  useEffect(() => {
+    markSeen(currentWordId);
+  }, [currentWordId, markSeen]);
 
   useEffect(() => {
     if (!currentWordId || !currentSpeechText || !wordStudyAutoPlay) return;

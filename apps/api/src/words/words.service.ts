@@ -218,6 +218,59 @@ export class WordsService {
     };
   }
 
+  /**
+   * 카드로 "봤다"는 기록. 퀴즈가 아니라 노출이므로 정답 수나 ease 는 건드리지
+   * 않는다 — 그것까지 올리면 실제로 테스트한 적 없는 단어가 복습 큐에서
+   * 빠져버린다. 아직 NEW 인 단어만 LEARNING 으로 올리고 첫 복습일을 잡아준다.
+   */
+  async markSeen(userId: string, ids: string[]) {
+    const userObjectId = new Types.ObjectId(userId);
+    const wordIds = [...new Set(ids)]
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    if (!wordIds.length) return { seen: 0 };
+
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    // 두 번째 op 는 이미 있던 NEW 문서만 건드린다. 첫 번째 op 가 방금 만든
+    // 문서는 이미 LEARNING 이라 걸리지 않는다.
+    const ops = wordIds.flatMap((wordId) => [
+      {
+        updateOne: {
+          filter: { userId: userObjectId, wordId },
+          update: {
+            $setOnInsert: {
+              userId: userObjectId,
+              wordId,
+              state: UserWordState.LEARNING,
+              intervalDays: 1,
+              nextReviewAt: tomorrow,
+            },
+            $set: { lastReviewedAt: now },
+          },
+          upsert: true,
+        },
+      },
+      {
+        updateOne: {
+          filter: { userId: userObjectId, wordId, state: UserWordState.NEW },
+          update: {
+            $set: {
+              state: UserWordState.LEARNING,
+              intervalDays: 1,
+              nextReviewAt: tomorrow,
+              lastReviewedAt: now,
+            },
+          },
+        },
+      },
+    ]);
+
+    await this.progressModel.bulkWrite(ops as any, { ordered: false });
+    return { seen: wordIds.length };
+  }
+
   async masterWord(userId: string, id: string) {
     const word = await this.findWord(id);
     const userObjectId = new Types.ObjectId(userId);

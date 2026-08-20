@@ -51,6 +51,8 @@ export default function RootLayout() {
             <Stack.Screen name="auth" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="roadmap" />
+            {/* 학습 로드 모드의 하루치 로드맵. 자율 로드맵과 같은 층위다 */}
+            <Stack.Screen name="study-path" />
             <Stack.Screen
               name="courses"
               options={{
