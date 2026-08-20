@@ -105,6 +105,13 @@ export interface SoundPrefs {
   startMuted: boolean;
 }
 
+/** 단어 학습을 마지막으로 보던 지점. 다음에 들어오면 여기서 이어간다. */
+export interface WordStudyPosition {
+  section: number;
+  unit: number;
+  cardIndex: number;
+}
+
 interface SettingsState {
   language: Language;
   theme: Theme;
@@ -114,6 +121,8 @@ interface SettingsState {
   topikLevel: TopikLevel;
   /** 단어 카드를 넘길 때 한국어 발음을 자동으로 재생할지 여부 */
   wordStudyAutoPlay: boolean;
+  /** 마지막 단어 학습 위치. null 이면 아직 시작한 적 없다 → 범위 선택부터 */
+  wordStudyLast: WordStudyPosition | null;
   notifications: NotificationPrefs;
   sound: SoundPrefs;
   /** 이번 실행 동안만 음소거 (저장 안 함) */
@@ -124,6 +133,7 @@ interface SettingsState {
   setLearnMode: (m: LearnMode) => void;
   setTopikLevel: (l: TopikLevel) => void;
   setWordStudyAutoPlay: (enabled: boolean) => void;
+  setWordStudyLast: (position: WordStudyPosition | null) => void;
   setNotifications: (patch: Partial<NotificationPrefs>) => void;
   setSound: (patch: Partial<SoundPrefs>) => void;
   setMuted: (v: boolean) => void;
@@ -138,6 +148,7 @@ export const useSettingsStore = create<SettingsState>()(
       learnMode: "vocabulary",
       topikLevel: "1",
       wordStudyAutoPlay: true,
+      wordStudyLast: null,
       notifications: {
         master: true,
         daily: true,
@@ -169,6 +180,7 @@ export const useSettingsStore = create<SettingsState>()(
       setTopikLevel: (topikLevel) => set({ topikLevel }),
       setWordStudyAutoPlay: (wordStudyAutoPlay) =>
         set({ wordStudyAutoPlay }),
+      setWordStudyLast: (wordStudyLast) => set({ wordStudyLast }),
       setNotifications: (patch) =>
         set((s) => ({ notifications: { ...s.notifications, ...patch } })),
       setSound: (patch) => set((s) => ({ sound: { ...s.sound, ...patch } })),

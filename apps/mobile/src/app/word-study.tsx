@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -719,6 +719,13 @@ export default function WordStudyScreen() {
   const setWordStudyAutoPlay = useSettingsStore(
     (state) => state.setWordStudyAutoPlay,
   );
+  const wordStudyLast = useSettingsStore((state) => state.wordStudyLast);
+  const setWordStudyLast = useSettingsStore(
+    (state) => state.setWordStudyLast,
+  );
+  // 첫 진입에 한 번만 이어보기를 적용한다. 이후 범위를 직접 바꾸면 0번부터.
+  const resumeIndexRef = useRef<number | null>(null);
+  const resumeConsumedRef = useRef(false);
   const screenStyles = useMemo(() => createScreenStyles(theme), [theme]);
 
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
@@ -744,25 +751,48 @@ export default function WordStudyScreen() {
       const available = result.filter((summary) => summary.words > 0);
       setSummaries(result);
 
-      const requestedSection = Number(params.section);
-      const requestedUnit = Number(params.unit);
-      const nextSummary =
-        available.find((item) => item.section === requestedSection) ??
-        available.find((item) => item.section === 3) ??
-        available[0];
-      const nextUnit =
-        nextSummary?.units.find((item) => item.unit === requestedUnit)?.unit ??
-        nextSummary?.units[0]?.unit;
+      // 1순위: 라우트 파라미터(로드맵에서 특정 유닛으로 들어온 경우)
+      // 2순위: 마지막으로 보던 위치 — 멈춘 곳부터 이어간다
+      // 둘 다 없으면 아직 시작한 적 없는 유저 → 범위 선택 모달부터 띄운다
+      const saved = wordStudyLast;
+      const requestedSection = Number(params.section) || saved?.section;
+      const requestedUnit = Number(params.unit) || saved?.unit;
 
-      if (nextSummary && nextUnit) {
-        setSection(nextSummary.section);
-        setUnit(nextUnit);
+      const matchedSummary = available.find(
+        (item) => item.section === requestedSection,
+      );
+      const matchedUnit = matchedSummary?.units.find(
+        (item) => item.unit === requestedUnit,
+      )?.unit;
+
+      if (matchedSummary && matchedUnit) {
+        setSection(matchedSummary.section);
+        setUnit(matchedUnit);
+        // 저장된 위치로 돌아온 경우에만 카드 번호까지 복원한다
+        if (
+          !Number(params.section) &&
+          saved &&
+          saved.section === matchedSummary.section &&
+          saved.unit === matchedUnit
+        ) {
+          resumeIndexRef.current = saved.cardIndex;
+        }
+      } else {
+        // 이어갈 데이터가 없다 → 어디서부터 할지 직접 고르게 한다
+        const fallback = available[0];
+        if (fallback?.units[0]) {
+          setSection(fallback.section);
+          setUnit(fallback.units[0].unit);
+        }
+        if (!Number(params.section)) setPickerVisible(true);
       }
     } catch {
       setLoadFailed(true);
     } finally {
       setScopeLoading(false);
     }
+    // wordStudyLast 는 첫 계산에만 쓰고 이후 변화로 다시 돌지 않게 의존성에서 뺀다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.section, params.unit]);
 
   useEffect(() => {
@@ -782,6 +812,14 @@ export default function WordStudyScreen() {
     try {
       const result = await WordService.getUnitWords(section, unit);
       setWords(result);
+
+      // 이어보기: 저장된 카드 번호로 복원 (단어가 줄었으면 마지막 카드로)
+      const resumeAt = resumeIndexRef.current;
+      resumeIndexRef.current = null;
+      if (!resumeConsumedRef.current && resumeAt != null && result.length > 0) {
+        resumeConsumedRef.current = true;
+        setCardIndex(Math.min(Math.max(0, resumeAt), result.length - 1));
+      }
     } catch {
       setLoadFailed(true);
     } finally {
@@ -994,10 +1032,19 @@ export default function WordStudyScreen() {
     setPickerVisible(false);
     setWordStudyAutoPlay(nextAutoPlay);
     if (nextSection === section && nextUnit === unit) return;
+    // 직접 고른 범위는 처음부터 본다
+    resumeIndexRef.current = null;
+    resumeConsumedRef.current = true;
     setSection(nextSection);
     setUnit(nextUnit);
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
+
+  // 보던 지점을 저장한다. 다음 진입 때 여기서 이어간다.
+  useEffect(() => {
+    if (wordsLoading || words.length === 0) return;
+    setWordStudyLast({ section, unit, cardIndex });
+  }, [cardIndex, section, unit, words.length, wordsLoading, setWordStudyLast]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
 
@@ -1055,14 +1102,14 @@ export default function WordStudyScreen() {
         </View>
       </View>
 
-      <ScrollView
-        style={styles.screenScroll}
-        contentContainerStyle={[
+      {/* 스크롤 없이 한 화면에 담는다. 카드가 남은 높이를 flex 로 채우고
+          하단 네비 버튼은 항상 보이게 고정된다. */}
+      <View
+        style={[
+          styles.screenScroll,
           styles.screenContent,
-          { paddingBottom: Math.max(insets.bottom, 18) + 18 },
+          { paddingBottom: Math.max(insets.bottom, 14) + 10 },
         ]}
-        showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="never"
       >
         <Animated.View entering={FadeInDown.duration(320)}>
           <TouchableOpacity
@@ -1157,7 +1204,7 @@ export default function WordStudyScreen() {
             </View>
           </View>
         ) : (
-          <Animated.View entering={FadeIn.duration(260)}>
+          <Animated.View entering={FadeIn.duration(260)} style={styles.cardArea}>
             <View style={styles.deck}>
               {nextWord ? (
                 <Animated.View
@@ -1185,7 +1232,7 @@ export default function WordStudyScreen() {
               ) : null}
 
               <GestureDetector gesture={panGesture}>
-                <Animated.View style={currentCardStyle}>
+                <Animated.View style={[styles.cardFill, currentCardStyle]}>
                   <WordCard
                     key={currentWord.id}
                     word={currentWord}
@@ -1255,7 +1302,7 @@ export default function WordStudyScreen() {
             </View>
           </Animated.View>
         )}
-      </ScrollView>
+      </View>
 
       <ScopePicker
         visible={pickerVisible}
@@ -1392,7 +1439,15 @@ const styles = StyleSheet.create({
   },
   retryText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
   emptyEmoji: { fontSize: 48 },
-  deck: { width: "100%", maxWidth: 520, alignSelf: "center" },
+  cardArea: { flex: 1 },
+  cardFill: { flex: 1 },
+  deck: {
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+    flex: 1,
+    marginTop: 12,
+  },
   previewLayer: {
     position: "absolute",
     top: 0,
@@ -1402,6 +1457,7 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   card: {
+    flex: 1,
     zIndex: 2,
     borderRadius: 30,
     borderWidth: 1.5,
@@ -1412,7 +1468,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   visualArea: {
-    minHeight: 218,
+    // 고정 높이였다가 카드가 화면을 넘겼다. 남는 만큼만 차지하고 줄어든다.
+    minHeight: 148,
+    flexShrink: 1,
     padding: 18,
     overflow: "hidden",
   },
@@ -1452,14 +1510,14 @@ const styles = StyleSheet.create({
   coreChipText: { fontSize: 11, fontWeight: "900" },
   visualContent: {
     flex: 1,
-    minHeight: 154,
+    minHeight: 92,
     alignItems: "center",
     justifyContent: "center",
   },
-  wordImage: { width: "82%", height: 148 },
+  wordImage: { width: "82%", flex: 1, maxHeight: 148 },
   emoji: {
-    fontSize: 94,
-    lineHeight: 118,
+    fontSize: 76,
+    lineHeight: 96,
     textAlign: "center",
     textShadowColor: "#FFFFFFA0",
     textShadowOffset: { width: 0, height: 5 },
@@ -1473,7 +1531,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   letterFallbackText: { fontSize: 58, lineHeight: 68, fontWeight: "900" },
-  cardBody: { paddingHorizontal: 22, paddingTop: 20, paddingBottom: 22 },
+  cardBody: {
+    flex: 1,
+    paddingHorizontal: 22,
+    paddingTop: 16,
+    paddingBottom: 18,
+  },
   wordRow: { flexDirection: "row", alignItems: "center", gap: 14 },
   wordHeading: { flex: 1 },
   headword: { fontSize: 31, lineHeight: 39, fontWeight: "900" },
@@ -1501,7 +1564,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   meaning: { fontSize: 20, lineHeight: 29, fontWeight: "800", marginTop: 3 },
-  divider: { height: 1.5, marginVertical: 18 },
+  divider: { height: 1.5, marginVertical: 12 },
   exampleTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   quoteIcon: {
     width: 29,
@@ -1547,7 +1610,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   previewVisual: {
-    minHeight: 218,
+    minHeight: 148,
+    flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1562,7 +1626,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 14,
   },
   navButton: {
     width: 50,
