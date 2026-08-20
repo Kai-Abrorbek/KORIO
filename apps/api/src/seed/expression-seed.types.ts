@@ -67,12 +67,25 @@ export interface ExpressionPackSeed {
   isActive?: boolean;
 }
 
+export interface ExpressionNodeSeed {
+  code: string;
+  packCode: string;
+  title: LocalizedExpressionSeedText;
+  description: LocalizedExpressionSeedText;
+  icon: string;
+  order: number;
+  requiredExposures?: number;
+  isActive?: boolean;
+}
+
 export interface ExpressionSeedEntry {
   code: string;
   packCode: string;
+  nodeCode: string;
   korean: string;
   meaning: LocalizedExpressionSeedText;
   context: LocalizedExpressionSeedText;
+  speaker: LocalizedExpressionSeedText;
   usageNote: LocalizedExpressionSeedText;
   speechLevel: ExpressionSpeechLevel;
   pronunciation: {
@@ -90,5 +103,5 @@ export interface ExpressionSeedEntry {
   tags?: string[];
   difficulty?: number;
   isActive?: boolean;
-  practiceQuestions: ExpressionPracticeQuestionSeed[];
+  practiceQuestions?: ExpressionPracticeQuestionSeed[];
 }

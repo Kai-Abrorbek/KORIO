@@ -20,6 +20,14 @@ import ScoreNode from "./ScoreNode";
 import Svg, { Path } from "react-native-svg";
 import { darken } from "@/utils/color";
 import type { AvatarConfig } from "@/types/avatar";
+import type { ReactNode } from "react";
+
+export interface RoadmapNodePopoverContext {
+  node: RoadmapNode;
+  unit: RoadmapUnit;
+  triangleOffsetX: number;
+  onClose: () => void;
+}
 
 interface Props {
   unit: RoadmapUnit;
@@ -33,6 +41,8 @@ interface Props {
   onNodeLegend?: (node: RoadmapNode) => void;
   onJumpTest?: (unit: RoadmapUnit) => void;
   onGoLegend?: (unitId: string, firstNode: RoadmapNode) => void;
+  /** 기본 레슨 팝오버 대신 트랙 전용 팝오버를 표시할 때만 전달한다. */
+  renderNodePopover?: (context: RoadmapNodePopoverContext) => ReactNode;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -81,6 +91,7 @@ export default function UnitRoadmap({
   onNodeLegend,
   onJumpTest,
   onGoLegend,
+  renderNodePopover,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -195,8 +206,12 @@ export default function UnitRoadmap({
         {unit.nodes.map((node, i) => {
           const offset = getZigzagOffset(i);
           const isCurrent = node.status === "current";
+          const usesCustomPopover = Boolean(renderNodePopover);
           const isSelected = selectedNodeId === node.id;
           const characterOffset = offset > 0 ? offset - 115 : offset + 115;
+          const nodeVisualIndex =
+            usesCustomPopover && node.status === "locked" ? Math.max(1, i) : i;
+          const handleNodePress = () => onNodeTap(node.id);
 
           return (
             <View
@@ -214,9 +229,11 @@ export default function UnitRoadmap({
                     score={node.scoreValue ?? unit.unitNumber}
                     locked={node.status !== "completed"}
                     unitColor={unit.color}
-                    onPress={() => onNodeTap(node.id)}
+                    onPress={handleNodePress}
                   />
-                ) : i === 0 && node.status === "locked" ? (
+                ) : !usesCustomPopover &&
+                  i === 0 &&
+                  node.status === "locked" ? (
                   <>
                     <Animated.View
                       style={[styles.jumpBubbleWrap, animatedStyle]}
@@ -238,26 +255,28 @@ export default function UnitRoadmap({
                     </Animated.View>
 
                     <LessonNode
-                      index={i}
+                      index={nodeVisualIndex}
                       type={isCurrent && !isSelected ? "boss" : node.type}
                       status={node.status}
                       unitColor={unit.color}
                       isLegendDone={!!node.legendCompleted}
                       completedSteps={node.completedLessons ?? 0}
                       totalSteps={node.totalLessons ?? 4}
-                      onPress={() => onNodeTap(node.id)}
+                      iconName={node.iconName}
+                      onPress={handleNodePress}
                     />
                   </>
                 ) : (
                   <LessonNode
-                    index={i}
+                    index={nodeVisualIndex}
                     type={isCurrent && !isSelected ? "speech" : node.type}
                     status={node.status}
                     unitColor={unit.color}
                     isLegendDone={!!node.legendCompleted}
                     completedSteps={node.completedLessons ?? 0}
                     totalSteps={node.totalLessons ?? 4}
-                    onPress={() => onNodeTap(node.id)}
+                    iconName={node.iconName}
+                    onPress={handleNodePress}
                   />
                 )}
               </View>
@@ -275,18 +294,29 @@ export default function UnitRoadmap({
 
               {isSelected && (
                 <View style={styles.popoverContainer}>
-                  <NodePopover
-                    node={node}
-                    unit={unit}
-                    triangleOffsetX={offset}
-                    onStart={() => onNodeStart?.(node)}
-                    onReview={() => onNodeReview?.(node)}
-                    onLegend={() => onNodeLegend?.(node)}
-                    onGoLegend={(firstNode) => onGoLegend?.(unit.id, firstNode)}
-                    canJump={i === 0 && node.status === "locked"}
-                    onJumpTest={() => onJumpTest?.(unit)}
-                    onClose={() => onNodeTap(node.id)}
-                  />
+                  {renderNodePopover ? (
+                    renderNodePopover({
+                      node,
+                      unit,
+                      triangleOffsetX: offset,
+                      onClose: () => onNodeTap(node.id),
+                    })
+                  ) : (
+                    <NodePopover
+                      node={node}
+                      unit={unit}
+                      triangleOffsetX={offset}
+                      onStart={() => onNodeStart?.(node)}
+                      onReview={() => onNodeReview?.(node)}
+                      onLegend={() => onNodeLegend?.(node)}
+                      onGoLegend={(firstNode) =>
+                        onGoLegend?.(unit.id, firstNode)
+                      }
+                      canJump={i === 0 && node.status === "locked"}
+                      onJumpTest={() => onJumpTest?.(unit)}
+                      onClose={() => onNodeTap(node.id)}
+                    />
+                  )}
                 </View>
               )}
             </View>

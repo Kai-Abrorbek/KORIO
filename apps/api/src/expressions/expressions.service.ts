@@ -600,6 +600,7 @@ export class ExpressionsService {
       korean: expression.korean,
       meaning: this.localize(expression.meaning, lang, expression.korean),
       context: this.localize(expression.context, lang),
+      speaker: this.localize(expression.speaker, lang),
       usageNote: this.localize(expression.usageNote, lang),
       speechLevel: expression.speechLevel,
       pronunciation: {

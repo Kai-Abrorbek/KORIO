@@ -14,7 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { NodeType, NodeStatus } from "@/types/roadmap";
+import { NodeType, NodeStatus, type RoadmapIconName } from "@/types/roadmap";
 import { darken } from "@/utils/color";
 import AnimatedNodeRing, { RING_SIZE } from "./AnimatedNodeRing";
 
@@ -26,6 +26,7 @@ interface Props {
   isLegendDone?: boolean;
   completedSteps?: number;
   totalSteps?: number;
+  iconName?: RoadmapIconName;
   onPress?: () => void;
 }
 
@@ -55,6 +56,7 @@ export default function LessonNode({
   completedSteps = 0,
   isLegendDone = false,
   totalSteps = 2,
+  iconName: customIconName,
   onPress,
 }: Props) {
   const theme = useTheme();
@@ -206,7 +208,7 @@ export default function LessonNode({
     iconColor = "#8A6D00";
   }
 
-  const iconName = isLegendDone ? "star" : ICON_MAP[type];
+  const iconName = isLegendDone ? "star" : customIconName ?? ICON_MAP[type];
   const iconSize = type === "chest" || type === "boss" ? 34 : 30;
 
   return (

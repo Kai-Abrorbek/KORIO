@@ -190,6 +190,10 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="expression-node"
+              options={{ animation: "slide_from_right", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="grammar-study"
               options={{ animation: "slide_from_right" }}
             />

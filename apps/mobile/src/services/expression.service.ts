@@ -2,9 +2,11 @@ import i18n from "@/locales/i18n";
 import api from "@/services/api";
 import type {
   ExpressionListResponse,
+  ExpressionNodeLearningResponse,
   ExpressionOverview,
   ExpressionPracticeSession,
   ExpressionProgress,
+  ExpressionRoadmapResponse,
   ExpressionReviewResult,
   StudyExpression,
 } from "@/types/expression";
@@ -23,6 +25,16 @@ const scopeQuery = (section?: number, unit?: number) => {
 };
 
 export const ExpressionService = {
+  getRoadmap: (): Promise<ExpressionRoadmapResponse> =>
+    api.get(`/expressions/roadmap?lang=${encodeURIComponent(getLang())}`),
+
+  getNodeLearning: (
+    nodeCode: string,
+  ): Promise<ExpressionNodeLearningResponse> =>
+    api.get(
+      `/expressions/nodes/${encodeURIComponent(nodeCode)}/learning?lang=${encodeURIComponent(getLang())}`,
+    ),
+
   getOverview: (section?: number, unit?: number): Promise<ExpressionOverview> =>
     api.get(`/expressions/overview?${scopeQuery(section, unit)}`),
 

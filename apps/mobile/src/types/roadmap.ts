@@ -1,3 +1,8 @@
+import type { ComponentProps } from "react";
+import type { Ionicons } from "@expo/vector-icons";
+
+export type RoadmapIconName = ComponentProps<typeof Ionicons>["name"];
+
 export type NodeType =
   | "star"
   | "headphone"
@@ -31,6 +36,7 @@ export interface RoadmapNode {
   chestLessonsRemaining?: number;
   xpReward?: number;
   progress?: number;
+  iconName?: RoadmapIconName;
   legendCompleted?: boolean;
   scoreValue?: number;
 }

@@ -52,6 +52,7 @@ export interface StudyExpression {
   korean: string;
   meaning: string;
   context: string;
+  speaker: string;
   usageNote: string;
   speechLevel: ExpressionSpeechLevel;
   pronunciation: {
@@ -102,4 +103,91 @@ export interface ExpressionListResponse {
 export interface ExpressionPracticeSession extends LessonSession {
   packCode: string;
   expressionIds: string[];
+}
+
+export type ExpressionRoadmapNodeStatus =
+  | "completed"
+  | "current"
+  | "locked";
+
+export interface ExpressionRoadmapNode {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  icon: string;
+  order: number;
+  requiredExposures: number;
+  expressionCount: number;
+  learnedExpressionCount: number;
+  completedExposures: number;
+  totalExposures: number;
+  progress: number;
+  status: ExpressionRoadmapNodeStatus;
+}
+
+export interface ExpressionRoadmapTopic extends ExpressionPackInfo {
+  completedNodes: number;
+  totalNodes: number;
+  progress: number;
+  nodes: ExpressionRoadmapNode[];
+}
+
+export interface ExpressionRoadmapResponse {
+  summary: {
+    totalTopics: number;
+    totalNodes: number;
+    completedNodes: number;
+    totalExpressions: number;
+    learnedExpressions: number;
+    totalExposures: number;
+    completedExposures: number;
+    progress: number;
+  };
+  continueNodeCode: string | null;
+  topics: ExpressionRoadmapTopic[];
+}
+
+export interface ExpressionLearningItem {
+  id: string;
+  code: string;
+  korean: string;
+  meaning: string;
+  context: string;
+  speaker: string;
+  usageNote: string;
+  speechLevel: ExpressionSpeechLevel;
+  pronunciation: {
+    romanization: string;
+    ttsText: string;
+    audioUrl: string;
+  };
+  media: ExpressionPackMedia;
+  placements: StudyExpression["placements"];
+  tags: string[];
+  difficulty: number;
+  pack: ExpressionPackInfo;
+  progress: Pick<
+    ExpressionProgress,
+    | "state"
+    | "viewedCount"
+    | "isSaved"
+    | "firstViewedAt"
+    | "lastViewedAt"
+    | "learnedAt"
+  >;
+}
+
+export interface ExpressionNodeLearningResponse {
+  topic: ExpressionPackInfo;
+  node: {
+    id: string;
+    code: string;
+    title: string;
+    description: string;
+    icon: string;
+    order: number;
+    requiredExposures: number;
+  };
+  items: ExpressionLearningItem[];
 }

@@ -17,11 +17,41 @@ import { ListExpressionsQueryDto } from './dto/list-expressions-query.dto';
 import { ReviewExpressionDto } from './dto/review-expression.dto';
 import { ToggleExpressionSavedDto } from './dto/toggle-expression-saved.dto';
 import { ExpressionsService } from './expressions.service';
+import { ExpressionLearningService } from './learning/expression-learning.service';
+import { ExpressionRoadmapService } from './roadmap/expression-roadmap.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('expressions')
 export class ExpressionsController {
-  constructor(private readonly expressionsService: ExpressionsService) {}
+  constructor(
+    private readonly expressionsService: ExpressionsService,
+    private readonly expressionRoadmapService: ExpressionRoadmapService,
+    private readonly expressionLearningService: ExpressionLearningService,
+  ) {}
+
+  @Get('roadmap')
+  async getRoadmap(
+    @Request() req,
+    @Query() query: ExpressionLanguageQueryDto,
+  ) {
+    return this.expressionRoadmapService.getRoadmap(
+      req.user._id.toString(),
+      query.lang,
+    );
+  }
+
+  @Get('nodes/:nodeCode/learning')
+  async getNodeLearning(
+    @Request() req,
+    @Param('nodeCode') nodeCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
+  ) {
+    return this.expressionLearningService.getNodeLearning(
+      req.user._id.toString(),
+      nodeCode,
+      query.lang,
+    );
+  }
 
   @Get('overview')
   async getOverview(

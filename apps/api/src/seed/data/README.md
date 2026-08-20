@@ -103,25 +103,45 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
 
 ## 표현 데이터 (`data/expressions`) 작성 규칙
 
-표현 기능은 `ExpressionPack` → `Expression` → 기존 `Question` 순서로 연결된다.
-현재 기준 예시는 `data/expressions/expression.data.ts`에 상황 팩 1개, 표현 1개,
-연습문제 2개만 들어 있다. 다른 AI에게 표현 시딩을 맡길 때 이 파일의 구조를 그대로
-복사하고 배열 항목을 늘리게 한다.
+표현 학습은 `ExpressionPack`(주제) → `ExpressionNode`(상황 단계) →
+`Expression`(학습 표현) 순서로 연결된다. 현재 기준 예시는
+`data/expressions/expression.data.ts`에 주제 1개, 노드 5개, 노드별 최소 예시 표현이
+들어 있다. 출시용 콘텐츠를 만들 때는 각 노드의 예시 표현을 12~16개로 확장한다.
+다른 AI에게 표현 시딩을 맡길 때 이 파일의 세 배열 구조를 그대로 복사하고 항목을
+늘리게 한다.
 
-- 상황 팩·표현·문제의 `code`는 각각 영구 식별자다. 배포 후 다른 내용에 재사용하거나
-  번역을 고친다는 이유로 바꾸지 않는다.
-- `title`, `description`, `meaning`, `context`, `usageNote`, `imageAlt`, 문제의
-  `instruction`, `hint`, `answerTranslation`은 ko/uz/en/ru를 모두 작성한다.
-- 표현 하나는 하나의 `packCode`에 속하고, `placements`로 여러 섹션·유닛에서
-  재사용할 수 있다. 같은 표현을 다른 유닛에서 가르치려고 중복 문서를 만들지 않는다.
+- 주제·노드·표현의 `code`는 각각 영구 식별자다. 배포 후 다른 내용에 재사용하거나
+  번역을 고친다는 이유로 바꾸지 않는다. 연습문제를 나중에 추가할 때 문제 `code`에도
+  같은 원칙을 적용한다.
+- 한 주제는 사용자가 그 상황을 처음부터 끝까지 처리할 수 있게 4~6개 노드로 나눈다.
+  예를 들어 편의점은 물건 찾기 → 행사·수량 확인 → 결제 → 봉투·영수증·포인트 →
+  결제 오류 해결 순서로 구성한다.
+- 한 노드에는 서로 다른 핵심 표현 12~16개를 넣는다. 표현 수를 맞추려고 같은 문장을
+  어미만 바꾸어 중복하지 말고, 요청·응답·확인·거절·문제 해결까지 실제 상황에 필요한
+  기능을 빠짐없이 채운다.
+- 사용자가 말할 문장뿐 아니라 직원·의사·기사 등 상대방에게 자주 듣는 문장도 같은
+  비중으로 넣는다. 반드시 질문과 답변의 쌍일 필요는 없으며, 독립적으로 알아야 하는
+  안내·확인 표현도 포함한다.
+- 모든 노드의 `requiredExposures` 기본값은 3이다. 앱은 노드 안의 모든 표현을 한 번씩
+  본 뒤 다시 섞는 과정을 세 번 반복한다. 시드에 같은 표현을 세 번 복제하지 않는다.
+- 노드의 `icon`에는 해당 학습 상황을 바로 알아볼 수 있는 유효한 Ionicons 이름을
+  넣는다. 같은 주제 안에서도 각 노드의 역할이 다르면 서로 다른 아이콘을 사용한다.
+- `title`, `description`, `meaning`, `context`, `speaker`, `usageNote`, `imageAlt`는
+  ko/uz/en/ru를 모두 작성한다. `speaker`에는 누가 주로 하는 말인지 구체적으로 적는다
+  (예: 손님, 편의점 직원, 양쪽 모두).
+- 표현 하나는 반드시 같은 주제의 `packCode`와 `nodeCode`에 속하고,
+  `placements`로 여러 섹션·유닛에서 재사용할 수 있다. 같은 표현을 다른 유닛에서
+  가르치려고 중복 문서를 만들지 않는다.
+- 노드 `order`는 주제 안에서, 표현 `order`는 현재 DB 인덱스에 맞춰 주제 전체에서
+  중복되지 않게 증가시킨다. 예: 첫 노드가 1~14라면 다음 노드는 15부터 시작한다.
 - `pronunciation.ttsText`에는 Azure Speech가 읽을 자연스러운 한국어 전체 표현만 넣는다.
-- 연습은 새 문제 타입을 만들지 않는다. 표현마다 기존 `fill_in_blank` 1개 이상과
-  `translate_type` 1개 이상을 `practiceQuestions`에 넣는다.
-- `fill_in_blank`는 `sentenceTemplate`의 `___` 개수와 `blankAnswers` 개수가 같아야
-  하고, 모든 정답이 `options`에 실제로 있어야 한다.
-- `translate_type`에는 아래 채점 규칙에 맞는 `grading`을 반드시 넣는다. 특정 표현을
-  연습하는 문제는 `targetExpression`, 자연스러운 동의 표현을 모두 허용하는 문제는
-  `semantic`을 쓴다.
+- 현재 단계에서는 표현을 보여주고 듣는 학습 데이터에 집중하며 `practiceQuestions`는
+  선택 사항이다. 문제 학습을 다시 활성화할 때만 기존 `fill_in_blank`와
+  `translate_type`을 사용하고, 아래 채점 규칙에 맞게 작성한다.
+- `fill_in_blank`를 추가할 경우 `sentenceTemplate`의 `___` 개수와
+  `blankAnswers` 개수가 같아야 하고 모든 정답이 `options`에 실제로 있어야 한다.
+- `translate_type`을 추가할 경우 특정 표현을 요구하면 `targetExpression`, 자연스러운
+  동의 표현을 모두 허용하면 `semantic` 채점을 사용한다.
 - 실제 반영 전 `pnpm --filter api seed:validate-expressions`, 반영할 때
   `pnpm --filter api seed:expressions`를 사용한다. 시더는 code 기준 upsert만 하며 기존
   표현과 `UserExpressionProgress`를 삭제하지 않는다.

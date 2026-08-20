@@ -3,6 +3,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { LessonsModule } from '../lessons/lessons.module';
 import { ExpressionsController } from './expressions.controller';
 import { ExpressionsService } from './expressions.service';
+import { ExpressionLearningService } from './learning/expression-learning.service';
+import { ExpressionRoadmapService } from './roadmap/expression-roadmap.service';
+import {
+  ExpressionNode,
+  ExpressionNodeSchema,
+} from './schemas/expression-node.schema';
 import {
   ExpressionPack,
   ExpressionPackSchema,
@@ -18,6 +24,7 @@ import {
     LessonsModule,
     MongooseModule.forFeature([
       { name: ExpressionPack.name, schema: ExpressionPackSchema },
+      { name: ExpressionNode.name, schema: ExpressionNodeSchema },
       { name: Expression.name, schema: ExpressionSchema },
       {
         name: UserExpressionProgress.name,
@@ -26,7 +33,16 @@ import {
     ]),
   ],
   controllers: [ExpressionsController],
-  providers: [ExpressionsService],
-  exports: [MongooseModule, ExpressionsService],
+  providers: [
+    ExpressionsService,
+    ExpressionRoadmapService,
+    ExpressionLearningService,
+  ],
+  exports: [
+    MongooseModule,
+    ExpressionsService,
+    ExpressionRoadmapService,
+    ExpressionLearningService,
+  ],
 })
 export class ExpressionsModule {}

@@ -6,6 +6,7 @@ import {
   LocalizedExpressionText,
   LocalizedExpressionTextSchema,
 } from './expression-pack.schema';
+import { ExpressionNode } from './expression-node.schema';
 
 export enum ExpressionSpeechLevel {
   POLITE = 'polite',
@@ -71,6 +72,9 @@ export class Expression {
   @Prop({ type: Types.ObjectId, ref: ExpressionPack.name, required: true })
   packId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: ExpressionNode.name, required: true })
+  nodeId: Types.ObjectId;
+
   @Prop({ enum: ['ko'], default: 'ko' })
   targetLanguage: 'ko';
 
@@ -82,6 +86,9 @@ export class Expression {
 
   @Prop({ type: LocalizedExpressionTextSchema, required: true })
   context: LocalizedExpressionText;
+
+  @Prop({ type: LocalizedExpressionTextSchema, default: () => ({}) })
+  speaker: LocalizedExpressionText;
 
   @Prop({ type: LocalizedExpressionTextSchema, default: () => ({}) })
   usageNote: LocalizedExpressionText;
@@ -131,3 +138,4 @@ ExpressionSchema.index({
   'placements.order': 1,
 });
 ExpressionSchema.index({ packId: 1, isActive: 1, order: 1 });
+ExpressionSchema.index({ nodeId: 1, isActive: 1, order: 1 });
