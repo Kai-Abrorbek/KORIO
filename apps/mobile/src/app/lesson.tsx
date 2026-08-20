@@ -27,28 +27,13 @@ import { LessonService } from "@/services/lesson.service";
 import { ExpressionService } from "@/services/expression.service";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
+import QuestionRenderer from "@/components/lesson/QuestionRenderer";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import SentenceBuilder from "@/components/lesson/questions/SentenceBuilder";
-import WordArrange from "@/components/lesson/questions/WordArrange";
-import Speaking from "@/components/lesson/questions/Speaking";
-import ImageChoice from "@/components/lesson/questions/ImageChoice";
-import DialogComplete from "@/components/lesson/questions/DialogComplete";
-import TypeAnswer from "@/components/lesson/questions/TypeAnswer";
-import WordMatching from "@/components/lesson/questions/WordMatching";
-import TranslateBuilder from "@/components/lesson/questions/TranslateBuilder";
 import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { UserService } from "@/services/user.service";
 import { onboardingService } from "@/services/onboarding.service";
-import Listening from "@/components/lesson/questions/Listening";
-import ListenType from "@/components/lesson/questions/ListenType";
-import FillInBlank from "@/components/lesson/questions/FillInBlank";
-import TranslateType from "@/components/lesson/questions/TranslateType";
-import AudioMatch from "@/components/lesson/questions/AudioMatch";
-import GrammarBlank from "@/components/lesson/questions/GrammarBlank";
-import GrammarBuild from "@/components/lesson/questions/GrammarBuild";
-import ListenFill from "@/components/lesson/questions/ListenFill";
 import { useEnergyStore } from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
 import QuitLessonModal from "@/components/lesson/QuitLessonModal";
@@ -56,11 +41,6 @@ import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
-import ReadingQuiz from "@/components/lesson/questions/ReadingQuiz";
-import ErrorHunt from "@/components/lesson/questions/ErrorHunt";
-import ClozePassage from "@/components/lesson/questions/ClozePassage";
-import DialogOrder from "@/components/lesson/questions/DialogOrder";
-import VerbTransform from "@/components/lesson/questions/VerbTransform";
 
 type Phase = "main" | "reviewIntro" | "review";
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -707,71 +687,6 @@ export default function LessonScreen() {
     setAnswerState("idle");
   };
 
-  const renderQuestion = () => {
-    if (!currentQ) return null;
-    const props = {
-      question: currentQ,
-      answerState,
-      onAnswer: handleAnswer,
-      theme,
-      combo,
-    };
-    switch (currentQ.type) {
-      case "sentence_builder":
-        return <SentenceBuilder {...props} />;
-      case "reply_builder":
-        return <TranslateBuilder {...props} mode="reply" />;
-      case "translate_builder":
-        return <TranslateBuilder {...props} />;
-      case "word_arrange":
-        return <WordArrange {...props} />;
-      case "speaking":
-        return <Speaking {...props} onSkip={handleNext} />;
-      case "image_choice":
-        return <ImageChoice {...props} />;
-      case "dialog_complete":
-        return <DialogComplete {...props} />;
-      case "type_answer":
-        return <TypeAnswer {...props} isChecking={isCheckingAnswer} />;
-      case "word_matching":
-        return <WordMatching {...props} />;
-      case "listening":
-        return <Listening {...props} />;
-      case "listen_type":
-        return <ListenType {...props} isChecking={isCheckingAnswer} />;
-      case "fill_in_blank":
-        return <FillInBlank {...props} />;
-      case "translate_type":
-        return <TranslateType {...props} isChecking={isCheckingAnswer} />;
-      case "listen_fill":
-        return (
-          <ListenFill
-            {...props}
-            isChecking={isCheckingAnswer}
-            onSkip={handleNext}
-          />
-        );
-      case "audio_match":
-        return <AudioMatch {...props} onSkip={handleNext} />;
-      case "grammar_blank":
-        return <GrammarBlank {...props} />;
-      case "grammar_build":
-        return <GrammarBuild {...props} />;
-      case "reading_quiz":
-        return <ReadingQuiz {...props} />;
-      case "error_hunt":
-        return <ErrorHunt {...props} />;
-      case "cloze_passage":
-        return <ClozePassage {...props} />;
-      case "dialog_order":
-        return <DialogOrder {...props} />;
-      case "verb_transform":
-        return <VerbTransform {...props} />;
-      default:
-        return <SentenceBuilder {...props} />;
-    }
-  };
-
   if (loading) {
     return (
       <View style={s.loadingContainer}>
@@ -847,7 +762,15 @@ export default function LessonScreen() {
             }
             style={[s.questionArea, questionAreaStyle]}
           >
-            {renderQuestion()}
+            <QuestionRenderer
+              question={currentQ}
+              answerState={answerState}
+              onAnswer={handleAnswer}
+              onSkip={handleNext}
+              theme={theme}
+              combo={combo}
+              isChecking={isCheckingAnswer}
+            />
           </Animated.View>
 
           {!isLevelTest && (

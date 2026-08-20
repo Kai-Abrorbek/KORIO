@@ -13,12 +13,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { MOCK_ROADMAP } from "@/mocks/roadmap.mock";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   RoadmapData,
   RoadmapNode,
   RoadmapUnit,
-  NodeType,
 } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
@@ -31,244 +29,15 @@ import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
-
-function RoadmapBackdrop({ theme }: { theme: ThemeColors }) {
-  const isDark = theme.bg === "#15151D";
-
-  return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <LinearGradient
-        colors={
-          isDark
-            ? ["#171522", "#211F36", "#15151D"]
-            : ["#F8F6FF", "#F2FAFF", "#FFF9EE"]
-        }
-        locations={[0, 0.55, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View
-        style={[
-          backdropStyles.orbTop,
-          { backgroundColor: isDark ? "#776EE2" : "#BEB7FF" },
-        ]}
-      />
-
-      <View
-        style={[
-          backdropStyles.orbSide,
-          { backgroundColor: isDark ? "#45B7D1" : "#BFEFFF" },
-        ]}
-      />
-
-      <View style={[backdropStyles.cloud, backdropStyles.cloudLeft]}>
-        <View
-          style={[
-            backdropStyles.cloudBase,
-            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
-          ]}
-        />
-        <View
-          style={[
-            backdropStyles.cloudPuffSmall,
-            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
-          ]}
-        />
-        <View
-          style={[
-            backdropStyles.cloudPuffLarge,
-            { backgroundColor: isDark ? "#3B3850" : "#FFFFFF" },
-          ]}
-        />
-      </View>
-
-      <View
-        style={[
-          backdropStyles.hillLeft,
-          { backgroundColor: isDark ? "#393456" : "#DCD7FF" },
-        ]}
-      />
-
-      <View
-        style={[
-          backdropStyles.hillRight,
-          { backgroundColor: isDark ? "#2D2945" : "#CFEFFF" },
-        ]}
-      />
-
-      <View style={[backdropStyles.sparkle, backdropStyles.sparkleOne]} />
-      <View style={[backdropStyles.sparkle, backdropStyles.sparkleTwo]} />
-      <View style={[backdropStyles.sparkle, backdropStyles.sparkleThree]} />
-    </View>
-  );
-}
-
-const backdropStyles = StyleSheet.create({
-  orbTop: {
-    position: "absolute",
-    top: 122,
-    right: -52,
-    width: 176,
-    height: 176,
-    borderRadius: 999,
-    opacity: 0.14,
-  },
-  orbSide: {
-    position: "absolute",
-    top: "52%",
-    left: -82,
-    width: 210,
-    height: 210,
-    borderRadius: 999,
-    opacity: 0.12,
-  },
-  cloud: {
-    position: "absolute",
-    width: 86,
-    height: 42,
-    opacity: 0.58,
-  },
-  cloudLeft: {
-    top: 206,
-    left: 14,
-  },
-  cloudBase: {
-    position: "absolute",
-    left: 4,
-    bottom: 2,
-    width: 76,
-    height: 24,
-    borderRadius: 999,
-  },
-  cloudPuffSmall: {
-    position: "absolute",
-    left: 16,
-    bottom: 13,
-    width: 28,
-    height: 28,
-    borderRadius: 999,
-  },
-  cloudPuffLarge: {
-    position: "absolute",
-    right: 13,
-    bottom: 10,
-    width: 36,
-    height: 36,
-    borderRadius: 999,
-  },
-  hillLeft: {
-    position: "absolute",
-    left: -118,
-    bottom: -126,
-    width: 330,
-    height: 235,
-    borderRadius: 999,
-    opacity: 0.22,
-    transform: [{ rotate: "-8deg" }],
-  },
-  hillRight: {
-    position: "absolute",
-    right: -154,
-    bottom: -96,
-    width: 350,
-    height: 205,
-    borderRadius: 999,
-    opacity: 0.17,
-    transform: [{ rotate: "9deg" }],
-  },
-  sparkle: {
-    position: "absolute",
-    width: 10,
-    height: 10,
-    borderRadius: 2,
-    backgroundColor: "#8C82E8",
-    opacity: 0.42,
-    transform: [{ rotate: "45deg" }],
-  },
-  sparkleOne: {
-    top: 324,
-    left: 32,
-  },
-  sparkleTwo: {
-    top: "39%",
-    right: 34,
-    width: 7,
-    height: 7,
-  },
-  sparkleThree: {
-    top: "68%",
-    left: 68,
-    width: 6,
-    height: 6,
-  },
-});
-
-const UNIT_COLORS = [
-  "#776ee2",
-  "#1D9E75",
-  "#E2A83A",
-  "#E25C5C",
-  "#45B7D1",
-  "#6e1cf2",
-  "#FF7A00",
-  "#2ECC71",
-];
-
-// ⚠️ UnitRoadmap.tsx 의 값과 반드시 동일하게 유지 (높이 추정용)
-const ROW_HEIGHT = 130; // NODE_WRAP_HEIGHT(80) + NODE_GAP(50)
-const DIVIDER_HEIGHT = 54; // SectionTitleDivider 대략 높이
-const UNIT_PADDING = 16;
-
-function getUnitColor(index: number): string {
-  return UNIT_COLORS[index % UNIT_COLORS.length];
-}
-
-function injectChests(unit: RoadmapUnit): RoadmapUnit {
-  const nodes = [...unit.nodes];
-  const result: typeof nodes = [];
-  let lessonCount = 0;
-  let chestIndex = 0;
-
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    result.push(node);
-    if (node.type !== "chest" && node.type !== "boss") {
-      lessonCount++;
-      if (lessonCount % 4 === 0 && i < nodes.length - 1) {
-        const nextIsChest = nodes[i + 1]?.type === "chest";
-        if (!nextIsChest) {
-          chestIndex++;
-          const chestStatus: "locked" | "completed" =
-            node.status === "completed" ? "completed" : "locked";
-          result.push({
-            id: `${unit.id}-auto-chest-${chestIndex}`,
-            type: "chest" as NodeType,
-            status: chestStatus,
-            chestLessonsRemaining: 0,
-          });
-        }
-      }
-    }
-  }
-  return { ...unit, nodes: result };
-}
-
-function appendScoreNode(unit: RoadmapUnit): RoadmapUnit {
-  const last = unit.nodes[unit.nodes.length - 1];
-  if (last?.type === "score") return unit; // 중복 방지
-  return {
-    ...unit,
-    nodes: [
-      ...unit.nodes,
-      {
-        id: `${unit.id}-score`,
-        type: "score" as NodeType,
-        status: unit.status === "completed" ? "completed" : "locked",
-        scoreValue: unit.unitNumber,
-      },
-    ],
-  };
-}
+import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
+import {
+  DIVIDER_HEIGHT,
+  ROW_HEIGHT,
+  UNIT_PADDING,
+  appendScoreNode,
+  getUnitColor,
+  injectChests,
+} from "@/components/roadmap/roadmap.utils";
 
 export default function RoadmapScreen() {
   const theme = useTheme();
