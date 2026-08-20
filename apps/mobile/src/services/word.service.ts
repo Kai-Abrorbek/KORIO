@@ -22,10 +22,12 @@ export const WordService = {
     let cursor: string | null = null;
 
     do {
-      const cursorQuery = cursor
+      // cursorQuery → page → cursor 가 서로를 참조해서, 주석이 없으면 TS 가
+      // 순환 추론으로 보고 implicit any 를 낸다(TS7022). 둘 다 명시한다.
+      const cursorQuery: string = cursor
         ? `&cursor=${encodeURIComponent(cursor)}`
         : "";
-      const page = await api.get<WordListResponse>(
+      const page: WordListResponse = await api.get<WordListResponse>(
         `/words?section=${section}&unit=${unit}&lang=${getLang()}&limit=100${cursorQuery}`,
       );
       items.push(...page.items);
