@@ -11,8 +11,11 @@ const codes = new Set<string>();
 const packCodes = new Set(EXPRESSION_PACK_SEEDS.map((pack) => pack.code));
 const nodeCodes = new Set(EXPRESSION_NODE_SEEDS.map((node) => node.code));
 const nodeOrderKeys = new Set<string>();
+const packOrders = new Set<number>();
 const expressionOrderKeys = new Set<string>();
+const expressionTextKeys = new Set<string>();
 const expressionCountByNode = new Map<string, number>();
+const nodeCountByPack = new Map<string, number>();
 
 function uniqueCode(code: string) {
   if (!code.trim()) throw new Error('Empty expression seed code');
@@ -32,7 +35,13 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
   uniqueCode(pack.code);
   completeI18n(pack.title, `${pack.code}.title`);
   completeI18n(pack.description, `${pack.code}.description`);
-  completeI18n(pack.media.imageAlt, `${pack.code}.media.imageAlt`);
+  if (packOrders.has(pack.order)) {
+    throw new Error(`Duplicate expression pack order: ${pack.order}`);
+  }
+  packOrders.add(pack.order);
+  if (pack.media?.emoji?.trim() || pack.media?.imageUrl?.trim()) {
+    completeI18n(pack.media.imageAlt, `${pack.code}.media.imageAlt`);
+  }
 }
 
 for (const node of EXPRESSION_NODE_SEEDS) {
@@ -43,6 +52,10 @@ for (const node of EXPRESSION_NODE_SEEDS) {
   completeI18n(node.title, `${node.code}.title`);
   completeI18n(node.description, `${node.code}.description`);
   if (!node.icon.trim()) throw new Error(`${node.code}.icon is empty`);
+  nodeCountByPack.set(
+    node.packCode,
+    (nodeCountByPack.get(node.packCode) ?? 0) + 1,
+  );
   const requiredExposures = node.requiredExposures ?? 3;
   if (requiredExposures < 1 || requiredExposures > 5) {
     throw new Error(`${node.code}.requiredExposures must be between 1 and 5`);
@@ -80,6 +93,13 @@ for (const expression of EXPRESSION_SEEDS) {
     );
   }
   expressionOrderKeys.add(orderKey);
+  const textKey = `${expression.packCode}:${expression.korean.trim()}`;
+  if (expressionTextKeys.has(textKey)) {
+    throw new Error(
+      `${expression.packCode} has duplicate Korean expression: ${expression.korean}`,
+    );
+  }
+  expressionTextKeys.add(textKey);
   expressionCountByNode.set(
     expression.nodeCode,
     (expressionCountByNode.get(expression.nodeCode) ?? 0) + 1,
@@ -91,7 +111,18 @@ for (const expression of EXPRESSION_SEEDS) {
   completeI18n(expression.context, `${expression.code}.context`);
   completeI18n(expression.speaker, `${expression.code}.speaker`);
   completeI18n(expression.usageNote, `${expression.code}.usageNote`);
-  completeI18n(expression.media.imageAlt, `${expression.code}.media.imageAlt`);
+  if (!expression.pronunciation.romanization?.trim()) {
+    throw new Error(`${expression.code}.pronunciation.romanization is empty`);
+  }
+  if (!expression.pronunciation.ttsText.trim()) {
+    throw new Error(`${expression.code}.pronunciation.ttsText is empty`);
+  }
+  if (expression.media?.emoji?.trim() || expression.media?.imageUrl?.trim()) {
+    completeI18n(
+      expression.media.imageAlt,
+      `${expression.code}.media.imageAlt`,
+    );
+  }
 
   for (const question of expression.practiceQuestions ?? []) {
     uniqueCode(question.code);
@@ -131,9 +162,17 @@ for (const expression of EXPRESSION_SEEDS) {
   }
 }
 
+for (const pack of EXPRESSION_PACK_SEEDS) {
+  const count = nodeCountByPack.get(pack.code) ?? 0;
+  if (count < 4 || count > 6) {
+    throw new Error(`${pack.code} must contain between 4 and 6 nodes`);
+  }
+}
+
 for (const node of EXPRESSION_NODE_SEEDS) {
-  if (!expressionCountByNode.get(node.code)) {
-    throw new Error(`${node.code} has no expressions`);
+  const count = expressionCountByNode.get(node.code) ?? 0;
+  if (count < 12 || count > 16) {
+    throw new Error(`${node.code} must contain between 12 and 16 expressions`);
   }
 }
 

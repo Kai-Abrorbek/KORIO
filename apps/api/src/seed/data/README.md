@@ -104,11 +104,12 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
 ## 표현 데이터 (`data/expressions`) 작성 규칙
 
 표현 학습은 `ExpressionPack`(주제) → `ExpressionNode`(상황 단계) →
-`Expression`(학습 표현) 순서로 연결된다. 현재 기준 예시는
-`data/expressions/expression.data.ts`에 주제 1개, 노드 5개, 노드별 최소 예시 표현이
-들어 있다. 출시용 콘텐츠를 만들 때는 각 노드의 예시 표현을 12~16개로 확장한다.
-다른 AI에게 표현 시딩을 맡길 때 이 파일의 세 배열 구조를 그대로 복사하고 항목을
-늘리게 한다.
+`Expression`(학습 표현) 순서로 연결된다. 콘텐츠는
+`data/expressions/topics/*.ts`에 주제별로 나누어 작성하고,
+`data/expressions/expression.data.ts`는 주제 순서대로 합치기만 한다. 새 주제를 만들 때는
+`expression-topic.helpers.ts`의 `defineExpressionTopic`과 `localized`를 사용한다.
+각 주제 파일에는 상황 흐름에 맞는 노드 4~6개와 노드별 표현 12~16개를 완성해서 넣고,
+일부 샘플 표현만 연결한 상태로 배포하지 않는다.
 
 - 주제·노드·표현의 `code`는 각각 영구 식별자다. 배포 후 다른 내용에 재사용하거나
   번역을 고친다는 이유로 바꾸지 않는다. 연습문제를 나중에 추가할 때 문제 `code`에도
@@ -126,15 +127,20 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
   본 뒤 다시 섞는 과정을 세 번 반복한다. 시드에 같은 표현을 세 번 복제하지 않는다.
 - 노드의 `icon`에는 해당 학습 상황을 바로 알아볼 수 있는 유효한 Ionicons 이름을
   넣는다. 같은 주제 안에서도 각 노드의 역할이 다르면 서로 다른 아이콘을 사용한다.
-- `title`, `description`, `meaning`, `context`, `speaker`, `usageNote`, `imageAlt`는
-  ko/uz/en/ru를 모두 작성한다. `speaker`에는 누가 주로 하는 말인지 구체적으로 적는다
+- `title`, `description`, `meaning`, `context`, `speaker`, `usageNote`는 ko/uz/en/ru를
+  모두 작성한다. `speaker`에는 누가 주로 하는 말인지 구체적으로 적는다
   (예: 손님, 편의점 직원, 양쪽 모두).
+- 현재 표현 학습 카드는 상황 이미지를 표시하지 않으므로 `media`는 기본적으로 넣지
+  않는다. 실제로 표시할 이모지나 이미지가 있는 경우에만 `media`를 추가하고,
+  그때는 `imageAlt`도 ko/uz/en/ru 네 언어로 모두 작성한다.
 - 표현 하나는 반드시 같은 주제의 `packCode`와 `nodeCode`에 속하고,
   `placements`로 여러 섹션·유닛에서 재사용할 수 있다. 같은 표현을 다른 유닛에서
   가르치려고 중복 문서를 만들지 않는다.
 - 노드 `order`는 주제 안에서, 표현 `order`는 현재 DB 인덱스에 맞춰 주제 전체에서
   중복되지 않게 증가시킨다. 예: 첫 노드가 1~14라면 다음 노드는 15부터 시작한다.
 - `pronunciation.ttsText`에는 Azure Speech가 읽을 자연스러운 한국어 전체 표현만 넣는다.
+- `pronunciation.romanization`은 모든 표현에 작성한다. 발음 표기는 한국어 원문의
+  실제 발음과 맞아야 하며 번역이나 설명을 넣지 않는다.
 - 현재 단계에서는 표현을 보여주고 듣는 학습 데이터에 집중하며 `practiceQuestions`는
   선택 사항이다. 문제 학습을 다시 활성화할 때만 기존 `fill_in_blank`와
   `translate_type`을 사용하고, 아래 채점 규칙에 맞게 작성한다.

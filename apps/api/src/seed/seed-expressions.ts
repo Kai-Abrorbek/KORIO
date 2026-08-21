@@ -26,6 +26,69 @@ import {
   LEGACY_EXPRESSION_SAMPLE_CODES,
 } from './data/expressions/expression.data';
 
+const ACTIVE_ORDER_INDEX_NAME = 'packId_1_order_1';
+
+async function ensureActiveOrderIndex<T>(model: Model<T>, label: string) {
+  const indexes = await model.collection.indexes();
+  const orderIndexes = indexes.filter((index) => {
+    const key = index.key as Record<string, unknown>;
+    return (
+      Object.keys(key).length === 2 && key.packId === 1 && key.order === 1
+    );
+  });
+  const isExpectedIndex = (index: (typeof indexes)[number]) => {
+    const partialFilter = index.partialFilterExpression as
+      | Record<string, unknown>
+      | undefined;
+    return index.unique === true && partialFilter?.isActive === true;
+  };
+  const expectedIndex = orderIndexes.find(isExpectedIndex);
+  const legacyIndexes = orderIndexes.filter(
+    (index) => !isExpectedIndex(index),
+  );
+
+  if (expectedIndex && legacyIndexes.length === 0) return;
+
+  const activeDuplicate = await model.collection
+    .aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: { packId: '$packId', order: '$order' },
+          count: { $sum: 1 },
+        },
+      },
+      { $match: { count: { $gt: 1 } } },
+      { $limit: 1 },
+    ])
+    .next();
+  if (activeDuplicate) {
+    throw new Error(
+      `${label}에 같은 팩/order의 활성 문서가 중복되어 인덱스를 수정할 수 없습니다.`,
+    );
+  }
+
+  for (const index of legacyIndexes) {
+    if (!index.name) {
+      throw new Error(`${label}의 레거시 order 인덱스 이름을 찾을 수 없습니다.`);
+    }
+    await model.collection.dropIndex(index.name);
+  }
+
+  if (!expectedIndex) {
+    await model.collection.createIndex(
+      { packId: 1, order: 1 },
+      {
+        name: ACTIVE_ORDER_INDEX_NAME,
+        unique: true,
+        partialFilterExpression: { isActive: true },
+      },
+    );
+  }
+
+  console.log(`♻️ ${label} 활성 order 인덱스 정리 완료`);
+}
+
 async function seedExpressions() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const packModel = app.get<Model<ExpressionPackDocument>>(
@@ -40,6 +103,11 @@ async function seedExpressions() {
   const questionModel = app.get<Model<QuestionDocument>>(
     getModelToken(Question.name),
   );
+
+  await Promise.all([
+    ensureActiveOrderIndex(nodeModel, '표현 노드'),
+    ensureActiveOrderIndex(expressionModel, '표현'),
+  ]);
 
   console.log('🌱 표현 시딩 시작 (code 기준 upsert)...');
   const packs = new Map<string, ExpressionPackDocument>();
@@ -70,10 +138,25 @@ async function seedExpressions() {
     packs.set(seed.code, pack);
   }
 
+  const seededPackIds = [...packs.values()].map(
+    (pack) => pack._id as Types.ObjectId,
+  );
+  await Promise.all([
+    nodeModel.updateMany(
+      { packId: { $in: seededPackIds }, isActive: true },
+      { $set: { isActive: false } },
+    ),
+    expressionModel.updateMany(
+      { packId: { $in: seededPackIds }, isActive: true },
+      { $set: { isActive: false } },
+    ),
+  ]);
+
   for (const seed of EXPRESSION_NODE_SEEDS) {
     const { packCode, ...nodeData } = seed;
     const pack = packs.get(packCode);
     if (!pack) throw new Error(`없는 표현 주제: ${packCode}`);
+
     const node = await nodeModel.findOneAndUpdate(
       { code: seed.code },
       {

@@ -1,9 +1,13 @@
-import { ExpressionSpeechLevel } from '../../../expressions/schemas/expression.schema';
 import type {
   ExpressionNodeSeed,
   ExpressionPackSeed,
   ExpressionSeedEntry,
 } from '../../expression-seed.types';
+import { ASKING_FOR_CLARIFICATION_TOPIC } from './topics/asking-for-clarification';
+import { GREETINGS_AND_GOODBYES_TOPIC } from './topics/greetings-and-goodbyes';
+import { REQUESTS_AND_PERMISSION_TOPIC } from './topics/requests-and-permission';
+import { SELF_INTRODUCTION_TOPIC } from './topics/self-introduction';
+import { THANKS_AND_APOLOGIES_TOPIC } from './topics/thanks-and-apologies';
 
 /** 이전 구조 확인용 식당 샘플은 삭제하지 않고 시딩할 때 비활성화한다. */
 export const LEGACY_EXPRESSION_SAMPLE_CODES = {
@@ -13,306 +17,22 @@ export const LEGACY_EXPRESSION_SAMPLE_CODES = {
 } as const;
 
 /**
- * 표현 로드맵의 첫 주제와 5개 노드를 확인하기 위한 최소 학습 샘플이다.
- * 실제 출시 데이터는 README 규칙대로 각 노드에 고유 표현 12~16개를 채운다.
+ * 표현 콘텐츠는 한 파일이 지나치게 커지지 않도록 주제별로 작성한다.
+ * 이 배열의 순서가 표현 로드맵의 주제 순서다.
  */
-export const EXPRESSION_PACK_SEEDS = [
-  {
-    code: 'greetings-and-goodbyes',
-    title: {
-      ko: '인사하고 헤어지기',
-      uz: 'Salomlashish va xayrlashish',
-      en: 'Greetings and goodbyes',
-      ru: 'Приветствия и прощания',
-    },
-    description: {
-      ko: '처음 만나는 순간부터 자연스럽게 헤어질 때까지 필요한 표현을 배워요.',
-      uz: "Birinchi uchrashuvdan tabiiy xayrlashuvgacha kerakli iboralarni o'rganing.",
-      en: 'Learn what to say from the first greeting to a natural goodbye.',
-      ru: 'Выучите выражения от первой встречи до естественного прощания.',
-    },
-    media: {
-      emoji: '👋',
-      imageUrl: '',
-      imageAlt: {
-        ko: '손을 흔들며 인사하는 사람',
-        uz: "Qo'l silkitib salomlashayotgan odam",
-        en: 'A person waving hello',
-        ru: 'Человек машет рукой в знак приветствия',
-      },
-    },
-    order: 1,
-    isActive: true,
-  },
-] satisfies readonly ExpressionPackSeed[];
+const EXPRESSION_TOPICS = [
+  GREETINGS_AND_GOODBYES_TOPIC,
+  SELF_INTRODUCTION_TOPIC,
+  THANKS_AND_APOLOGIES_TOPIC,
+  ASKING_FOR_CLARIFICATION_TOPIC,
+  REQUESTS_AND_PERMISSION_TOPIC,
+] as const;
 
-export const EXPRESSION_NODE_SEEDS = [
-  {
-    code: 'greetings-first-meeting',
-    packCode: 'greetings-and-goodbyes',
-    title: {
-      ko: '처음 만나 기본 인사하기',
-      uz: 'Birinchi uchrashuvda salomlashish',
-      en: 'Greeting someone for the first time',
-      ru: 'Приветствие при первой встрече',
-    },
-    description: {
-      ko: '처음 만난 사람에게 예의 있게 인사를 시작해요.',
-      uz: 'Birinchi marta uchrashgan odam bilan muloyim salomlashing.',
-      en: 'Start politely when meeting someone for the first time.',
-      ru: 'Вежливо начните разговор при первой встрече.',
-    },
-    icon: 'hand-left-outline',
-    order: 1,
-    requiredExposures: 3,
-    isActive: true,
-  },
-  {
-    code: 'greetings-time-and-situation',
-    packCode: 'greetings-and-goodbyes',
-    title: {
-      ko: '시간대와 상황에 맞게 인사하기',
-      uz: 'Vaqt va vaziyatga mos salomlashish',
-      en: 'Greeting for the time and situation',
-      ru: 'Приветствие по времени и ситуации',
-    },
-    description: {
-      ko: '아침과 하루의 여러 상황에 어울리는 인사를 해요.',
-      uz: 'Ertalab va boshqa vaziyatlarga mos salomlashuvni tanlang.',
-      en: 'Choose a greeting that fits the morning and other situations.',
-      ru: 'Выбирайте приветствие, подходящее времени и ситуации.',
-    },
-    icon: 'sunny-outline',
-    order: 2,
-    requiredExposures: 3,
-    isActive: true,
-  },
-  {
-    code: 'greetings-checking-in',
-    packCode: 'greetings-and-goodbyes',
-    title: {
-      ko: '안부를 묻고 자연스럽게 답하기',
-      uz: "Hol-ahvol so'rash va javob berish",
-      en: 'Asking how someone is and replying',
-      ru: 'Вопросы о делах и ответы',
-    },
-    description: {
-      ko: '상대의 안부를 묻고 내 상태도 자연스럽게 말해요.',
-      uz: "Suhbatdoshning holini so'rang va o'zingiz haqingizda javob bering.",
-      en: 'Ask how someone is and answer naturally about yourself.',
-      ru: 'Спросите, как дела, и естественно расскажите о себе.',
-    },
-    icon: 'help-circle-outline',
-    order: 3,
-    requiredExposures: 3,
-    isActive: true,
-  },
-  {
-    code: 'greetings-meeting-again',
-    packCode: 'greetings-and-goodbyes',
-    title: {
-      ko: '다시 만났을 때 반가움 표현하기',
-      uz: "Qayta uchrashganda xursandchilik bildirish",
-      en: 'Showing happiness when meeting again',
-      ru: 'Радость при новой встрече',
-    },
-    description: {
-      ko: '오랜만에 만난 사람에게 반가운 마음을 전해요.',
-      uz: "Uzoq vaqtdan keyin uchrashgan odamga xursandligingizni ayting.",
-      en: 'Show that you are happy to see someone again after a while.',
-      ru: 'Выразите радость при встрече после долгого перерыва.',
-    },
-    icon: 'people-outline',
-    order: 4,
-    requiredExposures: 3,
-    isActive: true,
-  },
-  {
-    code: 'greetings-goodbye-and-next-time',
-    packCode: 'greetings-and-goodbyes',
-    title: {
-      ko: '헤어지고 다음 만남 이야기하기',
-      uz: 'Xayrlashish va keyingi uchrashuvni aytish',
-      en: 'Saying goodbye and talking about next time',
-      ru: 'Прощание и разговор о следующей встрече',
-    },
-    description: {
-      ko: '상황에 맞게 인사하고 다음 만남을 자연스럽게 약속해요.',
-      uz: "Vaziyatga mos xayrlashing va keyingi uchrashuvni tabiiy ayting.",
-      en: 'Say goodbye appropriately and mention meeting again naturally.',
-      ru: 'Попрощайтесь уместно и естественно договоритесь о новой встрече.',
-    },
-    icon: 'exit-outline',
-    order: 5,
-    requiredExposures: 3,
-    isActive: true,
-  },
-] satisfies readonly ExpressionNodeSeed[];
+export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =
+  EXPRESSION_TOPICS.flatMap((topic) => topic.packs);
 
-export const EXPRESSION_SEEDS: readonly ExpressionSeedEntry[] = [
-  {
-    code: 'greetings-hello-polite',
-    packCode: 'greetings-and-goodbyes',
-    nodeCode: 'greetings-first-meeting',
-    korean: '안녕하세요',
-    meaning: {
-      ko: '누구에게나 정중하게 할 수 있는 기본 인사',
-      uz: 'Salom',
-      en: 'Hello',
-      ru: 'Здравствуйте',
-    },
-    context: {
-      ko: '처음 만나거나 예의를 갖춰 인사할 때 사용해요.',
-      uz: 'Birinchi uchrashuvda yoki muloyim salomlashishda ishlatiladi.',
-      en: 'Use it when meeting someone or greeting them politely.',
-      ru: 'Используйте при знакомстве или для вежливого приветствия.',
-    },
-    speaker: { ko: '누구나', uz: 'Hamma', en: 'Anyone', ru: 'Любой человек' },
-    usageNote: {
-      ko: '처음 보는 사람과 친하지 않은 사람에게 가장 안전한 인사예요.',
-      uz: "Notanish yoki yaqin bo'lmagan odam uchun eng xavfsiz salomlashuv.",
-      en: 'This is the safest greeting for strangers and people you are not close to.',
-      ru: 'Это самое универсальное приветствие для незнакомых и малознакомых людей.',
-    },
-    speechLevel: ExpressionSpeechLevel.POLITE,
-    pronunciation: { romanization: 'annyeonghaseyo', ttsText: '안녕하세요', audioUrl: '' },
-    media: {
-      emoji: '👋',
-      imageUrl: '',
-      imageAlt: { ko: '인사하는 손', uz: "Salomlashayotgan qo'l", en: 'A waving hand', ru: 'Машущая рука' },
-    },
-    order: 1,
-    placements: [{ section: 1, unit: 1, order: 1, isCore: true }],
-    tags: ['greeting', 'first-meeting', 'polite'],
-    difficulty: 1,
-    isActive: true,
-  },
-  {
-    code: 'greetings-good-morning',
-    packCode: 'greetings-and-goodbyes',
-    nodeCode: 'greetings-time-and-situation',
-    korean: '좋은 아침이에요',
-    meaning: { ko: '아침에 건네는 인사', uz: 'Xayrli tong', en: 'Good morning', ru: 'Доброе утро' },
-    context: {
-      ko: '아침에 만난 사람에게 밝게 인사할 때 사용해요.',
-      uz: 'Ertalab uchrashgan odam bilan salomlashishda ishlatiladi.',
-      en: 'Use it to greet someone you meet in the morning.',
-      ru: 'Используйте для приветствия при встрече утром.',
-    },
-    speaker: { ko: '누구나', uz: 'Hamma', en: 'Anyone', ru: 'Любой человек' },
-    usageNote: {
-      ko: '일상에서는 `안녕하세요`가 더 흔하지만 밝은 아침 인사로 사용할 수 있어요.',
-      uz: "Kundalik hayotda `안녕하세요` ko'proq ishlatiladi, ammo bu iliq tonggi salomdir.",
-      en: '`안녕하세요` is more common, but this works as a warm morning greeting.',
-      ru: 'Чаще говорят `안녕하세요`, но это тёплое утреннее приветствие.',
-    },
-    speechLevel: ExpressionSpeechLevel.POLITE,
-    pronunciation: { romanization: 'joeun achimieyo', ttsText: '좋은 아침이에요', audioUrl: '' },
-    media: {
-      emoji: '🌅',
-      imageUrl: '',
-      imageAlt: { ko: '아침 해', uz: 'Tonggi quyosh', en: 'Morning sun', ru: 'Утреннее солнце' },
-    },
-    order: 2,
-    placements: [{ section: 1, unit: 1, order: 2, isCore: true }],
-    tags: ['greeting', 'morning'],
-    difficulty: 1,
-    isActive: true,
-  },
-  {
-    code: 'greetings-how-have-you-been',
-    packCode: 'greetings-and-goodbyes',
-    nodeCode: 'greetings-checking-in',
-    korean: '잘 지내셨어요?',
-    meaning: { ko: '그동안 잘 지냈는지 묻는 말', uz: 'Yaxshi yuribsizmi?', en: 'How have you been?', ru: 'Как вы поживали?' },
-    context: {
-      ko: '한동안 만나지 못한 사람의 안부를 물을 때 사용해요.',
-      uz: "Bir muddat ko'rishmagan odamning holini so'rashda ishlatiladi.",
-      en: 'Use it to check on someone you have not seen for a while.',
-      ru: 'Используйте, чтобы узнать дела человека после перерыва.',
-    },
-    speaker: { ko: '먼저 안부를 묻는 사람', uz: "Hol so'rayotgan odam", en: 'The person checking in', ru: 'Тот, кто спрашивает о делах' },
-    usageNote: {
-      ko: '`잘 지냈어요?`보다 높임의 뜻이 들어 있어 더 정중해요.',
-      uz: "Bu `잘 지냈어요?` dan hurmatliroq shakl.",
-      en: 'This is more respectful than `잘 지냈어요?`.',
-      ru: 'Это более уважительная форма, чем `잘 지냈어요?`.',
-    },
-    speechLevel: ExpressionSpeechLevel.POLITE,
-    pronunciation: { romanization: 'jal jinaesyeosseoyo', ttsText: '잘 지내셨어요?', audioUrl: '' },
-    media: {
-      emoji: '😊',
-      imageUrl: '',
-      imageAlt: { ko: '웃으며 안부를 묻는 얼굴', uz: "Kulib hol so'rayotgan yuz", en: 'A smiling face checking in', ru: 'Улыбающийся человек спрашивает о делах' },
-    },
-    order: 3,
-    placements: [{ section: 1, unit: 1, order: 3, isCore: true }],
-    tags: ['greeting', 'checking-in'],
-    difficulty: 1,
-    isActive: true,
-  },
-  {
-    code: 'greetings-long-time-no-see',
-    packCode: 'greetings-and-goodbyes',
-    nodeCode: 'greetings-meeting-again',
-    korean: '오랜만이에요',
-    meaning: { ko: '오랜만에 만난 반가움을 나타내는 말', uz: "Ko'rishmaganimizga ancha bo'ldi", en: 'Long time no see', ru: 'Давно не виделись' },
-    context: {
-      ko: '오랫동안 만나지 못했던 사람을 다시 만났을 때 사용해요.',
-      uz: "Uzoq vaqt ko'rishmagan odamni qayta uchratganda ishlatiladi.",
-      en: 'Use it when you meet someone again after a long time.',
-      ru: 'Используйте при встрече после долгого перерыва.',
-    },
-    speaker: { ko: '다시 만난 사람', uz: 'Qayta uchrashgan odam', en: 'Either person meeting again', ru: 'Любой из встретившихся' },
-    usageNote: {
-      ko: '말끝을 밝게 올리면 반가운 느낌을 더 자연스럽게 전할 수 있어요.',
-      uz: "Yorqin ohang xursandchilikni tabiiyroq bildiradi.",
-      en: 'A bright tone makes your happiness sound more natural.',
-      ru: 'Доброжелательная интонация естественно передаёт радость.',
-    },
-    speechLevel: ExpressionSpeechLevel.POLITE,
-    pronunciation: { romanization: 'oraenmanieyo', ttsText: '오랜만이에요', audioUrl: '' },
-    media: {
-      emoji: '🤝',
-      imageUrl: '',
-      imageAlt: { ko: '다시 만나 반가워하는 두 사람', uz: 'Qayta uchrashgan ikki odam', en: 'Two people happy to meet again', ru: 'Два человека рады новой встрече' },
-    },
-    order: 4,
-    placements: [{ section: 1, unit: 1, order: 4, isCore: true }],
-    tags: ['greeting', 'reunion'],
-    difficulty: 1,
-    isActive: true,
-  },
-  {
-    code: 'greetings-see-you-next-time',
-    packCode: 'greetings-and-goodbyes',
-    nodeCode: 'greetings-goodbye-and-next-time',
-    korean: '다음에 또 봐요',
-    meaning: { ko: '다음 만남을 기대하며 헤어지는 말', uz: "Keyingi safar yana ko'rishamiz", en: 'See you again next time', ru: 'До следующей встречи' },
-    context: {
-      ko: '대화를 마치고 다음에 다시 만나기를 바라며 헤어질 때 사용해요.',
-      uz: "Suhbatni tugatib, yana uchrashishni istab xayrlashganda ishlatiladi.",
-      en: 'Use it when leaving and hoping to meet the person again.',
-      ru: 'Используйте при прощании, когда хотите встретиться снова.',
-    },
-    speaker: { ko: '먼저 헤어지는 인사를 하는 사람', uz: 'Xayrlashayotgan odam', en: 'The person saying goodbye', ru: 'Тот, кто прощается' },
-    usageNote: {
-      ko: '친근하지만 존댓말이라 지인과 동료에게 두루 사용할 수 있어요.',
-      uz: "Bu do'stona, ammo muloyim ibora bo'lib, tanishlar va hamkasblarga mos.",
-      en: 'It is friendly but polite, so it works with acquaintances and coworkers.',
-      ru: 'Фраза дружелюбная, но вежливая, подходит знакомым и коллегам.',
-    },
-    speechLevel: ExpressionSpeechLevel.POLITE,
-    pronunciation: { romanization: 'daeume tto bwayo', ttsText: '다음에 또 봐요', audioUrl: '' },
-    media: {
-      emoji: '👋',
-      imageUrl: '',
-      imageAlt: { ko: '헤어지며 손을 흔드는 사람', uz: "Xayrlashib qo'l silkitayotgan odam", en: 'A person waving goodbye', ru: 'Человек машет рукой на прощание' },
-    },
-    order: 5,
-    placements: [{ section: 1, unit: 1, order: 5, isCore: true }],
-    tags: ['greeting', 'goodbye', 'next-time'],
-    difficulty: 1,
-    isActive: true,
-  },
-];
+export const EXPRESSION_NODE_SEEDS: readonly ExpressionNodeSeed[] =
+  EXPRESSION_TOPICS.flatMap((topic) => topic.nodes);
+
+export const EXPRESSION_SEEDS: readonly ExpressionSeedEntry[] =
+  EXPRESSION_TOPICS.flatMap((topic) => topic.expressions);

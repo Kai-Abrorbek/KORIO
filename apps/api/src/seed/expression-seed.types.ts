@@ -58,7 +58,7 @@ export interface ExpressionPackSeed {
   code: string;
   title: LocalizedExpressionSeedText;
   description: LocalizedExpressionSeedText;
-  media: {
+  media?: {
     emoji?: string;
     imageUrl?: string;
     imageAlt: LocalizedExpressionSeedText;
@@ -93,7 +93,7 @@ export interface ExpressionSeedEntry {
     ttsText: string;
     audioUrl?: string;
   };
-  media: {
+  media?: {
     emoji?: string;
     imageUrl?: string;
     imageAlt: LocalizedExpressionSeedText;
