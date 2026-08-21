@@ -23,7 +23,7 @@ import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import StudyModeModal from "@/components/courses/StudyModeModal";
 import type { StudyMode } from "@/store/settings.store";
-import { commitStudyMode } from "@/utils/learn-mode";
+import { commitLearnMode, commitStudyMode } from "@/utils/learn-mode";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -114,6 +114,15 @@ export default function CoursesScreen() {
     setPending(null);
     if (!target) return;
     commitStudyMode(mode);
+
+    // 학습 로드는 오늘 뭘 할지까지 정해주는 모드다. 여기서 다시 분야를
+    // 고르라고 하면 그 약속이 깨지므로 바로 하루치 로드맵으로 보낸다.
+    if (mode === "guided") {
+      commitLearnMode("vocabulary");
+      router.push("/study-path");
+      return;
+    }
+
     router.push({
       pathname: "/course-categories",
       params: { lang: target.code, label: target.label },

@@ -20,7 +20,11 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { LearnMode, learnModePath } from "@/store/settings.store";
+import {
+  LearnMode,
+  learnModePath,
+  useSettingsStore,
+} from "@/store/settings.store";
 import { commitLearnMode } from "@/utils/learn-mode";
 import {
   TopikLevelModal,
@@ -127,7 +131,11 @@ function CategoryCard({
           // 목적지는 한 곳에서 계산한다.
           const mode = c.category as LearnMode;
           commitLearnMode(mode);
-          router.push(learnModePath(mode, "1"));
+          // 학습 방식(가이드/자율)까지 넘겨야 어휘를 골랐을 때 하루치
+          // 로드맵으로 간다. 안 넘기면 늘 자율 로드맵으로 떨어진다.
+          router.push(
+            learnModePath(mode, "1", useSettingsStore.getState().studyMode),
+          );
         }}
         style={[s.catCard, aStyle]}
       >

@@ -1,7 +1,18 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
@@ -25,6 +36,9 @@ const OPTIONS: {
   { mode: "free", icon: "compass", colors: ["#3fb9d6", "#2e93b8"] },
 ];
 
+/** 이만큼 내리면 닫는다 */
+const DISMISS_DISTANCE = 110;
+
 /**
  * 코스를 고른 직후 "어떻게 배울지"를 정한다.
  *
@@ -40,38 +54,59 @@ export default function StudyModeModal({
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const dragY = useSharedValue(0);
+
+  const close = () => {
+    dragY.value = 0;
+    onClose();
+  };
+
+  // 아래로 끌어 닫기. 위로는 안 따라가고, 조금만 내렸다 놓으면 제자리로.
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      dragY.value = Math.max(0, e.translationY);
+    })
+    .onEnd((e) => {
+      if (dragY.value > DISMISS_DISTANCE || e.velocityY > 900) {
+        dragY.value = withTiming(600, { duration: 180 }, () => {
+          runOnJS(close)();
+        });
+        return;
+      }
+      dragY.value = withSpring(0, { damping: 18, stiffness: 220 });
+    });
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: dragY.value }],
+  }));
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
-      onRequestClose={onClose}
+      animationType="slide"
+      onRequestClose={close}
+      onShow={() => {
+        dragY.value = 0;
+      }}
       statusBarTranslucent
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Animated.View entering={FadeIn.duration(180)} style={styles.fill} />
-      </Pressable>
+      <GestureHandlerRootView style={styles.root}>
+        <Pressable style={styles.backdrop} onPress={close} />
 
-      <View style={styles.center} pointerEvents="box-none">
-        <Animated.View
-          entering={FadeInDown.duration(260).springify().damping(16)}
-          style={styles.sheet}
-        >
-          <View style={styles.grip} />
+        <GestureDetector gesture={pan}>
+          <Animated.View style={[styles.sheet, sheetStyle]}>
+            <View style={styles.grip} />
 
-          <Text style={styles.title}>{t("studyModeModal.title")}</Text>
-          <Text style={styles.subtitle}>
-            {t("studyModeModal.subtitle", { course: courseLabel })}
-          </Text>
+            <Text style={styles.title}>{t("studyModeModal.title")}</Text>
+            <Text style={styles.subtitle}>
+              {t("studyModeModal.subtitle", { course: courseLabel })}
+            </Text>
 
-          <View style={styles.options}>
-            {OPTIONS.map((option, index) => (
-              <Animated.View
-                key={option.mode}
-                entering={FadeInDown.delay(80 + index * 70).duration(300)}
-              >
+            <View style={styles.options}>
+              {OPTIONS.map((option) => (
                 <Pressable
+                  key={option.mode}
                   onPress={() => onSelect(option.mode)}
                   style={({ pressed }) => [
                     styles.optionWrap,
@@ -111,38 +146,30 @@ export default function StudyModeModal({
                     />
                   </LinearGradient>
                 </Pressable>
-              </Animated.View>
-            ))}
-          </View>
+              ))}
+            </View>
 
-          <Text style={styles.hint}>{t("studyModeModal.hint")}</Text>
-        </Animated.View>
-      </View>
+            <Text style={styles.hint}>{t("studyModeModal.hint")}</Text>
+          </Animated.View>
+        </GestureDetector>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    backdrop: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-    },
-    fill: { flex: 1, backgroundColor: "rgba(12,12,24,0.55)" },
-    center: {
-      flex: 1,
-      justifyContent: "flex-end",
-    },
+    root: { flex: 1, justifyContent: "flex-end" },
+    backdrop: { flex: 1, backgroundColor: "rgba(12,12,24,0.55)" },
     sheet: {
       backgroundColor: theme.surface,
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
       paddingHorizontal: 20,
       paddingTop: 12,
-      paddingBottom: 34,
+      // 아래로 끌 때 시트 밑이 비지 않게 넉넉히 깔아둔다
+      paddingBottom: 34 + 120,
+      marginBottom: -120,
       gap: 6,
     },
     grip: {
