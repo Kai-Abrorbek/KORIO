@@ -20,7 +20,8 @@ const ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   review: "refresh",
   words: "albums",
   grammar: "book",
-  vocabQuiz: "create",
+  vocabQuiz1: "create",
+  vocabQuiz2: "create",
   grammarQuiz: "construct",
   final: "flag",
 };
@@ -30,7 +31,8 @@ const COUNT_LABEL: Record<string, string> = {
   review: "studyPath.countQuestions",
   words: "studyPath.countWords",
   grammar: "studyPath.countGrammar",
-  vocabQuiz: "studyPath.countQuestions",
+  vocabQuiz1: "studyPath.countQuestions",
+  vocabQuiz2: "studyPath.countQuestions",
   grammarQuiz: "studyPath.countQuestions",
   final: "studyPath.countQuestions",
 };
@@ -83,8 +85,8 @@ export default function StudyNodePopover({
 
       <Text style={styles.description}>{t(`studyPath.desc.${node.kind}`)}</Text>
 
-      {node.count > 0 ? (
-        <View style={styles.metaRow}>
+      <View style={styles.metaRow}>
+        {node.count > 0 ? (
           <View style={styles.metaChip}>
             <Ionicons name="layers-outline" size={15} color="#FFFFFF" />
             <Text style={styles.metaText}>
@@ -93,8 +95,19 @@ export default function StudyNodePopover({
               })}
             </Text>
           </View>
-        </View>
-      ) : null}
+        ) : null}
+        {node.lessonCount > 1 ? (
+          <View style={styles.metaChip}>
+            <Ionicons name="albums-outline" size={15} color="#FFFFFF" />
+            <Text style={styles.metaText}>
+              {t("studyPath.lessonProgress", {
+                done: node.lessonsDone,
+                total: node.lessonCount,
+              })}
+            </Text>
+          </View>
+        ) : null}
+      </View>
 
       <TouchableOpacity
         style={styles.startButton}
@@ -102,7 +115,14 @@ export default function StudyNodePopover({
         activeOpacity={0.85}
       >
         <Text style={[styles.startText, { color }]}>
-          {t(completed ? "studyPath.again" : "studyPath.start")}
+          {t(
+            completed
+              ? "studyPath.again"
+              : node.lessonsDone > 0
+                ? "studyPath.continueLesson"
+                : "studyPath.start",
+            { n: node.nextLesson },
+          )}
         </Text>
         <Ionicons name="arrow-forward" size={19} color={color} />
       </TouchableOpacity>
@@ -158,7 +178,12 @@ const getStyles = (_theme: ThemeColors) =>
       lineHeight: 19,
       fontWeight: "600",
     },
-    metaRow: { marginTop: 12, flexDirection: "row", gap: 8 },
+    metaRow: {
+      marginTop: 12,
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+    },
     metaChip: {
       minHeight: 30,
       borderRadius: 10,

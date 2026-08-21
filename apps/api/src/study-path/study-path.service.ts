@@ -7,13 +7,14 @@ import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import {
-  STUDY_COMPLETABLE_KINDS,
   StudyCompletableKind,
   StudyDay,
   StudyNode,
   StudyNodeStatus,
   StudyPathResponse,
+  lessonCountFor,
   studyNodeKey,
+  studyNodePrefix,
 } from './study-path.types';
 
 /** 그 유닛 단어 요약 (WordsService.getSectionSummary 의 units 원소) */
@@ -109,14 +110,15 @@ export class StudyPathService {
     };
   }
 
-  /** 문제를 푸는 노드(복습·어휘·문법·마무리)의 완료 기록 */
+  /** 노드의 레슨 하나를 끝냈다는 기록 */
   async completeNode(
     userId: string,
     section: number,
     unit: number,
     kind: StudyCompletableKind,
+    lesson = 1,
   ) {
-    const key = studyNodeKey(section, unit, kind);
+    const key = studyNodeKey(section, unit, kind, lesson);
     await this.userModel.updateOne(
       { _id: userId },
       { $addToSet: { completedStudyNodes: key } },
@@ -144,9 +146,9 @@ export class StudyPathService {
     const nodes: StudyNode[] = [];
 
     /**
-     * 노드를 끝냈다는 기록이 있으면 그걸로 끝이다. 기록이 없어도 이미 그
-     * 내용을 다 해치운 유저(자율 모드로 앞서 나간 경우)는 자동으로 완료로
-     * 본다 — 진행도를 되돌리지 않으려고.
+     * 노드 하나를 레슨 여러 개로 쪼갠다. 끝낸 레슨은 유저 문서에 남고,
+     * 기록이 없어도 이미 그 내용을 다 해치운 유저(자율 모드로 앞서 나간
+     * 경우)는 통째로 완료로 본다 — 진행도를 되돌리지 않으려고.
      */
     const add = (
       kind: StudyNode['kind'],
@@ -154,10 +156,35 @@ export class StudyPathService {
       alreadyDone = false,
     ): void => {
       if (count <= 0) return; // 다룰 게 없는 노드는 세우지 않는다
-      const done =
-        ctx.doneNodes.has(studyNodeKey(ctx.section, ctx.unit, kind)) ||
-        alreadyDone;
-      nodes.push({ id: kind, kind, status: 'locked', done, count });
+      const lessonCount = lessonCountFor(kind, count);
+      const prefix = studyNodePrefix(ctx.section, ctx.unit, kind);
+
+      let lessonsDone = 0;
+      for (let lesson = 1; lesson <= lessonCount; lesson += 1) {
+        if (ctx.doneNodes.has(`${prefix}${lesson}`)) lessonsDone += 1;
+      }
+      if (alreadyDone) lessonsDone = lessonCount;
+
+      // 중간을 건너뛰고 끝 레슨만 했더라도 첫 미완료부터 이어 가게 한다
+      let nextLesson = 1;
+      for (let lesson = 1; lesson <= lessonCount; lesson += 1) {
+        if (!ctx.doneNodes.has(`${prefix}${lesson}`)) {
+          nextLesson = lesson;
+          break;
+        }
+        nextLesson = lesson === lessonCount ? 1 : lesson + 1;
+      }
+
+      nodes.push({
+        id: kind,
+        kind,
+        status: 'locked',
+        done: lessonsDone >= lessonCount,
+        count,
+        lessonCount,
+        lessonsDone,
+        nextLesson,
+      });
     };
 
     // 1. 지난 수업 복습 — 섹션 첫날은 되돌아볼 것이 없다
@@ -175,11 +202,15 @@ export class StudyPathService {
         ctx.grammarCodes.every((code) => ctx.doneGrammar.has(code)),
     );
 
-    // 4·5. 오늘 문제 — 시드가 없는 트랙은 노드도 없다
-    add('vocabQuiz', ctx.vocabQuestions);
+    // 4·5. 오늘 어휘 문제 — 유닛 전체를 두 노드로 절반씩 나눠 맡는다
+    const half = Math.ceil(ctx.vocabQuestions / 2);
+    add('vocabQuiz1', half);
+    add('vocabQuiz2', ctx.vocabQuestions - half);
+
+    // 6. 오늘 문법 문제 — 시드가 없는 유닛은 노드도 없다
     add('grammarQuiz', ctx.grammarQuestions);
 
-    // 6. 마무리 — 풀 문제가 하나라도 있어야 의미가 있다
+    // 7. 마무리 — 풀 문제가 하나라도 있어야 의미가 있다
     add('final', ctx.vocabQuestions + ctx.grammarQuestions);
 
     return nodes;

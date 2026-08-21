@@ -136,7 +136,13 @@ export default function StudyPathScreen() {
       if (node.kind === "words") {
         router.push({
           pathname: "/word-study",
-          params: { section, unit, from: "studyPath" },
+          params: {
+            section,
+            unit,
+            from: "studyPath",
+            lesson: String(node.nextLesson),
+            lessonCount: String(node.lessonCount),
+          },
         });
         return;
       }
@@ -158,6 +164,7 @@ export default function StudyPathScreen() {
             from: "studyPath",
             section,
             unit,
+            lesson: String(node.nextLesson),
           },
         });
       });
@@ -200,7 +207,6 @@ export default function StudyPathScreen() {
         selectedNodeId={selectedNodeId}
         onNodeTap={handleNodeTap}
         renderNodePopover={renderNodePopover}
-        hideNodeRing
       />
     ),
     [handleNodeTap, renderNodePopover, selectedNodeId, user?.avatar],

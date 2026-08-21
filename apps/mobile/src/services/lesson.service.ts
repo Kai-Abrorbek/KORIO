@@ -122,10 +122,11 @@ export const LessonService = {
   getUnitPractice: (
     section: number,
     unit: number,
-    kind: "review" | "vocabQuiz" | "grammarQuiz" | "final",
+    kind: "review" | "vocabQuiz1" | "vocabQuiz2" | "grammarQuiz" | "final",
+    lesson = 1,
   ): Promise<{ questions: any[] }> =>
     api.get(
-      `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}&lang=${getLang()}`,
+      `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}&lesson=${lesson}&lang=${getLang()}`,
     ),
 
   getNodeReview: (

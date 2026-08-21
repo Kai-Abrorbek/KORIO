@@ -7,7 +7,8 @@ const NODE_ICON: Record<StudyNodeKind, RoadmapIconName> = {
   review: "refresh",
   words: "albums",
   grammar: "book",
-  vocabQuiz: "create",
+  vocabQuiz1: "create",
+  vocabQuiz2: "create",
   grammarQuiz: "construct",
   final: "flag",
 };
@@ -24,8 +25,8 @@ export interface StudyPathViewModel {
  * 노드 id 는 반드시 하루를 접두로 붙인다 — 'grammar' 같은 키는 모든 하루에
  * 똑같이 존재해서, 그대로 쓰면 한 노드를 눌렀을 때 다른 날 노드까지 열린다.
  *
- * 진행 링은 쓰지 않는다(노드 하나 = 할 일 하나). completedLessons/totalLessons
- * 는 1/1 로 고정해 링이 그려져도 조각나지 않게 둔다.
+ * 진행 링은 그 노드의 레슨 진행도를 그린다 — 단어 5레슨, 어휘 문제 5레슨처럼
+ * 노드 하나가 여러 번에 걸쳐 끝나기 때문이다.
  */
 export function buildStudyPathViewModel(
   days: StudyDay[],
@@ -47,8 +48,8 @@ export function buildStudyPathViewModel(
         type: "star" as const,
         status: node.status,
         title: labelOf(node),
-        completedLessons: node.done ? 1 : 0,
-        totalLessons: 1,
+        completedLessons: node.lessonsDone,
+        totalLessons: Math.max(1, node.lessonCount),
         iconName: NODE_ICON[node.kind],
       };
     });

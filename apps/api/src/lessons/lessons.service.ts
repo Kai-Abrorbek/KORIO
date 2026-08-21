@@ -43,7 +43,11 @@ const SMART_GRADING_TYPES = new Set([
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 import { CATCH_UP_UNITS, STUDY_QUIZ_SIZE } from './study-path.const';
-import type { StudyQuizKind } from '../study-path/study-path.types';
+import {
+  lessonCountFor,
+  lessonSlice,
+  type StudyQuizKind,
+} from '../study-path/study-path.types';
 
 @Injectable()
 export class LessonsService {
@@ -903,6 +907,7 @@ export class LessonsService {
     unit: number,
     kind: StudyQuizKind,
     lang = 'uz',
+    lesson = 1,
   ) {
     if (kind === 'review') {
       return this.getCatchUpReview(userId, section, unit, lang);
@@ -912,11 +917,25 @@ export class LessonsService {
     }
 
     const track = kind === 'grammarQuiz' ? 'grammar' : 'vocabulary';
-    const questions = await this.collectUnitQuestions(section, unit, track);
-    if (!questions.length) return { questions: [] };
+    const all = await this.collectUnitQuestions(section, unit, track);
+    if (!all.length) return { questions: [] };
 
-    const picked = this.pickBalanced(questions, STUDY_QUIZ_SIZE[kind]);
-    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+    // 어휘는 두 노드가 유닛 전체를 절반씩 맡는다
+    let pool = all;
+    if (kind === 'vocabQuiz1' || kind === 'vocabQuiz2') {
+      const half = Math.ceil(all.length / 2);
+      pool = kind === 'vocabQuiz1' ? all.slice(0, half) : all.slice(half);
+    }
+
+    const lessonCount = lessonCountFor(kind, pool.length);
+    const index = Math.min(Math.max(1, lesson), lessonCount) - 1;
+    const { start, end } = lessonSlice(pool.length, lessonCount, index);
+
+    return {
+      questions: pool
+        .slice(start, end)
+        .map((q) => this.formatQuestion(q, lang)),
+    };
   }
 
   /**
@@ -1015,7 +1034,11 @@ export class LessonsService {
       })
       .lean();
 
-    return this.dedupeByContent(questions);
+    // 레슨 분할이 매번 같은 조각을 주려면 순서가 고정이어야 한다.
+    // 셔플하면 "레슨 3" 이 매번 다른 문제가 되어 전체를 한 번씩 커버하지 못한다.
+    return this.dedupeByContent(questions).sort((a: any, b: any) =>
+      a._id.toString().localeCompare(b._id.toString()),
+    );
   }
 
   /**

@@ -47,6 +47,7 @@ import type {
 import * as Haptics from "@/utils/haptics";
 import { useSeenWords } from "@/hooks/useSeenWords";
 import { StudyPathService } from "@/services/study-path.service";
+import { lessonSlice } from "@/types/study-path";
 
 const SECTIONS = [1, 2, 3];
 const SWIPE_THRESHOLD = 88;
@@ -739,7 +740,13 @@ export default function WordStudyScreen() {
     unit?: string;
     /** "studyPath" 면 마지막 카드에서 하루치 완료로 표시하고 로드맵으로 */
     from?: string;
+    /** 학습 로드 모드: 단어 노드의 몇 번째 레슨인지 (1-based) */
+    lesson?: string;
+    lessonCount?: string;
   }>();
+  // loadWords 의 의존성 배열이 즉시 평가되므로 그보다 위에서 선언해야 한다
+  const studyLesson = Math.max(1, Number(params.lesson) || 1);
+  const studyLessonCount = Math.max(1, Number(params.lessonCount) || 1);
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -845,7 +852,20 @@ export default function WordStudyScreen() {
     translateX.value = 0;
 
     try {
-      const result = await WordService.getUnitWords(section, unit);
+      const all = await WordService.getUnitWords(section, unit);
+      // 학습 로드 모드는 유닛 단어를 여러 레슨으로 나눠서 전부 훑는다.
+      // 서버(lessonSlice)와 같은 규칙으로 잘라야 조각이 어긋나지 않는다.
+      const result =
+        studyLessonCount > 1
+          ? (() => {
+              const { start, end } = lessonSlice(
+                all.length,
+                studyLessonCount,
+                studyLesson - 1,
+              );
+              return all.slice(start, end);
+            })()
+          : all;
       setWords(result);
 
       // 이어보기: 저장된 카드 번호로 복원 (단어가 줄었으면 마지막 카드로)
@@ -863,6 +883,8 @@ export default function WordStudyScreen() {
   }, [
     activeLanguage,
     flushSeen,
+    studyLesson,
+    studyLessonCount,
     scopeLoading,
     section,
     stop,
@@ -907,10 +929,12 @@ export default function WordStudyScreen() {
   const finishStudyPathUnit = useCallback(() => {
     flushSeen();
     if (section > 0 && unit > 0) {
-      StudyPathService.completeNode(section, unit, "words").catch(() => {});
+      StudyPathService.completeNode(section, unit, "words", studyLesson).catch(
+        () => {},
+      );
     }
     router.replace("/study-path");
-  }, [flushSeen, router, section, unit]);
+  }, [flushSeen, router, section, studyLesson, unit]);
 
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {

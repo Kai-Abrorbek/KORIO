@@ -1,9 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,12 +16,14 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Extrapolation,
   FadeIn,
+  FadeInDown,
   interpolate,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
+  ZoomIn,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -256,39 +260,206 @@ export default function ExpressionLearningScreen() {
           },
         ]}
       >
+        <LinearGradient
+          colors={[packTheme.background, theme.bg, theme.bg]}
+          locations={[0, 0.46, 1]}
+          style={styles.completeBackground}
+        />
         <View
+          pointerEvents="none"
           style={[
-            styles.completeGlow,
-            { backgroundColor: packTheme.background },
+            styles.completeOrb,
+            styles.completeOrbTop,
+            { backgroundColor: `${packTheme.accent}18` },
           ]}
         />
         <View
+          pointerEvents="none"
           style={[
-            styles.completeIcon,
-            { backgroundColor: packTheme.accent },
+            styles.completeOrb,
+            styles.completeOrbBottom,
+            { backgroundColor: `${packTheme.accent}10` },
           ]}
+        />
+
+        <ScrollView
+          style={styles.completeScroll}
+          contentContainerStyle={styles.completeBody}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="checkmark" size={48} color="#FFFFFF" />
-        </View>
-        <Text style={[styles.completeTitle, { color: theme.text }]}>{t("expressionLearning.doneTitle")}</Text>
-        <Text
-          style={[styles.completeDescription, { color: theme.textSecondary }]}
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(420)}
+            style={[
+              styles.completeTopicChip,
+              {
+                backgroundColor: `${packTheme.accent}14`,
+                borderColor: `${packTheme.accent}2E`,
+              },
+            ]}
+          >
+            <Ionicons
+              name={packTheme.icon}
+              size={16}
+              color={packTheme.accentDark}
+            />
+            <Text
+              style={[
+                styles.completeTopicChipText,
+                { color: packTheme.accentDark },
+              ]}
+              numberOfLines={1}
+            >
+              {session.topic.title}
+            </Text>
+          </Animated.View>
+
+          <Animated.View
+            entering={ZoomIn.delay(150).springify().damping(14)}
+            style={styles.completeMedalStage}
+          >
+            <View
+              style={[
+                styles.completeMedalBack,
+                { backgroundColor: `${packTheme.accent}18` },
+              ]}
+            />
+            <View
+              style={[
+                styles.completeMedalBack,
+                styles.completeMedalBackSmall,
+                { backgroundColor: `${packTheme.accent}24` },
+              ]}
+            />
+            <LinearGradient
+              colors={[packTheme.accent, packTheme.accentDark]}
+              start={{ x: 0.15, y: 0 }}
+              end={{ x: 0.85, y: 1 }}
+              style={styles.completeIcon}
+            >
+              <Ionicons name="checkmark" size={51} color="#FFFFFF" />
+            </LinearGradient>
+            <Ionicons
+              name="sparkles"
+              size={22}
+              color={packTheme.accent}
+              style={styles.completeSparkTop}
+            />
+            <Ionicons
+              name="star"
+              size={16}
+              color={packTheme.accentDark}
+              style={styles.completeSparkBottom}
+            />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(220).duration(430)}>
+            <Text style={[styles.completeTitle, { color: theme.text }]}>
+              {t("expressionLearning.doneTitle")}
+            </Text>
+            <Text
+              style={[
+                styles.completeDescription,
+                { color: theme.textSecondary },
+              ]}
+            >
+              {t("expressionLearning.doneDescription", {
+                node: session.node.title,
+                count: session.items.length,
+              })}
+            </Text>
+          </Animated.View>
+
+          <Animated.View
+            entering={FadeInDown.delay(300).duration(430)}
+            style={[
+              styles.completeSummaryCard,
+              {
+                backgroundColor: theme.surface,
+                borderColor: `${packTheme.accent}26`,
+                shadowColor: theme.text,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.completeSummaryIcon,
+                { backgroundColor: packTheme.background },
+              ]}
+            >
+              <Ionicons
+                name="chatbubble-ellipses"
+                size={25}
+                color={packTheme.accentDark}
+              />
+            </View>
+            <View style={styles.completeSummaryCopy}>
+              <Text
+                style={[
+                  styles.completeSummaryEyebrow,
+                  { color: packTheme.accentDark },
+                ]}
+                numberOfLines={1}
+              >
+                {session.topic.title}
+              </Text>
+              <Text
+                style={[styles.completeSummaryTitle, { color: theme.text }]}
+                numberOfLines={2}
+              >
+                {session.node.title}
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.completeCountChip,
+                { backgroundColor: `${packTheme.accent}12` },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.completeCountText,
+                  { color: packTheme.accentDark },
+                ]}
+              >
+                {t("expressionRoadmap.nodeExpressions", {
+                  count: session.items.length,
+                })}
+              </Text>
+            </View>
+          </Animated.View>
+        </ScrollView>
+
+        <Animated.View
+          entering={FadeInDown.delay(360).duration(430)}
+          style={styles.completeFooter}
         >
-          {t("expressionLearning.doneDescription", {
-            node: session.node.title,
-            count: session.items.length,
-          })}
-        </Text>
-        <Pressable
-          onPress={() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            goBack();
-          }}
-          style={[styles.completeButton, { backgroundColor: packTheme.accent }]}
-        >
-          <Text style={styles.completeButtonText}>{t("expressionLearning.backToRoadmap")}</Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-        </Pressable>
+          <Pressable
+            onPress={() => {
+              void Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success,
+              );
+              goBack();
+            }}
+            style={({ pressed }) => [
+              styles.completeButton,
+              { opacity: pressed ? 0.9 : 1 },
+            ]}
+          >
+            <LinearGradient
+              colors={[packTheme.accent, packTheme.accentDark]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.completeButtonGradient}
+            >
+              <Text style={styles.completeButtonText}>
+                {t("expressionLearning.backToRoadmap")}
+              </Text>
+              <View style={styles.completeButtonIcon}>
+                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+              </View>
+            </LinearGradient>
+          </Pressable>
+        </Animated.View>
       </Animated.View>
     );
   }
@@ -414,11 +585,171 @@ const styles = StyleSheet.create({
   stateTitle: { fontSize: 18, fontWeight: "900", textAlign: "center" },
   retryButton: { minHeight: 46, borderRadius: 15, paddingHorizontal: 24, alignItems: "center", justifyContent: "center" },
   retryText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
-  completedScreen: { alignItems: "center", justifyContent: "center", paddingHorizontal: 28, overflow: "hidden" },
-  completeGlow: { position: "absolute", width: 330, height: 330, borderRadius: 165, opacity: 0.68 },
-  completeIcon: { width: 92, height: 92, borderRadius: 31, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.16, shadowRadius: 16, elevation: 7 },
-  completeTitle: { marginTop: 24, fontSize: 28, lineHeight: 35, fontWeight: "900", textAlign: "center" },
-  completeDescription: { marginTop: 9, maxWidth: 310, fontSize: 14, lineHeight: 21, fontWeight: "600", textAlign: "center" },
-  completeButton: { marginTop: 28, width: "100%", height: 58, borderRadius: 18, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  completedScreen: { overflow: "hidden" },
+  completeBackground: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  completeOrb: { position: "absolute", borderRadius: 999 },
+  completeOrbTop: { width: 290, height: 290, top: -130, right: -98 },
+  completeOrbBottom: { width: 230, height: 230, bottom: 34, left: -145 },
+  completeScroll: { flex: 1, width: "100%" },
+  completeBody: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 22,
+    paddingTop: 18,
+  },
+  completeTopicChip: {
+    maxWidth: "88%",
+    minHeight: 34,
+    borderRadius: 99,
+    borderWidth: 1,
+    paddingHorizontal: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+  },
+  completeTopicChipText: {
+    flexShrink: 1,
+    fontSize: 11.5,
+    lineHeight: 16,
+    fontWeight: "900",
+  },
+  completeMedalStage: {
+    width: 152,
+    height: 152,
+    marginTop: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  completeMedalBack: {
+    position: "absolute",
+    width: 138,
+    height: 138,
+    borderRadius: 45,
+    transform: [{ rotate: "11deg" }],
+  },
+  completeMedalBackSmall: {
+    width: 118,
+    height: 118,
+    borderRadius: 39,
+    transform: [{ rotate: "-8deg" }],
+  },
+  completeIcon: {
+    width: 92,
+    height: 92,
+    borderRadius: 31,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.6)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 11 },
+    shadowOpacity: 0.17,
+    shadowRadius: 17,
+    elevation: 8,
+  },
+  completeSparkTop: { position: "absolute", top: 4, right: 4 },
+  completeSparkBottom: { position: "absolute", bottom: 12, left: 3 },
+  completeTitle: {
+    marginTop: 11,
+    paddingHorizontal: 8,
+    fontSize: 29,
+    lineHeight: 37,
+    fontWeight: "900",
+    letterSpacing: -0.55,
+    textAlign: "center",
+  },
+  completeDescription: {
+    alignSelf: "center",
+    marginTop: 8,
+    maxWidth: 330,
+    paddingHorizontal: 8,
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  completeSummaryCard: {
+    width: "100%",
+    maxWidth: 410,
+    minHeight: 88,
+    marginTop: 23,
+    borderRadius: 23,
+    borderWidth: 1,
+    padding: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 15,
+    elevation: 3,
+  },
+  completeSummaryIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  completeSummaryCopy: { flex: 1, minWidth: 0 },
+  completeSummaryEyebrow: {
+    fontSize: 10.5,
+    lineHeight: 14,
+    fontWeight: "900",
+  },
+  completeSummaryTitle: {
+    marginTop: 3,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "900",
+  },
+  completeCountChip: {
+    minHeight: 31,
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  completeCountText: { fontSize: 10.5, fontWeight: "900" },
+  completeFooter: { width: "100%", paddingHorizontal: 22, paddingTop: 12 },
+  completeButton: {
+    width: "100%",
+    maxWidth: 410,
+    height: 60,
+    alignSelf: "center",
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.14,
+    shadowRadius: 11,
+    elevation: 5,
+  },
+  completeButtonGradient: {
+    flex: 1,
+    paddingLeft: 21,
+    paddingRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   completeButtonText: { color: "#FFFFFF", fontSize: 15.5, fontWeight: "900" },
+  completeButtonIcon: {
+    position: "absolute",
+    right: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.17)",
+  },
 });

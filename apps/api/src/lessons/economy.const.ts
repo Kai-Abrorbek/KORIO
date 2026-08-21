@@ -19,10 +19,10 @@ export const PRACTICE_BASE_XP: Record<string, number> = {
   expressionPractice: 10, // 표현 카드 뒤 빈칸·타이핑 연습
   // 학습 로드 모드 — 하루(=유닛)의 문제 노드들.
   // final 이 가장 높은 건 하루를 끝낸 보상이라서다
-  unitReview: 12, // 지난 수업 복습 (12문제)
-  unitVocab: 18, // 오늘 어휘 문제 (20문제)
-  unitGrammar: 18, // 오늘 문법 문제 (24문제)
-  unitFinal: 25, // 마무리 확인 (15문제)
+  unitReview: 12, // 지난 수업 복습
+  unitVocab: 14, // 어휘 문제 레슨 하나
+  unitGrammar: 14, // 문법 문제 레슨 하나
+  unitFinal: 25, // 마무리 확인 — 하루를 끝낸 보상
 };
 
 /** 연습 모드 XP = 기본값 + 콤보(정답 수 상한) */

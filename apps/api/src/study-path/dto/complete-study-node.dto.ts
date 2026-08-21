@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, Min } from 'class-validator';
 import {
   STUDY_COMPLETABLE_KINDS,
   type StudyCompletableKind,
@@ -18,4 +18,11 @@ export class CompleteStudyNodeDto {
 
   @IsIn([...STUDY_COMPLETABLE_KINDS])
   kind: StudyCompletableKind;
+
+  /** 노드 안의 몇 번째 레슨인지 (1-based). 쪼개지 않는 노드는 1 */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  lesson?: number;
 }

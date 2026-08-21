@@ -23,7 +23,7 @@ export class StudyPathController {
     return this.studyPathService.getStudyPath(req.user._id.toString(), lang);
   }
 
-  /** 실전 · 복습 · 마무리 노드를 끝냈을 때 */
+  /** 노드의 레슨 하나를 끝냈을 때 */
   @Post('complete')
   async complete(@Request() req, @Body() dto: CompleteStudyNodeDto) {
     if (dto.section < 1 || dto.unit < 1) {
@@ -34,6 +34,7 @@ export class StudyPathController {
       dto.section,
       dto.unit,
       dto.kind,
+      dto.lesson ?? 1,
     );
   }
 }

@@ -144,6 +144,7 @@ export default function ExpressionRoadmapScreen() {
       <UnitRoadmap
         unit={item}
         avatar={user?.avatar}
+        hideNodeRing
         selectedNodeId={selectedNodeId}
         onNodeTap={handleNodeTap}
         renderNodePopover={renderNodePopover}
