@@ -13,6 +13,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
@@ -53,6 +54,7 @@ export default function StudyModeModal({
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = getStyles(theme);
   const dragY = useSharedValue(0);
 
@@ -95,7 +97,15 @@ export default function StudyModeModal({
         <Pressable style={styles.backdrop} onPress={close} />
 
         <GestureDetector gesture={pan}>
-          <Animated.View style={[styles.sheet, sheetStyle]}>
+          <Animated.View
+            style={[
+              styles.sheet,
+              { paddingBottom: insets.bottom + 26 },
+              sheetStyle,
+            ]}
+          >
+            {/* 아래로 끌 때 시트 밑이 비지 않게 같은 색을 깔아둔다 */}
+            <View style={styles.underlay} pointerEvents="none" />
             <View style={styles.grip} />
 
             <Text style={styles.title}>{t("studyModeModal.title")}</Text>
@@ -167,10 +177,15 @@ const getStyles = (theme: ThemeColors) =>
       borderTopRightRadius: 28,
       paddingHorizontal: 20,
       paddingTop: 12,
-      // 아래로 끌 때 시트 밑이 비지 않게 넉넉히 깔아둔다
-      paddingBottom: 34 + 120,
-      marginBottom: -120,
       gap: 6,
+    },
+    underlay: {
+      position: "absolute",
+      top: "100%",
+      left: 0,
+      right: 0,
+      height: 300,
+      backgroundColor: theme.surface,
     },
     grip: {
       alignSelf: "center",

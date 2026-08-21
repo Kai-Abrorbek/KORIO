@@ -142,28 +142,32 @@ export class StudyPathService {
     grammarQuestions: number;
   }): StudyNode[] {
     const nodes: StudyNode[] = [];
-    const quizDone = (kind: StudyCompletableKind) =>
-      ctx.doneNodes.has(studyNodeKey(ctx.section, ctx.unit, kind));
 
+    /**
+     * 노드를 끝냈다는 기록이 있으면 그걸로 끝이다. 기록이 없어도 이미 그
+     * 내용을 다 해치운 유저(자율 모드로 앞서 나간 경우)는 자동으로 완료로
+     * 본다 — 진행도를 되돌리지 않으려고.
+     */
     const add = (
       kind: StudyNode['kind'],
       count: number,
-      done: boolean,
+      alreadyDone = false,
     ): void => {
       if (count <= 0) return; // 다룰 게 없는 노드는 세우지 않는다
+      const done =
+        ctx.doneNodes.has(studyNodeKey(ctx.section, ctx.unit, kind)) ||
+        alreadyDone;
       nodes.push({ id: kind, kind, status: 'locked', done, count });
     };
 
     // 1. 지난 수업 복습 — 섹션 첫날은 되돌아볼 것이 없다
-    if (!ctx.isFirstOfSection) {
-      add('review', 1, quizDone('review'));
-    }
+    if (!ctx.isFirstOfSection) add('review', 1);
 
-    // 2. 오늘 단어 — 한 번이라도 본 단어는 new 를 벗어난다
+    // 2. 오늘 단어 — 그 유닛 단어를 한 번씩 다 봤으면 이미 끝난 것으로
     const wordCount = ctx.words?.words ?? 0;
     add('words', wordCount, wordCount > 0 && (ctx.words?.new ?? 0) === 0);
 
-    // 3. 오늘 문법
+    // 3. 오늘 문법 — 그 유닛 문법 퀴즈를 전부 통과했으면 이미 끝난 것으로
     add(
       'grammar',
       ctx.grammarCodes.length,
@@ -172,11 +176,11 @@ export class StudyPathService {
     );
 
     // 4·5. 오늘 문제 — 시드가 없는 트랙은 노드도 없다
-    add('vocabQuiz', ctx.vocabQuestions, quizDone('vocabQuiz'));
-    add('grammarQuiz', ctx.grammarQuestions, quizDone('grammarQuiz'));
+    add('vocabQuiz', ctx.vocabQuestions);
+    add('grammarQuiz', ctx.grammarQuestions);
 
     // 6. 마무리 — 풀 문제가 하나라도 있어야 의미가 있다
-    add('final', ctx.vocabQuestions + ctx.grammarQuestions, quizDone('final'));
+    add('final', ctx.vocabQuestions + ctx.grammarQuestions);
 
     return nodes;
   }

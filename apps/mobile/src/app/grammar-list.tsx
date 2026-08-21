@@ -75,7 +75,11 @@ function NBPress({ children, onPress, bg = "#fff", radius = 14, style }: any) {
 function GrammarCard({ item }: { item: GrammarListItem }) {
   // 같은 화면의 파라미터를 그대로 읽는다. 학습 로드 모드로 들어왔으면
   // 그 사실을 문법 상세까지 들고 가야 "다음 문법" 이 유닛 안에서 멈춘다.
-  const params = useLocalSearchParams<{ from?: string; section?: string }>();
+  const params = useLocalSearchParams<{
+    from?: string;
+    section?: string;
+    unit?: string;
+  }>();
   const scoped = !!Number(params.section);
 
   return (
@@ -88,6 +92,8 @@ function GrammarCard({ item }: { item: GrammarListItem }) {
             id: item.id,
             scoped: scoped ? "1" : "",
             from: params.from ?? "",
+            section: params.section ?? "",
+            unit: params.unit ?? "",
           },
         });
       }}
@@ -381,21 +387,26 @@ export default function GrammarList() {
               t={t}
             />
           ) : (
-          /* 문법 문제 풀이는 학습 모드 그리드로 옮겼다 */
-          Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((sec) => (
-            <SectionBlock
-              key={sec}
-              section={sec}
-              items={bySection.get(sec) ?? []}
-              color={SECTION_COLORS[(sec - 1) % SECTION_COLORS.length]}
-              expanded={expanded === sec}
-              locked={sec > unlocked}
-              premiumLocked={sec <= unlocked && sec > freeSections && !isSuper}
-              onToggle={() => setExpanded(expanded === sec ? null : sec)}
-              onPremium={() => setPremiumVisible(true)}
-              t={t}
-            />
-          )))}
+            /* 문법 문제 풀이는 학습 모드 그리드로 옮겼다 */
+            Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map(
+              (sec) => (
+                <SectionBlock
+                  key={sec}
+                  section={sec}
+                  items={bySection.get(sec) ?? []}
+                  color={SECTION_COLORS[(sec - 1) % SECTION_COLORS.length]}
+                  expanded={expanded === sec}
+                  locked={sec > unlocked}
+                  premiumLocked={
+                    sec <= unlocked && sec > freeSections && !isSuper
+                  }
+                  onToggle={() => setExpanded(expanded === sec ? null : sec)}
+                  onPremium={() => setPremiumVisible(true)}
+                  t={t}
+                />
+              ),
+            )
+          )}
         </ScrollView>
       )}
 

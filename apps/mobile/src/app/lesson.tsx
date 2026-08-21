@@ -27,10 +27,7 @@ import { LessonService } from "@/services/lesson.service";
 import { ExpressionService } from "@/services/expression.service";
 import { StudyPathService } from "@/services/study-path.service";
 import type { PracticeMode } from "@/services/lesson.service";
-import {
-  STUDY_QUIZ_KINDS,
-  type StudyCompletableKind,
-} from "@/types/study-path";
+import { STUDY_QUIZ_KINDS, type StudyQuizKind } from "@/types/study-path";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import QuestionRenderer from "@/components/lesson/QuestionRenderer";
@@ -55,7 +52,7 @@ const LEGEND_SEGMENTS = [5, 7, 10];
 const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
 const LEGEND_DURATION = 120; // 2분
 /** 서버 XP 표(PRACTICE_BASE_XP)의 키. 노드 종류마다 보상이 다르다 */
-const UNIT_PRACTICE_MODE: Record<StudyCompletableKind, PracticeMode> = {
+const UNIT_PRACTICE_MODE: Record<StudyQuizKind, PracticeMode> = {
   review: "unitReview",
   vocabQuiz: "unitVocab",
   grammarQuiz: "unitGrammar",
@@ -96,21 +93,21 @@ export default function LessonScreen() {
     kind,
     from,
   } = useLocalSearchParams<{
-      lessonId?: string;
-      mode?: string;
-      nodeId?: string;
-      section?: string;
-      unit?: string;
-      target?: string;
-      /** 어느 로드맵에서 들어왔는지. 완료 후 제자리로 돌아가려면 필요 */
-      category?: string;
-      /** 표현 카드 학습에서 연습할 표현 팩 코드 */
-      pack?: string;
-      /** 학습 로드 모드 노드 종류: practice | review | final */
-      kind?: string;
-      /** 학습 로드 모드에서 들어왔으면 "studyPath". 끝나고 거기로 돌아간다 */
-      from?: string;
-    }>();
+    lessonId?: string;
+    mode?: string;
+    nodeId?: string;
+    section?: string;
+    unit?: string;
+    target?: string;
+    /** 어느 로드맵에서 들어왔는지. 완료 후 제자리로 돌아가려면 필요 */
+    category?: string;
+    /** 표현 카드 학습에서 연습할 표현 팩 코드 */
+    pack?: string;
+    /** 학습 로드 모드 노드 종류: practice | review | final */
+    kind?: string;
+    /** 학습 로드 모드에서 들어왔으면 "studyPath". 끝나고 거기로 돌아간다 */
+    from?: string;
+  }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
@@ -120,14 +117,13 @@ export default function LessonScreen() {
   const isExpressionPractice = mode === "expressionPractice";
   // 학습 로드 모드 — 그 하루(=유닛) 범위로 좁힌 실전/복습/마무리
   const isUnitPractice = mode === "unitPractice";
-  const unitKind: StudyCompletableKind = STUDY_QUIZ_KINDS.includes(
-    kind as StudyCompletableKind,
+  const unitKind: StudyQuizKind = STUDY_QUIZ_KINDS.includes(
+    kind as StudyQuizKind,
   )
-    ? (kind as StudyCompletableKind)
+    ? (kind as StudyQuizKind)
     : "vocabQuiz";
   const fromStudyPath = from === "studyPath";
-  const jumpHeartLimit =
-    target === "section" || Number(section) >= 2 ? 3 : 5;
+  const jumpHeartLimit = target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
     useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
@@ -682,9 +678,9 @@ export default function LessonScreen() {
         accuracy: String(accuracy),
         time: timeStr,
         category: category ?? "",
-        pack: isExpressionPractice ? pack ?? "" : "",
-        section: isExpressionPractice ? section ?? "1" : "",
-        unit: isExpressionPractice ? unit ?? "1" : "",
+        pack: isExpressionPractice ? (pack ?? "") : "",
+        section: isExpressionPractice ? (section ?? "1") : "",
+        unit: isExpressionPractice ? (unit ?? "1") : "",
         from: fromStudyPath ? "studyPath" : "",
       },
     });

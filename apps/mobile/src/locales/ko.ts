@@ -1130,6 +1130,7 @@ export default {
     soon: "준비중",
   },
   wordStudy: {
+    finishDay: "오늘 단어 끝! 로드맵으로",
     eyebrow: "WORD DECK",
     title: "단어 카드",
     currentRange: "현재 학습 범위",

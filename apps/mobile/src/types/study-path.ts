@@ -10,14 +10,13 @@ export type StudyNodeKind =
   | "grammarQuiz"
   | "final";
 
-/** 레슨 화면에서 문제를 풀고 완료를 서버에 남기는 노드 */
-export type StudyCompletableKind =
-  | "review"
-  | "vocabQuiz"
-  | "grammarQuiz"
-  | "final";
+/** 완료를 서버에 남기는 노드 — 여섯 자리 전부 */
+export type StudyCompletableKind = StudyNodeKind;
 
-export const STUDY_QUIZ_KINDS: StudyCompletableKind[] = [
+/** 레슨 화면에서 문제를 푸는 노드들 */
+export type StudyQuizKind = "review" | "vocabQuiz" | "grammarQuiz" | "final";
+
+export const STUDY_QUIZ_KINDS: StudyQuizKind[] = [
   "review",
   "vocabQuiz",
   "grammarQuiz",

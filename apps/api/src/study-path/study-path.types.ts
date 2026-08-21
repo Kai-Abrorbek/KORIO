@@ -23,26 +23,30 @@ export const STUDY_NODE_KINDS = [
 export type StudyNodeKind = (typeof STUDY_NODE_KINDS)[number];
 
 /**
- * 유저 문서에 완료가 쌓이는 노드. words 는 단어 진행도가, grammar 는
- * completedGrammar 가 이미 진실을 들고 있어서 여기 넣지 않는다.
+ * 완료를 유저 문서에 기록하는 노드 — 여섯 자리 전부.
+ *
+ * 예전엔 단어·문법을 각자 진행도(단어 state, completedGrammar)로만 판정했다.
+ * 그러면 "그 유닛 문법 8개를 전부 퀴즈까지 통과" 해야 다음이 열려서, 끝까지
+ * 보고 나온 사람도 막혔다. 노드를 끝냈다는 사실은 유저의 행동으로 남긴다.
  */
-export type StudyCompletableKind = Extract<
-  StudyNodeKind,
-  'review' | 'vocabQuiz' | 'grammarQuiz' | 'final'
->;
+export type StudyCompletableKind = StudyNodeKind;
 
 export const STUDY_COMPLETABLE_KINDS: readonly StudyCompletableKind[] = [
+  ...STUDY_NODE_KINDS,
+];
+
+/** 레슨 화면으로 문제를 받아 가는 노드들 */
+export const STUDY_QUIZ_KINDS = [
   'review',
   'vocabQuiz',
   'grammarQuiz',
   'final',
-];
+] as const;
 
-/** 레슨 화면으로 문제를 받아 가는 노드들 */
-export type StudyQuizKind = StudyCompletableKind;
+export type StudyQuizKind = (typeof STUDY_QUIZ_KINDS)[number];
 
 export function isStudyQuizKind(value: unknown): value is StudyQuizKind {
-  return STUDY_COMPLETABLE_KINDS.includes(value as StudyCompletableKind);
+  return STUDY_QUIZ_KINDS.includes(value as StudyQuizKind);
 }
 
 /** "1-3:vocabQuiz" — 섹션·유닛·종류를 한 문자열로. 배열 하나로 조회가 끝난다 */

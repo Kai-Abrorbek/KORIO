@@ -1154,6 +1154,7 @@ export default {
     soon: "Soon",
   },
   wordStudy: {
+    finishDay: "Today's words done!",
     eyebrow: "WORD DECK",
     title: "Word cards",
     currentRange: "Current study range",

@@ -29,6 +29,7 @@ import {
 import { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { GrammarService } from "@/services/grammar.service";
+import { StudyPathService } from "@/services/study-path.service";
 
 const C = {
   cream: "#FBF1DC",
@@ -243,12 +244,14 @@ export default function GrammarStudy() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { speak } = useSpeech();
-  const { id, scoped, from } = useLocalSearchParams<{
+  const { id, scoped, from, section, unit } = useLocalSearchParams<{
     id?: string;
     /** "1" 이면 다음 문법을 그 유닛 안에서만 찾는다 (학습 로드 모드) */
     scoped?: string;
     /** "studyPath" 면 그날 문법을 다 보고 로드맵으로 돌아간다 */
     from?: string;
+    section?: string;
+    unit?: string;
   }>();
   const [g, setG] = useState<Grammar | null>(null);
   const isScoped = scoped === "1";
@@ -450,13 +453,20 @@ export default function GrammarStudy() {
           </NBPress>
         ) : isScoped ? (
           <NBPress
-            onPress={() =>
-              from === "studyPath"
-                ? router.replace("/study-path")
-                : router.canGoBack()
-                  ? router.back()
-                  : router.replace("/")
-            }
+            onPress={() => {
+              // 그날 문법을 끝까지 봤다는 사실을 남긴다. 퀴즈를 다 풀었는지로만
+              // 판정하면 끝까지 보고 나온 사람도 다음 노드가 안 열린다.
+              const s = Number(section);
+              const u = Number(unit);
+              if (s > 0 && u > 0) {
+                StudyPathService.completeNode(s, u, "grammar").catch(() => {});
+              }
+              if (from === "studyPath") {
+                router.replace("/study-path");
+                return;
+              }
+              router.canGoBack() ? router.back() : router.replace("/");
+            }}
             bg={C.yellow}
             radius={16}
             style={st.cta}

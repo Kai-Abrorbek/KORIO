@@ -1160,6 +1160,7 @@ export default {
     soon: "Скоро",
   },
   wordStudy: {
+    finishDay: "Слова на сегодня — всё!",
     eyebrow: "КАРТОЧКИ СЛОВ",
     title: "Карточки слов",
     currentRange: "Текущий диапазон",

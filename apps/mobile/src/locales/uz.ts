@@ -1138,6 +1138,7 @@ export default {
     soon: "Tez orada",
   },
   wordStudy: {
+    finishDay: "Bugungi so'zlar tugadi!",
     eyebrow: "SO'Z KARTALARI",
     title: "So'z kartalari",
     currentRange: "Hozirgi o'quv doirasi",
