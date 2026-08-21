@@ -1,33 +1,38 @@
 /**
  * 학습 로드 모드 — 하루 = 한 유닛 = 교재 1과.
- * 서버(`/study-path`) 응답 모양 그대로. 라벨은 앱이 t() 로 만든다
- * (레슨 제목만 콘텐츠라 서버가 준다).
+ * 서버(`/study-path`) 응답 모양 그대로. 라벨은 앱이 t() 로 만든다.
  */
 export type StudyNodeKind =
-  | "grammar"
-  | "words"
-  | "lesson"
-  | "practice"
   | "review"
+  | "words"
+  | "grammar"
+  | "vocabQuiz"
+  | "grammarQuiz"
   | "final";
 
-/** 서버에 완료를 기록하는 노드 (나머지는 각자 진행도가 따로 있다) */
-export type StudyCompletableKind = "practice" | "review" | "final";
+/** 레슨 화면에서 문제를 풀고 완료를 서버에 남기는 노드 */
+export type StudyCompletableKind =
+  | "review"
+  | "vocabQuiz"
+  | "grammarQuiz"
+  | "final";
+
+export const STUDY_QUIZ_KINDS: StudyCompletableKind[] = [
+  "review",
+  "vocabQuiz",
+  "grammarQuiz",
+  "final",
+];
 
 export type StudyNodeStatus = "completed" | "current" | "locked";
 
 export interface StudyNode {
-  id: string;
+  id: StudyNodeKind;
   kind: StudyNodeKind;
   status: StudyNodeStatus;
-  completed: number;
-  total: number;
-  title?: string;
-  lessonId?: string;
-  nodeId?: string;
-  xpReward?: number;
-  legendCompleted?: boolean;
-  special?: "hangul";
+  done: boolean;
+  /** 그 노드가 다룰 항목 수 (단어 12개, 문법 3개, 문제 20개…) */
+  count: number;
 }
 
 export interface StudyDay {

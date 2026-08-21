@@ -27,7 +27,10 @@ import { LessonService } from "@/services/lesson.service";
 import { ExpressionService } from "@/services/expression.service";
 import { StudyPathService } from "@/services/study-path.service";
 import type { PracticeMode } from "@/services/lesson.service";
-import type { StudyCompletableKind } from "@/types/study-path";
+import {
+  STUDY_QUIZ_KINDS,
+  type StudyCompletableKind,
+} from "@/types/study-path";
 import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import QuestionRenderer from "@/components/lesson/QuestionRenderer";
@@ -46,13 +49,16 @@ import LightningStrike from "@/components/lesson/LightningStrike";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 
 type Phase = "main" | "reviewIntro" | "review";
+/** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
+const HIDES_FEEDBACK_BAR = new Set(["grammar_blank", "grammar_build"]);
 const LEGEND_SEGMENTS = [5, 7, 10];
 const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
 const LEGEND_DURATION = 120; // 2분
 /** 서버 XP 표(PRACTICE_BASE_XP)의 키. 노드 종류마다 보상이 다르다 */
 const UNIT_PRACTICE_MODE: Record<StudyCompletableKind, PracticeMode> = {
-  practice: "unitPractice",
   review: "unitReview",
+  vocabQuiz: "unitVocab",
+  grammarQuiz: "unitGrammar",
   final: "unitFinal",
 };
 
@@ -114,8 +120,11 @@ export default function LessonScreen() {
   const isExpressionPractice = mode === "expressionPractice";
   // 학습 로드 모드 — 그 하루(=유닛) 범위로 좁힌 실전/복습/마무리
   const isUnitPractice = mode === "unitPractice";
-  const unitKind: StudyCompletableKind =
-    kind === "review" || kind === "final" ? kind : "practice";
+  const unitKind: StudyCompletableKind = STUDY_QUIZ_KINDS.includes(
+    kind as StudyCompletableKind,
+  )
+    ? (kind as StudyCompletableKind)
+    : "vocabQuiz";
   const fromStudyPath = from === "studyPath";
   const jumpHeartLimit =
     target === "section" || Number(section) >= 2 ? 3 : 5;
@@ -835,13 +844,16 @@ export default function LessonScreen() {
               answerState={answerState}
               onAnswer={handleAnswer}
               onSkip={handleNext}
+              onNext={handleNext}
               theme={theme}
               combo={combo}
               isChecking={isCheckingAnswer}
             />
           </Animated.View>
 
-          {!isLevelTest && (
+          {/* 문법 문제는 결과·힌트를 카드 안에서 보여주고 스스로 다음으로
+              넘어간다. 아래 피드백 바까지 뜨면 같은 말을 두 번 하게 된다. */}
+          {!isLevelTest && !HIDES_FEEDBACK_BAR.has(currentQ.type) && (
             <FeedbackBar
               state={answerState}
               answer={currentQ.answer}

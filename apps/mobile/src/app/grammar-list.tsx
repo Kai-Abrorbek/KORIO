@@ -73,11 +73,23 @@ function NBPress({ children, onPress, bg = "#fff", radius = 14, style }: any) {
 
 /* 문법 한 개 카드 */
 function GrammarCard({ item }: { item: GrammarListItem }) {
+  // 같은 화면의 파라미터를 그대로 읽는다. 학습 로드 모드로 들어왔으면
+  // 그 사실을 문법 상세까지 들고 가야 "다음 문법" 이 유닛 안에서 멈춘다.
+  const params = useLocalSearchParams<{ from?: string; section?: string }>();
+  const scoped = !!Number(params.section);
+
   return (
     <NBPress
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        router.push(`/grammar-study?id=${item.id}`);
+        router.push({
+          pathname: "/grammar-study",
+          params: {
+            id: item.id,
+            scoped: scoped ? "1" : "",
+            from: params.from ?? "",
+          },
+        });
       }}
       bg={C.paper}
       radius={14}

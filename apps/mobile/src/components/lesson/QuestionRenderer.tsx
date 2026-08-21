@@ -28,6 +28,11 @@ interface Props {
   onAnswer: (answer: string) => void;
   /** 말하기·듣기처럼 건너뛸 수 있는 유형에서 쓴다 */
   onSkip: () => void;
+  /**
+   * 다음 문제로. 아래 피드백 바를 쓰지 않고 카드 안에서 결과를 보여주는
+   * 유형(문법 문제)이 직접 호출한다.
+   */
+  onNext: () => void;
   theme: ThemeColors;
   combo: number;
   /** 입력형 문제의 채점 중 표시 */
@@ -43,6 +48,7 @@ export default function QuestionRenderer({
   answerState,
   onAnswer,
   onSkip,
+  onNext,
   theme,
   combo,
   isChecking,
@@ -88,9 +94,9 @@ export default function QuestionRenderer({
     case "audio_match":
       return <AudioMatch {...props} onSkip={onSkip} />;
     case "grammar_blank":
-      return <GrammarBlank {...props} />;
+      return <GrammarBlank {...props} onNext={onNext} />;
     case "grammar_build":
-      return <GrammarBuild {...props} />;
+      return <GrammarBuild {...props} onNext={onNext} />;
     case "reading_quiz":
       return <ReadingQuiz {...props} />;
     case "error_hunt":

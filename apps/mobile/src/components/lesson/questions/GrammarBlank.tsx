@@ -56,6 +56,8 @@ interface Props {
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
+  /** 다음 문제로. 이 유형은 아래 피드백 바를 쓰지 않는다 */
+  onNext: () => void;
 }
 
 /**
@@ -66,6 +68,7 @@ export default function GrammarBlank({
   question,
   answerState,
   onAnswer,
+  onNext,
 }: Props) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
@@ -238,12 +241,17 @@ export default function GrammarBlank({
                 <Animated.Text style={st.note}>※ {q.note}</Animated.Text>
               )}
 
-              {/* 오답 힌트 버블 */}
+              {/* 오답 — 아래 피드백 바 대신 여기서 정답을 알려준다 */}
               {state === "wrong" && (
                 <Animated.View style={st.wrongBubble}>
-                  <Text style={st.wrongText}>
-                    {q.wrongHint ?? t("writePractice.wrongDefault")}
+                  <Text style={st.wrongLabel}>
+                    {t("writePractice.correctAnswer")}
                   </Text>
+                  <Text style={st.wrongAnswer}>{q.answer}</Text>
+                  {!!q.full && <Text style={st.wrongFull}>{q.full}</Text>}
+                  {!!(q.wrongHint || q.note) && (
+                    <Text style={st.wrongText}>{q.wrongHint || q.note}</Text>
+                  )}
                 </Animated.View>
               )}
 
@@ -333,7 +341,7 @@ export default function GrammarBlank({
             */}
 
             {/* 큰 버튼 3개 */}
-            <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
+            <View style={st.bigRow}>
               <BigBtn
                 colors={["#a07af0", "#7f5fe8"]}
                 onPress={() => {}}
@@ -353,6 +361,18 @@ export default function GrammarBlank({
                 label={t("writePractice.listenAgain")}
               />
             </View>
+
+            <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+              <Pressable style={[st.nextBtn, st.nextOk]} onPress={onNext}>
+                <Text style={st.nextText}>{t("lesson.continue")}</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : state === "wrong" ? (
+          <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+            <Pressable style={[st.nextBtn, st.nextWrong]} onPress={onNext}>
+              <Text style={st.nextText}>{t("lesson.continue")}</Text>
+            </Pressable>
           </View>
         ) : (
           <View style={[st.inputBar, { paddingBottom: 6 }]}>
@@ -500,13 +520,44 @@ const st = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginTop: 20,
+    gap: 3,
+  },
+  wrongLabel: {
+    fontSize: 12,
+    color: C.pinkInk,
+    fontWeight: "800",
+    opacity: 0.75,
+    letterSpacing: 0.3,
+  },
+  wrongAnswer: {
+    fontSize: 22,
+    color: C.pinkInk,
+    fontWeight: "900",
+  },
+  wrongFull: {
+    fontSize: 15,
+    color: C.pinkInk,
+    fontWeight: "700",
+    opacity: 0.85,
   },
   wrongText: {
-    fontSize: 16,
+    marginTop: 4,
+    fontSize: 14.5,
     color: C.pinkInk,
     fontWeight: "600",
-    lineHeight: 24,
+    lineHeight: 21,
   },
+  nextRow: { paddingHorizontal: 16, paddingTop: 10 },
+  nextBtn: {
+    minHeight: 54,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomWidth: 4,
+  },
+  nextOk: { backgroundColor: C.green, borderColor: C.greenInk },
+  nextWrong: { backgroundColor: "#ff5d6e", borderColor: "#cf4353" },
+  nextText: { color: "#fff", fontSize: 17, fontWeight: "900" },
 
   answerRow: {
     flexDirection: "row",

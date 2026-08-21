@@ -243,14 +243,21 @@ export default function GrammarStudy() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { speak } = useSpeech();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, scoped, from } = useLocalSearchParams<{
+    id?: string;
+    /** "1" 이면 다음 문법을 그 유닛 안에서만 찾는다 (학습 로드 모드) */
+    scoped?: string;
+    /** "studyPath" 면 그날 문법을 다 보고 로드맵으로 돌아간다 */
+    from?: string;
+  }>();
   const [g, setG] = useState<Grammar | null>(null);
+  const isScoped = scoped === "1";
 
   useEffect(() => {
-    GrammarService.getGrammar(id ?? "prog-goitda")
+    GrammarService.getGrammar(id ?? "prog-goitda", isScoped)
       .then(setG)
       .catch(() => setG(MOCK_GRAMMAR)); // 백엔드 없으면 목업 폴백
-  }, [id]);
+  }, [id, isScoped]);
   if (!g) return null; // 필요하면 로딩 뷰
 
   const Section = ({ children, delay = 0 }: any) => (
@@ -418,11 +425,20 @@ export default function GrammarStudy() {
           </Section>
         )}
 
-        {/* 다음 문법 */}
-        {g.nextPattern && (
+        {/* 다음 문법 — 없으면 그날 문법을 다 본 것이다 */}
+        {g.nextPattern && g.nextId ? (
           <NBPress
             onPress={() => {
-              if (g.nextId) router.push(`/grammar-study?id=${g.nextId}`);
+              // push 로 쌓으면 뒤로가기가 앞선 문법들을 거꾸로 훑는다.
+              // 순서대로 나아가는 화면이라 replace 가 맞다.
+              router.replace({
+                pathname: "/grammar-study",
+                params: {
+                  id: g.nextId as string,
+                  scoped: isScoped ? "1" : "",
+                  from: from ?? "",
+                },
+              });
             }}
             bg={C.yellow}
             radius={16}
@@ -432,7 +448,22 @@ export default function GrammarStudy() {
               {t("grammarStudy.next")} · {g.nextPattern} →
             </Text>
           </NBPress>
-        )}
+        ) : isScoped ? (
+          <NBPress
+            onPress={() =>
+              from === "studyPath"
+                ? router.replace("/study-path")
+                : router.canGoBack()
+                  ? router.back()
+                  : router.replace("/")
+            }
+            bg={C.yellow}
+            radius={16}
+            style={st.cta}
+          >
+            <Text style={st.ctaT}>{t("grammarStudy.finishDay")}</Text>
+          </NBPress>
+        ) : null}
       </ScrollView>
     </View>
   );

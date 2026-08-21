@@ -41,6 +41,8 @@ interface Props {
   onNodeLegend?: (node: RoadmapNode) => void;
   onJumpTest?: (unit: RoadmapUnit) => void;
   onGoLegend?: (unitId: string, firstNode: RoadmapNode) => void;
+  /** 노드 주변 진행 링을 감춘다 (학습 로드 모드) */
+  hideNodeRing?: boolean;
   /** 기본 레슨 팝오버 대신 트랙 전용 팝오버를 표시할 때만 전달한다. */
   renderNodePopover?: (context: RoadmapNodePopoverContext) => ReactNode;
 }
@@ -92,6 +94,7 @@ export default function UnitRoadmap({
   onJumpTest,
   onGoLegend,
   renderNodePopover,
+  hideNodeRing = false,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -263,6 +266,7 @@ export default function UnitRoadmap({
                       completedSteps={node.completedLessons ?? 0}
                       totalSteps={node.totalLessons ?? 4}
                       iconName={node.iconName}
+                      hideRing={hideNodeRing}
                       onPress={handleNodePress}
                     />
                   </>
@@ -276,6 +280,7 @@ export default function UnitRoadmap({
                     completedSteps={node.completedLessons ?? 0}
                     totalSteps={node.totalLessons ?? 4}
                     iconName={node.iconName}
+                    hideRing={hideNodeRing}
                     onPress={handleNodePress}
                   />
                 )}

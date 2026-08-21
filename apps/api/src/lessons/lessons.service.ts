@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Lesson, LessonDocument } from './schemas/lesson.schema';
+import {
+  Lesson,
+  LessonCategory,
+  LessonDocument,
+} from './schemas/lesson.schema';
 import { LessonNode, LessonNodeDocument } from './schemas/node.schema';
 import { Question, QuestionDocument } from './schemas/question.schema';
 import {
@@ -38,7 +42,8 @@ const SMART_GRADING_TYPES = new Set([
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
-import { UNIT_FINAL_MIN_DIFFICULTY, UNIT_PRACTICE_SIZE } from './study-path.const';
+import { CATCH_UP_UNITS, STUDY_QUIZ_SIZE } from './study-path.const';
+import type { StudyQuizKind } from '../study-path/study-path.types';
 
 @Injectable()
 export class LessonsService {
@@ -72,7 +77,8 @@ export class LessonsService {
    *   옮길 원문은 npcText 에 들어 있다.
    */
   private translateSourceText(q: any, lang: string): string {
-    if (q.type !== 'translate_builder' && q.type !== 'translate_type') return '';
+    if (q.type !== 'translate_builder' && q.type !== 'translate_type')
+      return '';
 
     if (q.npcText) return q.npcText;
 
@@ -132,8 +138,7 @@ export class LessonsService {
       buildRows: q.buildRows || [], // grammar_build 전용
       difficulty: q.difficulty ?? 3,
       tags: q.tags || [],
-      audioText:
-        q.audioText || (usesNativeBuilder ? q.answer : ''),
+      audioText: q.audioText || (usesNativeBuilder ? q.answer : ''),
       audioUrl: q.audioUrl || '',
       imageUrl: q.imageUrl || '',
       // 중급 5종 전용 필드
@@ -161,9 +166,8 @@ export class LessonsService {
 
     return questionIds
       .map((id) => questionMap.get(id.toString()))
-      .filter(
-        (question): question is NonNullable<typeof question> =>
-          Boolean(question),
+      .filter((question): question is NonNullable<typeof question> =>
+        Boolean(question),
       )
       .map((question) => this.formatQuestion(question, lang));
   }
@@ -886,49 +890,108 @@ export class LessonsService {
   // ─────────────────────────────────────────────────────────
 
   /**
-   * 하루치 노드에 쓸 문제를 뽑는다. Day N = Unit N 이므로 모두 (섹션, 유닛)으로
-   * 좁힌다.
+   * 하루치 노드에 쓸 문제. 하루 = 한 유닛이라 모두 (섹션, 유닛)으로 좁힌다.
    *
-   * - practice: 그 유닛 문제를 영역별로 고르게 섞는다 (실전 연습 노드)
-   * - final:    그 유닛의 어려운 문제만 짧게 (마무리 확인 노드)
-   * - review:   그 유닛 "이전"에 틀린 문제 (복습 노드). 유닛과 무관하게
-   *             유저별로 달라지므로 다른 경로를 탄다.
+   * - review      전날(또는 쉰 기간) 배운 것 다시 풀기
+   * - vocabQuiz   오늘 어휘 문제
+   * - grammarQuiz 오늘 문법 문제 (문법 트랙 시드)
+   * - final       마무리 — 오늘 틀린 것 우선
    */
   async getUnitPractice(
     userId: string,
     section: number,
     unit: number,
-    kind: 'practice' | 'review' | 'final',
+    kind: StudyQuizKind,
     lang = 'uz',
   ) {
     if (kind === 'review') {
-      const review = await this.getUnitReview(userId, section, unit, lang);
-      // 오답이 없는 유저(첫 유닛이거나 다 맞은 경우)에게 빈 화면을 주지 않는다.
-      // 복습 노드는 하루의 필수 관문이라 건너뛰게 두면 흐름이 끊긴다.
-      if (review.questions.length) return review;
-      const fallback = await this.collectUnitQuestions(section, unit);
-      return {
-        questions: this.pickBalanced(fallback, UNIT_PRACTICE_SIZE.review).map(
-          (q) => this.formatQuestion(q, lang),
-        ),
-      };
+      return this.getCatchUpReview(userId, section, unit, lang);
+    }
+    if (kind === 'final') {
+      return this.getUnitFinal(userId, section, unit, lang);
     }
 
-    const questions = await this.collectUnitQuestions(section, unit);
+    const track = kind === 'grammarQuiz' ? 'grammar' : 'vocabulary';
+    const questions = await this.collectUnitQuestions(section, unit, track);
     if (!questions.length) return { questions: [] };
 
-    const picked =
-      kind === 'final'
-        ? this.pickHarder(questions, UNIT_PRACTICE_SIZE.final)
-        : this.pickBalanced(questions, UNIT_PRACTICE_SIZE.practice);
-
+    const picked = this.pickBalanced(questions, STUDY_QUIZ_SIZE[kind]);
     return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
   }
 
-  /** 그 유닛의 모든 노드 → 레슨 → 문제. 내용이 같은 문제는 하나만 남긴다. */
-  private async collectUnitQuestions(section: number, unit: number) {
+  /**
+   * 유닛·트랙별 문제 수를 한 번에 센다. 학습 로드 화면이 "문제가 없는 노드는
+   * 아예 안 만든다"를 판단하는 데 쓴다 — 유닛마다 따로 물으면 쿼리가 유닛
+   * 수만큼 늘어난다.
+   *
+   * 반환 키: `${unit}:${'vocabulary'|'grammar'}`
+   */
+  async countSectionQuestions(section: number): Promise<Map<string, number>> {
+    const rows = await this.nodeModel.aggregate([
+      { $match: { section, isActive: true } },
+      {
+        $lookup: {
+          from: 'lessons',
+          localField: 'lessonIds',
+          foreignField: '_id',
+          as: 'unitLessons',
+        },
+      },
+      {
+        $project: {
+          unit: 1,
+          category: 1,
+          count: {
+            $sum: {
+              $map: {
+                input: '$unitLessons',
+                as: 'lesson',
+                in: { $size: { $ifNull: ['$$lesson.questionIds', []] } },
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { unit: '$unit', category: '$category' },
+          count: { $sum: '$count' },
+        },
+      },
+    ]);
+
+    const result = new Map<string, number>();
+    for (const row of rows as any[]) {
+      const track = row._id?.category === 'grammar' ? 'grammar' : 'vocabulary';
+      const key = `${row._id?.unit}:${track}`;
+      result.set(key, (result.get(key) ?? 0) + (row.count ?? 0));
+    }
+    return result;
+  }
+
+  /**
+   * 그 유닛의 노드 → 레슨 → 문제. 내용이 같은 문제는 하나만 남긴다.
+   *
+   * 문법 트랙 노드는 category='grammar' 로 심어져 있고, 어휘 트랙 노드는
+   * category 가 아예 없다. 그래서 어휘 쪽은 $ne 로 거른다(필드가 없는 문서도
+   * $ne 에 걸린다).
+   */
+  private async collectUnitQuestions(
+    section: number,
+    unit: number,
+    track: 'vocabulary' | 'grammar',
+  ) {
+    const categoryFilter =
+      track === 'grammar'
+        ? LessonCategory.GRAMMAR
+        : { $ne: LessonCategory.GRAMMAR };
     const nodes = await this.nodeModel
-      .find({ section, unit, isActive: true })
+      .find({
+        section,
+        unit,
+        isActive: true,
+        category: categoryFilter as any,
+      })
       .select('lessonIds')
       .lean();
     if (!nodes.length) return [];
@@ -988,46 +1051,156 @@ export class LessonsService {
     return picked;
   }
 
-  /** 마무리 확인용. 어려운 문제 위주로, 모자라면 나머지로 채운다. */
-  private pickHarder(questions: any[], limit: number) {
-    const hard = this.shuffle(
-      questions.filter((q) => (q.difficulty ?? 3) >= UNIT_FINAL_MIN_DIFFICULTY),
-    );
-    if (hard.length >= limit) return hard.slice(0, limit);
-
-    const rest = this.shuffle(
-      questions.filter((q) => (q.difficulty ?? 3) < UNIT_FINAL_MIN_DIFFICULTY),
-    );
-    return [...hard, ...rest].slice(0, limit);
-  }
-
   /**
-   * 이 유닛 이전에 틀린 문제. 최근에 틀린 것부터 본다.
-   * 완료한 레슨이 없거나 다 맞았으면 빈 배열이고, 화면은 복습 노드를 건너뛴다.
+   * 하루의 첫 노드 — 지난 수업 복습.
+   *
+   * 오래 쉬었을수록 더 거슬러 올라간다. 며칠 만에 돌아온 사람에게 전날 것만
+   * 보여주면 그 앞이 통째로 날아간 채로 진도가 나간다.
+   * 틀렸던 문제를 먼저 채우고, 모자라면 그 구간 문제로 채운다.
    */
-  private async getUnitReview(
+  private async getCatchUpReview(
     userId: string,
     section: number,
     unit: number,
     lang: string,
   ) {
+    const limit = STUDY_QUIZ_SIZE.review;
+    const me = await this.userModel
+      .findById(new Types.ObjectId(userId))
+      .select('lastStudiedAt')
+      .lean();
+
+    const idleDays = this.daysSince(me?.lastStudiedAt);
+    const span =
+      CATCH_UP_UNITS.find((rule) => idleDays >= rule.days)?.units ?? 1;
+
+    const scope = this.previousUnits(section, unit, span);
+    if (!scope.length) return { questions: [] };
+
     const pastLessons = await this.lessonModel
-      .find(this.beforeFilter(section, unit))
+      .find({ _id: { $in: await this.lessonIdsInUnits(scope) } })
       .select('_id')
       .lean();
     if (!pastLessons.length) return { questions: [] };
 
+    const wrongFirst = await this.wrongQuestionIds(
+      userId,
+      pastLessons.map((l) => l._id),
+      limit,
+    );
+
+    const rows = wrongFirst.length
+      ? await this.questionModel
+          .find({
+            _id: { $in: wrongFirst.map((id) => new Types.ObjectId(id)) },
+            isActive: true,
+          })
+          .lean()
+      : [];
+
+    // find 는 순서를 보장하지 않으므로 "최근에 틀린 순"을 다시 세운다
+    const byId = new Map(rows.map((q: any) => [q._id.toString(), q]));
+    const picked = wrongFirst
+      .map((id) => byId.get(id))
+      .filter((q): q is any => Boolean(q));
+
+    // 틀린 게 없거나 모자라면 그 구간 문제로 채운다. 복습 노드는 하루의 첫
+    // 관문이라 비워두면 흐름이 거기서 끊긴다.
+    if (picked.length < limit) {
+      const seen = new Set(picked.map((q: any) => q._id.toString()));
+      for (const target of scope) {
+        if (picked.length >= limit) break;
+        const pool = await this.collectUnitQuestions(
+          target.section,
+          target.unit,
+          'vocabulary',
+        );
+        for (const q of this.pickBalanced(pool, limit)) {
+          if (picked.length >= limit) break;
+          if (seen.has(q._id.toString())) continue;
+          seen.add(q._id.toString());
+          picked.push(q);
+        }
+      }
+    }
+
+    return {
+      questions: picked
+        .slice(0, limit)
+        .map((q) => this.formatQuestion(q, lang)),
+    };
+  }
+
+  /**
+   * 하루의 마지막 노드 — 오늘 배운 걸 확인한다.
+   * 오늘 틀렸던 문제를 먼저 넣고 어휘·문법을 섞어 채운다. 그날 안에 구멍을
+   * 메우는 게 마무리의 목적이라 "어려운 문제 모음"이 아니다.
+   */
+  private async getUnitFinal(
+    userId: string,
+    section: number,
+    unit: number,
+    lang: string,
+  ) {
+    const limit = STUDY_QUIZ_SIZE.final;
+    const [vocab, grammar] = await Promise.all([
+      this.collectUnitQuestions(section, unit, 'vocabulary'),
+      this.collectUnitQuestions(section, unit, 'grammar'),
+    ]);
+    const pool = [...vocab, ...grammar];
+    if (!pool.length) return { questions: [] };
+
+    const unitLessons = await this.lessonModel
+      .find({ _id: { $in: await this.lessonIdsInUnits([{ section, unit }]) } })
+      .select('_id')
+      .lean();
+    const wrongIds = new Set(
+      await this.wrongQuestionIds(
+        userId,
+        unitLessons.map((l) => l._id),
+        limit,
+      ),
+    );
+
+    const wrong = pool.filter((q: any) => wrongIds.has(q._id.toString()));
+    const rest = pool.filter((q: any) => !wrongIds.has(q._id.toString()));
+    const picked = [
+      ...this.shuffle(wrong).slice(0, limit),
+      ...this.pickBalanced(rest, limit),
+    ].slice(0, limit);
+
+    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /** (섹션, 유닛) 목록에 속한 레슨 id 들 */
+  private async lessonIdsInUnits(
+    scope: { section: number; unit: number }[],
+  ): Promise<Types.ObjectId[]> {
+    if (!scope.length) return [];
+    const nodes = await this.nodeModel
+      .find({ isActive: true, $or: scope })
+      .select('lessonIds')
+      .lean();
+    return nodes.flatMap((n) => (n.lessonIds ?? []) as Types.ObjectId[]);
+  }
+
+  /** 최근에 틀린 순으로 문제 id. 같은 문제는 한 번만 */
+  private async wrongQuestionIds(
+    userId: string,
+    lessonIds: Types.ObjectId[],
+    limit: number,
+  ): Promise<string[]> {
+    if (!lessonIds.length) return [];
     const progresses = await this.userProgressModel
       .find({
         userId: new Types.ObjectId(userId),
-        lessonId: { $in: pastLessons.map((l) => l._id) },
+        lessonId: { $in: lessonIds },
         wrongQuestionIds: { $ne: [] },
       })
       .select('wrongQuestionIds completedAt')
       .sort({ completedAt: -1 })
       .lean();
 
-    // 최근에 틀린 것을 앞에 두고 중복은 제거한다
     const ordered: string[] = [];
     const seen = new Set<string>();
     for (const p of progresses) {
@@ -1035,25 +1208,36 @@ export class LessonsService {
         if (!Types.ObjectId.isValid(id) || seen.has(id)) continue;
         seen.add(id);
         ordered.push(id);
+        if (ordered.length >= limit) return ordered;
       }
     }
-    if (!ordered.length) return { questions: [] };
+    return ordered;
+  }
 
-    const wanted = ordered.slice(0, UNIT_PRACTICE_SIZE.review);
-    const rows = await this.questionModel
-      .find({
-        _id: { $in: wanted.map((id) => new Types.ObjectId(id)) },
-        isActive: true,
-      })
-      .lean();
+  /** (섹션, 유닛) 바로 앞의 유닛 span 개. 섹션 경계를 넘어서도 이어진다 */
+  private previousUnits(section: number, unit: number, span: number) {
+    const scope: { section: number; unit: number }[] = [];
+    let s = section;
+    let u = unit;
+    for (let i = 0; i < span; i += 1) {
+      u -= 1;
+      if (u < 1) {
+        s -= 1;
+        if (s < 1) break;
+        // 이전 섹션의 마지막 유닛 번호를 모르므로 넉넉히 잡지 않고 멈춘다.
+        // 섹션 첫날의 복습은 그 섹션 안에서만 본다.
+        break;
+      }
+      scope.push({ section: s, unit: u });
+    }
+    return scope;
+  }
 
-    // find 는 순서를 보장하지 않으므로 "최근에 틀린 순"을 다시 세운다
-    const byId = new Map(rows.map((q: any) => [q._id.toString(), q]));
-    const questions = wanted
-      .map((id) => byId.get(id))
-      .filter((q): q is any => Boolean(q));
-
-    return { questions: questions.map((q) => this.formatQuestion(q, lang)) };
+  /** 마지막 학습일로부터 며칠 지났나. 기록이 없으면 0 */
+  private daysSince(date?: Date | null): number {
+    if (!date) return 0;
+    const diff = Date.now() - new Date(date).getTime();
+    return Math.max(0, Math.floor(diff / (24 * 60 * 60 * 1000)));
   }
 
   /** 정답·지문·보기가 모두 같으면 같은 문제로 보고 하나만 남긴다 */

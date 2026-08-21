@@ -48,6 +48,8 @@ interface Props {
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
+  /** 다음 문제로. 이 유형은 아래 피드백 바를 쓰지 않는다 */
+  onNext: () => void;
 }
 
 /**
@@ -58,6 +60,7 @@ export default function GrammarBuild({
   question,
   answerState,
   onAnswer,
+  onNext,
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -232,6 +235,17 @@ export default function GrammarBuild({
               </Animated.View>
             )}
 
+            {/* 다 고르고 틀렸을 때 — 아래 피드백 바 대신 여기서 정답을 알려준다 */}
+            {answerState === "wrong" && allPicked && (
+              <Animated.View style={st.wrongBubble}>
+                <Text style={st.wrongLabel}>
+                  {t("writePractice.correctAnswer")}
+                </Text>
+                <Text style={st.wrongAnswer}>{q.full}</Text>
+                {!!q.prompt && <Text style={st.wrongPrompt}>{q.prompt}</Text>}
+              </Animated.View>
+            )}
+
             {/* 카드 하단 미니 버튼 (picking 시) */}
             {!isOk && (
               <View style={st.miniRow}>
@@ -287,7 +301,7 @@ export default function GrammarBuild({
             ))}
           </View>
           */}
-          <View style={[st.bigRow, { paddingBottom: insets.bottom + 8 }]}>
+          <View style={st.bigRow}>
             <BigBtn
               colors={["#a07af0", "#8b6ae8"]}
               icon={<Ionicons name="book" size={28} color="#fff" />}
@@ -301,6 +315,18 @@ export default function GrammarBuild({
               onPress={() => speak(q.full)}
             />
           </View>
+
+          <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+            <Pressable style={[st.nextBtn, st.nextOk]} onPress={onNext}>
+              <Text style={st.nextText}>{t("lesson.continue")}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : answerState === "wrong" && allPicked ? (
+        <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+          <Pressable style={[st.nextBtn, st.nextWrong]} onPress={onNext}>
+            <Text style={st.nextText}>{t("lesson.continue")}</Text>
+          </Pressable>
         </View>
       ) : (
         <View style={st.pickArea}>
@@ -524,6 +550,38 @@ const st = StyleSheet.create({
     lineHeight: 28,
   },
 
+  wrongBubble: {
+    backgroundColor: C.noBg,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 20,
+    gap: 3,
+  },
+  wrongLabel: {
+    fontSize: 12,
+    color: C.noText,
+    fontWeight: "800",
+    opacity: 0.8,
+    letterSpacing: 0.3,
+  },
+  wrongAnswer: { fontSize: 21, color: C.noText, fontWeight: "900" },
+  wrongPrompt: {
+    fontSize: 14.5,
+    color: C.noText,
+    fontWeight: "700",
+    opacity: 0.85,
+  },
+  nextRow: { paddingHorizontal: 16, paddingTop: 10 },
+  nextBtn: {
+    minHeight: 54,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomWidth: 4,
+  },
+  nextOk: { backgroundColor: C.green, borderColor: "#2f9e46" },
+  nextWrong: { backgroundColor: "#ff5d6e", borderColor: "#cf4353" },
+  nextText: { color: "#fff", fontSize: 17, fontWeight: "900" },
   hintBubble: {
     backgroundColor: C.hintBg,
     borderRadius: 16,

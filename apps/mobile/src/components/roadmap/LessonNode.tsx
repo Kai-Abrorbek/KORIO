@@ -27,6 +27,8 @@ interface Props {
   completedSteps?: number;
   totalSteps?: number;
   iconName?: RoadmapIconName;
+  /** 진행 링을 감춘다. 학습 로드 모드처럼 노드 하나가 통째로 하나일 때 */
+  hideRing?: boolean;
   onPress?: () => void;
 }
 
@@ -57,6 +59,7 @@ export default function LessonNode({
   isLegendDone = false,
   totalSteps = 2,
   iconName: customIconName,
+  hideRing = false,
   onPress,
 }: Props) {
   const theme = useTheme();
@@ -213,7 +216,7 @@ export default function LessonNode({
 
   return (
     <View style={styles.wrap}>
-      {isCurrent && (
+      {isCurrent && !hideRing && (
         <View style={styles.ringWrap} pointerEvents="none">
           <AnimatedNodeRing
             color={unitColor}

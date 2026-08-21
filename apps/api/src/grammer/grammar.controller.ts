@@ -42,8 +42,13 @@ export class GrammarController {
     return this.grammarService.completeGrammar(req.user._id.toString(), code);
   }
 
+  // scoped=1 이면 "다음 문법" 을 그 문법이 속한 유닛 안에서만 찾는다
   @Get(':code')
-  async getOne(@Param('code') code: string, @Query('lang') lang = 'uz') {
-    return this.grammarService.getGrammar(code, lang);
+  async getOne(
+    @Param('code') code: string,
+    @Query('lang') lang = 'uz',
+    @Query('scoped') scoped?: string,
+  ) {
+    return this.grammarService.getGrammar(code, lang, scoped === '1');
   }
 }

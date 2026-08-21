@@ -73,12 +73,30 @@ export class GrammarService {
     };
   }
 
-  /** 단일 문법 — 다음 문법은 order 순으로 자동 연결 */
-  async getGrammar(code: string, lang = 'uz') {
+  /**
+   * 단일 문법 — 다음 문법은 order 순으로 자동 연결.
+   *
+   * scopedToUnit 이면 같은 유닛 안에서만 다음을 찾는다. 학습 로드 모드에서
+   * 하루치 문법만 도는 데 필요하다 — 안 그러면 "다음 문법" 이 유닛 밖으로
+   * 계속 넘어가서 그날 분량이 끝나지 않는다.
+   */
+  async getGrammar(code: string, lang = 'uz', scopedToUnit = false) {
     const g = await this.grammarModel.findOne({ code, isActive: true }).lean();
     if (!g) throw new NotFoundException('grammar not found');
+
+    const nextFilter: Record<string, any> = {
+      order: { $gt: g.order },
+      isActive: true,
+    };
+    // 범위는 이 문법 자신의 유닛에서 가져온다. 앱이 섹션·유닛을 따로 들고
+    // 다닐 필요가 없다.
+    if (scopedToUnit) {
+      nextFilter.section = (g as any).section ?? 1;
+      nextFilter.unit = (g as any).unit ?? 1;
+    }
+
     const next = await this.grammarModel
-      .findOne({ order: { $gt: g.order }, isActive: true })
+      .findOne(nextFilter)
       .sort({ order: 1 })
       .select('code pattern')
       .lean();

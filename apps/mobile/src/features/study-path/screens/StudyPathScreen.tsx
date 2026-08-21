@@ -14,7 +14,6 @@ import { useTranslation } from "react-i18next";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
-import StudyModeSwitch from "@/components/roadmap/StudyModeSwitch";
 import UnitRoadmap, {
   type RoadmapNodePopoverContext,
 } from "@/components/roadmap/UnitRoadmap";
@@ -55,10 +54,7 @@ export default function StudyPathScreen() {
     if (!data) return null;
     return buildStudyPathViewModel(
       data.days,
-      (node) =>
-        node.kind === "lesson" && node.title
-          ? node.title
-          : t(`studyPath.node.${node.kind}`),
+      (node) => t(`studyPath.node.${node.kind}`),
       (day) =>
         day.title
           ? t("studyPath.dayWithTitle", { n: day.dayNumber, title: day.title })
@@ -134,31 +130,25 @@ export default function StudyPathScreen() {
   const openNode = useCallback(
     (node: StudyNode, day: StudyDay) => {
       setSelectedNodeId(null);
-      const scope = { section: String(day.section), unit: String(day.unit) };
+      const section = String(day.section);
+      const unit = String(day.unit);
 
-      if (node.kind === "grammar") {
-        router.push({ pathname: "/grammar-list", params: scope });
-        return;
-      }
       if (node.kind === "words") {
-        router.push({ pathname: "/word-study", params: scope });
+        router.push({
+          pathname: "/word-study",
+          params: { section, unit, from: "studyPath" },
+        });
         return;
       }
-      if (node.special === "hangul") {
-        router.push("/hangul");
-        return;
-      }
-      if (node.kind === "lesson") {
-        guardLessonStart(energy, () => {
-          router.push({
-            pathname: "/lesson",
-            params: { lessonId: node.lessonId ?? "", from: "studyPath" },
-          });
+      if (node.kind === "grammar") {
+        router.push({
+          pathname: "/grammar-list",
+          params: { section, unit, from: "studyPath" },
         });
         return;
       }
 
-      // practice · review · final — 그 유닛 문제만 뽑아서 푼다
+      // 나머지는 전부 레슨 화면에서 그 하루 범위의 문제를 푼다
       guardLessonStart(energy, () => {
         router.push({
           pathname: "/lesson",
@@ -166,7 +156,8 @@ export default function StudyPathScreen() {
             mode: "unitPractice",
             kind: node.kind,
             from: "studyPath",
-            ...scope,
+            section,
+            unit,
           },
         });
       });
@@ -187,11 +178,10 @@ export default function StudyPathScreen() {
     ({ node, unit, triangleOffsetX }: RoadmapNodePopoverContext) => {
       const entry = viewModel?.nodeById.get(node.id);
       if (!entry) return null;
-      const step = entry.day.nodes.findIndex((n) => n.id === entry.node.id) + 1;
       return (
         <StudyNodePopover
           node={entry.node}
-          step={step}
+          step={entry.step}
           stepCount={entry.day.nodes.length}
           color={unit.color}
           triangleOffsetX={triangleOffsetX}
@@ -210,6 +200,7 @@ export default function StudyPathScreen() {
         selectedNodeId={selectedNodeId}
         onNodeTap={handleNodeTap}
         renderNodePopover={renderNodePopover}
+        hideNodeRing
       />
     ),
     [handleNodeTap, renderNodePopover, selectedNodeId, user?.avatar],
@@ -250,7 +241,6 @@ export default function StudyPathScreen() {
     <View style={styles.container}>
       <RoadmapBackdrop theme={theme} />
       <RoadmapHeader stats={userStats} energy={energy} />
-      <StudyModeSwitch />
 
       {bannerDay && bannerUnit ? (
         <DayBanner

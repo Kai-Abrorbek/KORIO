@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -20,6 +21,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import StudyModeModal from "@/components/courses/StudyModeModal";
+import type { StudyMode } from "@/store/settings.store";
+import { commitStudyMode } from "@/utils/learn-mode";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -47,6 +51,7 @@ function LangCard({
   index,
   theme,
   s,
+  onPress,
 }: {
   item: (typeof LANGUAGES)[number];
   label: string;
@@ -54,6 +59,7 @@ function LangCard({
   index: number;
   theme: ThemeColors;
   s: ReturnType<typeof getStyles>;
+  onPress: () => void;
 }) {
   const pressed = useSharedValue(0);
   const aStyle = useAnimatedStyle(() => ({
@@ -69,10 +75,7 @@ function LangCard({
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push({
-            pathname: "/course-categories",
-            params: { lang: item.code, label },
-          });
+          onPress();
         }}
         style={[s.langCard, aStyle]}
       >
@@ -99,6 +102,23 @@ export default function CoursesScreen() {
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
   const count = t("courses.fieldCount", { count: 6 });
+  // 코스를 고른 다음 "어떻게 배울지"를 묻는다. 학습 방식은 시작하는 순간의
+  // 선택이어야 한다 — 뭘 해야 할지 모르는 사람이 정확히 여기서 갈린다.
+  const [pending, setPending] = useState<{
+    code: string;
+    label: string;
+  } | null>(null);
+
+  const chooseMode = (mode: StudyMode) => {
+    const target = pending;
+    setPending(null);
+    if (!target) return;
+    commitStudyMode(mode);
+    router.push({
+      pathname: "/course-categories",
+      params: { lang: target.code, label: target.label },
+    });
+  };
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 8 }]}>
@@ -132,10 +152,23 @@ export default function CoursesScreen() {
               s={s}
               label={t(`courses.languages.${item.key}`)}
               count={count}
+              onPress={() =>
+                setPending({
+                  code: item.code,
+                  label: t(`courses.languages.${item.key}`),
+                })
+              }
             />
           ))}
         </View>
       </ScrollView>
+
+      <StudyModeModal
+        visible={!!pending}
+        courseLabel={pending?.label ?? ""}
+        onClose={() => setPending(null)}
+        onSelect={chooseMode}
+      />
     </View>
   );
 }

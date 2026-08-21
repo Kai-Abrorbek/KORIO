@@ -17,12 +17,22 @@ interface Props {
 }
 
 const ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
-  grammar: "book",
-  words: "albums",
-  lesson: "star",
-  practice: "barbell",
   review: "refresh",
+  words: "albums",
+  grammar: "book",
+  vocabQuiz: "create",
+  grammarQuiz: "construct",
   final: "flag",
+};
+
+/** 노드가 다루는 것의 단위. "단어 12개" / "문제 20개" 로 보여준다 */
+const COUNT_LABEL: Record<string, string> = {
+  review: "studyPath.countQuestions",
+  words: "studyPath.countWords",
+  grammar: "studyPath.countGrammar",
+  vocabQuiz: "studyPath.countQuestions",
+  grammarQuiz: "studyPath.countQuestions",
+  final: "studyPath.countQuestions",
 };
 
 export default function StudyNodePopover({
@@ -37,12 +47,7 @@ export default function StudyNodePopover({
   const theme = useTheme();
   const styles = getStyles(theme);
   const completed = node.status === "completed";
-  const started = !completed && node.completed > 0;
-  const ratio = node.total > 0 ? Math.min(1, node.completed / node.total) : 0;
-  const title =
-    node.kind === "lesson" && node.title
-      ? node.title
-      : t(`studyPath.node.${node.kind}`);
+  const title = t(`studyPath.node.${node.kind}`);
 
   return (
     <View
@@ -78,18 +83,17 @@ export default function StudyNodePopover({
 
       <Text style={styles.description}>{t(`studyPath.desc.${node.kind}`)}</Text>
 
-      {node.total > 1 ? (
-        <>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${ratio * 100}%` }]} />
+      {node.count > 0 ? (
+        <View style={styles.metaRow}>
+          <View style={styles.metaChip}>
+            <Ionicons name="layers-outline" size={15} color="#FFFFFF" />
+            <Text style={styles.metaText}>
+              {t(COUNT_LABEL[node.kind] ?? "studyPath.countQuestions", {
+                count: node.count,
+              })}
+            </Text>
           </View>
-          <Text style={styles.progressText}>
-            {t("studyPath.progressOf", {
-              done: node.completed,
-              total: node.total,
-            })}
-          </Text>
-        </>
+        </View>
       ) : null}
 
       <TouchableOpacity
@@ -98,13 +102,7 @@ export default function StudyNodePopover({
         activeOpacity={0.85}
       >
         <Text style={[styles.startText, { color }]}>
-          {t(
-            completed
-              ? "studyPath.again"
-              : started
-                ? "studyPath.continue"
-                : "studyPath.start",
-          )}
+          {t(completed ? "studyPath.again" : "studyPath.start")}
         </Text>
         <Ionicons name="arrow-forward" size={19} color={color} />
       </TouchableOpacity>
@@ -160,25 +158,17 @@ const getStyles = (_theme: ThemeColors) =>
       lineHeight: 19,
       fontWeight: "600",
     },
-    progressTrack: {
-      marginTop: 13,
-      height: 6,
-      borderRadius: 99,
-      overflow: "hidden",
-      backgroundColor: "rgba(255,255,255,0.2)",
+    metaRow: { marginTop: 12, flexDirection: "row", gap: 8 },
+    metaChip: {
+      minHeight: 30,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      backgroundColor: "rgba(255,255,255,0.15)",
     },
-    progressFill: {
-      height: "100%",
-      borderRadius: 99,
-      backgroundColor: "#FFFFFF",
-    },
-    progressText: {
-      marginTop: 6,
-      color: "rgba(255,255,255,0.8)",
-      fontSize: 11,
-      fontWeight: "800",
-      textAlign: "right",
-    },
+    metaText: { color: "#FFFFFF", fontSize: 11.5, fontWeight: "800" },
     startButton: {
       marginTop: 14,
       minHeight: 50,

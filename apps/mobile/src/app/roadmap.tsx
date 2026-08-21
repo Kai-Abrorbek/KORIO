@@ -20,7 +20,6 @@ import {
 } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
-import StudyModeSwitch from "@/components/roadmap/StudyModeSwitch";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
@@ -394,9 +393,6 @@ export default function RoadmapScreen() {
     <View style={styles.container}>
       <RoadmapBackdrop theme={theme} />
       <RoadmapHeader stats={userStats} energy={energy} />
-
-      {/* 학습 로드 모드는 어휘 트랙 위에만 있다 — 문법 트랙에선 숨긴다 */}
-      {!category || category === "vocabulary" ? <StudyModeSwitch /> : null}
 
       {/* 고정 배너 */}
       {currentUnit && (

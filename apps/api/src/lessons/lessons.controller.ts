@@ -16,6 +16,7 @@ import { CompletePracticeDto } from './dto/complete-practice.dto';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { GradeAnswerDto } from './dto/grade-answer.dto';
 import { AnswerGradingService } from './answer-grading.service';
+import { isStudyQuizKind } from '../study-path/study-path.types';
 
 @Controller('lessons')
 export class LessonsController {
@@ -114,7 +115,7 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   // 학습 로드 모드 — 하루(=유닛) 노드용 문제.
-  // kind: practice(실전) | review(지난 오답) | final(마무리 확인)
+  // kind: review | vocabQuiz | grammarQuiz | final
   @Get('unit-practice')
   async getUnitPractice(
     @Request() req,
@@ -128,14 +129,15 @@ export class LessonsController {
     if (!Number.isInteger(s) || s < 1 || !Number.isInteger(u) || u < 1) {
       throw new BadRequestException('INVALID_UNIT_SCOPE');
     }
-    const mode =
-      kind === 'review' || kind === 'final' ? kind : ('practice' as const);
+    if (!isStudyQuizKind(kind)) {
+      throw new BadRequestException('INVALID_STUDY_KIND');
+    }
 
     return this.lessonsService.getUnitPractice(
       req.user._id.toString(),
       s,
       u,
-      mode,
+      kind,
       lang ?? 'uz',
     );
   }

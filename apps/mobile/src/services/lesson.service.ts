@@ -10,8 +10,9 @@ export type PracticeMode =
   | "review"
   | "nodeReview"
   | "wordPractice"
-  | "unitPractice"
   | "unitReview"
+  | "unitVocab"
+  | "unitGrammar"
   | "unitFinal";
 
 // 현재 유저 언어 가져오기
@@ -121,7 +122,7 @@ export const LessonService = {
   getUnitPractice: (
     section: number,
     unit: number,
-    kind: "practice" | "review" | "final",
+    kind: "review" | "vocabQuiz" | "grammarQuiz" | "final",
   ): Promise<{ questions: any[] }> =>
     api.get(
       `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}&lang=${getLang()}`,
