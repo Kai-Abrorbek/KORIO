@@ -51,40 +51,44 @@ export function isStudyQuizKind(value: unknown): value is StudyQuizKind {
   return STUDY_QUIZ_KINDS.includes(value as StudyQuizKind);
 }
 
-/** 노드별 레슨 수. 1 이면 쪼개지 않는다 */
-export const NODE_LESSON_COUNT: Record<StudyNodeKind, number> = {
-  review: 1,
-  words: 5,
-  grammar: 1,
-  vocabQuiz1: 5,
-  vocabQuiz2: 5,
-  grammarQuiz: 5, // 문제가 적으면 아래에서 줄어든다
-  final: 1,
+/**
+ * 노드를 몇 개 레슨으로 쪼갤지 정하는 규칙.
+ *
+ * - fixed      항목이 몇 개든 정해진 수로 나눈다 (항목이 더 적으면 그만큼)
+ * - perLesson  레슨 하나가 맡을 항목 수를 정하고, 넘치면 레슨을 늘린다
+ *
+ * 단어는 perLesson 이다 — 유닛마다 단어가 16개에서 119개까지 차이 나는데
+ * 늘 5등분하면 어떤 날은 3개, 어떤 날은 24개를 외우게 된다. 한 번에 외울
+ * 분량을 고정하는 쪽이 맞다.
+ */
+type SplitRule =
+  | { mode: 'fixed'; lessons: number }
+  | { mode: 'perLesson'; size: number; max?: number };
+
+const SPLIT_RULE: Record<StudyNodeKind, SplitRule> = {
+  review: { mode: 'fixed', lessons: 1 },
+  /** 한 번에 외울 단어 수 */
+  words: { mode: 'perLesson', size: 30 },
+  grammar: { mode: 'fixed', lessons: 1 },
+  /** 어휘 문제는 유닛 전체를 두 노드가 절반씩, 각각 5번에 나눠 훑는다 */
+  vocabQuiz1: { mode: 'fixed', lessons: 5 },
+  vocabQuiz2: { mode: 'fixed', lessons: 5 },
+  /** 문법은 유닛당 문제 수 편차가 커서 분량 기준으로 나눈다 */
+  grammarQuiz: { mode: 'perLesson', size: 8, max: 5 },
+  final: { mode: 'fixed', lessons: 1 },
 };
 
-/**
- * 항목이 적어도 정해진 수만큼 쪼개는 노드.
- * 단어와 어휘 문제는 "그 유닛 전체를 5번에 나눠 훑는다" 가 규칙이라, 유닛이
- * 작다고 레슨 수가 달라지면 진행이 들쭉날쭉해진다.
- */
-const FIXED_SPLIT_KINDS = new Set<StudyNodeKind>([
-  'words',
-  'vocabQuiz1',
-  'vocabQuiz2',
-]);
-
-/** 조건부로 쪼개는 노드(문법 문제)에서 레슨 하나의 최소 문항 수 */
-export const MIN_ITEMS_PER_LESSON = 8;
-
-/**
- * 항목 수에 맞는 실제 레슨 수.
- * 고정 분할 노드는 항목이 레슨 수보다 적을 때만 줄인다(단어 3개 → 3레슨).
- */
+/** 항목 수에 맞는 실제 레슨 수 */
 export function lessonCountFor(kind: StudyNodeKind, items: number): number {
-  const max = NODE_LESSON_COUNT[kind];
-  if (max <= 1 || items <= 0) return 1;
-  if (FIXED_SPLIT_KINDS.has(kind)) return Math.max(1, Math.min(max, items));
-  return Math.max(1, Math.min(max, Math.floor(items / MIN_ITEMS_PER_LESSON)));
+  if (items <= 0) return 1;
+  const rule = SPLIT_RULE[kind];
+
+  if (rule.mode === 'fixed') {
+    return Math.max(1, Math.min(rule.lessons, items));
+  }
+
+  const needed = Math.ceil(items / rule.size);
+  return Math.max(1, rule.max ? Math.min(rule.max, needed) : needed);
 }
 
 /**
