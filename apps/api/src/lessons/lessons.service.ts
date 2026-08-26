@@ -18,6 +18,10 @@ import {
 } from '../users/schemas/user-stats.schema';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import {
+  UserMistake,
+  UserMistakeDocument,
+} from '../users/schemas/user-mistake.schema';
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { rollChestReward } from './xp.util';
@@ -32,6 +36,12 @@ import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 40;
+
+/** 틀린 문제를 "해소"로 보기까지 필요한 연속 정답 수 */
+const MISTAKE_RESOLVE_STREAK = 2;
+
+/** 오답 노트에 한 번에 보여줄 최대 문항 수 */
+const MISTAKE_NOTE_LIMIT = 200;
 
 const SMART_GRADING_TYPES = new Set([
   'type_answer',
@@ -63,6 +73,8 @@ export class LessonsService {
     private userProgressModel: Model<UserProgressDocument>,
     @InjectModel(UserStats.name)
     private userStatsModel: Model<UserStatsDocument>,
+    @InjectModel(UserMistake.name)
+    private userMistakeModel: Model<UserMistakeDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private leagueService: LeagueService,
@@ -440,6 +452,97 @@ export class LessonsService {
       },
       { upsert: true, returnDocument: 'after' },
     );
+
+    // 오답 장부는 모드와 무관하게 여기 한 곳에서 갱신한다
+    await this.recordMistakes(
+      userId,
+      params.questionIds ?? [],
+      params.wrongQuestionIds ?? [],
+    );
+  }
+
+  /**
+   * 틀린 문제 장부 갱신.
+   *
+   * 레슨을 거치지 않는 모드(학습 로드의 유닛 문제 등)도 오답이 남아야
+   * 복습·마무리가 "틀린 것부터" 뽑을 수 있다. 그래서 lessonId 없이
+   * userId × questionId 로만 기록한다.
+   */
+  private async recordMistakes(
+    userId: string,
+    questionIds: Types.ObjectId[],
+    wrongIds: string[],
+  ) {
+    if (!questionIds.length) return;
+
+    const user = new Types.ObjectId(userId);
+    const now = new Date();
+    const wrong = new Set(wrongIds.map(String));
+
+    const ops = questionIds.map((questionId) => {
+      if (wrong.has(questionId.toString())) {
+        return {
+          updateOne: {
+            filter: { userId: user, questionId },
+            update: {
+              $inc: { wrongCount: 1 },
+              // 다시 틀렸으면 연속 정답은 처음부터. 해소도 취소한다
+              $set: { streak: 0, lastWrongAt: now, resolvedAt: null },
+            },
+            upsert: true,
+          },
+        };
+      }
+
+      // 맞힌 문제는 장부에 이미 있을 때만 손댄다. 한 번도 안 틀린 문제를
+      // 새로 만들면 장부가 전체 문제 수만큼 커진다.
+      return {
+        updateOne: {
+          filter: { userId: user, questionId, resolvedAt: null },
+          update: { $inc: { streak: 1 } },
+        },
+      };
+    });
+
+    await this.userMistakeModel.bulkWrite(ops as any, { ordered: false });
+
+    // 연속 두 번 맞히면 해소. 한 번으로 지우면 요행이 걸러지지 않는다
+    await this.userMistakeModel.updateMany(
+      {
+        userId: user,
+        resolvedAt: null,
+        streak: { $gte: MISTAKE_RESOLVE_STREAK },
+      },
+      { $set: { resolvedAt: now } },
+    );
+  }
+
+  /**
+   * 아직 해소되지 않은 오답 문제 id. 최근에 틀린 순.
+   * scope 를 주면 그 문제들 안에서만 찾는다.
+   */
+  private async openMistakeIds(
+    userId: string,
+    scope: Types.ObjectId[] | null,
+    limit: number,
+  ): Promise<string[]> {
+    const filter: Record<string, any> = {
+      userId: new Types.ObjectId(userId),
+      resolvedAt: null,
+    };
+    if (scope) {
+      if (!scope.length) return [];
+      filter.questionId = { $in: scope };
+    }
+
+    const rows = await this.userMistakeModel
+      .find(filter)
+      .select('questionId')
+      .sort({ lastWrongAt: -1 })
+      .limit(limit)
+      .lean();
+
+    return rows.map((row: any) => row.questionId.toString());
   }
 
   public async getLevelTestQuestions(
@@ -680,17 +783,9 @@ export class LessonsService {
 
   // 유저의 모든 틀린 문제 (중복 제거)
   public async getMistakes(userId: string) {
-    const progresses = await this.userProgressModel
-      .find({ userId: new Types.ObjectId(userId) })
-      .select('wrongQuestionIds')
-      .lean();
-
-    // 모든 wrongQuestionIds 합치고 중복 제거
-    const idSet = new Set<string>();
-    progresses.forEach((p) =>
-      (p.wrongQuestionIds ?? []).forEach((id) => idSet.add(id)),
-    );
-    const ids = [...idSet].filter((id) => Types.ObjectId.isValid(id));
+    // 장부에서 읽는다. UserProgress 를 훑던 시절엔 레슨을 거치지 않는 모드
+    // (학습 로드의 유닛 문제 등)에서 틀린 게 오답 노트에 안 잡혔다.
+    const ids = await this.openMistakeIds(userId, null, MISTAKE_NOTE_LIMIT);
 
     if (ids.length === 0) return { count: 0, questions: [] };
 
@@ -792,10 +887,16 @@ export class LessonsService {
     const validIds = correctIds.filter((id) => Types.ObjectId.isValid(id));
     if (validIds.length === 0) return { removed: 0 };
 
-    // 이 유저의 모든 progress에서 해당 오답 id들 제거
-    await this.userProgressModel.updateMany(
-      { userId: new Types.ObjectId(userId) },
-      { $pull: { wrongQuestionIds: { $in: validIds } } },
+    // 오답 노트에서 맞힌 것들은 그 자리에서 해소로 본다. 노트는 유저가
+    // 의식하고 다시 푸는 자리라 연속 두 번을 기다릴 필요가 없다.
+    const now = new Date();
+    await this.userMistakeModel.updateMany(
+      {
+        userId: new Types.ObjectId(userId),
+        questionId: { $in: validIds.map((id) => new Types.ObjectId(id)) },
+        resolvedAt: null,
+      },
+      { $set: { resolvedAt: now, streak: MISTAKE_RESOLVE_STREAK } },
     );
 
     return { removed: validIds.length };
@@ -803,16 +904,7 @@ export class LessonsService {
 
   // 복습용: 틀린 문제 전체 (실제로 풀 수 있는 형태)
   async getMistakeQuestions(userId: string, lang: string = 'uz') {
-    const progresses = await this.userProgressModel
-      .find({ userId: new Types.ObjectId(userId) })
-      .select('wrongQuestionIds')
-      .lean();
-
-    const idSet = new Set<string>();
-    progresses.forEach((p) =>
-      (p.wrongQuestionIds ?? []).forEach((id) => idSet.add(id)),
-    );
-    const ids = [...idSet].filter((id) => Types.ObjectId.isValid(id));
+    const ids = await this.openMistakeIds(userId, null, MISTAKE_NOTE_LIMIT);
     if (ids.length === 0) return { questions: [] };
 
     const questions = await this.questionModel
@@ -1108,58 +1200,53 @@ export class LessonsService {
     const scope = this.previousUnits(section, unit, span);
     if (!scope.length) return { questions: [] };
 
-    const pastLessons = await this.lessonModel
-      .find({ _id: { $in: await this.lessonIdsInUnits(scope) } })
-      .select('_id')
-      .lean();
-    if (!pastLessons.length) return { questions: [] };
-
-    const wrongFirst = await this.wrongQuestionIds(
-      userId,
-      pastLessons.map((l) => l._id),
-      limit,
-    );
-
-    const rows = wrongFirst.length
-      ? await this.questionModel
-          .find({
-            _id: { $in: wrongFirst.map((id) => new Types.ObjectId(id)) },
-            isActive: true,
-          })
-          .lean()
-      : [];
-
-    // find 는 순서를 보장하지 않으므로 "최근에 틀린 순"을 다시 세운다
-    const byId = new Map(rows.map((q: any) => [q._id.toString(), q]));
-    const picked = wrongFirst
-      .map((id) => byId.get(id))
-      .filter((q): q is any => Boolean(q));
-
-    // 틀린 게 없거나 모자라면 그 구간 문제로 채운다. 복습 노드는 하루의 첫
-    // 관문이라 비워두면 흐름이 거기서 끊긴다.
-    if (picked.length < limit) {
-      const seen = new Set(picked.map((q: any) => q._id.toString()));
-      for (const target of scope) {
-        if (picked.length >= limit) break;
-        const pool = await this.collectUnitQuestions(
+    // 되돌아볼 구간의 문제를 먼저 모으고, 그 안에서 오답을 앞에 세운다
+    const pool: any[] = [];
+    for (const target of scope) {
+      pool.push(
+        ...(await this.collectUnitQuestions(
           target.section,
           target.unit,
           'vocabulary',
-        );
-        for (const q of this.pickBalanced(pool, limit)) {
-          if (picked.length >= limit) break;
-          if (seen.has(q._id.toString())) continue;
-          seen.add(q._id.toString());
-          picked.push(q);
-        }
+        )),
+      );
+    }
+    if (!pool.length) return { questions: [] };
+
+    const picked = await this.mistakesFirst(userId, pool, limit);
+    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /**
+   * 아직 못 맞힌 문제를 앞에 세우고, 모자라면 그 구간 문제로 채운다.
+   * 복습 계열 노드가 공통으로 쓰는 규칙 — 비워두면 하루 흐름이 끊긴다.
+   */
+  private async mistakesFirst(userId: string, pool: any[], limit: number) {
+    const byId = new Map(pool.map((q: any) => [q._id.toString(), q]));
+    const openIds = await this.openMistakeIds(
+      userId,
+      pool.map((q: any) => q._id),
+      limit,
+    );
+
+    const picked: any[] = [];
+    const seen = new Set<string>();
+    for (const id of openIds) {
+      const q = byId.get(id);
+      if (!q || seen.has(id)) continue;
+      seen.add(id);
+      picked.push(q);
+    }
+
+    if (picked.length < limit) {
+      const rest = pool.filter((q: any) => !seen.has(q._id.toString()));
+      for (const q of this.pickBalanced(rest, limit)) {
+        if (picked.length >= limit) break;
+        picked.push(q);
       }
     }
 
-    return {
-      questions: picked
-        .slice(0, limit)
-        .map((q) => this.formatQuestion(q, lang)),
-    };
+    return picked.slice(0, limit);
   }
 
   /**
@@ -1174,30 +1261,12 @@ export class LessonsService {
     lang: string,
   ) {
     const limit = STUDY_QUIZ_SIZE.review;
-    const pool = await this.collectUnitQuestions(section, unit, 'vocabulary');
-    if (!pool.length) return { questions: [] };
+    const all = await this.collectUnitQuestions(section, unit, 'vocabulary');
+    if (!all.length) return { questions: [] };
 
-    const unitLessons = await this.lessonModel
-      .find({ _id: { $in: await this.lessonIdsInUnits([{ section, unit }]) } })
-      .select('_id')
-      .lean();
-    const wrongIds = new Set(
-      await this.wrongQuestionIds(
-        userId,
-        unitLessons.map((l) => l._id),
-        limit,
-      ),
-    );
-
-    const wrong = pool.filter((q: any) => wrongIds.has(q._id.toString()));
-    // 1일차가 맡은 앞쪽 구간에서 채운다 — 아직 안 본 뒤쪽을 미리 보여주지 않게
-    const firstHalf = pool.slice(0, Math.ceil(pool.length / 2));
-    const rest = firstHalf.filter((q: any) => !wrongIds.has(q._id.toString()));
-
-    const picked = [
-      ...this.shuffle(wrong).slice(0, limit),
-      ...this.pickBalanced(rest, limit),
-    ].slice(0, limit);
+    // 1일차가 맡은 앞쪽 구간에서만 고른다 — 아직 안 본 뒤쪽을 미리 보여주지 않게
+    const pool = all.slice(0, Math.ceil(all.length / 2));
+    const picked = await this.mistakesFirst(userId, pool, limit);
 
     return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
   }
@@ -1221,68 +1290,8 @@ export class LessonsService {
     const pool = [...vocab, ...grammar];
     if (!pool.length) return { questions: [] };
 
-    const unitLessons = await this.lessonModel
-      .find({ _id: { $in: await this.lessonIdsInUnits([{ section, unit }]) } })
-      .select('_id')
-      .lean();
-    const wrongIds = new Set(
-      await this.wrongQuestionIds(
-        userId,
-        unitLessons.map((l) => l._id),
-        limit,
-      ),
-    );
-
-    const wrong = pool.filter((q: any) => wrongIds.has(q._id.toString()));
-    const rest = pool.filter((q: any) => !wrongIds.has(q._id.toString()));
-    const picked = [
-      ...this.shuffle(wrong).slice(0, limit),
-      ...this.pickBalanced(rest, limit),
-    ].slice(0, limit);
-
+    const picked = await this.mistakesFirst(userId, pool, limit);
     return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
-  }
-
-  /** (섹션, 유닛) 목록에 속한 레슨 id 들 */
-  private async lessonIdsInUnits(
-    scope: { section: number; unit: number }[],
-  ): Promise<Types.ObjectId[]> {
-    if (!scope.length) return [];
-    const nodes = await this.nodeModel
-      .find({ isActive: true, $or: scope })
-      .select('lessonIds')
-      .lean();
-    return nodes.flatMap((n) => (n.lessonIds ?? []) as Types.ObjectId[]);
-  }
-
-  /** 최근에 틀린 순으로 문제 id. 같은 문제는 한 번만 */
-  private async wrongQuestionIds(
-    userId: string,
-    lessonIds: Types.ObjectId[],
-    limit: number,
-  ): Promise<string[]> {
-    if (!lessonIds.length) return [];
-    const progresses = await this.userProgressModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        lessonId: { $in: lessonIds },
-        wrongQuestionIds: { $ne: [] },
-      })
-      .select('wrongQuestionIds completedAt')
-      .sort({ completedAt: -1 })
-      .lean();
-
-    const ordered: string[] = [];
-    const seen = new Set<string>();
-    for (const p of progresses) {
-      for (const id of p.wrongQuestionIds ?? []) {
-        if (!Types.ObjectId.isValid(id) || seen.has(id)) continue;
-        seen.add(id);
-        ordered.push(id);
-        if (ordered.length >= limit) return ordered;
-      }
-    }
-    return ordered;
   }
 
   /** (섹션, 유닛) 바로 앞의 유닛 span 개. 섹션 경계를 넘어서도 이어진다 */

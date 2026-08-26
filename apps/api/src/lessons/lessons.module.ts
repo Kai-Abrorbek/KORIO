@@ -10,6 +10,10 @@ import {
   UserProgressSchema,
 } from '../users/schemas/user-progress.schema';
 import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
+import {
+  UserMistake,
+  UserMistakeSchema,
+} from '../users/schemas/user-mistake.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { LeagueModule } from '../league/league.module';
 import { UsersModule } from '../users/users.module';
@@ -26,6 +30,7 @@ import { AnswerGradingService } from './answer-grading.service';
       { name: Question.name, schema: QuestionSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: UserMistake.name, schema: UserMistakeSchema },
       { name: User.name, schema: UserSchema },
     ]),
     LeagueModule,
