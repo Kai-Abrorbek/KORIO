@@ -133,6 +133,21 @@ export default function GrammarBlank({
 
   const isOk = state === "correct" || solvedLate;
 
+  /**
+   * 키보드가 올라오면 네비바는 키보드에 덮인다. 그때까지 SafeArea 여백을 두면
+   * 키보드 위에 빈 띠가 생긴다. 키보드가 없을 때만 네비바를 피한다.
+   */
+  const [kbUp, setKbUp] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => setKbUp(true));
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKbUp(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  const barBottom = kbUp ? 8 : insets.bottom + 8;
+
   // 문제 바뀌면 리셋 + 키보드 다시
   // 뒤로가기로 키보드만 닫히면 RN 은 여전히 포커스를 쥐고 있다고 보고
   // focus() 를 무시한다. blur 로 한 번 놓아준 뒤 다시 잡아야 키보드가 올라온다.
@@ -255,7 +270,8 @@ export default function GrammarBlank({
         <ScrollView
           contentContainerStyle={[
             st.scroll,
-            { paddingBottom: insets.bottom + 12 },
+            // 하단 바가 스크롤 밖에 따로 있어서 여기서 네비바를 또 피할 필요는 없다
+            { paddingBottom: 12 },
           ]}
           keyboardShouldPersistTaps="handled"
         >
@@ -429,7 +445,7 @@ export default function GrammarBlank({
                 icon={
                   <MaterialCommunityIcons
                     name="rabbit"
-                    size={30}
+                    size={26}
                     color="#fff"
                   />
                 }
@@ -438,22 +454,24 @@ export default function GrammarBlank({
               <BigBtn
                 colors={["#8f7ff0", "#7161e6"]}
                 onPress={() => speak(q.prefix + q.answer + q.suffix)}
-                icon={<Ionicons name="volume-high" size={30} color="#fff" />}
+                icon={<Ionicons name="volume-high" size={26} color="#fff" />}
                 label={t("writePractice.listenAgain")}
               />
             </View>
 
-            <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+            <View style={[st.nextRow, { paddingBottom: barBottom }]}>
               <Pressable style={[st.nextBtn, st.nextOk]} onPress={onNext}>
                 <Text style={st.nextText}>{t("lesson.continue")}</Text>
               </Pressable>
             </View>
           </View>
         ) : (
-          <View style={[st.inputBar, { paddingBottom: 6 }]}>
+          <View style={[st.inputBar, { paddingBottom: barBottom }]}>
             <Pressable style={st.barSide} onPress={pressHint}>
-              <Ionicons name="help-circle" size={26} color={C.purple} />
-              <Text style={st.barSideText}>{t("writePractice.hint")}</Text>
+              <Ionicons name="help-circle" size={23} color={C.purple} />
+              <Text style={st.barSideText} numberOfLines={1}>
+                {t("writePractice.hint")}
+              </Text>
             </Pressable>
 
             {/* 원본은 키보드 완료 키로만 제출해서, 키보드가 닫히면 답을 낼 방법이
@@ -463,12 +481,16 @@ export default function GrammarBlank({
               onPress={handleCheck}
               disabled={!input.trim()}
             >
-              <Text style={st.wordBubbleText}>{t("lesson.check")}</Text>
+              <Text style={st.wordBubbleText} numberOfLines={1}>
+                {t("lesson.check")}
+              </Text>
             </Pressable>
 
             <Pressable style={st.barSide}>
-              <Ionicons name="mic" size={26} color={C.purple} />
-              <Text style={st.barSideText}>{t("writePractice.voiceMode")}</Text>
+              <Ionicons name="mic" size={23} color={C.purple} />
+              <Text style={st.barSideText} numberOfLines={1}>
+                {t("writePractice.voiceMode")}
+              </Text>
             </Pressable>
           </View>
         )}
@@ -605,9 +627,9 @@ const st = StyleSheet.create({
     lineHeight: 20,
     opacity: 0.85,
   },
-  nextRow: { paddingHorizontal: 16, paddingTop: 10 },
+  nextRow: { paddingHorizontal: 14, paddingTop: 8 },
   nextBtn: {
-    minHeight: 54,
+    minHeight: 50,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -615,7 +637,7 @@ const st = StyleSheet.create({
   },
   nextOk: { backgroundColor: C.green, borderColor: C.greenInk },
   nextWrong: { backgroundColor: "#ff5d6e", borderColor: "#cf4353" },
-  nextText: { color: "#fff", fontSize: 17, fontWeight: "900" },
+  nextText: { color: "#fff", fontSize: 16, fontWeight: "900" },
 
   answerRow: {
     flexDirection: "row",
@@ -666,18 +688,19 @@ const st = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginBottom: 50,
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    gap: 8,
     backgroundColor: "transparent",
   },
-  barSide: { alignItems: "center", gap: 3, width: 90 },
-  barSideText: { fontSize: 13, fontWeight: "700", color: C.purple },
+  barSide: { alignItems: "center", gap: 2, width: 78 },
+  barSideText: { fontSize: 11.5, fontWeight: "700", color: C.purple },
   wordBubble: {
+    flex: 1,
     backgroundColor: C.purple,
-    paddingHorizontal: 30,
-    paddingVertical: 13,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
     borderRadius: 14,
-    minWidth: 140,
     alignItems: "center",
     borderBottomWidth: 4,
     borderColor: C.purpleDk,
@@ -685,7 +708,7 @@ const st = StyleSheet.create({
   wordBubbleOff: { backgroundColor: "#b9c4d4", borderColor: "#a0abbb" },
   wordBubbleText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "900",
   },
   wordBubbleTail: {
@@ -738,15 +761,15 @@ const st = StyleSheet.create({
 
   bigRow: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingTop: 8,
   },
   bigBtn: {
-    borderRadius: 22,
-    paddingVertical: 22,
+    borderRadius: 18,
+    paddingVertical: 15,
     alignItems: "center",
-    gap: 8,
+    gap: 5,
   },
-  bigBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  bigBtnText: { color: "#fff", fontSize: 14, fontWeight: "800" },
 });
