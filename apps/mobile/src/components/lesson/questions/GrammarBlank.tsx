@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -83,7 +82,6 @@ export default function GrammarBlank({
 }: Props) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
   // 엔진 문제 형태를 카드가 쓰던 이름으로 매핑
@@ -134,8 +132,9 @@ export default function GrammarBlank({
   const isOk = state === "correct" || solvedLate;
 
   /**
-   * 키보드가 올라오면 네비바는 키보드에 덮인다. 그때까지 SafeArea 여백을 두면
-   * 키보드 위에 빈 띠가 생긴다. 키보드가 없을 때만 네비바를 피한다.
+   * 이 앱은 edge-to-edge 가 아니라 네비바가 이미 레이아웃 밖에 있다.
+   * 여기서 SafeArea 인셋을 또 더하면 네비바 위에 빈 띠가 하나 더 생긴다.
+   * (다른 화면의 FeedbackBar 도 인셋 없이 고정값만 쓴다)
    */
   const [kbUp, setKbUp] = useState(false);
   useEffect(() => {
@@ -146,7 +145,7 @@ export default function GrammarBlank({
       hide.remove();
     };
   }, []);
-  const barBottom = kbUp ? 8 : insets.bottom + 8;
+  const barBottom = kbUp ? 8 : 16;
 
   // 문제 바뀌면 리셋 + 키보드 다시
   // 뒤로가기로 키보드만 닫히면 RN 은 여전히 포커스를 쥐고 있다고 보고
@@ -564,7 +563,13 @@ const st = StyleSheet.create({
     fontWeight: "800",
     color: "#5a7fa0",
   },
-  scroll: { paddingHorizontal: 18, paddingTop: 20 },
+  scroll: {
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    // 키보드를 내리면 카드 아래가 통째로 비었다. 남는 공간에 가운데로 둔다.
+    flexGrow: 1,
+    justifyContent: "center",
+  },
 
   levelTab: {
     alignSelf: "flex-start",

@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSpeech } from "@/hooks/useSpeech";
 import { shuffle } from "@/utils/shuffle";
 import Animated, {
@@ -73,7 +72,6 @@ export default function GrammarBuild({
   onNext,
 }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { speak } = useSpeech();
 
@@ -261,7 +259,7 @@ export default function GrammarBuild({
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* 레벨 탭 */}
@@ -428,7 +426,7 @@ export default function GrammarBuild({
             />
           </View>
 
-          <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
+          <View style={[st.nextRow, { paddingBottom: 16 }]}>
             <Pressable style={[st.nextBtn, st.nextOk]} onPress={onNext}>
               <Text style={st.nextText}>{t("lesson.continue")}</Text>
             </Pressable>
