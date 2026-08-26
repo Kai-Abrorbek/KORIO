@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -54,6 +54,16 @@ interface Props {
   onNext: () => void;
 }
 
+/** 보기 순서 섞기 (Fisher-Yates) */
+function shuffle<T>(list: T[]): T[] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 /**
  * 문법 문장 조립 문제 (grammar_build).
  * 채점·피드백·XP 는 레슨 엔진이 하고 여기서는 고른 어절만 넘긴다.
@@ -68,10 +78,19 @@ export default function GrammarBuild({
   const insets = useSafeAreaInsets();
   const { speak } = useSpeech();
 
+  // 시드는 정답을 항상 첫 칸에 둔다. 그대로 쓰면 왼쪽만 누르면 다 맞는다.
+  // 문제가 바뀔 때 한 번만 섞는다 — 오답 카드 색이 자리를 옮기면 안 되니까.
+  const rawRows = question.buildRows;
+  const rows = useMemo(
+    () =>
+      (rawRows ?? []).map((row) => ({ ...row, options: shuffle(row.options) })),
+    [rawRows],
+  );
+
   // 문장 전체를 어절로 조립하므로 고정 앞뒤 문구는 없다
   const q = {
     id: question.id,
-    rows: question.buildRows ?? [],
+    rows,
     full: question.answer,
     prompt: question.answerTranslation ?? "",
     pattern: question.tags?.[0] ?? "",
