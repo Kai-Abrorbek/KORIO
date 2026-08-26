@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
+import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
 import UnitRoadmap, {
   type RoadmapNodePopoverContext,
 } from "@/components/roadmap/UnitRoadmap";
@@ -265,6 +266,12 @@ export default function StudyPathScreen() {
       }
     },
   );
+  const jumpToToday = useCallback(() => {
+    const index = data?.currentDayIndex ?? 0;
+    setSelectedNodeId(null);
+    listRef.current?.scrollToIndex({ index, animated: true });
+  }, [data?.currentDayIndex]);
+
   const onScrollToIndexFailed = useCallback(
     ({ index }: { index: number }) => {
       listRef.current?.scrollToOffset({
@@ -352,6 +359,17 @@ export default function StudyPathScreen() {
           initialNumToRender={2}
         />
       )}
+
+      {units.length > 0 && !loading ? (
+        <JumpToCurrentButton
+          direction={
+            visibleDayIndex > (data?.currentDayIndex ?? 0) ? "up" : "down"
+          }
+          color={bannerUnit?.color ?? theme.primary}
+          bottom={40}
+          onPress={jumpToToday}
+        />
+      ) : null}
     </View>
   );
 }
