@@ -9,6 +9,8 @@
  */
 
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
+import { GT_S1_NODES } from './data/grammar-track/section1';
+import { GT_S2_NODES } from './data/grammar-track/section2';
 
 const errors: string[] = [];
 const warnings: string[] = [];
@@ -138,6 +140,27 @@ for (const g of GRAMMAR_SEED) {
         );
       }
     }
+  }
+}
+
+// ── 문법 트랙 레슨이 실제로 있는 문법을 가리키는지 ──
+// grammarCode 가 어긋나도 시딩은 조용히 지나가고, 화면만 빈 채로 뜬다.
+const known = new Set(GRAMMAR_SEED.map((g: any) => g.code));
+for (const node of [...GT_S1_NODES, ...GT_S2_NODES] as any[]) {
+  for (const lesson of node.lessons ?? []) {
+    const code = lesson.grammarCode;
+    if (!code) continue;
+    if (!known.has(code)) {
+      fail(code, `문법 트랙 레슨이 참조하는데 문법 설명이 없다`);
+    }
+  }
+}
+
+// ── 학습 로드는 unit 으로 하루치 문법을 고른다 ──
+// 빠지면 그 섹션 문법이 전부 1과에 몰린다.
+for (const g of GRAMMAR_SEED as any[]) {
+  if (typeof g.unit !== 'number' || g.unit < 1) {
+    fail(g.code, 'unit 이 없다 — 학습 로드가 하루치를 못 고른다');
   }
 }
 
