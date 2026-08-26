@@ -130,15 +130,8 @@ export default function GrammarBuild({
 
   const pickWord = (rowIndex: number, w: string) => {
     if (rowIndex !== currentRow || isOk) return;
-    const chosen = [...picks, w];
-    setPicks(chosen);
+    setPicks((p) => [...p, w]);
     setCurrentRow((r) => r + 1);
-
-    // 마지막 조각을 고르면 바로 채점한다. 다 골라놓고 버튼을 또 누르게 하면
-    // 흐름이 끊긴다. 카드에 채워지는 걸 보여준 뒤 판정한다.
-    if (chosen.length >= q.rows.length) {
-      setTimeout(() => runCheck(chosen), 280);
-    }
   };
 
   const undo = () => {
@@ -185,7 +178,18 @@ export default function GrammarBuild({
     }
   };
 
-  const checkAnswer = () => runCheck(picks);
+  /**
+   * 마지막 조각을 고르면 버튼 없이 바로 채점한다.
+   *
+   * 핸들러 안에서 타이머를 돌리면 그 순간의 picks/reported 에 갇힌다.
+   * effect 로 빼면 항상 마지막 렌더의 상태로 채점한다.
+   * 카드에 채워지는 걸 잠깐 보여준 뒤 판정한다.
+   */
+  useEffect(() => {
+    if (isOk || picks.length < q.rows.length) return;
+    const t = setTimeout(() => runCheck(picks), 260);
+    return () => clearTimeout(t);
+  }, [picks, isOk]);
 
   // 카드 색 (오답 후 힌트)
   const cardColor = (i: number, w: string) => {
@@ -296,18 +300,7 @@ export default function GrammarBuild({
 
             {/* 카드 하단 미니 버튼 (picking 시) */}
             {!isOk && (
-              <View style={st.miniRow}>
-                <Pressable
-                  style={[st.miniBtn, !allPicked && st.miniBtnOff]}
-                  onPress={checkAnswer}
-                  disabled={!allPicked}
-                >
-                  <Ionicons
-                    name="checkmark"
-                    size={20}
-                    color={allPicked ? C.purple : "#c9d3de"}
-                  />
-                </Pressable>
+              <View style={[st.miniRow, { justifyContent: "flex-end" }]}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Pressable style={st.miniBtn} onPress={undo}>
                     <Ionicons

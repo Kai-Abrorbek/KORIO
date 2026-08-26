@@ -14,6 +14,7 @@ import { Question } from '../lessons/schemas/question.schema';
 import { Lesson } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
+import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -22,8 +23,8 @@ async function seed() {
   const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
   const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
 
-  const allNodes = GT_S1_NODES;
-  const allQuestions = GT_S1_QUESTIONS;
+  const allNodes = [...GT_S1_NODES, ...GT_S2_NODES];
+  const allQuestions = { ...GT_S1_QUESTIONS, ...GT_S2_QUESTIONS };
 
   console.log(`📚 문법 트랙 시딩 시작 (노드 ${allNodes.length}개)`);
 
