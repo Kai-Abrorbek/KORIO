@@ -1524,6 +1524,8 @@ export default {
     },
   },
   studyPath: {
+    lockedHint: "Oldingi bosqichni tugatsangiz ochiladi",
+    preview: "Oldindan ko'rish",
     lessonProgress: "Halqa {{done}}/{{total}}",
     continueLesson: "{{n}}-dan davom",
     nodeGroup: "{{name}} {{n}}/{{total}}",

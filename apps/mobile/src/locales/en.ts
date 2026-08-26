@@ -1515,6 +1515,8 @@ export default {
     },
   },
   studyPath: {
+    lockedHint: "Opens once you finish the step before",
+    preview: "Preview",
     lessonProgress: "Ring {{done}}/{{total}}",
     continueLesson: "Continue from {{n}}",
     nodeGroup: "{{name}} {{n}}/{{total}}",

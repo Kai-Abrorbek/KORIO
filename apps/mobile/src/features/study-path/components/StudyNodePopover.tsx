@@ -49,6 +49,7 @@ export default function StudyNodePopover({
   const theme = useTheme();
   const styles = getStyles(theme);
   const completed = node.status === "completed";
+  const locked = node.status === "locked";
   const base = t(`studyPath.node.${node.kind}`);
   const title =
     node.groupCount > 1
@@ -76,14 +77,25 @@ export default function StudyNodePopover({
       <View style={styles.titleRow}>
         <View style={styles.titleIcon}>
           <Ionicons
-            name={completed ? "checkmark" : (ICON[node.kind] ?? "star")}
+            name={
+              completed
+                ? "checkmark"
+                : locked
+                  ? "lock-closed"
+                  : (ICON[node.kind] ?? "star")
+            }
             size={19}
             color="#FFFFFF"
           />
         </View>
         <View style={styles.titleTexts}>
           <Text style={styles.step}>
-            {t("studyPath.step", { step, total: stepCount })}
+            {locked
+              ? `${t("studyPath.preview")} · ${t("studyPath.step", {
+                  step,
+                  total: stepCount,
+                })}`
+              : t("studyPath.step", { step, total: stepCount })}
           </Text>
           <Text style={styles.title} numberOfLines={1}>
             {title}
@@ -117,23 +129,34 @@ export default function StudyNodePopover({
         ) : null}
       </View>
 
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={onStart}
-        activeOpacity={0.85}
-      >
-        <Text style={[styles.startText, { color }]}>
-          {t(
-            completed
-              ? "studyPath.again"
-              : node.lessonsDone > 0
-                ? "studyPath.continueLesson"
-                : "studyPath.start",
-            { n: node.nextLesson },
-          )}
-        </Text>
-        <Ionicons name="arrow-forward" size={19} color={color} />
-      </TouchableOpacity>
+      {locked ? (
+        <View style={styles.lockedNote}>
+          <Ionicons
+            name="time-outline"
+            size={17}
+            color="rgba(255,255,255,0.9)"
+          />
+          <Text style={styles.lockedText}>{t("studyPath.lockedHint")}</Text>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={onStart}
+          activeOpacity={0.85}
+        >
+          <Text style={[styles.startText, { color }]}>
+            {t(
+              completed
+                ? "studyPath.again"
+                : node.lessonsDone > 0
+                  ? "studyPath.continueLesson"
+                  : "studyPath.start",
+              { n: node.nextLesson },
+            )}
+          </Text>
+          <Ionicons name="arrow-forward" size={19} color={color} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -202,6 +225,26 @@ const getStyles = (_theme: ThemeColors) =>
       backgroundColor: "rgba(255,255,255,0.15)",
     },
     metaText: { color: "#FFFFFF", fontSize: 11.5, fontWeight: "800" },
+    lockedNote: {
+      marginTop: 14,
+      minHeight: 46,
+      borderRadius: 13,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      paddingHorizontal: 12,
+      backgroundColor: "rgba(255,255,255,0.16)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.22)",
+    },
+    lockedText: {
+      flex: 1,
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "700",
+      lineHeight: 18,
+    },
     startButton: {
       marginTop: 14,
       minHeight: 50,

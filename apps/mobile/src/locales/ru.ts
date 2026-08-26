@@ -1520,6 +1520,8 @@ export default {
     },
   },
   studyPath: {
+    lockedHint: "Откроется после предыдущего шага",
+    preview: "Предпросмотр",
     lessonProgress: "Кольцо {{done}}/{{total}}",
     continueLesson: "Продолжить с {{n}}",
     nodeGroup: "{{name}} {{n}}/{{total}}",

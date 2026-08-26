@@ -139,6 +139,7 @@ export default function StudyPathScreen() {
   /** 노드 종류마다 이미 있는 화면으로 보낸다. 다만 범위를 그 하루로 좁힌다 */
   const openNode = useCallback(
     (node: StudyNode, day: StudyDay) => {
+      if (node.status === "locked") return; // 미리보기만 되는 노드
       setSelectedNodeId(null);
       const section = String(day.section);
       const unit = String(day.unit);
@@ -183,10 +184,13 @@ export default function StudyPathScreen() {
     [energy, guardLessonStart, router],
   );
 
+  const closePopover = useCallback(() => setSelectedNodeId(null), []);
+
+  // 잠긴 노드도 열린다. 앞으로 뭘 배우는지 미리 볼 수 있어야 오늘 하는 일이
+  // 어디로 이어지는지 보인다. 시작만 못 할 뿐이다.
   const handleNodeTap = useCallback(
     (nodeId: string) => {
-      const entry = viewModel?.nodeById.get(nodeId);
-      if (!entry || entry.node.status === "locked") return;
+      if (!viewModel?.nodeById.has(nodeId)) return;
       setSelectedNodeId((current) => (current === nodeId ? null : nodeId));
     },
     [viewModel],
@@ -211,16 +215,31 @@ export default function StudyPathScreen() {
   );
 
   const renderUnit = useCallback(
-    ({ item }: { item: RoadmapUnit }) => (
-      <UnitRoadmap
-        unit={item}
-        avatar={user?.avatar}
-        selectedNodeId={selectedNodeId}
-        onNodeTap={handleNodeTap}
-        renderNodePopover={renderNodePopover}
-      />
-    ),
-    [handleNodeTap, renderNodePopover, selectedNodeId, user?.avatar],
+    ({ item }: { item: RoadmapUnit }) => {
+      const hasSelectedNode = item.nodes.some((n) => n.id === selectedNodeId);
+      return (
+        <Pressable
+          onPress={closePopover}
+          style={hasSelectedNode ? styles.unitElevated : undefined}
+        >
+          <UnitRoadmap
+            unit={item}
+            avatar={user?.avatar}
+            selectedNodeId={selectedNodeId}
+            onNodeTap={handleNodeTap}
+            renderNodePopover={renderNodePopover}
+          />
+        </Pressable>
+      );
+    },
+    [
+      closePopover,
+      handleNodeTap,
+      renderNodePopover,
+      selectedNodeId,
+      styles.unitElevated,
+      user?.avatar,
+    ],
   );
 
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 40 });
@@ -306,6 +325,7 @@ export default function StudyPathScreen() {
           viewabilityConfig={viewabilityConfig.current}
           onViewableItemsChanged={onViewableItemsChanged.current}
           ListFooterComponent={listFooter}
+          onScrollBeginDrag={closePopover}
           removeClippedSubviews
           windowSize={3}
           maxToRenderPerBatch={2}
@@ -319,6 +339,8 @@ export default function StudyPathScreen() {
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.bg, overflow: "hidden" },
+    // 팝오버가 열린 유닛은 위로 올려서 아래 유닛에 가리지 않게 한다
+    unitElevated: { zIndex: 9999, elevation: 30 },
     scroll: { flex: 1 },
     scrollContent: { paddingTop: 10, paddingBottom: 140 },
     state: {

@@ -1511,6 +1511,8 @@ export default {
     },
   },
   studyPath: {
+    lockedHint: "앞 단계를 끝내면 열려요",
+    preview: "미리보기",
     lessonProgress: "링 {{done}}/{{total}}",
     continueLesson: "{{n}}번째 이어서",
     nodeGroup: "{{name}} {{n}}/{{total}}",
