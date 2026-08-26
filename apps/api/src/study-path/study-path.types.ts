@@ -62,15 +62,28 @@ export const NODE_LESSON_COUNT: Record<StudyNodeKind, number> = {
   final: 1,
 };
 
-/** 레슨 하나가 이보다 적어지면 레슨 수를 줄인다 (한 문제짜리 레슨 방지) */
-export const MIN_ITEMS_PER_LESSON = 6;
+/**
+ * 항목이 적어도 정해진 수만큼 쪼개는 노드.
+ * 단어와 어휘 문제는 "그 유닛 전체를 5번에 나눠 훑는다" 가 규칙이라, 유닛이
+ * 작다고 레슨 수가 달라지면 진행이 들쭉날쭉해진다.
+ */
+const FIXED_SPLIT_KINDS = new Set<StudyNodeKind>([
+  'words',
+  'vocabQuiz1',
+  'vocabQuiz2',
+]);
+
+/** 조건부로 쪼개는 노드(문법 문제)에서 레슨 하나의 최소 문항 수 */
+export const MIN_ITEMS_PER_LESSON = 8;
 
 /**
- * 항목 수에 맞는 실제 레슨 수. 항목이 적으면 쪼갤수록 어색해진다.
+ * 항목 수에 맞는 실제 레슨 수.
+ * 고정 분할 노드는 항목이 레슨 수보다 적을 때만 줄인다(단어 3개 → 3레슨).
  */
 export function lessonCountFor(kind: StudyNodeKind, items: number): number {
   const max = NODE_LESSON_COUNT[kind];
   if (max <= 1 || items <= 0) return 1;
+  if (FIXED_SPLIT_KINDS.has(kind)) return Math.max(1, Math.min(max, items));
   return Math.max(1, Math.min(max, Math.floor(items / MIN_ITEMS_PER_LESSON)));
 }
 
