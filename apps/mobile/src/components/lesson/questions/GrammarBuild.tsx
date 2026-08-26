@@ -1,5 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -76,6 +83,7 @@ export default function GrammarBuild({
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { speak } = useSpeech();
 
   // 시드는 정답을 항상 첫 칸에 둔다. 그대로 쓰면 왼쪽만 누르면 다 맞는다.
@@ -102,6 +110,33 @@ export default function GrammarBuild({
       {},
     ),
   };
+
+  /**
+   * 문장이 길어지면 글자를 줄인다.
+   *
+   * 조각을 단어 단위로 쪼갠 뒤로 한 문장이 6조각까지 나온다. 28px 고정이면
+   * 세 줄로 넘어가면서 카드가 터진다. 조각 수와 글자 수로 단계를 잡는다.
+   */
+  const fit = useMemo(() => {
+    // 카드 안쪽 폭 = 화면 - 카드 바깥 여백 18*2 - 카드 안쪽 여백 18*2
+    const inner = width - 72;
+    const chars = rows.reduce((n, r) => n + r.correct.length, 0);
+    const n = rows.length || 1;
+    const LADDER = [
+      { size: 26, line: 34, padH: 9, gap: 6 },
+      { size: 23, line: 31, padH: 8, gap: 6 },
+      { size: 21, line: 29, padH: 8, gap: 5 },
+      { size: 19, line: 26, padH: 7, gap: 5 },
+      { size: 17, line: 24, padH: 7, gap: 4 },
+      { size: 15, line: 22, padH: 6, gap: 4 },
+    ];
+    // 한글은 글자폭 ≈ 글자크기. 두 줄 안에 들어가는 가장 큰 단계를 고른다.
+    const budget = inner * 2 * 0.92;
+    return (
+      LADDER.find((f) => chars * f.size + n * (f.padH * 2 + f.gap) <= budget) ??
+      LADDER[LADDER.length - 1]
+    );
+  }, [rows, width]);
 
   /** 고른 조각을 문장으로 잇는다. glue 조각("이에요")은 앞말에 붙여 쓴다 */
   const joinPicks = (words: string[]) =>
@@ -266,17 +301,35 @@ export default function GrammarBuild({
                     key={i}
                     style={[
                       st.filledWord,
+                      {
+                        paddingHorizontal: fit.padH,
+                        // 앞말에 붙는 조각은 띄우지 않아야 한 단어로 읽힌다
+                        marginLeft: i === 0 || q.rows[i]?.glue ? 0 : fit.gap,
+                      },
                       isOk && { backgroundColor: C.blankOk },
                     ]}
                   >
-                    <Text style={[st.filledText, isOk && { color: C.okText }]}>
+                    <Text
+                      style={[
+                        st.filledText,
+                        { fontSize: fit.size, lineHeight: fit.line },
+                        isOk && { color: C.okText },
+                      ]}
+                    >
                       {w}
                     </Text>
                   </View>
                 ))
               ) : (
-                <View style={st.blankBox}>
-                  <Text style={st.blankText}>{joinPicks(picks)}</Text>
+                <View style={[st.blankBox, { paddingHorizontal: fit.padH }]}>
+                  <Text
+                    style={[
+                      st.blankText,
+                      { fontSize: fit.size, lineHeight: fit.line },
+                    ]}
+                  >
+                    {joinPicks(picks)}
+                  </Text>
                 </View>
               )}
               <Text style={st.sentText}>{q.after}</Text>
@@ -550,8 +603,8 @@ const st = StyleSheet.create({
     marginHorizontal: 18,
     borderRadius: 20,
     borderTopLeftRadius: 4,
-    padding: 22,
-    minHeight: 240,
+    padding: 18,
+    minHeight: 186,
     overflow: "hidden",
   },
   checkMark: { position: "absolute", top: 4, left: 16, zIndex: 5 },
@@ -559,40 +612,37 @@ const st = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 4,
+    rowGap: 3,
   },
-  sentText: { fontSize: 30, fontWeight: "700", color: C.ink, lineHeight: 46 },
+  sentText: { fontSize: 24, fontWeight: "700", color: C.ink, lineHeight: 34 },
   blankBox: {
-    minWidth: 120,
-    height: 40,
+    minWidth: 110,
+    minHeight: 36,
     borderRadius: 8,
     backgroundColor: C.blank,
-    marginHorizontal: 2,
-    paddingHorizontal: 10,
     justifyContent: "center",
+    paddingVertical: 3,
   },
-  blankText: { fontSize: 28, fontWeight: "800", color: C.blankInk },
+  blankText: { fontWeight: "800", color: C.blankInk },
   filledWord: {
     backgroundColor: C.blank,
     borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginHorizontal: 3,
-    marginVertical: 2,
+    paddingVertical: 3,
   },
-  filledText: { fontSize: 28, fontWeight: "800", color: C.blankInk },
+  filledText: { fontWeight: "800", color: C.blankInk },
   answerLine: {
-    marginTop: 6,
-    fontSize: 17,
+    marginTop: 8,
+    fontSize: 15,
     fontWeight: "800",
     color: C.okText,
   },
   trans: {
-    fontSize: 19,
+    fontSize: 17,
     fontWeight: "600",
     color: "#4a5a68",
-    marginTop: 22,
-    lineHeight: 28,
+    marginTop: 14,
+    lineHeight: 24,
   },
 
   wrongBubble: {
@@ -629,24 +679,24 @@ const st = StyleSheet.create({
   nextText: { color: "#fff", fontSize: 17, fontWeight: "900" },
   hintBubble: {
     backgroundColor: C.hintBg,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 20,
+    borderRadius: 14,
+    padding: 13,
+    marginTop: 14,
   },
   hintHead: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  hintAttempt: { flex: 1, fontSize: 20, fontWeight: "700", color: C.hintInk },
+  hintAttempt: { flex: 1, fontSize: 17, fontWeight: "700", color: C.hintInk },
   hintText: {
-    fontSize: 16,
+    fontSize: 15,
     color: C.hintInk,
-    lineHeight: 24,
-    marginTop: 8,
+    lineHeight: 22,
+    marginTop: 6,
     fontWeight: "500",
   },
 
   miniRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 22,
+    marginTop: 16,
   },
   miniBtnOff: { opacity: 0.55 },
   miniBtn: {
@@ -659,13 +709,13 @@ const st = StyleSheet.create({
   },
 
   pickArea: { paddingHorizontal: 16 },
-  stack: { flexDirection: "column-reverse", marginBottom: 50 },
+  stack: { flexDirection: "column-reverse", marginBottom: 32 },
   row: { flexDirection: "row", gap: 5, justifyContent: "center" },
   card2: {
     flex: 1,
     backgroundColor: "#fff",
     borderRadius: 14,
-    paddingVertical: 18,
+    paddingVertical: 15,
     alignItems: "center",
     borderWidth: 0,
     borderColor: "transparent",
