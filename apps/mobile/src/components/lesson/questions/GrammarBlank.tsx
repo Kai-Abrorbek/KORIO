@@ -181,8 +181,8 @@ export default function GrammarBlank({
         (size) => textWidth(text, size) + extra <= inner * 2 * 0.92,
       ) ?? ladder[ladder.length - 1];
     return {
-      sent: pick(q.full, [28, 25, 22, 20, 18, 16], 46),
-      prompt: pick(q.prompt, [27, 24, 21, 19, 17, 15]),
+      sent: pick(q.full, [22, 20, 18, 17, 16, 15], 46),
+      prompt: pick(q.prompt, [20, 18, 17, 16, 15, 14]),
     };
   }, [q.full, q.prompt, width]);
 
@@ -563,13 +563,7 @@ const st = StyleSheet.create({
     fontWeight: "800",
     color: "#5a7fa0",
   },
-  scroll: {
-    paddingHorizontal: 18,
-    paddingTop: 20,
-    // 키보드를 내리면 카드 아래가 통째로 비었다. 남는 공간에 가운데로 둔다.
-    flexGrow: 1,
-    justifyContent: "center",
-  },
+  scroll: { paddingHorizontal: 18, paddingTop: 20 },
 
   levelTab: {
     alignSelf: "flex-start",
@@ -584,7 +578,7 @@ const st = StyleSheet.create({
     marginLeft: 6,
     marginBottom: -2,
   },
-  levelText: { fontSize: 14, fontWeight: "800", color: C.levelText },
+  levelText: { fontSize: 12.5, fontWeight: "800", color: C.levelText },
 
   card: { borderRadius: 22, padding: 18, minHeight: 236, overflow: "hidden" },
   cardTopRow: {
@@ -598,7 +592,7 @@ const st = StyleSheet.create({
   cardTopRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   heartBtn: {},
   badge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14 },
-  badgeText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  badgeText: { color: "#fff", fontSize: 11.5, fontWeight: "800" },
 
   checkMark: { position: "absolute", top: 6, left: 14, zIndex: 5 },
 
@@ -666,7 +660,7 @@ const st = StyleSheet.create({
   source: {
     alignSelf: "flex-end",
     color: C.source,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "500",
     marginTop: 26,
   },
