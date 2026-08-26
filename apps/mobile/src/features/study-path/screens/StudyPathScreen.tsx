@@ -30,12 +30,16 @@ import { useEnergyStore } from "@/store/energy.store";
 import type { RoadmapUnit } from "@/types/roadmap";
 import type { StudyDay, StudyNode } from "@/types/study-path";
 import DayBanner from "../components/DayBanner";
+import SectionDivider from "../components/SectionDivider";
 import StudyNodePopover from "../components/StudyNodePopover";
 import { useStudyPath } from "../hooks/useStudyPath";
 import {
   buildStudyPathViewModel,
   countDone,
 } from "../utils/study-path.adapter";
+
+/** SectionDivider 의 대략 높이 (getItemLayout 추정용) */
+const SECTION_DIVIDER_HEIGHT = 42;
 
 export default function StudyPathScreen() {
   const { t } = useTranslation();
@@ -91,7 +95,11 @@ export default function StudyPathScreen() {
 
   const layout = useMemo(() => {
     const heights = units.map(
-      (unit) => DIVIDER_HEIGHT + unit.nodes.length * ROW_HEIGHT + UNIT_PADDING,
+      (unit, index) =>
+        DIVIDER_HEIGHT +
+        unit.nodes.length * ROW_HEIGHT +
+        UNIT_PADDING +
+        (days[index]?.sectionStart ? SECTION_DIVIDER_HEIGHT : 0),
     );
     const offsets: number[] = [];
     let accumulated = 0;
@@ -100,7 +108,7 @@ export default function StudyPathScreen() {
       accumulated += height;
     }
     return { heights, offsets };
-  }, [units]);
+  }, [days, units]);
 
   const getItemLayout = useCallback(
     (_: ArrayLike<RoadmapUnit> | null | undefined, index: number) => ({
@@ -215,13 +223,17 @@ export default function StudyPathScreen() {
   );
 
   const renderUnit = useCallback(
-    ({ item }: { item: RoadmapUnit }) => {
+    ({ item, index }: { item: RoadmapUnit; index: number }) => {
       const hasSelectedNode = item.nodes.some((n) => n.id === selectedNodeId);
+      const day = days[index];
       return (
         <Pressable
           onPress={closePopover}
           style={hasSelectedNode ? styles.unitElevated : undefined}
         >
+          {day?.sectionStart ? (
+            <SectionDivider section={day.section} color={item.color} />
+          ) : null}
           <UnitRoadmap
             unit={item}
             avatar={user?.avatar}
@@ -234,6 +246,7 @@ export default function StudyPathScreen() {
     },
     [
       closePopover,
+      days,
       handleNodeTap,
       renderNodePopover,
       selectedNodeId,
@@ -263,15 +276,15 @@ export default function StudyPathScreen() {
   );
 
   const listFooter = useMemo(() => {
-    if (!data?.nextSection) return null;
+    if (!data?.nextLevel) return null;
     return (
       <NextSectionLocked
-        sectionNumber={data.nextSection.sectionNumber}
-        title={data.nextSection.title}
-        description={data.nextSection.description}
+        sectionNumber={data.nextLevel.level}
+        title={data.nextLevel.title}
+        description={data.nextLevel.description}
       />
     );
-  }, [data?.nextSection]);
+  }, [data?.nextLevel]);
 
   return (
     <View style={styles.container}>
@@ -286,7 +299,7 @@ export default function StudyPathScreen() {
           color={bannerUnit.color}
           done={countDone(bannerDay)}
           total={bannerDay.nodes.length}
-          level={Math.max(1, Math.ceil((data?.currentSection ?? 1) / 2))}
+          level={data?.currentLevel ?? 1}
           onLevelPress={() =>
             router.push({
               pathname: "/study-level",

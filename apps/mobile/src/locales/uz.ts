@@ -1532,6 +1532,7 @@ export default {
     change: "Darajani o'zgartirish",
   },
   studyPath: {
+    sectionStart: "{{n}}-bo'lim boshlandi",
     levelShort: "{{n}}-daraja",
     lockedHint: "Oldingi bosqichni tugatsangiz ochiladi",
     preview: "Oldindan ko'rish",

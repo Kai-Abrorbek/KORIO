@@ -1528,6 +1528,7 @@ export default {
     change: "Сменить уровень",
   },
   studyPath: {
+    sectionStart: "Начало раздела {{n}}",
     levelShort: "Ур.{{n}}",
     lockedHint: "Откроется после предыдущего шага",
     preview: "Предпросмотр",

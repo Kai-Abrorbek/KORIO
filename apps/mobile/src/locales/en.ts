@@ -1523,6 +1523,7 @@ export default {
     change: "Change level",
   },
   studyPath: {
+    sectionStart: "Section {{n}} begins",
     levelShort: "Lv.{{n}}",
     lockedHint: "Opens once you finish the step before",
     preview: "Preview",

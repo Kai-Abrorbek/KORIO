@@ -1519,6 +1519,7 @@ export default {
     change: "급수 바꾸기",
   },
   studyPath: {
+    sectionStart: "섹션 {{n}} 시작",
     levelShort: "{{n}}급",
     lockedHint: "앞 단계를 끝내면 열려요",
     preview: "미리보기",

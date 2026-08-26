@@ -571,6 +571,12 @@ export class LessonsService {
     userId: string,
     lang: string = 'uz',
     category?: string,
+    /**
+     * 급수(=섹션 두 개) 전체를 한 번에 내려준다. 학습 로드 모드용.
+     * 자율 로드맵은 현재 섹션만 보여주고 "다음 섹션 잠김" 카드로 막지만,
+     * 학습 로드는 순서대로 쭉 가는 게 전부라 중간에 벽이 서면 안 된다.
+     */
+    wholeLevel = false,
   ) {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
@@ -734,8 +740,13 @@ export class LessonsService {
     const currentSection =
       currentUnit?.sectionNumber ?? units[units.length - 1]?.sectionNumber ?? 1;
 
-    const sectionUnits = units.filter(
-      (u: any) => u.sectionNumber === currentSection,
+    const [levelStart, levelEnd] = sectionRangeForLevel(
+      meUser?.placementLevel ?? 1,
+    );
+    const sectionUnits = units.filter((u: any) =>
+      wholeLevel
+        ? u.sectionNumber >= levelStart && u.sectionNumber <= levelEnd
+        : u.sectionNumber === currentSection,
     );
 
     // 다음 섹션이 실제로 존재할 때만 안내 카드용 정보를 내려준다
@@ -1197,7 +1208,7 @@ export class LessonsService {
     const span =
       CATCH_UP_UNITS.find((rule) => idleDays >= rule.days)?.units ?? 1;
 
-    const scope = this.previousUnits(section, unit, span);
+    const scope = await this.previousUnits(section, unit, span);
     if (!scope.length) return { questions: [] };
 
     // 되돌아볼 구간의 문제를 먼저 모으고, 그 안에서 오답을 앞에 세운다
@@ -1294,21 +1305,33 @@ export class LessonsService {
     return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
   }
 
-  /** (섹션, 유닛) 바로 앞의 유닛 span 개. 섹션 경계를 넘어서도 이어진다 */
-  private previousUnits(section: number, unit: number, span: number) {
+  /**
+   * (섹션, 유닛) 바로 앞의 유닛 span 개.
+   *
+   * 섹션 경계를 넘어서도 이어진다. 학습 로드는 급수 전체를 한 흐름으로 보는데
+   * 섹션 첫날에서 복습이 끊기면 그 앞이 통째로 날아간 채로 진도가 나간다.
+   * 이전 섹션의 마지막 유닛 번호는 알 수 없으므로 노드에서 찾는다.
+   */
+  private async previousUnits(section: number, unit: number, span: number) {
+    if (span <= 0) return [];
+
+    const rows = await this.nodeModel
+      .find({
+        isActive: true,
+        $or: [{ section: { $lt: section } }, { section, unit: { $lt: unit } }],
+      })
+      .select('section unit')
+      .sort({ section: -1, unit: -1 })
+      .lean();
+
     const scope: { section: number; unit: number }[] = [];
-    let s = section;
-    let u = unit;
-    for (let i = 0; i < span; i += 1) {
-      u -= 1;
-      if (u < 1) {
-        s -= 1;
-        if (s < 1) break;
-        // 이전 섹션의 마지막 유닛 번호를 모르므로 넉넉히 잡지 않고 멈춘다.
-        // 섹션 첫날의 복습은 그 섹션 안에서만 본다.
-        break;
-      }
-      scope.push({ section: s, unit: u });
+    const seen = new Set<string>();
+    for (const row of rows as any[]) {
+      const key = `${row.section}-${row.unit}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      scope.push({ section: row.section, unit: row.unit });
+      if (scope.length >= span) break;
     }
     return scope;
   }

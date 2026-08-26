@@ -55,62 +55,88 @@ export class StudyPathService {
    * 문법 시드가 아직 없는 유닛에 빈 문법 노드를 세워두면 하루가 거기서 막힌다.
    */
   async getStudyPath(userId: string, lang = 'uz'): Promise<StudyPathResponse> {
-    const roadmap: any = await this.lessonsService.getRoadmap(userId, lang);
+    // 급수(=섹션 두 개) 전체를 한 흐름으로 본다. 섹션은 유저에게 의미 있는
+    // 단위가 아니라 내부 구분일 뿐이라, 중간에 "다음 섹션 잠김" 벽이 서면
+    // 순서대로 쭉 간다는 약속이 깨진다.
+    const roadmap: any = await this.lessonsService.getRoadmap(
+      userId,
+      lang,
+      undefined,
+      true,
+    );
     const units: any[] = roadmap.units ?? [];
     const section: number = roadmap.currentSection ?? 1;
 
-    const [me, grammarRows, wordSummary, questionCounts, unitsBefore] =
-      await Promise.all([
-        this.userModel
-          .findById(userId)
-          .select('completedGrammar completedStudyNodes')
-          .lean(),
-        this.grammarModel
-          .find({ isActive: true, section })
-          .select('code unit')
-          .lean(),
-        this.safeWordSummary(userId, section),
-        this.lessonsService.countSectionQuestions(section),
-        this.countUnitsBeforeSection(section),
-      ]);
+    const sections = [
+      ...new Set(units.map((u: any) => u.sectionNumber as number)),
+    ].sort((a, b) => a - b);
+
+    const [me, grammarRows, wordSummaries, unitsBefore] = await Promise.all([
+      this.userModel
+        .findById(userId)
+        .select('completedGrammar completedStudyNodes placementLevel')
+        .lean(),
+      this.grammarModel
+        .find({ isActive: true, section: { $in: sections } })
+        .select('code section unit')
+        .lean(),
+      Promise.all(sections.map((s) => this.safeWordSummary(userId, s))),
+      this.countUnitsBeforeSection(sections[0] ?? section),
+    ]);
+
+    const questionCounts = new Map<string, number>();
+    for (const s of sections) {
+      const counts = await this.lessonsService.countSectionQuestions(s);
+      for (const [key, value] of counts)
+        questionCounts.set(`${s}:${key}`, value);
+    }
 
     const doneGrammar = new Set<string>(me?.completedGrammar ?? []);
     const doneNodes = new Set<string>(me?.completedStudyNodes ?? []);
 
-    const grammarByUnit = new Map<number, string[]>();
+    const grammarByUnit = new Map<string, string[]>();
     for (const row of grammarRows as any[]) {
-      const unit = row.unit ?? 1;
-      const list = grammarByUnit.get(unit) ?? [];
+      const key = `${row.section ?? 1}:${row.unit ?? 1}`;
+      const list = grammarByUnit.get(key) ?? [];
       list.push(row.code);
-      grammarByUnit.set(unit, list);
+      grammarByUnit.set(key, list);
     }
 
-    const wordsByUnit = new Map<number, UnitWordSummary>(
-      (wordSummary?.units ?? []).map((u: UnitWordSummary) => [u.unit, u]),
-    );
+    const wordsByUnit = new Map<string, UnitWordSummary>();
+    sections.forEach((s, index) => {
+      for (const u of wordSummaries[index]?.units ?? []) {
+        wordsByUnit.set(`${s}:${u.unit}`, u);
+      }
+    });
 
     // 1과 = 이틀. 첫날은 새 내용을 넣고, 둘째 날은 문제로 굳힌다.
+    let seenSection = 0;
     const days: StudyDay[] = units.flatMap((unit, index) => {
+      const unitSection: number = unit.sectionNumber ?? section;
+      const key = `${unitSection}:${unit.unitNumber}`;
+      const startsSection = unitSection !== seenSection;
+      seenSection = unitSection;
+
       const ctx = {
-        section,
+        section: unitSection,
         unit: unit.unitNumber,
         isFirstOfSection: index === 0,
         doneGrammar,
         doneNodes,
-        grammarCodes: grammarByUnit.get(unit.unitNumber) ?? [],
-        words: wordsByUnit.get(unit.unitNumber),
-        vocabQuestions:
-          questionCounts.get(`${unit.unitNumber}:vocabulary`) ?? 0,
-        grammarQuestions: questionCounts.get(`${unit.unitNumber}:grammar`) ?? 0,
+        grammarCodes: grammarByUnit.get(key) ?? [],
+        words: wordsByUnit.get(key),
+        vocabQuestions: questionCounts.get(`${key}:vocabulary`) ?? 0,
+        grammarQuestions: questionCounts.get(`${key}:grammar`) ?? 0,
       };
 
       return ([1, 2] as StudyPhase[]).map((phase) => ({
-        id: `day-${section}-${unit.unitNumber}-${phase}`,
-        // 유닛마다 이틀씩 앞에 쌓인다
+        id: `day-${unitSection}-${unit.unitNumber}-${phase}`,
         dayNumber: (unitsBefore + index) * 2 + phase,
-        section,
+        section: unitSection,
         unit: unit.unitNumber,
         phase,
+        // 섹션이 바뀌는 첫날 위에만 구분선을 세운다
+        sectionStart: startsSection && phase === 1,
         title: unit.title ?? '',
         status: 'locked' as StudyNodeStatus,
         nodes: this.buildNodes({ ...ctx, phase }),
@@ -119,11 +145,36 @@ export class StudyPathService {
 
     const currentDayIndex = this.applyStatuses(days);
 
+    const level = clampLevel(me?.placementLevel ?? 1);
     return {
       currentSection: section,
+      currentLevel: level,
       currentDayIndex,
       days,
-      nextSection: roadmap.nextSection ?? null,
+      nextLevel: await this.nextLevelInfo(level, lang),
+    };
+  }
+
+  /**
+   * 이 급을 다 끝냈을 때 안내할 다음 급. 콘텐츠가 없으면 null 이라 화면이
+   * 아무것도 띄우지 않는다 — 없는 걸 예고하면 기다리게만 만든다.
+   */
+  private async nextLevelInfo(level: number, lang: string) {
+    const next = level + 1;
+    const meta = PLACEMENT_LEVELS.find((m) => m.level === next);
+    if (!meta) return null;
+
+    const [start, end] = sectionRangeForLevel(next);
+    const ready = await this.nodeModel.exists({
+      isActive: true,
+      section: { $in: [start, end] },
+    });
+    if (!ready) return null;
+
+    return {
+      level: next,
+      title: pickSectionText(meta.title, lang),
+      description: pickSectionText(meta.description, lang),
     };
   }
 

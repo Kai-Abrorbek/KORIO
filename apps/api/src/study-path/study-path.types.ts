@@ -188,6 +188,8 @@ export interface StudyDay {
   unit: number;
   /** 1 = 배우기, 2 = 익히기 */
   phase: StudyPhase;
+  /** 섹션이 바뀌는 첫날. 앱이 여기 위에 구분선을 세운다 */
+  sectionStart: boolean;
   title: string;
   status: StudyNodeStatus;
   nodes: StudyNode[];
@@ -195,12 +197,14 @@ export interface StudyDay {
 
 export interface StudyPathResponse {
   currentSection: number;
+  /** 지금 배우는 급수 */
+  currentLevel: number;
   currentDayIndex: number;
   days: StudyDay[];
-  nextSection: {
-    sectionNumber: number;
+  /** 이 급을 끝냈을 때 넘어갈 다음 급. 콘텐츠가 없으면 null */
+  nextLevel: {
+    level: number;
     title: string;
     description: string;
-    firstUnitNumber: number;
   } | null;
 }
