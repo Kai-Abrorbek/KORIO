@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -21,6 +21,9 @@ interface Props {
   color: string;
   done: number;
   total: number;
+  /** 지금 배우는 급수. 누르면 다시 고를 수 있다 */
+  level: number;
+  onLevelPress: () => void;
 }
 
 /**
@@ -35,6 +38,8 @@ export default function DayBanner({
   color,
   done,
   total,
+  level,
+  onLevelPress,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -106,6 +111,22 @@ export default function DayBanner({
             </Text>
           </View>
         </View>
+
+        <Pressable
+          style={styles.levelBtn}
+          onPress={onLevelPress}
+          hitSlop={8}
+          accessibilityLabel={t("studyLevel.change")}
+        >
+          <Text style={styles.levelText}>
+            {t("studyPath.levelShort", { n: level })}
+          </Text>
+          <Ionicons
+            name="swap-vertical"
+            size={13}
+            color="rgba(255,255,255,0.9)"
+          />
+        </Pressable>
       </LinearGradient>
     </View>
   );
@@ -244,4 +265,18 @@ const getStyles = (_theme: ThemeColors) =>
       fontWeight: "900",
       color: "rgba(255,255,255,0.92)",
     },
+    levelBtn: {
+      marginLeft: 10,
+      alignSelf: "flex-start",
+      minHeight: 30,
+      borderRadius: 11,
+      paddingHorizontal: 9,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: "rgba(255,255,255,0.18)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.26)",
+    },
+    levelText: { color: "#FFFFFF", fontSize: 12, fontWeight: "900" },
   });

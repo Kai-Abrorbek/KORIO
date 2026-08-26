@@ -1514,7 +1514,16 @@ export default {
       desc: "Wherever you like. Pick your own way through the map.",
     },
   },
+  studyLevel: {
+    title: "Where should we start?",
+    subtitle:
+      "Pick what matches your Korean right now.\nYou can change it any time.",
+    comingSoon: "Coming soon",
+    hint: "Not sure? Starting from Level 1 is a safe bet.",
+    change: "Change level",
+  },
   studyPath: {
+    levelShort: "Lv.{{n}}",
     lockedHint: "Opens once you finish the step before",
     preview: "Preview",
     lessonProgress: "Ring {{done}}/{{total}}",

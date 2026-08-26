@@ -93,3 +93,20 @@ export function lessonSlice(
   const size = base + (index < extra ? 1 : 0);
   return { start, end: start + size };
 }
+
+/** 고를 수 있는 급수 하나 */
+export interface StudyLevel {
+  level: number;
+  /** 그 급이 맡은 섹션 범위 */
+  sections: [number, number];
+  title: string;
+  description: string;
+  /** 콘텐츠가 준비된 급인지. false 면 잠긴 카드로 보여준다 */
+  available: boolean;
+}
+
+export interface StudyLevelsResponse {
+  /** 지금 유저의 급수 */
+  current: number;
+  levels: StudyLevel[];
+}

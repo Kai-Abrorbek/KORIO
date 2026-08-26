@@ -11,6 +11,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StudyPathService } from './study-path.service';
 import { CompleteStudyNodeDto } from './dto/complete-study-node.dto';
+import { SetStudyLevelDto } from './dto/set-study-level.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('study-path')
@@ -21,6 +22,18 @@ export class StudyPathController {
   @Get()
   async getStudyPath(@Request() req, @Query('lang') lang = 'uz') {
     return this.studyPathService.getStudyPath(req.user._id.toString(), lang);
+  }
+
+  /** 고를 수 있는 급수 목록 (콘텐츠 없는 급은 available:false) */
+  @Get('levels')
+  async getLevels(@Request() req, @Query('lang') lang = 'uz') {
+    return this.studyPathService.getLevels(req.user._id.toString(), lang);
+  }
+
+  /** 급수 직접 선택 */
+  @Post('levels')
+  async setLevel(@Request() req, @Body() dto: SetStudyLevelDto) {
+    return this.studyPathService.setLevel(req.user._id.toString(), dto.level);
   }
 
   /** 노드의 레슨 하나를 끝냈을 때 */

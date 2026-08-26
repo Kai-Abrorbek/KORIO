@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LessonsService } from '../lessons/lessons.service';
+import {
+  PLACEMENT_LEVELS,
+  clampLevel,
+  sectionRangeForLevel,
+} from '../lessons/placement.const';
+import { pickSectionText } from '../lessons/section.const';
 import { WordsService } from '../words/words.service';
 import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
@@ -119,6 +125,58 @@ export class StudyPathService {
       days,
       nextSection: roadmap.nextSection ?? null,
     };
+  }
+
+  /**
+   * 고를 수 있는 급수 목록.
+   *
+   * 콘텐츠가 없는 급은 available:false 로 내려서 화면이 잠근다. 시드가 늘면
+   * 자동으로 열리도록 노드 유무로 판단한다 — 목록에 하드코딩하지 않는다.
+   */
+  async getLevels(userId: string, lang = 'uz') {
+    const [me, sections] = await Promise.all([
+      this.userModel.findById(userId).select('placementLevel').lean(),
+      this.nodeModel.distinct('section', { isActive: true }),
+    ]);
+
+    const ready = new Set<number>((sections as number[]) ?? []);
+    const current = me?.placementLevel ?? 1;
+
+    const levels = PLACEMENT_LEVELS.map((meta) => {
+      const [start, end] = sectionRangeForLevel(meta.level);
+      // 그 급이 맡은 두 섹션 중 하나라도 있으면 시작할 수 있다
+      const available = ready.has(start) || ready.has(end);
+      return {
+        level: meta.level,
+        sections: [start, end] as [number, number],
+        title: pickSectionText(meta.title, lang),
+        description: pickSectionText(meta.description, lang),
+        available,
+      };
+    });
+
+    return { current, levels };
+  }
+
+  /**
+   * 급수 직접 선택. 콘텐츠가 없는 급은 거부한다 — 빈 로드맵으로 보내면
+   * 앱이 "준비된 학습이 없어요" 만 띄우고 유저는 이유를 모른다.
+   */
+  async setLevel(userId: string, level: number) {
+    const target = clampLevel(level);
+    const [start, end] = sectionRangeForLevel(target);
+    const ready = (await this.nodeModel.distinct('section', {
+      isActive: true,
+      section: { $in: [start, end] },
+    })) as number[];
+
+    if (!ready.length) throw new BadRequestException('LEVEL_NOT_AVAILABLE');
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $set: { placementLevel: target } },
+    );
+    return { placementLevel: target };
   }
 
   /** 노드의 링 하나를 끝냈다는 기록 */

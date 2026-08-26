@@ -1510,7 +1510,16 @@ export default {
       desc: "원하는 곳부터. 로드맵을 직접 골라 가요.",
     },
   },
+  studyLevel: {
+    title: "어디서부터 배울까요?",
+    subtitle:
+      "지금 한국어 수준에 맞게 골라주세요.\n나중에 언제든 바꿀 수 있어요.",
+    comingSoon: "준비 중이에요",
+    hint: "잘 모르겠다면 1급부터 시작하는 게 좋아요.",
+    change: "급수 바꾸기",
+  },
   studyPath: {
+    levelShort: "{{n}}급",
     lockedHint: "앞 단계를 끝내면 열려요",
     preview: "미리보기",
     lessonProgress: "링 {{done}}/{{total}}",

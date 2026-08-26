@@ -1523,7 +1523,16 @@ export default {
       desc: "Xohlagan joydan. Yo'l xaritasini o'zingiz tanlaysiz.",
     },
   },
+  studyLevel: {
+    title: "Qayerdan boshlaymiz?",
+    subtitle:
+      "Hozirgi koreys tili darajangizga mos keladiganini tanlang.\nKeyin istalgan payt o'zgartirasiz.",
+    comingSoon: "Tayyorlanmoqda",
+    hint: "Ikkilanayotgan bo'lsangiz, 1-darajadan boshlang.",
+    change: "Darajani o'zgartirish",
+  },
   studyPath: {
+    levelShort: "{{n}}-daraja",
     lockedHint: "Oldingi bosqichni tugatsangiz ochiladi",
     preview: "Oldindan ko'rish",
     lessonProgress: "Halqa {{done}}/{{total}}",

@@ -286,6 +286,13 @@ export default function StudyPathScreen() {
           color={bannerUnit.color}
           done={countDone(bannerDay)}
           total={bannerDay.nodes.length}
+          level={Math.max(1, Math.ceil((data?.currentSection ?? 1) / 2))}
+          onLevelPress={() =>
+            router.push({
+              pathname: "/study-level",
+              params: { from: "studyPath" },
+            })
+          }
         />
       ) : null}
 

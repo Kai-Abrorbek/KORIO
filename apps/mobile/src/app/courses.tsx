@@ -119,7 +119,9 @@ export default function CoursesScreen() {
     // 고르라고 하면 그 약속이 깨지므로 바로 하루치 로드맵으로 보낸다.
     if (mode === "guided") {
       commitLearnMode("vocabulary");
-      router.push("/study-path");
+      // 어디서부터 배울지 먼저 고른다. 예전엔 온보딩 테스트만이 급수를
+      // 정했고 건너뛰면 무조건 1급에 묶였다.
+      router.push("/study-level");
       return;
     }
 

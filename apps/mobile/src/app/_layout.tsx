@@ -54,6 +54,10 @@ export default function RootLayout() {
             {/* 학습 로드 모드의 하루치 로드맵. 자율 로드맵과 같은 층위다 */}
             <Stack.Screen name="study-path" />
             <Stack.Screen
+              name="study-level"
+              options={{ animation: "slide_from_bottom" }}
+            />
+            <Stack.Screen
               name="courses"
               options={{
                 presentation: "modal",
