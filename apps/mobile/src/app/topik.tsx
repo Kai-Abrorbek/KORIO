@@ -429,31 +429,33 @@ export default function TopikHomeScreen() {
         )}
 
         {/* 유형별 학습 (합격 레시피) */}
-        <Pressable
-          style={styles.recipeEntry}
-          onPress={() =>
-            router.push({
-              pathname: "/topik-recipes",
-            })
-          }
-        >
-          <View style={styles.recipeEntryIcon}>
-            <Ionicons name="restaurant-outline" size={22} color="#fff" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recipeEntryTitle}>
-              {t("topik.recipe.golden")}
-            </Text>
-            <Text style={styles.recipeEntryCaption}>
-              {t("topik.recipe.pastQuestions")} · {t("topik.recipe.grammar")}
-            </Text>
-          </View>
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={palette.textSubtle}
-          />
-        </Pressable>
+        {level === "2" && (
+          <Pressable
+            style={styles.recipeEntry}
+            onPress={() =>
+              router.push({
+                pathname: "/topik-recipes",
+              })
+            }
+          >
+            <View style={styles.recipeEntryIcon}>
+              <Ionicons name="restaurant-outline" size={22} color="#fff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.recipeEntryTitle}>
+                {t("topik.recipe.golden")}
+              </Text>
+              <Text style={styles.recipeEntryCaption}>
+                {t("topik.recipe.pastQuestions")} · {t("topik.recipe.grammar")}
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={palette.textSubtle}
+            />
+          </Pressable>
+        )}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t("topik.home.studyMode")}</Text>
