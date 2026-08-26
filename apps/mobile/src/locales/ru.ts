@@ -1229,6 +1229,7 @@ export default {
     later: "Позже",
   },
   writePractice: {
+    retryHint: "Почти. Посмотрите подсказку и введите ещё раз.",
     correctAnswer: "Правильный ответ",
     level: "Уровень {{n}}",
     hint: "Подсказка",

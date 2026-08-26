@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSpeech } from "@/hooks/useSpeech";
+import { shuffle } from "@/utils/shuffle";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -59,16 +60,6 @@ interface Props {
   theme: ThemeColors;
   /** 다음 문제로. 이 유형은 아래 피드백 바를 쓰지 않는다 */
   onNext: () => void;
-}
-
-/** 보기 순서 섞기 (Fisher-Yates) */
-function shuffle<T>(list: T[]): T[] {
-  const out = [...list];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
 }
 
 /**

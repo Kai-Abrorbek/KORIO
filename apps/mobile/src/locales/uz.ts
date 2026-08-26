@@ -1229,6 +1229,7 @@ export default {
     rankUpTitle: "{{tier}}da {{rank}}-o'ringa ko'tarildingiz!",
   },
   writePractice: {
+    retryHint: "Afsus. Maslahatga qarab, qaytadan kiriting.",
     correctAnswer: "To'g'ri javob",
     level: "Daraja {{n}}",
     hint: "Yordam",

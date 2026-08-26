@@ -1221,6 +1221,7 @@ export default {
     rankUpTitle: "{{tier}}에서 상위 {{rank}}위로 올라갔습니다!",
   },
   writePractice: {
+    retryHint: "아쉬워요. 힌트를 보고 다시 입력해 보세요.",
     correctAnswer: "정답",
     level: "레벨 {{n}}",
     hint: "힌트 보기",

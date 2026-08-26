@@ -44,6 +44,7 @@ import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
+import { shuffleGrammarQuestions } from "@/utils/shuffle";
 
 type Phase = "main" | "reviewIntro" | "review";
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
@@ -340,7 +341,11 @@ export default function LessonScreen() {
         ? await LessonService.getLessonById(lessonId)
         : MOCK_LESSON;
       setLesson(data);
-      questionQueue.current = [...data.questions];
+      // 문법 레슨은 시드 순서가 늘 같다. 유형은 번갈아 두고 안쪽만 섞는다.
+      questionQueue.current =
+        data.category === "grammar"
+          ? shuffleGrammarQuestions(data.questions)
+          : [...data.questions];
     } catch (err) {
       console.error("레슨 로드 실패:", err);
       if (!isLevelTest && !isExpressionPractice) {

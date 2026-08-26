@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,9 +17,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
+import { isAnswerCorrect } from "@/utils/answer-check";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 
@@ -60,6 +64,13 @@ interface Props {
   onNext: () => void;
 }
 
+/** 한글은 글자폭 ≈ 글자크기, 로마자·숫자·공백은 그 절반쯤 */
+function textWidth(text: string, size: number) {
+  let w = 0;
+  for (const ch of text) w += /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(ch) ? size : size * 0.55;
+  return w;
+}
+
 /**
  * 문법 빈칸 문제 (grammar_blank).
  * 채점·피드백·XP 는 레슨 엔진이 하고 여기서는 입력만 받아 onAnswer 로 넘긴다.
@@ -73,6 +84,7 @@ export default function GrammarBlank({
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
 
   // 엔진 문제 형태를 카드가 쓰던 이름으로 매핑
   const q = {
@@ -94,6 +106,10 @@ export default function GrammarBlank({
 
   const state = answerState; // "idle" | "correct" | "wrong"
   const [input, setInput] = useState("");
+  /** 채점을 엔진에 넘긴 적이 있는지. 오답도 첫 시도 한 번만 기록한다 */
+  const [reported, setReported] = useState(false);
+  /** 두 번째 시도 이후에 맞힌 경우. 엔진은 이미 오답으로 기록했다 */
+  const [solvedLate, setSolvedLate] = useState(false);
   const [hintLevel, setHintLevel] = useState(0); // 0/1/2
   const [fav, setFav] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -115,6 +131,8 @@ export default function GrammarBlank({
     caret.value = 1; // 깜빡임 없이 고정
   }, []);
 
+  const isOk = state === "correct" || solvedLate;
+
   // 문제 바뀌면 리셋 + 키보드 다시
   // 뒤로가기로 키보드만 닫히면 RN 은 여전히 포커스를 쥐고 있다고 보고
   // focus() 를 무시한다. blur 로 한 번 놓아준 뒤 다시 잡아야 키보드가 올라온다.
@@ -126,27 +144,70 @@ export default function GrammarBlank({
   useEffect(() => {
     setInput("");
     setHintLevel(0);
+    setReported(false);
+    setSolvedLate(false);
     check.value = 0;
     focusInput();
   }, [q.id]);
 
   // 채점 결과는 엔진이 알려준다
   useEffect(() => {
-    if (answerState === "correct") {
-      Keyboard.dismiss();
-      check.value = 1;
-    }
-  }, [answerState]);
+    if (isOk) Keyboard.dismiss();
+    if (answerState === "correct") check.value = 1;
+  }, [answerState, solvedLate]);
+
+  /**
+   * 문장이 길어지면 글자를 줄인다.
+   * 카드 안쪽 폭을 재서 두 줄 안에 들어가는 가장 큰 단계를 고른다.
+   */
+  const fit = useMemo(() => {
+    const inner = width - 36 - 36; // 스크롤 여백 18*2 + 카드 안쪽 18*2
+    const pick = (text: string, ladder: number[], extra = 0) =>
+      ladder.find(
+        (size) => textWidth(text, size) + extra <= inner * 2 * 0.92,
+      ) ?? ladder[ladder.length - 1];
+    return {
+      sent: pick(q.full, [28, 25, 22, 20, 18, 16], 46),
+      prompt: pick(q.prompt, [27, 24, 21, 19, 17, 15]),
+    };
+  }, [q.full, q.prompt, width]);
 
   const revealed = () => {
     if (hintLevel === 0) return "";
     return hintLevel === 1 ? q.answer.slice(0, 1) : q.answer;
   };
 
-  // 채점은 엔진이 한다. 여기서는 입력만 넘긴다.
+  /**
+   * 맞을 때까지 다시 입력하게 한다.
+   *
+   * 엔진에는 첫 시도 결과만 넘긴다(오답 기록은 한 번이면 된다). 그 뒤로는
+   * 여기서 직접 보고, 틀리면 정답을 알려주지 않고 다시 입력받는다.
+   */
   const handleCheck = () => {
-    if (state !== "idle" || !input.trim()) return;
-    onAnswer(input.trim());
+    const typed = input.trim();
+    if (isOk || !typed) return;
+
+    const right = isAnswerCorrect(typed, q.answer, question.acceptedAnswers);
+
+    if (!reported) {
+      setReported(true);
+      onAnswer(typed); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
+      if (right) return;
+    } else if (right) {
+      setSolvedLate(true);
+      check.value = 1;
+      return;
+    }
+
+    shake.value = withSequence(
+      withTiming(-8, { duration: 55 }),
+      withTiming(8, { duration: 55 }),
+      withTiming(-5, { duration: 55 }),
+      withTiming(0, { duration: 55 }),
+    );
+    setInput("");
+    setHintLevel((h) => Math.min(2, h + 1)); // 틀릴수록 힌트를 더 열어준다
+    focusInput();
   };
 
   const pressHint = () => {
@@ -155,27 +216,34 @@ export default function GrammarBlank({
   };
 
   const handleChange = (v: string) => {
-    if (state === "correct") return;
+    if (isOk) return;
     setInput(v);
   };
-
-  const isOk = state === "correct";
 
   // 어떤 문법을 연습 중인지 보여준다
   const badge = { text: q.pattern, bg: C.badgeTeal };
 
   // 프롬프트 하이라이트 (초록)
   const renderPrompt = () => {
+    const size = {
+      fontSize: fit.prompt,
+      lineHeight: Math.round(fit.prompt * 1.4),
+    };
     if (!q.highlight || !q.prompt.includes(q.highlight))
-      return <Text style={st.prompt}>{q.prompt}</Text>;
+      return <Text style={[st.prompt, size]}>{q.prompt}</Text>;
     const [a, b] = q.prompt.split(q.highlight);
     return (
-      <Text style={st.prompt}>
+      <Text style={[st.prompt, size]}>
         {a}
         <Text style={{ color: C.green }}>{q.highlight}</Text>
         {b}
       </Text>
     );
+  };
+
+  const sentSize = {
+    fontSize: fit.sent,
+    lineHeight: Math.round(fit.sent * 1.35),
   };
 
   return (
@@ -241,49 +309,62 @@ export default function GrammarBlank({
                 <Animated.Text style={st.note}>※ {q.note}</Animated.Text>
               )}
 
-              {/* 오답 — 아래 피드백 바 대신 여기서 정답을 알려준다 */}
-              {state === "wrong" && (
+              {/* 오답 — 정답을 알려주지 않고 힌트만 주고 다시 입력받는다 */}
+              {state === "wrong" && !isOk && (
                 <Animated.View style={st.wrongBubble}>
-                  <Text style={st.wrongLabel}>
-                    {t("writePractice.correctAnswer")}
+                  <Text style={st.wrongText}>
+                    {t("writePractice.retryHint")}
                   </Text>
-                  <Text style={st.wrongAnswer}>{q.answer}</Text>
-                  {!!q.full && <Text style={st.wrongFull}>{q.full}</Text>}
                   {!!(q.wrongHint || q.note) && (
-                    <Text style={st.wrongText}>{q.wrongHint || q.note}</Text>
+                    <Text style={st.wrongSub}>{q.wrongHint || q.note}</Text>
                   )}
                 </Animated.View>
               )}
 
               {/* 정답 문장 + 인라인 입력칸 */}
               <View style={st.answerRow}>
-                {!!q.prefix && <Text style={st.answerFix}>{q.prefix}</Text>}
+                {!!q.prefix && (
+                  <Text style={[st.answerFix, sentSize]}>{q.prefix}</Text>
+                )}
                 <Pressable
                   onPress={focusInput}
                   style={[
                     st.slot,
                     { backgroundColor: isOk ? C.slotOk : C.slot },
+                    { minHeight: fit.sent + 16 },
                   ]}
                 >
                   {/* 배경 힌트 (흐리게) — 입력 없을 때만 */}
                   {input.length === 0 && hintLevel > 0 && (
-                    <Text style={[st.slotText, st.hintGhost]}>
+                    <Text style={[st.slotText, sentSize, st.hintGhost]}>
                       {revealed()}
                     </Text>
                   )}
 
                   {/* 실제 입력 (힌트 위에 덮임) */}
                   {input.length > 0 && (
-                    <Text style={[st.slotText, isOk && { color: C.greenInk }]}>
+                    <Text
+                      style={[
+                        st.slotText,
+                        sentSize,
+                        isOk && { color: C.greenInk },
+                      ]}
+                    >
                       {input}
                     </Text>
                   )}
 
                   {/* 커서 */}
-                  {!isOk && <Animated.View style={[st.caret, caretStyle]} />}
+                  {!isOk && (
+                    <Animated.View
+                      style={[st.caret, { height: fit.sent + 3 }, caretStyle]}
+                    />
+                  )}
                 </Pressable>
 
-                {!!q.suffix && <Text style={st.answerFix}>{q.suffix}</Text>}
+                {!!q.suffix && (
+                  <Text style={[st.answerFix, sentSize]}>{q.suffix}</Text>
+                )}
               </View>
 
               {/* 정답일 때 완성 문장을 보여준다 */}
@@ -303,7 +384,7 @@ export default function GrammarBlank({
           blurOnSubmit={false}
           returnKeyType="done"
           onSubmitEditing={handleCheck}
-          editable={state !== "correct"}
+          editable={!isOk}
           style={st.hiddenInput} // ✅ 정답 후엔 입력 막기
         />
 
@@ -367,12 +448,6 @@ export default function GrammarBlank({
                 <Text style={st.nextText}>{t("lesson.continue")}</Text>
               </Pressable>
             </View>
-          </View>
-        ) : state === "wrong" ? (
-          <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
-            <Pressable style={[st.nextBtn, st.nextWrong]} onPress={onNext}>
-              <Text style={st.nextText}>{t("lesson.continue")}</Text>
-            </Pressable>
           </View>
         ) : (
           <View style={[st.inputBar, { paddingBottom: 6 }]}>
@@ -467,7 +542,7 @@ const st = StyleSheet.create({
     fontWeight: "800",
     color: "#5a7fa0",
   },
-  scroll: { paddingHorizontal: 18, paddingTop: 30 },
+  scroll: { paddingHorizontal: 18, paddingTop: 20 },
 
   levelTab: {
     alignSelf: "flex-start",
@@ -484,68 +559,51 @@ const st = StyleSheet.create({
   },
   levelText: { fontSize: 14, fontWeight: "800", color: C.levelText },
 
-  card: { borderRadius: 22, padding: 22, minHeight: 300, overflow: "hidden" },
+  card: { borderRadius: 22, padding: 18, minHeight: 236, overflow: "hidden" },
   cardTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 8,
-    minHeight: 40,
+    marginBottom: 2,
+    minHeight: 34,
   },
-  image: { fontSize: 40 },
+  image: { fontSize: 34 },
   cardTopRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   heartBtn: {},
-  badge: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16 },
-  badgeText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  badge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14 },
+  badgeText: { color: "#fff", fontSize: 13, fontWeight: "800" },
 
   checkMark: { position: "absolute", top: 6, left: 14, zIndex: 5 },
 
-  prompt: {
-    fontSize: 27,
-    fontWeight: "800",
-    color: C.ink,
-    lineHeight: 38,
-    marginTop: 20,
-  },
+  prompt: { fontWeight: "800", color: C.ink, marginTop: 8 },
   note: {
     alignSelf: "flex-end",
     color: C.greenInk,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
-    marginTop: 12,
+    marginTop: 8,
   },
 
   wrongBubble: {
     backgroundColor: C.pink,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 20,
-    gap: 3,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginTop: 14,
+    gap: 4,
   },
-  wrongLabel: {
-    fontSize: 12,
-    color: C.pinkInk,
-    fontWeight: "800",
-    opacity: 0.75,
-    letterSpacing: 0.3,
-  },
-  wrongAnswer: {
-    fontSize: 22,
-    color: C.pinkInk,
-    fontWeight: "900",
-  },
-  wrongFull: {
+  wrongText: {
     fontSize: 15,
     color: C.pinkInk,
     fontWeight: "700",
-    opacity: 0.85,
+    lineHeight: 21,
   },
-  wrongText: {
-    marginTop: 4,
-    fontSize: 14.5,
+  wrongSub: {
+    fontSize: 14,
     color: C.pinkInk,
     fontWeight: "600",
-    lineHeight: 21,
+    lineHeight: 20,
+    opacity: 0.85,
   },
   nextRow: { paddingHorizontal: 16, paddingTop: 10 },
   nextBtn: {
@@ -563,21 +621,21 @@ const st = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 22,
+    rowGap: 4,
   },
-  answerFix: { fontSize: 28, fontWeight: "700", color: C.ink },
+  answerFix: { fontWeight: "700", color: C.ink },
   slot: {
-    minWidth: 70,
-    height: 44,
+    minWidth: 64,
     borderRadius: 10,
-    paddingHorizontal: 10,
-    marginHorizontal: 4,
+    paddingHorizontal: 9,
+    marginHorizontal: 3,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  slotText: { fontSize: 27, fontWeight: "800", color: C.ink },
-  caret: { width: 2.5, height: 30, backgroundColor: C.purple, marginLeft: 2 },
+  slotText: { fontWeight: "800", color: C.ink },
+  caret: { width: 2.5, backgroundColor: C.purple, marginLeft: 2 },
   source: {
     alignSelf: "flex-end",
     color: C.source,

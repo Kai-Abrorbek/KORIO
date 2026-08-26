@@ -1225,6 +1225,7 @@ export default {
     later: "Maybe later",
   },
   writePractice: {
+    retryHint: "Not quite. Check the hint and type it again.",
     correctAnswer: "Correct answer",
     level: "Level {{n}}",
     hint: "Hint",
