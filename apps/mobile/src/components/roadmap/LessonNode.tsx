@@ -211,12 +211,13 @@ export default function LessonNode({
     iconColor = "#8A6D00";
   }
 
-  const iconName = isLegendDone ? "star" : customIconName ?? ICON_MAP[type];
+  const iconName = isLegendDone ? "star" : (customIconName ?? ICON_MAP[type]);
   const iconSize = type === "chest" || type === "boss" ? 34 : 30;
 
   return (
     <View style={styles.wrap}>
-      {isCurrent && !hideRing && (
+      {/* 링은 진행도다. 한 조각짜리 링은 아무것도 알려주지 않으므로 그리지 않는다 */}
+      {isCurrent && !hideRing && totalSteps > 1 && (
         <View style={styles.ringWrap} pointerEvents="none">
           <AnimatedNodeRing
             color={unitColor}

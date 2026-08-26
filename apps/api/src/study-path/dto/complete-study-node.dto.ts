@@ -19,7 +19,14 @@ export class CompleteStudyNodeDto {
   @IsIn([...STUDY_COMPLETABLE_KINDS])
   kind: StudyCompletableKind;
 
-  /** 노드 안의 몇 번째 레슨인지 (1-based). 쪼개지 않는 노드는 1 */
+  /** 같은 종류가 여럿일 때 몇 번째 노드인지 (1-based) */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  group?: number;
+
+  /** 노드 안의 몇 번째 링인지 (1-based). 쪼개지 않는 노드는 1 */
   @IsOptional()
   @Type(() => Number)
   @IsInt()

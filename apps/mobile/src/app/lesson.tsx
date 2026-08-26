@@ -54,8 +54,8 @@ const LEGEND_DURATION = 120; // 2분
 /** 서버 XP 표(PRACTICE_BASE_XP)의 키. 노드 종류마다 보상이 다르다 */
 const UNIT_PRACTICE_MODE: Record<StudyQuizKind, PracticeMode> = {
   review: "unitReview",
-  vocabQuiz1: "unitVocab",
-  vocabQuiz2: "unitVocab",
+  recap: "unitRecap",
+  vocabQuiz: "unitVocab",
   grammarQuiz: "unitGrammar",
   final: "unitFinal",
 };
@@ -93,6 +93,7 @@ export default function LessonScreen() {
     pack,
     kind,
     from,
+    group,
     lesson: lessonNo,
   } = useLocalSearchParams<{
     lessonId?: string;
@@ -105,8 +106,10 @@ export default function LessonScreen() {
     category?: string;
     /** 표현 카드 학습에서 연습할 표현 팩 코드 */
     pack?: string;
-    /** 학습 로드 모드 노드 종류: review | vocabQuiz1 | vocabQuiz2 | grammarQuiz | final */
+    /** 학습 로드 모드 노드 종류: review | vocabQuiz | recap | grammarQuiz | final */
     kind?: string;
+    /** 같은 종류가 여럿일 때 몇 번째 노드인지 (1-based) */
+    group?: string;
     /** 학습 로드 모드에서 들어왔으면 "studyPath". 끝나고 거기로 돌아간다 */
     from?: string;
     /** 학습 로드 모드: 노드 안의 몇 번째 레슨인지 (1-based) */
@@ -125,9 +128,10 @@ export default function LessonScreen() {
     kind as StudyQuizKind,
   )
     ? (kind as StudyQuizKind)
-    : "vocabQuiz1";
+    : "vocabQuiz";
   const fromStudyPath = from === "studyPath";
   const unitLesson = Math.max(1, Number(lessonNo) || 1);
+  const unitGroup = Math.max(1, Number(group) || 1);
   const jumpHeartLimit = target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
     useOnboardingStore();
@@ -261,6 +265,7 @@ export default function LessonScreen() {
           Number(section),
           Number(unit),
           unitKind,
+          unitGroup,
           unitLesson,
         );
         setLesson({
@@ -590,6 +595,7 @@ export default function LessonScreen() {
           Number(section),
           Number(unit),
           unitKind,
+          unitGroup,
           unitLesson,
         );
       } catch (err) {

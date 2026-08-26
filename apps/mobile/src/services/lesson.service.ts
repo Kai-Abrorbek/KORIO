@@ -11,6 +11,7 @@ export type PracticeMode =
   | "nodeReview"
   | "wordPractice"
   | "unitReview"
+  | "unitRecap"
   | "unitVocab"
   | "unitGrammar"
   | "unitFinal";
@@ -122,11 +123,13 @@ export const LessonService = {
   getUnitPractice: (
     section: number,
     unit: number,
-    kind: "review" | "vocabQuiz1" | "vocabQuiz2" | "grammarQuiz" | "final",
+    kind: "review" | "vocabQuiz" | "recap" | "grammarQuiz" | "final",
+    group = 1,
     lesson = 1,
   ): Promise<{ questions: any[] }> =>
     api.get(
-      `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}&lesson=${lesson}&lang=${getLang()}`,
+      `/lessons/unit-practice?section=${section}&unit=${unit}&kind=${kind}` +
+        `&group=${group}&lesson=${lesson}&lang=${getLang()}`,
     ),
 
   getNodeReview: (

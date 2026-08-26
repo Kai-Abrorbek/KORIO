@@ -20,8 +20,8 @@ const ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   review: "refresh",
   words: "albums",
   grammar: "book",
-  vocabQuiz1: "create",
-  vocabQuiz2: "create",
+  vocabQuiz: "create",
+  recap: "refresh",
   grammarQuiz: "construct",
   final: "flag",
 };
@@ -31,8 +31,8 @@ const COUNT_LABEL: Record<string, string> = {
   review: "studyPath.countQuestions",
   words: "studyPath.countWords",
   grammar: "studyPath.countGrammar",
-  vocabQuiz1: "studyPath.countQuestions",
-  vocabQuiz2: "studyPath.countQuestions",
+  vocabQuiz: "studyPath.countQuestions",
+  recap: "studyPath.countQuestions",
   grammarQuiz: "studyPath.countQuestions",
   final: "studyPath.countQuestions",
 };
@@ -49,7 +49,15 @@ export default function StudyNodePopover({
   const theme = useTheme();
   const styles = getStyles(theme);
   const completed = node.status === "completed";
-  const title = t(`studyPath.node.${node.kind}`);
+  const base = t(`studyPath.node.${node.kind}`);
+  const title =
+    node.groupCount > 1
+      ? t("studyPath.nodeGroup", {
+          name: base,
+          n: node.group,
+          total: node.groupCount,
+        })
+      : base;
 
   return (
     <View

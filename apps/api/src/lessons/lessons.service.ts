@@ -46,6 +46,7 @@ import { CATCH_UP_UNITS, STUDY_QUIZ_SIZE } from './study-path.const';
 import {
   lessonCountFor,
   lessonSlice,
+  vocabNodeCount,
   type StudyQuizKind,
 } from '../study-path/study-path.types';
 
@@ -907,10 +908,14 @@ export class LessonsService {
     unit: number,
     kind: StudyQuizKind,
     lang = 'uz',
+    group = 1,
     lesson = 1,
   ) {
     if (kind === 'review') {
       return this.getCatchUpReview(userId, section, unit, lang);
+    }
+    if (kind === 'recap') {
+      return this.getUnitRecap(userId, section, unit, lang);
     }
     if (kind === 'final') {
       return this.getUnitFinal(userId, section, unit, lang);
@@ -920,11 +925,14 @@ export class LessonsService {
     const all = await this.collectUnitQuestions(section, unit, track);
     if (!all.length) return { questions: [] };
 
-    // 어휘는 두 노드가 유닛 전체를 절반씩 맡는다
+    // 어휘는 유닛 전체를 100문제짜리 노드로 나눠 가진다. 그 노드 몫을 먼저
+    // 떼고, 그 안에서 다시 링 단위로 자른다.
     let pool = all;
-    if (kind === 'vocabQuiz1' || kind === 'vocabQuiz2') {
-      const half = Math.ceil(all.length / 2);
-      pool = kind === 'vocabQuiz1' ? all.slice(0, half) : all.slice(half);
+    if (kind === 'vocabQuiz') {
+      const nodes = vocabNodeCount(all.length);
+      const index = Math.min(Math.max(1, group), nodes) - 1;
+      const { start, end } = lessonSlice(all.length, nodes, index);
+      pool = all.slice(start, end);
     }
 
     const lessonCount = lessonCountFor(kind, pool.length);
@@ -1152,6 +1160,46 @@ export class LessonsService {
         .slice(0, limit)
         .map((q) => this.formatQuestion(q, lang)),
     };
+  }
+
+  /**
+   * 2일차 첫 노드 — 어제(1일차) 배운 것 되짚기.
+   * 그 유닛에서 틀렸던 문제를 먼저 채우고, 모자라면 유닛 앞쪽 어휘 문제로
+   * 채운다. 어제 배운 걸 다시 만나는 게 목적이라 새 문제만 주면 안 된다.
+   */
+  private async getUnitRecap(
+    userId: string,
+    section: number,
+    unit: number,
+    lang: string,
+  ) {
+    const limit = STUDY_QUIZ_SIZE.review;
+    const pool = await this.collectUnitQuestions(section, unit, 'vocabulary');
+    if (!pool.length) return { questions: [] };
+
+    const unitLessons = await this.lessonModel
+      .find({ _id: { $in: await this.lessonIdsInUnits([{ section, unit }]) } })
+      .select('_id')
+      .lean();
+    const wrongIds = new Set(
+      await this.wrongQuestionIds(
+        userId,
+        unitLessons.map((l) => l._id),
+        limit,
+      ),
+    );
+
+    const wrong = pool.filter((q: any) => wrongIds.has(q._id.toString()));
+    // 1일차가 맡은 앞쪽 구간에서 채운다 — 아직 안 본 뒤쪽을 미리 보여주지 않게
+    const firstHalf = pool.slice(0, Math.ceil(pool.length / 2));
+    const rest = firstHalf.filter((q: any) => !wrongIds.has(q._id.toString()));
+
+    const picked = [
+      ...this.shuffle(wrong).slice(0, limit),
+      ...this.pickBalanced(rest, limit),
+    ].slice(0, limit);
+
+    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
   }
 
   /**

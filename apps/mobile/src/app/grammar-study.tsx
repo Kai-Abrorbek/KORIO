@@ -459,7 +459,9 @@ export default function GrammarStudy() {
               const s = Number(section);
               const u = Number(unit);
               if (s > 0 && u > 0) {
-                StudyPathService.completeNode(s, u, "grammar").catch(() => {});
+                StudyPathService.completeNode(s, u, "grammar", 1, 1).catch(
+                  () => {},
+                );
               }
               if (from === "studyPath") {
                 router.replace("/study-path");

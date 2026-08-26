@@ -34,6 +34,7 @@ export class StudyPathController {
       dto.section,
       dto.unit,
       dto.kind,
+      dto.group ?? 1,
       dto.lesson ?? 1,
     );
   }

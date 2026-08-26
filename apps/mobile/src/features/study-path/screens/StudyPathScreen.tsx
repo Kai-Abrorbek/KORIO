@@ -54,11 +54,21 @@ export default function StudyPathScreen() {
     if (!data) return null;
     return buildStudyPathViewModel(
       data.days,
-      (node) => t(`studyPath.node.${node.kind}`),
+      (node) => {
+        const base = t(`studyPath.node.${node.kind}`);
+        return node.groupCount > 1
+          ? t("studyPath.nodeGroup", {
+              name: base,
+              n: node.group,
+              total: node.groupCount,
+            })
+          : base;
+      },
       (day) =>
-        day.title
-          ? t("studyPath.dayWithTitle", { n: day.dayNumber, title: day.title })
-          : t("studyPath.dayLabel", { n: day.dayNumber }),
+        t(day.phase === 1 ? "studyPath.dayLearn" : "studyPath.dayPractice", {
+          n: day.dayNumber,
+          title: day.title,
+        }),
     );
   }, [data, t]);
 
@@ -164,6 +174,7 @@ export default function StudyPathScreen() {
             from: "studyPath",
             section,
             unit,
+            group: String(node.group),
             lesson: String(node.nextLesson),
           },
         });
@@ -252,6 +263,7 @@ export default function StudyPathScreen() {
         <DayBanner
           dayNumber={bannerDay.dayNumber}
           title={bannerDay.title}
+          phase={bannerDay.phase}
           color={bannerUnit.color}
           done={countDone(bannerDay)}
           total={bannerDay.nodes.length}

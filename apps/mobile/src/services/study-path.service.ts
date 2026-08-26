@@ -20,7 +20,8 @@ export const StudyPathService = {
     section: number,
     unit: number,
     kind: StudyCompletableKind,
+    group = 1,
     lesson = 1,
   ): Promise<{ success: boolean; key: string }> =>
-    api.post("/study-path/complete", { section, unit, kind, lesson }),
+    api.post("/study-path/complete", { section, unit, kind, group, lesson }),
 };

@@ -10,11 +10,15 @@ import {
   StudyCompletableKind,
   StudyDay,
   StudyNode,
+  StudyNodeKind,
   StudyNodeStatus,
   StudyPathResponse,
+  StudyPhase,
   lessonCountFor,
+  lessonSlice,
   studyNodeKey,
   studyNodePrefix,
+  vocabNodeCount,
 } from './study-path.types';
 
 /** 그 유닛 단어 요약 (WordsService.getSectionSummary 의 units 원소) */
@@ -79,14 +83,9 @@ export class StudyPathService {
       (wordSummary?.units ?? []).map((u: UnitWordSummary) => [u.unit, u]),
     );
 
-    const days: StudyDay[] = units.map((unit, index) => ({
-      id: `day-${section}-${unit.unitNumber}`,
-      dayNumber: unitsBefore + index + 1,
-      section,
-      unit: unit.unitNumber,
-      title: unit.title ?? '',
-      status: 'locked' as StudyNodeStatus,
-      nodes: this.buildNodes({
+    // 1과 = 이틀. 첫날은 새 내용을 넣고, 둘째 날은 문제로 굳힌다.
+    const days: StudyDay[] = units.flatMap((unit, index) => {
+      const ctx = {
         section,
         unit: unit.unitNumber,
         isFirstOfSection: index === 0,
@@ -97,8 +96,20 @@ export class StudyPathService {
         vocabQuestions:
           questionCounts.get(`${unit.unitNumber}:vocabulary`) ?? 0,
         grammarQuestions: questionCounts.get(`${unit.unitNumber}:grammar`) ?? 0,
-      }),
-    }));
+      };
+
+      return ([1, 2] as StudyPhase[]).map((phase) => ({
+        id: `day-${section}-${unit.unitNumber}-${phase}`,
+        // 유닛마다 이틀씩 앞에 쌓인다
+        dayNumber: (unitsBefore + index) * 2 + phase,
+        section,
+        unit: unit.unitNumber,
+        phase,
+        title: unit.title ?? '',
+        status: 'locked' as StudyNodeStatus,
+        nodes: this.buildNodes({ ...ctx, phase }),
+      }));
+    });
 
     const currentDayIndex = this.applyStatuses(days);
 
@@ -110,15 +121,16 @@ export class StudyPathService {
     };
   }
 
-  /** 노드의 레슨 하나를 끝냈다는 기록 */
+  /** 노드의 링 하나를 끝냈다는 기록 */
   async completeNode(
     userId: string,
     section: number,
     unit: number,
     kind: StudyCompletableKind,
+    group = 1,
     lesson = 1,
   ) {
-    const key = studyNodeKey(section, unit, kind, lesson);
+    const key = studyNodeKey(section, unit, kind, group, lesson);
     await this.userModel.updateOne(
       { _id: userId },
       { $addToSet: { completedStudyNodes: key } },
@@ -135,6 +147,7 @@ export class StudyPathService {
   private buildNodes(ctx: {
     section: number;
     unit: number;
+    phase: StudyPhase;
     isFirstOfSection: boolean;
     doneGrammar: Set<string>;
     doneNodes: Set<string>;
@@ -146,26 +159,32 @@ export class StudyPathService {
     const nodes: StudyNode[] = [];
 
     /**
-     * 노드 하나를 레슨 여러 개로 쪼갠다. 끝낸 레슨은 유저 문서에 남고,
-     * 기록이 없어도 이미 그 내용을 다 해치운 유저(자율 모드로 앞서 나간
-     * 경우)는 통째로 완료로 본다 — 진행도를 되돌리지 않으려고.
+     * 노드 하나를 링 여러 개로 쪼갠다. 끝낸 링은 유저 문서에 남고, 기록이
+     * 없어도 이미 그 내용을 다 해치운 유저(자율 모드로 앞서 나간 경우)는
+     * 통째로 완료로 본다 — 진행도를 되돌리지 않으려고.
      */
     const add = (
-      kind: StudyNode['kind'],
+      kind: StudyNodeKind,
       count: number,
-      alreadyDone = false,
+      options: {
+        group?: number;
+        groupCount?: number;
+        alreadyDone?: boolean;
+      } = {},
     ): void => {
       if (count <= 0) return; // 다룰 게 없는 노드는 세우지 않는다
+      const group = options.group ?? 1;
+      const groupCount = options.groupCount ?? 1;
       const lessonCount = lessonCountFor(kind, count);
-      const prefix = studyNodePrefix(ctx.section, ctx.unit, kind);
+      const prefix = studyNodePrefix(ctx.section, ctx.unit, kind, group);
 
       let lessonsDone = 0;
       for (let lesson = 1; lesson <= lessonCount; lesson += 1) {
         if (ctx.doneNodes.has(`${prefix}${lesson}`)) lessonsDone += 1;
       }
-      if (alreadyDone) lessonsDone = lessonCount;
+      if (options.alreadyDone) lessonsDone = lessonCount;
 
-      // 중간을 건너뛰고 끝 레슨만 했더라도 첫 미완료부터 이어 가게 한다
+      // 중간을 건너뛰고 끝 링만 했더라도 첫 미완료부터 이어 가게 한다
       let nextLesson = 1;
       for (let lesson = 1; lesson <= lessonCount; lesson += 1) {
         if (!ctx.doneNodes.has(`${prefix}${lesson}`)) {
@@ -176,8 +195,10 @@ export class StudyPathService {
       }
 
       nodes.push({
-        id: kind,
+        id: `${kind}.${group}`,
         kind,
+        group,
+        groupCount,
         status: 'locked',
         done: lessonsDone >= lessonCount,
         count,
@@ -187,30 +208,49 @@ export class StudyPathService {
       });
     };
 
-    // 1. 지난 수업 복습 — 섹션 첫날은 되돌아볼 것이 없다
-    if (!ctx.isFirstOfSection) add('review', 1);
+    // 어휘 문제는 유닛 전체를 100문제짜리 노드로 나눠 이틀에 걸쳐 소화한다
+    const vocabNodes = vocabNodeCount(ctx.vocabQuestions);
+    const firstDayVocab = Math.ceil(vocabNodes / 2);
 
-    // 2. 오늘 단어 — 그 유닛 단어를 한 번씩 다 봤으면 이미 끝난 것으로
-    const wordCount = ctx.words?.words ?? 0;
-    add('words', wordCount, wordCount > 0 && (ctx.words?.new ?? 0) === 0);
+    if (ctx.phase === 1) {
+      // 1일차 — 배우기: 지난 과 복습 → 단어 → 문법 → 어휘 문제 앞쪽
+      if (!ctx.isFirstOfSection) add('review', 1);
 
-    // 3. 오늘 문법 — 그 유닛 문법 퀴즈를 전부 통과했으면 이미 끝난 것으로
-    add(
-      'grammar',
-      ctx.grammarCodes.length,
-      ctx.grammarCodes.length > 0 &&
-        ctx.grammarCodes.every((code) => ctx.doneGrammar.has(code)),
-    );
+      const wordCount = ctx.words?.words ?? 0;
+      add('words', wordCount, {
+        alreadyDone: wordCount > 0 && (ctx.words?.new ?? 0) === 0,
+      });
 
-    // 4·5. 오늘 어휘 문제 — 유닛 전체를 두 노드로 절반씩 나눠 맡는다
-    const half = Math.ceil(ctx.vocabQuestions / 2);
-    add('vocabQuiz1', half);
-    add('vocabQuiz2', ctx.vocabQuestions - half);
+      add('grammar', ctx.grammarCodes.length, {
+        alreadyDone:
+          ctx.grammarCodes.length > 0 &&
+          ctx.grammarCodes.every((code) => ctx.doneGrammar.has(code)),
+      });
 
-    // 6. 오늘 문법 문제 — 시드가 없는 유닛은 노드도 없다
+      for (let group = 1; group <= firstDayVocab; group += 1) {
+        const { start, end } = lessonSlice(
+          ctx.vocabQuestions,
+          vocabNodes,
+          group - 1,
+        );
+        add('vocabQuiz', end - start, { group, groupCount: vocabNodes });
+      }
+      return nodes;
+    }
+
+    // 2일차 — 익히기: 어제 복습 → 어휘 문제 뒤쪽 → 문법 문제 → 마무리
+    add('recap', ctx.vocabQuestions > 0 ? 1 : 0);
+
+    for (let group = firstDayVocab + 1; group <= vocabNodes; group += 1) {
+      const { start, end } = lessonSlice(
+        ctx.vocabQuestions,
+        vocabNodes,
+        group - 1,
+      );
+      add('vocabQuiz', end - start, { group, groupCount: vocabNodes });
+    }
+
     add('grammarQuiz', ctx.grammarQuestions);
-
-    // 7. 마무리 — 풀 문제가 하나라도 있어야 의미가 있다
     add('final', ctx.vocabQuestions + ctx.grammarQuestions);
 
     return nodes;

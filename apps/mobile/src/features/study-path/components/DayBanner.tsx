@@ -16,6 +16,8 @@ import { darken } from "@/utils/color";
 interface Props {
   dayNumber: number;
   title: string;
+  /** 1 = 배우기, 2 = 익히기 */
+  phase: 1 | 2;
   color: string;
   done: number;
   total: number;
@@ -29,6 +31,7 @@ interface Props {
 export default function DayBanner({
   dayNumber,
   title,
+  phase,
   color,
   done,
   total,
@@ -81,7 +84,12 @@ export default function DayBanner({
           <Text style={styles.eyebrow} numberOfLines={1}>
             {complete
               ? t("studyPath.dayComplete")
-              : t("studyPath.dayLabel", { n: dayNumber })}
+              : t(
+                  phase === 1
+                    ? "studyPath.phaseLearn"
+                    : "studyPath.phasePractice",
+                  { n: dayNumber },
+                )}
           </Text>
           <Text style={styles.title} numberOfLines={1}>
             {title}

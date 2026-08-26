@@ -115,8 +115,8 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   // 학습 로드 모드 — 하루(=유닛) 노드용 문제.
-  // kind: review | vocabQuiz1 | vocabQuiz2 | grammarQuiz | final
-  // lesson: 노드 안의 몇 번째 레슨인지 (1-based)
+  // kind: review | vocabQuiz | recap | grammarQuiz | final
+  // group: 같은 종류가 여럿일 때 몇 번째 노드인지, lesson: 그 안의 몇 번째 링인지
   @Get('unit-practice')
   async getUnitPractice(
     @Request() req,
@@ -124,6 +124,7 @@ export class LessonsController {
     @Query('unit') unit: string,
     @Query('kind') kind?: string,
     @Query('lang') lang?: string,
+    @Query('group') group?: string,
     @Query('lesson') lesson?: string,
   ) {
     const s = Number(section);
@@ -141,6 +142,7 @@ export class LessonsController {
       u,
       kind,
       lang ?? 'uz',
+      Math.max(1, Number(group) || 1),
       Math.max(1, Number(lesson) || 1),
     );
   }

@@ -929,9 +929,13 @@ export default function WordStudyScreen() {
   const finishStudyPathUnit = useCallback(() => {
     flushSeen();
     if (section > 0 && unit > 0) {
-      StudyPathService.completeNode(section, unit, "words", studyLesson).catch(
-        () => {},
-      );
+      StudyPathService.completeNode(
+        section,
+        unit,
+        "words",
+        1,
+        studyLesson,
+      ).catch(() => {});
     }
     router.replace("/study-path");
   }, [flushSeen, router, section, studyLesson, unit]);

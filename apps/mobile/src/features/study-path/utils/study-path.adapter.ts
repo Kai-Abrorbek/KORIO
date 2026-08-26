@@ -7,8 +7,8 @@ const NODE_ICON: Record<StudyNodeKind, RoadmapIconName> = {
   review: "refresh",
   words: "albums",
   grammar: "book",
-  vocabQuiz1: "create",
-  vocabQuiz2: "create",
+  vocabQuiz: "create",
+  recap: "refresh",
   grammarQuiz: "construct",
   final: "flag",
 };
