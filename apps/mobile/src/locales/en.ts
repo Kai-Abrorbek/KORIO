@@ -1264,6 +1264,8 @@ export default {
     retrySave: "Try saving again",
   },
   sentenceBuild: {
+    wrongHere: "'{{word}}' does not fit here. Try another word.",
+    title: "Build the sentence",
     level: "Level {{n}}",
     checkAnswer: "Check answer",
     minAgo: "{{count}} min ago",

@@ -1260,6 +1260,8 @@ export default {
     retrySave: "다시 저장",
   },
   sentenceBuild: {
+    wrongHere: "'{{word}}' 는 이 자리에 맞지 않아요. 다시 골라보세요.",
+    title: "문장 만들기",
     level: "레벨 {{n}}",
     checkAnswer: "정답 확인",
     minAgo: "{{count}}분 전",

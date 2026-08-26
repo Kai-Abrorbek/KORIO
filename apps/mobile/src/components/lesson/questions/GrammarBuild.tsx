@@ -7,6 +7,8 @@ import { useSpeech } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
@@ -75,16 +77,24 @@ export default function GrammarBuild({
     pattern: question.tags?.[0] ?? "",
     before: "",
     after: "",
-    hints: {} as Record<string, string>,
+    // 선택지별 힌트. 시드가 채워주면 쓰고, 없으면 아래에서 문구를 만든다
+    hints: (question.buildRows ?? []).reduce<Record<string, string>>(
+      (acc, row: any) => ({ ...acc, ...(row.hints ?? {}) }),
+      {},
+    ),
   };
 
   const [picks, setPicks] = useState<string[]>([]);
   const [currentRow, setCurrentRow] = useState(0);
   const [attemptWrong, setAttemptWrong] = useState(false);
   const [lastPicks, setLastPicks] = useState<string[]>([]);
+  /** 채점을 엔진에 넘긴 적이 있는지. 오답도 첫 시도 한 번만 기록한다 */
+  const [reported, setReported] = useState(false);
+  /** 두 번째 시도 이후에 맞힌 경우. 엔진은 이미 오답으로 기록했다 */
+  const [solvedLate, setSolvedLate] = useState(false);
 
   const allPicked = currentRow >= q.rows.length;
-  const isOk = answerState === "correct";
+  const isOk = answerState === "correct" || solvedLate;
 
   const shake = useSharedValue(0);
   const check = useSharedValue(0);
@@ -101,16 +111,14 @@ export default function GrammarBuild({
     setCurrentRow(0);
     setAttemptWrong(false);
     setLastPicks([]);
+    setReported(false);
+    setSolvedLate(false);
     check.value = 0;
   }, [q.id]);
 
   // 채점 결과는 엔진이 알려준다
   useEffect(() => {
     if (answerState === "correct") check.value = 1;
-    if (answerState === "wrong") {
-      setLastPicks(picks);
-      setAttemptWrong(true);
-    }
   }, [answerState]);
 
   const pickWord = (rowIndex: number, w: string) => {
@@ -125,10 +133,42 @@ export default function GrammarBuild({
     setCurrentRow((r) => r - 1);
   };
 
-  // 채점은 엔진이 한다. 고른 어절을 이어서 넘긴다.
+  /**
+   * 정답이 될 때까지 다시 풀게 한다.
+   *
+   * 엔진에는 첫 시도 결과만 넘긴다(오답 기록은 한 번이면 된다). 그 뒤로는
+   * 컴포넌트가 직접 맞는지 보고, 틀리면 힌트를 띄운 뒤 틀린 자리부터 다시
+   * 고르게 한다 — 정답을 알려주고 넘겨버리면 조립 문제의 뜻이 없다.
+   */
   const checkAnswer = () => {
-    if (answerState !== "idle" || !allPicked) return;
-    onAnswer(picks.join(" "));
+    if (!allPicked || isOk) return;
+
+    const right = q.rows.every((row, i) => picks[i] === row.correct);
+
+    if (!reported) {
+      setReported(true);
+      onAnswer(picks.join(" ")); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
+      if (right) return;
+    } else if (right) {
+      setSolvedLate(true);
+      check.value = 1;
+      return;
+    }
+
+    // 틀렸다: 어디가 틀렸는지 남기고 그 자리부터 다시
+    const wrongAt = picks.findIndex((w, i) => w !== q.rows[i]?.correct);
+    setLastPicks(picks);
+    setAttemptWrong(true);
+    shake.value = withSequence(
+      withTiming(-8, { duration: 55 }),
+      withTiming(8, { duration: 55 }),
+      withTiming(-5, { duration: 55 }),
+      withTiming(0, { duration: 55 }),
+    );
+    if (wrongAt >= 0) {
+      setPicks(picks.slice(0, wrongAt));
+      setCurrentRow(wrongAt);
+    }
   };
 
   // 카드 색 (오답 후 힌트)
@@ -143,14 +183,15 @@ export default function GrammarBuild({
   const wrongIdx = attemptWrong
     ? lastPicks.findIndex((w, i) => w !== q.rows[i]?.correct)
     : -1;
-  const showExplain = attemptWrong && !allPicked && wrongIdx >= 0;
+  const showExplain = attemptWrong && !isOk && wrongIdx >= 0;
   const wrongWord = wrongIdx >= 0 ? lastPicks[wrongIdx] : "";
 
   // 지금 연습 중인 문법
   const badge = q.pattern;
 
-  // 완성된 한국어 문장 (정답 후 노출)
-  const renderTranslation = () => <Text style={st.trans}>{q.full}</Text>;
+  // 무엇을 만드는지 알려주는 모국어 뜻. q.full(정답)은 맞힌 뒤에만.
+  const renderTranslation = () =>
+    q.prompt ? <Text style={st.trans}>{q.prompt}</Text> : null;
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
@@ -160,12 +201,9 @@ export default function GrammarBuild({
       >
         {/* 레벨 탭 */}
         <View style={st.levelTab}>
-          <Text style={st.levelText}>{q.prompt}</Text>
-          {!isOk && (
-            <View style={st.badge}>
-              <Text style={st.badgeText}>{badge}</Text>
-            </View>
-          )}
+          <Text style={st.levelText} numberOfLines={1}>
+            {badge || t("sentenceBuild.title")}
+          </Text>
         </View>
 
         {/* 카드 */}
@@ -205,8 +243,12 @@ export default function GrammarBuild({
               <Text style={st.sentText}>{q.after}</Text>
             </View>
 
-            {/* 정답 문장은 맞힌 뒤에만. 풀기 전에 보여주면 문제가 성립 안 함 */}
-            {isOk && renderTranslation()}
+            {/* 무슨 뜻을 만드는지는 처음부터 보여준다. 조립할 문장이
+                한국어라 뜻을 감추면 문제를 풀 단서가 없다 */}
+            {renderTranslation()}
+
+            {/* 맞힌 뒤에만 완성된 한국어 문장 */}
+            {isOk && <Text style={st.answerLine}>{q.full}</Text>}
 
             {/* 오답 설명 버블 */}
             {showExplain && (
@@ -230,27 +272,25 @@ export default function GrammarBuild({
                   </Text>
                 </View>
                 <Text style={st.hintText}>
-                  {q.hints[wrongWord] ?? t("sentenceBuild.wrongDefault")}
+                  {q.hints[wrongWord] ||
+                    t("sentenceBuild.wrongHere", { word: wrongWord })}
                 </Text>
-              </Animated.View>
-            )}
-
-            {/* 다 고르고 틀렸을 때 — 아래 피드백 바 대신 여기서 정답을 알려준다 */}
-            {answerState === "wrong" && allPicked && (
-              <Animated.View style={st.wrongBubble}>
-                <Text style={st.wrongLabel}>
-                  {t("writePractice.correctAnswer")}
-                </Text>
-                <Text style={st.wrongAnswer}>{q.full}</Text>
-                {!!q.prompt && <Text style={st.wrongPrompt}>{q.prompt}</Text>}
               </Animated.View>
             )}
 
             {/* 카드 하단 미니 버튼 (picking 시) */}
             {!isOk && (
               <View style={st.miniRow}>
-                <Pressable style={st.miniBtn}>
-                  <Ionicons name="checkmark" size={20} color={C.purple} />
+                <Pressable
+                  style={[st.miniBtn, !allPicked && st.miniBtnOff]}
+                  onPress={checkAnswer}
+                  disabled={!allPicked}
+                >
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={allPicked ? C.purple : "#c9d3de"}
+                  />
                 </Pressable>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Pressable style={st.miniBtn} onPress={undo}>
@@ -322,12 +362,6 @@ export default function GrammarBuild({
             </Pressable>
           </View>
         </View>
-      ) : answerState === "wrong" && allPicked ? (
-        <View style={[st.nextRow, { paddingBottom: insets.bottom + 8 }]}>
-          <Pressable style={[st.nextBtn, st.nextWrong]} onPress={onNext}>
-            <Text style={st.nextText}>{t("lesson.continue")}</Text>
-          </Pressable>
-        </View>
       ) : (
         <View style={st.pickArea}>
           {/* 단어 스택 (뒤=위, 앞=아래) */}
@@ -391,29 +425,6 @@ export default function GrammarBuild({
               );
             })}
           </View>
-
-          {/* 정답 확인 (모두 고르면) */}
-          {allPicked && (
-            <Animated.View
-              style={[st.checkWrap, { paddingBottom: insets.bottom + 10 }]}
-            >
-              <Pressable style={st.checkBtn} onPress={checkAnswer}>
-                {({ pressed }) => (
-                  <View
-                    style={[
-                      st.checkBtnInner,
-                      pressed && { transform: [{ scale: 0.98 }] },
-                    ]}
-                  >
-                    <Ionicons name="search-circle" size={26} color={C.purple} />
-                    <Text style={st.checkBtnText}>
-                      {t("sentenceBuild.checkAnswer")}
-                    </Text>
-                  </View>
-                )}
-              </Pressable>
-            </Animated.View>
-          )}
         </View>
       )}
     </LinearGradient>
@@ -542,6 +553,12 @@ const st = StyleSheet.create({
     marginVertical: 2,
   },
   filledText: { fontSize: 28, fontWeight: "800", color: C.blankInk },
+  answerLine: {
+    marginTop: 6,
+    fontSize: 17,
+    fontWeight: "800",
+    color: C.okText,
+  },
   trans: {
     fontSize: 19,
     fontWeight: "600",
@@ -603,6 +620,7 @@ const st = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 22,
   },
+  miniBtnOff: { opacity: 0.55 },
   miniBtn: {
     width: 54,
     height: 40,

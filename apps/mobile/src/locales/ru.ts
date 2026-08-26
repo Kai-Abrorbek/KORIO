@@ -1268,6 +1268,8 @@ export default {
     retrySave: "Сохранить ещё раз",
   },
   sentenceBuild: {
+    wrongHere: "'{{word}}' сюда не подходит. Выберите другое слово.",
+    title: "Составьте предложение",
     level: "Уровень {{n}}",
     checkAnswer: "Проверить",
     minAgo: "{{count}} мин назад",

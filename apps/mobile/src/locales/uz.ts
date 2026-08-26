@@ -1268,6 +1268,8 @@ export default {
     retrySave: "Qayta saqlash",
   },
   sentenceBuild: {
+    wrongHere: "'{{word}}' bu joyga to‘g‘ri kelmaydi. Qayta tanlang.",
+    title: "Gap tuzish",
     level: "Daraja {{n}}",
     checkAnswer: "Javobni tekshirish",
     minAgo: "{{count}} daqiqa oldin",
