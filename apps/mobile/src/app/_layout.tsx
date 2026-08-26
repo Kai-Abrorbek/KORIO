@@ -58,6 +58,10 @@ export default function RootLayout() {
               options={{ animation: "slide_from_bottom" }}
             />
             <Stack.Screen
+              name="level-exam-result"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="courses"
               options={{
                 presentation: "modal",

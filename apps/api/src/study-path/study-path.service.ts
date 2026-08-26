@@ -1,7 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { LessonsService } from '../lessons/lessons.service';
+import { LEVEL_EXAM } from '../lessons/study-path.const';
+import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
+import { CompleteLevelExamDto } from './dto/complete-level-exam.dto';
 import {
   PLACEMENT_LEVELS,
   clampLevel,
@@ -45,6 +48,8 @@ export class StudyPathService {
     private readonly nodeModel: Model<LessonNodeDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(Question.name)
+    private readonly questionModel: Model<QuestionDocument>,
   ) {}
 
   /**
@@ -74,7 +79,9 @@ export class StudyPathService {
     const [me, grammarRows, wordSummaries, unitsBefore] = await Promise.all([
       this.userModel
         .findById(userId)
-        .select('completedGrammar completedStudyNodes placementLevel')
+        .select(
+          'completedGrammar completedStudyNodes placementLevel completedLevelExams',
+        )
         .lean(),
       this.grammarModel
         .find({ isActive: true, section: { $in: sections } })
@@ -146,11 +153,19 @@ export class StudyPathService {
     const currentDayIndex = this.applyStatuses(days);
 
     const level = clampLevel(me?.placementLevel ?? 1);
+    // 그 급을 전부 끝내야 졸업 시험이 열린다
+    const allDone =
+      days.length > 0 && days.every((d) => d.status === 'completed');
+
     return {
       currentSection: section,
       currentLevel: level,
       currentDayIndex,
       days,
+      levelExam: {
+        available: allDone,
+        passed: (me?.completedLevelExams ?? []).includes(level),
+      },
       nextLevel: await this.nextLevelInfo(level, lang),
     };
   }
@@ -228,6 +243,113 @@ export class StudyPathService {
       { $set: { placementLevel: target } },
     );
     return { placementLevel: target };
+  }
+
+  /** 급수 졸업 시험 문제 */
+  async getLevelExam(userId: string, lang = 'uz') {
+    const me = await this.userModel
+      .findById(userId)
+      .select('placementLevel')
+      .lean();
+    const level = clampLevel(me?.placementLevel ?? 1);
+    const [start, end] = sectionRangeForLevel(level);
+
+    const exam = await this.lessonsService.getLevelExam(
+      [start, end],
+      lang,
+      LEVEL_EXAM.questions,
+    );
+    return { level, ...exam };
+  }
+
+  /**
+   * 졸업 시험 결과.
+   *
+   * 떨어져도 다음 급은 열어준다. 학습 로드의 약속은 "순서대로 가면 된다" 인데
+   * 시험이 벽이 되면 떨어진 사람은 거기서 앱을 떠난다. 대신 어느 영역이
+   * 약했는지 알려주고, 다시 보고 싶으면 언제든 볼 수 있게 둔다.
+   */
+  async completeLevelExam(userId: string, dto: CompleteLevelExamDto) {
+    const me = await this.userModel
+      .findById(userId)
+      .select('placementLevel completedLevelExams')
+      .lean();
+    const level = clampLevel(me?.placementLevel ?? 1);
+
+    const questionIds = (dto.questionIds ?? []).filter((id) =>
+      Types.ObjectId.isValid(id),
+    );
+    const wrongIds = (dto.wrongQuestionIds ?? []).filter((id) =>
+      Types.ObjectId.isValid(id),
+    );
+    const total = questionIds.length;
+    const correct = Math.max(0, total - new Set(wrongIds).size);
+    const passed = total > 0 && correct / total >= LEVEL_EXAM.passRatio;
+
+    // 오답 장부·통계는 다른 학습과 같은 경로로
+    await this.lessonsService.recordStudy(userId, {
+      questionIds: questionIds.map((id) => new Types.ObjectId(id)),
+      wrongQuestionIds: wrongIds,
+      speedSeconds: dto.speedSeconds,
+    });
+
+    const xpRes = await this.lessonsService.addXp(
+      userId,
+      passed ? LEVEL_EXAM.xp : Math.round(LEVEL_EXAM.xp / 3),
+    );
+
+    // 통과 보상은 급수당 한 번만
+    let gemsEarned = 0;
+    if (passed && !(me?.completedLevelExams ?? []).includes(level)) {
+      await this.userModel.updateOne(
+        { _id: userId },
+        {
+          $inc: { gems: LEVEL_EXAM.gems },
+          $addToSet: { completedLevelExams: level },
+        },
+      );
+      gemsEarned = LEVEL_EXAM.gems;
+    }
+
+    const next = await this.nextLevelInfo(level, dto.lang ?? 'uz');
+    if (next) {
+      await this.userModel.updateOne(
+        { _id: userId },
+        { $set: { placementLevel: next.level } },
+      );
+    }
+
+    return {
+      passed,
+      correct,
+      total,
+      level,
+      nextLevel: next?.level ?? null,
+      weakAreas: await this.weakAreas(wrongIds),
+      gemsEarned,
+      xpEarned: passed ? LEVEL_EXAM.xp : Math.round(LEVEL_EXAM.xp / 3),
+      totalXP: xpRes.totalXP ?? 0,
+    };
+  }
+
+  /** 틀린 문제가 어느 영역에 몰렸는지. 많은 순으로 최대 두 개 */
+  private async weakAreas(wrongIds: string[]): Promise<string[]> {
+    if (!wrongIds.length) return [];
+    const rows = await this.questionModel
+      .find({ _id: { $in: wrongIds.map((id) => new Types.ObjectId(id)) } })
+      .select('lessonCategory type')
+      .lean();
+
+    const counts = new Map<string, number>();
+    for (const row of rows as any[]) {
+      const key = row.lessonCategory ?? row.type ?? 'etc';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([key]) => key);
   }
 
   /** 노드의 링 하나를 끝냈다는 기록 */

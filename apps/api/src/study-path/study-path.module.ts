@@ -4,6 +4,7 @@ import { LessonsModule } from '../lessons/lessons.module';
 import { WordsModule } from '../words/words.module';
 import { Grammar, GrammarSchema } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeSchema } from '../lessons/schemas/node.schema';
+import { Question, QuestionSchema } from '../lessons/schemas/question.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { StudyPathController } from './study-path.controller';
 import { StudyPathService } from './study-path.service';
@@ -20,6 +21,7 @@ import { StudyPathService } from './study-path.service';
     MongooseModule.forFeature([
       { name: Grammar.name, schema: GrammarSchema },
       { name: LessonNode.name, schema: LessonNodeSchema },
+      { name: Question.name, schema: QuestionSchema },
       { name: User.name, schema: UserSchema },
     ]),
   ],

@@ -124,6 +124,8 @@ export default function LessonScreen() {
   const isExpressionPractice = mode === "expressionPractice";
   // 학습 로드 모드 — 그 하루(=유닛) 범위로 좁힌 실전/복습/마무리
   const isUnitPractice = mode === "unitPractice";
+  // 급수 졸업 시험 — 하트 제한이 있고 결과를 전용 화면에서 본다
+  const isLevelExam = mode === "levelExam";
   const unitKind: StudyQuizKind = STUDY_QUIZ_KINDS.includes(
     kind as StudyQuizKind,
   )
@@ -257,6 +259,19 @@ export default function LessonScreen() {
         );
         setLesson(session);
         questionQueue.current = [...session.questions];
+        return;
+      }
+
+      if (isLevelExam) {
+        const { questions } = await StudyPathService.getLevelExam();
+        setLesson({
+          lessonId: "level-exam",
+          lessonTitle: "Level Exam",
+          category: "",
+          totalXp: 0,
+          questions,
+        } as any);
+        questionQueue.current = [...questions];
         return;
       }
 
@@ -459,7 +474,7 @@ export default function LessonScreen() {
       const nextCombo = combo + 1;
       setCombo(nextCombo);
       // 슈퍼가 아닐 때만 에너지 소모
-      if (!isSuper && !isJumpTest) {
+      if (!isSuper && !isJumpTest && !isLevelExam) {
         (async () => {
           try {
             // 1) 소모 먼저
@@ -578,6 +593,33 @@ export default function LessonScreen() {
         updateUser({ totalXP: r.totalXP } as any);
       } catch (err) {
         console.error("표현 연습 완료 저장 실패:", err);
+      }
+    } else if (isLevelExam) {
+      try {
+        const res = await StudyPathService.completeLevelExam({
+          questionIds: practicedIds,
+          wrongQuestionIds: wrongArr,
+          speedSeconds: seconds,
+        });
+        updateUser({ totalXP: res.totalXP } as any);
+        router.replace({
+          pathname: "/level-exam-result",
+          params: {
+            passed: res.passed ? "1" : "0",
+            correct: String(res.correct),
+            total: String(res.total),
+            level: String(res.level),
+            nextLevel: res.nextLevel ? String(res.nextLevel) : "",
+            weak: res.weakAreas.join(","),
+            gems: String(res.gemsEarned),
+            xp: String(res.xpEarned),
+          },
+        });
+        return;
+      } catch (err) {
+        console.error("졸업 시험 저장 실패:", err);
+        router.replace("/study-path");
+        return;
       }
     } else if (isUnitPractice) {
       try {

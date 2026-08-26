@@ -73,6 +73,8 @@ export interface StudyPathResponse {
   currentLevel: number;
   currentDayIndex: number;
   days: StudyDay[];
+  /** 졸업 시험 상태. 그 급을 전부 끝내야 열린다 */
+  levelExam: { available: boolean; passed: boolean };
   /** 이 급을 끝냈을 때 넘어갈 다음 급. 콘텐츠가 없으면 null */
   nextLevel: {
     level: number;
@@ -113,4 +115,19 @@ export interface StudyLevelsResponse {
   /** 지금 유저의 급수 */
   current: number;
   levels: StudyLevel[];
+}
+
+/** 급수 졸업 시험 결과 */
+export interface LevelExamResult {
+  passed: boolean;
+  correct: number;
+  total: number;
+  level: number;
+  /** 다음 급수. 떨어져도 열린다 */
+  nextLevel: number | null;
+  /** 틀린 문제가 몰린 영역 (lessonCategory). 최대 2개 */
+  weakAreas: string[];
+  gemsEarned: number;
+  xpEarned: number;
+  totalXP: number;
 }

@@ -1,6 +1,7 @@
 import i18n from "@/locales/i18n";
 import api from "@/services/api";
 import type {
+  LevelExamResult,
   StudyCompletableKind,
   StudyLevelsResponse,
   StudyPathResponse,
@@ -23,6 +24,18 @@ export const StudyPathService = {
   /** 급수 선택 */
   setLevel: (level: number): Promise<{ placementLevel: number }> =>
     api.post("/study-path/levels", { level }),
+
+  /** 급수 졸업 시험 문제 */
+  getLevelExam: (): Promise<{ level: number; questions: any[] }> =>
+    api.get(`/study-path/level-exam?lang=${encodeURIComponent(getLang())}`),
+
+  /** 졸업 시험 결과. 떨어져도 다음 급은 열린다 */
+  completeLevelExam: (body: {
+    questionIds: string[];
+    wrongQuestionIds?: string[];
+    speedSeconds?: number;
+  }): Promise<LevelExamResult> =>
+    api.post("/study-path/level-exam/complete", { ...body, lang: getLang() }),
 
   /** 노드의 레슨 하나를 끝냈을 때. 보상은 각 화면이 이미 처리한다 */
   completeNode: (

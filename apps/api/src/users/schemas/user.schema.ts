@@ -204,6 +204,10 @@ export class User {
   @Prop({ type: [Number], default: [] })
   completedGrammarSections: number[];
 
+  // 졸업 시험을 통과한 급수. 보석 중복 지급을 막는다
+  @Prop({ type: [Number], default: [] })
+  completedLevelExams: number[];
+
   // 학습 로드 모드에서 끝낸 노드 키 ("<섹션>-<유닛>:<종류>", 예: "1-3:practice").
   // 레슨·문법·단어는 각자 자기 진행도가 있으므로 여기엔 실전/복습/마무리만 쌓인다.
   @Prop({ type: [String], default: [] })

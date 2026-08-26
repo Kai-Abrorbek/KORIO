@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StudyPathService } from './study-path.service';
 import { CompleteStudyNodeDto } from './dto/complete-study-node.dto';
 import { SetStudyLevelDto } from './dto/set-study-level.dto';
+import { CompleteLevelExamDto } from './dto/complete-level-exam.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('study-path')
@@ -34,6 +35,21 @@ export class StudyPathController {
   @Post('levels')
   async setLevel(@Request() req, @Body() dto: SetStudyLevelDto) {
     return this.studyPathService.setLevel(req.user._id.toString(), dto.level);
+  }
+
+  /** 급수 졸업 시험 문제 */
+  @Get('level-exam')
+  async getLevelExam(@Request() req, @Query('lang') lang = 'uz') {
+    return this.studyPathService.getLevelExam(req.user._id.toString(), lang);
+  }
+
+  /** 졸업 시험 결과. 떨어져도 다음 급은 열린다 */
+  @Post('level-exam/complete')
+  async completeLevelExam(@Request() req, @Body() dto: CompleteLevelExamDto) {
+    return this.studyPathService.completeLevelExam(
+      req.user._id.toString(),
+      dto,
+    );
   }
 
   /** 노드의 레슨 하나를 끝냈을 때 */

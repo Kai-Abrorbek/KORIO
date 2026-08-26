@@ -25,3 +25,16 @@ export const CATCH_UP_UNITS = [
   { days: 2, units: 2 },
   { days: 0, units: 1 },
 ] as const;
+
+/** 마무리·졸업 시험에서 "어려운 문제"로 보는 기준 (difficulty 1~5) */
+export const UNIT_FINAL_MIN_DIFFICULTY = 3;
+
+/** 급수 졸업 시험 문항 수와 통과 기준 */
+export const LEVEL_EXAM = {
+  questions: 25,
+  /** 통과 비율. 떨어져도 다음 급은 열린다 — 시험은 졸업식이지 관문이 아니다 */
+  passRatio: 0.8,
+  /** 통과 보상 (급수당 1회) */
+  gems: 50,
+  xp: 60,
+} as const;

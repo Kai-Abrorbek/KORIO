@@ -32,6 +32,7 @@ import type { RoadmapUnit } from "@/types/roadmap";
 import type { StudyDay, StudyNode } from "@/types/study-path";
 import DayBanner from "../components/DayBanner";
 import SectionDivider from "../components/SectionDivider";
+import LevelExamCard from "../components/LevelExamCard";
 import StudyNodePopover from "../components/StudyNodePopover";
 import { useStudyPath } from "../hooks/useStudyPath";
 import {
@@ -283,6 +284,21 @@ export default function StudyPathScreen() {
   );
 
   const listFooter = useMemo(() => {
+    // 그 급을 다 끝냈으면 졸업 시험이 먼저다. 다음 급 안내는 그 뒤에.
+    if (data?.levelExam?.available) {
+      return (
+        <LevelExamCard
+          level={data.currentLevel}
+          passed={data.levelExam.passed}
+          onPress={() =>
+            router.push({
+              pathname: "/lesson",
+              params: { mode: "levelExam", from: "studyPath" },
+            })
+          }
+        />
+      );
+    }
     if (!data?.nextLevel) return null;
     return (
       <NextSectionLocked
@@ -291,7 +307,7 @@ export default function StudyPathScreen() {
         description={data.nextLevel.description}
       />
     );
-  }, [data?.nextLevel]);
+  }, [data?.currentLevel, data?.levelExam, data?.nextLevel, router]);
 
   return (
     <View style={styles.container}>

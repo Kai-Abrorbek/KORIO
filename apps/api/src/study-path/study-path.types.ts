@@ -201,6 +201,8 @@ export interface StudyPathResponse {
   currentLevel: number;
   currentDayIndex: number;
   days: StudyDay[];
+  /** 졸업 시험 상태. 그 급을 전부 끝내야 열린다 */
+  levelExam: { available: boolean; passed: boolean };
   /** 이 급을 끝냈을 때 넘어갈 다음 급. 콘텐츠가 없으면 null */
   nextLevel: {
     level: number;

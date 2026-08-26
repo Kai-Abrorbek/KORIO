@@ -52,7 +52,11 @@ const SMART_GRADING_TYPES = new Set([
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
-import { CATCH_UP_UNITS, STUDY_QUIZ_SIZE } from './study-path.const';
+import {
+  CATCH_UP_UNITS,
+  STUDY_QUIZ_SIZE,
+  UNIT_FINAL_MIN_DIFFICULTY,
+} from './study-path.const';
 import {
   lessonCountFor,
   lessonSlice,
@@ -1047,6 +1051,55 @@ export class LessonsService {
         .slice(start, end)
         .map((q) => this.formatQuestion(q, lang)),
     };
+  }
+
+  /**
+   * 급수 졸업 시험 문제.
+   *
+   * 그 급이 맡은 두 섹션 전체에서 뽑는다. 어려운 문제를 앞에 두되 어휘·문법을
+   * 섞는다 — 한 영역만 나오면 실력을 확인하는 게 아니라 운을 보는 게 된다.
+   */
+  async getLevelExam(sections: number[], lang = 'uz', limit = 25) {
+    const pool = await this.collectSectionQuestions(sections);
+    if (!pool.length) return { questions: [] };
+
+    const hard = pool.filter(
+      (q: any) => (q.difficulty ?? 3) >= UNIT_FINAL_MIN_DIFFICULTY,
+    );
+    const picked = this.pickBalanced(hard.length >= limit ? hard : pool, limit);
+
+    return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /** 섹션 여러 개의 모든 문제. 유닛마다 따로 물으면 쿼리가 유닛 수만큼 늘어난다 */
+  private async collectSectionQuestions(sections: number[]) {
+    if (!sections.length) return [];
+
+    const nodes = await this.nodeModel
+      .find({ section: { $in: sections }, isActive: true })
+      .select('lessonIds')
+      .lean();
+    if (!nodes.length) return [];
+
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: nodes.flatMap((n) => n.lessonIds ?? []) } })
+      .select('questionIds')
+      .lean();
+
+    const qIds = new Set<string>();
+    lessons.forEach((l) =>
+      (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
+    );
+    if (!qIds.size) return [];
+
+    const questions = await this.questionModel
+      .find({
+        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
+        isActive: true,
+      })
+      .lean();
+
+    return this.dedupeByContent(questions);
   }
 
   /**
