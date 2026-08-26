@@ -84,7 +84,14 @@ export interface LessonQuestion {
   /** 빈칸 순서대로의 정답. 빈칸이 2개 이상일 때 필수 */
   blankAnswers?: string[];
   /** grammar_build 전용 — 어절 자리마다 보기 묶음 */
-  buildRows?: { options: string[]; correct: string }[];
+  buildRows?: {
+    options: string[];
+    correct: string;
+    /** 앞 조각에 공백 없이 붙는 조각. "학생" + "이에요" → "학생이에요" */
+    glue?: boolean;
+    /** 오답을 골랐을 때 보여줄 한 줄 힌트 (선택지 → 문구) */
+    hints?: Record<string, string>;
+  }[];
   hard?: boolean;
   /** 독해/빈칸 지문. cloze_passage 는 빈칸을 ___ 로 표기 */
   passage?: string;

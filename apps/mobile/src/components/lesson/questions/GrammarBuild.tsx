@@ -84,6 +84,13 @@ export default function GrammarBuild({
     ),
   };
 
+  /** 고른 조각을 문장으로 잇는다. glue 조각("이에요")은 앞말에 붙여 쓴다 */
+  const joinPicks = (words: string[]) =>
+    words.reduce(
+      (acc, w, i) => (i === 0 || q.rows[i]?.glue ? acc + w : acc + " " + w),
+      "",
+    );
+
   const [picks, setPicks] = useState<string[]>([]);
   const [currentRow, setCurrentRow] = useState(0);
   const [attemptWrong, setAttemptWrong] = useState(false);
@@ -154,7 +161,7 @@ export default function GrammarBuild({
 
     if (!reported) {
       setReported(true);
-      onAnswer(chosen.join(" ")); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
+      onAnswer(joinPicks(chosen)); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
       if (right) return;
     } else if (right) {
       setSolvedLate(true);
@@ -246,7 +253,7 @@ export default function GrammarBuild({
                 ))
               ) : (
                 <View style={st.blankBox}>
-                  <Text style={st.blankText}>{picks.join(" ")}</Text>
+                  <Text style={st.blankText}>{joinPicks(picks)}</Text>
                 </View>
               )}
               <Text style={st.sentText}>{q.after}</Text>

@@ -214,10 +214,19 @@ export class Question {
   // grammar_build 전용. 어절 자리마다 보기 묶음 하나.
   // 정답을 순서대로 이으면 완성 문장이 된다.
   @Prop({
-    type: [{ options: [String], correct: String }],
+    type: [
+      { options: [String], correct: String, glue: Boolean, hints: Object },
+    ],
     default: [],
   })
-  buildRows: { options: string[]; correct: string }[];
+  buildRows: {
+    options: string[];
+    correct: string;
+    /** 앞 조각에 공백 없이 붙는 조각. "학생" + "이에요" → "학생이에요" */
+    glue?: boolean;
+    /** 오답을 골랐을 때 보여줄 한 줄 힌트 (선택지 → 문구) */
+    hints?: Record<string, string>;
+  }[];
 
   // TTS 로 읽어줄 원문 (듣기 계열). answer 와 다를 수 있다.
   @Prop({ default: '' })
