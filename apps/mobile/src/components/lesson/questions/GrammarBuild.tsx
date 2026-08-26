@@ -123,8 +123,15 @@ export default function GrammarBuild({
 
   const pickWord = (rowIndex: number, w: string) => {
     if (rowIndex !== currentRow || isOk) return;
-    setPicks((p) => [...p, w]);
+    const chosen = [...picks, w];
+    setPicks(chosen);
     setCurrentRow((r) => r + 1);
+
+    // 마지막 조각을 고르면 바로 채점한다. 다 골라놓고 버튼을 또 누르게 하면
+    // 흐름이 끊긴다. 카드에 채워지는 걸 보여준 뒤 판정한다.
+    if (chosen.length >= q.rows.length) {
+      setTimeout(() => runCheck(chosen), 280);
+    }
   };
 
   const undo = () => {
@@ -140,14 +147,14 @@ export default function GrammarBuild({
    * 컴포넌트가 직접 맞는지 보고, 틀리면 힌트를 띄운 뒤 틀린 자리부터 다시
    * 고르게 한다 — 정답을 알려주고 넘겨버리면 조립 문제의 뜻이 없다.
    */
-  const checkAnswer = () => {
-    if (!allPicked || isOk) return;
+  const runCheck = (chosen: string[]) => {
+    if (chosen.length < q.rows.length || isOk) return;
 
-    const right = q.rows.every((row, i) => picks[i] === row.correct);
+    const right = q.rows.every((row, i) => chosen[i] === row.correct);
 
     if (!reported) {
       setReported(true);
-      onAnswer(picks.join(" ")); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
+      onAnswer(chosen.join(" ")); // 첫 시도 — 맞든 틀리든 엔진이 기록한다
       if (right) return;
     } else if (right) {
       setSolvedLate(true);
@@ -156,8 +163,8 @@ export default function GrammarBuild({
     }
 
     // 틀렸다: 어디가 틀렸는지 남기고 그 자리부터 다시
-    const wrongAt = picks.findIndex((w, i) => w !== q.rows[i]?.correct);
-    setLastPicks(picks);
+    const wrongAt = chosen.findIndex((w, i) => w !== q.rows[i]?.correct);
+    setLastPicks(chosen);
     setAttemptWrong(true);
     shake.value = withSequence(
       withTiming(-8, { duration: 55 }),
@@ -166,10 +173,12 @@ export default function GrammarBuild({
       withTiming(0, { duration: 55 }),
     );
     if (wrongAt >= 0) {
-      setPicks(picks.slice(0, wrongAt));
+      setPicks(chosen.slice(0, wrongAt));
       setCurrentRow(wrongAt);
     }
   };
+
+  const checkAnswer = () => runCheck(picks);
 
   // 카드 색 (오답 후 힌트)
   const cardColor = (i: number, w: string) => {
