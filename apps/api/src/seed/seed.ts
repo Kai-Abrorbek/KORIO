@@ -6,6 +6,7 @@ import { Question } from '../lessons/schemas/question.schema';
 import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { Expression } from '../expressions/schemas/expression.schema';
+import { questionXp } from '../lessons/economy.const';
 import {
   UNIT1_QUESTIONS,
   UNIT1_NODES,
@@ -55,7 +56,7 @@ import {
   S3_UNIT7_NODES,
   S3_UNIT8_QUESTIONS,
   S3_UNIT8_NODES,
-} from './data';
+} from './data/vocabulary';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -151,6 +152,10 @@ async function seed() {
       const { questions: qKeys, ...lessonInfo } = lessonData;
 
       const questionIds: any[] = [];
+      // 레슨의 기본 XP 는 그 레슨이 들고 있는 문제들의 xpReward 합계다.
+      // 예전엔 `문항수 × 2` 라는 자리표시자를 썼는데, 그러면 문제마다 박아둔
+      // xpReward(10~25) 가 통째로 버려져서 난이도가 보상에 안 실린다.
+      let lessonXp = 0;
       for (const key of qKeys) {
         if (!allQuestions[key]) {
           console.log('❌ 없는 키:', key);
@@ -163,6 +168,7 @@ async function seed() {
           { upsert: true, returnDocument: 'after' },
         );
         questionIds.push(q._id);
+        lessonXp += questionXp(q as { xpReward?: number; type?: string });
       }
 
       // 레슨 code: 노드 code + 레슨 순서
@@ -177,7 +183,7 @@ async function seed() {
             section: nodeInfo.section,
             unit: nodeInfo.unit,
             questionIds,
-            xpReward: qKeys.length * 2,
+            xpReward: lessonXp,
             isActive: true,
           },
         },
@@ -186,7 +192,9 @@ async function seed() {
 
       lessonIds.push(lesson._id);
       writtenLessonIds.push(lesson._id as Types.ObjectId);
-      console.log(`  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode})`);
+      console.log(
+        `  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
+      );
     }
 
     await nodeModel.findByIdAndUpdate(node._id, { lessonIds });

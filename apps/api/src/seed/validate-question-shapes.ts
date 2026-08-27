@@ -9,7 +9,7 @@
  * 실행: pnpm --filter api seed:validate-questions
  */
 
-import * as seedData from './data';
+import * as seedData from './data/vocabulary';
 
 type SeedQuestion = Record<string, any>;
 
@@ -49,9 +49,7 @@ function collectQuestions(): Array<[string, SeedQuestion]> {
   const out: Array<[string, SeedQuestion]> = [];
   const seen = new Set<string>();
 
-  for (const exported of Object.values(
-    seedData as Record<string, unknown>,
-  )) {
+  for (const exported of Object.values(seedData as Record<string, unknown>)) {
     if (!exported || typeof exported !== 'object') continue;
     for (const [key, value] of Object.entries(
       exported as Record<string, unknown>,
@@ -91,7 +89,8 @@ function missingSyllables(answer: string, options: string[]): string[] {
 function validateReadingQuiz(key: string, q: SeedQuestion) {
   if (!q.passage) fail(key, 'reading_quiz 는 passage 가 필요하다');
   const options: string[] = q.options ?? [];
-  if (options.length < 3) fail(key, `보기가 ${options.length}개뿐이다 (3개 이상)`);
+  if (options.length < 3)
+    fail(key, `보기가 ${options.length}개뿐이다 (3개 이상)`);
   if (!q.answer) fail(key, 'answer 가 없다');
   else if (!options.includes(q.answer)) {
     fail(key, `answer '${q.answer}' 가 options 안에 없다`);
@@ -117,7 +116,9 @@ function validateErrorHunt(key: string, q: SeedQuestion) {
     fail(
       key,
       `wrongWord '${q.wrongWord}' 가 npcText 의 어절과 일치하지 않는다` +
-        (near ? ` — '${near}' 를 쓰려던 것 같다` : ` (어절: ${words.join(' / ')})`),
+        (near
+          ? ` — '${near}' 를 쓰려던 것 같다`
+          : ` (어절: ${words.join(' / ')})`),
     );
   }
 
@@ -142,7 +143,10 @@ function validateClozePassage(key: string, q: SeedQuestion) {
   // 화면은 '___' 로 split 한다. 4개 이상이면 빈 조각이 생겨 어긋난다.
   const over = passage.match(/_{4,}/g);
   if (over) {
-    fail(key, `언더바가 ${over[0].length}개인 빈칸이 있다 — 정확히 3개(___)만 쓴다`);
+    fail(
+      key,
+      `언더바가 ${over[0].length}개인 빈칸이 있다 — 정확히 3개(___)만 쓴다`,
+    );
   }
 
   const blanks = passage.split('___').length - 1;
@@ -182,7 +186,10 @@ function validateDialogOrder(key: string, q: SeedQuestion) {
     fail(key, '같은 대사가 두 번 있다 — 정답 순서가 하나로 정해지지 않는다');
   }
   if (q.answer !== 'all_correct') {
-    fail(key, `dialog_order 의 answer 는 'all_correct' 고정이다 (지금: '${q.answer}')`);
+    fail(
+      key,
+      `dialog_order 의 answer 는 'all_correct' 고정이다 (지금: '${q.answer}')`,
+    );
   }
 }
 
@@ -202,12 +209,18 @@ function validateVerbTransform(key: string, q: SeedQuestion) {
   const options: string[] = q.options ?? [];
   const multi = options.filter((o) => [...o].length > 1);
   if (multi.length) {
-    fail(key, `options 는 음절 단위여야 한다 — [${multi.join(', ')}] 는 2글자 이상`);
+    fail(
+      key,
+      `options 는 음절 단위여야 한다 — [${multi.join(', ')}] 는 2글자 이상`,
+    );
   }
 
   const missing = missingSyllables(answer, options);
   if (missing.length) {
-    fail(key, `options 에 [${missing.join(', ')}] 가 없어 '${answer}' 를 조립할 수 없다`);
+    fail(
+      key,
+      `options 에 [${missing.join(', ')}] 가 없어 '${answer}' 를 조립할 수 없다`,
+    );
   }
   if (options.length <= [...answer].length) {
     warn(key, '오답 음절이 하나도 없어 순서만 맞추면 된다');
@@ -235,12 +248,16 @@ function validateGrading(key: string, q: SeedQuestion) {
   if (!['exact', 'semantic', 'targetExpression'].includes(grading.mode)) {
     fail(key, `grading.mode '${grading.mode}' 가 잘못됐다`);
   }
-  if (typeof grading.expectedMeaning !== 'string' || !grading.expectedMeaning.trim()) {
+  if (
+    typeof grading.expectedMeaning !== 'string' ||
+    !grading.expectedMeaning.trim()
+  ) {
     fail(key, 'grading.expectedMeaning 이 없다');
   }
   if (
     grading.mode === 'targetExpression' &&
-    (!Array.isArray(grading.targetExpressions) || grading.targetExpressions.length === 0)
+    (!Array.isArray(grading.targetExpressions) ||
+      grading.targetExpressions.length === 0)
   ) {
     fail(key, 'targetExpression 모드인데 targetExpressions 가 없다');
   }
@@ -265,9 +282,7 @@ function validateGrading(key: string, q: SeedQuestion) {
 }
 
 /** 중급 5종만 골라 검사한다. 다른 타입은 그냥 지나간다. */
-export function checkQuestions(
-  entries: Array<[string, SeedQuestion]>,
-): Report {
+export function checkQuestions(entries: Array<[string, SeedQuestion]>): Report {
   report = { errors: [], warnings: [] };
 
   for (const [key, q] of entries) {

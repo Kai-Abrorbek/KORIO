@@ -1,28 +1,30 @@
 import { createHash } from 'node:crypto';
-import { S1_UNIT1_WORDS } from './data/section1/unit1';
-import { S1_UNIT2_WORDS } from './data/section1/unit2';
-import { S1_UNIT3_WORDS } from './data/section1/unit3';
-import { S1_UNIT4_WORDS } from './data/section1/unit4';
-import { S1_UNIT5_WORDS } from './data/section1/unit5';
-import { S2_UNIT1_WORDS } from './data/section2/unit1';
-import { S2_UNIT2_WORDS } from './data/section2/unit2';
-import { S2_UNIT3_WORDS } from './data/section2/unit3';
-import { S2_UNIT4_WORDS } from './data/section2/unit4';
-import { S2_UNIT5_WORDS } from './data/section2/unit5';
-import { S2_UNIT6_WORDS } from './data/section2/unit6';
-import { S2_UNIT7_WORDS } from './data/section2/unit7';
-import { S2_UNIT8_WORDS } from './data/section2/unit8';
-import { S1_UNIT6_WORDS } from './data/section1/unit6';
-import { S1_UNIT7_WORDS } from './data/section1/unit7';
-import { S1_UNIT8_WORDS } from './data/section1/unit8';
-import { S3_UNIT1_WORDS } from './data/section3/unit1';
-import { S3_UNIT2_WORDS } from './data/section3/unit2';
-import { S3_UNIT3_WORDS } from './data/section3/unit3';
-import { S3_UNIT4_WORDS } from './data/section3/unit4';
-import { S3_UNIT5_WORDS } from './data/section3/unit5';
-import { S3_UNIT6_WORDS } from './data/section3/unit6';
-import { S3_UNIT7_WORDS } from './data/section3/unit7';
-import { S3_UNIT8_WORDS } from './data/section3/unit8';
+import { S1_UNIT1_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT2_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT3_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT4_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT5_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT6_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT7_WORDS } from './data/vocabulary/section1';
+import { S1_UNIT8_WORDS } from './data/vocabulary/section1';
+
+import { S2_UNIT1_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT2_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT3_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT4_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT5_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT6_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT7_WORDS } from './data/vocabulary/section2';
+import { S2_UNIT8_WORDS } from './data/vocabulary/section2';
+
+import { S3_UNIT1_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT2_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT3_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT4_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT5_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT6_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT7_WORDS } from './data/vocabulary/section3';
+import { S3_UNIT8_WORDS } from './data/vocabulary/section3';
 import {
   WordPartOfSpeech,
   type WordLanguage,

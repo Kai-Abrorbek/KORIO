@@ -15,6 +15,7 @@ import { Lesson } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
+import { questionXp } from '../lessons/economy.const';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -47,6 +48,8 @@ async function seed() {
       const { questions: qKeys, ...lessonInfo } = lessonData;
 
       const questionIds: any[] = [];
+      // 레슨 기본 XP = 문제 xpReward 합계 (economy.const 참고)
+      let lessonXp = 0;
       for (const key of qKeys) {
         if (!allQuestions[key]) {
           console.log('❌ 없는 문제 키:', key);
@@ -58,6 +61,7 @@ async function seed() {
           { upsert: true, returnDocument: 'after' },
         );
         questionIds.push(q._id);
+        lessonXp += questionXp(q as { xpReward?: number; type?: string });
       }
 
       const lessonCode = `${nodeCode}_l${li + 1}`;
@@ -71,7 +75,7 @@ async function seed() {
             section: nodeInfo.section,
             unit: nodeInfo.unit,
             questionIds,
-            xpReward: qKeys.length * 2,
+            xpReward: lessonXp,
             isActive: true,
           },
         },
@@ -80,7 +84,7 @@ async function seed() {
 
       lessonIds.push(lesson._id);
       console.log(
-        `  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode}, 문제 ${questionIds.length}개)`,
+        `  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
       );
     }
 
