@@ -1342,6 +1342,12 @@ export default {
     nodeRepetitions: "{{count}}회 학습",
     startNode: "표현 학습 시작",
     reviewNode: "표현 다시 보기",
+    openTopicList: "전체 표현 주제 보기",
+    closeTopicList: "표현 주제 목록 닫기",
+    topicListTitle: "전체 표현 주제",
+    topicListSubtitle: "배우고 싶은 상황을 선택하면 해당 위치로 바로 이동해요.",
+    topicListCurrent: "현재 위치",
+    topicListProgress: "노드 {{completed}}/{{total}}",
   },
   expressionLearning: {
     listen: "표현 다시 듣기",

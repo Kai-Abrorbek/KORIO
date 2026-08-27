@@ -28,6 +28,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/store/auth.store";
 import type { RoadmapUnit } from "@/types/roadmap";
 import ExpressionNodePopover from "../components/ExpressionNodePopover";
+import ExpressionTopicSheet from "../components/ExpressionTopicSheet";
 import { useExpressionRoadmap } from "../hooks/useExpressionRoadmap";
 import { buildExpressionRoadmapViewModel } from "../utils/expression-roadmap.adapter";
 
@@ -42,6 +43,7 @@ export default function ExpressionRoadmapScreen() {
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   const [visibleUnitIndex, setVisibleUnitIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [topicSheetVisible, setTopicSheetVisible] = useState(false);
   const viewModel = useMemo(
     () => (roadmap ? buildExpressionRoadmapViewModel(roadmap) : null),
     [roadmap],
@@ -124,6 +126,20 @@ export default function ExpressionRoadmapScreen() {
     },
     [viewModel],
   );
+
+  const handleTopicSelect = useCallback(
+    (index: number) => {
+      if (!units[index]) return;
+
+      setTopicSheetVisible(false);
+      setSelectedNodeId(null);
+      setVisibleUnitIndex(index);
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToIndex({ index, animated: true });
+      });
+    },
+    [units],
+  );
   const renderNodePopover = useCallback(
     ({ node, unit, triangleOffsetX }: RoadmapNodePopoverContext) => {
       const expressionNode = viewModel?.nodeDetailsById.get(node.id);
@@ -183,6 +199,8 @@ export default function ExpressionRoadmapScreen() {
           unitNumber={bannerUnit.unitNumber}
           title={bannerUnit.title}
           color={bannerUnit.color}
+          onPress={() => setTopicSheetVisible(true)}
+          accessibilityLabel={t("expressionRoadmap.openTopicList")}
         />
       ) : null}
 
@@ -229,6 +247,14 @@ export default function ExpressionRoadmapScreen() {
           initialNumToRender={2}
         />
       )}
+
+      <ExpressionTopicSheet
+        visible={topicSheetVisible}
+        topics={roadmap?.topics ?? []}
+        activeTopicIndex={visibleUnitIndex}
+        onClose={() => setTopicSheetVisible(false)}
+        onSelect={handleTopicSelect}
+      />
     </View>
   );
 }

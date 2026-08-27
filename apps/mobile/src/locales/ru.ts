@@ -1351,6 +1351,12 @@ export default {
     nodeRepetitions: "{{count}} раза",
     startNode: "Начать изучение",
     reviewNode: "Повторить выражения",
+    openTopicList: "Показать все темы выражений",
+    closeTopicList: "Закрыть список тем",
+    topicListTitle: "Все темы выражений",
+    topicListSubtitle: "Выберите ситуацию, чтобы перейти к ней на карте.",
+    topicListCurrent: "Текущая",
+    topicListProgress: "Узлы: {{completed}}/{{total}}",
   },
   expressionLearning: {
     listen: "Прослушать ещё раз",

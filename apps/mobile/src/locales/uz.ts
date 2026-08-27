@@ -1351,6 +1351,12 @@ export default {
     nodeRepetitions: "{{count}} marta",
     startNode: "Iboralarni o'rganish",
     reviewNode: "Qayta ko'rish",
+    openTopicList: "Barcha ibora mavzularini ko'rish",
+    closeTopicList: "Mavzular ro'yxatini yopish",
+    topicListTitle: "Barcha ibora mavzulari",
+    topicListSubtitle: "Vaziyatni tanlang — yo'ldagi o'sha mavzuga o'tasiz.",
+    topicListCurrent: "Hozirgi mavzu",
+    topicListProgress: "Tugunlar {{completed}}/{{total}}",
   },
   expressionLearning: {
     listen: "Iborani qayta tinglash",

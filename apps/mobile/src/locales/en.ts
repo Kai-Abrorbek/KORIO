@@ -1347,6 +1347,12 @@ export default {
     nodeRepetitions: "{{count}} times",
     startNode: "Start expressions",
     reviewNode: "Review expressions",
+    openTopicList: "View all expression topics",
+    closeTopicList: "Close expression topics",
+    topicListTitle: "All expression topics",
+    topicListSubtitle: "Choose a situation to jump to its place on the roadmap.",
+    topicListCurrent: "Current",
+    topicListProgress: "{{completed}}/{{total}} nodes",
   },
   expressionLearning: {
     listen: "Listen again",

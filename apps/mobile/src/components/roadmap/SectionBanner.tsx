@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -11,7 +17,9 @@ interface Props {
   unitNumber: number;
   title: string;
   color: string;
+  onPress?: () => void;
   onGuidePress?: () => void;
+  accessibilityLabel?: string;
 }
 
 export default function SectionBanner({
@@ -19,7 +27,9 @@ export default function SectionBanner({
   unitNumber,
   title,
   color,
+  onPress,
   onGuidePress,
+  accessibilityLabel,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -39,28 +49,42 @@ export default function SectionBanner({
         <View style={styles.orbSmall} pointerEvents="none" />
         <View style={styles.shine} pointerEvents="none" />
 
-        <View style={styles.mapBadge}>
-          <View style={styles.mapBadgeInner}>
-            <Ionicons name="map" size={21} color="#fff" />
+        <Pressable
+          accessibilityRole={onPress ? "button" : undefined}
+          accessibilityLabel={onPress ? accessibilityLabel || title : undefined}
+          disabled={!onPress}
+          onPress={onPress}
+          style={({ pressed }) => [
+            styles.mainButton,
+            pressed && onPress ? styles.pressed : null,
+          ]}
+        >
+          <View style={styles.mapBadge}>
+            <View style={styles.mapBadgeInner}>
+              <Ionicons name="map" size={21} color="#fff" />
+            </View>
           </View>
-        </View>
 
-        <View style={styles.left}>
-          <Text style={styles.unit}>
-            {t("roadmap.sectionUnit", {
-              section: sectionNumber,
-              unit: unitNumber,
-            })}
-          </Text>
+          <View style={styles.left}>
+            <Text style={styles.unit}>
+              {t("roadmap.sectionUnit", {
+                section: sectionNumber,
+                unit: unitNumber,
+              })}
+            </Text>
 
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-        </View>
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
+        </Pressable>
 
         <TouchableOpacity
           style={styles.guideBtn}
-          onPress={onGuidePress}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel || title}
+          disabled={!onGuidePress && !onPress}
+          onPress={onGuidePress || onPress}
           activeOpacity={0.86}
         >
           <View style={styles.guideDepth} />
@@ -152,6 +176,13 @@ const getStyles = (_theme: ThemeColors) =>
       borderWidth: 1,
       borderColor: "rgba(255,255,255,0.26)",
     },
+    mainButton: {
+      flex: 1,
+      minWidth: 0,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    pressed: { opacity: 0.9, transform: [{ scale: 0.99 }] },
     mapBadgeInner: {
       flex: 1,
       borderRadius: 14,
