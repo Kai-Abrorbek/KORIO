@@ -71,6 +71,15 @@ function NBPress({ children, onPress, bg = "#fff", radius = 14, style }: any) {
   );
 }
 
+/* 패턴이 길면 한 단계씩 줄여서 두 줄 안에 가둔다 */
+function patFont(pattern: string) {
+  const n = pattern.length;
+  if (n <= 10) return 16;
+  if (n <= 16) return 14.5;
+  if (n <= 22) return 13;
+  return 12;
+}
+
 /* 문법 한 개 카드 */
 function GrammarCard({ item }: { item: GrammarListItem }) {
   // 같은 화면의 파라미터를 그대로 읽는다. 학습 로드 모드로 들어왔으면
@@ -101,18 +110,27 @@ function GrammarCard({ item }: { item: GrammarListItem }) {
       radius={14}
       style={st.gCard}
     >
-      <View style={st.patBox}>
-        <Text style={st.pat}>{item.pattern}</Text>
-      </View>
-      <View style={{ flex: 1 }}>
+      <View style={st.gBody}>
+        <View style={st.patBox}>
+          <Text
+            style={[st.pat, { fontSize: patFont(item.pattern) }]}
+            numberOfLines={2}
+          >
+            {item.pattern}
+          </Text>
+        </View>
+
         <Text style={st.gSum} numberOfLines={2}>
           {item.summary}
         </Text>
+
         {item.tags.length > 0 && (
           <View style={st.tags}>
             {item.tags.slice(0, 3).map((tag, i) => (
               <View key={i} style={st.tag}>
-                <Text style={st.tagT}>{tag}</Text>
+                <Text style={st.tagT} numberOfLines={1}>
+                  {tag}
+                </Text>
               </View>
             ))}
           </View>
@@ -486,8 +504,11 @@ const st = StyleSheet.create({
     opacity: 0.7,
   },
 
-  gCard: { flexDirection: "row", alignItems: "center", gap: 12 },
+  gCard: { flexDirection: "row", alignItems: "center", gap: 10 },
+  gBody: { flex: 1 },
   patBox: {
+    alignSelf: "flex-start",
+    maxWidth: "100%",
     backgroundColor: C.yellow,
     borderWidth: 2,
     borderColor: C.ink,
@@ -496,8 +517,14 @@ const st = StyleSheet.create({
     paddingVertical: 6,
   },
   pat: { fontSize: 16, fontWeight: "800", color: C.ink },
-  gSum: { fontSize: 13.5, fontWeight: "600", color: C.ink, lineHeight: 19 },
-  tags: { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
+  gSum: {
+    fontSize: 13.5,
+    fontWeight: "600",
+    color: C.ink,
+    lineHeight: 19,
+    marginTop: 8,
+  },
+  tags: { flexDirection: "row", gap: 6, marginTop: 8, flexWrap: "wrap" },
   tag: {
     backgroundColor: C.mint,
     borderWidth: 1.5,
