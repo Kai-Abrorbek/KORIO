@@ -109,12 +109,17 @@ function buildCustomQuestion(
     key: `c${index + 1}`,
     text: choice.text,
     order: index + 1,
-    imageAssetKey: '',
-    imageAlt: '',
+    imageAssetKey: choice.imageAssetKey ?? '',
+    imageAlt: choice.imageAlt ?? '',
   }));
+  const responseType =
+    question.responseType ?? TopikResponseType.MULTIPLE_CHOICE;
   const answerIndex = question.choices.findIndex((choice) => choice.correct);
 
-  if (answerIndex < 0) {
+  if (
+    responseType === TopikResponseType.MULTIPLE_CHOICE &&
+    answerIndex < 0
+  ) {
     throw new Error(`정답이 지정되지 않은 문항: ${question.code}`);
   }
 
@@ -125,33 +130,47 @@ function buildCustomQuestion(
     number: storedNumber,
     order,
     type: question.type,
-    responseType: TopikResponseType.MULTIPLE_CHOICE,
-    points: 2,
+    responseType,
+    points: question.points ?? 2,
     prompt: promptBlocks(question.prompt),
+    stimulus: question.stimulus,
+    audio: question.audio,
+    writingConfig: question.writingConfig,
     choices,
-    correctChoiceKey: `c${answerIndex + 1}`,
+    correctChoiceKey:
+      responseType === TopikResponseType.MULTIPLE_CHOICE
+        ? `c${answerIndex + 1}`
+        : '',
     difficulty: question.difficulty ?? 3,
     tags: question.source ? [question.source] : [],
     solution: {
       explanation: question.solution?.explanation ?? {},
       strategy: question.solution?.strategy ?? {},
-      keyClues: [],
-      steps: [],
-      hints: [],
+      keyClues: question.solution?.keyClues ?? [],
+      steps: question.solution?.steps ?? [],
+      hints: question.solution?.hints ?? [],
       choiceNotes: (question.solution?.choiceNotes ?? []).map(
         (note, index) => ({
           choiceKey: `c${index + 1}`,
           note,
         }),
       ),
+      sampleAnswer: question.solution?.sampleAnswer ?? '',
+      rubric: question.solution?.rubric ?? [],
     },
-    presentation: {
-      template: TopikVisualTemplate.EXAM_SENTENCE,
-      choiceLayout: TopikChoiceLayout.ONE_COLUMN,
-      visualVariant: 'recipe-grammar',
-      showBorder: true,
-      preserveChoiceOrder: true,
-    },
+    presentation:
+      question.presentation ?? {
+        template:
+          responseType === TopikResponseType.WRITTEN
+            ? TopikVisualTemplate.EXAM_WRITING
+            : question.audio
+              ? TopikVisualTemplate.EXAM_LISTENING
+              : TopikVisualTemplate.EXAM_SENTENCE,
+        choiceLayout: TopikChoiceLayout.ONE_COLUMN,
+        visualVariant: 'recipe',
+        showBorder: true,
+        preserveChoiceOrder: true,
+      },
     source: { reference: question.source ?? '' },
     version: 1,
     isActive: true,
@@ -260,7 +279,10 @@ async function seedRecipes() {
             (sum, item) => sum + item.question.points,
             0,
           )
-        : (exampleCount + practiceCount) * 2;
+        : [...customExamples, ...customPractice].reduce(
+            (sum, question) => sum + (question.points ?? 2),
+            0,
+          );
 
       if (exampleCount === 0 || practiceCount === 0) {
         throw new Error(

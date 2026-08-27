@@ -463,8 +463,8 @@ export const TOPIK_READING_MOCK_2_QUESTIONS_01_25: TopikSeedQuestion[] = [
   readingMock2Question({
     number: 20,
     groupCode: 'reading-19-20',
-    type: TopikQuestionType.PASSAGE_TOPIC,
-    prompt: '윗글의 주제로 가장 알맞은 것을 고르십시오.',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    prompt: '윗글의 내용과 같은 것을 고르십시오.',
     choices: [
       '통신 언어는 인터넷에서만 사용해야 한다.',
       '통신 언어도 언어 사용 규칙에 맞게 쓰는 게 좋다.',
@@ -473,9 +473,9 @@ export const TOPIK_READING_MOCK_2_QUESTIONS_01_25: TopikSeedQuestion[] = [
     ],
     answer: '4',
     explanation:
-      '글은 통신 언어가 인터넷을 넘어 젊은층의 일상 대화에서도 흔히 사용되고 사회적 화제가 된 현상을 중심으로 설명합니다.',
-    clue: '첫 문장과 ‘요즘은 젊은층의 일상적인 대화에서도 … 흔히 사용’이 반복되는 중심 내용입니다.',
-    tags: ['topic', 'online-language'],
+      '통신 언어가 인터넷을 넘어 젊은층의 일상 대화에서도 흔히 사용된다고 했으므로 4번이 글의 내용과 같습니다.',
+    clue: '‘요즘은 젊은층의 일상적인 대화에서도 … 흔히 사용’이라는 문장을 확인합니다.',
+    tags: ['content-match', 'online-language'],
     difficulty: 2,
   }),
   readingMock2Question({
@@ -499,19 +499,19 @@ export const TOPIK_READING_MOCK_2_QUESTIONS_01_25: TopikSeedQuestion[] = [
   readingMock2Question({
     number: 22,
     groupCode: 'reading-21-22',
-    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
-    prompt: '윗글의 내용과 같은 것을 고르십시오.',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    prompt: '윗글의 중심 생각으로 가장 알맞은 것을 고르십시오.',
     choices: [
-      '아이돌 가수들은 한 달에 200만 원 정도를 번다.',
-      '광고 만드는 일을 하고 싶어 하는 청소년들이 늘고 있다.',
-      '지하철 광고를 위해 무리해서 돈을 쓰는 청소년들도 있다.',
-      '지하철 광고 때문에 아이돌 가수들이 피해를 보는 경우가 많다.',
+      '아이돌을 응원하는 청소년은 광고 제작을 직업으로 삼아야 한다.',
+      '아이돌을 위한 지하철 광고의 가격을 더 높일 필요가 있다.',
+      '좋아하는 아이돌을 응원하더라도 지나친 경제적 투자는 피해야 한다.',
+      '청소년 팬의 경제적 피해는 아이돌 가수가 책임져야 한다.',
     ],
     answer: '3',
     explanation:
-      '청소년 팬들이 월 수백만 원에서 천만 원이 넘는 지하철 광고에 경제적으로 무리한 투자를 하기도 한다는 내용이므로 3번이 맞습니다.',
-    clue: '지하철 광고 비용과 ‘크게 부담이 될 만큼의 경제적인 투자’라는 표현을 연결합니다.',
-    tags: ['content-match', 'idol-fandom'],
+      '글은 아이돌을 응원하는 마음은 긍정적일 수 있지만, 청소년에게 부담이 되는 과도한 경제적 투자는 부정적인 결과를 낳을 수 있다고 강조합니다.',
+    clue: '‘크게 부담이 될 만큼의 경제적인 투자’와 ‘부정적인 결과’를 연결합니다.',
+    tags: ['topic', 'idol-fandom'],
     difficulty: 3,
   }),
   readingMock2Question({

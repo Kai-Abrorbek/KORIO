@@ -77,6 +77,11 @@ const waterPassage =
   '인류 문명은 자연 개발과 자연 보호라는 모순 속에서 발달해 왔다. 그중에서 인류가 소홀히 한 부분은 바로 물이다. 물의 소중함을 잊고 물을 오염시키고 만 것이다. 이에 따라 세계 각지에서 많은 사람들이 수질 오염과 물 부족으로 고통당하고 지역 간, 국가 간 물 분쟁이 끊임없이 일어나서 ___ 있다. 이제 물 부족 문제는 한 국가의 문제만이 아니라 세계적인 문제가 되고 있다.';
 const soccerPassage =
   '축구 선수 11명이 운동장에서 경기를 해도 시야가 넓은 선수는 운동장 전체를 보기 때문에 어디가 비어 있고 어디로 공을 보내야 좋을지 잘 볼 수 있다. 이런 선수는 힘을 덜 들이고 효과적인 축구를 한다. 그러나 시야가 좁은 선수는 운동장의 한 부분만을 보기 때문에 항상 이미 수비진이 지키고 있는 곳을 뚫기 위해 ___ 실패만 거듭한다. 우리의 인생도 비슷하다. 따라서 넓게 볼 수 있을 때 삶을 성공적으로 살아갈 수 있다.';
+const failurePassage =
+  '실패를 해 보지 못한 사람은 실패를 계속하는 사람들을 전혀 이해하지 못한다. 이런 사람은 이 세상에 밝은 면만 있는 것이 아니라 어두운 면도 있다는 사실을 잘 모른다. 이렇게 한쪽 면만 보다 보니 ‘___’고 할 수 있다. 이러다 보면 생각과 마음이 좁을 수밖에 없다. 따라서 실패는 사람을 겸손하고 너그럽게 만드는 힘을 지니고 있다.';
+const packagingPassage =
+  '최근 명절이 다가오면서 명절 선물 과대 포장에 대한 불만이 늘고 있다. 백화점에서 판매하는 각종 선물세트의 포장 비용이 선물 자체 비용보다 더 비싸다는 것이다. 이렇게 ___ 선물은 주는 사람도 받는 사람도 기분이 좋을 리가 없다. 화려한 포장보다는 내용물이 얼마나 좋으냐가 더 중요하기 때문이다. 판매자는 선물의 크기나 포장보다는 내용물의 질에 더욱 신경을 써야 할 것이다.';
+
 
 const reading2122Examples: RecipeSeedQuestion[] = [
   blank(
@@ -145,6 +150,58 @@ const reading2122Practice: RecipeSeedQuestion[] = [
     2,
     '합격 레시피 읽기 21~22번 예상문제 4 / 173쪽',
   ),
+  blank(
+    'recipe-reading-21-22-practice-05',
+    5,
+    failurePassage,
+    [
+      '등잔 밑이 어둡다',
+      '고생 끝에 낙이 온다',
+      '하나만 알고 둘은 모른다',
+      '개구리 올챙이 적 생각 못 한다',
+    ],
+    2,
+    '합격 레시피 읽기 21~22번 예상문제 5 / 174쪽',
+  ),
+  topic(
+    'recipe-reading-21-22-practice-06',
+    6,
+    failurePassage.replace('___', '하나만 알고 둘은 모른다'),
+    [
+      '실패는 성공을 하기 위해 거치는 과정이다.',
+      '성공한 사람들은 실패하는 사람들을 이해 못 한다.',
+      '실패는 세상의 어두운 면을 볼 수 있는 기회를 준다.',
+      '세상의 밝은 면과 어두운 면을 모두 볼 줄 알아야 한다.',
+    ],
+    2,
+    '합격 레시피 읽기 21~22번 예상문제 6 / 174쪽',
+  ),
+  blank(
+    'recipe-reading-21-22-practice-07',
+    7,
+    packagingPassage,
+    [
+      '병 주고 약 주는',
+      '배보다 배꼽이 큰',
+      '겉 다르고 속 다른',
+      '꿈보다 해몽이 좋은',
+    ],
+    1,
+    '합격 레시피 읽기 21~22번 예상문제 7 / 175쪽',
+  ),
+  topic(
+    'recipe-reading-21-22-practice-08',
+    8,
+    packagingPassage.replace('___', '배보다 배꼽이 큰'),
+    [
+      '명절 선물의 가격을 인하해야 한다.',
+      '선물의 크기나 포장보다 질이 중요하다.',
+      '내용물만큼 포장에도 신경을 써야 한다.',
+      '값싸고 질 좋은 선물을 고르는 안목이 필요하다.',
+    ],
+    1,
+    '합격 레시피 읽기 21~22번 예상문제 8 / 175쪽',
+  ),
 ];
 
 export const RECIPE_READING_21_22: RecipeSeed = {
@@ -200,7 +257,7 @@ export const RECIPE_READING_21_22: RecipeSeed = {
   ],
   examples: reading2122Examples,
   practice: reading2122Practice,
-  sourceReference: '합격 레시피 PDF 170~173쪽',
+  sourceReference: '합격 레시피 PDF 170~175쪽',
 };
 
 const personalPassage1 =
@@ -724,7 +781,7 @@ export const RECIPE_READING_28_31: RecipeSeed = {
     ),
   ],
   practice: reading2831Practice,
-  sourceReference: '합격 레시피 PDF 187~192쪽',
+  sourceReference: '합격 레시피 PDF 186~192쪽',
 };
 
 const reading3234Examples = [
@@ -869,5 +926,5 @@ export const RECIPE_READING_32_34: RecipeSeed = {
   ],
   examples: reading3234Examples,
   practice: reading3234Practice,
-  sourceReference: '합격 레시피 PDF 217~221쪽',
+  sourceReference: '합격 레시피 PDF 218~221쪽',
 };

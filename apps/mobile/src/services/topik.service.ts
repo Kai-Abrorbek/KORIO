@@ -38,6 +38,14 @@ function topikStatsQuery(
   return params.toString();
 }
 
+function serializeTopikAnswers(
+  answers: TopikSaveAnswer[],
+): TopikSaveAnswer[] {
+  return answers.map(({ writtenResponses, ...answer }) =>
+    writtenResponses?.length ? { ...answer, writtenResponses } : answer,
+  );
+}
+
 export const TopikService = {
   listExams: (): Promise<TopikExam[]> => api.get("/topik/exams"),
 
@@ -78,7 +86,7 @@ export const TopikService = {
     elapsedSeconds?: number,
   ): Promise<TopikSaveProgressResponse> =>
     api.patch(`/topik/attempts/${attemptId}/answers`, {
-      answers,
+      answers: serializeTopikAnswers(answers),
       currentQuestionNumber,
       elapsedSeconds,
     }),

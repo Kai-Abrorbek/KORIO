@@ -10,10 +10,13 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import Animated, {
   Easing,
-  FadeIn,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
@@ -32,6 +35,7 @@ interface Props {
 
 const OPEN_MS = 260;
 const CLOSE_MS = 200;
+const DISMISS_VELOCITY = 850;
 
 /**
  * 오른쪽에서 밀려 들어오는 패널.
@@ -53,20 +57,21 @@ export function TopikSideSheet({
   const { width } = useWindowDimensions();
 
   const panelWidth = Math.min(width * 0.92, 460);
-  const progress = useSharedValue(0);
+  const translateX = useSharedValue(panelWidth);
 
   useEffect(() => {
     if (visible) {
-      progress.value = withTiming(1, {
+      translateX.value = panelWidth;
+      translateX.value = withTiming(0, {
         duration: OPEN_MS,
         easing: Easing.out(Easing.cubic),
       });
     }
-  }, [visible, progress]);
+  }, [panelWidth, translateX, visible]);
 
   const close = () => {
-    progress.value = withTiming(
-      0,
+    translateX.value = withTiming(
+      panelWidth,
       { duration: CLOSE_MS, easing: Easing.in(Easing.cubic) },
       (finished) => {
         if (finished) runOnJS(onClose)();
@@ -75,8 +80,40 @@ export function TopikSideSheet({
   };
 
   const panelStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: (1 - progress.value) * panelWidth }],
+    transform: [{ translateX: translateX.value }],
   }));
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: 1 - Math.min(1, translateX.value / Math.max(panelWidth, 1)),
+  }));
+
+  const dismissGesture = Gesture.Pan()
+    .activeOffsetX(8)
+    .failOffsetY([-24, 24])
+    .onUpdate((event) => {
+      translateX.value = Math.max(0, event.translationX);
+    })
+    .onEnd((event) => {
+      const shouldClose =
+        event.translationX > panelWidth * 0.24 ||
+        event.velocityX > DISMISS_VELOCITY;
+
+      if (shouldClose) {
+        translateX.value = withTiming(
+          panelWidth,
+          { duration: CLOSE_MS, easing: Easing.in(Easing.cubic) },
+          (finished) => {
+            if (finished) runOnJS(onClose)();
+          },
+        );
+        return;
+      }
+
+      translateX.value = withTiming(0, {
+        duration: OPEN_MS,
+        easing: Easing.out(Easing.cubic),
+      });
+    });
 
   return (
     <Modal
@@ -89,60 +126,62 @@ export function TopikSideSheet({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={s.wrap}>
           <Animated.View
-            entering={FadeIn.duration(OPEN_MS)}
             style={[
               StyleSheet.absoluteFill,
               { backgroundColor: palette.overlay },
+              backdropStyle,
             ]}
           >
             <Pressable style={{ flex: 1 }} onPress={close} />
           </Animated.View>
 
-          <Animated.View
-            style={[
-              s.panel,
-              panelStyle,
-              {
-                width: panelWidth,
-                backgroundColor: palette.surfaceElevated,
-                paddingTop: insets.top + 12,
-                paddingBottom: insets.bottom + 20,
-                borderLeftColor: palette.border,
-              },
-            ]}
-          >
-            <View style={s.header}>
-              <View style={{ flex: 1 }}>
-                <Text style={[s.title, { color: palette.text }]}>{title}</Text>
-                {!!subtitle && (
-                  <Text style={[s.subtitle, { color: palette.textSecondary }]}>
-                    {subtitle}
-                  </Text>
-                )}
-              </View>
-              <Pressable
-                onPress={close}
-                hitSlop={10}
-                style={[s.closeBtn, { backgroundColor: palette.surfaceMuted }]}
-              >
-                <Ionicons
-                  name="close"
-                  size={20}
-                  color={palette.textSecondary}
-                />
-              </Pressable>
-            </View>
-
-            <View style={[s.divider, { backgroundColor: palette.divider }]} />
-
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={s.content}
-              showsVerticalScrollIndicator={false}
+          <GestureDetector gesture={dismissGesture}>
+            <Animated.View
+              style={[
+                s.panel,
+                panelStyle,
+                {
+                  width: panelWidth,
+                  backgroundColor: palette.surfaceElevated,
+                  paddingTop: insets.top + 12,
+                  paddingBottom: insets.bottom + 20,
+                  borderLeftColor: palette.border,
+                },
+              ]}
             >
-              {children}
-            </ScrollView>
-          </Animated.View>
+              <View style={s.header}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.title, { color: palette.text }]}>{title}</Text>
+                  {!!subtitle && (
+                    <Text style={[s.subtitle, { color: palette.textSecondary }]}>
+                      {subtitle}
+                    </Text>
+                  )}
+                </View>
+                <Pressable
+                  onPress={close}
+                  hitSlop={10}
+                  style={[s.closeBtn, { backgroundColor: palette.surfaceMuted }]}
+                >
+                  <Ionicons
+                    name="close"
+                    size={20}
+                    color={palette.textSecondary}
+                  />
+                </Pressable>
+              </View>
+
+              <View style={[s.divider, { backgroundColor: palette.divider }]} />
+
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={s.content}
+                showsVerticalScrollIndicator={false}
+              >
+                {children}
+              </ScrollView>
+            </Animated.View>
+          </GestureDetector>
         </View>
       </GestureHandlerRootView>
     </Modal>

@@ -16,12 +16,11 @@ import { TopikChoiceList } from "@/components/topik/TopikChoiceList";
 import { TopikStimulusCard } from "@/components/topik/TopikStimulusCard";
 import { TopikService } from "@/services/topik.service";
 import { TopikSideSheet } from "@/components/topik/TopikSideSheet";
-import { useSpeech } from "@/hooks/useSpeech";
+import { useTopikListeningPlayback } from "@/hooks/useTopikListeningPlayback";
 import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
-import { MOCK_RECIPE_DETAIL } from "@/mocks/topik-recipe.mock";
 import { toTopikLanguage, topikText } from "@/types/topik";
 import type {
   TopikGrammarSection,
@@ -40,8 +39,9 @@ export default function TopikRecipeScreen() {
 
   const [recipe, setRecipe] = useState<TopikRecipeDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
-  const { speak, stop, isSpeaking } = useSpeech();
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const listeningPlayback = useTopikListeningPlayback();
 
   /** 열려 있는 해설의 문항 id */
   const [openSolutionId, setOpenSolutionId] = useState<string | null>(null);
@@ -50,16 +50,28 @@ export default function TopikRecipeScreen() {
 
   useEffect(() => {
     let alive = true;
-    const code = groupCode || "reading-01-02";
+    const code = groupCode || "";
 
     (async () => {
       setLoading(true);
+      setError(false);
+      if (!code) {
+        if (alive) {
+          setRecipe(null);
+          setError(true);
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const data = await TopikService.getRecipe(code);
         if (alive) setRecipe(data);
       } catch {
-        // 시드 전이거나 오프라인이면 mock 으로 화면은 뜨게 둔다
-        if (alive) setRecipe(MOCK_RECIPE_DETAIL);
+        if (alive) {
+          setRecipe(null);
+          setError(true);
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -68,7 +80,7 @@ export default function TopikRecipeScreen() {
     return () => {
       alive = false;
     };
-  }, [groupCode]);
+  }, [groupCode, reloadKey]);
 
   const openSolution = useMemo(
     () => recipe?.examples.find((q) => q.id === openSolutionId) ?? null,
@@ -80,24 +92,53 @@ export default function TopikRecipeScreen() {
   );
 
   const playQuestionAudio = (question: TopikRecipeQuestion) => {
-    if (activeAudioId === question.id && isSpeaking) {
-      stop();
-      setActiveAudioId(null);
+    if (
+      listeningPlayback.activeKey === question.id &&
+      listeningPlayback.isPlaying
+    ) {
+      listeningPlayback.stop();
       return;
     }
-    const transcript = (question.audio?.transcript ?? [])
-      .map((line) => line.text)
-      .join(" ")
-      .trim();
-    if (!transcript) return;
-    setActiveAudioId(question.id);
-    speak(transcript, "ko-KR");
+
+    const audio = question.audio;
+    if (!audio || audio.transcript.length === 0) return;
+    listeningPlayback.play({
+      key: question.id,
+      audioUrl: audio.audioUrl,
+      transcript: audio.transcript,
+      questionNumber: question.number,
+      fallbackToSpeech: audio.speechFallback,
+    });
   };
 
-  if (loading || !recipe) {
+  if (loading) {
     return (
       <SafeAreaView style={s.center} edges={["top", "bottom"]}>
         <ActivityIndicator size="large" color={palette.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <SafeAreaView style={s.center} edges={["top", "bottom"]}>
+        <Ionicons
+          name="cloud-offline-outline"
+          size={32}
+          color={palette.danger}
+        />
+        <Text style={s.errorTitle}>{t("topik.home.loadError")}</Text>
+        <View style={s.errorActions}>
+          <Pressable onPress={() => router.back()} style={s.errorButtonMuted}>
+            <Text style={s.errorButtonMutedText}>{t("topik.common.back")}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setReloadKey((current) => current + 1)}
+            style={s.errorButton}
+          >
+            <Text style={s.errorButtonText}>{t("topik.common.retry")}</Text>
+          </Pressable>
+        </View>
       </SafeAreaView>
     );
   }
@@ -194,7 +235,10 @@ export default function TopikRecipeScreen() {
             onOpenSolution={() => setOpenSolutionId(question.id)}
             solutionLabel={t("topik.recipe.showSolution")}
             onPlayAudio={() => playQuestionAudio(question)}
-            audioPlaying={activeAudioId === question.id && isSpeaking}
+            audioPlaying={
+              listeningPlayback.activeKey === question.id &&
+              listeningPlayback.isPlaying
+            }
             audioLabel={t("topik.recipe.listenAudio")}
             stopLabel={t("topik.recipe.stopAudio")}
           />
@@ -506,6 +550,27 @@ const styles = (p: TopikPalette) =>
       backgroundColor: p.bg,
       alignItems: "center",
       justifyContent: "center",
+      gap: 12,
+    },
+    errorTitle: { fontSize: 15, fontWeight: "800", color: p.text },
+    errorActions: { flexDirection: "row", gap: 10, marginTop: 4 },
+    errorButton: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: p.primary,
+    },
+    errorButtonText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+    errorButtonMuted: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: p.surfaceMuted,
+    },
+    errorButtonMutedText: {
+      color: p.textSecondary,
+      fontSize: 13,
+      fontWeight: "800",
     },
     header: {
       flexDirection: "row",

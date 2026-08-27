@@ -19,18 +19,15 @@ import { TopikTextBlocks } from "@/components/topik/TopikTextBlocks";
 import { TopikChoiceList } from "@/components/topik/TopikChoiceList";
 import { TopikStimulusCard } from "@/components/topik/TopikStimulusCard";
 import { TopikService } from "@/services/topik.service";
-import { useSpeech } from "@/hooks/useSpeech";
+import { useTopikListeningPlayback } from "@/hooks/useTopikListeningPlayback";
 import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
-import {
-  MOCK_RECIPE_PRACTICE,
-  MOCK_RECIPE_SOLUTIONS,
-} from "@/mocks/topik-recipe.mock";
 import { toTopikLanguage, topikText } from "@/types/topik";
 import type {
   TopikRecipePractice,
+  TopikRecipeQuestion,
   TopikRecipeSolutionEntry,
 } from "@/types/topik-recipe";
 
@@ -47,9 +44,10 @@ export default function TopikPracticeScreen() {
   const [set, setSet] = useState<TopikRecipePractice | null>(null);
   const [solutions, setSolutions] = useState<TopikRecipeSolutionEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [phase, setPhase] = useState<Phase>("solving");
-  const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
-  const { speak, stop, isSpeaking } = useSpeech();
+  const listeningPlayback = useTopikListeningPlayback();
 
   /** questionId -> choiceKey */
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -58,18 +56,31 @@ export default function TopikPracticeScreen() {
     {},
   );
 
-  const code = groupCode || "reading-01-02";
+  const code = groupCode || "";
 
   useEffect(() => {
     let alive = true;
 
     (async () => {
       setLoading(true);
+      setError(false);
+      if (!code) {
+        if (alive) {
+          setSet(null);
+          setError(true);
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const data = await TopikService.getRecipePractice(code);
         if (alive) setSet(data);
       } catch {
-        if (alive) setSet(MOCK_RECIPE_PRACTICE);
+        if (alive) {
+          setSet(null);
+          setError(true);
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -78,7 +89,7 @@ export default function TopikPracticeScreen() {
     return () => {
       alive = false;
     };
-  }, [code]);
+  }, [code, reloadKey]);
 
   const total = set?.questions.length ?? 0;
   const answeredCount = useMemo(
@@ -117,37 +128,72 @@ export default function TopikPracticeScreen() {
   }, [phase, set, answers, solutionById]);
 
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
-  const playQuestionAudio = (questionId: string, transcript: string) => {
-    if (activeAudioId === questionId && isSpeaking) {
-      stop();
-      setActiveAudioId(null);
+  const playQuestionAudio = (question: TopikRecipeQuestion) => {
+    if (
+      listeningPlayback.activeKey === question.id &&
+      listeningPlayback.isPlaying
+    ) {
+      listeningPlayback.stop();
       return;
     }
-    if (!transcript.trim()) return;
-    setActiveAudioId(questionId);
-    speak(transcript, "ko-KR");
+
+    const audio = question.audio;
+    if (!audio || audio.transcript.length === 0) return;
+    listeningPlayback.play({
+      key: question.id,
+      audioUrl: audio.audioUrl,
+      transcript: audio.transcript,
+      questionNumber: question.number,
+      fallbackToSpeech: audio.speechFallback,
+    });
   };
 
   const submit = async () => {
     if (!allAnswered || submitting) return;
     setSubmitting(true);
+    setSubmitError(false);
     try {
       // 정답은 제출 시점에만 받아온다 (클라이언트에 미리 내려주지 않는다)
       const data = await TopikService.getRecipePracticeSolutions(code);
       setSolutions(data);
+      setPhase("result");
     } catch {
-      setSolutions(MOCK_RECIPE_SOLUTIONS as TopikRecipeSolutionEntry[]);
+      setSubmitError(true);
     } finally {
       setSubmitting(false);
-      setPhase("result");
     }
   };
 
-  if (loading || !set) {
+  if (loading) {
     return (
       <SafeAreaView style={s.center} edges={["top", "bottom"]}>
         <ActivityIndicator size="large" color={palette.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !set) {
+    return (
+      <SafeAreaView style={s.center} edges={["top", "bottom"]}>
+        <Ionicons
+          name="cloud-offline-outline"
+          size={32}
+          color={palette.danger}
+        />
+        <Text style={s.errorTitle}>{t("topik.home.loadError")}</Text>
+        <View style={s.errorActions}>
+          <Pressable onPress={() => router.back()} style={s.errorButtonMuted}>
+            <Text style={s.errorButtonMutedText}>{t("topik.common.back")}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setReloadKey((current) => current + 1)}
+            style={s.errorButton}
+          >
+            <Text style={s.errorButtonText}>{t("topik.common.retry")}</Text>
+          </Pressable>
+        </View>
       </SafeAreaView>
     );
   }
@@ -206,9 +252,7 @@ export default function TopikPracticeScreen() {
           const answerKey = solutionById.get(question.id)?.correctChoiceKey;
           const solution = solutionById.get(question.id)?.solution;
           const graded = phase === "result" && !!answerKey;
-          const transcript = (question.audio?.transcript ?? [])
-            .map((line) => line.text)
-            .join(" ");
+          const hasAudio = Boolean(question.audio?.transcript.length);
 
           return (
             <View key={question.id} style={s.qCard}>
@@ -229,15 +273,16 @@ export default function TopikPracticeScreen() {
                 </View>
               </View>
 
-              {!!transcript && (
+              {hasAudio && (
                 <View style={s.audioCard}>
                   <Pressable
                     style={s.audioButton}
-                    onPress={() => playQuestionAudio(question.id, transcript)}
+                    onPress={() => playQuestionAudio(question)}
                   >
                     <Ionicons
                       name={
-                        activeAudioId === question.id && isSpeaking
+                        listeningPlayback.activeKey === question.id &&
+                        listeningPlayback.isPlaying
                           ? "stop"
                           : "play"
                       }
@@ -246,7 +291,8 @@ export default function TopikPracticeScreen() {
                     />
                     <Text style={s.audioButtonText}>
                       {t(
-                        activeAudioId === question.id && isSpeaking
+                        listeningPlayback.activeKey === question.id &&
+                          listeningPlayback.isPlaying
                           ? "topik.recipe.stopAudio"
                           : "topik.recipe.listenAudio",
                       )}
@@ -359,6 +405,9 @@ export default function TopikPracticeScreen() {
 
       {/* 하단 고정 — 네비게이션 바 위로 띄운다 */}
       <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
+        {submitError && (
+          <Text style={s.submitError}>{t("topik.home.loadError")}</Text>
+        )}
         {phase === "solving" ? (
           <Pressable
             onPress={submit}
@@ -392,6 +441,27 @@ const styles = (p: TopikPalette) =>
       backgroundColor: p.bg,
       alignItems: "center",
       justifyContent: "center",
+      gap: 12,
+    },
+    errorTitle: { fontSize: 15, fontWeight: "800", color: p.text },
+    errorActions: { flexDirection: "row", gap: 10, marginTop: 4 },
+    errorButton: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: p.primary,
+    },
+    errorButtonText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+    errorButtonMuted: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: p.surfaceMuted,
+    },
+    errorButtonMutedText: {
+      color: p.textSecondary,
+      fontSize: 13,
+      fontWeight: "800",
     },
     header: {
       flexDirection: "row",
@@ -532,6 +602,13 @@ const styles = (p: TopikPalette) =>
     sampleText: { color: p.text, fontSize: 13, lineHeight: 22 },
     rubricText: { color: p.textSecondary, fontSize: 12, lineHeight: 19 },
 
+    submitError: {
+      marginBottom: 9,
+      color: p.danger,
+      fontSize: 12,
+      fontWeight: "700",
+      textAlign: "center",
+    },
     footer: {
       paddingHorizontal: 20,
       paddingTop: 12,

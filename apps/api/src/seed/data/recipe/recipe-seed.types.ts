@@ -1,7 +1,15 @@
 import {
+  TopikAudio,
+  TopikHint,
   TopikI18nText,
+  TopikKeyClue,
+  TopikPresentation,
   TopikQuestionType,
+  TopikResponseType,
   TopikSection,
+  TopikSolutionStep,
+  TopikStimulus,
+  TopikWritingConfig,
 } from '../../../topik/schemas/topik-content.schema';
 
 /** ko/uz/en/ru 를 한 번에 적는다 */
@@ -18,6 +26,8 @@ export interface RecipeSeedChoice {
   text: string;
   /** 정답이면 true */
   correct?: boolean;
+  imageAssetKey?: string;
+  imageAlt?: string;
 }
 
 export interface RecipeSeedQuestion {
@@ -26,12 +36,18 @@ export interface RecipeSeedQuestion {
   /** 문항 번호 */
   number: number;
   type: TopikQuestionType;
+  responseType?: TopikResponseType;
+  points?: number;
   /**
    * 지문. 빈칸 자리는 `___` 로 적는다.
    * 예: '휴대 전화를 ___ 내려야 할 역을 지나쳤다.'
    */
   prompt: string;
   choices: RecipeSeedChoice[];
+  stimulus?: TopikStimulus;
+  audio?: TopikAudio;
+  writingConfig?: TopikWritingConfig;
+  presentation?: TopikPresentation;
   /** 출처 표기 (예: TOPIK II 60회 읽기 1번) */
   source?: string;
   difficulty?: number;
@@ -42,6 +58,11 @@ export interface RecipeSeedQuestion {
     explanation?: TopikI18nText;
     /** 선택지별 메모 (선택지 순서대로, 비우려면 생략) */
     choiceNotes?: TopikI18nText[];
+    keyClues?: TopikKeyClue[];
+    steps?: TopikSolutionStep[];
+    hints?: TopikHint[];
+    sampleAnswer?: string;
+    rubric?: TopikI18nText[];
   };
 }
 

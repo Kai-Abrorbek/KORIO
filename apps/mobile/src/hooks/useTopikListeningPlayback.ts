@@ -1,6 +1,10 @@
 /* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  getTopikListeningRate,
+  getTopikListeningSpeakerVoice,
+} from "@/config/topik-listening-audio";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSettingsStore } from "@/store/settings.store";
 import type { TopikAudioLine } from "@/types/topik";
@@ -15,7 +19,9 @@ export type TopikListeningPlaybackStatus =
 
 export interface TopikListeningSpeechSegment {
   transcript: TopikAudioLine[];
+  questionNumber?: number;
   pauseAfterMs?: number;
+  speechRate?: number;
 }
 
 export interface TopikListeningPlaybackRequest {
@@ -23,6 +29,7 @@ export interface TopikListeningPlaybackRequest {
   audioUrl?: string;
   transcript: TopikAudioLine[];
   speechSegments?: TopikListeningSpeechSegment[];
+  questionNumber?: number;
   repeatCount?: number;
   repeatPauseMs?: number;
   speechRate?: number;
@@ -31,11 +38,16 @@ export interface TopikListeningPlaybackRequest {
   fallbackToSpeech?: boolean;
 }
 
+interface ResolvedTopikListeningSpeechSegment
+  extends TopikListeningSpeechSegment {
+  speechRate: number;
+}
+
 interface ResolvedPlaybackRun {
   id: number;
   key: string;
   audioUrl: string;
-  speechSegments: TopikListeningSpeechSegment[];
+  speechSegments: ResolvedTopikListeningSpeechSegment[];
   repeatCount: number;
   repeatPauseMs: number;
   speechRate: number;
@@ -48,12 +60,6 @@ interface NativePlaybackRun {
   repeatIndex: number;
   repeatCount: number;
   fallbackAttempted: boolean;
-}
-
-function lineGender(speaker: string) {
-  return speaker.includes("여자") || speaker.includes("여성")
-    ? "female"
-    : "male";
 }
 
 export function useTopikListeningPlayback() {
@@ -141,11 +147,13 @@ export function useTopikListeningPlayback() {
 
         const line = segment.transcript[lineIndex];
         if (line) {
+          const speakerVoice = getTopikListeningSpeakerVoice(line.speaker);
           speechActiveRef.current = true;
           speakAzure(line.text, "ko-KR", {
-            rate: run.speechRate,
+            rate: segment.speechRate,
             volume: run.volume,
-            gender: lineGender(line.speaker),
+            gender: speakerVoice.gender,
+            voice: speakerVoice.voice,
             respectSoundSettings: false,
             onDone: () => {
               speechActiveRef.current = false;
@@ -229,13 +237,23 @@ export function useTopikListeningPlayback() {
           request.volume ?? (respectsSettings ? sound.speechVolume : 1),
         ),
       );
-      const speechSegments =
+      const defaultSpeechRate =
+        request.speechRate ?? getTopikListeningRate(request.questionNumber);
+      const speechSegments = (
         request.speechSegments?.filter(
           (segment) => segment.transcript.length > 0,
         ) ??
         (request.transcript.length > 0
           ? [{ transcript: request.transcript }]
-          : []);
+          : [])
+      ).map<ResolvedTopikListeningSpeechSegment>((segment) => ({
+        ...segment,
+        speechRate:
+          segment.speechRate ??
+          (segment.questionNumber === undefined
+            ? defaultSpeechRate
+            : getTopikListeningRate(segment.questionNumber)),
+      }));
       const hasAudio = Boolean(request.audioUrl);
       const hasSpeech = speechSegments.length > 0;
 
@@ -269,7 +287,7 @@ export function useTopikListeningPlayback() {
         speechSegments,
         repeatCount: Math.max(1, request.repeatCount ?? 1),
         repeatPauseMs: Math.max(0, request.repeatPauseMs ?? 0),
-        speechRate: request.speechRate ?? sound.speechRate,
+        speechRate: defaultSpeechRate,
         volume,
         fallbackToSpeech: request.fallbackToSpeech ?? false,
       };
@@ -295,7 +313,7 @@ export function useTopikListeningPlayback() {
         try {
           audioPlayer.volume = run.volume;
           // expo-audio 56 Android 는 playbackRate 대입 시 던진다 (setter 미구현)
-          audioPlayer.setPlaybackRate(1);
+          audioPlayer.setPlaybackRate(run.speechRate);
           audioPlayer.replace(run.audioUrl);
           audioPlayer.play();
         } catch {

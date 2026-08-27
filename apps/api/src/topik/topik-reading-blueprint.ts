@@ -88,7 +88,7 @@ export const TOPIK_READING_BLUEPRINT: TopikReadingBlueprintGroup[] = [
     to: 20,
     questionTypes: [
       TopikQuestionType.PASSAGE_FILL_BLANK,
-      TopikQuestionType.PASSAGE_TOPIC,
+      TopikQuestionType.PASSAGE_CONTENT_MATCH,
     ],
     stimulusScope: TopikStimulusScope.GROUP,
     groupStimulusKind: TopikStimulusKind.PASSAGE,
@@ -99,7 +99,7 @@ export const TOPIK_READING_BLUEPRINT: TopikReadingBlueprintGroup[] = [
     to: 22,
     questionTypes: [
       TopikQuestionType.PASSAGE_FILL_BLANK,
-      TopikQuestionType.PASSAGE_CONTENT_MATCH,
+      TopikQuestionType.PASSAGE_TOPIC,
     ],
     stimulusScope: TopikStimulusScope.GROUP,
     groupStimulusKind: TopikStimulusKind.PASSAGE,
@@ -171,8 +171,8 @@ export const TOPIK_READING_BLUEPRINT: TopikReadingBlueprintGroup[] = [
     from: 44,
     to: 45,
     questionTypes: [
-      TopikQuestionType.PASSAGE_FILL_BLANK,
       TopikQuestionType.PASSAGE_TOPIC,
+      TopikQuestionType.PASSAGE_FILL_BLANK,
     ],
     stimulusScope: TopikStimulusScope.GROUP,
     groupStimulusKind: TopikStimulusKind.PASSAGE,

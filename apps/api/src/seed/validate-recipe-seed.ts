@@ -51,10 +51,46 @@ function assertI18n(value: TopikI18nText, path: string) {
   }
 }
 
+type SolutionChoiceNote =
+  | TopikI18nText
+  | {
+      note: TopikI18nText;
+    };
+
+function assertSolution(
+  solution: {
+    strategy?: TopikI18nText;
+    explanation?: TopikI18nText;
+    choiceNotes?: SolutionChoiceNote[];
+  },
+  path: string,
+  expectedChoiceNotes: number,
+) {
+  assert(solution.strategy, `${path}.strategy: 풀이 전략이 없습니다.`);
+  assertI18n(solution.strategy, `${path}.strategy`);
+  assert(solution.explanation, `${path}.explanation: 정답 해설이 없습니다.`);
+  assertI18n(solution.explanation, `${path}.explanation`);
+
+  if (expectedChoiceNotes > 0) {
+    assert(
+      solution.choiceNotes?.length === expectedChoiceNotes,
+      `${path}.choiceNotes: 선택지 ${expectedChoiceNotes}개의 해설이 모두 필요합니다.`,
+    );
+    solution.choiceNotes.forEach((rawNote, index) => {
+      const note = 'note' in rawNote ? rawNote.note : rawNote;
+      assertI18n(note, `${path}.choiceNotes[${index}]`);
+    });
+  }
+}
+
 function validateRecipe(recipe: RecipeSeed) {
   assertI18n(recipe.label, `${recipe.groupCode}.label`);
   assertI18n(recipe.title, `${recipe.groupCode}.title`);
   assertI18n(recipe.intro, `${recipe.groupCode}.intro`);
+  assert(
+    recipe.sourceReference?.trim(),
+    `${recipe.groupCode}: PDF 출처 범위가 없습니다.`,
+  );
   assert(
     recipe.targetLevel >= 3 && recipe.targetLevel <= 6,
     `${recipe.groupCode}: 목표 급수는 3~6이어야 합니다.`,
@@ -100,14 +136,13 @@ function validateRecipe(recipe: RecipeSeed) {
   }
 
   if (recipe.questionSource) {
-    assert(
-      recipe.sourceReference?.trim(),
-      `${recipe.groupCode}: PDF 출처 범위가 없습니다.`,
-    );
     const expectedCount =
       recipe.questionSource.to - recipe.questionSource.from + 1;
     for (const kind of ['example', 'practice'] as const) {
       const seed = SOURCE_SEEDS[recipe.section][kind];
+      const groupByCode = new Map(
+        seed.groups.map((group) => [group.code, group]),
+      );
       const questions = seed.questions.filter(
         (question) =>
           question.number >= recipe.questionSource!.from &&
@@ -118,11 +153,37 @@ function validateRecipe(recipe: RecipeSeed) {
         `${recipe.groupCode}: ${kind} 원천 문항이 ${expectedCount}개가 아닙니다.`,
       );
       for (const question of questions) {
+        const responseType =
+          question.responseType ?? TopikResponseType.MULTIPLE_CHOICE;
+        const expectedChoiceNotes =
+          responseType === TopikResponseType.WRITTEN
+            ? 0
+            : question.choices.length;
+
         assert(
-          question.responseType === TopikResponseType.WRITTEN ||
-            question.choices.length >= 2,
-          `${recipe.groupCode}: ${kind} ${question.number}번 문항 구조가 올바르지 않습니다.`,
+          responseType === TopikResponseType.WRITTEN ||
+            question.choices.length === 4,
+          `${recipe.groupCode}: ${kind} ${question.number}번은 객관식 4지선다여야 합니다.`,
         );
+        assert(
+          question.source.reference.trim().length > 0,
+          `${recipe.groupCode}: ${kind} ${question.number}번 출처가 없습니다.`,
+        );
+        assertSolution(
+          question.solution,
+          `${recipe.groupCode}.${kind}[${question.number}].solution`,
+          expectedChoiceNotes,
+        );
+
+        if (recipe.section === TopikSection.LISTENING) {
+          const audio =
+            question.audio ??
+            groupByCode.get(question.groupCode)?.sharedAudio;
+          assert(
+            audio?.transcript.some((line) => line.text.trim().length > 0),
+            `${recipe.groupCode}: ${kind} ${question.number}번 듣기 대본이 없습니다.`,
+          );
+        }
       }
     }
     assert(
@@ -141,13 +202,54 @@ function validateRecipe(recipe: RecipeSeed) {
     `${recipe.groupCode}: 예상문제가 없습니다.`,
   );
   for (const question of [...recipe.examples, ...recipe.practice]) {
+    const responseType =
+      question.responseType ?? TopikResponseType.MULTIPLE_CHOICE;
+
     assert(
-      question.choices.length >= 2,
-      `${question.code}: 선택지가 부족합니다.`,
+      question.source?.trim(),
+      `${question.code}: PDF 또는 기출 출처가 없습니다.`,
+    );
+    assert(
+      question.solution,
+      `${question.code}: 풀이 전략과 해설이 없습니다.`,
+    );
+
+    if (responseType === TopikResponseType.WRITTEN) {
+      assert(
+        question.choices.length === 0,
+        `${question.code}: 직접 쓰기 문항에는 객관식 선택지가 없어야 합니다.`,
+      );
+      assert(
+        question.writingConfig?.fields.length,
+        `${question.code}: 쓰기 입력 필드 설정이 없습니다.`,
+      );
+      assertI18n(
+        question.writingConfig!.guide,
+        `${question.code}.writingConfig.guide`,
+      );
+      assert(
+        question.solution!.rubric?.length === 3,
+        `${question.code}: 쓰기 채점 기준은 내용·구성·언어 3개가 필요합니다.`,
+      );
+      question.solution!.rubric!.forEach((rubric, index) =>
+        assertI18n(rubric, `${question.code}.rubric[${index}]`),
+      );
+      assertSolution(question.solution!, `${question.code}.solution`, 0);
+      continue;
+    }
+
+    assert(
+      question.choices.length === 4,
+      `${question.code}: 객관식 문항은 선택지 4개가 필요합니다.`,
     );
     assert(
       question.choices.filter((choice) => choice.correct).length === 1,
       `${question.code}: 정답은 정확히 1개여야 합니다.`,
+    );
+    assertSolution(
+      question.solution!,
+      `${question.code}.solution`,
+      question.choices.length,
     );
   }
   const lastStoredNumber =
@@ -211,17 +313,17 @@ function main() {
     string,
     { examples: number; practice: number }
   > = {
-    'reading-09-12': { examples: 6, practice: 6 },
+    'reading-09-12': { examples: 6, practice: 8 },
     'reading-13-15': { examples: 3, practice: 6 },
     'reading-16-18': { examples: 4, practice: 4 },
     'reading-19-20': { examples: 4, practice: 4 },
-    'reading-21-22': { examples: 2, practice: 4 },
+    'reading-21-22': { examples: 2, practice: 8 },
     'reading-23-24': { examples: 2, practice: 4 },
     'reading-25-27': { examples: 3, practice: 9 },
     'reading-28-31': { examples: 2, practice: 4 },
     'reading-32-34': { examples: 3, practice: 3 },
     'reading-35-38': { examples: 4, practice: 4 },
-    'reading-39-41': { examples: 2, practice: 3 },
+    'reading-39-41': { examples: 3, practice: 3 },
     'reading-42-43': { examples: 2, practice: 4 },
     'reading-44-45': { examples: 2, practice: 4 },
     'reading-46-47': { examples: 2, practice: 4 },
@@ -238,9 +340,72 @@ function main() {
     );
   }
 
+  const exactWritingCounts: Record<
+    string,
+    { examples: number; practice: number }
+  > = {
+    'writing-51': { examples: 3, practice: 4 },
+    'writing-52': { examples: 4, practice: 2 },
+    'writing-53': { examples: 2, practice: 2 },
+    'writing-54': { examples: 1, practice: 3 },
+  };
+  for (const [code, expected] of Object.entries(exactWritingCounts)) {
+    const recipe = RECIPES.find((item) => item.groupCode === code);
+    assert(recipe, `${code}: 레시피 데이터가 없습니다.`);
+    assert(
+      !recipe.questionSource &&
+        recipe.examples.length === expected.examples &&
+        recipe.practice.length === expected.practice,
+      `${code}: 교재 기준 기출 ${expected.examples}개와 학습·예상문제 ${expected.practice}개가 필요합니다.`,
+    );
+  }
+  const exactListeningRankingCounts: Record<string, number> = {
+    'listening-01-02': 40,
+    'listening-04-08': 20,
+    'listening-09-12': 10,
+    'listening-14': 20,
+    'listening-15': 10,
+    'listening-17-19': 10,
+    'listening-21-22': 10,
+    'listening-23-24': 9,
+    'listening-25-26': 10,
+    'listening-27-28': 7,
+    'listening-31-32': 13,
+    'listening-37-38': 10,
+    'listening-41-42': 10,
+    'listening-43-44': 10,
+    'listening-45-46': 5,
+    'listening-47-48': 5,
+    'listening-49-50': 5,
+  };
+  for (const [code, expectedCount] of Object.entries(
+    exactListeningRankingCounts,
+  )) {
+    const recipe = RECIPES.find((item) => item.groupCode === code);
+    assert(recipe, `${code}: 레시피 데이터가 없습니다.`);
+    const actualCount = recipe.grammarSections.reduce(
+      (sum, section) => sum + section.entries.length,
+      0,
+    );
+    assert(
+      actualCount === expectedCount,
+      `${code}: 교재 기준 Ranking ${expectedCount}개가 필요합니다.`,
+    );
+  }
+
+  const expectedSectionCounts: Record<TopikSection, number> = {
+    [TopikSection.READING]: 18,
+    [TopikSection.LISTENING]: 25,
+    [TopikSection.WRITING]: 4,
+  };
+
   for (const section of Object.values(TopikSection)) {
     const sectionRecipes = RECIPES.filter(
       (recipe) => recipe.section === section,
+    );
+    assert(
+      sectionRecipes.length === expectedSectionCounts[section],
+      `${section}: 레시피 ${expectedSectionCounts[section]}개가 필요합니다.`,
     );
     const orders = sectionRecipes.map((recipe) => recipe.order);
     assert(

@@ -21,6 +21,7 @@ import {
   RECIPE_READING_46_47,
   RECIPE_READING_48_50,
 } from './reading-35-50';
+import { WRITING_RECIPES } from './writing-recipes';
 
 type StrategyKey =
   | 'grammar'
@@ -53,8 +54,173 @@ interface RecipeDefinition {
   sourceReference: string;
 }
 
+const LISTENING_CENTRAL_IDEA_RANKINGS = [
+  '-는 게 좋다·낫다·괜찮다',
+  '-아/어야 하다',
+  '그래서',
+  '가장 중요한 건·-는 게 중요하다·필요하다·-(으)ㄹ 필요가 있다',
+  '-아/어 보세요·-는 게 어때요?·-(으)ㅂ시다·-자',
+  '-고 싶다·-(으)면 좋겠다·-(으)면 좋을 텐데',
+  '제 생각에는·-(ㄴ/는)다고 생각하다·-는 거라고 생각하다·-(ㄴ/는)다고 보다·-는 게 아니겠어?',
+  '-아/어서 좋다·괜찮다·나쁘다·힘들다·어렵다·나쁠 건 없다',
+  '특히·무엇보다도·-는 데 도움이 된다',
+  '두 문장 이상 반복·이처럼·이렇듯',
+];
+
+const LISTENING_PICTURE_RANKINGS = [
+  '집 — 텔레비전·파티·액자·옷장·냉장고·정원·전자제품·전구·세탁·공사·집안일·방문·요리',
+  '회사 — 분실물·복사·방문·수리 요청·위치 문의·신입사원 소개·물건 운반',
+  '공원·놀이공원 — 놀이기구·공연·산책·운동·꽃구경·자전거·음료·사진 부탁',
+  '공항·비행기 — 표 예매·마중·짐 싣기·수하물·탑승장·게이트',
+  '기차역·기차 — 자리·표 구입·경치·배웅·선반 짐',
+  '정류장·버스 — 기다리기·물건 받기·자리 양보·노선·정류장·하차·자리 찾기',
+  '산 — 등산로 문의·휴식·정상 소감',
+  '영화관 — 표 구입·자리 찾기·먹을거리',
+  '미용실 — 자르기·파마·거울·말리기·감기·대기 시간',
+  '음식점·식당 — 주문·포장 부탁·개업 축하',
+  '병원 — 병문안·재활·진찰·면회·접수',
+  '사진관 — 사진 촬영',
+  '부동산 — 집 구경',
+  '스케이트장 — 사이즈·착용·타기·휴식·가르치기·일으켜 주기',
+  '미술관 — 작품 감상·촬영 금지',
+  '가구점 — 책상·의자·침대 고르기',
+  '바다·바닷가 — 배·물놀이·낚시·산책·준비 운동',
+  '공연장 — 매점·공연 관람',
+  '박물관 — 사진 촬영 금지',
+  '서점 — 책 위치 문의',
+  '경찰서 — 습득물 맡기기',
+  '아이스크림 가게 — 주문·고르기·매장 취식',
+  '우체국 — 우편물 보내기',
+  '자동차 — 짐 내리기·드라이브·수리·주차 요금·주유·주차장',
+  '호텔 — 입실·짐 옮기기',
+  '수영장 — 준비 운동·물놀이',
+  '경기장 — 운동 경기 관람',
+  '고속버스터미널 — 고속버스표 구입',
+  '과일 가게 — 주문',
+  '도서관 — 검색·책 찾기·반납',
+  '마트 — 계산·장보기·카트',
+  '학원 — 김치 만들기·춤·요가 등 동작 배우기',
+  '시장 — 생선 구입',
+  '세탁소 — 세탁물 맡기기',
+  '안경점 — 시력 검사·안경 고르기',
+  '주차장 — 주차 봐주기·주차 맡기기',
+  '커피숍 — 주문',
+  '학교 — 캠퍼스 함께 걷기',
+  '엘리베이터 — 탑승·층수 눌러 주기',
+  '백화점 — 매장 위치·옷·탈의실·바지·구두',
+];
+
+const LISTENING_RESPONSE_RANKINGS = [
+  '회사 — 분실물·복사·방문·사무실 수리·위치·신입사원·물건 운반',
+  '학교 — 캠퍼스 함께 걷기',
+  '집 — 텔레비전·파티·정리·정원·전자제품·전구·세탁·공사·집안일·방문·요리',
+  '식당 — 주문·남은 음식 포장·개업 축하',
+  '병원 — 병문안·재활·진찰·면회·접수',
+  '세탁소 — 세탁물 맡기기',
+  '서비스센터 — 고장 신고·문의·수리 요청·맡긴 물건 찾기',
+  '기타 장소 — 숙박업소·학원·커피숍·가게·지하철역·기차역·수영장·등산',
+  '개인적인 이야기 — 질문·부탁·요청·후회·변명·추천·조언·충고·격려',
+  '안부 — 웃어른 방문·상대 안부·표정 보고 말하기',
+  '약속 — 정하기·미루기·거절·늦은 이유 사과',
+  '초대와 방문 — 집들이·준비·방문하지 못한 사과',
+  '이사 — 방 추천·방 구하기·계획·이삿짐 도움·처리 조언',
+  '취업 — 새 일·면접·아르바이트',
+  '쇼핑 — 전화 주문·교환·환불·고르기·색상',
+  '여행 — 계획·소감·후회·수하물',
+  '이동 중 위치 — 현재 위치·도착 시간·만날 장소',
+  '분실물 — 카드 분실 신고·물건 찾기',
+  '문화생활 — 영화·공연·관람 약속',
+  '행사 — 일정·교통편·날씨',
+];
+
+const LISTENING_ACTION_RANKINGS = [
+  '회사 — 분실물·복사·방문·수리·위치·신입사원·물건 운반',
+  '학교 — 캠퍼스·시험 공부',
+  '집 — 정리·정원·전자제품·전구·세탁·공사·집안일·방문·요리',
+  '백화점 — 매장 위치·옷·탈의실·바지·구두',
+  '식당 — 주문·포장·개업 축하',
+  '도서관 — 개방 시간·주의 사항·자료실·공사·열람실·반납',
+  '기타 장소 — 공연장·병원·서비스센터·학원·여행사·서점·은행·세탁소·안경점·커피숍·공항·복사실·박람회·전시회',
+  '개인 생활 — 공과금 납부',
+  '쇼핑 — 전화 주문·교환·환불·고르기·색상',
+  '이동 중 위치 — 현재 위치·도착 시간·만날 장소',
+];
+
+const LISTENING_ANNOUNCEMENT_RANKINGS = [
+  '아파트 — 편의 협조·시설 고장·안전 점검·배관 공사·소독·주차·바자회',
+  '백화점 — 분실물·상품전·강연·사은 행사·세일',
+  '공원 — 미아·셔틀버스·분실물·촬영 협조·관람 일정·주의 사항',
+  '도서관 — 개방 시간·주의 사항·자료실·공사·열람실',
+  '학교 — 강연·건강 검진·방문 일정·방송반 프로그램',
+  '회사 — 에너지 절약·소방 점검·촬영 협조',
+  '관광지·유원지 — 폭우 위험·주의 사항·관람 일정',
+  '기숙사 — 세탁실·대청소·화재 대피',
+  '놀이공원 — 놀이기구 이용',
+  '공연장 — 관람 주의·관객과 배우의 대화',
+  '동물원 — 관람 주의·동물 공연',
+  '공항 — 여권 발급·탑승 시간',
+  '비행기 — 지연 도착·도착 시간·주의 사항',
+  '기차 — 서행·도착 시간',
+  '영화관 — 관객과 감독·배우의 대화',
+  '결혼식장 — 시설·대여',
+  '마트 — 사은 행사',
+  '강연장 — 강연 내용·일정',
+  '경기장 — 폭우 취소·환불·주의 사항',
+  '행사 — 행사 일정',
+];
+
+const LISTENING_NEWS_RANKINGS = [
+  '사건·사고 — 교통·천재지변·정전·등반·화재·식중독·물놀이·낚시·공연장·교통수단 사고',
+  '일기예보 — 날씨·기온·계절별 사건과 사고',
+  '생활정보 — 새 정책·변화된 정책·실생활 정보',
+  '명소 소개 — 유명 장소·관광지',
+  '행사 소개 — 이벤트',
+  '경제 — 경제 변화·합리적 소비',
+  '관람 정보 — 공연·영화',
+  '스포츠 — 경기 결과·선수 소개',
+  '교통 정보 — 시내·고속도로 교통 현황',
+  '기타 — 설문조사·해외 소식',
+];
+
+const LISTENING_TASK_VERB_RANKINGS = [
+  '알려 주세요 — 문의하다·알아보다·질문하다·묻다·조사하다',
+  '알려 줄게요 — 설명하다·소개하다·안내하다·알려 주다',
+  '제안 — 제안하다·권하다·건의하다·추천하다·제시하다',
+  '요구 — 요구하다·요청하다',
+  '확인 — 확인하다·점검하다',
+  '신청 — 신청하다',
+  '상담 — 상담하다',
+  '보고 — 보고하다·발표하다',
+  '기타 — 주문하다·예약하다·취소하다·변경하다·주장하다·강조하다',
+];
+
+const LISTENING_INTENTION_RANKINGS = [
+  '비판 — 비판하다·불만을 표시하다/제기하다·문제점을 지적하다',
+  '설명 — 설명하다·알려 주다·언급하다',
+  '권유 — 제안하다·권유하다',
+  '의논 — 상의하다·의논하다',
+  '우려 — 우려를 표현하다·걱정이 되다',
+  '동조 — 의견을 전달하다·동조를 얻다',
+  '지시 — 지시하다',
+];
+
+const LISTENING_DISCUSSION_ATTITUDE_RANKINGS = [
+  ...LISTENING_CENTRAL_IDEA_RANKINGS,
+  '찬성 — 찬성하다·동의하다·동조하다·공감하다·지지하다·수용하다·인정하다·옹호하다·대변하다·기대하다·긍정적이다·호의적이다·낙관적이다',
+  '반대 — 반대하다·반박하다·비판하다·지적하다·대응하다·염려하다·실망하다·부정적이다·회의적이다·책임을 묻다',
+  '기타 — 주장하다·제시하다·내놓다·제안하다·모색하다·합리화하다·전달하다·평가하다·분석하다·요구하다·촉구하다·요청하다·예측하다·전망하다·확인하다·검토하다·질문하다·설명하다',
+];
+
+const LISTENING_SPEAKER_ATTITUDE_RANKINGS = [
+  '나열하다·증명하다·비교하다·묘사하다',
+  '당부하다·강조하다',
+  '우려하다·경계하다·의심하다',
+  '판단하다·진단하다·회고하다',
+  '대처하다·유보하다',
+];
 const sectionName = {
   [TopikSection.READING]: t4('읽기', "O'qish", 'Reading', 'Чтение'),
+
   [TopikSection.LISTENING]: t4('듣기', 'Tinglash', 'Listening', 'Аудирование'),
   [TopikSection.WRITING]: t4('쓰기', 'Yozish', 'Writing', 'Письмо'),
 };
@@ -442,16 +608,23 @@ function rankingSection(
       form,
       meanings: [
         t4(
-          '출제 가능성이 높은 핵심 단서',
-          "Savolda ko'p uchraydigan asosiy belgi",
-          'High-frequency clue for this question type',
-          'Частотный ключевой признак этого типа',
+          `교재의 '${definition.title.ko}' Ranking ${index + 1}위 단서이다. '${form}'과 같은 뜻으로 바뀌어 나오는 표현까지 함께 익힌다.`,
+          `Bu '${definition.title.uz}' uchun kitobdagi ${index + 1}-Ranking belgisi. '${form}' bilan bir ma'nodagi qayta ifodalarni ham o'rganing.`,
+          `This is the book's no. ${index + 1} Ranking clue for '${definition.title.en}'. Learn paraphrases carrying the same meaning as '${form}'.`,
+          `Это признак № ${index + 1} из Ranking книги для «${definition.title.ru}». Учите и перефразировки со значением «${form}».`,
         ),
       ],
       examples: [],
       highlights: [],
     })),
-    tips: [],
+    tips: [
+      t4(
+        'Ranking은 정답 번호가 아니라 출제 가능성이 높은 단서의 우선순위다. 예상문제를 풀기 전에 각 단서와 바꿔 말하기를 먼저 확인한다.',
+        "Ranking javob raqami emas, savolda chiqishi ehtimoli yuqori belgilar ustuvorligidir. Mashqdan oldin belgi va qayta ifodani tekshiring.",
+        'Ranking is not an answer key; it prioritizes likely clues. Review each clue and its paraphrases before the predicted questions.',
+        'Ranking — не номера ответов, а приоритет вероятных признаков. Перед прогнозными заданиями повторите признаки и перефразировки.',
+      ),
+    ],
   };
 }
 
@@ -755,7 +928,7 @@ const definitions: RecipeDefinition[] = [
       'Подходящая картинка',
     ),
     strategy: 'visual',
-    rankings: ['사람', '장소', '사물', '행동'],
+    rankings: LISTENING_PICTURE_RANKINGS,
     sourceReference: 'PDF 44~48쪽',
   },
   {
@@ -782,7 +955,7 @@ const definitions: RecipeDefinition[] = [
       'Подходящая ответная реплика',
     ),
     strategy: 'response',
-    rankings: ['장소', '상황', '질문', '제안', '요청'],
+    rankings: LISTENING_RESPONSE_RANKINGS,
     sourceReference: 'PDF 49~62쪽',
   },
   {
@@ -798,7 +971,7 @@ const definitions: RecipeDefinition[] = [
       'Следующее действие',
     ),
     strategy: 'action',
-    rankings: ['예약', '문의', '구매', '이동', '전달'],
+    rankings: LISTENING_ACTION_RANKINGS,
     sourceReference: 'PDF 63~72쪽',
   },
   {
@@ -825,7 +998,7 @@ const definitions: RecipeDefinition[] = [
     level: 3,
     title: t4('안내 방송', "E'lon", 'Announcement', 'Объявление'),
     strategy: 'detail',
-    rankings: ['아파트', '백화점', '공원', '학교', '공항', '공연장'],
+    rankings: LISTENING_ANNOUNCEMENT_RANKINGS,
     sourceReference: 'PDF 76~78쪽',
   },
   {
@@ -836,7 +1009,7 @@ const definitions: RecipeDefinition[] = [
     level: 3,
     title: t4('뉴스', 'Yangilik', 'News', 'Новости'),
     strategy: 'detail',
-    rankings: ['사건·사고', '날씨', '생활 정보', '경제', '교통'],
+    rankings: LISTENING_NEWS_RANKINGS,
     sourceReference: 'PDF 79~81쪽',
   },
   {
@@ -863,7 +1036,7 @@ const definitions: RecipeDefinition[] = [
       'Главная мысль диалога',
     ),
     strategy: 'main',
-    rankings: ['제안', '필요성', '희망', '판단', '강조'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 96~101쪽',
   },
   {
@@ -895,7 +1068,7 @@ const definitions: RecipeDefinition[] = [
       'Официальный разговор',
     ),
     strategy: 'main',
-    rankings: ['중심 생각', '내용 일치', '공적 상황'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 154~157쪽',
   },
   {
@@ -911,7 +1084,7 @@ const definitions: RecipeDefinition[] = [
       'Обращение в общественное учреждение',
     ),
     strategy: 'detail',
-    rankings: ['문의', '신청', '변경', '문제 해결'],
+    rankings: LISTENING_TASK_VERB_RANKINGS,
     sourceReference: 'PDF 158~160쪽',
   },
   {
@@ -927,7 +1100,7 @@ const definitions: RecipeDefinition[] = [
       'Актуальное интервью',
     ),
     strategy: 'main',
-    rankings: ['최신 화제', '사회 현상', '인물의 견해'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 161~163쪽',
   },
   {
@@ -943,7 +1116,7 @@ const definitions: RecipeDefinition[] = [
       'Мнение и обсуждение',
     ),
     strategy: 'attitude',
-    rankings: ['찬성', '반대', '대안', '절충'],
+    rankings: LISTENING_INTENTION_RANKINGS,
     sourceReference: 'PDF 164~166쪽',
   },
   {
@@ -970,7 +1143,7 @@ const definitions: RecipeDefinition[] = [
     level: 5,
     title: t4('토론', 'Munozara', 'Debate', 'Дискуссия'),
     strategy: 'attitude',
-    rankings: ['찬성', '반대', '절충안', '새로운 대안'],
+    rankings: LISTENING_DISCUSSION_ATTITUDE_RANKINGS,
     sourceReference: 'PDF 202~205쪽',
   },
   {
@@ -1013,7 +1186,7 @@ const definitions: RecipeDefinition[] = [
       'Познавательная программа',
     ),
     strategy: 'main',
-    rankings: ['문화', '건강', '교육', '예술', '여가'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 212~214쪽',
   },
   {
@@ -1040,7 +1213,7 @@ const definitions: RecipeDefinition[] = [
       'Главное содержание лекции',
     ),
     strategy: 'main',
-    rankings: ['주제 설명', '핵심 주장', '세부 내용'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 256~259쪽',
   },
   {
@@ -1056,7 +1229,7 @@ const definitions: RecipeDefinition[] = [
       'Документальная программа',
     ),
     strategy: 'main',
-    rankings: ['동물', '자연 현상', '전통문화', '역사'],
+    rankings: LISTENING_CENTRAL_IDEA_RANKINGS,
     sourceReference: 'PDF 269~272쪽',
   },
   {
@@ -1072,7 +1245,7 @@ const definitions: RecipeDefinition[] = [
       'Детали лекции',
     ),
     strategy: 'attitude',
-    rankings: ['내용 일치', '말하는 방식', '예시', '조사 결과'],
+    rankings: LISTENING_SPEAKER_ATTITUDE_RANKINGS,
     sourceReference: 'PDF 260~262쪽',
   },
   {
@@ -1083,7 +1256,7 @@ const definitions: RecipeDefinition[] = [
     level: 6,
     title: t4('대담', 'Suhbat', 'Talk', 'Беседа'),
     strategy: 'attitude',
-    rankings: ['질문의 초점', '전문가 견해', '정책 평가', '우려'],
+    rankings: LISTENING_SPEAKER_ATTITUDE_RANKINGS,
     sourceReference: 'PDF 266~268쪽',
   },
   {
@@ -1099,7 +1272,7 @@ const definitions: RecipeDefinition[] = [
       'Отношение лектора',
     ),
     strategy: 'attitude',
-    rankings: ['설명', '비판', '강조', '우려', '기대'],
+    rankings: LISTENING_SPEAKER_ATTITUDE_RANKINGS,
     sourceReference: 'PDF 263~265쪽',
   },
 
@@ -1193,6 +1366,7 @@ export const RECIPE_CATALOG: RecipeSeed[] = [
   ...definitions
     .filter(
       (definition) =>
+        definition.section !== TopikSection.WRITING &&
         definition.code !== 'reading-03-04' &&
         definition.code !== 'reading-05-08' &&
         definition.code !== 'reading-09-12' &&
@@ -1212,4 +1386,5 @@ export const RECIPE_CATALOG: RecipeSeed[] = [
         definition.section === TopikSection.READING ? order + 1 : order,
       );
     }),
+  ...WRITING_RECIPES,
 ];

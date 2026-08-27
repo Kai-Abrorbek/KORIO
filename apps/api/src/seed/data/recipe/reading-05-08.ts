@@ -9,6 +9,7 @@ import {
   t4,
 } from './recipe-seed.types';
 import { READING_05_PRODUCT_RANKING } from './reading-05-ranking';
+import { recipeQuestion as makeQuestion } from './reading-recipe-helpers';
 
 type RankingRow = [string, string];
 
@@ -137,34 +138,17 @@ function question(
   choices: string[],
   correctIndex: number,
   source: string,
+  type: TopikQuestionType = TopikQuestionType.PRACTICAL_TEXT_TOPIC,
 ): RecipeSeedQuestion {
-  const answer = choices[correctIndex];
-  return {
+  return makeQuestion(
     code,
     number,
-    type: TopikQuestionType.PRACTICAL_TEXT_TOPIC,
+    type,
     prompt,
-    choices: choices.map((text, index) => ({
-      text,
-      correct: index === correctIndex,
-    })),
+    choices,
+    correctIndex,
     source,
-    difficulty: 3,
-    solution: {
-      strategy: t4(
-        '광고에서 반복되거나 강조된 명사와 동사를 먼저 찾는다.',
-        "Reklamadagi takrorlangan yoki ta'kidlangan ot va fe'llarni avval toping.",
-        'Find repeated or emphasized nouns and verbs in the ad first.',
-        'Сначала найдите повторяющиеся или выделенные существительные и глаголы.',
-      ),
-      explanation: t4(
-        `광고의 핵심어를 모두 포함하는 대상은 '${answer}'이다.`,
-        `Reklamadagi barcha kalit so'zlarni qamrab oladigan javob — '${answer}'.`,
-        `The option covering all key words in the ad is '${answer}'.`,
-        `Все ключевые слова рекламы охватывает вариант «${answer}».`,
-      ),
-    },
-  };
+  );
 }
 
 type PracticeRow = [string, string[], number];
@@ -413,6 +397,7 @@ const EXAMPLES: RecipeSeedQuestion[] = [
     ['상품 안내', '주의 사항', '사용 순서', '장소 문의'],
     1,
     'TOPIK II 60회 읽기 8번',
+    TopikQuestionType.PASSAGE_CONTENT_MATCH,
   ),
 ];
 
@@ -422,14 +407,17 @@ const PRACTICE = [
   ...PUBLIC_PRACTICE,
   ...DETAIL_PRACTICE,
 ].map(([prompt, choices, correctIndex], index) => {
-  const type = Math.floor(index / 10) + 5;
+  const questionNumber = Math.floor(index / 10) + 5;
   return question(
     `recipe-reading-05-08-practice-${String(index + 1).padStart(2, '0')}`,
     index + 1,
     prompt,
     choices,
     correctIndex,
-    `합격 레시피 PDF ${type === 5 ? '29~30' : type === 6 ? '33~34' : type === 7 ? '37~38' : '41~42'}쪽 예상문제`,
+    `합격 레시피 PDF ${questionNumber === 5 ? '29~30' : questionNumber === 6 ? '33~34' : questionNumber === 7 ? '37~38' : '41~42'}쪽 예상문제`,
+    questionNumber === 8
+      ? TopikQuestionType.PASSAGE_CONTENT_MATCH
+      : TopikQuestionType.PRACTICAL_TEXT_TOPIC,
   );
 });
 

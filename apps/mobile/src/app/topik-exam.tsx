@@ -41,7 +41,6 @@ function formatTime(totalSeconds: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-const TOPIK_EXAM_TTS_RATE = 1;
 const TOPIK_ANSWER_TIME_PER_QUESTION_MS = 10_000;
 
 export default function TopikExamScreen() {
@@ -178,6 +177,7 @@ export default function TopikExamScreen() {
                   : []),
                 ...audio.transcript,
               ],
+              questionNumber: startNumber,
               pauseAfterMs:
                 repeatIndex === repeatCount - 1
                   ? questionCount * TOPIK_ANSWER_TIME_PER_QUESTION_MS
@@ -192,7 +192,6 @@ export default function TopikExamScreen() {
         transcript: speechSegments.flatMap((segment) => segment.transcript),
         speechSegments,
         repeatCount: 1,
-        speechRate: TOPIK_EXAM_TTS_RATE,
         volume: 1,
         respectSoundSettings: false,
         fallbackToSpeech: true,
@@ -276,7 +275,7 @@ export default function TopikExamScreen() {
   ]);
 
   const playGuidedAudio = useCallback(
-    (audio: TopikAudio, repeatCount: number) => {
+    (audio: TopikAudio, repeatCount: number, questionNumber: number) => {
       const currentCount = guidedPlayCountsRef.current[audio.key] ?? 0;
       if (currentCount >= audio.guidedPlaybackLimit) return;
 
@@ -284,6 +283,7 @@ export default function TopikExamScreen() {
         key: audio.key,
         audioUrl: audio.audioUrl,
         transcript: audio.transcript,
+        questionNumber,
         repeatCount,
         repeatPauseMs: repeatCount > 1 ? 900 : 0,
         fallbackToSpeech: audio.speechFallback,
@@ -330,10 +330,15 @@ export default function TopikExamScreen() {
     guidedStartedAttemptRef.current = guidedAutoStartKey;
     guidedPlayCountsRef.current = {};
     setGuidedPlayCounts({});
-    playGuidedAudio(activeAudio, activeAudioRepeatCount);
+    playGuidedAudio(
+      activeAudio,
+      activeAudioRepeatCount,
+      activeQuestions[0]?.number ?? 1,
+    );
   }, [
     activeAudio,
     activeAudioRepeatCount,
+    activeQuestions,
     attempt,
     examCode,
     isListening,
@@ -403,7 +408,7 @@ export default function TopikExamScreen() {
     if (!nextQuestion || !nextAudio) return;
     const repeatCount =
       nextAudio.guidedAutoRepeatCount ?? (nextQuestion.number >= 21 ? 2 : 1);
-    playGuidedAudio(nextAudio, repeatCount);
+    playGuidedAudio(nextAudio, repeatCount, nextQuestion.number);
   };
 
   const confirmExit = () => {
@@ -615,7 +620,11 @@ export default function TopikExamScreen() {
             }
             onPlayAudio={() => {
               if (activeAudio) {
-                playGuidedAudio(activeAudio, activeAudioRepeatCount);
+                playGuidedAudio(
+                  activeAudio,
+                  activeAudioRepeatCount,
+                  activeQuestions[0]?.number ?? 1,
+                );
               }
             }}
             onStopAudio={listeningPlayback.stop}

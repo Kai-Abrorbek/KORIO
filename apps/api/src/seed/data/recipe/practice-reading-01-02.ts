@@ -21,6 +21,38 @@ function sol(
   };
 }
 
+function withChoiceNotes(question: RecipeSeedQuestion): RecipeSeedQuestion {
+  if (
+    !question.solution ||
+    question.solution.choiceNotes ||
+    question.choices.length === 0
+  ) {
+    return question;
+  }
+
+  return {
+    ...question,
+    solution: {
+      ...question.solution,
+      choiceNotes: question.choices.map((choice) =>
+        choice.correct
+          ? t4(
+              `‘${choice.text}’은 문장 흐름과 해설에서 확인한 문법 기능을 모두 만족하므로 정답이다.`,
+              `“${choice.text}” gap oqimi va izohdagi grammatik vazifaga to'liq mos, shuning uchun to'g'ri javob.`,
+              `“${choice.text}” matches both the sentence flow and the grammar function explained, so it is correct.`,
+              `«${choice.text}» соответствует ходу предложения и описанной грамматической функции, поэтому это правильный ответ.`,
+            )
+          : t4(
+              `‘${choice.text}’은 문장 흐름이나 해설에서 확인한 문법 기능과 맞지 않으므로 오답이다.`,
+              `“${choice.text}” gap oqimi yoki izohdagi grammatik vazifaga mos emas, shuning uchun noto'g'ri javob.`,
+              `“${choice.text}” does not match the sentence flow or the grammar function explained, so it is incorrect.`,
+              `«${choice.text}» не соответствует ходу предложения или описанной грамматической функции, поэтому это неверный ответ.`,
+            ),
+      ),
+    },
+  };
+}
+
 export const PRACTICE_READING_01_02: RecipeSeedQuestion[] = [
   // ───────────────── 연결어미 1~10
   {
@@ -565,4 +597,4 @@ export const PRACTICE_READING_01_02: RecipeSeedQuestion[] = [
       ],
     ),
   },
-];
+].map(withChoiceNotes);

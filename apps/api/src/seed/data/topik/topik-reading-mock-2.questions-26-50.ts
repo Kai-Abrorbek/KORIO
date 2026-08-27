@@ -369,7 +369,7 @@ export const TOPIK_READING_MOCK_2_QUESTIONS_26_50: TopikSeedQuestion[] = [
     difficulty: 4,
   }),
   readingMock2Question({
-    number: 44,
+    number: 45,
     groupCode: 'reading-44-45',
     type: TopikQuestionType.PASSAGE_FILL_BLANK,
     prompt: '( )에 들어갈 말로 가장 알맞은 것을 고르십시오.',
@@ -387,7 +387,7 @@ export const TOPIK_READING_MOCK_2_QUESTIONS_26_50: TopikSeedQuestion[] = [
     difficulty: 4,
   }),
   readingMock2Question({
-    number: 45,
+    number: 44,
     groupCode: 'reading-44-45',
     type: TopikQuestionType.PASSAGE_TOPIC,
     prompt: '윗글의 주제로 가장 알맞은 것을 고르십시오.',

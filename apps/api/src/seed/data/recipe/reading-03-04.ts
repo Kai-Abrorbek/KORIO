@@ -8,6 +8,7 @@ import {
   RecipeSeedQuestion,
   t4,
 } from './recipe-seed.types';
+import { recipeQuestion as makeQuestion } from './reading-recipe-helpers';
 
 const FEATURE = {
   추측: t4('추측', 'Taxmin', 'Conjecture', 'Предположение'),
@@ -300,33 +301,15 @@ function question(
   correctIndex: number,
   source: string,
 ): RecipeSeedQuestion {
-  const correct = choices[correctIndex];
-  return {
+  return makeQuestion(
     code,
     number,
-    type: TopikQuestionType.UNDERLINED_MEANING,
+    TopikQuestionType.UNDERLINED_MEANING,
     prompt,
-    choices: choices.map((text, index) => ({
-      text,
-      correct: index === correctIndex,
-    })),
+    choices,
+    correctIndex,
     source,
-    difficulty: 3,
-    solution: {
-      strategy: t4(
-        '밑줄 친 문법의 기능을 먼저 찾고 같은 기능의 표현을 고른다.',
-        'Avval tagi chizilgan grammatikaning vazifasini topib, ayni vazifadagi ifodani tanlang.',
-        'Identify the underlined grammar function first, then choose the expression with the same function.',
-        'Сначала определите функцию подчёркнутой грамматики, затем выберите выражение с той же функцией.',
-      ),
-      explanation: t4(
-        `문맥에서 같은 의미로 바꿀 수 있는 표현은 '${correct}'이다.`,
-        `Kontekstda ayni ma'noni beradigan ifoda — '${correct}'.`,
-        `The expression that preserves the same meaning in context is '${correct}'.`,
-        `В этом контексте то же значение передаёт выражение «${correct}».`,
-      ),
-    },
-  };
+  );
 }
 
 const EXAMPLES: RecipeSeedQuestion[] = [

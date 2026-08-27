@@ -1,10 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,21 +14,18 @@ import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
+import {
+  TOPIK_RECIPE_CURRICULUM,
+  TOPIK_RECIPE_LEVELS,
+  type TopikRecipeTargetLevel,
+} from "@/features/topik/topik-recipe-curriculum";
+import { TopikRecipeCurriculumList } from "@/features/topik/TopikRecipeCurriculumList";
 import { TopikService } from "@/services/topik.service";
-import { MOCK_RECIPE_LIST } from "@/mocks/topik-recipe.mock";
-import { toTopikLanguage, topikText } from "@/types/topik";
 import type { TopikRecipeSummary } from "@/types/topik-recipe";
 
 type RecipeSection = "reading" | "listening" | "writing";
 
-const RECIPE_SECTIONS: Array<{
-  key: RecipeSection;
-  icon: keyof typeof Ionicons.glyphMap;
-}> = [
-  { key: "reading", icon: "book-outline" },
-  { key: "listening", icon: "headset-outline" },
-  { key: "writing", icon: "create-outline" },
-];
+const RECIPE_SECTIONS: RecipeSection[] = ["reading", "listening", "writing"];
 
 /**
  * 합격 레시피 유형 목록.
@@ -37,34 +33,55 @@ const RECIPE_SECTIONS: Array<{
  * 콘텐츠가 준비된 유형만 들어갈 수 있다.
  */
 export default function TopikRecipesScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const palette = useTopikTheme();
   const s = useMemo(() => styles(palette), [palette]);
-  const lang = toTopikLanguage(i18n.language);
 
   const [items, setItems] = useState<TopikRecipeSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [section, setSection] = useState<RecipeSection>("reading");
+  const [error, setError] = useState(false);
+  const [level, setLevel] = useState<TopikRecipeTargetLevel>(3);
+
+  const loadRecipes = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const results = await Promise.all(
+        RECIPE_SECTIONS.map((recipeSection) =>
+          TopikService.getRecipes(recipeSection),
+        ),
+      );
+      setItems(results.flat());
+    } catch {
+      setItems([]);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await TopikService.getRecipes(section);
-        if (alive) setItems(data);
-      } catch {
-        if (alive) setItems(section === "reading" ? MOCK_RECIPE_LIST : []);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [section]);
+    void loadRecipes();
+  }, [loadRecipes]);
 
-  const readyCount = items.filter((x) => x.ready).length;
+  const itemByCode = useMemo(
+    () => new Map(items.map((item) => [item.groupCode, item])),
+    [items],
+  );
+  const chapters = useMemo(
+    () => TOPIK_RECIPE_CURRICULUM.filter((chapter) => chapter.level === level),
+    [level],
+  );
+  const levelItems = useMemo(
+    () =>
+      chapters.flatMap((chapter) =>
+        chapter.groupCodes
+          .map((groupCode) => itemByCode.get(groupCode))
+          .filter((item): item is TopikRecipeSummary => !!item),
+      ),
+    [chapters, itemByCode],
+  );
+  const readyCount = levelItems.filter((item) => item.ready).length;
 
   if (loading) {
     return (
@@ -85,119 +102,49 @@ export default function TopikRecipesScreen() {
           <Text style={s.headerMeta}>
             {t("topik.recipe.readyCount", {
               ready: readyCount,
-              total: items.length,
+              total: levelItems.length,
             })}
           </Text>
         </View>
       </View>
 
       <View style={s.tabs}>
-        {RECIPE_SECTIONS.map((item) => {
-          const active = item.key === section;
+        {TOPIK_RECIPE_LEVELS.map((item) => {
+          const active = item === level;
           return (
             <Pressable
-              key={item.key}
+              key={item}
               accessibilityRole="tab"
               accessibilityState={{ selected: active }}
-              onPress={() => setSection(item.key)}
+              onPress={() => setLevel(item)}
               style={[s.tab, active && s.tabActive]}
             >
-              <Ionicons
-                name={item.icon}
-                size={17}
-                color={active ? palette.primaryText : palette.textSubtle}
-              />
               <Text style={[s.tabText, active && s.tabTextActive]}>
-                {t(`topik.home.${item.key}`)}
+                {t("topik.recipe.level", { level: item })}
               </Text>
             </Pressable>
           );
         })}
       </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={s.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        {items.map((item) => {
-          const disabled = !item.ready;
-          return (
-            <Pressable
-              key={item.groupCode}
-              disabled={disabled}
-              onPress={() =>
-                router.push({
-                  pathname: "/topik-recipe",
-                  params: { groupCode: item.groupCode },
-                })
-              }
-              style={[s.card, disabled && s.cardDisabled]}
-            >
-              {/* 문항 번호 배지 */}
-              <View style={[s.numberBox, disabled && s.numberBoxDisabled]}>
-                <Text style={[s.numberText, disabled && s.mutedStrong]}>
-                  {item.fromNumber}
-                  {item.toNumber !== item.fromNumber ? `~${item.toNumber}` : ""}
-                </Text>
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <Text style={[s.cardLabel, disabled && s.muted]}>
-                  {topikText(item.label, lang)}
-                </Text>
-                {item.ready ? (
-                  <>
-                    <Text style={s.cardTitle}>
-                      {topikText(item.title, lang)}
-                    </Text>
-                    <Text style={s.cardMeta}>
-                      {t("topik.recipe.cardMeta", {
-                        grammar: item.grammarCount,
-                        practice: item.practiceCount,
-                      })}
-                    </Text>
-                  </>
-                ) : (
-                  <Text style={[s.cardMeta, s.muted]}>
-                    {t("topik.recipe.comingSoon")}
-                  </Text>
-                )}
-              </View>
-
-              {item.ready ? (
-                <>
-                  {item.targetLevel > 0 && (
-                    <View style={s.levelChip}>
-                      <Text style={s.levelChipText}>
-                        {t("topik.recipe.level", { level: item.targetLevel })}
-                      </Text>
-                    </View>
-                  )}
-                  <Ionicons
-                    name="chevron-forward"
-                    size={18}
-                    color={palette.textSubtle}
-                  />
-                </>
-              ) : (
-                <Ionicons
-                  name="lock-closed"
-                  size={16}
-                  color={palette.textSubtle}
-                />
-              )}
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <TopikRecipeCurriculumList
+        chapters={chapters}
+        error={error}
+        itemByCode={itemByCode}
+        level={level}
+        onRetry={() => {
+          void loadRecipes();
+        }}
+        readyCount={readyCount}
+        totalCount={levelItems.length}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = (p: TopikPalette) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: p.bg, marginBottom: 40 },
+    container: { flex: 1, backgroundColor: p.bg },
     center: {
       flex: 1,
       backgroundColor: p.bg,
@@ -245,49 +192,4 @@ const styles = (p: TopikPalette) =>
     },
     tabText: { fontSize: 13, fontWeight: "800", color: p.textSubtle },
     tabTextActive: { color: p.primaryText },
-
-    scroll: { paddingHorizontal: 20, paddingVertical: 18, gap: 10 },
-
-    card: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-      padding: 14,
-      borderRadius: 16,
-      backgroundColor: p.surface,
-      borderWidth: 1,
-      borderColor: p.border,
-    },
-    cardDisabled: { backgroundColor: p.surfaceMuted, borderColor: p.divider },
-
-    numberBox: {
-      minWidth: 52,
-      height: 44,
-      paddingHorizontal: 8,
-      borderRadius: 12,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: p.primary,
-    },
-    numberBoxDisabled: { backgroundColor: p.divider },
-    numberText: { color: "#fff", fontSize: 15, fontWeight: "900" },
-
-    cardLabel: { fontSize: 13, fontWeight: "700", color: p.textSecondary },
-    cardTitle: {
-      fontSize: 16,
-      fontWeight: "800",
-      color: p.text,
-      marginTop: 1,
-    },
-    cardMeta: { fontSize: 12, color: p.textSubtle, marginTop: 3 },
-    muted: { color: p.textSubtle },
-    mutedStrong: { color: p.textSecondary },
-
-    levelChip: {
-      paddingHorizontal: 9,
-      paddingVertical: 4,
-      borderRadius: 999,
-      backgroundColor: p.primarySoft,
-    },
-    levelChipText: { fontSize: 11, fontWeight: "800", color: p.primaryText },
   });

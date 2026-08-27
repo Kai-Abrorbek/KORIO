@@ -394,8 +394,8 @@ export const TOPIK_READING_MOCK_1_QUESTIONS_01_25: TopikSeedQuestion[] = [
   question({
     number: 20,
     groupCode: 'reading-19-20',
-    type: TopikQuestionType.PASSAGE_TOPIC,
-    prompt: '윗글의 주제로 가장 알맞은 것을 고르십시오.',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    prompt: '윗글의 내용과 같은 것을 고르십시오.',
     choices: [
       '안내견은 시각 장애인과 가장 가까운 관계이다.',
       '안내견 교육은 아무나 할 수 있는 것이 아니다.',
@@ -404,9 +404,9 @@ export const TOPIK_READING_MOCK_1_QUESTIONS_01_25: TopikSeedQuestion[] = [
     ],
     answer: '4',
     explanation:
-      '일반 가정 훈련, 최종 선발, 안내견 학교 교육까지 안내견이 되는 전체 과정을 설명하고 있으므로 4번이 주제입니다.',
-    clue: '글 전체가 예비 안내견이 여러 단계의 교육을 거치는 과정을 중심으로 전개됩니다.',
-    tags: ['topic', 'guide-dog', 'training'],
+      '예비 안내견은 일반 가정 훈련과 최종 선발을 거친 뒤 안내견 학교에서 다시 교육을 받아야 하므로 4번이 글의 내용과 같습니다.',
+    clue: '일반 가정 훈련, 최종 선발, 안내견 학교 교육의 순서를 확인합니다.',
+    tags: ['content-match', 'guide-dog', 'training'],
     difficulty: 2,
   }),
   question({
@@ -425,19 +425,19 @@ export const TOPIK_READING_MOCK_1_QUESTIONS_01_25: TopikSeedQuestion[] = [
   question({
     number: 22,
     groupCode: 'reading-21-22',
-    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
-    prompt: '윗글의 내용과 같은 것을 고르십시오.',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    prompt: '윗글의 중심 생각으로 가장 알맞은 것을 고르십시오.',
     choices: [
-      '재택근무를 하면 늦게 출근해도 된다.',
-      '재택근무는 모든 직장에서 다 시행할 수 있다.',
-      '재택근무를 시작했다가 포기한 기업들도 많이 있다.',
-      '출퇴근이 힘든 사람들은 직장을 그만두고 싶어 한다.',
+      '재택근무는 출퇴근 문제를 완전히 해결해 준다.',
+      '재택근무는 모든 업종에서 의무적으로 시행해야 한다.',
+      '재택근무의 효율을 높이려면 기업과 근로자의 준비가 필요하다.',
+      '재택근무를 포기한 기업은 다시 사무실을 없애야 한다.',
     ],
     answer: '3',
     explanation:
-      '세계적인 기업들도 의사소통과 관리 문제 등으로 재택근무를 중도에 포기한 경우가 많다고 했습니다.',
-    clue: '마지막 문장의 ‘중도에 포기한 경우가 많다’를 확인합니다.',
-    tags: ['content-match', 'telework'],
+      '글은 재택근무가 편리하더라도 의사소통·관리·정보 보안 문제를 해결하려면 기업과 근로자 모두 준비해야 한다고 강조합니다.',
+    clue: '‘재택근무의 효율성을 높이기 위해서는 기업과 근로자 모두 준비가 필요하다’가 중심 문장입니다.',
+    tags: ['topic', 'telework'],
     difficulty: 2,
   }),
   question({
