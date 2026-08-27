@@ -184,7 +184,7 @@ export default function CourseCategories() {
       </View>
 
       <ScrollView
-        contentContainerStyle={s.scroll}
+        contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
@@ -222,7 +222,7 @@ const getStyles = (theme: ThemeColors) =>
       paddingBottom: 8,
     },
     headerTitle: { fontSize: 22, fontWeight: "700", color: theme.text },
-    scroll: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40 },
+    scroll: { paddingHorizontal: 20, paddingTop: 12 },
     lead: {
       fontSize: 15,
       color: theme.textSecondary,
