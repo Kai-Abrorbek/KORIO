@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -26,6 +30,7 @@ import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { rollChestReward } from './xp.util';
 import { UsersService } from '../users/users.service';
+import { startOfDay } from '../common/date.util';
 import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
@@ -35,7 +40,7 @@ import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 
-const LEGEND_XP = 40;
+const LEGEND_XP = 300;
 
 /** 틀린 문제를 "해소"로 보기까지 필요한 연속 정답 수 */
 const MISTAKE_RESOLVE_STREAK = 2;
@@ -66,6 +71,8 @@ import {
 
 @Injectable()
 export class LessonsService {
+  private readonly logger = new Logger(LessonsService.name);
+
   constructor(
     @InjectModel(Lesson.name)
     private lessonModel: Model<LessonDocument>,
@@ -239,11 +246,8 @@ export class LessonsService {
     ].filter((id) => lessonQuestionIdSet.has(id));
 
     // ✅ XP = 기본값 + 콤보 (서버 계산, 클라 xpEarned 무시)
-    const xpEarned = calcLessonXp(
-      lesson.xpReward ?? 0,
-      dto.combo,
-      dto.correctAnswers,
-    );
+    const baseXp = await this.resolveLessonBaseXp(lesson);
+    const xpEarned = calcLessonXp(baseXp, dto.combo, dto.correctAnswers);
 
     await this.userProgressModel.findOneAndUpdate(
       {
@@ -363,6 +367,40 @@ export class LessonsService {
   }
 
   /**
+   * 레슨의 기본 XP.
+   *
+   * 정상 경로에서는 시드가 `lesson.xpReward` 를 채워준다. 그런데 이 값이
+   * 0 이거나 없으면 calcLessonXp 의 기본값이 그대로 0 이 되어 **XP 가
+   * 콤보 보너스만 남는다.** 아무 에러도 안 나서 눈치채기 어렵다.
+   *
+   * 문제마다 자기 xpReward 를 들고 있으므로 그걸 합쳐 되살리고, 경고를 남겨
+   * 어떤 레슨이 그런 상태인지 로그로 드러낸다.
+   */
+  private async resolveLessonBaseXp(lesson: {
+    _id: any;
+    code?: string;
+    xpReward?: number;
+    questionIds?: any[];
+  }): Promise<number> {
+    if ((lesson.xpReward ?? 0) > 0) return lesson.xpReward as number;
+
+    const ids = lesson.questionIds ?? [];
+    if (!ids.length) return 0;
+
+    const rows = await this.questionModel
+      .find({ _id: { $in: ids } })
+      .select('xpReward')
+      .lean();
+    const base = rows.reduce((sum, q) => sum + (q.xpReward ?? 0), 0);
+
+    this.logger.warn(
+      `레슨 ${lesson.code ?? lesson._id} 의 xpReward 가 0 이다 — ` +
+        `문제 ${rows.length}개 합계 ${base} 로 대체했다. 시드를 다시 돌려라.`,
+    );
+    return base;
+  }
+
+  /**
    * 복습 · 단어연습 등 레슨이 아닌 학습 완료 처리.
    * XP 는 서버가 모드로 결정하고(클라 값 무시), 통계는 실제 푼 문제 기준으로 남긴다.
    */
@@ -440,8 +478,9 @@ export class LessonsService {
     // 비정상 값 방어 (음수 · 3시간 초과)
     const seconds = Math.min(Math.max(params.speedSeconds ?? 0, 0), 3 * 3600);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // 하루 경계는 **이 유저의 시간대** 로 자른다. 서버 로컬(KST) 로 자르면
+    // 타슈켄트 유저가 저녁 8시 이후에 푼 문제가 다음 날 기록으로 넘어간다.
+    const today = startOfDay(new Date(), await this.usersService.getTimezone(userId));
 
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
@@ -984,8 +1023,7 @@ export class LessonsService {
       .select('totalXP')
       .lean();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = startOfDay(new Date(), await this.usersService.getTimezone(userId));
     await this.userStatsModel.updateOne(
       { userId: uId, date: today },
       { $inc: { xpEarned: xp } },

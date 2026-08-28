@@ -76,6 +76,14 @@ export class User {
   @Prop({ default: '' })
   country: string;
 
+  /**
+   * IANA 시간대 (예: 'Asia/Tashkent', 'Asia/Seoul').
+   * 하루·한 주의 경계를 이 유저 기준으로 자르는 데 쓴다. 빈 값이면 APP_TIMEZONE.
+   * 우즈벡 유저가 한국에 살기도 해서 국가로 유추하면 안 된다 — 기기에서 받는다.
+   */
+  @Prop({ default: '' })
+  timezone: string;
+
   // 온보딩 데이터
   @Prop()
   targetLanguage: string;

@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { Friend } from "@/types/friend";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function FriendListItem({ friend, onPress, isLast }: Props) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
   return (
@@ -30,10 +32,12 @@ export default function FriendListItem({ friend, onPress, isLast }: Props) {
         <Text style={styles.name} numberOfLines={1}>
           {friend.name}
         </Text>
-        {friend.primaryFlag && friend.level != null && (
+        {friend.primaryFlag && friend.xp != null && (
           <View style={styles.metaRow}>
             <Text style={styles.flag}>{friend.primaryFlag}</Text>
-            <Text style={styles.level}>{friend.level}</Text>
+            <Text style={styles.level}>
+              {t("profile.xp", { count: friend.xp })}
+            </Text>
           </View>
         )}
       </View>

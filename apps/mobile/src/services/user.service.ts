@@ -103,6 +103,13 @@ export const UserService = {
   }): Promise<{ learnMode: string; topikLevel: "1" | "2" }> =>
     api.patch(`/users/me/learn-mode`, data),
 
+  /**
+   * 기기 시간대를 계정에 저장. 서버가 하루·한 주의 경계를 이 값으로 자른다.
+   * 우즈벡 유저가 한국에 사는 경우가 많아 국가로 유추하면 안 된다.
+   */
+  updateTimezone: (timezone: string): Promise<{ timezone: string }> =>
+    api.patch(`/users/me/timezone`, { timezone }),
+
   /** 가이드(학습 로드) ↔ 자율 전환 */
   updateStudyMode: (
     studyMode: "guided" | "free",

@@ -20,9 +20,6 @@ import { UserService } from "@/services/user.service";
 const langToFlag = (lang?: string) =>
   ({ ko: "🇰🇷", en: "🇺🇸", uz: "🇺🇿", ru: "🇷🇺" })[lang ?? ""] ?? "🇰🇷";
 
-const levelToNum = (lv?: string) =>
-  ({ beginner: 1, intermediate: 2, advanced: 3 })[lv ?? ""] ?? 1;
-
 export default function FriendsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -67,7 +64,7 @@ export default function FriendsScreen() {
     avatar: u.avatar,
     avatarUri: u.profileImage,
     primaryFlag: langToFlag(u.targetLanguage),
-    level: u.totalXP ?? levelToNum(u.level),
+    xp: u.totalXP ?? 0,
     isFollowing: u.isFollowing,
     isFollowedBy: u.isFollowedBy,
     isMe: u.isMe,

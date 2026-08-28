@@ -1,80 +1,13 @@
-import { QuestionType } from './schemas/question.schema';
-
-// 티어별 base XP (정답 / 오답) — 크게(듀오링고식)
-const TIER: Record<string, { correct: number; wrong: number }> = {
-  // T1 재인
-  [QuestionType.IMAGE_CHOICE]: { correct: 10, wrong: 5 },
-  [QuestionType.WORD_MATCHING]: { correct: 10, wrong: 5 },
-  [QuestionType.AUDIO_MATCH]: { correct: 10, wrong: 5 },
-  [QuestionType.LISTENING]: { correct: 10, wrong: 5 },
-  // T2 조작
-  [QuestionType.SENTENCE_BUILDER]: { correct: 15, wrong: 5 },
-  [QuestionType.WORD_ARRANGE]: { correct: 15, wrong: 5 },
-  [QuestionType.FILL_IN_BLANK]: { correct: 15, wrong: 5 },
-  [QuestionType.DIALOG_COMPLETE]: { correct: 15, wrong: 5 },
-  // T3 생산
-  [QuestionType.TYPE_ANSWER]: { correct: 20, wrong: 10 },
-  [QuestionType.TRANSLATE_TYPE]: { correct: 20, wrong: 10 },
-  [QuestionType.TRANSLATE_BUILDER]: { correct: 20, wrong: 10 },
-  [QuestionType.LISTEN_TYPE]: { correct: 20, wrong: 10 },
-  [QuestionType.LISTEN_FILL]: { correct: 20, wrong: 10 },
-  [QuestionType.REPLY_BUILDER]: { correct: 25, wrong: 10 },
-  // T4 발화
-  [QuestionType.SPEAKING]: { correct: 25, wrong: 10 },
-  // 중급 5종. 지문을 읽고 여러 요소를 동시에 처리해야 해서
-  // 같은 조작/생산 계열보다 한 단계씩 위로 잡았다.
-  [QuestionType.DIALOG_ORDER]: { correct: 15, wrong: 5 },
-  [QuestionType.ERROR_HUNT]: { correct: 20, wrong: 10 },
-  [QuestionType.VERB_TRANSFORM]: { correct: 20, wrong: 10 },
-  [QuestionType.READING_QUIZ]: { correct: 25, wrong: 10 },
-  [QuestionType.CLOZE_PASSAGE]: { correct: 25, wrong: 10 },
-};
-const DEFAULT_TIER = { correct: 10, wrong: 5 };
-
-export interface XpBreakdown {
-  base: number;
-  comboBonus: number;
-  perfectBonus: number;
-  firstClearBonus: number;
-  total: number;
-}
-
-export function calcLessonXp(params: {
-  questions: { _id: any; type: string }[];
-  wrongQuestionIds: string[];
-  combo: number;
-  isFirstClear: boolean;
-  isReview: boolean;
-}): XpBreakdown {
-  const { questions, wrongQuestionIds, combo, isFirstClear, isReview } = params;
-  const wrongSet = new Set((wrongQuestionIds ?? []).map(String));
-
-  let base = 0;
-  for (const q of questions) {
-    const tier = TIER[q.type] ?? DEFAULT_TIER;
-    base += wrongSet.has(String(q._id)) ? tier.wrong : tier.correct;
-  }
-
-  // 복습은 base 절반 (반복 파밍 방지)
-  const adjustedBase = isReview ? Math.round(base / 2) : base;
-
-  const comboBonus = combo >= 3 ? Math.floor(combo / 3) * 5 : 0; // 3연속+마다 +5
-  const perfectBonus = wrongSet.size === 0 ? 30 : 0; // 무실수
-  const firstClearBonus = isFirstClear && !isReview ? 50 : 0; // 첫 클리어
-
-  return {
-    base: adjustedBase,
-    comboBonus,
-    perfectBonus,
-    firstClearBonus,
-    total: adjustedBase + comboBonus + perfectBonus + firstClearBonus,
-  };
-}
-
-// 누적 XP → 레벨 (레벨업 보상감용). 곡선: Lv n ≈ 100·(n-1)^1.5
-export function xpToLevel(totalXp: number): number {
-  return Math.floor(Math.pow(Math.max(0, totalXp) / 100, 1 / 1.5)) + 1;
-}
+/**
+ * 노드 완주 상자.
+ *
+ * XP 계산은 여기 없다 — `economy.const.ts` 한 곳에 있다.
+ * 예전에는 이 파일에도 `calcLessonXp` 라는 같은 이름의 함수와 문제 타입별
+ * XP 표가 있었는데, 아무도 import 하지 않는 죽은 코드였다. 그런데도 새 문제
+ * 타입이 생길 때마다 그 표에 추가되고 있었다 — 고쳐도 아무 일도 안 일어나는
+ * 곳을 계속 고치고 있었던 것이다. 표는 economy.const 의 QUESTION_XP_BY_TYPE
+ * 으로 옮겼고, 여기는 상자만 남긴다.
+ */
 
 // 노드 완주 상자 — 등급 미지수(랜덤), 보석 짜게
 export function rollChest(): {

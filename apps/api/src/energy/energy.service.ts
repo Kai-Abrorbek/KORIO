@@ -10,6 +10,7 @@ import { ENERGY_CONFIG } from './energy.constants';
 import { computeEnergy, minutesToFull } from './energy.util';
 import { isSuperActive } from '../users/super.util';
 import { COMBO_BONUS_THRESHOLD, COMBO_BONUS_MAX } from './energy.constants';
+import { startOfDay } from '../common/date.util';
 
 @Injectable()
 export class EnergyService {
@@ -74,9 +75,8 @@ export class EnergyService {
     user.energy = regen.energy;
     user.energyUpdatedAt = regen.energyUpdatedAt;
 
-    // 오늘 받은 횟수 계산
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
+    // 오늘 받은 횟수 계산 — "오늘" 은 유저 시간대 기준이다
+    const todayStart = startOfDay(now, user.timezone);
     const claims = (user.freeEnergyClaims ?? []).filter(
       (d) => new Date(d) >= todayStart,
     );
@@ -131,8 +131,7 @@ export class EnergyService {
   private buildResponse(user: User, secondsToNext: number, bonusGranted = 0) {
     const superActive = isSuperActive(user);
     const totalMin = minutesToFull(user.energy, secondsToNext, superActive);
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    const todayStart = startOfDay(new Date(), user.timezone);
     const freeUsedToday = (user.freeEnergyClaims ?? []).filter(
       (d) => new Date(d) >= todayStart,
     ).length;

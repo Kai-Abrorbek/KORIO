@@ -15,7 +15,16 @@ import {
 import { calculateLevel, UserLevel } from '../common/enums/level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
-import { localKey } from '../common/date.util';
+import {
+  dateParts,
+  dayKey,
+  daysBetween,
+  resolveTimezone,
+  startOfDay,
+  startOfDayPlus,
+  startOfMonth,
+  startOfMonthPlus,
+} from '../common/date.util';
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive, isSuperStale } from './super.util';
@@ -34,6 +43,7 @@ import {
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
+import { UpdateTimezoneDto } from './dto/update-timezone.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AvatarConfig } from './schemas/avatar.schema';
@@ -183,6 +193,8 @@ export class UsersService {
       },
       bio: user.bio || '',
       country: user.country || '',
+      // 클라가 기기 시간대와 비교해서 다를 때만 PATCH 하도록 같이 내려준다
+      timezone: user.timezone || '',
       level: user.level,
       totalXP: user.totalXP || 0,
       streak: streak.current,
@@ -305,8 +317,11 @@ export class UsersService {
       .select('date')
       .lean();
 
+    const targetTz = await this.getTimezone(targetId);
     const { current: streakCurrent } = calcStreak(
       streakRows.map((r) => r.date),
+      new Date(),
+      targetTz,
     );
 
     return {
@@ -594,6 +609,25 @@ export class UsersService {
   }
 
   /** 가이드(순서대로) ↔ 자율(마음대로). 계정에 붙어야 폰을 바꿔도 따라온다 */
+  /**
+   * 기기에서 읽은 시간대를 저장한다. 값이 이상하면 기본값으로 떨어뜨려 저장한다 —
+   * 검증 실패로 400 을 주면 앱 진입이 막히는데, 시간대는 그럴 만큼 중요하지 않다.
+   */
+  async updateTimezone(userId: string, dto: UpdateTimezoneDto) {
+    const timezone = resolveTimezone(dto.timezone);
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: { timezone } },
+        { returnDocument: 'after' },
+      )
+      .select('timezone')
+      .lean();
+
+    if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
+    return { timezone: updated.timezone };
+  }
+
   async updateStudyMode(userId: string, dto: UpdateStudyModeDto) {
     const updated = await this.userModel
       .findByIdAndUpdate(
@@ -792,8 +826,8 @@ export class UsersService {
     return this.decorateRelations(followers, currentUserId);
   }
 
-  private getMonthLabel(date: Date, lang: string): string {
-    const month = date.getMonth() + 1;
+  private getMonthLabel(date: Date, lang: string, tz?: string): string {
+    const month = dateParts(date, tz).month;
     const SHORT_UZ = [
       'Yan',
       'Fev',
@@ -840,12 +874,12 @@ export class UsersService {
       case 'ko':
         return `${month}월`;
       case 'uz':
-        return SHORT_UZ[date.getMonth()];
+        return SHORT_UZ[month - 1];
       case 'ru':
-        return SHORT_RU[date.getMonth()];
+        return SHORT_RU[month - 1];
       case 'en':
       default:
-        return SHORT_EN[date.getMonth()];
+        return SHORT_EN[month - 1];
     }
   }
 
@@ -853,6 +887,18 @@ export class UsersService {
    * UserStats 기준으로 연속 학습일을 계산하고, 값이 바뀌었으면 user 에 반영.
    * 읽기 시점에 계산하므로 "이틀 이상 안 하면 끊김"이 자동으로 반영된다.
    */
+  /**
+   * 이 유저 기준 시간대. 하루·한 주의 경계를 자를 때 반드시 이걸 거친다.
+   * 값이 없으면 APP_TIMEZONE 으로 떨어진다.
+   */
+  async getTimezone(userId: string): Promise<string> {
+    const u = await this.userModel
+      .findById(userId)
+      .select('timezone')
+      .lean();
+    return resolveTimezone(u?.timezone);
+  }
+
   async syncStreak(userId: string, prevLongest = 0) {
     const uId = new Types.ObjectId(userId);
     const rows = await this.statsModel
@@ -863,7 +909,12 @@ export class UsersService {
       .select('date')
       .lean();
 
-    const { current, longest } = calcStreak(rows.map((r) => r.date));
+    const tz = await this.getTimezone(userId);
+    const { current, longest } = calcStreak(
+      rows.map((r) => r.date),
+      new Date(),
+      tz,
+    );
     const nextLongest = Math.max(longest, current, prevLongest);
 
     await this.userModel
@@ -878,6 +929,7 @@ export class UsersService {
 
   /** 특정 월의 학습한 날짜 리스트 (1-31) + 연속 학습일 */
   async getCalendar(userId: string, year: number, month: number) {
+    const tz = await this.getTimezone(userId);
     // month 는 1-12 (0-indexed 가 아니라)
     const start = new Date(year, month - 1, 1, 0, 0, 0);
     const end = new Date(year, month, 1, 0, 0, 0);
@@ -900,15 +952,22 @@ export class UsersService {
     ]);
 
     const completedDays = Array.from(
-      new Set(monthStats.map((s) => new Date(s.date).getDate())),
+      new Set(monthStats.map((s) => dateParts(s.date, tz).day)),
     ).sort((a, b) => a - b);
 
-    const { current, longest, days } = calcStreak(allStats.map((s) => s.date));
+    const { current, longest, days } = calcStreak(
+      allStats.map((s) => s.date),
+      new Date(),
+      tz,
+    );
 
     // 현재 연속 구간 중 이번 달에 속하는 날짜만 (달력 하이라이트용)
     const streakDays = days
-      .filter((d) => d.getFullYear() === year && d.getMonth() === month - 1)
-      .map((d) => d.getDate());
+      .filter((d) => {
+        const dp = dateParts(d, tz);
+        return dp.year === year && dp.month === month;
+      })
+      .map((d) => dateParts(d, tz).day);
 
     return {
       year,
@@ -922,19 +981,17 @@ export class UsersService {
 
   /** 최근 N일 (기본 7일) 일별 학습 통계 */
   async getWeeklyStats(userId: string, endDateStr?: string) {
-    // 오늘(또는 지정일) 기준 지난 7일: 왼쪽=6일 전, 오른쪽 끝=오늘
+    const tz = await this.getTimezone(userId);
+    // 오늘(또는 지정일) 기준 지난 7일: 왼쪽=6일 전, 오른쪽 끝=오늘.
+    // 경계는 전부 유저 시간대로 자른다 — 서버 로컬로 자르면 유저의 하루와 어긋난다.
     const base = endDateStr ? new Date(endDateStr) : new Date();
-    const endDate = new Date(base);
-    endDate.setHours(23, 59, 59, 999);
-
-    const startDate = new Date(base);
-    startDate.setDate(base.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
+    const startDate = startOfDayPlus(base, -6, tz);
+    const endDate = startOfDayPlus(base, 1, tz);
 
     const stats = await this.statsModel
       .find({
         userId: new Types.ObjectId(userId),
-        date: { $gte: startDate, $lte: endDate },
+        date: { $gte: startDate, $lt: endDate },
       })
       .sort({ date: 1 })
       .lean();
@@ -950,12 +1007,11 @@ export class UsersService {
     }> = [];
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      const dayKey = localKey(d);
-      const stat = stats.find((s) => localKey(new Date(s.date)) === dayKey);
+      const d = startOfDayPlus(startDate, i, tz);
+      const key = dayKey(d, tz);
+      const stat = stats.find((s) => dayKey(new Date(s.date), tz) === key);
       result.push({
-        date: dayKey,
+        date: key,
         studyTimeSeconds: stat?.studyTimeSeconds || 0,
         totalQuestions: stat?.totalQuestions || 0,
         correctQuestions: stat?.correctQuestions || 0,
@@ -967,7 +1023,12 @@ export class UsersService {
   }
 
   // ── i18n 라벨 헬퍼 ──
-  private getDayLabel(date: Date, isToday: boolean, lang: string): string {
+  private getDayLabel(
+    date: Date,
+    isToday: boolean,
+    lang: string,
+    tz?: string,
+  ): string {
     const TODAY = { ko: '오늘', uz: 'Bugun', en: 'Today', ru: 'Сегодня' };
     if (isToday) return TODAY[lang as keyof typeof TODAY] ?? TODAY.en;
 
@@ -977,7 +1038,8 @@ export class UsersService {
       en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
     };
-    return DAYS[lang]?.[date.getDay()] ?? DAYS.en[date.getDay()];
+    const wd = dateParts(date, tz).weekday;
+    return DAYS[lang]?.[wd] ?? DAYS.en[wd];
   }
 
   private formatTime(seconds: number): string {
@@ -1000,11 +1062,11 @@ export class UsersService {
     return `${mm}${m} ${ss}${s}`;
   }
 
-  private formatDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}.${m}.${day}`;
+  private formatDate(d: Date, tz?: string): string {
+    const p = dateParts(d, tz);
+    const m = String(p.month).padStart(2, '0');
+    const day = String(p.day).padStart(2, '0');
+    return `${p.year}.${m}.${day}`;
   }
 
   // ── Period 통계 ──
@@ -1014,12 +1076,16 @@ export class UsersService {
     endDateStr: string | undefined,
     lang: string = 'uz',
   ) {
+    const tz = await this.getTimezone(userId);
     let todayStudySeconds = 0;
     let todayTotalQ = 0;
     let todayCats: CategoryCounts = emptyCounts();
 
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
-    endDate.setHours(23, 59, 59, 999);
+    // 범위의 끝은 "그 날의 끝" = 다음 날 자정 직전 (유저 tz 기준)
+    const endDate = new Date(
+      startOfDayPlus(endDateStr ? new Date(endDateStr) : new Date(), 1, tz)
+        .getTime() - 1,
+    );
 
     let startDate: Date;
     let bucketBy: 'day' | 'month';
@@ -1027,21 +1093,17 @@ export class UsersService {
 
     switch (range) {
       case 'week':
-        startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 6);
+        startDate = startOfDayPlus(endDate, -6, tz);
         bucketBy = 'day';
         bucketCount = 7;
         break;
       case 'month':
-        startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 29);
+        startDate = startOfDayPlus(endDate, -29, tz);
         bucketBy = 'day';
         bucketCount = 30;
         break;
       case 'year':
-        startDate = new Date(endDate);
-        startDate.setMonth(startDate.getMonth() - 11);
-        startDate.setDate(1);
+        startDate = startOfMonthPlus(endDate, -11, tz);
         bucketBy = 'month';
         bucketCount = 12;
         break;
@@ -1050,17 +1112,18 @@ export class UsersService {
         const joined = user?.createdAt
           ? new Date((user as any).createdAt)
           : endDate;
-        startDate = new Date(joined.getFullYear(), joined.getMonth(), 1);
+        startDate = startOfMonth(joined, tz);
         bucketBy = 'month';
-        const monthsDiff =
-          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-          (endDate.getMonth() - startDate.getMonth()) +
-          1;
-        bucketCount = Math.max(1, monthsDiff);
+        const a = dateParts(startDate, tz);
+        const b = dateParts(endDate, tz);
+        bucketCount = Math.max(
+          1,
+          (b.year - a.year) * 12 + (b.month - a.month) + 1,
+        );
         break;
       }
     }
-    startDate.setHours(0, 0, 0, 0);
+    startDate = startOfDay(startDate, tz);
 
     // 데이터 조회
     const stats = await this.statsModel
@@ -1070,9 +1133,8 @@ export class UsersService {
       })
       .lean();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayKey = localKey(today);
+    const today = startOfDay(new Date(), tz);
+    const todayKey = dayKey(today, tz);
 
     const timePoints: any[] = [];
     const volumePoints: any[] = [];
@@ -1083,11 +1145,10 @@ export class UsersService {
 
     if (bucketBy === 'day') {
       for (let i = 0; i < bucketCount; i++) {
-        const d = new Date(startDate);
-        d.setDate(startDate.getDate() + i);
-        const dayKey = localKey(d);
-        const stat = stats.find((s) => localKey(new Date(s.date)) === dayKey);
-        const isToday = dayKey === todayKey;
+        const d = startOfDayPlus(startDate, i, tz);
+        const key = dayKey(d, tz);
+        const stat = stats.find((s) => dayKey(new Date(s.date), tz) === key);
+        const isToday = key === todayKey;
 
         const seconds = stat?.studyTimeSeconds || 0;
         const minutes = seconds / 60;
@@ -1095,8 +1156,11 @@ export class UsersService {
         const dayTotal = sumCounts(cats);
         const label =
           range === 'week'
-            ? this.getDayLabel(d, isToday, lang)
-            : `${d.getMonth() + 1}/${d.getDate()}`;
+            ? this.getDayLabel(d, isToday, lang, tz)
+            : (() => {
+                const dp = dateParts(d, tz);
+                return `${dp.month}/${dp.day}`;
+              })();
 
         if (isToday) {
           todayStudySeconds = seconds;
@@ -1122,18 +1186,11 @@ export class UsersService {
     } else {
       // monthly buckets (year, all)
       for (let i = 0; i < bucketCount; i++) {
-        const m = new Date(startDate);
-        m.setMonth(startDate.getMonth() + i);
-        const monthStart = new Date(m.getFullYear(), m.getMonth(), 1);
+        const monthStart = startOfMonthPlus(startDate, i, tz);
         const monthEnd = new Date(
-          m.getFullYear(),
-          m.getMonth() + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
+          startOfMonthPlus(startDate, i + 1, tz).getTime() - 1,
         );
+        const m = monthStart;
 
         const monthStats = stats.filter((s) => {
           const sd = new Date(s.date);
@@ -1155,8 +1212,9 @@ export class UsersService {
           (s) => (s.studyTimeSeconds || 0) > 0,
         ).length;
 
-        const label = this.getMonthLabel(m, lang);
-        const dateKey = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+        const label = this.getMonthLabel(m, lang, tz);
+        const mp = dateParts(m, tz);
+        const dateKey = `${mp.year}-${String(mp.month).padStart(2, '0')}`;
 
         timePoints.push({
           date: dateKey,
@@ -1174,7 +1232,7 @@ export class UsersService {
 
         if (monthStart <= today && monthEnd >= today) {
           const todayStat = monthStats.find(
-            (s) => localKey(new Date(s.date)) === todayKey,
+            (s) => dayKey(new Date(s.date), tz) === todayKey,
           );
           if (todayStat && (todayStat.totalQuestions || 0) > 0) {
             todayHasData = true;
@@ -1212,7 +1270,7 @@ export class UsersService {
       heatmap,
       studyTime: {
         avgPerDayLabel: avgLabel,
-        rangeLabel: `${this.formatDate(startDate)} - ${this.formatDate(endDate)}`,
+        rangeLabel: `${this.formatDate(startDate, tz)} - ${this.formatDate(endDate, tz)}`,
         points: timePoints,
       },
       studyVolume: {
@@ -1232,7 +1290,7 @@ export class UsersService {
             reviewCount: 0,
             reviewAccuracy: null,
           })),
-        weekdayIndex: today.getDay(),
+        weekdayIndex: dateParts(today, tz).weekday,
         avgTimeLabel: avgLabel,
         avgProblems: avgPerDay,
       },
@@ -1250,12 +1308,16 @@ export class UsersService {
     if (!(STUDY_CATEGORIES as string[]).includes(category)) {
       throw new BadRequestException(`Invalid category: ${category}`);
     }
+    const tz = await this.getTimezone(userId);
 
     // Map 필드는 dot path 로 접근 (categoryCounts.vocab)
     const field = `categoryCounts.${category}`;
 
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
-    endDate.setHours(23, 59, 59, 999);
+    // 범위의 끝은 "그 날의 끝" = 다음 날 자정 직전 (유저 tz 기준)
+    const endDate = new Date(
+      startOfDayPlus(endDateStr ? new Date(endDateStr) : new Date(), 1, tz)
+        .getTime() - 1,
+    );
 
     // range 별로 startDate / bucket 결정 (getPeriodStats 와 동일 로직)
     let startDate: Date;
@@ -1264,21 +1326,17 @@ export class UsersService {
 
     switch (range) {
       case 'week':
-        startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 6);
+        startDate = startOfDayPlus(endDate, -6, tz);
         bucketBy = 'day';
         bucketCount = 7;
         break;
       case 'month':
-        startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 29);
+        startDate = startOfDayPlus(endDate, -29, tz);
         bucketBy = 'day';
         bucketCount = 30;
         break;
       case 'year':
-        startDate = new Date(endDate);
-        startDate.setMonth(startDate.getMonth() - 11);
-        startDate.setDate(1);
+        startDate = startOfMonthPlus(endDate, -11, tz);
         bucketBy = 'month';
         bucketCount = 12;
         break;
@@ -1287,18 +1345,18 @@ export class UsersService {
         const joined = user?.createdAt
           ? new Date((user as any).createdAt)
           : endDate;
-        startDate = new Date(joined.getFullYear(), joined.getMonth(), 1);
+        startDate = startOfMonth(joined, tz);
         bucketBy = 'month';
+        const a = dateParts(startDate, tz);
+        const b = dateParts(endDate, tz);
         bucketCount = Math.max(
           1,
-          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-            (endDate.getMonth() - startDate.getMonth()) +
-            1,
+          (b.year - a.year) * 12 + (b.month - a.month) + 1,
         );
         break;
       }
     }
-    startDate.setHours(0, 0, 0, 0);
+    startDate = startOfDay(startDate, tz);
 
     // 전체 합계
     const allStats = await this.statsModel.aggregate([
@@ -1322,8 +1380,7 @@ export class UsersService {
     const totalTimeSeconds = Math.round(all.totalStudyTime * allRatio);
 
     // 오늘 시간
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = startOfDay(new Date(), tz);
     const todayStat = await this.statsModel.findOne({
       userId: new Types.ObjectId(userId),
       date: { $gte: today },
@@ -1347,22 +1404,24 @@ export class UsersService {
       })
       .lean();
 
-    const todayKey = localKey(today);
+    const todayKey = dayKey(today, tz);
     const chart: any[] = [];
 
     if (bucketBy === 'day') {
       for (let i = 0; i < bucketCount; i++) {
-        const d = new Date(startDate);
-        d.setDate(startDate.getDate() + i);
-        const dayKey = localKey(d);
+        const d = startOfDayPlus(startDate, i, tz);
+        const key = dayKey(d, tz);
         const stat = periodStats.find(
-          (s) => localKey(new Date(s.date)) === dayKey,
+          (s) => dayKey(new Date(s.date), tz) === key,
         );
-        const isToday = dayKey === todayKey;
+        const isToday = key === todayKey;
         const label =
           range === 'week'
-            ? this.getDayLabel(d, isToday, lang)
-            : `${d.getMonth() + 1}/${d.getDate()}`;
+            ? this.getDayLabel(d, isToday, lang, tz)
+            : (() => {
+                const dp = dateParts(d, tz);
+                return `${dp.month}/${dp.day}`;
+              })();
 
         const count = stat
           ? toCounts(stat.categoryCounts as any)[category as StudyCategory]
@@ -1378,18 +1437,11 @@ export class UsersService {
       }
     } else {
       for (let i = 0; i < bucketCount; i++) {
-        const m = new Date(startDate);
-        m.setMonth(startDate.getMonth() + i);
-        const monthStart = new Date(m.getFullYear(), m.getMonth(), 1);
+        const monthStart = startOfMonthPlus(startDate, i, tz);
         const monthEnd = new Date(
-          m.getFullYear(),
-          m.getMonth() + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
+          startOfMonthPlus(startDate, i + 1, tz).getTime() - 1,
         );
+        const m = monthStart;
         const monthStats = periodStats.filter((s) => {
           const sd = new Date(s.date);
           return sd >= monthStart && sd <= monthEnd;
@@ -1399,8 +1451,9 @@ export class UsersService {
             acc + toCounts(st.categoryCounts as any)[category as StudyCategory],
           0,
         );
-        const label = this.getMonthLabel(m, lang);
-        const dateKey = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+        const label = this.getMonthLabel(m, lang, tz);
+        const mp = dateParts(m, tz);
+        const dateKey = `${mp.year}-${String(mp.month).padStart(2, '0')}`;
         chart.push({
           date: dateKey,
           label,
@@ -1426,9 +1479,8 @@ export class UsersService {
   }
 
   private async buildHeatmap(userId: string) {
-    const heatmapStart = new Date();
-    heatmapStart.setHours(0, 0, 0, 0);
-    heatmapStart.setDate(heatmapStart.getDate() - 364);
+    const tz = await this.getTimezone(userId);
+    const heatmapStart = startOfDayPlus(new Date(), -364, tz);
 
     const yearStats = await this.statsModel
       .find({
@@ -1439,7 +1491,7 @@ export class UsersService {
 
     const secondsByDate = new Map<string, number>();
     for (const s of yearStats) {
-      const key = localKey(new Date(s.date));
+      const key = dayKey(new Date(s.date), tz);
       secondsByDate.set(
         key,
         (secondsByDate.get(key) || 0) + (s.studyTimeSeconds || 0),
@@ -1448,10 +1500,7 @@ export class UsersService {
 
     const heatmap: any[] = [];
     for (let i = 364; i >= 0; i--) {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - i);
-      const key = localKey(d);
+      const key = dayKey(startOfDayPlus(new Date(), -i, tz), tz);
       const seconds = secondsByDate.get(key) || 0;
       heatmap.push({ date: key, intensity: this.secondsToIntensity(seconds) });
     }

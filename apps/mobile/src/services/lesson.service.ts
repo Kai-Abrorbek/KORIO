@@ -138,8 +138,6 @@ export const LessonService = {
   ): Promise<{ questions: any[] }> =>
     api.get(`/lessons/node-review/${nodeId}${limit ? `?limit=${limit}` : ""}`),
 
-  addXp: (amount: number): Promise<{ added: number; totalXP: number }> =>
-    api.post(`/lessons/add-xp`, { amount }),
 
   getJumpTest: (section: number, unit: number): Promise<{ questions: any[] }> =>
     api.get(`/lessons/jump-test?section=${section}&unit=${unit}`),

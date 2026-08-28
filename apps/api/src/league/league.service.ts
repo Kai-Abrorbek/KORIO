@@ -1,4 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  LEAGUE_TIMEZONE,
+  dayKey,
+  startOfDay,
+  startOfDayPlus,
+  startOfWeek,
+} from '../common/date.util';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserLeague } from '../users/schemas/user.schema';
@@ -59,18 +66,23 @@ export class LeagueService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  // 주 경계(월 00:00 KST) 직후에 정산. weekRange/getWeekKey 가 서버 로컬(KST)
-  // 기준이라 cron 도 KST 로 맞춰야 어긋나지 않는다.
-  @Cron('5 0 * * 1', { timeZone: 'Asia/Seoul' })
+  // 주 경계(월 00:00) 직후에 정산.
+  //
+  // 리그는 방 안의 모두가 같은 창으로 비교돼야 하므로 유저별 시간대를 쓸 수 없다.
+  // 주 시장 기준(LEAGUE_TIMEZONE = Asia/Tashkent)으로 고정한다. 예전에는 서버
+  // 로컬(KST)이라 월요일 00:05 KST = **일요일 저녁 20:05 타슈켄트** 였다 —
+  // 유저는 아직 일요일 밤인데 리그가 끝나 있었다.
+  @Cron('5 0 * * 1', { timeZone: LEAGUE_TIMEZONE })
   async handleWeeklySettlement() {
     console.log('🏆 주간 리그 자동 정산 시작...');
     const result = await this.settleWeek(); // 지난주 방들
     console.log(`✅ 자동 정산 완료: ${result.settled}개 방`);
   }
 
-  // ISO 주차 키 ("2026-W26")
+  // ISO 주차 키 ("2026-W26"). 날짜는 리그 기준 시간대로 읽는다.
   getWeekKey(d = new Date()): string {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const [y, m, day0] = dayKey(d, LEAGUE_TIMEZONE).split('-').map(Number);
+    const date = new Date(Date.UTC(y, m - 1, day0));
     const day = date.getUTCDay() || 7;
     date.setUTCDate(date.getUTCDate() + 4 - day);
     const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
@@ -80,15 +92,10 @@ export class LeagueService {
     return `${date.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
   }
 
-  // 이번 주 월요일 0시 ~ 다음 월요일
+  // 이번 주 월요일 0시 ~ 다음 월요일 (리그 기준 시간대)
   private weekRange(d = new Date()) {
-    const date = new Date(d);
-    const day = date.getDay() || 7;
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - (day - 1)); // 월요일
-    const start = new Date(date);
-    const end = new Date(date);
-    end.setDate(end.getDate() + 7);
+    const start = startOfWeek(d, LEAGUE_TIMEZONE);
+    const end = startOfDayPlus(start, 7, LEAGUE_TIMEZONE);
     return { start, end };
   }
 
@@ -100,15 +107,12 @@ export class LeagueService {
     const week = Number(wStr);
     if (!year || !week) return this.weekRange();
 
-    const jan4 = new Date(year, 0, 4);
-    const jan4Day = jan4.getDay() || 7; // 월=1 … 일=7
-    const week1Monday = new Date(year, 0, 4 - (jan4Day - 1));
-    week1Monday.setHours(0, 0, 0, 0);
+    // 1월 4일이 속한 주의 월요일이 그 해 1주차의 시작이다 (ISO 규칙)
+    const jan4 = startOfDay(new Date(Date.UTC(year, 0, 4, 12)), LEAGUE_TIMEZONE);
+    const week1Monday = startOfWeek(jan4, LEAGUE_TIMEZONE);
 
-    const start = new Date(week1Monday);
-    start.setDate(start.getDate() + (week - 1) * 7);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 7);
+    const start = startOfDayPlus(week1Monday, (week - 1) * 7, LEAGUE_TIMEZONE);
+    const end = startOfDayPlus(start, 7, LEAGUE_TIMEZONE);
     return { start, end };
   }
 

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { APP_TIMEZONE, startOfDay } from '../common/date.util';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -54,8 +55,10 @@ export class NotificationsService {
       imageUrl?: string;
     } = {},
   ) {
-    const since = new Date();
-    since.setHours(0, 0, 0, 0);
+    // 중복 알림 방지 창. 유저 tz 를 쓰는 게 정확하지만 그러자고 이 서비스에
+    // UsersService 를 물리면 순환 의존이 생긴다. 여기서 어긋나 봐야 하루 경계에
+    // 같은 알림이 한 번 더 갈 수 있는 정도라 앱 기본 시간대로 자른다.
+    const since = startOfDay(new Date(), APP_TIMEZONE);
 
     const exists = await this.model.exists({
       userId: new Types.ObjectId(userId),

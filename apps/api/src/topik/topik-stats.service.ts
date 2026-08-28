@@ -31,6 +31,8 @@ import {
   TopikUserSummaryDocument,
 } from './schemas/topik-user-summary.schema';
 import { calculateTopikMastery } from './topik-mastery.util';
+import { User, UserDocument } from '../users/schemas/user.schema';
+import { startOfDay } from '../common/date.util';
 
 const TOPIK_STATS_VERSION = 1;
 
@@ -63,6 +65,10 @@ export class TopikStatsService {
     private readonly questionPerformanceModel: Model<TopikUserQuestionPerformanceDocument>,
     @InjectModel(UserStats.name)
     private readonly userStatsModel: Model<UserStatsDocument>,
+    // UserStats 를 쓰는 이상 하루 경계를 유저 시간대로 잘라야 한다.
+    // 안 그러면 같은 유저의 토픽 기록과 레슨 기록이 다른 날짜에 꽂힌다.
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   public async applySubmittedAttempt(attemptId: string) {
@@ -444,8 +450,14 @@ export class TopikStatsService {
     answeredCount: number,
     session: ClientSession,
   ) {
-    const date = new Date(attempt.submittedAt ?? new Date());
-    date.setHours(0, 0, 0, 0);
+    const owner = await this.userModel
+      .findById(attempt.userId)
+      .select('timezone')
+      .lean();
+    const date = startOfDay(
+      attempt.submittedAt ?? new Date(),
+      owner?.timezone,
+    );
 
     await this.userStatsModel.findOneAndUpdate(
       { userId: attempt.userId, date },

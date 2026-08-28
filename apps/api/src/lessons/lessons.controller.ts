@@ -159,11 +159,6 @@ export class LessonsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('add-xp')
-  async addXp(@Request() req, @Body() body: { amount: number }) {
-    return this.lessonsService.addXp(req.user._id.toString(), body.amount ?? 0);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('jump-test')
   async getUnitJumpTest(

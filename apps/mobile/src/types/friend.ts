@@ -7,7 +7,9 @@ export interface Friend {
   name: string;
   avatarUri?: string;
   primaryFlag?: string;
-  level?: number;
+  /** 누적 XP. 예전엔 level 이라는 이름으로 XP 를 넣고 있어서
+   *  같은 자리에 1250(XP)과 2(레벨)가 번갈아 나왔다. */
+  xp?: number;
   isFollowing?: boolean;
   isFollowedBy?: boolean;
   isMe?: boolean;

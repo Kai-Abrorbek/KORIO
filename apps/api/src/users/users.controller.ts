@@ -16,6 +16,7 @@ import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
 import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
+import { UpdateTimezoneDto } from './dto/update-timezone.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
@@ -52,6 +53,11 @@ export class UsersController {
   @Patch('me/study-mode')
   async updateStudyMode(@Request() req, @Body() dto: UpdateStudyModeDto) {
     return this.usersService.updateStudyMode(req.user._id.toString(), dto);
+  }
+
+  @Patch('me/timezone')
+  async updateTimezone(@Request() req, @Body() dto: UpdateTimezoneDto) {
+    return this.usersService.updateTimezone(req.user._id.toString(), dto);
   }
 
   @Get('me/pronunciation')

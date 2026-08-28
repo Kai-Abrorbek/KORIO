@@ -30,6 +30,7 @@ import { TopikService } from './topik.service';
 import { TopikStatsService } from './topik-stats.service';
 import { TopikRecipeService } from './topik-recipe.service';
 import { TopikRecipe, TopikRecipeSchema } from './schemas/topik-recipe.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { TopikRecipe, TopikRecipeSchema } from './schemas/topik-recipe.schema';
       },
       { name: TopikRecipe.name, schema: TopikRecipeSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [TopikController],
