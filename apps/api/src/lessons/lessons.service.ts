@@ -11,7 +11,11 @@ import {
   LessonDocument,
 } from './schemas/lesson.schema';
 import { LessonNode, LessonNodeDocument } from './schemas/node.schema';
-import { Question, QuestionDocument } from './schemas/question.schema';
+import {
+  Question,
+  QuestionDocument,
+  QuestionType,
+} from './schemas/question.schema';
 import {
   UserProgress,
   UserProgressDocument,
@@ -41,6 +45,12 @@ import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 300;
+
+/** answerTranslation 을 문제 지문으로 먼저 보여주는 타입 (정답 노출 주의) */
+const GRAMMAR_PROMPT_TYPES = new Set([
+  QuestionType.GRAMMAR_BLANK,
+  QuestionType.GRAMMAR_BUILD,
+]);
 
 /** 틀린 문제를 "해소"로 보기까지 필요한 연속 정답 수 */
 const MISTAKE_RESOLVE_STREAK = 2;
@@ -159,7 +169,13 @@ export class LessonsService {
       pairs: q.pairs || [],
       hint: this.extractI18n(q.hint, lang),
       explanation: this.extractI18n(q.explanation, lang),
-      answerTranslation: this.extractI18n(q.answerTranslation, lang),
+      // 문법 빈칸·조립은 answerTranslation 을 "뜻 문장"으로 문제에 먼저 보여준다.
+      // 그런데 시드의 ko 자리에는 한국어 정답 문장이 통째로 들어 있어서, 한국어
+      // UI 로 보면 빈칸 위에 답이 적힌 꼴이 된다. 번역 문제에서 쓰던 규칙
+      // (ko → en 폴백)을 여기에도 적용한다. 실제 학습자 언어가 한국어인 경우는 없다.
+      answerTranslation: GRAMMAR_PROMPT_TYPES.has(q.type)
+        ? this.extractNativeI18n(q.answerTranslation, lang)
+        : this.extractI18n(q.answerTranslation, lang),
       acceptedAnswers: usesNativeBuilder ? [] : q.acceptedAnswers || [],
       // 세부 rubric은 서버에만 둔다. 기존 타이핑 시드는 안전한 exact 폴백을 쓴다.
       smartGradingEnabled: SMART_GRADING_TYPES.has(q.type),
@@ -633,11 +649,23 @@ export class LessonsService {
       ((meUser?.legendNodes ?? []) as any[]).map((x) => x.toString()),
     );
 
-    // 카테고리 필터: 'vocabulary'/미지정은 기존 전체 로드맵(현재 그대로),
-    // 그 외(grammar 등)는 해당 category 노드만 렌더.
+    // 카테고리 필터.
+    //
+    // 예전에는 어휘일 때 필터를 아예 안 걸었다 ("기존 전체 로드맵"). 그때는 노드가
+    // 어휘밖에 없어서 문제가 없었는데, 문법 트랙을 시딩한 뒤로 그 노드까지 어휘
+    // 로드맵에 딸려 들어왔다. 자유 학습 → 어휘로 들어가면 문법 빈칸 문제가 나온다.
+    //
+    // 어휘 트랙 = category 가 없는 옛 노드 + 명시적으로 vocabulary 인 노드.
+    // (node.schema 주석: "미지정 = 기존 메인(어휘) 트랙")
     const nodeFilter: Record<string, any> = { isActive: true };
     if (category && category !== 'vocabulary') {
       nodeFilter.category = category;
+    } else {
+      nodeFilter.$or = [
+        { category: { $exists: false } },
+        { category: null },
+        { category: LessonCategory.VOCABULARY },
+      ];
     }
     const nodes = await this.nodeModel
       .find(nodeFilter)

@@ -16,6 +16,7 @@ import { LessonNode } from '../lessons/schemas/node.schema';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
 import { questionXp } from '../lessons/economy.const';
+import { GRAMMAR_SEED } from './data/grammar/grammar.data';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -26,6 +27,29 @@ async function seed() {
 
   const allNodes = [...GT_S1_NODES, ...GT_S2_NODES];
   const allQuestions = { ...GT_S1_QUESTIONS, ...GT_S2_QUESTIONS };
+
+  // 문제 데이터는 문법을 code('topic-eun-neun')로 가리킨다. 그런데 화면
+  // (GrammarBlank)은 tags[0] 을 "지금 연습 중인 문법" 라벨로 그대로 찍어서
+  // 슬러그가 유저에게 보였다. 여기서 사람이 읽는 패턴('N은/는')으로 바꿔 넣는다.
+  // 데이터는 code 로 연결한 채 두고 표시용 이름만 시딩할 때 붙이는 것이다.
+  const patternByCode = new Map<string, string>(
+    GRAMMAR_SEED.filter((g) => g?.code && g?.pattern).map((g) => [
+      g.code as string,
+      g.pattern as string,
+    ]),
+  );
+  const missingPattern = new Set<string>();
+
+  const labelTags = (tags: unknown): unknown => {
+    if (!Array.isArray(tags)) return tags;
+    return tags.map((t) => {
+      if (typeof t !== 'string') return t;
+      const pattern = patternByCode.get(t);
+      if (pattern) return pattern;
+      if (/^[a-z0-9-]+$/.test(t)) missingPattern.add(t);
+      return t;
+    });
+  };
 
   console.log(`📚 문법 트랙 시딩 시작 (노드 ${allNodes.length}개)`);
 
@@ -55,9 +79,10 @@ async function seed() {
           console.log('❌ 없는 문제 키:', key);
           continue;
         }
+        const raw = allQuestions[key] as Record<string, unknown>;
         const q = await questionModel.findOneAndUpdate(
           { code: key },
-          { $set: { ...allQuestions[key], code: key } },
+          { $set: { ...raw, code: key, tags: labelTags(raw.tags) } },
           { upsert: true, returnDocument: 'after' },
         );
         questionIds.push(q._id);
@@ -91,6 +116,13 @@ async function seed() {
     await nodeModel.findByIdAndUpdate(node._id, { lessonIds });
     console.log(
       `✅ 노드: ${nodeInfo.title.ko} (${nodeCode}, 레슨 ${lessonIds.length}개)`,
+    );
+  }
+
+  if (missingPattern.size) {
+    console.warn(
+      `⚠️ 패턴을 못 찾은 문법 코드 ${missingPattern.size}개 — tags 에 슬러그가 그대로 남는다: ` +
+        [...missingPattern].join(', '),
     );
   }
 
