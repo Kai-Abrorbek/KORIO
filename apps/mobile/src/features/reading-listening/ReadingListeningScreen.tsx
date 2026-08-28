@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,6 +19,7 @@ import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { useSettingsStore } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
+import { READING_LISTENING_IMAGE_ASSETS } from "./reading-listening.assets";
 import {
   localizedReadingText,
   READING_LISTENING_PREVIEW,
@@ -92,6 +95,8 @@ const UI_COPY: Record<
     next: string;
     finish: string;
     answered: string;
+    showTranslation: string;
+    hideTranslation: string;
   }
 > = {
   ko: {
@@ -130,6 +135,8 @@ const UI_COPY: Record<
     next: "다음 단계",
     finish: "학습 마치기",
     answered: "문제 완료",
+    showTranslation: "번역 보기",
+    hideTranslation: "번역 닫기",
   },
   uz: {
     screenTitle: "O‘qish · tinglash",
@@ -167,6 +174,8 @@ const UI_COPY: Record<
     next: "Keyingi bosqich",
     finish: "Darsni tugatish",
     answered: "Bajarildi",
+    showTranslation: "Tarjimani ko‘rish",
+    hideTranslation: "Tarjimani yopish",
   },
   en: {
     screenTitle: "Reading · listening",
@@ -204,6 +213,8 @@ const UI_COPY: Record<
     next: "Next step",
     finish: "Finish lesson",
     answered: "Complete",
+    showTranslation: "Show translation",
+    hideTranslation: "Hide translation",
   },
   ru: {
     screenTitle: "Чтение · аудирование",
@@ -241,6 +252,8 @@ const UI_COPY: Record<
     next: "Следующий этап",
     finish: "Завершить урок",
     answered: "Готово",
+    showTranslation: "Показать перевод",
+    hideTranslation: "Скрыть перевод",
   },
 };
 
@@ -369,6 +382,10 @@ export default function ReadingListeningScreen() {
   const [writing, setWriting] = useState("");
   const [showExample, setShowExample] = useState(false);
   const [revealedVocabulary, setRevealedVocabulary] = useState<string[]>([]);
+  const [translatedQuestionIds, setTranslatedQuestionIds] = useState<string[]>(
+    [],
+  );
+  const [showWritingTranslation, setShowWritingTranslation] = useState(false);
 
   const passageText = useMemo(
     () =>
@@ -383,7 +400,13 @@ export default function ReadingListeningScreen() {
     (item) => item.id === activeVocabularyId,
   );
   const answeredCount = Object.keys(answers).length;
-  const fontSize = [17, 19, 22][fontIndex] ?? 19;
+  const fontSize = [14, 15.5, 17][fontIndex] ?? 15.5;
+  const canShowTranslation = normalizedLanguage !== "ko";
+  const lessonImageSource = lesson.media.imageUrl?.trim()
+    ? { uri: lesson.media.imageUrl.trim() }
+    : lesson.media.imageAssetKey
+      ? READING_LISTENING_IMAGE_ASSETS[lesson.media.imageAssetKey]
+      : undefined;
 
   useEffect(() => stop, [stop]);
 
@@ -526,53 +549,73 @@ export default function ReadingListeningScreen() {
       >
         {stepIndex === 0 ? (
           <Animated.View key="read" entering={FadeIn.duration(260)}>
-            <LinearGradient
-              colors={isDark ? ["#233A30", "#1E3029"] : ["#DDEEE2", "#EDF5EA"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.hero}
+            <View
+              style={[
+                styles.hero,
+                {
+                  backgroundColor: isDark ? "#203229" : "#E8F1E8",
+                },
+              ]}
             >
-              <View style={[styles.heroOrb, styles.heroOrbTop]} />
-              <View style={[styles.heroOrb, styles.heroOrbBottom]} />
-              <View style={styles.heroMetaRow}>
-                <View
-                  style={[
-                    styles.heroBadge,
-                    { backgroundColor: palette.surface },
-                  ]}
-                >
-                  <Text
-                    style={[styles.heroBadgeText, { color: palette.sageDark }]}
-                  >
-                    {String(lesson.unit).padStart(2, "0")} {copy.unit}
-                  </Text>
-                </View>
-                <View style={styles.heroTime}>
-                  <Ionicons
-                    name="time-outline"
-                    size={15}
-                    color={palette.sageDark}
+              {lessonImageSource ? (
+                <View style={styles.heroImageWrap}>
+                  <Image
+                    source={lessonImageSource}
+                    contentFit="cover"
+                    transition={180}
+                    accessibilityLabel={localizedReadingText(
+                      lesson.media.imageAlt,
+                      normalizedLanguage,
+                    )}
+                    style={styles.heroImage}
                   />
-                  <Text
-                    style={[styles.heroTimeText, { color: palette.sageDark }]}
-                  >
-                    {lesson.estimatedMinutes} {copy.minutes}
-                  </Text>
+                  <LinearGradient
+                    colors={[
+                      "rgba(15, 34, 25, 0.04)",
+                      "rgba(15, 34, 25, 0.62)",
+                    ]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={styles.heroImageShade}
+                  />
+                  <View style={styles.heroMetaOverlay}>
+                    <View style={styles.heroBadge}>
+                      <Text style={styles.heroBadgeText}>
+                        {String(lesson.unit).padStart(2, "0")} {copy.unit}
+                      </Text>
+                    </View>
+                    <View style={styles.heroTime}>
+                      <Ionicons name="time-outline" size={15} color="#244234" />
+                      <Text style={styles.heroTimeText}>
+                        {lesson.estimatedMinutes} {copy.minutes}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              <Text style={[styles.heroEyebrow, { color: palette.sageDark }]}>
-                {copy.readEyebrow}
-              </Text>
-              <Text style={[styles.heroTitle, { color: palette.ink }]}>
-                {lesson.title}
-              </Text>
-              <Text style={[styles.heroTopic, { color: palette.sub }]}>
-                {localizedReadingText(lesson.topic, normalizedLanguage)}
-              </Text>
-              <Text style={[styles.heroLead, { color: palette.sageDark }]}>
-                {copy.readLead}
-              </Text>
-            </LinearGradient>
+              ) : null}
+
+              <LinearGradient
+                colors={
+                  isDark ? ["#233A30", "#1E3029"] : ["#E6F1E5", "#F5F6EC"]
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroCopy}
+              >
+                <Text style={[styles.heroEyebrow, { color: palette.sageDark }]}>
+                  {copy.readEyebrow}
+                </Text>
+                <Text style={[styles.heroTitle, { color: palette.ink }]}>
+                  {lesson.title}
+                </Text>
+                <Text style={[styles.heroTopic, { color: palette.sub }]}>
+                  {localizedReadingText(lesson.topic, normalizedLanguage)}
+                </Text>
+                <Text style={[styles.heroLead, { color: palette.sageDark }]}>
+                  {copy.readLead}
+                </Text>
+              </LinearGradient>
+            </View>
 
             <Animated.View
               entering={FadeInDown.delay(80).duration(360)}
@@ -810,6 +853,9 @@ export default function ReadingListeningScreen() {
 
             {lesson.questions.map((question, questionIndex) => {
               const selectedAnswer = answers[question.id];
+              const translationVisible =
+                canShowTranslation &&
+                translatedQuestionIds.includes(question.id);
               return (
                 <Animated.View
                   key={question.id}
@@ -830,12 +876,73 @@ export default function ReadingListeningScreen() {
                     <Text
                       style={[styles.questionPrompt, { color: palette.ink }]}
                     >
-                      {localizedReadingText(
-                        question.prompt,
-                        normalizedLanguage,
-                      )}
+                      {question.prompt.ko}
                     </Text>
                   </View>
+
+                  {canShowTranslation ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: translationVisible }}
+                      onPress={() => {
+                        setTranslatedQuestionIds((current) =>
+                          current.includes(question.id)
+                            ? current.filter((id) => id !== question.id)
+                            : [...current, question.id],
+                        );
+                        void Haptics.selectionAsync();
+                      }}
+                      style={[
+                        styles.translationButton,
+                        styles.questionTranslationButton,
+                      ]}
+                    >
+                      <Ionicons
+                        name="language-outline"
+                        size={15}
+                        color={palette.sageDark}
+                      />
+                      <Text
+                        style={[
+                          styles.translationButtonText,
+                          { color: palette.sageDark },
+                        ]}
+                      >
+                        {translationVisible
+                          ? copy.hideTranslation
+                          : copy.showTranslation}
+                      </Text>
+                      <Ionicons
+                        name={
+                          translationVisible ? "chevron-up" : "chevron-down"
+                        }
+                        size={14}
+                        color={palette.sub}
+                      />
+                    </Pressable>
+                  ) : null}
+
+                  {translationVisible ? (
+                    <Animated.View
+                      entering={FadeInDown.duration(180)}
+                      style={[
+                        styles.translationPanel,
+                        { backgroundColor: palette.blueSoft },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.translationPrompt,
+                          { color: palette.ink },
+                        ]}
+                      >
+                        {localizedReadingText(
+                          question.prompt,
+                          normalizedLanguage,
+                        )}
+                      </Text>
+                    </Animated.View>
+                  ) : null}
 
                   <View style={styles.optionList}>
                     {question.options.map((option, optionIndex) => {
@@ -893,11 +1000,29 @@ export default function ReadingListeningScreen() {
                               />
                             ) : null}
                           </View>
-                          <Text
-                            style={[styles.optionText, { color: palette.ink }]}
-                          >
-                            {localizedReadingText(option, normalizedLanguage)}
-                          </Text>
+                          <View style={styles.optionCopy}>
+                            <Text
+                              style={[
+                                styles.optionText,
+                                { color: palette.ink },
+                              ]}
+                            >
+                              {option.ko}
+                            </Text>
+                            {translationVisible ? (
+                              <Text
+                                style={[
+                                  styles.optionTranslation,
+                                  { color: palette.sub },
+                                ]}
+                              >
+                                {localizedReadingText(
+                                  option,
+                                  normalizedLanguage,
+                                )}
+                              </Text>
+                            ) : null}
+                          </View>
                         </Pressable>
                       );
                     })}
@@ -929,11 +1054,21 @@ export default function ReadingListeningScreen() {
                       <Text
                         style={[styles.explanationText, { color: palette.ink }]}
                       >
-                        {localizedReadingText(
-                          question.explanation,
-                          normalizedLanguage,
-                        )}
+                        {question.explanation.ko}
                       </Text>
+                      {translationVisible ? (
+                        <Text
+                          style={[
+                            styles.explanationTranslation,
+                            { color: palette.sub },
+                          ]}
+                        >
+                          {localizedReadingText(
+                            question.explanation,
+                            normalizedLanguage,
+                          )}
+                        </Text>
+                      ) : null}
                     </Animated.View>
                   ) : null}
                 </Animated.View>
@@ -975,12 +1110,74 @@ export default function ReadingListeningScreen() {
                 <Text
                   style={[styles.writingPromptText, { color: palette.ink }]}
                 >
-                  {localizedReadingText(
-                    lesson.writing.prompt,
-                    normalizedLanguage,
-                  )}
+                  {lesson.writing.prompt.ko}
                 </Text>
               </LinearGradient>
+
+              {canShowTranslation ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: showWritingTranslation }}
+                  onPress={() => {
+                    setShowWritingTranslation((current) => !current);
+                    void Haptics.selectionAsync();
+                  }}
+                  style={styles.translationButton}
+                >
+                  <Ionicons
+                    name="language-outline"
+                    size={15}
+                    color={palette.sageDark}
+                  />
+                  <Text
+                    style={[
+                      styles.translationButtonText,
+                      { color: palette.sageDark },
+                    ]}
+                  >
+                    {showWritingTranslation
+                      ? copy.hideTranslation
+                      : copy.showTranslation}
+                  </Text>
+                  <Ionicons
+                    name={
+                      showWritingTranslation ? "chevron-up" : "chevron-down"
+                    }
+                    size={14}
+                    color={palette.sub}
+                  />
+                </Pressable>
+              ) : null}
+
+              {canShowTranslation && showWritingTranslation ? (
+                <Animated.View
+                  entering={FadeInDown.duration(180)}
+                  style={[
+                    styles.writingTranslationPanel,
+                    { backgroundColor: palette.blueSoft },
+                  ]}
+                >
+                  <Text
+                    style={[styles.translationPrompt, { color: palette.ink }]}
+                  >
+                    {localizedReadingText(
+                      lesson.writing.prompt,
+                      normalizedLanguage,
+                    )}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.writingTranslationHelper,
+                      { color: palette.sub },
+                    ]}
+                  >
+                    {localizedReadingText(
+                      lesson.writing.helper,
+                      normalizedLanguage,
+                    )}
+                  </Text>
+                </Animated.View>
+              ) : null}
 
               <View
                 style={[styles.guideBox, { backgroundColor: palette.blueSoft }]}
@@ -989,10 +1186,7 @@ export default function ReadingListeningScreen() {
                   {copy.writeGuide}
                 </Text>
                 <Text style={[styles.guideText, { color: palette.ink }]}>
-                  {localizedReadingText(
-                    lesson.writing.helper,
-                    normalizedLanguage,
-                  )}
+                  {lesson.writing.helper.ko}
                 </Text>
               </View>
 
@@ -1029,10 +1223,7 @@ export default function ReadingListeningScreen() {
                   multiline
                   value={writing}
                   onChangeText={setWriting}
-                  placeholder={localizedReadingText(
-                    lesson.writing.placeholder,
-                    normalizedLanguage,
-                  )}
+                  placeholder={lesson.writing.placeholder.ko}
                   placeholderTextColor={palette.sub}
                   textAlignVertical="top"
                   style={[styles.writingInput, { color: palette.ink }]}
@@ -1307,45 +1498,75 @@ const styles = StyleSheet.create({
   stepRail: { gap: 8, paddingHorizontal: 18, paddingVertical: 12 },
   stepPillText: { fontSize: 12, lineHeight: 16, fontWeight: "800" },
   scrollContent: { paddingHorizontal: 18, paddingTop: 4 },
-  hero: { minHeight: 256, borderRadius: 28, padding: 22, overflow: "hidden" },
-  heroOrb: {
+  hero: { borderRadius: 28, overflow: "hidden" },
+  heroImageWrap: { height: 188, position: "relative" },
+  heroImage: {
     position: "absolute",
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.24)",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
-  heroOrbTop: { width: 170, height: 170, right: -48, top: -66 },
-  heroOrbBottom: { width: 112, height: 112, left: -44, bottom: -52 },
-  heroMetaRow: {
+  heroImageShade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  heroMetaOverlay: {
+    position: "absolute",
+    top: 15,
+    right: 15,
+    left: 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  heroBadge: { borderRadius: 99, paddingHorizontal: 11, paddingVertical: 6 },
-  heroBadgeText: { fontSize: 11, fontWeight: "900" },
-  heroTime: { flexDirection: "row", alignItems: "center", gap: 5 },
-  heroTimeText: { fontSize: 11, fontWeight: "800" },
+  heroBadge: {
+    borderRadius: 99,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    backgroundColor: "rgba(255,255,255,0.92)",
+  },
+  heroBadgeText: { color: "#244234", fontSize: 11, fontWeight: "900" },
+  heroTime: {
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    backgroundColor: "rgba(255,255,255,0.92)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  heroTimeText: { color: "#244234", fontSize: 11, fontWeight: "800" },
+  heroCopy: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 20 },
   heroEyebrow: {
-    marginTop: 31,
     fontSize: 11,
     lineHeight: 15,
     fontWeight: "900",
     letterSpacing: 0.8,
   },
   heroTitle: {
-    marginTop: 8,
-    maxWidth: "90%",
-    fontSize: 27,
-    lineHeight: 36,
+    marginTop: 7,
+    maxWidth: "100%",
+    fontSize: 24,
+    lineHeight: 32,
     fontWeight: "900",
-    letterSpacing: -0.6,
+    letterSpacing: -0.5,
   },
-  heroTopic: { marginTop: 9, fontSize: 13, lineHeight: 19, fontWeight: "700" },
-  heroLead: {
-    marginTop: 24,
+  heroTopic: {
+    marginTop: 7,
     fontSize: 12.5,
-    lineHeight: 19,
+    lineHeight: 18,
     fontWeight: "700",
-    maxWidth: "88%",
+  },
+  heroLead: {
+    marginTop: 16,
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: "700",
+    maxWidth: "100%",
   },
   readingToolbar: { flexDirection: "row", alignItems: "center", gap: 10 },
   audioButton: {
@@ -1381,7 +1602,15 @@ const styles = StyleSheet.create({
   fontDot: {},
   readingDivider: { height: 1, marginVertical: 24 },
   passageBody: { paddingHorizontal: 2 },
-  paragraph: { fontWeight: "600", letterSpacing: -0.15 },
+  paragraph: {
+    fontFamily: Platform.select({
+      ios: "Apple SD Gothic Neo",
+      android: "sans-serif-light",
+      default: "System",
+    }),
+    fontWeight: "400",
+    letterSpacing: 0,
+  },
   vocabularyHighlight: { fontWeight: "900" },
   wordHint: {
     marginTop: 25,
@@ -1484,6 +1713,27 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     fontWeight: "900",
   },
+  translationButton: {
+    marginTop: 12,
+    minHeight: 36,
+    alignSelf: "flex-start",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  questionTranslationButton: { marginLeft: 46 },
+  translationButtonText: { fontSize: 11.5, fontWeight: "900" },
+  translationPanel: {
+    marginTop: 8,
+    marginLeft: 46,
+    borderRadius: 14,
+    paddingHorizontal: 13,
+    paddingVertical: 11,
+  },
+  translationPrompt: { fontSize: 12.5, lineHeight: 19, fontWeight: "700" },
   optionList: { marginTop: 19, gap: 10 },
   option: {
     minHeight: 56,
@@ -1504,7 +1754,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   optionMarkerDot: { width: 9, height: 9, borderRadius: 5 },
-  optionText: { flex: 1, fontSize: 13.5, lineHeight: 20, fontWeight: "700" },
+  optionCopy: { flex: 1 },
+  optionText: { fontSize: 13.5, lineHeight: 20, fontWeight: "700" },
+  optionTranslation: { marginTop: 3, fontSize: 11.5, lineHeight: 17 },
   explanationBox: { marginTop: 14, padding: 15, borderRadius: 16 },
   explanationTitleRow: { flexDirection: "row", alignItems: "center", gap: 7 },
   explanationTitle: { fontSize: 11, fontWeight: "900" },
@@ -1513,6 +1765,12 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     lineHeight: 19,
     fontWeight: "600",
+  },
+  explanationTranslation: {
+    marginTop: 7,
+    fontSize: 11.5,
+    lineHeight: 18,
+    fontWeight: "500",
   },
   writingPrompt: {
     borderRadius: 22,
@@ -1534,6 +1792,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     fontWeight: "900",
+  },
+  writingTranslationPanel: {
+    marginTop: 8,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+  },
+  writingTranslationHelper: {
+    marginTop: 7,
+    fontSize: 11.5,
+    lineHeight: 18,
+    fontWeight: "500",
   },
   guideBox: { marginTop: 14, borderRadius: 17, padding: 15 },
   guideLabel: {

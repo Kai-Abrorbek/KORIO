@@ -44,6 +44,11 @@ export interface ReadingListeningLesson {
   title: string;
   topic: LocalizedReadingText;
   estimatedMinutes: number;
+  media: {
+    imageUrl?: string;
+    imageAssetKey?: string;
+    imageAlt: LocalizedReadingText;
+  };
   passage: ReadingPassageParagraph[];
   vocabulary: ReadingVocabularyItem[];
   questions: ReadingCheckQuestion[];
@@ -73,6 +78,15 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
     "Культурное место в повседневной жизни",
   ),
   estimatedMinutes: 5,
+  media: {
+    imageAssetKey: "library-reading-preview",
+    imageAlt: text(
+      "창가에서 책을 읽는 사람들이 있는 동네 도서관",
+      "Deraza yonida kitob o‘qiyotgan odamlar bor mahalla kutubxonasi",
+      "A neighborhood library with people reading near the window",
+      "Районная библиотека, где люди читают у окна",
+    ),
+  },
   passage: [
     {
       id: "paragraph-1",
