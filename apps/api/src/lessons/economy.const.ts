@@ -117,3 +117,19 @@ export function calcPracticeXp(
   if (mode === 'nodeReview') return base;
   return calcLessonXp(base, combo, correctAnswers);
 }
+
+/**
+ * 한 번의 완료 요청에서 인정하는 최대 정답 수.
+ *
+ * XP 는 서버가 계산하지만 correctAnswers / questionIds 는 클라가 보낸다.
+ * 상한이 없으면 correctAnswers: 999999 하나로 리그 1등을 살 수 있다.
+ * 가장 긴 세션(유닛 최종 + 복습 라운드)도 이 값을 넘지 않는다.
+ */
+export const MAX_SESSION_ANSWERS = 100;
+
+/** 클라가 보낸 개수를 0..limit 정수로 자른다 */
+export function clampCount(value: unknown, limit: number): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(n, limit);
+}

@@ -1519,7 +1519,9 @@ export class UsersService {
   }
 
   async searchUsers(currentUserId: string, q: string) {
-    const query = (q ?? '').trim();
+    // ?q=a&q=b 로 오면 express 가 배열을 준다. 그대로 .trim() 하면 500.
+    const raw = Array.isArray(q) ? q[0] : q;
+    const query = (typeof raw === 'string' ? raw : '').trim().slice(0, 60);
     if (!query) return [];
 
     // 정규식 이스케이프 (특수문자 안전)
@@ -1563,7 +1565,7 @@ export class UsersService {
 
   async matchByNames(currentUserId: string, names: string[]) {
     const clean = (names ?? [])
-      .map((n) => (n ?? '').trim())
+      .map((n) => (typeof n === 'string' ? n : '').trim().slice(0, 60))
       .filter(Boolean)
       .slice(0, 100);
     if (!clean.length) return [];

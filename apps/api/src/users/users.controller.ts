@@ -19,6 +19,11 @@ import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
 import { UpdateTimezoneDto } from './dto/update-timezone.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import {
+  SyncOnboardingSurveyDto,
+  UpdateMeDto,
+} from './dto/update-me.dto';
+import { MatchContactsDto } from './dto/match-contacts.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -31,7 +36,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  async updateMe(@Request() req, @Body() dto: any) {
+  async updateMe(@Request() req, @Body() dto: UpdateMeDto) {
     return this.usersService.updateMe(req.user._id.toString(), dto);
   }
 
@@ -94,7 +99,10 @@ export class UsersController {
   }
 
   @Post('me/onboarding-survey')
-  async syncOnboardingSurvey(@Request() req, @Body() dto: any) {
+  async syncOnboardingSurvey(
+    @Request() req,
+    @Body() dto: SyncOnboardingSurveyDto,
+  ) {
     return this.usersService.syncOnboardingSurvey(req.user._id.toString(), dto);
   }
 
@@ -194,8 +202,11 @@ export class UsersController {
   }
 
   @Post('match-contacts')
-  async matchContacts(@Request() req, @Body('names') names: string[]) {
-    return this.usersService.matchByNames(req.user._id.toString(), names ?? []);
+  async matchContacts(@Request() req, @Body() dto: MatchContactsDto) {
+    return this.usersService.matchByNames(
+      req.user._id.toString(),
+      dto.names ?? [],
+    );
   }
 
   @Get('suggestions')

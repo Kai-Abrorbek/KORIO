@@ -39,3 +39,8 @@ yarn-error.log*
 
 # 캐릭터 원본 이미지 (번들 미포함)
 .character-raw/
+
+# 작업용 스크래치 (커밋 대상 아님)
+_to_delete/
+.tsconfig.*.json
+tmp/

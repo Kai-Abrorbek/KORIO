@@ -3,12 +3,39 @@ import { useErrorStore } from "@/store/error.store";
 
 const DEV_LAN_IP = process.env.EXPO_PUBLIC_DEV_LAN_IP ?? "localhost";
 
-export const BASE_URL =
+const DEV_BASE_URL =
   Platform.select({
     web: "http://localhost:3000",
     ios: `http://${DEV_LAN_IP}:3000`,
     android: `http://${DEV_LAN_IP}:3000`,
   }) ?? "http://localhost:3000";
+
+/**
+ * 배포 빌드는 EXPO_PUBLIC_API_URL 을 반드시 https 로 넣어야 한다.
+ * 이게 없으면 스토어에 올라간 앱이 http://localhost:3000 을 때리게 되고,
+ * http 로 넣으면 액세스 토큰이 평문으로 오간다. 그래서 조용히 넘어가지 않고
+ * 개발 중에는 콘솔로, 배포 빌드에서는 곧바로 던져서 알린다.
+ */
+const CONFIGURED_URL = process.env.EXPO_PUBLIC_API_URL?.trim();
+
+function resolveBaseUrl(): string {
+  if (!CONFIGURED_URL) {
+    if (!__DEV__) {
+      throw new Error(
+        "EXPO_PUBLIC_API_URL 이 설정되지 않았다. 배포 빌드는 https 주소가 필요하다.",
+      );
+    }
+    return DEV_BASE_URL;
+  }
+  if (!__DEV__ && !CONFIGURED_URL.startsWith("https://")) {
+    throw new Error(
+      "EXPO_PUBLIC_API_URL 은 https 여야 한다. http 면 토큰이 평문으로 나간다.",
+    );
+  }
+  return CONFIGURED_URL.replace(/\/+$/, "");
+}
+
+export const BASE_URL = resolveBaseUrl();
 
 export class ApiError extends Error {
   code: string;

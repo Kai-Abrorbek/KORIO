@@ -37,7 +37,9 @@ export class User {
   @Prop({ unique: true, sparse: true })
   email: string;
 
-  @Prop()
+  // select: false — 기본 조회에서 제외한다. 필요한 곳(로그인, 비밀번호 변경)만
+  // .select('+password') 로 명시적으로 가져온다. 실수로 응답에 실려 나가는 걸 막는다.
+  @Prop({ select: false })
   password: string;
 
   @Prop()

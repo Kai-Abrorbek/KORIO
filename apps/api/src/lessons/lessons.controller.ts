@@ -147,6 +147,7 @@ export class LessonsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('score')
   async getScore(@Request() req, @Query('lang') lang?: string) {
     return this.lessonsService.getScore(req.user._id.toString(), lang || 'uz');
@@ -158,7 +159,6 @@ export class LessonsController {
     return this.lessonsService.completePractice(req.user._id.toString(), dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard)
   @Get('jump-test')
   async getUnitJumpTest(

@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import { jwtSecret } from '../config/secrets';
 
 /**
  * OAuth state.
@@ -8,7 +9,7 @@ import * as crypto from 'crypto';
  * 그래서 서명을 붙이고 돌아왔을 때 검증한다.
  */
 
-const secret = () => process.env.JWT_SECRET || 'dev-secret';
+const secret = () => jwtSecret();
 
 export interface OAuthState {
   redirect: string;

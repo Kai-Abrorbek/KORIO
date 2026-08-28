@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -13,19 +14,26 @@ import {
 import { packState, unpackState, safeRedirect } from './oauth-state';
 
 @Controller('auth')
+@UseGuards(RateLimitGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // 한 IP 가 계정을 대량으로 찍어내지 못하게
+  @RateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  // 무차별 대입 방지. ip + email 조합이라 한 IP 뒤의 다른 사람이나
+  // 남의 계정을 대신 잠그는 일은 안 생긴다.
+  @RateLimit({ windowMs: 60 * 1000, max: 5, keyBody: 'email' })
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
+  @RateLimit({ windowMs: 60 * 1000, max: 20 })
   @Post('social')
   async socialLogin(@Body() dto: SocialLoginDto) {
     return this.authService.socialLogin(dto);
@@ -130,9 +138,10 @@ export class AuthController {
         state.session,
       );
       return res.redirect(`${target}?token=${encodeURIComponent(accessToken)}`);
-    } catch (e: any) {
-      const msg = String(e?.message ?? 'SOCIAL_LOGIN_FAILED');
-      return res.redirect(`${target}?error=${encodeURIComponent(msg)}`);
+    } catch {
+      // 내부 예외 메시지(제공자 응답, 스택, 키 일부)가 리다이렉트 URL 을 타고
+      // 브라우저 히스토리·로그에 남지 않게 고정 코드만 내보낸다.
+      return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
     }
   }
 }

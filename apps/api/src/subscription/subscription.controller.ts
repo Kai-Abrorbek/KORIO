@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { SubscribeDto } from './dto/subscribe.dto';
 
 @Controller('subscription')
 @UseGuards(JwtAuthGuard)
@@ -25,8 +26,8 @@ export class SubscriptionController {
   }
 
   @Post('subscribe')
-  subscribe(@Request() req, @Body() body: { planId: string }) {
-    return this.service.subscribe(req.user._id.toString(), body.planId);
+  subscribe(@Request() req, @Body() dto: SubscribeDto) {
+    return this.service.subscribe(req.user._id.toString(), dto.planId);
   }
 
   @Post('cancel')

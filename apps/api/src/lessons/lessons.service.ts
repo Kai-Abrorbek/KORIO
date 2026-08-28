@@ -38,7 +38,12 @@ import { startOfDay } from '../common/date.util';
 import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
-import { calcLessonXp, calcPracticeXp } from './economy.const';
+import {
+  MAX_SESSION_ANSWERS,
+  calcLessonXp,
+  calcPracticeXp,
+  clampCount,
+} from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
@@ -262,8 +267,18 @@ export class LessonsService {
     ].filter((id) => lessonQuestionIdSet.has(id));
 
     // ✅ XP = 기본값 + 콤보 (서버 계산, 클라 xpEarned 무시)
+    // correctAnswers / combo 는 클라가 보내는 값이라 상한을 둔다. 레슨이 실제로
+    // 가진 문제 수의 2배(본풀이 + 복습 라운드)까지만 인정한다.
+    const answerCap = Math.min(
+      MAX_SESSION_ANSWERS,
+      Math.max(1, lessonQuestionIdSet.size * 2),
+    );
+    const correctAnswers = clampCount(dto.correctAnswers, answerCap);
+    const totalAnswers = clampCount(dto.totalAnswers, answerCap);
+    const combo = clampCount(dto.combo, correctAnswers);
+
     const baseXp = await this.resolveLessonBaseXp(lesson);
-    const xpEarned = calcLessonXp(baseXp, dto.combo, dto.correctAnswers);
+    const xpEarned = calcLessonXp(baseXp, combo, correctAnswers);
 
     await this.userProgressModel.findOneAndUpdate(
       {
@@ -275,9 +290,9 @@ export class LessonsService {
         lessonId: new Types.ObjectId(lessonId),
         isCompleted: dto.isCompleted,
         xpEarned,
-        correctAnswers: dto.correctAnswers,
-        totalAnswers: dto.totalAnswers,
-        combo: dto.combo,
+        correctAnswers,
+        totalAnswers,
+        combo,
         speedSeconds: dto.speedSeconds,
         wrongQuestionIds,
         completedAt: new Date(),
@@ -421,12 +436,17 @@ export class LessonsService {
    * XP 는 서버가 모드로 결정하고(클라 값 무시), 통계는 실제 푼 문제 기준으로 남긴다.
    */
   async completePractice(userId: string, dto: CompletePracticeDto) {
-    const ids = (dto.questionIds ?? []).filter((id) =>
-      Types.ObjectId.isValid(id),
-    );
+    // 중복 제거 + 상한. 유효한 ObjectId 를 수만 개 만들어 보내면 콤보 보너스가
+    // 그만큼 늘어나는 구멍이 있었다.
+    const ids = [
+      ...new Set(
+        (dto.questionIds ?? []).filter((id) => Types.ObjectId.isValid(id)),
+      ),
+    ].slice(0, MAX_SESSION_ANSWERS);
     const wrong = new Set(dto.wrongQuestionIds ?? []).size;
     const correct = Math.max(0, ids.length - wrong);
-    const xp = calcPracticeXp(dto.mode, dto.combo ?? 0, correct);
+    const combo = clampCount(dto.combo, correct);
+    const xp = calcPracticeXp(dto.mode, combo, correct);
 
     // 문제 수 · 학습 시간 · 카테고리 (XP 는 아래 addXp 가 기록하므로 여기선 0)
     await this.recordStudy(userId, {

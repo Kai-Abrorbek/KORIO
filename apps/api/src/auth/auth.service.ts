@@ -85,8 +85,12 @@ export class AuthService {
 
   // 로그인
   async login(dto: LoginDto) {
-    const user = await this.userModel.findOne({ email: dto.email });
-    if (!user) throw new UnauthorizedException('INVALID_CREDENTIALS');
+    const user = await this.userModel
+      .findOne({ email: dto.email })
+      .select('+password');
+    // 소셜로만 가입한 계정은 password 가 비어 있다. bcrypt.compare 에 undefined 를
+    // 넘기면 던지므로(500) 여기서 먼저 걸러 낸다.
+    if (!user?.password) throw new UnauthorizedException('INVALID_CREDENTIALS');
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
     if (!isPasswordValid)

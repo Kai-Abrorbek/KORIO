@@ -23,6 +23,9 @@ interface AuthenticatedTopikRequest {
 }
 
 @Controller('topik')
+// 유료 콘텐츠다. 예전엔 recipes / exams 계열이 가드 없이 열려 있어서
+// API 주소만 알면 전부 긁어갈 수 있었다. 컨트롤러 전체를 로그인 뒤로 옮긴다.
+@UseGuards(JwtAuthGuard)
 export class TopikController {
   constructor(
     private readonly topikService: TopikService,
@@ -46,7 +49,6 @@ export class TopikController {
     return this.topikRecipeService.practice(groupCode);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('recipes/:groupCode/practice/solutions')
   getRecipePracticeSolutions(@Param('groupCode') groupCode: string) {
     return this.topikRecipeService.practiceSolutions(groupCode);
@@ -57,7 +59,6 @@ export class TopikController {
     return this.topikService.getExams();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('exams/completed')
   getCompletedExams(@Request() request: AuthenticatedTopikRequest) {
     return this.topikService.getCompletedExams(request.user._id.toString());
@@ -71,7 +72,6 @@ export class TopikController {
     return this.topikService.getExamSession(code, query.from, query.to);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('exams/:code/attempts')
   startAttempt(
     @Request() request,
@@ -85,7 +85,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/summary')
   getStatsSummary(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getSummary(
@@ -95,7 +94,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/question-types')
   getQuestionTypeStats(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getQuestionTypes(
@@ -105,7 +103,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/weak-questions')
   getWeakQuestions(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getWeakQuestions(
@@ -116,7 +113,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/mastered-questions')
   getMasteredQuestions(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getMasteredQuestions(
@@ -127,7 +123,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/review-queue')
   getReviewQueue(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getReviewQueue(
@@ -138,7 +133,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stats/history')
   getStatsHistory(@Request() request, @Query() query: TopikStatsQueryDto) {
     return this.topikStatsService.getHistory(
@@ -149,13 +143,11 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('attempts/:attemptId')
   getAttempt(@Request() request, @Param('attemptId') attemptId: string) {
     return this.topikService.getAttempt(request.user._id.toString(), attemptId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('attempts/:attemptId/questions/:questionId/learning-support')
   getLearningSupport(
     @Request() request,
@@ -169,7 +161,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('attempts/:attemptId/questions/:questionId/hints/:hintKey/reveal')
   revealHint(
     @Request() request,
@@ -185,7 +176,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('attempts/:attemptId/questions/:questionId/solution/reveal')
   revealSolution(
     @Request() request,
@@ -199,7 +189,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('attempts/:attemptId/answers')
   saveAnswers(
     @Request() request,
@@ -213,7 +202,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('attempts/:attemptId/submit')
   submitAttempt(@Request() request, @Param('attemptId') attemptId: string) {
     return this.topikService.submitAttempt(
@@ -222,7 +210,6 @@ export class TopikController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('attempts/:attemptId/result')
   getAttemptResult(@Request() request, @Param('attemptId') attemptId: string) {
     return this.topikService.getAttemptResult(
