@@ -71,6 +71,8 @@ export function learnModePath(
       return "/grammar-list"; // 문법 설명 목록
     case "expression":
       return "/expressions"; // 상황별 표현 학습 허브
+    case "listening":
+      return "/reading-listening"; // 문화 지문 중심 읽기·듣기 학습
     case "topik":
       return `/topik-sections?level=${topikLevel}` as Href;
     // 문법 문제 풀이는 어휘와 같은 로드맵을 문법 트랙 데이터로 돈다
@@ -78,7 +80,7 @@ export function learnModePath(
       return "/roadmap?category=grammar" as Href;
     case "vocabulary":
       return "/roadmap";
-    // 회화·듣기는 전용 문제 풀이 페이지를 따로 만들 예정이다.
+    // 회화는 전용 문제 풀이 페이지를 따로 만들 예정이다.
     // 어휘 로드맵을 재사용하면 안 되므로 그때까지 자리 표시 화면으로 보낸다.
     default:
       return `/coming-soon?mode=${mode}` as Href;
