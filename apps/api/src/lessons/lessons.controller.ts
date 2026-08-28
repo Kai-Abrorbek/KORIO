@@ -17,6 +17,10 @@ import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { GradeAnswerDto } from './dto/grade-answer.dto';
 import { AnswerGradingService } from './answer-grading.service';
 import { isStudyQuizKind } from '../study-path/study-path.types';
+import {
+  CompleteUnitJumpDto,
+  ResolveMistakesDto,
+} from './dto/jump-complete.dto';
 
 @Controller('lessons')
 export class LessonsController {
@@ -91,11 +95,11 @@ export class LessonsController {
   @Post('mistakes/resolve')
   async resolveMistakes(
     @Request() req,
-    @Body() body: { correctIds: string[] },
+    @Body() dto: ResolveMistakesDto,
   ) {
     return this.lessonsService.resolveMistakes(
       req.user._id.toString(),
-      body.correctIds ?? [],
+      dto.correctIds ?? [],
     );
   }
 
@@ -179,12 +183,12 @@ export class LessonsController {
   @Post('jump-complete')
   async completeUnitJump(
     @Request() req,
-    @Body() body: { section: number; unit: number },
+    @Body() dto: CompleteUnitJumpDto,
   ) {
     return this.lessonsService.completeUnitJump(
       req.user._id.toString(),
-      body.section,
-      body.unit,
+      dto.section,
+      dto.unit,
     );
   }
 

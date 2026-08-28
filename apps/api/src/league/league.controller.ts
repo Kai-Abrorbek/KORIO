@@ -11,6 +11,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/enums/role.enum';
 import { LeagueService } from './league.service';
+import { AckRankDto, SettleDto } from './dto/league-body.dto';
 
 @Controller('league')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -31,8 +32,8 @@ export class LeagueController {
   // weekKey 를 주면 특정 주를 다시 정산 (예: "2026-W33")
   @Roles(UserRole.ADMIN)
   @Post('settle')
-  settle(@Body() body: { weekKey?: string }) {
-    return this.service.settleWeek(body?.weekKey);
+  settle(@Body() dto: SettleDto) {
+    return this.service.settleWeek(dto?.weekKey);
   }
 
   @Post('snapshot-rank')
@@ -41,8 +42,8 @@ export class LeagueController {
   }
 
   @Post('ack-rank')
-  async ackRank(@Request() req, @Body() body: { rank: number }) {
-    return this.service.ackRank(req.user._id.toString(), body.rank ?? 0);
+  async ackRank(@Request() req, @Body() dto: AckRankDto) {
+    return this.service.ackRank(req.user._id.toString(), dto.rank);
   }
 
   @Get('result')
