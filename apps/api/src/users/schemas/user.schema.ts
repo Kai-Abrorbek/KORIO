@@ -52,6 +52,17 @@ export class User {
   @Prop({ enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
+  /**
+   * 발급된 토큰을 한 번에 무효화하기 위한 카운터.
+   *
+   * JWT 는 서버가 기억하지 않아서 한 번 나가면 만료(7일)까지 못 막는다.
+   * 토큰 안에 이 값을 같이 넣고 검증할 때 대조하면, 이 숫자를 올리는 것만으로
+   * 그 유저에게 발급된 모든 토큰이 즉시 죽는다.
+   * (비밀번호 변경, 기기 분실 시 올린다)
+   */
+  @Prop({ default: 0 })
+  tokenVersion: number;
+
   // 소셜 로그인
   @Prop({ enum: AuthProvider })
   provider: AuthProvider;

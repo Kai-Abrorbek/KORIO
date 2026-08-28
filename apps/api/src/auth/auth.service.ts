@@ -402,7 +402,12 @@ export class AuthService {
 
   // JWT 토큰 생성
   private generateToken(user: UserDocument) {
-    const payload = { sub: user._id, email: user.email };
+    // tv = tokenVersion. 유저가 이 값을 올리면 이 토큰은 그 즉시 무효가 된다.
+    const payload = {
+      sub: user._id,
+      email: user.email,
+      tv: user.tokenVersion ?? 0,
+    };
     return {
       accessToken: this.jwtService.sign(payload),
       user: {

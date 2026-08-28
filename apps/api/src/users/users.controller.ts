@@ -88,6 +88,12 @@ export class UsersController {
     return this.usersService.changePassword(req.user._id.toString(), dto);
   }
 
+  // 모든 기기에서 로그아웃 (기기 분실 시). 호출한 본인의 토큰도 같이 죽는다.
+  @Post('me/logout-all')
+  async logoutAll(@Request() req) {
+    return this.usersService.logoutAll(req.user._id.toString());
+  }
+
   @Delete('me')
   async deleteAccount(@Request() req) {
     return this.usersService.deleteAccount(req.user._id.toString());

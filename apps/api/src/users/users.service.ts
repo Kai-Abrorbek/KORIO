@@ -552,7 +552,27 @@ export class UsersService {
     }
 
     user.password = await bcrypt.hash(dto.newPassword, 10);
+    // 비밀번호를 바꿨다는 건 보통 "누가 내 계정을 쓰는 것 같다" 는 뜻이다.
+    // 기존에 나간 토큰을 그대로 두면 비번을 바꿔도 상대는 계속 들어온다.
+    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     await user.save();
+    return { success: true };
+  }
+
+  /**
+   * 이 계정으로 발급된 모든 토큰을 폐기한다 (다른 기기 전부 로그아웃).
+   * 폰을 잃어버렸을 때 유저가 직접 누를 수 있는 비상 스위치.
+   */
+  async logoutAll(userId: string) {
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        new Types.ObjectId(userId),
+        { $inc: { tokenVersion: 1 } },
+        { returnDocument: 'after' },
+      )
+      .select('_id')
+      .lean();
+    if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
     return { success: true };
   }
 

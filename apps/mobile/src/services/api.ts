@@ -74,6 +74,18 @@ const TokenStorage = {
   },
 };
 
+/**
+ * 죽은 세션 정리. 저장된 토큰을 지우고 auth 스토어를 비우면
+ * useAuthGuard 가 알아서 로그인 화면으로 보낸다 (여기서 router 를 부르지 않는 이유).
+ */
+async function clearSession() {
+  await TokenStorage.remove().catch(() => undefined);
+  const { useAuthStore } = await import("@/store/auth.store");
+  if (useAuthStore.getState().isLoggedIn) {
+    useAuthStore.getState().logout();
+  }
+}
+
 function resolveCode(status: number, backendMsg?: string): string {
   if (backendMsg) return backendMsg; // 백엔드 코드 우선 (INVALID_CREDENTIALS 등)
   if (status === 401) return "UNAUTHORIZED";
@@ -115,6 +127,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       const retry = await useErrorStore.getState().present("SERVER_ERROR");
       if (retry) continue;
       throw new ApiError("SERVER_ERROR", res.status);
+    }
+
+    // 토큰을 붙여 보냈는데 401 이면 그 세션은 죽은 것이다.
+    // (만료 / TOKEN_REVOKED / USER_NOT_FOUND — 전부 다시 로그인해야 하는 상태)
+    // 예전엔 여기서 아무것도 안 해서, 토큰이 만료되면 SecureStore 에는 죽은 토큰이,
+    // 스토어에는 isLoggedIn: true 가 남아 모든 화면이 에러만 뱉으며 갇혔다.
+    // 로그인 실패(INVALID_CREDENTIALS)는 토큰 없이 오므로 여기 안 걸린다.
+    if (res.status === 401 && token) {
+      await clearSession();
     }
 
     // 4xx: 호출부가 인라인 처리 (모달/재시도 없음)
