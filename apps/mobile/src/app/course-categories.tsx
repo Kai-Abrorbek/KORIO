@@ -175,6 +175,43 @@ function CategoryCard({
   );
 }
 
+/**
+ * 학습 로드로 들어가는 문.
+ *
+ * 원래 흐름(courses.tsx)에서는 모달에서 "학습 로드"를 고르면 이 화면을 건너뛰고
+ * 바로 하루치 로드맵으로 갔다. 그런데 이 화면에서도 모드를 바꿀 수 있게 되면서,
+ * 로드 모드일 때 어휘 카드를 감추면 정작 로드로 들어갈 길이 사라진다.
+ * 그래서 로드 모드에서는 이 카드를 목록 맨 위에 세운다 — 오늘 할 일이 먼저고,
+ * 아래 분야들은 로드가 안 덮는 곁가지라는 위계도 같이 드러난다.
+ */
+function GuidedEntry({
+  s,
+  t,
+  onPress,
+}: {
+  s: ReturnType<typeof getStyles>;
+  t: (k: string) => string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [s.guidedCard, pressed && s.guidedCardPressed]}
+    >
+      <View style={s.guidedIcon}>
+        <Ionicons name="footsteps" size={24} color="#fff" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={s.guidedTitle}>{t("courses.guidedEntryTitle")}</Text>
+        <Text style={s.guidedDesc} numberOfLines={2}>
+          {t("courses.guidedEntryDesc")}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.9)" />
+    </Pressable>
+  );
+}
+
 /** 학습 로드 ↔ 자율 전환. 여기가 학습 모드를 고르는 화면이라 이 자리가 맞다. */
 function ModeSegment({
   mode,
@@ -277,6 +314,20 @@ export default function CourseCategories() {
           t={t}
         />
 
+        {studyMode === "guided" && (
+          <GuidedEntry
+            s={s}
+            t={t}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
+              // 홈의 "이어서 학습하기" 도 여기로 온다.
+              commitLearnMode("vocabulary");
+              router.push(learnModePath("vocabulary", "1", "guided"));
+            }}
+          />
+        )}
+
         <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
         <View style={s.grid}>
           {visible.map((c, i) => (
@@ -313,6 +364,38 @@ const getStyles = (theme: ThemeColors) =>
     },
     headerTitle: { fontSize: 22, fontWeight: "700", color: theme.text },
     scroll: { paddingHorizontal: 20, paddingTop: 12 },
+    guidedCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 13,
+      backgroundColor: theme.primary,
+      borderRadius: 18,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      borderBottomWidth: 4,
+      borderBottomColor: "#5448E0",
+      marginBottom: 20,
+    },
+    guidedCardPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
+    guidedIcon: {
+      width: 46,
+      height: 46,
+      borderRadius: 15,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255,255,255,0.2)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.26)",
+    },
+    guidedTitle: { fontSize: 16.5, fontWeight: "900", color: "#fff" },
+    guidedDesc: {
+      fontSize: 12.5,
+      fontWeight: "600",
+      color: "rgba(255,255,255,0.88)",
+      lineHeight: 17,
+      marginTop: 2,
+    },
+
     modeWrap: { marginBottom: 22 },
     modeTitle: {
       fontSize: 15,

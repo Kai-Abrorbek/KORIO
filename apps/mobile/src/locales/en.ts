@@ -566,6 +566,8 @@ export default {
     modeGuidedNote: "Places you can open on their own, outside the path we plan for you.",
     modeFreeNote: "Pick anything you like and jump in.",
     modeHint: "Your progress is kept. You can switch back any time.",
+    guidedEntryTitle: "Today's study path",
+    guidedEntryDesc: "Start with today's plan, laid out in order",
     categories: {
       hangul: "Hangul",
       games: "Games",

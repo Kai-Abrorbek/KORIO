@@ -561,6 +561,8 @@ export default {
     modeGuidedNote: "학습 로드가 순서를 짜주는 것 말고, 따로 들어갈 수 있는 곳이야.",
     modeFreeNote: "원하는 곳 아무 데나 골라서 들어가.",
     modeHint: "진도는 그대로야. 언제든 다시 바꿀 수 있어.",
+    guidedEntryTitle: "오늘의 학습 로드",
+    guidedEntryDesc: "순서대로 짜둔 오늘 할 일부터 시작해",
     categories: {
       hangul: "한글",
       games: "게임",

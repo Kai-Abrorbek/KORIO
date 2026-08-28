@@ -569,6 +569,8 @@ export default {
     modeGuidedNote: "Yo'l-xarita tuzib beradiganidan tashqari, alohida kiriladigan joylar.",
     modeFreeNote: "Xohlagan joyingizni tanlab kiring.",
     modeHint: "Bosqichingiz saqlanadi. Istagan payt qaytarib o'zgartirasiz.",
+    guidedEntryTitle: "Bugungi yo'l-xarita",
+    guidedEntryDesc: "Siz uchun tartib bilan tuzilgan bugungi ishdan boshlang",
     categories: {
       hangul: "Hangul",
       games: "O'yinlar",
