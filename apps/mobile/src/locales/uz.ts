@@ -885,6 +885,53 @@ export default {
     gemReward: "Tosh +{{count}}",
     continue: "Davom etish",
   },
+  syllableDraw: {
+    title: "Harflarni birlashtirib yozish",
+    subtitle:
+      "Undosh va unli qo'shilsa bitta bo'g'in bo'ladi.\nQo'l bilan yozib o'rganamiz.",
+    locked: "Avval oldingi bosqichni yeching",
+    writeIt: "Bo'g'inga qarab xuddi shunday yozing",
+    figureItOut: "Bu harflar qo'shilsa qaysi bo'g'in chiqadi?",
+    stroke: "{{current}} / {{total}}-chiziq",
+    redraw: "Bu chiziqni qayta",
+    perfect: "Mukammal!",
+    good: "Barakalla",
+    okay: "Yaxshi",
+    tryAgain: "Qaytadan yozamiz",
+    levels: {
+      basic: {
+        title: "Undosh + unli",
+        desc: "가, 나, 다 — unli o'ngda turadigan eng oson bo'g'in",
+      },
+      wide: {
+        title: "Unli pastda",
+        desc: "고, 구, 소 — unli undoshning tagiga tushadi",
+      },
+      tail: {
+        title: "Batchim qo'shish",
+        desc: "옥, 움, 용 — bo'g'in ostiga yana bitta undosh qo'shiladi",
+      },
+      tallTail: {
+        title: "Uch bo'lakli bo'g'in",
+        desc: "산, 밥, 김 — endi tayyor bo'g'in ko'rsatilmaydi",
+      },
+      wideTail: {
+        title: "Bo'sh katakka yozish",
+        desc: "곰, 물, 국 — hech qanday yo'l-yo'riqsiz",
+      },
+      complex: {
+        title: "Murakkab bo'g'inlar",
+        desc: "과, 꿈, 꽃 — qo'sh unli va qo'sh undoshlar",
+      },
+    },
+    result: {
+      accuracy: "Aniqlik",
+      next: "Keyingi bosqich",
+      retry: "Qaytadan",
+      exit: "Chiqish",
+    },
+  },
+
   hangul: {
     title: "Hangul ustasi",
     markDone: "Hangulni o‘rgandim",
@@ -950,6 +997,7 @@ export default {
       drawing: "Chizish", // uz: "Chizish", en: "Draw", ru: "Рисовать"
       slot: "Slot", // uz: "Slot", en: "Slot", ru: "Слот"
       speed: "Tezlik",
+      syllable: "Bo'g'in yozish",
     },
     slot: {
       makeThis: "Shu harfni yig‘",

@@ -881,6 +881,53 @@ export default {
     gemReward: "Gems +{{count}}",
     continue: "Continue",
   },
+  syllableDraw: {
+    title: "Build and Write",
+    subtitle:
+      "A consonant and a vowel combine into one syllable.\nLearn it by writing with your finger.",
+    locked: "Clear the previous stage first",
+    writeIt: "Copy the syllable exactly as shown",
+    figureItOut: "What syllable do these letters make?",
+    stroke: "Stroke {{current}} / {{total}}",
+    redraw: "Redo this stroke",
+    perfect: "Perfect!",
+    good: "Nice work",
+    okay: "Not bad",
+    tryAgain: "Let's try again",
+    levels: {
+      basic: {
+        title: "Consonant + vowel",
+        desc: "가, 나, 다 — the easiest shape, vowel on the right",
+      },
+      wide: {
+        title: "Vowel below",
+        desc: "고, 구, 소 — the vowel drops under the consonant",
+      },
+      tail: {
+        title: "Adding a batchim",
+        desc: "옥, 움, 용 — one more consonant sits underneath",
+      },
+      tallTail: {
+        title: "Three-part syllables",
+        desc: "산, 밥, 김 — the finished syllable is hidden now",
+      },
+      wideTail: {
+        title: "Write on a blank",
+        desc: "곰, 물, 국 — no guide lines at all",
+      },
+      complex: {
+        title: "Complex syllables",
+        desc: "과, 꿈, 꽃 — compound vowels and double consonants",
+      },
+    },
+    result: {
+      accuracy: "Accuracy",
+      next: "Next stage",
+      retry: "Try again",
+      exit: "Exit",
+    },
+  },
+
   hangul: {
     title: "Hangul Master",
     markDone: "I've learned Hangul",
@@ -924,6 +971,7 @@ export default {
       drawing: "Draw",
       slot: "Slot",
       speed: "Speed",
+      syllable: "Syllables",
     },
     slot: {
       makeThis: "Build this letter",

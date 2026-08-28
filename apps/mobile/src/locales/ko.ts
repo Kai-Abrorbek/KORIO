@@ -879,6 +879,53 @@ export default {
     gemReward: "보석 +{{count}}개",
     continue: "계속",
   },
+  syllableDraw: {
+    title: "자모를 합쳐 써 보기",
+    subtitle:
+      "자음과 모음을 합치면 글자 하나가 돼요.\n손으로 직접 써 보면서 익혀요.",
+    locked: "앞 단계를 먼저 깨 주세요",
+    writeIt: "글자를 보고 그대로 써 보세요",
+    figureItOut: "자모를 합치면 무슨 글자일까요?",
+    stroke: "{{current}} / {{total}}획",
+    redraw: "이 획 다시",
+    perfect: "완벽해요!",
+    good: "잘했어요",
+    okay: "좋아요",
+    tryAgain: "다시 써 볼까요",
+    levels: {
+      basic: {
+        title: "자음 + 모음",
+        desc: "가, 나, 다 — 모음이 오른쪽에 서는 가장 쉬운 글자",
+      },
+      wide: {
+        title: "모음이 아래로",
+        desc: "고, 구, 소 — 모음이 자음 밑으로 내려가요",
+      },
+      tail: {
+        title: "받침 붙이기",
+        desc: "옥, 움, 용 — 글자 아래에 받침이 하나 더 붙어요",
+      },
+      tallTail: {
+        title: "세 조각 글자",
+        desc: "산, 밥, 김 — 이제 완성된 글자를 안 보여줘요",
+      },
+      wideTail: {
+        title: "빈 칸에 쓰기",
+        desc: "곰, 물, 국 — 안내선 없이 통째로 써요",
+      },
+      complex: {
+        title: "복잡한 글자",
+        desc: "과, 꿈, 꽃 — 겹모음과 쌍자음까지",
+      },
+    },
+    result: {
+      accuracy: "정확도",
+      next: "다음 단계",
+      retry: "다시 하기",
+      exit: "나가기",
+    },
+  },
+
   hangul: {
     title: "한글 마스터",
     markDone: "한글 다 배웠어요",
@@ -922,6 +969,7 @@ export default {
       drawing: "그리기", // uz: "Chizish", en: "Draw", ru: "Рисовать"
       slot: "슬롯",
       speed: "스피드",
+      syllable: "음절 쓰기",
     },
     slot: {
       makeThis: "이 글자를 만들어",

@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 
 const GAMES = [
@@ -15,7 +16,11 @@ const GAMES = [
   { id: "drawing", icon: "create" as const, route: "/hangul-drawing" },
   { id: "slot", icon: "dice" as const, route: "/jamo-slot" },
   { id: "speed", icon: "flash" as const, route: "/speed-round" },
+  { id: "syllable", icon: "brush" as const, route: "/syllable-drawing" },
 ];
+
+/** 버튼 하나 사이의 세로 간격 */
+const STEP = 64;
 
 export default function GameMenu() {
   const { t } = useTranslation();
@@ -37,36 +42,21 @@ export default function GameMenu() {
 
   return (
     <View style={styles.wrap} pointerEvents="box-none">
-      {GAMES.map((g, idx) => {
-        const itemStyle = useAnimatedStyle(() => ({
-          opacity: expand.value,
-          transform: [
-            {
-              translateY: -(idx + 1) * 68 * expand.value,
-            },
-            { scale: 0.7 + 0.3 * expand.value },
-          ],
-        }));
-        return (
-          <Animated.View
-            key={g.id}
-            style={[styles.item, itemStyle]}
-            pointerEvents={open ? "auto" : "none"}
-          >
-            <TouchableOpacity
-              style={styles.itemBtn}
-              activeOpacity={0.85}
-              onPress={() => {
-                toggle();
-                router.push(g.route as any);
-              }}
-            >
-              <Ionicons name={g.icon} size={20} color="#fff" />
-              <Text style={styles.itemLabel}>{t(`hangul.games.${g.id}`)}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        );
-      })}
+      {GAMES.map((g, idx) => (
+        <MenuItem
+          key={g.id}
+          index={idx}
+          icon={g.icon}
+          label={t(`hangul.games.${g.id}`)}
+          expand={expand}
+          open={open}
+          onPress={() => {
+            toggle();
+            router.push(g.route as any);
+          }}
+        />
+      ))}
+
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.85}
@@ -80,10 +70,60 @@ export default function GameMenu() {
   );
 }
 
+/**
+ * 항목 하나. 예전에는 map 안에서 useAnimatedStyle 을 불렀는데,
+ * 게임이 늘거나 줄면 훅 개수가 바뀌어 터진다. 컴포넌트로 뺀다.
+ */
+function MenuItem({
+  index,
+  icon,
+  label,
+  expand,
+  open,
+  onPress,
+}: {
+  index: number;
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  expand: SharedValue<number>;
+  open: boolean;
+  onPress: () => void;
+}) {
+  const style = useAnimatedStyle(() => ({
+    opacity: expand.value,
+    transform: [
+      { translateY: -(index + 1) * STEP * expand.value },
+      { scale: 0.75 + 0.25 * expand.value },
+    ],
+  }));
+
+  return (
+    <Animated.View
+      style={[styles.item, style]}
+      pointerEvents={open ? "auto" : "none"}
+    >
+      <TouchableOpacity
+        style={styles.itemBtn}
+        activeOpacity={0.85}
+        onPress={onPress}
+      >
+        <Ionicons name={icon} size={19} color="#fff" />
+        <Text style={styles.itemLabel} numberOfLines={1}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   wrap: {
     position: "absolute",
     bottom: 24,
+    // left 를 같이 잡아야 폭이 생긴다. 오른쪽만 고정하면 이 View 의 폭이
+    // FAB 크기(56)로 잡히고, 그 안의 절대배치 버튼들이 56px 기준으로
+    // 측정돼서 글자가 줄바꿈되거나 잘렸다.
+    left: 16,
     right: 16,
     alignItems: "flex-end",
   },
@@ -91,6 +131,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
+    // 스케일 애니메이션이 가운데를 기준으로 도니까, 오른쪽 끝을 축으로 잡아야
+    // 열릴 때 버튼이 화면 밖으로 삐져나가지 않는다
+    transformOrigin: "right center",
   },
   itemBtn: {
     flexDirection: "row",
@@ -98,15 +141,16 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: "#776ee2",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 11,
     borderRadius: 24,
     borderBottomWidth: 3,
     borderColor: "#5448E0",
   },
   itemLabel: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: "900",
+    flexShrink: 1,
   },
   fab: {
     backgroundColor: "#776ee2",

@@ -83,12 +83,21 @@ export interface StrokeResult {
  *  1. 길이 비율 (0.65~1.6 벗어나면 fail)
  *  2. 중심 위치 (target과 user 중심이 너무 멀면 fail — 엉뚱한 곳에 그림)
  *  3. 양방향 점대점 정렬 거리 (정/역방향 작은 쪽) — 둘 다 N점 리샘플
- *  4. canvasSize(=VIEWBOX 300)로 정규화
+ *  4. refScale 로 정규화
+ *
+ * refScale 은 "이 획이 얼마나 큰 글자의 일부인가"다. 기본값은 캔버스 전체
+ * (canvasSize) — 글자 하나가 캔버스를 꽉 채우는 한글 그리기 게임용이다.
+ *
+ * 음절 게임처럼 자모가 캔버스의 1/3 크기로 줄어드는 경우 이 값을 그대로 두면
+ * 허용 오차가 자모 크기에 비해 3배로 커진다. 작은 받침을 아무렇게나 그려도
+ * 통과하는 이유가 그거다. 그럴 땐 자모 상자 크기를 넘겨서 허용 오차가
+ * 글자 크기를 따라가게 한다.
  */
 export function scoreStroke(
   target: StrokePoint[],
   user: StrokePoint[],
   canvasSize = 300,
+  refScale = canvasSize,
 ): StrokeResult {
   if (user.length < 4) return { score: "fail", points: 0, avgDist: 999 };
 
@@ -105,7 +114,7 @@ export function scoreStroke(
   // 2) 중심 위치 체크 — 엉뚱한 위치에 그리면 컷
   const tb = bbox(target);
   const ub = bbox(user);
-  const centerGap = Math.hypot(tb.cx - ub.cx, tb.cy - ub.cy) / canvasSize;
+  const centerGap = Math.hypot(tb.cx - ub.cx, tb.cy - ub.cy) / refScale;
   if (centerGap > 0.22) {
     return { score: "fail", points: 0, avgDist: 999 };
   }
@@ -126,7 +135,7 @@ export function scoreStroke(
   const aligned = Math.min(fwd, bwd);
 
   // 4) 정규화 (대각선 기준) + 길이 패널티
-  const diag = canvasSize * Math.SQRT2;
+  const diag = refScale * Math.SQRT2;
   const norm = aligned / diag;
   const ratioPenalty = Math.abs(1 - ratio) * 0.12;
   const finalNorm = norm + ratioPenalty;
