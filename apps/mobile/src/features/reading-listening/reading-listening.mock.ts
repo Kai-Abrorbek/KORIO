@@ -39,6 +39,7 @@ export interface ReadingWritingActivity {
 
 export interface ReadingListeningLesson {
   id: string;
+  code: string;
   level: number;
   unit: number;
   title: string;
@@ -69,6 +70,7 @@ const text = (
 export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
   id: "preview-level-1-library",
   level: 1,
+  code: "preview-level-1-library",
   unit: 1,
   title: "동네 도서관에서 보내는 하루",
   topic: text(
@@ -295,5 +297,5 @@ export function localizedReadingText(
   language: string,
 ) {
   const normalized = language.split("-")[0] as ReadingLanguage;
-  return value[normalized] ?? value.uz ?? value.ko;
+  return value[normalized] || value.en || value.uz || value.ko;
 }

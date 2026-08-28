@@ -22,6 +22,7 @@ import { TtsModule } from './tts/tts.module';
 import { WordsModule } from './words/words.module';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { StudyPathModule } from './study-path/study-path.module';
+import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { StudyPathModule } from './study-path/study-path.module';
     WordsModule,
     ExpressionsModule,
     StudyPathModule,
+    ReadingLessonsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

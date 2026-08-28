@@ -5,8 +5,10 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
+  ActivityIndicator,
   Pressable,
   ScrollView,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -17,6 +19,12 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
+import { ReadingListeningService } from "@/services/reading-listening.service";
+import type {
+  LocalizedReadingText,
+  ReadingLessonSummary,
+  ReadingListeningLesson,
+} from "@/types/reading-listening";
 import { useSettingsStore } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
 import { READING_LISTENING_IMAGE_ASSETS } from "./reading-listening.assets";
@@ -92,6 +100,8 @@ const UI_COPY: Record<
     vocabularyLead: string;
     tapToReveal: string;
     listen: string;
+    chooseLesson: string;
+    emptyCatalog: string;
     next: string;
     finish: string;
     answered: string;
@@ -131,6 +141,8 @@ const UI_COPY: Record<
     vocabularyTitle: "지문에서 만난 단어를 정리해요",
     vocabularyLead: "카드를 눌러 뜻과 예문을 확인해 보세요.",
     tapToReveal: "눌러서 뜻 보기",
+    chooseLesson: "읽을 글 선택",
+    emptyCatalog: "아직 불러올 수 있는 읽기 글이 없어요.",
     listen: "발음 듣기",
     next: "다음 단계",
     finish: "학습 마치기",
@@ -170,6 +182,8 @@ const UI_COPY: Record<
     vocabularyTitle: "Matnda uchragan so‘zlarni jamlaymiz",
     vocabularyLead: "Ma’no va misolni ko‘rish uchun kartani bosing.",
     tapToReveal: "Ma’nosini ko‘rish",
+    chooseLesson: "Matnni tanlash",
+    emptyCatalog: "Hozircha o‘qish matnlari mavjud emas.",
     listen: "Talaffuzni tinglash",
     next: "Keyingi bosqich",
     finish: "Darsni tugatish",
@@ -209,6 +223,8 @@ const UI_COPY: Record<
     vocabularyTitle: "Review the words you met in the passage",
     vocabularyLead: "Tap a card to reveal its meaning and example.",
     tapToReveal: "Tap to reveal",
+    chooseLesson: "Choose a reading",
+    emptyCatalog: "No reading texts are available yet.",
     listen: "Listen",
     next: "Next step",
     finish: "Finish lesson",
@@ -248,6 +264,8 @@ const UI_COPY: Record<
     vocabularyTitle: "Повторим слова из текста",
     vocabularyLead: "Нажмите на карточку, чтобы увидеть значение и пример.",
     tapToReveal: "Показать значение",
+    chooseLesson: "Выбрать текст",
+    emptyCatalog: "Тексты для чтения пока недоступны.",
     listen: "Слушать",
     next: "Следующий этап",
     finish: "Завершить урок",
@@ -356,6 +374,17 @@ function Eyebrow({
   );
 }
 
+function hasReadingTranslation(
+  value: LocalizedReadingText,
+  language: ReadingLanguage,
+) {
+  if (language === "ko") return false;
+  const translated =
+    value[language]?.trim() ||
+    (language !== "en" ? value.en?.trim() : "");
+  return Boolean(translated && translated !== value.ko.trim());
+}
+
 export default function ReadingListeningScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -368,7 +397,9 @@ export default function ReadingListeningScreen() {
   const isDark = theme.bg !== "#ffffff";
   const palette = useMemo(() => readingPalette(isDark), [isDark]);
   const localStyles = useMemo(() => createLocalStyles(palette), [palette]);
-  const lesson = READING_LISTENING_PREVIEW;
+  const [lesson, setLesson] = useState<ReadingListeningLesson>(
+    READING_LISTENING_PREVIEW,
+  );
   const scrollRef = useRef<ScrollView>(null);
   const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } =
     useSpeech();
@@ -386,6 +417,11 @@ export default function ReadingListeningScreen() {
     [],
   );
   const [showWritingTranslation, setShowWritingTranslation] = useState(false);
+  const [lessonOptions, setLessonOptions] = useState<ReadingLessonSummary[]>([]);
+  const [isLessonPickerOpen, setIsLessonPickerOpen] = useState(false);
+  const [isCatalogLoading, setIsCatalogLoading] = useState(true);
+  const [isLessonLoading, setIsLessonLoading] = useState(false);
+
 
   const passageText = useMemo(
     () =>
@@ -401,14 +437,74 @@ export default function ReadingListeningScreen() {
   );
   const answeredCount = Object.keys(answers).length;
   const fontSize = [14, 15.5, 17][fontIndex] ?? 15.5;
-  const canShowTranslation = normalizedLanguage !== "ko";
   const lessonImageSource = lesson.media.imageUrl?.trim()
     ? { uri: lesson.media.imageUrl.trim() }
     : lesson.media.imageAssetKey
       ? READING_LISTENING_IMAGE_ASSETS[lesson.media.imageAssetKey]
-      : undefined;
+      : READING_LISTENING_IMAGE_ASSETS["library-reading-preview"];
+  const canShowWritingTranslation = hasReadingTranslation(
+    lesson.writing.prompt,
+    normalizedLanguage,
+  );
 
   useEffect(() => stop, [stop]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCatalog = async () => {
+      try {
+        const catalog = await ReadingListeningService.list(1);
+        if (!mounted) return;
+        setLessonOptions(catalog.items);
+
+        const firstLesson = catalog.items[0];
+        if (!firstLesson) return;
+
+        const detail = await ReadingListeningService.get(firstLesson.code);
+        if (mounted) setLesson(detail);
+      } catch {
+        if (mounted) setLesson(READING_LISTENING_PREVIEW);
+      } finally {
+        if (mounted) setIsCatalogLoading(false);
+      }
+    };
+
+    void loadCatalog();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const resetLessonState = () => {
+    stop();
+    setStepIndex(0);
+    setActiveVocabularyId(null);
+    setAnswers({});
+    setWriting("");
+    setShowExample(false);
+    setRevealedVocabulary([]);
+    setTranslatedQuestionIds([]);
+    setShowWritingTranslation(false);
+  };
+
+  const chooseLesson = async (item: ReadingLessonSummary) => {
+    setIsLessonPickerOpen(false);
+    if (item.code === lesson.code || isLessonLoading) return;
+
+    setIsLessonLoading(true);
+    resetLessonState();
+    try {
+      const detail = await ReadingListeningService.get(item.code);
+      setLesson(detail);
+      scrollRef.current?.scrollTo({ y: 0, animated: false });
+      void Haptics.selectionAsync();
+    } catch {
+      setIsLessonPickerOpen(true);
+    } finally {
+      setIsLessonLoading(false);
+    }
+  };
 
   const goBack = () => {
     stop();
@@ -547,6 +643,54 @@ export default function ReadingListeningScreen() {
           { paddingBottom: Math.max(insets.bottom, 14) + 28 },
         ]}
       >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.chooseLesson}
+          onPress={() => setIsLessonPickerOpen(true)}
+          style={({ pressed }) => [
+            styles.lessonSelector,
+            {
+              backgroundColor: palette.surface,
+              borderColor: palette.line,
+              opacity: pressed ? 0.88 : 1,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.lessonSelectorIcon,
+              { backgroundColor: palette.sageSoft },
+            ]}
+          >
+            <Ionicons name="library-outline" size={21} color={palette.sageDark} />
+          </View>
+          <View style={styles.lessonSelectorCopy}>
+            <Text
+              style={[styles.lessonSelectorLabel, { color: palette.sageDark }]}
+            >
+              {copy.chooseLesson}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={[styles.lessonSelectorTitle, { color: palette.ink }]}
+            >
+              {String(lesson.unit).padStart(2, "0")}. {lesson.title}
+            </Text>
+          </View>
+          {isCatalogLoading || isLessonLoading ? (
+            <ActivityIndicator size="small" color={palette.sageDark} />
+          ) : (
+            <View
+              style={[
+                styles.lessonSelectorChevron,
+                { backgroundColor: palette.sageSoft },
+              ]}
+            >
+              <Ionicons name="chevron-down" size={18} color={palette.sageDark} />
+            </View>
+          )}
+        </Pressable>
+
         {stepIndex === 0 ? (
           <Animated.View key="read" entering={FadeIn.duration(260)}>
             <View
@@ -853,8 +997,12 @@ export default function ReadingListeningScreen() {
 
             {lesson.questions.map((question, questionIndex) => {
               const selectedAnswer = answers[question.id];
+              const canShowQuestionTranslation = hasReadingTranslation(
+                question.prompt,
+                normalizedLanguage,
+              );
               const translationVisible =
-                canShowTranslation &&
+                canShowQuestionTranslation &&
                 translatedQuestionIds.includes(question.id);
               return (
                 <Animated.View
@@ -880,7 +1028,7 @@ export default function ReadingListeningScreen() {
                     </Text>
                   </View>
 
-                  {canShowTranslation ? (
+                  {canShowQuestionTranslation ? (
                     <Pressable
                       accessibilityRole="button"
                       accessibilityState={{ expanded: translationVisible }}
@@ -1114,7 +1262,7 @@ export default function ReadingListeningScreen() {
                 </Text>
               </LinearGradient>
 
-              {canShowTranslation ? (
+              {canShowWritingTranslation ? (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ expanded: showWritingTranslation }}
@@ -1149,7 +1297,7 @@ export default function ReadingListeningScreen() {
                 </Pressable>
               ) : null}
 
-              {canShowTranslation && showWritingTranslation ? (
+              {canShowWritingTranslation && showWritingTranslation ? (
                 <Animated.View
                   entering={FadeInDown.duration(180)}
                   style={[
@@ -1458,6 +1606,173 @@ export default function ReadingListeningScreen() {
           </View>
         </Pressable>
       </ScrollView>
+      <Modal
+        visible={isLessonPickerOpen}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setIsLessonPickerOpen(false)}
+      >
+        <View style={styles.lessonPickerRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+            onPress={() => setIsLessonPickerOpen(false)}
+            style={styles.lessonPickerBackdrop}
+          />
+          <View
+            style={[
+              styles.lessonPickerSheet,
+              {
+                backgroundColor: palette.surface,
+                paddingBottom: Math.max(insets.bottom, 18),
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.lessonPickerHandle,
+                { backgroundColor: palette.line },
+              ]}
+            />
+            <View style={styles.lessonPickerHeader}>
+              <View style={styles.lessonPickerHeaderCopy}>
+                <Text
+                  style={[
+                    styles.lessonPickerEyebrow,
+                    { color: palette.sageDark },
+                  ]}
+                >
+                  {copy.lesson} · 1{copy.level}
+                </Text>
+                <Text
+                  style={[styles.lessonPickerTitle, { color: palette.ink }]}
+                >
+                  {copy.chooseLesson}
+                </Text>
+                <Text
+                  style={[styles.lessonPickerCount, { color: palette.sub }]}
+                >
+                  {lessonOptions.length}
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+                onPress={() => setIsLessonPickerOpen(false)}
+                style={[
+                  styles.lessonPickerClose,
+                  { backgroundColor: palette.sageSoft },
+                ]}
+              >
+                <Ionicons name="close" size={21} color={palette.sageDark} />
+              </Pressable>
+            </View>
+
+            {isCatalogLoading ? (
+              <View style={styles.lessonPickerLoading}>
+                <ActivityIndicator size="small" color={palette.sageDark} />
+              </View>
+            ) : (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.lessonPickerList}
+              >
+                {lessonOptions.length === 0 ? (
+                  <View style={styles.lessonPickerEmpty}>
+                    <View
+                      style={[
+                        styles.lessonPickerEmptyIcon,
+                        { backgroundColor: palette.sageSoft },
+                      ]}
+                    >
+                      <Ionicons
+                        name="book-outline"
+                        size={24}
+                        color={palette.sageDark}
+                      />
+                    </View>
+                    <Text style={[styles.lessonPickerEmptyText, { color: palette.sub }]}>
+                      {copy.emptyCatalog}
+                    </Text>
+                  const selected = item.code === lesson.code;
+                  return (
+                    <Pressable
+                      key={item.code}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      disabled={isLessonLoading}
+                      onPress={() => void chooseLesson(item)}
+                      style={({ pressed }) => [
+                        styles.lessonPickerItem,
+                        {
+                          backgroundColor: selected
+                            ? palette.sageSoft
+                            : palette.bg,
+                          borderColor: selected
+                            ? palette.sageGlow
+                            : palette.line,
+                          opacity: pressed ? 0.84 : 1,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.lessonPickerNumber,
+                          {
+                            backgroundColor: selected
+                              ? palette.sageDark
+                              : palette.surface,
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.lessonPickerNumberText,
+                            { color: selected ? "#FFFFFF" : palette.sageDark },
+                          ]}
+                        >
+                          {String(item.unit).padStart(2, "0")}
+                        </Text>
+                      </View>
+                      <View style={styles.lessonPickerItemCopy}>
+                        <Text
+                          numberOfLines={2}
+                          style={[
+                            styles.lessonPickerItemTitle,
+                            { color: palette.ink },
+                          ]}
+                        >
+                          {item.title}
+                        </Text>
+                        <Text
+                          numberOfLines={1}
+                          style={[
+                            styles.lessonPickerItemTopic,
+                            { color: palette.sub },
+                          ]}
+                        >
+                          {localizedReadingText(
+                            item.topic,
+                            normalizedLanguage,
+                          )}
+                        </Text>
+                      </View>
+                      <Ionicons
+                        name={selected ? "checkmark-circle" : "chevron-forward"}
+                        size={22}
+                        color={selected ? palette.sageDark : palette.sub}
+                      />
+                    </Pressable>
+                  );
+                  })
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -1498,6 +1813,176 @@ const styles = StyleSheet.create({
   stepRail: { gap: 8, paddingHorizontal: 18, paddingVertical: 12 },
   stepPillText: { fontSize: 12, lineHeight: 16, fontWeight: "800" },
   scrollContent: { paddingHorizontal: 18, paddingTop: 4 },
+  lessonSelector: {
+    minHeight: 76,
+    marginBottom: 14,
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingHorizontal: 13,
+    paddingVertical: 11,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  lessonSelectorIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonSelectorCopy: { flex: 1, minWidth: 0 },
+  lessonSelectorLabel: {
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+  },
+  lessonSelectorTitle: {
+    marginTop: 3,
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: "900",
+  },
+  lessonSelectorChevron: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerRoot: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  lessonPickerBackdrop: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(11, 22, 17, 0.48)",
+  },
+  lessonPickerSheet: {
+    maxHeight: "82%",
+    minHeight: 360,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 10,
+    paddingHorizontal: 18,
+    shadowColor: "#000000",
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: -8 },
+    elevation: 20,
+  },
+  lessonPickerHandle: {
+    width: 42,
+    height: 5,
+    borderRadius: 3,
+    alignSelf: "center",
+    marginBottom: 15,
+  },
+  lessonPickerHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 2,
+    paddingBottom: 15,
+  },
+  lessonPickerHeaderCopy: { flex: 1, minWidth: 0 },
+  lessonPickerEyebrow: {
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: "900",
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+  },
+  lessonPickerTitle: {
+    marginTop: 4,
+    fontSize: 24,
+    lineHeight: 31,
+    fontWeight: "900",
+    letterSpacing: -0.5,
+  },
+  lessonPickerCount: {
+    marginTop: 3,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "700",
+  },
+  lessonPickerClose: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerLoading: {
+    minHeight: 240,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerEmpty: {
+    minHeight: 230,
+    paddingHorizontal: 34,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerEmptyIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerEmptyText: {
+    marginTop: 13,
+    maxWidth: 260,
+    textAlign: "center",
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: "700",
+  },
+  lessonPickerList: {
+    gap: 9,
+    paddingBottom: 12,
+  },
+  lessonPickerItem: {
+    minHeight: 76,
+    borderRadius: 20,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  lessonPickerNumber: {
+    width: 46,
+    height: 46,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonPickerNumberText: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "900",
+    letterSpacing: 0.4,
+  },
+  lessonPickerItemCopy: { flex: 1, minWidth: 0 },
+  lessonPickerItemTitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "900",
+  },
+  lessonPickerItemTopic: {
+    marginTop: 3,
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: "700",
+  },
+
   hero: { borderRadius: 28, overflow: "hidden" },
   heroImageWrap: { height: 188, position: "relative" },
   heroImage: {
