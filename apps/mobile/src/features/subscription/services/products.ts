@@ -32,3 +32,21 @@ export const PLAN_I18N_KEY: Record<GoogleSubscriptionId, string> = {
   korio_premium_6months: "sixMonths",
   korio_premium_yearly: "yearly",
 };
+
+/** 상품별 개월 수. 월 환산 가격을 계산할 때 쓴다 */
+export const PLAN_MONTHS: Record<GoogleSubscriptionId, number> = {
+  korio_premium_monthly: 1,
+  korio_premium_3months: 3,
+  korio_premium_6months: 6,
+  korio_premium_yearly: 12,
+};
+
+/** 프리미엄 혜택. 서버에 물어볼 필요 없는 정적 목록이라 여기 둔다 */
+export const PREMIUM_FEATURES = [
+  { icon: "infinite", key: "unlimitedEnergy" },
+  { icon: "close-circle", key: "noAds" },
+  { icon: "refresh", key: "unlimitedReview" },
+  { icon: "sparkles", key: "aiTutor" },
+  { icon: "diamond", key: "monthlyGems" },
+  { icon: "stats-chart", key: "advancedStats" },
+] as const;

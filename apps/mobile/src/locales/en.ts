@@ -1101,6 +1101,23 @@ export default {
   },
   // en
   premium: {
+    totalPrice: "{{price}} total",
+    hasFreeTrial: "Free trial included",
+    startTrialFree: "Start free",
+    restore: "Restore purchases",
+    restoring: "Restoring...",
+    loadingPlans: "Loading plans...",
+    retry: "Try again",
+    trialLeft: "{{days}} days left in your free trial",
+    renewsOn: "Renews automatically on {{date}}",
+    endsOn: "Active until {{date}}",
+    manageInStore: "Cancel your subscription or change your payment method in Google Play subscriptions.",
+    err: {
+      generic: "Something went wrong. Please try again in a moment.",
+      noProducts: "Plans aren't available right now. Please try again in a moment.",
+      storeDisconnected: "Couldn't reach the store. Check your connection and try again.",
+      platformUnsupported: "In-app purchases aren't available on this device.",
+    },
     heroSub: "Learn without limits with unlimited energy",
     popular: "POPULAR",
     perMonth: "/mo",
@@ -1112,7 +1129,12 @@ export default {
     terms: "Cancel anytime. Subscription auto-renews.",
     activeTitle: "SUPER Member",
     activeSub: "You're enjoying all premium perks",
-    plans: { monthly: "Monthly", yearly: "Yearly", family: "Family" },
+    plans: {
+      monthly: "Monthly",
+      threeMonths: "3 months",
+      sixMonths: "6 months",
+      yearly: "Yearly",
+    },
     features: {
       unlimitedEnergy: "Unlimited Energy",
       noAds: "No Ads",

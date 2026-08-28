@@ -1106,6 +1106,23 @@ export default {
   },
   // ru
   premium: {
+    totalPrice: "Всего {{price}}",
+    hasFreeTrial: "С бесплатным периодом",
+    startTrialFree: "Начать бесплатно",
+    restore: "Восстановить покупки",
+    restoring: "Восстановление...",
+    loadingPlans: "Загрузка тарифов...",
+    retry: "Повторить",
+    trialLeft: "Бесплатный период: осталось {{days}} дн.",
+    renewsOn: "Продлится автоматически {{date}}",
+    endsOn: "Действует до {{date}}",
+    manageInStore: "Отменить подписку и изменить способ оплаты можно в разделе подписок Google Play.",
+    err: {
+      generic: "Что-то пошло не так. Попробуйте ещё раз позже.",
+      noProducts: "Сейчас тарифы недоступны. Попробуйте ещё раз позже.",
+      storeDisconnected: "Не удалось подключиться к магазину. Проверьте соединение и повторите.",
+      platformUnsupported: "На этом устройстве покупки в приложении недоступны.",
+    },
     heroSub: "Учитесь без ограничений с бесконечной энергией",
     popular: "ПОПУЛЯРНОЕ",
     perMonth: "/мес",
@@ -1117,7 +1134,12 @@ export default {
     terms: "Отмена в любое время. Автопродление.",
     activeTitle: "SUPER участник",
     activeSub: "Вам доступны все премиум-функции",
-    plans: { monthly: "Месяц", yearly: "Год", family: "Семья" },
+    plans: {
+      monthly: "Месячный",
+      threeMonths: "3 месяца",
+      sixMonths: "6 месяцев",
+      yearly: "Годовой",
+    },
     features: {
       unlimitedEnergy: "Бесконечная энергия",
       noAds: "Без рекламы",

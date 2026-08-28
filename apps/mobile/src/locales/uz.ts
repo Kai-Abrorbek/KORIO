@@ -1105,6 +1105,23 @@ export default {
   },
   // uz
   premium: {
+    totalPrice: "Jami {{price}}",
+    hasFreeTrial: "Bepul sinov bilan",
+    startTrialFree: "Bepul boshlash",
+    restore: "Xaridlarni tiklash",
+    restoring: "Tiklanmoqda...",
+    loadingPlans: "Tariflar yuklanmoqda...",
+    retry: "Qayta urinish",
+    trialLeft: "Bepul sinovga {{days}} kun qoldi",
+    renewsOn: "{{date}} da avtomatik yangilanadi",
+    endsOn: "{{date}} gacha amal qiladi",
+    manageInStore: "Obunani bekor qilish va to'lov usulini o'zgartirish Google Play obunalar bo'limida amalga oshiriladi.",
+    err: {
+      generic: "Xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring.",
+      noProducts: "Hozircha tariflarni yuklab bo'lmadi. Birozdan so'ng qayta urinib ko'ring.",
+      storeDisconnected: "Do'konga ulanib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring.",
+      platformUnsupported: "Bu qurilmada ilova ichidagi to'lov mavjud emas.",
+    },
     heroSub: "Cheksiz energiya bilan to'xtovsiz o'rganing",
     popular: "MASHHUR",
     perMonth: "/oy",
@@ -1116,7 +1133,12 @@ export default {
     terms: "Istalgan vaqtda bekor qiling. Avto-yangilanadi.",
     activeTitle: "SUPER a'zo",
     activeSub: "Barcha imtiyozlardan foydalanyapsiz",
-    plans: { monthly: "Oylik", yearly: "Yillik", family: "Oilaviy" },
+    plans: {
+      monthly: "Oylik",
+      threeMonths: "3 oy",
+      sixMonths: "6 oy",
+      yearly: "Yillik",
+    },
     features: {
       unlimitedEnergy: "Cheksiz energiya",
       noAds: "Reklamasiz",

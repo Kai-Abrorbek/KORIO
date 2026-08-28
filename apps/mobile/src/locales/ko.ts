@@ -1099,6 +1099,23 @@ export default {
   },
   // ko
   premium: {
+    totalPrice: "총 {{price}}",
+    hasFreeTrial: "무료 체험 포함",
+    startTrialFree: "무료로 시작하기",
+    restore: "구매 내역 복원",
+    restoring: "복원 중...",
+    loadingPlans: "요금제를 불러오는 중...",
+    retry: "다시 시도",
+    trialLeft: "무료 체험 {{days}}일 남았어요",
+    renewsOn: "{{date}}에 자동 갱신돼요",
+    endsOn: "{{date}}까지 이용할 수 있어요",
+    manageInStore: "구독 해지와 결제 수단 변경은 Google Play 구독 관리에서 할 수 있어요.",
+    err: {
+      generic: "문제가 생겼어요. 잠시 뒤에 다시 시도해 주세요.",
+      noProducts: "지금은 요금제를 불러올 수 없어요. 잠시 뒤에 다시 시도해 주세요.",
+      storeDisconnected: "스토어에 연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.",
+      platformUnsupported: "이 기기에서는 앱 내 결제를 이용할 수 없어요.",
+    },
     heroSub: "무한 에너지로 멈춤 없이 학습하세요",
     popular: "인기",
     perMonth: "/월",
@@ -1110,7 +1127,12 @@ export default {
     terms: "언제든지 해지할 수 있어요. 구독은 자동 갱신됩니다.",
     activeTitle: "SUPER 멤버",
     activeSub: "모든 프리미엄 혜택을 이용 중이에요",
-    plans: { monthly: "월간", yearly: "연간", family: "가족" },
+    plans: {
+      monthly: "월간",
+      threeMonths: "3개월",
+      sixMonths: "6개월",
+      yearly: "연간",
+    },
     features: {
       unlimitedEnergy: "무한 에너지",
       noAds: "광고 제거",
