@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { PaymentsModule } from './payments/payments.module';
 import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
@@ -40,6 +41,7 @@ import { StudyPathModule } from './study-path/study-path.module';
     OnboardingModule,
     LessonsModule,
     SubscriptionModule,
+    PaymentsModule,
     LeagueModule,
     EnergyModule,
     AiModule,
