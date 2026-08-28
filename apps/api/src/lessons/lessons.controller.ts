@@ -187,8 +187,8 @@ export class LessonsController {
   ) {
     return this.lessonsService.completeUnitJump(
       req.user._id.toString(),
-      dto.section,
-      dto.unit,
+      dto.attemptId,
+      dto.wrongQuestionIds ?? [],
     );
   }
 

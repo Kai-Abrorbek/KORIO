@@ -20,6 +20,10 @@ import { UsersModule } from '../users/users.module';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AnswerGradingService } from './answer-grading.service';
+import {
+  JumpAttempt,
+  JumpAttemptSchema,
+} from './schemas/jump-attempt.schema';
 
 @Module({
   imports: [
@@ -32,6 +36,7 @@ import { AnswerGradingService } from './answer-grading.service';
       { name: UserStats.name, schema: UserStatsSchema },
       { name: UserMistake.name, schema: UserMistakeSchema },
       { name: User.name, schema: UserSchema },
+      { name: JumpAttempt.name, schema: JumpAttemptSchema },
     ]),
     LeagueModule,
     UsersModule,

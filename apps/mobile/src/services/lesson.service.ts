@@ -139,14 +139,30 @@ export const LessonService = {
     api.get(`/lessons/node-review/${nodeId}${limit ? `?limit=${limit}` : ""}`),
 
 
-  getJumpTest: (section: number, unit: number): Promise<{ questions: any[] }> =>
-    api.get(`/lessons/jump-test?section=${section}&unit=${unit}`),
-
-  completeJump: (
+  /**
+   * 점프 테스트. 서버가 응시(attemptId)를 발급하고 합격 기준(heartLimit)도 정한다.
+   * 완료 요청은 이 attemptId 로만 처리되므로 값을 잃어버리면 다시 시험을 봐야 한다.
+   */
+  getJumpTest: (
     section: number,
     unit: number,
-  ): Promise<{ completed: number }> =>
-    api.post(`/lessons/jump-complete`, { section, unit }),
+  ): Promise<{
+    attemptId: string | null;
+    heartLimit?: number;
+    questions: any[];
+  }> => api.get(`/lessons/jump-test?section=${section}&unit=${unit}`),
+
+  /** 합격 여부는 서버가 판정한다. 여기선 틀린 문제만 보고한다 */
+  completeJump: (
+    attemptId: string,
+    wrongQuestionIds: string[],
+  ): Promise<{
+    passed: boolean;
+    wrongCount: number;
+    heartLimit: number;
+    completed?: number;
+  }> =>
+    api.post(`/lessons/jump-complete`, { attemptId, wrongQuestionIds }),
 
   getScore: (): Promise<ScoreData> =>
     api.get(`/lessons/score?lang=${getLang()}`),

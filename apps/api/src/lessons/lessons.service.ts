@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -73,6 +74,10 @@ const SMART_GRADING_TYPES = new Set([
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 import {
+  JumpAttempt,
+  JumpAttemptDocument,
+} from './schemas/jump-attempt.schema';
+import {
   CATCH_UP_UNITS,
   STUDY_QUIZ_SIZE,
   UNIT_FINAL_MIN_DIFFICULTY,
@@ -101,6 +106,8 @@ export class LessonsService {
     private userStatsModel: Model<UserStatsDocument>,
     @InjectModel(UserMistake.name)
     private userMistakeModel: Model<UserMistakeDocument>,
+    @InjectModel(JumpAttempt.name)
+    private jumpAttemptModel: Model<JumpAttemptDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private leagueService: LeagueService,
@@ -1537,6 +1544,11 @@ export class LessonsService {
   }
 
   // 유닛 점프 테스트 문제 뽑기 (targetUnit 직전까지 레슨 문제 중 25개)
+  /** 점프 테스트에서 틀려도 되는 개수. 서버가 정한다 (클라가 못 바꾸게) */
+  private jumpHeartLimit(targetSection: number): number {
+    return targetSection >= 2 ? 3 : 5;
+  }
+
   async getUnitJumpTest(
     userId: string,
     targetSection: number,
@@ -1550,7 +1562,7 @@ export class LessonsService {
       .select('lessonIds')
       .lean();
 
-    if (!nodes.length) return { questions: [] };
+    if (!nodes.length) return { attemptId: null, questions: [] };
 
     const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
     const lessons = await this.lessonModel
@@ -1562,7 +1574,7 @@ export class LessonsService {
     lessons.forEach((l) =>
       (l.questionIds ?? []).forEach((q: any) => qIds.add(q.toString())),
     );
-    if (!qIds.size) return { questions: [] };
+    if (!qIds.size) return { attemptId: null, questions: [] };
 
     const questions = await this.questionModel
       .find({
@@ -1592,11 +1604,89 @@ export class LessonsService {
     });
 
     const shuffled = unique.sort(() => Math.random() - 0.5).slice(0, limit);
-    return { questions: shuffled.map((q) => this.formatQuestion(q, lang)) };
+
+    // 어떤 범위로, 어떤 문제를, 몇 개까지 틀려도 되는 조건으로 냈는지 서버가 기억한다.
+    // 완료 요청은 오직 이 기록을 근거로만 처리된다.
+    const heartLimit = this.jumpHeartLimit(targetSection);
+    const attempt = await this.jumpAttemptModel.create({
+      userId: new Types.ObjectId(userId),
+      section: targetSection,
+      unit: targetUnit,
+      questionIds: shuffled.map((q: any) => q._id),
+      heartLimit,
+      status: 'open',
+      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2시간
+    });
+
+    return {
+      attemptId: attempt._id.toString(),
+      heartLimit,
+      questions: shuffled.map((q) => this.formatQuestion(q, lang)),
+    };
   }
 
   // 점프 통과 → 사이 레슨 전부 완료 처리 (XP 없이)
+  /**
+   * 점프 테스트 완료 처리.
+   *
+   * 범위(section/unit)와 합격 기준은 요청이 아니라 **응시 기록**에서 읽는다.
+   * 클라가 보내는 건 "이 문제들을 틀렸다" 뿐이고, 그것도 실제로 내준 문제
+   * 목록과 교집합만 인정한다. 합격 여부는 서버가 계산한다.
+   */
   async completeUnitJump(
+    userId: string,
+    attemptId: string,
+    wrongQuestionIds: string[],
+  ) {
+    if (!Types.ObjectId.isValid(attemptId)) {
+      throw new BadRequestException('INVALID_ATTEMPT');
+    }
+
+    // open 인 응시를 원자적으로 집는다. 동시에 두 번 불러도 한 번만 통과한다.
+    const attempt = await this.jumpAttemptModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(attemptId),
+        userId: new Types.ObjectId(userId),
+        status: 'open',
+        expiresAt: { $gt: new Date() },
+      },
+      { $set: { status: 'failed' } }, // 일단 닫고, 통과면 아래서 되돌린다
+      { returnDocument: 'after' },
+    );
+    if (!attempt) throw new BadRequestException('ATTEMPT_NOT_FOUND_OR_USED');
+
+    // 실제로 내준 문제만 오답으로 인정. 없는 id 를 채워 보내도 소용없고,
+    // 반대로 오답을 숨기면 자기 손해라 굳이 막을 이유가 없다.
+    const issued = new Set(attempt.questionIds.map((id) => id.toString()));
+    const wrong = new Set(
+      (wrongQuestionIds ?? []).map(String).filter((id) => issued.has(id)),
+    );
+    const wrongCount = wrong.size;
+    const passed = wrongCount < attempt.heartLimit;
+
+    attempt.wrongCount = wrongCount;
+    attempt.status = passed ? 'passed' : 'failed';
+    await attempt.save();
+
+    if (!passed) {
+      return { passed: false, wrongCount, heartLimit: attempt.heartLimit, completed: 0 };
+    }
+
+    const result = await this.applyUnitJump(
+      userId,
+      attempt.section,
+      attempt.unit,
+    );
+    return {
+      passed: true,
+      wrongCount,
+      heartLimit: attempt.heartLimit,
+      ...result,
+    };
+  }
+
+  /** 실제 진도 반영. 합격이 확인된 뒤에만 불린다 */
+  private async applyUnitJump(
     userId: string,
     targetSection: number,
     targetUnit: number,

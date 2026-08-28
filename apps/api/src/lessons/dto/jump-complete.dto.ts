@@ -1,26 +1,28 @@
-import { ArrayMaxSize, IsArray, IsInt, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 /**
  * POST /lessons/jump-complete
  *
- * ⚠️ 이 엔드포인트는 목표 지점 이전의 레슨을 전부 완료로 찍는다.
- * 예전엔 `@Body() body: { section: number; unit: number }` 라 런타임 검증이
- * 전혀 없었고, `{ section: 99, unit: 99 }` 하나로 앱의 모든 레슨이 완료 처리됐다.
- *
- * 상한을 두면 말도 안 되는 값은 막히지만, "점프 테스트를 실제로 통과했는지"를
- * 서버가 모르는 건 그대로다 (getUnitJumpTest 가 아무것도 기록하지 않음).
- * 그건 별도 작업 — claude/보안-점검.md 참고.
+ * 범위(section/unit)와 합격 기준은 요청에 없다 — 서버가 응시 기록에서 읽는다.
+ * 예전엔 `{ section: 99, unit: 99 }` 하나로 앱의 모든 레슨이 완료 처리됐다.
  */
 export class CompleteUnitJumpDto {
-  @IsInt()
-  @Min(1)
-  @Max(20)
-  section: number;
+  /** GET /lessons/jump-test 가 발급한 응시 id */
+  @IsString()
+  @MaxLength(64)
+  attemptId: string;
 
-  @IsInt()
-  @Min(1)
-  @Max(50)
-  unit: number;
+  /** 이번 응시에서 틀린 문제들. 실제로 내준 문제와의 교집합만 인정된다 */
+  @IsArray()
+  @ArrayMaxSize(200)
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  wrongQuestionIds: string[];
 }
 
 /** POST /lessons/mistakes/resolve */

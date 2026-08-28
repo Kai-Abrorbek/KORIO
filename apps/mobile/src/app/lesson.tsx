@@ -135,7 +135,10 @@ export default function LessonScreen() {
   const fromStudyPath = from === "studyPath";
   const unitLesson = Math.max(1, Number(lessonNo) || 1);
   const unitGroup = Math.max(1, Number(group) || 1);
-  const jumpHeartLimit = target === "section" || Number(section) >= 2 ? 3 : 5;
+  // 서버가 응시를 발급할 때 합격 기준을 같이 준다. 이건 첫 렌더용 폴백일 뿐이고,
+  // 실제 판정은 서버가 한다 (클라가 기준을 낮춰도 통과되지 않는다).
+  const fallbackHeartLimit =
+    target === "section" || Number(section) >= 2 ? 3 : 5;
   const { setLevelTestResult, sessionId, selfReportedLevel } =
     useOnboardingStore();
   const isLoggedIn = useAuthStore((st) => st.isLoggedIn);
@@ -166,6 +169,8 @@ export default function LessonScreen() {
   const correctCount = useRef(0);
   const totalCount = useRef(0);
   const wrongIds = useRef<string[]>([]);
+  const jumpAttemptId = useRef<string | null>(null);
+  const [jumpHeartLimit, setJumpHeartLimit] = useState(fallbackHeartLimit);
   const [showQuit, setShowQuit] = useState(false);
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
   const [hearts, setHearts] = useState(jumpHeartLimit);
@@ -222,10 +227,13 @@ export default function LessonScreen() {
       }
 
       if (isJumpTest) {
-        const { questions } = await LessonService.getJumpTest(
+        const res = await LessonService.getJumpTest(
           Number(section),
           Number(unit),
         );
+        const questions = res.questions;
+        jumpAttemptId.current = res.attemptId;
+        if (res.heartLimit) setJumpHeartLimit(res.heartLimit);
         setLesson({
           lessonId: "jump-test",
           lessonTitle: "Jump Test",
@@ -378,24 +386,33 @@ export default function LessonScreen() {
 
   const finishJumpTest = async (heartsOut = false) => {
     const wrongCount = wrongIds.current.length;
-    const passed = !heartsOut && wrongCount < jumpHeartLimit;
+    const attemptId = jumpAttemptId.current;
 
-    if (passed) {
+    // 합격 판정은 서버가 한다. 여기서 미리 계산하는 건 서버를 못 부를 때
+    // (응시 발급 실패 / 네트워크) 화면을 어떻게 보여줄지 정하는 용도뿐이다.
+    let passed = !heartsOut && wrongCount < jumpHeartLimit;
+
+    if (attemptId) {
       try {
-        await LessonService.completeJump(Number(section), Number(unit));
+        const res = await LessonService.completeJump(
+          attemptId,
+          wrongIds.current,
+        );
+        passed = res.passed;
       } catch (e) {
         console.log("jump complete fail:", e);
+        passed = false; // 서버가 인정 안 한 진급은 통과로 치지 않는다
       }
-      router.replace({
-        pathname: "/jump-result",
-        params: { passed: "1", unit: String(unit) },
-      });
     } else {
-      router.replace({
-        pathname: "/jump-result",
-        params: { passed: "0", wrong: String(wrongCount) },
-      });
+      passed = false;
     }
+
+    router.replace({
+      pathname: "/jump-result",
+      params: passed
+        ? { passed: "1", unit: String(unit) }
+        : { passed: "0", wrong: String(wrongCount) },
+    });
   };
 
   const finishLevelTest = async () => {
