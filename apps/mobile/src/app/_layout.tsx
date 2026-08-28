@@ -1,5 +1,5 @@
 import "../locales/i18n";
-import { Stack, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   ThemeProvider,
@@ -12,7 +12,7 @@ import EnergyModal from "@/components/energy/EnergyModal";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
 
@@ -23,19 +23,8 @@ export default function RootLayout() {
   const gems = useAuthStore((s) => s.user?.gems ?? 0);
   const router = useRouter();
 
-  const segments = useSegments();
-  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-
-  useEffect(() => {
-    const inAuth = segments[0] === "auth";
-    const inOnboarding = segments[0] === "onboarding";
-    const inWelcome = segments[0] === "welcome";
-
-    // 로그아웃 상태인데 보호된 화면에 있으면 → 로그인으로
-    if (!isLoggedIn && !inAuth && !inOnboarding && !inWelcome) {
-      router.replace("/auth/login");
-    }
-  }, [isLoggedIn, segments]);
+  // 화면 접근 규칙은 useAuthGuard 한 곳에 있다
+  useAuthGuard();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -3,13 +3,18 @@ import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import Animated, { Easing, FadeInUp } from "react-native-reanimated";
 import { useAuthStore } from "../store/auth.store";
+import { useAuthHydrated } from "@/hooks/useAuthGuard";
 import KorioLogo from "../components/home/KorioLogo";
 import HaneulmonMascot from "../components/home/HaneulmonMascot";
 
 export default function SplashScreen() {
   const { isLoggedIn, user } = useAuthStore();
+  // 저장된 로그인 정보 복원을 기다린다. 2초 타이머가 대개 덮어주지만
+  // 보장은 아니라서, 느린 기기에서는 로그인한 사람이 웰컴으로 떨어졌다.
+  const hydrated = useAuthHydrated();
 
   useEffect(() => {
+    if (!hydrated) return;
     const timer = setTimeout(() => {
       if (!isLoggedIn) {
         router.replace("/welcome"); // 비로그인 → 웰컴
@@ -21,7 +26,7 @@ export default function SplashScreen() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, user?.isOnboardingCompleted]);
+  }, [hydrated, isLoggedIn, user?.isOnboardingCompleted]);
 
   return (
     <View style={styles.container}>
