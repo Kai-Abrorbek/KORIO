@@ -557,6 +557,10 @@ export default {
     fieldCount: "{{count}}개 분야",
     languages: { korean: "한국어", english: "영어" },
     chooseCategory: "무엇을 공부할까?",
+    modeTitle: "어떻게 배울까?",
+    modeGuidedNote: "학습 로드가 순서를 짜주는 것 말고, 따로 들어갈 수 있는 곳이야.",
+    modeFreeNote: "원하는 곳 아무 데나 골라서 들어가.",
+    modeHint: "진도는 그대로야. 언제든 다시 바꿀 수 있어.",
     categories: {
       hangul: "한글",
       games: "게임",
@@ -568,6 +572,7 @@ export default {
       topik: "토픽",
       pronunciation: "발음",
       grammarPractice: "문법 문제",
+      wordCard: "단어 카드",
     },
     categoryDesc: {
       hangul: "글자부터 배워요",
@@ -580,6 +585,7 @@ export default {
       topik: "시험 대비",
       pronunciation: "소리를 구분해요",
       grammarPractice: "빈칸·문장 조립",
+      wordCard: "카드를 넘기며 외워요",
     },
   },
   profile: {

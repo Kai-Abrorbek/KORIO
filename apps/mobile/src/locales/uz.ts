@@ -565,6 +565,10 @@ export default {
     fieldCount: "{{count}} ta yo'nalish",
     languages: { korean: "Koreys tili", english: "Ingliz tili" },
     chooseCategory: "Nimani o'rganasiz?",
+    modeTitle: "Qanday o'rganamiz?",
+    modeGuidedNote: "Yo'l-xarita tuzib beradiganidan tashqari, alohida kiriladigan joylar.",
+    modeFreeNote: "Xohlagan joyingizni tanlab kiring.",
+    modeHint: "Bosqichingiz saqlanadi. Istagan payt qaytarib o'zgartirasiz.",
     categories: {
       hangul: "Hangul",
       games: "O'yinlar",
@@ -576,6 +580,7 @@ export default {
       topik: "TOPIK",
       pronunciation: "Talaffuz",
       grammarPractice: "Grammatika mashqi",
+      wordCard: "So'z kartalari",
     },
     categoryDesc: {
       hangul: "Harflardan boshlang",
@@ -588,6 +593,7 @@ export default {
       topik: "Imtihonga tayyorgarlik",
       pronunciation: "Tovushlarni farqlang",
       grammarPractice: "Bo‘sh joy va gap yig‘ish",
+      wordCard: "Kartalarni varaqlab yodlang",
     },
   },
   profile: {

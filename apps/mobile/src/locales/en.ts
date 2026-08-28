@@ -562,6 +562,10 @@ export default {
     fieldCount: "{{count}} areas",
     languages: { korean: "Korean", english: "English" },
     chooseCategory: "What will you study?",
+    modeTitle: "How do you want to learn?",
+    modeGuidedNote: "Places you can open on their own, outside the path we plan for you.",
+    modeFreeNote: "Pick anything you like and jump in.",
+    modeHint: "Your progress is kept. You can switch back any time.",
     categories: {
       hangul: "Hangul",
       games: "Games",
@@ -573,6 +577,7 @@ export default {
       topik: "TOPIK",
       pronunciation: "Pronunciation",
       grammarPractice: "Grammar drills",
+      wordCard: "Word cards",
     },
     categoryDesc: {
       hangul: "Start with the letters",
@@ -585,6 +590,7 @@ export default {
       topik: "Exam prep",
       pronunciation: "Tell sounds apart",
       grammarPractice: "Blanks and sentence building",
+      wordCard: "Flip cards to memorize",
     },
   },
   profile: {

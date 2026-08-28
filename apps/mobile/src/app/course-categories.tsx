@@ -24,8 +24,9 @@ import {
   LearnMode,
   learnModePath,
   useSettingsStore,
+  type StudyMode,
 } from "@/store/settings.store";
-import { commitLearnMode } from "@/utils/learn-mode";
+import { commitLearnMode, commitStudyMode } from "@/utils/learn-mode";
 import {
   TopikLevelModal,
   type TopikLevel,
@@ -33,47 +34,69 @@ import {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+/**
+ * `guided: true` = 학습 로드 모드에서도 보인다.
+ *
+ * 학습 로드는 어휘 트랙 위에 하루치(문법 → 단어 → 레슨 → 실전 → 복습 → 마무리)를
+ * 순서대로 깔아준다. 그 안에 들어가는 것(어휘·문법·문법문제·실전회화)을 여기서
+ * 또 개별로 열게 두면 "오늘 할 일"이 두 갈래가 되어 로드가 의미를 잃는다.
+ * 반대로 한글·표현·듣기·토픽·발음·게임·단어카드는 로드가 짜주지 않으므로
+ * 어느 모드에서든 들어갈 수 있어야 한다.
+ */
 const CATEGORIES = [
   // 한글은 맨 앞. 아직 못 읽는 사람은 여기부터 시작해야 한다
-  { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2" },
-  { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043" },
-  { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0" },
+  { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true },
+  { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043", guided: false },
+  { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0", guided: false },
   {
     key: "expression",
     category: "expression",
     icon: "chatbubble-ellipses",
     color: "#26A69A",
+    guided: true,
   },
   {
     key: "conversation",
     category: "conversation",
     icon: "chatbubbles",
     color: "#EC407A",
+    guided: false,
   },
   {
     key: "listening",
     category: "listening",
     icon: "headset",
     color: "#42A5F5",
+    guided: true,
   },
-  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC" },
+  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC", guided: true },
   {
     key: "pronunciation",
     category: "pronunciation",
     icon: "mic",
     color: "#FFA726",
+    guided: true,
   },
   {
     key: "grammarPractice",
     category: "grammarPractice",
     icon: "barbell",
     color: "#7E57C2",
+    guided: false,
   },
   {
     key: "games",
     category: "games",
     icon: "game-controller",
     color: "#5F4FD8",
+    guided: true,
+  },
+  {
+    key: "wordCard",
+    category: "wordCard",
+    icon: "albums",
+    color: "#26C6DA",
+    guided: true,
   },
 ];
 
@@ -116,6 +139,7 @@ function CategoryCard({
             pronunciation: "/pronunciation-practice",
             hangul: "/hangul",
             games: "/games",
+            wordCard: "/word-study",
           };
           if (SHORTCUTS[c.category]) {
             router.push(SHORTCUTS[c.category] as any);
@@ -151,12 +175,70 @@ function CategoryCard({
   );
 }
 
+/** 학습 로드 ↔ 자율 전환. 여기가 학습 모드를 고르는 화면이라 이 자리가 맞다. */
+function ModeSegment({
+  mode,
+  onChange,
+  s,
+  theme,
+  t,
+}: {
+  mode: StudyMode;
+  onChange: (m: StudyMode) => void;
+  s: ReturnType<typeof getStyles>;
+  theme: ThemeColors;
+  t: (k: string) => string;
+}) {
+  const OPTIONS: { mode: StudyMode; icon: string; labelKey: string }[] = [
+    { mode: "guided", icon: "footsteps", labelKey: "studyMode.guided" },
+    { mode: "free", icon: "compass", labelKey: "studyMode.free" },
+  ];
+
+  return (
+    <View style={s.modeWrap}>
+      <Text style={s.modeTitle}>{t("courses.modeTitle")}</Text>
+
+      <View style={s.segment}>
+        {OPTIONS.map((o) => {
+          const on = o.mode === mode;
+          return (
+            <Pressable
+              key={o.mode}
+              onPress={() => onChange(o.mode)}
+              style={[s.segmentItem, on && s.segmentItemOn]}
+            >
+              <Ionicons
+                name={o.icon as any}
+                size={16}
+                color={on ? "#fff" : theme.textSecondary}
+              />
+              <Text style={[s.segmentText, on && s.segmentTextOn]}>
+                {t(o.labelKey)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Text style={s.modeNote}>
+        {t(mode === "guided" ? "courses.modeGuidedNote" : "courses.modeFreeNote")}
+      </Text>
+      <Text style={s.modeHint}>{t("courses.modeHint")}</Text>
+    </View>
+  );
+}
+
 export default function CourseCategories() {
   const { t } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
   const [topikModalVisible, setTopikModalVisible] = useState(false);
+  const studyMode = useSettingsStore((st) => st.studyMode);
+  // 학습 로드에서는 로드가 안 덮는 것만 남긴다 (CATEGORIES 주석 참고)
+  const visible = CATEGORIES.filter(
+    (c) => studyMode === "free" || c.guided,
+  );
   const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
 
   const selectTopikLevel = (level: TopikLevel) => {
@@ -187,9 +269,17 @@ export default function CourseCategories() {
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
+        <ModeSegment
+          mode={studyMode}
+          onChange={commitStudyMode}
+          s={s}
+          theme={theme}
+          t={t}
+        />
+
         <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
         <View style={s.grid}>
-          {CATEGORIES.map((c, i) => (
+          {visible.map((c, i) => (
             <CategoryCard
               key={c.key}
               c={c}
@@ -223,6 +313,52 @@ const getStyles = (theme: ThemeColors) =>
     },
     headerTitle: { fontSize: 22, fontWeight: "700", color: theme.text },
     scroll: { paddingHorizontal: 20, paddingTop: 12 },
+    modeWrap: { marginBottom: 22 },
+    modeTitle: {
+      fontSize: 15,
+      fontWeight: "800",
+      color: theme.text,
+      marginBottom: 10,
+    },
+    segment: {
+      flexDirection: "row",
+      backgroundColor: theme.surface,
+      borderWidth: 2,
+      borderColor: theme.border,
+      borderRadius: 14,
+      padding: 4,
+      gap: 4,
+    },
+    segmentItem: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      paddingVertical: 9,
+      borderRadius: 10,
+    },
+    segmentItemOn: { backgroundColor: theme.primary },
+    segmentText: {
+      fontSize: 13.5,
+      fontWeight: "800",
+      color: theme.textSecondary,
+    },
+    segmentTextOn: { color: "#fff" },
+    modeNote: {
+      fontSize: 12.5,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      lineHeight: 17,
+      marginTop: 10,
+    },
+    modeHint: {
+      fontSize: 11.5,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      opacity: 0.75,
+      marginTop: 4,
+    },
     lead: {
       fontSize: 15,
       color: theme.textSecondary,

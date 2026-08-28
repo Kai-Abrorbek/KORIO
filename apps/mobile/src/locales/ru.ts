@@ -561,6 +561,10 @@ export default {
     fieldCount: "{{count}} направлений",
     languages: { korean: "Корейский", english: "Английский" },
     chooseCategory: "Что будешь изучать?",
+    modeTitle: "Как будем учиться?",
+    modeGuidedNote: "То, что можно открыть отдельно от маршрута, который мы составляем.",
+    modeFreeNote: "Выбирайте что угодно и начинайте.",
+    modeHint: "Прогресс сохраняется. Можно вернуться в любой момент.",
     categories: {
       hangul: "Хангыль",
       games: "Игры",
@@ -572,6 +576,7 @@ export default {
       topik: "TOPIK",
       pronunciation: "Произношение",
       grammarPractice: "Грамматика: практика",
+      wordCard: "Карточки слов",
     },
     categoryDesc: {
       hangul: "Начните с букв",
@@ -584,6 +589,7 @@ export default {
       topik: "Подготовка к экзамену",
       pronunciation: "Различайте звуки",
       grammarPractice: "Пропуски и сборка фраз",
+      wordCard: "Листайте карточки и запоминайте",
     },
   },
   profile: {
