@@ -226,6 +226,8 @@ export class UsersService {
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
       languageLevel: user.placementLevel || 1,
+      // 급수를 직접 골랐는지. false 면 학습 로드로 들어갈 때 한 번 물어본다
+      hasPickedLevel: !!user.placementLevelSetAt,
       hangulLevel: user.hangulLevel,
       hangulCompletedAt: user.hangulCompletedAt,
       coursePrimaryFlag:

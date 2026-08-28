@@ -119,6 +119,17 @@ export class User {
   @Prop({ default: 1 })
   placementLevel: number; // 1~6 → sectionRangeForLevel 로 로드맵 시작 섹션 결정
 
+  /**
+   * 유저가 급수를 **직접 고른** 시각. 안 골랐으면 없다.
+   *
+   * placementLevel 은 기본값이 1 이라 "1급을 고른 사람"과 "아직 안 고른 사람"이
+   * 구분되지 않는다. 그래서 학습 로드로 들어갈 때마다 급수를 다시 물어보거나,
+   * 반대로 한 번도 안 고른 사람을 조용히 1급에 묶어버리게 된다.
+   * 이 값이 있으면 다시 묻지 않고 바로 로드맵으로 보낸다.
+   */
+  @Prop()
+  placementLevelSetAt?: Date;
+
   // 학습 진도
   @Prop({ default: 0 })
   totalXP: number;

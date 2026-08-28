@@ -18,9 +18,9 @@ import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { StudyPathService } from "@/services/study-path.service";
-import { useAuthStore } from "@/store/auth.store";
 import type { StudyLevel } from "@/types/study-path";
 import { darken } from "@/utils/color";
+import { markLevelPicked } from "@/utils/placement-level";
 
 const LEVEL_COLORS = [
   "#776ee2",
@@ -45,7 +45,6 @@ export default function StudyLevelScreen() {
   const insets = useSafeAreaInsets();
   const styles = getStyles(theme);
   const params = useLocalSearchParams<{ from?: string }>();
-  const updateUser = useAuthStore((s) => s.updateUser);
 
   const [levels, setLevels] = useState<StudyLevel[]>([]);
   const [current, setCurrent] = useState(1);
@@ -69,14 +68,16 @@ export default function StudyLevelScreen() {
       setSaving(true);
       try {
         await StudyPathService.setLevel(level.level);
-        updateUser({ languageLevel: level.level } as any);
+        // 서버가 placementLevelSetAt 을 남긴다. 다음 getMe 전까지 로컬도 맞춰둬야
+        // 이 화면을 빠져나온 직후에 또 급수를 묻지 않는다.
+        markLevelPicked(level.level);
         setCurrent(level.level);
         router.replace("/study-path");
       } catch {
         setSaving(false);
       }
     },
-    [router, saving, updateUser],
+    [router, saving],
   );
 
   const goBack = () => {

@@ -240,7 +240,7 @@ export class StudyPathService {
 
     await this.userModel.updateOne(
       { _id: userId },
-      { $set: { placementLevel: target } },
+      { $set: { placementLevel: target, placementLevelSetAt: new Date() } },
     );
     return { placementLevel: target };
   }

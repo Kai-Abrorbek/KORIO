@@ -24,6 +24,7 @@ import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import StudyModeModal from "@/components/courses/StudyModeModal";
 import type { StudyMode } from "@/store/settings.store";
 import { commitLearnMode, commitStudyMode } from "@/utils/learn-mode";
+import { guidedEntryPath } from "@/utils/placement-level";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -121,7 +122,8 @@ export default function CoursesScreen() {
       commitLearnMode("vocabulary");
       // 어디서부터 배울지 먼저 고른다. 예전엔 온보딩 테스트만이 급수를
       // 정했고 건너뛰면 무조건 1급에 묶였다.
-      router.push("/study-level");
+      // 이미 고른 적이 있으면 다시 묻지 않고 이어서 간다.
+      router.push(guidedEntryPath());
       return;
     }
 

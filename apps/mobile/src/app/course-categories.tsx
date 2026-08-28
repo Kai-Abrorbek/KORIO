@@ -27,6 +27,7 @@ import {
   type StudyMode,
 } from "@/store/settings.store";
 import { commitLearnMode, commitStudyMode } from "@/utils/learn-mode";
+import { guidedEntryPath } from "@/utils/placement-level";
 import {
   TopikLevelModal,
   type TopikLevel,
@@ -323,7 +324,8 @@ export default function CourseCategories() {
               // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
               // 홈의 "이어서 학습하기" 도 여기로 온다.
               commitLearnMode("vocabulary");
-              router.push(learnModePath("vocabulary", "1", "guided"));
+              // 급수를 아직 안 골랐으면 그것부터. 골랐으면 바로 이어서 간다.
+              router.push(guidedEntryPath());
             }}
           />
         )}
