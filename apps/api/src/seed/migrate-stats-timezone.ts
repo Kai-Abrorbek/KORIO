@@ -21,6 +21,25 @@ import { dayKey, startOfDay, resolveTimezone } from '../common/date.util';
  * 같은 날짜 행이 이미 있으면(두 번 돌렸거나 경계에서 겹쳤을 때) 숫자를 합치고
  * 원본을 지운다.
  */
+/**
+ * categoryCounts 를 [키, 값] 쌍으로 편다.
+ *
+ * 스키마 타입은 Map 인데 `.lean()` 은 평범한 객체로 돌려준다. 타입만 믿고
+ * 캐스팅하면 컴파일이 막히고, 런타임만 믿고 Object.entries 를 쓰면 lean 을
+ * 안 쓰는 호출에서 빈 배열이 나온다. 둘 다 받는다.
+ */
+function countEntries(value: unknown): [string, number][] {
+  if (!value) return [];
+  const source: [unknown, unknown][] =
+    value instanceof Map
+      ? [...value.entries()]
+      : Object.entries(value as Record<string, unknown>);
+
+  const pairs: [string, number][] = [];
+  for (const [k, v] of source) pairs.push([String(k), Number(v) || 0]);
+  return pairs;
+}
+
 async function migrate() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const statsModel = app.get<Model<UserStats>>(getModelToken(UserStats.name));
@@ -56,9 +75,8 @@ async function migrate() {
           correctQuestions: row.correctQuestions || 0,
           xpEarned: row.xpEarned || 0,
         };
-        const counts = (row.categoryCounts ?? {}) as Record<string, number>;
-        for (const [k, v] of Object.entries(counts)) {
-          inc[`categoryCounts.${k}`] = v || 0;
+        for (const [k, v] of countEntries(row.categoryCounts)) {
+          inc[`categoryCounts.${k}`] = v;
         }
         await statsModel.updateOne({ _id: clash._id }, { $inc: inc });
         await statsModel.deleteOne({ _id: row._id });
