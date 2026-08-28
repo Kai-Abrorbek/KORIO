@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRouter, useSegments } from "expo-router";
+import { useGlobalSearchParams, useRouter, useSegments } from "expo-router";
 import { useAuthStore } from "@/store/auth.store";
 
 /**
@@ -11,10 +11,25 @@ const PUBLIC_ONLY = new Set(["welcome", "auth"]);
 
 /**
  * 로그인 여부와 무관하게 열려 있는 화면.
- * 온보딩(수준 진단)은 가입 전에도 돌 수 있다 — `onboarding/result` 가
- * 비로그인일 때 웰컴으로 돌려보내는 걸 보면 그렇게 설계돼 있다.
+ *
+ * 온보딩(설문 + 수준 진단)은 가입 전에 돈다. 이게 이 앱의 가입 유도 경로다 —
+ * 진단 결과까지 보여준 뒤 결과 화면에서 로그인으로 넘긴다.
+ * 서버도 그렇게 열려 있다: GET /lessons/level-test 와 POST /onboarding/* 는
+ * 가드가 없고, 비로그인 결과는 sessionId 로 저장됐다가 가입할 때 붙는다.
  */
 const ALWAYS_OPEN = new Set(["onboarding"]);
+
+/**
+ * 레벨 테스트만은 예외로 /lesson 위에서 돈다.
+ *
+ * 문제 22종을 다 그릴 수 있는 화면이 lesson.tsx 뿐이라서다.
+ * (app/onboarding/level-test.tsx 라는 같은 기능의 화면이 남아 있지만 8종만
+ *  렌더해서 나머지가 빈 화면이 된다. 아무도 호출하지 않는다 — 지울 것)
+ *
+ * 그래서 경로만으로는 판단할 수 없고 mode 를 같이 본다. 이 예외로 열리는 건
+ * 레벨 테스트 흐름뿐이고, 그 안에서 부르는 API 는 원래 공개 엔드포인트다.
+ */
+const LEVEL_TEST_ROUTE = "lesson";
 
 /**
  * 저장된 로그인 정보가 복원됐는지.
@@ -52,6 +67,7 @@ export function useAuthGuard(): boolean {
   const segments = useSegments();
   const hydrated = useAuthHydrated();
 
+  const params = useGlobalSearchParams<{ mode?: string }>();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const onboarded = useAuthStore((s) => !!s.user?.isOnboardingCompleted);
 
@@ -63,16 +79,19 @@ export function useAuthGuard(): boolean {
     if (root === undefined) return;
 
     const publicOnly = PUBLIC_ONLY.has(root);
+    const inLevelTest = root === LEVEL_TEST_ROUTE && params.mode === "levelTest";
 
     if (!isLoggedIn) {
-      if (!publicOnly && !ALWAYS_OPEN.has(root)) router.replace("/auth/login");
+      if (!publicOnly && !ALWAYS_OPEN.has(root) && !inLevelTest) {
+        router.replace("/auth/login");
+      }
       return;
     }
 
     if (publicOnly) {
       router.replace(onboarded ? "/(tabs)" : "/onboarding/survey");
     }
-  }, [hydrated, isLoggedIn, onboarded, segments, router]);
+  }, [hydrated, isLoggedIn, onboarded, segments, params.mode, router]);
 
   return hydrated;
 }

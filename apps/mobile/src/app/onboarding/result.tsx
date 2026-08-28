@@ -193,7 +193,11 @@ export default function ResultScreen() {
       >
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => router.replace(isLoggedIn ? "/(tabs)" : "/welcome")}
+          // 여기가 가입 유도 지점이다. 진단까지 보여준 뒤 "이어서 하려면
+          // 로그인" 으로 넘긴다. 웰컴으로 되돌리면 방금 본 결과가 무의미해진다.
+          onPress={() =>
+            router.replace(isLoggedIn ? "/(tabs)" : "/auth/login")
+          }
         >
           <Text style={styles.primaryButtonText}>
             {t("onboarding.result.startLearning")}

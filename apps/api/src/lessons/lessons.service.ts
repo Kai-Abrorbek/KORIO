@@ -615,9 +615,20 @@ export class LessonsService {
       ? band.questionLevels
       : ['1', '2'];
 
-    // 밴드 안에서 랜덤 추출 후 쉬운→어려운 정렬
+    // 밴드 안에서 랜덤 추출 후 쉬운→어려운 정렬.
+    // 문법 트랙 전용 타입은 뺀다 — 그 문제들은 "지금 연습 중인 문법"이라는
+    // 맥락 위에서만 말이 되는데, 레벨 테스트에는 그 맥락이 없다.
+    // 처음 앱을 연 사람이 첫 화면에서 문법 드릴을 만나게 된다.
     const questions = await this.questionModel.aggregate([
-      { $match: { level: { $in: levels }, isActive: true } },
+      {
+        $match: {
+          level: { $in: levels },
+          isActive: true,
+          type: {
+            $nin: [QuestionType.GRAMMAR_BLANK, QuestionType.GRAMMAR_BUILD],
+          },
+        },
+      },
       { $sample: { size: 14 } },
       { $sort: { level: 1 } },
     ]);
