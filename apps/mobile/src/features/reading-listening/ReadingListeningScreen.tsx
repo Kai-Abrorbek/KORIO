@@ -1695,6 +1695,9 @@ export default function ReadingListeningScreen() {
                     <Text style={[styles.lessonPickerEmptyText, { color: palette.sub }]}>
                       {copy.emptyCatalog}
                     </Text>
+                  </View>
+                ) : (
+                  lessonOptions.map((item) => {
                   const selected = item.code === lesson.code;
                   return (
                     <Pressable

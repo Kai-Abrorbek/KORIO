@@ -46,7 +46,8 @@
         {
           "microphonePermission": "발음을 평가하려면 마이크가 필요해요. / Talaffuzni baholash uchun mikrofon kerak. / We need the microphone to check your pronunciation. / Микрофон нужен для проверки произношения."
         }
-      ]
+      ],
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": true,
