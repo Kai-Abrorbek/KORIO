@@ -36,15 +36,15 @@ export async function connectRealtime(
   model: string,
   handlers: RealtimeHandlers = {},
 ): Promise<RealtimeConnection> {
-  // 마이크. 회화용이라 에코 제거·잡음 억제를 켠다 —
-  // 안 켜면 스피커로 나간 AI 목소리를 마이크가 다시 주워서
-  // AI 가 자기 말에 반응한다.
+  // 마이크.
+  //
+  // echoCancellation 같은 제약을 명시하지 않는 이유: 그건 웹 표준 제약이고
+  // react-native-webrtc 의 MediaTrackConstraints 에는 없다. 대신 네이티브
+  // WebRTC 오디오 장치가 PeerConnection 트랙에 에코 제거·잡음 억제를 기본으로
+  // 건다. (안 걸리면 스피커로 나간 AI 목소리를 마이크가 다시 주워서 AI 가
+  // 자기 말에 반응한다 — 그건 여기가 아니라 오디오 모드 설정 문제다)
   const localStream = await mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
-    },
+    audio: true,
     video: false,
   });
 
@@ -64,18 +64,21 @@ export async function connectRealtime(
     } catch {}
   };
 
-  pc.addEventListener("connectionstatechange", () => {
+  // addEventListener 대신 on* 를 쓴다: react-native-webrtc 124 가
+  // lib/typescript/vendor/ 를 빼고 배포해서 EventTarget 타입이 깨져 있고,
+  // 그 결과 addEventListener 가 타입에 없다. on* 는 클래스에 선언돼 있다.
+  pc.onconnectionstatechange = () => {
     handlers.onConnectionState?.(pc.connectionState);
     if (pc.connectionState === "failed" || pc.connectionState === "closed") {
       cleanup();
     }
-  });
+  };
 
   // AI 목소리는 원격 트랙으로 온다. RN 에선 트랙이 붙는 순간 자동 재생돼서
   // <audio> 같은 엘리먼트를 만들 필요가 없다.
-  pc.addEventListener("track", () => {
+  pc.ontrack = () => {
     /* 재생은 네이티브가 알아서 한다 */
-  });
+  };
 
   localStream.getTracks().forEach((track) => {
     pc.addTrack(track, localStream);
@@ -83,16 +86,16 @@ export async function connectRealtime(
 
   // 이벤트 채널. 이름은 OpenAI 가 정한 값이다
   const dc = pc.createDataChannel("oai-events");
-  dc.addEventListener("message", (e: any) => {
+  dc.onmessage = (e: any) => {
     try {
       handlers.onEvent?.(JSON.parse(e.data));
     } catch {
       /* 파싱 못 하는 메시지는 무시 */
     }
-  });
-  dc.addEventListener("error", () => {
+  };
+  dc.onerror = () => {
     handlers.onError?.(new Error("DATA_CHANNEL_ERROR"));
-  });
+  };
 
   const send = (event: unknown) => {
     if (dc.readyState === "open") {

@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import i18n from "@/i18n";
+import i18n from "@/locales/i18n";
 
 const getLang = () => i18n.language?.split("-")[0] || "uz";
 
