@@ -4,6 +4,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Pressable,
   StyleSheet,
   ActivityIndicator,
   Dimensions,
@@ -22,6 +23,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { PREMIUM_FEATURES } from "@/features/subscription/services/products";
 import {
   perMonthPrice,
@@ -32,6 +34,9 @@ import { useBilling } from "@/features/subscription/hooks/useBilling";
 import { useSubscription } from "@/features/subscription/hooks/useSubscription";
 
 const { width } = Dimensions.get("window");
+
+/** 카드가 눌릴 때 바텀보더까지 같이 줄어들게 하려면 애니메이션 가능한 Pressable 이 필요하다 */
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function PremiumScreen() {
   const { t } = useTranslation();
@@ -55,15 +60,17 @@ export default function PremiumScreen() {
 
   const [selected, setSelected] = useState<string | null>(null);
 
-  // 기본 선택: 무료 체험이 붙은 것 > 가장 할인율 높은 것
+  // 기본 선택은 "가장 알뜰" 배지를 붙인 상품과 같아야 한다.
+  // 배지는 연간에 달아놓고 기본 선택은 월간이면 화면이 서로 다른 말을 한다.
   useEffect(() => {
     if (selected || !plans.length) return;
-    const trial = plans.find((p) => p.hasFreeTrial);
-    if (trial) return setSelected(trial.productId);
     const best = plans.reduce((a, b) =>
       savingPercent(b, plans) > savingPercent(a, plans) ? b : a,
     );
-    setSelected(best.productId);
+    if (savingPercent(best, plans) > 0) return setSelected(best.productId);
+    // 할인 상품이 하나도 없으면 체험이 붙은 것, 그것도 없으면 첫 번째
+    const trial = plans.find((p) => p.hasFreeTrial);
+    setSelected((trial ?? plans[0]).productId);
   }, [plans, selected]);
 
   // 로고 반짝임
@@ -85,6 +92,15 @@ export default function PremiumScreen() {
     [plans, selected],
   );
 
+  /** 할인율이 가장 큰 상품 하나만 강조한다. 넷 다 강조하면 강조가 아니다 */
+  const bestPlanId = useMemo(() => {
+    if (plans.length < 2) return null;
+    const top = plans.reduce((a, b) =>
+      savingPercent(b, plans) > savingPercent(a, plans) ? b : a,
+    );
+    return savingPercent(top, plans) > 0 ? top.productId : null;
+  }, [plans]);
+
   if (subLoading && !subscription) {
     return (
       <View style={[s.container, s.center]}>
@@ -100,7 +116,7 @@ export default function PremiumScreen() {
         style={s.container}
         contentContainerStyle={[
           s.activeWrap,
-          { paddingBottom: insets.bottom + 40 },
+          { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 40 },
         ]}
       >
         <LinearGradient
@@ -151,7 +167,9 @@ export default function PremiumScreen() {
   return (
     <View style={s.container}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + TAB_BAR_HEIGHT + (showPlans ? 190 : 40),
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* 히어로 */}
@@ -206,6 +224,7 @@ export default function PremiumScreen() {
                 plan={plan}
                 plans={plans}
                 selected={selected === plan.productId}
+                best={plan.productId === bestPlanId}
                 onPress={() => setSelected(plan.productId)}
                 theme={theme}
                 s={s}
@@ -248,7 +267,14 @@ export default function PremiumScreen() {
 
       {/* 하단 고정 CTA — ScrollView 밖. 홈버튼/네비바에 안 가리게 SafeArea */}
       {showPlans && (
-        <View style={[s.ctaBar, { paddingBottom: insets.bottom + 12 }]}>
+        <View
+          style={[
+            s.ctaBar,
+            // 탭바가 position:"absolute" 라 콘텐츠가 그 밑으로 흐른다.
+            // 탭바 높이 + SafeArea 만큼 띄워야 버튼이 안 가린다.
+            { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 12 },
+          ]}
+        >
           {!!selectedPlan && (
             <Text style={s.ctaNote}>
               {t("premium.billedAs", {
@@ -298,6 +324,7 @@ function PlanCard({
   plan,
   plans,
   selected,
+  best,
   onPress,
   theme,
   s,
@@ -306,6 +333,7 @@ function PlanCard({
   plan: StorePlan;
   plans: StorePlan[];
   selected: boolean;
+  best: boolean;
   onPress: () => void;
   theme: ThemeColors;
   s: any;
@@ -316,45 +344,61 @@ function PlanCard({
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: press.value * 2 }],
   }));
+  const cardStyle = useAnimatedStyle(() => ({
+    borderBottomWidth: 4 - press.value * 2,
+  }));
 
   return (
-    <Animated.View style={animStyle}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPressIn={() => (press.value = withTiming(1, { duration: 80 }))}
-        onPressOut={() => (press.value = withTiming(0, { duration: 120 }))}
+    <Animated.View style={[animStyle, best && s.bestWrap]}>
+      {best && (
+        <View style={s.bestTag}>
+          <Ionicons name="flash" size={11} color="#fff" />
+          <Text style={s.bestTagText}>{t("premium.bestValue")}</Text>
+        </View>
+      )}
+      <AnimatedPressable
+        onPressIn={() => (press.value = withTiming(1, { duration: 70 }))}
+        onPressOut={() => (press.value = withTiming(0, { duration: 130 }))}
         onPress={onPress}
-        style={[s.planCard, selected && s.planCardSel]}
+        style={[
+          s.planCard,
+          selected && s.planCardSel,
+          best && !selected && s.planCardBest,
+          cardStyle,
+        ]}
       >
-        {save > 0 && (
-          <View style={s.saveTag}>
-            <Text style={s.saveTagText}>
-              {t("premium.save", { percent: save })}
-            </Text>
-          </View>
-        )}
         <View style={s.planLeft}>
           <View style={[s.radio, selected && s.radioSel]}>
-            {selected && <View style={s.radioDot} />}
+            {selected && <Ionicons name="checkmark" size={14} color="#fff" />}
           </View>
-          <View>
-            <Text style={s.planName}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={s.planName} numberOfLines={1}>
               {t(`premium.plans.${planKey(plan.productId)}`)}
             </Text>
             {plan.hasFreeTrial ? (
-              <Text style={s.planTrial}>{t("premium.hasFreeTrial")}</Text>
+              <Text style={s.planTrial} numberOfLines={1}>
+                {t("premium.hasFreeTrial")}
+              </Text>
             ) : plan.months > 1 ? (
-              <Text style={s.planTrial}>
+              <Text style={s.planSubline} numberOfLines={1}>
                 {t("premium.totalPrice", { price: plan.displayPrice })}
               </Text>
             ) : null}
           </View>
         </View>
+
         <View style={s.planRight}>
-          <Text style={s.planPrice}>{perMonthPrice(plan)}</Text>
-          <Text style={s.planPer}>{t("premium.perMonth")}</Text>
+          {save > 0 && (
+            <View style={s.saveTag}>
+              <Text style={s.saveTagText}>−{save}%</Text>
+            </View>
+          )}
+          <Text style={[s.planPrice, selected && s.planPriceSel]}>
+            {perMonthPrice(plan)}
+          </Text>
+          <Text style={s.planPer}>/{t("premium.perMonthLabel")}</Text>
         </View>
-      </TouchableOpacity>
+      </AnimatedPressable>
     </Animated.View>
   );
 }
@@ -486,64 +530,84 @@ const styles = (theme: ThemeColors) =>
     featureTitle: { fontSize: 16, fontWeight: "800", color: theme.text },
     featureDesc: { fontSize: 13, color: theme.textSecondary, marginTop: 2 },
 
-    plans: { paddingHorizontal: 20, paddingTop: 28, gap: 12 },
+    plans: { paddingHorizontal: 20, paddingTop: 26, gap: 14 },
+    bestWrap: { marginTop: 8 },
+    bestTag: {
+      position: "absolute",
+      top: -9,
+      left: 16,
+      zIndex: 2,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: "#FF9600",
+      borderRadius: 999,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    bestTagText: {
+      fontSize: 10,
+      fontWeight: "900",
+      color: "#fff",
+      letterSpacing: 0.6,
+      textTransform: "uppercase",
+    },
     planCard: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      gap: 12,
       borderWidth: 2,
       borderColor: theme.border,
       borderBottomWidth: 4,
       borderRadius: 18,
-      padding: 16,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
       backgroundColor: theme.surface,
     },
     planCardSel: {
       borderColor: theme.primary,
-      backgroundColor: theme.primary + "0D",
+      backgroundColor: theme.primary + "12",
     },
-    saveTag: {
-      position: "absolute",
-      top: -10,
-      right: 16,
-      backgroundColor: "#58CC02",
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 3,
-    },
-    saveTagText: {
-      fontSize: 11,
-      fontWeight: "900",
-      color: "#fff",
-      letterSpacing: 0.5,
-    },
+    planCardBest: { borderColor: "#FFC46B" },
+
     planLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
     radio: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+      width: 26,
+      height: 26,
+      borderRadius: 13,
       borderWidth: 2,
       borderColor: theme.border,
       alignItems: "center",
       justifyContent: "center",
     },
-    radioSel: { borderColor: theme.primary },
-    radioDot: {
-      width: 12,
-      height: 12,
-      borderRadius: 6,
-      backgroundColor: theme.primary,
-    },
+    radioSel: { borderColor: theme.primary, backgroundColor: theme.primary },
     planName: { fontSize: 17, fontWeight: "800", color: theme.text },
+    planSubline: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      marginTop: 3,
+    },
     planTrial: {
       fontSize: 13,
-      fontWeight: "700",
-      color: theme.textSecondary,
-      marginTop: 2,
+      fontWeight: "800",
+      color: "#58CC02",
+      marginTop: 3,
     },
-    planRight: { alignItems: "flex-end" },
-    planPrice: { fontSize: 19, fontWeight: "900", color: theme.text },
-    planPer: { fontSize: 12, color: theme.textSecondary },
+
+    planRight: { alignItems: "flex-end", minWidth: 96 },
+    saveTag: {
+      backgroundColor: "#58CC02",
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      marginBottom: 3,
+    },
+    saveTagText: { fontSize: 11, fontWeight: "900", color: "#fff" },
+    planPrice: { fontSize: 20, fontWeight: "900", color: theme.text },
+    planPriceSel: { color: theme.primary },
+    planPer: { fontSize: 11, fontWeight: "700", color: theme.textSecondary },
 
     storeBox: {
       marginHorizontal: 20,
@@ -598,14 +662,25 @@ const styles = (theme: ThemeColors) =>
 
     // 하단 고정 CTA
     ctaBar: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
       paddingHorizontal: 20,
-      paddingTop: 12,
-      backgroundColor: theme.bg,
+      paddingTop: 14,
+      backgroundColor: theme.surface,
       borderTopWidth: 1,
       borderTopColor: theme.border,
+      // 스크롤 콘텐츠가 바 밑으로 지나갈 때 경계가 분명하게
+      shadowColor: "#000",
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: -4 },
+      elevation: 12,
     },
     ctaNote: {
       fontSize: 13,
+      fontWeight: "600",
       color: theme.textSecondary,
       textAlign: "center",
       marginBottom: 10,

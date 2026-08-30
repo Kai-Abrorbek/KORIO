@@ -50,6 +50,7 @@ export interface StorePlan {
  */
 export function toStorePlans(subs: ProductSubscription[]): StorePlan[] {
   return subs
+    .filter(isPurchasable)
     .map((sub) => {
       const offers: SubscriptionOffer[] =
         (sub as any).subscriptionOffers ?? [];
@@ -68,7 +69,23 @@ export function toStorePlans(subs: ProductSubscription[]): StorePlan[] {
         order: PLAN_ORDER[sub.id as keyof typeof PLAN_ORDER] ?? 99,
       };
     })
+    .filter((p) => !!p.displayPrice && p.price > 0)
     .sort((a, b) => a.order - b.order);
+}
+
+/**
+ * 실제로 살 수 있는 상품인지.
+ *
+ * Play Console 에 등록 안 된 SKU 를 물어보면 expo-iap 은 그 자리를 비워두는 게
+ * 아니라 productStatusAndroid: 'not-found' 인 껍데기를 돌려준다. 그대로 그리면
+ * 이름만 있고 가격이 빈 카드가 4개 뜬다 (실제로 그렇게 보였다).
+ * 'no-offers-available' 도 마찬가지 — 유저가 살 수 있는 오퍼가 없다는 뜻이라
+ * 결제를 걸어봐야 실패한다.
+ */
+function isPurchasable(sub: ProductSubscription): boolean {
+  const status = (sub as any).productStatusAndroid;
+  if (status && status !== "ok") return false;
+  return true;
 }
 
 function pickBestOffer(offers: SubscriptionOffer[]): SubscriptionOffer | null {

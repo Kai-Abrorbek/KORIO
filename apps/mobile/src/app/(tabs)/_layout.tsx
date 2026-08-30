@@ -5,6 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { UserService } from "@/services/user.service";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -28,7 +29,7 @@ export default function TabsLayout() {
           borderTopWidth: 1,
           paddingTop: 8,
           paddingBottom: insets.bottom,
-          height: 60 + insets.bottom,
+          height: TAB_BAR_HEIGHT + insets.bottom,
           position: "absolute",
           bottom: 0,
         },
