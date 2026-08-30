@@ -2,6 +2,7 @@ import type {
   LocalizedReadingText,
   ReadingPassageSegment,
 } from '../../../reading-lessons/schemas/reading-lesson.schema';
+import { getLevel1ReadingGloss } from './reading-level1.glosses';
 
 export type VocabularySeed = readonly [word: string, english: string];
 
@@ -29,11 +30,16 @@ export type CompactReadingLessonSeed = {
   writing: WritingSeed;
 };
 
-const localized = (ko: string, en = ''): LocalizedReadingText => ({
+const localized = (
+  ko: string,
+  en = '',
+  uz = '',
+  ru = '',
+): LocalizedReadingText => ({
   ko,
-  uz: '',
+  uz,
   en,
-  ru: '',
+  ru,
 });
 
 const escapeRegExp = (value: string) =>
@@ -59,6 +65,29 @@ const passageSegments = (
     }));
 };
 
+const vocabularyExample = (passage: readonly string[], word: string) => {
+  const sentences = passage.flatMap((paragraph) =>
+    (paragraph.match(/[^.!?]+[.!?]?/g) || [paragraph])
+      .map((sentence) => sentence.trim())
+      .filter(Boolean),
+  );
+  const stem = word.endsWith('하다')
+    ? word.slice(0, -2)
+    : word.endsWith('다')
+      ? word.slice(0, -1)
+      : word;
+
+  return (
+    sentences.find(
+      (sentence) =>
+        sentence.includes(word) ||
+        (stem.length >= 2 && sentence.includes(stem)),
+    ) ||
+    sentences[0] ||
+    ''
+  );
+};
+
 export function defineLevel1Lesson(seed: CompactReadingLessonSeed) {
   const code = `culture-reading-1-${String(seed.unit).padStart(2, '0')}`;
 
@@ -81,15 +110,18 @@ export function defineLevel1Lesson(seed: CompactReadingLessonSeed) {
       id: `paragraph-${index + 1}`,
       segments: passageSegments(text, seed.vocabulary),
     })),
-    vocabulary: seed.vocabulary.map(([word, english], index) => ({
-      id: `v${index + 1}`,
-      word,
-      pronunciation: '',
-      meaning: localized(word, english),
-      sourceGlosses: { en: english, zh: '', ja: '' },
-      note: localized(''),
-      example: '',
-    })),
+    vocabulary: seed.vocabulary.map(([word, english], index) => {
+      const gloss = getLevel1ReadingGloss(word, english);
+      return {
+        id: `v${index + 1}`,
+        word,
+        pronunciation: '',
+        meaning: localized(word, english, gloss.uz, gloss.ru),
+        sourceGlosses: { en: english, zh: '', ja: '' },
+        note: localized(''),
+        example: vocabularyExample(seed.passage, word),
+      };
+    }),
     questions: seed.questions.map(
       ([prompt, options, answerIndex, evidence], index) => ({
         id: `q${index + 1}`,

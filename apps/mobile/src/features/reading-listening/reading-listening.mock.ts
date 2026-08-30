@@ -297,5 +297,5 @@ export function localizedReadingText(
   language: string,
 ) {
   const normalized = language.split("-")[0] as ReadingLanguage;
-  return value[normalized] || value.en || value.uz || value.ko;
+  return value[normalized]?.trim() || value.ko?.trim() || "";
 }

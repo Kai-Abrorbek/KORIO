@@ -33,6 +33,20 @@ for (const lesson of READING_LEVEL1_SEEDS) {
   if (!lesson.vocabulary.length) {
     throw new Error(`${lesson.code}의 새 어휘가 비었습니다.`);
   }
+  for (const item of lesson.vocabulary) {
+    if (
+      !item.meaning.uz.trim() ||
+      !item.meaning.en.trim() ||
+      !item.meaning.ru.trim()
+    ) {
+      throw new Error(
+        `${lesson.code}의 어휘 ${item.word}에 현지어 뜻이 없습니다.`,
+      );
+    }
+    if (!item.example.trim()) {
+      throw new Error(`${lesson.code}의 어휘 ${item.word}에 예문이 없습니다.`);
+    }
+  }
   const vocabularyIds = new Set(lesson.vocabulary.map((item) => item.id));
   for (const paragraph of lesson.passage) {
     for (const segment of paragraph.segments) {

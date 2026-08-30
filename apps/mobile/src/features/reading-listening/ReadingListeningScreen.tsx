@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { buildSpokenTimeline } from "@/features/expressions/utils/speech-timing";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ReadingListeningService } from "@/services/reading-listening.service";
@@ -37,6 +38,7 @@ import {
 } from "./reading-listening.mock";
 
 type StepKey = "read" | "check" | "write" | "vocabulary";
+type SpeechTarget = "passage" | "vocabulary" | null;
 type IconName = keyof typeof Ionicons.glyphMap;
 
 interface StepDefinition {
@@ -296,22 +298,132 @@ function readingPalette(isDark: boolean): ReadingPalette {
   };
 }
 
+interface SpokenWordRange {
+  start: number;
+  end: number;
+  startIndex: number;
+  endIndex: number;
+}
+
+interface PositionedPassageSegment {
+  key: string;
+  text: string;
+  vocabularyId?: string;
+  startIndex: number;
+}
+
+const SPOKEN_WORD_SPLIT = /(\s+|[.!?…,·~;:“”"'‘’()[\]{}]+)/u;
+
+function buildSpokenWordRanges(text: string): SpokenWordRange[] {
+  const timeline = buildSpokenTimeline(text);
+  if (!timeline.length) return [];
+
+  let charIndex = 0;
+  return text
+    .split(SPOKEN_WORD_SPLIT)
+    .filter(Boolean)
+    .map((part) => {
+      const length = Array.from(part).length;
+      const first = timeline[charIndex];
+      const last = timeline[charIndex + length - 1];
+      const range = {
+        start: first?.start ?? 0,
+        end: last?.end ?? first?.end ?? 0,
+        startIndex: charIndex,
+        endIndex: charIndex + length,
+        voiced: timeline
+          .slice(charIndex, charIndex + length)
+          .some((segment) => segment.voiced),
+      };
+      charIndex += length;
+      return range;
+    })
+    .filter((range) => range.voiced)
+    .map((range) => ({
+      start: range.start,
+      end: range.end,
+      startIndex: range.startIndex,
+      endIndex: range.endIndex,
+    }));
+}
+
+function splitPassageSegment(
+  segment: PositionedPassageSegment,
+  activeRange: SpokenWordRange | null,
+) {
+  if (!activeRange) return [{ text: segment.text, active: false }];
+
+  const chars = Array.from(segment.text);
+  const segmentEnd = segment.startIndex + chars.length;
+  const overlapStart = Math.max(segment.startIndex, activeRange.startIndex);
+  const overlapEnd = Math.min(segmentEnd, activeRange.endIndex);
+  if (overlapStart >= overlapEnd) {
+    return [{ text: segment.text, active: false }];
+  }
+
+  const localStart = overlapStart - segment.startIndex;
+  const localEnd = overlapEnd - segment.startIndex;
+  return [
+    { text: chars.slice(0, localStart).join(""), active: false },
+    { text: chars.slice(localStart, localEnd).join(""), active: true },
+    { text: chars.slice(localEnd).join(""), active: false },
+  ].filter((part) => part.text.length > 0);
+}
+
 function Passage({
   paragraphs,
+  passageText,
   activeWordId,
   onWordPress,
   fontSize,
   palette,
+  speechPlaying,
+  speechProgress,
 }: {
   paragraphs: ReadingPassageParagraph[];
+  passageText: string;
   activeWordId: string | null;
   onWordPress: (id: string) => void;
   fontSize: number;
   palette: ReadingPalette;
+  speechPlaying: boolean;
+  speechProgress: number;
 }) {
+  const positionedParagraphs = useMemo(() => {
+    let charIndex = 0;
+    return paragraphs.map((paragraph, paragraphIndex) => {
+      const segments = paragraph.segments.map((segment, segmentIndex) => {
+        const positioned: PositionedPassageSegment = {
+          key: `${paragraph.id}-${segmentIndex}`,
+          text: segment.text,
+          vocabularyId: segment.vocabularyId,
+          startIndex: charIndex,
+        };
+        charIndex += Array.from(segment.text).length;
+        return positioned;
+      });
+      if (paragraphIndex < paragraphs.length - 1) charIndex += 2;
+      return { id: paragraph.id, segments };
+    });
+  }, [paragraphs]);
+  const wordRanges = useMemo(
+    () => buildSpokenWordRanges(passageText),
+    [passageText],
+  );
+  const activeSpeechRange = useMemo(() => {
+    if (!speechPlaying || !wordRanges.length) return null;
+    const lead = 0.32 / wordRanges.length;
+    const progress = Math.min(1, speechProgress + lead);
+    return (
+      wordRanges.find(
+        (range) => progress >= range.start && progress < range.end,
+      ) ?? null
+    );
+  }, [speechPlaying, speechProgress, wordRanges]);
+
   return (
     <View style={styles.passageBody}>
-      {paragraphs.map((paragraph, paragraphIndex) => (
+      {positionedParagraphs.map((paragraph, paragraphIndex) => (
         <Text
           key={paragraph.id}
           style={[
@@ -324,29 +436,43 @@ function Passage({
             },
           ]}
         >
-          {paragraph.segments.map((segment, segmentIndex) =>
-            segment.vocabularyId ? (
+          {paragraph.segments.map((segment) => {
+            const content = splitPassageSegment(
+              segment,
+              activeSpeechRange,
+            ).map((part, partIndex) => (
               <Text
-                key={`${paragraph.id}-${segmentIndex}`}
+                key={`${segment.key}-part-${partIndex}`}
+                style={
+                  part.active
+                    ? { color: palette.peachDark, fontWeight: "900" }
+                    : undefined
+                }
+              >
+                {part.text}
+              </Text>
+            ));
+
+            return segment.vocabularyId ? (
+              <Text
+                key={segment.key}
                 accessibilityRole="button"
                 onPress={() => onWordPress(segment.vocabularyId!)}
                 style={[
                   styles.vocabularyHighlight,
                   {
                     color: palette.sageDark,
-                    backgroundColor:
-                      activeWordId === segment.vocabularyId
-                        ? palette.sageGlow
-                        : palette.sageSoft,
+                    fontWeight:
+                      activeWordId === segment.vocabularyId ? "900" : "700",
                   },
                 ]}
               >
-                {segment.text}
+                {content}
               </Text>
             ) : (
-              segment.text
-            ),
-          )}
+              <Text key={segment.key}>{content}</Text>
+            );
+          })}
         </Text>
       ))}
     </View>
@@ -379,9 +505,7 @@ function hasReadingTranslation(
   language: ReadingLanguage,
 ) {
   if (language === "ko") return false;
-  const translated =
-    value[language]?.trim() ||
-    (language !== "en" ? value.en?.trim() : "");
+  const translated = value[language]?.trim();
   return Boolean(translated && translated !== value.ko.trim());
 }
 
@@ -403,6 +527,10 @@ export default function ReadingListeningScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } =
     useSpeech();
+  const [speechTarget, setSpeechTarget] = useState<SpeechTarget>(null);
+  const isPassageSpeaking = isSpeaking && speechTarget === "passage";
+  const isPassageSpeechPlaying =
+    isSpeechPlaying && speechTarget === "passage";
 
   const [stepIndex, setStepIndex] = useState(0);
   const [fontIndex, setFontIndex] = useState(1);
@@ -531,11 +659,26 @@ export default function ReadingListeningScreen() {
   };
 
   const togglePassageSpeech = () => {
-    if (isSpeaking) {
+    if (isPassageSpeaking) {
       stop();
+      setSpeechTarget(null);
       return;
     }
-    speak(passageText, "ko-KR");
+    speak(passageText, "ko-KR", {
+      onDone: () => setSpeechTarget(null),
+      onError: () => setSpeechTarget(null),
+      onStopped: () => setSpeechTarget(null),
+    });
+    setSpeechTarget("passage");
+  };
+
+  const speakVocabulary = (word: string) => {
+    speak(word, "ko-KR", {
+      onDone: () => setSpeechTarget(null),
+      onError: () => setSpeechTarget(null),
+      onStopped: () => setSpeechTarget(null),
+    });
+    setSpeechTarget("vocabulary");
   };
 
   const selectVocabulary = (item: ReadingVocabularyItem) => {
@@ -772,7 +915,7 @@ export default function ReadingListeningScreen() {
                   style={[
                     styles.audioButton,
                     {
-                      backgroundColor: isSpeaking
+                      backgroundColor: isPassageSpeaking
                         ? palette.sageDark
                         : palette.sageSoft,
                     },
@@ -782,32 +925,38 @@ export default function ReadingListeningScreen() {
                     style={[
                       styles.audioIcon,
                       {
-                        backgroundColor: isSpeaking
+                        backgroundColor: isPassageSpeaking
                           ? "rgba(255,255,255,0.18)"
                           : palette.surface,
                       },
                     ]}
                   >
                     <Ionicons
-                      name={isSpeaking ? "stop" : "volume-high-outline"}
+                      name={
+                        isPassageSpeaking ? "stop" : "volume-high-outline"
+                      }
                       size={21}
-                      color={isSpeaking ? "#FFFFFF" : palette.sageDark}
+                      color={
+                        isPassageSpeaking ? "#FFFFFF" : palette.sageDark
+                      }
                     />
                   </View>
                   <View style={styles.audioCopy}>
                     <Text
                       style={[
                         styles.audioTitle,
-                        { color: isSpeaking ? "#FFFFFF" : palette.ink },
+                        {
+                          color: isPassageSpeaking ? "#FFFFFF" : palette.ink,
+                        },
                       ]}
                     >
-                      {isSpeaking ? copy.stopListening : copy.listenAll}
+                      {isPassageSpeaking ? copy.stopListening : copy.listenAll}
                     </Text>
                     <View
                       style={[
                         styles.audioTrack,
                         {
-                          backgroundColor: isSpeaking
+                          backgroundColor: isPassageSpeaking
                             ? "rgba(255,255,255,0.24)"
                             : palette.line,
                         },
@@ -818,9 +967,9 @@ export default function ReadingListeningScreen() {
                           styles.audioProgress,
                           {
                             width: `${
-                              isSpeechPlaying ? speechProgress * 100 : 0
+                              isPassageSpeechPlaying ? speechProgress * 100 : 0
                             }%`,
-                            backgroundColor: isSpeaking
+                            backgroundColor: isPassageSpeaking
                               ? "#FFFFFF"
                               : palette.sage,
                           },
@@ -836,26 +985,51 @@ export default function ReadingListeningScreen() {
                   <Text style={[styles.fontLabel, { color: palette.sub }]}>
                     Aa
                   </Text>
-                  {[0, 1, 2].map((sizeIndex) => (
-                    <Pressable
-                      key={sizeIndex}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${copy.fontSize} ${sizeIndex + 1}`}
-                      onPress={() => setFontIndex(sizeIndex)}
-                      style={[
-                        styles.fontDot,
-                        {
-                          backgroundColor:
-                            sizeIndex === fontIndex
-                              ? palette.sageDark
-                              : palette.line,
-                          width: 7 + sizeIndex * 2,
-                          height: 7 + sizeIndex * 2,
-                          borderRadius: 6,
-                        },
-                      ]}
-                    />
-                  ))}
+                  <View style={styles.fontSizeButtons}>
+                    {[0, 1, 2].map((sizeIndex) => {
+                      const selected = sizeIndex === fontIndex;
+                      const dotSize = 7 + sizeIndex * 2;
+
+                      return (
+                        <Pressable
+                          key={sizeIndex}
+                          accessibilityRole="button"
+                          accessibilityLabel={`${copy.fontSize} ${sizeIndex + 1}`}
+                          accessibilityState={{ selected }}
+                          hitSlop={5}
+                          onPress={() => {
+                            setFontIndex(sizeIndex);
+                            void Haptics.selectionAsync();
+                          }}
+                          style={({ pressed }) => [
+                            styles.fontSizeButton,
+                            {
+                              backgroundColor: selected
+                                ? palette.sageSoft
+                                : pressed
+                                  ? palette.cream
+                                  : "transparent",
+                              opacity: pressed ? 0.72 : 1,
+                            },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.fontDot,
+                              {
+                                backgroundColor: selected
+                                  ? palette.sageDark
+                                  : palette.line,
+                                width: dotSize,
+                                height: dotSize,
+                                borderRadius: dotSize / 2,
+                              },
+                            ]}
+                          />
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </View>
               </View>
 
@@ -867,6 +1041,9 @@ export default function ReadingListeningScreen() {
               />
               <Passage
                 paragraphs={lesson.passage}
+                passageText={passageText}
+                speechPlaying={isPassageSpeechPlaying}
+                speechProgress={speechProgress}
                 activeWordId={activeVocabularyId}
                 onWordPress={(id) => {
                   const vocabulary = lesson.vocabulary.find(
@@ -937,7 +1114,7 @@ export default function ReadingListeningScreen() {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={copy.listen}
-                      onPress={() => speak(activeVocabulary.word, "ko-KR")}
+                      onPress={() => speakVocabulary(activeVocabulary.word)}
                       style={[
                         styles.smallSpeaker,
                         { backgroundColor: palette.surface },
@@ -1204,7 +1381,11 @@ export default function ReadingListeningScreen() {
                       >
                         {question.explanation.ko}
                       </Text>
-                      {translationVisible ? (
+                      {translationVisible &&
+                      hasReadingTranslation(
+                        question.explanation,
+                        normalizedLanguage,
+                      ) ? (
                         <Text
                           style={[
                             styles.explanationTranslation,
@@ -1487,24 +1668,29 @@ export default function ReadingListeningScreen() {
                               {item.pronunciation}
                             </Text>
                           </View>
-                          <View
-                            style={[
-                              styles.partChip,
-                              { backgroundColor: palette.sageSoft },
-                            ]}
-                          >
-                            <Text
+                          {localizedReadingText(
+                            item.note,
+                            normalizedLanguage,
+                          ) ? (
+                            <View
                               style={[
-                                styles.partChipText,
-                                { color: palette.sageDark },
+                                styles.partChip,
+                                { backgroundColor: palette.sageSoft },
                               ]}
                             >
-                              {localizedReadingText(
-                                item.note,
-                                normalizedLanguage,
-                              )}
-                            </Text>
-                          </View>
+                              <Text
+                                style={[
+                                  styles.partChipText,
+                                  { color: palette.sageDark },
+                                ]}
+                              >
+                                {localizedReadingText(
+                                  item.note,
+                                  normalizedLanguage,
+                                )}
+                              </Text>
+                            </View>
+                          ) : null}
                         </View>
 
                         {revealed ? (
@@ -1520,21 +1706,23 @@ export default function ReadingListeningScreen() {
                                 normalizedLanguage,
                               )}
                             </Text>
-                            <View
-                              style={[
-                                styles.vocabularyExample,
-                                { backgroundColor: palette.cream },
-                              ]}
-                            >
-                              <Text
+                            {item.example.trim() ? (
+                              <View
                                 style={[
-                                  styles.vocabularyExampleText,
-                                  { color: palette.sub },
+                                  styles.vocabularyExample,
+                                  { backgroundColor: palette.cream },
                                 ]}
                               >
-                                {item.example}
-                              </Text>
-                            </View>
+                                <Text
+                                  style={[
+                                    styles.vocabularyExampleText,
+                                    { color: palette.sub },
+                                  ]}
+                                >
+                                  {item.example}
+                                </Text>
+                              </View>
+                            ) : null}
                           </Animated.View>
                         ) : (
                           <View style={styles.revealHint}>
@@ -1560,7 +1748,7 @@ export default function ReadingListeningScreen() {
                         accessibilityLabel={copy.listen}
                         onPress={(event) => {
                           event.stopPropagation();
-                          speak(item.word, "ko-KR");
+                          speakVocabulary(item.word);
                         }}
                         style={[
                           styles.vocabularySpeaker,
@@ -2078,15 +2266,28 @@ const styles = StyleSheet.create({
   audioTrack: { height: 4, marginTop: 8, borderRadius: 2, overflow: "hidden" },
   audioProgress: { height: 4, borderRadius: 2 },
   fontControl: {
-    width: 72,
+    width: 112,
     minHeight: 64,
     borderRadius: 19,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 7,
+    gap: 1,
+    paddingHorizontal: 5,
   },
   fontLabel: { fontSize: 14, fontWeight: "900" },
+  fontSizeButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fontSizeButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   fontDot: {},
   readingDivider: { height: 1, marginVertical: 24 },
   passageBody: { paddingHorizontal: 2 },
@@ -2099,7 +2300,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     letterSpacing: 0,
   },
-  vocabularyHighlight: { fontWeight: "900" },
+  vocabularyHighlight: { fontWeight: "700" },
   wordHint: {
     marginTop: 25,
     borderRadius: 16,
