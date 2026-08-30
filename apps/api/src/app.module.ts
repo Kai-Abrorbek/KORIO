@@ -12,6 +12,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
+import { TutorModule } from './tutor/tutor.module';
 import { GrammarModule } from './grammer/grammar.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -46,6 +47,7 @@ import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
     LeagueModule,
     EnergyModule,
     AiModule,
+    TutorModule,
     GrammarModule,
     TopikModule,
     HangulModule,
