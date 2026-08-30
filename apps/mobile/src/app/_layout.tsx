@@ -185,6 +185,15 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="tutor"
+              options={{
+                animation: "slide_from_bottom",
+                // 대화 중에 스와이프로 실수로 나가면 연결이 끊긴다.
+                // 종료 버튼으로만 나가게 한다.
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
               name="expressions"
               options={{ animation: "slide_from_right" }}
             />

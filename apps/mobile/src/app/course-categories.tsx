@@ -57,11 +57,12 @@ const CATEGORIES = [
     guided: true,
   },
   {
+    // 로드가 짜주는 트랙이 아니라 언제든 들어갈 수 있다 → 두 모드 모두에서 보인다
     key: "conversation",
     category: "conversation",
     icon: "chatbubbles",
     color: "#EC407A",
-    guided: false,
+    guided: true,
   },
   {
     key: "listening",
@@ -141,6 +142,8 @@ function CategoryCard({
             hangul: "/hangul",
             games: "/games",
             wordCard: "/word-study",
+            // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
+            conversation: "/tutor",
           };
           if (SHORTCUTS[c.category]) {
             router.push(SHORTCUTS[c.category] as any);

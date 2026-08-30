@@ -80,8 +80,10 @@ export function learnModePath(
       return "/roadmap?category=grammar" as Href;
     case "vocabulary":
       return "/roadmap";
-    // 회화는 전용 문제 풀이 페이지를 따로 만들 예정이다.
-    // 어휘 로드맵을 재사용하면 안 되므로 그때까지 자리 표시 화면으로 보낸다.
+    // 회화는 AI 음성 튜터와 실제로 말해보는 것이다. 문제 풀이가 아니라
+    // 대화라서 로드맵이 없다.
+    case "conversation":
+      return "/tutor";
     default:
       return `/coming-soon?mode=${mode}` as Href;
   }
