@@ -1098,6 +1098,32 @@ export default {
     freeDone: "내일 다시",
   },
   // ko
+  tutor: {
+    title: "AI 회화 선생님",
+    start: "대화 시작하기",
+    end: "대화 끝내기",
+    limitReached: "오늘 사용량을 다 썼어요",
+    quotaLeft: "오늘 {{min}}분 남았어요 (하루 {{limit}}분)",
+    upsell: "SUPER 로 하루 20분까지",
+    state: {
+      idle: "준비됐어요. 시작해 볼까요?",
+      connecting: "연결하는 중이에요...",
+      listening: "듣고 있어요",
+      thinking: "생각하는 중...",
+      speaking: "말하는 중이에요",
+      error: "문제가 생겼어요",
+    },
+    err: {
+      generic: "문제가 생겼어요. 잠시 뒤에 다시 시도해 주세요.",
+      MIC_PERMISSION_DENIED: "마이크 권한이 필요해요. 설정에서 허용해 주세요.",
+      CONNECTION_LOST: "연결이 끊겼어요. 다시 시작해 주세요.",
+      CONNECTION_ERROR: "연결에 문제가 있어요.",
+      TUTOR_DAILY_LIMIT_REACHED: "오늘 사용량을 다 썼어요. 내일 다시 만나요!",
+      TUTOR_MONTHLY_LIMIT_REACHED: "이번 달 사용량을 다 썼어요.",
+      TUTOR_NOT_CONFIGURED: "지금은 이용할 수 없어요.",
+      TUTOR_SESSION_FAILED: "대화를 시작하지 못했어요. 다시 시도해 주세요.",
+    },
+  },
   premium: {
     totalPrice: "총 {{price}}",
     hasFreeTrial: "무료 체험 포함",

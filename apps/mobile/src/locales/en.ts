@@ -1100,6 +1100,32 @@ export default {
     freeDone: "Tomorrow",
   },
   // en
+  tutor: {
+    title: "AI Speaking Tutor",
+    start: "Start talking",
+    end: "End conversation",
+    limitReached: "You've used today's time",
+    quotaLeft: "{{min}} min left today ({{limit}} min/day)",
+    upsell: "Get 20 min a day with SUPER",
+    state: {
+      idle: "Ready when you are.",
+      connecting: "Connecting...",
+      listening: "Listening",
+      thinking: "Thinking...",
+      speaking: "Speaking",
+      error: "Something went wrong",
+    },
+    err: {
+      generic: "Something went wrong. Please try again in a moment.",
+      MIC_PERMISSION_DENIED: "Microphone access is needed. Please allow it in Settings.",
+      CONNECTION_LOST: "The connection dropped. Please start again.",
+      CONNECTION_ERROR: "There's a problem with the connection.",
+      TUTOR_DAILY_LIMIT_REACHED: "You've used today's time. See you tomorrow!",
+      TUTOR_MONTHLY_LIMIT_REACHED: "You've used this month's time.",
+      TUTOR_NOT_CONFIGURED: "This isn't available right now.",
+      TUTOR_SESSION_FAILED: "Couldn't start the conversation. Please try again.",
+    },
+  },
   premium: {
     totalPrice: "{{price}} total",
     hasFreeTrial: "Free trial included",

@@ -1104,6 +1104,32 @@ export default {
     freeDone: "Ertaga",
   },
   // uz
+  tutor: {
+    title: "AI suhbat ustozi",
+    start: "Suhbatni boshlash",
+    end: "Suhbatni tugatish",
+    limitReached: "Bugungi limit tugadi",
+    quotaLeft: "Bugun {{min}} daqiqa qoldi (kuniga {{limit}} daqiqa)",
+    upsell: "SUPER bilan kuniga 20 daqiqa",
+    state: {
+      idle: "Tayyor. Boshlaymizmi?",
+      connecting: "Ulanmoqda...",
+      listening: "Tinglayapman",
+      thinking: "O'ylayapman...",
+      speaking: "Gapiryapman",
+      error: "Xatolik yuz berdi",
+    },
+    err: {
+      generic: "Xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring.",
+      MIC_PERMISSION_DENIED: "Mikrofonga ruxsat kerak. Sozlamalardan ruxsat bering.",
+      CONNECTION_LOST: "Aloqa uzildi. Qaytadan boshlang.",
+      CONNECTION_ERROR: "Ulanishda muammo bor.",
+      TUTOR_DAILY_LIMIT_REACHED: "Bugungi limit tugadi. Ertaga ko'rishamiz!",
+      TUTOR_MONTHLY_LIMIT_REACHED: "Bu oygi limit tugadi.",
+      TUTOR_NOT_CONFIGURED: "Hozircha mavjud emas.",
+      TUTOR_SESSION_FAILED: "Suhbatni boshlab bo'lmadi. Qayta urinib ko'ring.",
+    },
+  },
   premium: {
     totalPrice: "Jami {{price}}",
     hasFreeTrial: "Bepul sinov bilan",

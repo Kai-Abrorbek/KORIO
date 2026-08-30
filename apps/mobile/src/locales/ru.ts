@@ -1105,6 +1105,32 @@ export default {
     freeDone: "Завтра",
   },
   // ru
+  tutor: {
+    title: "ИИ-репетитор по разговору",
+    start: "Начать разговор",
+    end: "Завершить разговор",
+    limitReached: "Лимит на сегодня исчерпан",
+    quotaLeft: "Сегодня осталось {{min}} мин ({{limit}} мин в день)",
+    upsell: "С SUPER — 20 минут в день",
+    state: {
+      idle: "Готов. Начнём?",
+      connecting: "Подключение...",
+      listening: "Слушаю",
+      thinking: "Думаю...",
+      speaking: "Говорю",
+      error: "Что-то пошло не так",
+    },
+    err: {
+      generic: "Что-то пошло не так. Попробуйте ещё раз позже.",
+      MIC_PERMISSION_DENIED: "Нужен доступ к микрофону. Разрешите его в настройках.",
+      CONNECTION_LOST: "Соединение прервано. Начните заново.",
+      CONNECTION_ERROR: "Проблема с соединением.",
+      TUTOR_DAILY_LIMIT_REACHED: "Лимит на сегодня исчерпан. До завтра!",
+      TUTOR_MONTHLY_LIMIT_REACHED: "Лимит на этот месяц исчерпан.",
+      TUTOR_NOT_CONFIGURED: "Сейчас недоступно.",
+      TUTOR_SESSION_FAILED: "Не удалось начать разговор. Попробуйте ещё раз.",
+    },
+  },
   premium: {
     totalPrice: "Всего {{price}}",
     hasFreeTrial: "С бесплатным периодом",
