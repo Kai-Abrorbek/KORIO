@@ -23,7 +23,16 @@ async function bootstrap() {
   );
 
   // 우리 API 에 오는 body 는 전부 작다. 기본값(100kb)도 굳이 열어둘 이유가 없다.
-  app.use(json({ limit: '64kb' }));
+  // verify 로 원문을 붙여둔다 — 결제 웹훅 서명 검증은 파싱 전 바이트가 필요하다
+  // (Toss·Uzum 등. 구글 RTDN 은 토큰만 꺼내 재조회하므로 원문이 필요 없다)
+  app.use(
+    json({
+      limit: '64kb',
+      verify: (req, _res, buf) => {
+        (req as any).rawBody = buf;
+      },
+    }),
+  );
   app.use(urlencoded({ extended: true, limit: '64kb' }));
 
   app.useGlobalPipes(

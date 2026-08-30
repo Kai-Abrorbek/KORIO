@@ -9,6 +9,7 @@ import {
   SubscriptionSchema,
 } from './subscriptions/subscription.schema';
 import { SubscriptionService } from './subscriptions/subscription.service';
+import { SubscriptionRefreshService } from './subscriptions/subscription-refresh.service';
 import { RateLimitGuard } from '../common/rate-limit';
 
 /**
@@ -29,6 +30,7 @@ import { RateLimitGuard } from '../common/rate-limit';
   providers: [
     PaymentsService,
     SubscriptionService,
+    SubscriptionRefreshService,
     GooglePlayProvider,
     RateLimitGuard,
   ],
