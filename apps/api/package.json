@@ -23,6 +23,7 @@
     "migrate:mistakes": "ts-node -r tsconfig-paths/register src/seed/migrate-mistakes.ts",
     "seed:grammar": "ts-node -r tsconfig-paths/register src/seed/seed-grammar.ts",
     "seed:grammar-track": "ts-node -r tsconfig-paths/register src/seed/seed-grammar-track.ts",
+    "tutor:usage": "ts-node -r tsconfig-paths/register src/seed/tutor-usage-report.ts",
     "seed:topik": "ts-node -r tsconfig-paths/register src/seed/seed-topik.ts",
     "seed:recipe": "ts-node -r tsconfig-paths/register src/seed/seed-recipe.ts",
     "seed:validate-recipe": "ts-node -r tsconfig-paths/register src/seed/validate-recipe-seed.ts",

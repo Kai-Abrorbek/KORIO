@@ -1,6 +1,7 @@
 import {
   Injectable,
   Logger,
+  OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
@@ -16,6 +17,8 @@ import {
   type LearnerContext,
 } from './prompt/build-instructions';
 import {
+  EST_COST_PER_MIN_USD,
+  IS_PREMIUM_MODEL,
   MAX_RESPONSE_TOKENS,
   MAX_SESSION_MINUTES,
   TUTOR_MODEL,
@@ -27,8 +30,21 @@ import { TutorUsageService } from './tutor-usage.service';
 const OPENAI_API = 'https://api.openai.com/v1';
 
 @Injectable()
-export class TutorService {
+export class TutorService implements OnModuleInit {
   private readonly logger = new Logger(TutorService.name);
+
+  onModuleInit() {
+    const line = `AI 튜터 모델: ${TUTOR_MODEL} (분당 약 $${EST_COST_PER_MIN_USD})`;
+    if (IS_PREMIUM_MODEL) {
+      // 실험용으로 올렸다가 그대로 배포되는 사고를 막는다
+      this.logger.warn(
+        `⚠️ ${line} — 정가 모델이다. mini 대비 3배 가량 비싸다. ` +
+          `배포 전에 OPENAI_REALTIME_MODEL 을 확인할 것.`,
+      );
+    } else {
+      this.logger.log(line);
+    }
+  }
 
   constructor(
     @InjectModel(User.name)

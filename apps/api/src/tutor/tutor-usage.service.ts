@@ -9,6 +9,7 @@ import {
   DAILY_MINUTES,
   MAX_SESSION_MINUTES,
   MONTHLY_MINUTES,
+  TUTOR_MODEL,
   type TutorMode,
 } from './tutor.const';
 import {
@@ -134,6 +135,8 @@ export class TutorUsageService {
       startedAt: new Date(),
       durationSec: 60,
       finalized: false,
+      // 어떤 모델로 돌았는지 남긴다 — 모델을 바꿔가며 비교할 때 근거가 된다
+      model: TUTOR_MODEL,
     });
     return doc.save();
   }
