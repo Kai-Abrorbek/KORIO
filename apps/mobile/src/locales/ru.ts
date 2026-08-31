@@ -1158,6 +1158,13 @@ export default {
       storeDisconnected: "Не удалось подключиться к магазину. Проверьте соединение и повторите.",
       platformUnsupported: "На этом устройстве покупки в приложении недоступны.",
     },
+    tier: { super: "SUPER", max: "MAX" },
+    tierBlurb: {
+      super: "Учитесь без ограничений",
+      max: "Говорите по-корейски с ИИ-репетитором каждый день",
+    },
+    includesSuper: "Всё, что есть в SUPER",
+    maxOnly: "Только в MAX",
     heroSub: "Учитесь без ограничений с бесконечной энергией",
     popular: "ПОПУЛЯРНОЕ",
     perMonth: "/мес",
@@ -1184,6 +1191,8 @@ export default {
       aiTutor: "Безлимитный AI-репетитор",
       monthlyGems: "Кристаллы каждый месяц",
       advancedStats: "Расширенная статистика",
+      tutorTopics: "16 реальных тем",
+      tutorPronunciation: "Примеры голосом носителя",
     },
     featuresDesc: {
       unlimitedEnergy: "Учитесь без ограничений энергии",
@@ -1192,6 +1201,8 @@ export default {
       aiTutor: "Свободное общение с AI",
       monthlyGems: "500 кристаллов каждый месяц",
       advancedStats: "Подробная аналитика",
+      tutorTopics: "Кафе, клиника, собеседование — что нужно на деле",
+      tutorPronunciation: "Нажмите, чтобы услышать правильно",
     },
   },
   // ru

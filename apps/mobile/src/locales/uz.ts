@@ -1157,6 +1157,13 @@ export default {
       storeDisconnected: "Do'konga ulanib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring.",
       platformUnsupported: "Bu qurilmada ilova ichidagi to'lov mavjud emas.",
     },
+    tier: { super: "SUPER", max: "MAX" },
+    tierBlurb: {
+      super: "Cheklovsiz o'rganing",
+      max: "Har kuni AI ustoz bilan koreyscha gaplashing",
+    },
+    includesSuper: "SUPER ning barcha imkoniyatlari",
+    maxOnly: "Faqat MAX",
     heroSub: "Cheksiz energiya bilan to'xtovsiz o'rganing",
     popular: "MASHHUR",
     perMonth: "/oy",
@@ -1183,6 +1190,8 @@ export default {
       aiTutor: "Cheksiz AI o'qituvchi",
       monthlyGems: "Oylik gemlar",
       advancedStats: "Kengaytirilgan statistika",
+      tutorTopics: "16 ta amaliy mavzu",
+      tutorPronunciation: "Ona tilida so'zlashuvchi talaffuzi",
     },
     featuresDesc: {
       unlimitedEnergy: "Energiya cheklovisiz o'rganing",
@@ -1191,6 +1200,8 @@ export default {
       aiTutor: "AI bilan erkin suhbat",
       monthlyGems: "Har oy 500 gem bepul",
       advancedStats: "Batafsil tahlil",
+      tutorTopics: "Kafe, shifoxona, suhbat — darhol kerak bo'ladi",
+      tutorPronunciation: "To'g'ri talaffuzni bosib tekshiring",
     },
   },
   // uz

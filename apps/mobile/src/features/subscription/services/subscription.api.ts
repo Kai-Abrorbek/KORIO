@@ -5,6 +5,8 @@ export interface MySubscription {
   isPremium: boolean;
   /** 기존 화면 호환 (user.isSuper 를 읽던 곳들) */
   isSuper: boolean;
+  /** super | max. max 만 AI 음성 튜터를 쓸 수 있다 */
+  tier: "super" | "max";
   plan: string | null;
   provider: string | null;
   platform: string | null;

@@ -24,7 +24,12 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
-import { PREMIUM_FEATURES } from "@/features/subscription/services/products";
+import {
+  MAX_FEATURES,
+  SUPER_FEATURES,
+  TIERS,
+  type SubscriptionTier,
+} from "@/features/subscription/services/products";
 import {
   perMonthPrice,
   savingPercent,
@@ -50,6 +55,7 @@ export default function PremiumScreen() {
     supported,
     connected,
     plans,
+    plansByTier,
     phase,
     busy,
     error,
@@ -59,19 +65,26 @@ export default function PremiumScreen() {
   } = useBilling(refresh);
 
   const [selected, setSelected] = useState<string | null>(null);
+  /** 보고 있는 등급. MAX 를 먼저 보여준다 — AI 튜터가 우리 킬러 기능이다 */
+  const [tier, setTier] = useState<SubscriptionTier>("max");
+  /** SUPER 구독자가 MAX 요금제를 보러 들어온 경우 */
+  const [showPlansAnyway, setShowPlansAnyway] = useState(false);
+
+  const tierPlans = useMemo(() => plansByTier(tier), [plansByTier, tier]);
 
   // 기본 선택은 "가장 알뜰" 배지를 붙인 상품과 같아야 한다.
   // 배지는 연간에 달아놓고 기본 선택은 월간이면 화면이 서로 다른 말을 한다.
   useEffect(() => {
-    if (selected || !plans.length) return;
-    const best = plans.reduce((a, b) =>
-      savingPercent(b, plans) > savingPercent(a, plans) ? b : a,
+    if (!tierPlans.length) return;
+    // 등급을 바꾸면 그 등급 안에서 다시 고른다
+    if (selected && tierPlans.some((p) => p.productId === selected)) return;
+    const best = tierPlans.reduce((a, b) =>
+      savingPercent(b, tierPlans) > savingPercent(a, tierPlans) ? b : a,
     );
-    if (savingPercent(best, plans) > 0) return setSelected(best.productId);
-    // 할인 상품이 하나도 없으면 체험이 붙은 것, 그것도 없으면 첫 번째
-    const trial = plans.find((p) => p.hasFreeTrial);
-    setSelected((trial ?? plans[0]).productId);
-  }, [plans, selected]);
+    if (savingPercent(best, tierPlans) > 0) return setSelected(best.productId);
+    const trial = tierPlans.find((p) => p.hasFreeTrial);
+    setSelected((trial ?? tierPlans[0]).productId);
+  }, [tierPlans, selected]);
 
   // 로고 반짝임
   const shimmer = useSharedValue(0.5);
@@ -88,18 +101,18 @@ export default function PremiumScreen() {
   const shimmerStyle = useAnimatedStyle(() => ({ opacity: shimmer.value }));
 
   const selectedPlan = useMemo(
-    () => plans.find((p) => p.productId === selected) ?? null,
-    [plans, selected],
+    () => tierPlans.find((p) => p.productId === selected) ?? null,
+    [tierPlans, selected],
   );
 
   /** 할인율이 가장 큰 상품 하나만 강조한다. 넷 다 강조하면 강조가 아니다 */
   const bestPlanId = useMemo(() => {
-    if (plans.length < 2) return null;
-    const top = plans.reduce((a, b) =>
-      savingPercent(b, plans) > savingPercent(a, plans) ? b : a,
+    if (tierPlans.length < 2) return null;
+    const top = tierPlans.reduce((a, b) =>
+      savingPercent(b, tierPlans) > savingPercent(a, tierPlans) ? b : a,
     );
-    return savingPercent(top, plans) > 0 ? top.productId : null;
-  }, [plans]);
+    return savingPercent(top, tierPlans) > 0 ? top.productId : null;
+  }, [tierPlans]);
 
   if (subLoading && !subscription) {
     return (
@@ -110,7 +123,7 @@ export default function PremiumScreen() {
   }
 
   // ── 이미 구독중 ──
-  if (isPremium) {
+  if (isPremium && !showPlansAnyway) {
     return (
       <ScrollView
         style={s.container}
@@ -135,7 +148,11 @@ export default function PremiumScreen() {
         </Text>
 
         <View style={s.activeCard}>
-          {PREMIUM_FEATURES.map((f) => (
+          {/* 내가 산 등급의 혜택만 보여준다. MAX 면 튜터가 맨 위에 온다 */}
+          {(subscription?.tier === "max"
+            ? [...MAX_FEATURES, ...SUPER_FEATURES]
+            : [...SUPER_FEATURES]
+          ).map((f) => (
             <View key={f.key} style={s.activeFeatureRow}>
               <Ionicons name={f.icon as any} size={20} color="#58CC02" />
               <Text style={s.activeFeatureText}>
@@ -144,6 +161,22 @@ export default function PremiumScreen() {
             </View>
           ))}
         </View>
+
+        {/* SUPER 유저에게 MAX 를 권한다 — 튜터를 못 쓰는 상태다 */}
+        {subscription?.tier !== "max" && !subscription?.isTrial && (
+          <Pressable
+            style={s.upgradeBox}
+            onPress={() => {
+              setTier("max");
+              // 구독중 화면을 벗어나 요금제를 보여준다
+              setShowPlansAnyway(true);
+            }}
+          >
+            <Ionicons name="sparkles" size={18} color="#FFD93D" />
+            <Text style={s.upgradeText}>{t("premium.tierBlurb.max")}</Text>
+            <Ionicons name="chevron-forward" size={16} color="#fff" />
+          </Pressable>
+        )}
 
         {!!subscription?.expiresAt && (
           <Text style={s.expiresNote}>
@@ -162,7 +195,7 @@ export default function PremiumScreen() {
   }
 
   // ── 구독 안내 ──
-  const showPlans = supported && connected && plans.length > 0;
+  const showPlans = supported && connected && tierPlans.length > 0;
 
   return (
     <View style={s.container}>
@@ -192,37 +225,95 @@ export default function PremiumScreen() {
           <Text style={s.heroSub}>{t("premium.heroSub")}</Text>
         </LinearGradient>
 
+        {/* 등급 선택 — MAX 가 기본. AI 튜터가 킬러 기능이다 */}
+        <View style={s.tierBar}>
+          {TIERS.map((tk) => {
+            const on = tier === tk;
+            return (
+              <Pressable
+                key={tk}
+                style={[s.tierBtn, on && s.tierBtnOn]}
+                onPress={() => setTier(tk)}
+              >
+                <Text style={[s.tierBtnText, on && s.tierBtnTextOn]}>
+                  {t(`premium.tier.${tk}`)}
+                </Text>
+                {tk === "max" && (
+                  <View style={s.tierStar}>
+                    <Ionicons name="sparkles" size={11} color="#FFD93D" />
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+        <Text style={s.tierBlurb}>{t(`premium.tierBlurb.${tier}`)}</Text>
+
         {/* 혜택 */}
         <View style={s.section}>
-          {PREMIUM_FEATURES.map((f) => (
-            <View key={f.key} style={s.featureRow}>
-              <View style={s.featureIcon}>
-                <Ionicons
-                  name={f.icon as any}
-                  size={22}
-                  color={theme.primary}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={s.featureTitle}>
-                  {t(`premium.features.${f.key}`)}
+          {tier === "max" && (
+            <>
+              {MAX_FEATURES.map((f) => (
+                <View key={f.key} style={s.featureRow}>
+                  <View style={[s.featureIcon, s.featureIconMax]}>
+                    <Ionicons name={f.icon as any} size={22} color="#fff" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={s.featureTitleRow}>
+                      <Text style={s.featureTitle}>
+                        {t(`premium.features.${f.key}`)}
+                      </Text>
+                      <View style={s.maxBadge}>
+                        <Text style={s.maxBadgeText}>
+                          {t("premium.maxOnly")}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={s.featureDesc}>
+                      {t(`premium.featuresDesc.${f.key}`)}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+              <View style={s.includesRow}>
+                <Ionicons name="checkmark-circle" size={18} color="#58CC02" />
+                <Text style={s.includesText}>
+                  {t("premium.includesSuper")}
                 </Text>
-                <Text style={s.featureDesc}>
-                  {t(`premium.featuresDesc.${f.key}`)}
-                </Text>
               </View>
-            </View>
-          ))}
+            </>
+          )}
+
+          {tier === "super" &&
+            SUPER_FEATURES.map((f) => (
+              <View key={f.key} style={s.featureRow}>
+                <View style={s.featureIcon}>
+                  <Ionicons
+                    name={f.icon as any}
+                    size={22}
+                    color={theme.primary}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.featureTitle}>
+                    {t(`premium.features.${f.key}`)}
+                  </Text>
+                  <Text style={s.featureDesc}>
+                    {t(`premium.featuresDesc.${f.key}`)}
+                  </Text>
+                </View>
+              </View>
+            ))}
         </View>
 
         {/* 요금제 — 가격은 전부 스토어가 준 값이다 */}
         {showPlans ? (
           <View style={s.plans}>
-            {plans.map((plan) => (
+            {tierPlans.map((plan) => (
               <PlanCard
                 key={plan.productId}
                 plan={plan}
-                plans={plans}
+                plans={tierPlans}
                 selected={selected === plan.productId}
                 best={plan.productId === bestPlanId}
                 onPress={() => setSelected(plan.productId)}
@@ -517,7 +608,66 @@ const styles = (theme: ThemeColors) =>
       fontWeight: "600",
     },
 
-    section: { paddingHorizontal: 20, paddingTop: 28, gap: 18 },
+    tierBar: {
+      flexDirection: "row",
+      marginHorizontal: 20,
+      marginTop: 24,
+      backgroundColor: theme.surface,
+      borderRadius: 999,
+      borderWidth: 2,
+      borderColor: theme.border,
+      padding: 4,
+      gap: 4,
+    },
+    tierBtn: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 5,
+      paddingVertical: 11,
+      borderRadius: 999,
+    },
+    tierBtnOn: { backgroundColor: theme.primary },
+    tierBtnText: {
+      fontSize: 15,
+      fontWeight: "900",
+      color: theme.textSecondary,
+      letterSpacing: 0.5,
+    },
+    tierBtnTextOn: { color: "#fff" },
+    tierStar: { marginLeft: -1 },
+    tierBlurb: {
+      fontSize: 13.5,
+      fontWeight: "700",
+      color: theme.textSecondary,
+      textAlign: "center",
+      marginTop: 10,
+      marginHorizontal: 28,
+      lineHeight: 19,
+    },
+
+    section: { paddingHorizontal: 20, paddingTop: 24, gap: 18 },
+    featureTitleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+    featureIconMax: { backgroundColor: theme.primary },
+    maxBadge: {
+      backgroundColor: "#FFD93D",
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    maxBadgeText: { fontSize: 9.5, fontWeight: "900", color: "#5B4DD4" },
+    includesRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      backgroundColor: "#58CC0214",
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      marginTop: 2,
+    },
+    includesText: { fontSize: 13.5, fontWeight: "800", color: theme.text },
     featureRow: { flexDirection: "row", alignItems: "center", gap: 14 },
     featureIcon: {
       width: 46,
@@ -736,6 +886,25 @@ const styles = (theme: ThemeColors) =>
     },
     activeFeatureRow: { flexDirection: "row", alignItems: "center", gap: 12 },
     activeFeatureText: { fontSize: 15, fontWeight: "700", color: theme.text },
+    upgradeBox: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      backgroundColor: theme.primary,
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      marginTop: 20,
+      borderBottomWidth: 4,
+      borderColor: "#5B4DD4",
+    },
+    upgradeText: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "800",
+      color: "#fff",
+      lineHeight: 19,
+    },
     expiresNote: {
       marginTop: 20,
       fontSize: 13,

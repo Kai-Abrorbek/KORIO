@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useIAP } from "expo-iap";
 import type { Purchase } from "expo-iap";
 import { SubscriptionApi } from "../services/subscription.api";
+import type { SubscriptionTier } from "../services/products";
 import {
   SUBSCRIPTION_SKUS,
   buildSubscriptionRequest,
@@ -143,10 +144,14 @@ export function useBilling(onPremiumChanged?: () => void) {
     }
   }, [availablePurchases, getAvailablePurchases, onPremiumChanged]);
 
+  const plansByTier = (tier: SubscriptionTier) =>
+    plans.filter((p) => p.tier === tier);
+
   return {
     supported: isStoreBillingSupported,
     connected,
     plans,
+    plansByTier,
     phase,
     busy: phase !== "idle",
     error,

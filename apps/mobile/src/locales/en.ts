@@ -1153,6 +1153,13 @@ export default {
       storeDisconnected: "Couldn't reach the store. Check your connection and try again.",
       platformUnsupported: "In-app purchases aren't available on this device.",
     },
+    tier: { super: "SUPER", max: "MAX" },
+    tierBlurb: {
+      super: "Study without limits",
+      max: "Speak Korean with an AI tutor every day",
+    },
+    includesSuper: "Everything in SUPER",
+    maxOnly: "MAX only",
     heroSub: "Learn without limits with unlimited energy",
     popular: "POPULAR",
     perMonth: "/mo",
@@ -1179,6 +1186,8 @@ export default {
       aiTutor: "Unlimited AI Tutor",
       monthlyGems: "Monthly Gems",
       advancedStats: "Advanced Stats",
+      tutorTopics: "16 real-life topics",
+      tutorPronunciation: "Hear examples in a native voice",
     },
     featuresDesc: {
       unlimitedEnergy: "Keep learning, no energy limits",
@@ -1187,6 +1196,8 @@ export default {
       aiTutor: "Chat freely with AI teacher",
       monthlyGems: "500 free gems every month",
       advancedStats: "Detailed learning insights",
+      tutorTopics: "Cafes, clinics, interviews — things you actually need",
+      tutorPronunciation: "Tap to check the correct pronunciation",
     },
   },
   // en

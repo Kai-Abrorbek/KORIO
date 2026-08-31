@@ -1151,6 +1151,13 @@ export default {
       storeDisconnected: "스토어에 연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.",
       platformUnsupported: "이 기기에서는 앱 내 결제를 이용할 수 없어요.",
     },
+    tier: { super: "SUPER", max: "MAX" },
+    tierBlurb: {
+      super: "제한 없이 공부하세요",
+      max: "AI 선생님과 매일 한국어로 대화하세요",
+    },
+    includesSuper: "SUPER 의 모든 혜택 포함",
+    maxOnly: "MAX 전용",
     heroSub: "무한 에너지로 멈춤 없이 학습하세요",
     popular: "인기",
     perMonth: "/월",
@@ -1177,6 +1184,8 @@ export default {
       aiTutor: "AI 하늘몬 무제한",
       monthlyGems: "매달 보석 지급",
       advancedStats: "고급 학습 통계",
+      tutorTopics: "실전 주제 16가지",
+      tutorPronunciation: "원어민 발음으로 예문 듣기",
     },
     featuresDesc: {
       unlimitedEnergy: "에너지 걱정 없이 계속 학습",
@@ -1185,6 +1194,8 @@ export default {
       aiTutor: "AI 선생님과 자유 대화",
       monthlyGems: "매달 500 보석 무료",
       advancedStats: "상세한 학습 분석 제공",
+      tutorTopics: "카페, 병원, 면접 등 바로 쓰는 상황",
+      tutorPronunciation: "정확한 발음을 눌러서 확인",
     },
   },
   league: {

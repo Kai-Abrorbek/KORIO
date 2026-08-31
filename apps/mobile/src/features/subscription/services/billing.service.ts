@@ -6,8 +6,10 @@ import type {
 } from "expo-iap";
 import {
   GOOGLE_SUBSCRIPTION_IDS,
-  PLAN_MONTHS,
-  PLAN_ORDER,
+  monthsOf,
+  orderOf,
+  tierOf,
+  type SubscriptionTier,
 } from "./products";
 
 /**
@@ -38,6 +40,7 @@ export interface StorePlan {
   hasFreeTrial: boolean;
   /** 이 상품이 몇 개월치인지 */
   months: number;
+  tier: SubscriptionTier;
   order: number;
 }
 
@@ -65,8 +68,9 @@ export function toStorePlans(subs: ProductSubscription[]): StorePlan[] {
         price: best?.price ?? (sub as any).price ?? 0,
         offerToken: best?.offerTokenAndroid ?? undefined,
         hasFreeTrial: best?.paymentMode === "free-trial",
-        months: PLAN_MONTHS[sub.id as keyof typeof PLAN_MONTHS] ?? 1,
-        order: PLAN_ORDER[sub.id as keyof typeof PLAN_ORDER] ?? 99,
+        months: monthsOf(sub.id),
+        tier: tierOf(sub.id),
+        order: orderOf(sub.id),
       };
     })
     .filter((p) => !!p.displayPrice && p.price > 0)
@@ -147,7 +151,9 @@ export const isStoreBillingSupported = Platform.OS === "android";
  * 하드코딩한 할인율을 보여주면 나라별 가격이 다를 때 거짓말이 된다.
  */
 export function savingPercent(plan: StorePlan, plans: StorePlan[]): number {
-  const monthly = plans.find((p) => p.months === 1);
+  // 같은 등급의 월간 상품과 비교해야 한다. 등급이 섞이면 MAX 3개월을
+  // SUPER 월간과 비교해 엉뚱한 할인율이 나온다.
+  const monthly = plans.find((p) => p.months === 1 && p.tier === plan.tier);
   if (!monthly || !monthly.price || plan.months <= 1) return 0;
   const perMonth = plan.price / plan.months;
   const pct = Math.round((1 - perMonth / monthly.price) * 100);
