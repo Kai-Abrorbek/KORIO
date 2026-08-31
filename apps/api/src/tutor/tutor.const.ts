@@ -75,10 +75,21 @@ export type TutorTier = keyof typeof DAILY_MINUTES;
 
 /**
  * 응답 길이 상한.
- * 프롬프트로 "짧게 말해라" 라고만 하면 모델이 종종 길게 뱉는다.
- * 출력 오디오가 입력의 2배 단가라 여기서 잘라야 원가가 잡힌다.
+ *
+ * ⚠️ 400 이었다가 1500 으로 올렸다. 400 은 **말이 길어지면 문장 중간에
+ * 소리가 뚝 끊기는** 원인이었다.
+ *
+ * 오디오는 텍스트보다 토큰을 훨씬 많이 먹는다 (초당 수십 토큰 단위). 400 이면
+ * 10초 안팎밖에 안 되는데, 교정 한 번 곁들인 3문장이면 그걸 넘긴다. 넘기면
+ * 에러가 아니라 response.done 이 status:"incomplete" 로 조용히 닫히고 오디오가
+ * 그 자리에서 멈춘다 — 그래서 원인 찾기가 어려웠다.
+ *
+ * 상한을 아예 없애지 않는 이유는 원가다. 프롬프트가 이미 "1~3문장" 을 걸고
+ * 있어서 평소엔 이 근처도 안 간다. 여긴 폭주 방지선이지 길이 조절 수단이 아니다.
+ *
+ * 실제로 몇 토큰 쓰는지는 앱 로그(response.done 의 usage)에서 확인할 수 있다.
  */
-export const MAX_RESPONSE_TOKENS = 400;
+export const MAX_RESPONSE_TOKENS = 1500;
 
 export type TutorMode =
   | 'freeTalk'

@@ -127,8 +127,10 @@ export class TutorService implements OnModuleInit {
             },
             output: {
               voice: resolveVoice(voice),
-              // 초급자에겐 조금 천천히. 알아듣는 게 먼저다
-              speed: learner.koreanLevel === 'beginner' ? 0.9 : 1,
+              // 초급자에겐 조금 천천히. 알아듣는 게 먼저다.
+              // 0.9 는 한국어에서 늘어지게 들려서 0.95 로 낮췄다 — 느리게
+              // 만들수록 억양이 뭉개져서 오히려 알아듣기 나빠진다.
+              speed: learner.koreanLevel === 'beginner' ? 0.95 : 1,
             },
           },
           // 출력 오디오가 입력의 2배 단가다. 프롬프트로만 "짧게"를 부탁하면

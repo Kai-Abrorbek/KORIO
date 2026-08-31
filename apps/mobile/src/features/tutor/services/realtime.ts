@@ -45,15 +45,20 @@ export async function connectRealtime(
 ): Promise<RealtimeConnection> {
   // 마이크.
   //
-  // echoCancellation 같은 제약을 명시하지 않는 이유: 그건 웹 표준 제약이고
-  // react-native-webrtc 의 MediaTrackConstraints 에는 없다. 대신 네이티브
-  // WebRTC 오디오 장치가 PeerConnection 트랙에 에코 제거·잡음 억제를 기본으로
-  // 건다. (안 걸리면 스피커로 나간 AI 목소리를 마이크가 다시 주워서 AI 가
-  // 자기 말에 반응한다 — 그건 여기가 아니라 오디오 모드 설정 문제다)
+  // 에코 제거를 명시적으로 켠다. 스피커로 소리를 내면서 마이크를 열어두기
+  // 때문에, 이게 안 걸리면 AI 목소리를 마이크가 다시 주워서 서버가 "유저가
+  // 말을 시작했다" 로 보고 **AI 가 자기 말을 끊는다.** 말이 길수록 잘 끊긴다.
+  //
+  // 타입 단언이 붙은 이유: react-native-webrtc 124 의 MediaTrackConstraints
+  // 에 이 필드들이 빠져 있다. 네이티브 쪽은 받아서 처리하는데 타입만 없다.
   const localStream = await mediaDevices.getUserMedia({
-    audio: true,
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    },
     video: false,
-  });
+  } as any);
 
   const pc = new RTCPeerConnection({
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }],

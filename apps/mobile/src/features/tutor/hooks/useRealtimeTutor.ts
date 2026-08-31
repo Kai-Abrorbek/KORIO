@@ -60,6 +60,13 @@ export function useRealtimeTutor() {
   const maxSec = useRef<number>(0);
   const ending = useRef(false);
   /**
+   * 이벤트 핸들러에서 현재 상태를 읽으려고 둔다.
+   * handleServerEvent 는 deps 가 빈 콜백이라 state 를 직접 못 본다 — 넣으면
+   * 발화마다 핸들러가 새로 만들어진다.
+   */
+  const stateRef = useRef<TutorState>("idle");
+  stateRef.current = state;
+  /**
    * 이번 대화 내용.
    *
    * 자막으로 어차피 받고 있는 걸 쌓아둘 뿐이다. 서버는 Realtime 세션을
@@ -238,7 +245,14 @@ export function useRealtimeTutor() {
   const handleServerEvent = useCallback((event: any) => {
     switch (event?.type) {
       case "input_audio_buffer.speech_started":
-        // 유저가 말을 시작 = AI 말 자르기(barge-in)도 여기서 일어난다
+        // 유저가 말을 시작 = AI 말 자르기(barge-in)도 여기서 일어난다.
+        //
+        // AI 가 말하는 중에 이게 뜨면 둘 중 하나다: 유저가 진짜 끼어들었거나,
+        // 스피커로 나간 AI 목소리를 마이크가 되주웠거나(에코). 후자면 AI 가
+        // 자기 말에 자기가 끊긴다. 어느 쪽인지 로그로 구분한다.
+        if (__DEV__ && stateRef.current === "speaking") {
+          console.log("[tutor] AI 말하는 중 발화 감지 — 끼어들기 또는 에코");
+        }
         setState("listening");
         break;
       case "input_audio_buffer.speech_stopped":
@@ -272,6 +286,23 @@ export function useRealtimeTutor() {
         }
         break;
       case "response.done":
+        // 말이 중간에 끊겼을 때 원인을 여기서 확인한다.
+        // status:"incomplete" + reason:"max_output_tokens" 이면 토큰 상한이
+        // 원인이다. 그게 아니면 에코/끼어들기(위 로그)를 봐야 한다.
+        if (__DEV__) {
+          const r = event?.response;
+          if (r?.status && r.status !== "completed") {
+            console.log(
+              `[tutor] 응답 미완: ${r.status} / ${r?.status_details?.reason ?? "?"}`,
+            );
+          }
+          const u = r?.usage?.output_token_details;
+          if (u) {
+            console.log(
+              `[tutor] 출력 토큰 text=${u.text_tokens} audio=${u.audio_tokens}`,
+            );
+          }
+        }
         setState("listening");
         break;
       case "error":
