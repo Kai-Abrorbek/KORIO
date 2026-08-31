@@ -11,6 +11,7 @@ import {
   MONTHLY_MINUTES,
   TUTOR_MODEL,
   type TutorMode,
+  type TutorTier,
 } from './tutor.const';
 import {
   TutorSession,
@@ -18,7 +19,10 @@ import {
 } from './schemas/tutor-session.schema';
 
 export interface TutorQuota {
+  tier: TutorTier;
   isSuper: boolean;
+  /** MAX 만 제대로 쓸 수 있다. 화면에서 업그레이드를 유도할 근거 */
+  isMax: boolean;
   dailyLimitMin: number;
   monthlyLimitMin: number;
   dailyUsedMin: number;
@@ -52,10 +56,15 @@ export class TutorUsageService {
   async getQuota(userId: string): Promise<TutorQuota> {
     const user = await this.userModel
       .findById(userId)
-      .select('isSuper superExpiresAt')
+      .select('isSuper superExpiresAt superTier')
       .lean();
     const isSuper = isSuperActive(user ?? {});
-    const tier = isSuper ? 'super' : 'free';
+    // 구독이 만료됐으면 등급이 뭐였든 free 다
+    const tier: TutorTier = !isSuper
+      ? 'free'
+      : (user as any)?.superTier === 'max'
+        ? 'max'
+        : 'super';
 
     const tz = await this.usersService.getTimezone(userId);
     const dayStart = startOfDay(new Date(), tz);
@@ -81,7 +90,9 @@ export class TutorUsageService {
     );
 
     return {
+      tier,
       isSuper,
+      isMax: tier === 'max',
       dailyLimitMin,
       monthlyLimitMin,
       dailyUsedMin,

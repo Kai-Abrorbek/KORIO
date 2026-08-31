@@ -6,6 +6,7 @@ import type {
   SubscriptionPlan,
   SubscriptionPlatform,
   SubscriptionStatus,
+  SubscriptionTier,
 } from './subscription.types';
 
 /**
@@ -31,6 +32,10 @@ export class Subscription {
 
   @Prop({ default: 'OTHER' })
   country: SubscriptionCountry;
+
+  /** super | max. max 만 AI 음성 튜터를 쓸 수 있다 */
+  @Prop({ required: true, default: 'super' })
+  tier: SubscriptionTier;
 
   @Prop({ required: true })
   plan: SubscriptionPlan;

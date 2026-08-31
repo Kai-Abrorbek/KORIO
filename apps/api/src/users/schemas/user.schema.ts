@@ -168,6 +168,16 @@ export class User {
   @Prop({ default: null })
   superPlan: string;
 
+  /**
+   * 구독 등급 — 'super' | 'max'.
+   *
+   * isSuper 가 "유료 회원인가"라면 이건 "어느 등급인가"다. AI 음성 튜터처럼
+   * 분당 실비가 나가는 기능은 max 만 쓸 수 있다.
+   * Subscription 컬렉션이 진실이고 여기는 투영이다 (SubscriptionService.syncUser).
+   */
+  @Prop({ default: 'super' })
+  superTier: string;
+
   @Prop({ default: null })
   superExpiresAt: Date;
 

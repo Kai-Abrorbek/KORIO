@@ -37,19 +37,41 @@ export const EST_COST_PER_MIN_USD = IS_PREMIUM_MODEL ? 0.2 : 0.065;
 /** 한 세션 최대 길이(분). 길어질수록 문맥이 쌓여 분당 원가가 오른다 */
 export const MAX_SESSION_MINUTES = 10;
 
-/** 등급별 하루 사용 한도(분) */
+/**
+ * 등급별 한도.
+ *
+ * ── 숫자를 이렇게 잡은 이유 ──
+ * MAX 구독 200,000 UZS / 23,000원 ≈ $16. 스토어 수수료 15% 를 빼면
+ * 손에 남는 건 월 **$13.60**.
+ *
+ *   gpt-realtime-2.1-mini  분당 $0.065  → 손익분기 월 209분
+ *   gpt-realtime-2.1(정가) 분당 $0.20   → 손익분기 월  68분
+ *
+ * 한도를 꽉 채우는 유저는 소수지만, 헤비유저가 바로 그들이다. 최악의 경우에도
+ * 흑자가 나야 한다. 월 120분이면 mini 기준 원가 $7.80, 마진 43% 로 안전하다.
+ *
+ * ⚠️ 정가 모델로 바꾸면 이 한도로는 적자다 ($24 원가 vs $13.60 수입).
+ *    모델을 올리려면 MAX 월 한도를 60분 이하로 같이 내려야 한다.
+ *
+ * super 와 free 에 조금 열어두는 건 맛보기다 — 써봐야 MAX 로 올라온다.
+ */
 export const DAILY_MINUTES = {
-  /** 무료: 맛보기. 이걸로 결제 전환을 노린다 */
-  free: 3,
-  /** 구독자 */
-  super: 20,
+  /** 무료: 맛보기 */
+  free: 2,
+  /** 기존 프리미엄: 맛보기 + 더 쓰려면 MAX */
+  super: 5,
+  /** 튜터를 위해 만든 등급 */
+  max: 20,
 } as const;
 
 /** 등급별 한 달 한도(분). 하루 한도를 매일 채워도 원가가 통제되게 */
 export const MONTHLY_MINUTES = {
-  free: 10,
-  super: 200,
+  free: 5,
+  super: 20,
+  max: 120,
 } as const;
+
+export type TutorTier = keyof typeof DAILY_MINUTES;
 
 /**
  * 응답 길이 상한.

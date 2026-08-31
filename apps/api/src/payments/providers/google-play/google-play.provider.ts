@@ -7,7 +7,7 @@ import type {
   WebhookVerification,
 } from '../payment-provider.interface';
 import {
-  GOOGLE_PRODUCT_TO_PLAN,
+  GOOGLE_PRODUCTS,
   type SubscriptionCountry,
   type SubscriptionStatus,
   type VerifiedPurchase,
@@ -131,8 +131,8 @@ export class GooglePlayProvider implements PaymentProvider {
     if (!productId) throw new BadRequestException('PURCHASE_NOT_FOUND');
 
     // 우리가 파는 상품인지. Play Console 의 다른 상품이나 남의 앱 토큰을 막는다
-    const plan = GOOGLE_PRODUCT_TO_PLAN[productId];
-    if (!plan) {
+    const spec = GOOGLE_PRODUCTS[productId];
+    if (!spec) {
       this.logger.warn(`알 수 없는 상품 id: ${productId}`);
       throw new BadRequestException('UNKNOWN_PRODUCT');
     }
@@ -155,7 +155,8 @@ export class GooglePlayProvider implements PaymentProvider {
       provider: this.id,
       platform: 'android',
       productId,
-      plan,
+      tier: spec.tier,
+      plan: spec.plan,
       status,
       startedAt: purchase.startTime ? new Date(purchase.startTime) : new Date(),
       expiresAt,

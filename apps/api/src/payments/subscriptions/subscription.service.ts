@@ -59,6 +59,7 @@ export class SubscriptionService {
           userId: uid,
           platform: v.platform,
           country: v.country ?? 'OTHER',
+          tier: v.tier,
           plan: v.plan,
           productId: v.productId,
           status: v.status,
@@ -156,6 +157,7 @@ export class SubscriptionService {
         {
           $set: {
             isSuper: true,
+            superTier: active.tier ?? 'super',
             superPlan: active.plan,
             superExpiresAt: active.expiresAt,
           },
@@ -173,7 +175,14 @@ export class SubscriptionService {
 
     await this.userModel.updateOne(
       { _id: new Types.ObjectId(userId) },
-      { $set: { isSuper: false, superPlan: null, superExpiresAt: null } },
+      {
+        $set: {
+          isSuper: false,
+          superTier: 'super',
+          superPlan: null,
+          superExpiresAt: null,
+        },
+      },
     );
   }
 
@@ -190,6 +199,7 @@ export class SubscriptionService {
       return {
         isPremium: true,
         isSuper: true, // 기존 클라 호환
+        tier: active.tier ?? 'super',
         plan: active.plan,
         provider: active.provider,
         platform: active.platform,
@@ -212,6 +222,8 @@ export class SubscriptionService {
     return {
       isPremium: !!onTrial,
       isSuper: !!onTrial,
+      // 체험은 super 상당. 튜터(max 전용)는 체험으로 열리지 않는다
+      tier: 'super' as const,
       plan: onTrial ? 'trial' : null,
       provider: null,
       platform: null,
