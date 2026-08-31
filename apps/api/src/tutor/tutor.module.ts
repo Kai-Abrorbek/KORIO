@@ -14,6 +14,7 @@ import {
 import { TutorController } from './tutor.controller';
 import { TutorService } from './tutor.service';
 import { TutorUsageService } from './tutor-usage.service';
+import { TutorAnalysisService } from './tutor-analysis.service';
 
 /**
  * AI 튜터. 기존 ai 모듈(보리쌤 텍스트 채팅)과 별개다 —
@@ -29,7 +30,12 @@ import { TutorUsageService } from './tutor-usage.service';
     UsersModule,
   ],
   controllers: [TutorController],
-  providers: [TutorService, TutorUsageService, RateLimitGuard],
+  providers: [
+    TutorService,
+    TutorUsageService,
+    TutorAnalysisService,
+    RateLimitGuard,
+  ],
   exports: [TutorUsageService],
 })
 export class TutorModule {}

@@ -4,11 +4,22 @@ import { setAudioModeAsync } from "expo-audio";
 import {
   TutorApi,
   type RolePlayScene,
+  type SessionSummary,
+  type TranscriptTurn,
   type TutorMode,
   type TutorQuota,
 } from "../services/tutor.api";
 import { connectRealtime, type RealtimeConnection } from "../services/realtime";
 import { extractExamples } from "../services/examples";
+
+/**
+ * 서버로 보낼 대화의 상한.
+ *
+ * 서버가 어차피 한 번 더 자르지만 여기서 먼저 자른다 — 본문이 크면 느린
+ * 회선에서 종료 보고 자체가 실패하고, 그러면 쿼터 정산이 안 된다.
+ */
+const MAX_TURNS_TO_SEND = 100;
+const MAX_TURN_CHARS = 300;
 
 export type TutorState =
   | "idle"
@@ -38,12 +49,24 @@ export function useRealtimeTutor() {
   const [voice, setVoice] = useState<string | undefined>(undefined);
   /** 오늘 연습할 표현. 막혔을 때 화면에 띄운다 */
   const [targets, setTargets] = useState<string[]>([]);
+  /** 대화가 끝난 뒤 서버가 만들어준 요약. 종료 화면에 띄운다 */
+  const [summary, setSummary] = useState<SessionSummary | null>(null);
+  /** 요약을 기다리는 중. 종료 버튼을 누르고 카드가 뜨기까지 몇 초 걸린다 */
+  const [analyzing, setAnalyzing] = useState(false);
 
   const conn = useRef<RealtimeConnection | null>(null);
   const sessionId = useRef<string | null>(null);
   const startedAt = useRef<number>(0);
   const maxSec = useRef<number>(0);
   const ending = useRef(false);
+  /**
+   * 이번 대화 내용.
+   *
+   * 자막으로 어차피 받고 있는 걸 쌓아둘 뿐이다. 서버는 Realtime 세션을
+   * 따로 듣고 있지 않아서, 종료할 때 이걸 올려야 요약을 만들 수 있다.
+   * state 가 아니라 ref 인 이유: 매 발화마다 리렌더될 이유가 없다.
+   */
+  const transcript = useRef<TranscriptTurn[]>([]);
 
   /** 남은 사용량 조회 */
   const refreshQuota = useCallback(async () => {
@@ -76,6 +99,9 @@ export function useRealtimeTutor() {
     sessionId.current = null;
     startedAt.current = 0;
 
+    const turns = transcript.current;
+    transcript.current = [];
+
     try {
       c?.close();
     } catch {}
@@ -93,15 +119,31 @@ export function useRealtimeTutor() {
     setTargets([]);
 
     if (sid) {
+      // 대화가 있었으면 요약을 기다린다. 몇 초 걸려서 화면에 티를 내야 한다
+      // 서버 기준과 맞춘다 (45초 이상 + 학습자가 2번 이상 말함).
+      // 여기서 안 맞추면 "정리 중" 을 띄웠다가 빈손으로 끝난다.
+      const wantsSummary =
+        sec >= 45 && turns.filter((t) => t.role === "user").length >= 2;
+      if (wantsSummary) setAnalyzing(true);
       try {
-        const res = await TutorApi.endSession(sid, sec);
+        const res = await TutorApi.endSession(
+          sid,
+          sec,
+          wantsSummary ? trimTurns(turns) : undefined,
+        );
         setQuota(res.quota);
+        if (res.summary) setSummary(res.summary);
       } catch {
         // 보고 실패해도 서버의 선차감이 남아 쿼터가 새지는 않는다
+      } finally {
+        setAnalyzing(false);
       }
     }
     ending.current = false;
   }, []);
+
+  /** 요약 카드를 닫는다 */
+  const clearSummary = useCallback(() => setSummary(null), []);
 
   /**
    * 예문을 스피커로 들려주는 동안 마이크를 끈다.
@@ -135,6 +177,8 @@ export function useRealtimeTutor() {
     ) => {
       if (conn.current) return;
       setError(null);
+      setSummary(null);
+      transcript.current = [];
       setState("connecting");
 
       try {
@@ -213,7 +257,10 @@ export function useRealtimeTutor() {
         }
         break;
       case "response.output_audio_transcript.done":
-        if (typeof event.transcript === "string") setCaption(event.transcript);
+        if (typeof event.transcript === "string") {
+          setCaption(event.transcript);
+          pushTurn(transcript, "tutor", event.transcript);
+        }
         break;
       case "response.created":
         setCaption("");
@@ -221,6 +268,7 @@ export function useRealtimeTutor() {
       case "conversation.item.input_audio_transcription.completed":
         if (typeof event.transcript === "string") {
           setUserSaid(event.transcript.trim());
+          pushTurn(transcript, "user", event.transcript);
         }
         break;
       case "response.done":
@@ -280,6 +328,9 @@ export function useRealtimeTutor() {
     examples: extractExamples(caption),
     targets,
     voice,
+    summary,
+    analyzing,
+    clearSummary,
     withMicMuted,
     elapsedSec,
     maxSec: maxSec.current,
@@ -289,4 +340,26 @@ export function useRealtimeTutor() {
     stop,
     refreshQuota,
   };
+}
+
+/** 대화 한 마디를 쌓는다. 빈 줄과 중복은 버린다 */
+function pushTurn(
+  ref: { current: TranscriptTurn[] },
+  role: TranscriptTurn["role"],
+  text: string,
+) {
+  const clean = text.trim();
+  if (!clean) return;
+  const last = ref.current[ref.current.length - 1];
+  // 같은 말이 두 번 오는 경우가 있다 (부분 전사가 확정본과 겹칠 때)
+  if (last && last.role === role && last.text === clean) return;
+  ref.current.push({ role, text: clean.slice(0, MAX_TURN_CHARS) });
+  // 앞쪽을 버린다 — 대화 후반이 더 쓸모 있다
+  if (ref.current.length > MAX_TURNS_TO_SEND * 2) {
+    ref.current.splice(0, ref.current.length - MAX_TURNS_TO_SEND);
+  }
+}
+
+function trimTurns(turns: TranscriptTurn[]): TranscriptTurn[] {
+  return turns.slice(-MAX_TURNS_TO_SEND);
 }

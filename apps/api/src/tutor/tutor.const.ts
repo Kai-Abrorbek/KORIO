@@ -143,3 +143,56 @@ export function resolveVoice(requested?: string): TutorVoice {
     ? (requested as TutorVoice)
     : DEFAULT_TUTOR_VOICE;
 }
+
+// ── 세션 분석 (Phase 3) ──
+
+/**
+ * 대화가 끝난 뒤 요약을 뽑는 모델.
+ *
+ * Realtime 이 아니라 일반 텍스트 모델이다. 10분 대화 전체를 넣어도 1센트가
+ * 안 나온다 — 통화 자체가 훨씬 비싸서 여기서 아낄 이유가 없다.
+ */
+export const ANALYSIS_MODEL =
+  process.env.OPENAI_ANALYSIS_MODEL?.trim() || 'gpt-4o-mini';
+
+/**
+ * 분석에 넣을 대화의 상한.
+ *
+ * 클라가 보내는 값이라 반드시 서버에서 자른다. 프롬프트 길이가 곧 비용이고,
+ * 무엇보다 이걸 안 자르면 남이 우리 계정으로 긴 텍스트를 돌릴 수 있다.
+ */
+export const MAX_TRANSCRIPT_TURNS = 100;
+export const MAX_TRANSCRIPT_CHARS = 8000;
+/** 한 마디 길이. 본문 크기 상한(64kb)에 걸리지 않게 잡은 값이다 */
+export const MAX_TRANSCRIPT_TURN_CHARS = 300;
+
+/**
+ * 이보다 짧은 대화는 분석하지 않는다.
+ * 30초짜리 인사만 하고 끊은 걸 요약해봐야 "안녕하세요를 말했어요" 밖에 안 나온다.
+ * 빈 카드를 보여주느니 안 보여주는 게 낫다.
+ */
+export const MIN_ANALYZE_SEC = 45;
+
+/** 분석이 늦어져도 종료 응답을 붙잡지 않는다 */
+export const ANALYSIS_TIMEOUT_MS = 20000;
+
+/**
+ * 실수 분류.
+ *
+ * 자유 서술로 두면 매번 다른 말이 나와서 "이 사람의 약점"을 집계할 수 없다.
+ * 고정된 목록이라야 다음 세션 프롬프트에 "조사를 자주 틀린다" 라고 넣을 수 있다.
+ */
+export const MISTAKE_TYPES = [
+  'particle',
+  'ending',
+  'vocabulary',
+  'wordOrder',
+  'honorific',
+  'tense',
+  'pronunciation',
+  'other',
+] as const;
+export type MistakeType = (typeof MISTAKE_TYPES)[number];
+
+/** 다음 세션 개인화에 쓸 과거 세션 개수 */
+export const RECENT_SESSIONS_FOR_CONTEXT = 5;

@@ -1,4 +1,4 @@
-import type { RolePlayScene, TutorMode } from '../tutor.const';
+import type { MistakeType, RolePlayScene, TutorMode } from '../tutor.const';
 import type { TutorTopic } from '../topics/tutor-topics';
 
 export interface LearnerContext {
@@ -10,7 +10,31 @@ export interface LearnerContext {
   recentVocabulary: string[];
   interests: string[];
   nickname?: string;
+
+  /**
+   * 지난 대화에서 **말하다가** 틀린 것.
+   *
+   * weakPoints(레슨 오답)와 다르다. 객관식으로는 맞히는데 입으로는 못 하는
+   * 게 회화의 실제 약점이라, 이쪽을 더 우선해서 다룬다.
+   */
+  spokenMistakes?: { corrected: string; type: MistakeType }[];
+  /** 자주 틀리는 갈래 상위 2개 */
+  mistakeHabits?: MistakeType[];
+  /** 지난 대화. 이어지는 느낌을 만드는 데만 쓴다 */
+  lastSession?: { topicTitle?: string; daysAgo: number };
 }
+
+/** 실수 갈래를 모델이 알아들을 말로 바꾼다 */
+const MISTAKE_LABEL: Record<MistakeType, string> = {
+  particle: 'particles (은/는, 이/가, 을/를, 에/에서)',
+  ending: 'verb endings and politeness level',
+  vocabulary: 'word choice',
+  wordOrder: 'word order',
+  honorific: 'honorifics',
+  tense: 'tense',
+  pronunciation: 'pronunciation',
+  other: 'general accuracy',
+};
 
 const NATIVE_NAME: Record<string, string> = {
   uz: 'Uzbek',
@@ -191,6 +215,41 @@ export function buildTutorInstructions(
   }
   if (learner.interests.length) {
     personal.push(`They are interested in: ${learner.interests.join(', ')}.`);
+  }
+  if (learner.mistakeHabits?.length) {
+    personal.push(
+      `When speaking, they slip most often on: ` +
+        `${learner.mistakeHabits.map((t) => MISTAKE_LABEL[t]).join(' and ')}.`,
+    );
+  }
+  if (learner.spokenMistakes?.length) {
+    personal.push(
+      `In earlier conversations they said these wrong. The correct forms are:`,
+    );
+    personal.push(
+      ...learner.spokenMistakes
+        .slice(0, 4)
+        .map((m) => `    "${m.corrected}"`),
+    );
+    personal.push(
+      `Do NOT list these or announce that you are reviewing. Steer the conversation ` +
+        `so one of them is the natural thing to say, then let them try. ` +
+        `If they get it right this time, say so in one short clause and move on.`,
+    );
+  }
+  if (learner.lastSession) {
+    const when =
+      learner.lastSession.daysAgo <= 0
+        ? 'earlier today'
+        : learner.lastSession.daysAgo === 1
+          ? 'yesterday'
+          : `${learner.lastSession.daysAgo} days ago`;
+    personal.push(
+      learner.lastSession.topicTitle
+        ? `You last talked ${when}, about ${learner.lastSession.topicTitle}. ` +
+            `Refer back to it ONCE in your opening, in one short clause, then move on.`
+        : `You last talked ${when}. You may acknowledge that once, briefly.`,
+    );
   }
   if (personal.length) {
     lines.push(``, `ABOUT THIS LEARNER`, ...personal.map((p) => `- ${p}`));

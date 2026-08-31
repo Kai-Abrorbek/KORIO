@@ -1,5 +1,12 @@
 import { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +24,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TutorOrb } from "../components/TutorOrb";
 import { TopicPicker } from "../components/TopicPicker";
+import { TutorSummary } from "../components/TutorSummary";
 import type { TutorTopicCard } from "../services/tutor.api";
 import { useRealtimeTutor } from "../hooks/useRealtimeTutor";
 
@@ -44,6 +52,9 @@ export default function TutorScreen() {
     userSaid,
     examples,
     targets,
+    summary,
+    analyzing,
+    clearSummary,
     withMicMuted,
     elapsedSec,
     maxSec,
@@ -68,7 +79,7 @@ export default function TutorScreen() {
 
   // 아직 주제를 안 골랐고 대화도 안 하는 중이면 주제부터 고르게 한다.
   // "무슨 말을 하지?" 로 얼어붙는 걸 막는 첫 번째 장치다.
-  if (picking && !active) {
+  if (picking && !active && !summary && !analyzing) {
     return (
       <View style={[s.container, { paddingTop: insets.top + 6 }]}>
         <View style={s.header}>
@@ -91,6 +102,25 @@ export default function TutorScreen() {
           }}
         />
       </View>
+    );
+  }
+
+  // 대화가 끝나면 정리 카드로 덮는다. 그냥 끊기고 끝나면 뭘 했는지 남지 않는다.
+  if (summary) {
+    return (
+      <TutorSummary
+        data={summary}
+        topicTitle={topic?.title}
+        onSpeak={(text) => void speak(text, "ko-KR")}
+        onClose={() => {
+          clearSummary();
+          router.back();
+        }}
+        onAgain={() => {
+          clearSummary();
+          setPicking(true);
+        }}
+      />
     );
   }
 
@@ -220,7 +250,14 @@ export default function TutorScreen() {
           </View>
         )}
 
-        {!active && !caption && !!quota && (
+        {analyzing && (
+          <View style={s.analyzingBox}>
+            <ActivityIndicator color={theme.primary} />
+            <Text style={s.analyzingText}>{t("tutor.summary.analyzing")}</Text>
+          </View>
+        )}
+
+        {!active && !analyzing && !caption && !!quota && (
           <View style={s.quotaBox}>
             <View style={s.quotaRow}>
               <Ionicons name="mic-outline" size={15} color={theme.textSecondary} />
@@ -261,7 +298,7 @@ export default function TutorScreen() {
             icon="refresh"
             label={t("tutor.pickAnother")}
             onPress={() => setPicking(true)}
-            disabled={busy || exhausted}
+            disabled={busy || exhausted || analyzing}
             bg={theme.primary}
             shadow="#5B4DD4"
             s={s}
@@ -433,6 +470,17 @@ const styles = (theme: ThemeColors) =>
       fontWeight: "700",
       color: theme.text,
       flexShrink: 1,
+    },
+
+    analyzingBox: {
+      alignItems: "center",
+      gap: 10,
+      paddingTop: 16,
+    },
+    analyzingText: {
+      fontSize: 14,
+      fontWeight: "800",
+      color: theme.textSecondary,
     },
 
     quotaBox: { alignItems: "center", gap: 8, paddingTop: 12 },

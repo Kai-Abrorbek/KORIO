@@ -21,13 +21,24 @@ import {
   IS_PREMIUM_MODEL,
   MAX_RESPONSE_TOKENS,
   MAX_SESSION_MINUTES,
+  RECENT_SESSIONS_FOR_CONTEXT,
   TUTOR_MODEL,
   resolveVoice,
+  type MistakeType,
   type RolePlayScene,
   type TutorMode,
 } from './tutor.const';
 import { TutorUsageService } from './tutor-usage.service';
+import {
+  TutorAnalysisService,
+  type SessionSummary,
+  type TranscriptTurn,
+} from './tutor-analysis.service';
 import { TOPIC_BY_ID } from './topics/tutor-topics';
+import {
+  TutorSession,
+  TutorSessionDocument,
+} from './schemas/tutor-session.schema';
 
 const OPENAI_API = 'https://api.openai.com/v1';
 
@@ -53,7 +64,10 @@ export class TutorService implements OnModuleInit {
     private readonly userModel: Model<UserDocument>,
     @InjectModel(UserMistake.name)
     private readonly mistakeModel: Model<UserMistakeDocument>,
+    @InjectModel(TutorSession.name)
+    private readonly sessionModel: Model<TutorSessionDocument>,
     private readonly usage: TutorUsageService,
+    private readonly analysis: TutorAnalysisService,
   ) {}
 
   /**
@@ -157,14 +171,38 @@ export class TutorService implements OnModuleInit {
     };
   }
 
-  /** 세션 종료 보고 */
-  async endSession(userId: string, sessionId: string, durationSec: number) {
+  /**
+   * 세션 종료 보고.
+   *
+   * 순서가 중요하다. **쿼터 정산을 먼저 끝내고** 나서 요약을 시도한다.
+   * 요약은 부가 기능인데 이게 실패해서 사용 시간이 기록 안 되면, 유저는
+   * 쓰고도 안 깎이는 걸 알게 되고 그 순간 원가 통제가 무너진다.
+   */
+  async endSession(
+    userId: string,
+    sessionId: string,
+    durationSec: number,
+    lang = 'uz',
+    transcript?: TranscriptTurn[],
+  ) {
     const closed = await this.usage.close(userId, sessionId, durationSec);
     const quota = await this.usage.getQuota(userId);
+
+    let summary: SessionSummary | null = null;
+    if (closed && transcript?.length) {
+      summary = await this.analysis
+        .analyze(closed, transcript, lang)
+        .catch((e) => {
+          this.logger.warn(`세션 분석 실패: ${e?.message ?? e}`);
+          return null;
+        });
+    }
+
     return {
       success: !!closed,
       durationSec: closed?.durationSec ?? 0,
       quota,
+      summary,
     };
   }
 
@@ -175,9 +213,9 @@ export class TutorService implements OnModuleInit {
   /**
    * 개인화 재료를 모은다.
    *
-   * 새 컬렉션을 만들지 않고 이미 쌓여 있는 걸 읽는다 — 오답 장부(UserMistake)와
-   * 유저 프로필. 스펙의 tutorProfile 컬렉션은 Phase 3 에서 세션 분석 결과가
-   * 생길 때 만드는 게 맞다. 지금 만들면 채울 게 없는 빈 껍데기가 된다.
+   * 세 군데서 읽는다 — 유저 프로필, 레슨 오답 장부(UserMistake), 지난 대화
+   * 기록(TutorSession). 별도의 tutorProfile 컬렉션은 만들지 않았다. 세션
+   * 문서에 이미 다 있어서, 프로필을 따로 두면 두 곳을 동기화하는 문제만 는다.
    */
   private async buildLearnerContext(
     userId: string,
@@ -210,15 +248,84 @@ export class TutorService implements OnModuleInit {
       .slice(0, 6)
       .map(([tag]) => tag);
 
+    const past = await this.recentSessionContext(userId);
+
     return {
       koreanLevel: (user?.level as LearnerContext['koreanLevel']) ?? 'beginner',
       // targetLanguage 는 "배우는 언어"(korean)라 모국어가 아니다.
       // 앱이 지금 쓰는 UI 언어를 모국어로 본다 — 다른 API 들과 같은 규칙.
       nativeLanguage: lang,
       weakPoints,
-      recentVocabulary: [],
+      recentVocabulary: past.recentVocabulary,
       interests: ((user?.interests ?? []) as string[]).slice(0, 5),
       nickname: user?.nickname,
+      spokenMistakes: past.spokenMistakes,
+      mistakeHabits: past.mistakeHabits,
+      lastSession: past.lastSession,
+    };
+  }
+
+  /**
+   * 지난 대화들에서 다음 세션에 쓸 것만 뽑는다.
+   *
+   * 최신 것을 우선한다 — 3주 전에 틀린 걸 다시 파는 것보다 어제 틀린 게 낫다.
+   * 그래서 정렬 순서를 그대로 살려서 앞에서부터 채운다.
+   */
+  private async recentSessionContext(userId: string) {
+    const sessions = await this.sessionModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        analyzed: true,
+        summary: { $ne: null },
+      })
+      .sort({ startedAt: -1 })
+      .limit(RECENT_SESSIONS_FOR_CONTEXT)
+      .select('topic startedAt mistakes newVocabulary')
+      .lean();
+
+    if (!sessions.length) return { recentVocabulary: [] as string[] };
+
+    const vocab: string[] = [];
+    const seenVocab = new Set<string>();
+    const spokenMistakes: { corrected: string; type: MistakeType }[] = [];
+    const seenMistake = new Set<string>();
+    const habit = new Map<MistakeType, number>();
+
+    for (const s of sessions) {
+      for (const w of s.newVocabulary ?? []) {
+        if (!seenVocab.has(w)) {
+          seenVocab.add(w);
+          vocab.push(w);
+        }
+      }
+      for (const m of s.mistakes ?? []) {
+        habit.set(m.type, (habit.get(m.type) ?? 0) + 1);
+        if (!seenMistake.has(m.corrected)) {
+          seenMistake.add(m.corrected);
+          spokenMistakes.push({ corrected: m.corrected, type: m.type });
+        }
+      }
+    }
+
+    const last = sessions[0];
+    const daysAgo = Math.max(
+      0,
+      Math.floor(
+        (Date.now() - new Date(last.startedAt).getTime()) / 86400000,
+      ),
+    );
+    const topic = last.topic ? TOPIC_BY_ID.get(last.topic) : undefined;
+
+    return {
+      recentVocabulary: vocab.slice(0, 12),
+      spokenMistakes: spokenMistakes.slice(0, 4),
+      // 한 번 틀린 건 습관이 아니다. 두 번 이상 나온 갈래만 본다
+      mistakeHabits: [...habit.entries()]
+        .filter(([, n]) => n >= 2)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 2)
+        .map(([t]) => t),
+      lastSession: { topicTitle: topic?.title.en, daysAgo },
     };
   }
 }

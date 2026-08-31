@@ -1,4 +1,20 @@
-import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  MAX_TRANSCRIPT_TURN_CHARS,
+  MAX_TRANSCRIPT_TURNS,
+} from '../tutor.const';
 import { ROLE_PLAY_SCENES, TUTOR_MODES, TUTOR_VOICES } from '../tutor.const';
 import { TOPIC_IDS } from '../topics/tutor-topics';
 
@@ -32,6 +48,23 @@ export class CreateTutorSessionDto {
   lang?: string;
 }
 
+/**
+ * 대화 한 마디.
+ *
+ * 앱이 자막으로 이미 받아둔 걸 종료할 때 한 번에 올린다. 서버가 Realtime
+ * 세션을 따로 듣고 있지 않아서 이 경로 말고는 대화 내용을 알 방법이 없다.
+ * 저장하지는 않는다 — 요약만 남기고 버린다.
+ */
+export class TranscriptTurnDto {
+  @IsString()
+  @IsIn(['user', 'tutor'])
+  role: 'user' | 'tutor';
+
+  @IsString()
+  @MaxLength(MAX_TRANSCRIPT_TURN_CHARS)
+  text: string;
+}
+
 export class EndTutorSessionDto {
   @IsString()
   @MaxLength(64)
@@ -42,4 +75,21 @@ export class EndTutorSessionDto {
   @Min(0)
   @Max(24 * 60 * 60)
   durationSec: number;
+
+  /** 요약을 쓸 언어. 없으면 우즈벡어 */
+  @IsOptional()
+  @IsString()
+  @IsIn(['uz', 'en', 'ru', 'ko'])
+  lang?: string;
+
+  /**
+   * 이번 대화 내용. 없으면 요약을 건너뛴다.
+   * 상한은 서버에서 한 번 더 자르지만, 여기서 막아야 본문 크기 자체가 안 커진다.
+   */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(MAX_TRANSCRIPT_TURNS)
+  @ValidateNested({ each: true })
+  @Type(() => TranscriptTurnDto)
+  transcript?: TranscriptTurnDto[];
 }

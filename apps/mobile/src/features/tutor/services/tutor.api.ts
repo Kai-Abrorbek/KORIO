@@ -61,6 +61,51 @@ export interface TutorSessionGrant {
   quota: TutorQuota;
 }
 
+/** 대화 한 마디. 자막으로 이미 받아둔 걸 종료할 때 한 번에 올린다 */
+export interface TranscriptTurn {
+  role: "user" | "tutor";
+  text: string;
+}
+
+export type MistakeType =
+  | "particle"
+  | "ending"
+  | "vocabulary"
+  | "wordOrder"
+  | "honorific"
+  | "tense"
+  | "pronunciation"
+  | "other";
+
+export interface SessionMistake {
+  /** 학습자가 실제로 한 말 */
+  original: string;
+  /** 자연스러운 한국어 */
+  corrected: string;
+  type: MistakeType;
+  /** 왜 그런지 한 줄. 앱 언어로 온다 */
+  note?: string;
+}
+
+/** 대화 종료 후 요약. 서버가 대화를 분석해서 만든다 */
+export interface SessionSummary {
+  summary: string;
+  mistakes: SessionMistake[];
+  newVocabulary: string[];
+  goodExpressions: string[];
+  grammarPoints: string[];
+  spokenTurns: number;
+  durationSec: number;
+}
+
+export interface EndSessionResult {
+  success: boolean;
+  durationSec: number;
+  quota: TutorQuota;
+  /** 대화가 너무 짧거나 분석이 실패하면 null */
+  summary: SessionSummary | null;
+}
+
 export const TutorApi = {
   quota: (): Promise<TutorQuota> => api.get(`/tutor/quota`),
 
@@ -82,10 +127,20 @@ export const TutorApi = {
   ): Promise<TutorSessionGrant> =>
     api.post(`/tutor/session`, { mode, ...opts, lang: getLang() }),
 
-  /** 실제 사용 시간은 여기서 쿼터에 반영된다. 서버가 값을 검증한다 */
+  /**
+   * 실제 사용 시간은 여기서 쿼터에 반영된다. 서버가 값을 검증한다.
+   * 대화 내용을 같이 보내면 요약까지 만들어서 돌려준다 — 서버는 Realtime
+   * 세션을 따로 듣고 있지 않아서 이 경로 말고는 대화를 알 방법이 없다.
+   */
   endSession: (
     sessionId: string,
     durationSec: number,
-  ): Promise<{ success: boolean; durationSec: number; quota: TutorQuota }> =>
-    api.post(`/tutor/session/end`, { sessionId, durationSec }),
+    transcript?: TranscriptTurn[],
+  ): Promise<EndSessionResult> =>
+    api.post(`/tutor/session/end`, {
+      sessionId,
+      durationSec,
+      lang: getLang(),
+      ...(transcript?.length ? { transcript } : {}),
+    }),
 };

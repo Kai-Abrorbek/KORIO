@@ -69,13 +69,18 @@ export class TutorController {
     );
   }
 
-  /** 대화 종료 보고. 여기서 실제 사용 시간이 쿼터에 반영된다 */
+  /**
+   * 대화 종료 보고. 여기서 실제 사용 시간이 쿼터에 반영되고,
+   * 대화 내용을 같이 보내면 요약까지 만들어서 돌려준다.
+   */
   @Post('session/end')
   endSession(@Request() req, @Body() dto: EndTutorSessionDto) {
     return this.tutor.endSession(
       req.user._id.toString(),
       dto.sessionId,
       dto.durationSec,
+      dto.lang ?? 'uz',
+      dto.transcript,
     );
   }
 }

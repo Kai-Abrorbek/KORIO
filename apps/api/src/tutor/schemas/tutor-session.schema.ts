@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import type { TutorMode } from '../tutor.const';
+import type { MistakeType, TutorMode } from '../tutor.const';
 
 /**
  * 튜터 대화 한 세션.
@@ -45,18 +45,49 @@ export class TutorSession {
   @Prop()
   model?: string;
 
-  // ── Phase 3 분석 결과 ──
   @Prop()
   topic?: string;
 
-  @Prop({ type: [Object], default: [] })
-  mistakes: { original: string; corrected: string; type: string }[];
+  // ── 대화 분석 결과 ──
+  //
+  // 대화 원문은 저장하지 않는다. 앱이 끝날 때 한 번 보내주면 요약만 남기고
+  // 버린다. 다음 세션 개인화에 필요한 건 "무엇을 틀렸나"지 "무슨 말을 했나"가
+  // 아니고, 음성 대화 전문을 쌓아두는 건 프라이버시 부담이 크다.
 
+  /** 분석을 시도했는지. 실패해도 true — 같은 세션을 두 번 돌리지 않는다 */
+  @Prop({ default: false })
+  analyzed: boolean;
+
+  /** 요약을 어느 언어로 썼는지. 화면 언어가 바뀌면 다시 안 맞는다 */
+  @Prop()
+  summaryLang?: string;
+
+  /** 학습자 언어로 쓴 한 줄 요약 */
+  @Prop()
+  summary?: string;
+
+  @Prop({ type: [Object], default: [] })
+  mistakes: {
+    original: string;
+    corrected: string;
+    type: MistakeType;
+    note?: string;
+  }[];
+
+  /** 이번 대화에서 새로 쓴/배운 한국어 표현 */
   @Prop({ type: [String], default: [] })
   newVocabulary: string[];
 
+  /** 잘 쓴 표현. 요약 카드가 지적만 늘어놓으면 다시 안 켠다 */
+  @Prop({ type: [String], default: [] })
+  goodExpressions: string[];
+
   @Prop({ type: [String], default: [] })
   grammarPoints: string[];
+
+  /** 학습자가 실제로 말한 횟수. "오늘 12번 말했어요" 에 쓴다 */
+  @Prop({ default: 0 })
+  spokenTurns: number;
 }
 
 export type TutorSessionDocument = HydratedDocument<TutorSession>;
