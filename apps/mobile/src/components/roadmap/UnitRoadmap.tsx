@@ -265,7 +265,9 @@ export default function UnitRoadmap({
                       isLegendDone={!!node.legendCompleted}
                       completedSteps={node.completedLessons ?? 0}
                       totalSteps={node.totalLessons ?? 4}
-                      iconName={node.iconName}
+                      // 현재 노드는 위에서 type 을 덮어써 강조한다.
+                      // 서버 아이콘을 그대로 두면 그 강조가 지워진다.
+                      iconName={isCurrent && !isSelected ? undefined : node.iconName}
                       hideRing={hideNodeRing}
                       onPress={handleNodePress}
                     />
@@ -279,7 +281,7 @@ export default function UnitRoadmap({
                     isLegendDone={!!node.legendCompleted}
                     completedSteps={node.completedLessons ?? 0}
                     totalSteps={node.totalLessons ?? 4}
-                    iconName={node.iconName}
+                    iconName={isCurrent && !isSelected ? undefined : node.iconName}
                     hideRing={hideNodeRing}
                     onPress={handleNodePress}
                   />

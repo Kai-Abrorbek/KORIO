@@ -24,6 +24,15 @@ export function getUnitColor(index: number): string {
   return UNIT_COLORS[index % UNIT_COLORS.length];
 }
 
+/**
+ * 몇 개의 레슨 노드마다 상자를 끼울지.
+ *
+ * 4 였을 때는 유닛(보통 5노드)당 상자가 끝에 하나 붙는 게 전부라, 내려가는
+ * 내내 같은 모양이 이어지고 중간에 쉬어 가는 지점이 없었다. 3 이면 유닛
+ * 중간에 놓인다.
+ */
+const NODES_PER_CHEST = 3;
+
 export function injectChests(unit: RoadmapUnit): RoadmapUnit {
   const nodes = [...unit.nodes];
   const result: typeof nodes = [];
@@ -35,7 +44,7 @@ export function injectChests(unit: RoadmapUnit): RoadmapUnit {
     result.push(node);
     if (node.type !== "chest" && node.type !== "boss") {
       lessonCount++;
-      if (lessonCount % 4 === 0 && i < nodes.length - 1) {
+      if (lessonCount % NODES_PER_CHEST === 0 && i < nodes.length - 1) {
         const nextIsChest = nodes[i + 1]?.type === "chest";
         if (!nextIsChest) {
           chestIndex++;
@@ -65,7 +74,9 @@ export function appendScoreNode(unit: RoadmapUnit): RoadmapUnit {
         id: `${unit.id}-score`,
         type: "score" as NodeType,
         status: unit.status === "completed" ? "completed" : "locked",
-        scoreValue: unit.unitNumber,
+        // 서버가 준 전역 순번. 없으면(구버전 응답) 유닛 번호로 물러선다 —
+        // 그 경우 섹션이 바뀌면 다시 1 부터 세는 예전 동작이 된다
+        scoreValue: unit.scoreValue ?? unit.unitNumber,
       },
     ],
   };

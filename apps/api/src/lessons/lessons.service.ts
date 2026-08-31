@@ -228,6 +228,102 @@ export class LessonsService {
       .map((question) => this.formatQuestion(question, lang));
   }
 
+  /**
+   * 문제가 다루는 대상(단어·표현)을 뽑는다.
+   *
+   * 같은 단어를 연달아 묻지 않으려고 쓰는 키다. 문제 스키마에 "이 문제의
+   * 단어" 필드가 따로 없어서, 정답 자리에 오는 값을 순서대로 본다.
+   * 문장부호·공백·대소문자는 무시한다 ("안녕히 계세요" 와 "안녕히 계세요." 는
+   * 같은 것으로 봐야 한다).
+   *
+   * 빈 문자열이면 "대상 없음" 이다 — 그런 문제끼리는 중복으로 치지 않는다.
+   */
+  private subjectKeyOf(question: any): string {
+    const raw =
+      question?.baseWord ||
+      question?.answer ||
+      question?.audioText ||
+      (question?.blankAnswers ?? [])[0] ||
+      (question?.pairs ?? [])[0]?.korean ||
+      '';
+    return String(raw)
+      .normalize('NFC')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]/gu, '');
+  }
+
+  /**
+   * 같은 대상을 다루는 문제가 연달아 나오지 않게 최소한으로 자리를 바꾼다.
+   *
+   * ⚠️ 통째로 섞지 않는다. 시드의 문제 순서는 교육 순서다 — 그림으로 먼저
+   * 만나고, 연결하고, 빈칸을 채우고, 마지막에 말한다. 셔플해 버리면 한 번도
+   * 본 적 없는 단어를 말하라고 시키게 된다.
+   *
+   * 그래서 순서를 그대로 두고, **바로 앞과 대상이 같을 때만** 뒤에서 다른
+   * 대상을 하나 끌어온다. 결과는 결정적이라 같은 레슨이 매번 같은 순서로
+   * 나온다 (2단계 복습이 문제 id 를 추적하므로 이게 낫다).
+   */
+  private spreadBySubject<T>(items: T[]): T[] {
+    const pending = [...items];
+    const out: T[] = [];
+    let lastKey = '';
+
+    while (pending.length) {
+      let index = 0;
+      const headKey = this.subjectKeyOf(pending[0]);
+      if (headKey && headKey === lastKey) {
+        // 바로 앞과 같은 대상이다. 뒤에서 다른 대상을 하나 당겨온다
+        const alternative = pending.findIndex(
+          (item, i) => i > 0 && this.subjectKeyOf(item) !== lastKey,
+        );
+        if (alternative > 0) index = alternative;
+      }
+      const [picked] = pending.splice(index, 1);
+      out.push(picked);
+      lastKey = this.subjectKeyOf(picked);
+    }
+    return out;
+  }
+
+  /**
+   * 노드에 붙일 아이콘.
+   *
+   * 지금까지 모든 노드가 별 하나였다. 로드맵을 내려가도 전부 같은 모양이라
+   * 무엇을 배우는 자리인지 구분이 안 됐다.
+   *
+   * 노드가 들고 있는 레슨의 카테고리에서 유도한다 — 로드맵을 만들 때 레슨을
+   * 이미 전부 읽어두므로 추가 조회가 없다. 유닛의 마지막 노드는 내용과 무관하게
+   * 깃발을 준다. 한 유닛이 어디서 끝나는지 눈으로 보이는 게 낫다.
+   */
+  private nodeIconFor(
+    categories: (string | undefined)[],
+    isLastInUnit: boolean,
+  ): string {
+    if (isLastInUnit) return 'flag';
+
+    const count = new Map<string, number>();
+    for (const category of categories) {
+      if (!category) continue;
+      count.set(category, (count.get(category) ?? 0) + 1);
+    }
+    const dominant = [...count.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    switch (dominant) {
+      case LessonCategory.LISTENING:
+        return 'headset';
+      case LessonCategory.CONVERSATION:
+        return 'chatbubbles';
+      case LessonCategory.GRAMMAR:
+        return 'construct';
+      case LessonCategory.EXPRESSION:
+        return 'sparkles';
+      case LessonCategory.TOPIK:
+        return 'school';
+      default:
+        return 'book';
+    }
+  }
+
   // 레슨 상세 + 문제들 (lessonId로 조회)
   public async getLessonById(lessonId: string, lang: string = 'uz') {
     const lesson = await this.lessonModel.findById(lessonId).lean();
@@ -238,10 +334,14 @@ export class LessonsService {
       .lean();
 
     const questionMap = new Map(questions.map((q) => [q._id.toString(), q]));
-    const sortedQuestions = lesson.questionIds
+    const ordered = lesson.questionIds
       .map((id) => questionMap.get(id.toString()))
-      .filter(Boolean)
-      .map((q) => this.formatQuestion(q, lang));
+      .filter(Boolean);
+    // 시드에는 한 단어의 여러 유형이 몰려 있다(그림→연결→빈칸→말하기).
+    // 그대로 내보내면 같은 단어를 네 번 연속으로 묻는 꼴이 된다.
+    const sortedQuestions = this.spreadBySubject(ordered).map((q) =>
+      this.formatQuestion(q, lang),
+    );
 
     return {
       lessonId: lesson._id.toString(),
@@ -753,6 +853,9 @@ export class LessonsService {
           isCompleted: progress?.isCompleted ?? false,
         };
       });
+      const nodeCategories = node.lessonIds.map(
+        (lid) => lessonMap.get(lid.toString())?.category as string | undefined,
+      );
 
       const completedCount = nodeLessons.filter((l) => l.isCompleted).length;
       const totalCount = nodeLessons.length; // 보통 4
@@ -766,9 +869,13 @@ export class LessonsService {
       const unit = unitMap.get(unitKey);
       unit.nodes.push({
         id: node._id.toString(),
+        // type 은 'star' 로 둔다 — 화면이 이 값으로 현재 노드 애니메이션을
+        // 고르기 때문이다. 생김새는 iconName 으로만 바꾼다.
         type: 'star',
         status: 'locked',
         title: this.extractI18n(node.title, lang),
+        // 마지막 노드 판정은 유닛을 다 모은 뒤에 한다 (여기선 아직 모른다)
+        iconName: this.nodeIconFor(nodeCategories, false),
         completedLessons: completedCount,
         totalLessons: totalCount,
         lessons: nodeLessons,
@@ -814,6 +921,21 @@ export class LessonsService {
 
     // unit/node status 계산
     const units = Array.from(unitMap.values());
+
+    units.forEach((unit: any, index: number) => {
+      // 스코어 노드에 쓸 **전역 순번**.
+      //
+      // 예전에는 화면이 unit.unitNumber 를 그대로 썼는데, 유닛 번호는 섹션마다
+      // 1 부터 다시 시작한다. 그래서 다음 섹션으로 넘어가면 스코어가 1 로
+      // 되돌아갔다 — "계속 1 만 유지" 로 보이던 게 이것이다.
+      // 노드 순서대로 쌓은 배열이라 여기 index 가 곧 전체 진도다.
+      unit.scoreValue = index + 1;
+
+      // 유닛의 마지막 노드는 깃발. 어디서 한 유닛이 끝나는지 눈에 보여야 한다
+      const last = unit.nodes[unit.nodes.length - 1];
+      if (last && last.type === 'star') last.iconName = 'flag';
+    });
+
     let foundCurrentUnit = false;
     let score = 0;
 
@@ -1576,10 +1698,21 @@ export class LessonsService {
     );
     if (!qIds.size) return { attemptId: null, questions: [] };
 
+    // 문법 문제는 점프 테스트에서 뺀다.
+    //
+    // 점프는 "이 구간을 건너뛸 만큼 아는가" 를 보는 자리인데, 문법 트랙은
+    // 로드맵과 별개로 진행하는 별도 트랙이라 여기서 물으면 아직 배우지도 않은
+    // 걸로 막히게 된다. 유형(grammar_blank/grammar_build)과 문제의 소속
+    // 카테고리를 둘 다 본다 — 유형만 보면 문법 레슨에 들어 있는 일반 유형
+    // 문제가 그대로 새어 나온다.
     const questions = await this.questionModel
       .find({
         _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
         isActive: true,
+        type: {
+          $nin: [QuestionType.GRAMMAR_BLANK, QuestionType.GRAMMAR_BUILD],
+        },
+        lessonCategory: { $ne: LessonCategory.GRAMMAR },
       })
       .lean();
 
@@ -1603,7 +1736,10 @@ export class LessonsService {
       return true;
     });
 
-    const shuffled = unique.sort(() => Math.random() - 0.5).slice(0, limit);
+    // 섞은 뒤에도 같은 단어가 붙어 나올 수 있다. 한 번 더 벌려준다
+    const shuffled = this.spreadBySubject(
+      unique.sort(() => Math.random() - 0.5),
+    ).slice(0, limit);
 
     // 어떤 범위로, 어떤 문제를, 몇 개까지 틀려도 되는 조건으로 냈는지 서버가 기억한다.
     // 완료 요청은 오직 이 기록을 근거로만 처리된다.

@@ -49,6 +49,11 @@ export interface RoadmapUnit {
   color: string;
   status: SectionStatus;
   nodes: RoadmapNode[];
+  /**
+   * 스코어 노드에 표시할 전역 순번. 서버가 계산한다.
+   * unitNumber 를 쓰면 안 된다 — 섹션마다 1 로 되돌아간다.
+   */
+  scoreValue?: number;
 }
 
 export interface NextLockedSection {

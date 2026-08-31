@@ -40,12 +40,55 @@ export const SECTIONS: SectionMeta[] = [
       ru: 'Расскажите о профессии, хобби и цветах, расширяя повседневную речь.',
     },
   },
+  {
+    section: 3,
+    title: {
+      ko: '섹션 3',
+      uz: '3-bo‘lim',
+      en: 'Section 3',
+      ru: 'Раздел 3',
+    },
+    description: {
+      ko: '자기소개와 취미, 물건 사기와 길 찾기까지 생활 표현을 넓혀요.',
+      uz: 'O‘zingizni tanishtirish, sevimli mashg‘ulot, xarid va yo‘l so‘rashni o‘rganasiz.',
+      en: 'Introduce yourself, talk about hobbies, shop, and ask for directions.',
+      ru: 'Расскажите о себе и увлечениях, делайте покупки и спрашивайте дорогу.',
+    },
+  },
 ];
 
 const FALLBACK_LANG = 'en';
 
-export function getSectionMeta(section: number): SectionMeta | null {
-  return SECTIONS.find((s) => s.section === section) ?? null;
+/**
+ * 섹션 메타.
+ *
+ * ⚠️ 없는 섹션에 null 을 돌려주면 **로드맵의 다음 섹션 안내 카드가 통째로
+ * 사라진다.** 그러면 데이터상 다음 섹션이 있어도 넘어갈 길이 없어진다.
+ * 실제로 섹션 3 데이터를 넣고도 여기 메타를 안 넣어서 섹션 2 에서 길이
+ * 끊겨 있었다.
+ *
+ * 그래서 모르는 섹션은 최소한의 제목이라도 만들어 돌려준다. 설명이 밋밋한
+ * 건 고치면 되지만, 길이 막히는 건 유저가 알아챌 방법이 없다.
+ */
+export function getSectionMeta(section: number): SectionMeta {
+  const known = SECTIONS.find((s) => s.section === section);
+  if (known) return known;
+
+  return {
+    section,
+    title: {
+      ko: `섹션 ${section}`,
+      uz: `${section}-bo‘lim`,
+      en: `Section ${section}`,
+      ru: `Раздел ${section}`,
+    },
+    description: {
+      ko: '다음 단계로 넘어갈 준비가 됐어요.',
+      uz: 'Keyingi bosqichga o‘tishga tayyorsiz.',
+      en: 'Ready to move on to the next stage.',
+      ru: 'Пора переходить к следующему этапу.',
+    },
+  };
 }
 
 export function pickSectionText(
