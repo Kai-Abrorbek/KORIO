@@ -6,11 +6,15 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -48,10 +52,34 @@ import * as Haptics from "@/utils/haptics";
 import { useSeenWords } from "@/hooks/useSeenWords";
 import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
+import { isAnswerCorrect } from "@/utils/answer-check";
 
 const SECTIONS = [1, 2, 3];
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
+const INITIAL_RECALL_INTERVAL = 5;
+const FOLLOW_UP_RECALL_INTERVAL = 1;
+
+type RecallStatus = "idle" | "wrong" | "correct";
+
+function pickRecallWordId(
+  pendingIds: string[],
+  currentWordId?: string,
+  lastRecalledWordId?: string | null,
+) {
+  const spacedCandidates = pendingIds.filter(
+    (id) => id !== currentWordId && id !== lastRecalledWordId,
+  );
+  const freshCandidates = pendingIds.filter((id) => id !== lastRecalledWordId);
+  const candidates =
+    spacedCandidates.length > 0
+      ? spacedCandidates
+      : freshCandidates.length > 0
+        ? freshCandidates
+        : pendingIds;
+
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
 
 interface CardPalette {
   gradient: readonly [string, string];
@@ -105,10 +133,12 @@ function WordVisual({
   word,
   palette,
   theme,
+  concealHeadword = false,
 }: {
   word: StudyWord;
   palette: CardPalette;
   theme: ThemeColors;
+  concealHeadword?: boolean;
 }) {
   const { t } = useTranslation();
   const [imageFailed, setImageFailed] = useState(false);
@@ -140,7 +170,11 @@ function WordVisual({
         {showImage ? (
           <Image
             source={{ uri: word.media.imageUrl }}
-            accessibilityLabel={word.media.imageAlt || word.headword}
+            accessibilityLabel={
+              concealHeadword
+                ? t("wordStudy.recallPrompt")
+                : word.media.imageAlt || word.headword
+            }
             contentFit="contain"
             transition={220}
             onError={() => setImageFailed(true)}
@@ -158,7 +192,7 @@ function WordVisual({
             <Text
               style={[styles.letterFallbackText, { color: palette.accent }]}
             >
-              {word.headword.slice(0, 1)}
+              {concealHeadword ? "?" : word.headword.slice(0, 1)}
             </Text>
           </View>
         )}
@@ -309,6 +343,289 @@ function WordCard({
             </Text>
           </View>
         ) : null}
+      </View>
+    </View>
+  );
+}
+
+function RecallCard({
+  word,
+  index,
+  theme,
+  answer,
+  status,
+  hintVisible,
+  compact,
+  isSpeaking,
+  onChangeAnswer,
+  onSubmit,
+  onShowHint,
+  onSpeak,
+}: {
+  word: StudyWord;
+  index: number;
+  theme: ThemeColors;
+  answer: string;
+  status: RecallStatus;
+  hintVisible: boolean;
+  compact: boolean;
+  isSpeaking: boolean;
+  onChangeAnswer: (value: string) => void;
+  onSubmit: () => void;
+  onShowHint: () => void;
+  onSpeak: () => void;
+}) {
+  const { t } = useTranslation();
+  const palette = paletteFor(word, index);
+  const isCorrect = status === "correct";
+  const isWrong = status === "wrong";
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.surface,
+          borderColor: isCorrect
+            ? "#37B97A"
+            : isWrong
+              ? "#F06D7A"
+              : palette.gradient[0],
+          shadowColor: theme.text,
+        },
+      ]}
+    >
+      <WordVisual word={word} palette={palette} theme={theme} concealHeadword />
+
+      <View style={[styles.cardBody, compact && styles.recallBodyCompact]}>
+        <View style={styles.recallBadgeRow}>
+          <View
+            style={[styles.recallBadge, { backgroundColor: palette.accent }]}
+          >
+            <Ionicons name="sparkles" size={14} color="#FFFFFF" />
+            <Text style={styles.recallBadgeText}>
+              {t("wordStudy.recallBadge")}
+            </Text>
+          </View>
+          {!compact ? (
+            <Text
+              style={[styles.recallCountHint, { color: palette.accentDark }]}
+            >
+              {t("wordStudy.recallCountHint")}
+            </Text>
+          ) : null}
+        </View>
+        <Text
+          style={[
+            styles.recallInputLabel,
+            compact && styles.recallInputLabelCompact,
+            { color: theme.textSecondary },
+          ]}
+        >
+          {t("wordStudy.recallInputLabel")}
+        </Text>
+        <View
+          style={[
+            styles.recallInputShell,
+            compact && styles.recallInputShellCompact,
+            {
+              backgroundColor: palette.tint,
+              borderColor: isCorrect
+                ? "#37B97A"
+                : isWrong
+                  ? "#F06D7A"
+                  : palette.gradient[0],
+            },
+          ]}
+        >
+          <TextInput
+            autoFocus
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isCorrect}
+            returnKeyType="done"
+            value={answer}
+            onChangeText={onChangeAnswer}
+            onSubmitEditing={onSubmit}
+            placeholder={word.meaning}
+            placeholderTextColor={theme.textSecondary + "88"}
+            selectionColor={palette.accent}
+            style={[
+              styles.recallInput,
+              compact && styles.recallInputCompact,
+              { color: theme.text },
+            ]}
+          />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t("wordStudy.recallCheck")}
+            disabled={!answer.trim() || isCorrect}
+            onPress={onSubmit}
+            activeOpacity={0.84}
+            style={[
+              styles.recallCheckButton,
+              {
+                backgroundColor: isCorrect
+                  ? "#37B97A"
+                  : answer.trim()
+                    ? palette.accent
+                    : theme.border,
+              },
+            ]}
+          >
+            <Ionicons
+              name={isCorrect ? "checkmark" : "arrow-forward"}
+              size={21}
+              color={
+                isCorrect || answer.trim() ? "#FFFFFF" : theme.textSecondary
+              }
+            />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
+          {t("wordStudy.meaning")}
+        </Text>
+        <Text
+          style={[
+            styles.meaning,
+            compact && styles.recallMeaningCompact,
+            { color: theme.text },
+          ]}
+        >
+          {word.meaning}
+        </Text>
+
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+        <View
+          style={[
+            styles.recallFeedback,
+            compact && styles.recallFeedbackCompact,
+            {
+              backgroundColor: isCorrect
+                ? "#EAF9F1"
+                : isWrong
+                  ? "#FFF0F2"
+                  : theme.bg,
+              borderColor: isCorrect
+                ? "#BCEBD4"
+                : isWrong
+                  ? "#FFD0D6"
+                  : theme.border,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.recallFeedbackIcon,
+              {
+                backgroundColor: isCorrect
+                  ? "#37B97A"
+                  : isWrong
+                    ? "#F06D7A"
+                    : palette.accent,
+              },
+            ]}
+          >
+            <Ionicons
+              name={
+                isCorrect ? "checkmark" : isWrong ? "refresh" : "bulb-outline"
+              }
+              size={18}
+              color="#FFFFFF"
+            />
+          </View>
+          <View style={styles.recallFeedbackTextGroup}>
+            <Text
+              style={[
+                styles.recallFeedbackTitle,
+                {
+                  color: isCorrect
+                    ? "#168658"
+                    : isWrong
+                      ? "#C74355"
+                      : theme.text,
+                },
+              ]}
+            >
+              {hintVisible && !isCorrect
+                ? `${t("wordStudy.recallAnswer")}: ${word.headword}`
+                : t(
+                    isCorrect
+                      ? "wordStudy.recallCorrect"
+                      : isWrong
+                        ? "wordStudy.recallWrong"
+                        : "wordStudy.recallGuide",
+                  )}
+            </Text>
+            {!compact ? (
+              <Text
+                style={[
+                  styles.recallFeedbackDescription,
+                  { color: theme.textSecondary },
+                ]}
+              >
+                {hintVisible && !isCorrect
+                  ? t("wordStudy.recallHintInstruction")
+                  : t(
+                      isCorrect
+                        ? "wordStudy.recallCorrectSub"
+                        : isWrong
+                          ? "wordStudy.recallWrongSub"
+                          : "wordStudy.recallGuideSub",
+                    )}
+              </Text>
+            ) : null}
+          </View>
+          {isCorrect ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t("wordStudy.listenWord")}
+              onPress={onSpeak}
+              style={[
+                styles.recallSpeaker,
+                {
+                  backgroundColor: isSpeaking ? palette.accent : theme.surface,
+                },
+              ]}
+            >
+              <Ionicons
+                name={isSpeaking ? "volume-high" : "volume-medium-outline"}
+                size={21}
+                color={isSpeaking ? "#FFFFFF" : palette.accentDark}
+              />
+            </TouchableOpacity>
+          ) : !hintVisible ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t("wordStudy.recallHint")}
+              onPress={onShowHint}
+              activeOpacity={0.82}
+              style={[
+                styles.recallHintButton,
+                {
+                  backgroundColor: palette.tint,
+                  borderColor: palette.gradient[0],
+                },
+              ]}
+            >
+              <Ionicons
+                name="bulb-outline"
+                size={16}
+                color={palette.accentDark}
+              />
+              <Text
+                style={[
+                  styles.recallHintButtonText,
+                  { color: palette.accentDark },
+                ]}
+              >
+                {t("wordStudy.recallHint")}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
     </View>
   );
@@ -777,9 +1094,47 @@ export default function WordStudyScreen() {
   const [wordsLoading, setWordsLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
+  const [recallAnswer, setRecallAnswer] = useState("");
+  const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
+  const [recallHintVisible, setRecallHintVisible] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>(
+    [],
+  );
+  const seenWordIdsRef = useRef<string[]>([]);
+  const countedForwardWordIdsRef = useRef<Set<string>>(new Set());
+  const normalCardsSinceRecallRef = useRef(0);
+  const nextRecallIntervalRef = useRef(INITIAL_RECALL_INTERVAL);
+  const lastRecalledWordIdRef = useRef<string | null>(null);
+  const recallResultReportedRef = useRef(false);
+  const recallHadWrongAttemptRef = useRef(false);
+  const extraRecallTotalRef = useRef(0);
+  const extraRecallWindowRef = useRef(0);
+  const normalCardsAfterInitialRecallRef = useRef(0);
+  const scheduledExtraRecallsRef = useRef(0);
+  const activeRecallIsScheduledExtraRef = useRef(false);
 
   const translateX = useSharedValue(0);
   const gestureLocked = useSharedValue(0);
+
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const showSubscription = Keyboard.addListener(showEvent, () =>
+      setKeyboardVisible(true),
+    );
+    const hideSubscription = Keyboard.addListener(hideEvent, () =>
+      setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const loadSummaries = useCallback(async () => {
     setScopeLoading(true);
@@ -846,6 +1201,24 @@ export default function WordStudyScreen() {
     setLoadFailed(false);
     // 범위를 바꾸기 전에 지금까지 본 것을 넘긴다
     flushSeen();
+    setRecallWord(null);
+    setRecallAnswer("");
+    setRecallStatus("idle");
+    setRecallHintVisible(false);
+    setKeyboardVisible(false);
+    setPendingRecallWordIds([]);
+    seenWordIdsRef.current = [];
+    countedForwardWordIdsRef.current = new Set();
+    normalCardsSinceRecallRef.current = 0;
+    nextRecallIntervalRef.current = INITIAL_RECALL_INTERVAL;
+    lastRecalledWordIdRef.current = null;
+    recallResultReportedRef.current = false;
+    recallHadWrongAttemptRef.current = false;
+    extraRecallTotalRef.current = 0;
+    extraRecallWindowRef.current = 0;
+    normalCardsAfterInitialRecallRef.current = 0;
+    scheduledExtraRecallsRef.current = 0;
+    activeRecallIsScheduledExtraRef.current = false;
     setWords([]);
     setCardIndex(0);
     stop();
@@ -873,7 +1246,16 @@ export default function WordStudyScreen() {
       resumeIndexRef.current = null;
       if (!resumeConsumedRef.current && resumeAt != null && result.length > 0) {
         resumeConsumedRef.current = true;
-        setCardIndex(Math.min(Math.max(0, resumeAt), result.length - 1));
+        const restoredIndex = Math.min(
+          Math.max(0, resumeAt),
+          result.length - 1,
+        );
+        const restoredWordIds = result
+          .slice(0, restoredIndex + 1)
+          .map((word) => word.id);
+        seenWordIdsRef.current = restoredWordIds;
+        setPendingRecallWordIds(restoredWordIds);
+        setCardIndex(restoredIndex);
       }
     } catch {
       setLoadFailed(true);
@@ -901,8 +1283,24 @@ export default function WordStudyScreen() {
   const previousWord = cardIndex > 0 ? words[cardIndex - 1] : undefined;
   const nextWord =
     cardIndex < words.length - 1 ? words[cardIndex + 1] : undefined;
-  const canGoPrevious = Boolean(previousWord);
-  const canGoNext = Boolean(nextWord);
+  const hasPendingRecalls = pendingRecallWordIds.length > 0;
+  const canGoPrevious = recallWord
+    ? Boolean(currentWord)
+    : Boolean(previousWord);
+  const canGoNext = recallWord
+    ? recallStatus === "correct" && (Boolean(nextWord) || hasPendingRecalls)
+    : Boolean(nextWord) || hasPendingRecalls;
+  const nextPreviewWord = recallWord
+    ? recallStatus === "correct"
+      ? nextWord
+      : undefined
+    : nextWord;
+  const previousPreviewWord = recallWord ? currentWord : previousWord;
+  const hasFinishedDeck =
+    Boolean(currentWord) &&
+    !nextWord &&
+    !hasPendingRecalls &&
+    (!recallWord || recallStatus === "correct");
   const currentWordId = currentWord?.id ?? "";
   const currentSpeechText = currentWord
     ? currentWord.pronunciation.ttsText ||
@@ -912,13 +1310,31 @@ export default function WordStudyScreen() {
 
   useEffect(() => {
     markSeen(currentWordId);
+    if (currentWordId && !seenWordIdsRef.current.includes(currentWordId)) {
+      seenWordIdsRef.current.push(currentWordId);
+      setPendingRecallWordIds((current) => [...current, currentWordId]);
+    }
   }, [currentWordId, markSeen]);
 
   useEffect(() => {
-    if (!currentWordId || !currentSpeechText || !wordStudyAutoPlay) return;
+    if (
+      recallWord ||
+      !currentWordId ||
+      !currentSpeechText ||
+      !wordStudyAutoPlay
+    ) {
+      return;
+    }
     speak(currentSpeechText, "ko-KR");
     return stop;
-  }, [currentSpeechText, currentWordId, speak, stop, wordStudyAutoPlay]);
+  }, [
+    currentSpeechText,
+    currentWordId,
+    recallWord,
+    speak,
+    stop,
+    wordStudyAutoPlay,
+  ]);
 
   const fromStudyPath = params.from === "studyPath";
 
@@ -940,12 +1356,218 @@ export default function WordStudyScreen() {
     router.replace("/study-path");
   }, [flushSeen, router, section, studyLesson, unit]);
 
+  const clearRecall = useCallback(
+    (requeue = false) => {
+      Keyboard.dismiss();
+      setKeyboardVisible(false);
+      if (requeue && recallWord) {
+        setPendingRecallWordIds((current) =>
+          current.includes(recallWord.id)
+            ? current
+            : [...current, recallWord.id],
+        );
+        if (activeRecallIsScheduledExtraRef.current) {
+          scheduledExtraRecallsRef.current += 1;
+        }
+      }
+      setRecallWord(null);
+      setRecallAnswer("");
+      setRecallStatus("idle");
+      setRecallHintVisible(false);
+      recallResultReportedRef.current = false;
+      recallHadWrongAttemptRef.current = false;
+      activeRecallIsScheduledExtraRef.current = false;
+    },
+    [recallWord],
+  );
+
+  const submitRecall = useCallback(() => {
+    if (!recallWord || recallStatus === "correct" || !recallAnswer.trim()) {
+      return;
+    }
+
+    const correct = isAnswerCorrect(recallAnswer, recallWord.headword);
+    if (!recallResultReportedRef.current) {
+      recallResultReportedRef.current = true;
+      const learnedWithoutHelp = correct && !recallHadWrongAttemptRef.current;
+      WordService.reviewWord(
+        recallWord.id,
+        learnedWithoutHelp ? "good" : "again",
+      ).catch(() => {});
+    }
+
+    if (correct) {
+      Keyboard.dismiss();
+      if (recallHadWrongAttemptRef.current) {
+        setPendingRecallWordIds((current) =>
+          current.includes(recallWord.id)
+            ? current
+            : [...current, recallWord.id],
+        );
+      }
+      setRecallStatus("correct");
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      return;
+    }
+
+    recallHadWrongAttemptRef.current = true;
+    setRecallStatus("wrong");
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+  }, [recallAnswer, recallStatus, recallWord]);
+
+  const changeRecallAnswer = useCallback(
+    (value: string) => {
+      setRecallAnswer(value);
+      if (recallStatus === "wrong") setRecallStatus("idle");
+    },
+    [recallStatus],
+  );
+
+  const showRecallHint = useCallback(() => {
+    if (!recallWord || recallStatus === "correct") return;
+    recallHadWrongAttemptRef.current = true;
+    setRecallHintVisible(true);
+    setRecallStatus("idle");
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [recallStatus, recallWord]);
+
+  const showRecall = useCallback(
+    (candidateId?: string, isScheduledExtra = false) => {
+      if (!candidateId) return false;
+      const candidate = words.find((word) => word.id === candidateId);
+      if (!candidate) return false;
+
+      setPendingRecallWordIds((current) =>
+        current.filter((id) => id !== candidate.id),
+      );
+      normalCardsSinceRecallRef.current = 0;
+      nextRecallIntervalRef.current = FOLLOW_UP_RECALL_INTERVAL;
+      lastRecalledWordIdRef.current = candidate.id;
+      recallResultReportedRef.current = false;
+      recallHadWrongAttemptRef.current = false;
+      activeRecallIsScheduledExtraRef.current = isScheduledExtra;
+      setRecallAnswer("");
+      setRecallStatus("idle");
+      setRecallHintVisible(false);
+      setRecallWord(candidate);
+      translateX.value = 42;
+      translateX.value = withSpring(0, {
+        damping: 19,
+        stiffness: 210,
+        mass: 0.75,
+      });
+      gestureLocked.value = 0;
+      void Haptics.selectionAsync();
+      return true;
+    },
+    [gestureLocked, translateX, words],
+  );
+
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {
       stop();
-      setCardIndex((current) =>
-        Math.min(words.length - 1, Math.max(0, current + direction)),
-      );
+
+      if (recallWord) {
+        if (direction < 0) {
+          // 복습 카드는 앞으로 진행할 때만 존재한다. 뒤로 가면 방금 보던
+          // 일반 단어로 돌아간다. 풀지 않은 문제는 큐 끝으로 다시 보낸다.
+          clearRecall(true);
+        } else if (recallStatus === "correct") {
+          if (
+            scheduledExtraRecallsRef.current > 0 &&
+            pendingRecallWordIds.length > 0
+          ) {
+            const candidateId = pickRecallWordId(
+              pendingRecallWordIds,
+              currentWord?.id,
+              lastRecalledWordIdRef.current,
+            );
+            scheduledExtraRecallsRef.current -= 1;
+            if (showRecall(candidateId, true)) return;
+            scheduledExtraRecallsRef.current += 1;
+          }
+
+          if (nextWord) {
+            clearRecall();
+            setCardIndex((current) => Math.min(words.length - 1, current + 1));
+          } else {
+            const candidateId = pickRecallWordId(
+              pendingRecallWordIds,
+              currentWord?.id,
+              lastRecalledWordIdRef.current,
+            );
+            if (showRecall(candidateId)) return;
+          }
+        }
+      } else if (direction > 0 && currentWord) {
+        const alreadyCounted = countedForwardWordIdsRef.current.has(
+          currentWord.id,
+        );
+
+        if (!alreadyCounted) {
+          countedForwardWordIdsRef.current.add(currentWord.id);
+          normalCardsSinceRecallRef.current += 1;
+
+          if (
+            nextRecallIntervalRef.current === FOLLOW_UP_RECALL_INTERVAL &&
+            extraRecallWindowRef.current > 0
+          ) {
+            const previousStep = normalCardsAfterInitialRecallRef.current;
+            const currentStep = Math.min(
+              previousStep + 1,
+              extraRecallWindowRef.current,
+            );
+            const previouslyDistributed = Math.floor(
+              (previousStep * extraRecallTotalRef.current) /
+                extraRecallWindowRef.current,
+            );
+            const distributedNow = Math.floor(
+              (currentStep * extraRecallTotalRef.current) /
+                extraRecallWindowRef.current,
+            );
+            scheduledExtraRecallsRef.current += Math.max(
+              0,
+              distributedNow - previouslyDistributed,
+            );
+            normalCardsAfterInitialRecallRef.current = currentStep;
+          }
+        }
+
+        const intervalReached =
+          !alreadyCounted &&
+          normalCardsSinceRecallRef.current >= nextRecallIntervalRef.current;
+        const shouldRecall =
+          pendingRecallWordIds.length > 0 && (!nextWord || intervalReached);
+
+        if (shouldRecall) {
+          if (nextRecallIntervalRef.current === INITIAL_RECALL_INTERVAL) {
+            // 첫 5장 뒤 큐에 남는 복습은 마지막에 몰지 않는다. 남은 일반
+            // 카드 구간에 균등 분배해 연속 문제 묶음의 최대 길이를 줄인다.
+            extraRecallTotalRef.current = Math.max(
+              0,
+              pendingRecallWordIds.length - 1,
+            );
+            extraRecallWindowRef.current = Math.max(
+              0,
+              words.length - cardIndex - 1,
+            );
+            normalCardsAfterInitialRecallRef.current = 0;
+            scheduledExtraRecallsRef.current = 0;
+          }
+          const candidateId = pickRecallWordId(
+            pendingRecallWordIds,
+            currentWord.id,
+            lastRecalledWordIdRef.current,
+          );
+          if (showRecall(candidateId)) return;
+        }
+
+        setCardIndex((current) => Math.min(words.length - 1, current + 1));
+      } else {
+        setCardIndex((current) =>
+          Math.min(words.length - 1, Math.max(0, current + direction)),
+        );
+      }
       translateX.value = direction > 0 ? 42 : -42;
       translateX.value = withSpring(0, {
         damping: 19,
@@ -955,7 +1577,20 @@ export default function WordStudyScreen() {
       gestureLocked.value = 0;
       void Haptics.selectionAsync();
     },
-    [gestureLocked, stop, translateX, words.length],
+    [
+      cardIndex,
+      clearRecall,
+      currentWord,
+      gestureLocked,
+      nextWord,
+      pendingRecallWordIds,
+      recallStatus,
+      recallWord,
+      showRecall,
+      stop,
+      translateX,
+      words,
+    ],
   );
 
   const animateCardOut = useCallback(
@@ -1118,7 +1753,11 @@ export default function WordStudyScreen() {
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
 
   return (
-    <View style={screenStyles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      enabled={Platform.OS === "ios" && Boolean(recallWord)}
+      style={screenStyles.container}
+    >
       <LinearGradient
         colors={screenStyles.backgroundGradient}
         style={StyleSheet.absoluteFill}
@@ -1148,12 +1787,25 @@ export default function WordStudyScreen() {
             { backgroundColor: theme.surface, borderColor: theme.border },
           ]}
         >
-          <Text style={[styles.counterCurrent, { color: theme.text }]}>
-            {words.length ? cardIndex + 1 : 0}
-          </Text>
-          <Text style={[styles.counterTotal, { color: theme.textSecondary }]}>
-            / {words.length}
-          </Text>
+          {recallWord ? (
+            <>
+              <Ionicons name="sparkles" size={14} color={theme.primary} />
+              <Text style={[styles.counterRecall, { color: theme.primary }]}>
+                {t("wordStudy.recallShort")}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={[styles.counterCurrent, { color: theme.text }]}>
+                {words.length ? cardIndex + 1 : 0}
+              </Text>
+              <Text
+                style={[styles.counterTotal, { color: theme.textSecondary }]}
+              >
+                / {words.length}
+              </Text>
+            </>
+          )}
         </View>
       </View>
 
@@ -1181,37 +1833,41 @@ export default function WordStudyScreen() {
           { paddingBottom: Math.max(insets.bottom, 14) + 10 },
         ]}
       >
-        <Animated.View entering={FadeInDown.duration(320)}>
-          <TouchableOpacity
-            onPress={openScopePicker}
-            disabled={scopeLoading || summaries.every((item) => !item.words)}
-            activeOpacity={0.86}
-            style={[
-              styles.scopeButton,
-              { backgroundColor: theme.surface, borderColor: theme.border },
-            ]}
-          >
-            <View
-              style={[styles.scopeIcon, { backgroundColor: theme.primary }]}
+        {!keyboardVisible ? (
+          <Animated.View entering={FadeInDown.duration(320)}>
+            <TouchableOpacity
+              onPress={openScopePicker}
+              disabled={scopeLoading || summaries.every((item) => !item.words)}
+              activeOpacity={0.86}
+              style={[
+                styles.scopeButton,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+              ]}
             >
-              <Ionicons name="layers" size={19} color="#FFFFFF" />
-            </View>
-            <View style={styles.scopeTextGroup}>
-              <Text style={[styles.scopeLabel, { color: theme.textSecondary }]}>
-                {t("wordStudy.currentRange")}
-              </Text>
-              <Text style={[styles.scopeValue, { color: theme.text }]}>
-                {t("wordStudy.range", { section, unit })}
-              </Text>
-            </View>
-            <View style={[styles.changeChip, { backgroundColor: theme.bg }]}>
-              <Text style={[styles.changeChipText, { color: theme.primary }]}>
-                {t("wordStudy.change")}
-              </Text>
-              <Ionicons name="chevron-down" size={15} color={theme.primary} />
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
+              <View
+                style={[styles.scopeIcon, { backgroundColor: theme.primary }]}
+              >
+                <Ionicons name="layers" size={19} color="#FFFFFF" />
+              </View>
+              <View style={styles.scopeTextGroup}>
+                <Text
+                  style={[styles.scopeLabel, { color: theme.textSecondary }]}
+                >
+                  {t("wordStudy.currentRange")}
+                </Text>
+                <Text style={[styles.scopeValue, { color: theme.text }]}>
+                  {t("wordStudy.range", { section, unit })}
+                </Text>
+              </View>
+              <View style={[styles.changeChip, { backgroundColor: theme.bg }]}>
+                <Text style={[styles.changeChipText, { color: theme.primary }]}>
+                  {t("wordStudy.change")}
+                </Text>
+                <Ionicons name="chevron-down" size={15} color={theme.primary} />
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        ) : null}
 
         {scopeLoading || wordsLoading ? (
           <View style={styles.centerState}>
@@ -1285,26 +1941,26 @@ export default function WordStudyScreen() {
             style={styles.cardArea}
           >
             <View style={styles.deck}>
-              {nextWord ? (
+              {nextPreviewWord ? (
                 <Animated.View
                   pointerEvents="none"
                   style={[styles.previewLayer, nextPreviewStyle]}
                 >
                   <PreviewCard
-                    word={nextWord}
+                    word={nextPreviewWord}
                     index={cardIndex + 1}
                     theme={theme}
                   />
                 </Animated.View>
               ) : null}
-              {previousWord ? (
+              {previousPreviewWord ? (
                 <Animated.View
                   pointerEvents="none"
                   style={[styles.previewLayer, previousPreviewStyle]}
                 >
                   <PreviewCard
-                    word={previousWord}
-                    index={cardIndex - 1}
+                    word={previousPreviewWord}
+                    index={recallWord ? cardIndex : cardIndex - 1}
                     theme={theme}
                   />
                 </Animated.View>
@@ -1312,26 +1968,51 @@ export default function WordStudyScreen() {
 
               <GestureDetector gesture={panGesture}>
                 <Animated.View style={[styles.cardFill, currentCardStyle]}>
-                  <WordCard
-                    key={currentWord.id}
-                    word={currentWord}
-                    index={cardIndex}
-                    theme={theme}
-                    isSpeaking={isSpeaking}
-                    onSpeak={() =>
-                      speak(
-                        currentWord.pronunciation.ttsText ||
-                          currentWord.pronunciation.hangul ||
-                          currentWord.headword,
-                        "ko-KR",
-                      )
-                    }
-                  />
+                  {recallWord ? (
+                    <RecallCard
+                      key={`recall-${recallWord.id}`}
+                      word={recallWord}
+                      index={cardIndex}
+                      theme={theme}
+                      answer={recallAnswer}
+                      status={recallStatus}
+                      hintVisible={recallHintVisible}
+                      compact={keyboardVisible}
+                      isSpeaking={isSpeaking}
+                      onChangeAnswer={changeRecallAnswer}
+                      onSubmit={submitRecall}
+                      onShowHint={showRecallHint}
+                      onSpeak={() =>
+                        speak(
+                          recallWord.pronunciation.ttsText ||
+                            recallWord.pronunciation.hangul ||
+                            recallWord.headword,
+                          "ko-KR",
+                        )
+                      }
+                    />
+                  ) : (
+                    <WordCard
+                      key={currentWord.id}
+                      word={currentWord}
+                      index={cardIndex}
+                      theme={theme}
+                      isSpeaking={isSpeaking}
+                      onSpeak={() =>
+                        speak(
+                          currentWord.pronunciation.ttsText ||
+                            currentWord.pronunciation.hangul ||
+                            currentWord.headword,
+                          "ko-KR",
+                        )
+                      }
+                    />
+                  )}
                 </Animated.View>
               </GestureDetector>
             </View>
 
-            {fromStudyPath && !canGoNext && words.length > 0 ? (
+            {fromStudyPath && hasFinishedDeck && words.length > 0 ? (
               <TouchableOpacity
                 onPress={finishStudyPathUnit}
                 style={[
@@ -1347,14 +2028,23 @@ export default function WordStudyScreen() {
               </TouchableOpacity>
             ) : null}
 
-            <View style={styles.navigationRow}>
+            <View
+              pointerEvents={keyboardVisible ? "none" : "auto"}
+              style={[
+                styles.navigationRow,
+                keyboardVisible && styles.navigationRowHidden,
+              ]}
+            >
               <TouchableOpacity
                 accessibilityLabel={t("wordStudy.previous")}
                 disabled={!canGoPrevious}
                 onPress={() => animateCardOut(-1)}
                 style={[
                   styles.navButton,
-                  { backgroundColor: theme.surface, borderColor: theme.border },
+                  {
+                    backgroundColor: theme.surface,
+                    borderColor: theme.border,
+                  },
                   !canGoPrevious && styles.disabled,
                 ]}
               >
@@ -1363,14 +2053,26 @@ export default function WordStudyScreen() {
 
               <View style={styles.swipeHint}>
                 <Ionicons
-                  name="swap-horizontal"
+                  name={
+                    recallWord
+                      ? recallStatus === "correct"
+                        ? "arrow-forward"
+                        : "create-outline"
+                      : "swap-horizontal"
+                  }
                   size={18}
                   color={theme.textSecondary}
                 />
                 <Text
                   style={[styles.swipeHintText, { color: theme.textSecondary }]}
                 >
-                  {t("wordStudy.swipeHint")}
+                  {t(
+                    recallWord
+                      ? recallStatus === "correct"
+                        ? "wordStudy.recallContinue"
+                        : "wordStudy.recallAnswerFirst"
+                      : "wordStudy.swipeHint",
+                  )}
                 </Text>
               </View>
 
@@ -1410,7 +2112,7 @@ export default function WordStudyScreen() {
         onClose={() => setPickerVisible(false)}
         onApply={applyScope}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -1450,9 +2152,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 4,
   },
   counterCurrent: { fontSize: 14, fontWeight: "900" },
   counterTotal: { fontSize: 12, fontWeight: "700" },
+  counterRecall: { fontSize: 12, fontWeight: "900" },
   progressWrap: { paddingHorizontal: 22, paddingBottom: 10 },
   progressTrack: { height: 5, borderRadius: 99, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 99 },
@@ -1562,6 +2266,112 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 14 },
     elevation: 8,
   },
+  recallBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: 10,
+  },
+  recallBadge: {
+    height: 30,
+    borderRadius: 99,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  recallBadgeText: { color: "#FFFFFF", fontSize: 12, fontWeight: "900" },
+  recallCountHint: { flexShrink: 1, fontSize: 11, fontWeight: "800" },
+  recallMeaningCompact: { fontSize: 18, lineHeight: 25, marginTop: 2 },
+  recallBodyCompact: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  recallInputLabel: {
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: "900",
+    letterSpacing: 0.7,
+    marginBottom: 8,
+  },
+  recallInputLabelCompact: { marginBottom: 4 },
+  recallInputShell: {
+    minHeight: 64,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 17,
+    paddingRight: 7,
+  },
+  recallInputShellCompact: { minHeight: 56 },
+  recallInput: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: 31,
+    lineHeight: 39,
+    fontWeight: "900",
+    paddingVertical: 0,
+  },
+  recallInputCompact: { fontSize: 27, lineHeight: 34 },
+  recallCheckButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+  recallFeedback: {
+    minHeight: 76,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 13,
+    paddingVertical: 11,
+    marginTop: 14,
+  },
+  recallFeedbackCompact: {
+    minHeight: 54,
+    paddingVertical: 8,
+    marginTop: 8,
+  },
+  recallFeedbackIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recallFeedbackTextGroup: { flex: 1, paddingHorizontal: 11 },
+  recallFeedbackTitle: { fontSize: 14, lineHeight: 19, fontWeight: "900" },
+  recallFeedbackDescription: {
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  recallSpeaker: {
+    width: 38,
+    height: 38,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recallHintButton: {
+    minHeight: 38,
+    borderRadius: 13,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    gap: 5,
+  },
+  recallHintButtonText: { fontSize: 11, lineHeight: 15, fontWeight: "900" },
   visualArea: {
     // 고정 높이였다가 카드가 화면을 넘겼다. 남는 만큼만 차지하고 줄어든다.
     minHeight: 148,
@@ -1743,6 +2553,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 14,
   },
+  navigationRowHidden: { display: "none" },
   navButton: {
     width: 50,
     height: 50,
