@@ -16,6 +16,8 @@ export interface AssessedWord {
   word: string;
   accuracy: number;
   errorType: WordErrorType;
+  /** 이 단어가 오디오에서 끝나는 지점(ms). 읽기 연습에서만 채워진다 */
+  endMs?: number | null;
 }
 
 export interface SpeechScores {
@@ -41,4 +43,33 @@ export interface AssessResult {
 export interface TranscribeResult {
   status: SpeechStatus;
   text: string;
+}
+
+/** 참조 본문의 단어 하나가 이번 녹음에서 어떻게 됐는지 */
+export type ReadingWordStatus = 'passed' | 'failed' | 'not_read';
+
+export interface ReadingWordResult {
+  /** 본문 전체 기준 단어 번호 */
+  index: number;
+  word: string;
+  /** Azure 가 매긴 점수. 안 읽은 단어는 null */
+  accuracy: number | null;
+  status: ReadingWordStatus;
+}
+
+export interface ReadingAssessResult extends AssessResult {
+  startWordIndex: number;
+  nextWordIndex: number;
+  failedWordIndex: number | null;
+  passedWordCount: number;
+  totalWords: number;
+  complete: boolean;
+  referenceWords: string[];
+  /** 이번 구간 단어별 결과. 화면 디버깅과 향후 상세 표시에 쓴다 */
+  wordResults: ReadingWordResult[];
+  /**
+   * 이번 오디오에서 채점이 끝난 지점(ms).
+   * 앱은 여기까지만 버리고 나머지는 다음 요청에 이어 붙인다.
+   */
+  consumedMs: number;
 }

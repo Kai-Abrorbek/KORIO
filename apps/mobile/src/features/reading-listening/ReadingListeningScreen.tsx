@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
@@ -22,6 +22,7 @@ import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ReadingListeningService } from "@/services/reading-listening.service";
 import type {
+  CompleteReadingLessonResult,
   LocalizedReadingText,
   ReadingLessonSummary,
   ReadingListeningLesson,
@@ -29,6 +30,15 @@ import type {
 import { useSettingsStore } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
 import { READING_LISTENING_IMAGE_ASSETS } from "./reading-listening.assets";
+import {
+  buildReadingWordRanges,
+  type ReadingWordRange,
+} from "./reading-pronunciation";
+import { useReadingPronunciationPractice } from "./useReadingPronunciationPractice";
+import {
+  ReadingCompleteSheet,
+  type ReadingCompleteCopy,
+} from "./ReadingCompleteSheet";
 import {
   localizedReadingText,
   READING_LISTENING_PREVIEW,
@@ -63,6 +73,7 @@ interface ReadingPalette {
   blue: string;
   dangerSoft: string;
   danger: string;
+  unread: string;
 }
 
 const STEPS: StepDefinition[] = [
@@ -109,6 +120,7 @@ const UI_COPY: Record<
     answered: string;
     showTranslation: string;
     hideTranslation: string;
+    complete: ReadingCompleteCopy;
   }
 > = {
   ko: {
@@ -151,6 +163,19 @@ const UI_COPY: Record<
     answered: "문제 완료",
     showTranslation: "번역 보기",
     hideTranslation: "번역 닫기",
+    complete: {
+      title: "다 읽었어요!",
+      subtitle: "오늘 한 편을 끝냈어요",
+      repeatNote: "다시 읽기라 XP 는 조금만 드려요",
+      quiz: "내용 확인",
+      reading: "소리 내어 읽기",
+      writing: "내 문장 쓰기",
+      done: "확인",
+      saving: "기록하는 중...",
+      failed: "기록을 저장하지 못했어요",
+      retry: "다시 시도",
+      readingHint: "소리 내어 끝까지 읽으면 XP 를 더 받을 수 있어요.",
+    },
   },
   uz: {
     screenTitle: "O‘qish · tinglash",
@@ -192,6 +217,19 @@ const UI_COPY: Record<
     answered: "Bajarildi",
     showTranslation: "Tarjimani ko‘rish",
     hideTranslation: "Tarjimani yopish",
+    complete: {
+      title: "O‘qib bo‘ldingiz!",
+      subtitle: "Bugun bir matnni tugatdingiz",
+      repeatNote: "Takroriy o‘qish uchun XP kamroq beriladi",
+      quiz: "Tushunish savollari",
+      reading: "Ovoz chiqarib o‘qish",
+      writing: "O‘z gapim",
+      done: "Tayyor",
+      saving: "Saqlanmoqda...",
+      failed: "Natijani saqlab bo‘lmadi",
+      retry: "Qayta urinish",
+      readingHint: "Matnni ovoz chiqarib oxirigacha o‘qisangiz, ko‘proq XP olasiz.",
+    },
   },
   en: {
     screenTitle: "Reading · listening",
@@ -233,6 +271,19 @@ const UI_COPY: Record<
     answered: "Complete",
     showTranslation: "Show translation",
     hideTranslation: "Hide translation",
+    complete: {
+      title: "You finished it!",
+      subtitle: "One passage done for today",
+      repeatNote: "A repeat read, so XP is reduced",
+      quiz: "Comprehension",
+      reading: "Read aloud",
+      writing: "Your own sentence",
+      done: "Done",
+      saving: "Saving...",
+      failed: "Could not save your progress",
+      retry: "Try again",
+      readingHint: "Read the whole passage aloud next time for more XP.",
+    },
   },
   ru: {
     screenTitle: "Чтение · аудирование",
@@ -274,6 +325,94 @@ const UI_COPY: Record<
     answered: "Готово",
     showTranslation: "Показать перевод",
     hideTranslation: "Скрыть перевод",
+    complete: {
+      title: "Вы дочитали!",
+      subtitle: "Один текст на сегодня готов",
+      repeatNote: "Это повтор, поэтому XP меньше",
+      quiz: "Понимание текста",
+      reading: "Чтение вслух",
+      writing: "Своё предложение",
+      done: "Готово",
+      saving: "Сохраняем...",
+      failed: "Не удалось сохранить результат",
+      retry: "Ещё раз",
+      readingHint: "Прочитайте текст вслух до конца — получите больше XP.",
+    },
+  },
+};
+
+const READING_PRACTICE_COPY: Record<
+  ReadingLanguage,
+  {
+    start: string;
+    stop: string;
+    shortStart: string;
+    shortStop: string;
+    listening: string;
+    assessing: string;
+    retry: string;
+    complete: string;
+    hint: string;
+    noSpeech: string;
+    failed: string;
+    unavailable: string;
+  }
+> = {
+  ko: {
+    start: "직접 읽어 보기",
+    stop: "읽기 연습 멈추기",
+    shortStart: "읽기",
+    shortStop: "정지",
+    listening: "멈추지 말고 쭉 읽어 주세요",
+    assessing: "발음을 확인하고 있어요",
+    retry: "빨간 단어부터 다시 읽어 주세요",
+    complete: "본문을 끝까지 정확하게 읽었어요",
+    hint: "마이크를 켜고 쭉 읽으면 읽은 만큼 본문에 표시돼요.",
+    noSpeech: "목소리를 듣지 못했어요. 다시 읽어 주세요.",
+    failed: "발음을 확인하지 못했어요. 잠시 후 다시 읽어 주세요.",
+    unavailable: "이 기기에서는 마이크 읽기 연습을 사용할 수 없어요.",
+  },
+  uz: {
+    start: "Ovoz chiqarib o‘qish",
+    stop: "O‘qishni to‘xtatish",
+    shortStart: "Mashq",
+    shortStop: "To‘xta",
+    listening: "To‘xtamasdan davom eting",
+    assessing: "Talaffuz tekshirilmoqda",
+    retry: "Qizil so‘zdan yana o‘qing",
+    complete: "Matnni oxirigacha to‘g‘ri o‘qidingiz",
+    hint: "Mikrofonni yoqib o‘qing — o‘qilgan joylar matnda belgilanadi.",
+    noSpeech: "Ovoz eshitilmadi. Yana o‘qib ko‘ring.",
+    failed: "Talaffuzni tekshirib bo‘lmadi. Yana urinib ko‘ring.",
+    unavailable: "Bu qurilmada mikrofonli o‘qish mavjud emas.",
+  },
+  en: {
+    start: "Read aloud",
+    stop: "Stop reading practice",
+    shortStart: "Read",
+    shortStop: "Stop",
+    listening: "Keep reading — no need to stop",
+    assessing: "Checking your pronunciation",
+    retry: "Read again from the red word",
+    complete: "You read the whole passage accurately",
+    hint: "Turn on the microphone to mark each part as you read.",
+    noSpeech: "I could not hear you. Please read again.",
+    failed: "Pronunciation could not be checked. Please try again.",
+    unavailable: "Microphone reading practice is unavailable here.",
+  },
+  ru: {
+    start: "Читать вслух",
+    stop: "Остановить чтение",
+    shortStart: "Читать",
+    shortStop: "Стоп",
+    listening: "Читайте дальше, останавливаться не нужно",
+    assessing: "Проверяем произношение",
+    retry: "Прочитайте снова с красного слова",
+    complete: "Вы правильно прочитали весь текст",
+    hint: "Включите микрофон — прочитанные места будут отмечаться в тексте.",
+    noSpeech: "Голос не распознан. Прочитайте ещё раз.",
+    failed: "Не удалось проверить произношение. Попробуйте снова.",
+    unavailable: "На этом устройстве тренировка с микрофоном недоступна.",
   },
 };
 
@@ -295,6 +434,7 @@ function readingPalette(isDark: boolean): ReadingPalette {
     blue: isDark ? "#9BC8D2" : "#397D8B",
     dangerSoft: isDark ? "#482E30" : "#FBEAEC",
     danger: isDark ? "#F1A9AE" : "#B95660",
+    unread: isDark ? "#6F7B74" : "#B3BDB7",
   };
 }
 
@@ -309,6 +449,13 @@ interface PositionedPassageSegment {
   key: string;
   text: string;
   vocabularyId?: string;
+  startIndex: number;
+}
+
+interface PassagePart {
+  text: string;
+  active: boolean;
+  wordIndex: number | null;
   startIndex: number;
 }
 
@@ -350,24 +497,51 @@ function buildSpokenWordRanges(text: string): SpokenWordRange[] {
 function splitPassageSegment(
   segment: PositionedPassageSegment,
   activeRange: SpokenWordRange | null,
-) {
-  if (!activeRange) return [{ text: segment.text, active: false }];
-
+  readingRanges: ReadingWordRange[],
+): PassagePart[] {
   const chars = Array.from(segment.text);
+  const segmentStart = segment.startIndex;
   const segmentEnd = segment.startIndex + chars.length;
-  const overlapStart = Math.max(segment.startIndex, activeRange.startIndex);
-  const overlapEnd = Math.min(segmentEnd, activeRange.endIndex);
-  if (overlapStart >= overlapEnd) {
-    return [{ text: segment.text, active: false }];
+  const cuts = new Set<number>([segmentStart, segmentEnd]);
+
+  if (activeRange) {
+    const overlapStart = Math.max(segmentStart, activeRange.startIndex);
+    const overlapEnd = Math.min(segmentEnd, activeRange.endIndex);
+    if (overlapStart < overlapEnd) {
+      cuts.add(overlapStart);
+      cuts.add(overlapEnd);
+    }
   }
 
-  const localStart = overlapStart - segment.startIndex;
-  const localEnd = overlapEnd - segment.startIndex;
-  return [
-    { text: chars.slice(0, localStart).join(""), active: false },
-    { text: chars.slice(localStart, localEnd).join(""), active: true },
-    { text: chars.slice(localEnd).join(""), active: false },
-  ].filter((part) => part.text.length > 0);
+  for (const range of readingRanges) {
+    const overlapStart = Math.max(segmentStart, range.startIndex);
+    const overlapEnd = Math.min(segmentEnd, range.endIndex);
+    if (overlapStart < overlapEnd) {
+      cuts.add(overlapStart);
+      cuts.add(overlapEnd);
+    }
+  }
+
+  const boundaries = Array.from(cuts).sort((a, b) => a - b);
+  return boundaries.slice(0, -1).map((startIndex, index) => {
+    const endIndex = boundaries[index + 1];
+    const word = readingRanges.find(
+      (range) =>
+        range.startIndex <= startIndex && range.endIndex >= endIndex,
+    );
+    return {
+      text: chars
+        .slice(startIndex - segmentStart, endIndex - segmentStart)
+        .join(""),
+      active: Boolean(
+        activeRange &&
+          activeRange.startIndex < endIndex &&
+          activeRange.endIndex > startIndex,
+      ),
+      wordIndex: word?.index ?? null,
+      startIndex,
+    };
+  });
 }
 
 function Passage({
@@ -379,6 +553,10 @@ function Passage({
   palette,
   speechPlaying,
   speechProgress,
+  readingWordRanges,
+  readingPracticeVisible,
+  currentReadingWordIndex,
+  failedReadingWordIndex,
 }: {
   paragraphs: ReadingPassageParagraph[];
   passageText: string;
@@ -388,6 +566,10 @@ function Passage({
   palette: ReadingPalette;
   speechPlaying: boolean;
   speechProgress: number;
+  readingWordRanges: ReadingWordRange[];
+  readingPracticeVisible: boolean;
+  currentReadingWordIndex: number;
+  failedReadingWordIndex: number | null;
 }) {
   const positionedParagraphs = useMemo(() => {
     let charIndex = 0;
@@ -420,6 +602,8 @@ function Passage({
       ) ?? null
     );
   }, [speechPlaying, speechProgress, wordRanges]);
+  const currentReadingRange =
+    readingWordRanges[currentReadingWordIndex] ?? null;
 
   return (
     <View style={styles.passageBody}>
@@ -440,18 +624,64 @@ function Passage({
             const content = splitPassageSegment(
               segment,
               activeSpeechRange,
-            ).map((part, partIndex) => (
-              <Text
-                key={`${segment.key}-part-${partIndex}`}
-                style={
-                  part.active
-                    ? { color: palette.peachDark, fontWeight: "900" }
-                    : undefined
+              readingWordRanges,
+            ).map((part, partIndex) => {
+              let practiceStyle:
+                | {
+                    backgroundColor?: string;
+                    color: string;
+                    fontWeight?: "700" | "900";
+                  }
+                | undefined;
+              if (readingPracticeVisible && part.wordIndex !== null) {
+                // 배경은 **지금 읽을 단어와 틀린 단어에만** 깐다.
+                //
+                // 예전에는 읽은 단어마다 배경을 깔았는데, RN 의 inline
+                // backgroundColor 는 줄 높이만큼 통째로 칠해서 단어마다 네모가
+                // 생기고, 단어 사이 공백에는 안 깔려서 줄무늬처럼 보였다.
+                // 읽은 곳과 안 읽은 곳은 진하기 차이만으로 충분히 읽힌다.
+                if (part.wordIndex === failedReadingWordIndex) {
+                  practiceStyle = {
+                    backgroundColor: palette.dangerSoft,
+                    color: palette.danger,
+                    fontWeight: "900" as const,
+                  };
+                } else if (part.wordIndex === currentReadingWordIndex) {
+                  practiceStyle = {
+                    backgroundColor: palette.sageGlow,
+                    color: palette.ink,
+                    fontWeight: "900" as const,
+                  };
+                } else if (part.wordIndex < currentReadingWordIndex) {
+                  practiceStyle = {
+                    color: palette.ink,
+                    fontWeight: "700" as const,
+                  };
+                } else {
+                  practiceStyle = { color: palette.unread };
                 }
-              >
-                {part.text}
-              </Text>
-            ));
+              } else if (
+                readingPracticeVisible &&
+                currentReadingRange &&
+                part.startIndex >= currentReadingRange.startIndex
+              ) {
+                practiceStyle = { color: palette.unread };
+              }
+
+              return (
+                <Text
+                  key={`${segment.key}-part-${partIndex}`}
+                  style={
+                    practiceStyle ??
+                    (part.active
+                      ? { color: palette.peachDark, fontWeight: "900" }
+                      : undefined)
+                  }
+                >
+                  {part.text}
+                </Text>
+              );
+            });
 
             return segment.vocabularyId ? (
               <Text
@@ -511,6 +741,11 @@ function hasReadingTranslation(
 
 export default function ReadingListeningScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ level?: string }>();
+  const parsedLevel = Number(params.level);
+  const hasSelectedLevel =
+    Number.isInteger(parsedLevel) && parsedLevel >= 1 && parsedLevel <= 6;
+  const selectedLevel = hasSelectedLevel ? parsedLevel : 1;
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const language = useSettingsStore((state) => state.language);
@@ -521,8 +756,10 @@ export default function ReadingListeningScreen() {
   const isDark = theme.bg !== "#ffffff";
   const palette = useMemo(() => readingPalette(isDark), [isDark]);
   const localStyles = useMemo(() => createLocalStyles(palette), [palette]);
-  const [lesson, setLesson] = useState<ReadingListeningLesson>(
-    READING_LISTENING_PREVIEW,
+  const [lesson, setLesson] = useState<ReadingListeningLesson>(() =>
+    selectedLevel === READING_LISTENING_PREVIEW.level
+      ? READING_LISTENING_PREVIEW
+      : { ...READING_LISTENING_PREVIEW, level: selectedLevel },
   );
   const scrollRef = useRef<ScrollView>(null);
   const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } =
@@ -539,6 +776,14 @@ export default function ReadingListeningScreen() {
   );
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [writing, setWriting] = useState("");
+  /** 완료 시트. 저장 중 → 결과 → 확인 순으로 쓴다 */
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeSaving, setCompleteSaving] = useState(false);
+  const [completeError, setCompleteError] = useState(false);
+  const [completeResult, setCompleteResult] =
+    useState<CompleteReadingLessonResult | null>(null);
+  /** state 는 다음 렌더에야 반영돼서 연타를 못 막는다. 연타 방어는 ref 로 */
+  const completeSavingRef = useRef(false);
   const [showExample, setShowExample] = useState(false);
   const [revealedVocabulary, setRevealedVocabulary] = useState<string[]>([]);
   const [translatedQuestionIds, setTranslatedQuestionIds] = useState<string[]>(
@@ -560,6 +805,33 @@ export default function ReadingListeningScreen() {
         .join("\n\n"),
     [lesson.passage],
   );
+  const readingWordRanges = useMemo(
+    () => buildReadingWordRanges(passageText),
+    [passageText],
+  );
+  const {
+    phase: readingPracticePhase,
+    currentWordIndex: currentReadingWordIndex,
+    failedWordIndex: failedReadingWordIndex,
+    error: readingPracticeError,
+    sessionActive: readingPracticeActive,
+    isRecording: isReadingRecording,
+    toggle: toggleReadingPracticeSession,
+    stop: stopReadingPractice,
+    reset: resetReadingPractice,
+  } = useReadingPronunciationPractice({
+    lessonCode: lesson.code,
+    totalWords: readingWordRanges.length,
+  });
+  const readingPracticeCopy = READING_PRACTICE_COPY[normalizedLanguage];
+  const readingPracticeVisible =
+    !isPassageSpeechPlaying &&
+    (readingPracticeActive ||
+      currentReadingWordIndex > 0 ||
+      failedReadingWordIndex !== null ||
+      readingPracticePhase === "complete");
+  const currentReadingWord =
+    readingWordRanges[currentReadingWordIndex]?.word ?? "";
   const activeVocabulary = lesson.vocabulary.find(
     (item) => item.id === activeVocabularyId,
   );
@@ -575,24 +847,54 @@ export default function ReadingListeningScreen() {
     normalizedLanguage,
   );
 
+  // 순서가 바뀌었다: "확인 중"이 제일 위였는데, 이제는 읽는 동안 계속 채점이
+  // 돌아서 그 문구가 화면을 점령한다. 유저가 실제로 알아야 하는 건 "빨간 단어를
+  // 다시 읽어라" 와 "그냥 계속 읽어라" 둘뿐이다.
+  const readingPracticeStatus = readingPracticeError
+    ? readingPracticeError === "unsupported" ||
+      readingPracticeError === "permission"
+      ? readingPracticeCopy.unavailable
+      : readingPracticeCopy.failed
+    : readingPracticePhase === "retry"
+      ? readingPracticeCopy.retry
+      : readingPracticePhase === "complete"
+        ? readingPracticeCopy.complete
+        : readingPracticeActive
+          ? readingPracticeCopy.listening
+          : readingPracticeCopy.hint;
+
   useEffect(() => stop, [stop]);
 
   useEffect(() => {
+    if (!hasSelectedLevel) {
+      router.replace("/reading-listening-levels");
+      return;
+    }
+
     let mounted = true;
+    const returnToLevelPicker = () => {
+      if (router.canGoBack()) router.back();
+      else router.replace("/reading-listening-levels");
+    };
 
     const loadCatalog = async () => {
+      setIsCatalogLoading(true);
+      setLessonOptions([]);
       try {
-        const catalog = await ReadingListeningService.list(1);
+        const catalog = await ReadingListeningService.list(selectedLevel);
         if (!mounted) return;
         setLessonOptions(catalog.items);
 
         const firstLesson = catalog.items[0];
-        if (!firstLesson) return;
+        if (!firstLesson) {
+          returnToLevelPicker();
+          return;
+        }
 
         const detail = await ReadingListeningService.get(firstLesson.code);
         if (mounted) setLesson(detail);
       } catch {
-        if (mounted) setLesson(READING_LISTENING_PREVIEW);
+        if (mounted) returnToLevelPicker();
       } finally {
         if (mounted) setIsCatalogLoading(false);
       }
@@ -602,10 +904,11 @@ export default function ReadingListeningScreen() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [hasSelectedLevel, router, selectedLevel]);
 
   const resetLessonState = () => {
     stop();
+    resetReadingPractice();
     setStepIndex(0);
     setActiveVocabularyId(null);
     setAnswers({});
@@ -636,6 +939,7 @@ export default function ReadingListeningScreen() {
 
   const goBack = () => {
     stop();
+    stopReadingPractice();
     if (router.canGoBack()) router.back();
     else router.replace("/course-categories");
   };
@@ -643,9 +947,54 @@ export default function ReadingListeningScreen() {
   const selectStep = (index: number) => {
     if (index === stepIndex) return;
     stop();
+    stopReadingPractice();
     setStepIndex(index);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
     void Haptics.selectionAsync();
+  };
+
+  /**
+   * 완료를 서버에 보고한다.
+   *
+   * 점수도 XP 도 안 보낸다 — 고른 답과 쓴 글만 보내고 채점은 서버가 한다.
+   * 낭독은 아예 안 보낸다. 발음 평가 중에 서버가 직접 기록해둔 값을 쓴다.
+   */
+  const submitComplete = async () => {
+    // 두 번 눌러 두 번 저장되는 걸 막는다. 그러면 completions 가 두 번 오르고
+    // XP 도 두 번 나간다.
+    if (completeSavingRef.current) return;
+    completeSavingRef.current = true;
+    setCompleteOpen(true);
+    setCompleteSaving(true);
+    setCompleteError(false);
+    stopReadingPractice();
+    try {
+      const result = await ReadingListeningService.complete(lesson.code, {
+        answers: Object.entries(answers).map(([questionId, choiceIndex]) => ({
+          questionId,
+          choiceIndex,
+        })),
+        writingText: writing.trim() || undefined,
+      });
+      setCompleteResult(result);
+      // 목록을 다시 부르지 않고 이 항목만 갱신한다. 시트를 닫고 목록을
+      // 열었을 때 방금 끝낸 글에 체크가 없으면 저장이 안 된 줄 안다.
+      setLessonOptions((current) =>
+        current.map((item) =>
+          item.code === lesson.code
+            ? { ...item, progress: result.progress }
+            : item,
+        ),
+      );
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch {
+      // 저장이 실패해도 화면을 붙잡지 않는다. 다시 시도하거나 그냥 나갈 수 있게
+      setCompleteError(true);
+      setCompleteResult(null);
+    } finally {
+      completeSavingRef.current = false;
+      setCompleteSaving(false);
+    }
   };
 
   const continueLesson = () => {
@@ -654,8 +1003,7 @@ export default function ReadingListeningScreen() {
       selectStep(stepIndex + 1);
       return;
     }
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    goBack();
+    void submitComplete();
   };
 
   const togglePassageSpeech = () => {
@@ -664,6 +1012,7 @@ export default function ReadingListeningScreen() {
       setSpeechTarget(null);
       return;
     }
+    stopReadingPractice();
     speak(passageText, "ko-KR", {
       onDone: () => setSpeechTarget(null),
       onError: () => setSpeechTarget(null),
@@ -672,7 +1021,16 @@ export default function ReadingListeningScreen() {
     setSpeechTarget("passage");
   };
 
+  const toggleReadingPractice = () => {
+    if (!readingPracticeActive) {
+      stop();
+      setSpeechTarget(null);
+    }
+    void toggleReadingPracticeSession();
+  };
+
   const speakVocabulary = (word: string) => {
+    stopReadingPractice();
     speak(word, "ko-KR", {
       onDone: () => setSpeechTarget(null),
       onError: () => setSpeechTarget(null),
@@ -979,6 +1337,92 @@ export default function ReadingListeningScreen() {
                   </View>
                 </Pressable>
 
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    readingPracticeActive
+                      ? readingPracticeCopy.stop
+                      : readingPracticeCopy.start
+                  }
+                  accessibilityState={{ selected: readingPracticeActive }}
+                  onPress={toggleReadingPractice}
+                  style={({ pressed }) => [
+                    styles.readingMicButton,
+                    {
+                      backgroundColor:
+                        failedReadingWordIndex !== null
+                          ? palette.danger
+                          : readingPracticePhase === "complete"
+                            ? palette.sageSoft
+                            : readingPracticeActive
+                              ? palette.blue
+                              : palette.blueSoft,
+                      opacity: pressed ? 0.76 : 1,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.readingMicIcon,
+                      {
+                        backgroundColor:
+                          readingPracticeActive ||
+                          failedReadingWordIndex !== null
+                            ? "rgba(255,255,255,0.18)"
+                            : palette.surface,
+                      },
+                    ]}
+                  >
+                    {readingPracticePhase === "assessing" ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={
+                          readingPracticeActive ? "#FFFFFF" : palette.blue
+                        }
+                      />
+                    ) : (
+                      <Ionicons
+                        name={
+                          readingPracticePhase === "complete"
+                            ? "checkmark"
+                            : readingPracticeActive
+                              ? "stop"
+                              : "mic"
+                        }
+                        size={19}
+                        color={
+                          readingPracticeActive ||
+                          failedReadingWordIndex !== null
+                            ? "#FFFFFF"
+                            : readingPracticePhase === "complete"
+                              ? palette.sageDark
+                              : palette.blue
+                        }
+                      />
+                    )}
+                  </View>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.readingMicLabel,
+                      {
+                        color:
+                          readingPracticeActive ||
+                          failedReadingWordIndex !== null
+                            ? "#FFFFFF"
+                            : palette.ink,
+                      },
+                    ]}
+                  >
+                    {readingPracticeActive
+                      ? readingPracticeCopy.shortStop
+                      : readingPracticeCopy.shortStart}
+                  </Text>
+                  {isReadingRecording ? (
+                    <View style={styles.readingLiveDot} />
+                  ) : null}
+                </Pressable>
+
                 <View
                   style={[styles.fontControl, { borderColor: palette.line }]}
                 >
@@ -1035,6 +1479,92 @@ export default function ReadingListeningScreen() {
 
               <View
                 style={[
+                  styles.readingCoach,
+                  {
+                    backgroundColor:
+                      failedReadingWordIndex !== null
+                        ? palette.dangerSoft
+                        : readingPracticePhase === "complete"
+                          ? palette.sageSoft
+                          : readingPracticeActive
+                            ? palette.blueSoft
+                            : palette.cream,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.readingCoachIcon,
+                    {
+                      backgroundColor: palette.surface,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name={
+                      failedReadingWordIndex !== null
+                        ? "refresh"
+                        : readingPracticePhase === "complete"
+                          ? "checkmark"
+                          : readingPracticeActive
+                            ? "ear-outline"
+                            : "sparkles-outline"
+                    }
+                    size={16}
+                    color={
+                      failedReadingWordIndex !== null
+                        ? palette.danger
+                        : readingPracticePhase === "complete"
+                          ? palette.sageDark
+                          : readingPracticeActive
+                            ? palette.blue
+                            : palette.sageDark
+                    }
+                  />
+                </View>
+                <Text
+                  numberOfLines={2}
+                  style={[
+                    styles.readingCoachText,
+                    {
+                      color:
+                        failedReadingWordIndex !== null
+                          ? palette.danger
+                          : palette.sub,
+                    },
+                  ]}
+                >
+                  {readingPracticeStatus}
+                </Text>
+                {readingPracticeVisible &&
+                currentReadingWord &&
+                readingPracticePhase !== "complete" ? (
+                  <View
+                    style={[
+                      styles.readingTargetChip,
+                      { backgroundColor: palette.surface },
+                    ]}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.readingTargetText,
+                        {
+                          color:
+                            failedReadingWordIndex !== null
+                              ? palette.danger
+                              : palette.blue,
+                        },
+                      ]}
+                    >
+                      {currentReadingWord}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <View
+                style={[
                   styles.readingDivider,
                   { backgroundColor: palette.line },
                 ]}
@@ -1044,6 +1574,10 @@ export default function ReadingListeningScreen() {
                 passageText={passageText}
                 speechPlaying={isPassageSpeechPlaying}
                 speechProgress={speechProgress}
+                readingWordRanges={readingWordRanges}
+                readingPracticeVisible={readingPracticeVisible}
+                currentReadingWordIndex={currentReadingWordIndex}
+                failedReadingWordIndex={failedReadingWordIndex}
                 activeWordId={activeVocabularyId}
                 onWordPress={(id) => {
                   const vocabulary = lesson.vocabulary.find(
@@ -1794,6 +2328,22 @@ export default function ReadingListeningScreen() {
           </View>
         </Pressable>
       </ScrollView>
+
+      {completeOpen && (
+        <ReadingCompleteSheet
+          result={completeResult}
+          saving={completeSaving}
+          error={completeError}
+          copy={copy.complete}
+          palette={palette}
+          onRetry={() => void submitComplete()}
+          onDone={() => {
+            setCompleteOpen(false);
+            goBack();
+          }}
+        />
+      )}
+
       <Modal
         visible={isLessonPickerOpen}
         transparent
@@ -1831,7 +2381,7 @@ export default function ReadingListeningScreen() {
                     { color: palette.sageDark },
                   ]}
                 >
-                  {copy.lesson} · 1{copy.level}
+                  {copy.lesson} · {lesson.level}{copy.level}
                 </Text>
                 <Text
                   style={[styles.lessonPickerTitle, { color: palette.ink }]}
@@ -1887,6 +2437,8 @@ export default function ReadingListeningScreen() {
                 ) : (
                   lessonOptions.map((item) => {
                   const selected = item.code === lesson.code;
+                  // 끝낸 글은 한눈에 보여야 다음 걸 고른다
+                  const done = !!item.progress?.completed;
                   return (
                     <Pressable
                       key={item.code}
@@ -1925,6 +2477,19 @@ export default function ReadingListeningScreen() {
                         >
                           {String(item.unit).padStart(2, "0")}
                         </Text>
+                        {done && (
+                          <View
+                            style={[
+                              styles.lessonPickerDone,
+                              {
+                                backgroundColor: palette.sageDark,
+                                borderColor: palette.bg,
+                              },
+                            ]}
+                          >
+                            <Ionicons name="checkmark" size={11} color="#FFFFFF" />
+                          </View>
+                        )}
                       </View>
                       <View style={styles.lessonPickerItemCopy}>
                         <Text
@@ -2155,6 +2720,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  lessonPickerDone: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    width: 19,
+    height: 19,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   lessonPickerNumberText: {
     fontSize: 12,
     lineHeight: 16,
@@ -2244,7 +2820,75 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     maxWidth: "100%",
   },
-  readingToolbar: { flexDirection: "row", alignItems: "center", gap: 10 },
+  readingToolbar: { flexDirection: "row", alignItems: "center", gap: 8 },
+  readingMicButton: {
+    position: "relative",
+    width: 64,
+    minHeight: 64,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 3,
+  },
+  readingMicIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  readingMicLabel: {
+    maxWidth: 56,
+    fontSize: 9.5,
+    lineHeight: 12,
+    fontWeight: "900",
+  },
+  readingLiveDot: {
+    position: "absolute",
+    top: 7,
+    right: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+    backgroundColor: "#F05F68",
+  },
+  readingCoach: {
+    minHeight: 48,
+    marginTop: 10,
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  readingCoachIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  readingCoachText: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: 11.5,
+    lineHeight: 16,
+    fontWeight: "700",
+  },
+  readingTargetChip: {
+    maxWidth: 92,
+    borderRadius: 11,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+  },
+  readingTargetText: {
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: "900",
+  },
   audioButton: {
     flex: 1,
     minHeight: 64,
@@ -2266,7 +2910,7 @@ const styles = StyleSheet.create({
   audioTrack: { height: 4, marginTop: 8, borderRadius: 2, overflow: "hidden" },
   audioProgress: { height: 4, borderRadius: 2 },
   fontControl: {
-    width: 112,
+    width: 88,
     minHeight: 64,
     borderRadius: 19,
     borderWidth: 1,
@@ -2282,14 +2926,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   fontSizeButton: {
-    width: 34,
-    height: 34,
+    width: 26,
+    height: 32,
     borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
   },
   fontDot: {},
-  readingDivider: { height: 1, marginVertical: 24 },
+  readingDivider: { height: 1, marginVertical: 20 },
   passageBody: { paddingHorizontal: 2 },
   paragraph: {
     fontFamily: Platform.select({

@@ -46,6 +46,34 @@ export interface AssessResult {
   };
 }
 
+export type ReadingWordStatus = "passed" | "failed" | "not_read";
+
+export interface ReadingWordResult {
+  /** 본문 전체 기준 단어 번호 */
+  index: number;
+  word: string;
+  /** 안 읽은 단어는 null */
+  accuracy: number | null;
+  status: ReadingWordStatus;
+}
+
+export interface ReadingAssessResult extends AssessResult {
+  startWordIndex: number;
+  nextWordIndex: number;
+  failedWordIndex: number | null;
+  passedWordCount: number;
+  totalWords: number;
+  complete: boolean;
+  referenceWords: string[];
+  wordResults: ReadingWordResult[];
+  /**
+   * 이번 오디오에서 채점이 끝난 지점(ms).
+   * 앱은 여기까지만 버리고 나머지는 다음 구간으로 이어 붙인다 — 그래야
+   * 한 호흡에 참조보다 많이 읽어도 뒷부분이 안 날아간다.
+   */
+  consumedMs: number;
+}
+
 export interface TranscribeResult {
   status: SpeechStatus;
   text: string;
@@ -58,6 +86,21 @@ export const SttService = {
   assess: (questionId: string, wav: ArrayBuffer): Promise<AssessResult> =>
     api.postBinary(
       `/speech/assess?questionId=${encodeURIComponent(questionId)}`,
+      wav,
+      WAV_CONTENT_TYPE,
+    ),
+
+  /** 읽기 연습 — 참조 구간은 lessonCode와 위치로 서버가 DB에서 결정한다 */
+  assessReading: (
+    lessonCode: string,
+    startWordIndex: number,
+    wordCount: number,
+    wav: ArrayBuffer,
+  ): Promise<ReadingAssessResult> =>
+    api.postBinary(
+      `/speech/assess-reading?lessonCode=${encodeURIComponent(
+        lessonCode,
+      )}&startWordIndex=${startWordIndex}&wordCount=${wordCount}`,
       wav,
       WAV_CONTENT_TYPE,
     ),

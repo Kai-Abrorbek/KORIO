@@ -17,9 +17,25 @@ export type SpeechRecorderError =
 
 const MIN_SAMPLES = TARGET_SAMPLE_RATE * 0.4; // 0.4초 미만은 서버가 어차피 거절
 
+function rmsLevel(samples: Int16Array): number {
+  if (!samples.length) return 0;
+  let sumSquares = 0;
+  let count = 0;
+  for (let index = 0; index < samples.length; index += 4) {
+    const value = samples[index];
+    sumSquares += value * value;
+    count++;
+  }
+  return count ? Math.sqrt(sumSquares / count) : 0;
+}
+
 interface Options {
   /** 이 시간이 지나면 자동으로 멈추고 결과를 넘긴다 */
   maxSeconds?: number;
+  /** 말이 시작된 뒤 이만큼 조용하면 현재 구간을 자동 제출한다 */
+  silenceStopMs?: number;
+  /** 자동 제출용 음성 감지 RMS 기준 */
+  voiceRmsThreshold?: number;
   /** 녹음이 끝나면 완성된 WAV 바이트를 받는다 */
   onResult: (wav: ArrayBuffer) => void;
   onError?: (error: SpeechRecorderError) => void;
@@ -31,6 +47,8 @@ interface Options {
  */
 export function useSpeechRecorder({
   maxSeconds = 15,
+  silenceStopMs,
+  voiceRmsThreshold = 650,
   onResult,
   onError,
 }: Options) {
@@ -40,6 +58,14 @@ export function useSpeechRecorder({
   const sourceRate = useRef(TARGET_SAMPLE_RATE);
   const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
   const active = useRef(false);
+  const voiceStarted = useRef(false);
+  const lastVoiceAt = useRef(0);
+  const silenceFinishQueued = useRef(false);
+  const finishRef = useRef<() => void>(() => undefined);
+  const silenceStopMsRef = useRef(silenceStopMs);
+  silenceStopMsRef.current = silenceStopMs;
+  const voiceRmsThresholdRef = useRef(voiceRmsThreshold);
+  voiceRmsThresholdRef.current = voiceRmsThreshold;
 
   // 콜백이 바뀌어도 스트림을 다시 만들지 않도록 ref 로 잡아둔다
   const onResultRef = useRef(onResult);
@@ -59,7 +85,23 @@ export function useSpeechRecorder({
 
       // 네이티브 버퍼가 재사용될 수 있으니 복사해서 들고 있는다
       const pcm = new Int16Array(buffer.data.slice(0));
-      chunks.current.push(buffer.channels === 2 ? foldToMono(pcm) : pcm);
+      const mono = buffer.channels === 2 ? foldToMono(pcm) : pcm;
+      chunks.current.push(mono);
+
+      const silenceMs = silenceStopMsRef.current;
+      if (!silenceMs || silenceFinishQueued.current) return;
+
+      const now = Date.now();
+      if (rmsLevel(mono) >= voiceRmsThresholdRef.current) {
+        voiceStarted.current = true;
+        lastVoiceAt.current = now;
+        return;
+      }
+
+      if (voiceStarted.current && now - lastVoiceAt.current >= silenceMs) {
+        silenceFinishQueued.current = true;
+        setTimeout(() => finishRef.current(), 0);
+      }
     },
   });
 
@@ -75,6 +117,7 @@ export function useSpeechRecorder({
     active.current = false;
     clearTimer();
     setIsRecording(false);
+    silenceFinishQueued.current = false;
     try {
       stream?.stop();
     } catch {
@@ -95,6 +138,7 @@ export function useSpeechRecorder({
     }
     onResultRef.current(encodeWav(resampled, TARGET_SAMPLE_RATE));
   }, [stream]);
+  finishRef.current = finish;
 
   const start = useCallback(async () => {
     if (active.current) return false;
@@ -112,6 +156,9 @@ export function useSpeechRecorder({
 
     chunks.current = [];
     sourceRate.current = TARGET_SAMPLE_RATE;
+    voiceStarted.current = false;
+    lastVoiceAt.current = 0;
+    silenceFinishQueued.current = false;
 
     try {
       await activateRecordingAudio();
@@ -135,6 +182,9 @@ export function useSpeechRecorder({
     clearTimer();
     setIsRecording(false);
     chunks.current = [];
+    voiceStarted.current = false;
+    lastVoiceAt.current = 0;
+    silenceFinishQueued.current = false;
     try {
       stream?.stop();
     } catch {

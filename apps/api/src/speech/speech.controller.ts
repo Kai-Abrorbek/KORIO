@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Body,
   Controller,
   Post,
   Query,
@@ -34,6 +33,26 @@ export class SpeechController {
   transcribe(@Req() req: Request) {
     return this.speechService.transcribe(
       req.user!['_id'].toString(),
+      this.readAudio(req),
+    );
+  }
+
+  @Post('assess-reading')
+  assessReading(
+    @Req() req: Request,
+    @Query('lessonCode') lessonCode: string,
+    @Query('startWordIndex') startWordIndex: string,
+    @Query('wordCount') wordCount: string,
+  ) {
+    if (!lessonCode?.trim()) {
+      throw new BadRequestException('READING_LESSON_CODE_REQUIRED');
+    }
+
+    return this.speechService.assessReading(
+      req.user!['_id'].toString(),
+      lessonCode.trim(),
+      Number(startWordIndex),
+      Number(wordCount),
       this.readAudio(req),
     );
   }

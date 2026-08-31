@@ -15,6 +15,10 @@ import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
 import { Lesson, LessonDocument } from '../lessons/schemas/lesson.schema';
 import {
+  ReadingLesson,
+  ReadingLessonDocument,
+} from '../reading-lessons/schemas/reading-lesson.schema';
+import {
   AZURE_TIMEOUT_MS,
   SPEECH_BITS_PER_SAMPLE,
   SPEECH_CHANNELS,
@@ -23,11 +27,16 @@ import {
   SPEECH_MIN_SECONDS,
   SPEECH_RATE_LIMIT,
   SPEECH_SAMPLE_RATE,
+  READING_SHORT_WORD_ACCURACY,
+  READING_SHORT_WORD_LENGTH,
+  READING_WORD_ACCURACY,
   thresholdForSection,
 } from './speech.constants';
 import {
   AssessResult,
   AssessedWord,
+  ReadingAssessResult,
+  ReadingWordResult,
   SpeechScores,
   SpeechStatus,
   TranscribeResult,
@@ -37,7 +46,19 @@ import {
 interface ResolvedWord {
   Word?: string;
   PronunciationAssessment?: { AccuracyScore?: number; ErrorType?: string };
+  /**
+   * 이 단어가 오디오의 어디에 있었는지. 단위는 100나노초 틱이다.
+   *
+   * 읽기 연습에서 이게 필요하다: 앱이 마이크를 계속 켜둔 채로 읽게 하려면,
+   * "이번에 채점한 데까지의 오디오" 를 정확히 잘라내고 나머지는 다음 요청에
+   * 남겨야 한다. 그래야 한 호흡에 참조보다 많이 읽어도 뒷부분이 안 날아간다.
+   */
+  Offset?: number;
+  Duration?: number;
 }
+
+/** 100나노초 틱 → 밀리초 */
+const TICKS_PER_MS = 10_000;
 
 interface RecognizeOutcome {
   status: SpeechStatus;
@@ -66,6 +87,8 @@ export class SpeechService {
     private readonly questionModel: Model<QuestionDocument>,
     @InjectModel(Lesson.name)
     private readonly lessonModel: Model<LessonDocument>,
+    @InjectModel(ReadingLesson.name)
+    private readonly readingLessonModel: Model<ReadingLessonDocument>,
   ) {}
 
   /** Speaking 문제: 참조 문장 대비 발음 평가 */
@@ -135,6 +158,263 @@ export class SpeechService {
     };
   }
 
+  /** 읽기 연습: DB 본문에서 현재 구간을 찾아 단어 단위로 발음을 평가한다. */
+  async assessReading(
+    userId: string,
+    lessonCode: string,
+    startWordIndex: number,
+    wordCount: number,
+    wav: Buffer,
+  ): Promise<ReadingAssessResult> {
+    this.consumeRateLimit(userId);
+    this.validateWav(wav);
+
+    const reference = await this.resolveReadingChunk(
+      lessonCode,
+      startWordIndex,
+      wordCount,
+    );
+    const threshold = thresholdForSection(reference.level);
+    const stats = this.audioStats(wav);
+    // miscue 를 켜서 부른다 — 이유는 recognize() 안에 적어놨다
+    const outcome = await this.recognize(wav, reference.text, true);
+    const scores: SpeechScores = outcome.scores ?? {
+      pron: 0,
+      accuracy: 0,
+      fluency: 0,
+      completeness: 0,
+      prosody: null,
+    };
+    const words: AssessedWord[] = outcome.words.map((word) => ({
+      word: word.Word ?? '',
+      accuracy: this.num(word.PronunciationAssessment?.AccuracyScore),
+      errorType: (word.PronunciationAssessment?.ErrorType ??
+        'None') as WordErrorType,
+      endMs:
+        word.Offset != null && word.Duration != null
+          ? Math.round((word.Offset + word.Duration) / TICKS_PER_MS)
+          : null,
+    }));
+
+    // Azure 응답을 참조 단어에 맞춘다. 위치로 그냥 믿으면 안 된다 — 자세한
+    // 이유는 alignToReference() 주석 참고.
+    const aligned = this.alignToReference(reference.words, words);
+
+    const { passedWordCount, failedWordOffset, wordResults } =
+      outcome.status === 'success'
+        ? this.gradeReadingWords(reference.words, aligned, startWordIndex)
+        : this.blankReadingWords(reference.words, startWordIndex);
+
+    // 한 단어도 못 읽었고 틀린 것도 없으면 소리가 안 잡힌 것이다.
+    // 성공으로 돌려보내면 화면이 아무 반응 없이 다시 녹음만 반복한다.
+    const status: SpeechStatus =
+      outcome.status === 'success' &&
+      passedWordCount === 0 &&
+      failedWordOffset === null
+        ? 'no_speech'
+        : outcome.status;
+
+    // 이번 오디오에서 채점이 끝난 지점(ms). 앱은 여기까지만 버리고 나머지는
+    // 다음 요청에 이어 붙인다 — 한 호흡에 참조보다 많이 읽어도 안 날아간다.
+    // 통과한 마지막 단어가 없으면 0 을 준다 (= 아무것도 버리지 말고 다시 보내라).
+    const consumedMs = this.consumedMsOf(aligned, passedWordCount);
+
+    const nextWordIndex = startWordIndex + passedWordCount;
+    const complete = nextWordIndex >= reference.totalWords;
+    const chunkPassed = passedWordCount === reference.words.length;
+    const failedWordIndex =
+      failedWordOffset === null ? null : startWordIndex + failedWordOffset;
+
+    // 기준을 조정하려면 이 로그의 단어별 실제 점수를 봐야 한다.
+    this.logger.log(
+      `읽기 발음 평가: lesson=${lessonCode} start=${startWordIndex} ` +
+        `passed=${passedWordCount}/${reference.words.length} ` +
+        `status=${status} audio=${stats.seconds}s peak=${stats.peakPct}% ` +
+        `ref="${reference.text}" heard="${outcome.text}" ` +
+        `점수=[${wordResults
+          .map((w) => `${w.word}:${w.accuracy ?? '-'}/${w.status}`)
+          .join(' ')}] ` +
+        `azure=[${words.map((w) => `${w.word}:${w.accuracy}:${w.errorType}`).join(' ')}]`,
+    );
+
+    return {
+      status,
+      passed: chunkPassed,
+      transcript: outcome.text,
+      referenceText: reference.text,
+      scores,
+      words,
+      threshold: {
+        tier: threshold.tier,
+        pron: threshold.pron,
+        completeness: threshold.completeness,
+      },
+      startWordIndex,
+      nextWordIndex,
+      failedWordIndex,
+      passedWordCount,
+      totalWords: reference.totalWords,
+      complete,
+      referenceWords: reference.words,
+      wordResults,
+      consumedMs,
+    };
+  }
+
+  /**
+   * 통과한 마지막 단어가 오디오에서 끝나는 지점(ms).
+   *
+   * 이걸 안 주면 앱은 "어디까지 먹혔는지" 를 몰라서 녹음을 통째로 버리거나
+   * 통째로 다시 보내야 한다. 앞은 뒤늦게 읽은 말을 잃고 뒤는 같은 오디오를
+   * 반복 채점해서 돈이 샌다.
+   */
+  private consumedMsOf(
+    aligned: (AssessedWord | null)[],
+    passedWordCount: number,
+  ): number {
+    for (let index = passedWordCount - 1; index >= 0; index--) {
+      const endMs = aligned[index]?.endMs;
+      if (endMs != null && endMs > 0) return endMs;
+    }
+    return 0;
+  }
+
+  /**
+   * 맞춰둔 결과를 앞에서부터 훑어 어디까지 읽었고 어디서 틀렸는지 정한다.
+   *
+   * 규칙 하나가 핵심이다: **안 읽은 단어와 잘못 읽은 단어를 구분한다.**
+   * 한 번에 5단어를 참조로 주는데 유저는 보통 그중 일부만 읽고 숨을 고른다.
+   * 안 읽은 나머지를 오답으로 치면 아직 읽지도 않은 단어가 빨갛게 뜬다.
+   */
+  private gradeReadingWords(
+    reference: string[],
+    aligned: (AssessedWord | null)[],
+    startWordIndex: number,
+  ) {
+    const wordResults = this.blankReadingWords(
+      reference,
+      startWordIndex,
+    ).wordResults;
+    let passedWordCount = 0;
+    let failedWordOffset: number | null = null;
+
+    for (let index = 0; index < reference.length; index++) {
+      const assessed = aligned[index];
+
+      // 안 읽었다 (Omission 이거나 응답에 아예 없다)
+      if (!assessed || assessed.errorType === 'Omission') {
+        // 뒤쪽에 읽은 단어가 있으면 "건너뛰고 읽었다" 는 뜻이라 오답이다.
+        // 없으면 여기까지 읽고 쉰 것이니 통과도 오답도 아니고 그냥 멈춘다.
+        const spokeLater = aligned
+          .slice(index + 1)
+          .some(
+            (later) =>
+              !!later && later.errorType !== 'Omission' && later.accuracy > 0,
+          );
+        if (spokeLater) {
+          failedWordOffset = index;
+          wordResults[index].status = 'failed';
+        }
+        break;
+      }
+
+      wordResults[index].accuracy = assessed.accuracy;
+
+      if (assessed.accuracy < this.readingWordBar(reference[index])) {
+        failedWordOffset = index;
+        wordResults[index].status = 'failed';
+        break;
+      }
+
+      wordResults[index].status = 'passed';
+      passedWordCount++;
+    }
+
+    return { passedWordCount, failedWordOffset, wordResults };
+  }
+
+  private blankReadingWords(reference: string[], startWordIndex: number) {
+    const wordResults: ReadingWordResult[] = reference.map((word, offset) => ({
+      index: startWordIndex + offset,
+      word,
+      accuracy: null,
+      status: 'not_read' as const,
+    }));
+    return {
+      passedWordCount: 0,
+      failedWordOffset: null as number | null,
+      wordResults,
+    };
+  }
+
+  /**
+   * Azure 가 돌려준 단어를 참조 단어에 하나씩 맞춘다.
+   *
+   * 왜 위치로 그냥 못 믿는가 — 이게 "다 틀렸다고 나온다" 의 원인이었다:
+   *  1) miscue 를 끄면 Azure 는 **인식한 단어만** 돌려준다. 안 읽은 단어는
+   *     배열에서 통째로 빠져서 그 뒤가 한 칸씩 밀린다.
+   *  2) miscue 를 켜도 Insertion(참조에 없는 말)이 배열 중간에 끼어든다.
+   *  3) 한국어 어절을 Azure 가 우리 정규식과 다르게 자를 수 있다.
+   *
+   * 셋 중 하나만 일어나도 한 칸 밀리고, 그 뒤 단어는 전부 엉뚱한 참조와
+   * 비교돼서 낮은 점수가 나온다. 그래서 이름으로 맞춘다.
+   */
+  private alignToReference(
+    reference: string[],
+    assessed: AssessedWord[],
+  ): (AssessedWord | null)[] {
+    // 참조에 없는 말은 자리 계산에서 뺀다
+    const usable = assessed.filter((w) => w.errorType !== 'Insertion');
+
+    // 정상 경로: 개수도 맞고 단어도 순서대로 맞으면 그대로 쓴다
+    if (
+      usable.length === reference.length &&
+      usable.every((w, i) => this.sameWord(w.word, reference[i]))
+    ) {
+      return usable;
+    }
+
+    const out: (AssessedWord | null)[] = [];
+    let cursor = 0;
+    for (const ref of reference) {
+      let found = -1;
+      // 앞뒤로 조금만 본다. 멀리까지 뒤지면 우연히 같은 단어에 붙는다
+      for (let j = cursor; j < usable.length && j <= cursor + 2; j++) {
+        if (this.sameWord(usable[j].word, ref)) {
+          found = j;
+          break;
+        }
+      }
+      if (found >= 0) {
+        out.push(usable[found]);
+        cursor = found + 1;
+      } else {
+        out.push(null);
+      }
+    }
+    return out;
+  }
+
+  /** 문장부호·대소문자·유니코드 표기 차이를 무시하고 같은 단어인지 본다 */
+  private sameWord(a: string, b: string): boolean {
+    const norm = (v: string) =>
+      (v ?? '')
+        .normalize('NFC')
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]/gu, '');
+    return norm(a) === norm(b) && norm(a).length > 0;
+  }
+
+  /**
+   * 이 단어를 통과로 볼 점수.
+   * 짧은 어절은 Azure 점수가 들쭉날쭉해서 기준을 낮춘다 (상수 파일 주석 참고).
+   */
+  private readingWordBar(word: string): number {
+    return Array.from(word).length < READING_SHORT_WORD_LENGTH
+      ? READING_SHORT_WORD_ACCURACY
+      : READING_WORD_ACCURACY;
+  }
+
   /** TranslateType 마이크: 참조 문장 없이 그냥 받아쓰기 */
   async transcribe(userId: string, wav: Buffer): Promise<TranscribeResult> {
     this.consumeRateLimit(userId);
@@ -164,6 +444,7 @@ export class SpeechService {
   private recognize(
     wav: Buffer,
     referenceText?: string,
+    enableMiscue = false,
   ): Promise<RecognizeOutcome> {
     const speechConfig = this.buildSpeechConfig();
     const audioConfig = sdk.AudioConfig.fromWavFileInput(wav);
@@ -174,9 +455,17 @@ export class SpeechService {
         referenceText,
         sdk.PronunciationAssessmentGradingSystem.HundredMark,
         sdk.PronunciationAssessmentGranularity.Word,
-        // enableMiscue: 참조에 없는 말을 삽입/누락으로 잡을지. 학습자 발화에는
-        // 과하게 엄격해서 끈다 (completeness 로 이미 누락을 본다).
-        false,
+        // enableMiscue: 참조에 없는 말을 삽입/누락으로 잡을지.
+        //
+        // Speaking 문제(=false): 문장 하나를 통째로 채점하는 자리라 과하게
+        // 엄격해진다. completeness 로 이미 누락을 본다.
+        //
+        // 읽기 연습(=true): 여기는 켜야 한다. **끄면 Azure 가 "인식한 단어만"
+        // 돌려주고 안 읽은 단어는 배열에서 아예 빠진다.** 그러면 참조 단어와
+        // 위치가 어긋나서, 짧은 어절 하나만 못 알아들어도 그 뒤가 전부
+        // 오답으로 밀린다. 켜면 참조 단어마다 Omission 이 명시적으로 와서
+        // "아직 안 읽음" 과 "잘못 읽음" 을 구분할 수 있다.
+        enableMiscue,
       );
       paConfig.applyTo(recognizer);
     }
@@ -341,6 +630,52 @@ export class SpeechService {
       .lean();
 
     return { referenceText, section: lesson?.section };
+  }
+
+  private async resolveReadingChunk(
+    lessonCode: string,
+    startWordIndex: number,
+    wordCount: number,
+  ) {
+    if (!Number.isInteger(startWordIndex) || startWordIndex < 0) {
+      throw new BadRequestException('INVALID_READING_WORD_INDEX');
+    }
+    if (!Number.isInteger(wordCount) || wordCount < 1 || wordCount > 12) {
+      throw new BadRequestException('INVALID_READING_WORD_COUNT');
+    }
+
+    const lesson = await this.readingLessonModel
+      .findOne({ code: lessonCode, isActive: true })
+      .select('level passage')
+      .lean();
+    if (!lesson) throw new NotFoundException('READING_LESSON_NOT_FOUND');
+
+    const passageText = lesson.passage
+      .map((paragraph) =>
+        paragraph.segments.map((segment) => segment.text).join(''),
+      )
+      .join('\n\n');
+    const words = this.readingWords(passageText);
+    if (startWordIndex >= words.length) {
+      throw new BadRequestException('READING_WORD_INDEX_OUT_OF_RANGE');
+    }
+
+    const referenceWords = words.slice(
+      startWordIndex,
+      startWordIndex + wordCount,
+    );
+    return {
+      text: referenceWords.join(' '),
+      words: referenceWords,
+      totalWords: words.length,
+      level: lesson.level,
+    };
+  }
+
+  private readingWords(text: string): string[] {
+    return (
+      text.match(/[\p{L}\p{N}]+(?:[·'’-][\p{L}\p{N}]+)*/gu) ?? []
+    );
   }
 
   /** 16kHz/모노/16bit PCM WAV 인지 확인. 아니면 Azure 가 어차피 거절한다. */
