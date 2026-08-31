@@ -153,6 +153,14 @@ const SYSTEM = [
   '- Uzbek must read like a native wrote it, not like machine translation.',
   '- pos and grammar must come from the allowed lists. If nothing fits, use "other"',
   '  and an empty grammar array rather than inventing a value.',
+  '',
+  'PARTICLE TAGS — match the actual Korean syllable, not the English word:',
+  '  은/는  → particleTopic       (NOT particleSubject. "topic", not "subject".)',
+  '  이/가  → particleSubject',
+  '  을/를  → particleObject',
+  '  에/에서 → particlePlace       에게/한테/께 → particleTarget',
+  '  하고/와/과/랑 → particleWith   부터 → particleFrom     까지 → particleTo',
+  '  만 → particleOnly             도 → particleAlso        의 → particlePossessive',
 ].join('\n');
 
 async function main() {
@@ -387,6 +395,10 @@ export function sanitize(raw: any, requested: string[]): GlossResult {
           ),
         ),
       ).slice(0, 4),
+    }))
+    .map((w: any) => ({
+      ...w,
+      grammar: fixParticleTag(w.surface, w.lemma, w.grammar).slice(0, 4),
     }));
 
   const lemmaEntries = (Array.isArray(raw?.lemmas) ? raw.lemmas : [])
@@ -400,6 +412,61 @@ export function sanitize(raw: any, requested: string[]): GlossResult {
     .filter((l: any) => l.lemma && l.uz && l.en);
 
   return { words: wordEntries, lemmas: lemmaEntries };
+}
+
+/**
+ * 조사 태그 보정.
+ *
+ * 실측에서 은/는(주제)을 particleSubject 로 붙이는 일이 5개 중 4개였다.
+ * 영어 이름만 보면 topic 과 subject 가 가까워서 모델이 헷갈린다. 그런데 이건
+ * **판단이 필요한 게 아니라 글자만 보면 되는 규칙**이라, 프롬프트로 부탁하는
+ * 대신 여기서 못 박는다. 은/는과 이/가는 초급 한국어의 핵심 구분이라 틀린 걸
+ * 그대로 가르치면 안 된다.
+ *
+ * "표면형 = 기본형 + 조사" 일 때만 건드린다. 그래야 국가(→국가)의 '가' 같은
+ * 걸 조사로 오인하지 않는다. 긴 것부터 본다 (에서 → 에, 에게 → 에).
+ */
+const PARTICLE_RULES: readonly [suffix: string, tag: string][] = [
+  ['에게서', 'particleTarget'],
+  ['한테서', 'particleFrom'],
+  ['에서', 'particlePlace'],
+  ['에게', 'particleTarget'],
+  ['한테', 'particleTarget'],
+  ['까지', 'particleTo'],
+  ['부터', 'particleFrom'],
+  ['하고', 'particleWith'],
+  ['은', 'particleTopic'],
+  ['는', 'particleTopic'],
+  ['이', 'particleSubject'],
+  ['가', 'particleSubject'],
+  ['을', 'particleObject'],
+  ['를', 'particleObject'],
+  ['와', 'particleWith'],
+  ['과', 'particleWith'],
+  ['랑', 'particleWith'],
+  ['께', 'particleTarget'],
+  ['에', 'particlePlace'],
+  ['도', 'particleAlso'],
+  ['만', 'particleOnly'],
+  ['의', 'particlePossessive'],
+];
+
+const PARTICLE_TAGS = new Set(PARTICLE_RULES.map(([, tag]) => tag));
+
+export function fixParticleTag(
+  surface: string,
+  lemma: string,
+  grammar: string[],
+): string[] {
+  const rule = PARTICLE_RULES.find(
+    ([suffix]) => surface === lemma + suffix,
+  );
+  if (!rule) return grammar;
+
+  const [, correct] = rule;
+  // 다른 조사 태그는 걷어내고 맞는 것만 남긴다. 시제·말투 태그는 건드리지 않는다
+  const kept = grammar.filter((tag) => !PARTICLE_TAGS.has(tag));
+  return [correct, ...kept];
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
