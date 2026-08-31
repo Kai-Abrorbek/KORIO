@@ -27,6 +27,7 @@ import {
   type TutorMode,
 } from './tutor.const';
 import { TutorUsageService } from './tutor-usage.service';
+import { TOPIC_BY_ID } from './topics/tutor-topics';
 
 const OPENAI_API = 'https://api.openai.com/v1';
 
@@ -71,6 +72,7 @@ export class TutorService implements OnModuleInit {
     lang: string,
     scene?: RolePlayScene,
     voice?: string,
+    topicId?: string,
   ) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
@@ -79,7 +81,8 @@ export class TutorService implements OnModuleInit {
 
     const quota = await this.usage.assertCanStart(userId);
     const learner = await this.buildLearnerContext(userId, lang);
-    const instructions = buildTutorInstructions(learner, mode, scene);
+    const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined;
+    const instructions = buildTutorInstructions(learner, mode, scene, topic);
 
     const res = await fetch(`${OPENAI_API}/realtime/client_secrets`, {
       method: 'POST',
@@ -136,7 +139,7 @@ export class TutorService implements OnModuleInit {
       throw new ServiceUnavailableException('TUTOR_SESSION_FAILED');
     }
 
-    const session = await this.usage.open(userId, mode, scene);
+    const session = await this.usage.open(userId, mode, scene, topic?.id);
 
     return {
       sessionId: session._id.toString(),
@@ -144,6 +147,9 @@ export class TutorService implements OnModuleInit {
       expiresAt: data.expires_at ?? null,
       model: TUTOR_MODEL,
       voice: resolveVoice(voice),
+      topicId: topic?.id ?? null,
+      /** 화면에 "오늘 배울 표현"으로 미리 보여준다 */
+      targetExpressions: topic?.targetExpressions ?? [],
       // 앱이 이 시간이 되면 스스로 끊는다. 서버 쿼터와 별개로 한 세션이
       // 무한정 이어지지 않게 하는 두 번째 방어선.
       maxDurationSec: Math.min(quota.allowedMin, MAX_SESSION_MINUTES) * 60,

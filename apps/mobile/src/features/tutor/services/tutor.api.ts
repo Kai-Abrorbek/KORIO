@@ -35,6 +35,17 @@ export interface TutorQuota {
   allowedMin: number;
 }
 
+export interface TutorTopicCard {
+  id: string;
+  category: "daily" | "korea";
+  level: "beginner" | "intermediate" | "advanced";
+  icon: string;
+  color: string;
+  title: string;
+  blurb: string;
+  expressionCount: number;
+}
+
 export interface TutorSessionGrant {
   sessionId: string;
   /** OpenAI 단명 토큰. 정식 API 키가 아니다 — 앱엔 정식 키가 없다 */
@@ -42,6 +53,9 @@ export interface TutorSessionGrant {
   expiresAt: number | null;
   model: string;
   voice: string;
+  topicId: string | null;
+  /** 오늘 연습할 표현. 시작 전에 미리 보여주고, 막혔을 때 힌트로도 쓴다 */
+  targetExpressions: string[];
   /** 이 시간이 지나면 앱이 스스로 끊는다 (서버 쿼터와 별개의 두 번째 방어선) */
   maxDurationSec: number;
   quota: TutorQuota;
@@ -58,12 +72,15 @@ export const TutorApi = {
   voices: (): Promise<{ voices: string[]; default: string }> =>
     api.get(`/tutor/voices`),
 
+  /** 고를 수 있는 주제. 제목·설명은 앱 언어로 내려온다 */
+  topics: (): Promise<{ topics: TutorTopicCard[] }> =>
+    api.get(`/tutor/topics?lang=${getLang()}`),
+
   createSession: (
     mode: TutorMode,
-    scene?: RolePlayScene,
-    voice?: string,
+    opts: { scene?: RolePlayScene; voice?: string; topicId?: string } = {},
   ): Promise<TutorSessionGrant> =>
-    api.post(`/tutor/session`, { mode, scene, voice, lang: getLang() }),
+    api.post(`/tutor/session`, { mode, ...opts, lang: getLang() }),
 
   /** 실제 사용 시간은 여기서 쿼터에 반영된다. 서버가 값을 검증한다 */
   endSession: (

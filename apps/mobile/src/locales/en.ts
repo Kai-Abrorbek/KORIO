@@ -1109,6 +1109,13 @@ export default {
     upsell: "Get 20 min a day with SUPER",
     upsellMax: "Get 20 min a day with KORIO MAX",
     tapToHear: "Tap to hear it",
+    pickTopic: "What shall we practice today?",
+    pickAnother: "Pick another topic",
+    freeTalk: "Free talk",
+    freeTalkBlurb: "Just chat, no set topic",
+    todayExpressions: "Today's expressions",
+    expressionCount: "{{count}} expressions",
+    topicGroup: { korea: "Living in Korea", daily: "Everyday talk" },
     state: {
       idle: "Ready when you are.",
       connecting: "Connecting...",

@@ -1107,6 +1107,13 @@ export default {
     upsell: "SUPER 로 하루 20분까지",
     upsellMax: "KORIO MAX 로 하루 20분까지",
     tapToHear: "눌러서 발음 듣기",
+    pickTopic: "오늘 뭘 연습할까요?",
+    pickAnother: "다른 주제 고르기",
+    freeTalk: "자유 대화",
+    freeTalkBlurb: "주제 없이 편하게 이야기해요",
+    todayExpressions: "오늘 연습할 표현",
+    expressionCount: "표현 {{count}}개",
+    topicGroup: { korea: "한국 생활", daily: "일상 대화" },
     state: {
       idle: "준비됐어요. 시작해 볼까요?",
       connecting: "연결하는 중이에요...",

@@ -1114,6 +1114,13 @@ export default {
     upsell: "С SUPER — 20 минут в день",
     upsellMax: "С KORIO MAX — 20 минут в день",
     tapToHear: "Нажмите, чтобы услышать",
+    pickTopic: "Что потренируем сегодня?",
+    pickAnother: "Выбрать другую тему",
+    freeTalk: "Свободный разговор",
+    freeTalkBlurb: "Просто болтаем, без темы",
+    todayExpressions: "Выражения на сегодня",
+    expressionCount: "{{count}} выражений",
+    topicGroup: { korea: "Жизнь в Корее", daily: "Повседневное общение" },
     state: {
       idle: "Готов. Начнём?",
       connecting: "Подключение...",

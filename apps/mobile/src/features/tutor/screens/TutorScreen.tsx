@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -16,6 +16,8 @@ import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TutorOrb } from "../components/TutorOrb";
+import { TopicPicker } from "../components/TopicPicker";
+import type { TutorTopicCard } from "../services/tutor.api";
 import { useRealtimeTutor } from "../hooks/useRealtimeTutor";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -30,6 +32,9 @@ export default function TutorScreen() {
   const s = styles(theme);
   const router = useRouter();
   const { speak } = useSpeech();
+  /** 고른 주제. null 이면 아직 안 골랐다 = 주제 화면을 보여준다 */
+  const [topic, setTopic] = useState<TutorTopicCard | null>(null);
+  const [picking, setPicking] = useState(true);
 
   const {
     state,
@@ -38,6 +43,7 @@ export default function TutorScreen() {
     caption,
     userSaid,
     examples,
+    targets,
     withMicMuted,
     elapsedSec,
     maxSec,
@@ -59,6 +65,34 @@ export default function TutorScreen() {
   const exhausted = !!quota && quota.allowedMin <= 0;
   const remain = maxSec > 0 ? Math.max(0, maxSec - elapsedSec) : 0;
   const nearEnd = active && maxSec > 0 && remain <= 30;
+
+  // 아직 주제를 안 골랐고 대화도 안 하는 중이면 주제부터 고르게 한다.
+  // "무슨 말을 하지?" 로 얼어붙는 걸 막는 첫 번째 장치다.
+  if (picking && !active) {
+    return (
+      <View style={[s.container, { paddingTop: insets.top + 6 }]}>
+        <View style={s.header}>
+          <Pressable onPress={() => router.back()} style={s.iconBtn} hitSlop={8}>
+            <Ionicons name="chevron-down" size={26} color={theme.text} />
+          </Pressable>
+          <Text style={s.title}>{t("tutor.pickTopic")}</Text>
+          <View style={s.iconBtn} />
+        </View>
+        <TopicPicker
+          onPick={(picked) => {
+            setTopic(picked);
+            setPicking(false);
+            void start("freeTalk", { topicId: picked.id });
+          }}
+          onFreeTalk={() => {
+            setTopic(null);
+            setPicking(false);
+            void start("freeTalk");
+          }}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={s.container}>
@@ -98,7 +132,9 @@ export default function TutorScreen() {
             </Text>
           </View>
         ) : (
-          <Text style={s.title}>{t("tutor.title")}</Text>
+          <Text style={s.title} numberOfLines={1}>
+            {topic?.title ?? t("tutor.title")}
+          </Text>
         )}
 
         <View style={s.iconBtn} />
@@ -134,6 +170,30 @@ export default function TutorScreen() {
           >
             <Text style={s.captionText}>{caption}</Text>
           </ScrollView>
+        )}
+
+        {/* 아직 대화 내용이 없을 때 오늘 연습할 표현을 미리 보여준다.
+            무슨 말을 해야 할지 몰라 얼어붙는 걸 막는 두 번째 장치다. */}
+        {active && !caption && targets.length > 0 && (
+          <View style={s.targetBox}>
+            <Text style={s.targetLabel}>{t("tutor.todayExpressions")}</Text>
+            {targets.slice(0, 4).map((ex) => (
+              <Pressable
+                key={ex}
+                style={s.targetRow}
+                onPress={() =>
+                  void withMicMuted(async () => {
+                    await speak(ex, "ko-KR");
+                  })
+                }
+              >
+                <Ionicons name="volume-medium" size={14} color={theme.primary} />
+                <Text style={s.targetText} numberOfLines={1}>
+                  {ex}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         )}
 
         {examples.length > 0 && active && (
@@ -198,9 +258,9 @@ export default function TutorScreen() {
           />
         ) : (
           <CallButton
-            icon="mic"
-            label={exhausted ? t("tutor.limitReached") : t("tutor.start")}
-            onPress={() => start("freeTalk")}
+            icon="refresh"
+            label={t("tutor.pickAnother")}
+            onPress={() => setPicking(true)}
             disabled={busy || exhausted}
             bg={theme.primary}
             shadow="#5B4DD4"
@@ -346,6 +406,32 @@ const styles = (theme: ThemeColors) =>
       fontSize: 14,
       fontWeight: "800",
       color: theme.primary,
+      flexShrink: 1,
+    },
+
+    targetBox: { alignSelf: "stretch", gap: 6 },
+    targetLabel: {
+      fontSize: 12,
+      fontWeight: "800",
+      color: theme.textSecondary,
+      textAlign: "center",
+      marginBottom: 2,
+    },
+    targetRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    targetText: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: theme.text,
       flexShrink: 1,
     },
 

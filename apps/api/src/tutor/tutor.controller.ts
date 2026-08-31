@@ -1,7 +1,16 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { CreateTutorSessionDto, EndTutorSessionDto } from './dto/tutor.dto';
+import { TUTOR_TOPICS, toTopicCard } from './topics/tutor-topics';
 import { TutorService } from './tutor.service';
 import {
   DEFAULT_TUTOR_VOICE,
@@ -27,6 +36,14 @@ export class TutorController {
     return { voices: TUTOR_VOICES, default: DEFAULT_TUTOR_VOICE };
   }
 
+  /** 고를 수 있는 주제. 화면 언어로 제목·설명을 내려준다 */
+  @Get('topics')
+  topics(@Query('lang') lang = 'uz') {
+    return {
+      topics: TUTOR_TOPICS.map((t) => toTopicCard(t, lang)),
+    };
+  }
+
   /** 남은 사용량. 화면에서 미리 보여주고 막을 때 쓴다 */
   @Get('quota')
   quota(@Request() req) {
@@ -48,6 +65,7 @@ export class TutorController {
       dto.lang ?? 'uz',
       dto.scene as RolePlayScene | undefined,
       dto.voice,
+      dto.topicId,
     );
   }
 

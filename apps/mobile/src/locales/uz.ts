@@ -1113,6 +1113,13 @@ export default {
     upsell: "SUPER bilan kuniga 20 daqiqa",
     upsellMax: "KORIO MAX bilan kuniga 20 daqiqa",
     tapToHear: "Talaffuzni eshitish uchun bosing",
+    pickTopic: "Bugun nimani mashq qilamiz?",
+    pickAnother: "Boshqa mavzu tanlash",
+    freeTalk: "Erkin suhbat",
+    freeTalkBlurb: "Mavzusiz bemalol gaplashamiz",
+    todayExpressions: "Bugungi iboralar",
+    expressionCount: "{{count}} ta ibora",
+    topicGroup: { korea: "Koreyada hayot", daily: "Kundalik suhbat" },
     state: {
       idle: "Tayyor. Boshlaymizmi?",
       connecting: "Ulanmoqda...",

@@ -1,5 +1,6 @@
 import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { ROLE_PLAY_SCENES, TUTOR_MODES, TUTOR_VOICES } from '../tutor.const';
+import { TOPIC_IDS } from '../topics/tutor-topics';
 
 export class CreateTutorSessionDto {
   @IsString()
@@ -11,6 +12,12 @@ export class CreateTutorSessionDto {
   @IsString()
   @IsIn([...ROLE_PLAY_SCENES])
   scene?: string;
+
+  /** 오늘 연습할 주제. 없으면 자유 대화 */
+  @IsOptional()
+  @IsString()
+  @IsIn(TOPIC_IDS)
+  topicId?: string;
 
   /** 목소리. 세션 시작 뒤에는 못 바꾼다 */
   @IsOptional()

@@ -1,4 +1,5 @@
 import type { RolePlayScene, TutorMode } from '../tutor.const';
+import type { TutorTopic } from '../topics/tutor-topics';
 
 export interface LearnerContext {
   koreanLevel: 'beginner' | 'intermediate' | 'advanced';
@@ -75,6 +76,7 @@ export function buildTutorInstructions(
   learner: LearnerContext,
   mode: TutorMode,
   scene?: RolePlayScene,
+  topic?: TutorTopic,
 ): string {
   const native = NATIVE_NAME[learner.nativeLanguage] ?? 'Uzbek';
 
@@ -154,6 +156,23 @@ export function buildTutorInstructions(
 
   if (mode === 'rolePlay' && scene && SCENE_GUIDE[scene]) {
     lines.push(`- ${SCENE_GUIDE[scene]}`);
+  }
+
+  // ── 주제 ──
+  if (topic) {
+    lines.push(
+      ``,
+      `TODAY'S TOPIC: ${topic.title.en}`,
+      `- ${topic.opener}`,
+      `- Get them to actually SAY these, one at a time. Do not list them —`,
+      `  create the moment where each one is the natural thing to say:`,
+      ...topic.targetExpressions.map((e) => `    ${e}`),
+      `- Work these in naturally: ${topic.targetGrammar.join(', ')}`,
+      `- If they drift off topic, follow them for ONE turn, then bring it back.`,
+      `  Do not announce that you are steering. Never say "주제로 돌아갑시다".`,
+      `- If they get stuck, offer one of these to copy:`,
+      ...topic.hints.map((h) => `    "${h}"`),
+    );
   }
 
   // ── 개인화 ──

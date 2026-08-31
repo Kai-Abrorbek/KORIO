@@ -138,11 +138,13 @@ export class TutorUsageService {
     userId: string,
     mode: TutorMode,
     scene?: string,
+    topic?: string,
   ): Promise<TutorSessionDocument> {
     const doc = new this.sessionModel({
       userId: new Types.ObjectId(userId),
       mode,
       scene,
+      topic,
       startedAt: new Date(),
       durationSec: 60,
       finalized: false,

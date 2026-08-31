@@ -36,6 +36,8 @@ export function useRealtimeTutor() {
   const [caption, setCaption] = useState("");
   const [userSaid, setUserSaid] = useState("");
   const [voice, setVoice] = useState<string | undefined>(undefined);
+  /** 오늘 연습할 표현. 막혔을 때 화면에 띄운다 */
+  const [targets, setTargets] = useState<string[]>([]);
 
   const conn = useRef<RealtimeConnection | null>(null);
   const sessionId = useRef<string | null>(null);
@@ -88,6 +90,7 @@ export function useRealtimeTutor() {
     setElapsedSec(0);
     setCaption("");
     setUserSaid("");
+    setTargets([]);
 
     if (sid) {
       try {
@@ -126,7 +129,10 @@ export function useRealtimeTutor() {
   }, []);
 
   const start = useCallback(
-    async (mode: TutorMode, scene?: RolePlayScene, pickedVoice?: string) => {
+    async (
+      mode: TutorMode,
+      opts: { scene?: RolePlayScene; voice?: string; topicId?: string } = {},
+    ) => {
       if (conn.current) return;
       setError(null);
       setState("connecting");
@@ -148,8 +154,9 @@ export function useRealtimeTutor() {
         }).catch(() => undefined);
 
         // 쿼터 검사는 서버가 여기서 한다. 한도 초과면 403 이 온다.
-        const grant = await TutorApi.createSession(mode, scene, pickedVoice);
+        const grant = await TutorApi.createSession(mode, opts);
         setVoice(grant.voice);
+        setTargets(grant.targetExpressions ?? []);
         sessionId.current = grant.sessionId;
         maxSec.current = grant.maxDurationSec;
         setQuota(grant.quota);
@@ -271,6 +278,7 @@ export function useRealtimeTutor() {
     userSaid,
     /** 자막에서 뽑은 "따라 해볼 문장". 정확한 발음은 Azure 목소리로 들려준다 */
     examples: extractExamples(caption),
+    targets,
     voice,
     withMicMuted,
     elapsedSec,
