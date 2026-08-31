@@ -107,3 +107,39 @@ export const ROLE_PLAY_SCENES = [
   'travel',
 ] as const;
 export type RolePlayScene = (typeof ROLE_PLAY_SCENES)[number];
+
+/**
+ * Realtime 목소리 10종.
+ *
+ * ⚠️ 알아둘 것: 이 목소리들은 영어 우선으로 만들어졌다. 우리가 TTS 에 쓰는
+ * Azure ko-KR 목소리처럼 한국어 전용으로 훈련된 게 아니라서 한국어 발음이
+ * 그만큼 정확하지 않다. 목소리를 바꿔 개선할 수 있는 폭에는 한계가 있다.
+ * (공식 권장은 marin / cedar)
+ *
+ * 발음을 정확히 들려줘야 하는 자리 — "따라 해보세요" 예문 — 는 이걸로
+ * 해결되지 않는다. 거기는 기존 Azure TTS 를 써야 한다.
+ */
+export const TUTOR_VOICES = [
+  'marin',
+  'cedar',
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'sage',
+  'shimmer',
+  'verse',
+] as const;
+
+export type TutorVoice = (typeof TUTOR_VOICES)[number];
+
+export const DEFAULT_TUTOR_VOICE: TutorVoice =
+  (process.env.OPENAI_REALTIME_VOICE?.trim() as TutorVoice) || 'marin';
+
+export function resolveVoice(requested?: string): TutorVoice {
+  // 세션이 시작된 뒤에는 목소리를 못 바꾼다. 발급 시점에 확정한다.
+  return TUTOR_VOICES.includes(requested as TutorVoice)
+    ? (requested as TutorVoice)
+    : DEFAULT_TUTOR_VOICE;
+}

@@ -1112,6 +1112,8 @@ export default {
     limitReached: "Лимит на сегодня исчерпан",
     quotaLeft: "Сегодня осталось {{min}} мин ({{limit}} мин в день)",
     upsell: "С SUPER — 20 минут в день",
+    upsellMax: "С KORIO MAX — 20 минут в день",
+    tapToHear: "Нажмите, чтобы услышать",
     state: {
       idle: "Готов. Начнём?",
       connecting: "Подключение...",

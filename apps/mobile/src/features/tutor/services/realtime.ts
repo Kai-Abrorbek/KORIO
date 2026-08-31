@@ -28,6 +28,13 @@ export interface RealtimeConnection {
   pc: RTCPeerConnection;
   localStream: MediaStream;
   send: (event: unknown) => void;
+  /**
+   * 마이크를 잠깐 끈다.
+   *
+   * 예문을 스피커로 들려줄 때 필요하다 — 안 끄면 마이크가 그 소리를 주워서
+   * AI 가 자기 예문에 반응한다.
+   */
+  setMicEnabled: (on: boolean) => void;
   close: () => void;
 }
 
@@ -126,5 +133,11 @@ export async function connectRealtime(
     new RTCSessionDescription({ type: "answer", sdp: answer }),
   );
 
-  return { pc, localStream, send, close: cleanup };
+  const setMicEnabled = (on: boolean) => {
+    localStream.getAudioTracks().forEach((t) => {
+      t.enabled = on;
+    });
+  };
+
+  return { pc, localStream, send, setMicEnabled, close: cleanup };
 }

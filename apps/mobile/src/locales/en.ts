@@ -1107,6 +1107,8 @@ export default {
     limitReached: "You've used today's time",
     quotaLeft: "{{min}} min left today ({{limit}} min/day)",
     upsell: "Get 20 min a day with SUPER",
+    upsellMax: "Get 20 min a day with KORIO MAX",
+    tapToHear: "Tap to hear it",
     state: {
       idle: "Ready when you are.",
       connecting: "Connecting...",

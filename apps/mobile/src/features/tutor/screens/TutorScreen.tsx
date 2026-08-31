@@ -12,6 +12,7 @@ import Animated, {
   FadeOut,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TutorOrb } from "../components/TutorOrb";
@@ -28,6 +29,7 @@ export default function TutorScreen() {
   const insets = useSafeAreaInsets();
   const s = styles(theme);
   const router = useRouter();
+  const { speak } = useSpeech();
 
   const {
     state,
@@ -35,6 +37,8 @@ export default function TutorScreen() {
     error,
     caption,
     userSaid,
+    examples,
+    withMicMuted,
     elapsedSec,
     maxSec,
     active,
@@ -132,6 +136,30 @@ export default function TutorScreen() {
           </ScrollView>
         )}
 
+        {examples.length > 0 && active && (
+          <View style={s.exampleRow}>
+            {examples.map((ex) => (
+              <Pressable
+                key={ex}
+                style={s.exampleChip}
+                onPress={() =>
+                  // 대화 모델 목소리는 영어 우선이라 한국어 발음이 정확하지
+                  // 않다. 따라 할 문장은 Azure ko-KR 목소리로 들려준다.
+                  // 재생 동안 마이크를 꺼야 AI 가 자기 예문에 반응하지 않는다.
+                  void withMicMuted(async () => {
+                    await speak(ex, "ko-KR");
+                  })
+                }
+              >
+                <Ionicons name="volume-high" size={14} color={theme.primary} />
+                <Text style={s.exampleText} numberOfLines={1}>
+                  {ex}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
         {!active && !caption && !!quota && (
           <View style={s.quotaBox}>
             <View style={s.quotaRow}>
@@ -143,9 +171,9 @@ export default function TutorScreen() {
                 })}
               </Text>
             </View>
-            {!quota.isSuper && (
+            {!quota.isMax && (
               <Pressable onPress={() => router.push("/premium")} hitSlop={6}>
-                <Text style={s.quotaUpsell}>{t("tutor.upsell")}</Text>
+                <Text style={s.quotaUpsell}>{t("tutor.upsellMax")}</Text>
               </Pressable>
             )}
           </View>
@@ -294,6 +322,31 @@ const styles = (theme: ThemeColors) =>
       fontWeight: "700",
       color: theme.text,
       textAlign: "center",
+    },
+
+    exampleRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      justifyContent: "center",
+    },
+    exampleChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      maxWidth: "92%",
+      backgroundColor: theme.primary + "14",
+      borderWidth: 1,
+      borderColor: theme.primary + "44",
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    exampleText: {
+      fontSize: 14,
+      fontWeight: "800",
+      color: theme.primary,
+      flexShrink: 1,
     },
 
     quotaBox: { alignItems: "center", gap: 8, paddingTop: 12 },

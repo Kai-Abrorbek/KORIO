@@ -8,6 +8,7 @@ import {
   type TutorQuota,
 } from "../services/tutor.api";
 import { connectRealtime, type RealtimeConnection } from "../services/realtime";
+import { extractExamples } from "../services/examples";
 
 export type TutorState =
   | "idle"
@@ -34,6 +35,7 @@ export function useRealtimeTutor() {
   /** 지금 화면에 띄울 한 줄. AI 가 말하는 동안 실시간으로 채워진다 */
   const [caption, setCaption] = useState("");
   const [userSaid, setUserSaid] = useState("");
+  const [voice, setVoice] = useState<string | undefined>(undefined);
 
   const conn = useRef<RealtimeConnection | null>(null);
   const sessionId = useRef<string | null>(null);
@@ -98,6 +100,22 @@ export function useRealtimeTutor() {
     ending.current = false;
   }, []);
 
+  /**
+   * 예문을 스피커로 들려주는 동안 마이크를 끈다.
+   *
+   * 안 끄면 마이크가 그 소리를 주워서 AI 가 자기 예문에 대답한다.
+   * 재생이 끝나면 반드시 다시 켠다 — 실패해도 켜야 해서 finally 로 감싼다.
+   */
+  const withMicMuted = useCallback(async (play: () => Promise<void>) => {
+    const c = conn.current;
+    try {
+      c?.setMicEnabled(false);
+      await play();
+    } finally {
+      c?.setMicEnabled(true);
+    }
+  }, []);
+
   /** 마이크 권한. 안드로이드는 런타임 요청이 필요하다 */
   const ensureMicPermission = useCallback(async () => {
     if (Platform.OS !== "android") return true;
@@ -108,7 +126,7 @@ export function useRealtimeTutor() {
   }, []);
 
   const start = useCallback(
-    async (mode: TutorMode, scene?: RolePlayScene) => {
+    async (mode: TutorMode, scene?: RolePlayScene, pickedVoice?: string) => {
       if (conn.current) return;
       setError(null);
       setState("connecting");
@@ -130,7 +148,8 @@ export function useRealtimeTutor() {
         }).catch(() => undefined);
 
         // 쿼터 검사는 서버가 여기서 한다. 한도 초과면 403 이 온다.
-        const grant = await TutorApi.createSession(mode, scene);
+        const grant = await TutorApi.createSession(mode, scene, pickedVoice);
+        setVoice(grant.voice);
         sessionId.current = grant.sessionId;
         maxSec.current = grant.maxDurationSec;
         setQuota(grant.quota);
@@ -250,6 +269,10 @@ export function useRealtimeTutor() {
     error,
     caption,
     userSaid,
+    /** 자막에서 뽑은 "따라 해볼 문장". 정확한 발음은 Azure 목소리로 들려준다 */
+    examples: extractExamples(caption),
+    voice,
+    withMicMuted,
     elapsedSec,
     maxSec: maxSec.current,
     busy: state === "connecting",

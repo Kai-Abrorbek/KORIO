@@ -1111,6 +1111,8 @@ export default {
     limitReached: "Bugungi limit tugadi",
     quotaLeft: "Bugun {{min}} daqiqa qoldi (kuniga {{limit}} daqiqa)",
     upsell: "SUPER bilan kuniga 20 daqiqa",
+    upsellMax: "KORIO MAX bilan kuniga 20 daqiqa",
+    tapToHear: "Talaffuzni eshitish uchun bosing",
     state: {
       idle: "Tayyor. Boshlaymizmi?",
       connecting: "Ulanmoqda...",

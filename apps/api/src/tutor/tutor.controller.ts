@@ -3,12 +3,29 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { CreateTutorSessionDto, EndTutorSessionDto } from './dto/tutor.dto';
 import { TutorService } from './tutor.service';
-import type { RolePlayScene, TutorMode } from './tutor.const';
+import {
+  DEFAULT_TUTOR_VOICE,
+  TUTOR_VOICES,
+  type RolePlayScene,
+  type TutorMode,
+} from './tutor.const';
 
 @Controller('tutor')
 @UseGuards(JwtAuthGuard, RateLimitGuard)
 export class TutorController {
   constructor(private readonly tutor: TutorService) {}
+
+  /**
+   * 고를 수 있는 목소리.
+   *
+   * ⚠️ Azure ko-KR 목소리(=/tts/voices)와 다른 목록이다. 이쪽은 대화 모델이
+   * 직접 내는 소리라 영어 우선으로 만들어졌고 한국어 발음이 그만큼 정확하지
+   * 않다. 정확한 발음이 필요한 예문은 TTS 쪽을 쓴다.
+   */
+  @Get('voices')
+  voices() {
+    return { voices: TUTOR_VOICES, default: DEFAULT_TUTOR_VOICE };
+  }
 
   /** 남은 사용량. 화면에서 미리 보여주고 막을 때 쓴다 */
   @Get('quota')
@@ -30,6 +47,7 @@ export class TutorController {
       dto.mode as TutorMode,
       dto.lang ?? 'uz',
       dto.scene as RolePlayScene | undefined,
+      dto.voice,
     );
   }
 

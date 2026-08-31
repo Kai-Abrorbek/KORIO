@@ -1,5 +1,5 @@
 import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
-import { ROLE_PLAY_SCENES, TUTOR_MODES } from '../tutor.const';
+import { ROLE_PLAY_SCENES, TUTOR_MODES, TUTOR_VOICES } from '../tutor.const';
 
 export class CreateTutorSessionDto {
   @IsString()
@@ -11,6 +11,12 @@ export class CreateTutorSessionDto {
   @IsString()
   @IsIn([...ROLE_PLAY_SCENES])
   scene?: string;
+
+  /** 목소리. 세션 시작 뒤에는 못 바꾼다 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...TUTOR_VOICES])
+  voice?: string;
 
   /** 학습자 모국어 = 앱 UI 언어. 다른 API 들과 같은 규칙 */
   @IsOptional()

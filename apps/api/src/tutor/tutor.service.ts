@@ -22,6 +22,7 @@ import {
   MAX_RESPONSE_TOKENS,
   MAX_SESSION_MINUTES,
   TUTOR_MODEL,
+  resolveVoice,
   type RolePlayScene,
   type TutorMode,
 } from './tutor.const';
@@ -69,6 +70,7 @@ export class TutorService implements OnModuleInit {
     mode: TutorMode,
     lang: string,
     scene?: RolePlayScene,
+    voice?: string,
   ) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
@@ -107,7 +109,8 @@ export class TutorService implements OnModuleInit {
               },
             },
             output: {
-              voice: process.env.OPENAI_REALTIME_VOICE ?? 'marin',
+              voice: resolveVoice(voice),
+              // 초급자에겐 조금 천천히. 알아듣는 게 먼저다
               speed: learner.koreanLevel === 'beginner' ? 0.9 : 1,
             },
           },
@@ -140,6 +143,7 @@ export class TutorService implements OnModuleInit {
       clientSecret: data.value,
       expiresAt: data.expires_at ?? null,
       model: TUTOR_MODEL,
+      voice: resolveVoice(voice),
       // 앱이 이 시간이 되면 스스로 끊는다. 서버 쿼터와 별개로 한 세션이
       // 무한정 이어지지 않게 하는 두 번째 방어선.
       maxDurationSec: Math.min(quota.allowedMin, MAX_SESSION_MINUTES) * 60,

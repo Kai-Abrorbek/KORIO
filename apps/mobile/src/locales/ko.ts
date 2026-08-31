@@ -1105,6 +1105,8 @@ export default {
     limitReached: "오늘 사용량을 다 썼어요",
     quotaLeft: "오늘 {{min}}분 남았어요 (하루 {{limit}}분)",
     upsell: "SUPER 로 하루 20분까지",
+    upsellMax: "KORIO MAX 로 하루 20분까지",
+    tapToHear: "눌러서 발음 듣기",
     state: {
       idle: "준비됐어요. 시작해 볼까요?",
       connecting: "연결하는 중이에요...",
