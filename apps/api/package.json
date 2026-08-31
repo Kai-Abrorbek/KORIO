@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "seed:reading": "ts-node -r tsconfig-paths/register src/seed/seed-reading-lessons.ts",
+    "gloss:seed": "ts-node -r tsconfig-paths/register src/seed/seed-reading-glossary.ts",
     "seed:validate-reading": "ts-node -r tsconfig-paths/register src/seed/validate-reading-lessons.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

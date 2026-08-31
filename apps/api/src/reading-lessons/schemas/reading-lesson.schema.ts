@@ -167,12 +167,20 @@ export class ReadingWordGloss {
   @Prop({ default: 'other' })
   pos: string;
 
+  /**
+   * ⚠️ **기본형(lemma)의 뜻**이다. 활용형의 뜻이 아니다.
+   *
+   * 갔습니다 → lemma "가다" → meaning "to go / bormoq". "went / bordi" 가 아니다.
+   * 시제·말투는 grammar 태그가 이미 들고 있어서, 뜻에까지 넣으면 둘이 서로
+   * 어긋난다. 무엇보다 같은 기본형이 어디서나 같은 뜻이어야 사전이 일관된다
+   * (갑니다·갔습니다·가서·가는 이 전부 "가다" 하나로 모인다).
+   */
   @Prop({ type: LocalizedReadingTextSchema, required: true })
   meaning: LocalizedReadingText;
 
   /**
-   * 문법 태그 (GRAMMAR_TAGS). 문장이 아니라 태그인 이유는 상수 파일 참고.
-   * 예: ["past", "formalPolite"]
+   * 문법 태그 (GRAMMAR_TAGS). 활용형이 기본형에 무엇을 더했는지가 전부 여기 있다.
+   * 문장이 아니라 태그인 이유는 상수 파일 참고. 예: ["past", "formalPolite"]
    */
   @Prop({ type: [String], default: [] })
   grammar: string[];
