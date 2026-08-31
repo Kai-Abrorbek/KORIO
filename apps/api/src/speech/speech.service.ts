@@ -18,6 +18,11 @@ import {
   ReadingLesson,
   ReadingLessonDocument,
 } from '../reading-lessons/schemas/reading-lesson.schema';
+import { ReadingLessonsService } from '../reading-lessons/reading-lessons.service';
+import {
+  normalizeWord,
+  readingWords,
+} from '../reading-lessons/reading-words.util';
 import {
   AZURE_TIMEOUT_MS,
   SPEECH_BITS_PER_SAMPLE,
@@ -89,6 +94,7 @@ export class SpeechService {
     private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(ReadingLesson.name)
     private readonly readingLessonModel: Model<ReadingLessonDocument>,
+    private readonly readingLessons: ReadingLessonsService,
   ) {}
 
   /** Speaking 문제: 참조 문장 대비 발음 평가 */
@@ -236,6 +242,19 @@ export class SpeechService {
           .join(' ')}] ` +
         `azure=[${words.map((w) => `${w.word}:${w.accuracy}:${w.errorType}`).join(' ')}]`,
     );
+
+    // 낭독 진도는 여기서 남긴다. 클라가 "다 읽었다" 고 보고하는 경로를 만들면
+    // 그냥 눌러서 XP 를 받으므로, 서버가 오디오를 채점하면서 직접 본 사실만
+    // 기록한다. 진도 기록이 실패해도 채점 응답은 그대로 나간다.
+    if (nextWordIndex > startWordIndex || complete) {
+      await this.readingLessons.markReadingProgress(
+        userId,
+        lessonCode,
+        reference.level,
+        nextWordIndex,
+        reference.totalWords,
+      );
+    }
 
     return {
       status,
@@ -397,12 +416,8 @@ export class SpeechService {
 
   /** 문장부호·대소문자·유니코드 표기 차이를 무시하고 같은 단어인지 본다 */
   private sameWord(a: string, b: string): boolean {
-    const norm = (v: string) =>
-      (v ?? '')
-        .normalize('NFC')
-        .toLowerCase()
-        .replace(/[^\p{L}\p{N}]/gu, '');
-    return norm(a) === norm(b) && norm(a).length > 0;
+    const left = normalizeWord(a);
+    return left === normalizeWord(b) && left.length > 0;
   }
 
   /**
@@ -655,7 +670,7 @@ export class SpeechService {
         paragraph.segments.map((segment) => segment.text).join(''),
       )
       .join('\n\n');
-    const words = this.readingWords(passageText);
+    const words = readingWords(passageText);
     if (startWordIndex >= words.length) {
       throw new BadRequestException('READING_WORD_INDEX_OUT_OF_RANGE');
     }
@@ -670,12 +685,6 @@ export class SpeechService {
       totalWords: words.length,
       level: lesson.level,
     };
-  }
-
-  private readingWords(text: string): string[] {
-    return (
-      text.match(/[\p{L}\p{N}]+(?:[·'’-][\p{L}\p{N}]+)*/gu) ?? []
-    );
   }
 
   /** 16kHz/모노/16bit PCM WAV 인지 확인. 아니면 Azure 가 어차피 거절한다. */
