@@ -2,6 +2,7 @@ import i18n from "@/locales/i18n";
 import api from "@/services/api";
 import type {
   CompleteReadingLessonResult,
+  ReadingWordGloss,
   ReadingLessonLevelsResponse,
   ReadingLessonListResponse,
   ReadingListeningLesson,
@@ -51,5 +52,18 @@ export const ReadingListeningService = {
     },
   ): Promise<CompleteReadingLessonResult> =>
     api.post(`/reading-lessons/${encodeURIComponent(code)}/complete`, body),
+
+  /**
+   * 단어 하나 뜻보기.
+   *
+   * 정상 경로가 아니다 — 뜻은 레슨을 받을 때 glossary 로 통째로 온다.
+   * 시드에 빠진 단어를 눌렀을 때만 여기로 오고, 서버가 한 번 만들어 저장하므로
+   * 그 다음부터는 다시 안 온다.
+   */
+  gloss: (
+    code: string,
+    word: string,
+  ): Promise<{ gloss: ReadingWordGloss | null }> =>
+    api.post(`/reading-lessons/${encodeURIComponent(code)}/gloss`, { word }),
 };
 

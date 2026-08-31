@@ -9,11 +9,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { CompleteReadingLessonDto } from './dto/complete-reading-lesson.dto';
+import { GlossWordDto } from './dto/gloss-word.dto';
+import { GLOSS_RATE_LIMIT } from './reading-gloss.const';
 import { ListReadingLessonsQueryDto } from './dto/list-reading-lessons-query.dto';
 import { ReadingLessonsService } from './reading-lessons.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RateLimitGuard)
 @Controller('reading-lessons')
 export class ReadingLessonsController {
   constructor(private readonly readingLessonsService: ReadingLessonsService) {}
@@ -46,5 +49,18 @@ export class ReadingLessonsController {
       code,
       dto,
     );
+  }
+
+  /**
+   * 단어 하나 뜻보기.
+   *
+   * 정상 경로는 아니다 — 뜻은 레슨을 받을 때 통째로 같이 온다. 여기는 시드에
+   * 빠진 단어를 한 번 채우는 자리라, 시드가 채워질수록 호출이 줄어든다.
+   * 모델을 부르는 경로라서 횟수를 묶어둔다.
+   */
+  @RateLimit(GLOSS_RATE_LIMIT)
+  @Post(':code/gloss')
+  gloss(@Param('code') code: string, @Body() dto: GlossWordDto) {
+    return this.readingLessonsService.glossWord(code, dto.word);
   }
 }

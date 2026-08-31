@@ -24,3 +24,14 @@ export function buildReadingWordRanges(text: string): ReadingWordRange[] {
     },
   );
 }
+
+/**
+ * 비교용 정규화. 서버의 normalizeWord 와 같은 규칙이어야 한다 —
+ * 규칙이 어긋나면 본문에서 누른 단어를 사전에서 못 찾는다.
+ */
+export function normalizeReadingWord(value: string): string {
+  return (value ?? "")
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}

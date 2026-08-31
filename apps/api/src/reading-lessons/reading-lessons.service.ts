@@ -6,6 +6,8 @@ import { UsersService } from '../users/users.service';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { CompleteReadingLessonDto } from './dto/complete-reading-lesson.dto';
+import { ReadingGlossService, type WordGloss } from './reading-gloss.service';
+import { normalizeWord } from './reading-words.util';
 import { ListReadingLessonsQueryDto } from './dto/list-reading-lessons-query.dto';
 import {
   READING_BASE_XP,
@@ -38,6 +40,7 @@ export class ReadingLessonsService {
     private readonly userModel: Model<UserDocument>,
     private readonly lessonsService: LessonsService,
     private readonly usersService: UsersService,
+    private readonly glossService: ReadingGlossService,
   ) {}
 
   async list(query: ListReadingLessonsQueryDto, userId?: string) {
@@ -95,19 +98,68 @@ export class ReadingLessonsService {
       throw new NotFoundException('READING_LESSON_NOT_FOUND');
     }
 
-    const progress = userId
-      ? await this.progressModel
-          .findOne({ userId: new Types.ObjectId(userId), lessonCode: code })
-          .lean()
-      : null;
+    const [progress, cachedGlosses] = await Promise.all([
+      userId
+        ? this.progressModel
+            .findOne({ userId: new Types.ObjectId(userId), lessonCode: code })
+            .lean()
+        : null,
+      // 런타임에 채워둔 뜻을 시드 것과 합쳐서 내려보낸다. 앱은 어느 쪽에서
+      // 왔는지 알 필요가 없고, 한 번 받으면 탭은 네트워크 없이 즉시 뜬다.
+      this.glossService.cachedFor(code),
+    ]);
 
     return {
       ...lesson,
       id: lesson._id.toString(),
       _id: undefined,
       __v: undefined,
+      glossary: this.mergeGlossary(
+        (lesson.glossary ?? []) as unknown as WordGloss[],
+        cachedGlosses,
+      ),
       progress: this.toProgressSummary(progress as never),
     };
+  }
+
+  /**
+   * 시드 뜻 + 런타임 보충 뜻을 합친다. 시드가 우선이다 — 사람이 검수한 쪽이
+   * 자동 생성보다 낫고, 시드를 채워 넣으면 자동 생성분이 자연히 밀려난다.
+   */
+  private mergeGlossary(seeded: WordGloss[], cached: WordGloss[]): WordGloss[] {
+    const byWord = new Map<string, WordGloss>();
+    for (const gloss of cached) byWord.set(normalizeWord(gloss.word), gloss);
+    for (const gloss of seeded) byWord.set(normalizeWord(gloss.word), gloss);
+    return [...byWord.values()];
+  }
+
+  /**
+   * 단어 하나 뜻보기 (시드에 없을 때만 오는 경로).
+   *
+   * 본문 텍스트는 서버가 DB 에서 만든다 — 클라가 보낸 문장을 믿으면 아무
+   * 텍스트나 넣어서 번역시킬 수 있다.
+   */
+  async glossWord(code: string, word: string) {
+    const lesson = await this.readingLessonModel
+      .findOne({ code, isActive: true })
+      .select('passage glossary')
+      .lean();
+    if (!lesson) throw new NotFoundException('READING_LESSON_NOT_FOUND');
+
+    // 시드에 이미 있으면 모델을 부를 이유가 없다
+    const seeded = (lesson.glossary ?? []).find(
+      (gloss) => normalizeWord(gloss.word) === normalizeWord(word),
+    );
+    if (seeded) return { gloss: seeded };
+
+    const passageText = lesson.passage
+      .map((paragraph) =>
+        paragraph.segments.map((segment) => segment.text).join(''),
+      )
+      .join('\n\n');
+
+    const gloss = await this.glossService.resolve(code, word, passageText);
+    return { gloss };
   }
 
   /**

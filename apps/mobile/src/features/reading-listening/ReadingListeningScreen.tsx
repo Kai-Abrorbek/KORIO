@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
   ActivityIndicator,
@@ -26,12 +26,14 @@ import type {
   LocalizedReadingText,
   ReadingLessonSummary,
   ReadingListeningLesson,
+  ReadingWordGloss,
 } from "@/types/reading-listening";
 import { useSettingsStore } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
 import { READING_LISTENING_IMAGE_ASSETS } from "./reading-listening.assets";
 import {
   buildReadingWordRanges,
+  normalizeReadingWord,
   type ReadingWordRange,
 } from "./reading-pronunciation";
 import { useReadingPronunciationPractice } from "./useReadingPronunciationPractice";
@@ -39,6 +41,10 @@ import {
   ReadingCompleteSheet,
   type ReadingCompleteCopy,
 } from "./ReadingCompleteSheet";
+import {
+  WordGlossSheet,
+  type WordGlossCopy,
+} from "./WordGlossSheet";
 import {
   localizedReadingText,
   READING_LISTENING_PREVIEW,
@@ -121,6 +127,7 @@ const UI_COPY: Record<
     showTranslation: string;
     hideTranslation: string;
     complete: ReadingCompleteCopy;
+    wordGloss: WordGlossCopy;
   }
 > = {
   ko: {
@@ -176,6 +183,12 @@ const UI_COPY: Record<
       retry: "다시 시도",
       readingHint: "소리 내어 끝까지 읽으면 XP 를 더 받을 수 있어요.",
     },
+    wordGloss: {
+      loading: "뜻을 찾고 있어요...",
+      missing: "이 단어의 뜻을 아직 준비하지 못했어요.",
+      listen: "발음 듣기",
+      lemma: "기본형",
+    },
   },
   uz: {
     screenTitle: "O‘qish · tinglash",
@@ -229,6 +242,12 @@ const UI_COPY: Record<
       failed: "Natijani saqlab bo‘lmadi",
       retry: "Qayta urinish",
       readingHint: "Matnni ovoz chiqarib oxirigacha o‘qisangiz, ko‘proq XP olasiz.",
+    },
+    wordGloss: {
+      loading: "Ma’nosi qidirilmoqda...",
+      missing: "Bu so‘zning ma’nosi hali tayyor emas.",
+      listen: "Talaffuzni eshitish",
+      lemma: "Asosiy shakli",
     },
   },
   en: {
@@ -284,6 +303,12 @@ const UI_COPY: Record<
       retry: "Try again",
       readingHint: "Read the whole passage aloud next time for more XP.",
     },
+    wordGloss: {
+      loading: "Looking it up...",
+      missing: "No meaning for this word yet.",
+      listen: "Listen",
+      lemma: "Base form",
+    },
   },
   ru: {
     screenTitle: "Чтение · аудирование",
@@ -337,6 +362,12 @@ const UI_COPY: Record<
       failed: "Не удалось сохранить результат",
       retry: "Ещё раз",
       readingHint: "Прочитайте текст вслух до конца — получите больше XP.",
+    },
+    wordGloss: {
+      loading: "Ищем значение...",
+      missing: "Значение этого слова пока не готово.",
+      listen: "Прослушать",
+      lemma: "Начальная форма",
     },
   },
 };
@@ -557,6 +588,7 @@ function Passage({
   readingPracticeVisible,
   currentReadingWordIndex,
   failedReadingWordIndex,
+  onGlossWord,
 }: {
   paragraphs: ReadingPassageParagraph[];
   passageText: string;
@@ -570,6 +602,8 @@ function Passage({
   readingPracticeVisible: boolean;
   currentReadingWordIndex: number;
   failedReadingWordIndex: number | null;
+  /** 핵심 어휘가 아닌 단어를 눌렀을 때. 낭독 중에는 null 로 들어와 탭이 꺼진다 */
+  onGlossWord: ((word: string) => void) | null;
 }) {
   const positionedParagraphs = useMemo(() => {
     let charIndex = 0;
@@ -668,9 +702,19 @@ function Passage({
                 practiceStyle = { color: palette.unread };
               }
 
+              // 핵심 어휘가 아닌 단어도 누르면 뜻이 뜬다.
+              // 색은 주지 않는다 — 전부 색칠하면 핵심 어휘 강조가 죽는다.
+              // (핵심 어휘는 바깥 Text 가 이미 onPress 를 갖고 있어 건너뛴다)
+              const glossable =
+                !!onGlossWord && !segment.vocabularyId && part.wordIndex !== null;
+
               return (
                 <Text
                   key={`${segment.key}-part-${partIndex}`}
+                  onPress={
+                    glossable ? () => onGlossWord!(part.text) : undefined
+                  }
+                  suppressHighlighting={!glossable}
                   style={
                     practiceStyle ??
                     (part.active
@@ -784,6 +828,10 @@ export default function ReadingListeningScreen() {
     useState<CompleteReadingLessonResult | null>(null);
   /** state 는 다음 렌더에야 반영돼서 연타를 못 막는다. 연타 방어는 ref 로 */
   const completeSavingRef = useRef(false);
+  /** 눌린 단어. null 이면 시트가 닫혀 있다 */
+  const [glossWord, setGlossWord] = useState<string | null>(null);
+  const [glossData, setGlossData] = useState<ReadingWordGloss | null>(null);
+  const [glossLoading, setGlossLoading] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const [revealedVocabulary, setRevealedVocabulary] = useState<string[]>([]);
   const [translatedQuestionIds, setTranslatedQuestionIds] = useState<string[]>(
@@ -952,6 +1000,45 @@ export default function ReadingListeningScreen() {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
     void Haptics.selectionAsync();
   };
+
+  /**
+   * 본문 단어를 눌렀을 때.
+   *
+   * 뜻은 레슨을 받을 때 glossary 로 통째로 오므로 **거의 항상 네트워크 없이
+   * 즉시** 뜬다. 시드에 빠진 단어일 때만 서버에 물어보고, 서버가 한 번 만들어
+   * 저장하니 그 다음부터는 다시 안 온다.
+   */
+  // 낭독 중에는 탭을 막는다(아래 Passage 로 null 을 넘긴다). 마이크가 켜진
+  // 채로 시트가 뜨면 읽던 흐름이 끊기고, 본문 위 레이어가 서로 싸운다.
+  const openGloss = useCallback(
+    async (word: string) => {
+      const clean = word.trim();
+      if (!clean) return;
+      setGlossWord(clean);
+
+      const local = (lesson.glossary ?? []).find(
+        (item) => normalizeReadingWord(item.word) === normalizeReadingWord(clean),
+      );
+      if (local) {
+        setGlossData(local);
+        setGlossLoading(false);
+        return;
+      }
+
+      setGlossData(null);
+      setGlossLoading(true);
+      try {
+        const res = await ReadingListeningService.gloss(lesson.code, clean);
+        setGlossData(res.gloss);
+      } catch {
+        // 못 가져와도 시트는 열어둔다 — "준비 못 했어요" 가 뜬다
+        setGlossData(null);
+      } finally {
+        setGlossLoading(false);
+      }
+    },
+    [lesson.code, lesson.glossary],
+  );
 
   /**
    * 완료를 서버에 보고한다.
@@ -1578,6 +1665,7 @@ export default function ReadingListeningScreen() {
                 readingPracticeVisible={readingPracticeVisible}
                 currentReadingWordIndex={currentReadingWordIndex}
                 failedReadingWordIndex={failedReadingWordIndex}
+                onGlossWord={readingPracticeActive ? null : openGloss}
                 activeWordId={activeVocabularyId}
                 onWordPress={(id) => {
                   const vocabulary = lesson.vocabulary.find(
@@ -2328,6 +2416,22 @@ export default function ReadingListeningScreen() {
           </View>
         </Pressable>
       </ScrollView>
+
+      {glossWord && (
+        <WordGlossSheet
+          word={glossWord}
+          gloss={glossData}
+          loading={glossLoading}
+          lang={normalizedLanguage}
+          copy={copy.wordGloss}
+          palette={palette}
+          onSpeak={(text) => speak(text, "ko-KR")}
+          onClose={() => {
+            setGlossWord(null);
+            setGlossData(null);
+          }}
+        />
+      )}
 
       {completeOpen && (
         <ReadingCompleteSheet
