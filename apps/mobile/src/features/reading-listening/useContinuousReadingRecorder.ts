@@ -49,6 +49,21 @@ const MIN_FLUSH_INTERVAL_MS = 1800;
  */
 const HARD_MAX_MS = 12000;
 const VOICE_RMS = 600;
+/**
+ * 보내기 전에 앞쪽 무음을 잘라낸다.
+ *
+ * 왜 필요한가: 채점이 끝난 지점(consumedMs)까지만 버리는데, 마지막 단어 뒤의
+ * 침묵은 버퍼에 남아 다음 구간의 **앞쪽 침묵**이 된다. 그게 매번 쌓이면
+ * 실제로 보내는 오디오의 20~30% 가 아무 소리도 없는 구간이 된다.
+ * Azure 발음 평가는 오디오 길이로 과금하니 그만큼 그냥 돈이다.
+ *
+ * 첫 소리보다 이만큼 앞은 남겨둔다 — 딱 붙여 자르면 첫 음절 앞부분이 깎인다.
+ */
+const LEAD_KEEP_MS = 160;
+/** 이보다 짧은 앞 침묵은 굳이 자르지 않는다 */
+const LEAD_TRIM_MIN_MS = 300;
+/** 무음 탐색 창 */
+const SCAN_WINDOW_MS = 20;
 
 /**
  * ⚠️ 버퍼에 쌓이는 샘플은 **기기가 실제로 주는 레이트**다. 16kHz 를 요청해도
@@ -166,11 +181,41 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
     },
   });
 
+  /**
+   * 버퍼 앞쪽의 무음 길이(ms). 소리가 하나도 없으면 -1.
+   * 실제 버리는 건 호출부가 한다 — 버퍼에서 직접 버려야 consumedMs 의 기준점이
+   * 어긋나지 않는다.
+   */
+  const leadingSilenceMs = useCallback((pcm: Int16Array, rate: number) => {
+    const window = msToSamples(SCAN_WINDOW_MS, rate);
+    for (let i = 0; i + window <= pcm.length; i += window) {
+      if (rmsLevel(pcm.subarray(i, i + window)) >= VOICE_RMS) {
+        return samplesToMs(i, rate);
+      }
+    }
+    return -1;
+  }, []);
+
   const flush = useCallback(() => {
     // 앞 구간의 채점이 아직 안 끝났으면 그냥 더 쌓는다. 순서가 어긋나면
     // 참조 단어 위치가 밀려서 멀쩡히 읽은 단어가 오답이 된다.
     if (!active.current || inFlight.current) return;
     if (!buffer.current.length) return;
+
+    // 앞쪽 무음 정리. 버퍼에서 직접 버려야 consumedMs 기준이 안 어긋난다.
+    const lead = leadingSilenceMs(
+      concatInt16(buffer.current),
+      sourceRate.current,
+    );
+    if (lead < 0) {
+      // 통째로 무음이다. 보내봐야 no_speech 만 받고 호출료만 나간다
+      reset();
+      return;
+    }
+    if (lead > LEAD_TRIM_MIN_MS) dropFront(lead - LEAD_KEEP_MS);
+    if (samplesToMs(bufferSamples.current, sourceRate.current) < MIN_SEGMENT_MS) {
+      return;
+    }
 
     inFlight.current = true;
     lastFlushAt.current = Date.now();
@@ -204,7 +249,7 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
         if (pendingMs > HARD_MAX_MS) dropFront(pendingMs - HARD_MAX_MS / 2);
       }
     })();
-  }, [dropFront, reset]);
+  }, [dropFront, leadingSilenceMs, reset]);
   flushRef.current = flush;
 
   const start = useCallback(async () => {
