@@ -115,7 +115,17 @@ cmd_deploy() {
     log "빌드에 CPU ${cpus}개만 준다 (서비스 응답을 지키려고). BUILD_CPUS=0 이면 해제"
   fi
 
+  # Caddy 를 먼저 띄운다. 앱 이미지와 무관하고, 인증서 발급이 빌드와 병렬로
+  # 돌아 시간이 준다. 무엇보다 빌드가 5~10분 도는 동안 `docker logs -f
+  # korio_caddy` 로 인증서 진행을 볼 수 있다 — 예전엔 빌드 뒤에 떠서
+  # 그때까지 컨테이너가 아예 없었다.
+  # (아직 api 가 없어 502 를 내지만, 첫 배포엔 트래픽이 없고 두 번째부터는
+  #  이미 떠 있어서 no-op 다)
+  log "Caddy 기동 (인증서 발급이 빌드와 함께 돈다)"
+  "${COMPOSE[@]}" up -d caddy
+
   log "이미지 빌드: ${IMAGE}:${tag}"
+  log "  진행 보기:  docker logs -f korio_caddy   (다른 터미널)"
   # docker build 는 --cpus 를 안 받는다. buildx 컨테이너가 아니라 데몬이 돌리기
   # 때문이다. 그래서 systemd-run 이 있으면 그걸로 감싸고, 없으면 그냥 돈다.
   local runner=()
@@ -128,9 +138,6 @@ cmd_deploy() {
     -t "${IMAGE}:latest" \
     "$REPO_ROOT" \
     || die "빌드 실패. 서비스는 아무것도 안 건드렸다." 
-
-  # Caddy 는 항상 떠 있어야 한다 (인증서·라우팅). 이미 떠 있으면 no-op
-  "${COMPOSE[@]}" up -d caddy
 
   local cur next; cur="$(current_color)"; next="$(other_color "$cur")"
   [[ "$cur" == none ]] && next=blue

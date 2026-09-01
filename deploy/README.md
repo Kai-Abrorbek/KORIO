@@ -109,6 +109,31 @@ chmod 600 api.env             # 시크릿이다
 - 텔레그램 로그인을 켜려면 BotFather 에 `api.korio.online` 을 등록해야 한다
   (`/setdomain`). 위젯 페이지가 이 서버에서 뜨기 때문이다.
 
+## 첫 배포 때 뭐가 보이나
+
+```
+▸ Caddy 기동 (인증서 발급이 빌드와 함께 돈다)
+▸ 이미지 빌드: korio-api:abc1234      ← 첫 빌드 5~10분. 이후엔 캐시로 1~2분
+▸ 현재: none → 새로 띄울 색: blue      ← 첫 배포는 내릴 옛 색이 없다
+▸ korio_api_blue 이 준비될 때까지 기다린다
+▸ korio_api_blue healthy (12초)
+▸ 배포 완료 → blue
+```
+
+빌드 도는 동안 다른 터미널에서 인증서 진행을 볼 수 있다:
+
+```bash
+docker logs -f korio_caddy      # certificate obtained successfully 가 나오면 성공
+```
+
+끝나면:
+
+```bash
+curl -sI https://api.korio.online/lessons/roadmap | head -3
+#   401 이 정상이다 (인증이 필요한 경로). 401 이든 200 이든 서버가 응답한 것.
+#   000 / 502 면 문제
+```
+
 ## 시크릿
 
 `deploy/api.env` 와 `deploy/.env` 는 `.gitignore` 에 있다. 서버에만 둔다.
