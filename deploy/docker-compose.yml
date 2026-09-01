@@ -1,0 +1,91 @@
+# KORIO API — blue/green 무중단 배포.
+#
+#   두 색을 항상 정의해 두고, 배포 스크립트가 번갈아 띄우고 내린다.
+#   Caddy 는 /ready 헬스체크로 살아 있는 쪽만 고르므로 설정을 다시 읽지 않는다.
+#
+#   운영 명령은 전부 ./deploy.sh 를 쓴다. compose 를 직접 up 하면
+#   두 색이 동시에 뜨거나 둘 다 내려가서 무중단이 깨진다.
+#
+# MongoDB 는 Atlas(외부)를 쓴다 — 여기 DB 컨테이너는 없다.
+# API 는 상태를 디스크에 안 쓴다(TTS 캐시는 메모리). 그래서 볼륨도 없다.
+
+name: korio
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: korio_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?API_DOMAIN 을 .env 에 넣어라}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL 을 .env 에 넣어라}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # 발급받은 인증서. 지우면 Let's Encrypt 한도에 걸린다
+      - caddy_config:/config
+    networks: [korio_net]
+
+  api_blue:
+    image: ${IMAGE:-korio-api}:${TAG:-latest}
+    container_name: korio_api_blue
+    restart: unless-stopped
+    env_file:
+      - ./api.env
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      INSTANCE_COLOR: blue
+    healthcheck:
+      # DB 까지 붙었는지 본다. 컨테이너 안에서 도니 curl 없이 node 로 찌른다
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    # SIGTERM 후 드레인(기본 8초) 이 끝날 때까지 기다려 준다.
+    # 이 값이 SHUTDOWN_DRAIN_MS 보다 짧으면 도커가 처리 중인 요청을 죽인다
+    stop_grace_period: 30s
+    networks: [korio_net]
+
+  api_green:
+    image: ${IMAGE:-korio-api}:${TAG:-latest}
+    container_name: korio_api_green
+    restart: unless-stopped
+    env_file:
+      - ./api.env
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      INSTANCE_COLOR: green
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    stop_grace_period: 30s
+    networks: [korio_net]
+
+networks:
+  korio_net:
+    name: korio_net
+
+volumes:
+  caddy_data:
+  caddy_config:

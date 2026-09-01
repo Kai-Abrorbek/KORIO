@@ -24,6 +24,7 @@ import { WordsModule } from './words/words.module';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { StudyPathModule } from './study-path/study-path.module';
 import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
     ExpressionsModule,
     StudyPathModule,
     ReadingLessonsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

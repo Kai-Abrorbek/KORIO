@@ -1,0 +1,57 @@
+# KORIO API 리버스 프록시.
+#
+# 무중단의 핵심이 여기 있다. blue·green 두 업스트림을 항상 적어 두고,
+# Caddy 가 /ready 를 계속 찔러서 **살아 있는 쪽으로만** 보낸다.
+#
+#   lb_policy first  : 목록 순서대로, 건강한 첫 번째에게 보낸다
+#   health_uri /ready: DB 까지 붙은 컨테이너만 건강하다고 친다
+#
+# 그래서 배포는 "새 색을 띄우고 → 건강해지면 → 옛 색을 내린다" 가 전부다.
+# Caddy 설정을 다시 읽을 필요도, 재시작할 필요도 없다.
+#
+# 내려가는 쪽은 SIGTERM 을 받으면 /ready 를 즉시 503 으로 바꾼다(main.ts).
+# Caddy 가 그걸 보고 새 요청을 끊고, 이미 처리 중인 요청은 그대로 끝난다.
+
+{
+	# Let's Encrypt 알림 메일. 인증서 만료 전에 여기로 온다
+	email {$ACME_EMAIL}
+	# 로그를 JSON 으로 (docker logs 에서 파싱하기 좋게)
+	log {
+		format json
+	}
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	# 헬스 경로는 밖에 열지 않는다. 내부 프록시만 쓰는 것이라
+	# 굳이 공개해서 인스턴스 상태를 알려줄 이유가 없다
+	@health path /health /ready
+	respond @health 404
+
+	reverse_proxy api_blue:3000 api_green:3000 {
+		lb_policy first
+		lb_retries 2
+		# 컨테이너가 아예 없어서 DNS 가 안 풀리는 동안 뜨는 오류는 무시하고
+		# 다음 업스트림으로 넘어간다 (배포 중 한쪽은 항상 없다)
+		lb_try_duration 5s
+		lb_try_interval 250ms
+
+		health_uri /ready
+		health_interval 3s
+		health_timeout 2s
+		health_status 2xx
+		fail_duration 10s
+
+		# 뒤에 있는 Nest 가 req.ip 로 요청 제한을 건다 (app.set('trust proxy', 1))
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Real-IP {remote_host}
+
+		# 발음 평가 오디오 업로드가 있어서 여유를 준다
+		transport http {
+			read_timeout 120s
+			write_timeout 120s
+			dial_timeout 5s
+		}
+	}
+}

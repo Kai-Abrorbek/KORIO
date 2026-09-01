@@ -262,7 +262,25 @@ export class LeagueService {
     const range = this.weekRangeFromKey(weekKey);
     const rooms = await this.roomModel.find({ weekKey, settled: false });
 
+    let settledCount = 0;
     for (const room of rooms) {
+      // 방을 **먼저** 원자적으로 집는다.
+      //
+      // 예전엔 보상을 다 준 뒤 마지막에 settled: true 를 찍었다. 그 사이에
+      // 다른 인스턴스(무중단 배포 중 새 컨테이너, 또는 관리자 수동 정산)가
+      // 같은 방을 읽으면 둘 다 settled:false 로 보고 $inc:{gems} 를 두 번
+      // 넣는다 — 젬이 두 배로 나간다. 집은 쪽만 진행한다.
+      //
+      // 대신 보상 중 크래시가 나면 그 방은 미정산으로 남는다. 이건
+      // settled 를 false 로 되돌리고 수동 엔드포인트로 다시 돌리면 된다 —
+      // 두 배 지급보다 낫다.
+      const claimed = await this.roomModel.findOneAndUpdate(
+        { _id: room._id, settled: false },
+        { $set: { settled: true } },
+      );
+      if (!claimed) continue;
+      settledCount++;
+
       const cfg = TIER_CONFIG[room.tier] ?? TIER_CONFIG[UserLeague.BRONZE];
       const tierIdx = TIER_ORDER.indexOf(room.tier);
       const xpMap = await this.getWeeklyXp(room.members, range);
@@ -326,9 +344,8 @@ export class LeagueService {
         }
       }
 
-      await this.roomModel.findByIdAndUpdate(room._id, { settled: true });
     }
-    return { settled: rooms.length, weekKey };
+    return { settled: settledCount, weekKey };
   }
 
   // 챌린지 시작 시 현재 순위를 저장 (끝나고 애니메이션에 쓸 "이전 순위")

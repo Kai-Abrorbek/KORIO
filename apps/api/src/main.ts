@@ -7,6 +7,7 @@ import { json, raw, urlencoded } from 'express';
 import { SPEECH_MAX_BYTES } from './speech/speech.constants';
 import { corsOrigins } from './config/secrets';
 import { securityHeaders } from './common/security-headers';
+import { markShuttingDown } from './health/health.controller';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -57,6 +58,41 @@ async function bootstrap() {
     maxAge: 86400,
   });
 
+  // ── 무중단 배포용 종료 절차 ──
+  //
+  // 컨테이너를 멈추면 도커가 SIGTERM 을 보낸다. 여기서 바로 죽으면 그 순간
+  // 처리 중이던 요청이 전부 끊긴다 — 유저에겐 네트워크 에러로 보인다.
+  // 그래서 세 단계로 내려간다.
+  //
+  //  1) /ready 를 503 으로 바꾼다 → 프록시가 새 요청을 안 보낸다
+  //  2) 프록시가 그걸 알아챌 시간만큼 기다린다 (헬스체크 주기보다 길게)
+  //  3) app.close() 로 열린 연결을 끝까지 처리하고 내려간다
+  //
+  // enableShutdownHooks 는 Nest 모듈의 onModuleDestroy 까지 태워서
+  // 몽고 연결·크론을 정리한다.
+  app.enableShutdownHooks();
+
+  const DRAIN_MS = Number(process.env.SHUTDOWN_DRAIN_MS ?? 8000);
+  let closing = false;
+  const shutdown = async (signal: string) => {
+    if (closing) return;
+    closing = true;
+    console.log(`[shutdown] ${signal} 수신 — 새 요청 차단 후 ${DRAIN_MS}ms 대기`);
+    markShuttingDown();
+    await new Promise((r) => setTimeout(r, DRAIN_MS));
+    try {
+      await app.close();
+      console.log('[shutdown] 정상 종료');
+    } catch (e) {
+      console.error('[shutdown] 종료 중 오류', e);
+    } finally {
+      process.exit(0);
+    }
+  };
+  process.on('SIGTERM', () => void shutdown('SIGTERM'));
+  process.on('SIGINT', () => void shutdown('SIGINT'));
+
   await app.listen(process.env.PORT ?? 3000);
+  console.log(`[boot] listening on ${process.env.PORT ?? 3000}`);
 }
 bootstrap();

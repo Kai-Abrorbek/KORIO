@@ -49,3 +49,7 @@ tmp/
 _gitlock-trash/
 apps/api/glossary-dry-run.json
 apps/api/.pc2/
+
+# 배포 비밀 (호스트에만 둔다)
+deploy/.env
+deploy/api.env
