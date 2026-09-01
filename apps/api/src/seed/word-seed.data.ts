@@ -25,6 +25,16 @@ import { S3_UNIT5_WORDS } from './data/vocabulary/section3';
 import { S3_UNIT6_WORDS } from './data/vocabulary/section3';
 import { S3_UNIT7_WORDS } from './data/vocabulary/section3';
 import { S3_UNIT8_WORDS } from './data/vocabulary/section3';
+
+import { S4_UNIT1_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT2_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT3_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT4_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT5_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT6_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT7_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT8_WORDS } from './data/vocabulary/section4';
+import { S4_UNIT9_WORDS } from './data/vocabulary/section4';
 import {
   WordPartOfSpeech,
   type WordLanguage,
@@ -62,6 +72,15 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 3, unit: 6, words: S3_UNIT6_WORDS },
   { section: 3, unit: 7, words: S3_UNIT7_WORDS },
   { section: 3, unit: 8, words: S3_UNIT8_WORDS },
+  { section: 4, unit: 1, words: S4_UNIT1_WORDS },
+  { section: 4, unit: 2, words: S4_UNIT2_WORDS },
+  { section: 4, unit: 3, words: S4_UNIT3_WORDS },
+  { section: 4, unit: 4, words: S4_UNIT4_WORDS },
+  { section: 4, unit: 5, words: S4_UNIT5_WORDS },
+  { section: 4, unit: 6, words: S4_UNIT6_WORDS },
+  { section: 4, unit: 7, words: S4_UNIT7_WORDS },
+  { section: 4, unit: 8, words: S4_UNIT8_WORDS },
+  { section: 4, unit: 9, words: S4_UNIT9_WORDS },
 ];
 
 export interface NormalizedWordSeed {

@@ -54,7 +54,7 @@ import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
 import { isAnswerCorrect } from "@/utils/answer-check";
 
-const SECTIONS = [1, 2, 3];
+const SECTIONS = [1, 2, 3, 4];
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
 const INITIAL_RECALL_INTERVAL = 5;
