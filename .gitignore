@@ -44,3 +44,8 @@ yarn-error.log*
 _to_delete/
 .tsconfig.*.json
 tmp/
+
+# Claude 작업용 잔여물 (device_bash 가 rm 을 못 해서 여기로 치운다)
+_gitlock-trash/
+apps/api/glossary-dry-run.json
+apps/api/.pc2/
