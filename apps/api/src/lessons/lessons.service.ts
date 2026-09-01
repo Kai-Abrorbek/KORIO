@@ -1857,12 +1857,30 @@ export class LessonsService {
     return { completed: lessonIds.length };
   }
 
+  /**
+   * 자유 학습(로드맵) 스코어.
+   *
+   * ⚠️ 학습 로드 모드 스코어(/study-path/score)와 **다른 값이다.** 두 모드는
+   * 진도를 각각 다른 곳에 쌓는다 — 자유는 레슨 완료(UserProgress), 로드는
+   * 하루 노드 완료(user.completedStudyNodes). 예전에는 두 화면이 이걸 같이
+   * 불러서 같은 숫자가 떴다.
+   */
   async getScore(userId: string, lang = 'uz') {
     const uId = new Types.ObjectId(userId);
 
-    // 전체 노드 (chest 제외)
+    // 자유 학습 로드맵이 보여주는 노드와 같은 범위로 센다.
+    // 예전에는 문법 트랙 노드까지 전부 셌는데, 그러면 화면에 보이지도 않는
+    // 진도가 숫자에 섞인다 (로드맵 노드 필터와 같은 조건이다).
     const nodes = await this.nodeModel
-      .find({ isActive: true, nodeType: { $ne: 'chest' } })
+      .find({
+        isActive: true,
+        nodeType: { $ne: 'chest' },
+        $or: [
+          { category: { $exists: false } },
+          { category: null },
+          { category: LessonCategory.VOCABULARY },
+        ],
+      })
       .select('section unit lessonIds')
       .lean();
 
@@ -1882,6 +1900,17 @@ export class LessonsService {
       unitMap.get(key)!.nodes.push(n);
     }
 
+    // 배치로 건너뛴 구간은 완주로 본다.
+    //
+    // 로드맵(getRoadmap)이 이미 그렇게 세고 있어서, 여기만 다르게 세면
+    // **헤더 숫자와 드롭다운 숫자가 서로 달라진다.** 3급으로 배치받은 사람이
+    // 헤더는 12, 드롭다운은 0 을 보는 식이다. 세는 규칙은 한 벌이어야 한다.
+    const me = await this.userModel
+      .findById(uId)
+      .select('placementLevel')
+      .lean();
+    const startSection = sectionRangeForLevel(me?.placementLevel ?? 1)[0];
+
     // 유닛 완주 판정 = 그 유닛의 모든 노드의 모든 레슨 완료
     let completedUnits = 0;
     const sectionUnits = new Map<number, number>();
@@ -1889,10 +1918,12 @@ export class LessonsService {
     for (const [, u] of unitMap) {
       sectionUnits.set(u.section, (sectionUnits.get(u.section) ?? 0) + 1);
 
-      const allDone = u.nodes.every((n) => {
-        const ids = (n.lessonIds ?? []).map((x: any) => x.toString());
-        return ids.length > 0 && ids.every((id) => doneSet.has(id));
-      });
+      const allDone =
+        u.section < startSection ||
+        u.nodes.every((n) => {
+          const ids = (n.lessonIds ?? []).map((x: any) => x.toString());
+          return ids.length > 0 && ids.every((id) => doneSet.has(id));
+        });
       if (allDone) completedUnits++;
     }
 

@@ -27,6 +27,8 @@ import { useAuthStore } from "@/store/auth.store";
 import { EnrolledCourse } from "@/types/user-courses";
 import { Course } from "@/types/courses";
 import { LessonService, ScoreData } from "@/services/lesson.service";
+import { StudyPathService } from "@/services/study-path.service";
+import { useSettingsStore } from "@/store/settings.store";
 
 interface Props {
   visible: boolean;
@@ -50,6 +52,7 @@ export default function CourseDropdown({ visible, onClose }: Props) {
   const s = getStyles(theme, isDark);
   const user = useAuthStore((st) => st.user);
 
+  const studyMode = useSettingsStore((st) => st.studyMode);
   const [sc, setSc] = useState<ScoreData>(EMPTY);
 
   // 실제 수강 중 코스 — 지금은 한국어 하나. 멀티 코스 생기면 API 목록으로 교체.
@@ -65,10 +68,17 @@ export default function CourseDropdown({ visible, onClose }: Props) {
   // 신규/추천 코스 — 실데이터 소스 생기면 여기 연결. 비어있으면 섹션 자체를 숨김.
   const newCourses: Course[] = [];
 
+  // 스코어는 **학습 모드마다 다르다.** 두 모드가 진도를 각각 다른 곳에 쌓기
+  // 때문이다 — 자유는 레슨 완료, 로드는 하루 노드 완료. 예전에는 둘 다
+  // /lessons/score 를 불러서 어느 화면에서 열든 같은 숫자가 나왔다.
   useEffect(() => {
     if (!visible) return;
     let alive = true;
-    LessonService.getScore()
+    const load =
+      studyMode === "guided"
+        ? StudyPathService.getScore()
+        : LessonService.getScore();
+    load
       .then((r) => {
         if (alive) setSc(r);
       })
@@ -76,7 +86,7 @@ export default function CourseDropdown({ visible, onClose }: Props) {
     return () => {
       alive = false;
     };
-  }, [visible]);
+  }, [visible, studyMode]);
 
   const go = (path: string) => {
     onClose();

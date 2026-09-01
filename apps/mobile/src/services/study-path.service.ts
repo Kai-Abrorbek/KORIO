@@ -1,5 +1,6 @@
 import i18n from "@/locales/i18n";
 import api from "@/services/api";
+import type { ScoreData } from "@/services/lesson.service";
 import type {
   LevelExamResult,
   StudyCompletableKind,
@@ -16,6 +17,14 @@ const getLang = () => {
 export const StudyPathService = {
   getStudyPath: (): Promise<StudyPathResponse> =>
     api.get(`/study-path?lang=${encodeURIComponent(getLang())}`),
+
+  /**
+   * 학습 로드 모드 스코어.
+   * 자유 학습의 LessonService.getScore 와 **다른 값이다** — 두 모드는 진도를
+   * 각각 다른 곳에 쌓는다. 화면에서 모드에 맞는 쪽을 골라 불러야 한다.
+   */
+  getScore: (): Promise<ScoreData> =>
+    api.get(`/study-path/score?lang=${encodeURIComponent(getLang())}`),
 
   /** 고를 수 있는 급수 목록. 콘텐츠 없는 급은 available:false */
   getLevels: (): Promise<StudyLevelsResponse> =>

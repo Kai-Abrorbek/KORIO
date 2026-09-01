@@ -10,7 +10,8 @@ import {
   clampLevel,
   sectionRangeForLevel,
 } from '../lessons/placement.const';
-import { pickSectionText } from '../lessons/section.const';
+import { buildMilestones, calcScore } from '../lessons/score.util';
+import { getSectionMeta, pickSectionText } from '../lessons/section.const';
 import { WordsService } from '../words/words.service';
 import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
@@ -161,6 +162,9 @@ export class StudyPathService {
       currentSection: section,
       currentLevel: level,
       currentDayIndex,
+      // 헤더에 띄울 스코어. 화면이 days 를 다시 세지 않게 여기서 준다 —
+      // 세는 규칙이 두 곳에 있으면 언젠가 서로 어긋난다.
+      score: days.filter((d) => d.status === 'completed').length,
       days,
       levelExam: {
         available: allDone,
@@ -168,6 +172,41 @@ export class StudyPathService {
       },
       nextLevel: await this.nextLevelInfo(level, lang),
     };
+  }
+
+  /**
+   * 학습 로드 모드의 스코어.
+   *
+   * ⚠️ 자유 학습(로드맵) 스코어와 **다른 값이다.** 두 모드는 진도를 각각 다른
+   * 곳에 쌓는다 — 자유는 레슨 완료(UserProgress), 로드는 하루 노드 완료
+   * (user.completedStudyNodes). 그래서 한쪽에서 진도를 낸다고 다른 쪽 숫자가
+   * 오르면 안 된다. 예전에는 두 화면이 같은 /lessons/score 를 불러서 같은
+   * 숫자가 떴다.
+   *
+   * 여기서 세는 단위는 **완주한 '하루'** 다. 한 과가 이틀이라 유닛보다 촘촘히
+   * 오르고, 그게 이 모드의 진행 감각과 맞는다.
+   */
+  async getScore(userId: string, lang = 'uz') {
+    const path = await this.getStudyPath(userId, lang);
+    const days = path.days ?? [];
+
+    const completedDays = path.score;
+
+    // 섹션별 하루 수 → 마일스톤 (자유 학습과 같은 계산기를 쓴다)
+    const daysPerSection = new Map<number, number>();
+    for (const day of days) {
+      daysPerSection.set(day.section, (daysPerSection.get(day.section) ?? 0) + 1);
+    }
+
+    const milestones = buildMilestones(
+      [...daysPerSection.entries()].map(([section, count]) => ({
+        section,
+        units: count,
+        title: pickSectionText(getSectionMeta(section).title, lang),
+      })),
+    );
+
+    return calcScore(completedDays, milestones);
   }
 
   /**

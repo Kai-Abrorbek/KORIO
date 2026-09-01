@@ -28,7 +28,10 @@ export default function RoadmapHeader({ stats, energy }: Props) {
         activeOpacity={0.7}
       >
         <Text style={styles.flag}>{stats.language}</Text>
-        <Text style={styles.statText}>{stats.courseCount}</Text>
+        {/* 스코어. 예전에는 코스 개수를 띄우고 있어서 항상 1 이었다 —
+            코스가 하나뿐이라 늘 1 이고, 진도를 아무리 내도 안 움직였다.
+            누르면 열리는 드롭다운의 스코어 카드와 같은 값이어야 맞는다. */}
+        <Text style={styles.statText}>{stats.score ?? 0}</Text>
         <Ionicons
           name="caret-down"
           size={12}

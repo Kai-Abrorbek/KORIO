@@ -88,7 +88,9 @@ export default function StudyPathScreen() {
   const userStats = {
     language: KOR_FLAG,
     courseCount: (user?.courseExtraCount ?? 0) + 1,
-    score: undefined,
+    // 학습 로드 모드의 스코어. 자유 학습(로드맵) 스코어와 다른 값이다 —
+    // 두 모드는 진도를 각각 다른 곳에 쌓는다.
+    score: data?.score ?? 0,
     streak: user?.streak,
     gems: user?.gems,
     energy: user?.energy,

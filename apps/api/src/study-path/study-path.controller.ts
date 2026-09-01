@@ -25,6 +25,16 @@ export class StudyPathController {
     return this.studyPathService.getStudyPath(req.user._id.toString(), lang);
   }
 
+  /**
+   * 학습 로드 모드 스코어.
+   * 자유 학습의 /lessons/score 와 값이 다르다 — 두 모드는 진도를 각각 다른
+   * 곳에 쌓는다. 같은 엔드포인트를 쓰면 한쪽 진도가 다른 쪽 숫자를 올린다.
+   */
+  @Get('score')
+  async getScore(@Request() req, @Query('lang') lang = 'uz') {
+    return this.studyPathService.getScore(req.user._id.toString(), lang);
+  }
+
   /** 고를 수 있는 급수 목록 (콘텐츠 없는 급은 available:false) */
   @Get('levels')
   async getLevels(@Request() req, @Query('lang') lang = 'uz') {

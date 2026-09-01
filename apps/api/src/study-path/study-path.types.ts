@@ -196,6 +196,8 @@ export interface StudyDay {
 }
 
 export interface StudyPathResponse {
+  /** 학습 로드 모드 스코어 = 완주한 '하루' 수. 자유 학습 스코어와 다른 값이다 */
+  score: number;
   currentSection: number;
   /** 지금 배우는 급수 */
   currentLevel: number;
