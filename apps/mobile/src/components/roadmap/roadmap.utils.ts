@@ -33,6 +33,17 @@ export function getUnitColor(index: number): string {
  */
 const NODES_PER_CHEST = 3;
 
+/**
+ * 상자를 중간에 끼운다.
+ *
+ * 이 상자들은 **위치만** 화면이 정한다. 실제 보상은 서버가 노드/하루를 끝낼 때
+ * 적립해두고(PendingChest), 상자를 누르면 그동안 쌓인 걸 한 번에 가져간다.
+ * 화면의 상자와 벌어들인 상자가 1:1 이 아니라서 그렇다 — 하나씩 짝지으려 하면
+ * 짝 없는 상자가 영영 안 받아진 채로 남는다.
+ *
+ * 어느 상자를 눌러 받을지는 markClaimableChest 가 정한다 (유닛 하나만 봐서는
+ * 못 정한다 — 로드맵 전체에서 하나여야 한다).
+ */
 export function injectChests(unit: RoadmapUnit): RoadmapUnit {
   const nodes = [...unit.nodes];
   const result: typeof nodes = [];
@@ -61,6 +72,45 @@ export function injectChests(unit: RoadmapUnit): RoadmapUnit {
     }
   }
   return { ...unit, nodes: result };
+}
+
+/**
+ * 받을 수 있는 상자 하나를 고른다.
+ *
+ * 끝낸 구간에 놓인 상자 중 **제일 마지막 것 하나만** 표시한다. 전부 빛나게
+ * 하면 어디를 눌러야 할지 모르고, 하나만 빛나면 그게 곧 "여기서 받아라" 가
+ * 된다. 어느 걸 누르든 서버는 쌓인 걸 다 주므로 표시는 안내일 뿐이다.
+ *
+ * 유닛 하나만 봐서는 못 고른다 — 완료한 유닛이 여럿이면 유닛마다 하나씩
+ * 빛나 버린다. 그래서 로드맵 전체를 받아서 정한다.
+ */
+export function markClaimableChest(
+  units: RoadmapUnit[],
+  hasPending: boolean,
+): RoadmapUnit[] {
+  if (!hasPending) return units;
+
+  let target: { unit: number; node: number } | null = null;
+  units.forEach((unit, unitIndex) => {
+    unit.nodes.forEach((node, nodeIndex) => {
+      if (node.type === "chest" && node.status === "completed") {
+        target = { unit: unitIndex, node: nodeIndex };
+      }
+    });
+  });
+  if (!target) return units;
+
+  const hit = target as { unit: number; node: number };
+  return units.map((unit, unitIndex) =>
+    unitIndex !== hit.unit
+      ? unit
+      : {
+          ...unit,
+          nodes: unit.nodes.map((node, nodeIndex) =>
+            nodeIndex === hit.node ? { ...node, chestClaimable: true } : node,
+          ),
+        },
+  );
 }
 
 export function appendScoreNode(unit: RoadmapUnit): RoadmapUnit {

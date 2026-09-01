@@ -13,6 +13,11 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
+import ChestRewardModal from "@/components/roadmap/ChestRewardModal";
+import {
+  LessonService,
+  type ChestClaimResult,
+} from "@/services/lesson.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
 import UnitRoadmap, {
@@ -49,12 +54,16 @@ export default function StudyPathScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const user = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   const energy = user?.energy ?? 0;
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const { data, loading, loadFailed, reload } = useStudyPath();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   const [visibleDayIndex, setVisibleDayIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [chestReward, setChestReward] = useState<ChestClaimResult | null>(null);
+  /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
+  const claimingRef = useRef(false);
 
   const viewModel = useMemo(() => {
     if (!data) return null;
@@ -75,6 +84,7 @@ export default function StudyPathScreen() {
           n: day.dayNumber,
           title: day.title,
         }),
+      (data.pendingChests ?? 0) > 0,
     );
   }, [data, t]);
 
@@ -202,11 +212,33 @@ export default function StudyPathScreen() {
   // 어디로 이어지는지 보인다. 시작만 못 할 뿐이다.
   const handleNodeTap = useCallback(
     (nodeId: string) => {
-      if (!viewModel?.nodeById.has(nodeId)) return;
+      // 상자는 nodeById 에 없다(화면이 끼운 이정표다). 그것도 열려야 하므로
+      // 여기서 막지 않는다 — 예전에는 눌러도 아무 반응이 없어서 고장난 것처럼
+      // 보였다.
+      const isChest = nodeId.includes("-auto-chest-");
+      if (!isChest && !viewModel?.nodeById.has(nodeId)) return;
       setSelectedNodeId((current) => (current === nodeId ? null : nodeId));
     },
     [viewModel],
   );
+
+  /** 상자 받기. 자유 학습과 같은 엔드포인트를 쓴다 */
+  const handleClaimChest = useCallback(async () => {
+    if (claimingRef.current) return;
+    claimingRef.current = true;
+    try {
+      const res = await LessonService.claimChests();
+      if (res.claimed > 0) {
+        setChestReward(res);
+        updateUser({ gems: res.totalGems } as any);
+        void reload();
+      }
+    } catch {
+      // 못 받아도 화면을 막지 않는다
+    } finally {
+      claimingRef.current = false;
+    }
+  }, [reload, updateUser]);
 
   const renderNodePopover = useCallback(
     ({ node, unit, triangleOffsetX }: RoadmapNodePopoverContext) => {
@@ -243,6 +275,7 @@ export default function StudyPathScreen() {
             avatar={user?.avatar}
             selectedNodeId={selectedNodeId}
             onNodeTap={handleNodeTap}
+            onClaimChest={handleClaimChest}
             renderNodePopover={renderNodePopover}
           />
         </Pressable>
@@ -251,6 +284,7 @@ export default function StudyPathScreen() {
     [
       closePopover,
       days,
+      handleClaimChest,
       handleNodeTap,
       renderNodePopover,
       selectedNodeId,
@@ -315,6 +349,11 @@ export default function StudyPathScreen() {
     <View style={styles.container}>
       <RoadmapBackdrop theme={theme} />
       <RoadmapHeader stats={userStats} energy={energy} />
+
+      <ChestRewardModal
+        result={chestReward}
+        onClose={() => setChestReward(null)}
+      />
 
       {bannerDay && bannerUnit ? (
         <DayBanner

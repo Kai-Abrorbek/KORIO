@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
+import { ChestService } from './chest.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
@@ -27,6 +28,7 @@ export class LessonsController {
   constructor(
     private readonly lessonsService: LessonsService,
     private readonly answerGradingService: AnswerGradingService,
+    private readonly chestService: ChestService,
   ) {}
 
   // 로드맵용 레슨 목록
@@ -149,6 +151,27 @@ export class LessonsController {
       Math.max(1, Number(group) || 1),
       Math.max(1, Number(lesson) || 1),
     );
+  }
+
+  /** 안 받은 상자 수. 화면이 상자를 빛나게 할지 정한다 */
+  @UseGuards(JwtAuthGuard)
+  @Get('chests')
+  async getChests(@Request() req) {
+    return {
+      count: await this.chestService.pendingCount(req.user._id.toString()),
+    };
+  }
+
+  /**
+   * 안 받은 상자를 전부 받는다.
+   *
+   * 화면의 상자는 3노드마다 놓인 이정표라 벌어들인 상자와 1:1 이 아니다.
+   * 하나씩 짝지으면 짝 없는 상자가 영영 안 받아진 채 남는다.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('chests/claim')
+  async claimChests(@Request() req) {
+    return this.chestService.claimAll(req.user._id.toString());
   }
 
   @UseGuards(JwtAuthGuard)

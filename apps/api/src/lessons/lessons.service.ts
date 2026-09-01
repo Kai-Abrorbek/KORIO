@@ -34,6 +34,7 @@ import {
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { rollChestReward } from './xp.util';
+import { ChestService } from './chest.service';
 import { UsersService } from '../users/users.service';
 import { startOfDay } from '../common/date.util';
 import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
@@ -98,6 +99,7 @@ export class LessonsService {
     private lessonModel: Model<LessonDocument>,
     @InjectModel(LessonNode.name)
     private nodeModel: Model<LessonNodeDocument>,
+    private readonly chestService: ChestService,
     @InjectModel(Question.name)
     private questionModel: Model<QuestionDocument>,
     @InjectModel(UserProgress.name)
@@ -465,17 +467,24 @@ export class LessonsService {
           (p) => (p.wrongQuestionIds?.length ?? 0) === 0,
         );
 
-        chest = rollChestReward({ section: node.section ?? 1, perfect });
-
-        // 보석 지급 + 상자 연 기록 (서버에서, 조작 불가)
+        // 보석을 바로 넣지 않고 **받아갈 상자로 쌓아둔다.**
+        // 총량은 그대로고 주는 시점만 옮긴 것이다 — 예전에는 알림 하나 뜨고
+        // 끝이라 유저가 보상을 받았다는 걸 거의 몰랐다.
+        await this.chestService.earn(userId, node._id.toString(), {
+          section: node.section ?? 1,
+          perfect,
+        });
+        // 같은 노드로 두 번 벌지 않게 하는 기존 표식은 그대로 쓴다
         await this.userModel.findByIdAndUpdate(userId, {
-          $inc: { gems: chest.gems },
           $addToSet: { openedChests: node._id },
         });
 
+        // 화면이 "받을 게 있다" 를 알 수 있게만 알린다. 등급·보석은 열 때 본다
+        chest = { grade: 'pending', gems: 0 };
+
         await this.notifications
           .create(userId, NotificationType.CHEST, {
-            params: { grade: chest.grade, gems: chest.gems },
+            params: { grade: 'pending', gems: 0 },
             link: '/roadmap',
           })
           .catch(() => {});
@@ -995,6 +1004,8 @@ export class LessonsService {
     return {
       units: sectionUnits,
       score,
+      // 안 받은 상자가 있으면 화면이 상자 노드를 빛나게 한다
+      pendingChests: await this.chestService.pendingCount(userId),
       currentSection,
       nextSection: nextMeta
         ? {

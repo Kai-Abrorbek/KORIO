@@ -196,6 +196,8 @@ export interface StudyDay {
 }
 
 export interface StudyPathResponse {
+  /** 안 받은 상자 수 */
+  pendingChests: number;
   /** 학습 로드 모드 스코어 = 완주한 '하루' 수. 자유 학습 스코어와 다른 값이다 */
   score: number;
   currentSection: number;

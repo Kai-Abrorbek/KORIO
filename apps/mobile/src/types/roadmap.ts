@@ -39,6 +39,8 @@ export interface RoadmapNode {
   iconName?: RoadmapIconName;
   legendCompleted?: boolean;
   scoreValue?: number;
+  /** 지금 눌러서 보상을 받을 수 있는 상자인지 */
+  chestClaimable?: boolean;
 }
 
 export interface RoadmapUnit {
@@ -74,6 +76,8 @@ export interface UserRoadmapStats {
 export interface RoadmapData {
   stats: UserRoadmapStats;
   score: number;
+  /** 아직 안 받은 상자 수 */
+  pendingChests?: number;
   units: RoadmapUnit[];
   nextLockedSection?: NextLockedSection;
   currentSection?: number;

@@ -405,6 +405,12 @@ export default {
     locked: "잠김",
     lockedDescription: "이 레벨을 잠금 해제하려면 이전 레벨을 모두 완료하세요!",
     chestLocked: "레슨 {{count}}개를 더 완료하여 이 선물 상자를 열어보세요!",
+    chestHint: "이 구간을 다 끝내면 보석을 받아요!",
+    chestReady: "받을 보상이 있어요!",
+    chestOpen: "상자 열기",
+    chestTake: "받기",
+    chestMulti: "상자 {{count}}개를 한 번에 열었어요",
+    chestGrade: { wood: "나무 상자", silver: "은 상자", gold: "황금 상자" },
     legendDone: "이 레벨에서 레전드 레벨을 달성했습니다!",
     scoreReview: "스코어 {{score}} 복습",
     scoreDesc:

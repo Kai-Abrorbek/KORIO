@@ -23,6 +23,8 @@ interface Props {
   onJumpTest?: () => void; // 테스트 시작
   onClose?: () => void;
   onGoLegend?: (firstNode: RoadmapNode) => void;
+  /** 상자를 눌러 쌓인 보상을 받는다 */
+  onClaimChest?: () => void;
 }
 
 const LEGEND_GOLD = "#FFD900";
@@ -40,6 +42,7 @@ export default function NodePopover({
   onJumpTest,
   onClose,
   onGoLegend,
+  onClaimChest,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -94,7 +97,43 @@ export default function NodePopover({
   }
 
   // 상자 (잠금) - 설명만 있음
-  if (isChest && isLocked) {
+  // 상자.
+  //
+  // 세 가지 상태를 구분한다. 예전에는 잠김 하나만 있어서, 열린 상자를 누르면
+  // 일반 노드 팝오버로 떨어졌다 — 상자인데 상자 얘기를 안 했다.
+  if (isChest) {
+    // ① 받을 게 있다
+    if (node.chestClaimable) {
+      return (
+        <View style={[styles.bubble, { backgroundColor: "#FFD900" }]}>
+          <View
+            style={[
+              styles.arrow,
+              { borderBottomColor: "#FFD900" },
+              { marginLeft: -10 + triangleOffsetX },
+            ]}
+          />
+          <Text style={[styles.activeTitle, { color: "#7A5C00" }]}>
+            {t("roadmap.chestReady")}
+          </Text>
+          <TouchableOpacity
+            style={styles.legendCtaBtn}
+            onPress={onClaimChest}
+            activeOpacity={0.85}
+          >
+            <View style={styles.legendCtaDepth} />
+            <View style={styles.legendCtaFace}>
+              <Text style={styles.legendCtaText}>
+                {t("roadmap.chestOpen")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // ② 아직 못 연다 — 무엇을 하면 되는지 말해준다
+    // ③ 이미 받았다 — 같은 문구로 다음 구간을 가리킨다
     return (
       <Pressable onPress={() => {}}>
         <View style={[styles.bubble, styles.bubbleLocked]}>
@@ -106,9 +145,7 @@ export default function NodePopover({
             ]}
           />
           <Text style={styles.lockedDescription}>
-            {t("roadmap.chestLocked", {
-              count: node.chestLessonsRemaining ?? 0,
-            })}
+            {t("roadmap.chestHint")}
           </Text>
         </View>
       </Pressable>

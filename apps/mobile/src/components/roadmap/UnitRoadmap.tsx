@@ -45,6 +45,8 @@ interface Props {
   hideNodeRing?: boolean;
   /** 기본 레슨 팝오버 대신 트랙 전용 팝오버를 표시할 때만 전달한다. */
   renderNodePopover?: (context: RoadmapNodePopoverContext) => ReactNode;
+  /** 상자를 눌러 쌓인 보상을 받는다. 두 모드가 같은 핸들러를 쓴다 */
+  onClaimChest?: () => void;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -94,6 +96,7 @@ export default function UnitRoadmap({
   onJumpTest,
   onGoLegend,
   renderNodePopover,
+  onClaimChest,
   hideNodeRing = false,
 }: Props) {
   const theme = useTheme();
@@ -301,7 +304,10 @@ export default function UnitRoadmap({
 
               {isSelected && (
                 <View style={styles.popoverContainer}>
-                  {renderNodePopover ? (
+                  {/* 상자는 두 모드에서 똑같이 동작해야 하므로 트랙 전용
+                      팝오버를 쓰지 않는다. 학습 로드의 팝오버는 상자를 모르고
+                      null 을 돌려줘서, 눌러도 아무 반응이 없었다. */}
+                  {renderNodePopover && node.type !== "chest" ? (
                     renderNodePopover({
                       node,
                       unit,
@@ -321,6 +327,7 @@ export default function UnitRoadmap({
                       }
                       canJump={i === 0 && node.status === "locked"}
                       onJumpTest={() => onJumpTest?.(unit)}
+                      onClaimChest={onClaimChest}
                       onClose={() => onNodeTap(node.id)}
                     />
                   )}

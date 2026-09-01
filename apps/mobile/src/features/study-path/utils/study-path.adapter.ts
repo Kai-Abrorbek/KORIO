@@ -1,4 +1,8 @@
-import { getUnitColor, injectChests } from "@/components/roadmap/roadmap.utils";
+import {
+  getUnitColor,
+  injectChests,
+  markClaimableChest,
+} from "@/components/roadmap/roadmap.utils";
 import type { RoadmapIconName, RoadmapUnit } from "@/types/roadmap";
 import type { StudyDay, StudyNode, StudyNodeKind } from "@/types/study-path";
 
@@ -32,6 +36,7 @@ export function buildStudyPathViewModel(
   days: StudyDay[],
   labelOf: (node: StudyNode) => string,
   dayTitleOf: (day: StudyDay) => string,
+  hasPendingChest = false,
 ): StudyPathViewModel {
   const nodeById = new Map<
     string,
@@ -70,7 +75,7 @@ export function buildStudyPathViewModel(
     });
   });
 
-  return { units, nodeById };
+  return { units: markClaimableChest(units, hasPendingChest), nodeById };
 }
 
 /** 그 하루에서 끝낸 노드 수 (진행 바용) */

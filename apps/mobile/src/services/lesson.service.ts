@@ -36,7 +36,28 @@ export interface ScoreData {
   milestones: ScoreMilestone[];
 }
 
+export interface ChestClaimResult {
+  /** 받은 상자 개수. 0 이면 받을 게 없었다 */
+  claimed: number;
+  gems: number;
+  /** 여러 개를 한 번에 받으면 그중 제일 좋은 등급 */
+  grade: "wood" | "silver" | "gold" | null;
+  totalGems: number;
+  chests: { grade: string; gems: number }[];
+}
+
 export const LessonService = {
+  /** 안 받은 상자 수 */
+  getChests: (): Promise<{ count: number }> => api.get("/lessons/chests"),
+
+  /**
+   * 안 받은 상자를 전부 받는다.
+   * 화면의 상자는 이정표라 벌어들인 상자와 1:1 이 아니다 — 어느 걸 누르든
+   * 그동안 쌓인 걸 다 가져간다.
+   */
+  claimChests: (): Promise<ChestClaimResult> =>
+    api.post("/lessons/chests/claim", {}),
+
   // 로드맵용 레슨 목록
   getLessons: (): Promise<any[]> => {
     return api.get(`/lessons?lang=${getLang()}`);
@@ -47,6 +68,8 @@ export const LessonService = {
   ): Promise<{
     units: any[];
     score: number;
+    /** 아직 안 받은 상자 수 */
+    pendingChests?: number;
     currentSection: number;
     nextSection: {
       sectionNumber: number;

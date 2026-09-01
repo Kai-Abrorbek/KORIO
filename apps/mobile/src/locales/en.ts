@@ -410,6 +410,12 @@ export default {
     locked: "Locked",
     lockedDescription: "Complete all previous levels to unlock this level!",
     chestLocked: "Complete {{count}} more lessons to open this gift box!",
+    chestHint: "Finish this stretch to earn gems!",
+    chestReady: "You have a reward waiting!",
+    chestOpen: "Open chest",
+    chestTake: "Collect",
+    chestMulti: "Opened {{count}} chests at once",
+    chestGrade: { wood: "Wooden chest", silver: "Silver chest", gold: "Golden chest" },
     legendDone: "You reached Legend level on this one!",
     scoreReview: "Score {{score}} review",
     scoreDesc:

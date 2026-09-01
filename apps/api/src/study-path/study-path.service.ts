@@ -12,6 +12,7 @@ import {
 } from '../lessons/placement.const';
 import { buildMilestones, calcScore } from '../lessons/score.util';
 import { getSectionMeta, pickSectionText } from '../lessons/section.const';
+import { ChestService } from '../lessons/chest.service';
 import { WordsService } from '../words/words.service';
 import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
@@ -42,6 +43,7 @@ interface UnitWordSummary {
 export class StudyPathService {
   constructor(
     private readonly lessonsService: LessonsService,
+    private readonly chestService: ChestService,
     private readonly wordsService: WordsService,
     @InjectModel(Grammar.name)
     private readonly grammarModel: Model<GrammarDocument>,
@@ -162,6 +164,8 @@ export class StudyPathService {
       currentSection: section,
       currentLevel: level,
       currentDayIndex,
+      // 안 받은 상자 수. 화면이 상자 노드를 빛나게 한다
+      pendingChests: await this.chestService.pendingCount(userId),
       // 헤더에 띄울 스코어. 화면이 days 를 다시 세지 않게 여기서 준다 —
       // 세는 규칙이 두 곳에 있으면 언젠가 서로 어긋난다.
       score: days.filter((d) => d.status === 'completed').length,
@@ -405,7 +409,44 @@ export class StudyPathService {
       { _id: userId },
       { $addToSet: { completedStudyNodes: key } },
     );
+
+    // 하루를 통째로 끝냈으면 상자를 하나 적립한다.
+    //
+    // 자유 학습은 노드 하나를 끝낼 때마다 벌지만, 이쪽 노드는 훨씬 잘게 쪼개져
+    // 있어서 같은 규칙을 쓰면 상자가 쏟아진다. 이 모드에서 "한 덩어리를 끝냈다"
+    // 는 단위는 하루다. sourceKey 에 하루를 넣어 두 번 벌지 못하게 막는다.
+    await this.grantDayChest(userId, section, unit).catch(() => undefined);
+
     return { success: true, key };
+  }
+
+  /**
+   * 그 하루의 노드가 전부 끝났으면 상자를 적립한다.
+   *
+   * ⚠️ 여기서 getStudyPath 를 다시 부른다 — 하루가 끝났는지 알려면 그 하루의
+   * 노드 구성을 알아야 하는데, 그 계산이 곧 getStudyPath 다. 노드 완료마다 한
+   * 번씩 더 도는 셈이라 싸지 않다. 정확도를 택했다: 조건을 좁히면(예: final
+   * 노드일 때만) 하루가 다른 노드로 끝나는 경우를 놓치고, 그러면 상자가 영영
+   * 안 생긴다. 느린 게 없는 것보다 낫다. 부하가 문제가 되면 하루의 노드 키만
+   * 따로 계산하는 쪽으로 쪼개면 된다.
+   */
+  private async grantDayChest(userId: string, section: number, unit: number) {
+    const path = await this.getStudyPath(userId);
+    const finished = path.days.filter(
+      (day) =>
+        day.section === section &&
+        day.unit === unit &&
+        day.status === 'completed',
+    );
+
+    for (const day of finished) {
+      await this.chestService.earn(userId, `day:${day.id}`, {
+        section,
+        // 이 모드는 문항별 정오답을 노드 단위로 안 들고 있어서 무실수 보너스는
+        // 주지 않는다. 있는 척하는 것보다 없는 게 낫다.
+        perfect: false,
+      });
+    }
   }
 
   // ─────────────────────────────────────────────────────────

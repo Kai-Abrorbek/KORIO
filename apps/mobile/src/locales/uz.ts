@@ -413,6 +413,12 @@ export default {
       "Ushbu darajani ochish uchun avvalgi darajalarni tugating!",
     chestLocked:
       "Bu sovg'a qutisini ochish uchun yana {{count}} ta darsni tugating!",
+    chestHint: "Bu bo‘limni tugatsangiz, olmos olasiz!",
+    chestReady: "Sizni mukofot kutmoqda!",
+    chestOpen: "Sandiqni ochish",
+    chestTake: "Olish",
+    chestMulti: "{{count}} ta sandiq birdan ochildi",
+    chestGrade: { wood: "Yog‘och sandiq", silver: "Kumush sandiq", gold: "Oltin sandiq" },
     legendDone: "Siz bu darajada afsona darajasiga yetdingiz!",
     scoreReview: "Daraja - {{score}} takrorlash",
     scoreDesc:

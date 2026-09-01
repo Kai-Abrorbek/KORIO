@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
+import { ChestService } from './chest.service';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { LessonNode, LessonNodeSchema } from './schemas/node.schema';
 import { Question, QuestionSchema } from './schemas/question.schema';
@@ -24,6 +25,10 @@ import {
   JumpAttempt,
   JumpAttemptSchema,
 } from './schemas/jump-attempt.schema';
+import {
+  PendingChest,
+  PendingChestSchema,
+} from './schemas/pending-chest.schema';
 
 @Module({
   imports: [
@@ -37,12 +42,13 @@ import {
       { name: UserMistake.name, schema: UserMistakeSchema },
       { name: User.name, schema: UserSchema },
       { name: JumpAttempt.name, schema: JumpAttemptSchema },
+      { name: PendingChest.name, schema: PendingChestSchema },
     ]),
     LeagueModule,
     UsersModule,
   ],
   controllers: [LessonsController],
-  providers: [LessonsService, AnswerGradingService],
-  exports: [LessonsService],
+  providers: [LessonsService, AnswerGradingService, ChestService],
+  exports: [LessonsService, ChestService],
 })
 export class LessonsModule {}

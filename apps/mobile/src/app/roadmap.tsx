@@ -23,7 +23,11 @@ import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
-import { LessonService } from "@/services/lesson.service";
+import {
+  LessonService,
+  type ChestClaimResult,
+} from "@/services/lesson.service";
+import ChestRewardModal from "@/components/roadmap/ChestRewardModal";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
@@ -35,6 +39,7 @@ import {
   ROW_HEIGHT,
   UNIT_PADDING,
   appendScoreNode,
+  markClaimableChest,
   getUnitColor,
   injectChests,
 } from "@/components/roadmap/roadmap.utils";
@@ -49,6 +54,9 @@ export default function RoadmapScreen() {
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
+  const [chestReward, setChestReward] = useState<ChestClaimResult | null>(null);
+  /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
+  const claimingRef = useRef(false);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
   const user = useAuthStore((s) => s.user);
@@ -66,10 +74,13 @@ export default function RoadmapScreen() {
 
   const processedUnits = useMemo(
     () =>
-      roadmap.units.map((unit, i) =>
-        appendScoreNode(injectChests({ ...unit, color: getUnitColor(i) })),
+      markClaimableChest(
+        roadmap.units.map((unit, i) =>
+          appendScoreNode(injectChests({ ...unit, color: getUnitColor(i) })),
+        ),
+        (roadmap.pendingChests ?? 0) > 0,
       ),
-    [roadmap.units],
+    [roadmap.units, roadmap.pendingChests],
   );
 
   const currentUnitIdx = useMemo(
@@ -124,6 +135,7 @@ export default function RoadmapScreen() {
       const data = await LessonService.getRoadmap(category);
       setRoadmap({
         score: data.score,
+        pendingChests: data.pendingChests ?? 0,
         stats: {
           energy: user?.energy,
           gems: user?.gems,
@@ -276,6 +288,28 @@ export default function RoadmapScreen() {
     [router],
   );
 
+  /**
+   * 상자를 눌렀을 때. 어느 상자를 누르든 그동안 쌓인 걸 다 가져간다 —
+   * 화면의 상자는 이정표라 벌어들인 상자와 1:1 이 아니다.
+   */
+  const handleClaimChest = useCallback(async () => {
+    if (claimingRef.current) return;
+    claimingRef.current = true;
+    try {
+      const res = await LessonService.claimChests();
+      if (res.claimed > 0) {
+        setChestReward(res);
+        // 보석은 서버가 준 총량으로 맞춘다. 화면에서 더하면 어긋난다
+        updateUser({ gems: res.totalGems } as any);
+        setRoadmap((current) => ({ ...current, pendingChests: 0 }));
+      }
+    } catch {
+      // 못 받아도 화면을 막지 않는다. 다시 누르면 된다
+    } finally {
+      claimingRef.current = false;
+    }
+  }, [updateUser]);
+
   const handleNextSectionJump = useCallback(() => {
     const next = roadmap.nextSection;
     if (!next) return;
@@ -313,6 +347,7 @@ export default function RoadmapScreen() {
             onGuidePress={handleGuidePress}
             onJumpTest={handleJumpTest}
             onGoLegend={handleGoLegend}
+            onClaimChest={handleClaimChest}
           />
         </Pressable>
       );
@@ -325,6 +360,7 @@ export default function RoadmapScreen() {
       handleNodeReview,
       handleNodeLegend,
       handleGoLegend,
+      handleClaimChest,
       handleGuidePress,
       handleJumpTest,
       styles.unitElevated,
@@ -432,6 +468,11 @@ export default function RoadmapScreen() {
             />
           ) : null
         }
+      />
+
+      <ChestRewardModal
+        result={chestReward}
+        onClose={() => setChestReward(null)}
       />
 
       {/* current 유닛으로 점프 버튼 */}
