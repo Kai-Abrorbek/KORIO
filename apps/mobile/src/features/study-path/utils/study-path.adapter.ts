@@ -1,4 +1,4 @@
-import { getUnitColor } from "@/components/roadmap/roadmap.utils";
+import { getUnitColor, injectChests } from "@/components/roadmap/roadmap.utils";
 import type { RoadmapIconName, RoadmapUnit } from "@/types/roadmap";
 import type { StudyDay, StudyNode, StudyNodeKind } from "@/types/study-path";
 
@@ -54,7 +54,12 @@ export function buildStudyPathViewModel(
       };
     });
 
-    return {
+    // 상자를 중간에 끼운다.
+    //
+    // 자유 학습 로드맵은 화면(app/roadmap.tsx)에서 injectChests 를 거치는데
+    // 이쪽은 어댑터가 유닛을 직접 만들어서 그 단계를 건너뛰고 있었다. 그래서
+    // 학습 로드 모드에는 상자가 아예 없었다. 규칙은 같은 걸 쓴다.
+    return injectChests({
       id: day.id,
       sectionNumber: day.section,
       unitNumber: day.unit,
@@ -62,7 +67,7 @@ export function buildStudyPathViewModel(
       color: getUnitColor(day.dayNumber - 1),
       status: day.status,
       nodes,
-    };
+    });
   });
 
   return { units, nodeById };
