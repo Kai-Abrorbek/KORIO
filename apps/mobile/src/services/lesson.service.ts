@@ -25,6 +25,8 @@ export interface ScoreMilestone {
   units: number; // 그 섹션의 유닛 수
   title?: string; // 섹션 제목 (유저 언어)
   startScore?: number; // 섹션 시작 시점 누적 유닛 수
+  /** 그 섹션의 첫 유닛 번호. 잠긴 섹션으로 점프할 때 목표가 된다 */
+  firstUnit?: number;
   status?: "completed" | "current" | "locked";
 }
 
@@ -116,6 +118,8 @@ export const LessonService = {
     gems: number;
     energy: number;
     chest: { grade: "wood" | "silver" | "gold"; gems: number } | null;
+    /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
+    unitCompleted: { section: number; unit: number; score: number } | null;
   }> => {
     return api.post(`/lessons/${lessonId}/complete`, data);
   },
@@ -184,6 +188,9 @@ export const LessonService = {
     wrongCount: number;
     heartLimit: number;
     completed?: number;
+    /** 무엇이 열렸는지. 섹션 점프면 이 섹션이 통째로 열린 것이다 */
+    section?: number;
+    unit?: number;
   }> =>
     api.post(`/lessons/jump-complete`, { attemptId, wrongQuestionIds }),
 

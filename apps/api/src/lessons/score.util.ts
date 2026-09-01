@@ -4,13 +4,20 @@ export interface Milestone {
   units: number; // 그 섹션의 유닛 수
   title?: string; // 섹션 제목 (유저 언어)
   startScore?: number; // 그 섹션 시작 시점의 누적 유닛 수
+  /** 그 섹션의 첫 유닛 번호. 잠긴 섹션으로 점프할 때 목표가 된다 */
+  firstUnit?: number;
   status?: 'completed' | 'current' | 'locked';
 }
 
 // 섹션별 유닛 수 → 누적 마일스톤 생성
 // 예: 섹션1=1유닛, 섹션2=9유닛 → [{score:1,...}, {score:10,...}]
 export function buildMilestones(
-  unitsPerSection: { section: number; units: number; title?: string }[],
+  unitsPerSection: {
+    section: number;
+    units: number;
+    title?: string;
+    firstUnit?: number;
+  }[],
 ): Milestone[] {
   let cum = 0;
   return unitsPerSection
@@ -24,6 +31,7 @@ export function buildMilestones(
         units: s.units,
         title: s.title,
         startScore,
+        firstUnit: s.firstUnit ?? 1,
       };
     });
 }

@@ -391,6 +391,10 @@ export default function LessonScreen() {
     // 합격 판정은 서버가 한다. 여기서 미리 계산하는 건 서버를 못 부를 때
     // (응시 발급 실패 / 네트워크) 화면을 어떻게 보여줄지 정하는 용도뿐이다.
     let passed = !heartsOut && wrongCount < jumpHeartLimit;
+    // 무엇이 열렸는지는 서버가 안다. 화면이 추측하면 "유닛 1 열림" 같은
+    // 엉뚱한 안내가 나간다 (섹션을 통째로 건너뛴 경우가 그랬다)
+    let openedSection: number | null = null;
+    let openedLessons = 0;
 
     if (attemptId) {
       try {
@@ -399,6 +403,8 @@ export default function LessonScreen() {
           wrongIds.current,
         );
         passed = res.passed;
+        openedSection = res.section ?? null;
+        openedLessons = res.completed ?? 0;
       } catch (e) {
         console.log("jump complete fail:", e);
         passed = false; // 서버가 인정 안 한 진급은 통과로 치지 않는다
@@ -410,7 +416,13 @@ export default function LessonScreen() {
     router.replace({
       pathname: "/jump-result",
       params: passed
-        ? { passed: "1", unit: String(unit) }
+        ? {
+            passed: "1",
+            unit: String(unit),
+            section: String(openedSection ?? section ?? ""),
+            target: String(target ?? ""),
+            lessons: String(openedLessons),
+          }
         : { passed: "0", wrong: String(wrongCount) },
     });
   };
@@ -731,6 +743,12 @@ export default function LessonScreen() {
             time: timeStr,
             chestGrade: res.chest?.grade ?? "",
             chestGems: res.chest ? String(res.chest.gems) : "",
+            // 유닛을 통째로 끝냈으면 스코어가 오른 순간이다. 완료 화면이
+            // 이어서 축하 화면으로 넘긴다
+            scoreUp: res.unitCompleted ? String(res.unitCompleted.score) : "",
+            scoreUpUnit: res.unitCompleted
+              ? String(res.unitCompleted.unit)
+              : "",
             gemTotal: String(gemsBefore),
             category: category ?? "",
             from: fromStudyPath ? "studyPath" : "",

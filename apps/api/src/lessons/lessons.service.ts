@@ -494,6 +494,15 @@ export class LessonsService {
       }
     }
 
+    // ── 유닛을 통째로 끝냈나 → 스코어가 오르는 순간 ──
+    //
+    // 스코어는 완주한 유닛 수라서 유닛 하나를 다 끝내야 1 오른다. 그런데 그
+    // 순간을 아무도 알려주지 않아서, 유저는 숫자가 언제 왜 올랐는지 몰랐다.
+    // 여기서 잡아 화면이 축하하게 한다.
+    const unitCompleted = node
+      ? await this.checkUnitCompleted(userId, node.section, node.unit)
+      : null;
+
     // ── 유저 totalXP 반영 ──
     const updatedUser = await this.userModel
       .findByIdAndUpdate(
@@ -513,7 +522,45 @@ export class LessonsService {
       gems: updatedUser?.gems ?? 0,
       energy: updatedUser?.energy ?? 0,
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
+      /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
+      unitCompleted,
     };
+  }
+
+  /**
+   * 방금 이 유닛을 통째로 끝냈는지.
+   *
+   * "끝냈다" 판정은 로드맵·스코어와 같은 규칙이어야 한다 — 그 유닛의 모든
+   * 노드의 모든 레슨이 완료. 여기만 다르게 세면 축하는 떴는데 숫자는 그대로인
+   * 일이 생긴다.
+   *
+   * 돌려주는 score 는 갱신된 전체 스코어라 화면이 "N 이 됐다" 를 바로 띄운다.
+   */
+  private async checkUnitCompleted(
+    userId: string,
+    section: number,
+    unit: number,
+  ): Promise<{ section: number; unit: number; score: number } | null> {
+    const uId = new Types.ObjectId(userId);
+    const unitNodes = await this.nodeModel
+      .find({ section, unit, isActive: true, nodeType: { $ne: 'chest' } })
+      .select('lessonIds')
+      .lean();
+    if (!unitNodes.length) return null;
+
+    const lessonIds = unitNodes.flatMap((n) => n.lessonIds ?? []);
+    if (!lessonIds.length) return null;
+
+    const done = await this.userProgressModel.countDocuments({
+      userId: uId,
+      lessonId: { $in: lessonIds },
+      isCompleted: true,
+    });
+    if (done < lessonIds.length) return null;
+
+    // 스코어 계산기를 그대로 쓴다. 화면에 띄울 숫자가 헤더·드롭다운과 같아야 한다
+    const score = await this.getScore(userId);
+    return { section, unit, score: score.score };
   }
 
   /**
@@ -1673,9 +1720,31 @@ export class LessonsService {
     return result;
   }
 
+  /**
+   * 목표 지점 "이전" 의 노드 조건.
+   *
+   * 검증해보니 범위 자체는 맞는데 두 가지가 새고 있었다:
+   *  - **비활성 노드**. isActive 를 안 봐서 내린 콘텐츠의 문제가 시험에 나왔다.
+   *  - **다른 트랙 노드**. 어휘 로드맵에서 점프하는데 문법·표현 트랙 노드까지
+   *    범위에 들어왔다. 문법은 문제 단계에서 걸러지지만 나머지는 그대로 샜다.
+   *    로드맵이 보여주는 것과 같은 범위여야 "여기까지 안다" 를 묻는 게 된다.
+   */
   private beforeFilter(section: number, unit: number) {
     return {
-      $or: [{ section: { $lt: section } }, { section, unit: { $lt: unit } }],
+      isActive: true,
+      $or: [
+        { category: { $exists: false } },
+        { category: null },
+        { category: LessonCategory.VOCABULARY },
+      ],
+      $and: [
+        {
+          $or: [
+            { section: { $lt: section } },
+            { section, unit: { $lt: unit } },
+          ],
+        },
+      ],
     };
   }
 
@@ -1831,6 +1900,11 @@ export class LessonsService {
       passed: true,
       wrongCount,
       heartLimit: attempt.heartLimit,
+      // 무엇이 열렸는지 화면이 정확히 말할 수 있게 범위를 같이 준다.
+      // 예전에는 unit 만 넘겨서, 섹션을 통째로 건너뛰어도 "유닛 1 잠금 해제"
+      // 라고 떴다 — 열린 건 섹션인데 유닛 하나로 안내한 것이다.
+      section: attempt.section,
+      unit: attempt.unit,
       ...result,
     };
   }
@@ -1928,9 +2002,16 @@ export class LessonsService {
     // 유닛 완주 판정 = 그 유닛의 모든 노드의 모든 레슨 완료
     let completedUnits = 0;
     const sectionUnits = new Map<number, number>();
+    /** 섹션별 첫 유닛 번호. 잠긴 섹션으로 점프할 때 목표가 된다 */
+    const sectionFirstUnit = new Map<number, number>();
 
-    for (const [, u] of unitMap) {
+    for (const [key, u] of unitMap) {
       sectionUnits.set(u.section, (sectionUnits.get(u.section) ?? 0) + 1);
+      const unitNumber = Number(key.split('-')[1]);
+      const known = sectionFirstUnit.get(u.section);
+      if (known === undefined || unitNumber < known) {
+        sectionFirstUnit.set(u.section, unitNumber);
+      }
 
       const allDone =
         u.section < startSection ||
@@ -1943,16 +2024,12 @@ export class LessonsService {
 
     // 섹션별 유닛 수 → 마일스톤 (섹션 늘어나면 자동 확장)
     const milestones = buildMilestones(
-      [...sectionUnits.entries()].map(([section, units]) => {
-        const meta = getSectionMeta(section);
-        return {
-          section,
-          units,
-          title: meta
-            ? pickSectionText(meta.title, lang)
-            : `Section ${section}`,
-        };
-      }),
+      [...sectionUnits.entries()].map(([section, units]) => ({
+        section,
+        units,
+        title: pickSectionText(getSectionMeta(section).title, lang),
+        firstUnit: sectionFirstUnit.get(section) ?? 1,
+      })),
     );
 
     return calcScore(completedUnits, milestones);

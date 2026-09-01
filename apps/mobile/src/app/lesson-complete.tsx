@@ -30,6 +30,9 @@ export default function LessonCompleteScreen() {
     unit?: string;
     /** 학습 로드 모드에서 왔으면 "studyPath" */
     from?: string;
+    /** 유닛을 통째로 끝내 스코어가 올랐으면 새 스코어 */
+    scoreUp?: string;
+    scoreUpUnit?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -42,6 +45,19 @@ export default function LessonCompleteScreen() {
 
   // "계속" 버튼 onPress:
   const onContinue = () => {
+    // 스코어가 올랐으면 먼저 그걸 보여준다. 유닛 하나를 통째로 끝내야 오르는
+    // 드문 순간이라 로드맵에 그냥 돌려보내면 아무도 눈치채지 못한다.
+    if (params.scoreUp) {
+      router.replace({
+        pathname: "/score-up",
+        params: {
+          score: params.scoreUp,
+          unit: params.scoreUpUnit ?? "",
+          category: params.category ?? "",
+        },
+      });
+      return;
+    }
     if (params.chestGrade) {
       router.replace({
         pathname: "/chest-reward",

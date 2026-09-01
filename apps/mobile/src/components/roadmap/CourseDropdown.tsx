@@ -28,6 +28,7 @@ import { EnrolledCourse } from "@/types/user-courses";
 import { Course } from "@/types/courses";
 import { LessonService, ScoreData } from "@/services/lesson.service";
 import { StudyPathService } from "@/services/study-path.service";
+import SectionList from "./SectionList";
 import { useSettingsStore } from "@/store/settings.store";
 
 interface Props {
@@ -171,6 +172,31 @@ export default function CourseDropdown({ visible, onClose }: Props) {
               </Text>
             </Pressable>
           </ScrollView>
+
+          {/* 전체 섹션.
+              스코어 숫자와 막대 하나만으로는 내가 어디쯤인지도, 앞으로 뭐가
+              남았는지도 알 수 없었다. 다 펼쳐 보여주고 잠긴 섹션은 눌러서
+              점프 테스트로 갈 수 있게 한다. */}
+          {sc.milestones.length > 0 && (
+            <>
+              <Text style={s.sectionTitle}>{t("roadmap.allSections")}</Text>
+              <SectionList
+                milestones={sc.milestones}
+                score={sc.score}
+                onJumpSection={(section, firstUnit) => {
+                  onClose();
+                  router.push({
+                    pathname: "/jump-start",
+                    params: {
+                      section: String(section),
+                      unit: String(firstUnit),
+                      target: "section",
+                    },
+                  });
+                }}
+              />
+            </>
+          )}
 
           {/* 스코어 카드 */}
           <View style={s.scoreCard}>

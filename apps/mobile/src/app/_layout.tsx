@@ -125,11 +125,19 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="reading-listening-levels"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="reading-listening"
               options={{ animation: "slide_from_right", gestureEnabled: false }}
             />
             <Stack.Screen
               name="jump-result"
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="score-up"
               options={{ headerShown: false, gestureEnabled: false }}
             />
             <Stack.Screen
