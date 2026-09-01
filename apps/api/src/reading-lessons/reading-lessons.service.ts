@@ -27,6 +27,9 @@ import {
   ReadingLessonDocument,
 } from './schemas/reading-lesson.schema';
 
+const normalizeExerciseResponse = (value: string) =>
+  value.normalize('NFC').trim().replace(/\s+/g, ' ');
+
 @Injectable()
 export class ReadingLessonsService {
   private readonly logger = new Logger(ReadingLessonsService.name);
@@ -179,7 +182,7 @@ export class ReadingLessonsService {
   ) {
     const lesson = await this.readingLessonModel
       .findOne({ code, isActive: true })
-      .select('code level questions')
+      .select('code level questions vocabularyExercises')
       .lean();
     if (!lesson) throw new NotFoundException('READING_LESSON_NOT_FOUND');
 
@@ -194,10 +197,43 @@ export class ReadingLessonsService {
     for (const answer of dto.answers ?? []) {
       answerByQuestion.set(answer.questionId, answer.choiceIndex);
     }
-    const quizTotal = lesson.questions?.length ?? 0;
-    const quizCorrect = (lesson.questions ?? []).filter(
+    const checkQuestionTotal = lesson.questions?.length ?? 0;
+    const checkQuestionCorrect = (lesson.questions ?? []).filter(
       (question) => answerByQuestion.get(question.id) === question.answerIndex,
     ).length;
+
+    const exerciseAnswerByBlank = new Map(
+      (dto.exerciseAnswers ?? []).map((answer) => [
+        `${answer.exerciseId}\u0000${answer.blankId}`,
+        answer,
+      ]),
+    );
+    const exerciseBlanks = (lesson.vocabularyExercises ?? []).flatMap(
+      (exercise) =>
+        exercise.blanks.map((blank) => ({ exerciseId: exercise.id, blank })),
+    );
+    const exerciseCorrect = exerciseBlanks.filter(({ exerciseId, blank }) => {
+      const submitted = exerciseAnswerByBlank.get(
+        `${exerciseId}\u0000${blank.id}`,
+      );
+      if (!submitted) return false;
+
+      const baseWordMatches =
+        normalizeExerciseResponse(submitted.baseWord) ===
+        normalizeExerciseResponse(blank.baseWord);
+      const accepted = new Set(
+        [blank.answer, ...(blank.acceptedAnswers ?? [])].map(
+          normalizeExerciseResponse,
+        ),
+      );
+      return (
+        baseWordMatches &&
+        accepted.has(normalizeExerciseResponse(submitted.response))
+      );
+    }).length;
+
+    const quizTotal = checkQuestionTotal + exerciseBlanks.length;
+    const quizCorrect = checkQuestionCorrect + exerciseCorrect;
 
     // ── 쓰기 ──
     const writingText = (dto.writingText ?? '')

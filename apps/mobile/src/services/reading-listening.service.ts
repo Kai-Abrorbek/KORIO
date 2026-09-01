@@ -48,6 +48,12 @@ export const ReadingListeningService = {
     code: string,
     body: {
       answers: { questionId: string; choiceIndex: number }[];
+      exerciseAnswers?: {
+        exerciseId: string;
+        blankId: string;
+        baseWord: string;
+        response: string;
+      }[];
       writingText?: string;
     },
   ): Promise<CompleteReadingLessonResult> =>

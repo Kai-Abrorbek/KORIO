@@ -26,6 +26,7 @@ import type {
   LocalizedReadingText,
   ReadingLessonSummary,
   ReadingListeningLesson,
+  ReadingVocabularyExerciseResponse,
   ReadingWordGloss,
 } from "@/types/reading-listening";
 import { useSettingsStore } from "@/store/settings.store";
@@ -41,6 +42,7 @@ import {
   ReadingCompleteSheet,
   type ReadingCompleteCopy,
 } from "./ReadingCompleteSheet";
+import { ReadingVocabularyPractice } from "./ReadingVocabularyPractice";
 import {
   WordGlossSheet,
   type WordGlossCopy,
@@ -819,6 +821,9 @@ export default function ReadingListeningScreen() {
     null,
   );
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [exerciseResponses, setExerciseResponses] = useState<
+    Record<string, ReadingVocabularyExerciseResponse>
+  >({});
   const [writing, setWriting] = useState("");
   /** 완료 시트. 저장 중 → 결과 → 확인 순으로 쓴다 */
   const [completeOpen, setCompleteOpen] = useState(false);
@@ -960,6 +965,7 @@ export default function ReadingListeningScreen() {
     setStepIndex(0);
     setActiveVocabularyId(null);
     setAnswers({});
+    setExerciseResponses({});
     setWriting("");
     setShowExample(false);
     setRevealedVocabulary([]);
@@ -1061,6 +1067,16 @@ export default function ReadingListeningScreen() {
           questionId,
           choiceIndex,
         })),
+        exerciseAnswers: Object.entries(exerciseResponses).map(
+          ([key, value]) => {
+            const separator = key.indexOf(":");
+            return {
+              exerciseId: key.slice(0, separator),
+              blankId: key.slice(separator + 1),
+              ...value,
+            };
+          },
+        ),
         writingText: writing.trim() || undefined,
       });
       setCompleteResult(result);
@@ -2388,6 +2404,29 @@ export default function ReadingListeningScreen() {
                 );
               })}
             </View>
+
+            <ReadingVocabularyPractice
+              key={lesson.code}
+              exercises={lesson.vocabularyExercises ?? []}
+              language={normalizedLanguage}
+              palette={palette}
+              responses={exerciseResponses}
+              onChange={(exerciseId, blankId, value) => {
+                setExerciseResponses((current) => ({
+                  ...current,
+                  [`${exerciseId}:${blankId}`]: value,
+                }));
+              }}
+              onClear={(exerciseId, blankId) => {
+                setExerciseResponses((current) => {
+                  const key = `${exerciseId}:${blankId}`;
+                  if (!(key in current)) return current;
+                  const next = { ...current };
+                  delete next[key];
+                  return next;
+                });
+              }}
+            />
           </Animated.View>
         ) : null}
 

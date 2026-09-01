@@ -54,6 +54,34 @@ export interface ReadingCheckQuestion {
   explanation: LocalizedReadingText;
 }
 
+export type ReadingVocabularyExerciseType =
+  | 'sentence_word_bank'
+  | 'paragraph_conjugation';
+
+export interface ReadingVocabularyExerciseBlank {
+  id: string;
+  baseWord: string;
+  answer: string;
+  acceptedAnswers: string[];
+  explanation: LocalizedReadingText;
+}
+
+export interface ReadingVocabularyExercise {
+  id: string;
+  type: ReadingVocabularyExerciseType;
+  title: LocalizedReadingText;
+  instruction: LocalizedReadingText;
+  wordBank: string[];
+  /** 빈칸은 {{blank-id}} 표식으로 들어온다. */
+  template: string;
+  blanks: ReadingVocabularyExerciseBlank[];
+}
+
+export interface ReadingVocabularyExerciseResponse {
+  baseWord: string;
+  response: string;
+}
+
 export interface ReadingWritingActivity {
   prompt: LocalizedReadingText;
   helper: LocalizedReadingText;
@@ -112,6 +140,7 @@ export interface ReadingListeningLesson
   passage: ReadingPassageParagraph[];
   vocabulary: ReadingVocabularyItem[];
   questions: ReadingCheckQuestion[];
+  vocabularyExercises?: ReadingVocabularyExercise[];
   /** 본문 단어별 뜻. 레슨을 받을 때 통째로 온다 — 탭은 네트워크 없이 즉시 */
   glossary?: ReadingWordGloss[];
   writing: ReadingWritingActivity;

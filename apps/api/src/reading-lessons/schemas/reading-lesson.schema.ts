@@ -121,6 +121,64 @@ export class ReadingCheckQuestion {
 export const ReadingCheckQuestionSchema =
   SchemaFactory.createForClass(ReadingCheckQuestion);
 
+export const READING_VOCABULARY_EXERCISE_TYPES = [
+  'sentence_word_bank',
+  'paragraph_conjugation',
+] as const;
+export type ReadingVocabularyExerciseType =
+  (typeof READING_VOCABULARY_EXERCISE_TYPES)[number];
+
+@Schema({ _id: false })
+export class ReadingVocabularyExerciseBlank {
+  @Prop({ required: true })
+  id: string;
+
+  /** 단어 상자에 표시되는 기본형 */
+  @Prop({ required: true, trim: true })
+  baseWord: string;
+
+  /** 본문 문맥에 들어가는 대표 정답 */
+  @Prop({ required: true, trim: true })
+  answer: string;
+
+  @Prop({ type: [String], default: [] })
+  acceptedAnswers: string[];
+
+  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
+  explanation: LocalizedReadingText;
+}
+
+export const ReadingVocabularyExerciseBlankSchema =
+  SchemaFactory.createForClass(ReadingVocabularyExerciseBlank);
+
+@Schema({ _id: false })
+export class ReadingVocabularyExercise {
+  @Prop({ required: true })
+  id: string;
+
+  @Prop({ required: true, enum: READING_VOCABULARY_EXERCISE_TYPES })
+  type: ReadingVocabularyExerciseType;
+
+  @Prop({ type: LocalizedReadingTextSchema, required: true })
+  title: LocalizedReadingText;
+
+  @Prop({ type: LocalizedReadingTextSchema, required: true })
+  instruction: LocalizedReadingText;
+
+  @Prop({ type: [String], default: [] })
+  wordBank: string[];
+
+  /** 빈칸은 {{blank-id}} 표식으로 넣는다. */
+  @Prop({ required: true })
+  template: string;
+
+  @Prop({ type: [ReadingVocabularyExerciseBlankSchema], default: [] })
+  blanks: ReadingVocabularyExerciseBlank[];
+}
+
+export const ReadingVocabularyExerciseSchema =
+  SchemaFactory.createForClass(ReadingVocabularyExercise);
+
 @Schema({ _id: false })
 export class ReadingWritingActivity {
   @Prop({ type: LocalizedReadingTextSchema, required: true })
@@ -245,6 +303,10 @@ export class ReadingLesson {
 
   @Prop({ type: [ReadingCheckQuestionSchema], default: [] })
   questions: ReadingCheckQuestion[];
+
+  /** 3급 이상에서 본문 어휘를 문장과 문단 안에 다시 넣어 보는 연습 */
+  @Prop({ type: [ReadingVocabularyExerciseSchema], default: [] })
+  vocabularyExercises: ReadingVocabularyExercise[];
 
   /** 본문 단어별 뜻. 시드가 채우고, 빠진 건 런타임에 보충된다 */
   @Prop({ type: [ReadingWordGlossSchema], default: [] })

@@ -24,6 +24,26 @@ export class ReadingAnswerDto {
   choiceIndex: number;
 }
 
+export class ReadingVocabularyExerciseAnswerDto {
+  @IsString()
+  @MaxLength(64)
+  exerciseId: string;
+
+  @IsString()
+  @MaxLength(64)
+  blankId: string;
+
+  /** 단어 상자에서 고른 기본형 */
+  @IsString()
+  @MaxLength(100)
+  baseWord: string;
+
+  /** 문장 빈칸에 실제로 넣은 형태 */
+  @IsString()
+  @MaxLength(200)
+  response: string;
+}
+
 /**
  * 읽기 레슨 완료 보고.
  *
@@ -37,6 +57,13 @@ export class CompleteReadingLessonDto {
   @ValidateNested({ each: true })
   @Type(() => ReadingAnswerDto)
   answers?: ReadingAnswerDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(120)
+  @ValidateNested({ each: true })
+  @Type(() => ReadingVocabularyExerciseAnswerDto)
+  exerciseAnswers?: ReadingVocabularyExerciseAnswerDto[];
 
   @IsOptional()
   @IsString()
