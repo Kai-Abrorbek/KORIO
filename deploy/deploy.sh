@@ -24,6 +24,12 @@ log()  { printf '%s▸%s %s\n' "$GRN" "$RST" "$*"; }
 warn() { printf '%s!%s %s\n' "$YEL" "$RST" "$*"; }
 die()  { printf '%s✖%s %s\n' "$RED" "$RST" "$*" >&2; exit 1; }
 
+command -v docker >/dev/null 2>&1 || die "도커가 없다. sudo bash server-setup.sh"
+docker compose version >/dev/null 2>&1 \
+  || die "docker compose(v2) 가 없다. sudo apt-get install -y docker-compose-plugin"
+docker buildx version >/dev/null 2>&1 \
+  || die "docker buildx 가 없다. sudo apt-get install -y docker-buildx-plugin"
+
 [[ -f .env ]]     || die ".env 가 없다. .env.example 을 복사해서 채워라."
 [[ -f api.env ]]  || die "api.env 가 없다. ../apps/api/.env.example 을 참고해서 만들어라."
 set -a; source .env; set +a

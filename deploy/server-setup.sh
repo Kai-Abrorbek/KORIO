@@ -27,6 +27,16 @@ else
   curl -fsSL https://get.docker.com | sh
 fi
 
+# 미리 깔려 온 도커(호스팅 템플릿 등)에는 compose v2 / buildx 플러그인이
+# 빠져 있는 경우가 있다. 배포 스크립트가 둘 다 쓴다.
+if ! docker compose version >/dev/null 2>&1 || ! docker buildx version >/dev/null 2>&1; then
+  log "docker compose v2 / buildx 플러그인 설치"
+  apt-get install -y -qq docker-compose-plugin docker-buildx-plugin 2>/dev/null || {
+    curl -fsSL https://get.docker.com | sh
+  }
+fi
+docker compose version >/dev/null 2>&1 && log "  compose v2 확인" || log "  ⚠️ compose v2 여전히 없음 — 수동 설치 필요"
+
 # ── 도커 로그 로테이션 ──
 # 이게 없으면 json-file 로그가 무제한으로 쌓여서 50GB 디스크를 채운다.
 # 실제로 소규모 서버가 죽는 흔한 원인이다. 컨테이너당 최대 30MB 로 묶는다.

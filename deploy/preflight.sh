@@ -144,6 +144,20 @@ fi
 head_ "5. 도커"
 if need docker && docker info >/dev/null 2>&1; then
   ok "도커 동작 중 ($(docker --version | cut -d, -f1))"
+  # 배포 스크립트는 전부 `docker compose`(v2, 공백) 를 쓴다. 하이픈 v1 만
+  # 있으면 한 줄도 안 돈다. 미리 깔려 온 도커에는 플러그인이 빠져 있곤 한다
+  if docker compose version >/dev/null 2>&1; then
+    ok "docker compose v2 있음 ($(docker compose version --short 2>/dev/null))"
+  else
+    bad "docker compose(v2) 가 없다 — sudo apt-get install -y docker-compose-plugin"
+    command -v docker-compose >/dev/null 2>&1 && warn "   하이픈 docker-compose(v1) 만 있다. 스크립트는 v2 를 쓴다"
+  fi
+  # Dockerfile 이 syntax 지시자와 --mount=type=cache 를 쓴다 (BuildKit 필요)
+  if docker buildx version >/dev/null 2>&1; then
+    ok "buildx 있음"
+  else
+    bad "buildx 가 없다 — sudo apt-get install -y docker-buildx-plugin"
+  fi
   grep -q "max-size" /etc/docker/daemon.json 2>/dev/null \
     && ok "로그 로테이션 설정됨" \
     || warn "로그 로테이션이 없다 — 로그가 디스크를 채운다. server-setup.sh 를 돌려라"
