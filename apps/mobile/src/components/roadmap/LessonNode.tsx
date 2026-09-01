@@ -213,6 +213,8 @@ export default function LessonNode({
 
   const iconName = isLegendDone ? "star" : (customIconName ?? ICON_MAP[type]);
   const iconSize = type === "chest" || type === "boss" ? 34 : 30;
+  /** 잠긴 노드는 아이콘을 흐리게. 색(theme.textSecondary)만으로는 덜 눌린다 */
+  const lockedIconStyle = isLocked ? { opacity: 0.55 } : undefined;
 
   return (
     <View style={styles.wrap}>
@@ -274,25 +276,33 @@ export default function LessonNode({
             />
           )}
 
-          {isLocked ? (
-            <Ionicons
-              name={index !== 0 ? "lock-closed" : "play-forward"}
-              size={index !== 0 ? iconSize - 5 : iconSize + 1}
-              color={index !== 0 ? iconColor : "white"}
-              style={index !== 0 ? { opacity: 0.5 } : { opacity: 1 }}
-            />
+          {/* 잠긴 노드도 **자기 아이콘을 보여준다.**
+              예전에는 자물쇠로 덮어써서, 앞으로 뭘 배우는지 알 수가 없고
+              로드맵을 내려다봐도 회색 자물쇠만 줄지어 있었다. 잠긴 건
+              회색 바탕·광택 없음·흐린 아이콘으로 이미 충분히 드러난다.
+
+              예외는 유닛의 첫 노드다. 거기는 "여기서 시작" 버튼 역할이라
+              말풍선이 같이 붙고, 재생 아이콘이 그 신호다. */}
+          {isLocked && index === 0 ? (
+            <Ionicons name="play-forward" size={iconSize + 1} color="white" />
           ) : type === "chest" ? (
             <MaterialCommunityIcons
               name="treasure-chest"
               size={iconSize + 4}
               color={iconColor}
+              style={lockedIconStyle}
             />
           ) : isCurrent && type === "star" ? (
             <Animated.View style={iconRotateStyle}>
               <Ionicons name={iconName} size={iconSize} color={iconColor} />
             </Animated.View>
           ) : (
-            <Ionicons name={iconName} size={iconSize} color={iconColor} />
+            <Ionicons
+              name={iconName}
+              size={isLocked ? iconSize - 3 : iconSize}
+              color={iconColor}
+              style={lockedIconStyle}
+            />
           )}
 
           {/* 현재 노드 반짝이 */}
