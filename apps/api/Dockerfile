@@ -33,12 +33,20 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 # ── 컴파일 ──
 FROM deps AS build
 COPY apps/api ./apps/api
-RUN pnpm --filter api run build
+RUN pnpm --filter api run build \
+    # dist 가 안 나왔는데 조용히 넘어가면 실행 이미지가 빈 채로 만들어진다
+    && test -f apps/api/dist/main.js
 
 # ── 실행 이미지에 넣을 프로덕션 의존성만 ──
 FROM deps AS prod-deps
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --prod --filter api...
+# 이 레포의 .npmrc 는 node-linker=hoisted 라 pnpm 이 의존성을 전부 **루트**
+# node_modules 에 편다. 그래서 apps/api/node_modules 는 아예 안 생기는 게
+# 정상이고, 그대로 COPY 하면 "not found" 로 빌드가 죽는다.
+# 버전 충돌이 있을 때만 만들어지므로, 없으면 빈 디렉터리를 만들어 둔다 —
+# 있으면 있는 대로 가져가고 없으면 빈 채로 넘어간다.
+RUN mkdir -p /repo/apps/api/node_modules
 
 # ── 실행 ──
 FROM node:22-bookworm-slim AS runtime
@@ -50,6 +58,9 @@ WORKDIR /repo/apps/api
 RUN apt-get update && apt-get install -y --no-install-recommends tini \
     && rm -rf /var/lib/apt/lists/*
 
+# 런타임 모듈 해석: WORKDIR 이 /repo/apps/api 라 node 가 위로 올라가며
+# /repo/apps/api/node_modules → /repo/node_modules 순서로 찾는다.
+# hoisted 라 실제 내용은 루트에 있다.
 COPY --from=prod-deps /repo/node_modules /repo/node_modules
 COPY --from=prod-deps /repo/apps/api/node_modules /repo/apps/api/node_modules
 COPY --from=build     /repo/apps/api/dist         /repo/apps/api/dist
