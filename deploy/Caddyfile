@@ -16,8 +16,13 @@
 	# Let's Encrypt 알림 메일. 인증서 만료 전에 여기로 온다
 	email {$ACME_EMAIL}
 	# 로그를 JSON 으로 (docker logs 에서 파싱하기 좋게)
+	#
+	# blue/green 구조상 **항상 한쪽은 없다.** 그래서 헬스체커가 3초마다
+	# "api_green 을 못 찾겠다" 를 info 로 찍는다 — 하루 약 29,000줄이다.
+	# 설계대로 도는 소리인데 진짜 에러를 묻어 버린다. 그 로거만 버린다.
 	log {
 		format json
+		exclude http.handlers.reverse_proxy.health_checker.active
 	}
 }
 
