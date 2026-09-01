@@ -25,25 +25,53 @@ Caddy 설정을 다시 읽지 않는다. 헬스체크만으로 전환된다.
 **어느 단계에서 실패해도 옛 컨테이너는 계속 떠 있다.** 새 컨테이너가
 healthy 가 안 되면 배포를 중단하고 그대로 둔다 — 유저 영향 0.
 
+## 어디서 돌리나
+
+**전부 서버에서 돈다.** 윈도우/맥 로컬이 아니다.
+
+```
+[개발 PC]  git push
+              ↓
+[Hostinger VPS]  ssh → git pull → ./deploy.sh
+                       └ 서버가 이미지를 빌드하고 blue/green 을 교체한다
+```
+
+이미지를 서버에서 직접 빌드한다. 레지스트리도 CI 도 필요 없다.
+빌드에 RAM 1.5~2GB 를 쓰는데 Hostinger KVM 1 도 4GB 라 충분하다.
+코어가 하나뿐인 플랜(KVM 1)에서는 빌드가 CPU 를 다 먹으면 서비스 중인
+응답이 느려지므로, `deploy.sh` 가 빌드에 주는 CPU 를 자동으로 줄인다
+(`BUILD_CPUS=0` 이면 제한 해제).
+
+나중에 레지스트리로 옮기고 싶으면 `.env` 의 `IMAGE` 를
+`ghcr.io/…` 로 바꾸고 `deploy.sh` 의 build 를 pull 로 바꾸면 된다 —
+compose 는 이미 변수로 받는다.
+
 ## 처음 한 번 (서버에서)
 
 ```bash
-# 1) 도커
-curl -fsSL https://get.docker.com | sh
+# 1) 레포 + 서버 준비 (도커·방화벽·로그로테이션·스왑·보안업데이트)
+git clone <repo> /srv/korio
+sudo bash /srv/korio/deploy/server-setup.sh
 
-# 2) 레포
-git clone <repo> /srv/korio && cd /srv/korio/deploy
-
-# 3) 설정
+# 2) 설정
+cd /srv/korio/deploy
 cp .env.example .env          # API_DOMAIN, ACME_EMAIL
 cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, API 키들
 chmod 600 api.env             # 시크릿이다
 
-# 4) DNS: API_DOMAIN 의 A 레코드 → 이 서버 IP
-#    (인증서 발급에 필요. 안 되어 있으면 Caddy 가 계속 재시도한다)
+# 3) DNS: API_DOMAIN 의 A 레코드 → 이 서버 IP
+#    dig +short <도메인> 이 서버 IP 를 뱉어야 인증서가 나온다
 
-# 5) 첫 배포
+# 4) 🔴 MongoDB Atlas > Network Access 에 서버 IP 추가
+#    안 하면 컨테이너가 떠도 /ready 가 계속 503 이라 배포가 실패한다
+#    curl -s ifconfig.me  로 IP 확인
+
+# 5) hPanel > VPS > 방화벽 에서 80/443 허용 확인
+#    Hostinger 는 패널 방화벽이 따로 있어서 ufw 만 열면 막힐 수 있다
+
+# 6) 첫 배포
 ./deploy.sh
+./smoke.sh    # 무중단 증명 — 반드시
 ```
 
 ## 평소

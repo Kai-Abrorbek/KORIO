@@ -95,13 +95,33 @@ cmd_deploy() {
   fi
   export TAG="$tag"
 
+  # 빌드는 서버에서 돈다. 그동안 옛 컨테이너가 계속 서비스 중이라
+  # 빌드가 CPU 를 다 먹으면 끊기진 않아도 **응답이 느려진다**.
+  # 코어가 하나뿐인 서버(Hostinger KVM 1 등)에서 특히 티가 난다.
+  # BUILD_CPUS 로 빌드에 줄 코어를 제한한다. 0 이면 제한 없음.
+  local cpus="${BUILD_CPUS:-}"
+  if [[ -z "$cpus" ]]; then
+    local total; total="$(nproc 2>/dev/null || echo 1)"
+    # 코어 1개면 절반만, 2개 이상이면 하나는 서비스용으로 남긴다
+    if (( total <= 1 )); then cpus="0.5"; else cpus="$((total - 1))"; fi
+  fi
+  if [[ "$cpus" != "0" ]]; then
+    log "빌드에 CPU ${cpus}개만 준다 (서비스 응답을 지키려고). BUILD_CPUS=0 이면 해제"
+  fi
+
   log "이미지 빌드: ${IMAGE}:${tag}"
-  docker build \
+  # docker build 는 --cpus 를 안 받는다. buildx 컨테이너가 아니라 데몬이 돌리기
+  # 때문이다. 그래서 systemd-run 이 있으면 그걸로 감싸고, 없으면 그냥 돈다.
+  local runner=()
+  if [[ "$cpus" != "0" ]] && command -v systemd-run >/dev/null 2>&1; then
+    runner=(systemd-run --scope -q -p "CPUQuota=$(awk -v c="$cpus" 'BEGIN{printf "%d", c*100}')%")
+  fi
+  "${runner[@]}" docker build \
     -f "$REPO_ROOT/apps/api/Dockerfile" \
     -t "${IMAGE}:${tag}" \
     -t "${IMAGE}:latest" \
     "$REPO_ROOT" \
-    || die "빌드 실패. 서비스는 아무것도 안 건드렸다."
+    || die "빌드 실패. 서비스는 아무것도 안 건드렸다." 
 
   # Caddy 는 항상 떠 있어야 한다 (인증서·라우팅). 이미 떠 있으면 no-op
   "${COMPOSE[@]}" up -d caddy
