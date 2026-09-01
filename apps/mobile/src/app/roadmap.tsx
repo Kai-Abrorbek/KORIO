@@ -23,11 +23,7 @@ import SectionBanner from "@/components/roadmap/SectionBanner";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
-import {
-  LessonService,
-  type ChestClaimResult,
-} from "@/services/lesson.service";
-import ChestRewardModal from "@/components/roadmap/ChestRewardModal";
+import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
@@ -54,7 +50,6 @@ export default function RoadmapScreen() {
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
-  const [chestReward, setChestReward] = useState<ChestClaimResult | null>(null);
   /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
   const claimingRef = useRef(false);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
@@ -298,17 +293,26 @@ export default function RoadmapScreen() {
     try {
       const res = await LessonService.claimChests();
       if (res.claimed > 0) {
-        setChestReward(res);
         // 보석은 서버가 준 총량으로 맞춘다. 화면에서 더하면 어긋난다
         updateUser({ gems: res.totalGems } as any);
         setRoadmap((current) => ({ ...current, pendingChests: 0 }));
+        // 상자 여는 연출은 이미 있는 화면을 쓴다 (탭해서 열기·보석 쏟아짐).
+        // gemTotal 은 받기 **전** 값이라야 카운터가 올라가는 게 보인다.
+        router.push({
+          pathname: "/chest-reward",
+          params: {
+            grade: res.grade ?? "wood",
+            gems: String(res.gems),
+            gemTotal: String(res.totalGems - res.gems),
+          },
+        });
       }
     } catch {
       // 못 받아도 화면을 막지 않는다. 다시 누르면 된다
     } finally {
       claimingRef.current = false;
     }
-  }, [updateUser]);
+  }, [router, updateUser]);
 
   const handleNextSectionJump = useCallback(() => {
     const next = roadmap.nextSection;
@@ -468,11 +472,6 @@ export default function RoadmapScreen() {
             />
           ) : null
         }
-      />
-
-      <ChestRewardModal
-        result={chestReward}
-        onClose={() => setChestReward(null)}
       />
 
       {/* current 유닛으로 점프 버튼 */}

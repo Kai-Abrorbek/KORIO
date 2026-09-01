@@ -13,11 +13,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
-import ChestRewardModal from "@/components/roadmap/ChestRewardModal";
-import {
-  LessonService,
-  type ChestClaimResult,
-} from "@/services/lesson.service";
+import { LessonService } from "@/services/lesson.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
 import UnitRoadmap, {
@@ -61,7 +57,6 @@ export default function StudyPathScreen() {
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   const [visibleDayIndex, setVisibleDayIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [chestReward, setChestReward] = useState<ChestClaimResult | null>(null);
   /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
   const claimingRef = useRef(false);
 
@@ -229,16 +224,25 @@ export default function StudyPathScreen() {
     try {
       const res = await LessonService.claimChests();
       if (res.claimed > 0) {
-        setChestReward(res);
         updateUser({ gems: res.totalGems } as any);
         void reload();
+        // 자유 학습과 같은 상자 화면을 쓴다. from 을 넘겨야 닫을 때 이쪽으로 온다
+        router.push({
+          pathname: "/chest-reward",
+          params: {
+            grade: res.grade ?? "wood",
+            gems: String(res.gems),
+            gemTotal: String(res.totalGems - res.gems),
+            from: "studyPath",
+          },
+        });
       }
     } catch {
       // 못 받아도 화면을 막지 않는다
     } finally {
       claimingRef.current = false;
     }
-  }, [reload, updateUser]);
+  }, [reload, router, updateUser]);
 
   const renderNodePopover = useCallback(
     ({ node, unit, triangleOffsetX }: RoadmapNodePopoverContext) => {
@@ -349,11 +353,6 @@ export default function StudyPathScreen() {
     <View style={styles.container}>
       <RoadmapBackdrop theme={theme} />
       <RoadmapHeader stats={userStats} energy={energy} />
-
-      <ChestRewardModal
-        result={chestReward}
-        onClose={() => setChestReward(null)}
-      />
 
       {bannerDay && bannerUnit ? (
         <DayBanner

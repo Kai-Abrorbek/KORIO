@@ -479,8 +479,11 @@ export class LessonsService {
           $addToSet: { openedChests: node._id },
         });
 
-        // 화면이 "받을 게 있다" 를 알 수 있게만 알린다. 등급·보석은 열 때 본다
-        chest = { grade: 'pending', gems: 0 };
+        // ⚠️ chest 는 null 로 둔다.
+        //
+        // 레슨 완료 화면은 이 값이 있으면 곧바로 상자 열기 화면으로 넘어간다.
+        // 이제 보석은 여기서 안 주고 로드맵의 상자에서 받으므로, 값을 채우면
+        // **0개짜리 상자가 열린다.** 보상은 로드맵 상자 하나에서만 나온다.
 
         await this.notifications
           .create(userId, NotificationType.CHEST, {
