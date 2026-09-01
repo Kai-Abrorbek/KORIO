@@ -90,6 +90,19 @@ export const SttService = {
       WAV_CONTENT_TYPE,
     ),
 
+  /** 표현 카드 — 참조 문장은 서버가 expressionId로 조회한다 */
+  assessExpression: (
+    expressionId: string,
+    wav: ArrayBuffer,
+  ): Promise<AssessResult> =>
+    api.postBinary(
+      `/speech/assess-expression?expressionId=${encodeURIComponent(
+        expressionId,
+      )}`,
+      wav,
+      WAV_CONTENT_TYPE,
+    ),
+
   /** 읽기 연습 — 참조 구간은 lessonCode와 위치로 서버가 DB에서 결정한다 */
   assessReading: (
     lessonCode: string,

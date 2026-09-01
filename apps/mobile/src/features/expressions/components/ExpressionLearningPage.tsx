@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -5,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { expressionPackThemeByCode } from "@/constants/expression-packs";
 import { useTheme } from "@/hooks/useTheme";
 import type { ExpressionLearningQueueItem } from "../utils/expression-learning-queue";
+import ExpressionPracticePanel from "./ExpressionPracticePanel";
 import SpokenText from "./SpokenText";
 
 interface Props {
@@ -13,6 +15,10 @@ interface Props {
   speechPlaying: boolean;
   speechProgress: number;
   onSpeak: () => void;
+  onStopSpeech: () => void;
+  onPracticeReadyChange: (ready: boolean) => void;
+  onPracticeBusyChange: (busy: boolean) => void;
+  onScheduleRetry: () => void;
 }
 
 export default function ExpressionLearningPage({
@@ -21,15 +27,24 @@ export default function ExpressionLearningPage({
   speechPlaying,
   speechProgress,
   onSpeak,
+  onStopSpeech,
+  onPracticeReadyChange,
+  onPracticeBusyChange,
+  onScheduleRetry,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const expression = item.expression;
   const packTheme = expressionPackThemeByCode(expression.pack.code);
+  const [referenceVisible, setReferenceVisible] = useState(
+    item.stage !== "recall",
+  );
 
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
       contentContainerStyle={styles.scrollContent}
     >
       <LinearGradient
@@ -50,10 +65,7 @@ export default function ExpressionLearningPage({
         <View style={styles.cardTopRow}>
           <View style={[styles.speechChip, { backgroundColor: theme.surface }]}>
             <Text
-              style={[
-                styles.speechChipText,
-                { color: packTheme.accentDark },
-              ]}
+              style={[styles.speechChipText, { color: packTheme.accentDark }]}
             >
               {t(`expressionPack.speechLevel.${expression.speechLevel}`)}
             </Text>
@@ -61,37 +73,59 @@ export default function ExpressionLearningPage({
         </View>
 
         <View style={styles.expressionRow}>
-          <SpokenText
-            text={expression.korean}
-            progress={speechProgress}
-            playing={speechPlaying}
-            baseColor={theme.text}
-            accentColor={packTheme.accent}
-            style={[styles.korean, { color: theme.text }]}
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("expressionLearning.listen")}
-            onPress={onSpeak}
-            style={[
-              styles.speakerButton,
-              {
-                backgroundColor: speaking
-                  ? packTheme.accent
-                  : packTheme.background,
-                borderColor: packTheme.accent,
-              },
-            ]}
-          >
-            <Ionicons
-              name={speaking ? "volume-high" : "volume-medium-outline"}
-              size={25}
-              color={speaking ? "#FFFFFF" : packTheme.accentDark}
-            />
-          </Pressable>
+          {referenceVisible ? (
+            <>
+              <SpokenText
+                text={expression.korean}
+                progress={speechProgress}
+                playing={speechPlaying}
+                baseColor={theme.text}
+                accentColor={packTheme.accent}
+                style={[styles.korean, { color: theme.text }]}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t("expressionLearning.listen")}
+                onPress={onSpeak}
+                style={[
+                  styles.speakerButton,
+                  {
+                    backgroundColor: speaking
+                      ? packTheme.accent
+                      : packTheme.background,
+                    borderColor: packTheme.accent,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={speaking ? "volume-high" : "volume-medium-outline"}
+                  size={25}
+                  color={speaking ? "#FFFFFF" : packTheme.accentDark}
+                />
+              </Pressable>
+            </>
+          ) : (
+            <View style={styles.recallPromptRow}>
+              <View
+                style={[
+                  styles.recallIcon,
+                  { backgroundColor: packTheme.background },
+                ]}
+              >
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={21}
+                  color={packTheme.accentDark}
+                />
+              </View>
+              <Text style={[styles.recallPrompt, { color: theme.text }]}>
+                {t("expressionLearning.practice.recallPrompt")}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {expression.pronunciation.romanization ? (
+        {referenceVisible && expression.pronunciation.romanization ? (
           <Text style={[styles.romanization, { color: theme.textSecondary }]}>
             {expression.pronunciation.romanization}
           </Text>
@@ -104,6 +138,16 @@ export default function ExpressionLearningPage({
         <Text style={[styles.meaning, { color: theme.text }]}>
           {expression.meaning}
         </Text>
+
+        <ExpressionPracticePanel
+          key={item.key}
+          item={item}
+          onReadyChange={onPracticeReadyChange}
+          onBusyChange={onPracticeBusyChange}
+          onReferenceVisibilityChange={setReferenceVisible}
+          onScheduleRetry={onScheduleRetry}
+          onStopSpeech={onStopSpeech}
+        />
 
         <View style={styles.infoGrid}>
           <View
@@ -232,6 +276,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 13,
   },
+  recallPromptRow: {
+    flex: 1,
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+  },
+  recallIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recallPrompt: { flex: 1, fontSize: 20, lineHeight: 28, fontWeight: "900" },
   korean: {
     flex: 1,
     fontSize: 27,

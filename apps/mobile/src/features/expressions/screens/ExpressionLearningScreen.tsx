@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -65,14 +65,23 @@ export default function ExpressionLearningScreen() {
     progress,
     advance,
     retreat,
+    scheduleRetry,
     reload,
   } = useExpressionLearning(node);
+  const [practiceReady, setPracticeReady] = useState(true);
+  const [practiceBusy, setPracticeBusy] = useState(false);
   const translateX = useSharedValue(0);
   const gestureLocked = useSharedValue(0);
   const packTheme = expressionPackThemeByCode(session?.topic.code);
-  const autoSpeechText = current
-    ? current.expression.pronunciation.ttsText || current.expression.korean
-    : "";
+  const autoSpeechText =
+    current && current.stage !== "recall"
+      ? current.expression.pronunciation.ttsText || current.expression.korean
+      : "";
+
+  useEffect(() => {
+    setPracticeReady(current?.kind === "exposure");
+    setPracticeBusy(false);
+  }, [current?.key, current?.kind]);
 
   useEffect(() => {
     if (!autoSpeechText) return;
@@ -110,8 +119,9 @@ export default function ExpressionLearningScreen() {
     [advance, retreat, settleCard, stop],
   );
 
-  const canGoPrevious = index > 0 && !saving;
-  const canGoNext = Boolean(current) && !saving;
+  const canGoPrevious = index > 0 && !saving && !practiceBusy;
+  const canGoNext =
+    Boolean(current) && !saving && !practiceBusy && practiceReady;
 
   const animateCardOut = useCallback(
     (direction: -1 | 1) => {
@@ -146,7 +156,7 @@ export default function ExpressionLearningScreen() {
   );
 
   const panGesture = Gesture.Pan()
-    .enabled(!saving)
+    .enabled(!saving && !practiceBusy)
     .activeOffsetX([-13, 13])
     .failOffsetY([-22, 22])
     .onUpdate((event) => {
@@ -512,6 +522,10 @@ export default function ExpressionLearningScreen() {
                 "ko-KR",
               )
             }
+            onStopSpeech={stop}
+            onPracticeReadyChange={setPracticeReady}
+            onPracticeBusyChange={setPracticeBusy}
+            onScheduleRetry={scheduleRetry}
           />
         </Animated.View>
       </GestureDetector>
@@ -532,19 +546,21 @@ export default function ExpressionLearningScreen() {
             color={theme.textSecondary}
           />
           <Text style={[styles.swipeHintText, { color: theme.textSecondary }]}>
-            {t("expressionPack.swipeHint")}
+            {practiceReady
+              ? t("expressionPack.swipeHint")
+              : t("expressionLearning.practice.completeToContinue")}
           </Text>
         </View>
         <Pressable
           accessibilityRole="button"
-          disabled={saving}
+          disabled={!canGoNext}
           onPress={() => {
             void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             animateCardOut(1);
           }}
           style={({ pressed }) => [
             styles.nextButton,
-            { backgroundColor: packTheme.accent, opacity: saving ? 0.6 : pressed ? 0.88 : 1 },
+            { backgroundColor: packTheme.accent, opacity: !canGoNext ? 0.45 : pressed ? 0.88 : 1 },
           ]}
         >
           {saving ? <ActivityIndicator color="#FFFFFF" /> : (

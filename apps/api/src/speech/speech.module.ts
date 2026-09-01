@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SpeechController } from './speech.controller';
 import { SpeechService } from './speech.service';
+import {
+  Expression,
+  ExpressionSchema,
+} from '../expressions/schemas/expression.schema';
 import { Question, QuestionSchema } from '../lessons/schemas/question.schema';
 import { Lesson, LessonSchema } from '../lessons/schemas/lesson.schema';
 import {
@@ -16,6 +20,7 @@ import { ReadingLessonsModule } from '../reading-lessons/reading-lessons.module'
       { name: Question.name, schema: QuestionSchema },
       { name: Lesson.name, schema: LessonSchema },
       { name: ReadingLesson.name, schema: ReadingLessonSchema },
+      { name: Expression.name, schema: ExpressionSchema },
     ]),
     // 낭독 진도를 여기서 직접 찍는다 — 클라가 "다 읽었다" 고 주장하는
     // 경로를 만들지 않으려는 것이다

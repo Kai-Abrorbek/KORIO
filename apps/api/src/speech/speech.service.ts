@@ -12,6 +12,10 @@ import { Model, Types } from 'mongoose';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
+import {
+  Expression,
+  ExpressionDocument,
+} from '../expressions/schemas/expression.schema';
 import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
 import { Lesson, LessonDocument } from '../lessons/schemas/lesson.schema';
 import {
@@ -47,6 +51,10 @@ import {
   TranscribeResult,
   WordErrorType,
 } from './speech.types';
+import {
+  speechTextSimilarity,
+  speechTextSimilarityThreshold,
+} from './speech-text-match.util';
 
 interface ResolvedWord {
   Word?: string;
@@ -75,11 +83,6 @@ interface RecognizeOutcome {
   cancelReason?: string;
 }
 
-interface ResultItem {
-  characterId: string;
-  correct: boolean;
-}
-
 @Injectable()
 export class SpeechService {
   private readonly logger = new Logger(SpeechService.name);
@@ -94,6 +97,8 @@ export class SpeechService {
     private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(ReadingLesson.name)
     private readonly readingLessonModel: Model<ReadingLessonDocument>,
+    @InjectModel(Expression.name)
+    private readonly expressionModel: Model<ExpressionDocument>,
     private readonly readingLessons: ReadingLessonsService,
   ) {}
 
@@ -105,12 +110,44 @@ export class SpeechService {
   ): Promise<AssessResult> {
     this.consumeRateLimit(userId);
     this.validateWav(wav);
+    const reference = await this.resolveQuestion(questionId);
+    return this.assessReference(
+      wav,
+      reference.referenceText,
+      reference.section,
+      '발음 평가',
+    );
+  }
 
-    const { referenceText, section } = await this.resolveQuestion(questionId);
+  /** 표현 카드: DB의 한국어 표현을 참조 문장으로 발음 평가 */
+  async assessExpression(
+    userId: string,
+    expressionId: string,
+    wav: Buffer,
+  ): Promise<AssessResult> {
+    this.consumeRateLimit(userId);
+    this.validateWav(wav);
+    const reference = await this.resolveExpression(expressionId);
+    return this.assessReference(
+      wav,
+      reference.referenceText,
+      reference.section,
+      '표현 발음 평가',
+    );
+  }
+
+  private async assessReference(
+    wav: Buffer,
+    referenceText: string,
+    section: number | undefined,
+    logLabel: string,
+  ): Promise<AssessResult> {
     const threshold = thresholdForSection(section);
     const stats = this.audioStats(wav);
 
-    const outcome = await this.recognize(wav, referenceText);
+    // Azure의 발음 점수만으로는 다른 문장을 또렷하게 말한 경우를 충분히
+    // 걸러내지 못한다. 삽입·누락을 켜고 실제 인식 문장도 별도로 비교한다.
+    const outcome = await this.recognize(wav, referenceText, true);
     const scores: SpeechScores = outcome.scores ?? {
       pron: 0,
       accuracy: 0,
@@ -125,29 +162,33 @@ export class SpeechService {
       errorType: (w.PronunciationAssessment?.ErrorType ??
         'None') as WordErrorType,
     }));
+    const textSimilarity = speechTextSimilarity(referenceText, outcome.text);
+    const textSimilarityBar = speechTextSimilarityThreshold(referenceText);
 
     const summary =
       `audio=${stats.seconds}s peak=${stats.peakPct}% rms=${stats.rms} ` +
       `ref="${referenceText}" heard="${outcome.text}" ` +
-      `pron=${scores.pron} acc=${scores.accuracy} comp=${scores.completeness}`;
+      `pron=${scores.pron} acc=${scores.accuracy} comp=${scores.completeness} ` +
+      `textMatch=${textSimilarity}/${textSimilarityBar}`;
 
     if (outcome.status !== 'success' || scores.pron === 0) {
       // 점수가 0 이면 원인이 오디오인지 Azure 응답인지 봐야 한다.
       // peak 이 5% 미만이면 사실상 무음 → 녹음 쪽 문제.
       const dumped = this.dumpAudio(wav);
       this.logger.warn(
-        `발음 평가 이상: status=${outcome.status} ${summary}` +
+        `${logLabel} 이상: status=${outcome.status} ${summary}` +
           `${outcome.cancelReason ? ` cancel=${outcome.cancelReason}` : ''}\n` +
           `녹음파일=${dumped}`,
       );
     } else {
-      this.logger.log(`발음 평가: ${summary}`);
+      this.logger.log(`${logLabel}: ${summary}`);
     }
 
     const passed =
       outcome.status === 'success' &&
       scores.pron >= threshold.pron &&
-      scores.completeness >= threshold.completeness;
+      scores.completeness >= threshold.completeness &&
+      textSimilarity >= textSimilarityBar;
 
     return {
       status: outcome.status,
@@ -472,10 +513,7 @@ export class SpeechService {
         sdk.PronunciationAssessmentGranularity.Word,
         // enableMiscue: 참조에 없는 말을 삽입/누락으로 잡을지.
         //
-        // Speaking 문제(=false): 문장 하나를 통째로 채점하는 자리라 과하게
-        // 엄격해진다. completeness 로 이미 누락을 본다.
-        //
-        // 읽기 연습(=true): 여기는 켜야 한다. **끄면 Azure 가 "인식한 단어만"
+        // 문장 평가와 읽기 연습 모두 켠다. **끄면 Azure 가 "인식한 단어만"
         // 돌려주고 안 읽은 단어는 배열에서 아예 빠진다.** 그러면 참조 단어와
         // 위치가 어긋나서, 짧은 어절 하나만 못 알아들어도 그 뒤가 전부
         // 오답으로 밀린다. 켜면 참조 단어마다 Omission 이 명시적으로 와서
@@ -550,12 +588,18 @@ export class SpeechService {
         text: '',
         scores: null,
         words: [],
-        cancelReason: `${sdk.CancellationReason[details.reason]} ${details.errorDetails ?? ''}`.trim(),
+        cancelReason:
+          `${sdk.CancellationReason[details.reason]} ${details.errorDetails ?? ''}`.trim(),
       };
     }
 
     if (result.reason !== sdk.ResultReason.RecognizedSpeech) {
-      return { status: 'error', text: result.text ?? '', scores: null, words: [] };
+      return {
+        status: 'error',
+        text: result.text ?? '',
+        scores: null,
+        words: [],
+      };
     }
 
     if (!withAssessment) {
@@ -589,7 +633,9 @@ export class SpeechService {
 
   private buildSpeechConfig(): sdk.SpeechConfig {
     const key = this.configService.get<string>('AZURE_SPEECH_KEY')?.trim();
-    const region = this.configService.get<string>('AZURE_SPEECH_REGION')?.trim();
+    const region = this.configService
+      .get<string>('AZURE_SPEECH_REGION')
+      ?.trim();
     const endpoint = this.configService
       .get<string>('AZURE_SPEECH_ENDPOINT')
       ?.trim();
@@ -645,6 +691,31 @@ export class SpeechService {
       .lean();
 
     return { referenceText, section: lesson?.section };
+  }
+
+  private async resolveExpression(expressionId: string) {
+    if (!Types.ObjectId.isValid(expressionId)) {
+      throw new BadRequestException('INVALID_EXPRESSION_ID');
+    }
+
+    const expression = await this.expressionModel
+      .findOne({ _id: new Types.ObjectId(expressionId), isActive: true })
+      .select('korean placements')
+      .lean();
+    if (!expression) throw new NotFoundException('EXPRESSION_NOT_FOUND');
+
+    const referenceText = expression.korean.trim();
+    if (!referenceText) {
+      throw new BadRequestException('EXPRESSION_HAS_NO_REFERENCE_TEXT');
+    }
+
+    const sections = (expression.placements ?? [])
+      .map((placement) => placement.section)
+      .filter((section) => Number.isFinite(section));
+    return {
+      referenceText,
+      section: sections.length ? Math.min(...sections) : undefined,
+    };
   }
 
   private async resolveReadingChunk(

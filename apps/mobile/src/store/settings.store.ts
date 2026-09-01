@@ -72,7 +72,7 @@ export function learnModePath(
     case "expression":
       return "/expressions"; // 상황별 표현 학습 허브
     case "listening":
-      return "/reading-listening"; // 문화 지문 중심 읽기·듣기 학습
+      return "/reading-listening-levels"; // 급수를 고른 뒤 문화 읽기·듣기 학습
     case "topik":
       return `/topik-sections?level=${topikLevel}` as Href;
     // 문법 문제 풀이는 어휘와 같은 로드맵을 문법 트랙 데이터로 돈다

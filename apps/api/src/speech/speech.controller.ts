@@ -23,7 +23,7 @@ export class SpeechController {
   assess(@Req() req: Request, @Query('questionId') questionId: string) {
     if (!questionId) throw new BadRequestException('QUESTION_ID_REQUIRED');
     return this.speechService.assess(
-      req.user!['_id'].toString(),
+      this.userId(req),
       questionId,
       this.readAudio(req),
     );
@@ -31,8 +31,20 @@ export class SpeechController {
 
   @Post('transcribe')
   transcribe(@Req() req: Request) {
-    return this.speechService.transcribe(
-      req.user!['_id'].toString(),
+    return this.speechService.transcribe(this.userId(req), this.readAudio(req));
+  }
+
+  @Post('assess-expression')
+  assessExpression(
+    @Req() req: Request,
+    @Query('expressionId') expressionId: string,
+  ) {
+    if (!expressionId) {
+      throw new BadRequestException('EXPRESSION_ID_REQUIRED');
+    }
+    return this.speechService.assessExpression(
+      this.userId(req),
+      expressionId,
       this.readAudio(req),
     );
   }
@@ -49,7 +61,7 @@ export class SpeechController {
     }
 
     return this.speechService.assessReading(
-      req.user!['_id'].toString(),
+      this.userId(req),
       lessonCode.trim(),
       Number(startWordIndex),
       Number(wordCount),
@@ -64,5 +76,9 @@ export class SpeechController {
       throw new BadRequestException('AUDIO_BODY_REQUIRED');
     }
     return body;
+  }
+
+  private userId(req: Request): string {
+    return String((req.user as { _id: unknown })._id);
   }
 }
