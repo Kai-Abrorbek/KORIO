@@ -12,8 +12,7 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "REPLACE_ME_https://api.korio.example",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "REPLACE_ME.apps.googleusercontent.com",
-        "EXPO_PUBLIC_SOCIAL_AUTH_BASE": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "581955511380-s5e5dj6qp5s9nq8p2k56a001hfs2ouia.apps.googleusercontent.com",
         "EXPO_PUBLIC_TELEGRAM_AUTH_BASE": "REPLACE_ME_https://api.korio.example"
       }
     },
@@ -25,8 +24,7 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "REPLACE_ME_https://api.korio.example",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "REPLACE_ME.apps.googleusercontent.com",
-        "EXPO_PUBLIC_SOCIAL_AUTH_BASE": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "581955511380-s5e5dj6qp5s9nq8p2k56a001hfs2ouia.apps.googleusercontent.com",
         "EXPO_PUBLIC_TELEGRAM_AUTH_BASE": "REPLACE_ME_https://api.korio.example"
       }
     }
