@@ -65,8 +65,12 @@ cp .env.example .env          # API_DOMAIN, ACME_EMAIL
 cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, API 키들
 chmod 600 api.env             # 시크릿이다
 
-# 3) DNS: API_DOMAIN 의 A 레코드 → 이 서버 IP
-#    dig +short <도메인> 이 서버 IP 를 뱉어야 인증서가 나온다
+# 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
+#    타입 A / 이름 api / 값 <서버 IP> / TTL 기본
+#    → api.korio.online 이 서버를 가리키게 된다
+#    dig +short api.korio.online  이 서버 IP 를 뱉어야 인증서가 나온다.
+#    ⚠️ DNS 가 안 맞은 채로 deploy 하면 Let's Encrypt 실패가 쌓여
+#       한 시간 잠긴다. 반드시 먼저 확인할 것
 
 # 4) 🔴 MongoDB Atlas > Network Access 에 서버 IP 추가
 #    안 하면 컨테이너가 떠도 /ready 가 계속 503 이라 배포가 실패한다
@@ -92,6 +96,15 @@ chmod 600 api.env             # 시크릿이다
 
 **첫 배포 뒤에는 반드시 `./smoke.sh` 를 한 번 돌려라.** 무중단이 진짜인지
 숫자로 확인하는 유일한 방법이다.
+
+## 도메인
+
+- `api.korio.online` → **이 API 서버**
+- `korio.online` (apex) → 비워 둔다. 나중에 랜딩·개인정보처리방침이 여기 들어간다.
+  **구글 플레이는 개인정보처리방침 URL 을 필수로 요구한다.** API 를 apex 에
+  올려 버리면 그 자리를 잃는다.
+- 텔레그램 로그인을 켜려면 BotFather 에 `api.korio.online` 을 등록해야 한다
+  (`/setdomain`). 위젯 페이지가 이 서버에서 뜨기 때문이다.
 
 ## 시크릿
 
