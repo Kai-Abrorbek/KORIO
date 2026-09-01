@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState, ImageChoiceOption } from "@/types/lesson";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CheckButton from "../CheckButton";
+import { shuffle } from "@/utils/shuffle";
 
 interface Props {
   question: LessonQuestion;
@@ -28,13 +29,23 @@ export default function ImageChoice({
   const [selected, setSelected] = useState<string | null>(null);
   const { speak } = useSpeech();
 
-  const choices: ImageChoiceOption[] = question.choices?.length
-    ? question.choices
-    : (question.options?.map((opt) => ({
-        text: opt,
-        label: opt,
-        emoji: "❓",
-      })) ?? []);
+  // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
+  // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
+  // 한 문제 안에서는 다시 섞이지 않게 한다.
+  const choices: ImageChoiceOption[] = useMemo(
+    () =>
+      shuffle(
+        question.choices?.length
+          ? question.choices
+          : (question.options?.map((opt) => ({
+              text: opt,
+              label: opt,
+              emoji: "❓",
+            })) ?? []),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.id],
+  );
 
   const handleSelect = (text: string) => {
     if (answerState !== "idle") return;

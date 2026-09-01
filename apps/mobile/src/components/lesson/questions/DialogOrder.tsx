@@ -5,7 +5,10 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
+// LinearTransition(레이아웃 스프링)은 뺐다. 뱅크가 줄바꿈되는 가로 목록이라
+// 말풍선 하나를 집을 때마다 남은 것들이 줄을 넘나들며 튀어서 눈이 아팠다.
+// 등장 페이드만 남긴다.
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -103,7 +106,6 @@ export default function DialogOrder({
               <Animated.View
                 key={line.origIdx}
                 entering={FadeIn.duration(150)}
-                layout={LinearTransition.springify().damping(16)}
                 style={[s.bubbleRow, isUser && { justifyContent: "flex-end" }]}
               >
                 <TouchableOpacity
@@ -128,11 +130,7 @@ export default function DialogOrder({
       {/* 말풍선 뱅크 */}
       <View style={s.bank}>
         {bank.map((line) => (
-          <Animated.View
-            key={line.origIdx}
-            layout={LinearTransition.springify().damping(16)}
-            entering={FadeIn.duration(150)}
-          >
+          <Animated.View key={line.origIdx} entering={FadeIn.duration(150)}>
             <TouchableOpacity
               disabled={locked}
               onPress={() => place(line)}

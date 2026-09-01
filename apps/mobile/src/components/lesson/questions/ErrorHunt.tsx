@@ -7,11 +7,12 @@ import Animated, {
   withSequence,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
+import { shuffle } from "@/utils/shuffle";
 
 interface Props {
   question: LessonQuestion;
@@ -74,6 +75,15 @@ export default function ErrorHunt({
   const [foundIdx, setFoundIdx] = useState<number | null>(null);
   const [missedIdx, setMissedIdx] = useState<number | null>(null);
   const [fix, setFix] = useState<string | null>(null);
+
+  // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
+  // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
+  // 한 문제 안에서는 다시 섞이지 않게 한다.
+  const options = useMemo(
+    () => shuffle(question.options ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.id],
+  );
 
   const shakeX = useSharedValue(0);
   const shakeStyle = useAnimatedStyle(() => ({
@@ -159,7 +169,7 @@ export default function ErrorHunt({
         {/* 2단계: 교정 선택지 슬라이드 인 */}
         {stage === 2 ? (
           <Animated.View entering={FadeIn.duration(150)} style={s.fixArea}>
-            {(question.options ?? []).map((opt, i) => {
+            {options.map((opt) => {
               const isSel = fix === opt;
               return (
                 <Animated.View key={opt} entering={FadeIn.duration(150)}>

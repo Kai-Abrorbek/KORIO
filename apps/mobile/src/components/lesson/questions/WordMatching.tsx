@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -44,7 +44,7 @@ export default function WordMatching({
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const pairs = question.pairs ?? [];
-  const { speak, stop } = useSpeech();
+  const { speak, stop, prewarm } = useSpeech();
 
   const [left, setLeft] = useState<Item[]>(() =>
     shuffle(
@@ -66,6 +66,13 @@ export default function WordMatching({
       })),
     ),
   );
+  // 짝을 맞춘 순간에 speak() 를 부르면 그때부터 음원을 받아오느라 소리가 한
+  // 박자 늦게 난다. 읽을 한국어 단어는 화면 뜰 때 이미 다 아니까 미리 받아 둔다.
+  useEffect(() => {
+    prewarm(pairs.map((p) => p.korean));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id]);
+
   const [selL, setSelL] = useState<number | null>(null);
   const [selR, setSelR] = useState<number | null>(null);
   const [matchedCount, setMatchedCount] = useState(0);

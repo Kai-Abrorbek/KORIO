@@ -7,13 +7,14 @@ import {
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import { shuffle } from "@/utils/shuffle";
 
 interface Props {
   question: LessonQuestion;
@@ -37,7 +38,14 @@ export default function ReadingQuiz({
   const locked = answerState !== "idle";
 
   const passage = question.passage ?? "";
-  const options = question.options ?? [];
+  // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
+  // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
+  // 한 문제 안에서는 다시 섞이지 않게 한다.
+  const options = useMemo(
+    () => shuffle(question.options ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.id],
+  );
   const wordCount = passage.split(/\s+/).filter(Boolean).length;
 
   const select = (opt: string) => {

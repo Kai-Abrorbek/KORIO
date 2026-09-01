@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,6 +13,7 @@ import { ThemeColors } from "@/constants/theme";
 import { AnswerState, DialogLine, LessonQuestion } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
 import CheckButton from "../CheckButton";
+import { shuffle } from "@/utils/shuffle";
 
 interface Props {
   question: LessonQuestion;
@@ -35,6 +36,15 @@ export default function DialogComplete({
   const insets = useSafeAreaInsets();
   const s = styles(theme);
   const [selected, setSelected] = useState<string | null>(null);
+
+  // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
+  // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
+  // 한 문제 안에서는 다시 섞이지 않게 한다.
+  const options = useMemo(
+    () => shuffle(question.options ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.id],
+  );
   const [speakingLine, setSpeakingLine] = useState<number | null>(null);
   const { speak, isSpeaking } = useSpeech();
 
@@ -155,12 +165,12 @@ export default function DialogComplete({
         <View style={s.optionsHeader}>
           <Text style={s.optionsTitle}>CHOICES</Text>
           <Text style={s.optionsCount}>
-            {question.options?.length ?? 0} choices
+            {options.length} choices
           </Text>
         </View>
 
         <View style={s.options}>
-          {question.options?.map((option, index) => {
+          {options.map((option, index) => {
             const isSelected = selected === option;
             const isCorrect =
               answerState !== "idle" && option === question.answer;

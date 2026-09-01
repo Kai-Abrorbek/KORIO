@@ -25,6 +25,7 @@ import {
   templateOf,
   toAnswerPayload,
 } from "@/utils/blank-sentence";
+import { shuffle } from "@/utils/shuffle";
 
 interface Props {
   question: LessonQuestion;
@@ -52,7 +53,14 @@ export default function FillInBlank({
   const locked = answerState !== "idle";
   const instruction = question.question?.trim() || t("lesson.fillBlank");
 
-  const options = question.options ?? [];
+  // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
+  // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
+  // 한 문제 안에서는 다시 섞이지 않게 한다.
+  const options = useMemo(
+    () => shuffle(question.options ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.id],
+  );
 
   // 빈칸 개수만큼 슬롯을 잡는다. 기존 단일 빈칸 문항은
   // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.

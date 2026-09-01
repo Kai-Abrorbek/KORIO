@@ -113,9 +113,11 @@ export default function TranslateBuilder({
     winW - 32,
     { max: compact ? 2 : 3 },
   );
-  const visibleAnswerLines = compact
-    ? Math.max(2, answerLines)
-    : Math.max(3, answerLines);
+  // useAnswerLines 가 이미 전체 단어 기준으로 필요한 줄 수를 재고, 실제 배치가
+  // 추정을 넘기면 늘려 준다. 여기서 또 3줄을 깔면 한 줄이면 되는 짧은 문장에도
+  // 195px 을 잡아먹어 확인 버튼이 아래로 밀린다. SentenceBuilder·WordArrange 도
+  // 훅 값을 그대로 쓴다 — 여기만 바닥값을 얹고 있었다.
+  const visibleAnswerLines = answerLines;
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
       id: `w-${i}`,

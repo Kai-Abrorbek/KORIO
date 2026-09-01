@@ -62,6 +62,42 @@ export function useSpeech() {
   const runIdRef = useRef(0);
   const activeRef = useRef<ActiveSpeech | null>(null);
   const handledFinishRef = useRef(false);
+  /**
+   * 미리 받아 둔 음성. key → 재생용 소스.
+   *
+   * speak() 한 번에 왕복이 두 번 든다 — /tts/speech 로 audioId 를 받고, 그
+   * URL 을 다시 받아 디코딩한다. 탭하고 나서 이게 돌면 소리가 한 박자 늦는다.
+   * 문장을 미리 알 수 있는 화면(단어 짝맞추기 등)은 prewarm() 으로 화면 뜰 때
+   * 받아 두고, speak() 는 캐시가 있으면 바로 재생한다.
+   */
+  const warmRef = useRef(new Map<string, AudioSource>());
+
+  /** 같은 문장이라도 언어·목소리·속도가 다르면 다른 음원이다 — 키에 다 넣는다 */
+  const buildRequest = useCallback(
+    (text: string, lang: string, slow: boolean, options?: SpeechPlaybackOptions) => {
+      const { sound } = useSettingsStore.getState();
+      const language = toSpeechLanguage(lang);
+      const voice =
+        options?.voice?.trim() ||
+        (language === "ko-KR"
+          ? sound.speechVoice || DEFAULT_SPEECH_VOICE
+          : undefined);
+      const rate = Math.min(
+        2,
+        Math.max(
+          0.25,
+          options?.rate ??
+            (slow ? sound.speechRate * SLOW_FACTOR : sound.speechRate),
+        ),
+      );
+      const gender = options?.gender ?? "female";
+      return {
+        key: `${language}|${gender}|${voice ?? ""}|${rate}|${text}`,
+        request: { text, language, rate, gender, voice },
+      };
+    },
+    [],
+  );
 
   const stopCurrent = useCallback(
     (notify: boolean, updateState = true) => {
@@ -111,33 +147,25 @@ export function useSpeech() {
       setIsSpeaking(true);
 
       try {
-        const language = toSpeechLanguage(lang);
-        const voice =
-          options?.voice?.trim() ||
-          (language === "ko-KR"
-            ? sound.speechVoice || DEFAULT_SPEECH_VOICE
-            : undefined);
-        const source = await TtsService.prepareSource({
-          text: normalizedText,
-          language,
-          rate: Math.min(
-            2,
-            Math.max(
-              0.25,
-              options?.rate ??
-                (slow ? sound.speechRate * SLOW_FACTOR : sound.speechRate),
-            ),
-          ),
-          gender: options?.gender ?? "female",
-          voice,
-        });
+        const { key, request } = buildRequest(
+          normalizedText,
+          lang,
+          slow,
+          options,
+        );
+
+        // prewarm 해 둔 게 있으면 왕복 두 번을 통째로 건너뛴다.
+        // 캐시 소스는 warmRef 가 소유하므로 active.source 에 넣지 않는다 —
+        // 넣으면 재생이 끝날 때 해제돼서 두 번째부터 다시 느려진다.
+        const warmed = warmRef.current.get(key);
+        const source = warmed ?? (await TtsService.prepareSource(request));
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
         // 짧은 원격 음성은 네이티브 준비 중 세션 전환과 겹치면 첫 프레임이
         // 유실될 수 있어 미리 받아둔다. 다만 이건 최적화일 뿐이라 실패해도
         // 안 된다 — 예전엔 여기서 throw 되면 아래 catch 가 삼켜서 아무 소리도
         // 안 나고 조용히 끝났다. 실패하면 ExoPlayer 가 URL 을 직접 받게 둔다.
-        if (Platform.OS !== "web") {
+        if (!warmed && Platform.OS !== "web") {
           const preloaded = await preload(source).then(
             () => true,
             (error: unknown) => {
@@ -182,7 +210,7 @@ export function useSpeech() {
         options?.onError?.();
       }
     },
-    [player, stopCurrent],
+    [player, stopCurrent, buildRequest],
   );
 
   const speak = useCallback(
@@ -206,6 +234,42 @@ export function useSpeech() {
       void run(text, lang, false, options);
     },
     [run],
+  );
+
+  /**
+   * 곧 재생할 문장들을 화면 뜰 때 미리 받아 둔다.
+   *
+   * 실패는 조용히 넘긴다 — 어차피 재생 시점에 정상 경로로 다시 받는다.
+   * 하나씩 순서대로 받는다. 한꺼번에 던지면 TTS 엔드포인트만 몰린다.
+   */
+  const prewarm = useCallback(
+    (
+      texts: readonly string[],
+      lang: string = "ko-KR",
+      options?: SpeechPlaybackOptions,
+    ) => {
+      if ((options?.respectSoundSettings ?? true) && useSettingsStore.getState().muted) {
+        return;
+      }
+      void (async () => {
+        for (const raw of texts) {
+          const text = raw?.trim();
+          if (!text) continue;
+          const { key, request } = buildRequest(text, lang, false, options);
+          if (warmRef.current.has(key)) continue;
+          try {
+            const source = await TtsService.prepareSource(request);
+            if (Platform.OS !== "web") {
+              await preload(source).catch(() => undefined);
+            }
+            warmRef.current.set(key, source);
+          } catch {
+            // 미리 받기는 최적화일 뿐이다
+          }
+        }
+      })();
+    },
+    [buildRequest],
   );
 
   const stop = useCallback(() => stopCurrent(true), [stopCurrent]);
@@ -253,12 +317,14 @@ export function useSpeech() {
     player,
   ]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    const warm = warmRef.current;
+    return () => {
       stopCurrent(false, false);
-    },
-    [stopCurrent],
-  );
+      for (const source of warm.values()) releasePreloadedSource(source);
+      warm.clear();
+    };
+  }, [stopCurrent]);
 
   const duration = Number.isFinite(playerStatus.duration)
     ? Math.max(0, playerStatus.duration)
@@ -277,6 +343,7 @@ export function useSpeech() {
     speak,
     speakSlow,
     speakAuto,
+    prewarm,
     stop,
     isSpeaking,
     isSpeechPlaying,
