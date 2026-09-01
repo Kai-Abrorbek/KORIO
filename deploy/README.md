@@ -79,7 +79,10 @@ chmod 600 api.env             # 시크릿이다
 # 5) hPanel > VPS > 방화벽 에서 80/443 허용 확인
 #    Hostinger 는 패널 방화벽이 따로 있어서 ufw 만 열면 막힐 수 있다
 
-# 6) 첫 배포
+# 6) 사전 점검 — 여기서 통과 못 하면 배포는 어차피 실패한다
+./preflight.sh
+
+# 7) 첫 배포
 ./deploy.sh
 ./smoke.sh    # 무중단 증명 — 반드시
 ```

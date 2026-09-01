@@ -16,7 +16,8 @@ log() { printf '%s▸%s %s\n' "$GRN" "$RST" "$*"; }
 log "패키지 갱신"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq ca-certificates curl git ufw
+# dnsutils = dig. preflight.sh 가 DNS·Atlas SRV 확인에 쓴다
+apt-get install -y -qq ca-certificates curl git ufw dnsutils
 
 # ── 도커 ──
 if command -v docker >/dev/null 2>&1; then
