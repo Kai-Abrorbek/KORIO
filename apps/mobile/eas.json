@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "REPLACE_ME.apps.googleusercontent.com",
+        "EXPO_PUBLIC_SOCIAL_AUTH_BASE": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_TELEGRAM_AUTH_BASE": "REPLACE_ME_https://api.korio.example"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "REPLACE_ME.apps.googleusercontent.com",
+        "EXPO_PUBLIC_SOCIAL_AUTH_BASE": "REPLACE_ME_https://api.korio.example",
+        "EXPO_PUBLIC_TELEGRAM_AUTH_BASE": "REPLACE_ME_https://api.korio.example"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    }
+  }
+}
