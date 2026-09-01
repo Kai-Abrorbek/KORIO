@@ -116,20 +116,42 @@ export interface NormalizedWordSeed {
   isActive: boolean;
 }
 
+/** DB 유니크 인덱스와 같은 기준의 키 */
+function senseIdOf(word: NormalizedWordSeed) {
+  return `${word.headword}|${word.senseKey}`;
+}
+
 export function buildWordSeedData(): NormalizedWordSeed[] {
   const grouped = new Map<string, NormalizedWordSeed>();
+
+  // words 컬렉션의 유니크 인덱스는 (targetLanguage, headword, senseKey) 다.
+  // code 로만 묶으면 "같은 단어·같은 뜻인데 code 만 다른" 항목이 그대로 통과했다가
+  // insert 단계에서 E11000 으로 시딩이 통째로 죽는다. 실제로 섹션4를 붙이자마자
+  // 메뉴(restaurant-menu ↔ word_menu_noun) 에서 터졌다.
+  // 그래서 여기서 미리 합친다 — 같은 뜻이면 단어 문서 하나에 placements 만
+  // 늘어나는 게 맞다. 그래야 s1 에서 배운 진도가 s4 에서도 이어진다.
+  const bySense = new Map<string, NormalizedWordSeed>();
+  const merged: string[] = [];
 
   for (const source of WORD_SOURCES) {
     source.words.forEach((entry, index) => {
       const word = normalizeEntry(entry, source, index + 1);
-      const existing = grouped.get(word.code);
+      const senseId = senseIdOf(word);
+      const existing = grouped.get(word.code) ?? bySense.get(senseId);
 
       if (!existing) {
         grouped.set(word.code, word);
+        bySense.set(senseId, word);
         return;
       }
 
       assertCompatible(existing, word);
+      if (existing.code !== word.code) {
+        merged.push(
+          `${word.headword}(${word.senseKey}): ${word.code} → ${existing.code}` +
+            ` [s${source.section}u${source.unit}]`,
+        );
+      }
       for (const placement of word.placements) {
         const isDuplicate = existing.placements.some(
           (item) =>
@@ -140,6 +162,15 @@ export function buildWordSeedData(): NormalizedWordSeed[] {
       existing.examples = mergeExamples(existing.examples, word.examples);
       existing.tags = [...new Set([...existing.tags, ...word.tags])];
     });
+  }
+
+  if (merged.length) {
+    console.log(
+      `\nℹ️ 같은 뜻이라 code 를 합친 단어 ${merged.length}개 ` +
+        `(먼저 나온 code 가 남는다):`,
+    );
+    merged.forEach((line) => console.log(`   ${line}`));
+    console.log('');
   }
 
   return [...grouped.values()].map((word) => ({
@@ -271,6 +302,21 @@ function assertCompatible(
   // sense. The stable code + headword + senseKey + part of speech define the
   // identity; the first source remains the canonical displayed definition.
   if (!sameIdentity) {
+    // headword + senseKey 는 같은데 품사만 다른 경우 — 합칠 수도, 따로 둘 수도
+    // 없다. DB 유니크 인덱스가 (headword, senseKey) 라 따로 두면 insert 에서
+    // 죽는다. 둘 중 하나의 senseKey 를 바꿔야 한다.
+    if (
+      existing.headword === next.headword &&
+      existing.senseKey === next.senseKey
+    ) {
+      throw new Error(
+        `"${next.headword}" 의 senseKey "${next.senseKey}" 를 품사가 다른 두 ` +
+          `항목이 함께 쓰고 있다 (${existing.code}=${existing.partOfSpeech} vs ` +
+          `${next.code}=${next.partOfSpeech}). words 컬렉션은 ` +
+          `(headword, senseKey) 가 유니크라 둘 다 넣을 수 없다 — ` +
+          '한쪽 senseKey 를 다른 값으로 바꿀 것.',
+      );
+    }
     throw new Error(
       `Word code ${next.code} is reused for incompatible content ` +
         `(${existing.headword}/${existing.senseKey}/${existing.partOfSpeech} vs ` +
