@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, { SlideInDown } from "react-native-reanimated";
@@ -25,6 +26,20 @@ const EMPTY: ScoreData = {
  * 예전에는 이걸 코스(국기) 드롭다운 안에 넣었는데, 거긴 "무슨 과목을 배울까" 를
  * 고르는 자리라 "이 과목 안에서 어디쯤인가" 와 섞이면 둘 다 안 보인다.
  * 지금 유닛을 알려주는 배너 바로 밑에서 열리는 게 맞다.
+ *
+ * ── 안드로이드 Modal 세 가지 함정 (전부 밟아봤다) ──
+ * 1. `statusBarTranslucent` 를 켜면 모달 창이 상태바 뒤까지 늘어난다. 창이
+ *    화면보다 상태바 높이만큼 길어져서, flex-end 로 붙인 시트가 그만큼 아래로
+ *    밀려 내비바에 잘리고 **터치 좌표까지 같은 만큼 어긋난다** (눌러도 반응이
+ *    없던 이유). 쓰지 않는다.
+ * 2. Modal 안은 별도의 뷰 트리라 `GestureHandlerRootView` 로 다시 감싸야
+ *    제스처/터치가 산다. 이 앱의 CourseDropdown 도 그렇게 하고 있다.
+ * 3. Modal 자체 `animationType` 과 reanimated entering 을 겹치면 뷰는 보이는데
+ *    터치가 안 먹는 상태가 된다. 애니메이션은 reanimated 쪽 하나만 쓴다.
+ *
+ * 배경은 absolute 로 덮지 않고 시트 위쪽 남은 공간을 `flex: 1` 로 차지한다 —
+ * 안드로이드는 elevation 없이는 형제 간 z 순서를 보장하지 않아서, 겹쳐 두면
+ * 배경이 시트를 가려 탭을 먹어버릴 수 있다.
  *
  * 스코어는 학습 모드마다 다른 값을 쓴다 — 자유학습과 로드학습은 진도가 별개다.
  */
@@ -67,19 +82,19 @@ export default function SectionListSheet({
   }, [visible, studyMode]);
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
-      <View style={s.overlay}>
+    <Modal visible={visible} transparent onRequestClose={onClose}>
+      <GestureHandlerRootView style={s.root}>
+        {/* 시트 위 남은 공간 = 배경. 탭하면 닫힌다 */}
         <Pressable style={s.backdrop} onPress={onClose} />
 
         <Animated.View
           entering={SlideInDown.duration(240)}
-          style={[s.sheet, { paddingBottom: insets.bottom + 16 }]}
+          style={[
+            s.sheet,
+            // 내비게이션 바에 마지막 줄이 잘리지 않게. 인셋이 0 으로 와도
+            // 최소 여백은 남긴다
+            { paddingBottom: Math.max(insets.bottom, 12) + 14 },
+          ]}
         >
           <View style={s.handle} />
 
@@ -87,7 +102,7 @@ export default function SectionListSheet({
             <Text style={s.heading}>{t("roadmap.allSections")}</Text>
             <Pressable
               onPress={onClose}
-              hitSlop={10}
+              hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={t("common.close")}
               style={s.closeBtn}
@@ -100,6 +115,7 @@ export default function SectionListSheet({
             style={s.scroll}
             contentContainerStyle={s.scrollContent}
             showsVerticalScrollIndicator={false}
+            bounces={false}
           >
             {sc.milestones.length > 0 ? (
               <SectionList
@@ -122,24 +138,19 @@ export default function SectionListSheet({
             )}
           </ScrollView>
         </Animated.View>
-      </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    overlay: { flex: 1, justifyContent: "flex-end" },
-    backdrop: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.42)",
-    },
+    root: { flex: 1 },
+    backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
     sheet: {
-      maxHeight: "78%",
+      // 배경(flex:1)이 위를 다 먹으므로 시트는 내용만큼만 차지한다.
+      // 섹션이 많아질 때만 최대치에서 멈추고 안에서 스크롤된다
+      maxHeight: "72%",
       backgroundColor: theme.bg,
       borderTopLeftRadius: 26,
       borderTopRightRadius: 26,
@@ -147,6 +158,11 @@ const getStyles = (theme: ThemeColors) =>
       paddingTop: 10,
       borderTopWidth: 1,
       borderColor: theme.border,
+      elevation: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -6 },
+      shadowOpacity: 0.18,
+      shadowRadius: 18,
     },
     handle: {
       alignSelf: "center",
@@ -171,7 +187,7 @@ const getStyles = (theme: ThemeColors) =>
       justifyContent: "center",
       backgroundColor: theme.surface,
     },
-    scroll: { flexGrow: 0 },
+    scroll: { flexShrink: 1 },
     scrollContent: { paddingBottom: 6 },
     empty: {
       paddingVertical: 24,
