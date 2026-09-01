@@ -97,7 +97,11 @@ const SHORT_STEM_ENDINGS = [
 const surfaceForm = (sentence: string, baseWord: string) => {
   const stem = verbStem(baseWord);
   if (!stem) return '';
-  const matches = sentence.match(/[가-힣]+/g) ?? [];
+  // String.match(/g) 는 RegExpMatchArray | null 을 준다. `?? []` 를 붙이면
+  // RegExpMatchArray | never[] 유니온이 되고, 유니온 배열에 .find() 를 부르면
+  // 콜백 파라미터가 교집합(string & never = never)이 돼서 token 이 never 가 된다.
+  // 타입을 박아 never[] 쪽을 string[] 으로 넓힌다.
+  const matches: string[] = sentence.match(/[가-힣]+/g) ?? [];
   const startsWithStem = matches.find((token) => {
     if (!token.startsWith(stem) || token === baseWord) return false;
     if (stem.length > 1) return true;
