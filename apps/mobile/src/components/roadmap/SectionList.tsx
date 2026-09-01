@@ -31,21 +31,29 @@ const SECTION_COLORS = [
 /**
  * 전체 섹션 목록.
  *
- * 예전에는 스코어 숫자와 막대 하나가 전부라, 내가 지금 어디쯤인지도 앞으로
- * 뭐가 남았는지도 알 수 없었다. 섹션을 다 펼쳐 보여주고 지금 섹션은 진행률을,
- * 잠긴 섹션은 자물쇠를 준다.
+ * 세 상태가 각각 다른 곳으로 간다.
+ *  - 끝낸 섹션  → 그 섹션 로드맵을 다시 펼친다 (복습)
+ *  - 지금 섹션  → 현재 위치로 돌아간다
+ *  - 잠긴 섹션  → 점프 테스트로 간다
  *
- * 잠긴 섹션을 누르면 점프 테스트로 간다 — 로드맵 맨 아래까지 내려가야만
- * 보이던 길을 여기서도 연다.
+ * 전부 누를 수 있어야 한다. 끝낸 섹션을 못 누르게 두면 "이미 한 건 다시 못 본다"
+ * 는 뜻이 되는데, 복습이야말로 제일 자주 하려는 일이다.
  */
 export default function SectionList({
   milestones,
   score,
+  viewingSection,
+  onOpenSection,
   onJumpSection,
 }: {
   milestones: ScoreMilestone[];
   /** 지금 스코어 = 완주한 유닛 수 */
   score: number;
+  /** 지금 로드맵이 펼쳐 놓은 섹션 — 그 줄을 표시해 준다 */
+  viewingSection?: number;
+  /** 이미 연 섹션으로 이동 */
+  onOpenSection: (section: number, firstUnit: number) => void;
+  /** 아직 잠긴 섹션 → 점프 테스트 */
   onJumpSection: (section: number, firstUnit: number) => void;
 }) {
   const { t } = useTranslation();
@@ -60,6 +68,7 @@ export default function SectionList({
         const done = milestone.status === "completed";
         const current = milestone.status === "current";
         const locked = !done && !current;
+        const viewing = viewingSection === milestone.section;
 
         // 이 섹션 안에서 몇 유닛을 끝냈나
         const start = milestone.startScore ?? 0;
@@ -68,24 +77,28 @@ export default function SectionList({
           ? Math.round((inSection / milestone.units) * 100)
           : 0;
 
+        const firstUnit = milestone.firstUnit ?? 1;
+
         return (
           <Pressable
             key={milestone.section}
-            disabled={!locked}
+            accessibilityRole="button"
             onPress={() =>
-              onJumpSection(milestone.section, milestone.firstUnit ?? 1)
+              locked
+                ? onJumpSection(milestone.section, firstUnit)
+                : onOpenSection(milestone.section, firstUnit)
             }
             style={({ pressed }) => [
               s.row,
-              { borderColor: current ? color : theme.border },
-              pressed && locked && { opacity: 0.8 },
+              {
+                borderColor: viewing ? color : theme.border,
+                borderWidth: viewing ? 2 : 1.5,
+              },
+              pressed && { opacity: 0.82, transform: [{ scale: 0.995 }] },
             ]}
           >
             <View
-              style={[
-                s.icon,
-                { backgroundColor: locked ? theme.border : color },
-              ]}
+              style={[s.icon, { backgroundColor: locked ? theme.border : color }]}
             >
               <Ionicons
                 name={locked ? "lock-closed" : icon}
@@ -95,9 +108,20 @@ export default function SectionList({
             </View>
 
             <View style={s.copy}>
-              <Text style={s.title} numberOfLines={1}>
-                {milestone.title || t("roadmap.sectionN", { section: milestone.section })}
-              </Text>
+              <View style={s.titleRow}>
+                <Text style={s.title} numberOfLines={1}>
+                  {milestone.title ||
+                    t("roadmap.sectionN", { section: milestone.section })}
+                </Text>
+
+                {viewing && (
+                  <View style={[s.badge, { backgroundColor: color }]}>
+                    <Text style={s.badgeText}>
+                      {t("roadmap.sectionViewing")}
+                    </Text>
+                  </View>
+                )}
+              </View>
 
               {current ? (
                 <>
@@ -119,7 +143,7 @@ export default function SectionList({
               ) : (
                 <Text style={s.meta}>
                   {done
-                    ? t("roadmap.sectionDone", { total: milestone.units })
+                    ? t("roadmap.sectionReview", { total: milestone.units })
                     : t("roadmap.sectionLockedHint")}
                 </Text>
               )}
@@ -127,13 +151,13 @@ export default function SectionList({
 
             {done ? (
               <Ionicons name="checkmark-circle" size={22} color={color} />
-            ) : locked ? (
+            ) : (
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={theme.textSecondary}
+                color={locked ? theme.textSecondary : color}
               />
-            ) : null}
+            )}
           </Pressable>
         );
       })}
@@ -149,7 +173,6 @@ const styles = (theme: ThemeColors) =>
       alignItems: "center",
       gap: 12,
       backgroundColor: theme.surface,
-      borderWidth: 1.5,
       borderRadius: 16,
       paddingHorizontal: 13,
       paddingVertical: 12,
@@ -162,7 +185,15 @@ const styles = (theme: ThemeColors) =>
       justifyContent: "center",
     },
     copy: { flex: 1, gap: 4 },
-    title: { fontSize: 15, fontWeight: "900", color: theme.text },
+    titleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+    title: { flexShrink: 1, fontSize: 15, fontWeight: "900", color: theme.text },
+    badge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999 },
+    badgeText: {
+      fontSize: 10,
+      fontWeight: "900",
+      color: "#fff",
+      letterSpacing: 0.2,
+    },
     meta: { fontSize: 12, fontWeight: "700", color: theme.textSecondary },
     track: {
       height: 7,

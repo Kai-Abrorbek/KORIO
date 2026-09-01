@@ -833,6 +833,12 @@ export class LessonsService {
      * 학습 로드는 순서대로 쭉 가는 게 전부라 중간에 벽이 서면 안 된다.
      */
     wholeLevel = false,
+    /**
+     * 이미 지나온 섹션을 다시 펼쳐 볼 때 그 섹션 번호. 섹션 목록에서 완료한
+     * 섹션을 누르면 온다. **현재 섹션보다 뒤는 무시한다** — 이 값으로 아직
+     * 안 연 섹션을 열 수 있으면 점프 테스트가 무의미해진다.
+     */
+    viewSection?: number,
   ) {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
@@ -1033,10 +1039,19 @@ export class LessonsService {
     const [levelStart, levelEnd] = sectionRangeForLevel(
       meUser?.placementLevel ?? 1,
     );
+    // 지나온 섹션 다시보기. 현재 섹션 이하이고 실제로 유닛이 있을 때만 받아준다
+    const canView =
+      !wholeLevel &&
+      !!viewSection &&
+      viewSection <= currentSection &&
+      units.some((u: any) => u.sectionNumber === viewSection);
+    const shownSection = canView ? (viewSection as number) : currentSection;
+    const isPastSection = shownSection < currentSection;
+
     const sectionUnits = units.filter((u: any) =>
       wholeLevel
         ? u.sectionNumber >= levelStart && u.sectionNumber <= levelEnd
-        : u.sectionNumber === currentSection,
+        : u.sectionNumber === shownSection,
     );
 
     // 다음 섹션이 실제로 존재할 때만 안내 카드용 정보를 내려준다
@@ -1057,7 +1072,15 @@ export class LessonsService {
       // 안 받은 상자가 있으면 화면이 상자 노드를 빛나게 한다
       pendingChests: await this.chestService.pendingCount(userId),
       currentSection,
-      nextSection: nextMeta
+      /** 지금 화면이 그리고 있는 섹션 (다시보기면 과거 섹션) */
+      viewingSection: shownSection,
+      /** 지나온 섹션을 펼쳐 본 상태 — 화면이 "현재 위치로" 버튼을 띄운다 */
+      isPastSection,
+      // 지난 섹션을 보고 있을 때 "다음 섹션 잠김" 카드를 띄우면
+      // 이미 연 섹션을 또 잠긴 것처럼 안내하게 된다
+      nextSection: isPastSection
+        ? null
+        : nextMeta
         ? {
             sectionNumber: nextNumber,
             title: pickSectionText(nextMeta.title, lang),

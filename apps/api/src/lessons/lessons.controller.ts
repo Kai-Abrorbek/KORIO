@@ -53,11 +53,17 @@ export class LessonsController {
     @Request() req,
     @Query('lang') lang: string = 'uz',
     @Query('category') category?: string,
+    @Query('viewSection') viewSection?: string,
   ) {
+    // 클라가 보낸 섹션 번호는 그대로 안 믿는다 — 서비스가 "현재 섹션 이하" 인지
+    // 다시 본다. 여기선 숫자 모양만 거른다
+    const parsed = Number(viewSection);
     return this.lessonsService.getRoadmap(
       req.user._id.toString(),
       lang,
       category,
+      false,
+      Number.isInteger(parsed) && parsed > 0 ? parsed : undefined,
     );
   }
 

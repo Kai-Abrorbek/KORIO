@@ -10,6 +10,7 @@ export default {
     cancel: "Bekor qilish",
     save: "Saqlash",
     loading: "Yuklanmoqda...",
+    close: "Yopish",
   },
   splash: {
     subtitle: "AI bilan koreys tilini o'rgan",
@@ -397,6 +398,9 @@ export default {
     allSections: "Barcha bo‘limlar",
     sectionProgress: "{{done}} / {{total}} bo‘lim tugadi",
     sectionDone: "Barcha {{total}} bo‘lim tugadi",
+    sectionReview: "{{total}} bo‘lim tugadi · qayta ko‘rish uchun bosing",
+    sectionViewing: "Ko‘rilmoqda",
+    noSections: "Hozircha bo‘lim ma’lumoti yo‘q",
     sectionLockedHint: "Testdan o‘tib, darrov o‘tib ketishingiz mumkin",
     scoreText: "Sizning ballingiz: {{score}}.",
     jumpTitle: "Unit {{unit}}ga o'tib, mahoratingizni isbotlang!",

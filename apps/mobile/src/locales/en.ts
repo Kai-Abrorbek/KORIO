@@ -10,6 +10,7 @@ export default {
     cancel: "Cancel",
     save: "Save",
     loading: "Loading...",
+    close: "Close",
   },
   splash: {
     subtitle: "Learn Korean with AI",
@@ -396,6 +397,9 @@ export default {
     allSections: "All sections",
     sectionProgress: "{{done}} / {{total}} units done",
     sectionDone: "All {{total}} units done",
+    sectionReview: "{{total}} units done · tap to review",
+    sectionViewing: "Viewing",
+    noSections: "No sections yet",
     sectionLockedHint: "Take a test to jump straight here",
     scoreText: "Your score is {{score}}.",
     jumpTitle: "Jump to Unit {{unit}} and prove your skills!",

@@ -20,6 +20,7 @@ import {
 } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
+import SectionListSheet from "@/components/roadmap/SectionListSheet";
 import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
@@ -49,6 +50,15 @@ export default function RoadmapScreen() {
   const router = useRouter();
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
+  /** 섹션 목록 시트 */
+  const [sectionSheet, setSectionSheet] = useState(false);
+  /**
+   * 지나온 섹션을 펼쳐 보는 중이면 그 번호. null 이면 현재 섹션.
+   * 서버가 "현재 섹션 이하" 인지 다시 검사하므로 여기 값으로 잠긴 섹션을 열 수는 없다.
+   */
+  const [viewSection, setViewSection] = useState<number | null>(null);
+  const [isPastSection, setIsPastSection] = useState(false);
+  const [viewingSection, setViewingSection] = useState<number | undefined>();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
   const claimingRef = useRef(false);
@@ -127,7 +137,12 @@ export default function RoadmapScreen() {
         .then((me) => updateUser(me as any))
         .catch(() => {});
 
-      const data = await LessonService.getRoadmap(category);
+      const data = await LessonService.getRoadmap(
+        category,
+        viewSection ?? undefined,
+      );
+      setIsPastSection(!!data.isPastSection);
+      setViewingSection(data.viewingSection ?? data.currentSection);
       setRoadmap({
         score: data.score,
         pendingChests: data.pendingChests ?? 0,
@@ -144,6 +159,7 @@ export default function RoadmapScreen() {
         currentSection: data.currentSection,
         nextSection: data.nextSection,
       });
+      // 지난 섹션에는 current 유닛이 없다 (전부 완료) → 맨 위부터 보여준다
       const idx = Math.max(
         0,
         data.units.findIndex((u: RoadmapUnit) => u.status === "current"),
@@ -156,7 +172,7 @@ export default function RoadmapScreen() {
     } finally {
       setLoading(false);
     }
-  }, [scrollToUnit, category]);
+  }, [scrollToUnit, category, viewSection]);
 
   useFocusEffect(
     useCallback(() => {
@@ -328,9 +344,20 @@ export default function RoadmapScreen() {
     });
   }, [roadmap.nextSection, router]);
 
+  /** 현재 섹션으로 되돌아간다. 지난 섹션 다시보기를 끄면 loadRoadmap 이 다시 돈다 */
+  const backToCurrentSection = useCallback(() => {
+    setViewSection(null);
+  }, []);
+
   const handleScrollToggle = useCallback(() => {
+    // 지난 섹션을 보고 있을 땐 이 버튼이 "현재 섹션으로 돌아가기" 다.
+    // 그 섹션 안에는 current 유닛이 없어서 스크롤할 목적지가 없다.
+    if (isPastSection) {
+      backToCurrentSection();
+      return;
+    }
     scrollToUnit(currentUnitIdx, true);
-  }, [currentUnitIdx, scrollToUnit]);
+  }, [isPastSection, backToCurrentSection, currentUnitIdx, scrollToUnit]);
 
   const renderUnit = useCallback(
     ({ item: unit }: { item: RoadmapUnit }) => {
@@ -441,6 +468,8 @@ export default function RoadmapScreen() {
           unitNumber={currentUnit.unitNumber}
           title={currentUnit.title}
           color={currentUnit.color}
+          onPress={() => setSectionSheet(true)}
+          accessibilityLabel={t("roadmap.allSections")}
           onGuidePress={() => handleGuidePress(currentUnit)}
         />
       )}
@@ -496,12 +525,40 @@ export default function RoadmapScreen() {
           ]}
         >
           <Ionicons
-            name={isPastCurrent ? "arrow-up" : "arrow-down"}
+            name={
+              isPastSection
+                ? "arrow-undo"
+                : isPastCurrent
+                  ? "arrow-up"
+                  : "arrow-down"
+            }
             size={24}
             color={currentUnit?.color ?? theme.primary}
           />
         </View>
       </TouchableOpacity>
+
+      <SectionListSheet
+        visible={sectionSheet}
+        viewingSection={viewingSection}
+        onClose={() => setSectionSheet(false)}
+        onOpenSection={(section) => {
+          // 현재 섹션을 고르면 다시보기를 끄고 원래 자리로 돌아간다
+          setViewSection((prev) =>
+            section === roadmap.currentSection ? null : section,
+          );
+        }}
+        onJumpSection={(section, firstUnit) =>
+          router.push({
+            pathname: "/jump-start",
+            params: {
+              section: String(section),
+              unit: String(firstUnit),
+              target: "section",
+            },
+          })
+        }
+      />
     </View>
   );
 }

@@ -10,6 +10,7 @@ export default {
     cancel: "취소",
     save: "저장",
     loading: "로딩 중...",
+    close: "닫기",
   },
   splash: {
     subtitle: "AI로 배우는 한국어",
@@ -391,6 +392,9 @@ export default {
     allSections: "전체 섹션",
     sectionProgress: "유닛 {{done}} / {{total}} 완료",
     sectionDone: "유닛 {{total}}개 모두 완료",
+    sectionReview: "유닛 {{total}}개 완료 · 눌러서 다시 보기",
+    sectionViewing: "보는 중",
+    noSections: "아직 섹션 정보가 없어요",
     sectionLockedHint: "테스트를 보고 바로 건너뛸 수 있어요",
     scoreText: "회원님의 스코어는 {{score}}점입니다.",
     jumpTitle: "유닛 {{unit}}(으)로 건너뛰어 실력을 증명해보세요!",

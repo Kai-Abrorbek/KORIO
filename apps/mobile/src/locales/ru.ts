@@ -10,6 +10,7 @@ export default {
     cancel: "Отмена",
     save: "Сохранить",
     loading: "Загрузка...",
+    close: "Закрыть",
   },
   splash: {
     subtitle: "Учи корейский с AI",
@@ -395,6 +396,9 @@ export default {
     allSections: "Все разделы",
     sectionProgress: "{{done}} / {{total}} юнитов пройдено",
     sectionDone: "Все {{total}} юнитов пройдены",
+    sectionReview: "{{total}} юнитов пройдено · нажмите, чтобы повторить",
+    sectionViewing: "Смотрим",
+    noSections: "Разделов пока нет",
     sectionLockedHint: "Пройдите тест и перескочите сюда",
     scoreText: "Ваш балл: {{score}}.",
     jumpTitle: "Перейдите к юниту {{unit}} и докажите свои навыки!",

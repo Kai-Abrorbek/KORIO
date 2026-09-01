@@ -67,12 +67,18 @@ export const LessonService = {
 
   getRoadmap: (
     category?: string,
+    /** 지나온 섹션 다시보기. 서버가 "현재 섹션 이하" 인지 다시 검사한다 */
+    viewSection?: number,
   ): Promise<{
     units: any[];
     score: number;
     /** 아직 안 받은 상자 수 */
     pendingChests?: number;
     currentSection: number;
+    /** 지금 그리고 있는 섹션 (다시보기면 과거 섹션) */
+    viewingSection?: number;
+    /** 지나온 섹션을 펼쳐 본 상태 */
+    isPastSection?: boolean;
     nextSection: {
       sectionNumber: number;
       title: string;
@@ -81,7 +87,9 @@ export const LessonService = {
     } | null;
   }> => {
     return api.get(
-      `/lessons/roadmap?lang=${getLang()}${category ? `&category=${category}` : ""}`,
+      `/lessons/roadmap?lang=${getLang()}${category ? `&category=${category}` : ""}${
+        viewSection ? `&viewSection=${viewSection}` : ""
+      }`,
     );
   },
 
