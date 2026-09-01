@@ -48,13 +48,19 @@ compose 는 이미 변수로 받는다.
 
 ## 처음 한 번 (서버에서)
 
+**레포 위치는 아무 데나 된다.** 스크립트가 전부 자기 위치 기준으로 돌기 때문에
+`/root/korio` 든 `/srv/korio` 든 `/opt/korio` 든 똑같이 동작한다.
+Hostinger 는 root 로 로그인하니 `~/korio`(= `/root/korio`)가 제일 편하다 —
+`/root` 는 권한이 0700 이라 `api.env` 같은 시크릿이 오히려 더 안전하다.
+(나중에 배포용 일반 계정이나 CI 에이전트를 붙일 생각이면 그때 `/srv` 로 옮기면 된다)
+
 ```bash
 # 1) 레포 + 서버 준비 (도커·방화벽·로그로테이션·스왑·보안업데이트)
-git clone <repo> /srv/korio
-sudo bash /srv/korio/deploy/server-setup.sh
+git clone <repo> ~/korio
+sudo bash ~/korio/deploy/server-setup.sh
 
 # 2) 설정
-cd /srv/korio/deploy
+cd ~/korio/deploy
 cp .env.example .env          # API_DOMAIN, ACME_EMAIL
 cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, API 키들
 chmod 600 api.env             # 시크릿이다

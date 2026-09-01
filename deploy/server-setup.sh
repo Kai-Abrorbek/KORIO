@@ -75,8 +75,12 @@ apt-get install -y -qq unattended-upgrades
 dpkg-reconfigure -f noninteractive unattended-upgrades >/dev/null 2>&1 || true
 
 echo
+# 안내에 진짜 경로를 쓴다. 레포를 어디에 두든 상관없다 —
+# deploy.sh 는 자기 위치를 기준으로 도니까 /root/korio 든 /srv/korio 든 똑같다.
+DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 log "준비 완료. 다음:"
-cat <<'NEXT'
+cat <<NEXT
 
   1) hPanel > VPS > 방화벽 에서도 80/443 이 허용인지 확인해라.
      Hostinger 는 패널 방화벽이 따로 있어서, 여기 ufw 만 열어도 막힐 수 있다.
@@ -84,7 +88,7 @@ cat <<'NEXT'
   2) 도메인 DNS: A 레코드( api.korio.app 등 ) → 이 서버 IP
      dig +short <도메인>  이 서버 IP 를 뱉어야 인증서가 나온다.
 
-  3) cd /srv/korio/deploy
+  3) cd $DEPLOY_DIR
      cp .env.example .env        # API_DOMAIN, ACME_EMAIL
      cp api.env.example api.env  # MONGODB_URI, JWT_SECRET, API 키
      chmod 600 api.env
