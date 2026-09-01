@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { TokenStorage } from "@/services/api";
+import { BASE_URL, TokenStorage } from "@/services/api";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
 
@@ -16,9 +16,21 @@ import { UserService } from "@/services/user.service";
  */
 export type SocialProvider = "kakao" | "naver" | "telegram";
 
+/**
+ * 소셜 로그인이 때릴 주소. /auth/telegram/widget, /auth/kakao/start 는 전부
+ * **우리 API 서버**의 엔드포인트라, 기본값은 그냥 API 주소다.
+ *
+ * 예전엔 EXPO_PUBLIC_SOCIAL_AUTH_BASE / EXPO_PUBLIC_TELEGRAM_AUTH_BASE 를
+ * 따로 채워야 했는데, 값이 API 주소와 같은데도 안 채우면 API_BASE 가
+ * undefined 라 소셜 로그인만 조용히 죽었다. 같은 값을 세 번 적게 두면
+ * 배포 때 하나는 반드시 빠진다. 이제 안 넣으면 API 주소를 쓴다.
+ *
+ * 인증 서버를 따로 둘 때만 환경변수로 덮어쓴다.
+ */
 const API_BASE =
-  process.env.EXPO_PUBLIC_SOCIAL_AUTH_BASE ??
-  process.env.EXPO_PUBLIC_TELEGRAM_AUTH_BASE;
+  process.env.EXPO_PUBLIC_SOCIAL_AUTH_BASE?.trim() ||
+  process.env.EXPO_PUBLIC_TELEGRAM_AUTH_BASE?.trim() ||
+  BASE_URL;
 
 export function useSocialAuth(
   provider: SocialProvider,
