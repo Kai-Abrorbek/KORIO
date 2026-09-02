@@ -11,6 +11,7 @@ interface RegisterData {
 interface LoginData {
   email: string;
   password: string;
+  sessionId?: string;
 }
 
 interface SocialLoginData {

@@ -24,6 +24,8 @@ interface OnboardingState {
   correctAnswers: number;
   totalQuestions: number;
   wrongQuestionIds: string[];
+  placementLevel: number;
+  recommendedSection: number;
 
   // 비로그인 세션
   sessionId: string;
@@ -48,6 +50,8 @@ interface OnboardingState {
     correctAnswers: number;
     totalQuestions: number;
     wrongQuestionIds: string[];
+    placementLevel: number;
+    recommendedSection: number;
   }) => void;
 
   incrementGuestCount: () => void;
@@ -67,6 +71,8 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   correctAnswers: 0,
   totalQuestions: 0,
   wrongQuestionIds: [],
+  placementLevel: 1,
+  recommendedSection: 1,
   sessionId: generateSessionId(),
   guestQuestionCount: 0,
   hangulLevel: "",
@@ -85,6 +91,8 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       correctAnswers: data.correctAnswers,
       totalQuestions: data.totalQuestions,
       wrongQuestionIds: data.wrongQuestionIds,
+      placementLevel: data.placementLevel,
+      recommendedSection: data.recommendedSection,
     })),
 
   incrementGuestCount: () =>
@@ -99,7 +107,10 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
       levelTestScore: 0,
       detectedLevel: "",
       correctAnswers: 0,
+      totalQuestions: 0,
       wrongQuestionIds: [],
+      placementLevel: 1,
+      recommendedSection: 1,
       sessionId: generateSessionId(),
       guestQuestionCount: 0,
       hangulLevel: "",

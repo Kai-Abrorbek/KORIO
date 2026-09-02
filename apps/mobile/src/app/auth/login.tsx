@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -20,15 +21,16 @@ import KorioLogo from "@/components/home/KorioLogo";
 import KakaoIcon from "../../../assets/icons/kakaotalk.svg";
 import NaverIcon from "../../../assets/icons/naver.svg";
 import TelegramIcon from "../../../assets/icons/telegram.svg";
-import { ActivityIndicator } from "react-native";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { useSocialAuth } from "@/hooks/useSocialAuth";
+import { useOnboardingStore } from "@/store/onboarding.store";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
   const { setUser } = useAuthStore();
+  const sessionId = useOnboardingStore((state) => state.sessionId);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,20 +38,27 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const google = useGoogleAuth((code) =>
-    setError(t(`auth.errors.${code}`) ?? code),
+  const google = useGoogleAuth(
+    (code) => setError(t(`auth.errors.${code}`) ?? code),
+    sessionId,
   );
 
-  const telegram = useSocialAuth("telegram", (code) =>
-    setError(t(`auth.errors.${code}`) ?? code),
+  const telegram = useSocialAuth(
+    "telegram",
+    (code) => setError(t(`auth.errors.${code}`) ?? code),
+    sessionId,
   );
 
-  const kakao = useSocialAuth("kakao", (code) =>
-    setError(t(`auth.errors.${code}`) ?? code),
+  const kakao = useSocialAuth(
+    "kakao",
+    (code) => setError(t(`auth.errors.${code}`) ?? code),
+    sessionId,
   );
 
-  const naver = useSocialAuth("naver", (code) =>
-    setError(t(`auth.errors.${code}`) ?? code),
+  const naver = useSocialAuth(
+    "naver",
+    (code) => setError(t(`auth.errors.${code}`) ?? code),
+    sessionId,
   );
 
   const handleLogin = async () => {
@@ -57,7 +66,11 @@ export default function LoginScreen() {
     setLoading(true);
     setError("");
     try {
-      const res = (await authService.login({ email, password })) as any;
+      const res = (await authService.login({
+        email,
+        password,
+        sessionId,
+      })) as any;
       setUser(res.user, res.accessToken);
       router.replace(
         res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",

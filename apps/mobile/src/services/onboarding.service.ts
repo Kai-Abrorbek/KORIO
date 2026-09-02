@@ -28,10 +28,22 @@ interface LevelTestData {
   wrongQuestionIds: string[];
 }
 
+export interface LevelTestPlacementResult {
+  success: true;
+  detectedLevel: string;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  placementLevel: number;
+  recommendedSection: number;
+}
+
 export const onboardingService = {
   saveSurvey: (data: SurveyData) => api.post("/onboarding/survey", data),
 
-  saveLevelTest: (data: LevelTestData) =>
+  saveLevelTest: (
+    data: LevelTestData,
+  ): Promise<LevelTestPlacementResult | null> =>
     api.post("/onboarding/level-test", data),
 
   // updateGuestProgress: (sessionId: string) =>

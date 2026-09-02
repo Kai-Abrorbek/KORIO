@@ -27,6 +27,10 @@ import ImageChoice from "@/components/lesson/questions/ImageChoice";
 import DialogComplete from "@/components/lesson/questions/DialogComplete";
 import TypeAnswer from "@/components/lesson/questions/TypeAnswer";
 import WordMatching from "@/components/lesson/questions/WordMatching";
+import {
+  normalizeOnboardingPlacement,
+  resolveOnboardingPlacement,
+} from "@/utils/onboarding-placement";
 
 const detectLevel = (score: number) =>
   score >= 90 ? "advanced" : score >= 60 ? "intermediate" : "beginner";
@@ -98,42 +102,48 @@ export default function LevelTestScreen() {
     const score = Math.round((correct / total) * 100);
     const detectedLevel = detectLevel(score);
     const wrongQuestionIds = wrongIds.current;
-
-    // result 화면이 store를 읽으므로 항상 세팅
-    setLevelTestResult({
-      score,
-      detectedLevel,
-      correctAnswers: correct,
-      totalQuestions: total,
-      wrongQuestionIds,
-    });
+    let placement = resolveOnboardingPlacement(selfReportedLevel, score);
 
     try {
       setSubmitting(true);
       if (isLoggedIn) {
-        await UserService.saveLevelTest({
+        const saved = await UserService.saveLevelTest({
           correctAnswers: correct,
           totalQuestions: total,
           score,
           wrongQuestionIds,
         });
+        placement = normalizeOnboardingPlacement(saved, placement);
         updateUser({
           level: detectedLevel as any,
           isOnboardingCompleted: true,
+          languageLevel: placement.placementLevel,
+          hasPickedLevel: true,
         });
       } else {
-        await onboardingService.saveLevelTest({
+        const saved = await onboardingService.saveLevelTest({
           sessionId,
           correctAnswers: correct,
           totalQuestions: total,
           score,
           wrongQuestionIds,
         });
+        if (saved) {
+          placement = normalizeOnboardingPlacement(saved, placement);
+        }
       }
     } catch (e) {
       console.error("레벨테스트 저장 실패:", e);
       // 저장 실패해도 결과는 보여줌 (store 기반)
     } finally {
+      setLevelTestResult({
+        score,
+        detectedLevel,
+        correctAnswers: correct,
+        totalQuestions: total,
+        wrongQuestionIds,
+        ...placement,
+      });
       setSubmitting(false);
       router.replace("/onboarding/result");
     }

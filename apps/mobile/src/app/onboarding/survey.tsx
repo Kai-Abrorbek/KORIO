@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   View,
   Text,
   StyleSheet,
   Pressable,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -33,7 +33,6 @@ import { UserService } from "@/services/user.service";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import AnimatedProgressBar from "@/components/home/AnimatedProgressBar";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const STEPS = [
@@ -55,8 +54,49 @@ const REMINDER_HOURS: Record<string, number> = {
 interface Option {
   value: string;
   label: string;
-  icon: string;
+  icon: ComponentProps<typeof Ionicons>["name"];
   color: string;
+}
+
+function SurveyProgress({
+  current,
+  total,
+  theme,
+}: {
+  current: number;
+  total: number;
+  theme: ThemeColors;
+}) {
+  return (
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityValue={{ min: 1, max: total, now: current }}
+      style={progressStyles.wrap}
+    >
+      <View style={progressStyles.meta}>
+        <Text style={[progressStyles.label, { color: theme.textSecondary }]}>
+          KORIO
+        </Text>
+        <Text style={[progressStyles.count, { color: theme.text }]}>
+          {current} / {total}
+        </Text>
+      </View>
+      <View style={progressStyles.track}>
+        {Array.from({ length: total }, (_, index) => (
+          <View
+            key={index}
+            style={[
+              progressStyles.segment,
+              {
+                backgroundColor: index < current ? theme.primary : theme.border,
+              },
+            ]}
+          />
+        ))}
+      </View>
+    </View>
+  );
 }
 
 function SelectCard({
@@ -71,7 +111,7 @@ function SelectCard({
 }: {
   selected: boolean;
   onPress: () => void;
-  icon: string;
+  icon: ComponentProps<typeof Ionicons>["name"];
   color: string;
   label: string;
   index: number;
@@ -92,6 +132,9 @@ function SelectCard({
       style={variant === "grid" ? { width: "48%" } : { width: "100%" }}
     >
       <AnimatedPressable
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={label}
         onPressIn={() => (pressed.value = withTiming(1, { duration: 80 }))}
         onPressOut={() => (pressed.value = withTiming(0, { duration: 120 }))}
         onPress={() => {
@@ -101,16 +144,21 @@ function SelectCard({
         style={[
           s.card,
           variant === "grid" ? s.cardGrid : s.cardRow,
-          selected && s.cardSelected,
+          selected && [
+            s.cardSelected,
+            {
+              backgroundColor: `${theme.primary}12`,
+              borderColor: theme.primary,
+              shadowColor: theme.primary,
+            },
+          ],
           aStyle,
         ]}
       >
-        <View
-          style={[s.iconWrap, selected && { backgroundColor: color + "22" }]}
-        >
+        <View style={[s.iconWrap, { backgroundColor: `${color}1F` }]}>
           <Ionicons
-            name={icon as any}
-            size={variant === "grid" ? 28 : 22}
+            name={icon}
+            size={variant === "grid" ? 27 : 23}
             color={color}
           />
         </View>
@@ -123,14 +171,20 @@ function SelectCard({
         >
           {label}
         </Text>
-        {selected && (
-          <Animated.View
-            entering={ZoomIn.springify().damping(0)}
-            style={s.check}
-          >
-            <Ionicons name="checkmark" size={13} color="#fff" />
-          </Animated.View>
-        )}
+        <View
+          style={[
+            s.selection,
+            variant === "grid" && s.gridSelection,
+            { borderColor: selected ? theme.primary : theme.border },
+            selected && { backgroundColor: theme.primary },
+          ]}
+        >
+          {selected ? (
+            <Animated.View entering={ZoomIn.springify().damping(80)}>
+              <Ionicons name="checkmark" size={14} color="#fff" />
+            </Animated.View>
+          ) : null}
+        </View>
       </AnimatedPressable>
     </Animated.View>
   );
@@ -163,7 +217,7 @@ export default function SurveyScreen() {
       ),
       -1,
     );
-  }, []);
+  }, [bob]);
   const bobStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: bob.value }],
   }));
@@ -391,7 +445,15 @@ export default function SurveyScreen() {
     return Array.isArray(sel) ? sel.length > 0 : sel !== "";
   })();
 
-  const back = () => (stepIdx > 0 ? setStepIdx(stepIdx - 1) : router.back());
+  const back = () => {
+    void Haptics.selectionAsync();
+    if (stepIdx > 0) {
+      setStepIdx((current) => current - 1);
+      return;
+    }
+
+    router.replace("/welcome");
+  };
 
   const next = async () => {
     if (!valid || submitting) return;
@@ -417,8 +479,6 @@ export default function SurveyScreen() {
       await onboardingService.saveSurvey({ sessionId, ...data });
     } catch {
       // 저장 실패해도 진행 — store에 있고 가입 시 재동기화
-    } finally {
-      setSubmitting(false);
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const isBeginner = selfLevel === SelfReportedLevel.COMPLETE_BEGINNER;
@@ -439,6 +499,7 @@ export default function SurveyScreen() {
     } catch {
       // 실패해도 진행 — 다음 getMe 때 재동기화
     }
+    setSubmitting(false);
 
     if (isBeginner) {
       // 한글 화면으로 튕기지 않고 홈으로. 로드맵 첫 노드가 "한글 배우기" 로 열려 있다.
@@ -453,24 +514,41 @@ export default function SurveyScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 8 }]}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={back} hitSlop={10}>
-          <Ionicons name="chevron-back" size={26} color={theme.text} />
-        </TouchableOpacity>
-        <AnimatedProgressBar current={stepIdx + 1} total={STEPS.length} />
-        <View style={{ width: 26 }} />
-      </View>
+      <View
+        pointerEvents="none"
+        style={[
+          s.ambientOrb,
+          s.ambientOrbTop,
+          { backgroundColor: `${theme.primary}12` },
+        ]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          s.ambientOrb,
+          s.ambientOrbBottom,
+          { backgroundColor: "rgba(78, 205, 196, 0.08)" },
+        ]}
+      />
 
-      <View style={s.mascotRow}>
-        <Animated.View style={bobStyle}>
-          <HaneulmonMascot size={68} mood="thinking" />
-        </Animated.View>
-        <View style={s.bubble}>
-          <View style={s.bubbleTail} />
-          <Text style={s.bubbleText}>
-            {t(`onboarding.survey.subtitle.${step}`)}
-          </Text>
-        </View>
+      <View style={s.header}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("common.back")}
+          hitSlop={8}
+          onPress={back}
+          style={({ pressed }) => [
+            s.backButton,
+            pressed && s.backButtonPressed,
+          ]}
+        >
+          <Ionicons name="chevron-back" size={23} color={theme.text} />
+        </Pressable>
+        <SurveyProgress
+          current={stepIdx + 1}
+          total={STEPS.length}
+          theme={theme}
+        />
       </View>
 
       <Animated.View
@@ -478,11 +556,47 @@ export default function SurveyScreen() {
         entering={FadeInDown.duration(320)}
         style={{ flex: 1 }}
       >
-        <Text style={s.title}>{t(`onboarding.survey.${step}.title`)}</Text>
         <ScrollView
           contentContainerStyle={s.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <View
+            style={[
+              s.coachCard,
+              {
+                backgroundColor: `${theme.primary}0D`,
+                borderColor: `${theme.primary}20`,
+              },
+            ]}
+          >
+            <View
+              style={[s.mascotStage, { backgroundColor: `${theme.primary}16` }]}
+            >
+              <Animated.View style={bobStyle}>
+                <HaneulmonMascot size={50} mood="thinking" />
+              </Animated.View>
+            </View>
+            <Text style={[s.coachText, { color: theme.textSecondary }]}>
+              {t(`onboarding.survey.subtitle.${step}`)}
+            </Text>
+          </View>
+
+          <Text style={s.title}>{t(`onboarding.survey.${step}.title`)}</Text>
+          <View style={s.helperRow}>
+            <Ionicons
+              name={m.multi ? "layers-outline" : "checkmark-circle-outline"}
+              size={16}
+              color={theme.primary}
+            />
+            <Text style={[s.helperText, { color: theme.textSecondary }]}>
+              {t(
+                m.multi
+                  ? "onboarding.survey.helper.multiple"
+                  : "onboarding.survey.helper.single",
+              )}
+            </Text>
+          </View>
+
           <View style={m.variant === "grid" ? s.grid : s.list}>
             {m.opts.map((o, i) => (
               <SelectCard
@@ -507,6 +621,11 @@ export default function SurveyScreen() {
 
       <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            isLast ? "onboarding.survey.start" : "common.next",
+          )}
+          accessibilityState={{ disabled: !valid || submitting }}
           onPress={next}
           disabled={!valid || submitting}
           style={({ pressed }) => [
@@ -515,116 +634,182 @@ export default function SurveyScreen() {
             pressed && valid && s.ctaPressed,
           ]}
         >
-          <Text style={s.ctaText}>
-            {t(isLast ? "onboarding.survey.start" : "common.next")}
-          </Text>
+          {submitting ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <>
+              <Text style={s.ctaText}>
+                {t(isLast ? "onboarding.survey.start" : "common.next")}
+              </Text>
+              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+            </>
+          )}
         </Pressable>
       </View>
     </View>
   );
 }
 
+const progressStyles = StyleSheet.create({
+  wrap: { flex: 1, gap: 8 },
+  meta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  label: {
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: "900",
+    letterSpacing: 1.6,
+  },
+  count: { fontSize: 12, lineHeight: 15, fontWeight: "800" },
+  track: { flexDirection: "row", gap: 5 },
+  segment: { flex: 1, height: 6, borderRadius: 999 },
+});
+
 const cardStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     card: {
       backgroundColor: theme.surface,
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: theme.border,
-      borderBottomWidth: 4,
-      borderRadius: 18,
+      borderBottomWidth: 3,
+      borderRadius: 20,
       flexDirection: "row",
       alignItems: "center",
     },
     cardGrid: {
       flexDirection: "column",
       justifyContent: "center",
-      gap: 10,
-      paddingVertical: 20,
-      paddingHorizontal: 12,
-      minHeight: 116,
+      gap: 12,
+      paddingVertical: 17,
+      paddingHorizontal: 14,
+      minHeight: 108,
     },
-    cardRow: { gap: 14, paddingVertical: 16, paddingHorizontal: 16 },
+    cardRow: {
+      minHeight: 76,
+      gap: 14,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+    },
     cardSelected: {
-      borderColor: theme.primary,
-      backgroundColor: "#EEEDFE",
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 5 },
+      elevation: 2,
     },
     iconWrap: {
-      width: 44,
-      height: 44,
-      borderRadius: 12,
-      backgroundColor: theme.bg,
+      width: 46,
+      height: 46,
+      borderRadius: 15,
       alignItems: "center",
       justifyContent: "center",
     },
     label: {
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: 15.5,
+      lineHeight: 20,
+      fontWeight: "800",
       color: theme.text,
       textAlign: "center",
     },
-    check: {
-      position: "absolute",
-      top: 8,
-      right: 8,
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: theme.primary,
+    selection: {
+      width: 24,
+      height: 24,
+      marginLeft: "auto",
+      borderRadius: 12,
+      borderWidth: 2,
       alignItems: "center",
       justifyContent: "center",
+    },
+    gridSelection: {
+      position: "absolute",
+      top: 11,
+      right: 11,
+      marginLeft: 0,
     },
   });
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg },
+    container: {
+      flex: 1,
+      position: "relative",
+      overflow: "hidden",
+      backgroundColor: theme.bg,
+    },
+    ambientOrb: {
+      position: "absolute",
+      width: 260,
+      height: 260,
+      borderRadius: 130,
+    },
+    ambientOrbTop: { top: -150, right: -110 },
+    ambientOrbBottom: { bottom: 40, left: -190 },
     header: {
       paddingHorizontal: 20,
-      paddingBottom: 12,
+      paddingTop: 2,
+      paddingBottom: 18,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 15,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 15,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000000",
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 1,
+    },
+    backButtonPressed: { transform: [{ scale: 0.95 }], opacity: 0.78 },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 2,
+      paddingBottom: 28,
+    },
+    coachCard: {
+      minHeight: 68,
+      borderRadius: 20,
+      borderWidth: 1,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
     },
-    mascotRow: {
+    mascotStage: {
+      width: 50,
+      height: 50,
+      borderRadius: 17,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    coachText: { flex: 1, fontSize: 13.5, lineHeight: 19, fontWeight: "700" },
+    title: {
+      marginTop: 24,
+      fontSize: 28,
+      lineHeight: 36,
+      fontWeight: "900",
+      color: theme.text,
+      letterSpacing: -0.65,
+    },
+    helperRow: {
+      marginTop: 9,
+      marginBottom: 20,
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
-      paddingHorizontal: 20,
-      paddingTop: 4,
-      paddingBottom: 12,
+      gap: 6,
     },
-    bubble: {
-      flex: 1,
-      backgroundColor: theme.surface,
-      borderWidth: 1.5,
-      borderColor: theme.border,
-      borderRadius: 16,
-      paddingVertical: 12,
-      paddingHorizontal: 14,
-    },
-    bubbleTail: {
-      position: "absolute",
-      left: -8,
-      top: 22,
-      width: 0,
-      height: 0,
-      borderTopWidth: 7,
-      borderBottomWidth: 7,
-      borderRightWidth: 9,
-      borderTopColor: "transparent",
-      borderBottomColor: "transparent",
-      borderRightColor: theme.border,
-    },
-    bubbleText: { fontSize: 14, fontWeight: "600", color: theme.text },
-    title: {
-      fontSize: 23,
-      fontWeight: "800",
-      color: theme.text,
-      paddingHorizontal: 20,
-      marginTop: 6,
-      marginBottom: 16,
-    },
-    scrollContent: { paddingHorizontal: 20, paddingBottom: 24 },
+    helperText: { fontSize: 12.5, lineHeight: 17, fontWeight: "700" },
     grid: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -634,21 +819,28 @@ const getStyles = (theme: ThemeColors) =>
     list: { gap: 12 },
     footer: {
       paddingHorizontal: 20,
-      paddingTop: 8,
+      paddingTop: 12,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.border,
       backgroundColor: theme.bg,
     },
     cta: {
+      minHeight: 58,
       backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 17,
+      borderRadius: 18,
       alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
       borderBottomWidth: 4,
       borderBottomColor: "rgba(0,0,0,0.2)",
+      shadowColor: theme.primary,
+      shadowOpacity: 0.22,
+      shadowRadius: 15,
+      shadowOffset: { width: 0, height: 7 },
+      elevation: 5,
     },
     ctaPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
-    ctaDisabled: {
-      backgroundColor: theme.border,
-      borderBottomColor: "transparent",
-    },
-    ctaText: { color: "#fff", fontSize: 17, fontWeight: "800" },
+    ctaDisabled: { opacity: 0.38, shadowOpacity: 0 },
+    ctaText: { color: "#FFFFFF", fontSize: 16.5, fontWeight: "900" },
   });

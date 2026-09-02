@@ -28,6 +28,10 @@ export default {
         daily: "Har kuni ozdan — eng zo'ri",
         reminder: "Unutmasligingiz uchun eslataman",
       },
+      helper: {
+        single: "Bittasini tanlang",
+        multiple: "Bir nechtasini tanlashingiz mumkin",
+      },
       start: "Boshlash",
       selfLevel: {
         title: "Koreys tilini qanchalik bilasiz?",
@@ -88,16 +92,24 @@ export default {
       start: "Testni boshlash",
     },
     result: {
-      title: "Natija tayyor!",
-      beginner: "Boshlang'ich",
-      intermediate: "O'rta",
-      advanced: "Yuqori",
-      startLearning: "O'rganishni boshlash",
-      beginnerDesc: "Asoslardan boshlaylik!",
-      intermediateDesc: "Asos bor! Yuqoriga chiqamiz!",
-      advancedDesc: "Zo'r ekansan! Ilg'or kursga o'tamiz!",
-      correct: "To'g'ri",
-      score: "Ball",
+      eyebrow: "DARAJA ANIQLANDI",
+      title: "Siz uchun mos boshlanish nuqtasini topdik",
+      subtitle:
+        "Biladiganlaringizni tez o'tib, aynan kerakli koreys tilidan boshlaysiz.",
+      recommendationLabel: "Shaxsiy o'quv yo'li",
+      personalized: "Siz uchun",
+      sectionLabel: "BO'LIM",
+      recommendationTitle: "{{section}}-bo'limdan boshlash sizga mos",
+      recommendationBody:
+        "Test javoblaringiz asosida eng mos joy tanlandi. Oldingi mavzularni istalgan payt takrorlashingiz mumkin.",
+      unlocked: "{{section}}-bo'lim o'qishga tayyor",
+      reviewOpen: "Oldingi bo'limlarning barchasi ham ochiq",
+      firstSectionReady: "Poydevorni birinchi bosqichdan mustahkamlaymiz",
+      correct: "To'g'ri javob",
+      score: "Aniqlik",
+      loginNote:
+        "Kirsangiz, bu boshlanish nuqtasi hisobingizga saqlanadi.",
+      startAtSection: "{{section}}-bo'limdan boshlash",
     },
   },
   auth: {

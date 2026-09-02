@@ -38,6 +38,10 @@ export interface User {
   provider: AuthProvider;
   isOnboardingCompleted: boolean;
   currentUnitProgress?: number;
+  /** 배치 테스트가 정한 학습 급수(1~6) */
+  languageLevel?: number;
+  /** 배치 테스트 또는 직접 선택으로 시작 급수가 확정됐는지 */
+  hasPickedLevel?: boolean;
   /** 현재 학습 중인 모드 — 기기가 아니라 계정에 붙는다 */
   learnMode?: LearnMode;
   /** 순서대로(guided) 인지 자율(free) 인지 */

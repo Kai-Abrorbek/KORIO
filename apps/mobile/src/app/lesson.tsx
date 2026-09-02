@@ -45,6 +45,10 @@ import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import { shuffleGrammarQuestions } from "@/utils/shuffle";
+import {
+  normalizeOnboardingPlacement,
+  resolveOnboardingPlacement,
+} from "@/utils/onboarding-placement";
 
 type Phase = "main" | "reviewIntro" | "review";
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
@@ -434,40 +438,46 @@ export default function LessonScreen() {
     const detectedLevel =
       score >= 90 ? "advanced" : score >= 60 ? "intermediate" : "beginner";
     const wrongQuestionIds = wrongIds.current;
-
-    // result 화면이 store를 읽으므로 항상 세팅
-    setLevelTestResult({
-      score,
-      detectedLevel,
-      correctAnswers: correct,
-      totalQuestions: total,
-      wrongQuestionIds,
-    });
+    let placement = resolveOnboardingPlacement(selfReportedLevel, score);
 
     try {
       if (isLoggedIn) {
-        await UserService.saveLevelTest({
+        const saved = await UserService.saveLevelTest({
           correctAnswers: correct,
           totalQuestions: total,
           score,
           wrongQuestionIds,
         });
+        placement = normalizeOnboardingPlacement(saved, placement);
         updateUser({
           level: detectedLevel as any,
           isOnboardingCompleted: true,
+          languageLevel: placement.placementLevel,
+          hasPickedLevel: true,
         });
       } else {
-        await onboardingService.saveLevelTest({
+        const saved = await onboardingService.saveLevelTest({
           sessionId,
           correctAnswers: correct,
           totalQuestions: total,
           score,
           wrongQuestionIds,
         });
+        if (saved) {
+          placement = normalizeOnboardingPlacement(saved, placement);
+        }
       }
     } catch (e) {
       console.error("레벨테스트 저장 실패:", e);
     } finally {
+      setLevelTestResult({
+        score,
+        detectedLevel,
+        correctAnswers: correct,
+        totalQuestions: total,
+        wrongQuestionIds,
+        ...placement,
+      });
       router.replace("/onboarding/result");
     }
   };

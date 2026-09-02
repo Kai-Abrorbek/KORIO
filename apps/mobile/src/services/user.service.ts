@@ -68,8 +68,15 @@ export const UserService = {
     totalQuestions: number;
     score: number;
     wrongQuestionIds: string[];
-  }): Promise<{ success: boolean; detectedLevel: string; score: number }> =>
-    api.post(`/users/me/level-test`, data),
+  }): Promise<{
+    success: boolean;
+    detectedLevel: string;
+    score: number;
+    correctAnswers: number;
+    totalQuestions: number;
+    placementLevel: number;
+    recommendedSection: number;
+  }> => api.post(`/users/me/level-test`, data),
 
   /** 로드맵 첫 노드(한글 배우기) 완료 */
   completeHangul: (): Promise<{
