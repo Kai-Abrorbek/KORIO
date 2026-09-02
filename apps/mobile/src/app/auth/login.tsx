@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
@@ -26,6 +26,9 @@ import { useSocialAuth } from "@/hooks/useSocialAuth";
 import { useOnboardingStore } from "@/store/onboarding.store";
 
 export default function LoginScreen() {
+  const { socialError } = useLocalSearchParams<{
+    socialError?: string | string[];
+  }>();
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -37,6 +40,13 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const code = Array.isArray(socialError) ? socialError[0] : socialError;
+    if (code) {
+      setError(t("auth.errors." + code) ?? code);
+    }
+  }, [socialError, t]);
 
   const google = useGoogleAuth(
     (code) => setError(t(`auth.errors.${code}`) ?? code),

@@ -79,6 +79,8 @@ export function useAuthGuard(): boolean {
     if (root === undefined) return;
 
     const publicOnly = PUBLIC_ONLY.has(root);
+    const inSocialAuthCallback =
+      root === "auth" && segments[1] === "social-callback";
     const inLevelTest = root === LEVEL_TEST_ROUTE && params.mode === "levelTest";
 
     if (!isLoggedIn) {
@@ -88,7 +90,7 @@ export function useAuthGuard(): boolean {
       return;
     }
 
-    if (publicOnly) {
+    if (publicOnly && !inSocialAuthCallback) {
       router.replace(onboarded ? "/(tabs)" : "/onboarding/survey");
     }
   }, [hydrated, isLoggedIn, onboarded, segments, params.mode, router]);

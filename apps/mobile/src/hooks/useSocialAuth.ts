@@ -1,9 +1,14 @@
 import { useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { BASE_URL, TokenStorage } from "@/services/api";
-import { useAuthStore } from "@/store/auth.store";
-import { UserService } from "@/services/user.service";
+import { useRouter } from "expo-router";
+
+import { BASE_URL } from "@/services/api";
+import {
+  completeSocialAuth,
+  getSocialAuthDestination,
+  parseSocialAuthCallbackUrl,
+} from "@/services/social-auth.service";
 
 /**
  * 카카오·네이버·텔레그램 로그인.
@@ -37,7 +42,7 @@ export function useSocialAuth(
   onError?: (code: string) => void,
   sessionId?: string,
 ) {
-  const setUser = useAuthStore((s) => s.setUser);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const signIn = async () => {
@@ -47,7 +52,7 @@ export function useSocialAuth(
     }
     setLoading(true);
     try {
-      const redirectUrl = Linking.createURL(`${provider}-auth`);
+      const redirectUrl = Linking.createURL("auth/social-callback");
       // 텔레그램만 위젯 페이지를 거친다 (OAuth 가 아니라 서명 방식)
       const path =
         provider === "telegram"
@@ -63,9 +68,9 @@ export function useSocialAuth(
         return; // 사용자가 닫은 것 — 에러 띄우지 않는다
       }
 
-      const { queryParams } = Linking.parse(result.url);
-      const err = queryParams?.error as string | undefined;
-      const token = queryParams?.token as string | undefined;
+      const callback = parseSocialAuthCallbackUrl(result.url);
+      const err = callback?.error;
+      const token = callback?.token;
 
       if (err || !token) {
         // 서버가 왜 실패했는지 붙여 보내준다. 설정 누락이면 바로 드러난다
@@ -74,9 +79,8 @@ export function useSocialAuth(
         return;
       }
 
-      await TokenStorage.set(token);
-      const me: any = await UserService.getMe();
-      setUser(me, token);
+      const user = await completeSocialAuth(token);
+      router.replace(getSocialAuthDestination(user));
     } catch (e: any) {
       onError?.(e?.message ?? "SOCIAL_LOGIN_FAILED");
     } finally {
