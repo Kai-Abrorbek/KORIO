@@ -15,6 +15,8 @@ import { Lesson } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
+import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
+import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { questionXp } from '../lessons/economy.const';
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
 
@@ -25,8 +27,18 @@ async function seed() {
   const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
   const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
 
-  const allNodes = [...GT_S1_NODES, ...GT_S2_NODES];
-  const allQuestions = { ...GT_S1_QUESTIONS, ...GT_S2_QUESTIONS };
+  const allNodes = [
+    ...GT_S1_NODES,
+    ...GT_S2_NODES,
+    ...GT_S3_NODES,
+    ...GT_S4_NODES,
+  ];
+  const allQuestions = {
+    ...GT_S1_QUESTIONS,
+    ...GT_S2_QUESTIONS,
+    ...GT_S3_QUESTIONS,
+    ...GT_S4_QUESTIONS,
+  };
 
   // 문제 데이터는 문법을 code('topic-eun-neun')로 가리킨다. 그런데 화면
   // (GrammarBlank)은 tags[0] 을 "지금 연습 중인 문법" 라벨로 그대로 찍어서
