@@ -13,7 +13,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useEffect, useRef, useState } from "react";
-import { useSpeech } from "@/hooks/useSpeech";
+import {
+  AUTO_SPEECH_DELAY_MS,
+  type SpeechController,
+} from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import CheckButton from "../CheckButton";
 
@@ -24,6 +27,7 @@ interface Props {
   isChecking?: boolean;
   onSkip?: () => void;
   theme: ThemeColors;
+  speech: SpeechController;
 }
 
 export default function ListenType({
@@ -33,13 +37,14 @@ export default function ListenType({
   isChecking = false,
   onSkip,
   theme,
+  speech,
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
-  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = speech;
 
   const locked = answerState !== "idle" || isChecking;
   const audioText = question.answer;
@@ -48,9 +53,9 @@ export default function ListenType({
   useEffect(() => {
     if (!audioText) return;
     // 화면이 먼저 그려진 직후 자연스럽게 자동 재생을 시작한다.
-    const id = setTimeout(() => speakAuto(audioText), 200);
+    const id = setTimeout(() => speakAuto(audioText), AUTO_SPEECH_DELAY_MS);
     return () => clearTimeout(id);
-  }, [audioText]);
+  }, [audioText, speakAuto]);
 
   const handleCheck = () => {
     if (!input.trim() || locked) return;

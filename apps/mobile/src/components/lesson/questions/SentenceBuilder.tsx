@@ -12,7 +12,10 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useSpeech } from "@/hooks/useSpeech";
+import {
+  AUTO_SPEECH_DELAY_MS,
+  type SpeechController,
+} from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
 import CheckButton from "../CheckButton";
@@ -25,6 +28,7 @@ interface Props {
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
   combo?: number;
+  speech: SpeechController;
 }
 
 interface WordItem {
@@ -43,6 +47,7 @@ export default function SentenceBuilder({
   onAnswer,
   theme,
   combo = 0,
+  speech,
 }: Props) {
   const { t } = useTranslation();
   const s = styles(theme, LINE_H);
@@ -57,7 +62,7 @@ export default function SentenceBuilder({
     winW - 40,
     { max: compact ? 2 : 3 },
   );
-  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = speech;
   const speechText = question.audioText || question.answer;
   const hasAutoPlayed = useRef(false);
   const [bankOpen, setBankOpen] = useState(false);
@@ -81,9 +86,9 @@ export default function SentenceBuilder({
     hasAutoPlayed.current = true;
     const timer = setTimeout(() => {
       speakAuto(speechText);
-    }, 200);
+    }, AUTO_SPEECH_DELAY_MS);
     return () => clearTimeout(timer);
-  }, []);
+  }, [speakAuto, speechText]);
 
   const placedWords = words
     .filter((w) => w.zone === "placed")

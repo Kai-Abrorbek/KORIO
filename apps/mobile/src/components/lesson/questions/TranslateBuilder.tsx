@@ -12,7 +12,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { useSpeech } from "@/hooks/useSpeech";
+import {
+  AUTO_SPEECH_DELAY_MS,
+  type SpeechController,
+} from "@/hooks/useSpeech";
 import type { SpeechLanguage } from "@/services/tts.service";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
@@ -34,6 +37,7 @@ interface Props {
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
   mode?: BuilderMode;
+  speech: SpeechController;
 }
 
 interface WordItem {
@@ -59,10 +63,10 @@ export default function TranslateBuilder({
   onAnswer,
   theme,
   mode = "translate",
+  speech,
 }: Props) {
   const { t, i18n } = useTranslation();
-  const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } =
-    useSpeech();
+  const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } = speech;
   const s = styles(theme, LINE_H);
   const isReply = mode === "reply";
   const { width: winW, height: winH } = useWindowDimensions();
@@ -97,7 +101,7 @@ export default function TranslateBuilder({
   }, [sourceText, speak, speechLanguage]);
 
   useEffect(() => {
-    const timer = setTimeout(playSourceText, 200);
+    const timer = setTimeout(playSourceText, AUTO_SPEECH_DELAY_MS);
     return () => {
       clearTimeout(timer);
       stop();

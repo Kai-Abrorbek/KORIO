@@ -1,5 +1,6 @@
 import { AnswerState, LessonQuestion } from "@/types/lesson";
 import { ThemeColors } from "@/constants/theme";
+import type { SpeechController } from "@/hooks/useSpeech";
 import AudioMatch from "./questions/AudioMatch";
 import ClozePassage from "./questions/ClozePassage";
 import DialogComplete from "./questions/DialogComplete";
@@ -37,6 +38,8 @@ interface Props {
   combo: number;
   /** 입력형 문제의 채점 중 표시 */
   isChecking: boolean;
+  /** 자동 읽기 문제 사이에서 플레이어와 선로딩 캐시를 공유한다. */
+  speech: SpeechController;
 }
 
 /**
@@ -52,19 +55,20 @@ export default function QuestionRenderer({
   theme,
   combo,
   isChecking,
+  speech,
 }: Props) {
   if (!question) return null;
   const props = { question, answerState, onAnswer, theme, combo };
 
   switch (question.type) {
     case "sentence_builder":
-      return <SentenceBuilder {...props} />;
+      return <SentenceBuilder {...props} speech={speech} />;
     case "reply_builder":
-      return <TranslateBuilder {...props} mode="reply" />;
+      return <TranslateBuilder {...props} mode="reply" speech={speech} />;
     case "translate_builder":
-      return <TranslateBuilder {...props} />;
+      return <TranslateBuilder {...props} speech={speech} />;
     case "word_arrange":
-      return <WordArrange {...props} />;
+      return <WordArrange {...props} speech={speech} />;
     case "speaking":
       return <Speaking {...props} onSkip={onSkip} />;
     case "image_choice":
@@ -76,9 +80,11 @@ export default function QuestionRenderer({
     case "word_matching":
       return <WordMatching {...props} />;
     case "listening":
-      return <Listening {...props} />;
+      return <Listening {...props} speech={speech} />;
     case "listen_type":
-      return <ListenType {...props} isChecking={isChecking} />;
+      return (
+        <ListenType {...props} isChecking={isChecking} speech={speech} />
+      );
     case "fill_in_blank":
       return <FillInBlank {...props} />;
     case "translate_type":
@@ -89,6 +95,7 @@ export default function QuestionRenderer({
           {...props}
           isChecking={isChecking}
           onSkip={onSkip}
+          speech={speech}
         />
       );
     case "audio_match":
@@ -108,6 +115,6 @@ export default function QuestionRenderer({
     case "verb_transform":
       return <VerbTransform {...props} />;
     default:
-      return <SentenceBuilder {...props} />;
+      return <SentenceBuilder {...props} speech={speech} />;
   }
 }

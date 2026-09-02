@@ -13,7 +13,10 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
-import { useSpeech } from "@/hooks/useSpeech";
+import {
+  AUTO_SPEECH_DELAY_MS,
+  type SpeechController,
+} from "@/hooks/useSpeech";
 import CheckButton from "../CheckButton";
 
 interface Props {
@@ -21,6 +24,7 @@ interface Props {
   answerState: AnswerState;
   onAnswer: (answer: string) => void;
   theme: ThemeColors;
+  speech: SpeechController;
 }
 interface W {
   id: string;
@@ -34,11 +38,12 @@ export default function Listening({
   answerState,
   onAnswer,
   theme,
+  speech,
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
-  const { speak, speakSlow, speakAuto, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, isSpeaking } = speech;
   const auto = useRef(false);
 
   const [words, setWords] = useState<W[]>(() =>
@@ -50,9 +55,12 @@ export default function Listening({
   useEffect(() => {
     if (auto.current) return;
     auto.current = true;
-    const tm = setTimeout(() => speakAuto(question.answer), 200);
+    const tm = setTimeout(
+      () => speakAuto(question.answer),
+      AUTO_SPEECH_DELAY_MS,
+    );
     return () => clearTimeout(tm);
-  }, []);
+  }, [question.answer, speakAuto]);
 
   const pulse = useSharedValue(1);
   useEffect(() => {

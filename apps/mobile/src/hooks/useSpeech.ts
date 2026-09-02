@@ -43,9 +43,14 @@ interface ActiveSpeech {
   options?: SpeechPlaybackOptions;
   phase: "preparing" | "loading" | "playing";
   runId: number;
-  source?: AudioSource;
   volume: number;
 }
+
+/** 화면 전환 애니메이션은 살리되 자동 음성이 늦게 느껴지지 않을 최소 대기 */
+export const AUTO_SPEECH_DELAY_MS = 60;
+
+/** 한 화면에서 너무 많은 디코딩 음원을 잡아 두지 않도록 제한한다. */
+const MAX_WARM_SOURCES = 32;
 
 function releasePreloadedSource(source?: AudioSource) {
   if (Platform.OS === "web" || !source) return;
@@ -62,6 +67,7 @@ export function useSpeech() {
   const runIdRef = useRef(0);
   const activeRef = useRef<ActiveSpeech | null>(null);
   const handledFinishRef = useRef(false);
+  const disposedRef = useRef(false);
   /**
    * 미리 받아 둔 음성. key → 재생용 소스.
    *
@@ -71,6 +77,7 @@ export function useSpeech() {
    * 받아 두고, speak() 는 캐시가 있으면 바로 재생한다.
    */
   const warmRef = useRef(new Map<string, AudioSource>());
+  const warmingRef = useRef(new Map<string, Promise<AudioSource>>());
 
   /** 같은 문장이라도 언어·목소리·속도가 다르면 다른 음원이다 — 키에 다 넣는다 */
   const buildRequest = useCallback(
@@ -104,7 +111,6 @@ export function useSpeech() {
       runIdRef.current += 1;
       const active = activeRef.current;
       activeRef.current = null;
-      releasePreloadedSource(active?.source);
       handledFinishRef.current = false;
       try {
         player.pause();
@@ -115,6 +121,66 @@ export function useSpeech() {
       if (notify && active) active.options?.onStopped?.();
     },
     [player],
+  );
+
+  /**
+   * 같은 음성의 준비 요청을 하나로 합치고, 준비가 끝난 소스는 이 훅이 살아
+   * 있는 동안 재사용한다. 자동 재생 선로딩과 실제 재생이 겹쳐도 TTS 요청은
+   * 한 번만 나간다.
+   */
+  const prepareSource = useCallback(
+    async (
+      key: string,
+      request: Parameters<typeof TtsService.prepareSource>[0],
+    ) => {
+      const warmed = warmRef.current.get(key);
+      if (warmed) {
+        // Map 삽입 순서를 최근 사용 순서로 갱신한다.
+        warmRef.current.delete(key);
+        warmRef.current.set(key, warmed);
+        return warmed;
+      }
+
+      const pending = warmingRef.current.get(key);
+      if (pending) return pending;
+
+      const preparation = (async () => {
+        const source = await TtsService.prepareSource(request);
+        if (Platform.OS !== "web") {
+          await preload(source).catch((error: unknown) => {
+            if (__DEV__) {
+              console.warn("[useSpeech] preload 실패 → URL 직접 재생", error);
+            }
+          });
+        }
+
+        if (disposedRef.current) {
+          releasePreloadedSource(source);
+          return source;
+        }
+
+        warmRef.current.set(key, source);
+        while (warmRef.current.size > MAX_WARM_SOURCES) {
+          const oldest = warmRef.current.entries().next().value as
+            | [string, AudioSource]
+            | undefined;
+          if (!oldest) break;
+          warmRef.current.delete(oldest[0]);
+          releasePreloadedSource(oldest[1]);
+        }
+        return source;
+      })();
+
+      warmingRef.current.set(key, preparation);
+      try {
+        return await preparation;
+      } finally {
+        if (warmingRef.current.get(key) === preparation) {
+          warmingRef.current.delete(key);
+        }
+      }
+    },
+    [],
   );
 
   const run = useCallback(
@@ -154,35 +220,12 @@ export function useSpeech() {
           options,
         );
 
-        // prewarm 해 둔 게 있으면 왕복 두 번을 통째로 건너뛴다.
-        // 캐시 소스는 warmRef 가 소유하므로 active.source 에 넣지 않는다 —
-        // 넣으면 재생이 끝날 때 해제돼서 두 번째부터 다시 느려진다.
-        const warmed = warmRef.current.get(key);
-        const source = warmed ?? (await TtsService.prepareSource(request));
-        if (runIdRef.current !== runId || activeRef.current !== active) return;
-
-        // 짧은 원격 음성은 네이티브 준비 중 세션 전환과 겹치면 첫 프레임이
-        // 유실될 수 있어 미리 받아둔다. 다만 이건 최적화일 뿐이라 실패해도
-        // 안 된다 — 예전엔 여기서 throw 되면 아래 catch 가 삼켜서 아무 소리도
-        // 안 나고 조용히 끝났다. 실패하면 ExoPlayer 가 URL 을 직접 받게 둔다.
-        if (!warmed && Platform.OS !== "web") {
-          const preloaded = await preload(source).then(
-            () => true,
-            (error: unknown) => {
-              if (__DEV__) {
-                console.warn("[useSpeech] preload 실패 → URL 직접 재생", error);
-              }
-              return false;
-            },
-          );
-          if (runIdRef.current !== runId || activeRef.current !== active) {
-            if (preloaded) releasePreloadedSource(source);
-            return;
-          }
-          if (preloaded) active.source = source;
-        }
-
-        await activatePlaybackAudio("doNotMix").catch(() => undefined);
+        // 네트워크·디코딩을 기다리는 동안 오디오 세션도 함께 준비한다.
+        const audioSessionReady = activatePlaybackAudio("doNotMix").catch(
+          () => undefined,
+        );
+        const source = await prepareSource(key, request);
+        await audioSessionReady;
         if (runIdRef.current !== runId || activeRef.current !== active) return;
 
         handledFinishRef.current = false;
@@ -205,12 +248,11 @@ export function useSpeech() {
         }
         if (runIdRef.current !== runId || activeRef.current !== active) return;
         activeRef.current = null;
-        releasePreloadedSource(active.source);
         setIsSpeaking(false);
         options?.onError?.();
       }
     },
-    [player, stopCurrent, buildRequest],
+    [player, stopCurrent, buildRequest, prepareSource],
   );
 
   const speak = useCallback(
@@ -258,18 +300,14 @@ export function useSpeech() {
           const { key, request } = buildRequest(text, lang, false, options);
           if (warmRef.current.has(key)) continue;
           try {
-            const source = await TtsService.prepareSource(request);
-            if (Platform.OS !== "web") {
-              await preload(source).catch(() => undefined);
-            }
-            warmRef.current.set(key, source);
+            await prepareSource(key, request);
           } catch {
             // 미리 받기는 최적화일 뿐이다
           }
         }
       })();
     },
-    [buildRequest],
+    [buildRequest, prepareSource],
   );
 
   const stop = useCallback(() => stopCurrent(true), [stopCurrent]);
@@ -284,7 +322,6 @@ export function useSpeech() {
 
     if (playerStatus.error) {
       activeRef.current = null;
-      releasePreloadedSource(active.source);
       setIsSpeaking(false);
       active.options?.onError?.();
       return;
@@ -306,7 +343,6 @@ export function useSpeech() {
     if (handledFinishRef.current) return;
     handledFinishRef.current = true;
     activeRef.current = null;
-    releasePreloadedSource(active.source);
     setIsSpeaking(false);
     active.options?.onDone?.();
   }, [
@@ -318,8 +354,10 @@ export function useSpeech() {
   ]);
 
   useEffect(() => {
+    disposedRef.current = false;
     const warm = warmRef.current;
     return () => {
+      disposedRef.current = true;
       stopCurrent(false, false);
       for (const source of warm.values()) releasePreloadedSource(source);
       warm.clear();
@@ -350,3 +388,5 @@ export function useSpeech() {
     speechProgress,
   };
 }
+
+export type SpeechController = ReturnType<typeof useSpeech>;

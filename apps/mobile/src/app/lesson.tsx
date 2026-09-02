@@ -14,6 +14,7 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useSpeech } from "@/hooks/useSpeech";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -49,6 +50,12 @@ import {
   normalizeOnboardingPlacement,
   resolveOnboardingPlacement,
 } from "@/utils/onboarding-placement";
+import {
+  answersOf,
+  fillTemplate,
+  parseBlanks,
+  templateOf,
+} from "@/utils/blank-sentence";
 
 type Phase = "main" | "reviewIntro" | "review";
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
@@ -73,9 +80,54 @@ const SMART_GRADING_TYPES = new Set([
   "listen_fill",
 ]);
 
+interface AutomaticSpeech {
+  language: string;
+  text: string;
+}
+
+/** 실제 문제 컴포넌트가 진입 시 자동으로 읽는 문장을 그대로 반환한다. */
+function automaticSpeechOf(
+  question: LessonQuestion,
+  learnerLanguage: string,
+): AutomaticSpeech | null {
+  let text = "";
+  let language = "ko-KR";
+
+  switch (question.type) {
+    case "sentence_builder":
+      text = question.audioText || question.answer;
+      break;
+    case "word_arrange":
+    case "listening":
+    case "listen_type":
+      text = question.answer;
+      break;
+    case "listen_fill":
+      text = fillTemplate(
+        parseBlanks(templateOf(question)),
+        answersOf(question),
+      );
+      break;
+    case "translate_builder":
+      text = (question.sourceText ?? "") || question.question;
+      language = learnerLanguage;
+      break;
+    case "reply_builder":
+      text = question.npcText ?? "";
+      break;
+    default:
+      return null;
+  }
+
+  const normalizedText = text.trim();
+  return normalizedText ? { text: normalizedText, language } : null;
+}
+
 export default function LessonScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const lessonSpeech = useSpeech();
+  const prewarmSpeech = lessonSpeech.prewarm;
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -483,6 +535,26 @@ export default function LessonScreen() {
   };
 
   const currentQ = questionQueue.current[0];
+  const learnerLanguage = i18n.resolvedLanguage ?? i18n.language;
+
+  useEffect(() => {
+    if (!lesson || questionQueue.current.length === 0) return;
+
+    const grouped = new Map<string, string[]>();
+    // 현재 문제와 다음 세 문제를 준비한다. 현재 문제를 푸는 시간이 다음 음성의
+    // Azure 생성·다운로드 시간이 되어, 다음 카드에서는 곧바로 재생된다.
+    for (const question of questionQueue.current.slice(0, 4)) {
+      const speech = automaticSpeechOf(question, learnerLanguage);
+      if (!speech) continue;
+      const texts = grouped.get(speech.language) ?? [];
+      if (!texts.includes(speech.text)) texts.push(speech.text);
+      grouped.set(speech.language, texts);
+    }
+
+    for (const [language, texts] of grouped) {
+      prewarmSpeech(texts, language);
+    }
+  }, [currentIdx, learnerLanguage, lesson, phase, prewarmSpeech]);
 
   const goHome = () => {
     if (router.canGoBack()) router.back();
@@ -949,6 +1021,7 @@ export default function LessonScreen() {
               theme={theme}
               combo={combo}
               isChecking={isCheckingAnswer}
+              speech={lessonSpeech}
             />
           </Animated.View>
 

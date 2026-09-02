@@ -10,6 +10,7 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
+import { useSpeech } from "@/hooks/useSpeech";
 import { ThemeColors } from "@/constants/theme";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -37,6 +38,8 @@ const detectLevel = (score: number) =>
 
 export default function LevelTestScreen() {
   const theme = useTheme();
+  const levelTestSpeech = useSpeech();
+  const prewarmSpeech = levelTestSpeech.prewarm;
   const s = getStyles(theme);
 
   const { setLevelTestResult, sessionId, selfReportedLevel } =
@@ -69,6 +72,20 @@ export default function LevelTestScreen() {
 
   const q = questions[current];
   const isLast = current === questions.length - 1;
+
+  useEffect(() => {
+    const upcoming = questions
+      .slice(current, current + 4)
+      .map((question) => {
+        if (question.type === "sentence_builder") {
+          return question.audioText || question.answer;
+        }
+        if (question.type === "word_arrange") return question.answer;
+        return "";
+      })
+      .filter(Boolean);
+    if (upcoming.length > 0) prewarmSpeech(upcoming, "ko-KR");
+  }, [current, prewarmSpeech, questions]);
 
   const goNext = () => {
     locked.current = false;
@@ -160,11 +177,11 @@ export default function LevelTestScreen() {
     };
     switch (q.type) {
       case "sentence_builder":
-        return <SentenceBuilder {...props} />;
+        return <SentenceBuilder {...props} speech={levelTestSpeech} />;
       case "translate_builder":
-        return <TranslateBuilder {...props} />;
+        return <TranslateBuilder {...props} speech={levelTestSpeech} />;
       case "word_arrange":
-        return <WordArrange {...props} />;
+        return <WordArrange {...props} speech={levelTestSpeech} />;
       case "speaking":
         return <Speaking {...props} onSkip={handleSkip} />;
       case "image_choice":
@@ -176,7 +193,7 @@ export default function LevelTestScreen() {
       case "word_matching":
         return <WordMatching {...props} />;
       default:
-        return <SentenceBuilder {...props} />;
+        return <SentenceBuilder {...props} speech={levelTestSpeech} />;
     }
   };
 
