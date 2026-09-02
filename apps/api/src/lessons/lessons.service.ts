@@ -89,6 +89,12 @@ import {
   vocabNodeCount,
   type StudyQuizKind,
 } from '../study-path/study-path.types';
+import {
+  buildJumpNodeFilter,
+  buildJumpQuestionFilter,
+  normalizeJumpTestCategory,
+  type JumpTestCategory,
+} from './jump-test.util';
 
 @Injectable()
 export class LessonsService {
@@ -1743,34 +1749,6 @@ export class LessonsService {
     return result;
   }
 
-  /**
-   * 목표 지점 "이전" 의 노드 조건.
-   *
-   * 검증해보니 범위 자체는 맞는데 두 가지가 새고 있었다:
-   *  - **비활성 노드**. isActive 를 안 봐서 내린 콘텐츠의 문제가 시험에 나왔다.
-   *  - **다른 트랙 노드**. 어휘 로드맵에서 점프하는데 문법·표현 트랙 노드까지
-   *    범위에 들어왔다. 문법은 문제 단계에서 걸러지지만 나머지는 그대로 샜다.
-   *    로드맵이 보여주는 것과 같은 범위여야 "여기까지 안다" 를 묻는 게 된다.
-   */
-  private beforeFilter(section: number, unit: number) {
-    return {
-      isActive: true,
-      $or: [
-        { category: { $exists: false } },
-        { category: null },
-        { category: LessonCategory.VOCABULARY },
-      ],
-      $and: [
-        {
-          $or: [
-            { section: { $lt: section } },
-            { section, unit: { $lt: unit } },
-          ],
-        },
-      ],
-    };
-  }
-
   // 유닛 점프 테스트 문제 뽑기 (targetUnit 직전까지 레슨 문제 중 25개)
   /** 점프 테스트에서 틀려도 되는 개수. 서버가 정한다 (클라가 못 바꾸게) */
   private jumpHeartLimit(targetSection: number): number {
@@ -1782,11 +1760,17 @@ export class LessonsService {
     targetSection: number,
     targetUnit: number,
     lang = 'uz',
+    categoryValue?: string,
     limit = 25,
   ) {
-    // targetUnit "이전"의 모든 노드 (같은 섹션 기준)
+    const category = normalizeJumpTestCategory(categoryValue);
+    if (!category) {
+      throw new BadRequestException('INVALID_JUMP_CATEGORY');
+    }
+
+    // 목표 지점 "이전"의 같은 트랙 노드만 조회한다.
     const nodes = await this.nodeModel
-      .find(this.beforeFilter(targetSection, targetUnit))
+      .find(buildJumpNodeFilter(targetSection, targetUnit, category))
       .select('lessonIds')
       .lean();
 
@@ -1804,22 +1788,14 @@ export class LessonsService {
     );
     if (!qIds.size) return { attemptId: null, questions: [] };
 
-    // 문법 문제는 점프 테스트에서 뺀다.
-    //
-    // 점프는 "이 구간을 건너뛸 만큼 아는가" 를 보는 자리인데, 문법 트랙은
-    // 로드맵과 별개로 진행하는 별도 트랙이라 여기서 물으면 아직 배우지도 않은
-    // 걸로 막히게 된다. 유형(grammar_blank/grammar_build)과 문제의 소속
-    // 카테고리를 둘 다 본다 — 유형만 보면 문법 레슨에 들어 있는 일반 유형
-    // 문제가 그대로 새어 나온다.
+    // 어휘 점프는 문법을 제외하고, 문법 점프는 전용 문법 유형만 포함한다.
     const questions = await this.questionModel
-      .find({
-        _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
-        isActive: true,
-        type: {
-          $nin: [QuestionType.GRAMMAR_BLANK, QuestionType.GRAMMAR_BUILD],
-        },
-        lessonCategory: { $ne: LessonCategory.GRAMMAR },
-      })
+      .find(
+        buildJumpQuestionFilter(
+          [...qIds].map((id) => new Types.ObjectId(id)),
+          category,
+        ),
+      )
       .lean();
 
     // 내용 기준 중복 제거 (정답+지문+보기+대화가 같으면 하나만)
@@ -1854,6 +1830,7 @@ export class LessonsService {
       userId: new Types.ObjectId(userId),
       section: targetSection,
       unit: targetUnit,
+      category,
       questionIds: shuffled.map((q: any) => q._id),
       heartLimit,
       status: 'open',
@@ -1918,6 +1895,7 @@ export class LessonsService {
       userId,
       attempt.section,
       attempt.unit,
+      normalizeJumpTestCategory(attempt.category) ?? 'vocabulary',
     );
     return {
       passed: true,
@@ -1937,9 +1915,10 @@ export class LessonsService {
     userId: string,
     targetSection: number,
     targetUnit: number,
+    category: JumpTestCategory,
   ) {
     const nodes = await this.nodeModel
-      .find(this.beforeFilter(targetSection, targetUnit))
+      .find(buildJumpNodeFilter(targetSection, targetUnit, category))
       .select('lessonIds')
       .lean();
 

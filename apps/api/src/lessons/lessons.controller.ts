@@ -199,12 +199,14 @@ export class LessonsController {
     @Query('section') section: string,
     @Query('unit') unit: string,
     @Query('lang') lang = 'uz',
+    @Query('category') category?: string,
   ) {
     return this.lessonsService.getUnitJumpTest(
       req.user._id.toString(),
       Number(section),
       Number(unit),
       lang,
+      category,
     );
   }
 

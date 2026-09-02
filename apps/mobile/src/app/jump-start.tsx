@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import { backToRoadmap } from "@/store/settings.store";
 
 export default function JumpStartScreen() {
   const { t } = useTranslation();
@@ -13,10 +14,11 @@ export default function JumpStartScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
-  const { section, unit, target } = useLocalSearchParams<{
+  const { section, unit, target, category } = useLocalSearchParams<{
     section?: string;
     unit?: string;
     target?: string;
+    category?: string;
   }>();
 
   const isSectionJump = target === "section";
@@ -28,13 +30,14 @@ export default function JumpStartScreen() {
         section: String(section),
         unit: String(unit),
         target: String(target ?? ""),
+        category: String(category ?? ""),
       },
     });
   };
 
   const later = () => {
     if (router.canGoBack()) router.back();
-    else router.replace("/roadmap");
+    else router.replace(backToRoadmap(category));
   };
 
   return (

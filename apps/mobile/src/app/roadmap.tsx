@@ -36,6 +36,7 @@ import {
   ROW_HEIGHT,
   UNIT_PADDING,
   appendScoreNode,
+  expandGrammarLessonNodes,
   markClaimableChest,
   getUnitColor,
   injectChests,
@@ -48,6 +49,7 @@ export default function RoadmapScreen() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
   const router = useRouter();
+  const { category } = useLocalSearchParams<{ category?: string }>();
   const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(true);
   /** 섹션 목록 시트 */
@@ -77,16 +79,23 @@ export default function RoadmapScreen() {
     isSuper: user?.isSuper,
   };
 
-  const processedUnits = useMemo(
-    () =>
-      markClaimableChest(
-        roadmap.units.map((unit, i) =>
-          appendScoreNode(injectChests({ ...unit, color: getUnitColor(i) })),
-        ),
-        (roadmap.pendingChests ?? 0) > 0,
-      ),
-    [roadmap.units, roadmap.pendingChests],
-  );
+  const processedUnits = useMemo(() => {
+    const coloredUnits = roadmap.units.map((unit, index) => ({
+      ...unit,
+      color: getUnitColor(index),
+    }));
+
+    if (category === "grammar") {
+      // 문법 문제 트랙은 유닛마다 네 문법 노드만 둔다. 상자·스코어 노드를
+      // 끼우면 레슨을 노드로 펼친다는 구조가 다시 흐려진다.
+      return coloredUnits.map(expandGrammarLessonNodes);
+    }
+
+    return markClaimableChest(
+      coloredUnits.map((unit) => appendScoreNode(injectChests(unit))),
+      (roadmap.pendingChests ?? 0) > 0,
+    );
+  }, [category, roadmap.pendingChests, roadmap.units]);
 
   const currentUnitIdx = useMemo(
     () =>
@@ -127,8 +136,6 @@ export default function RoadmapScreen() {
     if (index < 0) return;
     listRef.current?.scrollToIndex({ index, animated });
   }, []);
-
-  const { category } = useLocalSearchParams<{ category?: string }>();
 
   const loadRoadmap = useCallback(async () => {
     try {
@@ -234,7 +241,15 @@ export default function RoadmapScreen() {
         router.push({
           // 어느 트랙의 로드맵인지 끝까지 들고 가야 완료 후 제자리로 돌아온다
           pathname: "/lesson",
-          params: { lessonId: node.lessonId, category: category ?? "" },
+          params: {
+            lessonId: node.lessonId,
+            category: category ?? "",
+            // 펼쳐진 문법 노드의 재학습은 일반 완료 API를 다시 호출하지 않는다.
+            // 그렇지 않으면 완료한 레슨에서 XP를 계속 받을 수 있다.
+            ...(category === "grammar" && node.status === "completed"
+              ? { mode: "lessonReview" }
+              : {}),
+          },
         });
       });
     },
@@ -293,10 +308,11 @@ export default function RoadmapScreen() {
         params: {
           section: String(unit.sectionNumber),
           unit: String(unit.unitNumber),
+          category: category ?? "",
         },
       });
     },
-    [router],
+    [category, router],
   );
 
   /**
@@ -340,9 +356,10 @@ export default function RoadmapScreen() {
         section: String(next.sectionNumber),
         unit: String(next.firstUnitNumber || 1),
         target: "section",
+        category: category ?? "",
       },
     });
-  }, [roadmap.nextSection, router]);
+  }, [category, roadmap.nextSection, router]);
 
   /** 현재 섹션으로 되돌아간다. 지난 섹션 다시보기를 끄면 loadRoadmap 이 다시 돈다 */
   const backToCurrentSection = useCallback(() => {
@@ -379,6 +396,7 @@ export default function RoadmapScreen() {
             onJumpTest={handleJumpTest}
             onGoLegend={handleGoLegend}
             onClaimChest={handleClaimChest}
+            directStart={category === "grammar"}
           />
         </Pressable>
       );
@@ -394,6 +412,7 @@ export default function RoadmapScreen() {
       handleClaimChest,
       handleGuidePress,
       handleJumpTest,
+      category,
       styles.unitElevated,
     ],
   );
@@ -555,6 +574,7 @@ export default function RoadmapScreen() {
               section: String(section),
               unit: String(firstUnit),
               target: "section",
+              category: category ?? "",
             },
           })
         }

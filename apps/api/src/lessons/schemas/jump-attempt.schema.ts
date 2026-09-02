@@ -25,6 +25,14 @@ export class JumpAttempt {
   @Prop({ required: true })
   unit: number;
 
+  /** 문제를 뽑고 진도를 열어 줄 로드맵 트랙 */
+  @Prop({
+    type: String,
+    enum: ['vocabulary', 'grammar'],
+    default: 'vocabulary',
+  })
+  category: 'vocabulary' | 'grammar';
+
   /** 이번 응시에 실제로 내준 문제들 */
   @Prop({ type: [Types.ObjectId], default: [] })
   questionIds: Types.ObjectId[];

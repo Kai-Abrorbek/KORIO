@@ -7,6 +7,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import { backToRoadmap } from "@/store/settings.store";
 
 export default function JumpIntroScreen() {
   const { t } = useTranslation();
@@ -14,10 +15,11 @@ export default function JumpIntroScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
-  const { section, unit, target } = useLocalSearchParams<{
+  const { section, unit, target, category } = useLocalSearchParams<{
     section?: string;
     unit?: string;
     target?: string;
+    category?: string;
   }>();
   const maxHearts = target === "section" || Number(section) >= 2 ? 3 : 5;
 
@@ -29,13 +31,14 @@ export default function JumpIntroScreen() {
         section: String(section),
         unit: String(unit),
         target: String(target ?? ""),
+        category: String(category ?? ""),
       },
     });
   };
 
   const close = () => {
     if (router.canGoBack()) router.back();
-    else router.replace("/roadmap");
+    else router.replace(backToRoadmap(category));
   };
 
   return (

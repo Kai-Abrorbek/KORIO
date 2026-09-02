@@ -181,11 +181,17 @@ export const LessonService = {
   getJumpTest: (
     section: number,
     unit: number,
+    category?: string,
   ): Promise<{
     attemptId: string | null;
     heartLimit?: number;
     questions: any[];
-  }> => api.get(`/lessons/jump-test?section=${section}&unit=${unit}`),
+  }> =>
+    api.get(
+      `/lessons/jump-test?section=${section}&unit=${unit}` +
+        `&lang=${getLang()}` +
+        (category ? `&category=${encodeURIComponent(category)}` : ""),
+    ),
 
   /** 합격 여부는 서버가 판정한다. 여기선 틀린 문제만 보고한다 */
   completeJump: (

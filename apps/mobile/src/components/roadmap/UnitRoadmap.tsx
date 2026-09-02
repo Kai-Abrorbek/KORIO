@@ -43,6 +43,8 @@ interface Props {
   onGoLegend?: (unitId: string, firstNode: RoadmapNode) => void;
   /** 노드 주변 진행 링을 감춘다 (학습 로드 모드) */
   hideNodeRing?: boolean;
+  /** 열린 노드를 누르면 팝오버 없이 바로 학습을 시작한다. */
+  directStart?: boolean;
   /** 기본 레슨 팝오버 대신 트랙 전용 팝오버를 표시할 때만 전달한다. */
   renderNodePopover?: (context: RoadmapNodePopoverContext) => ReactNode;
   /** 상자를 눌러 쌓인 보상을 받는다. 두 모드가 같은 핸들러를 쓴다 */
@@ -98,6 +100,7 @@ export default function UnitRoadmap({
   renderNodePopover,
   onClaimChest,
   hideNodeRing = false,
+  directStart = false,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -217,7 +220,17 @@ export default function UnitRoadmap({
           const characterOffset = offset > 0 ? offset - 115 : offset + 115;
           const nodeVisualIndex =
             usesCustomPopover && node.status === "locked" ? Math.max(1, i) : i;
-          const handleNodePress = () => onNodeTap(node.id);
+          const handleNodePress = () => {
+            if (
+              directStart &&
+              node.status !== "locked" &&
+              node.lessonId
+            ) {
+              onNodeStart?.(node);
+              return;
+            }
+            onNodeTap(node.id);
+          };
 
           return (
             <View

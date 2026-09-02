@@ -1,4 +1,9 @@
-import { NodeType, RoadmapUnit } from "@/types/roadmap";
+import type {
+  NodeType,
+  RoadmapUnit,
+  RoadmapIconName,
+  RoadmapNode,
+} from "@/types/roadmap";
 
 /**
  * 로드맵 유닛 가공 로직과 레이아웃 상수. 화면에서 분리해 Day 모드 뷰에서도
@@ -22,6 +27,66 @@ export const UNIT_PADDING = 16;
 
 export function getUnitColor(index: number): string {
   return UNIT_COLORS[index % UNIT_COLORS.length];
+}
+
+const GRAMMAR_NODE_ICONS: RoadmapIconName[] = [
+  "book",
+  "construct",
+  "pencil",
+];
+
+/**
+ * 문법 문제 트랙은 서버에서 노드 1개와 레슨 4개로 내려오지만, 화면에서는
+ * 레슨 선택 단계를 없애고 각 문법을 독립 노드로 보여준다.
+ *
+ * 저장 구조는 건드리지 않아 기존 완료 기록을 그대로 쓰고, 첫 미완료 문법만
+ * current로 둬서 이후 문법이 순서대로 열린다.
+ */
+export function expandGrammarLessonNodes(unit: RoadmapUnit): RoadmapUnit {
+  const nodes = unit.nodes.flatMap((node) => {
+    if (!node.lessons?.length) return [node];
+
+    const currentLessonIndex =
+      node.status === "current"
+        ? node.lessons.findIndex((lesson) => !lesson.isCompleted)
+        : -1;
+
+    return node.lessons.map((lesson, lessonIndex): RoadmapNode => {
+      // 배치 테스트로 건너뛴 섹션은 개별 진행 기록이 없어도 서버가 부모
+      // 노드를 completed로 준다. 그 완료 상태도 각 문법 노드에 이어받는다.
+      const isCompleted =
+        node.status === "completed" || lesson.isCompleted;
+      const status: RoadmapNode["status"] = isCompleted
+        ? "completed"
+        : lessonIndex === currentLessonIndex
+          ? "current"
+          : "locked";
+
+      return {
+        ...node,
+        id: "grammar-lesson-" + lesson.lessonId,
+        type: "star",
+        status,
+        title: lesson.title || node.title,
+        lessonId: lesson.lessonId,
+        lessons: undefined,
+        completedLessons: isCompleted ? 1 : 0,
+        totalLessons: 1,
+        legendCompleted: false,
+      };
+    });
+  });
+
+  return {
+    ...unit,
+    nodes: nodes.map((node, index) => ({
+      ...node,
+      iconName:
+        index === nodes.length - 1
+          ? "flag"
+          : GRAMMAR_NODE_ICONS[index % GRAMMAR_NODE_ICONS.length],
+    })),
+  };
 }
 
 /**

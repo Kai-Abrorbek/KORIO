@@ -20,6 +20,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
+import { backToRoadmap } from "@/store/settings.store";
 
 const GREEN = "#58CC02";
 const GREEN_DARK = "#46A302";
@@ -47,7 +48,7 @@ export default function JumpResultScreen() {
   const insets = useSafeAreaInsets();
   const s = styles(theme);
 
-  const { passed, unit, wrong, section, target, lessons } =
+  const { passed, unit, wrong, section, target, lessons, category } =
     useLocalSearchParams<{
       passed?: string;
       unit?: string;
@@ -55,6 +56,7 @@ export default function JumpResultScreen() {
       section?: string;
       target?: string;
       lessons?: string;
+      category?: string;
     }>();
 
   const isPass = passed === "1";
@@ -193,7 +195,7 @@ export default function JumpResultScreen() {
               borderColor: isPass ? GREEN_DARK : BLUE_DARK,
             },
           ]}
-          onPress={() => router.replace("/roadmap")}
+          onPress={() => router.replace(backToRoadmap(category))}
         >
           <Text style={s.ctaText}>
             {isPass ? t("jump.goStudy") : t("jump.continue")}

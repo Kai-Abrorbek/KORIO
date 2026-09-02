@@ -175,6 +175,7 @@ export default function LessonScreen() {
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
+  const isLessonReview = mode === "lessonReview";
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
   const isLegend = mode === "legend";
@@ -237,7 +238,7 @@ export default function LessonScreen() {
 
   useEffect(() => {
     void loadLesson();
-  }, [lessonId, mode, nodeId, pack, section, unit]);
+  }, [category, lessonId, mode, nodeId, pack, section, unit]);
 
   useEffect(() => {
     setEnergy(userEnergy);
@@ -286,6 +287,7 @@ export default function LessonScreen() {
         const res = await LessonService.getJumpTest(
           Number(section),
           Number(unit),
+          category,
         );
         const questions = res.questions;
         jumpAttemptId.current = res.attemptId;
@@ -293,7 +295,7 @@ export default function LessonScreen() {
         setLesson({
           lessonId: "jump-test",
           lessonTitle: "Jump Test",
-          category: "",
+          category: category ?? "",
           totalXp: 0,
           questions,
         } as any);
@@ -478,8 +480,13 @@ export default function LessonScreen() {
             section: String(openedSection ?? section ?? ""),
             target: String(target ?? ""),
             lessons: String(openedLessons),
+            category: String(category ?? ""),
           }
-        : { passed: "0", wrong: String(wrongCount) },
+        : {
+            passed: "0",
+            wrong: String(wrongCount),
+            category: String(category ?? ""),
+          },
     });
   };
 
@@ -759,11 +766,16 @@ export default function LessonScreen() {
       } catch (err) {
         console.error("하루 연습 완료 저장 실패:", err);
       }
-    } else if (isReview || isWordPractice) {
-      // 복습은 unmount에서 resolveMistakes 처리
+    } else if (isReview || isWordPractice || isLessonReview) {
+      // 전체 오답 복습만 unmount에서 오답 해제를 처리한다. 개별 문법 복습은
+      // 같은 문제를 다시 풀되 진도 완료 API 대신 연습 보상 규칙을 사용한다.
       try {
         const r = await LessonService.completePractice({
-          mode: isWordPractice ? "wordPractice" : "review",
+          mode: isWordPractice
+            ? "wordPractice"
+            : isLessonReview
+              ? "nodeReview"
+              : "review",
           questionIds: practicedIds,
           wrongQuestionIds: wrongArr,
           speedSeconds: seconds,
