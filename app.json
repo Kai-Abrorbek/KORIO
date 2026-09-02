@@ -56,10 +56,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#7F77DD",
-          "image": "./assets/images/korio-icon.png",
-          "imageWidth": 112,
-          "resizeMode": "contain"
+          "backgroundColor": "#7F77DD"
         }
       ],
       [

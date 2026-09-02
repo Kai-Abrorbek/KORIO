@@ -1,0 +1,38 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.korio.online",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "581955511380-s5e5dj6qp5s9nq8p2k56a001hfs2ouia.apps.googleusercontent.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.korio.online",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "581955511380-s5e5dj6qp5s9nq8p2k56a001hfs2ouia.apps.googleusercontent.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    }
+  }
+}
