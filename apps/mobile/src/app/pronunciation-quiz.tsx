@@ -10,7 +10,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useSpeech } from "@/hooks/useSpeech";
+import { AUTO_SPEECH_DELAY_MS, useSpeech } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -49,8 +49,7 @@ const C = {
   backSym: "#a9dbf5",
 };
 
-const QUESTION_AUTOPLAY_DELAY_MS = 280;
-const BETWEEN_WORDS_DELAY_MS = 150;
+const BETWEEN_WORDS_DELAY_MS = 60;
 const CORRECT_REPLAY_DELAY_MS = 180;
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -96,7 +95,7 @@ export default function PronunciationQuiz() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { speak, stop } = useSpeech();
+  const { speak, stop, prewarm } = useSpeech();
   const secondSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -142,7 +141,7 @@ export default function PronunciationQuiz() {
     ring.value = 1;
   }, []);
 
-  const speakOptions = () => {
+  const speakOptions = useCallback(() => {
     if (secondSpeechTimerRef.current) {
       clearTimeout(secondSpeechTimerRef.current);
       secondSpeechTimerRef.current = null;
@@ -166,12 +165,26 @@ export default function PronunciationQuiz() {
         }, BETWEEN_WORDS_DELAY_MS);
       },
     });
-  };
+  }, [isHard, q.options, speak, stop, target.word]);
 
   useEffect(() => {
     flip.value = isHard ? 1 : 0;
     setSelected(null);
-    const t1 = setTimeout(() => speakOptions(), QUESTION_AUTOPLAY_DELAY_MS);
+
+    // 현재 두 단어는 병렬로 준비한다. 첫 단어가 끝난 다음 두 번째 단어의
+    // Azure 음원을 요청하면 한 음절짜리 문제에서도 침묵이 길어지기 때문이다.
+    prewarm([q.options[0].word], "ko-KR");
+    prewarm([q.options[1].word], "ko-KR");
+
+    // 현재 문제를 듣는 동안 다음 두 문제도 순서대로 준비해 카드 전환 지연을 없앤다.
+    const upcomingWords = QUESTIONS.slice(index + 1, index + 3)
+      .flatMap((question) => question.options.map((option) => option.word))
+      .filter(
+        (word, wordIndex, words) => words.indexOf(word) === wordIndex,
+      );
+    if (upcomingWords.length > 0) prewarm(upcomingWords, "ko-KR");
+
+    const t1 = setTimeout(() => speakOptions(), AUTO_SPEECH_DELAY_MS);
     return () => {
       clearTimeout(t1);
       if (secondSpeechTimerRef.current) {
@@ -184,7 +197,16 @@ export default function PronunciationQuiz() {
       }
       stop();
     };
-  }, [index]);
+  }, [
+    QUESTIONS,
+    flip,
+    index,
+    isHard,
+    prewarm,
+    q.options,
+    speakOptions,
+    stop,
+  ]);
 
   const pick = (i: number) => {
     if (selected !== null) return;

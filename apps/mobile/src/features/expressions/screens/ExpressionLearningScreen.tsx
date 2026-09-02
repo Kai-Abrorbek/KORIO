@@ -47,6 +47,7 @@ export default function ExpressionLearningScreen() {
   const {
     speak,
     speakAuto,
+    prewarm,
     stop,
     isSpeaking,
     isSpeechPlaying,
@@ -88,6 +89,18 @@ export default function ExpressionLearningScreen() {
     speakAuto(autoSpeechText, "ko-KR");
     return stop;
   }, [autoSpeechText, current?.key, speakAuto, stop]);
+
+  useEffect(() => {
+    const upcoming = queue
+      .slice(index + 1, index + 4)
+      .filter((item) => item.stage !== "recall")
+      .map(
+        (item) =>
+          item.expression.pronunciation.ttsText || item.expression.korean,
+      )
+      .filter(Boolean);
+    if (upcoming.length > 0) prewarm(upcoming, "ko-KR");
+  }, [index, prewarm, queue]);
 
   const settleCard = useCallback(
     (direction: -1 | 1, moved: boolean) => {
