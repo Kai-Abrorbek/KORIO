@@ -13,6 +13,11 @@ export function sectionRangeForLevel(level: number): [number, number] {
   return [l * 2 - 1, l * 2];
 }
 
+/** placement level(1~6)에서 학습을 시작할 첫 섹션 */
+export function recommendedSectionForLevel(level: number): number {
+  return sectionRangeForLevel(level)[0];
+}
+
 export interface PlacementBand {
   skipTest: boolean; // 완전초보 → 테스트 스킵
   forceHangul: boolean; // 한글부터 강제

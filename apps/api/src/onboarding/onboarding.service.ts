@@ -5,8 +5,21 @@ import { Onboarding, OnboardingDocument } from './schemas/onboarding.schema';
 import { SaveSurveyDto } from './dto/save-survey.dto';
 import { SaveLevelTestDto } from './dto/save-level-test.dto';
 import { calculateLevel } from '../common/enums/level.enum';
-import { scoreToPlacementLevel } from '../lessons/placement.const';
+import {
+  recommendedSectionForLevel,
+  scoreToPlacementLevel,
+} from '../lessons/placement.const';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
+
+export interface LevelTestPlacementResult {
+  success: true;
+  detectedLevel: string;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  placementLevel: number;
+  recommendedSection: number;
+}
 
 @Injectable()
 export class OnboardingService {
@@ -52,7 +65,9 @@ export class OnboardingService {
     });
   }
 
-  async saveLevelTest(dto: SaveLevelTestDto): Promise<Onboarding | null> {
+  async saveLevelTest(
+    dto: SaveLevelTestDto,
+  ): Promise<LevelTestPlacementResult | null> {
     const detectedLevel = calculateLevel(dto.score);
 
     // 자가레벨 밴드 안에서 점수로 placement(1~6) 확정
@@ -64,7 +79,7 @@ export class OnboardingService {
       SelfReportedLevel.BASIC_GREETINGS;
     const placementLevel = scoreToPlacementLevel(self, dto.score);
 
-    return this.onboardingModel.findOneAndUpdate(
+    const saved = await this.onboardingModel.findOneAndUpdate(
       { sessionId: dto.sessionId },
       {
         correctAnswers: dto.correctAnswers,
@@ -76,6 +91,18 @@ export class OnboardingService {
       },
       { returnDocument: 'after' },
     );
+
+    if (!saved) return null;
+
+    return {
+      success: true,
+      detectedLevel,
+      score: dto.score,
+      correctAnswers: dto.correctAnswers,
+      totalQuestions: dto.totalQuestions,
+      placementLevel,
+      recommendedSection: recommendedSectionForLevel(placementLevel),
+    };
   }
 
   async updateGuestProgress(

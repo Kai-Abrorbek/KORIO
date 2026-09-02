@@ -52,6 +52,10 @@ import {
   DEFAULT_AVATAR_CONFIG,
   type AvatarConfigValue,
 } from './avatar/avatar.constants';
+import {
+  recommendedSectionForLevel,
+  scoreToPlacementLevel,
+} from '../lessons/placement.const';
 
 @Injectable()
 export class UsersService {
@@ -99,6 +103,7 @@ export class UsersService {
     if (dto.completeNow) {
       update.level = UserLevel.BEGINNER;
       update.placementLevel = 1;
+      update.placementLevelSetAt = new Date();
       update.isOnboardingCompleted = true;
     }
 
@@ -133,10 +138,21 @@ export class UsersService {
     },
   ) {
     const detectedLevel = calculateLevel(dto.score);
+    const user = await this.userModel
+      .findById(new Types.ObjectId(userId))
+      .select('selfReportedLevel');
+    if (!user) throw new NotFoundException('USER_NOT_FOUND');
+
+    const selfReportedLevel =
+      user.selfReportedLevel ?? SelfReportedLevel.BASIC_GREETINGS;
+    const placementLevel = scoreToPlacementLevel(selfReportedLevel, dto.score);
+    const recommendedSection = recommendedSectionForLevel(placementLevel);
 
     await this.userModel.findByIdAndUpdate(new Types.ObjectId(userId), {
       level: detectedLevel,
       isOnboardingCompleted: true,
+      placementLevel,
+      placementLevelSetAt: new Date(),
     });
 
     return {
@@ -144,6 +160,9 @@ export class UsersService {
       detectedLevel,
       score: dto.score,
       correctAnswers: dto.correctAnswers,
+      totalQuestions: dto.totalQuestions,
+      placementLevel,
+      recommendedSection,
     };
   }
 

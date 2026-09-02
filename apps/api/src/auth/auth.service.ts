@@ -54,31 +54,7 @@ export class AuthService {
       ...trialFields(),
     });
 
-    // 온보딩 데이터 연결
-    if (dto.sessionId) {
-      const onboarding = await this.onboardingModel.findOne({
-        sessionId: dto.sessionId,
-      });
-      if (onboarding) {
-        await this.onboardingModel.findOneAndUpdate(
-          { sessionId: dto.sessionId },
-          { userId: user._id },
-        );
-        await this.userModel.findByIdAndUpdate(user._id, {
-          level: onboarding.detectedLevel,
-          targetLanguage: onboarding.targetLanguage,
-          learningGoals: onboarding.learningGoals,
-          dailyGoalMinutes: onboarding.dailyGoalMinutes,
-          isOnboardingCompleted: true,
-          placementLevel: onboarding.placementLevel,
-          hangulLevel: onboarding.hangulLevel,
-          interests: onboarding.interests,
-          selfReportedLevel: onboarding.selfReportedLevel,
-          reminderHour: onboarding.reminderHour,
-          reminderEnabled: onboarding.reminderEnabled,
-        });
-      }
-    }
+    await this.attachOnboarding(user._id, dto.sessionId);
 
     return this.generateToken(user);
   }
@@ -96,6 +72,7 @@ export class AuthService {
     if (!isPasswordValid)
       throw new UnauthorizedException('INVALID_CREDENTIALS');
 
+    await this.attachOnboarding(user._id, dto.sessionId);
     return this.generateToken(user);
   }
 
@@ -157,31 +134,7 @@ export class AuthService {
       });
     }
 
-    // 온보딩 데이터 연결 (기존 로직 그대로)
-    if (dto.sessionId) {
-      const onboarding = await this.onboardingModel.findOne({
-        sessionId: dto.sessionId,
-      });
-      if (onboarding) {
-        await this.onboardingModel.findOneAndUpdate(
-          { sessionId: dto.sessionId },
-          { userId: user._id },
-        );
-        await this.userModel.findByIdAndUpdate(user._id, {
-          level: onboarding.detectedLevel,
-          targetLanguage: onboarding.targetLanguage,
-          learningGoals: onboarding.learningGoals,
-          dailyGoalMinutes: onboarding.dailyGoalMinutes,
-          isOnboardingCompleted: true,
-          placementLevel: onboarding.placementLevel,
-          hangulLevel: onboarding.hangulLevel,
-          interests: onboarding.interests,
-          selfReportedLevel: onboarding.selfReportedLevel,
-          reminderHour: onboarding.reminderHour,
-          reminderEnabled: onboarding.reminderEnabled,
-        });
-      }
-    }
+    await this.attachOnboarding(user._id, dto.sessionId);
 
     return this.generateToken(user);
   }
@@ -206,7 +159,7 @@ export class AuthService {
   }
 
   // 텔레그램 콜백 → 유저 생성/조회 → JWT
-  async telegramLogin(q: any) {
+  async telegramLogin(q: Record<string, unknown>) {
     // 텔레그램이 실제 서명한 필드만 추출 (우리 커스텀 param 제외)
     const fields = [
       'id',
@@ -246,31 +199,8 @@ export class AuthService {
       });
     }
 
-    // 온보딩 연결 (socialLogin과 동일)
-    if (q.session) {
-      const onboarding = await this.onboardingModel.findOne({
-        sessionId: q.session,
-      });
-      if (onboarding) {
-        await this.onboardingModel.findOneAndUpdate(
-          { sessionId: q.session },
-          { userId: user._id },
-        );
-        await this.userModel.findByIdAndUpdate(user._id, {
-          level: onboarding.detectedLevel,
-          targetLanguage: onboarding.targetLanguage,
-          learningGoals: onboarding.learningGoals,
-          dailyGoalMinutes: onboarding.dailyGoalMinutes,
-          isOnboardingCompleted: true,
-          placementLevel: onboarding.placementLevel,
-          hangulLevel: onboarding.hangulLevel,
-          interests: onboarding.interests,
-          selfReportedLevel: onboarding.selfReportedLevel,
-          reminderHour: onboarding.reminderHour,
-          reminderEnabled: onboarding.reminderEnabled,
-        });
-      }
-    }
+    const sessionId = typeof q.session === 'string' ? q.session : undefined;
+    await this.attachOnboarding(user._id, sessionId);
 
     return this.generateToken(user); // { accessToken, user }
   }
@@ -292,6 +222,7 @@ export class AuthService {
       dailyGoalMinutes: onboarding.dailyGoalMinutes,
       isOnboardingCompleted: true,
       placementLevel: onboarding.placementLevel,
+      placementLevelSetAt: new Date(),
       hangulLevel: onboarding.hangulLevel,
       interests: onboarding.interests,
       selfReportedLevel: onboarding.selfReportedLevel,
@@ -401,26 +332,30 @@ export class AuthService {
   }
 
   // JWT 토큰 생성
-  private generateToken(user: UserDocument) {
+  private async generateToken(user: UserDocument) {
+    // 온보딩 연결 직후에도 갱신 전 문서가 응답으로 나가지 않게 DB 값을 다시 읽는다.
+    const freshUser = (await this.userModel.findById(user._id)) ?? user;
     // tv = tokenVersion. 유저가 이 값을 올리면 이 토큰은 그 즉시 무효가 된다.
     const payload = {
-      sub: user._id,
-      email: user.email,
-      tv: user.tokenVersion ?? 0,
+      sub: freshUser._id,
+      email: freshUser.email,
+      tv: freshUser.tokenVersion ?? 0,
     };
     return {
       accessToken: this.jwtService.sign(payload),
       user: {
-        id: user._id,
-        email: user.email,
-        nickname: user.nickname,
-        avatar: user.avatar || {
+        id: freshUser._id,
+        email: freshUser.email,
+        nickname: freshUser.nickname,
+        avatar: freshUser.avatar || {
           ...DEFAULT_AVATAR_CONFIG,
         },
-        level: user.level,
-        totalXP: user.totalXP,
-        streak: user.streak,
-        isOnboardingCompleted: user.isOnboardingCompleted,
+        level: freshUser.level,
+        totalXP: freshUser.totalXP,
+        streak: freshUser.streak,
+        isOnboardingCompleted: freshUser.isOnboardingCompleted,
+        languageLevel: freshUser.placementLevel || 1,
+        hasPickedLevel: !!freshUser.placementLevelSetAt,
       },
     };
   }
