@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { View, Text, Pressable, StyleSheet, Image } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -19,9 +19,15 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
 
-/** 불꽃 원본. 없으면 아래 FLAME_FALLBACK 아이콘으로 떨어진다 */
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FLAME = require("../../assets/images/streak-flame.png");
+/**
+ * 불꽃 원본.
+ *
+ * metro.config.js 가 react-native-svg-transformer 를 물려 놔서 .svg 는
+ * **컴포넌트로** 들어온다 (assetExts 에서 svg 를 빼고 sourceExts 에 넣었다).
+ * require() + <Image source> 로 쓰면 조용히 아무것도 안 그려진다.
+ * 앱의 다른 svg(로그인의 telegram.svg)도 같은 방식으로 쓴다.
+ */
+import FlameIcon from "../../assets/images/streak-flame.svg";
 
 const EMBERS = 14;
 
@@ -150,7 +156,7 @@ export default function StreakDayScreen() {
         <View style={s.flameArea}>
           <Animated.View style={[s.glow, glowStyle]} pointerEvents="none" />
           <Animated.View style={flameStyle}>
-            <Image source={FLAME} style={s.flame} resizeMode="contain" />
+            <FlameIcon width={220} height={240} />
             <Animated.Text style={[s.streakNum, numStyle]}>
               {streak}
             </Animated.Text>
@@ -216,7 +222,10 @@ function DayDot({
 }) {
   const pop = useSharedValue(0);
   useEffect(() => {
-    pop.value = withDelay(delay, withSpring(1, { damping: 10, stiffness: 200 }));
+    pop.value = withDelay(
+      delay,
+      withSpring(1, { damping: 10, stiffness: 200 }),
+    );
   }, [delay]);
 
   const style = useAnimatedStyle(() => ({
@@ -252,7 +261,13 @@ function Ember({ index }: { index: number }) {
     opacity: interpolate(p.value, [0, 0.15, 0.75, 1], [0, 0.9, 0.5, 0]),
     transform: [
       { translateY: interpolate(p.value, [0, 1], [0, -260]) },
-      { translateX: interpolate(p.value, [0, 0.5, 1], [0, index % 2 ? 14 : -14, 0]) },
+      {
+        translateX: interpolate(
+          p.value,
+          [0, 0.5, 1],
+          [0, index % 2 ? 14 : -14, 0],
+        ),
+      },
     ],
   }));
 
@@ -296,7 +311,6 @@ const styles = (theme: ThemeColors) =>
       borderRadius: 999,
       backgroundColor: "#FF9600",
     },
-    flame: { width: 220, height: 240 },
     streakNum: {
       position: "absolute",
       alignSelf: "center",
