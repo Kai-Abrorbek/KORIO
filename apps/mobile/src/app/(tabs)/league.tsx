@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   View,
   Text,
@@ -28,8 +28,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { TIERS, getTier, getTierIndex } from "@/constants/league-tiers";
 import TierCrystal from "@/components/league/TierCrystal";
-import { withDelay, withSpring, Easing } from "react-native-reanimated";
 import FriendAvatar from "@/components/friends/FriendAvatar";
+import LeagueRankRow, {
+  RANK_ANIM_TOTAL_MS,
+} from "@/components/league/LeagueRankRow";
 
 const MEDAL_COLORS = [
   { fill: "#FFC93C", ribbon: "#E5A700", text: "#8A5B00" }, // 1등 금
@@ -151,63 +153,70 @@ export default function LeagueScreen() {
     transform: [{ scale: pulse.value }],
   }));
 
-  const ROW_H = 84; // 리스트 행 높이 (실제 스타일과 맞춰야 함)
 
-  // 순위 상승 애니메이션
-  const lift = useSharedValue(0);
-  const move = useSharedValue(0);
-  const settle = useSharedValue(1);
+  // ── 순위 상승 애니메이션 ──
+  //
+  // 리스트는 서버가 **이미 새 순위로 정렬**해서 준다. 그래서 각 행을 "옛 자리"
+  // 에서 시작시켜 제자리로 돌아오게 하는 게 맞다.
+  //   나        : 옛 순위 자리(아래)에서 새 자리로 올라온다
+  //   밀린 사람 : 한 칸 위에서 시작해 한 칸 아래로 내려온다
+  //
+  // 거리는 rank 차 × 상수로 계산하지 않는다. 승급·강등 구분선이 행 사이에
+  // 끼어 있어서 그 계산이 틀어진다. 실제 onLayout 좌표를 쓴다.
   const [animDone, setAnimDone] = useState(false);
+  const rowY = useRef(new Map<number, number>());
+  const [measuredCount, setMeasuredCount] = useState(0);
 
-  useEffect(() => {
-    if (!data || animDone) return;
+  const onRowLayout = useCallback((rank: number, y: number) => {
+    if (rowY.current.get(rank) === y) return;
+    rowY.current.set(rank, y);
+    setMeasuredCount(rowY.current.size);
+  }, []);
+
+  /** rank → 시작 오프셋(px). 비어 있으면 애니 없음 */
+  const startOffsets = useMemo(() => {
+    const out = new Map<number, number>();
+    if (!data || animDone) return out;
     const me = data.members.find((m) => m.isMe);
-    if (!me) return;
+    if (!me) return out;
 
     const prev = data.previousRank ?? me.rank;
-    if (prev <= me.rank) {
-      setAnimDone(true);
-      return; // 안 올랐으면 애니 없음
+    if (prev <= me.rank) return out; // 안 올랐으면 애니 없음
+
+    const yOf = (rank: number) => rowY.current.get(rank);
+    const myOldY = yOf(prev);
+    const myNewY = yOf(me.rank);
+    // 옛 자리가 화면 목록 밖(리그를 옮겨 왔다 등)이면 애니를 접는다.
+    // 억지로 계산하느니 안 하는 게 낫다
+    if (myOldY == null || myNewY == null) return out;
+
+    out.set(me.rank, myOldY - myNewY); // 양수: 나는 아래에 있었다
+
+    // 내가 끼어들면서 한 칸씩 밀린 사람들 (새 순위 me.rank+1 … prev)
+    for (let rank = me.rank + 1; rank <= prev; rank++) {
+      const nowY = yOf(rank);
+      const beforeY = yOf(rank - 1); // 이 사람의 옛 자리 = 한 칸 위 슬롯
+      if (nowY == null || beforeY == null) continue;
+      out.set(rank, beforeY - nowY); // 음수: 위에 있었다
     }
+    return out;
+    // measuredCount 가 바뀔 때마다 다시 계산한다 (rowY 는 ref 라 의존성에 못 넣는다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, animDone, measuredCount]);
 
-    const dist = (prev - me.rank) * ROW_H;
+  const animReady = startOffsets.size > 0;
 
-    // 들어올림 → 위로 쭉 → 툭 내려놓기
-    lift.value = withDelay(500, withTiming(1, { duration: 240 }));
-    move.value = withDelay(
-      760,
-      withTiming(-dist, { duration: 850, easing: Easing.inOut(Easing.cubic) }),
-    );
-    lift.value = withDelay(1610, withTiming(0, { duration: 200 }));
-    settle.value = withDelay(
-      1610,
-      withSequence(
-        withTiming(1.05, { duration: 110 }),
-        withSpring(1, { damping: 6, stiffness: 220 }),
-      ),
-    );
-
-    // 애니 끝나면 순위 저장 (다시 안 나오게)
+  useEffect(() => {
+    if (!animReady || !data) return;
+    const me = data.members.find((m) => m.isMe);
+    if (!me) return;
+    // 애니가 끝나면 순위를 확정 저장한다 (다음에 또 재생되지 않게)
     const tid = setTimeout(() => {
       LeagueService.ackRank(me.rank).catch(() => {});
       setAnimDone(true);
-    }, 2000);
-
+    }, RANK_ANIM_TOTAL_MS);
     return () => clearTimeout(tid);
-  }, [data, animDone]);
-
-  const meRowStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: move.value },
-      { scale: settle.value * (1 + lift.value * 0.04) },
-    ],
-    zIndex: lift.value > 0 ? 20 : 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: lift.value * 0.3, // 평소 0 → 안 보임
-    shadowRadius: lift.value * 12,
-    elevation: lift.value * 12,
-  }));
+  }, [animReady, data]);
 
   useFocusEffect(
     useCallback(() => {
@@ -299,14 +308,19 @@ export default function LeagueScreen() {
             const inPromote = promoteLine > 0 && m.rank <= promoteLine;
             const inDemote = data.demoteCount > 0 && m.rank > demoteLine;
             return (
-              <View key={m.id}>
-                <Animated.View
+              <View
+                key={m.id}
+                onLayout={(e) => onRowLayout(m.rank, e.nativeEvent.layout.y)}
+              >
+                <LeagueRankRow
+                  startOffset={startOffsets.get(m.rank) ?? 0}
+                  animate={animReady}
+                  lifted={m.isMe}
                   style={[
                     s.row,
                     inPromote && s.rowPromote,
                     inDemote && s.rowDemote,
                     m.isMe && s.rowMe,
-                    m.isMe && meRowStyle,
                   ]}
                 >
                   <RankBadge rank={m.rank} isMe={m.isMe} theme={theme} />
@@ -326,7 +340,7 @@ export default function LeagueScreen() {
                     </View>
                   </View>
                   <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
-                </Animated.View>
+                </LeagueRankRow>
 
                 {/* 승급존 경계선 */}
                 {promoteLine > 0 && m.rank === promoteLine && (
@@ -490,7 +504,7 @@ const styles = (theme: ThemeColors) =>
     row: {
       flexDirection: "row",
       alignItems: "center",
-      height: 84, // ROW_H 와 일치시킬 것
+      height: 84,
       paddingHorizontal: 16,
       gap: 14,
       backgroundColor: "transparent", // ✅ 보더/배경 없음

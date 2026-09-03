@@ -222,6 +222,18 @@ export default function LessonScreen() {
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
   const uniqueCorrect = useRef<Set<string>>(new Set());
   const [progress, setProgress] = useState(0);
+  /**
+   * 진행바는 **끝낸 문제 수** 하나만 기준으로 한다.
+   *
+   * 예전엔 답을 제출할 때 `정답 수 / 전체` 로도 덮어썼다. 그래서 틀린 문제가
+   * 하나라도 생기면 정답 수 < 끝낸 수가 되어, 답할 때마다 바가 뒤로 튀었다가
+   * 다음 문제로 넘어갈 때 다시 앞으로 가는 게 반복됐다. 스킵되는 문제도 같다.
+   *
+   * 값의 주인을 하나로 두고, 여기서 한 번 더 막는다 — 단계 안에서는 절대
+   * 줄어들지 않는다. 단계가 바뀔 때만 setProgress(0) 으로 직접 되돌린다.
+   */
+  const bumpProgress = (next: number) =>
+    setProgress((prev) => (next > prev ? next : prev));
   const startTime = useRef(Date.now());
   const correctCount = useRef(0);
   const totalCount = useRef(0);
@@ -581,7 +593,7 @@ export default function LessonScreen() {
       totalCount.current += 1;
       if (isCorrect) correctCount.current += 1;
       else wrongIds.current.push(question.id);
-      setProgress(totalCount.current / (lesson?.questions.length ?? 1));
+      bumpProgress(totalCount.current / (lesson?.questions.length ?? 1));
       setTimeout(goNextLevelTest, 280);
       return;
     }
@@ -643,10 +655,8 @@ export default function LessonScreen() {
       }
     }
 
-    // 진행도: main 단계에서만 갱신
-    if (phase === "main") {
-      setProgress(uniqueCorrect.current.size / (lesson?.questions.length ?? 1));
-    }
+    // 진행도는 여기서 안 건드린다. 문제를 "끝냈다" 는 판정은 handleNext 가
+    // 하고, 진행바는 그것만 따른다. (uniqueCorrect 는 XP 계산에만 쓴다)
 
     setAnswerState(isCorrect ? "correct" : "wrong");
   };
@@ -881,7 +891,7 @@ export default function LessonScreen() {
       locked.current = true;
       if (currentQ) wrongIds.current.push(currentQ.id);
       totalCount.current += 1;
-      setProgress(totalCount.current / (lesson?.questions.length ?? 1));
+      bumpProgress(totalCount.current / (lesson?.questions.length ?? 1));
       goNextLevelTest();
       return;
     }
@@ -904,10 +914,10 @@ export default function LessonScreen() {
     // 따라서 답을 제출하지 않고 스킵한 문제도 한 문제를 마친 것으로 반영된다.
     if (phase === "main") {
       const mainTotal = lesson.questions.length || 1;
-      setProgress((mainTotal - questionQueue.current.length) / mainTotal);
+      bumpProgress((mainTotal - questionQueue.current.length) / mainTotal);
     } else if (phase === "review" && reviewTotal.current > 0) {
       // 복습 진행바: (전체 - 남은) / 전체
-      setProgress(
+      bumpProgress(
         (reviewTotal.current - questionQueue.current.length) /
           reviewTotal.current,
       );
