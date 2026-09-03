@@ -53,10 +53,22 @@ import { HangulLevel } from '../common/enums/hangul-level.enum';
 
 const LEGEND_XP = 300;
 
-/** answerTranslation 을 문제 지문으로 먼저 보여주는 타입 (정답 노출 주의) */
+/**
+ * answerTranslation 을 문제 지문으로 먼저 보여주는 타입 (정답 노출 주의).
+ *
+ * 이 타입들은 "뜻을 보고 한국어로 쓴다" 가 과제라, 말풍선에 학습자 언어의
+ * 뜻 문장이 들어가야 한다. 시드의 answerTranslation.ko 자리에는 한국어 정답이
+ * 통째로 들어 있어서 한국어 UI 로 보면 답이 그대로 적힌 꼴이 된다.
+ * 그래서 여기 들어간 타입은 extractNativeI18n(ko → en 폴백)으로 뽑는다.
+ *
+ * type_answer 가 빠져 있었다. 그래서 화면이 npcText 도 answerTranslation 도
+ * 못 받고 `question.answer` 로 폴백해 **말풍선에 한국어 정답을 그대로**
+ * 띄우고 있었다.
+ */
 const GRAMMAR_PROMPT_TYPES = new Set([
   QuestionType.GRAMMAR_BLANK,
   QuestionType.GRAMMAR_BUILD,
+  QuestionType.TYPE_ANSWER,
 ]);
 
 /** 틀린 문제를 "해소"로 보기까지 필요한 연속 정답 수 */

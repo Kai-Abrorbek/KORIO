@@ -150,7 +150,16 @@ export class GrammarService {
       };
     }
 
-    // 순차 잠금: 데이터 순서대로, 이전 섹션을 전부 완료해야 다음 섹션이 열림
+    // 문법은 데이터가 있는 섹션을 **전부** 연다.
+    //
+    // 예전엔 "이전 섹션을 전부 완료해야 다음이 열리는" 순차 잠금이었다.
+    // 그런데 문법은 로드맵과 별개 트랙이라, 지금 배우는 유닛에 필요한 문법이
+    // 뒤쪽 섹션에 있어도 못 보는 일이 생겼다. 참고서를 앞에서부터 다 풀어야
+    // 뒷장을 볼 수 있는 꼴이라 학습을 오히려 막았다.
+    //
+    // 유료 구분(freeSections)은 그대로 둔다 — 그건 진도가 아니라 결제 문제다.
+    // 화면은 unlockedThrough 안쪽이면서 무료 범위 밖인 섹션에 프리미엄 자물쇠를
+    // 띄운다(grammar-list.tsx 의 premiumLocked).
     const bySection = new Map<number, typeof grammars>();
     grammars.forEach((g) => {
       const arr = bySection.get(g.section) ?? [];
@@ -160,9 +169,8 @@ export class GrammarService {
     let unlockedThrough = 0;
     for (let s = 1; s <= 12; s++) {
       const items = bySection.get(s);
-      if (!items || items.length === 0) break; // 데이터 없으면 중단
-      unlockedThrough = s; // 이 섹션은 열림
-      if (!items.every((g) => g.completed)) break; // 미완료면 다음은 잠금
+      if (!items || items.length === 0) break; // 데이터가 없는 섹션부터는 표시할 게 없다
+      unlockedThrough = s;
     }
 
     return {

@@ -184,14 +184,36 @@ export class SpeechService {
       this.logger.log(`${logLabel}: ${summary}`);
     }
 
+    // ── 아무 말도 안 한 경우는 오답이 아니다 ──
+    //
+    // Azure 가 NoMatch 를 주면 위에서 no_speech 로 잡힌다. 그런데 거의 무음이나
+    // 잡음만 있어도 RecognizedSpeech 를 주면서 **빈 문장 + 점수 0** 을 돌려줄
+    // 때가 있다. 그걸 그대로 내보내면 화면은 status=success/passed=false 를
+    // 받아 "틀렸다" 로 처리한다 — 유저는 말을 한 적도 없는데 오답이 된다.
+    //
+    // 세 신호 중 하나라도 걸리면 "못 들었다" 로 돌려서 다시 말하게 한다.
+    //   · 인식된 문장이 비었다
+    //   · 발음·완성도 점수가 둘 다 0 (Azure 가 평가할 게 없었다)
+    //   · 오디오 피크가 5% 미만 = 사실상 무음 (마이크가 안 잡힌 것)
+    // 웅얼거려서 점수가 낮은 건 여기 안 걸린다 — 그건 진짜 시도라 오답이 맞다.
+    const heardNothing =
+      !outcome.text.trim() ||
+      (scores.pron === 0 && scores.completeness === 0) ||
+      stats.peakPct < 5;
+
+    const status: SpeechStatus =
+      outcome.status === 'success' && heardNothing
+        ? 'no_speech'
+        : outcome.status;
+
     const passed =
-      outcome.status === 'success' &&
+      status === 'success' &&
       scores.pron >= threshold.pron &&
       scores.completeness >= threshold.completeness &&
       textSimilarity >= textSimilarityBar;
 
     return {
-      status: outcome.status,
+      status,
       passed,
       transcript: outcome.text,
       referenceText,

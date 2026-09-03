@@ -16,11 +16,11 @@ import {
   AUTO_SPEECH_DELAY_MS,
   type SpeechController,
 } from "@/hooks/useSpeech";
-import type { SpeechLanguage } from "@/services/tts.service";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
 import CheckButton from "../CheckButton";
 import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
+import { speechLanguageOf } from "@/utils/speech-language";
 import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
 
 /**
@@ -48,14 +48,6 @@ interface WordItem {
 }
 /** lineSlot 높이 — 답 영역 줄 높이와 반드시 같아야 한다 */
 const LINE_H = ANSWER_LINE_H;
-
-function speechLanguageOf(language?: string): SpeechLanguage {
-  const base = language?.toLowerCase().split("-")[0];
-  if (base === "uz") return "uz-UZ";
-  if (base === "en") return "en-US";
-  if (base === "ru") return "ru-RU";
-  return "ko-KR";
-}
 
 export default function TranslateBuilder({
   question,

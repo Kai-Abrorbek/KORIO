@@ -13,6 +13,7 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
+import { speechLanguageOf } from "@/utils/speech-language";
 import LessonCharacter from "../LessonCharacter";
 import CheckButton from "../CheckButton";
 import BlankSentence from "../BlankSentence";
@@ -39,15 +40,27 @@ export default function TypeAnswer({
   isChecking = false,
   theme,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const inputRefs = useRef<Record<number, TextInput | null>>({});
   const { speak, isSpeaking } = useSpeech();
   const locked = answerState !== "idle" || isChecking;
-  // ?? 가 아니라 || 다. 서버가 npcText 를 빈 문자열로 내려보내기 때문에
-  // ?? 로는 걸러지지 않아 말풍선이 비고 TTS 도 조용해진다.
-  const promptText = question.npcText || question.answer;
+  // 말풍선에 무엇을 띄우나.
+  //
+  //   npcText           : 한국어 지문이 따로 있는 문항 (71개)
+  //   answerTranslation : 나머지 — 학습자 언어로 된 "이 뜻을 한국어로 써라"
+  //
+  // 예전엔 둘 다 없으면 `question.answer` 로 폴백했다. 그게 **한국어 정답을
+  // 말풍선에 그대로 띄우는** 짓이었다. 답이 보이면 문제가 아니다.
+  // 서버가 type_answer 를 GRAMMAR_PROMPT_TYPES 에 넣어 answerTranslation 을
+  // ko→en 폴백으로 내려주도록 고쳤고, 여기선 answer 폴백을 없앤다.
+  // 그래도 비면 말풍선을 아예 안 그린다 — 빈 칸이 정답 노출보다 낫다.
+  const promptText = question.npcText || question.answerTranslation || "";
+  // 지문이 한국어인지 학습자 언어인지에 따라 TTS 언어가 갈린다
+  const promptLang = question.npcText
+    ? "ko-KR"
+    : speechLanguageOf(i18n.resolvedLanguage ?? i18n.language);
 
   // 빈칸 개수 제한 없음. 기존 단일 빈칸 문항은
   // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.
@@ -98,30 +111,35 @@ export default function TypeAnswer({
           {question.question || t("lesson.translateSentence")}
         </Text>
 
-        {/* 캐릭터 + 말풍선 */}
+        {/* 캐릭터 + 말풍선. 지문이 없으면 말풍선은 안 그린다 */}
         <View style={s.npcRow}>
           <LessonCharacter
             state={answerState}
             seed={question.id}
             height={150}
           />
-          <View style={s.bubble}>
-            {/* 꼬리 */}
-            <View style={s.tailBorder} />
-            <View style={s.tailInner} />
+          {!!promptText && (
+            <View style={s.bubble}>
+              {/* 꼬리 */}
+              <View style={s.tailBorder} />
+              <View style={s.tailInner} />
 
-            <TouchableOpacity onPress={() => speak(promptText)} hitSlop={8}>
-              <Ionicons
-                name="volume-medium"
-                size={24}
-                color={isSpeaking ? theme.primary : "#1A9BE6"}
-              />
-            </TouchableOpacity>
-            <View style={s.bubbleTextWrap}>
-              <Text style={s.bubbleText}>{promptText}</Text>
-              <View style={s.dashedUnderline} />
+              <TouchableOpacity
+                onPress={() => speak(promptText, promptLang)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="volume-medium"
+                  size={24}
+                  color={isSpeaking ? theme.primary : "#1A9BE6"}
+                />
+              </TouchableOpacity>
+              <View style={s.bubbleTextWrap}>
+                <Text style={s.bubbleText}>{promptText}</Text>
+                <View style={s.dashedUnderline} />
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         {/* 빈칸 채우기 (빈칸 개수 제한 없음) */}

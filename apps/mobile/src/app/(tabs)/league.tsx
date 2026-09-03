@@ -164,6 +164,13 @@ export default function LeagueScreen() {
   // 거리는 rank 차 × 상수로 계산하지 않는다. 승급·강등 구분선이 행 사이에
   // 끼어 있어서 그 계산이 틀어진다. 실제 onLayout 좌표를 쓴다.
   const [animDone, setAnimDone] = useState(false);
+  /**
+   * 개발용 재생. 이 애니메이션은 "실제로 순위가 올라야" 볼 수 있어서, 고쳐도
+   * 확인할 방법이 없었다. 확인이 안 되니 망가진 채로 오래 남아 있었다.
+   * 개발 빌드에서 리더보드를 길게 누르면 세 계단 올라온 것처럼 다시 재생한다.
+   * 릴리스 빌드에선 아예 동작하지 않는다.
+   */
+  const [devPrevRank, setDevPrevRank] = useState<number | null>(null);
   const rowY = useRef(new Map<number, number>());
   const [measuredCount, setMeasuredCount] = useState(0);
 
@@ -180,7 +187,7 @@ export default function LeagueScreen() {
     const me = data.members.find((m) => m.isMe);
     if (!me) return out;
 
-    const prev = data.previousRank ?? me.rank;
+    const prev = devPrevRank ?? data.previousRank ?? me.rank;
     if (prev <= me.rank) return out; // 안 올랐으면 애니 없음
 
     const yOf = (rank: number) => rowY.current.get(rank);
@@ -202,7 +209,16 @@ export default function LeagueScreen() {
     return out;
     // measuredCount 가 바뀔 때마다 다시 계산한다 (rowY 는 ref 라 의존성에 못 넣는다)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, animDone, measuredCount]);
+  }, [data, animDone, measuredCount, devPrevRank]);
+
+  /** 개발 빌드에서만: 리더보드를 길게 눌러 애니를 다시 본다 */
+  const replayRankAnim = useCallback(() => {
+    if (!__DEV__ || !data) return;
+    const me = data.members.find((m) => m.isMe);
+    if (!me) return;
+    setAnimDone(false);
+    setDevPrevRank(Math.min(data.members.length, me.rank + 3));
+  }, [data]);
 
   const animReady = startOffsets.size > 0;
 
@@ -267,7 +283,15 @@ export default function LeagueScreen() {
     <View style={s.container}>
       {/* 헤더 */}
       <View style={s.header}>
-        <Text style={s.title}>{t(`league.tiers.${data.tier}`)}</Text>
+        {/* 개발 빌드에서만: 티어 이름을 길게 눌러 순위 애니를 다시 본다.
+            릴리스에선 onLongPress 가 undefined 라 그냥 텍스트다 */}
+        <Text
+          style={s.title}
+          onLongPress={__DEV__ ? replayRankAnim : undefined}
+          suppressHighlighting
+        >
+          {t(`league.tiers.${data.tier}`)}
+        </Text>
         <View style={s.timeRow}>
           <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
           <Text style={s.timeText}>{timeLabel}</Text>
