@@ -46,8 +46,11 @@ export const HELP_FAQ: HelpItem[] = [
  * (임시값이라 배포 전에 반드시 교체할 것)
  */
 export const SUPPORT = {
-  email: "support@korio.app",
-  telegram: "https://t.me/korio_support",
-  terms: "https://korio.app/terms",
-  privacy: "https://korio.app/privacy",
+  email: "abror0dev@gmail.com",
+  telegram: "https://t.me/Abror_bek_0",
+  // 도메인은 korio.online 이다 (korio.app 은 우리 것이 아니다).
+  // ⚠️ 이 두 페이지는 아직 없다. 구글 플레이는 개인정보처리방침 URL 을
+  //    필수로 요구하므로 심사 전에 올려야 한다.
+  terms: "https://korio.online/terms",
+  privacy: "https://korio.online/privacy",
 };

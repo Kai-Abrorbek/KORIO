@@ -33,6 +33,8 @@ export default function LessonCompleteScreen() {
     /** 유닛을 통째로 끝내 스코어가 올랐으면 새 스코어 */
     scoreUp?: string;
     scoreUpUnit?: string;
+    /** 오늘의 첫 레슨이면 연속 학습일 */
+    dailyStreak?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -45,6 +47,24 @@ export default function LessonCompleteScreen() {
 
   // "계속" 버튼 onPress:
   const onContinue = () => {
+    // 축하 화면 순서는 여기서 한 번만 정한다:
+    //   연속 학습(하루에 한 번) → 스코어 상승(유닛) → 상자 → 원래 가던 곳
+    // 오늘 처음 학습한 순간이 가장 큰 사건이라 맨 앞에 둔다. streak-day 가
+    // 스코어 파라미터를 그대로 들고 가서 이어 붙인다.
+    if (params.dailyStreak) {
+      router.replace({
+        pathname: "/streak-day",
+        params: {
+          streak: params.dailyStreak,
+          scoreUp: params.scoreUp ?? "",
+          scoreUpUnit: params.scoreUpUnit ?? "",
+          category: params.category ?? "",
+          from: params.from ?? "",
+        },
+      });
+      return;
+    }
+
     // 스코어가 올랐으면 먼저 그걸 보여준다. 유닛 하나를 통째로 끝내야 오르는
     // 드문 순간이라 로드맵에 그냥 돌려보내면 아무도 눈치채지 못한다.
     if (params.scoreUp) {

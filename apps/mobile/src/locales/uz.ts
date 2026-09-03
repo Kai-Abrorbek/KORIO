@@ -1368,6 +1368,12 @@ export default {
       other: "So'z",
     },
   },
+  streakDay: {
+    eyebrow: "Ketma-ket kunlar",
+    title: "Juda zo‘r!",
+    subtitle: "Ketma-ketlikni saqlash uchun\nhar kuni mashq qiling",
+    continue: "Davom etish",
+  },
   scoreUp: {
     eyebrow: "DARAJA OSHDI",
     title: "Daraja {{score}} ga yetdingiz!",

@@ -1384,6 +1384,12 @@ export default {
       other: "Word",
     },
   },
+  streakDay: {
+    eyebrow: "Streak",
+    title: "Amazing!",
+    subtitle: "Keep practicing every day\nto continue your streak",
+    continue: "Continue",
+  },
   scoreUp: {
     eyebrow: "SCORE UP",
     title: "You reached score {{score}}!",

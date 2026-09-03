@@ -674,9 +674,20 @@ function Sheet({
   const insets = useSafeAreaInsets();
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
+      {/*
+        안드로이드에서 behavior 가 undefined 였다. 그러면 KeyboardAvoidingView
+        는 아무것도 안 한다 — 키보드가 그냥 입력창을 덮었다.
+
+        앱 전체는 app.json 의 softwareKeyboardLayoutMode:"resize" 덕에 창이
+        알아서 줄어든다. 하지만 **Modal 은 별도의 창**이라 그 설정을 물려받지
+        않는다. 그래서 시트 안에서는 KAV 가 직접 밀어 올려야 한다.
+
+        이 Sheet 를 이 화면의 모든 모달이 공유하므로, 여기 한 곳이 계정 관리의
+        입력창 전부를 담당한다.
+      */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={s.modalBg}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />

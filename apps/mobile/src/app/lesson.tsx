@@ -853,6 +853,12 @@ export default function LessonScreen() {
             scoreUpUnit: res.unitCompleted
               ? String(res.unitCompleted.unit)
               : "",
+            // 오늘의 첫 레슨이면 연속 학습 축하를 먼저 보여준다.
+            // "오늘 처음인가" 판정은 서버가 한다 (클라가 세면 앱을 껐다 켤
+            // 때마다 또 축하한다)
+            dailyStreak: res.dailyStreak
+              ? String(res.dailyStreak.streak)
+              : "",
             gemTotal: String(gemsBefore),
             category: category ?? "",
             from: fromStudyPath ? "studyPath" : "",

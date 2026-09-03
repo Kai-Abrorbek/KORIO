@@ -69,8 +69,20 @@ export default function BlankSentence({
     fontWeight: "600",
   };
 
+  /**
+   * 빈칸 하나만 있고 앞뒤 문장이 없는 경우 = "문장 전체를 직접 쓴다" 문제다
+   * (templateOf 가 "___" 만 돌려준다). 이때는 칸을 글자 수에 맞춰 늘리는 게
+   * 아니라 **한 줄 전체 폭**을 주고, 길어지면 다음 줄로 넘어가게 해야 한다.
+   * 좁은 칸에 긴 문장을 쓰면 글자가 옆으로 흘러 읽을 수가 없다.
+   *
+   * 문장 사이에 낀 빈칸(빈칸 채우기)은 지금처럼 인라인으로 둔다 — 거기선
+   * 칸이 문장 흐름 안에 있어야 뜻이 보인다.
+   */
+  const soleBlank =
+    mode === "input" && tokens.length === 1 && tokens[0].type === "blank";
+
   return (
-    <View style={s.row}>
+    <View style={[s.row, soleBlank && s.rowFull]}>
       {tokens.map((tk, i) => {
         if (tk.type === "text") {
           return (
@@ -89,7 +101,13 @@ export default function BlankSentence({
           return (
             <View
               key={`b-${tk.index}`}
-              style={[s.blank, { minWidth, borderBottomColor: accent }]}
+              style={[
+                s.blank,
+                soleBlank
+                  ? s.blankFull
+                  : { minWidth, alignItems: "center" as const },
+                { borderBottomColor: accent },
+              ]}
             >
               <TextInput
                 ref={(el) => {
@@ -97,8 +115,24 @@ export default function BlankSentence({
                 }}
                 style={[
                   s.input,
-                  { fontSize, color: theme.text, height: fontSize * 1.7 },
+                  soleBlank ? s.inputFull : null,
+                  {
+                    fontSize,
+                    color: theme.text,
+                    // 여러 줄일 땐 높이를 고정하면 안 된다. 최소 한 줄만 잡고
+                    // 내용이 길어지면 알아서 늘어나게 둔다
+                    ...(soleBlank
+                      ? {
+                          minHeight: fontSize * 1.9,
+                          lineHeight: fontSize * 1.5,
+                        }
+                      : { height: fontSize * 1.7 }),
+                  },
                 ]}
+                multiline={soleBlank}
+                // 여러 줄 입력에서 Enter 는 줄바꿈이라 제출로 쓰지 않는다.
+                // 제출은 화면 하단 확인 버튼이 맡는다
+                returnKeyType={soleBlank ? "default" : "done"}
                 value={value}
                 onChangeText={(txt) => onChange?.(tk.index, txt)}
                 editable={!locked}
@@ -106,12 +140,15 @@ export default function BlankSentence({
                 autoCorrect={false}
                 spellCheck={false}
                 autoCapitalize="none"
-                onSubmitEditing={onSubmit}
-                returnKeyType="done"
+                onSubmitEditing={soleBlank ? undefined : onSubmit}
               />
               {!value && (
                 <Text
-                  style={[s.hint, { color: theme.textSecondary }]}
+                  style={[
+                    s.hint,
+                    soleBlank && s.hintFull,
+                    { color: theme.textSecondary },
+                  ]}
                   pointerEvents="none"
                 >
                   ·····
@@ -158,12 +195,20 @@ const s = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "flex-end",
   },
+  /** 단독 빈칸: 줄 전체를 쓴다 */
+  rowFull: { alignSelf: "stretch" },
   blank: {
     justifyContent: "flex-end",
-    alignItems: "center",
     marginHorizontal: 4,
     borderBottomWidth: 2.5,
     paddingHorizontal: 4,
+  },
+  blankFull: {
+    flex: 1,
+    alignSelf: "stretch",
+    alignItems: "stretch",
+    marginHorizontal: 0,
+    paddingBottom: 4,
   },
   slotText: { textAlign: "center" },
   input: {
@@ -171,6 +216,13 @@ const s = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 0,
     minWidth: 64,
+  },
+  inputFull: {
+    width: "100%",
+    minWidth: 0,
+    textAlign: "left",
+    textAlignVertical: "top",
+    paddingTop: 2,
   },
   hint: {
     position: "absolute",
@@ -180,4 +232,5 @@ const s = StyleSheet.create({
     letterSpacing: 4,
     opacity: 0.45,
   },
+  hintFull: { alignSelf: "flex-start", left: 2 },
 });

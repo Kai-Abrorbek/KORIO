@@ -141,6 +141,10 @@ export default function RootLayout() {
               options={{ headerShown: false, gestureEnabled: false }}
             />
             <Stack.Screen
+              name="streak-day"
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="jump-start"
               options={{ headerShown: false, gestureEnabled: false }}
             />

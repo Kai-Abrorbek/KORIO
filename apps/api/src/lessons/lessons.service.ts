@@ -427,6 +427,12 @@ export class LessonsService {
       { upsert: true, returnDocument: 'after' },
     );
 
+    // ── 오늘 첫 학습인가 ──
+    // recordStudy **전에** 봐야 한다. 그 다음엔 오늘 기록이 생겨 버려서
+    // "처음"인지 알 수 없다. 하루 경계는 유저 시간대로 자른다 —
+    // 서버 로컬(KST)로 자르면 타슈켄트 유저의 저녁 학습이 다음 날로 넘어간다.
+    const firstStudyToday = !(await this.hasStudiedToday(userId));
+
     // 통계 기록 (카테고리는 문제 타입에서 유도 — recordStudy 가 처리)
     await this.recordStudy(userId, {
       questionIds: lesson.questionIds,
@@ -439,7 +445,9 @@ export class LessonsService {
     });
 
     // ── 연속 학습일 갱신 (오늘 기록 저장된 뒤에 호출해야 함) ──
-    await this.usersService.syncStreak(userId).catch(() => {});
+    const streakNow = await this.usersService
+      .syncStreak(userId)
+      .catch(() => null);
     await this.userModel
       .updateOne(
         { _id: new Types.ObjectId(userId) },
@@ -542,6 +550,17 @@ export class LessonsService {
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
       /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
       unitCompleted,
+      /**
+       * 오늘의 **첫** 레슨이면 채워진다. 연속 학습일 축하 화면을 띄우는 신호다.
+       * 판정도 숫자도 서버가 준다 — 클라가 "오늘 처음인가" 를 세면 앱을 껐다
+       * 켜거나 두 기기에서 풀 때 또 축하한다.
+       */
+      dailyStreak: firstStudyToday
+        ? {
+            streak: streakNow?.current ?? 0,
+            longest: streakNow?.longest ?? 0,
+          }
+        : null,
     };
   }
 
@@ -653,6 +672,24 @@ export class LessonsService {
    * 카테고리는 문제의 lessonCategory(없으면 타입)에서 자동 유도되므로
    * 호출부는 카테고리를 몰라도 된다.
    */
+  /**
+   * 오늘(유저 시간대 기준) 이미 학습 기록이 있나.
+   *
+   * "오늘 첫 레슨" 축하 화면을 한 번만 띄우려고 쓴다. 반드시 recordStudy 를
+   * 부르기 **전에** 확인해야 한다.
+   */
+  private async hasStudiedToday(userId: string): Promise<boolean> {
+    const today = startOfDay(
+      new Date(),
+      await this.usersService.getTimezone(userId),
+    );
+    const stat = await this.userStatsModel
+      .findOne({ userId: new Types.ObjectId(userId), date: today })
+      .select('totalQuestions xpEarned')
+      .lean();
+    return !!stat && ((stat.totalQuestions ?? 0) > 0 || (stat.xpEarned ?? 0) > 0);
+  }
+
   async recordStudy(
     userId: string,
     params: {

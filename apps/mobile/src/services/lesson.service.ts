@@ -128,6 +128,8 @@ export const LessonService = {
     chest: { grade: "wood" | "silver" | "gold"; gems: number } | null;
     /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
     unitCompleted: { section: number; unit: number; score: number } | null;
+    /** 오늘의 첫 레슨이면 채워진다. 연속 학습 축하 화면을 띄우는 신호 */
+    dailyStreak: { streak: number; longest: number } | null;
   }> => {
     return api.post(`/lessons/${lessonId}/complete`, data);
   },

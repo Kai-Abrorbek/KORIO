@@ -1389,6 +1389,12 @@ export default {
       other: "Слово",
     },
   },
+  streakDay: {
+    eyebrow: "Серия дней",
+    title: "Отлично!",
+    subtitle: "Занимайтесь каждый день,\nчтобы не прервать серию",
+    continue: "Продолжить",
+  },
   scoreUp: {
     eyebrow: "СЧЁТ ВЫРОС",
     title: "Счёт {{score}} достигнут!",

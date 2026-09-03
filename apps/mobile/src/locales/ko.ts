@@ -1360,6 +1360,12 @@ export default {
       other: "단어",
     },
   },
+  streakDay: {
+    eyebrow: "연속 학습 상승",
+    title: "정말 멋지십니다!",
+    subtitle: "연속 기록을 이어가려면\n매일 연습을 계속해 주세요",
+    continue: "계속하기",
+  },
   scoreUp: {
     eyebrow: "스코어 상승",
     title: "스코어 {{score}} 달성!",
