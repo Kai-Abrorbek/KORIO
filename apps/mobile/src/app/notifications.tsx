@@ -1,4 +1,5 @@
 import {
+  Alert,
   View,
   Text,
   StyleSheet,
@@ -17,7 +18,11 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useSettingsStore } from "@/store/settings.store";
+import {
+  useSettingsStore,
+  type NotificationPrefs,
+} from "@/store/settings.store";
+import { PushApi } from "@/services/push.service";
 
 const fmtHour = (h: number) => `${String(h).padStart(2, "0")}:00`;
 
@@ -68,6 +73,99 @@ function ToggleRow({
   );
 }
 
+/**
+ * 개발자 전용 푸시 테스트 패널.
+ *
+ * 크론은 매시 정각에 돌고 슬롯 시각이 맞아야 나가서, 그냥 두면 알림 하나
+ * 확인하는 데 하루가 걸린다. 확인할 수 없는 규칙은 조용히 틀린다
+ * (리그 애니메이션이 그랬다).
+ *
+ * __DEV__ 안에서만 렌더되므로 릴리스 빌드에는 안 들어간다.
+ * 그래서 여기 문구만 i18n 을 안 거쳤다 — 유저는 이 화면을 볼 수 없다.
+ */
+function DevPushPanel({ s, theme }: { s: any; theme: ThemeColors }) {
+  const [busy, setBusy] = useState(false);
+
+  const run = async (label: string, fn: () => Promise<any>) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await fn();
+      Alert.alert(label, JSON.stringify(res, null, 2).slice(0, 1200));
+    } catch (e: any) {
+      Alert.alert(`${label} 실패`, String(e?.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const TYPES = [
+    ["engage", "재미 유도"],
+    ["daily_reminder", "학습 시간"],
+    ["streak_risk", "스트릭 위험"],
+    ["guided_idle", "로드학습 재촉"],
+    ["trial_ending", "체험 종료"],
+    ["follow", "팔로우"],
+    ["league_promoted", "리그 승급"],
+  ] as const;
+
+  return (
+    <>
+      <Text style={s.sectionLabel}>개발자 (DEV 빌드 전용)</Text>
+      <View style={s.card}>
+        <TouchableOpacity
+          style={s.timeRow}
+          onPress={() => run("기기 등록 상태", () => PushApi.status())}
+        >
+          <Text style={s.timeLabel}>기기 등록 상태 보기</Text>
+          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+        </TouchableOpacity>
+        <View style={s.rowDivider} />
+        <TouchableOpacity
+          style={s.timeRow}
+          onPress={() => run("지금 나갈 알림", () => PushApi.preview())}
+        >
+          <Text style={s.timeLabel}>지금 뭐가 나갈지 (발송 안 함)</Text>
+          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={[s.card, { paddingVertical: 12 }]}>
+        <Text style={[s.rowDesc, { marginBottom: 10 }]}>
+          눌러서 이 폰으로 바로 발송 (설정·한도 무시)
+        </Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {TYPES.map(([type, label]) => (
+            <TouchableOpacity
+              key={type}
+              disabled={busy}
+              onPress={() => {
+                Haptics.selectionAsync();
+                void run(label, () => PushApi.test(type));
+              }}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                backgroundColor: theme.surface,
+                borderWidth: 1.5,
+                borderColor: theme.border,
+                opacity: busy ? 0.5 : 1,
+              }}
+            >
+              <Text
+                style={{ color: theme.text, fontSize: 12, fontWeight: "700" }}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </>
+  );
+}
+
 export default function NotificationSettings() {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -75,6 +173,18 @@ export default function NotificationSettings() {
   const s = getStyles(theme);
   const { notifications: n, setNotifications } = useSettingsStore();
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  /**
+   * 스위치 하나 = 로컬 저장 + 서버 저장.
+   *
+   * ⚠️ 로컬에만 저장하면 알림은 계속 온다. 보낼지 말지를 정하는 건 앱이 아니라
+   * 서버 크론이라서, 서버가 이 값을 모르면 꺼도 소용이 없다.
+   * 서버 저장이 실패해도 화면은 그대로 둔다 — 다음에 열 때 다시 보낸다.
+   */
+  const patch = (p: Partial<NotificationPrefs>) => {
+    setNotifications(p);
+    PushApi.updateSettings(p).catch(() => {});
+  };
 
   const off = !n.master;
 
@@ -107,7 +217,7 @@ export default function NotificationSettings() {
             label={t("settings.notifications.master")}
             desc={t("settings.notifications.masterDesc")}
             value={n.master}
-            onValueChange={(v) => setNotifications({ master: v })}
+            onValueChange={(v) => patch({ master: v })}
             theme={theme}
             s={s}
           />
@@ -126,7 +236,7 @@ export default function NotificationSettings() {
             desc={t("settings.notifications.dailyDesc")}
             value={n.daily}
             disabled={off}
-            onValueChange={(v) => setNotifications({ daily: v })}
+            onValueChange={(v) => patch({ daily: v })}
             theme={theme}
             s={s}
           />
@@ -161,7 +271,7 @@ export default function NotificationSettings() {
             desc={t("settings.notifications.streakDesc")}
             value={n.streak}
             disabled={off}
-            onValueChange={(v) => setNotifications({ streak: v })}
+            onValueChange={(v) => patch({ streak: v })}
             theme={theme}
             s={s}
           />
@@ -179,7 +289,7 @@ export default function NotificationSettings() {
             label={t("settings.notifications.league")}
             value={n.league}
             disabled={off}
-            onValueChange={(v) => setNotifications({ league: v })}
+            onValueChange={(v) => patch({ league: v })}
             theme={theme}
             s={s}
           />
@@ -191,7 +301,7 @@ export default function NotificationSettings() {
             label={t("settings.notifications.friends")}
             value={n.friends}
             disabled={off}
-            onValueChange={(v) => setNotifications({ friends: v })}
+            onValueChange={(v) => patch({ friends: v })}
             theme={theme}
             s={s}
           />
@@ -209,11 +319,13 @@ export default function NotificationSettings() {
             label={t("settings.notifications.events")}
             value={n.events}
             disabled={off}
-            onValueChange={(v) => setNotifications({ events: v })}
+            onValueChange={(v) => patch({ events: v })}
             theme={theme}
             s={s}
           />
         </View>
+
+        {__DEV__ && <DevPushPanel s={s} theme={theme} />}
       </ScrollView>
 
       {/* 시간 선택 시트 */}
@@ -243,7 +355,7 @@ export default function NotificationSettings() {
                     activeOpacity={0.6}
                     onPress={() => {
                       Haptics.selectionAsync();
-                      setNotifications({ dailyHour: h });
+                      patch({ dailyHour: h });
                       setPickerOpen(false);
                     }}
                   >

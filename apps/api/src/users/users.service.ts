@@ -29,6 +29,8 @@ import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive, isSuperStale } from './super.util';
 import { NotificationsService } from '../notifications/notifications.service';
+import { PushService } from '../push/push.service';
+import { PushType } from '../push/push.types';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 import { computeEnergy } from '../energy/energy.util';
 import { calcStreak } from './utils/streak.util';
@@ -66,6 +68,7 @@ export class UsersService {
     private progressModel: Model<UserProgressDocument>,
     @InjectModel(LessonNode.name) private nodeModel: Model<LessonNodeDocument>,
     private readonly notifications: NotificationsService,
+    private readonly push: PushService,
   ) {}
 
   /**
@@ -769,6 +772,17 @@ export class UsersService {
         params: { nickname: me?.nickname ?? '' },
         link: `/friend-profile?id=${currentUserId}`,
         imageUrl: me?.profileImage ?? '',
+      })
+      .catch(() => {});
+
+    // 폰으로도 알려준다. 인앱 알림은 앱을 열어야 보이는데, 팔로우는
+    // "다시 열게 만드는" 이벤트라 열기 전에 닿아야 의미가 있다.
+    // 언팔 → 재팔로우로 계속 울릴 수 있으니 상대별로 하루 한 번만.
+    await this.push
+      .send(targetUserId, PushType.FOLLOW, {
+        params: { nickname: me?.nickname ?? '' },
+        link: `/friend-profile?id=${currentUserId}`,
+        dedupKey: `follow:${currentUserId}:${dayKey(new Date())}`,
       })
       .catch(() => {});
 

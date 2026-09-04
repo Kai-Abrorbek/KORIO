@@ -18,6 +18,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
 import { authService } from "@/services/auth.service";
 import KorioLogo from "@/components/home/KorioLogo";
+import TrialBanner from "@/components/auth/TrialBanner";
 import KakaoIcon from "../../../assets/icons/kakaotalk.svg";
 import NaverIcon from "../../../assets/icons/naver.svg";
 import TelegramIcon from "../../../assets/icons/telegram.svg";
@@ -26,9 +27,12 @@ import { useSocialAuth } from "@/hooks/useSocialAuth";
 import { useOnboardingStore } from "@/store/onboarding.store";
 
 export default function LoginScreen() {
-  const { socialError } = useLocalSearchParams<{
+  const { socialError, trial } = useLocalSearchParams<{
     socialError?: string | string[];
+    trial?: string | string[];
   }>();
+  /** 요금제 화면의 "무료체험 시작하기" 를 눌러서 왔는지 */
+  const fromTrial = (Array.isArray(trial) ? trial[0] : trial) === "1";
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -120,6 +124,8 @@ export default function LoginScreen() {
         </View>
 
         <Text style={styles.title}>{t("auth.login")}</Text>
+
+        {fromTrial && <TrialBanner />}
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
@@ -240,7 +246,12 @@ export default function LoginScreen() {
 
         <TouchableOpacity
           style={styles.registerLink}
-          onPress={() => router.push("/auth/register")}
+          onPress={() =>
+            router.push({
+              pathname: "/auth/register",
+              params: fromTrial ? { trial: "1" } : {},
+            })
+          }
         >
           <Text style={styles.registerLinkText}>
             {t("auth.noAccount")}{" "}

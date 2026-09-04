@@ -24,7 +24,7 @@ import {
 import { AuthProvider } from '../common/enums/provider.enum';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
-import { trialFields } from '../users/super.util';
+import { trialFields, isSuperActive } from '../users/super.util';
 import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
 
 @Injectable()
@@ -356,6 +356,11 @@ export class AuthService {
         isOnboardingCompleted: freshUser.isOnboardingCompleted,
         languageLevel: freshUser.placementLevel || 1,
         hasPickedLevel: !!freshUser.placementLevelSetAt,
+        // 가입 직후 체험이 켜진 걸 앱이 곧바로 알아야 한다.
+        // getMe 를 기다리면 첫 화면이 잠깐 무료 유저로 그려진다.
+        isSuper: isSuperActive(freshUser),
+        superPlan: freshUser.superPlan ?? null,
+        superExpiresAt: freshUser.superExpiresAt ?? null,
       },
     };
   }

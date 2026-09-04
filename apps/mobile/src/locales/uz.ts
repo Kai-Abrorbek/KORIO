@@ -110,6 +110,7 @@ export default {
       loginNote:
         "Kirsangiz, bu boshlanish nuqtasi hisobingizga saqlanadi.",
       startAtSection: "{{section}}-bo'limdan boshlash",
+      seePlan: "Rejamni ko'rish",
     },
   },
   auth: {
@@ -751,6 +752,8 @@ export default {
       subtitle: "Ilova tilini tanlang",
     },
     notifications: {
+      channelDefault: "KORIO bildirishnomalari",
+      channelStudy: "Dars eslatmalari",
       master: "Barcha bildirishnomalar",
       masterDesc: "Hamma bildirishnomalarni yoqish yoki o'chirish",
       learningSection: "O'quv",
@@ -1177,6 +1180,35 @@ export default {
       TUTOR_NOT_CONFIGURED: "Hozircha mavjud emas.",
       TUTOR_SESSION_FAILED: "Suhbatni boshlab bo'lmadi. Qayta urinib ko'ring.",
     },
+  },
+  // Ro'yxatdan o'tishdan oldingi tariflar ekrani (app/onboarding/plan.tsx)
+  plan: {
+    freeDays: "{{days}} kun bepul",
+    heroTitle: "To'lovsiz, hoziroq boshlang",
+    heroSub: "{{section}}-bo'limdan boshlanadigan shaxsiy kurs tayyor",
+    timeline: {
+      title: "Bepul sinov qanday o'tadi",
+      dayToday: "Bugun",
+      dayN: "{{day}}-kun",
+      todayTitle: "SUPER to'liq ochiladi",
+      todayBody:
+        "Cheksiz energiya va cheksiz takrorlash darhol ochiladi. Bugun hech narsa to'lanmaydi.",
+      remindTitle: "Tugash haqida eslatma",
+      remindBody: "Sinov tugashidan {{first}} va {{second}} kun oldin — ikki marta xabar beramiz.",
+      endTitle: "Sinov tugaydi",
+      endBody: "Davom ettirmoqchi bo'lsangizgina tarifni tanlaysiz.",
+    },
+    featuresTitle: "Sinov davomida nima ochiladi",
+    afterTrialLabel: "Sinovdan keyingi tariflar",
+    priceLater: "Tarifni sinov tugagandan keyin ham tanlashingiz mumkin.",
+    terms:
+      "{{days}} kunlik sinov bepul. Avtomatik to'lov yechilmaydi — davom etishni keyin o'zingiz tanlaysiz.",
+    footerNote: "Bugun hech narsa to'lanmaydi",
+    footerNoteWithPrice: "{{days}} kun bepul · keyin oyiga {{price}}",
+    startTrial: "{{days}} kunlik bepul sinovni boshlash",
+    authBannerTitle: "{{days}} kunlik bepul sinov",
+    authBannerBody: "Kirishingiz bilan SUPER darhol ochiladi",
+    close: "Yopish",
   },
   premium: {
     totalPrice: "Jami {{price}}",

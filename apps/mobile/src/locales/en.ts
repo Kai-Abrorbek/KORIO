@@ -109,6 +109,7 @@ export default {
       score: "Accuracy",
       loginNote: "Log in to save this starting point to your account.",
       startAtSection: "Start at Section {{section}}",
+      seePlan: "See my plan",
     },
   },
   auth: {
@@ -746,6 +747,8 @@ export default {
       subtitle: "Choose your app language",
     },
     notifications: {
+      channelDefault: "KORIO notifications",
+      channelStudy: "Study reminders",
       master: "All notifications",
       masterDesc: "Turn all notifications on or off",
       learningSection: "Learning",
@@ -1172,6 +1175,35 @@ export default {
       TUTOR_NOT_CONFIGURED: "This isn't available right now.",
       TUTOR_SESSION_FAILED: "Couldn't start the conversation. Please try again.",
     },
+  },
+  // Pre-signup plan screen (app/onboarding/plan.tsx)
+  plan: {
+    freeDays: "{{days}} days free",
+    heroTitle: "Start now — nothing to pay",
+    heroSub: "Your personalised course starts at Section {{section}}",
+    timeline: {
+      title: "How your free trial works",
+      dayToday: "Today",
+      dayN: "Day {{day}}",
+      todayTitle: "SUPER unlocks completely",
+      todayBody:
+        "Unlimited energy and unlimited review open right away. You pay nothing today.",
+      remindTitle: "Reminder before it ends",
+      remindBody: "We'll remind you twice — {{first}} days and {{second}} day before it ends.",
+      endTitle: "Trial ends",
+      endBody: "Pick a plan only if you want to keep going.",
+    },
+    featuresTitle: "What opens during the trial",
+    afterTrialLabel: "Plans after the trial",
+    priceLater: "You can pick a plan after the trial ends.",
+    terms:
+      "The {{days}}-day trial is free. Nothing is charged automatically — you decide later whether to continue.",
+    footerNote: "You pay nothing today",
+    footerNoteWithPrice: "{{days}} days free · then {{price}}/month",
+    startTrial: "Start {{days}}-day free trial",
+    authBannerTitle: "{{days}}-day free trial",
+    authBannerBody: "Log in and SUPER opens right away",
+    close: "Close",
   },
   premium: {
     totalPrice: "{{price}} total",

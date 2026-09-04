@@ -28,6 +28,7 @@ import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
+import { signOut } from "@/utils/sign-out";
 import { UserService } from "@/services/user.service";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 
@@ -114,7 +115,7 @@ export default function AccountScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
-  const { user, setUserData, logout } = useAuthStore();
+  const { user, setUserData } = useAuthStore();
   const me = user as User | null;
 
   const [editing, setEditing] = useState<Field | null>(null);
@@ -315,7 +316,7 @@ export default function AccountScreen() {
             bg="#E2E5F7"
             label={t("account.logout")}
             onPress={() => {
-              logout();
+              void signOut();
               router.replace("/welcome");
             }}
             s={s}
@@ -371,7 +372,7 @@ export default function AccountScreen() {
           nickname={me.nickname}
           onClose={() => setDeleteOpen(false)}
           onDone={() => {
-            logout();
+            void signOut();
             router.replace("/welcome");
           }}
           s={s}

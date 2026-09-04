@@ -9,7 +9,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
@@ -18,6 +18,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { authService } from "@/services/auth.service";
 import KorioLogo from "@/components/home/KorioLogo";
+import TrialBanner from "@/components/auth/TrialBanner";
 
 export default function RegisterScreen() {
   const { t } = useTranslation();
@@ -25,6 +26,8 @@ export default function RegisterScreen() {
   const styles = getStyles(theme);
   const { setUser } = useAuthStore();
   const { sessionId } = useOnboardingStore();
+  const { trial } = useLocalSearchParams<{ trial?: string | string[] }>();
+  const fromTrial = (Array.isArray(trial) ? trial[0] : trial) === "1";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -83,6 +86,8 @@ export default function RegisterScreen() {
         </View>
 
         <Text style={styles.title}>{t("auth.register")}</Text>
+
+        {fromTrial && <TrialBanner />}
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>

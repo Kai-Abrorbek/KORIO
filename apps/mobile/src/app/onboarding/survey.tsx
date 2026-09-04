@@ -28,6 +28,7 @@ import {
   Interest,
 } from "../../types/enums";
 import { useOnboardingStore } from "../../store/onboarding.store";
+import { useAuthStore } from "@/store/auth.store";
 import { onboardingService } from "@/services/onboarding.service";
 import { UserService } from "@/services/user.service";
 import { useTheme } from "@/hooks/useTheme";
@@ -195,7 +196,9 @@ export default function SurveyScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
-  const { setSurvey, sessionId } = useOnboardingStore();
+  const { setSurvey, sessionId, markGuestOnboardingDone } =
+    useOnboardingStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   const [stepIdx, setStepIdx] = useState(0);
   const [selfLevel, setSelfLevel] = useState<SelfReportedLevel | null>(null);
@@ -502,8 +505,11 @@ export default function SurveyScreen() {
     setSubmitting(false);
 
     if (isBeginner) {
-      // 한글 화면으로 튕기지 않고 홈으로. 로드맵 첫 노드가 "한글 배우기" 로 열려 있다.
-      router.replace("/(tabs)");
+      // 완전초보는 진단을 건너뛴다 — 여기가 온보딩의 끝이다.
+      markGuestOnboardingDone();
+      // 비로그인이면 홈으로 못 간다(가드가 로그인으로 밀어낸다). 요금제로.
+      // 로그인 상태면 로드맵 첫 노드가 "한글 배우기" 로 열려 있으니 홈으로.
+      router.replace(isLoggedIn ? "/(tabs)" : "/onboarding/plan");
     } else {
       router.push({ pathname: "/lesson", params: { mode: "levelTest" } });
     }

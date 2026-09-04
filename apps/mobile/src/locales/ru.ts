@@ -109,6 +109,7 @@ export default {
       score: "Точность",
       loginNote: "Войдите, чтобы сохранить эту точку старта в аккаунте.",
       startAtSection: "Начать с раздела {{section}}",
+      seePlan: "Посмотреть мой план",
     },
   },
   auth: {
@@ -751,6 +752,8 @@ export default {
       subtitle: "Выберите язык приложения",
     },
     notifications: {
+      channelDefault: "Уведомления KORIO",
+      channelStudy: "Напоминания об учёбе",
       master: "Все уведомления",
       masterDesc: "Включить или выключить все уведомления",
       learningSection: "Обучение",
@@ -1177,6 +1180,35 @@ export default {
       TUTOR_NOT_CONFIGURED: "Сейчас недоступно.",
       TUTOR_SESSION_FAILED: "Не удалось начать разговор. Попробуйте ещё раз.",
     },
+  },
+  // Экран тарифов до регистрации (app/onboarding/plan.tsx)
+  plan: {
+    freeDays: "{{days}} дней бесплатно",
+    heroTitle: "Начните сейчас — платить не нужно",
+    heroSub: "Персональный курс начинается с раздела {{section}}",
+    timeline: {
+      title: "Как проходит бесплатный период",
+      dayToday: "Сегодня",
+      dayN: "{{day}}-й день",
+      todayTitle: "SUPER открывается полностью",
+      todayBody:
+        "Безлимитная энергия и повторение доступны сразу. Сегодня вы ничего не платите.",
+      remindTitle: "Напомним о завершении",
+      remindBody: "Напомним дважды — за {{first}} дня и за {{second}} день до конца.",
+      endTitle: "Пробный период заканчивается",
+      endBody: "Тариф выбираете, только если хотите продолжить.",
+    },
+    featuresTitle: "Что открывается на пробный период",
+    afterTrialLabel: "Тарифы после пробного периода",
+    priceLater: "Тариф можно выбрать и после окончания пробного периода.",
+    terms:
+      "{{days}} дней бесплатно. Автоматически ничего не списывается — продолжать или нет, решаете вы.",
+    footerNote: "Сегодня вы ничего не платите",
+    footerNoteWithPrice: "{{days}} дней бесплатно · затем {{price}}/мес",
+    startTrial: "Начать {{days}} дней бесплатно",
+    authBannerTitle: "{{days}} дней бесплатно",
+    authBannerBody: "Войдите — SUPER откроется сразу",
+    close: "Закрыть",
   },
   premium: {
     totalPrice: "Всего {{price}}",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "72172061871",
+    "project_id": "korio-cd112",
+    "storage_bucket": "korio-cd112.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72172061871:android:a7b1ec314175016c2ac05a",
+        "android_client_info": {
+          "package_name": "com.kai_dev.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRsQVIXPNqEo-IULPy9btjoaQu9BLxBi0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

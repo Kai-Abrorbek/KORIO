@@ -1,4 +1,6 @@
-export const TRIAL_DAYS = 7;
+// 무료 체험 일수.
+// apps/mobile/src/constants/trial.ts 의 TRIAL_DAYS 와 반드시 같아야 한다.
+export const TRIAL_DAYS = 30;
 
 // 신규 가입자에게 붙일 체험 필드
 export function trialFields() {

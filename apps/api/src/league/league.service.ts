@@ -55,6 +55,8 @@ const CHALLENGE_XP = 210;
 const ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5분 내 활동 = 온라인
 
 import { NotificationsService } from '../notifications/notifications.service';
+import { PushService } from '../push/push.service';
+import { PushType } from '../push/push.types';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 
 @Injectable()
@@ -64,6 +66,7 @@ export class LeagueService {
     @InjectModel(UserStats.name) private statsModel: Model<UserStatsDocument>,
     @InjectModel(LeagueRoom.name) private roomModel: Model<LeagueRoomDocument>,
     private readonly notifications: NotificationsService,
+    private readonly push: PushService,
   ) {}
 
   // 주 경계(월 00:00) 직후에 정산.
@@ -341,6 +344,17 @@ export class LeagueService {
               link: '/(tabs)/league',
             })
             .catch(() => {});
+
+          // 주간 정산은 앱을 안 열고 있을 때(월요일 새벽) 돈다.
+          // 인앱 알림만 남기면 다음에 열 때까지 아무도 모른다.
+          // dedupKey 에 주차를 넣어 정산이 두 번 돌아도 한 번만 울리게 한다.
+          await this.push
+            .send(uid.toString(), pushTypeOf(change), {
+              params: { rank, gems },
+              link: '/(tabs)/league',
+              dedupKey: `league:${weekKey}`,
+            })
+            .catch(() => {});
         }
       }
 
@@ -495,4 +509,11 @@ export class LeagueService {
     );
     return { ok: true };
   }
+}
+
+/** 승강등 결과 → 푸시 종류 */
+function pushTypeOf(change: string): PushType {
+  if (change === 'promote') return PushType.LEAGUE_PROMOTED;
+  if (change === 'demote') return PushType.LEAGUE_DEMOTED;
+  return PushType.LEAGUE_RESULT;
 }

@@ -7,10 +7,12 @@ import { LeagueController } from './league.controller';
 import { LeagueService } from './league.service';
 
 import { NotificationsModule } from '../notifications/notifications.module';
+import { PushModule } from '../push/push.module';
 
 @Module({
   imports: [
     NotificationsModule,
+    PushModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: UserStats.name, schema: UserStatsSchema },

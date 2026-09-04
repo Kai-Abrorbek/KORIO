@@ -178,7 +178,8 @@ export const useSettingsStore = create<SettingsState>()(
         streak: true,
         league: true,
         friends: true,
-        events: false,
+        // 신규 기능 안내. 끄면 어드민 공지가 안 간다 — 기본은 켜둔다
+        events: true,
       },
       sound: {
         speechVolume: 1,

@@ -108,6 +108,11 @@ export function startOfDayPlus(
   return fromWallClock(wall, zone, off);
 }
 
+/** tz 기준 벽시계 시각(0~23). 푸시 슬롯처럼 "그 사람의 지금 몇 시" 가 필요할 때 */
+export function hourIn(at: Date | string | number, tz?: string): number {
+  return wallClock(new Date(at), resolveTimezone(tz)).getUTCHours();
+}
+
 /** tz 기준 요일. 월=1 … 일=7 */
 export function weekdayIn(at: Date | string | number, tz?: string): number {
   return wallClock(new Date(at), resolveTimezone(tz)).getUTCDay() || 7;

@@ -97,6 +97,33 @@ export class User {
   @Prop({ default: '' })
   timezone: string;
 
+  /**
+   * 앱 UI 언어 (ko / uz / en / ru). 기기에서 받는다.
+   *
+   * targetLanguage("korean")와 다른 축이다 — 이건 "이 사람에게 어느 말로
+   * 말을 걸 것인가". 푸시는 앱이 꺼져 있을 때 서버가 문장을 만들어야 해서
+   * 이 값이 없으면 전부 기본 언어로 나간다.
+   */
+  @Prop({ default: '' })
+  appLanguage: string;
+
+  /**
+   * 푸시 알림 스위치. 설정 화면의 토글과 1:1.
+   *
+   * 기기가 아니라 계정에 붙어야 한다 — 폰을 바꿔도 "리그 알림 껐음" 이
+   * 따라가야 하고, 무엇보다 발송하는 쪽(서버 크론)이 이 값을 봐야 한다.
+   * 없는 키는 켜진 것으로 본다.
+   */
+  @Prop({ type: Object, default: {} })
+  pushPrefs: {
+    master?: boolean;
+    daily?: boolean;
+    streak?: boolean;
+    league?: boolean;
+    friends?: boolean;
+    events?: boolean;
+  };
+
   // 온보딩 데이터
   @Prop()
   targetLanguage: string;

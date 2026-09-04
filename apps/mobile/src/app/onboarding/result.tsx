@@ -110,6 +110,12 @@ export default function ResultScreen() {
     transform: [{ translateY: mascotY.value }],
   }));
 
+  // 가입 전에는 이 버튼이 바로 학습을 여는 게 아니라 요금제로 넘어간다.
+  // 문구가 "N단원부터 시작" 이면 눌렀을 때 나오는 화면과 말이 어긋난다.
+  const ctaLabel = isLoggedIn
+    ? t("onboarding.result.startAtSection", { section: startSection })
+    : t("onboarding.result.seePlan");
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <LinearGradient
@@ -312,10 +318,13 @@ export default function ResultScreen() {
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t("onboarding.result.startAtSection", {
-            section: startSection,
-          })}
-          onPress={() => router.replace(isLoggedIn ? "/(tabs)" : "/auth/login")}
+          accessibilityLabel={ctaLabel}
+          onPress={() => {
+            // 비로그인은 로그인 화면이 아니라 요금제로 간다.
+            // push 로 쌓아야 요금제의 "닫기" 가 이 결과 화면으로 돌아온다.
+            if (isLoggedIn) router.replace("/(tabs)");
+            else router.push("/onboarding/plan");
+          }}
           style={({ pressed }) => [
             styles.primaryButtonPressable,
             pressed && styles.primaryButtonPressed,
@@ -327,11 +336,7 @@ export default function ResultScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.primaryButton}
           >
-            <Text style={styles.primaryButtonText}>
-              {t("onboarding.result.startAtSection", {
-                section: startSection,
-              })}
-            </Text>
+            <Text style={styles.primaryButtonText}>{ctaLabel}</Text>
             <View style={styles.buttonArrow}>
               <Ionicons name="arrow-forward" size={18} color="#675BD3" />
             </View>

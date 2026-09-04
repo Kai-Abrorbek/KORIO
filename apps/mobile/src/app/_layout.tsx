@@ -13,6 +13,7 @@ import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "expo-router";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
 
@@ -25,6 +26,8 @@ export default function RootLayout() {
 
   // 화면 접근 규칙은 useAuthGuard 한 곳에 있다
   useAuthGuard();
+  // 푸시 등록과 알림 탭 처리. 앱 전체에서 여기 한 번만 건다
+  usePushNotifications();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

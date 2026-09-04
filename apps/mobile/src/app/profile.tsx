@@ -15,6 +15,7 @@ import LearningStatusGrid from "@/components/profile/LearningStatusGrid";
 import FriendStreakSection from "@/components/profile/FriendStreakSection";
 import { t } from "i18next";
 import { useAuthStore } from "@/store/auth.store";
+import { signOut } from "@/utils/sign-out";
 import { toUserProfile } from "@/services/user.service";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
@@ -24,7 +25,7 @@ import { UserService } from "@/services/user.service";
 export default function ProfileScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { logout, updateUser } = useAuthStore();
+  const { updateUser } = useAuthStore();
   const user = useAuthStore((st) => st.user);
   const profile = user ? toUserProfile(user) : null;
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function ProfileScreen() {
         onAddFriend={() => console.log("add friend streak")}
       />
 
-      <TouchableOpacity style={styles.logout} onPress={() => logout()}>
+      <TouchableOpacity style={styles.logout} onPress={() => void signOut()}>
         <Text style={styles.text}>{t("profile.logout")}</Text>
       </TouchableOpacity>
     </ScrollView>
