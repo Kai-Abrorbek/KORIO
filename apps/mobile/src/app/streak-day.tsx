@@ -48,6 +48,8 @@ export default function StreakDayScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     streak?: string;
+    /** 서버가 계산한 7일 창 (JSON) */
+    week?: string;
     /** 이어서 스코어 상승 축하로 넘길 때 쓰는 값들 */
     scoreUp?: string;
     scoreUpUnit?: string;
@@ -57,16 +59,48 @@ export default function StreakDayScreen() {
 
   const streak = Math.max(1, Number(params.streak ?? 1) || 1);
 
-  // 오늘부터 7일. 로케일 요일 약칭을 그대로 쓴다 (ko: 목, uz: Pay, ...)
+  /**
+   * 7일 창은 **서버가** 계산해서 준다 (연속이 시작된 날 기준).
+   *
+   * 예전엔 여기서 "오늘부터 앞으로 7일" 을 만들었는데, 그러면 내일 열었을 때
+   * 어제 칸이 사라져서 며칠째인지 볼 수가 없었다. 창은 시작일에 고정되고
+   * 7일이 다 차면 다음 7일로 넘어간다.
+   *
+   * 요일 약칭은 기기 로케일로 뽑는다 (ko: 목, uz: Pay, ru: чт ...).
+   */
   const days = useMemo(() => {
     const fmt = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+    try {
+      const raw = JSON.parse(params.week || "[]") as {
+        date: string;
+        studied: boolean;
+        isToday: boolean;
+        future: boolean;
+      }[];
+      if (raw.length) {
+        return raw.map((d) => ({
+          label: fmt.format(new Date(d.date)),
+          done: d.studied,
+          isToday: d.isToday,
+          future: d.future,
+        }));
+      }
+    } catch {
+      // 파라미터가 깨졌으면 아래 폴백으로
+    }
+    // 서버 값이 없을 때만: 오늘 하나만 체크된 창
     const today = new Date();
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      return { label: fmt.format(d), done: i === 0 };
+      return {
+        label: fmt.format(d),
+        done: i === 0,
+        isToday: i === 0,
+        future: i > 0,
+      };
     });
-  }, []);
+  }, [params.week]);
 
   // ── 애니메이션 ──
   const flame = useSharedValue(0); // 등장
@@ -182,6 +216,7 @@ export default function StreakDayScreen() {
               key={d.label + i}
               label={d.label}
               done={d.done}
+              isToday={d.isToday}
               delay={900 + i * 70}
               s={s}
               theme={theme}
@@ -210,12 +245,15 @@ export default function StreakDayScreen() {
 function DayDot({
   label,
   done,
+  isToday,
   delay,
   s,
   theme,
 }: {
   label: string;
   done: boolean;
+  /** 오늘 칸은 테두리로 짚어 준다 — 창 어디쯤 와 있는지 한눈에 보이게 */
+  isToday: boolean;
   delay: number;
   s: ReturnType<typeof styles>;
   theme: ThemeColors;
@@ -235,10 +273,25 @@ function DayDot({
 
   return (
     <View style={s.dayCol}>
-      <Animated.View style={[s.dayDot, done && s.dayDotDone, style]}>
+      <Animated.View
+        style={[
+          s.dayDot,
+          done && s.dayDotDone,
+          isToday && !done && s.dayDotToday,
+          style,
+        ]}
+      >
         {done && <Ionicons name="checkmark" size={20} color="#fff" />}
       </Animated.View>
-      <Text style={[s.dayLabel, done && s.dayLabelDone]}>{label}</Text>
+      <Text
+        style={[
+          s.dayLabel,
+          done && s.dayLabelDone,
+          isToday && s.dayLabelToday,
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -356,8 +409,10 @@ const styles = (theme: ThemeColors) =>
       backgroundColor: theme.border,
     },
     dayDotDone: { backgroundColor: "#FF9600" },
+    dayDotToday: { borderWidth: 2.5, borderColor: "#FF9600" },
     dayLabel: { fontSize: 13, fontWeight: "800", color: theme.textSecondary },
     dayLabelDone: { color: "#FF9600" },
+    dayLabelToday: { color: "#FF9600" },
     footer: { paddingHorizontal: 20, paddingTop: 8 },
     cta: { height: 62 },
     ctaPressed: { transform: [{ translateY: 3 }] },

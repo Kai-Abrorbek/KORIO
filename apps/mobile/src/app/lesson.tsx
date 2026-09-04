@@ -859,6 +859,11 @@ export default function LessonScreen() {
             dailyStreak: res.dailyStreak
               ? String(res.dailyStreak.streak)
               : "",
+            // 7일 창은 서버가 계산해서 준다 (연속 시작일 기준). 클라가 오늘부터
+            // 세면 내일 열었을 때 어제가 사라진다
+            streakWeek: res.dailyStreak
+              ? JSON.stringify(res.dailyStreak.week)
+              : "",
             gemTotal: String(gemsBefore),
             category: category ?? "",
             from: fromStudyPath ? "studyPath" : "",

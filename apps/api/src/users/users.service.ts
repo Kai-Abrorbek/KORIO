@@ -951,7 +951,7 @@ export class UsersService {
       .lean();
 
     const tz = await this.getTimezone(userId);
-    const { current, longest } = calcStreak(
+    const { current, longest, days: calcStreakDays } = calcStreak(
       rows.map((r) => r.date),
       new Date(),
       tz,
@@ -965,7 +965,8 @@ export class UsersService {
       )
       .catch(() => {});
 
-    return { current, longest: nextLongest };
+    // days 도 돌려준다 — 연속 학습 화면의 7일 창을 여기서 계산해야 해서다
+    return { current, longest: nextLongest, days: calcStreakDays };
   }
 
   /** 특정 월의 학습한 날짜 리스트 (1-31) + 연속 학습일 */

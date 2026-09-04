@@ -35,6 +35,8 @@ export default function LessonCompleteScreen() {
     scoreUpUnit?: string;
     /** 오늘의 첫 레슨이면 연속 학습일 */
     dailyStreak?: string;
+    /** 서버가 계산한 7일 창 (JSON) */
+    streakWeek?: string;
   }>();
 
   const hasChest = !!params.chestGrade;
@@ -56,6 +58,7 @@ export default function LessonCompleteScreen() {
         pathname: "/streak-day",
         params: {
           streak: params.dailyStreak,
+          week: params.streakWeek ?? "",
           scoreUp: params.scoreUp ?? "",
           scoreUpUnit: params.scoreUpUnit ?? "",
           category: params.category ?? "",

@@ -129,7 +129,20 @@ export const LessonService = {
     /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
     unitCompleted: { section: number; unit: number; score: number } | null;
     /** 오늘의 첫 레슨이면 채워진다. 연속 학습 축하 화면을 띄우는 신호 */
-    dailyStreak: { streak: number; longest: number } | null;
+    dailyStreak: {
+      streak: number;
+      longest: number;
+      /**
+       * 그릴 7일 창. **연속이 시작된 날**에 고정돼 있다 (오늘부터 7일이 아니다).
+       * 그래야 내일 열어도 어제 체크가 남는다. 7일이 차면 다음 주로 넘어간다.
+       */
+      week: {
+        date: string;
+        studied: boolean;
+        isToday: boolean;
+        future: boolean;
+      }[];
+    } | null;
   }> => {
     return api.post(`/lessons/${lessonId}/complete`, data);
   },

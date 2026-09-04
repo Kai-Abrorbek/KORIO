@@ -48,6 +48,7 @@ import {
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
+import { streakWeek } from '../users/utils/streak.util';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 
@@ -559,6 +560,21 @@ export class LessonsService {
         ? {
             streak: streakNow?.current ?? 0,
             longest: streakNow?.longest ?? 0,
+            /**
+             * 화면에 그릴 7일 창. 오늘부터 앞으로 7일이 아니라 **연속이
+             * 시작된 날**에 고정된 창이다 — 그래야 내일 열어도 어제 체크가
+             * 그대로 남아 "며칠째인지" 가 보인다. 7일이 다 차면 다음 주로 넘어간다.
+             */
+            week: streakWeek(
+              streakNow?.days ?? [],
+              new Date(),
+              await this.usersService.getTimezone(userId),
+            ).map((d) => ({
+              date: d.date.toISOString(),
+              studied: d.studied,
+              isToday: d.isToday,
+              future: d.future,
+            })),
           }
         : null,
     };
