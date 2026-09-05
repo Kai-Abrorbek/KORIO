@@ -53,3 +53,6 @@ apps/api/.pc2/
 # 배포 비밀 (호스트에만 둔다)
 deploy/.env
 deploy/api.env
+# 서비스 계정 키 (푸시 발송 권한 — 절대 커밋 금지)
+*firebase-adminsdk*.json
+*-serviceaccount*.json

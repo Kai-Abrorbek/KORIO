@@ -42,6 +42,37 @@ async function ensureAndroidChannels() {
   });
 }
 
+/**
+ * 왜 푸시가 안 되는지 폰에서 바로 보기 위한 기록.
+ *
+ * 예전에는 토큰 발급 실패를 `catch {}` 로 삼켰다. 앱이 안 죽는 건 맞는데,
+ * 그러면 "알림이 안 온다" 는 사실만 남고 원인을 볼 방법이 없다.
+ * 실제로 그것 때문에 네이티브 프로젝트가 옛날 상태인 걸 못 찾고 헤맸다.
+ * 확인할 수 없는 실패는 조용히 방치된다.
+ */
+const diagnostics: {
+  isDevice: boolean | null;
+  permission: string | null;
+  projectId: string | null;
+  token: string | null;
+  registered: boolean;
+  lastError: string | null;
+  checkedAt: string | null;
+} = {
+  isDevice: null,
+  permission: null,
+  projectId: null,
+  token: null,
+  registered: false,
+  lastError: null,
+  checkedAt: null,
+};
+
+/** 푸시가 왜 안 오는지 확인할 때 (개발 중 콘솔 / 향후 진단 화면) */
+export function getPushDiagnostics() {
+  return { ...diagnostics };
+}
+
 /** EAS 프로젝트 id — 없으면 Expo 푸시 토큰을 못 받는다 */
 function projectId(): string | undefined {
   const extra: any =
@@ -68,13 +99,21 @@ export function usePushNotifications() {
 
     (async () => {
       if (!isLoggedIn) return;
+      diagnostics.checkedAt = new Date().toISOString();
+      diagnostics.registered = false;
+
       await ensureAndroidChannels();
 
       // 에뮬레이터는 푸시 토큰을 못 받는다. 여기서 거르지 않으면 매번 에러가 뜬다
-      if (!Device.isDevice) return;
+      diagnostics.isDevice = Device.isDevice;
+      if (!Device.isDevice) {
+        diagnostics.lastError = 'NOT_A_PHYSICAL_DEVICE (에뮬레이터는 푸시 불가)';
+        return;
+      }
 
       // 알림을 통째로 끈 사람에게 권한을 다시 물어보지 않는다
       if (!master) {
+        diagnostics.lastError = 'MASTER_SWITCH_OFF (설정에서 전체 알림 꺼짐)';
         const old = tokenRef.current;
         if (old) {
           await PushApi.unregister(old).catch(() => {});
@@ -88,14 +127,29 @@ export function usePushNotifications() {
       if (!granted && perm.canAskAgain) {
         granted = (await Notifications.requestPermissionsAsync()).granted;
       }
-      if (!granted || cancelled) return;
+      diagnostics.permission = granted ? 'granted' : perm.status;
+      if (!granted) {
+        diagnostics.lastError = 'PERMISSION_DENIED (안드로이드 앱 설정에서 알림 허용 필요)';
+        return;
+      }
+      if (cancelled) return;
+
+      // projectId 가 없으면 Expo 가 어느 프로젝트의 FCM 자격증명을 쓸지 모른다
+      const pid = projectId();
+      diagnostics.projectId = pid ?? null;
+      if (!pid) {
+        diagnostics.lastError = 'NO_EAS_PROJECT_ID (app.json extra.eas.projectId 확인)';
+        return;
+      }
 
       try {
         const res = await Notifications.getExpoPushTokenAsync({
-          projectId: projectId(),
+          projectId: pid,
         });
         if (cancelled || !res?.data) return;
         tokenRef.current = res.data;
+        diagnostics.token = res.data;
+        diagnostics.lastError = null;
 
         await PushApi.register({
           token: res.data,
@@ -118,9 +172,15 @@ export function usePushNotifications() {
           dailyHour: prefs.dailyHour,
           appLanguage: language,
         }).catch(() => {});
-      } catch {
-        // 개발 빌드가 아니거나 FCM 자격증명이 아직 없으면 여기서 던진다.
-        // 푸시가 없다고 앱이 죽으면 안 되므로 조용히 넘어간다.
+
+        diagnostics.registered = true;
+      } catch (e: any) {
+        // 삼키지 않는다. Firebase 미초기화(google-services.json 이 네이티브에
+        // 안 들어감), FCM 자격증명 누락, projectId 불일치가 전부 여기로 온다.
+        // 예전엔 catch {} 로 버려서 "알림이 안 온다"는 사실만 남고 원인을
+        // 볼 방법이 없었다 — 그것 때문에 하루를 날렸다.
+        diagnostics.lastError = String(e?.message ?? e).slice(0, 300);
+        if (__DEV__) console.warn('[push] 토큰 발급 실패:', diagnostics);
       }
     })();
 

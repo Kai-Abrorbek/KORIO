@@ -13,9 +13,10 @@
     },
     "android": {
       "adaptiveIcon": {
-      "backgroundColor": "#6C35E8",
-      "foregroundImage": "./assets/images/korio-icon.png"
-    },
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
+      },
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "resize",
       "package": "com.kai_dev.mobile",
@@ -27,6 +28,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.POST_NOTIFICATIONS",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.CAMERA",
         "android.permission.INTERNET",
@@ -58,9 +60,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#7F77DD",
-          "image": "./assets/images/korio-icon.png",
-          "imageWidth": 112,
-          "resizeMode": "contain"
+          "image": "./assets/images/splash-blank.png",
+          "imageWidth": 200
         }
       ],
       [
@@ -79,7 +80,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/android-icon-monochrome.png",
+          "icon": "./assets/images/notification-icon.png",
           "color": "#776ee2",
           "defaultChannel": "default"
         }

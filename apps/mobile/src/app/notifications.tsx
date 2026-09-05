@@ -1,5 +1,4 @@
 import {
-  Alert,
   View,
   Text,
   StyleSheet,
@@ -70,99 +69,6 @@ function ToggleRow({
         ios_backgroundColor={theme.border}
       />
     </View>
-  );
-}
-
-/**
- * 개발자 전용 푸시 테스트 패널.
- *
- * 크론은 매시 정각에 돌고 슬롯 시각이 맞아야 나가서, 그냥 두면 알림 하나
- * 확인하는 데 하루가 걸린다. 확인할 수 없는 규칙은 조용히 틀린다
- * (리그 애니메이션이 그랬다).
- *
- * __DEV__ 안에서만 렌더되므로 릴리스 빌드에는 안 들어간다.
- * 그래서 여기 문구만 i18n 을 안 거쳤다 — 유저는 이 화면을 볼 수 없다.
- */
-function DevPushPanel({ s, theme }: { s: any; theme: ThemeColors }) {
-  const [busy, setBusy] = useState(false);
-
-  const run = async (label: string, fn: () => Promise<any>) => {
-    if (busy) return;
-    setBusy(true);
-    try {
-      const res = await fn();
-      Alert.alert(label, JSON.stringify(res, null, 2).slice(0, 1200));
-    } catch (e: any) {
-      Alert.alert(`${label} 실패`, String(e?.message ?? e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const TYPES = [
-    ["engage", "재미 유도"],
-    ["daily_reminder", "학습 시간"],
-    ["streak_risk", "스트릭 위험"],
-    ["guided_idle", "로드학습 재촉"],
-    ["trial_ending", "체험 종료"],
-    ["follow", "팔로우"],
-    ["league_promoted", "리그 승급"],
-  ] as const;
-
-  return (
-    <>
-      <Text style={s.sectionLabel}>개발자 (DEV 빌드 전용)</Text>
-      <View style={s.card}>
-        <TouchableOpacity
-          style={s.timeRow}
-          onPress={() => run("기기 등록 상태", () => PushApi.status())}
-        >
-          <Text style={s.timeLabel}>기기 등록 상태 보기</Text>
-          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-        </TouchableOpacity>
-        <View style={s.rowDivider} />
-        <TouchableOpacity
-          style={s.timeRow}
-          onPress={() => run("지금 나갈 알림", () => PushApi.preview())}
-        >
-          <Text style={s.timeLabel}>지금 뭐가 나갈지 (발송 안 함)</Text>
-          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={[s.card, { paddingVertical: 12 }]}>
-        <Text style={[s.rowDesc, { marginBottom: 10 }]}>
-          눌러서 이 폰으로 바로 발송 (설정·한도 무시)
-        </Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {TYPES.map(([type, label]) => (
-            <TouchableOpacity
-              key={type}
-              disabled={busy}
-              onPress={() => {
-                Haptics.selectionAsync();
-                void run(label, () => PushApi.test(type));
-              }}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 999,
-                backgroundColor: theme.surface,
-                borderWidth: 1.5,
-                borderColor: theme.border,
-                opacity: busy ? 0.5 : 1,
-              }}
-            >
-              <Text
-                style={{ color: theme.text, fontSize: 12, fontWeight: "700" }}
-              >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </>
   );
 }
 
@@ -324,8 +230,6 @@ export default function NotificationSettings() {
             s={s}
           />
         </View>
-
-        {__DEV__ && <DevPushPanel s={s} theme={theme} />}
       </ScrollView>
 
       {/* 시간 선택 시트 */}
