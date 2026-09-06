@@ -15,8 +15,15 @@ export default function FollowLinkScreen() {
   const s = styles(theme);
   const user = useAuthStore((st) => st.user);
 
-  // korio.app 은 우리 도메인이 아니다. 실제 도메인은 korio.online.
-  const url = `https://korio.online/u/${user?.username || user?.id || ""}`;
+  /**
+   * 팔로우 링크.
+   *
+   * ⚠️ username 이 아니라 **id** 를 쓴다. 링크를 받은 쪽에서 여는 화면
+   * (friend-profile)이 id 로만 조회할 수 있어서, username 을 넣으면 링크는
+   * 열리는데 빈 프로필이 뜬다. 예쁜 주소를 쓰려면 서버에 by-username 조회를
+   * 먼저 만들어야 한다.
+   */
+  const url = `https://korio.online/u/${user?.id ?? ""}`;
 
   const onShare = () =>
     Share.share({ message: `${t("friends.followMe")}\n${url}` });

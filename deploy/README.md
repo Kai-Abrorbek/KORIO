@@ -163,8 +163,16 @@ API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램)는 전�
 
 ### 준비
 
-1. **DNS** — `korio.online` A 레코드가 이 서버를 가리켜야 한다
-   (`api.korio.online` 과 같은 IP). 안 되어 있으면 Caddy 가 인증서를 못 받는다
+1. **DNS — 이게 1순위다.** `korio.online` A 레코드가 이 서버를 가리켜야 한다
+   (`api.korio.online` 과 같은 IP).
+
+   도메인을 Hostinger 에서 샀다면 기본이 **파킹 페이지**로 잡혀 있다. 그
+   상태에서는 초대 링크를 눌러도 우리 서버까지 요청이 오지도 않고 Hostinger
+   광고 페이지가 뜬다. `deploy/.env` 에 WEB_DOMAIN 을 넣었는지와 무관하다.
+
+   Hostinger → Domains → korio.online → **DNS / Nameservers** →
+   `A  @  <서버 IP>` (파킹용 A 레코드가 있으면 지우고 새로 넣는다).
+   확인: `dig +short korio.online` 이 서버 IP 를 돌려줘야 한다
 2. **`deploy/.env`** 에 `WEB_DOMAIN=korio.online` 추가
 3. `./deploy.sh` 로 배포 (Caddy 가 새 도메인 인증서를 자동 발급한다)
 

@@ -26,7 +26,8 @@
           "autoVerify": true,
           "category": ["BROWSABLE", "DEFAULT"],
           "data": [
-            { "scheme": "https", "host": "korio.online", "pathPrefix": "/i" }
+            { "scheme": "https", "host": "korio.online", "pathPrefix": "/i" },
+            { "scheme": "https", "host": "korio.online", "pathPrefix": "/u" }
           ]
         }
       ],

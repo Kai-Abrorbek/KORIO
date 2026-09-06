@@ -86,15 +86,18 @@
 		file_server
 	}
 
-	# /i/ABC2345 같은 경로는 파일이 아니다. 랜딩 한 장으로 보내고
-	# 코드는 페이지의 JS 가 주소에서 읽는다
-	handle /i/* {
-		rewrite * /i/index.html
+	# 앱으로 넘기는 경로들. 파일이 아니라 착륙 페이지 한 장으로 보내고,
+	# 코드·유저 id 는 페이지의 JS 가 주소에서 읽는다.
+	#   /i/<코드>  초대 링크
+	#   /u/<id>    팔로우 링크 (follow-link 화면의 QR·공유)
+	@applink path /i/* /u/*
+	handle @applink {
+		rewrite * /open/index.html
 		file_server
 	}
 
-	# 그 외에는 아직 아무것도 없다. 초대 링크로 보낸다
+	# 그 외에는 아직 아무것도 없다. 앱 소개가 생기면 여기로 온다
 	handle {
-		redir /i/ 302
+		respond "KORIO" 200
 	}
 }
