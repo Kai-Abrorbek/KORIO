@@ -1231,6 +1231,9 @@ export default {
   },
   // 가입 전 요금제 화면 (app/onboarding/plan.tsx)
   plan: {
+    haveInviteCode: "친구 초대 코드가 있어요",
+    codeSaved: "코드 {{code}} · 로그인하면 바로 적용돼요",
+    codeChange: "변경",
     freeDays: "{{days}}일 무료",
     heroTitle: "결제 없이 지금 바로 시작하세요",
     heroSub: "섹션 {{section}}부터 시작하는 맞춤 코스가 준비됐어요",

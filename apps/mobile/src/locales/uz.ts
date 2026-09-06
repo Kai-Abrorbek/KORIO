@@ -1238,6 +1238,9 @@ export default {
   },
   // Ro'yxatdan o'tishdan oldingi tariflar ekrani (app/onboarding/plan.tsx)
   plan: {
+    haveInviteCode: "Do'st taklif kodim bor",
+    codeSaved: "Kod {{code}} · kirganingizda qo'llanadi",
+    codeChange: "O'zgartirish",
     freeDays: "{{days}} kun bepul",
     heroTitle: "To'lovsiz, hoziroq boshlang",
     heroSub: "{{section}}-bo'limdan boshlanadigan shaxsiy kurs tayyor",

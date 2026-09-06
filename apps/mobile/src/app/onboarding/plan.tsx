@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router } from "expo-router";
@@ -32,6 +33,7 @@ import {
 } from "@/constants/trial";
 import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
+import { useReferralStore } from "@/store/referral.store";
 import { SUPER_FEATURES } from "@/features/subscription/services/products";
 import {
   perMonthPrice,
@@ -65,6 +67,21 @@ export default function PlanScreen() {
   const recommendedSection = useOnboardingStore(
     (state) => state.recommendedSection,
   );
+  /**
+   * 친구가 코드만 알려준 경우(링크가 아니라 카톡으로 "K7XM3QP" 만 받은 경우).
+   *
+   * 여기가 아니면 넣을 데가 없다. 코드 입력창은 친구 → 친구 추가 → 초대 화면
+   * 안에 있는데, 가입 5분 된 사람이 거기까지 갈 리가 없다. 온보딩의 마지막
+   * 관문이라 전원이 지나가는 이 화면에 둔다.
+   *
+   * 지금은 아직 로그인 전이라 서버에 못 보낸다. 링크로 들어온 경우와 똑같이
+   * pendingCode 로 저장해 두면, 로그인되는 순간 useReferralClaim 이 대신 쓴다.
+   */
+  const setPendingCode = useReferralStore((st) => st.setPendingCode);
+  const savedCode = useReferralStore((st) => st.pendingCode);
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [codeInput, setCodeInput] = useState("");
+
   /** 진단을 실제로 봤는지. 완전초보는 건너뛰어서 결과 화면이 빈 채로 뜬다 */
   const hasTestResult = useOnboardingStore(
     (state) => state.totalQuestions > 0,
@@ -290,6 +307,62 @@ export default function PlanScreen() {
 
       {/* 하단 고정 CTA — ScrollView 밖. 홈버튼/네비바에 안 가리게 SafeArea */}
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        {savedCode ? (
+          <View style={s.codeSaved}>
+            <Ionicons name="checkmark-circle" size={16} color="#2BA47F" />
+            <Text style={s.codeSavedText} numberOfLines={1}>
+              {t("plan.codeSaved", { code: savedCode })}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setPendingCode(null);
+                setCodeInput("");
+                setCodeOpen(true);
+              }}
+              hitSlop={8}
+            >
+              <Text style={s.codeChange}>{t("plan.codeChange")}</Text>
+            </Pressable>
+          </View>
+        ) : codeOpen ? (
+          <View style={s.codeRow}>
+            <TextInput
+              style={s.codeInput}
+              value={codeInput}
+              onChangeText={(v) => setCodeInput(v.toUpperCase())}
+              placeholder={t("invite.codePlaceholder")}
+              placeholderTextColor={theme.textSecondary}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              autoFocus
+              maxLength={40}
+            />
+            <Pressable
+              onPress={() => {
+                const v = codeInput.trim();
+                if (!v) return setCodeOpen(false);
+                void Haptics.selectionAsync();
+                // 모양 검사는 서버가 한다. 여기서 어설프게 걸러내면
+                // 링크를 통째로 붙여넣은 사람을 막게 된다
+                setPendingCode(v);
+                setCodeOpen(false);
+              }}
+              style={({ pressed }) => [s.codeApply, pressed && { opacity: 0.85 }]}
+            >
+              <Text style={s.codeApplyText}>{t("invite.apply")}</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => setCodeOpen(true)}
+            hitSlop={8}
+            style={({ pressed }) => [s.codeLinkRow, pressed && { opacity: 0.6 }]}
+          >
+            <Ionicons name="gift-outline" size={15} color={theme.primary} />
+            <Text style={s.codeLink}>{t("plan.haveInviteCode")}</Text>
+          </Pressable>
+        )}
+
         <Text style={s.footerNote}>
           {selectedPlan
             ? t("plan.footerNoteWithPrice", {
@@ -730,6 +803,55 @@ const styles = (theme: ThemeColors, isDark: boolean) =>
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: isDark ? "#2C2B35" : "#EDEBF7",
     },
+    codeLinkRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      paddingVertical: 8,
+    },
+    codeLink: { color: theme.primary, fontSize: 13, fontWeight: "800" },
+    codeRow: { flexDirection: "row", gap: 8, marginBottom: 8 },
+    codeInput: {
+      flex: 1,
+      height: 46,
+      borderRadius: 13,
+      paddingHorizontal: 13,
+      fontSize: 15,
+      fontWeight: "800",
+      letterSpacing: 2,
+      color: theme.text,
+      backgroundColor: isDark ? "#2A2836" : "#F6F5FB",
+      borderWidth: 1.5,
+      borderColor: isDark ? "#3D3B4C" : "#E7E4F3",
+    },
+    codeApply: {
+      minWidth: 66,
+      height: 46,
+      borderRadius: 13,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.primary,
+      paddingHorizontal: 12,
+    },
+    codeApplyText: { color: "#fff", fontSize: 14, fontWeight: "900" },
+    codeSaved: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      marginBottom: 8,
+      paddingVertical: 9,
+      paddingHorizontal: 12,
+      borderRadius: 13,
+      backgroundColor: isDark ? "#1D302D" : "#ECF9F4",
+    },
+    codeSavedText: {
+      flex: 1,
+      color: isDark ? "#BCEBDD" : "#176D57",
+      fontSize: 12.5,
+      fontWeight: "800",
+    },
+    codeChange: { color: theme.textSecondary, fontSize: 12, fontWeight: "800" },
     footerNote: {
       color: theme.textSecondary,
       fontSize: 11.5,

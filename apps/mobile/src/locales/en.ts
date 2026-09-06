@@ -1233,6 +1233,9 @@ export default {
   },
   // Pre-signup plan screen (app/onboarding/plan.tsx)
   plan: {
+    haveInviteCode: "I have an invite code",
+    codeSaved: "Code {{code}} · applied when you log in",
+    codeChange: "Change",
     freeDays: "{{days}} days free",
     heroTitle: "Start now — nothing to pay",
     heroSub: "Your personalised course starts at Section {{section}}",

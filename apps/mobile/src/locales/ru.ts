@@ -1238,6 +1238,9 @@ export default {
   },
   // Экран тарифов до регистрации (app/onboarding/plan.tsx)
   plan: {
+    haveInviteCode: "У меня есть код приглашения",
+    codeSaved: "Код {{code}} · применится при входе",
+    codeChange: "Изменить",
     freeDays: "{{days}} дней бесплатно",
     heroTitle: "Начните сейчас — платить не нужно",
     heroSub: "Персональный курс начинается с раздела {{section}}",
