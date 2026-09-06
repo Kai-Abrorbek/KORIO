@@ -124,6 +124,18 @@ cmd_deploy() {
   log "Caddy 기동 (인증서 발급이 빌드와 함께 돈다)"
   "${COMPOSE[@]}" up -d caddy
 
+  # ⚠️ Caddyfile 은 **바인드 마운트**라 파일만 바꾸면 compose 는 "변경 없음" 으로
+  # 보고 컨테이너를 다시 만들지 않는다. 이미 떠 있는 Caddy 는 옛 설정을 메모리에
+  # 들고 계속 돈다 — 새 도메인 블록을 추가해도 반영이 안 된다.
+  # (실제로 korio.online 을 추가했는데 인증서를 못 받는 상태로 한참 헤맸다)
+  # 무중단으로 설정만 다시 읽힌다. 실패해도 배포는 계속한다.
+  if docker exec korio_caddy caddy reload --config /etc/caddy/Caddyfile \
+       --adapter caddyfile >/dev/null 2>&1; then
+    log "Caddy 설정 리로드됨"
+  else
+    warn "Caddy 리로드 실패 — 설정 문법을 확인해라: docker exec korio_caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile"
+  fi
+
   log "이미지 빌드: ${IMAGE}:${tag}"
   log "  진행 보기:  docker logs -f korio_caddy   (다른 터미널)"
   # docker build 는 --cpus 를 안 받는다. buildx 컨테이너가 아니라 데몬이 돌리기
