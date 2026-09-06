@@ -1,3 +1,13 @@
+/**
+ * ⚠️ 여기서 apps/mobile 을 import 하지 마라.
+ *
+ * 상대경로로 한 줄만 끌어와도 mobile 파일이 api 의 TS 프로그램에 들어가서
+ * 공통 소스 루트가 apps/ 로 올라간다. 그러면 tsc 가
+ *   "The common source directory of 'tsconfig.json' is '..'"
+ * 를 뱉고, outDir 레이아웃이 dist/api/... 로 바뀌어 도커 빌드의
+ * `test -f apps/api/dist/main.js` 가 깨진다.
+ * 앱 쪽 로직 테스트는 apps/mobile/src/__scratch 에 둔다.
+ */
 import {
   generateCode,
   isValidCode,
@@ -8,7 +18,6 @@ import {
   CODE_LENGTH,
   REFERRAL_MILESTONES,
 } from '../referral/referral.constants';
-import { toE164 } from '../../../mobile/src/utils/phone-format';
 
 let fail = 0;
 function eq(name: string, got: any, want: any) {
@@ -67,23 +76,6 @@ eq('3명이면 3단계만', payable(3, []), [3]);
 eq('10명인데 3은 이미 받음 → 10만', payable(10, [3]), [10]);
 eq('한 번에 25명이 되면 밀린 것 다 지급', payable(25, []), [3, 10, 25]);
 eq('전부 받았으면 재지급 없음', payable(50, [3, 10, 25, 50]), []);
-
-// ── 전화번호 정규화 (앱) ──
-eq('우즈벡 국내표기', toE164('90 123 45 67', 'UZ'), '+998901234567');
-eq('우즈벡 국가번호 포함', toE164('998901234567', 'UZ'), '+998901234567');
-eq('한국 010', toE164('010-1234-5678', 'KR'), '+821012345678');
-eq('한국 하이픈 없음', toE164('01012345678', 'KR'), '+821012345678');
-// 유선전화(02-…)는 일부러 안 받는다. 유선번호로 가입한 사람은 없고,
-// 자릿수를 느슨하게 열면 엉뚱한 번호가 매칭돼서 남이 친구 추천에 뜬다
-eq('한국 유선번호는 포기', toE164('02-123-4567', 'KR'), null);
-eq('러시아 8 접두', toE164('8 912 345 67 89', 'RU'), '+79123456789');
-eq('이미 +붙은 국제번호는 그대로', toE164('+821012345678', 'UZ'), '+821012345678');
-eq('00 국제접두 → +', toE164('00821012345678', 'UZ'), '+821012345678');
-eq('괄호·공백 섞임', toE164('+82 (10) 1234-5678', 'KR'), '+821012345678');
-eq('자릿수 모자라면 포기', toE164('1234', 'UZ'), null);
-eq('빈 값', toE164('', 'UZ'), null);
-eq('숫자 아님', toE164('없음', 'UZ'), null);
-eq('trunk 못 떼면 포기(잘못된 매칭 방지)', toE164('0123', 'UZ'), null);
 
 console.log(fail ? `\n💥 실패 ${fail}건` : '\n🎉 전부 통과');
 process.exit(fail ? 1 : 0);
