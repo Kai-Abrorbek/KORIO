@@ -9,6 +9,7 @@ import {
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import SuggestionCard from "@/components/friends/SuggestionCard";
@@ -17,6 +18,7 @@ import { UserService } from "@/services/user.service";
 export default function AddFriendsScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const s = styles(theme);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -77,7 +79,15 @@ export default function AddFriendsScreen() {
   return (
     <ScrollView
       style={s.container}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{
+        // 패딩은 프레임(style)이 아니라 **콘텐츠**에 준다. style 에 주면
+        // 스크롤 영역 자체가 줄어들어서 아래 내용이 잘린다.
+        // 위아래 다 SafeArea 를 더한다 — 상수로 박으면 제스처 네비바가 있는
+        // 기기에서 마지막 줄이 네비바 밑에 깔린다
+        paddingTop: insets.top + 12,
+        paddingHorizontal: 20,
+        paddingBottom: insets.bottom + 40,
+      }}
       showsVerticalScrollIndicator={false}
     >
       <TouchableOpacity
@@ -142,8 +152,6 @@ const styles = (theme: ThemeColors) =>
     container: {
       flex: 1,
       backgroundColor: theme.bg,
-      paddingTop: 56,
-      paddingHorizontal: 20,
     },
     back: { marginBottom: 16 },
     title: {
