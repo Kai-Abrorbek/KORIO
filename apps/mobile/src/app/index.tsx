@@ -7,6 +7,7 @@ import {
   useOnboardingStore,
   useOnboardingHydrated,
 } from "../store/onboarding.store";
+import { useReferralStore } from "../store/referral.store";
 import { useAuthHydrated } from "@/hooks/useAuthGuard";
 import KorioLogo from "../components/home/KorioLogo";
 import HaneulmonMascot from "../components/home/HaneulmonMascot";
@@ -27,10 +28,15 @@ export default function SplashScreen() {
     if (!hydrated || !onboardingHydrated) return;
     const timer = setTimeout(() => {
       if (isLoggedIn) {
+        // 초대 링크를 눌러서 앱을 연 기존 유저 — 코드는 루트 레이아웃이
+        // 알아서 쓰고, 화면은 초대 화면을 열어 결과를 보여준다
+        const pendingInvite = useReferralStore.getState().pendingCode;
         router.replace(
-          user?.isOnboardingCompleted
-            ? "/(tabs)" // 온보딩 완료 → 메인
-            : "/onboarding/survey", // 온보딩 미완 → 서베이
+          !user?.isOnboardingCompleted
+            ? "/onboarding/survey" // 온보딩 미완 → 서베이
+            : pendingInvite
+              ? "/invite"
+              : "/(tabs)", // 온보딩 완료 → 메인
         );
       } else if (guestOnboardingDone) {
         // 설문 + 진단을 다 해놓고 로그인만 안 한 사람.

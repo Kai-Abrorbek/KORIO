@@ -662,6 +662,24 @@ export default {
     followedBy: "{{name}} kuzatmoqda",
     nameOrId: "Ism yoki ID",
     contactsTitle: "Kontaktlardagi KORIO foydalanuvchilari",
+      inviteReward: "Do'st taklif qiling va gavhar oling",
+      phoneTitle: "Raqamim orqali do'st topish",
+      phoneDesc:
+        "Raqamingizni qo'shsangiz, kontaktlaringizdagi do'stlarni topamiz va ularning ekranida ham siz ko'rinasiz.",
+      phonePlaceholder: "Telefon raqami",
+      phoneSave: "Qo'shish va do'st topish",
+      phonePrivacy:
+        "Telefon raqamingiz saqlanmaydi. Faqat solishtirish uchun shifrlangan qiymat va oxirgi 4 raqam qoladi.",
+      phoneErr: {
+        INVALID: "Raqamni tekshirib ko'ring.",
+        TAKEN: "Bu raqam allaqachon ro'yxatdan o'tgan.",
+      },
+      openSettings: "Sozlamalarni ochish",
+      inviteTitle: "Hali KORIO'da yo'q do'stlar",
+      inviteDesc: "Taklif qilsangiz, ikkalangiz ham {{gems}} ta gavhar olasiz.",
+      invite: "Taklif",
+      inviteMessage:
+        "{{name}}, bu men — {{nickname}}! KORIO'da birga koreys tilini o'rganamiz 🇰🇷\nTaklif kodim {{code}} — ikkalamiz ham gavhar olamiz.\n{{link}}",
     contactsCount: "{{count}} ta kontakt",
     contactsDenied: "Kontaktlarga ruxsat yo'q",
     contactsNoMatch: "Kontaktlardan foydalanuvchi topilmadi",
@@ -1179,6 +1197,38 @@ export default {
       TUTOR_MONTHLY_LIMIT_REACHED: "Bu oygi limit tugadi.",
       TUTOR_NOT_CONFIGURED: "Hozircha mavjud emas.",
       TUTOR_SESSION_FAILED: "Suhbatni boshlab bo'lmadi. Qayta urinib ko'ring.",
+    },
+  },
+  // Do'st taklif qilish mukofoti (app/invite.tsx)
+  invite: {
+    heroTitle: "Do'st chaqiring — ikkalangizga {{gems}}💎",
+    heroSub:
+      "Kodingiz bilan do'stingiz qo'shilsa, siz ham u ham {{gems}} ta gavhar olasiz.",
+    myCode: "Mening taklif kodim",
+    tapToShare: "Ulashish uchun bosing",
+    invitedCount: "Taklif qilingan",
+    gemsEarned: "Olingan gavhar",
+    milestonesTitle: "Taklif bonuslari",
+    nextMilestone: "Yana {{n}} kishi — +{{gems}}💎",
+    haveCode: "Do'stingizning kodi bormi?",
+    haveCodeDesc: "Do'stingiz kodini kiriting va {{gems}} ta gavhar oling.",
+    codePlaceholder: "Kodni kiriting",
+    apply: "Qo'llash",
+    claimedTitle: "{{gems}} ta gavhar oldingiz!",
+    claimedBody: "{{nickname}} ham oldi. Endi birga o'qiymiz!",
+    joinedFriends: "Kodingiz bilan qo'shilganlar",
+    shareCta: "Do'stga yuborish",
+    shareMessage:
+      "Bu {{nickname}}! KORIO'da birga koreys tilini o'rganamiz 🇰🇷\nTaklif kodim {{code}} — ikkalamiz {{gems}} tadan gavhar olamiz.\n{{link}}",
+    terms:
+      "Taklif kodi ro'yxatdan o'tgandan keyin {{days}} kun ichida, har hisobda bir marta ishlaydi.",
+    err: {
+      INVALID_CODE: "Kod formati noto'g'ri. Qaytadan tekshiring.",
+      CODE_NOT_FOUND: "Bunday kod yo'q. Qaytadan tekshiring.",
+      SELF_REFERRAL: "O'z kodingizni ishlatib bo'lmaydi.",
+      ALREADY_CLAIMED: "Siz allaqachon taklif kodidan foydalangansiz.",
+      WINDOW_CLOSED: "Taklif kodi faqat ro'yxatdan o'tgandan keyin qisqa vaqt ishlaydi.",
+      CIRCULAR: "Bir-biringizni taklif qilib mukofot olib bo'lmaydi.",
     },
   },
   // Ro'yxatdan o'tishdan oldingi tariflar ekrani (app/onboarding/plan.tsx)

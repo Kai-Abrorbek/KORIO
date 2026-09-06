@@ -216,6 +216,47 @@ export class User {
   @Prop({ default: 0 })
   gems: number;
 
+  // ─────────────── 친구 초대 ───────────────
+
+  /**
+   * 내 초대 코드. 처음 초대 화면을 열 때 발급된다.
+   * sparse 유니크 — 아직 발급 안 받은 유저가 대다수라 null 이 여럿이다.
+   */
+  @Prop({ type: String, default: null, unique: true, sparse: true })
+  referralCode: string | null;
+
+  /**
+   * 나를 초대한 사람. 평생 한 번만 채워진다.
+   * Referral 컬렉션이 진짜 잠금이고 이건 빠른 조회용 사본이다.
+   */
+  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
+  referredBy: Types.ObjectId | null;
+
+  /** 이미 지급한 초대 마일스톤(누적 인원 수). $addToSet 으로 중복 지급을 막는다 */
+  @Prop({ type: [Number], default: [] })
+  referralMilestonesPaid: number[];
+
+  // ─────────────── 연락처 친구 찾기 ───────────────
+
+  /**
+   * 전화번호의 SHA-256 (E.164 문자열 기준).
+   *
+   * ⚠️ 원본 번호는 저장하지 않는다. 매칭에 필요한 건 "같은 번호인가" 뿐이고,
+   * 원본을 들고 있으면 DB 가 새는 순간 전화번호부가 통째로 새는 것이다.
+   * 유니크 — 먼저 등록한 사람이 임자다. 아니면 남의 번호를 등록해서
+   * 그 사람 지인들의 추천 목록에 끼어들 수 있다.
+   */
+  @Prop({ type: String, default: null, unique: true, sparse: true })
+  phoneHash: string | null;
+
+  /** 화면에 "••••1234" 로 보여주기 위한 뒷자리. 이것만으로는 역추적이 안 된다 */
+  @Prop({ default: '' })
+  phoneLast4: string;
+
+  /** 연락처로 나를 찾을 수 있게 할지. 끄면 매칭 결과에서 빠진다 */
+  @Prop({ default: true })
+  contactsDiscoverable: boolean;
+
   //  신규: 에너지/하트
   @Prop({ default: 5 })
   energy: number;

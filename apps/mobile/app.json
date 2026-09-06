@@ -20,6 +20,16 @@
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "resize",
       "package": "com.kai_dev.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            { "scheme": "https", "host": "korio.online", "pathPrefix": "/i" }
+          ]
+        }
+      ],
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.READ_CONTACTS",

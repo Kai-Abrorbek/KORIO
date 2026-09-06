@@ -25,6 +25,8 @@ export enum PushType {
   LEAGUE_RESULT = 'league_result',
   /** 에너지 가득 참 */
   ENERGY_FULL = 'energy_full',
+  /** 내 초대 코드로 친구가 들어왔다 */
+  REFERRAL_JOINED = 'referral_joined',
   /** 어드민 공지 — 신규 기능 안내 등 */
   ANNOUNCEMENT = 'announcement',
 }
@@ -65,6 +67,7 @@ export const PREF_KEY_OF: Partial<Record<PushType, PushPrefKey>> = {
   [PushType.LEAGUE_PROMOTED]: 'league',
   [PushType.LEAGUE_DEMOTED]: 'league',
   [PushType.LEAGUE_RESULT]: 'league',
+  [PushType.REFERRAL_JOINED]: 'friends',
   [PushType.ANNOUNCEMENT]: 'events',
   // TRIAL_ENDING / ENERGY_FULL 은 스위치로 못 끈다.
   // 돈이 빠져나가는 안내를 유저가 모르게 두면 그게 더 큰 사고다.

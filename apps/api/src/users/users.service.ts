@@ -1,5 +1,6 @@
 import {
   Injectable,
+  ConflictException,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -28,6 +29,7 @@ import {
 import { countryToFlag, langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive, isSuperStale } from './super.util';
+import * as crypto from 'crypto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
 import { PushType } from '../push/push.types';
@@ -256,6 +258,11 @@ export class UsersService {
         countryToFlag(user.country) || langToFlag(user.targetLanguage),
       courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)
       friendStreaks: [], // TODO: 친구 스트릭 도메인 생기면 채움
+      // 연락처 친구 찾기 — phoneHash 자체는 절대 내려보내지 않는다
+      phoneLast4: (user as any).phoneLast4 || '',
+      contactsDiscoverable: (user as any).contactsDiscoverable !== false,
+      referralCode: (user as any).referralCode || null,
+      hasReferrer: !!(user as any).referredBy,
     };
   }
 
@@ -1617,19 +1624,72 @@ export class UsersService {
     }));
   }
 
-  async matchByNames(currentUserId: string, names: string[]) {
-    const clean = (names ?? [])
-      .map((n) => (typeof n === 'string' ? n : '').trim().slice(0, 60))
-      .filter(Boolean)
-      .slice(0, 100);
+  // ─────────────────────────── 연락처 친구 찾기 ───────────────────────────
+
+  /**
+   * 내 전화번호 등록.
+   *
+   * ⚠️ 원본 번호는 저장하지 않는다. 매칭에 필요한 건 "같은 번호인가" 뿐이고,
+   * 원본을 들고 있으면 DB 가 새는 순간 전화번호부가 통째로 새는 것이다.
+   * 해시와 뒷 4자리만 남긴다.
+   *
+   * 유니크라 **먼저 등록한 사람이 임자**다. SMS 인증이 없는 상태에서 이걸
+   * 허용하지 않으면, 남의 번호를 등록해서 그 사람 지인들의 추천 목록에
+   * 끼어들 수 있다.
+   */
+  async setPhone(userId: string, phone: string) {
+    const e164 = (phone ?? '').replace(/[^\d+]/g, '');
+    if (!/^\+[1-9]\d{7,14}$/.test(e164)) {
+      throw new BadRequestException('INVALID_PHONE');
+    }
+    const hash = hashPhone(e164);
+    const uid = new Types.ObjectId(userId);
+
+    const taken = await this.userModel
+      .findOne({ phoneHash: hash, _id: { $ne: uid } })
+      .select('_id')
+      .lean();
+    if (taken) throw new ConflictException('PHONE_ALREADY_REGISTERED');
+
+    await this.userModel.updateOne(
+      { _id: uid },
+      { $set: { phoneHash: hash, phoneLast4: e164.slice(-4) } },
+    );
+    return { success: true, phoneLast4: e164.slice(-4) };
+  }
+
+  /** 연락처 매칭에서 나를 뺄지 */
+  async setContactsDiscoverable(userId: string, discoverable: boolean) {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { $set: { contactsDiscoverable: discoverable } },
+    );
+    return { success: true, contactsDiscoverable: discoverable };
+  }
+
+  /**
+   * 연락처 매칭.
+   *
+   * 앱이 번호를 E.164 로 정규화해서 **해시만** 보낸다 — 서버는 상대의
+   * 전화번호부를 원본으로 받지 않는다.
+   *
+   * 예전에는 연락처 **이름**을 정규식으로 닉네임에 맞춰봤다. 거의 안 맞았고
+   * (연락처 이름 = "엄마", 닉네임 = "haneul22"), 무엇보다 아무 이름이나 100개
+   * 던져서 가입자를 훑을 수 있는 구멍이었다.
+   */
+  async matchByPhoneHashes(currentUserId: string, hashes: string[]) {
+    const clean = [
+      ...new Set(
+        (hashes ?? [])
+          .filter((h) => typeof h === 'string' && /^[a-f0-9]{64}$/i.test(h))
+          .map((h) => h.toLowerCase()),
+      ),
+    ].slice(0, 2000);
     if (!clean.length) return [];
 
-    const regexes = clean.map(
-      (n) => new RegExp(n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
-    );
-
+    const uid = new Types.ObjectId(currentUserId);
     const me = await this.userModel
-      .findById(currentUserId)
+      .findById(uid)
       .select('following followers')
       .lean();
     const followingSet = new Set(
@@ -1639,24 +1699,34 @@ export class UsersService {
 
     const users = await this.userModel
       .find({
-        _id: { $ne: new Types.ObjectId(currentUserId) },
-        $or: [{ nickname: { $in: regexes } }, { username: { $in: regexes } }],
+        phoneHash: { $in: clean },
+        contactsDiscoverable: { $ne: false },
+        isBot: { $ne: true },
+        _id: { $ne: uid },
       })
-      .select('nickname username profileImage avatar')
-      .limit(50)
+      .select('nickname username profileImage avatar phoneHash')
+      .limit(200)
       .lean();
 
-    return users.map((u) => ({
-      id: u._id.toString(),
-      nickname: u.nickname,
-      username: u.username || '',
-      profileImage: u.profileImage || '',
-      avatar: u.avatar || {
-        ...DEFAULT_AVATAR_CONFIG,
-      },
-      isFollowing: followingSet.has(u._id.toString()),
-      isFollowedBy: followerSet.has(u._id.toString()),
-    }));
+    // 매칭된 해시도 같이 돌려준다. 앱은 이걸 빼서 "아직 KORIO 를 안 쓰는
+    // 연락처" 를 만들고 초대 버튼을 붙인다. 그 계산을 서버에서 하려면
+    // 연락처 원본(이름)을 받아야 하는데, 그건 안 받는 게 이 설계의 핵심이다.
+    const matchedHashes = users
+      .map((u: any) => u.phoneHash)
+      .filter(Boolean) as string[];
+
+    return {
+      users: users.map((u) => ({
+        id: u._id.toString(),
+        nickname: u.nickname,
+        username: u.username || '',
+        profileImage: u.profileImage || '',
+        avatar: u.avatar || { ...DEFAULT_AVATAR_CONFIG },
+        isFollowing: followingSet.has(u._id.toString()),
+        isFollowedBy: followerSet.has(u._id.toString()),
+      })),
+      matchedHashes,
+    };
   }
 
   async touchActive(userId: string) {
@@ -1666,4 +1736,16 @@ export class UsersService {
     );
     return { ok: true };
   }
+}
+
+/**
+ * 전화번호 → SHA-256(hex).
+ *
+ * 앱도 **같은 방식**으로 해시해서 보낸다 (E.164 문자열 그대로 sha256).
+ * pepper 를 섞지 않는 이유: 앱이 같은 값을 만들어야 하므로 pepper 를 앱에
+ * 넣어야 하고, 앱 안에 든 건 비밀이 아니다. 있는 척하는 보안은 안 하느니만
+ * 못하다. 여기서 지키려는 건 "원본 전화번호부를 서버가 갖지 않는 것" 이다.
+ */
+export function hashPhone(e164: string): string {
+  return crypto.createHash('sha256').update(e164).digest('hex');
 }

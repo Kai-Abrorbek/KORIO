@@ -25,6 +25,14 @@ export interface User {
   longestStreak?: number;
   league?: "bronze" | "silver" | "gold" | "platinum" | "diamond";
   isSuper?: boolean;
+  /** 연락처 친구 찾기용으로 등록한 번호의 뒷 4자리. 원본은 서버에도 없다 */
+  phoneLast4?: string;
+  /** 연락처 매칭에 내가 노출될지 */
+  contactsDiscoverable?: boolean;
+  /** 내 초대 코드 (없으면 아직 초대 화면을 안 연 것) */
+  referralCode?: string | null;
+  /** 이미 누군가의 초대 코드를 썼는지 */
+  hasReferrer?: boolean;
   /** "trial" 이면 무료 체험 중. 결제 구독이면 상품 id */
   superPlan?: string | null;
   superExpiresAt?: string | null;

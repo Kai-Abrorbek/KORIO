@@ -398,6 +398,33 @@ const ENERGY_FULL: Table = {
   ],
 };
 
+const REFERRAL_JOINED: Table = {
+  ko: [
+    {
+      title: '{{nickname}}님이 초대를 수락했어요 🎉',
+      body: '보석 {{gems}}개가 들어왔어요. 지금 확인해 보세요.',
+    },
+  ],
+  uz: [
+    {
+      title: '{{nickname}} taklifingizni qabul qildi 🎉',
+      body: '{{gems}} ta gavhar hisobingizga tushdi. Hozir ko\'ring.',
+    },
+  ],
+  en: [
+    {
+      title: '{{nickname}} joined with your code 🎉',
+      body: 'You earned {{gems}} gems. Take a look.',
+    },
+  ],
+  ru: [
+    {
+      title: '{{nickname}} присоединился по вашему коду 🎉',
+      body: 'Вы получили {{gems}} самоцветов. Загляните.',
+    },
+  ],
+};
+
 /** ANNOUNCEMENT 는 어드민이 문구를 직접 넘긴다 — 여기 표에 없다 */
 const TABLES: Partial<Record<PushType, Table>> = {
   [PushType.FOLLOW]: FOLLOW,
@@ -410,6 +437,7 @@ const TABLES: Partial<Record<PushType, Table>> = {
   [PushType.LEAGUE_DEMOTED]: LEAGUE_DEMOTED,
   [PushType.LEAGUE_RESULT]: LEAGUE_RESULT,
   [PushType.ENERGY_FULL]: ENERGY_FULL,
+  [PushType.REFERRAL_JOINED]: REFERRAL_JOINED,
 };
 
 /** {{key}} 를 params 값으로 바꾼다. 값이 없으면 자리표시자를 지운다 */

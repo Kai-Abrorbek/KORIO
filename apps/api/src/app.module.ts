@@ -26,6 +26,7 @@ import { StudyPathModule } from './study-path/study-path.module';
 import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
 import { HealthModule } from './health/health.module';
 import { PushModule } from './push/push.module';
+import { ReferralModule } from './referral/referral.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { PushModule } from './push/push.module';
     ReadingLessonsModule,
     HealthModule,
     PushModule,
+    ReferralModule,
   ],
   controllers: [AppController],
   providers: [AppService],

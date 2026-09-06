@@ -23,7 +23,11 @@ import {
   SyncOnboardingSurveyDto,
   UpdateMeDto,
 } from './dto/update-me.dto';
-import { MatchContactsDto } from './dto/match-contacts.dto';
+import {
+  ContactsDiscoverableDto,
+  MatchContactsDto,
+  SetPhoneDto,
+} from './dto/match-contacts.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -207,11 +211,30 @@ export class UsersController {
     return this.usersService.searchUsers(req.user._id.toString(), q);
   }
 
+  /** 연락처 매칭. 앱이 번호를 정규화·해시해서 보낸다 (원본은 안 받는다) */
   @Post('match-contacts')
   async matchContacts(@Request() req, @Body() dto: MatchContactsDto) {
-    return this.usersService.matchByNames(
+    return this.usersService.matchByPhoneHashes(
       req.user._id.toString(),
-      dto.names ?? [],
+      dto.hashes ?? [],
+    );
+  }
+
+  /** 내 번호 등록 — 친구들이 연락처로 나를 찾을 수 있게 */
+  @Post('me/phone')
+  async setPhone(@Request() req, @Body() dto: SetPhoneDto) {
+    return this.usersService.setPhone(req.user._id.toString(), dto.phone);
+  }
+
+  /** 연락처 매칭에서 나를 빼기 */
+  @Patch('me/contacts-discoverable')
+  async setDiscoverable(
+    @Request() req,
+    @Body() dto: ContactsDiscoverableDto,
+  ) {
+    return this.usersService.setContactsDiscoverable(
+      req.user._id.toString(),
+      dto.discoverable,
     );
   }
 

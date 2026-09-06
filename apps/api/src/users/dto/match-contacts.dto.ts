@@ -1,14 +1,35 @@
-import { ArrayMaxSize, IsArray, IsString, MaxLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 
 /**
  * POST /users/match-contacts.
- * 예전엔 `@Body('names') names: string[]` 라 검증이 아예 없었다.
- * 숫자나 객체가 섞여 오면 서비스의 n.trim() 이 던져서 500 이 났다.
+ *
+ * 이름이 아니라 **전화번호 해시**를 받는다. 이름 매칭은 거의 안 맞았고
+ * (연락처 이름 "엄마" vs 닉네임 "haneul22"), 아무 이름이나 던져서 가입자를
+ * 훑을 수 있는 구멍이기도 했다.
  */
 export class MatchContactsDto {
   @IsArray()
-  @ArrayMaxSize(500)
+  @ArrayMaxSize(2000)
   @IsString({ each: true })
-  @MaxLength(60, { each: true })
-  names: string[];
+  @Matches(/^[a-fA-F0-9]{64}$/, { each: true })
+  hashes: string[];
+}
+
+export class SetPhoneDto {
+  /** E.164 (+998901234567). 서버는 해시와 뒷 4자리만 저장한다 */
+  @IsString()
+  @MaxLength(20)
+  phone: string;
+}
+
+export class ContactsDiscoverableDto {
+  @IsBoolean()
+  discoverable: boolean;
 }

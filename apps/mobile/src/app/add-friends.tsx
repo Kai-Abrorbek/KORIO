@@ -66,6 +66,12 @@ export default function AddFriendsScreen() {
       label: t("friends.shareLink"),
       onPress: () => router.push("/follow-link"),
     },
+    {
+      icon: "gift",
+      color: "#776ee2",
+      label: t("friends.inviteReward"),
+      onPress: () => router.push("/invite"),
+    },
   ];
 
   return (

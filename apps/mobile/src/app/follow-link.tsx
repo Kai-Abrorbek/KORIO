@@ -15,7 +15,8 @@ export default function FollowLinkScreen() {
   const s = styles(theme);
   const user = useAuthStore((st) => st.user);
 
-  const url = `https://korio.app/u/${user?.username || user?.id || ""}`;
+  // korio.app 은 우리 도메인이 아니다. 실제 도메인은 korio.online.
+  const url = `https://korio.online/u/${user?.username || user?.id || ""}`;
 
   const onShare = () =>
     Share.share({ message: `${t("friends.followMe")}\n${url}` });

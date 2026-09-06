@@ -652,6 +652,24 @@ export default {
     findFriendsTitle: "친구 찾기",
     nameOrId: "이름 또는 아이디",
     contactsTitle: "연락처에 있는 KORIO 사용자",
+      inviteReward: "친구 초대하고 보석 받기",
+      phoneTitle: "내 번호로 친구 찾기",
+      phoneDesc:
+        "번호를 등록하면 연락처에 있는 친구를 찾아드리고, 친구들 화면에도 회원님이 떠요.",
+      phonePlaceholder: "전화번호",
+      phoneSave: "등록하고 친구 찾기",
+      phonePrivacy:
+        "전화번호는 저장하지 않아요. 대조용 암호값과 뒷 4자리만 남습니다.",
+      phoneErr: {
+        INVALID: "번호를 다시 확인해 주세요.",
+        TAKEN: "이미 등록된 번호예요.",
+      },
+      openSettings: "설정 열기",
+      inviteTitle: "아직 KORIO를 안 쓰는 친구",
+      inviteDesc: "초대하면 둘 다 보석 {{gems}}개를 받아요.",
+      invite: "초대",
+      inviteMessage:
+        "{{name}}님, 저 {{nickname}}이에요! KORIO에서 같이 한국어 공부해요 🇰🇷\n제 초대 코드 {{code}} 를 넣으면 우리 둘 다 보석을 받아요.\n{{link}}",
     contactsCount: "연락처 {{count}}개",
     contactsDenied: "연락처 접근 권한이 없어요",
     contactsNoMatch: "연락처에서 찾은 사용자가 없어요",
@@ -1172,6 +1190,38 @@ export default {
       TUTOR_MONTHLY_LIMIT_REACHED: "이번 달 사용량을 다 썼어요.",
       TUTOR_NOT_CONFIGURED: "지금은 이용할 수 없어요.",
       TUTOR_SESSION_FAILED: "대화를 시작하지 못했어요. 다시 시도해 주세요.",
+    },
+  },
+  // 친구 초대 보상 (app/invite.tsx)
+  invite: {
+    heroTitle: "친구를 부르면 둘 다 {{gems}}💎",
+    heroSub:
+      "내 코드로 친구가 가입하면 회원님도, 친구도 보석 {{gems}}개를 받아요.",
+    myCode: "내 초대 코드",
+    tapToShare: "눌러서 공유하기",
+    invitedCount: "초대한 친구",
+    gemsEarned: "받은 보석",
+    milestonesTitle: "초대 보너스",
+    nextMilestone: "{{n}}명 더 부르면 +{{gems}}💎",
+    haveCode: "친구 코드가 있나요?",
+    haveCodeDesc: "친구의 초대 코드를 넣으면 보석 {{gems}}개를 바로 받아요.",
+    codePlaceholder: "코드 입력",
+    apply: "적용",
+    claimedTitle: "보석 {{gems}}개를 받았어요!",
+    claimedBody: "{{nickname}}님도 같이 받았어요. 이제 같이 공부해요!",
+    joinedFriends: "내 코드로 들어온 친구",
+    shareCta: "친구에게 보내기",
+    shareMessage:
+      "{{nickname}}입니다! KORIO에서 같이 한국어 공부해요 🇰🇷\n제 초대 코드 {{code}} 를 넣으면 우리 둘 다 보석 {{gems}}개를 받아요.\n{{link}}",
+    terms:
+      "초대 코드는 가입 후 {{days}}일 안에, 계정당 한 번만 쓸 수 있어요.",
+    err: {
+      INVALID_CODE: "코드 형식이 맞지 않아요. 다시 확인해 주세요.",
+      CODE_NOT_FOUND: "없는 코드예요. 다시 확인해 주세요.",
+      SELF_REFERRAL: "내 코드는 쓸 수 없어요.",
+      ALREADY_CLAIMED: "이미 초대 코드를 사용했어요.",
+      WINDOW_CLOSED: "초대 코드는 가입 후 얼마 동안만 쓸 수 있어요.",
+      CIRCULAR: "서로 초대해서 보상을 받을 수는 없어요.",
     },
   },
   // 가입 전 요금제 화면 (app/onboarding/plan.tsx)

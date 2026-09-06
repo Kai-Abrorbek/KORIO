@@ -658,6 +658,24 @@ export default {
     followedBy: "Followed by {{name}}",
     nameOrId: "Name or ID",
     contactsTitle: "KORIO users in your contacts",
+      inviteReward: "Invite friends, earn gems",
+      phoneTitle: "Find friends by your number",
+      phoneDesc:
+        "Add your number and we'll find friends from your contacts — and they'll be able to find you too.",
+      phonePlaceholder: "Phone number",
+      phoneSave: "Add and find friends",
+      phonePrivacy:
+        "We never store your phone number. Only a matching hash and the last 4 digits are kept.",
+      phoneErr: {
+        INVALID: "Please check the number.",
+        TAKEN: "That number is already registered.",
+      },
+      openSettings: "Open settings",
+      inviteTitle: "Contacts not on KORIO yet",
+      inviteDesc: "Invite them and you both get {{gems}} gems.",
+      invite: "Invite",
+      inviteMessage:
+        "{{name}}, it's {{nickname}}! Let's learn Korean together on KORIO 🇰🇷\nUse my invite code {{code}} and we both get gems.\n{{link}}",
     contactsCount: "{{count}} contacts",
     contactsDenied: "No contacts permission",
     contactsNoMatch: "No users found in your contacts",
@@ -1174,6 +1192,38 @@ export default {
       TUTOR_MONTHLY_LIMIT_REACHED: "You've used this month's time.",
       TUTOR_NOT_CONFIGURED: "This isn't available right now.",
       TUTOR_SESSION_FAILED: "Couldn't start the conversation. Please try again.",
+    },
+  },
+  // Friend invite rewards (app/invite.tsx)
+  invite: {
+    heroTitle: "Invite a friend — {{gems}}💎 each",
+    heroSub:
+      "When a friend joins with your code, you both get {{gems}} gems.",
+    myCode: "My invite code",
+    tapToShare: "Tap to share",
+    invitedCount: "Friends invited",
+    gemsEarned: "Gems earned",
+    milestonesTitle: "Invite bonuses",
+    nextMilestone: "{{n}} more for +{{gems}}💎",
+    haveCode: "Got a friend's code?",
+    haveCodeDesc: "Enter your friend's invite code and get {{gems}} gems now.",
+    codePlaceholder: "Enter code",
+    apply: "Apply",
+    claimedTitle: "You got {{gems}} gems!",
+    claimedBody: "{{nickname}} got them too. Now go learn together!",
+    joinedFriends: "Joined with your code",
+    shareCta: "Send to a friend",
+    shareMessage:
+      "It's {{nickname}}! Let's learn Korean together on KORIO 🇰🇷\nUse my invite code {{code}} and we both get {{gems}} gems.\n{{link}}",
+    terms:
+      "An invite code works within {{days}} days of signing up, once per account.",
+    err: {
+      INVALID_CODE: "That code doesn't look right. Please check it.",
+      CODE_NOT_FOUND: "No such code. Please check it.",
+      SELF_REFERRAL: "You can't use your own code.",
+      ALREADY_CLAIMED: "You've already used an invite code.",
+      WINDOW_CLOSED: "Invite codes only work for a while after signing up.",
+      CIRCULAR: "You can't reward each other by swapping codes.",
     },
   },
   // Pre-signup plan screen (app/onboarding/plan.tsx)

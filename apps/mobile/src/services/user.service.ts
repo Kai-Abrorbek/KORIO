@@ -180,8 +180,24 @@ export const UserService = {
   searchUsers: (q: string): Promise<any[]> =>
     api.get(`/users/search?q=${encodeURIComponent(q)}`),
 
-  matchContacts: (names: string[]): Promise<any[]> =>
-    api.post(`/users/match-contacts`, { names }),
+  /**
+   * 연락처 매칭. 번호가 아니라 **해시**를 보낸다 — 서버가 남의 전화번호부를
+   * 원본으로 갖지 않게 하려는 것이다 (utils/phone.ts 의 hashContacts 참고).
+   */
+  matchContacts: (
+    hashes: string[],
+  ): Promise<{ users: any[]; matchedHashes: string[] }> =>
+    api.post(`/users/match-contacts`, { hashes }),
+
+  /** 내 번호 등록 — 친구들이 연락처로 나를 찾을 수 있게 */
+  setPhone: (phone: string): Promise<{ success: boolean; phoneLast4: string }> =>
+    api.post(`/users/me/phone`, { phone }),
+
+  /** 연락처 매칭에서 나를 빼기 */
+  setContactsDiscoverable: (
+    discoverable: boolean,
+  ): Promise<{ success: boolean; contactsDiscoverable: boolean }> =>
+    api.patch(`/users/me/contacts-discoverable`, { discoverable }),
 
   getSuggestions: (): Promise<any[]> => api.get(`/users/suggestions`),
 
