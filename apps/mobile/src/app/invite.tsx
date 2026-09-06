@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -101,6 +102,15 @@ export default function InviteScreen() {
   const shineStyle = useAnimatedStyle(() => ({ opacity: shine.value }));
 
   const reward = data?.rewardGems ?? 1000;
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    if (!data?.code) return;
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await Clipboard.setStringAsync(data.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
 
   const share = () => {
     if (!data) return;
@@ -189,22 +199,35 @@ export default function InviteScreen() {
         {/* 내 코드 */}
         <Animated.View entering={FadeInDown.delay(60).duration(480)} style={s.card}>
           <Text style={s.cardLabel}>{t("invite.myCode")}</Text>
-          <Pressable
-            onPress={share}
-            style={({ pressed }) => [s.codeRow, pressed && { opacity: 0.85 }]}
-          >
+          <View style={s.codeRow}>
             <View style={{ flex: 1 }}>
               <Text style={s.code} selectable>
                 {data?.code ?? "······"}
               </Text>
-              <Text style={s.codeHint}>{t("invite.tapToShare")}</Text>
+              <Pressable
+                onPress={copy}
+                disabled={!data}
+                hitSlop={8}
+                style={({ pressed }) => [s.copyBtn, pressed && { opacity: 0.8 }]}
+              >
+                <Ionicons
+                  name={copied ? "checkmark" : "copy-outline"}
+                  size={15}
+                  color={copied ? "#2BA47F" : theme.primary}
+                />
+                <Text
+                  style={[s.copyText, copied && { color: "#2BA47F" }]}
+                >
+                  {t(copied ? "invite.copied" : "invite.copy")}
+                </Text>
+              </Pressable>
             </View>
             {!!data?.link && (
-              <View style={s.qr}>
+              <Pressable onPress={share} hitSlop={6} style={s.qr}>
                 <QRCode value={data.link} size={72} />
-              </View>
+              </Pressable>
             )}
-          </Pressable>
+          </View>
         </Animated.View>
 
         {/* 현황 */}
@@ -467,12 +490,18 @@ const styles = (theme: ThemeColors, isDark: boolean) =>
       letterSpacing: 4,
       fontVariant: ["tabular-nums"],
     },
-    codeHint: {
-      color: theme.textSecondary,
-      fontSize: 11.5,
-      fontWeight: "700",
-      marginTop: 4,
+    copyBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      gap: 5,
+      marginTop: 8,
+      paddingHorizontal: 11,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: isDark ? "#2A2740" : "#F3F0FF",
     },
+    copyText: { color: theme.primary, fontSize: 12.5, fontWeight: "800" },
     qr: { padding: 7, borderRadius: 12, backgroundColor: "#fff" },
 
     statRow: { flexDirection: "row", gap: 12, marginTop: 14, marginHorizontal: 16 },

@@ -169,6 +169,31 @@ if need docker && docker info >/dev/null 2>&1; then
     || warn "메모리 ${mem_mb}M + 스왑 ${swap_mb}M — 빌드 중 OOM 이 날 수 있다"
 else bad "도커가 안 돈다 — sudo bash server-setup.sh"; fi
 
+# ── 워크스페이스 오염 ────────────────────────────────────────────────
+# 도커 빌드의 `pnpm install --frozen-lockfile` 은 package.json 과
+# pnpm-lock.yaml 이 어긋나면 실패한다. 그걸 10분짜리 빌드가 다 돌고 나서
+# 알게 되면 아깝다.
+#
+# 실제로 두 번 당한 원인이 하나다: 레포 루트나 apps/api 에서 실수로
+# `expo prebuild` / `expo install` 이 돌면 그 package.json 에 expo·react·
+# react-native 가 끼워 넣어진다. NestJS 서버에 리액트 네이티브가 붙는 것이라
+# 언제나 잘못된 상태다.
+#
+# ⚠️ 이건 그 한 가지 패턴만 잡는다. 락파일 전체 정합성은 결국
+# `pnpm install --frozen-lockfile` 만이 안다 — 푸시 전에 로컬에서 돌려라.
+echo
+echo "── 워크스페이스 ──"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+dirty=0
+for f in "$ROOT_DIR/package.json" "$ROOT_DIR/apps/api/package.json"; do
+  [[ -f "$f" ]] || continue
+  if grep -qE '"(expo|react-native)"[[:space:]]*:' "$f"; then
+    bad "$(basename "$(dirname "$f")")/package.json 에 expo/react-native 가 있다 — 루트에서 expo 명령을 돌린 흔적. 지우고 pnpm install 을 다시 해라"
+    dirty=1
+  fi
+done
+(( dirty == 0 )) && ok "루트·apps/api package.json 깨끗 (모바일 의존성 안 섞임)"
+
 echo
 if (( FAIL == 0 )); then
   printf '%s모두 통과 — ./deploy.sh 해도 된다%s\n' "$GRN" "$RST"; exit 0

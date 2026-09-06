@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +18,7 @@ import SettingsQuickActions from "@/components/settings/SettingsQuickActions";
 import GuestWarningCard from "@/components/settings/GuestWarningCard";
 import SettingsSectionCard from "@/components/settings/SettingsSectionCard";
 import { useAuthStore } from "@/store/auth.store";
+import InviteCodeSheet from "@/components/settings/InviteCodeSheet";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -24,6 +26,7 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const { user } = useAuthStore();
+  const [codeOpen, setCodeOpen] = useState(false);
 
   const handleItemPress = (item: SettingsItem) => {
     if (item.route) {
@@ -70,7 +73,7 @@ export default function SettingsScreen() {
             onSubscribePress={() => router.push("/(tabs)/premium")}
           />
           <SettingsQuickActions
-            onAuthCode={() => console.log("auth code")}
+            onAuthCode={() => setCodeOpen(true)}
             onFriends={() => router.push("/friends")}
           />
         </View>
@@ -100,6 +103,9 @@ export default function SettingsScreen() {
           {t("settings.version", { version: APP_VERSION })}
         </Text>
       </ScrollView>
+
+      {/* "Kod" 를 누르면 올라오는 내 초대 코드 (복사 · 공유) */}
+      <InviteCodeSheet visible={codeOpen} onClose={() => setCodeOpen(false)} />
     </View>
   );
 }
