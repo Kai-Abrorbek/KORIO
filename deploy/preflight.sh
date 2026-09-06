@@ -60,6 +60,23 @@ MYIP6="$(ip_of -6)"
 [[ -n "$MYIP4" ]] && ok "이 서버 IPv4: $MYIP4" || warn "IPv4 를 못 읽었다"
 [[ -n "$MYIP6" ]] && ok "이 서버 IPv6: $MYIP6" || ok "IPv6 없음 (문제 아님)"
 
+# ACME 연락처 메일.
+#
+# .env.example 의 you@example.com 을 그대로 두면 Let's Encrypt 가
+#   invalidContact - contact email has forbidden domain "example.com"
+# 으로 거절한다. Caddy 는 조용히 ZeroSSL 로 넘어가고, 거기서도 실패하면
+# 인증서 없이 뜬다 — 증상은 "TLS internal error" 라 원인이 안 보인다.
+# 실제로 korio.online 이 이것 때문에 안 열렸다.
+if [[ -z "${ACME_EMAIL:-}" ]]; then
+  bad "ACME_EMAIL 이 .env 에 없다"
+elif [[ "$ACME_EMAIL" == *"@example.com" || "$ACME_EMAIL" == *"@example.org" ]]; then
+  bad "ACME_EMAIL 이 $ACME_EMAIL 다 — Let's Encrypt 가 example.com 을 거부한다. 진짜 메일로 바꿔라"
+elif [[ "$ACME_EMAIL" != *"@"*"."* ]]; then
+  bad "ACME_EMAIL 이 메일 주소 모양이 아니다: $ACME_EMAIL"
+else
+  ok "ACME_EMAIL 정상 ($ACME_EMAIL)"
+fi
+
 if [[ -z "${API_DOMAIN:-}" ]]; then
   bad "API_DOMAIN 이 .env 에 없다"
 elif ! need dig; then
@@ -181,6 +198,18 @@ else bad "도커가 안 돈다 — sudo bash server-setup.sh"; fi
 #
 # ⚠️ 이건 그 한 가지 패턴만 잡는다. 락파일 전체 정합성은 결국
 # `pnpm install --frozen-lockfile` 만이 안다 — 푸시 전에 로컬에서 돌려라.
+# 초대·팔로우 링크가 열리는 도메인. 여기도 이 서버를 가리켜야 한다
+if [[ -n "${WEB_DOMAIN:-}" ]] && need dig; then
+  WEB_A="$(dig +short "$WEB_DOMAIN" A | grep -E '^[0-9.]+$' | tail -1)"
+  if [[ -z "$WEB_A" ]]; then
+    bad "$WEB_DOMAIN 이 아직 안 풀린다"
+  elif [[ -n "$MYIP4" && "$WEB_A" == "$MYIP4" ]]; then
+    ok "A    $WEB_DOMAIN → $WEB_A  (이 서버)"
+  else
+    bad "A    $WEB_DOMAIN → $WEB_A  인데 이 서버는 ${MYIP4:-알수없음} 다 — 도메인 등록업체의 파킹 IP 일 수 있다"
+  fi
+fi
+
 echo
 echo "── 워크스페이스 ──"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
