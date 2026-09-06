@@ -631,6 +631,7 @@ export default {
     learningStatus: "Прогресс",
     streakDays: "{{count}} дн.",
     xp: "{{count}} XP",
+    gems: "{{count}} кристаллов",
     friendStreak: "Серии с друзьями",
   },
   friendProfile: {
@@ -755,6 +756,10 @@ export default {
         title: "Пробный период заканчивается",
         body: "Осталось {{days}} дн.",
       },
+      referral: {
+        title: "{{nickname}} зарегистрировался по вашему коду",
+        body: "Начислено {{gems}} кристаллов",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -830,7 +835,10 @@ export default {
     user: {
       subscribe: "Подписаться на Премиум",
       freeTooltip: "Прямо сейчас!",
-      freeTooltipDesc: "Попробуйте 7 дней бесплатно!",
+      manage: "Управление подпиской",
+      trialActive: "Идёт бесплатный период!",
+      trialLeftDays: "Осталось {{count}} дн.",
+      freeTooltipDesc: "Попробуйте {{days}} дней бесплатно!",
     },
     quickActions: {
       authCode: "Код",

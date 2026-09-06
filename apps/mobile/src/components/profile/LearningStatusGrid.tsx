@@ -12,6 +12,8 @@ interface Props {
   languageLevel: number;
   league: League;
   totalXp: number;
+  /** 내 프로필에서만 넘긴다. 남의 보석은 보여주지 않는다 */
+  gems?: number;
 }
 
 export default function LearningStatusGrid({
@@ -20,6 +22,7 @@ export default function LearningStatusGrid({
   languageLevel,
   league,
   totalXp,
+  gems,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -51,6 +54,17 @@ export default function LearningStatusGrid({
             value={t("profile.xp", { count: totalXp })}
           />
         </View>
+
+        {gems !== undefined && (
+          <View style={styles.row}>
+            <StatCell
+              iconName="diamond"
+              iconColor="#45B7D1"
+              value={t("profile.gems", { count: gems })}
+            />
+            <View style={styles.spacer} />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -74,5 +88,9 @@ const getStyles = (theme: ThemeColors) =>
     row: {
       flexDirection: "row",
       gap: 12,
+    },
+    // 마지막 줄이 한 칸뿐이라 반쪽만 차지하게 잡아준다 (좌우 정렬 유지)
+    spacer: {
+      flex: 1,
     },
   });

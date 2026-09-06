@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,6 +14,8 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import { useAuthStore } from "@/store/auth.store";
+import { TRIAL_DAYS } from "@/constants/trial";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AvatarConfig } from "@/types/avatar";
 
@@ -33,7 +35,39 @@ export default function SettingsUserCard({
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const isPremium = false;
+  const user = useAuthStore((st) => st.user);
+  // 하드코딩 false 였다. 구독자한테도 "무료 체험하세요" 가 떠 있었다
+  const isPremium = !!user?.isSuper;
+  const isTrial = user?.superPlan === "trial";
+
+  const trialLeft = useMemo(() => {
+    if (!isPremium || !isTrial || !user?.superExpiresAt) return 0;
+    const ms = new Date(user.superExpiresAt).getTime() - Date.now();
+    return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
+  }, [isPremium, isTrial, user?.superExpiresAt]);
+
+  /**
+   * 툴팁이 뜨는 경우는 둘뿐이다.
+   *  체험 중        → 남은 일수를 알려준다
+   *  체험을 안 써봤음 → 무료 체험을 권한다
+   * 결제 구독자거나 체험을 이미 써버린 유저에게는 아무것도 약속하지 않는다
+   * (superPlan 이 'trial' 로 남아 있으면 만료돼도 체험을 쓴 계정이다)
+   */
+  const tip = isPremium
+    ? isTrial
+      ? {
+          badge: "SUPER",
+          title: t("settings.user.trialActive"),
+          desc: t("settings.user.trialLeftDays", { count: trialLeft }),
+        }
+      : null
+    : isTrial
+      ? null
+      : {
+          badge: "FREE",
+          title: t("settings.user.freeTooltip"),
+          desc: t("settings.user.freeTooltipDesc", { days: TRIAL_DAYS }),
+        };
   // 툴팁 둥둥 애니메이션
   const bob = useSharedValue(0);
   useEffect(() => {
@@ -74,16 +108,13 @@ export default function SettingsUserCard({
           color={theme.textSecondary}
         />
       </TouchableOpacity>
-      {!isPremium && (
+      {!!tip && (
         <Animated.View style={[styles.tooltipWrap, tooltipStyle]}>
           <View style={styles.tooltip}>
             <Text style={styles.tooltipText}>
-              <Text style={styles.tooltipFree}>FREE</Text>{" "}
-              {t("settings.user.freeTooltip")}
+              <Text style={styles.tooltipFree}>{tip.badge}</Text> {tip.title}
             </Text>
-            <Text style={styles.tooltipDesc}>
-              {t("settings.user.freeTooltipDesc")}
-            </Text>
+            <Text style={styles.tooltipDesc}>{tip.desc}</Text>
           </View>
           <View style={styles.tooltipArrow} />
         </Animated.View>
@@ -92,7 +123,7 @@ export default function SettingsUserCard({
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={onSubscribePress}
-        style={styles.subscribeWrap}
+        style={[styles.subscribeWrap, !tip && styles.subscribeWrapAlone]}
       >
         <LinearGradient
           colors={["#9990EE", "#776ee2", "#6557D9"]}
@@ -104,7 +135,11 @@ export default function SettingsUserCard({
             <Text style={styles.pBadgeText}>P</Text>
           </View>
           <Text style={styles.subscribeText}>
-            {t("settings.user.subscribe")}
+            {t(
+              isPremium && !isTrial
+                ? "settings.user.manage"
+                : "settings.user.subscribe",
+            )}
           </Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -178,6 +213,9 @@ const getStyles = (theme: ThemeColors) =>
       borderRightColor: "transparent",
       borderTopColor: "#2C2C36",
       marginTop: -1,
+    },
+    subscribeWrapAlone: {
+      marginTop: 18,
     },
     subscribeWrap: {
       marginTop: 4,

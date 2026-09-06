@@ -11,6 +11,7 @@ export type NotificationType =
   | "energy_full"
   | "level_up"
   | "super_expiring"
+  | "referral"
   | "system";
 
 export interface AppNotification {

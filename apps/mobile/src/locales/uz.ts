@@ -636,6 +636,7 @@ export default {
     learningStatus: "O'qish holati",
     streakDays: "{{count}} kun",
     xp: "{{count}} XP",
+    gems: "{{count}} gavhar",
     friendStreak: "Do'st bilan ketma-ket o'qish",
   },
   friendProfile: {
@@ -755,6 +756,10 @@ export default {
         title: "Bepul sinov tugayapti",
         body: "{{days}} kun qoldi",
       },
+      referral: {
+        title: "{{nickname}} sizning kodingiz bilan qo'shildi",
+        body: "{{gems}} ta gavhar hisobingizga tushdi",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -830,7 +835,10 @@ export default {
     user: {
       subscribe: "Premium obunani sotib olish",
       freeTooltip: "Hozir oling!",
-      freeTooltipDesc: "7 kun bepul sinab ko'ring!",
+      manage: "Obunani boshqarish",
+      trialActive: "Bepul sinov davom etmoqda!",
+      trialLeftDays: "{{count}} kun qoldi",
+      freeTooltipDesc: "{{days}} kun bepul sinab ko'ring!",
     },
     quickActions: {
       authCode: "Kod",

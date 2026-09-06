@@ -73,6 +73,7 @@ export default function ProfileScreen() {
         languageLevel={profile.languageLevel}
         league={profile.league}
         totalXp={profile.totalXp}
+        gems={user?.gems ?? 0}
       />
 
       <FriendStreakSection

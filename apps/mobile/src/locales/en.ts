@@ -632,6 +632,7 @@ export default {
     learningStatus: "Learning Status",
     streakDays: "{{count}} days",
     xp: "{{count}} XP",
+    gems: "{{count}} gems",
     friendStreak: "Friend Streaks",
   },
   friendProfile: {
@@ -750,6 +751,10 @@ export default {
         title: "Your free trial is ending",
         body: "{{days}} days left",
       },
+      referral: {
+        title: "{{nickname}} joined with your code",
+        body: "{{gems}} gems have been added",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -825,7 +830,10 @@ export default {
     user: {
       subscribe: "Subscribe to Premium",
       freeTooltip: "Right now!",
-      freeTooltipDesc: "Try 7 days for free!",
+      manage: "Manage subscription",
+      trialActive: "Free trial active!",
+      trialLeftDays: "{{count}} days left",
+      freeTooltipDesc: "Try {{days}} days for free!",
     },
     quickActions: {
       authCode: "Code",

@@ -60,6 +60,7 @@ const LOOK: Record<
   energy_full: { icon: "flash", color: "#45B7D1" },
   level_up: { icon: "arrow-up-circle", color: "#8C82F0" },
   super_expiring: { icon: "star", color: "#E2A83A" },
+  referral: { icon: "gift", color: "#1DBB7F" },
   system: { icon: "megaphone", color: "#A6A6B3" },
 };
 
@@ -93,8 +94,8 @@ function Row({
   const timeAgo = useTimeAgo();
   const look = LOOK[item.type] ?? LOOK.system;
 
-  // 팔로우는 상대 얼굴이 아이콘보다 알아보기 쉽다
-  const isPerson = item.type === "follow";
+  // 사람이 주인공인 알림은 상대 얼굴이 아이콘보다 알아보기 쉽다
+  const isPerson = item.type === "follow" || item.type === "referral";
   const initial = (item.params?.nickname ?? "?").trim().charAt(0);
 
   const title = t(`notifs.type.${item.type}.title`, {

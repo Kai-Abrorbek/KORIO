@@ -627,6 +627,7 @@ export default {
     learningStatus: "학습 현황",
     streakDays: "{{count}}일",
     xp: "{{count}} XP",
+    gems: "보석 {{count}}개",
     friendStreak: "친구와의 연속 학습",
   },
   friendProfile: {
@@ -748,6 +749,10 @@ export default {
         title: "무료 체험이 곧 끝나요",
         body: "{{days}}일 남았어요",
       },
+      referral: {
+        title: "{{nickname}}님이 내 코드로 가입했어요",
+        body: "보석 {{gems}}개가 들어왔어요",
+      },
       system: { title: "{{message}}", body: "" },
     },
   },
@@ -823,7 +828,10 @@ export default {
     user: {
       subscribe: "프리미엄 멤버십 구독하기",
       freeTooltip: "지금 바로!",
-      freeTooltipDesc: "7일 무료 체험해 보세요!",
+      manage: "구독 관리하기",
+      trialActive: "무료 체험 중!",
+      trialLeftDays: "{{count}}일 남았어요",
+      freeTooltipDesc: "{{days}}일 무료 체험해 보세요!",
     },
     quickActions: {
       authCode: "인증번호",

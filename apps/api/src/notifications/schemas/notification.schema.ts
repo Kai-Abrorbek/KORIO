@@ -17,7 +17,8 @@ export enum NotificationType {
   ENERGY_FULL = 'energy_full', // 에너지 가득 참
   LEVEL_UP = 'level_up', // 레벨 상승
   SUPER_EXPIRING = 'super_expiring', // 체험 만료 임박
-  SYSTEM = 'system', // 공지
+  REFERRAL = 'referral', // 내 초대 코드로 누가 가입
+  SYSTEM = 'system', // 공지 (params.message 필수)
 }
 
 export type NotificationDocument = Notification & Document;

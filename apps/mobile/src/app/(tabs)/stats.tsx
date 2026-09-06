@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StatsTab } from "@/types/stats";
-import StatsHeader from "@/components/stats/StatsHeader";
 import TopTabs from "@/components/stats/TopTabs";
 import PeriodView from "@/components/stats/period/PeriodView";
 import CategoryView from "@/components/stats/category/CategoryView";
 
 export default function StatsScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = getStyles(theme);
   const [tab, setTab] = useState<StatsTab>("period");
 
+  // 헤더를 없앴으니 상태바 자리는 컨테이너가 직접 확보한다
   return (
-    <View style={styles.container}>
-      <StatsHeader hasUnread />
+    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
       <TopTabs value={tab} onChange={setTab} />
       <ScrollView
         style={styles.scroll}

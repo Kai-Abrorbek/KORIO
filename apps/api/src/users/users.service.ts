@@ -243,6 +243,8 @@ export class UsersService {
       topikLevel: user.topikLevel || '1',
       // 계정 화면에서 로그인 방식을 보여주고, 소셜 계정엔 비밀번호 변경을 숨긴다
       provider: user.provider,
+      // 'trial' 이면 무료 체험. 앱이 체험/결제 구독을 구분해서 문구를 고른다
+      superPlan: user.superPlan ?? null,
       superExpiresAt: user.superExpiresAt ?? null,
       createdAt: (user as any).createdAt,
       lastStudiedAt: user.lastStudiedAt,

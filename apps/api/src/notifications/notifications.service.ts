@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { APP_TIMEZONE, startOfDay } from '../common/date.util';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -12,11 +12,35 @@ import {
 const PAGE_SIZE = 30;
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService implements OnModuleInit {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     @InjectModel(Notification.name)
     private readonly model: Model<NotificationDocument>,
   ) {}
+
+  /**
+   * 초대 알림이 한동안 SYSTEM 으로 저장됐다. SYSTEM 문구는 params.message 를
+   * 넣는 템플릿이라, message 가 없는 초대 알림은 화면에 "{{message}}" 가
+   * 그대로 찍혔다. 남아 있는 옛 문서를 제 타입으로 옮긴다.
+   *
+   * 한 번 돌고 나면 매칭이 0건이라 무해하다. 배포가 한 바퀴 돈 뒤에는
+   * 이 메서드를 통째로 지워도 된다.
+   */
+  async onModuleInit() {
+    try {
+      const res = await this.model.updateMany(
+        { type: NotificationType.SYSTEM, 'params.kind': 'referral' },
+        { $set: { type: NotificationType.REFERRAL }, $unset: { 'params.kind': '' } },
+      );
+      if (res.modifiedCount) {
+        this.logger.log(`초대 알림 ${res.modifiedCount}건 타입 정정`);
+      }
+    } catch (e) {
+      this.logger.warn(`알림 타입 정정 실패: ${(e as Error).message}`);
+    }
+  }
 
   /**
    * 알림 생성.

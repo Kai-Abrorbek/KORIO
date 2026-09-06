@@ -55,7 +55,7 @@ export class ReferralService {
     const uid = new Types.ObjectId(userId);
     const code = await this.ensureCode(uid);
 
-    const [rows, me] = await Promise.all([
+    const [rows, me, agg, redeemed] = await Promise.all([
       this.refModel
         .find({ inviterId: uid })
         .sort({ createdAt: -1 })
@@ -66,10 +66,22 @@ export class ReferralService {
         .findById(uid)
         .select('referredBy referralMilestonesPaid createdAt')
         .lean(),
+      // 목록은 50개에서 자르지만 합계는 전부 세야 한다.
+      // rows 를 reduce 하면 51번째 초대부터 통계가 조용히 멈춘다
+      this.refModel.aggregate<{ count: number; gems: number }>([
+        { $match: { inviterId: uid } },
+        {
+          $group: { _id: null, count: { $sum: 1 }, gems: { $sum: '$gemsEach' } },
+        },
+      ]),
+      // 내가 남의 코드를 써서 받은 몫.
+      // 이게 빠져 있어서 초대받은 쪽은 1000 을 받고도 "받은 보석 0" 을 봤다
+      this.refModel.findOne({ inviteeId: uid }).select('gemsEach').lean(),
     ]);
 
-    const invitedCount = await this.refModel.countDocuments({ inviterId: uid });
-    const gemsFromInvites = rows.reduce((sum, r) => sum + (r.gemsEach ?? 0), 0);
+    const invitedCount = agg[0]?.count ?? 0;
+    const gemsFromInvites = agg[0]?.gems ?? 0;
+    const gemsFromRedeem = (redeemed as any)?.gemsEach ?? 0;
     const paid: number[] = (me as any)?.referralMilestonesPaid ?? [];
     const gemsFromMilestones = REFERRAL_MILESTONES.filter((m) =>
       paid.includes(m.count),
@@ -80,7 +92,9 @@ export class ReferralService {
       link: `${INVITE_BASE_URL}/${code}`,
       rewardGems: REFERRAL_GEMS,
       invitedCount,
-      gemsEarned: gemsFromInvites + gemsFromMilestones,
+      gemsEarned: gemsFromInvites + gemsFromMilestones + gemsFromRedeem,
+      /** 내가 코드를 써서 받은 보석 (0 이면 아직 아무 코드도 안 씀) */
+      gemsFromRedeem,
       /** 아직 아무의 코드도 안 썼고, 기한도 안 지났으면 입력창을 보여준다 */
       canRedeem: this.canRedeem(me as any),
       milestones: REFERRAL_MILESTONES.map((m) => ({
@@ -261,8 +275,8 @@ export class ReferralService {
   ) {
     const params = { nickname: invitee?.nickname ?? '', gems };
     await this.notifications
-      .create(inviterId.toString(), NotificationType.SYSTEM, {
-        params: { ...params, kind: 'referral' },
+      .create(inviterId.toString(), NotificationType.REFERRAL, {
+        params,
         link: '/invite',
         imageUrl: invitee?.profileImage ?? '',
       })
