@@ -220,10 +220,15 @@ export class User {
 
   /**
    * 내 초대 코드. 처음 초대 화면을 열 때 발급된다.
-   * sparse 유니크 — 아직 발급 안 받은 유저가 대다수라 null 이 여럿이다.
+   *
+   * ⚠️ default 를 주지 않는다. sparse 는 "필드가 **없는**" 문서를 인덱스에서
+   * 빼는 것이지 null 인 문서를 빼는 게 아니다. default: null 을 주면 신규
+   * 유저마다 referralCode: null 이 실제로 기록되고, 유니크 인덱스에 null 이
+   * 둘 이상 들어가는 순간 **두 번째 가입자부터 E11000 으로 가입이 막힌다.**
+   * 유니크 조건은 아래에서 partialFilterExpression 으로 명시한다.
    */
-  @Prop({ type: String, default: null, unique: true, sparse: true })
-  referralCode: string | null;
+  @Prop({ type: String })
+  referralCode?: string;
 
   /**
    * 나를 초대한 사람. 평생 한 번만 채워진다.
@@ -246,8 +251,8 @@ export class User {
    * 유니크 — 먼저 등록한 사람이 임자다. 아니면 남의 번호를 등록해서
    * 그 사람 지인들의 추천 목록에 끼어들 수 있다.
    */
-  @Prop({ type: String, default: null, unique: true, sparse: true })
-  phoneHash: string | null;
+  @Prop({ type: String })
+  phoneHash?: string;
 
   /** 화면에 "••••1234" 로 보여주기 위한 뒷자리. 이것만으로는 역추적이 안 된다 */
   @Prop({ default: '' })
@@ -352,3 +357,31 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+/**
+ * 값이 **있을 때만** 유일해야 하는 필드들.
+ *
+ * sparse 로는 부족하다 — sparse 는 필드가 없는 문서만 빼므로, 값이 null 인
+ * 문서가 여럿이면 그대로 충돌한다. partialFilterExpression 으로 "문자열인
+ * 문서만 인덱싱" 이라고 못 박으면 null 이든 미설정이든 전부 비켜간다.
+ *
+ * phoneHash 가 유일해야 하는 이유: SMS 인증이 없는 상태에서 중복을 허용하면
+ * 남의 번호를 등록해 그 사람 지인들의 친구 추천에 끼어들 수 있다.
+ * 먼저 등록한 사람이 임자다.
+ */
+UserSchema.index(
+  { referralCode: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { referralCode: { $type: 'string' } },
+    name: 'referralCode_unique_when_set',
+  },
+);
+UserSchema.index(
+  { phoneHash: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { phoneHash: { $type: 'string' } },
+    name: 'phoneHash_unique_when_set',
+  },
+);
