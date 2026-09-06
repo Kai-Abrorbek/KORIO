@@ -56,3 +56,9 @@ deploy/api.env
 # 서비스 계정 키 (푸시 발송 권한 — 절대 커밋 금지)
 *firebase-adminsdk*.json
 *-serviceaccount*.json
+
+# 루트에서 실수로 `expo prebuild` 를 돌리면 여기에 안드로이드 프로젝트가
+# 생긴다 (진짜는 apps/mobile/android). 루트 package.json 에 expo/react 까지
+# 끼워 넣으므로, 생기면 지우고 package.json 도 되돌릴 것.
+/android
+/ios
