@@ -77,6 +77,12 @@
 #     페이지가 커스텀 스킴(mobile://)으로 한 번 찔러보고, 안 열리면
 #     코드와 스토어 링크를 보여준다.
 # ─────────────────────────────────────────────────────────────────────────
+# www 는 apex 로 넘긴다. DNS 에 www CNAME 이 있어서 요청은 오는데
+# 사이트 블록이 없으면 인증서도 못 받고 그냥 떨어진다.
+www.{$WEB_DOMAIN} {
+	redir https://{$WEB_DOMAIN}{uri} permanent
+}
+
 {$WEB_DOMAIN} {
 	encode zstd gzip
 	root * /srv/www
