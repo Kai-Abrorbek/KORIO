@@ -3,6 +3,7 @@ import topik from "./topik/en";
 export default {
   topik,
   common: {
+    retry: "Try again",
     start: "Get Started",
     next: "Next",
     back: "Back",
@@ -1196,6 +1197,7 @@ export default {
   },
   // Friend invite rewards (app/invite.tsx)
   invite: {
+    loadFailed: "Couldn't load your invite. Please try again in a moment.",
     heroTitle: "Invite a friend — {{gems}}💎 each",
     heroSub:
       "When a friend joins with your code, you both get {{gems}} gems.",

@@ -9,8 +9,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+// ⚠️ useFocusEffect 는 반드시 expo-router 에서 가져온다.
+// @react-navigation/native 에서 직접 가져오면 expo-router 의 네비게이션
+// 컨텍스트를 못 찾아 "Couldn't find a navigation object" 로 터진다.
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -71,6 +73,9 @@ export default function InviteScreen() {
 
   const [data, setData] = useState<MyInvite | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  /** 하단 고정 CTA 의 실제 높이. 상수로 박으면 언젠가 마지막 카드가 가려진다 */
+  const [footerH, setFooterH] = useState(96);
   const [input, setInput] = useState(incoming ?? "");
   const [claiming, setClaiming] = useState(false);
   const [claimError, setClaimError] = useState<ClaimError | null>(null);
@@ -79,9 +84,12 @@ export default function InviteScreen() {
   );
 
   const load = useCallback(() => {
+    setLoadError(false);
     ReferralApi.me()
       .then(setData)
-      .catch(() => {})
+      // 조용히 삼키면 "버튼을 눌러도 아무 일이 안 난다" 만 남는다.
+      // 서버에 아직 referral 모듈이 없을 때가 정확히 그랬다.
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -169,7 +177,7 @@ export default function InviteScreen() {
   return (
     <View style={s.container}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: footerH + 24 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -195,6 +203,22 @@ export default function InviteScreen() {
           <Text style={s.heroTitle}>{t("invite.heroTitle", { gems: reward })}</Text>
           <Text style={s.heroSub}>{t("invite.heroSub", { gems: reward })}</Text>
         </LinearGradient>
+
+        {loadError && (
+          <View style={[s.card, s.errorCard]}>
+            <Ionicons name="cloud-offline-outline" size={26} color={theme.textSecondary} />
+            <Text style={s.errorCardText}>{t("invite.loadFailed")}</Text>
+            <Pressable
+              onPress={() => {
+                setLoading(true);
+                load();
+              }}
+              style={({ pressed }) => [s.retryBtn, pressed && { opacity: 0.85 }]}
+            >
+              <Text style={s.retryText}>{t("common.retry")}</Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* 내 코드 */}
         <Animated.View entering={FadeInDown.delay(60).duration(480)} style={s.card}>
@@ -357,7 +381,10 @@ export default function InviteScreen() {
       </ScrollView>
 
       {/* 하단 고정 CTA */}
-      <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+      <View
+        style={[s.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}
+        onLayout={(e) => setFooterH(e.nativeEvent.layout.height)}
+      >
         <Pressable onPress={share} style={({ pressed }) => [s.cta, pressed && { opacity: 0.9 }]}>
           <LinearGradient
             colors={["#8B82EE", "#6559D2"]}
@@ -617,6 +644,20 @@ const styles = (theme: ThemeColors, isDark: boolean) =>
       marginHorizontal: 28,
     },
 
+    errorCard: { alignItems: "center", gap: 10, paddingVertical: 22 },
+    errorCardText: {
+      color: theme.textSecondary,
+      fontSize: 13,
+      fontWeight: "600",
+      textAlign: "center",
+    },
+    retryBtn: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: isDark ? "#2A2740" : "#F3F0FF",
+    },
+    retryText: { color: theme.primary, fontSize: 13.5, fontWeight: "800" },
     footer: {
       position: "absolute",
       left: 0,

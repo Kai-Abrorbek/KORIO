@@ -3,6 +3,7 @@ import topik from "./topik/uz";
 export default {
   topik,
   common: {
+    retry: "Qayta urinish",
     start: "Boshlash",
     next: "Keyingi",
     back: "Orqaga",
@@ -1201,6 +1202,7 @@ export default {
   },
   // Do'st taklif qilish mukofoti (app/invite.tsx)
   invite: {
+    loadFailed: "Taklif ma'lumotini yuklab bo'lmadi. Birozdan so'ng qayta urinib ko'ring.",
     heroTitle: "Do'st chaqiring — ikkalangizga {{gems}}💎",
     heroSub:
       "Kodingiz bilan do'stingiz qo'shilsa, siz ham u ham {{gems}} ta gavhar olasiz.",

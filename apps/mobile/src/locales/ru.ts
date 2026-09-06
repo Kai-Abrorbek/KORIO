@@ -3,6 +3,7 @@ import topik from "./topik/ru";
 export default {
   topik,
   common: {
+    retry: "Повторить",
     start: "Начать",
     next: "Далее",
     back: "Назад",
@@ -1201,6 +1202,7 @@ export default {
   },
   // Награда за приглашение друзей (app/invite.tsx)
   invite: {
+    loadFailed: "Не удалось загрузить приглашение. Попробуйте чуть позже.",
     heroTitle: "Пригласите друга — по {{gems}}💎 каждому",
     heroSub:
       "Когда друг зарегистрируется по вашему коду, вы оба получите {{gems}} самоцветов.",

@@ -3,6 +3,7 @@ import topik from "./topik/ko";
 export default {
   topik,
   common: {
+    retry: "다시 시도",
     start: "시작하기",
     next: "다음",
     back: "뒤로",
@@ -1194,6 +1195,7 @@ export default {
   },
   // 친구 초대 보상 (app/invite.tsx)
   invite: {
+    loadFailed: "초대 정보를 불러오지 못했어요. 잠시 뒤에 다시 시도해 주세요.",
     heroTitle: "친구를 부르면 둘 다 {{gems}}💎",
     heroSub:
       "내 코드로 친구가 가입하면 회원님도, 친구도 보석 {{gems}}개를 받아요.",

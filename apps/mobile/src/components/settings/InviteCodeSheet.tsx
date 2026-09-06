@@ -58,6 +58,7 @@ export default function InviteCodeSheet({
   const nickname = useAuthStore((st) => st.user?.nickname ?? "");
 
   const [data, setData] = useState<MyInvite | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const backdrop = useSharedValue(0);
@@ -80,9 +81,12 @@ export default function InviteCodeSheet({
   useEffect(() => {
     if (!visible) return;
     let alive = true;
+    setLoadError(false);
     ReferralApi.me()
       .then((d) => alive && setData(d))
-      .catch(() => {});
+      // 조용히 삼키면 코드가 "······" 인 채로 버튼만 죽어 있다.
+      // 왜 안 되는지 화면이 말해줘야 한다.
+      .catch(() => alive && setLoadError(true));
     return () => {
       alive = false;
     };
@@ -165,7 +169,9 @@ export default function InviteCodeSheet({
           </View>
 
           <Text style={s.desc}>
-            {t("invite.heroSub", { gems: data?.rewardGems ?? 1000 })}
+            {loadError
+              ? t("invite.loadFailed")
+              : t("invite.heroSub", { gems: data?.rewardGems ?? 1000 })}
           </Text>
 
           <View style={s.codeCard}>
@@ -188,6 +194,7 @@ export default function InviteCodeSheet({
               style={({ pressed }) => [
                 s.btn,
                 s.btnGhost,
+                !data && { opacity: 0.45 },
                 pressed && { opacity: 0.8 },
               ]}
             >
@@ -207,6 +214,7 @@ export default function InviteCodeSheet({
               style={({ pressed }) => [
                 s.btn,
                 s.btnPrimary,
+                !data && { opacity: 0.45 },
                 pressed && { opacity: 0.88 },
               ]}
             >
