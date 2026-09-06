@@ -22,9 +22,12 @@ services:
       - "443:443/udp" # HTTP/3
     environment:
       API_DOMAIN: ${API_DOMAIN:?API_DOMAIN 을 .env 에 넣어라}
+      WEB_DOMAIN: ${WEB_DOMAIN:?WEB_DOMAIN 을 .env 에 넣어라}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL 을 .env 에 넣어라}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # 초대 링크 랜딩 + 앱링크 검증 파일 (assetlinks.json)
+      - ./www:/srv/www:ro
       - caddy_data:/data # 발급받은 인증서. 지우면 Let's Encrypt 한도에 걸린다
       - caddy_config:/config
     networks: [korio_net]

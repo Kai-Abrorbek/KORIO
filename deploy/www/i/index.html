@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>KORIO</title>
+<style>
+  :root{--p:#776ee2;--p2:#5B4DD4;--ink:#1A1A2E;--mut:#55555F;--bg:#F7F6FC}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;
+    padding:24px;background:linear-gradient(160deg,#9D8DFF,#776ee2 55%,#5B4DD4);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;color:var(--ink)}
+  .card{width:100%;max-width:400px;background:#fff;border-radius:28px;padding:32px 24px 24px;
+    text-align:center;box-shadow:0 24px 60px rgba(40,30,110,.28)}
+  .logo{font-size:26px;font-weight:900;letter-spacing:1.6px;color:var(--p)}
+  .tag{display:inline-block;margin-top:6px;background:#FFD93D;color:#4A3F00;font-size:11px;
+    font-weight:900;letter-spacing:.8px;border-radius:7px;padding:3px 8px}
+  h1{font-size:20px;line-height:1.4;margin:20px 0 6px;font-weight:800}
+  p{margin:0;color:var(--mut);font-size:14px;line-height:1.6}
+  .code{margin:22px 0 6px;background:var(--bg);border:2px dashed #DCD7F5;border-radius:18px;
+    padding:16px 12px;font-size:30px;font-weight:900;letter-spacing:5px;color:var(--ink)}
+  .codelabel{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.4px}
+  a.btn{display:block;margin-top:12px;padding:16px;border-radius:16px;text-decoration:none;
+    font-size:16px;font-weight:800}
+  .primary{background:linear-gradient(90deg,#8B82EE,#6559D2);color:#fff;
+    box-shadow:0 8px 18px rgba(85,73,187,.3)}
+  .ghost{background:var(--bg);color:var(--p)}
+  .foot{margin-top:18px;font-size:11px;color:#9A97AD;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">KORIO</div>
+  <div class="tag">LEARN KOREAN</div>
+  <h1 id="title"></h1>
+  <p id="sub"></p>
+
+  <div class="codelabel" id="codelabel"></div>
+  <div class="code" id="code">······</div>
+
+  <a class="btn primary" id="open" href="#"></a>
+  <a class="btn ghost" id="store"
+     href="https://play.google.com/store/apps/details?id=com.kai_dev.mobile"></a>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* 초대 링크 랜딩.
+ *
+ * assetlinks 검증이 끝난 안드로이드에서는 이 페이지가 아예 안 뜬다 —
+ * 링크가 곧장 앱으로 간다. 이 페이지는 그 외의 모든 경우를 받는다:
+ * 앱 미설치, iOS, 데스크톱, 검증 전 기기.
+ *
+ * 커스텀 스킴(mobile://) 으로 한 번 찔러본다. 앱이 깔려 있으면 assetlinks
+ * 없이도 열린다. 안 깔렸으면 아무 일도 안 일어나고 스토어 버튼이 남는다. */
+var L = {
+  ko:{t:"친구가 KORIO에 초대했어요",s:"아래 코드로 시작하면 둘 다 보석 1000개를 받아요.",
+      c:"초대 코드",o:"앱에서 열기",g:"Google Play 에서 받기",
+      f:"앱이 없다면 설치 후 회원가입할 때 이 코드를 입력하세요."},
+  uz:{t:"Do'stingiz sizni KORIO'ga taklif qildi",s:"Quyidagi kod bilan boshlasangiz, ikkalangiz 1000 ta gavhar olasiz.",
+      c:"Taklif kodi",o:"Ilovada ochish",g:"Google Play'dan yuklab olish",
+      f:"Ilova bo'lmasa, o'rnatib ro'yxatdan o'tayotganda shu kodni kiriting."},
+  en:{t:"A friend invited you to KORIO",s:"Start with this code and you both get 1,000 gems.",
+      c:"Invite code",o:"Open in app",g:"Get it on Google Play",
+      f:"No app yet? Install it and enter this code when you sign up."},
+  ru:{t:"Друг пригласил вас в KORIO",s:"Начните с этим кодом — оба получите 1000 самоцветов.",
+      c:"Код приглашения",o:"Открыть в приложении",g:"Скачать в Google Play",
+      f:"Нет приложения? Установите и введите этот код при регистрации."}
+};
+var lang = (navigator.language || "uz").slice(0,2).toLowerCase();
+var t = L[lang] || L.uz;
+document.documentElement.lang = L[lang] ? lang : "uz";
+
+var m = location.pathname.match(/\/i\/([A-Za-z0-9]{4,12})/);
+var code = m ? m[1].toUpperCase() : "";
+
+document.getElementById("title").textContent = t.t;
+document.getElementById("sub").textContent = t.s;
+document.getElementById("codelabel").textContent = t.c;
+document.getElementById("foot").textContent = t.f;
+document.getElementById("store").textContent = t.g;
+if (code) document.getElementById("code").textContent = code;
+
+var deep = "mobile://invite?code=" + encodeURIComponent(code);
+var open = document.getElementById("open");
+open.textContent = t.o;
+open.href = deep;
+
+/* 자동 시도는 한 번만. 실패해도 화면은 그대로 남는다 */
+if (code) setTimeout(function(){ location.href = deep; }, 350);
+</script>
+</body>
+</html>

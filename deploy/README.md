@@ -154,3 +154,51 @@ API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램)는 전�
 - 이미지는 서버에서 직접 빌드한다. 레지스트리를 쓰려면 `.env` 의 `IMAGE` 를
   `ghcr.io/…` 로 바꾸고 `deploy.sh` 에 push/pull 을 넣으면 된다.
 - 옛 이미지는 롤백용으로 남는다. 쌓이면 `docker image prune -a --filter until=720h`.
+
+## 초대 링크 / 앱링크 (korio.online)
+
+초대 링크 `https://korio.online/i/<코드>` 가 **브라우저를 안 거치고 곧장 앱으로**
+열리려면 안드로이드가 도메인 소유를 확인해야 한다. 그 확인 파일이
+`www/.well-known/assetlinks.json` 이다.
+
+### 준비
+
+1. **DNS** — `korio.online` A 레코드가 이 서버를 가리켜야 한다
+   (`api.korio.online` 과 같은 IP). 안 되어 있으면 Caddy 가 인증서를 못 받는다
+2. **`deploy/.env`** 에 `WEB_DOMAIN=korio.online` 추가
+3. `./deploy.sh` 로 배포 (Caddy 가 새 도메인 인증서를 자동 발급한다)
+
+### 지문(fingerprint)
+
+`assetlinks.json` 에는 **앱을 서명한 키의 SHA-256** 이 들어간다. 지금 들어 있는
+값은 안드로이드 **디버그 키**라 `npx expo run:android` 로 만든 개발 빌드만
+검증된다. 스토어에 올릴 빌드는 서명 키가 달라서 **반드시 하나 더 넣어야 한다.**
+
+```bash
+cd apps/mobile
+eas credentials          # Android → production → Keystore → SHA-256 확인
+```
+
+Play App Signing 을 쓰면 **구글이 다시 서명**하므로 Play Console 쪽 지문도 필요하다:
+Play Console → 앱 → 설정 → 앱 무결성 → 앱 서명 키 인증서 SHA-256.
+
+세 개를 다 `sha256_cert_fingerprints` 배열에 넣으면 된다 (디버그 / EAS 업로드 키 /
+Play 앱 서명 키). 하나라도 맞으면 검증된다.
+
+### 확인
+
+```bash
+curl -sI https://korio.online/.well-known/assetlinks.json   # 200, application/json, 리다이렉트 없어야 함
+```
+
+구글 검증기:
+`https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://korio.online&relation=delegate_permission/common.handle_all_urls`
+
+폰에서 (앱 설치 후):
+```bash
+adb shell pm get-app-links com.kai_dev.mobile        # verified 여야 한다
+adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증
+```
+
+⚠️ 검증은 **앱 설치 시점에** 한 번 돈다. assetlinks 를 나중에 올렸다면 앱을
+지웠다 다시 깔거나 위 `--re-verify` 를 돌려야 반영된다.
