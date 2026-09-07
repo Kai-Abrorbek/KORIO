@@ -13,6 +13,10 @@ import {
 } from './schemas/tutor-session.schema';
 import { TutorController } from './tutor.controller';
 import { TutorService } from './tutor.service';
+import { TutorSpeechService } from './tutor-speech.service';
+import { TutorTtsRegistry } from './tts/tutor-tts.registry';
+import { AzureTutorTtsProvider } from './tts/azure-tutor-tts.provider';
+import { ElevenLabsTutorTtsProvider } from './tts/elevenlabs-tutor-tts.provider';
 import { TutorUsageService } from './tutor-usage.service';
 import { TutorAnalysisService } from './tutor-analysis.service';
 
@@ -34,6 +38,12 @@ import { TutorAnalysisService } from './tutor-analysis.service';
     TutorService,
     TutorUsageService,
     TutorAnalysisService,
+    // 목소리. 선생님 프로필의 provider 문자열 → 레지스트리 → 어댑터 순으로만
+    // 닿는다. 업체를 바꿔도 부르는 쪽은 안 고친다
+    TutorSpeechService,
+    TutorTtsRegistry,
+    AzureTutorTtsProvider,
+    ElevenLabsTutorTtsProvider,
     RateLimitGuard,
   ],
   exports: [TutorUsageService],

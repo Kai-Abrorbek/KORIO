@@ -207,3 +207,35 @@ export type MistakeType = (typeof MISTAKE_TYPES)[number];
 
 /** 다음 세션 개인화에 쓸 과거 세션 개수 */
 export const RECENT_SESSIONS_FOR_CONTEXT = 5;
+
+// ── 외부 TTS (하이브리드 전환) ──
+//
+// Realtime 이 두뇌, 외부 TTS 가 목소리다. Realtime 목소리는 영어 우선으로
+// 만들어져 한국어가 외국인 억양처럼 들려서, 한국어를 가르치는 앱에서는
+// 그 자체가 결함이었다.
+
+/**
+ * 한 번에 합성할 수 있는 글자 수.
+ *
+ * ⚠️ 이 값이 없으면 /tutor/tts 가 우리 Azure 키로 아무 텍스트나 읽어주는
+ *    공개 TTS 서버가 된다. 프롬프트가 "1~3문장"을 걸고 있어서 정상 응답은
+ *    이 근처도 안 온다 — 여긴 폭주 방지선이다.
+ */
+export const MAX_TTS_TEXT_CHARS = 500;
+
+/**
+ * 우즈벡어 설명을 만드는 모델.
+ *
+ * 튜터 응답마다 미리 번역해두지 않는다. 대부분은 아무도 안 누르는데 매 턴
+ * 번역을 만들면 그만큼 그냥 버리는 돈이다. 유저가 "설명 보기" 를 눌렀을 때만
+ * 만든다.
+ */
+export const EXPLAIN_MODEL =
+  process.env.OPENAI_ANALYSIS_MODEL?.trim() || 'gpt-4o-mini';
+
+/** 설명을 붙일 수 있는 문장 길이 상한 */
+export const MAX_EXPLAIN_CHARS = 400;
+
+/** 선생님 목소리 미리듣기 문장. 모두 같아야 비교가 된다 */
+export const TEACHER_PREVIEW_TEXT =
+  '안녕하세요! 만나서 반가워요. 오늘부터 저와 같이 편하게 한국어를 연습해봐요.';

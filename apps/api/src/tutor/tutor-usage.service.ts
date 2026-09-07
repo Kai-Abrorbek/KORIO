@@ -139,12 +139,17 @@ export class TutorUsageService {
     mode: TutorMode,
     scene?: string,
     topic?: string,
+    teacher?: { id: string; tts: { provider: string; voiceId: string } },
   ): Promise<TutorSessionDocument> {
     const doc = new this.sessionModel({
       userId: new Types.ObjectId(userId),
       mode,
       scene,
       topic,
+      teacherId: teacher?.id,
+      // 선생님 프로필 기준값. 폴백이 돌면 실제 발음 업체는 달라질 수 있다
+      ttsProvider: teacher?.tts.provider,
+      ttsVoiceId: teacher?.tts.voiceId,
       startedAt: new Date(),
       durationSec: 60,
       finalized: false,

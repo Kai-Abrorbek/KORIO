@@ -48,6 +48,27 @@ export class TutorSession {
   @Prop()
   topic?: string;
 
+  // ── 목소리와 비용 ──
+  //
+  // Realtime 이 두뇌, 외부 TTS 가 목소리인 구조라 원가가 두 군데서 난다.
+  // 나중에 "어느 선생님이 비싼가 / 어느 업체가 싼가" 를 보려면 세션 단위로
+  // 남겨두는 수밖에 없다. 나중에 붙이면 과거 데이터가 비어서 비교가 안 된다.
+
+  /** 유저가 고른 선생님 */
+  @Prop()
+  teacherId?: string;
+
+  /** 실제로 소리를 낸 업체. 폴백이 돌면 선생님 설정과 다를 수 있다 */
+  @Prop()
+  ttsProvider?: string;
+
+  @Prop()
+  ttsVoiceId?: string;
+
+  /** TTS 는 보통 글자 수로 과금한다 */
+  @Prop({ default: 0 })
+  ttsCharacters: number;
+
   // ── 대화 분석 결과 ──
   //
   // 대화 원문은 저장하지 않는다. 앱이 끝날 때 한 번 보내주면 요약만 남기고

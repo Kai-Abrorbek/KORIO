@@ -35,6 +35,7 @@ import {
   type TranscriptTurn,
 } from './tutor-analysis.service';
 import { TOPIC_BY_ID } from './topics/tutor-topics';
+import { resolveTeacher, type TutorTeacher } from './teachers/tutor-teachers';
 import {
   TutorSession,
   TutorSessionDocument,
@@ -87,6 +88,7 @@ export class TutorService implements OnModuleInit {
     scene?: RolePlayScene,
     voice?: string,
     topicId?: string,
+    teacherId?: string,
   ) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
@@ -96,7 +98,14 @@ export class TutorService implements OnModuleInit {
     const quota = await this.usage.assertCanStart(userId);
     const learner = await this.buildLearnerContext(userId, lang);
     const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined;
-    const instructions = buildTutorInstructions(learner, mode, scene, topic);
+    const teacher = resolveTeacher(teacherId);
+    const instructions = buildTutorInstructions(
+      learner,
+      mode,
+      scene,
+      topic,
+      teacher,
+    );
 
     const res = await fetch(`${OPENAI_API}/realtime/client_secrets`, {
       method: 'POST',
@@ -125,14 +134,18 @@ export class TutorService implements OnModuleInit {
                 interrupt_response: true,
               },
             },
-            output: {
-              voice: resolveVoice(voice),
-              // 초급자에겐 조금 천천히. 알아듣는 게 먼저다.
-              // 0.9 는 한국어에서 늘어지게 들려서 0.95 로 낮췄다 — 느리게
-              // 만들수록 억양이 뭉개져서 오히려 알아듣기 나빠진다.
-              speed: learner.koreanLevel === 'beginner' ? 0.95 : 1,
-            },
           },
+          /**
+           * ⚠️ 출력은 **텍스트만** 받는다. 소리는 선생님의 외부 TTS 가 낸다.
+           *
+           * Realtime 목소리는 영어 우선으로 만들어져서 한국어가 외국인 억양처럼
+           * 들린다. 한국어를 가르치는 앱에서 그건 그냥 결함이다.
+           *
+           * 부수 효과로 원가가 크게 준다 — Realtime 은 출력 오디오가 입력의
+           * 2배 단가인데, 그걸 아예 안 만든다. 대신 TTS 글자 수 과금이 붙지만
+           * 훨씬 싸다.
+           */
+          output_modalities: ['text'],
           // 출력 오디오가 입력의 2배 단가다. 프롬프트로만 "짧게"를 부탁하면
           // 가끔 길게 뱉으므로 여기서 상한을 건다.
           max_output_tokens: MAX_RESPONSE_TOKENS,
@@ -155,14 +168,28 @@ export class TutorService implements OnModuleInit {
       throw new ServiceUnavailableException('TUTOR_SESSION_FAILED');
     }
 
-    const session = await this.usage.open(userId, mode, scene, topic?.id);
+    const session = await this.usage.open(
+      userId,
+      mode,
+      scene,
+      topic?.id,
+      teacher,
+    );
 
     return {
       sessionId: session._id.toString(),
       clientSecret: data.value,
       expiresAt: data.expires_at ?? null,
       model: TUTOR_MODEL,
+      // 아래 voice 는 하위호환용이다. 실제 소리는 teacher.tts 가 낸다
       voice: resolveVoice(voice),
+      teacher: {
+        id: teacher.id,
+        name: teacher.name,
+        avatar: teacher.avatar,
+        color: teacher.color,
+        speechRate: teacher.speechRate,
+      },
       topicId: topic?.id ?? null,
       /** 화면에 "오늘 배울 표현"으로 미리 보여준다 */
       targetExpressions: topic?.targetExpressions ?? [],

@@ -12,8 +12,10 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
+  MAX_EXPLAIN_CHARS,
   MAX_TRANSCRIPT_TURN_CHARS,
   MAX_TRANSCRIPT_TURNS,
+  MAX_TTS_TEXT_CHARS,
 } from '../tutor.const';
 import { ROLE_PLAY_SCENES, TUTOR_MODES, TUTOR_VOICES } from '../tutor.const';
 import { TOPIC_IDS } from '../topics/tutor-topics';
@@ -34,6 +36,15 @@ export class CreateTutorSessionDto {
   @IsString()
   @IsIn(TOPIC_IDS)
   topicId?: string;
+
+  /**
+   * 어느 선생님과 할지. 목소리·말투·속도가 여기서 정해진다.
+   * 모르는 id 여도 서버가 기본 선생님으로 떨어뜨린다 — 세션을 실패시키지 않는다
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  teacherId?: string;
 
   /** 목소리. 세션 시작 뒤에는 못 바꾼다 */
   @IsOptional()
@@ -92,4 +103,36 @@ export class EndTutorSessionDto {
   @ValidateNested({ each: true })
   @Type(() => TranscriptTurnDto)
   transcript?: TranscriptTurnDto[];
+}
+
+export class TutorSpeakDto {
+  @IsString()
+  @MaxLength(MAX_TTS_TEXT_CHARS)
+  text: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  teacherId?: string;
+
+  /** 'ko' 가 기본. 우즈벡어 도움말을 소리로 듣고 싶을 때만 'uz' */
+  @IsOptional()
+  @IsIn(['ko', 'uz'])
+  language?: string;
+
+  /** 있으면 그 세션의 TTS 글자 수에 더한다 (미리듣기는 없다) */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  sessionId?: string;
+}
+
+export class TutorExplainDto {
+  @IsString()
+  @MaxLength(MAX_EXPLAIN_CHARS)
+  text: string;
+
+  @IsOptional()
+  @IsIn(['uz', 'ru', 'en', 'ko'])
+  lang?: string;
 }
