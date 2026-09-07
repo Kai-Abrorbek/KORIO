@@ -12,6 +12,7 @@
     "seed:validate-reading": "ts-node -r tsconfig-paths/register src/seed/validate-reading-lessons.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
+    "migrate:emails": "ts-node -r tsconfig-paths/register src/scripts/normalize-emails.ts",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
     "seed:words": "ts-node -r tsconfig-paths/register src/seed/seed-words.ts",
     "seed:validate-words": "ts-node -r tsconfig-paths/register src/seed/validate-word-seed.ts",

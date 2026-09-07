@@ -1,3 +1,5 @@
+import { Transform } from 'class-transformer';
+import { normalizeEmail } from '../../common/normalize-email';
 import {
   IsEmail,
   IsOptional,
@@ -7,6 +9,8 @@ import {
 } from 'class-validator';
 
 export class RegisterDto {
+  // 저장·조회를 같은 형태로 맞춘다. 안 하면 대소문자만 다른 계정이 갈라진다
+  @Transform(({ value }) => normalizeEmail(value))
   @IsEmail()
   @MaxLength(254)
   email: string;

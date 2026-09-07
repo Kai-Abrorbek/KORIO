@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { AuthProvider } from '../common/enums/provider.enum';
 import { jwtSecret } from '../config/secrets';
+import { findUserByEmail } from '../users/find-by-email';
 import { MailService } from '../mail/mail.service';
 import { resolveMailLang } from '../mail/mail.types';
 import {
@@ -53,7 +54,7 @@ export class PasswordResetService {
    * 계정이 없든, 소셜 계정이든, 메일 발송이 실패했든 밖에서는 구분되지 않는다.
    */
   async forgot(dto: ForgotPasswordDto) {
-    const user = await this.findByEmail(dto.email);
+    const user = await findUserByEmail(this.userModel, dto.email, '+password');
     if (!user) return { success: true as const };
 
     // 유저가 앱에서 고른 언어가 있으면 그게 우선. 없으면 지금 앱의 언어
@@ -99,7 +100,7 @@ export class PasswordResetService {
    * 따로 알려준다. 그건 유저가 다시 받아야 한다는 안내라서 필요하다.
    */
   async verify(dto: VerifyResetCodeDto) {
-    const user = await this.findByEmail(dto.email);
+    const user = await findUserByEmail(this.userModel, dto.email, '+password');
     if (!user) throw new BadRequestException('INVALID_CODE');
 
     const doc = await this.resetModel
@@ -193,29 +194,5 @@ export class PasswordResetService {
   private sameHash(a: string, b: string): boolean {
     if (!a || !b || a.length !== b.length) return false;
     return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
-  }
-
-  /**
-   * 메일로 유저를 찾는다.
-   *
-   * 가입 때 이메일을 소문자로 맞춰주지 않아서 'Kai@x.com' 과 'kai@x.com' 이
-   * 서로 다른 문서로 들어갈 수 있다. 폰 자판이 첫 글자를 대문자로 올리는 일이
-   * 흔해서, 정확히 안 맞으면 대소문자 무시로 한 번 더 본다.
-   * 단 그렇게 해서 **둘 이상** 걸리면 누구 것인지 확신할 수 없으므로 아무것도
-   * 하지 않는다 — 남의 계정으로 코드를 보내는 것보다 못 찾는 게 낫다.
-   */
-  private async findByEmail(raw: string): Promise<UserDocument | null> {
-    const email = (raw ?? '').trim();
-    if (!email) return null;
-
-    const exact = await this.userModel.findOne({ email }).select('+password');
-    if (exact) return exact;
-
-    const rx = new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-    const matches = await this.userModel
-      .find({ email: rx })
-      .limit(2)
-      .select('+password');
-    return matches.length === 1 ? matches[0] : null;
   }
 }

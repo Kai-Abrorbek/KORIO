@@ -22,6 +22,11 @@ import {
   type OAuthProviderKey,
 } from './oauth.providers';
 import { AuthProvider } from '../common/enums/provider.enum';
+import {
+  normalizeEmail,
+  normalizeEmailOptional,
+} from '../common/normalize-email';
+import { findUserByEmail } from '../users/find-by-email';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
 import { trialFields, isSuperActive } from '../users/super.util';
@@ -41,13 +46,18 @@ export class AuthService {
 
   // 회원가입
   async register(dto: RegisterDto) {
-    const existing = await this.userModel.findOne({ email: dto.email });
+    // DTO 에서도 맞추지만 DB 를 만지는 층에서 한 번 더 확정한다.
+    // 조회와 저장이 서로 다른 형태면 "가입은 됐는데 로그인이 안 되는" 계정이 생긴다
+    const email = normalizeEmail(dto.email);
+    // 대소문자만 다른 옛 문서가 있으면 그것도 같은 사람이다.
+    // 정확히만 보면 'Kai@x.com' 유저가 'kai@x.com' 으로 계정을 하나 더 만든다
+    const existing = await findUserByEmail(this.userModel, email);
     if (existing) throw new ConflictException('EMAIL_ALREADY_EXISTS');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const user = await this.userModel.create({
-      email: dto.email,
+      email,
       password: hashedPassword,
       nickname: dto.nickname,
       provider: AuthProvider.LOCAL,
@@ -61,9 +71,7 @@ export class AuthService {
 
   // 로그인
   async login(dto: LoginDto) {
-    const user = await this.userModel
-      .findOne({ email: dto.email })
-      .select('+password');
+    const user = await findUserByEmail(this.userModel, dto.email, '+password');
     // 소셜로만 가입한 계정은 password 가 비어 있다. bcrypt.compare 에 undefined 를
     // 넘기면 던지므로(500) 여기서 먼저 걸러 낸다.
     if (!user?.password) throw new UnauthorizedException('INVALID_CREDENTIALS');
@@ -79,7 +87,7 @@ export class AuthService {
   // 소셜 로그인
   async socialLogin(dto: SocialLoginDto) {
     let providerId = dto.providerId;
-    let email = dto.email;
+    let email = normalizeEmailOptional(dto.email);
     let nickname = dto.nickname;
     let profileImage = dto.profileImage;
 
@@ -98,7 +106,9 @@ export class AuthService {
       if (!payload?.sub)
         throw new UnauthorizedException('Invalid Google token');
       providerId = payload.sub;
-      email = payload.email;
+      // 구글이 준 값도 대소문자가 섞여 올 수 있다. 여기서 안 맞추면 같은 사람이
+      // 이메일 계정과 소셜 계정으로 갈라진다
+      email = normalizeEmailOptional(payload.email);
       nickname = nickname || payload.name;
       profileImage = profileImage || payload.picture;
     }
@@ -112,7 +122,7 @@ export class AuthService {
     });
 
     if (!user && email) {
-      user = await this.userModel.findOne({ email });
+      user = await findUserByEmail(this.userModel, email);
       if (user) {
         // 기존 계정에 소셜 정보 연결
         user.provider = dto.provider;
@@ -248,13 +258,14 @@ export class AuthService {
     },
     sessionId?: string,
   ) {
-    const { providerId, email, profileImage } = profile;
+    const { providerId, profileImage } = profile;
+    const email = normalizeEmailOptional(profile.email);
     if (!providerId) throw new BadRequestException('providerId required');
 
     let user = await this.userModel.findOne({ provider, providerId });
 
     if (!user && email) {
-      user = await this.userModel.findOne({ email });
+      user = await findUserByEmail(this.userModel, email);
       if (user) {
         user.provider = provider;
         user.providerId = providerId;
