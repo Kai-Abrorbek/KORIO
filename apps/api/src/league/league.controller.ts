@@ -28,12 +28,23 @@ export class LeagueController {
     return this.service.getTiers();
   }
 
-  // 수동 정산 (관리자 전용). 평시엔 매주 월 00:05 KST cron 이 자동으로 돈다.
-  // weekKey 를 주면 특정 주를 다시 정산 (예: "2026-W33")
+  /**
+   * 수동 정산 (관리자 전용).
+   *
+   * 평시엔 월요일 00:05 cron 이 돌고, 그때 서버가 안 떠 있었으면 매시간
+   * 따라잡기가 가져간다. 그래도 급할 때가 있어서 남겨둔다.
+   *
+   * weekKey 없이 부르면 "끝났는데 아직 안 된 주" 를 전부 정산한다.
+   * weekKey 를 주면 그 주만 다시 본다 (예: "2026-W33") — 보상 도중
+   * 크래시가 나서 방이 settled:true 로 집힌 채 남은 경우, 그 방의 settled 를
+   * false 로 되돌린 뒤 이걸로 다시 돌린다.
+   */
   @Roles(UserRole.ADMIN)
   @Post('settle')
   settle(@Body() dto: SettleDto) {
-    return this.service.settleWeek(dto?.weekKey);
+    return dto?.weekKey
+      ? this.service.settleWeek(dto.weekKey)
+      : this.service.settleDueWeeks();
   }
 
   @Post('snapshot-rank')

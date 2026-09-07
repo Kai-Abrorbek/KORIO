@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { LEAGUE_TIMEZONE } from '../common/date.util';
 import {
-  LEAGUE_TIMEZONE,
-  dayKey,
-  startOfDay,
-  startOfDayPlus,
-  startOfWeek,
-} from '../common/date.util';
+  getWeekKey,
+  pickDueWeeks,
+  weekRange,
+  weekRangeFromKey,
+} from './league.week';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserLeague } from '../users/schemas/user.schema';
@@ -51,6 +51,8 @@ const TIER_CONFIG: Record<
 };
 
 const ROOM_SIZE = 30;
+/** 한 번에 따라잡을 최대 주 수. 오래 멈춰 있었어도 한 번에 다 돌지는 않는다 */
+const MAX_CATCHUP_WEEKS = 8;
 const CHALLENGE_XP = 210;
 const ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5분 내 활동 = 온라인
 
@@ -69,6 +71,9 @@ export class LeagueService {
     private readonly push: PushService,
   ) {}
 
+  /** settleDueWeeks 가 겹쳐 도는 걸 막는다 (같은 프로세스 안에서만 유효) */
+  private settling = false;
+
   // 주 경계(월 00:00) 직후에 정산.
   //
   // 리그는 방 안의 모두가 같은 창으로 비교돼야 하므로 유저별 시간대를 쓸 수 없다.
@@ -77,46 +82,65 @@ export class LeagueService {
   // 유저는 아직 일요일 밤인데 리그가 끝나 있었다.
   @Cron('5 0 * * 1', { timeZone: LEAGUE_TIMEZONE })
   async handleWeeklySettlement() {
-    console.log('🏆 주간 리그 자동 정산 시작...');
-    const result = await this.settleWeek(); // 지난주 방들
-    console.log(`✅ 자동 정산 완료: ${result.settled}개 방`);
+    await this.settleDueWeeks();
   }
 
-  // ISO 주차 키 ("2026-W26"). 날짜는 리그 기준 시간대로 읽는다.
+  /**
+   * 놓친 주를 따라잡는다.
+   *
+   * 위 cron 은 월요일 00:05 **그 순간**에 프로세스가 떠 있어야만 돈다.
+   * 하필 그때 배포 중이거나 서버가 재시작 중이면 그 주는 정산이 안 되고,
+   * 유저는 다음 월요일까지 일주일을 기다린다 (보상도, 승강등도 멈춘다).
+   * 매시간 한 번 "끝났는데 아직 안 된 주" 가 있는지만 본다 — 없으면
+   * distinct 한 방으로 끝난다.
+   */
+  @Cron('25 * * * *', { timeZone: LEAGUE_TIMEZONE })
+  async handleSettlementCatchUp() {
+    await this.settleDueWeeks();
+  }
+
+  /**
+   * 이미 끝난 주 중 아직 정산 안 된 주를 전부 정산한다.
+   *
+   * 진행 중인 주는 건드리지 않는다. 방 단위 원자적 집기(settleWeek 안)가
+   * 있어서 인스턴스가 둘이어도 보상은 한 번만 나가지만, 같은 프로세스가
+   * 겹쳐 도는 것까지 굳이 허용할 이유는 없어서 플래그로 막는다.
+   */
+  async settleDueWeeks(now = new Date()) {
+    if (this.settling) {
+      return { settled: 0, weeks: [] as string[], skipped: 'ALREADY_RUNNING' };
+    }
+    this.settling = true;
+    try {
+      const keys: string[] = await this.roomModel.distinct('weekKey', {
+        settled: false,
+      });
+      const due = pickDueWeeks(keys, now, MAX_CATCHUP_WEEKS);
+      if (!due.length) return { settled: 0, weeks: [] as string[] };
+
+      let settled = 0;
+      for (const weekKey of due) {
+        const res = await this.settleWeek(weekKey);
+        settled += res.settled;
+      }
+      console.log(`🏆 리그 정산 완료: ${due.join(', ')} — 방 ${settled}개`);
+      return { settled, weeks: due };
+    } finally {
+      this.settling = false;
+    }
+  }
+
+  // 주 계산은 league.week.ts 에 있다 (연말·연초에 틀리기 쉬워서 따로 검사한다)
   getWeekKey(d = new Date()): string {
-    const [y, m, day0] = dayKey(d, LEAGUE_TIMEZONE).split('-').map(Number);
-    const date = new Date(Date.UTC(y, m - 1, day0));
-    const day = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - day);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    const week = Math.ceil(
-      (((date as any) - (yearStart as any)) / 86400000 + 1) / 7,
-    );
-    return `${date.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+    return getWeekKey(d);
   }
 
-  // 이번 주 월요일 0시 ~ 다음 월요일 (리그 기준 시간대)
   private weekRange(d = new Date()) {
-    const start = startOfWeek(d, LEAGUE_TIMEZONE);
-    const end = startOfDayPlus(start, 7, LEAGUE_TIMEZONE);
-    return { start, end };
+    return weekRange(d);
   }
 
-  // ISO 주차 키("2026-W33") -> 그 주 월요일 0시 ~ 다음 월요일 0시 (getWeekKey 역함수)
-  // ISO 규칙상 1월 4일은 항상 그 해 1주차에 속한다.
-  private weekRangeFromKey(weekKey: string) {
-    const [yStr, wStr] = (weekKey ?? '').split('-W');
-    const year = Number(yStr);
-    const week = Number(wStr);
-    if (!year || !week) return this.weekRange();
-
-    // 1월 4일이 속한 주의 월요일이 그 해 1주차의 시작이다 (ISO 규칙)
-    const jan4 = startOfDay(new Date(Date.UTC(year, 0, 4, 12)), LEAGUE_TIMEZONE);
-    const week1Monday = startOfWeek(jan4, LEAGUE_TIMEZONE);
-
-    const start = startOfDayPlus(week1Monday, (week - 1) * 7, LEAGUE_TIMEZONE);
-    const end = startOfDayPlus(start, 7, LEAGUE_TIMEZONE);
-    return { start, end };
+  private weekRangeFromKey(key: string) {
+    return weekRangeFromKey(key);
   }
 
   // 주간 XP 집계 (UserStats) — range 미지정 시 이번 주
