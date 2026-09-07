@@ -3,6 +3,7 @@ import topik from "./topik/ko";
 export default {
   topik,
   common: {
+    loadFailed: "불러오지 못했어요. 잠시 뒤에 다시 시도해 주세요",
     retry: "다시 시도",
     start: "시작하기",
     next: "다음",
@@ -473,6 +474,7 @@ export default {
     goToLegend: "레전드 레벨로 가기",
   },
   lesson: {
+    loadFailed: "레슨을 불러올 수 없어요",
     check: "확인",
     readingQuiz: "글을 읽고 질문에 답하세요",
     wordCount: "{{count}}단어",
@@ -726,8 +728,10 @@ export default {
     },
   },
   userCourses: {
+    loadFailed: "정보를 불러오지 못했어요",
     title: "{{name}}님의 과정",
     list: {
+      korean: "한국어",
       english: "영어",
       spanish: "스페인어",
       chess: "체스",

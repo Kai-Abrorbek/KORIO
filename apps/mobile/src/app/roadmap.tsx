@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { MOCK_ROADMAP } from "@/mocks/roadmap.mock";
 import {
   RoadmapData,
   RoadmapNode,
@@ -42,6 +41,26 @@ import {
   injectChests,
 } from "@/components/roadmap/roadmap.utils";
 
+/**
+ * 서버 응답 전/실패 시의 빈 상태.
+ *
+ * 예전엔 여기가 MOCK_ROADMAP 이었다 — 보석 597, 에너지 98 같은 가짜 값이
+ * 잠깐 보이고, 로드 실패 시엔 계속 남아 있었다.
+ */
+const EMPTY_ROADMAP: RoadmapData = {
+  stats: {
+    language: "🇰🇷",
+    courseCount: 1,
+    score: 0,
+    streak: 0,
+    gems: 0,
+    energy: 0,
+    isSuper: false,
+  },
+  score: 0,
+  units: [],
+};
+
 export default function RoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -50,7 +69,7 @@ export default function RoadmapScreen() {
   const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
   const router = useRouter();
   const { category } = useLocalSearchParams<{ category?: string }>();
-  const [roadmap, setRoadmap] = useState<RoadmapData>(MOCK_ROADMAP);
+  const [roadmap, setRoadmap] = useState<RoadmapData>(EMPTY_ROADMAP);
   const [loading, setLoading] = useState(true);
   /** 섹션 목록 시트 */
   const [sectionSheet, setSectionSheet] = useState(false);
@@ -173,9 +192,10 @@ export default function RoadmapScreen() {
       );
       requestAnimationFrame(() => scrollToUnit(idx, false));
     } catch (err) {
+      // 예전엔 실패하면 가짜 로드맵으로 덮었다. 유저는 없는 유닛을 눌러
+      // 열리지 않는 레슨으로 들어갔고, 화면엔 남의 보석·에너지가 떠 있었다.
+      // 서버가 안 되면 안 되는 대로 보여주는 게 낫다
       console.error("로드맵 로드 실패:", err);
-      // category 로드맵(문법 등)은 목업으로 덮지 않고 빈 상태로 둔다
-      if (!category) setRoadmap(MOCK_ROADMAP);
     } finally {
       setLoading(false);
     }

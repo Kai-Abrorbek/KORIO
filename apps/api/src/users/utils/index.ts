@@ -22,13 +22,22 @@ export function countryToFlag(country?: string): string {
   );
 }
 
-// 학습 언어 → 깃발 (KORIO는 한국어 학습이라 기본 한국)
+/**
+ * 학습 언어 → 깃발. KORIO 는 한국어 학습이라 모르면 한국.
+ *
+ * targetLanguage 는 코드('ko')가 아니라 단어('korean')로 저장된다
+ * (온보딩 설문이 그렇게 보낸다). 둘 다 받는다.
+ */
 export function langToFlag(lang?: string): string {
   const map: Record<string, string> = {
     ko: '🇰🇷',
+    korean: '🇰🇷',
     en: '🇺🇸',
+    english: '🇺🇸',
     uz: '🇺🇿',
+    uzbek: '🇺🇿',
     ru: '🇷🇺',
+    russian: '🇷🇺',
   };
-  return map[lang ?? ''] ?? '🇰🇷';
+  return map[(lang ?? '').toLowerCase()] ?? '🇰🇷';
 }

@@ -26,7 +26,7 @@ import {
   startOfMonth,
   startOfMonthPlus,
 } from '../common/date.util';
-import { countryToFlag, langToFlag, levelToNumber } from './utils';
+import { langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { isSuperActive, isSuperStale } from './super.util';
 import * as crypto from 'crypto';
@@ -256,8 +256,10 @@ export class UsersService {
       hasPickedLevel: !!user.placementLevelSetAt,
       hangulLevel: user.hangulLevel,
       hangulCompletedAt: user.hangulCompletedAt,
-      coursePrimaryFlag:
-        countryToFlag(user.country) || langToFlag(user.targetLanguage),
+      // 코스 깃발은 **배우는 언어**다. 예전엔 countryToFlag(user.country) 가
+      // 먼저였는데, country 는 이 사람이 사는 나라(전화번호 국가 추정에 쓴다)라
+      // 우즈벡 유저가 한국어를 배우는데 코스가 🇺🇿 로 보였다
+      coursePrimaryFlag: langToFlag(user.targetLanguage),
       courseExtraCount: 0, // TODO: 멀티 코스 생기면 (코스 수 - 1)
       friendStreaks: [], // TODO: 친구 스트릭 도메인 생기면 채움
       // 연락처 친구 찾기 — phoneHash 자체는 절대 내려보내지 않는다
@@ -380,8 +382,7 @@ export class UsersService {
       joinedYear: (user as any).createdAt
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
-      coursePrimaryFlag:
-        countryToFlag(user.country) || langToFlag(user.targetLanguage),
+      coursePrimaryFlag: langToFlag(user.targetLanguage),
       courseExtraCount: 0,
       languageLevel: user.placementLevel || 1,
       followedBy: followedByUsers.map((u) => ({

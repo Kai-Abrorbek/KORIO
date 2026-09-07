@@ -19,7 +19,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
-import { MOCK_GRAMMAR } from "@/mocks/grammar.mock";
 import {
   Grammar,
   GrammarExample,
@@ -254,14 +253,30 @@ export default function GrammarStudy() {
     unit?: string;
   }>();
   const [g, setG] = useState<Grammar | null>(null);
+  const [failed, setFailed] = useState(false);
   const isScoped = scoped === "1";
 
   useEffect(() => {
+    let alive = true;
+    setFailed(false);
     GrammarService.getGrammar(id ?? "prog-goitda", isScoped)
-      .then(setG)
-      .catch(() => setG(MOCK_GRAMMAR)); // 백엔드 없으면 목업 폴백
+      .then((data) => alive && setG(data))
+      // 예전엔 목업으로 폴백했다. 서버에 없는 문법을 진짜처럼 보여주느니
+      // 못 불러왔다고 말하는 게 낫다
+      .catch(() => alive && setFailed(true));
+    return () => {
+      alive = false;
+    };
   }, [id, isScoped]);
-  if (!g) return null; // 필요하면 로딩 뷰
+
+  if (failed) {
+    return (
+      <View style={[st.container, st.centered, { paddingTop: insets.top + 6 }]}>
+        <Text style={st.failedText}>{t("common.loadFailed")}</Text>
+      </View>
+    );
+  }
+  if (!g) return null; // 로딩 중
 
   const Section = ({ children, delay = 0 }: any) => (
     <Animated.View entering={FadeInDown.delay(delay).duration(380)}>
@@ -483,6 +498,14 @@ export default function GrammarStudy() {
 
 const st = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.cream },
+  centered: { alignItems: "center", justifyContent: "center" },
+  failedText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: C.sub,
+    textAlign: "center",
+    paddingHorizontal: 32,
+  },
   nbOuter: { marginBottom: 16, position: "relative" },
   nbShadow: {
     position: "absolute",

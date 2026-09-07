@@ -3,6 +3,7 @@ import topik from "./topik/en";
 export default {
   topik,
   common: {
+    loadFailed: "Couldn't load. Please try again in a moment",
     retry: "Try again",
     start: "Get Started",
     next: "Next",
@@ -478,6 +479,7 @@ export default {
     goToLegend: "Go to Legend level",
   },
   lesson: {
+    loadFailed: "Couldn't load this lesson",
     check: "Check",
     readingQuiz: "Read the passage and answer the question",
     wordCount: "{{count}} words",
@@ -731,8 +733,10 @@ export default {
     },
   },
   userCourses: {
+    loadFailed: "Couldn't load this",
     title: "{{name}}'s Courses",
     list: {
+      korean: "Korean",
       english: "English",
       spanish: "Spanish",
       chess: "Chess",

@@ -3,6 +3,7 @@ import topik from "./topik/uz";
 export default {
   topik,
   common: {
+    loadFailed: "Yuklab bo'lmadi. Birozdan so'ng urinib ko'ring",
     retry: "Qayta urinish",
     start: "Boshlash",
     next: "Keyingi",
@@ -482,6 +483,7 @@ export default {
     goToLegend: "Legend bosqichiga o'tish",
   },
   lesson: {
+    loadFailed: "Darsni yuklab bo'lmadi",
     readingQuiz: "Matnni o'qib, savolga javob bering",
     wordCount: "{{count}} so'z",
     errorHunt: "Gapdagi xatoni toping",
@@ -735,8 +737,10 @@ export default {
     },
   },
   userCourses: {
+    loadFailed: "Ma'lumotni yuklab bo'lmadi",
     title: "{{name}}ning kurslari",
     list: {
+      korean: "Koreys tili",
       english: "Ingliz tili",
       spanish: "Ispan tili",
       chess: "Shaxmat",

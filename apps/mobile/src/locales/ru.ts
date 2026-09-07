@@ -3,6 +3,7 @@ import topik from "./topik/ru";
 export default {
   topik,
   common: {
+    loadFailed: "Не удалось загрузить. Попробуйте чуть позже",
     retry: "Повторить",
     start: "Начать",
     next: "Далее",
@@ -478,6 +479,7 @@ export default {
     goToLegend: "Перейти к уровню «Легенда»",
   },
   lesson: {
+    loadFailed: "Не удалось загрузить урок",
     check: "Проверить",
     next: "Продолжить",
     readingQuiz: "Прочитайте текст и ответьте на вопрос",
@@ -730,8 +732,10 @@ export default {
     },
   },
   userCourses: {
+    loadFailed: "Не удалось загрузить",
     title: "Курсы {{name}}",
     list: {
+      korean: "Корейский",
       english: "Английский",
       spanish: "Испанский",
       chess: "Шахматы",

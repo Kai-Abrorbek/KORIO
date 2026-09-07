@@ -28,7 +28,12 @@ export default function ProfileStatsRow({
     <View style={styles.row}>
       <Pressable
         style={styles.cell}
-        onPress={() => router.push("/user-courses")}
+        // userId 가 없으면 내 프로필 — 화면이 스토어에서 읽는다
+        onPress={() =>
+          router.push(
+            userId ? `/user-courses?userId=${userId}` : "/user-courses",
+          )
+        }
       >
         <View style={styles.flagRow}>
           <Text style={styles.flag}>{primaryFlag}</Text>

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useTranslation } from "react-i18next";
+import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   FadeIn,
@@ -29,7 +30,6 @@ import { ExpressionService } from "@/services/expression.service";
 import { StudyPathService } from "@/services/study-path.service";
 import type { PracticeMode } from "@/services/lesson.service";
 import { STUDY_QUIZ_KINDS, type StudyQuizKind } from "@/types/study-path";
-import { MOCK_LESSON } from "@/mocks/lesson.mock";
 import LessonHeader from "@/components/lesson/LessonHeader";
 import QuestionRenderer from "@/components/lesson/QuestionRenderer";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
@@ -415,9 +415,8 @@ export default function LessonScreen() {
         return;
       }
 
-      const data = lessonId
-        ? await LessonService.getLessonById(lessonId)
-        : MOCK_LESSON;
+      if (!lessonId) throw new Error("NO_LESSON_ID");
+      const data = await LessonService.getLessonById(lessonId);
       setLesson(data);
       // 문법 레슨은 시드 순서가 늘 같다. 유형은 번갈아 두고 안쪽만 섞는다.
       questionQueue.current =
@@ -425,14 +424,11 @@ export default function LessonScreen() {
           ? shuffleGrammarQuestions(data.questions)
           : [...data.questions];
     } catch (err) {
+      // 예전엔 여기서 가짜 레슨을 채웠다. 유저는 서버에 없는 문제를 풀고,
+      // 다 풀어도 완료 처리가 안 돼서 XP 도 진행도도 남지 않았다
       console.error("레슨 로드 실패:", err);
-      if (!isLevelTest && !isExpressionPractice) {
-        setLesson(MOCK_LESSON);
-        questionQueue.current = [...MOCK_LESSON.questions];
-      } else if (isExpressionPractice) {
-        setLesson(null);
-        questionQueue.current = [];
-      }
+      setLesson(null);
+      questionQueue.current = [];
     } finally {
       setLoading(false);
     }
@@ -981,7 +977,16 @@ export default function LessonScreen() {
   if (!lesson) {
     return (
       <View style={s.loadingContainer}>
-        <Text style={{ color: theme.text }}>레슨을 불러올 수 없어요</Text>
+        <Text style={{ color: theme.text, fontWeight: "700" }}>
+          {t("lesson.loadFailed")}
+        </Text>
+        <PrimaryButton
+          label={t("common.back")}
+          onPress={goHome}
+          color={theme.primary}
+          darkColor="#5b52c4"
+          style={{ marginTop: 20, paddingHorizontal: 32 }}
+        />
       </View>
     );
   }
