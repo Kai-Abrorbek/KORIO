@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
+import { useTranslation } from "react-i18next";
 import EnergyScreen from "@/components/energy/EnergyScreen";
 import { EnergyService, EnergyState } from "@/services/energy.service";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function EnergyRoute() {
   const router = useRouter();
+  const { t } = useTranslation();
   const setUserData = useAuthStore((s) => s.setUserData);
   const user = useAuthStore((s) => s.user);
   const [state, setState] = useState<EnergyState | null>(null);
@@ -39,13 +41,25 @@ export default function EnergyRoute() {
     else router.replace("/");
   };
 
+  /**
+   * 서버는 에러 코드만 준다 (NOT_ENOUGH_GEMS 등). 여기서 유저 언어로 바꾼다.
+   *
+   * 예전엔 e?.response?.data?.message 를 읽었는데 그건 axios 모양이다.
+   * 이 앱의 api 래퍼는 fetch 라 항상 undefined 였고, 결국 언제나 한국어
+   * 고정 문구가 떴다 — 우즈벡 유저한테도.
+   */
+  const explain = (e: any) =>
+    t(`energy.errors.${e?.message}`, {
+      defaultValue: t("energy.errors.UNKNOWN"),
+    });
+
   const handleRefill = async () => {
     try {
       const s = await EnergyService.refill();
       setState(s);
       if (user) setUserData({ ...user, energy: s.energy, gems: s.gems } as any);
     } catch (e: any) {
-      Alert.alert("", e?.response?.data?.message || "보석이 부족해요");
+      Alert.alert("", explain(e));
     }
   };
 
@@ -55,10 +69,7 @@ export default function EnergyRoute() {
       setState(s);
       if (user) setUserData({ ...user, energy: s.energy, gems: s.gems } as any);
     } catch (e: any) {
-      Alert.alert(
-        "",
-        e?.response?.data?.message || "오늘 무료 충전을 다 썼어요",
-      );
+      Alert.alert("", explain(e));
     }
   };
 

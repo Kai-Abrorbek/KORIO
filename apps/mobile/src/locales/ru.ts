@@ -1172,6 +1172,11 @@ export default {
     finalScore: "Вы составили пар: {{count}}!",
   },
   energy: {
+    errors: {
+      NOT_ENOUGH_GEMS: "Недостаточно кристаллов",
+      FREE_LIMIT_REACHED: "Бесплатные пополнения на сегодня закончились",
+      UNKNOWN: "Попробуйте чуть позже",
+    },
     title: "Энергия",
     charging: "Восполнение",
     timeToFull: "{{h}} ч {{m}} мин",
@@ -1186,7 +1191,7 @@ export default {
     watchAd: "Смотреть рекламу",
     nextRefill: "Следующее: через {{h}} ч",
     modalTitle: "Чтобы начать урок, нужно больше энергии!",
-    tryFreeWeek: "Неделю бесплатно",
+    tryFreeDays: "{{days}} дней бесплатно",
     noThanks: "Нет, спасибо",
     full: "Полно",
     freeCount: "Бесплатно ({{n}})",

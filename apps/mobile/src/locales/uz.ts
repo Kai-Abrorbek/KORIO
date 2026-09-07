@@ -1172,6 +1172,11 @@ export default {
     finalScore: "Jami {{count}} ta juftladingiz!",
   },
   energy: {
+    errors: {
+      NOT_ENOUGH_GEMS: "Gavhar yetarli emas",
+      FREE_LIMIT_REACHED: "Bugungi bepul to'ldirishlar tugadi",
+      UNKNOWN: "Birozdan so'ng qayta urinib ko'ring",
+    },
     title: "Energiya",
     charging: "To'lmoqda",
     timeToFull: "{{h}} soat {{m}} daqiqa",
@@ -1186,7 +1191,7 @@ export default {
     watchAd: "Reklama ko'rish",
     nextRefill: "Keyingi to'ldirish: {{h}} soatdan keyin",
     modalTitle: "Bu darsni boshlash uchun ko'proq energiya kerak!",
-    tryFreeWeek: "1 hafta bepul sinab ko'rish",
+    tryFreeDays: "{{days}} kun bepul sinab ko'rish",
     noThanks: "Yo'q, rahmat",
     full: "To'la",
     freeCount: "Bepul ({{n}})",

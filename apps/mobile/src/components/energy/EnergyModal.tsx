@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+import { TRIAL_DAYS } from "@/constants/trial";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import {
@@ -156,7 +157,7 @@ export default function EnergyModal({
             onPress={onTrySuper}
             style={s.cta}
           >
-            <Text style={s.ctaText}>{t("energy.tryFreeWeek")}</Text>
+            <Text style={s.ctaText}>{t("energy.tryFreeDays", { days: TRIAL_DAYS })}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

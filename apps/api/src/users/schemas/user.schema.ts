@@ -281,6 +281,16 @@ export class User {
   @Prop({ type: [Date], default: [] })
   freeEnergyClaims: Date[];
 
+  /**
+   * 콤보 보너스 에너지를 받은 시각들 (오늘 것만 남긴다).
+   *
+   * "4연속 정답" 자체는 서버가 알 수 없다 — 채점이 앱에 있다. 그래서 서버는
+   * 횟수와 간격으로만 막는다. 이게 없으면 /energy/combo-bonus 를 그냥 반복
+   * 호출하는 것만으로 에너지를 계속 채울 수 있다.
+   */
+  @Prop({ type: [Date], default: [] })
+  comboBonusClaims: Date[];
+
   // 온보딩 완료 여부
   @Prop({ default: false })
   isOnboardingCompleted: boolean;

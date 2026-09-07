@@ -1165,6 +1165,11 @@ export default {
     finalScore: "총 {{count}}개를 맞췄어요!",
   },
   energy: {
+    errors: {
+      NOT_ENOUGH_GEMS: "보석이 부족해요",
+      FREE_LIMIT_REACHED: "오늘 무료 충전을 다 썼어요",
+      UNKNOWN: "잠시 뒤에 다시 시도해 주세요",
+    },
     title: "에너지",
     charging: "충전 중",
     timeToFull: "{{h}}시간 {{m}}분",
@@ -1179,7 +1184,7 @@ export default {
     watchAd: "광고 보기",
     nextRefill: "다음 충전: {{h}}시간 후",
     modalTitle: "이 레슨을 시작하려면 에너지가 더 필요합니다!",
-    tryFreeWeek: "1주 무료로 이용해보기",
+    tryFreeDays: "{{days}}일 무료로 이용해보기",
     noThanks: "아니요, 괜찮아요",
     full: "가득 참",
     freeCount: "무료 ({{n}})",

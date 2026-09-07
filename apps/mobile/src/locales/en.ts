@@ -1167,6 +1167,11 @@ export default {
     finalScore: "You matched {{count}} pairs!",
   },
   energy: {
+    errors: {
+      NOT_ENOUGH_GEMS: "Not enough gems",
+      FREE_LIMIT_REACHED: "You've used all your free refills today",
+      UNKNOWN: "Please try again in a moment",
+    },
     title: "Energy",
     charging: "Charging",
     timeToFull: "{{h}}h {{m}}m",
@@ -1181,7 +1186,7 @@ export default {
     watchAd: "Watch ad",
     nextRefill: "Next refill: in {{h}}h",
     modalTitle: "You need more energy to start this lesson!",
-    tryFreeWeek: "Try 1 week for free",
+    tryFreeDays: "Try {{days}} days for free",
     noThanks: "No thanks",
     full: "Full",
     freeCount: "Free ({{n}})",
