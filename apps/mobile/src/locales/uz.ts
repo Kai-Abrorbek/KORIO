@@ -1203,6 +1203,24 @@ export default {
   },
   // uz
   tutor: {
+    teacher: {
+      title: "Bugun kim bilan o'rganamiz?",
+      lead: "Har bir ustozning ovozi va gapirish uslubi boshqacha. Tinglab ko'ring.",
+      startWith: "{{name}} bilan boshlash",
+      pickFirst: "Ustozni tanlang",
+    },
+    modes: {
+      freeTalk: "Erkin suhbat",
+      rolePlay: "Rolli o'yin",
+      lesson: "Dars",
+      pronunciation: "Talaffuz",
+      review: "Takrorlash",
+    },
+    explain: {
+      show: "🇺🇿 Izohni ko'rish",
+      loading: "Izoh tayyorlanmoqda...",
+      failed: "Izohni olib bo'lmadi",
+    },
     title: "AI suhbat ustozi",
     start: "Suhbatni boshlash",
     end: "Suhbatni tugatish",

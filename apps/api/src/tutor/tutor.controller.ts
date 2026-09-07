@@ -2,13 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  Header,
+  Param,
   Post,
   Query,
   Request,
-  Res,
+  ServiceUnavailableException,
+  StreamableFile,
   UseGuards,
 } from '@nestjs/common';
-import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import {
@@ -94,38 +96,28 @@ export class TutorController {
    * 대화 내용을 같이 보내면 요약까지 만들어서 돌려준다.
    */
   /**
-   * 튜터가 만든 한국어 한 줄을 선생님 목소리로 읽어준다.
+   * 튜터가 만든 한국어 한 줄을 선생님 목소리로 합성한다.
    *
    * Realtime 은 이제 텍스트만 만든다. 소리는 전부 여기를 지난다.
-   * ⚠️ 업체 키는 이 함수 밖으로 나가지 않는다. 앱은 문장과 선생님 id 만 안다.
+   * ⚠️ 업체 키는 서버 밖으로 나가지 않는다. 앱은 문장과 선생님 id 만 안다.
    *
-   * 한도가 두 겹이다: DTO 가 문장 길이를, 여기가 요청 횟수를 막는다.
-   * 둘 다 없으면 우리 키로 도는 공개 TTS 서버가 된다.
-   * 정상 대화는 문장당 한 번이라 분당 30을 넘기 어렵다.
+   * 한도가 두 겹이다: DTO 가 문장 길이(500자), 여기가 요청 횟수(분당 60).
+   * 둘 다 없으면 우리 키로 도는 공개 TTS 서버가 된다. 정상 대화는 문장당
+   * 한 번이라 분당 60 근처도 안 간다.
    */
   @RateLimit({ windowMs: 60 * 1000, max: 60 })
   @Post('tts')
-  async tts(@Body() dto: TutorSpeakDto, @Res() res: Response) {
+  async tts(@Body() dto: TutorSpeakDto) {
     try {
-      const out = await this.speech.speak(dto);
-      res.setHeader('Content-Type', out.contentType);
-      res.setHeader('Cache-Control', 'no-store');
-      // 받는 대로 흘려보낸다. 전부 모았다가 주면 첫 소리가 그만큼 늦는다
-      out.body.pipe(res);
-      out.body.on('error', () => res.destroy());
+      return await this.speech.speak(dto);
     } catch (e) {
-      const code = e instanceof TutorTtsError ? 'TTS_ERROR' : 'TTS_FAILED';
-      // 앱은 여기서 소리를 포기하고 자막만 유지한다. 대화는 안 끊긴다
-      res.status(503).json({ message: code });
+      // 앱은 소리를 포기하고 자막만 유지한다. 대화 자체는 안 끊긴다
+      throw new ServiceUnavailableException(
+        e instanceof TutorTtsError ? 'TTS_ERROR' : 'TTS_FAILED',
+      );
     }
   }
 
-  /**
-   * "우즈벡어 설명 보기".
-   *
-   * 튜터 응답마다 미리 만들지 않는다 — 대부분은 아무도 안 누르고, 미리 만든
-   * 만큼은 그냥 버리는 돈이다. 누른 그 문장만 만든다.
-   */
   @RateLimit({ windowMs: 60 * 1000, max: 20 })
   @Post('explain')
   explain(@Body() dto: TutorExplainDto) {
@@ -141,5 +133,29 @@ export class TutorController {
       dto.lang ?? 'uz',
       dto.transcript,
     );
+  }
+}
+
+/**
+ * 오디오 재생만 담당하는 별도 컨트롤러.
+ *
+ * 클래스 단위 JwtAuthGuard 를 피하려고 분리했다. 플레이어는 URL 을 재생할 때
+ * 인증 헤더를 붙이지 못한다. audioId 는 인증된 POST /tutor/tts 에서만 나오는
+ * 임시 난수(2분)라, 그 자체가 접근권이다 — 기존 /tts/speech/:audioId 와 같다.
+ */
+@Controller('tutor')
+export class TutorAudioController {
+  constructor(private readonly speech: TutorSpeechService) {}
+
+  @Get('tts/audio/:audioId')
+  @Header('Cache-Control', 'private, max-age=120')
+  audio(@Param('audioId') audioId: string) {
+    const hit = this.speech.takeAudio(audioId);
+    // length 를 안 주면 chunked 로 나가는데, 안드로이드 오디오 프리로더는
+    // 길이를 모르면 전체를 못 담고 **소리 없이** 실패한다
+    return new StreamableFile(hit.audio, {
+      type: hit.contentType,
+      length: hit.audio.length,
+    });
   }
 }

@@ -20,6 +20,14 @@ const OPENAI_CALLS = "https://api.openai.com/v1/realtime/calls";
 export interface RealtimeHandlers {
   /** 데이터 채널로 오는 서버 이벤트 (자막·상태 등) */
   onEvent?: (event: any) => void;
+  /**
+   * 이벤트 채널이 실제로 열렸을 때.
+   *
+   * 선생님이 먼저 인사하려면 여기서 response.create 를 보내야 한다.
+   * 연결이 됐다고 채널이 열린 건 아니라서, 이 신호 없이 보내면 첫 인사가
+   * 조용히 사라진다 (유저는 연결만 되고 아무 말도 안 하는 화면을 본다).
+   */
+  onDataChannelOpen?: () => void;
   onConnectionState?: (state: string) => void;
   onError?: (e: Error) => void;
 }
@@ -109,10 +117,30 @@ export async function connectRealtime(
     handlers.onError?.(new Error("DATA_CHANNEL_ERROR"));
   };
 
+  /**
+   * 채널이 열리기 전에 보낸 이벤트를 모아둔다.
+   *
+   * 예전엔 readyState 가 open 이 아니면 **그냥 버렸다.** 연결 직후에 보내는
+   * 첫 인사가 딱 그 타이밍이라, 인사가 사라지는 일이 생긴다.
+   */
+  const pending: unknown[] = [];
   const send = (event: unknown) => {
     if (dc.readyState === "open") {
       dc.send(JSON.stringify(event));
+    } else {
+      pending.push(event);
     }
+  };
+
+  dc.onopen = () => {
+    while (pending.length) {
+      try {
+        dc.send(JSON.stringify(pending.shift()));
+      } catch {
+        break;
+      }
+    }
+    handlers.onDataChannelOpen?.();
   };
 
   const offer = await pc.createOffer({});

@@ -11,7 +11,10 @@ import {
   TutorSession,
   TutorSessionSchema,
 } from './schemas/tutor-session.schema';
-import { TutorController } from './tutor.controller';
+import {
+  TutorAudioController,
+  TutorController,
+} from './tutor.controller';
 import { TutorService } from './tutor.service';
 import { TutorSpeechService } from './tutor-speech.service';
 import { TutorTtsRegistry } from './tts/tutor-tts.registry';
@@ -33,7 +36,7 @@ import { TutorAnalysisService } from './tutor-analysis.service';
     ]),
     UsersModule,
   ],
-  controllers: [TutorController],
+  controllers: [TutorController, TutorAudioController],
   providers: [
     TutorService,
     TutorUsageService,

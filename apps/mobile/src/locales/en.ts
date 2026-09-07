@@ -1198,6 +1198,24 @@ export default {
   },
   // en
   tutor: {
+    teacher: {
+      title: "Who will you study with today?",
+      lead: "Each teacher has a different voice and way of speaking. Have a listen.",
+      startWith: "Start with {{name}}",
+      pickFirst: "Pick a teacher",
+    },
+    modes: {
+      freeTalk: "Free talk",
+      rolePlay: "Role play",
+      lesson: "Lesson",
+      pronunciation: "Pronunciation",
+      review: "Review",
+    },
+    explain: {
+      show: "🇺🇿 Show explanation",
+      loading: "Preparing explanation...",
+      failed: "Couldn't load the explanation",
+    },
     title: "AI Speaking Tutor",
     start: "Start talking",
     end: "End conversation",

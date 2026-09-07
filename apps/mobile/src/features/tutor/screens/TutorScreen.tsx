@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,9 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TutorOrb } from "../components/TutorOrb";
 import { TopicPicker } from "../components/TopicPicker";
+import { TeacherPicker } from "../components/TeacherPicker";
+import { useTutorPrefs } from "../store/tutor-prefs.store";
+import { TutorApi, type TutorTeacherCard } from "../services/tutor.api";
 import { TutorSummary } from "../components/TutorSummary";
 import type { TutorTopicCard } from "../services/tutor.api";
 import { useRealtimeTutor } from "../hooks/useRealtimeTutor";
@@ -43,6 +46,18 @@ export default function TutorScreen() {
   /** 고른 주제. null 이면 아직 안 골랐다 = 주제 화면을 보여준다 */
   const [topic, setTopic] = useState<TutorTopicCard | null>(null);
   const [picking, setPicking] = useState(true);
+  /**
+   * 고른 선생님. 주제보다 먼저 고른다 — 목소리와 말투가 대화 전체를
+   * 좌우하는데 주제를 먼저 고르면 그게 곁다리처럼 보인다.
+   */
+  const [pickedTeacher, setPickedTeacher] = useState<TutorTeacherCard | null>(
+    null,
+  );
+  const lastTeacherId = useTutorPrefs((st) => st.teacherId);
+  const rememberTeacher = useTutorPrefs((st) => st.setTeacherId);
+  /** 지금 자막에 대한 우즈벡어 설명. 새 문장이 오면 지운다 */
+  const [explain, setExplain] = useState("");
+  const [explaining, setExplaining] = useState(false);
 
   const {
     state,
@@ -73,18 +88,67 @@ export default function TutorScreen() {
     }, [stop]),
   );
 
+  // 선생님이 새 문장을 말하면 앞 설명은 더 이상 그 문장 것이 아니다
+  useEffect(() => {
+    setExplain("");
+  }, [caption]);
+
+  const loadExplain = useCallback(async () => {
+    if (!caption.trim() || explaining) return;
+    setExplaining(true);
+    try {
+      const r = await TutorApi.explain(caption.trim());
+      setExplain(
+        [r.translation, r.explanation].filter(Boolean).join("\n\n") ||
+          t("tutor.explain.failed"),
+      );
+    } catch {
+      setExplain(t("tutor.explain.failed"));
+    } finally {
+      setExplaining(false);
+    }
+  }, [caption, explaining, t]);
+
   const exhausted = !!quota && quota.allowedMin <= 0;
   const remain = maxSec > 0 ? Math.max(0, maxSec - elapsedSec) : 0;
   const nearEnd = active && maxSec > 0 && remain <= 30;
 
-  // 아직 주제를 안 골랐고 대화도 안 하는 중이면 주제부터 고르게 한다.
-  // "무슨 말을 하지?" 로 얼어붙는 걸 막는 첫 번째 장치다.
-  if (picking && !active && !summary && !analyzing) {
+  const idle = picking && !active && !summary && !analyzing;
+
+  // 1단계: 누구와 공부할지. 선생님이 정해져야 목소리·말투가 정해진다
+  if (idle && !pickedTeacher) {
     return (
       <View style={[s.container, { paddingTop: insets.top + 6 }]}>
         <View style={s.header}>
           <Pressable onPress={() => router.back()} style={s.iconBtn} hitSlop={8}>
             <Ionicons name="chevron-down" size={26} color={theme.text} />
+          </Pressable>
+          <Text style={s.title}>{t("tutor.teacher.title")}</Text>
+          <View style={s.iconBtn} />
+        </View>
+        <TeacherPicker
+          initialId={lastTeacherId}
+          onPick={(picked) => {
+            setPickedTeacher(picked);
+            rememberTeacher(picked.id);
+          }}
+        />
+      </View>
+    );
+  }
+
+  // 2단계: 오늘 무슨 이야기를 할지.
+  // "무슨 말을 하지?" 로 얼어붙는 걸 막는 장치다.
+  if (idle) {
+    return (
+      <View style={[s.container, { paddingTop: insets.top + 6 }]}>
+        <View style={s.header}>
+          <Pressable
+            onPress={() => setPickedTeacher(null)}
+            style={s.iconBtn}
+            hitSlop={8}
+          >
+            <Ionicons name="chevron-back" size={26} color={theme.text} />
           </Pressable>
           <Text style={s.title}>{t("tutor.pickTopic")}</Text>
           <View style={s.iconBtn} />
@@ -93,12 +157,15 @@ export default function TutorScreen() {
           onPick={(picked) => {
             setTopic(picked);
             setPicking(false);
-            void start("freeTalk", { topicId: picked.id });
+            void start("freeTalk", {
+              topicId: picked.id,
+              teacherId: pickedTeacher?.id,
+            });
           }}
           onFreeTalk={() => {
             setTopic(null);
             setPicking(false);
-            void start("freeTalk");
+            void start("freeTalk", { teacherId: pickedTeacher?.id });
           }}
         />
       </View>
@@ -200,6 +267,31 @@ export default function TutorScreen() {
           >
             <Text style={s.captionText}>{caption}</Text>
           </ScrollView>
+        )}
+
+        {/* 우즈벡어 도움말.
+            소리는 계속 한국어다 — 여기서 우즈벡어 음성으로 넘어가면 한국어에
+            몰입할 이유가 사라진다. 막혔을 때 글자로만 도와준다.
+            눌렀을 때만 만든다: 매 응답마다 미리 번역하면 대부분 그냥 버려진다. */}
+        {!!caption && active && (
+          <View style={s.explainWrap}>
+            {explain ? (
+              <Text style={s.explainText}>{explain}</Text>
+            ) : (
+              <Pressable
+                onPress={() => void loadExplain()}
+                disabled={explaining}
+                hitSlop={8}
+                style={s.explainBtn}
+              >
+                <Text style={s.explainBtnText}>
+                  {explaining
+                    ? t("tutor.explain.loading")
+                    : t("tutor.explain.show")}
+                </Text>
+              </Pressable>
+            )}
+          </View>
         )}
 
         {/* 아직 대화 내용이 없을 때 오늘 연습할 표현을 미리 보여준다.
@@ -412,6 +504,24 @@ const styles = (theme: ThemeColors) =>
     userText: { color: "#fff", fontSize: 14, fontWeight: "700" },
 
     captionScroll: { maxHeight: 96, alignSelf: "stretch" },
+    explainWrap: { marginTop: 10, alignSelf: "stretch", alignItems: "center" },
+    explainBtn: {
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: theme.surface,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    explainBtnText: { fontSize: 13, fontWeight: "700", color: theme.primary },
+    explainText: {
+      fontSize: 14,
+      lineHeight: 21,
+      fontWeight: "500",
+      color: theme.textSecondary,
+      textAlign: "center",
+      paddingHorizontal: 12,
+    },
     captionInner: { paddingVertical: 2 },
     captionText: {
       fontSize: 17,

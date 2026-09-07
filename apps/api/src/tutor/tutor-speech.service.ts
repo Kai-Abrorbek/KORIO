@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -18,6 +24,22 @@ const OPENAI_API = 'https://api.openai.com/v1';
 const EXPLAIN_TIMEOUT_MS = 12000;
 
 /**
+ * 합성해 둔 오디오를 들고 있는 시간.
+ *
+ * 발급 → 재생까지만 살아 있으면 된다. 대화가 이어지면서 계속 새 문장이
+ * 들어오므로 오래 들고 있을 이유가 없다.
+ */
+const AUDIO_TTL_MS = 120_000;
+/** 메모리 상한. 넘으면 오래된 것부터 버린다 */
+const AUDIO_MAX_ENTRIES = 64;
+
+interface CachedAudio {
+  audio: Buffer;
+  contentType: string;
+  expiresAt: number;
+}
+
+/**
  * 튜터의 목소리와 우즈벡어 도움말.
  *
  * Realtime 이 텍스트만 만들고, 소리는 여기서 난다. 앱은 업체를 모르고
@@ -26,6 +48,19 @@ const EXPLAIN_TIMEOUT_MS = 12000;
 @Injectable()
 export class TutorSpeechService {
   private readonly logger = new Logger(TutorSpeechService.name);
+
+  /**
+   * 합성된 오디오를 잠깐 들고 있는 곳.
+   *
+   * 왜 스트리밍으로 바로 흘려보내지 않는가: 안드로이드의 오디오 프리로더는
+   * Content-Length 가 없으면 전체를 메모리에 담지 못하고 **소리 없이 실패**한다
+   * (기존 /tts/speech 에서 이미 겪은 문제다). 그래서 문장 하나를 다 합성한 뒤
+   * 길이를 붙여서 준다.
+   *
+   * 지연은 문장 단위로 자르는 것으로 잡는다 — 답변 전체를 기다리지 않고 첫
+   * 문장이 끝나는 즉시 합성이 시작되므로, 한 문장(짧다) 합성 시간만 기다린다.
+   */
+  private readonly audioCache = new Map<string, CachedAudio>();
 
   constructor(
     private readonly registry: TutorTtsRegistry,
@@ -62,6 +97,15 @@ export class TutorSpeechService {
       language,
     });
 
+    const audio = await collect(out.body);
+    const audioId = crypto.randomBytes(16).toString('hex');
+    this.prune();
+    this.audioCache.set(audioId, {
+      audio,
+      contentType: out.contentType,
+      expiresAt: Date.now() + AUDIO_TTL_MS,
+    });
+
     // 과금 근거. 실패해도 소리는 이미 나가고 있으니 붙잡지 않는다
     if (params.sessionId && Types.ObjectId.isValid(params.sessionId)) {
       void this.sessionModel
@@ -76,7 +120,32 @@ export class TutorSpeechService {
         .catch(() => undefined);
     }
 
-    return out;
+    return { audioId, bytes: audio.length, provider: out.provider };
+  }
+
+  /**
+   * 재생용. audioId 는 인증된 speak() 에서만 나오는 임시 난수라 이 GET 은
+   * 열어둔다 — 플레이어가 URL 을 재생할 때 헤더를 못 붙이기 때문이다.
+   */
+  takeAudio(audioId: string): CachedAudio {
+    const hit = this.audioCache.get(audioId);
+    if (!hit || hit.expiresAt <= Date.now()) {
+      this.audioCache.delete(audioId);
+      throw new NotFoundException('TUTOR_AUDIO_EXPIRED');
+    }
+    return hit;
+  }
+
+  private prune() {
+    const now = Date.now();
+    for (const [id, v] of this.audioCache) {
+      if (v.expiresAt <= now) this.audioCache.delete(id);
+    }
+    while (this.audioCache.size >= AUDIO_MAX_ENTRIES) {
+      const oldest = this.audioCache.keys().next().value;
+      if (oldest === undefined) break;
+      this.audioCache.delete(oldest);
+    }
   }
 
   /**
@@ -146,4 +215,13 @@ export class TutorSpeechService {
       clearTimeout(timer);
     }
   }
+}
+
+/** 스트림을 한 덩어리로 모은다. 길이를 붙여 보내야 안드로이드가 재생한다 */
+async function collect(stream: NodeJS.ReadableStream): Promise<Buffer> {
+  const parts: Buffer[] = [];
+  for await (const chunk of stream) {
+    parts.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as any));
+  }
+  return Buffer.concat(parts);
 }

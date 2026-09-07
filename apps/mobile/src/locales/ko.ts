@@ -1196,6 +1196,24 @@ export default {
   },
   // ko
   tutor: {
+    teacher: {
+      title: "오늘 누구와 공부할까요?",
+      lead: "선생님마다 목소리와 말투가 달라요. 들어보고 골라보세요.",
+      startWith: "{{name}}와 시작하기",
+      pickFirst: "선생님을 골라주세요",
+    },
+    modes: {
+      freeTalk: "자유 대화",
+      rolePlay: "상황극",
+      lesson: "수업",
+      pronunciation: "발음",
+      review: "복습",
+    },
+    explain: {
+      show: "🇺🇿 설명 보기",
+      loading: "설명 만드는 중...",
+      failed: "설명을 못 가져왔어요",
+    },
     title: "AI 회화 선생님",
     start: "대화 시작하기",
     end: "대화 끝내기",
