@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { startOfDay, startOfMonth } from '../common/date.util';
@@ -193,15 +194,63 @@ export class TutorUsageService {
 
   /**
    * 종료 보고 없이 방치된 세션 정리.
-   * 선차감 1분이 남아 있으므로 쿼터는 이미 지켜지고 있고, 여기서는
-   * 기록을 닫아 통계가 어긋나지 않게만 한다.
+   *
+   * ⚠️ 이 함수는 만들어만 두고 **아무도 부르지 않았다.** 그래서 앱이 종료
+   *    보고를 못 보낸 세션(강제종료·네트워크 끊김·조작)은 선차감 1분만 깎인
+   *    채로 영원히 열려 있었다. 실제로는 최대 10분을 썼을 수 있는데 1분만
+   *    깎이는 것이고, 튜터는 우리 서비스에서 가장 비싼 기능이다.
+   *    아래 cron 이 이제 주기적으로 부른다.
+   *
+   * 실제 경과 시간으로 정정한다. 클라가 안 알려줬다고 우리가 낸 돈이 사라지는
+   * 건 아니다 — 앱은 maxDurationSec 에서 스스로 끊게 돼 있으므로, 보고가
+   * 없으면 그 상한까지 썼다고 본다. 네트워크가 끊겨 억울한 경우가 생길 수
+   * 있지만, 반대쪽(무제한 무료)이 훨씬 위험하다.
    */
   async finalizeStale(olderThanMin = MAX_SESSION_MINUTES * 2) {
     const cutoff = new Date(Date.now() - olderThanMin * 60 * 1000);
-    const res = await this.sessionModel.updateMany(
-      { finalized: false, startedAt: { $lt: cutoff } },
-      { $set: { finalized: true, endedAt: new Date() } },
-    );
-    return res.modifiedCount ?? 0;
+    const stale = await this.sessionModel
+      .find({ finalized: false, startedAt: { $lt: cutoff } })
+      .select('_id startedAt durationSec')
+      .limit(200);
+
+    for (const doc of stale) {
+      const elapsedSec = Math.ceil(
+        (Date.now() - new Date(doc.startedAt).getTime()) / 1000,
+      );
+      const charged = Math.min(elapsedSec, MAX_SESSION_MINUTES * 60);
+      await this.sessionModel.updateOne(
+        { _id: doc._id, finalized: false },
+        {
+          $set: {
+            finalized: true,
+            endedAt: new Date(),
+            // 선차감(60초)보다 적게 잡히는 일은 없게
+            durationSec: Math.max(doc.durationSec ?? 0, charged),
+          },
+        },
+      );
+    }
+    if (stale.length) {
+      this.logger.warn(
+        `종료 보고 없는 튜터 세션 ${stale.length}건을 서버가 닫았다`,
+      );
+    }
+    return stale.length;
+  }
+
+  /**
+   * 방치된 세션을 서버가 직접 닫는다.
+   *
+   * 클라의 종료 보고에만 기대면, 보고를 안 보내는 것만으로 원가 통제가
+   * 무너진다. 10분 넘게 열려 있는 세션은 어차피 앱이 스스로 끊었어야 하는
+   * 것들이라 여기서 정리해도 정상 사용자는 영향이 없다.
+   */
+  @Cron('7,37 * * * *')
+  async sweepStaleSessions() {
+    try {
+      await this.finalizeStale();
+    } catch (e) {
+      this.logger.warn(`방치 세션 정리 실패: ${(e as Error).message}`);
+    }
   }
 }
