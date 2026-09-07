@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>KORIO — Learn Korean</title>
+<meta name="description" content="KORIO — gamified Korean learning for Uzbek, Russian and English speakers." />
+<style>
+  :root{--p:#776ee2;--ink:#1A1A2E;--mut:#55555F}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100dvh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:28px 20px;
+    background:linear-gradient(160deg,#9D8DFF,#776ee2 55%,#5B4DD4);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    color:var(--ink)}
+  .card{width:100%;max-width:420px;background:#fff;border-radius:28px;
+    padding:34px 26px 26px;text-align:center;box-shadow:0 24px 60px rgba(40,30,110,.28)}
+  .logo{font-size:30px;font-weight:900;letter-spacing:2px;color:var(--p)}
+  .tag{display:inline-block;margin-top:8px;background:#FFD93D;color:#4A3F00;font-size:11px;
+    font-weight:900;letter-spacing:.8px;border-radius:7px;padding:3px 9px}
+  h1{font-size:19px;line-height:1.45;margin:22px 0 8px;font-weight:800}
+  p{margin:0;color:var(--mut);font-size:14px;line-height:1.65}
+  a.btn{display:block;margin-top:20px;padding:16px;border-radius:16px;text-decoration:none;
+    font-size:16px;font-weight:800;background:linear-gradient(90deg,#8B82EE,#6559D2);color:#fff;
+    box-shadow:0 8px 18px rgba(85,73,187,.3)}
+  .links{margin-top:22px;padding-top:18px;border-top:1px solid #EEECF8;
+    display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .links a{color:var(--p);font-size:13px;font-weight:700;text-decoration:none}
+  .foot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.75);text-align:center;line-height:1.7}
+  .foot a{color:#fff}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">KORIO</div>
+  <div class="tag">LEARN KOREAN</div>
+  <h1 id="h1"></h1>
+  <p id="sub"></p>
+  <a class="btn" id="store"
+     href="https://play.google.com/store/apps/details?id=com.kai_dev.mobile"></a>
+  <div class="links">
+    <a href="/terms" id="lterms"></a>
+    <a href="/privacy" id="lprivacy"></a>
+    <a href="mailto:abror0dev@gmail.com" id="lmail"></a>
+  </div>
+</div>
+<div class="foot">© 2026 KORIO</div>
+
+<script>
+/* 소개 한 장. 플레이 심사가 도메인 자체를 열어보기 때문에 "KORIO" 한 줄만
+   응답하던 자리를 대신한다. 언어는 기기 설정을 따른다. */
+var L = {
+  uz: {
+    h: "Koreys tilini o'yin kabi o'rganing",
+    s: "Kundalik darslar, o'yinlar, liga va do'stlar bilan musobaqa. O'zbek, rus va ingliz tillarida.",
+    b: "Google Play'dan yuklab olish",
+    t: "Foydalanish shartlari", p: "Maxfiylik siyosati", m: "Aloqa"
+  },
+  en: {
+    h: "Learn Korean like a game",
+    s: "Daily lessons, arcade games, leagues and friends to compete with. In Uzbek, Russian and English.",
+    b: "Get it on Google Play",
+    t: "Terms of Service", p: "Privacy Policy", m: "Contact"
+  },
+  ru: {
+    h: "Учите корейский как в игре",
+    s: "Ежедневные уроки, мини-игры, лиги и друзья для соревнования. На узбекском, русском и английском.",
+    b: "Скачать в Google Play",
+    t: "Условия использования", p: "Политика конфиденциальности", m: "Связаться"
+  },
+  ko: {
+    h: "한국어를 게임처럼",
+    s: "매일의 레슨, 아케이드 게임, 리그와 친구 경쟁까지. 우즈벡어·러시아어·영어를 지원해요.",
+    b: "Google Play 에서 받기",
+    t: "이용약관", p: "개인정보처리방침", m: "문의하기"
+  }
+};
+var lang = (navigator.language || "uz").slice(0, 2).toLowerCase();
+var d = L[lang] || L.uz;
+document.documentElement.lang = L[lang] ? lang : "uz";
+document.getElementById("h1").textContent = d.h;
+document.getElementById("sub").textContent = d.s;
+document.getElementById("store").textContent = d.b;
+document.getElementById("lterms").textContent = d.t;
+document.getElementById("lprivacy").textContent = d.p;
+document.getElementById("lmail").textContent = d.m;
+</script>
+</body>
+</html>

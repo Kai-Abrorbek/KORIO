@@ -49,8 +49,8 @@ export const SUPPORT = {
   email: "abror0dev@gmail.com",
   telegram: "https://t.me/Abror_bek_0",
   // 도메인은 korio.online 이다 (korio.app 은 우리 것이 아니다).
-  // ⚠️ 이 두 페이지는 아직 없다. 구글 플레이는 개인정보처리방침 URL 을
-  //    필수로 요구하므로 심사 전에 올려야 한다.
+  // 두 페이지 모두 deploy/www/{terms,privacy}/index.html 에 있고
+  // Caddy 가 정적으로 서빙한다. 내용을 고치려면 그 파일을 고치면 된다.
   terms: "https://korio.online/terms",
   privacy: "https://korio.online/privacy",
 };

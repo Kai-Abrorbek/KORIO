@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>KORIO — Privacy Policy</title>
+<meta name="description" content="KORIO privacy policy / Maxfiylik siyosati / 개인정보처리방침" />
+<style>
+  :root{--p:#776ee2;--ink:#1A1A2E;--mut:#55555F;--bg:#F7F6FC;--line:#E7E4F5}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    line-height:1.7}
+  header{background:linear-gradient(160deg,#9D8DFF,#776ee2 55%,#5B4DD4);padding:28px 20px 22px}
+  .wrap{max-width:760px;margin:0 auto}
+  .logo{font-size:22px;font-weight:900;letter-spacing:1.6px;color:#fff;text-decoration:none}
+  .langs{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+  .langs button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13px;
+    padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.2);color:#fff}
+  .langs button[aria-current="true"]{background:#fff;color:var(--p)}
+  main{max-width:760px;margin:-10px auto 0;padding:0 20px 60px}
+  .card{background:#fff;border-radius:20px;padding:28px 22px;box-shadow:0 10px 30px rgba(40,30,110,.09)}
+  h1{font-size:24px;font-weight:900;margin:0 0 6px;letter-spacing:-.3px}
+  .updated{margin:0 0 24px;font-size:13px;color:#9A97AD;font-weight:600}
+  h2{font-size:16px;font-weight:800;margin:28px 0 8px;color:var(--ink)}
+  h2:first-of-type{margin-top:0}
+  p{margin:0 0 10px;font-size:14.5px;color:var(--mut)}
+  ul{margin:0 0 10px;padding-left:20px}
+  li{font-size:14.5px;color:var(--mut);margin-bottom:5px}
+  b{color:var(--ink)}
+  .tablewrap{overflow-x:auto;margin:0 0 12px}
+  table{border-collapse:collapse;width:100%;min-width:460px;font-size:13.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  th{font-weight:800;color:var(--ink);white-space:nowrap}
+  .note{background:var(--bg);border-radius:14px;padding:14px 16px;margin:0 0 12px}
+  .note p{margin:0;font-size:13.5px}
+  footer{max-width:760px;margin:0 auto;padding:0 20px 50px;font-size:12.5px;color:#9A97AD}
+  footer a{color:var(--p);font-weight:700;text-decoration:none}
+  a{color:var(--p)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="logo" href="/">KORIO</a>
+  <div class="langs" id="langs"></div>
+</div></header>
+<main><div class="card">
+  <h1 id="h1"></h1>
+  <p class="updated" id="updated"></p>
+  <div id="body"></div>
+</div></main>
+<footer><div id="foot"></div></footer>
+
+<script>
+/* 네 언어를 한 파일에 담고 JS 로 갈아 끼운다. Caddy 가 정적 파일만 주는 구조라
+   서버에서 언어를 고를 수 없고, 플레이 심사는 URL 하나만 보기 때문에
+   주소가 하나여야 한다. */
+var OP = { name: "KORIO", dev: "Abrorbek (KORIO)", email: "abror0dev@gmail.com" };
+
+var DOC = {
+ko: {
+  title: "개인정보처리방침",
+  updated: "시행일: 2026년 9월 7일",
+  s: [
+    ["개요",
+     "<p>KORIO(이하 '서비스')는 한국어 학습 모바일 앱입니다. 이 방침은 서비스가 어떤 정보를 받고, 왜 쓰고, 얼마나 보관하며, 여러분이 무엇을 요구할 수 있는지 설명합니다.</p><p>운영자: " + OP.dev + " · 문의: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"],
+    ["수집하는 정보",
+     "<ul><li><b>계정</b> — 이메일, 비밀번호(원문이 아닌 bcrypt 해시), 닉네임, 아이디, 프로필 사진 또는 아바타, 자기소개, 국가, 시간대, 앱 언어.</li><li><b>소셜 로그인</b> — Google · Kakao · Naver · Telegram 으로 로그인하면 해당 서비스가 주는 식별자와 이메일, 이름, 프로필 사진을 받습니다.</li><li><b>학습 기록</b> — 푼 문제와 정답 여부, XP, 연속 학습일, 레슨·유닛 진행도, 리그 순위, 보석과 에너지.</li><li><b>기기·알림</b> — 푸시 토큰, 알림 설정, 앱 버전과 운영체제.</li><li><b>연락처 친구 찾기</b> — 이 기능을 켠 경우에만, 전화번호를 <b>앱에서 해시로 바꾼 뒤</b> 그 값만 보냅니다. 원본 번호는 서버에 저장되지 않으며, 본인 번호는 확인용 뒤 4자리만 남습니다. 연락처 목록 자체는 서버로 전송되지 않습니다.</li><li><b>구독</b> — Google Play 구매 토큰과 구독 상태. 카드 번호 등 결제 수단 정보는 Google 이 처리하며 서비스는 받지 않습니다.</li><li><b>AI 학습 기능</b> — AI 튜터를 쓰면 대화 내용이, 발음 평가를 쓰면 녹음된 음성이 처리 목적으로 전송됩니다.</li></ul>"],
+    ["이용 목적",
+     "<ul><li>계정 생성과 로그인, 본인 확인</li><li>학습 진행도 저장과 개인화된 복습 제공</li><li>리그·친구·초대 등 소셜 기능</li><li>구독 상태 확인과 프리미엄 기능 제공</li><li>학습 알림과 공지 발송(설정에서 끌 수 있습니다)</li><li>오류 파악과 서비스 개선</li></ul><p>광고 목적으로 개인정보를 제3자에게 판매하지 않습니다.</p>"],
+    ["제3자 처리",
+     "<p>서비스 운영에 필요한 범위에서 아래 업체가 정보를 처리합니다.</p>",
+     [["처리 업체","무엇을","왜"],
+      ["Google Play (Google LLC)","구매 토큰, 구독 상태","결제와 구독 검증"],
+      ["Google · Kakao · Naver · Telegram","계정 식별자, 이메일, 이름","소셜 로그인"],
+      ["Expo / Firebase Cloud Messaging","푸시 토큰","알림 발송"],
+      ["Resend","이메일 주소","비밀번호 재설정 메일"],
+      ["OpenAI · Anthropic","AI 튜터 대화 내용","AI 응답 생성"],
+      ["Microsoft Azure Speech","발음 녹음","발음 점수 계산"],
+      ["MongoDB Atlas","위 데이터 저장","데이터베이스 호스팅"]],
+     "<p>이들 업체의 서버는 대한민국 밖에 있을 수 있으며, 서비스를 이용하면 이 처리에 동의하는 것으로 봅니다.</p>"],
+    ["보관 기간",
+     "<ul><li>계정 정보와 학습 기록은 계정이 살아 있는 동안 보관합니다.</li><li>계정을 삭제하면 개인 식별 정보는 지체 없이 삭제됩니다.</li><li>결제·구독 기록은 관련 법령이 정한 기간 동안 별도로 보관될 수 있습니다.</li><li>푸시 발송 기록은 60일 뒤 자동 삭제됩니다.</li></ul>"],
+    ["여러분의 권리",
+     "<p>언제든 아래를 할 수 있습니다.</p><ul><li><b>열람·수정</b> — 앱의 설정 → 계정에서 직접</li><li><b>계정 삭제</b> — 앱의 설정 → 계정 → 계정 삭제. 즉시 처리되며 되돌릴 수 없습니다.</li><li><b>알림 거부</b> — 설정 → 알림에서 종류별로</li><li><b>연락처 매칭 해제</b> — 설정에서 끄면 해시도 함께 지워집니다</li></ul><p>앱에 접근할 수 없는 상황이라면 <a href='mailto:" + OP.email + "'>" + OP.email + "</a> 로 요청해 주세요.</p>"],
+    ["안전 조치",
+     "<ul><li>비밀번호는 원문을 저장하지 않고 bcrypt 로 해시합니다.</li><li>전화번호는 원본을 저장하지 않고 해시만 보관합니다.</li><li>앱과 서버 사이 통신은 모두 HTTPS 로 암호화합니다.</li><li>비밀번호를 바꾸거나 재설정하면 다른 기기의 로그인이 모두 해제됩니다.</li></ul>"],
+    ["아동",
+     "<p>서비스는 만 13세 미만 아동을 대상으로 하지 않으며 의도적으로 정보를 수집하지 않습니다. 만 13세 미만 이용자의 정보가 수집된 사실을 알게 되면 즉시 삭제합니다.</p>"],
+    ["변경",
+     "<p>이 방침이 바뀌면 이 페이지의 시행일을 갱신하고, 중요한 변경은 앱 안에서 따로 알립니다.</p>"],
+    ["문의",
+     "<p>개인정보에 관한 문의는 <a href='mailto:" + OP.email + "'>" + OP.email + "</a> 로 보내주세요.</p>"]
+  ],
+  foot: "이용약관은 <a href='/terms'>여기</a>에서 볼 수 있습니다."
+},
+
+uz: {
+  title: "Maxfiylik siyosati",
+  updated: "Kuchga kirgan sana: 2026-yil 7-sentabr",
+  s: [
+    ["Umumiy ma'lumot",
+     "<p>KORIO (keyingi o'rinlarda \"xizmat\") — koreys tilini o'rganish uchun mobil ilova. Ushbu hujjat qanday ma'lumot olishimizni, nima uchun ishlatishimizni, qancha saqlashimizni va sizning huquqlaringizni tushuntiradi.</p><p>Operator: " + OP.dev + " · Aloqa: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"],
+    ["Qanday ma'lumot yig'iladi",
+     "<ul><li><b>Hisob</b> — email, parol (asli emas, bcrypt xesh), taxallus, foydalanuvchi nomi, rasm yoki avatar, o'zingiz haqingizda, mamlakat, vaqt mintaqasi, ilova tili.</li><li><b>Ijtimoiy tarmoq orqali kirish</b> — Google, Kakao, Naver yoki Telegram orqali kirsangiz, o'sha xizmat bergan identifikator, email, ism va rasm olinadi.</li><li><b>O'quv tarixi</b> — yechilgan savollar va javob to'g'riligi, XP, ketma-ket kunlar, darslar bo'yicha progress, liga o'rni, gavhar va energiya.</li><li><b>Qurilma va bildirishnomalar</b> — push token, bildirishnoma sozlamalari, ilova versiyasi va OS.</li><li><b>Kontaktlar orqali do'st topish</b> — faqat siz yoqsangiz. Telefon raqami <b>ilovaning o'zida xeshga aylantiriladi</b> va serverga faqat xesh yuboriladi. Asl raqam serverda saqlanmaydi; o'z raqamingizdan faqat oxirgi 4 ta raqam qoladi. Kontaktlar ro'yxati serverga yuborilmaydi.</li><li><b>Obuna</b> — Google Play xarid tokeni va obuna holati. Karta ma'lumotlarini Google boshqaradi, xizmat ularni olmaydi.</li><li><b>AI funksiyalari</b> — AI ustozdan foydalansangiz suhbat matni, talaffuz bahosida esa yozib olingan ovoz qayta ishlash uchun yuboriladi.</li></ul>"],
+    ["Nima uchun ishlatiladi",
+     "<ul><li>Hisob yaratish, kirish va shaxsni tasdiqlash</li><li>Progressni saqlash va shaxsiy takrorlash rejasini tuzish</li><li>Liga, do'stlar, taklif kabi ijtimoiy funksiyalar</li><li>Obunani tekshirish va premium imkoniyatlarni ochish</li><li>O'quv eslatmalari va e'lonlar (sozlamalardan o'chirsa bo'ladi)</li><li>Xatolarni topish va xizmatni yaxshilash</li></ul><p>Shaxsiy ma'lumotlaringiz reklama uchun uchinchi shaxslarga sotilmaydi.</p>"],
+    ["Uchinchi tomonlar",
+     "<p>Xizmat ishlashi uchun zarur doirada quyidagilar ma'lumotni qayta ishlaydi.</p>",
+     [["Kim","Nima","Nima uchun"],
+      ["Google Play (Google LLC)","Xarid tokeni, obuna holati","To'lov va obunani tekshirish"],
+      ["Google · Kakao · Naver · Telegram","Identifikator, email, ism","Ijtimoiy tarmoq orqali kirish"],
+      ["Expo / Firebase Cloud Messaging","Push token","Bildirishnoma yuborish"],
+      ["Resend","Email manzil","Parolni tiklash xati"],
+      ["OpenAI · Anthropic","AI suhbat matni","AI javoblarini yaratish"],
+      ["Microsoft Azure Speech","Talaffuz yozuvi","Talaffuzni baholash"],
+      ["MongoDB Atlas","Yuqoridagi ma'lumotlar","Ma'lumotlar bazasi"]],
+     "<p>Ushbu kompaniyalarning serverlari sizning davlatingizdan tashqarida bo'lishi mumkin; xizmatdan foydalanish shu qayta ishlashga rozilik hisoblanadi.</p>"],
+    ["Saqlash muddati",
+     "<ul><li>Hisob va o'quv ma'lumotlari hisob mavjud bo'lgan davrda saqlanadi.</li><li>Hisobni o'chirsangiz, shaxsni aniqlovchi ma'lumotlar darhol o'chiriladi.</li><li>To'lov va obuna yozuvlari qonun talab qilgan muddat davomida alohida saqlanishi mumkin.</li><li>Bildirishnoma yuborish jurnali 60 kundan keyin avtomatik o'chadi.</li></ul>"],
+    ["Sizning huquqlaringiz",
+     "<p>Istalgan vaqtda:</p><ul><li><b>Ko'rish va o'zgartirish</b> — ilovada Sozlamalar → Hisob</li><li><b>Hisobni o'chirish</b> — Sozlamalar → Hisob → Hisobni o'chirish. Darhol bajariladi va qaytarib bo'lmaydi.</li><li><b>Bildirishnomalarni o'chirish</b> — Sozlamalar → Bildirishnomalar</li><li><b>Kontaktlar orqali topilishni o'chirish</b> — sozlamalardan o'chirsangiz xesh ham o'chiriladi</li></ul><p>Ilovaga kira olmasangiz, <a href='mailto:" + OP.email + "'>" + OP.email + "</a> ga yozing.</p>"],
+    ["Xavfsizlik",
+     "<ul><li>Parol asli saqlanmaydi — bcrypt bilan xeshlanadi.</li><li>Telefon raqami asli saqlanmaydi — faqat xesh qoladi.</li><li>Ilova va server o'rtasidagi barcha aloqa HTTPS bilan shifrlanadi.</li><li>Parolni o'zgartirsangiz yoki tiklasangiz, boshqa qurilmalardagi seanslar tugatiladi.</li></ul>"],
+    ["Bolalar",
+     "<p>Xizmat 13 yoshgacha bo'lgan bolalarga mo'ljallanmagan va ulardan ataylab ma'lumot yig'ilmaydi. Bunday ma'lumot yig'ilgani aniqlansa, darhol o'chiriladi.</p>"],
+    ["O'zgarishlar",
+     "<p>Siyosat o'zgarsa, ushbu sahifadagi sana yangilanadi; muhim o'zgarishlar haqida ilovada alohida xabar beriladi.</p>"],
+    ["Aloqa",
+     "<p>Savollar uchun: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "Foydalanish shartlari <a href='/terms'>bu yerda</a>."
+},
+
+en: {
+  title: "Privacy Policy",
+  updated: "Effective: 7 September 2026",
+  s: [
+    ["Overview",
+     "<p>KORIO (the \"service\") is a mobile app for learning Korean. This policy explains what we receive, why we use it, how long we keep it, and what you can ask us to do.</p><p>Operator: " + OP.dev + " · Contact: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"],
+    ["What we collect",
+     "<ul><li><b>Account</b> — email, password (stored only as a bcrypt hash, never in plain text), nickname, username, profile picture or avatar, bio, country, time zone, app language.</li><li><b>Social sign-in</b> — if you sign in with Google, Kakao, Naver or Telegram we receive the identifier, email, name and picture that service gives us.</li><li><b>Learning history</b> — questions answered and whether they were correct, XP, streak, lesson and unit progress, league standing, gems and energy.</li><li><b>Device and notifications</b> — push token, notification settings, app version and operating system.</li><li><b>Finding friends by contacts</b> — only if you turn it on. Phone numbers are <b>hashed on your device</b> and only the hash is sent. Raw numbers are never stored on our servers; for your own number we keep only the last four digits so you can recognise it. Your contact list itself is never uploaded.</li><li><b>Subscription</b> — Google Play purchase token and subscription status. Card details are handled by Google and never reach us.</li><li><b>AI features</b> — if you use the AI tutor your messages are sent for processing; if you use pronunciation scoring your recording is sent.</li></ul>"],
+    ["Why we use it",
+     "<ul><li>Creating your account, signing you in, verifying it is you</li><li>Saving progress and building personalised review</li><li>Social features: leagues, friends, invites</li><li>Checking subscription status and unlocking premium features</li><li>Study reminders and announcements (you can turn these off)</li><li>Finding bugs and improving the service</li></ul><p>We do not sell your personal data to third parties for advertising.</p>"],
+    ["Third parties",
+     "<p>These providers process data on our behalf, limited to what running the service requires.</p>",
+     [["Provider","What","Why"],
+      ["Google Play (Google LLC)","Purchase token, subscription status","Billing and subscription verification"],
+      ["Google · Kakao · Naver · Telegram","Account identifier, email, name","Social sign-in"],
+      ["Expo / Firebase Cloud Messaging","Push token","Sending notifications"],
+      ["Resend","Email address","Password reset emails"],
+      ["OpenAI · Anthropic","AI tutor conversation","Generating AI replies"],
+      ["Microsoft Azure Speech","Pronunciation recording","Scoring pronunciation"],
+      ["MongoDB Atlas","The data above","Database hosting"]],
+     "<p>Their servers may be located outside your country. By using the service you agree to this processing.</p>"],
+    ["How long we keep it",
+     "<ul><li>Account and learning data are kept while your account exists.</li><li>When you delete your account, identifying data is deleted without delay.</li><li>Payment and subscription records may be retained separately for the period required by law.</li><li>Push delivery logs are deleted automatically after 60 days.</li></ul>"],
+    ["Your rights",
+     "<p>At any time you can:</p><ul><li><b>View and edit</b> — in the app under Settings → Account</li><li><b>Delete your account</b> — Settings → Account → Delete account. This happens immediately and cannot be undone.</li><li><b>Turn off notifications</b> — Settings → Notifications, by type</li><li><b>Stop contact matching</b> — turning it off in settings also deletes the stored hash</li></ul><p>If you cannot reach the app, email <a href='mailto:" + OP.email + "'>" + OP.email + "</a>.</p>"],
+    ["How we protect it",
+     "<ul><li>Passwords are hashed with bcrypt; the original is never stored.</li><li>Phone numbers are stored only as hashes.</li><li>All traffic between the app and our servers is encrypted with HTTPS.</li><li>Changing or resetting your password signs you out everywhere else.</li></ul>"],
+    ["Children",
+     "<p>The service is not directed to children under 13 and we do not knowingly collect their data. If we learn we have, we delete it immediately.</p>"],
+    ["Changes",
+     "<p>If this policy changes we update the effective date on this page, and announce significant changes inside the app.</p>"],
+    ["Contact",
+     "<p>Questions about privacy: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "Terms of Service are <a href='/terms'>here</a>."
+},
+
+ru: {
+  title: "Политика конфиденциальности",
+  updated: "Действует с: 7 сентября 2026 г.",
+  s: [
+    ["Общие сведения",
+     "<p>KORIO (далее «сервис») — мобильное приложение для изучения корейского языка. Здесь описано, какие данные мы получаем, зачем используем, сколько храним и что вы вправе потребовать.</p><p>Оператор: " + OP.dev + " · Связь: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"],
+    ["Какие данные собираются",
+     "<ul><li><b>Аккаунт</b> — email, пароль (хранится только как bcrypt-хеш, не в открытом виде), никнейм, имя пользователя, фото или аватар, описание, страна, часовой пояс, язык приложения.</li><li><b>Вход через соцсети</b> — при входе через Google, Kakao, Naver или Telegram мы получаем идентификатор, email, имя и фото от этого сервиса.</li><li><b>История обучения</b> — решённые задания и правильность ответов, XP, серия дней, прогресс по урокам, место в лиге, кристаллы и энергия.</li><li><b>Устройство и уведомления</b> — push-токен, настройки уведомлений, версия приложения и ОС.</li><li><b>Поиск друзей по контактам</b> — только если вы включите. Номера <b>хешируются на устройстве</b>, на сервер уходит только хеш. Исходные номера на сервере не хранятся; от вашего номера остаются лишь последние 4 цифры. Список контактов не загружается.</li><li><b>Подписка</b> — токен покупки Google Play и статус подписки. Данные карты обрабатывает Google, к нам они не попадают.</li><li><b>ИИ-функции</b> — при использовании ИИ-репетитора отправляется текст диалога, при оценке произношения — аудиозапись.</li></ul>"],
+    ["Зачем это нужно",
+     "<ul><li>Создание аккаунта, вход и подтверждение личности</li><li>Сохранение прогресса и персональные повторения</li><li>Социальные функции: лиги, друзья, приглашения</li><li>Проверка подписки и доступ к премиум-возможностям</li><li>Напоминания об учёбе и объявления (можно отключить)</li><li>Поиск ошибок и улучшение сервиса</li></ul><p>Мы не продаём ваши персональные данные третьим лицам в рекламных целях.</p>"],
+    ["Третьи лица",
+     "<p>Эти компании обрабатывают данные по нашему поручению — только в объёме, необходимом для работы сервиса.</p>",
+     [["Кто","Что","Зачем"],
+      ["Google Play (Google LLC)","Токен покупки, статус подписки","Оплата и проверка подписки"],
+      ["Google · Kakao · Naver · Telegram","Идентификатор, email, имя","Вход через соцсети"],
+      ["Expo / Firebase Cloud Messaging","Push-токен","Отправка уведомлений"],
+      ["Resend","Email-адрес","Письма для сброса пароля"],
+      ["OpenAI · Anthropic","Текст диалога с ИИ","Генерация ответов"],
+      ["Microsoft Azure Speech","Аудиозапись произношения","Оценка произношения"],
+      ["MongoDB Atlas","Перечисленные данные","Хостинг базы данных"]],
+     "<p>Серверы этих компаний могут находиться за пределами вашей страны. Пользуясь сервисом, вы соглашаетесь с такой обработкой.</p>"],
+    ["Сроки хранения",
+     "<ul><li>Данные аккаунта и обучения хранятся, пока существует аккаунт.</li><li>При удалении аккаунта идентифицирующие данные удаляются без задержки.</li><li>Записи об оплате и подписке могут храниться отдельно в течение срока, установленного законом.</li><li>Журнал отправки уведомлений удаляется автоматически через 60 дней.</li></ul>"],
+    ["Ваши права",
+     "<p>В любой момент вы можете:</p><ul><li><b>Просмотреть и изменить</b> — в приложении: Настройки → Аккаунт</li><li><b>Удалить аккаунт</b> — Настройки → Аккаунт → Удалить аккаунт. Выполняется сразу и необратимо.</li><li><b>Отключить уведомления</b> — Настройки → Уведомления, по типам</li><li><b>Отключить поиск по контактам</b> — при отключении хеш также удаляется</li></ul><p>Если доступа к приложению нет, напишите на <a href='mailto:" + OP.email + "'>" + OP.email + "</a>.</p>"],
+    ["Как мы защищаем данные",
+     "<ul><li>Пароли хешируются bcrypt; оригинал не сохраняется.</li><li>Телефонные номера хранятся только в виде хешей.</li><li>Весь трафик между приложением и сервером шифруется по HTTPS.</li><li>Смена или сброс пароля завершает сессии на других устройствах.</li></ul>"],
+    ["Дети",
+     "<p>Сервис не предназначен для детей младше 13 лет, и мы намеренно не собираем их данные. Если это обнаружится, данные будут немедленно удалены.</p>"],
+    ["Изменения",
+     "<p>При изменении политики мы обновляем дату на этой странице, а о существенных изменениях сообщаем в приложении.</p>"],
+    ["Контакты",
+     "<p>Вопросы о конфиденциальности: <a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "Условия использования — <a href='/terms'>здесь</a>."
+}
+};
+</script>
+<script src="/legal.js"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>KORIO — Terms of Service</title>
+<meta name="description" content="KORIO terms of service / Foydalanish shartlari / 이용약관" />
+<style>
+  :root{--p:#776ee2;--ink:#1A1A2E;--mut:#55555F;--bg:#F7F6FC;--line:#E7E4F5}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    line-height:1.7}
+  header{background:linear-gradient(160deg,#9D8DFF,#776ee2 55%,#5B4DD4);padding:28px 20px 22px}
+  .wrap{max-width:760px;margin:0 auto}
+  .logo{font-size:22px;font-weight:900;letter-spacing:1.6px;color:#fff;text-decoration:none}
+  .langs{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+  .langs button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13px;
+    padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.2);color:#fff}
+  .langs button[aria-current="true"]{background:#fff;color:var(--p)}
+  main{max-width:760px;margin:-10px auto 0;padding:0 20px 60px}
+  .card{background:#fff;border-radius:20px;padding:28px 22px;box-shadow:0 10px 30px rgba(40,30,110,.09)}
+  h1{font-size:24px;font-weight:900;margin:0 0 6px;letter-spacing:-.3px}
+  .updated{margin:0 0 24px;font-size:13px;color:#9A97AD;font-weight:600}
+  h2{font-size:16px;font-weight:800;margin:28px 0 8px;color:var(--ink)}
+  h2:first-of-type{margin-top:0}
+  p{margin:0 0 10px;font-size:14.5px;color:var(--mut)}
+  ul{margin:0 0 10px;padding-left:20px}
+  li{font-size:14.5px;color:var(--mut);margin-bottom:5px}
+  b{color:var(--ink)}
+  .tablewrap{overflow-x:auto;margin:0 0 12px}
+  table{border-collapse:collapse;width:100%;min-width:460px;font-size:13.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  th{font-weight:800;color:var(--ink);white-space:nowrap}
+  .note{background:var(--bg);border-radius:14px;padding:14px 16px;margin:0 0 12px}
+  .note p{margin:0;font-size:13.5px}
+  footer{max-width:760px;margin:0 auto;padding:0 20px 50px;font-size:12.5px;color:#9A97AD}
+  footer a{color:var(--p);font-weight:700;text-decoration:none}
+  a{color:var(--p)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="logo" href="/">KORIO</a>
+  <div class="langs" id="langs"></div>
+</div></header>
+<main><div class="card">
+  <h1 id="h1"></h1>
+  <p class="updated" id="updated"></p>
+  <div id="body"></div>
+</div></main>
+<footer><div id="foot"></div></footer>
+
+<script>
+/* 네 언어를 한 파일에 담고 JS 로 갈아 끼운다. Caddy 가 정적 파일만 주는 구조라
+   서버에서 언어를 고를 수 없고, 플레이 심사는 URL 하나만 보기 때문에
+   주소가 하나여야 한다. */
+var OP = { name: "KORIO", dev: "Abrorbek (KORIO)", email: "abror0dev@gmail.com" };
+
+var DOC = {
+ko: {
+  title: "이용약관",
+  updated: "시행일: 2026년 9월 7일",
+  s: [
+    ["1. 약관의 적용",
+     "<p>이 약관은 " + OP.dev + " 이 제공하는 한국어 학습 앱 KORIO(이하 '서비스')의 이용 조건을 정합니다. 서비스에 가입하거나 이용하면 이 약관에 동의한 것으로 봅니다. 동의하지 않으면 서비스를 이용할 수 없습니다.</p>"],
+    ["2. 계정",
+     "<ul><li>가입 시 정확한 정보를 입력해야 하며, 다른 사람을 사칭할 수 없습니다.</li><li>계정과 비밀번호 관리 책임은 이용자에게 있습니다. 도용이 의심되면 즉시 비밀번호를 바꾸고 알려주세요.</li><li>만 13세 미만은 서비스를 이용할 수 없습니다.</li><li>한 사람이 보상을 목적으로 여러 계정을 만드는 것은 금지됩니다.</li></ul>"],
+    ["3. 구독과 결제",
+     "<ul><li>서비스의 일부 기능(KORIO SUPER)은 유료 구독으로 제공됩니다.</li><li>신규 가입자에게는 <b>30일 무료 체험</b>이 제공됩니다. 체험 기간 중에는 요금이 청구되지 않습니다.</li><li>결제는 Google Play 를 통해 이루어지며, 구독은 해지하지 않는 한 <b>자동으로 갱신</b>됩니다.</li><li>해지는 Google Play 의 구독 관리에서 언제든 할 수 있습니다. 해지해도 이미 결제한 기간이 끝날 때까지는 계속 이용할 수 있습니다.</li><li>환불은 Google Play 의 환불 정책을 따릅니다. 서비스가 직접 결제를 처리하지 않으므로 환불도 Google 을 통해 요청해야 합니다.</li><li>요금이 바뀔 경우 적용 전에 앱 안에서 알립니다.</li></ul>"],
+    ["4. 보석·에너지 등 앱 내 재화",
+     "<ul><li>보석, 에너지, XP 는 서비스 안에서만 쓰이는 값이며 <b>현금 가치가 없습니다</b>.</li><li>환전, 양도, 판매할 수 없고 환불 대상이 아닙니다.</li><li>계정을 삭제하면 남아 있던 재화도 함께 사라집니다.</li><li>버그나 부정한 방법으로 얻은 재화는 사전 통지 없이 회수될 수 있습니다.</li></ul>"],
+    ["5. 금지 행위",
+     "<ul><li>자동화 도구, 매크로, 변조된 클라이언트로 학습 기록·순위·보상을 조작하는 행위</li><li>서비스나 API 를 리버스 엔지니어링하거나 무단으로 접근하는 행위</li><li>초대 보상을 노린 허위 계정 생성</li><li>다른 이용자를 괴롭히거나, 혐오·음란·불법 내용을 닉네임이나 자기소개에 쓰는 행위</li><li>학습 콘텐츠를 무단으로 복제·배포하는 행위</li></ul>"],
+    ["6. 콘텐츠와 저작권",
+     "<p>서비스가 제공하는 문제, 문장, 음성, 이미지, 캐릭터, 디자인 등 모든 학습 콘텐츠의 권리는 서비스에 있습니다. 개인적인 학습 목적 외에 복제·배포·판매할 수 없습니다.</p><p>이용자가 입력한 닉네임, 자기소개 등의 권리는 이용자에게 있으며, 서비스는 이를 서비스 운영에 필요한 범위에서만 표시합니다.</p>"],
+    ["7. 서비스의 변경과 중단",
+     "<p>서비스는 기능을 추가·변경하거나 일부를 중단할 수 있습니다. 유료 구독에 영향을 주는 중요한 변경은 사전에 앱 안에서 알립니다. 점검·장애·천재지변 등으로 일시적으로 이용이 어려울 수 있습니다.</p>"],
+    ["8. 이용 제한과 계정 삭제",
+     "<ul><li>이 약관을 위반하면 사전 통지 없이 이용이 제한되거나 계정이 삭제될 수 있습니다.</li><li>이용자는 언제든 앱의 설정 → 계정 → 계정 삭제로 직접 탈퇴할 수 있습니다. 삭제는 즉시 처리되며 되돌릴 수 없습니다.</li><li>계정을 삭제해도 Google Play 의 구독은 자동으로 해지되지 않습니다. <b>Play 에서 따로 해지</b>해야 합니다.</li></ul>"],
+    ["9. 보증의 부인과 책임의 한계",
+     "<p>서비스는 학습을 돕기 위한 도구이며 특정한 시험 결과나 학습 성과를 보장하지 않습니다. 서비스는 법이 허용하는 범위에서, 간접적·부수적 손해에 대해 책임지지 않습니다. 다만 서비스의 고의 또는 중대한 과실로 인한 손해는 그러하지 않습니다.</p>"],
+    ["10. 약관의 변경",
+     "<p>약관이 바뀌면 이 페이지의 시행일을 갱신하고, 중요한 변경은 앱 안에서 따로 알립니다. 변경 후에도 서비스를 계속 이용하면 새 약관에 동의한 것으로 봅니다.</p>"],
+    ["11. 준거법",
+     "<p>이 약관은 대한민국 법을 따릅니다. 분쟁이 생기면 먼저 협의로 해결하되, 해결되지 않으면 대한민국 법원을 관할 법원으로 합니다.</p>"],
+    ["12. 문의",
+     "<p><a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "개인정보처리방침은 <a href='/privacy'>여기</a>에서 볼 수 있습니다."
+},
+
+uz: {
+  title: "Foydalanish shartlari",
+  updated: "Kuchga kirgan sana: 2026-yil 7-sentabr",
+  s: [
+    ["1. Shartlarning qo'llanilishi",
+     "<p>Ushbu shartlar " + OP.dev + " taqdim etadigan KORIO koreys tili ilovasidan (keyingi o'rinlarda \"xizmat\") foydalanish qoidalarini belgilaydi. Ro'yxatdan o'tish yoki xizmatdan foydalanish shartlarga rozilik hisoblanadi. Rozi bo'lmasangiz, xizmatdan foydalana olmaysiz.</p>"],
+    ["2. Hisob",
+     "<ul><li>Ro'yxatdan o'tishda to'g'ri ma'lumot kiritishingiz kerak; boshqa shaxs nomidan ish ko'rish taqiqlanadi.</li><li>Hisob va parol xavfsizligi uchun javobgarlik sizda. Shubha tug'ilsa, parolni darhol o'zgartiring va bizga xabar bering.</li><li>13 yoshgacha bo'lganlar xizmatdan foydalana olmaydi.</li><li>Mukofot olish maqsadida bir necha hisob ochish taqiqlanadi.</li></ul>"],
+    ["3. Obuna va to'lov",
+     "<ul><li>Xizmatning ayrim imkoniyatlari (KORIO SUPER) pullik obuna orqali beriladi.</li><li>Yangi foydalanuvchilarga <b>30 kunlik bepul sinov</b> beriladi. Sinov davomida to'lov olinmaydi.</li><li>To'lov Google Play orqali amalga oshiriladi; obuna bekor qilinmaguncha <b>avtomatik yangilanadi</b>.</li><li>Obunani istalgan vaqtda Google Play sozlamalaridan bekor qilishingiz mumkin. Bekor qilsangiz ham to'langan muddat oxirigacha foydalana olasiz.</li><li>Pulni qaytarish Google Play qoidalariga bo'ysunadi. To'lovni biz emas, Google boshqargani uchun qaytarishni ham Google orqali so'rash kerak.</li><li>Narx o'zgarsa, kuchga kirishidan oldin ilovada xabar beriladi.</li></ul>"],
+    ["4. Gavhar, energiya va ilova ichidagi qiymatlar",
+     "<ul><li>Gavhar, energiya va XP faqat xizmat ichida ishlaydi va <b>pul qiymatiga ega emas</b>.</li><li>Ularni pulga aylantirish, boshqaga o'tkazish yoki sotish mumkin emas; qaytarilmaydi.</li><li>Hisobni o'chirsangiz, qolgan qiymatlar ham yo'qoladi.</li><li>Xato yoki nohalol yo'l bilan olingan qiymatlar ogohlantirishsiz qaytarib olinishi mumkin.</li></ul>"],
+    ["5. Taqiqlangan xatti-harakatlar",
+     "<ul><li>Avtomatlashtirish vositalari, makroslar yoki o'zgartirilgan mijoz orqali natija, reyting yoki mukofotlarni soxtalashtirish</li><li>Xizmat yoki API ni teskari muhandislik qilish, ruxsatsiz kirish</li><li>Taklif mukofoti uchun soxta hisoblar ochish</li><li>Boshqa foydalanuvchilarni bezovta qilish; taxallus yoki bio da nafrat, odobsiz yoki noqonuniy matn ishlatish</li><li>O'quv materiallarini ruxsatsiz nusxalash va tarqatish</li></ul>"],
+    ["6. Kontent va mualliflik huquqi",
+     "<p>Xizmatdagi savollar, jumlalar, audio, rasm, personaj va dizayn — barchasining huquqi xizmatga tegishli. Shaxsiy o'quv maqsadidan tashqari nusxalash, tarqatish yoki sotish mumkin emas.</p><p>Siz kiritgan taxallus va bio kabi matnlar sizga tegishli; xizmat ularni faqat ishlash uchun zarur doirada ko'rsatadi.</p>"],
+    ["7. Xizmatdagi o'zgarishlar",
+     "<p>Xizmat imkoniyatlarni qo'shishi, o'zgartirishi yoki ayrimlarini to'xtatishi mumkin. Pullik obunaga ta'sir qiladigan muhim o'zgarishlar haqida oldindan ilovada xabar beriladi. Texnik ishlar, nosozlik yoki fors-major sabab vaqtincha uzilishlar bo'lishi mumkin.</p>"],
+    ["8. Cheklov va hisobni o'chirish",
+     "<ul><li>Shartlar buzilsa, ogohlantirishsiz cheklov qo'yilishi yoki hisob o'chirilishi mumkin.</li><li>Siz istalgan vaqtda ilovadan Sozlamalar → Hisob → Hisobni o'chirish orqali chiqib ketishingiz mumkin. Bu darhol bajariladi va qaytarib bo'lmaydi.</li><li>Hisobni o'chirish Google Play obunasini <b>avtomatik bekor qilmaydi</b> — obunani Play orqali alohida bekor qiling.</li></ul>"],
+    ["9. Kafolatlar va javobgarlik chegarasi",
+     "<p>Xizmat — o'rganishga yordam beruvchi vosita; muayyan imtihon natijasi yoki o'quv samarasi kafolatlanmaydi. Qonun ruxsat bergan doirada xizmat bilvosita yoki tasodifiy zarar uchun javobgar emas. Ataylab yoki qo'pol beparvolik natijasidagi zarar bundan mustasno.</p>"],
+    ["10. Shartlarning o'zgarishi",
+     "<p>Shartlar o'zgarsa, ushbu sahifadagi sana yangilanadi; muhim o'zgarishlar ilovada alohida e'lon qilinadi. O'zgarishdan keyin foydalanishda davom etsangiz, yangi shartlarga rozi hisoblanasiz.</p>"],
+    ["11. Qo'llaniladigan qonun",
+     "<p>Ushbu shartlarga Koreya Respublikasi qonunlari qo'llaniladi. Nizolar avval muzokara yo'li bilan hal qilinadi; hal bo'lmasa, Koreya Respublikasi sudlari vakolatli hisoblanadi.</p>"],
+    ["12. Aloqa",
+     "<p><a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "Maxfiylik siyosati <a href='/privacy'>bu yerda</a>."
+},
+
+en: {
+  title: "Terms of Service",
+  updated: "Effective: 7 September 2026",
+  s: [
+    ["1. Acceptance",
+     "<p>These terms govern your use of KORIO (the \"service\"), a Korean-learning app provided by " + OP.dev + ". By creating an account or using the service you accept these terms. If you do not accept them, you may not use the service.</p>"],
+    ["2. Your account",
+     "<ul><li>Provide accurate information when you sign up, and do not impersonate anyone.</li><li>You are responsible for keeping your account and password secure. If you suspect misuse, change your password immediately and tell us.</li><li>You must be at least 13 years old to use the service.</li><li>Creating multiple accounts to obtain rewards is prohibited.</li></ul>"],
+    ["3. Subscription and billing",
+     "<ul><li>Some features (KORIO SUPER) are available through a paid subscription.</li><li>New users get a <b>30-day free trial</b>. You are not charged during the trial.</li><li>Billing is handled by Google Play. Subscriptions <b>renew automatically</b> unless cancelled.</li><li>You can cancel any time in Google Play's subscription settings. After cancelling you keep access until the end of the period you already paid for.</li><li>Refunds follow Google Play's refund policy. We do not process payments ourselves, so refunds must be requested through Google.</li><li>If prices change we will tell you inside the app before the change takes effect.</li></ul>"],
+    ["4. Gems, energy and other in-app items",
+     "<ul><li>Gems, energy and XP exist only inside the service and have <b>no cash value</b>.</li><li>They cannot be exchanged, transferred or sold, and are not refundable.</li><li>Deleting your account also removes any items you still hold.</li><li>Items obtained through bugs or dishonest means may be removed without notice.</li></ul>"],
+    ["5. What you may not do",
+     "<ul><li>Use automation, macros or modified clients to fake progress, ranking or rewards</li><li>Reverse-engineer the service or its API, or access it without authorisation</li><li>Create fake accounts to farm invite rewards</li><li>Harass other users, or use hateful, obscene or unlawful text in your nickname or bio</li><li>Copy or redistribute learning content without permission</li></ul>"],
+    ["6. Content and intellectual property",
+     "<p>All learning content in the service — questions, sentences, audio, images, characters and design — belongs to the service. You may not copy, distribute or sell it beyond your own personal study.</p><p>Text you enter, such as your nickname and bio, remains yours; the service displays it only as needed to operate.</p>"],
+    ["7. Changes to the service",
+     "<p>We may add, change or discontinue features. We will announce inside the app, in advance, any significant change that affects a paid subscription. The service may be temporarily unavailable due to maintenance, faults or events beyond our control.</p>"],
+    ["8. Suspension and account deletion",
+     "<ul><li>Breaking these terms may result in restricted access or deletion of your account without notice.</li><li>You can delete your own account at any time: Settings → Account → Delete account. This is immediate and cannot be undone.</li><li>Deleting your account does <b>not</b> automatically cancel a Google Play subscription — cancel it separately in Play.</li></ul>"],
+    ["9. Disclaimer and limitation of liability",
+     "<p>The service is a study aid and does not guarantee any particular exam result or learning outcome. To the extent permitted by law, the service is not liable for indirect or incidental damages. This does not limit liability for damage caused by our wilful misconduct or gross negligence.</p>"],
+    ["10. Changes to these terms",
+     "<p>If these terms change we update the effective date on this page and announce significant changes inside the app. Continuing to use the service after a change means you accept the new terms.</p>"],
+    ["11. Governing law",
+     "<p>These terms are governed by the laws of the Republic of Korea. Disputes will first be addressed by discussion; if that fails, the courts of the Republic of Korea have jurisdiction.</p>"],
+    ["12. Contact",
+     "<p><a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "The Privacy Policy is <a href='/privacy'>here</a>."
+},
+
+ru: {
+  title: "Условия использования",
+  updated: "Действует с: 7 сентября 2026 г.",
+  s: [
+    ["1. Принятие условий",
+     "<p>Настоящие условия регулируют использование KORIO (далее «сервис») — приложения для изучения корейского языка, которое предоставляет " + OP.dev + ". Регистрация или использование сервиса означает согласие с условиями. Если вы не согласны, использовать сервис нельзя.</p>"],
+    ["2. Аккаунт",
+     "<ul><li>При регистрации указывайте достоверные данные и не выдавайте себя за другого человека.</li><li>Ответственность за сохранность аккаунта и пароля лежит на вас. При подозрении на взлом сразу смените пароль и сообщите нам.</li><li>Сервис доступен с 13 лет.</li><li>Создание нескольких аккаунтов ради вознаграждений запрещено.</li></ul>"],
+    ["3. Подписка и оплата",
+     "<ul><li>Часть возможностей (KORIO SUPER) предоставляется по платной подписке.</li><li>Новым пользователям доступен <b>30-дневный бесплатный период</b>. В это время оплата не списывается.</li><li>Оплата проходит через Google Play. Подписка <b>продлевается автоматически</b>, пока вы её не отмените.</li><li>Отменить подписку можно в любой момент в настройках подписок Google Play. После отмены доступ сохраняется до конца оплаченного периода.</li><li>Возврат средств регулируется правилами Google Play. Мы не обрабатываем платежи, поэтому возврат нужно запрашивать через Google.</li><li>Об изменении цены мы сообщим в приложении до вступления в силу.</li></ul>"],
+    ["4. Кристаллы, энергия и внутренние ценности",
+     "<ul><li>Кристаллы, энергия и XP существуют только внутри сервиса и <b>не имеют денежной стоимости</b>.</li><li>Их нельзя обменять на деньги, передать или продать; возврату они не подлежат.</li><li>При удалении аккаунта оставшиеся ценности исчезают вместе с ним.</li><li>Полученное через ошибки или нечестными способами может быть изъято без предупреждения.</li></ul>"],
+    ["5. Что запрещено",
+     "<ul><li>Использовать автоматизацию, макросы или изменённые клиенты для подделки прогресса, рейтинга или наград</li><li>Проводить обратную разработку сервиса или его API, получать несанкционированный доступ</li><li>Создавать фиктивные аккаунты ради реферальных наград</li><li>Преследовать других пользователей; использовать в никнейме или описании оскорбительный, непристойный или противоправный текст</li><li>Копировать и распространять учебные материалы без разрешения</li></ul>"],
+    ["6. Контент и интеллектуальная собственность",
+     "<p>Все учебные материалы сервиса — задания, предложения, аудио, изображения, персонажи и дизайн — принадлежат сервису. Их нельзя копировать, распространять или продавать за пределами личного обучения.</p><p>Введённый вами текст (никнейм, описание) остаётся вашим; сервис отображает его только в объёме, необходимом для работы.</p>"],
+    ["7. Изменения в сервисе",
+     "<p>Мы можем добавлять, изменять или прекращать отдельные функции. О существенных изменениях, затрагивающих платную подписку, мы сообщим в приложении заранее. Возможны временные перерывы из-за техработ, сбоев или обстоятельств непреодолимой силы.</p>"],
+    ["8. Ограничение доступа и удаление аккаунта",
+     "<ul><li>При нарушении условий доступ может быть ограничен, а аккаунт удалён без предварительного уведомления.</li><li>Вы можете удалить аккаунт сами в любой момент: Настройки → Аккаунт → Удалить аккаунт. Действие выполняется сразу и необратимо.</li><li>Удаление аккаунта <b>не отменяет</b> подписку Google Play — отмените её отдельно в Play.</li></ul>"],
+    ["9. Отказ от гарантий и ограничение ответственности",
+     "<p>Сервис — вспомогательный инструмент для обучения; он не гарантирует конкретный результат экзамена или уровень знаний. В пределах, допускаемых законом, сервис не отвечает за косвенный или сопутствующий ущерб. Это не ограничивает ответственность за умысел и грубую неосторожность.</p>"],
+    ["10. Изменение условий",
+     "<p>При изменении условий мы обновляем дату на этой странице и сообщаем о существенных изменениях в приложении. Продолжение использования означает согласие с новыми условиями.</p>"],
+    ["11. Применимое право",
+     "<p>К настоящим условиям применяется право Республики Корея. Споры сначала решаются переговорами; при недостижении согласия компетентными являются суды Республики Корея.</p>"],
+    ["12. Связь",
+     "<p><a href='mailto:" + OP.email + "'>" + OP.email + "</a></p>"]
+  ],
+  foot: "Политика конфиденциальности — <a href='/privacy'>здесь</a>."
+}
+};
+</script>
+<script src="/legal.js"></script>
+</body>
+</html>
