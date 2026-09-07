@@ -10,6 +10,7 @@ import { UserSchema } from '../users/schemas/user.schema';
 import { ReferralSchema } from '../referral/schemas/referral.schema';
 import { DeviceTokenSchema } from '../push/schemas/device-token.schema';
 import { PushLogSchema } from '../push/schemas/push-log.schema';
+import { PasswordResetSchema } from '../auth/schemas/password-reset.schema';
 
 let fail = 0;
 const say = (ok: boolean, msg: string) => {
@@ -22,6 +23,7 @@ const schemas: [string, any][] = [
   ['Referral', ReferralSchema],
   ['DeviceToken', DeviceTokenSchema],
   ['PushLog', PushLogSchema],
+  ['PasswordReset', PasswordResetSchema],
 ];
 for (const [name, sc] of schemas) say(!!sc?.obj, `${name} 스키마 생성됨`);
 

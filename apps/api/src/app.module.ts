@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailModule } from './mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -64,6 +65,7 @@ import { ReferralModule } from './referral/referral.module';
     HealthModule,
     PushModule,
     ReferralModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

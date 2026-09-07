@@ -4,6 +4,12 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { PasswordResetService } from './password-reset.service';
+import {
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  VerifyResetCodeDto,
+} from './dto/password-reset.dto';
 import { Get, Param, Query, Res, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -16,7 +22,10 @@ import { packState, unpackState, safeRedirect } from './oauth-state';
 @Controller('auth')
 @UseGuards(RateLimitGuard)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly passwordReset: PasswordResetService,
+  ) {}
 
   // 한 IP 가 계정을 대량으로 찍어내지 못하게
   @RateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
@@ -37,6 +46,31 @@ export class AuthController {
   @Post('social')
   async socialLogin(@Body() dto: SocialLoginDto) {
     return this.authService.socialLogin(dto);
+  }
+
+  // ───────────────────── 비밀번호 찾기 ─────────────────────
+
+  // 메일 폭탄 방지. 남의 주소를 넣고 계속 눌러대는 것도 여기서 막힌다.
+  // ip+email 조합이라 한 IP 뒤의 다른 사람까지 같이 막히지는 않는다.
+  @RateLimit({ windowMs: 15 * 60 * 1000, max: 3, keyBody: 'email' })
+  @Post('password/forgot')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.passwordReset.forgot(dto);
+  }
+
+  // 6자리는 100만 가지뿐이다. 건당 5회 제한이 있지만, 코드를 계속 새로
+  // 받아가며 두드리는 걸 막으려면 엔드포인트 쪽에도 한도가 있어야 한다.
+  @RateLimit({ windowMs: 10 * 60 * 1000, max: 10, keyBody: 'email' })
+  @Post('password/verify')
+  async verifyResetCode(@Body() dto: VerifyResetCodeDto) {
+    return this.passwordReset.verify(dto);
+  }
+
+  // 토큰은 32바이트라 무차별 대입이 의미 없지만, 한도를 두는 비용도 0 이다
+  @RateLimit({ windowMs: 10 * 60 * 1000, max: 10 })
+  @Post('password/reset')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.passwordReset.reset(dto);
   }
 
   @Get('telegram/widget')

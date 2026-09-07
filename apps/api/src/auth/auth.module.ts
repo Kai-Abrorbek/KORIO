@@ -8,6 +8,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import {
+  PasswordReset,
+  PasswordResetSchema,
+} from './schemas/password-reset.schema';
+import { PasswordResetService } from './password-reset.service';
+import {
   Onboarding,
   OnboardingSchema,
 } from '../onboarding/schemas/onboarding.schema';
@@ -19,6 +24,7 @@ import { RateLimitGuard } from '../common/rate-limit';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Onboarding.name, schema: OnboardingSchema },
+      { name: PasswordReset.name, schema: PasswordResetSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -30,7 +36,13 @@ import { RateLimitGuard } from '../common/rate-limit';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RateLimitGuard],
+  providers: [
+    AuthService,
+    PasswordResetService,
+    JwtStrategy,
+    JwtAuthGuard,
+    RateLimitGuard,
+  ],
   exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}

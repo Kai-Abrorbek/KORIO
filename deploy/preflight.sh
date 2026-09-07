@@ -39,6 +39,11 @@ if [[ -f api.env ]]; then
   else ok "JWT_SECRET 충분히 김 (${#JWT_SECRET}자)"; fi
   [[ "$ALLOW_UNVER" == "true" ]] && bad "ALLOW_UNVERIFIED_SUBSCRIBE=true — 결제 검증 없이 구독이 열린다" \
                                  || ok "ALLOW_UNVERIFIED_SUBSCRIBE 안전"
+  # 없어도 서버는 뜬다. 다만 비밀번호 찾기가 조용히 죽어 있는 상태가 되므로
+  # 배포 전에 눈에 띄어야 한다
+  RESEND_KEY="$(grep -E '^RESEND_API_KEY=' api.env | head -1 | cut -d= -f2-)"
+  [[ -n "$RESEND_KEY" ]] && ok "RESEND_API_KEY 채워짐 (비밀번호 재설정 메일)" \
+                         || warn "RESEND_API_KEY 가 비어 있다 — 비밀번호 찾기 코드가 발송되지 않고 로그에만 남는다"
 else bad "api.env 없음 — cp api.env.example api.env"; fi
 
 head_ "2. DNS  (틀리면 Let's Encrypt 가 한 시간 잠긴다)"

@@ -170,6 +170,14 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          <TouchableOpacity
+            style={styles.forgotLink}
+            onPress={() => router.push("/auth/forgot-password")}
+            hitSlop={8}
+          >
+            <Text style={styles.forgotLinkText}>{t("auth.forgot.link")}</Text>
+          </TouchableOpacity>
+
           {error ? (
             <View style={styles.errorContainer}>
               <Ionicons name="alert-circle-outline" size={16} color="#E24B4A" />
@@ -192,7 +200,7 @@ export default function LoginScreen() {
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>또는</Text>
+            <Text style={styles.dividerText}>{t("auth.or")}</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -317,6 +325,15 @@ const getStyles = (theme: ThemeColors) =>
       flex: 1,
       fontSize: 15,
       color: theme.text,
+    },
+    forgotLink: {
+      alignSelf: "flex-end",
+      marginTop: -4,
+    },
+    forgotLinkText: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.primary,
     },
     errorContainer: {
       flexDirection: "row",

@@ -332,7 +332,8 @@ export class AuthService {
   }
 
   // JWT 토큰 생성
-  private async generateToken(user: UserDocument) {
+  // 비밀번호 재설정에서도 쓴다 (PasswordResetService) — private 이면 안 된다
+  async generateToken(user: UserDocument) {
     // 온보딩 연결 직후에도 갱신 전 문서가 응답으로 나가지 않게 DB 값을 다시 읽는다.
     const freshUser = (await this.userModel.findById(user._id)) ?? user;
     // tv = tokenVersion. 유저가 이 값을 올리면 이 토큰은 그 즉시 무효가 된다.
