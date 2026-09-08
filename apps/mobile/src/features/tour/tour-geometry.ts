@@ -12,8 +12,6 @@ export const PAD = 8;
 /** 말풍선과 구멍 사이 간격 */
 export const GAP = 14;
 export const BUBBLE_MAX_W = 320;
-/** 말풍선이 아래로 넘칠지 판단할 때 쓰는 어림 높이 */
-export const BUBBLE_EST_H = 210;
 
 /**
  * 화면 전체를 덮되 대상 자리만 뚫은 SVG path.
@@ -45,17 +43,35 @@ export function spotlightPath(
 
 export interface BubblePlacement {
   width: number;
-  top: number;
   left: number;
-  /** 구멍 위에 놓였는지 (꼬리 방향 결정용) */
+  /** 구멍 위에 놓였는지 */
   above: boolean;
+  /** above=false 일 때: 컨테이너 위에서부터의 거리 */
+  top?: number;
+  /** above=true 일 때: 컨테이너 아래에서부터의 거리 */
+  bottom?: number;
 }
+
+/** 말풍선이 아래에 편히 들어가려면 이만큼은 있어야 한다 */
+export const MIN_BUBBLE_ROOM = 240;
 
 /**
  * 말풍선 자리.
  *
- * 기본은 구멍 아래. 아래로 넘치면 위로 올린다. 좌우로는 구멍 중앙에
- * 맞추되 화면 밖으로 나가지 않게 붙인다.
+ * ⚠️ **말풍선의 실제 높이를 쓰지 않는다.** 그게 이 함수의 요점이다.
+ *
+ * 예전엔 그려진 뒤 onLayout 으로 높이를 재서 위치를 보정했다. 그런데 위치를
+ * 바꾸면 onLayout 이 다시 뜨고, 안드로이드는 뷰의 절대 위치에 따라 높이를
+ * 다른 정수로 반올림한다 → 높이가 바뀌고 → 위치가 또 바뀌고 → 무한 왕복.
+ * 말풍선이 위아래로 떨었다.
+ *
+ * 그래서 **높이를 아예 안 물어본다.** 아래에 놓을 땐 top 으로, 위에 놓을 땐
+ * bottom 으로 붙인다. 어느 쪽이든 말풍선이 알아서 자라고, 자란다고 자리가
+ * 다시 계산되지 않는다. 고리가 존재할 수 없다.
+ *
+ * 위에 붙이는 게 안전한 실패다: 내용이 예상보다 길어도 말풍선은 위로
+ * 자라므로 아래쪽의 "다음" 버튼은 늘 화면 안에 남는다. 아래에 붙이면
+ * 반대로 버튼이 화면 밖으로 밀려 투어가 거기서 끊긴다.
  */
 export function placeBubble(
   hole: TourRect,
@@ -63,17 +79,27 @@ export function placeBubble(
   insets: { top: number; bottom: number },
 ): BubblePlacement {
   const width = Math.round(Math.min(BUBBLE_MAX_W, screen.width - 32));
-  const below = hole.y + hole.height + PAD + GAP;
-  const above = below + BUBBLE_EST_H > screen.height - insets.bottom - 20;
-  const top = above
-    ? Math.max(insets.top + 12, hole.y - PAD - GAP - BUBBLE_EST_H)
-    : below;
-  const left = Math.min(
-    Math.max(16, hole.x + hole.width / 2 - width / 2),
-    Math.max(16, screen.width - width - 16),
+  const holeTop = hole.y - PAD;
+  const holeBottom = hole.y + hole.height + PAD;
+
+  const left = Math.round(
+    Math.min(
+      Math.max(16, hole.x + hole.width / 2 - width / 2),
+      Math.max(16, screen.width - width - 16),
+    ),
   );
-  // 소수 좌표는 프레임마다 반올림이 달라져 미세한 떨림으로 보인다
-  return { width, top: Math.round(top), left: Math.round(left), above };
+
+  const roomBelow = screen.height - insets.bottom - 12 - (holeBottom + GAP);
+  if (roomBelow >= MIN_BUBBLE_ROOM) {
+    return { width, left, above: false, top: Math.round(holeBottom + GAP) };
+  }
+  // 아래가 좁으면 위로. 컨테이너 아래에서부터 재서 붙이므로 높이가 필요 없다
+  return {
+    width,
+    left,
+    above: true,
+    bottom: Math.round(screen.height - holeTop + GAP),
+  };
 }
 
 /**

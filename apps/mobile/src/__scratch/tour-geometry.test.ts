@@ -8,7 +8,9 @@
  */
 import {
   PAD,
+  GAP,
   BUBBLE_MAX_W,
+  MIN_BUBBLE_ROOM,
   placeBubble,
   scrollDeltaFor,
   spotlightPath,
@@ -50,14 +52,31 @@ const tiny = spotlightPath(390, 844, rect(10, 10, 1, 1), 18);
 say(!tiny.includes("NaN"), "1px 대상도 안 깨진다");
 
 // ── 말풍선 자리 ──────────────────────────────────────────────
-const top = placeBubble(rect(100, 120), SCREEN, INSETS);
-say(top.above === false, "위쪽 대상이면 말풍선은 아래에");
-say(top.top > 120 + 50, "말풍선이 구멍 아래에 온다");
+// 핵심 성질: **말풍선의 높이를 쓰지 않는다.** 높이를 쓰면
+// 위치→onLayout→높이→위치 되먹임이 생겨 말풍선이 떤다.
+const topTarget = placeBubble(rect(100, 120), SCREEN, INSETS);
+say(topTarget.above === false, "위쪽 대상이면 말풍선은 아래에");
+say(topTarget.top === 120 + 50 + PAD + GAP, "아래에 놓으면 구멍 바로 밑에 붙는다");
+say(topTarget.bottom === undefined, "★ 아래 배치는 top 만 준다 (높이 불필요)");
 
-const bottom = placeBubble(rect(100, 700), SCREEN, INSETS);
-say(bottom.above === true, "★ 아래쪽 대상이면 말풍선을 위로 올린다");
-say(bottom.top < 700, "위로 올렸으면 구멍보다 위");
-say(bottom.top >= INSETS.top + 12, "★ 상태바를 침범하지 않는다");
+const bottomTarget = placeBubble(rect(100, 700), SCREEN, INSETS);
+say(bottomTarget.above === true, "★ 아래 공간이 좁으면 위로 올린다");
+say(bottomTarget.top === undefined, "★ 위 배치는 top 을 안 준다");
+say(
+  bottomTarget.bottom === SCREEN.height - (700 - PAD) + GAP,
+  "★ 위에 놓으면 아래 모서리를 고정한다 — 길어져도 '다음' 이 안 밀린다",
+);
+
+// 경계: 아래 공간이 딱 MIN_BUBBLE_ROOM 일 때
+const holeY = SCREEN.height - INSETS.bottom - 12 - GAP - MIN_BUBBLE_ROOM - PAD - 50;
+say(
+  placeBubble(rect(100, holeY, 100, 50), SCREEN, INSETS).above === false,
+  `아래 여유가 ${MIN_BUBBLE_ROOM} 이면 아래에 놓는다`,
+);
+say(
+  placeBubble(rect(100, holeY + 5, 100, 50), SCREEN, INSETS).above === true,
+  "그보다 좁아지면 위로 넘어간다",
+);
 
 // 좌우 클램프
 const left = placeBubble(rect(0, 300, 40, 40), SCREEN, INSETS);
@@ -96,9 +115,11 @@ say(
 );
 
 // ── 떨림 방지 (좌표 안정성) ──────────────────────────────────
-// 말풍선 위치가 자기 높이에 의존하고, 위치가 바뀌면 onLayout 이 다시 뜬다.
-// 좌표가 소수면 프레임마다 반올림이 달라져 A→B→A→B 로 영원히 왕복한다.
-const intish = (n: number) => Number.isInteger(n);
+// 예전에 말풍선이 위아래로 떨었다. 위치를 자기 실측 높이로 정하는데,
+// 위치가 바뀌면 onLayout 이 다시 뜨고 안드로이드가 절대 위치에 따라 높이를
+// 다른 정수로 반올림해서 A→B→A→B 로 영원히 왕복했다.
+// 이제 높이를 아예 안 쓴다. 그 성질을 여기서 못 박는다.
+const intish = (n: number | undefined) => n === undefined || Number.isInteger(n);
 for (const [name, r] of [
   ["가운데", rect(145, 300, 100, 50)],
   ["소수 좌표", rect(100.333, 470.6667, 331.4, 70.28)],
@@ -107,49 +128,39 @@ for (const [name, r] of [
 ] as const) {
   const b = placeBubble(r, SCREEN, INSETS);
   say(
-    intish(b.top) && intish(b.left) && intish(b.width),
-    `★ ${name}: 말풍선 좌표가 정수 (top=${b.top} left=${b.left})`,
+    intish(b.top) && intish(b.bottom) && Number.isInteger(b.left) && Number.isInteger(b.width),
+    `★ ${name}: 말풍선 좌표가 정수 (소수면 프레임마다 반올림이 달라진다)`,
+  );
+  say(
+    (b.top === undefined) !== (b.bottom === undefined),
+    `${name}: top / bottom 중 딱 하나만 준다`,
   );
 }
 
-// 같은 입력이면 같은 출력 (순수 함수인지)
+// 같은 입력이면 같은 출력, 그리고 높이는 입력에 없다 (되먹임 불가)
 const a1 = placeBubble(rect(100, 470), SCREEN, INSETS);
 const a2 = placeBubble(rect(100, 470), SCREEN, INSETS);
 say(
-  a1.top === a2.top && a1.left === a2.left,
-  "같은 입력이면 같은 자리 (되먹임이 생길 여지가 없다)",
+  a1.top === a2.top && a1.bottom === a2.bottom && a1.left === a2.left,
+  "★ 같은 입력이면 같은 자리",
+);
+say(
+  placeBubble.length === 3,
+  "★ 인자는 (구멍, 화면, 인셋) 셋뿐 — 말풍선 높이가 낄 자리가 없다",
 );
 
 // 1px 움직여도 결과가 1px 만 움직인다 (증폭되지 않는다)
-const b1 = placeBubble(rect(100, 470), SCREEN, INSETS);
-const b2 = placeBubble(rect(100, 471), SCREEN, INSETS);
-say(
-  Math.abs(b1.top - b2.top) <= 1,
-  "★ 대상이 1px 움직이면 말풍선도 1px 만 움직인다",
-);
-
-// 클램프를 반복 적용해도 자리가 안 바뀐다 (실측 높이 보정 시뮬레이션)
-function clampTop(top: number, h: number) {
-  const maxTop = SCREEN.height - INSETS.bottom - 12 - h;
-  const minTop = INSETS.top + 12;
-  return Math.round(Math.max(minTop, Math.min(top, Math.max(minTop, maxTop))));
+const anchorOf = (b: ReturnType<typeof placeBubble>) => b.top ?? b.bottom ?? 0;
+for (const y of [120, 300, 470, 700]) {
+  const p1 = placeBubble(rect(100, y), SCREEN, INSETS);
+  const p2 = placeBubble(rect(100, y + 1), SCREEN, INSETS);
+  if (p1.above === p2.above) {
+    say(
+      Math.abs(anchorOf(p1) - anchorOf(p2)) <= 1,
+      `★ y=${y}: 대상이 1px 움직이면 말풍선도 1px 만 움직인다`,
+    );
+  }
 }
-for (const h of [120, 210, 340, 700, 1200]) {
-  const first = clampTop(placeBubble(rect(100, 700), SCREEN, INSETS).top, h);
-  const second = clampTop(first, h);
-  const third = clampTop(second, h);
-  say(
-    first === second && second === third,
-    `★ 높이 ${h}: 클램프를 반복해도 자리가 고정 (떨림 없음)`,
-  );
-  say(
-    first >= INSETS.top + 12,
-    `높이 ${h}: 상태바를 안 침범한다`,
-  );
-}
-// 말풍선이 화면보다 커도 위로 넘치진 않는다
-const huge = clampTop(placeBubble(rect(100, 700), SCREEN, INSETS).top, 2000);
-say(huge === INSETS.top + 12, "★ 말풍선이 화면보다 커도 위쪽 여백은 지킨다");
 
 // ── 투어 구성 ────────────────────────────────────────────────
 say(HOME_STEPS.length === 5, "홈 투어는 5단계 (넘기면 완주율이 급락한다)");

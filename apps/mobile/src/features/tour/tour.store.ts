@@ -109,14 +109,20 @@ export const useTourStore = create<TourState>()(
             height: Math.round(raw.height),
           };
           const prev = s.rects[id];
-          // 같은 값이면 쓰지 않는다 — 매 레이아웃마다 store 를 갱신하면
-          // 투어를 쓰는 화면 전체가 계속 리렌더된다
+          /**
+           * 2px 미만 변화는 무시한다 (히스테리시스).
+           *
+           * 활성 대상은 80ms 마다 다시 재는데, 화면이 가만히 있어도 측정값
+           * 끝자리가 흔들려 1px 씩 오갈 수 있다. 그걸 그대로 받으면 구멍과
+           * 말풍선이 초당 열두 번 떤다. 진짜 움직임(스크롤·내용 증가)은
+           * 2px 을 훌쩍 넘으므로 놓칠 일은 없다.
+           */
           if (
             prev &&
-            Math.abs(prev.x - rect.x) < 1 &&
-            Math.abs(prev.y - rect.y) < 1 &&
-            Math.abs(prev.width - rect.width) < 1 &&
-            Math.abs(prev.height - rect.height) < 1
+            Math.abs(prev.x - rect.x) < 2 &&
+            Math.abs(prev.y - rect.y) < 2 &&
+            Math.abs(prev.width - rect.width) < 2 &&
+            Math.abs(prev.height - rect.height) < 2
           ) {
             return s;
           }

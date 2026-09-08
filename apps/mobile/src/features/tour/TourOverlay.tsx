@@ -72,38 +72,23 @@ export default function TourOverlay() {
    */
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const rootRef = useRef<View>(null);
-  /**
-   * 말풍선 실제 높이.
-   *
-   * 위/아래 배치는 어림 높이(BUBBLE_EST_H)로 정하지만, 그 어림이 틀리면
-   * 말풍선이 화면 밖으로 나가고 **"다음" 버튼을 못 누른다** — 투어가 거기서
-   * 끝난다. 그려진 다음 실제 높이로 한 번 더 가둔다.
-   *
-   * ⚠️ **단계당 딱 한 번만 받는다.**
-   * 높이로 위치를 정하는데 위치가 바뀌면 onLayout 이 다시 뜬다. 안드로이드는
-   * 뷰의 절대 위치에 따라 높이를 다른 정수로 반올림해서, 두 위치가 1px 다른
-   * 높이를 내놓으면 A→B→A→B 로 영원히 왕복한다 — 말풍선이 위아래로 떤다.
-   * 한 번 받고 잠그면 고리가 끊긴다. 한 단계 안에서 문구는 안 바뀐다.
-   */
-  const [bubbleH, setBubbleH] = useState(0);
 
+  // 측정값은 전부 정수로 끊는다. 소수를 그대로 상태에 넣으면 끝자리가
+  // 흔들릴 때마다 리렌더가 나고, 그 위에 얹힌 구멍·말풍선이 떤다.
   const onLayout = (e: LayoutChangeEvent) => {
-    const { width: w, height: h } = e.nativeEvent.layout;
+    const w = Math.round(e.nativeEvent.layout.width);
+    const h = Math.round(e.nativeEvent.layout.height);
     setSize((prev) =>
-      Math.abs(prev.width - w) < 1 && Math.abs(prev.height - h) < 1
-        ? prev
-        : { width: w, height: h },
+      prev.width === w && prev.height === h ? prev : { width: w, height: h },
     );
     measureOrigin();
   };
 
   function measureOrigin() {
-    rootRef.current?.measureInWindow((ox, oy) => {
-      setOrigin((prev) =>
-        Math.abs(prev.x - ox) < 1 && Math.abs(prev.y - oy) < 1
-          ? prev
-          : { x: ox, y: oy },
-      );
+    rootRef.current?.measureInWindow((rawX, rawY) => {
+      const x = Math.round(rawX);
+      const y = Math.round(rawY);
+      setOrigin((prev) => (prev.x === x && prev.y === y ? prev : { x, y }));
     });
   }
   const { width, height } = size;
@@ -133,8 +118,6 @@ export default function TourOverlay() {
     // 원점도 같이 확인한다 — 회전·키보드로 바뀔 수 있다
     measureOrigin();
     remeasure();
-    // 문구 길이가 단계마다 달라서 이전 높이를 물려받으면 안 된다
-    setBubbleH(0);
   }, [activeTour, step, current?.target]);
 
   // 구멍 테두리가 천천히 숨 쉰다 — 어디를 보라는 건지 눈이 바로 간다
@@ -184,18 +167,6 @@ export default function TourOverlay() {
 
   const holeRadius = current.shape === "circle" ? 999 : 18;
 
-  // 어림 배치를 실측 높이로 한 번 더 가둔다 (안 그러면 러시아어처럼 긴
-  // 문구에서 말풍선 아래가 잘리고 "다음" 이 안 눌린다)
-  const bubbleTop = (() => {
-    if (!bubble) return 0;
-    if (!bubbleH || !height) return bubble.top;
-    const maxTop = height - insets.bottom - 12 - bubbleH;
-    const minTop = insets.top + 12;
-    // 정수로 끊어야 다음 onLayout 이 같은 높이를 돌려준다
-    return Math.round(
-      Math.max(minTop, Math.min(bubble.top, Math.max(minTop, maxTop))),
-    );
-  })();
   const isLast = step === steps.length - 1;
   const goNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -259,14 +230,14 @@ export default function TourOverlay() {
         <Animated.View
           key={step}
           entering={FadeIn.duration(220)}
-          onLayout={(e) => {
-            const h = Math.round(e.nativeEvent.layout.height);
-            // 이미 받았으면 무시 — 위 주석의 왕복을 막는다
-            setBubbleH((prev) => (prev > 0 ? prev : h));
-          }}
           style={[
             s.bubble,
-            { width: bubble.width, top: bubbleTop, left: bubble.left },
+            { width: bubble.width, left: bubble.left },
+            // 위에 놓을 땐 아래 모서리를 고정한다 — 말풍선이 길어져도
+            // "다음" 버튼이 화면 밖으로 밀리지 않는다
+            bubble.above
+              ? { bottom: bubble.bottom }
+              : { top: bubble.top },
           ]}
         >
           <View style={s.bubbleHead}>
