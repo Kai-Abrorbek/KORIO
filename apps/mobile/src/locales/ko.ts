@@ -14,6 +14,12 @@ export default {
     loading: "로딩 중...",
     close: "닫기",
   },
+  navTabs: {
+    home: "홈",
+    stats: "통계",
+    league: "리그",
+    premium: "프리미엄",
+  },
   splash: {
     subtitle: "AI로 배우는 한국어",
     hasAccount: "이미 계정이 있어요",
@@ -685,6 +691,7 @@ export default {
     },
   },
   friends: {
+    online: "접속 중",
     title: "친구",
     findFriendsTitle: "친구 찾기",
     nameOrId: "이름 또는 아이디",

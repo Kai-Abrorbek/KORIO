@@ -14,6 +14,12 @@ export default {
     loading: "Loading...",
     close: "Close",
   },
+  navTabs: {
+    home: "Home",
+    stats: "Stats",
+    league: "League",
+    premium: "Premium",
+  },
   splash: {
     subtitle: "Learn Korean with AI",
     hasAccount: "I already have an account",
@@ -690,6 +696,7 @@ export default {
     },
   },
   friends: {
+    online: "Online",
     title: "Friends",
     findFriendsTitle: "Find friends",
     followedBy: "Followed by {{name}}",

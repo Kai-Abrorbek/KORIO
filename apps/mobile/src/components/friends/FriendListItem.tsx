@@ -26,6 +26,7 @@ export default function FriendListItem({ friend, onPress, isLast }: Props) {
         name={friend.name}
         avatar={friend.avatar}
         avatarUri={friend.avatarUri}
+        online={friend.isOnline}
       />
 
       <View style={styles.info}>

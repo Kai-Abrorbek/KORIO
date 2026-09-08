@@ -33,6 +33,7 @@ import {
   isSuperActive,
   isSuperStale,
 } from './super.util';
+import { presenceFor } from './presence.util';
 import * as crypto from 'crypto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
@@ -383,6 +384,10 @@ export class UsersService {
       streak: streakCurrent,
       league: user.league,
       isSuper: isSuperActive(user),
+      ...presenceFor(
+        { isFollowing, isFollowedBy, isMe: targetId === currentUserId },
+        (user as any).lastActiveAt,
+      ),
       followingCount: user.following?.length || 0,
       followersCount: user.followers?.length || 0,
       completedLessons,
@@ -847,6 +852,15 @@ export class UsersService {
         isMe: id === currentUserId,
         isFollowing: followingSet.has(id),
         isFollowedBy: followerSet.has(id),
+        // 인스타처럼 "지금 접속 중" 초록 점. 아는 사이일 때만 붙는다
+        ...presenceFor(
+          {
+            isMe: id === currentUserId,
+            isFollowing: followingSet.has(id),
+            isFollowedBy: followerSet.has(id),
+          },
+          u.lastActiveAt,
+        ),
       };
     });
   }
@@ -858,7 +872,7 @@ export class UsersService {
       .populate({
         path: 'following',
         select:
-          'nickname username profileImage avatar streak totalXP league targetLanguage level',
+          'nickname username profileImage avatar streak totalXP league targetLanguage level lastActiveAt',
       })
       .lean();
 
@@ -883,7 +897,7 @@ export class UsersService {
       .populate({
         path: 'followers',
         select:
-          'nickname username profileImage avatar streak totalXP league targetLanguage level',
+          'nickname username profileImage avatar streak totalXP league targetLanguage level lastActiveAt',
       })
       .lean();
 
@@ -1601,11 +1615,12 @@ export class UsersService {
     const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(safe, 'i');
 
+    // ⚠️ 예전엔 프로필 필드만 select 해서 following/followers 가 undefined 였다.
+    // 그 결과 검색 결과의 isFollowing 이 늘 false 라, 이미 팔로우한 사람도
+    // "팔로우" 버튼으로 보였다.
     const me = await this.userModel
       .findById(currentUserId)
-      .select(
-        'nickname username profileImage avatar country targetLanguage totalXP level',
-      )
+      .select('following followers')
       .lean();
     const followingSet = new Set(
       (me?.following ?? []).map((f) => f.toString()),
@@ -1618,7 +1633,7 @@ export class UsersService {
         $or: [{ nickname: regex }, { username: regex }],
       })
       .select(
-        'nickname username profileImage country targetLanguage totalXP level',
+        'nickname username profileImage country targetLanguage totalXP level lastActiveAt',
       )
       .limit(30)
       .lean();
@@ -1633,6 +1648,13 @@ export class UsersService {
       },
       isFollowing: followingSet.has(u._id.toString()),
       isFollowedBy: followerSet.has(u._id.toString()),
+      ...presenceFor(
+        {
+          isFollowing: followingSet.has(u._id.toString()),
+          isFollowedBy: followerSet.has(u._id.toString()),
+        },
+        (u as any).lastActiveAt,
+      ),
     }));
   }
 

@@ -68,6 +68,7 @@ export default function FriendsScreen() {
     isFollowing: u.isFollowing,
     isFollowedBy: u.isFollowedBy,
     isMe: u.isMe,
+    isOnline: u.isOnline,
   }));
 
   if (loading) {

@@ -18,9 +18,12 @@ import { useReferralClaim } from "@/hooks/useReferralClaim";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
 import PremiumGateModal from "@/components/subscription/PremiumGateModal";
+import { usePresenceHeartbeat } from "@/hooks/usePresenceHeartbeat";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  // 접속 중 표시 — 탭 밖(레슨·게임·튜터)에서도 계속 뛰어야 한다
+  usePresenceHeartbeat();
   const energyModalVisible = useEnergyStore((s) => s.modalVisible);
   const closeEnergyModal = useEnergyStore((s) => s.closeEnergyModal);
   const gems = useAuthStore((s) => s.user?.gems ?? 0);

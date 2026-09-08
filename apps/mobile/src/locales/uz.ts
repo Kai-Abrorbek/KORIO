@@ -14,6 +14,12 @@ export default {
     loading: "Yuklanmoqda...",
     close: "Yopish",
   },
+  navTabs: {
+    home: "Asosiy",
+    stats: "Statistika",
+    league: "Liga",
+    premium: "Premium",
+  },
   splash: {
     subtitle: "AI bilan koreys tilini o'rgan",
     hasAccount: "Akkaunt mavjud",
@@ -694,6 +700,7 @@ export default {
     },
   },
   friends: {
+    online: "Onlayn",
     title: "Do'stlar",
     findFriendsTitle: "Do'st topish",
     followedBy: "{{name}} kuzatmoqda",

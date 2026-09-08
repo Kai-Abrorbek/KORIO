@@ -1,3 +1,4 @@
+import OnlineBadge from "@/components/common/OnlineBadge";
 import { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -25,6 +26,8 @@ interface Props {
   name: string;
   league: League;
   isSuper: boolean;
+  /** 지금 접속 중인지 (서버가 lastActiveAt 으로 판단) */
+  isOnline?: boolean;
   avatar?: Partial<AvatarConfig> | null;
   onBack?: () => void;
   onShare?: () => void;
@@ -34,6 +37,7 @@ export default function FriendProfileHeader({
   name,
   league,
   isSuper,
+  isOnline = false,
   avatar,
   onBack,
   onShare,
@@ -97,6 +101,12 @@ export default function FriendProfileHeader({
         </View>
       )}
 
+      {isOnline && (
+        <View style={styles.onlineWrap}>
+          <OnlineBadge />
+        </View>
+      )}
+
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
         <AvatarPreview avatar={avatar} size={230} showBackground={false} />
       </Animated.View>
@@ -131,6 +141,10 @@ const getStyles = (theme: ThemeColors) =>
       position: "absolute",
       right: 20,
       top: 100,
+    },
+    onlineWrap: {
+      alignSelf: "center",
+      marginTop: 10,
     },
     avatarWrap: {
       alignItems: "center",

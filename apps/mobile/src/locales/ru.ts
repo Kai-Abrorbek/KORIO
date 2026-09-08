@@ -14,6 +14,12 @@ export default {
     loading: "Загрузка...",
     close: "Закрыть",
   },
+  navTabs: {
+    home: "Главная",
+    stats: "Статистика",
+    league: "Лига",
+    premium: "Премиум",
+  },
   splash: {
     subtitle: "Учи корейский с AI",
     hasAccount: "У меня уже есть аккаунт",
@@ -689,6 +695,7 @@ export default {
     },
   },
   friends: {
+    online: "В сети",
     title: "Друзья",
     findFriendsTitle: "Найти друзей",
     followedBy: "Подписан(а) {{name}}",

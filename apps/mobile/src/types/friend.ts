@@ -14,6 +14,8 @@ export interface Friend {
   isFollowedBy?: boolean;
   isMe?: boolean;
   avatar?: AvatarConfig;
+  /** 서버가 lastActiveAt 으로 판단한 접속 중 여부 */
+  isOnline?: boolean;
 }
 
 export interface FriendsData {

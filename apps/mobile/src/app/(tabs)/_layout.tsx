@@ -2,25 +2,17 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
-import { useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { UserService } from "@/services/user.service";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 
 export default function TabsLayout() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    const ping = () => UserService.touchActive().catch(() => {});
-    ping();
-    const id = setInterval(ping, 3 * 60 * 1000); // 3분마다
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <Tabs
+      key={i18n.language}
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -44,7 +36,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "홈",
+          title: t("navTabs.home"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
@@ -53,7 +45,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="stats"
         options={{
-          title: "학습통계",
+          title: t("navTabs.stats"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bar-chart" size={size} color={color} />
           ),
@@ -62,7 +54,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="league"
         options={{
-          title: "리그",
+          title: t("navTabs.league"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="trophy" size={size} color={color} />
           ),
@@ -71,7 +63,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="premium"
         options={{
-          title: "프리미엄",
+          title: t("navTabs.premium"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="ribbon" size={size} color={color} />
           ),

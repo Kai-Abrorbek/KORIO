@@ -106,6 +106,7 @@ export default function FriendProfileScreen() {
         league={user.league}
         avatar={user.avatar}
         isSuper={user.isSuper}
+        isOnline={user.isOnline}
         onBack={goBack}
         onShare={() => console.log("share")}
       />

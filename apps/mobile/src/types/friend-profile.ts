@@ -21,6 +21,8 @@ export interface FriendProfile {
   username: string;
   joinedYear: number;
   isSuper: boolean;
+  /** 지금 앱에 접속 중인지 */
+  isOnline?: boolean;
   isFollowing: boolean;
   coursePrimaryFlag: string;
   courseExtraCount: number;

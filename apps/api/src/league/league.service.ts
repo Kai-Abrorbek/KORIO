@@ -17,6 +17,7 @@ import { LeagueRoom, LeagueRoomDocument } from './schemas/league-room.schema';
 import { BOT_PROFILES, TIER_BOT_MULTIPLIER } from './league.bots';
 import { Cron } from '@nestjs/schedule';
 import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
+import { isOnlineNow } from '../users/presence.util';
 
 const MIN_MEMBERS = 8; // 방에 최소 이만큼은 있게 (봇으로 채움)
 
@@ -54,7 +55,8 @@ const ROOM_SIZE = 30;
 /** 한 번에 따라잡을 최대 주 수. 오래 멈춰 있었어도 한 번에 다 돌지는 않는다 */
 const MAX_CATCHUP_WEEKS = 8;
 const CHALLENGE_XP = 210;
-const ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5분 내 활동 = 온라인
+// 온라인 판정 창은 users/presence.util 하나로 모았다.
+// 두 군데서 따로 정하면 리그와 친구 목록이 서로 다른 답을 준다.
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
@@ -233,8 +235,7 @@ export class LeagueService {
         // ✅ 온라인: 봇은 랜덤(고정 시드), 실유저는 lastActiveAt 기준
         online: m.isBot
           ? this.botOnline(m.nickname)
-          : !!m.lastActiveAt &&
-            now - new Date(m.lastActiveAt).getTime() < ONLINE_WINDOW_MS,
+          : isOnlineNow(m.lastActiveAt, now),
       }))
       .sort((a, b) => b.xp - a.xp)
       .map((m, i) => ({ ...m, rank: i + 1 }));
