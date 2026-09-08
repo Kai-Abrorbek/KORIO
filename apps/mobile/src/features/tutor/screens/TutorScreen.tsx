@@ -64,6 +64,7 @@ export default function TutorScreen() {
     quota,
     error,
     caption,
+    captionPrev,
     userSaid,
     examples,
     targets,
@@ -259,14 +260,24 @@ export default function TutorScreen() {
           </Animated.View>
         )}
 
+        {/* 선생님이 지금 말하고 있는 한 문장.
+            응답 전체를 흘리지 않는다 — 글자가 소리보다 앞서 달리고 문장이
+            뭉쳐서 읽기 어려웠다. 앞 문장은 흐리게 한 줄만 남긴다. */}
         {!!caption && (
-          <ScrollView
-            style={s.captionScroll}
-            contentContainerStyle={s.captionInner}
-            showsVerticalScrollIndicator={false}
-          >
-            <Text style={s.captionText}>{caption}</Text>
-          </ScrollView>
+          <View style={s.tutorBubbleWrap}>
+            {!!captionPrev && (
+              <Text style={s.captionPrev} numberOfLines={1}>
+                {captionPrev}
+              </Text>
+            )}
+            <Animated.View
+              key={caption}
+              entering={FadeIn.duration(180)}
+              style={s.tutorBubble}
+            >
+              <Text style={s.captionText}>{caption}</Text>
+            </Animated.View>
+          </View>
         )}
 
         {/* 우즈벡어 도움말.
@@ -503,7 +514,24 @@ const styles = (theme: ThemeColors) =>
     },
     userText: { color: "#fff", fontSize: 14, fontWeight: "700" },
 
-    captionScroll: { maxHeight: 96, alignSelf: "stretch" },
+    tutorBubbleWrap: { alignSelf: "stretch", alignItems: "center", gap: 6 },
+    captionPrev: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      opacity: 0.55,
+      textAlign: "center",
+      maxWidth: "88%",
+    },
+    tutorBubble: {
+      maxWidth: "92%",
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
     explainWrap: { marginTop: 10, alignSelf: "stretch", alignItems: "center" },
     explainBtn: {
       paddingHorizontal: 14,
@@ -524,11 +552,12 @@ const styles = (theme: ThemeColors) =>
     },
     captionInner: { paddingVertical: 2 },
     captionText: {
-      fontSize: 17,
-      lineHeight: 26,
+      fontSize: 18,
+      lineHeight: 28,
       fontWeight: "700",
       color: theme.text,
       textAlign: "center",
+      letterSpacing: -0.2,
     },
 
     exampleRow: {

@@ -45,8 +45,16 @@ export function useRealtimeTutor() {
   const [quota, setQuota] = useState<TutorQuota | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsedSec, setElapsedSec] = useState(0);
-  /** 지금 화면에 띄울 한 줄. AI 가 말하는 동안 실시간으로 채워진다 */
+  /**
+   * 지금 **들리고 있는** 한 문장.
+   *
+   * 예전엔 텍스트 델타를 그대로 이어 붙였다. 그러면 글자가 소리보다 한참
+   * 앞서 달리고, 문장 여러 개가 한 덩어리로 뭉쳐서 읽기 어려웠다.
+   * 지금은 재생이 시작된 문장만 띄운다 — 들은 것과 본 것이 같아진다.
+   */
   const [caption, setCaption] = useState("");
+  /** 바로 앞 문장. 흐리게 위에 남겨서 맥락이 끊기지 않게 */
+  const [captionPrev, setCaptionPrev] = useState("");
   const [userSaid, setUserSaid] = useState("");
   const [voice, setVoice] = useState<string | undefined>(undefined);
   /** 오늘 연습할 표현. 막혔을 때 화면에 띄운다 */
@@ -71,6 +79,8 @@ export function useRealtimeTutor() {
   const speech = useRef<TutorSpeechQueue | null>(null);
   /** 아직 문장이 안 된 꼬리. 다음 델타와 이어 붙인다 */
   const textBuf = useRef("");
+  /** 콜백에서 현재 자막을 읽으려고 둔다 (콜백은 deps 가 비어 있다) */
+  const captionRef = useRef("");
   /** 첫 인사를 두 번 시키지 않기 위한 빗장 */
   const greeted = useRef(false);
   /** 개발용 지연 측정 */
@@ -150,6 +160,8 @@ export function useRealtimeTutor() {
     setState("idle");
     setElapsedSec(0);
     setCaption("");
+    setCaptionPrev("");
+    captionRef.current = "";
     setUserSaid("");
     setTargets([]);
     setTeacher(null);
@@ -259,7 +271,12 @@ export function useRealtimeTutor() {
           // 실제로 **소리가 나기 시작한** 시점에만 speaking 으로 바꾼다.
           // 텍스트가 생성되는 중에 바꾸면 화면은 말한다고 하는데 아직
           // 아무 소리도 안 나는 구간이 생긴다
-          onPlaybackStart: () => setState("speaking"),
+          onPlaybackStart: (line) => {
+            setCaptionPrev(captionRef.current);
+            captionRef.current = line;
+            setCaption(line);
+            setState("speaking");
+          },
           onIdle: () => {
             if (stateRef.current === "speaking") setState("listening");
           },
@@ -339,6 +356,7 @@ export function useRealtimeTutor() {
         }
         speech.current?.cancelAll();
         textBuf.current = "";
+        setCaptionPrev("");
         setState("listening");
         break;
       case "input_audio_buffer.speech_stopped":
@@ -356,7 +374,8 @@ export function useRealtimeTutor() {
       case "response.text.delta":
         if (typeof event.delta === "string") {
           if (!firstTextAt.current) firstTextAt.current = Date.now();
-          setCaption((prev) => prev + event.delta);
+          // 자막은 여기서 안 건드린다. 소리가 나기 시작한 문장만 띄운다 —
+          // 델타를 그대로 흘리면 글자가 소리보다 앞서 달려서 지저분하다
           textBuf.current += event.delta;
           const { chunks, rest } = takeChunks(textBuf.current);
           textBuf.current = rest;
@@ -370,15 +389,12 @@ export function useRealtimeTutor() {
         textBuf.current = "";
         for (const c of chunks) speech.current?.enqueue(c);
         if (typeof event.text === "string" && event.text.trim()) {
-          // 자막·기록은 **실제로 읽어준 문장**을 기준으로 남긴다.
-          // 그래야 들은 것 / 본 것 / 분석에 들어간 것이 서로 같다
-          setCaption(event.text);
+          // 기록에는 응답 전체를 남긴다 (분석용). 화면에는 문장 단위로 흐른다
           pushTurn(transcript, "tutor", event.text);
         }
         break;
       }
       case "response.created":
-        setCaption("");
         textBuf.current = "";
         break;
       case "conversation.item.input_audio_transcription.completed":
@@ -456,6 +472,7 @@ export function useRealtimeTutor() {
     quota,
     error,
     caption,
+    captionPrev,
     userSaid,
     /** 자막에서 뽑은 "따라 해볼 문장". 정확한 발음은 Azure 목소리로 들려준다 */
     examples: extractExamples(caption),

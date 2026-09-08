@@ -31,6 +31,17 @@ export const TUTOR_MODEL =
  */
 export const IS_PREMIUM_MODEL = !/mini/i.test(TUTOR_MODEL);
 
+/**
+ * 사용자 발화를 글자로 옮기는 모델.
+ *
+ * whisper-1 은 짧은 발화에서 언어를 자주 틀린다 — 우즈벡어 한 문장이
+ * 터키어나 키릴로 적혀 화면에 뜨는 일이 실제로 났다. gpt-4o-transcribe 는
+ * 프롬프트 힌트를 반영해서 한국어/우즈벡어가 섞인 문장을 훨씬 잘 받아적는다.
+ * 자막 품질이 그대로 "알아듣는 것처럼 느껴지는가" 를 좌우한다.
+ */
+export const TRANSCRIBE_MODEL =
+  process.env.OPENAI_TRANSCRIBE_MODEL?.trim() || 'gpt-4o-transcribe';
+
 /** 참고용 분당 원가 추정 (실측 기반). 로그에만 쓴다 */
 export const EST_COST_PER_MIN_USD = IS_PREMIUM_MODEL ? 0.2 : 0.065;
 

@@ -16,6 +16,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TutorApi, type TutorTeacherCard } from "../services/tutor.api";
@@ -44,6 +45,7 @@ interface Props {
 export function TeacherPicker({ initialId, onPick }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const s = getStyles(theme);
 
   const [teachers, setTeachers] = useState<TutorTeacherCard[] | null>(null);
@@ -135,7 +137,9 @@ export function TeacherPicker({ initialId, onPick }: Props) {
 
       {/* 확인 버튼은 목록 밖에 고정한다. 안에 넣으면 스크롤을 끝까지
           내려야 보이고, 네 장짜리 목록에서 그건 그냥 불편하다 */}
-      <View style={s.ctaBar}>
+      {/* 안드로이드 3버튼 네비게이션 뒤에 깔려서 안 눌렸다.
+          하단 고정 버튼은 항상 insets.bottom 을 더한다 */}
+      <View style={[s.ctaBar, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
           style={[s.cta, !chosen && s.ctaOff]}
           disabled={!chosen}
@@ -284,7 +288,6 @@ const getStyles = (theme: ThemeColors) =>
     ctaBar: {
       paddingHorizontal: 20,
       paddingTop: 10,
-      paddingBottom: 8,
       backgroundColor: theme.bg,
       borderTopWidth: 1,
       borderTopColor: theme.border,

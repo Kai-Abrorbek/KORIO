@@ -22,6 +22,7 @@ import {
   MAX_RESPONSE_TOKENS,
   MAX_SESSION_MINUTES,
   RECENT_SESSIONS_FOR_CONTEXT,
+  TRANSCRIBE_MODEL,
   TUTOR_MODEL,
   resolveVoice,
   type MistakeType,
@@ -122,8 +123,27 @@ export class TutorService implements OnModuleInit {
           instructions,
           audio: {
             input: {
-              // 사용자 발화 자막용. Phase 2 에서 화면에 뿌린다
-              transcription: { model: 'whisper-1' },
+              /**
+               * 사용자 발화 자막.
+               *
+               * ⚠️ whisper-1 은 언어 힌트가 없으면 짧은 발화에서 언어를 잘못
+               * 찍는다. 우즈벡어로 "Men kecha kinoga bordim" 이라고 하면
+               * 터키어나 키릴로 옮겨 적어서 화면에 엉뚱한 글자가 떴다.
+               *
+               * language 를 하나로 고정하면 code-switching 이 깨진다
+               * ("오늘 친구랑 kinoga bordim" 같은 문장이 이 앱의 일상이다).
+               * 그래서 언어를 고정하지 않고 **무엇이 섞여 오는지** 를 프롬프트로
+               * 알려준다. gpt-4o-transcribe 는 이 힌트를 실제로 반영한다.
+               */
+              transcription: {
+                model: TRANSCRIBE_MODEL,
+                prompt:
+                  'The speaker is an Uzbek learner of Korean. ' +
+                  'They mix Korean (한국어) and Uzbek (o\'zbekcha) freely, ' +
+                  'sometimes in the same sentence. ' +
+                  'Write Korean in Hangul and Uzbek in the Latin alphabet. ' +
+                  'Never translate; transcribe what was actually said.',
+              },
               // semantic_vad: 말이 끊긴 게 아니라 "생각 중"인 걸 구분한다.
               // server_vad 는 침묵 길이만 보기 때문에 학습자가 단어를 떠올리는
               // 사이에 AI 가 끼어든다 — 회화 연습에서 제일 거슬리는 부분이다.

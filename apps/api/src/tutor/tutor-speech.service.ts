@@ -81,11 +81,13 @@ export class TutorSpeechService {
     language?: string;
     sessionId?: string;
   }) {
-    const text = (params.text ?? '').trim();
-    if (!text) throw new BadRequestException('EMPTY_TEXT');
-    if (text.length > MAX_TTS_TEXT_CHARS) {
+    const raw = (params.text ?? '').trim();
+    if (!raw) throw new BadRequestException('EMPTY_TEXT');
+    if (raw.length > MAX_TTS_TEXT_CHARS) {
       throw new BadRequestException('TEXT_TOO_LONG');
     }
+    const text = forSpeaking(raw);
+    if (!text) throw new BadRequestException('EMPTY_TEXT');
 
     const teacher = resolveTeacher(params.teacherId);
     const language: TutorTtsLanguage = params.language === 'uz' ? 'uz' : 'ko';
@@ -224,4 +226,41 @@ async function collect(stream: NodeJS.ReadableStream): Promise<Buffer> {
     parts.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as any));
   }
   return Buffer.concat(parts);
+}
+
+/**
+ * 소리로 읽을 문장을 다듬는다.
+ *
+ * 화면에 보이는 자막은 그대로 두고 **읽을 텍스트만** 손본다.
+ *
+ * 왜: 따옴표·괄호·줄임표는 눈으로 읽으라고 있는 기호다. 음성 엔진은 그 자리에서
+ * 길게 쉬거나(때로는 1초 넘게) 기호 자체를 읽으려 든다. 튜터가 예문을 자주
+ * 인용하기 때문에 이게 대화 내내 튀었다 — "말하다가 뚝 멈췄다 이어지는" 느낌의
+ * 정체가 이것이다.
+ *
+ * 프롬프트로도 "따옴표 쓰지 마라" 고 했지만 모델은 가끔 쓴다. 마지막 방어선을
+ * 소리 나가기 직전에 둔다.
+ */
+export function forSpeaking(text: string): string {
+  return (
+    text
+      // 인용부호는 지운다. 인용은 억양으로 하는 것이지 기호로 하는 게 아니다
+      .replace(/["'\u201c\u201d\u2018\u2019\u300c\u300d\u300e\u300f\u00ab\u00bb]/g, '')
+      // 괄호 안 보충설명은 소리로 들으면 문맥이 끊긴다. 쉼표로 눕힌다
+      .replace(/[（(]\s*/g, ', ')
+      .replace(/\s*[）)]/g, '')
+      .replace(/[[\]{}<>]/g, '')
+      // 줄임표·대시는 긴 침묵이 된다
+      .replace(/[.]{2,}|\u2026/g, ',')
+      .replace(/\s*[\u2014\u2013~]+\s*/g, ', ')
+      // 목록 기호·이모지 (모델이 가끔 붙인다)
+      .replace(/^[\s*\-\u2022\d]+[.)]\s*/gm, '')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      // 위 치환이 만든 겹친 문장부호와 공백을 정리한다
+      .replace(/,\s*,+/g, ',')
+      .replace(/\s*,\s*([.?!])/g, '$1')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^[\s,]+/, '')
+      .trim()
+  );
 }
