@@ -407,7 +407,8 @@ export default function HomeScreen() {
         <TourTarget
           tourId="home.chart"
           style={styles.tourBlock}
-          inset={{ x: 16, y: 6 }}
+          // styles.card 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
+          inset={{ left: 16, right: 16, bottom: 12 }}
         >
         <Animated.View
           entering={FadeInDown.delay(400).duration(500)}
@@ -509,7 +510,8 @@ export default function HomeScreen() {
         <TourTarget
           tourId="home.review"
           style={styles.tourBlock}
-          inset={{ x: 16, y: 6 }}
+          // styles.card 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
+          inset={{ left: 16, right: 16, bottom: 12 }}
         >
         <Animated.View
           entering={FadeInDown.delay(500).duration(500)}

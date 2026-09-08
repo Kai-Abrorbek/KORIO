@@ -57,12 +57,20 @@ export const useTourStore = create<TourState>()(
 
       markSeen: (tourId) => set((s) => ({ seen: { ...s.seen, [tourId]: true } })),
 
+      /**
+       * ⚠️ 시작·이동할 때 rects 를 비운다.
+       *
+       * 남겨두면 **틀린 자리에 구멍이 한 프레임 뚫린다.** 이전에 잰 좌표는
+       * 그 사이 데이터가 늦게 도착하거나 스크롤이 되면서 이미 옛날 것이다.
+       * 비워두면 그 프레임엔 구멍 없이 어둡기만 하고, 대상이 스스로 다시
+       * 재서(TourTarget 폴링) 곧 정확한 자리에 뚫린다.
+       */
       startIfUnseen: (tourId) => {
         if (get().seen[tourId] || get().activeTour) return;
-        set({ activeTour: tourId, step: 0 });
+        set({ activeTour: tourId, step: 0, rects: {} });
       },
 
-      restart: (tourId) => set({ activeTour: tourId, step: 0 }),
+      restart: (tourId) => set({ activeTour: tourId, step: 0, rects: {} }),
 
       next: (total) => {
         const { step } = get();
@@ -70,10 +78,10 @@ export const useTourStore = create<TourState>()(
           get().finish();
           return;
         }
-        set({ step: step + 1 });
+        set({ step: step + 1, rects: {} });
       },
 
-      prev: () => set((s) => ({ step: Math.max(0, s.step - 1) })),
+      prev: () => set((s) => ({ step: Math.max(0, s.step - 1), rects: {} })),
 
       finish: () => {
         const id = get().activeTour;

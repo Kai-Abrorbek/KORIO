@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -26,6 +26,9 @@ import { ThemeColors } from "@/constants/theme";
 import { useTourStore } from "./tour.store";
 import { PAD, placeBubble, spotlightPath } from "./tour-geometry";
 import { TOURS } from "./tours";
+
+/** 막 색. 구멍 밖은 이 색으로 덮인다 */
+const DIM = "rgba(10,8,26,0.82)";
 
 /**
  * 기능 안내 오버레이. 루트 레이아웃에 딱 하나 뜬다.
@@ -58,6 +61,26 @@ export default function TourOverlay() {
    * 대상 좌표와 같은 좌표계를 쓰려면 이 뷰의 실제 크기가 맞다.
    */
   const [size, setSize] = useState({ width: 0, height: 0 });
+  /**
+   * 이 뷰가 window 좌표계에서 어디부터 시작하는지.
+   *
+   * 대상은 measureInWindow(=window 기준)로 재는데, 구멍은 이 뷰 안에
+   * 그린다. 둘의 원점이 다르면 구멍이 통째로 밀린다 — 안드로이드에서
+   * 상태바를 어떻게 다루느냐에 따라 0 일 수도, 상태바 높이일 수도 있다.
+   * 추측하지 않고 **자기 자신도 measureInWindow 로 재서** 그 차이를 뺀다.
+   * 같은 좌표계면 (0,0) 이라 아무 일도 안 일어난다.
+   */
+  const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const rootRef = useRef<View>(null);
+  /**
+   * 말풍선 실제 높이.
+   *
+   * 위/아래 배치는 어림 높이(BUBBLE_EST_H)로 정하지만, 그 어림이 틀리면
+   * 말풍선이 화면 밖으로 나가고 **"다음" 버튼을 못 누른다** — 투어가 거기서
+   * 끝난다. 그려진 다음 실제 높이로 한 번 더 가둔다.
+   */
+  const [bubbleH, setBubbleH] = useState(0);
+
   const onLayout = (e: LayoutChangeEvent) => {
     const { width: w, height: h } = e.nativeEvent.layout;
     setSize((prev) =>
@@ -65,7 +88,18 @@ export default function TourOverlay() {
         ? prev
         : { width: w, height: h },
     );
+    measureOrigin();
   };
+
+  function measureOrigin() {
+    rootRef.current?.measureInWindow((ox, oy) => {
+      setOrigin((prev) =>
+        Math.abs(prev.x - ox) < 1 && Math.abs(prev.y - oy) < 1
+          ? prev
+          : { x: ox, y: oy },
+      );
+    });
+  }
   const { width, height } = size;
 
   const activeTour = useTourStore((st) => st.activeTour);
@@ -78,13 +112,23 @@ export default function TourOverlay() {
   const tour = activeTour ? TOURS[activeTour] : undefined;
   const steps = tour?.steps;
   const current = steps?.[step];
-  const rect = current ? rects[current.target] : undefined;
+  const raw = current ? rects[current.target] : undefined;
+  // window 좌표 → 이 뷰의 로컬 좌표
+  const rect = useMemo(
+    () =>
+      raw ? { ...raw, x: raw.x - origin.x, y: raw.y - origin.y } : undefined,
+    [raw?.x, raw?.y, raw?.width, raw?.height, origin.x, origin.y],
+  );
 
   // 단계가 바뀌면 다시 잰다. 스크롤은 레이아웃을 안 바꿔서 onLayout 이 안 뜬다.
   // (스크롤 자체는 화면이 useTourScroll 로 한다)
   useEffect(() => {
     if (!current) return;
+    // 원점도 같이 확인한다 — 회전·키보드로 바뀔 수 있다
+    measureOrigin();
     remeasure();
+    // 문구 길이가 단계마다 달라서 이전 높이를 물려받으면 안 된다
+    setBubbleH(0);
   }, [activeTour, step, current?.target]);
 
   // 구멍 테두리가 천천히 숨 쉰다 — 어디를 보라는 건지 눈이 바로 간다
@@ -133,6 +177,16 @@ export default function TourOverlay() {
   if (!tour || !steps || !current) return null;
 
   const holeRadius = current.shape === "circle" ? 999 : 18;
+
+  // 어림 배치를 실측 높이로 한 번 더 가둔다 (안 그러면 러시아어처럼 긴
+  // 문구에서 말풍선 아래가 잘리고 "다음" 이 안 눌린다)
+  const bubbleTop = (() => {
+    if (!bubble) return 0;
+    if (!bubbleH || !height) return bubble.top;
+    const maxTop = height - insets.bottom - 12 - bubbleH;
+    const minTop = insets.top + 12;
+    return Math.max(minTop, Math.min(bubble.top, Math.max(minTop, maxTop)));
+  })();
   const isLast = step === steps.length - 1;
   const goNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -144,19 +198,30 @@ export default function TourOverlay() {
   };
 
   return (
-    <View style={s.root} onLayout={onLayout} pointerEvents="box-none">
+    <View
+      ref={rootRef}
+      collapsable={false}
+      style={s.root}
+      onLayout={onLayout}
+      pointerEvents="box-none"
+    >
       {/* 어두운 막 + 구멍. 아직 대상을 못 쟀으면 구멍 없이 덮는다 */}
-      <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
-        <Path
-          d={
-            rect && width > 0 && height > 0
-              ? spotlightPath(width, height, rect, holeRadius)
-              : `M0 0 H${width} V${height} H0 Z`
-          }
-          fill="rgba(10,8,26,0.82)"
-          fillRule="evenodd"
-        />
-      </Svg>
+      {width > 0 && height > 0 ? (
+        <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
+          <Path
+            d={
+              rect
+                ? spotlightPath(width, height, rect, holeRadius)
+                : `M0 0 H${width} V${height} H0 Z`
+            }
+            fill={DIM}
+            fillRule="evenodd"
+          />
+        </Svg>
+      ) : (
+        // 아직 자기 크기를 모르는 첫 프레임. 그래도 화면은 어두워야 한다
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: DIM }]} />
+      )}
 
       {/* 막을 눌러도 넘어가지 않는다 — 실수로 건너뛰는 사고를 막는다.
           구멍 위도 이걸로 같이 막힌다 (뚫려 보이지만 못 누른다) */}
@@ -185,9 +250,13 @@ export default function TourOverlay() {
         <Animated.View
           key={step}
           entering={FadeIn.duration(220)}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            setBubbleH((prev) => (Math.abs(prev - h) < 1 ? prev : h));
+          }}
           style={[
             s.bubble,
-            { width: bubble.width, top: bubble.top, left: bubble.left },
+            { width: bubble.width, top: bubbleTop, left: bubble.left },
           ]}
         >
           <View style={s.bubbleHead}>

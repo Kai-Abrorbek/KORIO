@@ -10,9 +10,8 @@ import { TOURS } from "./tours";
  * 오버레이는 루트에 있어서 화면의 ScrollView 를 모른다. 그래서 스크롤은
  * 화면이 이 훅으로 직접 한다.
  *
- * 순서가 중요하다: 스크롤 → (애니메이션이 끝날 때까지 기다림) → 재측정.
- * 스크롤은 레이아웃을 바꾸지 않아서 onLayout 이 안 뜬다. 재측정을 안 하면
- * 구멍이 스크롤 전 위치에 그대로 뚫린다.
+ * 스크롤 뒤 재측정은 여기서 안 한다 — TourTarget 이 활성 단계 동안 계속
+ * 자기를 다시 재고 있어서 알아서 따라온다.
  */
 export function useTourScroll(
   tourId: string,
@@ -29,21 +28,27 @@ export function useTourScroll(
     const target = TOURS[tourId]?.steps[step]?.target;
     if (!target || fixedTargets.includes(target)) return;
 
-    // 오버레이가 방금 재측정을 걸었다. 그 결과가 반영된 뒤에 계산해야 한다
-    const id = setTimeout(() => {
+    // 단계가 바뀌면 좌표를 비우므로(store 주석 참고) 다시 잡힐 때까지 기다린다.
+    // TourTarget 이 80ms 마다 재니 보통 첫 시도에 잡히고, 못 잡으면 몇 번 더.
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const attempt = () => {
       const r = useTourStore.getState().rects[target];
-      if (!r) return;
+      if (!r) {
+        if (++tries < 8) timer = setTimeout(attempt, 100);
+        return;
+      }
       const dy = scrollDeltaFor(r, Dimensions.get("window").height);
       if (dy === 0) return;
       scrollRef.current?.scrollTo({
         y: Math.max(0, scrollY.current + dy),
         animated: true,
       });
-      // 스크롤이 끝난 뒤 다시 재야 구멍이 새 위치에 뚫린다
-      setTimeout(() => useTourStore.getState().remeasure(), 400);
-    }, 80);
+    };
 
-    return () => clearTimeout(id);
+    timer = setTimeout(attempt, 120);
+    return () => clearTimeout(timer);
   }, [activeTour, step, tourId]);
 
   /** ScrollView 의 onScroll 에 그대로 물리면 된다 */
