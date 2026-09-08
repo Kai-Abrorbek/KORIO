@@ -12,7 +12,32 @@ import type {
  */
 
 type VocabularyLike = { id: string; word: string };
-type ParagraphLike = { id: string; text: string };
+type ParagraphLike = {
+  id: string;
+  text?: string;
+  /** 낡은 문서에만 있다. 아래 paragraphText 설명 참고 */
+  segments?: { text?: string }[];
+};
+
+/**
+ * 문단의 원문을 꺼낸다.
+ *
+ * 아직 새로 시딩되지 않은 문서는 `text` 없이 `segments` 만 갖고 있다(예전
+ * 저장 모양). 그때는 조각을 이어 붙여 원문을 되만든다 — 그래야 **배포와
+ * 시딩 순서를 신경 쓸 필요가 없다.** 어느 쪽을 먼저 하든 본문이 안 빈다.
+ *
+ * 시딩이 끝나면 이 되돌림 경로는 자연히 안 타게 된다.
+ */
+function paragraphText(paragraph: ParagraphLike): string {
+  if (typeof paragraph?.text === 'string' && paragraph.text) {
+    return paragraph.text;
+  }
+  const legacy = paragraph?.segments;
+  if (Array.isArray(legacy)) {
+    return legacy.map((segment) => segment?.text ?? '').join('');
+  }
+  return '';
+}
 
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -50,10 +75,14 @@ export function toPassageResponse(
   passage: readonly ParagraphLike[],
   vocabulary: readonly VocabularyLike[],
 ): ReadingPassageParagraph[] {
-  return (passage ?? []).map((paragraph) => ({
-    ...paragraph,
-    segments: toPassageSegments(paragraph.text ?? '', vocabulary),
-  })) as unknown as ReadingPassageParagraph[];
+  return (passage ?? []).map((paragraph) => {
+    const text = paragraphText(paragraph);
+    return {
+      ...paragraph,
+      text,
+      segments: toPassageSegments(text, vocabulary),
+    };
+  }) as unknown as ReadingPassageParagraph[];
 }
 
 /**
@@ -61,5 +90,5 @@ export function toPassageResponse(
  * 문단 사이는 빈 줄로 띄운다.
  */
 export function toPassageText(passage: readonly ParagraphLike[]): string {
-  return (passage ?? []).map((paragraph) => paragraph.text ?? '').join('\n\n');
+  return (passage ?? []).map(paragraphText).join('\n\n');
 }

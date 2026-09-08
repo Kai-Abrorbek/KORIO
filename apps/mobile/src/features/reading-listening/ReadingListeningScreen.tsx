@@ -27,6 +27,7 @@ import type {
   ReadingLessonSummary,
   ReadingListeningLesson,
   ReadingPassageParagraph,
+  ReadingPassageSegment,
   ReadingVocabularyExerciseResponse,
   ReadingVocabularyItem,
   ReadingWordGloss,
@@ -48,6 +49,22 @@ import { ReadingVocabularyPractice } from "./ReadingVocabularyPractice";
 import { WordGlossSheet, type WordGlossCopy } from "./WordGlossSheet";
 import { localizedReadingText } from "./reading-listening.text";
 import { READING_LISTENING_PREVIEW } from "./reading-listening.mock";
+
+/**
+ * 문단에서 그릴 조각을 꺼낸다.
+ *
+ * 조각(어휘가 강조된 토막)은 서버가 본문 원문에서 만들어 붙여 준다. 그런데
+ * **서버와 DB 의 버전이 어긋나면** 조각이 통째로 없이 온다 — 새 모양으로
+ * 시딩했는데 서버 배포가 늦은 경우가 그렇다. 그때 어휘 강조를 못 하는 건
+ * 어쩔 수 없지만 화면이 죽어서는 안 된다. 원문이라도 있으면 통으로 그린다.
+ */
+function passageSegmentsOf(
+  paragraph: ReadingPassageParagraph,
+): ReadingPassageSegment[] {
+  if (paragraph?.segments?.length) return paragraph.segments;
+  const text = typeof paragraph?.text === "string" ? paragraph.text : "";
+  return text ? [{ text, vocabularyId: "" }] : [];
+}
 
 type StepKey = "read" | "check" | "write" | "vocabulary";
 type SpeechTarget = "passage" | "vocabulary" | null;
@@ -604,16 +621,18 @@ function Passage({
   const positionedParagraphs = useMemo(() => {
     let charIndex = 0;
     return paragraphs.map((paragraph, paragraphIndex) => {
-      const segments = paragraph.segments.map((segment, segmentIndex) => {
-        const positioned: PositionedPassageSegment = {
-          key: `${paragraph.id}-${segmentIndex}`,
-          text: segment.text,
-          vocabularyId: segment.vocabularyId,
-          startIndex: charIndex,
-        };
-        charIndex += Array.from(segment.text).length;
-        return positioned;
-      });
+      const segments = passageSegmentsOf(paragraph).map(
+        (segment, segmentIndex) => {
+          const positioned: PositionedPassageSegment = {
+            key: `${paragraph.id}-${segmentIndex}`,
+            text: segment.text,
+            vocabularyId: segment.vocabularyId,
+            startIndex: charIndex,
+          };
+          charIndex += Array.from(segment.text).length;
+          return positioned;
+        },
+      );
       if (paragraphIndex < paragraphs.length - 1) charIndex += 2;
       return { id: paragraph.id, segments };
     });
@@ -847,9 +866,11 @@ export default function ReadingListeningScreen() {
 
   const passageText = useMemo(
     () =>
-      lesson.passage
+      (lesson.passage ?? [])
         .map((paragraph) =>
-          paragraph.segments.map((segment) => segment.text).join(""),
+          passageSegmentsOf(paragraph)
+            .map((segment) => segment.text)
+            .join(""),
         )
         .join("\n\n"),
     [lesson.passage],
