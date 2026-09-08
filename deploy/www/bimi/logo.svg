@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  BIMI 용 로고.
+
+  일반 SVG 가 아니라 SVG Tiny 1.2 Portable/Secure(tiny-ps) 프로필이어야 한다.
+  메일 클라이언트가 남의 서버에서 받아 렌더하는 그림이라 규칙이 빡빡하다:
+    - baseProfile="tiny-ps" 와 version="1.2" 필수
+    - <title> 필수
+    - 정사각형 viewBox, 루트에 x/y 금지
+    - 스크립트·애니메이션·외부 참조·<style> 전부 금지
+    - 32KB 이하
+
+  ⚠️ 이 파일이 있어도 **Gmail 은 로고를 안 띄운다.** VMC(유료 인증서)가
+     따로 있어야 한다. 그때가 되면 DNS 의 a= 에 pem 주소만 더하면 된다.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" viewBox="0 0 64 64">
+  <title>KORIO</title>
+  <rect x="0" y="0" width="64" height="64" fill="#7F77DD"/>
+  <rect x="20" y="14" width="24" height="4.5" rx="2.25" fill="#FFFFFF"/>
+  <rect x="29.75" y="18" width="4.5" height="8" rx="2.25" fill="#FFFFFF"/>
+  <circle cx="32" cy="40" r="12" fill="none" stroke="#FFFFFF" stroke-width="4.5"/>
+  <circle cx="38" cy="36" r="2" fill="#FAC775"/>
+</svg>

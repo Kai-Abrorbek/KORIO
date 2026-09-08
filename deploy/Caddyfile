@@ -92,6 +92,14 @@ www.{$WEB_DOMAIN} {
 		file_server
 	}
 
+	# BIMI 로고. 메일 클라이언트가 직접 받아가므로 캐시를 길게 준다.
+	# (Gmail 에 실제로 뜨려면 유료 VMC 가 따로 필요하다 — 아래 README 참고)
+	handle /bimi/* {
+		header Content-Type image/svg+xml
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
 	# 앱으로 넘기는 경로들. 파일이 아니라 착륙 페이지 한 장으로 보내고,
 	# 코드·유저 id 는 페이지의 JS 가 주소에서 읽는다.
 	#   /i/<코드>  초대 링크
