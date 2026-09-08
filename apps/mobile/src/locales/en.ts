@@ -14,6 +14,34 @@ export default {
     loading: "Loading...",
     close: "Close",
   },
+  tour: {
+    next: "Next",
+    done: "Start",
+    skip: "Skip",
+    replay: "Replay the feature tour",
+    home: {
+      continue: {
+        title: "Start today's lesson here",
+        desc: "This one button is all you need — it remembers where you stopped and picks up there.",
+      },
+      categories: {
+        title: "Switch subject",
+        desc: "Pick what you feel like today: vocabulary, grammar, phrases, listening or TOPIK.",
+      },
+      chart: {
+        title: "This week's study",
+        desc: "Colours show what you worked on and how much. Tap for the full breakdown.",
+      },
+      review: {
+        title: "Redo just your mistakes",
+        desc: "Every question you got wrong lands here. Get it right twice and it leaves the list.",
+      },
+      ai: {
+        title: "Ask whenever you're stuck",
+        desc: "Any Korean you can't work out — ask right here, any time.",
+      },
+    },
+  },
   navTabs: {
     home: "Home",
     stats: "Stats",
@@ -959,6 +987,10 @@ export default {
       help: {
         title: "Help Center",
         description: "Support, certificates, announcements",
+      },
+      tourReplay: {
+        title: "Replay the feature tour",
+        description: "Walk through what each button on the home screen does",
       },
       language: {
         title: "Language",

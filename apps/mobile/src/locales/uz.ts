@@ -14,6 +14,34 @@ export default {
     loading: "Yuklanmoqda...",
     close: "Yopish",
   },
+  tour: {
+    next: "Keyingi",
+    done: "Boshlash",
+    skip: "O'tkazib yuborish",
+    replay: "Qo'llanmani qayta ko'rish",
+    home: {
+      continue: {
+        title: "Bugungi darsni shu yerdan boshlang",
+        desc: "Shu tugma yetarli. Qayerda to'xtaganingizni eslab, davom ettiradi.",
+      },
+      categories: {
+        title: "Yo'nalishni almashtirish",
+        desc: "Lug'at, grammatika, iboralar, tinglash yoki TOPIK — bugun nima xohlasangiz.",
+      },
+      chart: {
+        title: "Shu haftagi mashg'ulot",
+        desc: "Qaysi yo'nalishni qancha qilganingiz rangda ko'rinadi. Bosib batafsil ko'ring.",
+      },
+      review: {
+        title: "Faqat xatolarni takrorlash",
+        desc: "Xato qilgan savollaringiz shu yerda. Ikki marta to'g'ri javob bersangiz, ro'yxatdan chiqadi.",
+      },
+      ai: {
+        title: "Savolingiz bo'lsa — so'rang",
+        desc: "Koreys tilida qiynalsangiz, istalgan vaqtda shu yerdan so'rang.",
+      },
+    },
+  },
   navTabs: {
     home: "Asosiy",
     stats: "Statistika",
@@ -964,6 +992,10 @@ export default {
       help: {
         title: "Yordam markazi",
         description: "Yordam, sertifikat, e'lonlar",
+      },
+      tourReplay: {
+        title: "Qo'llanmani qayta ko'rish",
+        description: "Bosh sahifadagi tugmalar nima qilishini yana ko'rsatamiz",
       },
       language: {
         title: "Til",

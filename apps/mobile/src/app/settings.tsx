@@ -19,6 +19,8 @@ import GuestWarningCard from "@/components/settings/GuestWarningCard";
 import SettingsSectionCard from "@/components/settings/SettingsSectionCard";
 import { useAuthStore } from "@/store/auth.store";
 import InviteCodeSheet from "@/components/settings/InviteCodeSheet";
+import { useTourStore } from "@/features/tour/tour.store";
+import { HOME_TOUR } from "@/features/tour/tours";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -27,8 +29,15 @@ export default function SettingsScreen() {
   const styles = getStyles(theme);
   const { user } = useAuthStore();
   const [codeOpen, setCodeOpen] = useState(false);
+  const restartTour = useTourStore((s) => s.restart);
 
   const handleItemPress = (item: SettingsItem) => {
+    // 기능 안내는 화면 이동이 아니다. 투어를 켜고 홈으로 보내야 한다.
+    if (item.id === "tourReplay") {
+      restartTour(HOME_TOUR);
+      router.replace("/(tabs)");
+      return;
+    }
     if (item.route) {
       router.push(item.route as any);
     } else {

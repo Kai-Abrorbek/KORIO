@@ -4,7 +4,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
 } from "react-native";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -33,6 +35,11 @@ import { useSettingsStore, learnModePath } from "@/store/settings.store";
 import { hydrateLearnMode } from "@/utils/learn-mode";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { featureOfLearnMode } from "@/features/subscription/access";
+import TourTarget from "@/features/tour/TourTarget";
+import TourOverlay from "@/features/tour/TourOverlay";
+import { HOME_STEPS, HOME_TOUR, type TourStep } from "@/features/tour/tours";
+import { useTourStore } from "@/features/tour/tour.store";
+import { scrollDeltaFor } from "@/features/tour/tour-geometry";
 import { syncTimezone } from "@/utils/timezone";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
@@ -71,6 +78,10 @@ export default function HomeScreen() {
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollY = useRef(0);
+  const startTour = useTourStore((st) => st.startIfUnseen);
+  const remeasureTour = useTourStore((st) => st.remeasure);
   const { requirePremium } = useFeatureAccess();
   const { user } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
@@ -86,6 +97,14 @@ export default function HomeScreen() {
       false,
     );
   }, []);
+
+  // 처음 온 사람에게 기능 안내를 한 번 돌린다.
+  // 화면이 다 그려지고 대상 버튼 위치가 잡힌 뒤에 시작해야 스포트라이트가
+  // 엉뚱한 자리를 뚫는다. 애니메이션(FadeInDown 600ms)까지 기다린다.
+  useEffect(() => {
+    const id = setTimeout(() => startTour(HOME_TOUR), 900);
+    return () => clearTimeout(id);
+  }, [startTour]);
 
   useFocusEffect(
     useCallback(() => {
@@ -162,7 +181,14 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={32}
+        onScroll={(e) => {
+          scrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+      >
         {/* 상단 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push("/settings")}>
@@ -268,17 +294,19 @@ export default function HomeScreen() {
             >
               <Ionicons name="book-outline" size={22} color={theme.primary} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.lessonSideBtn}
-              activeOpacity={0.85}
-              onPress={() => router.push("/course-categories")}
-            >
-              <Ionicons
-                name="swap-horizontal"
-                size={22}
-                color={theme.primary}
-              />
-            </TouchableOpacity>
+            <TourTarget tourId="home.categories">
+              <TouchableOpacity
+                style={styles.lessonSideBtn}
+                activeOpacity={0.85}
+                onPress={() => router.push("/course-categories")}
+              >
+                <Ionicons
+                  name="swap-horizontal"
+                  size={22}
+                  color={theme.primary}
+                />
+              </TouchableOpacity>
+            </TourTarget>
             <TouchableOpacity
               style={styles.lessonSideBtn}
               activeOpacity={0.7}
@@ -341,21 +369,23 @@ export default function HomeScreen() {
             />
           </View>
 
-          <TouchableOpacity
-            style={styles.lessonButton}
-            onPress={() =>
-              // 저장된 학습 모드가 구독 전용일 수 있다 (체험이 끝난 계정).
-              // 화면에서 튕겨내는 것보다 여기서 막는 게 깔끔하다.
-              requirePremium(featureOfLearnMode(learnMode), () =>
-                router.push(continuePath),
-              )
-            }
-          >
-            <Ionicons name="book" size={18} color="#fff" />
-            <Text style={styles.lessonButtonText}>
-              {t("home.continueLessonBtn")}
-            </Text>
-          </TouchableOpacity>
+          <TourTarget tourId="home.continue" style={styles.tourBlock}>
+            <TouchableOpacity
+              style={styles.lessonButton}
+              onPress={() =>
+                // 저장된 학습 모드가 구독 전용일 수 있다 (체험이 끝난 계정).
+                // 화면에서 튕겨내는 것보다 여기서 막는 게 깔끔하다.
+                requirePremium(featureOfLearnMode(learnMode), () =>
+                  router.push(continuePath),
+                )
+              }
+            >
+              <Ionicons name="book" size={18} color="#fff" />
+              <Text style={styles.lessonButtonText}>
+                {t("home.continueLessonBtn")}
+              </Text>
+            </TouchableOpacity>
+          </TourTarget>
         </Animated.View>
         {/* 레벨 배너 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>
@@ -374,6 +404,11 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* 이번 주 학습 */}
+        <TourTarget
+          tourId="home.chart"
+          style={styles.tourBlock}
+          inset={{ x: 16, y: 6 }}
+        >
         <Animated.View
           entering={FadeInDown.delay(400).duration(500)}
           style={styles.card}
@@ -468,8 +503,14 @@ export default function HomeScreen() {
             </View>
           </View>
         </Animated.View>
+        </TourTarget>
 
         {/* 복습하기 */}
+        <TourTarget
+          tourId="home.review"
+          style={styles.tourBlock}
+          inset={{ x: 16, y: 6 }}
+        >
         <Animated.View
           entering={FadeInDown.delay(500).duration(500)}
           style={styles.card}
@@ -495,6 +536,7 @@ export default function HomeScreen() {
             />
           </TouchableOpacity>
         </Animated.View>
+        </TourTarget>
 
         {/* 바로가기 */}
         <Animated.View
@@ -531,7 +573,33 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* AI 플로팅 버튼 */}
-      <FloatingAIButton onPress={() => setChatVisible(true)} bottom={130} />
+      <TourTarget tourId="home.ai" style={styles.tourFloating}>
+        <FloatingAIButton onPress={() => setChatVisible(true)} positioned={false} />
+      </TourTarget>
+      <TourOverlay
+        tourId={HOME_TOUR}
+        steps={HOME_STEPS}
+        ns="tour.home"
+        onFocusStep={(step: TourStep) => {
+          // 대상이 화면 밖이면 스크롤로 끌어온다. ScrollView 를 들고 있는 건
+          // 이 화면이라 오버레이가 직접 못 한다.
+          // 플로팅 버튼은 스크롤과 무관하게 늘 보이므로 건너뛴다.
+          if (step.target === "home.ai") return;
+          const r = useTourStore.getState().rects[step.target];
+          if (!r) return;
+
+          const dy = scrollDeltaFor(r, Dimensions.get("window").height);
+          if (dy === 0) return;
+
+          scrollRef.current?.scrollTo({
+            y: Math.max(0, scrollY.current + dy),
+            animated: true,
+          });
+          // 스크롤이 끝난 뒤 다시 재야 구멍이 새 위치에 뚫린다
+          setTimeout(remeasureTour, 380);
+        }}
+      />
+
       <AIChatModal
         visible={chatVisible}
         onClose={() => setChatVisible(false)}
@@ -991,6 +1059,12 @@ const getStyles = (theme: ThemeColors) =>
       fontWeight: "500",
     },
     quickAccessBottomSpace: { height: 180 },
+    // 투어 대상을 감싸는 래퍼. 원래 자식이 가지고 있던 바깥 여백을
+    // 여기로 옮기지 않으면 스포트라이트가 여백까지 뚫어서 커 보인다.
+    tourBlock: { alignSelf: "stretch" },
+    // 플로팅 버튼은 원래 자기가 absolute 였다. 래퍼가 그 자리를 대신 잡고
+    // 버튼은 bottom={0} 으로 안에 눕힌다 (안 그러면 두 번 띄워진다).
+    tourFloating: { position: "absolute", right: 16, bottom: 130, zIndex: 40 },
   });
 function setUserData(arg0: any): any {
   throw new Error("Function not implemented.");

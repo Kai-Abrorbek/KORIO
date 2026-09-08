@@ -130,6 +130,16 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         route: "/help",
       },
       {
+        // route 없음 — 화면 이동이 아니라 홈 투어를 다시 켜는 동작이다.
+        // settings.tsx 의 handleItemPress 가 id 로 처리한다.
+        id: "tourReplay",
+        titleKey: "settings.items.tourReplay.title",
+        descriptionKey: "settings.items.tourReplay.description",
+        iconName: "compass",
+        iconColor: "#5F4FD8",
+        iconBgColor: "#E7E4FB",
+      },
+      {
         id: "language",
         titleKey: "settings.items.language.title",
         descriptionKey: "settings.items.language.description",

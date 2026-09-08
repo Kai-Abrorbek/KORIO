@@ -14,11 +14,20 @@ import { ThemeColors } from "@/constants/theme";
 interface FloatingAIButtonProps {
   onPress: () => void;
   bottom?: number;
+  /**
+   * 자기 자리를 스스로 잡을지.
+   *
+   * false 면 위치는 부모가 정한다 — 기능 투어가 이 버튼을 감싸서 위치를
+   * 재야 하는데, 버튼이 스스로 absolute 면 래퍼가 크기 0 이라 스포트라이트
+   * 구멍을 못 뚫는다.
+   */
+  positioned?: boolean;
 }
 
 export default function FloatingAIButton({
   onPress,
   bottom = 130,
+  positioned = true,
 }: FloatingAIButtonProps) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -51,7 +60,15 @@ export default function FloatingAIButton({
   }));
 
   return (
-    <Animated.View style={[styles.button, { bottom }, glowStyle]}>
+    <Animated.View
+      style={[
+        styles.button,
+        positioned
+          ? { position: "absolute", right: 16, bottom }
+          : { position: "relative" },
+        glowStyle,
+      ]}
+    >
       <TouchableOpacity style={styles.inner} onPress={onPress}>
         <Ionicons name="sparkles" size={24} color="#fff" />
       </TouchableOpacity>
@@ -65,8 +82,6 @@ export default function FloatingAIButton({
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     button: {
-      position: "absolute",
-      right: 16,
       width: 56,
       height: 56,
       borderRadius: 999,

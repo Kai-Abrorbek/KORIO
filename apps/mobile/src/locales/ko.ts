@@ -14,6 +14,34 @@ export default {
     loading: "로딩 중...",
     close: "닫기",
   },
+  tour: {
+    next: "다음",
+    done: "시작하기",
+    skip: "건너뛰기",
+    replay: "기능 안내 다시 보기",
+    home: {
+      continue: {
+        title: "여기서 오늘 학습 시작",
+        desc: "이 버튼 하나면 돼요. 어디까지 했는지 기억했다가 이어서 풀어줘요.",
+      },
+      categories: {
+        title: "분야 바꾸기",
+        desc: "어휘·문법·표현·듣기·토픽 중에 오늘 하고 싶은 걸 고를 수 있어요.",
+      },
+      chart: {
+        title: "이번 주 학습",
+        desc: "무슨 분야를 얼마나 했는지 색으로 보여줘요. 눌러서 자세히 볼 수 있어요.",
+      },
+      review: {
+        title: "틀린 것만 다시",
+        desc: "틀렸던 문제를 모아뒀어요. 두 번 맞히면 목록에서 빠져요.",
+      },
+      ai: {
+        title: "궁금하면 물어보기",
+        desc: "한국어가 막힐 때 언제든 여기서 물어보세요.",
+      },
+    },
+  },
   navTabs: {
     home: "홈",
     stats: "통계",
@@ -957,6 +985,10 @@ export default {
       help: {
         title: "고객지원",
         description: "고객센터, 수강증/출석증 발급, 공지사항",
+      },
+      tourReplay: {
+        title: "기능 안내 다시 보기",
+        description: "홈 화면 버튼들이 뭘 하는지 다시 알려드려요",
       },
       language: {
         title: "언어",
