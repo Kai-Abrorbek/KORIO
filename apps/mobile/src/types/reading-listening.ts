@@ -9,6 +9,9 @@ export interface ReadingPassageSegment {
 
 export interface ReadingPassageParagraph {
   id: string;
+  /** 문단 원문. 서버가 저장하는 건 이것뿐이다 */
+  text: string;
+  /** 핵심 어휘가 표시된 조각. 서버가 내려줄 때 text 에서 만들어 붙인다 */
   segments: ReadingPassageSegment[];
 }
 
@@ -17,11 +20,6 @@ export interface ReadingVocabularyItem {
   word: string;
   pronunciation?: string;
   meaning: LocalizedReadingText;
-  sourceGlosses?: {
-    en?: string;
-    zh?: string;
-    ja?: string;
-  };
   note: LocalizedReadingText;
   example: string;
 }
@@ -55,8 +53,8 @@ export interface ReadingCheckQuestion {
 }
 
 export type ReadingVocabularyExerciseType =
-  | 'sentence_word_bank'
-  | 'paragraph_conjugation';
+  | "sentence_word_bank"
+  | "paragraph_conjugation";
 
 export interface ReadingVocabularyExerciseBlank {
   id: string;
@@ -90,9 +88,18 @@ export interface ReadingWritingActivity {
   exampleAnswer: string;
 }
 
+/**
+ * 화면이 고르는 순서: `imageUrl` → 번들된 `imageKey` → 주제 플레이스홀더.
+ * 고르는 일은 `ReadingLessonImage` 한 곳에서만 한다.
+ */
 export interface ReadingLessonMedia {
+  /** 원격 이미지. 있으면 제일 먼저 이긴다 (아직 안 쓴다) */
   imageUrl?: string;
-  imageAssetKey?: string;
+  /**
+   * 앱에 번들된 이미지 이름. 서버가 레슨 code 를 그대로 넣는다.
+   * 파일은 assets/images/reading-listening/lessons/<code>.webp
+   */
+  imageKey?: string;
   imageAlt: LocalizedReadingText;
 }
 
@@ -134,8 +141,10 @@ export interface ReadingLessonSummary {
   progress?: ReadingLessonProgressSummary;
 }
 
-export interface ReadingListeningLesson
-  extends Omit<ReadingLessonSummary, "order"> {
+export interface ReadingListeningLesson extends Omit<
+  ReadingLessonSummary,
+  "order"
+> {
   order?: number;
   passage: ReadingPassageParagraph[];
   vocabulary: ReadingVocabularyItem[];
@@ -167,4 +176,3 @@ export interface ReadingLessonLevelSummary {
 export interface ReadingLessonLevelsResponse {
   levels: ReadingLessonLevelSummary[];
 }
-

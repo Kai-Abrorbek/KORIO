@@ -1,60 +1,7 @@
-export type ReadingLanguage = "ko" | "uz" | "en" | "ru";
-
-export type LocalizedReadingText = Record<ReadingLanguage, string>;
-
-export interface ReadingPassageSegment {
-  text: string;
-  vocabularyId?: string;
-}
-
-export interface ReadingPassageParagraph {
-  id: string;
-  segments: ReadingPassageSegment[];
-}
-
-export interface ReadingVocabularyItem {
-  id: string;
-  word: string;
-  pronunciation?: string;
-  meaning: LocalizedReadingText;
-  note: LocalizedReadingText;
-  example: string;
-}
-
-export interface ReadingCheckQuestion {
-  id: string;
-  prompt: LocalizedReadingText;
-  options: LocalizedReadingText[];
-  answerIndex: number;
-  explanation: LocalizedReadingText;
-}
-
-export interface ReadingWritingActivity {
-  prompt: LocalizedReadingText;
-  helper: LocalizedReadingText;
-  placeholder: LocalizedReadingText;
-  keywords: string[];
-  exampleAnswer: string;
-}
-
-export interface ReadingListeningLesson {
-  id: string;
-  code: string;
-  level: number;
-  unit: number;
-  title: string;
-  topic: LocalizedReadingText;
-  estimatedMinutes: number;
-  media: {
-    imageUrl?: string;
-    imageAssetKey?: string;
-    imageAlt: LocalizedReadingText;
-  };
-  passage: ReadingPassageParagraph[];
-  vocabulary: ReadingVocabularyItem[];
-  questions: ReadingCheckQuestion[];
-  writing: ReadingWritingActivity;
-}
+import type {
+  LocalizedReadingText,
+  ReadingListeningLesson,
+} from "../../types/reading-listening";
 
 const text = (
   ko: string,
@@ -81,7 +28,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
   ),
   estimatedMinutes: 5,
   media: {
-    imageAssetKey: "library-reading-preview",
+    // 미리보기라 번들 이미지가 없다 — 화면이 주제 플레이스홀더를 그린다
     imageAlt: text(
       "창가에서 책을 읽는 사람들이 있는 동네 도서관",
       "Deraza yonida kitob o‘qiyotgan odamlar bor mahalla kutubxonasi",
@@ -92,6 +39,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
   passage: [
     {
       id: "paragraph-1",
+      text: "우리 동네에는 작은 도서관이 있습니다. 집에서 천천히 걸어가면 십 분쯤 걸립니다. 저는 토요일 아침마다 이곳에 갑니다.",
       segments: [
         { text: "우리 동네에는 작은 " },
         { text: "도서관", vocabularyId: "library" },
@@ -102,6 +50,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
     },
     {
       id: "paragraph-2",
+      text: "도서관에 들어가면 먼저 창가 자리를 찾습니다. 햇빛이 잘 들어오고 밖의 나무도 보여서 마음이 편안합니다. 자리에 앉은 뒤에는 읽고 싶은 책을 한 권 고릅니다.",
       segments: [
         {
           text: "도서관에 들어가면 먼저 창가 자리를 찾습니다. 햇빛이 잘 들어오고 밖의 나무도 보여서 마음이 ",
@@ -112,6 +61,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
     },
     {
       id: "paragraph-3",
+      text: "점심시간에는 도서관 앞 공원에서 간단히 밥을 먹습니다. 공원에는 책을 읽는 사람도 있고 산책을 하는 사람도 있습니다. 모두 조용히 자기 시간을 즐깁니다.",
       segments: [
         {
           text: "점심시간에는 도서관 앞 공원에서 간단히 밥을 먹습니다. 공원에는 책을 읽는 사람도 있고 산책을 하는 사람도 있습니다. 모두 조용히 자기 시간을 ",
@@ -122,6 +72,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
     },
     {
       id: "paragraph-4",
+      text: "오후에는 도서관에서 하는 한국어 모임에 참여합니다. 여러 나라에서 온 친구들과 책 이야기를 나눕니다. 모르는 표현을 서로 알려 주기 때문에 한국어 공부에도 도움이 됩니다.",
       segments: [
         { text: "오후에는 도서관에서 하는 한국어 모임에 " },
         { text: "참여합니다", vocabularyId: "participate" },
@@ -132,6 +83,7 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
     },
     {
       id: "paragraph-5",
+      text: "저에게 동네 도서관은 책만 읽는 곳이 아닙니다. 쉬기도 하고 새로운 사람을 만나기도 하는 특별한 공간입니다.",
       segments: [
         {
           text: "저에게 동네 도서관은 책만 읽는 곳이 아닙니다. 쉬기도 하고 새로운 사람을 만나기도 하는 특별한 공간입니다.",
@@ -291,11 +243,3 @@ export const READING_LISTENING_PREVIEW: ReadingListeningLesson = {
       "제가 자주 가는 곳은 집 근처 공원입니다. 주말에 친구와 산책을 합니다. 나무가 많아서 마음이 편안합니다.",
   },
 };
-
-export function localizedReadingText(
-  value: LocalizedReadingText,
-  language: string,
-) {
-  const normalized = language.split("-")[0] as ReadingLanguage;
-  return value[normalized]?.trim() || value.ko?.trim() || "";
-}

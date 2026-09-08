@@ -111,7 +111,8 @@ const COPY: Record<ReadingLanguage, LevelCopy> = {
     loading: "Checking available levels",
     error: "Could not load the available levels.",
     retry: "Try again",
-    footer: "New levels will unlock here automatically when their data is added.",
+    footer:
+      "New levels will unlock here automatically when their data is added.",
     levelSuffix: "Level ",
     descriptions: [
       "Short, familiar everyday texts",
@@ -133,7 +134,8 @@ const COPY: Record<ReadingLanguage, LevelCopy> = {
     loading: "Проверяем доступные уровни",
     error: "Не удалось загрузить уровни.",
     retry: "Повторить",
-    footer: "Новые уровни откроются здесь автоматически после добавления данных.",
+    footer:
+      "Новые уровни откроются здесь автоматически после добавления данных.",
     levelSuffix: "Уровень ",
     descriptions: [
       "Короткие знакомые бытовые тексты",
@@ -275,7 +277,7 @@ export default function ReadingListeningLevelScreen() {
 
             <View style={styles.heroImageFrame}>
               <Image
-                source={require("../../../assets/images/reading-listening/library-reading-preview.png")}
+                source={require("../../../assets/images/reading-listening/library-reading-preview.webp")}
                 contentFit="cover"
                 transition={180}
                 style={styles.heroImage}
@@ -294,7 +296,11 @@ export default function ReadingListeningLevelScreen() {
             ]}
           >
             <View style={styles.errorIcon}>
-              <Ionicons name="cloud-offline-outline" size={19} color="#B46155" />
+              <Ionicons
+                name="cloud-offline-outline"
+                size={19}
+                color="#B46155"
+              />
             </View>
             <View style={styles.errorCopy}>
               <Text style={styles.errorTitle}>{copy.error}</Text>
@@ -520,7 +526,12 @@ const createStyles = (theme: ThemeColors, isDark: boolean) =>
       gap: 7,
       backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "#FFFFFFC9",
     },
-    readyDot: { width: 7, height: 7, borderRadius: 999, backgroundColor: "#4F9A78" },
+    readyDot: {
+      width: 7,
+      height: 7,
+      borderRadius: 999,
+      backgroundColor: "#4F9A78",
+    },
     readyPillText: { fontSize: 11, fontWeight: "800", color: "#427862" },
     heroImageFrame: {
       position: "absolute",

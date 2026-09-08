@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -24,14 +23,17 @@ import { ReadingListeningService } from "@/services/reading-listening.service";
 import type {
   CompleteReadingLessonResult,
   LocalizedReadingText,
+  ReadingLanguage,
   ReadingLessonSummary,
   ReadingListeningLesson,
+  ReadingPassageParagraph,
   ReadingVocabularyExerciseResponse,
+  ReadingVocabularyItem,
   ReadingWordGloss,
 } from "@/types/reading-listening";
 import { useSettingsStore } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
-import { READING_LISTENING_IMAGE_ASSETS } from "./reading-listening.assets";
+import { ReadingLessonImage } from "./ReadingLessonImage";
 import {
   buildReadingWordRanges,
   normalizeReadingWord,
@@ -43,17 +45,9 @@ import {
   type ReadingCompleteCopy,
 } from "./ReadingCompleteSheet";
 import { ReadingVocabularyPractice } from "./ReadingVocabularyPractice";
-import {
-  WordGlossSheet,
-  type WordGlossCopy,
-} from "./WordGlossSheet";
-import {
-  localizedReadingText,
-  READING_LISTENING_PREVIEW,
-  type ReadingLanguage,
-  type ReadingPassageParagraph,
-  type ReadingVocabularyItem,
-} from "./reading-listening.mock";
+import { WordGlossSheet, type WordGlossCopy } from "./WordGlossSheet";
+import { localizedReadingText } from "./reading-listening.text";
+import { READING_LISTENING_PREVIEW } from "./reading-listening.mock";
 
 type StepKey = "read" | "check" | "write" | "vocabulary";
 type SpeechTarget = "passage" | "vocabulary" | null;
@@ -243,7 +237,8 @@ const UI_COPY: Record<
       saving: "Saqlanmoqda...",
       failed: "Natijani saqlab bo‘lmadi",
       retry: "Qayta urinish",
-      readingHint: "Matnni ovoz chiqarib oxirigacha o‘qisangiz, ko‘proq XP olasiz.",
+      readingHint:
+        "Matnni ovoz chiqarib oxirigacha o‘qisangiz, ko‘proq XP olasiz.",
     },
     wordGloss: {
       loading: "Ma’nosi qidirilmoqda...",
@@ -559,8 +554,7 @@ function splitPassageSegment(
   return boundaries.slice(0, -1).map((startIndex, index) => {
     const endIndex = boundaries[index + 1];
     const word = readingRanges.find(
-      (range) =>
-        range.startIndex <= startIndex && range.endIndex >= endIndex,
+      (range) => range.startIndex <= startIndex && range.endIndex >= endIndex,
     );
     return {
       text: chars
@@ -568,8 +562,8 @@ function splitPassageSegment(
         .join(""),
       active: Boolean(
         activeRange &&
-          activeRange.startIndex < endIndex &&
-          activeRange.endIndex > startIndex,
+        activeRange.startIndex < endIndex &&
+        activeRange.endIndex > startIndex,
       ),
       wordIndex: word?.index ?? null,
       startIndex,
@@ -708,7 +702,9 @@ function Passage({
               // 색은 주지 않는다 — 전부 색칠하면 핵심 어휘 강조가 죽는다.
               // (핵심 어휘는 바깥 Text 가 이미 onPress 를 갖고 있어 건너뛴다)
               const glossable =
-                !!onGlossWord && !segment.vocabularyId && part.wordIndex !== null;
+                !!onGlossWord &&
+                !segment.vocabularyId &&
+                part.wordIndex !== null;
 
               return (
                 <Text
@@ -812,8 +808,7 @@ export default function ReadingListeningScreen() {
     useSpeech();
   const [speechTarget, setSpeechTarget] = useState<SpeechTarget>(null);
   const isPassageSpeaking = isSpeaking && speechTarget === "passage";
-  const isPassageSpeechPlaying =
-    isSpeechPlaying && speechTarget === "passage";
+  const isPassageSpeechPlaying = isSpeechPlaying && speechTarget === "passage";
 
   const [stepIndex, setStepIndex] = useState(0);
   const [fontIndex, setFontIndex] = useState(1);
@@ -843,11 +838,12 @@ export default function ReadingListeningScreen() {
     [],
   );
   const [showWritingTranslation, setShowWritingTranslation] = useState(false);
-  const [lessonOptions, setLessonOptions] = useState<ReadingLessonSummary[]>([]);
+  const [lessonOptions, setLessonOptions] = useState<ReadingLessonSummary[]>(
+    [],
+  );
   const [isLessonPickerOpen, setIsLessonPickerOpen] = useState(false);
   const [isCatalogLoading, setIsCatalogLoading] = useState(true);
   const [isLessonLoading, setIsLessonLoading] = useState(false);
-
 
   const passageText = useMemo(
     () =>
@@ -890,11 +886,10 @@ export default function ReadingListeningScreen() {
   );
   const answeredCount = Object.keys(answers).length;
   const fontSize = [14, 15.5, 17][fontIndex] ?? 15.5;
-  const lessonImageSource = lesson.media.imageUrl?.trim()
-    ? { uri: lesson.media.imageUrl.trim() }
-    : lesson.media.imageAssetKey
-      ? READING_LISTENING_IMAGE_ASSETS[lesson.media.imageAssetKey]
-      : READING_LISTENING_IMAGE_ASSETS["library-reading-preview"];
+  const lessonImageAlt = localizedReadingText(
+    lesson.media.imageAlt,
+    normalizedLanguage,
+  );
   const canShowWritingTranslation = hasReadingTranslation(
     lesson.writing.prompt,
     normalizedLanguage,
@@ -1023,7 +1018,8 @@ export default function ReadingListeningScreen() {
       setGlossWord(clean);
 
       const local = (lesson.glossary ?? []).find(
-        (item) => normalizeReadingWord(item.word) === normalizeReadingWord(clean),
+        (item) =>
+          normalizeReadingWord(item.word) === normalizeReadingWord(clean),
       );
       if (local) {
         setGlossData(local);
@@ -1266,7 +1262,11 @@ export default function ReadingListeningScreen() {
               { backgroundColor: palette.sageSoft },
             ]}
           >
-            <Ionicons name="library-outline" size={21} color={palette.sageDark} />
+            <Ionicons
+              name="library-outline"
+              size={21}
+              color={palette.sageDark}
+            />
           </View>
           <View style={styles.lessonSelectorCopy}>
             <Text
@@ -1290,7 +1290,11 @@ export default function ReadingListeningScreen() {
                 { backgroundColor: palette.sageSoft },
               ]}
             >
-              <Ionicons name="chevron-down" size={18} color={palette.sageDark} />
+              <Ionicons
+                name="chevron-down"
+                size={18}
+                color={palette.sageDark}
+              />
             </View>
           )}
         </Pressable>
@@ -1305,42 +1309,35 @@ export default function ReadingListeningScreen() {
                 },
               ]}
             >
-              {lessonImageSource ? (
-                <View style={styles.heroImageWrap}>
-                  <Image
-                    source={lessonImageSource}
-                    contentFit="cover"
-                    transition={180}
-                    accessibilityLabel={localizedReadingText(
-                      lesson.media.imageAlt,
-                      normalizedLanguage,
-                    )}
-                    style={styles.heroImage}
-                  />
-                  <LinearGradient
-                    colors={[
-                      "rgba(15, 34, 25, 0.04)",
-                      "rgba(15, 34, 25, 0.62)",
-                    ]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    style={styles.heroImageShade}
-                  />
-                  <View style={styles.heroMetaOverlay}>
-                    <View style={styles.heroBadge}>
-                      <Text style={styles.heroBadgeText}>
-                        {String(lesson.unit).padStart(2, "0")} {copy.unit}
-                      </Text>
-                    </View>
-                    <View style={styles.heroTime}>
-                      <Ionicons name="time-outline" size={15} color="#244234" />
-                      <Text style={styles.heroTimeText}>
-                        {lesson.estimatedMinutes} {copy.minutes}
-                      </Text>
-                    </View>
+              <View style={styles.heroImageWrap}>
+                <ReadingLessonImage
+                  code={lesson.code}
+                  topic={lesson.topic}
+                  media={lesson.media}
+                  alt={lessonImageAlt}
+                  isDark={isDark}
+                  style={styles.heroImage}
+                />
+                <LinearGradient
+                  colors={["rgba(15, 34, 25, 0.04)", "rgba(15, 34, 25, 0.62)"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.heroImageShade}
+                />
+                <View style={styles.heroMetaOverlay}>
+                  <View style={styles.heroBadge}>
+                    <Text style={styles.heroBadgeText}>
+                      {String(lesson.unit).padStart(2, "0")} {copy.unit}
+                    </Text>
+                  </View>
+                  <View style={styles.heroTime}>
+                    <Ionicons name="time-outline" size={15} color="#244234" />
+                    <Text style={styles.heroTimeText}>
+                      {lesson.estimatedMinutes} {copy.minutes}
+                    </Text>
                   </View>
                 </View>
-              ) : null}
+              </View>
 
               <LinearGradient
                 colors={
@@ -1393,13 +1390,9 @@ export default function ReadingListeningScreen() {
                     ]}
                   >
                     <Ionicons
-                      name={
-                        isPassageSpeaking ? "stop" : "volume-high-outline"
-                      }
+                      name={isPassageSpeaking ? "stop" : "volume-high-outline"}
                       size={21}
-                      color={
-                        isPassageSpeaking ? "#FFFFFF" : palette.sageDark
-                      }
+                      color={isPassageSpeaking ? "#FFFFFF" : palette.sageDark}
                     />
                   </View>
                   <View style={styles.audioCopy}>
@@ -1479,9 +1472,7 @@ export default function ReadingListeningScreen() {
                     {readingPracticePhase === "assessing" ? (
                       <ActivityIndicator
                         size="small"
-                        color={
-                          readingPracticeActive ? "#FFFFFF" : palette.blue
-                        }
+                        color={readingPracticeActive ? "#FFFFFF" : palette.blue}
                       />
                     ) : (
                       <Ionicons
@@ -2524,7 +2515,8 @@ export default function ReadingListeningScreen() {
                     { color: palette.sageDark },
                   ]}
                 >
-                  {copy.lesson} · {lesson.level}{copy.level}
+                  {copy.lesson} · {lesson.level}
+                  {copy.level}
                 </Text>
                 <Text
                   style={[styles.lessonPickerTitle, { color: palette.ink }]}
@@ -2573,97 +2565,110 @@ export default function ReadingListeningScreen() {
                         color={palette.sageDark}
                       />
                     </View>
-                    <Text style={[styles.lessonPickerEmptyText, { color: palette.sub }]}>
+                    <Text
+                      style={[
+                        styles.lessonPickerEmptyText,
+                        { color: palette.sub },
+                      ]}
+                    >
                       {copy.emptyCatalog}
                     </Text>
                   </View>
                 ) : (
                   lessonOptions.map((item) => {
-                  const selected = item.code === lesson.code;
-                  // 끝낸 글은 한눈에 보여야 다음 걸 고른다
-                  const done = !!item.progress?.completed;
-                  return (
-                    <Pressable
-                      key={item.code}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      disabled={isLessonLoading}
-                      onPress={() => void chooseLesson(item)}
-                      style={({ pressed }) => [
-                        styles.lessonPickerItem,
-                        {
-                          backgroundColor: selected
-                            ? palette.sageSoft
-                            : palette.bg,
-                          borderColor: selected
-                            ? palette.sageGlow
-                            : palette.line,
-                          opacity: pressed ? 0.84 : 1,
-                        },
-                      ]}
-                    >
-                      <View
-                        style={[
-                          styles.lessonPickerNumber,
+                    const selected = item.code === lesson.code;
+                    // 끝낸 글은 한눈에 보여야 다음 걸 고른다
+                    const done = !!item.progress?.completed;
+                    return (
+                      <Pressable
+                        key={item.code}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected }}
+                        disabled={isLessonLoading}
+                        onPress={() => void chooseLesson(item)}
+                        style={({ pressed }) => [
+                          styles.lessonPickerItem,
                           {
                             backgroundColor: selected
-                              ? palette.sageDark
-                              : palette.surface,
+                              ? palette.sageSoft
+                              : palette.bg,
+                            borderColor: selected
+                              ? palette.sageGlow
+                              : palette.line,
+                            opacity: pressed ? 0.84 : 1,
                           },
                         ]}
                       >
-                        <Text
+                        <View
                           style={[
-                            styles.lessonPickerNumberText,
-                            { color: selected ? "#FFFFFF" : palette.sageDark },
+                            styles.lessonPickerNumber,
+                            {
+                              backgroundColor: selected
+                                ? palette.sageDark
+                                : palette.surface,
+                            },
                           ]}
                         >
-                          {String(item.unit).padStart(2, "0")}
-                        </Text>
-                        {done && (
-                          <View
+                          <Text
                             style={[
-                              styles.lessonPickerDone,
+                              styles.lessonPickerNumberText,
                               {
-                                backgroundColor: palette.sageDark,
-                                borderColor: palette.bg,
+                                color: selected ? "#FFFFFF" : palette.sageDark,
                               },
                             ]}
                           >
-                            <Ionicons name="checkmark" size={11} color="#FFFFFF" />
-                          </View>
-                        )}
-                      </View>
-                      <View style={styles.lessonPickerItemCopy}>
-                        <Text
-                          numberOfLines={2}
-                          style={[
-                            styles.lessonPickerItemTitle,
-                            { color: palette.ink },
-                          ]}
-                        >
-                          {item.title}
-                        </Text>
-                        <Text
-                          numberOfLines={1}
-                          style={[
-                            styles.lessonPickerItemTopic,
-                            { color: palette.sub },
-                          ]}
-                        >
-                          {localizedReadingText(
-                            item.topic,
-                            normalizedLanguage,
+                            {String(item.unit).padStart(2, "0")}
+                          </Text>
+                          {done && (
+                            <View
+                              style={[
+                                styles.lessonPickerDone,
+                                {
+                                  backgroundColor: palette.sageDark,
+                                  borderColor: palette.bg,
+                                },
+                              ]}
+                            >
+                              <Ionicons
+                                name="checkmark"
+                                size={11}
+                                color="#FFFFFF"
+                              />
+                            </View>
                           )}
-                        </Text>
-                      </View>
-                      <Ionicons
-                        name={selected ? "checkmark-circle" : "chevron-forward"}
-                        size={22}
-                        color={selected ? palette.sageDark : palette.sub}
-                      />
-                    </Pressable>
-                  );
+                        </View>
+                        <View style={styles.lessonPickerItemCopy}>
+                          <Text
+                            numberOfLines={2}
+                            style={[
+                              styles.lessonPickerItemTitle,
+                              { color: palette.ink },
+                            ]}
+                          >
+                            {item.title}
+                          </Text>
+                          <Text
+                            numberOfLines={1}
+                            style={[
+                              styles.lessonPickerItemTopic,
+                              { color: palette.sub },
+                            ]}
+                          >
+                            {localizedReadingText(
+                              item.topic,
+                              normalizedLanguage,
+                            )}
+                          </Text>
+                        </View>
+                        <Ionicons
+                          name={
+                            selected ? "checkmark-circle" : "chevron-forward"
+                          }
+                          size={22}
+                          color={selected ? palette.sageDark : palette.sub}
+                        />
+                      </Pressable>
+                    );
                   })
                 )}
               </ScrollView>
@@ -2671,7 +2676,6 @@ export default function ReadingListeningScreen() {
           </View>
         </View>
       </Modal>
-
     </View>
   );
 }
