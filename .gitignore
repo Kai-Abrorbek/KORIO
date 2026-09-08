@@ -66,3 +66,6 @@ deploy/api.env
 # 윈도우에서 git 이 못 지우는 락 파일을 옮겨두는 곳 (커밋 대상 아님)
 .gitlocks/
 _gitlock-trash/
+
+# 읽기 레슨 사진의 변환 전 원본 (webp 만 앱에 들어간다)
+apps/mobile/assets/images/reading-listening/lessons/_png-원본/
