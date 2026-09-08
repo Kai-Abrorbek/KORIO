@@ -36,10 +36,9 @@ import { hydrateLearnMode } from "@/utils/learn-mode";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { featureOfLearnMode } from "@/features/subscription/access";
 import TourTarget from "@/features/tour/TourTarget";
-import TourOverlay from "@/features/tour/TourOverlay";
-import { HOME_STEPS, HOME_TOUR, type TourStep } from "@/features/tour/tours";
+import { HOME_TOUR } from "@/features/tour/tours";
 import { useTourStore } from "@/features/tour/tour.store";
-import { scrollDeltaFor } from "@/features/tour/tour-geometry";
+import { useTourScroll } from "@/features/tour/useTourScroll";
 import { syncTimezone } from "@/utils/timezone";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
@@ -79,9 +78,12 @@ export default function HomeScreen() {
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
-  const scrollY = useRef(0);
   const startTour = useTourStore((st) => st.startIfUnseen);
-  const remeasureTour = useTourStore((st) => st.remeasure);
+  // 투어 단계가 바뀌면 대상이 보이도록 스크롤한다 (오버레이는 루트에 있어서
+  // 이 ScrollView 를 모른다). AI 버튼은 늘 보이므로 제외.
+  const { onScroll: onTourScroll } = useTourScroll(HOME_TOUR, scrollRef, [
+    "home.ai",
+  ]);
   const { requirePremium } = useFeatureAccess();
   const { user } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
@@ -102,7 +104,7 @@ export default function HomeScreen() {
   // 화면이 다 그려지고 대상 버튼 위치가 잡힌 뒤에 시작해야 스포트라이트가
   // 엉뚱한 자리를 뚫는다. 애니메이션(FadeInDown 600ms)까지 기다린다.
   useEffect(() => {
-    const id = setTimeout(() => startTour(HOME_TOUR), 900);
+    const id = setTimeout(() => startTour(HOME_TOUR), 1300);
     return () => clearTimeout(id);
   }, [startTour]);
 
@@ -185,9 +187,7 @@ export default function HomeScreen() {
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={32}
-        onScroll={(e) => {
-          scrollY.current = e.nativeEvent.contentOffset.y;
-        }}
+        onScroll={onTourScroll}
       >
         {/* 상단 헤더 */}
         <View style={styles.header}>
@@ -576,30 +576,6 @@ export default function HomeScreen() {
       <TourTarget tourId="home.ai" style={styles.tourFloating}>
         <FloatingAIButton onPress={() => setChatVisible(true)} positioned={false} />
       </TourTarget>
-      <TourOverlay
-        tourId={HOME_TOUR}
-        steps={HOME_STEPS}
-        ns="tour.home"
-        onFocusStep={(step: TourStep) => {
-          // 대상이 화면 밖이면 스크롤로 끌어온다. ScrollView 를 들고 있는 건
-          // 이 화면이라 오버레이가 직접 못 한다.
-          // 플로팅 버튼은 스크롤과 무관하게 늘 보이므로 건너뛴다.
-          if (step.target === "home.ai") return;
-          const r = useTourStore.getState().rects[step.target];
-          if (!r) return;
-
-          const dy = scrollDeltaFor(r, Dimensions.get("window").height);
-          if (dy === 0) return;
-
-          scrollRef.current?.scrollTo({
-            y: Math.max(0, scrollY.current + dy),
-            animated: true,
-          });
-          // 스크롤이 끝난 뒤 다시 재야 구멍이 새 위치에 뚫린다
-          setTimeout(remeasureTour, 380);
-        }}
-      />
-
       <AIChatModal
         visible={chatVisible}
         onClose={() => setChatVisible(false)}

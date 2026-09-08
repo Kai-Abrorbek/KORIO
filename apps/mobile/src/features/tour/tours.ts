@@ -31,3 +31,14 @@ export const HOME_STEPS: TourStep[] = [
   { target: "home.review", key: "review", icon: "refresh" },
   { target: "home.ai", key: "ai", icon: "sparkles", shape: "circle" },
 ];
+
+/**
+ * 투어 등록소.
+ *
+ * 오버레이는 루트 레이아웃에 딱 하나만 떠 있고, 지금 활성인 투어 id 로
+ * 여기서 단계를 찾는다. 화면이 오버레이를 직접 들고 있으면 안 되는
+ * 이유는 안드로이드 좌표 때문이다 — 아래 TourOverlay 주석 참고.
+ */
+export const TOURS: Record<string, { steps: TourStep[]; ns: string }> = {
+  [HOME_TOUR]: { steps: HOME_STEPS, ns: "tour.home" },
+};

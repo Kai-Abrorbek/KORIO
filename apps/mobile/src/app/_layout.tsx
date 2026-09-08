@@ -19,6 +19,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
 import PremiumGateModal from "@/components/subscription/PremiumGateModal";
 import { usePresenceHeartbeat } from "@/hooks/usePresenceHeartbeat";
+import TourOverlay from "@/features/tour/TourOverlay";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -330,6 +331,13 @@ export default function RootLayout() {
           />
           {/* 전역 구독 유도 모달 — 잠긴 기능을 누르면 어디서든 뜸 */}
           <PremiumGateModal />
+          {/*
+            기능 안내. Modal 이 아니라 여기 붙은 이유는 좌표 때문이다 —
+            안드로이드에서 Modal 은 상태바까지 덮는 별개 window 라,
+            앱 window 기준으로 잰 버튼 좌표를 그대로 쓰면 구멍이
+            상태바 높이만큼 위로 밀린다. 자세한 건 TourOverlay 주석에.
+          */}
+          <TourOverlay />
         </ThemeProvider>
       </SoundProvider>
     </GestureHandlerRootView>
