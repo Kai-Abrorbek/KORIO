@@ -1,4 +1,4 @@
-import { level1Lesson } from './reading-level1.helpers';
+import { level1Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL1_11_15 = [
   level1Lesson(11, '한국에는 사계절이 있습니다', '계절',

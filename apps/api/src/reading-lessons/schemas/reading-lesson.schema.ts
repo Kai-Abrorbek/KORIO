@@ -1,278 +1,45 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import {
+  LocalizedReadingText,
+  LocalizedReadingTextSchema,
+  ReadingCheckQuestion,
+  ReadingCheckQuestionSchema,
+  ReadingLessonMedia,
+  ReadingLessonMediaSchema,
+  ReadingLessonSource,
+  ReadingLessonSourceSchema,
+  ReadingPassageParagraph,
+  ReadingPassageParagraphSchema,
+  ReadingVocabularyExercise,
+  ReadingVocabularyExerciseSchema,
+  ReadingVocabularyItem,
+  ReadingVocabularyItemSchema,
+  ReadingWordGloss,
+  ReadingWordGlossSchema,
+  ReadingWritingActivity,
+  ReadingWritingActivitySchema,
+} from './reading-lesson.parts';
 
-export const READING_LANGUAGES = ['ko', 'uz', 'en', 'ru'] as const;
-export type ReadingLanguage = (typeof READING_LANGUAGES)[number];
-
-@Schema({ _id: false })
-export class LocalizedReadingText {
-  @Prop({ default: '' })
-  ko: string;
-
-  @Prop({ default: '' })
-  uz: string;
-
-  @Prop({ default: '' })
-  en: string;
-
-  @Prop({ default: '' })
-  ru: string;
-}
-
-export const LocalizedReadingTextSchema =
-  SchemaFactory.createForClass(LocalizedReadingText);
-
-@Schema({ _id: false })
-export class ReadingLessonMedia {
-  @Prop({ default: '' })
-  imageUrl: string;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  imageAlt: LocalizedReadingText;
-}
-
-export const ReadingLessonMediaSchema =
-  SchemaFactory.createForClass(ReadingLessonMedia);
-
-@Schema({ _id: false })
-export class ReadingPassageSegment {
-  @Prop({ required: true })
-  text: string;
-
-  @Prop({ default: '' })
-  vocabularyId: string;
-}
-
-export const ReadingPassageSegmentSchema =
-  SchemaFactory.createForClass(ReadingPassageSegment);
-
-@Schema({ _id: false })
-export class ReadingPassageParagraph {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ type: [ReadingPassageSegmentSchema], default: [] })
-  segments: ReadingPassageSegment[];
-}
-
-export const ReadingPassageParagraphSchema =
-  SchemaFactory.createForClass(ReadingPassageParagraph);
-
-@Schema({ _id: false })
-export class ReadingSourceGlosses {
-  @Prop({ default: '' })
-  en: string;
-
-  @Prop({ default: '' })
-  zh: string;
-
-  @Prop({ default: '' })
-  ja: string;
-}
-
-export const ReadingSourceGlossesSchema =
-  SchemaFactory.createForClass(ReadingSourceGlosses);
-
-@Schema({ _id: false })
-export class ReadingVocabularyItem {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ required: true, trim: true })
-  word: string;
-
-  @Prop({ default: '' })
-  pronunciation: string;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  meaning: LocalizedReadingText;
-
-  @Prop({ type: ReadingSourceGlossesSchema, default: () => ({}) })
-  sourceGlosses: ReadingSourceGlosses;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  note: LocalizedReadingText;
-
-  @Prop({ default: '' })
-  example: string;
-}
-
-export const ReadingVocabularyItemSchema =
-  SchemaFactory.createForClass(ReadingVocabularyItem);
-
-@Schema({ _id: false })
-export class ReadingCheckQuestion {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ type: LocalizedReadingTextSchema, required: true })
-  prompt: LocalizedReadingText;
-
-  @Prop({ type: [LocalizedReadingTextSchema], default: [] })
-  options: LocalizedReadingText[];
-
-  @Prop({ required: true, min: 0 })
-  answerIndex: number;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  explanation: LocalizedReadingText;
-}
-
-export const ReadingCheckQuestionSchema =
-  SchemaFactory.createForClass(ReadingCheckQuestion);
-
-export const READING_VOCABULARY_EXERCISE_TYPES = [
-  'sentence_word_bank',
-  'paragraph_conjugation',
-] as const;
-export type ReadingVocabularyExerciseType =
-  (typeof READING_VOCABULARY_EXERCISE_TYPES)[number];
-
-@Schema({ _id: false })
-export class ReadingVocabularyExerciseBlank {
-  @Prop({ required: true })
-  id: string;
-
-  /** 단어 상자에 표시되는 기본형 */
-  @Prop({ required: true, trim: true })
-  baseWord: string;
-
-  /** 본문 문맥에 들어가는 대표 정답 */
-  @Prop({ required: true, trim: true })
-  answer: string;
-
-  @Prop({ type: [String], default: [] })
-  acceptedAnswers: string[];
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  explanation: LocalizedReadingText;
-}
-
-export const ReadingVocabularyExerciseBlankSchema =
-  SchemaFactory.createForClass(ReadingVocabularyExerciseBlank);
-
-@Schema({ _id: false })
-export class ReadingVocabularyExercise {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ required: true, enum: READING_VOCABULARY_EXERCISE_TYPES })
-  type: ReadingVocabularyExerciseType;
-
-  @Prop({ type: LocalizedReadingTextSchema, required: true })
-  title: LocalizedReadingText;
-
-  @Prop({ type: LocalizedReadingTextSchema, required: true })
-  instruction: LocalizedReadingText;
-
-  @Prop({ type: [String], default: [] })
-  wordBank: string[];
-
-  /** 빈칸은 {{blank-id}} 표식으로 넣는다. */
-  @Prop({ required: true })
-  template: string;
-
-  @Prop({ type: [ReadingVocabularyExerciseBlankSchema], default: [] })
-  blanks: ReadingVocabularyExerciseBlank[];
-}
-
-export const ReadingVocabularyExerciseSchema =
-  SchemaFactory.createForClass(ReadingVocabularyExercise);
-
-@Schema({ _id: false })
-export class ReadingWritingActivity {
-  @Prop({ type: LocalizedReadingTextSchema, required: true })
-  prompt: LocalizedReadingText;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  helper: LocalizedReadingText;
-
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  placeholder: LocalizedReadingText;
-
-  @Prop({ type: [String], default: [] })
-  keywords: string[];
-
-  @Prop({ default: '' })
-  exampleAnswer: string;
-}
-
-export const ReadingWritingActivitySchema =
-  SchemaFactory.createForClass(ReadingWritingActivity);
+/** 조각 스키마는 전부 parts 에 있다. 여기서 다시 내보내 임포트 경로를 하나로 둔다 */
+export * from './reading-lesson.parts';
 
 /**
- * 본문에 나오는 단어 하나의 뜻.
+ * 읽기 레슨 한 편.
  *
- * 핵심 어휘(vocabulary)와는 성격이 다르다. 저쪽은 "이건 외워라" 라는 교육
- * 콘텐츠(예문·노트 포함)고, 이쪽은 **막혔을 때 눌러서 보는 읽기 보조 도구**다.
- * 그래서 화면에서도 저쪽만 색이 있고 이쪽은 색 없이 눌리기만 한다.
+ * 각 칸이 무엇인지, `vocabulary` 와 `glossary` 가 어떻게 다른지는
+ * `reading-lesson.parts.ts` 맨 위 표에 있다.
  *
- * 표면형(word)으로 찾는다. 한국어는 교착어라 본문에는 활용형이 나오는데
- * (갔습니다, 학교에서), 사전형만 갖고 있으면 유저가 누른 단어를 못 찾는다.
- * 그래서 본문에 실제로 나온 형태를 키로 두고 기본형(lemma)을 같이 준다.
+ * 유저 진도는 여기 없다 — `ReadingLessonProgress` 가 `lessonCode` 로 따로 잡는다.
+ * 그래서 이 문서는 다시 시딩해서 통째로 갈아 끼워도 학습 기록이 안 날아간다.
  */
-@Schema({ _id: false })
-export class ReadingWordGloss {
-  /** 본문에 나온 그대로의 형태. 예: "갔습니다" */
-  @Prop({ required: true })
-  word: string;
-
-  /** 기본형. 예: "가다" */
-  @Prop({ default: '' })
-  lemma: string;
-
-  /** 품사 코드 (WORD_POS). 화면이 i18n 으로 옮긴다 */
-  @Prop({ default: 'other' })
-  pos: string;
-
-  /**
-   * ⚠️ **기본형(lemma)의 뜻**이다. 활용형의 뜻이 아니다.
-   *
-   * 갔습니다 → lemma "가다" → meaning "to go / bormoq". "went / bordi" 가 아니다.
-   * 시제·말투는 grammar 태그가 이미 들고 있어서, 뜻에까지 넣으면 둘이 서로
-   * 어긋난다. 무엇보다 같은 기본형이 어디서나 같은 뜻이어야 사전이 일관된다
-   * (갑니다·갔습니다·가서·가는 이 전부 "가다" 하나로 모인다).
-   */
-  @Prop({ type: LocalizedReadingTextSchema, required: true })
-  meaning: LocalizedReadingText;
-
-  /**
-   * 문법 태그 (GRAMMAR_TAGS). 활용형이 기본형에 무엇을 더했는지가 전부 여기 있다.
-   * 문장이 아니라 태그인 이유는 상수 파일 참고. 예: ["past", "formalPolite"]
-   */
-  @Prop({ type: [String], default: [] })
-  grammar: string[];
-
-  /** 태그로 표현이 안 되는 경우에만. 보통 비어 있다 */
-  @Prop({ type: LocalizedReadingTextSchema, default: () => ({}) })
-  note: LocalizedReadingText;
-}
-
-export const ReadingWordGlossSchema =
-  SchemaFactory.createForClass(ReadingWordGloss);
-
-@Schema({ _id: false })
-export class ReadingLessonSource {
-  @Prop({ required: true })
-  bookCode: string;
-
-  @Prop({ required: true })
-  bookTitle: string;
-
-  @Prop({ required: true, min: 1 })
-  pageStart: number;
-
-  @Prop({ required: true, min: 1 })
-  pageEnd: number;
-}
-
-export const ReadingLessonSourceSchema =
-  SchemaFactory.createForClass(ReadingLessonSource);
-
 @Schema({ timestamps: true })
 export class ReadingLesson {
+  /** 시드가 정하는 사람이 읽는 키. `culture-reading-1-07` 꼴 */
   @Prop({ required: true, trim: true })
   code: string;
+
+  /* ── 어디에 놓이는가 ── */
 
   @Prop({ required: true, min: 1, max: 6 })
   level: number;
@@ -282,6 +49,8 @@ export class ReadingLesson {
 
   @Prop({ required: true, min: 1 })
   order: number;
+
+  /* ── 표지 ── */
 
   @Prop({ required: true, trim: true })
   title: string;
@@ -295,11 +64,21 @@ export class ReadingLesson {
   @Prop({ type: ReadingLessonMediaSchema, default: () => ({}) })
   media: ReadingLessonMedia;
 
+  /* ── 내용 ── */
+
+  /** 본문. 문단별 원문 문자열 — 어휘 강조는 API 가 내려줄 때 계산한다 */
   @Prop({ type: [ReadingPassageParagraphSchema], default: [] })
   passage: ReadingPassageParagraph[];
 
+  /** 핵심 어휘 — 외울 대상. 본문에서 색이 있다 */
   @Prop({ type: [ReadingVocabularyItemSchema], default: [] })
   vocabulary: ReadingVocabularyItem[];
+
+  /** 본문 사전 — 아무 단어나 눌렀을 때의 뜻. 빠진 건 런타임에 보충된다 */
+  @Prop({ type: [ReadingWordGlossSchema], default: [] })
+  glossary: ReadingWordGloss[];
+
+  /* ── 활동 ── */
 
   @Prop({ type: [ReadingCheckQuestionSchema], default: [] })
   questions: ReadingCheckQuestion[];
@@ -308,16 +87,15 @@ export class ReadingLesson {
   @Prop({ type: [ReadingVocabularyExerciseSchema], default: [] })
   vocabularyExercises: ReadingVocabularyExercise[];
 
-  /** 본문 단어별 뜻. 시드가 채우고, 빠진 건 런타임에 보충된다 */
-  @Prop({ type: [ReadingWordGlossSchema], default: [] })
-  glossary: ReadingWordGloss[];
-
   @Prop({ type: ReadingWritingActivitySchema, required: true })
   writing: ReadingWritingActivity;
+
+  /* ── 관리 ── */
 
   @Prop({ type: ReadingLessonSourceSchema, required: true })
   source: ReadingLessonSource;
 
+  /** 시드에서 빠진 레슨은 지우지 않고 이 값을 내린다 (진도가 붙어 있어서) */
   @Prop({ default: true })
   isActive: boolean;
 }

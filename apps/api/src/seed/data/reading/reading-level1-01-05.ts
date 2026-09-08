@@ -1,4 +1,4 @@
-import { level1Lesson } from './reading-level1.helpers';
+import { level1Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL1_01_05 = [
   level1Lesson(1, '저는 김민지입니다', '자기소개',

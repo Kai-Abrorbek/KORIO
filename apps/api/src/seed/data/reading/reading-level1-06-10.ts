@@ -1,4 +1,4 @@
-import { level1Lesson } from './reading-level1.helpers';
+import { level1Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL1_06_10 = [
   level1Lesson(6, '이곳은 우리 고향 집입니다', '집',

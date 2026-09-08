@@ -1,4 +1,4 @@
-import { level1Lesson } from './reading-level1.helpers';
+import { level1Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL1_36_40 = [
   level1Lesson(36, '한국 사람들은 지하철을 자주 탑니다', '지하철',

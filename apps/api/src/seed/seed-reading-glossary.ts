@@ -5,11 +5,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Model } from 'mongoose';
 import { AppModule } from '../app.module';
-import {
-  GRAMMAR_TAGS,
-  WORD_POS,
-} from '../reading-lessons/reading-gloss.const';
+import { GRAMMAR_TAGS, WORD_POS } from '../reading-lessons/reading-gloss.const';
 import { readingWords } from '../reading-lessons/reading-words.util';
+import { toPassageText } from '../reading-lessons/reading-passage.util';
 import {
   ReadingLesson,
   ReadingLessonDocument,
@@ -212,21 +210,14 @@ async function main() {
     let missing = 0;
 
     for (const [index, lesson] of lessons.entries()) {
-      const passageText = lesson.passage
-        .map((p) => p.segments.map((s) => s.text).join(''))
-        .join('\n\n');
+      const passageText = toPassageText(lesson.passage);
       const words = [...new Set(readingWords(passageText))];
 
       process.stdout.write(
         `  [${index + 1}/${lessons.length}] ${lesson.code} (${words.length}단어) ... `,
       );
 
-      const result = await askWithRetry(
-        client,
-        passageText,
-        words,
-        lemmaDict,
-      );
+      const result = await askWithRetry(client, passageText, words, lemmaDict);
       if (!result) {
         console.log('실패 — 건너뜀');
         continue;
@@ -372,7 +363,8 @@ async function ask(
  */
 export function sanitize(raw: any, requested: string[]): GlossResult {
   const allowed = new Set(requested);
-  const text = (v: any) => (typeof v === 'string' ? v.trim().slice(0, 120) : '');
+  const text = (v: any) =>
+    typeof v === 'string' ? v.trim().slice(0, 120) : '';
 
   const seen = new Set<string>();
   const wordEntries = (Array.isArray(raw?.words) ? raw.words : [])
@@ -458,9 +450,7 @@ export function fixParticleTag(
   lemma: string,
   grammar: string[],
 ): string[] {
-  const rule = PARTICLE_RULES.find(
-    ([suffix]) => surface === lemma + suffix,
-  );
+  const rule = PARTICLE_RULES.find(([suffix]) => surface === lemma + suffix);
   if (!rule) return grammar;
 
   const [, correct] = rule;

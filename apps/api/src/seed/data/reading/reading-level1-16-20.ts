@@ -1,4 +1,4 @@
-import { level1Lesson } from './reading-level1.helpers';
+import { level1Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL1_16_20 = [
   level1Lesson(16, '우리 언니는 통역사입니다', '형제와 자매',

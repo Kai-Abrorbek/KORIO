@@ -1,4 +1,4 @@
-import { level3Lesson } from './reading-level3.helpers';
+import { level3Lesson } from './reading-lesson.builder';
 
 export const READING_LEVEL3_11_15 = [
   level3Lesson(

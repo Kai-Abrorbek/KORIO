@@ -8,6 +8,7 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { CompleteReadingLessonDto } from './dto/complete-reading-lesson.dto';
 import { ReadingGlossService, type WordGloss } from './reading-gloss.service';
 import { normalizeWord } from './reading-words.util';
+import { toPassageResponse, toPassageText } from './reading-passage.util';
 import { ListReadingLessonsQueryDto } from './dto/list-reading-lessons-query.dto';
 import {
   READING_BASE_XP,
@@ -117,6 +118,8 @@ export class ReadingLessonsService {
       id: lesson._id.toString(),
       _id: undefined,
       __v: undefined,
+      // 저장은 문단 문자열, 화면은 어휘가 강조된 조각. 그 변환은 여기서만 한다
+      passage: toPassageResponse(lesson.passage, lesson.vocabulary ?? []),
       glossary: this.mergeGlossary(
         (lesson.glossary ?? []) as unknown as WordGloss[],
         cachedGlosses,
@@ -155,11 +158,7 @@ export class ReadingLessonsService {
     );
     if (seeded) return { gloss: seeded };
 
-    const passageText = lesson.passage
-      .map((paragraph) =>
-        paragraph.segments.map((segment) => segment.text).join(''),
-      )
-      .join('\n\n');
+    const passageText = toPassageText(lesson.passage);
 
     const gloss = await this.glossService.resolve(code, word, passageText);
     return { gloss };
@@ -175,11 +174,7 @@ export class ReadingLessonsService {
    * 낭독은 여기서 아예 안 받는다. 발음 평가 중에 서버가 직접 찍은 값
    * (pronunciationCompletedAt)만 본다.
    */
-  async complete(
-    userId: string,
-    code: string,
-    dto: CompleteReadingLessonDto,
-  ) {
+  async complete(userId: string, code: string, dto: CompleteReadingLessonDto) {
     const lesson = await this.readingLessonModel
       .findOne({ code, isActive: true })
       .select('code level questions vocabularyExercises')
@@ -347,9 +342,7 @@ export class ReadingLessonsService {
   }
 
   /** 화면이 쓰는 모양으로 진도를 줄인다. 없으면 빈 값 */
-  private toProgressSummary(
-    progress?: ReadingLessonProgressDocument | null,
-  ) {
+  private toProgressSummary(progress?: ReadingLessonProgressDocument | null) {
     return {
       completed: !!progress?.completedAt,
       completions: progress?.completions ?? 0,

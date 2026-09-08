@@ -23,6 +23,7 @@ import {
   ReadingLessonDocument,
 } from '../reading-lessons/schemas/reading-lesson.schema';
 import { ReadingLessonsService } from '../reading-lessons/reading-lessons.service';
+import { toPassageText } from '../reading-lessons/reading-passage.util';
 import {
   normalizeWord,
   readingWords,
@@ -758,11 +759,7 @@ export class SpeechService {
       .lean();
     if (!lesson) throw new NotFoundException('READING_LESSON_NOT_FOUND');
 
-    const passageText = lesson.passage
-      .map((paragraph) =>
-        paragraph.segments.map((segment) => segment.text).join(''),
-      )
-      .join('\n\n');
+    const passageText = toPassageText(lesson.passage);
     const words = readingWords(passageText);
     if (startWordIndex >= words.length) {
       throw new BadRequestException('READING_WORD_INDEX_OUT_OF_RANGE');

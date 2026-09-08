@@ -3,6 +3,8 @@ import { READING_LEVEL2_SEEDS } from './data/reading/reading-level2.data';
 import { READING_LEVEL3_SEEDS } from './data/reading/reading-level3.data';
 
 const codes = new Set<string>();
+/** 본문에 그대로 안 나와서 강조가 안 되는 어휘. 실패가 아니라 참고용 */
+const unhighlighted: string[] = [];
 const groups = [
   {
     level: 1,
@@ -64,9 +66,14 @@ for (const group of groups) {
     }
     if (
       !lesson.passage.length ||
-      lesson.passage.some((item) => !item.segments.length)
+      lesson.passage.some((item) => !item.text.trim())
     ) {
       throw new Error(`${lesson.code}의 읽기 본문이 비었습니다.`);
+    }
+    if (lesson.media.imageKey !== lesson.code) {
+      throw new Error(
+        `${lesson.code}의 imageKey가 code와 다릅니다: ${lesson.media.imageKey}`,
+      );
     }
     if (!lesson.vocabulary.length) {
       throw new Error(`${lesson.code}의 새 어휘가 비었습니다.`);
@@ -82,18 +89,23 @@ for (const group of groups) {
         );
       }
       if (!item.example.trim()) {
-        throw new Error(`${lesson.code}의 어휘 ${item.word}에 예문이 없습니다.`);
+        throw new Error(
+          `${lesson.code}의 어휘 ${item.word}에 예문이 없습니다.`,
+        );
       }
     }
 
-    const vocabularyIds = new Set(lesson.vocabulary.map((item) => item.id));
-    for (const paragraph of lesson.passage) {
-      for (const segment of paragraph.segments) {
-        if (segment.vocabularyId && !vocabularyIds.has(segment.vocabularyId)) {
-          throw new Error(
-            `${lesson.code}가 없는 어휘를 참조합니다: ${segment.vocabularyId}`,
-          );
-        }
+    // 어휘 강조는 이제 API 가 본문에서 찾아 만든다. 그래서 "없는 어휘를
+    // 참조" 하는 일은 구조적으로 불가능해졌고, 그 검사는 뺐다.
+    //
+    // 대신 예전엔 안 보이던 걸 센다: 본문에 그대로 안 나오는 어휘는 절대
+    // 강조되지 않는다. 사전형 동사(`가다` ↔ 본문 `갑니다`)가 대부분이라
+    // 잘못이라고 할 순 없지만, 몇 개나 그런지는 알고 있어야 한다.
+    // 시딩을 막지는 않는다 — 맨 아래에 합계만 찍는다.
+    const passageText = lesson.passage.map((item) => item.text).join('\n');
+    for (const item of lesson.vocabulary) {
+      if (!passageText.includes(item.word)) {
+        unhighlighted.push(`${lesson.code} · ${item.word}`);
       }
     }
 
@@ -110,13 +122,14 @@ for (const group of groups) {
         question.answerIndex >= question.options.length ||
         !question.explanation.ko.trim()
       ) {
-        throw new Error(`${lesson.code}의 문제 ${question.id}가 잘못되었습니다.`);
+        throw new Error(
+          `${lesson.code}의 문제 ${question.id}가 잘못되었습니다.`,
+        );
       }
     }
 
     if (lesson.level >= 3) {
-      const exercises =
-        'vocabularyExercises' in lesson ? lesson.vocabularyExercises : [];
+      const exercises = lesson.vocabularyExercises;
       const expectedTypes = new Set([
         'sentence_word_bank',
         'paragraph_conjugation',
@@ -144,8 +157,7 @@ for (const group of groups) {
         }
         exerciseIds.add(exercise.id);
 
-        const minimumBlanks =
-          exercise.type === 'sentence_word_bank' ? 4 : 3;
+        const minimumBlanks = exercise.type === 'sentence_word_bank' ? 4 : 3;
         if (exercise.blanks.length < minimumBlanks) {
           const counts = exercises
             .map((item) => `${item.type}=${item.blanks.length}`)
@@ -186,13 +198,16 @@ for (const group of groups) {
       throw new Error(`${lesson.code}의 써 봅시다 데이터가 비었습니다.`);
     }
 
-    const expectedStart = group.pageStart + (lesson.unit - 1) * group.pageStride;
+    const expectedStart =
+      group.pageStart + (lesson.unit - 1) * group.pageStride;
     if (
       lesson.source.bookCode !== group.bookCode ||
       lesson.source.pageStart !== expectedStart ||
       lesson.source.pageEnd !== expectedStart + group.pageSpan
     ) {
-      throw new Error(`${lesson.code}의 교재 출처 또는 페이지 범위가 잘못되었습니다.`);
+      throw new Error(
+        `${lesson.code}의 교재 출처 또는 페이지 범위가 잘못되었습니다.`,
+      );
     }
   }
 
@@ -204,5 +219,16 @@ for (const group of groups) {
 
   console.log(
     `✅ 문화가 있는 한국어 읽기 ${group.level} · ${group.lessons.length}개 단원 검증 완료`,
+  );
+}
+
+if (unhighlighted.length) {
+  console.log(
+    `\nℹ️ 본문에 그대로 나오지 않아 강조되지 않는 어휘 ${unhighlighted.length}개 ` +
+      `(대부분 사전형 동사다. 문제는 아니고 참고용):`,
+  );
+  console.log(
+    `   ${unhighlighted.slice(0, 12).join(', ')}` +
+      (unhighlighted.length > 12 ? ` … 외 ${unhighlighted.length - 12}개` : ''),
   );
 }
