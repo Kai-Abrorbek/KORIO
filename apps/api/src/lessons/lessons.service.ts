@@ -37,7 +37,10 @@ import { rollChestReward } from './xp.util';
 import { ChestService } from './chest.service';
 import { UsersService } from '../users/users.service';
 import { startOfDay } from '../common/date.util';
-import { buildCategoryInc, LESSON_TO_STUDY } from './utils/category.util';
+import {
+  buildCategoryStatsInc,
+  LESSON_TO_STUDY,
+} from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import {
@@ -721,8 +724,9 @@ export class LessonsService {
       xpEarned?: number;
     },
   ) {
-    // 카테고리 판정에 필요한 최소 정보만 모은다
-    let items: { type?: string; lessonCategory?: string }[] = (
+    // 카테고리 판정에 필요한 최소 정보만 모은다.
+    // id 를 같이 들고 다녀야 "이 문제를 맞혔나" 를 카테고리별로 가를 수 있다.
+    let items: { id?: string; type?: string; lessonCategory?: string }[] = (
       params.questionTypes ?? []
     ).map((type) => ({ type }));
 
@@ -732,6 +736,7 @@ export class LessonsService {
         .select('type lessonCategory')
         .lean();
       items = qs.map((q) => ({
+        id: q._id.toString(),
         type: q.type,
         lessonCategory: (q as any).lessonCategory,
       }));
@@ -746,8 +751,8 @@ export class LessonsService {
     const xp = params.xpEarned ?? 0;
     if (!total && !xp) return;
 
-    const wrong =
-      params.wrongCount ?? new Set(params.wrongQuestionIds ?? []).size;
+    const wrongSet = new Set((params.wrongQuestionIds ?? []).map(String));
+    const wrong = params.wrongCount ?? wrongSet.size;
     // 비정상 값 방어 (음수 · 3시간 초과)
     const seconds = Math.min(Math.max(params.speedSeconds ?? 0, 0), 3 * 3600);
 
@@ -763,7 +768,12 @@ export class LessonsService {
           totalQuestions: total,
           correctQuestions: Math.max(0, total - wrong),
           xpEarned: xp,
-          ...buildCategoryInc(items, params.overrideCategory),
+          ...buildCategoryStatsInc(
+            items,
+            wrongSet,
+            params.overrideCategory,
+            wrong,
+          ),
         },
       },
       { upsert: true, returnDocument: 'after' },

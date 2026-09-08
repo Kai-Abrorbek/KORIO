@@ -34,6 +34,11 @@ import {
   isSuperStale,
 } from './super.util';
 import { presenceFor } from './presence.util';
+import {
+  computeSkillScores,
+  diagnose,
+  RADAR_CATEGORIES,
+} from './utils/skill-radar.util';
 import * as crypto from 'crypto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
@@ -1383,6 +1388,84 @@ export class UsersService {
         avgTimeLabel: avgLabel,
         avgProblems: avgPerDay,
       },
+    };
+  }
+
+
+  /**
+   * 스킬 레이더 — 분야별 강점·약점.
+   *
+   * 기간은 기본 90일. 짧게 잡으면 (한 주) 그 주에 안 건드린 분야가 전부
+   * 0 이 되어 "약점" 으로 오진되고, 전체 기간으로 잡으면 반 년 전 실력이
+   * 지금 그래프에 남는다. 90일이 "요즘의 나" 를 보여주는 선이다.
+   */
+  async getSkillRadar(userId: string, days = 90) {
+    const tz = await this.getTimezone(userId);
+    const since = startOfDay(new Date(), tz);
+    since.setDate(since.getDate() - (days - 1));
+
+    const rows = await this.statsModel
+      .find({ userId: new Types.ObjectId(userId), date: { $gte: since } })
+      .select('date categoryCounts categoryCorrect')
+      .sort({ date: 1 })
+      .lean();
+
+    const attempted = new Map<string, number>();
+    const correct = new Map<string, number>();
+    // 이 카테고리에 정답 기록이 한 번이라도 있었나. 없으면 "모름"(null)이다 —
+    // 0 으로 두면 이 필드가 생기기 전부터 쓰던 유저가 전부 정확도 0% 가 된다
+    const hasCorrect = new Set<string>();
+    const lastAt = new Map<string, Date>();
+
+    for (const row of rows) {
+      const counts = toCounts((row as any).categoryCounts);
+      const corr = (row as any).categoryCorrect as
+        | Map<string, number>
+        | Record<string, number>
+        | undefined;
+      const corrEntries: Iterable<[string, number]> =
+        corr instanceof Map
+          ? corr.entries()
+          : Object.entries((corr ?? {}) as Record<string, number>);
+
+      for (const cat of RADAR_CATEGORIES) {
+        const n = counts[cat] ?? 0;
+        if (n > 0) {
+          attempted.set(cat, (attempted.get(cat) ?? 0) + n);
+          lastAt.set(cat, row.date);
+        }
+      }
+      for (const [cat, n] of corrEntries) {
+        if (typeof n !== 'number') continue;
+        hasCorrect.add(cat);
+        correct.set(cat, (correct.get(cat) ?? 0) + n);
+      }
+    }
+
+    const todayStart = startOfDay(new Date(), tz).getTime();
+    const inputs = RADAR_CATEGORIES.map((cat) => {
+      const last = lastAt.get(cat);
+      return {
+        category: cat,
+        attempted: attempted.get(cat) ?? 0,
+        correct: hasCorrect.has(cat) ? (correct.get(cat) ?? 0) : null,
+        daysSinceLast: last
+          ? Math.max(
+              0,
+              Math.round(
+                (todayStart - startOfDay(last, tz).getTime()) / 86400000,
+              ),
+            )
+          : null,
+      };
+    });
+
+    const scores = computeSkillScores(inputs);
+    return {
+      rangeDays: days,
+      totalAttempted: inputs.reduce((n, i) => n + i.attempted, 0),
+      skills: scores,
+      diagnosis: diagnose(scores),
     };
   }
 

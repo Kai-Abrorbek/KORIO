@@ -82,3 +82,48 @@ export interface PeriodStats {
     points: VolumePoint[];
   };
 }
+
+// ─────────────────── 스킬 레이더 ───────────────────
+
+export type RadarCategory =
+  | "vocab"
+  | "grammar"
+  | "expression"
+  | "conversation"
+  | "listening"
+  | "topik";
+
+export interface SkillScore {
+  category: RadarCategory;
+  attempted: number;
+  /** null = 이 분야의 정답 기록이 없다 (옛 기록). 0 과 다르다 */
+  correct: number | null;
+  /** 0~1. 표본이 없으면 null */
+  accuracy: number | null;
+  /** 0~100. 레이더 축 길이 */
+  score: number;
+  /** 진단 문구를 붙일 만큼 표본이 있나 */
+  reliable: boolean;
+  daysSinceLast: number | null;
+}
+
+export type DiagnosisKey =
+  | "noData"
+  | "balanced"
+  | "weakSpot"
+  | "untouched"
+  | "accuracyDrop";
+
+export interface SkillRadar {
+  rangeDays: number;
+  totalAttempted: number;
+  skills: SkillScore[];
+  diagnosis: {
+    key: DiagnosisKey;
+    category: RadarCategory | null;
+    strongest: RadarCategory | null;
+    weakest: RadarCategory | null;
+    /** 축 사이 편차 0~100. 클수록 편식 */
+    spread: number;
+  };
+}

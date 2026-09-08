@@ -3,6 +3,7 @@ import i18n from "@/locales/i18n";
 import {
   PeriodStats,
   CategoryStats,
+  SkillRadar,
   StudyCategory,
   StudyPeriod,
 } from "@/types/stats";
@@ -49,6 +50,10 @@ export const StatsService = {
     if (endDate) params.append("endDate", endDate);
     return api.get(`/users/me/stats/period?${params}`);
   },
+
+  /** 스킬 레이더 — 분야별 강점·약점 (기본 90일) */
+  getSkills: (days = 90): Promise<SkillRadar> =>
+    api.get(`/users/me/stats/skills?days=${days}`),
 
   getCategory: (
     category: StudyCategory,

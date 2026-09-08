@@ -179,6 +179,17 @@ export class UsersController {
     );
   }
 
+  /**
+   * 스킬 레이더. 분야별 강점·약점을 한 눈에 보여주는 통계 화면용.
+   * days 는 7~365 로 제한한다 — 범위를 안 막으면 전체 기간 스캔을 유도한다.
+   */
+  @Get('me/stats/skills')
+  async getSkillRadar(@Request() req, @Query('days') days?: string) {
+    const n = Number(days);
+    const safe = Number.isFinite(n) ? Math.min(365, Math.max(7, n)) : 90;
+    return this.usersService.getSkillRadar(req.user._id.toString(), safe);
+  }
+
   @Get('me/stats/category')
   async getCategoryStats(
     @Request() req,

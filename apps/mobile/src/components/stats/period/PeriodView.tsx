@@ -9,6 +9,7 @@ import TodayInfoCard from "./TodayInfoCard";
 import YearlyHeatmap from "./YearlyHeatmap";
 import StudyTimeChart from "./StudyTimeChart";
 import StudyVolumeChart from "./StudyVolumeChart";
+import SkillRadarCard from "../radar/SkillRadarCard";
 import { TodaySummary } from "@/types/stats";
 
 export default function PeriodView() {
@@ -43,6 +44,8 @@ export default function PeriodView() {
   return (
     <View>
       <TodayInfoCard hasData={todayHasData} today={today} />
+      {/* 강점·약점 진단. "얼마나 했나" 보다 "뭘 못하나" 를 먼저 보여준다 */}
+      <SkillRadarCard />
       <YearlyHeatmap days={heatmap} />
       <StudyTimeChart />
       <StudyVolumeChart />

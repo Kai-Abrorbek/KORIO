@@ -31,6 +31,20 @@ export class UserStats {
    */
   @Prop({ type: Map, of: Number, default: {} })
   categoryCounts: Map<string, number>;
+
+  /**
+   * 카테고리별 **정답** 수. categoryCounts 와 짝이다.
+   *
+   * 예전엔 정답 수가 하루 총합(correctQuestions)에만 있어서 "어휘는 잘하는데
+   * 듣기가 약하다" 를 말할 방법이 없었다. 통계 화면의 강점·약점 진단이
+   * 이 필드 위에 선다.
+   *
+   * ⚠️ 이 필드가 생기기 전 기록에는 값이 없다. 읽는 쪽은 attempted 가
+   * 있는데 correct 가 없으면 "정확도 모름"으로 다뤄야 한다 — 0 으로 보면
+   * 옛날부터 쓰던 유저가 전부 정확도 0% 로 보인다.
+   */
+  @Prop({ type: Map, of: Number, default: {} })
+  categoryCorrect: Map<string, number>;
 }
 
 export const UserStatsSchema = SchemaFactory.createForClass(UserStats);
