@@ -7,6 +7,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useAuthStore } from "@/store/auth.store";
+import { isPremiumNow } from "@/features/subscription/access";
 import { TRIAL_DAYS } from "@/constants/trial";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AvatarConfig } from "@/types/avatar";
@@ -28,22 +29,26 @@ export default function SettingsUserCard({
   const theme = useTheme();
   const styles = getStyles(theme);
   const user = useAuthStore((st) => st.user);
-  // 하드코딩 false 였다. 구독자한테도 "무료 체험하세요" 가 떠 있었다
-  const isPremium = !!user?.isSuper;
-  const isTrial = user?.superPlan === "trial";
+  // 하드코딩 false 였다. 구독자한테도 "무료 체험하세요" 가 떠 있었다.
+  // isSuper 를 그냥 읽으면 안 된다 — 앱을 켜둔 채 체험이 끝나거나 오프라인이면
+  // store 의 isSuper 는 true 로 남는다. 만료일까지 같이 본다.
+  const isPremium = isPremiumNow(user);
+  const isTrial = isPremium && user?.superPlan === "trial";
+  // 체험을 이미 써버렸는지 — 만료되면 superPlan 은 비워지므로 서버가 따로 준다
+  const usedTrial = !!user?.hasUsedTrial || user?.superPlan === "trial";
 
   const trialLeft = useMemo(() => {
-    if (!isPremium || !isTrial || !user?.superExpiresAt) return 0;
+    if (!isTrial || !user?.superExpiresAt) return 0;
     const ms = new Date(user.superExpiresAt).getTime() - Date.now();
     return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
-  }, [isPremium, isTrial, user?.superExpiresAt]);
+  }, [isTrial, user?.superExpiresAt]);
 
   /**
    * 툴팁이 뜨는 경우는 둘뿐이다.
    *  체험 중        → 남은 일수를 알려준다
    *  체험을 안 써봤음 → 무료 체험을 권한다
    * 결제 구독자거나 체험을 이미 써버린 유저에게는 아무것도 약속하지 않는다
-   * (superPlan 이 'trial' 로 남아 있으면 만료돼도 체험을 쓴 계정이다)
+   * (hasUsedTrial 은 만료 뒤에도 남는다 — trialStartedAt 이 근거)
    */
   const tip = isPremium
     ? isTrial
@@ -53,7 +58,7 @@ export default function SettingsUserCard({
           desc: t("settings.user.trialLeftDays", { count: trialLeft }),
         }
       : null
-    : isTrial
+    : usedTrial
       ? null
       : {
           badge: "FREE",

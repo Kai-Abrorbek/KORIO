@@ -28,6 +28,8 @@ import {
 } from "@/store/settings.store";
 import { commitLearnMode, commitStudyMode } from "@/utils/learn-mode";
 import { guidedEntryPath } from "@/utils/placement-level";
+import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
+import type { Feature } from "@/features/subscription/access";
 import {
   TopikLevelModal,
   type TopikLevel,
@@ -44,17 +46,26 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * 반대로 한글·표현·듣기·토픽·발음·게임·단어카드는 로드가 짜주지 않으므로
  * 어느 모드에서든 들어갈 수 있어야 한다.
  */
-const CATEGORIES = [
+const CATEGORIES: Array<{
+  key: string;
+  category: string;
+  icon: string;
+  color: string;
+  guided: boolean;
+  /** 구독 게이트에서 쓰는 기능 키 */
+  feature: Feature;
+}> = [
   // 한글은 맨 앞. 아직 못 읽는 사람은 여기부터 시작해야 한다
-  { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true },
-  { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043", guided: false },
-  { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0", guided: false },
+  { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true, feature: "hangul" },
+  { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043", guided: false, feature: "lesson" },
+  { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0", guided: false, feature: "grammar" },
   {
     key: "expression",
     category: "expression",
     icon: "chatbubble-ellipses",
     color: "#26A69A",
     guided: true,
+    feature: "expression",
   },
   {
     // 로드가 짜주는 트랙이 아니라 언제든 들어갈 수 있다 → 두 모드 모두에서 보인다
@@ -63,6 +74,7 @@ const CATEGORIES = [
     icon: "chatbubbles",
     color: "#EC407A",
     guided: true,
+    feature: "tutor",
   },
   {
     key: "listening",
@@ -70,14 +82,16 @@ const CATEGORIES = [
     icon: "headset",
     color: "#42A5F5",
     guided: true,
+    feature: "listening",
   },
-  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC", guided: true },
+  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC", guided: true, feature: "topik" },
   {
     key: "pronunciation",
     category: "pronunciation",
     icon: "mic",
     color: "#FFA726",
     guided: true,
+    feature: "pronunciation",
   },
   {
     key: "grammarPractice",
@@ -85,6 +99,7 @@ const CATEGORIES = [
     icon: "barbell",
     color: "#7E57C2",
     guided: false,
+    feature: "lesson",
   },
   {
     key: "games",
@@ -92,6 +107,7 @@ const CATEGORIES = [
     icon: "game-controller",
     color: "#5F4FD8",
     guided: true,
+    feature: "games",
   },
   {
     key: "wordCard",
@@ -99,6 +115,7 @@ const CATEGORIES = [
     icon: "albums",
     color: "#26C6DA",
     guided: true,
+    feature: "words",
   },
 ];
 
@@ -109,6 +126,8 @@ function CategoryCard({
   index,
   s,
   onTopikPress,
+  requirePremium,
+  locked,
 }: {
   c: (typeof CATEGORIES)[number];
   label: string;
@@ -116,8 +135,12 @@ function CategoryCard({
   index: number;
   s: ReturnType<typeof getStyles>;
   onTopikPress: () => void;
+  /** 구독 게이트. 통과하면 onAllowed 실행, 아니면 유도 모달 */
+  requirePremium: (feature: Feature, onAllowed: () => void) => boolean;
+  locked: boolean;
 }) {
   const pressed = useSharedValue(0);
+  const go = makeGo(c, onTopikPress);
   const aStyle = useAnimatedStyle(() => ({
     transform: [
       { translateY: pressed.value * 2 },
@@ -135,38 +158,17 @@ function CategoryCard({
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-          // 아래 셋은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
-          // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
-          const SHORTCUTS: Record<string, string> = {
-            pronunciation: "/pronunciation-practice",
-            hangul: "/hangul",
-            games: "/games",
-            wordCard: "/word-study",
-            // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
-            conversation: "/tutor",
-          };
-          if (SHORTCUTS[c.category]) {
-            router.push(SHORTCUTS[c.category] as any);
-            return;
-          }
-          // 토픽은 급수를 골라야 해서 모달을 먼저 띄운다 (모드 저장도 거기서)
-          if (c.category === "topik") {
-            onTopikPress();
-            return;
-          }
-
-          // 나머지는 전부 학습 모드로 기억하고(계정에 저장),
-          // 목적지는 한 곳에서 계산한다.
-          const mode = c.category as LearnMode;
-          commitLearnMode(mode);
-          // 학습 방식(가이드/자율)까지 넘겨야 어휘를 골랐을 때 하루치
-          // 로드맵으로 간다. 안 넘기면 늘 자율 로드맵으로 떨어진다.
-          router.push(
-            learnModePath(mode, "1", useSettingsStore.getState().studyMode),
-          );
+          // 구독이 필요한 분야면 여기서 멈추고 유도 모달을 띄운다.
+          // 통과했을 때만 아래 이동 로직이 돈다.
+          requirePremium(c.feature, () => go());
         }}
-        style={[s.catCard, aStyle]}
+        style={[s.catCard, aStyle, locked && s.catCardLocked]}
       >
+        {locked && (
+          <View style={s.lockPill}>
+            <Ionicons name="lock-closed" size={10} color="#fff" />
+          </View>
+        )}
         <View style={[s.catIcon, { backgroundColor: c.color }]}>
           <Ionicons name={c.icon as any} size={22} color="#fff" />
         </View>
@@ -177,6 +179,44 @@ function CategoryCard({
       </AnimatedPressable>
     </Animated.View>
   );
+}
+
+/** 카드를 눌렀을 때 실제로 가는 곳. 게이트를 통과한 뒤에만 불린다. */
+function makeGo(
+  c: (typeof CATEGORIES)[number],
+  onTopikPress: () => void,
+): () => void {
+  return () => {
+    // 아래 셋은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
+    // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
+    const SHORTCUTS: Record<string, string> = {
+      pronunciation: "/pronunciation-practice",
+      hangul: "/hangul",
+      games: "/games",
+      wordCard: "/word-study",
+      // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
+      conversation: "/tutor",
+    };
+    if (SHORTCUTS[c.category]) {
+      router.push(SHORTCUTS[c.category] as any);
+      return;
+    }
+    // 토픽은 급수를 골라야 해서 모달을 먼저 띄운다 (모드 저장도 거기서)
+    if (c.category === "topik") {
+      onTopikPress();
+      return;
+    }
+
+    // 나머지는 전부 학습 모드로 기억하고(계정에 저장),
+    // 목적지는 한 곳에서 계산한다.
+    const mode = c.category as LearnMode;
+    commitLearnMode(mode);
+    // 학습 방식(가이드/자율)까지 넘겨야 어휘를 골랐을 때 하루치
+    // 로드맵으로 간다. 안 넘기면 늘 자율 로드맵으로 떨어진다.
+    router.push(
+      learnModePath(mode, "1", useSettingsStore.getState().studyMode),
+    );
+  };
 }
 
 /**
@@ -275,6 +315,7 @@ export default function CourseCategories() {
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
   const [topikModalVisible, setTopikModalVisible] = useState(false);
+  const { canUse, requirePremium } = useFeatureAccess();
   const studyMode = useSettingsStore((st) => st.studyMode);
   // 학습 로드에서는 로드가 안 덮는 것만 남긴다 (CATEGORIES 주석 참고)
   const visible = CATEGORIES.filter(
@@ -344,6 +385,8 @@ export default function CourseCategories() {
               label={t(`courses.categories.${c.key}`)}
               desc={t(`courses.categoryDesc.${c.key}`)}
               onTopikPress={() => setTopikModalVisible(true)}
+              requirePremium={requirePremium}
+              locked={!canUse(c.feature)}
             />
           ))}
         </View>
@@ -469,6 +512,24 @@ const getStyles = (theme: ThemeColors) =>
       paddingHorizontal: 13,
       minHeight: 118,
       gap: 7,
+    },
+    // 잠긴 카드는 죽은 게 아니라 "아직 안 산 것"으로 보여야 한다.
+    // 회색으로 눕히지 않고 테두리만 보라색으로 바꿔서 눈에 띄게 둔다.
+    catCardLocked: {
+      borderColor: theme.primary + "55",
+      borderBottomColor: theme.primary + "77",
+    },
+    lockPill: {
+      position: "absolute",
+      top: 8,
+      right: 8,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: "#776ee2",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2,
     },
     catIcon: {
       width: 42,

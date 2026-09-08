@@ -10,6 +10,11 @@ export function trialFields() {
     isSuper: true,
     superPlan: 'trial',
     superExpiresAt: expiresAt,
+    // "이 계정은 체험을 써봤다" 를 영구히 남긴다.
+    // 예전엔 superPlan==='trial' 로 그걸 판단했는데, 만료 뒤에도 그 값을
+    // 지우지 못해 (지우면 체험을 또 권하게 되므로) 만료된 계정이 계속
+    // 체험 중으로 보였다. 판단 근거를 따로 떼어내야 만료 처리가 깨끗해진다.
+    trialStartedAt: new Date(),
   };
 }
 
@@ -41,5 +46,25 @@ export function trialDaysLeft(user: {
 }): number | null {
   if (user?.superPlan !== 'trial' || !user.superExpiresAt) return null;
   const ms = new Date(user.superExpiresAt).getTime() - Date.now();
-  return ms <= 0 ? 0 : Math.ceil(ms / 86400000);
+  // 끝난 체험은 0 이 아니라 null 이다. 0 을 주면 "오늘 끝나요" 와
+  // "이미 끝났어요" 가 같은 값이 되어 화면이 구분을 못 한다.
+  return ms <= 0 ? null : Math.ceil(ms / 86400000);
+}
+
+/**
+ * 기간이 끝난 구독/체험을 내릴 때 쓰는 $set 한 벌.
+ *
+ * 예전엔 isSuper 만 내리고 superPlan/superExpiresAt 은 그대로 뒀다.
+ * 그래서 만료된 계정이 DB 상으로는 계속 'trial' 이었고, 그걸 보고
+ * 판단하는 화면들이 만료 뒤에도 체험 중처럼 굴었다.
+ * 체험을 써봤다는 사실은 trialStartedAt 이 따로 들고 있으므로
+ * 여기서 전부 비워도 정보가 사라지지 않는다.
+ */
+export function expiredSuperFields() {
+  return {
+    isSuper: false,
+    superTier: 'super',
+    superPlan: null,
+    superExpiresAt: null,
+  };
 }

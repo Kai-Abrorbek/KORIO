@@ -1,3 +1,4 @@
+import { withPremiumScreen } from "@/features/subscription/usePremiumScreen";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "@/utils/haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -44,7 +45,7 @@ const SECTIONS: SectionOption[] = [
   },
 ];
 
-export default function TopikSectionsScreen() {
+function TopikSectionsScreen() {
   const { t } = useTranslation();
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
@@ -613,3 +614,7 @@ const getStyles = (palette: TopikPalette) =>
       marginTop: 4,
     },
   });
+
+// 구독 전용 화면. 버튼 게이트를 안 거치고 들어오는 길(홈의 "이어서 학습하기",
+// 딥링크)이 있어서 화면 자체에서도 막는다.
+export default withPremiumScreen(TopikSectionsScreen, "topik");

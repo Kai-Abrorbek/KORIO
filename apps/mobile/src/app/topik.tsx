@@ -1,3 +1,4 @@
+import { withPremiumScreen } from "@/features/subscription/usePremiumScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +55,7 @@ const WRITING_PRACTICE_TYPES: Array<{
   { number: 54, icon: "reader-outline" },
 ];
 
-export default function TopikHomeScreen() {
+function TopikHomeScreen() {
   const { t, i18n } = useTranslation();
   const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
   const palette = useTopikTheme();
@@ -881,3 +882,7 @@ const getStyles = (palette: TopikPalette) =>
     },
     retryText: { color: palette.white, fontSize: 13, fontWeight: "800" },
   });
+
+// 구독 전용 화면. 버튼 게이트를 안 거치고 들어오는 길(홈의 "이어서 학습하기",
+// 딥링크)이 있어서 화면 자체에서도 막는다.
+export default withPremiumScreen(TopikHomeScreen, "topik");

@@ -208,6 +208,17 @@ export class User {
   @Prop({ default: null })
   superExpiresAt: Date;
 
+  /**
+   * 무료 체험을 시작한 시각. 한 번 찍히면 안 지운다.
+   *
+   * "이 계정이 체험을 써봤나" 의 유일한 근거다. 예전엔 superPlan 이
+   * 'trial' 로 남아 있는지로 판단했는데, 그러면 만료 뒤에도 그 값을 못
+   * 지워서 (지우면 체험을 또 권하게 되므로) 끝난 체험이 계속 진행 중으로
+   * 보였다. 근거를 분리해야 만료 시 나머지를 깨끗이 비울 수 있다.
+   */
+  @Prop({ type: Date, default: null })
+  trialStartedAt: Date | null;
+
   // 신규: 복구펜 개수
   @Prop({ default: 0 })
   streakFreeze: number;

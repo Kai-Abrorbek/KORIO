@@ -31,6 +31,8 @@ import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
 import { useSettingsStore, learnModePath } from "@/store/settings.store";
 import { hydrateLearnMode } from "@/utils/learn-mode";
+import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
+import { featureOfLearnMode } from "@/features/subscription/access";
 import { syncTimezone } from "@/utils/timezone";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
@@ -69,6 +71,7 @@ export default function HomeScreen() {
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
+  const { requirePremium } = useFeatureAccess();
   const { user } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
   const lessonProgress = (user as User)?.currentUnitProgress ?? 0;
@@ -340,7 +343,13 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={styles.lessonButton}
-            onPress={() => router.push(continuePath)}
+            onPress={() =>
+              // 저장된 학습 모드가 구독 전용일 수 있다 (체험이 끝난 계정).
+              // 화면에서 튕겨내는 것보다 여기서 막는 게 깔끔하다.
+              requirePremium(featureOfLearnMode(learnMode), () =>
+                router.push(continuePath),
+              )
+            }
           >
             <Ionicons name="book" size={18} color="#fff" />
             <Text style={styles.lessonButtonText}>

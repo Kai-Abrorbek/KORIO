@@ -28,7 +28,11 @@ import {
 } from '../common/date.util';
 import { langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
-import { isSuperActive, isSuperStale } from './super.util';
+import {
+  expiredSuperFields,
+  isSuperActive,
+  isSuperStale,
+} from './super.util';
 import * as crypto from 'crypto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
@@ -191,11 +195,13 @@ export class UsersService {
     // 체험이 끝났으면 DB 의 isSuper 도 내려준다.
     // 안 그러면 만료된 계정이 DB 상으로는 계속 슈퍼로 보인다.
     if (isSuperStale(user)) {
+      // isSuper 만 내리면 superPlan 이 'trial' 로 남아서, 끝난 체험이
+      // DB 상으로는 계속 진행 중이다. 한 벌로 같이 비운다.
       await this.userModel.updateOne(
         { _id: new Types.ObjectId(userId) },
-        { $set: { isSuper: false } },
+        { $set: expiredSuperFields() },
       );
-      user.isSuper = false;
+      Object.assign(user, expiredSuperFields());
     }
 
     // 에너지도 파생 데이터다. 저장값을 그대로 주면 시간 회복분이 빠지고,
@@ -246,6 +252,9 @@ export class UsersService {
       // 'trial' 이면 무료 체험. 앱이 체험/결제 구독을 구분해서 문구를 고른다
       superPlan: user.superPlan ?? null,
       superExpiresAt: user.superExpiresAt ?? null,
+      // 체험을 이미 써본 계정인지. 설정 화면이 "무료 체험 하세요" 를
+      // 다시 약속하지 않으려면 이게 필요하다 (superPlan 은 만료 시 비워진다)
+      hasUsedTrial: !!user.trialStartedAt,
       createdAt: (user as any).createdAt,
       lastStudiedAt: user.lastStudiedAt,
       joinedYear: (user as any).createdAt

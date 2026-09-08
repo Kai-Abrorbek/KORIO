@@ -1327,6 +1327,28 @@ export default {
     authBannerBody: "로그인하면 SUPER 기능이 바로 열려요",
     close: "닫기",
   },
+  premiumGate: {
+    title: {
+      default: "KORIO SUPER 기능이야",
+      grammar: "문법 설명은 SUPER 부터",
+      expression: "상황별 표현은 SUPER 부터",
+      listening: "읽기·듣기는 SUPER 부터",
+      topik: "TOPIK 대비는 SUPER 부터",
+      tutor: "AI 음성 튜터는 SUPER 부터",
+    },
+    sub: "구독하면 지금 잠긴 학습이 전부 열려.",
+    perk: {
+      grammar: "문법 설명 + 문법 문제 전체",
+      expression: "상황별 표현 팩 전체",
+      conversation: "AI 튜터와 실제로 말하기",
+      listening: "읽기·듣기 지문 전체",
+      topik: "TOPIK 급수별 실전 대비",
+      energy: "에너지 무제한",
+    },
+    cta: "구독하고 열기",
+    taster: "먼저 무료로 맛보기",
+    later: "나중에",
+  },
   premium: {
     seeAllPlans: "모든 요금제 보기",
     trialBuyNote: "체험 {{days}}일이 남아 있어요. 지금 구매하면 바로 결제되고 체험은 끝나요.",

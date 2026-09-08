@@ -1,8 +1,13 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../users/schemas/user.schema';
-import { trialDaysLeft } from '../../users/super.util';
+import {
+  expiredSuperFields,
+  isSuperStale,
+  trialDaysLeft,
+} from '../../users/super.util';
 import {
   Subscription,
   SubscriptionDocument,
@@ -191,9 +196,20 @@ export class SubscriptionService {
   async getMySubscription(userId: string) {
     const user = await this.userModel
       .findById(userId)
-      .select('isSuper superExpiresAt superPlan')
+      .select('isSuper superExpiresAt superPlan trialStartedAt')
       .lean();
     if (!user) throw new NotFoundException('User not found');
+
+    // 여기가 권한을 판단하는 창구다. 판단만 하고 DB 는 그대로 두면
+    // 만료된 계정이 계속 isSuper: true 로 남아 있어서, 이 함수를 안 거치는
+    // 코드가 하나라도 생기면 그 즉시 공짜 프리미엄이 된다. 발견하면 내린다.
+    if (isSuperStale(user as any)) {
+      await this.userModel.updateOne(
+        { _id: new Types.ObjectId(userId) },
+        { $set: expiredSuperFields() },
+      );
+      Object.assign(user as any, expiredSuperFields());
+    }
 
     const active = await this.findActive(userId);
     if (active) {
@@ -244,7 +260,30 @@ export class SubscriptionService {
       autoRenew: false,
       isTrial: !!onTrial,
       trialDaysLeft: daysLeft,
+      // 이미 써버린 체험을 또 권하지 않도록
+      hasUsedTrial: !!(user as any).trialStartedAt,
     };
+  }
+
+  /**
+   * 만료된 SUPER 를 내리는 청소부.
+   *
+   * getMe / getMySubscription 이 이미 내리지만, 그건 **앱을 켠 사람만**
+   * 해당된다. 체험이 끝나고 앱을 안 여는 계정은 DB 에 isSuper: true 로
+   * 계속 남아, 유저 목록·통계·푸시 대상 산출처럼 isSuperActive 를 안 거치는
+   * 코드가 하나만 생겨도 바로 새는 자리가 된다.
+   * 하루 한 번 훑어서 DB 를 사실과 맞춰둔다.
+   */
+  @Cron('17 4 * * *')
+  async sweepExpiredSuper() {
+    const res = await this.userModel.updateMany(
+      { isSuper: true, superExpiresAt: { $ne: null, $lte: new Date() } },
+      { $set: expiredSuperFields() },
+    );
+    if (res.modifiedCount) {
+      this.logger.log(`만료된 SUPER ${res.modifiedCount}건 내림`);
+    }
+    return { lowered: res.modifiedCount };
   }
 
   /** 웹훅/복원에서 토큰만으로 주인을 찾을 때 */

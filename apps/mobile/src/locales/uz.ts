@@ -1336,6 +1336,28 @@ export default {
     authBannerBody: "Kirishingiz bilan SUPER darhol ochiladi",
     close: "Yopish",
   },
+  premiumGate: {
+    title: {
+      default: "Bu KORIO SUPER imkoniyati",
+      grammar: "Grammatika izohlari — SUPER'da",
+      expression: "Vaziyatli iboralar — SUPER'da",
+      listening: "O'qish va tinglash — SUPER'da",
+      topik: "TOPIK tayyorgarligi — SUPER'da",
+      tutor: "AI ovozli ustoz — SUPER'da",
+    },
+    sub: "Obuna bo'lsangiz, yopiq darslarning hammasi ochiladi.",
+    perk: {
+      grammar: "Barcha grammatika izohlari va mashqlari",
+      expression: "Barcha vaziyatli ibora to'plamlari",
+      conversation: "AI ustoz bilan jonli gaplashish",
+      listening: "Barcha o'qish va tinglash matnlari",
+      topik: "Daraja bo'yicha TOPIK tayyorgarligi",
+      energy: "Cheksiz energiya",
+    },
+    cta: "Obuna bo'lish",
+    taster: "Avval bepul sinab ko'rish",
+    later: "Keyinroq",
+  },
   premium: {
     seeAllPlans: "Barcha tariflarni ko'rish",
     trialBuyNote: "Sinov muddatidan {{days}} kun qoldi. Hozir sotib olsangiz, darhol to'lov olinadi va sinov tugaydi.",

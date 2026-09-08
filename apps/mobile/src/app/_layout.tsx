@@ -17,6 +17,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useReferralClaim } from "@/hooks/useReferralClaim";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
+import PremiumGateModal from "@/components/subscription/PremiumGateModal";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -324,6 +325,8 @@ export default function RootLayout() {
               // TODO: 광고 보고 +5 (광고 SDK)
             }}
           />
+          {/* 전역 구독 유도 모달 — 잠긴 기능을 누르면 어디서든 뜸 */}
+          <PremiumGateModal />
         </ThemeProvider>
       </SoundProvider>
     </GestureHandlerRootView>

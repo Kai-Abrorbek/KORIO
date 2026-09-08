@@ -1,3 +1,4 @@
+import { withPremiumScreen } from "@/features/subscription/usePremiumScreen";
 import { useEffect, useState } from "react";
 import {
   View,
@@ -313,7 +314,7 @@ function PremiumSheet({
   );
 }
 
-export default function GrammarList() {
+function GrammarList() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   // 학습 로드 모드에서 "그날의 문법" 노드로 들어오면 그 유닛만 보여준다.
@@ -594,3 +595,7 @@ const st = StyleSheet.create({
   subBtnT: { fontSize: 17, fontWeight: "800", color: C.ink },
   later: { fontSize: 14, color: C.sub, fontWeight: "600" },
 });
+
+// 구독 전용 화면. 버튼 게이트를 안 거치고 들어오는 길(홈의 "이어서 학습하기",
+// 딥링크)이 있어서 화면 자체에서도 막는다.
+export default withPremiumScreen(GrammarList, "grammar");

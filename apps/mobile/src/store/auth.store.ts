@@ -36,6 +36,8 @@ export interface User {
   /** "trial" 이면 무료 체험 중. 결제 구독이면 상품 id */
   superPlan?: string | null;
   superExpiresAt?: string | null;
+  /** 무료 체험을 이미 써봤는지. 만료돼도 true 로 남는다 */
+  hasUsedTrial?: boolean;
   streakFreeze?: number;
   gems?: number;
   energy?: number;

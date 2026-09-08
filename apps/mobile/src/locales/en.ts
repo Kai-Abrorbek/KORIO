@@ -1331,6 +1331,28 @@ export default {
     authBannerBody: "Log in and SUPER opens right away",
     close: "Close",
   },
+  premiumGate: {
+    title: {
+      default: "This is a KORIO SUPER feature",
+      grammar: "Grammar explanations need SUPER",
+      expression: "Situational phrases need SUPER",
+      listening: "Reading & listening need SUPER",
+      topik: "TOPIK prep needs SUPER",
+      tutor: "The AI voice tutor needs SUPER",
+    },
+    sub: "Subscribe and everything locked right now opens up.",
+    perk: {
+      grammar: "All grammar explanations and drills",
+      expression: "Every situational phrase pack",
+      conversation: "Real speaking practice with the AI tutor",
+      listening: "All reading and listening passages",
+      topik: "TOPIK prep for every level",
+      energy: "Unlimited energy",
+    },
+    cta: "Subscribe and unlock",
+    taster: "Try a free taste first",
+    later: "Later",
+  },
   premium: {
     seeAllPlans: "See all plans",
     trialBuyNote: "You have {{days}} days of trial left. Buying now charges you immediately and ends the trial.",
