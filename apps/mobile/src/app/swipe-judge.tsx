@@ -18,7 +18,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { ARCADE_WORDS, meaningOf } from "@/mocks/arcade.mock";
+import {
+  meaningOfWord as meaningOf,
+  type GameWord,
+} from "@/services/game-words.service";
+import { useGameWords } from "@/features/games/useGameWords";
+import { GameWordsGate } from "@/features/games/GameWordsGate";
 
 const GAME_SECONDS = 60;
 const SWIPE_TH = 110;
@@ -30,16 +35,17 @@ interface JudgeCard {
   isTrue: boolean;
 }
 
-function makeDeck(lang: string): JudgeCard[] {
-  const shuffled = [...ARCADE_WORDS].sort(() => Math.random() - 0.5);
+function makeDeck(pool: GameWord[], lang: string): JudgeCard[] {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled.map((w) => {
     const isTrue = Math.random() < 0.5;
     let shown = meaningOf(w, lang);
     if (!isTrue) {
-      const other = ARCADE_WORDS.filter((x) => x.id !== w.id)[
-        Math.floor(Math.random() * (ARCADE_WORDS.length - 1))
-      ];
-      shown = meaningOf(other, lang);
+      // 틀린 뜻도 같은 묶음에서 가져온다. 난이도가 동떨어진 뜻이 붙으면
+      // 읽지 않고도 정답이 보인다
+      const others = pool.filter((x) => x.id !== w.id);
+      const other = others[Math.floor(Math.random() * others.length)];
+      shown = other ? meaningOf(other, lang) : shown;
     }
     return { ko: w.ko, shown, isTrue };
   });
@@ -51,7 +57,14 @@ export default function SwipeJudgeScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  const [deck, setDeck] = useState<JudgeCard[]>(() => makeDeck(i18n.language));
+  // 하드코딩 목록 대신 서버가 이 사람 진도로 뽑아준 단어들
+  const { words: pool, loading, failed, reload } = useGameWords(40, 5);
+  const [deck, setDeck] = useState<JudgeCard[]>([]);
+
+  // 단어가 도착하면 그때 덱을 만든다
+  useEffect(() => {
+    if (pool?.length) setDeck(makeDeck(pool, i18n.language));
+  }, [pool, i18n.language]);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -86,14 +99,15 @@ export default function SwipeJudgeScreen() {
     setIdx((i) => {
       const next = i + 1;
       if (next >= deck.length) {
-        setDeck(makeDeck(i18n.language));
+        // 덱을 다 쓰면 같은 단어 묶음으로 다시 섞는다
+        if (pool?.length) setDeck(makeDeck(pool, i18n.language));
         return 0;
       }
       return next;
     });
     tx.value = 0;
     lockRef.current = false;
-  }, [deck.length, i18n.language]);
+  }, [deck.length, i18n.language, pool]);
 
   const judge = useCallback(
     (saidTrue: boolean) => {
@@ -157,7 +171,7 @@ export default function SwipeJudgeScreen() {
   });
 
   const restart = () => {
-    setDeck(makeDeck(i18n.language));
+    if (pool?.length) setDeck(makeDeck(pool, i18n.language));
     setIdx(0);
     setScore(0);
     setCombo(0);
@@ -177,6 +191,14 @@ export default function SwipeJudgeScreen() {
   const card = deck[idx];
   const nextCard = deck[(idx + 1) % deck.length];
   const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  if (loading || failed || !deck.length) {
+    return (
+      <GameWordsGate loading={loading} failed={failed} onRetry={reload}>
+        {null}
+      </GameWordsGate>
+    );
+  }
 
   return (
     <View style={s.container}>

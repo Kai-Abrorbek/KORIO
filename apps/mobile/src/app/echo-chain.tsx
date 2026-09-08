@@ -9,8 +9,9 @@ import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
-import { ARCADE_WORDS } from "@/mocks/arcade.mock";
-import { WordPair } from "@/mocks/match-game.mock";
+import { useGameWords } from "@/features/games/useGameWords";
+import { GameWordsGate } from "@/features/games/GameWordsGate";
+import type { GameWord as WordPair } from "@/services/game-words.service";
 
 const GRID = 9;
 const MAX_HEARTS = 3;
@@ -25,9 +26,11 @@ export default function EchoChainScreen() {
   const s = styles(theme, insets.top, insets.bottom);
   const { speak, stop } = useSpeech();
 
+  // 하드코딩 목록 대신 서버가 이 사람 진도로 뽑아준 단어들
+  const { words: pool, loading, failed, reload } = useGameWords(GRID * 2, 4);
   const gridWords = useMemo<WordPair[]>(
-    () => [...ARCADE_WORDS].sort(() => Math.random() - 0.5).slice(0, GRID),
-    [],
+    () => [...(pool ?? [])].sort(() => Math.random() - 0.5).slice(0, GRID),
+    [pool],
   );
 
   const [round, setRound] = useState(1);
@@ -154,6 +157,15 @@ export default function EchoChainScreen() {
     if (router.canGoBack()) router.back();
     else router.replace("/");
   };
+
+  // 판을 채울 단어가 없으면 시작하지 않는다
+  if (loading || failed || gridWords.length < GRID) {
+    return (
+      <GameWordsGate loading={loading} failed={failed} onRetry={reload}>
+        {null}
+      </GameWordsGate>
+    );
+  }
 
   return (
     <View style={s.container}>

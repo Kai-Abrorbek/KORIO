@@ -6,6 +6,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, type QueryFilter } from 'mongoose';
 import { ListWordsQueryDto } from './dto/list-words-query.dto';
+import {
+  allowedStarts,
+  isPlayable,
+  precheckChainWord,
+} from './game-words.util';
 import { ReviewQueueQueryDto } from './dto/review-queue-query.dto';
 import { WordReviewResult } from './dto/review-word.dto';
 import {
@@ -546,4 +551,211 @@ export class WordsService {
   private addDays(date: Date, days: number) {
     return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
   }
+  // ─────────────────────────── 게임용 단어 ───────────────────────────
+
+  /**
+   * 미니게임에 쓸 단어 묶음.
+   *
+   * 게임은 배우는 자리가 아니라 굳히는 자리다. 처음 보는 단어를 카드로
+   * 뒤집어 봐야 외워지지 않는다. 그래서 **이미 만난 단어**를 먼저 쓰고,
+   * 모자랄 때만 쉬운 것부터 채운다.
+   *
+   * 난이도를 따로 고르게 하지 않는 이유도 같다. 유저가 어디까지 왔는지는
+   * 서버가 알고 있으니, 그 사람의 진도가 곧 난이도다.
+   */
+  async getGamePool(
+    userId: string,
+    opts: { count?: number; maxLen?: number } = {},
+  ) {
+    const count = Math.min(Math.max(opts.count ?? 40, 4), 120);
+    const maxLen = Math.min(Math.max(opts.maxLen ?? 5, 2), 8);
+
+    const seen = await this.progressModel
+      .find({ userId: new Types.ObjectId(userId) })
+      .select('wordId')
+      .limit(600)
+      .lean();
+    const seenIds = seen.map((s: any) => s.wordId);
+
+    const pick = (rows: any[]) =>
+      rows.filter((w) =>
+        isPlayable(w.headword, maxLen, w.meaning ?? {}),
+      );
+
+    // 1) 이미 만난 단어
+    let pool = seenIds.length
+      ? pick(
+          await this.wordModel
+            .find({ _id: { $in: seenIds }, isActive: true })
+            .select('headword meaning media difficulty')
+            .lean(),
+        )
+      : [];
+
+    // 2) 모자라면 쉬운 것부터 채운다.
+    //    처음 들어온 유저도 게임은 돌아가야 한다 — 빈 화면을 보여줄 수는 없다
+    if (pool.length < count) {
+      const filler = pick(
+        await this.wordModel
+          .find({
+            isActive: true,
+            ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
+          })
+          .select('headword meaning media difficulty')
+          .sort({ difficulty: 1 })
+          .limit((count - pool.length) * 4 + 60)
+          .lean(),
+      );
+      pool = pool.concat(filler);
+    }
+
+    return {
+      words: shuffle(pool)
+        .slice(0, count)
+        .map((w: any) => ({
+          id: String(w._id),
+          ko: w.headword,
+          uz: w.meaning?.uz ?? '',
+          en: w.meaning?.en ?? '',
+          ru: w.meaning?.ru ?? '',
+          meaningKo: w.meaning?.ko ?? '',
+          emoji: w.media?.emoji ?? '',
+          difficulty: w.difficulty ?? 1,
+        })),
+      /** 진도 기반인지 (false 면 아직 배운 게 없어서 기본 단어로 채웠다) */
+      fromProgress: seenIds.length > 0,
+    };
+  }
+
+  /**
+   * 끝말잇기 한 수.
+   *
+   * 예전엔 앱이 들고 있는 하드코딩 목록 안에서만 답이 인정됐다. 유저가 아는
+   * 멀쩡한 한국어 단어를 내도 "그런 단어 없다" 가 나왔고, 그래서 게임이
+   * 되는 것처럼 보였을 뿐이다. 이제 우리 단어 사전 전체를 본다.
+   */
+  async chainTurn(
+    userId: string,
+    body: { word: string; used?: string[]; prev?: string | null },
+  ) {
+    const used = (body.used ?? []).slice(0, 200);
+    const check = precheckChainWord(body.word, body.prev ?? null, used);
+    if (!check.ok) return { accepted: false, reason: check.reason };
+
+    const word = body.word.trim();
+    const found = await this.wordModel
+      .findOne({ headword: word, isActive: true })
+      .select('headword meaning media')
+      .lean();
+    if (!found) return { accepted: false, reason: 'UNKNOWN_WORD' as const };
+
+    // 이제 우리 차례. 유저 단어의 끝 글자로 시작하는 단어를 찾는다
+    const starts = allowedStarts(word.slice(-1));
+    const taken = [...used, word];
+
+    const reply = starts.length
+      ? await this.wordModel
+          .findOne({
+            isActive: true,
+            headword: {
+              $regex: `^[${starts.join('')}]`,
+              $nin: taken,
+            },
+            $expr: { $lte: [{ $strLenCP: '$headword' }, 5] },
+          })
+          .select('headword meaning media')
+          .sort({ difficulty: 1 })
+          .skip(Math.floor(Math.random() * 8))
+          .lean()
+      : null;
+
+    return {
+      accepted: true,
+      word: {
+        ko: found.headword,
+        uz: (found as any).meaning?.uz ?? '',
+        en: (found as any).meaning?.en ?? '',
+        ru: (found as any).meaning?.ru ?? '',
+        emoji: (found as any).media?.emoji ?? '',
+      },
+      /** 우리 차례의 답. null 이면 더 낼 단어가 없다 = 유저 승 */
+      reply: reply
+        ? {
+            ko: (reply as any).headword,
+            uz: (reply as any).meaning?.uz ?? '',
+            en: (reply as any).meaning?.en ?? '',
+            ru: (reply as any).meaning?.ru ?? '',
+            emoji: (reply as any).media?.emoji ?? '',
+          }
+        : null,
+    };
+  }
+
+  /**
+   * 끝말잇기 힌트.
+   *
+   * ⚠️ 반드시 **서버 사전에서** 뽑아야 한다. 앱이 들고 있던 목록에서 뽑으면
+   *    힌트대로 쳤는데 "그런 단어 없다" 가 나온다 — 힌트가 함정이 된다.
+   */
+  async chainHints(start: string, exclude: string[] = [], limit = 3) {
+    const starts = allowedStarts((start ?? '').trim().slice(-1));
+    if (!starts.length) return { words: [] };
+    const rows = await this.wordModel
+      .find({
+        isActive: true,
+        headword: { $regex: `^[${starts.join('')}]`, $nin: exclude.slice(0, 200) },
+        $expr: { $lte: [{ $strLenCP: '$headword' }, 5] },
+      })
+      .select('headword meaning')
+      .sort({ difficulty: 1 })
+      .limit(Math.min(Math.max(limit, 1), 5))
+      .lean();
+    return {
+      words: rows.map((w: any) => ({
+        ko: w.headword,
+        uz: w.meaning?.uz ?? '',
+        en: w.meaning?.en ?? '',
+        ru: w.meaning?.ru ?? '',
+      })),
+    };
+  }
+
+  /** 끝말잇기 첫 단어 */
+  async chainStart() {
+    const rows = await this.wordModel
+      .find({ isActive: true, difficulty: { $lte: 2 } })
+      .select('headword meaning media')
+      .limit(300)
+      .lean();
+    const playable = rows.filter((w: any) =>
+      isPlayable(w.headword, 4, w.meaning ?? {}),
+    );
+    // 끝 글자가 'ㅡ'로 끝나거나 이어가기 어려운 글자는 첫 수로 안 좋다.
+    // 완벽하게 거르진 않고, 흔한 막다른 글자만 피한다
+    const DEAD_END = /[늪릎븧쁨]$/;
+    const good = playable.filter((w: any) => !DEAD_END.test(w.headword));
+    const pickFrom = good.length ? good : playable;
+    const w: any = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+    if (!w) return { word: null };
+    return {
+      word: {
+        ko: w.headword,
+        uz: w.meaning?.uz ?? '',
+        en: w.meaning?.en ?? '',
+        ru: w.meaning?.ru ?? '',
+        emoji: w.media?.emoji ?? '',
+      },
+    };
+  }
+
+}
+
+/** 피셔-예이츠. 매번 같은 순서로 나오면 게임이 아니다 */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }

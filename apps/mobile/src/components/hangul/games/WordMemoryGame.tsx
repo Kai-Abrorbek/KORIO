@@ -13,11 +13,16 @@ import Animated, {
 } from "react-native-reanimated";
 import { ThemeColors } from "@/constants/theme";
 import { WORD_MEMORY_LEVELS, WordPair } from "@/types/word-memory";
-import { WORD_MEMORY_POOL } from "@/mocks/word-memory.mock";
 import WordMemoryCard, { WCard } from "./WordMemoryCard";
 
 interface Props {
   level: number;
+  /**
+   * 카드에 올릴 단어. 부모가 서버에서 받아 내려준다.
+   * 예전엔 이 파일이 하드코딩 목록을 직접 들고 있었다 — 같은 단어 스무 개가
+   * 돌고 돌아서 두 판이면 다 외웠고, 유저가 배운 것과 아무 상관이 없었다.
+   */
+  words: WordPair[];
   theme: ThemeColors;
   onComplete: (r: {
     cleared: boolean;
@@ -36,7 +41,12 @@ const shuffle = <T,>(a: T[]) => {
   return r;
 };
 
-export default function WordMemoryGame({ level, theme, onComplete }: Props) {
+export default function WordMemoryGame({
+  level,
+  words,
+  theme,
+  onComplete,
+}: Props) {
   const { t } = useTranslation();
   const s = styles(theme);
   const { width } = useWindowDimensions();
@@ -46,7 +56,7 @@ export default function WordMemoryGame({ level, theme, onComplete }: Props) {
 
   // 카드 덱 생성
   const initialCards = useMemo<WCard[]>(() => {
-    const pairs: WordPair[] = shuffle(WORD_MEMORY_POOL).slice(0, cfg.pairs);
+    const pairs: WordPair[] = shuffle(words).slice(0, cfg.pairs);
     const cards: WCard[] = [];
     pairs.forEach((p, i) => {
       cards.push({
@@ -67,7 +77,7 @@ export default function WordMemoryGame({ level, theme, onComplete }: Props) {
       });
     });
     return shuffle(cards);
-  }, [level]);
+  }, [level, words]);
 
   const [cards, setCards] = useState<WCard[]>(initialCards);
   const [firstId, setFirstId] = useState<string | null>(null);

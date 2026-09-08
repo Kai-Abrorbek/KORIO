@@ -18,8 +18,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { ARCADE_WORDS, meaningOf } from "@/mocks/arcade.mock";
-import { WordPair } from "@/mocks/match-game.mock";
+import { meaningOfWord as meaningOf } from "@/services/game-words.service";
+import { useGameWords } from "@/features/games/useGameWords";
+import { GameWordsGate } from "@/features/games/GameWordsGate";
+import type { GameWord as WordPair } from "@/services/game-words.service";
 
 const MAX_HEARTS = 3;
 const START_FALL_MS = 6000;
@@ -33,6 +35,8 @@ export default function WordRainScreen() {
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
 
+  // 하드코딩 목록 대신 서버가 이 사람 진도로 뽑아준 단어들
+  const { words: pool, loading, failed, reload } = useGameWords(40, 5);
   const [word, setWord] = useState<WordPair | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const [hearts, setHearts] = useState(MAX_HEARTS);
@@ -61,8 +65,13 @@ export default function WordRainScreen() {
   }));
 
   const pickNext = useCallback(() => {
-    const w = ARCADE_WORDS[Math.floor(Math.random() * ARCADE_WORDS.length)];
-    const wrongs = ARCADE_WORDS.filter((x) => x.id !== w.id)
+    const list = pool ?? [];
+    if (!list.length) return;
+    const w = list[Math.floor(Math.random() * list.length)];
+    // 오답도 같은 묶음에서 뽑는다. 엉뚱한 난이도의 뜻이 섞이면
+    // 정답이 그냥 눈에 띄어서 문제가 안 된다
+    const wrongs = list
+      .filter((x) => x.id !== w.id)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2);
     const opts = [w, ...wrongs]
@@ -70,7 +79,7 @@ export default function WordRainScreen() {
       .sort(() => Math.random() - 0.5);
     setWord(w);
     setOptions(opts);
-  }, [i18n.language]);
+  }, [i18n.language, pool]);
 
   // 새 단어 낙하 시작
   const drop = useCallback(() => {
@@ -160,6 +169,18 @@ export default function WordRainScreen() {
     if (router.canGoBack()) router.back();
     else router.replace("/");
   };
+
+  // 단어를 못 받으면 게임을 시작하지 않는다. 가짜 단어로 채우면 유저는
+  // 자기가 배운 게 아닌 걸로 연습하면서 그걸 모른다
+  if (loading || failed) {
+    return (
+      <View style={s.container}>
+        <GameWordsGate loading={loading} failed={failed} onRetry={reload}>
+          {null}
+        </GameWordsGate>
+      </View>
+    );
+  }
 
   return (
     <View style={s.container}>

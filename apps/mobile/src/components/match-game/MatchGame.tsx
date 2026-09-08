@@ -18,8 +18,8 @@ import {
   MILESTONES,
   starTier,
   shuffle,
-  WORD_POOL,
 } from "@/mocks/match-game.mock";
+import { GameWordsApi, meaningOfWord } from "@/services/game-words.service";
 import MatchPairCard, { PairStatus } from "@/components/lesson/MatchPairCard";
 import { LessonService } from "@/services/lesson.service";
 import MatchProgressBar from "./MatchProgressBar";
@@ -55,10 +55,17 @@ interface Reward {
 const langKey = () =>
   (i18n.language?.split("-")[0] || "uz") as "ko" | "uz" | "en" | "ru";
 
-const fromMock = (p: WordPair): Pair => ({
-  id: p.id,
-  ko: p.ko,
-  native: p[langKey()] ?? p.en,
+/** 서버가 준 단어를 판에 올릴 형태로 */
+const fromServer = (w: {
+  id: string;
+  ko: string;
+  uz: string;
+  en: string;
+  ru: string;
+}): Pair => ({
+  id: w.id,
+  ko: w.ko,
+  native: meaningOfWord(w, langKey()),
 });
 
 let keySeq = 0;
@@ -116,16 +123,30 @@ export default function MatchGame({ onExit }: { onExit: () => void }) {
           .filter((w) => w.korean && w.native)
           .map((w) => ({ id: w.korean, ko: w.korean, native: w.native }));
 
-        // 배운 단어가 보드를 채울 만큼 없으면 기본 단어를 섞어 보충
+        // 배운 단어가 보드를 채울 만큼 있으면 그걸로 끝
         if (learned.length >= BOARD_PAIRS + 3) {
           start(learned);
           return;
         }
+        // 모자라면 서버가 진도에 맞춰 뽑아준 단어로 채운다.
+        // 예전엔 앱에 박아둔 스무 개짜리 목록을 썼는데, 그건 유저가 배운
+        // 것과 아무 상관이 없어서 "게임에서 본 단어" 와 "배운 단어" 가 따로 놀았다
         const seen = new Set(learned.map((p) => p.id));
-        const filler = WORD_POOL.map(fromMock).filter((p) => !seen.has(p.id));
-        start([...learned, ...filler]);
+        GameWordsApi.pool(BOARD_PAIRS * 3, 5)
+          .then((r) => {
+            if (!alive) return;
+            const filler = (r.words ?? [])
+              .map(fromServer)
+              .filter((p) => !seen.has(p.id));
+            start([...learned, ...filler]);
+          })
+          .catch(() => alive && start(learned));
       })
-      .catch(() => start(WORD_POOL.map(fromMock)));
+      .catch(() =>
+        GameWordsApi.pool(BOARD_PAIRS * 3, 5)
+          .then((r) => alive && start((r.words ?? []).map(fromServer)))
+          .catch(() => alive && start([])),
+      );
 
     return () => {
       alive = false;

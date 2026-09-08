@@ -62,3 +62,7 @@ deploy/api.env
 # 끼워 넣으므로, 생기면 지우고 package.json 도 되돌릴 것.
 /android
 /ios
+
+# 윈도우에서 git 이 못 지우는 락 파일을 옮겨두는 곳 (커밋 대상 아님)
+.gitlocks/
+_gitlock-trash/
