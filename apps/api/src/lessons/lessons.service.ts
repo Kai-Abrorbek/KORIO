@@ -58,6 +58,16 @@ import { HangulLevel } from '../common/enums/hangul-level.enum';
 const LEGEND_XP = 300;
 
 /**
+ * 학습자 언어 자리에 한국어가 섞였는지.
+ *
+ * 시드의 `answerTranslation` 은 학습자 언어의 뜻 문장이어야 하는데, 114개는
+ * 거기에 한국어가 들어 있다 — `아파서 — kasal bo'lgani uchun` 처럼 정답이
+ * 그대로 있거나, `마다 bilan birlashtiriladi` 처럼 문법 항목을 설명한다.
+ * 그런 값은 문제 지문으로 쓸 수 없다.
+ */
+const HANGUL = /[ㄱ-ㆎ가-힣]/;
+
+/**
  * answerTranslation 을 문제 지문으로 먼저 보여주는 타입 (정답 노출 주의).
  *
  * 이 타입들은 "뜻을 보고 한국어로 쓴다" 가 과제라, 말풍선에 학습자 언어의
@@ -156,8 +166,42 @@ export class LessonsService {
 
     if (q.npcText) return q.npcText;
 
+    // 뜻 문장이 있으면 **그게** 옮길 원문이다.
+    //
+    // 예전엔 여기서 바로 instruction 으로 갔는데, instruction 은 문장이 아니라
+    // "~라고 쓰세요" 꼴의 지시문인 경우가 많다 (실측: translate_type 237개,
+    // translate_builder 796개). 그러면 화면의 "번역할 문장" 칸에 지시문이
+    // 앉아서 유저가 정확히 무엇을 써야 하는지 알 수가 없다.
+    //
+    // 한국어가 섞인 값은 못 쓴다 (위 HANGUL 설명). 그땐 지시문으로 되돌아가는데,
+    // 그런 문항은 지시문이 대체로 구체적이라 원래 동작이 그대로 맞다.
+    const meaning = this.nativeMeaning(q, lang);
+    if (meaning && !HANGUL.test(meaning)) return meaning;
+
     const sourceLang = lang === 'ko' ? 'en' : lang;
     return q.instruction?.[sourceLang] || q.instruction?.en || '';
+  }
+
+  /**
+   * 문제에 먼저 보여줄 뜻 문장 (GRAMMAR_PROMPT_TYPES 용).
+   *
+   * type_answer 는 이 값이 말풍선의 **유일한** 지문이라, 한국어가 섞이면
+   * 정답을 그대로 띄우는 꼴이 된다. 그땐 아예 안 준다 — 화면은 지문이 비면
+   * 말풍선을 안 그린다. 빈 칸이 정답 노출보다 낫다.
+   *
+   * grammar_blank / grammar_build 는 빈칸이 뚫린 문장이 따로 있어서 이 값이
+   * 보조 설명에 가깝다. 거기까지 지우면 오히려 단서가 사라져서 그대로 둔다.
+   */
+  private promptMeaning(q: { type?: string }, lang: string): string {
+    const meaning = this.nativeMeaning(q, lang);
+    if (q.type === QuestionType.TYPE_ANSWER && HANGUL.test(meaning)) return '';
+    return meaning;
+  }
+
+  /** 문항의 answerTranslation 을 학습자 언어로 (한국어 UI 면 영어로) 꺼낸다 */
+  private nativeMeaning(q: unknown, lang: string): string {
+    const { answerTranslation } = (q ?? {}) as { answerTranslation?: unknown };
+    return this.extractNativeI18n(answerTranslation, lang);
   }
 
   private extractI18n(obj: any, lang: string): string {
@@ -210,7 +254,7 @@ export class LessonsService {
       // UI 로 보면 빈칸 위에 답이 적힌 꼴이 된다. 번역 문제에서 쓰던 규칙
       // (ko → en 폴백)을 여기에도 적용한다. 실제 학습자 언어가 한국어인 경우는 없다.
       answerTranslation: GRAMMAR_PROMPT_TYPES.has(q.type)
-        ? this.extractNativeI18n(q.answerTranslation, lang)
+        ? this.promptMeaning(q, lang)
         : this.extractI18n(q.answerTranslation, lang),
       acceptedAnswers: usesNativeBuilder ? [] : q.acceptedAnswers || [],
       // 세부 rubric은 서버에만 둔다. 기존 타이핑 시드는 안전한 exact 폴백을 쓴다.

@@ -4310,9 +4310,9 @@ export const S2_UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '공 — 전화번호에서 0',
-      uz: '공 — telefon raqamidagi 0',
-      en: '공 — zero in a phone number',
-      ru: '공 — ноль в телефонном номере',
+      uz: 'telefon raqamidagi 0',
+      en: 'zero in a phone number',
+      ru: 'ноль в телефонном номере',
     },
     grading: {
       mode: 'exact',
@@ -13210,9 +13210,9 @@ export const S2_UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '많아서 — 많기 때문에',
-      uz: '많아서 — ko‘p bo‘lgani uchun',
-      en: '많아서 — because there is a lot',
-      ru: '많아서 — потому что много',
+      uz: 'ko‘p bo‘lgani uchun',
+      en: 'because there is a lot',
+      ru: 'потому что много',
     },
     grading: {
       mode: 'targetExpression',
@@ -14322,9 +14322,9 @@ export const S2_UNIT4_QUESTIONS = {
     acceptedAnswers: [],
     answerTranslation: {
       ko: '아파서 — 아프기 때문에',
-      uz: '아파서 — kasal bo‘lgani uchun',
-      en: '아파서 — because someone is sick',
-      ru: '아파서 — потому что болен',
+      uz: 'kasal bo‘lgani uchun',
+      en: 'because someone is sick',
+      ru: 'потому что болен',
     },
     grading: {
       mode: 'targetExpression',

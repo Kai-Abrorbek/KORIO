@@ -106,9 +106,19 @@ export default function TypeAnswer({
   return (
     <View style={{ flex: 1 }}>
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
-        {/* 지시문 */}
+        {/* 제목.
+            말풍선이 학습자 언어의 뜻 문장을 들고 있으면 제목엔 공용 문구만
+            둔다. 문제별 지시문까지 띄우면 **지문이 둘**이 되고, 실제로 둘이
+            어긋난 문항이 있었다 — 지시문은 "주말에 특별한 일이 있는지 묻는
+            문장", 말풍선은 "별일 있어요?". 유저는 큰 글씨를 먼저 읽고 엉뚱한
+            답을 쓴다.
+
+            npcText(한국어 지문)일 때는 반대다. "이 문장에 맞는 말을 써라" 같은
+            과제라 문제별 지시문이 없으면 뭘 하라는 건지 알 수 없다. */}
         <Text style={s.title}>
-          {question.question || t("lesson.translateSentence")}
+          {promptText && !question.npcText
+            ? t("lesson.typeAnswerTitle")
+            : question.question || t("lesson.typeAnswerTitle")}
         </Text>
 
         {/* 캐릭터 + 말풍선. 지문이 없으면 말풍선은 안 그린다 */}

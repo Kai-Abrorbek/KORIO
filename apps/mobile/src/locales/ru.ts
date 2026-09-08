@@ -572,6 +572,7 @@ export default {
     selectCorrectImage: "Выберите правильное изображение",
     listenAndSelect: "Слушайте и выбирайте",
     translateSentence: "Переведите следующее предложение",
+    typeAnswerTitle: "Напишите этот смысл по-корейски",
     translateTypeHint: "Передайте смысл естественным предложением на корейском",
     sourceSentence: "Предложение для перевода",
     toKorean: "На корейский",

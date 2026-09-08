@@ -561,6 +561,7 @@ export default {
     fillMissing: "빠진 단어를 입력하세요",
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "다음 문장을 번역하세요",
+    typeAnswerTitle: "이 뜻을 한국어로 써 보세요",
     translateTypeHint: "뜻을 살려 자연스러운 한국어로 표현해 보세요",
     sourceSentence: "번역할 문장",
     toKorean: "한국어로",

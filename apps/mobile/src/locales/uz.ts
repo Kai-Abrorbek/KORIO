@@ -576,6 +576,7 @@ export default {
     selectCorrectImage: "To'g'ri rasmni tanlang",
     listenAndSelect: "Eshiting va tanlang",
     translateSentence: "Quyidagi gapni tarjima qiling",
+    typeAnswerTitle: "Bu ma‘noni koreyscha yozing",
     translateTypeHint: "Ma'noni tabiiy koreyscha gap bilan ifodalang",
     sourceSentence: "Tarjima qilinadigan gap",
     toKorean: "Koreyschaga",

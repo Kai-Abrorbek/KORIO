@@ -573,6 +573,7 @@ export default {
     selectCorrectImage: "Select the correct image",
     listenAndSelect: "Listen and select",
     translateSentence: "Translate this sentence",
+    typeAnswerTitle: "Write this meaning in Korean",
     translateTypeHint: "Express the meaning as a natural Korean sentence",
     sourceSentence: "Sentence to translate",
     toKorean: "Into Korean",
