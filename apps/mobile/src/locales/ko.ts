@@ -1328,6 +1328,8 @@ export default {
     close: "닫기",
   },
   premium: {
+    seeAllPlans: "모든 요금제 보기",
+    trialBuyNote: "체험 {{days}}일이 남아 있어요. 지금 구매하면 바로 결제되고 체험은 끝나요.",
     totalPrice: "총 {{price}}",
     hasFreeTrial: "무료 체험 포함",
     startTrialFree: "무료로 시작하기",

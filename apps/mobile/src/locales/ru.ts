@@ -1337,6 +1337,8 @@ export default {
     close: "Закрыть",
   },
   premium: {
+    seeAllPlans: "Все тарифы",
+    trialBuyNote: "Осталось {{days}} дн. пробного периода. При покупке сейчас оплата спишется сразу, а пробный период закончится.",
     totalPrice: "Всего {{price}}",
     hasFreeTrial: "С бесплатным периодом",
     startTrialFree: "Начать бесплатно",

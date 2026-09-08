@@ -47,6 +47,7 @@ export function useSubscription() {
   return {
     subscription: sub,
     isPremium: sub?.isPremium ?? false,
+    canUpgradeTo: sub?.canUpgradeTo ?? [],
     isTrial: sub?.isTrial ?? false,
     trialDaysLeft: sub?.trialDaysLeft ?? null,
     loading,

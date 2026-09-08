@@ -69,6 +69,12 @@ export default function PremiumScreen() {
   const [tier, setTier] = useState<SubscriptionTier>("max");
   /** SUPER 구독자가 MAX 요금제를 보러 들어온 경우 */
   const [showPlansAnyway, setShowPlansAnyway] = useState(false);
+  /**
+   * 지금 위로 갈 수 있는가. 서버가 canUpgradeTo 로 알려준다.
+   * 앱이 tier·isTrial 로 직접 추론하던 걸 서버 판단 하나로 모았다 —
+   * 그 추론이 틀려서 체험 중엔 아무 요금제도 안 보였다.
+   */
+  const canUpgrade = (subscription?.canUpgradeTo?.length ?? 0) > 0;
 
   const tierPlans = useMemo(() => plansByTier(tier), [plansByTier, tier]);
 
@@ -162,8 +168,11 @@ export default function PremiumScreen() {
           ))}
         </View>
 
-        {/* SUPER 유저에게 MAX 를 권한다 — 튜터를 못 쓰는 상태다 */}
-        {subscription?.tier !== "max" && !subscription?.isTrial && (
+        {/* 위로 갈 수 있으면 권한다.
+            예전엔 `!isTrial` 이 붙어 있어서 **체험 중에는 어떤 요금제도 못
+            봤다.** 실제 구독 서비스는 체험 중에도 다 보여준다 — 체험 중에
+            MAX 를 사고 싶은 사람이 길이 없으면 그냥 나간다. */}
+        {canUpgrade && (
           <Pressable
             style={s.upgradeBox}
             onPress={() => {
@@ -176,6 +185,29 @@ export default function PremiumScreen() {
             <Text style={s.upgradeText}>{t("premium.tierBlurb.max")}</Text>
             <Ionicons name="chevron-forward" size={16} color="#fff" />
           </Pressable>
+        )}
+
+        {/* 체험 중이면 MAX 말고 SUPER 도 살 수 있다. 그리고 체험이 끝나면
+            어차피 골라야 하므로 미리 볼 길을 열어둔다 */}
+        {subscription?.isTrial && (
+          <Pressable
+            style={s.browsePlans}
+            onPress={() => setShowPlansAnyway(true)}
+            hitSlop={8}
+          >
+            <Text style={s.browsePlansText}>{t("premium.seeAllPlans")}</Text>
+            <Ionicons name="chevron-forward" size={15} color={theme.primary} />
+          </Pressable>
+        )}
+
+        {/* 체험 중에 사면 남은 체험일은 사라지고 그 자리에서 결제된다.
+            안 적어두면 "체험 남았는데 왜 돈이 나갔냐" 가 그대로 환불 문의가 된다 */}
+        {subscription?.isTrial && showPlansAnyway === false && canUpgrade && (
+          <Text style={s.trialBuyNote}>
+            {t("premium.trialBuyNote", {
+              days: subscription.trialDaysLeft ?? 0,
+            })}
+          </Text>
         )}
 
         {!!subscription?.expiresAt && (
@@ -904,6 +936,24 @@ const styles = (theme: ThemeColors) =>
       fontWeight: "800",
       color: "#fff",
       lineHeight: 19,
+    },
+    browsePlans: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      alignSelf: "center",
+      marginTop: 14,
+      paddingVertical: 6,
+    },
+    browsePlansText: { fontSize: 14, fontWeight: "800", color: theme.primary },
+    trialBuyNote: {
+      fontSize: 12.5,
+      lineHeight: 18,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      textAlign: "center",
+      marginTop: 12,
+      paddingHorizontal: 24,
     },
     expiresNote: {
       marginTop: 20,

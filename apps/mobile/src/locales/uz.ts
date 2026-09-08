@@ -1337,6 +1337,8 @@ export default {
     close: "Yopish",
   },
   premium: {
+    seeAllPlans: "Barcha tariflarni ko'rish",
+    trialBuyNote: "Sinov muddatidan {{days}} kun qoldi. Hozir sotib olsangiz, darhol to'lov olinadi va sinov tugaydi.",
     totalPrice: "Jami {{price}}",
     hasFreeTrial: "Bepul sinov bilan",
     startTrialFree: "Bepul boshlash",

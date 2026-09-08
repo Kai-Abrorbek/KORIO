@@ -11,6 +11,7 @@ import {
   ENTITLED_STATUSES,
   type PaymentProviderId,
   type SubscriptionStatus,
+  type SubscriptionTier,
   type VerifiedPurchase,
 } from './subscription.types';
 
@@ -200,6 +201,14 @@ export class SubscriptionService {
         isPremium: true,
         isSuper: true, // 기존 클라 호환
         tier: active.tier ?? 'super',
+        /**
+         * 지금 살 수 있는 등급.
+         *
+         * 앱이 "구독 중" 화면에서 뭘 권할지 여기 하나로 정한다. 예전엔 앱이
+         * tier 와 isTrial 로 직접 추론했는데, 체험 중에는 아예 아무 요금제도
+         * 못 보게 돼 있었다 — 체험 중에 MAX 를 사고 싶은 사람이 길이 없었다.
+         */
+        canUpgradeTo: upgradesFrom(active.tier ?? 'super'),
         plan: active.plan,
         provider: active.provider,
         platform: active.platform,
@@ -224,6 +233,8 @@ export class SubscriptionService {
       isSuper: !!onTrial,
       // 체험은 super 상당. 튜터(max 전용)는 체험으로 열리지 않는다
       tier: 'super' as const,
+      // 체험 중이면 아직 아무것도 산 게 없다 — 둘 다 살 수 있다
+      canUpgradeTo: ['super', 'max'] as SubscriptionTier[],
       plan: onTrial ? 'trial' : null,
       provider: null,
       platform: null,
@@ -270,4 +281,10 @@ export class SubscriptionService {
     await this.supersede(userId, v);
     return this.applyVerifiedPurchase(userId, v);
   }
+}
+
+/** 이 등급에서 위로 갈 수 있는 등급들. 없으면 빈 배열 */
+function upgradesFrom(tier: SubscriptionTier): SubscriptionTier[] {
+  const ORDER: SubscriptionTier[] = ['super', 'max'];
+  return ORDER.slice(ORDER.indexOf(tier) + 1);
 }

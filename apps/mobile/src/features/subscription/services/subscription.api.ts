@@ -14,6 +14,8 @@ export interface MySubscription {
   status: string | null;
   expiresAt: string | null;
   autoRenew: boolean;
+  /** 지금 살 수 있는 등급. 앱은 이걸 보고 뭘 권할지 정한다 */
+  canUpgradeTo: ("super" | "max")[];
   isTrial: boolean;
   trialDaysLeft: number | null;
 }

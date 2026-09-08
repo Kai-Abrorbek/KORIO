@@ -1332,6 +1332,8 @@ export default {
     close: "Close",
   },
   premium: {
+    seeAllPlans: "See all plans",
+    trialBuyNote: "You have {{days}} days of trial left. Buying now charges you immediately and ends the trial.",
     totalPrice: "{{price}} total",
     hasFreeTrial: "Free trial included",
     startTrialFree: "Start free",
