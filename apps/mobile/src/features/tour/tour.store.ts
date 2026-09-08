@@ -24,6 +24,15 @@ interface TourState {
   seen: Record<string, boolean>;
   /** 지금 도는 투어 (없으면 null) */
   activeTour: string | null;
+  /**
+   * "다른 화면에서 이 투어를 켜달라고 요청했다".
+   *
+   * 설정 화면의 '다시 보기' 가 여기 쓴다. 거기서 바로 activeTour 를 켜면
+   * 아직 설정 화면 위에 오버레이가 뜨고, 홈으로 넘어가는 동안 화면이
+   * 움직여서 구멍이 따라다닌다. 대상 화면이 **자기가 포커스를 잡은 뒤**
+   * 꺼내 쓰게 한다.
+   */
+  pending: string | null;
   step: number;
   /** 대상 id → 화면상 위치. 대상들이 마운트되며 채운다 */
   rects: Record<string, TourRect>;
@@ -34,6 +43,10 @@ interface TourState {
   measureNonce: number;
 
   markSeen: (tourId: string) => void;
+  /** 다른 화면에서 투어를 예약한다 */
+  requestTour: (tourId: string) => void;
+  /** 예약이 나였으면 켜고 true. 대상 화면이 포커스를 잡은 뒤 부른다 */
+  consumePending: (tourId: string) => boolean;
   /** 아직 안 봤으면 시작한다. 이미 봤으면 아무 일도 안 일어난다 */
   startIfUnseen: (tourId: string) => void;
   /** 설정 화면 등에서 다시 보기 */
@@ -51,11 +64,20 @@ export const useTourStore = create<TourState>()(
     (set, get) => ({
       seen: {},
       activeTour: null,
+      pending: null,
       step: 0,
       rects: {},
       measureNonce: 0,
 
       markSeen: (tourId) => set((s) => ({ seen: { ...s.seen, [tourId]: true } })),
+
+      requestTour: (tourId) => set({ pending: tourId }),
+
+      consumePending: (tourId) => {
+        if (get().pending !== tourId) return false;
+        set({ pending: null, activeTour: tourId, step: 0, rects: {} });
+        return true;
+      },
 
       /**
        * ⚠️ 시작·이동할 때 rects 를 비운다.
@@ -87,6 +109,7 @@ export const useTourStore = create<TourState>()(
         const id = get().activeTour;
         set((s) => ({
           activeTour: null,
+          pending: null,
           step: 0,
           seen: id ? { ...s.seen, [id]: true } : s.seen,
         }));

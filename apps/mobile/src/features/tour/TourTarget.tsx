@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { View, type ViewProps, type LayoutChangeEvent } from "react-native";
 import { useTourStore } from "./tour.store";
+import { useScreenFocused } from "./useScreenFocused";
 import { TOURS } from "./tours";
 
 /** 활성 단계일 때 위치를 다시 재는 주기 */
@@ -45,11 +46,23 @@ export default function TourTarget({
   const setRect = useTourStore((s) => s.setRect);
   const measureNonce = useTourStore((s) => s.measureNonce);
 
+  /**
+   * 화면이 뒤에 깔려 있으면 좌표를 보고하지 않는다.
+   *
+   * ⚠️ 이걸 안 하면 **같은 화면이 두 벌 살아 있을 때 말풍선이 떤다.**
+   * 설정에서 router.replace('/(tabs)') 로 홈을 다시 열면 스택에 홈이
+   * 하나 더 쌓인다. 그러면 같은 tourId 를 가진 TourTarget 두 개가 서로
+   * 다른 좌표를 80ms 마다 번갈아 써넣고, 구멍과 말풍선이 두 자리를
+   * 왕복한다. 보이는 화면만 보고하게 하면 그런 일이 없다.
+   */
+  const screenFocused = useScreenFocused();
+
   // 지금 이 대상을 설명 중인가
-  const isActive = useTourStore((s) => {
+  const isActiveStep = useTourStore((s) => {
     if (!s.activeTour) return false;
     return TOURS[s.activeTour]?.steps[s.step]?.target === tourId;
   });
+  const isActive = isActiveStep && screenFocused;
 
   const measure = useCallback(() => {
     ref.current?.measureInWindow((x, y, width, height) => {
@@ -84,16 +97,17 @@ export default function TourTarget({
 
   // 투어가 명시적으로 요청할 때 (스크롤 직후 등)
   useEffect(() => {
-    if (measureNonce > 0) measure();
-  }, [measureNonce, measure]);
+    if (measureNonce > 0 && screenFocused) measure();
+  }, [measureNonce, measure, screenFocused]);
 
   const onLayout = useCallback(
     (e: LayoutChangeEvent) => {
       rest.onLayout?.(e);
+      if (!screenFocused) return;
       // 애니메이션이 끝난 위치를 잡으려면 다음 프레임에
       requestAnimationFrame(measure);
     },
-    [measure, rest.onLayout],
+    [measure, screenFocused, rest.onLayout],
   );
 
   return (

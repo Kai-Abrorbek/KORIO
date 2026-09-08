@@ -79,6 +79,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const startTour = useTourStore((st) => st.startIfUnseen);
+  const consumePendingTour = useTourStore((st) => st.consumePending);
   // 투어 단계가 바뀌면 대상이 보이도록 스크롤한다 (오버레이는 루트에 있어서
   // 이 ScrollView 를 모른다). AI 버튼은 늘 보이므로 제외.
   const { onScroll: onTourScroll } = useTourScroll(HOME_TOUR, scrollRef, [
@@ -107,6 +108,15 @@ export default function HomeScreen() {
     const id = setTimeout(() => startTour(HOME_TOUR), 1300);
     return () => clearTimeout(id);
   }, [startTour]);
+
+  // 설정에서 "다시 보기" 로 예약한 투어는 여기서 꺼낸다.
+  // 화면이 자리를 잡은 뒤에 켜야 스포트라이트가 제자리에 뚫린다.
+  useFocusEffect(
+    useCallback(() => {
+      const id = setTimeout(() => consumePendingTour(HOME_TOUR), 450);
+      return () => clearTimeout(id);
+    }, [consumePendingTour]),
+  );
 
   useFocusEffect(
     useCallback(() => {

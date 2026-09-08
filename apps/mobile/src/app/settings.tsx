@@ -29,13 +29,22 @@ export default function SettingsScreen() {
   const styles = getStyles(theme);
   const { user } = useAuthStore();
   const [codeOpen, setCodeOpen] = useState(false);
-  const restartTour = useTourStore((s) => s.restart);
+  const requestTour = useTourStore((s) => s.requestTour);
 
   const handleItemPress = (item: SettingsItem) => {
-    // 기능 안내는 화면 이동이 아니다. 투어를 켜고 홈으로 보내야 한다.
+    // 기능 안내는 화면 이동이 아니다. 홈으로 보내고 거기서 켜야 한다.
+    //
+    // ⚠️ replace 를 쓰면 안 된다. 스택에 이미 있는 홈 위에 **홈을 하나 더**
+    // 쌓아서, 같은 tourId 를 가진 TourTarget 이 두 벌 살아 서로 다른 좌표를
+    // 번갈아 써넣는다 (말풍선이 떨었던 원인). navigate 는 이미 있는 화면으로
+    // 되돌아간다.
+    //
+    // 투어도 여기서 바로 켜지 않는다 — 아직 설정 화면 위라, 홈으로 넘어가는
+    // 동안 화면이 움직여서 구멍이 따라다닌다. 예약만 하고 홈이 포커스를
+    // 잡은 뒤 스스로 꺼내 쓰게 한다.
     if (item.id === "tourReplay") {
-      restartTour(HOME_TOUR);
-      router.replace("/(tabs)");
+      requestTour(HOME_TOUR);
+      router.navigate("/(tabs)");
       return;
     }
     if (item.route) {
