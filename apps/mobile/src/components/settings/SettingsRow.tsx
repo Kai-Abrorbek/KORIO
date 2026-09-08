@@ -1,46 +1,31 @@
-import { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withDelay,
-  withTiming,
-  withSpring,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { SettingsItem } from "@/types/settings";
 
 interface Props {
   item: SettingsItem;
-  index: number;
+  /** 예전 등장 애니메이션의 순번. 지금은 안 쓰지만 호출부 호환으로 남긴다 */
+  index?: number;
   isLast?: boolean;
   onPress?: (item: SettingsItem) => void;
 }
 
-export default function SettingsRow({ item, index, isLast, onPress }: Props) {
+export default function SettingsRow({ item, isLast, onPress }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  // stagger entry
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(10);
-
-  useEffect(() => {
-    opacity.value = withDelay(index * 40, withTiming(1, { duration: 280 }));
-    translateY.value = withDelay(index * 40, withSpring(0, { damping: 14 }));
-  }, [opacity, translateY, index]);
-
-  const entryStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  // 등장 애니메이션을 뺐다.
+  //
+  // 행마다 40ms 씩 밀려 들어오면서 damping 14 스프링으로 튕겼다. 행이 열댓
+  // 개라 목록 전체가 출렁거려서, 설정을 열 때마다 화면이 흔들리는 것처럼
+  // 보였다. 설정은 뭔가를 찾으러 들어오는 화면이지 구경하는 화면이 아니다.
 
   return (
-    <Animated.View style={entryStyle}>
+    <View>
       <TouchableOpacity
         style={[styles.row, !isLast && styles.divider]}
         onPress={() => onPress?.(item)}
@@ -63,7 +48,7 @@ export default function SettingsRow({ item, index, isLast, onPress }: Props) {
           color={theme.textSecondary}
         />
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 

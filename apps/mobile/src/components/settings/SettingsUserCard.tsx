@@ -1,16 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
@@ -68,22 +60,10 @@ export default function SettingsUserCard({
           title: t("settings.user.freeTooltip"),
           desc: t("settings.user.freeTooltipDesc", { days: TRIAL_DAYS }),
         };
-  // 툴팁 둥둥 애니메이션
-  const bob = useSharedValue(0);
-  useEffect(() => {
-    bob.value = withRepeat(
-      withSequence(
-        withTiming(-3, { duration: 900, easing: Easing.inOut(Easing.ease) }),
-        withTiming(3, { duration: 900, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-  }, [bob]);
-
-  const tooltipStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: bob.value }],
-  }));
+  // 툴팁 둥둥 애니메이션을 뺐다.
+  //
+  // 끝없이 위아래로 움직여서 설정 화면이 계속 흔들리는 것처럼 보였다.
+  // 한 번 눈에 띄면 그 뒤로는 방해만 되는 종류의 움직임이다.
 
   return (
     <View style={styles.card}>
@@ -109,7 +89,7 @@ export default function SettingsUserCard({
         />
       </TouchableOpacity>
       {!!tip && (
-        <Animated.View style={[styles.tooltipWrap, tooltipStyle]}>
+        <View style={styles.tooltipWrap}>
           <View style={styles.tooltip}>
             <Text style={styles.tooltipText}>
               <Text style={styles.tooltipFree}>{tip.badge}</Text> {tip.title}
@@ -117,7 +97,7 @@ export default function SettingsUserCard({
             <Text style={styles.tooltipDesc}>{tip.desc}</Text>
           </View>
           <View style={styles.tooltipArrow} />
-        </Animated.View>
+        </View>
       )}
 
       <TouchableOpacity
