@@ -78,6 +78,12 @@ export default function TourOverlay() {
    * 위/아래 배치는 어림 높이(BUBBLE_EST_H)로 정하지만, 그 어림이 틀리면
    * 말풍선이 화면 밖으로 나가고 **"다음" 버튼을 못 누른다** — 투어가 거기서
    * 끝난다. 그려진 다음 실제 높이로 한 번 더 가둔다.
+   *
+   * ⚠️ **단계당 딱 한 번만 받는다.**
+   * 높이로 위치를 정하는데 위치가 바뀌면 onLayout 이 다시 뜬다. 안드로이드는
+   * 뷰의 절대 위치에 따라 높이를 다른 정수로 반올림해서, 두 위치가 1px 다른
+   * 높이를 내놓으면 A→B→A→B 로 영원히 왕복한다 — 말풍선이 위아래로 떤다.
+   * 한 번 받고 잠그면 고리가 끊긴다. 한 단계 안에서 문구는 안 바뀐다.
    */
   const [bubbleH, setBubbleH] = useState(0);
 
@@ -185,7 +191,10 @@ export default function TourOverlay() {
     if (!bubbleH || !height) return bubble.top;
     const maxTop = height - insets.bottom - 12 - bubbleH;
     const minTop = insets.top + 12;
-    return Math.max(minTop, Math.min(bubble.top, Math.max(minTop, maxTop)));
+    // 정수로 끊어야 다음 onLayout 이 같은 높이를 돌려준다
+    return Math.round(
+      Math.max(minTop, Math.min(bubble.top, Math.max(minTop, maxTop))),
+    );
   })();
   const isLast = step === steps.length - 1;
   const goNext = () => {
@@ -251,8 +260,9 @@ export default function TourOverlay() {
           key={step}
           entering={FadeIn.duration(220)}
           onLayout={(e) => {
-            const h = e.nativeEvent.layout.height;
-            setBubbleH((prev) => (Math.abs(prev - h) < 1 ? prev : h));
+            const h = Math.round(e.nativeEvent.layout.height);
+            // 이미 받았으면 무시 — 위 주석의 왕복을 막는다
+            setBubbleH((prev) => (prev > 0 ? prev : h));
           }}
           style={[
             s.bubble,

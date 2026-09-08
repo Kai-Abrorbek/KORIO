@@ -62,7 +62,7 @@ export function placeBubble(
   screen: { width: number; height: number },
   insets: { top: number; bottom: number },
 ): BubblePlacement {
-  const width = Math.min(BUBBLE_MAX_W, screen.width - 32);
+  const width = Math.round(Math.min(BUBBLE_MAX_W, screen.width - 32));
   const below = hole.y + hole.height + PAD + GAP;
   const above = below + BUBBLE_EST_H > screen.height - insets.bottom - 20;
   const top = above
@@ -72,7 +72,8 @@ export function placeBubble(
     Math.max(16, hole.x + hole.width / 2 - width / 2),
     Math.max(16, screen.width - width - 16),
   );
-  return { width, top, left, above };
+  // 소수 좌표는 프레임마다 반올림이 달라져 미세한 떨림으로 보인다
+  return { width, top: Math.round(top), left: Math.round(left), above };
 }
 
 /**

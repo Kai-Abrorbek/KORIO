@@ -92,8 +92,22 @@ export const useTourStore = create<TourState>()(
         }));
       },
 
-      setRect: (id, rect) =>
+      setRect: (id, raw) =>
         set((s) => {
+          /**
+           * 정수로 끊는다.
+           *
+           * measureInWindow 는 소수를 준다 (470.333…). 화면이 가만히 있어도
+           * 프레임마다 소수점이 흔들려서, "1px 미만이면 무시" 를 통과해
+           * 계속 새 값이 들어오는 일이 생긴다. 그러면 그 값에 매달린 구멍과
+           * 말풍선이 미세하게 떤다.
+           */
+          const rect = {
+            x: Math.round(raw.x),
+            y: Math.round(raw.y),
+            width: Math.round(raw.width),
+            height: Math.round(raw.height),
+          };
           const prev = s.rects[id];
           // 같은 값이면 쓰지 않는다 — 매 레이아웃마다 store 를 갱신하면
           // 투어를 쓰는 화면 전체가 계속 리렌더된다

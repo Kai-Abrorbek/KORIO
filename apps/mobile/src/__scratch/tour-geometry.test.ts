@@ -95,6 +95,62 @@ say(
   "★ 스크롤한 만큼 옮기면 실제로 안전 영역 안에 들어온다",
 );
 
+// ── 떨림 방지 (좌표 안정성) ──────────────────────────────────
+// 말풍선 위치가 자기 높이에 의존하고, 위치가 바뀌면 onLayout 이 다시 뜬다.
+// 좌표가 소수면 프레임마다 반올림이 달라져 A→B→A→B 로 영원히 왕복한다.
+const intish = (n: number) => Number.isInteger(n);
+for (const [name, r] of [
+  ["가운데", rect(145, 300, 100, 50)],
+  ["소수 좌표", rect(100.333, 470.6667, 331.4, 70.28)],
+  ["화면 위쪽", rect(12.5, 88.5, 56.5, 56.5)],
+  ["화면 아래쪽", rect(320.7, 770.3, 56.2, 56.9)],
+] as const) {
+  const b = placeBubble(r, SCREEN, INSETS);
+  say(
+    intish(b.top) && intish(b.left) && intish(b.width),
+    `★ ${name}: 말풍선 좌표가 정수 (top=${b.top} left=${b.left})`,
+  );
+}
+
+// 같은 입력이면 같은 출력 (순수 함수인지)
+const a1 = placeBubble(rect(100, 470), SCREEN, INSETS);
+const a2 = placeBubble(rect(100, 470), SCREEN, INSETS);
+say(
+  a1.top === a2.top && a1.left === a2.left,
+  "같은 입력이면 같은 자리 (되먹임이 생길 여지가 없다)",
+);
+
+// 1px 움직여도 결과가 1px 만 움직인다 (증폭되지 않는다)
+const b1 = placeBubble(rect(100, 470), SCREEN, INSETS);
+const b2 = placeBubble(rect(100, 471), SCREEN, INSETS);
+say(
+  Math.abs(b1.top - b2.top) <= 1,
+  "★ 대상이 1px 움직이면 말풍선도 1px 만 움직인다",
+);
+
+// 클램프를 반복 적용해도 자리가 안 바뀐다 (실측 높이 보정 시뮬레이션)
+function clampTop(top: number, h: number) {
+  const maxTop = SCREEN.height - INSETS.bottom - 12 - h;
+  const minTop = INSETS.top + 12;
+  return Math.round(Math.max(minTop, Math.min(top, Math.max(minTop, maxTop))));
+}
+for (const h of [120, 210, 340, 700, 1200]) {
+  const first = clampTop(placeBubble(rect(100, 700), SCREEN, INSETS).top, h);
+  const second = clampTop(first, h);
+  const third = clampTop(second, h);
+  say(
+    first === second && second === third,
+    `★ 높이 ${h}: 클램프를 반복해도 자리가 고정 (떨림 없음)`,
+  );
+  say(
+    first >= INSETS.top + 12,
+    `높이 ${h}: 상태바를 안 침범한다`,
+  );
+}
+// 말풍선이 화면보다 커도 위로 넘치진 않는다
+const huge = clampTop(placeBubble(rect(100, 700), SCREEN, INSETS).top, 2000);
+say(huge === INSETS.top + 12, "★ 말풍선이 화면보다 커도 위쪽 여백은 지킨다");
+
 // ── 투어 구성 ────────────────────────────────────────────────
 say(HOME_STEPS.length === 5, "홈 투어는 5단계 (넘기면 완주율이 급락한다)");
 say(
