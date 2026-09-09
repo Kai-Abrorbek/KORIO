@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.kai_dev.mobile",
       "sha256_cert_fingerprints": [
-        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+        "8B:93:CE:8D:37:FA:CD:DC:D4:9B:CC:12:18:EE:9F:2B:4E:92:F4:7C:99:3E:47:49:EF:70:39:3E:54:17:12:ED"
       ]
     }
   }
