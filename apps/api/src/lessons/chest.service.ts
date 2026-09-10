@@ -35,11 +35,12 @@ export class ChestService {
   async earn(
     userId: string,
     sourceKey: string,
-    params: { section: number; perfect: boolean },
+    params: { section: number; perfect: boolean; gemScale?: number },
   ) {
     const reward = rollChestReward({
       section: params.section,
       perfect: params.perfect,
+      gemScale: params.gemScale,
     });
 
     try {
@@ -64,6 +65,33 @@ export class ChestService {
         this.logger.warn(`상자 생성 실패: ${error?.message}`);
       }
     }
+  }
+
+  /**
+   * 상자를 만들고 **그 자리에서** 받는다. 노드를 끝낸 순간 쓰는 경로다.
+   *
+   * 왜 claimAll 을 안 쓰나: 그건 안 받은 상자를 전부 쓸어간다. 여기서 부르면
+   * 다른 경로로 쌓여 있던 상자까지 같이 빨려 나가서, 노드 하나 끝냈는데
+   * 이유를 알 수 없는 큰 금액이 들어온다. 방금 만든 그 상자만 집는다.
+   *
+   * 이미 받은 노드면 null 이다 — sourceKey 가 유니크라 두 번 못 받는다.
+   */
+  async earnAndClaim(
+    userId: string,
+    sourceKey: string,
+    params: { section: number; perfect: boolean; gemScale?: number },
+  ): Promise<{ grade: string; gems: number } | null> {
+    await this.earn(userId, sourceKey, params);
+
+    const uId = new Types.ObjectId(userId);
+    const taken = await this.chestModel.findOneAndUpdate(
+      { userId: uId, sourceKey, claimedAt: null },
+      { $set: { claimedAt: new Date() } },
+    );
+    if (!taken) return null;
+
+    await this.userModel.findByIdAndUpdate(uId, { $inc: { gems: taken.gems } });
+    return { grade: taken.grade, gems: taken.gems };
   }
 
   /** 아직 안 받은 상자 수. 화면이 상자를 빛나게 할지 정하는 값 */

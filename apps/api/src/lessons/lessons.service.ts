@@ -33,7 +33,6 @@ import {
 } from '../users/schemas/user-mistake.schema';
 import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
-import { rollChestReward } from './xp.util';
 import { ChestService } from './chest.service';
 import { UsersService } from '../users/users.service';
 import { startOfDay } from '../common/date.util';
@@ -541,30 +540,40 @@ export class LessonsService {
           (p) => (p.wrongQuestionIds?.length ?? 0) === 0,
         );
 
-        // 보석을 바로 넣지 않고 **받아갈 상자로 쌓아둔다.**
-        // 총량은 그대로고 주는 시점만 옮긴 것이다 — 예전에는 알림 하나 뜨고
-        // 끝이라 유저가 보상을 받았다는 걸 거의 몰랐다.
-        await this.chestService.earn(userId, node._id.toString(), {
-          section: node.section ?? 1,
-          perfect,
-        });
+        // 노드를 끝낸 **그 자리에서** 상자를 준다.
+        //
+        // 예전엔 상자를 쌓아만 두고 보석은 로드맵의 상자 노드에서 받게 했다.
+        // 총량은 맞았지만 끝낸 순간 화면에 아무 반응이 없어서 유저는 보상을
+        // 받았다는 걸 몰랐다. 노력과 보상은 붙어 있어야 한다.
+        //
+        // 자유 학습에서는 이제 pendingChests 가 쌓이지 않는다. 로드맵의 상자
+        // 노드는 pendingChests > 0 일 때만 눌리므로 자연히 이정표로만 남는다.
+        //
+        // 학습 로드 모드는 그대로 적립식이다(study-path.service 의
+        // grantDayChest). 그쪽 노드는 훨씬 잘게 쪼개져 있고 하루 단위로 묶여
+        // 있어서, 즉시 지급하면 노드 하나 끝냈는데 며칠치 보석이 한꺼번에
+        // 들어온다.
+        const gemScale = node.category === LessonCategory.GRAMMAR ? 0.5 : 1;
+
+        chest = await this.chestService.earnAndClaim(
+          userId,
+          node._id.toString(),
+          { section: node.section ?? 1, perfect, gemScale },
+        );
+
         // 같은 노드로 두 번 벌지 않게 하는 기존 표식은 그대로 쓴다
         await this.userModel.findByIdAndUpdate(userId, {
           $addToSet: { openedChests: node._id },
         });
 
-        // ⚠️ chest 는 null 로 둔다.
-        //
-        // 레슨 완료 화면은 이 값이 있으면 곧바로 상자 열기 화면으로 넘어간다.
-        // 이제 보석은 여기서 안 주고 로드맵의 상자에서 받으므로, 값을 채우면
-        // **0개짜리 상자가 열린다.** 보상은 로드맵 상자 하나에서만 나온다.
-
-        await this.notifications
-          .create(userId, NotificationType.CHEST, {
-            params: { grade: 'pending', gems: 0 },
-            link: '/roadmap',
-          })
-          .catch(() => {});
+        if (chest) {
+          await this.notifications
+            .create(userId, NotificationType.CHEST, {
+              params: { grade: chest.grade, gems: chest.gems },
+              link: '/roadmap',
+            })
+            .catch(() => {});
+        }
       }
     }
 

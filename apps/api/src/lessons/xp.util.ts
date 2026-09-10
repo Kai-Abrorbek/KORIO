@@ -22,18 +22,29 @@ export function rollChest(): {
   return { grade: 'gold', gems: rand(26, 40) };
 }
 
-// 상자 보석 = 등급 랜덤 + 진도 보너스(섹션) + 완벽 보너스
+// 상자 보석 = 등급 랜덤 + 진도 보너스(섹션) + 완벽 보너스, 트랙 배율 적용
 export function rollChestReward(params: {
   section: number; // 노드 섹션 (진도)
   perfect: boolean; // 노드 전체 무실수 여부
+  /**
+   * 트랙별 배율. 기본 1 (어휘).
+   *
+   * 문법은 0.5 다. 문법 노드는 어휘보다 노드당 문제 수가 적어서, 같은 값을
+   * 주면 **문법만 돌면서 보석을 캐는 쪽이 이득**이 된다. 배율은 등급이
+   * 아니라 보석에만 건다 — 금 상자가 안 나오면 여는 재미가 없다.
+   */
+  gemScale?: number;
 }): { grade: 'wood' | 'silver' | 'gold'; gems: number } {
   const base = rollChest(); // 등급 + 기본 보석 (랜덤)
 
   const progressBonus = Math.max(0, params.section - 1) * 3; // 섹션1=+0, 섹션2=+3...
   const perfectBonus = params.perfect ? 15 : 0;
+  const gems =
+    (base.gems + progressBonus + perfectBonus) * (params.gemScale ?? 1);
 
   return {
     grade: base.grade,
-    gems: base.gems + progressBonus + perfectBonus,
+    // 배율을 곱해도 0 은 안 나오게 한다. 빈 상자는 보상이 아니라 실망이다
+    gems: Math.max(1, Math.round(gems)),
   };
 }
