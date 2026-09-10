@@ -60,8 +60,12 @@ export default function EchoChainScreen() {
         timers.current.push(
           setTimeout(
             () => {
+              // 단어가 빠졌으면 조용히 넘긴다. 여기서 undefined.ko 를 읽고
+              // 앱이 통째로 죽었다
+              const w = gridWords[gi];
+              if (!w) return;
               setPlayingIdx(gi);
-              speak(gridWords[gi].ko);
+              speak(w.ko);
             },
             400 + i * GAP_MS,
           ),
@@ -83,24 +87,49 @@ export default function EchoChainScreen() {
 
   const startRound = useCallback(
     (r: number) => {
+      // 상수 GRID 가 아니라 **실제로 받은 칸 수**로 뽑는다. 서버가 판을
+      // 다 못 채워 줬을 때 없는 칸을 가리키지 않게 한다
+      const cells = gridWords.length;
+      if (!cells) return;
       const len = r + 1; // 라운드1 = 2단어
       const sequence = Array.from({ length: len }, () =>
-        Math.floor(Math.random() * GRID),
+        Math.floor(Math.random() * cells),
       );
       setSeq(sequence);
       playSequence(sequence);
     },
-    [playSequence],
+    [gridWords.length, playSequence],
   );
 
+  /**
+   * 첫 라운드 시작 — **단어가 다 온 뒤에.**
+   *
+   * 예전엔 deps 가 [] 라서 마운트 500ms 뒤에 무조건 시작했다. 그때 단어가
+   * 아직 안 왔으면 gridWords 가 비어 있어서 `gridWords[gi].ko` 에서 앱이
+   * 통째로 죽었다 (TypeError: Cannot read property 'ko' of undefined).
+   *
+   * 아래 GameWordsGate 는 **화면만** 가려 준다. 훅은 조기 return 과 무관하게
+   * 실행되니 타이머는 그대로 돌고 있었다 — 가려 놨는데도 죽은 이유가 이것이다.
+   *
+   * 로컬 API 는 500ms 안에 답해서 개발 중엔 한 번도 안 걸렸고, 릴리스에서
+   * 인터넷을 타는 순간 경쟁에 져서 터졌다.
+   */
+  const started = useRef(false);
   useEffect(() => {
+    if (started.current || !gridWords.length) return;
+    started.current = true;
     const id = setTimeout(() => startRound(1), 500);
-    return () => {
-      clearTimeout(id);
+    return () => clearTimeout(id);
+  }, [gridWords.length, startRound]);
+
+  // 화면을 떠날 때 정리. 시작했든 안 했든 항상 돈다
+  useEffect(
+    () => () => {
       clearTimers();
       stop();
-    };
-  }, []);
+    },
+    [],
+  );
 
   const tapCard = (gi: number) => {
     if (phase !== "input" || over) return;
@@ -108,7 +137,8 @@ export default function EchoChainScreen() {
 
     if (gi === expect) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      speak(gridWords[gi].ko);
+      const w = gridWords[gi];
+      if (w) speak(w.ko);
       setTapFlash({ i: gi, ok: true });
       setTimeout(() => setTapFlash(null), 250);
       inputPos.current += 1;
