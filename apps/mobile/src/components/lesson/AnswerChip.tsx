@@ -123,6 +123,43 @@ function AnswerChip({
     }
   }, [answerState, isPlaced, orderIndex]);
 
+  // 드롭 판정은 전부 JS 스레드에서 한다.
+  //
+  // 예전엔 onEnd(워클릿, UI 스레드) 안에서 getPlacedChipLayouts() 를 그냥
+  // 불렀다. 그건 워클릿이 아닌 평범한 JS 함수라, UI 스레드에서 동기 호출하는
+  // 순간 앱이 죽는다. Map 은 애초에 워클릿으로 넘어가지도 않는다.
+  // onTap·onDragToZone·onSwap 은 runOnJS 로 감쌌는데 이것만 빠져 있었다.
+  //
+  // isPlaced && onSwap && getPlacedChipLayouts 가 전부 참일 때만 타는
+  // 경로라, **놓인 칩을 끌 때만** 죽었다. 뱅크에서 끄는 건 멀쩡했다.
+  const handleDrop = (dx: number, dy: number) => {
+    // 1) placed → placed 자리 바꾸기
+    if (isPlaced && onSwap && getPlacedChipLayouts) {
+      const layouts = getPlacedChipLayouts();
+      const myLayout = layouts.get(item.id);
+      if (myLayout) {
+        const dropX = myLayout.x + myLayout.width / 2 + dx;
+        const dropY = myLayout.y + myLayout.height / 2 + dy;
+        for (const [id, layout] of layouts) {
+          if (id === item.id) continue;
+          if (
+            dropX >= layout.x &&
+            dropX <= layout.x + layout.width &&
+            dropY >= layout.y &&
+            dropY <= layout.y + layout.height
+          ) {
+            onSwap(item.id, id);
+            return;
+          }
+        }
+      }
+    }
+
+    // 2) bank ↔ placed 전환
+    if (isPlaced && dy > 50) onDragToZone(item.id, "bank");
+    else if (!isPlaced && dy < -50) onDragToZone(item.id, "placed");
+  };
+
   const pan = Gesture.Pan()
     .enabled(answerState === "idle")
     .onStart(() => {
@@ -134,55 +171,14 @@ function AnswerChip({
       translateY.value = e.translationY;
     })
     .onEnd((e) => {
+      // 워클릿에서 하는 일은 셰어드값 되돌리기뿐. 판정은 JS 로 넘긴다
       scale.value = withSpring(1, { damping: 10 });
       zIndex.value = 1;
-
-      const movedFar =
-        Math.abs(e.translationX) > 5 || Math.abs(e.translationY) > 5;
-      if (!movedFar) {
-        translateX.value = withSpring(0, { damping: 14 });
-        translateY.value = withSpring(0, { damping: 14 });
-        return;
-      }
-
-      // 1) placed → placed swap 검사 (다른 placed chip 위에 떨어졌나)
-      if (isPlaced && onSwap && getPlacedChipLayouts) {
-        const layouts = getPlacedChipLayouts();
-        const myLayout = layouts.get(item.id);
-        if (myLayout) {
-          const dropX = myLayout.x + myLayout.width / 2 + e.translationX;
-          const dropY = myLayout.y + myLayout.height / 2 + e.translationY;
-
-          let targetId: string | null = null;
-          for (const [id, layout] of layouts) {
-            if (id === item.id) continue;
-            if (
-              dropX >= layout.x &&
-              dropX <= layout.x + layout.width &&
-              dropY >= layout.y &&
-              dropY <= layout.y + layout.height
-            ) {
-              targetId = id;
-              break;
-            }
-          }
-
-          if (targetId) {
-            runOnJS(onSwap)(item.id, targetId);
-            translateX.value = withSpring(0, { damping: 14 });
-            translateY.value = withSpring(0, { damping: 14 });
-            return;
-          }
-        }
-      }
-
-      // 2) bank ↔ placed 전환 (기존 로직)
       translateX.value = withSpring(0, { damping: 14 });
       translateY.value = withSpring(0, { damping: 14 });
-      if (isPlaced && e.translationY > 50) {
-        runOnJS(onDragToZone)(item.id, "bank");
-      } else if (!isPlaced && e.translationY < -50) {
-        runOnJS(onDragToZone)(item.id, "placed");
+
+      if (Math.abs(e.translationX) > 5 || Math.abs(e.translationY) > 5) {
+        runOnJS(handleDrop)(e.translationX, e.translationY);
       }
     });
 
