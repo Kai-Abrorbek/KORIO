@@ -6,7 +6,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { usePreventRemove, type NavigationAction } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { withPremiumScreen } from "@/features/subscription/usePremiumScreen";
 import { useAuthStore } from "@/store/auth.store";
@@ -270,27 +269,57 @@ function SpeakingPracticeScreen() {
   const c = useSpeakingCopy();
   const p = useSpeakingPalette();
   const loggedIn = useAuthStore((s) => s.isLoggedIn);
-  const [pendingExit, setPendingExit] = useState<NavigationAction | null>(null);
-  usePreventRemove(loggedIn && !practice.completed && !!practice.current, ({ data }) => {
-    practice.stopAll();
-    setPendingExit(data.action);
+
+  // 연습 도중에 나가려 하면 한 번 붙잡는다.
+  //
+  // @react-navigation/native 의 usePreventRemove 는 여기서 쓰면 안 된다 —
+  // expo-router 는 react-navigation 을 통째로 vendoring 하고 있어서
+  // (expo-router/build/react-navigation/*) 호이스팅된 패키지와 NavigationContext
+  // 인스턴스가 다르다. 그쪽 훅을 부르면 아무도 provide 하지 않는 컨텍스트를 읽고
+  // "Couldn't find a navigation object" 로 죽는다. beforeRemove 를 직접 단다.
+  // 스와이프 뒤로가기는 _layout 에서 gestureEnabled: false 로 이미 막혀 있으므로
+  // 여기서 잡을 경로는 하드웨어 뒤로가기와 화면 안의 닫기 버튼뿐이다.
+  const [exitAsking, setExitAsking] = useState(false);
+  const exitActionRef = useRef<Parameters<typeof navigation.dispatch>[0] | null>(null);
+  const allowExitRef = useRef(false);
+  const guardRef = useRef(false);
+  const stopAllRef = useRef(practice.stopAll);
+  useEffect(() => {
+    guardRef.current = loggedIn && !practice.completed && !!practice.current;
+    stopAllRef.current = practice.stopAll;
   });
+  useEffect(
+    () =>
+      navigation.addListener("beforeRemove", (e) => {
+        if (allowExitRef.current || !guardRef.current) return;
+        e.preventDefault();
+        stopAllRef.current();
+        exitActionRef.current = e.data.action;
+        setExitAsking(true);
+      }),
+    [navigation],
+  );
+
   const close = () => { if (router.canGoBack()) router.back(); else router.replace("/speaking" as never); };
+  const leaveNow = () => {
+    const action = exitActionRef.current;
+    exitActionRef.current = null;
+    setExitAsking(false);
+    allowExitRef.current = true;
+    if (action) navigation.dispatch(action);
+    else close();
+  };
   return <>
     <SpeakingPracticeView practice={practice} onClose={close} onTopics={() => router.replace("/speaking" as never)} />
-    <Modal visible={!!pendingExit} transparent animationType="fade" onRequestClose={() => setPendingExit(null)}>
+    <Modal visible={exitAsking} transparent animationType="fade" onRequestClose={() => setExitAsking(false)}>
       <View style={styles.modalBackdrop}>
         <View style={[styles.modalCard, { backgroundColor: p.surface }]} accessibilityViewIsModal>
           <Text style={[styles.stateTitle, { color: p.ink }]}>{c.leaveTitle}</Text>
           <Text style={[styles.description, { color: p.muted }]}>{c.leaveBody}</Text>
-          <Pressable accessibilityRole="button" onPress={() => setPendingExit(null)} style={[styles.primaryButton, { backgroundColor: p.primary }]}>
+          <Pressable accessibilityRole="button" onPress={() => setExitAsking(false)} style={[styles.primaryButton, { backgroundColor: p.primary }]}>
             <Text style={[styles.primaryText, { color: p.bg }]}>{c.stay}</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" style={styles.textButton} onPress={() => {
-            const action = pendingExit;
-            setPendingExit(null);
-            if (action) navigation.dispatch(action);
-          }}><Text style={[styles.secondaryText, { color: p.muted }]}>{c.leave}</Text></Pressable>
+          <Pressable accessibilityRole="button" style={styles.textButton} onPress={leaveNow}><Text style={[styles.secondaryText, { color: p.muted }]}>{c.leave}</Text></Pressable>
         </View>
       </View>
     </Modal>
