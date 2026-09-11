@@ -84,26 +84,41 @@ function RoundButton({ icon, label, onPress, color, background, disabled = false
   );
 }
 
-function VoiceActivity({ active, color }: { active: boolean; color: string }) {
-  const pulse = useRef(new Animated.Value(0.65)).current;
+/**
+ * 실제 마이크 입력 세기로 움직이는 파형.
+ *
+ * 예전에는 정해진 루프를 돌렸다 — 마이크가 죽어 있어도 똑같이 흔들려서
+ * 소리가 들어오는지 화면만 봐서는 알 수 없었다. 이제 들어온 버퍼의 RMS 를
+ * 그대로 받는다. 말하는데 안 움직이면 녹음이 안 되고 있다는 뜻이다.
+ */
+function VoiceActivity({ active, color, level }: { active: boolean; color: string; level: number }) {
+  const amp = useRef(new Animated.Value(0.22)).current;
+  const [reduced, setReduced] = useState(false);
+
   useEffect(() => {
     let live = true;
-    let animation: Animated.CompositeAnimation | undefined;
-    void AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
-      if (!live || reduced || !active) return;
-      animation = Animated.loop(Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 550, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0.45, duration: 550, useNativeDriver: true }),
-      ]));
-      animation.start();
+    void AccessibilityInfo.isReduceMotionEnabled().then((value) => {
+      if (live) setReduced(value);
     });
-    return () => { live = false; animation?.stop(); };
-  }, [active, pulse]);
+    return () => { live = false; };
+  }, []);
+
+  useEffect(() => {
+    const target = active ? Math.max(0.22, Math.min(1, level)) : 0.22;
+    if (reduced) {
+      amp.setValue(active ? 0.6 : 0.22);
+      return;
+    }
+    const animation = Animated.timing(amp, { toValue: target, duration: 90, useNativeDriver: true });
+    animation.start();
+    return () => animation.stop();
+  }, [active, level, reduced, amp]);
+
   return (
     <View style={styles.wave} importantForAccessibility="no-hide-descendants" aria-hidden>
       {[8, 15, 23, 12, 28, 19, 34, 19, 28, 12, 23, 15, 8].map((height, i) => (
         <Animated.View key={i} style={{ width: 3, height, borderRadius: 3, marginHorizontal: 2,
-          backgroundColor: color, opacity: active ? pulse : 0.3, transform: [{ scaleY: active ? pulse : 0.6 }] }} />
+          backgroundColor: color, opacity: active ? 0.9 : 0.3, transform: [{ scaleY: amp }] }} />
       ))}
     </View>
   );
@@ -317,7 +332,12 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                 <Text style={[styles.controlLabel, { color: p.muted }]}>{result ? index === queue.length - 1 ? c.finish : c.next : c.skip}</Text>
               </View>
             </View>
-            {recording ? <VoiceActivity active color={REC} /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
+            {recording ? <VoiceActivity active color={REC} level={practice.level} /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
+            {__DEV__ ? (
+              <Text style={[styles.privacyNote, { color: p.muted }]} numberOfLines={1}>
+                {`dev · ${phase} · buf ${practice.debug.buffers} · rms ${practice.debug.rms} · ${practice.error ?? "-"}`}
+              </Text>
+            ) : null}
           </View>
         </>
       ) : null}

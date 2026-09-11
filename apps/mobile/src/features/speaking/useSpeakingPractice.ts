@@ -62,6 +62,10 @@ export function useSpeakingPractice(packCode: string) {
   const [retryIds, setRetryIds] = useState<string[] | null>(null);
   const [autoEpoch, setAutoEpoch] = useState(0);
   const [spokenCount, setSpokenCount] = useState(0);
+  const [level, setLevel] = useState(0);
+  const buffersRef = useRef(0);
+  const lastRmsRef = useRef(0);
+  const levelSentAtRef = useRef(0);
   const speechPlanRef = useRef<number[]>([]);
   const voicedMsRef = useRef(0);
   const lastLevelAtRef = useRef(0);
@@ -93,9 +97,16 @@ export function useSpeakingPractice(packCode: string) {
     // maxSeconds 가 다 지날 때까지 화면이 멈춰 있는 것처럼 보인다.
     silenceStopMs: 1200,
     onLevel: (rms) => {
+      const now = Date.now();
+      // 파형을 실제 입력에 연결한다. 소리가 안 들어오면 화면에서 바로 보인다.
+      buffersRef.current += 1;
+      lastRmsRef.current = Math.round(rms);
+      if (now - levelSentAtRef.current >= 90) {
+        levelSentAtRef.current = now;
+        setLevel(Math.max(0, Math.min(1, rms / 3200)));
+      }
       const marks = speechPlanRef.current;
       if (!marks.length) return;
-      const now = Date.now();
       const previous = lastLevelAtRef.current;
       lastLevelAtRef.current = now;
       if (rms < VOICE_RMS) return;
@@ -107,11 +118,11 @@ export function useSpeakingPractice(packCode: string) {
     },
     onResult: async (wav) => {
       const recording = recordingRef.current;
-      if (!recording || recording.run !== runRef.current || !focusedRef.current) return;
+      if (!recording || recording.run !== runRef.current) return;
       changePhase("assessing");
       try {
         const assessed = await SttService.assessExpression(recording.id, wav);
-        if (recording.run !== runRef.current || !focusedRef.current) return;
+        if (recording.run !== runRef.current) return;
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
           return;
@@ -119,16 +130,15 @@ export function useSpeakingPractice(packCode: string) {
         setResults((previous) => ({ ...previous, [recording.id]: assessed }));
         if (assessed.passed) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
-        if (recording.run === runRef.current && focusedRef.current) setError("assessError");
+        if (recording.run === runRef.current) setError("assessError");
       } finally {
-        if (recording.run === runRef.current && focusedRef.current) {
+        if (recording.run === runRef.current) {
           recordingRef.current = null;
           changePhase("idle");
         }
       }
     },
     onError: (code) => {
-      if (!focusedRef.current) return;
       recordingRef.current = null;
       changePhase("idle");
       setError(recorderErrors[code]);
@@ -140,6 +150,7 @@ export function useSpeakingPractice(packCode: string) {
     recordingRef.current = null;
     speechPlanRef.current = [];
     setSpokenCount(0);
+    setLevel(0);
     cancel();
     stopSpeech();
     changePhase("idle");
@@ -204,8 +215,20 @@ export function useSpeakingPractice(packCode: string) {
   };
 
   const record = async () => {
+    if (!current) return;
     if (phaseRef.current === "recording") { stopRecording(); return; }
-    if (!current || phaseRef.current !== "idle" || !focusedRef.current) return;
+    // 채점 중에만 무시한다. 그 외에는 어떤 상태였든 되살려서 시작한다 —
+    // 마이크를 눌렀는데 아무 일도 안 일어나는 게 최악이고, 예전 코드는
+    // phase 나 focus 플래그가 한 번 어긋나면 영영 그 상태로 굳었다.
+    if (phaseRef.current === "assessing") return;
+    if (phaseRef.current !== "idle") {
+      cancel();
+      changePhase("idle");
+    }
+    // 버튼을 눌렀다는 건 이 화면이 떠 있다는 뜻이다. useFocusEffect 가 어떤
+    // 이유로든 못 돌았어도 여기서부터는 포커스로 친다 — 안 그러면 결과가
+    // 돌아와도 조용히 버려진다.
+    focusedRef.current = true;
     stopSpeech();
     setError(null);
     setSaveNotice(false);
@@ -213,18 +236,35 @@ export function useSpeakingPractice(packCode: string) {
     speechPlanRef.current = buildSpeechPlan(current.korean);
     voicedMsRef.current = 0;
     lastLevelAtRef.current = 0;
+    buffersRef.current = 0;
+    lastRmsRef.current = 0;
     setSpokenCount(0);
+    setLevel(0);
     const run = ++runRef.current;
     recordingRef.current = { run, id: current.id };
     try {
-      const started = await start();
-      if (run !== runRef.current || !focusedRef.current) { cancel(); return; }
+      // start() 가 영영 안 끝나면 스피너에 갇힌다. 권한 대화상자를 기다리는
+      // 시간까지 감안해서 넉넉히 주되, 무한정은 아니게.
+      const started = await Promise.race([
+        start(),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+      ]);
+      if (run !== runRef.current) { cancel(); return; }
+      if (started === null) {
+        cancel();
+        setError("micError");
+        changePhase("idle");
+        return;
+      }
       if (started) {
         changePhase("recording");
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      } else changePhase("idle");
+      } else {
+        // start() 가 false 면 훅이 이미 onError 로 이유를 알려줬다
+        changePhase("idle");
+      }
     } catch {
-      if (run === runRef.current && focusedRef.current) {
+      if (run === runRef.current) {
         setError("micError");
         changePhase("idle");
       }
@@ -318,7 +358,8 @@ export function useSpeakingPractice(packCode: string) {
 
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
-    completed, saving, hidden, saveNotice, isSpeaking, spokenCount,
+    completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
+    debug: { buffers: buffersRef.current, rms: lastRmsRef.current },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
     toggleHidden: () => setHidden((value) => !value),
