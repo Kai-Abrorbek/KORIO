@@ -37,6 +37,13 @@ const CHART_HEIGHT = 150;
 const SEG_GAP = 3; // 색 구간 사이 간격
 const SEG_MIN = 4; // 값이 있으면 최소 이만큼은 보이게
 
+/**
+ * 한 분야의 막대·범례가 쓰는 색 한 벌.
+ *
+ * 예전엔 막대는 여기서, 범례는 따로 박아둔 고정 색에서 색을 가져갔다.
+ * 그래서 "어휘" 탭의 막대는 보라인데 범례 점은 노랑이었다 — 범례가
+ * 가리키는 게 화면에 없는 색이라 아무것도 설명하지 못했다.
+ */
 function getColors(category: StudyCategory) {
   const base = CATEGORY_COLORS[category] ?? "#776ee2";
   return {
@@ -46,13 +53,6 @@ function getColors(category: StudyCategory) {
     accuracy: base,
   };
 }
-
-const COLORS = {
-  newWords: "#FFCD3C",
-  knownWords: "#A6D5FF",
-  reviewWords: "#A78BFA",
-  accuracy: "#776ee2",
-};
 
 function getVisibleLabelIndices(period: StudyPeriod, count: number): number[] {
   if (period === "week" || period === "year") {
@@ -267,22 +267,22 @@ export default function StudyInfoChart({ category }: Props) {
 
         <View style={themed.legendCol}>
           <LegendRow
-            color={COLORS.newWords}
+            color={colors.newWords}
             label={t("stats.newWords")}
             value={fmt(stats.newWordsToday)}
           />
           <LegendRow
-            color={COLORS.knownWords}
+            color={colors.knownWords}
             label={t("stats.knownWords")}
             value={fmt(stats.knownWordsToday)}
           />
           <LegendRow
-            color={COLORS.reviewWords}
+            color={colors.reviewWords}
             label={t("stats.reviewWords")}
             value={fmt(stats.reviewWordsToday)}
           />
           <LegendRow
-            color={COLORS.accuracy}
+            color={colors.accuracy}
             label={t("stats.reviewAccuracy")}
             value={
               stats.reviewAccuracy == null ? "-" : `${stats.reviewAccuracy}%`

@@ -11,9 +11,6 @@ interface Props {
   today: TodaySummary | null;
 }
 
-const NEW_COLOR = "#F5B301";
-const REVIEW_COLOR = "#4A97E0";
-
 function IconBadge({ name, color, bg, size = 44 }: any) {
   return (
     <View
@@ -31,6 +28,17 @@ function IconBadge({ name, color, bg, size = 44 }: any) {
   );
 }
 
+/**
+ * 오늘의 학습 정보.
+ *
+ * 예전엔 여기에 카테고리별 카드가 today.categories 만큼 줄줄이 붙었다.
+ * 문제는 그 카드가 보여줄 게 거의 없다는 것이었다 — 대부분의 유저는 하루에
+ * 한두 분야만 건드리는데, 나머지 분야도 전부 카드로 깔리면서 "복습 정답률
+ * -%" 만 반복해서 떴다. 정보가 아니라 소음이었다.
+ *
+ * 분야별 상태는 스킬 레이더가 훨씬 잘 말해준다(강점·약점까지). 여기서는
+ * 오늘의 숫자 두 개와 요일 패턴만 남긴다.
+ */
 export default function TodayInfoCard({ hasData, today }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -74,62 +82,6 @@ export default function TodayInfoCard({ hasData, today }: Props) {
               <Text style={s.topValue}>{today.totalQuestions}</Text>
             </StatsCard>
           </View>
-
-          {/* 카테고리별 */}
-          {today.categories.map((c) => (
-            <StatsCard key={c.category}>
-              <View style={s.catHeader}>
-                <IconBadge
-                  name="book"
-                  color={theme.primary}
-                  bg={theme.primary + "1A"}
-                />
-                <Text style={s.catName}>
-                  {t(`stats.category.${c.category}`)}
-                </Text>
-                <View style={s.catRight}>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={15}
-                    color={theme.textSecondary}
-                  />
-                  <Text style={s.catAccuracy}>
-                    {t("stats.reviewAccuracy")}{" "}
-                    {c.reviewAccuracy == null ? "-" : c.reviewAccuracy}%
-                  </Text>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={16}
-                    color={theme.textSecondary}
-                  />
-                </View>
-              </View>
-
-              <View style={s.bar}>
-                <View
-                  style={{ flex: c.newCount, backgroundColor: NEW_COLOR }}
-                />
-                <View
-                  style={{ flex: c.reviewCount, backgroundColor: REVIEW_COLOR }}
-                />
-              </View>
-
-              <View style={s.catFooter}>
-                <Text style={s.footerLabel}>
-                  {t("stats.newProblems")}{" "}
-                  <Text style={[s.footerNum, { color: NEW_COLOR }]}>
-                    {c.newCount}
-                  </Text>
-                </Text>
-                <Text style={s.footerLabel}>
-                  {t("stats.reviewProblems")}{" "}
-                  <Text style={[s.footerNum, { color: REVIEW_COLOR }]}>
-                    {c.reviewCount}
-                  </Text>
-                </Text>
-              </View>
-            </StatsCard>
-          ))}
 
           {/* 요일 패턴 */}
           <StatsCard>
@@ -194,29 +146,6 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.text,
       marginTop: 2,
     },
-    catHeader: { flexDirection: "row", alignItems: "center", gap: 12 },
-    catName: { flex: 1, fontSize: 17, fontWeight: "800", color: theme.text },
-    catRight: { flexDirection: "row", alignItems: "center", gap: 3 },
-    catAccuracy: {
-      fontSize: 12,
-      fontWeight: "700",
-      color: theme.textSecondary,
-    },
-    bar: {
-      flexDirection: "row",
-      height: 9,
-      borderRadius: 6,
-      overflow: "hidden",
-      marginTop: 16,
-      backgroundColor: theme.border,
-    },
-    catFooter: { flexDirection: "row", gap: 18, marginTop: 10 },
-    footerLabel: {
-      fontSize: 13,
-      fontWeight: "600",
-      color: theme.textSecondary,
-    },
-    footerNum: { fontWeight: "800" },
     weekRow: { flexDirection: "row", alignItems: "center", gap: 12 },
     weekTitle: { fontSize: 16, fontWeight: "800", color: theme.text },
     weekDesc: {

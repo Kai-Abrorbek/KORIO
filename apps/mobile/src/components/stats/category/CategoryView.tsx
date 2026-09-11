@@ -1,22 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { useTranslation } from "react-i18next";
 import { CategoryStats, StudyCategory } from "@/types/stats";
 import { StatsService } from "@/services/stats.service";
 import { useTheme } from "@/hooks/useTheme";
 import CategoryTabs from "./CategoryTabs";
-import TrophyCard from "./TrophyCard";
-import StudyTimeCard from "./StudyTimeCard";
+import CategorySummary from "./CategorySummary";
 import StudyInfoChart from "./StudyInfoChart";
 
 export default function CategoryView() {
-  const { t } = useTranslation();
   const theme = useTheme();
   const [category, setCategory] = useState<StudyCategory>("vocab");
   const [data, setData] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Trophy/StudyTime 카드용 데이터는 week 로 고정 fetch
+  // 요약 타일용 데이터는 week 로 고정 fetch
   // (period 영향 안 받는 totalProblems/todayTime/totalTime 만 씀)
   useEffect(() => {
     setLoading(true);
@@ -36,12 +33,10 @@ export default function CategoryView() {
         </View>
       ) : data ? (
         <>
-          <TrophyCard
+          <CategorySummary
+            category={category}
             trophyLevel={data.trophyLevel}
             totalProblems={data.totalProblems}
-            category={t(`stats.category.${category}`)}
-          />
-          <StudyTimeCard
             todayTime={data.todayTime}
             totalTime={data.totalTime}
           />

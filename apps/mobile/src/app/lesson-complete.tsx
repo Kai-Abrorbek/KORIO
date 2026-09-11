@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { View, Text, StyleSheet, Share } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
 import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
+import { ReferralApi } from "@/services/referral.service";
 import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
 import Confetti from "@/components/lesson-complete/Confetti";
 import StatCard from "@/components/lesson-complete/StatCard";
@@ -39,13 +41,66 @@ export default function LessonCompleteScreen() {
     streakWeek?: string;
   }>();
 
-  const hasChest = !!params.chestGrade;
   const xp = Number(params.xp ?? 0);
   const accuracy = Number(params.accuracy ?? 0);
   const time = params.time ?? "0:00";
 
   // 순차 애니: 현재 몇 번째 카드까지 진행
   const [activeIdx, setActiveIdx] = useState(0);
+
+  /**
+   * 결과 공유.
+   *
+   * 이미지로 찍어 보내는 게 더 그럴듯하지만 그러려면 네이티브 모듈
+   * (react-native-view-shot)을 새로 넣고 다시 빌드해야 한다. RN 기본 Share
+   * 는 추가 의존성이 없고 카톡·텔레그램·인스타 어디에나 그대로 붙는다.
+   *
+   * 초대 코드를 같이 실어 보낸다 — 자랑만 남기면 본 사람이 갈 곳이 없다.
+   * 코드를 못 받아와도 공유 시트는 그대로 뜬다. 자랑이 네트워크 상태에
+   * 걸려서 아무 일도 안 일어나는 게 제일 나쁘다.
+   */
+  const sharing = useRef(false);
+
+  const onShare = useCallback(async () => {
+    if (sharing.current) return;
+    sharing.current = true;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    let code = "";
+    let link = "";
+    try {
+      const invite = await ReferralApi.me();
+      code = invite?.code ?? "";
+      link = invite?.link ?? "";
+    } catch {
+      /* 초대 코드는 있으면 좋은 것이지 없으면 안 되는 것이 아니다 */
+    }
+
+    const lines = [
+      t("lessonComplete.share.headline"),
+      t("lessonComplete.share.stats", { xp, accuracy, time }),
+    ];
+    if (params.dailyStreak) {
+      lines.push(t("lessonComplete.share.streak", { days: params.dailyStreak }));
+    }
+    lines.push("");
+    lines.push(
+      code
+        ? t("lessonComplete.share.invite", { code, link })
+        : t("lessonComplete.share.plain"),
+    );
+
+    try {
+      await Share.share({
+        message: lines.join("\n"),
+        title: t("lessonComplete.share.title"),
+      });
+    } catch {
+      // 유저가 시트를 그냥 닫아도 여기로 온다. 실패로 취급할 일이 아니다
+    } finally {
+      sharing.current = false;
+    }
+  }, [t, xp, accuracy, time, params.dailyStreak]);
 
   // "계속" 버튼 onPress:
   const onContinue = () => {
@@ -149,11 +204,7 @@ export default function LessonCompleteScreen() {
         </View>
       </View>
 
-      <LessonCompleteActions
-        showShare
-        onShare={() => {}}
-        onClaim={onContinue}
-      />
+      <LessonCompleteActions showShare onShare={onShare} onClaim={onContinue} />
     </View>
   );
 }
