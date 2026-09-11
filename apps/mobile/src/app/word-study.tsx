@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect -- route and remote data synchronize screen state. */
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -57,10 +56,9 @@ import { isAnswerCorrect } from "@/utils/answer-check";
 const SECTIONS = [1, 2, 3, 4];
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
-const INITIAL_RECALL_INTERVAL = 5;
-const FOLLOW_UP_RECALL_INTERVAL = 1;
 
 type RecallStatus = "idle" | "wrong" | "correct";
+type StudyPhase = "browse" | "recall" | "complete";
 
 function pickRecallWordId(
   pendingIds: string[],
@@ -663,6 +661,97 @@ function PreviewCard({
   );
 }
 
+function RecallOfferModal({
+  visible,
+  wordCount,
+  theme,
+  onClose,
+  onStart,
+  onSkip,
+}: {
+  visible: boolean;
+  wordCount: number;
+  theme: ThemeColors;
+  onClose: () => void;
+  onStart: () => void;
+  onSkip: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <View style={styles.recallOfferRoot}>
+        <Pressable style={styles.modalBackdrop} onPress={onClose} />
+        <View
+          style={[
+            styles.recallOfferCard,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
+          <View
+            style={[
+              styles.recallOfferIcon,
+              { backgroundColor: `${theme.primary}18` },
+            ]}
+          >
+            <Ionicons name="sparkles" size={28} color={theme.primary} />
+          </View>
+          <Text style={[styles.recallOfferEyebrow, { color: theme.primary }]}>
+            {t("wordStudy.recallOfferEyebrow")}
+          </Text>
+          <Text style={[styles.recallOfferTitle, { color: theme.text }]}>
+            {t("wordStudy.recallOfferTitle")}
+          </Text>
+          <Text
+            style={[
+              styles.recallOfferDescription,
+              { color: theme.textSecondary },
+            ]}
+          >
+            {t("wordStudy.recallOfferDescription", { count: wordCount })}
+          </Text>
+
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={onStart}
+            activeOpacity={0.88}
+            style={[
+              styles.recallOfferStartButton,
+              { backgroundColor: theme.primary },
+            ]}
+          >
+            <Ionicons name="school-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.recallOfferStartText}>
+              {t("wordStudy.recallOfferStart")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={onSkip}
+            activeOpacity={0.76}
+            style={styles.recallOfferSkipButton}
+          >
+            <Text
+              style={[
+                styles.recallOfferSkipText,
+                { color: theme.textSecondary },
+              ]}
+            >
+              {t("wordStudy.recallOfferLater")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 function ScopePicker({
   visible,
   summaries,
@@ -1094,6 +1183,8 @@ export default function WordStudyScreen() {
   const [wordsLoading, setWordsLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [studyPhase, setStudyPhase] = useState<StudyPhase>("browse");
+  const [recallOfferVisible, setRecallOfferVisible] = useState(false);
   const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
   const [recallAnswer, setRecallAnswer] = useState("");
   const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
@@ -1102,18 +1193,10 @@ export default function WordStudyScreen() {
   const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>(
     [],
   );
-  const seenWordIdsRef = useRef<string[]>([]);
-  const countedForwardWordIdsRef = useRef<Set<string>>(new Set());
-  const normalCardsSinceRecallRef = useRef(0);
-  const nextRecallIntervalRef = useRef(INITIAL_RECALL_INTERVAL);
+  const recallOfferShownRef = useRef(false);
   const lastRecalledWordIdRef = useRef<string | null>(null);
   const recallResultReportedRef = useRef(false);
   const recallHadWrongAttemptRef = useRef(false);
-  const extraRecallTotalRef = useRef(0);
-  const extraRecallWindowRef = useRef(0);
-  const normalCardsAfterInitialRecallRef = useRef(0);
-  const scheduledExtraRecallsRef = useRef(0);
-  const activeRecallIsScheduledExtraRef = useRef(false);
 
   const translateX = useSharedValue(0);
   const gestureLocked = useSharedValue(0);
@@ -1197,28 +1280,24 @@ export default function WordStudyScreen() {
   const activeLanguage = i18n.resolvedLanguage ?? i18n.language;
   const loadWords = useCallback(async () => {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
+    // 서비스가 i18n에서 언어를 읽으므로 언어 변경 시 이 콜백을 새로 만든다.
+    void activeLanguage;
     setWordsLoading(true);
     setLoadFailed(false);
     // 범위를 바꾸기 전에 지금까지 본 것을 넘긴다
     flushSeen();
+    setStudyPhase("browse");
+    setRecallOfferVisible(false);
     setRecallWord(null);
     setRecallAnswer("");
     setRecallStatus("idle");
     setRecallHintVisible(false);
     setKeyboardVisible(false);
     setPendingRecallWordIds([]);
-    seenWordIdsRef.current = [];
-    countedForwardWordIdsRef.current = new Set();
-    normalCardsSinceRecallRef.current = 0;
-    nextRecallIntervalRef.current = INITIAL_RECALL_INTERVAL;
+    recallOfferShownRef.current = false;
     lastRecalledWordIdRef.current = null;
     recallResultReportedRef.current = false;
     recallHadWrongAttemptRef.current = false;
-    extraRecallTotalRef.current = 0;
-    extraRecallWindowRef.current = 0;
-    normalCardsAfterInitialRecallRef.current = 0;
-    scheduledExtraRecallsRef.current = 0;
-    activeRecallIsScheduledExtraRef.current = false;
     setWords([]);
     setCardIndex(0);
     stop();
@@ -1250,11 +1329,6 @@ export default function WordStudyScreen() {
           Math.max(0, resumeAt),
           result.length - 1,
         );
-        const restoredWordIds = result
-          .slice(0, restoredIndex + 1)
-          .map((word) => word.id);
-        seenWordIdsRef.current = restoredWordIds;
-        setPendingRecallWordIds(restoredWordIds);
         setCardIndex(restoredIndex);
       }
     } catch {
@@ -1287,20 +1361,20 @@ export default function WordStudyScreen() {
   const canGoPrevious = recallWord
     ? Boolean(currentWord)
     : Boolean(previousWord);
-  const canGoNext = recallWord
-    ? recallStatus === "correct" && (Boolean(nextWord) || hasPendingRecalls)
-    : Boolean(nextWord) || hasPendingRecalls;
+  const canGoNext =
+    Boolean(currentWord) &&
+    (recallWord
+      ? recallStatus === "correct"
+      : Boolean(nextWord) ||
+        studyPhase === "browse" ||
+        (studyPhase === "recall" && hasPendingRecalls));
   const nextPreviewWord = recallWord
     ? recallStatus === "correct"
       ? nextWord
       : undefined
     : nextWord;
   const previousPreviewWord = recallWord ? currentWord : previousWord;
-  const hasFinishedDeck =
-    Boolean(currentWord) &&
-    !nextWord &&
-    !hasPendingRecalls &&
-    (!recallWord || recallStatus === "correct");
+  const hasFinishedDeck = studyPhase === "complete";
   const currentWordId = currentWord?.id ?? "";
   const currentSpeechText = currentWord
     ? currentWord.pronunciation.ttsText ||
@@ -1310,10 +1384,6 @@ export default function WordStudyScreen() {
 
   useEffect(() => {
     markSeen(currentWordId);
-    if (currentWordId && !seenWordIdsRef.current.includes(currentWordId)) {
-      seenWordIdsRef.current.push(currentWordId);
-      setPendingRecallWordIds((current) => [...current, currentWordId]);
-    }
   }, [currentWordId, markSeen]);
 
   useEffect(() => {
@@ -1366,9 +1436,6 @@ export default function WordStudyScreen() {
             ? current
             : [...current, recallWord.id],
         );
-        if (activeRecallIsScheduledExtraRef.current) {
-          scheduledExtraRecallsRef.current += 1;
-        }
       }
       setRecallWord(null);
       setRecallAnswer("");
@@ -1376,7 +1443,6 @@ export default function WordStudyScreen() {
       setRecallHintVisible(false);
       recallResultReportedRef.current = false;
       recallHadWrongAttemptRef.current = false;
-      activeRecallIsScheduledExtraRef.current = false;
     },
     [recallWord],
   );
@@ -1432,7 +1498,7 @@ export default function WordStudyScreen() {
   }, [recallStatus, recallWord]);
 
   const showRecall = useCallback(
-    (candidateId?: string, isScheduledExtra = false) => {
+    (candidateId?: string) => {
       if (!candidateId) return false;
       const candidate = words.find((word) => word.id === candidateId);
       if (!candidate) return false;
@@ -1440,12 +1506,9 @@ export default function WordStudyScreen() {
       setPendingRecallWordIds((current) =>
         current.filter((id) => id !== candidate.id),
       );
-      normalCardsSinceRecallRef.current = 0;
-      nextRecallIntervalRef.current = FOLLOW_UP_RECALL_INTERVAL;
       lastRecalledWordIdRef.current = candidate.id;
       recallResultReportedRef.current = false;
       recallHadWrongAttemptRef.current = false;
-      activeRecallIsScheduledExtraRef.current = isScheduledExtra;
       setRecallAnswer("");
       setRecallStatus("idle");
       setRecallHintVisible(false);
@@ -1463,106 +1526,92 @@ export default function WordStudyScreen() {
     [gestureLocked, translateX, words],
   );
 
+  const startRecallPractice = useCallback(() => {
+    const wordIds = words.map((word) => word.id);
+    const candidateId = pickRecallWordId(
+      wordIds,
+      currentWord?.id,
+      lastRecalledWordIdRef.current,
+    );
+    if (!candidateId) return;
+
+    setRecallOfferVisible(false);
+    setStudyPhase("recall");
+    setPendingRecallWordIds(wordIds);
+    showRecall(candidateId);
+  }, [currentWord?.id, showRecall, words]);
+
+  const skipRecallPractice = useCallback(() => {
+    setRecallOfferVisible(false);
+    stop();
+
+    if (fromStudyPath) {
+      finishStudyPathUnit();
+      return;
+    }
+
+    flushSeen();
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  }, [finishStudyPathUnit, flushSeen, fromStudyPath, router, stop]);
+
+  useEffect(() => {
+    if (
+      studyPhase !== "browse" ||
+      recallWord ||
+      !currentWordId ||
+      nextWord ||
+      recallOfferShownRef.current
+    ) {
+      return;
+    }
+
+    // 마지막 단어를 잠깐 확인한 뒤 선택창을 보여줘 카드 내용을 가리지 않는다.
+    const timeout = setTimeout(() => {
+      recallOfferShownRef.current = true;
+      stop();
+      setRecallOfferVisible(true);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }, 550);
+
+    return () => clearTimeout(timeout);
+  }, [currentWordId, nextWord, recallWord, stop, studyPhase]);
+
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {
       stop();
 
       if (recallWord) {
         if (direction < 0) {
-          // 복습 카드는 앞으로 진행할 때만 존재한다. 뒤로 가면 방금 보던
-          // 일반 단어로 돌아간다. 풀지 않은 문제는 큐 끝으로 다시 보낸다.
+          // 복습 카드는 앞으로 진행할 때만 보여준다. 뒤로 가면 마지막
+          // 일반 카드로 돌아가고, 풀지 않은 문제는 큐에 다시 넣는다.
           clearRecall(true);
         } else if (recallStatus === "correct") {
-          if (
-            scheduledExtraRecallsRef.current > 0 &&
-            pendingRecallWordIds.length > 0
-          ) {
-            const candidateId = pickRecallWordId(
-              pendingRecallWordIds,
-              currentWord?.id,
-              lastRecalledWordIdRef.current,
-            );
-            scheduledExtraRecallsRef.current -= 1;
-            if (showRecall(candidateId, true)) return;
-            scheduledExtraRecallsRef.current += 1;
-          }
+          const candidateId = pickRecallWordId(
+            pendingRecallWordIds,
+            currentWord?.id,
+            lastRecalledWordIdRef.current,
+          );
+          if (showRecall(candidateId)) return;
 
-          if (nextWord) {
-            clearRecall();
-            setCardIndex((current) => Math.min(words.length - 1, current + 1));
-          } else {
-            const candidateId = pickRecallWordId(
-              pendingRecallWordIds,
-              currentWord?.id,
-              lastRecalledWordIdRef.current,
-            );
-            if (showRecall(candidateId)) return;
-          }
+          clearRecall();
+          setStudyPhase("complete");
         }
       } else if (direction > 0 && currentWord) {
-        const alreadyCounted = countedForwardWordIdsRef.current.has(
-          currentWord.id,
-        );
-
-        if (!alreadyCounted) {
-          countedForwardWordIdsRef.current.add(currentWord.id);
-          normalCardsSinceRecallRef.current += 1;
-
-          if (
-            nextRecallIntervalRef.current === FOLLOW_UP_RECALL_INTERVAL &&
-            extraRecallWindowRef.current > 0
-          ) {
-            const previousStep = normalCardsAfterInitialRecallRef.current;
-            const currentStep = Math.min(
-              previousStep + 1,
-              extraRecallWindowRef.current,
-            );
-            const previouslyDistributed = Math.floor(
-              (previousStep * extraRecallTotalRef.current) /
-                extraRecallWindowRef.current,
-            );
-            const distributedNow = Math.floor(
-              (currentStep * extraRecallTotalRef.current) /
-                extraRecallWindowRef.current,
-            );
-            scheduledExtraRecallsRef.current += Math.max(
-              0,
-              distributedNow - previouslyDistributed,
-            );
-            normalCardsAfterInitialRecallRef.current = currentStep;
-          }
-        }
-
-        const intervalReached =
-          !alreadyCounted &&
-          normalCardsSinceRecallRef.current >= nextRecallIntervalRef.current;
-        const shouldRecall =
-          pendingRecallWordIds.length > 0 && (!nextWord || intervalReached);
-
-        if (shouldRecall) {
-          if (nextRecallIntervalRef.current === INITIAL_RECALL_INTERVAL) {
-            // 첫 5장 뒤 큐에 남는 복습은 마지막에 몰지 않는다. 남은 일반
-            // 카드 구간에 균등 분배해 연속 문제 묶음의 최대 길이를 줄인다.
-            extraRecallTotalRef.current = Math.max(
-              0,
-              pendingRecallWordIds.length - 1,
-            );
-            extraRecallWindowRef.current = Math.max(
-              0,
-              words.length - cardIndex - 1,
-            );
-            normalCardsAfterInitialRecallRef.current = 0;
-            scheduledExtraRecallsRef.current = 0;
-          }
+        if (nextWord) {
+          setCardIndex((current) => Math.min(words.length - 1, current + 1));
+        } else if (studyPhase === "recall") {
           const candidateId = pickRecallWordId(
             pendingRecallWordIds,
             currentWord.id,
             lastRecalledWordIdRef.current,
           );
           if (showRecall(candidateId)) return;
+          setStudyPhase("complete");
+        } else if (studyPhase === "browse") {
+          recallOfferShownRef.current = true;
+          setRecallOfferVisible(true);
         }
-
-        setCardIndex((current) => Math.min(words.length - 1, current + 1));
       } else {
         setCardIndex((current) =>
           Math.min(words.length - 1, Math.max(0, current + direction)),
@@ -1578,7 +1627,6 @@ export default function WordStudyScreen() {
       void Haptics.selectionAsync();
     },
     [
-      cardIndex,
       clearRecall,
       currentWord,
       gestureLocked,
@@ -1588,6 +1636,7 @@ export default function WordStudyScreen() {
       recallWord,
       showRecall,
       stop,
+      studyPhase,
       translateX,
       words,
     ],
@@ -2112,6 +2161,14 @@ export default function WordStudyScreen() {
         onClose={() => setPickerVisible(false)}
         onApply={applyScope}
       />
+      <RecallOfferModal
+        visible={recallOfferVisible}
+        wordCount={words.length}
+        theme={theme}
+        onClose={() => setRecallOfferVisible(false)}
+        onStart={startRecallPractice}
+        onSkip={skipRecallPractice}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -2572,6 +2629,78 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.38 },
   swipeHint: { flexDirection: "row", alignItems: "center", gap: 6 },
   swipeHintText: { fontSize: 12, fontWeight: "800" },
+  recallOfferRoot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  recallOfferCard: {
+    width: "100%",
+    maxWidth: 420,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    paddingHorizontal: 24,
+    paddingTop: 26,
+    paddingBottom: 16,
+    alignItems: "center",
+    shadowColor: "#000000",
+    shadowOpacity: 0.18,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 12,
+  },
+  recallOfferIcon: {
+    width: 62,
+    height: 62,
+    borderRadius: 21,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  recallOfferEyebrow: {
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: "900",
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+  },
+  recallOfferTitle: {
+    fontSize: 25,
+    lineHeight: 33,
+    fontWeight: "900",
+    textAlign: "center",
+    marginTop: 5,
+  },
+  recallOfferDescription: {
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: 9,
+    marginBottom: 22,
+  },
+  recallOfferStartButton: {
+    width: "100%",
+    minHeight: 54,
+    borderRadius: 17,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  recallOfferStartText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  recallOfferSkipButton: {
+    minHeight: 46,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recallOfferSkipText: { fontSize: 13, fontWeight: "800" },
   modalRoot: {
     flex: 1,
     justifyContent: "flex-end",
