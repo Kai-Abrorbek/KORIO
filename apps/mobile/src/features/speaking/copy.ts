@@ -42,7 +42,7 @@ const ko = {
   readyTitle: "내 목소리로 말해볼까요?",
   readyBody: "먼저 들어보고, 마이크를 눌러 따라 말해보세요.",
   listenTitle: "문장의 리듬을 들어보세요",
-  listenBody: "준비되면 마이크를 눌러 내 목소리로 말해보세요.",
+  listenBody: "다 들으면 마이크가 열려요. 편하게 따라 말해보세요.",
   recordingBody: "다 말했으면 가운데 버튼을 한 번 더 눌러 주세요.",
   processingBody: "녹음한 음성에서 발음과 말의 흐름을 확인하고 있어요.",
   goodTitle: "좋아요, 잘 전달됐어요!",
@@ -82,7 +82,7 @@ const ko = {
   round: "한 문장씩, 나만의 속도로",
   noAttempts: "다음에는 마이크를 눌러 직접 말해보세요.",
   savedNotice: "표현 학습의 저장 목록에서도 볼 수 있어요.",
-  microphoneNote: "마이크를 누를 때만 녹음해요",
+  microphoneNote: "문장을 들려준 뒤 마이크가 자동으로 열려요",
 };
 
 type SpeakingCopy = { [K in keyof typeof ko]: string };
@@ -102,7 +102,7 @@ const en: SpeakingCopy = {
   bookmark: "Save phrase", saved: "Saved phrase", saveFailed: "Couldn't save. Please tap again.",
   translation: "WHAT IT MEANS", prompt: "Say this in Korean", readyTitle: "Ready to make it yours?",
   readyBody: "Listen first, then tap the microphone and say it out loud.",
-  listenTitle: "Listen to the rhythm", listenBody: "When you're ready, tap the microphone and give it a go.",
+  listenTitle: "Listen to the rhythm", listenBody: "The mic opens when it finishes. Just repeat after it.",
   recordingBody: "Tap the centre button again when you've finished.", processingBody: "Listening for clear sounds and a natural flow.",
   goodTitle: "Lovely, that came through!", againTitle: "Let's give it another go", feedbackBody: "Tap a word to hear it again.",
   accuracy: "Accuracy", fluency: "Fluency", completeness: "Completeness", heard: "WHAT WE HEARD",
@@ -117,7 +117,7 @@ const en: SpeakingCopy = {
   completed: "Phrases spoken", average: "Average pronunciation", review: "Revisit tricky phrases", topics: "Explore more topics", restart: "Start again",
   sessionCount: "{{current}} / {{total}}", score: "Pronunciation", scoreOutOf: "out of 100", hidden: "Try to remember the phrase",
   errorTitle: "Couldn't prepare your practice", emptyPractice: "There aren't any phrases in this topic yet.", round: "One phrase at a time. At your own pace.",
-  noAttempts: "Next time, tap the microphone and give speaking a go.", savedNotice: "You'll also find it in your saved expressions.", microphoneNote: "Recording starts only when you tap the mic",
+  noAttempts: "Next time, tap the microphone and give speaking a go.", savedNotice: "You'll also find it in your saved expressions.", microphoneNote: "The mic opens on its own once the phrase is read",
 };
 
 const uz: SpeakingCopy = {
@@ -135,7 +135,7 @@ const uz: SpeakingCopy = {
   bookmark: "Iborani saqlash", saved: "Saqlangan ibora", saveFailed: "Saqlanmadi. Qayta bosing.",
   translation: "MA’NOSI", prompt: "Buni koreyscha ayting", readyTitle: "O‘z ovozingiz bilan aytasizmi?",
   readyBody: "Avval tinglang, keyin mikrofonni bosib takrorlang.",
-  listenTitle: "Jumla ohangiga quloq tuting", listenBody: "Tayyor bo‘lsangiz, mikrofonni bosib ayting.",
+  listenTitle: "Jumla ohangiga quloq tuting", listenBody: "Tugagach mikrofon ochiladi. Bemalol takrorlang.",
   recordingBody: "Gapirib bo‘lgach, o‘rtadagi tugmani yana bosing.", processingBody: "Talaffuz va nutqingiz ravonligini tekshiryapmiz.",
   goodTitle: "Zo‘r, juda tushunarli!", againTitle: "Yana bir mashq qilamizmi?", feedbackBody: "So‘zni bosib talaffuzini qayta eshiting.",
   accuracy: "Aniqlik", fluency: "Ravonlik", completeness: "To‘liqlik", heard: "ESHITGANIMIZ",
@@ -150,7 +150,7 @@ const uz: SpeakingCopy = {
   completed: "Aytilgan jumlalar", average: "O‘rtacha talaffuz", review: "Qiyin jumlalarni takrorlash", topics: "Boshqa mavzuni tanlash", restart: "Qayta boshlash",
   sessionCount: "{{current}} / {{total}}", score: "Talaffuz", scoreOutOf: "100 balldan", hidden: "Jumlani eslab ko‘ring",
   errorTitle: "Mashqni tayyorlab bo‘lmadi", emptyPractice: "Bu mavzuda hali mashq jumlalari yo‘q.", round: "Bittadan jumla. O‘zingizga qulay tezlikda.",
-  noAttempts: "Keyingi safar mikrofonni bosib, o‘zingiz aytib ko‘ring.", savedNotice: "Uni saqlangan iboralar ro‘yxatidan ham topasiz.", microphoneNote: "Faqat mikrofon bosilganda ovoz yoziladi",
+  noAttempts: "Keyingi safar mikrofonni bosib, o‘zingiz aytib ko‘ring.", savedNotice: "Uni saqlangan iboralar ro‘yxatidan ham topasiz.", microphoneNote: "Gap o‘qilgach mikrofon o‘zi ochiladi",
 };
 
 const ru: SpeakingCopy = {
@@ -168,7 +168,7 @@ const ru: SpeakingCopy = {
   bookmark: "Сохранить фразу", saved: "Сохранённая фраза", saveFailed: "Не удалось сохранить. Нажмите ещё раз.",
   translation: "ЗНАЧЕНИЕ", prompt: "Скажите это по-корейски", readyTitle: "Попробуем вашим голосом?",
   readyBody: "Сначала послушайте, затем нажмите микрофон и повторите.",
-  listenTitle: "Прислушайтесь к ритму", listenBody: "Когда будете готовы, нажмите микрофон и произнесите фразу.",
+  listenTitle: "Прислушайтесь к ритму", listenBody: "Когда закончится, микрофон включится сам. Просто повторите.",
   recordingBody: "Закончив говорить, нажмите центральную кнопку ещё раз.", processingBody: "Проверяем звуки и плавность вашей речи.",
   goodTitle: "Отлично, всё понятно!", againTitle: "Попробуем ещё раз?", feedbackBody: "Нажмите на слово, чтобы послушать его ещё раз.",
   accuracy: "Точность", fluency: "Беглость", completeness: "Полнота", heard: "МЫ УСЛЫШАЛИ",
@@ -183,7 +183,7 @@ const ru: SpeakingCopy = {
   completed: "Произнесено фраз", average: "Средняя оценка", review: "Повторить сложные фразы", topics: "Выбрать другую тему", restart: "Начать заново",
   sessionCount: "{{current}} / {{total}}", score: "Произношение", scoreOutOf: "из 100", hidden: "Попробуйте вспомнить фразу",
   errorTitle: "Не удалось подготовить практику", emptyPractice: "В этой теме пока нет фраз для практики.", round: "По одной фразе. В своём темпе.",
-  noAttempts: "В следующий раз нажмите микрофон и попробуйте сами.", savedNotice: "Она также доступна в списке сохранённых выражений.", microphoneNote: "Запись начинается только по нажатию микрофона",
+  noAttempts: "В следующий раз нажмите микрофон и попробуйте сами.", savedNotice: "Она также доступна в списке сохранённых выражений.", microphoneNote: "Микрофон включится сам после фразы",
 };
 
 const copies: Record<string, SpeakingCopy> = { ko, en, uz, ru };

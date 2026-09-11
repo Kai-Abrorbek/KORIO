@@ -74,6 +74,9 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   const detail = recording ? c.recordingBody : processing ? c.processingBody : showResult
     ? c.feedbackBody : practice.isSpeaking ? c.listenBody : c.readyBody;
   const tint = recording ? "#C65662" : showResult ? result.passed ? p.success : p.warm : p.primary;
+  // 카드는 남는 높이를 다 쓰고, 문장이 길면 글자가 줄어든다 — 스크롤은 없다
+  const phraseLength = current?.korean.length ?? 0;
+  const koreanSize = phraseLength > 44 ? 20 : phraseLength > 32 ? 23 : phraseLength > 20 ? 26 : 30;
 
   return (
     <View style={[styles.screen, { backgroundColor: p.bg }]}>
@@ -114,7 +117,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
       ) : completed ? (
         <ScrollView contentContainerStyle={[styles.summary, { paddingBottom: insets.bottom + 28 }]}>
           <View style={[styles.summaryArt, { backgroundColor: p.primarySoft }]}>
-            <TopicIllustration code={data?.pack?.code || "greetings"} size={150} />
+            <TopicIllustration code={data?.pack?.code || "greetings"} size={126} />
             <View style={[styles.summaryCheck, { backgroundColor: p.success }]}><Ionicons name="checkmark" size={26} color="#FFFFFF" /></View>
           </View>
           <Text style={[styles.eyebrow, { color: p.primary }]}>{c.eyebrow}</Text>
@@ -141,15 +144,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
         </ScrollView>
       ) : current ? (
         <>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
-            <View style={styles.sceneStrip}>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.eyebrow, { color: p.primary }]}>{c.eyebrow}</Text>
-                <Text style={[styles.sceneContext, { color: p.muted }]} numberOfLines={3}>{current.context || data?.pack?.description || c.round}</Text>
-              </View>
-              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><TopicIllustration code={data?.pack?.code || current.pack.code} size={78} /></View>
-            </View>
-
+          <View style={styles.body}>
             <View style={[styles.phraseCard, { backgroundColor: p.surface, borderColor: p.border }]}>
               <View style={styles.cardTop}>
                 <View style={[styles.statusChip, { backgroundColor: showResult ? result.passed ? p.successSoft : p.warmSoft : p.primarySoft }]}>
@@ -169,7 +164,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                     <Text style={[styles.hiddenCaption, { color: p.muted }]}>{c.hidden}</Text>
                   </Pressable>
                 ) : (
-                  <Text style={[styles.korean, { color: p.ink }]}>
+                  <Text style={[styles.korean, { color: p.ink, fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}>
                     {current.korean.split(/\s+/).map((word, i, words) => {
                       const assessed = showResult ? result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word)) : undefined;
                       const tone = assessed ? wordToneOf(assessed) : null;
@@ -187,7 +182,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
 
               <View style={[styles.meaningArea, { borderTopColor: p.border }]}>
                 <Text style={[styles.eyebrow, { color: p.muted }]}>{practice.hidden && !showResult ? c.prompt : c.translation}</Text>
-                <Text style={[styles.meaning, { color: p.ink }]}>{current.meaning}</Text>
+                <Text style={[styles.meaning, { color: p.ink }]} numberOfLines={2}>{current.meaning}</Text>
               </View>
               <View style={styles.phraseTools}>
                 <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => practice.listen(true)}
@@ -200,30 +195,39 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
               </View>
             </View>
 
-            {practice.error && <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: p.warmSoft }]}>
-              <Ionicons name="information-circle-outline" size={20} color={p.warm} /><Text style={[styles.noticeText, { color: p.warm }]}>{c[practice.error]}</Text>
-            </View>}
-            {practice.saveNotice && <View accessibilityLiveRegion="polite" style={[styles.notice, { backgroundColor: p.successSoft }]}>
-              <Ionicons name="bookmark" size={18} color={p.success} /><Text style={[styles.noticeText, { color: p.success }]}>{c.savedNotice}</Text>
-            </View>}
+            {showResult ? (
+              <View style={[styles.metrics, { borderColor: p.border, backgroundColor: p.surface }]}>
+                {([['accuracy', c.accuracy], ['fluency', c.fluency], ['completeness', c.completeness]] as const).map(([key, label]) => (
+                  <View key={key} style={styles.metric}>
+                    <Text style={[styles.metricNumber, { color: p.ink }]}>{Math.round(result.scores[key])}</Text>
+                    <Text style={[styles.statLabel, { color: p.muted }]} numberOfLines={1}>{label}</Text>
+                    <View style={[styles.metricTrack, { backgroundColor: p.border }]}><View style={{ width: `${Math.max(0, Math.min(100, result.scores[key]))}%`, height: 3, backgroundColor: p.primary, borderRadius: 3 }} /></View>
+                  </View>
+                ))}
+              </View>
+            ) : current.usageNote ? (
+              <View style={[styles.usageNote, { backgroundColor: p.warmSoft }]}>
+                <Ionicons name="bulb-outline" size={16} color={p.warm} />
+                <Text style={[styles.usageText, { color: p.muted }]} numberOfLines={2}>{current.usageNote}</Text>
+              </View>
+            ) : null}
 
-            {showResult && <View style={[styles.metrics, { borderColor: p.border, backgroundColor: p.surface }]}>
-              {([['accuracy', c.accuracy], ['fluency', c.fluency], ['completeness', c.completeness]] as const).map(([key, label]) => (
-                <View key={key} style={styles.metric}>
-                  <Text style={[styles.metricNumber, { color: p.ink }]}>{Math.round(result.scores[key])}</Text>
-                  <Text style={[styles.statLabel, { color: p.muted }]}>{label}</Text>
-                  <View style={[styles.metricTrack, { backgroundColor: p.border }]}><View style={{ width: `${Math.max(0, Math.min(100, result.scores[key]))}%`, height: 3, backgroundColor: p.primary, borderRadius: 3 }} /></View>
-                </View>
-              ))}
-            </View>}
-            {showResult && !!result.transcript && <View style={styles.transcript}>
-              <Text style={[styles.eyebrow, { color: p.muted }]}>{c.heard}</Text>
-              <Text style={[styles.transcriptText, { color: p.muted }]}>{result.transcript}</Text>
-            </View>}
-            {!showResult && !!current.usageNote && <View style={styles.usageNote}>
-              <Ionicons name="bulb-outline" size={16} color={p.warm} /><Text style={[styles.usageText, { color: p.muted }]}>{current.usageNote}</Text>
-            </View>}
-          </ScrollView>
+            {showResult && !!result.transcript ? (
+              <Text style={[styles.transcriptText, { color: p.muted }]} numberOfLines={1}>{c.heard} · {result.transcript}</Text>
+            ) : null}
+
+            {practice.error ? (
+              <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: p.warmSoft }]}>
+                <Ionicons name="information-circle-outline" size={18} color={p.warm} />
+                <Text style={[styles.noticeText, { color: p.warm }]} numberOfLines={2}>{c[practice.error]}</Text>
+              </View>
+            ) : practice.saveNotice ? (
+              <View accessibilityLiveRegion="polite" style={[styles.notice, { backgroundColor: p.successSoft }]}>
+                <Ionicons name="bookmark" size={16} color={p.success} />
+                <Text style={[styles.noticeText, { color: p.success }]} numberOfLines={1}>{c.savedNotice}</Text>
+              </View>
+            ) : null}
+          </View>
 
           <View style={[styles.dock, { paddingBottom: Math.max(insets.bottom, 12) + 10, backgroundColor: p.bg, borderTopColor: p.border }]}>
             <View accessibilityLiveRegion="polite" style={styles.status}>
@@ -260,14 +264,57 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   );
 }
 
+/** 나가기 확인 — 연습을 끊는 순간이라 무겁지 않게, 대신 확실하게 보이도록 */
+function LeaveDialog({ visible, onStay, onLeave }: { visible: boolean; onStay: () => void; onLeave: () => void }) {
+  const c = useSpeakingCopy();
+  const p = useSpeakingPalette();
+  const enter = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!visible) return;
+    enter.setValue(0);
+    const animation = Animated.spring(enter, { toValue: 1, useNativeDriver: true, damping: 15, stiffness: 210, mass: 0.8 });
+    animation.start();
+    return () => animation.stop();
+  }, [visible, enter]);
+
+  return (
+    <Modal visible={visible} transparent statusBarTranslucent animationType="fade" onRequestClose={onStay}>
+      <Pressable style={styles.modalBackdrop} accessibilityRole="button" accessibilityLabel={c.stay} onPress={onStay}>
+        <Animated.View accessibilityViewIsModal onStartShouldSetResponder={() => true}
+          style={[styles.modalCard, { backgroundColor: p.surface, opacity: enter, transform: [
+            { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
+            { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [26, 0] }) },
+          ] }]}>
+          <View style={[styles.modalGlow, { backgroundColor: p.primarySoft }]}>
+            <Ionicons name="mic-off-outline" size={30} color={p.primary} />
+            <View style={[styles.modalSpark, { backgroundColor: p.surface }]}>
+              <Ionicons name="pause" size={12} color={p.warm} />
+            </View>
+          </View>
+          <Text style={[styles.modalTitle, { color: p.ink }]}>{c.leaveTitle}</Text>
+          <Text style={[styles.modalBody, { color: p.muted }]}>{c.leaveBody}</Text>
+          <Pressable accessibilityRole="button" onPress={onStay}
+            style={({ pressed }) => [styles.modalStay, { backgroundColor: p.primary, borderBottomWidth: pressed ? 2 : 5, transform: [{ translateY: pressed ? 3 : 0 }] }]}>
+            <Ionicons name="mic" size={17} color={p.bg} />
+            <Text style={[styles.modalStayText, { color: p.bg }]}>{c.stay}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={onLeave}
+            style={({ pressed }) => [styles.modalLeave, { opacity: pressed ? 0.5 : 1 }]}>
+            <Text style={[styles.modalLeaveText, { color: p.muted }]}>{c.leave}</Text>
+          </Pressable>
+        </Animated.View>
+      </Pressable>
+    </Modal>
+  );
+}
+
 function SpeakingPracticeScreen() {
   const { pack } = useLocalSearchParams<{ pack?: string | string[] }>();
   const packCode = typeof pack === "string" ? pack : "";
   const practice = useSpeakingPractice(packCode);
   const router = useRouter();
   const navigation = useNavigation();
-  const c = useSpeakingCopy();
-  const p = useSpeakingPalette();
   const loggedIn = useAuthStore((s) => s.isLoggedIn);
 
   // 연습 도중에 나가려 하면 한 번 붙잡는다.
@@ -311,18 +358,7 @@ function SpeakingPracticeScreen() {
   };
   return <>
     <SpeakingPracticeView practice={practice} onClose={close} onTopics={() => router.replace("/speaking" as never)} />
-    <Modal visible={exitAsking} transparent animationType="fade" onRequestClose={() => setExitAsking(false)}>
-      <View style={styles.modalBackdrop}>
-        <View style={[styles.modalCard, { backgroundColor: p.surface }]} accessibilityViewIsModal>
-          <Text style={[styles.stateTitle, { color: p.ink }]}>{c.leaveTitle}</Text>
-          <Text style={[styles.description, { color: p.muted }]}>{c.leaveBody}</Text>
-          <Pressable accessibilityRole="button" onPress={() => setExitAsking(false)} style={[styles.primaryButton, { backgroundColor: p.primary }]}>
-            <Text style={[styles.primaryText, { color: p.bg }]}>{c.stay}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" style={styles.textButton} onPress={leaveNow}><Text style={[styles.secondaryText, { color: p.muted }]}>{c.leave}</Text></Pressable>
-        </View>
-      </View>
-    </Modal>
+    <LeaveDialog visible={exitAsking} onStay={() => setExitAsking(false)} onLeave={leaveNow} />
   </>;
 }
 
@@ -339,47 +375,44 @@ const styles = StyleSheet.create({
   counterText: { fontSize: 12, fontWeight: "800", fontVariant: ["tabular-nums"] },
   roundButton: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center" },
   progressTrack: { height: 4, borderRadius: 4, overflow: "hidden" },
-  body: { flexGrow: 1, width: "100%", maxWidth: 680, alignSelf: "center", paddingHorizontal: 22, paddingBottom: 20 },
-  sceneStrip: { flexDirection: "row", alignItems: "center", gap: 16, paddingVertical: 17, minHeight: 105 },
-  sceneContext: { fontSize: 12, lineHeight: 19, marginTop: 5, maxWidth: 440 },
-  phraseCard: { borderRadius: 28, borderWidth: 1, padding: 20, boxShadow: "0 8px 24px rgba(41,36,61,0.035)" },
+  body: { flex: 1, width: "100%", maxWidth: 680, alignSelf: "center", paddingHorizontal: 22, paddingTop: 14, paddingBottom: 10, gap: 10 },
+  phraseCard: { flex: 1, borderRadius: 28, borderWidth: 1, padding: 18, justifyContent: "space-between", boxShadow: "0 8px 24px rgba(41,36,61,0.035)" },
   cardTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   statusChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 24, flexShrink: 1 },
   statusChipText: { fontSize: 11, lineHeight: 16, fontWeight: "700", flexShrink: 1 },
-  sentenceArea: { minHeight: 155, justifyContent: "center", paddingVertical: 27, paddingHorizontal: 2 },
+  sentenceArea: { flex: 1, minHeight: 92, justifyContent: "center", paddingVertical: 12, paddingHorizontal: 2 },
   korean: { fontSize: 32, lineHeight: 49, fontWeight: "700", letterSpacing: -0.8, textAlign: "center" },
-  meaningArea: { borderTopWidth: 1, paddingTop: 19, alignItems: "center", gap: 10 },
+  meaningArea: { borderTopWidth: 1, paddingTop: 14, alignItems: "center", gap: 8 },
   meaning: { fontSize: 17, lineHeight: 27, textAlign: "center", fontWeight: "500" },
-  phraseTools: { flexDirection: "row", justifyContent: "center", flexWrap: "wrap", gap: 6, marginTop: 22 },
+  phraseTools: { flexDirection: "row", justifyContent: "center", flexWrap: "wrap", gap: 6, marginTop: 12 },
   smallButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingHorizontal: 12, paddingVertical: 9, gap: 7, borderRadius: 16 },
   smallButtonText: { fontSize: 11, fontWeight: "600", flexShrink: 1 },
   hiddenPhrase: { width: "100%", alignItems: "center", gap: 12 },
   hiddenLine: { height: 27, borderRadius: 7 },
   hiddenCaption: { fontSize: 12, lineHeight: 19, marginTop: 5, textAlign: "center" },
-  usageNote: { flexDirection: "row", gap: 8, marginTop: 16, paddingHorizontal: 5 },
+  usageNote: { flexDirection: "row", alignItems: "center", gap: 9, padding: 12, borderRadius: 16 },
   usageText: { flex: 1, fontSize: 12, lineHeight: 19 },
-  notice: { flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 16, gap: 10, marginTop: 12 },
+  notice: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 16, gap: 10 },
   noticeText: { flex: 1, fontSize: 12, lineHeight: 19 },
-  metrics: { flexDirection: "row", borderWidth: 1, paddingVertical: 16, borderRadius: 21, marginTop: 14 },
+  metrics: { flexDirection: "row", borderWidth: 1, paddingVertical: 13, borderRadius: 21 },
   metric: { flex: 1, alignItems: "center", gap: 5, paddingHorizontal: 10 },
   metricNumber: { fontSize: 22, fontWeight: "700", fontVariant: ["tabular-nums"] },
   statLabel: { fontSize: 10, lineHeight: 16, textAlign: "center" },
   metricTrack: { height: 3, width: "75%", borderRadius: 3, marginTop: 5 },
-  transcript: { marginTop: 16, paddingHorizontal: 6, gap: 5 },
-  transcriptText: { fontSize: 13, lineHeight: 21 },
-  dock: { width: "100%", maxWidth: 680, alignSelf: "center", paddingHorizontal: 20, paddingTop: 17, borderTopWidth: 1 },
+  transcriptText: { fontSize: 12, lineHeight: 19, textAlign: "center", paddingHorizontal: 6 },
+  dock: { width: "100%", maxWidth: 680, alignSelf: "center", paddingHorizontal: 20, paddingTop: 13, borderTopWidth: 1 },
   status: { alignItems: "center", gap: 7 },
   stateTitle: { fontSize: 16, fontWeight: "700", lineHeight: 24, textAlign: "center" },
   statusDetail: { fontSize: 11, lineHeight: 17, textAlign: "center", maxWidth: 330 },
-  controls: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 18, paddingTop: 15 },
+  controls: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 18, paddingTop: 12 },
   sideControl: { flex: 1, maxWidth: 105, alignItems: "center", gap: 7 },
   controlLabel: { fontSize: 10, lineHeight: 15, fontWeight: "600", textAlign: "center" },
   micWrap: { alignItems: "center", gap: 7, flex: 1.5, maxWidth: 165 },
-  micRing: { width: 96, height: 96, borderRadius: 48, borderWidth: 5, padding: 5 },
+  micRing: { width: 90, height: 90, borderRadius: 45, borderWidth: 5, padding: 5 },
   mic: { flex: 1, borderRadius: 40, alignItems: "center", justifyContent: "center" },
   micLabel: { fontSize: 11, fontWeight: "700", lineHeight: 17, textAlign: "center" },
-  privacyNote: { fontSize: 9, lineHeight: 15, textAlign: "center", marginTop: 12 },
-  wave: { flexDirection: "row", alignItems: "center", justifyContent: "center", height: 27, marginTop: 4 },
+  privacyNote: { fontSize: 9, lineHeight: 15, textAlign: "center", marginTop: 8 },
+  wave: { flexDirection: "row", alignItems: "center", justifyContent: "center", height: 24, marginTop: 6 },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32, gap: 16 },
   emptyIcon: { width: 80, height: 80, borderRadius: 28, alignItems: "center", justifyContent: "center" },
   description: { fontSize: 14, lineHeight: 22, textAlign: "center" },
@@ -395,6 +428,14 @@ const styles = StyleSheet.create({
   summaryStats: { width: "100%", flexDirection: "row", borderRadius: 24, borderWidth: 1, paddingVertical: 22, marginVertical: 14 },
   summaryStat: { flex: 1, alignItems: "center", gap: 7, paddingHorizontal: 8 },
   summaryNumber: { fontSize: 32, fontWeight: "700" },
-  modalBackdrop: { flex: 1, backgroundColor: "rgba(23,18,36,0.55)", justifyContent: "center", padding: 26 },
-  modalCard: { width: "100%", maxWidth: 400, alignSelf: "center", padding: 25, borderRadius: 26, gap: 16 },
+  modalBackdrop: { flex: 1, backgroundColor: "rgba(16,12,27,0.66)", justifyContent: "center", padding: 26 },
+  modalCard: { width: "100%", maxWidth: 372, alignSelf: "center", paddingHorizontal: 24, paddingTop: 26, paddingBottom: 16, borderRadius: 32, alignItems: "center", gap: 11, boxShadow: "0 24px 54px rgba(10,6,22,0.4)" },
+  modalGlow: { width: 68, height: 68, borderRadius: 26, alignItems: "center", justifyContent: "center", marginBottom: 3 },
+  modalSpark: { position: "absolute", right: -5, bottom: -3, width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  modalTitle: { fontSize: 19, fontWeight: "800", lineHeight: 27, textAlign: "center", letterSpacing: -0.4 },
+  modalBody: { fontSize: 13, lineHeight: 21, textAlign: "center", maxWidth: 288 },
+  modalStay: { width: "100%", minHeight: 54, borderRadius: 18, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 7, borderBottomColor: "rgba(0,0,0,0.24)" },
+  modalStayText: { fontSize: 15, fontWeight: "800" },
+  modalLeave: { minHeight: 46, alignItems: "center", justifyContent: "center", paddingHorizontal: 18 },
+  modalLeaveText: { fontSize: 13, fontWeight: "700" },
 });

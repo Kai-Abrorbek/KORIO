@@ -36,7 +36,11 @@ export function useSpeakingPractice(packCode: string) {
   const [hidden, setHidden] = useState(false);
   const [saveNotice, setSaveNotice] = useState(false);
   const [retryIds, setRetryIds] = useState<string[] | null>(null);
+  const [autoEpoch, setAutoEpoch] = useState(0);
   const phaseRef = useRef<SpeakingPhase>("idle");
+  const autoKeyRef = useRef<string | null>(null);
+  const autoRecordRef = useRef<() => Promise<void>>(async () => undefined);
+  const resultsRef = useRef(results);
   const runRef = useRef(0);
   const recordingRef = useRef<{ run: number; id: string } | null>(null);
   const focusedRef = useRef(false);
@@ -44,7 +48,7 @@ export function useSpeakingPractice(packCode: string) {
   const sessionRef = useRef(identity);
   sessionRef.current = identity;
 
-  const { speak, speakSlow, stop: stopSpeech, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, stop: stopSpeech, isSpeaking } = useSpeech();
   const queue = retryIds ? (data?.items ?? []).filter((item) => retryIds.includes(item.id)) : data?.items ?? [];
   const current = queue[index];
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
@@ -57,6 +61,9 @@ export function useSpeakingPractice(packCode: string) {
 
   const { start, stop: stopRecording, cancel } = useSpeechRecorder({
     maxSeconds: 20,
+    // 말이 끝나면 알아서 제출한다. 이게 없으면 사용자가 stop 을 누르거나
+    // maxSeconds 가 다 지날 때까지 화면이 멈춰 있는 것처럼 보인다.
+    silenceStopMs: 1200,
     onResult: async (wav) => {
       const recording = recordingRef.current;
       if (!recording || recording.run !== runRef.current || !focusedRef.current) return;
@@ -124,6 +131,7 @@ export function useSpeakingPractice(packCode: string) {
     setSaveNotice(false);
     setSaving(false);
     savingRef.current = false;
+    autoKeyRef.current = null;
     if (!packCode || !userId || !loggedIn) {
       setLoadFailed(true);
       setLoading(false);
@@ -176,6 +184,41 @@ export function useSpeakingPractice(packCode: string) {
     }
   };
 
+  // 카드가 뜨면 먼저 들려주고, 다 읽자마자 마이크를 연다 — 바로 따라 말할 수 있게.
+  // 자동 재생을 꺼 둔 사용자는 speakAuto 가 조용히 지나가므로 마이크도 열리지
+  // 않는다. 그건 의도한 것이고, 그 경우엔 마이크 버튼으로 직접 시작하면 된다.
+  useEffect(() => {
+    autoRecordRef.current = record;
+    resultsRef.current = results;
+  });
+
+  const currentId = current?.id;
+  const currentKorean = current?.korean;
+  useEffect(() => {
+    if (loading || completed || !currentId || !currentKorean) return;
+    const key = `${autoEpoch}:${index}:${currentId}`;
+    if (autoKeyRef.current === key) return;
+    autoKeyRef.current = key;
+    // 이미 채점한 카드로 되돌아온 거라면 다시 읽어주지 않는다
+    if (resultsRef.current[currentId]) return;
+    const run = runRef.current;
+    const ready = () =>
+      focusedRef.current && runRef.current === run && phaseRef.current === "idle";
+    // 화면 전환 애니메이션이 끝난 뒤에 말하게 한다
+    const timer = setTimeout(() => {
+      if (!ready()) return;
+      setError(null);
+      speakAuto(currentKorean, "ko-KR", {
+        respectSoundSettings: false,
+        volume: 1,
+        onDone: () => {
+          if (ready()) void autoRecordRef.current();
+        },
+      });
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
+
   const next = () => {
     if (phaseRef.current !== "idle" || !current || savingRef.current) return;
     stopAll();
@@ -215,6 +258,8 @@ export function useSpeakingPractice(packCode: string) {
 
   const restart = (onlyDifficult = false) => {
     stopAll();
+    autoKeyRef.current = null;
+    setAutoEpoch((value) => value + 1);
     const difficult = summarizeSpeaking(results).retryIds;
     setRetryIds(onlyDifficult && difficult.length ? difficult : null);
     setIndex(0);

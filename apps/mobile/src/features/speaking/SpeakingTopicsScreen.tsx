@@ -20,7 +20,7 @@ import type { ExpressionPackSummary } from "@/types/expression";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { formatSpeaking, useSpeakingCopy } from "./copy";
 import { useSpeakingPalette } from "./palette";
-import TopicIllustration from "./TopicIllustration";
+import TopicIllustration, { topicLookOf } from "./TopicIllustration";
 
 type LoadState = {
   scope: string;
@@ -115,8 +115,6 @@ export default function SpeakingTopicsScreen() {
   const columns = width < 350 || fontScale > 1.3 ? 1 : 2;
   const compactHero = width < 370 || fontScale > 1.2;
   const cardWidth = (Math.min(width, 760) - 44 - (columns - 1) * 14) / columns;
-  const surfaces = [palette.primarySoft, palette.successSoft, palette.warmSoft];
-  const accents = [palette.primary, palette.success, palette.warm];
   const phraseCount = (count: number) =>
     formatSpeaking(copy.phrases, { count });
 
@@ -261,11 +259,7 @@ export default function SpeakingTopicsScreen() {
                   </View>
                   <View style={styles.heroArt} pointerEvents="none">
                     <View style={styles.heroOrbit} />
-                    <TopicIllustration
-                      code={featured.code}
-                      size={130}
-                      color="#D9C2FF"
-                    />
+                    <TopicIllustration code={featured.code} size={112} />
                   </View>
                 </View>
               </Pressable>
@@ -325,7 +319,8 @@ export default function SpeakingTopicsScreen() {
           </View>
         }
         renderItem={({ item, index }) => {
-          const accent = accents[index % accents.length];
+          const look = topicLookOf(item.code);
+          const accent = palette.dark ? look.from : look.to;
           const disabled = item.count <= 0;
           return (
             <Pressable
@@ -348,7 +343,7 @@ export default function SpeakingTopicsScreen() {
               <View
                 style={[
                   styles.topicArt,
-                  { backgroundColor: surfaces[index % surfaces.length] },
+                  { backgroundColor: palette.dark ? look.softDark : look.soft },
                 ]}
               >
                 <View style={styles.topicNumber}>
@@ -356,7 +351,7 @@ export default function SpeakingTopicsScreen() {
                     {String(index + 1).padStart(2, "0")}
                   </Text>
                 </View>
-                <TopicIllustration code={item.code} size={132} color={accent} />
+                <TopicIllustration code={item.code} size={104} />
               </View>
               <View style={styles.topicBody}>
                 <Text style={[styles.topicTitle, { color: palette.ink }]}>

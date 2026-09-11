@@ -4,6 +4,7 @@ export function useSpeakingPalette() {
   const theme = useTheme();
   const dark = theme.bg === "#15151D";
   return {
+    dark,
     bg: dark ? "#191820" : "#F8F7F3",
     surface: dark ? "#24222D" : "#FFFFFF",
     ink: dark ? "#F5F2FF" : "#29243D",
