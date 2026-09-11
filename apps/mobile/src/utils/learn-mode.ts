@@ -23,6 +23,7 @@ const isLearnMode = (v: unknown): v is LearnMode =>
     "grammarPractice",
     "grammar",
     "expression",
+    "speaking",
     "conversation",
     "listening",
     "topik",

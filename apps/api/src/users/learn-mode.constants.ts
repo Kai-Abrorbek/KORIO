@@ -10,6 +10,7 @@ export const LEARN_MODES = [
   'grammarPractice',
   'grammar',
   'expression',
+  'speaking',
   'conversation',
   'listening',
   'topik',

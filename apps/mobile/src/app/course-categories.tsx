@@ -68,6 +68,14 @@ const CATEGORIES: Array<{
     feature: "expression",
   },
   {
+    key: "speaking",
+    category: "speaking",
+    icon: "mic",
+    color: "#776EE2",
+    guided: true,
+    feature: "expression",
+  },
+  {
     // 로드가 짜주는 트랙이 아니라 언제든 들어갈 수 있다 → 두 모드 모두에서 보인다
     key: "conversation",
     category: "conversation",

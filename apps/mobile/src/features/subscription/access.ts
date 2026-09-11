@@ -104,6 +104,7 @@ export function featureOfLearnMode(mode: string | undefined): Feature {
     case "grammar":
       return "grammar";
     case "expression":
+    case "speaking":
       return "expression";
     case "listening":
       return "listening";

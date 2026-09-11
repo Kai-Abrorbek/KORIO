@@ -225,6 +225,14 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
+              name="speaking"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="speaking-practice"
+              options={{ animation: "slide_from_right", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="expression-pack"
               options={{ animation: "slide_from_right" }}
             />

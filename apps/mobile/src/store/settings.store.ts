@@ -12,6 +12,7 @@ export type LearnMode =
   | "grammarPractice"
   | "grammar"
   | "expression"
+  | "speaking"
   | "conversation"
   | "listening"
   | "topik";
@@ -28,6 +29,7 @@ const LEARN_MODES: LearnMode[] = [
   "grammarPractice",
   "grammar",
   "expression",
+  "speaking",
   "conversation",
   "listening",
   "topik",
@@ -71,6 +73,8 @@ export function learnModePath(
       return "/grammar-list"; // 문법 설명 목록
     case "expression":
       return "/expressions"; // 상황별 표현 학습 허브
+    case "speaking":
+      return "/speaking"; // 주제를 고르고 문장을 따라 말하는 연습
     case "listening":
       return "/reading-listening-levels"; // 급수를 고른 뒤 문화 읽기·듣기 학습
     case "topik":
