@@ -1,11 +1,9 @@
 import "../locales/i18n";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import {
-  ThemeProvider,
-  DarkTheme,
-  DefaultTheme,
-} from "@react-navigation/native";
+// expo-router 는 react-navigation 을 vendoring 한다 — @react-navigation/native
+// 에서 가져오면 Stack 이 읽는 테마 컨텍스트와 다른 인스턴스라 아무 효과가 없다
+import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
 import { useColorScheme } from "react-native";
 import { SoundProvider } from "@/hooks/useSound";
 import EnergyModal from "@/components/energy/EnergyModal";
