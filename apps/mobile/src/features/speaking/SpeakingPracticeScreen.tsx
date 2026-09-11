@@ -19,6 +19,59 @@ import TopicIllustration from "./TopicIllustration";
 type Practice = ReturnType<typeof useSpeakingPractice>;
 type Icon = ComponentProps<typeof Ionicons>["name"];
 
+/** 녹음 중임을 한눈에 알리는 색. 보라 계열과 절대 안 헷갈리게 */
+const REC = "#E8505B";
+
+/** #rrggbb 에 알파를 붙인다 — 중첩 Text 에서는 opacity 보다 색 알파가 안전하다 */
+function dim(hex: string, alpha: string) {
+  return hex.length === 7 ? `${hex}${alpha}` : hex;
+}
+
+/** 녹음 중 마이크에서 퍼져나가는 링 */
+function MicPulse({ active, color }: { active: boolean; color: string }) {
+  const pulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!active) {
+      pulse.setValue(0);
+      return;
+    }
+    const loop = Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1500, useNativeDriver: true }));
+    loop.start();
+    return () => loop.stop();
+  }, [active, pulse]);
+  if (!active) return null;
+  return (
+    <Animated.View pointerEvents="none" style={[styles.micPulse, {
+      borderColor: color,
+      opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] }),
+      transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] }) }],
+    }]} />
+  );
+}
+
+/** 발음이 통과했을 때 카드 위에 걸치는 체크 */
+function SuccessPill({ color, edge }: { color: string; edge: string }) {
+  const pop = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    pop.setValue(0);
+    const animation = Animated.spring(pop, { toValue: 1, useNativeDriver: true, damping: 11, stiffness: 260, mass: 0.7 });
+    animation.start();
+    return () => animation.stop();
+  }, [pop]);
+  return (
+    <View style={styles.successSlot} pointerEvents="none">
+      <Animated.View style={[styles.successPill, {
+        backgroundColor: color,
+        borderColor: edge,
+        opacity: pop,
+        transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] }) }],
+      }]}>
+        <Ionicons name="checkmark" size={22} color="#FFFFFF" />
+      </Animated.View>
+    </View>
+  );
+}
+
 function RoundButton({ icon, label, onPress, color, background, disabled = false, selected = false }: {
   icon: Icon; label: string; onPress: () => void; color: string; background: string; disabled?: boolean; selected?: boolean;
 }) {
@@ -73,7 +126,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
     ? result.passed ? c.goodTitle : c.againTitle : practice.isSpeaking ? c.listenTitle : c.readyTitle;
   const detail = recording ? c.recordingBody : processing ? c.processingBody : showResult
     ? c.feedbackBody : practice.isSpeaking ? c.listenBody : c.readyBody;
-  const tint = recording ? "#C65662" : showResult ? result.passed ? p.success : p.warm : p.primary;
+  const tint = recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
   // 카드는 남는 높이를 다 쓰고, 문장이 길면 글자가 줄어든다 — 스크롤은 없다
   const phraseLength = current?.korean.length ?? 0;
   const koreanSize = phraseLength > 44 ? 20 : phraseLength > 32 ? 23 : phraseLength > 20 ? 26 : 30;
@@ -146,6 +199,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
         <>
           <View style={styles.body}>
             <View style={[styles.phraseCard, { backgroundColor: p.surface, borderColor: p.border }]}>
+              {showResult && result.passed ? <SuccessPill color={p.success} edge={p.bg} /> : null}
               <View style={styles.cardTop}>
                 <View style={[styles.statusChip, { backgroundColor: showResult ? result.passed ? p.successSoft : p.warmSoft : p.primarySoft }]}>
                   <Ionicons name={showResult ? result.passed ? "checkmark-circle" : "sparkles-outline" : "volume-medium-outline"} size={16} color={tint} />
@@ -164,11 +218,17 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                     <Text style={[styles.hiddenCaption, { color: p.muted }]}>{c.hidden}</Text>
                   </Pressable>
                 ) : (
-                  <Text style={[styles.korean, { color: p.ink, fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}>
+                  <Text style={[styles.korean, { fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}>
                     {current.korean.split(/\s+/).map((word, i, words) => {
                       const assessed = showResult ? result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word)) : undefined;
                       const tone = assessed ? wordToneOf(assessed) : null;
-                      const color = tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? "#C65662" : p.ink;
+                      // 채점 전에는 흐리게 깔아두고, 내가 말한 만큼만 진해진다.
+                      // 채점이 오면 단어별 판정 색으로 확정된다.
+                      const color = showResult
+                        ? tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? REC : p.ink
+                        : recording
+                          ? i < practice.spokenCount ? p.ink : dim(p.ink, "33")
+                          : dim(p.ink, "40");
                       return <Text key={`${i}-${word}`} onPress={showResult ? () => practice.listen(false, word) : undefined}
                         accessibilityRole={showResult ? "button" : undefined}
                         accessibilityLabel={assessed ? `${word}, ${Math.round(assessed.accuracy)}, ${tone === "good" ? c.good : tone === "warn" ? c.improve : c.needsPractice}` : undefined}
@@ -241,14 +301,15 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                 <Text style={[styles.controlLabel, { color: p.muted }]}>{c.listen}</Text>
               </View>
               <View style={styles.micWrap}>
-                <View style={[styles.micRing, { borderColor: recording ? "#C6566240" : p.primarySoft }]}>
+                <View style={[styles.micRing, { borderColor: recording ? "#E8505B2E" : processing ? p.border : p.primarySoft }]}>
+                  <MicPulse active={recording} color={REC} />
                   <Pressable accessibilityRole="button" accessibilityLabel={recording ? c.micStop : c.micStart}
                     accessibilityState={{ disabled: processing, busy: processing }} disabled={processing} onPress={() => void practice.record()}
-                    style={({ pressed }) => [styles.mic, { backgroundColor: recording ? "#BE4E5D" : p.primary, transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
-                    {processing ? <ActivityIndicator color={p.bg} size="large" /> : <Ionicons name={recording ? "stop" : "mic"} size={34} color={p.bg} />}
+                    style={({ pressed }) => [styles.mic, { backgroundColor: recording ? REC : processing ? p.muted : p.primary, transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
+                    {processing ? <ActivityIndicator color="#FFFFFF" size="large" /> : <Ionicons name={recording ? "stop" : "mic"} size={34} color={recording ? "#FFFFFF" : p.bg} />}
                   </Pressable>
                 </View>
-                <Text style={[styles.micLabel, { color: p.ink }]}>{recording ? c.micStop : showResult ? c.repeat : c.micStart}</Text>
+                <Text style={[styles.micLabel, { color: recording ? REC : p.ink }]}>{recording ? c.micStop : showResult ? c.repeat : c.micStart}</Text>
               </View>
               <View style={styles.sideControl}>
                 <RoundButton icon="arrow-forward" label={index === queue.length - 1 ? c.finish : result ? c.next : c.skip}
@@ -256,7 +317,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                 <Text style={[styles.controlLabel, { color: p.muted }]}>{result ? index === queue.length - 1 ? c.finish : c.next : c.skip}</Text>
               </View>
             </View>
-            {recording ? <VoiceActivity active color="#C65662" /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
+            {recording ? <VoiceActivity active color={REC} /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
           </View>
         </>
       ) : null}
@@ -409,6 +470,9 @@ const styles = StyleSheet.create({
   controlLabel: { fontSize: 10, lineHeight: 15, fontWeight: "600", textAlign: "center" },
   micWrap: { alignItems: "center", gap: 7, flex: 1.5, maxWidth: 165 },
   micRing: { width: 90, height: 90, borderRadius: 45, borderWidth: 5, padding: 5 },
+  micPulse: { position: "absolute", top: -7, left: -7, right: -7, bottom: -7, borderRadius: 56, borderWidth: 3 },
+  successSlot: { position: "absolute", top: -18, left: 0, right: 0, alignItems: "center", zIndex: 2 },
+  successPill: { width: 66, height: 37, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 4 },
   mic: { flex: 1, borderRadius: 40, alignItems: "center", justifyContent: "center" },
   micLabel: { fontSize: 11, fontWeight: "700", lineHeight: 17, textAlign: "center" },
   privacyNote: { fontSize: 9, lineHeight: 15, textAlign: "center", marginTop: 8 },

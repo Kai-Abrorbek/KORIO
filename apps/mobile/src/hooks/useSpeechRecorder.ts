@@ -36,6 +36,8 @@ interface Options {
   silenceStopMs?: number;
   /** 자동 제출용 음성 감지 RMS 기준 */
   voiceRmsThreshold?: number;
+  /** 버퍼가 들어올 때마다 현재 입력 세기(RMS)를 알려준다. 화면에서 말하는 걸 따라가는 용도 */
+  onLevel?: (rms: number) => void;
   /** 녹음이 끝나면 완성된 WAV 바이트를 받는다 */
   onResult: (wav: ArrayBuffer) => void;
   onError?: (error: SpeechRecorderError) => void;
@@ -49,6 +51,7 @@ export function useSpeechRecorder({
   maxSeconds = 15,
   silenceStopMs,
   voiceRmsThreshold = 650,
+  onLevel,
   onResult,
   onError,
 }: Options) {
@@ -72,6 +75,8 @@ export function useSpeechRecorder({
   onResultRef.current = onResult;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const onLevelRef = useRef(onLevel);
+  onLevelRef.current = onLevel;
 
   // 웹에서는 expo-audio 의 useAudioStream 이 stub 이라 stream 이 null 로 온다.
   // (node_modules/expo-audio/build/AudioStream.web.js) 타입은 non-null 이라 런타임에서 직접 확인한다.
@@ -88,11 +93,14 @@ export function useSpeechRecorder({
       const mono = buffer.channels === 2 ? foldToMono(pcm) : pcm;
       chunks.current.push(mono);
 
+      const level = rmsLevel(mono);
+      onLevelRef.current?.(level);
+
       const silenceMs = silenceStopMsRef.current;
       if (!silenceMs || silenceFinishQueued.current) return;
 
       const now = Date.now();
-      if (rmsLevel(mono) >= voiceRmsThresholdRef.current) {
+      if (level >= voiceRmsThresholdRef.current) {
         voiceStarted.current = true;
         lastVoiceAt.current = now;
         return;

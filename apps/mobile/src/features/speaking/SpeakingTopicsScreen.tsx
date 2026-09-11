@@ -20,6 +20,7 @@ import type { ExpressionPackSummary } from "@/types/expression";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { formatSpeaking, useSpeakingCopy } from "./copy";
 import { useSpeakingPalette } from "./palette";
+import { LinearGradient } from "expo-linear-gradient";
 import TopicIllustration, { topicLookOf } from "./TopicIllustration";
 
 type LoadState = {
@@ -320,7 +321,6 @@ export default function SpeakingTopicsScreen() {
         }
         renderItem={({ item, index }) => {
           const look = topicLookOf(item.code);
-          const accent = palette.dark ? look.from : look.to;
           const disabled = item.count <= 0;
           return (
             <Pressable
@@ -331,47 +331,44 @@ export default function SpeakingTopicsScreen() {
               accessibilityState={{ disabled }}
               style={({ pressed }) => [
                 styles.topic,
-                {
-                  width: cardWidth,
-                  backgroundColor: palette.surface,
-                  borderColor: palette.border,
-                },
+                { width: cardWidth, shadowColor: look.to },
                 disabled && styles.disabled,
                 pressed && styles.pressed,
               ]}
             >
-              <View
-                style={[
-                  styles.topicArt,
-                  { backgroundColor: palette.dark ? look.softDark : look.soft },
-                ]}
+              <LinearGradient
+                colors={[look.from, look.to]}
+                start={{ x: 0.05, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.topicFill}
               >
-                <View style={styles.topicNumber}>
-                  <Text style={[styles.topicNumberText, { color: accent }]}>
-                    {String(index + 1).padStart(2, "0")}
-                  </Text>
-                </View>
-                <TopicIllustration code={item.code} size={104} />
-              </View>
-              <View style={styles.topicBody}>
-                <Text style={[styles.topicTitle, { color: palette.ink }]}>
-                  {item.title}
+                <Text
+                  allowFontScaling={false}
+                  style={styles.topicMark}
+                  numberOfLines={1}
+                >
+                  {look.mark}
                 </Text>
-                <View style={styles.topicBottom}>
-                  <Text style={[styles.topicCount, { color: palette.muted }]}>
-                    {phraseCount(item.count)}
+                <Text style={styles.topicIndex}>
+                  {String(index + 1).padStart(2, "0")}
+                </Text>
+                <View style={styles.topicFoot}>
+                  <Text style={styles.topicTitle} numberOfLines={2}>
+                    {item.title}
                   </Text>
-                  <View
-                    style={[styles.topicArrow, { backgroundColor: palette.bg }]}
-                  >
-                    <Ionicons
-                      name="arrow-forward"
-                      size={16}
-                      color={palette.ink}
-                    />
+                  <View style={styles.topicMeta}>
+                    <View style={styles.topicPill}>
+                      <Ionicons name="mic" size={11} color="#FFFFFF" />
+                      <Text style={styles.topicPillText} numberOfLines={1}>
+                        {phraseCount(item.count)}
+                      </Text>
+                    </View>
+                    <View style={styles.topicArrow}>
+                      <Ionicons name="arrow-forward" size={15} color={look.to} />
+                    </View>
                   </View>
                 </View>
-              </View>
+              </LinearGradient>
             </Pressable>
           );
         }}
@@ -651,50 +648,61 @@ const styles = StyleSheet.create({
   countText: { fontSize: 10, fontWeight: "800" },
   columns: { gap: 14 },
   topic: {
-    borderWidth: 1,
-    borderRadius: 22,
+    borderRadius: 26,
     overflow: "hidden",
     marginBottom: 14,
+    boxShadow: "0 10px 20px rgba(38,28,64,0.18)",
   },
-  topicArt: {
-    height: 139,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 14,
+  topicFill: { minHeight: 176, padding: 15, justifyContent: "flex-end" },
+  // 한글 한 글자가 카드의 얼굴이다 — 크게 깔고 투명도로 뒤로 물린다
+  topicMark: {
+    position: "absolute",
+    right: -4,
+    top: -12,
+    fontSize: 112,
+    lineHeight: 130,
+    fontWeight: "800",
+    letterSpacing: -4,
+    color: "#FFFFFF",
+    opacity: 0.19,
   },
-  topicNumber: { position: "absolute", top: 12, left: 13 },
-  topicNumberText: {
+  topicIndex: {
+    position: "absolute",
+    top: 14,
+    left: 15,
     fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+    color: "#FFFFFF",
     opacity: 0.7,
   },
-  topicBody: {
-    paddingHorizontal: 15,
-    paddingTop: 15,
-    paddingBottom: 13,
-    flex: 1,
-  },
+  topicFoot: { gap: 10 },
   topicTitle: {
-    fontSize: 16,
-    lineHeight: 23,
+    fontSize: 15,
+    lineHeight: 21,
     fontWeight: "800",
     letterSpacing: -0.3,
+    color: "#FFFFFF",
   },
-  topicBottom: {
+  topicMeta: { flexDirection: "row", alignItems: "center", gap: 6 },
+  topicPill: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    marginTop: 10,
-    flex: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.22)",
   },
-  topicCount: { flex: 1, fontSize: 11, lineHeight: 17 },
+  topicPillText: { fontSize: 10, fontWeight: "700", color: "#FFFFFF", flexShrink: 1 },
   topicArrow: {
     height: 28,
     width: 28,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#FFFFFF",
   },
   state: {
     alignItems: "center",

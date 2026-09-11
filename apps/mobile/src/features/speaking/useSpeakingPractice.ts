@@ -14,6 +14,30 @@ import { summarizeSpeaking, type SpeakingResults } from "./session";
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
 export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
 
+/**
+ * 말하는 걸 단어 단위로 따라가기 위한 계획표.
+ *
+ * 온디바이스 음성인식이 없으므로(그건 새 네이티브 의존성이다) 마이크 입력
+ * 세기로 추적한다. 소리가 나는 동안만 시간을 쌓고, 각 단어에 음절 수만큼
+ * 시간을 배정해서 누적 시간이 그 단어의 몫을 넘기면 다음 단어로 넘어간다.
+ * 말을 멈추면 하이라이트도 멈춘다. 정확한 인식은 아니지만 "내 목소리를
+ * 따라온다"는 감각은 정확히 그 지점에서 나온다. 진짜 판정은 1초 뒤 서버
+ * 채점 결과가 덮어쓴다.
+ */
+const MS_PER_SYLLABLE = 215;
+const VOICE_RMS = 650;
+
+function buildSpeechPlan(sentence: string): number[] {
+  const marks: number[] = [];
+  let total = 0;
+  for (const word of sentence.split(/\s+/).filter(Boolean)) {
+    const hangul = word.match(/[가-힣]/g)?.length ?? 0;
+    total += Math.max(1, hangul || Math.ceil(word.length / 2)) * MS_PER_SYLLABLE;
+    marks.push(total);
+  }
+  return marks;
+}
+
 const recorderErrors: Record<SpeechRecorderError, SpeakingError> = {
   permission: "permission", unsupported: "unsupported", too_short: "tooShort", mic: "micError",
 };
@@ -37,6 +61,10 @@ export function useSpeakingPractice(packCode: string) {
   const [saveNotice, setSaveNotice] = useState(false);
   const [retryIds, setRetryIds] = useState<string[] | null>(null);
   const [autoEpoch, setAutoEpoch] = useState(0);
+  const [spokenCount, setSpokenCount] = useState(0);
+  const speechPlanRef = useRef<number[]>([]);
+  const voicedMsRef = useRef(0);
+  const lastLevelAtRef = useRef(0);
   const phaseRef = useRef<SpeakingPhase>("idle");
   const autoKeyRef = useRef<string | null>(null);
   const autoRecordRef = useRef<() => Promise<void>>(async () => undefined);
@@ -64,6 +92,19 @@ export function useSpeakingPractice(packCode: string) {
     // 말이 끝나면 알아서 제출한다. 이게 없으면 사용자가 stop 을 누르거나
     // maxSeconds 가 다 지날 때까지 화면이 멈춰 있는 것처럼 보인다.
     silenceStopMs: 1200,
+    onLevel: (rms) => {
+      const marks = speechPlanRef.current;
+      if (!marks.length) return;
+      const now = Date.now();
+      const previous = lastLevelAtRef.current;
+      lastLevelAtRef.current = now;
+      if (rms < VOICE_RMS) return;
+      // 첫 버퍼는 간격을 알 수 없고, 앱이 잠깐 멈췄다 오면 간격이 크게 튄다
+      voicedMsRef.current += previous ? Math.min(now - previous, 260) : 0;
+      let reached = 0;
+      while (reached < marks.length && voicedMsRef.current >= marks[reached]) reached += 1;
+      setSpokenCount((value) => (value === reached ? value : reached));
+    },
     onResult: async (wav) => {
       const recording = recordingRef.current;
       if (!recording || recording.run !== runRef.current || !focusedRef.current) return;
@@ -97,6 +138,8 @@ export function useSpeakingPractice(packCode: string) {
   const stopAll = useCallback(() => {
     runRef.current += 1;
     recordingRef.current = null;
+    speechPlanRef.current = [];
+    setSpokenCount(0);
     cancel();
     stopSpeech();
     changePhase("idle");
@@ -167,6 +210,10 @@ export function useSpeakingPractice(packCode: string) {
     setError(null);
     setSaveNotice(false);
     changePhase("starting");
+    speechPlanRef.current = buildSpeechPlan(current.korean);
+    voicedMsRef.current = 0;
+    lastLevelAtRef.current = 0;
+    setSpokenCount(0);
     const run = ++runRef.current;
     recordingRef.current = { run, id: current.id };
     try {
@@ -271,7 +318,7 @@ export function useSpeakingPractice(packCode: string) {
 
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
-    completed, saving, hidden, saveNotice, isSpeaking,
+    completed, saving, hidden, saveNotice, isSpeaking, spokenCount,
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
     toggleHidden: () => setHidden((value) => !value),
