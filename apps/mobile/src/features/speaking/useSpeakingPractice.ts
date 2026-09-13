@@ -77,6 +77,9 @@ export function useSpeakingPractice(packCode: string) {
   const autoRecordRef = useRef<() => Promise<void>>(async () => undefined);
   const resultsRef = useRef(results);
   const runRef = useRef(0);
+  // 녹음 전용 세대. runRef 는 화면 이탈·재생 취소로도 올라가는데, 그걸로
+  // 녹음 결과의 유효성을 판단하면 멀쩡한 녹음이 버려진다.
+  const recordGenRef = useRef(0);
   const recordingRef = useRef<{ run: number; id: string } | null>(null);
   const focusedRef = useRef(false);
   const savingRef = useRef(false);
@@ -122,12 +125,12 @@ export function useSpeakingPractice(packCode: string) {
     },
     onResult: async (wav) => {
       const recording = recordingRef.current;
-      if (!recording || recording.run !== runRef.current) return;
+      if (!recording || recording.run !== recordGenRef.current) return;
       setStep("upload");
       changePhase("assessing");
       try {
         const assessed = await SttService.assessExpression(recording.id, wav);
-        if (recording.run !== runRef.current) return;
+        if (recording.run !== recordGenRef.current) return;
         setStep(`scored ${Math.round(assessed.scores?.pron ?? 0)}`);
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
@@ -136,9 +139,9 @@ export function useSpeakingPractice(packCode: string) {
         setResults((previous) => ({ ...previous, [recording.id]: assessed }));
         if (assessed.passed) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
-        if (recording.run === runRef.current) setError("assessError");
+        if (recording.run === recordGenRef.current) setError("assessError");
       } finally {
-        if (recording.run === runRef.current) {
+        if (recording.run === recordGenRef.current) {
           recordingRef.current = null;
           changePhase("idle");
         }
@@ -167,24 +170,35 @@ export function useSpeakingPractice(packCode: string) {
     changePhase("idle");
   }, [cancel, stopSpeech, changePhase]);
 
+  // stopAll 은 ref 로만 부른다. 의존성에 넣으면 그게 한 번이라도 바뀔 때
+  // 이펙트가 재구독되고, 그 정리 함수가 stopAll() 을 부른다 — 녹음 중이면
+  // 그 자리에서 죽는다. 표현 연습 패널에는 이 두 이펙트가 아예 없어서
+  // 같은 녹음 훅을 쓰는데도 거기서는 멀쩡했다.
+  const stopAllRef = useRef(stopAll);
+  useEffect(() => {
+    stopAllRef.current = stopAll;
+  });
+
   useFocusEffect(useCallback(() => {
     focusedRef.current = true;
     return () => {
       focusedRef.current = false;
-      stopAll();
+      stopAllRef.current();
     };
-  }, [stopAll]));
+  }, []));
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state !== "active") stopAll();
+      // "inactive" 는 권한 대화상자·볼륨 UI 같은 일시적 가림에도 뜬다.
+      // 그걸로 녹음을 끊으면 안 된다. 진짜 백그라운드일 때만 정리한다.
+      if (state === "background") stopAllRef.current();
     });
     return () => subscription.remove();
-  }, [stopAll]);
+  }, []);
 
   useEffect(() => {
     let active = true;
-    stopAll();
+    stopAllRef.current();
     setLoading(true);
     setLoadFailed(false);
     setData(null);
@@ -210,7 +224,7 @@ export function useSpeakingPractice(packCode: string) {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [identity, packCode, userId, loggedIn, revision, stopAll]);
+  }, [identity, packCode, userId, loggedIn, revision]);
 
   const listen = (slow = false, word?: string) => {
     if (!current || phaseRef.current !== "idle") return;
@@ -252,7 +266,8 @@ export function useSpeakingPractice(packCode: string) {
     lastRmsRef.current = 0;
     setSpokenCount(0);
     setLevel(0);
-    const run = ++runRef.current;
+    runRef.current += 1;
+    const run = ++recordGenRef.current;
     recordingRef.current = { run, id: current.id };
     try {
       // start() 가 영영 안 끝나면 스피너에 갇힌다. 권한 대화상자를 기다리는
@@ -262,7 +277,9 @@ export function useSpeakingPractice(packCode: string) {
         start(),
         new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
       ]);
-      if (run !== runRef.current) { cancel(); return; }
+      // 여기서 run 을 다시 검사하면 안 된다. stopAll 이 한 번만 끼어들어도
+      // 방금 성공한 녹음을 취소하고 아무 표시 없이 빠져나간다. 뒤늦은 결과는
+      // onResult 에서 recordingRef.run 으로 이미 걸러진다.
       if (started === null) {
         cancel();
         setStep("timeout");
@@ -278,7 +295,7 @@ export function useSpeakingPractice(packCode: string) {
         // 그 상태로 두면 사용자는 20초를 기다리다 "안 된다"고 판단한다.
         if (watchdogRef.current) clearTimeout(watchdogRef.current);
         watchdogRef.current = setTimeout(() => {
-          if (runRef.current !== run || phaseRef.current !== "recording") return;
+          if (recordGenRef.current !== run || phaseRef.current !== "recording") return;
           if (buffersRef.current > 0) return;
           setStep("no-buffer");
           cancel();
@@ -290,7 +307,7 @@ export function useSpeakingPractice(packCode: string) {
         changePhase("idle");
       }
     } catch (error) {
-      if (run === runRef.current) {
+      if (run === recordGenRef.current) {
         setStep(`throw:${String(error).slice(0, 40)}`);
         setError("micError");
         changePhase("idle");
@@ -326,7 +343,11 @@ export function useSpeakingPractice(packCode: string) {
         respectSoundSettings: false,
         volume: 1,
         onDone: () => {
-          if (ready()) void autoRecordRef.current();
+          // 재생을 막 멈춘 오디오 세션이 정리되기 전에 AudioRecord 를 열면
+          // 안드로이드가 "마이크를 다른 곳이 쥐고 있다"로 던진다. 한 박자 준다.
+          setTimeout(() => {
+            if (ready()) void autoRecordRef.current();
+          }, 250);
         },
       });
     }, 450);
