@@ -1838,6 +1838,8 @@ export default {
     anySpeaker: "누구나",
     context: "사용 상황",
     usageNote: "자연스럽게 말하는 법",
+    detailsOpen: "표현 정보 보기",
+    detailsClose: "간단히 보기",
     practiceOfferEyebrow: "표현을 모두 익혔어요",
     practiceOfferTitle: "이제 직접 떠올려볼까요?",
     practiceOfferDescription:

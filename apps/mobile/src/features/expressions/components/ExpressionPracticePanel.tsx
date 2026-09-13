@@ -1,15 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import Animated, {
   cancelAnimation,
+  Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -17,10 +25,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { expressionPackThemeByCode } from "@/constants/expression-packs";
+import { useSpeakingPalette } from "@/features/speaking/palette";
 import { useSpeechRecorder } from "@/hooks/useSpeechRecorder";
-import { useTheme } from "@/hooks/useTheme";
 import {
   type AssessResult,
   SttService,
@@ -28,21 +36,23 @@ import {
 } from "@/services/stt.service";
 import * as Haptics from "@/utils/haptics";
 import type { ExpressionLearningQueueItem } from "../utils/expression-learning-queue";
-import {
-  buildExpressionTypingPlan,
-  isExpressionTypingCorrect,
-} from "../utils/expression-practice";
 
-type PracticeMode = "speak" | "type";
 type SpeechPhase = "idle" | "recording" | "analyzing" | "done";
-type TypeState = "idle" | "wrong" | "correct";
+
+const RECORDING_COLOR = "#E8505B";
+const SHEET_HIDDEN_Y = 1200;
+const EXPRESSION_END_SILENCE_MS = 1000;
 
 interface Props {
   item: ExpressionLearningQueueItem;
-  onReadyChange: (ready: boolean) => void;
+  typingActive: boolean;
+  ready: boolean;
+  onTypePress: () => void;
+  onOpenSpeaking: () => void;
+  onPracticeComplete: () => void;
+  onPracticeMiss: () => void;
+  onSpeechPassed: () => void;
   onBusyChange: (busy: boolean) => void;
-  onReferenceVisibilityChange: (visible: boolean) => void;
-  onScheduleRetry: () => void;
   onStopSpeech: () => void;
 }
 
@@ -85,78 +95,51 @@ function RecordingWaveBar({
 
 export default function ExpressionPracticePanel({
   item,
-  onReadyChange,
+  typingActive,
+  ready,
+  onTypePress,
+  onOpenSpeaking,
+  onPracticeComplete,
+  onPracticeMiss,
+  onSpeechPassed,
   onBusyChange,
-  onReferenceVisibilityChange,
-  onScheduleRetry,
   onStopSpeech,
 }: Props) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const packTheme = expressionPackThemeByCode(item.expression.pack.code);
+  const palette = useSpeakingPalette();
+  const insets = useSafeAreaInsets();
   const requiresAnswer = item.kind === "quiz" || item.kind === "retry";
-  const [mode, setMode] = useState<PracticeMode | null>(null);
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [phase, setPhase] = useState<SpeechPhase>("idle");
   const [result, setResult] = useState<AssessResult | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(null);
-  const [typedAnswer, setTypedAnswer] = useState("");
-  const [typeState, setTypeState] = useState<TypeState>("idle");
-  const [hintVisible, setHintVisible] = useState(false);
-  const [ready, setReady] = useState(!requiresAnswer);
-  const retryScheduledRef = useRef(false);
-
-  const typingPlan = useMemo(
-    () =>
-      buildExpressionTypingPlan(
-        item.expression.korean,
-        item.expression.id,
-        item.stage,
-        item.exposure,
-      ),
-    [item.exposure, item.expression.id, item.expression.korean, item.stage],
+  const assessmentRunRef = useRef(0);
+  const recorderStartRef = useRef(0);
+  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
   );
+  const sheetY = useSharedValue(SHEET_HIDDEN_Y);
 
   useEffect(() => {
-    const initiallyReady = !requiresAnswer;
-    setReady(initiallyReady);
-    onReadyChange(initiallyReady);
     onBusyChange(false);
-    return () => onBusyChange(false);
-  }, [item.key, onBusyChange, onReadyChange, requiresAnswer]);
+    return () => {
+      assessmentRunRef.current += 1;
+      recorderStartRef.current += 1;
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+      onBusyChange(false);
+    };
+  }, [item.key, onBusyChange]);
 
   useEffect(() => {
     onBusyChange(phase === "recording" || phase === "analyzing");
   }, [onBusyChange, phase]);
 
-  useEffect(() => {
-    onReferenceVisibilityChange(
-      (!requiresAnswer &&
-        (mode === null || item.stage === "learn" || mode === "speak")) ||
-        hintVisible ||
-        ready,
-    );
-  }, [
-    hintVisible,
-    item.stage,
-    mode,
-    onReferenceVisibilityChange,
-    ready,
-    requiresAnswer,
-  ]);
-
-  const scheduleRetryOnce = useCallback(() => {
-    if (retryScheduledRef.current) return;
-    retryScheduledRef.current = true;
-    onScheduleRetry();
-  }, [onScheduleRetry]);
-
-  const completePractice = useCallback(() => {
-    setReady(true);
-    onReadyChange(true);
-  }, [onReadyChange]);
-
   const handleWav = useCallback(
     async (wav: ArrayBuffer) => {
+      const assessmentRun = assessmentRunRef.current + 1;
+      assessmentRunRef.current = assessmentRun;
       setPhase("analyzing");
       setErrorKey(null);
       try {
@@ -164,6 +147,7 @@ export default function ExpressionPracticePanel({
           item.expression.id,
           wav,
         );
+        if (assessmentRun !== assessmentRunRef.current) return;
         if (assessment.status !== "success") {
           setErrorKey("lesson.speaking.noSpeech");
           setPhase("idle");
@@ -172,28 +156,34 @@ export default function ExpressionPracticePanel({
 
         setResult(assessment);
         setPhase("done");
-        completePractice();
+        onPracticeComplete();
         if (assessment.passed) {
           void Haptics.notificationAsync(
             Haptics.NotificationFeedbackType.Success,
           );
+          autoAdvanceTimerRef.current = setTimeout(() => {
+            setSheetVisible(false);
+            onSpeechPassed();
+          }, 380);
         } else {
-          scheduleRetryOnce();
+          onPracticeMiss();
           void Haptics.notificationAsync(
             Haptics.NotificationFeedbackType.Warning,
           );
         }
       } catch {
+        if (assessmentRun !== assessmentRunRef.current) return;
         setErrorKey("lesson.speaking.checkFailed");
         setPhase("idle");
       }
     },
-    [completePractice, item.expression.id, scheduleRetryOnce],
+    [item.expression.id, onPracticeComplete, onPracticeMiss, onSpeechPassed],
   );
 
   const { start, stop, cancel } = useSpeechRecorder({
     maxSeconds: 15,
-    silenceStopMs: 1300,
+    // Voice must begin first; then one second of silence submits naturally.
+    silenceStopMs: EXPRESSION_END_SILENCE_MS,
     onResult: handleWav,
     onError: (code) => {
       setPhase("idle");
@@ -209,18 +199,58 @@ export default function ExpressionPracticePanel({
     },
   });
 
-  const changeMode = (nextMode: PracticeMode) => {
-    if (nextMode === mode) return;
+  const finishClose = useCallback(() => setSheetVisible(false), []);
+
+  const closePractice = useCallback(() => {
+    assessmentRunRef.current += 1;
+    recorderStartRef.current += 1;
+    cancel();
+    setPhase("idle");
+    setErrorKey(null);
+    sheetY.value = withTiming(
+      SHEET_HIDDEN_Y,
+      { duration: 210, easing: Easing.in(Easing.cubic) },
+      (finished) => {
+        if (finished) runOnJS(finishClose)();
+      },
+    );
+    void Haptics.selectionAsync();
+  }, [cancel, finishClose, sheetY]);
+
+  const beginRecording = useCallback(async () => {
+    const startAttempt = recorderStartRef.current + 1;
+    recorderStartRef.current = startAttempt;
+    setErrorKey(null);
+    setResult(null);
+
+    const started = await start();
+    if (startAttempt !== recorderStartRef.current) {
+      if (started) cancel();
+      return;
+    }
+    if (started) setPhase("recording");
+  }, [cancel, start]);
+
+  const openPractice = useCallback(() => {
+    onStopSpeech();
+    onOpenSpeaking();
     cancel();
     setPhase("idle");
     setResult(null);
     setErrorKey(null);
-    setTypedAnswer("");
-    setTypeState("idle");
-    setHintVisible(false);
-    setMode(nextMode);
+    setSheetVisible(true);
+    void beginRecording();
     void Haptics.selectionAsync();
-  };
+  }, [beginRecording, cancel, onOpenSpeaking, onStopSpeech]);
+
+  useEffect(() => {
+    if (!sheetVisible) return;
+    sheetY.value = SHEET_HIDDEN_Y;
+    sheetY.value = withTiming(0, {
+      duration: 260,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [sheetVisible, sheetY]);
 
   const handleMicPress = async () => {
     if (phase === "analyzing") return;
@@ -230,47 +260,16 @@ export default function ExpressionPracticePanel({
     }
 
     onStopSpeech();
-    setErrorKey(null);
-    setResult(null);
-    const started = await start();
-    if (started) setPhase("recording");
-  };
-
-  const checkTypedAnswer = () => {
-    if (isExpressionTypingCorrect(typedAnswer, typingPlan)) {
-      setTypeState("correct");
-      completePractice();
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      return;
-    }
-
-    setTypeState("wrong");
-    scheduleRetryOnce();
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-  };
-
-  const revealHint = () => {
-    setHintVisible(true);
-    scheduleRetryOnce();
-    void Haptics.selectionAsync();
+    await beginRecording();
   };
 
   const skipPractice = () => {
-    scheduleRetryOnce();
-    completePractice();
-    setHintVisible(true);
+    onPracticeMiss();
+    onPracticeComplete();
   };
 
   const stageLabel = t(`expressionLearning.practice.stage.${item.stage}`);
-  const prompt =
-    mode === null
-      ? ""
-      : t(
-          mode === "speak"
-            ? `expressionLearning.practice.speakPrompt.${item.stage}`
-            : "expressionLearning.practice.typePrompt",
-        );
-
+  const prompt = t(`expressionLearning.practice.speakPrompt.${item.stage}`);
   const speechHint =
     errorKey ??
     (phase === "recording"
@@ -280,413 +279,439 @@ export default function ExpressionPracticePanel({
         : phase === "idle"
           ? "lesson.speaking.tapToSpeak"
           : null);
-
   const scoreTone = result?.passed
     ? WORD_TONES.good
     : result && result.scores.pron >= result.threshold.pron - 15
       ? WORD_TONES.warn
       : WORD_TONES.bad;
 
+  const sheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: Math.max(0, sheetY.value) }],
+  }));
+  const sheetGesture = Gesture.Pan()
+    .activeOffsetY(6)
+    .failOffsetY(-8)
+    .failOffsetX([-24, 24])
+    .onUpdate((event) => {
+      sheetY.value = Math.max(0, event.translationY);
+    })
+    .onEnd((event) => {
+      if (event.translationY > 92 || event.velocityY > 720) {
+        runOnJS(closePractice)();
+        return;
+      }
+      sheetY.value = withTiming(0, {
+        duration: 170,
+        easing: Easing.out(Easing.cubic),
+      });
+    });
+
   return (
-    <View
-      style={[
-        styles.panel,
-        mode === null && styles.collapsedPanel,
-        {
-          backgroundColor: `${theme.surface}F2`,
-          borderColor: `${packTheme.accent}38`,
-        },
-      ]}
-    >
+    <>
       <View
         style={[
-          styles.panelHeader,
-          mode === null && styles.collapsedPanelHeader,
+          styles.triggerGroup,
+          { backgroundColor: palette.bg, borderColor: palette.border },
         ]}
       >
-        {mode !== null ? (
-          <View style={styles.stageCopy}>
-            <Text style={[styles.stageLabel, { color: packTheme.accentDark }]}>
-              {stageLabel}
-            </Text>
-            <Text style={[styles.prompt, { color: theme.text }]}>{prompt}</Text>
-          </View>
-        ) : null}
-
-        <View
-          style={[
-            styles.modeSwitch,
-            mode === null && styles.collapsedModeSwitch,
-            { backgroundColor: theme.bg, borderColor: theme.border },
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("expressionLearning.practice.speakMode")}
+          accessibilityState={{ selected: sheetVisible }}
+          onPress={openPractice}
+          style={({ pressed }) => [
+            styles.triggerButton,
+            sheetVisible && { backgroundColor: palette.primary },
+            { opacity: pressed ? 0.58 : 1 },
           ]}
         >
-          {(
-            [
-              ["speak", "mic-outline", "expressionLearning.practice.speakMode"],
-              [
-                "type",
-                "keypad-outline",
-                "expressionLearning.practice.typeMode",
-              ],
-            ] as const
-          ).map(([value, icon, label]) => {
-            const active = mode === value;
-            return (
-              <Pressable
-                key={value}
-                accessibilityRole="button"
-                accessibilityLabel={t(label)}
-                accessibilityState={{ selected: active }}
-                onPress={() => changeMode(value)}
-                style={[
-                  styles.modeButton,
-                  mode === null && styles.collapsedModeButton,
-                  active && { backgroundColor: packTheme.accent },
-                ]}
-              >
-                <Ionicons
-                  name={icon}
-                  size={mode === null ? 25 : 20}
-                  color={active ? "#FFFFFF" : theme.textSecondary}
-                />
-              </Pressable>
-            );
-          })}
-        </View>
+          <Ionicons
+            name="mic-outline"
+            size={22}
+            color={sheetVisible ? "#FFFFFF" : palette.primary}
+          />
+        </Pressable>
+        <View
+          style={[styles.triggerDivider, { backgroundColor: palette.border }]}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("expressionLearning.practice.typeMode")}
+          accessibilityState={{ selected: typingActive }}
+          onPress={onTypePress}
+          style={({ pressed }) => [
+            styles.triggerButton,
+            typingActive && { backgroundColor: palette.primary },
+            { opacity: pressed ? 0.58 : 1 },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="keyboard-outline"
+            size={24}
+            color={typingActive ? "#FFFFFF" : palette.primary}
+          />
+        </Pressable>
       </View>
 
-      {mode === "speak" ? (
-        <View style={styles.practiceBody}>
-          {result ? (
-            <View
-              style={[
-                styles.resultCard,
-                {
-                  backgroundColor: scoreTone.background,
-                  borderColor: scoreTone.border,
-                },
-              ]}
-            >
-              <View style={styles.resultTop}>
-                <Text style={[styles.score, { color: scoreTone.text }]}>
-                  {result.scores.pron}
-                </Text>
-                <View style={styles.resultCopy}>
-                  <Text style={[styles.resultTitle, { color: scoreTone.text }]}>
-                    {t(
-                      result.passed
-                        ? "expressionLearning.practice.passed"
-                        : "expressionLearning.practice.needsPractice",
-                    )}
-                  </Text>
-                  <Text
-                    style={[styles.resultCaption, { color: scoreTone.text }]}
-                  >
-                    {t("lesson.speaking.scoreLabel")}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.wordRow}>
-                {result.words.map((word, index) => {
-                  const tone = WORD_TONES[wordToneOf(word)];
-                  return (
-                    <View
-                      key={`${word.word}-${index}`}
-                      style={[
-                        styles.wordChip,
-                        {
-                          backgroundColor: tone.background,
-                          borderBottomColor: tone.border,
-                        },
-                      ]}
-                    >
-                      <Text style={[styles.wordText, { color: tone.text }]}>
-                        {word.word}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-              {result.transcript ? (
-                <Text style={[styles.heardText, { color: scoreTone.text }]}>
-                  {t("lesson.speaking.heard")} · {result.transcript}
-                </Text>
-              ) : null}
-            </View>
-          ) : null}
-
-          {speechHint ? (
-            <Text
-              style={[
-                styles.statusText,
-                { color: errorKey ? "#D84B4B" : theme.textSecondary },
-              ]}
-            >
-              {t(speechHint)}
-            </Text>
-          ) : null}
-
+      <Modal
+        visible={sheetVisible}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={closePractice}
+      >
+        <GestureHandlerRootView style={styles.sheetRoot}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t("expressionLearning.practice.speakMode")}
-            disabled={phase === "analyzing"}
-            onPress={() => void handleMicPress()}
-            style={({ pressed }) => [
-              styles.micButton,
-              {
-                backgroundColor: packTheme.accent,
-                borderBottomColor: packTheme.accentDark,
-                opacity: phase === "analyzing" ? 0.6 : pressed ? 0.88 : 1,
-              },
-            ]}
-          >
-            {phase === "analyzing" ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : phase === "recording" ? (
-              <View style={styles.waveRow}>
-                {[16, 27, 21, 34, 25, 18].map((height, index) => (
-                  <RecordingWaveBar key={index} height={height} index={index} />
-                ))}
-              </View>
-            ) : (
-              <Ionicons name="mic" size={29} color="#FFFFFF" />
-            )}
-          </Pressable>
-        </View>
-      ) : mode === "type" ? (
-        <View style={styles.practiceBody}>
-          {typingPlan.kind === "full" ? (
-            <TextInput
-              value={typedAnswer}
-              onChangeText={(value) => {
-                setTypedAnswer(value);
-                setTypeState("idle");
-              }}
-              onSubmitEditing={checkTypedAnswer}
-              editable={typeState !== "correct"}
-              placeholder={t("expressionLearning.practice.typePlaceholder")}
-              placeholderTextColor={theme.textSecondary}
-              autoCorrect={false}
-              autoCapitalize="none"
-              returnKeyType="done"
-              style={[
-                styles.fullInput,
-                {
-                  color: theme.text,
-                  borderBottomColor:
-                    typeState === "correct"
-                      ? "#52A94A"
-                      : typeState === "wrong"
-                        ? "#E35A5A"
-                        : packTheme.accent,
-                },
-              ]}
-            />
-          ) : (
-            <View style={styles.clozeRow}>
-              {typingPlan.tokens.map((token, tokenIndex) => {
-                if (tokenIndex === typingPlan.blankStart) {
-                  return (
-                    <TextInput
-                      key="expression-blank"
-                      value={typedAnswer}
-                      onChangeText={(value) => {
-                        setTypedAnswer(value);
-                        setTypeState("idle");
-                      }}
-                      onSubmitEditing={checkTypedAnswer}
-                      editable={typeState !== "correct"}
-                      autoCorrect={false}
-                      autoCapitalize="none"
-                      returnKeyType="done"
-                      style={[
-                        styles.inlineInput,
-                        {
-                          width: Math.min(
-                            190,
-                            Math.max(82, typingPlan.answer.length * 17),
-                          ),
-                          color: theme.text,
-                          borderBottomColor:
-                            typeState === "correct"
-                              ? "#52A94A"
-                              : typeState === "wrong"
-                                ? "#E35A5A"
-                                : packTheme.accent,
-                        },
-                      ]}
-                    />
-                  );
-                }
-                if (
-                  tokenIndex > typingPlan.blankStart &&
-                  tokenIndex < typingPlan.blankStart + typingPlan.blankCount
-                ) {
-                  return null;
-                }
-                return (
-                  <Text
-                    key={`${token}-${tokenIndex}`}
-                    style={[styles.clozeToken, { color: theme.text }]}
-                  >
-                    {token}
-                  </Text>
-                );
-              })}
-            </View>
-          )}
+            accessibilityLabel={t("common.close")}
+            onPress={closePractice}
+            style={styles.transparentBackdrop}
+          />
 
-          {hintVisible ? (
-            <View
+          <GestureDetector gesture={sheetGesture}>
+            <Animated.View
               style={[
-                styles.hintAnswer,
-                { backgroundColor: packTheme.background },
+                styles.sheet,
+                {
+                  backgroundColor: palette.surface,
+                  borderColor: palette.border,
+                  paddingBottom: Math.max(insets.bottom, 14),
+                },
+                sheetAnimatedStyle,
               ]}
             >
-              <Ionicons
-                name="bulb-outline"
-                size={16}
-                color={packTheme.accentDark}
-              />
-              <Text style={[styles.hintAnswerText, { color: theme.text }]}>
-                {typingPlan.answer}
-              </Text>
-            </View>
-          ) : null}
-
-          {typeState === "wrong" ? (
-            <Text style={styles.wrongText}>
-              {t("expressionLearning.practice.tryAgain")}
-            </Text>
-          ) : typeState === "correct" ? (
-            <Text style={styles.correctText}>
-              {t("expressionLearning.practice.correct")}
-            </Text>
-          ) : null}
-
-          <View style={styles.typeActions}>
-            {!hintVisible && typeState !== "correct" ? (
-              <Pressable
-                accessibilityRole="button"
-                onPress={revealHint}
-                style={[styles.hintButton, { borderColor: theme.border }]}
-              >
-                <Ionicons
-                  name="bulb-outline"
-                  size={17}
-                  color={packTheme.accentDark}
-                />
-                <Text
+              <Animated.View style={styles.sheetGrabArea}>
+                <View
                   style={[
-                    styles.hintButtonText,
-                    { color: packTheme.accentDark },
+                    styles.sheetHandle,
+                    { backgroundColor: palette.border },
                   ]}
-                >
-                  {t("expressionLearning.practice.hint")}
-                </Text>
-              </Pressable>
-            ) : null}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("expressionLearning.practice.check")}
-              disabled={!typedAnswer.trim() || typeState === "correct"}
-              onPress={checkTypedAnswer}
-              style={[
-                styles.checkButton,
-                {
-                  backgroundColor: packTheme.accent,
-                  opacity:
-                    !typedAnswer.trim() || typeState === "correct" ? 0.45 : 1,
-                },
-              ]}
-            >
-              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-            </Pressable>
-          </View>
-        </View>
-      ) : null}
+                />
+              </Animated.View>
 
-      {mode !== null && requiresAnswer && !ready ? (
-        <Pressable onPress={skipPractice} style={styles.laterButton}>
-          <Text style={[styles.laterText, { color: theme.textSecondary }]}>
-            {t("expressionLearning.practice.later")}
-          </Text>
-        </Pressable>
-      ) : null}
-    </View>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.sheetContent}
+              >
+                <View style={styles.panel}>
+                  <View style={styles.panelHeader}>
+                    <View style={styles.stageCopy}>
+                      <Text
+                        style={[styles.stageLabel, { color: palette.primary }]}
+                      >
+                        {stageLabel}
+                      </Text>
+                      <Text style={[styles.prompt, { color: palette.ink }]}>
+                        {prompt}
+                      </Text>
+                    </View>
+
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t("common.close")}
+                      onPress={closePractice}
+                      style={[
+                        styles.closeButton,
+                        { backgroundColor: palette.bg },
+                      ]}
+                    >
+                      <Ionicons
+                        name="chevron-down"
+                        size={20}
+                        color={palette.muted}
+                      />
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.practiceBody}>
+                    {result ? (
+                      <View
+                        style={[
+                          styles.resultCard,
+                          {
+                            backgroundColor: scoreTone.background,
+                            borderColor: scoreTone.border,
+                          },
+                        ]}
+                      >
+                        <View style={styles.resultTop}>
+                          <Text
+                            style={[styles.score, { color: scoreTone.text }]}
+                          >
+                            {result.scores.pron}
+                          </Text>
+                          <View style={styles.resultCopy}>
+                            <Text
+                              style={[
+                                styles.resultTitle,
+                                { color: scoreTone.text },
+                              ]}
+                            >
+                              {t(
+                                result.passed
+                                  ? "expressionLearning.practice.passed"
+                                  : "expressionLearning.practice.needsPractice",
+                              )}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.resultCaption,
+                                { color: scoreTone.text },
+                              ]}
+                            >
+                              {t("lesson.speaking.scoreLabel")}
+                            </Text>
+                          </View>
+                        </View>
+                        <View style={styles.wordRow}>
+                          {result.words.map((word, index) => {
+                            const tone = WORD_TONES[wordToneOf(word)];
+                            return (
+                              <View
+                                key={`${word.word}-${index}`}
+                                style={[
+                                  styles.wordChip,
+                                  {
+                                    backgroundColor: tone.background,
+                                    borderBottomColor: tone.border,
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={[
+                                    styles.wordText,
+                                    { color: tone.text },
+                                  ]}
+                                >
+                                  {word.word}
+                                </Text>
+                              </View>
+                            );
+                          })}
+                        </View>
+                        {result.transcript ? (
+                          <Text
+                            style={[
+                              styles.heardText,
+                              { color: scoreTone.text },
+                            ]}
+                          >
+                            {t("lesson.speaking.heard")} · {result.transcript}
+                          </Text>
+                        ) : null}
+                      </View>
+                    ) : null}
+
+                    <View style={styles.micStage}>
+                      <View
+                        style={[
+                          styles.micHalo,
+                          {
+                            borderColor:
+                              phase === "recording"
+                                ? `${RECORDING_COLOR}2E`
+                                : palette.primarySoft,
+                          },
+                        ]}
+                      >
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={t(
+                            "expressionLearning.practice.speakMode",
+                          )}
+                          disabled={phase === "analyzing"}
+                          onPress={() => void handleMicPress()}
+                          style={({ pressed }) => [
+                            styles.micButton,
+                            {
+                              backgroundColor:
+                                phase === "recording"
+                                  ? RECORDING_COLOR
+                                  : phase === "analyzing"
+                                    ? palette.muted
+                                    : palette.primary,
+                              opacity: pressed ? 0.82 : 1,
+                              transform: [{ scale: pressed ? 0.94 : 1 }],
+                            },
+                          ]}
+                        >
+                          {phase === "analyzing" ? (
+                            <ActivityIndicator color="#FFFFFF" />
+                          ) : phase === "recording" ? (
+                            <View style={styles.waveRow}>
+                              {[16, 27, 21, 34, 25, 18].map((height, index) => (
+                                <RecordingWaveBar
+                                  key={index}
+                                  height={height}
+                                  index={index}
+                                />
+                              ))}
+                            </View>
+                          ) : (
+                            <Ionicons name="mic" size={31} color="#FFFFFF" />
+                          )}
+                        </Pressable>
+                      </View>
+                      {speechHint ? (
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color: errorKey
+                                ? "#D84B4B"
+                                : phase === "recording"
+                                  ? RECORDING_COLOR
+                                  : palette.muted,
+                            },
+                          ]}
+                        >
+                          {t(speechHint)}
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
+
+                  {requiresAnswer && !ready ? (
+                    <Pressable
+                      onPress={skipPractice}
+                      style={styles.laterButton}
+                    >
+                      <Text
+                        style={[styles.laterText, { color: palette.muted }]}
+                      >
+                        {t("expressionLearning.practice.later")}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              </ScrollView>
+            </Animated.View>
+          </GestureDetector>
+        </GestureHandlerRootView>
+      </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  panel: {
-    marginTop: 16,
-    borderRadius: 21,
-    borderWidth: 1.5,
-    padding: 14,
+  triggerGroup: {
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 3,
   },
-  collapsedPanel: {
+  triggerButton: {
+    width: 42,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  triggerDivider: { width: 1, height: 21 },
+  sheetRoot: { flex: 1, justifyContent: "flex-end" },
+  transparentBackdrop: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  sheet: {
+    width: "100%",
+    maxWidth: 680,
+    maxHeight: "86%",
+    minHeight: 430,
     alignSelf: "center",
-    padding: 7,
-    borderRadius: 18,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    overflow: "hidden",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 16,
   },
+  sheetGrabArea: {
+    minHeight: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sheetHandle: { width: 42, height: 5, borderRadius: 99 },
+  sheetContent: { flexGrow: 1 },
+  panel: { flex: 1, paddingHorizontal: 20, paddingBottom: 8 },
   panelHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
   },
-  collapsedPanelHeader: { justifyContent: "center" },
-  stageCopy: { flex: 1 },
+  stageCopy: { flex: 1, paddingTop: 2 },
   stageLabel: {
-    fontSize: 10.5,
-    lineHeight: 14,
-    fontWeight: "900",
-    letterSpacing: 0.35,
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: "800",
+    letterSpacing: 0.4,
   },
-  prompt: { marginTop: 3, fontSize: 14, lineHeight: 20, fontWeight: "800" },
-  modeSwitch: {
-    flexDirection: "row",
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 3,
+  prompt: {
+    marginTop: 5,
+    fontSize: 18,
+    lineHeight: 25,
+    fontWeight: "700",
   },
-  collapsedModeSwitch: { padding: 4, borderRadius: 15 },
-  modeButton: {
-    width: 36,
-    height: 34,
-    borderRadius: 11,
+  closeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
-  collapsedModeButton: { width: 52, height: 48, borderRadius: 13 },
-  practiceBody: { marginTop: 14 },
+  practiceBody: { marginTop: 15 },
+  micStage: {
+    minHeight: 250,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 22,
+  },
+  micHalo: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    borderWidth: 7,
+    padding: 6,
+  },
   statusText: {
-    marginBottom: 9,
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "700",
+    marginTop: 16,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "800",
     textAlign: "center",
   },
   micButton: {
-    width: 78,
-    height: 54,
-    alignSelf: "center",
-    borderRadius: 18,
-    borderBottomWidth: 4,
+    flex: 1,
+    borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
   },
-  waveRow: { height: 34, flexDirection: "row", alignItems: "center", gap: 4 },
+  waveRow: { height: 38, flexDirection: "row", alignItems: "center", gap: 4 },
   waveBar: { width: 4, borderRadius: 99, backgroundColor: "#FFFFFF" },
   resultCard: {
-    marginBottom: 10,
-    borderRadius: 16,
+    marginBottom: 4,
+    borderRadius: 18,
     borderWidth: 1,
-    padding: 11,
+    padding: 13,
   },
   resultTop: { flexDirection: "row", alignItems: "center", gap: 10 },
-  score: { fontSize: 31, lineHeight: 36, fontWeight: "900" },
+  score: {
+    fontSize: 31,
+    lineHeight: 36,
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
+  },
   resultCopy: { flex: 1 },
-  resultTitle: { fontSize: 13, lineHeight: 18, fontWeight: "900" },
+  resultTitle: { fontSize: 13, lineHeight: 18, fontWeight: "800" },
   resultCaption: { marginTop: 1, fontSize: 10.5, fontWeight: "700" },
   wordRow: { marginTop: 9, flexDirection: "row", flexWrap: "wrap", gap: 5 },
   wordChip: {
@@ -702,80 +727,12 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: "700",
   },
-  fullInput: {
-    minHeight: 48,
-    borderBottomWidth: 2.5,
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-    fontSize: 18,
-    lineHeight: 25,
-    fontWeight: "800",
-  },
-  clozeRow: {
-    minHeight: 48,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "flex-end",
-    gap: 6,
-  },
-  clozeToken: { fontSize: 17, lineHeight: 34, fontWeight: "800" },
-  inlineInput: {
-    height: 38,
-    borderBottomWidth: 2.5,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
-    fontSize: 17,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-  hintAnswer: {
-    marginTop: 11,
-    minHeight: 38,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-  },
-  hintAnswerText: { flex: 1, fontSize: 14, lineHeight: 20, fontWeight: "800" },
-  wrongText: {
-    marginTop: 8,
-    color: "#D84B4B",
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  correctText: {
-    marginTop: 8,
-    color: "#398E3D",
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  typeActions: {
-    marginTop: 12,
-    minHeight: 42,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    gap: 8,
-  },
-  hintButton: {
-    minHeight: 40,
-    borderRadius: 13,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  hintButtonText: { fontSize: 12.5, fontWeight: "900" },
-  checkButton: {
-    width: 45,
-    height: 42,
-    borderRadius: 14,
+  laterButton: {
+    alignSelf: "center",
+    minHeight: 44,
+    paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
   },
-  laterButton: { alignSelf: "center", paddingHorizontal: 12, paddingTop: 12 },
-  laterText: { fontSize: 11.5, fontWeight: "800" },
+  laterText: { fontSize: 11.5, fontWeight: "700" },
 });

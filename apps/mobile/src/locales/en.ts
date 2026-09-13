@@ -1845,6 +1845,8 @@ export default {
     anySpeaker: "Anyone",
     context: "When it is used",
     usageNote: "How to sound natural",
+    detailsOpen: "Show expression details",
+    detailsClose: "Hide details",
     practiceOfferEyebrow: "You've practiced every expression",
     practiceOfferTitle: "Ready to recall them?",
     practiceOfferDescription:

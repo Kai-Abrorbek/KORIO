@@ -1849,6 +1849,8 @@ export default {
     anySpeaker: "Любой человек",
     context: "Когда используется",
     usageNote: "Как сказать естественно",
+    detailsOpen: "Показать детали выражения",
+    detailsClose: "Скрыть детали",
     practiceOfferEyebrow: "Вы изучили все выражения",
     practiceOfferTitle: "Попробуем их вспомнить?",
     practiceOfferDescription:

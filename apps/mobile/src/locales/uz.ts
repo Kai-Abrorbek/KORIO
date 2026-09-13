@@ -1850,6 +1850,8 @@ export default {
     anySpeaker: "Hamma",
     context: "Ishlatiladigan vaziyat",
     usageNote: "Tabiiy aytish usuli",
+    detailsOpen: "Batafsil ko'rish",
+    detailsClose: "Yopish",
     practiceOfferEyebrow: "Barcha iboralarni ko'rib chiqdingiz",
     practiceOfferTitle: "Endi ularni eslab ko'ramizmi?",
     practiceOfferDescription:
