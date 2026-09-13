@@ -151,6 +151,48 @@ function VoiceActivity({ active, color, level }: { active: boolean; color: strin
   );
 }
 
+/**
+ * 가려진 한국어 문장.
+ *
+ * 빈칸은 그 단어의 글자 수만큼 폭을 잡는다 — 문장 리듬이 남아 있어야 몇
+ * 음절을 말해야 하는지 감이 온다. 누르면 그 단어만 드러난다(한 번 보고 다시
+ * 가리지 않는다 — 막힌 사람을 계속 막아둘 이유가 없다).
+ *
+ * SpokenText 대신 flex 로 단어를 깔았다. 중첩 Text 는 안드로이드에서
+ * borderRadius·padding 이 안 먹어서 빈칸이 블록으로 안 보인다.
+ */
+function MaskedPhrase({ text, hidden, revealed, onReveal, fontSize, ink, blockBg, blockEdge, label }: {
+  text: string; hidden: number[]; revealed: number[]; onReveal: (index: number) => void;
+  fontSize: number; ink: string; blockBg: string; blockEdge: string; label: string;
+}) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lineHeight = Math.round(fontSize * 1.45);
+  return (
+    <View style={styles.maskedRow}>
+      {words.map((word, index) => {
+        const masked = hidden.includes(index) && !revealed.includes(index);
+        if (!masked) {
+          return (
+            <Text key={`${index}-${word}`} style={[styles.korean, { fontSize, lineHeight, color: ink }]}>
+              {word}
+            </Text>
+          );
+        }
+        return (
+          <Pressable key={`${index}-${word}`} onPress={() => onReveal(index)}
+            accessibilityRole="button" accessibilityLabel={label}
+            style={({ pressed }) => [styles.maskedWord, {
+              backgroundColor: blockBg, borderColor: blockEdge, opacity: pressed ? 0.6 : 1,
+              // 글자 수만큼 폭을 잡는다. 한글은 폭이 거의 일정해서 이 정도로 맞는다.
+              width: Math.max(30, Math.round(word.length * fontSize * 0.66)),
+              height: Math.round(lineHeight * 0.82),
+            }]} />
+        );
+      })}
+    </View>
+  );
+}
+
 /** Presentation is separate from recording, so layout can be checked without a microphone. */
 export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   practice: Practice; onClose: () => void; onTopics: () => void;
@@ -158,7 +200,14 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   const c = useSpeakingCopy();
   const p = useSpeakingPalette();
   const insets = useSafeAreaInsets();
-  const { current, result, phase, data, queue, index, completed } = practice;
+  const { current, result, phase, data, queue, index, completed, mask } = practice;
+  // 카드가 바뀌면 드러낸 단어는 초기화된다
+  const [revealed, setRevealed] = useState<number[]>([]);
+  const [meaningShown, setMeaningShown] = useState(false);
+  useEffect(() => {
+    setRevealed([]);
+    setMeaningShown(false);
+  }, [current?.id]);
   const busy = phase !== "idle";
   const recording = phase === "recording";
   const processing = phase === "assessing" || phase === "starting";
@@ -282,6 +331,20 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                       </Text>;
                     })}
                   </Text>
+                ) : mask.mode !== "none" ? (
+                  // 진행도에 따라 단어를 가린다. 읽어서 통과하는 걸 막고, 듣고
+                  // 기억해서 말하게 하는 게 이 화면의 목적이다.
+                  <MaskedPhrase
+                    text={current.korean}
+                    hidden={mask.hidden}
+                    revealed={revealed}
+                    onReveal={(i) => setRevealed((previous) => previous.includes(i) ? previous : [...previous, i])}
+                    fontSize={koreanSize}
+                    ink={p.ink}
+                    blockBg={p.primarySoft}
+                    blockEdge={dim(p.primary, "55")}
+                    label={c.maskedWord}
+                  />
                 ) : (
                   // 흐리게 깔아두고, 읽어줄 때는 재생 위치를 · 말할 때는 내 목소리를
                   // 글자 단위로 따라간다. 표현 학습에서 쓰는 컴포넌트를 그대로 쓴다.
@@ -297,8 +360,25 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
               </View>
 
               <View style={[styles.meaningArea, { borderTopColor: p.border }]}>
-                <Text style={[styles.eyebrow, { color: p.muted }]}>{practice.hidden && !showResult ? c.prompt : c.translation}</Text>
-                <Text style={[styles.meaning, { color: p.ink }]} numberOfLines={2}>{current.meaning}</Text>
+                <Text style={[styles.eyebrow, { color: mask.hideMeaning && !showResult && !meaningShown ? p.primary : p.muted }]}>
+                  {mask.hideMeaning && !showResult && !meaningShown
+                    ? c.listenOnly
+                    : practice.hidden && !showResult ? c.prompt : c.translation}
+                </Text>
+                {mask.hideMeaning && !showResult && !meaningShown ? (
+                  // 뜻까지 가리는 구간. 소리만 듣고 따라 말하게 한다.
+                  // 막히면 누르면 뜻이 나온다 — 못 하게 막는 게 목적이 아니다.
+                  <Pressable accessibilityRole="button" accessibilityLabel={c.showMeaning}
+                    onPress={() => setMeaningShown(true)}
+                    style={({ pressed }) => [styles.meaningMask, {
+                      backgroundColor: p.primarySoft, borderColor: dim(p.primary, "55"), opacity: pressed ? 0.6 : 1,
+                    }]}>
+                    <Ionicons name="headset-outline" size={15} color={p.primary} />
+                    <Text style={[styles.meaningMaskText, { color: p.primary }]}>{c.showMeaning}</Text>
+                  </Pressable>
+                ) : (
+                  <Text style={[styles.meaning, { color: p.ink }]} numberOfLines={2}>{current.meaning}</Text>
+                )}
               </View>
               <View style={styles.phraseTools}>
                 <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => practice.listen(true)}
@@ -526,6 +606,10 @@ const styles = StyleSheet.create({
   phraseTools: { flexDirection: "row", justifyContent: "center", flexWrap: "wrap", gap: 6, marginTop: 12 },
   smallButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingHorizontal: 12, paddingVertical: 9, gap: 7, borderRadius: 16 },
   smallButtonText: { fontSize: 11, fontWeight: "600", flexShrink: 1 },
+  maskedRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", columnGap: 9, rowGap: 4 },
+  maskedWord: { borderRadius: 9, borderWidth: 1.5, borderStyle: "dashed" },
+  meaningMask: { flexDirection: "row", alignItems: "center", gap: 7, borderRadius: 14, borderWidth: 1.5, borderStyle: "dashed", paddingHorizontal: 14, paddingVertical: 9, minHeight: 44 },
+  meaningMaskText: { fontSize: 12, fontWeight: "700" },
   hiddenPhrase: { width: "100%", alignItems: "center", gap: 12 },
   hiddenLine: { height: 27, borderRadius: 7 },
   hiddenCaption: { fontSize: 12, lineHeight: 19, marginTop: 5, textAlign: "center" },

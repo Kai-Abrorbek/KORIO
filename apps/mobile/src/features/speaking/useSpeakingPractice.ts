@@ -9,7 +9,12 @@ import { ExpressionService } from "@/services/expression.service";
 import { SttService } from "@/services/stt.service";
 import type { ExpressionListResponse } from "@/types/expression";
 import * as Haptics from "@/utils/haptics";
-import { summarizeSpeaking, type SpeakingResults } from "./session";
+import {
+  speakingMaskFor,
+  summarizeSpeaking,
+  type SpeakingMask,
+  type SpeakingResults,
+} from "./session";
 
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
 export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
@@ -122,6 +127,10 @@ export function useSpeakingPractice(packCode: string) {
   const current = queue[index];
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
   const result = current ? results[current.id] ?? null : null;
+  // 세션 안에서 진행할수록 가려지는 단어가 늘고, 중간중간 전부 가려 듣기만 한다.
+  const mask: SpeakingMask = current
+    ? speakingMaskFor(index, current.korean, current.id)
+    : { mode: "none", hidden: [], hideMeaning: false };
 
   const changePhase = useCallback((next: SpeakingPhase) => {
     phaseRef.current = next;
@@ -581,7 +590,7 @@ export function useSpeakingPractice(packCode: string) {
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
     completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
-    isSpeechPlaying, speechProgress, voicedProgress, passFlash,
+    isSpeechPlaying, speechProgress, voicedProgress, passFlash, mask,
     debug: { buffers: buffersRef.current, rms: lastRmsRef.current, step },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),

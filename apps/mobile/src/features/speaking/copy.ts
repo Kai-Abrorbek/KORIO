@@ -83,6 +83,9 @@ const ko = {
   noAttempts: "다음에는 마이크를 눌러 직접 말해보세요.",
   savedNotice: "표현 학습의 저장 목록에서도 볼 수 있어요.",
   microphoneNote: "문장을 들려준 뒤 마이크가 자동으로 열려요",
+  maskedWord: "가려진 단어 — 누르면 보여요",
+  listenOnly: "듣고 따라 말해보세요",
+  showMeaning: "뜻 보기",
   openSettings: "설정 열기",
 };
 
@@ -119,6 +122,7 @@ const en: SpeakingCopy = {
   sessionCount: "{{current}} / {{total}}", score: "Pronunciation", scoreOutOf: "out of 100", hidden: "Try to remember the phrase",
   errorTitle: "Couldn't prepare your practice", emptyPractice: "There aren't any phrases in this topic yet.", round: "One phrase at a time. At your own pace.",
   noAttempts: "Next time, tap the microphone and give speaking a go.", savedNotice: "You'll also find it in your saved expressions.", microphoneNote: "The mic opens on its own once the phrase is read", openSettings: "Open settings",
+  maskedWord: "Hidden word — tap to reveal", listenOnly: "Listen, then say it back", showMeaning: "Show meaning",
 };
 
 const uz: SpeakingCopy = {
@@ -152,6 +156,7 @@ const uz: SpeakingCopy = {
   sessionCount: "{{current}} / {{total}}", score: "Talaffuz", scoreOutOf: "100 balldan", hidden: "Jumlani eslab ko‘ring",
   errorTitle: "Mashqni tayyorlab bo‘lmadi", emptyPractice: "Bu mavzuda hali mashq jumlalari yo‘q.", round: "Bittadan jumla. O‘zingizga qulay tezlikda.",
   noAttempts: "Keyingi safar mikrofonni bosib, o‘zingiz aytib ko‘ring.", savedNotice: "Uni saqlangan iboralar ro‘yxatidan ham topasiz.", microphoneNote: "Gap o‘qilgach mikrofon o‘zi ochiladi", openSettings: "Sozlamalarni ochish",
+  maskedWord: "Yashirilgan so‘z — ko‘rish uchun bosing", listenOnly: "Tinglang va takrorlang", showMeaning: "Ma’nosini ko‘rish",
 };
 
 const ru: SpeakingCopy = {
@@ -185,6 +190,7 @@ const ru: SpeakingCopy = {
   sessionCount: "{{current}} / {{total}}", score: "Произношение", scoreOutOf: "из 100", hidden: "Попробуйте вспомнить фразу",
   errorTitle: "Не удалось подготовить практику", emptyPractice: "В этой теме пока нет фраз для практики.", round: "По одной фразе. В своём темпе.",
   noAttempts: "В следующий раз нажмите микрофон и попробуйте сами.", savedNotice: "Она также доступна в списке сохранённых выражений.", microphoneNote: "Микрофон включится сам после фразы", openSettings: "Открыть настройки",
+  maskedWord: "Скрытое слово — нажмите, чтобы увидеть", listenOnly: "Послушайте и повторите", showMeaning: "Показать перевод",
 };
 
 const copies: Record<string, SpeakingCopy> = { ko, en, uz, ru };
