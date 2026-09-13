@@ -93,6 +93,17 @@ export interface ExpressionOverview {
   packs: ExpressionPackSummary[];
 }
 
+/** 말하기 연습 — 주제별로 몇 번째 문장까지 했나 */
+export interface SpeakingProgress {
+  packCode: string;
+  /** 다음에 시작할 문장 번호 (0-based). 주제를 끝냈으면 서버가 0 으로 준다 */
+  index: number;
+  total: number;
+  completedCount: number;
+  /** 이번 저장으로 주제가 끝났는지 (저장 응답에서만 의미 있다) */
+  justCompleted: boolean;
+}
+
 export interface ExpressionListResponse {
   pack: ExpressionPackInfo | null;
   items: StudyExpression[];

@@ -5,6 +5,7 @@ import { ExpressionsController } from './expressions.controller';
 import { ExpressionsService } from './expressions.service';
 import { ExpressionLearningService } from './learning/expression-learning.service';
 import { ExpressionRoadmapService } from './roadmap/expression-roadmap.service';
+import { SpeakingProgressService } from './speaking/speaking-progress.service';
 import {
   ExpressionNode,
   ExpressionNodeSchema,
@@ -18,6 +19,10 @@ import {
   UserExpressionProgress,
   UserExpressionProgressSchema,
 } from './schemas/user-expression-progress.schema';
+import {
+  UserSpeakingProgress,
+  UserSpeakingProgressSchema,
+} from './schemas/user-speaking-progress.schema';
 
 @Module({
   imports: [
@@ -30,6 +35,10 @@ import {
         name: UserExpressionProgress.name,
         schema: UserExpressionProgressSchema,
       },
+      {
+        name: UserSpeakingProgress.name,
+        schema: UserSpeakingProgressSchema,
+      },
     ]),
   ],
   controllers: [ExpressionsController],
@@ -37,12 +46,14 @@ import {
     ExpressionsService,
     ExpressionRoadmapService,
     ExpressionLearningService,
+    SpeakingProgressService,
   ],
   exports: [
     MongooseModule,
     ExpressionsService,
     ExpressionRoadmapService,
     ExpressionLearningService,
+    SpeakingProgressService,
   ],
 })
 export class ExpressionsModule {}

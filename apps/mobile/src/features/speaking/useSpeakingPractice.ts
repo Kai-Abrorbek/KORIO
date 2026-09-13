@@ -112,6 +112,8 @@ export function useSpeakingPractice(packCode: string) {
   const assessRunRef = useRef(0);
   const focusedRef = useRef(false);
   const savingRef = useRef(false);
+  /** 서버에 마지막으로 남긴 커서. 같은 값을 다시 보내지 않기 위한 것 */
+  const savedCursorRef = useRef<number | null>(null);
   const sessionRef = useRef(identity);
   sessionRef.current = identity;
 
@@ -312,8 +314,24 @@ export function useSpeakingPractice(packCode: string) {
       setLoading(false);
       return () => { active = false; };
     }
-    void ExpressionService.getPackExpressions(packCode).then((response) => {
-      if (active) setData({ ...response, items: response.items.filter((item) => item.korean.trim()) });
+    savedCursorRef.current = null;
+    // 문장과 진행률을 같이 받는다. 진행률 조회가 실패해도 연습은 시작해야 하니
+    // 거기서만 조용히 처음부터로 떨어진다.
+    void Promise.all([
+      ExpressionService.getPackExpressions(packCode),
+      ExpressionService.getSpeakingProgress(packCode).catch(() => null),
+    ]).then(([response, progress]) => {
+      if (!active) return;
+      const items = response.items.filter((item) => item.korean.trim());
+      setData({ ...response, items });
+      // 끝까지 한 주제는 서버가 0 을 준다 → 처음부터. 중간에 나간 주제는 그 자리.
+      // 시드가 줄어들었을 수도 있으니 클램프한다.
+      const resume = items.length
+        ? Math.min(Math.max(0, progress?.index ?? 0), items.length - 1)
+        : 0;
+      // 방금 받은 값을 그대로 되돌려 보내지 않게 미리 표시해 둔다
+      savedCursorRef.current = resume;
+      setIndex(resume);
     }).catch(() => {
       if (active) setLoadFailed(true);
     }).finally(() => {
@@ -321,6 +339,27 @@ export function useSpeakingPractice(packCode: string) {
     });
     return () => { active = false; };
   }, [identity, packCode, userId, loggedIn, revision]);
+
+  /**
+   * 진행률 저장. index 가 움직일 때마다 커서를 남긴다 — 주제를 다시 열면
+   * 여기서 이어진다. 마지막 문장을 넘기면 index === total 이 되고, 그때
+   * 서버가 0 으로 되돌리면서 완료 횟수를 올린다 (다시 들어가면 처음부터).
+   *
+   * 복습 모드(retryIds)에서는 저장하지 않는다. 그때 index 는 걸러낸 큐의
+   * 번호라서 주제 커서로 쓰면 엉뚱한 자리에서 이어진다.
+   *
+   * 실패는 조용히 넘긴다. 커서를 못 남긴 것 때문에 연습을 막을 이유가 없다.
+   */
+  useEffect(() => {
+    if (loading || loadFailed || retryIds) return;
+    const total = data?.items.length ?? 0;
+    if (!total) return;
+    if (savedCursorRef.current === index) return;
+    savedCursorRef.current = index;
+    void ExpressionService.saveSpeakingProgress(packCode, index, total).catch(
+      () => undefined,
+    );
+  }, [index, loading, loadFailed, retryIds, data, packCode]);
 
   const listen = (slow = false, word?: string) => {
     if (!current || phaseRef.current !== "idle") return;

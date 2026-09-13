@@ -8,6 +8,7 @@ import type {
   ExpressionProgress,
   ExpressionRoadmapResponse,
   ExpressionReviewResult,
+  SpeakingProgress,
   StudyExpression,
 } from "@/types/expression";
 
@@ -66,6 +67,28 @@ export const ExpressionService = {
 
     return { pack, items, total, nextCursor: null };
   },
+
+  /** 말하기 연습 커서 조회. 주제를 끝냈으면 서버가 0 을 준다 */
+  getSpeakingProgress: (packCode: string): Promise<SpeakingProgress> =>
+    api.get(
+      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`,
+    ),
+
+  /**
+   * 말하기 연습 커서 저장. index === total 이면 서버가 0 으로 되돌리고
+   * completedCount 를 올린다 — 끝냈다는 판정은 서버가 한다.
+   *
+   * ⚠️ PATCH 다. main.ts 의 CORS methods 에 PUT 이 없다.
+   */
+  saveSpeakingProgress: (
+    packCode: string,
+    index: number,
+    total: number,
+  ): Promise<SpeakingProgress> =>
+    api.patch(
+      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`,
+      { index, total },
+    ),
 
   getSaved: (section?: number, unit?: number) =>
     api.get<{ items: StudyExpression[] }>(
