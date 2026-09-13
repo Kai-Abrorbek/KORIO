@@ -1845,6 +1845,12 @@ export default {
     anySpeaker: "Anyone",
     context: "When it is used",
     usageNote: "How to sound natural",
+    practiceOfferEyebrow: "You've practiced every expression",
+    practiceOfferTitle: "Ready to recall them?",
+    practiceOfferDescription:
+      "Check your memory by saying or typing the {{count}} expressions you just practiced from their meanings.",
+    practiceOfferStart: "Start expression practice",
+    practiceOfferLater: "Maybe later",
     practice: {
       stage: {
         learn: "Step 1 · Learn",

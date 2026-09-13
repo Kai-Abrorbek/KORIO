@@ -4,6 +4,7 @@ import { ExpressionService } from "@/services/expression.service";
 import type { ExpressionNodeLearningResponse } from "@/types/expression";
 import {
   buildExpressionLearningQueue,
+  buildExpressionRecallQueue,
   type ExpressionLearningQueueItem,
 } from "../utils/expression-learning-queue";
 
@@ -18,13 +19,15 @@ export function useExpressionLearning(nodeCode: string) {
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [recallStarted, setRecallStarted] = useState(false);
   const [retryItems, setRetryItems] = useState<ExpressionLearningQueueItem[]>(
     [],
   );
   const recordedQueueKeysRef = useRef(new Set<string>());
   const retriedExpressionIdsRef = useRef(new Set<string>());
+  const recallResumeIndexRef = useRef<number | null>(null);
 
-  const baseQueue = useMemo(
+  const learningQueue = useMemo(
     () =>
       session
         ? buildExpressionLearningQueue(
@@ -34,11 +37,29 @@ export function useExpressionLearning(nodeCode: string) {
         : [],
     [session],
   );
+  const recallQueue = useMemo(
+    () =>
+      session
+        ? buildExpressionRecallQueue(
+            session.items,
+            session.node.requiredExposures,
+            learningQueue.at(-1)?.expression.id,
+          )
+        : [],
+    [learningQueue, session],
+  );
   const queue = useMemo(
-    () => [...baseQueue, ...retryItems],
-    [baseQueue, retryItems],
+    () =>
+      recallStarted
+        ? [...learningQueue, ...recallQueue, ...retryItems]
+        : learningQueue,
+    [learningQueue, recallQueue, recallStarted, retryItems],
   );
   const current = queue[index] ?? null;
+  const readyForRecall =
+    !recallStarted &&
+    learningQueue.length > 0 &&
+    index >= learningQueue.length - 1;
 
   const load = useCallback(async () => {
     if (!nodeCode) {
@@ -51,10 +72,12 @@ export function useExpressionLearning(nodeCode: string) {
     setLoadFailed(false);
     setSaveFailed(false);
     setCompleted(false);
+    setRecallStarted(false);
     setIndex(0);
     setRetryItems([]);
     recordedQueueKeysRef.current.clear();
     retriedExpressionIdsRef.current.clear();
+    recallResumeIndexRef.current = null;
     try {
       setSession(await ExpressionService.getNodeLearning(nodeCode));
     } catch {
@@ -80,23 +103,13 @@ export function useExpressionLearning(nodeCode: string) {
       current.exposure + 1,
       session?.node.requiredExposures ?? 3,
     );
-    // 재문제만 끝에 붙이면 문제 카드끼리 연속될 수 있다. 답을 다시 보여주는
-    // 짧은 복습 카드를 앞에 두어 학습 → 재도전 흐름과 간격을 함께 만든다.
     setRetryItems((items) => [
       ...items,
-      {
-        key: `${expressionId}-retry-review-${retryKey}`,
-        expression: current.expression,
-        stage: "guided",
-        exposure: retryExposure,
-        kind: "exposure",
-        recordsView: false,
-      },
       {
         key: `${expressionId}-retry-quiz-${retryKey}`,
         expression: current.expression,
         stage: "recall",
-        exposure: retryExposure + 1,
+        exposure: retryExposure,
         kind: "retry",
         recordsView: false,
       },
@@ -104,37 +117,20 @@ export function useExpressionLearning(nodeCode: string) {
     return true;
   }, [current, session?.node.requiredExposures]);
 
-  const advance = useCallback(async () => {
+  const recordCurrentView = useCallback(async () => {
     if (!current || saving) return false;
-    if (!current.recordsView) {
-      setSaveFailed(false);
-      if (index >= queue.length - 1) {
-        setCompleted(true);
-      } else {
-        setIndex((value) => value + 1);
-      }
-      return true;
-    }
-    if (recordedQueueKeysRef.current.has(current.key)) {
-      setSaveFailed(false);
-      if (index >= queue.length - 1) {
-        setCompleted(true);
-      } else {
-        setIndex((value) => value + 1);
-      }
+    setSaveFailed(false);
+    if (
+      !current.recordsView ||
+      recordedQueueKeysRef.current.has(current.key)
+    ) {
       return true;
     }
 
     setSaving(true);
-    setSaveFailed(false);
     try {
       await ExpressionService.recordView(current.expression.id);
       recordedQueueKeysRef.current.add(current.key);
-      if (index >= queue.length - 1) {
-        setCompleted(true);
-      } else {
-        setIndex((value) => value + 1);
-      }
       return true;
     } catch {
       setSaveFailed(true);
@@ -142,14 +138,74 @@ export function useExpressionLearning(nodeCode: string) {
     } finally {
       setSaving(false);
     }
-  }, [current, index, queue.length, saving]);
+  }, [current, saving]);
+
+  const beginRecall = useCallback(async () => {
+    if (!readyForRecall || !(await recordCurrentView())) return false;
+    if (!recallQueue.length) {
+      setCompleted(true);
+      return true;
+    }
+
+    setRecallStarted(true);
+    recallResumeIndexRef.current = null;
+    setIndex(learningQueue.length);
+    return true;
+  }, [
+    learningQueue.length,
+    readyForRecall,
+    recallQueue.length,
+    recordCurrentView,
+  ]);
+
+  const skipRecall = useCallback(async () => {
+    if (!readyForRecall || !(await recordCurrentView())) return false;
+    setCompleted(true);
+    return true;
+  }, [readyForRecall, recordCurrentView]);
+
+  const advance = useCallback(async () => {
+    if (!current || !(await recordCurrentView())) return false;
+
+    const resumeIndex = recallResumeIndexRef.current;
+    if (
+      recallStarted &&
+      current.kind === "exposure" &&
+      index === learningQueue.length - 1 &&
+      resumeIndex !== null
+    ) {
+      recallResumeIndexRef.current = null;
+      setIndex(Math.min(resumeIndex, queue.length - 1));
+      return true;
+    }
+
+    if (index >= queue.length - 1) {
+      if (!recallStarted) return false;
+      setCompleted(true);
+    } else {
+      setIndex((value) => value + 1);
+    }
+    return true;
+  }, [
+    current,
+    index,
+    learningQueue.length,
+    queue.length,
+    recallStarted,
+    recordCurrentView,
+  ]);
 
   const retreat = useCallback(() => {
     if (saving || index <= 0) return false;
     setSaveFailed(false);
+    if (current?.kind !== "exposure") {
+      recallResumeIndexRef.current = index;
+      setIndex(Math.max(0, learningQueue.length - 1));
+      return true;
+    }
     setIndex((value) => Math.max(0, value - 1));
     return true;
-  }, [index, saving]);
+  }, [current?.kind, index, learningQueue.length, saving]);
 
   return {
     session,
@@ -161,9 +217,12 @@ export function useExpressionLearning(nodeCode: string) {
     saving,
     saveFailed,
     completed,
+    readyForRecall,
     progress: queue.length ? (index + 1) / queue.length : 0,
     advance,
     retreat,
+    beginRecall,
+    skipRecall,
     scheduleRetry,
     reload: load,
   };

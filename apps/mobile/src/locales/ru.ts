@@ -1849,6 +1849,12 @@ export default {
     anySpeaker: "Любой человек",
     context: "Когда используется",
     usageNote: "Как сказать естественно",
+    practiceOfferEyebrow: "Вы изучили все выражения",
+    practiceOfferTitle: "Попробуем их вспомнить?",
+    practiceOfferDescription:
+      "Проверьте себя: произнесите или напишите {{count}} выражений по их значениям.",
+    practiceOfferStart: "Начать тренировку",
+    practiceOfferLater: "Позже",
     practice: {
       stage: {
         learn: "Шаг 1 · Знакомство",

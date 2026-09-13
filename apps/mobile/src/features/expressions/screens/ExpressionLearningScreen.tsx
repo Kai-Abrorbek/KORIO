@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -37,6 +38,136 @@ import { useExpressionLearning } from "../hooks/useExpressionLearning";
 const SWIPE_THRESHOLD = 78;
 const SWIPE_VELOCITY = 680;
 
+function ExpressionRecallOfferModal({
+  visible,
+  expressionCount,
+  busy,
+  saveFailed,
+  theme,
+  accent,
+  accentDark,
+  background,
+  onClose,
+  onStart,
+  onSkip,
+}: {
+  visible: boolean;
+  expressionCount: number;
+  busy: boolean;
+  saveFailed: boolean;
+  theme: ReturnType<typeof useTheme>;
+  accent: string;
+  accentDark: string;
+  background: string;
+  onClose: () => void;
+  onStart: () => void;
+  onSkip: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <View style={styles.recallOfferRoot}>
+        <Pressable
+          disabled={busy}
+          style={styles.recallOfferBackdrop}
+          onPress={onClose}
+        />
+        <View
+          style={[
+            styles.recallOfferCard,
+            {
+              backgroundColor: theme.surface,
+              borderColor: `${accent}36`,
+              shadowColor: theme.text,
+            },
+          ]}
+        >
+          <View
+            style={[styles.recallOfferIcon, { backgroundColor: background }]}
+          >
+            <Ionicons
+              name="chatbubbles-outline"
+              size={29}
+              color={accentDark}
+            />
+          </View>
+          <Text style={[styles.recallOfferEyebrow, { color: accentDark }]}>
+            {t("expressionLearning.practiceOfferEyebrow")}
+          </Text>
+          <Text style={[styles.recallOfferTitle, { color: theme.text }]}>
+            {t("expressionLearning.practiceOfferTitle")}
+          </Text>
+          <Text
+            style={[
+              styles.recallOfferDescription,
+              { color: theme.textSecondary },
+            ]}
+          >
+            {t("expressionLearning.practiceOfferDescription", {
+              count: expressionCount,
+            })}
+          </Text>
+
+          {saveFailed ? (
+            <Text style={styles.recallOfferError}>
+              {t("expressionLearning.saveFailed")}
+            </Text>
+          ) : null}
+
+          <Pressable
+            accessibilityRole="button"
+            disabled={busy}
+            onPress={onStart}
+            style={({ pressed }) => [
+              styles.recallOfferStartButton,
+              {
+                backgroundColor: accent,
+                opacity: busy ? 0.6 : pressed ? 0.88 : 1,
+              },
+            ]}
+          >
+            {busy ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons name="school-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.recallOfferStartText}>
+                  {t("expressionLearning.practiceOfferStart")}
+                </Text>
+              </>
+            )}
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            disabled={busy}
+            onPress={onSkip}
+            style={({ pressed }) => [
+              styles.recallOfferSkipButton,
+              { opacity: busy ? 0.45 : pressed ? 0.7 : 1 },
+            ]}
+          >
+            <Text
+              style={[
+                styles.recallOfferSkipText,
+                { color: theme.textSecondary },
+              ]}
+            >
+              {t("expressionLearning.practiceOfferLater")}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function ExpressionLearningScreen() {
   const { node = "" } = useLocalSearchParams<{ node?: string }>();
   const router = useRouter();
@@ -63,14 +194,20 @@ export default function ExpressionLearningScreen() {
     saving,
     saveFailed,
     completed,
+    readyForRecall,
     progress,
     advance,
     retreat,
+    beginRecall,
+    skipRecall,
     scheduleRetry,
     reload,
   } = useExpressionLearning(node);
   const [practiceReady, setPracticeReady] = useState(true);
   const [practiceBusy, setPracticeBusy] = useState(false);
+  const [recallOfferVisible, setRecallOfferVisible] = useState(false);
+  const [recallOfferBusy, setRecallOfferBusy] = useState(false);
+  const recallOfferShownRef = useRef(false);
   const translateX = useSharedValue(0);
   const gestureLocked = useSharedValue(0);
   const packTheme = expressionPackThemeByCode(session?.topic.code);
@@ -78,6 +215,12 @@ export default function ExpressionLearningScreen() {
     current && current.stage !== "recall"
       ? current.expression.pronunciation.ttsText || current.expression.korean
       : "";
+
+  useEffect(() => {
+    recallOfferShownRef.current = false;
+    setRecallOfferVisible(false);
+    setRecallOfferBusy(false);
+  }, [node]);
 
   useEffect(() => {
     setPracticeReady(current?.kind === "exposure");
@@ -122,14 +265,68 @@ export default function ExpressionLearningScreen() {
     [gestureLocked, translateX],
   );
 
+  const openRecallOffer = useCallback(() => {
+    recallOfferShownRef.current = true;
+    stop();
+    setRecallOfferVisible(true);
+  }, [stop]);
+
+  useEffect(() => {
+    if (
+      !readyForRecall ||
+      saving ||
+      practiceBusy ||
+      recallOfferShownRef.current
+    ) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      openRecallOffer();
+      void Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      );
+    }, 550);
+
+    return () => clearTimeout(timeout);
+  }, [openRecallOffer, practiceBusy, readyForRecall, saving]);
+
+  const startRecallPractice = useCallback(async () => {
+    if (recallOfferBusy) return;
+    setRecallOfferBusy(true);
+    const started = await beginRecall();
+    if (started) setRecallOfferVisible(false);
+    setRecallOfferBusy(false);
+  }, [beginRecall, recallOfferBusy]);
+
+  const finishWithoutRecall = useCallback(async () => {
+    if (recallOfferBusy) return;
+    setRecallOfferBusy(true);
+    const skipped = await skipRecall();
+    if (skipped) setRecallOfferVisible(false);
+    setRecallOfferBusy(false);
+  }, [recallOfferBusy, skipRecall]);
+
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {
       stop();
+      if (direction > 0 && readyForRecall) {
+        openRecallOffer();
+        settleCard(direction, true);
+        return;
+      }
       const navigation =
         direction > 0 ? advance() : Promise.resolve(retreat());
       void navigation.then((moved) => settleCard(direction, moved));
     },
-    [advance, retreat, settleCard, stop],
+    [
+      advance,
+      openRecallOffer,
+      readyForRecall,
+      retreat,
+      settleCard,
+      stop,
+    ],
   );
 
   const canGoPrevious = index > 0 && !saving && !practiceBusy;
@@ -579,19 +776,137 @@ export default function ExpressionLearningScreen() {
           {saving ? <ActivityIndicator color="#FFFFFF" /> : (
             <>
               <Text style={styles.nextButtonText}>
-                {index >= queue.length - 1 ? t("expressionLearning.finish") : t("expressionLearning.next")}
+                {readyForRecall
+                  ? t("expressionLearning.practiceOfferStart")
+                  : index >= queue.length - 1
+                    ? t("expressionLearning.finish")
+                    : t("expressionLearning.next")}
               </Text>
-              <Ionicons name={index >= queue.length - 1 ? "checkmark" : "arrow-forward"} size={21} color="#FFFFFF" />
+              <Ionicons
+                name={
+                  readyForRecall
+                    ? "school-outline"
+                    : index >= queue.length - 1
+                      ? "checkmark"
+                      : "arrow-forward"
+                }
+                size={21}
+                color="#FFFFFF"
+              />
             </>
           )}
         </Pressable>
       </View>
+
+      <ExpressionRecallOfferModal
+        visible={recallOfferVisible}
+        expressionCount={session.items.length}
+        busy={recallOfferBusy || saving}
+        saveFailed={saveFailed}
+        theme={theme}
+        accent={packTheme.accent}
+        accentDark={packTheme.accentDark}
+        background={packTheme.background}
+        onClose={() => {
+          if (!recallOfferBusy && !saving) setRecallOfferVisible(false);
+        }}
+        onStart={() => void startRecallPractice()}
+        onSkip={() => void finishWithoutRecall()}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  recallOfferRoot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  recallOfferBackdrop: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "#11121A99",
+  },
+  recallOfferCard: {
+    width: "100%",
+    maxWidth: 420,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    paddingHorizontal: 24,
+    paddingTop: 26,
+    paddingBottom: 16,
+    alignItems: "center",
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.18,
+    shadowRadius: 28,
+    elevation: 12,
+  },
+  recallOfferIcon: {
+    width: 62,
+    height: 62,
+    borderRadius: 21,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  recallOfferEyebrow: {
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: "900",
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+  },
+  recallOfferTitle: {
+    marginTop: 5,
+    fontSize: 25,
+    lineHeight: 33,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  recallOfferDescription: {
+    marginTop: 9,
+    marginBottom: 22,
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  recallOfferError: {
+    marginTop: -10,
+    marginBottom: 12,
+    color: "#E84B4B",
+    fontSize: 11.5,
+    lineHeight: 17,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  recallOfferStartButton: {
+    width: "100%",
+    minHeight: 54,
+    borderRadius: 17,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  recallOfferStartText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  recallOfferSkipButton: {
+    minHeight: 46,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recallOfferSkipText: { fontSize: 13, fontWeight: "800" },
   header: { height: 70, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 11 },
   simpleHeader: { height: 70, paddingHorizontal: 16, justifyContent: "center" },
   headerButton: { width: 44, height: 44, borderRadius: 15, borderWidth: 1, alignItems: "center", justifyContent: "center" },

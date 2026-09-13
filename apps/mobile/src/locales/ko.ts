@@ -1838,6 +1838,12 @@ export default {
     anySpeaker: "누구나",
     context: "사용 상황",
     usageNote: "자연스럽게 말하는 법",
+    practiceOfferEyebrow: "표현을 모두 익혔어요",
+    practiceOfferTitle: "이제 직접 떠올려볼까요?",
+    practiceOfferDescription:
+      "방금 연습한 {{count}}개 표현을 뜻만 보고 말하거나 써보며 기억을 확인해요.",
+    practiceOfferStart: "표현 연습 시작",
+    practiceOfferLater: "나중에 할게요",
     practice: {
       stage: {
         learn: "1단계 · 익히기",

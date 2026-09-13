@@ -1850,6 +1850,12 @@ export default {
     anySpeaker: "Hamma",
     context: "Ishlatiladigan vaziyat",
     usageNote: "Tabiiy aytish usuli",
+    practiceOfferEyebrow: "Barcha iboralarni ko'rib chiqdingiz",
+    practiceOfferTitle: "Endi ularni eslab ko'ramizmi?",
+    practiceOfferDescription:
+      "Hozirgina mashq qilgan {{count}} ta iborani ma'nosiga qarab ayting yoki yozing.",
+    practiceOfferStart: "Ibora mashqini boshlash",
+    practiceOfferLater: "Keyinroq",
     practice: {
       stage: {
         learn: "1-bosqich · O'rganish",
