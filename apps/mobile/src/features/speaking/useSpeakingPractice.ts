@@ -88,6 +88,8 @@ export function useSpeakingPractice(packCode: string) {
   // 녹음 결과의 유효성을 판단하면 멀쩡한 녹음이 버려진다.
   const recordGenRef = useRef(0);
   const recordingRef = useRef<{ run: number; id: string } | null>(null);
+  /** 겹친 채점 중 마지막 것만 화면에 반영하기 위한 카운터 (녹음을 버리는 용도가 아니다) */
+  const assessRunRef = useRef(0);
   const focusedRef = useRef(false);
   const savingRef = useRef(false);
   const sessionRef = useRef(identity);
@@ -133,23 +135,38 @@ export function useSpeakingPractice(packCode: string) {
       setSpokenCount((value) => (value === reached ? value : reached));
     },
     onResult: async (wav) => {
-      const recording = recordingRef.current;
-      if (!recording || recording.run !== recordGenRef.current) {
-        // 결과는 버리더라도 화면을 녹음 중인 채로 두면 안 된다
-        if (phaseRef.current === "recording") changePhase("idle");
+      // ⚠️ 세대(run)가 어긋났다고 녹음 결과를 버리면 안 된다.
+      //
+      // 예전에는 recordingRef.run !== recordGenRef 면 그냥 return 했다. 그런데
+      // recordingRef 는 stopAll() 이 null 로 비우고, stopAll() 은 useFocusEffect
+      // 정리 함수 · AppState · 데이터 로드 이펙트(identity 에 i18n.resolvedLanguage
+      // 가 들어가 있어 언어 해석이 늦으면 한 번 더 돈다) 에서 불린다. 그 중 하나만
+      // 끼어들면 사용자가 말한 WAV 가 아무 표시 없이 사라지고 화면은 idle 로
+      // 돌아갔다 — 그게 "말해도 반응이 없고 맞았는지 틀렸는지 알 수 없다" 였다.
+      //
+      // 표현 연습 패널(ExpressionPracticePanel.handleWav)에는 이 가드가 아예 없다.
+      // 같은 녹음 훅·같은 assessExpression 으로 거기서만 멀쩡히 돌아간 이유다.
+      // 여기서 필요한 건 "어느 문장이었나" 뿐이다. 겹친 채점은 아래 assessRunRef
+      // 로 "마지막 것만 화면에 반영" 하는 식으로만 걸러낸다.
+      const expressionId = recordingRef.current?.id ?? current?.id ?? null;
+      if (!expressionId) {
+        setStep("no-target");
+        setError("assessError");
+        changePhase("idle");
         return;
       }
+      const run = ++assessRunRef.current;
       setStep("upload");
       changePhase("assessing");
       try {
-        const assessed = await SttService.assessExpression(recording.id, wav);
-        if (recording.run !== recordGenRef.current) return;
+        const assessed = await SttService.assessExpression(expressionId, wav);
+        if (run !== assessRunRef.current) return;
         setStep(`scored ${Math.round(assessed.scores?.pron ?? 0)}`);
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
           return;
         }
-        setResults((previous) => ({ ...previous, [recording.id]: assessed }));
+        setResults((previous) => ({ ...previous, [expressionId]: assessed }));
         if (assessed.passed) {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           // 맞았으면 초록 연출을 보여주고 알아서 다음 문장으로 넘어간다.
@@ -164,12 +181,9 @@ export function useSpeakingPractice(packCode: string) {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
       } catch {
-        if (recording.run === recordGenRef.current) setError("assessError");
+        if (run === assessRunRef.current) setError("assessError");
       } finally {
-        if (recording.run === recordGenRef.current) {
-          recordingRef.current = null;
-          changePhase("idle");
-        }
+        if (run === assessRunRef.current) changePhase("idle");
       }
     },
     onError: (code) => {
