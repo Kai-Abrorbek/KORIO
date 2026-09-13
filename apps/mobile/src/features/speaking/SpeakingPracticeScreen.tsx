@@ -50,6 +50,35 @@ function MicPulse({ active, color }: { active: boolean; color: string }) {
   );
 }
 
+/** 통과했을 때 카드를 초록으로 덮는 연출. 다음 문장으로 넘어가기 직전 1.6초 */
+function PassBurst({ visible, color, label }: { visible: boolean; color: string; label: string }) {
+  const pop = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!visible) {
+      pop.setValue(0);
+      return;
+    }
+    const animation = Animated.spring(pop, { toValue: 1, useNativeDriver: true, damping: 12, stiffness: 220, mass: 0.7 });
+    animation.start();
+    return () => animation.stop();
+  }, [visible, pop]);
+  if (!visible) return null;
+  return (
+    <Animated.View pointerEvents="none" style={[styles.passBurst, {
+      backgroundColor: dim(color, "F2"),
+      opacity: pop,
+      transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }],
+    }]}>
+      <Animated.View style={[styles.passCheck, {
+        transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }],
+      }]}>
+        <Ionicons name="checkmark" size={52} color={color} />
+      </Animated.View>
+      <Text style={styles.passLabel}>{label}</Text>
+    </Animated.View>
+  );
+}
+
 /** 발음이 통과했을 때 카드 위에 걸치는 체크 */
 function SuccessPill({ color, edge }: { color: string; edge: string }) {
   const pop = useRef(new Animated.Value(0)).current;
@@ -141,11 +170,14 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   const micLocked = phase === "assessing";
   const showResult = !!result && !busy;
   const progress = completed ? 1 : queue.length ? index / queue.length : 0;
-  const title = recording ? c.recording : processing ? c.processing : showResult
+  // 에러는 다른 무엇보다 먼저 보여야 한다. 아무 반응이 없는 것처럼 느끼는
+  // 순간의 대부분은 실패했는데 그 사실이 화면 아래 어딘가에만 있을 때다.
+  const failure = practice.error;
+  const title = failure ? c.againTitle : recording ? c.recording : processing ? c.processing : showResult
     ? result.passed ? c.goodTitle : c.againTitle : practice.isSpeaking ? c.listenTitle : c.readyTitle;
-  const detail = recording ? c.recordingBody : processing ? c.processingBody : showResult
+  const detail = failure ? c[failure] : recording ? c.recordingBody : processing ? c.processingBody : showResult
     ? c.feedbackBody : practice.isSpeaking ? c.listenBody : c.readyBody;
-  const tint = recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
+  const tint = failure ? p.warm : recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
   // 카드는 남는 높이를 다 쓰고, 문장이 길면 글자가 줄어든다 — 스크롤은 없다
   const phraseLength = current?.korean.length ?? 0;
   const koreanSize = phraseLength > 44 ? 20 : phraseLength > 32 ? 23 : phraseLength > 20 ? 26 : 30;
@@ -219,6 +251,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
           <View style={styles.body}>
             <View style={[styles.phraseCard, { backgroundColor: p.surface, borderColor: p.border }]}>
               {showResult && result.passed ? <SuccessPill color={p.success} edge={p.bg} /> : null}
+              <PassBurst visible={practice.passFlash} color={p.success} label={c.goodTitle} />
               <View style={styles.cardTop}>
                 <View style={[styles.statusChip, { backgroundColor: showResult ? result.passed ? p.successSoft : p.warmSoft : p.primarySoft }]}>
                   <Ionicons name={showResult ? result.passed ? "checkmark-circle" : "sparkles-outline" : "volume-medium-outline"} size={16} color={tint} />
@@ -511,6 +544,9 @@ const styles = StyleSheet.create({
   micPulse: { position: "absolute", top: -7, left: -7, right: -7, bottom: -7, borderRadius: 56, borderWidth: 3 },
   successSlot: { position: "absolute", top: -18, left: 0, right: 0, alignItems: "center", zIndex: 2 },
   successPill: { width: 66, height: 37, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 4 },
+  passBurst: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 28, alignItems: "center", justifyContent: "center", gap: 16, zIndex: 5 },
+  passCheck: { width: 92, height: 92, borderRadius: 46, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  passLabel: { fontSize: 20, fontWeight: "800", color: "#FFFFFF", letterSpacing: -0.4, textAlign: "center", paddingHorizontal: 20 },
   mic: { flex: 1, borderRadius: 40, alignItems: "center", justifyContent: "center" },
   micLabel: { fontSize: 11, fontWeight: "700", lineHeight: 17, textAlign: "center" },
   privacyNote: { fontSize: 9, lineHeight: 15, textAlign: "center", marginTop: 8 },

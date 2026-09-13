@@ -65,6 +65,11 @@ export function useSpeakingPractice(packCode: string) {
   const [level, setLevel] = useState(0);
   // 말하는 동안 문장의 어디쯤 왔는지 (0~1). 글자 따라가기에 그대로 먹인다.
   const [voicedProgress, setVoicedProgress] = useState(0);
+  // 통과했을 때 초록 연출을 띄우고 잠시 뒤 다음 문장으로 넘어간다
+  const [passFlash, setPassFlash] = useState(false);
+  const advanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const recordStartedAtRef = useRef(0);
+  const nextRef = useRef<() => void>(() => undefined);
   // 녹음이 어디까지 갔는지 화면에 찍기 위한 단계 표시 (개발 빌드에서만 보인다)
   const [step, setStep] = useState("idle");
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -145,7 +150,19 @@ export function useSpeakingPractice(packCode: string) {
           return;
         }
         setResults((previous) => ({ ...previous, [recording.id]: assessed }));
-        if (assessed.passed) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (assessed.passed) {
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          // 맞았으면 초록 연출을 보여주고 알아서 다음 문장으로 넘어간다.
+          // 맞은 문장 앞에서 사용자가 다음 버튼을 찾게 만들 이유가 없다.
+          setPassFlash(true);
+          if (advanceRef.current) clearTimeout(advanceRef.current);
+          advanceRef.current = setTimeout(() => {
+            setPassFlash(false);
+            nextRef.current();
+          }, 1600);
+        } else {
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        }
       } catch {
         if (recording.run === recordGenRef.current) setError("assessError");
       } finally {
@@ -168,6 +185,11 @@ export function useSpeakingPractice(packCode: string) {
       clearTimeout(watchdogRef.current);
       watchdogRef.current = null;
     }
+    if (advanceRef.current) {
+      clearTimeout(advanceRef.current);
+      advanceRef.current = null;
+    }
+    setPassFlash(false);
     runRef.current += 1;
     recordingRef.current = null;
     speechPlanRef.current = [];
@@ -252,6 +274,17 @@ export function useSpeakingPractice(packCode: string) {
     setStep("tap");
     if (!current) { setStep("no-card"); return; }
     if (phaseRef.current === "recording") {
+      // 자동으로 열린 마이크를 "시작 버튼" 으로 착각하고 누르는 경우가 많다.
+      // 방금 열렸다면 멈추는 대신 처음부터 다시 듣는다 — 여기서 멈추면
+      // 사용자는 죽은 마이크에 대고 말하게 되고, 그게 "말해도 반응이 없다" 다.
+      if (Date.now() - recordStartedAtRef.current < 1000) {
+        setStep("re-arm");
+        voicedMsRef.current = 0;
+        setSpokenCount(0);
+        setVoicedProgress(0);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        return;
+      }
       setStep("manual-stop");
       stopRecording();
       // finish() 는 내부 active 플래그가 이미 내려가 있으면 아무 것도 안 하고
@@ -314,6 +347,7 @@ export function useSpeakingPractice(packCode: string) {
       }
       if (started) {
         changePhase("recording");
+        recordStartedAtRef.current = Date.now();
         setStep("rec");
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         // 스트림은 열렸는데 버퍼가 한 개도 안 오면 소리 없이 죽은 것이다.
@@ -345,6 +379,7 @@ export function useSpeakingPractice(packCode: string) {
   // 않는다. 그건 의도한 것이고, 그 경우엔 마이크 버튼으로 직접 시작하면 된다.
   useEffect(() => {
     autoRecordRef.current = record;
+    nextRef.current = next;
     resultsRef.current = results;
   });
 
@@ -380,7 +415,12 @@ export function useSpeakingPractice(packCode: string) {
   }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
 
   const next = () => {
-    if (phaseRef.current !== "idle" || !current || savingRef.current) return;
+    if (!current || savingRef.current) return;
+    if (advanceRef.current) {
+      clearTimeout(advanceRef.current);
+      advanceRef.current = null;
+    }
+    setPassFlash(false);
     stopAll();
     setError(null);
     setSaveNotice(false);
@@ -432,7 +472,7 @@ export function useSpeakingPractice(packCode: string) {
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
     completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
-    isSpeechPlaying, speechProgress, voicedProgress,
+    isSpeechPlaying, speechProgress, voicedProgress, passFlash,
     debug: { buffers: buffersRef.current, rms: lastRmsRef.current, step },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
