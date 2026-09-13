@@ -3,6 +3,7 @@ import { AppState } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/auth.store";
+import { speakingCursorOf, useSpeakingCursorStore } from "@/store/speaking.store";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSpeechRecorder, type SpeechRecorderError } from "@/hooks/useSpeechRecorder";
 import { ExpressionService } from "@/services/expression.service";
@@ -119,10 +120,12 @@ export function useSpeakingPractice(packCode: string) {
   const savingRef = useRef(false);
   /** 서버에 마지막으로 남긴 커서. 같은 값을 다시 보내지 않기 위한 것 */
   const savedCursorRef = useRef<number | null>(null);
+  /** 같은 카드에서 prewarm 을 반복하지 않기 위한 키 */
+  const prewarmKeyRef = useRef("");
   const sessionRef = useRef(identity);
   sessionRef.current = identity;
 
-  const { speak, speakSlow, speakAuto, stop: stopSpeech, isSpeaking, isSpeechPlaying, speechProgress } = useSpeech();
+  const { speak, speakSlow, speakAuto, prewarm, stop: stopSpeech, isSpeaking, isSpeechPlaying, speechProgress } = useSpeech();
   const queue = retryIds ? (data?.items ?? []).filter((item) => retryIds.includes(item.id)) : data?.items ?? [];
   const current = queue[index];
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
@@ -335,8 +338,11 @@ export function useSpeakingPractice(packCode: string) {
       setData({ ...response, items });
       // 끝까지 한 주제는 서버가 0 을 준다 → 처음부터. 중간에 나간 주제는 그 자리.
       // 시드가 줄어들었을 수도 있으니 클램프한다.
+      // 서버 값이 있으면 그게 이긴다 (기기 여러 대에서 맞춰야 하는 값이다).
+      // 서버가 아직 배포 안 됐거나 네트워크가 죽으면 로컬 사본으로 이어진다.
+      const cursor = progress?.index ?? speakingCursorOf(packCode);
       const resume = items.length
-        ? Math.min(Math.max(0, progress?.index ?? 0), items.length - 1)
+        ? Math.min(Math.max(0, cursor), items.length - 1)
         : 0;
       // 방금 받은 값을 그대로 되돌려 보내지 않게 미리 표시해 둔다
       savedCursorRef.current = resume;
@@ -365,10 +371,37 @@ export function useSpeakingPractice(packCode: string) {
     if (!total) return;
     if (savedCursorRef.current === index) return;
     savedCursorRef.current = index;
+    // 로컬부터 남긴다. 서버가 실패해도 이어서 시작되게.
+    useSpeakingCursorStore.getState().setCursor(packCode, index, total);
     void ExpressionService.saveSpeakingProgress(packCode, index, total).catch(
       () => undefined,
     );
   }, [index, loading, loadFailed, retryIds, data, packCode]);
+
+  /**
+   * 다음 문장들의 음성을 미리 받아둔다.
+   *
+   * speak() 한 번에 왕복이 두 번 든다 (/tts/speech 로 audioId → 그 URL 을 다시
+   * 받아 디코딩). 카드가 뜬 뒤에 그게 돌면 소리가 한 박자 늦는데, 그게 "너무
+   * 오래 기다린다" 의 실체다. 타이머를 줄이는 것만으로는 안 없어진다.
+   *
+   * 현재 카드부터 앞으로 3개까지만 받는다 — 주제 전체를 받으면 TTS 엔드포인트에
+   * 한꺼번에 몰린다.
+   */
+  useEffect(() => {
+    if (loading || completed || !queue.length) return;
+    const upcoming = queue
+      .slice(index, index + 3)
+      .map((item) => item.korean)
+      .filter(Boolean);
+    if (!upcoming.length) return;
+    // queue 는 렌더마다 새로 만들어지는 배열이라 deps 로는 못 막는다.
+    // 카드가 실제로 바뀔 때만 한 번 돌게 키로 건다.
+    const key = `${queue[index]?.id ?? ""}:${upcoming.length}`;
+    if (prewarmKeyRef.current === key) return;
+    prewarmKeyRef.current = key;
+    prewarm(upcoming, "ko-KR", { respectSoundSettings: false });
+  }, [index, loading, completed, queue, prewarm]);
 
   const listen = (slow = false, word?: string) => {
     if (!current || phaseRef.current !== "idle") return;
@@ -512,7 +545,9 @@ export function useSpeakingPractice(packCode: string) {
     const run = runRef.current;
     const ready = () =>
       focusedRef.current && runRef.current === run && phaseRef.current === "idle";
-    // 화면 전환 애니메이션이 끝난 뒤에 말하게 한다
+    // 화면 전환이 튀지 않을 만큼만 기다린다. 예전 450ms 는 카드를 보고
+    // "왜 안 읽지" 하는 시간이었다. 실제 체감 지연의 대부분은 이 타이머가
+    // 아니라 TTS 왕복이라, 아래 prewarm 이펙트로 미리 받아둔다.
     const timer = setTimeout(() => {
       if (!ready()) return;
       setError(null);
@@ -522,12 +557,13 @@ export function useSpeakingPractice(packCode: string) {
         onDone: () => {
           // 재생을 막 멈춘 오디오 세션이 정리되기 전에 AudioRecord 를 열면
           // 안드로이드가 "마이크를 다른 곳이 쥐고 있다"로 던진다. 한 박자 준다.
+          // 150ms 아래로 내리면 그 오류가 다시 나기 시작한다 — 더 줄이지 마라.
           setTimeout(() => {
-            if (ready()) void autoRecordRef.current();
-          }, 250);
+            if (ready()) void autoRecordRef.current(true);
+          }, 150);
         },
       });
-    }, 450);
+    }, 120);
     return () => clearTimeout(timer);
   }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
 
