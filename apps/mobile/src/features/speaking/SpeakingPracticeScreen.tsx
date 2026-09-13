@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import {
-  AccessibilityInfo, ActivityIndicator, Animated, Modal, Pressable,
+  AccessibilityInfo, ActivityIndicator, Animated, Linking, Modal, Pressable,
   ScrollView, StyleSheet, Text, View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -135,6 +135,9 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   const busy = phase !== "idle";
   const recording = phase === "recording";
   const processing = phase === "assessing" || phase === "starting";
+  // 마이크는 채점 중에만 잠근다. "starting" 에서 잠그면 start() 가 한 번
+  // 어긋났을 때 버튼이 영영 죽은 채로 남는다 — 눌러도 아무 일이 없는 그 증상.
+  const micLocked = phase === "assessing";
   const showResult = !!result && !busy;
   const progress = completed ? 1 : queue.length ? index / queue.length : 0;
   const title = recording ? c.recording : processing ? c.processing : showResult
@@ -295,6 +298,12 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
               <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: p.warmSoft }]}>
                 <Ionicons name="information-circle-outline" size={18} color={p.warm} />
                 <Text style={[styles.noticeText, { color: p.warm }]} numberOfLines={2}>{c[practice.error]}</Text>
+                {practice.error === "permission" ? (
+                  <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()}
+                    style={({ pressed }) => [styles.noticeAction, { backgroundColor: p.warm, opacity: pressed ? 0.7 : 1 }]}>
+                    <Text style={[styles.noticeActionText, { color: p.bg }]}>{c.openSettings}</Text>
+                  </Pressable>
+                ) : null}
               </View>
             ) : practice.saveNotice ? (
               <View accessibilityLiveRegion="polite" style={[styles.notice, { backgroundColor: p.successSoft }]}>
@@ -319,7 +328,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                 <View style={[styles.micRing, { borderColor: recording ? "#E8505B2E" : processing ? p.border : p.primarySoft }]}>
                   <MicPulse active={recording} color={REC} />
                   <Pressable accessibilityRole="button" accessibilityLabel={recording ? c.micStop : c.micStart}
-                    accessibilityState={{ disabled: processing, busy: processing }} disabled={processing} onPress={() => void practice.record()}
+                    accessibilityState={{ disabled: micLocked, busy: processing }} disabled={micLocked} onPress={() => void practice.record()}
                     style={({ pressed }) => [styles.mic, { backgroundColor: recording ? REC : processing ? p.muted : p.primary, transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
                     {processing ? <ActivityIndicator color="#FFFFFF" size="large" /> : <Ionicons name={recording ? "stop" : "mic"} size={34} color={recording ? "#FFFFFF" : p.bg} />}
                   </Pressable>
@@ -334,8 +343,8 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
             </View>
             {recording ? <VoiceActivity active color={REC} level={practice.level} /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
             {__DEV__ ? (
-              <Text style={[styles.privacyNote, { color: p.muted }]} numberOfLines={1}>
-                {`dev · ${phase} · buf ${practice.debug.buffers} · rms ${practice.debug.rms} · ${practice.error ?? "-"}`}
+              <Text selectable style={[styles.devLine, { color: "#FFFFFF", backgroundColor: "#3A3450" }]}>
+                {`${practice.debug.step} | ${phase} | buf ${practice.debug.buffers} | rms ${practice.debug.rms} | ${practice.error ?? "no-error"}`}
               </Text>
             ) : null}
           </View>
@@ -475,6 +484,9 @@ const styles = StyleSheet.create({
   usageText: { flex: 1, fontSize: 12, lineHeight: 19 },
   notice: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 16, gap: 10 },
   noticeText: { flex: 1, fontSize: 12, lineHeight: 19 },
+  noticeAction: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12 },
+  noticeActionText: { fontSize: 11, fontWeight: "800" },
+  devLine: { fontSize: 10, lineHeight: 16, textAlign: "center", marginTop: 6, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
   metrics: { flexDirection: "row", borderWidth: 1, paddingVertical: 13, borderRadius: 21 },
   metric: { flex: 1, alignItems: "center", gap: 5, paddingHorizontal: 10 },
   metricNumber: { fontSize: 22, fontWeight: "700", fontVariant: ["tabular-nums"] },

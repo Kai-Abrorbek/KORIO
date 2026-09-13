@@ -63,6 +63,9 @@ export function useSpeakingPractice(packCode: string) {
   const [autoEpoch, setAutoEpoch] = useState(0);
   const [spokenCount, setSpokenCount] = useState(0);
   const [level, setLevel] = useState(0);
+  // 녹음이 어디까지 갔는지 화면에 찍기 위한 단계 표시 (개발 빌드에서만 보인다)
+  const [step, setStep] = useState("idle");
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const buffersRef = useRef(0);
   const lastRmsRef = useRef(0);
   const levelSentAtRef = useRef(0);
@@ -99,6 +102,7 @@ export function useSpeakingPractice(packCode: string) {
     onLevel: (rms) => {
       const now = Date.now();
       // 파형을 실제 입력에 연결한다. 소리가 안 들어오면 화면에서 바로 보인다.
+      if (buffersRef.current === 0) setStep("buf");
       buffersRef.current += 1;
       lastRmsRef.current = Math.round(rms);
       if (now - levelSentAtRef.current >= 90) {
@@ -119,10 +123,12 @@ export function useSpeakingPractice(packCode: string) {
     onResult: async (wav) => {
       const recording = recordingRef.current;
       if (!recording || recording.run !== runRef.current) return;
+      setStep("upload");
       changePhase("assessing");
       try {
         const assessed = await SttService.assessExpression(recording.id, wav);
         if (recording.run !== runRef.current) return;
+        setStep(`scored ${Math.round(assessed.scores?.pron ?? 0)}`);
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
           return;
@@ -139,6 +145,7 @@ export function useSpeakingPractice(packCode: string) {
       }
     },
     onError: (code) => {
+      setStep(`err:${code}`);
       recordingRef.current = null;
       changePhase("idle");
       setError(recorderErrors[code]);
@@ -146,6 +153,10 @@ export function useSpeakingPractice(packCode: string) {
   });
 
   const stopAll = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
     runRef.current += 1;
     recordingRef.current = null;
     speechPlanRef.current = [];
@@ -215,12 +226,13 @@ export function useSpeakingPractice(packCode: string) {
   };
 
   const record = async () => {
-    if (!current) return;
-    if (phaseRef.current === "recording") { stopRecording(); return; }
+    setStep("tap");
+    if (!current) { setStep("no-card"); return; }
+    if (phaseRef.current === "recording") { setStep("manual-stop"); stopRecording(); return; }
     // 채점 중에만 무시한다. 그 외에는 어떤 상태였든 되살려서 시작한다 —
     // 마이크를 눌렀는데 아무 일도 안 일어나는 게 최악이고, 예전 코드는
     // phase 나 focus 플래그가 한 번 어긋나면 영영 그 상태로 굳었다.
-    if (phaseRef.current === "assessing") return;
+    if (phaseRef.current === "assessing") { setStep("busy-assessing"); return; }
     if (phaseRef.current !== "idle") {
       cancel();
       changePhase("idle");
@@ -245,6 +257,7 @@ export function useSpeakingPractice(packCode: string) {
     try {
       // start() 가 영영 안 끝나면 스피너에 갇힌다. 권한 대화상자를 기다리는
       // 시간까지 감안해서 넉넉히 주되, 무한정은 아니게.
+      setStep("starting");
       const started = await Promise.race([
         start(),
         new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
@@ -252,19 +265,33 @@ export function useSpeakingPractice(packCode: string) {
       if (run !== runRef.current) { cancel(); return; }
       if (started === null) {
         cancel();
+        setStep("timeout");
         setError("micError");
         changePhase("idle");
         return;
       }
       if (started) {
         changePhase("recording");
+        setStep("rec");
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        // 스트림은 열렸는데 버퍼가 한 개도 안 오면 소리 없이 죽은 것이다.
+        // 그 상태로 두면 사용자는 20초를 기다리다 "안 된다"고 판단한다.
+        if (watchdogRef.current) clearTimeout(watchdogRef.current);
+        watchdogRef.current = setTimeout(() => {
+          if (runRef.current !== run || phaseRef.current !== "recording") return;
+          if (buffersRef.current > 0) return;
+          setStep("no-buffer");
+          cancel();
+          setError("micError");
+          changePhase("idle");
+        }, 2000);
       } else {
         // start() 가 false 면 훅이 이미 onError 로 이유를 알려줬다
         changePhase("idle");
       }
-    } catch {
+    } catch (error) {
       if (run === runRef.current) {
+        setStep(`throw:${String(error).slice(0, 40)}`);
         setError("micError");
         changePhase("idle");
       }
@@ -359,7 +386,7 @@ export function useSpeakingPractice(packCode: string) {
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
     completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
-    debug: { buffers: buffersRef.current, rms: lastRmsRef.current },
+    debug: { buffers: buffersRef.current, rms: lastRmsRef.current, step },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
     toggleHidden: () => setHidden((value) => !value),
