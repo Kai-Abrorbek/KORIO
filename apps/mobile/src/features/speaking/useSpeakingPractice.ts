@@ -90,12 +90,29 @@ export function useSpeakingPractice(packCode: string) {
   const phaseRef = useRef<SpeakingPhase>("idle");
   const autoKeyRef = useRef<string | null>(null);
   const autoRecordRef = useRef<() => Promise<void>>(async () => undefined);
+  const speakAutoRef = useRef<ReturnType<typeof useSpeech>["speakAuto"]>(() => undefined);
   const resultsRef = useRef(results);
   const runRef = useRef(0);
-  // 녹음 전용 세대. runRef 는 화면 이탈·재생 취소로도 올라가는데, 그걸로
-  // 녹음 결과의 유효성을 판단하면 멀쩡한 녹음이 버려진다.
-  const recordGenRef = useRef(0);
-  const recordingRef = useRef<{ run: number; id: string } | null>(null);
+  /**
+   * ⚠️ 녹음 결과를 "유효성 검사" 로 버리지 않는다.
+   *
+   * 예전에는 recordingRef.run 과 recordGenRef 를 비교해서 어긋나면 WAV 를 조용히
+   * 버렸다. 그 결과 runRef·recordGenRef·recordingRef·focusedRef·watchdogRef 중
+   * **하나만 어긋나도** 사용자가 말한 게 아무 표시 없이 사라졌다. 화면은 그냥
+   * idle 로 돌아가서, 맞았는지 틀렸는지 알 수 없었다 — 이게 그 증상이었다.
+   *
+   * 표현 연습 패널(ExpressionPracticePanel)은 이런 가드가 아예 없어서 같은 훅으로
+   * 멀쩡히 돌아간다. 그 구조를 그대로 따른다:
+   *   · 어떤 녹음이든 결과가 나오면 반드시 채점을 시도한다
+   *   · 겹친 채점은 "마지막 것만 화면에 반영" 으로만 걸러낸다 (버리는 게 아니다)
+   *   · 녹음 대상 id 는 아래 ref 에 담고, stopAll 은 이걸 건드리지 않는다
+   */
+  const assessRunRef = useRef(0);
+  // start() 가 false 를 돌려줬을 때 훅이 이유를 알려줬는지. 안 알려줬으면
+  // 우리가 대신 보여준다 — 눌렀는데 아무 일도 안 일어나는 경로를 남기지 않는다.
+  const recorderErroredRef = useRef(false);
+  const recordingIdRef = useRef<string | null>(null);
+  const startAttemptRef = useRef(0);
   const focusedRef = useRef(false);
   const savingRef = useRef(false);
   const sessionRef = useRef(identity);
@@ -151,23 +168,29 @@ export function useSpeakingPractice(packCode: string) {
       setSpokenCount((value) => (value === reached ? value : reached));
     },
     onResult: async (wav) => {
-      const recording = recordingRef.current;
-      if (!recording || recording.run !== recordGenRef.current) {
-        // 결과는 버리더라도 화면을 녹음 중인 채로 두면 안 된다
-        if (phaseRef.current === "recording") changePhase("idle");
+      // 녹음할 때 잡아둔 대상. 없으면 지금 카드로 떨어진다 —
+      // "어느 문장인지 모르겠으니 버린다" 는 선택지가 없다.
+      const expressionId = recordingIdRef.current ?? current?.id ?? null;
+      if (!expressionId) {
+        setStep("no-target");
+        setError("assessError");
+        changePhase("idle");
         return;
       }
+      const run = ++assessRunRef.current;
       setStep("upload");
+      setQuiet(false);
       changePhase("assessing");
       try {
-        const assessed = await SttService.assessExpression(recording.id, wav);
-        if (recording.run !== recordGenRef.current) return;
+        const assessed = await SttService.assessExpression(expressionId, wav);
+        // 더 최근 녹음이 이미 올라갔으면 화면만 그쪽에 양보한다
+        if (run !== assessRunRef.current) return;
         setStep(`scored ${Math.round(assessed.scores?.pron ?? 0)}`);
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
           return;
         }
-        setResults((previous) => ({ ...previous, [recording.id]: assessed }));
+        setResults((previous) => ({ ...previous, [expressionId]: assessed }));
         if (assessed.passed) {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           // 맞았으면 초록 연출을 보여주고 알아서 다음 문장으로 넘어간다.
@@ -182,17 +205,15 @@ export function useSpeakingPractice(packCode: string) {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
       } catch {
-        if (recording.run === recordGenRef.current) setError("assessError");
+        if (run === assessRunRef.current) setError("assessError");
       } finally {
-        if (recording.run === recordGenRef.current) {
-          recordingRef.current = null;
-          changePhase("idle");
-        }
+        if (run === assessRunRef.current) changePhase("idle");
       }
     },
     onError: (code) => {
       setStep(`err:${code}`);
-      recordingRef.current = null;
+      recorderErroredRef.current = true;
+      setQuiet(false);
       changePhase("idle");
       setError(recorderErrors[code]);
     },
@@ -210,7 +231,9 @@ export function useSpeakingPractice(packCode: string) {
     setPassFlash(false);
     setQuiet(false);
     runRef.current += 1;
-    recordingRef.current = null;
+    // recordingIdRef / assessRunRef 는 건드리지 않는다. 여기서 비우면
+    // 이미 올라간 채점 결과가 돌아와도 화면에 못 붙는다.
+    startAttemptRef.current += 1;
     speechPlanRef.current = [];
     setSpokenCount(0);
     setLevel(0);
@@ -289,51 +312,45 @@ export function useSpeakingPractice(packCode: string) {
     (slow ? speakSlow : speak)(word || current.korean, "ko-KR", options);
   };
 
+  /**
+   * 마이크 버튼. 표현 연습 패널의 handleMicPress + beginRecording 과 같은 모양이다.
+   *
+   * 예전에는 여기에 8초 Promise.race, 정지 워치독, 1초 이내 탭은 무시하는 "re-arm",
+   * runRef/recordGenRef 증가가 뒤섞여 있었다. 경로가 많아진 만큼 **아무 일도
+   * 안 일어나고 끝나는 경로**도 많아졌다. 지금은 세 가지만 한다:
+   * 녹음 중이면 멈추고, 채점 중이면 무시하고, 그 외엔 시작한다.
+   */
   const record = async () => {
     setStep("tap");
     if (!current) { setStep("no-card"); return; }
+    // 채점 중에만 무시한다. 채점은 곧 끝나고 결과가 화면에 뜬다.
+    if (phaseRef.current === "assessing") { setStep("busy-assessing"); return; }
+    // 녹음 중이면 그 자리에서 끝낸다. 여기서 "너무 빨리 눌렀다" 며 아무것도
+    // 안 하면, 사용자는 죽은 버튼을 누른 것과 구별할 방법이 없다.
     if (phaseRef.current === "recording") {
-      // 자동으로 열린 마이크를 "시작 버튼" 으로 착각하고 누르는 경우가 많다.
-      // 방금 열렸다면 멈추는 대신 처음부터 다시 듣는다 — 여기서 멈추면
-      // 사용자는 죽은 마이크에 대고 말하게 되고, 그게 "말해도 반응이 없다" 다.
-      if (Date.now() - recordStartedAtRef.current < 1000) {
-        setStep("re-arm");
-        voicedMsRef.current = 0;
-        setSpokenCount(0);
-        setVoicedProgress(0);
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        return;
-      }
       setStep("manual-stop");
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       stopRecording();
-      // finish() 는 내부 active 플래그가 이미 내려가 있으면 아무 것도 안 하고
-      // 그냥 돌아온다. 그러면 화면은 빨간 녹음 상태로 굳고 다시 눌러도 같은
-      // 자리로 떨어진다. 잠깐 뒤에도 그대로면 강제로 되돌린다.
-      if (watchdogRef.current) clearTimeout(watchdogRef.current);
-      watchdogRef.current = setTimeout(() => {
-        if (phaseRef.current !== "recording") return;
-        setStep("stop-forced");
+      // finish() 는 내부 active 플래그가 이미 내려가 있으면 아무것도 안 하고
+      // 돌아온다. 그러면 화면이 빨간 녹음 상태로 굳고 다시 눌러도 같은 자리로
+      // 떨어진다. finish() 는 동기적으로 onResult/onError 를 부르므로, 여기서
+      // phase 가 안 움직였다면 아무 일도 없었다는 뜻이다 — 되돌린다.
+      if (phaseRef.current === "recording") {
+        setStep("stop-noop");
         cancel();
-        recordingRef.current = null;
+        setError("micError");
         changePhase("idle");
-      }, 700);
+      }
       return;
     }
-    // 채점 중에만 무시한다. 그 외에는 어떤 상태였든 되살려서 시작한다 —
-    // 마이크를 눌렀는데 아무 일도 안 일어나는 게 최악이고, 예전 코드는
-    // phase 나 focus 플래그가 한 번 어긋나면 영영 그 상태로 굳었다.
-    if (phaseRef.current === "assessing") { setStep("busy-assessing"); return; }
-    if (phaseRef.current !== "idle") {
-      cancel();
-      changePhase("idle");
-    }
+
     // 버튼을 눌렀다는 건 이 화면이 떠 있다는 뜻이다. useFocusEffect 가 어떤
-    // 이유로든 못 돌았어도 여기서부터는 포커스로 친다 — 안 그러면 결과가
-    // 돌아와도 조용히 버려진다.
+    // 이유로든 못 돌았어도 여기서부터는 포커스로 친다.
     focusedRef.current = true;
     stopSpeech();
     setError(null);
     setSaveNotice(false);
+    setQuiet(false);
     changePhase("starting");
     speechPlanRef.current = buildSpeechPlan(current.korean);
     voicedMsRef.current = 0;
@@ -343,55 +360,57 @@ export function useSpeakingPractice(packCode: string) {
     setSpokenCount(0);
     setLevel(0);
     setVoicedProgress(0);
-    setQuiet(false);
-    runRef.current += 1;
-    const run = ++recordGenRef.current;
-    recordingRef.current = { run, id: current.id };
+    // 채점 대상은 지금 확정한다. 결과가 돌아올 때 이 값만 본다.
+    recordingIdRef.current = current.id;
+    const attempt = ++startAttemptRef.current;
+
+    setStep("starting");
+    recorderErroredRef.current = false;
+    let started = false;
     try {
-      // start() 가 영영 안 끝나면 스피너에 갇힌다. 권한 대화상자를 기다리는
-      // 시간까지 감안해서 넉넉히 주되, 무한정은 아니게.
-      setStep("starting");
-      const started = await Promise.race([
-        start(),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-      ]);
-      // 여기서 run 을 다시 검사하면 안 된다. stopAll 이 한 번만 끼어들어도
-      // 방금 성공한 녹음을 취소하고 아무 표시 없이 빠져나간다. 뒤늦은 결과는
-      // onResult 에서 recordingRef.run 으로 이미 걸러진다.
-      if (started === null) {
-        cancel();
-        setStep("timeout");
-        setError("micError");
-        changePhase("idle");
-        return;
-      }
-      if (started) {
-        changePhase("recording");
-        recordStartedAtRef.current = Date.now();
-        setStep("rec");
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        // 스트림은 열렸는데 버퍼가 한 개도 안 오면 소리 없이 죽은 것이다.
-        // 그 상태로 두면 사용자는 20초를 기다리다 "안 된다"고 판단한다.
-        if (watchdogRef.current) clearTimeout(watchdogRef.current);
-        watchdogRef.current = setTimeout(() => {
-          if (recordGenRef.current !== run || phaseRef.current !== "recording") return;
-          if (buffersRef.current > 0) return;
-          setStep("no-buffer");
-          cancel();
-          setError("micError");
-          changePhase("idle");
-        }, 2000);
-      } else {
-        // start() 가 false 면 훅이 이미 onError 로 이유를 알려줬다
-        changePhase("idle");
-      }
+      started = await start();
     } catch (error) {
-      if (run === recordGenRef.current) {
-        setStep(`throw:${String(error).slice(0, 40)}`);
-        setError("micError");
-        changePhase("idle");
-      }
+      setStep(`throw:${String(error).slice(0, 40)}`);
+      setError("micError");
+      changePhase("idle");
+      return;
     }
+
+    // 그 사이에 화면을 떠났거나 다시 눌렀으면 이 시도만 접는다
+    if (attempt !== startAttemptRef.current) {
+      if (started) cancel();
+      // 더 최근 시도가 phase 를 쥐고 있으면 건드리지 않는다. 아무도 없으면
+      // "starting" 스피너가 그대로 굳으므로 되돌린다.
+      if (phaseRef.current === "starting") changePhase("idle");
+      return;
+    }
+    if (!started) {
+      // 훅이 이유를 알려줬으면 그 메시지가 이미 떠 있다. 안 알려준 경우
+      // (훅이 이미 녹음 중이라고 판단해 그냥 false 를 준 경우) 우리가 보여준다.
+      if (!recorderErroredRef.current) {
+        setStep("start-refused");
+        cancel();
+        setError("micError");
+      }
+      changePhase("idle");
+      return;
+    }
+
+    changePhase("recording");
+    recordStartedAtRef.current = Date.now();
+    setStep("rec");
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // 스트림은 열렸는데 버퍼가 한 개도 안 오면 소리 없이 죽은 것이다.
+    // 그 상태로 두면 사용자는 끝까지 기다리다 "안 된다" 고 판단한다.
+    if (watchdogRef.current) clearTimeout(watchdogRef.current);
+    watchdogRef.current = setTimeout(() => {
+      if (attempt !== startAttemptRef.current) return;
+      if (phaseRef.current !== "recording" || buffersRef.current > 0) return;
+      setStep("no-buffer");
+      cancel();
+      setError("micError");
+      changePhase("idle");
+    }, 2000);
   };
 
   // 카드가 뜨면 먼저 들려주고, 다 읽자마자 마이크를 연다 — 바로 따라 말할 수 있게.
@@ -401,6 +420,7 @@ export function useSpeakingPractice(packCode: string) {
     autoRecordRef.current = record;
     nextRef.current = next;
     resultsRef.current = results;
+    speakAutoRef.current = speakAuto;
   });
 
   const currentId = current?.id;
@@ -419,7 +439,7 @@ export function useSpeakingPractice(packCode: string) {
     const timer = setTimeout(() => {
       if (!ready()) return;
       setError(null);
-      speakAuto(currentKorean, "ko-KR", {
+      speakAutoRef.current(currentKorean, "ko-KR", {
         respectSoundSettings: false,
         volume: 1,
         onDone: () => {
@@ -432,7 +452,11 @@ export function useSpeakingPractice(packCode: string) {
       });
     }, 450);
     return () => clearTimeout(timer);
-  }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
+    // ⚠️ speakAuto 를 deps 에 두면 안 된다. useSpeech 의 speakAuto 는 렌더마다
+    // 새로 만들어질 수 있고, 그러면 이 이펙트가 매 렌더 재실행된다. 재실행되면
+    // autoKeyRef 검사에서 바로 빠져나가면서 **정리 함수가 타이머만 지우고 새
+    // 타이머는 안 걸린다** — TTS 가 안 나가고, 따라서 마이크도 안 열린다.
+  }, [autoEpoch, index, currentId, currentKorean, loading, completed]);
 
   const next = () => {
     if (!current || savingRef.current) return;
