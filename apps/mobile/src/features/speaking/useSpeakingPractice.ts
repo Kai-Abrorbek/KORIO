@@ -12,7 +12,7 @@ import * as Haptics from "@/utils/haptics";
 import { summarizeSpeaking, type SpeakingResults } from "./session";
 
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
-export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
+export type SpeakingError = "noSpeech" | "noVoice" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
 
 /**
  * 말하는 걸 단어 단위로 따라가기 위한 계획표.
@@ -25,7 +25,11 @@ export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShor
  * 채점 결과가 덮어쓴다.
  */
 const MS_PER_SYLLABLE = 215;
-const VOICE_RMS = 650;
+/**
+ * 마이크는 열렸는데 목소리가 이만큼 안 잡히면 화면에 바로 알린다.
+ * 예전에는 이 상태로 20초를 앉아 있었고, 그게 "말해도 아무 반응이 없다" 였다.
+ */
+const QUIET_HINT_MS = 2200;
 
 function buildSpeechPlan(sentence: string): number[] {
   const marks: number[] = [];
@@ -39,7 +43,8 @@ function buildSpeechPlan(sentence: string): number[] {
 }
 
 const recorderErrors: Record<SpeechRecorderError, SpeakingError> = {
-  permission: "permission", unsupported: "unsupported", too_short: "tooShort", mic: "micError",
+  permission: "permission", unsupported: "unsupported", too_short: "tooShort",
+  mic: "micError", no_voice: "noVoice",
 };
 
 export function useSpeakingPractice(packCode: string) {
@@ -67,6 +72,8 @@ export function useSpeakingPractice(packCode: string) {
   const [voicedProgress, setVoicedProgress] = useState(0);
   // 통과했을 때 초록 연출을 띄우고 잠시 뒤 다음 문장으로 넘어간다
   const [passFlash, setPassFlash] = useState(false);
+  // 마이크가 열려 있는데 목소리가 안 잡히는 중인지. 화면에 즉시 알리는 용도
+  const [quiet, setQuiet] = useState(false);
   const advanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordStartedAtRef = useRef(0);
   const nextRef = useRef<() => void>(() => undefined);
@@ -75,6 +82,7 @@ export function useSpeakingPractice(packCode: string) {
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const buffersRef = useRef(0);
   const lastRmsRef = useRef(0);
+  const gateRef = useRef(0);
   const levelSentAtRef = useRef(0);
   const speechPlanRef = useRef<number[]>([]);
   const voicedMsRef = useRef(0);
@@ -105,27 +113,37 @@ export function useSpeakingPractice(packCode: string) {
   }, []);
 
   const { start, stop: stopRecording, cancel } = useSpeechRecorder({
-    maxSeconds: 20,
+    // 20초는 너무 길었다. 침묵 감지가 한 번 어긋나면 그 20초가 통째로
+    // "아무 반응 없음" 이 된다. 한 문장 따라 말하기에 12초면 충분하다.
+    maxSeconds: 12,
     // 말이 끝나면 알아서 제출한다. 이게 없으면 사용자가 stop 을 누르거나
     // maxSeconds 가 다 지날 때까지 화면이 멈춰 있는 것처럼 보인다.
-    silenceStopMs: 1200,
-    onLevel: (rms) => {
+    silenceStopMs: 900,
+    onLevel: (rms, info) => {
       const now = Date.now();
       // 파형을 실제 입력에 연결한다. 소리가 안 들어오면 화면에서 바로 보인다.
       if (buffersRef.current === 0) setStep("buf");
       buffersRef.current += 1;
       lastRmsRef.current = Math.round(rms);
+      gateRef.current = info.gate;
       if (now - levelSentAtRef.current >= 90) {
         levelSentAtRef.current = now;
-        setLevel(Math.max(0, Math.min(1, rms / 3200)));
+        // 정규화는 훅이 실제 입력 최대치를 보고 한다. 고정 3200 으로 나누면
+        // 입력이 작은 기기에서 파형이 거의 안 움직였다.
+        setLevel(info.level);
         const total = speechPlanRef.current[speechPlanRef.current.length - 1] ?? 0;
         setVoicedProgress(total > 0 ? Math.min(1, voicedMsRef.current / total) : 0);
+        setQuiet(
+          !info.everVoiced && now - recordStartedAtRef.current > QUIET_HINT_MS,
+        );
       }
       const marks = speechPlanRef.current;
       if (!marks.length) return;
       const previous = lastLevelAtRef.current;
       lastLevelAtRef.current = now;
-      if (rms < VOICE_RMS) return;
+      // 목소리 판정은 훅이 배경 소음 바닥 위로 얼마나 튀는지로 한다.
+      // 여기서 고정 임계값을 다시 두면 같은 버그를 두 군데 심는 것이다.
+      if (!info.voiced) return;
       // 첫 버퍼는 간격을 알 수 없고, 앱이 잠깐 멈췄다 오면 간격이 크게 튄다
       voicedMsRef.current += previous ? Math.min(now - previous, 260) : 0;
       let reached = 0;
@@ -190,6 +208,7 @@ export function useSpeakingPractice(packCode: string) {
       advanceRef.current = null;
     }
     setPassFlash(false);
+    setQuiet(false);
     runRef.current += 1;
     recordingRef.current = null;
     speechPlanRef.current = [];
@@ -324,6 +343,7 @@ export function useSpeakingPractice(packCode: string) {
     setSpokenCount(0);
     setLevel(0);
     setVoicedProgress(0);
+    setQuiet(false);
     runRef.current += 1;
     const run = ++recordGenRef.current;
     recordingRef.current = { run, id: current.id };
@@ -472,8 +492,8 @@ export function useSpeakingPractice(packCode: string) {
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
     completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
-    isSpeechPlaying, speechProgress, voicedProgress, passFlash,
-    debug: { buffers: buffersRef.current, rms: lastRmsRef.current, step },
+    isSpeechPlaying, speechProgress, voicedProgress, passFlash, quiet,
+    debug: { buffers: buffersRef.current, rms: lastRmsRef.current, gate: gateRef.current, step },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
     toggleHidden: () => setHidden((value) => !value),

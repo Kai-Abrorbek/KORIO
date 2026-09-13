@@ -173,11 +173,13 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   // 에러는 다른 무엇보다 먼저 보여야 한다. 아무 반응이 없는 것처럼 느끼는
   // 순간의 대부분은 실패했는데 그 사실이 화면 아래 어딘가에만 있을 때다.
   const failure = practice.error;
-  const title = failure ? c.againTitle : recording ? c.recording : processing ? c.processing : showResult
+  // 마이크는 열렸는데 목소리가 안 잡히는 중 — 20초를 기다리게 하지 말고 지금 말해준다
+  const quiet = recording && practice.quiet;
+  const title = failure ? c.againTitle : quiet ? c.quietTitle : recording ? c.recording : processing ? c.processing : showResult
     ? result.passed ? c.goodTitle : c.againTitle : practice.isSpeaking ? c.listenTitle : c.readyTitle;
-  const detail = failure ? c[failure] : recording ? c.recordingBody : processing ? c.processingBody : showResult
+  const detail = failure ? c[failure] : quiet ? c.quietBody : recording ? c.recordingBody : processing ? c.processingBody : showResult
     ? c.feedbackBody : practice.isSpeaking ? c.listenBody : c.readyBody;
-  const tint = failure ? p.warm : recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
+  const tint = failure || quiet ? p.warm : recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
   // 카드는 남는 높이를 다 쓰고, 문장이 길면 글자가 줄어든다 — 스크롤은 없다
   const phraseLength = current?.korean.length ?? 0;
   const koreanSize = phraseLength > 44 ? 20 : phraseLength > 32 ? 23 : phraseLength > 20 ? 26 : 30;
@@ -383,7 +385,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
             {recording ? <VoiceActivity active color={REC} level={practice.level} /> : <Text style={[styles.privacyNote, { color: p.muted }]}>{c.microphoneNote}</Text>}
             {__DEV__ ? (
               <Text selectable style={[styles.devLine, { color: "#FFFFFF", backgroundColor: "#3A3450" }]}>
-                {`${practice.debug.step} | ${phase} | buf ${practice.debug.buffers} | rms ${practice.debug.rms} | ${practice.error ?? "no-error"}`}
+                {`${practice.debug.step} | ${phase} | buf ${practice.debug.buffers} | rms ${practice.debug.rms}/${practice.debug.gate} | ${practice.error ?? "no-error"}`}
               </Text>
             ) : null}
           </View>
