@@ -14,6 +14,7 @@ import { useSpeakingCopy, formatSpeaking } from "./copy";
 import { useSpeakingPalette } from "./palette";
 import { normalizeSpeakingWord } from "./session";
 import { useSpeakingPractice } from "./useSpeakingPractice";
+import SpokenText from "@/features/expressions/components/SpokenText";
 import TopicIllustration from "./TopicIllustration";
 
 type Practice = ReturnType<typeof useSpeakingPractice>;
@@ -235,26 +236,31 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                     <View style={[styles.hiddenLine, { width: "58%", backgroundColor: p.primarySoft }]} />
                     <Text style={[styles.hiddenCaption, { color: p.muted }]}>{c.hidden}</Text>
                   </Pressable>
-                ) : (
+                ) : showResult ? (
                   <Text style={[styles.korean, { fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}>
                     {current.korean.split(/\s+/).map((word, i, words) => {
-                      const assessed = showResult ? result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word)) : undefined;
+                      const assessed = result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word));
                       const tone = assessed ? wordToneOf(assessed) : null;
-                      // 채점 전에는 흐리게 깔아두고, 내가 말한 만큼만 진해진다.
-                      // 채점이 오면 단어별 판정 색으로 확정된다.
-                      const color = showResult
-                        ? tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? REC : p.ink
-                        : recording
-                          ? i < practice.spokenCount ? p.ink : dim(p.ink, "33")
-                          : dim(p.ink, "40");
-                      return <Text key={`${i}-${word}`} onPress={showResult ? () => practice.listen(false, word) : undefined}
-                        accessibilityRole={showResult ? "button" : undefined}
+                      const color = tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? REC : p.ink;
+                      return <Text key={`${i}-${word}`} onPress={() => practice.listen(false, word)}
+                        accessibilityRole="button"
                         accessibilityLabel={assessed ? `${word}, ${Math.round(assessed.accuracy)}, ${tone === "good" ? c.good : tone === "warn" ? c.improve : c.needsPractice}` : undefined}
-                        style={{ color, textDecorationLine: showResult && assessed ? "underline" : "none", textDecorationStyle: "dotted" }}>
+                        style={{ color, textDecorationLine: assessed ? "underline" : "none", textDecorationStyle: "dotted" }}>
                         {word}{i < words.length - 1 ? " " : ""}
                       </Text>;
                     })}
                   </Text>
+                ) : (
+                  // 흐리게 깔아두고, 읽어줄 때는 재생 위치를 · 말할 때는 내 목소리를
+                  // 글자 단위로 따라간다. 표현 학습에서 쓰는 컴포넌트를 그대로 쓴다.
+                  <SpokenText
+                    text={current.korean}
+                    progress={recording ? practice.voicedProgress : practice.speechProgress}
+                    playing={recording || practice.isSpeechPlaying}
+                    baseColor={p.ink}
+                    accentColor={recording ? REC : p.primary}
+                    style={[styles.korean, { fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}
+                  />
                 )}
               </View>
 

@@ -63,6 +63,8 @@ export function useSpeakingPractice(packCode: string) {
   const [autoEpoch, setAutoEpoch] = useState(0);
   const [spokenCount, setSpokenCount] = useState(0);
   const [level, setLevel] = useState(0);
+  // 말하는 동안 문장의 어디쯤 왔는지 (0~1). 글자 따라가기에 그대로 먹인다.
+  const [voicedProgress, setVoicedProgress] = useState(0);
   // 녹음이 어디까지 갔는지 화면에 찍기 위한 단계 표시 (개발 빌드에서만 보인다)
   const [step, setStep] = useState("idle");
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,7 +88,7 @@ export function useSpeakingPractice(packCode: string) {
   const sessionRef = useRef(identity);
   sessionRef.current = identity;
 
-  const { speak, speakSlow, speakAuto, stop: stopSpeech, isSpeaking } = useSpeech();
+  const { speak, speakSlow, speakAuto, stop: stopSpeech, isSpeaking, isSpeechPlaying, speechProgress } = useSpeech();
   const queue = retryIds ? (data?.items ?? []).filter((item) => retryIds.includes(item.id)) : data?.items ?? [];
   const current = queue[index];
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
@@ -111,6 +113,8 @@ export function useSpeakingPractice(packCode: string) {
       if (now - levelSentAtRef.current >= 90) {
         levelSentAtRef.current = now;
         setLevel(Math.max(0, Math.min(1, rms / 3200)));
+        const total = speechPlanRef.current[speechPlanRef.current.length - 1] ?? 0;
+        setVoicedProgress(total > 0 ? Math.min(1, voicedMsRef.current / total) : 0);
       }
       const marks = speechPlanRef.current;
       if (!marks.length) return;
@@ -125,7 +129,11 @@ export function useSpeakingPractice(packCode: string) {
     },
     onResult: async (wav) => {
       const recording = recordingRef.current;
-      if (!recording || recording.run !== recordGenRef.current) return;
+      if (!recording || recording.run !== recordGenRef.current) {
+        // 결과는 버리더라도 화면을 녹음 중인 채로 두면 안 된다
+        if (phaseRef.current === "recording") changePhase("idle");
+        return;
+      }
       setStep("upload");
       changePhase("assessing");
       try {
@@ -165,6 +173,7 @@ export function useSpeakingPractice(packCode: string) {
     speechPlanRef.current = [];
     setSpokenCount(0);
     setLevel(0);
+    setVoicedProgress(0);
     cancel();
     stopSpeech();
     changePhase("idle");
@@ -242,7 +251,22 @@ export function useSpeakingPractice(packCode: string) {
   const record = async () => {
     setStep("tap");
     if (!current) { setStep("no-card"); return; }
-    if (phaseRef.current === "recording") { setStep("manual-stop"); stopRecording(); return; }
+    if (phaseRef.current === "recording") {
+      setStep("manual-stop");
+      stopRecording();
+      // finish() 는 내부 active 플래그가 이미 내려가 있으면 아무 것도 안 하고
+      // 그냥 돌아온다. 그러면 화면은 빨간 녹음 상태로 굳고 다시 눌러도 같은
+      // 자리로 떨어진다. 잠깐 뒤에도 그대로면 강제로 되돌린다.
+      if (watchdogRef.current) clearTimeout(watchdogRef.current);
+      watchdogRef.current = setTimeout(() => {
+        if (phaseRef.current !== "recording") return;
+        setStep("stop-forced");
+        cancel();
+        recordingRef.current = null;
+        changePhase("idle");
+      }, 700);
+      return;
+    }
     // 채점 중에만 무시한다. 그 외에는 어떤 상태였든 되살려서 시작한다 —
     // 마이크를 눌렀는데 아무 일도 안 일어나는 게 최악이고, 예전 코드는
     // phase 나 focus 플래그가 한 번 어긋나면 영영 그 상태로 굳었다.
@@ -266,6 +290,7 @@ export function useSpeakingPractice(packCode: string) {
     lastRmsRef.current = 0;
     setSpokenCount(0);
     setLevel(0);
+    setVoicedProgress(0);
     runRef.current += 1;
     const run = ++recordGenRef.current;
     recordingRef.current = { run, id: current.id };
@@ -407,6 +432,7 @@ export function useSpeakingPractice(packCode: string) {
   return {
     data, queue, current, index, result, phase, error, loading, loadFailed,
     completed, saving, hidden, saveNotice, isSpeaking, spokenCount, level,
+    isSpeechPlaying, speechProgress, voicedProgress,
     debug: { buffers: buffersRef.current, rms: lastRmsRef.current, step },
     summary: summarizeSpeaking(results),
     reload: () => setRevision((value) => value + 1),
