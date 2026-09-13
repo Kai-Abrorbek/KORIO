@@ -27,6 +27,22 @@ export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShor
 const MS_PER_SYLLABLE = 215;
 const VOICE_RMS = 650;
 
+/**
+ * 틀렸을 때 마이크를 다시 여는 간격.
+ *
+ * 바로 열면 채점 결과(어느 단어가 빨간지)를 볼 시간이 없고, 늦게 열면 사용자가
+ * 그 사이에 버튼을 찾는다. 채점 결과는 녹음 중에도 계속 보이게 해뒀으므로
+ * (SpeakingPracticeScreen 의 showResult) 짧게 준다.
+ */
+const RETRY_MIC_DELAY_MS = 1100;
+/** 못 들었을 때는 볼 게 없으니 더 빨리 */
+const NO_SPEECH_RETRY_DELAY_MS = 700;
+/**
+ * 연속 자동 재시도 상한. 마이크가 실제로 죽어 있으면 무한히 자동 재시도하면서
+ * 배터리와 Azure 호출만 태운다. 이 횟수를 넘으면 직접 누르게 한다.
+ */
+const MAX_AUTO_RETRY = 3;
+
 function buildSpeechPlan(sentence: string): number[] {
   const marks: number[] = [];
   let total = 0;
@@ -68,6 +84,10 @@ export function useSpeakingPractice(packCode: string) {
   // 통과했을 때 초록 연출을 띄우고 잠시 뒤 다음 문장으로 넘어간다
   const [passFlash, setPassFlash] = useState(false);
   const advanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** 틀렸을 때 마이크를 다시 여는 타이머 */
+  const retryMicRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** 연속 자동 재시도 횟수. 통과·다음 문장·직접 누름에서 0 으로 돌아간다 */
+  const autoRetryCountRef = useRef(0);
   const recordStartedAtRef = useRef(0);
   const nextRef = useRef<() => void>(() => undefined);
   // 녹음이 어디까지 갔는지 화면에 찍기 위한 단계 표시 (개발 빌드에서만 보인다)
@@ -81,7 +101,7 @@ export function useSpeakingPractice(packCode: string) {
   const lastLevelAtRef = useRef(0);
   const phaseRef = useRef<SpeakingPhase>("idle");
   const autoKeyRef = useRef<string | null>(null);
-  const autoRecordRef = useRef<() => Promise<void>>(async () => undefined);
+  const autoRecordRef = useRef<(auto?: boolean) => Promise<void>>(async () => undefined);
   const resultsRef = useRef(results);
   const runRef = useRef(0);
   // 녹음 전용 세대. runRef 는 화면 이탈·재생 취소로도 올라가는데, 그걸로
@@ -105,6 +125,29 @@ export function useSpeakingPractice(packCode: string) {
     phaseRef.current = next;
     setPhase(next);
   }, []);
+
+  const clearRetryMic = useCallback(() => {
+    if (retryMicRef.current) {
+      clearTimeout(retryMicRef.current);
+      retryMicRef.current = null;
+    }
+  }, []);
+
+  /**
+   * 틀렸거나 못 들었으면 마이크를 알아서 다시 연다. 맞을 때까지 버튼을 계속
+   * 찾게 만들 이유가 없다 — 통과했을 때 알아서 다음으로 넘어가는 것과 같은 이유다.
+   */
+  const scheduleRetryMic = useCallback((delayMs: number) => {
+    clearRetryMic();
+    if (autoRetryCountRef.current >= MAX_AUTO_RETRY) return;
+    autoRetryCountRef.current += 1;
+    retryMicRef.current = setTimeout(() => {
+      retryMicRef.current = null;
+      // 그 사이에 화면을 떠났거나 다른 게 진행 중이면 열지 않는다
+      if (!focusedRef.current || phaseRef.current !== "idle") return;
+      void autoRecordRef.current(true);
+    }, delayMs);
+  }, [clearRetryMic]);
 
   const { start, stop: stopRecording, cancel } = useSpeechRecorder({
     maxSeconds: 20,
@@ -164,10 +207,15 @@ export function useSpeakingPractice(packCode: string) {
         setStep(`scored ${Math.round(assessed.scores?.pron ?? 0)}`);
         if (assessed.status !== "success") {
           setError(assessed.status === "no_speech" ? "noSpeech" : "assessError");
+          // 못 들은 건 오답이 아니다. 바로 다시 말할 수 있게 열어준다.
+          if (assessed.status === "no_speech") {
+            scheduleRetryMic(NO_SPEECH_RETRY_DELAY_MS);
+          }
           return;
         }
         setResults((previous) => ({ ...previous, [expressionId]: assessed }));
         if (assessed.passed) {
+          autoRetryCountRef.current = 0;
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           // 맞았으면 초록 연출을 보여주고 알아서 다음 문장으로 넘어간다.
           // 맞은 문장 앞에서 사용자가 다음 버튼을 찾게 만들 이유가 없다.
@@ -179,6 +227,8 @@ export function useSpeakingPractice(packCode: string) {
           }, 1600);
         } else {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          // 틀렸으면 피드백을 잠깐 보여준 뒤 마이크를 다시 연다
+          scheduleRetryMic(RETRY_MIC_DELAY_MS);
         }
       } catch {
         if (run === assessRunRef.current) setError("assessError");
@@ -203,6 +253,7 @@ export function useSpeakingPractice(packCode: string) {
       clearTimeout(advanceRef.current);
       advanceRef.current = null;
     }
+    clearRetryMic();
     setPassFlash(false);
     runRef.current += 1;
     recordingRef.current = null;
@@ -213,7 +264,7 @@ export function useSpeakingPractice(packCode: string) {
     cancel();
     stopSpeech();
     changePhase("idle");
-  }, [cancel, stopSpeech, changePhase]);
+  }, [cancel, stopSpeech, changePhase, clearRetryMic]);
 
   // stopAll 은 ref 로만 부른다. 의존성에 넣으면 그게 한 번이라도 바뀔 때
   // 이펙트가 재구독되고, 그 정리 함수가 stopAll() 을 부른다 — 녹음 중이면
@@ -284,8 +335,11 @@ export function useSpeakingPractice(packCode: string) {
     (slow ? speakSlow : speak)(word || current.korean, "ko-KR", options);
   };
 
-  const record = async () => {
+  const record = async (auto = false) => {
     setStep("tap");
+    // 직접 누른 거면 자동 재시도 상한을 풀어준다. 자동 호출에서 풀면
+    // MAX_AUTO_RETRY 가 의미를 잃고 무한히 스스로 다시 연다.
+    if (!auto) autoRetryCountRef.current = 0;
     if (!current) { setStep("no-card"); return; }
     if (phaseRef.current === "recording") {
       // 자동으로 열린 마이크를 "시작 버튼" 으로 착각하고 누르는 경우가 많다.
@@ -326,6 +380,7 @@ export function useSpeakingPractice(packCode: string) {
     // 이유로든 못 돌았어도 여기서부터는 포커스로 친다 — 안 그러면 결과가
     // 돌아와도 조용히 버려진다.
     focusedRef.current = true;
+    clearRetryMic();
     stopSpeech();
     setError(null);
     setSaveNotice(false);
@@ -430,6 +485,7 @@ export function useSpeakingPractice(packCode: string) {
 
   const next = () => {
     if (!current || savingRef.current) return;
+    autoRetryCountRef.current = 0;
     if (advanceRef.current) {
       clearTimeout(advanceRef.current);
       advanceRef.current = null;

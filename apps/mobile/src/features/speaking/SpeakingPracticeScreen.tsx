@@ -15,6 +15,7 @@ import { useSpeakingPalette } from "./palette";
 import { normalizeSpeakingWord } from "./session";
 import { useSpeakingPractice } from "./useSpeakingPractice";
 import SpokenText from "@/features/expressions/components/SpokenText";
+import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 import TopicIllustration from "./TopicIllustration";
 
 type Practice = ReturnType<typeof useSpeakingPractice>;
@@ -50,32 +51,28 @@ function MicPulse({ active, color }: { active: boolean; color: string }) {
   );
 }
 
-/** 통과했을 때 카드를 초록으로 덮는 연출. 다음 문장으로 넘어가기 직전 1.6초 */
-function PassBurst({ visible, color, label }: { visible: boolean; color: string; label: string }) {
-  const pop = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (!visible) {
-      pop.setValue(0);
-      return;
-    }
-    const animation = Animated.spring(pop, { toValue: 1, useNativeDriver: true, damping: 12, stiffness: 220, mass: 0.7 });
-    animation.start();
-    return () => animation.stop();
-  }, [visible, pop]);
+/**
+ * 통과 연출. 예전에는 카드를 초록으로 덮고 체크와 문구를 얹었는데, 그게
+ * 문장·단어 피드백을 가려서 밋밋하게만 느껴졌다. 이제 배경 없이 컨페티만
+ * 카드 위에 올린다 — TOPIK 결과 화면에서 쓰는 것과 같은 SVG 다.
+ *
+ * ⚠️ TopikSuccessConfetti 는 "use dom" (WebView) 이다. 통과한 순간에만
+ * 마운트하고 끝나면 바로 언마운트한다 — 계속 띄워두면 WebView 가 남는다.
+ */
+function PassBurst({ visible }: { visible: boolean }) {
   if (!visible) return null;
   return (
-    <Animated.View pointerEvents="none" style={[styles.passBurst, {
-      backgroundColor: dim(color, "F2"),
-      opacity: pop,
-      transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }],
-    }]}>
-      <Animated.View style={[styles.passCheck, {
-        transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }],
-      }]}>
-        <Ionicons name="checkmark" size={52} color={color} />
-      </Animated.View>
-      <Text style={styles.passLabel}>{label}</Text>
-    </Animated.View>
+    <View pointerEvents="none" style={styles.passBurst}>
+      <TopikSuccessConfetti
+        playOnce
+        dom={{
+          scrollEnabled: false,
+          showsHorizontalScrollIndicator: false,
+          showsVerticalScrollIndicator: false,
+          style: styles.passConfettiFill,
+        }}
+      />
+    </View>
   );
 }
 
@@ -168,7 +165,9 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   // 마이크는 채점 중에만 잠근다. "starting" 에서 잠그면 start() 가 한 번
   // 어긋났을 때 버튼이 영영 죽은 채로 남는다 — 눌러도 아무 일이 없는 그 증상.
   const micLocked = phase === "assessing";
-  const showResult = !!result && !busy;
+  // 틀렸을 때 마이크가 자동으로 다시 열린다. 그때 result 를 감추면 어느 단어가
+  // 틀렸는지 못 보고 다시 말하게 된다 — 채점 중에만 감춘다.
+  const showResult = !!result && phase !== "assessing";
   const progress = completed ? 1 : queue.length ? index / queue.length : 0;
   // 에러는 다른 무엇보다 먼저 보여야 한다. 아무 반응이 없는 것처럼 느끼는
   // 순간의 대부분은 실패했는데 그 사실이 화면 아래 어딘가에만 있을 때다.
@@ -251,7 +250,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
           <View style={styles.body}>
             <View style={[styles.phraseCard, { backgroundColor: p.surface, borderColor: p.border }]}>
               {showResult && result.passed ? <SuccessPill color={p.success} edge={p.bg} /> : null}
-              <PassBurst visible={practice.passFlash} color={p.success} label={c.goodTitle} />
+              <PassBurst visible={practice.passFlash} />
               <View style={styles.cardTop}>
                 <View style={[styles.statusChip, { backgroundColor: showResult ? result.passed ? p.successSoft : p.warmSoft : p.primarySoft }]}>
                   <Ionicons name={showResult ? result.passed ? "checkmark-circle" : "sparkles-outline" : "volume-medium-outline"} size={16} color={tint} />
@@ -334,9 +333,20 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
             ) : null}
 
             {practice.error ? (
-              <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: p.warmSoft }]}>
-                <Ionicons name="information-circle-outline" size={18} color={p.warm} />
-                <Text style={[styles.noticeText, { color: p.warm }]} numberOfLines={2}>{c[practice.error]}</Text>
+              // 소리가 안 잡힌 건 사용자가 바로 알아채고 다시 말해야 하는 상태다.
+              // 나머지 안내와 같은 주황으로 두면 그냥 정보로 읽힌다 — 이건 빨강.
+              <View accessibilityRole="alert" style={[styles.notice, {
+                backgroundColor: practice.error === "noSpeech" ? dim(REC, "1F") : p.warmSoft,
+              }]}>
+                <Ionicons
+                  name={practice.error === "noSpeech" ? "alert-circle" : "information-circle-outline"}
+                  size={18}
+                  color={practice.error === "noSpeech" ? REC : p.warm}
+                />
+                <Text style={[styles.noticeText, {
+                  color: practice.error === "noSpeech" ? REC : p.warm,
+                  fontWeight: practice.error === "noSpeech" ? "700" : "400",
+                }]} numberOfLines={2}>{c[practice.error]}</Text>
                 {practice.error === "permission" ? (
                   <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()}
                     style={({ pressed }) => [styles.noticeAction, { backgroundColor: p.warm, opacity: pressed ? 0.7 : 1 }]}>
@@ -544,9 +554,9 @@ const styles = StyleSheet.create({
   micPulse: { position: "absolute", top: -7, left: -7, right: -7, bottom: -7, borderRadius: 56, borderWidth: 3 },
   successSlot: { position: "absolute", top: -18, left: 0, right: 0, alignItems: "center", zIndex: 2 },
   successPill: { width: 66, height: 37, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 4 },
-  passBurst: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 28, alignItems: "center", justifyContent: "center", gap: 16, zIndex: 5 },
-  passCheck: { width: 92, height: 92, borderRadius: 46, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  passLabel: { fontSize: 20, fontWeight: "800", color: "#FFFFFF", letterSpacing: -0.4, textAlign: "center", paddingHorizontal: 20 },
+  // 배경 없음 — 컨페티만 카드 위에 뜬다. backgroundColor 를 주면 안 된다.
+  passBurst: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflow: "hidden", zIndex: 5 },
+  passConfettiFill: { width: "100%", height: "100%", backgroundColor: "transparent" },
   mic: { flex: 1, borderRadius: 40, alignItems: "center", justifyContent: "center" },
   micLabel: { fontSize: 11, fontWeight: "700", lineHeight: 17, textAlign: "center" },
   privacyNote: { fontSize: 9, lineHeight: 15, textAlign: "center", marginTop: 8 },
