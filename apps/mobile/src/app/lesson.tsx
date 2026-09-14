@@ -663,6 +663,27 @@ export default function LessonScreen() {
     setAnswerState(isCorrect ? "correct" : "wrong");
   };
 
+  /**
+   * 건너뛰기 = 오답.
+   *
+   * 예전엔 onSkip 이 handleNext 를 그대로 불렀다. 문제는 큐에서 빠지고 진행바는
+   * 올라가는데 **오답 기록도, 점프 테스트 하트 차감도 없었다.** 듣기·말하기
+   * 문제(Speaking·ListenType·ListenFill·AudioMatch)를 전부 건너뛰면 아무것도
+   * 풀지 않고 점프 테스트·레벨 테스트를 통과할 수 있는 구멍이었다.
+   *
+   * 이제 건너뛴 문제는 commitAnswer(false) 로 흘려보낸다. 그러면 모드별 처리가
+   * 한 곳에서 일관되게 된다:
+   *   레벨 테스트 → 오답 집계 · 점프 테스트 → 하트 차감
+   *   본 학습 → 복습 큐로 · 복습 → 최종 오답으로
+   * 정답도 같이 보여주므로(FeedbackBar) 건너뛴 문제를 그냥 버리지도 않는다.
+   */
+  const handleSkip = () => {
+    const question = questionQueue.current[0];
+    if (!question || answerSubmissionLocked.current) return;
+    answerSubmissionLocked.current = true;
+    commitAnswer(question, false);
+  };
+
   const handleAnswer = async (answer: string) => {
     const question = questionQueue.current[0];
     if (!question || answerSubmissionLocked.current) return;
@@ -1060,7 +1081,7 @@ export default function LessonScreen() {
               question={currentQ}
               answerState={answerState}
               onAnswer={handleAnswer}
-              onSkip={handleNext}
+              onSkip={handleSkip}
               onNext={handleNext}
               theme={theme}
               combo={combo}
