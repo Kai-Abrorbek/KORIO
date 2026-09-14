@@ -269,6 +269,15 @@ export default function LessonScreen() {
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
   const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
+  /**
+   * 이번 레슨에서 **화면상** 깎아둔 에너지.
+   *
+   * 실제 차감은 레슨을 끝낼 때 서버가 한다(lessons.service.completeLesson).
+   * 여기서는 바가 살아 움직이게 미리 줄여만 둔다. 콤보 보너스 응답이 주는
+   * 서버 에너지에는 이번 레슨분이 아직 안 빠져 있어서, 그 값에서 이만큼을
+   * 빼야 화면이 되감기지 않는다.
+   */
+  const localSpent = useRef(0);
 
   useEffect(() => {
     void loadLesson();
@@ -634,33 +643,41 @@ export default function LessonScreen() {
       const nextCombo = combo + 1;
       setCombo(nextCombo);
       // 슈퍼가 아닐 때만 에너지 소모
+      //
+      // ⚠️ 예전에는 여기서 매 정답마다 `/energy/consume` 을 불렀다. 서버는 앱이
+      //    불러줄 때만 깎으므로, 이 호출 한 줄만 빼면 에너지 0 으로 무한히 풀 수
+      //    있었다 — 에너지 경제도, 350보석 충전도, SUPER 를 살 이유도 같이
+      //    사라진다. **실제 차감은 이제 레슨 완료 때 서버가 한다**
+      //    (lessons.service.completeLesson → energyService.consume).
+      //    여기서는 바가 살아 움직이게 화면만 미리 줄인다. 완료 응답의
+      //    res.energy 가 진짜 값으로 덮어쓴다.
       if (!isSuper && !isJumpTest && !isLevelExam) {
-        (async () => {
-          try {
-            // 1) 소모 먼저
-            const consumeRes = await EnergyService.consume();
-            updateUser({
-              energy: consumeRes.energy,
-              gems: consumeRes.gems,
-            } as any);
-            if (consumeRes.energy <= 0) openEnergyModal();
+        localSpent.current += 1;
+        const cur = useAuthStore.getState().user?.energy ?? 0;
+        const next = Math.max(0, cur - 1);
+        updateUser({ energy: next } as any);
+        if (next <= 0) openEnergyModal();
 
-            // 2) 4연속이면 소모 반영된 뒤 보너스
-            if (nextCombo % 4 === 0 && !bonusGiven.current) {
+        // 4연속 보너스는 그대로 서버가 준다 (횟수·간격을 서버가 막는다).
+        if (nextCombo % 4 === 0 && !bonusGiven.current) {
+          const spentSoFar = localSpent.current;
+          (async () => {
+            try {
               const bonusRes = await EnergyService.comboBonus();
               if (bonusRes.bonusGranted > 0) {
                 bonusGiven.current = true; // 이 레슨에선 다시 안 줌
                 updateUser({
-                  energy: bonusRes.energy,
+                  // 서버 값에는 이번 레슨분이 아직 안 빠져 있다
+                  energy: Math.max(0, bonusRes.energy - spentSoFar),
                   gems: bonusRes.gems,
                 } as any);
                 setBonusAmount(bonusRes.bonusGranted);
                 setShowLightning(true);
                 setShowBonus(true);
               }
-            }
-          } catch {}
-        })();
+            } catch {}
+          })();
+        }
       }
 
       if (!uniqueCorrect.current.has(question.id)) {

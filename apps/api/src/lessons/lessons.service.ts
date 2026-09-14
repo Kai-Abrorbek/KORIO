@@ -41,6 +41,7 @@ import {
   LESSON_TO_STUDY,
 } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
+import { EnergyService } from '../energy/energy.service';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import {
   MAX_SESSION_ANSWERS,
@@ -153,6 +154,8 @@ export class LessonsService {
     private leagueService: LeagueService,
     private usersService: UsersService,
     private readonly notifications: NotificationsService,
+    // 레슨 완료 시 에너지 차감 — 앱이 자진 신고하던 걸 서버로 옮겼다
+    private readonly energyService: EnergyService,
   ) {}
 
   /**
@@ -633,6 +636,23 @@ export class LessonsService {
     const unitCompleted = node
       ? await this.checkUnitCompleted(userId, node.section, node.unit)
       : null;
+
+    // ── 에너지 차감 ── 서버가 한다
+    //
+    // 예전에는 앱이 정답마다 `/energy/consume` 을 스스로 불렀다. 서버는 불러줄
+    // 때만 깎으니, 그 호출 한 줄만 빼면 에너지 0 으로 무한히 풀 수 있었다 —
+    // 에너지 경제, 350보석 충전 소비, SUPER 를 살 이유가 통째로 사라진다.
+    // (리그 챌린지는 이미 startChallenge 에서 서버가 깎고 있었다. 레슨만 빠져
+    //  있었던 것이다.)
+    //
+    // 규칙은 그대로 "맞힌 문제 1개당 1" 이고, correctAnswers 는 위에서 레슨
+    // 문항 수의 2배로 이미 잘라둔 서버 값이다. SUPER 는 consume 이 그냥 돌아온다.
+    // 중간에 나가면 안 깎이지만 XP·진행도도 없다 — 그게 맞는 거래다.
+    await this.energyService
+      .consume(userId, correctAnswers)
+      .catch((e) =>
+        this.logger.warn(`에너지 차감 실패: user=${userId} ${String(e)}`),
+      );
 
     // ── 유저 totalXP 반영 ──
     // 하루 XP 상한(grantXp)을 거친다. 여기서 직접 $inc 하면 상한 밖으로 샌다.

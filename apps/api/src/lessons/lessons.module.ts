@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EnergyModule } from '../energy/energy.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
@@ -46,6 +47,9 @@ import {
     ]),
     LeagueModule,
     UsersModule,
+    // 레슨 완료 시 에너지 차감 (앱이 자진 신고하던 걸 서버로 옮겼다).
+    // EnergyModule 은 아무것도 import 하지 않으므로 순환이 생기지 않는다.
+    EnergyModule,
   ],
   controllers: [LessonsController],
   providers: [LessonsService, AnswerGradingService, ChestService],
