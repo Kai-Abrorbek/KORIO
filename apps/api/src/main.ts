@@ -5,7 +5,11 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { json, raw, urlencoded } from 'express';
 import { SPEECH_MAX_BYTES } from './speech/speech.constants';
-import { corsOrigins, warnMissingOptionalSecrets } from './config/secrets';
+import {
+  corsOrigins,
+  warnDirtySecrets,
+  warnMissingOptionalSecrets,
+} from './config/secrets';
 import { securityHeaders } from './common/security-headers';
 import { markShuttingDown } from './health/health.controller';
 
@@ -72,6 +76,8 @@ async function bootstrap() {
   // 몽고 연결·크론을 정리한다.
   // 없어도 뜨지만 없으면 그 기능이 통째로 죽는 것들. 부팅 로그 맨 위에서 알린다
   warnMissingOptionalSecrets((m) => Logger.warn(m, 'Bootstrap'));
+  // CRLF 로 오염된 값은 URL 에서는 멀쩡하고 서명에서만 틀어진다 — 찾기가 아주 어렵다
+  warnDirtySecrets((m) => Logger.error(m, 'Bootstrap'));
 
   app.enableShutdownHooks();
 

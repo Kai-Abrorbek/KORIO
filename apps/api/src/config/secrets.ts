@@ -81,6 +81,48 @@ const OPTIONAL_SECRETS: { key: string; breaks: string }[] = [
   { key: 'AZURE_SPEECH_KEY', breaks: '발음 평가 · 튜터 음성' },
 ];
 
+/**
+ * 값에 보이지 않는 문자가 섞였는지 본다.
+ *
+ * env 파일이 Windows 줄바꿈(CRLF)이면 **모든 값 끝에 \r 이 붙는다.** 이게
+ * 지독한 이유는 조용히 갈리기 때문이다:
+ *
+ *   · URL 에 넣는 값 → WHATWG URL 파서가 \r 을 자동으로 떼어내서 멀쩡히 동작
+ *   · HMAC·서명 키   → 바이트를 그대로 먹어서 완전히 다른 키가 된다
+ *   · 비교용 시크릿   → 양쪽이 같은 값이라 잘 도는 것처럼 보인다
+ *
+ * 그래서 "토큰은 분명 맞는데 서명 검증만 실패" 같은, 원인을 찾기 아주 어려운
+ * 상태가 만들어진다. 부팅 때 한 번 훑어서 미리 알려준다.
+ */
+const WHITESPACE_SENSITIVE = [
+  'TELEGRAM_BOT_TOKEN',
+  'JWT_SECRET',
+  'ADMIN_JWT_SECRET',
+  'MONGODB_URI',
+  'OPENAI_API_KEY',
+  'AZURE_SPEECH_KEY',
+];
+
+export function warnDirtySecrets(
+  log: (message: string) => void = console.warn,
+): string[] {
+  const dirty: string[] = [];
+  for (const key of WHITESPACE_SENSITIVE) {
+    const raw = process.env[key];
+    if (!raw || raw === raw.trim()) continue;
+    dirty.push(key);
+    const tail = [...raw.slice(raw.trim().length)]
+      .map((c) => '0x' + c.charCodeAt(0).toString(16))
+      .join(' ');
+    log(
+      `[boot] ${key} 끝에 보이지 않는 문자가 붙어 있다 (${tail}). ` +
+        'env 파일이 CRLF 일 가능성이 높다 — `sed -i \'s/\\r$//\' api.env` 로 정리해라. ' +
+        'URL 로 쓰는 값은 멀쩡히 동작하고 서명·해시만 조용히 틀어진다.',
+    );
+  }
+  return dirty;
+}
+
 export function warnMissingOptionalSecrets(
   log: (message: string) => void = console.warn,
 ): string[] {

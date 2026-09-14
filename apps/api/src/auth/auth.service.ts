@@ -159,7 +159,16 @@ export class AuthService {
   }
 
   private verifyTelegram(data: Record<string, string>): boolean {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
+    /**
+     * ⚠️ 반드시 trim 한다.
+     *
+     * env 파일이 Windows 줄바꿈(CRLF)이면 값 끝에 \r 이 붙는다. 그런데 이게
+     * **조용히 갈린다**: URL 에 넣는 호출(getMe 등)은 WHATWG URL 파서가
+     * \r 을 자동으로 떼어내서 멀쩡히 성공하고, HMAC 은 바이트를 그대로 먹어서
+     * 완전히 다른 키가 된다. 그래서 "토큰은 맞는데 서명만 틀리는" 상태가 되고,
+     * 토큰을 확인해봐도 정상으로 보여서 원인을 찾기가 매우 어렵다.
+     */
+    const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
     if (!token) return false;
     const { hash, ...rest } = data;
     const checkString = Object.keys(rest)
