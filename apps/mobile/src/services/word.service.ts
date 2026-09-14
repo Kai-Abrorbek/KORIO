@@ -1,5 +1,5 @@
 import i18n from "@/locales/i18n";
-import api from "@/services/api";
+import api, { ApiError } from "@/services/api";
 import type {
   StudyWord,
   WordListResponse,
@@ -13,12 +13,41 @@ const getLang = () => {
   return ["ko", "uz", "en", "ru"].includes(normalized) ? normalized : "uz";
 };
 
-export const WordService = {
-  getSectionSummaries: (): Promise<WordSectionSummary[]> =>
-    api.get("/words/sections/summary"),
+const getSectionSummary = (section: number): Promise<WordSectionSummary> =>
+  api.get(`/words/sections/${section}/summary`);
 
-  getSectionSummary: (section: number): Promise<WordSectionSummary> =>
-    api.get(`/words/sections/${section}/summary`),
+/**
+ * 이전 API 서버에는 섹션 목록 엔드포인트가 없다. 앱과 API가 순차 배포돼도
+ * 단어 화면이 통째로 막히지 않도록 기존 summary API로 연속 섹션을 찾는다.
+ */
+const discoverLegacySectionSummaries = async () => {
+  const summaries: WordSectionSummary[] = [];
+  let emptySections = 0;
+
+  for (let section = 1; section <= 100 && emptySections < 2; section += 1) {
+    const summary = await getSectionSummary(section);
+    if (summary.words > 0) {
+      summaries.push(summary);
+      emptySections = 0;
+    } else {
+      emptySections += 1;
+    }
+  }
+
+  return summaries;
+};
+
+export const WordService = {
+  getSectionSummaries: async (): Promise<WordSectionSummary[]> => {
+    try {
+      return await api.get("/words/sections/summary");
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 404) throw error;
+      return discoverLegacySectionSummaries();
+    }
+  },
+
+  getSectionSummary,
 
   /** 카드로 넘겨 본 단어들. 여러 장을 모아서 한 번에 보낸다 */
   markSeen: (ids: string[]): Promise<{ seen: number }> =>
