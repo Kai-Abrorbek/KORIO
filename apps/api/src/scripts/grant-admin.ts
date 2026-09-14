@@ -4,8 +4,10 @@
  * 지금까지 관리자 권한을 주는 방법이 **Mongo 를 직접 여는 것뿐**이었다.
  * 그건 기록도 안 남고, 오타 하나로 엉뚱한 계정에 권한이 붙는다.
  *
- *   pnpm --filter api admin:grant -- <email> <role>
- *   pnpm --filter api admin:grant -- <email> none      # 권한 회수
+ *   pnpm --filter api admin:grant <email> <role>
+ *   pnpm --filter api admin:grant <email> none      # 권한 회수
+ *
+ * (`--` 를 붙여도 동작한다 — pnpm 이 그걸 인자로 넘겨버려서 스크립트가 걸러낸다)
  *
  * role: super_admin | content_admin | support | analyst
  *
@@ -21,9 +23,19 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { ADMIN_ROLES, permissionsFor, type AdminRole } from '../admin/admin.const';
 
 async function main() {
-  const [rawEmail, rawRole] = process.argv.slice(2);
+  /**
+   * pnpm 은 `--` 를 삼키지 않고 **인자로 그대로 넘긴다**
+   * (`admin:grant -- a b` → argv 가 ['--', 'a', 'b']).
+   * 그래서 이메일 자리에 '--' 가 들어가 버린다. 앞의 '--' 는 걷어낸다 —
+   * 붙여 쓰든 안 쓰든 똑같이 동작해야 한다.
+   */
+  const args = process.argv.slice(2).filter((a) => a !== '--');
+  const [rawEmail, rawRole] = args;
   if (!rawEmail || !rawRole) {
-    console.error('사용법: admin:grant -- <email> <super_admin|content_admin|support|analyst|none>');
+    console.error(
+      '사용법: pnpm --filter api admin:grant <email> <super_admin|content_admin|support|analyst|none>\n' +
+        '   예: pnpm --filter api admin:grant me@example.com super_admin',
+    );
     process.exit(1);
   }
   const email = rawEmail.trim().toLowerCase();
