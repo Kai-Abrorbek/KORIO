@@ -17,6 +17,7 @@ import Animated, {
   ZoomIn,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import {
   meaningOfWord as meaningOf,
@@ -52,6 +53,8 @@ function makeDeck(pool: GameWord[], lang: string): JudgeCard[] {
 }
 
 export default function SwipeJudgeScreen() {
+  // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
+  const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -183,10 +186,8 @@ export default function SwipeJudgeScreen() {
     lockRef.current = false;
   };
 
-  const exit = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
-  };
+  // 챌린지로 열렸으면 점수를 서버에 보내고 결과 화면으로, 아니면 그냥 뒤로.
+  const exit = () => void finish(score);
 
   const card = deck[idx];
   const nextCard = deck[(idx + 1) % deck.length];
@@ -286,9 +287,13 @@ export default function SwipeJudgeScreen() {
                 <Text style={s.endStatLabel}>{t("arcade.correctCount")}</Text>
               </View>
             </View>
-            <TouchableOpacity style={s.againBtn} onPress={restart}>
-              <Text style={s.againText}>{t("arcade.playAgain")}</Text>
-            </TouchableOpacity>
+            {/* 챌린지에서는 다시 하기를 숨긴다 — 에너지 한 번 내고 무한히
+                돌리면 하루 한도까지 XP 를 긁을 수 있다 */}
+            {isChallenge ? null : (
+              <TouchableOpacity style={s.againBtn} onPress={restart}>
+                <Text style={s.againText}>{t("arcade.playAgain")}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={s.exitBtn} onPress={exit}>
               <Text style={s.exitText}>{t("arcade.exit")}</Text>
             </TouchableOpacity>

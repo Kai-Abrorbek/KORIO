@@ -20,6 +20,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { TopikModule } from './topik/topik.module';
 import { HangulModule } from './hangul/hangul.module';
 import { SpeechModule } from './speech/speech.module';
+import { ChallengeModule } from './challenge/challenge.module';
 import { TtsModule } from './tts/tts.module';
 import { WordsModule } from './words/words.module';
 import { ExpressionsModule } from './expressions/expressions.module';
@@ -57,6 +58,7 @@ import { ReferralModule } from './referral/referral.module';
     HangulModule,
     TtsModule,
     SpeechModule,
+    ChallengeModule,
     NotificationsModule,
     WordsModule,
     ExpressionsModule,

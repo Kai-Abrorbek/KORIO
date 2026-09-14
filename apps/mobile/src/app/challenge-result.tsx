@@ -44,11 +44,17 @@ export default function ChallengeResult() {
     combo: string;
     isRecord: string;
     rankUp: string;
+    /** 아케이드 종목은 '맞춘 짝' 대신 점수를 보낸다 */
+    score: string;
+    /** "0" 이면 쿨다운·하루 한도에 걸려 XP 가 안 나갔다 */
+    counted: string;
   }>();
 
   const tier = getTier(p.tier ?? "bronze");
   const xp = Number(p.xp ?? 0);
-  const matched = Number(p.matched ?? 0);
+  // 짝 맞추기는 matched, 나머지 종목은 score 를 보낸다
+  const matched = Number(p.matched ?? p.score ?? 0);
+  const counted = p.counted !== "0";
   const combo = Number(p.combo ?? 0);
   const leveledUp = p.leveledUp === "1";
   const isRecord = p.isRecord === "1";
@@ -90,15 +96,26 @@ export default function ChallengeResult() {
             : t("challenge.resultEarned")}
         </Text>
 
+        {/* 쿨다운·하루 한도에 걸려 XP 가 0 인 경우. 왜 0 인지 안 알려주면
+            "버그" 로 읽힌다 */}
+        {counted ? null : (
+          <Text style={s.notCounted}>{t("challenge.notCounted")}</Text>
+        )}
+
         <View style={s.stats}>
           <Animated.View entering={FadeInDown.delay(200)} style={s.statRow}>
-            <Text style={s.statLabel}>{t("challenge.matched")}</Text>
+            <Text style={s.statLabel}>
+              {p.matched != null
+                ? t("challenge.matched")
+                : t("challenge.scoreLabel")}
+            </Text>
             <View style={s.statRight}>
               <Ionicons name="albums" size={22} color="#fff" />
               <Text style={s.statValue}>{matchedCount}</Text>
             </View>
           </Animated.View>
 
+          {p.combo == null ? null : (
           <Animated.View entering={FadeInDown.delay(400)} style={s.statWrap}>
             {isRecord && (
               <View style={s.recordBadge}>
@@ -113,6 +130,7 @@ export default function ChallengeResult() {
               </View>
             </View>
           </Animated.View>
+          )}
         </View>
       </View>
 
@@ -157,6 +175,15 @@ const s = StyleSheet.create({
     textAlign: "center",
     marginTop: 36,
     lineHeight: 36,
+  },
+  notCounted: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: "center",
+    paddingHorizontal: 28,
+    marginTop: -6,
+    marginBottom: 6,
   },
   xpHighlight: { color: "#FFE082" },
   stats: { width: "100%", marginTop: 40, gap: 14 },

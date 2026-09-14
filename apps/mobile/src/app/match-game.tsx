@@ -1,63 +1,31 @@
 import { View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import MatchGame from "@/components/match-game/MatchGame";
 
 /**
- * 짝 맞추기 게임 화면.
+ * 짝 맞추기.
  *
  * 두 경로에서 들어온다.
  *  · 게임 목록 → 끝나면 그냥 뒤로
- *  · 리그 XP 챌린지 (`mode=challenge`) → 끝나면 challenge-result 로
+ *  · 리그 챌린지 (`mode=challenge`) → 점수를 서버에 제출하고 challenge-result 로
  *
- * 예전에는 challenge-intro 가 /lesson?mode=challenge 로 보냈는데 lesson.tsx 에
- * challenge 분기가 없어서 `NO_LESSON_ID` 로 죽었다. challenge-result 가 기대하는
- * 파라미터(matched·combo·level)가 전부 짝 맞추기 용어라, 원래 의도는 이 화면이었다.
+ * 제출·라우팅은 useLeagueChallenge 가 전부 한다. 게임 7종이 같은 훅을 쓰므로
+ * 한 곳만 고치면 전부 같이 고쳐진다 — 화면마다 따로 짜면 한 군데만 빠져도
+ * 그 리그의 챌린지가 조용히 XP 0 이 된다.
  */
 export default function MatchGameScreen() {
-  const router = useRouter();
   const theme = useTheme();
-  const p = useLocalSearchParams<{
-    mode?: string;
-    tier?: string;
-    xp?: string;
-  }>();
-  const isChallenge = p.mode === "challenge";
-
-  const leave = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
+  const { isChallenge, finish, goBack } = useLeagueChallenge();
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <MatchGame
-        onExit={() => {
-          // 챌린지를 중간에 닫으면 리그로 돌려보낸다. 뒤로 가면
-          // challenge-intro 가 다시 떠서 무한히 되돌아온다.
-          if (isChallenge) {
-            router.replace("/(tabs)/league");
-            return;
-          }
-          leave();
-        }}
-        onFinish={
-          isChallenge
-            ? (result) =>
-                router.replace({
-                  pathname: "/challenge-result",
-                  params: {
-                    tier: p.tier ?? "bronze",
-                    // 실제로 번 XP. p.xp 는 "최대 획득 가능" 이라 결과에 쓰면 안 된다.
-                    xp: String(result.xp),
-                    matched: String(result.matched),
-                    combo: String(result.bestCombo),
-                  },
-                })
-            : undefined
+        // 중간에 X 로 나가도 챌린지면 결과 화면으로 보낸다. 뒤로 가면
+        // challenge-intro 가 다시 떠서 무한히 되돌아온다.
+        onExit={() => (isChallenge ? void finish(0) : goBack())}
+        onFinish={(result) =>
+          isChallenge ? void finish(result.matched) : goBack()
         }
       />
     </View>

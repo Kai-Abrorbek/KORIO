@@ -302,6 +302,17 @@ export class User {
   @Prop({ type: [Date], default: [] })
   comboBonusClaims: Date[];
 
+  /**
+   * 리그 주간 챌린지를 받은 시각들.
+   *
+   * 점수는 앱이 신고한다(게임 로직이 앱에 있다). 그래서 금액이 아니라
+   * **빈도**를 서버가 막는다 — 쿨다운과 하루 횟수. comboBonusClaims 와 같은
+   * 이유·같은 모양이다. 이게 없으면 완료 엔드포인트를 반복 호출하는 것만으로
+   * 리그 1등을 살 수 있다.
+   */
+  @Prop({ type: [Date], default: [] })
+  leagueChallengeClaims: Date[];
+
   // 온보딩 완료 여부
   @Prop({ default: false })
   isOnboardingCompleted: boolean;

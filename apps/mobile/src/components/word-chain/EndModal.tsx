@@ -21,7 +21,8 @@ interface Props {
   score: number;
   turnCount: number;
   bestCombo: number;
-  onPlayAgain: () => void;
+  /** 없으면 "다시 하기" 를 숨긴다 — 리그 챌린지는 에너지를 내고 한 판만 한다 */
+  onPlayAgain?: () => void;
   onExit: () => void;
 }
 
@@ -97,13 +98,15 @@ export default function EndModal({
           />
         </View>
 
-        <PrimaryButton
-          label={t("wordChain.playAgain")}
-          color="#776ee2"
-          darkColor="#5448E0"
-          onPress={onPlayAgain}
-          style={{ marginTop: 8 }}
-        />
+        {onPlayAgain ? (
+          <PrimaryButton
+            label={t("wordChain.playAgain")}
+            color="#776ee2"
+            darkColor="#5448E0"
+            onPress={onPlayAgain}
+            style={{ marginTop: 8 }}
+          />
+        ) : null}
         <TouchableOpacity onPress={onExit} style={styles.exit}>
           <Text style={styles.exitText}>{t("wordChain.exit")}</Text>
         </TouchableOpacity>

@@ -37,7 +37,45 @@ export interface LeagueResult {
   gems: number;
 }
 
+/** 서버가 정하는 이번 주 챌린지 (종목·비용·남은 횟수) */
+export interface ChallengeInfo {
+  tier: string;
+  /** constants/league-challenge.ts 의 CHALLENGE_META 키 */
+  id: string;
+  maxXp: number;
+  energyCost: number;
+  playsToday: number;
+  playsLeftToday: number;
+  cooldownSeconds: number;
+}
+
+export interface ChallengeResult {
+  tier: string;
+  id: string;
+  score: number;
+  xpEarned: number;
+  maxXp: number;
+  playsToday: number;
+  playsLeftToday: number;
+  /** false 면 쿨다운·하루 한도에 걸려 XP 가 안 나갔다 */
+  counted: boolean;
+}
+
 export const LeagueService = {
+  /** 내 리그의 종목. 앱은 이걸로 어떤 게임을 열지만 정한다 (XP 계산은 서버) */
+  getChallenge: (): Promise<ChallengeInfo> => api.get("/league/challenge"),
+
+  /** 시작 — 서버가 에너지를 깎는다 */
+  startChallenge: (): Promise<{
+    id: string;
+    energyCost: number;
+    energy: unknown;
+  }> => api.post("/league/challenge/start", {}),
+
+  /** 완료 — 점수를 보내면 서버가 상한·쿨다운을 걸어 XP 를 정한다 */
+  completeChallenge: (score: number): Promise<ChallengeResult> =>
+    api.post("/league/challenge/complete", { score }),
+
   getMyLeague: (): Promise<LeagueData> => api.get(`/league/me`),
 
   getTiers: (): Promise<any> => api.get(`/league/tiers`),

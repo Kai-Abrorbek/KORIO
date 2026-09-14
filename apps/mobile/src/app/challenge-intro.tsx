@@ -13,6 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect, useState } from "react";
 import { getTier } from "@/constants/league-tiers";
+import { challengeMetaOf } from "@/constants/league-challenge";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 
 // 조정 가능
@@ -106,9 +107,10 @@ export default function ChallengeIntro() {
           onPress={() =>
             router.replace({
               // ⚠️ /lesson 이 아니다. lesson.tsx 에는 challenge 분기가 없어서
-              // 여기로 보내면 `NO_LESSON_ID` 로 죽는다. 리그 XP 챌린지는
-              // 짝 맞추기 게임이다 (xp-challenge 제목이 challenge.types.match).
-              pathname: "/match-game",
+              // 거기로 보내면 `NO_LESSON_ID` 로 죽는다.
+              // 종목은 리그마다 다르고 서버가 정한다 — p.type 은 xp-challenge 가
+              // 서버에서 받아 넘겨준 id 다.
+              pathname: challengeMetaOf(p.type).route as never,
               params: {
                 mode: "challenge",
                 tier: p.tier,

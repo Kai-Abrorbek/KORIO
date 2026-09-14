@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { ChainTurn, EndReason, GamePhase } from "@/types/word-chain";
 import {
@@ -26,6 +27,8 @@ const MAX_HINTS = 3;
 const TURN_TIME = 10; // 초
 
 export default function WordChainScreen() {
+  // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다
+  const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -240,6 +243,11 @@ export default function WordChainScreen() {
   };
 
   const handleExit = useCallback(() => {
+    // 챌린지면 점수를 제출하고 결과 화면으로 (아니면 그냥 뒤로)
+    if (isChallenge) {
+      void finish(score);
+      return;
+    }
     if (phase === "ended") {
       router.back();
       return;
@@ -248,7 +256,7 @@ export default function WordChainScreen() {
       { text: t("common.cancel"), style: "cancel" },
       { text: t("common.confirm"), onPress: () => router.back() },
     ]);
-  }, [phase, router, t]);
+  }, [finish, isChallenge, phase, router, score, t]);
 
   const userTurnActive = phase === "user-turn";
 
@@ -302,8 +310,8 @@ export default function WordChainScreen() {
           score={score}
           turnCount={turns.length}
           bestCombo={bestCombo}
-          onPlayAgain={restart}
-          onExit={() => router.back()}
+          onPlayAgain={isChallenge ? undefined : restart}
+          onExit={() => (isChallenge ? void finish(score) : router.back())}
         />
       )}
     </View>

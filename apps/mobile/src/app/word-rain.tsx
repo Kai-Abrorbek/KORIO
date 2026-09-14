@@ -17,6 +17,7 @@ import Animated, {
   ZoomIn,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { meaningOfWord as meaningOf } from "@/services/game-words.service";
 import { useGameWords } from "@/features/games/useGameWords";
@@ -29,6 +30,8 @@ const MIN_FALL_MS = 2600;
 const SPEEDUP_MS = 220;
 
 export default function WordRainScreen() {
+  // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
+  const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -166,8 +169,8 @@ export default function WordRainScreen() {
 
   const exit = () => {
     cancelAnimation(fallY);
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
+    // 챌린지면 점수를 제출하고 결과 화면으로, 아니면 그냥 뒤로
+    void finish(score);
   };
 
   // 단어를 못 받으면 게임을 시작하지 않는다. 가짜 단어로 채우면 유저는
@@ -264,10 +267,13 @@ export default function WordRainScreen() {
                 <Text style={s.endStatLabel}>{t("arcade.bestCombo")}</Text>
               </View>
             </View>
-            {/* TODO: XP 보상은 서버 권위 엔드포인트 붙인 뒤 지급 */}
-            <TouchableOpacity style={s.againBtn} onPress={restart}>
-              <Text style={s.againText}>{t("arcade.playAgain")}</Text>
-            </TouchableOpacity>
+            {/* 챌린지에서는 다시 하기를 숨긴다 — 에너지 한 번 내고 무한히
+                돌리면 하루 한도까지 XP 를 긁을 수 있다 */}
+            {isChallenge ? null : (
+              <TouchableOpacity style={s.againBtn} onPress={restart}>
+                <Text style={s.againText}>{t("arcade.playAgain")}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={s.exitBtn} onPress={exit}>
               <Text style={s.exitText}>{t("arcade.exit")}</Text>
             </TouchableOpacity>

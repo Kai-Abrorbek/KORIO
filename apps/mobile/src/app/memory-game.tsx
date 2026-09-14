@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { WORD_MEMORY_LEVELS } from "@/types/word-memory";
 import WordMemoryGame from "@/components/hangul/games/WordMemoryGame";
@@ -31,6 +32,9 @@ export default function MemoryGameScreen() {
   const [phase, setPhase] = useState<"playing" | "win" | "lose">("playing");
   const [gameKey, setGameKey] = useState(0);
   const [stars, setStars] = useState(0);
+  // 챌린지 점수: 깬 레벨 수 + 모은 별. 레벨만 세면 1판에 1~5 라 XP 폭이 너무 좁다
+  const [challengeScore, setChallengeScore] = useState(0);
+  const { isChallenge, finish } = useLeagueChallenge();
 
   const restart = (lv: number) => {
     setLevel(lv);
@@ -53,14 +57,13 @@ export default function MemoryGameScreen() {
       // 적은 시도일수록 별 많이 (완벽=쌍수만큼만 시도)
       const st = moves <= pairs + 2 ? 3 : moves <= pairs + 6 ? 2 : 1;
       setStars(st);
+      setChallengeScore((prev) => prev + level + st);
     }
     setPhase(cleared ? "win" : "lose");
   };
 
-  const goHome = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
-  };
+  // 챌린지면 점수를 제출하고 결과 화면으로, 아니면 그냥 뒤로
+  const goHome = () => void finish(challengeScore);
 
   const isLast = level >= WORD_MEMORY_LEVELS.length;
 

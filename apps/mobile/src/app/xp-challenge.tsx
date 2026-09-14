@@ -11,14 +11,17 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getTier } from "@/constants/league-tiers";
 import { useAuthStore } from "@/store/auth.store";
-import { LeagueService } from "@/services/league.service";
+import { LeagueService, type ChallengeInfo } from "@/services/league.service";
+import { challengeMetaOf } from "@/constants/league-challenge";
 
-// 조정 가능
-const ENERGY_COST = 15;
-const CHALLENGE_LEVELS = 9;
+/**
+ * 종목·에너지 비용·XP 상한은 **서버가 정한다** (리그마다 다르다).
+ * 여기 값들은 서버 응답이 오기 전에 잠깐 쓰는 자리표시자일 뿐이다.
+ */
+const FALLBACK_ENERGY_COST = 15;
 
 export default function XpChallenge() {
   const { t } = useTranslation();
@@ -27,10 +30,31 @@ export default function XpChallenge() {
   const p = useLocalSearchParams<{ tier: string; xp: string; type?: string }>();
 
   const tier = getTier(p.tier ?? "bronze");
-  const maxXp = Number(p.xp ?? 210);
-  const questionType = p.type ?? "match"; // 문제 타입 (수정 가능)
   const user = useAuthStore((s) => s.user);
   const energy = user?.energy ?? 0;
+
+  // 리그마다 종목이 다르다. 뭘 하는지·얼마가 드는지는 서버에서 받는다 —
+  // 앱이 고르게 두면 제일 후한 종목을 직접 지정해서 부를 수 있다.
+  const [info, setInfo] = useState<ChallengeInfo | null>(null);
+  const [starting, setStarting] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void LeagueService.getChallenge()
+      .then((res) => {
+        if (alive) setInfo(res);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const challengeId = info?.id ?? p.type ?? "match";
+  const meta = challengeMetaOf(challengeId);
+  const maxXp = info?.maxXp ?? Number(p.xp ?? 210);
+  const energyCost = info?.energyCost ?? FALLBACK_ENERGY_COST;
+  const outOfEnergy = energy < energyCost;
+  const noPlaysLeft = !!info && info.playsLeftToday <= 0;
 
   const float = useSharedValue(0);
   useEffect(() => {
@@ -47,15 +71,29 @@ export default function XpChallenge() {
   }));
 
   const start = async () => {
+    if (starting || outOfEnergy || noPlaysLeft) return;
+    setStarting(true);
     try {
       await LeagueService.snapshotRank();
     } catch {}
+    // 에너지 차감은 서버가 한다. 앱에서 깎으면 안 깎고 게임만 여는 게
+    // 코드 한 줄이다. 실패하면 시작하지 않는다.
+    try {
+      const res = await LeagueService.startChallenge();
+      const next = (res as { energy?: { energy?: number } }).energy?.energy;
+      if (typeof next === "number") {
+        useAuthStore.getState().updateUser({ energy: next } as never);
+      }
+    } catch {
+      setStarting(false);
+      return;
+    }
     router.replace({
       pathname: "/challenge-intro",
       params: {
         tier: p.tier ?? "bronze",
         xp: String(maxXp),
-        type: questionType,
+        type: challengeId,
       },
     });
   };
@@ -67,7 +105,7 @@ export default function XpChallenge() {
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Ionicons name="close" size={32} color="#fff" />
         </Pressable>
-        <Text style={s.title}>{t(`challenge.types.${questionType}`)}</Text>
+        <Text style={s.title}>{t(`challenge.types.${challengeId}`)}</Text>
         <View style={s.energyChip}>
           <Ionicons name="flash" size={18} color="#fff" />
           <Text style={s.energyText}>{energy}</Text>
@@ -83,10 +121,10 @@ export default function XpChallenge() {
               { transform: [{ rotate: "-8deg" }], marginRight: -30 },
             ]}
           >
-            <Ionicons name="flash" size={54} color={tier.color} />
+            <Ionicons name={meta.icon as never} size={54} color={tier.color} />
           </View>
           <View style={[s.card, { transform: [{ rotate: "6deg" }] }]}>
-            <Ionicons name="flash" size={54} color={tier.color} />
+            <Ionicons name={meta.icon as never} size={54} color={tier.color} />
           </View>
         </Animated.View>
 
@@ -99,35 +137,43 @@ export default function XpChallenge() {
         {/* 레벨 / 획득 박스 */}
         <View style={s.infoBox}>
           <View style={s.infoCol}>
-            <Text style={s.infoLabel}>{t("challenge.level")}</Text>
-            <Text style={s.infoValue}>1/{CHALLENGE_LEVELS}</Text>
+            <Text style={s.infoLabel}>{t("challenge.playsLeft")}</Text>
+            <Text style={s.infoValue}>
+              {info ? `${info.playsLeftToday}` : "—"}
+            </Text>
           </View>
           <View style={s.infoDivider} />
           <View style={s.infoCol}>
             <Text style={s.infoLabel}>{t("challenge.earn")}</Text>
-            <Text style={s.infoValue}>
-              {Math.round(maxXp / CHALLENGE_LEVELS)} XP
-            </Text>
+            <Text style={s.infoValue}>{maxXp} XP</Text>
           </View>
         </View>
       </View>
 
       {/* 시작 버튼 */}
       <View style={[s.footer, { paddingBottom: insets.bottom + 20 }]}>
-        <Pressable onPress={start}>
+        <Pressable
+          onPress={start}
+          disabled={starting || outOfEnergy || noPlaysLeft}
+        >
           {({ pressed }) => (
             <View
               style={[
                 s.startBtn,
+                (starting || outOfEnergy || noPlaysLeft) && { opacity: 0.5 },
                 pressed && { transform: [{ translateY: 3 }] },
               ]}
             >
               <Text style={[s.startText, { color: tier.color }]}>
-                {t("challenge.start")}
+                {noPlaysLeft
+                  ? t("challenge.noPlaysLeft")
+                  : outOfEnergy
+                    ? t("challenge.noEnergy")
+                    : t("challenge.start")}
               </Text>
               <View style={[s.costChip, { backgroundColor: tier.color }]}>
                 <Ionicons name="flash" size={16} color="#fff" />
-                <Text style={s.costText}>{ENERGY_COST}</Text>
+                <Text style={s.costText}>{energyCost}</Text>
               </View>
             </View>
           )}

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useGameWords } from "@/features/games/useGameWords";
@@ -19,6 +20,8 @@ const GAP_MS = 950;
 type Phase = "listen" | "input" | "between";
 
 export default function EchoChainScreen() {
+  // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
+  const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -184,8 +187,8 @@ export default function EchoChainScreen() {
   const exit = () => {
     clearTimers();
     stop();
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
+    // 챌린지면 점수를 제출하고 결과 화면으로, 아니면 그냥 뒤로
+    void finish(score);
   };
 
   // 판을 채울 단어가 없으면 시작하지 않는다
@@ -292,9 +295,13 @@ export default function EchoChainScreen() {
                 <Text style={s.endStatLabel}>{t("arcade.maxRound")}</Text>
               </View>
             </View>
-            <TouchableOpacity style={s.againBtn} onPress={restart}>
-              <Text style={s.againText}>{t("arcade.playAgain")}</Text>
-            </TouchableOpacity>
+            {/* 챌린지에서는 다시 하기를 숨긴다 — 에너지 한 번 내고 무한히
+                돌리면 하루 한도까지 XP 를 긁을 수 있다 */}
+            {isChallenge ? null : (
+              <TouchableOpacity style={s.againBtn} onPress={restart}>
+                <Text style={s.againText}>{t("arcade.playAgain")}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={s.exitBtn} onPress={exit}>
               <Text style={s.exitText}>{t("arcade.exit")}</Text>
             </TouchableOpacity>
