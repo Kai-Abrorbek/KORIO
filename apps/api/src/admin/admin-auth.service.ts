@@ -83,7 +83,10 @@ export class AdminAuthService {
       accessToken: token,
       expiresIn: ADMIN_TOKEN_TTL,
       admin: {
-        id: user!._id.toString(),
+        // ⚠️ `/admin/auth/me` 와 **같은 모양이어야 한다.** 로그인 직후와
+        //    새로고침 뒤에 화면이 쥐는 객체가 달라지면, 새로고침해야만 터지는
+        //    버그가 생긴다 (그 종류가 제일 늦게 발견된다)
+        userId: user!._id.toString(),
         email: user!.email,
         nickname: user!.nickname ?? '',
         role,

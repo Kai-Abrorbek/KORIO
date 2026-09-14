@@ -33,6 +33,7 @@ export class AdminAuthController {
   @UseGuards(AdminGuard)
   me(@Req() req: any) {
     const admin: AdminRequestContext = req.admin;
+    // 로그인 응답의 `admin` 과 같은 모양으로 맞춘다 (userId/email/role/permissions)
     return { ...admin, permissions: permissionsFor(admin.role) };
   }
 }

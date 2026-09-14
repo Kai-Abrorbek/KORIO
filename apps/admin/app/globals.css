@@ -1,0 +1,944 @@
+/**
+ * KORIO Admin — 디자인 토큰 + 스타일시트
+ *
+ * **Tailwind 안 쓴다.** 루트 node_modules 가 윈도우에서 깔린 트리라 새 의존성
+ * 하나 때문에 통째로 다시 깔게 만들 이유가 없다. next/react 는 이미 호이스팅돼
+ * 있어서 이 앱은 **설치 없이 그대로 뜬다.** 차트도 전부 직접 그리는 SVG라
+ * 유틸리티 클래스보다 진짜 스타일시트가 오히려 다루기 편하다.
+ *
+ * **다크 우선.** 기본이 다크고 라이트는 선택이다. 차트가 화면의 대부분인데
+ * 어두운 바탕에서 색이 훨씬 잘 갈린다.
+ *
+ * ⚠️ 시리즈 색은 **눈으로 고른 게 아니다.** dataviz 검증기로 두 모드 모두
+ *    돌려서 통과한 순서다 (명도 밴드 · 채도 하한 · 색각이상 인접 분리 ΔE ·
+ *    일반시야 하한 · 표면 대비 5개 검사). 순서 자체가 안전장치라 **섞거나
+ *    돌려 쓰면 안 된다** — 8번을 넘어가면 색을 새로 만들지 말고 "기타" 로 접는다.
+ *
+ *    다크 인접 최악 CVD ΔE 8.6 / 일반시야 19.3 · 라이트 일반시야 19.6
+ *    산점도처럼 **모든 쌍**이 동시에 보이는 차트는 앞 3색까지만 쓴다.
+ */
+
+/* ══════════════════════ 토큰 ══════════════════════ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── 표면·잉크 (다크가 기본값) ── */
+  --bg: #121218;
+  --surface: #1b1b24;
+  --surface-2: #22222d;
+  --surface-3: #2a2a36;
+  --border: #2e2e3a;
+  --border-strong: #3c3c4a;
+
+  --ink: #f2f2f5;
+  --ink-2: #a5a5b4;
+  --ink-3: #6f6f80;
+
+  --brand: #8b7ff0;
+  --brand-ink: #ffffff;
+  --brand-soft: #2a2545;
+
+  /* 차트 크롬 — 눈에 띄면 안 된다. 데이터가 주인공이다 */
+  --grid: #26262f;
+  --axis: #3a3a47;
+
+  /* ── 시리즈 (검증된 순서. 1번이 KORIO 보라) ── */
+  --series-1: #9085e9;
+  --series-2: #199e70;
+  --series-3: #d95926;
+  --series-4: #3987e5;
+  --series-5: #c98500;
+  --series-6: #d55181;
+  --series-7: #008300;
+  --series-8: #e66767;
+
+  /* ── 순차 램프 (히트맵). 한 색상, 밝음→어두움 ── */
+  --seq-100: #cde2fb;
+  --seq-200: #9ec5f4;
+  --seq-300: #6da7ec;
+  --seq-400: #3987e5;
+  --seq-500: #256abf;
+  --seq-600: #184f95;
+  --seq-700: #0d366b;
+
+  /* ── 상태 (절대 시리즈로 재사용 금지. 항상 아이콘+라벨과 함께) ── */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --up: #0ca30c;
+  --down: #d03b3b;
+
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-pop: 0 8px 28px rgba(0, 0, 0, 0.45);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f7f7f9;
+  --surface: #ffffff;
+  --surface-2: #f4f4f7;
+  --surface-3: #eceaf3;
+  --border: #e5e4ee;
+  --border-strong: #d3d2e0;
+
+  --ink: #17171f;
+  --ink-2: #55555f;
+  --ink-3: #8a8a97;
+
+  --brand: #6b5fd6;
+  --brand-ink: #ffffff;
+  --brand-soft: #efecfd;
+
+  --grid: #eceaf3;
+  --axis: #d7d5e2;
+
+  /* 라이트 표면용 시리즈 스텝. 같은 색상, 다시 검증한 값 */
+  --series-1: #4a3aa7;
+  --series-2: #1baf7a;
+  --series-3: #eb6834;
+  --series-4: #2a78d6;
+  --series-5: #eda100;
+  --series-6: #e87ba4;
+  --series-7: #008300;
+  --series-8: #e34948;
+
+  /* 라이트 표면에서는 초록 글자가 너무 밝아 안 읽힌다 */
+  --up: #006300;
+
+  --shadow-pop: 0 8px 28px rgba(23, 23, 31, 0.13);
+}
+
+/* ══════════════════════ 기본 ══════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border: 0 solid var(--border);
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* 정보 밀도가 높은 화면이라 기본 글자를 작게 잡는다 */
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-3);
+  background-clip: content-box;
+}
+
+/* 숫자는 자리가 흔들리면 표에서 읽기 어렵다 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--ink-2);
+}
+.dim {
+  color: var(--ink-3);
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.spacer {
+  flex: 1;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ══════════════════════ 컴포넌트 ══════════════════════ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.card-pad {
+  padding: 18px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.btn-primary {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.btn-ghost {
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.btn-block {
+  width: 100%;
+}
+.btn-icon {
+  width: 32px;
+  padding: 0;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  height: 34px;
+  width: 100%;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 13px;
+}
+.input::placeholder {
+  color: var(--ink-3);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/** 상태 배지 — 색만으로 뜻을 나르지 않는다. 항상 글자가 같이 있다 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--surface-3);
+  color: var(--ink-2);
+}
+.badge-good {
+  color: var(--good);
+  background: color-mix(in srgb, var(--good) 14%, transparent);
+}
+.badge-warning {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+}
+.badge-critical {
+  color: var(--critical);
+  background: color-mix(in srgb, var(--critical) 15%, transparent);
+}
+
+.alert {
+  border-radius: var(--radius);
+  padding: 9px 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--critical) 14%, transparent);
+  color: var(--critical);
+}
+
+/** 뼈대 로딩. 데이터가 없다고 레이아웃이 튀면 안 된다 */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--border) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ══════════════════════ 셸 ══════════════════════ */
+
+.gate-center {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+}
+
+.shell {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 216px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 14px;
+  flex-shrink: 0;
+}
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 11px;
+  font-weight: 900;
+}
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  overflow-y: auto;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 30px;
+  padding: 0 9px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+.nav-item:hover:not(.is-soon):not(.is-active) {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.nav-item.is-active {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.nav-item.is-soon {
+  color: var(--ink-3);
+  cursor: default;
+}
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  flex-shrink: 0;
+}
+.nav-soon {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+.sidebar-foot {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-email {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.sidebar-role {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 9px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  flex-shrink: 0;
+  padding: 0 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar h1 {
+  font-size: 14px;
+  font-weight: 700;
+}
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+/* 1440px 에서 가장 예쁘되, 넓은 화면에서 늘어지지 않게 상한을 둔다 */
+.content-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* ══════════════════════ 로그인 ══════════════════════ */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+.login-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px;
+}
+.login-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 88px;
+}
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 26px;
+  box-shadow: var(--shadow-pop);
+}
+.login-brand {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--brand);
+  margin-bottom: 3px;
+}
+.login-card h1 {
+  font-size: 19px;
+  font-weight: 700;
+}
+.login-sub {
+  margin: 3px 0 22px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.login-card .input {
+  margin-bottom: 14px;
+}
+.login-card .alert {
+  margin-bottom: 14px;
+}
+
+/* ══════════════════════ 페이지 헤더 · 기간 필터 ══════════════════════ */
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.page-head h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.page-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/** 프리셋 한 줄. 드롭다운보다 빠르다 — 어차피 5개뿐이다 */
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.segmented button {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+.segmented button:hover:not(.is-on) {
+  color: var(--ink);
+}
+.segmented button.is-on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* ══════════════════════ KPI ══════════════════════ */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1100px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.kpi {
+  position: relative;
+  /* 스파크라인이 바닥에 깔리므로 그만큼 아래를 비워둔다 — 글자와 겹치면 둘 다 안 읽힌다 */
+  padding: 14px 15px 36px;
+  overflow: hidden;
+}
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.kpi-value {
+  margin-top: 7px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.kpi-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  min-height: 18px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 700;
+}
+.kpi-delta.is-up {
+  color: var(--up);
+}
+.kpi-delta.is-down {
+  color: var(--down);
+}
+.kpi-delta.is-flat {
+  color: var(--ink-3);
+}
+.kpi-spark {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+.kpi-note {
+  cursor: help;
+  color: var(--ink-3);
+}
+
+/* ══════════════════════ 차트 ══════════════════════ */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1000px) {
+  .chart-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.col-span-2 {
+  grid-column: span 2;
+}
+@media (max-width: 1000px) {
+  .col-span-2 {
+    grid-column: auto;
+  }
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 16px 12px;
+}
+.chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.chart-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+.chart-sub {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+/** 범례는 2개 이상이면 항상 있다 — 정체성이 색만으로 전해지면 안 된다 */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.plot {
+  position: relative;
+  width: 100%;
+}
+.plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tip {
+  position: absolute;
+  z-index: 20;
+  min-width: 128px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-pop);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  font-size: 11.5px;
+}
+.tip-date {
+  font-weight: 700;
+  margin-bottom: 5px;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.tip-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.7;
+}
+.tip-row .legend-swatch {
+  width: 8px;
+  height: 8px;
+}
+.tip-row b {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════ 퍼널 ══════════════════════ */
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.funnel-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 11px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.funnel-step:hover {
+  background: var(--surface-2);
+}
+/**
+ * 막대는 글자 뒤에 깔린다.
+ *
+ * ⚠️ `.funnel-step > *` 로 한 번에 relative 를 주면 **이 막대까지** 되돌아가서
+ *    flex 아이템이 되고, 이름이 오른쪽으로 밀리면서 레이아웃이 통째로 깨진다.
+ *    글자에만 준다.
+ */
+.funnel-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 8px;
+  opacity: 0.3;
+}
+.funnel-step > span {
+  position: relative;
+}
+.funnel-name {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.funnel-users {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.funnel-conv {
+  width: 64px;
+  text-align: right;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.funnel-drop {
+  color: var(--critical);
+}
+
+/* ══════════════════════ 코호트 히트맵 ══════════════════════ */
+
+.cohort {
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.cohort th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-align: right;
+  padding: 0 4px 2px;
+}
+.cohort th:first-child {
+  text-align: left;
+}
+.cohort td {
+  width: 76px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  text-align: right;
+  background: var(--surface-2);
+}
+.cohort td:first-child {
+  width: auto;
+  min-width: 96px;
+  text-align: left;
+  font-weight: 600;
+  background: none;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.cohort td.size {
+  width: 64px;
+  background: none;
+  color: var(--ink-3);
+}
+.cohort td.na {
+  color: var(--ink-3);
+  background: var(--surface-2);
+}
+
+/* ══════════════════════ 빈 상태 · 없는 지표 ══════════════════════ */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--ink-3);
+}
+.empty-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.empty-body {
+  font-size: 11.5px;
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+/** 계산할 수 없는 지표. 그럴듯한 가짜를 보여주느니 왜 없는지를 보여준다 */
+.unavailable {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warning) 9%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--warning) 28%, var(--border));
+}
+.unavailable svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--warning);
+}
+.unavailable-title {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.unavailable-body {
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
