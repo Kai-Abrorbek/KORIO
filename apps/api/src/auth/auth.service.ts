@@ -34,6 +34,7 @@ import { trialFields, isSuperActive } from '../users/super.util';
 import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
 import type { TelegramMiniAppLoginDto } from './dto/telegram-mini-app-login.dto';
 import {
+  TelegramInitDataError,
   type TelegramMiniAppAuthData,
   type TelegramMiniAppUser,
   validateTelegramMiniAppInitData,
@@ -234,13 +235,36 @@ export class AuthService {
     let telegramData: TelegramMiniAppAuthData;
     try {
       telegramData = validateTelegramMiniAppInitData(dto.initData, token);
-    } catch {
-      // initData 자체는 로그에 남기지 않는다 (유저 정보 + 서명이 들어 있다).
-      // 대신 길이만 남긴다 — 비어 있는지 잘린 건지 구분이 된다
+    } catch (e) {
+      /**
+       * 왜 실패했는지를 구체적으로 남긴다. 이 여덟 가지는 **고치는 방법이
+       * 전부 다르다** — 시계가 틀린 것과 봇 토큰이 다른 것은 완전히 다른 일이다.
+       *
+       * ⚠️ initData 자체는 절대 안 남긴다 (유저 정보 + 서명이 들어 있다).
+       *    키 이름·길이·시간 차이처럼 **모양만** 남긴다.
+       * ⚠️ 밖으로 나가는 코드는 하나로 뭉뚱그린다. 어느 검사에서 걸렸는지
+       *    응답으로 알려주면 공격자에게 지도를 주는 꼴이다.
+       */
+      const failure =
+        e instanceof TelegramInitDataError ? e.failure : 'UNKNOWN';
+      const hint =
+        e instanceof TelegramInitDataError ? JSON.stringify(e.hint) : '';
       this.logger.warn(
-        `[telegram] initData 검증 실패 (length=${dto.initData?.length ?? 0}). ` +
-          '봇 토큰과 Mini App 을 연 봇이 다른 경우가 가장 흔하다.',
+        `[telegram] initData 검증 실패: ${failure} ${hint} ` +
+          `(length=${dto.initData?.length ?? 0})`,
       );
+      if (failure === 'AUTH_DATE_FUTURE') {
+        this.logger.error(
+          '[telegram] 서버 시계가 텔레그램보다 앞서 있다. NTP 를 확인해라 — ' +
+            '토큰이 맞아도 Mini App 로그인이 전부 막힌다.',
+        );
+      }
+      if (failure === 'HASH_MISMATCH') {
+        this.logger.error(
+          '[telegram] 서명 불일치. TELEGRAM_BOT_TOKEN 이 Mini App 을 연 봇의 ' +
+            '토큰이 맞는지, BotFather 에서 재발급한 적은 없는지 확인해라.',
+        );
+      }
       throw new UnauthorizedException('TELEGRAM_INIT_DATA_INVALID');
     }
 

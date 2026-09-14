@@ -77,7 +77,9 @@ export class LessonAttempt {
   @Prop({ default: Date.now })
   lastSeenAt: Date;
 
-  @Prop({ default: null })
+  // ⚠️ 유니온 타입(Date | null)은 mongoose 가 타입을 추론하지 못한다.
+  //    type 을 빼면 tsc 는 통과하고 **부팅 때 터진다**
+  @Prop({ type: Date, default: null })
   completedAt: Date | null;
 
   // ── 완료 시에만 채워진다 (UserProgress 와 같은 값. 조인 없이 보려고 복사) ──

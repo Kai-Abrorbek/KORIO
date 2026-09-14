@@ -78,7 +78,7 @@ export class Subscription {
    *    VerifiedPurchase 에 실어 보내거나, (2) productId → 가격 표를 서버 상수로
    *    두고 여기 복사한다. (2)는 Play Console 에서 가격을 바꾸면 어긋난다.
    */
-  @Prop({ default: null })
+  @Prop({ type: Number, default: null })
   priceMicros: number | null;
 
   /** ISO 4217 (UZS, USD, KRW…). priceMicros 와 같이 채워진다 */

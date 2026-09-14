@@ -26,7 +26,7 @@ export class SubscriptionEvent {
   subscriptionId: Types.ObjectId | null;
 
   /** 직전 상태. 새 구독이면 null */
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   fromStatus: string | null;
 
   @Prop({ required: true })

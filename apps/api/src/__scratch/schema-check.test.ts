@@ -11,6 +11,11 @@ import { ReferralSchema } from '../referral/schemas/referral.schema';
 import { DeviceTokenSchema } from '../push/schemas/device-token.schema';
 import { PushLogSchema } from '../push/schemas/push-log.schema';
 import { PasswordResetSchema } from '../auth/schemas/password-reset.schema';
+import { LessonAttemptSchema } from '../analytics/schemas/lesson-attempt.schema';
+import { QuestionAttemptSchema } from '../analytics/schemas/question-attempt.schema';
+import { SubscriptionEventSchema } from '../analytics/schemas/subscription-event.schema';
+import { AdminAuditLogSchema } from '../admin/schemas/admin-audit-log.schema';
+import { SubscriptionSchema } from '../payments/subscriptions/subscription.schema';
 
 let fail = 0;
 const say = (ok: boolean, msg: string) => {
@@ -24,6 +29,12 @@ const schemas: [string, any][] = [
   ['DeviceToken', DeviceTokenSchema],
   ['PushLog', PushLogSchema],
   ['PasswordReset', PasswordResetSchema],
+  // 계측·어드민 (2026-09)
+  ['LessonAttempt', LessonAttemptSchema],
+  ['QuestionAttempt', QuestionAttemptSchema],
+  ['SubscriptionEvent', SubscriptionEventSchema],
+  ['AdminAuditLog', AdminAuditLogSchema],
+  ['Subscription', SubscriptionSchema],
 ];
 for (const [name, sc] of schemas) say(!!sc?.obj, `${name} 스키마 생성됨`);
 
@@ -37,7 +48,17 @@ for (const [name, sc] of schemas) {
     if (!opts?.unique) continue;
     const field = Object.keys(keys)[0];
     const guarded = !!opts.sparse || !!opts.partialFilterExpression;
-    const alwaysSet = ['inviteeId', 'token', 'dedupKey', 'userId'].includes(field);
+    // required: true 라 값이 절대 비지 않는 필드. sparse 가 필요 없다
+    const alwaysSet = [
+      'inviteeId',
+      'token',
+      'dedupKey',
+      'userId',
+      // QuestionAttempt: (attemptId, questionId, index) 로 중복 보고를 막는다
+      'attemptId',
+      // Subscription: (provider, externalTransactionId) 멱등 키
+      'provider',
+    ].includes(field);
     say(
       guarded || alwaysSet,
       `${name}.${field} 유니크 — ${guarded ? '조건부(안전)' : '항상 채워지는 필드(안전)'}`,
