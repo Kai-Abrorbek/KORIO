@@ -1,4 +1,20 @@
 import api from "./api";
+
+/**
+ * 문제 하나를 푼 기록. 서버의 analytics 모듈이 받는 모양 그대로다.
+ *
+ * ⚠️ 통계 전용이다. XP·보석·진행도는 서버가 따로 계산한다 — 여기 값을 올려
+ *    보내도 보상이 늘지 않는다.
+ */
+export interface ReportedAnswer {
+  questionId: string;
+  /** 이 판에서 몇 번째로 나온 문제인지 (0-based) */
+  index: number;
+  isCorrect: boolean;
+  skipped?: boolean;
+  durationMs?: number;
+  questionType?: string;
+}
 import { AnswerGradeResult, LessonSession } from "@/types/lesson";
 import i18n from "@/locales/i18n";
 
@@ -98,6 +114,20 @@ export const LessonService = {
     return api.get(`/lessons/${lessonId}?lang=${getLang()}`);
   },
 
+  /**
+   * 푸는 중 진행 보고. 몇 문제마다 한 번씩.
+   *
+   * 이게 있어야 **끝내지 못하고 나간 사람**이 몇 번째 문제에서 나갔는지가
+   * 남는다. 완료 보고만 있으면 나간 사람은 데이터에 존재하지도 않는다.
+   *
+   * 실패해도 조용히 넘어간다 — 통계 때문에 레슨이 멈추면 안 된다.
+   */
+  reportProgress: (
+    attemptId: string,
+    body: { index: number; answers?: ReportedAnswer[] },
+  ): Promise<{ ok: boolean }> =>
+    api.post(`/lessons/attempts/${attemptId}/progress`, body),
+
   gradeTypedAnswer: (
     questionId: string,
     answer: string,
@@ -118,6 +148,10 @@ export const LessonService = {
       speedSeconds: number;
       wrongQuestionIds: string[];
       isCompleted: boolean;
+      /** 이 판의 계측 id (getLessonById 응답) */
+      attemptId?: string | null;
+      /** 문제별 답안. 통계 전용 — 보상 계산에는 안 쓰인다 */
+      answers?: ReportedAnswer[];
     },
   ): Promise<{
     success: boolean;

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EnergyModule } from '../energy/energy.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
@@ -50,6 +51,9 @@ import {
     // 레슨 완료 시 에너지 차감 (앱이 자진 신고하던 걸 서버로 옮겼다).
     // EnergyModule 은 아무것도 import 하지 않으므로 순환이 생기지 않는다.
     EnergyModule,
+    // 학습 계측. 레슨 시작·문제별 답안을 기록한다 (분석 전용, 학습 로직 아님).
+    // AnalyticsModule 은 아무것도 import 하지 않아 순환이 없다.
+    AnalyticsModule,
   ],
   controllers: [LessonsController],
   providers: [LessonsService, AnswerGradingService, ChestService],

@@ -42,6 +42,10 @@ import {
 } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { EnergyService } from '../energy/energy.service';
+import {
+  LearningEventsService,
+  type ReportedAnswer,
+} from '../analytics/learning-events.service';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import {
   MAX_SESSION_ANSWERS,
@@ -156,6 +160,8 @@ export class LessonsService {
     private readonly notifications: NotificationsService,
     // 레슨 완료 시 에너지 차감 — 앱이 자진 신고하던 걸 서버로 옮겼다
     private readonly energyService: EnergyService,
+    // 학습 계측 (분석 전용). 절대 위로 던지지 않으므로 try 로 감쌀 필요 없다
+    private readonly events: LearningEventsService,
   ) {}
 
   /**
@@ -402,7 +408,16 @@ export class LessonsService {
   }
 
   // 레슨 상세 + 문제들 (lessonId로 조회)
-  public async getLessonById(lessonId: string, lang: string = 'uz') {
+  /**
+   * @param userId 있으면 이 열람을 **레슨 한 판의 시작**으로 기록한다.
+   *   다른 학습 모드(복습·유닛연습·점프테스트)는 각자 엔드포인트가 따로라
+   *   여기로 오지 않는다 — 즉 이 호출은 곧 "레슨을 열었다" 와 같다.
+   */
+  public async getLessonById(
+    lessonId: string,
+    lang: string = 'uz',
+    userId?: string,
+  ) {
     const lesson = await this.lessonModel.findById(lessonId).lean();
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
 
@@ -420,8 +435,23 @@ export class LessonsService {
       this.formatQuestion(q, lang),
     );
 
+    // 시작 기록. 실패해도 null 이 돌아올 뿐 레슨은 그대로 진행된다
+    const attemptId = userId
+      ? await this.events.startLesson({
+          userId,
+          lessonId: lesson._id.toString(),
+          nodeId: lesson.nodeId?.toString() ?? null,
+          section: lesson.section,
+          unit: lesson.unit,
+          category: lesson.category,
+          questionCount: sortedQuestions.length,
+        })
+      : null;
+
     return {
       lessonId: lesson._id.toString(),
+      /** 이 판의 계측 id. 앱이 진행·완료 보고에 그대로 실어 보낸다 */
+      attemptId,
       lessonTitle: this.extractI18n(lesson.title, lang),
       category: lesson.category,
       grammarCode: lesson.grammarCode ?? null, // 문법 트랙이면 어떤 문법인지
@@ -665,6 +695,19 @@ export class LessonsService {
       .lean();
 
     await this.leagueService.ensureJoined(userId).catch(() => {});
+
+    // 계측: 이 판을 닫는다. 앱이 문제별 답안을 같이 보냈으면 그것도 저장한다.
+    // 실패해도 삼켜지므로 완료 응답에는 영향이 없다
+    await this.events.completeLesson({
+      userId,
+      lessonId,
+      attemptId: dto.attemptId,
+      correctAnswers,
+      totalAnswers,
+      speedSeconds: dto.speedSeconds,
+      xpEarned: grantedXp,
+      answers: dto.answers as ReportedAnswer[] | undefined,
+    });
 
     return {
       success: true,

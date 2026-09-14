@@ -14,6 +14,8 @@ import { ChestService } from './chest.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
+import { ReportProgressDto } from '../analytics/dto/report-answer.dto';
+import { LearningEventsService } from '../analytics/learning-events.service';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { GradeAnswerDto } from './dto/grade-answer.dto';
 import { AnswerGradingService } from './answer-grading.service';
@@ -29,6 +31,7 @@ export class LessonsController {
     private readonly lessonsService: LessonsService,
     private readonly answerGradingService: AnswerGradingService,
     private readonly chestService: ChestService,
+    private readonly events: LearningEventsService,
   ) {}
 
   // 로드맵용 레슨 목록
@@ -255,7 +258,37 @@ export class LessonsController {
   async getLessonById(
     @Param('id') id: string,
     @Query('lang') lang: string = 'uz',
+    @Request() req?: any,
   ) {
-    return this.lessonsService.getLessonById(id, lang);
+    // userId 를 넘기면 이 열람이 레슨 한 판의 시작으로 기록되고, 응답에
+    // attemptId 가 실린다. 앱은 그걸 진행·완료 보고에 그대로 되돌려 보낸다
+    return this.lessonsService.getLessonById(
+      id,
+      lang,
+      req?.user?._id?.toString(),
+    );
+  }
+
+  /**
+   * 레슨을 푸는 중 진행 보고. 앱이 몇 문제마다 한 번씩 부른다.
+   *
+   * 이게 있어야 **끝내지 못하고 나간 사람**이 몇 번째 문제에서 나갔는지 알 수
+   * 있다. 완료 보고만 받으면 나간 사람은 데이터에 존재하지도 않는다 —
+   * 문제별 이탈 퍼널이 통째로 이 엔드포인트 위에 선다.
+   */
+  @Post('attempts/:attemptId/progress')
+  async reportProgress(
+    @Request() req,
+    @Param('attemptId') attemptId: string,
+    @Body() dto: ReportProgressDto,
+  ) {
+    await this.events.reportProgress({
+      userId: req.user._id.toString(),
+      attemptId,
+      index: dto.index,
+      answers: dto.answers,
+    });
+    // 계측은 실패해도 조용히 지나간다. 앱이 이 응답으로 할 일은 없다
+    return { ok: true };
   }
 }

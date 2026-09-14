@@ -106,6 +106,13 @@ export interface LessonQuestion {
 }
 
 export interface LessonSession {
+  /**
+   * 이 판의 계측 id. 진행·완료 보고에 그대로 되돌려 보낸다.
+   *
+   * null 일 수 있다 — 서버가 기록에 실패하면 계측 없이 진행한다.
+   * 학습 자체는 이 값과 무관하다.
+   */
+  attemptId?: string | null;
   lessonId: string;
   lessonTitle: string;
   category: string;

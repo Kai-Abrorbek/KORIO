@@ -25,7 +25,10 @@ import {
   LessonQuestion,
   LessonSession,
 } from "@/types/lesson";
-import { LessonService } from "@/services/lesson.service";
+import {
+  LessonService,
+  type ReportedAnswer,
+} from "@/services/lesson.service";
 import { ExpressionService } from "@/services/expression.service";
 import { StudyPathService } from "@/services/study-path.service";
 import type { PracticeMode } from "@/services/lesson.service";
@@ -269,6 +272,22 @@ export default function LessonScreen() {
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
   const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
+
+  // ── 학습 계측 ──
+  //
+  // 지금까지 레슨은 **끝냈을 때만** 흔적이 남았다. 그래서 "몇 번째 문제에서
+  // 나갔나" 를 아무도 알 수 없었다 — 나간 사람은 데이터에 존재하지도 않았다.
+  // 여기서 문제별 답안을 모아 몇 개씩 서버로 넘긴다.
+  //
+  // ⚠️ 통계 전용이다. XP·보석·진행도는 서버가 따로 계산한다. 이 보고가
+  //    실패해도 레슨은 아무 영향 없이 진행된다.
+  const attemptId = useRef<string | null>(null);
+  /** 아직 안 보낸 답안 */
+  const pendingAnswers = useRef<ReportedAnswer[]>([]);
+  /** 이 판에서 지금까지 푼 문제 수 = 다음 답안의 index */
+  const answerIndex = useRef(0);
+  /** 지금 문제를 화면에 띄운 시각. 풀이 시간을 재려고 */
+  const shownAt = useRef(Date.now());
   /**
    * 이번 레슨에서 **화면상** 깎아둔 에너지.
    *
@@ -449,6 +468,11 @@ export default function LessonScreen() {
 
       if (!lessonId) throw new Error("NO_LESSON_ID");
       const data = await LessonService.getLessonById(lessonId);
+      // 이 판의 계측 id. 없으면(서버 기록 실패) 계측 없이 그냥 진행한다
+      attemptId.current = data.attemptId ?? null;
+      pendingAnswers.current = [];
+      answerIndex.current = 0;
+      shownAt.current = Date.now();
       setLesson(data);
       // 문법 레슨은 시드 순서가 늘 같다. 유형은 번갈아 두고 안쪽만 섞는다.
       questionQueue.current =
@@ -603,6 +627,45 @@ export default function LessonScreen() {
     }
   }, [currentIdx, learnerLanguage, lesson, phase, prewarmSpeech]);
 
+  // 문제가 바뀌면 풀이 시간 측정을 다시 시작한다
+  useEffect(() => {
+    shownAt.current = Date.now();
+  }, [currentIdx, phase]);
+
+  /**
+   * 답안 하나를 모으고, 몇 개 쌓이면 서버로 넘긴다.
+   *
+   * 문제마다 보내지 않는 이유: 레슨 하나에 요청 17개는 과하다. 묶어 보내도
+   * **어디까지 갔나** 는 그대로 남고, 그게 이탈 퍼널의 전부다.
+   * (묶는 만큼 중도 이탈자의 마지막 몇 문제는 놓친다. 퍼널 해상도와 요청 수의
+   *  맞바꿈이고, FLUSH_EVERY 를 줄이면 해상도가 올라간다)
+   */
+  const recordAnswer = (question: LessonQuestion, isCorrect: boolean) => {
+    const id = attemptId.current;
+    if (!id) return;
+
+    const index = answerIndex.current;
+    answerIndex.current = index + 1;
+    pendingAnswers.current.push({
+      questionId: question.id,
+      index,
+      isCorrect,
+      durationMs: Math.max(0, Date.now() - shownAt.current),
+      questionType: question.type,
+    });
+
+    const FLUSH_EVERY = 4;
+    if (pendingAnswers.current.length < FLUSH_EVERY) return;
+
+    const batch = pendingAnswers.current;
+    pendingAnswers.current = [];
+    // 실패해도 삼킨다 — 통계 때문에 레슨이 멈추면 안 된다
+    void LessonService.reportProgress(id, {
+      index: answerIndex.current,
+      answers: batch,
+    }).catch(() => {});
+  };
+
   const goHome = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/");
@@ -627,6 +690,7 @@ export default function LessonScreen() {
     }
 
     totalCount.current += 1;
+    recordAnswer(question, isCorrect);
 
     if (isCorrect) {
       setShowCombo(true);
@@ -899,6 +963,11 @@ export default function LessonScreen() {
       }
     } else if (!isLevelTest && lessonId) {
       try {
+        // 아직 안 보낸 답안을 완료 요청에 같이 실어 보낸다.
+        // 따로 한 번 더 부르면 왕복이 늘고, 실패하면 마지막 몇 문제가 통째로 샌다
+        const tailAnswers = pendingAnswers.current;
+        pendingAnswers.current = [];
+
         const res = await LessonService.completeLesson(lessonId, {
           correctAnswers: correctCount.current,
           totalAnswers: totalCount.current,
@@ -907,6 +976,8 @@ export default function LessonScreen() {
           speedSeconds: seconds,
           wrongQuestionIds: wrongArr,
           isCompleted: true,
+          attemptId: attemptId.current,
+          answers: tailAnswers,
         });
         updateUser({
           totalXP: res.totalXP,

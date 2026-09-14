@@ -29,6 +29,7 @@ import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
 import { HealthModule } from './health/health.module';
 import { PushModule } from './push/push.module';
 import { ReferralModule } from './referral/referral.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ReferralModule } from './referral/referral.module';
     HealthModule,
     PushModule,
     ReferralModule,
+    AnalyticsModule,
     MailModule,
   ],
   controllers: [AppController],
