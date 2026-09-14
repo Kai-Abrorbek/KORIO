@@ -53,6 +53,23 @@ export class User {
   role: UserRole;
 
   /**
+   * 어드민 권한. 없으면(null) 어드민이 아니다 — 어드민 로그인 자체가 안 된다.
+   *
+   * `role` 과 **따로 두는 이유**: role 은 앱 안에서의 신분(학습자·선생님)이고
+   * 이건 운영 도구에 대한 권한이다. 합쳐 두면 "선생님인데 구독을 강제로 바꿀
+   * 수 있나" 같은 질문에 답이 안 나온다.
+   *
+   * 값: super_admin | content_admin | support | analyst
+   * (admin/admin.const.ts 의 ADMIN_ROLES)
+   */
+  @Prop({ type: String, default: null })
+  adminRole: string | null;
+
+  /** 어드민 도구에 마지막으로 들어온 시각 */
+  @Prop({ type: Date, default: null })
+  adminLastLoginAt: Date | null;
+
+  /**
    * 발급된 토큰을 한 번에 무효화하기 위한 카운터.
    *
    * JWT 는 서버가 기억하지 않아서 한 번 나가면 만료(7일)까지 못 막는다.

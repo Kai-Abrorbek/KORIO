@@ -30,6 +30,7 @@ import { HealthModule } from './health/health.module';
 import { PushModule } from './push/push.module';
 import { ReferralModule } from './referral/referral.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     PushModule,
     ReferralModule,
     AnalyticsModule,
+    AdminModule,
     MailModule,
   ],
   controllers: [AppController],
