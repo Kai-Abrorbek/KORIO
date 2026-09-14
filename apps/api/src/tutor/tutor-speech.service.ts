@@ -15,6 +15,7 @@ import {
 import { resolveTeacher } from './teachers/tutor-teachers';
 import { TutorTtsRegistry } from './tts/tutor-tts.registry';
 import type { TutorTtsLanguage } from './tts/tutor-tts.types';
+import { detectSpokenLanguage } from './tts/detect-spoken-language';
 import {
   TutorSession,
   TutorSessionDocument,
@@ -90,7 +91,19 @@ export class TutorSpeechService {
     if (!text) throw new BadRequestException('EMPTY_TEXT');
 
     const teacher = resolveTeacher(params.teacherId);
-    const language: TutorTtsLanguage = params.language === 'uz' ? 'uz' : 'ko';
+
+    /**
+     * 어느 언어로 읽을지는 **문장을 보고 서버가 정한다.**
+     *
+     * 앱이 보내는 language 는 명시적인 요청이 있을 때만 존중한다 (미리듣기 등).
+     * 평소 대화에서는 앱이 힌트를 안 보내고, 여기서 글자를 세어 고른다 —
+     * 판정 기준이 두 군데 있으면 반드시 갈라지고, 틀린 힌트 하나가 응답
+     * 전체를 엉뚱한 목소리로 읽게 만든다.
+     */
+    const language: TutorTtsLanguage =
+      params.language === 'uz' || params.language === 'ko'
+        ? params.language
+        : detectSpokenLanguage(text);
 
     /**
      * 언어에 맞는 목소리를 고른다.
