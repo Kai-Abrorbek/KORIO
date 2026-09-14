@@ -1572,6 +1572,7 @@ export default {
     noEnergy: "Not enough energy",
     noPlaysLeft: "That's all for today",
     notCounted: "Try again in a moment to earn XP",
+    startFailed: "Couldn't start. Please tap again in a moment.",
     scoreLabel: "Score",
     headlinePre: "Earn up to",
     headlinePost: "\nand climb the leaderboard!",

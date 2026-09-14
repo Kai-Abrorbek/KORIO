@@ -307,6 +307,35 @@ export default function LeagueScreen() {
         </View>
       </View>
 
+      {/* 연출 미리보기 — 개발 빌드에서만.
+          승급·강등은 주 1회 정산 때만 생기는 화면이라, 이게 없으면 연출을
+          고칠 때마다 한 주를 기다리거나 DB 를 손으로 건드려야 한다.
+          preview 로 열면 서버를 안 부르고 ack 도 안 해서 상태가 그대로 남는다. */}
+      {__DEV__ && (
+        <View style={s.devRow}>
+          {(
+            [
+              ["promote", "↑ 승급"],
+              ["demote", "↓ 탈락(순위)"],
+              ["demoteXp", "↓ 탈락(XP)"],
+            ] as const
+          ).map(([mode, label]) => (
+            <Pressable
+              key={mode}
+              onPress={() =>
+                router.push({
+                  pathname: "/league-result",
+                  params: { preview: mode },
+                })
+              }
+              style={({ pressed }) => [s.devChip, pressed && { opacity: 0.6 }]}
+            >
+              <Text style={s.devChipText}>{label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       {/* 리그 유지선 — 브론즈(keepXp 0)에는 안 뜬다 */}
       {keepXp > 0 && (
         <View style={s.keepWrap}>
@@ -538,6 +567,19 @@ const styles = (theme: ThemeColors) =>
       marginTop: 4,
     },
     timeText: { fontSize: 15, fontWeight: "600", color: theme.textSecondary },
+    devRow: {
+      flexDirection: "row",
+      gap: 6,
+      paddingHorizontal: 20,
+      paddingBottom: 8,
+    },
+    devChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 8,
+      backgroundColor: "#3A3450",
+    },
+    devChipText: { color: "#fff", fontSize: 10, fontWeight: "700" },
     keepWrap: { paddingHorizontal: 20, paddingBottom: 10, gap: 6 },
     keepTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     keepLabel: { fontSize: 11, fontWeight: "700", color: theme.textSecondary },

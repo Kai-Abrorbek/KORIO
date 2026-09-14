@@ -9,7 +9,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
@@ -26,7 +26,41 @@ export default function LeagueResultScreen() {
   const [result, setResult] = useState<LeagueResult | null>(null);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * 연출 미리보기 (개발 빌드 전용).
+   *
+   * `?preview=promote` / `?preview=demote` / `?preview=demoteXp` 로 열면 서버를
+   * 부르지 않고 가짜 결과로 연출만 보여준다. 나갈 때 ackLeagueResult 도 안 부르므로
+   * **실제 리그 상태를 건드리지 않는다** — 보고 나면 그대로 원래대로다.
+   *
+   * 승급·강등은 주 1회 정산 때만 생기는 화면이라, 이게 없으면 연출을 고칠 때마다
+   * 한 주를 기다리거나 DB 를 손으로 건드려야 한다.
+   */
+  const params = useLocalSearchParams<{ preview?: string }>();
+  const preview = __DEV__ ? params.preview : undefined;
+
   useEffect(() => {
+    if (preview) {
+      const demote = preview !== "promote";
+      setResult({
+        weekKey: "preview",
+        finalRank: demote ? 27 : 2,
+        fromTier: demote ? "gold" : "silver",
+        toTier: demote ? "silver" : "gold",
+        change: demote ? "demote" : "promote",
+        gems: demote ? 0 : 30,
+        reason: preview === "demoteXp" ? "xp" : demote ? "rank" : null,
+        weeklyXp: preview === "demoteXp" ? 640 : undefined,
+        requiredXp: preview === "demoteXp" ? 1500 : undefined,
+      });
+      setLoading(false);
+      Haptics.notificationAsync(
+        demote
+          ? Haptics.NotificationFeedbackType.Warning
+          : Haptics.NotificationFeedbackType.Success,
+      );
+      return;
+    }
     LeagueService.getLeagueResult()
       .then((r) => {
         setResult(r);
@@ -42,7 +76,7 @@ export default function LeagueResultScreen() {
         }
       })
       .catch(() => router.back());
-  }, []);
+  }, [preview]);
 
   // 광선 회전/펄스
   const glow = useSharedValue(1);
@@ -94,9 +128,13 @@ export default function LeagueResultScreen() {
   );
 
   const finish = async () => {
-    try {
-      await LeagueService.ackLeagueResult();
-    } catch {}
+    // 미리보기는 서버에 아무것도 남기지 않는다 — 실제 결과가 있었다면
+    // 그것도 그대로 남아서 다음에 정상적으로 뜬다
+    if (!preview) {
+      try {
+        await LeagueService.ackLeagueResult();
+      } catch {}
+    }
     router.back();
   };
 

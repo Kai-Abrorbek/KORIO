@@ -1711,6 +1711,7 @@ export default {
     noEnergy: "에너지가 부족해요",
     noPlaysLeft: "오늘은 다 했어요",
     notCounted: "잠시 뒤에 다시 도전하면 XP를 받을 수 있어요",
+    startFailed: "시작하지 못했어요. 잠시 뒤에 다시 눌러 주세요.",
     scoreLabel: "점수",
     headlinePre: "최대",
     headlinePost: "를 획득하여\n리더보드에서 순위를 올리세요!",

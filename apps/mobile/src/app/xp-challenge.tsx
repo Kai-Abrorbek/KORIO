@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { getTier } from "@/constants/league-tiers";
 import { useAuthStore } from "@/store/auth.store";
 import { LeagueService, type ChallengeInfo } from "@/services/league.service";
+import { ApiError } from "@/services/api";
 import { challengeMetaOf } from "@/constants/league-challenge";
 
 /**
@@ -37,13 +38,27 @@ export default function XpChallenge() {
   // 앱이 고르게 두면 제일 후한 종목을 직접 지정해서 부를 수 있다.
   const [info, setInfo] = useState<ChallengeInfo | null>(null);
   const [starting, setStarting] = useState(false);
+  const [failed, setFailed] = useState(false);
+  /**
+   * 서버에 이 엔드포인트가 아직 없는 상태(배포 전)인지.
+   * 그때는 종목·XP·에너지를 서버가 못 정하지만, **시작은 되게 한다** —
+   * 버튼이 아무 반응 없이 죽어 있는 게 제일 나쁘다.
+   */
+  const [notDeployed, setNotDeployed] = useState(false);
   useEffect(() => {
     let alive = true;
     void LeagueService.getChallenge()
       .then((res) => {
         if (alive) setInfo(res);
       })
-      .catch(() => undefined);
+      .catch((error) => {
+        if (!alive) return;
+        if (error instanceof ApiError && error.status === 404) {
+          setNotDeployed(true);
+        } else {
+          setFailed(true);
+        }
+      });
     return () => {
       alive = false;
     };
@@ -73,20 +88,29 @@ export default function XpChallenge() {
   const start = async () => {
     if (starting || outOfEnergy || noPlaysLeft) return;
     setStarting(true);
+    setFailed(false);
     try {
       await LeagueService.snapshotRank();
     } catch {}
-    // 에너지 차감은 서버가 한다. 앱에서 깎으면 안 깎고 게임만 여는 게
-    // 코드 한 줄이다. 실패하면 시작하지 않는다.
+    // 에너지 차감은 서버가 한다. 앱에서 깎으면 안 깎고 게임만 여는 게 코드 한 줄이다.
     try {
       const res = await LeagueService.startChallenge();
       const next = (res as { energy?: { energy?: number } }).energy?.energy;
       if (typeof next === "number") {
         useAuthStore.getState().updateUser({ energy: next } as never);
       }
-    } catch {
-      setStarting(false);
-      return;
+    } catch (error) {
+      // 404 = 서버에 아직 이 엔드포인트가 없다(배포 전). 게임은 열어준다 —
+      // 대신 XP 는 안 들어온다(완료 제출도 404 라 결과 화면이 0 을 보여준다).
+      // 그 외 오류는 원인을 말해주고 멈춘다. 예전엔 여기서 조용히 return 해서
+      // 시작 버튼이 아무 반응 없이 죽어 있었다.
+      const missing = error instanceof ApiError && error.status === 404;
+      if (!missing) {
+        setFailed(true);
+        setStarting(false);
+        return;
+      }
+      setNotDeployed(true);
     }
     router.replace({
       pathname: "/challenge-intro",
@@ -152,6 +176,12 @@ export default function XpChallenge() {
 
       {/* 시작 버튼 */}
       <View style={[s.footer, { paddingBottom: insets.bottom + 20 }]}>
+        {failed ? (
+          <Text style={s.startError}>{t("challenge.startFailed")}</Text>
+        ) : notDeployed && __DEV__ ? (
+          // 개발 빌드에서만 보인다. 왜 XP 가 0 인지 알고 테스트하라고.
+          <Text style={s.startError}>{"서버 미배포 — XP 안 들어옴"}</Text>
+        ) : null}
         <Pressable
           onPress={start}
           disabled={starting || outOfEnergy || noPlaysLeft}
@@ -253,6 +283,14 @@ const s = StyleSheet.create({
     gap: 10,
   },
   startText: { fontSize: 20, fontWeight: "900" },
+  startError: {
+    color: "#fff",
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: "center",
+    marginBottom: 10,
+    opacity: 0.9,
+  },
   costChip: {
     flexDirection: "row",
     alignItems: "center",

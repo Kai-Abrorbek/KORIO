@@ -1722,6 +1722,7 @@ export default {
     noEnergy: "Energiya yetarli emas",
     noPlaysLeft: "Bugunga tugadi",
     notCounted: "XP olish uchun birozdan keyin qayta urinib ko‘ring",
+    startFailed: "Boshlab bo‘lmadi. Birozdan keyin qayta bosing.",
     scoreLabel: "Ball",
     headlinePre: "Maksimal",
     headlinePost: " olib\nreytingda yuqoriga chiqing!",

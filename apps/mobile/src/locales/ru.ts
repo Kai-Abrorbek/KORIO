@@ -1577,6 +1577,7 @@ export default {
     noEnergy: "Недостаточно энергии",
     noPlaysLeft: "На сегодня всё",
     notCounted: "Попробуйте чуть позже, чтобы получить XP",
+    startFailed: "Не удалось начать. Нажмите ещё раз чуть позже.",
     scoreLabel: "Очки",
     headlinePre: "Получите до",
     headlinePost: "\nи поднимитесь в рейтинге!",
