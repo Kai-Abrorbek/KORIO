@@ -111,6 +111,79 @@
 }
 
 # ─────────────────────────────────────────────────────────────────────────
+# 운영 콘솔 (어드민).
+#
+# telegram 과 같은 구조다 — 정적 화면과 /api 를 **같은 오리진**으로 내보낸다.
+# 그래서 브라우저 CORS 를 안 탄다.
+#
+# ⚠️ 그래도 API 의 ALLOWED_ORIGINS 에 이 도메인을 넣어야 한다. 브라우저는
+#    같은 오리진이어도 POST/PATCH/DELETE 에 Origin 헤더를 붙이고, API 는
+#    그걸 검사한다. (Telegram Mini App 이 정확히 이것 때문에 며칠 막혔다)
+#
+# 이 도메인은 **아무나 접근할 수 있는 로그인 문**이다. 문 자체는 Nest 가
+# 지킨다 — adminRole + 별도 adminPassword + 15분 10회 제한 + 8시간 토큰.
+# 여기서는 그 위에 얇게 덮는다: 색인 금지, 프레임 금지, 리퍼러 차단.
+# ─────────────────────────────────────────────────────────────────────────
+{$ADMIN_DOMAIN} {
+	encode zstd gzip
+
+	# 외부에서 컨테이너 상태를 조회하지 못하게 한다
+	@health path /health /ready /healthz
+	respond @health 404
+
+	# 검색엔진에 올라갈 이유가 없다. 운영 도구 URL 이 검색에 잡히면
+	# 그것만으로 두드릴 대상이 된다
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive"
+		# 어디에도 끼워 넣지 못하게 한다 (클릭재킹)
+		X-Frame-Options "DENY"
+		Content-Security-Policy "frame-ancestors 'none'"
+		Referrer-Policy "no-referrer"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	handle_path /api/* {
+		reverse_proxy api_blue:3000 api_green:3000 {
+			lb_policy first
+			lb_retries 2
+			lb_try_duration 5s
+			lb_try_interval 250ms
+
+			health_uri /ready
+			health_interval 3s
+			health_timeout 2s
+			health_status 2xx
+			fail_duration 10s
+
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Real-IP {remote_host}
+
+			transport http {
+				read_timeout 120s
+				write_timeout 120s
+				dial_timeout 5s
+			}
+		}
+	}
+
+	handle {
+		reverse_proxy admin_blue:8080 admin_green:8080 {
+			lb_policy first
+			lb_retries 2
+			lb_try_duration 5s
+			lb_try_interval 250ms
+
+			health_uri /healthz
+			health_interval 3s
+			health_timeout 2s
+			health_status 2xx
+			fail_duration 10s
+		}
+	}
+}
+
+# ─────────────────────────────────────────────────────────────────────────
 # korio.online — 초대 링크 랜딩 + 앱링크 검증 파일.
 #
 # 이게 없으면 초대 링크가 아무 데도 안 닿는다. 두 가지를 한다:

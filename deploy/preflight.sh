@@ -50,6 +50,33 @@ if [[ -f api.env ]]; then
                                || bad "TELEGRAM_BOT_TOKEN 이 비어 있다 — Mini App 로그인이 동작하지 않는다"
   [[ -n "$TELEGRAM_USERNAME" ]] && ok "TELEGRAM_BOT_USERNAME 채워짐" \
                                   || bad "TELEGRAM_BOT_USERNAME 이 비어 있다"
+
+  # ── 어드민 ──
+  ADMIN_SECRET="$(grep -E '^ADMIN_JWT_SECRET=' api.env | head -1 | cut -d= -f2-)"
+  if [[ -z "$ADMIN_SECRET" ]]; then
+    warn "ADMIN_JWT_SECRET 이 비어 있다 — 운영 콘솔 로그인이 503 으로 막힌다 (나머지는 정상)"
+  elif (( ${#ADMIN_SECRET} < 32 )); then
+    bad "ADMIN_JWT_SECRET 이 ${#ADMIN_SECRET}자다. 32자 이상 써라"
+  elif [[ "$ADMIN_SECRET" == "$JWT_SECRET" ]]; then
+    bad "ADMIN_JWT_SECRET 이 JWT_SECRET 과 같다 — 분리하는 의미가 없다. 부팅도 막힌다"
+  else ok "ADMIN_JWT_SECRET 충분히 김 (${#ADMIN_SECRET}자), JWT_SECRET 과 다름"; fi
+
+  # ⚠️ 이게 이 스크립트에서 제일 값어치 있는 검사일 수 있다.
+  #    브라우저에서 도는 우리 화면이 ALLOWED_ORIGINS 에 빠지면 **POST 만**
+  #    막힌다. GET 과 curl 은 Origin 을 안 보내서 전부 정상으로 보이고,
+  #    사람이 로그인 버튼을 누를 때만 터진다. Telegram Mini App 을 정확히
+  #    이것 때문에 며칠 헤맸다.
+  # 공백과 따옴표, 끝 슬래시를 걷어낸다 — 사람이 손으로 쓰는 값이라 섞인다
+  ORIGINS="$(grep -E '^ALLOWED_ORIGINS=' api.env | head -1 | cut -d= -f2- | tr -d ' \"'"'"'' | sed 's#/\+,#,#g; s#/\+$##')"
+  for d in "${TELEGRAM_DOMAIN:-}" "${ADMIN_DOMAIN:-}"; do
+    [[ -z "$d" ]] && continue
+    if [[ ",$ORIGINS," == *",https://$d,"* ]]; then
+      ok "ALLOWED_ORIGINS 에 https://$d 있음"
+    else
+      bad "ALLOWED_ORIGINS 에 https://$d 가 없다 — 그 화면의 POST 가 전부 403 이 된다"
+      warn "     (GET 과 curl 은 Origin 을 안 보내서 확인해도 정상으로 보인다)"
+    fi
+  done
 else bad "api.env 없음 — cp api.env.example api.env"; fi
 
 head_ "2. DNS  (틀리면 Let's Encrypt 가 한 시간 잠긴다)"
@@ -141,6 +168,30 @@ elif need dig; then
       ok "AAAA $TELEGRAM_DOMAIN → $TELEGRAM_AAAA  (이 서버)"
     else
       bad "AAAA $TELEGRAM_DOMAIN → $TELEGRAM_AAAA 가 이 서버(${MYIP6:-IPv6없음})가 아니다"
+      warn "     Let's Encrypt 실패를 막으려면 잘못된 AAAA 레코드를 지워라"
+    fi
+  fi
+fi
+
+if [[ -z "${ADMIN_DOMAIN:-}" ]]; then
+  bad "ADMIN_DOMAIN 이 .env 에 없다"
+elif need dig; then
+  ADMIN_A="$(dig +short "$ADMIN_DOMAIN" A | grep -E '^[0-9.]+$' | tail -1)"
+  ADMIN_AAAA="$(dig +short "$ADMIN_DOMAIN" AAAA | grep -E '^[0-9a-fA-F:]+$' | tail -1)"
+
+  if [[ -z "$ADMIN_A" ]]; then
+    bad "$ADMIN_DOMAIN A 레코드가 아직 안 풀린다"
+  elif [[ -n "$MYIP4" && "$ADMIN_A" == "$MYIP4" ]]; then
+    ok "A    $ADMIN_DOMAIN → $ADMIN_A  (이 서버)"
+  else
+    bad "A    $ADMIN_DOMAIN → $ADMIN_A 인데 이 서버는 ${MYIP4:-알수없음} 다"
+  fi
+
+  if [[ -n "$ADMIN_AAAA" ]]; then
+    if [[ "$ADMIN_AAAA" == "$MYIP6" ]]; then
+      ok "AAAA $ADMIN_DOMAIN → $ADMIN_AAAA  (이 서버)"
+    else
+      bad "AAAA $ADMIN_DOMAIN → $ADMIN_AAAA 가 이 서버(${MYIP6:-IPv6없음})가 아니다"
       warn "     Let's Encrypt 실패를 막으려면 잘못된 AAAA 레코드를 지워라"
     fi
   fi

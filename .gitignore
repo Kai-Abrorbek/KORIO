@@ -69,3 +69,6 @@ _gitlock-trash/
 
 # 읽기 레슨 사진의 변환 전 원본 (webp 만 앱에 들어간다)
 apps/mobile/assets/images/reading-listening/lessons/_png-원본/
+
+# Claude 가 채팅으로 보낸 파일이 데스크톱 앱을 통해 여기 떨어진다
+Claude outputs/

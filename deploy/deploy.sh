@@ -38,6 +38,7 @@ REPO_ROOT="$(cd .. && pwd)"
 COMPOSE=(docker compose -f docker-compose.yml --env-file .env)
 IMAGE="${IMAGE:-korio-api}"
 TELEGRAM_IMAGE="${TELEGRAM_IMAGE:-korio-telegram}"
+ADMIN_IMAGE="${ADMIN_IMAGE:-korio-admin}"
 READY_TIMEOUT="${READY_TIMEOUT:-120}"
 
 # ── 지금 트래픽을 받는 색 ──
@@ -53,6 +54,21 @@ current_color() {
   fi
 }
 other_color() { [[ "$1" == blue ]] && echo green || echo blue; }
+
+# ⚠️ **서비스를 추가하면 여기 두 줄만 고친다.**
+#    예전엔 색 쌍이 6군데에 하드코딩돼 있었다. 하나를 빠뜨리면 배포는 성공한
+#    것처럼 보이는데 그 서비스만 옛 버전으로 남는다 — 아무도 에러를 안 봐서
+#    한참 뒤에야 발견된다.
+color_services()   { local c="$1"; echo "api_$c telegram_$c admin_$c"; }
+color_containers() { local c="$1"; echo "korio_api_$c korio_telegram_$c korio_admin_$c"; }
+
+# 한 색의 모든 컨테이너가 healthy 가 될 때까지. 하나라도 실패하면 1
+wait_color_healthy() {
+  local name
+  for name in $(color_containers "$1"); do
+    wait_healthy "$name" || return 1
+  done
+}
 
 # ── 컨테이너가 healthy 가 될 때까지 ──
 wait_healthy() {
@@ -87,16 +103,16 @@ cmd_rollback() {
   local cur other; cur="$(current_color)"; other="$(other_color "$cur")"
   [[ "$cur" == none ]] && die "지금 떠 있는 게 없다. 롤백할 대상이 없다."
   log "롤백: $cur → $other (이전 이미지로 뜬 컨테이너를 다시 올린다)"
-  "${COMPOSE[@]}" up -d --no-build "api_$other" "telegram_$other"
-  if ! wait_healthy "korio_api_$other" \
-    || ! wait_healthy "korio_telegram_$other"; then
+  # shellcheck disable=SC2046  # 서비스 이름을 인자로 쪼개는 게 의도다
+  "${COMPOSE[@]}" up -d --no-build $(color_services "$other")
+  if ! wait_color_healthy "$other"; then
     warn "롤백 대상이 완전히 준비되지 않았다. 새로 띄운 후보를 다시 내린다."
-    "${COMPOSE[@]}" stop "api_$other" "telegram_$other" || true
+    "${COMPOSE[@]}" stop $(color_services "$other") || true
     die "롤백 중단. 현재 ${cur} 서비스는 그대로 유지된다."
   fi
   sleep 5
   log "$cur 내린다"
-  "${COMPOSE[@]}" stop "api_$cur" "telegram_$cur"
+  "${COMPOSE[@]}" stop $(color_services "$cur")
   log "롤백 완료 → $other"
 }
 
@@ -165,18 +181,27 @@ cmd_deploy() {
     "$REPO_ROOT" \
     || die "Telegram Mini App 빌드 실패. 서비스는 아무것도 안 건드렸다."
 
+  log "운영 콘솔 이미지 빌드: ${ADMIN_IMAGE}:${tag}"
+  # ⚠️ 여기서 "lockfile is not up to date" 로 멈추면, apps/admin 이
+  #    pnpm-lock.yaml 에 아직 없다는 뜻이다. 레포 루트에서 `pnpm install` 한 번
+  #    돌리고 락파일을 커밋해라.
+  "${runner[@]}" docker build \
+    -f "$REPO_ROOT/apps/admin/Dockerfile" \
+    -t "${ADMIN_IMAGE}:${tag}" \
+    -t "${ADMIN_IMAGE}:latest" \
+    "$REPO_ROOT" \
+    || die "운영 콘솔 빌드 실패. 서비스는 아무것도 안 건드렸다."
+
   local cur next; cur="$(current_color)"; next="$(other_color "$cur")"
   [[ "$cur" == none ]] && next=blue
   log "현재: ${cur} → 새로 띄울 색: ${GRN}${next}${RST} (태그 ${tag})"
 
   # 새 색을 강제로 다시 만든다 (이미지 태그가 같아도 새 이미지를 쓰게)
-  "${COMPOSE[@]}" up -d --force-recreate --no-deps \
-    "api_$next" "telegram_$next"
+  "${COMPOSE[@]}" up -d --force-recreate --no-deps $(color_services "$next")
 
-  if ! wait_healthy "korio_api_$next" \
-    || ! wait_healthy "korio_telegram_$next"; then
+  if ! wait_color_healthy "$next"; then
     warn "새 컨테이너가 안 뜬다. 되돌린다 — ${cur} 는 계속 서비스 중이다."
-    "${COMPOSE[@]}" stop "api_$next" "telegram_$next" || true
+    "${COMPOSE[@]}" stop $(color_services "$next") || true
     die "배포 중단. 유저 영향 없음."
   fi
 
@@ -186,7 +211,7 @@ cmd_deploy() {
 
   if [[ "$cur" != none ]]; then
     log "옛 색 ${cur} 내린다 (SIGTERM → 드레인 → 종료)"
-    "${COMPOSE[@]}" stop "api_$cur" "telegram_$cur"
+    "${COMPOSE[@]}" stop $(color_services "$cur")
   fi
 
   log "배포 완료 → ${GRN}${next}${RST} (${IMAGE}:${tag})"

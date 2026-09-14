@@ -1,4 +1,4 @@
-# KORIO API + Telegram Mini App 배포
+# KORIO API + Telegram Mini App + 운영 콘솔 배포
 
 blue/green 무중단. 서버에 도커만 있으면 된다. MongoDB 는 Atlas(외부)를 쓰므로
 DB 컨테이너도 볼륨도 없다.
@@ -11,7 +11,8 @@ DB 컨테이너도 볼륨도 없다.
       ┌───▼────┐
       │ Caddy  │  각 서비스의 health endpoint를 확인한다
       └─┬────┬─┘
-        │    └── telegram_blue / telegram_green
+        │    ├── telegram_blue / telegram_green
+        │    └── admin_blue    / admin_green
         └─────── api_blue / api_green
 ```
 
@@ -68,7 +69,8 @@ chmod 600 api.env             # 시크릿이다
 # 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
 #    타입 A / 이름 api      / 값 <서버 IP> / TTL 기본
 #    타입 A / 이름 telegram / 값 <서버 IP> / TTL 기본
-#    → api.korio.online 과 telegram.korio.online 이 서버를 가리키게 된다
+#    타입 A / 이름 admin    / 값 <서버 IP> / TTL 기본
+#    → api / telegram / admin .korio.online 이 전부 서버를 가리키게 된다
 #    dig +short api.korio.online  이 서버 IP 를 뱉어야 인증서가 나온다.
 #    ⚠️ DNS 가 안 맞은 채로 deploy 하면 Let's Encrypt 실패가 쌓여
 #       한 시간 잠긴다. 반드시 먼저 확인할 것
@@ -106,6 +108,9 @@ chmod 600 api.env             # 시크릿이다
 - `api.korio.online` → **이 API 서버**
 - `telegram.korio.online` → **Telegram Mini App**. `/api/*` 요청은 Caddy가
   같은 blue/green API로 전달한다.
+- `admin.korio.online` → **운영 콘솔(어드민)**. 구조는 telegram 과 같다 —
+  정적 화면 + `/api/*` 프록시. 검색 색인·프레임 삽입은 Caddy 가 막는다.
+  문 자체는 Nest 가 지킨다(adminRole + 별도 adminPassword + 15분 10회 제한).
 - `korio.online` (apex) → 비워 둔다. 나중에 랜딩·개인정보처리방침이 여기 들어간다.
   **구글 플레이는 개인정보처리방침 URL 을 필수로 요구한다.** API 를 apex 에
   올려 버리면 그 자리를 잃는다.
@@ -145,6 +150,57 @@ curl -sI https://telegram.korio.online/ | head -3
 
 ./smoke.sh --url https://telegram.korio.online/
 # 배포 중 000 / 5xx 가 한 번도 없어야 한다
+```
+
+운영 콘솔도 확인한다:
+
+```bash
+curl -sI https://admin.korio.online/ | head -3
+# HTTP/2 200 이어야 한다
+```
+
+## 운영 콘솔 (어드민)
+
+첫 로그인까지 **세 가지**가 필요하다. 하나라도 빠지면 로그인이 안 되는데,
+응답은 전부 같은 `INVALID_CREDENTIALS` 다(누가 어드민인지 알려주지 않으려고).
+**어느 것이 빠졌는지는 API 로그에 찍힌다.**
+
+**1) `api.env` 에 어드민 토큰 시크릿.** 32자 이상, `JWT_SECRET` 과 달라야 한다.
+없으면 로그인이 `503 ADMIN_NOT_CONFIGURED` 로 막힌다.
+
+```
+ADMIN_JWT_SECRET=<openssl rand -base64 48>
+ALLOWED_ORIGINS=https://telegram.korio.online,https://admin.korio.online
+```
+
+`api.env` 는 컨테이너를 **만들 때** 읽힌다. 고쳤으면 재시작이 아니라 재생성:
+`docker compose up -d --force-recreate api_blue`
+
+**2) 권한과 비밀번호는 운영 컨테이너 안에서 준다.** 스크립트가 컴파일돼
+이미지에 들어 있고, 컨테이너의 `api.env` 를 그대로 쓰므로 **운영 DB 에 붙는다.**
+
+```bash
+cd ~/korio/deploy
+C=$(docker ps --filter name=korio_api_ --filter status=running --format '{{.Names}}' | head -1)
+
+docker exec "$C" node dist/scripts/grant-admin.js <email> super_admin
+docker exec "$C" node dist/scripts/set-admin-password.js <email>
+#   → 20자짜리 비밀번호를 한 번만 보여준다. 해시만 저장되니 바로 옮겨 적어라
+```
+
+⚠️ **로컬에서 `pnpm --filter api admin:grant` 를 돌리면 로컬 DB 에 들어간다.**
+운영 계정은 위처럼 컨테이너 안에서 줘야 한다.
+
+⚠️ 어드민 비밀번호는 **앱 비밀번호와 별개다** (`User.adminPassword`). 소셜로
+가입한 계정은 앱 비밀번호가 아예 없고, 운영자를 위해 그걸 만들어 주면 앱
+로그인 경로를 하나 더 여는 셈이 된다.
+
+로그인이 안 되면 **API 로그를 봐라.** 응답은 전부 `INVALID_CREDENTIALS` 지만
+로그에는 이유가 갈라져 찍힌다:
+
+```bash
+docker logs --tail 50 "$C" | grep '어드민 로그인 실패'
+# ... — 어드민 비밀번호 미설정 / 어드민 아님 / 비밀번호 불일치 / 그런 계정 없음
 ```
 
 ## 시크릿
