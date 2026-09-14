@@ -6,7 +6,7 @@
  *
  * 실행: npx ts-node src/__scratch/tutor-speech-text.test.ts
  */
-import { forSpeaking } from '../tutor/tutor-speech.service';
+import { forSpeaking } from '../tutor/tts/for-speaking';
 
 let fail = 0;
 const say = (ok: boolean, msg: string) => {
@@ -41,6 +41,23 @@ eq('1. 안녕하세요\n2. 반갑습니다', '안녕하세요\n반갑습니다',
 eq('그래서... , 갔어요.', '그래서, 갔어요.', '겹친 쉼표를 합친다');
 eq('정말요...?', '정말요?', '쉼표가 문장부호 앞에 남지 않는다');
 eq('  ...그래요.', '그래요.', '앞머리 기호와 공백을 턴다');
+
+// ── 우즈벡어 낱말의 아포스트로피 ──────────────────────────────
+// o' 와 g' 는 우즈벡어에서 따로 있는 글자다. 인용부호라고 같이 지우면
+// ko'rsatadi 가 korsatadi 가 되어 다른 말이 된다.
+// 튜터가 우즈벡어로도 답하게 되면서(프롬프트 v2) 생긴 요구사항이다.
+eq(
+  "Bu yerda 은 gapning mavzusini ko'rsatadi.",
+  "Bu yerda 은 gapning mavzusini ko'rsatadi.",
+  '낱말 안 아포스트로피는 남긴다',
+);
+eq(
+  "O'zbekcha tushuntiraman. So'm haqida.",
+  "O'zbekcha tushuntiraman. So'm haqida.",
+  '문장 첫 낱말도 마찬가지',
+);
+eq("Men do'stim bilan bordim.", "Men do'stim bilan bordim.", "do'stim 이 안 깨진다");
+eq("'액션 영화' 말고요.", '액션 영화 말고요.', '한국어 옆 따옴표는 그대로 지운다');
 
 // ── 건드리면 안 되는 것 ───────────────────────────────────────
 eq('오늘 뭐 했어요?', '오늘 뭐 했어요?', '멀쩡한 문장은 그대로');
