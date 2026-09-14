@@ -11,6 +11,7 @@ import {
 import { SubscriptionService } from './subscriptions/subscription.service';
 import { SubscriptionRefreshService } from './subscriptions/subscription-refresh.service';
 import { RateLimitGuard } from '../common/rate-limit';
+import { AnalyticsModule } from '../analytics/analytics.module';
 import { GemPassController } from './gems/gem-pass.controller';
 import { GemPassService } from './gems/gem-pass.service';
 
@@ -27,6 +28,8 @@ import { GemPassService } from './gems/gem-pass.service';
       { name: Subscription.name, schema: SubscriptionSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    // 구독 상태 전이 기록 (분석 전용)
+    AnalyticsModule,
   ],
   controllers: [PaymentsController, GemPassController],
   providers: [

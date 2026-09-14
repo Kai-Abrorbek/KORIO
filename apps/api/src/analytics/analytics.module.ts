@@ -8,7 +8,12 @@ import {
   QuestionAttempt,
   QuestionAttemptSchema,
 } from './schemas/question-attempt.schema';
+import {
+  SubscriptionEvent,
+  SubscriptionEventSchema,
+} from './schemas/subscription-event.schema';
 import { LearningEventsService } from './learning-events.service';
+import { SubscriptionEventsService } from './subscription-events.service';
 
 /**
  * 학습 계측.
@@ -22,9 +27,10 @@ import { LearningEventsService } from './learning-events.service';
     MongooseModule.forFeature([
       { name: LessonAttempt.name, schema: LessonAttemptSchema },
       { name: QuestionAttempt.name, schema: QuestionAttemptSchema },
+      { name: SubscriptionEvent.name, schema: SubscriptionEventSchema },
     ]),
   ],
-  providers: [LearningEventsService],
-  exports: [LearningEventsService, MongooseModule],
+  providers: [LearningEventsService, SubscriptionEventsService],
+  exports: [LearningEventsService, SubscriptionEventsService, MongooseModule],
 })
 export class AnalyticsModule {}

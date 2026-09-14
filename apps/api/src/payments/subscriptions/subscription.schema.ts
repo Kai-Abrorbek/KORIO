@@ -68,6 +68,23 @@ export class Subscription {
   externalSubscriptionId?: string;
 
   /** 구독 시작 보상(보석)을 이미 줬는지. 갱신마다 또 주면 안 된다 */
+  /**
+   * 결제 금액 (마이크로 단위, 1,000,000 = 1). 모르면 null.
+   *
+   * ⚠️ 지금은 **아무도 채우지 않는다.** 가격은 Play Console 에 있고 provider 가
+   *    응답에서 뽑아오지 않는다. 그래서 MRR 은 계산할 수 없다 — 어드민에서
+   *    추정해 보여주지 말고 "값 없음" 으로 둬야 한다.
+   *    채우려면 둘 중 하나다: (1) google-play provider 가 응답에서 가격을 꺼내
+   *    VerifiedPurchase 에 실어 보내거나, (2) productId → 가격 표를 서버 상수로
+   *    두고 여기 복사한다. (2)는 Play Console 에서 가격을 바꾸면 어긋난다.
+   */
+  @Prop({ default: null })
+  priceMicros: number | null;
+
+  /** ISO 4217 (UZS, USD, KRW…). priceMicros 와 같이 채워진다 */
+  @Prop({ default: '' })
+  currency: string;
+
   @Prop({ default: false })
   welcomeGrantGiven: boolean;
 

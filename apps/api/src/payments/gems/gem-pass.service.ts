@@ -12,6 +12,7 @@ import {
   SubscriptionDocument,
 } from '../subscriptions/subscription.schema';
 import { SubscriptionService } from '../subscriptions/subscription.service';
+import { SubscriptionEventsService } from '../../analytics/subscription-events.service';
 import { ENTITLED_STATUSES } from '../subscriptions/subscription.types';
 import {
   GEM_PASSES,
@@ -37,6 +38,8 @@ export class GemPassService {
     @InjectModel(Subscription.name)
     private readonly subModel: Model<SubscriptionDocument>,
     private readonly subscriptions: SubscriptionService,
+    // 보석 기간권도 구독 행을 만든다. 결제 구독과 구분해서 남긴다
+    private readonly subEvents: SubscriptionEventsService,
   ) {}
 
   /** 상점에 뿌릴 목록 + 지금 내가 살 수 있는지 */
@@ -126,6 +129,16 @@ export class GemPassService {
       );
       throw new BadRequestException('GEM_PASS_FAILED');
     }
+
+    await this.subEvents.record({
+      userId,
+      fromStatus: null,
+      toStatus: 'active',
+      provider: 'gems',
+      plan: 'gem_pass',
+      productId: `gem_${pass.id}`,
+      reason: 'gem_pass',
+    });
 
     // 기존 투영 경로를 그대로 쓴다 → user.isSuper / superExpiresAt 갱신
     await this.subscriptions.syncUser(userId);

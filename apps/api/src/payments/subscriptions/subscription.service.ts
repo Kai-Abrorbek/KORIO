@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { SubscriptionEventsService } from '../../analytics/subscription-events.service';
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import {
   expiredSuperFields,
@@ -32,6 +33,8 @@ export class SubscriptionService {
     private readonly subModel: Model<SubscriptionDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    // 구독 상태 전이 기록 (분석 전용). 실패해도 결제에 영향 없다
+    private readonly subEvents: SubscriptionEventsService,
   ) {}
 
   /**
@@ -80,6 +83,20 @@ export class SubscriptionService {
       { upsert: true, returnDocument: 'after' },
     );
 
+    // 상태가 실제로 바뀌었을 때만 이력을 남긴다.
+    // Subscription 문서는 제자리에서 덮어써지므로, 이 기록이 없으면
+    // "어제 몇 명이 취소했나" 를 영원히 알 수 없다
+    await this.subEvents.record({
+      userId: uid,
+      subscriptionId: doc._id,
+      fromStatus: existing?.status ?? null,
+      toStatus: v.status,
+      provider: v.provider,
+      plan: v.plan,
+      productId: v.productId,
+      reason: 'purchase',
+    });
+
     // 같은 구독이 갱신될 때마다 보석을 또 주면 안 된다.
     if (!hadAny && !doc.welcomeGrantGiven && this.isEntitled(doc)) {
       doc.welcomeGrantGiven = true;
@@ -105,6 +122,15 @@ export class SubscriptionService {
     if (!v.externalSubscriptionId) return;
     if (v.externalSubscriptionId === v.externalTransactionId) return;
 
+    const superseded = await this.subModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        provider: v.provider,
+        externalTransactionId: v.externalSubscriptionId,
+      })
+      .select('status plan productId')
+      .lean();
+
     await this.subModel.updateMany(
       {
         userId: new Types.ObjectId(userId),
@@ -113,6 +139,21 @@ export class SubscriptionService {
       },
       { $set: { status: 'expired' as SubscriptionStatus, autoRenew: false } },
     );
+
+    // 갱신·업그레이드로 눕힌 건 진짜 이탈이 아니다. reason 으로 구분해두지
+    // 않으면 어드민의 취소 추이가 갱신 때마다 튄다
+    for (const old of superseded) {
+      await this.subEvents.record({
+        userId,
+        subscriptionId: old._id,
+        fromStatus: old.status,
+        toStatus: 'expired',
+        provider: v.provider,
+        plan: old.plan,
+        productId: old.productId,
+        reason: 'supersede',
+      });
+    }
   }
 
   /** 지금 프리미엄을 줘야 하는 구독인지 */

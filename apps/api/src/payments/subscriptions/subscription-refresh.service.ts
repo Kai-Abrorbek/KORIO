@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { SubscriptionEventsService } from '../../analytics/subscription-events.service';
 import { APP_TIMEZONE } from '../../common/date.util';
 import { GooglePlayProvider } from '../providers/google-play/google-play.provider';
 import { Subscription, SubscriptionDocument } from './subscription.schema';
@@ -27,6 +28,8 @@ export class SubscriptionRefreshService {
     private readonly subModel: Model<SubscriptionDocument>,
     private readonly googlePlay: GooglePlayProvider,
     private readonly subscriptions: SubscriptionService,
+    // 환불·삭제로 만료된 것도 이력에 남긴다 (분석 전용)
+    private readonly subEvents: SubscriptionEventsService,
   ) {}
 
   /** 매시간. 갱신은 보통 만료 시각 언저리에 일어나므로 하루 한 번은 너무 느리다 */
@@ -98,6 +101,18 @@ export class SubscriptionRefreshService {
             { _id: sub._id },
             { $set: { status: 'expired', autoRenew: false, lastVerifiedAt: new Date() } },
           );
+          // 구글이 모르는 토큰 = 환불이거나 지워진 결제. 진짜 이탈이므로
+          // 갱신(supersede)과 구분해서 남긴다
+          await this.subEvents.record({
+            userId: sub.userId,
+            subscriptionId: sub._id,
+            fromStatus: sub.status,
+            toStatus: 'expired',
+            provider: sub.provider,
+            plan: sub.plan,
+            productId: sub.productId,
+            reason: 'expire',
+          });
           await this.subscriptions.syncUser(sub.userId.toString());
         } else {
           this.logger.warn(
