@@ -21,9 +21,15 @@ import {
 /**
  * 어드민 로그인.
  *
- * 앱 로그인과 **같은 계정·같은 비밀번호**를 쓰되 토큰만 분리한다. 계정을 따로
- * 만들면 비밀번호가 두 벌이 되고, 퇴사자 계정을 두 군데서 지워야 한다 —
- * 그러다 한 쪽이 남는다. 문은 하나로 두고 **권한(adminRole)과 토큰**을 나눈다.
+ * **같은 계정, 다른 비밀번호.** 계정을 따로 만들면 퇴사자를 두 군데서 지워야
+ * 하고 그러다 한 쪽이 남는다. 그래서 계정(=이메일)은 하나로 두되,
+ * 비밀번호·권한·토큰을 전부 분리한다.
+ *
+ * 비밀번호를 분리한 이유:
+ *   · 소셜로 가입한 계정은 `password` 가 아예 없다. 운영자를 위해 앱
+ *     비밀번호를 만들어 주면 앱 로그인 경로를 하나 더 여는 셈이 된다.
+ *   · 앱 비밀번호가 새도 운영 도구는 안 열린다. 그 반대도 마찬가지다.
+ *   · `adminPassword` 는 `admin:password` 스크립트로만 설정된다.
  *
  * 토큰이 다른 지점:
  *   · 다른 시크릿(ADMIN_JWT_SECRET) — 앱 토큰으로 어드민에 못 들어온다
@@ -48,19 +54,33 @@ export class AdminAuthService {
 
     const user = await this.userModel
       .findOne({ email: email.trim().toLowerCase() })
-      .select('+password email adminRole tokenVersion nickname');
+      .select('+adminPassword email adminRole tokenVersion nickname');
 
     /**
      * 실패 이유를 나누지 않는다.
      *
-     * "비밀번호가 틀렸다" 와 "어드민이 아니다" 를 구분해 주면, 아무 계정이나
-     * 넣어보는 것만으로 **누가 어드민인지 목록을 만들 수 있다.**
+     * "비밀번호가 틀렸다" 와 "어드민이 아니다" 와 "어드민 비밀번호가 아직
+     * 설정 안 됐다" 를 구분해 주면, 아무 계정이나 넣어보는 것만으로
+     * **누가 어드민인지 목록을 만들 수 있다.**
      */
     const ok =
-      !!user?.password && (await bcrypt.compare(password, user.password));
+      !!user?.adminPassword &&
+      (await bcrypt.compare(password, user.adminPassword));
     const role = user?.adminRole as AdminRole | null | undefined;
     if (!ok || !role || !ADMIN_ROLES.includes(role)) {
-      this.logger.warn(`어드민 로그인 실패: ${email} ip=${ip ?? '?'}`);
+      // 응답은 하나지만 **로그에는 이유를 남긴다.** 로그는 공격자가 못 본다.
+      // 이게 없으면 "비번이 틀렸나 권한이 없나 비번을 아직 안 넣었나" 를
+      // 서버에서도 알 수 없어서, 멀쩡한 설정 문제를 며칠 헤매게 된다.
+      const why = !user
+        ? '그런 계정 없음'
+        : !role
+          ? '어드민 아님 (adminRole 없음)'
+          : !ADMIN_ROLES.includes(role)
+            ? `모르는 adminRole: ${String(role)}`
+            : !user.adminPassword
+              ? '어드민 비밀번호 미설정 — pnpm --filter api admin:password <email>'
+              : '비밀번호 불일치';
+      this.logger.warn(`어드민 로그인 실패: ${email} ip=${ip ?? '?'} — ${why}`);
       throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 

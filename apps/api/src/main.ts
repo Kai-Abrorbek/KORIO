@@ -60,9 +60,25 @@ async function bootstrap() {
   //    그래서 "사람이 열 때만 터지고 확인할 때는 멀쩡한" 상태가 된다.
   const allowed = corsOrigins();
   const rejectedOrigins = new Set<string>();
+  /**
+   * 개발에서는 localhost 를 자동으로 허용한다.
+   *
+   * ⚠️ Next 의 `/api/*` 프록시(rewrites)는 브라우저 헤더를 **그대로 전달한다.**
+   *    서버가 대신 호출해 주니 Origin 이 없을 거라 생각하기 쉬운데, 아니다 —
+   *    `Origin: http://localhost:3100` 이 살아서 여기까지 온다. 그래서 어드민을
+   *    처음 띄우면 ALLOWED_ORIGINS 를 손보기 전까지 로그인이 403 으로 막힌다.
+   *    (Telegram Mini App 을 며칠 헤맨 것과 정확히 같은 원인이다)
+   *
+   * 운영(NODE_ENV=production)에서는 켜지지 않는다. 배포 도메인은 반드시
+   * ALLOWED_ORIGINS 에 명시해야 한다.
+   */
+  const allowLocalhost = process.env.NODE_ENV !== 'production';
+  const LOCALHOST = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+
   app.enableCors({
     origin: (origin, cb) => {
       if (!origin || allowed.includes(origin)) return cb(null, true);
+      if (allowLocalhost && LOCALHOST.test(origin)) return cb(null, true);
 
       // 어느 출처가 막혔는지 반드시 남긴다. 예전엔 'CORS_NOT_ALLOWED' 만 찍혀서
       // 스택만 보고는 무엇을 허용해야 하는지 알 수가 없었다.
@@ -71,7 +87,8 @@ async function bootstrap() {
         rejectedOrigins.add(origin);
         Logger.warn(
           `CORS 거부: ${origin} — 우리 서비스면 ALLOWED_ORIGINS 에 추가해라 ` +
-            `(현재: ${allowed.length ? allowed.join(', ') : '비어 있음'})`,
+            `(현재: ${allowed.length ? allowed.join(', ') : '비어 있음'}` +
+            `${allowLocalhost ? ' / 개발이라 localhost 는 자동 허용' : ''})`,
           'Bootstrap',
         );
       }

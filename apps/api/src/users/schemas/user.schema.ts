@@ -65,6 +65,21 @@ export class User {
   @Prop({ type: String, default: null })
   adminRole: string | null;
 
+  /**
+   * 어드민 도구 전용 비밀번호 (bcrypt).
+   *
+   * 앱 비밀번호(`password`)와 **일부러 분리한다.**
+   *   · 소셜로 가입한 계정은 `password` 자체가 없다. 그렇다고 앱 비밀번호를
+   *     만들어 주면, 운영 도구에 들어가려고 앱 로그인 경로를 하나 더 여는 셈이다.
+   *   · 어드민 문은 이미 따로다 (다른 시크릿, 다른 만료, 다른 권한 필드).
+   *     비밀번호만 공유할 이유가 없다.
+   *
+   * `pnpm --filter api admin:password <email>` 로만 설정된다. 화면에서 바꾸는
+   * 경로는 없다 — 첫 어드민을 웹에서 만들 수 없는 것과 같은 이유다.
+   */
+  @Prop({ type: String, default: null, select: false })
+  adminPassword: string | null;
+
   /** 어드민 도구에 마지막으로 들어온 시각 */
   @Prop({ type: Date, default: null })
   adminLastLoginAt: Date | null;

@@ -52,13 +52,16 @@ async function main() {
   });
   try {
     const userModel = app.get<Model<UserDocument>>(getModelToken(User.name));
-    const user = await userModel.findOne({ email }).select('email nickname adminRole');
+    const user = await userModel
+      .findOne({ email })
+      .select('email nickname adminRole +adminPassword');
     if (!user) {
       console.error(`그런 계정이 없다: ${email}`);
       process.exit(1);
     }
 
     const before = user.adminRole ?? '(없음)';
+    const hasAdminPassword = !!user.adminPassword;
     await userModel.updateOne(
       { _id: user._id },
       { $set: { adminRole: revoking ? null : role } },
@@ -70,6 +73,12 @@ async function main() {
     } else {
       console.log(`✅ ${email}  ${before} → ${role}`);
       console.log(`   권한: ${permissionsFor(role as AdminRole).join(', ')}`);
+      // 권한만으로는 못 들어온다. 어드민 비밀번호는 앱 비밀번호와 별개다
+      if (!hasAdminPassword) {
+        console.log('');
+        console.log('⚠️ 아직 어드민 비밀번호가 없다. 권한만으로는 로그인 못 한다.');
+        console.log(`   pnpm --filter api admin:password ${email}`);
+      }
     }
 
     if (!process.env.ADMIN_JWT_SECRET?.trim()) {
