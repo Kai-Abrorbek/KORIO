@@ -11,6 +11,18 @@ import { AdminAuthService } from './admin-auth.service';
 import { AdminAuthController } from './admin-auth.controller';
 import { AdminAuditService } from './admin-audit.service';
 import { AdminGuard } from './guards/admin.guard';
+import { AdminAnalyticsController } from './analytics/admin-analytics.controller';
+import { AdminAnalyticsService } from './analytics/admin-analytics.service';
+import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
+import {
+  UserProgress,
+  UserProgressSchema,
+} from '../users/schemas/user-progress.schema';
+import {
+  Subscription,
+  SubscriptionSchema,
+} from '../payments/subscriptions/subscription.schema';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 /**
  * 운영 도구.
@@ -29,10 +41,22 @@ import { AdminGuard } from './guards/admin.guard';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: AdminAuditLog.name, schema: AdminAuditLogSchema },
+      { name: UserStats.name, schema: UserStatsSchema },
+      { name: UserProgress.name, schema: UserProgressSchema },
+      { name: Subscription.name, schema: SubscriptionSchema },
     ]),
+    // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
+    // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
+    AnalyticsModule,
   ],
-  controllers: [AdminAuthController],
-  providers: [AdminAuthService, AdminAuditService, AdminGuard, RateLimitGuard],
+  controllers: [AdminAuthController, AdminAnalyticsController],
+  providers: [
+    AdminAuthService,
+    AdminAuditService,
+    AdminAnalyticsService,
+    AdminGuard,
+    RateLimitGuard,
+  ],
   exports: [AdminAuditService, AdminGuard],
 })
 export class AdminModule {}
