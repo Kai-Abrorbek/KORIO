@@ -16,7 +16,18 @@ import {
   ENERGY_COLORS,
 } from "./BatteryBadge";
 import { useEffect, useState } from "react";
+import type { GemPass } from "@/services/shop.service";
 
+/**
+ * 상점(Do'kon) 본문.
+ *
+ * 원래는 에너지 전용 화면이었다. 보석을 쓸 데가 에너지 하나일 때는 그게
+ * 맞았지만, 지금은 프리미엄 기간권이 주 용도다. 디자인(배터리 배지·그라디언트·
+ * 큰 트랙바)은 그대로 두고 섹션만 늘렸다.
+ *
+ * 걷어낸 것: 위젯 부스트 · 광고로 +5 — 둘 다 콜백이 `() => {}` 라 눌러도
+ * 아무 일도 일어나지 않았다.
+ */
 interface Props {
   energy?: number;
   maxEnergy?: number;
@@ -34,6 +45,15 @@ interface Props {
   freeRemaining?: number;
   canRefill?: boolean;
   onFree?: () => void;
+  /** SUPER 면 에너지를 아예 안 쓴다 — 충전 줄을 감춘다 */
+  isSuper?: boolean;
+  passes?: GemPass[];
+  /** 서버에서 기간권을 못 받아온 경우 (미배포·네트워크) */
+  passesUnavailable?: boolean;
+  premiumUntilLabel?: string | null;
+  onBuyPass?: (pass: GemPass) => void;
+  busy?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function EnergyScreen({
@@ -53,6 +73,13 @@ export default function EnergyScreen({
   freeRemaining = 0,
   canRefill = false,
   onFree,
+  isSuper = false,
+  passes = [],
+  passesUnavailable = false,
+  premiumUntilLabel = null,
+  onBuyPass,
+  busy = false,
+  children,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -82,7 +109,7 @@ export default function EnergyScreen({
         <TouchableOpacity onPress={onClose} hitSlop={12}>
           <Ionicons name="close" size={28} color={theme.textSecondary} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>{t("energy.title")}</Text>
+        <Text style={s.headerTitle}>{t("home.shop")}</Text>
         <View style={s.gem}>
           <Ionicons name="diamond" size={20} color={ENERGY_COLORS.gem} />
           <Text style={s.gemText}>{gems}</Text>
@@ -123,6 +150,75 @@ export default function EnergyScreen({
           </View>
         </View>
 
+        {/* ── 프리미엄 기간권 ── 보석의 주 용도 */}
+        <Text style={s.sectionLabel}>{t("shop.premiumTitle")}</Text>
+        <Text style={s.sectionDesc}>{t("shop.premiumDesc")}</Text>
+
+        {premiumUntilLabel && (
+          <View style={s.untilChip}>
+            <Ionicons name="shield-checkmark" size={15} color="#58CC02" />
+            <Text style={s.untilText}>
+              {t("shop.premiumUntil", { date: premiumUntilLabel })}
+            </Text>
+          </View>
+        )}
+
+        {passesUnavailable ? (
+          // 조용히 빈 목록을 보여주면 "상품이 없다" 로 읽힌다. 왜 안 뜨는지 말한다.
+          <View style={[s.card, { justifyContent: "center" }]}>
+            <Text style={[s.rowLabel, { color: ENERGY_COLORS.numGray }]}>
+              {t("shop.passesUnavailable")}
+            </Text>
+          </View>
+        ) : (
+          passes.map((pass) => {
+            const base = passes[0]?.perDay ?? 0;
+            const save =
+              base > 0 ? Math.round((1 - pass.perDay / base) * 100) : 0;
+            const blocked = !pass.affordable || pass.overStack || busy;
+            return (
+              <TouchableOpacity
+                key={pass.id}
+                activeOpacity={0.9}
+                disabled={blocked}
+                onPress={() => onBuyPass?.(pass)}
+                style={[s.card, blocked && { opacity: 0.5 }]}
+              >
+                <BatteryBadge value={pass.days} fill="pink" size={50} />
+                <View style={{ flex: 1 }}>
+                  <View style={s.passTop}>
+                    <Text style={s.rowLabel}>
+                      {t("shop.days", { n: pass.days })}
+                    </Text>
+                    {save > 0 && (
+                      <View style={s.saveBadge}>
+                        <Text style={s.saveText}>
+                          {t("shop.save", { n: save })}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={s.passPerDay}>
+                    {t("shop.perDay", {
+                      n: pass.perDay.toLocaleString("en-US"),
+                    })}
+                  </Text>
+                </View>
+                <View style={s.gem}>
+                  <Ionicons
+                    name="diamond"
+                    size={18}
+                    color={ENERGY_COLORS.gem}
+                  />
+                  <Text style={s.gemText}>
+                    {pass.gems.toLocaleString("en-US")}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        )}
+
         {/* SUPER 카드 */}
         <TouchableOpacity
           activeOpacity={0.9}
@@ -146,12 +242,22 @@ export default function EnergyScreen({
           </View>
         </TouchableOpacity>
 
-        {/* 충전하기 */}
+        {/* ── 에너지 ── */}
+        {!isSuper && (
+          <Text style={[s.sectionLabel, { marginTop: 18 }]}>
+            {t("shop.energyTitle")}
+          </Text>
+        )}
+
+        {/* 충전하기.
+            SUPER 는 에너지를 아예 안 쓰므로(consume 이 그냥 돌아온다) 이 줄을
+            보여주면 안 된다 — 보석만 버리게 된다. 서버도 같이 막아뒀다. */}
+        {!isSuper && (
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={onRefill}
-          disabled={isFull || !canRefill}
-          style={[s.card, (isFull || !canRefill) && { opacity: 0.5 }]}
+          disabled={isFull || !canRefill || busy}
+          style={[s.card, (isFull || !canRefill || busy) && { opacity: 0.5 }]}
         >
           <BatteryBadge value={maxEnergy} fill="gray" size={50} />
           <Text style={[s.rowLabel, { color: ENERGY_COLORS.numGray }]}>
@@ -164,43 +270,21 @@ export default function EnergyScreen({
             </Text>
           </View>
         </TouchableOpacity>
+        )}
 
-        {/* 위젯 부스트 */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={onWidgetBoost}
-          style={s.card}
-        >
-          <View style={s.newBadge}>
-            <Text style={s.newBadgeText}>{t("energy.new")}</Text>
-          </View>
-          <BatteryBadge value={8} fill="pink" fillFraction={0.32} size={50} />
-          <Text style={s.rowLabel}>{t("energy.widgetBoost")}</Text>
-          <Text style={[s.action, { color: ENERGY_COLORS.blue }]}>
-            {t("energy.install")}
-          </Text>
-        </TouchableOpacity>
+        {/* 위젯 부스트·광고 보기는 걷어냈다 — 콜백이 `() => {}` 라 눌러도
+            아무 일도 일어나지 않는 줄이었다. 광고를 붙이면 그때 되살린다. */}
 
-        {/* 광고로 +5 */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={onWatchAd}
-          style={s.card}
-        >
-          <BatteryBadge value={5} fill="pink" fillFraction={0.42} size={50} />
-          <Text style={s.rowLabel}>{t("energy.plusFive")}</Text>
-          <Text style={[s.action, { color: ENERGY_COLORS.blue }]}>
-            {t("energy.watchAd")}
-          </Text>
-        </TouchableOpacity>
-
-        {/* 자동 충전 (비활성) */}
-        {/* 무료 +5 (하루 제한) */}
+        {/* 무료 +5 (하루 제한). 가득이면 하루 3회뿐인 무료분을 태우므로 막는다 */}
+        {!isSuper && (
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={onFree}
-          disabled={freeRemaining <= 0}
-          style={[s.card, freeRemaining <= 0 && { opacity: 0.5 }]}
+          disabled={freeRemaining <= 0 || isFull || busy}
+          style={[
+            s.card,
+            (freeRemaining <= 0 || isFull || busy) && { opacity: 0.5 },
+          ]}
         >
           <BatteryBadge value={5} fill="gray" size={50} />
           <Text
@@ -225,6 +309,10 @@ export default function EnergyScreen({
               : t("energy.freeDone")}
           </Text>
         </TouchableOpacity>
+        )}
+
+        {/* 출금 등 호출부가 얹는 섹션 */}
+        {children}
       </ScrollView>
     </View>
   );
@@ -242,6 +330,43 @@ const getStyles = (theme: ThemeColors) =>
       paddingBottom: 8,
     },
     headerTitle: { fontSize: 20, fontWeight: "800", color: theme.text },
+    sectionLabel: {
+      fontSize: 13,
+      fontWeight: "800",
+      color: theme.textSecondary,
+      letterSpacing: 0.4,
+      paddingHorizontal: 20,
+      marginBottom: 4,
+    },
+    sectionDesc: {
+      fontSize: 12,
+      lineHeight: 18,
+      color: theme.textSecondary,
+      paddingHorizontal: 20,
+      marginBottom: 10,
+    },
+    untilChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      alignSelf: "flex-start",
+      marginHorizontal: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 12,
+      backgroundColor: "#58CC0218",
+      marginBottom: 10,
+    },
+    untilText: { fontSize: 12, fontWeight: "700", color: "#58CC02" },
+    passTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+    passPerDay: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
+    saveBadge: {
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: 8,
+      backgroundColor: "#58CC0222",
+    },
+    saveText: { fontSize: 11, fontWeight: "800", color: "#58CC02" },
     gem: { flexDirection: "row", alignItems: "center", gap: 5 },
     gemText: { fontSize: 18, fontWeight: "800", color: ENERGY_COLORS.gemText },
     chargeRow: {

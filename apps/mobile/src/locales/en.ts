@@ -1566,6 +1566,7 @@ export default {
     passDone: "{{n}} more days of premium added!",
     stackLimit: "You can stack up to {{n}} days ahead. Buy again once it runs down.",
     energyTitle: "Energy",
+    passesUnavailable: "Couldn't load the passes. Please reopen in a moment.",
     freeLeft: "{{n}} free left",
     withdrawSection: "Cash out gems",
     withdrawTitle: "Send to a card",
@@ -1576,6 +1577,8 @@ export default {
     withdrawSoon: "Payouts aren't live yet. Nothing has been submitted.",
     errors: {
       NOT_ENOUGH_GEMS: "Not enough gems.",
+      ENERGY_ALREADY_FULL: "Your energy is already full.",
+      ENERGY_SUPER_UNLIMITED: "SUPER has unlimited energy — no refill needed.",
       GEM_PASS_STACK_LIMIT: "You've stacked enough already. Buy again once it runs down.",
       GEM_PASS_FAILED: "Couldn't complete it. Your gems are untouched.",
       UNKNOWN_GEM_PASS: "That item doesn't exist.",

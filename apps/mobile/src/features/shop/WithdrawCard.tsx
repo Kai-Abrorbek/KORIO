@@ -126,10 +126,13 @@ export default function WithdrawCard({ gems }: { gems: number }) {
 const styles = (theme: ReturnType<typeof useTheme>) =>
   StyleSheet.create({
     card: {
+      // 위 카드들(EnergyScreen 의 s.card)과 같은 여백·모서리로 맞춘다
+      marginHorizontal: 20,
+      marginBottom: 16,
       backgroundColor: theme.surface,
       borderWidth: 2,
       borderColor: theme.border,
-      borderRadius: 20,
+      borderRadius: 18,
       padding: 18,
       gap: 12,
     },

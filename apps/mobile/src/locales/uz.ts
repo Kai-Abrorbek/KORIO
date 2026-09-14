@@ -1716,6 +1716,7 @@ export default {
     passDone: "Premium yana {{n}} kunga uzaytirildi!",
     stackLimit: "Oldindan {{n}} kungacha to'plash mumkin. Muddat kamaygach yana olasiz.",
     energyTitle: "Energiya",
+    passesUnavailable: "Muddatlarni yuklab bo'lmadi. Birozdan keyin qayta oching.",
     freeLeft: "{{n}} ta bepul qoldi",
     withdrawSection: "Gavharni yechish",
     withdrawTitle: "Kartaga o'tkazish",
@@ -1726,6 +1727,8 @@ export default {
     withdrawSoon: "Yechish hali ishlamaydi. Hech qanday so'rov yuborilmadi.",
     errors: {
       NOT_ENOUGH_GEMS: "Gavhar yetarli emas.",
+      ENERGY_ALREADY_FULL: "Energiyangiz allaqachon to'la.",
+      ENERGY_SUPER_UNLIMITED: "SUPER'da energiya cheksiz — to'ldirish shart emas.",
       GEM_PASS_STACK_LIMIT: "Allaqachon yetarlicha to'plangan. Muddat kamaygach yana olasiz.",
       GEM_PASS_FAILED: "Bajarib bo'lmadi. Gavharlaringiz joyida.",
       UNKNOWN_GEM_PASS: "Bunday mahsulot yo'q.",

@@ -44,10 +44,35 @@ export class EnergyService {
    * 요청 두 개가 겹칠 때 둘 다 "보석 충분" 을 보고 통과해서, 350 짜리를
    * 두 번 사고 보석이 음수로 내려간다.
    */
+  /**
+   * 보석으로 에너지를 가득 채운다.
+   *
+   * ⚠️ 예전엔 보석 잔액만 보고 무조건 깎았다. 그래서 두 가지로 보석이 증발했다.
+   *   · 에너지가 이미 25/25 인데 눌러도 350 이 나갔다 (산 게 없다)
+   *   · SUPER 유저는 consume 이 그냥 돌아와서 에너지를 아예 안 쓰는데,
+   *     그런 유저도 충전을 살 수 있었다 (100% 낭비)
+   * 화면에서 버튼을 감추는 것만으로는 부족하다 — 서버가 막아야 한다.
+   */
   async refill(userId: string) {
-    const uid = new Types.ObjectId(userId);
+    const user = await this.mustFind(userId);
+    // 회복분을 먼저 확정해야 "이미 가득" 판정이 맞다
+    await this.applyRegen(user);
+
+    if (isSuperActive(user)) {
+      throw new BadRequestException('ENERGY_SUPER_UNLIMITED');
+    }
+    if ((user.energy ?? 0) >= ENERGY_CONFIG.MAX) {
+      throw new BadRequestException('ENERGY_ALREADY_FULL');
+    }
+
     const updated = await this.userModel.findOneAndUpdate(
-      { _id: uid, gems: { $gte: ENERGY_CONFIG.REFILL_GEM_COST } },
+      {
+        _id: user._id,
+        gems: { $gte: ENERGY_CONFIG.REFILL_GEM_COST },
+        // 조건을 여기 한 번 더 건다 — 버튼을 빠르게 두 번 누르면 위 검사를
+        // 둘 다 통과한 뒤 두 번 깎일 수 있다
+        energy: { $lt: ENERGY_CONFIG.MAX },
+      },
       {
         $inc: { gems: -ENERGY_CONFIG.REFILL_GEM_COST },
         $set: { energy: ENERGY_CONFIG.MAX, energyUpdatedAt: new Date() },
@@ -56,9 +81,15 @@ export class EnergyService {
     );
 
     if (!updated) {
-      // 유저가 없는 것과 보석이 모자란 것을 구분해서 알려준다
-      const exists = await this.userModel.exists({ _id: uid });
-      if (!exists) throw new NotFoundException('USER_NOT_FOUND');
+      // 겹친 요청이 먼저 채웠으면 이미 가득이다 — 보석은 안 나갔다
+      const fresh = await this.userModel
+        .findById(user._id)
+        .select('energy gems')
+        .lean();
+      if (!fresh) throw new NotFoundException('USER_NOT_FOUND');
+      if ((fresh.energy ?? 0) >= ENERGY_CONFIG.MAX) {
+        throw new BadRequestException('ENERGY_ALREADY_FULL');
+      }
       throw new BadRequestException('NOT_ENOUGH_GEMS');
     }
     return this.buildResponse(updated);
@@ -74,6 +105,12 @@ export class EnergyService {
     const user = await this.mustFind(userId);
     // 회복분을 먼저 확정해야 아래 파이프라인의 $energy 가 최신값이 된다
     await this.applyRegen(user);
+
+    // 가득이면 하루 3회뿐인 무료분을 태우게 된다. 보석은 안 나가지만
+    // 유저 입장에선 똑같이 잃는 것이다.
+    if ((user.energy ?? 0) >= ENERGY_CONFIG.MAX) {
+      throw new BadRequestException('ENERGY_ALREADY_FULL');
+    }
 
     const now = new Date();
     const todayStart = startOfDay(now, user.timezone);

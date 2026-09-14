@@ -1705,6 +1705,7 @@ export default {
     passDone: "프리미엄 {{n}}일이 더해졌어요!",
     stackLimit: "최대 {{n}}일까지 미리 쌓을 수 있어요. 기간이 줄면 다시 살 수 있어요.",
     energyTitle: "에너지",
+    passesUnavailable: "기간권을 불러오지 못했어요. 잠시 뒤에 다시 열어 주세요.",
     freeLeft: "무료 {{n}}회 남음",
     withdrawSection: "보석 출금",
     withdrawTitle: "카드로 받기",
@@ -1715,6 +1716,8 @@ export default {
     withdrawSoon: "출금 기능은 준비 중이에요. 아직 신청이 접수되지 않아요.",
     errors: {
       NOT_ENOUGH_GEMS: "보석이 부족해요.",
+      ENERGY_ALREADY_FULL: "에너지가 이미 가득 차 있어요.",
+      ENERGY_SUPER_UNLIMITED: "SUPER는 에너지가 무제한이라 충전이 필요 없어요.",
       GEM_PASS_STACK_LIMIT: "이미 충분히 쌓여 있어요. 기간이 줄면 다시 살 수 있어요.",
       GEM_PASS_FAILED: "처리하지 못했어요. 보석은 그대로예요.",
       UNKNOWN_GEM_PASS: "없는 상품이에요.",
