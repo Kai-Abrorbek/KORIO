@@ -23,6 +23,15 @@ import {
   ReadingLessonDocument,
 } from '../reading-lessons/schemas/reading-lesson.schema';
 import { ReadingLessonsService } from '../reading-lessons/reading-lessons.service';
+import { LessonsService } from '../lessons/lessons.service';
+import { UsersService } from '../users/users.service';
+import { SPEAKING_SENTENCE_XP } from '../lessons/economy.const';
+import { StudyCategory } from '../users/utils/study-category.util';
+import { startOfDay } from '../common/date.util';
+import {
+  UserExpressionProgress,
+  UserExpressionProgressDocument,
+} from '../expressions/schemas/user-expression-progress.schema';
 import { toPassageText } from '../reading-lessons/reading-passage.util';
 import {
   normalizeWord,
@@ -100,7 +109,11 @@ export class SpeechService {
     private readonly readingLessonModel: Model<ReadingLessonDocument>,
     @InjectModel(Expression.name)
     private readonly expressionModel: Model<ExpressionDocument>,
+    @InjectModel(UserExpressionProgress.name)
+    private readonly expressionProgressModel: Model<UserExpressionProgressDocument>,
     private readonly readingLessons: ReadingLessonsService,
+    private readonly lessonsService: LessonsService,
+    private readonly usersService: UsersService,
   ) {}
 
   /** Speaking 문제: 참조 문장 대비 발음 평가 */
@@ -129,12 +142,94 @@ export class SpeechService {
     this.consumeRateLimit(userId);
     this.validateWav(wav);
     const reference = await this.resolveExpression(expressionId);
-    return this.assessReference(
+    const result = await this.assessReference(
       wav,
       reference.referenceText,
       reference.section,
       '표현 발음 평가',
     );
+    // 통계·XP·연속 학습일. 실패해도 채점 응답은 그대로 나간다 —
+    // 기록을 못 남긴 것 때문에 사용자가 다시 말하게 만들 이유가 없다.
+    await this.recordSpeakingStudy(userId, expressionId, result).catch(
+      (error) => {
+        this.logger.warn(
+          `말하기 학습 기록 실패: expression=${expressionId} ${String(error)}`,
+        );
+      },
+    );
+    return result;
+  }
+
+  /**
+   * 말하기 한 문장의 학습 기록.
+   *
+   * **왜 서버에서 남기나.** 클라가 "말하기 했다" 를 보고하는 경로를 만들면 그냥
+   * 눌러서 리그를 산다 — 리그 주간 XP 는 UserStats.xpEarned 합계다. 서버가
+   * 오디오를 채점하면서 직접 본 사실만 기록한다. 낭독 진도를 assessReading 에서
+   * 직접 찍는 것과 같은 이유다.
+   */
+  private async recordSpeakingStudy(
+    userId: string,
+    expressionId: string,
+    result: AssessResult,
+  ): Promise<void> {
+    // 못 들은 건 시도가 아니다. 무음·잡음까지 넣으면 정확도가 의미를 잃는다.
+    if (result.status !== 'success') return;
+
+    // 시도는 통과 여부와 무관하게 남긴다. 틀린 것도 연습이고, 정확도는
+    // categoryCorrect 가 따로 들고 있다.
+    //
+    // 버킷은 conversation(실전 회화)다. QUESTION_CATEGORY 에서 QuestionType.SPEAKING
+    // 이 가는 곳과 같다 — 같은 행위를 두 버킷으로 나누면 스킬 레이더가 거짓말한다.
+    // expression 버킷에 넣으면 발음 연습만 했는데 "표현 잘함" 으로 보인다.
+    await this.lessonsService.recordStudy(userId, {
+      questionCount: 1,
+      wrongCount: result.passed ? 0 : 1,
+      overrideCategory: StudyCategory.CONVERSATION,
+    });
+
+    // 연속 학습일은 오늘 기록이 저장된 뒤에 갱신해야 한다
+    await this.usersService.syncStreak(userId).catch(() => undefined);
+
+    if (!result.passed) return;
+
+    const userObjectId = new Types.ObjectId(userId);
+    const expressionObjectId = new Types.ObjectId(expressionId);
+
+    // 표현 학습을 안 거치고 말하기 모드로 바로 들어온 경우 진도 문서가 없다.
+    // 없으면 만들어 둔다 (viewedCount 0 이라 "봤음" 집계에는 안 들어간다).
+    await this.expressionProgressModel.updateOne(
+      { userId: userObjectId, expressionId: expressionObjectId },
+      {
+        $setOnInsert: {
+          userId: userObjectId,
+          expressionId: expressionObjectId,
+        },
+      },
+      { upsert: true },
+    );
+
+    // XP 는 같은 문장에 하루 한 번만. 없으면 한 문장을 반복해서 리그를 산다.
+    // $not: { $gte: today } 는 값이 없는 경우와 어제까지의 값을 함께 잡는다.
+    // findOneAndUpdate 는 문서 단위로 원자적이라 동시 요청이 와도 한 번만 통과한다.
+    const today = startOfDay(
+      new Date(),
+      await this.usersService.getTimezone(userId),
+    );
+    const claimed = await this.expressionProgressModel
+      .findOneAndUpdate(
+        {
+          userId: userObjectId,
+          expressionId: expressionObjectId,
+          speakingPassedAt: { $not: { $gte: today } },
+        },
+        { $set: { speakingPassedAt: new Date() } },
+      )
+      .lean();
+    if (!claimed) return; // 오늘 이 문장으로 이미 받았다
+
+    // XP·totalXP·리그는 addXp 가 처리한다 (다른 모드와 같은 경로)
+    await this.lessonsService.addXp(userId, SPEAKING_SENTENCE_XP);
   }
 
   private async assessReference(

@@ -105,6 +105,21 @@ export const PRACTICE_BASE_XP: Record<string, number> = {
   unitFinal: 190, // 마무리 확인 — 하루를 끝낸 보상
 };
 
+/**
+ * 말하기 학습 모드 — 발음이 **통과한 문장 하나당**.
+ *
+ * 이 모드만 문장 단위로 준다. 세션 단위로 주면 중간에 나간 사람은 0 이라
+ * 한 문장 한 문장 맞히려고 버틸 이유가 없어진다 — 그게 이 모드의 전부다.
+ *
+ * 균형: 한 주제(약 20문장)를 다 통과하면 100. 표현 퀴즈 연습(75)보다 조금
+ * 후하다. 발화가 빈칸 채우기보다 부담이 큰 만큼이다.
+ *
+ * ⚠️ 같은 문장은 **하루 한 번만** 인정된다 (speech.service 의 speakingPassedAt).
+ *    그게 없으면 한 문장을 반복해서 리그 1등을 살 수 있다 —
+ *    리그 주간 XP = UserStats.xpEarned 합계다.
+ */
+export const SPEAKING_SENTENCE_XP = 5;
+
 /** 연습 모드 XP = 기본값 + 콤보(정답 수 상한) */
 export function calcPracticeXp(
   mode: string,

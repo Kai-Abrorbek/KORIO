@@ -61,6 +61,16 @@ export class UserExpressionProgress {
 
   @Prop({ type: Date, default: null })
   masteredAt: Date | null;
+
+  /**
+   * 말하기 학습 모드에서 이 표현의 발음이 마지막으로 통과한 시각.
+   *
+   * XP 중복 지급을 막는 용도다 — 같은 문장을 반복해서 리그를 사는 걸 막는다.
+   * 학습 상태(state·correctCount 등)와는 무관하게 움직인다: 말하기는 SM-2
+   * 복습 스케줄에 끼우지 않는다.
+   */
+  @Prop({ type: Date, default: null })
+  speakingPassedAt: Date | null;
 }
 
 export type UserExpressionProgressDocument =
