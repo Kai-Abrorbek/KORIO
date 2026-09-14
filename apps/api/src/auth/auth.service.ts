@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   UnauthorizedException,
   ConflictException,
   BadRequestException,
@@ -40,6 +41,7 @@ import {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private googleClient = new OAuth2Client();
 
   constructor(
@@ -208,14 +210,38 @@ export class AuthService {
 
   /** Telegram Mini App initData 검증 → 기존 Telegram 계정/JWT 재사용. */
   async telegramMiniAppLogin(dto: TelegramMiniAppLoginDto) {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    if (!token) throw new UnauthorizedException('Telegram is not configured');
+    const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+
+    /**
+     * ⚠️ 이 두 실패는 **원인이 완전히 다른데 예전엔 둘 다 조용히 401 이었다.**
+     *    로그도 안 남아서, 앱에 "연결 실패" 만 뜨고 서버에서는 아무것도 볼 수
+     *    없었다. 설정 문제(토큰 없음)와 데이터 문제(해시 불일치)는 고치는
+     *    방법이 정반대라 반드시 구분돼야 한다.
+     *
+     * 에러 메시지는 이 레포의 관례대로 대문자 코드로 바꿨다 — 앱이 그걸
+     * 보고 사람이 읽을 안내를 고른다 (문장을 그대로 띄우면 번역도 안 된다).
+     */
+    if (!token) {
+      // 설정 사고다. 유저가 할 수 있는 게 없으니 서버가 시끄럽게 알려야 한다.
+      // env_file 은 컨테이너를 **만들 때** 읽힌다 — 파일에 넣고 restart 만
+      // 하면 컨테이너 안에는 여전히 없다 (force-recreate 해야 한다)
+      this.logger.error(
+        '[telegram] TELEGRAM_BOT_TOKEN 이 이 프로세스에 없다. Mini App 로그인이 전부 막힌다.',
+      );
+      throw new UnauthorizedException('TELEGRAM_NOT_CONFIGURED');
+    }
 
     let telegramData: TelegramMiniAppAuthData;
     try {
       telegramData = validateTelegramMiniAppInitData(dto.initData, token);
     } catch {
-      throw new UnauthorizedException('Invalid Telegram Mini App data');
+      // initData 자체는 로그에 남기지 않는다 (유저 정보 + 서명이 들어 있다).
+      // 대신 길이만 남긴다 — 비어 있는지 잘린 건지 구분이 된다
+      this.logger.warn(
+        `[telegram] initData 검증 실패 (length=${dto.initData?.length ?? 0}). ` +
+          '봇 토큰과 Mini App 을 연 봇이 다른 경우가 가장 흔하다.',
+      );
+      throw new UnauthorizedException('TELEGRAM_INIT_DATA_INVALID');
     }
 
     return this.completeTelegramLogin(telegramData.user, dto.sessionId);

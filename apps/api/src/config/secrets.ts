@@ -61,3 +61,34 @@ export function adminJwtSecret(): string | null {
   }
   return secret;
 }
+
+/**
+ * 없어도 서버는 뜨지만, 없으면 **그 기능이 통째로 죽는** 환경변수들.
+ *
+ * 부팅 때 한 번 시끄럽게 알린다. 예전에는 TELEGRAM_BOT_TOKEN 이 없어도 조용히
+ * 떴다가, 유저가 Mini App 을 열었을 때만 401 이 났다 — 앱에는 "연결 실패" 만
+ * 뜨고 서버 로그에는 아무것도 없어서 원인을 찾는 데 한참 걸렸다.
+ *
+ * ⚠️ 특히 도커에서 자주 걸린다: `env_file` 은 컨테이너를 **만들 때** 읽힌다.
+ *    api.env 에 값을 넣고 restart 만 하면 컨테이너 안에는 여전히 없다
+ *    (`docker compose up -d --force-recreate <서비스>` 를 해야 한다).
+ *    이 경고가 로그 맨 위에 뜨면 그 상황이라는 뜻이다.
+ */
+const OPTIONAL_SECRETS: { key: string; breaks: string }[] = [
+  { key: 'TELEGRAM_BOT_TOKEN', breaks: 'Telegram Mini App 로그인' },
+  { key: 'ADMIN_JWT_SECRET', breaks: '어드민 패널 로그인' },
+  { key: 'OPENAI_API_KEY', breaks: 'AI 튜터' },
+  { key: 'AZURE_SPEECH_KEY', breaks: '발음 평가 · 튜터 음성' },
+];
+
+export function warnMissingOptionalSecrets(
+  log: (message: string) => void = console.warn,
+): string[] {
+  const missing = OPTIONAL_SECRETS.filter(
+    (s) => !process.env[s.key]?.trim(),
+  );
+  for (const s of missing) {
+    log(`[boot] ${s.key} 가 없다 → ${s.breaks} 이 동작하지 않는다.`);
+  }
+  return missing.map((s) => s.key);
+}

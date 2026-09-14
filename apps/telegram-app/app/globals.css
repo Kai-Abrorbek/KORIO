@@ -243,3 +243,19 @@ h2 {
     animation-duration: 1.8s;
   }
 }
+
+/**
+ * 실패 화면의 에러 코드.
+ *
+ * 눈에 띄되 안내 문구를 가리지 않아야 한다 — 유저가 읽을 글이 아니라
+ * 그대로 옮겨 적어 보낼 값이다. 길어도 안 깨지게 줄바꿈을 허용한다.
+ */
+.error-code {
+  margin-top: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #9a9aa5;
+  word-break: break-all;
+  user-select: all;
+}
