@@ -180,7 +180,12 @@ export default function HomeScreen() {
     color: string;
     onPress?: () => void;
   }> = [
-    { icon: "basket-outline", label: t("home.shop"), color: "#776ee2" },
+    {
+      icon: "basket-outline",
+      label: t("home.shop"),
+      color: "#776ee2",
+      onPress: () => router.push("/shop"),
+    },
     { icon: "bookmark-outline", label: t("home.challenge"), color: "#FAC775" },
     { icon: "search-outline", label: t("home.dictionary"), color: "#45B7D1" },
     {

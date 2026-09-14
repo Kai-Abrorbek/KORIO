@@ -4,9 +4,11 @@ export type PaymentProviderId =
   | 'toss'
   | 'uzum'
   | 'click'
-  | 'payme';
+  | 'payme'
+  /** 현금이 아니라 앱 안에서 모은 보석으로 산 기간권 */
+  | 'gems';
 
-export type SubscriptionPlatform = 'android' | 'ios' | 'web';
+export type SubscriptionPlatform = 'android' | 'ios' | 'web' | 'internal';
 
 /** 가격·상품이 나라별로 갈리므로 구독에 국가를 박아둔다 */
 export type SubscriptionCountry = 'KR' | 'UZ' | 'OTHER';
@@ -15,7 +17,12 @@ export type SubscriptionPlan =
   | 'monthly'
   | 'three_months'
   | 'six_months'
-  | 'yearly';
+  | 'yearly'
+  /**
+   * 보석으로 산 기간권. 개월이 아니라 **일** 단위라 따로 둔다.
+   * 자동 갱신이 없고(autoRenew: false) 실제 기간은 expiresAt 에만 있다.
+   */
+  | 'gem_pass';
 
 /**
  * 구독 상태.
@@ -44,6 +51,8 @@ export const PLAN_MONTHS: Record<SubscriptionPlan, number> = {
   three_months: 3,
   six_months: 6,
   yearly: 12,
+  /** 일 단위라 개월로 환산하지 않는다. 이 표를 읽는 곳은 아직 없다 */
+  gem_pass: 0,
 };
 
 /**

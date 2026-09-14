@@ -11,6 +11,8 @@ import {
 import { SubscriptionService } from './subscriptions/subscription.service';
 import { SubscriptionRefreshService } from './subscriptions/subscription-refresh.service';
 import { RateLimitGuard } from '../common/rate-limit';
+import { GemPassController } from './gems/gem-pass.controller';
+import { GemPassService } from './gems/gem-pass.service';
 
 /**
  * 결제는 독립 모듈이다. 기존 subscription 모듈(체험·플랜 목록)은 그대로 두고,
@@ -26,14 +28,15 @@ import { RateLimitGuard } from '../common/rate-limit';
       { name: User.name, schema: UserSchema },
     ]),
   ],
-  controllers: [PaymentsController],
+  controllers: [PaymentsController, GemPassController],
   providers: [
     PaymentsService,
     SubscriptionService,
     SubscriptionRefreshService,
     GooglePlayProvider,
+    GemPassService,
     RateLimitGuard,
   ],
-  exports: [SubscriptionService],
+  exports: [SubscriptionService, GemPassService],
 })
 export class PaymentsModule {}
