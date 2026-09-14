@@ -35,6 +35,12 @@ export default function LeagueResultScreen() {
    *
    * 승급·강등은 주 1회 정산 때만 생기는 화면이라, 이게 없으면 연출을 고칠 때마다
    * 한 주를 기다리거나 DB 를 손으로 건드려야 한다.
+   *
+   * 리그 페이지에 있던 테스트 버튼은 걷어냈다. 다시 볼 일이 생기면 개발 빌드에서
+   * 이 경로로 직접 열면 된다 (버튼을 되살릴 필요 없다):
+   *
+   *   router.push({ pathname: "/league-result", params: { preview: "promote" } })
+   *   preview: "promote" | "demote" | "demoteXp"
    */
   const params = useLocalSearchParams<{ preview?: string }>();
   const preview = __DEV__ ? params.preview : undefined;
