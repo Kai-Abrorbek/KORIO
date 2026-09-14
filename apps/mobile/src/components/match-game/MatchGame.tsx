@@ -78,7 +78,24 @@ function draw(pool: Pair[], used: Set<string>): Pair | null {
   return avail[Math.floor(Math.random() * avail.length)];
 }
 
-export default function MatchGame({ onExit }: { onExit: () => void }) {
+/**
+ * @param onExit    중간에 나가기 (X 버튼)
+ * @param onFinish  시간이 다 돼서 끝났을 때. 주면 최종 보상 화면을 닫은 뒤
+ *                  onExit 대신 이걸 부른다 — 리그 XP 챌린지는 결과 화면으로
+ *                  가야 하고, 게임 목록에서 들어온 경우는 그냥 뒤로 가야 한다.
+ *                  안 주면 예전처럼 onExit 로 떨어진다.
+ */
+export default function MatchGame({
+  onExit,
+  onFinish,
+}: {
+  onExit: () => void;
+  onFinish?: (result: {
+    xp: number;
+    matched: number;
+    bestCombo: number;
+  }) => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = getStyles(theme);
@@ -96,6 +113,12 @@ export default function MatchGame({ onExit }: { onExit: () => void }) {
 
   const matchedRef = useRef(0);
   const earnedXpRef = useRef(0);
+  /**
+   * 연속 정답. 리그 XP 챌린지 결과 화면이 "최고 콤보" 를 보여주는데 여기서
+   * 세지 않으면 0 이 뜬다. 게임 안 연출에는 안 쓰고 결과 보고용으로만 든다.
+   */
+  const comboRef = useRef(0);
+  const bestComboRef = useRef(0);
   const pausedRef = useRef(false);
   const endedRef = useRef(false);
 
@@ -284,10 +307,15 @@ export default function MatchGame({ onExit }: { onExit: () => void }) {
     setSel(null);
 
     if (correct) {
+      comboRef.current += 1;
+      if (comboRef.current > bestComboRef.current) {
+        bestComboRef.current = comboRef.current;
+      }
       setStatus("left", leftSel.index, "correct");
       setStatus("right", rightSel.index, "correct");
       onMatched(left[leftSel.index].pair.id, leftSel.index, rightSel.index);
     } else {
+      comboRef.current = 0;
       setStatus("left", leftSel.index, "wrong");
       setStatus("right", rightSel.index, "wrong");
       setTimeout(() => {
@@ -328,7 +356,15 @@ export default function MatchGame({ onExit }: { onExit: () => void }) {
     const wasFinal = reward?.final;
     setReward(null);
     if (wasFinal) {
-      onExit();
+      if (onFinish) {
+        onFinish({
+          xp: earnedXpRef.current,
+          matched: matchedRef.current,
+          bestCombo: bestComboRef.current,
+        });
+      } else {
+        onExit();
+      }
       return;
     }
     pausedRef.current = false;

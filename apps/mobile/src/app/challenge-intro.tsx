@@ -105,7 +105,10 @@ export default function ChallengeIntro() {
         <Pressable
           onPress={() =>
             router.replace({
-              pathname: "/lesson",
+              // ⚠️ /lesson 이 아니다. lesson.tsx 에는 challenge 분기가 없어서
+              // 여기로 보내면 `NO_LESSON_ID` 로 죽는다. 리그 XP 챌린지는
+              // 짝 맞추기 게임이다 (xp-challenge 제목이 challenge.types.match).
+              pathname: "/match-game",
               params: {
                 mode: "challenge",
                 tier: p.tier,
