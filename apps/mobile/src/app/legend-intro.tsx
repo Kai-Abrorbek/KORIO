@@ -16,7 +16,12 @@ import { useEffect } from "react";
 import { useEnergyStore } from "@/store/energy.store";
 
 // 레전드 보상 XP (수정 가능)
-const LEGEND_XP = 40;
+/**
+ * ⚠️ lesson.tsx 와 서버 lessons.service.ts 의 LEGEND_XP 와 **같은 값이어야 한다.**
+ * 예전엔 여기만 40 으로 남아 있어서, 시작 버튼이 "+40 XP" 라고 약속하고
+ * 실제로는 300 을 줬다 (XP 개편 때 이 미러만 안 고쳐졌다).
+ */
+const LEGEND_XP = 300;
 
 const GOLD = "#FFC800",
   GOLD_DK = "#E5A800",

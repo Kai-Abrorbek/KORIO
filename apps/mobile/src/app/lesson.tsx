@@ -62,7 +62,13 @@ type Phase = "main" | "reviewIntro" | "review";
 const HIDES_FEEDBACK_BAR = new Set(["grammar_blank", "grammar_build"]);
 const LEGEND_SEGMENTS = [5, 7, 10];
 const LEGEND_TOTAL = LEGEND_SEGMENTS.reduce((a, b) => a + b, 0); // 22
-const LEGEND_DURATION = 120; // 2분
+/**
+ * 레전드 제한 시간.
+ *
+ * 2분은 22문항(LEGEND_SEGMENTS 합)에 문항당 5.5초라 읽을 시간도 모자랐다.
+ * 3분이면 문항당 8초 — 서두르는 긴장은 남고, 읽다가 끝나지는 않는다.
+ */
+const LEGEND_DURATION = 180; // 3분
 /** 서버 XP 표(PRACTICE_BASE_XP)의 키. 노드 종류마다 보상이 다르다 */
 const UNIT_PRACTICE_MODE: Record<StudyQuizKind, PracticeMode> = {
   review: "unitReview",
