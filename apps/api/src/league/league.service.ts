@@ -37,7 +37,8 @@ const TIER_ORDER: UserLeague[] = [
 /**
  * 티어별 승급/강등 인원 + 1·2·3위 젬 상자 + **주간 유지 XP**.
  *
- * keepXp: 한 주에 이만큼도 못 모으면 순위와 무관하게 강등된다.
+ * keepXp: **한 주(월~일) 합계**가 이만큼도 안 되면 순위와 무관하게 강등된다.
+ *   매일이 아니라 주간 총합이고, 월요일 정산 때 딱 한 번 본다.
  *
  * 왜 순위만으로 부족한가. 방이 통째로 조용하면(다들 거의 안 함) 하위 5명만
  * 떨어지고 나머지는 아무것도 안 해도 그 리그에 남는다. 상위 리그일수록
@@ -66,17 +67,19 @@ const TIER_CONFIG: Record<
     keepXp: number;
   }
 > = {
-  // keepXp 옆 주석은 "일주일에 학습 며칠" 이라는 뜻이다 (하루 ≈ 900~1,000 XP)
+  // keepXp 는 **주간 합계**다. 옆 주석은 "이걸 채우려면 학습 며칠치가 필요한가"
+  // 라는 뜻이고 매일 그만큼 하라는 뜻이 아니다 (학습 하루치 ≈ 900~1,000 XP).
+  // 예: 실버 800 = 일주일에 하루만 제대로 해도 유지된다.
   [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10], keepXp: 0 },
-  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 800 }, // 1일
-  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 1500 }, // 1.5~2일
-  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 2300 }, // 2.5일
-  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 3000 }, // 3일
-  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 3800 }, // 4일
-  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 4500 }, // 5일
-  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 5200 }, // 5.5일
-  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 6000 }, // 6일
-  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 7000 }, // 거의 매일
+  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 800 }, // 주 800 — 하루치
+  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 1500 }, // 주 1,500 — 이틀치
+  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 2300 }, // 주 2,300 — 두세 날치
+  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 3000 }, // 주 3,000 — 사흘치
+  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 3800 }, // 주 3,800 — 나흘치
+  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 4500 }, // 주 4,500 — 닷새치
+  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 5200 }, // 주 5,200 — 대엿새치
+  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 6000 }, // 주 6,000 — 엿새치
+  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 7000 }, // 주 7,000 — 거의 매일
 };
 
 const ROOM_SIZE = 30;
