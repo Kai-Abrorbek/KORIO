@@ -2,7 +2,7 @@ import './config/timezone'; // 반드시 최상단: 서버 타임존 KST 고정
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ForbiddenException, Logger, ValidationPipe } from '@nestjs/common';
 import { json, raw, urlencoded } from 'express';
 import { SPEECH_MAX_BYTES } from './speech/speech.constants';
 import {
@@ -51,11 +51,34 @@ async function bootstrap() {
   // 네이티브 앱은 Origin 을 안 보내서 CORS 대상이 아니다(origin === undefined → 허용).
   // 브라우저에서 열린 제3자 사이트가 유저 토큰으로 우리 API 를 대신 호출하는 것만 막는다.
   // ALLOWED_ORIGINS=https://korio.app,https://admin.korio.app 형태로 넣으면 된다.
+  //
+  // ⚠️ **브라우저에서 도는 우리 것도 여기 넣어야 한다.** Telegram Mini App 이
+  //    정확히 이것 때문에 통째로 막혔었다. 놓치기 쉬운 이유:
+  //      · GET 은 Origin 을 안 보낸다 → /ready 같은 확인 요청은 멀쩡히 통과한다
+  //      · curl 도 Origin 을 안 보낸다 → 손으로 테스트하면 정상으로 보인다
+  //      · 브라우저는 **same-origin 이어도** POST/PATCH/DELETE 에 Origin 을 붙인다
+  //    그래서 "사람이 열 때만 터지고 확인할 때는 멀쩡한" 상태가 된다.
   const allowed = corsOrigins();
+  const rejectedOrigins = new Set<string>();
   app.enableCors({
     origin: (origin, cb) => {
       if (!origin || allowed.includes(origin)) return cb(null, true);
-      cb(new Error('CORS_NOT_ALLOWED'), false);
+
+      // 어느 출처가 막혔는지 반드시 남긴다. 예전엔 'CORS_NOT_ALLOWED' 만 찍혀서
+      // 스택만 보고는 무엇을 허용해야 하는지 알 수가 없었다.
+      // 같은 출처는 한 번만 — 봇이 두드리면 로그가 그걸로 덮인다.
+      if (!rejectedOrigins.has(origin)) {
+        rejectedOrigins.add(origin);
+        Logger.warn(
+          `CORS 거부: ${origin} — 우리 서비스면 ALLOWED_ORIGINS 에 추가해라 ` +
+            `(현재: ${allowed.length ? allowed.join(', ') : '비어 있음'})`,
+          'Bootstrap',
+        );
+      }
+      // 평범한 Error 를 넘기면 Nest 가 처리 못 한 예외로 보고 **500** 을 낸다.
+      // 클라이언트는 'Internal server error' 만 받아서 원인을 알 수 없다.
+      // HttpException 을 넘기면 403 + 코드로 나간다.
+      cb(new ForbiddenException('CORS_NOT_ALLOWED'), false);
     },
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
