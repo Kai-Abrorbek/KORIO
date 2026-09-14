@@ -1561,6 +1561,15 @@ export class LessonsService {
       await this.usersService.getTimezone(userId),
     );
 
+    // 파이프라인 업데이트는 upsert 로 문서를 만들 때 스키마 기본값을 넣어주지
+    // 않는다 (Map 필드가 통째로 빠진다). 먼저 평범한 upsert 로 문서를 만들어
+    // 기본값을 채워두고, 상한 계산만 파이프라인으로 한다.
+    await this.userStatsModel.updateOne(
+      { userId: uId, date: today },
+      { $inc: { xpEarned: 0 } },
+      { upsert: true },
+    );
+
     const before = await this.userStatsModel
       .findOneAndUpdate(
         { userId: uId, date: today },
