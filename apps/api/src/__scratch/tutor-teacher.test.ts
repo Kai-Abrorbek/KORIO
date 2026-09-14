@@ -52,12 +52,28 @@ for (const t of TUTOR_TEACHERS) {
     `[${t.id}] 말속도가 상식적인 범위`,
   );
   say(t.promptStyle.length > 40, `[${t.id}] 성격 지시문이 비어 있지 않다`);
+  // 형용사만 있으면 모델이 성격을 못 살려서 다섯 명이 전부 똑같이 들린다.
+  // 이 선생님이 실제로 할 법한 한국어 대사가 들어 있어야 한다
+  say(
+    /[가-힣]/.test(t.promptStyle),
+    `[${t.id}] 성격 지시문에 실제 대사가 들어 있다`,
+  );
+  say(
+    !!t.realtimeVoice,
+    `[${t.id}] Realtime 목소리가 지정돼 있다`,
+  );
 }
 // 목소리가 겹치면 카드만 다르고 소리는 같아서 고른 의미가 없다
 say(
   new Set(TUTOR_TEACHERS.map((t) => t.tts.voiceId)).size ===
     TUTOR_TEACHERS.length,
-  '선생님마다 목소리가 다르다',
+  '선생님마다 TTS 목소리가 다르다',
+);
+// 카드만 다르고 소리가 같으면 고른 의미가 없다. 이쪽이 실제로 들리는 목소리다
+say(
+  new Set(TUTOR_TEACHERS.map((t) => t.realtimeVoice)).size ===
+    TUTOR_TEACHERS.length,
+  '선생님마다 Realtime 목소리가 다르다',
 );
 say(
   TUTOR_TEACHERS.some((t) => t.recommendedModes.includes('pronunciation')),
@@ -126,13 +142,21 @@ say(
 say(/UZBEK WHEN THEY ASK/.test(p), '요청하면 우즈벡어로 답하라는 지시가 있다');
 say(/Do NOT refuse/.test(p), '언어 전환을 거부하지 말라고 못 박았다');
 
-// 목소리는 문장 단위로 언어를 판정해 고른다. 한 문장 안에 섞이면
-// 다수쪽 음성이 소수쪽을 엉터리로 읽는다 — 아키텍처 제약이다
+// v3 에서 목소리를 모델 자체 음성으로 되돌렸다. 한 목소리가 두 언어를 다
+// 하므로 "한 문장 안에 섞지 마라" 제약이 사라졌다 — 되살아나면 안 된다
 say(
-  /NEVER mix the two inside ONE sentence/.test(p),
-  '한 문장에 두 언어를 섞지 말라는 지시가 있다',
+  !/NEVER mix the two inside ONE sentence/.test(p),
+  '언어 섞기 금지가 걷혔다 (한 목소리가 둘 다 한다)',
 );
-say(/READ ALOUD/i.test(p), '모든 글자가 소리로 나간다는 걸 알려준다');
+say(/YOU ARE SPEAKING, NOT WRITING/.test(p), '말하는 거지 쓰는 게 아니라는 지시');
+
+// ── 교정 루프 금지 ── v3 의 핵심. 같은 문장을 3~4번 시키는 게 제일 큰 불만이었다
+say(
+  /NEVER make them repeat the same sentence twice/.test(p),
+  '같은 문장 반복시키기 금지',
+);
+say(/say NOTHING about it/.test(p), '맞게 말했으면 그냥 넘어가라는 지시');
+say(/BE ALIVE/.test(p), '웃고 반응하고 애드립 치라는 지시');
 
 // ── 놀리기는 그 성격일 때만 ───────────────────────────────────
 // 차분한 선생님을 고른 유저가 놀림받으면 그건 성격 설정이 샌 버그다
@@ -140,7 +164,7 @@ for (const t of TUTOR_TEACHERS) {
   const pr = buildTutorInstructions(learner, 'freeTalk', undefined, undefined, t);
   const teasing = t.personality === 'teasing';
   say(
-    /TEASING — THIS IS YOUR CHARACTER/.test(pr) === teasing,
+    /TEASING — THIS IS WHO YOU ARE/.test(pr) === teasing,
     `[${t.id}] 놀리기 블록이 ${teasing ? '있다' : '없다'}`,
   );
 }

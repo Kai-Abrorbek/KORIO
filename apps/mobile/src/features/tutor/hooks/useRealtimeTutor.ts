@@ -11,8 +11,6 @@ import {
 } from "../services/tutor.api";
 import { connectRealtime, type RealtimeConnection } from "../services/realtime";
 import { extractExamples } from "../services/examples";
-import { takeChunks } from "../services/sentence-chunker";
-import { TutorSpeechQueue } from "../services/tutor-speech";
 
 /**
  * 서버로 보낼 대화의 상한.
@@ -76,7 +74,6 @@ export function useRealtimeTutor() {
    * Realtime 은 이제 텍스트만 만든다 — 소리는 전부 이 큐를 지난다.
    * 훅 밖의 명령형 객체라 ref 로 들고 있는다.
    */
-  const speech = useRef<TutorSpeechQueue | null>(null);
   /** 아직 문장이 안 된 꼬리. 다음 델타와 이어 붙인다 */
   const textBuf = useRef("");
   /** 콜백에서 현재 자막을 읽으려고 둔다 (콜백은 deps 가 비어 있다) */
@@ -140,11 +137,7 @@ export function useRealtimeTutor() {
     const turns = transcript.current;
     transcript.current = [];
 
-    // 소리부터 끊는다. 연결만 끊으면 이미 큐에 있는 문장이 계속 재생된다
-    try {
-      speech.current?.dispose();
-    } catch {}
-    speech.current = null;
+    // 소리는 WebRTC 오디오 트랙이라 연결을 끊으면 같이 끊긴다
     textBuf.current = "";
     greeted.current = false;
     try {
@@ -265,43 +258,6 @@ export function useRealtimeTutor() {
           color: grant.teacher.color,
         });
 
-        // 선생님 목소리. 여기부터 소리는 전부 이 큐를 지난다
-        speech.current?.dispose();
-        speech.current = new TutorSpeechQueue({
-          // 실제로 **소리가 나기 시작한** 시점에만 speaking 으로 바꾼다.
-          // 텍스트가 생성되는 중에 바꾸면 화면은 말한다고 하는데 아직
-          // 아무 소리도 안 나는 구간이 생긴다
-          onPlaybackStart: (line) => {
-            setCaptionPrev(captionRef.current);
-            captionRef.current = line;
-            setCaption(line);
-            setState("speaking");
-          },
-          onIdle: () => {
-            if (stateRef.current === "speaking") setState("listening");
-          },
-          onError: (code) => {
-            // 소리를 못 내도 대화는 자막으로 이어간다. 화면을 죽이지 않는다
-            if (__DEV__) console.log("[tutor] TTS 실패:", code);
-          },
-          onTiming: (t) => {
-            if (!__DEV__) return;
-            const stopped = speechStoppedAt.current;
-            const think = firstTextAt.current
-              ? firstTextAt.current - stopped
-              : 0;
-            console.log(
-              `[tutor] 지연 — 생각 ${think}ms · TTS ${t.audioAt - t.requestedAt}ms · 총 ${
-                stopped ? t.playedAt - stopped : 0
-              }ms`,
-            );
-          },
-        });
-        speech.current.configure({
-          teacherId: grant.teacher.id,
-          sessionId: grant.sessionId,
-        });
-
         const c = await connectRealtime(grant.clientSecret, grant.model, {
           onEvent: handleServerEvent,
           // 채널이 열린 **뒤에** 첫 응답을 시킨다. 연결됐다고 채널이 열린 건
@@ -354,7 +310,8 @@ export function useRealtimeTutor() {
         if (__DEV__ && stateRef.current === "speaking") {
           console.log("[tutor] 말하는 중 발화 감지 — 끼어들기 또는 에코");
         }
-        speech.current?.cancelAll();
+        // 소리는 서버가 끊는다 (turn_detection.interrupt_response: true).
+        // WebRTC 라 오디오 트랙이 즉시 멎는다 — 앱이 할 일이 없다.
         textBuf.current = "";
         setCaptionPrev("");
         setState("listening");
@@ -365,37 +322,50 @@ export function useRealtimeTutor() {
         setState("thinking");
         break;
 
-      // ── 여기가 하이브리드의 핵심 ──
+      // ── 선생님 목소리는 모델이 직접 낸다 ──
       //
-      // Realtime 은 소리를 안 만든다 (session.output_modalities: ['text']).
-      // 텍스트가 흘러 들어오면 문장 단위로 잘라서 바로 선생님 목소리로 넘긴다.
-      // 답변이 다 끝나기를 기다리면 유저는 그동안 침묵을 듣는다.
-      case "response.output_text.delta":
-      case "response.text.delta":
+      // output_modalities: ['audio'] 라 소리는 WebRTC 오디오 트랙으로 흘러와
+      // 네이티브가 알아서 재생한다 (realtime.ts 의 pc.ontrack 주석 참고).
+      // 여기서는 **자막만** 만든다.
+      //
+      // 예전에는 텍스트를 받아 문장 단위로 잘라 Azure TTS 로 읽혔다. 발음은
+      // 정확했지만 TTS 는 글자를 읽는 기계라 웃지도 톤을 바꾸지도 못했고,
+      // 언어마다 음성이 달라 한 문장 안에서 목소리가 바뀌었다.
+      case "response.output_audio_transcript.delta":
         if (typeof event.delta === "string") {
           if (!firstTextAt.current) firstTextAt.current = Date.now();
-          // 자막은 여기서 안 건드린다. 소리가 나기 시작한 문장만 띄운다 —
-          // 델타를 그대로 흘리면 글자가 소리보다 앞서 달려서 지저분하다
           textBuf.current += event.delta;
-          const { chunks, rest } = takeChunks(textBuf.current);
-          textBuf.current = rest;
-          for (const c of chunks) speech.current?.enqueue(c);
+          // 자막은 소리와 같이 흐른다. 이 델타는 실제로 말하고 있는 내용이라
+          // 글자가 소리보다 앞서 달리지 않는다
+          captionRef.current = textBuf.current;
+          setCaption(textBuf.current);
         }
         break;
-      case "response.output_text.done":
-      case "response.text.done": {
-        // 마지막 꼬리는 짧아도 내보낸다 — 안 그러면 끝말이 잘린다
-        const { chunks } = takeChunks(textBuf.current, true);
+      case "response.output_audio_transcript.done":
+        if (typeof event.transcript === "string" && event.transcript.trim()) {
+          captionRef.current = event.transcript;
+          setCaption(event.transcript);
+          // 기록에는 응답 전체를 남긴다 (분석용)
+          pushTurn(transcript, "tutor", event.transcript);
+        }
         textBuf.current = "";
-        for (const c of chunks) speech.current?.enqueue(c);
-        if (typeof event.text === "string" && event.text.trim()) {
-          // 기록에는 응답 전체를 남긴다 (분석용). 화면에는 문장 단위로 흐른다
-          pushTurn(transcript, "tutor", event.text);
+        break;
+      case "response.output_audio.delta":
+        // 소리가 실제로 나오기 시작했다.
+        // 지연은 이제 이 한 숫자가 전부다 — TTS 왕복이 없어졌다. 목표 1.5초 이내
+        if (stateRef.current !== "speaking") {
+          if (__DEV__ && speechStoppedAt.current) {
+            console.log(
+              `[tutor] 지연 — 말 끝에서 첫 소리까지 ${Date.now() - speechStoppedAt.current}ms`,
+            );
+          }
+          setState("speaking");
         }
         break;
-      }
       case "response.created":
         textBuf.current = "";
+        setCaptionPrev(captionRef.current);
+        setCaption("");
         break;
       case "conversation.item.input_audio_transcription.completed":
         if (typeof event.transcript === "string") {

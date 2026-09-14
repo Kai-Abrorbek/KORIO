@@ -154,18 +154,37 @@ export class TutorService implements OnModuleInit {
                 interrupt_response: true,
               },
             },
+            /**
+             * 목소리는 **선생님이 정한다.** 유저가 카드에서 고른 사람과 소리가
+             * 따로 놀면 고른 의미가 없다.
+             *
+             * ⚠️ 세션이 시작된 뒤에는 목소리를 못 바꾼다. 여기서 확정된다.
+             */
+            output: {
+              voice: resolveVoice(teacher.realtimeVoice),
+              // 선생님마다 말속도가 다르다 (초급 대상은 조금 느리게)
+              speed: teacher.speechRate,
+            },
           },
           /**
-           * ⚠️ 출력은 **텍스트만** 받는다. 소리는 선생님의 외부 TTS 가 낸다.
+           * 출력은 **오디오**. 모델이 직접 말한다.
            *
-           * Realtime 목소리는 영어 우선으로 만들어져서 한국어가 외국인 억양처럼
-           * 들린다. 한국어를 가르치는 앱에서 그건 그냥 결함이다.
+           * 한동안 텍스트만 받아서 Azure TTS 로 읽혔다(하이브리드). 한국어 발음은
+           * 그쪽이 정확했지만 대가가 컸다:
            *
-           * 부수 효과로 원가가 크게 준다 — Realtime 은 출력 오디오가 입력의
-           * 2배 단가인데, 그걸 아예 안 만든다. 대신 TTS 글자 수 과금이 붙지만
-           * 훨씬 싸다.
+           *   · TTS 는 글자를 읽는 기계다. 웃지도, 톤을 바꾸지도, 타이밍을 잡지도
+           *     못한다. 농담을 아무리 잘 써도 뉴스 앵커가 읽는다 — 애드립이 죽는다.
+           *   · 언어마다 음성이 달라서 한 문장 안에서 목소리가 바뀌었다.
+           *     ("Tushundingizmi? 그럼 한번 해봐요" 가 두 사람 목소리로 나온다)
+           *
+           * 회화 튜터에서 재미와 사람 같은 느낌이 발음 정확도보다 중요하다는
+           * 판단이다. 발음 예문처럼 **정확히 들려줘야 하는 자리**는 여전히
+           * Azure TTS(`POST /tutor/tts`)로 낼 수 있게 남겨뒀다.
+           *
+           * ⚠️ 원가: 출력 오디오는 입력의 2배 단가다. 텍스트만 받던 때보다
+           *    분당 비용이 오른다 (tutor.const.ts 의 EST_COST_PER_MIN_USD).
            */
-          output_modalities: ['text'],
+          output_modalities: ['audio'],
           // 출력 오디오가 입력의 2배 단가다. 프롬프트로만 "짧게"를 부탁하면
           // 가끔 길게 뱉으므로 여기서 상한을 건다.
           max_output_tokens: MAX_RESPONSE_TOKENS,
@@ -201,8 +220,9 @@ export class TutorService implements OnModuleInit {
       clientSecret: data.value,
       expiresAt: data.expires_at ?? null,
       model: TUTOR_MODEL,
-      // 아래 voice 는 하위호환용이다. 실제 소리는 teacher.tts 가 낸다
-      voice: resolveVoice(voice),
+      // 실제로 쓰인 목소리. 앱이 요청한 voice 가 아니라 **선생님이 정한** 것이다 —
+      // 유저가 고른 사람과 소리가 따로 놀면 안 된다 (요청값은 무시된다)
+      voice: resolveVoice(teacher.realtimeVoice),
       teacher: {
         id: teacher.id,
         name: teacher.name,

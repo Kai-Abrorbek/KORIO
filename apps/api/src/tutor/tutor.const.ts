@@ -42,7 +42,14 @@ export const IS_PREMIUM_MODEL = !/mini/i.test(TUTOR_MODEL);
 export const TRANSCRIBE_MODEL =
   process.env.OPENAI_TRANSCRIBE_MODEL?.trim() || 'gpt-4o-transcribe';
 
-/** 참고용 분당 원가 추정 (실측 기반). 로그에만 쓴다 */
+/**
+ * 참고용 분당 원가 추정 (실측 기반). 로그에만 쓴다.
+ *
+ * 이 숫자는 **출력이 오디오일 때** 기준이다. 한동안 출력을 텍스트로만 받고
+ * Azure TTS 로 읽혀서 더 쌌지만(하이브리드), 목소리가 죽는 대가가 커서
+ * 모델 자체 음성으로 되돌렸다. 즉 이 값이 다시 맞는 기준이다.
+ * (Realtime 은 출력 오디오가 입력의 2배 단가다)
+ */
 export const EST_COST_PER_MIN_USD = IS_PREMIUM_MODEL ? 0.2 : 0.065;
 
 /** 한 세션 최대 길이(분). 길어질수록 문맥이 쌓여 분당 원가가 오른다 */
