@@ -78,7 +78,7 @@ const UNIT_PRACTICE_MODE: Record<StudyQuizKind, PracticeMode> = {
   final: "unitFinal",
 };
 
-const LEGEND_XP = 300; // 서버 lessons.service.ts 와 같은 값
+const LEGEND_XP = 100; // 서버 lessons.service.ts 와 같은 값
 const SMART_GRADING_TYPES = new Set([
   "type_answer",
   "translate_type",

@@ -54,7 +54,7 @@ import { streakWeek } from '../users/utils/streak.util';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 
-const LEGEND_XP = 300;
+const LEGEND_XP = 100; // 앱의 lesson.tsx · legend-intro.tsx 와 같은 값
 
 /**
  * 학습자 언어 자리에 한국어가 섞였는지.

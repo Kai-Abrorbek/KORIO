@@ -36,5 +36,5 @@ export const LEVEL_EXAM = {
   passRatio: 0.8,
   /** 통과 보상 (급수당 1회) */
   gems: 50,
-  xp: 450,
+  xp: 150,
 } as const;

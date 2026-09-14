@@ -12,13 +12,33 @@ import { QuestionType } from './schemas/question.schema';
  * "콤보만 주는 것 같다"는 체감이 났다. 이제 문제 난이도가 보상에 반영된다.
  */
 
+/**
+ * 시드에 박힌 XP 를 지급할 때 나누는 값.
+ *
+ * 시드의 xpReward 합계(15문항 ≈ 228)가 너무 후했다 — 노드 하나만 풀어도 리그
+ * 유지 XP 를 넘겨서 리그가 실력 표시로서 의미를 잃었다.
+ *
+ * 시드를 다시 돌리지 않고 **지급 시점에** 나눈다. 시드의 xpReward 는 "문제
+ * 난이도 비율" 의 출처로 그대로 두고(재인 10 · 조작 15 · 생산 20 · 발화 25),
+ * 절대량만 여기서 조절한다. 다시 조정할 일이 생기면 이 한 줄이다.
+ *
+ * ⚠️ 이 값을 바꾸면 리그 유지 XP(TIER_CONFIG.keepXp)도 같이 봐야 한다.
+ *    둘은 같은 눈금을 쓴다.
+ */
+export const XP_AWARD_DIVISOR = 3;
+
+/** 시드·표에 적힌 기본 XP → 실제로 주는 XP */
+export function awardedXp(raw: number): number {
+  return Math.max(0, Math.round((raw ?? 0) / XP_AWARD_DIVISOR));
+}
+
 /** 콤보 1당 추가 XP.
  *
- * 예전 값은 1 이었는데, 그때는 레슨 기본 XP 가 30 이라 만점 콤보(15)가 전체의
- * 33% 를 차지했다. 기본 XP 가 문제 합계(≈228)로 커진 지금 같은 비중을 유지하면
- * 콤보 하나가 레슨 하나만큼 값이 나가 버린다. 콤보는 덤이지 본체가 아니므로
- * 전체의 15% 안쪽(만점 15콤보 → 45)에 맞춘다. */
-export const COMBO_XP_PER = 3;
+ * 기본 XP 를 1/3 로 내렸으므로 콤보도 같이 내린다. 3 을 그대로 두면 만점
+ * 콤보(15 × 3 = 45)가 레슨 기본(≈76)의 60% 가 되어, 예전에 고쳤던
+ * "콤보만 주는 것 같다" 로 되돌아간다. 콤보는 덤이지 본체가 아니므로
+ * 전체의 15~20% 안쪽(만점 15콤보 → 15)에 맞춘다. */
+export const COMBO_XP_PER = 1;
 
 /**
  * 문제 타입별 기본 XP. 시드 데이터의 문제에는 각자 xpReward 가 박혀 있고,
@@ -81,28 +101,33 @@ export function calcLessonXp(
   correctAnswers: number,
 ): number {
   const safeCombo = Math.max(0, Math.min(combo ?? 0, correctAnswers ?? 0));
-  return (baseXp ?? 0) + safeCombo * COMBO_XP_PER;
+  // baseXp 는 시드가 넣어둔 합계다 — 지급 시점에 나눈다 (XP_AWARD_DIVISOR 주석 참고)
+  return awardedXp(baseXp) + safeCombo * COMBO_XP_PER;
 }
 
 /**
  * 연습 모드 기본 XP (클라가 보내는 값 대신 서버가 정한다).
  *
- * 레슨 기본 XP 가 `문항수 × 2` 에서 문제 합계(15문항 ≈ 228)로 바뀌면서
- * 같은 비율(≈7.6배)로 올렸다. 모드 사이의 상대적 균형은 예전 그대로다 —
- * 노드 복습이 제일 짜고(반복 가능해서), 하루 마무리가 제일 후하다.
+ * 레슨 기본 XP 를 1/3 로 내리면서 이 표도 같은 비율로 내렸다. 모드 사이의
+ * 상대적 균형은 예전 그대로다 — 노드 복습이 제일 짜고(반복 가능해서),
+ * 하루 마무리가 제일 후하다.
+ *
+ * ⚠️ 여기 적힌 값이 **그대로 지급된다** (calcLessonXp 와 달리 나누지 않는다).
+ *    이 표는 손으로 정한 최종 숫자이고, XP_AWARD_DIVISOR 는 시드가 넣어둔
+ *    값을 위한 것이다. 둘을 겹쳐 적용하면 1/9 이 된다.
  */
 export const PRACTICE_BASE_XP: Record<string, number> = {
-  review: 150, // 오답 복습
-  nodeReview: 40, // 노드 복습 — 반복해서 돌 수 있어 일부러 박하게
-  wordPractice: 75, // 단어 연습
-  expressionPractice: 75, // 표현 카드 뒤 빈칸·타이핑 연습
+  review: 50, // 오답 복습
+  nodeReview: 13, // 노드 복습 — 반복해서 돌 수 있어 일부러 박하게
+  wordPractice: 25, // 단어 연습
+  expressionPractice: 25, // 표현 카드 뒤 빈칸·타이핑 연습
   // 학습 로드 모드 — 하루(=유닛)의 문제 노드들.
   // final 이 가장 높은 건 하루를 끝낸 보상이라서다
-  unitReview: 90, // 지난 과 복습
-  unitRecap: 90, // 2일차 — 어제 배운 것 되짚기
-  unitVocab: 105, // 어휘 문제 레슨 하나
-  unitGrammar: 105, // 문법 문제 레슨 하나
-  unitFinal: 190, // 마무리 확인 — 하루를 끝낸 보상
+  unitReview: 30, // 지난 과 복습
+  unitRecap: 30, // 2일차 — 어제 배운 것 되짚기
+  unitVocab: 35, // 어휘 문제 레슨 하나
+  unitGrammar: 35, // 문법 문제 레슨 하나
+  unitFinal: 63, // 마무리 확인 — 하루를 끝낸 보상
 };
 
 /**
@@ -118,7 +143,7 @@ export const PRACTICE_BASE_XP: Record<string, number> = {
  *    그게 없으면 한 문장을 반복해서 리그 1등을 살 수 있다 —
  *    리그 주간 XP = UserStats.xpEarned 합계다.
  */
-export const SPEAKING_SENTENCE_XP = 5;
+export const SPEAKING_SENTENCE_XP = 2;
 
 /** 연습 모드 XP = 기본값 + 콤보(정답 수 상한) */
 export function calcPracticeXp(

@@ -44,8 +44,17 @@ const TIER_ORDER: UserLeague[] = [
  * 그렇게 눌러앉은 사람이 쌓여서 리그가 실력 표시로서 의미를 잃는다.
  * "이 리그에 있으려면 최소 이만큼은 한다" 를 숫자로 박는 게 keepXp 다.
  *
- * 기준 감각: 15문항 레슨 만점이 약 273 XP. 실버 300 은 주 1레슨,
- * 다이아 6500 은 주 24레슨쯤이다. 체감 보고 조정할 것 — 여기 숫자만 바꾸면 된다.
+ * ⚠️ 기준은 **학습 하루치**다 (레슨 XP 를 1/3 로 내린 뒤 기준).
+ *
+ *   15문항 레슨 만점 ≈ 76 + 콤보 15 = 약 91
+ *   어휘 노드 하나(최대 5링) ≈ 275
+ *   하루(유닛 하나, 노드 4~5개) ≈ 900~1,000
+ *
+ * 그래서 실버는 "주 1일만 나와도 유지", 다이아는 "거의 매일" 이 된다.
+ * 예전엔 실버 300 = 레슨 한 개였다 — 노드 하나만 풀어도 넘겨서 이 장치가
+ * 사실상 아무도 안 걸렀다.
+ *
+ * economy.const.ts 의 XP_AWARD_DIVISOR 를 바꾸면 이 표도 같이 봐야 한다.
  * 브론즈는 demote 0 이라 keepXp 도 0 (더 내려갈 데가 없다).
  */
 const TIER_CONFIG: Record<
@@ -57,22 +66,23 @@ const TIER_CONFIG: Record<
     keepXp: number;
   }
 > = {
+  // keepXp 옆 주석은 "일주일에 학습 며칠" 이라는 뜻이다 (하루 ≈ 900~1,000 XP)
   [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10], keepXp: 0 },
-  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 300 },
-  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 600 },
-  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 1000 },
-  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 1500 },
-  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 2200 },
-  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 3000 },
-  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 4000 },
-  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 5200 },
-  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 6500 },
+  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 800 }, // 1일
+  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 1500 }, // 1.5~2일
+  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 2300 }, // 2.5일
+  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 3000 }, // 3일
+  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 3800 }, // 4일
+  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 4500 }, // 5일
+  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 5200 }, // 5.5일
+  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 6000 }, // 6일
+  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 7000 }, // 거의 매일
 };
 
 const ROOM_SIZE = 30;
 /** 한 번에 따라잡을 최대 주 수. 오래 멈춰 있었어도 한 번에 다 돌지는 않는다 */
 const MAX_CATCHUP_WEEKS = 8;
-const CHALLENGE_XP = 210;
+const CHALLENGE_XP = 70; // 리그 화면 배지 표시용. 실제 상한은 TIER_CHALLENGE.maxXp
 // 온라인 판정 창은 users/presence.util 하나로 모았다.
 // 두 군데서 따로 정하면 리그와 친구 목록이 서로 다른 답을 준다.
 

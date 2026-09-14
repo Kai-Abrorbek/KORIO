@@ -27,17 +27,22 @@ export interface LeagueChallengeConfig {
  * 짝 맞추기는 한 판에 20~30쌍, 아케이드는 수백 점이 나온다.
  * maxXp 는 티어가 오를수록 조금씩 높아진다 — 상위 리그일수록 경쟁이 빡세다.
  */
+/**
+ * ⚠️ maxXp 는 레슨 XP 와 **같은 눈금**이다. economy.const.ts 의
+ * XP_AWARD_DIVISOR 를 바꾸면 여기도 같이 봐야 한다. 챌린지가 레슨보다 후하면
+ * 아무도 레슨을 안 한다 — 지금은 한 판이 레슨 하나(약 76) 수준이다.
+ */
 export const TIER_CHALLENGE: Record<UserLeague, LeagueChallengeConfig> = {
-  [UserLeague.BRONZE]: { id: 'match', xpPerPoint: 6, maxXp: 180, energyCost: 15 },
-  [UserLeague.SILVER]: { id: 'memory', xpPerPoint: 20, maxXp: 190, energyCost: 15 },
-  [UserLeague.GOLD]: { id: 'wordRain', xpPerPoint: 2, maxXp: 200, energyCost: 15 },
-  [UserLeague.SAPPHIRE]: { id: 'swipeJudge', xpPerPoint: 2, maxXp: 210, energyCost: 15 },
-  [UserLeague.RUBY]: { id: 'particleRush', xpPerPoint: 2, maxXp: 220, energyCost: 18 },
-  [UserLeague.EMERALD]: { id: 'echoChain', xpPerPoint: 8, maxXp: 230, energyCost: 18 },
-  [UserLeague.AMETHYST]: { id: 'wordChain', xpPerPoint: 8, maxXp: 240, energyCost: 18 },
-  [UserLeague.PEARL]: { id: 'swipeJudge', xpPerPoint: 2, maxXp: 250, energyCost: 20 },
-  [UserLeague.OBSIDIAN]: { id: 'particleRush', xpPerPoint: 2, maxXp: 260, energyCost: 20 },
-  [UserLeague.DIAMOND]: { id: 'echoChain', xpPerPoint: 8, maxXp: 280, energyCost: 20 },
+  [UserLeague.BRONZE]: { id: 'match', xpPerPoint: 2, maxXp: 60, energyCost: 15 },
+  [UserLeague.SILVER]: { id: 'memory', xpPerPoint: 7, maxXp: 63, energyCost: 15 },
+  [UserLeague.GOLD]: { id: 'wordRain', xpPerPoint: 1, maxXp: 67, energyCost: 15 },
+  [UserLeague.SAPPHIRE]: { id: 'swipeJudge', xpPerPoint: 1, maxXp: 70, energyCost: 15 },
+  [UserLeague.RUBY]: { id: 'particleRush', xpPerPoint: 1, maxXp: 73, energyCost: 18 },
+  [UserLeague.EMERALD]: { id: 'echoChain', xpPerPoint: 3, maxXp: 77, energyCost: 18 },
+  [UserLeague.AMETHYST]: { id: 'wordChain', xpPerPoint: 3, maxXp: 80, energyCost: 18 },
+  [UserLeague.PEARL]: { id: 'swipeJudge', xpPerPoint: 1, maxXp: 83, energyCost: 20 },
+  [UserLeague.OBSIDIAN]: { id: 'particleRush', xpPerPoint: 1, maxXp: 87, energyCost: 20 },
+  [UserLeague.DIAMOND]: { id: 'echoChain', xpPerPoint: 3, maxXp: 95, energyCost: 20 },
 };
 
 /**

@@ -21,7 +21,7 @@ import { useEnergyStore } from "@/store/energy.store";
  * 예전엔 여기만 40 으로 남아 있어서, 시작 버튼이 "+40 XP" 라고 약속하고
  * 실제로는 300 을 줬다 (XP 개편 때 이 미러만 안 고쳐졌다).
  */
-const LEGEND_XP = 300;
+const LEGEND_XP = 100;
 
 const GOLD = "#FFC800",
   GOLD_DK = "#E5A800",
