@@ -53,7 +53,14 @@ export interface TutorTeacherCard {
   description: string;
   avatar: string;
   color: string;
-  personality: "calm" | "friendly" | "energetic" | "strict" | "pronunciation";
+  personality:
+    | "calm"
+    | "friendly"
+    | "energetic"
+    | "strict"
+    | "pronunciation"
+    /** 장난스럽게 놀리는 선생님 (유나). 놀림은 이 성격에서만 나간다 */
+    | "teasing";
   recommendedModes: TutorMode[];
 }
 

@@ -24,7 +24,15 @@ export type TutorPersonality =
   | 'friendly'
   | 'energetic'
   | 'strict'
-  | 'pronunciation';
+  | 'pronunciation'
+  /**
+   * 장난스럽게 놀리는 선생님.
+   *
+   * ⚠️ 놀리는 말투는 **이 성격일 때만** 나간다. 프롬프트가 personality 로
+   *    분기하므로, 다른 선생님에게 새어 나가면 안 된다. 유저가 차분한
+   *    선생님을 골랐는데 놀림을 받으면 그건 버그다.
+   */
+  | 'teasing';
 
 export interface TutorTeacher {
   id: string;
@@ -38,6 +46,18 @@ export interface TutorTeacher {
   /** 1.0 이 보통. 초급 대상 선생님은 조금 느리게 */
   speechRate: number;
   tts: { provider: string; voiceId: string };
+  /**
+   * 우즈벡어를 말할 때 쓰는 목소리.
+   *
+   * 학습자가 "우즈벡어로 설명해줘" 라고 하면 튜터는 우즈벡어로 답한다
+   * (프롬프트 §8). 그 문장을 한국어 음성에 넣으면 라틴 문자를 한국어 규칙으로
+   * 읽어서 알아들을 수 없는 소리가 난다 — 목소리를 외부 TTS 로 옮긴 이유가
+   * "한국어가 외국인 억양처럼 들려서" 였는데, 그 반대를 하는 셈이 된다.
+   *
+   * 성별은 한국어 목소리와 맞춘다. 같은 선생님인데 언어가 바뀔 때마다 성별이
+   * 바뀌면 다른 사람이 말하는 것처럼 들린다.
+   */
+  ttsUz: { provider: string; voiceId: string };
   /** 이 선생님이 특히 잘 맞는 모드. 카드에 라벨로 뜬다 */
   recommendedModes: TutorMode[];
   /**
@@ -77,6 +97,7 @@ export const TUTOR_TEACHERS: TutorTeacher[] = [
     personality: 'calm',
     speechRate: 0.95,
     tts: { provider: 'azure', voiceId: 'ko-KR-SunHiNeural' },
+    ttsUz: { provider: 'azure', voiceId: 'uz-UZ-MadinaNeural' },
     recommendedModes: ['lesson', 'rolePlay'],
     promptStyle: [
       'Your name is 서연. You are calm, warm and patient.',
@@ -104,6 +125,7 @@ export const TUTOR_TEACHERS: TutorTeacher[] = [
     personality: 'friendly',
     speechRate: 1.05,
     tts: { provider: 'azure', voiceId: 'ko-KR-JiMinNeural' },
+    ttsUz: { provider: 'azure', voiceId: 'uz-UZ-MadinaNeural' },
     recommendedModes: ['freeTalk'],
     promptStyle: [
       'Your name is 지우. You are bright, curious and easy to talk to.',
@@ -131,6 +153,7 @@ export const TUTOR_TEACHERS: TutorTeacher[] = [
     personality: 'friendly',
     speechRate: 1,
     tts: { provider: 'azure', voiceId: 'ko-KR-InJoonNeural' },
+    ttsUz: { provider: 'azure', voiceId: 'uz-UZ-SardorNeural' },
     recommendedModes: ['rolePlay', 'freeTalk'],
     promptStyle: [
       'Your name is 민준. You are relaxed and down to earth.',
@@ -157,11 +180,46 @@ export const TUTOR_TEACHERS: TutorTeacher[] = [
     personality: 'pronunciation',
     speechRate: 0.95,
     tts: { provider: 'azure', voiceId: 'ko-KR-BongJinNeural' },
+    ttsUz: { provider: 'azure', voiceId: 'uz-UZ-SardorNeural' },
     recommendedModes: ['pronunciation', 'review'],
     promptStyle: [
       'Your name is 현우. You care about how things sound.',
       'When the learner mispronounces or phrases something unnaturally, say the natural version once, clearly, and have them repeat it.',
       'Keep corrections short — one point at a time, then back to the conversation.',
+    ].join(' '),
+  },
+  {
+    id: 'yuna',
+    name: {
+      ko: '유나 선생님',
+      uz: 'Yuna ustoz',
+      en: 'Teacher Yuna',
+      ru: 'Учитель Юна',
+    },
+    description: {
+      ko: '장난꾸러기예요. 틀리면 놀리지만 확실하게 고쳐줘요.',
+      uz: 'Sho‘x ustoz. Xato qilsangiz ustingizdan kuladi, lekin aniq tuzatadi.',
+      en: 'Playful and cheeky. Teases your mistakes, then fixes them properly.',
+      ru: 'Озорная. Подшучивает над ошибками, но исправляет их как следует.',
+    },
+    avatar: '😼',
+    color: '#F2A03D',
+    personality: 'teasing',
+    speechRate: 1.08,
+    tts: { provider: 'azure', voiceId: 'ko-KR-YuJinNeural' },
+    ttsUz: { provider: 'azure', voiceId: 'uz-UZ-MadinaNeural' },
+    recommendedModes: ['freeTalk', 'pronunciation'],
+    /**
+     * ⚠️ 놀림의 대상은 **언제나 그 문장**이다. 사람이 아니다.
+     *    사람을 겨냥하는 순간 재미가 아니라 모욕이 된다 — 프롬프트의
+     *    TEASING 절이 금지선을 따로 못 박는다.
+     */
+    promptStyle: [
+      'Your name is 유나. You are playful, cheeky and a little dramatic.',
+      'You tease the learner about their mistakes the way a close friend would — then fix them immediately.',
+      'The joke is always about the SENTENCE, never about the person.',
+      'Keep the joke to a few words. The correction is still the point.',
+      'When they finally get something right, act mock-astonished.',
     ].join(' '),
   },
 ];

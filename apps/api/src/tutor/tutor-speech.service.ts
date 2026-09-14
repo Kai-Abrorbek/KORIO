@@ -92,9 +92,21 @@ export class TutorSpeechService {
     const teacher = resolveTeacher(params.teacherId);
     const language: TutorTtsLanguage = params.language === 'uz' ? 'uz' : 'ko';
 
-    const out = await this.registry.synthesize(teacher.tts.provider, {
+    /**
+     * 언어에 맞는 목소리를 고른다.
+     *
+     * 학습자가 우즈벡어로 설명을 요청하면 튜터는 우즈벡어로 답한다. 그 문장을
+     * 한국어 음성(ko-KR-*)에 넣으면 라틴 문자를 한국어 규칙으로 읽어서 말이
+     * 안 된다 — locale 만 uz-UZ 로 바꾸는 것으로는 부족하고, 음성 자체가
+     * 우즈벡어용이어야 한다.
+     *
+     * 성별은 선생님의 한국어 목소리와 맞춰 뒀다 (teachers 파일 참고).
+     */
+    const voice = language === 'uz' ? teacher.ttsUz : teacher.tts;
+
+    const out = await this.registry.synthesize(voice.provider, {
       text,
-      voiceId: teacher.tts.voiceId,
+      voiceId: voice.voiceId,
       speed: teacher.speechRate,
       language,
     });

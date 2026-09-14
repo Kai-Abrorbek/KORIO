@@ -1,5 +1,6 @@
 import { createAudioPlayer, type AudioPlayer } from "expo-audio";
 import { TutorApi } from "./tutor.api";
+import { detectSpokenLanguage, type SpokenLanguage } from "./detect-language";
 
 /**
  * 선생님 목소리 재생 큐.
@@ -28,6 +29,8 @@ export interface TutorSpeechCallbacks {
 interface QueueItem {
   generation: number;
   text: string;
+  /** 이 문장을 읽을 목소리의 언어. 우즈벡어면 서버가 uz 음성으로 합성한다 */
+  language: SpokenLanguage;
   requestedAt: number;
   /** 합성 결과. 도착 순서가 뒤바뀌어도 순서대로 기다렸다 튼다 */
   promise: Promise<{ uri: string; audioAt: number } | null>;
@@ -65,12 +68,15 @@ export class TutorSpeechQueue {
     if (!clean) return;
     const generation = this.generation;
     const requestedAt = Date.now();
+    // 문장마다 따로 본다. 한 답변 안에서 한국어 → 우즈벡어로 넘어갈 수 있다
+    // ("Tushundingizmi? 그럼 한국어로 한번 해봐요." 가 두 문장으로 잘린다)
+    const language = detectSpokenLanguage(clean);
 
-    const promise = this.synth(clean, generation)
+    const promise = this.synth(clean, generation, language)
       .then((uri) => (uri ? { uri, audioAt: Date.now() } : null))
       .catch(() => null);
 
-    this.queue.push({ generation, text: clean, requestedAt, promise });
+    this.queue.push({ generation, text: clean, language, requestedAt, promise });
     void this.drain();
   }
 
@@ -111,7 +117,11 @@ export class TutorSpeechQueue {
     } catch {}
   }
 
-  private async synth(text: string, generation: number): Promise<string | null> {
+  private async synth(
+    text: string,
+    generation: number,
+    language: SpokenLanguage,
+  ): Promise<string | null> {
     const ac = new AbortController();
     this.aborts.add(ac);
     try {
@@ -119,6 +129,7 @@ export class TutorSpeechQueue {
         text,
         teacherId: this.teacherId,
         sessionId: this.sessionId,
+        language,
       });
       // 요청이 도는 사이에 유저가 끼어들었으면 버린다
       if (generation !== this.generation) return null;
