@@ -83,6 +83,19 @@ export class WordsService {
     return this.serializeWord(word, lang, progress as ProgressRecord | null);
   }
 
+  async getSectionSummaries(userId: string) {
+    const rawSections = await this.wordModel.distinct('placements.section', {
+      isActive: true,
+    });
+    const sections = [...new Set(rawSections.map(Number))]
+      .filter((section) => Number.isInteger(section) && section > 0)
+      .sort((a, b) => a - b);
+
+    return Promise.all(
+      sections.map((section) => this.getSectionSummary(userId, section)),
+    );
+  }
+
   async getSectionSummary(userId: string, section: number) {
     if (!Number.isInteger(section) || section < 1) {
       throw new BadRequestException('INVALID_WORD_SECTION');

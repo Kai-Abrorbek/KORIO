@@ -53,7 +53,6 @@ import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
 import { isAnswerCorrect } from "@/utils/answer-check";
 
-const SECTIONS = [1, 2, 3, 4];
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
 
@@ -1223,9 +1222,7 @@ export default function WordStudyScreen() {
     setScopeLoading(true);
     setLoadFailed(false);
     try {
-      const result = await Promise.all(
-        SECTIONS.map((value) => WordService.getSectionSummary(value)),
-      );
+      const result = await WordService.getSectionSummaries();
       const available = result.filter((summary) => summary.words > 0);
       setSummaries(result);
 

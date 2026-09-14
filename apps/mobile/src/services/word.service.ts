@@ -14,6 +14,9 @@ const getLang = () => {
 };
 
 export const WordService = {
+  getSectionSummaries: (): Promise<WordSectionSummary[]> =>
+    api.get("/words/sections/summary"),
+
   getSectionSummary: (section: number): Promise<WordSectionSummary> =>
     api.get(`/words/sections/${section}/summary`),
 

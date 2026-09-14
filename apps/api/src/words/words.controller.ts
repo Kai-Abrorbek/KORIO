@@ -67,6 +67,13 @@ export class WordsController {
     return this.wordsService.chainTurn(req.user._id.toString(), dto);
   }
 
+  @Get('sections/summary')
+  async getSectionSummaries(
+    @Request() req: { user: { _id: { toString(): string } } },
+  ) {
+    return this.wordsService.getSectionSummaries(req.user._id.toString());
+  }
+
   @Get('sections/:section/summary')
   async getSectionSummary(
     @Request() req,
