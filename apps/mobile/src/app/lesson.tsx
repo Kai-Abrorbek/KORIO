@@ -35,6 +35,7 @@ import QuestionRenderer from "@/components/lesson/QuestionRenderer";
 import FeedbackBar from "@/components/lesson/FeedbackBar";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useAuthStore } from "@/store/auth.store";
+import { LEGEND_XP } from "@/constants/xp-mirror";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { UserService } from "@/services/user.service";
 import { onboardingService } from "@/services/onboarding.service";
@@ -78,13 +79,26 @@ const UNIT_PRACTICE_MODE: Record<StudyQuizKind, PracticeMode> = {
   final: "unitFinal",
 };
 
-const LEGEND_XP = 100; // 서버 lessons.service.ts 와 같은 값
+// XP 미러는 constants/xp-mirror.ts 한 곳에 모여 있다
 const SMART_GRADING_TYPES = new Set([
   "type_answer",
   "translate_type",
   "listen_type",
   "listen_fill",
 ]);
+const GRAMMAR_RETRY_LIMIT = 2;
+
+/** 문법 오답을 다른 문제 2~4개 뒤에 다시 넣어 연속 출제를 피한다. */
+function insertGrammarRetry(
+  queue: LessonQuestion[],
+  question: LessonQuestion,
+  currentIndex: number,
+  retryNumber: number,
+) {
+  const gap = 2 + ((currentIndex + retryNumber) % 3);
+  const insertAt = Math.min(queue.length, gap + 1);
+  return [...queue.slice(0, insertAt), question, ...queue.slice(insertAt)];
+}
 
 interface AutomaticSpeech {
   language: string;
@@ -190,6 +204,7 @@ export default function LessonScreen() {
   const isUnitPractice = mode === "unitPractice";
   // 급수 졸업 시험 — 하트 제한이 있고 결과를 전용 화면에서 본다
   const isLevelExam = mode === "levelExam";
+  const isGrammarTrack = category === "grammar" && !isJumpTest;
   const unitKind: StudyQuizKind = STUDY_QUIZ_KINDS.includes(
     kind as StudyQuizKind,
   )
@@ -226,6 +241,7 @@ export default function LessonScreen() {
   const questionQueue = useRef<LessonQuestion[]>([]); // 현재 푸는 큐 (main → review)
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
+  const grammarRetryCounts = useRef<Map<string, number>>(new Map());
   const uniqueCorrect = useRef<Set<string>>(new Set());
   const [progress, setProgress] = useState(0);
   /**
@@ -286,6 +302,7 @@ export default function LessonScreen() {
       setIsCheckingAnswer(false);
       setGradingFeedback(null);
       setAnswerState("idle");
+      grammarRetryCounts.current.clear();
       if (isLevelTest) {
         const questions =
           await LessonService.getLevelTestQuestions(selfReportedLevel);
@@ -607,6 +624,12 @@ export default function LessonScreen() {
       correctCount.current += 1;
       if (isReview) reviewCorrectIds.current.add(question.id);
       if (phase === "review") finalWrongIds.current.delete(question.id);
+      if (
+        isGrammarTrack &&
+        (grammarRetryCounts.current.get(question.id) ?? 0) > 0
+      ) {
+        finalWrongIds.current.delete(question.id);
+      }
 
       const nextCombo = combo + 1;
       setCombo(nextCombo);
@@ -648,6 +671,20 @@ export default function LessonScreen() {
       if (isJumpTest) {
         wrongIds.current.push(question.id);
         setHearts((h) => Math.max(0, h - 1));
+      } else if (isGrammarTrack && phase === "main") {
+        finalWrongIds.current.add(question.id);
+        const previousRetries =
+          grammarRetryCounts.current.get(question.id) ?? 0;
+        if (previousRetries < GRAMMAR_RETRY_LIMIT) {
+          const retryNumber = previousRetries + 1;
+          grammarRetryCounts.current.set(question.id, retryNumber);
+          questionQueue.current = insertGrammarRetry(
+            questionQueue.current,
+            question,
+            currentIdx,
+            retryNumber,
+          );
+        }
       } else if (phase === "main") {
         if (!reviewQueue.current.some((q) => q.id === question.id)) {
           reviewQueue.current.push(question);
@@ -674,7 +711,7 @@ export default function LessonScreen() {
    * 이제 건너뛴 문제는 commitAnswer(false) 로 흘려보낸다. 그러면 모드별 처리가
    * 한 곳에서 일관되게 된다:
    *   레벨 테스트 → 오답 집계 · 점프 테스트 → 하트 차감
-   *   본 학습 → 복습 큐로 · 복습 → 최종 오답으로
+   *   문법 트랙 → 몇 문제 뒤 재출제 · 그 외 학습 → 마지막 복습 큐로
    * 정답도 같이 보여주므로(FeedbackBar) 건너뛴 문제를 그냥 버리지도 않는다.
    */
   const handleSkip = () => {
@@ -879,9 +916,7 @@ export default function LessonScreen() {
             // 오늘의 첫 레슨이면 연속 학습 축하를 먼저 보여준다.
             // "오늘 처음인가" 판정은 서버가 한다 (클라가 세면 앱을 껐다 켤
             // 때마다 또 축하한다)
-            dailyStreak: res.dailyStreak
-              ? String(res.dailyStreak.streak)
-              : "",
+            dailyStreak: res.dailyStreak ? String(res.dailyStreak.streak) : "",
             // 7일 창은 서버가 계산해서 준다 (연속 시작일 기준). 클라가 오늘부터
             // 세면 내일 열었을 때 어제가 사라진다
             streakWeek: res.dailyStreak
@@ -965,7 +1000,7 @@ export default function LessonScreen() {
 
       if (phase === "main") {
         // 1단계 끝 → 복습할 게 있으면 안내, 없으면 종료
-        if (reviewQueue.current.length > 0) {
+        if (!isGrammarTrack && reviewQueue.current.length > 0) {
           setPhase("reviewIntro");
           setAnswerState("idle");
           return;

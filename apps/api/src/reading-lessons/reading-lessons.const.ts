@@ -11,14 +11,15 @@
  * 힘든 걸 제일 크게 잡아야 그걸 하게 된다.
  */
 
-/** 본문을 끝까지 읽고 확인 단계로 넘어가면 */
-export const READING_BASE_XP = 15;
-/** 확인 문제 정답 1개당 */
-export const READING_QUIZ_XP_PER_CORRECT = 10;
-/** 본문 낭독을 끝까지 (서버가 발음 평가로 확인한 경우만) */
-export const READING_PRONUNCIATION_XP = 25;
-/** 쓰기 제출 */
-export const READING_WRITING_XP = 15;
+export {
+  READING_BASE_XP,
+  READING_QUIZ_XP_PER_CORRECT,
+  READING_PRONUNCIATION_XP,
+  READING_WRITING_XP,
+  READING_REPEAT_XP_RATE,
+} from '../lessons/economy.const';
+// ⚠️ 값은 economy.const.ts 에 있다 (XP 조정은 전부 그 파일에서).
+//    여기서는 이름만 다시 내보낸다 — 기존 import 경로를 깨지 않기 위해서다.
 
 /**
  * 쓰기로 인정할 최소 글자 수.
@@ -36,4 +37,3 @@ export const READING_WRITING_MAX_CHARS = 2000;
  * 벌주면 안 된다. 그렇다고 같은 글을 계속 돌려 XP 를 캐게 두면 로드맵이
  * 의미가 없어지므로 30% 만 준다.
  */
-export const READING_REPEAT_XP_RATE = 0.3;

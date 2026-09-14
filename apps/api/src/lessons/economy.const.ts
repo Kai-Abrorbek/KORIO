@@ -1,6 +1,27 @@
 import { QuestionType } from './schemas/question.schema';
 
 /**
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║  XP 조정은 전부 이 파일에서.                                      ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ *
+ *   XP_AWARD_DIVISOR    시드 XP 를 나누는 값 — 전체 물가를 한 번에 조절
+ *   COMBO_XP_PER        콤보 1당
+ *   QUESTION_XP_BY_TYPE 문제 타입별 기본값 (시드에 xpReward 가 없을 때)
+ *   PRACTICE_BASE_XP    연습·학습로드 노드 모드별
+ *   LEGEND_XP           레전드
+ *   LEVEL_EXAM_XP       급수 졸업 시험
+ *   GRAMMAR_QUIZ_XP     문법 퀴즈
+ *   READING_*           읽기·듣기 레슨
+ *   SPEAKING_SENTENCE_XP 말하기 문장 하나
+ *
+ * 여기 없는 XP 숫자:
+ *   · 리그 유지 XP        league/league.service.ts 의 TIER_CONFIG.keepXp
+ *   · 리그 챌린지 한 판    challenge/league-challenge.const.ts 의 TIER_CHALLENGE
+ *     (둘 다 티어 설정과 한 줄로 붙어 있어야 읽히므로 남겨뒀다.
+ *      다만 **같은 눈금**이라 XP_AWARD_DIVISOR 를 바꾸면 같이 봐야 한다)
+ *   · 앱 표시용 미러      apps/mobile/src/constants/xp-mirror.ts
+ *
  * XP 경제의 단일 출처.
  *
  * 기준은 "문제 하나당 XP" 다. 레슨의 기본 XP 는 그 레슨이 들고 있는 문제들의
@@ -79,6 +100,31 @@ export const QUESTION_XP_BY_TYPE: Record<string, number> = {
 
 /** 타입도 xpReward 도 모를 때 */
 export const QUESTION_XP_FALLBACK = 10;
+
+// ── 모드별 고정 보상 ───────────────────────────────────────────────
+// 아래 값들은 **그대로 지급된다** (XP_AWARD_DIVISOR 를 겹쳐 적용하지 않는다).
+// 손으로 정한 최종 숫자이고, 그 배율은 시드가 넣어둔 값을 위한 것이다.
+
+/** 레전드 완주. ⚠️ 앱 미러(xp-mirror.ts)와 같은 값이어야 한다 */
+export const LEGEND_XP = 100;
+
+/** 급수 졸업 시험 통과. 떨어지면 이 값의 1/3 */
+export const LEVEL_EXAM_XP = 150;
+
+/** 문법 퀴즈 통과 */
+export const GRAMMAR_QUIZ_XP = 15;
+
+// 읽기·듣기 레슨 — 활동별로 쪼갠 이유는 reading-lessons.const.ts 주석 참고
+/** 지문 완독 */
+export const READING_BASE_XP = 15;
+/** 확인 문제 1개 정답당 */
+export const READING_QUIZ_XP_PER_CORRECT = 10;
+/** 낭독까지 했을 때 */
+export const READING_PRONUNCIATION_XP = 25;
+/** 쓰기까지 했을 때 */
+export const READING_WRITING_XP = 15;
+/** 이미 끝낸 지문을 다시 할 때의 배율 */
+export const READING_REPEAT_XP_RATE = 0.3;
 
 /** 문제 한 개의 XP. 시드가 레슨 기본 XP 를 합산할 때 쓴다. */
 export function questionXp(q: { xpReward?: number; type?: string }): number {

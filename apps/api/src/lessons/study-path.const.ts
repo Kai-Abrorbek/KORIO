@@ -1,3 +1,5 @@
+import { LEVEL_EXAM_XP } from './economy.const';
+
 /**
  * 학습 로드 모드 — 하루(=유닛) 노드에서 뽑는 문제 수.
  *
@@ -36,5 +38,6 @@ export const LEVEL_EXAM = {
   passRatio: 0.8,
   /** 통과 보상 (급수당 1회) */
   gems: 50,
-  xp: 150,
+  /** economy.const.ts 에서 가져온다 — XP 조정은 전부 거기서 */
+  xp: LEVEL_EXAM_XP,
 } as const;

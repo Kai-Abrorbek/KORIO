@@ -8,7 +8,8 @@ import { StudyCategory } from '../users/utils/study-category.util';
 import { isSuperActive } from '../users/super.util';
 
 const FREE_GRAMMAR_SECTIONS = 2; // 무료 섹션 수 (이후 프리미엄)
-const GRAMMAR_XP = 15; // 문법 퀴즈 통과 XP
+// XP 값은 economy.const.ts 하나에 모여 있다
+import { GRAMMAR_QUIZ_XP as GRAMMAR_XP } from '../lessons/economy.const';
 const SECTION_COMPLETE_GEMS = 25; // 섹션 완성 보석
 
 @Injectable()
