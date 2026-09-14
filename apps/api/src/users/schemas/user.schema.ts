@@ -313,6 +313,16 @@ export class User {
   @Prop({ type: [Date], default: [] })
   leagueChallengeClaims: Date[];
 
+  /**
+   * 연습 완료(complete-practice)를 받은 시각들.
+   *
+   * 연습은 questionIds 만 보내면 되는데, 그 id 들이 서버가 낸 문제인지 확인할
+   * 방법이 없다(문제를 세션으로 발급하지 않는다). 그래서 여기서도 금액이 아니라
+   * **빈도**를 막는다 — leagueChallengeClaims 와 같은 장치다.
+   */
+  @Prop({ type: [Date], default: [] })
+  practiceClaims: Date[];
+
   // 온보딩 완료 여부
   @Prop({ default: false })
   isOnboardingCompleted: boolean;

@@ -235,20 +235,18 @@ export class GrammarService {
       sectionCodes.length > 0 &&
       sectionCodes.every((s: any) => nowDone.has(s.code));
     if (sectionComplete) {
-      const already = await this.userModel.exists({
-        _id: userId,
-        completedGrammarSections: section,
-      });
-      if (!already) {
-        await this.userModel.updateOne(
-          { _id: userId },
-          {
-            $inc: { gems: SECTION_COMPLETE_GEMS },
-            $addToSet: { completedGrammarSections: section },
-          },
-        );
-        gemsEarned = SECTION_COMPLETE_GEMS;
-      }
+      // 조건을 업데이트 자체에 건다. exists() 로 먼저 보고 나서 $inc 하면,
+      // 마지막 문항을 동시에 두 번 제출했을 때 둘 다 "아직 안 받았다" 를 보고
+      // 둘 다 지급한다 ($addToSet 은 멱등이지만 $inc 는 아니다).
+      const granted = await this.userModel.findOneAndUpdate(
+        { _id: userId, completedGrammarSections: { $ne: section } },
+        {
+          $inc: { gems: SECTION_COMPLETE_GEMS },
+          $addToSet: { completedGrammarSections: section },
+        },
+        { returnDocument: 'after' },
+      );
+      if (granted) gemsEarned = SECTION_COMPLETE_GEMS;
     }
 
     return {

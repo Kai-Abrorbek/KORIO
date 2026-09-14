@@ -151,7 +151,13 @@ export class EnergyService {
 
   // ─────────────────────────── 소모 ───────────────────────────
 
-  /** 문제 하나 풀 때마다 1 소모. 슈퍼는 안 깎는다 */
+  /**
+   * 문제 하나 풀 때마다 1 소모. 슈퍼는 안 깎는다.
+   *
+   * 차감을 읽고-쓰기로 하면(문서 로드 → 계산 → save) 요청이 겹쳤을 때 전부
+   * 같은 값을 읽고 같은 값을 쓴다 — N번 불러도 1만 깎인다. 이 서비스의 다른
+   * 차감 경로(refill·기간권)는 이미 조건부 업데이트를 쓰는데 여기만 빠져 있었다.
+   */
   async consume(userId: string, amount = 1) {
     const user = await this.mustFind(userId);
     const superActive = isSuperActive(user);
@@ -159,9 +165,26 @@ export class EnergyService {
     await this.applyRegen(user);
     if (superActive) return this.buildResponse(user);
 
-    user.energy = Math.max(0, user.energy - amount);
-    await user.save();
-    return this.buildResponse(user);
+    const spend = Math.max(0, Math.floor(amount || 0));
+    if (spend === 0) return this.buildResponse(user);
+
+    // 0 밑으로는 안 내려가게 $max 로 바닥을 깐다 (파이프라인 업데이트라
+    // 현재 값을 읽어 계산하는 것까지 한 번의 원자적 연산 안에서 끝난다)
+    const updated = await this.userModel.findOneAndUpdate(
+      { _id: user._id },
+      [
+        {
+          $set: {
+            energy: {
+              $max: [0, { $subtract: [{ $ifNull: ['$energy', 0] }, spend] }],
+            },
+          },
+        },
+      ],
+      { returnDocument: 'after' },
+    );
+
+    return this.buildResponse(updated ?? user);
   }
 
   // ─────────────────────────── 콤보 보너스 ───────────────────────────

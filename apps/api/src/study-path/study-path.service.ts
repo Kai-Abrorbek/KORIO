@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LessonsService } from '../lessons/lessons.service';
@@ -41,6 +41,8 @@ interface UnitWordSummary {
 
 @Injectable()
 export class StudyPathService {
+  private readonly logger = new Logger(StudyPathService.name);
+
   constructor(
     private readonly lessonsService: LessonsService,
     private readonly chestService: ChestService,
@@ -319,15 +321,45 @@ export class StudyPathService {
       .lean();
     const level = clampLevel(me?.placementLevel ?? 1);
 
-    const questionIds = (dto.questionIds ?? []).filter((id) =>
-      Types.ObjectId.isValid(id),
+    const questionIds = [
+      ...new Set(
+        (dto.questionIds ?? []).filter((id) => Types.ObjectId.isValid(id)),
+      ),
+    ].slice(0, LEVEL_EXAM.questions * 2);
+    const wrongIds = [
+      ...new Set(
+        (dto.wrongQuestionIds ?? []).filter((id) => Types.ObjectId.isValid(id)),
+      ),
+    ].filter((id) => questionIds.includes(id));
+
+    /**
+     * 합격 판정을 앱 말만 듣고 하지 않는다.
+     *
+     * 예전에는 questionIds 에 아무 ObjectId 하나만 넣고 wrongQuestionIds 를
+     * 비워 보내면 total=1 · correct=1 → **항상 합격**이었다. 그걸로 XP 150 을
+     * 무한히 받고, 급수를 6번 올리면서 급수당 보석 50 씩 공짜로 가져갈 수 있었다.
+     *
+     * 그래서 (1) 넘어온 id 가 실제로 이 급수 범위의 문제인지 대조하고,
+     * (2) 시험 문항 수만큼 실제로 풀었을 때만 합격 판정을 한다.
+     */
+    const [start, end] = sectionRangeForLevel(level);
+    const verified = await this.lessonsService.countExamQuestionsInRange(
+      [start, end],
+      questionIds,
     );
-    const wrongIds = (dto.wrongQuestionIds ?? []).filter((id) =>
-      Types.ObjectId.isValid(id),
-    );
-    const total = questionIds.length;
-    const correct = Math.max(0, total - new Set(wrongIds).size);
-    const passed = total > 0 && correct / total >= LEVEL_EXAM.passRatio;
+    const total = verified;
+    const correct = Math.max(0, total - wrongIds.length);
+    // 문항 수의 80% 미만을 냈으면 시험을 친 것으로 보지 않는다
+    // (중간 이탈은 여기서 걸러지고, 조작된 요청도 같이 걸린다)
+    const enough = total >= Math.ceil(LEVEL_EXAM.questions * 0.8);
+    const passed = enough && correct / total >= LEVEL_EXAM.passRatio;
+
+    if (!enough && (dto.questionIds ?? []).length > 0) {
+      this.logger.warn(
+        `레벨시험 문항 불일치: user=${userId} level=${level} ` +
+          `보낸=${(dto.questionIds ?? []).length} 확인=${verified}/${LEVEL_EXAM.questions}`,
+      );
+    }
 
     // 오답 장부·통계는 다른 학습과 같은 경로로
     await this.lessonsService.recordStudy(userId, {
@@ -341,17 +373,20 @@ export class StudyPathService {
       passed ? LEVEL_EXAM.xp : Math.round(LEVEL_EXAM.xp / 3),
     );
 
-    // 통과 보상은 급수당 한 번만
+    // 통과 보상은 급수당 한 번만.
+    // 읽고 나서 쓰면(exists → $inc) 같은 요청 두 개가 동시에 들어왔을 때 둘 다
+    // "아직 안 받았다" 를 보고 둘 다 지급한다. 조건을 업데이트 자체에 건다.
     let gemsEarned = 0;
-    if (passed && !(me?.completedLevelExams ?? []).includes(level)) {
-      await this.userModel.updateOne(
-        { _id: userId },
+    if (passed) {
+      const granted = await this.userModel.findOneAndUpdate(
+        { _id: userId, completedLevelExams: { $ne: level } },
         {
           $inc: { gems: LEVEL_EXAM.gems },
           $addToSet: { completedLevelExams: level },
         },
+        { returnDocument: 'after' },
       );
-      gemsEarned = LEVEL_EXAM.gems;
+      if (granted) gemsEarned = LEVEL_EXAM.gems;
     }
 
     const next = await this.nextLevelInfo(level, dto.lang ?? 'uz');
@@ -370,7 +405,8 @@ export class StudyPathService {
       nextLevel: next?.level ?? null,
       weakAreas: await this.weakAreas(wrongIds),
       gemsEarned,
-      xpEarned: passed ? LEVEL_EXAM.xp : Math.round(LEVEL_EXAM.xp / 3),
+      // 하루 XP 상한에 걸리면 실제 지급은 0 이다. 화면이 받은 대로 보여준다
+      xpEarned: xpRes.added,
       totalXP: xpRes.totalXP ?? 0,
     };
   }

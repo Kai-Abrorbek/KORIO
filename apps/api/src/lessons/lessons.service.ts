@@ -48,6 +48,12 @@ import {
   LEGEND_XP,
   calcPracticeXp,
   clampCount,
+  DAILY_XP_CAP,
+  SINGLE_GRANT_XP_CAP,
+  LESSON_REPLAY_XP_RATE,
+  LESSON_REPLAY_COOLDOWN_SEC,
+  PRACTICE_COOLDOWN_SEC,
+  PRACTICE_DAILY_LIMIT,
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
@@ -453,7 +459,46 @@ export class LessonsService {
     const combo = clampCount(dto.combo, correctAnswers);
 
     const baseXp = await this.resolveLessonBaseXp(lesson);
-    const xpEarned = calcLessonXp(baseXp, combo, correctAnswers);
+    const rawXp = calcLessonXp(baseXp, combo, correctAnswers);
+
+    /**
+     * 같은 레슨을 다시 "완료" 로 보고했을 때.
+     *
+     * 이 엔드포인트에는 멱등 장치가 없었다. 완료 요청 하나를 캡처해서 루프로
+     * 돌리면 XP 가 무한히 올라가고, 리그 주간 XP = UserStats.xpEarned 합계라
+     * 그대로 리그 1등 + 티어 보석 보상으로 이어졌다.
+     *
+     *   처음        전액
+     *   재도전      1/3 (읽기 레슨 READING_REPEAT_XP_RATE 와 같은 눈금)
+     *   60초 이내   0 — 17문항을 60초 안에 두 번 끝낼 수는 없다.
+     *               정상 플레이는 안 걸리고 반복 재생 루프만 걸린다.
+     */
+    const prior = await this.userProgressModel
+      .findOne({
+        userId: new Types.ObjectId(userId),
+        lessonId: new Types.ObjectId(lessonId),
+      })
+      .select('isCompleted completedAt')
+      .lean();
+
+    const sinceLast = prior?.completedAt
+      ? Date.now() - new Date(prior.completedAt).getTime()
+      : Number.POSITIVE_INFINITY;
+    const tooSoon = sinceLast < LESSON_REPLAY_COOLDOWN_SEC * 1000;
+    const replay = !!prior?.isCompleted;
+
+    const xpEarned = tooSoon
+      ? 0
+      : replay
+        ? Math.round(rawXp * LESSON_REPLAY_XP_RATE)
+        : rawXp;
+
+    if (tooSoon) {
+      this.logger.warn(
+        `레슨 재완료 쿨다운: user=${userId} lesson=${lessonId} ` +
+          `${Math.round(sinceLast / 1000)}초 만에 다시 — XP 0`,
+      );
+    }
 
     await this.userProgressModel.findOneAndUpdate(
       {
@@ -486,7 +531,9 @@ export class LessonsService {
       questionIds: lesson.questionIds,
       wrongQuestionIds,
       speedSeconds: dto.speedSeconds,
-      xpEarned,
+      // XP 일지(UserStats.xpEarned)는 아래 grantXp 가 상한과 함께 쓴다.
+      // 여기서도 쓰면 두 번 쌓인다.
+      xpEarned: 0,
       // TOPIK 처럼 레슨 단위로 성격이 정해지는 건 통째로 그 버킷에
       overrideCategory:
         lesson.category === 'topik' ? StudyCategory.TOPIK : undefined,
@@ -588,12 +635,12 @@ export class LessonsService {
       : null;
 
     // ── 유저 totalXP 반영 ──
+    // 하루 XP 상한(grantXp)을 거친다. 여기서 직접 $inc 하면 상한 밖으로 샌다.
+    // recordStudy 에는 xpEarned: 0 을 넘겼으므로 일지도 grantXp 가 쓴다.
+    const grantedXp = await this.grantXp(userId, xpEarned);
+
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(
-        userId,
-        { $inc: { totalXP: xpEarned } },
-        { returnDocument: 'after' },
-      )
+      .findById(userId)
       .select('totalXP gems energy')
       .lean();
 
@@ -601,7 +648,7 @@ export class LessonsService {
 
     return {
       success: true,
-      xpEarned,
+      xpEarned: grantedXp,
       totalXP: updatedUser?.totalXP ?? 0,
       gems: updatedUser?.gems ?? 0,
       energy: updatedUser?.energy ?? 0,
@@ -724,6 +771,33 @@ export class LessonsService {
     const combo = clampCount(dto.combo, correct);
     const xp = calcPracticeXp(dto.mode, combo, correct);
 
+    /**
+     * 빈도 제한 — 리그 챌린지(leagueChallengeClaims)와 같은 장치.
+     *
+     * 연습은 questionIds 만 보내면 되고, 그 id 들이 서버가 낸 문제인지 확인할
+     * 방법이 없다(문제를 세션으로 발급하지 않는다). 그래서 한 요청(review 모드
+     * 기준 117 XP)을 네트워크 속도만큼 반복할 수 있었다. 금액 대신 **빈도**를
+     * 막는다: 최소 간격 + 하루 횟수.
+     *
+     * 못 주는 건 에러가 아니다 — 앱은 XP 0 을 받고 연출만 생략하면 된다.
+     * (통계·오답 장부는 그대로 남긴다. 풀기는 풀었다.)
+     */
+    const now = new Date();
+    const me = await this.userModel
+      .findById(new Types.ObjectId(userId))
+      .select('practiceClaims timezone totalXP')
+      .lean();
+    const todayStart = startOfDay(now, me?.timezone);
+    const claims = (me?.practiceClaims ?? []).filter(
+      (d) => new Date(d) >= todayStart,
+    );
+    const lastAt = claims.length
+      ? new Date(claims[claims.length - 1])
+      : null;
+    const onCooldown =
+      !!lastAt && now.getTime() - lastAt.getTime() < PRACTICE_COOLDOWN_SEC * 1000;
+    const overDaily = claims.length >= PRACTICE_DAILY_LIMIT;
+
     // 문제 수 · 학습 시간 · 카테고리 (XP 는 아래 addXp 가 기록하므로 여기선 0)
     await this.recordStudy(userId, {
       questionIds: ids.map((id) => new Types.ObjectId(id)),
@@ -732,10 +806,38 @@ export class LessonsService {
       xpEarned: 0,
     });
 
-    // totalXP · UserStats.xpEarned · 리그 반영
+    if (onCooldown || overDaily) {
+      this.logger.warn(
+        `연습 XP 거절: user=${userId} mode=${dto.mode} ` +
+          `${onCooldown ? '쿨다운' : '하루한도'} (오늘 ${claims.length}/${PRACTICE_DAILY_LIMIT})`,
+      );
+      return { success: true, xpEarned: 0, totalXP: me?.totalXP ?? 0 };
+    }
+
+    // 요청이 겹쳐 들어와도 한도를 못 넘도록 조건을 한 번 더 건다
+    // (콤보 보너스·리그 챌린지와 같은 패턴)
+    const todayOnly = {
+      $filter: {
+        input: { $ifNull: ['$practiceClaims', []] },
+        cond: { $gte: ['$$this', todayStart] },
+      },
+    };
+    const claimed = await this.userModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(userId),
+        $expr: { $lt: [{ $size: todayOnly }, PRACTICE_DAILY_LIMIT] },
+      },
+      [{ $set: { practiceClaims: { $concatArrays: [todayOnly, [now]] } } }],
+      { returnDocument: 'after' },
+    );
+    if (!claimed) {
+      return { success: true, xpEarned: 0, totalXP: me?.totalXP ?? 0 };
+    }
+
+    // totalXP · UserStats.xpEarned · 리그 반영 (하루 XP 상한도 여기서 걸린다)
     const res = await this.addXp(userId, xp);
 
-    return { success: true, xpEarned: xp, totalXP: res.totalXP ?? 0 };
+    return { success: true, xpEarned: res.added, totalXP: res.totalXP ?? 0 };
   }
 
   /**
@@ -1412,33 +1514,87 @@ export class LessonsService {
     return { questions: shuffled.map((q) => this.formatQuestion(q, lang)) };
   }
 
+  /**
+   * XP 지급의 **유일한 관문**.
+   *
+   * 오늘 이미 받은 XP(UserStats.xpEarned)를 보고 DAILY_XP_CAP 까지만 준다.
+   * 채점이 앱에 있는 이상 어느 완료 엔드포인트든 반복 재생이 가능하므로,
+   * 금액을 서버가 정하는 것만으로는 부족하다 — 이게 마지막 방어선이다.
+   *
+   * 상한 검사와 기록을 **한 번의 원자적 업데이트**로 한다. 읽고 나서 쓰면
+   * 요청이 겹쳤을 때 둘 다 "아직 여유 있다" 를 보고 둘 다 쓴다.
+   * `returnDocument: 'before'` 로 직전 값을 받아, 실제로 오른 만큼만
+   * totalXP 에 반영한다.
+   *
+   * @returns 실제로 지급된 XP (상한에 걸리면 0)
+   */
+  private async grantXp(userId: string, amount: number): Promise<number> {
+    const want = Math.max(
+      0,
+      Math.min(SINGLE_GRANT_XP_CAP, Math.floor(amount || 0)),
+    );
+    if (want === 0) return 0;
+
+    const uId = new Types.ObjectId(userId);
+    const today = startOfDay(
+      new Date(),
+      await this.usersService.getTimezone(userId),
+    );
+
+    const before = await this.userStatsModel
+      .findOneAndUpdate(
+        { userId: uId, date: today },
+        [
+          {
+            $set: {
+              xpEarned: {
+                $min: [
+                  DAILY_XP_CAP,
+                  { $add: [{ $ifNull: ['$xpEarned', 0] }, want] },
+                ],
+              },
+            },
+          },
+        ],
+        { upsert: true, returnDocument: 'before' },
+      )
+      .select('xpEarned')
+      .lean();
+
+    const had = Math.max(0, before?.xpEarned ?? 0);
+    const granted = Math.min(DAILY_XP_CAP, had + want) - had;
+    if (granted <= 0) {
+      this.logger.warn(
+        `하루 XP 상한: user=${userId} 요청=${want} 오늘=${had}/${DAILY_XP_CAP}`,
+      );
+      return 0;
+    }
+
+    await this.userModel.updateOne({ _id: uId }, { $inc: { totalXP: granted } });
+    return granted;
+  }
+
   // XP만 추가 (복습/레전드처럼 진행도 저장 없이 XP만)
   async addXp(userId: string, amount: number) {
-    const xp = Math.max(0, Math.min(1000, Math.floor(amount || 0)));
-    if (xp === 0) return { added: 0, totalXP: null };
-
     // ✅ XP 주기 전 현재 순위 기록 (애니메이션 비교용)
     await this.leagueService.snapshotIfNeeded(userId).catch(() => {});
 
-    const uId = new Types.ObjectId(userId);
+    const granted = await this.grantXp(userId, amount);
+    if (granted === 0) {
+      const me = await this.userModel
+        .findById(new Types.ObjectId(userId))
+        .select('totalXP')
+        .lean();
+      return { added: 0, totalXP: me?.totalXP ?? null };
+    }
+
     const user = await this.userModel
-      .findByIdAndUpdate(
-        uId,
-        { $inc: { totalXP: xp } },
-        { returnDocument: 'after' },
-      )
+      .findById(new Types.ObjectId(userId))
       .select('totalXP')
       .lean();
 
-    const today = startOfDay(new Date(), await this.usersService.getTimezone(userId));
-    await this.userStatsModel.updateOne(
-      { userId: uId, date: today },
-      { $inc: { xpEarned: xp } },
-      { upsert: true },
-    );
-
     await this.leagueService.ensureJoined(userId).catch(() => {});
-    return { added: xp, totalXP: user?.totalXP ?? null };
+    return { added: granted, totalXP: user?.totalXP ?? null };
   }
 
   /** (section, unit) 보다 앞선 모든 노드 조건 — 섹션 경계 포함 */
@@ -1514,6 +1670,23 @@ export class LessonsService {
     const picked = this.pickBalanced(hard.length >= limit ? hard : pool, limit);
 
     return { questions: picked.map((q) => this.formatQuestion(q, lang)) };
+  }
+
+  /**
+   * 넘어온 문제 id 중 **실제로 이 섹션 범위에 있는** 문제가 몇 개인가.
+   *
+   * 급수 졸업 시험의 합격 판정은 앱이 보낸 questionIds / wrongQuestionIds 만
+   * 보고 있었다. 아무 ObjectId 하나만 보내면 total=1, wrong=0 이 되어 항상
+   * 합격이었다. 시험 문제를 뽑을 때 쓴 것과 **같은 풀**로 대조한다.
+   */
+  async countExamQuestionsInRange(
+    sections: number[],
+    ids: string[],
+  ): Promise<number> {
+    if (!ids.length) return 0;
+    const pool = await this.collectSectionQuestions(sections);
+    const poolSet = new Set(pool.map((q: any) => q._id.toString()));
+    return ids.filter((id) => poolSet.has(id)).length;
   }
 
   /** 섹션 여러 개의 모든 문제. 유닛마다 따로 물으면 쿼리가 유닛 수만큼 늘어난다 */
