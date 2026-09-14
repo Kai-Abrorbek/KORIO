@@ -43,8 +43,12 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * 학습 로드는 어휘 트랙 위에 하루치(문법 → 단어 → 레슨 → 실전 → 복습 → 마무리)를
  * 순서대로 깔아준다. 그 안에 들어가는 것(어휘·문법·문법문제·실전회화)을 여기서
  * 또 개별로 열게 두면 "오늘 할 일"이 두 갈래가 되어 로드가 의미를 잃는다.
- * 반대로 한글·표현·듣기·토픽·발음·게임·단어카드는 로드가 짜주지 않으므로
+ * 반대로 한글·듣기·토픽·발음·게임·단어카드는 로드가 짜주지 않으므로
  * 어느 모드에서든 들어갈 수 있어야 한다.
+ *
+ * 표현·말하기는 로드가 깔아주지는 않지만 **자기 순서를 스스로 관리한다**
+ * (표현 로드맵, 말하기 주제별 진행률). 로드 모드에서 같이 보이면 오늘
+ * 분량이 두 갈래가 되므로 guided: false 로 숨긴다.
  */
 const CATEGORIES: Array<{
   key: string;
@@ -59,12 +63,17 @@ const CATEGORIES: Array<{
   { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true, feature: "hangul" },
   { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043", guided: false, feature: "lesson" },
   { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0", guided: false, feature: "grammar" },
+  // 표현·말하기는 로드 모드에서 숨긴다.
+  // 둘 다 자기 순서(표현 로드맵 / 주제별 세션)를 스스로 관리한다. 로드가
+  // "오늘 할 일" 을 순서대로 깔아주는 화면에서 이것까지 보이면 오늘 분량이
+  // 두 갈래가 되어 로드가 의미를 잃는다 — 어휘·문법을 뺀 것과 같은 이유다.
+  // 자유 모드에서는 그대로 보인다.
   {
     key: "expression",
     category: "expression",
     icon: "chatbubble-ellipses",
     color: "#26A69A",
-    guided: true,
+    guided: false,
     feature: "expression",
   },
   {
@@ -72,7 +81,7 @@ const CATEGORIES: Array<{
     category: "speaking",
     icon: "mic",
     color: "#776EE2",
-    guided: true,
+    guided: false,
     feature: "expression",
   },
   {
