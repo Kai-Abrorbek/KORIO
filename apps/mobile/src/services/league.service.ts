@@ -25,6 +25,10 @@ export interface LeagueData {
   demoteCount: number;
   roomSize: number;
   boostXp: number; // +210 버튼용 (mock 확장)
+  /** 이 리그에 남으려면 이번 주에 모아야 하는 XP. 0 이면 요구 없음(브론즈) */
+  keepXp: number;
+  /** 지금까지 모은 주간 XP */
+  myWeeklyXp: number;
   members: LeagueMember[];
 }
 
@@ -35,6 +39,10 @@ export interface LeagueResult {
   toTier: string;
   change: "promote" | "demote" | "stay";
   gems: number;
+  /** 탈락 사유. 'xp' 는 주간 요구 XP 미달, 'rank' 는 하위 순위 */
+  reason?: "rank" | "xp" | null;
+  weeklyXp?: number;
+  requiredXp?: number;
 }
 
 /** 서버가 정하는 이번 주 챌린지 (종목·비용·남은 횟수) */

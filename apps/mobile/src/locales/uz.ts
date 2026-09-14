@@ -1529,6 +1529,9 @@ export default {
     inPromotion: "Siz ko'tarilish zonasidasiz! 🔥",
     daysLeft: "{{count}} kun",
     boostXp: "+{{xp}} XP",
+    keepXpLabel: "Ligada qolish",
+    keepXpSafe: "{{earned}} / {{required}} XP · xavfsiz",
+    keepXpDanger: "{{earned}} / {{required}} XP · tushib ketasiz",
     you: "(Siz)",
     tiers: {
       bronze: "Bronza",
@@ -1551,6 +1554,8 @@ export default {
       promoteSub: "{{tier}} ligasiga ko'tarildingiz! 🎉",
       demoteSub: "{{tier}} ligasiga tushdingiz",
       staySub: "{{tier}} ligasida qoldingiz",
+      demoteXpSub: "{{tier}} ligasida qolish uchun haftasiga {{required}} XP kerak edi",
+      xpShort: "{{earned}} / {{required}} XP",
       rank: "{{rank}}-o'rin bilan yakunladingiz",
       gems: "+{{gems}} olmos",
       continue: "Davom etish",

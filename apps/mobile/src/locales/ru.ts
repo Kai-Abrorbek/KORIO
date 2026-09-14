@@ -1529,6 +1529,9 @@ export default {
     inPromotion: "Вы в зоне повышения! 🔥",
     daysLeft: "{{count}} дн.",
     boostXp: "+{{xp}} XP",
+    keepXpLabel: "Остаться в лиге",
+    keepXpSafe: "{{earned}} / {{required}} XP · безопасно",
+    keepXpDanger: "{{earned}} / {{required}} XP · вылетишь",
     you: "(Вы)",
     tiers: {
       bronze: "Бронза",
@@ -1551,6 +1554,8 @@ export default {
       promoteSub: "Ты поднялся в лигу {{tier}}! 🎉",
       demoteSub: "Ты опустился в лигу {{tier}}",
       staySub: "Ты остался в лиге {{tier}}",
+      demoteXpSub: "Чтобы остаться в лиге {{tier}}, нужно было {{required}} XP за неделю",
+      xpShort: "{{earned}} / {{required}} XP",
       rank: "Финиш на {{rank}} месте",
       gems: "+{{gems}} кристаллов",
       continue: "Продолжить",

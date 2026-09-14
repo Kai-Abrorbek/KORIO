@@ -1524,6 +1524,9 @@ export default {
     inPromotion: "You're in the promotion zone! 🔥",
     daysLeft: "{{count}}d",
     boostXp: "+{{xp}} XP",
+    keepXpLabel: "Stay in league",
+    keepXpSafe: "{{earned}} / {{required}} XP · safe",
+    keepXpDanger: "{{earned}} / {{required}} XP · you'll drop",
     you: "(You)",
     tiers: {
       bronze: "Bronze",
@@ -1546,6 +1549,8 @@ export default {
       promoteSub: "You moved up to {{tier}} League! 🎉",
       demoteSub: "You dropped to {{tier}} League",
       staySub: "You stayed in {{tier}} League",
+      demoteXpSub: "Staying in {{tier}} League needed {{required}} XP this week",
+      xpShort: "{{earned}} / {{required}} XP",
       rank: "Finished #{{rank}}",
       gems: "+{{gems}} gems",
       continue: "Continue",

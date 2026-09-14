@@ -279,6 +279,15 @@ export default function LeagueScreen() {
   const promoteLine = data.promoteCount;
   const demoteLine = data.members.length - data.demoteCount;
 
+  // 이 리그에 남으려면 이번 주에 모아야 하는 XP.
+  // 정산 때 순위보다 이게 먼저다(미달이면 1등이어도 떨어진다) — 그러면
+  // 주중에 얼마나 모자란지 보여줘야 한다. 안 보여주면 월요일에 이유 없이
+  // 떨어진 것처럼 느낀다.
+  const keepXp = data.keepXp ?? 0;
+  const myWeeklyXp = data.myWeeklyXp ?? 0;
+  const keepSafe = myWeeklyXp >= keepXp;
+  const keepRatio = keepXp > 0 ? Math.min(1, myWeeklyXp / keepXp) : 1;
+
   return (
     <View style={s.container}>
       {/* 헤더 */}
@@ -297,6 +306,37 @@ export default function LeagueScreen() {
           <Text style={s.timeText}>{timeLabel}</Text>
         </View>
       </View>
+
+      {/* 리그 유지선 — 브론즈(keepXp 0)에는 안 뜬다 */}
+      {keepXp > 0 && (
+        <View style={s.keepWrap}>
+          <View style={s.keepTop}>
+            <Text style={s.keepLabel}>{t("league.keepXpLabel")}</Text>
+            <Text
+              style={[
+                s.keepValue,
+                { color: keepSafe ? "#58CC02" : "#FF4B4B" },
+              ]}
+            >
+              {t(keepSafe ? "league.keepXpSafe" : "league.keepXpDanger", {
+                earned: myWeeklyXp,
+                required: keepXp,
+              })}
+            </Text>
+          </View>
+          <View style={s.keepTrack}>
+            <View
+              style={[
+                s.keepFill,
+                {
+                  width: `${keepRatio * 100}%`,
+                  backgroundColor: keepSafe ? "#58CC02" : "#FF4B4B",
+                },
+              ]}
+            />
+          </View>
+        </View>
+      )}
       {/* 티어 10개 가로 스크롤 */}
       <ScrollView
         horizontal
@@ -498,6 +538,12 @@ const styles = (theme: ThemeColors) =>
       marginTop: 4,
     },
     timeText: { fontSize: 15, fontWeight: "600", color: theme.textSecondary },
+    keepWrap: { paddingHorizontal: 20, paddingBottom: 10, gap: 6 },
+    keepTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    keepLabel: { fontSize: 11, fontWeight: "700", color: theme.textSecondary },
+    keepValue: { fontSize: 11, fontWeight: "800" },
+    keepTrack: { height: 6, borderRadius: 6, backgroundColor: theme.border, overflow: "hidden" },
+    keepFill: { height: 6, borderRadius: 6 },
     tierRow: {
       paddingHorizontal: 16,
       alignItems: "center",

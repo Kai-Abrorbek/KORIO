@@ -15,6 +15,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import TierCrystal from "@/components/league/TierCrystal";
+import CrystalShatter from "@/components/league/CrystalShatter";
+import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 import { getTier } from "@/constants/league-tiers";
 import { LeagueService, LeagueResult } from "@/services/league.service";
 
@@ -57,12 +59,25 @@ export default function LeagueResultScreen() {
     transform: [{ scale: glow.value }],
   }));
 
+  /**
+   * 강등은 2단계로 보여준다: 예전 티어 크리스탈이 깨지고(shattered=false 구간),
+   * 다 부서진 뒤에 내려간 티어가 올라온다.
+   *
+   * 한 화면에 결과만 띄우면 "언제 바뀐 거지" 가 된다. 부서지는 걸 보고 나서
+   * 새 티어를 봐야 인과가 읽힌다.
+   */
+  const [shattered, setShattered] = useState(false);
+
   if (loading || !result)
     return <View style={{ flex: 1, backgroundColor: "#15131F" }} />;
 
   const meta = getTier(result.toTier);
+  const fromMeta = getTier(result.fromTier);
   const isPromote = result.change === "promote";
   const isDemote = result.change === "demote";
+  // 강등 연출 중에는 배경도 옛 티어 색 → 다 부서지면 내려간 티어 색으로 바뀐다
+  const stageMeta = isDemote && !shattered ? fromMeta : meta;
+  const droppedByXp = isDemote && result.reason === "xp";
 
   const title = isPromote
     ? t("league.result.promoteTitle")
@@ -86,31 +101,86 @@ export default function LeagueResultScreen() {
   };
 
   return (
-    <View style={[s.container, { backgroundColor: meta.colorDark }]}>
+    <View style={[s.container, { backgroundColor: stageMeta.colorDark }]}>
+      {/* 승급은 컨페티가 터진다. "use dom"(WebView) 이라 승급일 때만 마운트한다 */}
+      {isPromote ? (
+        <View pointerEvents="none" style={s.confetti}>
+          <TopikSuccessConfetti
+            playOnce
+            dom={{
+              scrollEnabled: false,
+              showsHorizontalScrollIndicator: false,
+              showsVerticalScrollIndicator: false,
+              style: s.confettiFill,
+            }}
+          />
+        </View>
+      ) : null}
+
       <View style={[s.center, { paddingTop: insets.top }]}>
         {/* 뒤 광선 */}
         <Animated.View
-          style={[s.glow, { backgroundColor: meta.color }, glowStyle]}
+          style={[s.glow, { backgroundColor: stageMeta.color }, glowStyle]}
         />
-        <Animated.View entering={ZoomIn.springify().damping(11).mass(0.9)}>
-          <TierCrystal tier={meta} size={170} />
-        </Animated.View>
+        {isDemote && !shattered ? (
+          // 옛 티어가 부서진다 → 끝나면 내려간 티어가 올라온다
+          <CrystalShatter
+            tier={fromMeta}
+            size={170}
+            onDone={() => setShattered(true)}
+          />
+        ) : (
+          <Animated.View
+            entering={ZoomIn.springify().damping(11).mass(0.9)}
+            // 승급은 더 크게, 더 늦게 튀어오른다 — 기다린 만큼 값이 있어 보이게
+            style={isPromote ? { transform: [{ scale: 1.06 }] } : undefined}
+          >
+            <TierCrystal tier={stageMeta} size={170} />
+          </Animated.View>
+        )}
 
+        {isDemote && !shattered ? null : (
         <Animated.Text
           entering={FadeInDown.delay(250).duration(400)}
           style={s.title}
         >
           {title}
         </Animated.Text>
+        )}
+        {isDemote && !shattered ? null : (
         <Animated.Text
           entering={FadeInDown.delay(350).duration(400)}
           style={s.sub}
         >
-          {sub}
+          {droppedByXp
+            ? t("league.result.demoteXpSub", {
+                tier: t(`league.tiers.${result.fromTier}`),
+                required: result.requiredXp ?? 0,
+              })
+            : sub}
         </Animated.Text>
+        )}
 
+        {/* XP 미달로 떨어졌으면 얼마가 모자랐는지 숫자로 보여준다.
+            "다음 주엔 얼마를 해야 하는지" 를 알 수 있어야 한다 */}
+        {droppedByXp && shattered ? (
+          <Animated.View
+            entering={FadeInDown.delay(450).duration(400)}
+            style={s.xpBar}
+          >
+            <Ionicons name="flash" size={16} color="#fff" />
+            <Text style={s.xpBarText}>
+              {t("league.result.xpShort", {
+                earned: result.weeklyXp ?? 0,
+                required: result.requiredXp ?? 0,
+              })}
+            </Text>
+          </Animated.View>
+        ) : null}
+
+        {isDemote && !shattered ? null : (
         <Animated.View
-          entering={FadeInDown.delay(450).duration(400)}
+          entering={FadeInDown.delay(550).duration(400)}
           style={s.rankChip}
         >
           <Ionicons name="podium" size={16} color="#fff" />
@@ -118,8 +188,9 @@ export default function LeagueResultScreen() {
             {t("league.result.rank", { rank: result.finalRank })}
           </Text>
         </Animated.View>
+        )}
 
-        {result.gems > 0 && (
+        {result.gems > 0 && (isDemote ? shattered : true) && (
           <Animated.View
             entering={ZoomIn.delay(650).springify().damping(10)}
             style={s.gemChip}
@@ -132,24 +203,42 @@ export default function LeagueResultScreen() {
         )}
       </View>
 
-      <Pressable
-        style={({ pressed }) => [
-          s.btn,
-          { marginBottom: insets.bottom + 16 },
-          pressed && s.btnPressed,
-        ]}
-        onPress={finish}
-      >
-        <Text style={[s.btnT, { color: meta.colorDark }]}>
-          {t("league.result.continue")}
-        </Text>
-      </Pressable>
+      {/* 부서지는 중에 버튼을 누르면 연출을 못 본다 */}
+      {isDemote && !shattered ? (
+        <View style={{ height: 56, marginBottom: insets.bottom + 16 }} />
+      ) : (
+        <Pressable
+          style={({ pressed }) => [
+            s.btn,
+            { marginBottom: insets.bottom + 16 },
+            pressed && s.btnPressed,
+          ]}
+          onPress={finish}
+        >
+          <Text style={[s.btnT, { color: stageMeta.colorDark }]}>
+            {t("league.result.continue")}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
 
 const s = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 28 },
+  confetti: { position: "absolute", top: 0, left: 0, right: 0, height: 420, overflow: "hidden", zIndex: 5 },
+  confettiFill: { width: "100%", height: "100%", backgroundColor: "transparent" },
+  xpBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.28)",
+  },
+  xpBarText: { color: "#fff", fontSize: 13, fontWeight: "700" },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   glow: {
     position: "absolute",

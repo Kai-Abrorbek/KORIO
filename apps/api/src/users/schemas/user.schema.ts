@@ -328,6 +328,15 @@ export class User {
     toTier: string;
     change: string; // 'promote' | 'demote' | 'stay'
     gems: number;
+    /**
+     * 탈락 사유. 'xp' 는 주간 요구 XP 미달, 'rank' 는 하위 순위.
+     * 화면이 "왜 떨어졌는지" 를 말해줘야 다음 주에 뭘 해야 할지 안다.
+     */
+    reason?: 'rank' | 'xp' | null;
+    /** 이번 주 실제로 모은 XP */
+    weeklyXp?: number;
+    /** 그 리그를 유지하는 데 필요했던 XP (0 이면 요구 없음) */
+    requiredXp?: number;
   } | null;
 
   @Prop({ default: false })

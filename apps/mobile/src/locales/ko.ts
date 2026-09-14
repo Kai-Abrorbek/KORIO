@@ -1519,6 +1519,9 @@ export default {
     inPromotion: "승급권 안에 있어요! 🔥",
     daysLeft: "{{count}}일",
     boostXp: "+{{xp}} XP",
+    keepXpLabel: "리그 유지",
+    keepXpSafe: "{{earned}} / {{required}} XP · 안전",
+    keepXpDanger: "{{earned}} / {{required}} XP · 이대로면 탈락",
     you: "(나)",
     tiers: {
       bronze: "브론즈",
@@ -1541,6 +1544,8 @@ export default {
       promoteSub: "{{tier}} 리그로 올라갔어요! 🎉",
       demoteSub: "{{tier}} 리그로 내려갔어요",
       staySub: "{{tier}} 리그 유지",
+      demoteXpSub: "{{tier}} 리그를 지키려면 주 {{required}} XP가 필요했어요",
+      xpShort: "{{earned}} / {{required}} XP",
       rank: "{{rank}}위로 마감",
       gems: "+{{gems}} 젬 획득",
       continue: "계속하기",

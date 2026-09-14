@@ -34,21 +34,39 @@ const TIER_ORDER: UserLeague[] = [
   UserLeague.DIAMOND,
 ];
 
-// 티어별 승급/강등 인원 + 1·2·3위 젬 상자 (위로 갈수록 승급 빡세게, 보상 큼)
+/**
+ * 티어별 승급/강등 인원 + 1·2·3위 젬 상자 + **주간 유지 XP**.
+ *
+ * keepXp: 한 주에 이만큼도 못 모으면 순위와 무관하게 강등된다.
+ *
+ * 왜 순위만으로 부족한가. 방이 통째로 조용하면(다들 거의 안 함) 하위 5명만
+ * 떨어지고 나머지는 아무것도 안 해도 그 리그에 남는다. 상위 리그일수록
+ * 그렇게 눌러앉은 사람이 쌓여서 리그가 실력 표시로서 의미를 잃는다.
+ * "이 리그에 있으려면 최소 이만큼은 한다" 를 숫자로 박는 게 keepXp 다.
+ *
+ * 기준 감각: 15문항 레슨 만점이 약 273 XP. 실버 300 은 주 1레슨,
+ * 다이아 6500 은 주 24레슨쯤이다. 체감 보고 조정할 것 — 여기 숫자만 바꾸면 된다.
+ * 브론즈는 demote 0 이라 keepXp 도 0 (더 내려갈 데가 없다).
+ */
 const TIER_CONFIG: Record<
   UserLeague,
-  { promote: number; demote: number; chest: [number, number, number] }
+  {
+    promote: number;
+    demote: number;
+    chest: [number, number, number];
+    keepXp: number;
+  }
 > = {
-  [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10] },
-  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12] },
-  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15] },
-  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18] },
-  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22] },
-  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28] },
-  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35] },
-  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45] },
-  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55] },
-  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80] },
+  [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10], keepXp: 0 },
+  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 300 },
+  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 600 },
+  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 1000 },
+  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 1500 },
+  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 2200 },
+  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 3000 },
+  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 4000 },
+  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 5200 },
+  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 6500 },
 };
 
 const ROOM_SIZE = 30;
@@ -260,6 +278,10 @@ export class LeagueService {
       daysLeft,
       promoteCount: TIER_CONFIG[tier]?.promote ?? 0,
       demoteCount: TIER_CONFIG[tier]?.demote ?? 0,
+      /** 이 리그에 남으려면 이번 주에 모아야 하는 XP (0 이면 요구 없음) */
+      keepXp: TIER_CONFIG[tier]?.keepXp ?? 0,
+      /** 지금까지 모은 주간 XP */
+      myWeeklyXp: me?.xp ?? 0,
       roomSize: room!.members.length,
       members: ranked,
       myRank: me?.rank ?? 0,
@@ -276,6 +298,7 @@ export class LeagueService {
         index: i,
         promote: TIER_CONFIG[t].promote,
         demote: TIER_CONFIG[t].demote,
+        keepXp: TIER_CONFIG[t].keepXp,
         chest: TIER_CONFIG[t].chest,
       })),
     };
@@ -323,14 +346,30 @@ export class LeagueService {
         const rank = i + 1;
         const gems = i < 3 ? (cfg.chest[i] ?? 0) : 0;
 
+        const weeklyXp = xpMap.get(uid.toString()) ?? 0;
+        const canDrop = tierIdx > 0;
+
         let change: 'promote' | 'demote' | 'stay' = 'stay';
         let toTier = room.tier;
+        let reason: 'rank' | 'xp' | null = null;
         if (i < cfg.promote && tierIdx < TIER_ORDER.length - 1) {
           change = 'promote';
           toTier = TIER_ORDER[tierIdx + 1];
-        } else if (i >= n - cfg.demote && cfg.demote > 0 && tierIdx > 0) {
+        } else if (i >= n - cfg.demote && cfg.demote > 0 && canDrop) {
           change = 'demote';
           toTier = TIER_ORDER[tierIdx - 1];
+          reason = 'rank';
+        }
+
+        // 주간 유지 XP 미달은 순위를 덮어쓴다.
+        //
+        // 1등이어도 떨어질 수 있다 — 방 전체가 거의 안 한 주에 "제일 덜 안 한
+        // 사람" 이 승급하면 리그가 실력 표시로서 의미를 잃는다. 기준은
+        // 방 사정이 아니라 그 리그가 요구하는 절대량이다.
+        if (canDrop && cfg.keepXp > 0 && weeklyXp < cfg.keepXp) {
+          change = 'demote';
+          toTier = TIER_ORDER[tierIdx - 1];
+          reason = 'xp';
         }
 
         const update: any = {
@@ -342,6 +381,9 @@ export class LeagueService {
               toTier,
               change,
               gems,
+              reason,
+              weeklyXp,
+              requiredXp: cfg.keepXp,
             },
           },
         };
