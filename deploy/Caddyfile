@@ -61,6 +61,55 @@
 	}
 }
 
+# Telegram Mini App. 화면과 API 를 같은 origin 으로 제공하므로 브라우저 CORS
+# 설정이 필요 없다. /api 접두사는 Caddy 에서 벗겨 기존 Nest 경로로 보낸다.
+{$TELEGRAM_DOMAIN} {
+	encode zstd gzip
+
+	# 외부에서 컨테이너 상태를 조회하지 못하게 한다.
+	@health path /health /ready /healthz
+	respond @health 404
+
+	handle_path /api/* {
+		reverse_proxy api_blue:3000 api_green:3000 {
+			lb_policy first
+			lb_retries 2
+			lb_try_duration 5s
+			lb_try_interval 250ms
+
+			health_uri /ready
+			health_interval 3s
+			health_timeout 2s
+			health_status 2xx
+			fail_duration 10s
+
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Real-IP {remote_host}
+
+			transport http {
+				read_timeout 120s
+				write_timeout 120s
+				dial_timeout 5s
+			}
+		}
+	}
+
+	handle {
+		reverse_proxy telegram_blue:8080 telegram_green:8080 {
+			lb_policy first
+			lb_retries 2
+			lb_try_duration 5s
+			lb_try_interval 250ms
+
+			health_uri /healthz
+			health_interval 3s
+			health_timeout 2s
+			health_status 2xx
+			fail_duration 10s
+		}
+	}
+}
+
 # ─────────────────────────────────────────────────────────────────────────
 # korio.online — 초대 링크 랜딩 + 앱링크 검증 파일.
 #

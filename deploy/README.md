@@ -1,4 +1,4 @@
-# KORIO API 배포
+# KORIO API + Telegram Mini App 배포
 
 blue/green 무중단. 서버에 도커만 있으면 된다. MongoDB 는 Atlas(외부)를 쓰므로
 DB 컨테이너도 볼륨도 없다.
@@ -9,10 +9,10 @@ DB 컨테이너도 볼륨도 없다.
         인터넷
           │  :443 (Let's Encrypt 자동)
       ┌───▼────┐
-      │ Caddy  │  /ready 를 3초마다 찔러서 건강한 쪽으로만 보낸다
-      └─┬────┬─┘  lb_policy first → blue 가 살아 있으면 blue
-        │    │
-   api_blue  api_green   ← 배포 때 번갈아 뜬다. 항상 한쪽만 실행
+      │ Caddy  │  각 서비스의 health endpoint를 확인한다
+      └─┬────┬─┘
+        │    └── telegram_blue / telegram_green
+        └─────── api_blue / api_green
 ```
 
 배포 = **새 색을 띄우고 → 건강해지면 → 옛 색을 내린다.**
@@ -66,8 +66,9 @@ cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, API 키들
 chmod 600 api.env             # 시크릿이다
 
 # 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
-#    타입 A / 이름 api / 값 <서버 IP> / TTL 기본
-#    → api.korio.online 이 서버를 가리키게 된다
+#    타입 A / 이름 api      / 값 <서버 IP> / TTL 기본
+#    타입 A / 이름 telegram / 값 <서버 IP> / TTL 기본
+#    → api.korio.online 과 telegram.korio.online 이 서버를 가리키게 된다
 #    dig +short api.korio.online  이 서버 IP 를 뱉어야 인증서가 나온다.
 #    ⚠️ DNS 가 안 맞은 채로 deploy 하면 Let's Encrypt 실패가 쌓여
 #       한 시간 잠긴다. 반드시 먼저 확인할 것
@@ -103,6 +104,8 @@ chmod 600 api.env             # 시크릿이다
 ## 도메인
 
 - `api.korio.online` → **이 API 서버**
+- `telegram.korio.online` → **Telegram Mini App**. `/api/*` 요청은 Caddy가
+  같은 blue/green API로 전달한다.
 - `korio.online` (apex) → 비워 둔다. 나중에 랜딩·개인정보처리방침이 여기 들어간다.
   **구글 플레이는 개인정보처리방침 URL 을 필수로 요구한다.** API 를 apex 에
   올려 버리면 그 자리를 잃는다.
@@ -132,6 +135,16 @@ docker logs -f korio_caddy      # certificate obtained successfully 가 나오�
 curl -sI https://api.korio.online/lessons/roadmap | head -3
 #   401 이 정상이다 (인증이 필요한 경로). 401 이든 200 이든 서버가 응답한 것.
 #   000 / 502 면 문제
+```
+
+Telegram Mini App도 확인한다:
+
+```bash
+curl -sI https://telegram.korio.online/ | head -3
+# HTTP/2 200 이어야 한다
+
+./smoke.sh --url https://telegram.korio.online/
+# 배포 중 000 / 5xx 가 한 번도 없어야 한다
 ```
 
 ## 시크릿
@@ -173,6 +186,7 @@ API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램)는 전�
    Hostinger → Domains → korio.online → **DNS / Nameservers** →
    `A  @  <서버 IP>` (파킹용 A 레코드가 있으면 지우고 새로 넣는다).
    확인: `dig +short korio.online` 이 서버 IP 를 돌려줘야 한다
+
 2. **`deploy/.env`** 에 `WEB_DOMAIN=korio.online` 추가
 3. `./deploy.sh` 로 배포 (Caddy 가 새 도메인 인증서를 자동 발급한다)
 
@@ -203,6 +217,7 @@ curl -sI https://korio.online/.well-known/assetlinks.json   # 200, application/j
 `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://korio.online&relation=delegate_permission/common.handle_all_urls`
 
 폰에서 (앱 설치 후):
+
 ```bash
 adb shell pm get-app-links com.kai_dev.mobile        # verified 여야 한다
 adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증

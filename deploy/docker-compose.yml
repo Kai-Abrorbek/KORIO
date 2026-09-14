@@ -23,6 +23,7 @@ services:
     environment:
       API_DOMAIN: ${API_DOMAIN:?API_DOMAIN 을 .env 에 넣어라}
       WEB_DOMAIN: ${WEB_DOMAIN:?WEB_DOMAIN 을 .env 에 넣어라}
+      TELEGRAM_DOMAIN: ${TELEGRAM_DOMAIN:?TELEGRAM_DOMAIN 을 .env 에 넣어라}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL 을 .env 에 넣어라}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
@@ -83,6 +84,30 @@ services:
       retries: 3
       start_period: 40s
     stop_grace_period: 30s
+    networks: [korio_net]
+
+  telegram_blue:
+    image: ${TELEGRAM_IMAGE:-korio-telegram}:${TAG:-latest}
+    container_name: korio_telegram_blue
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks: [korio_net]
+
+  telegram_green:
+    image: ${TELEGRAM_IMAGE:-korio-telegram}:${TAG:-latest}
+    container_name: korio_telegram_green
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     networks: [korio_net]
 
 networks:

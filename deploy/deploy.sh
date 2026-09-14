@@ -37,6 +37,7 @@ set -a; source .env; set +a
 REPO_ROOT="$(cd .. && pwd)"
 COMPOSE=(docker compose -f docker-compose.yml --env-file .env)
 IMAGE="${IMAGE:-korio-api}"
+TELEGRAM_IMAGE="${TELEGRAM_IMAGE:-korio-telegram}"
 READY_TIMEOUT="${READY_TIMEOUT:-120}"
 
 # ── 지금 트래픽을 받는 색 ──
@@ -86,11 +87,16 @@ cmd_rollback() {
   local cur other; cur="$(current_color)"; other="$(other_color "$cur")"
   [[ "$cur" == none ]] && die "지금 떠 있는 게 없다. 롤백할 대상이 없다."
   log "롤백: $cur → $other (이전 이미지로 뜬 컨테이너를 다시 올린다)"
-  "${COMPOSE[@]}" up -d --no-build "api_$other"
-  wait_healthy "korio_api_$other" || die "롤백 대상이 안 뜬다. $cur 는 그대로 두고 멈춘다."
+  "${COMPOSE[@]}" up -d --no-build "api_$other" "telegram_$other"
+  if ! wait_healthy "korio_api_$other" \
+    || ! wait_healthy "korio_telegram_$other"; then
+    warn "롤백 대상이 완전히 준비되지 않았다. 새로 띄운 후보를 다시 내린다."
+    "${COMPOSE[@]}" stop "api_$other" "telegram_$other" || true
+    die "롤백 중단. 현재 ${cur} 서비스는 그대로 유지된다."
+  fi
   sleep 5
   log "$cur 내린다"
-  "${COMPOSE[@]}" stop "api_$cur"
+  "${COMPOSE[@]}" stop "api_$cur" "telegram_$cur"
   log "롤백 완료 → $other"
 }
 
@@ -151,16 +157,26 @@ cmd_deploy() {
     "$REPO_ROOT" \
     || die "빌드 실패. 서비스는 아무것도 안 건드렸다." 
 
+  log "Telegram Mini App 이미지 빌드: ${TELEGRAM_IMAGE}:${tag}"
+  "${runner[@]}" docker build \
+    -f "$REPO_ROOT/apps/telegram-app/Dockerfile" \
+    -t "${TELEGRAM_IMAGE}:${tag}" \
+    -t "${TELEGRAM_IMAGE}:latest" \
+    "$REPO_ROOT" \
+    || die "Telegram Mini App 빌드 실패. 서비스는 아무것도 안 건드렸다."
+
   local cur next; cur="$(current_color)"; next="$(other_color "$cur")"
   [[ "$cur" == none ]] && next=blue
   log "현재: ${cur} → 새로 띄울 색: ${GRN}${next}${RST} (태그 ${tag})"
 
   # 새 색을 강제로 다시 만든다 (이미지 태그가 같아도 새 이미지를 쓰게)
-  "${COMPOSE[@]}" up -d --force-recreate --no-deps "api_$next"
+  "${COMPOSE[@]}" up -d --force-recreate --no-deps \
+    "api_$next" "telegram_$next"
 
-  if ! wait_healthy "korio_api_$next"; then
+  if ! wait_healthy "korio_api_$next" \
+    || ! wait_healthy "korio_telegram_$next"; then
     warn "새 컨테이너가 안 뜬다. 되돌린다 — ${cur} 는 계속 서비스 중이다."
-    "${COMPOSE[@]}" stop "api_$next" || true
+    "${COMPOSE[@]}" stop "api_$next" "telegram_$next" || true
     die "배포 중단. 유저 영향 없음."
   fi
 
@@ -170,7 +186,7 @@ cmd_deploy() {
 
   if [[ "$cur" != none ]]; then
     log "옛 색 ${cur} 내린다 (SIGTERM → 드레인 → 종료)"
-    "${COMPOSE[@]}" stop "api_$cur"
+    "${COMPOSE[@]}" stop "api_$cur" "telegram_$cur"
   fi
 
   log "배포 완료 → ${GRN}${next}${RST} (${IMAGE}:${tag})"

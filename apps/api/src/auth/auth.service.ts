@@ -31,6 +31,12 @@ import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
 import { trialFields, isSuperActive } from '../users/super.util';
 import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
+import type { TelegramMiniAppLoginDto } from './dto/telegram-mini-app-login.dto';
+import {
+  type TelegramMiniAppAuthData,
+  type TelegramMiniAppUser,
+  validateTelegramMiniAppInitData,
+} from './telegram-mini-app-auth';
 
 @Injectable()
 export class AuthService {
@@ -187,12 +193,46 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Telegram signature');
     }
 
-    const providerId = data.id;
+    const sessionId = typeof q.session === 'string' ? q.session : undefined;
+    return this.completeTelegramLogin(
+      {
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        username: data.username,
+        photoUrl: data.photo_url,
+      },
+      sessionId,
+    );
+  }
+
+  /** Telegram Mini App initData 검증 → 기존 Telegram 계정/JWT 재사용. */
+  async telegramMiniAppLogin(dto: TelegramMiniAppLoginDto) {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) throw new UnauthorizedException('Telegram is not configured');
+
+    let telegramData: TelegramMiniAppAuthData;
+    try {
+      telegramData = validateTelegramMiniAppInitData(dto.initData, token);
+    } catch {
+      throw new UnauthorizedException('Invalid Telegram Mini App data');
+    }
+
+    return this.completeTelegramLogin(telegramData.user, dto.sessionId);
+  }
+
+  private async completeTelegramLogin(
+    telegramUser: TelegramMiniAppUser,
+    sessionId?: string,
+  ) {
+    const providerId = telegramUser.id;
     const nickname =
-      data.username ||
-      [data.first_name, data.last_name].filter(Boolean).join(' ') ||
+      telegramUser.username ||
+      [telegramUser.firstName, telegramUser.lastName]
+        .filter(Boolean)
+        .join(' ') ||
       `tg_${providerId}`;
-    const profileImage = data.photo_url || '';
+    const profileImage = telegramUser.photoUrl || '';
 
     let user = await this.userModel.findOne({
       provider: AuthProvider.TELEGRAM,
@@ -205,11 +245,11 @@ export class AuthService {
         providerId,
         nickname,
         profileImage,
+        appLanguage: telegramUser.languageCode || '',
         ...trialFields(),
       });
     }
 
-    const sessionId = typeof q.session === 'string' ? q.session : undefined;
     await this.attachOnboarding(user._id, sessionId);
 
     return this.generateToken(user); // { accessToken, user }

@@ -44,6 +44,12 @@ if [[ -f api.env ]]; then
   RESEND_KEY="$(grep -E '^RESEND_API_KEY=' api.env | head -1 | cut -d= -f2-)"
   [[ -n "$RESEND_KEY" ]] && ok "RESEND_API_KEY 채워짐 (비밀번호 재설정 메일)" \
                          || warn "RESEND_API_KEY 가 비어 있다 — 비밀번호 찾기 코드가 발송되지 않고 로그에만 남는다"
+  TELEGRAM_TOKEN="$(grep -E '^TELEGRAM_BOT_TOKEN=' api.env | head -1 | cut -d= -f2-)"
+  TELEGRAM_USERNAME="$(grep -E '^TELEGRAM_BOT_USERNAME=' api.env | head -1 | cut -d= -f2-)"
+  [[ -n "$TELEGRAM_TOKEN" ]] && ok "TELEGRAM_BOT_TOKEN 채워짐" \
+                               || bad "TELEGRAM_BOT_TOKEN 이 비어 있다 — Mini App 로그인이 동작하지 않는다"
+  [[ -n "$TELEGRAM_USERNAME" ]] && ok "TELEGRAM_BOT_USERNAME 채워짐" \
+                                  || bad "TELEGRAM_BOT_USERNAME 이 비어 있다"
 else bad "api.env 없음 — cp api.env.example api.env"; fi
 
 head_ "2. DNS  (틀리면 Let's Encrypt 가 한 시간 잠긴다)"
@@ -113,6 +119,30 @@ else
     fi
   elif [[ -n "$MYIP6" ]]; then
     ok "AAAA 레코드 없음 — IPv4 로 발급된다 (문제 아님)"
+  fi
+fi
+
+if [[ -z "${TELEGRAM_DOMAIN:-}" ]]; then
+  bad "TELEGRAM_DOMAIN 이 .env 에 없다"
+elif need dig; then
+  TELEGRAM_A="$(dig +short "$TELEGRAM_DOMAIN" A | grep -E '^[0-9.]+$' | tail -1)"
+  TELEGRAM_AAAA="$(dig +short "$TELEGRAM_DOMAIN" AAAA | grep -E '^[0-9a-fA-F:]+$' | tail -1)"
+
+  if [[ -z "$TELEGRAM_A" ]]; then
+    bad "$TELEGRAM_DOMAIN A 레코드가 아직 안 풀린다"
+  elif [[ -n "$MYIP4" && "$TELEGRAM_A" == "$MYIP4" ]]; then
+    ok "A    $TELEGRAM_DOMAIN → $TELEGRAM_A  (이 서버)"
+  else
+    bad "A    $TELEGRAM_DOMAIN → $TELEGRAM_A 인데 이 서버는 ${MYIP4:-알수없음} 다"
+  fi
+
+  if [[ -n "$TELEGRAM_AAAA" ]]; then
+    if [[ "$TELEGRAM_AAAA" == "$MYIP6" ]]; then
+      ok "AAAA $TELEGRAM_DOMAIN → $TELEGRAM_AAAA  (이 서버)"
+    else
+      bad "AAAA $TELEGRAM_DOMAIN → $TELEGRAM_AAAA 가 이 서버(${MYIP6:-IPv6없음})가 아니다"
+      warn "     Let's Encrypt 실패를 막으려면 잘못된 AAAA 레코드를 지워라"
+    fi
   fi
 fi
 

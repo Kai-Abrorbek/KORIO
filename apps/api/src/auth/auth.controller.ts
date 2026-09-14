@@ -18,6 +18,7 @@ import {
   type OAuthProviderKey,
 } from './oauth.providers';
 import { packState, unpackState, safeRedirect } from './oauth-state';
+import { TelegramMiniAppLoginDto } from './dto/telegram-mini-app-login.dto';
 
 @Controller('auth')
 @UseGuards(RateLimitGuard)
@@ -46,6 +47,12 @@ export class AuthController {
   @Post('social')
   async socialLogin(@Body() dto: SocialLoginDto) {
     return this.authService.socialLogin(dto);
+  }
+
+  @RateLimit({ windowMs: 60 * 1000, max: 30 })
+  @Post('telegram/mini-app')
+  async telegramMiniAppLogin(@Body() dto: TelegramMiniAppLoginDto) {
+    return this.authService.telegramMiniAppLogin(dto);
   }
 
   // ───────────────────── 비밀번호 찾기 ─────────────────────

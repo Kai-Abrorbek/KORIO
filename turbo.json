@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": ["API_PROXY_TARGET", "TELEGRAM_STATIC_EXPORT"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
