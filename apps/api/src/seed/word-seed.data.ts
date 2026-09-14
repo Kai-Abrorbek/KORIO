@@ -1,40 +1,59 @@
 import { createHash } from 'node:crypto';
-import { S1_UNIT1_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT2_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT3_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT4_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT5_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT6_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT7_WORDS } from './data/vocabulary/section1';
-import { S1_UNIT8_WORDS } from './data/vocabulary/section1';
+import {
+  S1_UNIT1_WORDS,
+  S1_UNIT2_WORDS,
+  S1_UNIT3_WORDS,
+  S1_UNIT4_WORDS,
+  S1_UNIT5_WORDS,
+  S1_UNIT6_WORDS,
+  S1_UNIT7_WORDS,
+  S1_UNIT8_WORDS,
+} from './data/vocabulary/section1';
 
-import { S2_UNIT1_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT2_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT3_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT4_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT5_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT6_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT7_WORDS } from './data/vocabulary/section2';
-import { S2_UNIT8_WORDS } from './data/vocabulary/section2';
+import {
+  S2_UNIT1_WORDS,
+  S2_UNIT2_WORDS,
+  S2_UNIT3_WORDS,
+  S2_UNIT4_WORDS,
+  S2_UNIT5_WORDS,
+  S2_UNIT6_WORDS,
+  S2_UNIT7_WORDS,
+  S2_UNIT8_WORDS,
+} from './data/vocabulary/section2';
 
-import { S3_UNIT1_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT2_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT3_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT4_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT5_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT6_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT7_WORDS } from './data/vocabulary/section3';
-import { S3_UNIT8_WORDS } from './data/vocabulary/section3';
+import {
+  S3_UNIT1_WORDS,
+  S3_UNIT2_WORDS,
+  S3_UNIT3_WORDS,
+  S3_UNIT4_WORDS,
+  S3_UNIT5_WORDS,
+  S3_UNIT6_WORDS,
+  S3_UNIT7_WORDS,
+  S3_UNIT8_WORDS,
+} from './data/vocabulary/section3';
 
-import { S4_UNIT1_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT2_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT3_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT4_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT5_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT6_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT7_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT8_WORDS } from './data/vocabulary/section4';
-import { S4_UNIT9_WORDS } from './data/vocabulary/section4';
+import {
+  S4_UNIT1_WORDS,
+  S4_UNIT2_WORDS,
+  S4_UNIT3_WORDS,
+  S4_UNIT4_WORDS,
+  S4_UNIT5_WORDS,
+  S4_UNIT6_WORDS,
+  S4_UNIT7_WORDS,
+  S4_UNIT8_WORDS,
+  S4_UNIT9_WORDS,
+} from './data/vocabulary/section4';
+import {
+  S5_UNIT1_WORDS,
+  S5_UNIT2_WORDS,
+  S5_UNIT3_WORDS,
+  S5_UNIT4_WORDS,
+  S5_UNIT5_WORDS,
+  S5_UNIT6_WORDS,
+  S5_UNIT7_WORDS,
+  S5_UNIT8_WORDS,
+  S5_UNIT9_WORDS,
+} from './data/vocabulary/section5';
 import {
   WordPartOfSpeech,
   type WordLanguage,
@@ -56,6 +75,7 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 1, unit: 6, words: S1_UNIT6_WORDS },
   { section: 1, unit: 7, words: S1_UNIT7_WORDS },
   { section: 1, unit: 8, words: S1_UNIT8_WORDS },
+
   { section: 2, unit: 1, words: S2_UNIT1_WORDS },
   { section: 2, unit: 2, words: S2_UNIT2_WORDS },
   { section: 2, unit: 3, words: S2_UNIT3_WORDS },
@@ -64,6 +84,7 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 2, unit: 6, words: S2_UNIT6_WORDS },
   { section: 2, unit: 7, words: S2_UNIT7_WORDS },
   { section: 2, unit: 8, words: S2_UNIT8_WORDS },
+
   { section: 3, unit: 1, words: S3_UNIT1_WORDS },
   { section: 3, unit: 2, words: S3_UNIT2_WORDS },
   { section: 3, unit: 3, words: S3_UNIT3_WORDS },
@@ -72,6 +93,7 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 3, unit: 6, words: S3_UNIT6_WORDS },
   { section: 3, unit: 7, words: S3_UNIT7_WORDS },
   { section: 3, unit: 8, words: S3_UNIT8_WORDS },
+
   { section: 4, unit: 1, words: S4_UNIT1_WORDS },
   { section: 4, unit: 2, words: S4_UNIT2_WORDS },
   { section: 4, unit: 3, words: S4_UNIT3_WORDS },
@@ -81,6 +103,16 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 4, unit: 7, words: S4_UNIT7_WORDS },
   { section: 4, unit: 8, words: S4_UNIT8_WORDS },
   { section: 4, unit: 9, words: S4_UNIT9_WORDS },
+
+  { section: 5, unit: 1, words: S5_UNIT1_WORDS },
+  { section: 5, unit: 2, words: S5_UNIT2_WORDS },
+  { section: 5, unit: 3, words: S5_UNIT3_WORDS },
+  { section: 5, unit: 4, words: S5_UNIT4_WORDS },
+  { section: 5, unit: 5, words: S5_UNIT5_WORDS },
+  { section: 5, unit: 6, words: S5_UNIT6_WORDS },
+  { section: 5, unit: 7, words: S5_UNIT7_WORDS },
+  { section: 5, unit: 8, words: S5_UNIT8_WORDS },
+  { section: 5, unit: 9, words: S5_UNIT9_WORDS },
 ];
 
 export interface NormalizedWordSeed {
