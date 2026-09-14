@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useTelegramAuth } from "@/features/auth/model/telegram-auth-context";
+import { useTelegramAuth } from "../../../src/features/auth/model/telegram-auth-context";
 
 export default function OnboardingPage() {
   const router = useRouter();

@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import { useTelegramAuth } from "@/features/auth/model/telegram-auth-context";
-import { BootScreen } from "@/shared/ui/boot-screen";
-import { FatalScreen } from "@/shared/ui/fatal-screen";
+import { useTelegramAuth } from "../model/telegram-auth-context";
+import { BootScreen } from "../../../shared/ui/boot-screen";
+import { FatalScreen } from "../../../shared/ui/fatal-screen";
 
 export function AuthBoundary({ children }: { children: ReactNode }) {
   const auth = useTelegramAuth();

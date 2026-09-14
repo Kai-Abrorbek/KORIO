@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useTelegramAuth } from "@/features/auth/model/telegram-auth-context";
-import { BootScreen } from "@/shared/ui/boot-screen";
-import { FatalScreen } from "@/shared/ui/fatal-screen";
+import { useTelegramAuth } from "../features/auth/model/telegram-auth-context";
+import { BootScreen } from "../shared/ui/boot-screen";
+import { FatalScreen } from "../shared/ui/fatal-screen";
 
 export function AppEntry() {
   const router = useRouter();

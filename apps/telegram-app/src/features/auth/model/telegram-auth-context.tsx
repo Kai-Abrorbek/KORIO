@@ -14,9 +14,9 @@ import {
   exchangeTelegramInitData,
   type KorioTelegramUser,
   type TelegramAuthResponse,
-} from "@/features/auth/api/telegram-auth";
-import { apiRequest } from "@/shared/api/client";
-import { prepareTelegramWebApp } from "@/shared/telegram/runtime";
+} from "../api/telegram-auth";
+import { apiRequest } from "../../../shared/api/client";
+import { prepareTelegramWebApp } from "../../../shared/telegram/runtime";
 
 type AuthStatus = "loading" | "authenticated" | "error";
 

@@ -1,4 +1,4 @@
-import { apiRequest } from "@/shared/api/client";
+import { apiRequest } from "../../../shared/api/client";
 
 export interface KorioTelegramUser {
   id: string;

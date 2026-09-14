@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 
-import { TelegramAuthProvider } from "@/features/auth/model/telegram-auth-context";
+import { TelegramAuthProvider } from "../src/features/auth/model/telegram-auth-context";
 
 import "./globals.css";
 
