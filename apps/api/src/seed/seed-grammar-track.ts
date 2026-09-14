@@ -19,6 +19,21 @@ import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
 import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { questionXp } from '../lessons/economy.const';
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
+import { splitGrammarLessonParts } from './grammar-track.util';
+
+function numberedTitle(
+  title: Record<string, string>,
+  partIndex: number,
+  partCount: number,
+) {
+  if (partCount === 1) return title;
+  return Object.fromEntries(
+    Object.entries(title).map(([lang, value]) => [
+      lang,
+      `${value} ${partIndex + 1}/${partCount}`,
+    ]),
+  );
+}
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -79,9 +94,20 @@ async function seed() {
 
     const lessonIds: any[] = [];
 
-    for (let li = 0; li < lessons.length; li++) {
-      const lessonData = lessons[li];
+    const lessonParts = splitGrammarLessonParts(lessons);
+    for (let li = 0; li < lessonParts.length; li++) {
+      const {
+        lesson: lessonData,
+        sourceIndex,
+        partIndex,
+        partCount,
+      } = lessonParts[li];
       const { questions: qKeys, ...lessonInfo } = lessonData;
+      const title = numberedTitle(
+        lessonInfo.title as Record<string, string>,
+        partIndex,
+        partCount,
+      );
 
       const questionIds: any[] = [];
       // 레슨 기본 XP = 문제 xpReward 합계 (economy.const 참고)
@@ -101,12 +127,18 @@ async function seed() {
         lessonXp += questionXp(q as { xpReward?: number; type?: string });
       }
 
-      const lessonCode = `${nodeCode}_l${li + 1}`;
+      // 첫 파트는 기존 코드를 유지해서 이미 끝낸 문법의 진행도를 보존한다.
+      const lessonCode =
+        partIndex === 0
+          ? `${nodeCode}_l${sourceIndex + 1}`
+          : `${nodeCode}_l${sourceIndex + 1}_p${partIndex + 1}`;
       const lesson = await lessonModel.findOneAndUpdate(
         { code: lessonCode },
         {
           $set: {
             ...lessonInfo,
+            title,
+            order: li + 1,
             code: lessonCode,
             nodeId: node._id,
             section: nodeInfo.section,
@@ -121,7 +153,7 @@ async function seed() {
 
       lessonIds.push(lesson._id);
       console.log(
-        `  ✅ 레슨: ${lessonInfo.title.ko} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
+        `  ✅ 레슨: ${title.ko} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
       );
     }
 

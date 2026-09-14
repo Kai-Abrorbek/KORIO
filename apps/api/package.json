@@ -21,6 +21,7 @@
     "seed:validate-section1": "ts-node -r tsconfig-paths/register src/seed/validate-section1-rules.ts",
     "seed:validate-section2": "ts-node -r tsconfig-paths/register src/seed/validate-section2-rules.ts",
     "seed:validate-grammar": "ts-node -r tsconfig-paths/register src/seed/validate-grammar-seed.ts",
+    "seed:validate-grammar-track": "ts-node -r tsconfig-paths/register src/seed/validate-grammar-track-split.ts",
     "seed:validate-questions": "ts-node -r tsconfig-paths/register src/seed/validate-question-shapes.ts",
     "migrate:mistakes": "ts-node -r tsconfig-paths/register src/seed/migrate-mistakes.ts",
     "seed:grammar": "ts-node -r tsconfig-paths/register src/seed/seed-grammar.ts",
