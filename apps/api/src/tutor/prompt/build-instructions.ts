@@ -131,6 +131,20 @@ const TEASING_BLOCK = [
 ];
 
 /**
+ * 이름 뒤에 붙일 이에요/예요.
+ *
+ * 한국어를 가르치는 프롬프트에 틀린 한국어 예시를 넣을 수는 없다.
+ * 받침이 있으면 이에요(서연이에요·민준이에요), 없으면 예요(지우예요·현우예요).
+ */
+function copula(name: string): string {
+  const last = name.charCodeAt(name.length - 1);
+  const isHangulSyllable = last >= 0xac00 && last <= 0xd7a3;
+  if (!isHangulSyllable) return '예요';
+  // 한글 음절 = ((초성 * 21) + 중성) * 28 + 종성. 나머지가 0 이면 받침이 없다
+  return (last - 0xac00) % 28 === 0 ? '예요' : '이에요';
+}
+
+/**
  * Realtime 세션에 넣을 instructions.
  *
  * 왜 영어로 쓰는가: 모델 지시는 영어일 때 가장 정확하게 따른다. 학습자에게
@@ -152,6 +166,7 @@ export function buildTutorInstructions(
   // 이름이 다르면 "저는 보리쌤이에요" 라고 자기소개해서 몰입이 깨진다
   const teacherName = teacher?.name.ko?.replace(/\s*선생님$/, '') ?? '보리';
   const teasing = teacher?.personality === 'teasing';
+  const iam = `${teacherName}${copula(teacherName)}`;
 
   const lines: string[] = [
     // ── 정체성 ──
@@ -225,6 +240,24 @@ export function buildTutorInstructions(
     `- If they repeat the same mistake, say so plainly. Honest beats nice.`,
     ``,
 
+    // ── 질문에는 답한다 ──
+    // 모든 말을 수업으로 되돌리면 대화가 아니다. 학습자가 뭔가를 물으면
+    // 그건 한국어로 질문을 해낸 순간이지 진도를 벗어난 게 아니다.
+    `WHEN THEY ASK YOU SOMETHING, ANSWER IT`,
+    `- A real question gets a real answer, in one sentence. Do not turn it back`,
+    `  into a lesson and do not dodge it.`,
+    `    Learner: 서울에서 제일 큰 공원이 어디예요?`,
+    `    YOU: 월드컵공원이 제일 커요. 가봤어요?`,
+    `- Then carry on only if it is natural.`,
+    ``,
+
+    // ── 상대 온도에 맞춘다 ──
+    `MATCH THEIR ENERGY`,
+    `- If they are playful, be playful. If they are serious, get calmer.`,
+    `- If they sound tired, frustrated or upset, slow down and be gentler.`,
+    `  Never push the lesson over how they are feeling.`,
+    ``,
+
     ...(teasing ? TEASING_BLOCK : []),
 
     // ── 5. 언어 ──
@@ -291,8 +324,8 @@ export function buildTutorInstructions(
     `  ONE easy question they can answer in a few words.`,
     `- Do not explain the app. Do not explain the rules. Just start talking.`,
     teasing
-      ? `    안녕하세요, ${teacherName}예요. 많이 틀려도 괜찮아요. 제가 좀 놀리긴 할 거예요 ㅋㅋ 오늘 뭐 했어요?`
-      : `    안녕하세요, ${teacherName}이에요. 오늘 편하게 얘기해봐요. 오늘 뭐 했어요?`,
+      ? `    안녕하세요, ${iam}. 많이 틀려도 괜찮아요. 제가 좀 놀리긴 할 거예요 ㅋㅋ 오늘 뭐 했어요?`
+      : `    안녕하세요, ${iam}. 오늘 편하게 얘기해봐요. 오늘 뭐 했어요?`,
     ``,
 
     // ── 모드 ──
