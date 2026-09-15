@@ -13,7 +13,9 @@ export function AppEntry() {
 
   useEffect(() => {
     if (auth.status !== "authenticated" || !auth.user) return;
-    router.replace(auth.user.isOnboardingCompleted ? "/home" : "/onboarding");
+    router.replace(
+      auth.user.isOnboardingCompleted ? "/welcome" : "/onboarding",
+    );
   }, [auth.status, auth.user, router]);
 
   if (auth.status === "error") {

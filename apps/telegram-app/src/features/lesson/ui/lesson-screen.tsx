@@ -21,6 +21,10 @@ import {
 } from "../api/lesson";
 import { completeLevelExam, getLevelExam } from "../api/study-lesson";
 import {
+  completeOnboardingLevelTest,
+  getOnboardingLevelTest,
+} from "../../onboarding/api/onboarding";
+import {
   backToLearning,
   isAnswerCorrect,
   type AnswerGradeResult,
@@ -68,6 +72,8 @@ export function LessonScreen() {
   const lessonNumber = Math.max(1, Number(params.get("lesson")) || 1);
   const isJump = mode === "jumpTest";
   const isLevelExam = mode === "levelExam";
+  const isOnboardingLevelTest = mode === "levelTest";
+  const selfReportedLevel = params.get("self") ?? "basic_greetings";
 
   const [session, setSession] = useState<LessonSession | null>(null);
   const [queue, setQueue] = useState<LessonQueueItem[]>([]);
@@ -98,6 +104,7 @@ export function LessonScreen() {
   const finalWrongIds = useRef(new Set<string>());
   const allWrongIds = useRef(new Set<string>());
   const reviewQuestions = useRef(new Map<string, LessonQuestion>());
+  const nextRef = useRef<() => Promise<void>>(async () => undefined);
 
   const resetRun = useCallback(() => {
     startTime.current = Date.now();
@@ -127,7 +134,19 @@ export function LessonScreen() {
     resetRun();
     try {
       let next: LessonSession;
-      if (isJump) {
+      if (isOnboardingLevelTest) {
+        const questions = await getOnboardingLevelTest(
+          request,
+          selfReportedLevel,
+        );
+        next = {
+          category: "",
+          lessonId: "level-test",
+          lessonTitle: "Daraja testi",
+          questions,
+          totalXp: 0,
+        };
+      } else if (isJump) {
         const result = await getJumpTest(request, section, unit, category ?? undefined);
         jumpAttemptId.current = result.attemptId;
         const limit = result.heartLimit ?? (target === "section" || section >= 2 ? 3 : 5);
@@ -189,7 +208,7 @@ export function LessonScreen() {
     } finally {
       setLoading(false);
     }
-  }, [category, group, isJump, isLevelExam, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, target, unit]);
+  }, [category, group, isJump, isLevelExam, isOnboardingLevelTest, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
 
   useEffect(() => {
     void load();
@@ -206,6 +225,10 @@ export function LessonScreen() {
   }, [cursor, queue.length]);
 
   const close = () => {
+    if (isOnboardingLevelTest) {
+      router.replace("/onboarding");
+      return;
+    }
     if (isJump) {
       router.replace(backToLearning(category, from));
       return;
@@ -243,7 +266,12 @@ export function LessonScreen() {
         firstWrongInstances.current.add(current.instanceId);
         allWrongIds.current.add(current.question.id);
         finalWrongIds.current.add(current.question.id);
-        if (!isJump && !GRAMMAR_TYPES.has(current.question.type) && phase === "main") {
+        if (
+          !isJump &&
+          !isOnboardingLevelTest &&
+          !GRAMMAR_TYPES.has(current.question.type) &&
+          phase === "main"
+        ) {
           reviewQuestions.current.set(current.question.id, current.question);
         }
       }
@@ -319,6 +347,32 @@ export function LessonScreen() {
           wrong: String(result.wrongCount),
         });
         router.replace(`/jump-result?${query.toString()}`);
+        return;
+      }
+
+      if (isOnboardingLevelTest) {
+        const score = Math.round((correctCount.current / total) * 100);
+        const result = await completeOnboardingLevelTest(request, {
+          correctAnswers: correctCount.current,
+          score,
+          totalQuestions: total,
+          wrongQuestionIds: [...allWrongIds.current],
+        });
+        updateUser({
+          hasPickedLevel: true,
+          isOnboardingCompleted: true,
+          languageLevel: result.placementLevel,
+          level: result.detectedLevel,
+        });
+        const query = new URLSearchParams({
+          correct: String(result.correctAnswers),
+          placement: String(result.placementLevel),
+          score: String(result.score),
+          section: String(result.recommendedSection),
+          self: selfReportedLevel,
+          total: String(result.totalQuestions),
+        });
+        router.replace(`/onboarding-result?${query.toString()}`);
         return;
       }
 
@@ -418,7 +472,11 @@ export function LessonScreen() {
 
   const next = async () => {
     if (!current || answerState === "idle") return;
-    if (answerState === "wrong" && GRAMMAR_TYPES.has(current.question.type)) {
+    if (
+      !isOnboardingLevelTest &&
+      answerState === "wrong" &&
+      GRAMMAR_TYPES.has(current.question.type)
+    ) {
       retryCurrent();
       return;
     }
@@ -429,6 +487,7 @@ export function LessonScreen() {
     let nextQueue = queue;
     if (
       !isJump &&
+      !isOnboardingLevelTest &&
       GRAMMAR_TYPES.has(current.question.type) &&
       firstWrongInstances.current.has(current.instanceId) &&
       !current.retry
@@ -450,7 +509,12 @@ export function LessonScreen() {
       setRendererEpoch(0);
       return;
     }
-    if (phase === "main" && reviewQuestions.current.size > 0 && !isJump) {
+    if (
+      phase === "main" &&
+      reviewQuestions.current.size > 0 &&
+      !isJump &&
+      !isOnboardingLevelTest
+    ) {
       setPhase("review");
       setQueue(makeQueue([...reviewQuestions.current.values()], "review", true));
       setCursor(0);
@@ -461,6 +525,16 @@ export function LessonScreen() {
     }
     await finish();
   };
+
+  nextRef.current = next;
+
+  useEffect(() => {
+    if (!isOnboardingLevelTest || answerState === "idle") return;
+    const timer = window.setTimeout(() => {
+      void nextRef.current();
+    }, 320);
+    return () => window.clearTimeout(timer);
+  }, [answerState, current?.instanceId, isOnboardingLevelTest]);
 
   if (loading) {
     return (
@@ -478,12 +552,15 @@ export function LessonScreen() {
         <h1>Darsni yuklab bo&apos;lmadi</h1>
         <p>Aloqani tekshirib, yana bir marta urinib ko&apos;ring.</p>
         <button className={styles.primaryAction} onClick={() => void load()} type="button">Qayta urinish</button>
-        <button className={styles.textAction} onClick={() => router.replace(backToLearning(category, from))} type="button">Orqaga</button>
+        <button className={styles.textAction} onClick={() => router.replace(isOnboardingLevelTest ? "/onboarding" : backToLearning(category, from))} type="button">Orqaga</button>
       </main>
     );
   }
 
-  const needsGrammarRetry = answerState === "wrong" && GRAMMAR_TYPES.has(current.question.type);
+  const needsGrammarRetry =
+    !isOnboardingLevelTest &&
+    answerState === "wrong" &&
+    GRAMMAR_TYPES.has(current.question.type);
   return (
     <main className={styles.lessonPage}>
       <header className={styles.lessonHeader}>
@@ -494,7 +571,13 @@ export function LessonScreen() {
             <HomeIcon name="heart" size={22} /><b>{hearts}</b><small>/ {heartLimit}</small>
           </div>
         ) : (
-          <div className={styles.energy}><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></div>
+          <div className={styles.energy}>
+            {isOnboardingLevelTest ? (
+              <><MobileIcon name="school" size={21} /><b>Sinov</b></>
+            ) : (
+              <><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></>
+            )}
+          </div>
         )}
       </header>
 
@@ -514,7 +597,7 @@ export function LessonScreen() {
       </section>
 
       {checking ? <div className={styles.checkingToast}>Javob tekshirilmoqda...</div> : null}
-      {answerState !== "idle" ? (
+      {answerState !== "idle" && !isOnboardingLevelTest ? (
         <aside className={`${styles.feedbackBar} ${answerState === "correct" ? styles.feedbackCorrect : styles.feedbackWrong}`}>
           <div className={styles.feedbackIcon}>
             {answerState === "correct" ? <HomeIcon name="check" size={24} /> : <HomeIcon name="close" size={24} />}
@@ -540,7 +623,7 @@ export function LessonScreen() {
             <h2>Darsni to&apos;xtatasizmi?</h2>
             <p>Hozirgi savoldagi jarayon saqlanmaydi.</p>
             <button className={styles.primaryAction} onClick={() => setShowQuit(false)} type="button">Davom ettirish</button>
-            <button className={styles.dangerAction} onClick={() => router.replace(backToLearning(category, from))} type="button">To&apos;xtatish</button>
+            <button className={styles.dangerAction} onClick={() => router.replace(isOnboardingLevelTest ? "/onboarding" : backToLearning(category, from))} type="button">To&apos;xtatish</button>
           </div>
         </div>
       ) : null}
