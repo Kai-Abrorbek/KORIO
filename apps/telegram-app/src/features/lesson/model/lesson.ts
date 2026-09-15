@@ -22,6 +22,8 @@ export type QuestionType =
   | "dialog_order"
   | "verb_transform";
 
+export type AnswerState = "idle" | "correct" | "wrong";
+
 export interface LessonQuestion {
   acceptedAnswers?: string[];
   answer: string;

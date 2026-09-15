@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { CSSProperties } from "react";
 
 import { HomeIcon } from "../../home/ui/home-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { backToLearning } from "../model/lesson";
 import styles from "./lesson.module.css";
 
@@ -15,6 +17,14 @@ function useJumpParams() {
     target: params.get("target"),
     unit: Math.max(1, Number(params.get("unit")) || 1),
   };
+}
+
+function goBack(router: ReturnType<typeof useRouter>, fallback: string) {
+  if (window.history.length > 1) {
+    router.back();
+    return;
+  }
+  router.replace(fallback);
 }
 
 export function JumpStartScreen() {
@@ -32,29 +42,32 @@ export function JumpStartScreen() {
   };
 
   return (
-    <main className={styles.jumpPage}>
-      <section className={styles.jumpHero}>
+    <main className={`${styles.jumpPage} ${styles.jumpStartPage}`}>
+      <section className={styles.jumpStartCenter}>
         {!sectionJump ? (
           <div className={styles.unitMark}><span>🇰🇷</span><b>{unit}</b></div>
-        ) : (
-          <span className={styles.jumpEyebrow}>TEZKOR O&apos;TISH</span>
-        )}
-        <div className={styles.mascotHalo}>
-          <span className={styles.haloRing} />
-          <Image alt="KORIO" height={158} src="/characters/hangulmon_default.png" unoptimized width={158} />
-        </div>
+        ) : null}
+        <Image
+          alt="KORIO"
+          className={styles.jumpMascot}
+          height={160}
+          src="/characters/hangulmon_determined.png"
+          unoptimized
+          width={160}
+        />
         <h1>
           {sectionJump
             ? `Bu testdan o'tsangiz, ${section}-bo'limga o'tasiz.`
-            : `${unit}-unitga o'tib, mahoratingizni ko'rsating!`}
+            : `Unit ${unit}ga o'tib, mahoratingizni ko'rsating!`}
         </h1>
-        <p>Oldingi mavzulardan tanlangan qisqa sinov bilan darajangizni ko&apos;rsating.</p>
       </section>
       <footer className={styles.jumpFooter}>
-        <button className={styles.blueAction} onClick={next} type="button">
-          Testni boshlash <HomeIcon name="arrow" size={20} />
-        </button>
-        <button className={styles.blueTextAction} onClick={() => router.replace(backToLearning(category))} type="button">
+        <button className={styles.blueAction} onClick={next} type="button">Testni boshlash</button>
+        <button
+          className={styles.blueTextAction}
+          onClick={() => goBack(router, backToLearning(category))}
+          type="button"
+        >
           Keyinroq
         </button>
       </footer>
@@ -80,28 +93,35 @@ export function JumpIntroScreen() {
   return (
     <main className={styles.jumpPage}>
       <header className={styles.jumpIntroHeader}>
-        <button aria-label="Yopish" onClick={() => router.back()} type="button">×</button>
-        <div>{Array.from({ length: hearts }, (_, index) => <span key={index}>♥</span>)}</div>
+        <button
+          aria-label="Yopish"
+          onClick={() => goBack(router, backToLearning(category))}
+          type="button"
+        >
+          <MobileIcon name="close" size={30} />
+        </button>
+        <div>
+          {Array.from({ length: hearts }, (_, index) => (
+            <MobileIcon key={index} name="heart" size={26} />
+          ))}
+        </div>
       </header>
       <section className={styles.ruleStage}>
         <div className={styles.ruleVisual}>
-          <Image alt="KORIO" height={124} src="/characters/hangulmon_default.png" unoptimized width={124} />
+          <Image
+            alt="KORIO"
+            height={130}
+            src="/characters/hangulmon_confident.png"
+            unoptimized
+            width={130}
+          />
           <div className={styles.speechBubble}>
-            <span>SINOV QOIDASI</span>
-            <strong>{hearts} tadan kam xato qiling</strong>
-            <p>Har bir yurak — bitta imkoniyat. Oxirigacha diqqat bilan boring!</p>
+            <strong>Bu sinovdan o&apos;tish uchun {hearts} tadan kam xato qiling. Omad!</strong>
           </div>
-        </div>
-        <div className={styles.ruleCards}>
-          <article><b>25</b><span>gacha savol</span></article>
-          <article><b>{hearts}</b><span>imkoniyat</span></article>
-          <article><b>1</b><span>yangi start</span></article>
         </div>
       </section>
       <footer className={styles.jumpFooter}>
-        <button className={styles.greenAction} onClick={start} type="button">
-          Davom etish <HomeIcon name="arrow" size={20} />
-        </button>
+        <button className={styles.greenAction} onClick={start} type="button">Davom etish</button>
       </footer>
     </main>
   );
@@ -124,27 +144,41 @@ export function JumpResultScreen() {
     : "Yana biroz mashq kerak";
 
   return (
-    <main className={`${styles.jumpPage} ${passed ? styles.resultPass : styles.resultFail}`}>
-      {passed ? <div className={styles.confetti} aria-hidden="true">
-        {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ "--confetti-index": index } as React.CSSProperties} />)}
-      </div> : null}
-      <section className={styles.resultStage}>
-        <div className={styles.unlockStamp}>
-          <span>{passed ? "🔓" : "↻"}</span>
+    <main className={styles.jumpPage}>
+      {passed ? (
+        <div className={styles.confetti} aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => (
+            <i key={index} style={{ "--confetti-index": index } as CSSProperties} />
+          ))}
         </div>
-        <small>{passed ? (sectionJump ? "BO'LIM OCHILDI" : "DARS OCHILDI") : "YANA BIR URINISH"}</small>
+      ) : null}
+      <section className={styles.resultStage}>
+        <div className={`${styles.unlockStamp} ${passed ? "" : styles.unlockStampFail}`}>
+          <MobileIcon name={passed ? "lock-open" : "refresh"} size={54} />
+        </div>
+        {passed ? (
+          <small>{sectionJump ? "BO'LIM OCHILDI" : "DARS OCHILDI"}</small>
+        ) : null}
         <h1>{title}</h1>
         <p>
           {passed
             ? sectionJump
               ? `Testdan o'tdingiz. ${section}-bo'limdan darrov davom eting.`
               : `Testdan o'tdingiz. ${unit}-darsdan davom eting.`
-            : "Oldingi darslarni bajarib, mahoratingizni yana biroz oshiring."}
+            : "Xatolar juda ko'p edi. Oldingi darslarni bajarib, mahoratingizni oshiring!"}
         </p>
-        <div className={styles.resultStat}>
-          {passed ? <span>⚡</span> : <b>×</b>}
-          <b>{passed ? `${lessons} ta darsni o'tkazib yubordingiz` : `${wrong} ta xato qildingiz`}</b>
-        </div>
+        {passed && lessons > 0 ? (
+          <div className={styles.resultStat}>
+            <MobileIcon name="flash" size={18} />
+            <b>{lessons} ta darsni o&apos;tkazib yubordingiz</b>
+          </div>
+        ) : null}
+        {!passed ? (
+          <div className={`${styles.resultStat} ${styles.resultStatFail}`}>
+            <MobileIcon name="close-circle" size={18} />
+            <b>{wrong} ta xato qildingiz</b>
+          </div>
+        ) : null}
       </section>
       <footer className={styles.jumpFooter}>
         <button
@@ -152,7 +186,7 @@ export function JumpResultScreen() {
           onClick={() => router.replace(backToLearning(category))}
           type="button"
         >
-          {passed ? "O'qishni boshlash" : "Davom etish"} <HomeIcon name="arrow" size={20} />
+          {passed ? "O'qishni boshlash" : "Davom etish"} <HomeIcon name="arrow" size={19} />
         </button>
       </footer>
     </main>

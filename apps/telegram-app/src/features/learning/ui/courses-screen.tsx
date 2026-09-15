@@ -10,6 +10,7 @@ import {
   type StudyMode,
 } from "../model/learning-options";
 import { HomeIcon } from "../../home/ui/home-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { StudyModeSheet } from "./study-mode-sheet";
 import styles from "./learning.module.css";
 
@@ -89,7 +90,7 @@ export function CoursesScreen() {
         onClick={close}
         type="button"
       >
-        ×
+        <MobileIcon name="close" size={28} />
       </button>
 
       <div className={styles.courseContent}>

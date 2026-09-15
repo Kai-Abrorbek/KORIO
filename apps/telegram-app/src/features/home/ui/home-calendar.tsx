@@ -93,7 +93,7 @@ export function HomeCalendar({
           onClick={onClose}
           type="button"
         >
-          ×
+          <HomeIcon name="close" size={25} />
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}

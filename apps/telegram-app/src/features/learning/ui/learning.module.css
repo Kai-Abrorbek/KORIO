@@ -331,9 +331,6 @@
   width: 36px;
 }
 
-.backChevron {
-  transform: rotate(180deg);
-}
 
 .learningHeader h1 {
   color: var(--text);

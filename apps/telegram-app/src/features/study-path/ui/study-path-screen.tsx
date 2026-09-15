@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { HomeIcon } from "../../home/ui/home-icon";
 import { LearningIcon } from "../../learning/ui/learning-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { claimStudyPathChests, getStudyPath } from "../api/study-path";
 import {
   STUDY_NODE_COPY,
@@ -124,18 +125,7 @@ function NodeIcon({ kind }: { kind: StudyNodeKind }) {
     return <LearningIcon name="construct" size={27} />;
   }
   if (kind === "final") return <HomeIcon name="ribbon" size={27} />;
-  return (
-    <svg aria-hidden="true" height="27" viewBox="0 0 24 24" width="27">
-      <path
-        d="m4 20 4.8-1.2L19 8.6 15.4 5 5.2 15.2ZM13.8 6.6l3.6 3.6M4 20l1.2-4.8"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
-  );
+  return <MobileIcon name="create-outline" size={27} />;
 }
 
 function StudyNodePopover({
@@ -188,7 +178,7 @@ function StudyNodePopover({
       </div>
       {locked ? (
         <div className={styles.lockedNotice}>
-          <span>◷</span> Oldingi bosqichni tugatsangiz ochiladi
+          <MobileIcon name="time-outline" size={18} /> Oldingi bosqichni tugatsangiz ochiladi
         </div>
       ) : (
         <button className={styles.nodeStart} onClick={onStart} type="button">
@@ -356,18 +346,24 @@ export function StudyPathScreen() {
 
   return (
     <main className={styles.pathPage}>
+      <nav className={styles.miniRoadmapNav}>
+        <button aria-label="Orqaga" onClick={() => router.replace("/courses")} type="button">
+          <HomeIcon name="back" size={25} />
+        </button>
+        <strong>O&apos;quv xaritasi</strong>
+      </nav>
       <header className={styles.pathStats}>
         <button onClick={() => router.push("/courses")} type="button">
           <span>🇰🇷</span>
           <b>{data?.score ?? 0}</b>
-          <span className={styles.caret}>▾</span>
+          <HomeIcon className={styles.caret} name="caret" size={15} />
         </button>
         <span>
           <HomeIcon name="flame" size={22} />
           <b>{user?.streak ?? 0}</b>
         </span>
         <span>
-          <span className={styles.diamond}>◆</span>
+          <HomeIcon className={styles.diamond} name="diamond" size={20} />
           <b>{user?.gems ?? 0}</b>
         </span>
         {user?.isSuper ? (

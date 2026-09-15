@@ -232,7 +232,7 @@ export function RoadmapScreen() {
           onClick={() => router.replace("/course-categories")}
           type="button"
         >
-          <HomeIcon name="chevron" size={26} />
+          <HomeIcon name="back" size={26} />
         </button>
         <span>🚧</span>
         <h1>Tez orada!</h1>
@@ -243,18 +243,24 @@ export function RoadmapScreen() {
 
   return (
     <main className={styles.pathPage}>
+      <nav className={styles.miniRoadmapNav}>
+        <button aria-label="Orqaga" onClick={() => router.replace("/course-categories")} type="button">
+          <HomeIcon name="back" size={25} />
+        </button>
+        <strong>O&apos;quv xaritasi</strong>
+      </nav>
       <header className={styles.pathStats}>
         <button onClick={() => router.push("/courses")} type="button">
           <span>🇰🇷</span>
           <b>{scoreValue}</b>
-          <span className={styles.caret}>▾</span>
+          <HomeIcon className={styles.caret} name="caret" size={15} />
         </button>
         <span>
           <HomeIcon name="flame" size={22} />
           <b>{user?.streak ?? 0}</b>
         </span>
         <span>
-          <span className={styles.diamond}>◆</span>
+          <HomeIcon className={styles.diamond} name="diamond" size={20} />
           <b>{user?.gems ?? 0}</b>
         </span>
         {user?.isSuper ? (

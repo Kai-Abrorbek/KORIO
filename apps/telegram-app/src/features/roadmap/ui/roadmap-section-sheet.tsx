@@ -51,7 +51,7 @@ export function RoadmapSectionSheet({
         <header>
           <h2>Barcha bo&apos;limlar</h2>
           <button aria-label="Yopish" onClick={onClose} type="button">
-            ×
+            <HomeIcon name="close" size={25} />
           </button>
         </header>
         <div className={styles.sectionRows}>

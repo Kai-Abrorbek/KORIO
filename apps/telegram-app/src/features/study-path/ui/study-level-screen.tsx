@@ -79,7 +79,7 @@ export function StudyLevelScreen() {
         onClick={goBack}
         type="button"
       >
-        ×
+        <HomeIcon name="close" size={28} />
       </button>
 
       {loading ? (

@@ -1,3 +1,15 @@
+@font-face {
+  font-display: block;
+  font-family: "KorioIonicons";
+  src: url("/fonts/Ionicons.ttf") format("truetype");
+}
+
+@font-face {
+  font-display: block;
+  font-family: "KorioMaterialCommunityIcons";
+  src: url("/fonts/MaterialCommunityIcons.ttf") format("truetype");
+}
+
 :root {
   --korio-purple: #6d57e8;
   --korio-purple-dark: #5942d1;

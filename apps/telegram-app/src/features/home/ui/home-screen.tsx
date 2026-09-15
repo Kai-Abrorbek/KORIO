@@ -26,10 +26,10 @@ interface QuickAccessItem {
 }
 
 const QUICK_ACCESS: QuickAccessItem[] = [
-  { color: "#776ee2", icon: "shop", label: "Do'kon" },
-  { color: "#d9a72e", icon: "target", label: "Vazifalar" },
-  { color: "#45b7d1", icon: "search", label: "Lug'at" },
-  { color: "#ff6b6b", icon: "heart", label: "So'z daftarim" },
+  { color: "#776ee2", icon: "basket", label: "Do'kon" },
+  { color: "#d9a72e", icon: "bookmark", label: "Vazifalar" },
+  { color: "#45b7d1", icon: "searchOutline", label: "Lug'at" },
+  { color: "#ff6b6b", icon: "heartOutline", label: "So'z daftarim" },
 ];
 
 const SIDE_ACTIONS: Array<{

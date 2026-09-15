@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { HomeIcon } from "../../home/ui/home-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   completeJumpTest,
   completeLesson,
@@ -330,11 +331,15 @@ export function LessonScreen() {
         updateUser({ totalXP: result.totalXP });
         routeComplete({
           accuracy: Math.round((result.correct / Math.max(1, result.total)) * 100),
+          correct: result.correct,
           exam: "1",
+          gems: result.gemsEarned,
           level: result.level,
           nextLevel: result.nextLevel,
           passed: result.passed ? "1" : "0",
           time: elapsed,
+          total: result.total,
+          weak: result.weakAreas.join(","),
           xp: result.xpEarned,
         });
         return;
@@ -482,24 +487,26 @@ export function LessonScreen() {
   return (
     <main className={styles.lessonPage}>
       <header className={styles.lessonHeader}>
-        <button aria-label="Yopish" onClick={close} type="button">×</button>
+        <button aria-label="Yopish" onClick={close} type="button"><MobileIcon name="close" size={28} /></button>
         <div className={styles.progressTrack}><span style={{ width: `${Math.max(3, progress)}%` }} /></div>
         {isJump ? (
           <div className={styles.hearts} aria-label={`${hearts} imkoniyat`}>
             <HomeIcon name="heart" size={22} /><b>{hearts}</b><small>/ {heartLimit}</small>
           </div>
         ) : (
-          <div className={styles.energy}><span>⚡</span><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></div>
+          <div className={styles.energy}><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></div>
         )}
       </header>
 
-      {phase === "review" ? <div className={styles.reviewRibbon}>↻ Oldingi xatolarni mustahkamlaymiz</div> : null}
+      {phase === "review" ? <div className={styles.reviewRibbon}><HomeIcon name="refresh" size={15} /> Oldingi xatolarni mustahkamlaymiz</div> : null}
       {combo >= 3 ? <div className={styles.comboPill}>⚡ {combo} combo</div> : null}
 
       <section className={styles.questionStage} key={`${current.instanceId}:${rendererEpoch}`}>
         <QuestionCard
           answerState={answerState}
+          combo={combo}
           instanceKey={`${current.instanceId}:${rendererEpoch}`}
+          isChecking={checking}
           onAnswer={(answer) => void submitAnswer(answer)}
           onSkip={skipQuestion}
           question={current.question}
@@ -510,7 +517,7 @@ export function LessonScreen() {
       {answerState !== "idle" ? (
         <aside className={`${styles.feedbackBar} ${answerState === "correct" ? styles.feedbackCorrect : styles.feedbackWrong}`}>
           <div className={styles.feedbackIcon}>
-            {answerState === "correct" ? <HomeIcon name="check" size={24} /> : <b>×</b>}
+            {answerState === "correct" ? <HomeIcon name="check" size={24} /> : <HomeIcon name="close" size={24} />}
           </div>
           <div className={styles.feedbackCopy}>
             <strong>{gradeFeedback?.title || (answerState === "correct" ? "Juda zo'r!" : "Noto'g'ri")}</strong>

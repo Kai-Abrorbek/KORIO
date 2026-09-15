@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 
 import { HomeIcon } from "../../home/ui/home-icon";
 import { LearningIcon } from "../../learning/ui/learning-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { RoadmapNode, RoadmapUnit } from "../model/roadmap";
 import styles from "../../study-path/ui/study-path.module.css";
 
@@ -21,18 +22,7 @@ export function RoadmapNodeIcon({ node }: { node: RoadmapNode }) {
   if (node.iconName === "flag") return <HomeIcon name="ribbon" size={27} />;
   if (node.iconName === "refresh") return <HomeIcon name="refresh" size={27} />;
   if (node.iconName === "create" || node.iconName === "pencil") {
-    return (
-      <svg aria-hidden="true" height="27" viewBox="0 0 24 24" width="27">
-        <path
-          d="m4 20 4.8-1.2L19 8.6 15.4 5 5.2 15.2ZM13.8 6.6l3.6 3.6M4 20l1.2-4.8"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </svg>
-    );
+    return <MobileIcon name="create-outline" size={27} />;
   }
   return <HomeIcon name="sparkles" size={27} />;
 }

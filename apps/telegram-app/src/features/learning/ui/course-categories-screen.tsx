@@ -172,7 +172,7 @@ export function CourseCategoriesScreen() {
     <main className={styles.learningPage}>
       <header className={styles.learningHeader}>
         <button aria-label="Orqaga" onClick={goBack} type="button">
-          <HomeIcon className={styles.backChevron} name="chevron" size={28} />
+          <HomeIcon name="back" size={28} />
         </button>
         <h1>{heading}</h1>
       </header>

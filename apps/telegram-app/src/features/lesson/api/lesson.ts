@@ -172,3 +172,14 @@ export function assessSpeech(
     method: "POST",
   });
 }
+
+export function transcribeSpeech(
+  request: AuthenticatedRequest,
+  wav: ArrayBuffer,
+): Promise<{ status: "success" | "no_speech" | "error"; text: string }> {
+  return request("/speech/transcribe", {
+    body: wav,
+    headers: { "Content-Type": "audio/wav" },
+    method: "POST",
+  });
+}
