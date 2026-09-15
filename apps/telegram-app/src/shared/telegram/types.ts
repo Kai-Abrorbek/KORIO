@@ -18,6 +18,11 @@ export interface TelegramWebApp {
   colorScheme: "light" | "dark";
   platform: string;
   version: string;
+  HapticFeedback?: {
+    impactOccurred(style: "light" | "medium" | "heavy" | "rigid" | "soft"): void;
+    notificationOccurred(type: "error" | "success" | "warning"): void;
+    selectionChanged(): void;
+  };
   expand(): void;
   ready(): void;
   setBackgroundColor?(color: string): void;

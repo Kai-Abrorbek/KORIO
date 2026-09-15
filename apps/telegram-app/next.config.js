@@ -17,8 +17,8 @@ const nextConfig = {
           if (!apiProxyTarget) return [];
           return [
             {
-              source: "/api/auth/telegram/mini-app",
-              destination: `${apiProxyTarget}/auth/telegram/mini-app`,
+              source: "/api/:path*",
+              destination: `${apiProxyTarget}/:path*`,
             },
           ];
         },

@@ -46,6 +46,7 @@ const IONICONS = {
   hourglass: 62341,
   footsteps: 62254,
   "footsteps-outline": 62255,
+  "finger-print-outline": 62216,
   "game-controller": 62260,
   "game-controller-outline": 62261,
   headset: 62311,
@@ -55,6 +56,7 @@ const IONICONS = {
   home: 62338,
   language: 62377,
   "layers-outline": 62384,
+  layers: 62383,
   leaf: 62386,
   list: 62395,
   locate: 62401,
@@ -98,6 +100,7 @@ const IONICONS = {
   tv: 62980,
   "trash-outline": 62966,
   "volume-high": 62995,
+  "volume-high-outline": 62996,
   "volume-medium": 63001,
   "volume-medium-outline": 63002,
 } as const;

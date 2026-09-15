@@ -63,8 +63,8 @@ export const PART_OF_SPEECH: Record<WordPartOfSpeech, string> = {
   determiner: "Aniqlovchi",
   numeral: "Son",
   interjection: "Undov",
-  phrase: "Ibora",
-  other: "Boshqa",
+  phrase: "Ifoda",
+  other: "So'z",
 };
 
 export function lessonSlice(total: number, count: number, oneBasedLesson: number) {
