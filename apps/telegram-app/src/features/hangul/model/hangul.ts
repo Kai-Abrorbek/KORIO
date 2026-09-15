@@ -17,6 +17,15 @@ export interface HangulCharacter {
   examples: HangulExample[];
 }
 
+export interface HangulMemoryCard {
+  characterId: string;
+  display: string;
+  id: string;
+  isFlipped: boolean;
+  isMatched: boolean;
+  type: "hangul" | "roman";
+}
+
 export const HANGUL_CHARACTERS: HangulCharacter[] = [
   // ─── 자음 14개 ───
   {

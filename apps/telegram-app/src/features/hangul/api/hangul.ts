@@ -18,6 +18,11 @@ export interface HangulProgressResponse {
   total: number;
 }
 
+export interface HangulResult {
+  characterId: string;
+  correct: boolean;
+}
+
 export function getHangulProgress(
   request: AuthenticatedRequest,
 ): Promise<HangulProgressResponse> {
@@ -29,6 +34,17 @@ export function completeHangul(
 ): Promise<{ hangulCompletedAt: string }> {
   return request("/users/me/hangul-complete", {
     body: JSON.stringify({}),
+    method: "POST",
+  });
+}
+
+export function submitHangulResults(
+  request: AuthenticatedRequest,
+  results: HangulResult[],
+  source?: string,
+): Promise<HangulProgressResponse> {
+  return request("/hangul/results", {
+    body: JSON.stringify({ results, source }),
     method: "POST",
   });
 }

@@ -95,6 +95,7 @@ const IONICONS = {
   stop: 62878,
   sunny: 62893,
   "swap-horizontal": 62896,
+  "swap-horizontal-outline": 62897,
   text: 62923,
   "text-outline": 62924,
   "time-outline": 62942,
