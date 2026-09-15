@@ -26,6 +26,23 @@ export interface HangulMemoryCard {
   type: "hangul" | "roman";
 }
 
+export interface StrokePoint {
+  x: number;
+  y: number;
+}
+
+export interface StrokeDefinition {
+  points: StrokePoint[];
+}
+
+export interface HangulStrokeCharacter {
+  char: string;
+  id: string;
+  name: string;
+  romanization: string;
+  strokes: StrokeDefinition[];
+}
+
 export const HANGUL_CHARACTERS: HangulCharacter[] = [
   // ─── 자음 14개 ───
   {
