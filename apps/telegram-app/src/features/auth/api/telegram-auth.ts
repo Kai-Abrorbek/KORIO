@@ -20,6 +20,8 @@ export interface KorioTelegramUser {
   league?: string;
   gems?: number;
   energy?: number;
+  hangulCompletedAt?: string | null;
+  hangulLevel?: string;
   isSuper?: boolean;
   superPlan?: string | null;
   superExpiresAt?: string | null;
