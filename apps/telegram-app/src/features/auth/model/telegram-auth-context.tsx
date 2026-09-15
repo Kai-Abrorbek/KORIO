@@ -25,6 +25,7 @@ interface TelegramAuthContextValue {
   errorCode: string | null;
   request: <T>(path: string, init?: RequestInit) => Promise<T>;
   status: AuthStatus;
+  updateUser: (partial: Partial<KorioTelegramUser>) => void;
   user: KorioTelegramUser | null;
 }
 
@@ -90,6 +91,10 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
     [accessToken],
   );
 
+  const updateUser = useCallback((partial: Partial<KorioTelegramUser>) => {
+    setUser((current) => (current ? { ...current, ...partial } : current));
+  }, []);
+
   const value = useMemo<TelegramAuthContextValue>(
     () => ({
       accessToken,
@@ -100,9 +105,10 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
         : accessToken && user
           ? "authenticated"
           : "loading",
+      updateUser,
       user,
     }),
-    [accessToken, error, request, user],
+    [accessToken, error, request, updateUser, user],
   );
 
   return (
