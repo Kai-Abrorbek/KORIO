@@ -1,0 +1,119 @@
+.sectionTitle {
+  color: #1a1a2e;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 8px 20px 12px;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.header > strong {
+  color: #1a1a2e;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.header > span {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.header button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.header button:disabled {
+  color: #eceaf6;
+}
+
+.header b {
+  color: #1a1a2e;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: center;
+}
+
+.legend {
+  align-items: center;
+  display: flex;
+  gap: 2px;
+  margin-bottom: 18px;
+}
+
+.legend span {
+  color: #55555f;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 4px;
+}
+
+.legend i,
+.month i {
+  border-radius: 1.5px;
+  display: block;
+  height: 7px;
+  width: 7px;
+}
+
+.row {
+  align-items: flex-start;
+  display: flex;
+}
+
+.days {
+  color: #55555f;
+  display: flex;
+  flex: 0 0 18px;
+  flex-direction: column;
+}
+
+.days i {
+  height: 14px;
+}
+
+.days small {
+  font-size: 8px;
+  height: 9px;
+  line-height: 9px;
+}
+
+.month {
+  margin-right: 6px;
+}
+
+.month > strong {
+  color: #55555f;
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  height: 14px;
+  letter-spacing: .3px;
+}
+
+.month > div {
+  display: flex;
+  gap: 2px;
+}
+
+.month > div > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gap {
+  height: 12px;
+}

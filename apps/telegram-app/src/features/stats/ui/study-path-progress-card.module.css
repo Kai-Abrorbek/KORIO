@@ -1,0 +1,231 @@
+.loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 60px;
+  padding-top: 60px;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.header > strong {
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.header > span {
+  align-items: center;
+  background: #776ee2;
+  border-radius: 99px;
+  color: #fff;
+  display: flex;
+  font-size: 11px;
+  font-weight: 900;
+  gap: 4px;
+  padding: 4px 9px;
+}
+
+.ringRow {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+}
+
+.ring {
+  align-items: center;
+  display: flex;
+  flex: 0 0 122px;
+  height: 122px;
+  justify-content: center;
+  position: relative;
+}
+
+.ringFill {
+  animation: ringGrow 950ms 150ms ease-out both;
+}
+
+.ring > span {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+}
+
+.ring > span strong {
+  color: #1a1a2e;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+}
+
+.ring > span small {
+  color: #55555f;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.summary {
+  flex: 1;
+}
+
+.summary > span {
+  color: #55555f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.summary > strong {
+  color: #1a1a2e;
+  display: block;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-top: 1px;
+}
+
+.summary > small {
+  color: #55555f;
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.goal {
+  align-items: center;
+  background: #fff;
+  border-left: 3px solid;
+  border-radius: 11px;
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 9px 10px;
+}
+
+.goal span {
+  color: #1a1a2e;
+  flex: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.blockTitle {
+  color: #55555f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  margin: 20px 0 9px;
+}
+
+.sectionRow {
+  display: flex;
+  gap: 7px;
+}
+
+.sectionRow > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionRow > div > span {
+  background: #eceaf6;
+  border-radius: 5px;
+  display: block;
+  height: 9px;
+  overflow: hidden;
+}
+
+.sectionRow i {
+  border-radius: 5px;
+  display: block;
+  height: 100%;
+}
+
+.sectionRow small {
+  color: #55555f;
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 5px;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.sectionRow small.sectionActive {
+  color: #1a1a2e;
+  font-weight: 900;
+}
+
+.kindList {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.kindList > div {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.kindIcon {
+  align-items: center;
+  border-radius: 8px;
+  display: flex;
+  flex: 0 0 24px;
+  height: 24px;
+  justify-content: center;
+}
+
+.kindList strong {
+  color: #55555f;
+  flex: 0 0 54px;
+  font-size: 11.5px;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.kindTrack {
+  background: #eceaf6;
+  border-radius: 4px;
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+}
+
+.kindTrack i {
+  border-radius: 4px;
+  display: block;
+  height: 100%;
+}
+
+.kindList b {
+  color: #1a1a2e;
+  flex: 0 0 52px;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-align: right;
+}
+
+@keyframes ringGrow {
+  from {
+    stroke-dashoffset: 342.43;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringFill {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

@@ -27,7 +27,7 @@ function PremiumTabs() {
         <MobileIcon name="home" size={23} />
         <span>Asosiy</span>
       </button>
-      <button type="button">
+      <button onClick={() => router.push("/stats")} type="button">
         <MobileIcon name="bar-chart" size={23} />
         <span>Statistika</span>
       </button>

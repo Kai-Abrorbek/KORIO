@@ -1,0 +1,189 @@
+.sectionTitle {
+  color: #1a1a2e;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 8px 20px 12px;
+}
+
+.pageLoading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.iconBadge {
+  align-items: center;
+  border-radius: 13px;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+}
+
+.todayEmptyCard {
+  padding-bottom: 28px;
+  padding-top: 28px;
+}
+
+.todayEmpty {
+  align-items: center;
+  color: #55555f;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.todayEmpty > svg {
+  margin-bottom: 4px;
+  opacity: .5;
+}
+
+.todayEmpty strong {
+  color: #1a1a2e;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.todayEmpty span {
+  font-size: 13px;
+}
+
+.todayTopRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 16px;
+}
+
+.todayTopCard {
+  align-items: flex-start;
+  flex: 1;
+  margin: 0;
+}
+
+.todayTopCard > span:nth-child(2) {
+  color: #55555f;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.todayTopCard > strong {
+  color: #1a1a2e;
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.weekdayRow {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.weekdayRow > div {
+  flex: 1;
+}
+
+.weekdayRow strong {
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.weekdayRow p {
+  color: #55555f;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  margin: 3px 0 0;
+}
+
+.momentumHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.momentumHeader > strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.momentumHeader > span {
+  align-items: center;
+  display: flex;
+  font-size: 11.5px;
+  font-weight: 800;
+  gap: 4px;
+}
+
+.momentumBig {
+  color: #1a1a2e;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.4px;
+  margin: 0 0 16px;
+}
+
+.momentumBars {
+  align-items: flex-end;
+  display: flex;
+  gap: 5px;
+  height: 62px;
+}
+
+.momentumSlot {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.momentumBar {
+  align-self: flex-end;
+  animation: barGrow 520ms var(--bar-delay) cubic-bezier(.22, .61, .36, 1) both;
+  border-radius: 4px;
+  min-height: 4px;
+  transform-origin: bottom;
+  width: 100%;
+}
+
+.momentumDivider {
+  background: #eceaf6;
+  bottom: -4px;
+  left: -4px;
+  position: absolute;
+  top: -6px;
+  width: 1px;
+}
+
+.momentumFoot {
+  color: #55555f;
+  display: flex;
+  font-size: 10.5px;
+  font-weight: 700;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.momentumFoot strong {
+  color: #1a1a2e;
+  font-weight: 900;
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momentumBar {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

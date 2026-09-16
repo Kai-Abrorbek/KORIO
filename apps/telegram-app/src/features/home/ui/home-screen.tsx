@@ -352,7 +352,7 @@ export function HomeScreen() {
           <HomeIcon name="home" size={23} />
           <span>Asosiy</span>
         </button>
-        <button type="button">
+        <button onClick={() => router.push("/stats")} type="button">
           <HomeIcon name="chart" size={23} />
           <span>Statistika</span>
         </button>

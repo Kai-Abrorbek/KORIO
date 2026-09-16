@@ -1,0 +1,229 @@
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 14px 16px;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs button {
+  background: #fff;
+  border: 1.5px solid #eceaf6;
+  border-radius: 12px;
+  color: #55555f;
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 15px;
+}
+
+.tabs button.tabActive {
+  border-bottom-width: 3px;
+  color: #fff;
+  font-weight: 900;
+}
+
+.summary {
+  padding-top: 0;
+}
+
+.summary > i {
+  border-radius: 18px 18px 0 0;
+  display: block;
+  height: 4px;
+  margin: 0 -18px 16px;
+}
+
+.summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 18px;
+}
+
+.summary > div > span {
+  display: flex;
+  flex-direction: column;
+  padding-right: 10px;
+  width: 50%;
+}
+
+.summary > div > span > i {
+  align-items: center;
+  border-radius: 9px;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  margin-bottom: 8px;
+  width: 28px;
+}
+
+.summary strong {
+  color: #1a1a2e;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+}
+
+.summary small {
+  color: #55555f;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 15px;
+  margin-top: 2px;
+}
+
+.pageLoading,
+.loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.controls {
+  align-items: center;
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.controls > div {
+  margin-bottom: 0;
+}
+
+.controls + h3 {
+  color: #1a1a2e;
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 0 12px;
+}
+
+.chart {
+  align-items: flex-end;
+  display: flex;
+  gap: 4px;
+  height: 150px;
+  margin-bottom: 22px;
+  padding: 4px 0;
+}
+
+.barSlot {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+  min-width: 0;
+  position: relative;
+}
+
+.barSlot > small {
+  bottom: -18px;
+  color: #55555f;
+  font-size: 11px;
+  font-weight: 600;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.barSlot > small.labelActive {
+  color: #1a1a2e;
+  font-weight: 800;
+}
+
+.emptyBar {
+  align-self: flex-end;
+  background: #eceaf6;
+  border-radius: 2px;
+  height: 4px;
+  width: 100%;
+}
+
+.stack {
+  align-self: flex-end;
+  animation: growBar 600ms var(--bar-delay) ease-out both;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  transform-origin: bottom;
+  width: 100%;
+}
+
+.stack b {
+  border-radius: min(4px, 50%);
+  min-height: 4px;
+}
+
+.totals {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding-top: 6px;
+}
+
+.totals > div:first-child > span {
+  color: #55555f;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.totals > div:first-child > strong {
+  color: #1a1a2e;
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.totals > div:last-child {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legendRow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.legendRow i {
+  border: 1.5px solid transparent;
+  border-radius: 5px;
+  height: 9px;
+  width: 9px;
+}
+
+.legendRow strong {
+  color: #1a1a2e;
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.legendRow b {
+  color: #55555f;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: right;
+}
+
+@keyframes growBar {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack {
+    animation-duration: 1ms;
+  }
+}

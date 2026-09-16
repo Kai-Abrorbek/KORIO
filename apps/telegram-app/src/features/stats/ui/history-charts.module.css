@@ -1,0 +1,143 @@
+.controls {
+  align-items: center;
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.controls > div {
+  margin-bottom: 0;
+}
+
+.controls + h3 {
+  color: #1a1a2e;
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.subtitle {
+  color: #55555f;
+  font-size: 13px;
+  margin: 0 0 18px;
+}
+
+.subtitle strong {
+  color: #776ee2;
+  font-weight: 700;
+}
+
+.lineChart {
+  display: block;
+  height: auto;
+  overflow: visible;
+  width: 100%;
+}
+
+.linePath {
+  animation: drawLine 1000ms ease-out both;
+  stroke-dasharray: 1000;
+}
+
+.range {
+  color: #55555f;
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.legend span {
+  align-items: center;
+  color: #55555f;
+  display: flex;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 5px;
+}
+
+.legend i {
+  border-radius: 4px;
+  height: 7px;
+  width: 7px;
+}
+
+.barChart {
+  align-items: flex-end;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 22px;
+  padding: 4px 0;
+}
+
+.barSlot {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+  min-width: 0;
+  position: relative;
+}
+
+.barSlot > small {
+  bottom: -18px;
+  color: #55555f;
+  font-size: 10px;
+  font-weight: 600;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.emptyBar {
+  align-self: flex-end;
+  background: #eceaf6;
+  border-radius: 2px;
+  height: 4px;
+  width: 100%;
+}
+
+.stack {
+  align-self: flex-end;
+  animation: growBar 600ms var(--bar-delay) ease-out both;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  transform-origin: bottom;
+  width: 100%;
+}
+
+.stack b {
+  border-radius: min(4px, 50%);
+  min-height: 4px;
+}
+
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: 1000;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes growBar {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linePath,
+  .stack {
+    animation-duration: 1ms;
+  }
+}
