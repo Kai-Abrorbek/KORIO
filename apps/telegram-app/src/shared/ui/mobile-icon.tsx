@@ -134,6 +134,7 @@ const IONICONS = {
 const MATERIAL_COMMUNITY = {
   keyboard: 983820,
   "lightning-bolt": 988171,
+  "timer-outline": 984347,
   turtle: 986327,
 } as const;
 
