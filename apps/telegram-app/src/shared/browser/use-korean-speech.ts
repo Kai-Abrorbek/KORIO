@@ -18,7 +18,7 @@ interface PreparedSpeech {
 const DEFAULT_KOREAN_VOICE = "ko-KR-SunHiNeural";
 const MAX_CACHED_SPEECH = 32;
 
-function browserSpeech(text: string, onEnd: () => void) {
+function browserSpeech(text: string, rate: number, onEnd: () => void) {
   if (!("speechSynthesis" in window)) {
     onEnd();
     return;
@@ -27,7 +27,7 @@ function browserSpeech(text: string, onEnd: () => void) {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "ko-KR";
-  utterance.rate = 1;
+  utterance.rate = rate;
   utterance.onend = onEnd;
   utterance.onerror = onEnd;
   window.speechSynthesis.speak(utterance);
@@ -62,15 +62,16 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   }, []);
 
   const prepare = useCallback(
-    async (text: string): Promise<PreparedSpeech> => {
-      const ready = preparedRef.current.get(text);
+    async (text: string, rate = 1): Promise<PreparedSpeech> => {
+      const cacheKey = `${rate}:${text}`;
+      const ready = preparedRef.current.get(cacheKey);
       if (ready) {
-        preparedRef.current.delete(text);
-        preparedRef.current.set(text, ready);
+        preparedRef.current.delete(cacheKey);
+        preparedRef.current.set(cacheKey, ready);
         return ready;
       }
 
-      const pending = preparingRef.current.get(text);
+      const pending = preparingRef.current.get(cacheKey);
       if (pending) return pending;
       if (!request) throw new Error("SERVER_TTS_UNAVAILABLE");
 
@@ -79,7 +80,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
           body: JSON.stringify({
             gender: "female",
             language: "ko-KR",
-            rate: 1,
+            rate,
             text,
             voice: DEFAULT_KOREAN_VOICE,
           }),
@@ -95,7 +96,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
         if (!context) throw new Error("WEB_AUDIO_UNAVAILABLE");
         const buffer = await context.decodeAudioData(await response.arrayBuffer());
         const prepared = { buffer, url };
-        preparedRef.current.set(text, prepared);
+        preparedRef.current.set(cacheKey, prepared);
 
         while (preparedRef.current.size > MAX_CACHED_SPEECH) {
           const oldest = preparedRef.current.keys().next().value as
@@ -107,12 +108,12 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
         return prepared;
       })();
 
-      preparingRef.current.set(text, preparation);
+      preparingRef.current.set(cacheKey, preparation);
       try {
         return await preparation;
       } finally {
-        if (preparingRef.current.get(text) === preparation) {
-          preparingRef.current.delete(text);
+        if (preparingRef.current.get(cacheKey) === preparation) {
+          preparingRef.current.delete(cacheKey);
         }
       }
     },
@@ -140,18 +141,22 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   }, []);
 
   const speak = useCallback(
-    (rawText: string) => {
+    (rawText: string, options?: { onEnd?: () => void; rate?: number }) => {
       const text = rawText.trim();
       if (!text || typeof window === "undefined") return;
+      const rate = options?.rate ?? 1;
+      const finish = () => {
+        if (runIdRef.current !== runId) return;
+        setSpeaking(false);
+        options?.onEnd?.();
+      };
 
       stop();
       const runId = runIdRef.current;
       setSpeaking(true);
 
       if (!request) {
-        browserSpeech(text, () => {
-          if (runIdRef.current === runId) setSpeaking(false);
-        });
+        browserSpeech(text, rate, finish);
         return;
       }
 
@@ -159,7 +164,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const resume = context?.resume().catch(() => undefined);
       void (async () => {
         try {
-          const prepared = await prepare(text);
+          const prepared = await prepare(text, rate);
           await resume;
           if (runIdRef.current !== runId) return;
 
@@ -169,7 +174,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
             source.connect(context.destination);
             source.onended = () => {
               if (sourceRef.current === source) sourceRef.current = null;
-              if (runIdRef.current === runId) setSpeaking(false);
+              finish();
             };
             sourceRef.current = source;
             source.start();
@@ -180,15 +185,13 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
           audio.preload = "auto";
           audio.onended = () => {
             if (audioRef.current === audio) audioRef.current = null;
-            if (runIdRef.current === runId) setSpeaking(false);
+            finish();
           };
           audioRef.current = audio;
           await audio.play();
         } catch {
           if (runIdRef.current !== runId) return;
-          browserSpeech(text, () => {
-            if (runIdRef.current === runId) setSpeaking(false);
-          });
+          browserSpeech(text, rate, finish);
         }
       })();
     },
@@ -201,9 +204,9 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const unique = [...new Set(texts.map((text) => text.trim()).filter(Boolean))];
       void Promise.all(
         unique.map((text) =>
-          preparedRef.current.has(text)
+          preparedRef.current.has(`1:${text}`)
             ? Promise.resolve()
-            : prepare(text).then(() => undefined).catch(() => undefined),
+            : prepare(text, 1).then(() => undefined).catch(() => undefined),
         ),
       );
     },

@@ -112,10 +112,10 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
   stopRef.current = stop;
 
   const start = useCallback(async () => {
-    if (active.current) return;
+    if (active.current) return true;
     if (!navigator.mediaDevices?.getUserMedia || typeof AudioContext === "undefined") {
       onErrorRef.current("unsupported");
-      return;
+      return false;
     }
     try {
       const media = await navigator.mediaDevices.getUserMedia({
@@ -156,11 +156,13 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
       active.current = true;
       setRecording(true);
       timer.current = window.setTimeout(() => stopRef.current(), 15_000);
+      return true;
     } catch (error) {
       cleanup();
       onErrorRef.current(
         error instanceof DOMException && error.name === "NotAllowedError" ? "permission" : "mic",
       );
+      return false;
     }
   }, [cleanup]);
 
