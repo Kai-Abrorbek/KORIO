@@ -1,0 +1,197 @@
+.page {
+  background: #0b0b0d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  min-height: var(--tg-viewport-stable-height, 100dvh);
+  overflow: hidden;
+  position: relative;
+  width: min(100%, 560px);
+}
+
+.page button { -webkit-tap-highlight-color: transparent; font: inherit; }
+
+.body {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--tg-content-safe-area-inset-top, 0px) 28px 0;
+}
+
+.hero {
+  align-items: center;
+  display: flex;
+  height: 320px;
+  justify-content: center;
+  margin-bottom: 30px;
+  max-width: 300px;
+  position: relative;
+  width: 100%;
+}
+
+.glow {
+  animation: legendGlow 2.4s ease-in-out infinite;
+  background: #ffc800;
+  border-radius: 50%;
+  height: 260px;
+  position: absolute;
+  width: 260px;
+}
+
+.spark {
+  animation: legendTwinkle 1.4s ease-in-out infinite;
+  color: #fff;
+  font-weight: 900;
+  position: absolute;
+  z-index: 2;
+}
+.sparkOne { font-size: 30px; right: 22%; top: 8%; }
+.sparkTwo { animation-delay: 180ms; bottom: 24%; font-size: 24px; left: 20%; }
+.sparkThree { animation-delay: 360ms; bottom: 20%; font-size: 22px; right: 18%; }
+
+.trophyWrap {
+  align-items: center;
+  animation: legendFloat 2.8s ease-in-out infinite;
+  color: #ffc800;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.podium {
+  align-items: center;
+  background: #ffc800;
+  border-bottom: 5px solid #e5a800;
+  border-radius: 22px;
+  color: #e5a800;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  margin-top: -6px;
+  width: 150px;
+}
+
+.body h1 {
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 38px;
+  margin: 0;
+  max-width: 500px;
+  text-align: center;
+}
+
+.footer { padding: 0 20px max(20px, var(--tg-content-safe-area-inset-bottom, 0px)); }
+.startButton {
+  background: linear-gradient(135deg, #ffe066, #ffc800);
+  border: 0;
+  border-bottom: 4px solid #e5a800;
+  border-radius: 18px;
+  color: #7a5c00;
+  cursor: pointer;
+  font-size: 19px;
+  font-weight: 900;
+  min-height: 64px;
+  width: 100%;
+}
+.startButton:active { border-bottom-width: 1px; transform: translateY(3px); }
+.laterButton {
+  background: transparent;
+  border: 0;
+  color: #c9a84a;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 900;
+  min-height: 56px;
+  width: 100%;
+}
+
+.energyBackdrop {
+  align-items: flex-end;
+  background: rgb(0 0 0 / 50%);
+  display: flex;
+  inset: 0;
+  position: fixed;
+  z-index: 50;
+}
+.gems {
+  align-items: center;
+  color: #55c8e8;
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  right: 24px;
+  top: max(60px, calc(var(--tg-content-safe-area-inset-top, 0px) + 20px));
+}
+.gems b { color: #fff; font-size: 18px; }
+.energySheet {
+  animation: sheetIn 260ms ease-out both;
+  background: #fff;
+  border-radius: 28px 28px 0 0;
+  color: #242337;
+  padding: 28px 20px max(24px, var(--tg-content-safe-area-inset-bottom, 0px));
+  text-align: left;
+  width: 100%;
+}
+.energyMascot { display: block; height: 92px; margin: 0 auto 6px; object-fit: contain; width: 92px; }
+.energySheet h2 { font-size: 26px; font-weight: 800; line-height: 36px; margin: 0 0 24px; }
+.energyCards { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 24px; }
+.energyCard,
+.superCard {
+  align-items: center;
+  background: #fff;
+  border: 2px solid #e5e2ef;
+  border-radius: 18px;
+  color: #242337;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 16px 6px;
+  position: relative;
+}
+.energyCard > svg { color: #ff4f87; }
+.energyCard b,
+.superCard b { font-size: 15px; font-weight: 800; text-align: center; }
+.energyCard small,
+.superCard small { align-items: center; color: #1cb0f6; display: flex; font-size: 13px; font-weight: 800; gap: 3px; text-align: center; }
+.superCard { border-color: #d934ff; box-shadow: 0 0 0 1px #1cb0f6 inset; }
+.superCard > span { background: linear-gradient(90deg, #1cb0f6, #d934ff); border-radius: 99px; color: #fff; font-size: 13px; font-style: italic; font-weight: 900; padding: 3px 12px; }
+.superCard > svg { color: #d934ff; }
+.superCard > i { background: #fff; color: #1cb0f6; line-height: 0; position: absolute; right: -7px; top: -10px; }
+.disabledCard { opacity: 0.6; }
+.trialButton {
+  background: #1cb0f6;
+  border: 0;
+  border-bottom: 4px solid #168fce;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  min-height: 60px;
+  width: 100%;
+}
+.dismissButton { background: transparent; border: 0; color: #1cb0f6; font-size: 16px; font-weight: 800; min-height: 50px; width: 100%; }
+
+@keyframes legendFloat { 50% { transform: translateY(-10px); } }
+@keyframes legendGlow { 0%, 100% { opacity: 0.4; transform: scale(1.06); } 50% { opacity: 0.7; transform: scale(1.11); } }
+@keyframes legendTwinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes sheetIn { from { transform: translateY(100%); } }
+
+@media (max-height: 700px) {
+  .hero { height: 245px; margin-bottom: 14px; }
+  .glow { height: 210px; width: 210px; }
+  .body h1 { font-size: 23px; line-height: 32px; }
+  .energySheet { padding-top: 18px; }
+  .energyMascot { height: 68px; width: 68px; }
+  .energySheet h2 { font-size: 21px; line-height: 28px; margin-bottom: 14px; }
+  .energyCards { margin-bottom: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow, .spark, .trophyWrap, .energySheet { animation-duration: 1ms; }
+}

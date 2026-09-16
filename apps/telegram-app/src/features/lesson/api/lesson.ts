@@ -51,8 +51,25 @@ export function completeJumpTest(
 export function getNodeReview(
   request: AuthenticatedRequest,
   nodeId: string,
+  limit?: number,
 ): Promise<{ questions: LessonQuestion[] }> {
-  return request(`/lessons/node-review/${encodeURIComponent(nodeId)}`);
+  const query = new URLSearchParams({ lang: "uz" });
+  if (limit) query.set("limit", String(limit));
+  return request(`/lessons/node-review/${encodeURIComponent(nodeId)}?${query.toString()}`);
+}
+
+export function completeLegend(
+  request: AuthenticatedRequest,
+  nodeId: string,
+): Promise<{
+  alreadyDone: boolean;
+  success: boolean;
+  totalXP: number;
+  xpEarned: number;
+}> {
+  return request(`/lessons/nodes/${encodeURIComponent(nodeId)}/legend-complete`, {
+    method: "POST",
+  });
 }
 
 export function getUnitPractice(

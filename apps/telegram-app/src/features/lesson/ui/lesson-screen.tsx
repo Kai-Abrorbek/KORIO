@@ -9,6 +9,7 @@ import { HomeIcon } from "../../home/ui/home-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   completeJumpTest,
+  completeLegend,
   completeLesson,
   completePractice,
   completeStudyNode,
@@ -39,6 +40,10 @@ import styles from "./lesson.module.css";
 
 const SMART_TYPES = new Set(["type_answer", "translate_type", "listen_type", "listen_fill"]);
 const GRAMMAR_TYPES = new Set(["grammar_blank", "grammar_build"]);
+const LEGEND_SEGMENTS = [5, 7, 10] as const;
+const LEGEND_TOTAL = 22;
+const LEGEND_DURATION = 180;
+const LEGEND_XP = 100;
 const PRACTICE_MODE: Record<string, "unitReview" | "unitRecap" | "unitVocab" | "unitGrammar" | "unitFinal"> = {
   final: "unitFinal",
   grammarQuiz: "unitGrammar",
@@ -53,6 +58,68 @@ function makeQueue(questions: LessonQuestion[], prefix: string, retry = false): 
     question,
     retry,
   }));
+}
+
+function LegendLessonHeader({
+  currentIndex,
+  onClose,
+  onTimeout,
+}: {
+  currentIndex: number;
+  onClose: () => void;
+  onTimeout: () => void;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(LEGEND_DURATION);
+  const timeoutCallback = useRef(onTimeout);
+  timeoutCallback.current = onTimeout;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setSecondsLeft((value) => {
+        if (value <= 1) {
+          window.clearInterval(timer);
+          timeoutCallback.current();
+          return 0;
+        }
+        return value - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  let cumulative = 0;
+  const checkpoints = LEGEND_SEGMENTS.map((segment) => {
+    cumulative += segment;
+    return { at: cumulative, label: segment };
+  });
+  const fill = Math.min(100, (currentIndex / LEGEND_TOTAL) * 100);
+  const time = `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`;
+
+  return (
+    <header className={styles.legendHeader}>
+      <button aria-label="Yopish" onClick={onClose} type="button"><MobileIcon name="close" size={30} /></button>
+      <div className={styles.legendBarWrap}>
+        <div className={styles.legendTrack}>
+          <span className={styles.legendFill} style={{ width: `${fill}%` }} />
+          {checkpoints.map((checkpoint) => {
+            const cleared = currentIndex >= checkpoint.at;
+            return (
+              <i
+                className={cleared ? styles.legendDotCleared : styles.legendDot}
+                key={checkpoint.at}
+                style={{ left: `${(checkpoint.at / LEGEND_TOTAL) * 100}%` }}
+              >
+                {checkpoint.label}
+              </i>
+            );
+          })}
+        </div>
+      </div>
+      <div aria-label={`${time} qoldi`} className={styles.legendTimer}>
+        <span><MobileIcon name="lock-closed" size={15} /></span><b>{time}</b>
+      </div>
+    </header>
+  );
 }
 
 export function LessonScreen() {
@@ -71,6 +138,7 @@ export function LessonScreen() {
   const group = Math.max(1, Number(params.get("group")) || 1);
   const lessonNumber = Math.max(1, Number(params.get("lesson")) || 1);
   const isJump = mode === "jumpTest";
+  const isLegend = mode === "legend";
   const isLevelExam = mode === "levelExam";
   const isOnboardingLevelTest = mode === "levelTest";
   const selfReportedLevel = params.get("self") ?? "basic_greetings";
@@ -90,6 +158,7 @@ export function LessonScreen() {
   const [combo, setCombo] = useState(0);
   const [showQuit, setShowQuit] = useState(false);
   const [rendererEpoch, setRendererEpoch] = useState(0);
+  const [legendCurrentIndex, setLegendCurrentIndex] = useState(0);
 
   const startTime = useRef(Date.now());
   const shownAt = useRef(Date.now());
@@ -126,6 +195,7 @@ export function LessonScreen() {
     setGradeFeedback(null);
     setCombo(0);
     setRendererEpoch(0);
+    setLegendCurrentIndex(0);
   }, []);
 
   const load = useCallback(async () => {
@@ -158,6 +228,16 @@ export function LessonScreen() {
           lessonTitle: "Jump Test",
           questions: result.questions,
           totalXp: 0,
+        };
+      } else if (isLegend) {
+        if (!nodeId) throw new Error("NODE_ID_REQUIRED");
+        const result = await getNodeReview(request, nodeId, LEGEND_TOTAL);
+        next = {
+          category: category ?? "",
+          lessonId: "legend",
+          lessonTitle: "Legend",
+          questions: result.questions,
+          totalXp: LEGEND_XP,
         };
       } else if (mode === "nodeReview") {
         if (!nodeId) throw new Error("NODE_ID_REQUIRED");
@@ -208,7 +288,7 @@ export function LessonScreen() {
     } finally {
       setLoading(false);
     }
-  }, [category, group, isJump, isLevelExam, isOnboardingLevelTest, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
+  }, [category, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
 
   useEffect(() => {
     void load();
@@ -399,6 +479,19 @@ export function LessonScreen() {
         return;
       }
 
+      if (isLegend) {
+        if (!nodeId) throw new Error("NODE_ID_REQUIRED");
+        const result = await completeLegend(request, nodeId);
+        updateUser({ totalXP: result.totalXP });
+        routeComplete({
+          accuracy,
+          category: category ?? undefined,
+          time: elapsed,
+          xp: result.xpEarned,
+        });
+        return;
+      }
+
       if (mode === "unitPractice") {
         const practiceMode = PRACTICE_MODE[kind] ?? "unitReview";
         const result = await completePractice(request, {
@@ -503,6 +596,7 @@ export function LessonScreen() {
     }
     const nextIndex = cursor + 1;
     if (nextIndex < nextQueue.length) {
+      if (isLegend) setLegendCurrentIndex((value) => value + 1);
       setCursor(nextIndex);
       setAnswerState("idle");
       setGradeFeedback(null);
@@ -515,6 +609,7 @@ export function LessonScreen() {
       !isJump &&
       !isOnboardingLevelTest
     ) {
+      if (isLegend) setLegendCurrentIndex((value) => value + 1);
       setPhase("review");
       setQueue(makeQueue([...reviewQuestions.current.values()], "review", true));
       setCursor(0);
@@ -563,23 +658,31 @@ export function LessonScreen() {
     GRAMMAR_TYPES.has(current.question.type);
   return (
     <main className={styles.lessonPage}>
-      <header className={styles.lessonHeader}>
-        <button aria-label="Yopish" onClick={close} type="button"><MobileIcon name="close" size={28} /></button>
-        <div className={styles.progressTrack}><span style={{ width: `${Math.max(3, progress)}%` }} /></div>
-        {isJump ? (
-          <div className={styles.hearts} aria-label={`${hearts} imkoniyat`}>
-            <HomeIcon name="heart" size={22} /><b>{hearts}</b><small>/ {heartLimit}</small>
-          </div>
-        ) : (
-          <div className={styles.energy}>
-            {isOnboardingLevelTest ? (
-              <><MobileIcon name="school" size={21} /><b>Sinov</b></>
-            ) : (
-              <><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></>
-            )}
-          </div>
-        )}
-      </header>
+      {isLegend ? (
+        <LegendLessonHeader
+          currentIndex={legendCurrentIndex}
+          onClose={() => setShowQuit(true)}
+          onTimeout={() => router.replace(backToLearning(category, from))}
+        />
+      ) : (
+        <header className={styles.lessonHeader}>
+          <button aria-label="Yopish" onClick={close} type="button"><MobileIcon name="close" size={28} /></button>
+          <div className={styles.progressTrack}><span style={{ width: `${Math.max(3, progress)}%` }} /></div>
+          {isJump ? (
+            <div className={styles.hearts} aria-label={`${hearts} imkoniyat`}>
+              <HomeIcon name="heart" size={22} /><b>{hearts}</b><small>/ {heartLimit}</small>
+            </div>
+          ) : (
+            <div className={styles.energy}>
+              {isOnboardingLevelTest ? (
+                <><MobileIcon name="school" size={21} /><b>Sinov</b></>
+              ) : (
+                <><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></>
+              )}
+            </div>
+          )}
+        </header>
+      )}
 
       {phase === "review" ? <div className={styles.reviewRibbon}><HomeIcon name="refresh" size={15} /> Oldingi xatolarni mustahkamlaymiz</div> : null}
       {combo >= 3 ? <div className={styles.comboPill}>⚡ {combo} combo</div> : null}

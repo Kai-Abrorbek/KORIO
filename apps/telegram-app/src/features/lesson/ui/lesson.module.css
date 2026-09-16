@@ -130,6 +130,69 @@
 .hearts small { color: #aaa6b2; font-size: 11px; font-weight: 800; }
 .energy { color: #ffc800; }
 
+.legendHeader {
+  align-items: center;
+  background: rgb(255 255 255 / 94%);
+  display: flex;
+  gap: 12px;
+  padding: max(6px, var(--tg-content-safe-area-inset-top, 0px)) 16px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.legendHeader > button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--lesson-muted);
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 30px;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+}
+
+.legendBarWrap { flex: 1; min-width: 0; padding: 0 14px 0 0; }
+.legendTrack {
+  background: var(--lesson-border);
+  border-radius: 9px;
+  height: 18px;
+  position: relative;
+}
+.legendFill {
+  background: var(--lesson-purple);
+  border-radius: 9px;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: width 260ms cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+.legendDot,
+.legendDotCleared {
+  align-items: center;
+  background: #fff;
+  border: 2px solid var(--lesson-border);
+  border-radius: 50%;
+  color: var(--lesson-muted);
+  display: flex;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  height: 28px;
+  justify-content: center;
+  margin-left: -14px;
+  position: absolute;
+  top: -5px;
+  width: 28px;
+}
+.legendDotCleared { background: var(--lesson-purple); border-color: var(--lesson-purple); color: #fff; }
+.legendTimer { align-items: center; color: var(--lesson-purple); display: flex; flex: 0 0 auto; gap: 5px; }
+.legendTimer > span { align-items: center; background: rgb(119 110 226 / 13%); border-radius: 50%; display: flex; height: 26px; justify-content: center; width: 26px; }
+.legendTimer b { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
 .reviewRibbon,
 .comboPill {
   border-radius: 99px;
@@ -1122,5 +1185,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .questionStage, .confetti i, .lessonLoader, .matchWrong { animation-duration: 1ms; }
-  .progressTrack span { transition: none; }
+  .progressTrack span, .legendFill { transition: none; }
 }
