@@ -198,13 +198,14 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   const prewarm = useCallback(
     (texts: readonly string[]) => {
       if (!request || typeof window === "undefined") return;
-      void (async () => {
-        for (const rawText of texts) {
-          const text = rawText.trim();
-          if (!text || preparedRef.current.has(text)) continue;
-          await prepare(text).catch(() => undefined);
-        }
-      })();
+      const unique = [...new Set(texts.map((text) => text.trim()).filter(Boolean))];
+      void Promise.all(
+        unique.map((text) =>
+          preparedRef.current.has(text)
+            ? Promise.resolve()
+            : prepare(text).then(() => undefined).catch(() => undefined),
+        ),
+      );
     },
     [prepare, request],
   );
