@@ -18,6 +18,7 @@ const IONICONS = {
   "bookmark-outline": 61865,
   "bulb-outline": 61889,
   "caret-down": 61936,
+  "caret-up": 61948,
   checkmark: 61981,
   "checkmark-circle": 61982,
   "checkmark-circle-outline": 61983,
