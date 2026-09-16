@@ -62,6 +62,7 @@ export interface LeagueData {
   boostXp: number;
   keepXp: number;
   myWeeklyXp: number;
+  daysLeft?: number;
   members: LeagueMember[];
 }
 

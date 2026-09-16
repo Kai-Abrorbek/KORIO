@@ -1,0 +1,166 @@
+.rankupPage {
+  background: #fff;
+  color: #3c3c4c;
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 20px);
+}
+
+.top {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+}
+
+.top h1 {
+  color: #3c3c4c;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: normal;
+  line-height: 34px;
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+.top p {
+  align-items: center;
+  color: #ff9800;
+  display: flex;
+  font-size: 18px;
+  font-weight: 800;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.list {
+  border: 2px solid #e5e7eb;
+  border-radius: 18px;
+  flex: 1;
+  margin: 28px 16px 0;
+  overflow: hidden;
+  padding: 6px 0;
+}
+
+.row {
+  align-items: center;
+  background: #fff;
+  display: flex;
+  gap: 12px;
+  height: 78px;
+  padding: 0 14px;
+  position: relative;
+}
+
+.rowMe {
+  background: #e7f9dc;
+  border-radius: 12px;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 10%);
+  z-index: 20;
+}
+
+.rowAnimate { animation: meRankUp 2.45s ease both; }
+
+.rowShift { animation: otherShift 2.12s ease both; }
+
+.rank {
+  color: #8a94a3;
+  flex: 0 0 24px;
+  font-size: 17px;
+  font-weight: 800;
+  width: 24px;
+}
+
+.rowMe .rank,
+.rowMe .xp { color: #58cc02; font-weight: 900; }
+
+.avatar {
+  align-items: center;
+  background: #dde3ea;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  flex: 0 0 48px;
+  font-size: 20px;
+  font-weight: 900;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.info strong {
+  color: #3c3c4c;
+  font-size: 17px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowMe .info strong { color: #3c7a00; }
+
+.info small {
+  align-items: center;
+  color: #8a94a3;
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.info small span { font-size: 14px; }
+
+.xp {
+  color: #8a94a3;
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.rankupPage footer {
+  padding: 12px 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+}
+
+.rankupPage footer button {
+  background: #1cb0f6;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 900;
+  min-height: 63px;
+  width: 100%;
+}
+
+.rankupPage footer button:active { transform: translateY(3px); }
+
+@keyframes meRankUp {
+  0%, 28% { box-shadow: 0 4px 4px rgb(0 0 0 / 10%); transform: translateY(0) scale(1); }
+  39% { box-shadow: 0 8px 16px rgb(0 0 0 / 35%); transform: translateY(0) scale(1.05); }
+  78% { box-shadow: 0 8px 16px rgb(0 0 0 / 35%); transform: translateY(calc(var(--rank-distance) * -1)) scale(1.05); }
+  84% { transform: translateY(calc(var(--rank-distance) * -1)) scale(1.06); }
+  100% { box-shadow: 0 4px 4px rgb(0 0 0 / 10%); transform: translateY(calc(var(--rank-distance) * -1)) scale(1); }
+}
+
+@keyframes otherShift {
+  0%, 47% { transform: translateY(0); }
+  90%, 100% { transform: translateY(78px); }
+}
+
+@media (max-height: 720px) { .list { margin-top: 14px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rowAnimate,
+  .rowShift { animation-duration: 1ms; }
+}
