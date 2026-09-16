@@ -36,10 +36,7 @@ import { LeagueService } from '../league/league.service';
 import { ChestService } from './chest.service';
 import { UsersService } from '../users/users.service';
 import { startOfDay } from '../common/date.util';
-import {
-  buildCategoryStatsInc,
-  LESSON_TO_STUDY,
-} from './utils/category.util';
+import { buildCategoryStatsInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { EnergyService } from '../energy/energy.service';
 import {
@@ -854,11 +851,10 @@ export class LessonsService {
     const claims = (me?.practiceClaims ?? []).filter(
       (d) => new Date(d) >= todayStart,
     );
-    const lastAt = claims.length
-      ? new Date(claims[claims.length - 1])
-      : null;
+    const lastAt = claims.length ? new Date(claims[claims.length - 1]) : null;
     const onCooldown =
-      !!lastAt && now.getTime() - lastAt.getTime() < PRACTICE_COOLDOWN_SEC * 1000;
+      !!lastAt &&
+      now.getTime() - lastAt.getTime() < PRACTICE_COOLDOWN_SEC * 1000;
     const overDaily = claims.length >= PRACTICE_DAILY_LIMIT;
 
     // 문제 수 · 학습 시간 · 카테고리 (XP 는 아래 addXp 가 기록하므로 여기선 0)
@@ -891,7 +887,10 @@ export class LessonsService {
         $expr: { $lt: [{ $size: todayOnly }, PRACTICE_DAILY_LIMIT] },
       },
       [{ $set: { practiceClaims: { $concatArrays: [todayOnly, [now]] } } }],
-      { returnDocument: 'after' },
+      {
+        returnDocument: 'after',
+        updatePipeline: true,
+      },
     );
     if (!claimed) {
       return { success: true, xpEarned: 0, totalXP: me?.totalXP ?? 0 };
@@ -925,7 +924,9 @@ export class LessonsService {
       .findOne({ userId: new Types.ObjectId(userId), date: today })
       .select('totalQuestions xpEarned')
       .lean();
-    return !!stat && ((stat.totalQuestions ?? 0) > 0 || (stat.xpEarned ?? 0) > 0);
+    return (
+      !!stat && ((stat.totalQuestions ?? 0) > 0 || (stat.xpEarned ?? 0) > 0)
+    );
   }
 
   async recordStudy(
@@ -977,7 +978,10 @@ export class LessonsService {
 
     // 하루 경계는 **이 유저의 시간대** 로 자른다. 서버 로컬(KST) 로 자르면
     // 타슈켄트 유저가 저녁 8시 이후에 푼 문제가 다음 날 기록으로 넘어간다.
-    const today = startOfDay(new Date(), await this.usersService.getTimezone(userId));
+    const today = startOfDay(
+      new Date(),
+      await this.usersService.getTimezone(userId),
+    );
 
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
@@ -1381,13 +1385,13 @@ export class LessonsService {
       nextSection: isPastSection
         ? null
         : nextMeta
-        ? {
-            sectionNumber: nextNumber,
-            title: pickSectionText(nextMeta.title, lang),
-            description: pickSectionText(nextMeta.description, lang),
-            firstUnitNumber: nextFirstUnit,
-          }
-        : null,
+          ? {
+              sectionNumber: nextNumber,
+              title: pickSectionText(nextMeta.title, lang),
+              description: pickSectionText(nextMeta.description, lang),
+              firstUnitNumber: nextFirstUnit,
+            }
+          : null,
     };
   }
 
@@ -1628,7 +1632,11 @@ export class LessonsService {
             },
           },
         ],
-        { upsert: true, returnDocument: 'before' },
+        {
+          upsert: true,
+          returnDocument: 'before',
+          updatePipeline: true,
+        },
       )
       .select('xpEarned')
       .lean();
@@ -1642,7 +1650,10 @@ export class LessonsService {
       return 0;
     }
 
-    await this.userModel.updateOne({ _id: uId }, { $inc: { totalXP: granted } });
+    await this.userModel.updateOne(
+      { _id: uId },
+      { $inc: { totalXP: granted } },
+    );
     return granted;
   }
 
@@ -2262,7 +2273,12 @@ export class LessonsService {
     await attempt.save();
 
     if (!passed) {
-      return { passed: false, wrongCount, heartLimit: attempt.heartLimit, completed: 0 };
+      return {
+        passed: false,
+        wrongCount,
+        heartLimit: attempt.heartLimit,
+        completed: 0,
+      };
     }
 
     const result = await this.applyUnitJump(
