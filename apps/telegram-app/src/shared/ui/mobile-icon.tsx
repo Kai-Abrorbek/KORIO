@@ -90,6 +90,7 @@ const IONICONS = {
   "partly-sunny": 62608,
   pencil: 62620,
   "person-outline": 62636,
+  play: 62662,
   pulse: 62710,
   podium: 62692,
   "radio-button-on": 62723,
