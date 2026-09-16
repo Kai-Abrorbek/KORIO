@@ -127,6 +127,7 @@ const IONICONS = {
   refresh: 62740,
   "refresh-circle": 62741,
   repeat: 62767,
+  "repeat-outline": 62768,
   remove: 62752,
   reader: 62731,
   restaurant: 62773,
