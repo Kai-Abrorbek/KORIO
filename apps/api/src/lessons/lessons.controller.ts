@@ -104,10 +104,7 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('mistakes/resolve')
-  async resolveMistakes(
-    @Request() req,
-    @Body() dto: ResolveMistakesDto,
-  ) {
+  async resolveMistakes(@Request() req, @Body() dto: ResolveMistakesDto) {
     return this.lessonsService.resolveMistakes(
       req.user._id.toString(),
       dto.correctIds ?? [],
@@ -215,10 +212,7 @@ export class LessonsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('jump-complete')
-  async completeUnitJump(
-    @Request() req,
-    @Body() dto: CompleteUnitJumpDto,
-  ) {
+  async completeUnitJump(@Request() req, @Body() dto: CompleteUnitJumpDto) {
     return this.lessonsService.completeUnitJump(
       req.user._id.toString(),
       dto.attemptId,
@@ -276,6 +270,7 @@ export class LessonsController {
    * 있다. 완료 보고만 받으면 나간 사람은 데이터에 존재하지도 않는다 —
    * 문제별 이탈 퍼널이 통째로 이 엔드포인트 위에 선다.
    */
+  @UseGuards(JwtAuthGuard)
   @Post('attempts/:attemptId/progress')
   async reportProgress(
     @Request() req,
