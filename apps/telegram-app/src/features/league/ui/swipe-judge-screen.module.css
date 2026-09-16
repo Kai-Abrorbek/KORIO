@@ -1,0 +1,307 @@
+.page {
+  --border: #eceaf6;
+  --muted: #686874;
+  --primary: #776ee2;
+  --text: #1a1a2e;
+  background: #fff;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  position: relative;
+  transition: background 180ms ease;
+}
+
+.page.fever { background: #2a2440; }
+
+.header {
+  align-items: center;
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.close {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  display: flex;
+  margin: 0;
+  padding: 10px 0;
+}
+
+.timer {
+  align-items: center;
+  background: var(--primary);
+  border-bottom: 3px solid #5b52c7;
+  border-radius: 14px;
+  color: #fff;
+  display: flex;
+  font-size: 16px;
+  font-weight: 800;
+  gap: 5px;
+  padding: 6px 14px;
+}
+
+.score {
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
+  min-width: 40px;
+  text-align: right;
+}
+
+.fever .score { color: #ffd700; }
+
+.combo,
+.feverText {
+  flex: none;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 8px 0 0;
+  min-height: 20px;
+  text-align: center;
+}
+
+.combo { color: #ff9600; }
+.feverText { animation: zoomIn 200ms ease both; color: #ffd700; font-size: 17px; }
+
+.deckArea {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-height: 0;
+  position: relative;
+}
+
+.card {
+  align-items: center;
+  aspect-ratio: .82;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-bottom-width: 6px;
+  border-radius: 26px;
+  box-shadow: 0 6px 12px rgb(0 0 0 / 15%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: calc(100% - 30px);
+  padding: 20px;
+  position: absolute;
+  width: 80%;
+}
+
+.fever .card { border-color: #ffd700; }
+
+.cardBehind {
+  border-bottom-width: 2px;
+  transform: scale(.94);
+}
+
+.card strong {
+  color: var(--text);
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.activeCard {
+  cursor: grab;
+  touch-action: none;
+  transform: translateX(var(--card-x)) rotate(var(--card-rotation));
+  user-select: none;
+  will-change: transform;
+}
+
+.activeCard:active { cursor: grabbing; }
+.activeCard.fling { transition: transform 200ms ease; }
+.activeCard.snap { transition: transform 360ms cubic-bezier(.25, 1.35, .45, 1); }
+
+.activeCard > i {
+  background: var(--primary);
+  border-radius: 2px;
+  display: block;
+  height: 3px;
+  margin: 18px 0;
+  width: 46px;
+}
+
+.activeCard > p {
+  color: var(--muted);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.stamp {
+  border: 4px solid;
+  border-radius: 14px;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.15;
+  padding: 4px 14px;
+  position: absolute;
+  top: 22px;
+}
+
+.trueStamp {
+  border-color: #1cb454;
+  color: #1cb454;
+  left: 20px;
+  opacity: var(--true-opacity);
+  transform: rotate(-14deg);
+}
+
+.falseStamp {
+  border-color: #ff4b4b;
+  color: #ff4b4b;
+  opacity: var(--false-opacity);
+  right: 20px;
+  transform: rotate(14deg);
+}
+
+.hints {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  padding: 0 28px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+}
+
+.hints span {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 6px;
+}
+
+.wrong { color: #ff4b4b; }
+.right { color: #1cb454; }
+
+.overlay {
+  align-items: center;
+  animation: fadeIn 250ms ease both;
+  background: rgb(0 0 0 / 53%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  z-index: 10;
+}
+
+.endCard {
+  align-items: center;
+  animation: cardIn 300ms ease both;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  width: 84%;
+}
+
+.endEmoji { font-size: 44px; margin-bottom: 6px; }
+
+.endCard h1 {
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: normal;
+  margin: 0 0 18px;
+}
+
+.endStats {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 22px;
+  width: 100%;
+}
+
+.endStats > div {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  text-align: center;
+}
+
+.endStats strong { color: var(--primary); font-size: 22px; font-weight: 800; }
+.endStats span { color: var(--muted); font-size: 12px; font-weight: 700; margin-top: 2px; }
+
+.endCard button { font-weight: 800; }
+
+.again {
+  align-self: stretch;
+  background: var(--primary);
+  border: 0;
+  border-bottom: 4px solid #5b52c7;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 16px;
+  min-height: 54px;
+  padding: 15px;
+}
+
+.exit {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 15px;
+  padding: 14px;
+}
+
+.gate {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.gate > i {
+  animation: spin .8s linear infinite;
+  border: 3px solid rgb(119 110 226 / 18%);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  height: 32px;
+  width: 32px;
+}
+
+.gate p { color: var(--muted); font-size: 15px; font-weight: 600; margin: 0; }
+.gate button { background: #fff; border: 1.5px solid var(--border); border-bottom-width: 4px; border-radius: 999px; color: var(--primary); font-size: 15px; font-weight: 800; padding: 11px 22px; }
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes cardIn { from { opacity: 0; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-height: 650px) {
+  .card { max-height: calc(100% - 16px); width: 68%; }
+  .card strong { font-size: 34px; }
+  .activeCard > p { font-size: 21px; }
+  .activeCard > i { margin: 12px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .feverText,
+  .overlay,
+  .endCard { animation-duration: 1ms; transition-duration: 1ms; }
+  .gate > i { animation-duration: 1.6s; }
+}
