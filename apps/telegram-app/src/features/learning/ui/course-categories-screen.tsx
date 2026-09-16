@@ -10,6 +10,7 @@ import {
   LEARNING_CATEGORIES,
   canUseLearningFeature,
   guidedDestination,
+  hasLearningTaster,
   learningDestination,
   type LearnMode,
   type LearningCategory,
@@ -302,6 +303,19 @@ export function CourseCategoriesScreen() {
           >
             Premiumni ko&apos;rish
           </button>
+          {hasLearningTaster(lockedCategory.feature) ? (
+            <button
+              className={styles.tasterButton}
+              onClick={() => {
+                const destination = learningDestination(lockedCategory.category);
+                setLockedCategory(null);
+                if (destination) router.push(destination);
+              }}
+              type="button"
+            >
+              Avval bepul sinab ko&apos;rish
+            </button>
+          ) : null}
         </ChoiceSheet>
       ) : null}
     </main>

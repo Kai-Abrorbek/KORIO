@@ -180,6 +180,12 @@ const FREE_FEATURES: LearningFeature[] = [
   "pronunciation",
 ];
 
+const TASTER_FEATURES: LearningFeature[] = ["tutor"];
+
+export function hasLearningTaster(feature: LearningFeature): boolean {
+  return TASTER_FEATURES.includes(feature);
+}
+
 export function canUseLearningFeature(
   user: { isSuper?: boolean; superExpiresAt?: string | null },
   feature: LearningFeature,
