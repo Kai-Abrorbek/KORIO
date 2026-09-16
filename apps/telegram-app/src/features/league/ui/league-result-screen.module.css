@@ -1,0 +1,178 @@
+.loading,
+.resultPage {
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+}
+
+.loading { background: #15131f; }
+
+.resultPage {
+  background: var(--stage-dark);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--tg-content-safe-area-inset-top, 0px) 28px 0;
+  position: relative;
+  transition: background 300ms ease;
+}
+
+.center {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+  z-index: 2;
+}
+
+.glow {
+  animation: resultGlow 2.2s ease-in-out infinite;
+  background: var(--stage-color);
+  border-radius: 50%;
+  height: 300px;
+  opacity: .28;
+  position: absolute;
+  width: 300px;
+}
+
+.crystalEnter {
+  animation: crystalEnter 520ms cubic-bezier(.17, .86, .28, 1.28) both;
+  display: flex;
+  position: relative;
+}
+
+.center h1 {
+  animation: fadeUp 400ms 250ms both;
+  color: #fff;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: normal;
+  line-height: normal;
+  margin: 32px 0 0;
+  position: relative;
+}
+
+.center > p {
+  animation: fadeUp 400ms 350ms both;
+  color: rgb(255 255 255 / 85%);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 8px 0 0;
+  max-width: 390px;
+  position: relative;
+}
+
+.xpBar,
+.rankChip,
+.gemChip {
+  align-items: center;
+  border-radius: 99px;
+  display: flex;
+  position: relative;
+}
+
+.xpBar {
+  animation: fadeUp 400ms 450ms both;
+  background: rgb(0 0 0 / 28%);
+  font-size: 13px;
+  font-weight: 700;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 16px;
+}
+
+.rankChip {
+  animation: fadeUp 400ms 550ms both;
+  background: rgb(255 255 255 / 18%);
+  font-size: 15px;
+  font-weight: 800;
+  gap: 6px;
+  margin-top: 22px;
+  padding: 8px 16px;
+}
+
+.gemChip {
+  animation: crystalEnter 500ms 650ms both;
+  background: #ffd84d;
+  color: #15131f;
+  font-size: 17px;
+  font-weight: 900;
+  gap: 7px;
+  margin-top: 16px;
+  padding: 10px 20px;
+}
+
+.continueButton {
+  background: #fff;
+  border: 0;
+  border-bottom: 4px solid rgb(0 0 0 / 18%);
+  border-radius: 18px;
+  color: var(--stage-dark);
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  min-height: 56px;
+}
+
+.continueButton:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.buttonPlaceholder {
+  height: 56px;
+  margin-bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+}
+
+.confetti {
+  height: 420px;
+  inset: 0 0 auto;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 5;
+}
+
+.confetti i {
+  animation: confettiDrop 2.25s var(--delay) cubic-bezier(.2, .72, .3, 1) both;
+  border-radius: 2px;
+  height: 18px;
+  position: absolute;
+  top: 40%;
+  width: 9px;
+}
+
+@keyframes resultGlow { 50% { transform: scale(1.12); } }
+@keyframes crystalEnter {
+  from { opacity: 0; transform: scale(.2); }
+  65% { opacity: 1; transform: scale(1.12); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes confettiDrop {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc((50% - 25px) * .5), 350px) rotate(520deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .confetti i,
+  .crystalEnter,
+  .center h1,
+  .center > p,
+  .xpBar,
+  .rankChip,
+  .gemChip {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

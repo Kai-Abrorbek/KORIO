@@ -74,12 +74,12 @@ function BottomTabs() {
         <MobileIcon name="bar-chart" size={23} />
         <span>Statistika</span>
       </button>
-      <button type="button">
-        <MobileIcon name="trophy-outline" size={23} />
+      <button onClick={() => router.push("/league")} type="button">
+        <MobileIcon name="trophy" size={23} />
         <span>Liga</span>
       </button>
       <button onClick={() => router.push("/premium")} type="button">
-        <MobileIcon name="ribbon-outline" size={23} />
+        <MobileIcon name="ribbon" size={23} />
         <span>Premium</span>
       </button>
     </nav>

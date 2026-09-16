@@ -1,0 +1,77 @@
+.wrap {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  position: relative;
+}
+
+.crystal {
+  display: block;
+  position: relative;
+  z-index: 2;
+}
+
+.rays {
+  animation: rayRotate 12s linear infinite;
+  inset: 0;
+  position: absolute;
+}
+
+.rays i {
+  background: var(--tier-light);
+  left: calc(50% - 1.5px);
+  opacity: 0.35;
+  position: absolute;
+  top: 12.5%;
+  transform-origin: 50% 50%;
+  width: 3px;
+}
+
+.glow {
+  animation: tierPulse 2.2s ease-in-out infinite;
+  background: var(--tier-color);
+  border-radius: 50%;
+  height: 78%;
+  opacity: 0.35;
+  position: absolute;
+  width: 90%;
+}
+
+.lock {
+  color: #fff;
+  display: flex;
+  position: absolute;
+  z-index: 3;
+}
+
+.shattering {
+  animation: crystalBreak 1.5s cubic-bezier(.22, .8, .36, 1) forwards;
+}
+
+@keyframes rayRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tierPulse {
+  50% { transform: scale(1.08); }
+}
+
+@keyframes crystalBreak {
+  0%, 28% { filter: none; opacity: 1; transform: translate(0) rotate(0) scale(1); }
+  38% { filter: brightness(1.8); transform: translate(-3px, 1px) rotate(-2deg) scale(1.03); }
+  48% { transform: translate(4px, -2px) rotate(3deg) scale(1.02); }
+  62% { filter: brightness(1.3); opacity: 1; transform: translate(-4px, 4px) rotate(-4deg) scale(.96); }
+  100% { filter: brightness(.7); opacity: 0; transform: translateY(64px) rotate(16deg) scale(.42); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rays,
+  .glow {
+    animation: none;
+  }
+
+  .shattering {
+    animation-duration: 1ms;
+  }
+}

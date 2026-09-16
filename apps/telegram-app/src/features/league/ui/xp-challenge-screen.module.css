@@ -1,0 +1,182 @@
+.challengePage {
+  background: var(--tier-color);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+}
+
+.challengePage header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 10px) 20px 10px;
+}
+
+.challengePage header button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  display: flex;
+  padding: 0;
+}
+
+.challengePage header h1 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: normal;
+  line-height: normal;
+  margin: 0;
+}
+
+.challengePage header > span {
+  align-items: center;
+  background: rgb(255 255 255 / 25%);
+  border-radius: 14px;
+  display: flex;
+  font-size: 16px;
+  gap: 4px;
+  padding: 5px 10px;
+}
+
+.challengePage header b { font-weight: 900; }
+
+.body {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 30px;
+}
+
+.cards {
+  animation: cardFloat 2.4s ease-in-out infinite;
+  display: flex;
+  margin-bottom: 50px;
+}
+
+.cards span {
+  align-items: center;
+  background: rgb(255 255 255 / 90%);
+  border-radius: 20px;
+  color: var(--tier-color);
+  display: flex;
+  height: 150px;
+  justify-content: center;
+  width: 120px;
+}
+
+.cards span:first-child {
+  margin-right: -30px;
+  transform: rotate(-8deg);
+}
+
+.cards span:last-child { transform: rotate(6deg); }
+
+.headline {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 38px;
+  margin: 0;
+  text-align: center;
+}
+
+.headline b { color: #ffe082; }
+
+.infoBox {
+  border: 2.5px solid rgb(255 255 255 / 60%);
+  border-radius: 16px;
+  display: flex;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.infoBox > span {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px 5px;
+}
+
+.infoBox > i {
+  background: rgb(255 255 255 / 60%);
+  width: 2.5px;
+}
+
+.infoBox small {
+  color: rgb(255 255 255 / 85%);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.infoBox strong {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.challengePage footer {
+  padding: 0 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+}
+
+.challengePage footer > p {
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 0 0 10px;
+  opacity: .9;
+  text-align: center;
+}
+
+.challengePage footer > button {
+  align-items: center;
+  background: #fff;
+  border: 0;
+  border-radius: 18px;
+  color: var(--tier-color);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  min-height: 64px;
+  width: 100%;
+}
+
+.challengePage footer > button:disabled { opacity: .5; }
+.challengePage footer > button:active:not(:disabled) { transform: translateY(3px); }
+.challengePage footer > button > strong { font-size: 20px; font-weight: 900; }
+
+.challengePage footer > button > span {
+  align-items: center;
+  background: var(--tier-color);
+  border-radius: 10px;
+  color: #fff;
+  display: flex;
+  gap: 3px;
+  padding: 4px 8px;
+}
+
+.challengePage footer > button > span b { font-size: 15px; font-weight: 900; }
+
+@keyframes cardFloat {
+  50% { transform: translateY(-8px); }
+}
+
+@media (max-height: 650px) {
+  .cards { margin-bottom: 24px; }
+  .cards span { height: 126px; width: 100px; }
+  .infoBox { margin-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cards { animation: none; }
+}

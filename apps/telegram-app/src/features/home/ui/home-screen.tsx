@@ -356,7 +356,7 @@ export function HomeScreen() {
           <HomeIcon name="chart" size={23} />
           <span>Statistika</span>
         </button>
-        <button type="button">
+        <button onClick={() => router.push("/league")} type="button">
           <HomeIcon name="trophy" size={23} />
           <span>Liga</span>
         </button>

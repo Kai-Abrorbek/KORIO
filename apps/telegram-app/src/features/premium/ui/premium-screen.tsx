@@ -31,8 +31,8 @@ function PremiumTabs() {
         <MobileIcon name="bar-chart" size={23} />
         <span>Statistika</span>
       </button>
-      <button type="button">
-        <MobileIcon name="trophy-outline" size={23} />
+      <button onClick={() => router.push("/league")} type="button">
+        <MobileIcon name="trophy" size={23} />
         <span>Liga</span>
       </button>
       <button aria-current="page" className={styles.navActive} type="button">

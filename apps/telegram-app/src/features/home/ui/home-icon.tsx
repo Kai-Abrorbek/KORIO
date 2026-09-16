@@ -33,7 +33,7 @@ const ICONS: Record<HomeIconName, IoniconName> = {
   menu: "menu",
   person: "person-outline",
   refresh: "refresh",
-  ribbon: "ribbon-outline",
+  ribbon: "ribbon",
   search: "search",
   searchOutline: "search-outline",
   settings: "settings-outline",
@@ -41,7 +41,7 @@ const ICONS: Record<HomeIconName, IoniconName> = {
   sparkles: "sparkles",
   swap: "swap-horizontal",
   target: "locate-outline",
-  trophy: "trophy-outline",
+  trophy: "trophy",
 };
 
 export function HomeIcon({ name, size = 24, ...props }: HomeIconProps) {
