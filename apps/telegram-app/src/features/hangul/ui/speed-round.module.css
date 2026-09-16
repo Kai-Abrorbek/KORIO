@@ -1,0 +1,538 @@
+.speedPage,
+.countdownPage,
+.endPage {
+  --speed-bg: #fff;
+  --speed-border: #eceaf6;
+  --speed-muted: #55555f;
+  --speed-surface: #fff;
+  --speed-text: #1a1a2e;
+  background: var(--speed-bg);
+  color: var(--speed-text);
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+}
+
+.speedPage {
+  padding: 54px 16px 0;
+}
+
+.screenWrong {
+  animation: screenShake 200ms linear;
+}
+
+.topBar {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.topBar > button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--speed-muted);
+  display: flex;
+  height: 26px;
+  justify-content: center;
+  padding: 0;
+  width: 26px;
+}
+
+.timeBarWrap {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 10px;
+}
+
+.timeBarUrgent {
+  animation: timePulse 1000ms ease-in-out infinite;
+}
+
+.timeBarTrack {
+  background: var(--speed-surface);
+  border: 1.5px solid var(--speed-border);
+  border-radius: 6px;
+  flex: 1;
+  height: 12px;
+  overflow: hidden;
+}
+
+.timeBarTrack i {
+  border-radius: 6px;
+  display: block;
+  height: 100%;
+  transition: width 100ms linear, background-color 200ms ease;
+}
+
+.timeBarWrap > strong {
+  color: var(--speed-text);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 17px;
+  min-width: 36px;
+  text-align: right;
+}
+
+.statsRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.scoreCard {
+  background: var(--speed-surface);
+  border: 1.5px solid var(--speed-border);
+  border-radius: 14px;
+  flex: 1;
+  padding: 10px 14px;
+}
+
+.scoreCardAnimated {
+  animation: scorePop 360ms cubic-bezier(.17, .89, .32, 1.4);
+}
+
+.scoreCard span {
+  color: var(--speed-muted);
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.scoreCard strong {
+  color: var(--speed-text);
+  display: block;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 32px;
+  margin-top: 2px;
+}
+
+.comboCard {
+  align-items: center;
+  animation: comboPop 380ms cubic-bezier(.17, .89, .32, 1.4);
+  background: #fff6e0;
+  border: 2px solid #ffd000;
+  border-radius: 14px;
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+}
+
+.comboCard > strong {
+  color: #e89c00;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.comboCard > strong span {
+  color: #ff6b00;
+  font-size: 15px;
+}
+
+.questionArea {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.questionCard {
+  align-items: center;
+  background: #776ee2;
+  border-bottom: 6px solid #5448e0;
+  border-radius: 32px;
+  box-shadow: 0 6px 18px rgba(119, 110, 226, .45);
+  color: #fff;
+  display: flex;
+  font-size: 120px;
+  font-weight: 900;
+  height: 200px;
+  justify-content: center;
+  line-height: 140px;
+  width: 200px;
+}
+
+.questionCorrect {
+  animation: questionCorrect 220ms ease;
+  background: #58cc02;
+  border-color: #4aa802;
+  box-shadow: 0 6px 18px rgba(88, 204, 2, .45);
+}
+
+.questionWrong {
+  animation: questionWrong 180ms linear;
+  background: #ff4b4b;
+  border-color: #cc3838;
+  box-shadow: 0 6px 18px rgba(255, 75, 75, .45);
+}
+
+.floatPoints {
+  animation: pointsFloat 600ms ease-out both;
+  color: #ffd000;
+  font-size: 38px;
+  font-weight: 900;
+  position: absolute;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+  top: 20px;
+}
+
+.optionsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.optionCard {
+  align-items: center;
+  background: var(--speed-surface);
+  border: 2px solid var(--speed-border);
+  border-bottom-width: 5px;
+  border-radius: 16px;
+  color: var(--speed-text);
+  display: flex;
+  font-size: 22px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: 1px;
+  padding: 22px 0;
+  width: 48%;
+}
+
+.optionCorrect,
+.optionRevealCorrect,
+.optionWrong {
+  color: #fff;
+}
+
+.optionCorrect {
+  background: #58cc02;
+  border-color: #4aa802;
+}
+
+.optionWrong {
+  background: #ff4b4b;
+  border-color: #cc3838;
+}
+
+.optionRevealCorrect {
+  background: #58cc02;
+  border-color: #4aa802;
+  opacity: .6;
+}
+
+.countdownPage {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.countdownPage > button {
+  background: transparent;
+  border: 0;
+  color: var(--speed-muted);
+  left: 16px;
+  padding: 0;
+  position: absolute;
+  top: 60px;
+}
+
+.countdownPage p {
+  color: var(--speed-muted);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 22px;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+}
+
+.countdownPage strong {
+  animation: countdownIn 700ms cubic-bezier(.17, .89, .32, 1.4);
+  color: #776ee2;
+  font-size: 140px;
+  font-weight: 900;
+  line-height: 160px;
+}
+
+.endPage {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 24px;
+}
+
+.endPage > h1 {
+  animation: endTitleIn 550ms cubic-bezier(.17, .89, .32, 1.4) both;
+  color: #776ee2;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+  line-height: 46px;
+  margin: 0 0 12px;
+}
+
+.bestBadge {
+  align-items: center;
+  background: #ffd000;
+  border-radius: 20px;
+  color: #fff;
+  display: flex;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 6px;
+  letter-spacing: .8px;
+  margin-bottom: 20px;
+  padding: 6px 14px;
+  text-transform: uppercase;
+}
+
+.scoreBigCard {
+  align-items: center;
+  animation: endCardIn 600ms 150ms cubic-bezier(.17, .89, .32, 1.2) both;
+  background: var(--speed-surface);
+  border: 1.5px solid var(--speed-border);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 28px;
+  padding: 22px;
+  width: 100%;
+}
+
+.scoreBigLabel {
+  color: var(--speed-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 15px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.scoreBigValue {
+  color: #776ee2;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 70px;
+  margin-bottom: 18px;
+}
+
+.endStats {
+  align-items: center;
+  display: flex;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.endStats > div {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.endStats > div:nth-of-type(1) svg {
+  color: #58cc02;
+}
+
+.endStats > div:nth-of-type(2) svg {
+  color: #ffa500;
+}
+
+.endStats > div:nth-of-type(3) svg {
+  color: #1fa9f7;
+}
+
+.endStats span {
+  color: var(--speed-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  line-height: 12px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.endStats strong {
+  color: var(--speed-text);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 24px;
+}
+
+.endStats > i {
+  background: var(--speed-border);
+  height: 30px;
+  width: 1px;
+}
+
+.bestRow {
+  align-items: center;
+  background: var(--speed-bg);
+  border: 1px solid var(--speed-border);
+  border-radius: 12px;
+  color: var(--speed-text);
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 6px;
+  padding: 8px 14px;
+}
+
+.bestRow svg {
+  color: #ffd000;
+}
+
+.primaryButton {
+  align-items: center;
+  background: #776ee2;
+  border: 0;
+  border-bottom: 4px solid #5448e0;
+  border-radius: 16px;
+  color: #fff;
+  display: flex;
+  font-size: 16px;
+  font-weight: 900;
+  gap: 8px;
+  padding: 14px 36px;
+}
+
+.primaryButton:active {
+  opacity: .85;
+}
+
+.secondaryButton {
+  background: transparent;
+  border: 0;
+  color: var(--speed-muted);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px;
+}
+
+@keyframes countdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes timePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes scorePop {
+  45% {
+    transform: scale(1.25);
+  }
+}
+
+@keyframes comboPop {
+  45% {
+    transform: scale(1.4);
+  }
+}
+
+@keyframes questionCorrect {
+  45% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes questionWrong {
+  33% {
+    transform: rotate(-3deg);
+  }
+  66% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes pointsFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  33% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+}
+
+@keyframes screenShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12px);
+  }
+  50% {
+    transform: translateX(12px);
+  }
+  75% {
+    transform: translateX(-8px);
+  }
+}
+
+@keyframes endTitleIn {
+  from {
+    transform: scale(0);
+  }
+  65% {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes endCardIn {
+  from {
+    transform: translateY(300px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screenWrong,
+  .timeBarUrgent,
+  .scoreCardAnimated,
+  .comboCard,
+  .questionCorrect,
+  .questionWrong,
+  .floatPoints,
+  .countdownPage strong,
+  .endPage > h1,
+  .scoreBigCard {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

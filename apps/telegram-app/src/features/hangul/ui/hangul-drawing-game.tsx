@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { HANGUL_CHARACTERS } from "../model/hangul";
 import { HANGUL_STROKE_CHARACTERS } from "../model/hangul-strokes";
+import { jamoToCharacterId } from "../model/hangul-jamo";
 import {
   scoreStroke,
   type StrokeScore,
@@ -103,9 +103,7 @@ export function HangulDrawingGame() {
         return;
       }
 
-      const characterId =
-        HANGUL_CHARACTERS.find((item) => item.char === character.char)?.id ??
-        null;
+      const characterId = jamoToCharacterId(character.char);
       if (characterId) {
         record(characterId, !failedCurrentCharacter.current);
       }

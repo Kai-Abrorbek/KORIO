@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { HANGUL_CHARACTERS } from "../model/hangul";
+import { jamoToCharacterId } from "../model/hangul-jamo";
 import {
   buildReel,
   comboMultiplier,
@@ -235,10 +235,7 @@ export function JamoSlotGame() {
     timers.current.push(snapTimer);
 
     const correct = landed === answers[index];
-    const characterId =
-      HANGUL_CHARACTERS.find(
-        (character) => character.char === answers[index],
-      )?.id ?? null;
+    const characterId = jamoToCharacterId(answers[index]);
     if (characterId) record(characterId, correct);
 
     if (correct) {
