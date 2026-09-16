@@ -55,6 +55,7 @@ const IONICONS = {
   "ear-outline": 62144,
   dice: 62116,
   "ellipsis-horizontal": 62158,
+  "ellipse-outline": 62156,
   eye: 62182,
   "eye-off-outline": 62184,
   "eye-outline": 62186,

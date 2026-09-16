@@ -1,0 +1,64 @@
+.screen { background:#f4f5f9; color:#2b2b3a; min-height:var(--tg-viewport-stable-height,100dvh); }
+.screen button { cursor:pointer; font:inherit; }
+.top { align-items:center; display:flex; gap:10px; margin:0 auto; max-width:620px; padding:calc(12px + var(--tg-content-safe-area-inset-top,0px)) 16px 12px; }
+.top button { background:transparent; border:0; color:#2b2b3a; display:flex; padding:0; }
+.top h1 { font-size:22px; font-weight:800; margin:0; }
+.tabs { border-bottom:1px solid #e8e9ef; display:flex; margin:0 auto; max-width:620px; }
+.tabs button { background:transparent; border:0; color:#3d3d4d; flex:1; font-size:16px; font-weight:700; min-width:0; padding:14px 4px; position:relative; }
+.tabs button i { background:#8b7ff0; border-radius:2px; bottom:-1px; display:none; height:2.5px; left:22.5%; position:absolute; width:55%; }
+.tabs .activeTab { color:#8b7ff0; font-weight:800; }
+.tabs .activeTab i { display:block; }
+.content { margin:0 auto; max-width:620px; padding:16px 16px max(20px,var(--tg-content-safe-area-inset-bottom,0px)); }
+.banner { align-items:center; background:#fff; border-radius:16px; display:flex; gap:14px; margin-bottom:14px; padding:18px; }
+.banner > div { flex:1; min-width:0; }
+.banner h2 { font-size:17px; font-weight:800; margin:0; }
+.banner p { color:#9aa2b1; font-size:13px; font-weight:600; margin:4px 0 12px; }
+.banner > div > i { background:#e5e7ee; border-radius:4px; display:block; height:8px; overflow:hidden; }
+.banner > div > i b { background:#8b7ff0; border-radius:4px; display:block; height:8px; transition:width .3s ease; }
+.banner > div > button { align-items:center; background:transparent; border:0; color:#6f61e6; display:flex; font-size:11px; font-weight:700; gap:4px; margin-top:8px; padding:0; }
+.banner > span { align-items:center; border:5px solid #c7cbd6; border-radius:50%; display:flex; flex:0 0 74px; flex-direction:column; height:74px; justify-content:center; }
+.banner > span.ringOn { border-color:#8b7ff0; }
+.banner > span > strong { color:#9aa2b1; font-size:22px; font-weight:800; line-height:24px; }
+.banner > span.ringOn > strong { color:#6f61e6; }
+.banner > span > strong small { font-size:11px; }
+.banner > span > small { color:#9aa2b1; font-size:11px; font-weight:600; }
+.stageCard { background:#fff; border-radius:18px; margin-bottom:16px; overflow:hidden; }
+.stageHead { align-items:center; background:transparent; border:0; color:#2b2b3a; display:flex; padding:20px; text-align:left; width:100%; }
+.stageHead > div { flex:1; min-width:0; }
+.stageHead > div > span { background:#3d3d4d; border-radius:8px; color:#fff; display:inline-flex; font-size:13px; font-weight:800; margin-bottom:12px; padding:4px 10px; }
+.stageHead > div > svg { color:#3cba54; margin:0 0 8px 8px; vertical-align:middle; }
+.stageHead p { align-items:baseline; display:flex; gap:8px; margin:0; }
+.stageHead p strong { font-size:34px; font-weight:800; }
+.stageHead p i { color:#9aa2b1; font-size:18px; font-style:normal; font-weight:700; }
+.stageHead p b { font-size:16px; margin-left:4px; }
+.stageHead > em { align-items:center; background:#f1f2f6; border-radius:50%; color:#9aa2b1; display:flex; flex:0 0 44px; height:44px; justify-content:center; }
+.scene { background:#fbe8d8; padding:16px 12px 8px; }
+.scene > div { display:flex; justify-content:center; }
+.scene > div > div { background:#fff; border-radius:16px; flex:1; max-width:190px; padding:12px; position:relative; }
+.scene > div > div:first-child { margin-right:20px; }
+.scene > div > div:last-child { margin-left:20px; }
+.scene p { font-size:15px; font-weight:600; line-height:22px; margin:0; text-align:center; }
+.scene p strong { color:#6f61e6; font-weight:800; }
+.scene > div > div > i { border-left:8px solid transparent; border-right:8px solid transparent; border-top:9px solid #fff; bottom:-7px; height:0; left:30px; position:absolute; width:0; }
+.scene > div > div:last-child > i { left:auto; right:30px; }
+.scene aside { align-items:flex-end; display:flex; justify-content:space-around; margin-top:6px; padding:0 20px; }
+.scene aside span { font-size:64px; line-height:1; }
+.scene aside span:nth-child(2) { font-size:40px; margin-bottom:8px; }
+.modes { display:flex; padding:20px; }
+.modes > i { background:#eceef3; width:1px; }
+.mode { flex:1; padding:0 8px; }
+.mode header { align-items:baseline; display:flex; justify-content:space-between; }
+.mode header strong { font-size:22px; font-weight:800; }
+.mode header .disabledLabel { color:#9aa2b1; }
+.mode header span { color:#9aa2b1; font-size:18px; font-weight:700; }
+.mode header .hasScore { color:#6f61e6; font-weight:800; }
+.mode > i { background:#ececf0; display:block; height:2px; margin-top:8px; }
+.mode > button { align-items:center; background:linear-gradient(135deg,#8b7ff0,#6f61e6); border:0; border-radius:26px; color:#fff; display:flex; font-size:18px; font-weight:800; justify-content:center; letter-spacing:1px; margin-top:14px; min-height:54px; width:100%; }
+.mode > button.lockedStart { background:#d4d6de; }
+.modal { align-items:center; background:rgb(40 35 60 / 45%); display:flex; inset:0; justify-content:center; padding:40px; position:fixed; z-index:60; }
+.modal > section { align-items:center; background:#fff; border-radius:20px; display:flex; flex-direction:column; max-width:430px; padding:24px; width:100%; }
+.modal > section > span { align-items:center; background:#efeafb; border-radius:50%; color:#6f61e6; display:flex; height:52px; justify-content:center; margin-bottom:14px; width:52px; }
+.modal p { font-size:17px; font-weight:700; line-height:24px; margin:0 0 20px; text-align:center; }
+.modal button { background:linear-gradient(135deg,#8b7ff0,#6f61e6); border:0; border-radius:14px; color:#fff; font-size:17px; font-weight:800; min-height:52px; width:100%; }
+@media(max-width:390px){ .stageHead { padding:16px; } .stageHead p { gap:6px; } .stageHead p strong { font-size:30px; } .stageHead p b { font-size:13px; } .scene > div > div:first-child { margin-right:8px; } .scene > div > div:last-child { margin-left:8px; } .modes { padding:16px 10px; } }
+@media(prefers-reduced-motion:reduce){ .banner > div > i b { transition-duration:1ms; } }
