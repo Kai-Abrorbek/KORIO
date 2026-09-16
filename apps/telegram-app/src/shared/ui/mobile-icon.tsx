@@ -136,10 +136,17 @@ const IONICONS = {
 } as const;
 
 const MATERIAL_COMMUNITY = {
+  cards: 984632,
+  "gamepad-variant": 983703,
+  headphones: 983755,
   keyboard: 983820,
   "lightning-bolt": 988171,
+  microphone: 983916,
+  sync: 984294,
   "timer-outline": 984347,
   turtle: 986327,
+  video: 984423,
+  waveform: 988285,
 } as const;
 
 export type IoniconName = keyof typeof IONICONS;

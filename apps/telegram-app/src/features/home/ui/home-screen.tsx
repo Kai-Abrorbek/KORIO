@@ -314,7 +314,7 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <button className={`${styles.card} ${styles.reviewCard}`} type="button">
+        <button className={`${styles.card} ${styles.reviewCard}`} onClick={() => router.push("/practice")} type="button">
           <span className={styles.reviewIcon}>
             <HomeIcon name="refresh" size={21} />
           </span>
