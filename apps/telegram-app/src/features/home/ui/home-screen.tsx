@@ -360,7 +360,7 @@ export function HomeScreen() {
           <HomeIcon name="trophy" size={23} />
           <span>Liga</span>
         </button>
-        <button type="button">
+        <button onClick={() => router.push("/premium")} type="button">
           <HomeIcon name="ribbon" size={23} />
           <span>Premium</span>
         </button>
