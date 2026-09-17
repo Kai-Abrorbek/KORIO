@@ -17,7 +17,12 @@ import {
   MAX_TRANSCRIPT_TURNS,
   MAX_TTS_TEXT_CHARS,
 } from '../tutor.const';
-import { ROLE_PLAY_SCENES, TUTOR_MODES, TUTOR_VOICES } from '../tutor.const';
+import {
+  ROLE_PLAY_SCENES,
+  TUTOR_ADDRESS_STYLES,
+  TUTOR_MODES,
+  TUTOR_VOICES,
+} from '../tutor.const';
 import { TOPIC_IDS } from '../topics/tutor-topics';
 
 export class CreateTutorSessionDto {
@@ -51,6 +56,18 @@ export class CreateTutorSessionDto {
   @IsString()
   @IsIn([...TUTOR_VOICES])
   voice?: string;
+
+  /**
+   * 튜터가 **나에게** 말하는 말투 — 존댓말/반말.
+   *
+   * ⚠️ 가르치는 한국어의 격식과는 **다른 축이다.** 반말 선생님이라도 카페
+   *    주문은 존댓말로 가르친다 (프롬프트 §5). 성격과도 독립이라
+   *    "놀리는데 존댓말" 을 고를 수 있다.
+   */
+  @IsOptional()
+  @IsString()
+  @IsIn([...TUTOR_ADDRESS_STYLES])
+  addressStyle?: string;
 
   /** 학습자 모국어 = 앱 UI 언어. 다른 API 들과 같은 규칙 */
   @IsOptional()

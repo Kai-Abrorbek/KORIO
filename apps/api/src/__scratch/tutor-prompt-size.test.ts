@@ -76,3 +76,43 @@ test('크기 — 매 세션 올라가는 값이다', () => {
   // 네 언어를 다 넣던 원본(약 9천 토큰)보다는 확실히 작아야 한다
   assert.ok(approxTokens(b) < 8000, `너무 크다: ${approxTokens(b)}`);
 });
+
+test('말투는 성격과 독립이다 — 유저가 고른 값만 따른다', () => {
+  const teaser = TUTOR_TEACHERS.find((t) => t.personality === 'teasing')!;
+  const calm = TUTOR_TEACHERS.find((t) => t.personality !== 'teasing')!;
+
+  const line = (p: string) =>
+    p.split('\n')[
+      p.split('\n').findIndex((l) =>
+        l.includes("Tutor's Korean speaking style toward the learner"),
+      ) + 1
+    ];
+
+  // 놀리는 선생님 + 존댓말을 고를 수 있어야 한다
+  assert.equal(
+    line(buildTutorInstructions(learner(), 'freeTalk', undefined, undefined, teaser, 'polite')),
+    'polite',
+  );
+  // 차분한 선생님 + 반말도 고를 수 있어야 한다
+  assert.equal(
+    line(buildTutorInstructions(learner(), 'freeTalk', undefined, undefined, calm, 'casual')),
+    'casual',
+  );
+  // 안 고르면 존댓말 (외국인이 한국에서 쓰기 안전한 쪽)
+  assert.equal(
+    line(buildTutorInstructions(learner(), 'freeTalk', undefined, undefined, teaser)),
+    'polite',
+  );
+});
+
+test('말투를 바꿔도 가르치는 한국어 격식 규칙은 그대로다', () => {
+  const t = TUTOR_TEACHERS[0]!;
+  for (const style of ['polite', 'casual'] as const) {
+    const p = buildTutorInstructions(learner(), 'lesson', undefined, undefined, t, style);
+    assert.ok(
+      p.includes('TUTOR SPEAKING STYLE ≠ KOREAN LESSON REGISTER'),
+      `${style}: §5 가 빠졌다`,
+    );
+    assert.ok(p.includes('아이스 아메리카노 한 잔 주세요'), `${style}: 존댓말 예시가 빠졌다`);
+  }
+});

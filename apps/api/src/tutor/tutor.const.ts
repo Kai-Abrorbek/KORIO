@@ -112,6 +112,24 @@ export type TutorTier = keyof typeof DAILY_MINUTES;
  */
 export const MAX_RESPONSE_TOKENS = 1500;
 
+/**
+ * 튜터가 **학습자에게** 말하는 말투.
+ *
+ * ⚠️ **가르치는 한국어의 존댓말/반말과 완전히 다른 축이다.** (프롬프트 §5)
+ *
+ *   반말 선생님이라도 카페 주문은 "아이스 아메리카노 한 잔 주세요" 로 가르친다.
+ *   "아아 하나 줘" 로 가르치면 유저가 한국 카페에서 그대로 쓴다.
+ *
+ * ⚠️ **성격에서 끌어내지 마라.** 한때 teasing → casual 로 유도했는데, 그러면
+ *    "놀리는데 존댓말" 이나 "차분한데 반말" 을 고를 수가 없다. 둘은 독립된
+ *    선택이고, 유저가 튜터 시작 화면에서 직접 고른다.
+ */
+export const TUTOR_ADDRESS_STYLES = ['polite', 'casual'] as const;
+export type TutorAddressStyle = (typeof TUTOR_ADDRESS_STYLES)[number];
+
+/** 안 고르면 존댓말. 외국인이 한국에서 쓰기 안전한 쪽이 기본이다 */
+export const DEFAULT_ADDRESS_STYLE: TutorAddressStyle = 'polite';
+
 export type TutorMode =
   | 'freeTalk'
   | 'rolePlay'

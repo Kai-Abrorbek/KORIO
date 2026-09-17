@@ -1,6 +1,12 @@
 import type { TutorTopic } from '../topics/tutor-topics';
 import type { TutorTeacher } from '../teachers/tutor-teachers';
-import type { MistakeType, RolePlayScene, TutorMode } from '../tutor.const';
+import {
+  DEFAULT_ADDRESS_STYLE,
+  type MistakeType,
+  type RolePlayScene,
+  type TutorAddressStyle,
+  type TutorMode,
+} from '../tutor.const';
 
 /**
  * KORIO LIVE TUTOR — 시스템 지시문.
@@ -111,6 +117,12 @@ export function buildTutorInstructions(
   scene?: RolePlayScene,
   topic?: TutorTopic,
   teacher?: TutorTeacher,
+  /**
+   * 튜터가 학습자에게 쓰는 말투. **유저가 시작 화면에서 직접 고른다.**
+   *
+   * 성격과 독립이다 — "놀리는데 존댓말" 도, "차분한데 반말" 도 고를 수 있어야 한다.
+   */
+  addressStyle: TutorAddressStyle = DEFAULT_ADDRESS_STYLE,
 ): string {
   const teachingLanguage = LANG_NAME[learner.nativeLanguage] ?? 'Uzbek';
   const langCode = LANG_NAME[learner.nativeLanguage] ? learner.nativeLanguage : 'uz';
@@ -119,14 +131,6 @@ export function buildTutorInstructions(
   // 이름이 다르면 "저는 보리쌤이에요" 라고 자기소개해서 몰입이 깨진다
   const teacherName = teacher?.name.ko?.replace(/\s*선생님$/, '') ?? '보리';
   const teasing = teacher?.personality === 'teasing';
-
-  /**
-   * 튜터가 학습자에게 쓰는 말투.
-   *
-   * §5 가 강조하듯 **가르치는 한국어 격식과 다른 축이다.** 놀리는 선생님은
-   * 반말로 놀려야 놀림이 되고, 그래도 카페 주문은 존댓말로 가르쳐야 한다.
-   */
-  const addressStyle = teasing ? 'casual' : 'polite';
 
   const mistakes = (learner.spokenMistakes ?? [])
     .slice(0, 6)
