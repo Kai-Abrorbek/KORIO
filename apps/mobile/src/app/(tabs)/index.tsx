@@ -36,6 +36,7 @@ import { hydrateLearnMode } from "@/utils/learn-mode";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { featureOfLearnMode } from "@/features/subscription/access";
 import TourTarget from "@/features/tour/TourTarget";
+import RankBanner from "@/features/rank/RankBanner";
 import { HOME_TOUR } from "@/features/tour/tours";
 import { useTourStore } from "@/features/tour/tour.store";
 import { useTourScroll } from "@/features/tour/useTourScroll";
@@ -405,26 +406,15 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </TourTarget>
         </Animated.View>
-        {/* 레벨 배너 */}
+        {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여준다 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>
           <TourTarget
-            tourId="home.levelTest"
+            tourId="home.rank"
             style={styles.tourBlock}
-            // styles.levelBanner 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
+            // RankBanner 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
             inset={{ left: 16, right: 16, bottom: 12 }}
           >
-          <TouchableOpacity style={styles.levelBanner}>
-            <Ionicons name="sparkles" size={20} color="#fff" />
-            <View style={styles.levelBannerText}>
-              <Text style={styles.levelBannerTitle}>
-                {t("home.levelBannerTitle")}
-              </Text>
-              <Text style={styles.levelBannerSub}>
-                {t("home.levelBannerSub")}
-              </Text>
-            </View>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
-          </TouchableOpacity>
+            <RankBanner />
           </TourTarget>
         </Animated.View>
 
@@ -877,29 +867,6 @@ const getStyles = (theme: ThemeColors) =>
       fontSize: 12,
       color: theme.textSecondary,
       fontWeight: "600",
-    },
-    levelBanner: {
-      backgroundColor: theme.primary,
-      borderRadius: 20,
-      padding: 16,
-      marginHorizontal: 16,
-      marginBottom: 12,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    levelBannerText: {
-      flex: 1,
-    },
-    levelBannerTitle: {
-      fontSize: 15,
-      fontWeight: "700",
-      color: "#fff",
-    },
-    levelBannerSub: {
-      fontSize: 12,
-      color: "rgba(255,255,255,0.7)",
-      marginTop: 2,
     },
     cardHeader: {
       flexDirection: "row",

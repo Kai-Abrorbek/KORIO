@@ -11,6 +11,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { RankService } from './rank/rank.service';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SaveLevelTestMeDto } from './dto/save-level-test-me.dto';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
@@ -32,7 +34,23 @@ import {
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly rankService: RankService,
+  ) {}
+
+  /**
+   * 전체 학습자 중 내 순위.
+   *
+   * 전 유저를 한 번 훑는 집계라 다른 조회보다 무겁다. 화면은 결과를 1분만
+   * 보여주고 접히므로 연타할 이유가 없는데, 그래도 문은 좁혀 둔다.
+   */
+  @Get('me/rank')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ windowMs: 60_000, max: 6 })
+  async myRank(@Request() req) {
+    return this.rankService.myRank(req.user._id.toString());
+  }
 
   @Get('me')
   async getMe(@Request() req) {

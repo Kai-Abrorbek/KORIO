@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { RankService } from './rank/rank.service';
 import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
@@ -24,8 +25,8 @@ import { PushModule } from '../push/push.module';
       { name: LessonNode.name, schema: LessonNodeSchema },
     ]),
   ],
-  providers: [UsersService],
+  providers: [UsersService, RankService],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, RankService],
 })
 export class UsersModule {}
