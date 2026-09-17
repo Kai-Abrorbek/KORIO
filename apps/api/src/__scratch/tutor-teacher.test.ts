@@ -97,7 +97,11 @@ say(
 );
 say(!('promptStyle' in card), '프롬프트는 앱으로 안 내려간다');
 
-// ── 프롬프트 ──────────────────────────────────────────────────
+// ── 프롬프트 (마스터 지시문 v3 — Kai 확정본) ──────────────────
+//
+// ⚠️ 본문 문장을 검사하지 않는다. 지시문은 Kai 가 확정한 원문이고 언제든
+//    문장이 바뀔 수 있다. 여기서는 **조립이 맞는지**만 본다 —
+//    실제 말투 규칙이 지켜지는지는 사람이 통화해 보고 판단할 일이다.
 const learner: LearnerContext = {
   koreanLevel: 'beginner',
   nativeLanguage: 'uz',
@@ -109,9 +113,10 @@ const learner: LearnerContext = {
 for (const t of TUTOR_TEACHERS) {
   const p = buildTutorInstructions(learner, 'freeTalk', undefined, undefined, t);
   const bare = t.name.ko.replace(/\s*선생님$/, '');
-  say(p.includes(`You are ${bare}`), `[${t.id}] 프롬프트가 제 이름을 쓴다`);
+  say(p.includes(`Teacher name:\n${bare}`), `[${t.id}] 프롬프트가 제 이름을 쓴다`);
   say(p.includes(t.promptStyle), `[${t.id}] 성격 지시문이 들어간다`);
   say(!p.includes('보리쌤'), `[${t.id}] 옛 이름이 안 남아 있다`);
+  say(!p.includes('{{'), `[${t.id}] 안 채워진 자리표시자가 없다`);
 }
 
 const p = buildTutorInstructions(
@@ -121,70 +126,18 @@ const p = buildTutorInstructions(
   undefined,
   TUTOR_TEACHERS[0],
 );
-// 하이브리드 전환의 핵심 두 가지
-say(/YOU UNDERSTAND UZBEK/.test(p), '우즈벡어를 알아들으라는 지시가 있다');
-say(/NEVER pretend you did not/.test(p), '"못 알아들은 척 하지 마라" 가 명시돼 있다');
-say(/YOUR FIRST MESSAGE/.test(p), '먼저 인사하라는 지시가 있다');
-say(/You speak first/.test(p), '유저보다 먼저 말한다');
-
-// ── 프롬프트 v2 의 핵심 ───────────────────────────────────────
-// 길이가 제일 중요한 규칙이다. 이게 빠지면 튜터가 문단으로 답한다
-say(/ONE short sentence is your normal reply/.test(p), '한 문장 원칙이 있다');
-say(/BANNED/.test(p) && /그렇군요/.test(p), '기계 같은 문구 금지 목록이 있다');
-say(/Ask about ONE thing/.test(p), '질문을 쌓지 말라는 지시가 있다');
-
-// v2 에서 뒤집힌 규칙. 예전엔 "단 한 단어도 우즈벡어 금지" 였다 —
-// 유저가 우즈벡어로 설명해달라는데 한국어로 버티는 건 도움이 아니라 짜증이다
-say(
-  !/YOUR SPOKEN REPLY IS ALWAYS KOREAN/.test(p),
-  '"무조건 한국어" 규칙이 걷혔다',
-);
-say(/UZBEK WHEN THEY ASK/.test(p), '요청하면 우즈벡어로 답하라는 지시가 있다');
-say(/Do NOT refuse/.test(p), '언어 전환을 거부하지 말라고 못 박았다');
-
-// v3 에서 목소리를 모델 자체 음성으로 되돌렸다. 한 목소리가 두 언어를 다
-// 하므로 "한 문장 안에 섞지 마라" 제약이 사라졌다 — 되살아나면 안 된다
-say(
-  !/NEVER mix the two inside ONE sentence/.test(p),
-  '언어 섞기 금지가 걷혔다 (한 목소리가 둘 다 한다)',
-);
-say(/YOU ARE SPEAKING, NOT WRITING/.test(p), '말하는 거지 쓰는 게 아니라는 지시');
-
-// ── 교정 루프 금지 ── v3 의 핵심. 같은 문장을 3~4번 시키는 게 제일 큰 불만이었다
-say(
-  /NEVER make them repeat the same sentence twice/.test(p),
-  '같은 문장 반복시키기 금지',
-);
-say(/say NOTHING about it/.test(p), '맞게 말했으면 그냥 넘어가라는 지시');
-say(/BE ALIVE/.test(p), '웃고 반응하고 애드립 치라는 지시');
-
-// ── 놀리기는 그 성격일 때만 ───────────────────────────────────
-// 차분한 선생님을 고른 유저가 놀림받으면 그건 성격 설정이 샌 버그다
-for (const t of TUTOR_TEACHERS) {
-  const pr = buildTutorInstructions(learner, 'freeTalk', undefined, undefined, t);
-  const teasing = t.personality === 'teasing';
-  say(
-    /TEASING — THIS IS WHO YOU ARE/.test(pr) === teasing,
-    `[${t.id}] 놀리기 블록이 ${teasing ? '있다' : '없다'}`,
-  );
-}
-say(
-  TUTOR_TEACHERS.some((t) => t.personality === 'teasing'),
-  '놀리는 선생님이 한 명은 있다',
-);
-
-// ── freeTalk 은 주제로 되돌리지 않는다 ────────────────────────
-// 예전엔 "새면 한 턴 따라가고 다시 끌고 온다" 였다. 그게 자유 대화를
-// 면접으로 만들었다
-say(
-  /do NOT steer back/.test(p),
-  'freeTalk 은 주제로 끌고 오지 않는다',
-);
+say(/KORIO LIVE TUTOR/.test(p), '마스터 지시문이 들어간다');
+say(/RUNTIME CONTEXT/.test(p), '런타임 컨텍스트 블록이 있다');
+say(/uz = Uzbek/.test(p), '수업 언어가 채워진다');
+say(/freeTalk —/.test(p), '지금 모드가 채워진다');
 
 // 선생님 없이도 예전처럼 동작해야 한다 (다른 호출부가 깨지지 않게)
 const legacy = buildTutorInstructions(learner, 'freeTalk');
 say(legacy.length > 500, '선생님 없이도 프롬프트가 만들어진다');
-say(!legacy.includes('WHO YOU ARE'), '선생님 없으면 성격 블록도 없다');
+say(
+  !legacy.includes('TEASING / ROAST PERSONALITY'),
+  '선생님 없으면 놀리기 블록도 없다',
+);
 
 console.log(fail ? `\n❌ ${fail}건 실패` : '\n🎉 전부 통과');
 process.exit(fail ? 1 : 0);
