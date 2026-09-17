@@ -24,6 +24,7 @@ export interface TelegramWebApp {
     selectionChanged(): void;
   };
   expand(): void;
+  close?(): void;
   ready(): void;
   setBackgroundColor?(color: string): void;
   setHeaderColor?(color: string): void;

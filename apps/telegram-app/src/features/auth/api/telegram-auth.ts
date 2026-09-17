@@ -1,4 +1,5 @@
 import { apiRequest } from "../../../shared/api/client";
+import type { AvatarConfig } from "../../../shared/model/avatar";
 
 export interface KorioTelegramUser {
   id: string;
@@ -25,6 +26,16 @@ export interface KorioTelegramUser {
   isSuper?: boolean;
   superPlan?: string | null;
   superExpiresAt?: string | null;
+  avatar?: AvatarConfig;
+  bio?: string;
+  provider?: string;
+  createdAt?: string;
+  joinedYear?: number;
+  followingCount?: number;
+  followersCount?: number;
+  coursePrimaryFlag?: string;
+  courseExtraCount?: number;
+  friendStreaks?: Array<{ id: string; name: string; streak: number }>;
 }
 
 export interface TelegramAuthResponse {

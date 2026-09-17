@@ -17,6 +17,7 @@ import {
 import { HomeCalendar } from "./home-calendar";
 import { HomeIcon, type HomeIconName } from "./home-icon";
 import { continueLearningDestination } from "../../learning/model/learning-options";
+import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import styles from "./home-screen.module.css";
 
 interface QuickAccessItem {
@@ -37,10 +38,10 @@ const SIDE_ACTIONS: Array<{
   label: string;
   route?: string;
 }> = [
-  { icon: "person", label: "Profil" },
+  { icon: "person", label: "Profil", route: "/profile" },
   { icon: "book", label: "Kurslar", route: "/courses" },
   { icon: "swap", label: "Yo'nalish", route: "/course-categories" },
-  { icon: "settings", label: "Sozlamalar" },
+  { icon: "settings", label: "Sozlamalar", route: "/settings" },
 ];
 
 function ProgressRing({ value }: { value: number }) {
@@ -56,21 +57,16 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
-function UserArtwork({ user }: { user: HomeUser }) {
-  if (user.profileImage) {
-    return (
-      // Telegram이 서명한 사용자 프로필 URL이라 호스트가 고정되지 않는다.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img alt="" className={styles.userArtwork} src={user.profileImage} />
-    );
-  }
+function UserArtwork({ user, onPress }: { user: HomeUser; onPress: () => void }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      alt=""
-      className={styles.mascotArtwork}
-      src="/characters/hangulmon_default.png"
-    />
+    <button aria-label="Avatarni tahrirlash" className={styles.avatarArtworkButton} onClick={onPress} type="button">
+      {user.avatar ? (
+        <span className={styles.generatedArtwork}><GeneratedAvatar avatar={user.avatar} variant="full" /></span>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img alt="" className={styles.mascotArtwork} src="/characters/hangulmon_default.png" />
+      )}
+    </button>
   );
 }
 
@@ -215,7 +211,7 @@ export function HomeScreen() {
           </div>
 
           <div className={styles.artworkWrap}>
-            <UserArtwork user={profile} />
+            <UserArtwork onPress={() => router.push("/avatar-editor")} user={profile} />
           </div>
 
           <div className={styles.lessonSummary}>

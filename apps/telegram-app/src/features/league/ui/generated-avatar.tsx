@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 import type { AvatarConfig } from "../model/league";
 
@@ -13,7 +13,23 @@ const DEFAULTS = {
   facialHair: "facial_none",
   headwear: "headwear_none",
   outfit: "outfit_hoodie",
+  background: "background_lilac",
 };
+
+export const AVATAR_BACKGROUNDS = {
+  background_cloud: ["#F7F8FB", "#DDE3EC"],
+  background_lilac: ["#E4DEFF", "#B8ACF4"],
+  background_sky: ["#DFF3FF", "#9ED7F8"],
+  background_mint: ["#DDF8EF", "#9BDDC7"],
+  background_lime: ["#EEFACF", "#C6E887"],
+  background_sand: ["#FFF5DB", "#E8CC94"],
+  background_peach: ["#FFE9DC", "#F2B897"],
+  background_coral: ["#FFE4E4", "#EF9B9E"],
+  background_navy: ["#496A9A", "#233A61"],
+  background_plum: ["#87659A", "#4C315D"],
+  background_sunset: ["#FFD6A7", "#E88654"],
+  background_aurora: ["#C9F4E9", "#69BFC2"],
+} as const;
 
 const SKIN: Record<string, string> = {
   skin_01: "#5B3226", skin_02: "#71402E", skin_03: "#875039",
@@ -47,6 +63,14 @@ function darken(hex: string, amount: number) {
   const value = Number.parseInt(hex.replace("#", ""), 16);
   const channels = [value >> 16, (value >> 8) & 0xff, value & 0xff];
   return `#${channels.map((channel) => Math.max(0, channel - amount).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function AvatarBackground({ colors, gradientId }: { colors: readonly [string, string]; gradientId: string }) {
+  return <g><defs><linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor={colors[0]} /><stop offset="1" stopColor={colors[1]} /></linearGradient></defs><rect fill={`url(#${gradientId})`} height="360" rx="34" width="320" /><circle cx="42" cy="72" fill="#fff" opacity=".16" r="24" /><circle cx="283" cy="96" fill="#fff" opacity=".11" r="44" /><path d="M18 274 C72 238 112 244 160 278 C214 318 262 305 310 270 L320 360 L0 360 Z" fill={colors[1]} opacity=".24" /><path d="M0 304 C52 276 101 286 143 312 C199 347 253 327 320 294 L320 360 L0 360 Z" fill="#fff" opacity=".16" /></g>;
+}
+
+function AvatarLegs({ skin }: { skin: string }) {
+  return <g><rect fill="#2E3150" height="55" rx="18" width="42" x="106" y="274" /><rect fill="#2E3150" height="55" rx="18" width="42" x="172" y="274" /><rect fill={skin} height="18" rx="8" width="32" x="111" y="316" /><rect fill={skin} height="18" rx="8" width="32" x="177" y="316" /><path d="M97 326 C111 315 143 316 151 330 C154 337 148 344 139 344 H101 C92 344 89 334 97 326 Z" fill="#F6F7FB" /><path d="M169 330 C177 316 209 315 223 326 C231 334 228 344 219 344 H181 C172 344 166 337 169 330 Z" fill="#F6F7FB" /><path d="M99 337 H148" stroke="#D8DCE6" strokeLinecap="round" strokeWidth="5" /><path d="M172 337 H221" stroke="#D8DCE6" strokeLinecap="round" strokeWidth="5" /></g>;
 }
 
 function BackHair({ hair, style }: { hair: string; style: string }) {
@@ -122,17 +146,32 @@ function Headwear({ id, outfit }: { id: string; outfit: { primary: string; secon
   return <g><path d="M101 49 Q160 13 219 49 L229 79 H91 Z" fill={outfit.primary} /><ellipse cx="160" cy="79" fill={outfit.secondary} rx="83" ry="18" /><path d="M119 49 Q160 34 201 49" fill="none" stroke={outfit.accent} strokeLinecap="round" strokeWidth="7" /></g>;
 }
 
-export function GeneratedAvatar({ avatar }: { avatar: AvatarConfig }) {
+export function getAvatarHeaderContentColor(avatar?: Partial<AvatarConfig> | null) {
+  const background = avatar?.background ?? DEFAULTS.background;
+  return background === "background_navy" || background === "background_plum" ? "#FFFFFF" : "#25252F";
+}
+
+export function GeneratedAvatar({ avatar, variant = "head", showBackground = false }: {
+  avatar?: Partial<AvatarConfig> | null;
+  variant?: "full" | "head";
+  showBackground?: boolean;
+}) {
   const config = { ...DEFAULTS, ...avatar };
+  const gradientId = `avatarBackground${useId().replaceAll(":", "")}`;
   const skin = SKIN[config.skinTone] ?? SKIN.skin_08!;
   const hair = HAIR[config.hairColor] ?? HAIR.haircolor_charcoal!;
   const eye = EYES[config.eyeColor] ?? EYES.eyes_charcoal!;
   const outfit = OUTFITS[config.outfit] ?? OUTFITS.outfit_hoodie!;
   const bodyWidth = BODY_WIDTH[config.bodyShape] ?? BODY_WIDTH.body_balanced!;
   const bodyX = 160 - bodyWidth / 2;
+  const background = AVATAR_BACKGROUNDS[config.background as keyof typeof AVATAR_BACKGROUNDS] ?? AVATAR_BACKGROUNDS.background_lilac;
   return (
-    <svg aria-hidden="true" preserveAspectRatio="xMidYMid meet" viewBox="52 16 216 216">
+    <svg aria-hidden="true" preserveAspectRatio="xMidYMid meet" viewBox={variant === "head" ? "52 16 216 216" : "0 0 320 360"}>
+      {showBackground ? <AvatarBackground colors={background} gradientId={gradientId} /> : null}
+      {showBackground ? <circle cx="160" cy="149" fill="#fff" opacity=".24" r="126" /> : null}
+      <ellipse cx="160" cy="337" fill="#151521" opacity=".14" rx="91" ry="15" />
       <BackHair hair={hair} style={config.hairstyle} />
+      <AvatarLegs skin={skin} />
       <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} skin={skin} />
       <rect fill={skin} height="34" rx="15" width="42" x="139" y="180" />
       <ellipse cx="84" cy="139" fill={skin} rx="24" ry="29" />

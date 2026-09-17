@@ -21,20 +21,8 @@ export interface TierMeta {
   sparkle: boolean;
 }
 
-export interface AvatarConfig {
-  version?: number;
-  skinTone?: string;
-  bodyShape?: string;
-  expression?: string;
-  eyeColor?: string;
-  hairstyle?: string;
-  hairColor?: string;
-  eyewear?: string;
-  facialHair?: string;
-  headwear?: string;
-  outfit?: string;
-  background?: string;
-}
+export type { AvatarConfig } from "../../../shared/model/avatar";
+import type { AvatarConfig } from "../../../shared/model/avatar";
 
 export interface LeagueMember {
   id: string;
