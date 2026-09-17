@@ -179,12 +179,15 @@ export default function HomeScreen() {
     label: string;
     color: string;
     onPress?: () => void;
+    /** 투어가 가리키는 칸 (없으면 안 가리킨다) */
+    tourId?: string;
   }> = [
     {
       icon: "basket-outline",
       label: t("home.shop"),
       color: "#776ee2",
       onPress: () => router.push("/shop"),
+      tourId: "home.shop",
     },
     { icon: "bookmark-outline", label: t("home.challenge"), color: "#FAC775" },
     { icon: "search-outline", label: t("home.dictionary"), color: "#45B7D1" },
@@ -404,6 +407,12 @@ export default function HomeScreen() {
         </Animated.View>
         {/* 레벨 배너 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>
+          <TourTarget
+            tourId="home.levelTest"
+            style={styles.tourBlock}
+            // styles.levelBanner 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
+            inset={{ left: 16, right: 16, bottom: 12 }}
+          >
           <TouchableOpacity style={styles.levelBanner}>
             <Ionicons name="sparkles" size={20} color="#fff" />
             <View style={styles.levelBannerText}>
@@ -416,6 +425,7 @@ export default function HomeScreen() {
             </View>
             <Ionicons name="arrow-forward" size={20} color="#fff" />
           </TouchableOpacity>
+          </TourTarget>
         </Animated.View>
 
         {/* 이번 주 학습 */}
@@ -562,8 +572,9 @@ export default function HomeScreen() {
         >
           <View style={styles.quickGrid}>
             {quickAccess.map((item) => (
+              // 칸 하나만 투어 대상이라 래퍼를 조건부로 씌운다
+              <TourItem key={item.label} tourId={item.tourId}>
               <TouchableOpacity
-                key={item.label}
                 style={styles.quickItem}
                 onPress={item.onPress}
                 disabled={!item.onPress}
@@ -582,6 +593,7 @@ export default function HomeScreen() {
                 </View>
                 <Text style={styles.quickLabel}>{item.label}</Text>
               </TouchableOpacity>
+              </TourItem>
             ))}
           </View>
         </Animated.View>
@@ -1059,6 +1071,29 @@ const getStyles = (theme: ThemeColors) =>
     // 버튼은 bottom={0} 으로 안에 눕힌다 (안 그러면 두 번 띄워진다).
     tourFloating: { position: "absolute", right: 16, bottom: 130, zIndex: 40 },
   });
+/**
+ * 투어 대상일 때만 래퍼를 씌운다.
+ *
+ * 바로가기는 네 칸이 `flex: 1` 로 균등하게 나뉜다. 한 칸만 View 로 한 겹 더
+ * 감싸면 그 칸의 flex 가 래퍼로 옮겨 가서 **폭이 어긋난다.** 래퍼에도 flex: 1
+ * 을 줘야 원래대로 보인다.
+ */
+const TOUR_ITEM = { flex: 1 } as const;
+function TourItem({
+  tourId,
+  children,
+}: {
+  tourId?: string;
+  children: React.ReactNode;
+}) {
+  if (!tourId) return <>{children}</>;
+  return (
+    <TourTarget tourId={tourId} style={TOUR_ITEM}>
+      {children}
+    </TourTarget>
+  );
+}
+
 function setUserData(arg0: any): any {
   throw new Error("Function not implemented.");
 }

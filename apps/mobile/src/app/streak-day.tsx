@@ -16,6 +16,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import Svg, { Circle, Defs, RadialGradient, Stop } from "react-native-svg";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
 
@@ -103,10 +104,29 @@ export default function StreakDayScreen() {
   }, [params.week]);
 
   // ── 애니메이션 ──
+  //
+  // 불은 **한 가지 주기로 움직이면 기계처럼 보인다.** 그래서 서로 배수가 아닌
+  // 주기를 겹쳐 둔다 — 셋이 같은 자리로 돌아오는 데 한참 걸려서 반복이 안 보인다.
   const flame = useSharedValue(0); // 등장
-  const breathe = useSharedValue(0); // 계속 숨쉬기
+  const lick = useSharedValue(0); // 위로 날름 (세로로 늘고 가로로 좁아진다)
+  const sway = useSharedValue(0); // 밑동을 축으로 좌우로 휜다
+  const flicker = useSharedValue(0); // 밝기 떨림
   const glow = useSharedValue(0);
   const num = useSharedValue(0);
+
+  /** 끝없이 왕복 */
+  const pulse = (up: number, down: number, delay = 0) =>
+    withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: up, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: down, easing: Easing.inOut(Easing.sin) }),
+        ),
+        -1,
+        false,
+      ),
+    );
 
   useEffect(() => {
     // 불꽃이 아래에서 툭 튀어오른다
@@ -117,39 +137,41 @@ export default function StreakDayScreen() {
     // 숫자는 불꽃이 자리잡은 뒤 한 박자 늦게
     num.value = withDelay(420, withSpring(1, { damping: 9, stiffness: 170 }));
     // 뒤 광채는 끊임없이 부푼다 — 불이 살아 있는 느낌
-    glow.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-        withTiming(0, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-      ),
-      -1,
-      false,
-    );
-    // 불꽃 자체도 미세하게 흔들린다 (너무 크면 촌스럽다 — 3%)
-    breathe.value = withDelay(
-      700,
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration: 900, easing: Easing.inOut(Easing.sin) }),
-          withTiming(0, { duration: 900, easing: Easing.inOut(Easing.sin) }),
-        ),
-        -1,
-        false,
-      ),
-    );
+    glow.value = pulse(1400, 1700);
+    // 불꽃 자체의 움직임. 셋 다 주기가 다르다
+    lick.value = pulse(760, 820, 620);
+    sway.value = pulse(1230, 1180, 900);
+    flicker.value = pulse(190, 230, 620);
   }, []);
 
-  const flameStyle = useAnimatedStyle(() => ({
-    opacity: flame.value,
-    transform: [
-      { translateY: interpolate(flame.value, [0, 1], [70, 0]) },
-      { scale: flame.value * (1 + breathe.value * 0.03) },
-    ],
-  }));
+  /**
+   * 불꽃.
+   *
+   * 축이 **밑동**이다 (styles.flame 의 transformOrigin). 가운데를 축으로 두면
+   * 늘어날 때 불이 공중으로 떠오르고 휘어질 때 통째로 미끄러진다 — 불이 아니라
+   * 흔들리는 스티커로 보인다.
+   *
+   * 세로로 늘어날 때 가로는 좁아진다. 부피가 대충 유지돼야 "커졌다 작아졌다"가
+   * 아니라 "날름거린다" 로 읽힌다.
+   */
+  const flameStyle = useAnimatedStyle(() => {
+    const enter = flame.value;
+    return {
+      opacity: enter * (0.92 + flicker.value * 0.08),
+      transform: [
+        { translateY: interpolate(enter, [0, 1], [70, 0]) },
+        { translateX: interpolate(sway.value, [0, 1], [-3, 3]) },
+        { rotate: `${interpolate(sway.value, [0, 1], [-2.4, 2.4])}deg` },
+        { scaleX: enter * interpolate(lick.value, [0, 1], [1.03, 0.96]) },
+        { scaleY: enter * interpolate(lick.value, [0, 1], [0.97, 1.09]) },
+      ],
+    };
+  });
 
+  // 광채는 불꽃의 떨림을 같이 받는다 — 따로 놀면 두 개의 물체로 보인다
   const glowStyle = useAnimatedStyle(() => ({
-    opacity: 0.18 + glow.value * 0.22,
-    transform: [{ scale: 0.92 + glow.value * 0.16 }],
+    opacity: 0.14 + glow.value * 0.24 + flicker.value * 0.06,
+    transform: [{ scale: 0.88 + glow.value * 0.2 }],
   }));
 
   const numStyle = useAnimatedStyle(() => ({
@@ -188,13 +210,29 @@ export default function StreakDayScreen() {
 
       <View style={s.content}>
         <View style={s.flameArea}>
-          <Animated.View style={[s.glow, glowStyle]} pointerEvents="none" />
-          <Animated.View style={flameStyle}>
-            <FlameIcon width={220} height={240} />
-            <Animated.Text style={[s.streakNum, numStyle]}>
-              {streak}
-            </Animated.Text>
+          {/* 광채. 단색 원을 깔면 주황색 접시가 되지 별빛처럼 안 보인다 */}
+          <Animated.View style={[s.glow, glowStyle]} pointerEvents="none">
+            <Svg width="100%" height="100%" viewBox="0 0 100 100">
+              <Defs>
+                <RadialGradient id="streakGlow" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0%" stopColor="#FFC93C" stopOpacity="1" />
+                  <Stop offset="45%" stopColor="#FF9600" stopOpacity="0.5" />
+                  <Stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
+                </RadialGradient>
+              </Defs>
+              <Circle cx="50" cy="50" r="50" fill="url(#streakGlow)" />
+            </Svg>
           </Animated.View>
+
+          <Animated.View style={[s.flame, flameStyle]}>
+            <FlameIcon width={220} height={240} />
+          </Animated.View>
+
+          {/* 숫자는 불꽃 **밖**에 둔다. 안에 두면 날름거릴 때 같이 떨려서
+              읽히지가 않는다 — 불은 움직이고 숫자는 가만히 있어야 한다 */}
+          <Animated.Text style={[s.streakNum, numStyle]}>
+            {streak}
+          </Animated.Text>
         </View>
 
         <Animated.Text
@@ -359,17 +397,17 @@ const styles = (theme: ThemeColors) =>
     },
     glow: {
       position: "absolute",
-      width: 300,
-      height: 300,
-      borderRadius: 999,
-      backgroundColor: "#FF9600",
+      width: 340,
+      height: 340,
     },
+    // 불은 밑동을 축으로 움직인다. 가운데를 축으로 두면 공중으로 떠오른다
+    flame: { transformOrigin: "bottom center" },
     streakNum: {
       position: "absolute",
-      alignSelf: "center",
+      left: 0,
+      right: 0,
       // 불꽃 가운데. 숫자가 커도 중심이 안 흔들리게 폭을 고정한다
       top: "42%",
-      width: 220,
       textAlign: "center",
       fontSize: 76,
       fontWeight: "900",

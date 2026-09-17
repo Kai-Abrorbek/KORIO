@@ -24,6 +24,10 @@ export default {
         title: "Bugungi darsni shu yerdan boshlang",
         desc: "Shu tugma yetarli. Qayerda to'xtaganingizni eslab, davom ettiradi.",
       },
+      levelTest: {
+        title: "Avval darajangizni bilib oling",
+        desc: "3 daqiqa yetarli. Natijaga qarab qayerdan boshlashni aytamiz.",
+      },
       categories: {
         title: "Yo'nalishni almashtirish",
         desc: "Lug'at, grammatika, iboralar, tinglash yoki TOPIK — bugun nima xohlasangiz.",
@@ -35,6 +39,10 @@ export default {
       review: {
         title: "Faqat xatolarni takrorlash",
         desc: "Xato qilgan savollaringiz shu yerda. Ikki marta to'g'ri javob bersangiz, ro'yxatdan chiqadi.",
+      },
+      shop: {
+        title: "Yig'gan olmoslaringiz shu yerda",
+        desc: "Olmoslarga energiya va obuna kartalari olinadi. Shu yerdan qarang.",
       },
       ai: {
         title: "Savolingiz bo'lsa — so'rang",

@@ -24,6 +24,10 @@ export default {
         title: "Start today's lesson here",
         desc: "This one button is all you need — it remembers where you stopped and picks up there.",
       },
+      levelTest: {
+        title: "Find your level first",
+        desc: "Three minutes is enough. We use the result to pick where you start.",
+      },
       categories: {
         title: "Switch subject",
         desc: "Pick what you feel like today: vocabulary, grammar, phrases, listening or TOPIK.",
@@ -35,6 +39,10 @@ export default {
       review: {
         title: "Redo just your mistakes",
         desc: "Every question you got wrong lands here. Get it right twice and it leaves the list.",
+      },
+      shop: {
+        title: "Where your gems go",
+        desc: "Spend gems on energy and passes. Everything you own is here.",
       },
       ai: {
         title: "Ask whenever you're stuck",
