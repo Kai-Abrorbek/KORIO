@@ -104,10 +104,22 @@ export interface TopikQuestion {
   code: string;
   number: number;
   order: number;
+  type: string;
   points: number;
   prompt: TopikTextBlock[];
   stimulus: TopikStimulus | null;
   audio: TopikAudio | null;
+  writingConfig: {
+    fields: Array<{
+      key: string;
+      label: string;
+      minCharacters: number;
+      maxCharacters: number;
+      multiline: boolean;
+    }>;
+    recommendedMinutes: number;
+    guide: TopikI18nText;
+  } | null;
   choices: TopikChoice[];
   presentation: {
     template: string;
@@ -147,6 +159,7 @@ export interface TopikExamSession {
 export interface TopikAttemptAnswer {
   questionId: string;
   selectedChoiceKey: string;
+  writtenResponses?: Array<{ fieldKey: string; text: string }>;
   durationMs: number;
   answeredAt: string;
   usedHintKeys: string[];
@@ -168,11 +181,12 @@ export interface TopikAttempt {
 
 export interface TopikSaveAnswer {
   questionId: string;
-  selectedChoiceKey: string;
+  selectedChoiceKey?: string;
+  writtenResponses?: Array<{ fieldKey: string; text: string }>;
   durationMs: number;
-  answeredAt: string;
-  usedHintKeys: string[];
-  hintViewCount: number;
+  answeredAt?: string;
+  usedHintKeys?: string[];
+  hintViewCount?: number;
   solutionViewedAt?: string;
 }
 
@@ -205,6 +219,8 @@ export interface TopikSolution {
     explanation: TopikI18nText;
     targetSegmentKeys: string[];
   }>;
+  sampleAnswer?: string;
+  rubric?: TopikI18nText[];
 }
 
 export interface TopikRevealedSolution {
@@ -233,6 +249,7 @@ export interface TopikAttemptResult {
     questionId: string;
     number: number;
     selectedChoiceKey: string | null;
+    writtenResponses?: Array<{ fieldKey: string; text: string }>;
     correctChoiceKey: string;
     isCorrect: boolean | null;
     solution: TopikSolution;

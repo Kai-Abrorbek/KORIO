@@ -133,7 +133,7 @@ function ChoiceList({
   );
 }
 
-function StimulusCard({
+export function StimulusCard({
   stimulus,
   highlightedKeys,
 }: {

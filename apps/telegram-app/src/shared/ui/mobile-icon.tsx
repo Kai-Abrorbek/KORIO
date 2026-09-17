@@ -39,6 +39,7 @@ const IONICONS = {
   checkmark: 61981,
   "checkmark-circle": 61982,
   "checkmark-circle-outline": 61983,
+  "checkmark-done": 61985,
   "checkmark-done-circle": 61986,
   "checkmark-done-outline": 61989,
   "chatbubble-ellipses": 61970,
