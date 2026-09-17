@@ -44,6 +44,22 @@ export interface Progress {
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /**
+ * 이 기기에서 AEC 를 JS 로 켜고 끌 수 있나.
+ *
+ * ⚠️ react-native-audio-api 0.13.4 의 AudioRecorder 는 **생성자 인자를 받지
+ * 않는다.** (0.12 까지 있던 androidInputPreset / iosVoiceProcessing 이 사라졌다.)
+ * 그래서 AEC 손잡이는 오디오 세션 하나뿐이고, 그건 iOS 전용이다.
+ *
+ * iOS: `iosMode: 'voiceChat'` 가 Voice-Processing I/O(= 애플 AEC)를 켠다. 가능.
+ * Android: audioSource(VOICE_COMMUNICATION) 도 AcousticEchoCanceler 도 JS 로
+ *   노출되지 않는다 — 내부 miniaudio 기본 inputPreset 으로 열린다.
+ *   → Android 에서 이 스파이크가 재는 건 "AEC 가 얼마나 지우나"가 아니라
+ *     "아무 처리 없이 스피커 소리가 마이크에 얼마나 새나" 다. 그 수치가 FAIL 이면
+ *     Option A 는 Android 에서 그대로는 못 간다 (네이티브 패치가 필요하다).
+ */
+export const AEC_TOGGLE_SUPPORTED = Platform.OS === "ios";
+
+/**
  * 오디오 세션.
  *
  * ⚠️ **이 설정이 스파이크의 전부다.**
@@ -119,7 +135,10 @@ async function measure(
   // ── 1) 노이즈 플로어 ──
   collect(recorder, silence);
   await recorder.start();
-  report({ phase: aec ? "measureOn" : "measureOff", message: `${label} · 조용히 2초...` });
+  report({
+    phase: aec ? "measureOn" : "measureOff",
+    message: `${label} · 조용히 2초...`,
+  });
   await sleep(2000);
   recorder.clearOnAudioReady();
 
@@ -156,6 +175,8 @@ export interface SpikeResult {
   off: Run;
   platform: string;
   voiceSec: number;
+  /** false 면 ON/OFF 두 측정이 같은 조건이다 (Android). 결과 해석이 달라진다 */
+  aecToggleSupported: boolean;
 }
 
 export async function runAecSpike(
@@ -197,5 +218,11 @@ export async function runAecSpike(
   await AudioManager.setAudioSessionActivity(false);
   await ctx.close();
 
-  return { on, off, platform: `${Platform.OS} ${Platform.Version}`, voiceSec };
+  return {
+    on,
+    off,
+    platform: `${Platform.OS} ${Platform.Version}`,
+    voiceSec,
+    aecToggleSupported: AEC_TOGGLE_SUPPORTED,
+  };
 }

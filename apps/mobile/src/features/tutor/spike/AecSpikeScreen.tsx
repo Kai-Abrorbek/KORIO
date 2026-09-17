@@ -38,6 +38,8 @@ export default function AecSpikeScreen() {
   const [result, setResult] = useState<AecVerdict | null>(null);
   const [meta, setMeta] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  /** Android 에서는 AEC ON/OFF 가 같은 조건이다. 결과를 잘못 읽지 않게 알려준다 */
+  const [toggleOk, setToggleOk] = useState(true);
 
   const start = useCallback(async () => {
     setResult(null);
@@ -45,6 +47,7 @@ export default function AecSpikeScreen() {
     try {
       const r = await runAecSpike(setProgress);
       setResult(judge(r.on, r.off));
+      setToggleOk(r.aecToggleSupported);
       setMeta(
         `${r.platform} · 시험 신호 ${r.voiceSec.toFixed(1)}초 · ` +
           `프레임 ${r.on.playbackFrames.length}`,
@@ -127,6 +130,16 @@ export default function AecSpikeScreen() {
           </View>
           <Text style={s.reason}>{result.reason}</Text>
 
+          {!toggleOk && (
+            <Text style={s.warn}>
+              ⚠️ 이 플랫폼에서는 AEC 를 JS 로 켜고 끌 수 없다
+              (react-native-audio-api 0.13.4 에 Android audioSource 옵션이 없음).
+              아래 "켬/끔" 두 줄은 같은 조건에서 잰 값이라 ERLE 는 의미가 없다.
+              "말로 인식될 프레임" 만 보고, 그게 FAIL 이면 네이티브 쪽에서
+              VOICE_COMMUNICATION + AcousticEchoCanceler 를 직접 걸어야 한다.
+            </Text>
+          )}
+
           <View style={s.table}>
             <Row
               k="말로 인식될 프레임"
@@ -199,6 +212,16 @@ const s = StyleSheet.create({
     backgroundColor: "#1C1C26",
   },
   cardTitle: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  warn: {
+    fontSize: 12.5,
+    lineHeight: 19,
+    fontWeight: "700",
+    color: "#FFB020",
+    backgroundColor: "rgba(255,176,32,0.12)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
   verdictRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   verdict: { fontSize: 20, fontWeight: "900", letterSpacing: 0.5 },
   reason: { color: "#C9C9D4", fontSize: 13, lineHeight: 20, marginTop: 8 },

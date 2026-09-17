@@ -68,6 +68,9 @@ export function useRealtimeTutor() {
   >(null);
 
   const conn = useRef<RealtimeConnection | null>(null);
+  /** 마이크가 켜져 있나. 유저가 직접 끌 수 있다 */
+  const [micOn, setMicOn] = useState(true);
+  const micOnRef = useRef(true);
   /**
    * 선생님 목소리.
    *
@@ -198,8 +201,26 @@ export function useRealtimeTutor() {
       c?.setMicEnabled(false);
       await play();
     } finally {
-      c?.setMicEnabled(true);
+      // 유저가 스스로 음소거해 뒀으면 켜면 안 된다. 예문 하나 듣고 나서
+      // 마이크가 제멋대로 켜지면 그건 신뢰가 깨지는 종류의 버그다
+      c?.setMicEnabled(micOnRef.current);
     }
+  }, []);
+
+  /**
+   * 유저가 건 음소거.
+   *
+   * ref 를 같이 두는 이유: withMicMuted 가 예문 재생 뒤에 마이크를 되돌릴 때
+   * **그 시점의 값**을 봐야 한다. 클로저에 잡힌 state 를 쓰면 음소거해 둔 걸
+   * 모르고 다시 켠다.
+   */
+  const toggleMic = useCallback(() => {
+    setMicOn((on) => {
+      const next = !on;
+      micOnRef.current = next;
+      conn.current?.setMicEnabled(next);
+      return next;
+    });
   }, []);
 
   /** 마이크 권한. 안드로이드는 런타임 요청이 필요하다 */
@@ -453,6 +474,8 @@ export function useRealtimeTutor() {
     analyzing,
     clearSummary,
     withMicMuted,
+    micOn,
+    toggleMic,
     elapsedSec,
     maxSec: maxSec.current,
     busy: state === "connecting",

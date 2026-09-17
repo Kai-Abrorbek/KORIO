@@ -1330,6 +1330,18 @@ export default {
   },
   // en
   tutor: {
+    /** 통화 중 화면 (TutorCallScreen) */
+    call: {
+      progress: "Phrases {{done}}/{{total}}",
+      sayHi: "Say hello to get started",
+      todayExpression: "Today's phrase",
+      slower: "Slower",
+      replay: "Replay",
+      explain: "Explain",
+      mic: "Mic",
+      text: "Subtitles",
+      end: "End lesson",
+    },
     teacher: {
       title: "Who will you study with today?",
       lead: "Each teacher has a different voice and way of speaking. Have a listen.",

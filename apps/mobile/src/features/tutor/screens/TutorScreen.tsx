@@ -1,40 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { useCallback, useState } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  FadeIn,
-  FadeOut,
-} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { TutorOrb } from "../components/TutorOrb";
 import { TopicPicker } from "../components/TopicPicker";
 import { TeacherPicker } from "../components/TeacherPicker";
 import { useTutorPrefs } from "../store/tutor-prefs.store";
-import { TutorApi, type TutorTeacherCard } from "../services/tutor.api";
+import { type TutorTeacherCard } from "../services/tutor.api";
 import { TutorSummary } from "../components/TutorSummary";
 import type { TutorTopicCard } from "../services/tutor.api";
 import { useRealtimeTutor } from "../hooks/useRealtimeTutor";
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const fmt = (sec: number) =>
-  `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+import { TutorCallScreen } from "./TutorCallScreen";
 
 export default function TutorScreen() {
   const { t } = useTranslation();
@@ -55,9 +35,6 @@ export default function TutorScreen() {
   );
   const lastTeacherId = useTutorPrefs((st) => st.teacherId);
   const rememberTeacher = useTutorPrefs((st) => st.setTeacherId);
-  /** 지금 자막에 대한 우즈벡어 설명. 새 문장이 오면 지운다 */
-  const [explain, setExplain] = useState("");
-  const [explaining, setExplaining] = useState(false);
 
   const {
     state,
@@ -68,10 +45,13 @@ export default function TutorScreen() {
     userSaid,
     examples,
     targets,
+    teacher,
     summary,
     analyzing,
     clearSummary,
     withMicMuted,
+    micOn,
+    toggleMic,
     elapsedSec,
     maxSec,
     active,
@@ -88,31 +68,6 @@ export default function TutorScreen() {
       };
     }, [stop]),
   );
-
-  // 선생님이 새 문장을 말하면 앞 설명은 더 이상 그 문장 것이 아니다
-  useEffect(() => {
-    setExplain("");
-  }, [caption]);
-
-  const loadExplain = useCallback(async () => {
-    if (!caption.trim() || explaining) return;
-    setExplaining(true);
-    try {
-      const r = await TutorApi.explain(caption.trim());
-      setExplain(
-        [r.translation, r.explanation].filter(Boolean).join("\n\n") ||
-          t("tutor.explain.failed"),
-      );
-    } catch {
-      setExplain(t("tutor.explain.failed"));
-    } finally {
-      setExplaining(false);
-    }
-  }, [caption, explaining, t]);
-
-  const exhausted = !!quota && quota.allowedMin <= 0;
-  const remain = maxSec > 0 ? Math.max(0, maxSec - elapsedSec) : 0;
-  const nearEnd = active && maxSec > 0 && remain <= 30;
 
   const idle = picking && !active && !summary && !analyzing;
 
@@ -192,273 +147,42 @@ export default function TutorScreen() {
     );
   }
 
+  // 3단계: 통화 중.
   return (
-    <View style={s.container}>
-      {/* 상태에 따라 은은하게 물드는 배경 */}
-      <LinearGradient
-        colors={
-          state === "speaking"
-            ? [theme.primary + "22", theme.bg, theme.bg]
-            : state === "listening"
-              ? ["#58CC0220", theme.bg, theme.bg]
-              : [theme.surface, theme.bg, theme.bg]
-        }
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View style={[s.header, { paddingTop: insets.top + 6 }]}>
-        <Pressable
-          onPress={async () => {
-            await stop();
-            router.back();
-          }}
-          style={s.iconBtn}
-          hitSlop={8}
-        >
-          <Ionicons name="chevron-down" size={26} color={theme.text} />
-        </Pressable>
-
-        {active ? (
-          <View style={[s.timerPill, nearEnd && s.timerPillWarn]}>
-            <Ionicons
-              name="time-outline"
-              size={13}
-              color={nearEnd ? "#fff" : theme.textSecondary}
-            />
-            <Text style={[s.timerText, nearEnd && s.timerTextWarn]}>
-              {fmt(remain)}
-            </Text>
-          </View>
-        ) : (
-          <Text style={s.title} numberOfLines={1}>
-            {topic?.title ?? t("tutor.title")}
-          </Text>
-        )}
-
-        <View style={s.iconBtn} />
-      </View>
-
-      <View style={s.stage}>
-        <TutorOrb state={state} />
-
-        <Animated.Text
-          key={state}
-          entering={FadeIn.duration(220)}
-          style={s.statusText}
-        >
-          {t(`tutor.state.${state}`)}
-        </Animated.Text>
-      </View>
-
-      {/* 자막. 우즈벡어 설명은 소리가 아니라 여기로 나온다 */}
-      <View style={s.captionArea}>
-        {!!userSaid && active && (
-          <Animated.View entering={FadeIn} exiting={FadeOut} style={s.userBubble}>
-            <Text style={s.userText} numberOfLines={2}>
-              {userSaid}
-            </Text>
-          </Animated.View>
-        )}
-
-        {/* 선생님이 지금 말하고 있는 한 문장.
-            응답 전체를 흘리지 않는다 — 글자가 소리보다 앞서 달리고 문장이
-            뭉쳐서 읽기 어려웠다. 앞 문장은 흐리게 한 줄만 남긴다. */}
-        {!!caption && (
-          <View style={s.tutorBubbleWrap}>
-            {!!captionPrev && (
-              <Text style={s.captionPrev} numberOfLines={1}>
-                {captionPrev}
-              </Text>
-            )}
-            <Animated.View
-              key={caption}
-              entering={FadeIn.duration(180)}
-              style={s.tutorBubble}
-            >
-              <Text style={s.captionText}>{caption}</Text>
-            </Animated.View>
-          </View>
-        )}
-
-        {/* 우즈벡어 도움말.
-            소리는 계속 한국어다 — 여기서 우즈벡어 음성으로 넘어가면 한국어에
-            몰입할 이유가 사라진다. 막혔을 때 글자로만 도와준다.
-            눌렀을 때만 만든다: 매 응답마다 미리 번역하면 대부분 그냥 버려진다. */}
-        {!!caption && active && (
-          <View style={s.explainWrap}>
-            {explain ? (
-              <Text style={s.explainText}>{explain}</Text>
-            ) : (
-              <Pressable
-                onPress={() => void loadExplain()}
-                disabled={explaining}
-                hitSlop={8}
-                style={s.explainBtn}
-              >
-                <Text style={s.explainBtnText}>
-                  {explaining
-                    ? t("tutor.explain.loading")
-                    : t("tutor.explain.show")}
-                </Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        {/* 아직 대화 내용이 없을 때 오늘 연습할 표현을 미리 보여준다.
-            무슨 말을 해야 할지 몰라 얼어붙는 걸 막는 두 번째 장치다. */}
-        {active && !caption && targets.length > 0 && (
-          <View style={s.targetBox}>
-            <Text style={s.targetLabel}>{t("tutor.todayExpressions")}</Text>
-            {targets.slice(0, 4).map((ex) => (
-              <Pressable
-                key={ex}
-                style={s.targetRow}
-                onPress={() =>
-                  void withMicMuted(async () => {
-                    await speak(ex, "ko-KR");
-                  })
-                }
-              >
-                <Ionicons name="volume-medium" size={14} color={theme.primary} />
-                <Text style={s.targetText} numberOfLines={1}>
-                  {ex}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
-
-        {examples.length > 0 && active && (
-          <View style={s.exampleRow}>
-            {examples.map((ex) => (
-              <Pressable
-                key={ex}
-                style={s.exampleChip}
-                onPress={() =>
-                  // 대화 모델 목소리는 영어 우선이라 한국어 발음이 정확하지
-                  // 않다. 따라 할 문장은 Azure ko-KR 목소리로 들려준다.
-                  // 재생 동안 마이크를 꺼야 AI 가 자기 예문에 반응하지 않는다.
-                  void withMicMuted(async () => {
-                    await speak(ex, "ko-KR");
-                  })
-                }
-              >
-                <Ionicons name="volume-high" size={14} color={theme.primary} />
-                <Text style={s.exampleText} numberOfLines={1}>
-                  {ex}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
-
-        {analyzing && (
-          <View style={s.analyzingBox}>
-            <ActivityIndicator color={theme.primary} />
-            <Text style={s.analyzingText}>{t("tutor.summary.analyzing")}</Text>
-          </View>
-        )}
-
-        {!active && !analyzing && !caption && !!quota && (
-          <View style={s.quotaBox}>
-            <View style={s.quotaRow}>
-              <Ionicons name="mic-outline" size={15} color={theme.textSecondary} />
-              <Text style={s.quotaText}>
-                {t("tutor.quotaLeft", {
-                  min: Math.max(0, quota.dailyLimitMin - quota.dailyUsedMin),
-                  limit: quota.dailyLimitMin,
-                })}
-              </Text>
-            </View>
-            {!quota.isMax && (
-              <Pressable onPress={() => router.push("/premium")} hitSlop={6}>
-                <Text style={s.quotaUpsell}>{t("tutor.upsellMax")}</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        {!!error && (
-          <Text style={s.error}>
-            {t(`tutor.err.${error}`, t("tutor.err.generic"))}
-          </Text>
-        )}
-      </View>
-
-      <View style={[s.footer, { paddingBottom: insets.bottom + 24 }]}>
-        {active ? (
-          <CallButton
-            icon="close"
-            label={t("tutor.end")}
-            onPress={stop}
-            bg="#E5533D"
-            shadow="#B8341F"
-            s={s}
-          />
-        ) : (
-          <CallButton
-            icon="refresh"
-            label={t("tutor.pickAnother")}
-            onPress={() => setPicking(true)}
-            disabled={busy || exhausted || analyzing}
-            bg={theme.primary}
-            shadow="#5B4DD4"
-            s={s}
-          />
-        )}
-      </View>
-    </View>
-  );
-}
-
-/** 통화 버튼. 누르면 바텀보더가 줄어들며 눌리는 느낌이 난다 */
-function CallButton({
-  icon,
-  label,
-  onPress,
-  disabled,
-  bg,
-  shadow,
-  s,
-}: {
-  icon: any;
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-  bg: string;
-  shadow: string;
-  s: any;
-}) {
-  const press = useSharedValue(0);
-  const style = useAnimatedStyle(() => ({
-    transform: [{ translateY: press.value * 3 }],
-    borderBottomWidth: 5 - press.value * 3,
-  }));
-
-  return (
-    <AnimatedPressable
-      onPressIn={() => (press.value = withTiming(1, { duration: 70 }))}
-      onPressOut={() => (press.value = withTiming(0, { duration: 130 }))}
-      onPress={onPress}
-      disabled={disabled}
-      style={[
-        s.cta,
-        { backgroundColor: bg, borderColor: shadow },
-        disabled && s.ctaDisabled,
-        style,
-      ]}
-    >
-      <Ionicons name={icon} size={22} color="#fff" />
-      <Text style={s.ctaText}>{label}</Text>
-    </AnimatedPressable>
+    <TutorCallScreen
+      state={state}
+      caption={caption}
+      captionPrev={captionPrev}
+      userSaid={userSaid}
+      examples={examples}
+      targets={targets}
+      teacher={teacher}
+      teacherName={pickedTeacher?.name}
+      topicTitle={topic?.title}
+      elapsedSec={elapsedSec}
+      maxSec={maxSec}
+      active={active}
+      busy={busy}
+      analyzing={analyzing}
+      micOn={micOn}
+      error={error}
+      quota={quota}
+      toggleMic={toggleMic}
+      withMicMuted={withMicMuted}
+      onEnd={() => void stop()}
+      onClose={async () => {
+        await stop();
+        router.back();
+      }}
+      onPickAnother={() => setPicking(true)}
+      onUpsell={() => router.push("/premium")}
+    />
   );
 }
 
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.bg },
-
     header: {
       flexDirection: "row",
       alignItems: "center",
@@ -466,189 +190,11 @@ const styles = (theme: ThemeColors) =>
       paddingHorizontal: 12,
       paddingBottom: 4,
     },
-    iconBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+    iconBtn: {
+      width: 40,
+      height: 40,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     title: { fontSize: 16, fontWeight: "900", color: theme.text },
-    timerPill: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 5,
-      backgroundColor: theme.surface,
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderWidth: 1,
-      borderColor: theme.border,
-    },
-    timerPillWarn: { backgroundColor: "#E5533D", borderColor: "#B8341F" },
-    timerText: {
-      fontSize: 13,
-      fontWeight: "800",
-      color: theme.textSecondary,
-      fontVariant: ["tabular-nums"],
-    },
-    timerTextWarn: { color: "#fff" },
-
-    stage: { flex: 1, alignItems: "center", justifyContent: "center" },
-    statusText: {
-      fontSize: 17,
-      fontWeight: "800",
-      color: theme.text,
-      marginTop: -14,
-    },
-
-    captionArea: {
-      minHeight: 132,
-      paddingHorizontal: 24,
-      alignItems: "center",
-      justifyContent: "flex-start",
-      gap: 10,
-    },
-    userBubble: {
-      alignSelf: "flex-end",
-      maxWidth: "82%",
-      backgroundColor: "#58CC02",
-      borderRadius: 16,
-      borderBottomRightRadius: 4,
-      paddingHorizontal: 14,
-      paddingVertical: 9,
-    },
-    userText: { color: "#fff", fontSize: 14, fontWeight: "700" },
-
-    tutorBubbleWrap: { alignSelf: "stretch", alignItems: "center", gap: 6 },
-    captionPrev: {
-      fontSize: 13,
-      fontWeight: "600",
-      color: theme.textSecondary,
-      opacity: 0.55,
-      textAlign: "center",
-      maxWidth: "88%",
-    },
-    tutorBubble: {
-      maxWidth: "92%",
-      backgroundColor: theme.surface,
-      borderRadius: 18,
-      borderWidth: 1.5,
-      borderColor: theme.border,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-    },
-    explainWrap: { marginTop: 10, alignSelf: "stretch", alignItems: "center" },
-    explainBtn: {
-      paddingHorizontal: 14,
-      paddingVertical: 7,
-      borderRadius: 999,
-      backgroundColor: theme.surface,
-      borderWidth: 1.5,
-      borderColor: theme.border,
-    },
-    explainBtnText: { fontSize: 13, fontWeight: "700", color: theme.primary },
-    explainText: {
-      fontSize: 14,
-      lineHeight: 21,
-      fontWeight: "500",
-      color: theme.textSecondary,
-      textAlign: "center",
-      paddingHorizontal: 12,
-    },
-    captionInner: { paddingVertical: 2 },
-    captionText: {
-      fontSize: 18,
-      lineHeight: 28,
-      fontWeight: "700",
-      color: theme.text,
-      textAlign: "center",
-      letterSpacing: -0.2,
-    },
-
-    exampleRow: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      justifyContent: "center",
-    },
-    exampleChip: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
-      maxWidth: "92%",
-      backgroundColor: theme.primary + "14",
-      borderWidth: 1,
-      borderColor: theme.primary + "44",
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      paddingVertical: 7,
-    },
-    exampleText: {
-      fontSize: 14,
-      fontWeight: "800",
-      color: theme.primary,
-      flexShrink: 1,
-    },
-
-    targetBox: { alignSelf: "stretch", gap: 6 },
-    targetLabel: {
-      fontSize: 12,
-      fontWeight: "800",
-      color: theme.textSecondary,
-      textAlign: "center",
-      marginBottom: 2,
-    },
-    targetRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.border,
-      borderRadius: 12,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-    },
-    targetText: {
-      fontSize: 14,
-      fontWeight: "700",
-      color: theme.text,
-      flexShrink: 1,
-    },
-
-    analyzingBox: {
-      alignItems: "center",
-      gap: 10,
-      paddingTop: 16,
-    },
-    analyzingText: {
-      fontSize: 14,
-      fontWeight: "800",
-      color: theme.textSecondary,
-    },
-
-    quotaBox: { alignItems: "center", gap: 8, paddingTop: 12 },
-    quotaRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-    quotaText: { fontSize: 14, fontWeight: "700", color: theme.textSecondary },
-    quotaUpsell: {
-      fontSize: 14,
-      color: theme.primary,
-      fontWeight: "900",
-      textDecorationLine: "underline",
-    },
-
-    error: {
-      fontSize: 14,
-      color: "#E5533D",
-      textAlign: "center",
-      lineHeight: 20,
-      paddingTop: 8,
-    },
-
-    footer: { paddingHorizontal: 28, paddingTop: 8 },
-    cta: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 9,
-      borderRadius: 999,
-      paddingVertical: 18,
-    },
-    ctaDisabled: { opacity: 0.5 },
-    ctaText: { color: "#fff", fontSize: 17, fontWeight: "900" },
   });

@@ -1335,6 +1335,18 @@ export default {
   },
   // uz
   tutor: {
+    /** 통화 중 화면 (TutorCallScreen) */
+    call: {
+      progress: "Ibora {{done}}/{{total}}",
+      sayHi: "Avval salomlashing",
+      todayExpression: "Bugungi ibora",
+      slower: "Sekinroq",
+      replay: "Qayta eshitish",
+      explain: "Izoh",
+      mic: "Mikrofon",
+      text: "Matn",
+      end: "Darsni tugatish",
+    },
     teacher: {
       title: "Bugun kim bilan o'rganamiz?",
       lead: "Har bir ustozning ovozi va gapirish uslubi boshqacha. Tinglab ko'ring.",

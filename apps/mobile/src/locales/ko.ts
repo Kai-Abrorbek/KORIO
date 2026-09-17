@@ -1328,6 +1328,18 @@ export default {
   },
   // ko
   tutor: {
+    /** 통화 중 화면 (TutorCallScreen) */
+    call: {
+      progress: "표현 {{done}}/{{total}}",
+      sayHi: "먼저 인사해 보세요",
+      todayExpression: "오늘의 표현",
+      slower: "천천히",
+      replay: "다시 듣기",
+      explain: "설명",
+      mic: "마이크",
+      text: "자막",
+      end: "수업 종료",
+    },
     teacher: {
       title: "오늘 누구와 공부할까요?",
       lead: "선생님마다 목소리와 말투가 달라요. 들어보고 골라보세요.",

@@ -1335,6 +1335,18 @@ export default {
   },
   // ru
   tutor: {
+    /** 통화 중 화면 (TutorCallScreen) */
+    call: {
+      progress: "Фразы {{done}}/{{total}}",
+      sayHi: "Поздоровайтесь, чтобы начать",
+      todayExpression: "Фраза дня",
+      slower: "Медленнее",
+      replay: "Ещё раз",
+      explain: "Объяснить",
+      mic: "Микрофон",
+      text: "Субтитры",
+      end: "Завершить урок",
+    },
     teacher: {
       title: "С кем позанимаемся сегодня?",
       lead: "У каждого преподавателя свой голос и манера речи. Послушайте.",
