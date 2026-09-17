@@ -304,6 +304,21 @@ export interface TopikHistoryItem {
   submittedAt: string;
 }
 
+export interface TopikRecipeSummary {
+  groupCode: string;
+  section: string;
+  label: TopikI18nText;
+  title: TopikI18nText;
+  fromNumber: number;
+  toNumber: number;
+  targetLevel: number;
+  order: number;
+  ready: boolean;
+  exampleCount: number;
+  practiceCount: number;
+  grammarCount: number;
+}
+
 export function flattenTopikQuestions(session: TopikExamSession | null) {
   if (!session) return [];
   return session.groups.flatMap((group) =>

@@ -8,6 +8,7 @@ import type {
   TopikHistoryItem,
   TopikLearningSupport,
   TopikQuestionPerformance,
+  TopikRecipeSummary,
   TopikRevealedSolution,
   TopikSaveAnswer,
   TopikStatsSummary,
@@ -155,4 +156,10 @@ export function getTopikHistory(
   limit = 6,
 ) {
   return request<TopikHistoryItem[]>(`/topik/stats/history?${statsQuery(examType, section, limit)}`);
+}
+
+export function getTopikRecipes(request: AuthenticatedRequest, section: string) {
+  return request<TopikRecipeSummary[]>(
+    `/topik/recipes?section=${encodeURIComponent(section)}`,
+  );
 }
