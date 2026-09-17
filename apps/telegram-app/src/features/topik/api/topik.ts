@@ -8,6 +8,9 @@ import type {
   TopikHistoryItem,
   TopikLearningSupport,
   TopikQuestionPerformance,
+  TopikRecipeDetail,
+  TopikRecipePractice,
+  TopikRecipeSolutionEntry,
   TopikRecipeSummary,
   TopikRevealedSolution,
   TopikSaveAnswer,
@@ -161,5 +164,32 @@ export function getTopikHistory(
 export function getTopikRecipes(request: AuthenticatedRequest, section: string) {
   return request<TopikRecipeSummary[]>(
     `/topik/recipes?section=${encodeURIComponent(section)}`,
+  );
+}
+
+export function getTopikRecipe(
+  request: AuthenticatedRequest,
+  groupCode: string,
+) {
+  return request<TopikRecipeDetail>(
+    `/topik/recipes/${encodeURIComponent(groupCode)}`,
+  );
+}
+
+export function getTopikRecipePractice(
+  request: AuthenticatedRequest,
+  groupCode: string,
+) {
+  return request<TopikRecipePractice>(
+    `/topik/recipes/${encodeURIComponent(groupCode)}/practice`,
+  );
+}
+
+export function getTopikRecipePracticeSolutions(
+  request: AuthenticatedRequest,
+  groupCode: string,
+) {
+  return request<TopikRecipeSolutionEntry[]>(
+    `/topik/recipes/${encodeURIComponent(groupCode)}/practice/solutions`,
   );
 }

@@ -81,7 +81,7 @@ function listeningAsset(key: string) {
   return `/topik/listening/listening-mock-1/${key}.png`;
 }
 
-function ChoiceList({
+export function ChoiceList({
   choices,
   layout,
   selectedChoiceKey,

@@ -319,6 +319,92 @@ export interface TopikRecipeSummary {
   grammarCount: number;
 }
 
+export interface TopikRecipeTip {
+  order: number;
+  text: TopikI18nText;
+}
+
+export interface TopikGrammarEntry {
+  rank: number;
+  form: string;
+  meanings: TopikI18nText[];
+  examples: string[];
+  highlights: string[];
+}
+
+export interface TopikGrammarSection {
+  key: string;
+  title: TopikI18nText;
+  entries: TopikGrammarEntry[];
+  tips: TopikI18nText[];
+}
+
+export interface TopikRecipeSolutionStep {
+  key: string;
+  order: number;
+  title: TopikI18nText;
+  explanation: TopikI18nText;
+}
+
+export interface TopikRecipeChoiceNote {
+  choiceKey: string;
+  note: TopikI18nText;
+}
+
+export interface TopikRecipeSolution {
+  explanation: TopikI18nText;
+  strategy: TopikI18nText;
+  steps: TopikRecipeSolutionStep[];
+  choiceNotes: TopikRecipeChoiceNote[];
+  sampleAnswer?: string;
+  rubric?: TopikI18nText[];
+}
+
+export interface TopikRecipeQuestion {
+  id: string;
+  code: string;
+  number: number;
+  type: string;
+  responseType?: "multiple_choice" | "written";
+  points: number;
+  prompt: TopikTextBlock[];
+  stimulus?: TopikStimulus | null;
+  audio?: TopikAudio | null;
+  writingConfig?: TopikQuestion["writingConfig"];
+  presentation?: TopikQuestion["presentation"];
+  choices: TopikChoice[];
+  tags: string[];
+  difficulty: number;
+  correctChoiceKey?: string;
+  solution?: TopikRecipeSolution | null;
+}
+
+export interface TopikRecipeDetail {
+  groupCode: string;
+  section: string;
+  label: TopikI18nText;
+  title: TopikI18nText;
+  intro: TopikI18nText;
+  targetLevel: number;
+  goldenRecipe: TopikRecipeTip[];
+  grammarSections: TopikGrammarSection[];
+  examples: TopikRecipeQuestion[];
+  practiceCount: number;
+}
+
+export interface TopikRecipePractice {
+  groupCode: string;
+  label: TopikI18nText;
+  title: TopikI18nText;
+  questions: TopikRecipeQuestion[];
+}
+
+export interface TopikRecipeSolutionEntry {
+  id: string;
+  correctChoiceKey: string;
+  solution: TopikRecipeSolution | null;
+}
+
 export function flattenTopikQuestions(session: TopikExamSession | null) {
   if (!session) return [];
   return session.groups.flatMap((group) =>
