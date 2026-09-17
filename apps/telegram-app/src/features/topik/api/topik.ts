@@ -5,9 +5,12 @@ import type {
   TopikCompletedExam,
   TopikExam,
   TopikExamSession,
+  TopikHistoryItem,
   TopikLearningSupport,
+  TopikQuestionPerformance,
   TopikRevealedSolution,
   TopikSaveAnswer,
+  TopikStatsSummary,
 } from "../model/topik";
 
 type AuthenticatedRequest = <T>(
@@ -110,4 +113,37 @@ export function revealTopikSolution(
     `/topik/attempts/${encodeURIComponent(attemptId)}/questions/${encodeURIComponent(questionId)}/solution/reveal`,
     { body: JSON.stringify({}), method: "POST" },
   );
+}
+
+function statsQuery(examType: "topik_i" | "topik_ii", section?: string, limit?: number) {
+  const params = new URLSearchParams({ examType });
+  if (section) params.set("section", section);
+  if (limit !== undefined) params.set("limit", String(limit));
+  return params.toString();
+}
+
+export function getTopikStatsSummary(
+  request: AuthenticatedRequest,
+  examType: "topik_i" | "topik_ii",
+  section?: string,
+) {
+  return request<TopikStatsSummary>(`/topik/stats/summary?${statsQuery(examType, section)}`);
+}
+
+export function getTopikWeakQuestions(
+  request: AuthenticatedRequest,
+  examType: "topik_i" | "topik_ii",
+  section?: string,
+  limit = 6,
+) {
+  return request<TopikQuestionPerformance[]>(`/topik/stats/weak-questions?${statsQuery(examType, section, limit)}`);
+}
+
+export function getTopikHistory(
+  request: AuthenticatedRequest,
+  examType: "topik_i" | "topik_ii",
+  section?: string,
+  limit = 6,
+) {
+  return request<TopikHistoryItem[]>(`/topik/stats/history?${statsQuery(examType, section, limit)}`);
 }

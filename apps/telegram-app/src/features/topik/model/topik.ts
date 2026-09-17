@@ -239,6 +239,54 @@ export interface TopikAttemptResult {
   }>;
 }
 
+export interface TopikTypePerformance {
+  questionType: string;
+  attempted: number;
+  correct: number;
+  accuracy: number;
+  averageDurationMs: number;
+  hintViewCount: number;
+  solutionViewCount: number;
+  correctWithoutHintCount: number;
+}
+
+export interface TopikStatsSummary {
+  mockExamCount: number;
+  practiceCount: number;
+  guidedCount: number;
+  totalQuestions: number;
+  correctQuestions: number;
+  accuracy: number;
+  totalStudySeconds: number;
+  correctWithoutHintCount: number;
+  bestScore: number;
+  lastScore: number;
+  averageScore: number;
+  questionTypes: TopikTypePerformance[];
+}
+
+export interface TopikQuestionPerformance {
+  questionId: string;
+  questionVersion: number;
+  examRound: number | null;
+  questionNumber: number;
+  questionType: string;
+  section: TopikSection;
+  accuracy: number;
+  consecutiveWrong: number;
+}
+
+export interface TopikHistoryItem {
+  attemptId: string;
+  examCode: string;
+  section: TopikSection;
+  examRound: number | null;
+  mode: TopikAttemptMode;
+  score: number;
+  accuracy: number;
+  submittedAt: string;
+}
+
 export function flattenTopikQuestions(session: TopikExamSession | null) {
   if (!session) return [];
   return session.groups.flatMap((group) =>
