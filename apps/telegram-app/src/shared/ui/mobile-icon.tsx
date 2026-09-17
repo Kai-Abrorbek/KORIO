@@ -85,6 +85,7 @@ const IONICONS = {
   "document-text-outline": 62132,
   "ear-outline": 62144,
   dice: 62116,
+  "dice-outline": 62117,
   "ellipsis-horizontal": 62158,
   "ellipse-outline": 62156,
   eye: 62182,
