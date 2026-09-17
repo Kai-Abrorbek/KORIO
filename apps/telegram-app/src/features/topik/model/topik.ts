@@ -218,9 +218,14 @@ export interface TopikRevealedSolution {
 
 export interface TopikAttemptResult {
   attemptId: string;
+  examId: string;
   examCode: string;
+  examType: "topik_i" | "topik_ii";
+  section: TopikSection;
   mode: TopikAttemptMode;
   status: "submitted";
+  correctCount: number;
+  totalQuestions: number;
   score: number;
   elapsedSeconds: number;
   submittedAt: string;
