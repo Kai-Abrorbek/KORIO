@@ -18,6 +18,13 @@ interface PreparedSpeech {
 const DEFAULT_KOREAN_VOICE = "ko-KR-SunHiNeural";
 const MAX_CACHED_SPEECH = 32;
 
+export interface KoreanSpeechOptions {
+  gender?: "female" | "male";
+  onEnd?: () => void;
+  rate?: number;
+  voice?: string;
+}
+
 function browserSpeech(text: string, rate: number, onEnd: () => void) {
   if (!("speechSynthesis" in window)) {
     onEnd();
@@ -64,8 +71,13 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   }, []);
 
   const prepare = useCallback(
-    async (text: string, rate = 1): Promise<PreparedSpeech> => {
-      const cacheKey = `${rate}:${text}`;
+    async (
+      text: string,
+      rate = 1,
+      gender: "female" | "male" = "female",
+      voice = DEFAULT_KOREAN_VOICE,
+    ): Promise<PreparedSpeech> => {
+      const cacheKey = `${voice}:${rate}:${text}`;
       const ready = preparedRef.current.get(cacheKey);
       if (ready) {
         preparedRef.current.delete(cacheKey);
@@ -80,11 +92,11 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const preparation = (async () => {
         const { audioId } = await request<PreparedSpeechResponse>("/tts/speech", {
           body: JSON.stringify({
-            gender: "female",
+            gender,
             language: "ko-KR",
             rate,
             text,
-            voice: DEFAULT_KOREAN_VOICE,
+            voice,
           }),
           method: "POST",
         });
@@ -146,7 +158,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   }, []);
 
   const speak = useCallback(
-    (rawText: string, options?: { onEnd?: () => void; rate?: number }) => {
+    (rawText: string, options?: KoreanSpeechOptions) => {
       const text = rawText.trim();
       if (!text || typeof window === "undefined") return;
       const rate = options?.rate ?? 1;
@@ -173,7 +185,12 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const resume = context?.resume().catch(() => undefined);
       void (async () => {
         try {
-          const prepared = await prepare(text, rate);
+          const prepared = await prepare(
+            text,
+            rate,
+            options?.gender,
+            options?.voice,
+          );
           await resume;
           if (runIdRef.current !== runId) return;
 
@@ -225,7 +242,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const unique = [...new Set(texts.map((text) => text.trim()).filter(Boolean))];
       void Promise.all(
         unique.map((text) =>
-          preparedRef.current.has(`1:${text}`)
+          preparedRef.current.has(`${DEFAULT_KOREAN_VOICE}:1:${text}`)
             ? Promise.resolve()
             : prepare(text, 1).then(() => undefined).catch(() => undefined),
         ),

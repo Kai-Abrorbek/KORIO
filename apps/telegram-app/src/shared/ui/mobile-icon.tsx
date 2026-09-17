@@ -6,6 +6,7 @@ const IONICONS = {
   albums: 61711,
   alert: 61714,
   "alert-circle": 61715,
+  "alert-circle-outline": 61716,
   "albums-outline": 61712,
   "arrow-back": 61735,
   "arrow-down": 61741,
@@ -49,6 +50,7 @@ const IONICONS = {
   "chevron-up": 62017,
   close: 62026,
   "close-circle": 62027,
+  "cloud-done-outline": 62037,
   "cloud-offline-outline": 62043,
   compass: 62083,
   "compass-outline": 62084,
@@ -66,6 +68,7 @@ const IONICONS = {
   "fast-food": 62191,
   "eye-off-outline": 62184,
   "eye-outline": 62186,
+  "exit-outline": 62174,
   flame: 62227,
   flag: 62224,
   flash: 62230,
@@ -122,6 +125,7 @@ const IONICONS = {
   people: 62623,
   person: 62629,
   "person-outline": 62636,
+  "phone-portrait-outline": 62645,
   play: 62662,
   pulse: 62710,
   podium: 62692,
@@ -143,6 +147,7 @@ const IONICONS = {
   "school-outline": 62813,
   search: 62815,
   "search-outline": 62819,
+  send: 62821,
   "settings-outline": 62828,
   "share-outline": 62834,
   sparkles: 62860,
@@ -172,6 +177,7 @@ const IONICONS = {
   "volume-high-outline": 62996,
   "volume-medium": 63001,
   "volume-medium-outline": 63002,
+  "warning-outline": 63017,
 } as const;
 
 const MATERIAL_COMMUNITY = {
