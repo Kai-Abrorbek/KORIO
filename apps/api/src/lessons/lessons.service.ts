@@ -249,7 +249,9 @@ export class LessonsService {
       level: q.level,
       question: this.extractI18n(q.instruction, lang),
       sourceText: this.translateSourceText(q, lang),
-      npcText: q.npcText || '',
+      // 번역이 있으면 학습자 언어로. 없으면 한국어 원문 그대로
+      // (error_hunt·reply_builder 처럼 한국어여야만 성립하는 문항이 그쪽)
+      npcText: this.extractI18n(q.npcTextI18n, lang) || q.npcText || '',
       options: usesNativeBuilder ? nativeOptions : q.options || [],
       choices: q.choices || [], // ← 이거 추가
       answer: usesNativeBuilder && nativeAnswer ? nativeAnswer : q.answer,

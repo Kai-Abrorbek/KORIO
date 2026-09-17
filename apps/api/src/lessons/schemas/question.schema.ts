@@ -132,6 +132,20 @@ export class Question {
   @Prop({ default: '' })
   npcText: string;
 
+  /**
+   * 말풍선을 학습자 언어로 내보낼 때 쓰는 번역.
+   *
+   * `npcText` 를 통째로 다국어로 바꾸지 않은 이유: 타입마다 말풍선의 **역할이
+   * 다르다.** error_hunt 는 오류를 찾아야 할 한국어 문장이고, reply_builder 는
+   * 대답할 상대의 한국어 발화다 — 번역하면 문제가 성립하지 않는다.
+   * 반면 type_answer 의 말풍선은 "무엇을 쓰라"는 **단서**라서 한국어로 두면
+   * 그걸 읽느라 정작 풀어야 할 문제를 못 푼다.
+   *
+   * 그래서 번역이 의미 있는 문항에만 이 필드를 채우고, 없으면 npcText 그대로 간다.
+   */
+  @Prop({ type: I18nText, default: {} })
+  npcTextI18n: I18nText;
+
   // 보기 (sentence_builder, word_arrange 등)
   @Prop([String])
   options: string[];

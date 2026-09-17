@@ -7369,6 +7369,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '학생 카드에서 이 사람의 이름을 확인해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '학생 카드에서 이 사람의 이름을 확인해 보세요.',
+      uz: 'Talaba kartasida bu odamning ism-sharifi qaysi maydonda yozilganini toping.',
+      en: "Find the field on the student card that holds this person's full name.",
+      ru: 'Найдите на студенческой карточке поле с полным именем этого человека.',
+    },
     sentenceTemplate: '이 사람의 ___은 마이클 존스입니다.',
     blankAnswers: ['성명'],
     acceptedAnswers: [],
@@ -8311,6 +8318,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '전화 말고 인터넷으로 연락할 수 있는 정보를 적어 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '전화 말고 인터넷으로 연락할 수 있는 정보를 적어 보세요.',
+      uz: "Telefon orqali emas, internet orqali bog'lanish mumkin bo'lgan ma'lumotni yozing.",
+      en: 'Write the contact detail used over the internet, not by phone.',
+      ru: 'Напишите контакт, по которому связываются через интернет, а не по телефону.',
+    },
     sentenceTemplate: '제 ___은 goodboy@moonjin.com입니다.',
     blankAnswers: ['이메일'],
     acceptedAnswers: [],
@@ -8828,6 +8842,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '학생 카드의 두 항목 이름을 직접 입력해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '학생 카드의 두 항목 이름을 직접 입력해 보세요.',
+      uz: "Talaba kartasidagi ikkita maydon nomini o'zingiz yozing.",
+      en: 'Type the names of the two fields on the student card yourself.',
+      ru: 'Впишите названия двух полей студенческой карточки.',
+    },
     sentenceTemplate: '___은 미국이고 ___는 없음입니다.',
     blankAnswers: ['국적', '종교'],
     acceptedAnswers: [],
@@ -9355,6 +9376,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '한 달마다 반복된다는 뜻의 말을 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '한 달마다 반복된다는 뜻의 말을 입력하세요.',
+      uz: "Har oyda takrorlanishini bildiruvchi so'zni yozing.",
+      en: 'Type the word that means something repeats every month.',
+      ru: 'Напишите слово со значением «каждый месяц».',
+    },
     sentenceTemplate: '저는 ___ 잡지를 한 권 사요.',
     blankAnswers: ['매달'],
     acceptedAnswers: [],
@@ -9853,6 +9881,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '“때때로, 자주는 아니게”라는 뜻의 빈도 표현을 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '“때때로, 자주는 아니게”라는 뜻의 빈도 표현을 입력하세요.',
+      uz: "«Ba'zan, tez-tez emas» ma'nosini beruvchi chastota so'zini yozing.",
+      en: 'Type the frequency word meaning "sometimes, not often".',
+      ru: 'Напишите слово частоты со значением «иногда, не часто».',
+    },
     sentenceTemplate: '요즘은 바빠서 ___ 운동해요.',
     blankAnswers: ['가끔'],
     acceptedAnswers: [],
@@ -10261,6 +10296,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '매주보다 정확한 횟수까지 표현해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '매주보다 정확한 횟수까지 표현해 보세요.',
+      uz: "Haftada necha marta ekanini ham qo'shib ifodalang.",
+      en: 'Say how many times a week, not just "every week".',
+      ru: 'Укажите не только «каждую неделю», но и сколько раз.',
+    },
     sentenceTemplate: '저는 ___ ___ 친구를 만나요.',
     blankAnswers: ['매주', '한 번'],
     acceptedAnswers: [],
@@ -10781,6 +10823,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '가장 높은 빈도와 낮은 빈도를 직접 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '가장 높은 빈도와 낮은 빈도를 직접 입력하세요.',
+      uz: "Eng yuqori va eng past chastotani bildiruvchi so'zlarni yozing.",
+      en: 'Type the highest-frequency and the lowest-frequency words.',
+      ru: 'Напишите слова с самой высокой и самой низкой частотой.',
+    },
     sentenceTemplate: '저는 아침을 ___ 먹지만 야식은 ___ 먹어요.',
     blankAnswers: ['항상', '가끔'],
     acceptedAnswers: [],
@@ -11350,6 +11399,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '박은진 씨가 자신의 이름을 소개합니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '박은진 씨가 자신의 이름을 소개합니다.',
+      uz: "박은진 o'z ismini tanishtirmoqda.",
+      en: '박은진 is introducing her name.',
+      ru: '박은진 представляет своё имя.',
+    },
     sentenceTemplate: '저는 ___ 합니다.',
     blankAnswers: ['박은진이라고'],
     acceptedAnswers: [],
@@ -11824,6 +11880,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '처음 만난 사람에게 자신의 이름을 말해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '처음 만난 사람에게 자신의 이름을 말해 보세요.',
+      uz: "Endi tanishgan odamga o'z ismingizni ayting.",
+      en: 'Tell someone you have just met your name.',
+      ru: 'Назовите своё имя человеку, с которым только что познакомились.',
+    },
     sentenceTemplate: '반갑습니다. 저는 ___ 합니다.',
     blankAnswers: ['주성민이라고'],
     acceptedAnswers: [],
@@ -12407,6 +12470,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '그림 속 음식의 이름이 떡국이라고 알려 주세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '그림 속 음식의 이름이 떡국이라고 알려 주세요.',
+      uz: 'Rasmdagi taomning nomi 떡국 ekanini ayting.',
+      en: 'Tell them the food in the picture is called 떡국.',
+      ru: 'Скажите, что блюдо на картинке называется 떡국.',
+    },
     sentenceTemplate: '이건 ___ 해요.',
     blankAnswers: ['떡국이라고'],
     acceptedAnswers: [],
@@ -12844,6 +12914,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '추석에 먹는 떡의 이름을 직접 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '추석에 먹는 떡의 이름을 직접 입력하세요.',
+      uz: '추석 bayramida yeyiladigan guruchli shirinlik nomini yozing.',
+      en: 'Type the name of the rice cake eaten at 추석.',
+      ru: 'Напишите название рисового пирожка, который едят на 추석.',
+    },
     sentenceTemplate: '이 떡은 ___ 해요.',
     blankAnswers: ['송편이라고'],
     acceptedAnswers: [],
@@ -13423,6 +13500,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '친구와 같이 먹기 위해 고향 음식을 가져왔습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '친구와 같이 먹기 위해 고향 음식을 가져왔습니다.',
+      uz: "Do'stingiz bilan birga yeyish uchun vatan taomini olib keldingiz.",
+      en: 'You brought food from home in order to eat it with a friend.',
+      ru: 'Вы принесли еду с родины, чтобы поесть вместе с другом.',
+    },
     sentenceTemplate: '친구와 같이 ___ 고향 음식을 가져왔어요.',
     blankAnswers: ['먹으려고'],
     acceptedAnswers: [],
@@ -13856,6 +13940,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '오랜만에 그 친구를 만난 목적을 말해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '오랜만에 그 친구를 만난 목적을 말해 보세요.',
+      uz: "Uzoq vaqtdan keyin o'sha do'stingiz bilan nima maqsadda uchrashganingizni ayting.",
+      en: 'Say why you met that friend after a long time.',
+      ru: 'Скажите, с какой целью вы встретились с другом спустя долгое время.',
+    },
     sentenceTemplate: '그 친구와 ___ 만나려고 했어요.',
     blankAnswers: ['이야기하려고'],
     acceptedAnswers: [],
@@ -14412,6 +14503,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '여권을 만들기 위해 필요한 사진을 찍었습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '여권을 만들기 위해 필요한 사진을 찍었습니다.',
+      uz: "Pasport olish uchun kerak bo'lgan suratga tushdingiz.",
+      en: 'You took the photo you need in order to get a passport.',
+      ru: 'Вы сфотографировались, чтобы сделать загранпаспорт.',
+    },
     sentenceTemplate: '여권을 ___ 사진을 찍었어요.',
     blankAnswers: ['만들려고'],
     acceptedAnswers: [],
@@ -14871,6 +14969,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '모르는 단어를 확인하기 위해 사전을 봤습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '모르는 단어를 확인하기 위해 사전을 봤습니다.',
+      uz: "Bilmagan so'zingizni topish uchun lug'atga qaradingiz.",
+      en: "You looked in the dictionary in order to look up a word you didn't know.",
+      ru: 'Вы посмотрели в словарь, чтобы найти незнакомое слово.',
+    },
     sentenceTemplate: '모르는 단어를 ___ 사전을 봤어요.',
     blankAnswers: ['찾으려고'],
     acceptedAnswers: [],
@@ -15495,6 +15600,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '일요일에 하는 첫 번째 활동을 직접 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '일요일에 하는 첫 번째 활동을 직접 입력하세요.',
+      uz: 'Yakshanba kuni qiladigan birinchi ishni yozing.',
+      en: 'Type the first activity you do on Sunday.',
+      ru: 'Напишите первое занятие, которым вы занимаетесь в воскресенье.',
+    },
     sentenceTemplate: '일요일에는 ___ 청소를 해요.',
     blankAnswers: ['요리를 하거나'],
     acceptedAnswers: [],
@@ -16013,6 +16125,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '저녁에 하는 첫 번째 활동을 직접 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '저녁에 하는 첫 번째 활동을 직접 입력하세요.',
+      uz: 'Kechqurun qiladigan birinchi ishni yozing.',
+      en: 'Type the first activity you do in the evening.',
+      ru: 'Напишите первое занятие, которым вы занимаетесь вечером.',
+    },
     sentenceTemplate: '저녁에 시간이 나면 ___ 뉴스를 봐요.',
     blankAnswers: ['신문을 읽거나'],
     acceptedAnswers: [],
@@ -16537,6 +16656,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '가족과 연락하는 첫 번째 방법을 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '가족과 연락하는 첫 번째 방법을 입력하세요.',
+      uz: "Oilangiz bilan bog'lanishning birinchi usulini yozing.",
+      en: 'Type the first way you keep in touch with your family.',
+      ru: 'Напишите первый способ связи с семьёй.',
+    },
     sentenceTemplate: '가족이 보고 싶으면 ___ 전화를 해요.',
     blankAnswers: ['편지를 쓰거나'],
     acceptedAnswers: [],
@@ -17032,6 +17158,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '친구와 할 수 있는 두 활동 중 첫 번째를 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '친구와 할 수 있는 두 활동 중 첫 번째를 입력하세요.',
+      uz: "Do'stingiz bilan qilish mumkin bo'lgan ikkita ishdan birinchisini yozing.",
+      en: 'Type the first of the two things you can do with a friend.',
+      ru: 'Напишите первое из двух занятий, которыми можно заняться с другом.',
+    },
     sentenceTemplate: '친구를 만나면 ___ 영화를 봐요.',
     blankAnswers: ['커피를 마시거나'],
     acceptedAnswers: [],
@@ -17645,6 +17778,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '교재 보기의 두 여행지를 직접 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '교재 보기의 두 여행지를 직접 입력하세요.',
+      uz: 'Darslikdagi variantlardan sayohat joyini yozing.',
+      en: 'Type the travel destination from the textbook options.',
+      ru: 'Напишите место для поездки из вариантов учебника.',
+    },
     sentenceTemplate: '방학에 ___ 경주에 가고 싶어요.',
     blankAnswers: ['부산이나'],
     acceptedAnswers: [],
@@ -18200,6 +18340,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '생일에 받고 싶은 두 선물 중 첫 번째를 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '생일에 받고 싶은 두 선물 중 첫 번째를 입력하세요.',
+      uz: "Tug'ilgan kunda olishni istagan ikkita sovg'adan birinchisini yozing.",
+      en: 'Type the first of the two presents you want for your birthday.',
+      ru: 'Напишите первый из двух подарков, которые хотите на день рождения.',
+    },
     sentenceTemplate: '생일에는 ___ 시계를 받고 싶어요.',
     blankAnswers: ['티셔츠나'],
     acceptedAnswers: [],
@@ -18702,6 +18849,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '토요일과 함께 가능한 다른 요일을 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '토요일과 함께 가능한 다른 요일을 입력하세요.',
+      uz: "Shanba bilan birga mumkin bo'lgan boshqa kunni yozing.",
+      en: 'Type the other day that also works besides Saturday.',
+      ru: 'Напишите другой день, который подходит наряду с субботой.',
+    },
     sentenceTemplate: '이번 주에는 ___ 토요일에 만날 수 있어요.',
     blankAnswers: ['금요일이나'],
     acceptedAnswers: [],
@@ -19700,6 +19854,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '줄리엣 김 씨가 자신을 소개합니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '줄리엣 김 씨가 자신을 소개합니다.',
+      uz: "줄리엣 김 o'zini tanishtirmoqda.",
+      en: '줄리엣 김 is introducing herself.',
+      ru: '줄리엣 김 представляется.',
+    },
     sentenceTemplate: '저는 ___ 합니다.',
     blankAnswers: ['줄리엣 김이라고'],
     acceptedAnswers: [],
@@ -20166,6 +20327,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '여권을 만드는 것이 사진을 찍은 목적입니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '여권을 만드는 것이 사진을 찍은 목적입니다.',
+      uz: 'Suratga tushishdan maqsad — pasport olish.',
+      en: 'The purpose of taking the photo was to get a passport.',
+      ru: 'Цель фотографирования — сделать загранпаспорт.',
+    },
     sentenceTemplate: '여권을 ___ 사진을 찍었어요.',
     blankAnswers: ['만들려고'],
     acceptedAnswers: [],
@@ -20666,6 +20834,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '과일과 함께 아침에 먹거나 마시는 것을 완성하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '과일과 함께 아침에 먹거나 마시는 것을 완성하세요.',
+      uz: "Ertalab meva bilan birga yeyiladigan yoki ichiladigan narsani to'ldiring.",
+      en: 'Complete what you eat or drink together with fruit in the morning.',
+      ru: 'Дополните, что вы едите или пьёте утром вместе с фруктами.',
+    },
     sentenceTemplate: '아침에는 ___ 과일을 먹어요.',
     blankAnswers: ['우유를 마시거나'],
     acceptedAnswers: [],
@@ -21238,6 +21413,13 @@ export const S3_UNIT1_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '동대문시장과 함께 제안된 다른 쇼핑 장소를 입력하세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '동대문시장과 함께 제안된 다른 쇼핑 장소를 입력하세요.',
+      uz: '동대문시장 bilan birga taklif qilingan boshqa xarid joyini yozing.',
+      en: 'Type the other shopping place suggested along with 동대문시장.',
+      ru: 'Напишите другое место для шопинга, предложенное вместе с 동대문시장.',
+    },
     sentenceTemplate: '___ 동대문시장 어때요?',
     blankAnswers: ['명동이나'],
     acceptedAnswers: [],

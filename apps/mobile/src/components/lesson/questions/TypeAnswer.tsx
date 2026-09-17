@@ -25,6 +25,9 @@ import {
   toAnswerPayload,
 } from "@/utils/blank-sentence";
 
+/** 말풍선 지문이 한국어인지 학습자 언어인지 가른다 */
+const HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
+
 interface Props {
   question: LessonQuestion;
   answerState: AnswerState;
@@ -57,8 +60,12 @@ export default function TypeAnswer({
   // ko→en 폴백으로 내려주도록 고쳤고, 여기선 answer 폴백을 없앤다.
   // 그래도 비면 말풍선을 아예 안 그린다 — 빈 칸이 정답 노출보다 낫다.
   const promptText = question.npcText || question.answerTranslation || "";
-  // 지문이 한국어인지 학습자 언어인지에 따라 TTS 언어가 갈린다
-  const promptLang = question.npcText
+  // 지문이 한국어인지 학습자 언어인지에 따라 TTS 언어가 갈린다.
+  //
+  // 예전엔 "npcText 에서 왔으면 한국어" 로 판단했다. 이제 서버가 npcText 를
+  // 학습자 언어로 번역해 내려주기도 해서(npcTextI18n) 출처로는 알 수 없다.
+  // **글자를 보고 정한다** — 한글이 있으면 한국어, 없으면 학습자 언어.
+  const promptLang = HANGUL.test(promptText)
     ? "ko-KR"
     : speechLanguageOf(i18n.resolvedLanguage ?? i18n.language);
 

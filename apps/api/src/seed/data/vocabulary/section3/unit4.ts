@@ -3837,6 +3837,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '목에 목도리를 착용했습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '목에 목도리를 착용했습니다.',
+      uz: "Bo'yningizga sharf o'radingiz.",
+      en: 'You put a scarf around your neck.',
+      ru: 'Вы надели шарф на шею.',
+    },
     sentenceTemplate: '목도리를 ___.',
     blankAnswers: ['했어요'],
     answerTranslation: {
@@ -4211,6 +4218,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '머리에 모자를 착용했습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '머리에 모자를 착용했습니다.',
+      uz: 'Boshingizga shapka kiydingiz.',
+      en: 'You put a hat on your head.',
+      ru: 'Вы надели шапку на голову.',
+    },
     sentenceTemplate: '모자를 ___.',
     blankAnswers: ['썼어요'],
     answerTranslation: {
@@ -6853,6 +6867,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '책을 아직 다 읽지 못했습니다. 저에게 조금 어렵습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '책을 아직 다 읽지 못했습니다. 저에게 조금 어렵습니다.',
+      uz: "Kitobni hali oxirigacha o'qiy olmadingiz. Siz uchun biroz qiyin.",
+      en: 'You have not finished the book yet. It is a bit difficult for you.',
+      ru: 'Вы ещё не дочитали книгу. Она для вас немного сложная.',
+    },
     sentenceTemplate: '저한테 좀 ___ 것 같아요.',
     blankAnswers: ['어려운'],
     answerTranslation: {
@@ -7434,6 +7455,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '웃으면서 노래를 듣고 있습니다. 기분을 추측해 보세요.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '웃으면서 노래를 듣고 있습니다. 기분을 추측해 보세요.',
+      uz: "Kulib turib qo'shiq tinglayapti. Kayfiyatini taxmin qiling.",
+      en: 'They are smiling while listening to music. Guess their mood.',
+      ru: 'Он слушает песню и улыбается. Угадайте настроение.',
+    },
     sentenceTemplate: '기분이 ___ 것 같아요.',
     blankAnswers: ['좋은'],
     answerTranslation: {
@@ -8052,6 +8080,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '여름을 더 좋아합니다. 비교 대상은 겨울입니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '여름을 더 좋아합니다. 비교 대상은 겨울입니다.',
+      uz: "Yozni ko'proq yoqtirasiz. Taqqoslanayotgan fasl — qish.",
+      en: 'You like summer more. The season it is compared with is winter.',
+      ru: 'Лето вам нравится больше. Сравнение идёт с зимой.',
+    },
     sentenceTemplate: '겨울___ 여름을 더 좋아해요.',
     blankAnswers: ['보다'],
     answerTranslation: {
@@ -8534,6 +8569,13 @@ export const S3_UNIT4_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '지리산은 1,915m이고 한라산은 1,950m입니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '지리산은 1,915m이고 한라산은 1,950m입니다.',
+      uz: '지리산 — 1,915 m, 한라산 — 1,950 m.',
+      en: '지리산 is 1,915 m and 한라산 is 1,950 m.',
+      ru: '지리산 — 1 915 м, 한라산 — 1 950 м.',
+    },
     sentenceTemplate: '지리산보다 한라산이 더 ___.',
     blankAnswers: ['높아요'],
     answerTranslation: {

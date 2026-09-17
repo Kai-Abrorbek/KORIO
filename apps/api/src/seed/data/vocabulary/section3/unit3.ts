@@ -7481,6 +7481,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '생선회를 먹은 경험이 있습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '생선회를 먹은 경험이 있습니다.',
+      uz: "생선회 (xom baliq) yeb ko'rgansiz.",
+      en: 'You have tried eating 생선회 (raw fish).',
+      ru: 'Вы пробовали 생선회 (сырую рыбу).',
+    },
     sentenceTemplate: '생선회를 ___ ___.',
     blankAnswers: ['먹어', '봤어요'],
     answerTranslation: {
@@ -8078,6 +8085,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '아르바이트 경험이 있습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '아르바이트 경험이 있습니다.',
+      uz: "Yarim kunlik ishda ishlab ko'rgansiz.",
+      en: 'You have worked a part-time job before.',
+      ru: 'У вас есть опыт подработки.',
+    },
     sentenceTemplate: '아르바이트를 ___ ___.',
     blankAnswers: ['해', '봤어요'],
     answerTranslation: {
@@ -9063,6 +9077,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '1달',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '1달',
+      uz: '1 oy',
+      en: '1 month',
+      ru: '1 месяц',
+    },
     sentenceTemplate: '___ 달',
     blankAnswers: ['한'],
     answerTranslation: {
@@ -9519,6 +9540,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '1시부터 2시까지 이야기했습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '1시부터 2시까지 이야기했습니다.',
+      uz: 'Soat 1 dan 2 gacha suhbatlashdingiz.',
+      en: "You talked from 1 o'clock to 2 o'clock.",
+      ru: 'Вы разговаривали с часа до двух.',
+    },
     sentenceTemplate: '___ 동안 이야기했어요.',
     blankAnswers: ['한 시간'],
     answerTranslation: {
@@ -10039,6 +10067,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '2010년부터 2012년까지 한국에서 살았습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '2010년부터 2012년까지 한국에서 살았습니다.',
+      uz: '2010-yildan 2012-yilgacha Koreyada yashagansiz.',
+      en: 'You lived in Korea from 2010 to 2012.',
+      ru: 'Вы жили в Корее с 2010 по 2012 год.',
+    },
     sentenceTemplate: '___ 동안 한국에 살았어요.',
     blankAnswers: ['이 년'],
     answerTranslation: {
@@ -10509,6 +10544,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '한국어를 6개월 배웠습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '한국어를 6개월 배웠습니다.',
+      uz: "Koreys tilini 6 oy o'rgangansiz.",
+      en: 'You studied Korean for 6 months.',
+      ru: 'Вы учили корейский 6 месяцев.',
+    },
     sentenceTemplate: '한국어를 ___ 동안 배웠어요.',
     blankAnswers: ['육 개월'],
     answerTranslation: {
@@ -11040,6 +11082,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '재미없다',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '재미없다',
+      uz: '재미없다 (qiziq emas)',
+      en: '재미없다 (not interesting)',
+      ru: '재미없다 (неинтересно)',
+    },
     sentenceTemplate: '재미없다 → ___',
     blankAnswers: ['재미없는데'],
     answerTranslation: {
@@ -11251,6 +11300,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '배웠다',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '배웠다',
+      uz: "배웠다 (o'rgandim)",
+      en: '배웠다 (learned)',
+      ru: '배웠다 (учил)',
+    },
     sentenceTemplate: '배웠다 → ___',
     blankAnswers: ['배웠는데'],
     answerTranslation: {
@@ -12036,6 +12092,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '선생님의 전화번호를 알지 못합니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '선생님의 전화번호를 알지 못합니다.',
+      uz: "O'qituvchining telefon raqamini bilmaysiz.",
+      en: "You do not know the teacher's phone number.",
+      ru: 'Вы не знаете номер телефона учителя.',
+    },
     sentenceTemplate: '선생님 전화번호를 ___ 좀 가르쳐 주세요.',
     blankAnswers: ['모르는데'],
     answerTranslation: {
@@ -13284,6 +13347,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '친구들과 같이 놀 수 있는 시간이 없습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '친구들과 같이 놀 수 있는 시간이 없습니다.',
+      uz: "Do'stlaringiz bilan birga o'ynagani vaqtingiz yo'q.",
+      en: 'You have no time to hang out with your friends.',
+      ru: 'У вас нет времени погулять с друзьями.',
+    },
     sentenceTemplate: '친구들과 ___ 시간이 없어요.',
     blankAnswers: ['놀'],
     answerTranslation: {
@@ -13741,6 +13811,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '저녁 모임에서 입을 옷을 선택하고 있습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '저녁 모임에서 입을 옷을 선택하고 있습니다.',
+      uz: 'Kechki uchrashuvga kiyadigan kiyimni tanlayapsiz.',
+      en: 'You are choosing clothes to wear to the evening gathering.',
+      ru: 'Вы выбираете одежду, чтобы надеть на вечернюю встречу.',
+    },
     sentenceTemplate: '저녁에 모임이 있어서 ___ 옷을 고르고 있어요.',
     blankAnswers: ['입을'],
     answerTranslation: {
@@ -15269,6 +15346,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '불고기를 직접 만든 경험이 있는지 묻습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '불고기를 직접 만든 경험이 있는지 묻습니다.',
+      uz: "불고기 ni o'zingiz tayyorlab ko'rganmisiz, deb so'ralmoqda.",
+      en: 'You are being asked whether you have ever made 불고기 yourself.',
+      ru: 'Спрашивают, готовили ли вы 불고기 сами.',
+    },
     sentenceTemplate: '불고기를 ___?',
     blankAnswers: ['만들어 봤어요'],
     answerTranslation: {
@@ -15794,6 +15878,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '피곤하다 + 좀 쉬다',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '피곤하다 + 좀 쉬다',
+      uz: '피곤하다 (charchamoq) + 좀 쉬다 (biroz dam olmoq)',
+      en: '피곤하다 (be tired) + 좀 쉬다 (rest a bit)',
+      ru: '피곤하다 (устать) + 좀 쉬다 (немного отдохнуть)',
+    },
     sentenceTemplate: '___ 좀 쉴까요?',
     blankAnswers: ['피곤한데'],
     answerTranslation: {
@@ -16228,6 +16319,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '주말에 책을 읽었습니다. 그 책은 조금 어려웠습니다.',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '주말에 책을 읽었습니다. 그 책은 조금 어려웠습니다.',
+      uz: "Dam olish kunlari kitob o'qidingiz. Kitob birmuncha qiyin edi.",
+      en: 'You read a book at the weekend. The book was a bit difficult.',
+      ru: 'На выходных вы читали книгу. Книга была немного сложной.',
+    },
     sentenceTemplate: '주말에 이 책을 ___ 좀 어려웠어요.',
     blankAnswers: ['읽었는데'],
     answerTranslation: {
@@ -16730,6 +16828,13 @@ export const S3_UNIT3_QUESTIONS = withTypedAnswerGrading({
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '입다 + 옷 + 없다',
+    // 말풍선은 학습자 언어로 나간다 — 이건 한국어 학습 지문이 아니라 '무엇을 쓰라'는 단서다
+    npcTextI18n: {
+      ko: '입다 + 옷 + 없다',
+      uz: "입다 (kiymoq) + 옷 (kiyim) + 없다 (yo'q)",
+      en: '입다 (wear) + 옷 (clothes) + 없다 (not have)',
+      ru: '입다 (надевать) + 옷 (одежда) + 없다 (нет)',
+    },
     sentenceTemplate: '___ 옷이 없어요.',
     blankAnswers: ['입을'],
     answerTranslation: {
