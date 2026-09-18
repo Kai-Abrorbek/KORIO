@@ -64,13 +64,22 @@ export interface TutorTeacherCard {
   recommendedModes: TutorMode[];
 }
 
+/** 튜터가 나에게 쓰는 말투. 가르치는 한국어의 존댓말/반말과는 다른 축이다 */
+export type TutorAddressStyle = "polite" | "casual";
+
 export interface TutorSessionGrant {
   sessionId: string;
-  /** OpenAI 단명 토큰. 정식 API 키가 아니다 — 앱엔 정식 키가 없다 */
-  clientSecret: string;
-  expiresAt: number | null;
-  model: string;
-  voice: string;
+  /**
+   * LiveKit 접속 정보.
+   *
+   * ⚠️ 앱에는 **이것뿐이다.** Gemini 키도, LiveKit API secret 도 없다.
+   *    participantToken 은 이 방 하나에만 들어갈 수 있고 15분이면 죽는다.
+   */
+  livekit: {
+    serverUrl: string;
+    roomName: string;
+    participantToken: string;
+  };
   topicId: string | null;
   /** 오늘 연습할 표현. 시작 전에 미리 보여주고, 막혔을 때 힌트로도 쓴다 */
   targetExpressions: string[];
@@ -155,9 +164,10 @@ export const TutorApi = {
     mode: TutorMode,
     opts: {
       scene?: RolePlayScene;
-      voice?: string;
       topicId?: string;
       teacherId?: string;
+      /** 존댓말/반말. 성격과 독립이고, 유저가 시작 화면에서 고른다 */
+      addressStyle?: TutorAddressStyle;
     } = {},
   ): Promise<TutorSessionGrant> =>
     api.post(`/tutor/session`, { mode, ...opts, lang: getLang() }),

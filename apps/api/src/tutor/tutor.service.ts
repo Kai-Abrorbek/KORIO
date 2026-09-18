@@ -17,6 +17,7 @@ import {
   type LearnerContext,
 } from './prompt/build-instructions';
 import {
+  DEFAULT_ADDRESS_STYLE,
   EST_COST_PER_MIN_USD,
   IS_PREMIUM_MODEL,
   MAX_RESPONSE_TOKENS,
@@ -27,8 +28,13 @@ import {
   resolveVoice,
   type MistakeType,
   type RolePlayScene,
+  type TutorAddressStyle,
   type TutorMode,
 } from './tutor.const';
+import { geminiLiveModel } from './gemini/live.const';
+import { voiceForTeacher } from './gemini/voices';
+import { LiveKitService } from './livekit/livekit.service';
+import type { TutorDispatchMetadata } from './livekit/dispatch-metadata';
 import { TutorUsageService } from './tutor-usage.service';
 import {
   TutorAnalysisService,
@@ -49,16 +55,11 @@ export class TutorService implements OnModuleInit {
   private readonly logger = new Logger(TutorService.name);
 
   onModuleInit() {
-    const line = `AI 튜터 모델: ${TUTOR_MODEL} (분당 약 $${EST_COST_PER_MIN_USD})`;
-    if (IS_PREMIUM_MODEL) {
-      // 실험용으로 올렸다가 그대로 배포되는 사고를 막는다
-      this.logger.warn(
-        `⚠️ ${line} — 정가 모델이다. mini 대비 3배 가량 비싸다. ` +
-          `배포 전에 OPENAI_REALTIME_MODEL 을 확인할 것.`,
-      );
-    } else {
-      this.logger.log(line);
-    }
+    // 통화는 이제 LiveKit Agent ↔ Gemini 구간에서 일어난다.
+    // ⚠️ 분당 원가는 아직 **실측 전이다.** tutor.const 의 추정치는 OpenAI
+    //    Realtime 기준이라 여기 적지 않는다 — 안 맞는 숫자를 로그에 박아두면
+    //    나중에 그걸 근거로 쿼터를 정하게 된다.
+    this.logger.log(`AI 튜터 대화 모델: ${geminiLiveModel()} (LiveKit Agent)`);
   }
 
   constructor(
@@ -70,19 +71,115 @@ export class TutorService implements OnModuleInit {
     private readonly sessionModel: Model<TutorSessionDocument>,
     private readonly usage: TutorUsageService,
     private readonly analysis: TutorAnalysisService,
+    private readonly livekit: LiveKitService,
   ) {}
 
   /**
-   * WebRTC 연결용 임시 토큰을 발급한다.
+   * 통화 한 판을 준비한다.
    *
-   * ⚠️ OPENAI_API_KEY 는 이 함수 밖으로 절대 나가지 않는다. 앱에는 여기서
-   * 만든 단명 토큰(ephemeral)만 준다. 앱에 정식 키를 넣으면 누구든 우리
-   * 계정으로 무한히 호출할 수 있다.
+   *   앱 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──Gemini Live──▶ gemini-3.8-live
    *
-   * 쿼터 검사를 발급 **직전에** 한다. UI 에서 막는 건 우회되지만 여기는 못 
-   * 지나간다.
+   * 이 함수가 하는 일:
+   *   쿼터 검사 → 학습자 문맥 → master prompt → 세션 DB 열기
+   *   → Agent dispatch → 참가자 토큰 → 앱에 접속 정보
+   *
+   * ⚠️ 프롬프트를 **여기서** 만들어서 Agent 에게 넘긴다. 앱은 instructions 를
+   *    못 건드린다 — 앱이 프롬프트를 보낼 수 있으면 누구든 우리 Gemini 키로
+   *    아무거나 돌릴 수 있다.
+   *
+   * ⚠️ 쿼터 검사가 제일 앞이다. UI 는 우회되지만 여기는 못 지나간다.
    */
   async createSession(
+    userId: string,
+    mode: TutorMode,
+    lang: string,
+    scene?: RolePlayScene,
+    topicId?: string,
+    teacherId?: string,
+    addressStyle: TutorAddressStyle = DEFAULT_ADDRESS_STYLE,
+  ) {
+    const quota = await this.usage.assertCanStart(userId);
+    const learner = await this.buildLearnerContext(userId, lang);
+    const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined;
+    const teacher = resolveTeacher(teacherId);
+
+    /**
+     * 말투는 **유저가 시작 화면에서 고른 값**이다.
+     *
+     * ⚠️ 성격에서 끌어내면 안 된다. 한때 teasing → casual 로 유도했는데
+     *    그러면 "놀리는데 존댓말" 을 고를 수가 없다. 둘은 독립된 축이다.
+     *    (그리고 이건 가르치는 한국어의 존댓말/반말과도 또 다른 축이다 —
+     *     반말 선생님도 카페 주문은 존댓말로 가르친다. 프롬프트 §5)
+     */
+    const instructions = buildTutorInstructions(
+      learner,
+      mode,
+      scene,
+      topic,
+      teacher,
+      addressStyle,
+    );
+
+    // 방 이름이 sessionId 로 만들어지므로 세션을 **먼저** 연다
+    const session = await this.usage.open(userId, mode, scene, topic?.id, teacher);
+    const sessionId = session._id.toString();
+    const maxDurationSec =
+      Math.min(quota.allowedMin, MAX_SESSION_MINUTES) * 60;
+
+    const meta: TutorDispatchMetadata = {
+      sessionId,
+      instructions,
+      model: geminiLiveModel(),
+      // 목소리는 **선생님이 정한다.** 유저가 카드에서 고른 사람과 소리가
+      // 따로 놀면 고른 의미가 없다 (앱이 보낸 voice 요청값은 무시한다)
+      voiceName: voiceForTeacher(teacher.id),
+      teacherId: teacher.id,
+      mode,
+      topicId: topic?.id,
+      teachingLanguage: lang,
+      addressStyle,
+      maxDurationSec,
+    };
+
+    let livekit;
+    try {
+      livekit = await this.livekit.prepareRoom(meta);
+    } catch (e) {
+      // 방을 못 만들었으면 세션도 없던 일로 한다. 안 그러면 선차감 1분이
+      // 남아서, 연결도 못 해본 유저의 쿼터가 깎인다
+      await this.usage.close(userId, sessionId, 0).catch(() => null);
+      throw e;
+    }
+
+    return {
+      sessionId,
+      livekit,
+      teacher: {
+        id: teacher.id,
+        name: teacher.name,
+        avatar: teacher.avatar,
+        color: teacher.color,
+        speechRate: teacher.speechRate,
+      },
+      topicId: topic?.id ?? null,
+      /** 화면에 "오늘 배울 표현"으로 미리 보여준다 */
+      targetExpressions: topic?.targetExpressions ?? [],
+      // 앱이 이 시간이 되면 스스로 끊는다. Agent 도 같은 값으로 끊는다 —
+      // 돈이 나가는 쪽에도 타이머가 있어야 한다
+      maxDurationSec,
+      quota,
+    };
+  }
+
+  /**
+   * ⚠️ **PHASE 7 에서 통째로 지울 것.** (OpenAI Realtime 전송)
+   *
+   * 아무도 부르지 않는다. 남겨둔 이유는 하나 — LiveKit 경로를 실기기에서
+   * 확인하기 전까지 되돌아갈 자리를 지우지 않기 위해서다. 확인이 끝나면
+   * 이 메서드와 함께 OPENAI_REALTIME_MODEL / TRANSCRIBE_MODEL /
+   * MAX_RESPONSE_TOKENS / resolveVoice / teacher.realtimeVoice 도 같이 간다.
+   */
+  async createOpenAiSessionLegacy(
     userId: string,
     mode: TutorMode,
     lang: string,

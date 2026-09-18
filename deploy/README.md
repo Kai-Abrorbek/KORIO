@@ -1,4 +1,4 @@
-# KORIO API + Telegram Mini App + 운영 콘솔 배포
+# KORIO API + Telegram Mini App + 운영 콘솔 + AI 튜터 Agent 배포
 
 blue/green 무중단. 서버에 도커만 있으면 된다. MongoDB 는 Atlas(외부)를 쓰므로
 DB 컨테이너도 볼륨도 없다.
@@ -63,8 +63,10 @@ sudo bash ~/korio/deploy/server-setup.sh
 # 2) 설정
 cd ~/korio/deploy
 cp .env.example .env          # API_DOMAIN, ACME_EMAIL
-cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, API 키들
+cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, LIVEKIT_*, API 키들
 chmod 600 api.env             # 시크릿이다
+cp agent.env.example agent.env  # AI 튜터 Agent: LIVEKIT_*, GOOGLE_API_KEY
+chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
 
 # 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
 #    타입 A / 이름 api      / 값 <서버 IP> / TTL 기본
@@ -102,6 +104,73 @@ chmod 600 api.env             # 시크릿이다
 
 **첫 배포 뒤에는 반드시 `./smoke.sh` 를 한 번 돌려라.** 무중단이 진짜인지
 숫자로 확인하는 유일한 방법이다.
+
+## AI 튜터 Agent (`korio_tutor_agent`)
+
+```
+앱 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──Gemini Live──▶ gemini-3.8-live
+```
+
+**이것만 blue/green 이 아니다.** 이유는 두 개다.
+
+1. 인바운드 트래픽이 없다. Caddy 뒤에 안 붙고 도메인도 포트도 없다. LiveKit 에
+   **스스로 등록해서** job 을 기다리는 outbound worker 다. 무중단의 대상이 아니다.
+2. 더 중요한 건, 두 색이 동시에 뜨면 **둘 다 같은 `agentName` 으로 등록돼서
+   dispatch 가 둘 중 아무 데나 간다.** 배포 직후 절반의 통화가 옛 프롬프트로
+   도는데 에러가 하나도 안 난다 — 아무도 못 알아채는 종류의 고장이다.
+
+그래서 `./deploy.sh` 는 API blue/green 이 **끝난 뒤에** Agent 컨테이너를
+그 자리에서 갈아끼운다. 그 몇 초 동안 **새로 시작하는 통화만** 실패한다
+(진행 중인 통화는 `stop_grace_period: 30s` 동안 드레인된다).
+→ 통화가 뜸한 시간에 배포해라. `./smoke.sh` 는 API 만 재기 때문에 이 구간을
+커버하지 않는다.
+
+여기서 실패해도 **API 배포는 이미 끝나 있다.** 스크립트는 경고만 남기고
+끝낸다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
+
+### healthy 의 의미
+
+```bash
+docker exec korio_tutor_agent node -e \
+  "fetch('http://127.0.0.1:8081/worker').then(r=>r.json()).then(j=>console.log(j))"
+```
+
+`GET :8081/` 은 프로세스가 살아 있는지가 아니라 **LiveKit WebSocket 이 실제로
+붙어 있는지**를 본다. 이게 아니면 "컨테이너는 떠 있는데 아무도 방에 안
+들어오는" 상태를 못 잡는다. `/worker` 는 등록된 `agent_name` 을 돌려주고,
+배포 스크립트가 이 값을 `api.env` 의 `LIVEKIT_TUTOR_AGENT_NAME` 과 대조한다.
+
+### 안 될 때 (전부 조용한 고장이다)
+
+증상은 대체로 하나다 — **앱은 연결됐는데 선생님이 아무 말도 안 한다.**
+
+| 원인 | 확인 |
+|---|---|
+| `LIVEKIT_TUTOR_AGENT_NAME` 이 api.env ↔ agent.env 불일치 | `./preflight.sh` 6번 섹션 |
+| `LIVEKIT_URL` 이 서로 다른 프로젝트 | 같음 |
+| `GOOGLE_API_KEY` 누락 | `docker logs korio_tutor_agent` (첫 세션에서만 터진다) |
+| API↔Agent metadata 계약 어긋남 | 로그에 `dispatch metadata 에 없는 값: ...` |
+
+```bash
+docker logs -f korio_tutor_agent        # 세션마다 [tutor <sessionId>] 로 찍힌다
+./deploy.sh --status                     # korio_tutor_agent 도 같이 보인다
+```
+
+### 롤백
+
+Agent 는 색이 없어서 `./deploy.sh --rollback` 에 **안 딸려 온다.**
+프롬프트나 metadata 계약이 바뀐 배포를 되돌리는 거라면 Agent 도 같이:
+
+```bash
+./deploy.sh --tag <이전태그>
+```
+
+### 메모리
+
+세션마다 job 프로세스가 뜨고, 그와 별개로 로컬 EOT 모델(34MB, `@livekit/local-inference`)
+자식 프로세스가 항상 하나 돈다. 우리는 턴 감지를 Gemini 에 맡기고 있어서
+그 모델은 실제로 안 쓰는데 워커가 기본으로 띄운다 — 1코어 VPS 면 눈에 띈다.
+`free -m` 으로 한 번 보고, 빠듯하면 스왑부터 확인해라.
 
 ## 도메인
 
@@ -205,9 +274,14 @@ docker logs --tail 50 "$C" | grep '어드민 로그인 실패'
 
 ## 시크릿
 
-`deploy/api.env` 와 `deploy/.env` 는 `.gitignore` 에 있다. 서버에만 둔다.
-API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램)는 전부 여기 있고
-앱에는 들어가지 않는다.
+`deploy/api.env`, `deploy/agent.env`, `deploy/.env` 는 `.gitignore` 에 있다.
+서버에만 둔다. API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램/
+LiveKit)는 전부 여기 있고 앱에는 들어가지 않는다.
+
+**`agent.env` 는 일부러 따로다.** `GOOGLE_API_KEY` 는 튜터 Agent 컨테이너에만
+있고 API 컨테이너는 모른다 — Gemini 에 붙는 건 Agent 뿐이다. 마찬가지로
+`LIVEKIT_API_SECRET` 은 서버 두 곳에만 있고, 앱은 **방 하나짜리 15분 참가자
+토큰**만 받는다.
 
 `ALLOW_UNVERIFIED_SUBSCRIBE` 는 **반드시 false 나 빈 값**이다. true 면 결제
 검증 없이 구독이 열린다.

@@ -1,4 +1,6 @@
 import "../locales/i18n";
+// LiveKit 전역은 앱에서 제일 먼저, 딱 한 번 등록한다 (utils/livekit-globals)
+import "../utils/livekit-globals";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 // expo-router 는 react-navigation 을 vendoring 한다 — @react-navigation/native

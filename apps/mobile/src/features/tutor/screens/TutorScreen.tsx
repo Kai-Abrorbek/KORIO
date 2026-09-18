@@ -35,6 +35,8 @@ export default function TutorScreen() {
   );
   const lastTeacherId = useTutorPrefs((st) => st.teacherId);
   const rememberTeacher = useTutorPrefs((st) => st.setTeacherId);
+  /** 존댓말/반말. 아직 고르는 화면이 없어서 기본값(존댓말)이 그대로 간다 */
+  const addressStyle = useTutorPrefs((st) => st.addressStyle);
 
   const {
     state,
@@ -116,12 +118,16 @@ export default function TutorScreen() {
             void start("freeTalk", {
               topicId: picked.id,
               teacherId: pickedTeacher?.id,
+              addressStyle,
             });
           }}
           onFreeTalk={() => {
             setTopic(null);
             setPicking(false);
-            void start("freeTalk", { teacherId: pickedTeacher?.id });
+            void start("freeTalk", {
+              teacherId: pickedTeacher?.id,
+              addressStyle,
+            });
           }}
         />
       </View>

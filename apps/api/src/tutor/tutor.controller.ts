@@ -25,9 +25,11 @@ import { TutorTtsError } from './tts/tutor-tts.types';
 import { TUTOR_TOPICS, toTopicCard } from './topics/tutor-topics';
 import { TutorService } from './tutor.service';
 import {
+  DEFAULT_ADDRESS_STYLE,
   DEFAULT_TUTOR_VOICE,
   TUTOR_VOICES,
   type RolePlayScene,
+  type TutorAddressStyle,
   type TutorMode,
 } from './tutor.const';
 
@@ -72,10 +74,13 @@ export class TutorController {
   }
 
   /**
-   * WebRTC 연결용 임시 토큰 발급.
+   * 통화 준비 — LiveKit 방 + 참가자 토큰.
    *
-   * 한 번 호출에 OpenAI 세션이 하나 열리므로 연타를 막는다.
-   * (쿼터가 이미 막고 있지만, 발급만 반복해서 API 를 두드리는 건 별개다)
+   * 한 번 호출에 방이 하나 열리고 Agent 가 하나 뜨므로 연타를 막는다.
+   * (쿼터가 이미 막고 있지만, 발급만 반복해서 방을 찍어내는 건 별개다)
+   *
+   * ⚠️ dto.voice 는 이제 **읽지 않는다.** Gemini 목소리는 선생님이 정한다
+   *    (gemini/voices.ts). DTO 필드는 구버전 앱 호환으로 남아 있을 뿐이다.
    */
   @RateLimit({ windowMs: 60 * 1000, max: 6 })
   @Post('session')
@@ -85,9 +90,10 @@ export class TutorController {
       dto.mode as TutorMode,
       dto.lang ?? 'uz',
       dto.scene as RolePlayScene | undefined,
-      dto.voice,
       dto.topicId,
       dto.teacherId,
+      (dto.addressStyle as TutorAddressStyle | undefined) ??
+        DEFAULT_ADDRESS_STYLE,
     );
   }
 

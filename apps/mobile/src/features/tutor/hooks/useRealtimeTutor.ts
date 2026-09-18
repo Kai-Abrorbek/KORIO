@@ -6,10 +6,15 @@ import {
   type RolePlayScene,
   type SessionSummary,
   type TranscriptTurn,
+  type TutorAddressStyle,
   type TutorMode,
   type TutorQuota,
 } from "../services/tutor.api";
-import { connectRealtime, type RealtimeConnection } from "../services/realtime";
+import {
+  connectLiveKitTutor,
+  type LiveKitAgentState,
+  type LiveKitTutorConnection,
+} from "../services/livekit-tutor";
 import { extractExamples } from "../services/examples";
 
 /**
@@ -30,11 +35,33 @@ export type TutorState =
   | "error";
 
 /**
+ * LiveKit Agent 의 상태를 화면 상태로 옮긴다.
+ *
+ * 'idle' 은 Agent 가 아무것도 안 하는 중 = **유저 차례**다. 화면에서는
+ * listening 과 구분할 이유가 없다 ("듣고 있어요").
+ */
+const AGENT_STATE: Record<LiveKitAgentState, TutorState> = {
+  initializing: "connecting",
+  idle: "listening",
+  listening: "listening",
+  thinking: "thinking",
+  speaking: "speaking",
+};
+
+/**
  * 튜터 대화 한 사이클.
  *
- * 지켜야 할 것 두 가지:
+ *   마이크 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──▶ Gemini 3.8 Live
+ *
+ * ── 이 훅이 더 이상 하지 않는 일 ──
+ *
+ * PCM 조립, SDP 교환, 데이터 채널 이벤트 해석, 끼어들기 취소, 에코 대응.
+ * 전부 WebRTC 와 Agent 쪽으로 갔다. 여기 남은 건 **화면 상태 + 쿼터 + 기록**
+ * 세 가지다.
+ *
+ * 그래도 지켜야 할 것 두 가지는 그대로다:
  *  1) 화면을 떠나거나 앱이 백그라운드로 가면 **반드시 끊는다.**
- *     연결이 살아있으면 마이크가 계속 열려 있고, 무엇보다 분당 과금이 계속된다.
+ *     연결이 살아있으면 마이크가 계속 열려 있고, 분당 과금이 계속된다.
  *  2) 끊을 때 서버에 실제 사용 시간을 보고한다. 안 보내면 서버가 잡아둔
  *     선차감(1분)만 남아 쿼터가 실제보다 적게 깎인다.
  */
@@ -43,18 +70,11 @@ export function useRealtimeTutor() {
   const [quota, setQuota] = useState<TutorQuota | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsedSec, setElapsedSec] = useState(0);
-  /**
-   * 지금 **들리고 있는** 한 문장.
-   *
-   * 예전엔 텍스트 델타를 그대로 이어 붙였다. 그러면 글자가 소리보다 한참
-   * 앞서 달리고, 문장 여러 개가 한 덩어리로 뭉쳐서 읽기 어려웠다.
-   * 지금은 재생이 시작된 문장만 띄운다 — 들은 것과 본 것이 같아진다.
-   */
+  /** 지금 들리고 있는 한 마디 */
   const [caption, setCaption] = useState("");
   /** 바로 앞 문장. 흐리게 위에 남겨서 맥락이 끊기지 않게 */
   const [captionPrev, setCaptionPrev] = useState("");
   const [userSaid, setUserSaid] = useState("");
-  const [voice, setVoice] = useState<string | undefined>(undefined);
   /** 오늘 연습할 표현. 막혔을 때 화면에 띄운다 */
   const [targets, setTargets] = useState<string[]>([]);
   /** 대화가 끝난 뒤 서버가 만들어준 요약. 종료 화면에 띄운다 */
@@ -67,41 +87,34 @@ export function useRealtimeTutor() {
     { id: string; avatar: string; color: string } | null
   >(null);
 
-  const conn = useRef<RealtimeConnection | null>(null);
+  const conn = useRef<LiveKitTutorConnection | null>(null);
   /** 마이크가 켜져 있나. 유저가 직접 끌 수 있다 */
   const [micOn, setMicOn] = useState(true);
   const micOnRef = useRef(true);
-  /**
-   * 선생님 목소리.
-   *
-   * Realtime 은 이제 텍스트만 만든다 — 소리는 전부 이 큐를 지난다.
-   * 훅 밖의 명령형 객체라 ref 로 들고 있는다.
-   */
-  /** 아직 문장이 안 된 꼬리. 다음 델타와 이어 붙인다 */
-  const textBuf = useRef("");
-  /** 콜백에서 현재 자막을 읽으려고 둔다 (콜백은 deps 가 비어 있다) */
+
+  /** 콜백에서 현재 자막을 읽으려고 둔다 */
   const captionRef = useRef("");
-  /** 첫 인사를 두 번 시키지 않기 위한 빗장 */
-  const greeted = useRef(false);
-  /** 개발용 지연 측정 */
-  const speechStoppedAt = useRef(0);
-  const firstTextAt = useRef(0);
+  /** 튜터가 말하고 있는 지금 한 마디의 id. 바뀌면 앞 문장을 흐리게 내린다 */
+  const tutorSegment = useRef<string>("");
+  /**
+   * 이미 기록에 넣은 자막.
+   *
+   * ⚠️ final 자막이 두 번 오는 경우가 있다 (스트림이 닫히면서 한 번,
+   *    헤더 플래그로 한 번). segment id 로 막지 않으면 분석에 같은 말이
+   *    두 번 들어가고, 요약이 "같은 말을 반복했어요" 같은 소리를 한다.
+   */
+  const pushed = useRef<Set<string>>(new Set());
+
   const sessionId = useRef<string | null>(null);
   const startedAt = useRef<number>(0);
   const maxSec = useRef<number>(0);
   const ending = useRef(false);
-  /**
-   * 이벤트 핸들러에서 현재 상태를 읽으려고 둔다.
-   * handleServerEvent 는 deps 가 빈 콜백이라 state 를 직접 못 본다 — 넣으면
-   * 발화마다 핸들러가 새로 만들어진다.
-   */
-  const stateRef = useRef<TutorState>("idle");
-  stateRef.current = state;
+
   /**
    * 이번 대화 내용.
    *
-   * 자막으로 어차피 받고 있는 걸 쌓아둘 뿐이다. 서버는 Realtime 세션을
-   * 따로 듣고 있지 않아서, 종료할 때 이걸 올려야 요약을 만들 수 있다.
+   * 자막으로 어차피 받고 있는 걸 쌓아둘 뿐이다. 서버는 통화를 따로 듣고
+   * 있지 않아서, 종료할 때 이걸 올려야 요약을 만들 수 있다.
    * state 가 아니라 ref 인 이유: 매 발화마다 리렌더될 이유가 없다.
    */
   const transcript = useRef<TranscriptTurn[]>([]);
@@ -139,20 +152,30 @@ export function useRealtimeTutor() {
 
     const turns = transcript.current;
     transcript.current = [];
+    pushed.current = new Set();
+    tutorSegment.current = "";
 
-    // 소리는 WebRTC 오디오 트랙이라 연결을 끊으면 같이 끊긴다
-    textBuf.current = "";
-    greeted.current = false;
+    // 소리는 WebRTC 오디오 트랙이라 방을 나가면 같이 끊긴다
     try {
-      c?.close();
-    } catch {}
-    // 다른 화면(듣기·발음)이 쓰던 기본 모드로 되돌린다
+      await c?.close();
+    } catch {
+      /* 이미 끊겼으면 그만 */
+    }
+    /**
+     * 다른 화면(듣기·발음)이 쓰던 기본 모드로 되돌린다.
+     *
+     * ⚠️ 통화 **중에는** 오디오 모드를 우리가 건드리지 않는다. LiveKit 의
+     *    AudioSession 이 통화 경로(에코 제거 포함)를 잡고 있어서, 그 위에
+     *    expo-audio 모드를 덮어쓰면 에코 제거가 풀린다. 되돌리는 건 방을
+     *    나온 뒤다.
+     */
     void setAudioModeAsync({
       playsInSilentMode: true,
       allowsRecording: false,
       shouldRouteThroughEarpiece: false,
       interruptionMode: "mixWithOthers",
     }).catch(() => undefined);
+
     setState("idle");
     setElapsedSec(0);
     setCaption("");
@@ -163,7 +186,7 @@ export function useRealtimeTutor() {
     setTeacher(null);
 
     if (sid) {
-      // 대화가 있었으면 요약을 기다린다. 몇 초 걸려서 화면에 티를 내야 한다
+      // 대화가 있었으면 요약을 기다린다. 몇 초 걸려서 화면에 티를 내야 한다.
       // 서버 기준과 맞춘다 (45초 이상 + 학습자가 2번 이상 말함).
       // 여기서 안 맞추면 "정리 중" 을 띄웠다가 빈손으로 끝난다.
       const wantsSummary =
@@ -192,8 +215,9 @@ export function useRealtimeTutor() {
   /**
    * 예문을 스피커로 들려주는 동안 마이크를 끈다.
    *
-   * 안 끄면 마이크가 그 소리를 주워서 AI 가 자기 예문에 대답한다.
-   * 재생이 끝나면 반드시 다시 켠다 — 실패해도 켜야 해서 finally 로 감싼다.
+   * WebRTC 가 에코를 지우긴 하지만 완벽하진 않고, 무엇보다 **우리 예문은
+   * 선생님이 반응할 대상이 아니다.** 재생 동안 아예 안 들리게 하는 게 맞다.
+   * 실패해도 되돌려야 해서 finally 로 감싼다.
    */
   const withMicMuted = useCallback(async (play: () => Promise<void>) => {
     const c = conn.current;
@@ -232,22 +256,63 @@ export function useRealtimeTutor() {
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   }, []);
 
+  /**
+   * 자막 한 조각.
+   *
+   * 선생님 말은 caption 에, 내 말은 userSaid 에. 확정본만 기록에 넣는다 —
+   * interim 까지 넣으면 같은 말이 조각조각 여러 번 들어가서 분석이 망가진다.
+   */
+  const onTranscript = useCallback(
+    (c: {
+      role: "user" | "tutor";
+      text: string;
+      isFinal: boolean;
+      segmentId: string;
+    }) => {
+      if (c.role === "user") {
+        setUserSaid(c.text.trim());
+        if (c.isFinal && !pushed.current.has(c.segmentId)) {
+          pushed.current.add(c.segmentId);
+          pushTurn(transcript, "user", c.text);
+        }
+        return;
+      }
+
+      // 새 문장이 시작됐다 — 앞 문장은 흐리게 위로 내린다
+      if (tutorSegment.current && tutorSegment.current !== c.segmentId) {
+        setCaptionPrev(captionRef.current);
+      }
+      tutorSegment.current = c.segmentId;
+      captionRef.current = c.text;
+      setCaption(c.text);
+
+      if (c.isFinal && !pushed.current.has(c.segmentId)) {
+        pushed.current.add(c.segmentId);
+        pushTurn(transcript, "tutor", c.text);
+      }
+    },
+    [],
+  );
+
   const start = useCallback(
     async (
       mode: TutorMode,
       opts: {
         scene?: RolePlayScene;
-        voice?: string;
         topicId?: string;
         teacherId?: string;
+        addressStyle?: TutorAddressStyle;
       } = {},
     ) => {
       if (conn.current) return;
       setError(null);
       setSummary(null);
       transcript.current = [];
-      textBuf.current = "";
-      greeted.current = false;
+      pushed.current = new Set();
+      tutorSegment.current = "";
+      setCaption("");
+      setCaptionPrev("");
+      setUserSaid("");
       setState("connecting");
 
       try {
@@ -257,18 +322,9 @@ export function useRealtimeTutor() {
           return;
         }
 
-        // WebRTC 오디오는 기본이 통화 모드(이어피스)라 귀에 대야 들린다.
-        // 회화 연습은 스피커로 나와야 해서 명시적으로 돌린다.
-        await setAudioModeAsync({
-          playsInSilentMode: true,
-          allowsRecording: true,
-          shouldRouteThroughEarpiece: false,
-          interruptionMode: "doNotMix",
-        }).catch(() => undefined);
-
         // 쿼터 검사는 서버가 여기서 한다. 한도 초과면 403 이 온다.
+        // 방은 이 호출 안에서 만들어지고 Agent 도 이미 불려 있다.
         const grant = await TutorApi.createSession(mode, opts);
-        setVoice(grant.voice);
         setTargets(grant.targetExpressions ?? []);
         sessionId.current = grant.sessionId;
         maxSec.current = grant.maxDurationSec;
@@ -279,156 +335,47 @@ export function useRealtimeTutor() {
           color: grant.teacher.color,
         });
 
-        const c = await connectRealtime(grant.clientSecret, grant.model, {
-          onEvent: handleServerEvent,
-          // 채널이 열린 **뒤에** 첫 응답을 시킨다. 연결됐다고 채널이 열린 건
-          // 아니라서, 이 신호 없이 보내면 인사가 조용히 사라진다.
-          // 재연결로 두 번 자기소개하지 않게 빗장을 건다
-          onDataChannelOpen: () => {
-            if (greeted.current) return;
-            greeted.current = true;
-            conn.current?.send({ type: "response.create" });
-          },
-          onConnectionState: (s) => {
-            if (s === "failed") {
-              setError("CONNECTION_LOST");
-              setState("error");
-              void stop();
-            }
+        const c = await connectLiveKitTutor(grant.livekit, {
+          onAgentState: (s) => setState(AGENT_STATE[s] ?? "listening"),
+          onTranscript,
+          onDisconnected: () => {
+            // 우리가 끊는 중이면 정상 종료다. 아니면 선생님이 사라진 것이다
+            if (ending.current || !conn.current) return;
+            setError("CONNECTION_LOST");
+            setState("error");
+            void stop();
           },
           onError: () => setError("CONNECTION_ERROR"),
         });
 
         conn.current = c;
+        micOnRef.current = true;
+        setMicOn(true);
         startedAt.current = Date.now();
-        setState("listening");
+        // Agent 가 상태를 보고하기 전까지의 한 박자.
+        // 첫 인사는 Agent 가 알아서 시작한다 — 앱이 시킬 게 없다.
+        //
+        // ⚠️ 무조건 덮어쓰면 안 된다. Agent 가 이미 speaking 을 보고한 뒤에
+        //    이 줄이 돌면 인사 중인데 화면은 "듣고 있어요" 가 된다.
+        setState((cur) => (cur === "connecting" ? "listening" : cur));
       } catch (e: any) {
         setState("error");
         setError(e?.code ?? e?.message ?? "TUTOR_START_FAILED");
-        sessionId.current = null;
-        // 세션은 발급됐는데 연결이 실패한 경우 서버에 알려 선차감을 정정한다
+        // 세션은 열렸는데 연결이 실패한 경우 서버에 알려 선차감을 정정한다
         void stop();
       }
     },
-    [ensureMicPermission, stop],
+    [ensureMicPermission, onTranscript, stop],
   );
-
-  /**
-   * 서버 이벤트로 화면 상태를 만든다.
-   * 유저가 말하는 중인지 / AI 가 말하는 중인지 보여주는 게 이 화면의 전부다.
-   */
-  const handleServerEvent = useCallback((event: any) => {
-    switch (event?.type) {
-      case "input_audio_buffer.speech_started":
-        // 유저가 말을 시작 = 끼어들기.
-        //
-        // 세 가지를 **다** 멈춰야 한다: Realtime 의 답변 생성, 만들던 TTS,
-        // 지금 나오는 소리. 하나라도 살아 있으면 유저 말 위로 선생님 목소리가
-        // 겹치고, 그 소리를 마이크가 다시 주워서 대화가 엉킨다.
-        //
-        // AI 가 말하는 중에 이게 뜨면 진짜 끼어들기이거나 에코다. 어느 쪽인지
-        // 로그로 구분한다.
-        if (__DEV__ && stateRef.current === "speaking") {
-          console.log("[tutor] 말하는 중 발화 감지 — 끼어들기 또는 에코");
-        }
-        // 소리는 서버가 끊는다 (turn_detection.interrupt_response: true).
-        // WebRTC 라 오디오 트랙이 즉시 멎는다 — 앱이 할 일이 없다.
-        textBuf.current = "";
-        setCaptionPrev("");
-        setState("listening");
-        break;
-      case "input_audio_buffer.speech_stopped":
-        speechStoppedAt.current = Date.now();
-        firstTextAt.current = 0;
-        setState("thinking");
-        break;
-
-      // ── 선생님 목소리는 모델이 직접 낸다 ──
-      //
-      // output_modalities: ['audio'] 라 소리는 WebRTC 오디오 트랙으로 흘러와
-      // 네이티브가 알아서 재생한다 (realtime.ts 의 pc.ontrack 주석 참고).
-      // 여기서는 **자막만** 만든다.
-      //
-      // 예전에는 텍스트를 받아 문장 단위로 잘라 Azure TTS 로 읽혔다. 발음은
-      // 정확했지만 TTS 는 글자를 읽는 기계라 웃지도 톤을 바꾸지도 못했고,
-      // 언어마다 음성이 달라 한 문장 안에서 목소리가 바뀌었다.
-      case "response.output_audio_transcript.delta":
-        if (typeof event.delta === "string") {
-          if (!firstTextAt.current) firstTextAt.current = Date.now();
-          textBuf.current += event.delta;
-          // 자막은 소리와 같이 흐른다. 이 델타는 실제로 말하고 있는 내용이라
-          // 글자가 소리보다 앞서 달리지 않는다
-          captionRef.current = textBuf.current;
-          setCaption(textBuf.current);
-        }
-        break;
-      case "response.output_audio_transcript.done":
-        if (typeof event.transcript === "string" && event.transcript.trim()) {
-          captionRef.current = event.transcript;
-          setCaption(event.transcript);
-          // 기록에는 응답 전체를 남긴다 (분석용)
-          pushTurn(transcript, "tutor", event.transcript);
-        }
-        textBuf.current = "";
-        break;
-      case "response.output_audio.delta":
-        // 소리가 실제로 나오기 시작했다.
-        // 지연은 이제 이 한 숫자가 전부다 — TTS 왕복이 없어졌다. 목표 1.5초 이내
-        if (stateRef.current !== "speaking") {
-          if (__DEV__ && speechStoppedAt.current) {
-            console.log(
-              `[tutor] 지연 — 말 끝에서 첫 소리까지 ${Date.now() - speechStoppedAt.current}ms`,
-            );
-          }
-          setState("speaking");
-        }
-        break;
-      case "response.created":
-        textBuf.current = "";
-        setCaptionPrev(captionRef.current);
-        setCaption("");
-        break;
-      case "conversation.item.input_audio_transcription.completed":
-        if (typeof event.transcript === "string") {
-          setUserSaid(event.transcript.trim());
-          pushTurn(transcript, "user", event.transcript);
-        }
-        break;
-      case "response.done":
-        // 말이 중간에 끊겼을 때 원인을 여기서 확인한다.
-        // status:"incomplete" + reason:"max_output_tokens" 이면 토큰 상한이
-        // 원인이다. 그게 아니면 에코/끼어들기(위 로그)를 봐야 한다.
-        if (__DEV__) {
-          const r = event?.response;
-          if (r?.status && r.status !== "completed") {
-            console.log(
-              `[tutor] 응답 미완: ${r.status} / ${r?.status_details?.reason ?? "?"}`,
-            );
-          }
-          const u = r?.usage?.output_token_details;
-          if (u) {
-            console.log(
-              `[tutor] 출력 토큰 text=${u.text_tokens} audio=${u.audio_tokens}`,
-            );
-          }
-        }
-        setState("listening");
-        break;
-      case "error":
-        setError(event?.error?.message ?? "REALTIME_ERROR");
-        break;
-      default:
-        break;
-    }
-  }, []);
 
   /**
    * 경과 시간 + 최대 시간 도달 시 자동 종료.
    *
-   * state 를 의존성에 넣지 않는다 — state 는 말할 때마다 listening/thinking/
-   * speaking 으로 계속 바뀌는데, 그때마다 interval 이 지워졌다 다시 생겨서
-   * 1초 주기가 매번 리셋됐다. 그래서 자동 종료가 제때 안 걸렸다.
-   * 한 번 걸어두고 startedAt 유무로 판단한다.
+   * ⚠️ Agent 에도 같은 상한이 걸려 있다. 여기 것은 화면용이고, 돈을 막는
+   *    쪽은 Agent 다 — 앱은 고치면 우회되기 때문이다.
+   *
+   * state 를 의존성에 넣지 않는다 — state 는 말할 때마다 계속 바뀌는데
+   * 그때마다 interval 이 지워졌다 다시 생겨서 1초 주기가 매번 리셋된다.
    */
   useEffect(() => {
     const id = setInterval(() => {
@@ -453,7 +400,7 @@ export function useRealtimeTutor() {
   /** 화면이 사라지면 무조건 끊는다 */
   useEffect(() => {
     return () => {
-      conn.current?.close();
+      void conn.current?.close();
       conn.current = null;
     };
   }, []);
@@ -468,7 +415,6 @@ export function useRealtimeTutor() {
     /** 자막에서 뽑은 "따라 해볼 문장". 정확한 발음은 Azure 목소리로 들려준다 */
     examples: extractExamples(caption),
     targets,
-    voice,
     teacher,
     summary,
     analyzing,
@@ -499,7 +445,7 @@ function pushTurn(
   if (last && last.role === role && last.text === clean) return;
   ref.current.push({ role, text: clean.slice(0, MAX_TURN_CHARS) });
   // 앞쪽을 버린다 — 대화 후반이 더 쓸모 있다
-  if (ref.current.length > MAX_TURNS_TO_SEND * 2) {
+  if (ref.current.length > MAX_TURNS_TO_SEND) {
     ref.current.splice(0, ref.current.length - MAX_TURNS_TO_SEND);
   }
 }

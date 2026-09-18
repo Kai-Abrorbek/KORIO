@@ -31,7 +31,9 @@ docker buildx version >/dev/null 2>&1 \
   || die "docker buildx 가 없다. sudo apt-get install -y docker-buildx-plugin"
 
 [[ -f .env ]]     || die ".env 가 없다. .env.example 을 복사해서 채워라."
-[[ -f api.env ]]  || die "api.env 가 없다. ../apps/api/.env.example 을 참고해서 만들어라."
+[[ -f api.env ]]  || die "api.env 가 없다. cp api.env.example api.env 하고 채워라."
+# Agent 는 GOOGLE_API_KEY 를 따로 쓴다. api.env 에 섞지 않는다
+[[ -f agent.env ]] || die "agent.env 가 없다. cp agent.env.example agent.env 하고 채워라."
 set -a; source .env; set +a
 
 REPO_ROOT="$(cd .. && pwd)"
@@ -39,6 +41,7 @@ COMPOSE=(docker compose -f docker-compose.yml --env-file .env)
 IMAGE="${IMAGE:-korio-api}"
 TELEGRAM_IMAGE="${TELEGRAM_IMAGE:-korio-telegram}"
 ADMIN_IMAGE="${ADMIN_IMAGE:-korio-admin}"
+AGENT_IMAGE="${AGENT_IMAGE:-korio-tutor-agent}"
 READY_TIMEOUT="${READY_TIMEOUT:-120}"
 
 # ── 지금 트래픽을 받는 색 ──
@@ -61,6 +64,14 @@ other_color() { [[ "$1" == blue ]] && echo green || echo blue; }
 #    한참 뒤에야 발견된다.
 color_services()   { local c="$1"; echo "api_$c telegram_$c admin_$c"; }
 color_containers() { local c="$1"; echo "korio_api_$c korio_telegram_$c korio_admin_$c"; }
+
+# ⚠️ 튜터 Agent 는 위 목록에 **일부러 없다.**
+#    인바운드 트래픽이 없어서 무중단의 대상이 아니고, 무엇보다 두 색이 동시에
+#    뜨면 둘 다 같은 agentName 으로 LiveKit 에 등록돼서 dispatch 가 갈린다.
+#    (배포 직후 절반의 통화가 옛 프롬프트로 도는, 아무도 못 알아채는 고장)
+#    그래서 단일 컨테이너를 그 자리에서 갈아끼운다.
+AGENT_SERVICE="tutor_agent"
+AGENT_CONTAINER="korio_tutor_agent"
 
 # 한 색의 모든 컨테이너가 healthy 가 될 때까지. 하나라도 실패하면 1
 wait_color_healthy() {
@@ -114,6 +125,10 @@ cmd_rollback() {
   log "$cur 내린다"
   "${COMPOSE[@]}" stop $(color_services "$cur")
   log "롤백 완료 → $other"
+  # Agent 는 색이 없어서 이 롤백에 안 딸려 온다. 프롬프트 계약이 바뀐
+  # 배포를 되돌리는 거라면 Agent 도 같이 내려야 한다
+  warn "튜터 Agent 는 롤백 대상이 아니다 (색이 없는 단일 컨테이너)."
+  warn "  프롬프트/metadata 계약이 바뀐 배포였다면:  ./deploy.sh --tag <이전태그>"
 }
 
 cmd_deploy() {
@@ -192,6 +207,17 @@ cmd_deploy() {
     "$REPO_ROOT" \
     || die "운영 콘솔 빌드 실패. 서비스는 아무것도 안 건드렸다."
 
+  log "튜터 Agent 이미지 빌드: ${AGENT_IMAGE}:${tag}"
+  # ⚠️ "lockfile is not up to date" 로 멈추면 apps/tutor-agent 가
+  #    pnpm-lock.yaml 에 아직 없다는 뜻이다. 레포 루트에서 `pnpm install` 한 번
+  #    돌리고 락파일을 커밋해라.
+  "${runner[@]}" docker build \
+    -f "$REPO_ROOT/apps/tutor-agent/Dockerfile" \
+    -t "${AGENT_IMAGE}:${tag}" \
+    -t "${AGENT_IMAGE}:latest" \
+    "$REPO_ROOT" \
+    || die "튜터 Agent 빌드 실패. 서비스는 아무것도 안 건드렸다."
+
   local cur next; cur="$(current_color)"; next="$(other_color "$cur")"
   [[ "$cur" == none ]] && next=blue
   log "현재: ${cur} → 새로 띄울 색: ${GRN}${next}${RST} (태그 ${tag})"
@@ -214,8 +240,50 @@ cmd_deploy() {
     "${COMPOSE[@]}" stop $(color_services "$cur")
   fi
 
+  # ── 튜터 Agent ──
+  #
+  # blue/green 이 끝난 **뒤에** 한다. Agent 가 만드는 프롬프트는 API 가 주는
+  # 것이라, API 가 새 버전이 된 다음에 Agent 를 올려야 계약이 안 어긋난다.
+  #
+  # 여기서 실패해도 **API 배포는 이미 끝났다.** 그래서 die 하지 않고 경고만
+  # 남긴다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
+  deploy_agent || warn "튜터 Agent 가 안 떴다. 통화만 죽은 상태다 — 나머지는 정상."
+
   log "배포 완료 → ${GRN}${next}${RST} (${IMAGE}:${tag})"
   cmd_status
+}
+
+# 단일 컨테이너를 그 자리에서 갈아끼운다.
+# 이 몇 초 동안 **새로 시작하는 통화만** 실패한다 (기존 통화는 드레인된다).
+deploy_agent() {
+  log "튜터 Agent 교체: ${AGENT_IMAGE}:${TAG}"
+  "${COMPOSE[@]}" up -d --force-recreate --no-deps "$AGENT_SERVICE" || return 1
+  # healthy = 프로세스가 산 게 아니라 **LiveKit 에 등록됐다**는 뜻이다.
+  # 이게 통과해야 dispatch 가 실제로 이 컨테이너로 온다
+  if ! wait_healthy "$AGENT_CONTAINER"; then
+    warn "Agent 가 LiveKit 에 등록되지 않았다. 흔한 원인:"
+    warn "  · agent.env 의 LIVEKIT_URL / API_KEY / API_SECRET 오타"
+    warn "  · GOOGLE_API_KEY 누락 (첫 세션에서만 터지니 로그를 봐라)"
+    warn "  · agent.env 와 api.env 의 LIVEKIT_TUTOR_AGENT_NAME 불일치"
+    return 1
+  fi
+  # 이름이 어긋나면 dispatch 가 조용히 아무 데도 안 간다. 실제 등록된 이름을 찍어준다
+  local registered
+  # ⚠️ `|| true` 가 꼭 있어야 한다. set -Eeuo pipefail 이라 docker exec 가
+  #    실패하면 대입문에서 스크립트가 통째로 죽는다 — 배포가 다 끝난 뒤에
+  #    이름 확인 하나 때문에 죽는 건 말이 안 된다
+  registered="$(docker exec "$AGENT_CONTAINER" node -e \
+    "fetch('http://127.0.0.1:8081/worker').then(r=>r.json()).then(j=>console.log(j.agent_name)).catch(()=>{})" \
+    2>/dev/null | tr -d '\r\n' || true)"
+  local expected
+  # 마찬가지로 grep 이 못 찾으면(=값이 아직 없으면) pipefail 이 1 을 돌려준다
+  expected="$(grep -E '^LIVEKIT_TUTOR_AGENT_NAME=' api.env | head -1 | cut -d= -f2- | tr -d ' "'"'"'' || true)"
+  expected="${expected:-korio-tutor}"
+  if [[ -n "$registered" && "$registered" != "$expected" ]]; then
+    warn "Agent 등록 이름이 '${registered}' 인데 api.env 는 '${expected}' 를 부른다 — dispatch 가 아무 데도 안 간다"
+    return 1
+  fi
+  log "튜터 Agent ${GRN}등록됨${RST} (agentName=${registered:-$expected})"
 }
 
 case "${1:-}" in

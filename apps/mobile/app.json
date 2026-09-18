@@ -24,10 +24,21 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "category": ["BROWSABLE", "DEFAULT"],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
           "data": [
-            { "scheme": "https", "host": "korio.online", "pathPrefix": "/i" },
-            { "scheme": "https", "host": "korio.online", "pathPrefix": "/u" }
+            {
+              "scheme": "https",
+              "host": "korio.online",
+              "pathPrefix": "/i"
+            },
+            {
+              "scheme": "https",
+              "host": "korio.online",
+              "pathPrefix": "/u"
+            }
           ]
         }
       ],
@@ -96,7 +107,15 @@
           "defaultChannel": "default"
         }
       ],
-      "@config-plugins/react-native-webrtc"
+      "@config-plugins/react-native-webrtc",
+      [
+        "@livekit/react-native-expo-plugin",
+        {
+          "android": {
+            "audioType": "communication"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

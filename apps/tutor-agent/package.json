@@ -1,0 +1,24 @@
+{
+  "name": "tutor-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/agent.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx --env-file-if-exists=.env src/agent.ts dev",
+    "start": "node dist/agent.js start"
+  },
+  "dependencies": {
+    "@livekit/agents": "^1.9.0",
+    "@livekit/agents-plugin-google": "^1.9.0",
+    "@livekit/rtc-node": "^0.13.34",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "tsx": "^4.20.3",
+    "typescript": "5.9.2"
+  }
+}
