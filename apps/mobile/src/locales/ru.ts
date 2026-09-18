@@ -1409,6 +1409,7 @@ export default {
       TUTOR_DAILY_LIMIT_REACHED: "Лимит на сегодня исчерпан. До завтра!",
       TUTOR_MONTHLY_LIMIT_REACHED: "Лимит на этот месяц исчерпан.",
       TUTOR_NOT_CONFIGURED: "Сейчас недоступно.",
+      TUTOR_AGENT_UNAVAILABLE: "Преподаватель не отвечает. Попробуйте ещё раз через минуту.",
       TUTOR_SESSION_FAILED: "Не удалось начать разговор. Попробуйте ещё раз.",
     },
   },

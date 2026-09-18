@@ -338,6 +338,18 @@ export function useRealtimeTutor() {
         const c = await connectLiveKitTutor(grant.livekit, {
           onAgentState: (s) => setState(AGENT_STATE[s] ?? "listening"),
           onTranscript,
+          /**
+           * 선생님이 끝내 응답이 없다.
+           *
+           * ⚠️ 이걸 안 잡으면 화면이 계속 "듣고 있어요" 로 남는다 — 유저 차례인
+           *    것과 **고장난 것이 구분이 안 된다.** 실제로 Agent 컨테이너가 매
+           *    통화마다 죽는데 화면은 멀쩡해 보였고, 서버 로그를 봐야만 알았다.
+           */
+          onAgentMissing: () => {
+            setError("TUTOR_AGENT_UNAVAILABLE");
+            setState("error");
+            void stop();
+          },
           onDisconnected: () => {
             // 우리가 끊는 중이면 정상 종료다. 아니면 선생님이 사라진 것이다
             if (ending.current || !conn.current) return;

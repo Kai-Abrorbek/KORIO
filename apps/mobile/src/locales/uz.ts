@@ -1409,6 +1409,7 @@ export default {
       TUTOR_DAILY_LIMIT_REACHED: "Bugungi limit tugadi. Ertaga ko'rishamiz!",
       TUTOR_MONTHLY_LIMIT_REACHED: "Bu oygi limit tugadi.",
       TUTOR_NOT_CONFIGURED: "Hozircha mavjud emas.",
+      TUTOR_AGENT_UNAVAILABLE: "Ustoz javob bermayapti. Birozdan so'ng qayta urinib ko'ring.",
       TUTOR_SESSION_FAILED: "Suhbatni boshlab bo'lmadi. Qayta urinib ko'ring.",
     },
   },

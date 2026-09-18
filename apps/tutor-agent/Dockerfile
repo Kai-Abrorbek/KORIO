@@ -55,9 +55,26 @@ FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /repo/apps/tutor-agent
 
-# tini 로 PID 1 을 잡아야 SIGTERM 이 node 까지 제대로 전달된다.
-# 안 그러면 배포할 때 통화 중인 세션이 드레인 없이 끊긴다.
-RUN apt-get update && apt-get install -y --no-install-recommends tini \
+# ⚠️ ca-certificates 가 **반드시** 있어야 한다.
+#
+#    node:*-bookworm-slim 은 빌드 중에 ca-certificates 를 깔았다가 마지막에
+#    `apt-get purge -y --auto-remove` 로 **다시 지운다.** 그래서 기본 이미지엔
+#    시스템 CA 저장소가 없다.
+#
+#    Node 자체는 Mozilla CA 를 번들로 들고 있어서 HTTPS 가 잘 된다 — 그래서
+#    API 컨테이너는 멀쩡하다. 하지만 @livekit/rtc-node 는 **Rust 네이티브**라
+#    rustls 가 시스템 저장소만 본다. 없으면 LiveKit(wss://)에 붙는 순간
+#
+#      IO error: no native root CA certificates found
+#
+#    으로 매 job 마다 죽는다. 워커는 registered 라 healthy 로 보이고 통화만
+#    안 되는, 컨테이너 밖에서는 안 보이는 고장이다.
+#
+# tini 는 PID 1 을 잡아 SIGTERM 을 node 까지 전달한다 (배포 때 통화 드레인).
+RUN apt-get update && apt-get install -y --no-install-recommends tini ca-certificates \
+    && update-ca-certificates \
+    # 다시 사라지면 빌드에서 잡는다. 런타임에 가서야 알게 되면 늦다
+    && test -s /etc/ssl/certs/ca-certificates.crt \
     && rm -rf /var/lib/apt/lists/*
 
 # 런타임 모듈 해석: WORKDIR 이 /repo/apps/tutor-agent 라 node 가 위로 올라가며

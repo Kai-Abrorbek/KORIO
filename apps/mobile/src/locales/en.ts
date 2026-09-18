@@ -1404,6 +1404,7 @@ export default {
       TUTOR_DAILY_LIMIT_REACHED: "You've used today's time. See you tomorrow!",
       TUTOR_MONTHLY_LIMIT_REACHED: "You've used this month's time.",
       TUTOR_NOT_CONFIGURED: "This isn't available right now.",
+      TUTOR_AGENT_UNAVAILABLE: "The teacher isn't responding. Please try again in a moment.",
       TUTOR_SESSION_FAILED: "Couldn't start the conversation. Please try again.",
     },
   },

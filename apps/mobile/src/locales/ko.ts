@@ -1402,6 +1402,7 @@ export default {
       TUTOR_DAILY_LIMIT_REACHED: "오늘 사용량을 다 썼어요. 내일 다시 만나요!",
       TUTOR_MONTHLY_LIMIT_REACHED: "이번 달 사용량을 다 썼어요.",
       TUTOR_NOT_CONFIGURED: "지금은 이용할 수 없어요.",
+      TUTOR_AGENT_UNAVAILABLE: "선생님이 응답하지 않아요. 잠시 뒤에 다시 시도해 주세요.",
       TUTOR_SESSION_FAILED: "대화를 시작하지 못했어요. 다시 시도해 주세요.",
     },
   },

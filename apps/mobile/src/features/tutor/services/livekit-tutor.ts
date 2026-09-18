@@ -38,6 +38,18 @@ const ATTR_FINAL = "lk.transcription_final";
 const ATTR_SEGMENT_ID = "lk.segment_id";
 
 /**
+ * 이 시간 안에 Agent 가 자기 상태를 한 번도 안 알리면 고장으로 본다.
+ *
+ * ⚠️ 이게 없으면 **Agent 가 죽은 것과 유저 차례인 것이 화면에서 똑같아 보인다.**
+ *    실제로 Agent 컨테이너가 매 통화마다 죽고 있었는데, 화면은 계속
+ *    "듣고 있어요" 였고 서버 로그를 봐야만 알 수 있었다.
+ *
+ * 워커는 이미 떠 있는 상태로 job 을 받으므로 정상이면 1~2초 안에 온다.
+ * 20초는 콜드 스타트까지 넉넉히 본 값이다.
+ */
+const AGENT_WATCHDOG_MS = 20_000;
+
+/**
  * Agent 가 보고하는 상태.
  *
  * ⚠️ 이건 우리가 만든 목록이 아니라 LiveKit Agents 의 AgentState 다.
@@ -64,6 +76,13 @@ export interface TranscriptChunk {
 export interface LiveKitTutorHandlers {
   onAgentState?: (state: LiveKitAgentState) => void;
   onTranscript?: (chunk: TranscriptChunk) => void;
+  /**
+   * 방에는 들어왔는데 Agent 가 끝내 응답이 없다.
+   *
+   * 선생님이 아예 안 들어왔거나(job 실패), 들어와서 Gemini 연결에 실패한
+   * 경우다. 둘 다 유저 입장에선 "아무 말도 안 하는 화면"이라 구분할 필요가 없다.
+   */
+  onAgentMissing?: () => void;
   /** 방이 끊겼다. 유저가 끊은 게 아니면 에러로 다룬다 */
   onDisconnected?: (reason?: string) => void;
   onError?: (e: Error) => void;
@@ -122,10 +141,26 @@ export async function connectLiveKitTutor(
    */
   const buffers = new Map<string, string>();
 
+  /** Agent 가 살아 있다는 신호를 한 번이라도 받았나 */
+  let agentSeen = false;
+  let watchdog: ReturnType<typeof setTimeout> | undefined;
+
+  /** 상태 보고 = Agent 가 살아 있다는 뜻. 워치독을 푼다 */
+  const reportAgentState = (next: string) => {
+    if (!agentSeen) {
+      agentSeen = true;
+      if (watchdog) clearTimeout(watchdog);
+      watchdog = undefined;
+    }
+    handlers.onAgentState?.(next as LiveKitAgentState);
+  };
+
   let closed = false;
   const close = async () => {
     if (closed) return;
     closed = true;
+    if (watchdog) clearTimeout(watchdog);
+    watchdog = undefined;
     try {
       room.unregisterTextStreamHandler(TOPIC_TRANSCRIPTION);
     } catch {
@@ -161,14 +196,14 @@ export async function connectLiveKitTutor(
       (changed: Record<string, string>, participant: Participant) => {
         if (participant === room.localParticipant) return;
         const next = changed[ATTR_AGENT_STATE];
-        if (next) handlers.onAgentState?.(next as LiveKitAgentState);
+        if (next) reportAgentState(next);
       },
     )
     .on(RoomEvent.ParticipantConnected, (p: RemoteParticipant) => {
       // 늦게 들어온 Agent 의 현재 상태를 한 번 읽어 준다.
       // attribute 는 "바뀔 때"만 이벤트가 오므로 입장 시점 값은 여기서 챙긴다
       const now = p.attributes?.[ATTR_AGENT_STATE];
-      if (now) handlers.onAgentState?.(now as LiveKitAgentState);
+      if (now) reportAgentState(now);
     });
 
   /**
@@ -224,6 +259,20 @@ export async function connectLiveKitTutor(
     await room.connect(grant.serverUrl, grant.participantToken);
     // 마이크는 연결 **뒤에** 켠다. 먼저 켜면 publish 할 곳이 없다
     await room.localParticipant.setMicrophoneEnabled(true);
+
+    // 이미 들어와 있는 Agent 가 있으면 그 상태를 먼저 줍는다.
+    // (attribute 는 "바뀔 때"만 이벤트가 오므로 입장 전 값은 이벤트로 안 온다)
+    for (const p of room.remoteParticipants.values()) {
+      const now = p.attributes?.[ATTR_AGENT_STATE];
+      if (now) reportAgentState(now);
+    }
+
+    if (!agentSeen) {
+      watchdog = setTimeout(() => {
+        if (agentSeen || closed) return;
+        handlers.onAgentMissing?.();
+      }, AGENT_WATCHDOG_MS);
+    }
   } catch (e) {
     await close();
     throw e instanceof Error ? e : new Error("LIVEKIT_CONNECT_FAILED");
