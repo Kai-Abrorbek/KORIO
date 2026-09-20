@@ -120,8 +120,18 @@ export class TutorService implements OnModuleInit {
       addressStyle,
     );
 
-    // 방 이름이 sessionId 로 만들어지므로 세션을 **먼저** 연다
-    const session = await this.usage.open(userId, mode, scene, topic?.id, teacher);
+    // 방 이름이 sessionId 로 만들어지므로 세션을 **먼저** 연다.
+    // ⚠️ 모델은 dispatch metadata 와 **같은 값**을 넘긴다. 둘이 갈라지면
+    //    DB 의 원가 분석이 실제로 돈 모델과 안 맞는다
+    const model = geminiLiveModel();
+    const session = await this.usage.open(
+      userId,
+      mode,
+      model,
+      scene,
+      topic?.id,
+      teacher,
+    );
     const sessionId = session._id.toString();
     const maxDurationSec =
       Math.min(quota.allowedMin, MAX_SESSION_MINUTES) * 60;
@@ -129,7 +139,7 @@ export class TutorService implements OnModuleInit {
     const meta: TutorDispatchMetadata = {
       sessionId,
       instructions,
-      model: geminiLiveModel(),
+      model,
       // 목소리는 **선생님이 정한다.** 유저가 카드에서 고른 사람과 소리가
       // 따로 놀면 고른 의미가 없다 (앱이 보낸 voice 요청값은 무시한다)
       voiceName: voiceForTeacher(teacher.id),
@@ -145,9 +155,14 @@ export class TutorService implements OnModuleInit {
     try {
       livekit = await this.livekit.prepareRoom(meta);
     } catch (e) {
-      // 방을 못 만들었으면 세션도 없던 일로 한다. 안 그러면 선차감 1분이
-      // 남아서, 연결도 못 해본 유저의 쿼터가 깎인다
-      await this.usage.close(userId, sessionId, 0).catch(() => null);
+      // 방을 못 만들었으면 세션도 없던 일로 한다.
+      //
+      // ⚠️ close(…, 0) 이 아니라 abort() 다. close 에는 10초 하한이 있어서
+      //    (연결만 해도 API 는 불렸다는 규칙) 여기서 부르면 **연결도 못 해본
+      //    유저가 10초씩 깎인다.** 초기 연결이 자주 실패하는 동안 실패만으로
+      //    하루 한도가 차는 일이 실제로 가능했다.
+      //    dispatch 실패는 대화 모델을 한 번도 안 불렀으니 원가가 0 이다.
+      await this.usage.abort(userId, sessionId).catch(() => null);
       throw e;
     }
 
@@ -307,6 +322,7 @@ export class TutorService implements OnModuleInit {
     const session = await this.usage.open(
       userId,
       mode,
+      TUTOR_MODEL,
       scene,
       topic?.id,
       teacher,

@@ -10,7 +10,6 @@ import {
   DAILY_MINUTES,
   MAX_SESSION_MINUTES,
   MONTHLY_MINUTES,
-  TUTOR_MODEL,
   type TutorMode,
   type TutorTier,
 } from './tutor.const';
@@ -135,9 +134,19 @@ export class TutorUsageService {
    * 종료 보고를 안 보내는 경우(앱 강제 종료, 네트워크 끊김)에도 무한히
    * 재발급받을 수 없게 하려는 것이다. 정상 종료되면 실제 시간으로 정정한다.
    */
+  /**
+   * @param model 이 세션을 **실제로** 돌린 대화 모델.
+   *
+   * ⚠️ 여기서 상수를 읽지 않는다. 예전엔 `model: TUTOR_MODEL` 로 박혀 있었는데,
+   *    전송을 Gemini 로 바꾼 뒤에도 DB 에는 `gpt-realtime-2.1-mini` 가 계속
+   *    쌓였다. 실행은 안 깨지지만 **원가 분석과 모델 비교가 통째로 틀린다** —
+   *    그 숫자로 쿼터를 정하게 되니 조용히 위험한 종류의 버그다.
+   *    부르는 쪽이 자기가 쓴 모델을 넘긴다.
+   */
   async open(
     userId: string,
     mode: TutorMode,
+    model: string,
     scene?: string,
     topic?: string,
     teacher?: { id: string; tts: { provider: string; voiceId: string } },
@@ -155,7 +164,7 @@ export class TutorUsageService {
       durationSec: 60,
       finalized: false,
       // 어떤 모델로 돌았는지 남긴다 — 모델을 바꿔가며 비교할 때 근거가 된다
-      model: TUTOR_MODEL,
+      model,
     });
     return doc.save();
   }
@@ -189,6 +198,39 @@ export class TutorUsageService {
     session.endedAt = new Date();
     session.finalized = true;
     await session.save();
+    return session;
+  }
+
+  /**
+   * **시작도 못 한** 세션을 0 초로 닫는다.
+   *
+   * close() 에는 10초 하한이 있다 — "연결만 하고 끊어도 API 호출은 일어났다"
+   * 는 뜻이라 거기선 맞는 규칙이다. 하지만 LiveKit 방을 못 만들거나 Agent
+   * dispatch 가 실패한 경우는 **대화 모델을 한 번도 부르지 않았다.** 원가가
+   * 0 인데 쿼터를 깎으면, 우리 쪽 장애로 유저 사용량이 줄어든다.
+   *
+   * (초기 연결이 자주 실패하던 시기에 실패만으로 하루 한도가 차는 일이
+   *  실제로 가능했다. close(…, 0) 이 10초로 올라가고 있었다.)
+   *
+   * ⚠️ 서버 내부에서만 부른다. 엔드포인트로 노출하면 아무 세션이나 0 초로
+   *    닫아서 쿼터를 무한히 쓸 수 있다.
+   */
+  async abort(userId: string, sessionId: string) {
+    if (!Types.ObjectId.isValid(sessionId)) return null;
+    const session = await this.sessionModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(sessionId),
+        userId: new Types.ObjectId(userId),
+        finalized: false,
+      },
+      { $set: { durationSec: 0, endedAt: new Date(), finalized: true } },
+      { new: true },
+    );
+    if (session) {
+      // 얼마나 자주 실패하는지는 로그로만 센다. 실패 세션도 행은 남겨둬서
+      // 나중에 "dispatch 실패율" 을 뽑을 수 있게 한다
+      this.logger.warn(`세션 ${sessionId} 를 0초로 중단 처리했다 (연결 실패)`);
+    }
     return session;
   }
 
