@@ -1331,14 +1331,28 @@ export default {
     /** 통화 중 화면 (TutorCallScreen) */
     call: {
       progress: "표현 {{done}}/{{total}}",
+      step: "Step {{done}} / {{total}}",
       sayHi: "먼저 인사해 보세요",
       todayExpression: "오늘의 표현",
-      slower: "천천히",
+      roleLabel: "한국어 선생님",
+      cheer: "조금만 더 해보자!\n넌 할 수 있어!",
+      tagline: "오늘의 연습이 내일을 바꿔요",
+      slower: "천천히 말해줘요",
       replay: "다시 듣기",
-      explain: "설명",
-      mic: "마이크",
-      text: "자막",
+      explain: "설명해줘요",
+      micOff: "마이크 끄기",
+      micOn: "마이크 켜기",
+      text: "텍스트 보기",
+      textHide: "텍스트 숨기기",
       end: "수업 종료",
+    },
+    personality: {
+      calm: "차분한",
+      friendly: "다정한",
+      energetic: "활기찬",
+      strict: "엄격한",
+      pronunciation: "발음 코치",
+      teasing: "장난꾸러기",
     },
     /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
     setup: {

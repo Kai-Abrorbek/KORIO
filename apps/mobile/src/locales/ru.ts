@@ -1338,14 +1338,28 @@ export default {
     /** 통화 중 화면 (TutorCallScreen) */
     call: {
       progress: "Фразы {{done}}/{{total}}",
+      step: "Шаг {{done}} / {{total}}",
       sayHi: "Поздоровайтесь, чтобы начать",
       todayExpression: "Фраза дня",
-      slower: "Медленнее",
+      roleLabel: "Преподаватель корейского",
+      cheer: "Ещё чуть-чуть!\nУ тебя получится!",
+      tagline: "Практика сегодня — успех завтра",
+      slower: "Скажи медленнее",
       replay: "Ещё раз",
-      explain: "Объяснить",
-      mic: "Микрофон",
-      text: "Субтитры",
+      explain: "Объясни",
+      micOff: "Выключить микрофон",
+      micOn: "Включить микрофон",
+      text: "Показать текст",
+      textHide: "Скрыть текст",
       end: "Завершить урок",
+    },
+    personality: {
+      calm: "Спокойная",
+      friendly: "Добрая",
+      energetic: "Энергичная",
+      strict: "Строгая",
+      pronunciation: "Произношение",
+      teasing: "Задорная",
     },
     /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
     setup: {

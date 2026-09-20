@@ -53,6 +53,8 @@ export interface TutorSetupResult {
    * 다시 받아올 이유가 없다.
    */
   teacherName?: string;
+  /** 통화 헤더 부제에 쓴다 ("Teasing · 한국어 선생님") */
+  teacherPersonality?: string;
   topicTitle?: string;
 }
 
@@ -408,6 +410,7 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
                 addressStyle,
                 teachingLanguage,
                 teacherName: teacher?.name,
+                teacherPersonality: teacher?.personality,
                 topicTitle: topic?.title,
               })
             }

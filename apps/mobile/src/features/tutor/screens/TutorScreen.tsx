@@ -27,6 +27,10 @@ export default function TutorScreen() {
   const [topicTitle, setTopicTitle] = useState<string | undefined>(undefined);
   /** 이번 세션 선생님 이름. 서버가 이름을 안 주는 통화 화면용 */
   const [teacherName, setTeacherName] = useState<string | undefined>(undefined);
+  /** 헤더 부제("Teasing · 한국어 선생님")용. 서버 grant 에는 성격이 없다 */
+  const [teacherPersonality, setTeacherPersonality] = useState<
+    string | undefined
+  >(undefined);
 
   const {
     state,
@@ -66,6 +70,7 @@ export default function TutorScreen() {
       // 통화/정리 화면 헤더용. 이번 세션 동안만 들고 있으면 된다
       setTopicTitle(opts.topicTitle);
       setTeacherName(opts.teacherName);
+      setTeacherPersonality(opts.teacherPersonality);
       void start("freeTalk", {
         topicId: opts.topicId,
         teacherId: opts.teacherId,
@@ -128,6 +133,7 @@ export default function TutorScreen() {
       targets={targets}
       teacher={teacher}
       teacherName={teacherName}
+      teacherPersonality={teacherPersonality}
       topicTitle={topicTitle}
       elapsedSec={elapsedSec}
       maxSec={maxSec}

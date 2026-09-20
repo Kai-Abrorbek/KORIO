@@ -1338,14 +1338,28 @@ export default {
     /** 통화 중 화면 (TutorCallScreen) */
     call: {
       progress: "Ibora {{done}}/{{total}}",
+      step: "Bosqich {{done}} / {{total}}",
       sayHi: "Avval salomlashing",
       todayExpression: "Bugungi ibora",
-      slower: "Sekinroq",
+      roleLabel: "Koreys tili ustozi",
+      cheer: "Yana bir oz!\nSen uddalaysan!",
+      tagline: "Bugun mashq — ertaga natija",
+      slower: "Sekinroq ayting",
       replay: "Qayta eshitish",
-      explain: "Izoh",
-      mic: "Mikrofon",
-      text: "Matn",
+      explain: "Tushuntiring",
+      micOff: "Mikrofonni o'chirish",
+      micOn: "Mikrofonni yoqish",
+      text: "Matnni ko'rsatish",
+      textHide: "Matnni yashirish",
       end: "Darsni tugatish",
+    },
+    personality: {
+      calm: "Xotirjam",
+      friendly: "Mehribon",
+      energetic: "Quvnoq",
+      strict: "Talabchan",
+      pronunciation: "Talaffuz ustasi",
+      teasing: "Hazilkash",
     },
     /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
     setup: {

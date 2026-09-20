@@ -10,11 +10,15 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Clipboard from "expo-clipboard";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
   withDelay,
+  withRepeat,
+  cancelAnimation,
+  interpolate,
   FadeIn,
   FadeOut,
   LinearTransition,
@@ -55,6 +59,8 @@ export interface TutorCallScreenProps {
   targets: string[];
   teacher: { id: string; avatar: string; color: string } | null;
   teacherName?: string;
+  /** 선생님 성격. 헤더 부제("Teasing · 한국어 선생님")에 쓴다 */
+  teacherPersonality?: string;
   topicTitle?: string;
   elapsedSec: number;
   maxSec: number;
@@ -92,6 +98,9 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
   /** 지금 자막에 대한 우즈벡어 설명. 새 문장이 오면 지운다 */
   const [explain, setExplain] = useState("");
   const [explaining, setExplaining] = useState(false);
+  /** 로마자 표기. 헤더 우측 슬라이더 버튼으로 끈다 (고급자에겐 거슬린다) */
+  const [roman, setRoman] = useState(true);
+  const [copied, setCopied] = useState(false);
   /** 유저가 실제로 말해본 오늘의 표현 */
   const [doneCount, setDoneCount] = useState(0);
   const doneRef = useRef<Set<string>>(new Set());
@@ -101,7 +110,8 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
   const remain = p.maxSec > 0 ? Math.max(0, p.maxSec - p.elapsedSec) : 0;
   const nearEnd = p.active && p.maxSec > 0 && remain <= 30;
 
-  const avatarSize = height < 700 ? 104 : height < 820 ? 122 : 138;
+  // 배경에 서는 인물이라 예전(104~138)보다 크게 잡는다
+  const avatarSize = height < 700 ? 132 : height < 820 ? 154 : 172;
 
   useEffect(() => {
     setExplain("");
@@ -186,81 +196,22 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
     }
   }, [p.caption, focus, explaining, t]);
 
+  const copy = useCallback(async () => {
+    if (!focus) return;
+    await Clipboard.setStringAsync(focus);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1400);
+  }, [focus]);
+
   const hasTargets = p.targets.length > 0;
   const pct = hasTargets ? doneCount / p.targets.length : 0;
 
   return (
     <View style={st.root}>
-      <Backdrop accent={accent} teacherColor={teacherColor} />
+      <Backdrop accent={accent} teacherColor={teacherColor} state={p.state} />
 
-      {/* 1·2) 선생님은 왼쪽, 시간은 오른쪽 */}
-      <View style={[st.header, { paddingTop: insets.top + 8 }]}>
-        <View style={st.identity}>
-          <View
-            style={[
-              st.idAvatar,
-              { backgroundColor: hexA(teacherColor, 0.22), borderColor: hexA(teacherColor, 0.55) },
-            ]}
-          >
-            <Text style={st.idAvatarText}>{p.teacher?.avatar ?? "🧑‍🏫"}</Text>
-          </View>
-          <View style={st.idText}>
-            <Text style={st.idName} numberOfLines={1}>
-              {p.teacherName ?? t("tutor.title")}
-            </Text>
-            <View style={st.idStateRow}>
-              <View style={[st.dot, { backgroundColor: accent }]} />
-              <Text style={[st.idState, { color: accent }]} numberOfLines={1}>
-                {t(`tutor.state.${p.state}`)}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={st.headerRight}>
-          {p.active && (
-            <View style={[st.timer, nearEnd && st.timerWarn]}>
-              <Ionicons
-                name="time-outline"
-                size={13}
-                color={nearEnd ? "#fff" : "rgba(255,255,255,0.78)"}
-              />
-              <Text style={[st.timerText, nearEnd && st.timerTextWarn]}>
-                {fmt(remain)}
-              </Text>
-            </View>
-          )}
-          <Pressable onPress={p.onClose} hitSlop={10} style={st.iconBtn}>
-            <Ionicons name="chevron-down" size={22} color="#fff" />
-          </Pressable>
-        </View>
-      </View>
-
-      {/* 3) 오늘 뭘 하고 있는지 한 줄 */}
-      <View style={st.progressCard}>
-        <View style={st.progressTop}>
-          <Ionicons
-            name={p.topicTitle ? "bookmark" : "chatbubbles"}
-            size={13}
-            color="rgba(255,255,255,0.72)"
-          />
-          <Text style={st.progressTitle} numberOfLines={1}>
-            {p.topicTitle ?? t("tutor.freeTalk")}
-          </Text>
-          {hasTargets && (
-            <Text style={st.progressCount}>
-              {t("tutor.call.progress", {
-                done: doneCount,
-                total: p.targets.length,
-              })}
-            </Text>
-          )}
-        </View>
-        {hasTargets && <ProgressBar pct={pct} accent={accent} />}
-      </View>
-
-      {/* 4) 가운데는 선생님 */}
-      <View style={st.stage}>
+      {/* 선생님은 배경에 선다. 유리 패널이 그 앞을 덮는 구성이다 */}
+      <View style={[st.stage, { top: insets.top + 96 }]} pointerEvents="none">
         <TutorCharacter
           state={p.state}
           avatar={p.teacher?.avatar ?? "🧑‍🏫"}
@@ -269,7 +220,104 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         />
       </View>
 
-      {/* 5) 지금 오가는 말 */}
+      {/* 아래를 깔아줘야 유리 패널 위 글씨가 읽힌다 */}
+      <LinearGradient
+        colors={["transparent", "rgba(9,7,20,0.55)", "#090714"]}
+        locations={[0, 0.42, 1]}
+        style={st.scrim}
+        pointerEvents="none"
+      />
+
+      {/* 1) 헤더 — 닫기 · 선생님 · 시간 */}
+      <View style={[st.header, { paddingTop: insets.top + 4 }]}>
+        <Pressable onPress={p.onClose} hitSlop={12} style={st.iconBtn}>
+          <Ionicons name="chevron-down" size={26} color="#fff" />
+        </Pressable>
+
+        <View style={st.idText}>
+          <View style={st.idNameRow}>
+            <Text style={st.idName} numberOfLines={1}>
+              {p.teacherName ?? t("tutor.title")}
+            </Text>
+            <Text style={st.idEmoji}>{p.teacher?.avatar ?? "🧑‍🏫"}</Text>
+          </View>
+          <Text style={st.idRole} numberOfLines={1}>
+            {p.teacherPersonality
+              ? `${t(`tutor.personality.${p.teacherPersonality}`)} · ${t("tutor.call.roleLabel")}`
+              : t("tutor.call.roleLabel")}
+          </Text>
+        </View>
+
+        <View style={st.headerRight}>
+          {p.active && (
+            <View style={[st.timer, nearEnd && st.timerWarn]}>
+              <Ionicons
+                name="time-outline"
+                size={13}
+                color={nearEnd ? "#fff" : "rgba(255,255,255,0.8)"}
+              />
+              <Text style={[st.timerText, nearEnd && st.timerTextWarn]}>
+                {fmt(remain)}
+              </Text>
+            </View>
+          )}
+          <Pressable
+            onPress={() => setRoman((v) => !v)}
+            hitSlop={10}
+            style={[st.tune, roman && st.tuneOn]}
+          >
+            <Ionicons
+              name="options-outline"
+              size={18}
+              color={roman ? "#1A1A2E" : "rgba(255,255,255,0.75)"}
+            />
+          </Pressable>
+        </View>
+      </View>
+
+      {/* 2) 진도 카드 + 벽에 적어둔 응원 한 줄 */}
+      <View style={st.topRow}>
+        <View style={st.progressCard}>
+          <View style={st.progressTop}>
+            <Text style={st.progressIcon}>{p.topicTitle ? "☕" : "💬"}</Text>
+            <Text style={st.progressTitle} numberOfLines={1}>
+              {p.topicTitle ?? t("tutor.freeTalk")}
+            </Text>
+          </View>
+
+          {hasTargets && (
+            <>
+              <Text style={st.progressStep}>
+                {t("tutor.call.step", {
+                  done: doneCount,
+                  total: p.targets.length,
+                })}
+              </Text>
+              <View style={st.progressBarRow}>
+                <View style={st.progressBarWrap}>
+                  <ProgressBar pct={pct} accent={accent} />
+                </View>
+                <Text style={st.progressPct}>{Math.round(pct * 100)}%</Text>
+              </View>
+            </>
+          )}
+        </View>
+
+        {/* 선생님이 말하는 중엔 비켜준다 — 화면이 시끄러우면 어차피 안 읽힌다 */}
+        {p.active && p.state !== "speaking" && (
+          <Animated.Text
+            entering={FadeIn.duration(600)}
+            exiting={FadeOut.duration(260)}
+            style={st.cheer}
+          >
+            {t("tutor.call.cheer")}
+          </Animated.Text>
+        )}
+      </View>
+
+      <View style={st.spacer} />
+
+      {/* 3) 지금 오가는 말 */}
       {showText && (
         <Animated.View
           entering={FadeIn.duration(180)}
@@ -277,6 +325,13 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
           layout={LinearTransition.duration(220)}
           style={st.glass}
         >
+          <View style={st.waveRow}>
+            <Waveform state={p.state} accent={accent} />
+            <Text style={[st.waveLabel, { color: accent }]} numberOfLines={1}>
+              {t(`tutor.state.${p.state}`)}
+            </Text>
+          </View>
+
           {!!p.userSaid && p.active && (
             <Animated.View entering={FadeIn.duration(180)} style={st.userRow}>
               <Text style={st.userText} numberOfLines={2}>
@@ -308,58 +363,80 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
           )}
 
           {!!explain && (
-            <Animated.View entering={FadeIn.duration(180)} style={st.explainBox}>
-              <Text style={st.explainFlag}>🇺🇿</Text>
-              <Text style={st.explainText}>{explain}</Text>
-            </Animated.View>
+            <Animated.Text
+              entering={FadeIn.duration(180)}
+              style={st.explainText}
+              numberOfLines={3}
+            >
+              {explain}
+            </Animated.Text>
           )}
         </Animated.View>
       )}
 
-      {/* 6) 따라 할 한 문장. 화면에서 유일하게 밝은 덩어리다 */}
+      {/* 4) 따라 할 한 문장. 화면에서 유일하게 밝은 덩어리다 */}
       {!!focus && p.active && (
         <Animated.View
           entering={FadeIn.duration(220)}
           layout={LinearTransition.duration(220)}
           style={st.card}
         >
-          <View style={st.cardHead}>
-            <Text style={st.cardLabel}>{t("tutor.call.todayExpression")}</Text>
-            <Text style={st.cardHint}>{t("tutor.tapToHear")}</Text>
+          <View style={st.cardBadge}>
+            <Text style={st.cardBadgeText}>
+              {t("tutor.call.todayExpression")}
+            </Text>
           </View>
+
           <Pressable style={st.cardBody} onPress={() => play(focus, false)}>
+            <View
+              style={[st.cardPlay, { backgroundColor: hexA(teacherColor, 0.16) }]}
+            >
+              <Ionicons name="volume-high" size={18} color={teacherColor} />
+            </View>
+
             <View style={st.cardTextWrap}>
               <Text style={st.cardKo} numberOfLines={2}>
                 {focus}
               </Text>
-              <Text style={st.cardRoman} numberOfLines={1}>
-                {romanize(focus)}
-              </Text>
+              {roman && (
+                <Text style={st.cardRoman} numberOfLines={1}>
+                  {romanize(focus)}
+                </Text>
+              )}
             </View>
-            <View style={[st.cardPlay, { backgroundColor: teacherColor }]}>
-              <Ionicons name="volume-high" size={17} color="#fff" />
-            </View>
+
+            <Pressable
+              onPress={() => void copy()}
+              hitSlop={10}
+              style={st.cardCopy}
+            >
+              <Ionicons
+                name={copied ? "checkmark" : "copy-outline"}
+                size={18}
+                color={copied ? "#2FA96A" : "#9C99AE"}
+              />
+            </Pressable>
           </Pressable>
         </Animated.View>
       )}
 
-      {/* 7) 막혔을 때 바로 누를 세 가지 */}
+      {/* 5) 막혔을 때 바로 누를 세 가지 */}
       {p.active && (
         <View style={st.pills}>
           <Pill
-            icon="speedometer-outline"
+            emoji="🐌"
             label={t("tutor.call.slower")}
             onPress={() => play(replayText, true)}
             disabled={!replayText.trim()}
           />
           <Pill
-            icon="refresh"
+            emoji="🔄"
             label={t("tutor.call.replay")}
             onPress={() => play(replayText, false)}
             disabled={!replayText.trim()}
           />
           <Pill
-            icon={explaining ? "hourglass-outline" : "language-outline"}
+            emoji={explaining ? "⏳" : "💡"}
             label={t("tutor.call.explain")}
             onPress={() => void loadExplain()}
             disabled={explaining || !(p.caption.trim() || focus.trim())}
@@ -389,20 +466,20 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         </View>
       )}
 
-      {/* 8) 통화 조작. 항상 하단 고정 */}
-      <View style={[st.controls, { paddingBottom: insets.bottom + 10 }]}>
+      {/* 6) 통화 조작. 항상 하단 고정 */}
+      <View style={[st.controls, { paddingBottom: insets.bottom + 8 }]}>
         {p.active ? (
           <>
             <RoundBtn
               icon={p.micOn ? "mic" : "mic-off"}
-              label={t("tutor.call.mic")}
+              label={p.micOn ? t("tutor.call.micOff") : t("tutor.call.micOn")}
               onPress={p.toggleMic}
               on={!p.micOn}
             />
             <EndButton label={t("tutor.call.end")} onPress={p.onEnd} />
             <RoundBtn
               icon={showText ? "chatbox-ellipses" : "chatbox-ellipses-outline"}
-              label={t("tutor.call.text")}
+              label={showText ? t("tutor.call.textHide") : t("tutor.call.text")}
               onPress={() => setShowText((v) => !v)}
               on={!showText}
             />
@@ -419,9 +496,12 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         )}
       </View>
 
-      {/* 9) 조용한 서명 */}
-      <Text style={[st.brand, { marginBottom: insets.bottom > 0 ? 2 : 8 }]}>
-        KORIO · AI
+      {/* 7) 조용한 서명 */}
+      <Text
+        style={[st.brand, { marginBottom: insets.bottom > 0 ? 2 : 8 }]}
+        numberOfLines={1}
+      >
+        {`KORIO · ${t("tutor.call.tagline")} ♡`}
       </Text>
 
       {p.analyzing && (
@@ -434,49 +514,183 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
   );
 }
 
-/** 뒤에서 아주 느리게 도는 빛. 통화 중 화면이 정지 화면처럼 보이지 않게 한다 */
-function Backdrop({ accent, teacherColor }: { accent: string; teacherColor: string }) {
-  const a = useSharedValue(0);
-  const b = useSharedValue(0);
+/**
+ * 통화 화면 뒤에 까는 빛.
+ *
+ * ⚠️ 예전 버전은 withTiming 을 **한 번만** 돌려서, 9초가 지나면 화면이 그냥
+ *    정지 화면이 됐다. 의도는 "살아 있게" 였는데 코드가 반대였다.
+ *    이제 withRepeat 으로 계속 왕복한다.
+ *
+ * 인물 사진 대신 네 겹으로 공간을 만든다:
+ *  1) 바탕 그라데이션 — 저녁 무렵의 방
+ *  2) 색 덩어리 둘 — 아주 느리게 표류한다. 선생님 색으로 물든다
+ *  3) 선생님 뒤 키라이트 — 말할 때 빠르게, 들을 때 느리게 호흡한다
+ *  4) 창에서 비스듬히 들어오는 빛 한 줄 — 평면으로 안 보이게
+ */
+function Backdrop({
+  accent,
+  teacherColor,
+  state,
+}: {
+  accent: string;
+  teacherColor: string;
+  state: TutorState;
+}) {
+  const drift = useSharedValue(0);
+  const glow = useSharedValue(0);
 
   useEffect(() => {
-    a.value = withTiming(1, { duration: 9000, easing: Easing.inOut(Easing.ease) });
-    b.value = withDelay(
-      1200,
-      withTiming(1, { duration: 11000, easing: Easing.inOut(Easing.ease) }),
+    drift.value = withRepeat(
+      withTiming(1, { duration: 15000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
     );
-  }, [a, b]);
+    return () => cancelAnimation(drift);
+  }, [drift]);
+
+  useEffect(() => {
+    cancelAnimation(glow);
+    const dur = state === "speaking" ? 820 : state === "listening" ? 2000 : 3000;
+    glow.value = withRepeat(
+      withTiming(1, { duration: dur, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+    return () => cancelAnimation(glow);
+  }, [glow, state]);
 
   const s1 = useAnimatedStyle(() => ({
     transform: [
-      { translateX: -40 + a.value * 60 },
-      { translateY: -30 + a.value * 40 },
-      { scale: 1 + a.value * 0.18 },
+      { translateX: interpolate(drift.value, [0, 1], [-54, 44]) },
+      { translateY: interpolate(drift.value, [0, 1], [-34, 28]) },
+      { scale: interpolate(drift.value, [0, 1], [1, 1.22]) },
     ],
   }));
   const s2 = useAnimatedStyle(() => ({
     transform: [
-      { translateX: 50 - b.value * 70 },
-      { translateY: 30 - b.value * 50 },
-      { scale: 1.1 - b.value * 0.15 },
+      { translateX: interpolate(drift.value, [0, 1], [64, -42]) },
+      { translateY: interpolate(drift.value, [0, 1], [44, -24]) },
+      { scale: interpolate(drift.value, [0, 1], [1.16, 0.94]) },
     ],
+  }));
+  const keyLight = useAnimatedStyle(() => ({
+    opacity: interpolate(glow.value, [0, 1], [0.3, 0.58]),
+    transform: [{ scale: interpolate(glow.value, [0, 1], [0.94, 1.08]) }],
   }));
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <LinearGradient
-        colors={["#241E42", "#171329", "#0E0B1A"]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
+        colors={["#2B2453", "#1A1533", "#0B0818"]}
+        locations={[0, 0.46, 1]}
+        start={{ x: 0.15, y: 0 }}
+        end={{ x: 0.85, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
       <Animated.View
-        style={[st.blob, { top: -90, left: -60, backgroundColor: hexA(teacherColor, 0.3) }, s1]}
+        style={[
+          st.blob,
+          { top: -120, left: -80, backgroundColor: hexA(teacherColor, 0.34) },
+          s1,
+        ]}
       />
       <Animated.View
-        style={[st.blob, { bottom: 40, right: -80, backgroundColor: hexA(accent, 0.18) }, s2]}
+        style={[
+          st.blob,
+          { bottom: 20, right: -100, backgroundColor: hexA(accent, 0.2) },
+          s2,
+        ]}
+      />
+      <Animated.View
+        style={[
+          st.keyLight,
+          { backgroundColor: hexA(teacherColor, 0.5) },
+          keyLight,
+        ]}
+      />
+      <LinearGradient
+        colors={["transparent", "rgba(255,255,255,0.055)", "transparent"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={st.streak}
       />
     </View>
+  );
+}
+
+/**
+ * 막대 다섯 개짜리 레벨 미터.
+ *
+ * 자막만 있으면 "멈춘 건지 말하는 중인지" 를 글자로 읽어야 한다. 막대가
+ * 움직이면 읽지 않고 안다 — 말할 땐 빠르고 크게, 들을 땐 느리고 작게.
+ */
+const WAVE = [
+  { peak: 0.42, delay: 0 },
+  { peak: 0.86, delay: 90 },
+  { peak: 1, delay: 180 },
+  { peak: 0.68, delay: 270 },
+  { peak: 0.34, delay: 360 },
+];
+
+function Waveform({ state, accent }: { state: TutorState; accent: string }) {
+  const active = state === "speaking" || state === "listening";
+  const dur = state === "speaking" ? 400 : 820;
+  return (
+    <View style={st.wave}>
+      {WAVE.map((b, i) => (
+        <WaveBar
+          key={i}
+          active={active}
+          dur={dur}
+          peak={b.peak}
+          delay={b.delay}
+          accent={accent}
+        />
+      ))}
+    </View>
+  );
+}
+
+/** 막대 하나. 훅을 map 안에서 부를 수 없어서 컴포넌트로 뺀다 */
+function WaveBar({
+  active,
+  dur,
+  peak,
+  delay,
+  accent,
+}: {
+  active: boolean;
+  dur: number;
+  peak: number;
+  delay: number;
+  accent: string;
+}) {
+  const v = useSharedValue(0);
+
+  useEffect(() => {
+    cancelAnimation(v);
+    if (!active) {
+      v.value = withTiming(0, { duration: 220 });
+      return;
+    }
+    v.value = withDelay(
+      delay,
+      withRepeat(
+        withTiming(1, { duration: dur, easing: Easing.inOut(Easing.ease) }),
+        -1,
+        true,
+      ),
+    );
+    return () => cancelAnimation(v);
+  }, [v, active, dur, delay]);
+
+  const style = useAnimatedStyle(() => ({
+    height: interpolate(v.value, [0, 1], [4, 4 + 16 * peak]),
+    opacity: interpolate(v.value, [0, 1], [0.45, 1]),
+  }));
+
+  return (
+    <Animated.View style={[st.waveBar, { backgroundColor: accent }, style]} />
   );
 }
 
@@ -501,14 +715,14 @@ function ProgressBar({ pct, accent }: { pct: number; accent: string }) {
   );
 }
 
-/** 빠른 도움말 알약 */
+/** 빠른 도움말 알약. 이모지가 아이콘보다 눈에 빨리 걸린다 */
 function Pill({
-  icon,
+  emoji,
   label,
   onPress,
   disabled,
 }: {
-  icon: any;
+  emoji: string;
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -520,13 +734,13 @@ function Pill({
 
   return (
     <AnimatedPressable
-      onPressIn={() => (press.value = withTiming(1, { duration: 70 }))}
-      onPressOut={() => (press.value = withTiming(0, { duration: 130 }))}
+      onPressIn={() => (press.value = withTiming(1, { duration: 90 }))}
+      onPressOut={() => (press.value = withTiming(0, { duration: 140 }))}
       onPress={onPress}
       disabled={disabled}
       style={[st.pill, disabled && st.dim, style]}
     >
-      <Ionicons name={icon} size={14} color="rgba(255,255,255,0.92)" />
+      <Text style={st.pillEmoji}>{emoji}</Text>
       <Text style={st.pillText} numberOfLines={1}>
         {label}
       </Text>
@@ -573,23 +787,22 @@ function RoundBtn({
 function EndButton({ label, onPress }: { label: string; onPress: () => void }) {
   const press = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
-    transform: [{ translateY: press.value * 3 }],
-    borderBottomWidth: 5 - press.value * 3,
+    transform: [{ translateY: press.value * 4 }],
   }));
 
   return (
     <View style={st.endCol}>
       <AnimatedPressable
-        onPressIn={() => (press.value = withTiming(1, { duration: 70 }))}
+        onPressIn={() => (press.value = withTiming(1, { duration: 80 }))}
         onPressOut={() => (press.value = withTiming(0, { duration: 130 }))}
         onPress={onPress}
         style={[st.end, style]}
       >
-        <Ionicons name="call" size={22} color="#fff" style={st.endIcon} />
-        <Text style={st.endText} numberOfLines={1}>
-          {label}
-        </Text>
+        <Ionicons name="call" size={28} color="#fff" style={st.endIcon} />
       </AnimatedPressable>
+      <Text style={st.endText} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -606,104 +819,175 @@ const GLASS = "rgba(255,255,255,0.07)";
 const GLASS_LINE = "rgba(255,255,255,0.14)";
 
 const st = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#0E0B1A" },
-  blob: { position: "absolute", width: 300, height: 300, borderRadius: 150 },
+  root: { flex: 1, backgroundColor: "#0B0818" },
+  blob: { position: "absolute", width: 320, height: 320, borderRadius: 160 },
+  /** 선생님 뒤에서 호흡하는 조명 */
+  keyLight: {
+    position: "absolute",
+    alignSelf: "center",
+    top: 90,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+  },
+  /** 창에서 비스듬히 들어오는 빛 한 줄 */
+  streak: {
+    position: "absolute",
+    top: -60,
+    left: -40,
+    right: -40,
+    height: 320,
+    transform: [{ rotate: "-18deg" }],
+  },
+  scrim: { position: "absolute", left: 0, right: 0, bottom: 0, height: "62%" },
+  stage: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  spacer: { flex: 1, minHeight: 12 },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    gap: 10,
+    paddingHorizontal: 8,
+    paddingBottom: 6,
+    gap: 4,
   },
-  identity: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 1 },
-  idAvatar: {
+  iconBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
   },
-  idAvatarText: { fontSize: 19 },
-  idText: { flexShrink: 1 },
-  idName: { fontSize: 15, fontWeight: "900", color: "#fff", letterSpacing: -0.2 },
-  idStateRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
-  dot: { width: 6, height: 6, borderRadius: 3 },
-  idState: { fontSize: 12, fontWeight: "700" },
+  idText: { flex: 1, flexShrink: 1 },
+  idNameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  idName: {
+    fontSize: 21,
+    fontWeight: "900",
+    color: "#fff",
+    letterSpacing: -0.4,
+    flexShrink: 1,
+  },
+  idEmoji: { fontSize: 17 },
+  idRole: {
+    fontSize: 12.5,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.62)",
+    marginTop: 1,
+  },
 
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 4 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   timer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     backgroundColor: GLASS,
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 6,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
   },
   timerWarn: { backgroundColor: "#E5533D", borderColor: "#B8341F" },
   timerText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "800",
-    color: "rgba(255,255,255,0.88)",
+    color: "rgba(255,255,255,0.9)",
     fontVariant: ["tabular-nums"],
   },
   timerTextWarn: { color: "#fff" },
-  iconBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-
-  progressCard: {
-    marginHorizontal: 16,
+  tune: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: GLASS,
     borderWidth: 1,
     borderColor: GLASS_LINE,
-    borderRadius: 14,
+  },
+  tuneOn: { backgroundColor: "#fff", borderColor: "#fff" },
+
+  topRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 14,
+    paddingTop: 4,
+    gap: 10,
+  },
+  progressCard: {
+    flexShrink: 1,
+    maxWidth: "62%",
+    backgroundColor: "rgba(14,11,26,0.5)",
+    borderWidth: 1,
+    borderColor: GLASS_LINE,
+    borderRadius: 16,
     paddingHorizontal: 12,
-    paddingVertical: 9,
-    gap: 8,
+    paddingVertical: 10,
+    gap: 7,
   },
-  progressTop: { flexDirection: "row", alignItems: "center", gap: 6 },
+  progressTop: { flexDirection: "row", alignItems: "center", gap: 7 },
+  progressIcon: { fontSize: 15 },
   progressTitle: {
-    flex: 1,
-    fontSize: 13,
+    flexShrink: 1,
+    fontSize: 14,
     fontWeight: "800",
-    color: "rgba(255,255,255,0.9)",
+    color: "#fff",
+    letterSpacing: -0.2,
   },
-  progressCount: {
+  progressStep: {
     fontSize: 12,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.6)",
+    fontVariant: ["tabular-nums"],
+  },
+  progressBarRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  progressBarWrap: { flex: 1 },
+  progressPct: {
+    fontSize: 11.5,
     fontWeight: "900",
-    color: "rgba(255,255,255,0.62)",
+    color: "rgba(255,255,255,0.78)",
     fontVariant: ["tabular-nums"],
   },
   track: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.14)",
     overflow: "hidden",
   },
   fill: { height: 6, borderRadius: 3 },
 
-  stage: {
+  /** 벽에 적어둔 듯한 응원. 기울이고 흐리게 해서 UI 가 아니라 "낙서" 로 읽히게 */
+  cheer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 150,
-    paddingVertical: 6,
+    textAlign: "right",
+    fontSize: 15,
+    lineHeight: 24,
+    fontWeight: "700",
+    fontStyle: "italic",
+    color: "rgba(255,255,255,0.5)",
+    letterSpacing: 0.3,
+    transform: [{ rotate: "-6deg" }],
+    marginTop: 8,
   },
 
   glass: {
-    marginHorizontal: 16,
-    backgroundColor: "rgba(12,9,24,0.55)",
+    marginHorizontal: 14,
+    backgroundColor: "rgba(12,9,24,0.6)",
     borderWidth: 1,
     borderColor: GLASS_LINE,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 7,
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 15,
+    gap: 8,
   },
+  waveRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 9,
+  },
+  wave: { flexDirection: "row", alignItems: "center", gap: 3, height: 20 },
+  waveBar: { width: 3.5, borderRadius: 2 },
+  waveLabel: { fontSize: 13, fontWeight: "800", letterSpacing: 0.2 },
+
   userRow: { alignSelf: "flex-end", maxWidth: "88%" },
   userText: {
     color: "rgba(255,255,255,0.72)",
@@ -724,80 +1008,93 @@ const st = StyleSheet.create({
   captionPrev: {
     fontSize: 13,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.34)",
+    color: "rgba(255,255,255,0.32)",
+    textAlign: "center",
   },
   caption: {
-    fontSize: 18,
-    lineHeight: 27,
+    fontSize: 19,
+    lineHeight: 29,
     fontWeight: "800",
     color: "#fff",
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
+    textAlign: "center",
   },
   captionIdle: {
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 23,
     fontWeight: "700",
     color: "rgba(255,255,255,0.5)",
+    textAlign: "center",
   },
-  explainBox: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 4,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
-  },
-  explainFlag: { fontSize: 13, lineHeight: 20 },
   explainText: {
-    flex: 1,
-    fontSize: 13.5,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 21,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.78)",
+    color: "rgba(255,255,255,0.56)",
+    textAlign: "center",
   },
 
   card: {
-    marginHorizontal: 16,
-    marginTop: 10,
+    marginHorizontal: 14,
+    marginTop: 16,
     backgroundColor: "#fff",
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 12,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    shadowOpacity: 0.34,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
   },
-  cardHead: {
+  /** 카드 모서리에 걸친 분홍 라벨 */
+  cardBadge: {
+    position: "absolute",
+    top: -9,
+    left: 16,
+    zIndex: 2,
+    backgroundColor: "#FFD9E6",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  cardBadgeText: {
+    fontSize: 10.5,
+    fontWeight: "900",
+    color: "#C2416F",
+    letterSpacing: 0.2,
+  },
+  cardBody: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 6,
+    gap: 12,
+    paddingTop: 4,
   },
-  cardLabel: {
-    fontSize: 11,
-    fontWeight: "900",
-    color: "#8A87A0",
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
+  cardPlay: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  cardHint: { fontSize: 11, fontWeight: "700", color: "#B3B0C4" },
-  cardBody: { flexDirection: "row", alignItems: "center", gap: 12 },
   cardTextWrap: { flex: 1 },
   cardKo: {
-    fontSize: 19,
-    lineHeight: 26,
+    fontSize: 20,
+    lineHeight: 27,
     fontWeight: "900",
     color: "#1A1A2E",
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
-  cardRoman: { fontSize: 12.5, fontWeight: "700", color: "#8A87A0", marginTop: 3 },
-  cardPlay: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  cardRoman: {
+    fontSize: 12.5,
+    fontWeight: "700",
+    color: "#9C99AE",
+    marginTop: 3,
+  },
+  cardCopy: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -806,25 +1103,26 @@ const st = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 7,
-    paddingHorizontal: 14,
-    paddingTop: 12,
+    paddingHorizontal: 12,
+    paddingTop: 14,
   },
   pill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     flexShrink: 1,
     backgroundColor: GLASS,
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
+  pillEmoji: { fontSize: 14 },
   pillText: {
     fontSize: 12.5,
     fontWeight: "800",
-    color: "rgba(255,255,255,0.92)",
+    color: "rgba(255,255,255,0.94)",
     flexShrink: 1,
   },
   dim: { opacity: 0.4 },
@@ -838,7 +1136,11 @@ const st = StyleSheet.create({
     paddingTop: 10,
   },
   quota: { alignItems: "center", gap: 6, paddingTop: 12 },
-  quotaText: { fontSize: 13, fontWeight: "700", color: "rgba(255,255,255,0.7)" },
+  quotaText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.7)",
+  },
   quotaUpsell: {
     fontSize: 13,
     fontWeight: "900",
@@ -851,14 +1153,14 @@ const st = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 12,
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: 26,
+    paddingTop: 20,
   },
-  ctrlCol: { alignItems: "center", gap: 6, width: 62 },
+  ctrlCol: { alignItems: "center", gap: 7, width: 74 },
   round: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: GLASS,
@@ -867,25 +1169,26 @@ const st = StyleSheet.create({
   },
   roundOn: { backgroundColor: "#fff", borderColor: "#fff" },
   ctrlLabel: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.6)",
+    color: "rgba(255,255,255,0.66)",
+    textAlign: "center",
   },
-  endCol: { flex: 1, alignItems: "center" },
+
+  endCol: { flex: 1, alignItems: "center", gap: 7 },
   end: {
-    flexDirection: "row",
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    alignSelf: "stretch",
-    height: 56,
-    borderRadius: 28,
     backgroundColor: "#E5533D",
     borderBottomWidth: 5,
     borderColor: "#B8341F",
   },
+  /** 수화기를 내려놓는 각도 */
   endIcon: { transform: [{ rotate: "135deg" }] },
-  endText: { color: "#fff", fontSize: 16, fontWeight: "900" },
+  endText: { color: "#fff", fontSize: 12.5, fontWeight: "900" },
 
   again: {
     flex: 1,
@@ -893,8 +1196,8 @@ const st = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    height: 56,
-    borderRadius: 28,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: "#776ee2",
     borderBottomWidth: 5,
     borderColor: "#5B4DD4",
@@ -903,10 +1206,11 @@ const st = StyleSheet.create({
 
   brand: {
     textAlign: "center",
-    fontSize: 9.5,
-    fontWeight: "800",
-    letterSpacing: 2,
-    color: "rgba(255,255,255,0.22)",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.1,
+    color: "rgba(255,255,255,0.26)",
+    paddingTop: 10,
   },
 
   analyzing: {
@@ -915,7 +1219,7 @@ const st = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(14,11,26,0.86)",
+    backgroundColor: "rgba(11,8,24,0.88)",
     alignItems: "center",
     justifyContent: "center",
     gap: 14,
