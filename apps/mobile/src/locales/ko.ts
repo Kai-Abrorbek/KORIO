@@ -1340,6 +1340,29 @@ export default {
       text: "자막",
       end: "수업 종료",
     },
+    /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
+    setup: {
+      title: "AI 한국어 튜터",
+      subtitle: "수업 방식을 골라주세요.",
+      language: {
+        title: "설명을 어떤 언어로 들을까요?",
+        uz: "O'zbekcha",
+        ru: "Русский",
+        en: "English",
+        ko: "한국어",
+      },
+      teacher: { title: "선생님" },
+      address: {
+        title: "선생님이 나에게 어떻게 말할까요?",
+        polite: "존댓말",
+        politeExample: "좋아요, 다시 한번 해볼까요?",
+        casual: "반말",
+        casualExample: "좋아, 다시 한번 해보자!",
+      },
+      topic: { title: "오늘 무슨 이야기를 할까요?" },
+      freeTalk: "자유 대화",
+      start: "AI 튜터와 수업 시작",
+    },
     teacher: {
       title: "오늘 누구와 공부할까요?",
       lead: "선생님마다 목소리와 말투가 달라요. 들어보고 골라보세요.",

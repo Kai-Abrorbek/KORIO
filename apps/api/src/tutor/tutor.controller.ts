@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Header,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -11,6 +12,7 @@ import {
   StreamableFile,
   UseGuards,
 } from '@nestjs/common';
+import { createReadStream } from 'node:fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import {
@@ -20,6 +22,7 @@ import {
   TutorSpeakDto,
 } from './dto/tutor.dto';
 import { TUTOR_TEACHERS, toTeacherCard } from './teachers/tutor-teachers';
+import { previewLang, previewPath } from './previews/teacher-preview';
 import { TutorSpeechService } from './tutor-speech.service';
 import { TutorTtsError } from './tts/tutor-tts.types';
 import { TUTOR_TOPICS, toTopicCard } from './topics/tutor-topics';
@@ -159,6 +162,23 @@ export class TutorController {
 @Controller('tutor')
 export class TutorAudioController {
   constructor(private readonly speech: TutorSpeechService) {}
+
+  /**
+   * 선생님 목소리 미리듣기.
+   *
+   * 실제 통화에서 쓰는 **Gemini 목소리**로 미리 만들어 둔 파일이다
+   * (previews/teacher-preview.ts 의 긴 주석 참고).
+   *
+   * 인증이 없는 이유는 /tts/audio 와 같다 — 플레이어가 URL 을 재생할 때
+   * 인증 헤더를 못 붙인다. 선생님 소개 한 마디라 공개해도 되는 값이다.
+   */
+  @Get('teachers/:id/preview')
+  @Header('Cache-Control', 'public, max-age=86400')
+  preview(@Param('id') id: string, @Query('lang') lang?: string) {
+    const file = previewPath(id, previewLang(lang));
+    if (!file) throw new NotFoundException('PREVIEW_NOT_FOUND');
+    return new StreamableFile(createReadStream(file), { type: 'audio/mpeg' });
+  }
 
   @Get('tts/audio/:audioId')
   @Header('Cache-Control', 'private, max-age=120')

@@ -8,6 +8,7 @@ import {
   type TranscriptTurn,
   type TutorAddressStyle,
   type TutorMode,
+  type TutorTeachingLanguage,
   type TutorQuota,
 } from "../services/tutor.api";
 import {
@@ -302,6 +303,8 @@ export function useRealtimeTutor() {
         topicId?: string;
         teacherId?: string;
         addressStyle?: TutorAddressStyle;
+        /** 설명을 들을 언어. TutorApi 가 서버의 `lang` 으로 옮긴다 */
+        teachingLanguage?: TutorTeachingLanguage;
       } = {},
     ) => {
       if (conn.current) return;

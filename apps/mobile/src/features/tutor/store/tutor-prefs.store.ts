@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { TutorAddressStyle } from "../services/tutor.api";
+import type {
+  TutorAddressStyle,
+  TutorTeachingLanguage,
+} from "../services/tutor.api";
 
 /**
  * 튜터 화면의 개인 설정.
@@ -23,13 +26,19 @@ interface TutorPrefsState {
    * ⚠️ 성격과도 독립이다 — "놀리는데 존댓말" 을 고를 수 있어야 한다.
    *
    * 기본은 존댓말. 외국인이 한국에서 쓰기 안전한 쪽이다.
-   *
-   * TODO: 이 값을 고르는 토글이 아직 튜터 시작 화면에 없다. 값은 여기까지
-   *       서버 프롬프트로 이미 이어져 있으니, 토글을 붙이면 setAddressStyle
-   *       한 줄이면 된다.
    */
   addressStyle: TutorAddressStyle;
   setAddressStyle: (style: TutorAddressStyle) => void;
+
+  /**
+   * 설명을 들을 언어.
+   *
+   * null = 아직 직접 고른 적이 없다. 그때만 앱 UI 언어를 기본값으로 삼는다.
+   * ⚠️ 한 번 고른 뒤에는 앱 언어를 바꿔도 **따라가지 않는다.** 러시아어로 앱을
+   *    쓰면서 한국어 설명을 듣는 사람이 매번 되돌려야 하면 안 된다.
+   */
+  teachingLanguage: TutorTeachingLanguage | null;
+  setTeachingLanguage: (lang: TutorTeachingLanguage) => void;
 }
 
 export const useTutorPrefs = create<TutorPrefsState>()(
@@ -39,6 +48,8 @@ export const useTutorPrefs = create<TutorPrefsState>()(
       setTeacherId: (teacherId) => set({ teacherId }),
       addressStyle: "polite",
       setAddressStyle: (addressStyle) => set({ addressStyle }),
+      teachingLanguage: null,
+      setTeachingLanguage: (teachingLanguage) => set({ teachingLanguage }),
     }),
     {
       name: "tutor-prefs",

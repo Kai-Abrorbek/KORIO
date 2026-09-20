@@ -62,10 +62,34 @@ export interface TutorTeacherCard {
     /** 장난스럽게 놀리는 선생님 (유나). 놀림은 이 성격에서만 나간다 */
     | "teasing";
   recommendedModes: TutorMode[];
+  /**
+   * 목소리 미리듣기 주소 (서버 상대경로). 아직 에셋이 없으면 null.
+   *
+   * ⚠️ **실제 통화에서 쓰는 Gemini 목소리로 미리 만든 파일이다.** 예전엔
+   *    Azure ko-KR 로 들려줘서, 고를 때 들은 사람과 수업에서 만나는 사람이
+   *    달랐다. 앱은 어느 목소리인지 모른다 — 주소만 받아서 재생한다.
+   */
+  previewUrl: string | null;
 }
 
 /** 튜터가 나에게 쓰는 말투. 가르치는 한국어의 존댓말/반말과는 다른 축이다 */
 export type TutorAddressStyle = "polite" | "casual";
+
+/**
+ * 설명을 들을 언어.
+ *
+ * ⚠️ **앱 UI 언어와 별개다.** 러시아어로 앱을 쓰면서 한국어 설명을 듣고 싶은
+ *    사람이 있고, 그 반대도 있다. 서버 쪽은 기존 `lang` 필드를 그대로 쓴다
+ *    (LearnerContext.nativeLanguage → dispatch metadata.teachingLanguage).
+ */
+export type TutorTeachingLanguage = "uz" | "ru" | "en" | "ko";
+
+export const TUTOR_TEACHING_LANGUAGES: TutorTeachingLanguage[] = [
+  "uz",
+  "ru",
+  "en",
+  "ko",
+];
 
 export interface TutorSessionGrant {
   sessionId: string;
@@ -168,9 +192,19 @@ export const TutorApi = {
       teacherId?: string;
       /** 존댓말/반말. 성격과 독립이고, 유저가 시작 화면에서 고른다 */
       addressStyle?: TutorAddressStyle;
+      /** 설명을 들을 언어. 서버에는 기존 `lang` 으로 나간다 */
+      teachingLanguage?: TutorTeachingLanguage;
     } = {},
-  ): Promise<TutorSessionGrant> =>
-    api.post(`/tutor/session`, { mode, ...opts, lang: getLang() }),
+  ): Promise<TutorSessionGrant> => {
+    // 서버 계약(`lang`)은 그대로 두고 값만 유저 선택으로 바꾼다.
+    // teachingLanguage 키 자체는 안 보낸다 — DTO 에 없는 필드다
+    const { teachingLanguage, ...rest } = opts;
+    return api.post(`/tutor/session`, {
+      mode,
+      ...rest,
+      lang: teachingLanguage ?? getLang(),
+    });
+  },
 
   /**
    * 한 문장을 선생님 목소리로 합성한다.
@@ -192,6 +226,13 @@ export const TutorApi = {
    */
   ttsAudioUrl: (audioId: string) =>
     `${BASE_URL}/tutor/tts/audio/${encodeURIComponent(audioId)}`,
+
+  /**
+   * 카드의 previewUrl(상대경로)을 재생 가능한 절대 주소로.
+   *
+   * 목소리 이름은 서버(gemini/voices.ts)만 안다 — 앱은 주소만 만든다.
+   */
+  teacherPreviewUrl: (previewUrl: string) => `${BASE_URL}${previewUrl}`,
 
   /**
    * "우즈벡어 설명 보기".

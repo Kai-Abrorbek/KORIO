@@ -1,42 +1,32 @@
 import { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
-import { useTheme } from "@/hooks/useTheme";
-import { ThemeColors } from "@/constants/theme";
-import { TopicPicker } from "../components/TopicPicker";
-import { TeacherPicker } from "../components/TeacherPicker";
-import { useTutorPrefs } from "../store/tutor-prefs.store";
-import { type TutorTeacherCard } from "../services/tutor.api";
 import { TutorSummary } from "../components/TutorSummary";
-import type { TutorTopicCard } from "../services/tutor.api";
 import { useRealtimeTutor } from "../hooks/useRealtimeTutor";
 import { TutorCallScreen } from "./TutorCallScreen";
+import {
+  TutorSetupScreen,
+  type TutorSetupResult,
+} from "./TutorSetupScreen";
 
+/**
+ * 튜터 화면의 세 상태.
+ *
+ *   설정 → 통화 → 정리
+ *
+ * 예전엔 "선생님 고르기 → 주제 고르기" 두 화면이었고 **주제를 누르는 순간
+ * 통화가 시작됐다.** 말투나 설명 언어를 바꿀 자리가 없었고, 주제를 잘못
+ * 눌러도 곧바로 과금되는 통화가 열렸다. 지금은 설정이 한 페이지고 시작은
+ * 버튼으로만 한다.
+ */
 export default function TutorScreen() {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const insets = useSafeAreaInsets();
-  const s = styles(theme);
   const router = useRouter();
   const { speak } = useSpeech();
-  /** 고른 주제. null 이면 아직 안 골랐다 = 주제 화면을 보여준다 */
-  const [topic, setTopic] = useState<TutorTopicCard | null>(null);
-  const [picking, setPicking] = useState(true);
-  /**
-   * 고른 선생님. 주제보다 먼저 고른다 — 목소리와 말투가 대화 전체를
-   * 좌우하는데 주제를 먼저 고르면 그게 곁다리처럼 보인다.
-   */
-  const [pickedTeacher, setPickedTeacher] = useState<TutorTeacherCard | null>(
-    null,
-  );
-  const lastTeacherId = useTutorPrefs((st) => st.teacherId);
-  const rememberTeacher = useTutorPrefs((st) => st.setTeacherId);
-  /** 존댓말/반말. 아직 고르는 화면이 없어서 기본값(존댓말)이 그대로 간다 */
-  const addressStyle = useTutorPrefs((st) => st.addressStyle);
+
+  /** 이번 세션에 고른 주제 제목. 통화·정리 화면 머리에 띄운다 */
+  const [topicTitle, setTopicTitle] = useState<string | undefined>(undefined);
+  /** 이번 세션 선생님 이름. 서버가 이름을 안 주는 통화 화면용 */
+  const [teacherName, setTeacherName] = useState<string | undefined>(undefined);
 
   const {
     state,
@@ -71,89 +61,63 @@ export default function TutorScreen() {
     }, [stop]),
   );
 
-  const idle = picking && !active && !summary && !analyzing;
-
-  // 1단계: 누구와 공부할지. 선생님이 정해져야 목소리·말투가 정해진다
-  if (idle && !pickedTeacher) {
-    return (
-      <View style={[s.container, { paddingTop: insets.top + 6 }]}>
-        <View style={s.header}>
-          <Pressable onPress={() => router.back()} style={s.iconBtn} hitSlop={8}>
-            <Ionicons name="chevron-down" size={26} color={theme.text} />
-          </Pressable>
-          <Text style={s.title}>{t("tutor.teacher.title")}</Text>
-          <View style={s.iconBtn} />
-        </View>
-        <TeacherPicker
-          initialId={lastTeacherId}
-          onPick={(picked) => {
-            setPickedTeacher(picked);
-            rememberTeacher(picked.id);
-          }}
-        />
-      </View>
-    );
-  }
-
-  // 2단계: 오늘 무슨 이야기를 할지.
-  // "무슨 말을 하지?" 로 얼어붙는 걸 막는 장치다.
-  if (idle) {
-    return (
-      <View style={[s.container, { paddingTop: insets.top + 6 }]}>
-        <View style={s.header}>
-          <Pressable
-            onPress={() => setPickedTeacher(null)}
-            style={s.iconBtn}
-            hitSlop={8}
-          >
-            <Ionicons name="chevron-back" size={26} color={theme.text} />
-          </Pressable>
-          <Text style={s.title}>{t("tutor.pickTopic")}</Text>
-          <View style={s.iconBtn} />
-        </View>
-        <TopicPicker
-          onPick={(picked) => {
-            setTopic(picked);
-            setPicking(false);
-            void start("freeTalk", {
-              topicId: picked.id,
-              teacherId: pickedTeacher?.id,
-              addressStyle,
-            });
-          }}
-          onFreeTalk={() => {
-            setTopic(null);
-            setPicking(false);
-            void start("freeTalk", {
-              teacherId: pickedTeacher?.id,
-              addressStyle,
-            });
-          }}
-        />
-      </View>
-    );
-  }
+  const onStart = useCallback(
+    (opts: TutorSetupResult) => {
+      // 통화/정리 화면 헤더용. 이번 세션 동안만 들고 있으면 된다
+      setTopicTitle(opts.topicTitle);
+      setTeacherName(opts.teacherName);
+      void start("freeTalk", {
+        topicId: opts.topicId,
+        teacherId: opts.teacherId,
+        addressStyle: opts.addressStyle,
+        teachingLanguage: opts.teachingLanguage,
+      });
+    },
+    [start],
+  );
 
   // 대화가 끝나면 정리 카드로 덮는다. 그냥 끊기고 끝나면 뭘 했는지 남지 않는다.
   if (summary) {
     return (
       <TutorSummary
         data={summary}
-        topicTitle={topic?.title}
+        topicTitle={topicTitle}
         onSpeak={(text) => void speak(text, "ko-KR")}
         onClose={() => {
           clearSummary();
           router.back();
         }}
         onAgain={() => {
+          // 선생님·언어·말투는 저장돼 있어서 그대로 고른 채로 돌아온다.
+          // 주제만 비운다 — 오늘 뭘 할지는 매번 새로 정하는 게 맞다
           clearSummary();
-          setPicking(true);
+          setTopicTitle(undefined);
         }}
       />
     );
   }
 
-  // 3단계: 통화 중.
+  /**
+   * 통화가 아직 안 붙었으면 설정 화면.
+   *
+   * ⚠️ analyzing 중에는 설정으로 돌아가면 안 된다 — 요약을 기다리는 중이라
+   *    통화 화면이 "정리 중" 오버레이를 띄우고 있다.
+   * ⚠️ error 도 여기로 온다. 실패하면 설정 화면에서 이유를 보고 바로 다시
+   *    시작할 수 있어야 한다 (예전엔 통화 화면에 갇혔다).
+   */
+  if (!active && !analyzing) {
+    return (
+      <TutorSetupScreen
+        busy={busy}
+        error={error}
+        quota={quota}
+        onClose={() => router.back()}
+        onStart={onStart}
+        onUpsell={() => router.push("/premium")}
+      />
+    );
+  }
+
   return (
     <TutorCallScreen
       state={state}
@@ -163,8 +127,8 @@ export default function TutorScreen() {
       examples={examples}
       targets={targets}
       teacher={teacher}
-      teacherName={pickedTeacher?.name}
-      topicTitle={topic?.title}
+      teacherName={teacherName}
+      topicTitle={topicTitle}
       elapsedSec={elapsedSec}
       maxSec={maxSec}
       active={active}
@@ -180,27 +144,8 @@ export default function TutorScreen() {
         await stop();
         router.back();
       }}
-      onPickAnother={() => setPicking(true)}
+      onPickAnother={() => void stop()}
       onUpsell={() => router.push("/premium")}
     />
   );
 }
-
-const styles = (theme: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.bg },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: 12,
-      paddingBottom: 4,
-    },
-    iconBtn: {
-      width: 40,
-      height: 40,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    title: { fontSize: 16, fontWeight: "900", color: theme.text },
-  });

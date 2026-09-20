@@ -1,15 +1,18 @@
 import type { TutorMode, TutorVoice } from '../tutor.const';
+import { previewLang, previewUrl } from '../previews/teacher-preview';
 
 /**
  * 선생님 프로필.
  *
- * 튜터의 목소리를 Realtime 자체 음성에서 외부 TTS 로 옮기면서 생긴 개념이다.
- * Realtime 목소리는 영어 우선으로 만들어져서 한국어가 외국인 억양처럼 들린다 —
- * 한국어를 가르치는 앱에서 그건 치명적이다.
+ * ── 지금의 역할 분담 ──
  *
- * 그래서 구조를 이렇게 나눴다:
- *   Realtime  = 두뇌 (듣기·이해·문맥·교정·답변 텍스트)
- *   외부 TTS  = 목소리 (선택한 선생님의 원어민 한국어)
+ *   Gemini Live  = 듣기·이해·교정 **그리고 실시간 목소리** (native audio)
+ *   Azure ko-KR  = 정확한 한국어 예문 다시 듣기·발음 연습 전용
+ *
+ * 한동안은 "Realtime 이 두뇌, 외부 TTS 가 목소리" 인 하이브리드였다. TTS 는
+ * 글자를 읽는 기계라 웃지도 톤을 바꾸지도 못했고, 언어마다 음성이 달라 한
+ * 문장 안에서 목소리가 바뀌었다. 그래서 대화 음성은 모델이 직접 내는 쪽으로
+ * 되돌렸고, Azure 는 **발음이 정확해야 하는 자리**에만 남겼다.
  *
  * 선생님은 단순한 voiceId 셀렉터가 아니다. 목소리 + 성격 + 말투 + 속도 +
  * 프롬프트가 한 묶음이고, 그래야 유저가 "AI 랑 얘기한다" 가 아니라 "내가 고른
@@ -46,18 +49,21 @@ export interface TutorTeacher {
   /** 1.0 이 보통. 초급 대상 선생님은 조금 느리게 */
   speechRate: number;
   /**
-   * 이 선생님의 **실제 목소리** — Realtime 이 직접 내는 소리다.
+   * ⚠️ **PHASE 7 에서 지울 것.** OpenAI Realtime 시절의 목소리 id 다.
    *
-   * 예전에는 Realtime 출력을 텍스트로 받고 Azure TTS 로 읽혔다. 한국어 발음은
-   * 그쪽이 정확하지만 대가가 컸다: TTS 는 글자를 읽는 기계라 웃지도, 톤을
-   * 바꾸지도, 타이밍을 잡지도 못한다. 농담을 아무리 잘 써도 뉴스 앵커가 읽는다.
-   * 그리고 언어마다 음성이 달라서 한 문장 안에서 목소리가 바뀌었다.
-   *
-   * ⚠️ 각 목소리의 결은 직접 들어보고 바꿔라. 여기 한 줄만 고치면 된다.
-   *    (공식 권장은 marin / cedar)
+   *    지금 통화 목소리는 Gemini 가 낸다. 선생님 → Gemini voice 매핑의
+   *    주인은 `gemini/voices.ts` 한 곳이다. 이 필드는
+   *    createOpenAiSessionLegacy 말고는 아무도 안 읽는다.
    */
   realtimeVoice: TutorVoice;
-  /** 발음 예문 등 정확한 한국어가 필요한 자리에서 쓰는 TTS (선생님 미리듣기 포함) */
+  /**
+   * 정확한 한국어가 필요한 자리에서 쓰는 TTS.
+   *
+   * ⚠️ **선생님 미리듣기는 이제 여기가 아니다.** 미리듣기를 Azure 로 내면
+   *    고를 때 들은 목소리와 실제 통화(Gemini) 목소리가 달라진다 —
+   *    `previews/teacher-preview.ts` 로 갔다.
+   *    여기가 담당하는 건 예문 다시 듣기·천천히 듣기·발음 연습이다.
+   */
   tts: { provider: string; voiceId: string };
   /**
    * 우즈벡어를 말할 때 쓰는 목소리.
@@ -281,5 +287,13 @@ export function toTeacherCard(t: TutorTeacher, lang = 'uz') {
     color: t.color,
     personality: t.personality,
     recommendedModes: t.recommendedModes,
+    /**
+     * 목소리 미리듣기 주소.
+     *
+     * ⚠️ **앱은 목소리 이름을 모른다.** 어느 Gemini voice 인지는 서버
+     *    (gemini/voices.ts)만 알고, 앱은 이 주소를 재생할 뿐이다.
+     *    에셋이 아직 없으면 null — 앱은 그때 미리듣기 버튼을 숨긴다.
+     */
+    previewUrl: previewUrl(t.id, previewLang(lang)),
   };
 }

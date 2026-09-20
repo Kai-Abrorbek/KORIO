@@ -404,6 +404,9 @@ importers:
 
   apps/tutor-agent:
     dependencies:
+      '@google/genai':
+        specifier: ^2.23.0
+        version: 2.23.0
       '@livekit/agents':
         specifier: ^1.9.0
         version: 1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76)
@@ -11277,9 +11280,7 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 

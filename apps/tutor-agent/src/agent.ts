@@ -7,7 +7,14 @@ import {
   type JobContext,
 } from '@livekit/agents';
 import * as google from '@livekit/agents-plugin-google';
-import { AGENT_NAME, FALLBACK_MODEL, WAIT_FOR_LEARNER_SEC } from './config.js';
+import { EndSensitivity, StartSensitivity } from '@google/genai';
+import {
+  AGENT_NAME,
+  FALLBACK_MODEL,
+  VAD_SILENCE_MS,
+  WAIT_FOR_LEARNER_SEC,
+  transcriptionLanguages,
+} from './config.js';
 import { decodeDispatchMetadata } from './metadata.js';
 
 /**
@@ -64,6 +71,9 @@ export default defineAgent({
       return;
     }
 
+    const langHints = transcriptionLanguages(meta.teachingLanguage);
+    log(`자막 언어 힌트: ${langHints.join(', ')} · VAD 침묵 ${VAD_SILENCE_MS}ms`);
+
     const session = new voice.AgentSession({
       llm: new google.realtime.RealtimeModel({
         // 모델은 **API 가 정한다.** Agent 를 다시 배포하지 않고 갈아 끼우려고
@@ -80,10 +90,30 @@ export default defineAgent({
          * 읽거나 그 반대가 된다. 모델이 알아서 갈아타게 둔다.
          */
 
-        // 자막. 화면과 종료 분석에 둘 다 필요해서 양쪽을 명시적으로 켠다
-        // (기본값도 켜짐이지만, 이건 기능이라 눈에 보여야 한다)
-        inputAudioTranscription: {},
-        outputAudioTranscription: {},
+        /**
+         * 자막. 화면과 종료 분석에 둘 다 필요해서 양쪽을 명시적으로 켠다.
+         *
+         * languageCodes 는 **고정이 아니라 힌트다** (비우면 자동 감지).
+         * 이 오디오에는 한국어와 학습자 모국어 두 가지만 나오므로 그 둘을
+         * 알려준다 — code-switching 자막 정확도가 이걸로 갈린다.
+         */
+        inputAudioTranscription: { languageCodes: langHints },
+        outputAudioTranscription: { languageCodes: langHints },
+
+        /**
+         * 턴 감지. 초급자가 단어를 떠올리며 멈추는 걸 "말 끝남" 으로 보지
+         * 않게 한다 (config.ts 의 긴 주석 참고).
+         *
+         * ⚠️ Gemini Live 기본값이 start=HIGH / end=HIGH 라, 실제로 바꾸는
+         *    건 end 쪽이다. start 는 기본과 같지만 의도를 남기려고 적는다.
+         */
+        realtimeInputConfig: {
+          automaticActivityDetection: {
+            startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
+            endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
+            silenceDurationMs: VAD_SILENCE_MS,
+          },
+        },
 
         // 긴 대화에서 문맥이 한도를 넘으면 세션이 그냥 끊긴다.
         // 오래된 turn 부터 밀어내서 대화를 살려 둔다

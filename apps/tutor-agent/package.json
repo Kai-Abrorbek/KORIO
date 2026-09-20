@@ -8,9 +8,11 @@
     "build": "tsc -p tsconfig.json",
     "check-types": "tsc --noEmit -p tsconfig.json",
     "dev": "tsx --env-file-if-exists=.env src/agent.ts dev",
-    "start": "node dist/agent.js start"
+    "start": "node dist/agent.js start",
+    "preview:generate": "tsx --env-file-if-exists=.env scripts/generate-voice-previews.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.23.0",
     "@livekit/agents": "^1.9.0",
     "@livekit/agents-plugin-google": "^1.9.0",
     "@livekit/rtc-node": "^0.13.34",

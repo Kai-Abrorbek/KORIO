@@ -22,13 +22,13 @@ import { ThemeColors } from "@/constants/theme";
 import { TutorApi, type TutorTeacherCard } from "../services/tutor.api";
 
 /**
- * 목소리 미리듣기 문장.
+ * ⚠️ 이 컴포넌트는 현재 **아무 데서도 안 쓴다.** 선생님 선택은
+ *    screens/TutorSetupScreen.tsx 안으로 들어갔다 (설정 한 페이지).
+ *    남겨둔 건 지울지 말지 정하기 전까지다.
  *
- * 네 명 모두 같은 문장을 읽어야 비교가 된다. 다른 문장을 읽으면 목소리가
- * 아니라 문장을 비교하게 된다.
+ *    미리듣기만은 같이 고쳐뒀다 — Azure 로 들려주면 실제 통화(Gemini)와
+ *    다른 목소리가 나오는데, 되살릴 때 그 버그까지 되살아나면 안 된다.
  */
-const PREVIEW_TEXT =
-  "안녕하세요! 만나서 반가워요. 오늘부터 저와 같이 편하게 한국어를 연습해봐요.";
 
 interface Props {
   /** 지난번에 고른 선생님. 기본 선택으로 표시한다 */
@@ -77,11 +77,12 @@ export function TeacherPicker({ initialId, onPick }: Props) {
     [],
   );
 
-  const preview = useCallback(async (id: string) => {
-    setPreviewing(id);
+  /** 실제 통화에서 쓰는 Gemini 목소리로 서버가 미리 만들어 둔 파일 */
+  const preview = useCallback(async (tc: TutorTeacherCard) => {
+    if (!tc.previewUrl) return;
+    setPreviewing(tc.id);
     try {
-      const res = await TutorApi.tts({ text: PREVIEW_TEXT, teacherId: id });
-      const uri = TutorApi.ttsAudioUrl(res.audioId);
+      const uri = TutorApi.teacherPreviewUrl(tc.previewUrl);
       if (!player.current) player.current = createAudioPlayer({ uri });
       else player.current.replace({ uri });
       player.current.play();
@@ -128,7 +129,7 @@ export function TeacherPicker({ initialId, onPick }: Props) {
               selected={tc.id === selected}
               previewing={previewing === tc.id}
               onSelect={() => setSelected(tc.id)}
-              onPreview={() => void preview(tc.id)}
+              onPreview={() => void preview(tc)}
               theme={theme}
             />
           </Animated.View>
@@ -219,17 +220,19 @@ function TeacherCard({
           )}
         </View>
 
-        <Pressable
-          onPress={onPreview}
-          hitSlop={10}
-          style={[s.playBtn, { borderColor: teacher.color }]}
-        >
-          {previewing ? (
-            <ActivityIndicator size="small" color={teacher.color} />
-          ) : (
-            <Ionicons name="volume-high" size={18} color={teacher.color} />
-          )}
-        </Pressable>
+        {!!teacher.previewUrl && (
+          <Pressable
+            onPress={onPreview}
+            hitSlop={10}
+            style={[s.playBtn, { borderColor: teacher.color }]}
+          >
+            {previewing ? (
+              <ActivityIndicator size="small" color={teacher.color} />
+            ) : (
+              <Ionicons name="volume-high" size={18} color={teacher.color} />
+            )}
+          </Pressable>
+        )}
       </Pressable>
     </Animated.View>
   );

@@ -1342,6 +1342,29 @@ export default {
       text: "Subtitles",
       end: "End lesson",
     },
+    /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
+    setup: {
+      title: "AI Korean tutor",
+      subtitle: "Choose how you'd like today's lesson.",
+      language: {
+        title: "Which language should explanations be in?",
+        uz: "O'zbekcha",
+        ru: "Русский",
+        en: "English",
+        ko: "한국어",
+      },
+      teacher: { title: "Teacher" },
+      address: {
+        title: "How should the teacher talk to you?",
+        polite: "Polite",
+        politeExample: "좋아요, 다시 한번 해볼까요?",
+        casual: "Casual",
+        casualExample: "좋아, 다시 한번 해보자!",
+      },
+      topic: { title: "What shall we talk about today?" },
+      freeTalk: "Free talk",
+      start: "Start the lesson",
+    },
     teacher: {
       title: "Who will you study with today?",
       lead: "Each teacher has a different voice and way of speaking. Have a listen.",

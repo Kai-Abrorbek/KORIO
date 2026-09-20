@@ -1347,6 +1347,29 @@ export default {
       text: "Matn",
       end: "Darsni tugatish",
     },
+    /** 통화 전 설정 한 페이지 (TutorSetupScreen) */
+    setup: {
+      title: "AI koreys tili ustozi",
+      subtitle: "Dars uslubini tanlang.",
+      language: {
+        title: "Izohlarni qaysi tilda eshitasiz?",
+        uz: "O'zbekcha",
+        ru: "Русский",
+        en: "English",
+        ko: "한국어",
+      },
+      teacher: { title: "Ustoz" },
+      address: {
+        title: "Ustoz sizga qanday murojaat qilsin?",
+        polite: "Hurmat bilan",
+        politeExample: "좋아요, 다시 한번 해볼까요?",
+        casual: "Do'stona",
+        casualExample: "좋아, 다시 한번 해보자!",
+      },
+      topic: { title: "Bugun nima haqida gaplashamiz?" },
+      freeTalk: "Erkin suhbat",
+      start: "AI ustoz bilan darsni boshlash",
+    },
     teacher: {
       title: "Bugun kim bilan o'rganamiz?",
       lead: "Har bir ustozning ovozi va gapirish uslubi boshqacha. Tinglab ko'ring.",
