@@ -65,6 +65,10 @@ COPY --from=prod-deps /repo/node_modules /repo/node_modules
 COPY --from=prod-deps /repo/apps/api/node_modules /repo/apps/api/node_modules
 COPY --from=build     /repo/apps/api/dist         /repo/apps/api/dist
 COPY --from=build     /repo/apps/api/package.json /repo/apps/api/package.json
+# ⚠️ tsc 는 .ts 만 dist 로 옮긴다. 선생님 목소리 미리듣기 mp3 는 코드가 아니라
+#    에셋이라 따로 가져와야 한다. 빠뜨리면 미리듣기가 전부 404 가 되고,
+#    앱은 미리듣기 버튼을 조용히 숨긴다 — 눈에 안 띄는 고장이다.
+COPY --from=build     /repo/apps/api/assets       /repo/apps/api/assets
 
 # root 로 돌리지 않는다
 USER node
