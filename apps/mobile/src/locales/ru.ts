@@ -776,7 +776,7 @@ export default {
     },
   },
   profile: {
-    logout: "Log Out",
+    logout: "Выйти",
     joinedYear: "Присоединился в {{year}}",
     courses: "Курсы",
     following: "Подписки",

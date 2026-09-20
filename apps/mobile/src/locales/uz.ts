@@ -781,7 +781,7 @@ export default {
     },
   },
   profile: {
-    logout: "Log Out",
+    logout: "Chiqish",
     joinedYear: "{{year}}-yilda qo'shildi",
     courses: "Kurslar",
     following: "Obuna",
