@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Href } from "expo-router";
-import i18n from "../locales/i18n";
+import i18n, { detectDeviceLanguage, type AppLanguage } from "../locales/i18n";
 
-type Language = "uz" | "ko" | "en" | "ru";
+type Language = AppLanguage;
 export type Theme = "light" | "dark" | "system";
 export type LearningTheme = "skyBlue" | "purple";
 export type LearnMode =
@@ -166,7 +166,9 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      language: "uz",
+      // 첫 실행은 기기 언어. 저장된 값이 있으면 rehydrate 가 덮어쓴다
+      // (예전엔 "uz" 고정이라 러시아어·영어 폰도 설문부터 우즈벡어였다)
+      language: detectDeviceLanguage(),
       theme: "system",
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
