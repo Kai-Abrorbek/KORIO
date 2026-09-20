@@ -11,6 +11,7 @@ import { EndSensitivity, StartSensitivity } from '@google/genai';
 import {
   AGENT_NAME,
   FALLBACK_MODEL,
+  OPENING_DIRECTIVE,
   VAD_SILENCE_MS,
   WAIT_FOR_LEARNER_SEC,
   transcriptionLanguages,
@@ -179,8 +180,28 @@ export default defineAgent({
      * 학습자가 먼저 말하기를 기다리면 "연결은 됐는데 아무 말도 안 하는"
      * 화면이 된다 — 회화가 무서운 사람에게 그 몇 초가 제일 크다.
      * 무슨 말로 인사할지는 master prompt 가 이미 정해놨다.
+     *
+     * ⚠️ instructions 를 **반드시** 넘긴다. 안 넘기면 빈 turn 이 나가서
+     *    Gemini 가 아무 말도 안 한다 (config.ts 의 OPENING_DIRECTIVE 주석 참고).
      */
-    session.generateReply();
+    const greet = async (why: string): Promise<boolean> => {
+      try {
+        await session
+          .generateReply({ instructions: OPENING_DIRECTIVE })
+          .waitForPlayout();
+        log(`첫 인사 완료 (${why})`);
+        return true;
+      } catch (e) {
+        log(`첫 인사 실패 (${why}): ${e instanceof Error ? e.message : String(e)}`);
+        return false;
+      }
+    };
+
+    // 한 번 더 기회를 준다. 인사가 빠진 통화는 "고장난 통화" 로 보이고,
+    // 학습자는 뭘 해야 하는지 모른 채 몇 초를 버린다 — 재시도가 훨씬 싸다.
+    if (!(await greet('첫 시도'))) {
+      await greet('재시도');
+    }
   },
 });
 

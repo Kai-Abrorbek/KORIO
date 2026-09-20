@@ -71,3 +71,32 @@ export function transcriptionLanguages(teachingLanguage: string): string[] {
   // 한국어는 언제나 들어간다 — 가르치는 언어가 무엇이든 한국어가 나온다
   return [...new Set(['ko-KR', ...(learner ? [learner] : [])])];
 }
+
+/**
+ * 통화가 열리자마자 선생님이 먼저 던지는 한 마디를 끌어내는 지시문.
+ *
+ * ⚠️ **이걸 빼면 인사를 아예 안 한다.**
+ *
+ * @livekit/agents-plugin-google 의 generateReply 는 이렇게 생겼다:
+ *
+ *   const turns = [];
+ *   if (instructions !== undefined) turns.push({ role: 'model', parts: [{ text: instructions }] });
+ *   if (needsReplyPlaceholder(model))  turns.push({ role: 'user',  parts: [{ text: '.' }] });
+ *   sendClientEvent({ type: 'content', value: { turns, turnComplete: true } });
+ *
+ * 그런데 MODELS_WITHOUT_REPLY_PLACEHOLDER = ['3.1', '3.8'] 이라 우리 모델엔
+ * placeholder 가 안 붙는다. 인자 없이 부르면 **turns 가 빈 배열**로 나가고,
+ * Gemini 는 반응할 게 없어서 조용히 있다가 5초 뒤 타임아웃난다. 화면에는
+ * "듣고 있어요" 만 계속 떠서, 죽은 건지 기다리는 건지 구분이 안 된다.
+ *
+ * 이 문자열은 **model 역할 turn 으로 들어간다.** 읽히는 대사가 아니라
+ * 지시문으로 쓰되, 혹시 읽어버려도 티가 안 나게 첫 줄에 못을 박아 둔다.
+ */
+export const OPENING_DIRECTIVE = [
+  '(Silent stage direction — never read this aloud.)',
+  'The learner just joined the call and is waiting. Speak first, immediately.',
+  'Greet them the way your system instructions tell you to — same language mix,',
+  'same address style, same pronunciation rules. Keep it to two short sentences:',
+  'one warm hello, then the first question that opens today\u2019s topic.',
+  'Do not explain what you are about to do. Just start the lesson.',
+].join(' ');
