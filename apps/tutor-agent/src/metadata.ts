@@ -32,7 +32,21 @@ export interface TutorDispatchMetadata {
   addressStyle: TutorAddressStyle;
   /** 이 시간이 지나면 Agent 가 스스로 끊는다 */
   maxDurationSec: number;
+  /**
+   * 한국어를 누가 소리 내나.
+   *
+   *   'tool'   — say_korean 도구를 등록한다. 선생님 목소리는 설명 언어만 말하고
+   *              한국어는 같은 목소리의 TTS 가 따로 낸다 (korean-voice.ts).
+   *   'native' — 예전처럼 Gemini Live 가 두 언어를 다 말한다.
+   *
+   * ⚠️ 프롬프트가 이 값을 전제로 쓰여 있다. 그래서 **프롬프트를 만든 API 가
+   *    정해서 싣는다.** 빠져 있으면(옛 API) 'native' 로 본다 — 도구 없이
+   *    "say_korean 을 불러라" 는 프롬프트가 돌면 한국어가 아예 안 들린다.
+   */
+  koreanVoice?: KoreanVoiceMode;
 }
+
+export type KoreanVoiceMode = 'tool' | 'native';
 
 export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   const m = JSON.parse(raw) as Partial<TutorDispatchMetadata>;
@@ -50,6 +64,13 @@ export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   const missing = need.filter((k) => m[k] === undefined || m[k] === '');
   if (missing.length) {
     throw new Error(`dispatch metadata 에 없는 값: ${missing.join(', ')}`);
+  }
+  if (
+    m.koreanVoice !== undefined &&
+    m.koreanVoice !== 'tool' &&
+    m.koreanVoice !== 'native'
+  ) {
+    throw new Error(`dispatch metadata koreanVoice 값이 이상하다: ${String(m.koreanVoice)}`);
   }
   return m as TutorDispatchMetadata;
 }

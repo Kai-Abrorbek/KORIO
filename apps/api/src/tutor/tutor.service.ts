@@ -31,7 +31,7 @@ import {
   type TutorAddressStyle,
   type TutorMode,
 } from './tutor.const';
-import { geminiLiveModel } from './gemini/live.const';
+import { geminiLiveModel, koreanVoiceMode } from './gemini/live.const';
 import { voiceForTeacher } from './gemini/voices';
 import { LiveKitService } from './livekit/livekit.service';
 import type { TutorDispatchMetadata } from './livekit/dispatch-metadata';
@@ -111,6 +111,12 @@ export class TutorService implements OnModuleInit {
      *    (그리고 이건 가르치는 한국어의 존댓말/반말과도 또 다른 축이다 —
      *     반말 선생님도 카페 주문은 존댓말로 가르친다. 프롬프트 §5)
      */
+    /**
+     * 한국어를 누가 소리 내나. 프롬프트와 Agent 도구 등록이 **같은 값**을
+     * 봐야 해서 여기서 한 번 정하고 둘 다에 넘긴다 (gemini/live.const.ts).
+     */
+    const koreanVoice = koreanVoiceMode(learner.nativeLanguage);
+
     const instructions = buildTutorInstructions(
       learner,
       mode,
@@ -118,6 +124,7 @@ export class TutorService implements OnModuleInit {
       topic,
       teacher,
       addressStyle,
+      koreanVoice,
     );
 
     // 방 이름이 sessionId 로 만들어지므로 세션을 **먼저** 연다.
@@ -149,6 +156,7 @@ export class TutorService implements OnModuleInit {
       teachingLanguage: lang,
       addressStyle,
       maxDurationSec,
+      koreanVoice,
     };
 
     let livekit;

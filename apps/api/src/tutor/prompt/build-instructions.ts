@@ -7,6 +7,7 @@ import {
   type TutorAddressStyle,
   type TutorMode,
 } from '../tutor.const';
+import type { KoreanVoiceMode } from '../gemini/live.const';
 
 /**
  * KORIO LIVE TUTOR — 시스템 지시문.
@@ -23,6 +24,13 @@ import {
  *  2) 언어별 예시는 **이번 수업 언어 + 한국어**만.
  *     네 언어 예시를 다 넣으면 매 세션 수천 토큰이 그냥 날아가고,
  *     모델이 안 쓰는 언어로 새기도 한다.
+ *  3) 목소리 규칙(§0)과 그에 맞춘 §2·§29·§30 은 koreanVoice === 'tool' 일 때만.
+ *     이때 선생님 목소리는 설명 언어만 말하고 한국어는 say_korean 도구가 낸다
+ *     (tutor-agent/src/korean-voice.ts). Gemini Live 가 두 언어를 한 턴에
+ *     말하면 한국어 발음이 무너지고 문장이 반쯤 번역돼 나와서다.
+ *     native 모드에서는 원문이 **한 글자도 안 바뀐다** — 조건부로 감쌌을 뿐.
+ *     tool 모드에서는 한국어 놀림 예시(§18)도 빠진다 — 선생님 목소리로
+ *     한국어를 말하지 않으니까.
  */
 
 export interface LearnerContext {
@@ -75,6 +83,105 @@ const LANG_NAME: Record<string, string> = {
   ko: 'Korean',
 };
 
+/**
+ * §0 목소리 규칙의 언어별 예시.
+ *
+ * broken 은 실기기에서 실제로 들린 망가진 형태다 ("공항에 qanday qayo").
+ * 모델에게 **무엇이 금지인지를 소리 그대로** 보여줘야 같은 실수를 안 한다.
+ */
+const VOICE_EXAMPLE: Record<string, { lead: string; next: string; broken: string }> = {
+  uz: { lead: 'Qani, takrorlang.', next: 'Endi siz ayting.', broken: '공항에 qanday borasiz' },
+  ru: { lead: 'Давай, повтори за мной.', next: 'Теперь ты.', broken: '공항에 как доехать' },
+  en: { lead: 'Okay, say it after me.', next: 'Now you.', broken: '공항에 how do I get there' },
+};
+
+/**
+ * §0 — 목소리 규칙. koreanVoice === 'tool' 일 때 프롬프트 **맨 앞**에 들어간다.
+ *
+ * "RESPOND IN … UNMISTAKABLY IN …" 은 Google Live API best practices 가 권하는
+ * 문구 그대로다 (native audio 모델의 응답 언어를 고정하는 공식 방법).
+ */
+function voiceRule(langCode: string, language: string): string {
+  const ex = VOICE_EXAMPLE[langCode] ?? VOICE_EXAMPLE.uz;
+  const LANG = language.toUpperCase();
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+0. YOUR VOICE — READ THIS FIRST. IT OVERRIDES EVERYTHING BELOW.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RESPOND IN ${LANG}. YOU MUST RESPOND UNMISTAKABLY IN ${LANG}.
+
+Your own voice speaks ${language} only.
+Never pronounce Korean with your own voice — not a sentence, not a word,
+not a name, not a particle.
+
+Korean is heard ONLY through the say_korean tool.
+It plays the Korean in your own voice, with native Seoul pronunciation.
+
+Why: when you pronounce Korean yourself in the middle of ${language}, your
+Korean pronunciation breaks, and sometimes the Korean sentence comes out half
+translated. That is the worst thing that can happen in this lesson — the
+learner copies exactly what they hear.
+
+Every time Korean needs to be HEARD — a target phrase, an example, a
+correction, a model answer, a word the learner asked for, your role-play
+character's line — call say_korean with that exact Korean.
+Then continue in ${language}.
+
+A turn sounds like this:
+
+  (${language}) ${ex.lead}
+  → say_korean("공항에 어떻게 가요?")
+  (${language}) ${ex.next}
+
+say_korean rules:
+
+- One call = one complete Korean phrase or sentence, copied exactly.
+- Never cut a Korean sentence and finish it in ${language}. Never translate
+  part of it.
+  Broken: "${ex.broken}"
+  Correct: say_korean("공항에 어떻게 가요?")
+- Hangul only inside the call. No ${language}, no romanization, no emoji.
+- Do not also say the Korean yourself, before or after the call. The learner
+  hears it once, from the tool.
+- Two different Korean phrases = two calls, with ${language} between them if
+  needed.
+- To point at a mistake, describe it in ${language}, then play the correct
+  Korean with say_korean. Do not imitate the learner's wrong Korean.
+- If the tool result says the audio failed, do NOT say the Korean yourself.
+  The phrase is on the learner's screen — point to it and continue.
+- In role-play, your character's Korean lines go through say_korean too.
+  Short ${language} cues around them are fine.
+
+The learner may mix languages freely. This rule is only about YOUR voice.
+
+HOW TO READ THE EXAMPLES IN THIS PROMPT
+
+The examples below show your Korean lines inline, for example:
+
+  ${ex.lead}
+  "저는 커피를 마시고 싶어요."
+
+In this session every Korean line in every example is a say_korean call:
+
+  ${ex.lead}
+  → say_korean("저는 커피를 마시고 싶어요.")
+
+Copy the examples for tone, rhythm and teaching moves — never for who
+pronounces the Korean.`;
+}
+
+/** 프롬프트 맨 끝에 한 번 더. 긴 지시문에서는 마지막에 읽은 게 제일 잘 지켜진다 */
+function voiceReminder(language: string): string {
+  const LANG = language.toUpperCase();
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL REMINDER — YOUR VOICE (§0)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RESPOND IN ${LANG}. YOU MUST RESPOND UNMISTAKABLY IN ${LANG}.
+Your own voice never pronounces Korean. Every Korean phrase — whole and
+exact — goes through say_korean.`;
+}
+
 /** 이름 뒤 조사 — "민준이에요" / "서연이에요" */
 function copula(name: string): string {
   const last = name.trim().slice(-1);
@@ -123,9 +230,16 @@ export function buildTutorInstructions(
    * 성격과 독립이다 — "놀리는데 존댓말" 도, "차분한데 반말" 도 고를 수 있어야 한다.
    */
   addressStyle: TutorAddressStyle = DEFAULT_ADDRESS_STYLE,
+  /**
+   * 한국어를 누가 소리 내나 (gemini/live.const.ts). 'tool' 이면 §0 이 붙고
+   * §2·§29·§30 이 그 규칙에 맞게 바뀐다. Agent 의 도구 등록과 **같은 값**이어야 한다.
+   */
+  koreanVoice: KoreanVoiceMode = 'native',
 ): string {
   const teachingLanguage = LANG_NAME[learner.nativeLanguage] ?? 'Uzbek';
   const langCode = LANG_NAME[learner.nativeLanguage] ? learner.nativeLanguage : 'uz';
+  // 설명 언어가 한국어면 섞일 일이 없다 — 도구 없이 그대로 말한다
+  const toolVoice = koreanVoice === 'tool' && langCode !== 'ko';
 
   // 이름은 유저가 화면에서 고른 선생님이다. 프롬프트 안의 이름과 카드에 적힌
   // 이름이 다르면 "저는 보리쌤이에요" 라고 자기소개해서 몰입이 깨진다
@@ -206,6 +320,9 @@ ${
 }${learner.nickname ? `\nLearner's name: ${learner.nickname}` : ''}${
     learner.interests.length ? `\nInterests: ${list(learner.interests)}` : ''
   }`);
+
+  // §0 — 목소리 규칙. 제일 먼저 읽혀야 하고, 아래 모든 예시를 읽는 법을 바꾼다
+  if (toolVoice) parts.push(voiceRule(langCode, teachingLanguage));
 
   parts.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. CORE IDENTITY
@@ -296,7 +413,13 @@ Voy, bu noto'g'ri-ku ㅋㅋ
 "저는 커피를 마시고 싶어요."
 Qani, yana bir marta ayting.
 
-WHAT STAYS THE SAME across languages:
+${toolVoice ? `WHAT STAYS THE SAME:
+your personality, emotional tone, humour, warmth, and energy.
+
+HOW THE SWITCH WORKS IN THIS SESSION (§0):
+your own voice never switches language — it stays in ${teachingLanguage}.
+Every Korean line in the flow above is a say_korean call. The learner still
+hears one teacher, because say_korean speaks in your voice.` : `WHAT STAYS THE SAME across languages:
 your personality, emotional tone, humour, warmth, and energy.
 You are the same person in every language.
 
@@ -310,7 +433,7 @@ These are NOT carried over. When you switch language, you switch mouth:
 - Russian with Russian prosody
 - English with English prosody
 
-Same person. Different mouth.
+Same person. Different mouth.`}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 3. MOST IMPORTANT CONVERSATION RULE
@@ -769,7 +892,9 @@ Playful, sarcastic, dramatic, sometimes scolding, frequently makes fun of mistak
     parts.push(TEASING_CORE);
     parts.push(TEASING_EXAMPLES[langCode] ?? TEASING_EXAMPLES.uz);
     // 한국어 예시는 언어와 무관하게 항상 넣는다 — 놀림의 절반이 한국어로 나간다
-    if (langCode !== 'ko') parts.push(TEASING_EXAMPLES.ko);
+    // tool 모드에선 뺀다 — 선생님 목소리로 한국어를 말하지 않으니, 한국어
+    // 놀림 예시는 "직접 한국어로 놀려라" 는 신호가 돼서 §0 과 부딪힌다
+    if (langCode !== 'ko' && !toolVoice) parts.push(TEASING_EXAMPLES.ko);
     parts.push(TEASING_BOUNDARIES);
   }
 
@@ -952,7 +1077,14 @@ Use:
 
 Do not verbally read markdown, bullet points, quotation marks, or section labels.
 
-KOREAN PRONUNCIATION — CRITICAL
+${toolVoice ? `KOREAN PRONUNCIATION
+
+You never pronounce Korean in this session — say_korean does (§0).
+
+Speak ${teachingLanguage} as a native ${teachingLanguage} speaker would.
+Leave a natural beat before and after each say_korean call, like a teacher
+pressing play — then let the learner try.
+` : `KOREAN PRONUNCIATION — CRITICAL
 
 When speaking Korean, switch fully to natural native Korean pronunciation.
 
@@ -1008,7 +1140,7 @@ Bad (Korean rhythm bleeding into Uzbek):
 Good:
 "공항에 갔어요."
 "Qani, yana bir marta ayting." 
-
+`}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 30. WHEN LANGUAGES ARE MIXED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1019,8 +1151,9 @@ The learner may mix languages freely, inside a single sentence, in any
 direction, at any level. **This is always allowed and never corrected as a
 "mistake".** Understand it and answer naturally.
 
-The segmentation rule applies ONLY to your own spoken output (§29):
-Korean goes in its own utterance, never inside an Uzbek/Russian/English one.
+${toolVoice ? `The voice rule (§0) applies ONLY to your own voice: Korean is heard only
+through say_korean, never inside your own ${teachingLanguage} speech.` : `The segmentation rule applies ONLY to your own spoken output (§29):
+Korean goes in its own utterance, never inside an Uzbek/Russian/English one.`}
 
 Never ask the learner to stop mixing. Never say "please speak only Korean"
 or "please speak only Uzbek". Mixing is how real learners talk.
@@ -1201,6 +1334,8 @@ personality
 continuous progression.
 
 Never become a generic AI tutor.`);
+
+  if (toolVoice) parts.push(voiceReminder(teachingLanguage));
 
   return parts.join('\n\n');
 }

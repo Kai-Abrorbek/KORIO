@@ -3,11 +3,12 @@ import {
   ServerOptions,
   cli,
   defineAgent,
+  llm,
   voice,
   type JobContext,
 } from '@livekit/agents';
 import * as google from '@livekit/agents-plugin-google';
-import { EndSensitivity, StartSensitivity } from '@google/genai';
+import { Behavior, EndSensitivity, StartSensitivity } from '@google/genai';
 import {
   AGENT_NAME,
   FALLBACK_MODEL,
@@ -17,6 +18,7 @@ import {
   transcriptionLanguages,
 } from './config.js';
 import { decodeDispatchMetadata } from './metadata.js';
+import { HANGUL, createKoreanVoice } from './korean-voice.js';
 
 /**
  * KORIO Tutor Agent.
@@ -48,10 +50,17 @@ export default defineAgent({
     const log = (msg: string) =>
       console.log(`[tutor ${meta.sessionId}] ${msg}`);
 
+    /**
+     * 한국어는 선생님 목소리가 아니라 say_korean 도구로 낸다 (korean-voice.ts).
+     * API 가 프롬프트를 그 전제로 만들었을 때만 켠다 — 둘은 같이 움직인다.
+     */
+    const toolVoice = meta.koreanVoice === 'tool';
+
     log(
       `방 입장 · teacher=${meta.teacherId} voice=${meta.voiceName} ` +
         `mode=${meta.mode} lang=${meta.teachingLanguage} ` +
-        `address=${meta.addressStyle} max=${meta.maxDurationSec}s`,
+        `address=${meta.addressStyle} max=${meta.maxDurationSec}s ` +
+        `korean=${toolVoice ? 'tool' : 'native'}`,
     );
 
     await ctx.connect();
@@ -71,6 +80,8 @@ export default defineAgent({
       ctx.shutdown('learner_never_joined');
       return;
     }
+
+    const koreanVoice = toolVoice ? createKoreanVoice(meta.voiceName, log) : null;
 
     const langHints = transcriptionLanguages(meta.teachingLanguage);
     log(`자막 언어 힌트: ${langHints.join(', ')} · VAD 침묵 ${VAD_SILENCE_MS}ms`);
@@ -121,6 +132,18 @@ export default defineAgent({
         contextWindowCompression: { slidingWindow: {} },
 
         /**
+         * ⚠️ say_korean 은 **BLOCKING** 이어야 한다.
+         *
+         * gemini-3.8-live 의 기본값은 NON_BLOCKING 이다 — 도구를 불러놓고
+         * 결과를 안 기다린 채 계속 말한다. 그러면 "Qani, takrorlang." 다음에
+         * 한국어가 나와야 할 자리에서 선생님이 다음 설명으로 넘어가 버리고,
+         * 한국어는 그 뒤에 엉뚱하게 붙는다.
+         * BLOCKING 이면 도구 결과(= 한국어 재생 끝)를 받을 때까지 멈춘다:
+         *   우즈벡어 → [한국어] → 우즈벡어 순서가 보장된다.
+         */
+        ...(toolVoice ? { toolBehavior: Behavior.BLOCKING } : {}),
+
+        /**
          * ⚠️ 여기 **넣으면 안 되는 것들** (3.8 Live 기준):
          *
          *   thinkingConfig — 3.8 Live 는 MINIMAL 고정이다. 회화에서 중요한 건
@@ -155,11 +178,34 @@ export default defineAgent({
     }, meta.maxDurationSec * 1000);
     ctx.addShutdownCallback(async () => {
       clearTimeout(hardStop);
+      await koreanVoice?.close().catch(() => undefined);
       log('종료');
     });
 
+    /**
+     * 선생님이 한국어를 **직접** 발음했는지 기록한다.
+     *
+     * 도구로 낸 한국어는 채팅 문맥에 안 들어가므로(addToChatCtx: false),
+     * assistant 메시지에 한글이 있다는 건 모델이 규칙을 어기고 자기 목소리로
+     * 한국어를 말했다는 뜻이다. 소리는 이미 나갔으니 막을 순 없지만, 얼마나
+     * 자주 일어나는지 알아야 프롬프트를 더 조일지 판단할 수 있다.
+     */
+    if (toolVoice) {
+      session.on(voice.AgentSessionEventTypes.ConversationItemAdded, (ev) => {
+        const item = ev.item;
+        if (!(item instanceof llm.ChatMessage) || item.role !== 'assistant') return;
+        const text = item.textContent ?? '';
+        if (HANGUL.test(text)) {
+          log(`⚠️ 선생님이 한국어를 직접 발음했다: "${text.slice(0, 120)}"`);
+        }
+      });
+    }
+
     await session.start({
-      agent: new voice.Agent({ instructions: meta.instructions }),
+      agent: new voice.Agent({
+        instructions: meta.instructions,
+        ...(koreanVoice ? { tools: koreanVoice.tools } : {}),
+      }),
       room: ctx.room,
       inputOptions: {
         // 학습자가 나가면 세션을 닫는다. 빈 방에 Gemini 를 붙들고 있지 않는다

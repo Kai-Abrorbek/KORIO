@@ -1,4 +1,5 @@
 import type { TutorAddressStyle, TutorMode } from '../tutor.const';
+import type { KoreanVoiceMode } from '../gemini/live.const';
 
 /**
  * Agent 에게 넘기는 전부.
@@ -37,6 +38,18 @@ export interface TutorDispatchMetadata {
    * Agent ↔ Gemini 구간이라 **끊는 책임도 거기 있어야 한다.**
    */
   maxDurationSec: number;
+  /**
+   * 한국어를 누가 소리 내나 (gemini/live.const.ts 의 koreanVoiceMode).
+   *
+   * 'tool' 이면 Agent 가 say_korean 도구를 등록한다. 프롬프트(§0)도 그걸
+   * 전제로 쓰였다 — **둘은 반드시 같이 움직여야** 해서, 프롬프트를 만든
+   * API 가 정해서 싣는다. 빠져 있으면 Agent 는 'native' 로 본다.
+   *
+   * ⚠️ 배포 순서: **Agent 먼저, API 나중.** 옛 Agent 는 이 필드를 몰라서
+   *    도구를 안 만드는데, 새 API 의 프롬프트는 "한국어는 say_korean 으로만"
+   *    이라 한국어가 아예 안 들린다.
+   */
+  koreanVoice?: KoreanVoiceMode;
 }
 
 /**
@@ -73,6 +86,13 @@ export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   const missing = need.filter((k) => m[k] === undefined || m[k] === '');
   if (missing.length) {
     throw new Error(`dispatch metadata 에 없는 값: ${missing.join(', ')}`);
+  }
+  if (
+    m.koreanVoice !== undefined &&
+    m.koreanVoice !== 'tool' &&
+    m.koreanVoice !== 'native'
+  ) {
+    throw new Error(`dispatch metadata koreanVoice 값이 이상하다: ${String(m.koreanVoice)}`);
   }
   return m as TutorDispatchMetadata;
 }

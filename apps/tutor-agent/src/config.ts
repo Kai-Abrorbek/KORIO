@@ -95,8 +95,9 @@ export function transcriptionLanguages(teachingLanguage: string): string[] {
 export const OPENING_DIRECTIVE = [
   '(Silent stage direction — never read this aloud.)',
   'The learner just joined the call and is waiting. Speak first, immediately.',
-  'Greet them the way your system instructions tell you to — same language mix,',
-  'same address style, same pronunciation rules. Keep it to two short sentences:',
+  'Greet them the way your system instructions tell you to — your voice rule,',
+  'address style and personality all apply from the very first word.',
+  'Keep it to two short sentences:',
   'one warm hello, then the first question that opens today\u2019s topic.',
   'Do not explain what you are about to do. Just start the lesson.',
 ].join(' ');
