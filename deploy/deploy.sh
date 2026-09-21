@@ -73,6 +73,49 @@ color_containers() { local c="$1"; echo "korio_api_$c korio_telegram_$c korio_ad
 AGENT_SERVICE="tutor_agent"
 AGENT_CONTAINER="korio_tutor_agent"
 
+# ── 디스크 ──
+#
+# 빌드는 pnpm store 캐시 + 이미지 레이어로 몇 GB 를 쓴다. 모자라면 빌드가
+# 40초쯤 돌다가 ENOSPC 로 죽는다 — 에러가 pnpm 안쪽에서 나와서 원인이
+# 디스크라는 걸 알아채기 어렵다. 그래서 **빌드 전에** 확인하고, 모자라면
+# 먼저 치워본다.
+MIN_FREE_GB="${MIN_FREE_GB:-6}"
+
+free_gb() { df -P / | awk 'NR==2 {print int($4/1024/1024)}'; }
+
+# 배포할 때마다 이미지 4개가 :<sha> 로 새로 생긴다. 안 지우면 쌓이기만 한다.
+#
+# 태그 이름으로 지운다 (ID 아님): 같은 이미지에 :latest 가 같이 붙어 있으면
+# ID 로 지우는 건 거부되고, 태그로 지우면 그냥 태그만 떨어진다.
+# 컨테이너가 쓰는 이미지는 docker 가 거부한다 — 옛 색 컨테이너는 stop 만 하고
+# 남겨두므로 **롤백용 이미지는 안 지워진다.**
+KEEP_IMAGES="${KEEP_IMAGES:-3}"
+
+prune_images() {
+  local repo
+  for repo in "$IMAGE" "$TELEGRAM_IMAGE" "$ADMIN_IMAGE" "$AGENT_IMAGE"; do
+    docker images "$repo" --format '{{.Repository}}:{{.Tag}}' 2>/dev/null \
+      | grep -v ':latest$' | awk "NR>${KEEP_IMAGES}" \
+      | xargs -r docker rmi >/dev/null 2>&1 || true
+  done
+  # 빌드 캐시도 상한을 둔다. 최근 것은 남겨야 다음 빌드가 pnpm store 를 재사용한다
+  docker builder prune -f --filter "until=${BUILD_CACHE_KEEP_HOURS:-168}h" >/dev/null 2>&1 || true
+  docker image prune -f >/dev/null 2>&1 || true
+}
+
+ensure_disk() {
+  local free; free="$(free_gb)"
+  (( free >= MIN_FREE_GB )) && return 0
+  warn "디스크 여유 ${free}GB (${MIN_FREE_GB}GB 필요) — 먼저 정리한다"
+  prune_images
+  free="$(free_gb)"
+  (( free >= MIN_FREE_GB )) && { log "정리 후 ${free}GB 확보"; return 0; }
+  die "디스크 여유 ${free}GB. 빌드가 중간에 죽는다. 손으로 더 치워라:
+    docker builder prune -f
+    docker image prune -a -f --filter until=72h
+    sudo truncate -s 0 /var/lib/docker/containers/*/*-json.log"
+}
+
 # 한 색의 모든 컨테이너가 healthy 가 될 때까지. 하나라도 실패하면 1
 wait_color_healthy() {
   local name
@@ -158,6 +201,8 @@ cmd_deploy() {
   # 그때까지 컨테이너가 아예 없었다.
   # (아직 api 가 없어 502 를 내지만, 첫 배포엔 트래픽이 없고 두 번째부터는
   #  이미 떠 있어서 no-op 다)
+  ensure_disk
+
   log "Caddy 기동 (인증서 발급이 빌드와 함께 돈다)"
   "${COMPOSE[@]}" up -d caddy
 
@@ -249,7 +294,11 @@ cmd_deploy() {
   # 남긴다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
   deploy_agent || warn "튜터 Agent 가 안 떴다. 통화만 죽은 상태다 — 나머지는 정상."
 
-  log "배포 완료 → ${GRN}${next}${RST} (${IMAGE}:${tag})"
+  # 성공했을 때만 치운다. 실패한 배포 뒤엔 되돌릴 이미지가 더 필요하다
+  log "옛 이미지 정리 (종류별 최근 ${KEEP_IMAGES}개는 남긴다)"
+  prune_images
+
+  log "배포 완료 → ${GRN}${next}${RST} (${IMAGE}:${tag}) · 디스크 여유 $(free_gb)GB"
   cmd_status
 }
 

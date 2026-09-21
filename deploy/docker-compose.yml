@@ -11,10 +11,21 @@
 
 name: korio
 
+# ⚠️ 컨테이너 로그는 **회전시키지 않으면 무한히 커진다.**
+#    json-file 드라이버의 기본값은 상한이 없어서, 로그만으로 디스크를 채운 뒤
+#    다음 배포의 pnpm install 이 ENOSPC 로 죽는다 (실제로 겪었다).
+#    서비스당 최대 30MB (10MB × 3개).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   caddy:
     image: caddy:2-alpine
     container_name: korio_caddy
+    logging: *logging
     restart: unless-stopped
     ports:
       - "80:80"
@@ -37,6 +48,7 @@ services:
   api_blue:
     image: ${IMAGE:-korio-api}:${TAG:-latest}
     container_name: korio_api_blue
+    logging: *logging
     restart: unless-stopped
     env_file:
       - ./api.env
@@ -65,6 +77,7 @@ services:
   api_green:
     image: ${IMAGE:-korio-api}:${TAG:-latest}
     container_name: korio_api_green
+    logging: *logging
     restart: unless-stopped
     env_file:
       - ./api.env
@@ -90,6 +103,7 @@ services:
   telegram_blue:
     image: ${TELEGRAM_IMAGE:-korio-telegram}:${TAG:-latest}
     container_name: korio_telegram_blue
+    logging: *logging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
@@ -102,6 +116,7 @@ services:
   telegram_green:
     image: ${TELEGRAM_IMAGE:-korio-telegram}:${TAG:-latest}
     container_name: korio_telegram_green
+    logging: *logging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
@@ -116,6 +131,7 @@ services:
   admin_blue:
     image: ${ADMIN_IMAGE:-korio-admin}:${TAG:-latest}
     container_name: korio_admin_blue
+    logging: *logging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
@@ -128,6 +144,7 @@ services:
   admin_green:
     image: ${ADMIN_IMAGE:-korio-admin}:${TAG:-latest}
     container_name: korio_admin_green
+    logging: *logging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
@@ -152,6 +169,7 @@ services:
   tutor_agent:
     image: ${AGENT_IMAGE:-korio-tutor-agent}:${TAG:-latest}
     container_name: korio_tutor_agent
+    logging: *logging
     restart: unless-stopped
     env_file:
       # 🔴 GOOGLE_API_KEY 가 여기 있다. api.env 와 **분리**한다 —
