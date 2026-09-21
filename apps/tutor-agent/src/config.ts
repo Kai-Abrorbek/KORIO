@@ -5,6 +5,8 @@
  *    앱이 Gemini 에 직접 붙던 구조를 버린 이유의 절반이 이거다.
  */
 
+import { GoogleGenAI, Modality, type Session } from '@google/genai';
+
 /** dispatch 이름. ⚠️ API 의 LIVEKIT_TUTOR_AGENT_NAME 과 글자까지 같아야 한다 */
 export const AGENT_NAME =
   process.env.LIVEKIT_TUTOR_AGENT_NAME?.trim() || 'korio-tutor';
@@ -65,6 +67,103 @@ const BCP47: Record<string, string> = {
   en: 'en-US',
   ko: 'ko-KR',
 };
+
+/**
+ * Live(선생님 목소리)의 출력 언어. 설명 언어 하나로 못 박는다.
+ * 한국어는 Live 가 말하지 않는다 — say_korean 만 말한다.
+ */
+export function tutorOutputLanguage(teachingLanguage: string): string {
+  return BCP47[teachingLanguage] ?? 'uz-UZ';
+}
+
+/**
+ * 그 언어 코드를 Live 가 **실제로 받아주는지** 확인한다.
+ *
+ * ⚠️ 문서만으로는 확정이 안 된다:
+ *   · 공식 문서: native audio 모델은 "언어 코드 명시를 지원하지 않는다"
+ *   · 실제 보고: 안 받는 코드를 넣으면 **세션 연결 단계에서 거부**된다
+ *       "Unsupported language code 'en-GB' for model …native-audio…"
+ *   · 지원 언어 표에는 우즈벡어가 'uz' 로만 적혀 있다 ('uz-UZ' 아님)
+ *
+ * 거부되면 튜터가 **통째로 연결이 안 된다.** 그래서 학습자를 기다리는 동안
+ * 같은 모델로 잠깐 붙어보고 setupComplete 를 받은 코드만 쓴다. BCP-47
+ * ('uz-UZ') 과 기본 코드('uz') 를 동시에 보고 앞의 것을 고른다. 둘 다
+ * 안 되면 코드 없이 간다 — 프롬프트(§0)와 say_korean 검증은 그대로 산다.
+ *
+ * 결과는 프로세스 안에서 재사용한다.
+ */
+type ProbeResult = { ok: boolean; reason?: string };
+const probed = new Map<string, Promise<ProbeResult>>();
+
+function probeLiveLanguage(
+  model: string,
+  languageCode: string,
+  timeoutMs = 6000,
+): Promise<ProbeResult> {
+  return new Promise<ProbeResult>((resolve) => {
+    let settled = false;
+    let session: Session | undefined;
+    const finish = (r: ProbeResult) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      session?.close();
+      resolve(r);
+    };
+    const timer = setTimeout(
+      () => finish({ ok: false, reason: `${timeoutMs}ms 안에 응답 없음` }),
+      timeoutMs,
+    );
+    new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY }).live
+      .connect({
+        model,
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: { languageCode },
+        },
+        callbacks: {
+          onmessage: (m) => {
+            if (m.setupComplete) finish({ ok: true });
+          },
+          onerror: () => finish({ ok: false, reason: '연결 에러' }),
+          onclose: (e) =>
+            finish({ ok: false, reason: e.reason || `close ${e.code}` }),
+        },
+      })
+      .then((s) => {
+        session = s;
+        if (settled) s.close();
+      })
+      .catch((e: unknown) =>
+        finish({ ok: false, reason: e instanceof Error ? e.message : String(e) }),
+      );
+  });
+}
+
+/** 받아주는 코드 하나 (없으면 undefined) + 로그용 요약 */
+export async function lockableOutputLanguage(
+  model: string,
+  teachingLanguage: string,
+): Promise<{ code?: string; report: string }> {
+  const full = tutorOutputLanguage(teachingLanguage);
+  const candidates = [...new Set([full, full.split('-')[0]])];
+  const results = await Promise.all(
+    candidates.map((c) => {
+      const key = `${model}|${c}`;
+      let pending = probed.get(key);
+      if (!pending) {
+        pending = probeLiveLanguage(model, c);
+        probed.set(key, pending);
+      }
+      return pending;
+    }),
+  );
+  const i = results.findIndex((r) => r.ok);
+  const report = candidates
+    .map((c, j) => `${c}=${results[j].ok ? 'OK' : `거부(${results[j].reason})`}`)
+    .join(', ');
+  return { code: i >= 0 ? candidates[i] : undefined, report };
+}
 
 export function transcriptionLanguages(teachingLanguage: string): string[] {
   const learner = BCP47[teachingLanguage];

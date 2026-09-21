@@ -41,9 +41,10 @@ export function geminiLiveModel(): string {
  *
  * 설명 언어가 한국어(ko)면 섞일 일이 없으니 항상 'native' 다.
  *
- * 되돌리는 법: TUTOR_KOREAN_VOICE=native → API 재시작만 하면 된다.
- * 이 값은 dispatch metadata 로 Agent 에 실려 가서 도구 등록도 같이 꺼진다
- * (프롬프트와 도구가 따로 놀면 한국어가 아예 안 들린다).
+ * ⚠️ 비한국어 수업은 **무조건 'tool'** 이다. 예전엔 TUTOR_KOREAN_VOICE=native
+ *    로 되돌리는 탈출구가 있었는데 없앴다 — 환경변수 하나로 조용히 섞인
+ *    발음으로 돌아가는 게, 롤백이 불편한 것보다 훨씬 위험하다.
+ *    이 값은 dispatch metadata 로 Agent 에 실려 가서 도구 등록과 같이 움직인다.
  *
  * ⚠️ 'tool' 은 한국어 한 마디마다 Gemini TTS 요청이 나간다. 무료 티어(분당
  *    3회)에서는 금방 막혀서 한국어가 소리 없이 자막으로만 나온다 — 결제 필수.
@@ -52,5 +53,6 @@ export type KoreanVoiceMode = 'tool' | 'native';
 
 export function koreanVoiceMode(teachingLanguage: string): KoreanVoiceMode {
   if (teachingLanguage === 'ko') return 'native';
-  return process.env.TUTOR_KOREAN_VOICE?.trim() === 'native' ? 'native' : 'tool';
+
+  return 'tool';
 }

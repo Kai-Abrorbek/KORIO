@@ -38,6 +38,16 @@ import { z } from 'zod';
 export const HANGUL = /[가-힣ᄀ-ᇿ㄰-㆏]/;
 
 /**
+ * 한글 외 문자(숫자·문장부호·공백 제외)가 섞였는지.
+ *
+ * ⚠️ HANGUL.test() 만으로는 "공항에 qanday 가요" 도 통과한다 — 한글이 **들어
+ *    있기만** 하면 되니까. 그러면 우리가 막으려던 바로 그 섞인 문장을 TTS 가
+ *    그대로 읽는다. 한글 말고 다른 글자가 하나라도 있으면 거절한다.
+ */
+const NON_KOREAN_CONTENT =
+  /[^\p{Script=Hangul}\p{Number}\p{Punctuation}\p{Separator}]/u;
+
+/**
  * 한국어 한 마디는 짧다. 재시도로 몇 초씩 끌면 선생님이 멈춘 것처럼 들린다.
  * 네트워크가 잠깐 튄 경우만 한 번 빠르게 다시 해본다.
  * (플러그인 기본값은 2초 간격 3회 — 429 에서는 쿼터만 태운다)
@@ -48,10 +58,18 @@ const TTS_CONN: APIConnectOptions = {
   timeoutMs: 10_000,
 };
 
-/** 모델이 따옴표·괄호·이모지를 같이 넘기는 경우가 있다. 소리 낼 것만 남긴다 */
+/**
+ * 모델이 따옴표·장식 기호를 같이 넘기는 경우가 있다. 소리 낼 것만 남긴다.
+ *
+ * ⚠️ '~' 는 **문장부호가 아니라 수학 기호(Sm)** 로 분류돼서, 안 지우면
+ *    "좋아요~" 가 NON_KOREAN_CONTENT 에 걸려 거절된다. 모델은 고칠 게 없는데
+ *    "한국어만 써라" 를 받고 같은 문장을 다시 보내는 헛바퀴를 돈다.
+ *    말투용 장식이라 소리에도 영향이 없다.
+ */
 function clean(text: string): string {
   return text
     .replace(/[«»“”"'`]/g, '')
+    .replace(/[~～♡♥☆★♪]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -117,9 +135,18 @@ function sayKoreanTool(tts: google.beta.TTS, log: (m: string) => void) {
     }),
     execute: async ({ text }, { ctx }) => {
       const korean = clean(text);
-      if (!korean || !HANGUL.test(korean)) {
-        log(`say_korean 거절 — 한글이 없다: "${text}"`);
-        return 'Nothing was played: text must be Korean written in Hangul.';
+      if (
+        !korean ||
+        !HANGUL.test(korean) ||
+        NON_KOREAN_CONTENT.test(korean)
+      ) {
+        log(`say_korean 거절 — 한국어 외 문자가 섞임: "${text}"`);
+
+        return (
+          'Nothing was played. The text contains non-Korean words. ' +
+          'Rewrite the ENTIRE Korean phrase in Korean only, then call say_korean again. ' +
+          'Never mix the teaching language inside the Korean phrase.'
+        );
       }
       log(`say_korean: "${korean}"`);
 

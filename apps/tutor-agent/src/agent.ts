@@ -15,7 +15,9 @@ import {
   OPENING_DIRECTIVE,
   VAD_SILENCE_MS,
   WAIT_FOR_LEARNER_SEC,
+  lockableOutputLanguage,
   transcriptionLanguages,
+  tutorOutputLanguage,
 } from './config.js';
 import { decodeDispatchMetadata } from './metadata.js';
 import { HANGUL, createKoreanVoice } from './korean-voice.js';
@@ -66,6 +68,16 @@ export default defineAgent({
     await ctx.connect();
 
     /**
+     * Live 출력 언어를 설명 언어로 못 박을 수 있는지 **학습자를 기다리는 동안**
+     * 확인해 둔다 (config.ts 의 lockableOutputLanguage — 서버가 코드를 거부하면
+     * 튜터가 통째로 안 붙기 때문). 병렬이라 보통은 기다리는 시간이 안 늘어난다.
+     */
+    const liveModel = meta.model || FALLBACK_MODEL;
+    const languageCheck = toolVoice
+      ? lockableOutputLanguage(liveModel, meta.teachingLanguage)
+      : null;
+
+    /**
      * 아무도 안 들어오면 접는다.
      *
      * 토큰만 받고 연결을 안 하는 경우가 실제로 있다. 그때 Agent 가 방에
@@ -83,24 +95,44 @@ export default defineAgent({
 
     const koreanVoice = toolVoice ? createKoreanVoice(meta.voiceName, log) : null;
 
+    /**
+     * 확인 결과를 기다리되 **1.5초까지만.** 그 안에 안 끝나면 코드 없이 간다
+     * (결과는 캐시돼서 이 프로세스의 다음 통화부터 쓰인다). 통화 시작이 느려지는
+     * 것보다 한 겹 덜 막는 게 낫다 — 프롬프트와 say_korean 검증은 그대로다.
+     */
+    let lockLanguage: string | undefined;
+    if (languageCheck) {
+      const want = tutorOutputLanguage(meta.teachingLanguage);
+      const r = await Promise.race([
+        languageCheck,
+        new Promise<null>((res) => setTimeout(() => res(null), 1500)),
+      ]);
+      if (!r) {
+        log(`⚠️ Live 출력 언어 확인이 1.5초 안에 안 끝남 — ${want} 고정 없이 진행`);
+      } else if (r.code) {
+        lockLanguage = r.code;
+        log(`Live 출력 언어 고정: ${r.code} (${r.report})`);
+      } else {
+        log(`⚠️ Live 가 출력 언어 코드를 안 받음 — 고정 없이 진행 (${r.report})`);
+      }
+    }
+
     const langHints = transcriptionLanguages(meta.teachingLanguage);
     log(`자막 언어 힌트: ${langHints.join(', ')} · VAD 침묵 ${VAD_SILENCE_MS}ms`);
 
     const session = new voice.AgentSession({
       llm: new google.realtime.RealtimeModel({
         // 모델은 **API 가 정한다.** Agent 를 다시 배포하지 않고 갈아 끼우려고
-        model: meta.model || FALLBACK_MODEL,
+        model: liveModel,
         voice: meta.voiceName,
         instructions: meta.instructions,
 
         /**
-         * ⚠️ `language` 를 **일부러 안 넣는다.**
-         *
-         * 이 튜터는 한 문장 안에서 언어를 갈아탄다
-         * ("Qani, qaytarib ko'ring — 공항에 갔어요"). 언어를 하나로 못 박으면
-         * 그 규칙(프롬프트 §2)이 소리에서 깨진다 — 우즈벡어를 한국어 규칙으로
-         * 읽거나 그 반대가 된다. 모델이 알아서 갈아타게 둔다.
+         * 선생님 목소리(Live)는 설명 언어 **하나만** 말한다.
+         * 우즈벡어 수업이면 uz-UZ 로 고정 — 한국어는 Live 가 말하지 않고
+         * say_korean 만 말한다. (서버가 받아주는 코드일 때만. 위 확인 참고)
          */
+        ...(lockLanguage ? { language: lockLanguage } : {}),
 
         /**
          * 자막. 화면과 종료 분석에 둘 다 필요해서 양쪽을 명시적으로 켠다.
