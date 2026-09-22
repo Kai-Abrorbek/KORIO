@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>KORIO Account Deletion</title>
+    <meta
+      name="description"
+      content="Instructions for deleting your KORIO account and associated data."
+    />
+
+    <style>
+      :root {
+        font-family:
+          Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #17131f;
+        background: #f8f6ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top right, #efe7ff 0, transparent 35%),
+          #f8f6ff;
+      }
+
+      .page {
+        width: min(820px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid #ece7f5;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 16px 50px rgba(70, 40, 120, 0.08);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        color: #6d35df;
+      }
+
+      .languages {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .lang-button {
+        border: 1px solid #ded6ed;
+        background: #ffffff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .lang-button.active {
+        color: #ffffff;
+        border-color: #6d35df;
+        background: #6d35df;
+      }
+
+      h1 {
+        margin: 0 0 16px;
+        font-size: clamp(32px, 6vw, 48px);
+        line-height: 1.08;
+        letter-spacing: -1.5px;
+      }
+
+      h2 {
+        margin: 36px 0 12px;
+        font-size: 22px;
+      }
+
+      p,
+      li {
+        font-size: 16px;
+        line-height: 1.75;
+        color: #5c5665;
+      }
+
+      ol,
+      ul {
+        padding-left: 24px;
+      }
+
+      .notice {
+        margin-top: 32px;
+        padding: 20px;
+        border-radius: 16px;
+        background: #f4efff;
+      }
+
+      .notice p {
+        margin: 0;
+      }
+
+      a {
+        color: #6d35df;
+        font-weight: 700;
+      }
+
+      footer {
+        margin-top: 28px;
+        text-align: center;
+        font-size: 14px;
+        color: #8c8595;
+      }
+
+      @media (max-width: 600px) {
+        .page {
+          padding-top: 20px;
+        }
+
+        .card {
+          padding: 24px 20px;
+          border-radius: 20px;
+        }
+
+        .brand {
+          align-items: flex-start;
+          flex-direction: column;
+          margin-bottom: 32px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="page">
+      <section class="card">
+        <header class="brand">
+          <div class="logo">KORIO</div>
+
+          <nav class="languages" aria-label="Language">
+            <button class="lang-button" data-lang="en">EN</button>
+            <button class="lang-button" data-lang="ko">KO</button>
+            <button class="lang-button" data-lang="uz">UZ</button>
+            <button class="lang-button" data-lang="ru">RU</button>
+          </nav>
+        </header>
+
+        <h1 data-i18n="title"></h1>
+
+        <p data-i18n="intro"></p>
+
+        <h2 data-i18n="appTitle"></h2>
+
+        <ol>
+          <li data-i18n="step1"></li>
+          <li data-i18n="step2"></li>
+          <li data-i18n="step3"></li>
+          <li data-i18n="step4"></li>
+          <li data-i18n="step5"></li>
+        </ol>
+
+        <h2 data-i18n="outsideTitle"></h2>
+
+        <p>
+          <span data-i18n="outsideText"></span>
+          <a href="mailto:support@korio.online">
+            support@korio.online
+          </a>
+        </p>
+
+        <p data-i18n="emailInstruction"></p>
+
+        <h2 data-i18n="deletedTitle"></h2>
+
+        <ul>
+          <li data-i18n="deleted1"></li>
+          <li data-i18n="deleted2"></li>
+          <li data-i18n="deleted3"></li>
+          <li data-i18n="deleted4"></li>
+          <li data-i18n="deleted5"></li>
+        </ul>
+
+        <h2 data-i18n="retentionTitle"></h2>
+
+        <p data-i18n="retentionText"></p>
+
+        <div class="notice">
+          <p data-i18n="notice"></p>
+        </div>
+      </section>
+
+      <footer>
+        © 2026 KORIO
+      </footer>
+    </main>
+
+    <script>
+      const translations = {
+        en: {
+          title: "Delete your KORIO account",
+          intro:
+            "You can permanently delete your KORIO account and the personal data associated with it.",
+
+          appTitle: "Delete your account in the KORIO app",
+          step1: "Open the KORIO app.",
+          step2: "Go to Settings.",
+          step3: "Open Account settings.",
+          step4: "Select Delete Account.",
+          step5: "Confirm the account deletion.",
+
+          outsideTitle: "If you cannot access the app",
+          outsideText:
+            "You can request account deletion by contacting KORIO support at ",
+          emailInstruction:
+            "Please include the email address associated with your KORIO account so we can identify the account to be deleted.",
+
+          deletedTitle: "Data deleted with your account",
+          deleted1: "Account and profile information",
+          deleted2: "Learning progress and lesson history",
+          deleted3: "XP, streak and other learning progress data",
+          deleted4: "AI tutor and learning-related account data",
+          deleted5:
+            "Other personal data associated with your KORIO account",
+
+          retentionTitle: "Data retention",
+          retentionText:
+            "Some transaction, subscription, security, or legal records may be retained where required by applicable law or necessary to comply with legal obligations. Other account-related personal data will be deleted after the deletion request is processed.",
+
+          notice:
+            "Deleting your account is permanent. Once deletion is completed, your account and deleted learning data cannot be restored.",
+        },
+
+        ko: {
+          title: "KORIO 계정 삭제",
+          intro:
+            "KORIO 계정과 계정에 연결된 개인정보를 영구적으로 삭제할 수 있습니다.",
+
+          appTitle: "KORIO 앱에서 계정 삭제하기",
+          step1: "KORIO 앱을 엽니다.",
+          step2: "설정으로 이동합니다.",
+          step3: "계정 설정을 엽니다.",
+          step4: "계정 삭제를 선택합니다.",
+          step5: "계정 삭제를 확인합니다.",
+
+          outsideTitle: "앱에 접근할 수 없는 경우",
+          outsideText:
+            "KORIO 고객지원 이메일을 통해 계정 삭제를 요청할 수 있습니다: ",
+          emailInstruction:
+            "삭제할 계정을 확인할 수 있도록 KORIO 계정에 등록된 이메일 주소를 함께 보내주세요.",
+
+          deletedTitle: "계정과 함께 삭제되는 데이터",
+          deleted1: "계정 및 프로필 정보",
+          deleted2: "학습 진행도 및 레슨 기록",
+          deleted3: "XP, 연속 학습 기록 및 기타 학습 진행 데이터",
+          deleted4: "AI 튜터 및 학습 관련 계정 데이터",
+          deleted5: "KORIO 계정에 연결된 기타 개인정보",
+
+          retentionTitle: "데이터 보관",
+          retentionText:
+            "관련 법률에 따라 보관해야 하거나 법적 의무 준수를 위해 필요한 일부 거래, 구독, 보안 또는 법적 기록은 일정 기간 보관될 수 있습니다. 그 외 계정 관련 개인정보는 삭제 요청 처리 후 삭제됩니다.",
+
+          notice:
+            "계정 삭제는 영구적입니다. 삭제가 완료되면 계정과 삭제된 학습 데이터를 복구할 수 없습니다.",
+        },
+
+        uz: {
+          title: "KORIO hisobini o‘chirish",
+          intro:
+            "KORIO hisobingiz va unga bog‘langan shaxsiy ma’lumotlarni butunlay o‘chirishingiz mumkin.",
+
+          appTitle: "KORIO ilovasida hisobni o‘chirish",
+          step1: "KORIO ilovasini oching.",
+          step2: "Sozlamalarga o‘ting.",
+          step3: "Hisob sozlamalarini oching.",
+          step4: "Hisobni o‘chirish tugmasini tanlang.",
+          step5: "Hisob o‘chirilishini tasdiqlang.",
+
+          outsideTitle: "Agar ilovaga kira olmasangiz",
+          outsideText:
+            "KORIO yordam xizmatiga murojaat qilib hisobni o‘chirishni so‘rashingiz mumkin: ",
+          emailInstruction:
+            "O‘chiriladigan hisobni aniqlashimiz uchun KORIO hisobingizga bog‘langan email manzilini kiriting.",
+
+          deletedTitle: "Hisob bilan birga o‘chiriladigan ma’lumotlar",
+          deleted1: "Hisob va profil ma’lumotlari",
+          deleted2: "O‘quv jarayoni va darslar tarixi",
+          deleted3:
+            "XP, ketma-ket o‘rganish va boshqa o‘quv jarayoni ma’lumotlari",
+          deleted4:
+            "AI tutor va o‘rganishga oid hisob ma’lumotlari",
+          deleted5:
+            "KORIO hisobingizga bog‘langan boshqa shaxsiy ma’lumotlar",
+
+          retentionTitle: "Ma’lumotlarni saqlash",
+          retentionText:
+            "Amaldagi qonunchilik talab qilgan hollarda yoki qonuniy majburiyatlarni bajarish uchun ayrim tranzaksiya, obuna, xavfsizlik yoki huquqiy yozuvlar saqlanishi mumkin. Hisobga bog‘liq boshqa shaxsiy ma’lumotlar o‘chirish so‘rovi ko‘rib chiqilgandan keyin o‘chiriladi.",
+
+          notice:
+            "Hisobni o‘chirish qaytarib bo‘lmaydigan amal hisoblanadi. O‘chirilgandan keyin hisob va o‘chirilgan o‘quv ma’lumotlarini tiklab bo‘lmaydi.",
+        },
+
+        ru: {
+          title: "Удаление аккаунта KORIO",
+          intro:
+            "Вы можете навсегда удалить аккаунт KORIO и связанные с ним персональные данные.",
+
+          appTitle: "Удаление аккаунта в приложении KORIO",
+          step1: "Откройте приложение KORIO.",
+          step2: "Перейдите в настройки.",
+          step3: "Откройте настройки аккаунта.",
+          step4: "Выберите «Удалить аккаунт».",
+          step5: "Подтвердите удаление аккаунта.",
+
+          outsideTitle: "Если у вас нет доступа к приложению",
+          outsideText:
+            "Вы можете запросить удаление аккаунта, обратившись в службу поддержки KORIO: ",
+          emailInstruction:
+            "Укажите адрес электронной почты, связанный с вашим аккаунтом KORIO, чтобы мы могли определить аккаунт для удаления.",
+
+          deletedTitle: "Данные, удаляемые вместе с аккаунтом",
+          deleted1: "Данные аккаунта и профиля",
+          deleted2: "Прогресс обучения и история уроков",
+          deleted3:
+            "XP, серия занятий и другие данные о прогрессе обучения",
+          deleted4:
+            "Данные аккаунта, связанные с AI-репетитором и обучением",
+          deleted5:
+            "Другие персональные данные, связанные с аккаунтом KORIO",
+
+          retentionTitle: "Хранение данных",
+          retentionText:
+            "Некоторые сведения о транзакциях, подписках, безопасности или юридические записи могут храниться в случаях, предусмотренных законодательством или необходимых для выполнения юридических обязательств. Остальные персональные данные аккаунта будут удалены после обработки запроса.",
+
+          notice:
+            "Удаление аккаунта является необратимым. После завершения удаления аккаунт и удалённые данные об обучении восстановить невозможно.",
+        },
+      };
+
+      let currentLang = "en";
+
+      const supportedLanguages = ["en", "ko", "uz", "ru"];
+
+      function getInitialLanguage() {
+        const browserLang = navigator.language
+          .toLowerCase()
+          .split("-")[0];
+
+        return supportedLanguages.includes(browserLang)
+          ? browserLang
+          : "en";
+      }
+
+      function t(key) {
+        return (
+          translations[currentLang]?.[key] ??
+          translations.en[key] ??
+          key
+        );
+      }
+
+      function render() {
+        document.documentElement.lang = currentLang;
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.dataset.i18n;
+          element.textContent = t(key);
+        });
+
+        document.querySelectorAll("[data-lang]").forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.lang === currentLang,
+          );
+        });
+      }
+
+      document.querySelectorAll("[data-lang]").forEach((button) => {
+        button.addEventListener("click", () => {
+          currentLang = button.dataset.lang;
+          render();
+        });
+      });
+
+      currentLang = getInitialLanguage();
+      render();
+    </script>
+  </body>
+</html>
