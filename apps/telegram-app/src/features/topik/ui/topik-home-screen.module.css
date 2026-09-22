@@ -618,8 +618,7 @@
   width: min(100%, 340px);
 }
 
-@media (prefers-color-scheme: dark) {
-  .screen {
+:global(html[data-theme="dark"]) .screen {
     --topik-surface-elevated: #2d2d38;
     --topik-surface-muted: #30303a;
     --topik-text-muted: #8f909e;
@@ -627,27 +626,13 @@
     --topik-primary: #8bb9e6;
     --topik-primary-strong: #315f8d;
     --topik-primary-soft: #22384d;
-  }
-
-  .hero {
-    background: #172a42;
-  }
-
-  .completedRow > span {
-    background: #1e3b30;
-    color: #a9edc8;
-  }
-
-  .writingPractice header > span,
-  .practiceGrid > button > span i {
-    background: #332d4a;
-    color: #b8a6f4;
-  }
-
-  .modeCard > i {
-    border-color: #50515d;
-  }
 }
+
+:global(html[data-theme="dark"]) .hero { background: #172a42; }
+:global(html[data-theme="dark"]) .completedRow > span { background: #1e3b30; color: #a9edc8; }
+:global(html[data-theme="dark"]) .writingPractice header > span,
+:global(html[data-theme="dark"]) .practiceGrid > button > span i { background: #332d4a; color: #b8a6f4; }
+:global(html[data-theme="dark"]) .modeCard > i { border-color: #50515d; }
 
 @media (max-width: 370px) {
   .content {

@@ -3,6 +3,7 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 
 import { TelegramAuthProvider } from "../src/features/auth/model/telegram-auth-context";
+import { ThemeProvider } from "../src/shared/theme/theme-context";
 
 import "./globals.css";
 
@@ -21,13 +22,22 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="uz">
+    <html lang="uz" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=localStorage.getItem("korio-theme");var t=p==="light"||p==="dark"?p:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         <Script
           src="https://telegram.org/js/telegram-web-app.js?63"
           strategy="beforeInteractive"
         />
-        <TelegramAuthProvider>{children}</TelegramAuthProvider>
+        <ThemeProvider>
+          <TelegramAuthProvider>{children}</TelegramAuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

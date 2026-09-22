@@ -478,32 +478,17 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .screen {
+:global(html[data-theme="dark"]) .screen {
     --topik-muted: #8f909e;
     --topik-subtle: #747582;
     --topik-primary: #8bb9e6;
     --topik-primary-strong: #315f8d;
-  }
-
-  .featureRow i {
-    background: #30303a;
-  }
-
-  .liveBadge {
-    background: #1e3b30;
-    color: #a9edc8;
-  }
-
-  .recommendation {
-    background: #40371e;
-    border-color: #e8c66e;
-  }
-
-  .recommendation strong {
-    color: #f2d98f;
-  }
 }
+
+:global(html[data-theme="dark"]) .featureRow i { background: #30303a; }
+:global(html[data-theme="dark"]) .liveBadge { background: #1e3b30; color: #a9edc8; }
+:global(html[data-theme="dark"]) .recommendation { background: #40371e; border-color: #e8c66e; }
+:global(html[data-theme="dark"]) .recommendation strong { color: #f2d98f; }
 
 @media (prefers-reduced-motion: reduce) {
   .sectionCard {
