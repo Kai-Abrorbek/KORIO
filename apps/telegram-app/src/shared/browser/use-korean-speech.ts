@@ -22,10 +22,34 @@ export interface KoreanSpeechOptions {
   gender?: "female" | "male";
   onEnd?: () => void;
   rate?: number;
+  respectSoundSettings?: boolean;
   voice?: string;
+  volume?: number;
 }
 
-function browserSpeech(text: string, rate: number, onEnd: () => void) {
+interface SavedSoundPreferences {
+  speechRate?: number;
+  speechVoice?: string;
+  speechVolume?: number;
+  startMuted?: boolean;
+}
+
+function savedSoundPreferences(): SavedSoundPreferences {
+  try {
+    return JSON.parse(
+      window.localStorage.getItem("korio-sound-settings") ?? "{}",
+    ) as SavedSoundPreferences;
+  } catch {
+    return {};
+  }
+}
+
+function browserSpeech(
+  text: string,
+  rate: number,
+  volume: number,
+  onEnd: () => void,
+) {
   if (!("speechSynthesis" in window)) {
     onEnd();
     return;
@@ -35,6 +59,7 @@ function browserSpeech(text: string, rate: number, onEnd: () => void) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "ko-KR";
   utterance.rate = rate;
+  utterance.volume = volume;
   utterance.onend = onEnd;
   utterance.onerror = onEnd;
   window.speechSynthesis.speak(utterance);
@@ -161,7 +186,24 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
     (rawText: string, options?: KoreanSpeechOptions) => {
       const text = rawText.trim();
       if (!text || typeof window === "undefined") return;
-      const rate = options?.rate ?? 1;
+      const respectSettings = options?.respectSoundSettings !== false;
+      const saved = respectSettings ? savedSoundPreferences() : {};
+      const rate = options?.rate ?? saved.speechRate ?? 1;
+      const voice = options?.voice ?? saved.speechVoice;
+      const volume = Math.min(
+        1,
+        Math.max(0, options?.volume ?? saved.speechVolume ?? 1),
+      );
+      const sessionMuted = window.sessionStorage.getItem("korio-muted");
+      const muted =
+        respectSettings &&
+        (sessionMuted === null
+          ? Boolean(saved.startMuted)
+          : sessionMuted === "true");
+      if (muted || volume === 0) {
+        options?.onEnd?.();
+        return;
+      }
       const finish = () => {
         if (runIdRef.current !== runId) return;
         if (progressFrameRef.current !== null) cancelAnimationFrame(progressFrameRef.current);
@@ -177,7 +219,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       setProgress(0);
 
       if (!request) {
-        browserSpeech(text, rate, finish);
+        browserSpeech(text, rate, volume, finish);
         return;
       }
 
@@ -189,17 +231,21 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
             text,
             rate,
             options?.gender,
-            options?.voice,
+            voice,
           );
           await resume;
           if (runIdRef.current !== runId) return;
 
           if (context?.state === "running") {
             const source = context.createBufferSource();
+            const gain = context.createGain();
             source.buffer = prepared.buffer;
-            source.connect(context.destination);
+            gain.gain.value = volume;
+            source.connect(gain);
+            gain.connect(context.destination);
             source.onended = () => {
               if (sourceRef.current === source) sourceRef.current = null;
+              gain.disconnect();
               finish();
             };
             sourceRef.current = source;
@@ -216,6 +262,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
 
           const audio = new Audio(prepared.url);
           audio.preload = "auto";
+          audio.volume = volume;
           audio.onended = () => {
             if (audioRef.current === audio) audioRef.current = null;
             finish();
@@ -229,7 +276,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
           await audio.play();
         } catch {
           if (runIdRef.current !== runId) return;
-          browserSpeech(text, rate, finish);
+          browserSpeech(text, rate, volume, finish);
         }
       })();
     },
