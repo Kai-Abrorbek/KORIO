@@ -400,19 +400,15 @@
   from { opacity: 0; transform: translateY(10px); }
 }
 
-@media (prefers-color-scheme: dark) {
-  .screen {
+:global(html[data-theme="dark"]) .screen {
     --bg: #15151d;
     --surface: #25252e;
     --text: #fff;
     --secondary: #a6a6b3;
     --border: #3a3a44;
-  }
-
-  .hero {
-    border-color: #3c385d;
-  }
 }
+
+:global(html[data-theme="dark"]) .hero { border-color: #3c385d; }
 
 @media (max-height: 740px) {
   .hero {
