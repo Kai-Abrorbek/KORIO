@@ -13,6 +13,7 @@ import {
   AGENT_NAME,
   FALLBACK_MODEL,
   OPENING_DIRECTIVE,
+  OPENING_DIRECTIVE_TOOL_FIRST_CALL,
   VAD_SILENCE_MS,
   WAIT_FOR_LEARNER_SEC,
   lockableOutputLanguage,
@@ -20,7 +21,13 @@ import {
   tutorOutputLanguage,
 } from './config.js';
 import { decodeDispatchMetadata } from './metadata.js';
-import { HANGUL, createKoreanVoice } from './korean-voice.js';
+import { createKoreanVoice } from './korean-voice.js';
+import {
+  SAY_KOREAN,
+  SPOKEN_PROMPT_LEAK,
+  SPOKEN_TOOL_NOTATION,
+  containsSpokenKorean,
+} from './korean-voice-spec.js';
 
 /**
  * KORIO Tutor Agent.
@@ -208,28 +215,81 @@ export default defineAgent({
       log(`상한 ${meta.maxDurationSec}초 도달 — 종료`);
       ctx.shutdown('max_duration');
     }, meta.maxDurationSec * 1000);
+
+    /**
+     * 통화 한 번이 "한국어를 도구로 냈는가" 를 **로그 한 줄로** 판정하려는 숫자.
+     * 실기기 테스트 뒤에 로그를 전부 뒤질 필요 없이 마지막 요약만 보면 된다.
+     */
+    const voiceStats = {
+      turns: 0,
+      calls: 0,
+      callErrors: 0,
+      spokeKorean: 0,
+      spokeNotation: 0,
+      spokePrompt: 0,
+    };
+
     ctx.addShutdownCallback(async () => {
       clearTimeout(hardStop);
       await koreanVoice?.close().catch(() => undefined);
+      if (toolVoice) {
+        const s = voiceStats;
+        log(
+          `요약 — 선생님 발화 ${s.turns} · ${SAY_KOREAN} 호출 ${s.calls}` +
+            (s.callErrors ? ` (실패 ${s.callErrors})` : '') +
+            ` · 한국어 직접 발음 ${s.spokeKorean} · 도구 표기를 소리 냄 ${s.spokeNotation}` +
+            ` · 프롬프트를 읽음 ${s.spokePrompt}`,
+        );
+      }
       log('종료');
     });
 
     /**
-     * 선생님이 한국어를 **직접** 발음했는지 기록한다.
+     * 진단. 소리는 이미 나갔으니 막을 순 없지만, **무엇이 얼마나** 일어나는지
+     * 알아야 다음 손을 정할 수 있다.
      *
-     * 도구로 낸 한국어는 채팅 문맥에 안 들어가므로(addToChatCtx: false),
-     * assistant 메시지에 한글이 있다는 건 모델이 규칙을 어기고 자기 목소리로
-     * 한국어를 말했다는 뜻이다. 소리는 이미 나갔으니 막을 순 없지만, 얼마나
-     * 자주 일어나는지 알아야 프롬프트를 더 조일지 판단할 수 있다.
+     *  · 도구로 낸 한국어는 채팅 문맥에 안 들어간다(addToChatCtx: false). 그래서
+     *    선생님 자막에 한글이 있으면 = 모델이 자기 목소리로 한국어를 말한 것.
+     *  · 자막에 도구 이름이나 "invoke" 가 있으면 = 호출하지 않고 **표기를 읽은 것**
+     *    (실기기에서 실제로 "→ say_korean(…)" 이 자막에 찍혔다).
+     *  · 도구 실행 결과는 FunctionToolsExecuted 로 본다. 인자 검증에 걸리거나
+     *    없는 이름을 부르면 execute 까지 안 와서 `say_korean: …` 로그가 없다 —
+     *    그 경우가 여기서만 보인다.
      */
     if (toolVoice) {
+      log(`도구 등록: ${SAY_KOREAN} (BLOCKING)`);
+
       session.on(voice.AgentSessionEventTypes.ConversationItemAdded, (ev) => {
         const item = ev.item;
         if (!(item instanceof llm.ChatMessage) || item.role !== 'assistant') return;
         const text = item.textContent ?? '';
-        if (HANGUL.test(text)) {
-          log(`⚠️ 선생님이 한국어를 직접 발음했다: "${text.slice(0, 120)}"`);
+        if (!text.trim()) return;
+        voiceStats.turns += 1;
+        if (SPOKEN_PROMPT_LEAK.test(text)) {
+          voiceStats.spokePrompt += 1;
+          log(`⚠️ 선생님이 프롬프트 예시를 대사로 읽었다: "${text.slice(0, 200)}"`);
         }
+        if (SPOKEN_TOOL_NOTATION.test(text)) {
+          voiceStats.spokeNotation += 1;
+          log(`⚠️ 도구를 부르지 않고 도구 표기를 소리 냈다: "${text.slice(0, 200)}"`);
+        } else if (containsSpokenKorean(text)) {
+          voiceStats.spokeKorean += 1;
+          log(`⚠️ 선생님이 한국어를 직접 발음했다: "${text.slice(0, 200)}"`);
+        }
+      });
+
+      session.on(voice.AgentSessionEventTypes.FunctionToolsExecuted, (ev) => {
+        ev.functionCalls.forEach((call, i) => {
+          voiceStats.calls += 1;
+          const out = ev.functionCallOutputs[i];
+          if (call.name !== SAY_KOREAN || out?.isError) {
+            voiceStats.callErrors += 1;
+            log(
+              `⚠️ 도구 호출 실패: ${call.name}(${call.args.slice(0, 160)}) → ` +
+                `${out ? out.output.slice(0, 200) : '결과 없음'}`,
+            );
+          }
+        });
       });
     }
 
@@ -265,7 +325,11 @@ export default defineAgent({
     const greet = async (why: string): Promise<boolean> => {
       try {
         await session
-          .generateReply({ instructions: OPENING_DIRECTIVE })
+          .generateReply({
+            // tool 모드: 첫 행동을 say_korean 호출로 — 첫 한국어가 세션 끝까지 간다
+            // (config.ts 의 OPENING_DIRECTIVE_TOOL_FIRST_CALL 주석)
+            instructions: toolVoice ? OPENING_DIRECTIVE_TOOL_FIRST_CALL : OPENING_DIRECTIVE,
+          })
           .waitForPlayout();
         log(`첫 인사 완료 (${why})`);
         return true;

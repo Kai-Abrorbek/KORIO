@@ -200,3 +200,38 @@ export const OPENING_DIRECTIVE = [
   'one warm hello, then the first question that opens today\u2019s topic.',
   'Do not explain what you are about to do. Just start the lesson.',
 ].join(' ');
+
+/**
+ * tool 모드의 첫 인사 지시문.
+ *
+ * 첫 턴이 제일 중요하다 — 모델은 자기가 앞에서 한 방식을 그대로 이어 간다.
+ * 첫 인사에서 한국어를 자기 목소리로(또는 도구 표기를 읽어서) 내면 그 뒤로도
+ * 계속 그렇게 한다. 그래서 첫 마디 직전에 한 번 더 못 박는다.
+ */
+export const OPENING_DIRECTIVE_TOOL = [
+  OPENING_DIRECTIVE,
+  'Any Korean in it is heard only by invoking the say_korean function —',
+  'never pronounce Korean yourself and never say the function name.',
+].join(' ');
+
+/**
+ * tool 모드 첫 인사 — **첫 행동을 say_korean 호출로** 못 박는 판.
+ *
+ * 실험(2026-09-21, 14세션)에서 세션의 **첫 한국어 순간이 끝까지 갔다**:
+ * 첫 한국어를 표기로 읽은 세션은 7개 전부 끝까지 표기만 읽었고, 첫 한국어를
+ * 진짜로 호출한 세션은 끝까지 호출했다. 그래서 첫 한국어를 운에 맡기지 않고,
+ * 말을 꺼내기 **전에** 호출부터 하게 한다 — 인사 한마디든 롤플레이 첫 대사든.
+ */
+export const OPENING_DIRECTIVE_TOOL_FIRST_CALL = [
+  '(Silent stage direction — never read this aloud.)',
+  'The learner just joined the call and is waiting.',
+  'Your very first action is to invoke the say_korean function with a short',
+  'Korean opening line — a warm greeting, or in role-play your character\u2019s',
+  'first line — before you say a single word.',
+  'When it has played, speak to them the way your system instructions tell you',
+  'to — your voice rule, address style and personality all apply — and ask the',
+  'first question that opens today\u2019s topic. Keep it short.',
+  'Do not explain what you are about to do.',
+  'Every Korean phrase is heard only by invoking say_korean — never pronounce',
+  'Korean yourself and never say the function name.',
+].join(' ');

@@ -89,10 +89,31 @@ const LANG_NAME: Record<string, string> = {
  * broken 은 실기기에서 실제로 들린 망가진 형태다 ("공항에 qanday qayo").
  * 모델에게 **무엇이 금지인지를 소리 그대로** 보여줘야 같은 실수를 안 한다.
  */
-const VOICE_EXAMPLE: Record<string, { lead: string; next: string; broken: string }> = {
-  uz: { lead: 'Qani, takrorlang.', next: 'Endi siz ayting.', broken: '공항에 qanday borasiz' },
-  ru: { lead: 'Давай, повтори за мной.', next: 'Теперь ты.', broken: '공항에 как доехать' },
-  en: { lead: 'Okay, say it after me.', next: 'Now you.', broken: '공항에 how do I get there' },
+const VOICE_EXAMPLE: Record<
+  string,
+  { lead: string; next: string; broken: string; wordWrong: string; wordRight: string }
+> = {
+  uz: {
+    lead: 'Qani, takrorlang.',
+    next: 'Endi siz ayting.',
+    broken: '공항에 qanday borasiz',
+    wordWrong: 'Aeroport koreyschada "공항" deyiladi.',
+    wordRight: 'Aeroport koreyschada mana bunday deyiladi:',
+  },
+  ru: {
+    lead: 'Давай, повтори за мной.',
+    next: 'Теперь ты.',
+    broken: '공항에 как доехать',
+    wordWrong: 'Аэропорт по-корейски будет "공항".',
+    wordRight: 'Аэропорт по-корейски будет вот так:',
+  },
+  en: {
+    lead: 'Okay, say it after me.',
+    next: 'Now you.',
+    broken: '공항에 how do I get there',
+    wordWrong: 'Airport in Korean is "공항".',
+    wordRight: 'Airport in Korean is:',
+  },
 };
 
 /**
@@ -139,12 +160,231 @@ Now you try.
 };
 
 /**
+ * tool 모드에서 예시 속 "여기서 한국어가 나온다" 를 모델에게 어떻게 보여주나.
+ *
+ * ── 왜 이게 따로 있나 ──
+ *
+ * 예전엔 예시에 `→ say_korean("공항에 갔어요.")` 를 선생님 대사 **줄 사이에**
+ * 그대로 적었다. 실기기에서 모델은 도구를 한 번도 안 불렀고, 그 줄을 **대사로
+ * 따라 말했다** (자막에 "→ say_korean(…)" 이 그대로 찍힘). 예시 대본 안의
+ * 줄은 native audio 모델에게 전부 "내가 할 말" 이다. 함수 호출 모양의 글자를
+ * 대본에 넣으면 호출이 아니라 **그 글자를 흉내 낸다** — 텍스트 모델에서도
+ * 알려진 실패다 (few-shot 예시 속 호출 표기를 텍스트로 뱉는 것).
+ *
+ * 그래서 예시 원문은 계속 `→ say_korean("…")` 로 적되(한 곳에서 관리하려고),
+ * 모델에게 나가기 직전에 여기서 바꾼다:
+ *
+ *   tail      — 대본엔 설명어만. 한국어 자리는 선생님 말이 콜론으로 끝나는 곳 ← 기본
+ *               (renderTail 주석 참고)
+ *   marker    — 한국어 자리에 🔊 하나만, 빈 줄로 떼어 세운다
+ *   split     — (invoke say_korean: 공항에 갔어요.) 를 빈 줄로 떼어 세운다
+ *   direction — 같은 지시문을 선생님 말 줄 사이에 붙여 둔다
+ *
+ * 호출 실험(tutor-agent/scripts/probe-korean-voice.ts, gemini-3.8-live, 2026-09-21):
+ *
+ *   1) 지난 커밋·direction: 도구 0회, 표기를 대사로 읽음. split: 1차 5턴은 전부 호출.
+ *   2) split 8세션: **세션의 첫 한국어 순간이 끝까지 간다.** 첫 한국어를 표기로
+ *      읽은 세션은 끝까지 표기만 읽었고(1차 포함 7/7), 호출로 시작한 세션은 끝까지
+ *      호출했다. 다만 예시에 표기 글자가 남아 있으면 "호출하면서 표기도 읽는"
+ *      턴이 섞였다 — split 1차 성공은 첫 턴 운이었다.
+ *
+ *   → 대본 속에 **읽을 글자를 아예 남기지 않는다** + 첫 행동을 호출로 못 박는다
+ *     (agent 의 OPENING_DIRECTIVE_TOOL_FIRST_CALL).
+ *   3) marker(🔊): 대본을 🔊 줄까지 통째로 말한 **뒤에** 도구를 불러 순서가
+ *      뒤집혔다. 잘 된 턴은 전부 "설명어로 콜론까지 → 도구" 였다 → tail.
+ *
+ *   공통: 선생님 말 **문단 안에** 있는 줄은 무엇이든 "내 대사" 로 읽힌다.
+ *   예시를 새로 쓸 때도 한국어 자리는 반드시 `→ say_korean("…")` 한 줄로 —
+ *   그래야 여기서 떼어진다. 문장 안에 한국어를 박으면 못 뗀다.
+ */
+export type KoreanCueStyle = 'direction' | 'split' | 'marker' | 'tail';
+
+/** 원문 표기 (한 줄 전체). 여기서만 쓰고 모델에게는 안 나간다 */
+const CUE_LINE = /^([ \t]*)→ say_korean\("([^"\n]+)"\)[ \t]*$/;
+/** 문장 안에 들어간 원문 표기 ("Correct: say_korean(…)") */
+const CUE_INLINE = /(?:→ )?say_korean\("([^"\n]+)"\)/g;
+
+const direction = (korean: string) => `(invoke say_korean: ${korean})`;
+
+/**
+ * marker — 예시 대본 속 한국어 자리에 **🔊 하나만** 둔다. 한국어도, 함수 표기도
+ * 안 적는다.
+ *
+ * 2차 실험(split 8세션)에서 드러난 것:
+ *  · 세션의 **첫 한국어 순간**이 끝까지 간다. 첫 번째를 표기로 읽은 세션은
+ *    7개 전부 끝까지 표기만 읽었다.
+ *  · 첫 번째를 제대로 호출한 세션도, 예시에 표기 글자가 남아 있는 한 나중에
+ *    "호출하면서 표기도 읽는" 턴이 섞였다.
+ * 그러니 대본 속에 **읽을 글자 자체를 없앤다.** 모델이 🔊 를 흉내 내 봐야
+ * 소리가 없다. 어떤 한국어를 들려줄지는 모델이 상황에서 고른다 — 규칙(§0)과
+ * 문장 설명에 있는 한국어는 그대로다. 대본 속 줄만 비운다.
+ */
+const MARKER = '🔊';
+
+export function renderKoreanCues(prompt: string, style: KoreanCueStyle): string {
+  if (style === 'tail') return renderTail(prompt);
+  const inline = (ko: string) =>
+    style === 'marker' ? `invoke say_korean with "${ko}"` : direction(ko);
+  const out: string[] = [];
+  let blankAfter = false;
+  for (const line of prompt.split('\n')) {
+    const cue = CUE_LINE.exec(line);
+    if (!cue) {
+      if (blankAfter && line.trim() !== '') out.push('');
+      blankAfter = false;
+      out.push(line.replace(CUE_INLINE, (_, ko: string) => inline(ko)));
+      continue;
+    }
+    const [, indent, korean] = cue;
+    // marker: 앞 줄도 같은 자리였으면 🔊 를 또 세우지 않는다 ("공항" → "공항에
+    // 갔어요" 처럼 연달아 부르는 자리). 몇 번 부를지는 모델이 정한다
+    const prev = out.filter((l) => l.trim() !== '').pop();
+    if (style === 'marker' && prev?.trim() === MARKER) {
+      blankAfter = true;
+      continue;
+    }
+    if (style !== 'direction') {
+      // split·marker: 선생님 말 문단과 **떨어진 한 줄**로 세운다 (1차 실험)
+      if (out.length && out[out.length - 1].trim() !== '') out.push('');
+      blankAfter = true;
+    }
+    out.push(`${indent}${style === 'marker' ? MARKER : direction(korean)}`);
+  }
+  return out.join('\n');
+}
+
+/**
+ * tail — 예시 대본에 한국어 자리를 **아예 안 남긴다.** 대신 선생님 말이
+ * "Qani, qaytarib ko'ring:" 처럼 **콜론으로 끝나고**, 한국어는 그 뒤에 도구로 나간다.
+ *
+ * 3차 실험에서 본 것 (2026-09-21):
+ *  · marker(🔊): 모델이 대본을 🔊 줄까지 **통째로 말한 뒤** 맨 끝에 도구를 불렀다
+ *    ("…Qani, qaytarib ko'ring. 🔊" → 그제서야 한국어). 한 세션은 프롬프트 예시를
+ *    대사로 줄줄 읽기까지 했다.
+ *  · 잘 된 세션들은 전부 같은 모양이었다 — 설명어로 말을 콜론까지 끝내고 → 도구:
+ *      "Katta" deganda, … mana bu so'z ishlatiladi:  ⏵ say_korean("크다")
+ *    대본에 흉내 낼 줄이 없을 때 모델이 알아서 이렇게 한다.
+ *
+ * 그래서 대본 속 한국어 자리가 있는 문단을 이렇게 바꾼다:
+ *   [한국어 앞 줄들] + [한국어 뒤에 오던 설명어 줄들을 앞으로] → 마지막 줄 끝을 ':' 로
+ *     Stooooop ㅋㅋ Qahvani yemaysiz-ku.        Stooooop ㅋㅋ Qahvani yemaysiz-ku.
+ *     → say_korean("저는 커피를…")        ⇒   Qani, qaytarib ko'ring:
+ *     Qani, qaytarib ko'ring.
+ *   한국어만 있던 문단(롤플레이 대사 등)은 통째로 빠지고, 그 위에 홀로 남는
+ *   영어 머리말("Cafe:", "GOOD:" …)도 같이 뺀다.
+ * 규칙 문장 속 한국어(§0 rules, §21 목록)는 산문이라 `invoke say_korean with "…"` 로 둔다.
+ */
+const CUE_LINE_TEST = /^[ \t]*→ say_korean\("[^"\n]+"\)[ \t]*$/;
+
+/**
+ * 한국어 자리 바로 위에 오는 **영어 머리말**. 이게 홀로 남으면 지운다.
+ * (설명어 말머리 "Masalan:", "Mana bunday deng:", "For example:" 은 여기 없다 —
+ *  그건 선생님 대사라서 남아야 한다)
+ */
+const CUE_LABELS = new Set([
+  'Correct:', 'Teacher:', 'GOOD:', 'Tutor:', 'Learner:', 'THIS IS THE DESIRED STYLE:',
+  'Cafe:', 'Hospital:', 'Directions / taxi:', 'Then immediately return to the role:',
+  'A natural answer is:', 'First mistake:', 'Second time:', 'Third time:', 'Ask ONE:',
+  'Example:', 'Just continue:', 'When teaching how to order coffee:',
+  'Learner repeats a mistake:',
+]);
+const isCueLabel = (line: string) => {
+  const t = line.trim();
+  return (
+    CUE_LABELS.has(t) ||
+    /^Tutor in \w+:$/.test(t) ||
+    /^explain the (situation|difference) in \w+, then( separately)?:$/.test(t) ||
+    /^Teaching language = \w+, friendly teacher:$/.test(t)
+  );
+};
+
+function renderTail(prompt: string): string {
+  // 문단(빈 줄 없이 이어진 줄들)과 빈 줄 묶음을 순서대로 쪼갠다
+  type Seg = { para: string[]; gone?: boolean } | { blank: number };
+  const segs: Seg[] = [];
+  for (const line of prompt.split('\n')) {
+    const last = segs[segs.length - 1];
+    if (line.trim() === '') {
+      if (last && 'blank' in last) last.blank += 1;
+      else segs.push({ blank: 1 });
+    } else if (last && 'para' in last) last.para.push(line);
+    else segs.push({ para: [line] });
+  }
+
+  const paras = segs.filter((s): s is { para: string[]; gone?: boolean } => 'para' in s);
+  paras.forEach((p, idx) => {
+    const first = p.para.findIndex((l) => CUE_LINE_TEST.test(l));
+    if (first < 0) {
+      p.para = p.para.map((l) =>
+        l.replace(CUE_INLINE, (_, ko: string) => `invoke say_korean with "${ko}"`),
+      );
+      return;
+    }
+    // 한국어 뒤에 오던 설명어 줄은 한국어 **앞으로** 온다. 한국어는 맨 끝에 도구로
+    const kept = [
+      ...p.para.slice(0, first),
+      ...p.para.slice(first).filter((l) => !CUE_LINE_TEST.test(l)),
+    ];
+    if (kept.every(isCueLabel)) {
+      p.gone = true;
+      // 위에 홀로 남은 머리말도 같이 지운다 ("Cafe:" → [대사] 였던 자리)
+      for (let j = idx - 1; j >= 0; j--) {
+        const prev = paras[j];
+        if (prev.gone) continue;
+        if (prev.para.length === 1 && isCueLabel(prev.para[0])) prev.gone = true;
+        else break;
+      }
+      return;
+    }
+    // 마지막 줄 = 한국어로 넘어가는 말머리. 마침표·느낌표면 콜론으로
+    const i = kept.length - 1;
+    kept[i] = kept[i].replace(/[.!]\s*$/, ':');
+    p.para = kept;
+  });
+
+  // 다시 잇는다. 지운 문단 양옆의 빈 줄은 하나로 합친다
+  const out: string[] = [];
+  let pendingBlank = 0;
+  for (const s of segs) {
+    if ('blank' in s) {
+      pendingBlank = Math.max(pendingBlank, s.blank);
+      continue;
+    }
+    if (s.gone) continue;
+    for (let k = 0; k < pendingBlank; k++) out.push('');
+    pendingBlank = 0;
+    out.push(...s.para);
+  }
+  for (let k = 0; k < pendingBlank; k++) out.push('');
+  return out.join('\n');
+}
+
+/** "예시 읽는 법" — split·direction 은 한 문장만 다르다 (marker 는 howToRead) */
+const READING_GUIDE: Record<Exclude<KoreanCueStyle, 'marker' | 'tail'>, string> = {
+  direction:
+    'A line in parentheses inside an example, like the one below, is a stage\n' +
+    'direction, not speech:',
+  split:
+    'Between your spoken lines, on its own line, an example may show a stage\n' +
+    'direction in parentheses. It is not speech:',
+};
+
+/**
  * §0 — 목소리 규칙. koreanVoice === 'tool' 일 때 프롬프트 **맨 앞**에 들어간다.
  *
  * "RESPOND IN … UNMISTAKABLY IN …" 은 Google Live API best practices 가 권하는
  * 문구 그대로다 (native audio 모델의 응답 언어를 고정하는 공식 방법).
+ *
+ * "SAY_KOREAN IS A FUNCTION CALL" 블록이 이번 수정의 핵심이다. 모델이 도구를
+ * "말하는 법" 으로 알아들으면 호출 대신 표기를 읽는다. 호출은 **행동**이고,
+ * 이름도 지시문도 소리 내지 않는다는 걸 따로 못 박는다.
+ * (Google best practices: 도구를 언제 부르는지는 흐름 속 **별도 문장**으로 쓸 것)
  */
-function voiceRule(langCode: string, language: string): string {
+function voiceRule(
+  langCode: string,
+  language: string,
+  style: KoreanCueStyle,
+): string {
   const ex = VOICE_EXAMPLE[langCode] ?? VOICE_EXAMPLE.uz;
   const LANG = language.toUpperCase();
   return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -157,8 +397,19 @@ Your own voice speaks ${language} only.
 Never pronounce Korean with your own voice — not a sentence, not a word,
 not a name, not a particle.
 
-Korean is heard ONLY through the say_korean tool.
-It plays the Korean in your own voice, with native Seoul pronunciation.
+Korean is heard ONLY through the say_korean function.
+
+SAY_KOREAN IS A FUNCTION CALL — NOT WORDS
+
+say_korean is one of your tools. You use it through function calling, the
+same way a voice agent calls any tool. It plays the Korean you pass to it in
+your own voice, with native Seoul pronunciation, and returns "Played." once
+the learner has heard it.
+
+Invoking it is an action, not speech. Never say its name. Never describe the
+call. Never read a stage direction aloud. Never say the Korean of a call
+yourself. The learner hears only your ${language} and the Korean that the
+function plays.
 
 Why: when you pronounce Korean yourself in the middle of ${language}, your
 Korean pronunciation breaks, and sometimes the Korean sentence comes out half
@@ -167,7 +418,7 @@ learner copies exactly what they hear.
 
 Every time Korean needs to be HEARD — a target phrase, an example, a
 correction, a model answer, a word the learner asked for, your role-play
-character's line — call say_korean with that exact Korean.
+character's line — invoke say_korean with that exact Korean.
 Then continue in ${language}.
 
 LANGUAGE BOUNDARY — ABSOLUTE RULE
@@ -176,15 +427,15 @@ Your spoken ${language} and Korean are NEVER part of the same spoken utterance.
 
 Always finish the complete ${language} sentence first.
 Then stop speaking.
-Then call say_korean with one complete Korean phrase.
-Wait until it finishes.
+Then invoke say_korean with one complete Korean phrase.
+Wait for its result.
 Only then start a NEW complete ${language} sentence.
 
 Correct:
 
-(${language}) ${ex.lead}
+${ex.lead}
 → say_korean("공항에 어떻게 가요?")
-(${language}) ${ex.next}
+${ex.next}
 
 Forbidden:
 
@@ -200,14 +451,15 @@ Never construct ${language} by inserting Korean words.
 If you need to explain one Korean word:
 
 1. Finish the ${language} explanation.
-2. Call say_korean with the Korean word by itself.
+2. Invoke say_korean with the Korean word by itself.
 3. Continue with a new ${language} sentence.
 
-A turn sounds like this:
+Not even one Korean word inside your sentence — not in quotation marks
+either. This is the most common slip:
 
-  (${language}) ${ex.lead}
-  → say_korean("공항에 어떻게 가요?")
-  (${language}) ${ex.next}
+Forbidden: ${ex.wordWrong}
+Correct:   ${ex.wordRight}
+           and then you invoke say_korean with the word.
 
 say_korean rules:
 
@@ -218,35 +470,88 @@ say_korean rules:
   Correct: say_korean("공항에 어떻게 가요?")
 - Hangul only inside the call. No ${language}, no romanization, no emoji.
 - Do not also say the Korean yourself, before or after the call. The learner
-  hears it once, from the tool.
+  hears it once, from the function.
 - Two different Korean phrases = two calls, with ${language} between them if
   needed.
 - To point at a mistake, describe it in ${language}, then play the correct
   Korean with say_korean. Do not imitate the learner's wrong Korean.
-- If the tool result says the audio failed, do NOT say the Korean yourself.
+- If the result says the audio failed, do NOT say the Korean yourself.
   The phrase is on the learner's screen — point to it and continue.
 - In role-play, your character's Korean lines go through say_korean too.
   Short ${language} cues around them are fine.
 
 The learner may mix languages freely. This rule is only about YOUR voice.
 
-HOW TO READ THE EXAMPLES IN THIS PROMPT
-
-The examples below show your Korean lines inline, for example:
-
-  ${ex.lead}
-  "저는 커피를 마시고 싶어요."
-
-In this session every Korean line in every example is a say_korean call:
-
-  ${ex.lead}
-  → say_korean("저는 커피를 마시고 싶어요.")
-
-Copy the examples for tone, rhythm and teaching moves — never for who
-pronounces the Korean.`;
+${howToRead(style, language, langCode)}`;
 }
 
-/** 프롬프트 맨 끝에 한 번 더. 긴 지시문에서는 마지막에 읽은 게 제일 잘 지켜진다 */
+/** §0 의 "예시 읽는 법". split·direction 은 실험(2026-09-21)한 문구 그대로다 */
+/** tail 의 "예시 읽는 법" 에 드는 말머리 — 설명 언어로 */
+const TAIL_PHRASES: Record<string, { cue: [string, string]; handoff: [string, string] }> = {
+  uz: { cue: ['Qani, takrorlang:', 'Mana bunday deng:'], handoff: ['Qani, aytingchi:', 'Eshitaman:'] },
+  ru: { cue: ['Повтори за мной:', 'Скажи вот так:'], handoff: ['Давай, скажи:', 'Слушаю:'] },
+  en: { cue: ['Say it after me:', 'Say it like this:'], handoff: ['Go ahead, say it:', "I'm listening:"] },
+};
+
+function howToRead(style: KoreanCueStyle, language: string, langCode: string): string {
+  if (style === 'tail') {
+    const ph = TAIL_PHRASES[langCode] ?? TAIL_PHRASES.uz;
+    return `HOW TO READ THE EXAMPLES IN THIS PROMPT
+
+The examples are short scripts of a lesson. They show only what you say,
+in ${language}. They never show the Korean — Korean is never part of your
+speech.
+
+When your line in an example ends with a colon — like "${ph.cue[0]}"
+or "${ph.cue[1]}" — that is where the Korean comes. Finish that
+sentence, then invoke say_korean with the right Korean: the correct
+sentence, the word they asked for, or your character's line.
+
+Put the Korean LAST. Say your reaction and your instruction first, then
+invoke say_korean, then let the learner answer. Add another sentence after
+the Korean only when you really need to.
+
+A colon that hands the turn to the learner — "${ph.handoff[0]}",
+"${ph.handoff[1]}" — is not a Korean cue. When you ask the learner to say
+something, stop and let them say it. Never answer your own question.
+
+Copy the examples for tone, rhythm and teaching moves.`;
+  }
+  if (style === 'marker') {
+    return `HOW TO READ THE EXAMPLES IN THIS PROMPT
+
+The examples are short scripts of a lesson. They show only what you say,
+in ${language}. Between your lines, on its own line, an example may show
+a speaker sign:
+
+→ say_korean("…")
+
+It marks the moment the learner hears Korean. There you stop talking and
+invoke the say_korean function with the right Korean — the correct
+sentence, the word they asked for, your character's line. You say nothing
+for that line. The Korean is left out of the examples on purpose: Korean
+is never part of your speech.
+
+Copy the examples for tone, rhythm and teaching moves.`;
+  }
+  return `HOW TO READ THE EXAMPLES IN THIS PROMPT
+
+The examples are short scripts of a lesson.
+${READING_GUIDE[style]}
+
+→ say_korean("저는 커피를 마시고 싶어요.")
+
+It marks the moment you stop talking and invoke the say_korean function with
+that Korean. You never read it aloud — not the parentheses, not the word
+"invoke", not the function name, not the Korean.
+
+Every other line of yours in an example is ${language} that you say.
+Copy the examples for tone, rhythm and teaching moves.`;
+}
+
+/**
+ * 프롬프트 맨 끝에 한 번 더. 긴 지시문에서는 마지막에 읽은 게 제일 잘 지켜진다.
+ */
 function voiceReminder(language: string): string {
   const LANG = language.toUpperCase();
   return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -255,8 +560,29 @@ FINAL REMINDER — YOUR VOICE (§0)
 
 RESPOND IN ${LANG}. YOU MUST RESPOND UNMISTAKABLY IN ${LANG}.
 Your own voice never pronounces Korean. Every Korean phrase — whole and
-exact — goes through say_korean.`;
+exact — is heard only by invoking the say_korean function.
+Invoking it is an action: never say its name, never read a stage direction
+aloud.`;
 }
+
+/**
+ * 런타임 정보 속 "선생님이 직접 할 한국어 대사" 두 군데 — tool 모드에서만 뒤에
+ * 한 줄을 붙인다. native 에선 그대로 맞는 말이라 원문은 건드리지 않는다.
+ *
+ *  · 선생님 성격 설명(promptStyle): "Lines you would actually say: 아니 그걸 또
+ *    틀려요? ㅋㅋ …"
+ *  · 롤플레이 장면(SCENE_NOTE): "Open with 어서 오세요. 뭐 드릴까요?"
+ */
+const sceneToolNote = (language: string) =>
+  " Your character's Korean lines, this opening included, are heard only by" +
+  ' invoking the say_korean function (see §0).' +
+  " Stay in character: answer the learner with your character's next Korean" +
+  ` line. Step out into ${language} only briefly — when they are stuck or` +
+  ' made a mistake — then return to the role.';
+
+const PERSONA_TOOL_NOTE =
+  ' In this session every Korean line — these included — is heard only by' +
+  ' invoking the say_korean function, never in your own voice (see §0).';
 
 /** 이름 뒤 조사 — "민준이에요" / "서연이에요" */
 function copula(name: string): string {
@@ -311,6 +637,11 @@ export function buildTutorInstructions(
    * §2·§29·§30 이 그 규칙에 맞게 바뀐다. Agent 의 도구 등록과 **같은 값**이어야 한다.
    */
   koreanVoice: KoreanVoiceMode = 'native',
+  /**
+   * tool 모드 예시에서 한국어 자리를 어떻게 적나 (renderKoreanCues 참고).
+   * 운영은 기본값만 쓴다. 다른 값은 도구 호출 실험 스크립트가 비교용으로 넘긴다.
+   */
+  cueStyle: KoreanCueStyle = 'tail',
 ): string {
   const teachingLanguage = LANG_NAME[learner.nativeLanguage] ?? 'Uzbek';
   const langCode = LANG_NAME[learner.nativeLanguage] ? learner.nativeLanguage : 'uz';
@@ -355,7 +686,7 @@ ${teacherName}
 
 Teacher personality:
 ${teacher?.personality ?? 'friendly'}
-${teacher?.promptStyle ? `\n${teacher.promptStyle}\n` : ''}
+${teacher?.promptStyle ? `\n${teacher.promptStyle}${toolVoice ? PERSONA_TOOL_NOTE : ''}\n` : ''}
 Teaching language:
 ${langCode} = ${teachingLanguage}
 
@@ -370,7 +701,7 @@ ${MODE_NOTE[mode] ?? mode}
 
 Selected topic:
 ${topic ? `${topic.title.en ?? topic.id} — ${topic.blurb.en ?? ''}` : NONE}
-${scene ? `\nRoleplay scene:\n${SCENE_NOTE[scene]}\n` : ''}
+${scene ? `\nRoleplay scene:\n${SCENE_NOTE[scene]}${toolVoice ? sceneToolNote(teachingLanguage) : ''}\n` : ''}
 Current topic progress:
 ${topic ? `${Math.round(learner.topicProgress ?? 0)} / 100` : NONE}
 
@@ -403,7 +734,7 @@ ${
   }`);
 
   // §0 — 목소리 규칙. 제일 먼저 읽혀야 하고, 아래 모든 예시를 읽는 법을 바꾼다
-  if (toolVoice) parts.push(voiceRule(langCode, teachingLanguage));
+  if (toolVoice) parts.push(voiceRule(langCode, teachingLanguage, cueStyle));
 
   parts.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. CORE IDENTITY
@@ -492,9 +823,9 @@ Always follow this order:
 
 Correct:
 
-(${teachingLanguage}) ${VOICE_EXAMPLE[langCode]?.lead ?? VOICE_EXAMPLE.uz.lead}
+${VOICE_EXAMPLE[langCode]?.lead ?? VOICE_EXAMPLE.uz.lead}
 → say_korean("공항에 어떻게 가요?")
-(${teachingLanguage}) ${VOICE_EXAMPLE[langCode]?.next ?? VOICE_EXAMPLE.uz.next}
+${VOICE_EXAMPLE[langCode]?.next ?? VOICE_EXAMPLE.uz.next}
 
 Forbidden:
 
@@ -1559,7 +1890,10 @@ Never become a generic AI tutor.`);
 
   if (toolVoice) parts.push(voiceReminder(teachingLanguage));
 
-  return parts.join('\n\n');
+  const prompt = parts.join('\n\n');
+  // tool 모드: 예시 원문의 `→ say_korean("…")` 를 모델에게 나갈 모양으로 바꾼다.
+  // native 는 원문 그대로 — 한 글자도 안 바뀐다
+  return toolVoice ? renderKoreanCues(prompt, cueStyle) : prompt;
 }
 
 /**
@@ -1985,12 +2319,16 @@ There is nothing to roast.
 Use teasing when there is actually something funny to react to.`;
 
 /**
- * §21·§22 의 tool 모드 버전. §22 의 "자연스러운 대답" 예시가 선생님이 한국어를
- * 직접 말하는 모양이라 그 줄만 say_korean 으로 바꾼다. 원본은 native 용으로 그대로.
- * (§21 의 "진짜 답답하네" 같은 줄은 말해도 되는 표현 **목록**이라 두었다 — §0 이
- *  "한국어는 전부 say_korean" 으로 덮는다)
+ * §21·§22 의 tool 모드 버전. 원본은 native 용으로 그대로.
+ *  · §22 의 "자연스러운 대답" 예시가 선생님이 한국어를 직접 말하는 모양이라
+ *    say_korean 으로 바꾼다.
+ *  · §21 의 "say "진짜 답답하네"" 목록도 바꾼다. 예전엔 "§0 이 덮는다" 고 두었는데,
+ *    "say + 한국어" 는 그대로 "네 목소리로 말해라" 로 읽힌다.
  */
 const TEASING_BOUNDARIES_TOOL = TEASING_BOUNDARIES.replace(
   'A natural answer is:\n\n오, 강남? 뭐 먹었어?',
   'A natural answer is:\n\n→ say_korean("오, 강남? 뭐 먹었어?")',
-);
+)
+  .replace('- say "진짜 답답하네"', '- invoke say_korean with "진짜 답답하네"')
+  .replace('- say "이건 좀 심한데?"', '- invoke say_korean with "이건 좀 심한데?"')
+  .replace('- say "방금 알려줬잖아"', '- invoke say_korean with "방금 알려줬잖아"');

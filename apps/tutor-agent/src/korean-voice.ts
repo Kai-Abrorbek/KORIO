@@ -4,6 +4,13 @@ import type { AudioFrame } from '@livekit/rtc-node';
 import { llm, type APIConnectOptions } from '@livekit/agents';
 import * as google from '@livekit/agents-plugin-google';
 import { z } from 'zod';
+import {
+  SAY_KOREAN,
+  SAY_KOREAN_DESCRIPTION,
+  SAY_KOREAN_RESULT,
+  SAY_KOREAN_TEXT_DESCRIPTION,
+  koreanOnly,
+} from './korean-voice-spec.js';
 
 /**
  * 한국어 전용 목소리.
@@ -34,19 +41,6 @@ import { z } from 'zod';
  *  없고, gemini-3.8-live 는 소리로만 답해서 글자만 받아올 수도 없다)
  */
 
-/** 한글 (완성형 · 자모 · 호환 자모) */
-export const HANGUL = /[가-힣ᄀ-ᇿ㄰-㆏]/;
-
-/**
- * 한글 외 문자(숫자·문장부호·공백 제외)가 섞였는지.
- *
- * ⚠️ HANGUL.test() 만으로는 "공항에 qanday 가요" 도 통과한다 — 한글이 **들어
- *    있기만** 하면 되니까. 그러면 우리가 막으려던 바로 그 섞인 문장을 TTS 가
- *    그대로 읽는다. 한글 말고 다른 글자가 하나라도 있으면 거절한다.
- */
-const NON_KOREAN_CONTENT =
-  /[^\p{Script=Hangul}\p{Number}\p{Punctuation}\p{Separator}]/u;
-
 /**
  * 한국어 한 마디는 짧다. 재시도로 몇 초씩 끌면 선생님이 멈춘 것처럼 들린다.
  * 네트워크가 잠깐 튄 경우만 한 번 빠르게 다시 해본다.
@@ -57,22 +51,6 @@ const TTS_CONN: APIConnectOptions = {
   retryIntervalMs: 250,
   timeoutMs: 10_000,
 };
-
-/**
- * 모델이 따옴표·장식 기호를 같이 넘기는 경우가 있다. 소리 낼 것만 남긴다.
- *
- * ⚠️ '~' 는 **문장부호가 아니라 수학 기호(Sm)** 로 분류돼서, 안 지우면
- *    "좋아요~" 가 NON_KOREAN_CONTENT 에 걸려 거절된다. 모델은 고칠 게 없는데
- *    "한국어만 써라" 를 받고 같은 문장을 다시 보내는 헛바퀴를 돈다.
- *    말투용 장식이라 소리에도 영향이 없다.
- */
-function clean(text: string): string {
-  return text
-    .replace(/[«»“”"'`]/g, '')
-    .replace(/[~～♡♥☆★♪]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 /**
  * TTS 결과를 say() 가 받는 오디오 스트림으로 흘린다.
@@ -111,42 +89,25 @@ function audioOf(
   });
 }
 
+/** LiveKit 도구 인자. 설명 문자열은 korean-voice-spec.ts 가 주인이다 */
+const sayKoreanParameters = z.object({
+  text: z.string().describe(SAY_KOREAN_TEXT_DESCRIPTION),
+});
+
 export interface KoreanVoice {
-  tools: { say_korean: ReturnType<typeof sayKoreanTool> };
+  tools: { [SAY_KOREAN]: ReturnType<typeof sayKoreanTool> };
   close: () => Promise<void>;
 }
 
 function sayKoreanTool(tts: google.beta.TTS, log: (m: string) => void) {
   return llm.tool({
-    description: [
-      'The ONLY way Korean can be heard in this lesson.',
-      'Plays the given Korean aloud in your own voice with native Seoul pronunciation.',
-      'Call it every time Korean needs to be heard: a target phrase, an example,',
-      'a correction, a model answer, a word the learner asked for, or your',
-      "role-play character's line. Never pronounce Korean with your own voice.",
-    ].join(' '),
-    parameters: z.object({
-      text: z
-        .string()
-        .describe(
-          'One complete Korean phrase or sentence, copied exactly, in Hangul only. ' +
-            'No translation, no romanization, no words from any other language.',
-        ),
-    }),
+    description: SAY_KOREAN_DESCRIPTION,
+    parameters: sayKoreanParameters,
     execute: async ({ text }, { ctx }) => {
-      const korean = clean(text);
-      if (
-        !korean ||
-        !HANGUL.test(korean) ||
-        NON_KOREAN_CONTENT.test(korean)
-      ) {
+      const korean = koreanOnly(text);
+      if (!korean) {
         log(`say_korean 거절 — 한국어 외 문자가 섞임: "${text}"`);
-
-        return (
-          'Nothing was played. The text contains non-Korean words. ' +
-          'Rewrite the ENTIRE Korean phrase in Korean only, then call say_korean again. ' +
-          'Never mix the teaching language inside the Korean phrase.'
-        );
+        return SAY_KOREAN_RESULT.rejected;
       }
       log(`say_korean: "${korean}"`);
 
@@ -175,19 +136,15 @@ function sayKoreanTool(tts: google.beta.TTS, log: (m: string) => void) {
       await handle.waitForPlayout();
 
       if (handle.interrupted) {
-        return 'The learner started speaking, so the Korean was cut off. Listen to them.';
+        return SAY_KOREAN_RESULT.interrupted;
       }
       if (frames === 0) {
         log(`say_korean 실패 — 소리가 안 나왔다: "${korean}"`);
         // 자막은 이미 떴다 (say 가 글자를 먼저 보낸다). 모델이 직접 발음하면
         // 이 수정 전체가 무너지므로, 화면을 가리키게 한다.
-        return (
-          'The Korean audio failed to play, but the phrase is shown on the ' +
-          "learner's screen. Do NOT pronounce it yourself. Point to the screen " +
-          'in the teaching language and continue.'
-        );
+        return SAY_KOREAN_RESULT.failed;
       }
-      return 'Played.';
+      return SAY_KOREAN_RESULT.played;
     },
   });
 }
@@ -219,7 +176,7 @@ export function createKoreanVoice(
   });
 
   return {
-    tools: { say_korean: sayKoreanTool(tts, log) },
+    tools: { [SAY_KOREAN]: sayKoreanTool(tts, log) },
     close: () => tts.close(),
   };
 }
