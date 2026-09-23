@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import appIcon from "../../../../../mobile/assets/images/icon.png";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   APP_VERSION,
@@ -35,7 +34,14 @@ export function UpdateScreen() {
 
       <div className={styles.scroll}>
         <section className={styles.hero}>
-          <Image alt="KORIO" className={styles.logo} height={86} priority src={appIcon} width={86} />
+          <Image
+            alt="KORIO"
+            className={styles.logo}
+            height={86}
+            priority
+            src="/app-icon.png"
+            width={86}
+          />
           <strong>v{APP_VERSION}</strong>
           <span className={upToDate ? styles.currentStatus : styles.outdatedStatus}>
             <MobileIcon name={upToDate ? "checkmark-circle" : "arrow-up-circle"} size={15} />
