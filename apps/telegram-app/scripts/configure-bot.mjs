@@ -1,5 +1,12 @@
 /* eslint-disable turbo/no-undeclared-env-vars -- one-off local bot administration */
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
+
+const apiEnvPath = fileURLToPath(new URL("../../api/.env", import.meta.url));
+if (!process.env.TELEGRAM_BOT_TOKEN && existsSync(apiEnvPath)) {
+  process.loadEnvFile(apiEnvPath);
+}
 
 const args = process.argv.slice(2);
 

@@ -35,13 +35,12 @@ Telegram 밖의 일반 브라우저에는 인증 오류 화면이 보이는 것�
 
 ## Telegram 프로필과 App 버튼
 
-- 봇 채팅 입력창 왼쪽의 `App` 버튼은 Bot API 메뉴 버튼이다. 운영 토큰과
-  HTTPS 주소를 환경 변수로 전달해 한 번 설정한다.
+- 봇 채팅 입력창 왼쪽의 `App` 버튼은 Bot API 메뉴 버튼이다. 스크립트는 현재
+  셸의 `TELEGRAM_BOT_TOKEN`을 우선 사용하고, 없으면 `apps/api/.env`를 자동으로
+  읽는다. HTTPS 주소를 전달해 한 번 설정한다.
 
   ```powershell
-  $env:TELEGRAM_BOT_TOKEN="<bot token>"
-  $env:TELEGRAM_MINI_APP_URL="https://telegram.korio.online"
-  pnpm --filter telegram-app bot:configure
+  pnpm --filter telegram-app bot:configure -- --url https://telegram.korio.online
   ```
 
 - 실제 변경 없이 요청 본문만 확인하려면
