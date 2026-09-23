@@ -95,36 +95,76 @@ textarea {
 }
 
 .boot-screen {
-  gap: 18px;
-}
-
-.brand-mark {
-  align-items: center;
-  background: var(--korio-purple);
-  border-radius: 24px;
-  box-shadow: 0 14px 34px
-    color-mix(in srgb, var(--korio-purple) 30%, transparent);
+  background: #7f77dd;
   color: #ffffff;
+  margin: 0;
+  max-width: none;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+.boot-mascot {
+  animation: boot-mascot-in 560ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  bottom: calc(50% + 34px);
+  height: 270px;
+  left: 50%;
+  position: absolute;
+  translate: -50% 0;
+  width: 270px;
+}
+
+.boot-mascot img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.boot-logo {
+  align-items: center;
   display: flex;
-  font-size: 34px;
-  font-weight: 900;
-  height: 78px;
   justify-content: center;
-  width: 78px;
 }
 
-.loading-ring {
-  animation: ring-spin 0.85s linear infinite;
-  border: 3px solid color-mix(in srgb, var(--korio-purple) 18%, transparent);
-  border-radius: 999px;
-  border-top-color: var(--korio-purple);
-  height: 32px;
-  width: 32px;
+.boot-logo-mark {
+  animation: boot-logo-in 420ms cubic-bezier(0.215, 0.61, 0.355, 1) 260ms both;
+  display: block;
+  flex: 0 0 86px;
 }
 
-@keyframes ring-spin {
-  to {
-    transform: rotate(360deg);
+.boot-logo-text {
+  align-items: center;
+  display: flex;
+}
+
+.boot-logo-text i {
+  animation: boot-logo-in 320ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  font-size: 74px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-right: -1px;
+}
+
+.boot-logo-text i:nth-child(1) { animation-delay: 480ms; }
+.boot-logo-text i:nth-child(2) { animation-delay: 555ms; }
+.boot-logo-text i:nth-child(3) { animation-delay: 630ms; }
+.boot-logo-text i:nth-child(4) { animation-delay: 705ms; }
+.boot-logo-text i:nth-child(5) { animation-delay: 780ms; }
+
+@keyframes boot-mascot-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+
+@keyframes boot-logo-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
   }
 }
 
@@ -273,8 +313,10 @@ h2 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loading-ring {
-    animation-duration: 1.8s;
+  .boot-mascot,
+  .boot-logo-mark,
+  .boot-logo-text i {
+    animation: none;
   }
 }
 

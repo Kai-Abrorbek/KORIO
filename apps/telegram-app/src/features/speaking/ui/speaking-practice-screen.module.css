@@ -1,4 +1,5 @@
 .screen { --bg:#f8f7f3; --surface:#fff; --ink:#29243d; --muted:#777183; --border:#e9e5ef; --primary:#7155d9; --primary-soft:#eee8fc; --success:#23846a; --success-soft:#e8f5ef; --warm:#a9632c; --warm-soft:#fcf0e2; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; min-height:var(--tg-viewport-stable-height,100dvh); }
+.screen svg { translate:-1px 0; }
 .screen button { cursor:pointer; }
 .headerWrap { margin:0 auto; max-width:680px; padding:max(12px,var(--tg-content-safe-area-inset-top,0px)) 22px 0; width:100%; }
 .header { align-items:center; display:flex; gap:13px; padding-bottom:18px; }

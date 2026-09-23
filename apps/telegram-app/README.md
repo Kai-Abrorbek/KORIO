@@ -33,5 +33,24 @@ Telegram 밖의 일반 브라우저에는 인증 오류 화면이 보이는 것�
 - API 서버에 기존 `TELEGRAM_BOT_TOKEN`이 설정되어 있어야 한다.
 - BotFather에서 기존 봇의 Main Mini App URL을 HTTPS 배포 주소로 설정한다.
 
+## Telegram 프로필과 App 버튼
+
+- 봇 채팅 입력창 왼쪽의 `App` 버튼은 Bot API 메뉴 버튼이다. 운영 토큰과
+  HTTPS 주소를 환경 변수로 전달해 한 번 설정한다.
+
+  ```powershell
+  $env:TELEGRAM_BOT_TOKEN="<bot token>"
+  $env:TELEGRAM_MINI_APP_URL="https://telegram.korio.online"
+  pnpm --filter telegram-app bot:configure
+  ```
+
+- 실제 변경 없이 요청 본문만 확인하려면
+  `pnpm --filter telegram-app bot:configure -- --url https://telegram.korio.online --dry-run`
+  을 사용한다. 토큰은 브라우저 번들 또는 `NEXT_PUBLIC_*` 환경 변수에 넣지 않는다.
+- 검색 및 프로필에 표시되는 `사용자 N명`은 Telegram이 집계한 월간 활성 사용자
+  수다. 개발자가 임의 값을 설정할 수 없으며, 소규모 봇에서는 항목 자체가
+  표시되지 않을 수 있다. Main Mini App을 활성화한 상태에서 실제 사용자가
+  쌓이면 Telegram 클라이언트가 자동으로 표시한다.
+
 운영 배포는 루트의 `deploy/deploy.sh`가 API와 Telegram 앱을 같은 blue/green
 색으로 함께 교체한다. Docker Compose를 직접 올리지 않는다.

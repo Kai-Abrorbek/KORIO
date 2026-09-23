@@ -1,4 +1,5 @@
 .page { --bg:#f8f7f3; --surface:#fff; --ink:#29243d; --muted:#777183; --border:#e9e5ef; --primary:#7155d9; --primary-soft:#eee8fc; --warm:#a9632c; --warm-soft:#fcf0e2; background:var(--bg); color:var(--ink); min-height:var(--tg-viewport-stable-height,100dvh); }
+.page svg { translate:-1px 0; }
 .page button { cursor:pointer; }
 .topBar { align-items:center; display:flex; justify-content:space-between; margin:0 auto; max-width:760px; padding:max(8px,var(--tg-content-safe-area-inset-top,0px)) 20px 12px; }
 .back { align-items:center; background:var(--surface); border:0; border-radius:16px; color:var(--ink); display:flex; height:44px; justify-content:center; padding:0; width:44px; }
