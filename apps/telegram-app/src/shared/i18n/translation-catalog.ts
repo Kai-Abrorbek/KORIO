@@ -27,7 +27,7 @@ function escapePattern(value: string) {
 function normalizeLookup(value: string) {
   return value
     .normalize("NFKC")
-    .replaceAll("’", "'")
+    .replace(/[‘’ʻʼ]/gu, "'")
     .toLocaleLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
