@@ -13,6 +13,7 @@ interface TemplateTranslation {
 
 export interface TranslationCatalog {
   exact: Map<string, string>;
+  normalized: Map<string, string>;
   templates: TemplateTranslation[];
 }
 
@@ -21,6 +22,15 @@ const cache = new Map<AppLanguage, Promise<TranslationCatalog | null>>();
 
 function escapePattern(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeLookup(value: string) {
+  return value
+    .normalize("NFKC")
+    .replaceAll("’", "'")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
 }
 
 function sourceVariants(value: string) {
@@ -39,6 +49,10 @@ function addExact(
   if (!source.trim() || !target.trim()) return;
   for (const variant of sourceVariants(source)) {
     if (!catalog.exact.has(variant)) catalog.exact.set(variant, target);
+    const normalized = normalizeLookup(variant);
+    if (normalized && !catalog.normalized.has(normalized)) {
+      catalog.normalized.set(normalized, target);
+    }
     const upperSource = variant.toLocaleUpperCase();
     if (
       upperSource !== variant &&
@@ -166,7 +180,11 @@ export function loadTranslationCatalog(
 
   const pending = Promise.all([loadLocale("uz"), loadLocale(language)]).then(
     ([source, target]) => {
-      const catalog: TranslationCatalog = { exact: new Map(), templates: [] };
+      const catalog: TranslationCatalog = {
+        exact: new Map(),
+        normalized: new Map(),
+        templates: [],
+      };
       collectTranslations(source, target, catalog);
       return catalog;
     },
@@ -185,6 +203,8 @@ export function translateValue(
   const source = value.slice(leading.length, value.length - trailing.length);
   const exact = catalog.exact.get(source);
   if (exact) return `${leading}${exact}${trailing}`;
+  const normalized = catalog.normalized.get(normalizeLookup(source));
+  if (normalized) return `${leading}${normalized}${trailing}`;
 
   for (const template of catalog.templates) {
     const match = source.match(template.pattern);
