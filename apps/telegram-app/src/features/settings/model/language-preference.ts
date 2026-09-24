@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useAppLanguage,
+} from "../../../shared/i18n/language-context";
+import type { AppLanguage } from "../../../shared/i18n/language";
+
+export type { AppLanguage } from "../../../shared/i18n/language";
 
 export const LANGUAGES = [
   { code: "uz", flag: "🇺🇿", greeting: "Salom", name: "O'zbek" },
@@ -8,8 +13,6 @@ export const LANGUAGES = [
   { code: "en", flag: "🇬🇧", greeting: "Hello", name: "English" },
   { code: "ru", flag: "🇷🇺", greeting: "Привет", name: "Русский" },
 ] as const;
-
-export type AppLanguage = (typeof LANGUAGES)[number]["code"];
 
 export const LANGUAGE_COPY: Record<
   AppLanguage,
@@ -21,29 +24,6 @@ export const LANGUAGE_COPY: Record<
   ru: { back: "Назад", subtitle: "Выберите язык приложения", title: "Язык" },
 };
 
-const STORAGE_KEY = "korio-language";
-
-function isLanguage(value: string | null): value is AppLanguage {
-  return LANGUAGES.some((language) => language.code === value);
-}
-
 export function useLanguagePreference() {
-  const [language, setLanguageState] = useState<AppLanguage>("uz");
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const next = isLanguage(saved) ? saved : "uz";
-    document.documentElement.lang = next;
-    setLanguageState(next);
-    setReady(true);
-  }, []);
-
-  const setLanguage = useCallback((next: AppLanguage) => {
-    window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = next;
-    setLanguageState(next);
-  }, []);
-
-  return { language, ready, setLanguage };
+  return useAppLanguage();
 }

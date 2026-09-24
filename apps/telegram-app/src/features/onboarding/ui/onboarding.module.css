@@ -323,23 +323,15 @@
 
 .welcomePage {
   align-items: center;
+  background: var(--app-bg);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: max(34px, var(--tg-content-safe-area-inset-top, 0px))
+  padding: max(60px, var(--tg-content-safe-area-inset-top, 0px))
     max(24px, var(--tg-content-safe-area-inset-right, 0px))
-    max(28px, var(--tg-content-safe-area-inset-bottom, 0px))
+    max(60px, var(--tg-content-safe-area-inset-bottom, 0px))
     max(24px, var(--tg-content-safe-area-inset-left, 0px));
-}
-
-.welcomeGlow {
-  background: rgba(121, 105, 223, 0.11);
-  filter: blur(4px);
-  height: 310px;
-  left: 50%;
-  top: 58px;
-  transform: translateX(-50%);
-  width: 310px;
 }
 
 .welcomeMascot {
@@ -347,94 +339,66 @@
   display: flex;
   flex: 1;
   justify-content: center;
-  min-height: 250px;
-  position: relative;
   width: 100%;
 }
 
-.mascotHalo {
-  background: linear-gradient(145deg, #efecff, rgba(255,255,255,0.3));
-  border-radius: 999px;
-  height: min(68vw, 310px);
-  position: absolute;
-  width: min(68vw, 310px);
-}
-
 .welcomeMascot img {
-  height: min(58vw, 260px);
+  height: 220px;
   object-fit: contain;
-  position: relative;
-  width: min(58vw, 260px);
+  width: 220px;
 }
 
 .welcomeCopy {
-  position: relative;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
   text-align: center;
 }
 
-.welcomeEyebrow {
-  color: #7469db !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: 0.18em;
-  margin-bottom: 10px !important;
-}
-
 .welcomeCopy h1 {
-  font-size: clamp(35px, 10vw, 48px);
-  font-weight: 900;
-  letter-spacing: -0.055em;
-  line-height: 1.02;
-  margin-bottom: 16px;
+  color: var(--text);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
 }
 
 .welcomeCopy p {
-  color: #777380;
-  font-size: 14px;
-  line-height: 1.55;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 22px;
+  margin: 0;
 }
 
 .welcomeActions {
   display: grid;
-  gap: 14px;
-  margin-top: 28px;
+  gap: 12px;
   width: 100%;
 }
 
-.accountReady {
-  align-items: center;
-  background: #ffffff;
-  border: 1px solid #ebe8f4;
-  border-radius: 18px;
-  display: flex;
-  gap: 11px;
-  padding: 13px;
-}
-
-.accountReady > span {
-  align-items: center;
-  background: #e9f8f2;
-  border-radius: 12px;
-  color: #249b7a;
-  display: flex;
-  height: 40px;
+.welcomeButton {
+  background: #776ee2;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgb(119 110 226 / 30%);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
   justify-content: center;
-  width: 40px;
+  min-height: 56px;
+  padding: 18px;
 }
 
-.accountReady div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.accountReady strong {
-  font-size: 13px;
-}
-
-.accountReady small {
-  color: #8c8794;
-  font-size: 11px;
+.welcomeSecondaryButton {
+  background: transparent;
+  border: 0;
+  color: #776ee2;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 12px;
 }
 
 .resultPage {
@@ -782,14 +746,6 @@
     min-height: 62px;
   }
 
-  .welcomeMascot {
-    min-height: 190px;
-  }
-
-  .welcomeMascot img {
-    height: min(43vw, 205px);
-    width: min(43vw, 205px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

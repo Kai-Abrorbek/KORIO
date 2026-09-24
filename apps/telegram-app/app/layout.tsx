@@ -3,6 +3,8 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 
 import { TelegramAuthProvider } from "../src/features/auth/model/telegram-auth-context";
+import { LanguageProvider } from "../src/shared/i18n/language-context";
+import { MicrophonePermissionBootstrap } from "../src/shared/browser/microphone-permission-bootstrap";
 import { ThemeProvider } from "../src/shared/theme/theme-context";
 
 import "./globals.css";
@@ -26,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=localStorage.getItem("korio-theme");var t=p==="light"||p==="dark"?p:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}})();`,
+            __html: `(function(){try{var p=localStorage.getItem("korio-theme");var t=p==="light"||p==="dark"?p:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");var l=localStorage.getItem("korio-language");l=l==="uz"||l==="ru"||l==="en"||l==="ko"?l:"uz";document.documentElement.dataset.theme=t;document.documentElement.dataset.language=l;document.documentElement.lang=l;document.documentElement.style.colorScheme=t}catch(e){}})();`,
           }}
         />
       </head>
@@ -35,9 +37,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           src="https://telegram.org/js/telegram-web-app.js?63"
           strategy="beforeInteractive"
         />
-        <ThemeProvider>
-          <TelegramAuthProvider>{children}</TelegramAuthProvider>
-        </ThemeProvider>
+        <MicrophonePermissionBootstrap />
+        <LanguageProvider>
+          <ThemeProvider>
+            <TelegramAuthProvider>{children}</TelegramAuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

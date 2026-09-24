@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import {
+  acquireMicrophoneStream,
+  setSharedMicrophoneEnabled,
+} from "../../../shared/browser/microphone-session";
+
 const TARGET_RATE = 16_000;
 const MIN_SECONDS = 0.4;
 
@@ -61,7 +66,6 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
   const active = useRef(false);
   const chunks = useRef<Float32Array[]>([]);
   const context = useRef<AudioContext | null>(null);
-  const stream = useRef<MediaStream | null>(null);
   const source = useRef<MediaStreamAudioSourceNode | null>(null);
   const processor = useRef<ScriptProcessorNode | null>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -79,12 +83,11 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
     if (timer.current) window.clearTimeout(timer.current);
     processor.current?.disconnect();
     source.current?.disconnect();
-    stream.current?.getTracks().forEach((track) => track.stop());
+    setSharedMicrophoneEnabled(false);
     void context.current?.close().catch(() => undefined);
     timer.current = undefined;
     processor.current = null;
     source.current = null;
-    stream.current = null;
     context.current = null;
   }, []);
 
@@ -118,9 +121,7 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
       return false;
     }
     try {
-      const media = await navigator.mediaDevices.getUserMedia({
-        audio: { autoGainControl: true, echoCancellation: true, noiseSuppression: true },
-      });
+      const media = await acquireMicrophoneStream();
       const audioContext = new AudioContext();
       await audioContext.resume();
       const mediaSource = audioContext.createMediaStreamSource(media);
@@ -150,7 +151,6 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
       node.connect(silent);
       silent.connect(audioContext.destination);
       context.current = audioContext;
-      stream.current = media;
       source.current = mediaSource;
       processor.current = node;
       active.current = true;

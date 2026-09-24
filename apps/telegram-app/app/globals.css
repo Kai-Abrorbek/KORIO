@@ -24,6 +24,11 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
+  --theme-bg: #ffffff;
+  --theme-surface: #ffffff;
+  --theme-text: #1a1a2e;
+  --theme-muted: #55555f;
+  --theme-border: #eceaf6;
   --app-bg: #ffffff;
   --surface: #ffffff;
   --text: #1a1a2e;
@@ -33,11 +38,111 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --theme-bg: #15151d;
+  --theme-surface: #25252e;
+  --theme-text: #ffffff;
+  --theme-muted: #a6a6b3;
+  --theme-border: #3a3a44;
   --app-bg: #15151d;
   --surface: #25252e;
   --text: #ffffff;
   --muted: #a6a6b3;
   --border: #3a3a44;
+}
+
+/*
+ * 모바일 앱의 ThemeColors를 CSS Module 화면에도 같은 방식으로 전달한다.
+ * 각 화면이 예전의 밝은 팔레트를 로컬 변수로 다시 선언하더라도 이 토큰이
+ * 우선한다. 리그 결과처럼 색 자체가 게임 상태인 화면은 배경만 예외로 둔다.
+ */
+:root[data-theme="dark"] body main {
+  --background: var(--theme-bg) !important;
+  --bg: var(--theme-bg) !important;
+  --draw-bg: var(--theme-bg) !important;
+  --game-bg: var(--theme-bg) !important;
+  --grammar-cream: #1b1a20 !important;
+  --hangul-bg: var(--theme-bg) !important;
+  --path-bg: var(--theme-bg) !important;
+  --slot-bg: var(--theme-bg) !important;
+  --speed-bg: var(--theme-bg) !important;
+  --syllable-bg: var(--theme-bg) !important;
+  --word-bg: var(--theme-bg) !important;
+  --elevated: #2d2d38 !important;
+  --input: #2d2d38 !important;
+  --paper: #202029 !important;
+  --surface-elevated: #2d2d38 !important;
+  --surface-muted: #30303a !important;
+  --surface: var(--theme-surface) !important;
+  --draw-surface: var(--theme-surface) !important;
+  --game-surface: var(--theme-surface) !important;
+  --grammar-paper: var(--theme-surface) !important;
+  --hangul-surface: var(--theme-surface) !important;
+  --path-surface: var(--theme-surface) !important;
+  --premium-surface: var(--theme-surface) !important;
+  --slot-surface: var(--theme-surface) !important;
+  --speed-surface: var(--theme-surface) !important;
+  --stats-surface: var(--theme-surface) !important;
+  --syllable-surface: var(--theme-surface) !important;
+  --word-surface: var(--theme-surface) !important;
+  --text: var(--theme-text) !important;
+  --ink: var(--theme-text) !important;
+  --draw-text: var(--theme-text) !important;
+  --game-text: var(--theme-text) !important;
+  --grammar-ink: var(--theme-text) !important;
+  --hangul-text: var(--theme-text) !important;
+  --lesson-ink: var(--theme-text) !important;
+  --path-text: var(--theme-text) !important;
+  --premium-text: var(--theme-text) !important;
+  --slot-text: var(--theme-text) !important;
+  --speed-text: var(--theme-text) !important;
+  --stats-text: var(--theme-text) !important;
+  --syllable-text: var(--theme-text) !important;
+  --word-text: var(--theme-text) !important;
+  --muted: var(--theme-muted) !important;
+  --secondary: var(--theme-muted) !important;
+  --subtle: #747582 !important;
+  --text-muted: #8f909e !important;
+  --text-secondary: var(--theme-muted) !important;
+  --text-subtle: #747582 !important;
+  --draw-muted: var(--theme-muted) !important;
+  --game-muted: var(--theme-muted) !important;
+  --grammar-sub: var(--theme-muted) !important;
+  --hangul-muted: var(--theme-muted) !important;
+  --lesson-muted: var(--theme-muted) !important;
+  --path-muted: var(--theme-muted) !important;
+  --premium-muted: var(--theme-muted) !important;
+  --slot-muted: var(--theme-muted) !important;
+  --speed-muted: var(--theme-muted) !important;
+  --stats-muted: var(--theme-muted) !important;
+  --syllable-muted: var(--theme-muted) !important;
+  --word-muted: var(--theme-muted) !important;
+  --border: var(--theme-border) !important;
+  --border-strong: #50515d !important;
+  --divider: var(--theme-border) !important;
+  --strong: #50515d !important;
+  --draw-border: var(--theme-border) !important;
+  --game-border: var(--theme-border) !important;
+  --hangul-border: var(--theme-border) !important;
+  --lesson-border: var(--theme-border) !important;
+  --path-border: var(--theme-border) !important;
+  --premium-border: var(--theme-border) !important;
+  --slot-border: var(--theme-border) !important;
+  --speed-border: var(--theme-border) !important;
+  --stats-border: var(--theme-border) !important;
+  --syllable-border: var(--theme-border) !important;
+  --word-border: var(--theme-border) !important;
+  --primary-soft: #332d4a !important;
+  --purple-soft: #332d4a !important;
+  --success-soft: #1e3b30 !important;
+  --danger-soft: #472828 !important;
+  --warm-soft: #40371e !important;
+  --warning-soft: #40371e !important;
+}
+
+:root[data-theme="dark"] body
+  main[class*="-module"]:not([class*="challenge-result-screen-module"]):not([class*="xp-challenge-screen-module"]):not([class*="league-result-screen-module"]):not([class*="legend-intro-screen-module"]) {
+  background-color: var(--theme-bg) !important;
+  color: var(--theme-text) !important;
 }
 
 * {

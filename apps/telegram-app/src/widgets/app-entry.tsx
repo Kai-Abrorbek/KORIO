@@ -21,9 +21,7 @@ export function AppEntry() {
     if (!splashFinished || auth.status !== "authenticated" || !auth.user) {
       return;
     }
-    router.replace(
-      auth.user.isOnboardingCompleted ? "/welcome" : "/onboarding",
-    );
+    router.replace(auth.user.isOnboardingCompleted ? "/home" : "/welcome");
   }, [auth.status, auth.user, router, splashFinished]);
 
   if (auth.status === "error") {

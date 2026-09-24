@@ -44,6 +44,7 @@ export function LanguageScreen() {
               <button
                 aria-pressed={selected}
                 className={selected ? styles.selected : undefined}
+                data-no-translate
                 key={item.code}
                 onClick={() => choose(item.code)}
                 style={{ animationDelay: String(index * 60) + "ms" }}

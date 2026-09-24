@@ -5,6 +5,9 @@ const isStaticExport = process.env.TELEGRAM_STATIC_EXPORT === "true";
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  images: {
+    unoptimized: isStaticExport,
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   ...(isStaticExport

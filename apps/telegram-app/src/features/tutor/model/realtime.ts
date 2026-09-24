@@ -1,3 +1,8 @@
+import {
+  acquireMicrophoneStream,
+  setSharedMicrophoneEnabled,
+} from "../../../shared/browser/microphone-session";
+
 const OPENAI_CALLS = "https://api.openai.com/v1/realtime/calls";
 
 export interface RealtimeConnection {
@@ -25,14 +30,7 @@ export async function connectRealtime(
 
   let localStream: MediaStream;
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        autoGainControl: true,
-        echoCancellation: true,
-        noiseSuppression: true,
-      },
-      video: false,
-    });
+    localStream = await acquireMicrophoneStream();
   } catch (error) {
     if (error instanceof DOMException && error.name === "NotAllowedError") {
       throw new Error("MIC_PERMISSION_DENIED");
@@ -53,7 +51,7 @@ export async function connectRealtime(
   const cleanup = () => {
     if (closed) return;
     closed = true;
-    localStream.getTracks().forEach((track) => track.stop());
+    setSharedMicrophoneEnabled(false);
     remoteAudio.pause();
     remoteAudio.srcObject = null;
     remoteAudio.remove();
@@ -132,9 +130,7 @@ export async function connectRealtime(
     close: cleanup,
     send,
     setMicEnabled: (enabled) => {
-      localStream.getAudioTracks().forEach((track) => {
-        track.enabled = enabled;
-      });
+      setSharedMicrophoneEnabled(enabled);
     },
   };
 }
