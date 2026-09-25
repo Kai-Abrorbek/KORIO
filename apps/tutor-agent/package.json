@@ -10,7 +10,9 @@
     "dev": "tsx --env-file-if-exists=.env src/agent.ts dev",
     "start": "node dist/agent.js start",
     "preview:generate": "tsx --env-file-if-exists=.env scripts/generate-voice-previews.ts",
-    "probe:voice": "tsx --env-file-if-exists=.env scripts/probe-korean-voice.ts"
+    "probe:voice": "tsx --env-file-if-exists=.env scripts/probe-korean-voice.ts",
+    "voice:samples": "tsx --env-file-if-exists=.env scripts/voice-samples.ts",
+    "tutor:sim": "tsx --env-file-if-exists=.env scripts/tutor-sim.ts"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",

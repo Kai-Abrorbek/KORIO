@@ -90,7 +90,8 @@ export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   if (
     m.koreanVoice !== undefined &&
     m.koreanVoice !== 'tool' &&
-    m.koreanVoice !== 'native'
+    m.koreanVoice !== 'native' &&
+    m.koreanVoice !== 'text'
   ) {
     throw new Error(`dispatch metadata koreanVoice 값이 이상하다: ${String(m.koreanVoice)}`);
   }

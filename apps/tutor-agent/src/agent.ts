@@ -22,6 +22,7 @@ import {
 } from './config.js';
 import { decodeDispatchMetadata } from './metadata.js';
 import { createKoreanVoice } from './korean-voice.js';
+import { attachPipelineHelpers, createPipelineSession } from './pipeline.js';
 import {
   SAY_KOREAN,
   SPOKEN_PROMPT_LEAK,
@@ -64,12 +65,17 @@ export default defineAgent({
      * API 가 프롬프트를 그 전제로 만들었을 때만 켠다 — 둘은 같이 움직인다.
      */
     const toolVoice = meta.koreanVoice === 'tool';
+    /**
+     * 'text' 면 Gemini Live 를 안 쓴다 — STT → LLM(글) → 한 목소리 TTS (pipeline.ts).
+     * API 가 프롬프트를 그 전제(§0 "쓴 글이 곧 소리다")로 만들었을 때만 온다.
+     */
+    const textVoice = meta.koreanVoice === 'text';
 
     log(
       `방 입장 · teacher=${meta.teacherId} voice=${meta.voiceName} ` +
         `mode=${meta.mode} lang=${meta.teachingLanguage} ` +
         `address=${meta.addressStyle} max=${meta.maxDurationSec}s ` +
-        `korean=${toolVoice ? 'tool' : 'native'}`,
+        `korean=${meta.koreanVoice ?? 'native'}`,
     );
 
     await ctx.connect();
@@ -127,7 +133,14 @@ export default defineAgent({
     const langHints = transcriptionLanguages(meta.teachingLanguage);
     log(`자막 언어 힌트: ${langHints.join(', ')} · VAD 침묵 ${VAD_SILENCE_MS}ms`);
 
-    const session = new voice.AgentSession({
+    /**
+     * 'text' — 새 파이프라인. 아래 Live 설정은 손대지 않고 통째로 건너뛴다:
+     * 문제가 생기면 API 쪽 스위치 하나로 Live 로 되돌아갈 수 있어야 한다.
+     */
+    const pipeline = textVoice ? createPipelineSession(meta, log) : null;
+    if (pipeline) log(pipeline.describe);
+
+    const session = pipeline?.session ?? new voice.AgentSession({
       llm: new google.realtime.RealtimeModel({
         // 모델은 **API 가 정한다.** Agent 를 다시 배포하지 않고 갈아 끼우려고
         model: liveModel,
@@ -216,6 +229,9 @@ export default defineAgent({
       ctx.shutdown('max_duration');
     }, meta.maxDurationSec * 1000);
 
+    // 파이프라인: 침묵이 길면 선생님이 먼저 돕고, 통화마다 지연·오류를 요약한다
+    const pipelineSummary = pipeline ? attachPipelineHelpers(session, log) : null;
+
     /**
      * 통화 한 번이 "한국어를 도구로 냈는가" 를 **로그 한 줄로** 판정하려는 숫자.
      * 실기기 테스트 뒤에 로그를 전부 뒤질 필요 없이 마지막 요약만 보면 된다.
@@ -232,6 +248,7 @@ export default defineAgent({
     ctx.addShutdownCallback(async () => {
       clearTimeout(hardStop);
       await koreanVoice?.close().catch(() => undefined);
+      if (pipelineSummary) log(pipelineSummary());
       if (toolVoice) {
         const s = voiceStats;
         log(

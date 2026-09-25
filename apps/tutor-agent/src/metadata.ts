@@ -38,6 +38,8 @@ export interface TutorDispatchMetadata {
    *   'tool'   — say_korean 도구를 등록한다. 선생님 목소리는 설명 언어만 말하고
    *              한국어는 같은 목소리의 TTS 가 따로 낸다 (korean-voice.ts).
    *   'native' — 예전처럼 Gemini Live 가 두 언어를 다 말한다.
+   *   'text'   — Live 를 안 쓴다. STT → LLM(글) → 한 목소리 TTS (pipeline.ts).
+   *              model 은 글 모델(gemini-3.5-flash 등)이 온다.
    *
    * ⚠️ 프롬프트가 이 값을 전제로 쓰여 있다. 그래서 **프롬프트를 만든 API 가
    *    정해서 싣는다.** 빠져 있으면(옛 API) 'native' 로 본다 — 도구 없이
@@ -46,7 +48,7 @@ export interface TutorDispatchMetadata {
   koreanVoice?: KoreanVoiceMode;
 }
 
-export type KoreanVoiceMode = 'tool' | 'native';
+export type KoreanVoiceMode = 'tool' | 'native' | 'text';
 
 export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   const m = JSON.parse(raw) as Partial<TutorDispatchMetadata>;
@@ -68,7 +70,8 @@ export function decodeDispatchMetadata(raw: string): TutorDispatchMetadata {
   if (
     m.koreanVoice !== undefined &&
     m.koreanVoice !== 'tool' &&
-    m.koreanVoice !== 'native'
+    m.koreanVoice !== 'native' &&
+    m.koreanVoice !== 'text'
   ) {
     throw new Error(`dispatch metadata koreanVoice 값이 이상하다: ${String(m.koreanVoice)}`);
   }

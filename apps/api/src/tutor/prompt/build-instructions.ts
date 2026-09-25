@@ -24,6 +24,12 @@ import type { KoreanVoiceMode } from '../gemini/live.const';
  *  2) 언어별 예시는 **이번 수업 언어 + 한국어**만.
  *     네 언어 예시를 다 넣으면 매 세션 수천 토큰이 그냥 날아가고,
  *     모델이 안 쓰는 언어로 새기도 한다.
+ *  4) koreanVoice === 'text' 면 §0 "쓴 글이 곧 소리다" 와 맨 끝 reminder 만
+ *     **덧붙인다.** 본문은 native 와 한 글자도 다르지 않다. 이때 튜터는
+ *     Gemini Live 가 아니라 글로 답하는 LLM 이고, 그 글을 TTS 가 한 목소리로
+ *     읽는다 (tutor-agent 의 파이프라인). 한국어/설명 언어 구분은 글자(한글
+ *     여부)로 TTS 쪽이 알아서 한다 — 그래서 모델에게 필요한 건 "글자를
+ *     바르게 쓰는 법"과 "말하는 글만 쓰는 법"이다.
  *  3) 목소리 규칙(§0)과 그에 맞춘 §2·§29·§30 은 koreanVoice === 'tool' 일 때만.
  *     이때 선생님 목소리는 설명 언어만 말하고 한국어는 say_korean 도구가 낸다
  *     (tutor-agent/src/korean-voice.ts). Gemini Live 가 두 언어를 한 턴에
@@ -592,6 +598,126 @@ function copula(name: string): string {
   return (code - 0xac00) % 28 === 0 ? '예요' : '이에요';
 }
 
+/**
+ * text 모드 예시. **아무 주제에도 안 끌리는** 말만 쓴다.
+ *
+ * 본문 예시(커피·공항·강남·영화)를 모델이 수업 내용으로 그대로 가져다 쓰는 게
+ * "매번 똑같은 수업" 의 정체였다. 여기 예시까지 주제를 띠면 그게 또 새 단골이
+ * 된다 — 그래서 "네, 알겠어요" 처럼 어느 수업에나 나오는 말로만 보여준다.
+ */
+const TEXT_EXAMPLE: Record<string, { cue: string; inline: string; recast: string }> = {
+  uz: {
+    cue: 'Qani, takrorlang: 네, 알겠어요.',
+    inline: "«알겠어요» — «tushundim» degani.",
+    recast: '"Aa, «…» demoqchi edingizmi?"',
+  },
+  ru: {
+    cue: 'Повтори за мной: 네, 알겠어요.',
+    inline: '«알겠어요» — это «понял».',
+    recast: '"А, ты хотел сказать «…»?"',
+  },
+  en: {
+    cue: 'Say it after me: 네, 알겠어요.',
+    inline: '«알겠어요» means «got it».',
+    recast: '"Oh, you mean «…»?"',
+  },
+  ko: {
+    cue: '따라 해 보세요: 네, 알겠어요.',
+    inline: '«알겠어요»는 이해했다는 말이에요.',
+    recast: '"아, «…» 이렇게 말하려고 했죠?"',
+  },
+};
+
+const SCRIPT_NAME: Record<string, string> = {
+  uz: 'Latin letters',
+  ru: 'Cyrillic letters',
+  en: 'Latin letters',
+  ko: 'Hangul',
+};
+
+/**
+ * text 모드 §0 — 쓴 글이 그대로 소리가 된다.
+ *
+ * ⚠️ 여기 규칙은 TTS 쪽 구현(tutor-agent/src/segments.ts)과 짝이다:
+ *    한글이면 한국어 발음, 아니면 설명 언어 발음 / 콜론·마침표 뒤에서 쉰다.
+ *    한쪽만 바꾸면 "쓴 대로 들린다" 가 깨진다.
+ */
+function textVoiceRule(langCode: string, language: string): string {
+  const ex = TEXT_EXAMPLE[langCode] ?? TEXT_EXAMPLE.uz;
+  const script = SCRIPT_NAME[langCode] ?? 'Latin letters';
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+0. WHAT YOU WRITE IS SPOKEN — READ THIS FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is a live voice call. You reply in text, and your own voice reads every
+word of it aloud to the learner right away. The learner never sees your text.
+They only hear it.
+
+The voice picks the language from the letters:
+- Hangul is spoken in native Seoul Korean.
+- Everything else is spoken in natural native ${language}.
+So how you write IS how you sound.
+
+HOW TO WRITE KOREAN
+- Korean only in Hangul. Never romanize it, never add a pronunciation guide
+  or a translation in brackets.
+- A Korean phrase the learner should hear clearly or repeat goes in its own
+  sentence — after a colon, or as a separate sentence:
+    ${ex.cue}
+  The voice pauses right before it, so it comes out clean and easy to copy.
+- One Korean word inside a ${language} sentence is fine when you are talking
+  ABOUT that word:
+    ${ex.inline}
+- Korean counters are written as words: 한 잔, 두 개, 세 시 — not 1잔, 2개, 3시.
+- Write ${language} in ${script}, the way a native speaker writes it.
+
+WRITE ONLY WHAT SHOULD BE HEARD
+- No markdown, lists, headings, emojis, stage directions like *laughs*,
+  labels like "Teacher:", and no parentheses.
+- No ㅋㅋ or ㅎㅎ — the voice cannot laugh in letters. Where later sections
+  mention ㅋㅋ, laughter or pauses, put that energy into your words instead.
+
+TURN-TAKING — THE LEARNER CAN ONLY SPEAK WHEN YOU STOP
+- Once you ask the learner something or ask them to repeat, your reply is
+  over. Stop right there and wait.
+- Never answer your own question. Never say the learner's line for them.
+- One question per reply.
+
+SMALL MISTAKES → SAY IT RIGHT, THEN ONE MORE TRY
+When the learner's Korean is almost right, do not announce "wrong". Offer the
+correct sentence as if checking what they meant — ${ex.recast} —
+add at most one short reason, and let them say it once more.
+Bigger trouble or silence: make the task smaller, never the explanation longer.
+
+WHAT YOU RECEIVE
+The learner's words come from speech recognition, not typing.
+- Spelling, spacing and punctuation are the recognizer's, not the learner's.
+  Never comment on them.
+- Words can be misheard. If their Korean is garbled but close to what you asked
+  for, treat it as a pronunciation slip: give the correct version and let
+  them say it once more.
+- "(silence)" means they said nothing for a while. Make it easier — give the
+  first word or a simpler version — instead of repeating the same question.
+
+EXAMPLES ARE STYLE, NOT CONTENT
+The example sentences in these instructions (coffee, the airport, Gangnam,
+movies…) only show HOW to talk. Never reuse them as lesson material. Today's
+words and situations come from the runtime context above — selected topic,
+target expressions, the learner's own vocabulary and mistakes — and from what
+the learner says.`;
+}
+
+/** text 모드 맨 끝 — 긴 본문을 다 읽은 뒤에 한 번 더 */
+function textVoiceReminder(language: string): string {
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REMINDER — YOUR TEXT IS SPOKEN (§0)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Korean in Hangul, ${language} for everything else, no symbols.
+A Korean phrase to repeat stands in its own sentence.
+Ask one thing, then stop and wait.`;
+}
+
 const NONE = '(none yet)';
 const list = (xs?: string[]) => (xs?.length ? xs.join(', ') : NONE);
 
@@ -647,6 +773,8 @@ export function buildTutorInstructions(
   const langCode = LANG_NAME[learner.nativeLanguage] ? learner.nativeLanguage : 'uz';
   // 설명 언어가 한국어면 섞일 일이 없다 — 도구 없이 그대로 말한다
   const toolVoice = koreanVoice === 'tool' && langCode !== 'ko';
+  // 글로 답하고 TTS 가 읽는다. 본문은 native 그대로, §0·reminder 만 붙는다
+  const textVoice = koreanVoice === 'text';
 
   // 이름은 유저가 화면에서 고른 선생님이다. 프롬프트 안의 이름과 카드에 적힌
   // 이름이 다르면 "저는 보리쌤이에요" 라고 자기소개해서 몰입이 깨진다
@@ -735,6 +863,7 @@ ${
 
   // §0 — 목소리 규칙. 제일 먼저 읽혀야 하고, 아래 모든 예시를 읽는 법을 바꾼다
   if (toolVoice) parts.push(voiceRule(langCode, teachingLanguage, cueStyle));
+  if (textVoice) parts.push(textVoiceRule(langCode, teachingLanguage));
 
   parts.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. CORE IDENTITY
@@ -1889,6 +2018,7 @@ continuous progression.
 Never become a generic AI tutor.`);
 
   if (toolVoice) parts.push(voiceReminder(teachingLanguage));
+  if (textVoice) parts.push(textVoiceReminder(teachingLanguage));
 
   const prompt = parts.join('\n\n');
   // tool 모드: 예시 원문의 `→ say_korean("…")` 를 모델에게 나갈 모양으로 바꾼다.

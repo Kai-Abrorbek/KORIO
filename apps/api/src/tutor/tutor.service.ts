@@ -31,7 +31,13 @@ import {
   type TutorAddressStyle,
   type TutorMode,
 } from './tutor.const';
-import { geminiLiveModel, koreanVoiceMode } from './gemini/live.const';
+import {
+  geminiLiveModel,
+  koreanVoiceMode,
+  tutorEngine,
+  tutorModel,
+  tutorTextModel,
+} from './gemini/live.const';
 import { voiceForTeacher } from './gemini/voices';
 import { LiveKitService } from './livekit/livekit.service';
 import type { TutorDispatchMetadata } from './livekit/dispatch-metadata';
@@ -59,7 +65,11 @@ export class TutorService implements OnModuleInit {
     // ⚠️ 분당 원가는 아직 **실측 전이다.** tutor.const 의 추정치는 OpenAI
     //    Realtime 기준이라 여기 적지 않는다 — 안 맞는 숫자를 로그에 박아두면
     //    나중에 그걸 근거로 쿼터를 정하게 된다.
-    this.logger.log(`AI 튜터 대화 모델: ${geminiLiveModel()} (LiveKit Agent)`);
+    this.logger.log(
+      tutorEngine() === 'pipeline'
+        ? `AI 튜터: 파이프라인 (STT → ${tutorTextModel()} → 한 목소리 TTS, LiveKit Agent)`
+        : `AI 튜터 대화 모델: ${geminiLiveModel()} (LiveKit Agent)`,
+    );
   }
 
   constructor(
@@ -130,7 +140,7 @@ export class TutorService implements OnModuleInit {
     // 방 이름이 sessionId 로 만들어지므로 세션을 **먼저** 연다.
     // ⚠️ 모델은 dispatch metadata 와 **같은 값**을 넘긴다. 둘이 갈라지면
     //    DB 의 원가 분석이 실제로 돈 모델과 안 맞는다
-    const model = geminiLiveModel();
+    const model = tutorModel(koreanVoice);
     const session = await this.usage.open(
       userId,
       mode,
