@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  useWindowDimensions,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -174,11 +175,42 @@ export default function LeagueScreen() {
   const rowY = useRef(new Map<number, number>());
   const [measuredCount, setMeasuredCount] = useState(0);
 
+  /**
+   * 들어오자마자 **내 줄로 스크롤**한다.
+   *
+   * 리그방은 30명이라 들어오면 1위부터 보인다 — 내가 12등이면 내 자리는 화면
+   * 밖이고, 매번 손으로 찾아 내려야 했다. 사람들이 이 화면에서 제일 먼저 보고
+   * 싶은 건 자기 줄이다.
+   *
+   * 맨 위로 붙이지 않고 화면의 1/3 지점에 둔다. 위로 몇 명, 아래로 몇 명이
+   * 같이 보여야 "내가 어디쯤인지" 가 읽힌다.
+   */
+  const listRef = useRef<ScrollView>(null);
+  const boardY = useRef(0);
+  const scrolledToMe = useRef(false);
+  const { height: screenH } = useWindowDimensions();
+
   const onRowLayout = useCallback((rank: number, y: number) => {
     if (rowY.current.get(rank) === y) return;
     rowY.current.set(rank, y);
     setMeasuredCount(rowY.current.size);
   }, []);
+
+  useEffect(() => {
+    if (scrolledToMe.current || !data) return;
+    const me = data.members.find((m) => m.isMe);
+    if (!me) return;
+    const y = rowY.current.get(me.rank);
+    if (y === undefined) return; // 아직 측정 전 — 다음 onLayout 때 다시 온다
+    scrolledToMe.current = true;
+    const target = Math.max(0, boardY.current + y - screenH / 3);
+    // 레이아웃이 한 번 더 정리된 뒤에 움직인다 (측정 직후엔 무시되는 기기가 있다)
+    const timer = setTimeout(
+      () => listRef.current?.scrollTo({ y: target, animated: true }),
+      280,
+    );
+    return () => clearTimeout(timer);
+  }, [data, measuredCount, screenH]);
 
   /** rank → 시작 오프셋(px). 비어 있으면 애니 없음 */
   const startOffsets = useMemo(() => {
@@ -236,6 +268,8 @@ export default function LeagueScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      // 탭을 다시 열 때마다 내 줄로 한 번 더 내려간다 (아래 스크롤 효과)
+      scrolledToMe.current = false;
       setLoading(true);
       LeagueService.getMyLeague()
         .then(setData)
@@ -265,7 +299,9 @@ export default function LeagueScreen() {
 
   const tierMeta = getTier(data.tier);
   const myTierIdx = getTierIndex(data.tier);
-  const CHALLENGE_XP = data.boostXp ?? 210;
+  // 서버(league.service 의 TIER_CHALLENGE)가 티어별로 정한다. 폴백이 210 이던
+  // 시절이 있었는데 XP 를 1/3 로 내린 뒤로는 3배 뻥이라, 모르면 안 적는다.
+  const CHALLENGE_XP = data.boostXp ?? 0;
 
   // 카운트다운 라벨
   const remaining = new Date(data.endsAt).getTime() - now;
@@ -360,6 +396,7 @@ export default function LeagueScreen() {
       </ScrollView>
 
       <ScrollView
+        ref={listRef}
         contentContainerStyle={{
           paddingTop: insets.top + 12,
           paddingBottom: insets.bottom + 120,
@@ -367,7 +404,12 @@ export default function LeagueScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* 리더보드 */}
-        <View style={s.board}>
+        <View
+          style={s.board}
+          onLayout={(e) => {
+            boardY.current = e.nativeEvent.layout.y;
+          }}
+        >
           {data.members.map((m) => {
             const inPromote = promoteLine > 0 && m.rank <= promoteLine;
             const inDemote = data.demoteCount > 0 && m.rank > demoteLine;
