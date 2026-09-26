@@ -1,24 +1,26 @@
-import { TextInput, type TextStyle, type StyleProp } from "react-native";
-import Animated, {
-  useAnimatedProps,
-  useSharedValue,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
-import { useEffect } from "react";
-
-const AnimatedInput = Animated.createAnimatedComponent(TextInput);
+import { Text, type TextStyle, type StyleProp } from "react-native";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * 숫자가 굴러 올라가는 카운터.
  *
- * `<Text>{n}</Text>` 를 상태로 올리면 **60프레임마다 리렌더**가 돈다 — 목록
- * 옆에서 같이 돌면 눈에 띄게 끊긴다. TextInput 의 `text` 프로퍼티는
- * animatedProps 로 UI 스레드에서 직접 꽂을 수 있어서 JS 가 한 번도 안 깨어난다.
+ * ⚠️ 예전엔 TextInput + animatedProps 로 UI 스레드에서 글자를 꽂았다. 리렌더가
+ *    없어서 가벼웠지만, **부모가 한 번 다시 그리면 글자가 defaultValue 인 "0"
+ *    으로 돌아갔다.** 애니메이션은 이미 끝나서 아무도 다시 안 써주니 0 이 그대로
+ *    남았다 — 홈 화면에서 "순위를 보여주다가 잠시 뒤 0 으로 바뀌는" 버그가
+ *    이거였다.
  *
- * ⚠️ `editable={false}` + `value` 대신 `defaultValue` 여야 한다. value 를 주면
- *    리액트가 매 프레임 다시 제어권을 가져가서 애니메이션을 덮어쓴다.
+ * 그래서 표시값을 리액트 상태로 들고 있는다. 리렌더가 몇 번 나든 마지막 값이
+ * 그대로 살아 있고, 끝나면 언제나 정확히 `to` 다. 대신 매 프레임 대신 ~22fps 로
+ * 끊어 올린다 — 숫자가 굴러가는 데는 그걸로 충분하고, 리렌더 비용도 1초짜리다.
  */
+const STEP_MS = 45;
+
+/** 빠르게 튀어나갔다가 끝에서 천천히 멈춘다 — 멈추는 지점이 강조된다 */
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+const group = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
 export default function AnimatedCount({
   to,
   duration = 1100,
@@ -34,36 +36,44 @@ export default function AnimatedCount({
   suffix?: string;
   style?: StyleProp<TextStyle>;
 }) {
-  const v = useSharedValue(0);
+  // 처음부터 목표값을 들고 있는다. 애니메이션이 못 돌더라도(저사양·백그라운드)
+  // 틀린 숫자가 남지 않는다
+  const [shown, setShown] = useState(to);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    v.value = 0;
-    v.value = withTiming(to, {
-      duration,
-      // 빠르게 튀어나갔다가 끝에서 천천히 멈춘다 — 멈추는 지점이 강조된다
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [to, duration]);
+    if (timer.current) clearTimeout(timer.current);
+    if (duration <= 0) {
+      setShown(to);
+      return;
+    }
 
-  const props = useAnimatedProps(() => {
-    "worklet";
-    const n = Math.round(v.value);
-    // 천 단위 구분. toLocaleString 은 워크릿에서 못 쓴다
-    const s = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return { text: `${prefix}${s}${suffix}` } as never;
-  });
+    let startedAt = 0;
+    const tick = () => {
+      const now = Date.now();
+      if (!startedAt) startedAt = now;
+      const p = Math.min(1, (now - startedAt) / duration);
+      setShown(Math.round(easeOutCubic(p) * to));
+      if (p < 1) timer.current = setTimeout(tick, STEP_MS);
+    };
+
+    setShown(0);
+    timer.current = setTimeout(tick, delay);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+    };
+  }, [to, duration, delay]);
 
   return (
-    <AnimatedInput
-      animatedProps={props}
-      editable={false}
-      defaultValue={`${prefix}0${suffix}`}
+    <Text
       style={style}
-      // 안드로이드 TextInput 은 기본 패딩·밑줄이 붙어서 Text 와 안 맞는다
-      underlineColorAndroid="transparent"
-      pointerEvents="none"
-      // 접근성: 화면 낭독기에는 최종 값만 읽힌다
-      accessibilityLabel={`${prefix}${to}${suffix}`}
-    />
+      accessibilityLabel={`${prefix}${group(to)}${suffix}`}
+      allowFontScaling={false}
+    >
+      {prefix}
+      {group(shown)}
+      {suffix}
+    </Text>
   );
 }
