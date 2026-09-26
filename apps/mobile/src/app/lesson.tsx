@@ -782,24 +782,44 @@ export default function LessonScreen() {
   };
 
   /**
-   * 건너뛰기 = 오답.
+   * 건너뛰기 = **조용히 다음 문제로.**
    *
-   * 예전엔 onSkip 이 handleNext 를 그대로 불렀다. 문제는 큐에서 빠지고 진행바는
-   * 올라가는데 **오답 기록도, 점프 테스트 하트 차감도 없었다.** 듣기·말하기
-   * 문제(Speaking·ListenType·ListenFill·AudioMatch)를 전부 건너뛰면 아무것도
-   * 풀지 않고 점프 테스트·레벨 테스트를 통과할 수 있는 구멍이었다.
+   * 이 링크는 듣기 문제에만 뜬다("듣기 문제 건너뛰기" — AudioMatch·ListenFill·
+   * ListenType). 소리를 못 듣는 상황(무음·시끄러운 곳)을 위한 탈출구지 답을
+   * 포기하는 버튼이 아니다. 한동안 오답으로 기록했는데, 들을 수가 없어서 넘긴
+   * 사람이 오답 장부에 쌓이고 복습 큐까지 늘어나는 건 벌을 주는 꼴이었다.
    *
-   * 이제 건너뛴 문제는 commitAnswer(false) 로 흘려보낸다. 그러면 모드별 처리가
-   * 한 곳에서 일관되게 된다:
-   *   레벨 테스트 → 오답 집계 · 점프 테스트 → 하트 차감
-   *   문법 트랙 → 몇 문제 뒤 재출제 · 그 외 학습 → 마지막 복습 큐로
-   * 정답도 같이 보여주므로(FeedbackBar) 건너뛴 문제를 그냥 버리지도 않는다.
+   * 그래서 아무것도 기록하지 않고 큐에서만 뺀다:
+   *   오답 기록 없음 · 복습 큐 없음 · 콤보는 유지 · 진행바만 올라간다
+   * (진행바는 handleNext 가 "큐에서 빠진 수" 로 세므로 그대로 맞는다)
+   *
+   * ⚠️ 정답으로도 치지 않는다. 레벨 테스트는 맞힌 수로 점수를 내므로 건너뛴
+   *    만큼 점수가 낮아진다.
+   *
+   * ⚠️ **점프 테스트만 예외 — 건너뛰기 = 오답(하트 -1).** 서버 합격 기준이
+   *    `wrongCount < heartLimit` 라서, 조용히 넘기면 듣기·말하기를 전부 건너뛰고
+   *    하트 하나 안 잃고 통과한다. 진급 시험이니 탈출구보다 공정성이 먼저다.
    */
   const handleSkip = () => {
     const question = questionQueue.current[0];
     if (!question || answerSubmissionLocked.current) return;
-    answerSubmissionLocked.current = true;
-    commitAnswer(question, false);
+
+    if (isJumpTest) {
+      answerSubmissionLocked.current = true;
+      commitAnswer(question, false);
+      return;
+    }
+
+    if (isLevelTest) {
+      if (locked.current) return;
+      locked.current = true;
+      totalCount.current += 1;
+      bumpProgress(totalCount.current / (lesson?.questions.length ?? 1));
+      goNextLevelTest();
+      return;
+    }
+
+    void handleNext();
   };
 
   const handleAnswer = async (answer: string) => {
