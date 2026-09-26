@@ -19,6 +19,21 @@ export const GrammarService = {
         : `/grammar?lang=${getLang()}`,
     ),
 
-  completeGrammar: (code: string): Promise<{ success: boolean }> =>
-    api.post(`/grammar/${code}/complete`, {}),
+  /**
+   * 문법 하나를 끝냈다고 알린다.
+   *
+   * 섹션의 마지막 문법이면 서버가 **섹션 완주 보석**을 준다. 그래서 응답을
+   * 버리면 안 된다 — 화면 위 보석 숫자가 다음 getMe 까지 옛 값으로 남는다.
+   */
+  completeGrammar: (
+    code: string,
+  ): Promise<{
+    success: boolean;
+    xpEarned?: number;
+    totalXP?: number;
+    gemsEarned?: number;
+    /** 지급 후 잔액 (옛 서버는 안 보낸다) */
+    gems?: number;
+    sectionCompleted?: boolean;
+  }> => api.post(`/grammar/${code}/complete`, {}),
 };

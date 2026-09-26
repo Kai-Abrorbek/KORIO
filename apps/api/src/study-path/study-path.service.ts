@@ -377,6 +377,9 @@ export class StudyPathService {
     // 읽고 나서 쓰면(exists → $inc) 같은 요청 두 개가 동시에 들어왔을 때 둘 다
     // "아직 안 받았다" 를 보고 둘 다 지급한다. 조건을 업데이트 자체에 건다.
     let gemsEarned = 0;
+    // 앱이 화면 위 보석 숫자를 바로 갈아 끼우려면 **새 잔액**이 있어야 한다.
+    // 받은 양만 주면 앱이 더해야 하는데, 그러면 두 기기에서 풀 때 어긋난다
+    let gemsTotal: number | null = null;
     if (passed) {
       const granted = await this.userModel.findOneAndUpdate(
         { _id: userId, completedLevelExams: { $ne: level } },
@@ -386,7 +389,14 @@ export class StudyPathService {
         },
         { returnDocument: 'after' },
       );
-      if (granted) gemsEarned = LEVEL_EXAM.gems;
+      if (granted) {
+        gemsEarned = LEVEL_EXAM.gems;
+        gemsTotal = granted.gems ?? 0;
+      }
+    }
+    if (gemsTotal === null) {
+      const me = await this.userModel.findById(userId).select('gems').lean();
+      gemsTotal = me?.gems ?? 0;
     }
 
     const next = await this.nextLevelInfo(level, dto.lang ?? 'uz');
@@ -405,6 +415,8 @@ export class StudyPathService {
       nextLevel: next?.level ?? null,
       weakAreas: await this.weakAreas(wrongIds),
       gemsEarned,
+      /** 지급 후 잔액. 앱이 이 값으로 덮어쓴다 */
+      gems: gemsTotal,
       // 하루 XP 상한에 걸리면 실제 지급은 0 이다. 화면이 받은 대로 보여준다
       xpEarned: xpRes.added,
       totalXP: xpRes.totalXP ?? 0,

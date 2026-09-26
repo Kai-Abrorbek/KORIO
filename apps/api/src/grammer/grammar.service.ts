@@ -234,6 +234,8 @@ export class GrammarService {
     const sectionComplete =
       sectionCodes.length > 0 &&
       sectionCodes.every((s: any) => nowDone.has(s.code));
+    // 지급 후 잔액 — 앱이 이 값으로 화면의 보석을 갱신한다
+    let gemsTotal: number | null = null;
     if (sectionComplete) {
       // 조건을 업데이트 자체에 건다. exists() 로 먼저 보고 나서 $inc 하면,
       // 마지막 문항을 동시에 두 번 제출했을 때 둘 다 "아직 안 받았다" 를 보고
@@ -246,7 +248,14 @@ export class GrammarService {
         },
         { returnDocument: 'after' },
       );
-      if (granted) gemsEarned = SECTION_COMPLETE_GEMS;
+      if (granted) {
+        gemsEarned = SECTION_COMPLETE_GEMS;
+        gemsTotal = granted.gems ?? 0;
+      }
+    }
+    if (gemsTotal === null) {
+      const me = await this.userModel.findById(userId).select('gems').lean();
+      gemsTotal = me?.gems ?? 0;
     }
 
     return {
@@ -255,6 +264,8 @@ export class GrammarService {
       xpEarned: GRAMMAR_XP,
       totalXP: xpRes.totalXP ?? 0,
       gemsEarned,
+      /** 지급 후 잔액. 앱이 화면 위 숫자를 이 값으로 갈아 끼운다 */
+      gems: gemsTotal,
       sectionCompleted: gemsEarned > 0,
     };
   }

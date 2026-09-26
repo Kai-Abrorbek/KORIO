@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useAuthStore } from "@/store/auth.store";
 import {
   Grammar,
   GrammarExample,
@@ -240,6 +241,7 @@ function Quiz({
 }
 
 export default function GrammarStudy() {
+  const updateUser = useAuthStore((st) => st.updateUser);
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { speak } = useSpeech();
@@ -435,9 +437,20 @@ export default function GrammarStudy() {
             <NB>
               <Quiz
                 items={g.quiz}
-                onComplete={() =>
-                  GrammarService.completeGrammar(g.id).catch(() => {})
-                }
+                onComplete={() => {
+                  // 섹션의 마지막 문법이면 여기서 보석이 들어온다.
+                  // 응답을 버리면 화면 위 숫자만 옛 값으로 남는다
+                  void GrammarService.completeGrammar(g.id)
+                    .then((r) => {
+                      if (r?.gems != null || r?.totalXP != null) {
+                        updateUser({
+                          ...(r.gems != null ? { gems: r.gems } : {}),
+                          ...(r.totalXP != null ? { totalXP: r.totalXP } : {}),
+                        } as any);
+                      }
+                    })
+                    .catch(() => {});
+                }}
               />
             </NB>
           </Section>

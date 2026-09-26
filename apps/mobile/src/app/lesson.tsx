@@ -875,7 +875,12 @@ export default function LessonScreen() {
           wrongQuestionIds: wrongArr,
           speedSeconds: seconds,
         });
-        updateUser({ totalXP: res.totalXP } as any);
+        // 보석도 같이 갈아 끼운다. 예전엔 XP 만 반영해서, 결과 화면은
+        // "+보석" 을 자랑하는데 헤더의 보석은 그대로였다
+        updateUser({
+          totalXP: res.totalXP,
+          ...(res.gems != null ? { gems: res.gems } : {}),
+        } as any);
         router.replace({
           pathname: "/level-exam-result",
           params: {

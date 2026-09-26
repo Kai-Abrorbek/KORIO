@@ -132,6 +132,8 @@ export interface LevelExamResult {
   /** 틀린 문제가 몰린 영역 (lessonCategory). 최대 2개 */
   weakAreas: string[];
   gemsEarned: number;
+  /** 지급 후 보석 잔액 (옛 서버는 안 보낸다) */
+  gems?: number;
   xpEarned: number;
   totalXP: number;
 }

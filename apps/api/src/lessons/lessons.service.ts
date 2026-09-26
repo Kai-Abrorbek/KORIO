@@ -56,6 +56,7 @@ import {
   LESSON_REPLAY_COOLDOWN_SEC,
   PRACTICE_COOLDOWN_SEC,
   PRACTICE_DAILY_LIMIT,
+  awardedXp,
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
@@ -1251,7 +1252,10 @@ export class LessonsService {
         totalLessons: totalCount,
         lessons: nodeLessons,
         lessonId: startLesson?.lessonId,
-        xpReward: startLessonObj?.xpReward ?? 0, // ✅ 시작할 레슨의 XP
+        // 화면에 보여줄 XP 는 **실제로 줄 값**이어야 한다. 시드의 xpReward 는
+        // 원값이라 지급 때 XP_AWARD_DIVISOR 로 나뉜다 — 그대로 내보내면
+        // 모달이 3배를 약속하고 끝나고 나서 1/3 을 준다 (economy.const.ts)
+        xpReward: awardedXp(startLessonObj?.xpReward ?? 0),
         legendCompleted: legendSet.has(node._id.toString()),
       });
     }
