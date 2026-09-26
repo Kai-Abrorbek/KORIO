@@ -24,6 +24,7 @@ import type {
   TopikExam,
 } from "@/types/topik";
 import { toTopikLanguage, topikText } from "@/types/topik";
+import { getContentLang } from "@/store/settings.store";
 
 const MODES: Array<{
   key: TopikAttemptMode;
@@ -57,7 +58,7 @@ const WRITING_PRACTICE_TYPES: Array<{
 
 function TopikHomeScreen() {
   const { t, i18n } = useTranslation();
-  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const language = toTopikLanguage(getContentLang());
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{

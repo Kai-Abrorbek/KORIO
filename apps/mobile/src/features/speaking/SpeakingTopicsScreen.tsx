@@ -22,6 +22,7 @@ import { formatSpeaking, useSpeakingCopy } from "./copy";
 import { useSpeakingPalette } from "./palette";
 import { LinearGradient } from "expo-linear-gradient";
 import TopicIllustration, { topicLookOf } from "./TopicIllustration";
+import { useContentLang, getContentLang } from "@/store/settings.store";
 
 type LoadState = {
   scope: string;
@@ -34,6 +35,7 @@ export default function SpeakingTopicsScreen() {
   const insets = useSafeAreaInsets();
   const { width, fontScale } = useWindowDimensions();
   const { t, i18n } = useTranslation();
+  const contentLang = useContentLang();
   const copy = useSpeakingCopy();
   const palette = useSpeakingPalette();
   const { canUse, requirePremium } = useFeatureAccess();
@@ -41,7 +43,7 @@ export default function SpeakingTopicsScreen() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const userId = useAuthStore((state) => state.user?.id);
   const sessionToken = useAuthStore((state) => state.accessToken);
-  const language = i18n.resolvedLanguage ?? i18n.language;
+  const language = contentLang;
   const allowed = isLoggedIn && canUse("expression");
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
@@ -70,7 +72,7 @@ export default function SpeakingTopicsScreen() {
           auth.isLoggedIn &&
           auth.user?.id === userId &&
           auth.accessToken === sessionToken &&
-          (i18n.resolvedLanguage ?? i18n.language) === language
+          getContentLang() === language
         );
       };
       void ExpressionService.getOverview()

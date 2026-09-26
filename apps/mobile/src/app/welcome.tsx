@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import HaneulmonMascot from "../components/home/HaneulmonMascot";
 import { ThemeColors } from "../constants/theme";
 import { useTheme } from "@/hooks/useTheme";
+import ContentLanguagePrompt from "@/components/settings/ContentLanguagePrompt";
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
@@ -40,6 +41,9 @@ export default function WelcomeScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* 한국어 폰으로 처음 연 사람 — 뜻·설명 언어를 설문 전에 정한다 */}
+      <ContentLanguagePrompt />
     </View>
   );
 }

@@ -7,6 +7,7 @@ import type {
 } from "@/types/topik";
 import { toTopikLanguage, topikText } from "@/types/topik";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
+import { getContentLang } from "@/store/settings.store";
 
 interface TopikHintPanelProps {
   support?: TopikLearningSupport;
@@ -26,7 +27,7 @@ export function TopikHintPanel({
   onRevealSolution,
 }: TopikHintPanelProps) {
   const { t, i18n } = useTranslation();
-  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const language = toTopikLanguage(getContentLang());
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
 

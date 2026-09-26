@@ -24,6 +24,7 @@ import MatchPairCard, { PairStatus } from "@/components/lesson/MatchPairCard";
 import { LessonService } from "@/services/lesson.service";
 import MatchProgressBar from "./MatchProgressBar";
 import XpRewardScreen from "./XpRewardScreen";
+import { getContentLang } from "@/store/settings.store";
 
 type Side = "left" | "right";
 
@@ -52,8 +53,8 @@ interface Reward {
   final?: boolean;
 }
 
-const langKey = () =>
-  (i18n.language?.split("-")[0] || "uz") as "ko" | "uz" | "en" | "ru";
+// 뜻은 설명 언어로 (한국어 UI 면 따로 고른 말)
+const langKey = (): "ko" | "uz" | "en" | "ru" => getContentLang();
 
 /** 서버가 준 단어를 판에 올릴 형태로 */
 const fromServer = (w: {

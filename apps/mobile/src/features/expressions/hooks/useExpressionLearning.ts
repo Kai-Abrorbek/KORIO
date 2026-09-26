@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { ExpressionService } from "@/services/expression.service";
 import type { ExpressionNodeLearningResponse } from "@/types/expression";
 import {
@@ -7,9 +6,10 @@ import {
   buildExpressionRecallQueue,
   type ExpressionLearningQueueItem,
 } from "../utils/expression-learning-queue";
+import { useContentLang } from "@/store/settings.store";
 
 export function useExpressionLearning(nodeCode: string) {
-  const { i18n } = useTranslation();
+  const contentLang = useContentLang();
   const [session, setSession] = useState<ExpressionNodeLearningResponse | null>(
     null,
   );
@@ -90,7 +90,7 @@ export function useExpressionLearning(nodeCode: string) {
 
   useEffect(() => {
     void load();
-  }, [i18n.resolvedLanguage, load]);
+  }, [contentLang, load]);
 
   const scheduleRetry = useCallback(() => {
     if (!current || current.kind === "retry") return false;

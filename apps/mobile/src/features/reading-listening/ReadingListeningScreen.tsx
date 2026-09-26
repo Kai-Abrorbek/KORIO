@@ -32,7 +32,7 @@ import type {
   ReadingVocabularyItem,
   ReadingWordGloss,
 } from "@/types/reading-listening";
-import { useSettingsStore } from "@/store/settings.store";
+import { useSettingsStore, useContentLang } from "@/store/settings.store";
 import * as Haptics from "@/utils/haptics";
 import { ReadingLessonImage } from "./ReadingLessonImage";
 import {
@@ -814,6 +814,8 @@ export default function ReadingListeningScreen() {
     ["ko", "uz", "en", "ru"].includes(language) ? language : "uz"
   ) as ReadingLanguage;
   const copy = UI_COPY[normalizedLanguage];
+  // 지문 번역·단어 뜻·주제는 설명 언어. 위 copy(버튼·안내)만 UI 언어다
+  const contentLanguage: ReadingLanguage = useContentLang();
   const isDark = theme.bg !== "#ffffff";
   const palette = useMemo(() => readingPalette(isDark), [isDark]);
   const localStyles = useMemo(() => createLocalStyles(palette), [palette]);
@@ -909,11 +911,11 @@ export default function ReadingListeningScreen() {
   const fontSize = [14, 15.5, 17][fontIndex] ?? 15.5;
   const lessonImageAlt = localizedReadingText(
     lesson.media.imageAlt,
-    normalizedLanguage,
+    contentLanguage,
   );
   const canShowWritingTranslation = hasReadingTranslation(
     lesson.writing.prompt,
-    normalizedLanguage,
+    contentLanguage,
   );
 
   // 순서가 바뀌었다: "확인 중"이 제일 위였는데, 이제는 읽는 동안 계속 채점이
@@ -1375,7 +1377,7 @@ export default function ReadingListeningScreen() {
                   {lesson.title}
                 </Text>
                 <Text style={[styles.heroTopic, { color: palette.sub }]}>
-                  {localizedReadingText(lesson.topic, normalizedLanguage)}
+                  {localizedReadingText(lesson.topic, contentLanguage)}
                 </Text>
                 <Text style={[styles.heroLead, { color: palette.sageDark }]}>
                   {copy.readLead}
@@ -1782,7 +1784,7 @@ export default function ReadingListeningScreen() {
                   >
                     {localizedReadingText(
                       activeVocabulary.meaning,
-                      normalizedLanguage,
+                      contentLanguage,
                     )}
                   </Text>
                 </Animated.View>
@@ -1826,7 +1828,7 @@ export default function ReadingListeningScreen() {
               const selectedAnswer = answers[question.id];
               const canShowQuestionTranslation = hasReadingTranslation(
                 question.prompt,
-                normalizedLanguage,
+                contentLanguage,
               );
               const translationVisible =
                 canShowQuestionTranslation &&
@@ -1913,7 +1915,7 @@ export default function ReadingListeningScreen() {
                       >
                         {localizedReadingText(
                           question.prompt,
-                          normalizedLanguage,
+                          contentLanguage,
                         )}
                       </Text>
                     </Animated.View>
@@ -1993,7 +1995,7 @@ export default function ReadingListeningScreen() {
                               >
                                 {localizedReadingText(
                                   option,
-                                  normalizedLanguage,
+                                  contentLanguage,
                                 )}
                               </Text>
                             ) : null}
@@ -2034,7 +2036,7 @@ export default function ReadingListeningScreen() {
                       {translationVisible &&
                       hasReadingTranslation(
                         question.explanation,
-                        normalizedLanguage,
+                        contentLanguage,
                       ) ? (
                         <Text
                           style={[
@@ -2044,7 +2046,7 @@ export default function ReadingListeningScreen() {
                         >
                           {localizedReadingText(
                             question.explanation,
-                            normalizedLanguage,
+                            contentLanguage,
                           )}
                         </Text>
                       ) : null}
@@ -2141,7 +2143,7 @@ export default function ReadingListeningScreen() {
                   >
                     {localizedReadingText(
                       lesson.writing.prompt,
-                      normalizedLanguage,
+                      contentLanguage,
                     )}
                   </Text>
                   <Text
@@ -2152,7 +2154,7 @@ export default function ReadingListeningScreen() {
                   >
                     {localizedReadingText(
                       lesson.writing.helper,
-                      normalizedLanguage,
+                      contentLanguage,
                     )}
                   </Text>
                 </Animated.View>
@@ -2320,7 +2322,7 @@ export default function ReadingListeningScreen() {
                           </View>
                           {localizedReadingText(
                             item.note,
-                            normalizedLanguage,
+                            contentLanguage,
                           ) ? (
                             <View
                               style={[
@@ -2336,7 +2338,7 @@ export default function ReadingListeningScreen() {
                               >
                                 {localizedReadingText(
                                   item.note,
-                                  normalizedLanguage,
+                                  contentLanguage,
                                 )}
                               </Text>
                             </View>
@@ -2353,7 +2355,7 @@ export default function ReadingListeningScreen() {
                             >
                               {localizedReadingText(
                                 item.meaning,
-                                normalizedLanguage,
+                                contentLanguage,
                               )}
                             </Text>
                             {item.example.trim() ? (
@@ -2420,7 +2422,7 @@ export default function ReadingListeningScreen() {
             <ReadingVocabularyPractice
               key={lesson.code}
               exercises={lesson.vocabularyExercises ?? []}
-              language={normalizedLanguage}
+              language={contentLanguage}
               palette={palette}
               responses={exerciseResponses}
               onChange={(exerciseId, blankId, value) => {
@@ -2473,7 +2475,7 @@ export default function ReadingListeningScreen() {
           word={glossWord}
           gloss={glossData}
           loading={glossLoading}
-          lang={normalizedLanguage}
+          lang={contentLanguage}
           copy={copy.wordGloss}
           palette={palette}
           onSpeak={(text) => speak(text, "ko-KR")}
@@ -2677,7 +2679,7 @@ export default function ReadingListeningScreen() {
                           >
                             {localizedReadingText(
                               item.topic,
-                              normalizedLanguage,
+                              contentLanguage,
                             )}
                           </Text>
                         </View>

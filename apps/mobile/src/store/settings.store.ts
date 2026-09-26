@@ -2,7 +2,13 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Href } from "expo-router";
-import i18n, { detectDeviceLanguage, type AppLanguage } from "../locales/i18n";
+import i18n, {
+  detectDeviceLanguage,
+  detectDeviceContentLanguage,
+  isContentLanguage,
+  type AppLanguage,
+  type ContentLanguage,
+} from "../locales/i18n";
 
 type Language = AppLanguage;
 export type Theme = "light" | "dark" | "system";
@@ -134,7 +140,14 @@ export interface WordStudyPosition {
 }
 
 interface SettingsState {
+  /** UI 언어 — 버튼·안내문 등 t() 로 그리는 글자 */
   language: Language;
+  /**
+   * 뜻·설명 언어. **UI 가 한국어일 때만** 쓰인다 (그 외엔 UI 언어 = 설명 언어).
+   * null 이면 아직 안 물어봤다 → ContentLanguagePrompt 가 한 번 묻는다.
+   * 실제로 쓸 값은 이 필드 말고 getContentLang() / useContentLang() 으로 읽는다.
+   */
+  contentLanguage: ContentLanguage | null;
   theme: Theme;
   learningTheme: LearningTheme;
   learnMode: LearnMode; // 현재 진행 중인 학습 모드
@@ -151,6 +164,7 @@ interface SettingsState {
   /** 이번 실행 동안만 음소거 (저장 안 함) */
   muted: boolean;
   setLanguage: (lang: Language) => void;
+  setContentLanguage: (lang: ContentLanguage) => void;
   setTheme: (theme: Theme) => void;
   setLearningTheme: (t: LearningTheme) => void;
   setLearnMode: (m: LearnMode) => void;
@@ -169,6 +183,7 @@ export const useSettingsStore = create<SettingsState>()(
       // 첫 실행은 기기 언어. 저장된 값이 있으면 rehydrate 가 덮어쓴다
       // (예전엔 "uz" 고정이라 러시아어·영어 폰도 설문부터 우즈벡어였다)
       language: detectDeviceLanguage(),
+      contentLanguage: null,
       theme: "system",
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
@@ -203,6 +218,7 @@ export const useSettingsStore = create<SettingsState>()(
         i18n.changeLanguage(lang);
         set({ language: lang });
       },
+      setContentLanguage: (contentLanguage) => set({ contentLanguage }),
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
@@ -243,6 +259,12 @@ export const useSettingsStore = create<SettingsState>()(
         // persist는 상태만 복원하고 사이드이펙트는 안 탐 → 저장된 언어로 i18n 재동기화
         if (state?.language) i18n.changeLanguage(state.language);
 
+        // 이 필드가 생기기 전 데이터에는 없다 (undefined). 이상한 값도 null 로 —
+        // 그래야 한국어 UI 쓰던 기존 유저에게 한 번 물어본다
+        if (state && !isContentLanguage(state.contentLanguage)) {
+          state.contentLanguage = null;
+        }
+
         // 예전에 바로가기 항목이 학습 모드로 저장된 적이 있다. 그대로 두면
         // 홈 제목이 번역 키 그대로 노출되므로 되돌린다.
         if (state?.learnMode && !LEARN_MODES.includes(state.learnMode)) {
@@ -269,3 +291,36 @@ export const useSettingsStore = create<SettingsState>()(
     },
   ),
 );
+
+/**
+ * 뜻·설명(학습 콘텐츠)에 쓸 언어를 정한다. **이 규칙은 여기 한 곳에만 둔다.**
+ *
+ *   UI 가 uz/ru/en → 그대로 (UI 언어 = 설명 언어)
+ *   UI 가 ko       → 따로 고른 contentLanguage, 안 골랐으면 기기 언어에서 추정
+ *
+ * 선 긋기:
+ *   · t() 로 그리는 글자(버튼·안내)         → UI 언어 (i18n.language)
+ *   · 서버에 보내는 lang, 뜻·번역·해설·TTS  → 설명 언어 (이것)
+ * 날짜 포맷·메일·푸시 문구는 UI 쪽이다.
+ */
+export function resolveContentLanguage(
+  uiLanguage: string | undefined,
+  saved: ContentLanguage | null,
+): ContentLanguage {
+  const base = (uiLanguage ?? "").toLowerCase().split(/[-_]/)[0];
+  if (isContentLanguage(base)) return base;
+  return saved ?? detectDeviceContentLanguage();
+}
+
+/** 컴포넌트 밖(서비스·유틸)용. 호출 시점의 값을 읽는다 */
+export const getContentLang = (): ContentLanguage => {
+  const st = useSettingsStore.getState();
+  return resolveContentLanguage(st.language, st.contentLanguage);
+};
+
+/** 컴포넌트용. 설명 언어가 바뀌면 다시 그린다 */
+export function useContentLang(): ContentLanguage {
+  const ui = useSettingsStore((st) => st.language);
+  const saved = useSettingsStore((st) => st.contentLanguage);
+  return resolveContentLanguage(ui, saved);
+}

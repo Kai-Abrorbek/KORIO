@@ -60,6 +60,7 @@ import {
   parseBlanks,
   templateOf,
 } from "@/utils/blank-sentence";
+import { useContentLang } from "@/store/settings.store";
 
 type Phase = "main" | "reviewIntro" | "review";
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
@@ -147,7 +148,8 @@ function automaticSpeechOf(
 }
 
 export default function LessonScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const lessonSpeech = useSpeech();
   const prewarmSpeech = lessonSpeech.prewarm;
@@ -606,7 +608,7 @@ export default function LessonScreen() {
   };
 
   const currentQ = questionQueue.current[0];
-  const learnerLanguage = i18n.resolvedLanguage ?? i18n.language;
+  const learnerLanguage = contentLang;
 
   useEffect(() => {
     if (!lesson || questionQueue.current.length === 0) return;

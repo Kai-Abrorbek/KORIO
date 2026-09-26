@@ -86,6 +86,33 @@ export function detectDeviceLanguage(): AppLanguage {
   return detected;
 }
 
+/**
+ * 뜻·설명에 쓸 수 있는 언어. **한국어는 없다** — 배우는 말이 곧 설명하는 말이
+ * 될 수는 없으니까. UI 를 한국어로 쓰는 사람은 이 중 하나를 따로 고른다
+ * (settings.store 의 contentLanguage, getContentLang 참고).
+ */
+export const CONTENT_LANGUAGES = ["uz", "ru", "en"] as const;
+export type ContentLanguage = (typeof CONTENT_LANGUAGES)[number];
+
+export const isContentLanguage = (v: unknown): v is ContentLanguage =>
+  typeof v === "string" &&
+  (CONTENT_LANGUAGES as readonly string[]).includes(v);
+
+/**
+ * 한국어 UI 인데 설명 언어를 아직 안 고른 사람의 기본값.
+ *
+ * 기기 언어 목록을 위에서부터 보고 uz/ru/en 중 처음 나오는 것.
+ * 한국 폰을 쓰는 우즈벡 사람이 딱 이 경우다 — [한국어, 우즈벡어] 폰이면
+ * 우즈벡어가 잡힌다. 아무것도 없으면 우즈벡어 (KORIO 의 기본 사용자층).
+ */
+export function detectDeviceContentLanguage(): ContentLanguage {
+  for (const raw of deviceLanguageCodes()) {
+    const code = raw.toLowerCase().split(/[-_]/)[0];
+    if (isContentLanguage(code)) return code;
+  }
+  return "uz";
+}
+
 i18n.use(initReactI18next).init({
   resources,
   // 첫 실행은 기기 언어. 설정에서 고르면 settings.store 가 저장·복원한다

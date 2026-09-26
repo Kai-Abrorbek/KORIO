@@ -18,6 +18,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { PARTICLE_QUESTIONS, ParticleQ } from "@/mocks/arcade.mock";
+import { useContentLang } from "@/store/settings.store";
 
 const START_TIME = 45;
 const MAX_TIME = 60;
@@ -28,7 +29,8 @@ export default function ParticleRushScreen() {
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
   const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
@@ -47,7 +49,7 @@ export default function ParticleRushScreen() {
   const lockRef = useRef(false);
 
   const q: ParticleQ = pool[qIdx % pool.length];
-  const lang = (i18n.language ?? "uz").slice(0, 2);
+  const lang = contentLang;
   const hint = lang === "ru" ? q.ru : lang === "en" ? q.en : q.uz;
   const [before, after] = q.sentence.split("___");
 

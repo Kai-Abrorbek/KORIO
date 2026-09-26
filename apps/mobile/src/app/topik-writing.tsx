@@ -34,6 +34,7 @@ import type {
   TopikSolution,
 } from "@/types/topik";
 import { flattenTopikQuestions, toTopikLanguage } from "@/types/topik";
+import { getContentLang } from "@/store/settings.store";
 
 type WritingResponses = Record<string, Record<string, string>>;
 
@@ -81,7 +82,7 @@ function createSaveAnswer(
 
 export default function TopikWritingScreen() {
   const { t, i18n } = useTranslation();
-  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const language = toTopikLanguage(getContentLang());
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{

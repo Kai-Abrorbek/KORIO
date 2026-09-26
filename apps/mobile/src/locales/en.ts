@@ -927,6 +927,13 @@ export default {
     language: {
       subtitle: "Choose your app language",
     },
+    /** 한국어 UI 일 때만 쓰는 뜻·설명 언어 (ContentLanguageSheet) */
+    contentLanguage: {
+      title: "Which language for meanings and explanations?",
+      desc: "The app stays in Korean — only word meanings, translations and grammar explanations appear in this language. You can change it anytime in Language settings.",
+      rowLabel: "Meanings & explanations",
+      rowHint: "Word meanings, translations, grammar notes",
+    },
     notifications: {
       channelDefault: "KORIO notifications",
       channelStudy: "Study reminders",

@@ -24,6 +24,7 @@ import {
   templateOf,
   toAnswerPayload,
 } from "@/utils/blank-sentence";
+import { useContentLang } from "@/store/settings.store";
 
 /** 말풍선 지문이 한국어인지 학습자 언어인지 가른다 */
 const HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
@@ -43,7 +44,8 @@ export default function TypeAnswer({
   isChecking = false,
   theme,
 }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const inputRefs = useRef<Record<number, TextInput | null>>({});
@@ -67,7 +69,7 @@ export default function TypeAnswer({
   // **글자를 보고 정한다** — 한글이 있으면 한국어, 없으면 학습자 언어.
   const promptLang = HANGUL.test(promptText)
     ? "ko-KR"
-    : speechLanguageOf(i18n.resolvedLanguage ?? i18n.language);
+    : speechLanguageOf(contentLang);
 
   // 빈칸 개수 제한 없음. 기존 단일 빈칸 문항은
   // sentencePrefix + ___ + sentenceSuffix 로 조립되어 그대로 동작한다.

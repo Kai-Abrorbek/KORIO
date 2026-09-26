@@ -925,6 +925,13 @@ export default {
     language: {
       subtitle: "앱에서 사용할 언어를 선택하세요",
     },
+    /** 한국어 UI 일 때만 쓰는 뜻·설명 언어 (ContentLanguageSheet) */
+    contentLanguage: {
+      title: "뜻·설명은 어떤 언어로 볼까요?",
+      desc: "화면은 한국어 그대로 두고, 단어 뜻·번역·문법 설명만 이 언어로 보여 드려요. 언어 설정에서 언제든 바꿀 수 있어요.",
+      rowLabel: "뜻·설명 언어",
+      rowHint: "단어 뜻·번역·문법 설명",
+    },
     notifications: {
       channelDefault: "KORIO 알림",
       channelStudy: "학습 알림",

@@ -16,7 +16,7 @@ export interface ReportedAnswer {
   questionType?: string;
 }
 import { AnswerGradeResult, LessonSession } from "@/types/lesson";
-import i18n from "@/locales/i18n";
+import { getContentLang } from "@/store/settings.store";
 
 /**
  * 연습 완료 모드. 서버 PRACTICE_BASE_XP 의 키와 1:1 로 맞아야 한다 —
@@ -33,7 +33,8 @@ export type PracticeMode =
   | "unitFinal";
 
 // 현재 유저 언어 가져오기
-const getLang = () => i18n.language?.split("-")[0] || "uz";
+// 서버에 보내는 lang 은 UI 언어가 아니라 **설명 언어**다 (한국어 UI 면 따로 고른 말)
+const getLang = getContentLang;
 
 export interface ScoreMilestone {
   score: number; // 그 섹션 끝까지의 누적 유닛 수

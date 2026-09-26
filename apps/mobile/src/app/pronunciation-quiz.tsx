@@ -31,6 +31,7 @@ import {
 import { UserService } from "@/services/user.service";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { glossOf } from "@/constants/pronunciation-gloss";
+import { useContentLang } from "@/store/settings.store";
 
 const C = {
   bgTop: "#cfe9f8",
@@ -92,7 +93,8 @@ const toQuestion = (
 };
 
 export default function PronunciationQuiz() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { speak, stop, prewarm } = useSpeech();
@@ -116,9 +118,9 @@ export default function PronunciationQuiz() {
   const QUESTIONS = useMemo<PQ[]>(
     () =>
       stageQuestionPlan(level, step).map((p) =>
-        toQuestion(p.pair, p.answer, i18n.language),
+        toQuestion(p.pair, p.answer, contentLang),
       ),
-    [level, step, i18n.language],
+    [level, step, contentLang],
   );
 
   const [index, setIndex] = useState(0);

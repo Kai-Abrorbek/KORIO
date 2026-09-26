@@ -21,10 +21,11 @@ import { TopikService } from "@/services/topik.service";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import type { TopikAttemptResult } from "@/types/topik";
 import { toTopikLanguage, topikText } from "@/types/topik";
+import { getContentLang } from "@/store/settings.store";
 
 export default function TopikResultScreen() {
   const { t, i18n } = useTranslation();
-  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const language = toTopikLanguage(getContentLang());
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{ attemptId?: string }>();

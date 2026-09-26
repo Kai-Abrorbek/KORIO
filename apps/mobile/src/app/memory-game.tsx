@@ -11,7 +11,7 @@ import WordMemoryGame from "@/components/hangul/games/WordMemoryGame";
 import { useGameWords } from "@/features/games/useGameWords";
 import { GameWordsGate } from "@/features/games/GameWordsGate";
 import { meaningOfWord } from "@/services/game-words.service";
-import { useTranslation as useT } from "react-i18next";
+import { useContentLang } from "@/store/settings.store";
 
 export default function MemoryGameScreen() {
   const router = useRouter();
@@ -22,10 +22,10 @@ export default function MemoryGameScreen() {
   // 제일 큰 레벨이 15쌍이라 넉넉히 받아둔다. 레벨을 올릴 때마다 다시
   // 부르면 카드가 바뀌어서 "외운 걸 다시 못 찾는" 이상한 판이 된다
   const { words: pool, loading, failed, reload } = useGameWords(40, 4);
-  const { i18n } = useT();
+  const contentLang = useContentLang();
   const pairs = (pool ?? []).map((w) => ({
     ko: w.ko,
-    uz: meaningOfWord(w, i18n.language),
+    uz: meaningOfWord(w, contentLang),
   }));
 
   const [level, setLevel] = useState(1);

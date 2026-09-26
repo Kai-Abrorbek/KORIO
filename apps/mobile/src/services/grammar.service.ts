@@ -1,8 +1,9 @@
-import i18n from "@/locales/i18n";
+import { getContentLang } from "@/store/settings.store";
 import api from "./api";
 import { Grammar, GrammarListResponse } from "@/types/grammar";
 
-const getLang = () => i18n.language?.split("-")[0] || "uz";
+// 서버에 보내는 lang 은 UI 언어가 아니라 **설명 언어**다 (한국어 UI 면 따로 고른 말)
+const getLang = getContentLang;
 
 export const GrammarService = {
   /** scoped 면 "다음 문법" 을 그 유닛 안에서만 찾는다 (학습 로드 모드) */

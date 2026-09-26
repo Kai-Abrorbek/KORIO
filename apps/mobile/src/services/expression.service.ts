@@ -1,4 +1,4 @@
-import i18n from "@/locales/i18n";
+import { getContentLang } from "@/store/settings.store";
 import api from "@/services/api";
 import type {
   ExpressionListResponse,
@@ -12,11 +12,8 @@ import type {
   StudyExpression,
 } from "@/types/expression";
 
-const getLang = () => {
-  const language = i18n.resolvedLanguage ?? i18n.language ?? "uz";
-  const normalized = language.split("-")[0];
-  return ["ko", "uz", "en", "ru"].includes(normalized) ? normalized : "uz";
-};
+// 서버에 보내는 lang 은 UI 언어가 아니라 **설명 언어**다 (한국어 UI 면 따로 고른 말)
+const getLang = getContentLang;
 
 const scopeQuery = (section?: number, unit?: number) => {
   const params = [`lang=${encodeURIComponent(getLang())}`];

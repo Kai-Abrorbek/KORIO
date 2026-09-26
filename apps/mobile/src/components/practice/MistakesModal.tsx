@@ -16,6 +16,7 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonService } from "@/services/lesson.service";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
+import { useContentLang } from "@/store/settings.store";
 
 const MIN_MISTAKES = 10; // 복습 시작 최소 오답 수
 const ORANGE = "#FF9600";
@@ -27,7 +28,8 @@ interface Props {
 }
 
 export default function MistakesModal({ visible, onClose, theme }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const router = useRouter();
   const s = styles(theme);
   const [data, setData] = useState<{ count: number; questions: any[] }>({
@@ -47,7 +49,7 @@ export default function MistakesModal({ visible, onClose, theme }: Props) {
       .finally(() => setLoading(false));
   }, [visible]);
 
-  const lang = i18n.language as "ko" | "uz" | "en" | "ru";
+  const lang: "ko" | "uz" | "en" | "ru" = contentLang;
   const canStart = data.count >= MIN_MISTAKES;
   const xp = Math.min(40, data.count * 2);
 

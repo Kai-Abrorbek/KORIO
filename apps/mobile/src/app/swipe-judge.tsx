@@ -25,6 +25,7 @@ import {
 } from "@/services/game-words.service";
 import { useGameWords } from "@/features/games/useGameWords";
 import { GameWordsGate } from "@/features/games/GameWordsGate";
+import { useContentLang } from "@/store/settings.store";
 
 const GAME_SECONDS = 60;
 const SWIPE_TH = 110;
@@ -56,7 +57,8 @@ export default function SwipeJudgeScreen() {
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
   const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -66,8 +68,8 @@ export default function SwipeJudgeScreen() {
 
   // 단어가 도착하면 그때 덱을 만든다
   useEffect(() => {
-    if (pool?.length) setDeck(makeDeck(pool, i18n.language));
-  }, [pool, i18n.language]);
+    if (pool?.length) setDeck(makeDeck(pool, contentLang));
+  }, [pool, contentLang]);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -103,14 +105,14 @@ export default function SwipeJudgeScreen() {
       const next = i + 1;
       if (next >= deck.length) {
         // 덱을 다 쓰면 같은 단어 묶음으로 다시 섞는다
-        if (pool?.length) setDeck(makeDeck(pool, i18n.language));
+        if (pool?.length) setDeck(makeDeck(pool, contentLang));
         return 0;
       }
       return next;
     });
     tx.value = 0;
     lockRef.current = false;
-  }, [deck.length, i18n.language, pool]);
+  }, [deck.length, contentLang, pool]);
 
   const judge = useCallback(
     (saidTrue: boolean) => {
@@ -174,7 +176,7 @@ export default function SwipeJudgeScreen() {
   });
 
   const restart = () => {
-    if (pool?.length) setDeck(makeDeck(pool, i18n.language));
+    if (pool?.length) setDeck(makeDeck(pool, contentLang));
     setIdx(0);
     setScore(0);
     setCombo(0);

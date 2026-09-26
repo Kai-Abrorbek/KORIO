@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
 import { useFocusEffect } from "expo-router";
-import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/auth.store";
 import { speakingCursorOf, useSpeakingCursorStore } from "@/store/speaking.store";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -16,6 +15,7 @@ import {
   type SpeakingMask,
   type SpeakingResults,
 } from "./session";
+import { useContentLang } from "@/store/settings.store";
 
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
 export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
@@ -65,10 +65,10 @@ const recorderErrors: Record<SpeechRecorderError, SpeakingError> = {
 };
 
 export function useSpeakingPractice(packCode: string) {
-  const { i18n } = useTranslation();
+  const contentLang = useContentLang();
   const userId = useAuthStore((s) => s.user?.id);
   const loggedIn = useAuthStore((s) => s.isLoggedIn);
-  const language = i18n.resolvedLanguage || i18n.language;
+  const language = contentLang;
   const identity = `${userId ?? ""}|${language}|${packCode}`;
   const [data, setData] = useState<ExpressionListResponse | null>(null);
   const [loading, setLoading] = useState(true);

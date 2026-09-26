@@ -23,6 +23,7 @@ import { meaningOfWord as meaningOf } from "@/services/game-words.service";
 import { useGameWords } from "@/features/games/useGameWords";
 import { GameWordsGate } from "@/features/games/GameWordsGate";
 import type { GameWord as WordPair } from "@/services/game-words.service";
+import { useContentLang } from "@/store/settings.store";
 
 const MAX_HEARTS = 3;
 const START_FALL_MS = 6000;
@@ -33,7 +34,8 @@ export default function WordRainScreen() {
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
   const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
@@ -78,11 +80,11 @@ export default function WordRainScreen() {
       .sort(() => Math.random() - 0.5)
       .slice(0, 2);
     const opts = [w, ...wrongs]
-      .map((x) => meaningOf(x, i18n.language))
+      .map((x) => meaningOf(x, contentLang))
       .sort(() => Math.random() - 0.5);
     setWord(w);
     setOptions(opts);
-  }, [i18n.language, pool]);
+  }, [contentLang, pool]);
 
   // 새 단어 낙하 시작
   const drop = useCallback(() => {
@@ -129,7 +131,7 @@ export default function WordRainScreen() {
     lockRef.current = true;
     cancelAnimation(fallY);
 
-    if (opt === meaningOf(word, i18n.language)) {
+    if (opt === meaningOf(word, contentLang)) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       // 팡 터지는 연출
       wordScale.value = withSequence(

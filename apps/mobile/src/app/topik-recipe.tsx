@@ -27,6 +27,7 @@ import type {
   TopikRecipeDetail,
   TopikRecipeQuestion,
 } from "@/types/topik-recipe";
+import { getContentLang } from "@/store/settings.store";
 
 const CHOICE_MARK = ["①", "②", "③", "④"];
 
@@ -34,7 +35,7 @@ export default function TopikRecipeScreen() {
   const { t, i18n } = useTranslation();
   const palette = useTopikTheme();
   const s = useMemo(() => styles(palette), [palette]);
-  const lang = toTopikLanguage(i18n.language);
+  const lang = toTopikLanguage(getContentLang());
   const { groupCode } = useLocalSearchParams<{ groupCode?: string }>();
 
   const [recipe, setRecipe] = useState<TopikRecipeDetail | null>(null);

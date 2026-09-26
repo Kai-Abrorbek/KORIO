@@ -25,6 +25,7 @@ import type {
   TopikTypePerformance,
 } from "@/types/topik";
 import { toTopikLanguage } from "@/types/topik";
+import { getContentLang } from "@/store/settings.store";
 
 type StatsExamType = "topik_i" | "topik_ii";
 type StatsSection = "all" | "listening" | "reading" | "writing";
@@ -60,7 +61,7 @@ function normalizedSection(value?: string): StatsSection {
 export default function TopikStatsScreen() {
   const { t, i18n } = useTranslation();
   const params = useLocalSearchParams<{ level?: string; section?: string }>();
-  const language = toTopikLanguage(i18n.resolvedLanguage ?? i18n.language);
+  const language = toTopikLanguage(getContentLang());
   const palette = useTopikTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const [examType, setExamType] = useState<StatsExamType>(() =>

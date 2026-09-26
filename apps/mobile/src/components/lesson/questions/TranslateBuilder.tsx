@@ -22,6 +22,7 @@ import CheckButton from "../CheckButton";
 import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
 import { speechLanguageOf } from "@/utils/speech-language";
 import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
+import { useContentLang } from "@/store/settings.store";
 
 /**
  * 말풍선에 무엇을 담느냐만 다르고 나머지 화면은 같아서 한 컴포넌트로 쓴다.
@@ -57,7 +58,8 @@ export default function TranslateBuilder({
   mode = "translate",
   speech,
 }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } = speech;
   const s = styles(theme, LINE_H);
   const isReply = mode === "reply";
@@ -73,7 +75,7 @@ export default function TranslateBuilder({
     )?.trim() ?? "";
   const speechLanguage = isReply
     ? "ko-KR"
-    : speechLanguageOf(i18n.resolvedLanguage ?? i18n.language);
+    : speechLanguageOf(contentLang);
   const spokenWords = useMemo(
     () => sourceText.split(/\s+/u).filter(Boolean),
     [sourceText],

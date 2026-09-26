@@ -30,6 +30,7 @@ import type {
   TopikRecipeQuestion,
   TopikRecipeSolutionEntry,
 } from "@/types/topik-recipe";
+import { getContentLang } from "@/store/settings.store";
 
 type Phase = "solving" | "result";
 
@@ -37,7 +38,7 @@ export default function TopikPracticeScreen() {
   const { t, i18n } = useTranslation();
   const palette = useTopikTheme();
   const s = useMemo(() => styles(palette), [palette]);
-  const lang = toTopikLanguage(i18n.language);
+  const lang = toTopikLanguage(getContentLang());
   const insets = useSafeAreaInsets();
   const { groupCode } = useLocalSearchParams<{ groupCode?: string }>();
 

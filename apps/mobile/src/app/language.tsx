@@ -19,7 +19,14 @@ import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useSettingsStore } from "@/store/settings.store";
+import { useState } from "react";
+import { useSettingsStore, useContentLang } from "@/store/settings.store";
+import {
+  detectDeviceContentLanguage,
+  type AppLanguage,
+  type ContentLanguage,
+} from "@/locales/i18n";
+import ContentLanguageSheet from "@/components/settings/ContentLanguageSheet";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -32,6 +39,13 @@ const LANGUAGES = [
 ] as const;
 
 type Lang = (typeof LANGUAGES)[number];
+
+/** 설명 언어 이름도 원어로 */
+const CONTENT_NAMES: Record<ContentLanguage, string> = {
+  uz: "O'zbek",
+  ru: "Русский",
+  en: "English",
+};
 
 function LangCard({
   item,
@@ -95,7 +109,21 @@ export default function LanguageSettings() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
-  const { language, setLanguage } = useSettingsStore();
+  const { language, setLanguage, contentLanguage, setContentLanguage } =
+    useSettingsStore();
+  const contentLang = useContentLang();
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const pick = (code: AppLanguage) => {
+    setLanguage(code);
+    // 한국어 UI 는 뜻·설명을 한국어로 줄 수 없다 → 처음 고를 때 한 번 묻는다.
+    // 기본값을 **먼저** 저장한다: 비어 있으면 메인 탭의 ContentLanguagePrompt 도
+    // 같이 떠서 시트가 두 장 겹친다. 닫기만 해도 이 기본값이 남는다
+    if (code === "ko" && !contentLanguage) {
+      setContentLanguage(detectDeviceContentLanguage());
+      setSheetOpen(true);
+    }
+  };
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 4 }]}>
@@ -122,11 +150,56 @@ export default function LanguageSettings() {
               theme={theme}
               s={s}
               selected={language === item.code}
-              onPress={() => setLanguage(item.code)}
+              onPress={() => pick(item.code)}
             />
           ))}
         </View>
+
+        {/* 한국어 UI 일 때만 — 뜻·설명은 어느 말로 볼지 */}
+        {language === "ko" && (
+          <Animated.View entering={FadeInDown.duration(320)}>
+            <Pressable
+              style={({ pressed }) => [
+                s.contentRow,
+                pressed && { transform: [{ translateY: 2 }] },
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setSheetOpen(true);
+              }}
+              accessibilityRole="button"
+            >
+              <View style={s.contentIcon}>
+                <Ionicons name="book" size={18} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.contentLabel}>
+                  {t("settings.contentLanguage.rowLabel")}
+                </Text>
+                <Text style={s.contentHint} numberOfLines={1}>
+                  {t("settings.contentLanguage.rowHint")}
+                </Text>
+              </View>
+              <Text style={s.contentValue}>{CONTENT_NAMES[contentLang]}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={theme.textSecondary}
+              />
+            </Pressable>
+          </Animated.View>
+        )}
       </View>
+
+      <ContentLanguageSheet
+        visible={sheetOpen}
+        value={contentLang}
+        onConfirm={(lang) => {
+          setContentLanguage(lang);
+          setSheetOpen(false);
+        }}
+        onClose={() => setSheetOpen(false)}
+      />
     </View>
   );
 }
@@ -189,6 +262,37 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    contentRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      marginTop: 22,
+      backgroundColor: theme.surface,
+      borderWidth: 2,
+      borderColor: theme.border,
+      borderBottomWidth: 4,
+      borderRadius: 18,
+      paddingVertical: 13,
+      paddingHorizontal: 14,
+    },
+    contentIcon: {
+      width: 34,
+      height: 34,
+      borderRadius: 11,
+      backgroundColor: theme.primary,
+      borderBottomWidth: 3,
+      borderBottomColor: "#5b52c4",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    contentLabel: { fontSize: 15, fontWeight: "800", color: theme.text },
+    contentHint: {
+      fontSize: 12.5,
+      color: theme.textSecondary,
+      marginTop: 1,
+      fontWeight: "500",
+    },
+    contentValue: { fontSize: 14, fontWeight: "800", color: theme.primary },
     checkOff: {
       width: 26,
       height: 26,

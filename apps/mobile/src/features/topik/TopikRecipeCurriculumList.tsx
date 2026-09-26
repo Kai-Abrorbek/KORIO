@@ -13,6 +13,7 @@ import type {
 } from "@/features/topik/topik-recipe-curriculum";
 import { toTopikLanguage, topikText } from "@/types/topik";
 import type { TopikRecipeSummary } from "@/types/topik-recipe";
+import { getContentLang } from "@/store/settings.store";
 
 type RecipeSection = "reading" | "listening" | "writing";
 
@@ -44,7 +45,7 @@ export function TopikRecipeCurriculumList({
   const { t, i18n } = useTranslation();
   const palette = useTopikTheme();
   const s = useMemo(() => styles(palette), [palette]);
-  const lang = toTopikLanguage(i18n.language);
+  const lang = toTopikLanguage(getContentLang());
 
   return (
     <ScrollView

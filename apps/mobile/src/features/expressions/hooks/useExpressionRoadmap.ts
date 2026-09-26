@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
-import { useTranslation } from "react-i18next";
 import { ExpressionService } from "@/services/expression.service";
 import type { ExpressionRoadmapResponse } from "@/types/expression";
+import { useContentLang } from "@/store/settings.store";
 
 export function useExpressionRoadmap() {
-  const { i18n } = useTranslation();
+  const contentLang = useContentLang();
   const [roadmap, setRoadmap] = useState<ExpressionRoadmapResponse | null>(
     null,
   );
@@ -31,7 +31,7 @@ export function useExpressionRoadmap() {
   useFocusEffect(
     useCallback(() => {
       void load();
-    }, [i18n.resolvedLanguage, load]),
+    }, [contentLang, load]),
   );
 
   return { roadmap, loading, loadFailed, reload: load };

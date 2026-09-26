@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
-import { useTranslation } from "react-i18next";
 import { StudyPathService } from "@/services/study-path.service";
 import type { StudyPathResponse } from "@/types/study-path";
+import { useContentLang } from "@/store/settings.store";
 
 export function useStudyPath() {
-  const { i18n } = useTranslation();
+  const contentLang = useContentLang();
   const [data, setData] = useState<StudyPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -28,7 +28,7 @@ export function useStudyPath() {
   useFocusEffect(
     useCallback(() => {
       void load();
-    }, [i18n.resolvedLanguage, load]),
+    }, [contentLang, load]),
   );
 
   return { data, loading, loadFailed, reload: load };

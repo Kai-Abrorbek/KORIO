@@ -932,6 +932,13 @@ export default {
     language: {
       subtitle: "Ilova tilini tanlang",
     },
+    /** 한국어 UI 일 때만 쓰는 뜻·설명 언어 (ContentLanguageSheet) */
+    contentLanguage: {
+      title: "Ma'no va izohlar qaysi tilda bo'lsin?",
+      desc: "Ekran koreys tilida qoladi — faqat so'z ma'nolari, tarjimalar va grammatika izohlari shu tilda ko'rsatiladi. Til sozlamalarida istalgan vaqt o'zgartirish mumkin.",
+      rowLabel: "Ma'no va izohlar tili",
+      rowHint: "So'z ma'nolari, tarjima, grammatika izohlari",
+    },
     notifications: {
       channelDefault: "KORIO bildirishnomalari",
       channelStudy: "Dars eslatmalari",

@@ -29,6 +29,7 @@ import {
   type TutorTopicCard,
 } from "../services/tutor.api";
 import { useTutorPrefs } from "../store/tutor-prefs.store";
+import { useContentLang } from "@/store/settings.store";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -83,6 +84,7 @@ export interface TutorSetupScreenProps {
  */
 export function TutorSetupScreen(p: TutorSetupScreenProps) {
   const { t, i18n } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
@@ -102,9 +104,9 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
    */
   const teachingLanguage: TutorTeachingLanguage = useMemo(() => {
     if (savedLang) return savedLang;
-    const base = (i18n.language?.split("-")[0] ?? "uz") as TutorTeachingLanguage;
+    const base = contentLang as TutorTeachingLanguage;
     return TUTOR_TEACHING_LANGUAGES.includes(base) ? base : "uz";
-  }, [savedLang, i18n.language]);
+  }, [savedLang, contentLang]);
 
   const [teachers, setTeachers] = useState<TutorTeacherCard[] | null>(null);
   const [topics, setTopics] = useState<TutorTopicCard[] | null>(null);

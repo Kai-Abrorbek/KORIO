@@ -41,7 +41,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { WordService } from "@/services/word.service";
-import { useSettingsStore } from "@/store/settings.store";
+import { useSettingsStore, useContentLang } from "@/store/settings.store";
 import type {
   StudyWord,
   WordSectionSummary,
@@ -1152,7 +1152,8 @@ export default function WordStudyScreen() {
   // loadWords 의 의존성 배열이 즉시 평가되므로 그보다 위에서 선언해야 한다
   const studyLesson = Math.max(1, Number(params.lesson) || 1);
   const studyLessonCount = Math.max(1, Number(params.lessonCount) || 1);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -1274,10 +1275,10 @@ export default function WordStudyScreen() {
     void loadSummaries();
   }, [loadSummaries]);
 
-  const activeLanguage = i18n.resolvedLanguage ?? i18n.language;
+  const activeLanguage = contentLang;
   const loadWords = useCallback(async () => {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
-    // 서비스가 i18n에서 언어를 읽으므로 언어 변경 시 이 콜백을 새로 만든다.
+    // 서비스가 설명 언어로 요청하므로 언어가 바뀌면 이 콜백을 새로 만든다.
     void activeLanguage;
     setWordsLoading(true);
     setLoadFailed(false);
