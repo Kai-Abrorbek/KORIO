@@ -1156,7 +1156,7 @@ export default function WordStudyScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { speak, stop, isSpeaking } = useSpeech();
+  const { speak, stop, isSpeaking, prewarm } = useSpeech();
   // 카드를 넘겨 본 단어는 "학습 중"으로 올라간다. 학습 로드 모드의 단어 노드가
   // 이걸로 완료 여부를 판단한다.
   const { markSeen, flush: flushSeen } = useSeenWords();
@@ -1382,6 +1382,25 @@ export default function WordStudyScreen() {
   useEffect(() => {
     markSeen(currentWordId);
   }, [currentWordId, markSeen]);
+
+  /**
+   * 다음 카드들 음성을 미리 받아 둔다.
+   *
+   * speak() 한 번에 왕복이 두 번 든다 — /tts/speech 로 audioId 를 받고, 그 URL 을
+   * 다시 받아 디코딩한다(useSpeech 주석). 카드를 넘긴 **뒤에** 그게 돌면 한 박자
+   * 늦게 읽어주는 것처럼 들린다. 단어 카드는 다음에 나올 말을 이미 알고 있으니
+   * 미리 받아 두면 넘기는 즉시 소리가 난다.
+   */
+  useEffect(() => {
+    const upcoming = words
+      .slice(cardIndex, cardIndex + 4)
+      .map(
+        (w) =>
+          w.pronunciation.ttsText || w.pronunciation.hangul || w.headword,
+      )
+      .filter(Boolean);
+    if (upcoming.length) prewarm(upcoming, "ko-KR");
+  }, [cardIndex, words, prewarm]);
 
   useEffect(() => {
     if (
