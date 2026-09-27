@@ -109,7 +109,6 @@ export function useVoiceTutor() {
     setSpokenMessage(null);
     setPreviewVoiceId(null);
     player.pause();
-    player.replace(null);
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
     objectUrl.current = null;
   }, [player]);
