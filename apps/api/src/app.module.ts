@@ -14,6 +14,7 @@ import { LeagueModule } from './league/league.module';
 import { EnergyModule } from './energy/energy.module';
 import { AiModule } from './ai/ai.module';
 import { TutorModule } from './tutor/tutor.module';
+import { VoiceTutorModule } from './voice-tutor/voice-tutor.module';
 import { GrammarModule } from './grammer/grammar.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -55,6 +56,7 @@ import { AdminModule } from './admin/admin.module';
     EnergyModule,
     AiModule,
     TutorModule,
+    VoiceTutorModule,
     GrammarModule,
     TopikModule,
     HangulModule,
