@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, mongo } from 'mongoose';
 import {
   VoiceTutorAudio,
   VoiceTutorAudioDocument,
@@ -35,6 +39,11 @@ export class VoiceTutorAudioService {
       })
       .lean();
     if (!row) throw new NotFoundException('VOICE_TUTOR_AUDIO_NOT_FOUND');
-    return Buffer.from(row.data);
+    // Lean queries expose MongoDB Buffer fields as BSON Binary. Buffer.from(Binary)
+    // silently produces an empty buffer, so extract the actual byte sequence.
+    const stored: unknown = row.data;
+    if (stored instanceof mongo.Binary) return Buffer.from(stored.value());
+    if (Buffer.isBuffer(stored)) return Buffer.from(stored);
+    throw new InternalServerErrorException('VOICE_TUTOR_AUDIO_INVALID');
   }
 }

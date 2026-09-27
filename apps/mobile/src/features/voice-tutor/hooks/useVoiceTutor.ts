@@ -44,8 +44,6 @@ export function useVoiceTutor() {
   const [progress, setProgress] = useState<VoiceTutorProgress | null>(null);
   const [plan, setPlan] = useState<VoiceTutorPlan | null>(null);
   const [endResult, setEndResult] = useState<VoiceTutorEnd | null>(null);
-  const [audioAmplitude, setAudioAmplitude] = useState<number | null>(null);
-  const [samplingEnabled, setSamplingEnabled] = useState(false);
   const [spokenMessage, setSpokenMessage] = useState<VoiceTutorMessage | null>(null);
   const [previewVoiceId, setPreviewVoiceId] = useState<string | null>(null);
 
@@ -55,7 +53,6 @@ export function useVoiceTutor() {
   const sessionId = useRef<string | null>(null);
   const actionBusy = useRef(false);
   const closing = useRef(false);
-  const pendingPlayback = useRef(false);
   const playbackEpoch = useRef(0);
   const turnAbort = useRef<AbortController | null>(null);
   const recordingIntent = useRef(false);
@@ -64,36 +61,7 @@ export function useVoiceTutor() {
   const recordTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thinkingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(true);
-  const lastSampleAt = useRef(0);
   const objectUrl = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!samplingEnabled || !player.isAudioSamplingSupported) return;
-    try {
-      player.setAudioSamplingEnabled(true);
-    } catch {
-      // Playback still works; the character controller uses speaking cadence.
-      return;
-    }
-    const subscription = player.addListener("audioSampleUpdate", (sample) => {
-      const now = Date.now();
-      if (now - lastSampleAt.current < 55) return;
-      lastSampleAt.current = now;
-      const frames = sample.channels[0]?.frames;
-      if (!frames?.length) return;
-      let power = 0;
-      for (const value of frames) power += value * value;
-      setAudioAmplitude(Math.min(1, Math.sqrt(power / frames.length) * 3));
-    });
-    return () => {
-      subscription.remove();
-      try {
-        player.setAudioSamplingEnabled(false);
-      } catch {
-        // The player may already be released while leaving the lesson.
-      }
-    };
-  }, [player, samplingEnabled]);
 
   const clearTimers = useCallback(() => {
     if (recordTimer.current) clearTimeout(recordTimer.current);
@@ -102,15 +70,20 @@ export function useVoiceTutor() {
     thinkingTimer.current = null;
   }, []);
 
-  const stopPlayback = useCallback(() => {
+  const stopPlayback = useCallback(async () => {
     playbackEpoch.current += 1;
-    pendingPlayback.current = false;
-    setAudioAmplitude(null);
     setSpokenMessage(null);
     setPreviewVoiceId(null);
-    player.pause();
-    if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+    const url = objectUrl.current;
     objectUrl.current = null;
+    try {
+      // Expo releases hook-owned players on unmount. Native methods can reject
+      // asynchronously even though their TypeScript return type is void.
+      await player.pause();
+    } catch {
+      // A released player is already stopped; recording must remain usable.
+    }
+    if (url) URL.revokeObjectURL(url);
   }, [player]);
 
   const stopRecorder = useCallback(async () => {
@@ -129,13 +102,11 @@ export function useVoiceTutor() {
     setLoading(true);
     setError(null);
     try {
-      const [available, saved, permission] = await Promise.all([
+      const [available, saved] = await Promise.all([
         VoiceTutorApi.options(),
         VoiceTutorApi.settings(),
-        getRecordingPermissionsAsync().catch(() => null),
       ]);
       if (!mounted.current) return;
-      setSamplingEnabled(permission?.granted ?? false);
       setOptions(available);
       setSettings({
         ...available.defaults,
@@ -159,11 +130,9 @@ export function useVoiceTutor() {
       playbackEpoch.current += 1;
       turnAbort.current?.abort();
       recordingIntent.current = false;
-      pendingPlayback.current = false;
-      player.pause();
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
       objectUrl.current = null;
-      if (!closing.current && recorder.isRecording) {
+      if (!closing.current) {
         void stopRecorder().catch(() => undefined);
       }
       const id = sessionId.current;
@@ -172,30 +141,24 @@ export function useVoiceTutor() {
         void VoiceTutorApi.endSession(id).catch(() => undefined);
       }
     };
-  }, [clearTimers, load, player, recorder, stopRecorder]);
+  }, [clearTimers, load, stopRecorder]);
 
   useEffect(() => {
     if (playerStatus.error) {
-      pendingPlayback.current = false;
       setError("AUDIO_PLAYBACK_FAILED");
       setSpokenMessage(null);
       setPreviewVoiceId(null);
       setPhase((current) => (current === "speaking" ? "ready" : current));
       return;
     }
-    if (pendingPlayback.current && playerStatus.isLoaded) {
-      pendingPlayback.current = false;
-      player.play();
-    }
     if (playerStatus.didJustFinish) {
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
       objectUrl.current = null;
       setSpokenMessage(null);
       setPreviewVoiceId(null);
-      setAudioAmplitude(null);
       setPhase((current) => (current === "speaking" ? "ready" : current));
     }
-  }, [player, playerStatus.didJustFinish, playerStatus.error, playerStatus.isLoaded]);
+  }, [playerStatus.didJustFinish, playerStatus.error]);
 
   const playMessage = useCallback(
     async (message: VoiceTutorMessage) => {
@@ -205,7 +168,7 @@ export function useVoiceTutor() {
         setPhase("ready");
         return;
       }
-      stopPlayback();
+      await stopPlayback();
       const epoch = playbackEpoch.current;
       try {
         await activatePlaybackAudio("doNotMix");
@@ -216,10 +179,13 @@ export function useVoiceTutor() {
           return;
         }
         if (source.objectUrl) objectUrl.current = source.uri;
+        await player.replace(source);
+        if (epoch !== playbackEpoch.current || closing.current || recordingIntent.current || !mounted.current) return;
+        await player.play();
+        if (epoch !== playbackEpoch.current || closing.current || recordingIntent.current || !mounted.current) return;
+        setError(null);
         setSpokenMessage(message);
-        pendingPlayback.current = true;
         setPhase("speaking");
-        player.replace(source);
       } catch (cause) {
         if (epoch !== playbackEpoch.current || closing.current || !mounted.current) return;
         setError(errorCode(cause));
@@ -232,7 +198,7 @@ export function useVoiceTutor() {
   const previewVoice = useCallback(async (voice: VoiceTutorVoice) => {
     if (!voice.previewUrl || sessionId.current || actionBusy.current || closing.current) return;
     if (previewVoiceId === voice.id) {
-      stopPlayback();
+      await stopPlayback();
       return;
     }
     let uri: string;
@@ -244,26 +210,29 @@ export function useVoiceTutor() {
       setError("INVALID_AUDIO_URL");
       return;
     }
-    stopPlayback();
-    const epoch = playbackEpoch.current;
     try {
+      await stopPlayback();
+      const epoch = playbackEpoch.current;
       await activatePlaybackAudio("doNotMix");
       if (!mounted.current || sessionId.current || epoch !== playbackEpoch.current) return;
-      pendingPlayback.current = true;
+      await player.replace({ uri });
+      if (!mounted.current || sessionId.current || epoch !== playbackEpoch.current) return;
+      await player.play();
+      if (!mounted.current || sessionId.current || epoch !== playbackEpoch.current) return;
+      setError(null);
       setPreviewVoiceId(voice.id);
-      player.replace({ uri });
     } catch (cause) {
-      if (mounted.current && epoch === playbackEpoch.current) setError(errorCode(cause));
+      if (mounted.current) setError(errorCode(cause));
     }
   }, [player, previewVoiceId, stopPlayback]);
 
   const start = useCallback(async () => {
     if (!settings || actionBusy.current || sessionId.current) return;
     actionBusy.current = true;
-    stopPlayback();
     setError(null);
     setPhase("starting");
     try {
+      await stopPlayback();
       await VoiceTutorApi.updateSettings(settings);
       const created = await VoiceTutorApi.createSession(settings);
       if (!mounted.current) {
@@ -333,15 +302,14 @@ export function useVoiceTutor() {
     actionBusy.current = true;
     recordingIntent.current = true;
     setError(null);
-    stopPlayback();
     let started = false;
     try {
+      await stopPlayback();
       const currentPermission = await getRecordingPermissionsAsync();
       const permission = currentPermission.granted
         ? currentPermission
         : await requestRecordingPermissionsAsync();
       if (!permission.granted) throw new Error("MIC_PERMISSION_DENIED");
-      setSamplingEnabled(true);
       if (closing.current || !sessionId.current) return;
       await activateRecordingAudio();
       if (closing.current || !sessionId.current) return;
@@ -364,7 +332,7 @@ export function useVoiceTutor() {
   }, [recorder, stopPlayback, stopRecording]);
 
   const interrupt = useCallback(() => {
-    stopPlayback();
+    void stopPlayback();
     setPhase("ready");
   }, [stopPlayback]);
 
@@ -377,10 +345,10 @@ export function useVoiceTutor() {
     recordingIntent.current = false;
     turnAbort.current?.abort();
     clearTimers();
-    stopPlayback();
     setError(null);
     setPhase("ending");
     try {
+      await stopPlayback();
       await stopRecorder().catch(() => undefined);
       await activatePlaybackAudio("mixWithOthers").catch(() => undefined);
       let result = await VoiceTutorApi.endSession(id);
@@ -446,7 +414,7 @@ export function useVoiceTutor() {
     spokenMessage,
     previewVoiceId,
     previewVoice,
-    audioAmplitude,
+    audioAmplitude: null,
     load,
     start,
     startRecording,
