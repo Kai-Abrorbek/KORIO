@@ -198,8 +198,9 @@ export const LessonService = {
   getWordPractice: (): Promise<{ questions: any[] }> =>
     api.get(`/lessons/word-practice`),
 
+  // lang 을 안 보내면 서버 기본값(uz)으로 와서 러시아어·영어 사용자도 오답 복습이 우즈벡어였다
   getMistakeQuestions: (): Promise<{ questions: any[] }> =>
-    api.get(`/lessons/mistake-questions`),
+    api.get(`/lessons/mistake-questions?lang=${getLang()}`),
 
   resolveMistakes: (correctIds: string[]): Promise<{ removed: number }> =>
     api.post(`/lessons/mistakes/resolve`, { correctIds }),
