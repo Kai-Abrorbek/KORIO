@@ -102,13 +102,11 @@ export interface VoiceTutorSession {
   settings: VoiceTutorSettings;
   plan: VoiceTutorPlan;
   initialMessage: VoiceTutorMessage | null;
-}
-
-export interface VoiceTutorTurn {
-  userMessage: VoiceTutorMessage;
-  teacherMessage: VoiceTutorMessage;
-  progress?: VoiceTutorProgress;
-  warning?: string | null;
+  livekit: {
+    serverUrl: string;
+    roomName: string;
+    participantToken: string;
+  };
 }
 
 export interface VoiceTutorEnd {
@@ -127,55 +125,6 @@ export interface VoiceTutorSessionDetail {
   messages: VoiceTutorMessage[];
 }
 
-async function uploadTurn(sessionId: string, uri: string, signal?: AbortSignal): Promise<VoiceTutorTurn> {
-  const token = await TokenStorage.get();
-  if (!token) throw new ApiError("UNAUTHORIZED", 401);
-  if (signal?.aborted) throw new ApiError("VOICE_TUTOR_CANCELLED");
-
-  const form = new FormData();
-  const isWebm = uri.toLowerCase().endsWith(".webm");
-  if (Platform.OS === "web") {
-    const recording = await fetch(uri).then((result) => result.blob());
-    if (recording.size > 10 * 1024 * 1024) throw new ApiError("AUDIO_TOO_LARGE", 413);
-    form.append("audio", recording, recording.type.includes("webm") ? "utterance.webm" : "utterance.m4a");
-  } else {
-    form.append("audio", {
-      uri,
-      name: isWebm ? "utterance.webm" : "utterance.m4a",
-      type: isWebm ? "audio/webm" : "audio/mp4",
-    } as unknown as Blob);
-  }
-
-  let response: Response;
-  const controller = new AbortController();
-  const abort = () => controller.abort();
-  signal?.addEventListener("abort", abort, { once: true });
-  if (signal?.aborted) controller.abort();
-  const timeout = setTimeout(() => controller.abort(), 120_000);
-  try {
-    response = await fetch(
-      `${BASE_URL}/voice-tutor/sessions/${encodeURIComponent(sessionId)}/turns`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-        signal: controller.signal,
-      },
-    );
-  } catch {
-    throw new ApiError(signal?.aborted ? "VOICE_TUTOR_CANCELLED" : "NETWORK_ERROR");
-  } finally {
-    clearTimeout(timeout);
-    signal?.removeEventListener("abort", abort);
-  }
-
-  const data = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new ApiError(data?.message ?? "VOICE_TUTOR_TURN_FAILED", response.status);
-  }
-  return data as VoiceTutorTurn;
-}
-
 export const VoiceTutorApi = {
   options: () => api.get<VoiceTutorOptions>("/voice-tutor/options"),
   settings: () => api.get<VoiceTutorSettings>("/voice-tutor/settings"),
@@ -191,7 +140,11 @@ export const VoiceTutorApi = {
     const result = await VoiceTutorApi.getSession(sessionId);
     return result.messages;
   },
-  turn: uploadTurn,
+  replay: (sessionId: string, messageId: string) =>
+    api.post<VoiceTutorMessage>(
+      `/voice-tutor/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/audio`,
+      {},
+    ),
   endSession: (sessionId: string) =>
     api.post<VoiceTutorEnd>(
       `/voice-tutor/sessions/${encodeURIComponent(sessionId)}/end`,

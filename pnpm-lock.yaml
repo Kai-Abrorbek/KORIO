@@ -419,6 +419,9 @@ importers:
       '@livekit/agents-plugin-google':
         specifier: ^1.9.0
         version: 1.9.0(@livekit/agents@1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76))(@livekit/rtc-node@0.13.35)(ws@8.21.0)(zod@3.25.76)
+      '@livekit/agents-plugin-openai':
+        specifier: 1.9.0
+        version: 1.9.0(@livekit/agents@1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76))(@livekit/rtc-node@0.13.35)(zod@3.25.76)
       '@livekit/rtc-node':
         specifier: ^0.13.34
         version: 0.13.35
@@ -2089,6 +2092,13 @@ packages:
     peerDependencies:
       '@livekit/agents': 1.9.0
       '@livekit/rtc-node': ^0.13.34
+
+  '@livekit/agents-plugin-openai@1.9.0':
+    resolution: {integrity: sha512-KMO9v/OlQwl7Ua8SQ4iQLuuApCQy7FY2baDRkuyRaVt89zs4zNTO/li387G22U0hmIcTNZVv6yaFEP+OmgCceQ==}
+    peerDependencies:
+      '@livekit/agents': 1.9.0
+      '@livekit/rtc-node': ^0.13.34
+      zod: ^3.25.76 || ^4.1.8
 
   '@livekit/agents@1.9.0':
     resolution: {integrity: sha512-OBpai/S+6sf41N/ytFE7sZFY1LI2zUckf7LwNrIHX/f7TclPGEniGOA6c16YILmmw4dsgL0gy0oyqExuR1FNPw==}
@@ -10207,6 +10217,21 @@ snapshots:
       - utf-8-validate
       - ws
       - zod
+
+  '@livekit/agents-plugin-openai@1.9.0(@livekit/agents@1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76))(@livekit/rtc-node@0.13.35)(zod@3.25.76)':
+    dependencies:
+      '@livekit/agents': 1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76)
+      '@livekit/mutex': 1.1.1
+      '@livekit/rtc-node': 0.13.35
+      openai: 6.49.0(ws@8.21.0)(zod@3.25.76)
+      ws: 8.21.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - '@aws-sdk/credential-provider-node'
+      - '@smithy/hash-node'
+      - '@smithy/signature-v4'
+      - bufferutil
+      - utf-8-validate
 
   '@livekit/agents@1.9.0(@livekit/rtc-node@0.13.35)(@types/node@22.15.3)(typescript@5.9.2)(zod@3.25.76)':
     dependencies:

@@ -20,7 +20,7 @@ export interface CharacterFrame {
 }
 
 export interface CharacterInput {
-  phase: "setup" | "starting" | "ready" | "recording" | "transcribing" | "thinking" | "speaking" | "ending" | "finished";
+  phase: "setup" | "starting" | "connecting" | "ready" | "recording" | "transcribing" | "thinking" | "speaking" | "ending" | "finished";
   isAudioPlaying: boolean;
   /** Normalized output amplitude (0–1), when the playback engine exposes it. */
   audioAmplitude?: number | null;

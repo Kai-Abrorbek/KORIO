@@ -13,6 +13,7 @@ export class VoiceTutorMessage {
   userId: Types.ObjectId;
   @Prop({ type: Types.ObjectId, ref: 'VoiceTutorSession', required: true })
   sessionId: Types.ObjectId;
+  @Prop({ type: String, maxlength: 80 }) turnId?: string;
   @Prop({ type: String, enum: ['user', 'teacher'], required: true }) role:
     | 'user'
     | 'teacher';
@@ -34,3 +35,10 @@ export type VoiceTutorMessageDocument = HydratedDocument<VoiceTutorMessage>;
 export const VoiceTutorMessageSchema =
   SchemaFactory.createForClass(VoiceTutorMessage);
 VoiceTutorMessageSchema.index({ sessionId: 1, createdAt: 1, _id: 1 });
+VoiceTutorMessageSchema.index(
+  { sessionId: 1, turnId: 1, role: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { turnId: { $type: 'string' } },
+  },
+);

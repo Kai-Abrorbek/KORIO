@@ -13,6 +13,7 @@ import {
   defaultVoiceTutorPlan,
 } from './agents/voice-tutor-agents.service';
 import type { UpdateVoiceTutorSettingsDto } from './dto/voice-tutor.dto';
+import type { VoiceTutorAgentTurnDto } from './dto/voice-tutor.dto';
 import { detectTranscriptLanguage } from './language/detect-transcript-language';
 import { voiceTutorGreeting } from './personality/greeting';
 import { VoiceTutorProfileService } from './memory/voice-tutor-profile.service';
@@ -31,6 +32,10 @@ import {
   voiceTutorVoices,
 } from './voice-tutor.config';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
+import {
+  VoiceTutorLiveKitService,
+  type VoiceTutorLiveKitGrant,
+} from './livekit/voice-tutor-livekit.service';
 import type {
   TutorMessage,
   TutorPlan,
@@ -46,6 +51,7 @@ const STALE_PROCESSING_MS = 2 * 60 * 1000;
 export class VoiceTutorService {
   private readonly logger = new Logger(VoiceTutorService.name);
   private readonly progressTasks = new Map<string, Promise<void>>();
+  private readonly replayTasks = new Map<string, Promise<TutorMessage>>();
 
   constructor(
     @InjectModel(VoiceTutorSession.name)
@@ -57,6 +63,7 @@ export class VoiceTutorService {
     private readonly stt: OpenAiSttProvider,
     private readonly tts: ElevenLabsTutorTtsProvider,
     private readonly audio: VoiceTutorAudioService,
+    private readonly livekit: VoiceTutorLiveKitService,
   ) {}
 
   options() {
@@ -74,7 +81,7 @@ export class VoiceTutorService {
       overrides && Object.keys(overrides).length
         ? await this.profile.updateSettings(userId, overrides)
         : await this.profile.getSettings(userId);
-    this.assertVoice(settings);
+    const voice = this.assertVoice(settings);
     const memory = await this.profile.getMemory(userId);
     let plan = await this.profile.latestPlan(userId);
     if (!plan) {
@@ -106,13 +113,33 @@ export class VoiceTutorService {
         intensity: 0.25,
         gesture: 'none',
       },
+      undefined,
+      false,
     );
+    let livekit: VoiceTutorLiveKitGrant;
+    try {
+      livekit = await this.livekit.prepareRoom(
+        sessionId,
+        voice.providerVoiceId,
+        {
+          displayText: initialMessage.displayText ?? initialMessage.text,
+          speechText: initialMessage.speechText ?? initialMessage.text,
+        },
+      );
+    } catch (error) {
+      await Promise.all([
+        this.messages.deleteMany({ sessionId: session._id }),
+        this.sessions.deleteOne({ _id: session._id }),
+      ]);
+      throw error;
+    }
     return {
       sessionId,
       status: 'active' as const,
       settings,
       plan,
       initialMessage,
+      livekit,
     };
   }
 
@@ -135,37 +162,164 @@ export class VoiceTutorService {
     };
   }
 
+  async replayAudio(userId: string, sessionId: string, messageId: string) {
+    const session = await this.ownedSession(userId, sessionId);
+    if (!Types.ObjectId.isValid(messageId))
+      throw new NotFoundException('VOICE_TUTOR_MESSAGE_NOT_FOUND');
+    const key = `${sessionId}:${messageId}`;
+    const pending = this.replayTasks.get(key);
+    if (pending) return pending;
+    const task = this.createReplayAudio(userId, session, messageId).finally(
+      () => this.replayTasks.delete(key),
+    );
+    this.replayTasks.set(key, task);
+    return task;
+  }
+
+  private async createReplayAudio(
+    userId: string,
+    session: VoiceTutorSessionDocument,
+    messageId: string,
+  ): Promise<TutorMessage> {
+    const row = await this.messages.findOne({
+      _id: new Types.ObjectId(messageId),
+      sessionId: session._id,
+      userId: new Types.ObjectId(userId),
+      role: 'teacher',
+    });
+    if (!row) throw new NotFoundException('VOICE_TUTOR_MESSAGE_NOT_FOUND');
+    if (row.audioId) {
+      try {
+        await this.audio.read(userId, String(row.audioId));
+        return this.presentMessage(row);
+      } catch (error) {
+        if (!(error instanceof NotFoundException)) throw error;
+        // Temporary MP3 expired; this message remains replayable on demand.
+      }
+    }
+    const voice = this.assertVoice(session.settings);
+    const data = await this.tts.synthesize(
+      row.speechText ?? row.text,
+      voice.providerVoiceId,
+      {
+        displayText: row.displayText ?? row.text,
+        speechText: row.speechText ?? row.text,
+        emotion: row.emotion ?? 'neutral',
+        delivery: row.delivery ?? 'normal',
+        intensity: row.intensity ?? 0,
+        correction: row.correction,
+        gesture: row.gesture,
+        language: row.language,
+      },
+    );
+    const audioUrl = await this.audio.store(userId, data);
+    const audioId = new Types.ObjectId(audioUrl.split('/').at(-1));
+    await this.messages.updateOne(
+      { _id: row._id, audioId: row.audioId ?? null },
+      { $set: { audioId } },
+    );
+    const updated = await this.messages.findById(row._id);
+    if (!updated) throw new NotFoundException('VOICE_TUTOR_MESSAGE_NOT_FOUND');
+    return this.presentMessage(updated);
+  }
+
   async turn(
     userId: string,
     sessionId: string,
     audio: Buffer,
     mimeType: string,
   ) {
+    return this.processTurn(
+      userId,
+      sessionId,
+      undefined,
+      () => this.stt.transcribe(audio, mimeType),
+      true,
+    );
+  }
+
+  async agentTurn(
+    sessionId: string,
+    authorization: string | undefined,
+    dto: VoiceTutorAgentTurnDto,
+  ) {
+    this.livekit.verifyAgentToken(sessionId, authorization);
+    if (!Types.ObjectId.isValid(sessionId))
+      throw new NotFoundException('VOICE_TUTOR_SESSION_NOT_FOUND');
+    const session = await this.sessions.findById(sessionId);
+    if (!session) throw new NotFoundException('VOICE_TUTOR_SESSION_NOT_FOUND');
+    return this.processTurn(
+      String(session.userId),
+      sessionId,
+      dto.turnId,
+      () => Promise.resolve(dto.transcript.trim()),
+      false,
+    );
+  }
+
+  private async processTurn(
+    userId: string,
+    sessionId: string,
+    turnId: string | undefined,
+    transcribe: () => Promise<string>,
+    synthesizeAudio: boolean,
+  ) {
     const session = await this.lockActiveSession(userId, sessionId);
     try {
+      const existingUser = turnId
+        ? await this.messages.findOne({
+            sessionId: session._id,
+            turnId,
+            role: 'user',
+          })
+        : null;
+      if (existingUser) {
+        const transcript = await transcribe();
+        if (existingUser.text !== transcript)
+          throw new ConflictException('VOICE_TUTOR_TURN_ID_REUSED');
+        const teacher = await this.messages.findOne({
+          sessionId: session._id,
+          turnId,
+          role: 'teacher',
+        });
+        if (teacher) {
+          return {
+            userMessage: this.presentMessage(existingUser),
+            teacherMessage: this.presentMessage(teacher),
+            progress: await this.profile.latestProgress(sessionId),
+            warning: null,
+          };
+        }
+      }
       if (
-        session.userTurnCount >= MAX_SESSION_TURNS ||
-        Date.now() - new Date(session.createdAt ?? 0).getTime() >
-          MAX_SESSION_AGE_MS
+        !existingUser &&
+        (session.userTurnCount >= MAX_SESSION_TURNS ||
+          Date.now() - new Date(session.createdAt ?? 0).getTime() >
+            MAX_SESSION_AGE_MS)
       ) {
         throw new BadRequestException('VOICE_TUTOR_SESSION_LIMIT');
       }
-      const transcript = await this.stt.transcribe(audio, mimeType);
+      const transcript = existingUser?.text ?? (await transcribe());
       if (!transcript)
         throw new BadRequestException('VOICE_TUTOR_EMPTY_TRANSCRIPTION');
-      const userMessage = await this.messages.create({
-        userId: new Types.ObjectId(userId),
-        sessionId: session._id,
-        role: 'user',
-        text: transcript,
-        language: detectTranscriptLanguage(transcript),
-        audioId: null,
-      });
-      const turnCount = session.userTurnCount + 1;
-      await this.sessions.updateOne(
-        { _id: session._id },
-        { $set: { userTurnCount: turnCount } },
-      );
+      const userMessage =
+        existingUser ??
+        (await this.messages.create({
+          userId: new Types.ObjectId(userId),
+          sessionId: session._id,
+          role: 'user',
+          turnId,
+          text: transcript,
+          language: detectTranscriptLanguage(transcript),
+          audioId: null,
+        }));
+      const turnCount = session.userTurnCount + (existingUser ? 0 : 1);
+      if (!existingUser) {
+        await this.sessions.updateOne(
+          { _id: session._id },
+          { $set: { userTurnCount: turnCount } },
+        );
+      }
       const [memory, recentRows] = await Promise.all([
         this.profile.getMemory(userId),
         this.messages
@@ -204,6 +358,8 @@ export class VoiceTutorService {
         sessionId,
         session.settings,
         reply,
+        turnId,
+        synthesizeAudio,
       );
       if (reply.correction?.wrong && reply.correction.correct) {
         await this.profile
@@ -218,7 +374,8 @@ export class VoiceTutorService {
             ),
           );
       }
-      if (!teacherMessage.audioUrl) warning ??= 'VOICE_TUTOR_TTS_UNAVAILABLE';
+      if (synthesizeAudio && !teacherMessage.audioUrl)
+        warning ??= 'VOICE_TUTOR_TTS_UNAVAILABLE';
       if (turnCount % VOICE_TUTOR_PROGRESS_INTERVAL === 0) {
         this.scheduleProgress(userId, sessionId, turnCount);
       }
@@ -387,24 +544,31 @@ export class VoiceTutorService {
     sessionId: string,
     settings: TutorSettings,
     reaction: TutorReaction,
+    turnId?: string,
+    synthesizeAudio = true,
   ): Promise<TutorMessage> {
     const voice = this.assertVoice(settings);
     let audioId: Types.ObjectId | null = null;
     let audioUrl: string | null = null;
-    try {
-      const data = await this.tts.synthesize(
-        reaction.speechText,
-        voice.providerVoiceId,
-        reaction,
-      );
-      audioUrl = await this.audio.store(userId, data);
-      audioId = new Types.ObjectId(audioUrl.split('/').at(-1));
-    } catch (error) {
-      this.logger.warn(`Voice Tutor TTS unavailable: ${(error as Error).name}`);
+    if (synthesizeAudio) {
+      try {
+        const data = await this.tts.synthesize(
+          reaction.speechText,
+          voice.providerVoiceId,
+          reaction,
+        );
+        audioUrl = await this.audio.store(userId, data);
+        audioId = new Types.ObjectId(audioUrl.split('/').at(-1));
+      } catch (error) {
+        this.logger.warn(
+          `Voice Tutor TTS unavailable: ${(error as Error).name}`,
+        );
+      }
     }
     const row = await this.messages.create({
       userId: new Types.ObjectId(userId),
       sessionId: new Types.ObjectId(sessionId),
+      turnId,
       role: 'teacher',
       text: reaction.displayText,
       displayText: reaction.displayText,

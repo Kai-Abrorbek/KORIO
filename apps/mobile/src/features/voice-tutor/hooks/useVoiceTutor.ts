@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppState, PermissionsAndroid, Platform } from "react-native";
 import {
-  RecordingPresets,
   getRecordingPermissionsAsync,
   requestRecordingPermissionsAsync,
   useAudioPlayer,
-  useAudioRecorder,
   useAudioPlayerStatus,
 } from "expo-audio";
-import { activatePlaybackAudio, activateRecordingAudio } from "@/utils/audio-session";
+import { activatePlaybackAudio } from "@/utils/audio-session";
+import {
+  connectLiveKitTutor,
+  type LiveKitAgentState,
+  type LiveKitTutorConnection,
+  type TranscriptChunk,
+} from "@/features/tutor/services/livekit-tutor";
 import {
   VoiceTutorApi,
   type VoiceTutorEnd,
@@ -22,17 +27,24 @@ import {
 export type VoiceTutorPhase =
   | "setup"
   | "starting"
+  | "connecting"
   | "ready"
   | "recording"
-  | "transcribing"
   | "thinking"
   | "speaking"
   | "ending"
   | "finished";
 
-const MAX_RECORDING_MS = 60_000;
 const END_POLL_INTERVAL_MS = 1_500;
 const END_POLL_ATTEMPTS = 80;
+
+const AGENT_PHASE: Record<LiveKitAgentState, VoiceTutorPhase> = {
+  initializing: "connecting",
+  idle: "ready",
+  listening: "ready",
+  thinking: "thinking",
+  speaking: "speaking",
+};
 
 export function useVoiceTutor() {
   const [options, setOptions] = useState<VoiceTutorOptions | null>(null);
@@ -46,29 +58,22 @@ export function useVoiceTutor() {
   const [endResult, setEndResult] = useState<VoiceTutorEnd | null>(null);
   const [spokenMessage, setSpokenMessage] = useState<VoiceTutorMessage | null>(null);
   const [previewVoiceId, setPreviewVoiceId] = useState<string | null>(null);
+  const [micOn, setMicOn] = useState(false);
+  const [liveUserText, setLiveUserText] = useState("");
+  const [liveTeacherText, setLiveTeacherText] = useState("");
 
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const player = useAudioPlayer(null, { updateInterval: 200 });
   const playerStatus = useAudioPlayerStatus(player);
+  const connection = useRef<LiveKitTutorConnection | null>(null);
   const sessionId = useRef<string | null>(null);
   const actionBusy = useRef(false);
   const closing = useRef(false);
   const playbackEpoch = useRef(0);
-  const turnAbort = useRef<AbortController | null>(null);
-  const recordingIntent = useRef(false);
-  const stoppingRecorder = useRef<Promise<void> | null>(null);
   const ending = useRef(false);
-  const recordTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const thinkingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(true);
   const objectUrl = useRef<string | null>(null);
-
-  const clearTimers = useCallback(() => {
-    if (recordTimer.current) clearTimeout(recordTimer.current);
-    if (thinkingTimer.current) clearTimeout(thinkingTimer.current);
-    recordTimer.current = null;
-    thinkingTimer.current = null;
-  }, []);
+  const resumeMicAfterPlayback = useRef(false);
+  const lastTranscriptSegment = useRef(new Set<string>());
 
   const stopPlayback = useCallback(async () => {
     playbackEpoch.current += 1;
@@ -84,19 +89,11 @@ export function useVoiceTutor() {
       // A released player is already stopped; recording must remain usable.
     }
     if (url) URL.revokeObjectURL(url);
-  }, [player]);
-
-  const stopRecorder = useCallback(async () => {
-    if (stoppingRecorder.current) return stoppingRecorder.current;
-    if (!recorder.isRecording) return;
-    const pending = recorder.stop();
-    stoppingRecorder.current = pending;
-    try {
-      await pending;
-    } finally {
-      if (stoppingRecorder.current === pending) stoppingRecorder.current = null;
+    if (resumeMicAfterPlayback.current) {
+      resumeMicAfterPlayback.current = false;
+      connection.current?.setMicEnabled(true);
     }
-  }, [recorder]);
+  }, [player]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -126,29 +123,29 @@ export function useVoiceTutor() {
     void load();
     return () => {
       mounted.current = false;
-      clearTimers();
       playbackEpoch.current += 1;
-      turnAbort.current?.abort();
-      recordingIntent.current = false;
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
       objectUrl.current = null;
-      if (!closing.current) {
-        void stopRecorder().catch(() => undefined);
-      }
+      const call = connection.current;
+      connection.current = null;
+      void call?.close().catch(() => undefined);
       const id = sessionId.current;
       sessionId.current = null;
       if (id && !closing.current) {
         void VoiceTutorApi.endSession(id).catch(() => undefined);
       }
     };
-  }, [clearTimers, load, stopRecorder]);
+  }, [load]);
 
   useEffect(() => {
     if (playerStatus.error) {
       setError("AUDIO_PLAYBACK_FAILED");
       setSpokenMessage(null);
       setPreviewVoiceId(null);
-      setPhase((current) => (current === "speaking" ? "ready" : current));
+      if (resumeMicAfterPlayback.current) {
+        resumeMicAfterPlayback.current = false;
+        connection.current?.setMicEnabled(true);
+      }
       return;
     }
     if (playerStatus.didJustFinish) {
@@ -156,43 +153,52 @@ export function useVoiceTutor() {
       objectUrl.current = null;
       setSpokenMessage(null);
       setPreviewVoiceId(null);
-      setPhase((current) => (current === "speaking" ? "ready" : current));
+      if (resumeMicAfterPlayback.current) {
+        resumeMicAfterPlayback.current = false;
+        connection.current?.setMicEnabled(true);
+      }
     }
   }, [playerStatus.didJustFinish, playerStatus.error]);
 
   const playMessage = useCallback(
     async (message: VoiceTutorMessage) => {
-      if (closing.current || recordingIntent.current || !sessionId.current) return;
-      if (!message.audioUrl) {
-        setError("VOICE_TUTOR_TTS_UNAVAILABLE");
-        setPhase("ready");
-        return;
-      }
+      const id = sessionId.current;
+      if (closing.current || !id || message.role !== "teacher") return;
       await stopPlayback();
       const epoch = playbackEpoch.current;
       try {
-        await activatePlaybackAudio("doNotMix");
-        if (epoch !== playbackEpoch.current || closing.current || recordingIntent.current) return;
-        const source = await VoiceTutorApi.audioSource(message.audioUrl);
-        if (!mounted.current || !sessionId.current || closing.current || recordingIntent.current || epoch !== playbackEpoch.current) {
+        const playable = message.audioUrl ? message : await VoiceTutorApi.replay(id, message.id);
+        if (!playable.audioUrl) throw new Error("VOICE_TUTOR_TTS_UNAVAILABLE");
+        if (!mounted.current || sessionId.current !== id || closing.current || epoch !== playbackEpoch.current) return;
+        setMessages((current) => current.map((row) => row.id === playable.id ? playable : row));
+        if (connection.current && micOn) {
+          connection.current.setMicEnabled(false);
+          resumeMicAfterPlayback.current = true;
+        } else if (!connection.current) {
+          await activatePlaybackAudio("doNotMix");
+        }
+        const source = await VoiceTutorApi.audioSource(playable.audioUrl);
+        if (!mounted.current || sessionId.current !== id || closing.current || epoch !== playbackEpoch.current) {
           if (source.objectUrl) URL.revokeObjectURL(source.uri);
           return;
         }
         if (source.objectUrl) objectUrl.current = source.uri;
         await player.replace(source);
-        if (epoch !== playbackEpoch.current || closing.current || recordingIntent.current || !mounted.current) return;
+        if (epoch !== playbackEpoch.current || closing.current || !mounted.current) return;
         await player.play();
-        if (epoch !== playbackEpoch.current || closing.current || recordingIntent.current || !mounted.current) return;
+        if (epoch !== playbackEpoch.current || closing.current || !mounted.current) return;
         setError(null);
-        setSpokenMessage(message);
-        setPhase("speaking");
+        setSpokenMessage(playable);
       } catch (cause) {
         if (epoch !== playbackEpoch.current || closing.current || !mounted.current) return;
+        if (resumeMicAfterPlayback.current) {
+          resumeMicAfterPlayback.current = false;
+          connection.current?.setMicEnabled(true);
+        }
         setError(errorCode(cause));
-        setPhase("ready");
       }
     },
-    [player, stopPlayback],
+    [micOn, player, stopPlayback],
   );
 
   const previewVoice = useCallback(async (voice: VoiceTutorVoice) => {
@@ -226,6 +232,37 @@ export function useVoiceTutor() {
     }
   }, [player, previewVoiceId, stopPlayback]);
 
+  const syncMessages = useCallback(async (id: string) => {
+    try {
+      const detail = await VoiceTutorApi.getSession(id);
+      if (!mounted.current || closing.current || sessionId.current !== id) return;
+      setMessages(detail.messages);
+      setProgress(detail.progress);
+      setLiveUserText("");
+      setLiveTeacherText("");
+    } catch {
+      // Live audio keeps working even if a message refresh fails briefly.
+    }
+  }, []);
+
+  const onTranscript = useCallback((chunk: TranscriptChunk) => {
+    if (!mounted.current || closing.current || !sessionId.current) return;
+    if (chunk.role === "user") {
+      setLiveUserText(chunk.text);
+      if (chunk.isFinal && !lastTranscriptSegment.current.has(chunk.segmentId)) {
+        lastTranscriptSegment.current.add(chunk.segmentId);
+        setPhase("thinking");
+      }
+      return;
+    }
+    setLiveTeacherText(chunk.text);
+    setPhase("speaking");
+    if (chunk.isFinal && !lastTranscriptSegment.current.has(chunk.segmentId)) {
+      lastTranscriptSegment.current.add(chunk.segmentId);
+      void syncMessages(sessionId.current);
+    }
+  }, [syncMessages]);
+
   const start = useCallback(async () => {
     if (!settings || actionBusy.current || sessionId.current) return;
     actionBusy.current = true;
@@ -233,6 +270,14 @@ export function useVoiceTutor() {
     setPhase("starting");
     try {
       await stopPlayback();
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) throw new Error("MIC_PERMISSION_DENIED");
+      } else {
+        const existing = await getRecordingPermissionsAsync();
+        const permission = existing.granted ? existing : await requestRecordingPermissionsAsync();
+        if (!permission.granted) throw new Error("MIC_PERMISSION_DENIED");
+      }
       await VoiceTutorApi.updateSettings(settings);
       const created = await VoiceTutorApi.createSession(settings);
       if (!mounted.current) {
@@ -243,98 +288,82 @@ export function useVoiceTutor() {
       setPlan(created.plan);
       setProgress(null);
       setEndResult(null);
-      const first = created.initialMessage;
-      setMessages(first ? [first] : []);
-      setPhase("ready");
-      if (first) await playMessage(first);
+      setMessages(created.initialMessage ? [created.initialMessage] : []);
+      setLiveUserText("");
+      setLiveTeacherText("");
+      lastTranscriptSegment.current.clear();
+      if (!created.livekit) throw new Error("VOICE_TUTOR_AGENT_UNAVAILABLE");
+      setPhase("connecting");
+      const call = await connectLiveKitTutor(created.livekit, {
+        onAgentState: (state) => {
+          if (!mounted.current || closing.current) return;
+          setPhase(AGENT_PHASE[state] ?? "ready");
+        },
+        onTranscript,
+        onAgentMissing: () => {
+          if (!mounted.current || closing.current) return;
+          connection.current?.setMicEnabled(false);
+          setMicOn(false);
+          setError("VOICE_TUTOR_AGENT_UNAVAILABLE");
+          setPhase("ending");
+        },
+        onDisconnected: () => {
+          if (!mounted.current || closing.current) return;
+          connection.current = null;
+          setMicOn(false);
+          setError("CONNECTION_LOST");
+          setPhase("ending");
+        },
+        onError: () => {
+          if (mounted.current && !closing.current) setError("CONNECTION_ERROR");
+        },
+      });
+      if (!mounted.current || closing.current || sessionId.current !== created.sessionId) {
+        await call.close();
+        return;
+      }
+      connection.current = call;
+      setMicOn(true);
+      setPhase((current) => current === "connecting" ? "ready" : current);
     } catch (cause) {
-      setError(errorCode(cause));
-      setPhase("setup");
-    } finally {
-      actionBusy.current = false;
-    }
-  }, [playMessage, settings, stopPlayback]);
-
-  const stopRecording = useCallback(async () => {
-    const id = sessionId.current;
-    if (!id || actionBusy.current || !recorder.isRecording) return;
-    actionBusy.current = true;
-    recordingIntent.current = false;
-    if (recordTimer.current) clearTimeout(recordTimer.current);
-    recordTimer.current = null;
-    setPhase("transcribing");
-    try {
-      await stopRecorder();
-      if (closing.current || sessionId.current !== id) return;
-      const uri = recorder.uri;
-      if (!uri) throw new Error("RECORDING_EMPTY");
-      await activatePlaybackAudio("doNotMix");
-      if (closing.current || sessionId.current !== id) return;
-      thinkingTimer.current = setTimeout(() => {
-        if (mounted.current) setPhase("thinking");
-      }, 900);
-      const controller = new AbortController();
-      turnAbort.current = controller;
-      const result = await VoiceTutorApi.turn(id, uri, controller.signal);
-      if (!mounted.current || closing.current || sessionId.current !== id) return;
-      if (thinkingTimer.current) clearTimeout(thinkingTimer.current);
-      thinkingTimer.current = null;
-      setMessages((current) => [...current, result.userMessage, result.teacherMessage]);
-      if (result.progress !== undefined) setProgress(result.progress);
-      if (result.warning) setError(result.warning);
-      setPhase("ready");
-      await playMessage(result.teacherMessage);
-    } catch (cause) {
-      if (mounted.current && !closing.current && errorCode(cause) !== "VOICE_TUTOR_CANCELLED") {
+      const id = sessionId.current;
+      sessionId.current = null;
+      if (id) void VoiceTutorApi.endSession(id).catch(() => undefined);
+      if (mounted.current) {
         setError(errorCode(cause));
-        setPhase("ready");
+        setPhase("setup");
       }
     } finally {
-      turnAbort.current = null;
-      if (thinkingTimer.current) clearTimeout(thinkingTimer.current);
-      thinkingTimer.current = null;
       actionBusy.current = false;
     }
-  }, [playMessage, recorder, stopRecorder]);
+  }, [onTranscript, settings, stopPlayback]);
 
-  const startRecording = useCallback(async () => {
-    if (!sessionId.current || actionBusy.current || closing.current) return;
-    actionBusy.current = true;
-    recordingIntent.current = true;
-    setError(null);
-    let started = false;
+  const toggleMic = useCallback(() => {
+    if (!connection.current || closing.current) return;
+    setMicOn((current) => {
+      const next = !current;
+      connection.current?.setMicEnabled(next);
+      return next;
+    });
+  }, []);
+
+  const interrupt = useCallback(async () => {
+    const room = connection.current?.room;
+    if (!room) return;
+    const agent = [...room.remoteParticipants.values()].find(
+      (participant) => participant.attributes?.["lk.agent.state"],
+    );
+    if (!agent) return;
     try {
-      await stopPlayback();
-      const currentPermission = await getRecordingPermissionsAsync();
-      const permission = currentPermission.granted
-        ? currentPermission
-        : await requestRecordingPermissionsAsync();
-      if (!permission.granted) throw new Error("MIC_PERMISSION_DENIED");
-      if (closing.current || !sessionId.current) return;
-      await activateRecordingAudio();
-      if (closing.current || !sessionId.current) return;
-      await recorder.prepareToRecordAsync();
-      if (closing.current || !sessionId.current) return;
-      recorder.record();
-      started = true;
-      setPhase("recording");
-      // HIGH_QUALITY is 128 kbit/s; this limit keeps each upload far below 10 MB.
-      recordTimer.current = setTimeout(() => void stopRecording(), MAX_RECORDING_MS);
-    } catch (cause) {
-      if (!closing.current && mounted.current) {
-        setError(errorCode(cause));
-        setPhase("ready");
-      }
-    } finally {
-      if (!started) recordingIntent.current = false;
-      actionBusy.current = false;
+      await room.localParticipant.performRpc({
+        destinationIdentity: agent.identity,
+        method: "voice_tutor_interrupt",
+        payload: "",
+      });
+    } catch {
+      setError("CONNECTION_ERROR");
     }
-  }, [recorder, stopPlayback, stopRecording]);
-
-  const interrupt = useCallback(() => {
-    void stopPlayback();
-    setPhase("ready");
-  }, [stopPlayback]);
+  }, []);
 
   const end = useCallback(async (waitForCompletion = true) => {
     if (ending.current) return;
@@ -342,14 +371,14 @@ export function useVoiceTutor() {
     if (!id) return;
     ending.current = true;
     closing.current = true;
-    recordingIntent.current = false;
-    turnAbort.current?.abort();
-    clearTimers();
     setError(null);
     setPhase("ending");
     try {
       await stopPlayback();
-      await stopRecorder().catch(() => undefined);
+      const call = connection.current;
+      connection.current = null;
+      setMicOn(false);
+      await call?.close().catch(() => undefined);
       await activatePlaybackAudio("mixWithOthers").catch(() => undefined);
       let result = await VoiceTutorApi.endSession(id);
       if (result.status === "ending") {
@@ -389,7 +418,16 @@ export function useVoiceTutor() {
       closing.current = false;
       ending.current = false;
     }
-  }, [clearTimers, stopPlayback, stopRecorder]);
+  }, [stopPlayback]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state !== "active" && connection.current && !ending.current) {
+        void end(false);
+      }
+    });
+    return () => subscription.remove();
+  }, [end]);
 
   const restart = useCallback(() => {
     if (sessionId.current || actionBusy.current) return;
@@ -410,15 +448,17 @@ export function useVoiceTutor() {
     progress,
     plan,
     endResult,
-    isPlaying: playerStatus.playing,
+    isPlaying: phase === "speaking" || playerStatus.playing,
     spokenMessage,
     previewVoiceId,
     previewVoice,
     audioAmplitude: null,
     load,
     start,
-    startRecording,
-    stopRecording,
+    micOn,
+    liveUserText,
+    liveTeacherText,
+    toggleMic,
     interrupt,
     playMessage,
     end,

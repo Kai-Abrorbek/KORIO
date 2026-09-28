@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Header,
   Param,
   Patch,
@@ -19,6 +20,7 @@ import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import {
   CreateVoiceTutorSessionDto,
   UpdateVoiceTutorSettingsDto,
+  VoiceTutorAgentTurnDto,
 } from './dto/voice-tutor.dto';
 import { supportedAudioMime } from './providers/openai-stt.provider';
 import { VOICE_TUTOR_MAX_AUDIO_BYTES } from './voice-tutor.config';
@@ -110,6 +112,16 @@ export class VoiceTutorController {
     return this.tutor.end(request.user._id.toString(), id);
   }
 
+  @Post('sessions/:id/messages/:messageId/audio')
+  @RateLimit({ windowMs: 60_000, max: 20 })
+  replayAudio(
+    @Request() request: { user: { _id: { toString(): string } } },
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+  ) {
+    return this.tutor.replayAudio(request.user._id.toString(), id, messageId);
+  }
+
   @Get('audio/:id')
   @Header('Cache-Control', 'private, max-age=3600')
   async getAudio(
@@ -121,5 +133,20 @@ export class VoiceTutorController {
       type: 'audio/mpeg',
       length: data.length,
     });
+  }
+}
+
+/** Worker-only callback: the signed dispatch token is never sent to the app. */
+@Controller('voice-tutor/agent')
+export class VoiceTutorAgentController {
+  constructor(private readonly tutor: VoiceTutorService) {}
+
+  @Post('sessions/:id/turns')
+  agentTurn(
+    @Param('id') id: string,
+    @Headers('authorization') authorization: string | undefined,
+    @Body() dto: VoiceTutorAgentTurnDto,
+  ) {
+    return this.tutor.agentTurn(id, authorization, dto);
   }
 }

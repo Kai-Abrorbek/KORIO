@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { voiceTutorModels } from '../voice-tutor.config';
 import { VoiceTutorProviderError } from './provider-error';
 
@@ -24,6 +24,8 @@ export function supportedAudioMime(mimeType: string): boolean {
 
 @Injectable()
 export class OpenAiSttProvider implements SttProvider {
+  private readonly logger = new Logger(OpenAiSttProvider.name);
+
   async transcribe(audio: Buffer, mimeType: string): Promise<string> {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) throw new VoiceTutorProviderError('NOT_CONFIGURED', 'STT');
@@ -39,7 +41,6 @@ export class OpenAiSttProvider implements SttProvider {
       `speech.${extension}`,
     );
     form.append('model', voiceTutorModels().stt);
-    form.append('response_format', 'json');
     // Do not force one language: a learner may switch between Korean and a native language.
     let response: Response;
     try {
@@ -49,10 +50,61 @@ export class OpenAiSttProvider implements SttProvider {
         body: form,
         signal: AbortSignal.timeout(25_000),
       });
-    } catch {
+    } catch (error) {
+      this.logger.warn(
+        `STT transport failed: ${error instanceof Error ? error.name : 'unknown'}`,
+      );
       throw new VoiceTutorProviderError('UNAVAILABLE', 'STT');
     }
-    if (!response.ok) throw new VoiceTutorProviderError('UNAVAILABLE', 'STT');
+    if (!response.ok) {
+      const body: unknown = await response.json().catch(() => null);
+      const failure =
+        body && typeof body === 'object' && 'error' in body
+          ? (
+              body as {
+                error?: {
+                  code?: unknown;
+                  type?: unknown;
+                  param?: unknown;
+                  message?: unknown;
+                };
+              }
+            ).error
+          : null;
+      const code =
+        typeof failure?.code === 'string' &&
+        /^[a-z0-9_]{1,80}$/i.test(failure.code)
+          ? failure.code
+          : 'unknown';
+      const type =
+        typeof failure?.type === 'string' &&
+        /^[a-z0-9_]{1,80}$/i.test(failure.type)
+          ? failure.type
+          : 'unknown';
+      const param =
+        typeof failure?.param === 'string' &&
+        /^[a-z0-9_.-]{1,80}$/i.test(failure.param)
+          ? failure.param
+          : 'unknown';
+      // A provider error may contain user content; only classify known request fields.
+      const message =
+        typeof failure?.message === 'string'
+          ? failure.message.toLowerCase()
+          : '';
+      const detail =
+        [
+          'response_format',
+          'model',
+          'file',
+          'audio',
+          'format',
+          'duration',
+        ].find((field) => message.includes(field)) ?? 'unknown';
+      this.logger.warn(
+        `STT rejected: status=${response.status} code=${code} type=${type} param=${param} detail=${detail}`,
+      );
+      throw new VoiceTutorProviderError('UNAVAILABLE', 'STT');
+    }
     const payload = (await response.json()) as { text?: unknown };
     if (typeof payload.text !== 'string') {
       throw new VoiceTutorProviderError('INVALID_RESPONSE', 'STT');

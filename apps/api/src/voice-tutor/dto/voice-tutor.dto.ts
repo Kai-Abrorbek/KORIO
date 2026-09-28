@@ -1,9 +1,11 @@
 import { Type } from 'class-transformer';
 import {
   IsIn,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
+  Matches,
   ValidateNested,
 } from 'class-validator';
 import {
@@ -45,4 +47,15 @@ export class CreateVoiceTutorSessionDto {
   @ValidateNested()
   @Type(() => UpdateVoiceTutorSettingsDto)
   settings?: UpdateVoiceTutorSettingsDto;
+}
+
+export class VoiceTutorAgentTurnDto {
+  @IsString()
+  @Matches(/^[A-Za-z0-9_-]{1,80}$/)
+  turnId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(3000)
+  transcript: string;
 }

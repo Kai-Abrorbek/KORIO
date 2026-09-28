@@ -36,8 +36,12 @@ import {
   VoiceTutorSettingsSchema,
 } from './schemas/voice-tutor-settings.schema';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
-import { VoiceTutorController } from './voice-tutor.controller';
+import {
+  VoiceTutorAgentController,
+  VoiceTutorController,
+} from './voice-tutor.controller';
 import { VoiceTutorService } from './voice-tutor.service';
+import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service';
 
 @Module({
   imports: [
@@ -52,12 +56,13 @@ import { VoiceTutorService } from './voice-tutor.service';
       { name: VoiceTutorAudio.name, schema: VoiceTutorAudioSchema },
     ]),
   ],
-  controllers: [VoiceTutorController],
+  controllers: [VoiceTutorController, VoiceTutorAgentController],
   providers: [
     VoiceTutorService,
     VoiceTutorProfileService,
     VoiceTutorAgentsService,
     VoiceTutorAudioService,
+    VoiceTutorLiveKitService,
     OpenAiSttProvider,
     OpenAiTutorLlmProvider,
     ElevenLabsTutorTtsProvider,

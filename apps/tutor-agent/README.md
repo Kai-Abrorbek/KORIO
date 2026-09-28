@@ -2,6 +2,27 @@
 
 AI 회화 튜터의 음성 구간을 담당하는 long-running LiveKit worker.
 
+## 별도 Voice Tutor worker
+
+새 AI 음성 튜터는 기존 `src/agent.ts`와 독립된 `src/voice-tutor-agent.ts`를 쓴다.
+같은 LiveKit 프로젝트에 별도 프로세스로 띄우고, API의
+`VOICE_TUTOR_LIVEKIT_AGENT_NAME`과 worker의 같은 환경변수를
+`korio-voice-tutor`로 맞춘다. 기존 `korio-tutor` worker는 그대로 실행한다.
+
+```bash
+pnpm --filter tutor-agent voice-tutor:dev
+# 빌드 후: pnpm --filter tutor-agent voice-tutor:start
+```
+
+worker 실행 환경에는 `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`,
+`OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `VOICE_TUTOR_API_URL`이 필요하다.
+`VOICE_TUTOR_API_URL`은 worker 컨테이너에서 접근 가능한 API 기본 URL이다.
+API의 `.env`는 이 worker에 자동으로 전달되지 않는다. 짧은 수명의 agent 토큰은
+API dispatch metadata로 전달되므로 로그에 metadata 전체를 출력하지 않는다.
+학습자 음성은 LiveKit에서 OpenAI 실시간 전사로 직접 가고, 수업 판단과 저장은
+API의 `/voice-tutor/agent/sessions/:id/turns`에서 처리한다. ElevenLabs v3는
+기존 TTS WebSocket이 아닌 HTTP PCM 스트림으로 한 번만 합성한다.
+
 ```
 KORIO Mobile (Expo)
       │  WebRTC (마이크 ↑ / 선생님 목소리 ↓)

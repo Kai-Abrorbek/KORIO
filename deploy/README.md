@@ -68,6 +68,10 @@ chmod 600 api.env             # 시크릿이다
 cp agent.env.example agent.env  # AI 튜터 Agent: LIVEKIT_*, GOOGLE_API_KEY
 chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
 
+# 새 Voice Tutor도 같은 agent.env를 읽지만 별도 프로세스로 실행된다.
+# OPENAI_API_KEY, ELEVENLABS_API_KEY, VOICE_TUTOR_API_URL을 agent.env에 설정한다.
+# api.env와 agent.env의 VOICE_TUTOR_LIVEKIT_AGENT_NAME도 같아야 한다.
+
 # 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
 #    타입 A / 이름 api      / 값 <서버 IP> / TTL 기본
 #    타입 A / 이름 telegram / 값 <서버 IP> / TTL 기본
@@ -106,6 +110,14 @@ chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
 숫자로 확인하는 유일한 방법이다.
 
 ## AI 튜터 Agent (`korio_tutor_agent`)
+
+새 AI Voice Tutor는 `korio_voice_tutor_agent` 컨테이너로 따로 실행된다.
+기존 Gemini Tutor (`korio_tutor_agent`)와 LiveKit agentName 및 수업 데이터가
+분리돼 있다. `deploy.sh`는 API 교체 후 두 Agent를 각각 다시 띄우고 등록 이름을
+확인한다. 새 Agent는 `agent.env`의 `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`,
+`VOICE_TUTOR_API_URL=https://api.korio.online`이 필요하다. API의 `api.env`에
+넣은 키는 Agent에 자동으로 전달되지 않는다. 두 컨테이너의 상태는
+`./deploy.sh --status`로 확인한다.
 
 ```
 앱 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──Gemini Live──▶ gemini-3.8-live

@@ -72,6 +72,8 @@ color_containers() { local c="$1"; echo "korio_api_$c korio_telegram_$c korio_ad
 #    그래서 단일 컨테이너를 그 자리에서 갈아끼운다.
 AGENT_SERVICE="tutor_agent"
 AGENT_CONTAINER="korio_tutor_agent"
+VOICE_AGENT_SERVICE="voice_tutor_agent"
+VOICE_AGENT_CONTAINER="korio_voice_tutor_agent"
 
 # ── 디스크 ──
 #
@@ -170,7 +172,7 @@ cmd_rollback() {
   log "롤백 완료 → $other"
   # Agent 는 색이 없어서 이 롤백에 안 딸려 온다. 프롬프트 계약이 바뀐
   # 배포를 되돌리는 거라면 Agent 도 같이 내려야 한다
-  warn "튜터 Agent 는 롤백 대상이 아니다 (색이 없는 단일 컨테이너)."
+  warn "튜터 Agent 두 개는 롤백 대상이 아니다 (색이 없는 단일 컨테이너)."
   warn "  프롬프트/metadata 계약이 바뀐 배포였다면:  ./deploy.sh --tag <이전태그>"
 }
 
@@ -293,6 +295,7 @@ cmd_deploy() {
   # 여기서 실패해도 **API 배포는 이미 끝났다.** 그래서 die 하지 않고 경고만
   # 남긴다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
   deploy_agent || warn "튜터 Agent 가 안 떴다. 통화만 죽은 상태다 — 나머지는 정상."
+  deploy_voice_agent || warn "새 Voice Tutor Agent 가 안 떴다. 새 음성 수업만 사용할 수 없다."
 
   # 성공했을 때만 치운다. 실패한 배포 뒤엔 되돌릴 이미지가 더 필요하다
   log "옛 이미지 정리 (종류별 최근 ${KEEP_IMAGES}개는 남긴다)"
@@ -333,6 +336,28 @@ deploy_agent() {
     return 1
   fi
   log "튜터 Agent ${GRN}등록됨${RST} (agentName=${registered:-$expected})"
+}
+
+# 새 Voice Tutor는 같은 이미지를 다른 agentName으로 등록하는 별도 프로세스다.
+# 기존 Tutor의 재시작/오류와 독립적으로 상태를 확인한다.
+deploy_voice_agent() {
+  log "새 Voice Tutor Agent 교체: ${AGENT_IMAGE}:${TAG}"
+  "${COMPOSE[@]}" up -d --force-recreate --no-deps "$VOICE_AGENT_SERVICE" || return 1
+  if ! wait_healthy "$VOICE_AGENT_CONTAINER"; then
+    warn "새 Agent가 LiveKit에 등록되지 않았다. agent.env의 OPENAI_API_KEY, ELEVENLABS_API_KEY, VOICE_TUTOR_API_URL, LIVEKIT_* 를 확인해라."
+    return 1
+  fi
+  local registered expected
+  registered="$(docker exec "$VOICE_AGENT_CONTAINER" node -e \
+    "fetch('http://127.0.0.1:8081/worker').then(r=>r.json()).then(j=>console.log(j.agent_name)).catch(()=>{})" \
+    2>/dev/null | tr -d '\r\n' || true)"
+  expected="$(grep -E '^VOICE_TUTOR_LIVEKIT_AGENT_NAME=' api.env | head -1 | cut -d= -f2- | tr -d ' "'"'"'' || true)"
+  expected="${expected:-korio-voice-tutor}"
+  if [[ -z "$registered" || "$registered" != "$expected" ]]; then
+    warn "새 Agent 등록 이름이 '${registered:-확인 실패}' 인데 api.env 는 '${expected}' 를 부른다"
+    return 1
+  fi
+  log "새 Voice Tutor Agent ${GRN}등록됨${RST} (agentName=$registered)"
 }
 
 case "${1:-}" in

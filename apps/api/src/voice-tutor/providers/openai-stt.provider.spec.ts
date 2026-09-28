@@ -29,5 +29,6 @@ describe('Voice Tutor STT adapter', () => {
     const form = options?.body as FormData;
     expect(form.get('model')).toBe('gpt-4o-mini-transcribe');
     expect(form.get('file')).toBeInstanceOf(Blob);
+    expect(form.has('response_format')).toBe(false);
   });
 });

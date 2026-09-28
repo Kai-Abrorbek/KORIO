@@ -49,6 +49,213 @@ describe('VoiceTutorService lifecycle', () => {
     process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
   });
 
+  it('starts a separate LiveKit room without synthesizing the greeting twice', async () => {
+    const session = { _id: new Types.ObjectId(sessionId) };
+    const sessions = {
+      create: jest.fn().mockResolvedValue(session),
+    };
+    const messages = {
+      create: jest.fn().mockImplementation((row: Record<string, unknown>) =>
+        Promise.resolve({
+          ...row,
+          _id: new Types.ObjectId(),
+          createdAt: new Date(),
+        }),
+      ),
+    };
+    const profile = {
+      getSettings: jest
+        .fn()
+        .mockResolvedValue({ ...settings, voiceId: 'default' }),
+      getMemory: jest.fn().mockResolvedValue(memory),
+      latestPlan: jest.fn().mockResolvedValue(plan),
+    };
+    const tts = { synthesize: jest.fn() };
+    const grant = {
+      serverUrl: 'wss://livekit.example',
+      roomName: `voice-tutor-${sessionId}`,
+      participantToken: 'participant-token',
+    };
+    const livekit = { prepareRoom: jest.fn().mockResolvedValue(grant) };
+    const service = new VoiceTutorService(
+      sessions as never,
+      messages as never,
+      profile as never,
+      {} as never,
+      {} as never,
+      tts as never,
+      {} as never,
+      livekit as never,
+    );
+
+    const result = await service.start(userId);
+    expect(result.livekit).toEqual(grant);
+    expect(result.initialMessage.audioUrl).toBeNull();
+    expect(tts.synthesize).not.toHaveBeenCalled();
+    expect(livekit.prepareRoom).toHaveBeenCalledWith(
+      sessionId,
+      'testVoice123',
+      {
+        displayText: result.initialMessage.displayText,
+        speechText: result.initialMessage.speechText,
+      },
+    );
+  });
+
+  it('saves an agent turn once and returns the saved reply on retry without TTS', async () => {
+    const session = {
+      _id: new Types.ObjectId(sessionId),
+      userId: new Types.ObjectId(userId),
+      status: 'active',
+      userTurnCount: 0,
+      createdAt: new Date(),
+      settings: { ...settings, voiceId: 'default' },
+      plan,
+    };
+    const rows: Array<Record<string, unknown>> = [];
+    const sessions = {
+      findById: jest.fn().mockImplementation(() => ({
+        then: (resolve: (value: typeof session) => unknown) =>
+          Promise.resolve(session).then(resolve),
+        select: () => ({
+          lean: () => Promise.resolve({ endRequested: false }),
+        }),
+      })),
+      findOneAndUpdate: jest.fn().mockResolvedValue(session),
+      updateOne: jest.fn().mockResolvedValue({}),
+    };
+    const messages = {
+      findOne: jest
+        .fn()
+        .mockImplementation(
+          ({ role, turnId }: { role: string; turnId: string }) =>
+            Promise.resolve(
+              rows.find((row) => row.role === role && row.turnId === turnId) ??
+                null,
+            ),
+        ),
+      create: jest.fn().mockImplementation((row: Record<string, unknown>) => {
+        const saved = {
+          ...row,
+          _id: new Types.ObjectId(),
+          createdAt: new Date(),
+        };
+        rows.push(saved);
+        return Promise.resolve(saved);
+      }),
+      find: jest.fn().mockReturnValue({
+        sort: () => ({ limit: () => ({ lean: () => Promise.resolve(rows) }) }),
+      }),
+    };
+    const profile = {
+      getMemory: jest.fn().mockResolvedValue(memory),
+      latestProgress: jest.fn().mockResolvedValue(null),
+    };
+    const reaction: TutorReaction = {
+      displayText: '좋아요!',
+      speechText: '좋아요!',
+      language: 'ko',
+      emotion: 'happy',
+      delivery: 'normal',
+      intensity: 0.2,
+      gesture: 'none',
+    };
+    const agents = { lesson: jest.fn().mockResolvedValue(reaction) };
+    const tts = { synthesize: jest.fn() };
+    const livekit = { verifyAgentToken: jest.fn() };
+    const service = new VoiceTutorService(
+      sessions as never,
+      messages as never,
+      profile as never,
+      agents as never,
+      {} as never,
+      tts as never,
+      {} as never,
+      livekit as never,
+    );
+    const dto = { turnId: 'turn-1', transcript: '안녕하세요' };
+    const first = await service.agentTurn(
+      sessionId,
+      'Bearer signed-token',
+      dto,
+    );
+    const second = await service.agentTurn(
+      sessionId,
+      'Bearer signed-token',
+      dto,
+    );
+
+    expect(first.teacherMessage.speechText).toBe('좋아요!');
+    expect(second.teacherMessage.id).toBe(first.teacherMessage.id);
+    expect(agents.lesson).toHaveBeenCalledTimes(1);
+    expect(tts.synthesize).not.toHaveBeenCalled();
+    expect(rows).toHaveLength(2);
+    expect(livekit.verifyAgentToken).toHaveBeenCalledWith(
+      sessionId,
+      'Bearer signed-token',
+    );
+    await expect(
+      service.agentTurn(sessionId, 'Bearer signed-token', {
+        turnId: 'turn-1',
+        transcript: '다른 말',
+      }),
+    ).rejects.toThrow('VOICE_TUTOR_TURN_ID_REUSED');
+  });
+
+  it('synthesizes replay audio only when requested and caches concurrent requests', async () => {
+    const session = {
+      _id: new Types.ObjectId(sessionId),
+      settings: { ...settings, voiceId: 'default' },
+    };
+    const row = {
+      _id: new Types.ObjectId(),
+      role: 'teacher' as const,
+      text: '안녕하세요',
+      speechText: '안녕하세요',
+      displayText: '안녕하세요',
+      language: 'ko',
+      audioId: null as Types.ObjectId | null,
+      createdAt: new Date(),
+    };
+    const sessions = { findOne: jest.fn().mockResolvedValue(session) };
+    const messages = {
+      findOne: jest.fn().mockResolvedValue(row),
+      updateOne: jest
+        .fn()
+        .mockImplementation(
+          (_: unknown, update: { $set: { audioId: Types.ObjectId } }) => {
+            row.audioId = update.$set.audioId;
+            return Promise.resolve({});
+          },
+        ),
+      findById: jest.fn().mockImplementation(() => Promise.resolve(row)),
+    };
+    const tts = {
+      synthesize: jest.fn().mockResolvedValue(Buffer.from([1, 2])),
+    };
+    const audio = {
+      store: jest.fn().mockResolvedValue(`/voice-tutor/audio/${audioId}`),
+    };
+    const service = new VoiceTutorService(
+      sessions as never,
+      messages as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      tts as never,
+      audio as never,
+      {} as never,
+    );
+
+    const [first, second] = await Promise.all([
+      service.replayAudio(userId, sessionId, row._id.toString()),
+      service.replayAudio(userId, sessionId, row._id.toString()),
+    ]);
+    expect(first.audioUrl).toBe(`/voice-tutor/audio/${audioId}`);
+    expect(second.audioUrl).toBe(first.audioUrl);
+    expect(tts.synthesize).toHaveBeenCalledTimes(1);
+  });
+
   it('turn stores an independent transcript and reaction with the same voice', async () => {
     const session = {
       _id: new Types.ObjectId(sessionId),
@@ -109,6 +316,7 @@ describe('VoiceTutorService lifecycle', () => {
       stt as never,
       tts as never,
       audio as never,
+      {} as never,
     );
 
     const result = await service.turn(
@@ -153,6 +361,7 @@ describe('VoiceTutorService lifecycle', () => {
       {} as never,
       {} as never,
       {} as never,
+      {} as never,
     );
     const result = await service.end(userId, sessionId);
     expect(result.status).toBe('ending');
@@ -189,6 +398,7 @@ describe('VoiceTutorService lifecycle', () => {
       {} as never,
       profile as never,
       agents as never,
+      {} as never,
       {} as never,
       {} as never,
       {} as never,
@@ -241,6 +451,7 @@ describe('VoiceTutorService lifecycle', () => {
       messages as never,
       profile as never,
       agents as never,
+      {} as never,
       {} as never,
       {} as never,
       {} as never,

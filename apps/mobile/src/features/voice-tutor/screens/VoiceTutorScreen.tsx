@@ -48,7 +48,7 @@ export default function VoiceTutorScreen() {
   const tutor = useVoiceTutor();
   const endSession = tutor.end;
   const active = !["setup", "starting", "finished"].includes(tutor.phase);
-  const canRecord = tutor.phase === "ready" || tutor.phase === "speaking";
+  const canToggleMic = !["connecting", "ending"].includes(tutor.phase);
   const voiceAvailable = tutor.options?.voices.some((voice) => voice.enabled !== false) ?? false;
   const spokenMessage = tutor.spokenMessage;
   const characterId = tutor.settings?.characterId ?? "female_01";
@@ -77,7 +77,7 @@ export default function VoiceTutorScreen() {
     router.back();
   };
 
-  const canReplay = tutor.phase === "ready" || tutor.phase === "speaking";
+  const canReplay = !["connecting", "ending"].includes(tutor.phase);
 
   return (
     <View style={[s.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -229,29 +229,31 @@ export default function VoiceTutorScreen() {
             {tutor.messages.map((message) => (
               <MessageBubble key={message.id} message={message} canReplay={canReplay} onReplay={() => void tutor.playMessage(message)} s={s} />
             ))}
-            {(tutor.phase === "transcribing" || tutor.phase === "thinking") && (
+            {!!tutor.liveUserText && <View style={[s.message, s.userMessage]}><Text style={s.messageRole}>{t("voiceTutor.you")}</Text><Text style={s.messageText}>{tutor.liveUserText}</Text></View>}
+            {!!tutor.liveTeacherText && <View style={[s.message, s.teacherMessage]}><Text style={s.messageRole}>{t("voiceTutor.teacher")}</Text><Text style={s.messageText}>{tutor.liveTeacherText}</Text></View>}
+            {(tutor.phase === "connecting" || tutor.phase === "thinking") && (
               <View style={s.waiting}><ActivityIndicator size="small" color={theme.primary} /><Text style={s.waitingText}>{t(`voiceTutor.phase.${tutor.phase}`)}</Text></View>
             )}
           </ScrollView>
           {tutor.error && <Text style={s.inlineError}>{errorText(tutor.error, t)}</Text>}
           <View style={s.controls}>
             {tutor.phase === "speaking" && (
-              <Pressable accessibilityRole="button" onPress={tutor.interrupt} style={s.secondaryButton}>
+              <Pressable accessibilityRole="button" onPress={() => void tutor.interrupt()} style={s.secondaryButton}>
                 <Ionicons name="stop" size={18} color={theme.text} />
                 <Text style={s.secondaryText}>{t("voiceTutor.interrupt")}</Text>
               </Pressable>
             )}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={tutor.phase === "recording" ? t("voiceTutor.send") : t("voiceTutor.mic")}
-              disabled={!canRecord && tutor.phase !== "recording"}
-              onPress={() => tutor.phase === "recording" ? void tutor.stopRecording() : void tutor.startRecording()}
-              style={[s.micButton, tutor.phase === "recording" && s.micRecording, !canRecord && tutor.phase !== "recording" && s.disabled]}
+              accessibilityLabel={tutor.micOn ? t("voiceTutor.muteMic") : t("voiceTutor.unmuteMic")}
+              disabled={!canToggleMic}
+              onPress={tutor.toggleMic}
+              style={[s.micButton, !tutor.micOn && s.micRecording, !canToggleMic && s.disabled]}
             >
-              <Ionicons name={tutor.phase === "recording" ? "send" : "mic"} size={28} color="#fff" />
-              <Text style={s.micText}>{tutor.phase === "recording" ? t("voiceTutor.send") : t("voiceTutor.mic")}</Text>
+              <Ionicons name={tutor.micOn ? "mic" : "mic-off"} size={28} color="#fff" />
+              <Text style={s.micText}>{tutor.micOn ? t("voiceTutor.muteMic") : t("voiceTutor.unmuteMic")}</Text>
             </Pressable>
-            <Text style={s.recordHint}>{tutor.phase === "recording" ? t("voiceTutor.recordingHint") : t("voiceTutor.tapHint")}</Text>
+            <Text style={s.recordHint}>{t("voiceTutor.liveHint")}</Text>
           </View>
         </>
       )}
@@ -283,7 +285,7 @@ function MessageBubble({ message, canReplay, onReplay, s }: {
     <Text style={s.messageRole}>{teacher ? t("voiceTutor.teacher") : t("voiceTutor.you")}</Text>
     <Text style={s.messageText}>{message.displayText?.trim() || message.text}</Text>
     {message.correction?.correct && <Text style={s.correctionText}>{message.correction.wrong ? `${message.correction.wrong} → ` : ""}{message.correction.correct}</Text>}
-    {message.audioUrl && <Pressable accessibilityRole="button" disabled={!canReplay} onPress={onReplay} style={[s.replayButton, !canReplay && s.disabled]}>
+    {teacher && <Pressable accessibilityRole="button" disabled={!canReplay} onPress={onReplay} style={[s.replayButton, !canReplay && s.disabled]}>
       <Ionicons name="volume-high" size={16} color="#776ee2" />
       <Text style={s.replayText}>{t("voiceTutor.replay")}</Text>
     </Pressable>}
@@ -315,7 +317,7 @@ function SessionSummary({ plan, progress, s }: {
 }
 
 function errorText(code: string, t: ReturnType<typeof useTranslation>["t"]): string {
-  const known = new Set(["MIC_PERMISSION_DENIED", "NETWORK_ERROR", "UNAUTHORIZED", "RECORDING_EMPTY", "AUDIO_PLAYBACK_FAILED", "AUDIO_TOO_LARGE", "INVALID_AUDIO_URL", "VOICE_TUTOR_TTS_UNAVAILABLE", "VOICE_TUTOR_LESSON_UNAVAILABLE"]);
+  const known = new Set(["MIC_PERMISSION_DENIED", "NETWORK_ERROR", "UNAUTHORIZED", "AUDIO_PLAYBACK_FAILED", "INVALID_AUDIO_URL", "VOICE_TUTOR_TTS_UNAVAILABLE", "VOICE_TUTOR_LESSON_UNAVAILABLE", "VOICE_TUTOR_AGENT_UNAVAILABLE", "CONNECTION_LOST", "CONNECTION_ERROR"]);
   return known.has(code) ? t(`voiceTutor.error.${code}`) : t("voiceTutor.error.generic");
 }
 

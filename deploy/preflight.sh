@@ -352,6 +352,20 @@ if [[ -f agent.env ]]; then
     || bad "agent.env 의 GOOGLE_API_KEY 가 비어 있다 — 통화가 첫 마디부터 실패한다"
   [[ -z "$API_GKEY" ]] && ok "api.env 에는 GOOGLE_API_KEY 없음 (의도된 것)" \
     || warn "api.env 에도 GOOGLE_API_KEY 가 있다 — API 컨테이너는 Gemini 에 안 붙는다. 지워도 된다"
+
+  # 기존 Gemini Tutor와 별도 등록되는 Voice Tutor 프로세스의 필수값.
+  V_NAME="$(val agent.env VOICE_TUTOR_LIVEKIT_AGENT_NAME)"
+  V_API_NAME="$(val api.env VOICE_TUTOR_LIVEKIT_AGENT_NAME)"
+  [[ "${V_NAME:-korio-voice-tutor}" == "${V_API_NAME:-korio-voice-tutor}" ]] \
+    && ok "Voice Tutor agentName 일치 (${V_NAME:-korio-voice-tutor})" \
+    || bad "VOICE_TUTOR_LIVEKIT_AGENT_NAME 불일치 — 새 음성 수업 Agent가 방에 들어오지 않는다"
+  [[ -n "$(val agent.env OPENAI_API_KEY)" ]] && ok "agent.env 에 Voice Tutor OpenAI 키 있음" \
+    || bad "agent.env 에 OPENAI_API_KEY 없음 — 새 음성 수업 STT가 작동하지 않는다"
+  [[ -n "$(val agent.env ELEVENLABS_API_KEY)" ]] && ok "agent.env 에 Voice Tutor ElevenLabs 키 있음" \
+    || bad "agent.env 에 ELEVENLABS_API_KEY 없음 — 새 음성 수업 목소리가 나오지 않는다"
+  V_API_URL="$(val agent.env VOICE_TUTOR_API_URL)"
+  [[ "$V_API_URL" == https://* ]] && ok "agent.env 에 Voice Tutor HTTPS API URL 있음" \
+    || bad "agent.env 에 HTTPS VOICE_TUTOR_API_URL 없음 — 턴 저장/응답이 실패한다"
 else
   bad "agent.env 없음 — cp agent.env.example agent.env && chmod 600 agent.env"
   warn "     없으면 ./deploy.sh 가 시작도 못 한다"

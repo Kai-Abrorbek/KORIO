@@ -12,6 +12,18 @@ describe('Voice Tutor isolated MongoDB schemas', () => {
     expect(VoiceTutorSettingsSchema.path('characterId')).toBeDefined();
     expect(VoiceTutorSessionSchema.path('endRequested')).toBeDefined();
     expect(VoiceTutorMessageSchema.path('gesture')).toBeDefined();
+    expect(VoiceTutorMessageSchema.path('turnId')).toBeDefined();
+    expect(VoiceTutorMessageSchema.indexes()).toEqual(
+      expect.arrayContaining([
+        [
+          { sessionId: 1, turnId: 1, role: 1 },
+          {
+            unique: true,
+            partialFilterExpression: { turnId: { $type: 'string' } },
+          },
+        ],
+      ]),
+    );
     expect(VoiceTutorMemorySchema.path('recurringMistakes')).toBeDefined();
     expect(VoiceTutorPlanSchema.path('plan')).toBeDefined();
     expect(VoiceTutorProgressSchema.path('progress')).toBeDefined();
