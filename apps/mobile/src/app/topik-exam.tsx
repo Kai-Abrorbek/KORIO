@@ -387,7 +387,9 @@ export default function TopikExamScreen() {
   const moveTo = async (nextIndex: number) => {
     setBusy(true);
     try {
-      await saveProgress();
+      // 저장 실패로 이동이 막히면 "다음" 이 고장 난 것처럼 보인다. 답은 상태에
+      // 남아 있고 다음 이동·나가기·제출 때 다시 저장한다
+      await saveProgress().catch(() => undefined);
       setCurrentIndex(Math.min(Math.max(nextIndex, 0), questions.length - 1));
     } finally {
       setBusy(false);

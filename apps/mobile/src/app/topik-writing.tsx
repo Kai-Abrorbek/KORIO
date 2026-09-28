@@ -259,15 +259,11 @@ export default function TopikWritingScreen() {
     ],
   );
 
+  // 저장이 실패해도 문항 이동은 막지 않는다. 예전엔 실패 시 "불러오기 실패"
+  // 시트가 뜨고, 거기서 다시 시도를 누르면 load() 가 시험을 새로 받아서
+  // 쓰던 글이 날아갔다. 쓴 글은 상태에 남아 있고 다음 저장 때 같이 간다
   const moveTo = async (index: number) => {
-    if (!submittedReviewMode) {
-      try {
-        await save(index);
-      } catch {
-        setErrorVisible(true);
-        return;
-      }
-    }
+    if (!submittedReviewMode) await save(index).catch(() => undefined);
     setCurrentIndex(Math.max(0, Math.min(questions.length - 1, index)));
   };
 
@@ -586,7 +582,8 @@ export default function TopikWritingScreen() {
         onClose={() => setErrorVisible(false)}
         onPrimary={() => {
           setErrorVisible(false);
-          void load();
+          // 이미 불러온 시험이면 다시 받지 않는다 — 쓰던 글이 날아간다
+          if (!attempt) void load();
         }}
         primaryLabel={t("topik.common.retry")}
         title={t("topik.writingExam.loadFailed")}
