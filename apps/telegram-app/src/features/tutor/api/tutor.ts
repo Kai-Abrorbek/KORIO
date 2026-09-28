@@ -2,12 +2,15 @@ import { apiBaseUrl } from "../../../shared/config/env";
 import type {
   EndSessionResult,
   TranscriptTurn,
+  TutorAddressStyle,
   TutorMode,
   TutorQuota,
   TutorSessionGrant,
   TutorTeacherCard,
+  TutorTeachingLanguage,
   TutorTopicCard,
 } from "../model/tutor";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 export type AuthenticatedRequest = <T>(
   path: string,
@@ -19,22 +22,39 @@ export function getTutorQuota(request: AuthenticatedRequest) {
 }
 
 export function getTutorTopics(request: AuthenticatedRequest) {
-  return request<{ topics: TutorTopicCard[] }>("/tutor/topics?lang=uz");
+  return request<{ topics: TutorTopicCard[] }>(`/tutor/topics?lang=${getContentLang()}`);
 }
 
 export function getTutorTeachers(request: AuthenticatedRequest) {
-  return request<{ teachers: TutorTeacherCard[] }>("/tutor/teachers?lang=uz");
+  return request<{ teachers: TutorTeacherCard[] }>(`/tutor/teachers?lang=${getContentLang()}`);
 }
 
 export function createTutorSession(
   request: AuthenticatedRequest,
   mode: TutorMode,
-  options: { topicId?: string; teacherId?: string } = {},
+  options: {
+    topicId?: string;
+    teacherId?: string;
+    /** 존댓말/반말. 성격과 독립이고, 시작 화면에서 고른다 */
+    addressStyle?: TutorAddressStyle;
+    /** 설명을 들을 언어. 서버 계약은 그대로 `lang` 으로 보낸다 (DTO 에 teachingLanguage 는 없다) */
+    teachingLanguage?: TutorTeachingLanguage;
+  } = {},
 ) {
+  const { teachingLanguage, ...rest } = options;
   return request<TutorSessionGrant>("/tutor/session", {
-    body: JSON.stringify({ mode, ...options, lang: "uz" }),
+    body: JSON.stringify({
+      mode,
+      ...rest,
+      lang: teachingLanguage ?? getContentLang(),
+    }),
     method: "POST",
   });
+}
+
+/** 카드의 previewUrl(상대경로)을 재생 가능한 절대 주소로 */
+export function tutorPreviewUrl(previewUrl: string) {
+  return `${apiBaseUrl()}${previewUrl}`;
 }
 
 export function createTutorSpeech(
@@ -58,7 +78,7 @@ export function explainTutorCaption(
   return request<{ translation: string; explanation: string | null }>(
     "/tutor/explain",
     {
-      body: JSON.stringify({ text, lang: "uz" }),
+      body: JSON.stringify({ text, lang: getContentLang() }),
       method: "POST",
     },
   );
@@ -74,7 +94,7 @@ export function endTutorSession(
     body: JSON.stringify({
       sessionId,
       durationSec,
-      lang: "uz",
+      lang: getContentLang(),
       ...(transcript?.length ? { transcript } : {}),
     }),
     keepalive: true,

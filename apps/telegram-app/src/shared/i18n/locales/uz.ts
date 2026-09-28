@@ -932,6 +932,13 @@ export default {
     language: {
       subtitle: "Ilova tilini tanlang",
     },
+    contentLanguage: {
+      title: "Ma'no va izohlar qaysi tilda bo'lsin?",
+      desc: "Ekran koreys tilida qoladi — faqat so'z ma'nolari, tarjimalar va grammatika izohlari shu tilda ko'rsatiladi. Til sozlamalarida istalgan vaqt o'zgartirish mumkin.",
+      rowLabel: "Ma'no va izohlar tili",
+      rowHint: "So'z ma'nolari, tarjima, grammatika izohlari",
+      confirm: "Tasdiqlash",
+    },
     notifications: {
       channelDefault: "KORIO bildirishnomalari",
       channelStudy: "Dars eslatmalari",
@@ -1352,6 +1359,7 @@ export default {
       text: "Matnni ko'rsatish",
       textHide: "Matnni yashirish",
       end: "Darsni tugatish",
+      tapForSound: "Ustozni eshitish uchun bosing",
     },
     personality: {
       calm: "Xotirjam",
@@ -1448,6 +1456,7 @@ export default {
       TUTOR_NOT_CONFIGURED: "Hozircha mavjud emas.",
       TUTOR_AGENT_UNAVAILABLE: "Ustoz javob bermayapti. Birozdan so'ng qayta urinib ko'ring.",
       TUTOR_SESSION_FAILED: "Suhbatni boshlab bo'lmadi. Qayta urinib ko'ring.",
+      MIC_UNSUPPORTED: "Bu muhitda mikrofon ishlamaydi. Ilovadan foydalaning.",
     },
   },
   // Do'st taklif qilish mukofoti (app/invite.tsx)

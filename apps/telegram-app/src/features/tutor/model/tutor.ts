@@ -51,14 +51,29 @@ export interface TutorTeacherCard {
     | "pronunciation"
     | "teasing";
   recommendedModes: TutorMode[];
+  /**
+   * 목소리 미리듣기 주소 (서버 상대경로). 에셋이 없으면 null.
+   * 실제 통화 목소리로 미리 만든 파일이라 고를 때 들은 사람 = 수업에서 만나는 사람이다.
+   */
+  previewUrl?: string | null;
 }
+
+/** 튜터가 나에게 쓰는 말투. 가르치는 한국어의 존댓말/반말과는 다른 축이다 */
+export type TutorAddressStyle = "polite" | "casual";
+
+/** 설명을 들을 언어. 앱 UI 언어와 별개다 (서버에는 기존 lang 으로 간다) */
+export type TutorTeachingLanguage = "uz" | "ru" | "en" | "ko";
+
+export const TUTOR_TEACHING_LANGUAGES: TutorTeachingLanguage[] = ["uz", "ru", "en", "ko"];
 
 export interface TutorSessionGrant {
   sessionId: string;
-  clientSecret: string;
-  expiresAt: number | null;
-  model: string;
-  voice: string;
+  /** LiveKit 접속 정보. 앱에는 이것뿐이다 — 모델 키는 서버/Agent 에만 있다 */
+  livekit: {
+    serverUrl: string;
+    roomName: string;
+    participantToken: string;
+  };
   topicId: string | null;
   targetExpressions: string[];
   teacher: {

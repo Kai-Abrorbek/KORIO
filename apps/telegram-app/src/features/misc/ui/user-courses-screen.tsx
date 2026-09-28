@@ -46,7 +46,7 @@ export function UserCoursesScreen() {
             <div className={styles.courseRow}>
               <span className={styles.courseFlag}>{person.coursePrimaryFlag || "🇰🇷"}</span>
               <strong>Koreys tili</strong>
-              <b>{(person.totalXP ?? 0).toLocaleString()} XP</b>
+              <b>{`${(person.totalXP ?? 0).toLocaleString()} XP`}</b>
             </div>
           </div>
         )}

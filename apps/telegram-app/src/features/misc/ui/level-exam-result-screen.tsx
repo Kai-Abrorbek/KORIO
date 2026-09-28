@@ -28,13 +28,13 @@ export function LevelExamResultScreen() {
         <Image alt="Haneulmon" className={styles.examMascot} height={passed ? 170 : 150} src={`/characters/hangulmon_${passed ? "celebrating" : "default"}.png`} unoptimized width={passed ? 170 : 150} />
         <h1>{passed ? `${level}-daraja o'tildi!` : `${level}-daraja, ozgina qoldi`}</h1>
         <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : "Keyingi daraja ochiq. Quyidagilarni yana bir ko'rsangiz ancha oson bo'ladi."}</p>
-        <div className={styles.examScore}><b>{ratio}%</b><span>{total} savoldan {correct} tasi to&apos;g&apos;ri</span></div>
+        <div className={styles.examScore}><b>{ratio}%</b><span>{`${total} savoldan ${correct} tasi to'g'ri`}</span></div>
         {passed && (gems > 0 || xp > 0) ? <div className={styles.examRewards}>
           {gems > 0 ? <span><MobileIcon name="diamond" size={19} />+{gems}</span> : null}
-          {xp > 0 ? <span><MobileIcon name="flash" size={19} />+{xp} XP</span> : null}
+          {xp > 0 ? <span><MobileIcon name="flash" size={19} />{`+${xp} XP`}</span> : null}
         </div> : null}
         {weak.length ? <div className={styles.weakCard}><strong>Shu qismlar qiyin bo&apos;ldi</strong><div>{weak.map((area) => <span key={area}>{WEAK_AREA_LABELS[area] ?? "Boshqa"}</span>)}</div></div> : null}
-        {nextLevel ? <small className={styles.nextLevel}>{nextLevel}-daraja ochildi</small> : null}
+        {nextLevel ? <small className={styles.nextLevel}>{`${nextLevel}-daraja ochildi`}</small> : null}
       </section>
       <footer className={styles.examActions}>
         <button className={styles.examPrimary} onClick={() => router.replace("/study-path")} type="button">Davom etish</button>

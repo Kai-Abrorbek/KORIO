@@ -15,12 +15,13 @@ import { HomeIcon } from "../../home/ui/home-icon";
 import { LearningIcon } from "../../learning/ui/learning-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { claimStudyPathChests, getStudyPath } from "../api/study-path";
+import { useEnergyGuard } from "../../energy/energy-gate";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import {
   STUDY_NODE_COPY,
   STUDY_PATH_COLORS,
   studyCountLabel,
   studyNodeTitle,
-  type ChestClaimResult,
   type StudyDay,
   type StudyNode,
   type StudyNodeKind,
@@ -28,6 +29,7 @@ import {
   type StudyPathResponse,
 } from "../model/study-path";
 import styles from "./study-path.module.css";
+import { CourseDropdown } from "../../roadmap/ui/course-dropdown";
 
 interface DisplayNode {
   claimable?: boolean;
@@ -232,8 +234,7 @@ function DayBanner({
           </em>
         </span>
       </span>
-      <button onClick={onLevelPress} type="button">
-        {level}-daraja <HomeIcon name="swap" size={13} />
+      <button onClick={onLevelPress} type="button">{`${level}-daraja `}<HomeIcon name="swap" size={13} />
       </button>
     </section>
   );
@@ -241,6 +242,7 @@ function DayBanner({
 
 export function StudyPathScreen() {
   const router = useRouter();
+  const [courseOpen, setCourseOpen] = useState(false);
   const { request, updateUser, user } = useTelegramAuth();
   const [data, setData] = useState<StudyPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -248,7 +250,9 @@ export function StudyPathScreen() {
   const [visibleDayIndex, setVisibleDayIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
-  const [reward, setReward] = useState<ChestClaimResult | null>(null);
+  const guardLessonStart = useEnergyGuard();
+  // 앱처럼 학습 로드의 뒤로가기는 홈으로
+  useTelegramBackOverride(() => router.replace("/home"));
   const scrollRef = useRef<HTMLDivElement>(null);
   const dayRefs = useRef(new Map<string, HTMLElement>());
 
@@ -324,7 +328,8 @@ export function StudyPathScreen() {
     params.set("kind", node.kind);
     params.set("group", String(node.group));
     params.set("lesson", String(node.nextLesson));
-    router.push(`/lesson?${params.toString()}`);
+    // 나머지는 레슨 화면에서 푼다 — 에너지가 없으면 에너지 모달부터 (앱 guardLessonStart)
+    guardLessonStart(() => router.push(`/lesson?${params.toString()}`));
   };
 
   const claimChest = async () => {
@@ -334,9 +339,18 @@ export function StudyPathScreen() {
       const result = await claimStudyPathChests(request);
       if (result.claimed > 0) {
         updateUser({ gems: result.totalGems });
-        setReward(result);
-        await load();
+        void load();
+        // 자유 학습과 같은 상자 화면 (탭해서 열기·보석 쏟아짐). from 을 넘겨야 닫을 때 이쪽으로 온다
+        const params = new URLSearchParams({
+          from: "studyPath",
+          gemTotal: String(result.totalGems - result.gems),
+          gems: String(result.gems),
+          grade: result.grade ?? "wood",
+        });
+        router.push(`/chest-reward?${params.toString()}`);
       }
+    } catch {
+      // 못 받아도 화면을 막지 않는다
     } finally {
       setClaiming(false);
     }
@@ -346,14 +360,8 @@ export function StudyPathScreen() {
 
   return (
     <main className={styles.pathPage}>
-      <nav className={styles.miniRoadmapNav}>
-        <button aria-label="Orqaga" onClick={() => router.replace("/courses")} type="button">
-          <HomeIcon name="back" size={25} />
-        </button>
-        <strong>O&apos;quv xaritasi</strong>
-      </nav>
       <header className={styles.pathStats}>
-        <button onClick={() => router.push("/courses")} type="button">
+        <button onClick={() => setCourseOpen(true)} type="button">
           <span>🇰🇷</span>
           <b>{data?.score ?? 0}</b>
           <HomeIcon className={styles.caret} name="caret" size={15} />
@@ -424,7 +432,7 @@ export function StudyPathScreen() {
                   </div>
                 ) : null}
                 <div className={styles.dayTitle}>
-                  <span>{day.dayNumber}-kun</span>
+                  <span>{`${day.dayNumber}-kun`}</span>
                   <strong>
                     {day.phase === 1
                       ? `${day.title} o'rganish`
@@ -558,7 +566,7 @@ export function StudyPathScreen() {
                 <HomeIcon name="ribbon" size={27} />
               </span>
               <span>
-                <strong>{data.currentLevel}-daraja bitiruv imtihoni</strong>
+                <strong>{`${data.currentLevel}-daraja bitiruv imtihoni`}</strong>
                 <small>
                   {data.levelExam.passed
                     ? "Allaqachon o'tgansiz. Yana ishlashingiz mumkin."
@@ -600,18 +608,8 @@ export function StudyPathScreen() {
         </button>
       ) : null}
 
-      {reward ? (
-        <section className={styles.rewardSheet}>
-          <span className={styles.rewardChest}>🎁</span>
-          <div>
-            <small>Mukofot olindi</small>
-            <strong>+{reward.gems} olmos</strong>
-          </div>
-          <button onClick={() => setReward(null)} type="button">
-            <HomeIcon name="check" size={19} />
-          </button>
-        </section>
-      ) : null}
+      {/* 🇰🇷 스코어 → 위에서 내려오는 과정·스코어 패널 (앱 CourseDropdown) */}
+      <CourseDropdown onClose={() => setCourseOpen(false)} studyMode="guided" visible={courseOpen} />
     </main>
   );
 }

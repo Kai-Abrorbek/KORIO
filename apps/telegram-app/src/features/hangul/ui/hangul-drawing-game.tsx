@@ -17,7 +17,7 @@ import { StrokeCanvas } from "./stroke-canvas";
 import styles from "./hangul-drawing.module.css";
 
 const SCORE_LABELS: Record<StrokeScore, string> = {
-  fail: "Qaytadan urinib ko''ring",
+  fail: "Qaytadan urinib ko'ring",
   good: "Yaxshi",
   okay: "Yomonmas",
   perfect: "Ajoyib!",
@@ -213,9 +213,7 @@ export function HangulDrawingGame() {
             <MobileIcon name="volume-medium" size={20} />
           </button>
         </div>
-        <p>
-          {strokeIndex + 1}/{character.strokes.length} chiziq
-        </p>
+        <p>{`${strokeIndex + 1}/${character.strokes.length} chiziq`}</p>
       </section>
 
       <section className={styles.canvasArea}>

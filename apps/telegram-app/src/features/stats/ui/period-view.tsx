@@ -21,13 +21,14 @@ import {
   type AuthenticatedRequest,
 } from "./stats-screen";
 import styles from "./period-view.module.css";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 export function getPeriod(
   request: AuthenticatedRequest,
   range: StudyPeriod,
 ): Promise<PeriodStats> {
   return request<PeriodStats>(
-    "/users/me/stats/period?lang=uz&range=" + range,
+    `/users/me/stats/period?lang=${getContentLang()}&range=` + range,
   );
 }
 
@@ -116,13 +117,8 @@ function TodayInfoCard({
                 name="calendar-clear"
               />
               <div>
-                <strong>
-                  Odatda {weekdays[today.weekdayIndex] ?? weekdays[0]} kuni?
-                </strong>
-                <p>
-                  O&apos;rtacha {today.avgTimeLabel} davomida {today.avgProblems} ta
-                  mashq bajarasiz.
-                </p>
+                <strong>{`Odatda ${weekdays[today.weekdayIndex] ?? weekdays[0] ?? ""} kuni?`}</strong>
+                <p>{`O'rtacha ${today.avgTimeLabel} davomida ${today.avgProblems} ta mashq bajarasiz.`}</p>
               </div>
             </div>
           </StatsCard>
@@ -169,9 +165,7 @@ function MomentumCard({ days }: { days: HeatmapDay[] }) {
           {text}
         </span>
       </div>
-      <h3 className={styles.momentumBig}>
-        Bu hafta {thisWeek} kun shug&apos;ullandingiz
-      </h3>
+      <h3 className={styles.momentumBig}>{`Bu hafta ${thisWeek} kun shug'ullandingiz`}</h3>
       <div className={styles.momentumBars}>
         {recent.map((day, index) => (
           <span className={styles.momentumSlot} key={day.date}>

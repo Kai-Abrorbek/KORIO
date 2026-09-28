@@ -1,0 +1,553 @@
+.screen {
+  --primary: #776ee2;
+  background: var(--app-bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+  padding-top: max(6px, var(--tg-content-safe-area-inset-top, 0px));
+  width: 100%;
+}
+
+.screen button {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+  padding: 0 12px 4px;
+}
+
+.header h1 {
+  font-size: 16px;
+  font-weight: 900;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iconButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex: 0 0 auto;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+}
+
+.center {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+}
+
+.errorText {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0 32px;
+  text-align: center;
+}
+
+.retry {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--primary) !important;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 10px 20px;
+}
+
+.spinner,
+.spinnerLight,
+.miniSpinner {
+  animation: spin 0.8s linear infinite;
+  border: 3px solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  display: inline-block;
+  height: 34px;
+  width: 34px;
+}
+
+.spinnerLight {
+  border-color: rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  height: 22px;
+  width: 22px;
+}
+
+.miniSpinner {
+  border-color: color-mix(in srgb, var(--teacher) 28%, transparent);
+  border-top-color: var(--teacher);
+  border-width: 2px;
+  height: 14px;
+  width: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 20px 28px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  margin: 0 0 20px;
+}
+
+.section {
+  margin-bottom: 26px;
+}
+
+.section h2 {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  margin: 0 0 11px;
+}
+
+/* ── 언어 ── */
+.langRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.langChip {
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  gap: 6px;
+  padding: 10px 13px;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 90ms ease;
+}
+
+.langChip span {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.langChip b {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.langChip:active,
+.addressCard:active,
+.freeCard:active,
+.topicCard:active {
+  transform: scale(0.97);
+}
+
+.langChipOn {
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  border-color: var(--primary);
+}
+
+.langChipOn b {
+  color: var(--primary);
+  font-weight: 900;
+}
+
+/* ── 선생님 ── */
+.teacherRow {
+  display: flex;
+  gap: 10px;
+  margin: 0 -20px;
+  overflow-x: auto;
+  padding: 2px 20px 4px;
+  scrollbar-width: none;
+}
+
+.teacherRow::-webkit-scrollbar {
+  display: none;
+}
+
+.teacherCard {
+  animation: fadeInDown 360ms ease both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  flex: 0 0 132px;
+  position: relative;
+  transition: border-color 160ms ease, transform 90ms ease;
+}
+
+.teacherCard:has(.teacherSelect:active) {
+  transform: scale(0.97);
+}
+
+.teacherCardOn {
+  border-color: var(--teacher);
+  box-shadow: 0 0 0 0.5px var(--teacher);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.teacherSelect {
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.teacherAvatar {
+  align-items: center;
+  background: color-mix(in srgb, var(--teacher) 15%, transparent);
+  border-radius: 15px;
+  display: flex;
+  font-size: 23px;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.teacherNameRow {
+  align-items: center;
+  color: var(--teacher);
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+  min-width: 0;
+}
+
+.teacherNameRow b {
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacherSelect small {
+  -webkit-box-orient: vertical;
+  color: var(--muted);
+  display: -webkit-box;
+  font-size: 11.5px;
+  font-weight: 500;
+  -webkit-line-clamp: 2;
+  line-height: 15px;
+  min-height: 30px;
+  overflow: hidden;
+}
+
+.teacherPlay {
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--teacher);
+  border-radius: 50%;
+  color: var(--teacher) !important;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 30px;
+}
+
+.teacherPlay:active {
+  transform: scale(0.92);
+}
+
+/* ── 말투 ── */
+.addressRow {
+  display: flex;
+  gap: 10px;
+}
+
+.addressCard {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 90ms ease;
+}
+
+.addressCardOn,
+.freeCardOn,
+.topicCardOn {
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.5px var(--primary);
+}
+
+.addressHead {
+  align-items: center;
+  color: var(--primary);
+  display: flex;
+  gap: 5px;
+}
+
+.addressHead b {
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 900;
+}
+
+.addressCardOn .addressHead b {
+  color: var(--primary);
+}
+
+.addressCard small {
+  -webkit-box-orient: vertical;
+  color: var(--muted);
+  display: -webkit-box;
+  font-size: 12.5px;
+  font-weight: 600;
+  -webkit-line-clamp: 2;
+  line-height: 18px;
+  overflow: hidden;
+}
+
+/* ── 주제 ── */
+.freeCard {
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  color: var(--primary) !important;
+  display: flex;
+  gap: 11px;
+  padding: 12px;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 90ms ease;
+  width: 100%;
+}
+
+.freeIcon {
+  align-items: center;
+  background: var(--primary);
+  border-radius: 13px;
+  color: #fff;
+  display: flex;
+  flex: 0 0 auto;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.freeBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.freeBody b {
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.freeBody small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.group h3 {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.topicCard {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 11px;
+  position: relative;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 90ms ease;
+}
+
+.topicIcon {
+  align-items: center;
+  border-radius: 11px;
+  color: #fff;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.topicCard b {
+  font-size: 13.5px;
+  font-weight: 800;
+  overflow: hidden;
+  padding-right: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topicCard small {
+  -webkit-box-orient: vertical;
+  color: var(--muted);
+  display: -webkit-box;
+  font-size: 11.5px;
+  font-weight: 500;
+  -webkit-line-clamp: 2;
+  line-height: 15px;
+  min-height: 30px;
+  overflow: hidden;
+}
+
+.topicCheck {
+  color: var(--primary);
+  display: flex;
+  position: absolute;
+  right: 9px;
+  top: 9px;
+}
+
+.errorInline {
+  color: #e5533d;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  padding-top: 4px;
+  text-align: center;
+}
+
+/* ── 하단 고정 ── */
+.footer {
+  background: var(--app-bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 9px;
+  padding: 10px 20px calc(12px + max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)));
+}
+
+.summary {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 12.5px;
+  font-weight: 700;
+  gap: 5px;
+  justify-content: center;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.summary > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary > i {
+  font-style: normal;
+  opacity: 0.7;
+}
+
+.start {
+  align-items: center;
+  background: var(--primary);
+  border: 0;
+  border-bottom: 5px solid #5b4dd4;
+  border-radius: 16px;
+  color: #fff !important;
+  display: flex;
+  font-size: 16px;
+  font-weight: 900;
+  gap: 8px;
+  height: 54px;
+  justify-content: center;
+  padding: 0 16px;
+  transition: transform 70ms ease, border-bottom-width 70ms ease;
+  width: 100%;
+}
+
+.start:not(:disabled):active {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.start span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startOff {
+  opacity: 0.5;
+}

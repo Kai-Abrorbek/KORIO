@@ -455,9 +455,7 @@ function PlayLevel({
         </p>
       </section>
 
-      <p className={styles.strokeCounter}>
-        {strokeIndex + 1} / {plan.strokes.length}-chiziq
-      </p>
+      <p className={styles.strokeCounter}>{`${strokeIndex + 1} / ${plan.strokes.length}-chiziq`}</p>
 
       <section className={styles.canvasArea}>
         <SyllableCanvas

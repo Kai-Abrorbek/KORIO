@@ -12,6 +12,13 @@ import {
 
 import { isAppLanguage, type AppLanguage } from "./language";
 import {
+  detectDeviceLanguage,
+  readSavedContentLanguage,
+  resolveContentLanguage,
+  saveContentLanguage,
+  type ContentLanguage,
+} from "./content-language";
+import {
   loadTranslationCatalog,
   translateValue,
   type TranslationCatalog,
@@ -24,6 +31,11 @@ export interface LanguageContextValue {
   language: AppLanguage;
   ready: boolean;
   setLanguage: (language: AppLanguage) => void;
+  /** 실제로 쓸 뜻·설명 언어 (UI 가 ko 면 따로 고른 값) */
+  contentLanguage: ContentLanguage;
+  /** 사용자가 고른 설명 언어. null = 아직 안 물어봤다 */
+  savedContentLanguage: ContentLanguage | null;
+  setContentLanguage: (language: ContentLanguage) => void;
 }
 
 interface LocalizedValue {
@@ -32,6 +44,13 @@ interface LocalizedValue {
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
+/** DOM 밖에 뜨는 글(네이티브 팝업 등)을 옮길 때 쓰는 현재 번역 목록 */
+let activeCatalog: TranslationCatalog | null = null;
+
+/** 우즈벡어 원문을 지금 UI 언어로. DOM 이 아닌 곳(텔레그램 팝업, alert)에 쓴다 */
+export function translateText(value: string) {
+  return translateValue(value, activeCatalog);
+}
 const textValues = new WeakMap<Text, LocalizedValue>();
 const attributeValues = new WeakMap<Element, Map<string, LocalizedValue>>();
 
@@ -50,7 +69,10 @@ function localizeText(node: Text, catalog: TranslationCatalog | null) {
   const source = !previous || current !== previous.rendered
     ? current
     : previous.source;
-  const rendered = translateValue(source, catalog);
+  // 같은 원문이 여러 뜻인 곳("Ustoz" = 선생님 / 마스터 티어)은 부모의 data-i18n 키로 정한다
+  const key = node.parentElement?.getAttribute("data-i18n");
+  const keyed = key && catalog ? catalog.keys.get(key) : undefined;
+  const rendered = keyed && !keyed.includes("{{") ? keyed : translateValue(source, catalog);
   textValues.set(node, { rendered, source });
   if (current !== rendered) node.nodeValue = rendered;
 }
@@ -128,12 +150,16 @@ function localizeDocument(catalog: TranslationCatalog | null) {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<AppLanguage>("uz");
+  const [savedContentLanguage, setSavedContentLanguage] =
+    useState<ContentLanguage | null>(null);
   const [catalog, setCatalog] = useState<TranslationCatalog | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    const next = isAppLanguage(saved) ? saved : "uz";
+    // 첫 실행은 텔레그램(기기) 언어. 예전엔 무조건 우즈벡어였다 — 앱과 같게
+    const next = isAppLanguage(saved) ? saved : detectDeviceLanguage();
+    setSavedContentLanguage(readSavedContentLanguage());
     document.documentElement.lang = next;
     document.documentElement.dataset.language = next;
     setLanguageState(next);
@@ -153,6 +179,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [language, ready]);
 
   useEffect(() => {
+    activeCatalog = language === "uz" ? null : catalog;
+  }, [catalog, language]);
+
+  useEffect(() => {
     if (!ready || (language !== "uz" && !catalog)) return;
     return localizeDocument(catalog);
   }, [catalog, language, ready]);
@@ -164,9 +194,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(next);
   }, []);
 
+  const setContentLanguage = useCallback((next: ContentLanguage) => {
+    saveContentLanguage(next);
+    setSavedContentLanguage(next);
+  }, []);
+
   const value = useMemo(
-    () => ({ language, ready, setLanguage }),
-    [language, ready, setLanguage],
+    () => ({
+      contentLanguage: resolveContentLanguage(language, savedContentLanguage),
+      language,
+      ready,
+      savedContentLanguage,
+      setContentLanguage,
+      setLanguage,
+    }),
+    [language, ready, savedContentLanguage, setContentLanguage, setLanguage],
   );
 
   return (
@@ -182,4 +224,9 @@ export function useAppLanguage() {
     throw new Error("useAppLanguage must be used inside LanguageProvider");
   }
   return context;
+}
+
+/** 뜻·설명 언어. 바뀌면 다시 그린다 (API 모듈은 getContentLang 을 쓴다) */
+export function useContentLanguage() {
+  return useAppLanguage().contentLanguage;
 }

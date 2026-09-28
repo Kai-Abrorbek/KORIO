@@ -31,6 +31,13 @@ export function OnboardingResultScreen() {
   return (
     <main className={styles.resultPage}>
       <div className={styles.resultGlow} />
+      {/* 앱의 Sparkles — 결과가 "축하받는 순간" 처럼 보이게 */}
+      <div aria-hidden="true" className={styles.resultSparkles}>
+        <i style={{ background: "#F8C85A", height: 10, left: "10%", top: 24, width: 10 }} />
+        <i style={{ background: "#FF8AAE", height: 8, left: "84%", top: 72, width: 8 }} />
+        <i style={{ background: "#7F77DD", height: 7, left: "6%", top: 152, width: 7 }} />
+        <i style={{ background: "#5CC8BE", height: 11, left: "90%", top: 188, width: 11 }} />
+      </div>
       <div className={styles.resultScroll}>
         <div className={styles.resultEyebrow}><i><MobileIcon name="checkmark" size={13} /></i> DARAJA ANIQLANDI</div>
         <div className={styles.resultMascot}>
@@ -42,7 +49,7 @@ export function OnboardingResultScreen() {
 
         <section className={styles.recommendationCard}>
           <div className={styles.recommendationHeader}>
-            <span><MobileIcon name="compass-outline" size={18} /></span>
+            <span><MobileIcon name="navigate" size={15} /></span>
             <strong>Shaxsiy o&apos;quv yo&apos;li</strong>
             <small><MobileIcon name="sparkles" size={12} /> Siz uchun</small>
           </div>
@@ -60,22 +67,22 @@ export function OnboardingResultScreen() {
               </div>
             ))}
           </div>
-          <h2>{section}-bo&apos;limdan boshlash sizga mos</h2>
+          <h2>{`${section}-bo'limdan boshlash sizga mos`}</h2>
           <p>Test javoblaringiz asosida eng mos joy tanlandi. Oldingi mavzularni istalgan payt takrorlashingiz mumkin.</p>
           <div className={styles.readyRow}>
             <span><MobileIcon name="checkmark" size={15} /></span>
-            <div><strong>{section}-bo&apos;lim o&apos;qishga tayyor</strong><small>{section > 1 ? "Oldingi bo'limlarning barchasi ham ochiq" : "Poydevorni birinchi bosqichdan mustahkamlaymiz"}</small></div>
+            <div><strong>{`${section}-bo'lim o'qishga tayyor`}</strong><small>{section > 1 ? "Oldingi bo'limlarning barchasi ham ochiq" : "Poydevorni birinchi bosqichdan mustahkamlaymiz"}</small></div>
           </div>
         </section>
 
         <div className={styles.resultStats}>
-          <div><span className={styles.greenStat}><MobileIcon name="checkmark-done-circle" size={19} /></span><strong>{correct} <small>/ {total}</small></strong><p>To&apos;g&apos;ri javob</p></div>
-          <div><span><MobileIcon name="stats-chart-outline" size={19} /></span><strong>{score}%</strong><p>Aniqlik</p></div>
+          <div><span className={styles.greenStat}><MobileIcon name="checkmark-done" size={17} /></span><strong>{correct} <small>/ {total}</small></strong><p>To&apos;g&apos;ri javob</p></div>
+          <div><span><MobileIcon name="analytics" size={17} /></span><strong>{score}%</strong><p>Aniqlik</p></div>
         </div>
       </div>
       <footer className={styles.resultFooter}>
-        <button onClick={() => router.replace("/welcome?new=1")} type="button">
-          <span>{section}-bo&apos;limdan boshlash</span>
+        <button onClick={() => router.replace("/home")} type="button">
+          <span>{`${section}-bo'limdan boshlash`}</span>
           <i><MobileIcon name="arrow-forward" size={18} /></i>
         </button>
       </footer>

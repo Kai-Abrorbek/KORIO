@@ -30,6 +30,24 @@ export interface TopikPlaybackRequest {
   repeatCount?: number;
   repeatPauseMs?: number;
   fallbackToSpeech?: boolean;
+  /**
+   * 모의고사처럼 소리가 곧 시험 진행인 곳은 음소거·볼륨 설정을 무시한다 (앱 respectSoundSettings:false).
+   * 기본은 설정을 따른다 — 음소거면 재생하지 않고 false 를 돌려 재생 횟수도 쓰지 않는다
+   */
+  respectSoundSettings?: boolean;
+  volume?: number;
+}
+
+/** use-korean-speech 와 같은 음소거 판정 */
+function soundBlocked() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem("korio-sound-settings") ?? "{}") as { speechVolume?: number; startMuted?: boolean };
+    const session = window.sessionStorage.getItem("korio-muted");
+    const muted = session === null ? Boolean(saved.startMuted) : session === "true";
+    return muted || saved.speechVolume === 0;
+  } catch {
+    return false;
+  }
 }
 
 function listeningRate(questionNumber?: number) {
@@ -81,6 +99,12 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
   const play = useCallback(
     (playback: TopikPlaybackRequest) => {
       stop();
+      const respectSettings = playback.respectSoundSettings !== false;
+      if (respectSettings && soundBlocked()) {
+        // 음소거 — 소리 없이 "재생 완료" 로 흘려보내지 않는다 (앱은 unavailable 을 돌려준다)
+        setStatus("unavailable");
+        return false;
+      }
       const runId = runRef.current;
       const repeatCount = Math.max(1, playback.repeatCount ?? 1);
       const segments = playback.speechSegments?.length
@@ -123,6 +147,8 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
             const voice = speakerVoice(line.speaker);
             speakKorean(line.text, {
               ...voice,
+              respectSoundSettings: respectSettings,
+              volume: playback.volume,
               onEnd: () => speakLine(repeatIndex, segmentIndex, lineIndex + 1),
               rate: listeningRate(
                 segment.questionNumber ?? playback.questionNumber,
@@ -162,6 +188,7 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
       const audio = new Audio(audioSource(playback.audioUrl));
       audio.preload = "auto";
       audio.playbackRate = listeningRate(playback.questionNumber);
+      if (playback.volume !== undefined) audio.volume = Math.max(0, Math.min(1, playback.volume));
       audioRef.current = audio;
       audio.onended = () => {
         if (runRef.current !== runId) return;

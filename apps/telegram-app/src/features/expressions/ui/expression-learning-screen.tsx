@@ -8,7 +8,7 @@ import { useWebSpeechRecorder } from "../../lesson/model/use-web-speech-recorder
 import { normalizeAnswer } from "../../lesson/model/lesson";
 import { assessExpression } from "../../speaking/api/speaking";
 import { wordToneOf, type AssessResult } from "../../speaking/model/speaking";
-import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { isAutoPlayEnabled, useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { getExpressionNode, recordExpressionView } from "../api/expressions";
 import {
@@ -168,7 +168,7 @@ export function ExpressionLearningScreen() {
     ? current.expression.pronunciation.ttsText || current.expression.korean
     : "";
   useEffect(() => {
-    if (!autoSpeechText) return;
+    if (!autoSpeechText || !isAutoPlayEnabled()) return;
     const timer = window.setTimeout(() => speak(autoSpeechText), 80);
     return () => { window.clearTimeout(timer); stopSpeech(); };
   }, [autoSpeechText, current?.key, speak, stopSpeech]);
@@ -281,8 +281,8 @@ export function ExpressionLearningScreen() {
         <span className={styles.topicChip}><MobileIcon name="chatbubble-ellipses-outline" size={16} />{session.topic.title}</span>
         <div className={styles.medal}><i /><i /><span><MobileIcon name="checkmark" size={51} /></span><MobileIcon className={styles.sparkOne} name="sparkles" size={22} /><MobileIcon className={styles.sparkTwo} name="star" size={16} /></div>
         <h1>Ibora tuguni tugallandi!</h1>
-        <p>‘{session.node.title}’ bo&apos;yicha {session.items.length} ta iborani ko&apos;rib chiqdingiz.</p>
-        <article className={styles.completeSummary}><span><MobileIcon name="chatbubble-ellipses" size={25} /></span><div><small>{session.topic.title}</small><strong>{session.node.title}</strong></div><b>{session.items.length} ta ibora</b></article>
+        <p>{`‘${session.node.title}’ bo'yicha ${session.items.length} ta iborani ko'rib chiqdingiz.`}</p>
+        <article className={styles.completeSummary}><span><MobileIcon name="chatbubble-ellipses" size={25} /></span><div><small>{session.topic.title}</small><strong>{session.node.title}</strong></div><b>{`${session.items.length} ta ibora`}</b></article>
       </section>
       <footer className={styles.completeFooter}><button onClick={() => { window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success"); goBack(); }} type="button">Yo&apos;lga qaytish<span><MobileIcon name="arrow-forward" size={18} /></span></button></footer>
     </main>
@@ -324,7 +324,7 @@ export function ExpressionLearningScreen() {
 
       <footer className={styles.footer}>{saveFailed ? <p>Jarayon saqlanmadi. Yana bir marta bosing.</p> : null}<div><span><button disabled={index <= 0 || saving} onClick={retreat} type="button"><MobileIcon name="arrow-back" size={22} /></button><small>Orqaga</small></span><p><MobileIcon name="swap-horizontal" size={17} />{practiceReady ? "Har bir iborani ko'rish uchun chap yoki o'ngga suring" : "Mashq qiling yoki keyinroq takrorlashni tanlang"}</p><span><button disabled={saving || !practiceReady} onClick={() => void advance()} type="button">{saving ? <i className={styles.buttonSpinner} /> : <MobileIcon name={readyForRecall ? "school-outline" : index >= queue.length - 1 ? "checkmark" : "arrow-forward"} size={21} />}</button><small>{readyForRecall ? "Ibora mashqini boshlash" : index >= queue.length - 1 ? "Tugunni tugatish" : "Keyingi ibora"}</small></span></div></footer>
 
-      {offerOpen ? <div className={styles.modalBackdrop} onClick={() => !saving && setOfferOpen(false)} role="presentation"><section className={styles.offer} onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true"><span style={{ background: theme.background, color: theme.accentDark }}><MobileIcon name="chatbubbles-outline" size={29} /></span><small style={{ color: theme.accentDark }}>BARCHA IBORALARNI KO&apos;RIB CHIQDINGIZ</small><h2>Endi ularni eslab ko&apos;ramizmi?</h2><p>Hozirgina mashq qilgan {session.items.length} ta iborani ma&apos;nosiga qarab ayting yoki yozing.</p>{saveFailed ? <em>Jarayon saqlanmadi. Yana bir marta bosing.</em> : null}<button disabled={saving} onClick={() => void beginRecall()} style={{ background: theme.accent }} type="button"><MobileIcon name="school-outline" size={20} />Ibora mashqini boshlash</button><button disabled={saving} onClick={() => void skipRecall()} type="button">Keyinroq</button></section></div> : null}
+      {offerOpen ? <div className={styles.modalBackdrop} onClick={() => !saving && setOfferOpen(false)} role="presentation"><section className={styles.offer} onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true"><span style={{ background: theme.background, color: theme.accentDark }}><MobileIcon name="chatbubbles-outline" size={29} /></span><small style={{ color: theme.accentDark }}>BARCHA IBORALARNI KO&apos;RIB CHIQDINGIZ</small><h2>Endi ularni eslab ko&apos;ramizmi?</h2><p>{`Hozirgina mashq qilgan ${session.items.length} ta iborani ma'nosiga qarab ayting yoki yozing.`}</p>{saveFailed ? <em>Jarayon saqlanmadi. Yana bir marta bosing.</em> : null}<button disabled={saving} onClick={() => void beginRecall()} style={{ background: theme.accent }} type="button"><MobileIcon name="school-outline" size={20} />Ibora mashqini boshlash</button><button disabled={saving} onClick={() => void skipRecall()} type="button">Keyinroq</button></section></div> : null}
 
       {voiceOpen ? <div className={styles.voiceBackdrop} role="presentation" onClick={closeVoice}><section className={styles.voiceSheet} onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true"><i /><header><div><small>{STAGE_LABEL[current.stage]}</small><h2>{STAGE_PROMPT[current.stage]}</h2></div><button aria-label="Yopish" onClick={closeVoice} type="button"><MobileIcon name="chevron-down" size={20} /></button></header>{voiceResult ? <article className={`${styles.voiceResult} ${styles[voiceTone]}`}><div><b>{voiceResult.scores.pron}</b><span><strong>{voiceResult.passed ? "Juda tabiiy aytdingiz!" : "Bu iborani yana bir marta mashq qilamiz"}</strong><small>Talaffuz bahosi</small></span></div><p>{voiceResult.words.map((word, wordIndex) => <span className={styles[wordToneOf(word)]} key={`${word.word}:${wordIndex}`}>{word.word}</span>)}</p>{voiceResult.transcript ? <em>Men shunday eshitdim · {voiceResult.transcript}</em> : null}</article> : null}<div className={styles.micStage}><span className={voicePhase === "recording" ? styles.recordingHalo : ""}><button disabled={voicePhase === "analyzing"} onClick={() => voicePhase === "recording" ? stopRecording() : void startVoice()} type="button">{voicePhase === "analyzing" ? <i className={styles.buttonSpinner} /> : voicePhase === "recording" ? <span className={styles.wave}>{[16,27,21,34,25,18].map((height, waveIndex) => <i key={waveIndex} style={{ height }} />)}</span> : <MobileIcon name="mic" size={31} />}</button></span><p className={voiceError ? styles.voiceError : voicePhase === "recording" ? styles.recordingText : ""}>{voiceError || (voicePhase === "recording" ? "Eshityapman…" : voicePhase === "analyzing" ? "Talaffuz tekshirilmoqda…" : voicePhase === "idle" ? "Bosing va gapiring" : "")}</p></div>{requiresAnswer && !practiceReady ? <button className={styles.later} onClick={() => { scheduleRetry(); setPracticeReady(true); }} type="button">Keyinroq yana mashq qilish</button> : null}</section></div> : null}
     </main>

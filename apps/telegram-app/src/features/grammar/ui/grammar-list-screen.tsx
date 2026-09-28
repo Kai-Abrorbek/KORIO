@@ -9,6 +9,7 @@ import { LearningIcon } from "../../learning/ui/learning-icon";
 import { getGrammarList } from "../api/grammar";
 import type { GrammarListItem, GrammarListResponse } from "../model/grammar";
 import styles from "./grammar.module.css";
+import { canUseLearningFeature } from "../../learning/model/learning-options";
 
 const SECTION_COLORS = ["#a7d8f0", "#bfe8c6", "#fbd24e", "#f7c0d4"];
 
@@ -100,7 +101,10 @@ function SectionBlock({
 export function GrammarListScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  // 문법은 구독 기능 — 앱 withPremiumScreen(GrammarList, "grammar") 처럼 화면째 막는다.
+  // 버튼 게이트(코스 목록)를 안 거치는 길(홈 "이어서 학습", 학습 경로, 딥링크)로 들어와도 새지 않게
+  const allowed = canUseLearningFeature(user ?? {}, "grammar");
   const section = Number(params.get("section")) || 0;
   const unit = Number(params.get("unit")) || 0;
   const from = params.get("from") ?? "";
@@ -126,8 +130,12 @@ export function GrammarListScreen() {
   }, [request, scoped, section, unit]);
 
   useEffect(() => {
+    if (!allowed) {
+      router.replace("/premium");
+      return;
+    }
     void load();
-  }, [load]);
+  }, [allowed, load, router]);
 
   const grouped = useMemo(() => {
     const result = new Map<number, GrammarListItem[]>();

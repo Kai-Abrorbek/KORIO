@@ -5,6 +5,7 @@ import type {
   PublicUser,
   ScoreData,
 } from "../model/misc";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -32,7 +33,7 @@ export function redeemGemPass(request: AuthenticatedRequest, passId: string) {
 }
 
 export function getScore(request: AuthenticatedRequest) {
-  return request<ScoreData>("/lessons/score?lang=uz");
+  return request<ScoreData>(`/lessons/score?lang=${getContentLang()}`);
 }
 
 export function getPublicUser(request: AuthenticatedRequest, userId: string) {

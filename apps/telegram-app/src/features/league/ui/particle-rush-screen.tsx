@@ -6,6 +6,8 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { PARTICLE_QUESTIONS, type ParticleQuestion } from "../model/particle-questions";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./particle-rush-screen.module.css";
+import { getContentLang } from "../../../shared/i18n/content-language";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const START_TIME = 45;
 const MAX_TIME = 60;
@@ -105,6 +107,8 @@ export function ParticleRushScreen() {
   };
 
   const exit = () => void finish(score);
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
   const timeRatio = timeLeft / MAX_TIME;
   const barColor = timeRatio < 0.2 ? "#ff4b4b" : timeRatio < 0.45 ? "#ff9600" : "#1cb454";
   const barStyle = {
@@ -131,7 +135,7 @@ export function ParticleRushScreen() {
             <span><b>{flash === "ok" ? question.answer : "?"}</b></span>
             <strong>{after}</strong>
           </div>
-          <p>{question.uz}</p>
+          <p>{question[getContentLang()] || question.uz}</p>
         </section>
 
         <div className={styles.options}>

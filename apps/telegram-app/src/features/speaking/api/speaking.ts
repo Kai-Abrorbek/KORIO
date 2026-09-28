@@ -1,9 +1,10 @@
 import type { AssessResult, ExpressionListResponse, ExpressionOverview, ExpressionProgress, SpeakingProgress } from "../model/speaking";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
 export function getExpressionOverview(request: AuthenticatedRequest) {
-  return request<ExpressionOverview>("/expressions/overview?lang=uz");
+  return request<ExpressionOverview>(`/expressions/overview?lang=${getContentLang()}`);
 }
 
 export async function getPackExpressions(request: AuthenticatedRequest, packCode: string) {
@@ -12,7 +13,7 @@ export async function getPackExpressions(request: AuthenticatedRequest, packCode
   let pack: ExpressionListResponse["pack"] = null;
   let total = 0;
   do {
-    const query = new URLSearchParams({ lang: "uz", limit: "100", pack: packCode });
+    const query = new URLSearchParams({ lang: getContentLang(), limit: "100", pack: packCode });
     if (cursor) query.set("cursor", cursor);
     const page = await request<ExpressionListResponse>(`/expressions?${query.toString()}`);
     items.push(...page.items);

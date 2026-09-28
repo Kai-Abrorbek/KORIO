@@ -19,6 +19,8 @@ export function LeagueRankupScreen() {
   const [oldRank, setOldRank] = useState(0);
   const [newRank, setNewRank] = useState(0);
   const [daysLeft, setDaysLeft] = useState(0);
+  /** 데이터 전엔 "0-o'rin · 0 kun" 이 한 프레임 찍혔다 — 다 받은 뒤에 그린다 */
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -36,22 +38,27 @@ export function LeagueRankupScreen() {
         setNewRank(rank);
         setOldRank(data.previousRank ?? rank + 3);
         setDaysLeft(data.daysLeft ?? 0);
+        setLoaded(true);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (active) router.back();
+      });
     return () => { active = false; };
-  }, [request]);
+  }, [request, router]);
 
   const tier = getTier(tierKey);
   const start = Math.max(0, newRank - 3);
   const visibleRows = rows.slice(start, newRank + 3);
   const rankDistance = Math.max(0, oldRank - newRank) * ROW_HEIGHT;
 
+  if (!loaded) return <main className={styles.rankupPage} />;
+
   return (
     <main className={styles.rankupPage}>
       <section className={styles.top}>
         <TierCrystal size={130} tier={tier} />
-        <h1>{tierLabel(tier.key)}da {newRank}-o&apos;ringa ko&apos;tarildingiz!</h1>
-        <p><MobileIcon name="time" size={20} />{daysLeft} kun</p>
+        <h1>{`${tierLabel(tier.key)}da ${newRank}-o'ringa ko'tarildingiz!`}</h1>
+        <p><MobileIcon name="time" size={20} />{`${daysLeft} kun`}</p>
       </section>
 
       <section className={styles.list}>
@@ -75,7 +82,7 @@ export function LeagueRankupScreen() {
                 <strong>{member.nickname}</strong>
                 <small><span>{member.flag ?? "🇰🇷"}</span>{member.streak ?? 0}</small>
               </span>
-              <b className={styles.xp}>{member.xp} XP</b>
+              <b className={styles.xp}>{`${member.xp} XP`}</b>
             </div>
           );
         })}

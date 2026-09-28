@@ -39,7 +39,7 @@ function CountdownView({
       <button aria-label="Chiqish" onClick={onExit} type="button">
         <MobileIcon name="close" size={28} />
       </button>
-      <p>Tayyor</p>
+      <p data-i18n="hangul.speed.getReady">Tayyor</p>
       <strong key={countdown}>
         {countdown > 0 ? countdown : "Boshla!"}
       </strong>
@@ -105,9 +105,7 @@ function EndView({
           </div>
         </div>
         <div className={styles.bestRow}>
-          <MobileIcon name="medal" size={16} />
-          Rekord: {bestScore}
-        </div>
+          <MobileIcon name="medal" size={16} />{`Rekord: ${bestScore}`}</div>
       </section>
 
       <button className={styles.primaryButton} onClick={onRestart} type="button">

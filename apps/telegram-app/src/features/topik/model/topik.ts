@@ -1,3 +1,4 @@
+import { getContentLang } from "../../../shared/i18n/content-language";
 export type TopikAttemptMode = "practice" | "guided" | "mock_exam";
 export type TopikLevel = "1" | "2";
 export type TopikSection = "reading" | "listening" | "writing";
@@ -412,7 +413,13 @@ export function flattenTopikQuestions(session: TopikExamSession | null) {
   );
 }
 
+/**
+ * TOPIK 해설·안내 문구를 설명 언어로 고른다 (앱의 topikText(x, lang) 와 같다).
+ * 이름은 예전 그대로 둔다 — 예전엔 **무조건 우즈벡어**를 골라서, 러시아어·영어
+ * 사용자도 TOPIK 해설을 우즈벡어로 봤다.
+ */
 export function topikUzText(value: TopikI18nText | null | undefined) {
   if (!value) return "";
-  return value.uz || value.ko || value.en || value.ru || "";
+  const lang = getContentLang();
+  return value[lang] || value.uz || value.en || value.ko || value.ru || "";
 }

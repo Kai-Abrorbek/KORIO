@@ -1,0 +1,17 @@
+/* 모바일 TranslateBuilder 스타일 값 그대로 */
+.container{padding-top:10px}
+.title{margin:0 0 14px;color:var(--q-text);font-size:24px;font-weight:900;line-height:31px}
+.npcRow{display:flex;align-items:center;gap:10px}
+.bubble{position:relative;display:flex;min-height:112px;flex:1;align-items:center;gap:10px;border:2px solid var(--q-border);border-radius:22px;background:var(--q-surface);box-shadow:0 4px 10px rgb(25 19 43/5%);padding:6px 12px 6px 4px}
+.tailBorder,.tailInner{position:absolute;top:50%;width:0;height:0;border-style:solid;border-color:transparent}
+.tailBorder{left:-12px;margin-top:-9px;border-width:9px 12px 9px 0;border-right-color:var(--q-border)}
+.tailInner{left:-9px;margin-top:-7px;border-width:7px 10px 7px 0;border-right-color:var(--q-surface)}
+.audioBtn{display:grid;width:34px;height:34px;flex:0 0 auto;place-items:center;border:0;border-radius:14px;background:transparent;color:#1cb0f6;padding:0;transition:background-color .15s,color .15s}
+.audioBtn:active{opacity:.72}
+.audioBtnActive{background:#1cb0f6;color:#fff}
+.bubbleTextWrap{min-width:0;flex:1}
+.bubbleText{margin:0;color:var(--q-muted);font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+.spokenActive{color:var(--q-text);font-weight:900}
+.dashed{display:block;margin-top:7px;border-bottom:1.5px dashed color-mix(in srgb,var(--q-muted) 44%,transparent)}
+.answer{margin-top:34px;margin-bottom:24px}
+.answerCompact{margin-top:16px;margin-bottom:14px}

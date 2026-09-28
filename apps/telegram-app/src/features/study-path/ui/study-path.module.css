@@ -332,7 +332,8 @@
   display: flex;
   flex: 0 0 auto;
   justify-content: space-between;
-  padding: 9px 20px 12px;
+  /* 맨 위 줄이 됐다 (앱처럼 뒤로가기 줄 없이 통계 줄부터) → 안전 영역만큼 내린다 */
+  padding: calc(9px + var(--tg-content-safe-area-inset-top, 0px)) 20px 12px;
   position: relative;
   z-index: 20;
 }

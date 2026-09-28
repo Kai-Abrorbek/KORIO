@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useWebSpeechRecorder } from "../../lesson/model/use-web-speech-recorder";
-import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { isAutoPlayEnabled, useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import {
   assessExpression,
   getPackExpressions,
@@ -26,6 +26,8 @@ const errors = {
 
 function cursorKey(packCode: string) { return `speaking-cursor:${packCode}`; }
 
+
+
 export function useSpeakingPractice(packCode: string) {
   const { request } = useTelegramAuth();
   const [data, setData] = useState<ExpressionListResponse | null>(null);
@@ -42,6 +44,8 @@ export function useSpeakingPractice(packCode: string) {
   const [retryIds, setRetryIds] = useState<string[] | null>(null);
   const [level, setLevel] = useState(0);
   const [passFlash, setPassFlash] = useState(false);
+  /** 처음부터/틀린 것만 다시 하면 같은 카드도 다시 읽어 준다 */
+  const [autoEpoch, setAutoEpoch] = useState(0);
   const {
     prewarm,
     speak,
@@ -205,16 +209,37 @@ export function useSpeakingPractice(packCode: string) {
   }, [data?.items.length, index, loadFailed, loading, packCode, request, retryIds]);
 
   useEffect(() => {
-    if (loading || completed || !current) return;
-    const upcoming = queue.slice(index, index + 3).map((item) => item.korean);
-    prewarm(upcoming);
+    if (loading || completed) return;
+    prewarm(queue.slice(index, index + 3).map((item) => item.korean));
+  }, [completed, index, loading, prewarm, queue]);
+
+  // 카드가 뜨면 먼저 들려주고, 다 읽자마자 마이크를 연다 (앱 useSpeakingPractice).
+  // - 카드 객체가 아니라 epoch:index:id 로 한 번만 — 북마크로 items 가 바뀌어도 다시 읽고 마이크를 열지 않는다
+  // - 이미 채점한 카드로 돌아오면 다시 읽지 않는다
+  // - 설정의 "Avtomatik o‘qish" 를 끄면 읽지도, 마이크를 열지도 않는다 (마이크 버튼으로 직접)
+  // - 따라 말하기의 기준 소리라 음소거·볼륨 설정과 상관없이 들린다 (앱 respectSoundSettings:false)
+  const currentId = current?.id;
+  const currentKorean = current?.korean;
+  const resultsRef = useRef(results);
+  resultsRef.current = results;
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
+  const autoKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (loading || completed || !currentId || !currentKorean) return;
+    const key = `${autoEpoch}:${index}:${currentId}`;
+    if (autoKey.current === key) return;
     const timer = window.setTimeout(() => {
-      speak(current.korean, {
-        onEnd: () => window.setTimeout(() => void recordRef.current(true), 150),
+      autoKey.current = key;
+      if (resultsRef.current[currentId] || phaseRef.current !== "idle" || !isAutoPlayEnabled()) return;
+      speak(currentKorean, {
+        onEnd: () => window.setTimeout(() => { if (phaseRef.current === "idle") void recordRef.current(true); }, 150),
+        respectSoundSettings: false,
+        volume: 1,
       });
     }, 120);
     return () => window.clearTimeout(timer);
-  }, [completed, current, index, loading, prewarm, queue, speak]);
+  }, [autoEpoch, completed, currentId, currentKorean, index, loading, speak]);
 
   useEffect(() => {
     const onVisibility = () => { if (document.hidden) stopAll(); };
@@ -270,6 +295,7 @@ export function useSpeakingPractice(packCode: string) {
     setRetryIds(difficult && difficultIds.length ? difficultIds : null);
     setIndex(0);
     setResults({});
+    setAutoEpoch((value) => value + 1);
     setError(null);
     setHidden(false);
   };

@@ -81,7 +81,7 @@ export function SpeakingTopicsScreen() {
               <button className={styles.hero} disabled={featured.count <= 0} onClick={() => openTopic(featured)} type="button">
                 <span className={styles.heroTop}><span><MobileIcon name="sparkles" size={13} /> BUGUNGI ILK SO‘ZLAR</span><MobileIcon className={styles.diagonal} name="arrow-forward" size={20} /></span>
                 <span className={styles.heroBody}>
-                  <span className={styles.heroCopy}><strong>{featured.title}</strong><small>{featured.count} ta ibora</small><span className={styles.heroAction}><MobileIcon name="mic-outline" size={16} /> Gapirishni boshlash <MobileIcon name="arrow-forward" size={16} /></span></span>
+                  <span className={styles.heroCopy}><strong>{featured.title}</strong><small>{`${featured.count} ta ibora`}</small><span className={styles.heroAction}><MobileIcon name="mic-outline" size={16} /> Gapirishni boshlash <MobileIcon name="arrow-forward" size={16} /></span></span>
                   <span className={styles.heroArt}><i /><TopicIllustration code={featured.code} size={112} /></span>
                 </span>
               </button>
@@ -97,7 +97,7 @@ export function SpeakingTopicsScreen() {
                     return (
                       <button className={styles.topic} disabled={topic.count <= 0} key={topic.code} onClick={() => openTopic(topic)} style={{ "--from": look.from, "--to": look.to } as CSSProperties} type="button">
                         <b className={styles.topicMark}>{look.mark}</b><span className={styles.topicIndex}>{String(index + 1).padStart(2, "0")}</span>
-                        <span className={styles.topicFoot}><strong>{topic.title}</strong><span><small><MobileIcon name="mic" size={11} /> {topic.count} ta ibora</small><i><MobileIcon name="arrow-forward" size={15} /></i></span></span>
+                        <span className={styles.topicFoot}><strong>{topic.title}</strong><span><small><MobileIcon name="mic" size={11} />{` ${topic.count} ta ibora`}</small><i><MobileIcon name="arrow-forward" size={15} /></i></span></span>
                       </button>
                     );
                   })}

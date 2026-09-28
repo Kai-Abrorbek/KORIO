@@ -6,6 +6,9 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import { SETTINGS_SECTIONS, type SettingsItem } from "../model/settings";
+
+/** apps/api/src/users/super.util.ts 의 TRIAL_DAYS 와 같아야 한다 (모바일 constants/trial.ts) */
+const TRIAL_DAYS = 30;
 import styles from "./settings-screen.module.css";
 
 function goBack(router: ReturnType<typeof useRouter>) {
@@ -16,6 +19,25 @@ function goBack(router: ReturnType<typeof useRouter>) {
 export function SettingsScreen() {
   const router = useRouter();
   const { user } = useTelegramAuth();
+
+  // 모바일 SettingsUserCard 와 같은 규칙.
+  // isSuper 만 보면 안 된다 — 체험이 끝나도 저장된 isSuper 가 true 로 남을 수 있어 만료일까지 본다
+  const superAt = user?.superExpiresAt ? new Date(user.superExpiresAt).getTime() : Number.NaN;
+  const isPremium = Boolean(user?.isSuper && (!user.superExpiresAt || Number.isNaN(superAt) || superAt > Date.now()));
+  const isTrial = isPremium && user?.superPlan === "trial";
+  const usedTrial = Boolean(user?.hasUsedTrial) || user?.superPlan === "trial";
+  const trialLeft = isTrial && !Number.isNaN(superAt) ? Math.max(0, Math.ceil((superAt - Date.now()) / 86_400_000)) : 0;
+  /**
+   * 툴팁은 둘뿐이다: 체험 중이면 남은 일수, 체험을 안 써봤으면 무료 체험 권유.
+   * 결제 구독자나 체험을 이미 쓴 유저에게는 아무것도 약속하지 않는다.
+   */
+  const tip = isPremium
+    ? isTrial
+      ? { badge: "SUPER", desc: `${trialLeft} kun qoldi`, title: "Bepul sinov davom etmoqda!" }
+      : null
+    : usedTrial
+      ? null
+      : { badge: "FREE", desc: `${TRIAL_DAYS} kun bepul sinab ko'ring!`, title: "Hozir oling!" };
 
   const openItem = (item: SettingsItem) => {
     window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
@@ -47,16 +69,16 @@ export function SettingsScreen() {
             <MobileIcon name="chevron-forward" size={22} />
           </button>
 
-          {!user?.isSuper ? (
+          {tip ? (
             <div className={styles.tooltip}>
-              <b><em>FREE</em> Hozir oling!</b>
-              <span>7 kun bepul sinab ko‘ring!</span>
+              <b><em data-no-translate="">{tip.badge}</em>{` ${tip.title}`}</b>
+              <span>{tip.desc}</span>
             </div>
           ) : null}
 
           <button className={styles.subscribe} onClick={() => router.push("/premium")} type="button">
             <i>P</i>
-            {user?.isSuper ? "Obunani boshqarish" : "Premium obunani sotib olish"}
+            {isPremium && !isTrial ? "Obunani boshqarish" : "Premium obunani sotib olish"}
           </button>
 
           <div className={styles.quickActions}>

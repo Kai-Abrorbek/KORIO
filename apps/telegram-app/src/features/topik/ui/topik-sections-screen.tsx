@@ -161,7 +161,7 @@ export function TopikSectionsScreen() {
             <small>YO‘NALISHNI TANLANG</small>
             <h2>O‘rganish bo‘limini tanlang</h2>
           </div>
-          <span>{sections.length} ta bo‘lim</span>
+          <span>{`${sections.length} ta bo‘lim`}</span>
         </div>
 
         <section className={styles.sectionList}>

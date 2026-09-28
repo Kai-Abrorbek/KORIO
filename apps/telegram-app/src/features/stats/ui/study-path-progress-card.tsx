@@ -156,9 +156,7 @@ export function StudyPathProgressCard({
       <div className={styles.header}>
         <strong>O&apos;quv yo&apos;li</strong>
         <span>
-          <MobileIcon name="ribbon" size={12} />
-          {data.currentLevel}-daraja
-        </span>
+          <MobileIcon name="ribbon" size={12} />{`${data.currentLevel}-daraja`}</span>
       </div>
       <div className={styles.ringRow}>
         <div className={styles.ring}>
@@ -195,7 +193,7 @@ export function StudyPathProgressCard({
         <div className={styles.summary}>
           <span>Tugatilgan kunlar</span>
           <strong>{dayProgress.done}</strong>
-          <small>Hozir {data.currentSection}-bo&apos;lim</small>
+          <small>{`Hozir ${data.currentSection}-bo'lim`}</small>
           <div className={styles.goal} style={{ borderLeftColor: goalColor }}>
             <MobileIcon name={goalIcon} size={15} style={{ color: goalColor }} />
             <span>{goalText}</span>

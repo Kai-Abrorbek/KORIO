@@ -1,3 +1,4 @@
+import { getContentLang } from "../../../shared/i18n/content-language";
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
 export interface ReadingLessonSummary {
@@ -59,17 +60,17 @@ export interface ReadingAssessResult {
 
 export async function listReadingLevels(request: AuthenticatedRequest) {
   const catalogs = await Promise.all(
-    [1, 2, 3, 4, 5, 6].map((level) => request<ReadingLessonListResponse>(`/reading-lessons?level=${level}&lang=uz`)),
+    [1, 2, 3, 4, 5, 6].map((level) => request<ReadingLessonListResponse>(`/reading-lessons?level=${level}&lang=${getContentLang()}`)),
   );
   return catalogs.filter((catalog) => catalog.total > 0).map((catalog) => ({ level: catalog.level, total: catalog.total }));
 }
 
 export function listReadingLessons(request: AuthenticatedRequest, level: number) {
-  return request<ReadingLessonListResponse>(`/reading-lessons?level=${level}&lang=uz`);
+  return request<ReadingLessonListResponse>(`/reading-lessons?level=${level}&lang=${getContentLang()}`);
 }
 
 export function getReadingLesson(request: AuthenticatedRequest, code: string) {
-  return request<ReadingLesson>(`/reading-lessons/${encodeURIComponent(code)}?lang=uz`);
+  return request<ReadingLesson>(`/reading-lessons/${encodeURIComponent(code)}?lang=${getContentLang()}`);
 }
 
 export function getReadingGloss(request: AuthenticatedRequest, code: string, word: string) {
@@ -96,5 +97,6 @@ export function assessReading(request: AuthenticatedRequest, code: string, start
 }
 
 export function localized(text: LocalizedText | undefined) {
-  return text?.uz || text?.en || text?.ko || text?.ru || "";
+  const lang = getContentLang();
+  return text?.[lang] || text?.uz || text?.en || text?.ko || text?.ru || "";
 }

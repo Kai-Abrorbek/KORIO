@@ -5,6 +5,7 @@ import type {
   LessonSession,
   ReportedAnswer,
 } from "../model/lesson";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -12,7 +13,7 @@ export function getLesson(
   request: AuthenticatedRequest,
   lessonId: string,
 ): Promise<LessonSession> {
-  return request<LessonSession>(`/lessons/${encodeURIComponent(lessonId)}?lang=uz`);
+  return request<LessonSession>(`/lessons/${encodeURIComponent(lessonId)}?lang=${getContentLang()}`);
 }
 
 export function getJumpTest(
@@ -22,7 +23,7 @@ export function getJumpTest(
   category?: string,
 ): Promise<{ attemptId: string | null; heartLimit?: number; questions: LessonQuestion[] }> {
   const query = new URLSearchParams({
-    lang: "uz",
+    lang: getContentLang(),
     section: String(section),
     unit: String(unit),
   });
@@ -53,7 +54,7 @@ export function getNodeReview(
   nodeId: string,
   limit?: number,
 ): Promise<{ questions: LessonQuestion[] }> {
-  const query = new URLSearchParams({ lang: "uz" });
+  const query = new URLSearchParams({ lang: getContentLang() });
   if (limit) query.set("limit", String(limit));
   return request(`/lessons/node-review/${encodeURIComponent(nodeId)}?${query.toString()}`);
 }
@@ -85,7 +86,7 @@ export function getUnitPractice(
   const query = new URLSearchParams({
     group: String(params.group),
     kind: params.kind,
-    lang: "uz",
+    lang: getContentLang(),
     lesson: String(params.lesson),
     section: String(params.section),
     unit: String(params.unit),
@@ -99,7 +100,7 @@ export function gradeTypedAnswer(
   answer: string,
 ): Promise<AnswerGradeResult> {
   return request(`/lessons/questions/${encodeURIComponent(questionId)}/grade`, {
-    body: JSON.stringify({ answer, lang: "uz" }),
+    body: JSON.stringify({ answer, lang: getContentLang() }),
     method: "POST",
   });
 }
@@ -141,7 +142,7 @@ export function completePractice(
   request: AuthenticatedRequest,
   body: {
     combo: number;
-    mode: "review" | "nodeReview" | "unitReview" | "unitRecap" | "unitVocab" | "unitGrammar" | "unitFinal";
+    mode: "review" | "wordPractice" | "nodeReview" | "unitReview" | "unitRecap" | "unitVocab" | "unitGrammar" | "unitFinal";
     questionIds: string[];
     speedSeconds: number;
     wrongQuestionIds: string[];
@@ -176,6 +177,8 @@ export interface SpeechAssessResult {
   status: "success" | "no_speech" | "error";
   threshold: { completeness: number; pron: number; tier: "lenient" | "normal" | "strict" };
   transcript: string;
+  /** 단어별 정확도 — 어디가 문제였는지 칩으로 보여 준다 */
+  words?: { word: string; accuracy: number; errorType: string }[];
 }
 
 export function assessSpeech(
@@ -197,6 +200,35 @@ export function transcribeSpeech(
   return request("/speech/transcribe", {
     body: wav,
     headers: { "Content-Type": "audio/wav" },
+    method: "POST",
+  });
+}
+
+/** 오답 복습 (연습 화면 "틀린 문제") — 앱 LessonService.getMistakeQuestions */
+export function getMistakeQuestions(request: AuthenticatedRequest) {
+  return request<{ questions: LessonQuestion[] }>(`/lessons/mistake-questions?lang=${getContentLang()}`);
+}
+
+/** 배운 단어 짝맞추기 연습 — 앱 LessonService.getWordPractice */
+export function getWordPractice(request: AuthenticatedRequest) {
+  return request<{ questions: LessonQuestion[] }>(`/lessons/word-practice?lang=${getContentLang()}`);
+}
+
+/** 복습에서 맞힌 문제를 오답 목록에서 뺀다 */
+export function resolveMistakes(request: AuthenticatedRequest, correctIds: string[]) {
+  return request<{ removed: number }>("/lessons/mistakes/resolve", {
+    body: JSON.stringify({ correctIds }),
+    method: "POST",
+  });
+}
+
+/**
+ * 4연속 정답 보너스 에너지. 횟수·간격은 서버가 막는다 — 앱 EnergyService.comboBonus.
+ * 응답의 energy 에는 이번 레슨에서 화면상 깎은 만큼이 아직 안 빠져 있다.
+ */
+export function claimComboBonus(request: AuthenticatedRequest) {
+  return request<{ bonusGranted: number; energy: number; gems: number }>("/energy/combo-bonus", {
+    body: "{}",
     method: "POST",
   });
 }

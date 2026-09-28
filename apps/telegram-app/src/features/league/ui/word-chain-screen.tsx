@@ -16,6 +16,9 @@ import {
 } from "../model/word-chain";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./word-chain-screen.module.css";
+import { confirmDialog } from "../../../shared/telegram/dialogs";
+import { playSfx } from "../../../shared/browser/sfx";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const MAX_HEARTS = 3;
 const MAX_HINTS = 3;
@@ -86,7 +89,7 @@ function EndModal({ bestCombo, onExit, onRestart, reason, score, turnCount }: {
           <i />
           <div><MobileIcon className={styles.comboIcon} name="flame" size={20} /><strong>{bestCombo}</strong><span>Eng yuqori kombo</span></div>
         </div>
-        {onRestart ? <button className={styles.restart} onClick={onRestart} type="button">Qayta o&apos;ynash</button> : null}
+        {onRestart ? <button className={styles.restart} onClick={() => { playSfx("click"); onRestart(); }} type="button">Qayta o&apos;ynash</button> : null}
         <button className={styles.endExit} onClick={onExit} type="button">Chiqish</button>
       </section>
     </div>
@@ -286,8 +289,10 @@ export function WordChainScreen() {
       goBack();
       return;
     }
-    if (window.confirm("O'yinni tugatamizmi?\n\nJoriy progress saqlanmaydi")) goBack();
+    void confirmDialog("O'yinni tugatamizmi?\n\nJoriy progress saqlanmaydi").then((ok) => ok && goBack());
   };
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
 
   const timerProgress = Math.max(0, Math.min(1, timeLeft / TURN_TIME));
   const ringColor = timerProgress > .5 ? "#58cc02" : timerProgress > .25 ? "#ffd000" : "#ff4b4b";

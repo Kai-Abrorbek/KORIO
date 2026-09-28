@@ -63,15 +63,13 @@ export function LegendIntroScreen() {
       </section>
 
       <footer className={styles.footer}>
-        <button className={styles.startButton} onClick={start} type="button">
-          Boshlash +{LEGEND_XP} XP
-        </button>
+        <button className={styles.startButton} onClick={start} type="button">{`Boshlash +${LEGEND_XP} XP`}</button>
         <button className={styles.laterButton} onClick={goBack} type="button">Keyinroq</button>
       </footer>
 
       {showEnergy ? (
         <div className={styles.energyBackdrop} role="dialog" aria-modal="true" aria-labelledby="energy-title">
-          <div className={styles.gems}><MobileIcon name="diamond" size={20} /><b>{user?.gems ?? 20}</b></div>
+          <div className={styles.gems}><MobileIcon name="diamond" size={20} /><b>{user?.gems ?? 0}</b></div>
           <section className={styles.energySheet}>
             <Image alt="" className={styles.energyMascot} height={92} src="/characters/hangulmon_confused.png" unoptimized width={92} />
             <h2 id="energy-title">Bu darsni boshlash uchun ko&apos;proq energiya kerak!</h2>

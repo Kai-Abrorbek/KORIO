@@ -26,6 +26,8 @@ import { FriendAvatar } from "./friend-avatar";
 import { TierCrystal } from "./tier-crystal";
 import styles from "./league-screen.module.css";
 
+const LEAGUE_RESULT_CHECKED_KEY = "korio-league-result-checked";
+
 const MEDALS = [
   { fill: "#FFC93C", ribbon: "#E5A700", text: "#8A5B00" },
   { fill: "#C9D3DE", ribbon: "#A8B4C2", text: "#5C6875" },
@@ -116,7 +118,7 @@ function MemberRow({
           {member.streak != null ? <span>{member.streak}</span> : null}
         </span>
       </span>
-      <b className={member.isMe ? styles.xpMe : styles.xp}>{member.xp} XP</b>
+      <b className={member.isMe ? styles.xpMe : styles.xp}>{`${member.xp} XP`}</b>
     </div>
   );
 }
@@ -130,8 +132,18 @@ export function LeagueScreen() {
   const [offsets, setOffsets] = useState<Map<number, number>>(new Map());
   const [animationDone, setAnimationDone] = useState(false);
   const rows = useRef(new Map<number, HTMLDivElement>());
+  const boardRef = useRef<HTMLDivElement>(null);
+  const scrolledToMe = useRef(false);
 
   useEffect(() => {
+    // 모바일은 리그 탭이 계속 떠 있어서 앱 세션당 한 번만 확인한다. 여기선 화면이 다시
+    // 마운트되므로, 확인(ack)이 실패하면 결과 화면 → 뒤로 → 다시 결과 화면이 무한히 돌았다
+    try {
+      if (window.sessionStorage.getItem(LEAGUE_RESULT_CHECKED_KEY)) return;
+      window.sessionStorage.setItem(LEAGUE_RESULT_CHECKED_KEY, "1");
+    } catch {
+      // 저장소가 막혀 있으면 매번 확인한다
+    }
     let active = true;
     void request<LeagueResult | null>("/league/result")
       .then((result) => {
@@ -201,6 +213,25 @@ export function LeagueScreen() {
     return () => window.clearTimeout(timer);
   }, [data, offsets, request]);
 
+  /**
+   * 들어오자마자 **내 줄로 스크롤**한다 (앱 league.tsx 와 같다).
+   * 리그방은 30명이라 12등이면 내 자리가 화면 밖이다. 맨 위가 아니라 1/3 지점에
+   * 둬야 위아래 몇 명이 같이 보여 "내가 어디쯤인지" 가 읽힌다.
+   */
+  useEffect(() => {
+    if (!data || scrolledToMe.current) return;
+    const me = data.members.find((member) => member.isMe);
+    const board = boardRef.current;
+    const row = me ? rows.current.get(me.rank) : undefined;
+    if (!me || !board || !row) return;
+    scrolledToMe.current = true;
+    const timer = window.setTimeout(() => {
+      const top = row.getBoundingClientRect().top - board.getBoundingClientRect().top + board.scrollTop;
+      board.scrollTo({ behavior: "smooth", top: Math.max(0, top - board.clientHeight / 3) });
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [data]);
+
   const tierIndex = useMemo(() => getTierIndex(data?.tier ?? "bronze"), [data?.tier]);
 
   if (loading || !data) {
@@ -213,7 +244,9 @@ export function LeagueScreen() {
   }
 
   const tier = getTier(data.tier);
-  const challengeXp = data.boostXp ?? 210;
+  // 서버(league.service TIER_CHALLENGE)가 티어별로 정한다. 폴백 210 은 XP 를 1/3 로
+  // 내린 뒤로 3배 부풀린 숫자라, 모르면 안 적는다 (앱과 같다)
+  const challengeXp = data.boostXp ?? 0;
   const remaining = new Date(data.endsAt).getTime() - now;
   const days = Math.ceil(remaining / 86400000);
   const hours = Math.max(0, Math.floor(remaining / 3600000));
@@ -249,7 +282,7 @@ export function LeagueScreen() {
         ))}
       </div>
 
-      <div className={styles.boardScroll}>
+      <div className={styles.boardScroll} ref={boardRef}>
         <section className={styles.board}>
           {data.members.map((member) => {
             const zone = data.promoteCount > 0 && member.rank <= data.promoteCount
@@ -276,7 +309,7 @@ export function LeagueScreen() {
         type="button"
       >
         <span><MobileIcon name="flash" size={30} /></span>
-        <b>+{challengeXp} XP</b>
+        <b>{`+${challengeXp} XP`}</b>
       </button>
       <BottomTabs />
     </main>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import {
   MAX_FEATURES,
   SUPER_FEATURES,
@@ -111,18 +112,14 @@ function ActiveView({
         ) : null}
 
         {subscription.isTrial && canUpgrade ? (
-          <p className={styles.trialBuyNote}>
-            Sinov muddatidan {subscription.trialDaysLeft ?? 0} kun qoldi. Hozir
-            sotib olsangiz, darhol to&apos;lov olinadi va sinov tugaydi.
-          </p>
+          <p className={styles.trialBuyNote}>{`Sinov muddatidan ${subscription.trialDaysLeft ?? 0} kun qoldi. Hozir sotib olsangiz, darhol to'lov olinadi va sinov tugaydi.`}</p>
         ) : null}
 
         {subscription.expiresAt ? (
           <p className={styles.expiresNote}>
-            {formatDate(subscription.expiresAt)}
             {subscription.autoRenew
-              ? " da avtomatik yangilanadi"
-              : " gacha amal qiladi"}
+              ? `${formatDate(subscription.expiresAt)} da avtomatik yangilanadi`
+              : `${formatDate(subscription.expiresAt)} gacha amal qiladi`}
           </p>
         ) : null}
         <p className={styles.manageNote}>
@@ -187,14 +184,23 @@ function PlansUnavailable() {
 
 function OfferView({
   initialTier = "max",
+  onBack,
 }: {
   initialTier?: SubscriptionTier;
+  /** 구독 중 화면에서 "요금제 보기" 로 들어왔을 때 — 돌아갈 길 (예전엔 막다른 화면이었다) */
+  onBack?: () => void;
 }) {
   const [tier, setTier] = useState<SubscriptionTier>(initialTier);
+  useTelegramBackOverride(onBack ?? null);
 
   return (
     <main className={styles.premiumPage}>
       <div className={styles.scroll}>
+        {onBack ? (
+          <button aria-label="Orqaga" className={styles.offerBack} onClick={onBack} type="button">
+            <MobileIcon name="chevron-back" size={24} />
+          </button>
+        ) : null}
         <section className={styles.gradient + " " + styles.hero}>
           <i className={styles.shine} />
           <span className={styles.crown}>
@@ -276,5 +282,10 @@ export function PremiumScreen() {
       />
     );
   }
-  return <OfferView initialTier={tier} />;
+  return (
+    <OfferView
+      initialTier={tier}
+      onBack={subscription?.isPremium ? () => setShowPlans(false) : undefined}
+    />
+  );
 }

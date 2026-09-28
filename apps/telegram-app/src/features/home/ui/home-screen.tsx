@@ -16,22 +16,52 @@ import {
 } from "../model/home-data";
 import { HomeCalendar } from "./home-calendar";
 import { HomeIcon, type HomeIconName } from "./home-icon";
-import { continueLearningDestination } from "../../learning/model/learning-options";
+import {
+  canUseLearningFeature,
+  continueLearningDestination,
+  type LearningFeature,
+} from "../../learning/model/learning-options";
+import { AiChatSheet } from "./ai-chat-sheet";
+import { NotificationSheet } from "./notification-sheet";
+import { RankBanner } from "./rank-banner";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import styles from "./home-screen.module.css";
+import { HomeTour } from "../../tour/home-tour";
 
 interface QuickAccessItem {
   color: string;
   icon: HomeIconName;
   label: string;
+  /** 없으면 아직 준비 중인 칸 — 앱처럼 눌리지 않는다 */
+  route?: string;
 }
 
+// 앱 홈의 바로가기와 같다: 상점·단어장만 열려 있고 과제·사전은 준비 중
 const QUICK_ACCESS: QuickAccessItem[] = [
-  { color: "#776ee2", icon: "basket", label: "Do'kon" },
-  { color: "#d9a72e", icon: "bookmark", label: "Vazifalar" },
+  { color: "#776ee2", icon: "basket", label: "Do'kon", route: "/shop" },
+  { color: "#FAC775", icon: "bookmark", label: "Vazifalar" },
   { color: "#45b7d1", icon: "searchOutline", label: "Lug'at" },
-  { color: "#ff6b6b", icon: "heartOutline", label: "So'z daftarim" },
+  { color: "#ff6b6b", icon: "heartOutline", label: "So'z daftarim", route: "/word-study" },
 ];
+
+/** 앱 features/subscription/access.ts featureOfLearnMode 와 같다 */
+function featureOfLearnMode(mode: string | undefined): LearningFeature {
+  switch (mode) {
+    case "grammar":
+      return "grammar";
+    case "expression":
+    case "speaking":
+      return "expression";
+    case "listening":
+      return "listening";
+    case "topik":
+      return "topik";
+    case "conversation":
+      return "tutor";
+    default:
+      return "lesson";
+  }
+}
 
 const SIDE_ACTIONS: Array<{
   icon: HomeIconName;
@@ -77,6 +107,8 @@ export function HomeScreen() {
   const [week, setWeek] = useState<HomeDayStats[]>(fallbackWeek);
   const [unreadCount, setUnreadCount] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     if (!authenticatedUser) return;
@@ -133,13 +165,14 @@ export function HomeScreen() {
     <main className={styles.homePage}>
       <div className={styles.homeScroll}>
         <header className={styles.header}>
-          <button aria-label="Menyu" className={styles.headerButton} type="button">
+          <button aria-label="Menyu" className={styles.headerButton} onClick={() => router.push("/settings")} type="button">
             <HomeIcon name="menu" size={29} />
           </button>
           <strong className={styles.username}>{profile.nickname}</strong>
           <button
             aria-label="Bildirishnomalar"
             className={styles.headerButton}
+            onClick={() => setNotificationsOpen(true)}
             type="button"
           >
             <HomeIcon name="bell" size={28} />
@@ -199,6 +232,7 @@ export function HomeScreen() {
             {SIDE_ACTIONS.map((action) => (
               <button
                 aria-label={action.label}
+                data-tour={action.route === "/course-categories" ? "home.categories" : undefined}
                 key={action.label}
                 onClick={() => {
                   if (action.route) router.push(action.route);
@@ -231,7 +265,17 @@ export function HomeScreen() {
 
           <button
             className={styles.continueButton}
-            onClick={() => router.push(continueLearningDestination(profile))}
+            data-tour="home.continue"
+            onClick={() => {
+              // 저장된 학습 모드가 구독 전용일 수 있다 (체험이 끝난 계정) —
+              // 화면에 들어가서 튕기는 것보다 여기서 요금제로 보내는 게 깔끔하다
+              const feature = featureOfLearnMode(profile.learnMode);
+              router.push(
+                canUseLearningFeature(profile, feature)
+                  ? continueLearningDestination(profile)
+                  : "/premium",
+              );
+            }}
             type="button"
           >
             <HomeIcon name="book" size={18} />
@@ -239,17 +283,13 @@ export function HomeScreen() {
           </button>
         </section>
 
-        <button className={styles.levelBanner} type="button">
-          <HomeIcon name="sparkles" size={21} />
-          <span>
-            <strong>Mening koreys darajam?</strong>
-            <small>Daraja testi · 3 daqiqa yetarli</small>
-          </span>
-          <HomeIcon name="arrow" size={21} />
-        </button>
+        {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여 준다 (앱과 같다) */}
+        <div className={styles.rankSlot} data-tour="home.rank">
+          <RankBanner />
+        </div>
 
-        <section className={`${styles.card} ${styles.chartCard}`}>
-          <button className={styles.cardHeader} type="button">
+        <section className={`${styles.card} ${styles.chartCard}`} data-tour="home.chart">
+          <button className={styles.cardHeader} onClick={() => router.push("/stats")} type="button">
             <strong>O&apos;quv ma&apos;lumoti</strong>
             <HomeIcon name="chevron" size={20} />
           </button>
@@ -310,7 +350,7 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <button className={`${styles.card} ${styles.reviewCard}`} onClick={() => router.push("/practice")} type="button">
+        <button className={`${styles.card} ${styles.reviewCard}`} data-tour="home.review" onClick={() => router.push("/practice")} type="button">
           <span className={styles.reviewIcon}>
             <HomeIcon name="refresh" size={21} />
           </span>
@@ -323,7 +363,15 @@ export function HomeScreen() {
 
         <section className={`${styles.card} ${styles.quickGrid}`}>
           {QUICK_ACCESS.map((item) => (
-            <button key={item.label} type="button">
+            <button
+              data-tour={item.route === "/shop" ? "home.shop" : undefined}
+              disabled={!item.route}
+              key={item.label}
+              onClick={() => {
+                if (item.route) router.push(item.route);
+              }}
+              type="button"
+            >
               <span
                 style={{
                   backgroundColor: `${item.color}20`,
@@ -338,7 +386,7 @@ export function HomeScreen() {
         </section>
       </div>
 
-      <button aria-label="KORIO AI" className={styles.aiButton} type="button">
+      <button aria-label="KORIO AI" className={styles.aiButton} data-tour="home.ai" onClick={() => setChatOpen(true)} type="button">
         <HomeIcon name="sparkles" size={24} />
         <span>AI</span>
       </button>
@@ -361,6 +409,15 @@ export function HomeScreen() {
           <span>Premium</span>
         </button>
       </nav>
+
+      <NotificationSheet
+        onClose={() => setNotificationsOpen(false)}
+        onUnreadChange={setUnreadCount}
+        visible={notificationsOpen}
+      />
+      <AiChatSheet onClose={() => setChatOpen(false)} visible={chatOpen} />
+      {/* 처음 온 사람에게 한 번 도는 기능 안내 (설정에서 다시 보기 가능) — 앱 HOME_TOUR */}
+      <HomeTour />
 
       {calendarOpen ? (
         <HomeCalendar

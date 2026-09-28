@@ -76,9 +76,14 @@ export function LessonCharacter({
   state: AnswerState;
 }) {
   const pose = selectPose(seed, state, combo);
+  const mood: Mood = state === "wrong" ? "wrong" : state === "correct" ? (combo >= 3 ? "combo" : "correct") : "idle";
+  // 채점 상태가 바뀌면 안쪽을 새로 그려 등장(0.86→1) + 리액션을 다시 튼다 — 앱 LessonCharacter 와 같은 동작.
+  // 처음 뜰 때(idle)는 등장 없이 숨쉬기만 한다.
   return (
-    <span className={`${styles.lessonCharacter} ${state !== "idle" ? styles.lessonCharacterReacting : ""}`} style={{ height, width: height * (600 / 780) }}>
-      <Image alt="" fill priority sizes={`${Math.ceil(height * (600 / 780))}px`} src={`/characters/${pose.key}.png`} unoptimized />
+    <span className={styles.lessonCharacter} style={{ height, width: height * (600 / 780) }}>
+      <span className={`${styles.lcInner} ${styles[`lc_${mood}`] ?? ""}`} key={`${pose.key}:${state}`}>
+        <Image alt="" fill priority sizes={`${Math.ceil(height * (600 / 780))}px`} src={`/characters/${pose.key}.png`} unoptimized />
+      </span>
     </span>
   );
 }

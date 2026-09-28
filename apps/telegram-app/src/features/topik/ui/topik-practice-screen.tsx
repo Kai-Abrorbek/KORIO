@@ -180,7 +180,7 @@ export function TopikPracticeScreen() {
                         ) : (
                           <input disabled={phase === "result"} maxLength={field.maxCharacters} onChange={(event) => setWrittenAnswers((current) => ({ ...current, [key]: event.target.value }))} placeholder="Javobingizni yozing." value={value} />
                         )}
-                        {phase === "solving" && value.trim().length < field.minCharacters ? <small>Kamida {field.minCharacters} ta belgi yozing.</small> : null}
+                        {phase === "solving" && value.trim().length < field.minCharacters ? <small>{`Kamida ${field.minCharacters} ta belgi yozing.`}</small> : null}
                       </label>
                     );
                   })}

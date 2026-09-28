@@ -187,7 +187,7 @@ export function ExpressionRoadmapScreen() {
                             <span className={styles.popoverArrow} />
                             <div className={styles.popoverTitle}><span><MobileIcon name={source.status === "completed" ? "checkmark" : "chatbubble-ellipses"} size={19} /></span><strong>{source.title}</strong></div>
                             <p>{source.description}</p>
-                            <div className={styles.meta}><span><MobileIcon name="albums-outline" size={15} />{source.expressionCount} ta ibora</span><span><MobileIcon name="repeat" size={16} />{source.requiredExposures} marta</span></div>
+                            <div className={styles.meta}><span><MobileIcon name="albums-outline" size={15} />{`${source.expressionCount} ta ibora`}</span><span><MobileIcon name="repeat" size={16} />{`${source.requiredExposures} marta`}</span></div>
                             <i className={styles.popoverProgress}><b style={{ width: `${Math.min(1, source.progress) * 100}%` }} /></i>
                             <button onClick={() => openNode(source)} type="button">{source.status === "completed" ? "Qayta ko'rish" : "Iboralarni o'rganish"}<MobileIcon name="arrow-forward" size={19} /></button>
                           </article>

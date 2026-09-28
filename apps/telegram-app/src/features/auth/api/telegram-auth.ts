@@ -26,6 +26,8 @@ export interface KorioTelegramUser {
   isSuper?: boolean;
   superPlan?: string | null;
   superExpiresAt?: string | null;
+  /** 체험을 이미 써봤는지. 만료되면 superPlan 은 비워지므로 서버가 따로 준다 */
+  hasUsedTrial?: boolean;
   avatar?: AvatarConfig;
   bio?: string;
   provider?: string;

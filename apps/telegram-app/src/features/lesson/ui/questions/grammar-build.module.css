@@ -1,0 +1,45 @@
+/* 모바일 GrammarBuild 팔레트 그대로 */
+.screen{--g-ink:#2b2b3a;--g-purple:#8b7ff0;display:flex;min-height:100%;flex:1 0 auto;flex-direction:column;background:linear-gradient(180deg,#cfe7fa,#cdeaf0);color:var(--g-ink);animation:gbFade .15s ease-out}
+.scroll{flex:1;padding-bottom:24px}
+.levelTab{display:flex;align-items:center;margin:20px 18px 0;border-radius:14px 14px 0 0;background:#bcdcf5;padding:8px 16px}
+.levelTab b{min-width:0;flex:1;overflow:hidden;color:#5a7a9a;font-size:14px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.card{position:relative;min-height:186px;margin:0 18px;overflow:hidden;border-radius:4px 20px 20px 20px;background:#fff;padding:18px}
+.cardOk{background:linear-gradient(180deg,#e7f7d6,#f4fbe9)}
+.cardShake{animation:gbShake .22s linear}
+.checkMark{position:absolute;z-index:5;top:4px;left:16px;color:#3cba54;animation:gbPop .35s cubic-bezier(.34,1.56,.64,1)}
+.sentence{display:flex;flex-wrap:wrap;align-items:center;row-gap:3px;margin-top:4px}
+.blank{display:inline-flex;min-width:110px;min-height:36px;align-items:center;border-radius:8px;background:#cfe4f8;color:#3a6ea5;font-weight:800}
+.filled{border-radius:8px;background:#cfe4f8;color:#3a6ea5;font-weight:800;animation:gbPop .2s ease-out}
+.filledOk{background:#c9ebd0;color:#3f9e46}
+.trans{margin:14px 0 0;color:#4a5a68;font-size:17px;font-weight:600;line-height:24px}
+.answerLine{margin:8px 0 0;color:#3f9e46;font-size:15px;font-weight:800}
+.hint{margin-top:14px;border-radius:14px;background:#fbc44d;color:#6b4e12;padding:13px;animation:gbFade .2s ease-out}
+.hintHead{display:flex;align-items:flex-start;gap:8px;color:#e8a417}
+.hintHead p{min-width:0;flex:1;margin:0;color:#6b4e12;font-size:17px;font-weight:700}
+.hintWrong{color:#e0453a;font-weight:800}
+.hintText{margin:6px 0 0;color:#6b4e12;font-size:15px;font-weight:500;line-height:22px}
+.miniRow{display:flex;justify-content:flex-end;margin-top:16px}
+.miniBtn{display:grid;width:54px;height:40px;place-items:center;border:0;border-radius:12px;background:#f3f2fb;color:var(--g-purple);padding:0}
+.miniOff{color:#c9d3de}
+.bottom{position:sticky;bottom:0;z-index:6;padding:12px 16px calc(16px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)));background:linear-gradient(180deg,rgb(205 234 240/0),#cdeaf0 18px)}
+.stack{display:flex;flex-direction:column-reverse;margin-bottom:16px}
+.row{position:relative;display:flex;justify-content:center;gap:5px;transition:transform .2s,opacity .2s,margin .2s}
+.pick{display:flex;min-width:0;flex:1;flex-direction:column;align-items:center;border:0 solid transparent;border-radius:14px;background:#fff;box-shadow:0 3px 6px rgb(122 144 168/18%);color:#5a6674;padding:15px 4px;font:inherit;font-size:14px;font-weight:600}
+.pick span{max-width:100%;overflow-wrap:anywhere}
+.pick:disabled{opacity:1}
+.pickActive{box-shadow:0 3px 10px rgb(122 144 168/28%);color:var(--g-ink);font-size:16px;font-weight:800}
+.pickActive:active{transform:scale(.96)}
+.pickActive svg,.pickActive i{margin-top:4px;color:var(--g-purple)}
+.pickOk{border-width:2px;border-color:#8fd66f;background:#e3f7d9;color:#3f9e46}
+.pickNo{border-width:2px;border-color:#f3a7b1;background:#fde0e4;color:#d0455a}
+.bigRow{display:flex;gap:12px}
+.bigBtn{display:flex;flex:1;flex-direction:column;align-items:center;gap:8px;border:0;border-radius:20px;color:#fff;padding:20px 0}
+.bigBtn:active{transform:scale(.96)}
+.bigBtn b{font-size:15px;font-weight:800}
+.bigSlow{background:linear-gradient(180deg,#a07af0,#8b6ae8)}
+.bigListen{background:linear-gradient(180deg,#8f7ff0,#7161e6)}
+.nextBtn{display:flex;width:100%;min-height:54px;align-items:center;justify-content:center;margin-top:10px;border:0;border-bottom:4px solid #2f9e46;border-radius:16px;background:#3cba54;color:#fff;font:inherit;font-size:17px;font-weight:900}
+.nextBtn:active{transform:translateY(2px);border-bottom-width:2px}
+@keyframes gbFade{from{opacity:0}}
+@keyframes gbShake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes gbPop{from{opacity:0;transform:scale(.6)}}

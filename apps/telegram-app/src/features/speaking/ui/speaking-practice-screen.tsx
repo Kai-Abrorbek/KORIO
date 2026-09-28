@@ -9,6 +9,7 @@ import { normalizeSpeakingWord, wordToneOf } from "../model/speaking";
 import { useSpeakingPractice, type SpeakingError } from "../model/use-speaking-practice";
 import { TopicIllustration } from "./topic-illustration";
 import styles from "./speaking-practice-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const COPY: Record<SpeakingError, string> = {
   assessError: "Talaffuzni tekshirib bo‘lmadi. Birozdan keyin qayta ayting.",
@@ -56,6 +57,9 @@ export function SpeakingPracticeScreen() {
     if (window.history.length > 1) router.back(); else router.replace("/speaking");
   };
   const leave = () => router.replace("/speaking");
+  // 텔레그램 뒤로가기도 X 와 같게 — 연습 중이면 "Biroz tanaffus qilasizmi?" 를 먼저 묻는다 (앱 beforeRemove).
+  // 묻는 창이 떠 있으면 뒤로가기는 창만 닫는다
+  useTelegramBackOverride(premium ? () => (exitAsking ? setExitAsking(false) : close()) : null);
 
   if (!premium) return (
     <main className={styles.screen}><section className={styles.empty}><span className={styles.emptyIcon}><MobileIcon name="lock-closed" size={34} /></span><h1>Bu mashq KORIO Premium bilan ochiladi</h1><p>Barcha gapirish mavzulari va talaffuz tekshiruvini oching.</p><button className={styles.primaryButton} onClick={() => router.replace("/premium")} type="button">KORIO Premium</button></section></main>

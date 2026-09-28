@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -46,22 +47,6 @@ function SliderRow({ icon, color, background, label, badge, value, min = 0, max 
   return <div className={styles.sliderRow}><div><Icon background={background} color={color} name={icon} /><b>{label}</b><span style={{ backgroundColor: background, color }}>{badge}</span></div><input aria-label={label} max={max} min={min} onChange={(event) => onChange(Number(event.target.value))} onPointerUp={(event) => onCommit?.(Number(event.currentTarget.value))} step={step} style={{ accentColor: color }} type="range" value={value} /></div>;
 }
 
-function playTone(volume: number, frequency: number) {
-  const AudioContextConstructor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioContextConstructor || volume <= 0) return;
-  const context = new AudioContextConstructor();
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-  oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(Math.min(1, volume) * .16, context.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001, context.currentTime + .12);
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start();
-  oscillator.stop(context.currentTime + .12);
-  oscillator.onended = () => void context.close();
-}
-
 export function SoundScreen() {
   const router = useRouter();
   const { request } = useTelegramAuth();
@@ -74,6 +59,8 @@ export function SoundScreen() {
   const [voiceError, setVoiceError] = useState(false);
   const [previewVoice, setPreviewVoice] = useState<string | null>(null);
   const initialMuteApplied = useRef(false);
+
+  useEffect(() => preloadSfx("click", "combo"), []);
 
   useEffect(() => {
     if (!ready || initialMuteApplied.current) return;
@@ -124,9 +111,9 @@ export function SoundScreen() {
       <Card muted={muted}>
         <SliderRow background="#D5F0F5" badge={percent(sound.speechVolume)} color="#45B7D1" icon="mic" label="Nutq" onChange={(speechVolume) => patch({ speechVolume })} onCommit={(value) => value > 0 && preview(sound.speechVoice, sound.speechRate, value)} value={sound.speechVolume} />
         <i className={styles.divider} />
-        <SliderRow background="#D7F5E5" badge={percent(sound.sfxVolume)} color="#1DBB7F" icon="musical-notes" label="Effektlar" onChange={(sfxVolume) => patch({ sfxVolume })} onCommit={(value) => playTone(value, 660)} value={sound.sfxVolume} />
+        <SliderRow background="#D7F5E5" badge={percent(sound.sfxVolume)} color="#1DBB7F" icon="musical-notes" label="Effektlar" onChange={(sfxVolume) => patch({ sfxVolume })} onCommit={(value) => { if (value > 0) playSfx("combo", { respectSoundSettings: false, volume: value }); }} value={sound.sfxVolume} />
         <i className={styles.divider} />
-        <SliderRow background="#FFF4D6" badge={percent(sound.keyVolume)} color="#F4B860" icon="keypad" label="Tugma ovozi" onChange={(keyVolume) => patch({ keyVolume })} onCommit={(value) => playTone(value, 420)} value={sound.keyVolume} />
+        <SliderRow background="#FFF4D6" badge={percent(sound.keyVolume)} color="#F4B860" icon="keypad" label="Tugma ovozi" onChange={(keyVolume) => patch({ keyVolume })} onCommit={(value) => { if (value > 0) playSfx("click", { respectSoundSettings: false, volume: value }); }} value={sound.keyVolume} />
       </Card>
       {muted ? <p className={styles.mutedHint}>Ovoz o‘chirilgan, lekin sozlamadagi namunalar ijro etiladi.</p> : null}
       <h2>Nutq</h2>

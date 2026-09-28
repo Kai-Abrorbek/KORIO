@@ -925,6 +925,13 @@ export default {
     language: {
       subtitle: "앱에서 사용할 언어를 선택하세요",
     },
+    contentLanguage: {
+      title: "뜻·설명은 어떤 언어로 볼까요?",
+      desc: "화면은 한국어 그대로 두고, 단어 뜻·번역·문법 설명만 이 언어로 보여 드려요. 언어 설정에서 언제든 바꿀 수 있어요.",
+      rowLabel: "뜻·설명 언어",
+      rowHint: "단어 뜻·번역·문법 설명",
+      confirm: "확인",
+    },
     notifications: {
       channelDefault: "KORIO 알림",
       channelStudy: "학습 알림",
@@ -1345,6 +1352,7 @@ export default {
       text: "텍스트 보기",
       textHide: "텍스트 숨기기",
       end: "수업 종료",
+      tapForSound: "선생님 목소리를 들으려면 눌러 주세요",
     },
     personality: {
       calm: "차분한",
@@ -1441,6 +1449,7 @@ export default {
       TUTOR_NOT_CONFIGURED: "지금은 이용할 수 없어요.",
       TUTOR_AGENT_UNAVAILABLE: "선생님이 응답하지 않아요. 잠시 뒤에 다시 시도해 주세요.",
       TUTOR_SESSION_FAILED: "대화를 시작하지 못했어요. 다시 시도해 주세요.",
+      MIC_UNSUPPORTED: "이 환경에서는 마이크를 쓸 수 없어요. 앱을 이용해 주세요.",
     },
   },
   // 친구 초대 보상 (app/invite.tsx)

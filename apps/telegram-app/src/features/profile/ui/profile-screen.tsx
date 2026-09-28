@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { GeneratedAvatar, AVATAR_BACKGROUNDS, getAvatarHeaderContentColor } from "../../league/ui/generated-avatar";
-import { getMe, logoutAll } from "../api/profile";
+import { getMe } from "../api/profile";
 import { TIER_COLORS, TIER_LABELS, type UserMe } from "../model/profile";
 import styles from "./profile-screen.module.css";
 
@@ -33,8 +33,8 @@ export function ProfileScreen() {
   const friendStreaks = profile.friendStreaks ?? [];
   const placeholders = Math.max(0, 5 - friendStreaks.length);
 
-  const logout = async () => {
-    await logoutAll(request).catch(() => undefined);
+  // 이 기기만 끝낸다 (앱 signOut). logout-all 은 폰 앱 세션까지 끊었다
+  const logout = () => {
     if (window.Telegram?.WebApp.close) window.Telegram.WebApp.close();
     else router.replace("/");
   };
@@ -61,7 +61,7 @@ export function ProfileScreen() {
 
         <section className={styles.statsRow}>
           <button onClick={() => router.push("/user-courses")} type="button"><span className={styles.flag}>{profile.coursePrimaryFlag || "🇰🇷"}</span>{profile.courseExtraCount > 0 ? <b className={styles.countBadge}>+{profile.courseExtraCount}</b> : null}<small>Kurslar</small></button>
-          <button onClick={() => router.push("/friends?tab=following")} type="button"><strong>{profile.followingCount ?? 0}</strong><small>Obuna</small></button>
+          <button onClick={() => router.push("/friends?tab=following")} type="button"><strong>{profile.followingCount ?? 0}</strong><small data-i18n="profile.following">Obuna</small></button>
           <button onClick={() => router.push("/friends?tab=followers")} type="button"><strong>{profile.followersCount ?? 0}</strong><small>Obunachilar</small></button>
         </section>
 
@@ -86,7 +86,7 @@ export function ProfileScreen() {
           </div>
         </section>
 
-        <button className={`${styles.outlineButton} ${styles.logout}`} onClick={() => void logout()} type="button">Log Out</button>
+        <button className={`${styles.outlineButton} ${styles.logout}`} onClick={logout} type="button">Chiqish</button>
       </div>
     </main>
   );

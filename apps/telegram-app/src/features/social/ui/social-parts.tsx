@@ -10,6 +10,7 @@ import type { SocialUser } from "../model/social";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import type { AvatarConfig } from "../../../shared/model/avatar";
 import styles from "./social.module.css";
+import { shareMessage } from "../../../shared/telegram/share";
 
 type Request = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -19,12 +20,7 @@ export function goBack(router: ReturnType<typeof useRouter>, fallback = "/profil
 }
 
 export async function shareText(title: string, text: string) {
-  window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
-  if (navigator.share) {
-    await navigator.share({ title, text }).catch(() => undefined);
-    return;
-  }
-  await navigator.clipboard?.writeText(text).catch(() => undefined);
+  await shareMessage(text, title);
 }
 
 export function ScreenHeader({ title, fallback = "/profile", right }: { title: string; fallback?: string; right?: ReactNode }) {

@@ -23,6 +23,7 @@ import {
 } from "../model/topik";
 import { ChoiceList, StimulusCard, TopikTextBlocks } from "./topik-exam-parts";
 import styles from "./topik-recipe-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const CHOICE_MARK = ["①", "②", "③", "④"];
 
@@ -40,6 +41,8 @@ export function TopikRecipeScreen() {
   const [error, setError] = useState(false);
   const [openSolutionId, setOpenSolutionId] = useState<string | null>(null);
   const [openGrammarKey, setOpenGrammarKey] = useState<string | null>(null);
+  // 옆 시트(풀이·문법)가 열려 있으면 텔레그램 뒤로가기는 시트만 닫는다 (앱 TopikSideSheet onRequestClose)
+  useTelegramBackOverride(openSolutionId || openGrammarKey ? () => { setOpenSolutionId(null); setOpenGrammarKey(null); } : null);
   const listening = useTopikListeningPlayback(request);
 
   const load = useCallback(async () => {
@@ -116,7 +119,7 @@ export function TopikRecipeScreen() {
           <small>{topikUzText(recipe.label)}</small>
           <h1>{topikUzText(recipe.title)}</h1>
         </div>
-        <span>{recipe.targetLevel}-daraja</span>
+        <span>{`${recipe.targetLevel}-daraja`}</span>
       </header>
 
       <div className={styles.scroll}>
@@ -141,7 +144,7 @@ export function TopikRecipeScreen() {
                   <MobileIcon name="library-outline" size={20} />
                   <span>
                     <b>{topikUzText(section.title)}</b>
-                    <small>{section.entries.length} ta asosiy nuqta</small>
+                    <small>{`${section.entries.length} ta asosiy nuqta`}</small>
                   </span>
                   <MobileIcon name="chevron-forward" size={18} />
                 </button>
@@ -168,7 +171,7 @@ export function TopikRecipeScreen() {
         >
           <span>
             <b>Taxminiy savollarni yechish</b>
-            <small>{recipe.practiceCount} ta savol</small>
+            <small>{`${recipe.practiceCount} ta savol`}</small>
           </span>
           <MobileIcon name="arrow-forward" size={22} />
         </button>
@@ -271,7 +274,7 @@ function SolutionBody({ question }: { question: TopikRecipeQuestion }) {
   return (
     <div>
       <section className={styles.answerBox}>
-        <small>To‘g‘ri javob: {CHOICE_MARK[answerIndex] ?? ""}</small>
+        <small>{`To‘g‘ri javob: ${CHOICE_MARK[answerIndex] ?? ""}`}</small>
         <strong>{answer?.text ?? ""}</strong>
       </section>
       {flowKo ? (

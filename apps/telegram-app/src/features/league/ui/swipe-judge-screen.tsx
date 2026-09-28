@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Poin
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { GameWord } from "../model/use-game-words";
-import { useGameWords } from "../model/use-game-words";
+import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./swipe-judge-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const GAME_SECONDS = 60;
 const SWIPE_THRESHOLD = 110;
@@ -19,7 +20,7 @@ interface JudgeCard {
 }
 
 function meaningOf(word: GameWord) {
-  return word.uz || word.en;
+  return meaningOfGameWord(word);
 }
 
 function shuffle<T>(items: T[]) {
@@ -173,6 +174,8 @@ export function SwipeJudgeScreen() {
   };
 
   const exit = () => void finish(score);
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
   const card = deck[index];
   const nextCard = deck.length ? deck[(index + 1) % deck.length] : undefined;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;

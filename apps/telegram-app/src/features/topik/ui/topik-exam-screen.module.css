@@ -26,11 +26,19 @@
   color: var(--text);
 }
 
+/*
+ * 화면 높이를 고정하고 가운데(.scrollContent)만 스크롤한다.
+ * 예전엔 min-height 라 지문이 길면 화면 전체가 늘어나서 ① 하단 버튼이
+ * 지문 끝까지 밀려 내려가고 ② 다음 문제로 넘어가도 스크롤 위치가 그대로라
+ * "안 넘어간 것처럼" 보였다 (scrollTo 가 걸리는 컨테이너가 스크롤을 안 했다).
+ */
 .screen {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bg);
 }
 
@@ -138,7 +146,9 @@
 .timer b { max-width: 86px; font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
 
 .scrollContent {
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scrollbar-width: none;
   padding: 13px 14px 28px;
@@ -319,7 +329,7 @@
 .examFooter {
   display: flex;
   min-height: calc(76px + env(safe-area-inset-bottom));
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   border-top: 1px solid var(--divider);
   background: var(--paper);

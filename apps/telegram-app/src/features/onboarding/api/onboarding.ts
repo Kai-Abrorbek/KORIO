@@ -1,4 +1,5 @@
 import type { LessonQuestion } from "../../lesson/model/lesson";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -27,7 +28,7 @@ export function getOnboardingLevelTest(
   selfReportedLevel: string,
 ): Promise<LessonQuestion[]> {
   const query = new URLSearchParams({
-    lang: "uz",
+    lang: getContentLang(),
     self: selfReportedLevel,
   });
   return request<LessonQuestion[]>(`/lessons/level-test?${query.toString()}`);

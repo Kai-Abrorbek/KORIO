@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getTopikAttempt,
@@ -25,6 +26,7 @@ import {
   flattenTopikQuestions,
   type TopikAttempt,
   type TopikAttemptMode,
+  type TopikAudio,
   type TopikExamSession,
   type TopikLearningSupport,
   type TopikQuestionWithGroup,
@@ -103,6 +105,15 @@ export function TopikExamScreen() {
   const playCountsRef = useRef<Record<string, number>>({});
   const autoPlayedRef = useRef(new Set<string>());
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // 텔레그램 뒤로가기도 X 버튼과 같게 — 풀던 중이면 "저장하고 나가기" 시트부터
+  // 시트가 열려 있으면 뒤로가기는 시트를 닫는다 (앱 Modal onRequestClose)
+  useTelegramBackOverride(isReview ? null : () => {
+    if (busy) return;
+    if (submitOpen) { setSubmitOpen(false); return; }
+    if (exitOpen) { setExitOpen(false); return; }
+    setExitOpen(true);
+  });
 
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
@@ -230,27 +241,34 @@ export function TopikExamScreen() {
       speechSegments,
       repeatCount: 1,
       fallbackToSpeech: true,
+      // 모의고사 듣기는 소리가 곧 시험 진행이다 — 음소거여도 들린다 (앱과 같음)
+      respectSoundSettings: false,
+      volume: 1,
     };
   }, [session]);
 
-  const playGuided = useCallback(() => {
-    if (!activeAudio || !activeQuestions[0]) return;
-    const count = playCountsRef.current[activeAudio.key] ?? 0;
-    if (count >= activeAudio.guidedPlaybackLimit) return;
+  const playGuidedAudio = useCallback((audio: TopikAudio, questionNumber: number, repeatCount: number) => {
+    const count = playCountsRef.current[audio.key] ?? 0;
+    if (count >= audio.guidedPlaybackLimit) return;
     const started = playAudio({
-      key: activeAudio.key,
-      audioUrl: activeAudio.audioUrl,
-      transcript: activeAudio.transcript,
-      questionNumber: activeQuestions[0].number,
-      repeatCount: activeRepeatCount,
-      repeatPauseMs: activeRepeatCount > 1 ? 900 : 0,
-      fallbackToSpeech: activeAudio.speechFallback,
+      key: audio.key,
+      audioUrl: audio.audioUrl,
+      transcript: audio.transcript,
+      questionNumber,
+      repeatCount,
+      repeatPauseMs: repeatCount > 1 ? 900 : 0,
+      fallbackToSpeech: audio.speechFallback,
     });
     if (!started) return;
-    const next = { ...playCountsRef.current, [activeAudio.key]: count + 1 };
+    const next = { ...playCountsRef.current, [audio.key]: count + 1 };
     playCountsRef.current = next;
     setPlayCounts(next);
-  }, [activeAudio, activeQuestions, activeRepeatCount, playAudio]);
+  }, [playAudio]);
+
+  const playGuided = useCallback(() => {
+    if (!activeAudio || !activeQuestions[0]) return;
+    playGuidedAudio(activeAudio, activeQuestions[0].number, activeRepeatCount);
+  }, [activeAudio, activeQuestions, activeRepeatCount, playGuidedAudio]);
 
   useEffect(() => {
     if (!attempt || !session || !isListening || loading) return;
@@ -307,10 +325,24 @@ export function TopikExamScreen() {
   const moveBy = async (direction: -1 | 1) => {
     setBusy(true);
     try {
-      await saveProgress();
+      // 저장이 실패해도 이동은 막지 않는다. 고른 답은 화면 상태에 그대로 있고
+      // 다음 이동·나가기·제출 때 다시 저장한다. 예전엔 저장 실패 = 무반응이라
+      // "다음" 이 고장 난 것처럼 보였다.
+      await saveProgress().catch(() => undefined);
       const step = Math.min(Math.max(activeStepIndex + direction, 0), stepStartIndices.length - 1);
-      setCurrentIndex(stepStartIndices[step] ?? 0);
+      const nextIndex = stepStartIndices[step] ?? 0;
+      setCurrentIndex(nextIndex);
       setQuestionStartedAt(Date.now());
+      // 모바일과 같다: 이해 학습(guided) 듣기는 **앞으로** 넘어갈 때마다 다음 음성을 틀어 준다
+      // (다시 온 문제도 재생 한도 안에서). 뒤로 갈 때는 조용히 — 다시 듣기는 버튼으로 한다
+      if (direction === 1 && attempt?.mode === "guided" && isListening) {
+        const nextQuestion = questions[nextIndex];
+        const nextAudio = nextQuestion?.audio ?? nextQuestion?.group.sharedAudio;
+        if (nextQuestion && nextAudio && nextIndex !== currentIndex) {
+          autoPlayedRef.current.add(`${attempt.id}:${isReview ? "review" : "guided"}:${nextAudio.key}`);
+          playGuidedAudio(nextAudio, nextQuestion.number, nextAudio.guidedAutoRepeatCount ?? (nextQuestion.number >= 21 ? 2 : 1));
+        }
+      }
     } finally {
       setBusy(false);
     }
@@ -419,11 +451,11 @@ export function TopikExamScreen() {
       <div className={styles.timer}><MobileIcon name={mode === "mock_exam" && !isReview ? "time-outline" : "book-outline"} size={16} /><b>{mode === "mock_exam" && !isReview ? formatTime(remainingSeconds) : isReview ? "Izohli takrorlash" : "Izohli o‘rganish"}</b></div>
     </header>
     <div className={styles.scrollContent} ref={contentRef}>
-      <div className={styles.statusRow}><b>{isReview ? "Izohli takrorlash" : mode === "guided" ? "Izohli o‘rganish" : "Sinov imtihoni"}</b><span>Javoblar {answeredCount}/{questions.length}</span></div>
+      <div className={styles.statusRow}><b>{isReview ? "Izohli takrorlash" : mode === "guided" ? "Izohli o‘rganish" : "Sinov imtihoni"}</b><span>{`Javoblar ${answeredCount}/${questions.length}`}</span></div>
       {isListening ? <ListeningQuestionCard activeAudioKey={activeAudioKey} answers={Object.fromEntries(activeQuestions.map((item) => [item.id, answers[item.id]?.selectedChoiceKey]))} mode={attempt.mode} onPlayAudio={playGuided} onSelect={(id, key) => { const item = activeQuestions.find((candidate) => candidate.id === id); if (item) selectAnswer(item, key); }} onStopAudio={stopAudio} playCount={activeAudio ? playCounts[activeAudio.key] ?? 0 : 0} playbackStatus={playbackStatus} questions={activeQuestions} renderSupport={(item) => attempt.mode === "guided" ? supportFor(item) : null} showTranscript={showTranscript} solutions={solutions} /> : <><QuestionCard correctChoiceKey={solutions[question.id]?.correctChoiceKey} disabled={Boolean(solutions[question.id])} highlightedKeys={highlightedKeys} onSelect={(key) => selectAnswer(question, key)} question={question} selectedChoiceKey={answers[question.id]?.selectedChoiceKey} />{attempt.mode === "guided" ? supportFor(question) : null}</>}
     </div>
     <footer className={styles.examFooter}>
-      <button disabled={activeStepIndex === 0 || busy} onClick={() => void moveBy(-1)} type="button"><MobileIcon name="chevron-back" size={21} />Oldingi</button>
+      <button data-i18n="topik.exam.previous" disabled={activeStepIndex === 0 || busy} onClick={() => void moveBy(-1)} type="button"><MobileIcon name="chevron-back" size={21} />Oldingi</button>
       {lastStep ? <button className={styles.primaryButton} disabled={busy} onClick={() => isReview ? router.back() : setSubmitOpen(true)} type="button">{isReview ? "Natijaga qaytish" : "Javoblarni yuborish"}</button> : <button className={styles.primaryButton} disabled={busy} onClick={() => void moveBy(1)} type="button">Keyingi<MobileIcon name="chevron-forward" size={21} /></button>}
     </footer>
 
@@ -450,7 +482,7 @@ export function TopikExamScreen() {
 function ProgressCard({ answered, total, saveNotice = false }: { answered: number; total: number; saveNotice?: boolean }) {
   const percent = total ? Math.min(100, Math.round(answered / total * 100)) : 0;
   const unanswered = Math.max(0, total - answered);
-  return <section className={styles.modalProgress}><header><b>Javoblar {answered}/{total}</b><span>{percent}%</span></header><div><i style={{ width: `${percent}%` }} /></div>{saveNotice ? <p><MobileIcon name="cloud-done-outline" size={17} />Istalgan vaqtda qaytib, saqlangan javoblardan davom eting.</p> : <p className={unanswered ? styles.warningNotice : styles.completeNotice}><MobileIcon name={unanswered ? "warning-outline" : "checkmark-circle"} size={17} />{unanswered ? `Hali ${unanswered} ta savol javobsiz qolgan.` : "Yuborilgandan keyin javoblarni o‘zgartirib bo‘lmaydi."}</p>}</section>;
+  return <section className={styles.modalProgress}><header><b>{`Javoblar ${answered}/${total}`}</b><span>{percent}%</span></header><div><i style={{ width: `${percent}%` }} /></div>{saveNotice ? <p><MobileIcon name="cloud-done-outline" size={17} />Istalgan vaqtda qaytib, saqlangan javoblardan davom eting.</p> : <p className={unanswered ? styles.warningNotice : styles.completeNotice}><MobileIcon name={unanswered ? "warning-outline" : "checkmark-circle"} size={17} />{unanswered ? `Hali ${unanswered} ta savol javobsiz qolgan.` : "Yuborilgandan keyin javoblarni o‘zgartirib bo‘lmaydi."}</p>}</section>;
 }
 
 function ErrorBox({ title, message }: { title: string; message: string }) {

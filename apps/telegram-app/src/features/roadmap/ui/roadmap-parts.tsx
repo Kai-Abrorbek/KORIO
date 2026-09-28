@@ -42,9 +42,7 @@ export function RoadmapBanner({
       <button onClick={onOpen} type="button">
         <span className={styles.mapBadge}>⌁</span>
         <span>
-          <small>
-            Bo&apos;lim {unit.sectionNumber}, Birlik {unit.unitNumber}
-          </small>
+          <small>{`Bo'lim ${unit.sectionNumber}, Birlik ${unit.unitNumber}`}</small>
           <strong>{unit.title}</strong>
         </span>
       </button>
@@ -89,7 +87,7 @@ export function RoadmapPopover({
         style={popupStyle}
       >
         <span className={styles.popoverArrow} />
-        <strong>Daraja - {node.scoreValue ?? 0} takrorlash</strong>
+        <strong>{`Daraja - ${node.scoreValue ?? 0} takrorlash`}</strong>
         <p>
           {node.status === "completed"
             ? "Barcha Legend bosqichlarini tugatib, yakuniy sovrinni qo'lga kiriting!"

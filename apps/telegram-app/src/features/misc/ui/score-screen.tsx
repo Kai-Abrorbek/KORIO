@@ -50,7 +50,7 @@ export function ScoreScreen() {
               <div className={styles.scoreMilestoneCopy}>
                 <div><span>🇰🇷</span><b>{milestone.score}</b>{current ? <small>O‘rganilmoqda</small> : null}</div>
                 <h2>{milestone.title || `${milestone.section}-bo‘lim`}</h2>
-                {current ? <p>{Math.max(0, data.score - (milestone.startScore ?? 0))}/{milestone.units} bo‘lim tugadi</p> : null}
+                {current ? <p>{`${Math.max(0, data.score - (milestone.startScore ?? 0))}/${milestone.units} bo‘lim tugadi`}</p> : null}
               </div>
             </article>
           );

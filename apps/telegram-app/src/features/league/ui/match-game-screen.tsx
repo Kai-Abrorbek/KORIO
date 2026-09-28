@@ -6,6 +6,8 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./match-game-screen.module.css";
+import { meaningOfGameWord } from "../model/use-game-words";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 type Side = "left" | "right";
 type PairStatus = "idle" | "selected" | "wrong" | "correct";
@@ -165,11 +167,11 @@ export function MatchGameScreen() {
         if (learned.length >= BOARD_PAIRS + 3) return start(learned);
         const seen = new Set(learned.map((pair) => pair.id));
         return gamePool()
-          .then((response) => start([...learned, ...(response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: word.uz || word.en })).filter((pair) => !seen.has(pair.id))]))
+          .then((response) => start([...learned, ...(response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: meaningOfGameWord(word) })).filter((pair) => !seen.has(pair.id))]))
           .catch(() => start(learned));
       })
       .catch(() => gamePool()
-        .then((response) => start((response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: word.uz || word.en }))))
+        .then((response) => start((response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: meaningOfGameWord(word) }))))
         .catch(() => start([])));
     return () => { active = false; };
   }, [request]);
@@ -301,6 +303,8 @@ export function MatchGameScreen() {
   };
 
   const exit = () => isChallenge ? void finish(0) : goBack();
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
   const continueReward = () => {
     const final = reward?.final;
     setReward(null);

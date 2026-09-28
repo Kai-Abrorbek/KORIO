@@ -1,0 +1,21 @@
+/* 모바일 ErrorHunt 값 그대로 */
+.title{margin:0 0 12px;color:var(--q-text);font-size:20px;font-weight:800;line-height:1.3}
+.badge{display:flex;align-items:center;align-self:flex-start;gap:8px;margin-bottom:16px;border-radius:12px;background:color-mix(in srgb,var(--q-primary) 8%,transparent);padding:8px 12px}
+.badge span{font-size:16px}
+.badge b{color:var(--q-primary);font-size:13px;font-weight:700}
+.sentence{border:1.5px solid var(--q-border);border-bottom-width:4px;border-radius:20px;background:var(--q-surface);padding:20px}
+.shake{animation:ehShake .25s linear}
+.words{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.word{position:relative;border:1.5px solid transparent;border-radius:12px;background:transparent;color:var(--q-text);padding:8px 10px;font:inherit;font-size:20px;font-weight:700}
+.word:active:not(:disabled){opacity:.7}
+.word:disabled{opacity:1}
+.wordMarked{border-color:#ff4b4b;background:rgb(255 75 75/8%)}
+.wordRed{color:#ff4b4b}
+.strike{position:absolute;top:50%;left:10px;height:2.5px;border-radius:2px;background:#ff4b4b;animation:ehStrike .35s ease-out forwards}
+.fixArea{display:flex;flex-direction:column;margin-top:20px}
+.fixOption{margin-bottom:10px;border:1.5px solid var(--q-border);border-bottom-width:4px;border-radius:16px;background:var(--q-surface);color:var(--q-text);padding:15px 12px;font:inherit;font-size:17px;font-weight:700;animation:ehIn .15s ease-out both}
+.fixOption:active:not(:disabled){opacity:.85}
+.fixOn{border-color:var(--q-primary);background:color-mix(in srgb,var(--q-primary) 6%,var(--q-surface));color:var(--q-primary)}
+@keyframes ehShake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes ehStrike{from{width:0}to{width:calc(100% - 20px)}}
+@keyframes ehIn{from{opacity:0}}

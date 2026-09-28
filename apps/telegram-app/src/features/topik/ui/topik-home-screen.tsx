@@ -211,7 +211,7 @@ export function TopikHomeScreen() {
 
       <div className={styles.content}>
         <section className={styles.hero}>
-          <span>TOPIK {roman} · {SECTION_LABEL[section].toUpperCase()}</span>
+          <span>{`TOPIK ${roman} · ${SECTION_LABEL[section].toUpperCase()}`}</span>
           <h1>{heroTitle}</h1>
           <p>{heroDescription}</p>
           <div className={styles.heroMetrics}>
@@ -262,9 +262,7 @@ export function TopikHomeScreen() {
         ) : exams.length === 0 ? (
           <section className={styles.stateCard}>
             <MobileIcon name="document-text-outline" size={29} />
-            <strong>
-              TOPIK {roman} {SECTION_LABEL[section]} materiallari tayyorlanmoqda.
-            </strong>
+            <strong>{`TOPIK ${roman} ${SECTION_LABEL[section]} materiallari tayyorlanmoqda.`}</strong>
             <p>Sifatli savollar tez orada qo‘shiladi.</p>
           </section>
         ) : (
@@ -450,7 +448,7 @@ function TopikHeader({
       <button aria-label="Orqaga" onClick={onBack} type="button">
         <MobileIcon name="chevron-back" size={25} />
       </button>
-      <strong>TOPIK {roman} · {SECTION_LABEL[section]}</strong>
+      <strong>{`TOPIK ${roman} · ${SECTION_LABEL[section]}`}</strong>
       <button
         aria-label="O‘quv statistikasini ochish"
         disabled={statsHidden}

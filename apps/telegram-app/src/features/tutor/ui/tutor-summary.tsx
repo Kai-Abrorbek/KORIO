@@ -100,6 +100,7 @@ export function TutorSummary({
 
         {data.newVocabulary.length ? (
           <SummarySection
+            i18nKey="tutor.summary.newWords"
             icon="bookmark"
             tint="var(--korio-purple)"
             title="Bugungi iboralar"
@@ -148,11 +149,14 @@ function SummaryStat({ value, label }: { value: string; label: string }) {
 }
 
 function SummarySection({
+  i18nKey,
   icon,
   tint,
   title,
   children,
 }: {
+  /** 같은 원문이 다른 뜻으로도 쓰일 때 번역 키를 콕 집는다 */
+  i18nKey?: string;
   icon: IoniconName;
   tint: string;
   title: string;
@@ -162,7 +166,7 @@ function SummarySection({
     <section className={styles.summarySection}>
       <h2 style={{ color: tint }}>
         <MobileIcon name={icon} size={17} />
-        <span>{title}</span>
+        <span data-i18n={i18nKey}>{title}</span>
       </h2>
       {children}
     </section>

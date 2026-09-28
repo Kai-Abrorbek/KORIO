@@ -16,6 +16,14 @@
 .checkOn,.checkOff{display:grid;width:26px;height:26px;flex:0 0 auto;place-items:center;border-radius:50%;font-style:normal}
 .checkOn{background:var(--primary);color:#fff;animation:pop .24s ease both}
 .checkOff{border:2px solid #d4d3dd}
+.contentRow{display:flex;width:100%;align-items:center;gap:12px;margin-top:22px;border:2px solid var(--border);border-bottom-width:4px;border-radius:18px;background:var(--surface);color:var(--text);padding:13px 14px;text-align:left;animation:rise .32s ease both;transition:transform .08s}
+.contentRow:active{transform:translateY(2px)}
+.contentIcon{display:grid;width:34px;height:34px;flex:0 0 auto;place-items:center;border-bottom:3px solid #5b52c4;border-radius:11px;background:var(--primary);color:#fff;font-style:normal}
+.contentRow>span{display:grid;min-width:0;flex:1;gap:1px}
+.contentRow b{font-size:15px;font-weight:800}
+.contentRow small{overflow:hidden;color:var(--secondary);font-size:12.5px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.contentRow em{color:var(--primary);font-size:14px;font-style:normal;font-weight:800}
+.contentRow>svg:last-child{color:var(--secondary)}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pop{from{transform:scale(.45)}to{transform:scale(1)}}
 :global(html[data-theme="dark"]) .screen{--bg:#15151d;--surface:#25252e;--text:#fff;--secondary:#a6a6b3;--border:#3a3a44}

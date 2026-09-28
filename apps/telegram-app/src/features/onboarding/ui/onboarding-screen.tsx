@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -36,13 +36,8 @@ export function OnboardingScreen() {
   const canContinue = selected.length > 0;
 
   useEffect(() => {
-    if (user?.isOnboardingCompleted) router.replace("/welcome");
+    if (user?.isOnboardingCompleted) router.replace("/home");
   }, [router, user?.isOnboardingCompleted]);
-
-  const progress = useMemo(
-    () => ((stepIndex + 1) / SURVEY_STEPS.length) * 100,
-    [stepIndex],
-  );
 
   if (!user || user.isOnboardingCompleted) return null;
 
@@ -100,7 +95,10 @@ export function OnboardingScreen() {
           languageLevel: 1,
           level: "beginner",
         });
-        router.replace("/welcome?new=1");
+        // 완전 초보는 진단을 건너뛴다 — 온보딩 끝. 앱처럼 홈으로.
+        // (예전엔 /welcome?new=1 로 보내서 웰컴 화면이 다시 떴다)
+        window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
+        router.replace("/home");
         return;
       }
 
@@ -117,57 +115,77 @@ export function OnboardingScreen() {
     }
   };
 
+  const isLast = stepIndex === SURVEY_STEPS.length - 1;
+
+  // 앱(onboarding/survey.tsx)과 같은 구조: 뒤로 + 칸 나뉜 진행바 → 코치 카드
+  // (생각하는 한글몬) → 제목 → "하나/여러 개" 안내 → 선택 카드 → 하단 고정 버튼
   return (
-    <main className={styles.onboardingPage}>
-      <div className={styles.ambientTop} />
-      <div className={styles.ambientBottom} />
-      <header className={styles.surveyHeader}>
-        <button aria-label="Orqaga" className={styles.backButton} onClick={goBack} type="button">
-          <MobileIcon name="chevron-back" size={24} />
+    <main className={styles.svPage}>
+      <i aria-hidden="true" className={styles.svOrbTop} />
+      <i aria-hidden="true" className={styles.svOrbBottom} />
+
+      <header className={styles.svHeader}>
+        <button aria-label="Orqaga" className={styles.svBack} onClick={goBack} type="button">
+          <MobileIcon name="chevron-back" size={23} />
         </button>
-        <div className={styles.progressArea}>
-          <div className={styles.progressMeta}>
-            <strong>{stepIndex + 1} / {SURVEY_STEPS.length}</strong>
-            <span>{Math.round(progress)}%</span>
+        <div
+          aria-valuemax={SURVEY_STEPS.length}
+          aria-valuemin={1}
+          aria-valuenow={stepIndex + 1}
+          className={styles.svProgress}
+          role="progressbar"
+        >
+          <div className={styles.svProgressMeta}>
+            <small data-no-translate>KORIO</small>
+            <b>{stepIndex + 1} / {SURVEY_STEPS.length}</b>
           </div>
-          <div className={styles.progressTrack}><i style={{ width: `${progress}%` }} /></div>
+          <div className={styles.svSegments}>
+            {SURVEY_STEPS.map((item, index) => (
+              <i className={index <= stepIndex ? styles.svSegmentOn : undefined} key={item.id} />
+            ))}
+          </div>
         </div>
       </header>
 
-      <section className={styles.surveyContent}>
-        <div className={styles.coachCard}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" src="/characters/hangulmon_default.png" />
-          <div>
-            <small>KORIO</small>
-            <strong>{step.subtitle}</strong>
-          </div>
+      <section className={styles.svScroll} key={step.id}>
+        <div className={styles.svCoach}>
+          <span className={styles.svMascot}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="" src="/characters/hangulmon_thinking.png" />
+          </span>
+          <p>{step.subtitle}</p>
         </div>
 
-        <div className={styles.questionHeading}>
-          <p>{step.helper}</p>
-          <h1>{step.title}</h1>
+        <h1 className={styles.svTitle}>{step.title}</h1>
+        <div className={styles.svHelper}>
+          <MobileIcon name={step.multi ? "layers-outline" : "checkmark-circle-outline"} size={16} />
+          <span>{step.helper}</span>
         </div>
 
-        <div className={step.variant === "grid" ? styles.optionGrid : styles.optionList}>
+        <div className={step.variant === "grid" ? styles.svGrid : styles.svList}>
           {step.options.map((option, index) => {
             const active = selected.includes(option.value);
             return (
               <button
                 aria-pressed={active}
-                className={`${styles.optionCard} ${active ? styles.optionSelected : ""}`}
+                className={`${styles.svCard} ${active ? styles.svCardOn : ""}`}
                 key={option.value}
-                onClick={() => select(option.value)}
+                onClick={() => {
+                  window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");
+                  select(option.value);
+                }}
                 style={{
                   "--accent": option.color,
-                  "--delay": `${index * 35}ms`,
+                  "--delay": `${index * 45}ms`,
                 } as CSSProperties}
                 type="button"
               >
-                <span className={styles.optionIcon}><MobileIcon name={option.icon} size={27} /></span>
+                <span className={styles.svCardIcon}>
+                  <MobileIcon name={option.icon} size={step.variant === "grid" ? 27 : 23} />
+                </span>
                 <strong>{option.label}</strong>
-                <span className={styles.optionCheck}>
-                  {active ? <MobileIcon name="checkmark" size={16} /> : null}
+                <span className={styles.svCheck}>
+                  {active ? <MobileIcon name="checkmark" size={14} /> : null}
                 </span>
               </button>
             );
@@ -175,16 +193,22 @@ export function OnboardingScreen() {
         </div>
       </section>
 
-      <footer className={styles.surveyFooter}>
+      <footer className={styles.svFooter}>
         {error ? <p className={styles.formError}>{error}</p> : null}
         <button
-          className={styles.continueButton}
+          className={styles.svCta}
           disabled={!canContinue || submitting}
           onClick={() => void next()}
           type="button"
         >
-          <span>{submitting ? "Saqlanmoqda..." : stepIndex === SURVEY_STEPS.length - 1 ? "Boshlash" : "Keyingi"}</span>
-          {!submitting ? <i><MobileIcon name="arrow-forward" size={18} /></i> : null}
+          {submitting ? (
+            <i aria-label="Saqlanmoqda..." className={styles.svSpinner} />
+          ) : (
+            <>
+              <span>{isLast ? "Boshlash" : "Keyingi"}</span>
+              <MobileIcon name="arrow-forward" size={20} />
+            </>
+          )}
         </button>
       </footer>
     </main>

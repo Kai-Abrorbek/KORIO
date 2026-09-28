@@ -182,7 +182,7 @@ export function StimulusCard({
             </table>
           </div>
         )}
-        {chart.unit ? <small>Birlik: {chart.unit}</small> : null}
+        {chart.unit ? <small>{`Birlik: ${chart.unit}`}</small> : null}
         {chart.sourceNote ? <small>{chart.sourceNote}</small> : null}
       </section>
     );
@@ -243,13 +243,13 @@ function ListeningPlayer({ audio, showTranscript, isPlaying, playCount, repeatCo
   const canPlay = playCount < audio.guidedPlaybackLimit;
   return <div className={styles.listeningWrap}>
     <section className={styles.listeningPlayer}>
-      <div className={styles.playerTop}><span><MobileIcon name="headset" size={14} /> Tinglash audiosi</span><small>{playCount} / {audio.guidedPlaybackLimit} marta</small></div>
+      <div className={styles.playerTop}><span><MobileIcon name="headset" size={14} /> Tinglash audiosi</span><small>{`${playCount} / ${audio.guidedPlaybackLimit} marta`}</small></div>
       <div className={styles.playerControls}>
         <button aria-label={isPlaying ? "To‘xtatish" : "Eshitish"} disabled={!isPlaying && !canPlay} onClick={isPlaying ? onStop : onPlay} type="button"><MobileIcon name={isPlaying ? "stop" : playCount > 0 ? "refresh" : "play"} size={24} /></button>
         <div className={styles.waveform}>{WAVEFORM.map((height, index) => <i className={isPlaying && index % 3 === playCount % 3 ? styles.waveActive : ""} key={`${height}-${index}`} style={{ height }} />)}</div>
       </div>
       <p><MobileIcon name="phone-portrait-outline" size={13} /> {audio.audioUrl ? "Asl imtihon audiosi" : "Qurilmaning koreyscha ovozi bilan"}</p>
-      {repeatCount > 1 ? <em><MobileIcon name="repeat" size={13} /> Ketma-ket {repeatCount} marta eshittiriladi</em> : null}
+      {repeatCount > 1 ? <em><MobileIcon name="repeat" size={13} />{` Ketma-ket ${repeatCount} marta eshittiriladi`}</em> : null}
     </section>
     {showTranscript ? <section className={styles.transcript}><header><span><MobileIcon name="document-text-outline" size={16} /></span><div><small>IZOHLI REJIM</small><strong>To‘liq matn</strong></div></header>{audio.transcript.map((line, index) => <p key={`${line.speaker}-${index}`}><b>{line.speaker}</b><span>{line.text}</span></p>)}</section> : null}
   </div>;
@@ -280,9 +280,9 @@ export function HintPanel({ support, solution, selected, busy, onRevealHint, onR
 }) {
   return <section className={styles.hintPanel}>
     <header><div><small>IZOHLI O‘RGANISH</small><strong>Bosqichma-bosqich yeching</strong></div>{support ? <span>{support.revealedHints.length}/{support.hintCount}</span> : null}</header>
-    {support?.revealedHints.map((hint) => <article className={styles.hintCard} key={hint.key}><small>{hint.level}-maslahat</small><strong>{topikUzText(hint.title)}</strong><p>{topikUzText(hint.content)}</p>{hint.examples.map((example, index) => <div key={`${hint.key}-${index}`}><b>Misol</b><span>{topikUzText(example)}</span></div>)}</article>)}
+    {support?.revealedHints.map((hint) => <article className={styles.hintCard} key={hint.key}><small>{`${hint.level}-maslahat`}</small><strong>{topikUzText(hint.title)}</strong><p>{topikUzText(hint.content)}</p>{hint.examples.map((example, index) => <div key={`${hint.key}-${index}`}><b>Misol</b><span>{topikUzText(example)}</span></div>)}</article>)}
     {solution ? <article className={styles.solutionCard}><h3>{solution.isCorrect ? "To‘g‘ri" : "Yana bir bor tekshiring"}</h3><b>To‘g‘ri javob: {solution.correctChoiceKey}-variant</b><h4>Yechish strategiyasi</h4><p>{topikUzText(solution.solution.strategy)}</p>{solution.solution.keyClues.map((clue) => <div key={clue.key}><b>Muhim ishora</b><p>{topikUzText(clue.explanation)}</p></div>)}<h4>Izoh</h4><p>{topikUzText(solution.solution.explanation)}</p></article> : null}
-    {!solution && support?.nextHint ? <button className={styles.hintButton} disabled={busy} onClick={onRevealHint} type="button">{support.nextHint.level}-maslahatni ochish · {topikUzText(support.nextHint.title)}</button> : null}
+    {!solution && support?.nextHint ? <button className={styles.hintButton} disabled={busy} onClick={onRevealHint} type="button">{`${support.nextHint.level}-maslahatni ochish · ${topikUzText(support.nextHint.title)}`}</button> : null}
     {!solution && selected ? <button className={styles.solutionButton} disabled={busy} onClick={onRevealSolution} type="button">Javob va to‘liq yechimni ko‘rsatish</button> : null}
     {!solution && !selected ? <p className={styles.hintGuide}>Yechimni ko‘rish uchun javobni tanlang.</p> : null}
   </section>;

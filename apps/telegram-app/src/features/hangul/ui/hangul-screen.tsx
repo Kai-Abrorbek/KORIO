@@ -24,6 +24,7 @@ import {
   type HangulCharacter,
 } from "../model/hangul";
 import styles from "./hangul.module.css";
+import { useEnergyGuard } from "../../energy/energy-gate";
 
 const PARTICLES = Array.from({ length: 12 }, (_, index) => ({
   color: ["#776ee2", "#a78bfa", "#ffd786", "#7fd8f7", "#ffafcc"][
@@ -116,7 +117,7 @@ function MasteryCard({ learned, total }: { learned: number; total: number }) {
           <div className={styles.masteryNumber}>
             <strong>{displayPercent}</strong><span>%</span>
           </div>
-          <p>{displayLearned} / {total} o&apos;rganildi</p>
+          <p>{`${displayLearned} / ${total} o'rganildi`}</p>
           <div className={styles.masteryTrack}>
             <i style={{ width: String(percent) + "%" }}><span /></i>
           </div>
@@ -366,6 +367,7 @@ function GameMenu() {
 
 export function HangulScreen() {
   const router = useRouter();
+  const guardLessonStart = useEnergyGuard();
   const { request, updateUser, user } = useTelegramAuth();
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
   const [category, setCategory] = useState<HangulCategory>("consonant");
@@ -476,7 +478,7 @@ export function HangulScreen() {
         <CharacterDetailSheet
           character={selected}
           onClose={closeDetail}
-          onStartGame={() => router.push("/hangul-game?category=" + category)}
+          onStartGame={() => guardLessonStart(() => router.push("/hangul-game?category=" + category))}
           speak={speak}
           speaking={speaking}
         />

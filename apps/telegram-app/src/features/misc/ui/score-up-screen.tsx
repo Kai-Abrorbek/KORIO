@@ -27,8 +27,8 @@ export function ScoreUpScreen() {
             <b className={styles.newScore}>{score}</b>
           </div>
         </div>
-        <h1>Daraja {score} ga yetdingiz!</h1>
-        <p>{unit}-bo‘limni oxirigacha tugatdingiz. Shu tezlikda keyingi qism ham yaqin.</p>
+        <h1>{`Daraja ${score} ga yetdingiz!`}</h1>
+        <p>{`${unit}-bo‘limni oxirigacha tugatdingiz. Shu tezlikda keyingi qism ham yaqin.`}</p>
       </section>
       <footer className={styles.scoreUpFooter}>
         <button onClick={() => router.replace(category ? `/roadmap?category=${encodeURIComponent(category)}` : "/roadmap")} type="button">

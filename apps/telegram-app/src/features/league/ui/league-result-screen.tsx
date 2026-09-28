@@ -98,22 +98,17 @@ export function LeagueResultScreen() {
 
         {droppedByXp && shattered ? (
           <span className={styles.xpBar}>
-            <MobileIcon name="flash" size={16} />
-            {result.weeklyXp ?? 0} / {result.requiredXp ?? 0} XP
-          </span>
+            <MobileIcon name="flash" size={16} />{`${result.weeklyXp ?? 0} / ${result.requiredXp ?? 0} XP`}</span>
         ) : null}
 
         {showResult ? (
           <span className={styles.rankChip}>
-            <MobileIcon name="podium" size={16} />
-            {result.finalRank}-o&apos;rin bilan yakunladingiz
-          </span>
+            <MobileIcon name="podium" size={16} />{`${result.finalRank}-o'rin bilan yakunladingiz`}</span>
         ) : null}
 
         {result.gems > 0 && showResult ? (
           <span className={styles.gemChip}>
-            <MobileIcon name="diamond" size={20} />+{result.gems} olmos
-          </span>
+            <MobileIcon name="diamond" size={20} />{`+${result.gems} olmos`}</span>
         ) : null}
       </section>
 

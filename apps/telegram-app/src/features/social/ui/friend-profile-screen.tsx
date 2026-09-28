@@ -10,6 +10,7 @@ import { languageFlag, type FriendProfile, type WeeklyDay } from "../model/socia
 import { ErrorState, FriendAvatar, LoadingState, goBack, shareText } from "./social-parts";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import styles from "./social.module.css";
+import { alertDialog } from "../../../shared/telegram/dialogs";
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 const LEAGUE_LABELS: Record<string, string> = { bronze: "Bronza", silver: "Kumush", gold: "Oltin", sapphire: "Safir", ruby: "Yoqut", emerald: "Zumrad", amethyst: "Ametist", pearl: "Marvarid", obsidian: "Obsidian", diamond: "Olmos" };
@@ -81,7 +82,7 @@ export function FriendProfileScreen() {
         <ProfileStat color={LEAGUE_COLORS[profile.league ?? "bronze"] ?? "#CD7F32"} icon="trophy" value={LEAGUE_LABELS[profile.league ?? "bronze"] ?? "Bronza"} />
         <ProfileStat color="#FFCC00" icon="flash" value={`${profile.totalXP ?? 0} XP`} />
       </div></section>
-      <section className={styles.reportBlock}><button onClick={() => window.alert("Shikoyat yuborish Telegram ilovasida tez orada ochiladi.")} type="button"><MobileIcon name="flag-outline" size={20} />Foydalanuvchini xabar qilish</button><button onClick={() => window.alert("Bloklash Telegram ilovasida tez orada ochiladi.")} type="button"><MobileIcon name="close-circle" size={20} />Bloklash</button></section>
+      <section className={styles.reportBlock}><button onClick={() => void alertDialog("Shikoyat yuborish Telegram ilovasida tez orada ochiladi.")} type="button"><MobileIcon name="flag-outline" size={20} />Foydalanuvchini xabar qilish</button><button onClick={() => void alertDialog("Bloklash Telegram ilovasida tez orada ochiladi.")} type="button"><MobileIcon name="close-circle" size={20} />Bloklash</button></section>
     </div></main>
   );
 }
@@ -102,5 +103,5 @@ function WeeklyChart({ points, name, themXp, meXp }: { points: Point[]; name: st
   const coords = (key: "themXp" | "meXp") => points.map((point, index) => ({ x: points.length === 1 ? 150 : 10 + index * (280 / (points.length - 1)), y: 12 + (1 - point[key] / max) * 136 }));
   const path = (values: Array<{ x: number; y: number }>) => values.map((point, index) => `${index ? "L" : "M"}${point.x},${point.y}`).join(" ");
   const them = coords("themXp"); const me = coords("meXp");
-  return <section className={styles.weekly}><h2>Haftalik o‘sish</h2><div className={styles.chart}><div><span>{max}</span><span>{Math.round(max * 2 / 3)}</span><span>{Math.round(max / 3)}</span><span>0</span></div><svg aria-label="Haftalik XP grafigi" preserveAspectRatio="none" role="img" viewBox="0 0 300 160"><g className={styles.gridLines}><line x1="0" x2="300" y1="12" y2="12"/><line x1="0" x2="300" y1="57" y2="57"/><line x1="0" x2="300" y1="103" y2="103"/><line x1="0" x2="300" y1="148" y2="148"/></g><path className={styles.meLine} d={path(me)} /><path className={styles.themLine} d={path(them)} />{me.map((point, index) => <circle className={styles.mePoint} cx={point.x} cy={point.y} key={`me-${index}`} r="4" />)}{them.map((point, index) => <circle className={styles.themPoint} cx={point.x} cy={point.y} key={`them-${index}`} r="6" />)}</svg></div><div className={styles.chartLabels}>{points.map((point, index) => <span key={index}>{point.label}</span>)}</div><div className={styles.legend}><p><i className={styles.themDot}/><b>{name}</b><strong>{themXp}XP</strong></p><p><i className={styles.meDot}/><b>Men</b><strong>{meXp}XP</strong></p></div></section>;
+  return <section className={styles.weekly}><h2>Haftalik o‘sish</h2><div className={styles.chart}><div><span>{max}</span><span>{Math.round(max * 2 / 3)}</span><span>{Math.round(max / 3)}</span><span>0</span></div><svg aria-label="Haftalik XP grafigi" preserveAspectRatio="none" role="img" viewBox="0 0 300 160"><g className={styles.gridLines}><line x1="0" x2="300" y1="12" y2="12"/><line x1="0" x2="300" y1="57" y2="57"/><line x1="0" x2="300" y1="103" y2="103"/><line x1="0" x2="300" y1="148" y2="148"/></g><path className={styles.meLine} d={path(me)} /><path className={styles.themLine} d={path(them)} />{me.map((point, index) => <circle className={styles.mePoint} cx={point.x} cy={point.y} key={`me-${index}`} r="4" />)}{them.map((point, index) => <circle className={styles.themPoint} cx={point.x} cy={point.y} key={`them-${index}`} r="6" />)}</svg></div><div className={styles.chartLabels}>{points.map((point, index) => <span key={index}>{point.label}</span>)}</div><div className={styles.legend}><p><i className={styles.themDot}/><b>{name}</b><strong>{`${themXp}XP`}</strong></p><p><i className={styles.meDot}/><b>Men</b><strong>{`${meXp}XP`}</strong></p></div></section>;
 }

@@ -117,7 +117,15 @@ export function GrammarStudyScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const { request, updateUser, user } = useTelegramAuth();
-  const { speak, speaking, stop } = useKoreanSpeech();
+  // 서버 TTS — 브라우저 speechSynthesis 는 텔레그램 iOS/안드로이드 WebView 에서 자주 무음이다
+  const { speak: speakRaw, speaking, stop } = useKoreanSpeech(request);
+  // 어느 문장을 읽는 중인지 — 버튼 하나만 켜진다 (예전엔 하나를 누르면 전부 켜졌다)
+  const [speakingText, setSpeakingText] = useState<string | null>(null);
+  const speak = useCallback((text: string) => {
+    setSpeakingText(text);
+    speakRaw(text, { onEnd: () => setSpeakingText((current) => (current === text ? null : current)) });
+  }, [speakRaw]);
+  const isSpeaking = (text: string) => speaking && speakingText === text;
   const id = params.get("id") ?? "";
   const scoped = params.get("scoped") === "1";
   const from = params.get("from") ?? "";
@@ -211,7 +219,7 @@ export function GrammarStudyScreen() {
         <div className={styles.studyScroll}>
           <StudyCard>
             <Kicker>O&apos;RGANILAYOTGAN GRAMMATIKA</Kicker>
-            <div className={styles.patternRow}><span>{grammar.pattern}</span><SpeakerButton onClick={() => speak(grammar.pattern)} speaking={speaking} /></div>
+            <div className={styles.patternRow}><span>{grammar.pattern}</span><SpeakerButton onClick={() => speak(grammar.pattern)} speaking={isSpeaking(grammar.pattern)} /></div>
             <p className={styles.summary}>{grammar.summary}</p>
             {grammar.tags.length ? <div className={styles.studyTags}>{grammar.tags.map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
           </StudyCard>
@@ -227,7 +235,7 @@ export function GrammarStudyScreen() {
           ) : null}
 
           {grammar.examples.length ? (
-            <StudyCard><Kicker>MISOLLAR</Kicker>{grammar.examples.map((example, index) => <ExampleRow example={example} key={`${example.ko}:${index}`} onSpeak={() => speak(example.ko)} speaking={speaking} />)}</StudyCard>
+            <StudyCard><Kicker>MISOLLAR</Kicker>{grammar.examples.map((example, index) => <ExampleRow example={example} key={`${example.ko}:${index}`} onSpeak={() => speak(example.ko)} speaking={isSpeaking(example.ko)} />)}</StudyCard>
           ) : null}
 
           {grammar.dialogue.length ? (

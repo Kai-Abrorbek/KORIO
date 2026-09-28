@@ -927,6 +927,13 @@ export default {
     language: {
       subtitle: "Choose your app language",
     },
+    contentLanguage: {
+      title: "Which language for meanings and explanations?",
+      desc: "The app stays in Korean — only word meanings, translations and grammar explanations appear in this language. You can change it anytime in Language settings.",
+      rowLabel: "Meanings & explanations",
+      rowHint: "Word meanings, translations, grammar notes",
+      confirm: "Confirm",
+    },
     notifications: {
       channelDefault: "KORIO notifications",
       channelStudy: "Study reminders",
@@ -1347,6 +1354,7 @@ export default {
       text: "Show text",
       textHide: "Hide text",
       end: "End lesson",
+      tapForSound: "Tap to hear your teacher",
     },
     personality: {
       calm: "Calm",
@@ -1443,6 +1451,7 @@ export default {
       TUTOR_NOT_CONFIGURED: "This isn't available right now.",
       TUTOR_AGENT_UNAVAILABLE: "The teacher isn't responding. Please try again in a moment.",
       TUTOR_SESSION_FAILED: "Couldn't start the conversation. Please try again.",
+      MIC_UNSUPPORTED: "The microphone doesn't work here. Please use the app.",
     },
   },
   // Friend invite rewards (app/invite.tsx)

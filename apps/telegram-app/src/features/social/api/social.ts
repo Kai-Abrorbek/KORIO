@@ -38,8 +38,8 @@ export const unfollowUser = (request: AuthenticatedRequest, id: string) =>
 export const getMyInvite = (request: AuthenticatedRequest) =>
   request<MyInvite>("/referrals/me");
 
-export const claimInvite = (request: AuthenticatedRequest, code: string) =>
+export const claimInvite = (request: AuthenticatedRequest, code: string, source: "code" | "link" = "code") =>
   request<ClaimResult>("/referrals/claim", {
     method: "POST",
-    body: JSON.stringify({ code, source: "code" }),
+    body: JSON.stringify({ code, source }),
   });

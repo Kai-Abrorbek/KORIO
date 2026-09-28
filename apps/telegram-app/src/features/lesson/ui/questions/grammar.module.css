@@ -1,0 +1,49 @@
+/* 모바일 GrammarBlank / GrammarBuild 레퍼런스 팔레트 그대로 */
+.screen{--g-ink:#2b2b3a;--g-green:#3cba54;--g-green-ink:#2f9e46;--g-purple:#776ee2;--g-purple-dk:#5a51c4;display:flex;min-height:100%;flex:1 0 auto;flex-direction:column;background:linear-gradient(180deg,#d7ecf8,#c6e2f4);color:var(--g-ink);animation:gFade .15s ease-out}
+.scroll{flex:1;padding:20px 18px 12px}
+.levelTab{display:flex;align-items:center;align-self:flex-start;gap:4px;width:max-content;margin:0 0 -2px 6px;border-radius:14px 14px 0 0;background:#d0e6f7;color:#5a7a9a;padding:7px 14px}
+.levelTab b{font-size:12.5px;font-weight:800}
+.card{position:relative;min-height:236px;overflow:hidden;border-radius:22px;background:linear-gradient(180deg,#eef6fb,#fff);padding:18px}
+.cardOk{background:linear-gradient(180deg,#e6f6d4,#f5fbea)}
+.cardShake{animation:gShake .22s linear}
+.cardTop{display:flex;min-height:34px;align-items:flex-start;justify-content:space-between;margin-bottom:2px}
+.cardTopRight{display:flex;align-items:center;gap:8px}
+.heart,.heartOn{display:grid;place-items:center;border:0;background:transparent;padding:0}
+.heart{color:#c3ccd8}
+.heartOn{color:#ff6b9d}
+.badge{border-radius:14px;background:#54c8bf;color:#fff;padding:5px 12px;font-size:11.5px;font-weight:800}
+.checkMark{position:absolute;z-index:5;top:6px;left:14px;color:var(--g-green);animation:gPop .35s cubic-bezier(.34,1.56,.64,1)}
+.prompt{margin:8px 0 0;color:var(--g-ink);font-weight:800}
+.note{margin:8px 0 0;color:var(--g-green-ink);font-size:14px;font-weight:600;text-align:right}
+.wrongBubble{display:flex;flex-direction:column;gap:4px;margin-top:14px;border-radius:14px;background:#f7b9c1;color:#5a4045;padding:12px 14px;animation:gFade .2s ease-out}
+.wrongBubble b{font-size:15px;font-weight:700;line-height:21px}
+.wrongBubble span{font-size:14px;font-weight:600;line-height:20px;opacity:.85}
+.answerRow{display:flex;flex-wrap:wrap;align-items:center;row-gap:4px;margin-top:22px}
+.answerFix{color:var(--g-ink);font-weight:700;white-space:pre-wrap}
+.slot{display:flex;min-width:64px;align-items:center;justify-content:center;margin:0 3px;border-radius:10px;background:#cfe4f8;padding:0 9px;cursor:text}
+.slotOk{background:#c9ebd0}
+.slotInput{max-width:100%;border:0;outline:0;background:transparent;caret-color:var(--g-purple);color:var(--g-ink);padding:0;font:inherit;font-weight:800;text-align:center}
+.slotInput::placeholder{color:var(--g-ink);opacity:.25}
+.slotInputOk,.slotInput:disabled{opacity:1;color:var(--g-green-ink);-webkit-text-fill-color:var(--g-green-ink)}
+.source{margin:26px 0 0;color:#9aa7b3;font-size:12px;font-weight:500;text-align:right}
+.bottom{position:sticky;bottom:0;z-index:6;padding:8px 14px calc(16px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)));background:linear-gradient(180deg,rgb(198 226 244/0),#c6e2f4 18px)}
+.inputBar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.barSide{display:flex;width:78px;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;color:var(--g-purple);padding:0}
+.barSide span{font-size:11.5px;font-weight:700}
+.checkBubble{flex:1;border:0;border-bottom:4px solid var(--g-purple-dk);border-radius:14px;background:var(--g-purple);color:#fff;padding:11px 18px;font:inherit;font-size:16px;font-weight:900}
+.checkBubble:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.checkBubble:disabled{border-color:#a0abbb;background:#b9c4d4}
+.bigRow{display:flex;gap:10px;padding-top:0}
+.bigBtn{display:flex;flex:1;flex-direction:column;align-items:center;gap:5px;border:0;border-radius:18px;color:#fff;padding:15px 0}
+.bigBtn:active{transform:scale(.96)}
+.bigBtn b{font-size:14px;font-weight:800}
+.bigRabbit{background:linear-gradient(180deg,#a07af0,#7f5fe8)}
+.bigListen{background:linear-gradient(180deg,#8f7ff0,#7161e6)}
+.nextBtn{display:flex;width:100%;min-height:50px;align-items:center;justify-content:center;margin-top:8px;border:0;border-bottom:4px solid var(--g-green-ink);border-radius:16px;background:var(--g-green);color:#fff;font:inherit;font-size:16px;font-weight:900}
+.nextBtn:active{transform:translateY(2px);border-bottom-width:2px}
+:global(html[data-theme="dark"]) .screen{--g-ink:#2b2b3a}
+@keyframes gFade{from{opacity:0}}
+@keyframes gShake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes gPop{from{opacity:0;transform:scale(.4)}}
+.barSideOn{color:#ff4b4b}
+.barSide:disabled{opacity:.5}

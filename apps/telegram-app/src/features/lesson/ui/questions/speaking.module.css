@@ -1,0 +1,37 @@
+/* 모바일 Speaking 값 그대로 */
+.title{margin:0 0 20px;color:var(--q-text);font-size:22px;font-weight:800;line-height:1.3}
+.npcArea{display:flex;flex-direction:column;align-items:center}
+.bubble{position:relative;display:flex;align-items:center;align-self:stretch;gap:12px;margin-bottom:22px;border:2px solid var(--q-border);border-radius:18px;background:var(--q-surface);padding:16px 18px}
+.speaker{display:grid;flex:0 0 auto;place-items:center;border:0;background:transparent;color:#1cb0f6;padding:0}
+.speakerOn{color:var(--q-primary)}
+.bubbleTextWrap{min-width:0;flex:1}
+.bubbleTextWrap p{margin:0;color:var(--q-text);font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.bubbleTextWrap span{display:block;margin-top:6px;border-bottom:1.5px dashed var(--q-muted)}
+.tailBorder,.tailInner{position:absolute;width:0;height:0;border-style:solid;border-color:transparent}
+.tailBorder{bottom:-12px;left:40px;border-width:12px 9px 0;border-top-color:var(--q-border)}
+.tailInner{bottom:-8px;left:42px;border-width:10px 7px 0;border-top-color:var(--q-surface)}
+.result{margin:14px 0;border:2px solid var(--q-border);border-radius:18px;background:var(--q-surface);padding:14px 16px;animation:spIn .22s ease-out both}
+.resultHead{display:flex;align-items:baseline;gap:8px}
+.resultHead b{font-size:34px;font-weight:900;letter-spacing:-1px}
+.resultHead span{color:var(--q-muted);font-size:13px;font-weight:700}
+.wordRow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wordChip{border-bottom:3px solid;border-radius:10px;padding:6px 10px;font-size:15px;font-weight:800}
+.metrics{display:flex;margin-top:12px;border-top:1px solid var(--q-border);padding-top:10px}
+.metrics span{display:flex;flex:1;flex-direction:column;align-items:center}
+.metrics b{color:var(--q-text);font-size:16px;font-weight:800}
+.metrics small{margin-top:2px;color:var(--q-muted);font-size:11px;font-weight:600}
+.heard{display:-webkit-box;margin:10px 0 0;overflow:hidden;color:var(--q-muted);font-size:12px;font-weight:600;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+/* 마이크 바 + 건너뛰기는 화면 맨 아래에 붙는다 (확인 버튼과 같은 규칙) */
+.bottom{position:sticky;bottom:0;z-index:6;display:flex;flex-direction:column;align-items:center;margin:auto calc(-1 * var(--q-pad-x,20px)) 0;background:var(--q-bg);padding:10px var(--q-pad-x,20px) max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px))}
+.hint{margin:0 0 10px;color:var(--q-muted);font-size:13px;font-weight:700;text-align:center}
+.hintError{color:#ff4b4b}
+.mic{display:grid;width:150px;height:60px;place-items:center;margin-bottom:12px;border:0;border-bottom:4px solid #1899d6;border-radius:18px;background:#1cb0f6;color:#fff;padding:0}
+.mic:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.micLocked{opacity:.4}
+.wave{display:flex;height:36px;align-items:center}
+.wave i{width:5px;margin:0 3px;border-radius:3px;background:#fff;animation:spWave .6s ease-in-out infinite alternate both}
+.spin{animation:spSpin .9s linear infinite}
+.skip{border:0;background:transparent;color:var(--q-muted);padding:14px 0;font:inherit;font-size:15px;font-weight:700}
+@keyframes spWave{from{transform:scaleY(.4)}to{transform:scaleY(1)}}
+@keyframes spSpin{to{transform:rotate(360deg)}}
+@keyframes spIn{from{opacity:0}}

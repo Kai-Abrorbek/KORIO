@@ -901,3 +901,23 @@
     animation: none;
   }
 }
+
+/* 순위 배너 자리 — 카드들과 같은 좌우 여백 */
+.rankSlot {
+  margin: 0 16px 12px;
+}
+
+/* 앱처럼: 준비 중인 바로가기는 눌리지 않고 흐리지도 않다 */
+.quickGrid button:disabled {
+  cursor: default;
+}
+
+/* AI 버튼 숨 쉬는 광채 (앱 FloatingAIButton 의 그림자 펄스) */
+.aiButton {
+  animation: ai-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes ai-glow {
+  0%, 100% { box-shadow: 0 10px 26px rgb(119 110 226 / 50%); }
+  50% { box-shadow: 0 10px 38px rgb(119 110 226 / 14%); }
+}

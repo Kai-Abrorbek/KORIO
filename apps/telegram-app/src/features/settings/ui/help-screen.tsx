@@ -25,8 +25,25 @@ function haptic() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
 }
 
+/**
+ * 텔레그램 안에선 window.open 이 막히거나 바깥 브라우저로 튄다.
+ * t.me 링크는 openTelegramLink(채팅이 바로 열림), 그 밖은 openLink(인앱 브라우저)로 연다
+ */
 function openExternal(url: string) {
   haptic();
+  const webApp = window.Telegram?.WebApp;
+  try {
+    if (webApp?.initData && /^https:\/\/t\.me\//u.test(url) && webApp.openTelegramLink) {
+      webApp.openTelegramLink(url);
+      return;
+    }
+    if (webApp?.initData && webApp.openLink) {
+      webApp.openLink(url);
+      return;
+    }
+  } catch {
+    // 아래로
+  }
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
@@ -226,7 +243,7 @@ export function HelpScreen() {
           />
         </section>
 
-        <p className={styles.version}>Ilova versiyasi: {APP_VERSION}</p>
+        <p className={styles.version}>{`Ilova versiyasi: ${APP_VERSION}`}</p>
       </div>
     </main>
   );

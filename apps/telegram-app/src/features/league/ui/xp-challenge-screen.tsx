@@ -97,12 +97,12 @@ export function XpChallengeScreen() {
           <span><MobileIcon name={meta.icon} size={54} /></span>
         </div>
         <p className={styles.headline}>
-          Maksimal <b>{maxXp} XP</b> olib<br />reytingda yuqoriga chiqing!
+          Maksimal <b>{`${maxXp} XP`}</b> olib<br />reytingda yuqoriga chiqing!
         </p>
         <div className={styles.infoBox}>
           <span><small>Bugun qolgan urinishlar</small><strong>{info ? info.playsLeftToday : "—"}</strong></span>
           <i />
-          <span><small>Olish</small><strong>{maxXp} XP</strong></span>
+          <span><small data-i18n="challenge.earn">Olish</small><strong>{`${maxXp} XP`}</strong></span>
         </div>
       </section>
 

@@ -20,10 +20,11 @@ import {
   type PronOption,
 } from "../data/pronunciation";
 import styles from "./pronunciation-quiz-screen.module.css";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 interface Option { ipa:string; meaning:string; word:string }
 interface Question { answer:0|1; options:[Option,Option] }
-const optionOf=(option:PronOption):Option => ({ ipa:option.jamo,meaning:glossOf(option.word,"uz"),word:option.word });
+const optionOf=(option:PronOption):Option => ({ ipa:option.jamo,meaning:glossOf(option.word,getContentLang()),word:option.word });
 const questionOf=(pair:[PronOption,PronOption],answer:0|1):Question => {
   const swap=Math.random()<.5;
   const [left,right]=swap ? [pair[1],pair[0]] : pair;
@@ -119,7 +120,7 @@ export function PronunciationQuizScreen() {
     const hardOpen=score>=HARD_UNLOCK_SCORE;
     const { need }=correctNeededFor(level,step,HARD_UNLOCK_SCORE);
     const mood=hardOpen ? "celebrating" : passed ? "great" : "confused";
-    return <main className={styles.result}><section><Image alt="Haneulmon" height={112} src={`/characters/hangulmon_${mood}.png`} width={112}/><h1>{score}</h1><p>{`${questions.length} tadan ${correctCount} ta to'g'ri`}</p><small>Har savol {(100/questions.length).toFixed(1)} ball</small><aside className={hardOpen ? styles.unlocked : ""}><MobileIcon name={hardOpen ? "lock-open" : "lock-closed"} size={16}/><span>{hard ? "HARD ham tugadi. Bosqich yakunlandi!" : hardOpen ? "HARD rejim ochildi!" : `HARD uchun kamida ${need} ta to'g'ri topish kerak`}</span></aside><div className={styles.saveStatus}>{saveStatus==="saving" ? <><i/> Natijangiz saqlanmoqda…</> : saveStatus==="saved" ? <><MobileIcon name="checkmark-circle" size={20}/> Natijangiz saqlandi</> : saveStatus==="error" ? <><MobileIcon name="alert-circle" size={20}/><span>{"Natijangizni saqlab bo'lmadi"}</span><button onClick={saveResult} type="button">Qayta saqlash</button></> : null}</div><button className={styles.done} disabled={saveStatus!=="saved"} onClick={() => router.back()} type="button">Tayyor</button></section></main>;
+    return <main className={styles.result}><section><Image alt="Haneulmon" height={112} src={`/characters/hangulmon_${mood}.png`} width={112}/><h1>{score}</h1><p>{`${questions.length} tadan ${correctCount} ta to'g'ri`}</p><small>{`Har savol ${(100/questions.length).toFixed(1)} ball`}</small><aside className={hardOpen ? styles.unlocked : ""}><MobileIcon name={hardOpen ? "lock-open" : "lock-closed"} size={16}/><span>{hard ? "HARD ham tugadi. Bosqich yakunlandi!" : hardOpen ? "HARD rejim ochildi!" : `HARD uchun kamida ${need} ta to'g'ri topish kerak`}</span></aside><div className={styles.saveStatus}>{saveStatus==="saving" ? <><i/> Natijangiz saqlanmoqda…</> : saveStatus==="saved" ? <><MobileIcon name="checkmark-circle" size={20}/> Natijangiz saqlandi</> : saveStatus==="error" ? <><MobileIcon name="alert-circle" size={20}/><span>{"Natijangizni saqlab bo'lmadi"}</span><button onClick={saveResult} type="button">Qayta saqlash</button></> : null}</div><button className={styles.done} disabled={saveStatus!=="saved"} onClick={() => router.back()} type="button">Tayyor</button></section></main>;
   }
 
   return <main className={styles.screen}>

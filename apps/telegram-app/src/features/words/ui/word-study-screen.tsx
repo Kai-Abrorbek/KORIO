@@ -452,10 +452,7 @@ function RecallOffer({
         </span>
         <small>Barcha so&apos;zlarni ko&apos;rdingiz</small>
         <h2>Endi eslab ko&apos;ramizmi?</h2>
-        <p>
-          Hozirgina ko&apos;rgan {count} ta so&apos;zni ma&apos;nosiga qarab
-          yozib, xotirangizni tekshiring.
-        </p>
+        <p>{`Hozirgina ko'rgan ${count} ta so'zni ma'nosiga qarab yozib, xotirangizni tekshiring.`}</p>
         <button className={styles.offerStart} onClick={onStart} type="button">
           <MobileIcon name="school-outline" size={20} />Mashqni boshlash
         </button>
@@ -593,8 +590,8 @@ function ScopeSheet({
                   onClick={() => selectSection(summary.section)}
                   type="button"
                 >
-                  <strong>{summary.section}-bo&apos;lim</strong>
-                  <span>{summary.words} ta so&apos;z</span>
+                  <strong>{`${summary.section}-bo'lim`}</strong>
+                  <span>{`${summary.words} ta so'z`}</span>
                 </button>
               );
             })}
@@ -616,8 +613,8 @@ function ScopeSheet({
                 >
                   <span className={styles.unitNumber}>{item.unit}</span>
                   <span className={styles.unitCopy}>
-                    <strong>{item.unit}-unit</strong>
-                    <small>{item.words} ta so&apos;z</small>
+                    <strong>{`${item.unit}-unit`}</strong>
+                    <small>{`${item.words} ta so'z`}</small>
                   </span>
                   {selected ? <MobileIcon name="checkmark-circle" size={22} /> : null}
                 </button>
@@ -862,12 +859,11 @@ export function WordStudyScreen() {
     markSeen(currentWordId);
   }, [currentWordId, markSeen]);
 
+  // 모바일처럼 지금 카드부터 4장을 미리 받아 둔다 — 넘기는 즉시 소리가 나게
   useEffect(() => {
-    const nearby = [currentWord, nextWord]
-      .filter((word): word is StudyWord => Boolean(word))
-      .map(speechText);
-    prewarm(nearby);
-  }, [currentWord, nextWord, prewarm]);
+    const upcoming = words.slice(cardIndex, cardIndex + 4).map(speechText);
+    if (upcoming.length) prewarm(upcoming);
+  }, [cardIndex, prewarm, words]);
 
   useEffect(() => {
     if (recallWord || !currentWordId || !currentSpeechText || !autoPlay) return;
@@ -1261,7 +1257,7 @@ export function WordStudyScreen() {
             </span>
             <span className={styles.scopeCopy}>
               <small>Hozirgi o&apos;quv doirasi</small>
-              <strong>{section}-bo&apos;lim · {unit}-unit</strong>
+              <strong>{`${section}-bo'lim · ${unit}-unit`}</strong>
             </span>
             <em>
               O&apos;zgartirish

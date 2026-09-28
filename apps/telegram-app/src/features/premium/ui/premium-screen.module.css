@@ -14,6 +14,7 @@
 }
 
 .scroll {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   padding-bottom: calc(100px + var(--tg-content-safe-area-inset-bottom, 0px));
@@ -448,3 +449,6 @@
     animation-duration: 1ms;
   }
 }
+
+/* 구독 중 화면에서 들어온 요금제 보기 — 돌아가기 */
+.offerBack{position:absolute;z-index:3;top:max(12px,calc(var(--tg-content-safe-area-inset-top,0px) + 8px));left:12px;display:grid;width:40px;height:40px;place-items:center;border:0;border-radius:20px;background:rgb(255 255 255/22%);color:#fff;padding:0}

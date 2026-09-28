@@ -88,7 +88,7 @@ export function ChallengeResultScreen() {
       <section className={styles.body}>
         <div className={styles.xpCircle}>{xpCount}</div>
         <h1>
-          <strong>{params.xp} XP</strong>
+          <strong>{`${params.xp} XP`}</strong>
           {params.leveledUp
             ? ` olib ${params.level}-darajaga ko'tarildingiz!`
             : " oldingiz!"}

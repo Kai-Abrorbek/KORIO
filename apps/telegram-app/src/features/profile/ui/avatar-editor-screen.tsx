@@ -18,6 +18,7 @@ import {
 import { updateAvatar } from "../api/profile";
 import { AVATAR_CATEGORIES, type AvatarOption } from "../model/avatar-catalog";
 import styles from "./avatar-editor-screen.module.css";
+import { playSfx } from "../../../shared/browser/sfx";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
@@ -153,6 +154,7 @@ export function AvatarEditorScreen() {
               <button
                 aria-current={selected ? "true" : undefined}
                 className={selected ? styles.selectedCategory : undefined}
+                data-i18n={`avatarEditor.categories.${item.id}`}
                 key={item.id}
                 onClick={() => selectCategory(item.id)}
                 type="button"
@@ -205,7 +207,7 @@ export function AvatarEditorScreen() {
       </section>
 
       <footer className={styles.bottomBar}>
-        <button disabled={isSaving} onClick={() => void save()} type="button">
+        <button disabled={isSaving} onClick={() => { playSfx("click"); void save(); }} type="button">
           {isSaving ? "Saqlanmoqda..." : "Qahramonni saqlash"}
         </button>
       </footer>

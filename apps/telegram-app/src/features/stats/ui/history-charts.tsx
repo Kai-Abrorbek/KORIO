@@ -229,7 +229,7 @@ function StudyVolumeChart({ request }: { request: AuthenticatedRequest }) {
       <p className={styles.subtitle}>
         {average > 0 ? (
           <>
-            {prefix}<strong>{average} ta</strong> savol yechdingiz.
+            {prefix}<strong>{`${average} ta`}</strong> savol yechdingiz.
           </>
         ) : (
           "Hali o'qish yozuvi yo'q."

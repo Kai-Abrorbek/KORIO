@@ -105,9 +105,7 @@ export function RoadmapSectionSheet({
                           <i>
                             <b style={{ width: `${progress}%` }} />
                           </i>
-                          <small>
-                            {done} / {milestone.units} bo&apos;lim tugadi
-                          </small>
+                          <small>{`${done} / ${milestone.units} bo'lim tugadi`}</small>
                         </>
                       ) : (
                         <small>

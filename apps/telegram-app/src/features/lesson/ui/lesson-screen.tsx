@@ -1,11 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
-import { HomeIcon } from "../../home/ui/home-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   completeJumpTest,
@@ -16,10 +14,16 @@ import {
   getJumpTest,
   getLesson,
   getNodeReview,
+  claimComboBonus,
+  getMistakeQuestions,
   getUnitPractice,
+  getWordPractice,
   gradeTypedAnswer,
   reportLessonProgress,
+  resolveMistakes,
 } from "../api/lesson";
+import { openEnergyModal } from "../../energy/energy-gate";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { completeLevelExam, getLevelExam } from "../api/study-lesson";
 import {
   completeOnboardingLevelTest,
@@ -36,7 +40,10 @@ import {
   type ReportedAnswer,
 } from "../model/lesson";
 import { QuestionCard } from "./question-card";
+import { FeedbackBar, LessonHeader, QuitLessonModal, ReviewIntro } from "./lesson-chrome";
+import { LessonSpeechProvider } from "./questions/shared";
 import styles from "./lesson.module.css";
+import { playSfx } from "../../../shared/browser/sfx";
 
 const SMART_TYPES = new Set(["type_answer", "translate_type", "listen_type", "listen_fill"]);
 const GRAMMAR_TYPES = new Set(["grammar_blank", "grammar_build"]);
@@ -58,6 +65,32 @@ function makeQueue(questions: LessonQuestion[], prefix: string, retry = false): 
     question,
     retry,
   }));
+}
+
+/** 문법 트랙 오답은 맞힐 때까지 최대 이만큼 다시 낸다 (앱 GRAMMAR_RETRY_LIMIT) */
+const GRAMMAR_RETRY_LIMIT = 2;
+
+function shuffle<T>(items: readonly T[]): T[] {
+  const out = [...items];
+  for (let index = out.length - 1; index > 0; index -= 1) {
+    const random = Math.floor(Math.random() * (index + 1));
+    [out[index], out[random]] = [out[random]!, out[index]!];
+  }
+  return out;
+}
+
+/** 문법 레슨은 시드 순서가 늘 같다 — 유형은 번갈아 두고 안쪽만 섞는다 (앱 shuffleGrammarQuestions) */
+function shuffleGrammarQuestions(questions: readonly LessonQuestion[]): LessonQuestion[] {
+  const blank = shuffle(questions.filter((question) => question.type === "grammar_blank"));
+  const build = shuffle(questions.filter((question) => question.type === "grammar_build"));
+  const rest = questions.filter((question) => question.type !== "grammar_blank" && question.type !== "grammar_build");
+  if (!blank.length || !build.length) return shuffle(questions);
+  const out: LessonQuestion[] = [];
+  for (let index = 0; index < Math.max(blank.length, build.length); index += 1) {
+    if (blank[index]) out.push(blank[index]!);
+    if (build[index]) out.push(build[index]!);
+  }
+  return [...out, ...shuffle(rest)];
 }
 
 function LegendLessonHeader({
@@ -141,6 +174,9 @@ export function LessonScreen() {
   const isLegend = mode === "legend";
   const isLevelExam = mode === "levelExam";
   const isOnboardingLevelTest = mode === "levelTest";
+  const isReview = mode === "review";
+  const isWordPractice = mode === "wordPractice";
+  const isGrammarTrack = category === "grammar" && !isJump;
   const selfReportedLevel = params.get("self") ?? "basic_greetings";
 
   const [session, setSession] = useState<LessonSession | null>(null);
@@ -157,8 +193,9 @@ export function LessonScreen() {
   const [heartLimit, setHeartLimit] = useState(target === "section" || section >= 2 ? 3 : 5);
   const [combo, setCombo] = useState(0);
   const [showQuit, setShowQuit] = useState(false);
-  const [rendererEpoch, setRendererEpoch] = useState(0);
   const [legendCurrentIndex, setLegendCurrentIndex] = useState(0);
+  /** 본편이 끝나고 복습 전에 한 번 보여 주는 안내 (앱의 reviewIntro 단계) */
+  const [reviewIntro, setReviewIntro] = useState(false);
 
   const startTime = useRef(Date.now());
   const shownAt = useRef(Date.now());
@@ -174,6 +211,12 @@ export function LessonScreen() {
   const allWrongIds = useRef(new Set<string>());
   const reviewQuestions = useRef(new Map<string, LessonQuestion>());
   const nextRef = useRef<() => Promise<void>>(async () => undefined);
+  const grammarRetryCounts = useRef(new Map<string, number>());
+  const reviewCorrectIds = useRef(new Set<string>());
+  /** 이번 레슨에서 화면상 깎아 둔 에너지. 실제 차감은 완료 때 서버가 한다 */
+  const localSpent = useRef(0);
+  const bonusGiven = useRef(false);
+  const [bonusAmount, setBonusAmount] = useState<number | null>(null);
 
   const resetRun = useCallback(() => {
     startTime.current = Date.now();
@@ -189,12 +232,16 @@ export function LessonScreen() {
     finalWrongIds.current.clear();
     allWrongIds.current.clear();
     reviewQuestions.current.clear();
+    grammarRetryCounts.current.clear();
+    reviewCorrectIds.current.clear();
+    localSpent.current = 0;
+    bonusGiven.current = false;
+    setBonusAmount(null);
     setCursor(0);
     setPhase("main");
     setAnswerState("idle");
     setGradeFeedback(null);
     setCombo(0);
-    setRendererEpoch(0);
     setLegendCurrentIndex(0);
   }, []);
 
@@ -239,6 +286,24 @@ export function LessonScreen() {
           questions: result.questions,
           totalXp: LEGEND_XP,
         };
+      } else if (isReview) {
+        const result = await getMistakeQuestions(request);
+        next = {
+          category: "",
+          lessonId: "review",
+          lessonTitle: "Takrorlash",
+          questions: result.questions,
+          totalXp: 16,
+        };
+      } else if (isWordPractice) {
+        const result = await getWordPractice(request);
+        next = {
+          category: "",
+          lessonId: "word-practice",
+          lessonTitle: "So'z mashqi",
+          questions: result.questions,
+          totalXp: 10,
+        };
       } else if (mode === "nodeReview") {
         if (!nodeId) throw new Error("NODE_ID_REQUIRED");
         const result = await getNodeReview(request, nodeId);
@@ -277,6 +342,9 @@ export function LessonScreen() {
         if (!lessonId) throw new Error("LESSON_ID_REQUIRED");
         next = await getLesson(request, lessonId);
         attemptId.current = next.attemptId ?? null;
+        if (next.category === "grammar") {
+          next = { ...next, questions: shuffleGrammarQuestions(next.questions) };
+        }
       }
       if (!next.questions.length) throw new Error("EMPTY_LESSON");
       setSession(next);
@@ -288,7 +356,18 @@ export function LessonScreen() {
     } finally {
       setLoading(false);
     }
-  }, [category, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
+  }, [category, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, isReview, isWordPractice, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
+
+  // 오답 복습: 화면을 벗어날 때(중간 이탈 포함) 그때까지 맞힌 문제를 오답에서 뺀다
+  useEffect(() => {
+    if (!isReview) return;
+    const correct = reviewCorrectIds.current;
+    const finalWrong = finalWrongIds.current;
+    return () => {
+      const ids = [...correct].filter((id) => !finalWrong.has(id));
+      if (ids.length > 0) void resolveMistakes(request, ids).catch(() => undefined);
+    };
+  }, [isReview, request]);
 
   useEffect(() => {
     void load();
@@ -303,6 +382,9 @@ export function LessonScreen() {
     if (!queue.length) return 0;
     return Math.min(100, Math.round((cursor / queue.length) * 100));
   }, [cursor, queue.length]);
+
+  // 텔레그램 뒤로가기도 X 버튼과 같게 (그만둘지 먼저 묻는다)
+  useTelegramBackOverride(() => close());
 
   const close = () => {
     if (isOnboardingLevelTest) {
@@ -341,17 +423,15 @@ export function LessonScreen() {
       recordAnswer(current.question, correct);
       if (correct) {
         correctCount.current += 1;
+        if (isReview) reviewCorrectIds.current.add(current.question.id);
         if (current.retry || phase === "review") finalWrongIds.current.delete(current.question.id);
       } else {
         firstWrongInstances.current.add(current.instanceId);
         allWrongIds.current.add(current.question.id);
         finalWrongIds.current.add(current.question.id);
-        if (
-          !isJump &&
-          !isOnboardingLevelTest &&
-          !GRAMMAR_TYPES.has(current.question.type) &&
-          phase === "main"
-        ) {
+        // 앱과 같은 규칙: 문법 트랙은 몇 문제 뒤에 다시 내고(next 에서),
+        // 그 밖의 학습은 틀린 문제를 모아 마지막에 복습한다
+        if (!isJump && !isOnboardingLevelTest && !isGrammarTrack && phase === "main") {
           reviewQuestions.current.set(current.question.id, current.question);
         }
       }
@@ -360,14 +440,48 @@ export function LessonScreen() {
     }
 
     if (correct) {
-      setCombo((value) => value + 1);
+      const nextCombo = combo + 1;
+      setCombo(nextCombo);
       setAnswerState("correct");
+      spendEnergy(nextCombo);
     } else {
       setCombo(0);
       if (isJump && firstAttempt) setHearts((value) => Math.max(0, value - 1));
       setAnswerState("wrong");
     }
     setGradeFeedback(serverGrade);
+  };
+
+  /**
+   * 맞힐 때마다 에너지 바를 한 칸 줄여 보인다 (앱과 같다).
+   * 실제 차감은 레슨 완료 때 서버가 한다 — 여기서 서버를 부르면 그 호출 한 줄만
+   * 빼도 에너지 0 으로 무한히 풀 수 있게 된다. 완료 응답의 energy 가 진짜 값으로 덮는다.
+   */
+  const spendEnergy = (nextCombo: number) => {
+    const superActive = Boolean(
+      user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()),
+    );
+    if (superActive || isJump || isLevelExam || isOnboardingLevelTest) return;
+    localSpent.current += 1;
+    const nextEnergy = Math.max(0, (user?.energy ?? 0) - 1);
+    updateUser({ energy: nextEnergy });
+    if (nextEnergy <= 0) openEnergyModal();
+
+    // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다
+    if (nextCombo % 4 === 0 && !bonusGiven.current) {
+      const spentSoFar = localSpent.current;
+      void claimComboBonus(request)
+        .then((bonus) => {
+          if (bonus.bonusGranted <= 0) return;
+          bonusGiven.current = true;
+          // 서버 값에는 이번 레슨에서 화면상 깎은 만큼이 아직 안 빠져 있다
+          updateUser({ energy: Math.max(0, bonus.energy - spentSoFar), gems: bonus.gems });
+          setBonusAmount(bonus.bonusGranted);
+          window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
+          window.setTimeout(() => setBonusAmount(null), 2200);
+        })
+        .catch(() => undefined);
+    }
   };
 
   const submitAnswer = async (answer: string) => {
@@ -392,9 +506,24 @@ export function LessonScreen() {
     }
   };
 
+  /**
+   * 건너뛰기 — 앱 lesson.tsx handleSkip 과 같은 규칙.
+   *   일반 학습: 조용히 다음 문제로 (오답 기록·복습 큐 없음, 콤보 유지)
+   *   레벨 테스트: 맞힌 걸로 안 친다 (점수만 낮아진다)
+   *   점프 테스트: 오답(하트 -1) — 서버 합격 기준이 wrongCount 라서 조용히 넘기면
+   *                듣기·말하기를 다 건너뛰고 통과할 수 있다
+   */
   const skipQuestion = () => {
-    if (!current || answerState !== "idle") return;
-    commitGrade(false);
+    if (!current || answerState !== "idle" || checking) return;
+    if (isJump) {
+      commitGrade(false);
+      return;
+    }
+    if (isOnboardingLevelTest && !answeredInstances.current.has(current.instanceId)) {
+      answeredInstances.current.add(current.instanceId);
+      totalCount.current += 1;
+    }
+    void advance(queue);
   };
 
   const routeComplete = (values: Record<string, string | number | undefined>) => {
@@ -462,20 +591,23 @@ export function LessonScreen() {
           speedSeconds: elapsed,
           wrongQuestionIds: wrong,
         });
-        updateUser({ totalXP: result.totalXP });
-        routeComplete({
-          accuracy: Math.round((result.correct / Math.max(1, result.total)) * 100),
-          correct: result.correct,
-          exam: "1",
-          gems: result.gemsEarned,
-          level: result.level,
-          nextLevel: result.nextLevel,
-          passed: result.passed ? "1" : "0",
-          time: elapsed,
-          total: result.total,
-          weak: result.weakAreas.join(","),
-          xp: result.xpEarned,
+        // 보석도 같이 갈아 끼운다 — 결과 화면은 "+보석" 을 보여 주는데 헤더는 옛 값이면 안 된다
+        updateUser({
+          totalXP: result.totalXP,
+          ...(result.gems != null ? { gems: result.gems } : {}),
         });
+        // 앱처럼 졸업 시험 전용 결과 화면으로
+        const query = new URLSearchParams({
+          correct: String(result.correct),
+          gems: String(result.gemsEarned),
+          level: String(result.level),
+          nextLevel: result.nextLevel ? String(result.nextLevel) : "",
+          passed: result.passed ? "1" : "0",
+          total: String(result.total),
+          weak: result.weakAreas.join(","),
+          xp: String(result.xpEarned),
+        });
+        router.replace(`/level-exam-result?${query.toString()}`);
         return;
       }
 
@@ -515,6 +647,19 @@ export function LessonScreen() {
         return;
       }
 
+      if (isReview || isWordPractice) {
+        const result = await completePractice(request, {
+          combo,
+          mode: isWordPractice ? "wordPractice" : "review",
+          questionIds,
+          speedSeconds: elapsed,
+          wrongQuestionIds: wrong,
+        });
+        updateUser({ totalXP: result.totalXP });
+        routeComplete({ accuracy, time: elapsed, xp: result.xpEarned });
+        return;
+      }
+
       if (mode === "nodeReview" || mode === "lessonReview") {
         const result = await completePractice(request, {
           combo,
@@ -542,11 +687,21 @@ export function LessonScreen() {
       });
       pendingAnswers.current = [];
       updateUser({ energy: result.energy, gems: result.gems, totalXP: result.totalXP });
+      // 완료 화면이 이어서 띄울 축하들 (앱과 같은 파라미터):
+      //   오늘의 첫 레슨 → 연속 학습 / 유닛 완료 → 스코어 상승 / 상자 → 상자 열기
+      // "오늘 처음인가"·"유닛을 끝냈나" 판정은 서버가 한다 (클라가 세면 또 축하한다)
+      const gemsBefore = result.chest ? result.gems - result.chest.gems : result.gems;
       routeComplete({
         accuracy,
         category: category ?? undefined,
-        chestGems: result.chest?.gems,
+        chestGems: result.chest ? result.chest.gems : undefined,
+        chestGrade: result.chest?.grade,
+        dailyStreak: result.dailyStreak ? result.dailyStreak.streak : undefined,
         from: from ?? undefined,
+        gemTotal: gemsBefore,
+        scoreUp: result.unitCompleted ? result.unitCompleted.score : undefined,
+        scoreUpUnit: result.unitCompleted ? result.unitCompleted.unit : undefined,
+        streakWeek: result.dailyStreak ? JSON.stringify(result.dailyStreak.week) : undefined,
         time: elapsed,
         xp: result.xpEarned,
       });
@@ -557,50 +712,45 @@ export function LessonScreen() {
     }
   };
 
-  const retryCurrent = () => {
-    setAnswerState("idle");
-    setGradeFeedback(null);
-    setRendererEpoch((value) => value + 1);
-  };
-
   const next = async () => {
     if (!current || answerState === "idle") return;
-    if (
-      !isOnboardingLevelTest &&
-      answerState === "wrong" &&
-      GRAMMAR_TYPES.has(current.question.type)
-    ) {
-      retryCurrent();
-      return;
-    }
     if (isJump && hearts <= 0) {
       await finish();
       return;
     }
     let nextQueue = queue;
+    // 문법 트랙: 틀린 문제를 2~4문제 뒤에 다시 낸다, 문제당 최대 GRAMMAR_RETRY_LIMIT 번
     if (
-      !isJump &&
-      !isOnboardingLevelTest &&
-      GRAMMAR_TYPES.has(current.question.type) &&
-      firstWrongInstances.current.has(current.instanceId) &&
-      !current.retry
+      isGrammarTrack &&
+      phase === "main" &&
+      firstWrongInstances.current.has(current.instanceId)
     ) {
-      const retryItem: LessonQueueItem = {
-        instanceId: `grammar-retry:${current.question.id}:${Date.now()}`,
-        question: current.question,
-        retry: true,
-      };
-      nextQueue = [...queue];
-      nextQueue.splice(Math.min(queue.length, cursor + 3), 0, retryItem);
-      setQueue(nextQueue);
+      const previous = grammarRetryCounts.current.get(current.question.id) ?? 0;
+      if (previous < GRAMMAR_RETRY_LIMIT) {
+        const retryNumber = previous + 1;
+        grammarRetryCounts.current.set(current.question.id, retryNumber);
+        const retryItem: LessonQueueItem = {
+          instanceId: `grammar-retry:${current.question.id}:${retryNumber}`,
+          question: current.question,
+          retry: true,
+        };
+        const gap = 2 + ((cursor + retryNumber) % 3);
+        nextQueue = [...queue];
+        nextQueue.splice(Math.min(queue.length, cursor + gap + 1), 0, retryItem);
+        setQueue(nextQueue);
+      }
     }
+    await advance(nextQueue);
+  };
+
+  /** 다음 문제로. 단계(본편 → 복습)가 끝나면 완료로 */
+  const advance = async (nextQueue: LessonQueueItem[]) => {
     const nextIndex = cursor + 1;
     if (nextIndex < nextQueue.length) {
       if (isLegend) setLegendCurrentIndex((value) => value + 1);
       setCursor(nextIndex);
       setAnswerState("idle");
       setGradeFeedback(null);
-      setRendererEpoch(0);
       return;
     }
     if (
@@ -610,15 +760,23 @@ export function LessonScreen() {
       !isOnboardingLevelTest
     ) {
       if (isLegend) setLegendCurrentIndex((value) => value + 1);
-      setPhase("review");
-      setQueue(makeQueue([...reviewQuestions.current.values()], "review", true));
-      setCursor(0);
       setAnswerState("idle");
       setGradeFeedback(null);
-      setRendererEpoch(0);
+      setReviewIntro(true);
       return;
     }
     await finish();
+  };
+
+  /** "Endi xato qilgan savollarni ishlaymizmi?" → 복습 시작 */
+  const startReview = () => {
+    setReviewIntro(false);
+    setPhase("review");
+    setCombo(0);
+    setQueue(makeQueue([...reviewQuestions.current.values()], "review", true));
+    setCursor(0);
+    setAnswerState("idle");
+    setGradeFeedback(null);
   };
 
   nextRef.current = next;
@@ -646,17 +804,17 @@ export function LessonScreen() {
         <div className={styles.loadErrorIcon}>!</div>
         <h1>Darsni yuklab bo&apos;lmadi</h1>
         <p>Aloqani tekshirib, yana bir marta urinib ko&apos;ring.</p>
-        <button className={styles.primaryAction} onClick={() => void load()} type="button">Qayta urinish</button>
+        <button className={styles.primaryAction} onClick={() => { playSfx("click"); void load(); }} type="button">Qayta urinish</button>
         <button className={styles.textAction} onClick={() => router.replace(isOnboardingLevelTest ? "/onboarding" : backToLearning(category, from))} type="button">Orqaga</button>
       </main>
     );
   }
 
-  const needsGrammarRetry =
-    !isOnboardingLevelTest &&
-    answerState === "wrong" &&
-    GRAMMAR_TYPES.has(current.question.type);
+  // 문법 문제는 결과·힌트를 카드 안에서 보여 주고 스스로 다음으로 넘긴다 (앱 HIDES_FEEDBACK_BAR).
+  // 아래 피드백 바까지 뜨면 같은 말을 두 번 하게 된다.
+  const hidesFeedbackBar = GRAMMAR_TYPES.has(current.question.type);
   return (
+    <LessonSpeechProvider>
     <main className={styles.lessonPage}>
       {isLegend ? (
         <LegendLessonHeader
@@ -665,71 +823,80 @@ export function LessonScreen() {
           onTimeout={() => router.replace(backToLearning(category, from))}
         />
       ) : (
-        <header className={styles.lessonHeader}>
-          <button aria-label="Yopish" onClick={close} type="button"><MobileIcon name="close" size={28} /></button>
-          <div className={styles.progressTrack}><span style={{ width: `${Math.max(3, progress)}%` }} /></div>
-          {isJump ? (
-            <div className={styles.hearts} aria-label={`${hearts} imkoniyat`}>
-              <HomeIcon name="heart" size={22} /><b>{hearts}</b><small>/ {heartLimit}</small>
-            </div>
-          ) : (
-            <div className={styles.energy}>
-              {isOnboardingLevelTest ? (
-                <><MobileIcon name="school" size={21} /><b>Sinov</b></>
-              ) : (
-                <><MobileIcon family="material-community" name="lightning-bolt" size={23} /><b>{user?.isSuper ? "∞" : (user?.energy ?? 0)}</b></>
-              )}
-            </div>
-          )}
-        </header>
+        <LessonHeader
+          answerState={answerState}
+          badge={isOnboardingLevelTest ? <><MobileIcon name="school" size={21} /><b>Sinov</b></> : undefined}
+          combo={combo}
+          energy={user?.energy ?? 0}
+          hearts={hearts}
+          isSuper={Boolean(user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()))}
+          maxHearts={heartLimit}
+          onClose={close}
+          progress={progress / 100}
+          showCombo={answerState === "correct"}
+          showHearts={isJump}
+        />
       )}
 
-      {phase === "review" ? <div className={styles.reviewRibbon}><HomeIcon name="refresh" size={15} /> Oldingi xatolarni mustahkamlaymiz</div> : null}
-      {combo >= 3 ? <div className={styles.comboPill}>⚡ {combo} combo</div> : null}
-
-      <section className={styles.questionStage} key={`${current.instanceId}:${rendererEpoch}`}>
+      {reviewIntro ? <ReviewIntro onContinue={startReview} /> : (
+      <>
+      <section className={styles.questionStage} key={current.instanceId}>
         <QuestionCard
           answerState={answerState}
           combo={combo}
-          instanceKey={`${current.instanceId}:${rendererEpoch}`}
+          instanceKey={current.instanceId}
           isChecking={checking}
           onAnswer={(answer) => void submitAnswer(answer)}
+          onNext={() => void next()}
           onSkip={skipQuestion}
           question={current.question}
         />
       </section>
 
       {checking ? <div className={styles.checkingToast}>Javob tekshirilmoqda...</div> : null}
-      {answerState !== "idle" && !isOnboardingLevelTest ? (
-        <aside className={`${styles.feedbackBar} ${answerState === "correct" ? styles.feedbackCorrect : styles.feedbackWrong}`}>
-          <div className={styles.feedbackIcon}>
-            {answerState === "correct" ? <HomeIcon name="check" size={24} /> : <HomeIcon name="close" size={24} />}
-          </div>
-          <div className={styles.feedbackCopy}>
-            <strong>{gradeFeedback?.title || (answerState === "correct" ? "Juda zo'r!" : "Noto'g'ri")}</strong>
-            {gradeFeedback?.feedback ? <p>{gradeFeedback.feedback}</p> : null}
-            {answerState === "wrong" ? (
-              <p><b>To&apos;g&apos;ri javob:</b> {current.question.answer}</p>
-            ) : current.question.answerTranslation ? <p>{current.question.answerTranslation}</p> : null}
-            {current.question.explanation ? <small>{current.question.explanation}</small> : null}
-          </div>
-          <button disabled={finishing} onClick={() => void next()} type="button">
-            {finishing ? "Saqlanmoqda..." : needsGrammarRetry ? "Qayta urinish" : "Davom etish"}
-          </button>
-        </aside>
-      ) : null}
-
-      {showQuit ? (
-        <div className={styles.modalLayer} role="dialog" aria-modal="true">
-          <div className={styles.quitModal}>
-            <Image alt="" height={105} src="/characters/hangulmon_default.png" unoptimized width={105} />
-            <h2>Darsni to&apos;xtatasizmi?</h2>
-            <p>Hozirgi savoldagi jarayon saqlanmaydi.</p>
-            <button className={styles.primaryAction} onClick={() => setShowQuit(false)} type="button">Davom ettirish</button>
-            <button className={styles.dangerAction} onClick={() => router.replace(isOnboardingLevelTest ? "/onboarding" : backToLearning(category, from))} type="button">To&apos;xtatish</button>
-          </div>
+      {/* 4연속 정답 보너스 — 앱 EnergyBonusPopup (배터리 + 파티클) */}
+      {bonusAmount ? (
+        <div aria-live="polite" className={styles.energyBonus}>
+          {Array.from({ length: 10 }, (_, index) => {
+            const angle = (index / 10) * Math.PI * 2;
+            const distance = 90 + (index % 3) * 22;
+            return (
+              <i
+                key={index}
+                style={{
+                  "--bonus-rot": `${(index % 2 === 0 ? 1 : -1) * (20 + index * 8)}deg`,
+                  "--bonus-size": `${14 + (index % 3) * 8}px`,
+                  "--bonus-x": `${Math.cos(angle) * distance}px`,
+                  "--bonus-y": `${Math.sin(angle) * distance}px`,
+                  background: index % 2 === 0 ? "#FFE88A" : "#FFD93B",
+                } as CSSProperties}
+              />
+            );
+          })}
+          <span className={styles.bonusBattery}><em /><b data-no-translate>+{bonusAmount}</b></span>
+          <span className={styles.bonusCap} />
         </div>
       ) : null}
+      {answerState !== "idle" && !isOnboardingLevelTest && !hidesFeedbackBar ? (
+        <FeedbackBar
+          answer={current.question.answer}
+          answerTranslation={current.question.answerTranslation}
+          busy={finishing}
+          explanation={current.question.explanation}
+          gradingFeedback={gradeFeedback}
+          onNext={() => void next()}
+          state={answerState}
+        />
+      ) : null}
+      </>
+      )}
+
+      <QuitLessonModal
+        onContinue={() => setShowQuit(false)}
+        onQuit={() => router.replace(isOnboardingLevelTest ? "/onboarding" : backToLearning(category, from))}
+        visible={showQuit}
+      />
     </main>
+    </LessonSpeechProvider>
   );
 }

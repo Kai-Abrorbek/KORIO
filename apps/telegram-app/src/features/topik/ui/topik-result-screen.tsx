@@ -67,7 +67,7 @@ export function TopikResultScreen() {
       <section className={`${styles.hero} ${result.examType === "topik_i" ? styles.levelOne : styles.levelTwo}`}>
         <i className={styles.orbLarge} /><i className={styles.orbSmall} />
         <div className={styles.heroTop}>
-          <div><span><MobileIcon name={result.section === "listening" ? "headset-outline" : "book-outline"} size={13} />TOPIK {level} · {SECTION[result.section]}</span><h1>Tekshirish tugadi</h1></div>
+          <div><span><MobileIcon name={result.section === "listening" ? "headset-outline" : "book-outline"} size={13} />{`TOPIK ${level} · ${SECTION[result.section]}`}</span><h1>Tekshirish tugadi</h1></div>
           <Image alt="" className={styles.confetti} height={92} priority src="/topik/success-confetti.svg" width={92} />
         </div>
         <div className={styles.score}><strong>{result.score}</strong><span>/ 100 ball</span></div>
@@ -96,11 +96,11 @@ export function TopikResultScreen() {
           >
             <div className={styles.resultTop}>
               <span className={question.isCorrect ? styles.correctBadge : styles.wrongBadge}>{String(question.number).padStart(2, "0")}</span>
-              <div><b>Javobim: {question.selectedChoiceKey ? `${question.selectedChoiceKey}-variant` : "Javobsiz"}</b><small>To‘g‘ri javob: {question.correctChoiceKey}-variant</small></div>
+              <div><b>{`Javobim: ${question.selectedChoiceKey ? `${question.selectedChoiceKey}-variant` : "Javobsiz"}`}</b><small>To‘g‘ri javob: {question.correctChoiceKey}-variant</small></div>
               <MobileIcon name={question.isCorrect ? "checkmark-circle" : "close-circle"} size={25} />
             </div>
             <div className={styles.explanation}><b>Izoh</b><p>{topikUzText(question.solution.explanation)}</p></div>
-            {canReview ? <span className={styles.reviewLink}><MobileIcon name={result.section === "listening" ? "headset-outline" : "book-outline"} size={16} />{question.number}-savolni qayta ko‘rish<MobileIcon name="chevron-forward" size={16} /></span> : null}
+            {canReview ? <span className={styles.reviewLink}><MobileIcon name={result.section === "listening" ? "headset-outline" : "book-outline"} size={16} />{`${question.number}-savolni qayta ko‘rish`}<MobileIcon name="chevron-forward" size={16} /></span> : null}
           </button>
         ))}
       </section>

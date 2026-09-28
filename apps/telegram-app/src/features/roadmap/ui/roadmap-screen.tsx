@@ -11,6 +11,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useEnergyGuard } from "../../energy/energy-gate";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { HomeIcon } from "../../home/ui/home-icon";
 import { saveStudyMode } from "../../learning/api/learning-preferences";
 import { LearningIcon } from "../../learning/ui/learning-icon";
@@ -35,6 +37,7 @@ import {
 } from "./roadmap-parts";
 import { RoadmapSectionSheet } from "./roadmap-section-sheet";
 import styles from "../../study-path/ui/study-path.module.css";
+import { CourseDropdown } from "./course-dropdown";
 
 interface NextSection {
   description: string;
@@ -45,6 +48,7 @@ interface NextSection {
 
 export function RoadmapScreen() {
   const router = useRouter();
+  const [courseOpen, setCourseOpen] = useState(false);
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const { request, updateUser, user } = useTelegramAuth();
@@ -63,10 +67,28 @@ export function RoadmapScreen() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sectionScore, setSectionScore] =
     useState<RoadmapScoreResponse | null>(null);
-  const [rewardGems, setRewardGems] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const unitRefs = useRef(new Map<string, HTMLElement>());
   const claimingRef = useRef(false);
+  const guardLessonStart = useEnergyGuard();
+
+  // 앱처럼 로드맵의 뒤로가기는 홈으로 (코스 선택 화면을 거쳐 들어왔어도)
+  useTelegramBackOverride(() => router.replace("/home"));
+
+  // 헤더의 보석·에너지·스트릭을 서버 값으로 맞춘다 (레슨을 끝내고 돌아오면 바뀌어 있다)
+  useEffect(() => {
+    void request<{ gems?: number; energy?: number; streak?: number; isSuper?: boolean; superExpiresAt?: string | null }>("/users/me")
+      .then((me) =>
+        updateUser({
+          energy: me.energy,
+          gems: me.gems,
+          isSuper: me.isSuper,
+          streak: me.streak,
+          superExpiresAt: me.superExpiresAt,
+        }),
+      )
+      .catch(() => undefined);
+  }, [request, updateUser]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -165,25 +187,28 @@ export function RoadmapScreen() {
     if (category === "grammar" && node.status === "completed") {
       params.set("mode", "lessonReview");
     }
-    router.push(`/lesson?${params.toString()}`);
+    // 에너지가 없으면 레슨 대신 에너지 모달 (앱의 guardLessonStart)
+    guardLessonStart(() => router.push(`/lesson?${params.toString()}`));
   };
 
   const reviewNode = (node: RoadmapNode) => {
+    setSelectedNodeId(null);
     const params = new URLSearchParams({
       category: category ?? "",
       mode: "nodeReview",
       nodeId: node.id,
     });
-    router.push(`/lesson?${params.toString()}`);
+    guardLessonStart(() => router.push(`/lesson?${params.toString()}`));
   };
 
   const legendNode = (node: RoadmapNode) => {
+    setSelectedNodeId(null);
     const params = new URLSearchParams({
       category: category ?? "",
       energy: String(user?.energy ?? 0),
       nodeId: node.id,
     });
-    router.push(`/legend-intro?${params.toString()}`);
+    guardLessonStart(() => router.push(`/legend-intro?${params.toString()}`));
   };
 
   const jumpToUnit = (unit: RoadmapUnit, target?: "section") => {
@@ -202,10 +227,22 @@ export function RoadmapScreen() {
     try {
       const result = await claimStudyPathChests(request);
       if (result.claimed > 0) {
+        // 보석은 서버가 준 총량으로 맞춘다. 화면에서 더하면 어긋난다
         updateUser({ gems: result.totalGems });
         setPendingChests(0);
-        setRewardGems(result.gems);
+        setSelectedNodeId(null);
+        // 상자 여는 연출은 앱과 같은 화면(탭해서 열기·보석 쏟아짐)을 쓴다.
+        // gemTotal 은 받기 **전** 값이라야 카운터가 올라가는 게 보인다
+        const params = new URLSearchParams({
+          category: category ?? "",
+          gemTotal: String(result.totalGems - result.gems),
+          gems: String(result.gems),
+          grade: result.grade ?? "wood",
+        });
+        router.push(`/chest-reward?${params.toString()}`);
       }
+    } catch {
+      // 못 받아도 화면을 막지 않는다. 다시 누르면 된다
     } finally {
       claimingRef.current = false;
     }
@@ -243,14 +280,8 @@ export function RoadmapScreen() {
 
   return (
     <main className={styles.pathPage}>
-      <nav className={styles.miniRoadmapNav}>
-        <button aria-label="Orqaga" onClick={() => router.replace("/course-categories")} type="button">
-          <HomeIcon name="back" size={25} />
-        </button>
-        <strong>O&apos;quv xaritasi</strong>
-      </nav>
       <header className={styles.pathStats}>
-        <button onClick={() => router.push("/courses")} type="button">
+        <button onClick={() => setCourseOpen(true)} type="button">
           <span>🇰🇷</span>
           <b>{scoreValue}</b>
           <HomeIcon className={styles.caret} name="caret" size={15} />
@@ -525,18 +556,8 @@ export function RoadmapScreen() {
         />
       ) : null}
 
-      {rewardGems !== null ? (
-        <section className={styles.rewardSheet}>
-          <span className={styles.rewardChest}>🎁</span>
-          <div>
-            <small>Mukofot olindi</small>
-            <strong>+{rewardGems} olmos</strong>
-          </div>
-          <button onClick={() => setRewardGems(null)} type="button">
-            <HomeIcon name="check" size={19} />
-          </button>
-        </section>
-      ) : null}
+      {/* 🇰🇷 스코어 → 위에서 내려오는 과정·스코어 패널 (앱 CourseDropdown) */}
+      <CourseDropdown onClose={() => setCourseOpen(false)} studyMode="free" visible={courseOpen} />
     </main>
   );
 }

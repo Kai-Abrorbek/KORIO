@@ -22,6 +22,7 @@ import {
   type AuthenticatedRequest,
 } from "./stats-screen";
 import styles from "./category-view.module.css";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 function getCategory(
   request: AuthenticatedRequest,
@@ -31,7 +32,7 @@ function getCategory(
   return request<CategoryStats>(
     "/users/me/stats/category?category=" +
       category +
-      "&lang=uz&range=" +
+      `&lang=${getContentLang()}&range=` +
       range,
   );
 }

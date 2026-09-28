@@ -44,6 +44,10 @@ export interface LessonQuestion {
     text: string;
   }[];
   dialogLines?: { speaker: "npc" | "user"; text: string }[];
+  /** 세분화된 난이도 1~5 */
+  difficulty?: number;
+  /** 어려운 문제 표시 */
+  hard?: boolean;
   explanation?: string;
   hint?: string;
   id: string;

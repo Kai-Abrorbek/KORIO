@@ -3,6 +3,7 @@ import type {
   WordReviewResult,
   WordSectionSummary,
 } from "../model/word";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -27,7 +28,7 @@ export async function getUnitWords(
   let cursor: string | null = null;
   do {
     const query = new URLSearchParams({
-      lang: "uz",
+      lang: getContentLang(),
       limit: "100",
       section: String(section),
       unit: String(unit),

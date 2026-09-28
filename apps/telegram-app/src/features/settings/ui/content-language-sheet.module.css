@@ -1,0 +1,27 @@
+.backdrop{position:fixed;z-index:90;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgb(0 0 0/50%);animation:fade .25s ease-out}
+.sheet{--bg:#fff;--surface:#fff;--text:#1a1a2e;--secondary:#55555f;--border:#eceaf6;--primary:#776ee2;--primary-dark:#5b52c4;position:relative;display:flex;width:min(100%,560px);max-height:92dvh;flex-direction:column;overflow-y:auto;border-radius:28px 28px 0 0;background:var(--bg);color:var(--text);padding:6px 20px calc(16px + env(safe-area-inset-bottom));animation:up .25s cubic-bezier(.215,.61,.355,1)}
+.handle{display:block;width:44px;height:5px;margin:6px auto 14px;border-radius:3px;background:var(--border)}
+.badge{display:grid;width:56px;height:56px;margin:0 auto 14px;place-items:center;border-bottom:4px solid var(--primary-dark);border-radius:18px;background:var(--primary);color:#fff;animation:pop .42s cubic-bezier(.34,1.56,.64,1) .12s both}
+.sheet>h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px;text-align:center}
+.sheet>p{margin:8px 0 20px;padding:0 8px;color:var(--secondary);font-size:14px;font-weight:500;line-height:20px;text-align:center}
+.options{display:grid;gap:10px}
+.options>button{display:flex;align-items:center;gap:14px;border:2px solid var(--border);border-bottom-width:4px;border-radius:18px;background:var(--surface);color:var(--text);padding:12px 14px;text-align:left;transition:border-color .16s,background .16s,transform .08s}
+.options>button:active{transform:translateY(2px)}
+.options>button.selected{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,var(--surface))}
+.flag{display:grid;width:42px;height:42px;flex:0 0 auto;place-items:center;border-radius:12px;background:#f4f3fa;font-size:24px;font-style:normal}
+.options>button>span{display:grid;min-width:0;flex:1;gap:2px}
+.options b{font-size:17px;font-weight:800}
+.selected b{color:var(--primary)}
+.options small{color:var(--secondary);font-size:13px;font-weight:600}
+.options em{color:var(--primary);font-style:normal}
+.checkOn,.checkOff{display:grid;width:26px;height:26px;flex:0 0 auto;place-items:center;border-radius:50%;font-style:normal}
+.checkOn{background:var(--primary);color:#fff;animation:pop .24s ease both}
+.checkOff{border:2px solid #d4d3dd}
+.confirm{min-height:54px;margin-top:20px;border:0;border-bottom:4px solid var(--primary-dark);border-radius:16px;background:var(--primary);color:#fff;font-size:17px;font-weight:800;letter-spacing:.2px;transition:transform .08s,border-bottom-width .08s}
+.confirm:active{transform:translateY(3px);border-bottom-width:1px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes pop{from{opacity:0;transform:scale(.6) rotate(-12deg)}}
+:global(html[data-theme="dark"]) .sheet{--bg:#15151d;--surface:#25252e;--text:#fff;--secondary:#a6a6b3;--border:#3a3a44}
+:global(html[data-theme="dark"]) .flag{background:var(--bg)}
+@media (prefers-reduced-motion:reduce){.backdrop,.sheet,.badge,.checkOn{animation:none}}

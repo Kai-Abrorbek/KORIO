@@ -258,12 +258,29 @@
   transform-origin: 50% 90%;
 }
 
-.lessonCharacterReacting img {
-  animation: characterReact 340ms cubic-bezier(.2,.85,.34,1.25);
+/* 앱 LessonCharacter: idle 은 숨쉬기(1.018, 1.5s 왕복), 정답은 튀어 오르며 살짝 기울고,
+   콤보는 더 크게 기울고, 오답은 좌우로 흔들린다. 채점 때마다 0.86 에서 튀어나온다 */
+.lcInner {
+  display: block;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 90%;
 }
-
-@keyframes characterReact {
-  40% { transform: translateY(-7px) scale(1.035); }
+.lc_idle { animation: lcBreathe 3s ease-in-out infinite; }
+.lc_correct { animation: lcEnter .42s cubic-bezier(.34,1.56,.64,1), lcJump .5s cubic-bezier(.3,1.4,.5,1); }
+.lc_combo { animation: lcEnter .42s cubic-bezier(.34,1.56,.64,1), lcJumpCombo .55s cubic-bezier(.3,1.4,.5,1); }
+.lc_wrong { animation: lcEnter .42s cubic-bezier(.34,1.56,.64,1), lcShake .45s ease-out; }
+@keyframes lcBreathe { 50% { transform: scale(1.018); } }
+@keyframes lcEnter { from { opacity: .2; scale: .86; } to { opacity: 1; scale: 1; } }
+@keyframes lcJump { 35% { transform: translateY(-7%) rotate(-3deg); } 100% { transform: none; } }
+@keyframes lcJumpCombo { 35% { transform: translateY(-7%) rotate(-5deg); } 70% { transform: translateY(1%) rotate(1deg); } 100% { transform: none; } }
+@keyframes lcShake {
+  12% { transform: translateX(-9px) rotate(3deg); }
+  25% { transform: translateX(9px) rotate(-3deg); }
+  38% { transform: translateX(-7px); }
+  50% { transform: translateX(5px); }
+  100% { transform: none; }
 }
 
 .npcRow {
@@ -1186,4 +1203,36 @@
 @media (prefers-reduced-motion: reduce) {
   .questionStage, .confetti i, .lessonLoader, .matchWrong { animation-duration: 1ms; }
   .progressTrack span, .legendFill { transition: none; }
+}
+
+/* ── 4연속 정답 에너지 보너스 (앱 EnergyBonusPopup) ── */
+.energyBonus { align-items: center; animation: bonus-life 2.6s ease both; display: flex; inset: 0; justify-content: center; pointer-events: none; position: fixed; z-index: 120; }
+.energyBonus i { border-radius: calc(var(--bonus-size) * .3); height: var(--bonus-size); position: absolute; transform: translate(var(--bonus-x), var(--bonus-y)) rotate(var(--bonus-rot)); width: var(--bonus-size); animation: bonus-burst .5s cubic-bezier(.34,1.56,.64,1) both; }
+.bonusBattery { align-items: center; background: #ffc107; border-radius: 24px; display: flex; height: 96px; justify-content: center; position: relative; width: 150px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
+.bonusBattery em { background: #fff; border-radius: 11px; height: 52px; left: 18px; opacity: .45; position: absolute; top: 22px; width: 22px; }
+.bonusBattery b { color: #fff; font-size: 48px; font-weight: 900; letter-spacing: -1px; }
+.bonusCap { background: #ffc107; border-radius: 3px 7px 7px 3px; height: 36px; margin-left: 4px; width: 13px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes bonus-life { 0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes bonus-burst { from { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(.4); } }
+@keyframes bonus-pop { from { transform: scale(.5); } }
+
+/*
+ * 레슨 화면 = 높이 고정 세로 칸. 헤더 아래 문제 영역만 스크롤하고, 각 문제의
+ * 확인 버튼(margin-top:auto)은 늘 문제 영역 맨 아래에 붙는다 (앱과 같은 배치).
+ */
+.lessonPage {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lessonPage > .questionStage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

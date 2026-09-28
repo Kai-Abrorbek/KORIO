@@ -3,13 +3,14 @@ import type {
   StudyLevelsResponse,
   StudyPathResponse,
 } from "../model/study-path";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
 export function getStudyLevels(
   request: AuthenticatedRequest,
 ): Promise<StudyLevelsResponse> {
-  return request<StudyLevelsResponse>("/study-path/levels?lang=uz");
+  return request<StudyLevelsResponse>(`/study-path/levels?lang=${getContentLang()}`);
 }
 
 export function setStudyLevel(
@@ -25,7 +26,7 @@ export function setStudyLevel(
 export function getStudyPath(
   request: AuthenticatedRequest,
 ): Promise<StudyPathResponse> {
-  return request<StudyPathResponse>("/study-path?lang=uz");
+  return request<StudyPathResponse>(`/study-path?lang=${getContentLang()}`);
 }
 
 export function claimStudyPathChests(

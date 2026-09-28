@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import styles from "./chest-reward-screen.module.css";
 
 type Phase = "idle" | "opening" | "revealed";
@@ -67,6 +68,8 @@ export function ChestRewardScreen() {
   const [ready, setReady] = useState(false);
   const [shaking, setShaking] = useState(false);
 
+  useEffect(() => preloadSfx(), []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => setReady(true), 200);
     return () => window.clearTimeout(timer);
@@ -111,9 +114,9 @@ export function ChestRewardScreen() {
         </div>
       </section>
       {phase === "revealed" ? <section className={`${styles.rewardSection} ${styles.revealedSection}`}>
-        <h2>Tosh +{gems}</h2>
+        <h2>{`Tosh +${gems}`}</h2>
         <div className={styles.pileArea}><Sparkles/><GemsPile/></div>
-        <button className={styles.continueButton} onClick={back} type="button">Davom etish</button>
+        <button className={styles.continueButton} onClick={() => { playSfx("click"); back(); }} type="button">Davom etish</button>
       </section> : null}
     </main>
   );

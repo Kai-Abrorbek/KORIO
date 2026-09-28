@@ -77,10 +77,7 @@ export function StudyModeSheet({
       >
         <div className={styles.sheetGrip} aria-hidden="true" />
         <h2>Qanday o&apos;rganasiz?</h2>
-        <p>
-          {courseLabel} o&apos;rganishni boshlaymiz. Keyin istalgan payt
-          o&apos;zgartirasiz.
-        </p>
+        <p>{`${courseLabel} o'rganishni boshlaymiz. Keyin istalgan payt o'zgartirasiz.`}</p>
 
         <div className={styles.modeOptions}>
           {OPTIONS.map((option) => (

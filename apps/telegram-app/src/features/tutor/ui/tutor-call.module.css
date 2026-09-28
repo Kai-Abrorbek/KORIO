@@ -1,0 +1,1054 @@
+.root {
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-line: rgba(255, 255, 255, 0.14);
+  background: #0b0818;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  isolation: isolate;
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.root button {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 배경 ── */
+.backdrop {
+  background: linear-gradient(160deg, #2b2453 0%, #1a1533 46%, #0b0818 100%);
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: -2;
+}
+
+.blobA,
+.blobB {
+  border-radius: 50%;
+  filter: blur(8px);
+  height: 320px;
+  position: absolute;
+  width: 320px;
+}
+
+.blobA {
+  animation: driftA 15s ease-in-out infinite alternate;
+  background: var(--blob-a);
+  left: -80px;
+  top: -120px;
+}
+
+.blobB {
+  animation: driftB 15s ease-in-out infinite alternate;
+  background: var(--blob-b);
+  bottom: 20px;
+  right: -100px;
+  transition: background-color 400ms ease;
+}
+
+@keyframes driftA {
+  from {
+    transform: translate(-54px, -34px) scale(1);
+  }
+  to {
+    transform: translate(44px, 28px) scale(1.22);
+  }
+}
+
+@keyframes driftB {
+  from {
+    transform: translate(64px, 44px) scale(1.16);
+  }
+  to {
+    transform: translate(-42px, -24px) scale(0.94);
+  }
+}
+
+.keyLight {
+  animation: keyLight var(--glow-dur) ease-in-out infinite alternate;
+  background: var(--key-light);
+  border-radius: 50%;
+  filter: blur(18px);
+  height: 300px;
+  left: 50%;
+  margin-left: -150px;
+  position: absolute;
+  top: 90px;
+  width: 300px;
+}
+
+@keyframes keyLight {
+  from {
+    opacity: 0.3;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 0.58;
+    transform: scale(1.08);
+  }
+}
+
+.streak {
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.055), transparent);
+  height: 320px;
+  left: -40px;
+  position: absolute;
+  right: -40px;
+  top: -60px;
+  transform: rotate(-18deg);
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: calc(max(0px, var(--tg-content-safe-area-inset-top, 0px)) + 96px);
+  z-index: -1;
+}
+
+.scrim {
+  background: linear-gradient(180deg, transparent 0%, rgba(9, 7, 20, 0.55) 42%, #090714 100%);
+  bottom: 0;
+  height: 62%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: -1;
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-height: 12px;
+}
+
+/* ── 헤더 ── */
+.header {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: calc(max(0px, var(--tg-content-safe-area-inset-top, 0px)) + 4px) 8px 6px;
+}
+
+.iconButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex: 0 0 auto;
+  height: 38px;
+  justify-content: center;
+  padding: 0;
+  width: 38px;
+}
+
+.idText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.idNameRow {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
+.idNameRow strong {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.idNameRow span {
+  font-size: 17px;
+}
+
+.idRole {
+  color: rgba(255, 255, 255, 0.62);
+  display: flex;
+  font-size: 12.5px;
+  font-weight: 700;
+  gap: 4px;
+  margin: 1px 0 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.idRole i {
+  font-style: normal;
+}
+
+.headerRight {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.timer {
+  align-items: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  gap: 6px;
+  padding: 8px 13px;
+  transition: background-color 200ms ease;
+}
+
+.timerWarn {
+  animation: pulseWarn 1s ease-in-out infinite alternate;
+  background: #e5533d;
+  border-color: #b8341f;
+  color: #fff;
+}
+
+@keyframes pulseWarn {
+  to {
+    box-shadow: 0 0 0 5px rgba(229, 83, 61, 0.22);
+  }
+}
+
+.tune {
+  align-items: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.75) !important;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+}
+
+.tuneOn {
+  background: #fff;
+  border-color: #fff;
+  color: #1a1a2e !important;
+}
+
+/* ── 진도 카드 ── */
+.topRow {
+  align-items: flex-start;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  padding: 4px 14px 0;
+}
+
+.progressCard {
+  backdrop-filter: blur(8px);
+  background: rgba(14, 11, 26, 0.5);
+  border: 1px solid var(--glass-line);
+  border-radius: 16px;
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 7px;
+  max-width: 62%;
+  min-width: 0;
+  padding: 10px 12px;
+}
+
+.progressTop {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+}
+
+.progressTop span {
+  font-size: 15px;
+}
+
+.progressTop strong {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progressStep {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.progressBarRow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.progressBarRow b {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+}
+
+.track {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 3px;
+  display: block;
+  flex: 1;
+  height: 6px;
+  min-width: 60px;
+  overflow: hidden;
+}
+
+.track i {
+  background: var(--accent);
+  border-radius: 3px;
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  transition: transform 520ms cubic-bezier(0.33, 1, 0.68, 1), background-color 300ms ease;
+  width: 100%;
+}
+
+.cheer {
+  animation: fadeIn 600ms ease both;
+  color: rgba(255, 255, 255, 0.5);
+  flex: 1;
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 24px;
+  margin: 8px 0 0;
+  text-align: right;
+  transform: rotate(-6deg);
+  white-space: pre-line;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── 유리 패널 ── */
+.glass {
+  animation: fadeIn 180ms ease both;
+  backdrop-filter: blur(10px);
+  background: rgba(12, 9, 24, 0.6);
+  border: 1px solid var(--glass-line);
+  border-radius: 22px;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 14px;
+  padding: 15px 18px;
+}
+
+.waveRow {
+  align-items: center;
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+}
+
+.wave {
+  align-items: center;
+  display: flex;
+  gap: 3px;
+  height: 20px;
+}
+
+.waveBar,
+.waveBarOn {
+  background: var(--accent);
+  border-radius: 2px;
+  display: block;
+  height: 4px;
+  opacity: 0.45;
+  transition: height 220ms ease, opacity 220ms ease, background-color 300ms ease;
+  width: 3.5px;
+}
+
+.waveBarOn {
+  animation: waveBar var(--wave-dur) ease-in-out infinite alternate both;
+}
+
+@keyframes waveBar {
+  from {
+    height: 4px;
+    opacity: 0.45;
+  }
+  to {
+    height: calc(4px + 16px * var(--peak));
+    opacity: 1;
+  }
+}
+
+.waveLabel {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  transition: color 300ms ease;
+}
+
+.userRow {
+  align-self: flex-end;
+  animation: fadeIn 180ms ease both;
+  display: flex;
+  flex-direction: column;
+  max-width: 88%;
+}
+
+.userRow p {
+  -webkit-box-orient: vertical;
+  color: rgba(255, 255, 255, 0.72);
+  display: -webkit-box;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 700;
+  -webkit-line-clamp: 2;
+  margin: 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.userRow i {
+  align-self: flex-end;
+  background: #5ce08a;
+  border-radius: 1px;
+  height: 2px;
+  margin-top: 5px;
+  opacity: 0.85;
+  width: 22px;
+}
+
+.captionPrev {
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caption {
+  -webkit-box-orient: vertical;
+  animation: fadeIn 180ms ease both;
+  display: -webkit-box;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  -webkit-line-clamp: 3;
+  line-height: 29px;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.captionIdle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 23px;
+  margin: 0;
+  text-align: center;
+}
+
+.explainText {
+  -webkit-box-orient: vertical;
+  animation: fadeIn 180ms ease both;
+  color: rgba(255, 255, 255, 0.56);
+  display: -webkit-box;
+  font-size: 14px;
+  font-weight: 600;
+  -webkit-line-clamp: 3;
+  line-height: 21px;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  white-space: pre-line;
+}
+
+/* ── 오늘의 표현 카드 ── */
+.card {
+  animation: cardIn 220ms ease both;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.34);
+  color: #1a1a2e;
+  flex: 0 0 auto;
+  margin: 16px 14px 0;
+  padding: 12px;
+  position: relative;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.cardBadge {
+  background: #ffd9e6;
+  border-radius: 999px;
+  color: #c2416f;
+  font-size: 10.5px;
+  font-weight: 900;
+  left: 16px;
+  letter-spacing: 0.2px;
+  padding: 3px 10px;
+  position: absolute;
+  top: -9px;
+}
+
+.cardBody {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.cardPlay {
+  align-items: center;
+  background: var(--play-bg);
+  border: 0;
+  border-radius: 50%;
+  color: var(--teacher) !important;
+  display: flex;
+  flex: 0 0 auto;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+}
+
+.cardPlay:active,
+.cardCopy:active {
+  transform: scale(0.92);
+}
+
+.cardTextWrap {
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.cardTextWrap strong {
+  -webkit-box-orient: vertical;
+  color: #1a1a2e;
+  display: -webkit-box;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  -webkit-line-clamp: 2;
+  line-height: 27px;
+  overflow: hidden;
+}
+
+.cardTextWrap small {
+  color: #9c99ae;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardCopy {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: #9c99ae !important;
+  display: flex;
+  flex: 0 0 auto;
+  height: 34px;
+  justify-content: center;
+  padding: 0;
+  width: 34px;
+}
+
+.cardCopied {
+  color: #2fa96a !important;
+}
+
+/* ── 알약 ── */
+.pills {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+  padding: 14px 12px 0;
+}
+
+.pill {
+  align-items: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  display: flex;
+  flex: 0 1 auto;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 12px;
+  transition: transform 110ms ease, opacity 160ms ease;
+}
+
+.pill:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+.pill:disabled {
+  opacity: 0.4;
+}
+
+.pill span {
+  font-size: 14px;
+}
+
+.pill b {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.error {
+  color: #ff8a73;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  padding: 10px 24px 0;
+  text-align: center;
+}
+
+.quota {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 12px;
+}
+
+.quota p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.quota button {
+  background: transparent;
+  border: 0;
+  color: #b3a6ff !important;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ── 조작 ── */
+.controls {
+  align-items: flex-start;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 20px 26px calc(8px + max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)));
+}
+
+.ctrlCol {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 74px;
+}
+
+.ctrlCol span,
+.endCol span {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.endCol span {
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 900;
+}
+
+.round {
+  align-items: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 50%;
+  display: flex;
+  height: 58px;
+  justify-content: center;
+  padding: 0;
+  transition: transform 90ms ease, background-color 160ms ease;
+  width: 58px;
+}
+
+.round:active {
+  transform: scale(0.93);
+}
+
+.roundOn {
+  background: #fff;
+  border-color: #fff;
+  color: #1b1730 !important;
+}
+
+.endCol {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.end {
+  align-items: center;
+  background: #e5533d;
+  border: 0;
+  border-bottom: 5px solid #b8341f;
+  border-radius: 50%;
+  display: flex;
+  height: 72px;
+  justify-content: center;
+  padding: 0;
+  transition: transform 80ms ease, border-bottom-width 80ms ease;
+  width: 72px;
+}
+
+.end:active {
+  border-bottom-width: 1px;
+  transform: translateY(4px);
+}
+
+/* 수화기를 내려놓는 각도 */
+.end svg {
+  transform: rotate(135deg);
+}
+
+.again {
+  align-items: center;
+  background: #776ee2;
+  border: 0;
+  border-bottom: 5px solid #5b4dd4;
+  border-radius: 29px;
+  display: flex;
+  flex: 1;
+  font-size: 16px;
+  font-weight: 900;
+  gap: 8px;
+  height: 58px;
+  justify-content: center;
+  transition: transform 70ms ease, border-bottom-width 70ms ease;
+}
+
+.again:not(:disabled):active {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.again:disabled {
+  opacity: 0.4;
+}
+
+.brand {
+  color: rgba(255, 255, 255, 0.26);
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  margin: 0 0 max(2px, calc(8px - env(safe-area-inset-bottom, 0px)));
+  overflow: hidden;
+  padding-top: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.audioUnlock {
+  align-items: center;
+  animation: cardIn 200ms ease both;
+  background: #fff;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  color: #1a1a2e !important;
+  display: flex;
+  font-size: 14px;
+  font-weight: 900;
+  gap: 8px;
+  left: 50%;
+  padding: 12px 18px;
+  position: absolute;
+  top: 42%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.analyzing {
+  align-items: center;
+  animation: fadeIn 200ms ease both;
+  background: rgba(11, 8, 24, 0.88);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  z-index: 10;
+}
+
+.analyzing p {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  border-top-color: #fff;
+  height: 36px;
+  width: 36px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── 선생님 캐릭터 ── */
+.character {
+  align-items: center;
+  display: flex;
+  height: var(--halo);
+  justify-content: center;
+  position: relative;
+  width: var(--halo);
+}
+
+.ring {
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  height: var(--halo);
+  opacity: 0;
+  position: absolute;
+  transform: scale(0.7);
+  width: var(--halo);
+}
+
+.characterAlive .ring {
+  animation: ring 2250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+@keyframes ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  14% {
+    opacity: 0.42;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.characterGlow {
+  animation: glow var(--breath) ease-in-out infinite alternate;
+  background: var(--accent);
+  border-radius: 50%;
+  filter: blur(14px);
+  height: calc(var(--disc) * 1.24);
+  position: absolute;
+  transition: background-color 300ms ease;
+  width: calc(var(--disc) * 1.24);
+}
+
+@keyframes glow {
+  from {
+    opacity: var(--glow-min);
+    transform: scale(1);
+  }
+  to {
+    opacity: var(--glow-max);
+    transform: scale(1.07);
+  }
+}
+
+.disc {
+  align-items: center;
+  animation: breath var(--breath) ease-in-out infinite alternate;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
+    linear-gradient(150deg, var(--disc-a) 0%, var(--disc-b) 50%, #1b1730 100%);
+  border-radius: 50%;
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--accent) 55%, transparent);
+  display: flex;
+  height: var(--disc);
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: var(--disc);
+}
+
+@keyframes breath {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(var(--breath-scale)) translateY(var(--breath-lift));
+  }
+}
+
+.discEmoji {
+  line-height: 1;
+  position: relative;
+  text-align: center;
+}
+
+.discSheen {
+  animation: sheen 3250ms ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  height: var(--halo);
+  left: 50%;
+  margin-left: calc(var(--disc) * -0.11);
+  opacity: 0;
+  position: absolute;
+  top: -20px;
+  width: calc(var(--disc) * 0.22);
+}
+
+/* 광택은 쉬었다 한 번씩 지나간다. 계속 돌면 싸구려로 보인다 */
+@keyframes sheen {
+  0%,
+  67.7% {
+    opacity: 0;
+    transform: translateX(calc(var(--disc) * -0.95)) rotate(22deg);
+  }
+  75.8% {
+    opacity: 0.5;
+  }
+  91.9% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(var(--disc) * 0.95)) rotate(22deg);
+  }
+}
+
+.discRim {
+  border: 1.5px solid var(--accent-rim);
+  border-radius: 50%;
+  inset: 0;
+  position: absolute;
+  transition: border-color 300ms ease;
+}
+
+.characterBadge {
+  align-items: center;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 999px;
+  bottom: 0;
+  display: flex;
+  gap: 3px;
+  height: 26px;
+  padding: 0 12px;
+  position: absolute;
+}
+
+.badgeBar,
+.badgeBarFast {
+  animation: badgeSlow ease-in-out infinite alternate both;
+  background: var(--accent);
+  border-radius: 2px;
+  display: block;
+  height: 4px;
+  width: 3px;
+}
+
+.badgeBarFast {
+  animation-name: badgeFast;
+}
+
+@keyframes badgeSlow {
+  from {
+    height: 4px;
+  }
+  to {
+    height: 8px;
+  }
+}
+
+@keyframes badgeFast {
+  from {
+    height: 5px;
+  }
+  to {
+    height: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blobA,
+  .blobB,
+  .keyLight,
+  .ring,
+  .characterGlow,
+  .disc,
+  .discSheen,
+  .waveBarOn,
+  .badgeBar,
+  .badgeBarFast {
+    animation: none !important;
+  }
+}

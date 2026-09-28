@@ -60,7 +60,7 @@ export function StreakDayScreen() {
         <p>Ketma-ketlikni saqlash uchun<br/>har kuni mashq qiling</p>
         <div className={styles.week}>
           {days.map((day, index) => <div className={styles.day} key={`${day.label}-${index}`} style={{ "--i": index } as CSSProperties}>
-            <span className={`${day.done ? styles.done : ""} ${day.isToday ? styles.today : ""}`}>{day.done ? <MobileIcon name="checkmark" size={20}/> : null}</span>
+            <span className={`${day.done ? styles.done : ""} ${day.isToday && !day.done ? styles.today : ""}`}>{day.done ? <MobileIcon name="checkmark" size={20}/> : null}</span>
             <small>{day.label}</small>
           </div>)}
         </div>

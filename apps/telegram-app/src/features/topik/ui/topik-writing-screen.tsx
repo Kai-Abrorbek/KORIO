@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getTopikAttempt,
@@ -75,11 +76,19 @@ export function TopikWritingScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [errorOpen, setErrorOpen] = useState(false);
 
   const questions = useMemo(() => flattenTopikQuestions(session), [session]);
   const question = questions[currentIndex];
   const submittedReview = Boolean(result);
+  // 텔레그램 뒤로가기도 헤더 버튼과 같게 — 쓰는 중이면 "저장하고 나가기" 시트부터
+  // 시트가 열려 있으면 뒤로가기는 시트를 닫는다 (앱 Modal onRequestClose)
+  useTelegramBackOverride(submittedReview ? null : () => {
+    if (submitOpen) { if (!submitting) setSubmitOpen(false); return; }
+    if (exitOpen) { if (!leaving) setExitOpen(false); return; }
+    setExitOpen(true);
+  });
   const solutionVisible = Boolean(result || practiceSolution);
   const showTimer = mode === "mock_exam" && !submittedReview && !singlePractice;
   const elapsedSeconds = result ? result.elapsedSeconds : showTimer ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
@@ -131,11 +140,19 @@ export function TopikWritingScreen() {
     finally { setSaving(false); }
   }, [attempt, currentIndex, elapsedSeconds, mode, questions, request, responses, selectedQuestionNumber, submittedReview]);
 
+  // 저장이 실패해도 문항 이동은 막지 않는다 — 쓴 글은 화면 상태에 남아 있고
+  // 다음 이동·나가기·제출 때 다시 저장한다
   const moveTo = async (index: number) => {
-    try { if (!submittedReview) await save(index); setCurrentIndex(Math.max(0, Math.min(questions.length - 1, index))); }
-    catch { setErrorOpen(true); }
+    if (!submittedReview) await save(index).catch(() => undefined);
+    setCurrentIndex(Math.max(0, Math.min(questions.length - 1, index)));
   };
-  const leave = async () => { try { await save(currentIndex); router.back(); } catch { setErrorOpen(true); } };
+  // 저장 중엔 버튼을 잠근다 — 두 번 누르면 save 가 두 번 돌고 router.back() 이 두 번 불려 두 화면 뒤로 갔다 (앱 TopikExitModal leaving)
+  const leave = async () => {
+    if (leaving) return;
+    setLeaving(true);
+    try { await save(currentIndex); router.back(); }
+    catch { setLeaving(false); setErrorOpen(true); }
+  };
   const submit = async () => {
     if (!attempt) return;
     setSubmitting(true);
@@ -161,13 +178,13 @@ export function TopikWritingScreen() {
     {solutionVisible ? <section className={styles.completeBanner}><span><MobileIcon name="checkmark" size={22} /></span><div><b>{practiceSolution ? "Namunaviy javob ochildi" : "Yozish javoblari yakunlandi"}</b><p>{practiceSolution ? "Javobingiz bilan solishtirib, tuzilma va katak qoidalarini tekshiring." : "Namunaviy javob va baholash mezonlari bilan o‘zingizni tekshiring."}</p></div></section> : null}
     <div className={styles.content} ref={contentRef}><WritingCard onChange={updateResponse} question={question} readOnly={submittedReview} responses={responses[question.id] ?? {}} showRecommendedTime={showTimer} solution={currentSolution} /></div>
     <footer className={styles.footer}>
-      {!singlePractice ? <button disabled={currentIndex === 0 || saving} onClick={() => void moveTo(currentIndex - 1)} type="button"><MobileIcon name="arrow-back" size={18} />Oldingi</button> : null}
+      {!singlePractice ? <button data-i18n="topik.exam.previous" disabled={currentIndex === 0 || saving} onClick={() => void moveTo(currentIndex - 1)} type="button"><MobileIcon name="arrow-back" size={18} />Oldingi</button> : null}
       {currentIndex < questions.length - 1 ? <button className={styles.primary} disabled={saving} onClick={() => void moveTo(currentIndex + 1)} type="button"><MobileIcon name="arrow-forward" size={18} />Keyingi</button> : singlePractice ? practiceSolution ? <button className={styles.primary} disabled={saving} onClick={() => void leave()} type="button"><MobileIcon name="grid-outline" size={18} />Savol turlariga qaytish</button> : <button className={styles.primary} disabled={!currentAnswered || saving || submitting} onClick={() => void revealPractice()} type="button"><MobileIcon name="eye-outline" size={18} />{currentAnswered ? "Namuna va izohni ko‘rish" : "Avval javob yozing"}</button> : submittedReview ? <button className={styles.primary} onClick={() => router.back()} type="button"><MobileIcon name="albums-outline" size={18} />Imtihonlar ro‘yxatiga qaytish</button> : <button className={styles.primary} disabled={saving} onClick={() => setSubmitOpen(true)} type="button"><MobileIcon name="send" size={17} />Javoblarni yuborish</button>}
     </footer>
 
-    <SheetModal onClose={() => setExitOpen(false)} visible={exitOpen}><h2>Hozircha shu yerda to‘xtaysizmi?</h2><p>Hozirgacha tanlagan javoblaringizni xavfsiz saqlaymiz.</p><ModalProgress answered={answeredCount} total={questions.length} /><button className={styles.modalPrimary} onClick={() => setExitOpen(false)} type="button">Davom etish</button><button className={styles.modalDanger} onClick={() => void leave()} type="button"><MobileIcon name="exit-outline" size={18} />Saqlash va chiqish</button></SheetModal>
+    <SheetModal onClose={() => !leaving && setExitOpen(false)} visible={exitOpen}><h2>Hozircha shu yerda to‘xtaysizmi?</h2><p>Hozirgacha tanlagan javoblaringizni xavfsiz saqlaymiz.</p><ModalProgress answered={answeredCount} total={questions.length} /><button className={styles.modalPrimary} disabled={leaving} onClick={() => setExitOpen(false)} type="button">Davom etish</button><button className={styles.modalDanger} disabled={leaving} onClick={() => void leave()} type="button"><MobileIcon name="exit-outline" size={18} />Saqlash va chiqish</button></SheetModal>
     <SheetModal onClose={() => !submitting && setSubmitOpen(false)} visible={submitOpen}><h2>Javoblarni yuborasizmi?</h2><p>Yuborilgandan keyin javoblarni o‘zgartirib bo‘lmaydi.</p><ModalProgress answered={answeredCount} total={questions.length} /><button className={styles.modalPrimary} disabled={submitting} onClick={() => void submit()} type="button"><MobileIcon name="send" size={18} />Yuborish</button><button className={styles.modalSecondary} disabled={submitting} onClick={() => setSubmitOpen(false)} type="button">Bekor qilish</button></SheetModal>
-    <SheetModal onClose={() => setErrorOpen(false)} visible={errorOpen}><div className={styles.errorVisual}><MobileIcon name="cloud-offline-outline" size={31} /></div><h2>Yozish imtihonini yuklab bo‘lmadi.</h2><p>Internet aloqasini tekshirib, qayta urinib ko‘ring.</p><button className={styles.modalPrimary} onClick={() => { setErrorOpen(false); void load(); }} type="button"><MobileIcon name="refresh" size={18} />Qayta urinish</button></SheetModal>
+    <SheetModal onClose={() => setErrorOpen(false)} visible={errorOpen}><div className={styles.errorVisual}><MobileIcon name="cloud-offline-outline" size={31} /></div><h2>Yozish imtihonini yuklab bo‘lmadi.</h2><p>Internet aloqasini tekshirib, qayta urinib ko‘ring.</p><button className={styles.modalPrimary} onClick={() => { setErrorOpen(false); /* 이미 불러온 시험이면 다시 불러오지 않는다 — 쓰던 글이 날아간다 */ if (!attempt) void load(); }} type="button"><MobileIcon name="refresh" size={18} />Qayta urinish</button></SheetModal>
   </main>;
 }
 
@@ -177,8 +194,8 @@ function WritingCard({ question, responses, readOnly, showRecommendedTime, solut
     <header className={styles.cardHeader}><span>{question.number}</span><div><small>TOPIK II YOZISH</small><b>{WRITING_TYPES[question.type] ?? question.type}</b></div><em>{question.points}P</em></header>
     <section className={styles.instruction}><TopikTextBlocks blocks={question.group.instruction} /></section>
     {question.stimulus ? <div className={styles.stimulus}><StimulusCard stimulus={question.stimulus} /></div> : null}
-    {question.writingConfig ? <section className={styles.guide}><span><MobileIcon name="sparkles" size={17} /></span><div><header><b>Yozish qo‘llanmasi</b>{showRecommendedTime ? <small>Tavsiya: {question.writingConfig.recommendedMinutes} daqiqa</small> : null}</header><p>{topikUzText(question.writingConfig.guide)}</p></div></section> : null}
-    <div className={styles.responseStack}>{fields.map((field) => { const value = responses[field.key] ?? ""; const remaining = Math.max(0, field.minCharacters - value.length); const essay = field.multiline && field.maxCharacters > 150; return <section className={styles.responseField} key={field.key}><header><b>{field.label} javobi</b><span className={!remaining ? styles.completeCount : ""}>{value.length} / {field.maxCharacters} belgi</span></header>{essay ? <ManuscriptInput label={`${field.label} javobi`} maxLength={field.maxCharacters} onChange={(text) => onChange(field.key, text)} readOnly={readOnly} value={value} /> : <textarea aria-label={`${field.label} javobi`} className={field.multiline ? styles.multiline : ""} maxLength={field.maxCharacters} onChange={(event) => onChange(field.key, event.target.value)} placeholder="Mazmunga mos gapni kiriting." readOnly={readOnly} value={value} />}{!readOnly && remaining > 0 ? <small className={styles.minimum}><MobileIcon name="information-circle-outline" size={14} />Yana kamida {remaining} belgi yozing.</small> : null}</section>; })}</div>
+    {question.writingConfig ? <section className={styles.guide}><span><MobileIcon name="sparkles" size={17} /></span><div><header><b>Yozish qo‘llanmasi</b>{showRecommendedTime ? <small>{`Tavsiya: ${question.writingConfig.recommendedMinutes} daqiqa`}</small> : null}</header><p>{topikUzText(question.writingConfig.guide)}</p></div></section> : null}
+    <div className={styles.responseStack}>{fields.map((field) => { const value = responses[field.key] ?? ""; const remaining = Math.max(0, field.minCharacters - value.length); const essay = field.multiline && field.maxCharacters > 150; return <section className={styles.responseField} key={field.key}><header><b>{`${field.label} javobi`}</b><span className={!remaining ? styles.completeCount : ""}>{`${value.length} / ${field.maxCharacters} belgi`}</span></header>{essay ? <ManuscriptInput label={`${field.label} javobi`} maxLength={field.maxCharacters} onChange={(text) => onChange(field.key, text)} readOnly={readOnly} value={value} /> : <textarea aria-label={`${field.label} javobi`} className={field.multiline ? styles.multiline : ""} maxLength={field.maxCharacters} onChange={(event) => onChange(field.key, event.target.value)} placeholder="Mazmunga mos gapni kiriting." readOnly={readOnly} value={value} />}{!readOnly && remaining > 0 ? <small className={styles.minimum}><MobileIcon name="information-circle-outline" size={14} />{`Yana kamida ${remaining} belgi yozing.`}</small> : null}</section>; })}</div>
     {solution ? <section className={styles.review}><header><span><MobileIcon name="checkmark-done" size={19} /></span><div><small>O‘ZINI TEKSHIRISH</small><b>Namunaviy javob</b></div></header><p>{solution.sampleAnswer || "Javob yozilmagan."}</p>{solution.rubric?.length ? <div><h3>Baholash mezonlari</h3>{solution.rubric.map((item, index) => <span key={index}><b>{index + 1}</b>{topikUzText(item)}</span>)}</div> : null}</section> : null}
   </article>;
 }
@@ -212,4 +229,4 @@ function ManuscriptInput({ label, maxLength, readOnly, value, onChange }: { labe
   return <div className={styles.manuscript}><section className={styles.rules}><header><span><MobileIcon name="grid-outline" size={16} /></span><div><b>Imtihon yozuv kataklari</b><p>Matn har satrda 20 katakdan iborat qog‘ozga avtomatik joylanadi.</p></div></header>{["Yangi abzatsni birinchi katakni bo‘sh qoldirib boshlang.","Har bir harf va tinish belgisi uchun bitta katak ishlating.","Tinish belgisi yangi satr boshiga tushsa, uni oldingi satr oxirgi harfi bilan joylang.","Arab raqamlarini har bir katakka ikkitadan yozing.","Abzatslar orasida bo‘sh satr qoldirmang va oraliqlarga rioya qiling."].map((rule) => <p key={rule}><i />{rule}</p>)}</section><section className={`${styles.paperFrame} ${focused ? styles.paperFocused : ""}`} onClick={() => inputRef.current?.focus()}><header><span><i />{focused ? "Kataklarga yozilmoqda" : "Yozish uchun katakni bosing"}</span><small>Har satrda 20 katak</small></header><div className={styles.paper}>{Array.from({ length: rows }, (_, row) => <div className={styles.paperRow} key={row}><div>{Array.from({ length: 20 }, (_, column) => { const index = row * 20 + column; return <span className={cells[index]?.length === 2 ? styles.compactCell : ""} key={index}>{cells[index]}</span>; })}</div><small>{(row + 1) * 20 % 100 === 0 ? (row + 1) * 20 : ""}</small></div>)}</div>{!readOnly ? <textarea aria-label={label} maxLength={maxLength} onBlur={() => setFocused(false)} onChange={(event) => onChange(event.target.value)} onFocus={() => setFocused(true)} ref={inputRef} value={value} /> : null}</section></div>;
 }
 
-function ModalProgress({ answered, total }: { answered: number; total: number }) { const percent = total ? Math.round(answered / total * 100) : 0; return <section className={styles.modalProgress}><header><b>Javoblar {answered}/{total}</b><span>{percent}%</span></header><div><i style={{ width: `${percent}%` }} /></div></section>; }
+function ModalProgress({ answered, total }: { answered: number; total: number }) { const percent = total ? Math.round(answered / total * 100) : 0; return <section className={styles.modalProgress}><header><b>{`Javoblar ${answered}/${total}`}</b><span>{percent}%</span></header><div><i style={{ width: `${percent}%` }} /></div></section>; }

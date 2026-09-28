@@ -113,7 +113,8 @@ export function SkillRadarCard({
   if (!data || data.skills.length === 0) return null;
 
   const diagnosis = data.diagnosis;
-  const diagnosisStyle = DIAG_STYLE[diagnosis.key];
+  // 서버가 새 진단 키를 보내도 카드가 죽지 않게 (앱 ?? DIAG_STYLE.balanced)
+  const diagnosisStyle = DIAG_STYLE[diagnosis.key] ?? DIAG_STYLE.balanced;
   const radius = 108;
   const ordered = [...data.skills].sort((a, b) => b.score - a.score);
 
@@ -121,7 +122,7 @@ export function SkillRadarCard({
     <StatsCard>
       <div className={styles.header}>
         <strong>O&apos;quv balansi</strong>
-        <span>Oxirgi {data.rangeDays} kun</span>
+        <span>{`Oxirgi ${data.rangeDays} kun`}</span>
       </div>
       <div
         className={styles.diagnosis}
@@ -184,7 +185,8 @@ export function SkillRadarCard({
               radius,
               skill.score / 100,
             );
-            const weak = diagnosis.weakest === skill.category;
+            // 데이터가 없을 땐 "약한 영역" 을 칠하지 않는다 (앱은 weakest=null 로 넘긴다)
+            const weak = diagnosis.key !== "noData" && diagnosis.weakest === skill.category;
             const label = pointAt(index, data.skills.length, radius, 1.2);
             return (
               <g key={skill.category}>
@@ -244,9 +246,7 @@ export function SkillRadarCard({
           );
         })}
       </div>
-      <p className={styles.foot}>
-        Oxirgi {data.totalAttempted} ta savol asosida hisoblandi
-      </p>
+      <p className={styles.foot}>{`Oxirgi ${data.totalAttempted} ta savol asosida hisoblandi`}</p>
     </StatsCard>
   );
 }

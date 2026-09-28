@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { getContentLang } from "../../../shared/i18n/content-language";
 
 export interface GameWord {
   id: string;
@@ -42,4 +43,10 @@ export function useGameWords(count = 40, maxLen = 5) {
   }, [load]);
 
   return { failed, loading: !words && !failed, reload: load, words };
+}
+
+/** 게임 카드에 보일 뜻 — 설명 언어로. 없으면 우즈벡어 → 영어 */
+export function meaningOfGameWord(word: Pick<GameWord, "uz" | "en" | "ru">) {
+  const lang = getContentLang();
+  return word[lang] || word.uz || word.en;
 }

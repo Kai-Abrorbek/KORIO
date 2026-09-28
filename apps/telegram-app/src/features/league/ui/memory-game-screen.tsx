@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { useGameWords } from "../model/use-game-words";
+import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./memory-game-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 interface WordPair { ko: string; uz: string }
 interface MemoryLevel { level: number; pairs: number; columns: number; previewMs: number; timeSec: number }
@@ -73,6 +74,11 @@ function MemoryBoard({ level, onComplete, words }: {
   const [firstId, setFirstId] = useState<string | null>(null);
   const [matches, setMatches] = useState(0);
   const [moves, setMoves] = useState(0);
+  // 타이머·클리어 효과가 moves 에 매이지 않게 ref 로 읽는다 (앱: deps [timeLeft, started] / [matches])
+  const movesRef = useRef(0);
+  movesRef.current = moves;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
   const [combo, setCombo] = useState(0);
   const [timeLeft, setTimeLeft] = useState(config.timeSec);
   const [processing, setProcessing] = useState(false);
@@ -105,20 +111,22 @@ function MemoryBoard({ level, onComplete, words }: {
     if (!started || finished.current) return;
     if (timeLeft <= 0) {
       finished.current = true;
-      onComplete({ cleared: false, moves, level });
+      onCompleteRef.current({ cleared: false, moves: movesRef.current, level });
       return;
     }
     const timer = window.setTimeout(() => setTimeLeft((value) => value - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [level, moves, onComplete, started, timeLeft]);
+  }, [level, started, timeLeft]);
 
   useEffect(() => {
     if (matches !== config.pairs || !started || finished.current) return;
     finished.current = true;
     window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
-    const timer = window.setTimeout(() => onComplete({ cleared: true, moves, level }), 600);
+    // 여기 deps 에 timeLeft 가 있으면 1초 틱이 이 타이머를 지우고, finished 가 이미 true 라
+    // 다시 안 걸려 판이 다 맞은 채로 멈춘다 — 앱처럼 matches 에만 반응한다
+    const timer = window.setTimeout(() => onCompleteRef.current({ cleared: true, moves: movesRef.current, level }), 600);
     return () => window.clearTimeout(timer);
-  }, [config.pairs, level, matches, moves, onComplete, started, timeLeft]);
+  }, [config.pairs, level, matches, started]);
 
   const handlePress = (id: string) => {
     if (!started || processing) return;
@@ -167,7 +175,7 @@ function MemoryBoard({ level, onComplete, words }: {
     <section className={`${styles.game} ${lastPair ? styles.tense : ""}`}>
       <div className={styles.hud}>
         <span><MobileIcon name="checkmark-circle" size={20} /><b>{matches}/{config.pairs}</b></span>
-        <strong>{level}-daraja</strong>
+        <strong>{`${level}-daraja`}</strong>
         <span className={lowTime ? styles.lowTime : ""}><MobileIcon name="time" size={20} /><b>{minutes}:{seconds}</b></span>
       </div>
       {combo >= 2 ? <p className={styles.combo} key={combo}>🔥 {combo} kombo!</p> : null}
@@ -185,7 +193,7 @@ function MemoryBoard({ level, onComplete, words }: {
 export function MemoryGameScreen() {
   const { words: pool, loading, failed, reload } = useGameWords(40, 4);
   const words = useMemo(
-    () => (pool ?? []).map((word) => ({ ko: word.ko, uz: word.uz || word.en })),
+    () => (pool ?? []).map((word) => ({ ko: word.ko, uz: meaningOfGameWord(word) })),
     [pool],
   );
   const [level, setLevel] = useState(1);
@@ -212,6 +220,8 @@ export function MemoryGameScreen() {
   }, []);
 
   const exit = () => void finish(challengeScore);
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
   const isLast = level >= LEVELS.length;
   const maxPairs = LEVELS.at(-1)!.pairs;
 

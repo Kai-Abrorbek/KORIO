@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { MobileIcon, type MaterialCommunityIconName } from "../../../shared/ui/mobile-icon";
 import styles from "./practice-screen.module.css";
+import { getContentLang } from "../../../shared/i18n/content-language";
+import { useEnergyGuard } from "../../energy/energy-gate";
 
 interface MistakeQuestion {
   id: string;
@@ -37,6 +39,7 @@ function MistakesModal({ onClose, request }: {
   request: <T>(path: string, init?: RequestInit) => Promise<T>;
 }) {
   const router = useRouter();
+  const guardLessonStart = useEnergyGuard();
   const [data, setData] = useState<MistakesResponse>({ count: 0, questions: [] });
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +58,8 @@ function MistakesModal({ onClose, request }: {
   const start = () => {
     if (!canStart) return;
     onClose();
-    router.push("/lesson?mode=review");
+    // 복습도 에너지를 쓴다 — 앱 MistakesModal 처럼 없으면 에너지 모달부터
+    guardLessonStart(() => router.push("/lesson?mode=review"));
   };
 
   return (
@@ -66,14 +70,14 @@ function MistakesModal({ onClose, request }: {
           <h1>{canStart ? "Xatolarni takrorlaymizmi?" : `Takrorlash uchun ${MIN_MISTAKES} ta xato kerak!`}</h1>
           <span><MobileIcon name="refresh" size={32} /></span>
         </div>
-        <button className={styles.startReview} disabled={!canStart} onClick={start} type="button">Boshlash +{xp} XP</button>
+        <button className={styles.startReview} disabled={!canStart} onClick={start} type="button">{`Boshlash +${xp} XP`}</button>
         <hr />
-        <h2>{data.count} ta xato</h2>
+        <h2>{`${data.count} ta xato`}</h2>
         {loading ? <div className={styles.spinner} /> : (
           <div className={styles.mistakeList}>
             {data.questions.map((question) => (
               <article key={question.id}>
-                <p>{question.instruction?.uz || question.instruction?.en || ""}</p>
+                <p>{question.instruction?.[getContentLang()] || question.instruction?.uz || question.instruction?.en || ""}</p>
                 <strong>{question.npcText || question.answer || ""}</strong>
               </article>
             ))}

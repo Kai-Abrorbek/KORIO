@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { GameWord } from "../model/use-game-words";
-import { useGameWords } from "../model/use-game-words";
+import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./word-rain-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const MAX_HEARTS = 3;
 const START_FALL_MS = 6000;
@@ -23,7 +24,7 @@ function shuffle<T>(items: T[]) {
 }
 
 function meaningOf(word: GameWord) {
-  return word.uz || word.en;
+  return meaningOfGameWord(word);
 }
 
 export function WordRainScreen() {
@@ -183,6 +184,8 @@ export function WordRainScreen() {
     fallAnimation.current?.cancel();
     void finish(score);
   };
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
 
   const heartsView = useMemo(
     () => Array.from({ length: MAX_HEARTS }, (_, index) => (
@@ -210,7 +213,8 @@ export function WordRainScreen() {
         <div className={styles.hearts}>{heartsView}</div>
       </header>
 
-      {combo >= 2 ? <p className={styles.combo} key={combo}>🔥 x{combo}</p> : null}
+      {/* 콤보 줄은 늘 자리를 차지한다 — 나타났다 사라지며 떨어지는 영역 높이를 바꾸면 낙하가 처음부터 다시 시작됐다 */}
+      <p aria-hidden={combo < 2} className={styles.combo} key={combo} style={{ visibility: combo >= 2 ? "visible" : "hidden" }}>{`🔥 x${Math.max(2, combo)}`}</p>
 
       <div className={styles.playArea} ref={playArea}>
         {word && !over ? (

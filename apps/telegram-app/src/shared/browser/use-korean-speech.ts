@@ -18,8 +18,21 @@ interface PreparedSpeech {
 const DEFAULT_KOREAN_VOICE = "ko-KR-SunHiNeural";
 const MAX_CACHED_SPEECH = 32;
 
+export type SpeechLanguage = "ko-KR" | "uz-UZ" | "en-US" | "ru-RU";
+
+/** 앱 utils/speech-language 와 같다 — 뜻 문장은 그 언어 음성으로 읽어야 발음이 산다 */
+export function speechLanguageOf(language?: string): SpeechLanguage {
+  const base = language?.toLowerCase().split("-")[0];
+  if (base === "uz") return "uz-UZ";
+  if (base === "en") return "en-US";
+  if (base === "ru") return "ru-RU";
+  return "ko-KR";
+}
+
 export interface KoreanSpeechOptions {
   gender?: "female" | "male";
+  /** 기본 ko-KR. 다른 언어면 목소리 설정은 무시한다(한국어 목소리 전용) */
+  language?: SpeechLanguage;
   onEnd?: () => void;
   rate?: number;
   respectSoundSettings?: boolean;
@@ -32,6 +45,15 @@ interface SavedSoundPreferences {
   speechVoice?: string;
   speechVolume?: number;
   startMuted?: boolean;
+}
+
+/** 설정의 "Avtomatik o‘qish" — 끄면 화면이 뜰 때 저절로 읽지 않는다 (앱 speakAuto) */
+export function isAutoPlayEnabled() {
+  try {
+    return (JSON.parse(window.localStorage.getItem("korio-sound-settings") ?? "{}") as { autoPlay?: boolean }).autoPlay !== false;
+  } catch {
+    return true;
+  }
 }
 
 function savedSoundPreferences(): SavedSoundPreferences {
@@ -49,6 +71,7 @@ function browserSpeech(
   rate: number,
   volume: number,
   onEnd: () => void,
+  language: SpeechLanguage = "ko-KR",
 ) {
   if (!("speechSynthesis" in window)) {
     onEnd();
@@ -57,7 +80,7 @@ function browserSpeech(
 
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "ko-KR";
+  utterance.lang = language;
   utterance.rate = rate;
   utterance.volume = volume;
   utterance.onend = onEnd;
@@ -101,8 +124,10 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       rate = 1,
       gender: "female" | "male" = "female",
       voice = DEFAULT_KOREAN_VOICE,
+      language: SpeechLanguage = "ko-KR",
     ): Promise<PreparedSpeech> => {
-      const cacheKey = `${voice}:${rate}:${text}`;
+      const korean = language === "ko-KR";
+      const cacheKey = korean ? `${voice}:${rate}:${text}` : `${language}:${gender}:${rate}:${text}`;
       const ready = preparedRef.current.get(cacheKey);
       if (ready) {
         preparedRef.current.delete(cacheKey);
@@ -118,10 +143,10 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
         const { audioId } = await request<PreparedSpeechResponse>("/tts/speech", {
           body: JSON.stringify({
             gender,
-            language: "ko-KR",
+            language,
             rate,
             text,
-            voice,
+            voice: korean ? voice : undefined,
           }),
           method: "POST",
         });
@@ -189,6 +214,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const respectSettings = options?.respectSoundSettings !== false;
       const saved = respectSettings ? savedSoundPreferences() : {};
       const rate = options?.rate ?? saved.speechRate ?? 1;
+      const language = options?.language ?? "ko-KR";
       const voice = options?.voice ?? saved.speechVoice;
       const volume = Math.min(
         1,
@@ -219,7 +245,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       setProgress(0);
 
       if (!request) {
-        browserSpeech(text, rate, volume, finish);
+        browserSpeech(text, rate, volume, finish, language);
         return;
       }
 
@@ -232,6 +258,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
             rate,
             options?.gender,
             voice,
+            language,
           );
           await resume;
           if (runIdRef.current !== runId) return;
@@ -276,7 +303,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
           await audio.play();
         } catch {
           if (runIdRef.current !== runId) return;
-          browserSpeech(text, rate, volume, finish);
+          browserSpeech(text, rate, volume, finish, language);
         }
       })();
     },
@@ -286,12 +313,17 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   const prewarm = useCallback(
     (texts: readonly string[]) => {
       if (!request || typeof window === "undefined") return;
+      // speak() 와 같은 목소리·속도로 받아 둔다. 기본값으로 받으면 설정에서 목소리를
+      // 바꾼 사람은 캐시가 한 번도 안 맞고 TTS 호출만 두 배가 된다
+      const saved = savedSoundPreferences();
+      const rate = saved.speechRate ?? 1;
+      const voice = saved.speechVoice || DEFAULT_KOREAN_VOICE;
       const unique = [...new Set(texts.map((text) => text.trim()).filter(Boolean))];
       void Promise.all(
         unique.map((text) =>
-          preparedRef.current.has(`${DEFAULT_KOREAN_VOICE}:1:${text}`)
+          preparedRef.current.has(`${voice}:${rate}:${text}`)
             ? Promise.resolve()
-            : prepare(text, 1).then(() => undefined).catch(() => undefined),
+            : prepare(text, rate, undefined, voice).then(() => undefined).catch(() => undefined),
         ),
       );
     },

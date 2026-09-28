@@ -225,6 +225,17 @@ const IONICONS = {
   "volume-medium-outline": 63002,
   "volume-mute": 63004,
   "warning-outline": 63017,
+  analytics: 61723,
+  megaphone: 62542,
+  "ellipsis-vertical": 62164,
+  "backspace-outline": 61781,
+  "checkmark-sharp": 61992,
+  call: 61912,
+  "options-outline": 62603,
+  "copy-outline": 62096,
+  "mic-off": 62552,
+  "chatbox-ellipses": 61964,
+  "chatbox-ellipses-outline": 61965,
 } as const;
 
 const MATERIAL_COMMUNITY = {
@@ -239,6 +250,9 @@ const MATERIAL_COMMUNITY = {
   turtle: 986327,
   video: 984423,
   waveform: 988285,
+  infinity: 984804,
+  dumbbell: 983526,
+  rabbit: 985351,
 } as const;
 
 export type IoniconName = keyof typeof IONICONS;

@@ -1,0 +1,35 @@
+/* 모바일 ClozePassage / ReadingQuiz 값 그대로 */
+.clozeTitle{margin:0 0 10px;color:var(--q-text);font-size:20px;font-weight:800;line-height:1.3}
+.dots{display:flex;gap:6px;margin-bottom:14px}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--q-border);transition:width .2s,background-color .2s}
+.dots .dotActive{width:20px;background:color-mix(in srgb,var(--q-primary) 40%,transparent)}
+.dots .dotFilled{background:var(--q-primary)}
+.paper{margin-bottom:18px;border:1.5px solid var(--q-border);border-bottom-width:4px;border-radius:20px;background:var(--q-surface);padding:20px}
+.passage{margin:0;color:var(--q-text);font-size:17px;font-weight:500;line-height:34px;overflow-wrap:anywhere}
+.blank{display:inline;border:0;border-radius:4px;background:transparent;padding:0;font:inherit;font-size:17px;font-weight:800;line-height:34px}
+.blankIdle{color:var(--q-muted)}
+.blankActive{color:var(--q-primary);text-decoration:underline}
+.blankFilled{background:color-mix(in srgb,var(--q-primary) 8%,transparent);color:var(--q-primary)}
+.blank:disabled{opacity:1}
+.clozeBank{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.clozeChip{border:1.5px solid var(--q-border);border-bottom-width:3px;border-radius:12px;background:var(--q-surface);color:var(--q-text);padding:11px 16px;font:inherit;font-size:16px;font-weight:700;animation:qFadeIn .15s ease-out both}
+.clozeChip:active:not(:disabled){opacity:.8}
+.clozeChipUsed{border-color:var(--q-border);background:var(--q-border);color:transparent}
+@keyframes qFadeIn{from{opacity:0}}
+.paperHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.paperTitleWrap{display:flex;min-width:0;flex:1;align-items:center;gap:8px}
+.paperTitleWrap b{min-width:0;flex:1;overflow:hidden;color:var(--q-text);font-size:16px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.paperIcon{font-size:18px}
+.speakBtn{display:grid;width:36px;height:36px;flex:0 0 auto;place-items:center;border:0;border-radius:12px;background:color-mix(in srgb,var(--q-primary) 8%,transparent);color:var(--q-primary);padding:0}
+.speakBtnOn{background:var(--q-primary);color:#fff}
+.readingPassage{margin:0;color:var(--q-text);font-size:17px;font-weight:500;line-height:28px;white-space:pre-wrap;overflow-wrap:anywhere}
+.paperFooter{display:flex;justify-content:flex-end;margin-top:14px;border-top:1px solid var(--q-border);padding-top:10px}
+.paperFooter small{color:var(--q-muted);font-size:12px;font-weight:700}
+.questionText{margin:0 0 14px;color:var(--q-text);font-size:17px;font-weight:800;line-height:25px}
+.option{display:flex;width:100%;align-items:center;gap:12px;margin-bottom:10px;border:1.5px solid var(--q-border);border-bottom-width:4px;border-radius:16px;background:var(--q-surface);color:var(--q-text);padding:14px;font:inherit;text-align:left;animation:qFadeIn .15s ease-out both}
+.option:active:not(:disabled){opacity:.85}
+.optionOn{border-color:var(--q-primary);background:color-mix(in srgb,var(--q-primary) 6%,var(--q-surface))}
+.optionBadge{display:grid;width:28px;height:28px;flex:0 0 auto;place-items:center;border-radius:10px;background:var(--q-border);color:var(--q-muted);font-size:13px;font-weight:800}
+.optionOn .optionBadge{background:var(--q-primary);color:#fff}
+.optionText{min-width:0;flex:1;color:var(--q-text);font-size:16px;font-weight:700;line-height:23px}
+.optionOn .optionText{color:var(--q-primary)}

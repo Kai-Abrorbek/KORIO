@@ -29,8 +29,40 @@ const STEPS: Array<{ icon: IoniconName; label: string }> = [
   { icon: "create-outline", label: "Yozib ko‘ramiz" },
   { icon: "sparkles-outline", label: "Yangi so‘zlar" },
 ];
-const WORD_SPLIT = /(\s+|[.!?…,·~;:“”"'‘’()[\]{}]+)/u;
 const cleanWord = (word: string) => word.normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+/**
+ * 서버·앱(reading-pronunciation READING_WORD_PATTERN)과 같은 단어 규칙. `·'’-` 는 글자 사이에서 단어를 잇는다
+ * (‘안녕’이라고, 사과·배, 3,000원 …). 규칙이 다르면 읽기 채점의 "지금/틀린/읽은 단어" 가 엉뚱한 단어에 칠해진다.
+ */
+const READING_WORD_PATTERN = /[\p{L}\p{N}]+(?:[·'’-][\p{L}\p{N}]+)*/gu;
+
+interface WordRange { index: number; start: number; end: number }
+
+function readingRanges(text: string): WordRange[] {
+  return Array.from(text.matchAll(READING_WORD_PATTERN), (match, index) => ({
+    end: (match.index ?? 0) + match[0].length,
+    index,
+    start: match.index ?? 0,
+  }));
+}
+
+/** 본문 글자 위치 [start, start+text.length) 조각을 단어/비단어로 나눈다 (세그먼트가 단어 중간을 끊어도 같은 번호) */
+function splitByRanges(text: string, start: number, ranges: WordRange[]) {
+  const pieces: { text: string; word: number }[] = [];
+  const end = start + text.length;
+  let cursor = start;
+  for (const range of ranges) {
+    if (range.end <= cursor) continue;
+    if (range.start >= end) break;
+    if (range.start > cursor) pieces.push({ text: text.slice(cursor - start, range.start - start), word: -1 });
+    const from = Math.max(range.start, cursor);
+    const to = Math.min(range.end, end);
+    pieces.push({ text: text.slice(from - start, to - start), word: range.index });
+    cursor = to;
+  }
+  if (cursor < end) pieces.push({ text: text.slice(cursor - start), word: -1 });
+  return pieces;
+}
 
 function LessonImage({ lesson }: { lesson: ReadingLesson }) {
   const [failed, setFailed] = useState(false);
@@ -48,7 +80,9 @@ function ReadStep({ activeVocabulary, failedWord, fontIndex, lesson, onFont, onG
   passageWords: string[]; readingIndex: number; readingPhase: string; readingStatus: string;
   speech: { progress: number; speaking: boolean }; toggleReading: () => void; toggleSpeech: () => void;
 }) {
-  let globalWordIndex = 0;
+  const passageText = lesson.passage.map((paragraph) => paragraph.segments?.length ? paragraph.segments.map((segment) => segment.text).join("") : paragraph.text).join("\n\n");
+  const ranges = readingRanges(passageText);
+  let textCursor = 0;
   const speechIndex = speech.speaking && passageWords.length
     ? Math.min(passageWords.length - 1, Math.floor(Math.min(0.9999, speech.progress + 0.32 / passageWords.length) * passageWords.length))
     : -1;
@@ -66,9 +100,14 @@ function ReadStep({ activeVocabulary, failedWord, fontIndex, lesson, onFont, onG
       </div>
       <div className={`${styles.coach} ${failedWord !== null ? styles.coachError : readingPhase === "complete" ? styles.coachComplete : readingPhase === "recording" ? styles.coachActive : ""}`}><span><MobileIcon name={failedWord !== null ? "refresh" : readingPhase === "complete" ? "checkmark" : readingPhase === "recording" ? "ear-outline" : "sparkles-outline"} size={16} /></span><p>{readingStatus}</p>{readingPhase !== "complete" && passageWords[readingIndex] ? <b>{passageWords[readingIndex]}</b> : null}</div>
       <div className={styles.passage} style={{ "--font-size": `${[14,15.5,17][fontIndex] ?? 15.5}px` } as CSSProperties}>
-        {lesson.passage.map((paragraph) => <p key={paragraph.id}>{(paragraph.segments?.length ? paragraph.segments : [{ text: paragraph.text }]).flatMap((segment, segmentIndex) => segment.text.split(WORD_SPLIT).map((part, partIndex) => {
-          if (!part || /^\s+$/.test(part) || WORD_SPLIT.test(part)) return <span key={`${segmentIndex}-${partIndex}`}>{part}</span>;
-          const wordIndex = cleanWord(part) ? globalWordIndex++ : -1;
+        {lesson.passage.map((paragraph, paragraphIndex) => {
+          // passageText 와 같은 방식으로 이어 붙인 전역 글자 위치 (문단 사이 "\n\n")
+          if (paragraphIndex > 0) textCursor += 2;
+          return <p key={paragraph.id}>{(paragraph.segments?.length ? paragraph.segments : [{ text: paragraph.text }]).flatMap((segment, segmentIndex) => {
+          const segmentStart = textCursor;
+          textCursor += segment.text.length;
+          return splitByRanges(segment.text, segmentStart, ranges).map(({ text: part, word: wordIndex }, partIndex) => {
+          if (wordIndex < 0) return <span key={`${segmentIndex}-${partIndex}`}>{part}</span>;
           const className = wordIndex === failedWord
             ? styles.wordFailed
             : readingVisible && readingPhase !== "complete" && wordIndex === readingIndex
@@ -83,7 +122,9 @@ function ReadStep({ activeVocabulary, failedWord, fontIndex, lesson, onFont, onG
                       ? `${styles.wordHighlighted} ${segment.vocabularyId === activeVocabulary?.id ? styles.wordHighlightedActive : ""}`
                       : "";
           return <button className={className} key={`${segmentIndex}-${partIndex}`} onClick={() => segment.vocabularyId ? onSelectVocabulary(segment.vocabularyId) : onGloss(part)} type="button">{part}</button>;
-        }))}</p>)}
+        });
+        })}</p>;
+        })}
       </div>
       <aside className={styles.wordHint}><MobileIcon name="hand-left-outline" size={18} /> Rangli so‘zga tegib, ma’nosini darhol ko‘ring.</aside>
       {activeVocabulary ? <div className={styles.selectedWord}><div><small>TANLANGAN SO‘Z</small><strong>{activeVocabulary.word} <i>{activeVocabulary.pronunciation}</i></strong></div><button aria-label="Talaffuzni tinglash" onClick={() => onSpeakVocabulary(activeVocabulary.word)} type="button"><MobileIcon name="volume-medium" size={20} /></button><p>{localized(activeVocabulary.meaning)}</p></div> : null}
@@ -197,7 +238,7 @@ function VocabularyStep({ answers, lesson, onAnswer, onClear, onReveal, onSpeak,
           })}</div></section>
           <section className={styles.templateCard}><small><MobileIcon name="hand-left-outline" size={15} /> BO‘SH JOYNI TANLANG</small><ExerciseTemplate activeBlankId={activeBlankId} answers={answers} exercise={exercise} graded={graded} onBlank={(blankId) => setActiveByExercise((current) => ({ ...current,[exercise.id]:blankId }))} /></section>
           {exercise.type === "paragraph_conjugation" && activeBlank ? <section className={styles.conjugation}><header><strong>Gapga moslab o‘zgartiring</strong><button onClick={() => { onClear(vocabularyResponseKey(exercise.id,activeBlank.id)); setGradedByExercise((current) => ({ ...current,[exercise.id]:false })); }} type="button">Tanlovni bekor qilish</button></header><div><span>{activeResponse?.baseWord || "—"}</span><MobileIcon name="arrow-forward" size={17} /><input autoCorrect="off" onChange={(event) => { onAnswer(vocabularyResponseKey(exercise.id,activeBlank.id),{ baseWord:activeResponse?.baseWord ?? "",response:event.target.value }); setGradedByExercise((current) => ({ ...current,[exercise.id]:false })); }} placeholder="Mos shaklni koreyscha yozing" value={activeResponse?.response ?? ""} /></div></section> : null}
-          {graded ? <section><div className={`${styles.scoreBanner} ${correctCount === exercise.blanks.length ? styles.scorePerfect : styles.scoreWrong}`}><MobileIcon name={correctCount === exercise.blanks.length ? "checkmark-circle" : "refresh-circle"} size={21} /><strong>{correctCount === exercise.blanks.length ? "Hammasi to‘g‘ri! So‘zlarning matndagi qo‘llanishini tushundingiz." : `${exercise.blanks.length} tadan ${correctCount} tasi to‘g‘ri`}</strong></div>{exercise.blanks.filter((blank) => !vocabularyAnswerIsCorrect(blank,answers[vocabularyResponseKey(exercise.id,blank.id)])).map((blank) => <div className={styles.feedback} key={blank.id}><strong>To‘g‘ri javob: {blank.answer}</strong><p>{localized(blank.explanation)}</p></div>)}</section> : null}
+          {graded ? <section><div className={`${styles.scoreBanner} ${correctCount === exercise.blanks.length ? styles.scorePerfect : styles.scoreWrong}`}><MobileIcon name={correctCount === exercise.blanks.length ? "checkmark-circle" : "refresh-circle"} size={21} /><strong>{correctCount === exercise.blanks.length ? "Hammasi to‘g‘ri! So‘zlarning matndagi qo‘llanishini tushundingiz." : `${exercise.blanks.length} tadan ${correctCount} tasi to‘g‘ri`}</strong></div>{exercise.blanks.filter((blank) => !vocabularyAnswerIsCorrect(blank,answers[vocabularyResponseKey(exercise.id,blank.id)])).map((blank) => <div className={styles.feedback} key={blank.id}><strong>{`To‘g‘ri javob: ${blank.answer}`}</strong><p>{localized(blank.explanation)}</p></div>)}</section> : null}
           <button className={styles.checkButton} disabled={!complete} onClick={() => setGradedByExercise((current) => ({ ...current,[exercise.id]:true }))} type="button">{graded ? "Qayta tekshirish" : "Tekshirish"}<MobileIcon name="arrow-forward-circle" size={20} /></button>
         </article>;
       })}
@@ -214,7 +255,7 @@ function LessonPicker({ current, lessons, onChoose, onClose }: { current:string;
 }
 
 function CompleteSheet({ onDone, onRetry, state }: { onDone:()=>void; onRetry:()=>void; state:{error:boolean;loading:boolean;result:CompleteReadingResult|null} }) {
-  return <div className={styles.modalBackdrop} role="presentation"><section className={`${styles.sheet} ${styles.complete}`}><span className={styles.completeIcon}>{state.loading ? <i className={styles.spinner} /> : <MobileIcon name={state.error ? "cloud-offline-outline" : "checkmark"} size={34} />}</span>{state.loading ? <><h2>Saqlanmoqda...</h2><p>Natijangiz yozilmoqda.</p></> : state.error ? <><h2>Natijani saqlab bo‘lmadi</h2><div className={styles.completeActions}><button onClick={onRetry} type="button"><MobileIcon name="refresh" size={16} /> Qayta urinish</button><button onClick={onDone} type="button">Tayyor</button></div></> : state.result ? <><small>BUGUN BIR MATNNI TUGATDINGIZ</small><h2>O‘qib bo‘ldingiz!</h2>{state.result.repeat ? <p>Takroriy o‘qish uchun XP kamroq beriladi</p> : null}<strong className={styles.xp}>+{state.result.xpEarned} XP</strong><div className={styles.completeStats}><span><b>{state.result.quizCorrect}/{state.result.quizTotal}</b><small>Tushunish savollari</small></span><span><b>{state.result.progress.pronunciationCompleted ? "✓" : "—"}</b><small>Ovoz chiqarib o‘qish</small></span><span><b>{state.result.progress.writingSubmitted ? "✓" : "—"}</b><small>O‘z gapim</small></span></div>{!state.result.progress.pronunciationCompleted ? <p>Keyingi safar ovoz chiqarib o‘qib, ko‘proq XP oling.</p> : null}<button className={styles.sheetSpeak} onClick={onDone} type="button">Tayyor</button></> : null}</section></div>;
+  return <div className={styles.modalBackdrop} role="presentation"><section className={`${styles.sheet} ${styles.complete}`}><span className={styles.completeIcon}>{state.loading ? <i className={styles.spinner} /> : <MobileIcon name={state.error ? "cloud-offline-outline" : "checkmark"} size={34} />}</span>{state.loading ? <><h2>Saqlanmoqda...</h2><p>Natijangiz yozilmoqda.</p></> : state.error ? <><h2>Natijani saqlab bo‘lmadi</h2><div className={styles.completeActions}><button onClick={onRetry} type="button"><MobileIcon name="refresh" size={16} /> Qayta urinish</button><button onClick={onDone} type="button">Tayyor</button></div></> : state.result ? <><small>BUGUN BIR MATNNI TUGATDINGIZ</small><h2>O‘qib bo‘ldingiz!</h2>{state.result.repeat ? <p>Takroriy o‘qish uchun XP kamroq beriladi</p> : null}<strong className={styles.xp}>{`+${state.result.xpEarned} XP`}</strong><div className={styles.completeStats}><span><b>{state.result.quizCorrect}/{state.result.quizTotal}</b><small>Tushunish savollari</small></span><span><b>{state.result.progress.pronunciationCompleted ? "✓" : "—"}</b><small>Ovoz chiqarib o‘qish</small></span><span><b>{state.result.progress.writingSubmitted ? "✓" : "—"}</b><small>O‘z gapim</small></span></div>{!state.result.progress.pronunciationCompleted ? <p>Keyingi safar ovoz chiqarib o‘qib, ko‘proq XP oling.</p> : null}<button className={styles.sheetSpeak} onClick={onDone} type="button">Tayyor</button></> : null}</section></div>;
 }
 
 export function ReadingListeningScreen() {
@@ -248,7 +289,7 @@ export function ReadingListeningScreen() {
   const [passageSpeaking, setPassageSpeaking] = useState(false);
 
   const passageText = useMemo(() => lesson?.passage.map((paragraph) => paragraph.segments?.length ? paragraph.segments.map((segment) => segment.text).join("") : paragraph.text).join("\n\n") ?? "", [lesson]);
-  const passageWords = useMemo(() => passageText.split(/\s+/).map(cleanWord).filter(Boolean), [passageText]);
+  const passageWords = useMemo(() => Array.from(passageText.matchAll(READING_WORD_PATTERN), (match) => match[0]), [passageText]);
   const [readingIndex, setReadingIndex] = useState(0);
   const [failedWord, setFailedWord] = useState<number | null>(null);
   const [readingPhase, setReadingPhase] = useState<"assessing" | "complete" | "idle" | "recording" | "retry">("idle");
@@ -420,7 +461,7 @@ export function ReadingListeningScreen() {
 
   return (
     <main className={styles.screen}>
-      <header className={styles.header}><button aria-label="Yopish" onClick={() => router.back()} type="button"><MobileIcon name="close" size={23} /></button><div><small>Madaniy o‘qish · {lesson.level}-daraja</small><strong>O‘qish · tinglash</strong></div><span>{step + 1} <small>/ 4</small></span></header>
+      <header className={styles.header}><button aria-label="Yopish" onClick={() => (window.history.length > 1 ? router.back() : router.replace("/course-categories"))} type="button"><MobileIcon name="close" size={23} /></button><div><small>Madaniy o‘qish · {lesson.level}-daraja</small><strong>O‘qish · tinglash</strong></div><span>{step + 1} <small>/ 4</small></span></header>
       <div className={styles.progress}><i style={{ width: `${(step + 1) * 25}%` }} /></div>
       <nav className={styles.steps}>{STEPS.map((item,index) => <button className={index === step ? styles.activeStep : ""} key={item.label} onClick={() => selectStep(index)} type="button"><MobileIcon name={index < step ? "checkmark" : item.icon} size={15} /> {item.label}</button>)}</nav>
       <div className={styles.scroll}>

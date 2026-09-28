@@ -58,8 +58,18 @@ function Reel({
   wrong: boolean;
 }) {
   const strip = useMemo(() => [...items, ...items, ...items], [items]);
-  const translated =
-    ITEM_HEIGHT - (offset % Math.max(1, items.length)) * ITEM_HEIGHT;
+  const length = Math.max(1, items.length);
+  // 가운데 벌을 기준으로 그린다. 멈출 때(transition 켜짐) 나머지 연산으로 한 바퀴를 건너뛰면
+  // 릴 전체가 거꾸로 감기는 게 보였다 — 직전 위치에서 반 바퀴 이내로 맞춰 가까운 쪽으로 멈춘다
+  const lastPosition = useRef<number | null>(null);
+  let position = ((offset % length) + length) % length;
+  const previous = lastPosition.current;
+  if (snapping && previous !== null) {
+    while (position - previous > length / 2) position -= length;
+    while (previous - position > length / 2) position += length;
+  }
+  lastPosition.current = position;
+  const translated = ITEM_HEIGHT - (position + length) * ITEM_HEIGHT;
   return (
     <div
       className={[

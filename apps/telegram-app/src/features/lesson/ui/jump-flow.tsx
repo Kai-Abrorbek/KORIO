@@ -116,7 +116,7 @@ export function JumpIntroScreen() {
             width={130}
           />
           <div className={styles.speechBubble}>
-            <strong>Bu sinovdan o&apos;tish uchun {hearts} tadan kam xato qiling. Omad!</strong>
+            <strong>{`Bu sinovdan o'tish uchun ${hearts} tadan kam xato qiling. Omad!`}</strong>
           </div>
         </div>
       </section>
@@ -170,13 +170,13 @@ export function JumpResultScreen() {
         {passed && lessons > 0 ? (
           <div className={styles.resultStat}>
             <MobileIcon name="flash" size={18} />
-            <b>{lessons} ta darsni o&apos;tkazib yubordingiz</b>
+            <b>{`${lessons} ta darsni o'tkazib yubordingiz`}</b>
           </div>
         ) : null}
         {!passed ? (
           <div className={`${styles.resultStat} ${styles.resultStatFail}`}>
             <MobileIcon name="close-circle" size={18} />
-            <b>{wrong} ta xato qildingiz</b>
+            <b>{`${wrong} ta xato qildingiz`}</b>
           </div>
         ) : null}
       </section>

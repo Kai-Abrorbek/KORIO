@@ -7,7 +7,7 @@ import { ApiError } from "../../../shared/api/client";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
-import { changePassword, checkUsername, deleteAccount, getMe, logoutAll, updateMe } from "../api/profile";
+import { changePassword, checkUsername, deleteAccount, getMe, updateMe } from "../api/profile";
 import type { UserMe } from "../model/profile";
 import styles from "./account-screen.module.css";
 
@@ -30,26 +30,46 @@ export function AccountScreen() {
   const [editing, setEditing] = useState<Field | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setFailed(false);
     void getMe(request).then((user) => {
       if (!active) return;
       setMe(user);
       updateUser(user);
-    }).catch(() => undefined);
+    }).catch(() => {
+      // 예전엔 실패해도 스피너만 영원히 돌았다
+      if (active) setFailed(true);
+    });
     return () => { active = false; };
-  }, [request, updateUser]);
+  }, [attempt, request, updateUser]);
 
-  if (!me) return <main className={styles.center}><i className={styles.spinner} /></main>;
+  if (!me) {
+    return (
+      <main className={styles.center}>
+        {failed ? (
+          <div className={styles.loadFailed}>
+            <MobileIcon name="cloud-offline-outline" size={30} />
+            <p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p>
+            <button onClick={() => setAttempt((value) => value + 1)} type="button">Qayta urinish</button>
+            <button onClick={() => router.back()} type="button">Orqaga</button>
+          </div>
+        ) : <i className={styles.spinner} />}
+      </main>
+    );
+  }
 
   const provider = me.provider || "local";
   const providerLook = PROVIDER[provider] ?? PROVIDER.local!;
   const joined = me.createdAt ? new Date(me.createdAt).toLocaleDateString() : "-";
   const superUntil = me.superExpiresAt ? new Date(me.superExpiresAt).toLocaleDateString() : null;
 
-  const closeSession = async (deleteUser = false) => {
-    if (!deleteUser) await logoutAll(request).catch(() => undefined);
+  // 텔레그램 계정 = 로그인이라 "나가기" 는 미니앱을 닫는 것이다. 예전엔 logout-all 로
+  // 폰 앱까지 모든 기기 세션을 끊었다 — 앱의 signOut 처럼 이 기기만 끝낸다
+  const closeSession = () => {
     if (window.Telegram?.WebApp.close) window.Telegram.WebApp.close();
     else router.replace("/");
   };
@@ -85,7 +105,7 @@ export function AccountScreen() {
 
         <Section label="Xavfsizlik">
           {provider !== "local" ? <Row bg="#ECECEE" color="#A8A8B0" icon="lock-closed" label="Parolni o‘zgartirish" value="Ijtimoiy tarmoq akkaunti — parol yo‘q" /> : <Row bg="#E7E0F7" color="#7E57C2" icon="lock-closed" label="Parolni o‘zgartirish" onPress={() => setPasswordOpen(true)} />}
-          <Divider /><Row bg="#E2E5F7" color="#5C6BC0" icon="log-out" label="Chiqish" onPress={() => void closeSession()} />
+          <Divider /><Row bg="#E2E5F7" color="#5C6BC0" icon="log-out" label="Chiqish" onPress={closeSession} />
         </Section>
 
         <Section danger label="Xavfli hudud">
@@ -93,9 +113,9 @@ export function AccountScreen() {
         </Section>
       </div>
 
-      {editing ? <EditSheet field={editing} initial={editing === "nickname" ? me.nickname : editing === "username" ? me.username : me.bio} onClose={() => setEditing(null)} onSaved={(user) => { setMe(user); updateUser(user); setEditing(null); }} request={request} /> : null}
+      {editing ? <EditSheet field={editing} initial={(editing === "nickname" ? me.nickname : editing === "username" ? me.username : me.bio) ?? ""} onClose={() => setEditing(null)} onSaved={(user) => { setMe(user); updateUser(user); setEditing(null); }} request={request} /> : null}
       {passwordOpen ? <PasswordSheet onClose={() => setPasswordOpen(false)} request={request} /> : null}
-      {deleteOpen ? <DeleteSheet nickname={me.nickname} onClose={() => setDeleteOpen(false)} onDone={() => void closeSession(true)} request={request} /> : null}
+      {deleteOpen ? <DeleteSheet nickname={me.nickname} onClose={() => setDeleteOpen(false)} onDone={closeSession} request={request} /> : null}
     </main>
   );
 }
@@ -157,5 +177,5 @@ function PasswordSheet({ onClose, request }: { onClose: () => void; request: Ret
 function DeleteSheet({ nickname, onClose, onDone, request }: { nickname: string; onClose: () => void; onDone: () => void; request: ReturnType<typeof useTelegramAuth>["request"] }) {
   const [typed, setTyped] = useState(""); const [busy, setBusy] = useState(false); const canDelete = !busy && typed.trim() === nickname;
   const run = async () => { if (!canDelete) return; setBusy(true); try { await deleteAccount(request); onDone(); } catch { setBusy(false); } };
-  return <Sheet onClose={onClose}><span className={styles.warnIcon}><MobileIcon name="warning" size={26} /></span><h2 className={styles.sheetTitle}>Rostdan o‘chirasizmi?</h2><p className={styles.sheetDescription}>O‘quv tarixi, streak, olmoslar va do‘stlar ro‘yxati butunlay o‘chadi va tiklab bo‘lmaydi. Obunangiz bo‘lsa, uni do‘kondan alohida bekor qiling.</p><label className={styles.confirmLabel} htmlFor="delete-confirm">Tasdiqlash uchun &apos;{nickname}&apos; deb yozing</label><input autoCapitalize="none" id="delete-confirm" onChange={(event) => setTyped(event.target.value)} placeholder={nickname} value={typed} /><button className={`${styles.cta} ${styles.dangerCta}`} disabled={!canDelete} onClick={() => void run()} type="button">{busy ? <i className={styles.buttonSpinner} /> : "Akkauntni o‘chirish"}</button><button className={styles.cancel} onClick={onClose} type="button">Bekor qilish</button></Sheet>;
+  return <Sheet onClose={onClose}><span className={styles.warnIcon}><MobileIcon name="warning" size={26} /></span><h2 className={styles.sheetTitle}>Rostdan o‘chirasizmi?</h2><p className={styles.sheetDescription}>O‘quv tarixi, streak, olmoslar va do‘stlar ro‘yxati butunlay o‘chadi va tiklab bo‘lmaydi. Obunangiz bo‘lsa, uni do‘kondan alohida bekor qiling.</p><label className={styles.confirmLabel} htmlFor="delete-confirm">{`Tasdiqlash uchun '${nickname}' deb yozing`}</label><input autoCapitalize="none" id="delete-confirm" onChange={(event) => setTyped(event.target.value)} placeholder={nickname} value={typed} /><button className={`${styles.cta} ${styles.dangerCta}`} disabled={!canDelete} onClick={() => void run()} type="button">{busy ? <i className={styles.buttonSpinner} /> : "Akkauntni o‘chirish"}</button><button className={styles.cancel} onClick={onClose} type="button">Bekor qilish</button></Sheet>;
 }

@@ -8,6 +8,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./echo-chain-screen.module.css";
+import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const GRID = 9;
 const MAX_HEARTS = 3;
@@ -142,12 +143,14 @@ export function EchoChainScreen() {
     stop();
     void finish(score);
   };
+  // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
+  useTelegramBackOverride(exit);
 
   if (loading || failed || gridWords.length < GRID) {
     return (
       <main className={styles.page}>
         <div className={styles.gate}>
-          {loading || gridWords.length < GRID && !failed ? <i /> : <><p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p><button onClick={reload} type="button">Qayta urinish</button></>}
+          {/* 불러왔는데 판(9칸)을 못 채우면 무한 스피너 대신 다시 시도를 보여준다 */}{loading ? <i /> : <><p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p><button onClick={reload} type="button">Qayta urinish</button></>}
         </div>
       </main>
     );
