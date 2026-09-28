@@ -59,6 +59,8 @@ export default function VoiceTutorScreen() {
     reactionKey: spokenMessage?.id,
     gesture: spokenMessage?.gesture,
     reactionIntensity: spokenMessage?.intensity,
+    emotion: spokenMessage?.emotion,
+    delivery: spokenMessage?.delivery,
     personality: tutor.settings?.personality,
   });
 
@@ -217,7 +219,7 @@ export default function VoiceTutorScreen() {
       ) : (
         <>
           <View style={s.callHero}>
-            <TutorCharacter characterId={characterId} frame={characterFrame} size={100} />
+            <TutorCharacter characterId={characterId} frame={characterFrame} size={150} />
             <Text style={s.phaseText}>{t(`voiceTutor.phase.${tutor.phase}`)}</Text>
           </View>
           <ScrollView

@@ -1,5 +1,5 @@
 export type CharacterState = "idle" | "listening" | "thinking" | "speaking" | "reacting";
-export type MouthState = "closed" | "small" | "open";
+export type MouthState = "closed" | "small" | "medium" | "open";
 export type EyeState = "open" | "half1" | "half2" | "closed";
 export type HeadState = "center" | "left" | "right";
 export type GestureState =
@@ -17,6 +17,8 @@ export interface CharacterFrame {
   eye: EyeState;
   head: HeadState;
   gesture: GestureState;
+  expression: "neutral" | "laughing";
+  intensity: number;
 }
 
 export interface CharacterInput {
@@ -28,6 +30,8 @@ export interface CharacterInput {
   gesture?: GestureState | null;
   reactionIntensity?: number | null;
   personality?: "friendly" | "close_friend" | "savage" | "chaotic_savage";
+  emotion?: string | null;
+  delivery?: string | null;
 }
 
 export interface CharacterTiming {
@@ -70,6 +74,7 @@ export class VoiceTutorCharacterController {
   private headUntil = 0;
   private head: HeadState = "center";
   private gestureUntil = 0;
+  private gestureStartedAt = 0;
   private gesture: GestureState = "none";
   private lastReactionKey: string | null = null;
   private wasSpeaking = false;
@@ -95,6 +100,7 @@ export class VoiceTutorCharacterController {
       const hint = input.gesture ?? "none";
       if (hint !== "none") {
         this.gesture = hint;
+        this.gestureStartedAt = now;
         const intensity = Math.min(1, Math.max(0, input.reactionIntensity ?? 0.5));
         this.gestureUntil = now + this.timing.gestureMinMs +
           Math.floor((this.timing.gestureMaxMs - this.timing.gestureMinMs) * intensity);
@@ -104,6 +110,7 @@ export class VoiceTutorCharacterController {
     if (now >= this.gestureUntil || state !== "speaking") {
       this.gesture = "none";
     }
+    const visibleGesture = this.animatedGesture(now);
 
     let eye: EyeState = "open";
     if (this.blinkStartedAt < 0 && now >= this.nextBlinkAt) this.blinkStartedAt = now;
@@ -142,17 +149,20 @@ export class VoiceTutorCharacterController {
       } else {
         // Expo's playback status does not currently expose output amplitude.
         // A bounded speaking cadence is the visual fallback until an envelope is supplied.
-        const cycle: MouthState[] = ["small", "open", "small", "closed"];
+        const cycle: MouthState[] = ["small", "medium", "open", "medium", "closed"];
         this.mouth = cycle[Math.floor(now / 120) % cycle.length];
       }
     }
 
     return {
-      state: this.gesture !== "none" ? "reacting" : state,
+      state: visibleGesture !== "none" ? "reacting" : state,
       mouth: this.mouth,
       eye,
       head: this.head,
-      gesture: this.gesture,
+      gesture: visibleGesture,
+      expression: state === "speaking" && (input.emotion === "laughing" || input.delivery === "laugh")
+        ? "laughing" : "neutral",
+      intensity: Math.min(1, Math.max(0, input.reactionIntensity ?? 0)),
     };
   }
 
@@ -162,6 +172,22 @@ export class VoiceTutorCharacterController {
     if (input.isAudioPlaying) return "speaking";
     if (input.phase === "speaking") return "thinking";
     return "idle";
+  }
+
+  private animatedGesture(now: number): GestureState {
+    const target = this.gesture;
+    if (target === "none") return target;
+    const elapsed = now - this.gestureStartedAt;
+    const remaining = this.gestureUntil - now;
+    if (target === "hand_raise_3") {
+      if (elapsed < 140 || remaining < 140) return "hand_raise_1";
+      if (elapsed < 280 || remaining < 280) return "hand_raise_2";
+    } else if (target === "hand_raise_2") {
+      if (elapsed < 160 || remaining < 160) return "hand_raise_1";
+    } else if (target === "both_explain_2" || target === "both_compare") {
+      if (elapsed < 180 || remaining < 180) return "both_explain_1";
+    }
+    return target;
   }
 
   private between(min: number, max: number): number {

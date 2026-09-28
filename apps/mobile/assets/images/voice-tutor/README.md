@@ -1,13 +1,17 @@
-# Provisional Voice Tutor sprites
+# Voice Tutor pose sprites
 
-`female_01/01_idle.png` and `male_01/01_idle.png` are provisional sprites generated with the built-in image-generation tool. They are transparent, approximately 9:16 full-body idle frames. Replace each file with the final art at the same path and keep a matching canvas and body anchor across all future poses. Only the idle frames exist so far; mouth, blink, head, and gesture states currently use the idle fallback.
+The female and male tutors each use 17 user-supplied transparent PNGs. Every
+pose is on the same 941×1672 canvas, so the body anchor stays consistent when
+the app swaps frames.
 
-## Exact generation prompts
+- `pose_idle`, `pose_mouth_small`, `pose_mouth_medium` (female only), and
+  `pose_mouth_open` drive speech.
+- `pose_blink_*` and `pose_look_*` drive blinks and gaze changes.
+- `pose_hand_raise_*`, `pose_both_explain_*`, and `pose_both_compare*`
+  drive the lesson reaction gestures.
+- The female `pose_laugh_open` is selected for laughter. The male pack has a
+  closed-eye smile and a second wide speaking explanation pose instead.
 
-### female_01
-
-> Create one production-ready 2D animated mobile Korean-language tutor character sprite, female_01 provisional idle pose. Adult Korean woman in her late 20s, approachable and confident teacher, warm smile, attentive eyes, standing straight and facing forward, relaxed hands visible near sides, complete body including shoes. Contemporary simple smart-casual outfit: muted indigo cardigan, cream top, charcoal trousers, clean sneakers. Polished original modern educational app illustration, crisp clean outlines, soft cel shading, vivid but restrained palette, readable face at small mobile scale. Center her on a tall 9:16 canvas with generous transparent margins, entire figure fully visible, consistent centered body anchor at bottom center for later pose replacement. Truly transparent background, no floor, no cast shadow, no environment, no props, no speech bubbles, no text, no letters, no logo, no watermark. One character only.
-
-### male_01
-
-> Create one production-ready 2D animated mobile Korean-language tutor character sprite, male_01 provisional idle pose. Adult Korean man in his late 20s, approachable and confident teacher, warm smile, attentive eyes, standing straight and facing forward, relaxed hands visible near sides, complete body including shoes. Contemporary simple smart-casual outfit coordinating as a pair with an indigo-cardigan-and-charcoal-trousers female tutor: muted teal-blue casual jacket over cream shirt, charcoal trousers, clean white sneakers. Polished original modern educational app illustration, crisp clean outlines, soft cel shading, vivid but restrained palette, readable face at small mobile scale. Center him on a tall 9:16 canvas with generous transparent margins, entire figure fully visible, consistent centered body anchor at bottom center for later pose replacement. Truly transparent background, no floor, no cast shadow, no environment, no props, no speech bubbles, no text, no letters, no logo, no watermark. One character only.
+`src/features/voice-tutor/character/character-manifest.ts` is the explicit
+asset map. Do not infer pose names from file order or mix the old placeholder
+sprites with this pack.

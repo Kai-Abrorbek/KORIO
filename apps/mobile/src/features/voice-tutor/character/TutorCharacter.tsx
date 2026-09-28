@@ -24,7 +24,17 @@ export function SpriteTutorCharacterRenderer({ characterId, frame, size }: Tutor
   const manifest = CHARACTER_MANIFESTS[characterId];
   const source = useMemo(() => resolveCharacterAsset(manifest, frame), [manifest, frame]);
   const opacity = useRef(new Animated.Value(1)).current;
+  const breath = useRef(new Animated.Value(0)).current;
   const previousGesture = useRef(frame.gesture);
+
+  useEffect(() => {
+    const motion = Animated.loop(Animated.sequence([
+      Animated.timing(breath, { toValue: 1, duration: 1_600, useNativeDriver: true }),
+      Animated.timing(breath, { toValue: 0, duration: 1_600, useNativeDriver: true }),
+    ]));
+    motion.start();
+    return () => motion.stop();
+  }, [breath]);
 
   useEffect(() => {
     if (previousGesture.current === frame.gesture) return;
@@ -36,7 +46,17 @@ export function SpriteTutorCharacterRenderer({ characterId, frame, size }: Tutor
   return (
     <View style={[s.canvas, { width: size, height: size * 16 / 9 }]} accessibilityLabel={manifest.name}>
       {source ? (
-        <Animated.Image source={source} resizeMode="contain" style={[s.sprite, { opacity }]} />
+        <Animated.Image
+          source={source}
+          resizeMode="contain"
+          style={[s.sprite, {
+            opacity,
+            transform: [
+              { translateY: breath.interpolate({ inputRange: [0, 1], outputRange: [0, -2] }) },
+              { scale: breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.008] }) },
+            ],
+          }]}
+        />
       ) : (
         <View style={[s.fallback, { backgroundColor: characterId === "female_01" ? "#F7D7DC" : "#DBE9F7" }]}>
           <Text style={s.fallbackGlyph}>{characterId === "female_01" ? "♀" : "♂"}</Text>

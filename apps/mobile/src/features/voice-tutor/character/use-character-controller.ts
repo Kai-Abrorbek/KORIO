@@ -6,7 +6,7 @@ import {
 } from "./character-controller";
 
 const INITIAL_FRAME: CharacterFrame = {
-  state: "idle", mouth: "closed", eye: "open", head: "center", gesture: "none",
+  state: "idle", mouth: "closed", eye: "open", head: "center", gesture: "none", expression: "neutral", intensity: 0,
 };
 
 export function useVoiceTutorCharacter(input: CharacterInput): CharacterFrame {
@@ -22,7 +22,8 @@ export function useVoiceTutorCharacter(input: CharacterInput): CharacterFrame {
       setFrame((previous) =>
         previous.state === next.state && previous.mouth === next.mouth &&
         previous.eye === next.eye && previous.head === next.head &&
-        previous.gesture === next.gesture ? previous : next,
+        previous.gesture === next.gesture && previous.expression === next.expression &&
+        previous.intensity === next.intensity ? previous : next,
       );
     };
     tick();

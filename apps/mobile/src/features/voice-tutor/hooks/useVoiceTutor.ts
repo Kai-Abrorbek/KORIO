@@ -238,6 +238,8 @@ export function useVoiceTutor() {
       if (!mounted.current || closing.current || sessionId.current !== id) return;
       setMessages(detail.messages);
       setProgress(detail.progress);
+      const latestTeacher = [...detail.messages].reverse().find((message) => message.role === "teacher");
+      if (latestTeacher) setSpokenMessage(latestTeacher);
       setLiveUserText("");
       setLiveTeacherText("");
     } catch {
@@ -298,6 +300,7 @@ export function useVoiceTutor() {
         onAgentState: (state) => {
           if (!mounted.current || closing.current) return;
           setPhase(AGENT_PHASE[state] ?? "ready");
+          if (state === "speaking") void syncMessages(created.sessionId);
         },
         onTranscript,
         onAgentMissing: () => {
@@ -336,7 +339,7 @@ export function useVoiceTutor() {
     } finally {
       actionBusy.current = false;
     }
-  }, [onTranscript, settings, stopPlayback]);
+  }, [onTranscript, settings, stopPlayback, syncMessages]);
 
   const toggleMic = useCallback(() => {
     if (!connection.current || closing.current) return;
