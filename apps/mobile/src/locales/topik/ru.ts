@@ -37,6 +37,14 @@ export default {
     assurance: "Выбранный уровень можно изменить в любое время.",
   },
   sections: {
+    todayStudy: "Сегодняшняя учёба",
+    recentStudy: "Недавняя учёба",
+    round: "Вариант {{round}}",
+    completedStudy: "Завершённое занятие",
+    firstStep: "С чего начать",
+    startReading: "Начните с чтения",
+    sectionSelection: "Выбор раздела",
+    viewStats: "Статистика обучения",
     eyebrow: "Подготовка к экзамену",
     planBadge: "Умный план обучения",
     heroTitle: "Создайте стратегию успеха\nпо каждому разделу.",
@@ -46,7 +54,7 @@ export default {
     guidedExplanation: "Пошаговый разбор",
     weaknessReview: "Работа над ошибками",
     focusEyebrow: "Выберите направление",
-    chooseSection: "Выберите раздел для изучения",
+    chooseSection: "Какой раздел потренируем?",
     areaCount: "Разделов: {{count}}",
     available: "Доступно",
     comingSoon: "Скоро",
@@ -59,23 +67,36 @@ export default {
       "Освойте подход к заданиям с подсказками, затем проверьте себя на пробном экзамене.",
     reading: {
       title: "Чтение",
+      shortDescription: "Понимать предложения и тексты",
       description:
         "Изучайте типы заданий и проверяйте себя в формате реального экзамена.",
       features: ["Пошаговые подсказки", "Пробные экзамены", "Анализ ошибок"],
     },
     listening: {
       title: "Аудирование",
+      shortDescription: "Слушать и отвечать",
       description:
         "Развивайте стратегию восприятия речи и умение замечать ключевые фразы.",
       features: ["Повтор отрывков", "Ключевые детали", "Скорость аудио"],
     },
     writing: {
       title: "Письмо",
+      shortDescription: "Выражать мысли письменно",
       description: "Учитесь строить ответы, которые приносят высокий балл.",
       features: ["Структура ответа", "Проверка текста", "Стратегия баллов"],
     },
   },
   home: {
+    roundSelection: "Выбор варианта",
+    mockShort: "Экзамен",
+    examCount: "Вариантов: {{count}}",
+    selectedRound: "Выбранный вариант",
+    changeRound: "Сменить",
+    chooseRound: "Выберите вариант",
+    searchRounds: "Поиск по номеру или названию",
+    allRounds: "Все",
+    noMatchingRounds: "Подходящих вариантов нет.",
+    roundMeta: "{{questions}} заданий · около {{minutes}} мин",
     header: "TOPIK {{level}} · {{section}}",
     reading: "Чтение",
     listening: "Аудирование",
@@ -289,6 +310,7 @@ export default {
     statusGrowing: "Есть рост",
     statusNeedsReview: "Нужно повторить",
     insightTitle: "Рекомендация на сегодня",
+    reviewAction: "Практика",
     insightEmpty:
       "Завершите один тест, чтобы увидеть свой уровень и главный приоритет.",
     insightNoScored:

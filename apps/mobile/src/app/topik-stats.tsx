@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -12,10 +11,8 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  type TopikPalette,
-  useTopikTheme,
-} from "@/components/topik/topikTheme";
+import { type TopikPalette } from "@/components/topik/topikTheme";
+import { useTopikDashboardTheme } from "@/components/topik/topikDashboardTheme";
 import topikKo from "@/locales/topik/ko";
 import { TopikService } from "@/services/topik.service";
 import type {
@@ -62,7 +59,7 @@ export default function TopikStatsScreen() {
   const { t, i18n } = useTranslation();
   const params = useLocalSearchParams<{ level?: string; section?: string }>();
   const language = toTopikLanguage(getContentLang());
-  const palette = useTopikTheme();
+  const palette = useTopikDashboardTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const [examType, setExamType] = useState<StatsExamType>(() =>
     normalizedExamType(firstParam(params.level)),
@@ -80,8 +77,6 @@ export default function TopikStatsScreen() {
 
   const activeSection = section === "all" ? undefined : section;
   const levelRoman = examType === "topik_i" ? "I" : "II";
-  const heroColors =
-    examType === "topik_i" ? palette.levelOneHero : palette.levelTwoHero;
   const sectionOptions: StatsSection[] =
     examType === "topik_i"
       ? ["all", "listening", "reading"]
@@ -170,14 +165,7 @@ export default function TopikStatsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={heroColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerShell}
-      >
-        <View style={styles.headerOrbLarge} />
-        <View style={styles.headerOrbSmall} />
+      <View style={styles.headerShell}>
         <View style={styles.header}>
           <Pressable
             accessibilityLabel={t("topik.common.back")}
@@ -187,12 +175,9 @@ export default function TopikStatsScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Ionicons name="chevron-back" size={24} color={palette.white} />
+            <Ionicons name="chevron-back" size={24} color={palette.text} />
           </Pressable>
           <View style={styles.headerTitleWrap}>
-            <Text style={styles.headerEyebrow}>
-              {t("topik.stats.reportEyebrow").toUpperCase()}
-            </Text>
             <Text style={styles.headerTitle}>{t("topik.stats.header")}</Text>
           </View>
           <Pressable
@@ -203,7 +188,7 @@ export default function TopikStatsScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Ionicons name="refresh" size={20} color={palette.white} />
+            <Ionicons name="refresh" size={20} color={palette.primary} />
           </Pressable>
         </View>
 
@@ -275,7 +260,7 @@ export default function TopikStatsScreen() {
             </View>
           </View>
         )}
-      </LinearGradient>
+      </View>
 
       {loading ? (
         <View style={styles.centered}>
@@ -299,6 +284,46 @@ export default function TopikStatsScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          <View style={[styles.insightCard, insight.cardStyle(styles)]}>
+            <View style={[styles.insightIcon, insight.iconStyle(styles)]}>
+              <Ionicons
+                name={insight.icon}
+                size={21}
+                color={insight.iconColor(palette)}
+              />
+            </View>
+            <View style={styles.insightCopy}>
+              <Text style={styles.insightEyebrow}>
+                {t("topik.stats.insightTitle")}
+              </Text>
+              <Text style={styles.insightTitle}>
+                {t(`topik.stats.${insight.messageKey}`, {
+                  type: insightTypeName,
+                  accuracy: weakestType?.accuracy ?? 0,
+                })}
+              </Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() =>
+                router.push({
+                  pathname: "/topik",
+                  params: {
+                    level: examType === "topik_i" ? "1" : "2",
+                    section:
+                      section === "all"
+                        ? (weakQuestions[0]?.section ?? "reading")
+                        : section,
+                  },
+                })
+              }
+              style={styles.insightAction}
+            >
+              <Text style={styles.insightActionText}>
+                {t("topik.stats.reviewAction")}
+              </Text>
+            </Pressable>
+          </View>
           <ScrollView
             horizontal
             contentContainerStyle={styles.sectionFilters}
@@ -321,7 +346,7 @@ export default function TopikStatsScreen() {
                   <Ionicons
                     name={SECTION_ICONS[option]}
                     size={15}
-                    color={active ? palette.white : palette.textSecondary}
+                    color={active ? palette.primary : palette.textSecondary}
                   />
                   <Text
                     style={[
@@ -337,62 +362,6 @@ export default function TopikStatsScreen() {
               );
             })}
           </ScrollView>
-
-          <View style={[styles.insightCard, insight.cardStyle(styles)]}>
-            <View style={[styles.insightIcon, insight.iconStyle(styles)]}>
-              <Ionicons
-                name={insight.icon}
-                size={21}
-                color={insight.iconColor(palette)}
-              />
-            </View>
-            <View style={styles.insightCopy}>
-              <Text style={styles.insightEyebrow}>
-                {t("topik.stats.insightTitle")}
-              </Text>
-              <Text style={styles.insightTitle}>
-                {t(`topik.stats.${insight.messageKey}`, {
-                  type: insightTypeName,
-                  accuracy: weakestType?.accuracy ?? 0,
-                })}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.metricGrid}>
-            <MetricCard
-              icon="checkmark-done-outline"
-              color={palette.success}
-              softColor={palette.successSoft}
-              label={t("topik.stats.completedTests")}
-              value={String(totalAttempts)}
-              styles={styles}
-            />
-            <MetricCard
-              icon="layers-outline"
-              color={palette.primary}
-              softColor={palette.primarySoft}
-              label={t("topik.stats.solvedQuestions")}
-              value={String(summary.totalQuestions)}
-              styles={styles}
-            />
-            <MetricCard
-              icon="time-outline"
-              color={palette.warning}
-              softColor={palette.warningSoft}
-              label={t("topik.stats.studyTime")}
-              value={formatStudyTime(summary.totalStudySeconds, t)}
-              styles={styles}
-            />
-            <MetricCard
-              icon="flash-outline"
-              color={palette.purple}
-              softColor={palette.purpleSoft}
-              label={t("topik.stats.independentRate")}
-              value={`${independentRate}%`}
-              styles={styles}
-            />
-          </View>
 
           <SectionHeading
             caption={t("topik.stats.latestSix")}
@@ -434,15 +403,11 @@ export default function TopikStatsScreen() {
                     <View key={item.attemptId} style={styles.chartColumn}>
                       <Text style={styles.chartScore}>{item.score}</Text>
                       <View style={styles.chartTrack}>
-                        <LinearGradient
-                          colors={
-                            examType === "topik_i"
-                              ? palette.levelOneGradient
-                              : palette.levelTwoGradient
-                          }
+                        <View
                           style={[
                             styles.chartBar,
                             {
+                              backgroundColor: palette.primary,
                               height: `${Math.max(6, Math.min(100, item.score))}%`,
                             },
                           ]}
@@ -454,6 +419,112 @@ export default function TopikStatsScreen() {
                 </View>
               </>
             )}
+          </View>
+
+          <SectionHeading
+            caption={t("topik.stats.tapForResult")}
+            title={t("topik.stats.recentAttempts")}
+            styles={styles}
+          />
+          <View style={styles.historyCard}>
+            {history.length === 0 ? (
+              <EmptyState
+                icon="document-text-outline"
+                text={t("topik.stats.historyEmpty")}
+                palette={palette}
+                styles={styles}
+              />
+            ) : (
+              history.map((item, index) => (
+                <Pressable
+                  key={item.attemptId}
+                  onPress={() => openHistory(item)}
+                  style={({ pressed }) => [
+                    styles.historyRow,
+                    index < history.length - 1 && styles.rowDivider,
+                    pressed && styles.historyRowPressed,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.historyIcon,
+                      {
+                        backgroundColor: sectionColor(item.section, palette)
+                          .soft,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name={SECTION_ICONS[item.section]}
+                      size={19}
+                      color={sectionColor(item.section, palette).color}
+                    />
+                  </View>
+                  <View style={styles.historyInfo}>
+                    <Text style={styles.historyTitle}>
+                      {examLabel(item.examRound, levelRoman, t)} ·{" "}
+                      {t(`topik.home.${item.section}`)}
+                    </Text>
+                    <Text style={styles.historyMeta}>
+                      {t(MODE_KEYS[item.mode])} ·{" "}
+                      {new Date(item.submittedAt).toLocaleDateString(
+                        i18n.resolvedLanguage ?? i18n.language,
+                        { month: "short", day: "numeric" },
+                      )}
+                    </Text>
+                  </View>
+                  {item.section === "writing" ? (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={20}
+                      color={palette.success}
+                    />
+                  ) : (
+                    <Text style={styles.historyScore}>{item.score}</Text>
+                  )}
+                  <Ionicons
+                    name="chevron-forward"
+                    size={17}
+                    color={palette.textSubtle}
+                  />
+                </Pressable>
+              ))
+            )}
+          </View>
+
+          <View style={styles.metricGrid}>
+            <MetricCard
+              icon="checkmark-done-outline"
+              color={palette.success}
+              softColor={palette.successSoft}
+              label={t("topik.stats.completedTests")}
+              value={String(totalAttempts)}
+              styles={styles}
+            />
+            <MetricCard
+              icon="layers-outline"
+              color={palette.primary}
+              softColor={palette.primarySoft}
+              label={t("topik.stats.solvedQuestions")}
+              value={String(summary.totalQuestions)}
+              styles={styles}
+            />
+            <MetricCard
+              icon="time-outline"
+              color={palette.warning}
+              softColor={palette.warningSoft}
+              label={t("topik.stats.studyTime")}
+              value={formatStudyTime(summary.totalStudySeconds, t)}
+              styles={styles}
+            />
+            <MetricCard
+              icon="flash-outline"
+              color={palette.purple}
+              softColor={palette.purpleSoft}
+              label={t("topik.stats.independentRate")}
+              value={`${independentRate}%`}
+              styles={styles}
+            />
           </View>
 
           <SectionHeading
@@ -588,87 +659,6 @@ export default function TopikStatsScreen() {
                     </Text>
                   </View>
                 </View>
-              ))
-            )}
-          </View>
-
-          <SectionHeading
-            caption={t("topik.stats.tapForResult")}
-            title={t("topik.stats.recentAttempts")}
-            styles={styles}
-          />
-          <View style={styles.historyCard}>
-            {history.length === 0 ? (
-              <EmptyState
-                icon="document-text-outline"
-                text={t("topik.stats.historyEmpty")}
-                palette={palette}
-                styles={styles}
-              />
-            ) : (
-              history.map((item, index) => (
-                <Pressable
-                  key={item.attemptId}
-                  onPress={() => openHistory(item)}
-                  style={({ pressed }) => [
-                    styles.historyRow,
-                    index < history.length - 1 && styles.rowDivider,
-                    pressed && styles.historyRowPressed,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.historyIcon,
-                      {
-                        backgroundColor: sectionColor(item.section, palette)
-                          .soft,
-                      },
-                    ]}
-                  >
-                    <Ionicons
-                      name={SECTION_ICONS[item.section]}
-                      size={19}
-                      color={sectionColor(item.section, palette).color}
-                    />
-                  </View>
-                  <View style={styles.historyInfo}>
-                    <Text style={styles.historyTitle}>
-                      {examLabel(item.examRound, levelRoman, t)} ·{" "}
-                      {t(`topik.home.${item.section}`)}
-                    </Text>
-                    <Text style={styles.historyMeta}>
-                      {t(MODE_KEYS[item.mode])} ·{" "}
-                      {new Date(item.submittedAt).toLocaleDateString(
-                        i18n.resolvedLanguage ?? i18n.language,
-                        { month: "short", day: "numeric" },
-                      )}
-                    </Text>
-                  </View>
-                  {item.section === "writing" ? (
-                    <View style={styles.historyScoreWrap}>
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={20}
-                        color={palette.success}
-                      />
-                      <Text style={styles.historyCompleted}>
-                        {t("topik.stats.completedStatus")}
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={styles.historyScoreWrap}>
-                      <Text style={styles.historyScore}>{item.score}</Text>
-                      <Text style={styles.historyAccuracy}>
-                        {item.accuracy}%
-                      </Text>
-                    </View>
-                  )}
-                  <Ionicons
-                    name="chevron-forward"
-                    size={17}
-                    color={palette.textSubtle}
-                  />
-                </Pressable>
               ))
             )}
           </View>
@@ -898,34 +888,8 @@ const getStyles = (palette: TopikPalette) =>
     safeArea: { flex: 1, backgroundColor: palette.bg },
     pressed: { opacity: 0.72 },
     headerShell: {
-      overflow: "hidden",
-      borderBottomLeftRadius: 32,
-      borderBottomRightRadius: 32,
-      paddingBottom: 21,
-      shadowColor: palette.shadow,
-      shadowOpacity: palette.isDark ? 0.28 : 0.2,
-      shadowRadius: 20,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 8,
-    },
-    headerOrbLarge: {
-      position: "absolute",
-      top: -118,
-      right: -65,
-      width: 250,
-      height: 250,
-      borderWidth: 38,
-      borderColor: palette.heroGlowSoft,
-      borderRadius: 125,
-    },
-    headerOrbSmall: {
-      position: "absolute",
-      left: -52,
-      bottom: -62,
-      width: 152,
-      height: 152,
-      borderRadius: 76,
-      backgroundColor: palette.heroGlowSoft,
+      paddingBottom: 4,
+      backgroundColor: palette.bg,
     },
     header: {
       minHeight: 59,
@@ -940,26 +904,20 @@ const getStyles = (palette: TopikPalette) =>
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 1,
-      borderColor: palette.heroDivider,
+      borderColor: palette.border,
       borderRadius: 14,
-      backgroundColor: palette.heroBadge,
+      backgroundColor: palette.bg,
     },
     headerTitleWrap: { flex: 1, alignItems: "center", gap: 2 },
-    headerEyebrow: {
-      color: palette.heroSubtle,
-      fontSize: 8,
-      fontWeight: "900",
-      letterSpacing: 1.2,
-    },
-    headerTitle: { color: palette.white, fontSize: 16, fontWeight: "900" },
+    headerTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
     levelTabs: {
       flexDirection: "row",
       gap: 4,
       alignSelf: "center",
       borderWidth: 1,
-      borderColor: palette.heroDivider,
+      borderColor: palette.border,
       borderRadius: 14,
-      backgroundColor: palette.heroGlassDark,
+      backgroundColor: palette.surface,
       marginTop: 4,
       padding: 4,
     },
@@ -970,15 +928,23 @@ const getStyles = (palette: TopikPalette) =>
       paddingHorizontal: 17,
       paddingVertical: 9,
     },
-    levelTabActive: { backgroundColor: palette.white },
+    levelTabActive: { backgroundColor: palette.primarySoft },
     levelTabText: {
-      color: palette.heroMuted,
+      color: palette.textSecondary,
       fontSize: 12,
       fontWeight: "900",
       letterSpacing: 0.25,
     },
-    levelTabTextActive: { color: palette.primaryStrong },
-    hero: { paddingHorizontal: 21, paddingTop: 19 },
+    levelTabTextActive: { color: palette.primary },
+    hero: {
+      marginHorizontal: 16,
+      marginTop: 19,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 18,
+      backgroundColor: palette.surface,
+    },
     heroMain: {
       flexDirection: "row",
       alignItems: "center",
@@ -987,20 +953,20 @@ const getStyles = (palette: TopikPalette) =>
     },
     accuracyBlock: { gap: 1 },
     heroLabel: {
-      color: palette.heroMuted,
+      color: palette.textSecondary,
       fontSize: 11,
       fontWeight: "800",
     },
     accuracyLine: { flexDirection: "row", alignItems: "flex-end" },
     accuracy: {
-      color: palette.white,
+      color: palette.text,
       fontSize: 50,
       lineHeight: 58,
       fontWeight: "900",
       letterSpacing: -2.4,
     },
     accuracyUnit: {
-      color: palette.heroMuted,
+      color: palette.textSecondary,
       fontSize: 20,
       fontWeight: "900",
       marginBottom: 8,
@@ -1016,51 +982,51 @@ const getStyles = (palette: TopikPalette) =>
       paddingVertical: 8,
     },
     statusBadgeReady: {
-      borderColor: palette.heroDividerStrong,
-      backgroundColor: palette.heroGlass,
+      borderColor: palette.border,
+      backgroundColor: palette.primarySoft,
     },
     statusBadgeStrong: {
-      borderColor: "rgba(107,211,155,0.42)",
-      backgroundColor: "rgba(32,115,75,0.30)",
+      borderColor: palette.border,
+      backgroundColor: palette.primarySoft,
     },
     statusBadgeGrowing: {
-      borderColor: "rgba(232,198,110,0.42)",
-      backgroundColor: "rgba(128,99,30,0.28)",
+      borderColor: palette.border,
+      backgroundColor: palette.primarySoft,
     },
     statusBadgeReview: {
-      borderColor: "rgba(240,138,138,0.42)",
-      backgroundColor: "rgba(135,51,51,0.28)",
+      borderColor: palette.border,
+      backgroundColor: palette.primarySoft,
     },
     statusBadgeWriting: {
-      borderColor: "rgba(184,166,244,0.44)",
-      backgroundColor: "rgba(90,71,164,0.28)",
+      borderColor: palette.border,
+      backgroundColor: palette.primarySoft,
     },
     statusDot: { width: 7, height: 7, borderRadius: 4 },
-    statusDotReady: { backgroundColor: palette.white },
+    statusDotReady: { backgroundColor: palette.primary },
     statusDotStrong: { backgroundColor: palette.success },
     statusDotGrowing: { backgroundColor: palette.warning },
     statusDotReview: { backgroundColor: palette.danger },
     statusDotWriting: { backgroundColor: palette.purple },
-    statusText: { color: palette.white, fontSize: 10, fontWeight: "900" },
+    statusText: { color: palette.text, fontSize: 10, fontWeight: "900" },
     scoreStrip: {
       flexDirection: "row",
       alignItems: "center",
       borderTopWidth: 1,
-      borderTopColor: palette.heroDivider,
+      borderTopColor: palette.divider,
       marginTop: 14,
       paddingTop: 14,
     },
     heroScore: { flex: 1, alignItems: "center", gap: 3 },
-    heroScoreValue: { color: palette.white, fontSize: 18, fontWeight: "900" },
+    heroScoreValue: { color: palette.text, fontSize: 18, fontWeight: "900" },
     heroScoreLabel: {
-      color: palette.heroSubtle,
+      color: palette.textSecondary,
       fontSize: 9,
       fontWeight: "700",
     },
     scoreDivider: {
       width: 1,
       height: 25,
-      backgroundColor: palette.heroDivider,
+      backgroundColor: palette.divider,
     },
     centered: {
       flex: 1,
@@ -1097,15 +1063,15 @@ const getStyles = (palette: TopikPalette) =>
       paddingVertical: 9,
     },
     sectionFilterActive: {
-      borderColor: palette.primaryStrong,
-      backgroundColor: palette.primaryStrong,
+      borderColor: palette.primary,
+      backgroundColor: palette.primarySoft,
     },
     sectionFilterText: {
       color: palette.textSecondary,
       fontSize: 11,
       fontWeight: "800",
     },
-    sectionFilterTextActive: { color: palette.white },
+    sectionFilterTextActive: { color: palette.primary },
     insightCard: {
       flexDirection: "row",
       alignItems: "center",
@@ -1115,24 +1081,24 @@ const getStyles = (palette: TopikPalette) =>
       padding: 14,
     },
     insightCardReady: {
-      borderColor: palette.border,
-      backgroundColor: palette.surface,
+      borderColor: palette.primarySoft,
+      backgroundColor: palette.primarySoft,
     },
     insightCardStrong: {
-      borderColor: palette.successBorder,
-      backgroundColor: palette.successSoft,
+      borderColor: palette.primarySoft,
+      backgroundColor: palette.primarySoft,
     },
     insightCardGrowing: {
-      borderColor: palette.warning,
-      backgroundColor: palette.warningSoft,
+      borderColor: palette.primarySoft,
+      backgroundColor: palette.primarySoft,
     },
     insightCardReview: {
-      borderColor: palette.danger,
-      backgroundColor: palette.dangerSoft,
+      borderColor: palette.primarySoft,
+      backgroundColor: palette.primarySoft,
     },
     insightCardWriting: {
-      borderColor: palette.purple,
-      backgroundColor: palette.purpleSoft,
+      borderColor: palette.primarySoft,
+      backgroundColor: palette.primarySoft,
     },
     insightIcon: {
       width: 43,
@@ -1159,6 +1125,18 @@ const getStyles = (palette: TopikPalette) =>
       fontSize: 12,
       lineHeight: 18,
       fontWeight: "800",
+    },
+    insightAction: {
+      minHeight: 36,
+      justifyContent: "center",
+      borderRadius: 10,
+      backgroundColor: palette.primaryStrong,
+      paddingHorizontal: 10,
+    },
+    insightActionText: {
+      color: palette.white,
+      fontSize: 11,
+      fontWeight: "900",
     },
     metricGrid: {
       flexDirection: "row",

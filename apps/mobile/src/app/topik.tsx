@@ -1,22 +1,23 @@
 import { withPremiumScreen } from "@/features/subscription/usePremiumScreen";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { TopikLevel } from "@/components/topik";
-import {
-  type TopikPalette,
-  useTopikTheme,
-} from "@/components/topik/topikTheme";
+import { type TopikPalette } from "@/components/topik/topikTheme";
+import { useTopikDashboardTheme } from "@/components/topik/topikDashboardTheme";
 import { TopikService } from "@/services/topik.service";
 import type {
   TopikAttemptMode,
@@ -26,30 +27,27 @@ import type {
 import { toTopikLanguage, topikText } from "@/types/topik";
 import { getContentLang } from "@/store/settings.store";
 
-const MODES: Array<{
+const MODES: {
   key: TopikAttemptMode;
   icon: keyof typeof Ionicons.glyphMap;
-  titleKey: string;
   descriptionKey: string;
-}> = [
+}[] = [
   {
     key: "guided",
     icon: "bulb-outline",
-    titleKey: "topik.modes.guided",
     descriptionKey: "topik.modes.guidedDescription",
   },
   {
     key: "mock_exam",
     icon: "timer-outline",
-    titleKey: "topik.modes.mockExam",
     descriptionKey: "topik.modes.mockExamDescription",
   },
 ];
 
-const WRITING_PRACTICE_TYPES: Array<{
+const WRITING_PRACTICE_TYPES: {
   number: 51 | 52 | 53 | 54;
   icon: keyof typeof Ionicons.glyphMap;
-}> = [
+}[] = [
   { number: 51, icon: "mail-outline" },
   { number: 52, icon: "git-compare-outline" },
   { number: 53, icon: "bar-chart-outline" },
@@ -57,9 +55,9 @@ const WRITING_PRACTICE_TYPES: Array<{
 ];
 
 function TopikHomeScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const language = toTopikLanguage(getContentLang());
-  const palette = useTopikTheme();
+  const palette = useTopikDashboardTheme();
   const styles = useMemo(() => getStyles(palette), [palette]);
   const params = useLocalSearchParams<{
     level?: TopikLevel;
@@ -88,6 +86,9 @@ function TopikHomeScreen() {
   const [mode, setMode] = useState<TopikAttemptMode>("guided");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [search, setSearch] = useState("");
+  const [completedOnly, setCompletedOnly] = useState(false);
 
   const loadExams = useCallback(async () => {
     setLoading(true);
@@ -97,9 +98,16 @@ function TopikHomeScreen() {
         TopikService.listExams(),
         TopikService.getCompletedExams().catch(() => []),
       ]);
-      const matchingExams = data.filter(
-        (exam) => exam.examType === examType && exam.section === section,
-      );
+      const matchingExams = data
+        .filter(
+          (exam) => exam.examType === examType && exam.section === section,
+        )
+        .sort(
+          (left, right) =>
+            (right.round ?? 0) - (left.round ?? 0) ||
+            (right.year ?? 0) - (left.year ?? 0) ||
+            right.code.localeCompare(left.code),
+        );
       setExams(matchingExams);
       setCompletedExams(completedIds);
       setSelectedExamCode((current) =>
@@ -114,11 +122,55 @@ function TopikHomeScreen() {
     }
   }, [examType, section]);
 
-  useEffect(() => {
-    void loadExams();
-  }, [loadExams]);
+  useFocusEffect(
+    useCallback(() => {
+      void loadExams();
+    }, [loadExams]),
+  );
 
   const selectedExam = exams.find((exam) => exam.code === selectedExamCode);
+  const completedByExamId = useMemo(
+    () => new Map(completedExams.map((item) => [item.examId, item])),
+    [completedExams],
+  );
+  const selectedCompleted = selectedExam
+    ? completedByExamId.get(selectedExam.id)
+    : undefined;
+  const visibleExams = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return exams
+      .filter((exam) => !completedOnly || completedByExamId.has(exam.id))
+      .filter(
+        (exam) =>
+          !query ||
+          String(exam.round ?? "").includes(query) ||
+          exam.code.toLocaleLowerCase().includes(query) ||
+          topikText(exam.title, language).toLocaleLowerCase().includes(query),
+      )
+      .sort(
+        (left, right) =>
+          (right.round ?? 0) - (left.round ?? 0) ||
+          (right.year ?? 0) - (left.year ?? 0) ||
+          right.code.localeCompare(left.code),
+      );
+  }, [completedByExamId, completedOnly, exams, language, search]);
+
+  const openResult = (exam: TopikExam, attemptId: string) => {
+    router.push(
+      section === "writing"
+        ? {
+            pathname: "/topik-writing",
+            params: { examCode: exam.code, reviewAttemptId: attemptId },
+          }
+        : { pathname: "/topik-result", params: { attemptId } },
+    );
+  };
+
+  const openPicker = () => {
+    setSearch("");
+    setCompletedOnly(false);
+    setPickerVisible(true);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -130,12 +182,10 @@ function TopikHomeScreen() {
         >
           <Ionicons name="chevron-back" size={25} color={palette.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>
-          {t("topik.home.header", {
-            level: roman,
-            section: t(`topik.home.${section}`),
-          })}
-        </Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerTitle}>{t(`topik.home.${section}`)}</Text>
+          <Text style={styles.headerSubtitle}>TOPIK {roman}</Text>
+        </View>
         <Pressable
           accessibilityLabel={t("topik.home.openStats")}
           onPress={() =>
@@ -157,74 +207,12 @@ function TopikHomeScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.hero}>
-          <View style={styles.heroBadge}>
-            <Text style={styles.heroBadgeText}>
-              TOPIK {roman} · {t(`topik.home.${section}`).toUpperCase()}
-            </Text>
-          </View>
-          <Text style={styles.heroTitle}>
-            {t(
-              section === "listening"
-                ? "topik.home.listeningHeroTitle"
-                : section === "writing"
-                  ? "topik.home.writingHeroTitle"
-                  : "topik.home.heroTitle",
-            )}
-          </Text>
-          <Text style={styles.heroDescription}>
-            {t(
-              section === "listening"
-                ? "topik.home.listeningHeroDescription"
-                : section === "writing"
-                  ? "topik.home.writingHeroDescription"
-                  : "topik.home.heroDescription",
-            )}
-          </Text>
-          <View style={styles.heroMetrics}>
-            <View>
-              <Text style={styles.metricValue}>
-                {selectedExam?.totalQuestions ?? "—"}
-              </Text>
-              <Text style={styles.metricLabel}>
-                {t("topik.common.questions")}
-              </Text>
-            </View>
-            <View style={styles.metricDivider} />
-            <View>
-              <Text style={styles.metricValue}>
-                {mode === "mock_exam"
-                  ? (selectedExam?.durationMinutes ?? "—")
-                  : "∞"}
-              </Text>
-              <Text style={styles.metricLabel}>
-                {mode === "mock_exam"
-                  ? t("topik.common.minutes")
-                  : t("topik.common.untimed")}
-              </Text>
-            </View>
-            <View style={styles.metricDivider} />
-            <View>
-              <Text style={styles.metricValue}>
-                {selectedExam?.totalPoints ?? "—"}
-              </Text>
-              <Text style={styles.metricLabel}>{t("topik.common.points")}</Text>
-            </View>
-          </View>
-        </View>
-
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            {t("topik.home.examSelection")}
+            {t("topik.home.roundSelection")}
           </Text>
           <Text style={styles.sectionCaption}>
-            {t(
-              section === "listening"
-                ? "topik.home.listeningTest"
-                : section === "writing"
-                  ? "topik.home.writingTest"
-                  : "topik.home.readingTest",
-            )}
+            {t("topik.home.examCount", { count: exams.length })}
           </Text>
         </View>
 
@@ -263,103 +251,117 @@ function TopikHomeScreen() {
             </Text>
           </View>
         ) : (
-          <View style={styles.examList}>
-            {exams.map((exam) => {
-              const selected = exam.code === selectedExamCode;
-              const completed = completedExams.find(
-                (item) => item.examId === exam.id,
-              );
-              return (
-                <View
-                  key={exam.id}
-                  style={[styles.examCard, selected && styles.examCardSelected]}
-                >
-                  <Pressable
-                    onPress={() => setSelectedExamCode(exam.code)}
-                    style={({ pressed }) => [
-                      styles.examMain,
-                      pressed && styles.examMainPressed,
-                    ]}
-                  >
-                    <View style={styles.examNumber}>
-                      <Text style={styles.examNumberText}>
-                        {String(exam.round ?? 1).padStart(2, "0")}
-                      </Text>
-                    </View>
-                    <View style={styles.examInfo}>
-                      <Text style={styles.examTitle}>
-                        {topikText(exam.title, language)}
-                      </Text>
-                      <Text style={styles.examMeta}>
-                        {t(
-                          mode === "mock_exam"
-                            ? "topik.home.examMeta"
-                            : "topik.home.examMetaUntimed",
-                          {
-                            questions: exam.totalQuestions,
-                            minutes: exam.durationMinutes,
-                            points: exam.totalPoints,
-                          },
-                        )}
-                      </Text>
-                    </View>
-                    <Ionicons
-                      name={selected ? "checkmark-circle" : "ellipse-outline"}
-                      size={23}
-                      color={selected ? palette.primary : palette.textMuted}
-                    />
-                  </Pressable>
-                  {completed && (
-                    <View style={styles.completedRow}>
-                      <View style={styles.completedBadge}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={14}
-                          color={palette.success}
-                        />
-                        <Text style={styles.completedBadgeText}>
-                          {t("topik.home.completed")}
-                        </Text>
-                      </View>
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={() =>
-                          section === "writing"
-                            ? router.push({
-                                pathname: "/topik-writing",
-                                params: {
-                                  examCode: exam.code,
-                                  reviewAttemptId: completed.latestAttemptId,
-                                },
-                              })
-                            : router.push({
-                                pathname: "/topik-result",
-                                params: {
-                                  attemptId: completed.latestAttemptId,
-                                },
-                              })
-                        }
-                        style={({ pressed }) => [
-                          styles.resultButton,
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.resultButtonText}>
-                          {t("topik.home.viewResult")}
-                        </Text>
-                        <Ionicons
-                          name="arrow-forward"
-                          size={15}
-                          color={palette.primary}
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
+          <View style={styles.selectedExamCard}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("topik.home.changeRound")}
+              onPress={openPicker}
+              style={({ pressed }) => [
+                styles.selectedExamMain,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <View style={styles.selectedExamCopy}>
+                <Text style={styles.selectedEyebrow}>
+                  {t("topik.home.selectedRound")}
+                </Text>
+                <Text style={styles.selectedExamTitle} numberOfLines={2}>
+                  {selectedExam ? topikText(selectedExam.title, language) : "—"}
+                </Text>
+                <Text style={styles.examMeta}>
+                  {selectedExam &&
+                    t(
+                      mode === "mock_exam"
+                        ? "topik.home.examMeta"
+                        : "topik.home.examMetaUntimed",
+                      {
+                        questions: selectedExam.totalQuestions,
+                        minutes: selectedExam.durationMinutes,
+                        points: selectedExam.totalPoints,
+                      },
+                    )}
+                </Text>
+              </View>
+              <View style={styles.changeRoundButton}>
+                <Text style={styles.changeRoundText}>
+                  {t("topik.home.changeRound")}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={16}
+                  color={palette.primary}
+                />
+              </View>
+            </Pressable>
+            {selectedCompleted && selectedExam && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  openResult(selectedExam, selectedCompleted.latestAttemptId)
+                }
+                style={styles.completedRow}
+              >
+                <Ionicons
+                  name="checkmark-circle"
+                  size={16}
+                  color={palette.success}
+                />
+                <Text style={styles.completedBadgeText}>
+                  {t("topik.home.completed")}
+                </Text>
+                <Text style={styles.completedResultText}>
+                  {t("topik.home.viewResult")}
+                </Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={16}
+                  color={palette.primary}
+                />
+              </Pressable>
+            )}
           </View>
         )}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{t("topik.home.studyMode")}</Text>
+        </View>
+        <View style={styles.modeList}>
+          {MODES.map((item) => {
+            const selected = item.key === mode;
+            return (
+              <Pressable
+                key={item.key}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: selected }}
+                onPress={() => setMode(item.key)}
+                style={[styles.modeCard, selected && styles.modeCardSelected]}
+              >
+                <View style={styles.modeTop}>
+                  <Ionicons
+                    name={item.icon}
+                    size={22}
+                    color={selected ? palette.primary : palette.textSecondary}
+                  />
+                  <Ionicons
+                    name={selected ? "radio-button-on" : "radio-button-off"}
+                    size={21}
+                    color={selected ? palette.primary : palette.textMuted}
+                  />
+                </View>
+                <Text style={styles.modeTitle}>
+                  {t(
+                    item.key === "guided"
+                      ? "topik.modes.practice"
+                      : "topik.home.mockShort",
+                  )}
+                </Text>
+                <Text style={styles.modeDescription}>
+                  {t(item.descriptionKey)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
         {section === "writing" && selectedExam && (
           <View style={styles.practiceSection}>
@@ -403,7 +405,7 @@ function TopikHomeScreen() {
                       <Ionicons
                         name={item.icon}
                         size={20}
-                        color={palette.purple}
+                        color={palette.primary}
                       />
                     </View>
                     <Text style={styles.practiceNumber}>{item.number}</Text>
@@ -421,7 +423,7 @@ function TopikHomeScreen() {
                     <Ionicons
                       name="arrow-forward"
                       size={14}
-                      color={palette.purple}
+                      color={palette.primary}
                     />
                   </View>
                 </Pressable>
@@ -458,48 +460,8 @@ function TopikHomeScreen() {
             />
           </Pressable>
         )}
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("topik.home.studyMode")}</Text>
-          <Text style={styles.sectionCaption}>{t("topik.home.mode")}</Text>
-        </View>
-        <View style={styles.modeList}>
-          {MODES.map((item) => {
-            const selected = item.key === mode;
-            const color =
-              item.key === "guided" ? palette.warning : palette.primary;
-            return (
-              <Pressable
-                key={item.key}
-                onPress={() => setMode(item.key)}
-                style={[styles.modeCard, selected && styles.modeCardSelected]}
-              >
-                <View
-                  style={[
-                    styles.modeIcon,
-                    {
-                      backgroundColor: palette.isDark
-                        ? palette.surfaceMuted
-                        : `${color}18`,
-                    },
-                  ]}
-                >
-                  <Ionicons name={item.icon} size={25} color={color} />
-                </View>
-                <View style={styles.modeInfo}>
-                  <Text style={styles.modeTitle}>{t(item.titleKey)}</Text>
-                  <Text style={styles.modeDescription}>
-                    {t(item.descriptionKey)}
-                  </Text>
-                </View>
-                <View style={[styles.radio, selected && styles.radioSelected]}>
-                  {selected && <View style={styles.radioDot} />}
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-
+      </ScrollView>
+      <View style={styles.footer}>
         <Pressable
           disabled={!selectedExam}
           onPress={() =>
@@ -523,7 +485,147 @@ function TopikHomeScreen() {
           </Text>
           <Ionicons name="arrow-forward" size={21} color={palette.white} />
         </Pressable>
-      </ScrollView>
+      </View>
+      <Modal
+        visible={pickerVisible}
+        animationType="slide"
+        onRequestClose={() => setPickerVisible(false)}
+      >
+        <SafeAreaView style={styles.pickerScreen}>
+          <View style={styles.pickerHeader}>
+            <View>
+              <Text style={styles.pickerEyebrow}>
+                TOPIK {roman} · {t(`topik.home.${section}`)}
+              </Text>
+              <Text style={styles.pickerTitle}>
+                {t("topik.home.chooseRound")}
+              </Text>
+            </View>
+            <Pressable
+              accessibilityLabel={t("topik.common.close")}
+              onPress={() => setPickerVisible(false)}
+              style={styles.pickerClose}
+            >
+              <Ionicons name="close" size={23} color={palette.text} />
+            </Pressable>
+          </View>
+          <View style={styles.searchBox}>
+            <Ionicons name="search" size={20} color={palette.textSecondary} />
+            <TextInput
+              accessibilityLabel={t("topik.home.searchRounds")}
+              value={search}
+              onChangeText={setSearch}
+              placeholder={t("topik.home.searchRounds")}
+              placeholderTextColor={palette.textMuted}
+              style={styles.searchInput}
+              returnKeyType="search"
+            />
+            {search.length > 0 && (
+              <Pressable
+                accessibilityLabel={t("topik.common.close")}
+                onPress={() => setSearch("")}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={19}
+                  color={palette.textMuted}
+                />
+              </Pressable>
+            )}
+          </View>
+          <View style={styles.pickerFilters}>
+            <Pressable
+              onPress={() => setCompletedOnly(false)}
+              style={[
+                styles.filterChip,
+                !completedOnly && styles.filterChipSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  !completedOnly && styles.filterTextSelected,
+                ]}
+              >
+                {t("topik.home.allRounds")}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setCompletedOnly(true)}
+              style={[
+                styles.filterChip,
+                completedOnly && styles.filterChipSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  completedOnly && styles.filterTextSelected,
+                ]}
+              >
+                {t("topik.home.completed")}
+              </Text>
+            </Pressable>
+            <Text style={styles.pickerCount}>
+              {t("topik.home.examCount", { count: visibleExams.length })}
+            </Text>
+          </View>
+          <FlatList
+            data={visibleExams}
+            keyExtractor={(exam) => exam.id}
+            contentContainerStyle={styles.pickerList}
+            keyboardShouldPersistTaps="handled"
+            initialNumToRender={12}
+            maxToRenderPerBatch={12}
+            windowSize={7}
+            ListEmptyComponent={
+              <Text style={styles.noRounds}>
+                {t("topik.home.noMatchingRounds")}
+              </Text>
+            }
+            renderItem={({ item }) => {
+              const selected = item.code === selectedExamCode;
+              const completed = completedByExamId.has(item.id);
+              return (
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: selected }}
+                  onPress={() => {
+                    setSelectedExamCode(item.code);
+                    setPickerVisible(false);
+                  }}
+                  style={[
+                    styles.pickerRow,
+                    selected && styles.pickerRowSelected,
+                  ]}
+                >
+                  <View style={styles.pickerRowCopy}>
+                    <Text style={styles.pickerRowTitle} numberOfLines={2}>
+                      {topikText(item.title, language)}
+                    </Text>
+                    <Text style={styles.pickerRowMeta}>
+                      {t("topik.home.roundMeta", {
+                        questions: item.totalQuestions,
+                        minutes: item.durationMinutes,
+                      })}
+                    </Text>
+                    {completed && (
+                      <Text style={styles.pickerCompleted}>
+                        {t("topik.home.completed")}
+                      </Text>
+                    )}
+                  </View>
+                  <Ionicons
+                    name={selected ? "radio-button-on" : "radio-button-off"}
+                    size={23}
+                    color={selected ? palette.primary : palette.textMuted}
+                  />
+                </Pressable>
+              );
+            }}
+          />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -538,7 +640,6 @@ const getStyles = (palette: TopikPalette) =>
       justifyContent: "space-between",
       paddingHorizontal: 14,
       backgroundColor: palette.bg,
-      // marginTop: 30,
     },
     iconButton: {
       width: 42,
@@ -546,66 +647,14 @@ const getStyles = (palette: TopikPalette) =>
       alignItems: "center",
       justifyContent: "center",
     },
-    headerTitle: { color: palette.text, fontSize: 16, fontWeight: "900" },
-    content: { paddingHorizontal: 18, paddingBottom: 42, gap: 18 },
-    hero: {
-      overflow: "hidden",
-      borderRadius: 22,
-      backgroundColor: palette.hero,
-      padding: 23,
-    },
-    heroBadge: {
-      alignSelf: "flex-start",
-      borderRadius: 20,
-      backgroundColor: palette.heroBadge,
-      paddingHorizontal: 11,
-      paddingVertical: 6,
-    },
-    heroBadgeText: {
-      color: palette.heroMuted,
-      fontSize: 10,
-      fontWeight: "900",
-      letterSpacing: 1.1,
-    },
-    heroTitle: {
-      color: palette.white,
-      fontSize: 23,
-      lineHeight: 32,
-      fontWeight: "900",
-      marginTop: 16,
-      letterSpacing: -0.8,
-    },
-    heroDescription: {
-      color: palette.heroMuted,
-      fontSize: 13,
-      lineHeight: 20,
-      marginTop: 10,
-    },
-    heroMetrics: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-around",
-      marginTop: 22,
-      borderTopWidth: 1,
-      borderTopColor: palette.heroDivider,
-      paddingTop: 16,
-    },
-    metricValue: {
-      color: palette.white,
-      fontSize: 18,
-      fontWeight: "900",
-      textAlign: "center",
-    },
-    metricLabel: {
-      color: palette.heroSubtle,
-      fontSize: 10,
-      marginTop: 2,
-      textAlign: "center",
-    },
-    metricDivider: {
-      width: 1,
-      height: 29,
-      backgroundColor: palette.heroDividerStrong,
+    headerCopy: { flex: 1, alignItems: "center", gap: 1 },
+    headerTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
+    headerSubtitle: { color: palette.textSecondary, fontSize: 11 },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 30,
+      paddingBottom: 40,
+      gap: 19,
     },
     sectionHeader: {
       flexDirection: "row",
@@ -642,14 +691,54 @@ const getStyles = (palette: TopikPalette) =>
       fontWeight: "600",
       marginTop: 3,
     },
-    sectionTitle: { color: palette.text, fontSize: 17, fontWeight: "900" },
+    sectionTitle: { color: palette.text, fontSize: 18, fontWeight: "900" },
     sectionCaption: {
       color: palette.textMuted,
-      fontSize: 10,
+      fontSize: 11,
       fontWeight: "800",
       letterSpacing: 1,
     },
-    examList: { gap: 10 },
+    selectedExamCard: {
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: palette.primary,
+      borderRadius: 16,
+      backgroundColor: palette.primarySoft,
+    },
+    selectedExamMain: {
+      minHeight: 125,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 18,
+    },
+    selectedExamCopy: { flex: 1, gap: 7 },
+    selectedEyebrow: {
+      color: palette.primary,
+      fontSize: 11,
+      fontWeight: "800",
+    },
+    selectedExamTitle: { color: palette.text, fontSize: 19, fontWeight: "900" },
+    changeRoundButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+      borderRadius: 9,
+      backgroundColor: palette.surface,
+      paddingHorizontal: 9,
+      paddingVertical: 9,
+    },
+    changeRoundText: {
+      color: palette.primary,
+      fontSize: 11,
+      fontWeight: "900",
+    },
+    completedResultText: {
+      color: palette.primary,
+      fontSize: 11,
+      fontWeight: "900",
+      marginLeft: "auto",
+    },
     practiceSection: { gap: 12, marginTop: 4 },
     practiceHeading: {
       flexDirection: "row",
@@ -665,12 +754,12 @@ const getStyles = (palette: TopikPalette) =>
     },
     practiceBadge: {
       borderRadius: 999,
-      backgroundColor: palette.purpleSoft,
+      backgroundColor: palette.primarySoft,
       paddingHorizontal: 9,
       paddingVertical: 6,
     },
     practiceBadgeText: {
-      color: palette.purple,
+      color: palette.primary,
       fontSize: 9,
       fontWeight: "900",
     },
@@ -705,7 +794,7 @@ const getStyles = (palette: TopikPalette) =>
       alignItems: "center",
       justifyContent: "center",
       borderRadius: 12,
-      backgroundColor: palette.purpleSoft,
+      backgroundColor: palette.primarySoft,
     },
     practiceNumber: {
       color: palette.textSubtle,
@@ -721,82 +810,143 @@ const getStyles = (palette: TopikPalette) =>
     },
     practiceAction: { flexDirection: "row", alignItems: "center", gap: 4 },
     practiceActionText: {
-      color: palette.purple,
+      color: palette.primary,
       fontSize: 10,
       fontWeight: "900",
     },
-    examCard: {
-      overflow: "hidden",
-      borderWidth: 1,
-      borderColor: palette.border,
-      borderRadius: 14,
-      backgroundColor: palette.surface,
-    },
-    examCardSelected: {
-      borderColor: palette.primary,
-      backgroundColor: palette.primarySoft,
-    },
-    examMain: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 13,
-      padding: 14,
-    },
-    examMainPressed: { opacity: 0.78 },
-    examNumber: {
-      width: 44,
-      height: 50,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 8,
-      backgroundColor: palette.primaryStrong,
-    },
-    examNumberText: { color: palette.white, fontSize: 16, fontWeight: "900" },
-    examInfo: { flex: 1, gap: 4 },
-    examTitle: { color: palette.text, fontSize: 14, fontWeight: "900" },
     examMeta: { color: palette.textSecondary, fontSize: 11 },
     completedRow: {
-      minHeight: 44,
+      minHeight: 46,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      gap: 10,
+      gap: 7,
       borderTopWidth: 1,
       borderTopColor: palette.divider,
-      paddingHorizontal: 14,
+      paddingHorizontal: 18,
       paddingVertical: 8,
-    },
-    completedBadge: {
-      alignSelf: "flex-start",
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 4,
-      borderRadius: 10,
-      backgroundColor: palette.successSoft,
-      paddingHorizontal: 7,
-      paddingVertical: 4,
     },
     completedBadgeText: {
       color: palette.successText,
       fontSize: 9,
       fontWeight: "900",
     },
-    resultButton: {
-      minHeight: 30,
+    modeList: { flexDirection: "row", gap: 10 },
+    modeCard: {
+      flex: 1,
+      minHeight: 138,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 16,
+      backgroundColor: palette.surface,
+      padding: 15,
+    },
+    modeCardSelected: {
+      borderColor: palette.primary,
+      backgroundColor: palette.primarySoft,
+    },
+    modeTop: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 4,
-      borderRadius: 9,
+      justifyContent: "space-between",
+      marginBottom: 18,
+    },
+    modeTitle: { color: palette.text, fontSize: 15, fontWeight: "900" },
+    modeDescription: {
+      color: palette.textSecondary,
+      fontSize: 11,
+      lineHeight: 17,
+      marginTop: 5,
+    },
+    startButton: {
+      minHeight: 56,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+      borderRadius: 16,
+      backgroundColor: palette.primaryStrong,
+    },
+    startButtonText: { color: palette.white, fontSize: 16, fontWeight: "900" },
+    footer: {
+      borderTopWidth: 1,
+      borderTopColor: palette.border,
+      backgroundColor: palette.surface,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      paddingBottom: 13,
+    },
+    pickerScreen: { flex: 1, backgroundColor: palette.bg },
+    pickerHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 18,
+    },
+    pickerEyebrow: {
+      color: palette.textSecondary,
+      fontSize: 11,
+      marginBottom: 5,
+    },
+    pickerTitle: { color: palette.text, fontSize: 23, fontWeight: "900" },
+    pickerClose: {
+      width: 42,
+      height: 42,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    searchBox: {
+      minHeight: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 13,
+      backgroundColor: palette.surface,
+      marginHorizontal: 20,
+      paddingHorizontal: 14,
+    },
+    searchInput: {
+      flex: 1,
+      color: palette.text,
+      fontSize: 14,
+      paddingVertical: 10,
+    },
+    pickerFilters: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    filterChip: {
+      borderWidth: 1,
+      borderColor: palette.border,
+      borderRadius: 100,
+      backgroundColor: palette.surface,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
+    filterChipSelected: {
+      borderColor: palette.primary,
       backgroundColor: palette.primarySoft,
-      paddingHorizontal: 10,
     },
-    resultButtonText: {
-      color: palette.primary,
-      fontSize: 10,
-      fontWeight: "900",
+    filterText: {
+      color: palette.textSecondary,
+      fontSize: 12,
+      fontWeight: "800",
     },
-    modeList: { gap: 10 },
-    modeCard: {
+    filterTextSelected: { color: palette.primary },
+    pickerCount: {
+      color: palette.textSecondary,
+      fontSize: 11,
+      marginLeft: "auto",
+    },
+    pickerList: { paddingHorizontal: 20, paddingBottom: 28, gap: 9 },
+    pickerRow: {
+      minHeight: 76,
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
@@ -804,54 +954,26 @@ const getStyles = (palette: TopikPalette) =>
       borderColor: palette.border,
       borderRadius: 14,
       backgroundColor: palette.surface,
-      padding: 14,
+      paddingHorizontal: 15,
+      paddingVertical: 12,
     },
-    modeCardSelected: {
+    pickerRowSelected: {
       borderColor: palette.primary,
       backgroundColor: palette.primarySoft,
     },
-    modeIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 14,
-      alignItems: "center",
-      justifyContent: "center",
+    pickerRowCopy: { flex: 1, gap: 4 },
+    pickerRowTitle: { color: palette.text, fontSize: 15, fontWeight: "900" },
+    pickerRowMeta: { color: palette.textSecondary, fontSize: 11 },
+    pickerCompleted: {
+      color: palette.successText,
+      fontSize: 10,
+      fontWeight: "800",
     },
-    modeInfo: { flex: 1, gap: 3 },
-    modeTitle: { color: palette.text, fontSize: 14, fontWeight: "900" },
-    modeDescription: {
+    noRounds: {
       color: palette.textSecondary,
-      fontSize: 11,
-      lineHeight: 17,
+      textAlign: "center",
+      padding: 28,
     },
-    radio: {
-      width: 21,
-      height: 21,
-      borderWidth: 2,
-      borderColor: palette.borderStrong,
-      borderRadius: 11,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    radioSelected: { borderColor: palette.primary },
-    radioDot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: palette.primary,
-    },
-    startButton: {
-      minHeight: 57,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 10,
-      borderRadius: 16,
-      backgroundColor: palette.primaryStrong,
-      marginTop: 5,
-      // marginBottom: 20,
-    },
-    startButtonText: { color: palette.white, fontSize: 14, fontWeight: "900" },
     buttonDisabled: { opacity: 0.45 },
     buttonPressed: { opacity: 0.82 },
     stateCard: {
