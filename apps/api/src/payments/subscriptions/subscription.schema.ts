@@ -91,6 +91,13 @@ export class Subscription {
   /** 마지막으로 스토어에 물어본 시각 */
   @Prop()
   lastVerifiedAt?: Date;
+
+  /**
+   * 환불·차지백으로 회수한 시각. 있으면 스토어가 뭐라 하든 되살리지 않는다
+   * (SubscriptionService.revokeRefunded / applyVerifiedPurchase)
+   */
+  @Prop()
+  revokedAt?: Date;
 }
 
 export type SubscriptionDocument = Subscription & Document;

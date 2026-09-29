@@ -47,6 +47,7 @@ export class SubscriptionEvent {
    *   purchase   결제 확인 (신규 또는 갱신)
    *   supersede  같은 구독의 옛 결제를 만료로 눕힘
    *   expire     만료 스윕
+   *   refund     환불·차지백으로 회수 (voidedPurchaseNotification)
    *   gem_pass   보석으로 산 기간권
    */
   @Prop({ default: 'purchase' })

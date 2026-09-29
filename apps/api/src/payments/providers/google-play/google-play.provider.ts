@@ -203,6 +203,13 @@ export class GooglePlayProvider implements PaymentProvider {
 
     let payload: {
       subscriptionNotification?: { purchaseToken?: string; notificationType?: number };
+      /** productType 1 = 구독, 2 = 일회성. refundType 1 = 전액, 2 = 부분 */
+      voidedPurchaseNotification?: {
+        purchaseToken?: string;
+        orderId?: string;
+        productType?: number;
+        refundType?: number;
+      };
       packageName?: string;
     };
     try {
@@ -216,8 +223,26 @@ export class GooglePlayProvider implements PaymentProvider {
       return { valid: false };
     }
 
+    // 환불·차지백. "권한 취소 없이 환불"하면 구독 상태는 그대로 활성이라
+    // 이 알림이 아니면 돈을 돌려받고도 기간 끝까지 프리미엄을 쓴다
+    const voided = payload.voidedPurchaseNotification;
+    if (voided?.purchaseToken) {
+      if (voided.productType !== undefined && voided.productType !== 1) {
+        return { valid: false }; // 일회성 상품은 아직 안 판다
+      }
+      this.logger.warn(
+        `환불/무효화된 구독 결제 수신 (order ${voided.orderId ?? '?'}, refundType ${voided.refundType ?? '?'})`,
+      );
+      return {
+        valid: true,
+        token: voided.purchaseToken,
+        eventType: 'voided',
+        voided: true,
+      };
+    }
+
     const token = payload.subscriptionNotification?.purchaseToken;
-    if (!token) return { valid: false }; // 구독 외 알림(테스트·보이스드아웃)은 무시
+    if (!token) return { valid: false }; // 구독 외 알림(테스트 등)은 무시
 
     return {
       valid: true,

@@ -311,7 +311,8 @@ export class AdminAnalyticsService {
 
     // 갱신(supersede)은 이탈이 아니다. 섞으면 취소 추이가 갱신 때마다 튄다
     const newSubs = events.filter((e) => e._id.r === 'purchase' && e._id.s === 'active');
-    const churned = events.filter((e) => e._id.r === 'expire');
+    // 환불 회수도 이탈이다 (돈을 돌려받고 나간 유저)
+    const churned = events.filter((e) => e._id.r === 'expire' || e._id.r === 'refund');
 
     return {
       active,

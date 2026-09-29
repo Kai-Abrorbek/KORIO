@@ -91,6 +91,15 @@ export class PaymentsService {
     const check = await provider.verifyWebhook(input);
     if (!check.valid || !check.token) return { ok: true, ignored: true };
 
+    // 환불된 결제는 스토어에 다시 묻지 않는다 — 아직 활성이라고 답할 수 있다
+    if (check.voided) {
+      const revoked = await this.subscriptions.revokeRefunded(
+        providerId,
+        check.token,
+      );
+      return { ok: true, revoked };
+    }
+
     const verified = await provider.verifyPurchase({
       token: check.token,
       userId: '',

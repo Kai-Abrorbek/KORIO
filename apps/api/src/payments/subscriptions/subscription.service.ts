@@ -54,6 +54,14 @@ export class SubscriptionService {
       externalTransactionId: v.externalTransactionId,
     });
 
+    // 환불로 회수한 결제는 되살리지 않는다. 권한 취소 없이 환불하면 스토어는
+    // 계속 "활성/해지 예약"이라고 답해서, 웹훅·복원·갱신 안전망 어느 경로로든
+    // 다시 들어오면 프리미엄이 살아난다
+    if (existing?.revokedAt) {
+      await this.syncUser(userId);
+      return this.getMySubscription(userId);
+    }
+
     // 이 유저가 처음 구독하는 것인지 (보석은 최초 1회만)
     const hadAny = existing
       ? existing.welcomeGrantGiven
@@ -334,6 +342,57 @@ export class SubscriptionService {
       this.logger.log(`만료된 SUPER ${res.modifiedCount}건 내림`);
     }
     return { lowered: res.modifiedCount };
+  }
+
+  /**
+   * 환불·차지백으로 무효화된 결제를 즉시 회수한다.
+   *
+   * 토큰이 정확히 같은 결제만 건드린다. 업그레이드로 이어진 새 구독은
+   * externalSubscriptionId 가 옛 토큰을 가리키지만, 옛 결제(예: SUPER)를
+   * 환불했다고 새로 산 MAX 까지 끊으면 안 된다.
+   * 멱등: 이미 회수한 건 다시 처리하지 않는다.
+   */
+  async revokeRefunded(provider: PaymentProviderId, token: string) {
+    const subs = await this.subModel.find({
+      provider,
+      externalTransactionId: token,
+      revokedAt: { $exists: false },
+    });
+    if (!subs.length) {
+      // 앱이 아직 서버에 알리지 않은 결제일 수 있다. 그 경우 검증 요청이
+      // 오면 스토어가 이미 환불 상태를 돌려주거나, 갱신 안전망이 잡는다.
+      this.logger.warn(`회수할 구독을 못 찾은 환불 알림 (${provider})`);
+      return 0;
+    }
+
+    const now = new Date();
+    for (const sub of subs) {
+      await this.subModel.updateOne(
+        { _id: sub._id },
+        {
+          $set: {
+            status: 'expired' as SubscriptionStatus,
+            autoRenew: false,
+            revokedAt: now,
+            lastVerifiedAt: now,
+            expiresAt: sub.expiresAt < now ? sub.expiresAt : now,
+          },
+        },
+      );
+      await this.subEvents.record({
+        userId: sub.userId,
+        subscriptionId: sub._id,
+        fromStatus: sub.status,
+        toStatus: 'expired',
+        provider: sub.provider,
+        plan: sub.plan,
+        productId: sub.productId,
+        reason: 'refund',
+      });
+      await this.syncUser(sub.userId.toString());
+    }
+    this.logger.log(`환불로 구독 ${subs.length}건 회수`);
+    return subs.length;
   }
 
   /** 웹훅/복원에서 토큰만으로 주인을 찾을 때 */

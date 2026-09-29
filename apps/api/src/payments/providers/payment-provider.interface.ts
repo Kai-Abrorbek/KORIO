@@ -60,4 +60,9 @@ export interface WebhookVerification {
   /** 검증에 성공했을 때, 다시 조회해야 할 결제 토큰 */
   token?: string;
   eventType?: string;
+  /**
+   * 환불·차지백으로 무효화된 결제. 스토어에 다시 물어봐도 "아직 활성"으로
+   * 나올 수 있어서(권한 취소 없이 환불한 경우) 재조회하지 않고 바로 회수한다.
+   */
+  voided?: boolean;
 }
