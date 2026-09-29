@@ -2355,7 +2355,8 @@ export default {
       topicGroup: { korea: "Living in Korea", daily: "Everyday talk" },
       start: "Start the lesson",
       quotaLeft: "{{min}} min left today ({{limit}} min/day)",
-      upsellMax: "Get 20 min a day with KORIO MAX",
+      upsellMax: "Get 1 hour every day with KORIO MAX",
+      trialLeft: "{{min}} min of your free trial left (one-time, {{limit}} min total)",
       limitReached: "You've used today's lesson time. See you tomorrow!",
     },
     speechStyle: "How your teacher speaks",
@@ -2400,6 +2401,7 @@ export default {
       ending: "Saving your lesson...",
     },
     error: {
+      VOICE_TUTOR_TRIAL_USED: "You've used your trial time. KORIO MAX gives you 1 hour every day.",
       VOICE_TUTOR_DAILY_LIMIT_REACHED: "You've used today's lesson time. See you tomorrow!",
       VOICE_TUTOR_MONTHLY_LIMIT_REACHED: "You've used this month's lesson time.",
       load: "Couldn't load the tutor settings.",

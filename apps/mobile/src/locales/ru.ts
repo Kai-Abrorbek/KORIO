@@ -2360,7 +2360,8 @@ export default {
       topicGroup: { korea: "Жизнь в Корее", daily: "Повседневное общение" },
       start: "Начать урок",
       quotaLeft: "Сегодня осталось {{min}} мин (в день {{limit}} мин)",
-      upsellMax: "20 минут в день с KORIO MAX",
+      upsellMax: "1 час каждый день с KORIO MAX",
+      trialLeft: "Осталось {{min}} мин пробного времени (один раз, всего {{limit}} мин)",
       limitReached: "Время уроков на сегодня закончилось. До завтра!",
     },
     speechStyle: "Стиль общения",
@@ -2405,6 +2406,7 @@ export default {
       ending: "Сохраняем урок...",
     },
     error: {
+      VOICE_TUTOR_TRIAL_USED: "Пробное время закончилось. С KORIO MAX — 1 час занятий каждый день.",
       VOICE_TUTOR_DAILY_LIMIT_REACHED: "Время уроков на сегодня закончилось. До завтра!",
       VOICE_TUTOR_MONTHLY_LIMIT_REACHED: "Время уроков в этом месяце закончилось.",
       load: "Не удалось загрузить настройки.",

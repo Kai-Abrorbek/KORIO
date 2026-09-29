@@ -125,6 +125,7 @@ export class VoiceTutorService {
       plan,
       topicId: topic?.id ?? null,
       allowedSec: quota.allowedSec,
+      tier: quota.tier,
     });
     const sessionId = session._id.toString();
     const text = voiceTutorGreeting(

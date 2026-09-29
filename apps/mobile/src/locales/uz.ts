@@ -2365,7 +2365,8 @@ export default {
       topicGroup: { korea: "Koreyada hayot", daily: "Kundalik suhbat" },
       start: "Darsni boshlash",
       quotaLeft: "Bugun {{min}} daqiqa qoldi (kuniga {{limit}} daqiqa)",
-      upsellMax: "KORIO MAX bilan kuniga 20 daqiqa",
+      upsellMax: "KORIO MAX bilan har kuni 1 soat dars",
+      trialLeft: "Sinov uchun {{min}} daqiqa qoldi (bir martalik, jami {{limit}} daqiqa)",
       limitReached: "Bugungi dars vaqti tugadi. Ertaga ko'rishamiz!",
     },
     speechStyle: "Ustozning gapirish uslubi",
@@ -2410,6 +2411,7 @@ export default {
       ending: "Dars saqlanmoqda...",
     },
     error: {
+      VOICE_TUTOR_TRIAL_USED: "Sinov vaqti tugadi. KORIO MAX bilan har kuni 1 soat dars qilishingiz mumkin.",
       VOICE_TUTOR_DAILY_LIMIT_REACHED: "Bugungi dars vaqti tugadi. Ertaga ko'rishamiz!",
       VOICE_TUTOR_MONTHLY_LIMIT_REACHED: "Bu oylik dars vaqti tugadi.",
       load: "Ustoz sozlamalari yuklanmadi.",

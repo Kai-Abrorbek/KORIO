@@ -17,6 +17,9 @@ export class VoiceTutorSession {
   @Prop({ type: [String], default: [] }) taughtItems: string[];
   /** 이 세션에 허락한 최대 길이(초). 사용량 계산의 상한 (voice-tutor-quota.service) */
   @Prop({ type: Number, default: null }) allowedSec: number | null;
+  /** 세션을 연 시점의 구독 등급. 맛보기(평생 한 번) 사용량을 등급별로 센다 */
+  @Prop({ type: String, enum: ['free', 'super', 'max'], default: null })
+  tier: 'free' | 'super' | 'max' | null;
   @Prop({ default: 0 }) userTurnCount: number;
   @Prop({ default: 0 }) progressAnalyzedTurns: number;
   @Prop({ default: false }) progressRunning: boolean;

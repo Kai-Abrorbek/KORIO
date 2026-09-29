@@ -395,10 +395,15 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
 
         {!!p.quota && (
           <Text style={s.quotaLine} numberOfLines={1}>
-            {t("voiceTutor.setup.quotaLeft", {
-              min: Math.floor(p.quota.allowedSec / 60),
-              limit: p.quota.dailyLimitMin,
-            })}
+            {t(
+              p.quota.kind === "trial"
+                ? "voiceTutor.setup.trialLeft"
+                : "voiceTutor.setup.quotaLeft",
+              {
+                min: Math.max(0, p.quota.limitMin - p.quota.usedMin),
+                limit: p.quota.limitMin,
+              },
+            )}
           </Text>
         )}
 

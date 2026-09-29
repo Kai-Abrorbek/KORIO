@@ -2349,7 +2349,8 @@ export default {
       topicGroup: { korea: "한국 생활", daily: "일상 대화" },
       start: "수업 시작",
       quotaLeft: "오늘 {{min}}분 남았어요 (하루 {{limit}}분)",
-      upsellMax: "KORIO MAX 로 하루 20분 수업하기",
+      upsellMax: "KORIO MAX 로 매일 1시간 수업하기",
+      trialLeft: "맛보기 {{min}}분 남았어요 (한 번만, 총 {{limit}}분)",
       limitReached: "오늘 수업 시간을 다 썼어요. 내일 다시 만나요!",
     },
     speechStyle: "선생님 말투",
@@ -2394,6 +2395,7 @@ export default {
       ending: "수업을 저장하는 중...",
     },
     error: {
+      VOICE_TUTOR_TRIAL_USED: "맛보기 시간을 다 썼어요. KORIO MAX 로 매일 1시간 수업할 수 있어요.",
       VOICE_TUTOR_DAILY_LIMIT_REACHED: "오늘 수업 시간을 다 썼어요. 내일 다시 만나요!",
       VOICE_TUTOR_MONTHLY_LIMIT_REACHED: "이번 달 수업 시간을 다 썼어요.",
       load: "튜터 설정을 불러오지 못했어요.",

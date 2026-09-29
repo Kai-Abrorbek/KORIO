@@ -378,7 +378,9 @@ adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증
 - 새 env (예시: `api.env.example`, `agent.env.example`)
   - `VOICE_TUTOR_TTS_MODEL=eleven_v4_turbo` — api.env·agent.env 둘 다
   - `VOICE_TUTOR_KO_ENABLED=true` — 한국어로만 가르치는 수업
-  - 선택: `VOICE_TUTOR_ENDPOINTING_MIN_MS/MAX_MS`, `VOICE_TUTOR_STT_PROMPT`, `VOICE_TUTOR_DAILY/MONTHLY_MINUTES_*`
+  - 선택: `VOICE_TUTOR_ENDPOINTING_MIN_MS/MAX_MS`, `VOICE_TUTOR_STT_PROMPT`,
+    한도 `VOICE_TUTOR_FREE_TRIAL_MINUTES`(10, 평생 1회) · `VOICE_TUTOR_SUPER_TRIAL_MINUTES`(30, 평생 1회) ·
+    `VOICE_TUTOR_MAX_DAILY_MINUTES`(60, 매일) · `VOICE_TUTOR_MAX_MONTHLY_MINUTES`(0 = 없음)
 - 사용 한도: 세션 발급 때 `voice-tutor-quota.service` 가 막고, 워커가 `maxDurationSec` 에 방을 닫는다.
 - 턴 스트림은 `Content-Encoding: identity` 로 나가서 Caddy `encode` 가 모으지 않는다 (첫 문장 지연 방지).
 - 배포 후 확인: 워커 로그 `Job accepted; … teach=… endpointing=…`, 한 턴에 `Turn streamed: first word …ms`.

@@ -143,10 +143,11 @@ export interface VoiceTutorTopicCard {
 export interface VoiceTutorQuota {
   tier: "free" | "super" | "max";
   isMax: boolean;
-  dailyLimitMin: number;
+  /** trial = 평생 한 번 맛보기 (free 10분·super 30분), daily = 매일 (max 60분) */
+  kind: "trial" | "daily";
+  limitMin: number;
+  usedMin: number;
   monthlyLimitMin: number;
-  dailyUsedMin: number;
-  monthlyUsedMin: number;
   /** 지금 시작하면 쓸 수 있는 최대 길이(초). 0 이면 못 쓴다 */
   allowedSec: number;
 }
