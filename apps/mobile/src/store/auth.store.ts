@@ -25,6 +25,8 @@ export interface User {
   longestStreak?: number;
   league?: "bronze" | "silver" | "gold" | "platinum" | "diamond";
   isSuper?: boolean;
+  /** super | max. 프리미엄이 아니면 null. 배지에 MAX 를 구분해 찍는다 */
+  superTier?: "super" | "max" | null;
   /** 연락처 친구 찾기용으로 등록한 번호의 뒷 4자리. 원본은 서버에도 없다 */
   phoneLast4?: string;
   /** 연락처 매칭에 내가 노출될지 */

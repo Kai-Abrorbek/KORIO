@@ -476,6 +476,7 @@ export default {
     },
     joinedAt: "Дата регистрации",
     superOn: "KORIO SUPER активен",
+    maxOn: "KORIO MAX активен",
     superOff: "KORIO SUPER",
     superUntil: "До {{date}}",
     superCta: "Посмотреть возможности",
@@ -1588,6 +1589,7 @@ export default {
     perMonthLabel: "мес",
     terms: "Отмена в любое время. Автопродление.",
     activeTitle: "SUPER участник",
+    activeTitleMax: "MAX участник",
     activeSub: "Вам доступны все премиум-функции",
     plans: {
       monthly: "Месячный",

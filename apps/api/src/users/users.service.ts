@@ -237,6 +237,8 @@ export class UsersService {
       longestStreak: streak.longest,
       league: user.league,
       isSuper: superActive,
+      // 어느 등급인지. 체험은 SUPER 다. 헤더·프로필 배지가 MAX 를 구분한다
+      superTier: superActive ? (user.superTier === 'max' ? 'max' : 'super') : null,
       streakFreeze: user.streakFreeze || 0,
       gems: user.gems || 0,
       energy: energyNow,
@@ -389,6 +391,9 @@ export class UsersService {
       streak: streakCurrent,
       league: user.league,
       isSuper: isSuperActive(user),
+      superTier: isSuperActive(user)
+        ? (user.superTier === 'max' ? 'max' : 'super')
+        : null,
       ...presenceFor(
         { isFollowing, isFollowedBy, isMe: targetId === currentUserId },
         (user as any).lastActiveAt,

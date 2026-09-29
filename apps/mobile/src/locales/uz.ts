@@ -479,6 +479,7 @@ export default {
     },
     joinedAt: "Ro'yxatdan o'tgan sana",
     superOn: "KORIO SUPER faol",
+    maxOn: "KORIO MAX faol",
     superOff: "KORIO SUPER",
     superUntil: "{{date}} gacha",
     superCta: "Imkoniyatlarni ko'rish",
@@ -1588,6 +1589,7 @@ export default {
     perMonthLabel: "oy",
     terms: "Istalgan vaqtda bekor qiling. Avto-yangilanadi.",
     activeTitle: "SUPER a'zo",
+    activeTitleMax: "MAX a'zo",
     activeSub: "Barcha imtiyozlardan foydalanyapsiz",
     plans: {
       monthly: "Oylik",

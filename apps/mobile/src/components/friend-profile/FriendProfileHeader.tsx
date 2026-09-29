@@ -26,6 +26,7 @@ interface Props {
   name: string;
   league: League;
   isSuper: boolean;
+  superTier?: "super" | "max" | null;
   /** 지금 접속 중인지 (서버가 lastActiveAt 으로 판단) */
   isOnline?: boolean;
   avatar?: Partial<AvatarConfig> | null;
@@ -37,6 +38,7 @@ export default function FriendProfileHeader({
   name,
   league,
   isSuper,
+  superTier,
   isOnline = false,
   avatar,
   onBack,
@@ -97,7 +99,7 @@ export default function FriendProfileHeader({
 
       {isSuper && (
         <View style={styles.superWrap}>
-          <SuperBadge />
+          <SuperBadge tier={superTier} />
         </View>
       )}
 

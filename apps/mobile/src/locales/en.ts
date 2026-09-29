@@ -477,6 +477,7 @@ export default {
     },
     joinedAt: "Joined",
     superOn: "KORIO SUPER active",
+    maxOn: "KORIO MAX active",
     superOff: "KORIO SUPER",
     superUntil: "Until {{date}}",
     superCta: "See what's included",
@@ -1583,6 +1584,7 @@ export default {
     perMonthLabel: "mo",
     terms: "Cancel anytime. Subscription auto-renews.",
     activeTitle: "SUPER Member",
+    activeTitleMax: "MAX Member",
     activeSub: "You're enjoying all premium perks",
     plans: {
       monthly: "Monthly",

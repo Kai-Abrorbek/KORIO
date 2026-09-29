@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { TIER_LABEL, maxBadge, usePremiumTier } from "@/features/subscription/usePremiumTier";
 import { ThemeColors } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -37,6 +38,7 @@ export default function ProfileHeader({
   onSettings,
 }: Props) {
   const theme = useTheme();
+  const isMax = usePremiumTier() === "max";
   const styles = getStyles(theme);
   const avatarConfig = mergeAvatarConfig(avatar);
   const headerColors = AVATAR_BACKGROUNDS[avatarConfig.background];
@@ -118,8 +120,10 @@ export default function ProfileHeader({
       </View>
 
       {isSuper && (
-        <View style={styles.superBadge}>
-          <Text style={styles.superText}>SUPER</Text>
+        <View style={[styles.superBadge, isMax && maxBadge.badge]}>
+          <Text style={[styles.superText, isMax && maxBadge.text]}>
+            {TIER_LABEL[isMax ? "max" : "super"]}
+          </Text>
         </View>
       )}
 

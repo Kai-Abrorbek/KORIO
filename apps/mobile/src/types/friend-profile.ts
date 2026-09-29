@@ -21,6 +21,8 @@ export interface FriendProfile {
   username: string;
   joinedYear: number;
   isSuper: boolean;
+  /** super | max. 프리미엄이 아니면 null */
+  superTier?: "super" | "max" | null;
   /** 지금 앱에 접속 중인지 */
   isOnline?: boolean;
   isFollowing: boolean;

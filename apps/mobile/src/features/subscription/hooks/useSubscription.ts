@@ -29,7 +29,10 @@ export function useSubscription() {
     try {
       const res = await SubscriptionApi.me();
       setSub(res);
-      updateUser({ isSuper: res.isPremium });
+      updateUser({
+        isSuper: res.isPremium,
+        superTier: res.isPremium ? res.tier : null,
+      });
       return res;
     } catch {
       // 권한 조회 실패로 프리미엄을 꺼버리면, 네트워크가 잠깐 끊긴 유료 유저가

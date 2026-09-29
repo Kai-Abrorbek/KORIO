@@ -273,7 +273,13 @@ export default function AccountScreen() {
             icon="diamond"
             color={me.isSuper ? "#E2A83A" : "#A8A8B0"}
             bg={me.isSuper ? "#FCEFC7" : "#ECECEE"}
-            label={me.isSuper ? t("account.superOn") : t("account.superOff")}
+            label={
+              !me.isSuper
+                ? t("account.superOff")
+                : me.superTier === "max"
+                  ? t("account.maxOn")
+                  : t("account.superOn")
+            }
             value={
               me.isSuper && superUntil
                 ? t("account.superUntil", { date: superUntil })

@@ -472,6 +472,7 @@ export default {
     },
     joinedAt: "가입일",
     superOn: "KORIO SUPER 이용 중",
+    maxOn: "KORIO MAX 이용 중",
     superOff: "KORIO SUPER",
     superUntil: "{{date}}까지",
     superCta: "혜택 보러 가기",
@@ -1579,6 +1580,7 @@ export default {
     perMonthLabel: "월",
     terms: "언제든지 해지할 수 있어요. 구독은 자동 갱신됩니다.",
     activeTitle: "SUPER 멤버",
+    activeTitleMax: "MAX 멤버",
     activeSub: "모든 프리미엄 혜택을 이용 중이에요",
     plans: {
       monthly: "월간",

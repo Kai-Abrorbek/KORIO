@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
+import { TIER_LABEL, maxBadge, usePremiumTier } from "@/features/subscription/usePremiumTier";
 
 interface Props {
   progress: number; // 0-1
@@ -46,6 +47,7 @@ export default function LessonHeader({
   showHearts = false,
 }: Props) {
   const { t } = useTranslation();
+  const isMax = usePremiumTier() === "max";
   const progressWidth = useSharedValue(progress);
   const fillScaleY = useSharedValue(1);
   const shimmerX = useSharedValue(-200);
@@ -173,8 +175,10 @@ export default function LessonHeader({
           </View>
         ) : !hideBadges ? (
           isSuper ? (
-            <View style={s.superBadge}>
-              <Text style={s.superText}>SUPER</Text>
+            <View style={[s.superBadge, isMax && maxBadge.badge]}>
+              <Text style={[s.superText, isMax && maxBadge.text]}>
+                {TIER_LABEL[isMax ? "max" : "super"]}
+              </Text>
             </View>
           ) : (
             <Animated.View style={[s.energyBadge, energyStyle]}>

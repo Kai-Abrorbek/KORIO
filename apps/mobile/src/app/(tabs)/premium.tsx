@@ -139,12 +139,24 @@ export default function PremiumScreen() {
         ]}
       >
         <LinearGradient
-          colors={["#9D8DFF", "#776ee2", "#5B4DD4"]}
+          colors={
+            subscription?.tier === "max"
+              ? ["#FFE27A", "#FFC83D", "#F59E0B"]
+              : ["#9D8DFF", "#776ee2", "#5B4DD4"]
+          }
           style={s.activeBadge}
         >
-          <Ionicons name="star" size={40} color="#fff" />
+          <Ionicons
+            name={subscription?.tier === "max" ? "sparkles" : "star"}
+            size={40}
+            color="#fff"
+          />
         </LinearGradient>
-        <Text style={s.activeTitle}>{t("premium.activeTitle")}</Text>
+        <Text style={s.activeTitle}>
+          {subscription?.tier === "max"
+            ? t("premium.activeTitleMax")
+            : t("premium.activeTitle")}
+        </Text>
         <Text style={s.activeSub}>
           {subscription?.isTrial
             ? t("premium.trialLeft", {

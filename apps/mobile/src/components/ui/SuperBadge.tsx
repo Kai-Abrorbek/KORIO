@@ -1,13 +1,23 @@
 import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import {
+  TIER_LABEL,
+  maxBadge,
+  type PremiumTier,
+} from "@/features/subscription/usePremiumTier";
 
 interface Props {
   style?: ViewStyle;
+  /** 없으면 SUPER. 남의 프로필은 서버가 준 등급을 넘긴다 */
+  tier?: PremiumTier | null;
 }
 
-export default function SuperBadge({ style }: Props) {
+export default function SuperBadge({ style, tier }: Props) {
+  const isMax = tier === "max";
   return (
-    <View style={[styles.badge, style]}>
-      <Text style={styles.text}>SUPER</Text>
+    <View style={[styles.badge, isMax && maxBadge.badge, style]}>
+      <Text style={[styles.text, isMax && maxBadge.text]}>
+        {TIER_LABEL[isMax ? "max" : "super"]}
+      </Text>
     </View>
   );
 }

@@ -14,6 +14,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { TIER_LABEL, maxBadge, usePremiumTier } from "@/features/subscription/usePremiumTier";
 import type { ThemeColors } from "@/constants/theme";
 import {
   SuperInfinityBadge,
@@ -37,6 +38,9 @@ export default function SuperCard({
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
+  // MAX 구독자에겐 띠에도 MAX 를 찍는다 (자기가 뭘 샀는지 보여야 한다)
+  const tier = usePremiumTier();
+  const isMax = isSuper && tier === "max";
 
   const shine = useSharedValue(-1);
   useEffect(() => {
@@ -72,7 +76,9 @@ export default function SuperCard({
         style={s.strip}
       >
         <Animated.View style={[s.shine, shineStyle]} pointerEvents="none" />
-        <Text style={s.stripText}>SUPER</Text>
+        <Text style={[s.stripText, isMax && maxBadge.text]}>
+          {TIER_LABEL[isMax ? "max" : "super"]}
+        </Text>
         <Ionicons
           name="chevron-forward"
           size={18}
