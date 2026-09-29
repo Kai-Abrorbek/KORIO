@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
@@ -19,6 +20,7 @@ import { usePasswordResetStore } from "@/store/password-reset.store";
 import { authService } from "@/services/auth.service";
 import KorioLogo from "@/components/home/KorioLogo";
 import TrialBanner from "@/components/auth/TrialBanner";
+import PrimaryButton from "@/components/ui/PrimaryButton";
 
 /** 서버 DTO 의 @MinLength(6) 과 같다 */
 const MIN_PASSWORD = 6;
@@ -35,6 +37,7 @@ const E164 = /^\+[1-9]\d{7,14}$/;
 export default function RegisterScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = getStyles(theme);
   const startFlow = usePasswordResetStore((st) => st.startFlow);
   const { sessionId } = useOnboardingStore();
@@ -91,7 +94,8 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <TouchableOpacity
@@ -222,21 +226,22 @@ export default function RegisterScreen() {
               <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
-
-          <TouchableOpacity
-            style={[styles.primaryButton, !ready && styles.primaryButtonDisabled]}
-            onPress={handleRegister}
-            disabled={!ready}
-          >
-            <Text style={styles.primaryButtonText}>
-              {loading ? t("common.loading") : t("auth.register")}
-            </Text>
-          </TouchableOpacity>
         </View>
+      </ScrollView>
 
+      {/* 확인 버튼은 ScrollView 밖 — 하단 고정 + 네비바 위 (AuthStepLayout 과 같은 규칙) */}
+      <View style={[styles.ctaBar, { paddingBottom: insets.bottom + 10 }]}>
+        <PrimaryButton
+          label={loading ? t("common.loading") : t("auth.register")}
+          onPress={() => void handleRegister()}
+          disabled={!ready}
+          color={theme.primary}
+          darkColor="#5b52c4"
+        />
         <TouchableOpacity
           style={styles.loginLink}
           onPress={() => router.push("/auth/login")}
+          hitSlop={8}
         >
           <Text style={styles.loginLinkText}>
             {t("auth.hasAccount")}{" "}
@@ -245,7 +250,7 @@ export default function RegisterScreen() {
             </Text>
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -258,8 +263,8 @@ const getStyles = (theme: ThemeColors) =>
     },
     scroll: {
       flexGrow: 1,
-      padding: 24,
-      paddingTop: 60,
+      paddingHorizontal: 24,
+      paddingBottom: 24,
     },
     backButton: {
       width: 40,
@@ -327,31 +332,17 @@ const getStyles = (theme: ThemeColors) =>
       fontSize: 13,
       color: "#E24B4A",
     },
-    primaryButton: {
-      backgroundColor: theme.primary,
-      borderRadius: 999,
-      padding: 18,
-      alignItems: "center",
-      shadowColor: theme.primary,
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.3,
-      shadowRadius: 24,
-      elevation: 8,
-      marginTop: 8,
-    },
-    primaryButtonDisabled: {
-      backgroundColor: theme.border,
-      shadowOpacity: 0,
-      elevation: 0,
-    },
-    primaryButtonText: {
-      color: "#fff",
-      fontSize: 17,
-      fontWeight: "700",
+    ctaBar: {
+      paddingHorizontal: 24,
+      paddingTop: 12,
+      gap: 12,
+      backgroundColor: theme.bg,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
     },
     loginLink: {
       alignItems: "center",
-      marginTop: 32,
+      paddingVertical: 2,
     },
     loginLinkText: {
       fontSize: 14,
