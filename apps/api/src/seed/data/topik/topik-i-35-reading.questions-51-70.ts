@@ -17,7 +17,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     choices: ['만날 수', '보낼 수', '가르칠 수', '기다릴 수'],
     answer: '1',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '하늘에서 일하는 사람들은 아직 없어서 지금은 그런 사람들을 만날 수 없습니다.',
+    explanationKo:
+      '하늘에서 일하는 사람들은 아직 없어서 지금은 그런 사람들을 만날 수 없습니다.',
   }),
   question({
     number: 52,
@@ -33,7 +34,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     ],
     answer: '2',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '하늘을 나는 자동차를 만드는 사람과 하늘의 교통경찰처럼 미래에 생길 직업을 이야기합니다.',
+    explanationKo:
+      '하늘을 나는 자동차를 만드는 사람과 하늘의 교통경찰처럼 미래에 생길 직업을 이야기합니다.',
   }),
   question({
     number: 53,
@@ -44,7 +46,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     choices: ['많이', '잠깐', '늦게', '일찍'],
     answer: '4',
     choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
-    explanationKo: '아침 운동을 하기 위해 일찍 일어나는 것이 힘들다는 내용입니다.',
+    explanationKo:
+      '아침 운동을 하기 위해 일찍 일어나는 것이 힘들다는 내용입니다.',
   }),
   question({
     number: 54,
@@ -70,7 +73,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     choices: ['그러면', '그래서', '그리고', '그러니까'],
     answer: '3',
     choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
-    explanationKo: '안경을 쓰는 경우를 하나 더 덧붙이는 자리이므로 ‘그리고’가 알맞습니다.',
+    explanationKo:
+      '안경을 쓰는 경우를 하나 더 덧붙이는 자리이므로 ‘그리고’가 알맞습니다.',
   }),
   question({
     number: 56,
@@ -85,7 +89,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
       '저는 사람을 만날 때 안경을 벗습니다.',
     ],
     answer: '2',
-    explanationKo: '멋있게 보이고 싶을 때 유행하는 안경을 쓴다고 했으므로 그 안경을 가지고 있습니다.',
+    explanationKo:
+      '멋있게 보이고 싶을 때 유행하는 안경을 쓴다고 했으므로 그 안경을 가지고 있습니다.',
   }),
   question({
     number: 57,
@@ -108,7 +113,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     answer: '4',
     template: TopikVisualTemplate.EXAM_SENTENCE_SET,
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '모든 동물이 잠을 잔다는 일반적인 말 뒤에 수면 시간의 차이를 소개하고, 말과 개·고양이를 차례로 예로 듭니다.',
+    explanationKo:
+      '모든 동물이 잠을 잔다는 일반적인 말 뒤에 수면 시간의 차이를 소개하고, 말과 개·고양이를 차례로 예로 듭니다.',
   }),
   question({
     number: 58,
@@ -131,7 +137,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     answer: '2',
     template: TopikVisualTemplate.EXAM_SENTENCE_SET,
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '고향의 딸기를 소개하고 축제를 설명한 뒤, 축제에서 할 수 있는 두 가지 활동을 이어서 말합니다.',
+    explanationKo:
+      '고향의 딸기를 소개하고 축제를 설명한 뒤, 축제에서 할 수 있는 두 가지 활동을 이어서 말합니다.',
   }),
   question({
     number: 59,
@@ -143,7 +150,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     answer: '2',
     template: TopikVisualTemplate.EXAM_INSERTION,
     choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
-    explanationKo: '스프에 소금이 있다는 설명 다음에 국물을 먹지 않는 방법을 제시해야 하므로 ㉡이 자연스럽습니다.',
+    explanationKo:
+      '스프에 소금이 있다는 설명 다음에 국물을 먹지 않는 방법을 제시해야 하므로 ㉡이 자연스럽습니다.',
   }),
   question({
     number: 60,
@@ -158,7 +166,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
       '라면의 소금을 적게 먹는 방법은 한 가지입니다.',
     ],
     answer: '3',
-    explanationKo: '스프를 늦게 넣는 것이 소금을 덜 먹는 방법이라고 했으므로 먼저 넣으면 더 많이 먹게 됩니다.',
+    explanationKo:
+      '스프를 늦게 넣는 것이 소금을 덜 먹는 방법이라고 했으므로 먼저 넣으면 더 많이 먹게 됩니다.',
   }),
   question({
     number: 61,
@@ -169,7 +178,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     choices: ['오래 쓰지', '가끔 내지', '자주 만들지', '계속 나오지'],
     answer: '1',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '지폐는 쉽게 찢어지고 더러워져서 오래 쓰지 못한다는 내용입니다.',
+    explanationKo:
+      '지폐는 쉽게 찢어지고 더러워져서 오래 쓰지 못한다는 내용입니다.',
   }),
   question({
     number: 62,
@@ -199,7 +209,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
       '대회 시간과 장소를 알려 주려고',
     ],
     answer: '4',
-    explanationKo: '이미 참가 신청을 받은 사람들에게 대회의 시간과 장소, 비가 올 때의 장소를 안내하고 있습니다.',
+    explanationKo:
+      '이미 참가 신청을 받은 사람들에게 대회의 시간과 장소, 비가 올 때의 장소를 안내하고 있습니다.',
   }),
   question({
     number: 64,
@@ -214,7 +225,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
       '날씨가 좋으면 운동장에서 농구 대회를 할 겁니다.',
     ],
     answer: '4',
-    explanationKo: '대회는 운동장에서 열리고, 비가 올 때만 학생회관 옆 체육관으로 옮깁니다.',
+    explanationKo:
+      '대회는 운동장에서 열리고, 비가 올 때만 학생회관 옆 체육관으로 옮깁니다.',
   }),
   question({
     number: 65,
@@ -230,7 +242,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     ],
     answer: '2',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '식혜가 소화를 도와주므로 음식을 먹은 후에 마신다는 뜻입니다.',
+    explanationKo:
+      '식혜가 소화를 도와주므로 음식을 먹은 후에 마신다는 뜻입니다.',
   }),
   question({
     number: 66,
@@ -256,7 +269,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     choices: ['나지', '많지', '없어지지', '달라지지'],
     answer: '1',
     choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
-    explanationKo: '한곳에 계속 앉아 있으면 좋은 생각이 나지 않는다는 내용입니다.',
+    explanationKo:
+      '한곳에 계속 앉아 있으면 좋은 생각이 나지 않는다는 내용입니다.',
   }),
   question({
     number: 68,
@@ -272,7 +286,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     ],
     answer: '3',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '집 안이나 사무실 안에서 걸어도 좋으므로 꼭 밖으로 나가지 않아도 됩니다.',
+    explanationKo:
+      '집 안이나 사무실 안에서 걸어도 좋으므로 꼭 밖으로 나가지 않아도 됩니다.',
   }),
   question({
     number: 69,
@@ -288,7 +303,8 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
     ],
     answer: '4',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '공연에서 할머니의 노래를 처음 듣게 되므로 전에는 할머니의 노래를 들은 적이 없습니다.',
+    explanationKo:
+      '공연에서 할머니의 노래를 처음 듣게 되므로 전에는 할머니의 노래를 들은 적이 없습니다.',
   }),
   question({
     number: 70,
@@ -303,6 +319,7 @@ export const TOPIK_I_35_READING_QUESTIONS_51_70: TopikSeedQuestion[] = [
       '우리 가족은 할머니의 공연을 보러 갔습니다.',
     ],
     answer: '1',
-    explanationKo: '할머니가 공연에서 노래를 하실 예정이므로 노래 부르기를 좋아하신다는 것을 알 수 있습니다.',
+    explanationKo:
+      '할머니가 공연에서 노래를 하실 예정이므로 노래 부르기를 좋아하신다는 것을 알 수 있습니다.',
   }),
 ];

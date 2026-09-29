@@ -149,7 +149,12 @@ function solution(
       {
         key: 'hint-3',
         level: 3,
-        title: localized('정답 확인', 'Javobni tekshirish', 'Check the answer', 'Проверьте ответ'),
+        title: localized(
+          '정답 확인',
+          'Javobni tekshirish',
+          'Check the answer',
+          'Проверьте ответ',
+        ),
         content: explanation,
         examples: [
           localized(

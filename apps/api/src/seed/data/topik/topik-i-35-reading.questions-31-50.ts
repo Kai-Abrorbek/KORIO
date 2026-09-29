@@ -59,7 +59,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     answer: '3',
     template: TopikVisualTemplate.EXAM_SENTENCE,
     choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
-    explanationKo: '김민수와 제임스라는 사람의 이름을 말하고 있으므로 ‘이름’이 정답입니다.',
+    explanationKo:
+      '김민수와 제임스라는 사람의 이름을 말하고 있으므로 ‘이름’이 정답입니다.',
   }),
   question({
     number: 32,
@@ -131,7 +132,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     answer: '3',
     template: TopikVisualTemplate.EXAM_SENTENCE,
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '일이 많기 때문에 바쁘다는 뜻이므로 ‘많습니다’가 알맞습니다.',
+    explanationKo:
+      '일이 많기 때문에 바쁘다는 뜻이므로 ‘많습니다’가 알맞습니다.',
   }),
   question({
     number: 38,
@@ -172,7 +174,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     ],
     answer: '3',
     template: TopikVisualTemplate.EXAM_INFO_CARD,
-    explanationKo: '광고를 낸 사람은 컴퓨터를 팔고 싶어 합니다. 받고 싶어 하는 것이 아닙니다.',
+    explanationKo:
+      '광고를 낸 사람은 컴퓨터를 팔고 싶어 합니다. 받고 싶어 하는 것이 아닙니다.',
   }),
   question({
     number: 41,
@@ -189,7 +192,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     ],
     answer: '2',
     template: TopikVisualTemplate.EXAM_INFO_CARD,
-    explanationKo: '지현 씨는 회사 앞 커피숍에 있다고 했으므로 회사 안이라는 설명은 틀립니다.',
+    explanationKo:
+      '지현 씨는 회사 앞 커피숍에 있다고 했으므로 회사 안이라는 설명은 틀립니다.',
   }),
   question({
     number: 42,
@@ -206,7 +210,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     ],
     answer: '4',
     template: TopikVisualTemplate.EXAM_ADVERTISEMENT,
-    explanationKo: '음악회는 매주 토요일 오후 8시에 시작하므로 일곱 시라는 설명은 틀립니다.',
+    explanationKo:
+      '음악회는 매주 토요일 오후 8시에 시작하므로 일곱 시라는 설명은 틀립니다.',
   }),
   question({
     number: 43,
@@ -224,7 +229,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 학생 식당에서 아르바이트를 합니다.',
     ],
     answer: '1',
-    explanationKo: '‘매일 아침 산책을 하고’라고 했으므로 아침마다 산책한다는 말이 같습니다.',
+    explanationKo:
+      '‘매일 아침 산책을 하고’라고 했으므로 아침마다 산책한다는 말이 같습니다.',
   }),
   question({
     number: 44,
@@ -242,7 +248,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 월요일마다 어려운 시험이 있습니다.',
     ],
     answer: '2',
-    explanationKo: '시험을 준비하려고 날마다 도서관에서 공부하므로 요즘 열심히 공부한다는 말이 같습니다.',
+    explanationKo:
+      '시험을 준비하려고 날마다 도서관에서 공부하므로 요즘 열심히 공부한다는 말이 같습니다.',
   }),
   question({
     number: 45,
@@ -260,7 +267,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 친구에게 냉장고를 주었습니다.',
     ],
     answer: '2',
-    explanationKo: '친구에게 받은 냉장고가 커서 좋다고 했으므로 냉장고가 마음에 듭니다.',
+    explanationKo:
+      '친구에게 받은 냉장고가 커서 좋다고 했으므로 냉장고가 마음에 듭니다.',
   }),
   question({
     number: 46,
@@ -278,7 +286,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 집에서 영화 보는 것을 좋아합니다.',
     ],
     answer: '4',
-    explanationKo: '집에서 영화 볼 때의 장점을 말하므로 집에서 영화 보는 것을 좋아한다는 것이 중심 생각입니다.',
+    explanationKo:
+      '집에서 영화 볼 때의 장점을 말하므로 집에서 영화 보는 것을 좋아한다는 것이 중심 생각입니다.',
   }),
   question({
     number: 47,
@@ -296,7 +305,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 지현 씨를 도와주었습니다.',
     ],
     answer: '3',
-    explanationKo: '지현 씨가 일을 도와주어서 커피를 사 주었으므로 고마운 마음을 표현한 것입니다.',
+    explanationKo:
+      '지현 씨가 일을 도와주어서 커피를 사 주었으므로 고마운 마음을 표현한 것입니다.',
   }),
   question({
     number: 48,
@@ -314,7 +324,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '저는 두 달 전에 공연을 봤습니다.',
     ],
     answer: '3',
-    explanationKo: '공연 표를 이미 샀고 빨리 보고 싶다고 했으므로 공연을 기다리고 있습니다.',
+    explanationKo:
+      '공연 표를 이미 샀고 빨리 보고 싶다고 했으므로 공연을 기다리고 있습니다.',
   }),
   question({
     number: 49,
@@ -325,7 +336,8 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
     choices: ['친구가 산', '친구가 만든', '사람들이 선물한', '사람들이 버리는'],
     answer: '2',
     choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
-    explanationKo: '친구가 종이컵에 직접 그림을 그리므로 친구가 만든 종이컵은 하나뿐입니다.',
+    explanationKo:
+      '친구가 종이컵에 직접 그림을 그리므로 친구가 만든 종이컵은 하나뿐입니다.',
   }),
   question({
     number: 50,
@@ -340,6 +352,7 @@ export const TOPIK_I_35_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
       '친구는 종이컵에 예쁘게 그림을 그립니다.',
     ],
     answer: '4',
-    explanationKo: '친구가 시간이 있을 때마다 종이컵에 그림을 그린다고 했습니다.',
+    explanationKo:
+      '친구가 시간이 있을 때마다 종이컵에 그림을 그린다고 했습니다.',
   }),
 ];
