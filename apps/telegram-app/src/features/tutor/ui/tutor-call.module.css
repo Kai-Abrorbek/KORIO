@@ -1,7 +1,8 @@
 .root {
   --glass: rgba(255, 255, 255, 0.07);
   --glass-line: rgba(255, 255, 255, 0.14);
-  background: #0b0818;
+  /* 밤바다 톤 — 모바일 SCENE (top #0F3446 · mid #0B2233 · base #06111B) */
+  background: #06111b;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -23,7 +24,7 @@
 
 /* ── 배경 ── */
 .backdrop {
-  background: linear-gradient(160deg, #2b2453 0%, #1a1533 46%, #0b0818 100%);
+  background: linear-gradient(160deg, #0f3446 0%, #0b2233 46%, #06111b 100%);
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -119,7 +120,7 @@
 }
 
 .scrim {
-  background: linear-gradient(180deg, transparent 0%, rgba(9, 7, 20, 0.55) 42%, #090714 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(6, 17, 27, 0.55) 42%, #06111b 100%);
   bottom: 0;
   height: 62%;
   left: 0;
@@ -259,7 +260,7 @@
 
 .progressCard {
   backdrop-filter: blur(8px);
-  background: rgba(14, 11, 26, 0.5);
+  background: rgba(6, 17, 27, 0.5);
   border: 1px solid var(--glass-line);
   border-radius: 16px;
   display: flex;
@@ -331,20 +332,6 @@
   width: 100%;
 }
 
-.cheer {
-  animation: fadeIn 600ms ease both;
-  color: rgba(255, 255, 255, 0.5);
-  flex: 1;
-  font-size: 15px;
-  font-style: italic;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  line-height: 24px;
-  margin: 8px 0 0;
-  text-align: right;
-  transform: rotate(-6deg);
-  white-space: pre-line;
-}
 
 @keyframes fadeIn {
   from {
@@ -356,7 +343,7 @@
 .glass {
   animation: fadeIn 180ms ease both;
   backdrop-filter: blur(10px);
-  background: rgba(12, 9, 24, 0.6);
+  background: rgba(6, 17, 27, 0.6);
   border: 1px solid var(--glass-line);
   border-radius: 22px;
   display: flex;
@@ -480,20 +467,6 @@
   text-align: center;
 }
 
-.explainText {
-  -webkit-box-orient: vertical;
-  animation: fadeIn 180ms ease both;
-  color: rgba(255, 255, 255, 0.56);
-  display: -webkit-box;
-  font-size: 14px;
-  font-weight: 600;
-  -webkit-line-clamp: 3;
-  line-height: 21px;
-  margin: 0;
-  overflow: hidden;
-  text-align: center;
-  white-space: pre-line;
-}
 
 /* ── 오늘의 표현 카드 ── */
 .card {
@@ -657,31 +630,8 @@
   text-align: center;
 }
 
-.quota {
-  align-items: center;
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  gap: 6px;
-  padding-top: 12px;
-}
 
-.quota p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0;
-}
 
-.quota button {
-  background: transparent;
-  border: 0;
-  color: #b3a6ff !important;
-  font-size: 13px;
-  font-weight: 900;
-  padding: 0;
-  text-decoration: underline;
-}
 
 /* ── 조작 ── */
 .controls {
@@ -765,35 +715,19 @@
   transform: translateY(4px);
 }
 
+/* 통화 전·후엔 조작 자리만 비워 둔다 (높이 유지) */
+.controlsIdle {
+  height: 58px;
+  width: 100%;
+}
+
 /* 수화기를 내려놓는 각도 */
 .end svg {
   transform: rotate(135deg);
 }
 
-.again {
-  align-items: center;
-  background: #776ee2;
-  border: 0;
-  border-bottom: 5px solid #5b4dd4;
-  border-radius: 29px;
-  display: flex;
-  flex: 1;
-  font-size: 16px;
-  font-weight: 900;
-  gap: 8px;
-  height: 58px;
-  justify-content: center;
-  transition: transform 70ms ease, border-bottom-width 70ms ease;
-}
 
-.again:not(:disabled):active {
-  border-bottom-width: 2px;
-  transform: translateY(3px);
-}
 
-.again:disabled {
-  opacity: 0.4;
-}
 
 .brand {
   color: rgba(255, 255, 255, 0.26);
@@ -832,7 +766,7 @@
 .analyzing {
   align-items: center;
   animation: fadeIn 200ms ease both;
-  background: rgba(11, 8, 24, 0.88);
+  background: rgba(6, 17, 27, 0.9);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -860,195 +794,5 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-/* ── 선생님 캐릭터 ── */
-.character {
-  align-items: center;
-  display: flex;
-  height: var(--halo);
-  justify-content: center;
-  position: relative;
-  width: var(--halo);
-}
-
-.ring {
-  border: 1.5px solid var(--accent);
-  border-radius: 50%;
-  height: var(--halo);
-  opacity: 0;
-  position: absolute;
-  transform: scale(0.7);
-  width: var(--halo);
-}
-
-.characterAlive .ring {
-  animation: ring 2250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-}
-
-@keyframes ring {
-  0% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  14% {
-    opacity: 0.42;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-
-.characterGlow {
-  animation: glow var(--breath) ease-in-out infinite alternate;
-  background: var(--accent);
-  border-radius: 50%;
-  filter: blur(14px);
-  height: calc(var(--disc) * 1.24);
-  position: absolute;
-  transition: background-color 300ms ease;
-  width: calc(var(--disc) * 1.24);
-}
-
-@keyframes glow {
-  from {
-    opacity: var(--glow-min);
-    transform: scale(1);
-  }
-  to {
-    opacity: var(--glow-max);
-    transform: scale(1.07);
-  }
-}
-
-.disc {
-  align-items: center;
-  animation: breath var(--breath) ease-in-out infinite alternate;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
-    linear-gradient(150deg, var(--disc-a) 0%, var(--disc-b) 50%, #1b1730 100%);
-  border-radius: 50%;
-  box-shadow: 0 12px 26px color-mix(in srgb, var(--accent) 55%, transparent);
-  display: flex;
-  height: var(--disc);
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  width: var(--disc);
-}
-
-@keyframes breath {
-  from {
-    transform: scale(1) translateY(0);
-  }
-  to {
-    transform: scale(var(--breath-scale)) translateY(var(--breath-lift));
-  }
-}
-
-.discEmoji {
-  line-height: 1;
-  position: relative;
-  text-align: center;
-}
-
-.discSheen {
-  animation: sheen 3250ms ease-in-out infinite;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-  height: var(--halo);
-  left: 50%;
-  margin-left: calc(var(--disc) * -0.11);
-  opacity: 0;
-  position: absolute;
-  top: -20px;
-  width: calc(var(--disc) * 0.22);
-}
-
-/* 광택은 쉬었다 한 번씩 지나간다. 계속 돌면 싸구려로 보인다 */
-@keyframes sheen {
-  0%,
-  67.7% {
-    opacity: 0;
-    transform: translateX(calc(var(--disc) * -0.95)) rotate(22deg);
-  }
-  75.8% {
-    opacity: 0.5;
-  }
-  91.9% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(calc(var(--disc) * 0.95)) rotate(22deg);
-  }
-}
-
-.discRim {
-  border: 1.5px solid var(--accent-rim);
-  border-radius: 50%;
-  inset: 0;
-  position: absolute;
-  transition: border-color 300ms ease;
-}
-
-.characterBadge {
-  align-items: center;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
-  border-radius: 999px;
-  bottom: 0;
-  display: flex;
-  gap: 3px;
-  height: 26px;
-  padding: 0 12px;
-  position: absolute;
-}
-
-.badgeBar,
-.badgeBarFast {
-  animation: badgeSlow ease-in-out infinite alternate both;
-  background: var(--accent);
-  border-radius: 2px;
-  display: block;
-  height: 4px;
-  width: 3px;
-}
-
-.badgeBarFast {
-  animation-name: badgeFast;
-}
-
-@keyframes badgeSlow {
-  from {
-    height: 4px;
-  }
-  to {
-    height: 8px;
-  }
-}
-
-@keyframes badgeFast {
-  from {
-    height: 5px;
-  }
-  to {
-    height: 15px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .blobA,
-  .blobB,
-  .keyLight,
-  .ring,
-  .characterGlow,
-  .disc,
-  .discSheen,
-  .waveBarOn,
-  .badgeBar,
-  .badgeBarFast {
-    animation: none !important;
   }
 }

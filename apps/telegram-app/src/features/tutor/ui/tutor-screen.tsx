@@ -5,16 +5,28 @@ import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
-import { translateText } from "../../../shared/i18n/language-context";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
-import { explainTutorCaption } from "../api/tutor";
-import { useRealtimeTutor } from "../model/use-realtime-tutor";
+import { useVoiceTutor } from "../model/use-voice-tutor";
+import type { TutorState, VoiceTutorPhase, VoiceTutorSettings, VoiceTutorTopicCard } from "../model/voice-tutor";
 import { TutorCall } from "./tutor-call";
-import { TutorSetup, type TutorSetupResult } from "./tutor-setup";
-import { TutorSummary } from "./tutor-summary";
+import { PERSONALITY_LABELS } from "./tutor-labels";
+import { TutorResult } from "./tutor-result";
+import { TutorSetup } from "./tutor-setup";
+import styles from "./tutor-setup.module.css";
 
 /** 모바일 useSpeech 의 "천천히" 와 같은 비율 */
 const SLOW_FACTOR = 0.55;
+
+const CALL_STATE: Record<VoiceTutorPhase, TutorState> = {
+  setup: "idle",
+  starting: "connecting",
+  connecting: "connecting",
+  ready: "listening",
+  thinking: "thinking",
+  speaking: "speaking",
+  ending: "idle",
+  finished: "idle",
+};
 
 function savedSpeechRate() {
   try {
@@ -26,26 +38,20 @@ function savedSpeechRate() {
 }
 
 /**
- * 튜터 화면의 세 상태 — 모바일 TutorScreen 과 같다.
+ * 새 Voice Tutor — 설정 → 통화 → 결과. 모바일 VoiceTutorScreen 과 같다.
  *
- *   설정 → 통화 → 정리
- *
- * 예전엔 "선생님 → 주제" 두 화면이었고 주제를 누르는 순간 과금되는 통화가 열렸다.
- * 지금은 설정이 한 페이지고 시작은 버튼으로만 한다.
+ * ⚠️ 예전 텔레그램 튜터는 /tutor/* (Gemini Live) 였다. 모바일과 같은 튜터
+ *    (STT → GPT → ElevenLabs, /voice-tutor/*) 로 옮겼다.
  */
 export function TutorScreen() {
   const router = useRouter();
-  const { request } = useTelegramAuth();
+  const { accessToken, request } = useTelegramAuth();
   const { speak, stop: stopSpeech } = useKoreanSpeech(request);
   const speechFinishRef = useRef<(() => void) | null>(null);
-
-  /** 이번 세션에 고른 주제 제목·선생님 이름·성격. 서버 grant 에는 없다 */
-  const [topicTitle, setTopicTitle] = useState<string | undefined>(undefined);
-  const [teacherName, setTeacherName] = useState<string | undefined>(undefined);
-  const [teacherPersonality, setTeacherPersonality] = useState<string | undefined>(undefined);
-
-  const tutor = useRealtimeTutor(request);
-  const { active, analyzing, clearSummary, start, stop, summary } = tutor;
+  const tutor = useVoiceTutor(request, accessToken);
+  const { end } = tutor;
+  /** 이번 수업 주제. 통화 화면 진도 카드용 */
+  const [topic, setTopic] = useState<VoiceTutorTopicCard | null>(null);
 
   /** 재생이 끝날 때까지 기다린다 — 안 기다리면 마이크가 먼저 열려 AI 가 예문에 대답한다 */
   const playKorean = useCallback(
@@ -84,106 +90,122 @@ export function TutorScreen() {
     else router.replace("/course-categories");
   }, [router]);
 
-  const close = useCallback(async () => {
-    await stop();
+  const inCall = tutor.inCall;
+  const close = useCallback(() => {
+    if (inCall || tutor.phase === "ending") void end(false);
     goBack();
-  }, [goBack, stop]);
+  }, [end, goBack, inCall, tutor.phase]);
 
-  const explain = useCallback(
-    async (text: string) => {
-      const failed = translateText("Izohni olib bo'lmadi");
-      try {
-        const result = await explainTutorCaption(request, text);
-        return [result.translation, result.explanation].filter(Boolean).join("\n\n") || failed;
-      } catch {
-        return failed;
-      }
-    },
-    [request],
-  );
+  // 통화 중 텔레그램 "뒤로" 는 먼저 수업을 끝내고(사용 시간 정산) 나간다
+  useTelegramBackOverride(inCall || tutor.phase === "ending" ? close : null);
 
-  const onStart = useCallback(
-    (options: TutorSetupResult) => {
-      setTopicTitle(options.topicTitle);
-      setTeacherName(options.teacherName);
-      setTeacherPersonality(options.teacherPersonality);
-      void start("freeTalk", {
-        addressStyle: options.addressStyle,
-        teacherId: options.teacherId,
-        teachingLanguage: options.teachingLanguage,
-        topicId: options.topicId,
-      });
-    },
-    [start],
-  );
+  const update = (key: keyof VoiceTutorSettings, value: string) => {
+    tutor.setSettings((current) => (current ? { ...current, [key]: value } : current));
+  };
 
-  // 통화 중 텔레그램 "뒤로" 는 먼저 통화를 끊고(사용 시간 보고) 나간다
-  useTelegramBackOverride(active || analyzing ? () => void close() : null);
-
-  if (summary) {
+  if (tutor.loading) {
     return (
-      <TutorSummary
-        data={summary}
-        onAgain={() => {
-          // 선생님·언어·말투는 저장돼 있어서 그대로 고른 채로 돌아온다. 주제만 비운다
-          clearSummary();
-          setTopicTitle(undefined);
-        }}
-        onClose={() => {
-          clearSummary();
-          goBack();
-        }}
-        onSpeak={(text) => void playKorean(text)}
-        topicTitle={topicTitle}
-      />
+      <main className={styles.screen}>
+        <div className={styles.center}>
+          <span className={styles.spinner} />
+        </div>
+      </main>
     );
   }
 
-  // 통화가 안 붙었으면 설정 화면. 실패(error)도 여기로 와서 이유를 보고 바로 다시 시작한다.
-  // ⚠️ analyzing 중엔 안 된다 — 통화 화면이 "정리 중" 오버레이를 띄우고 있다
-  if (!active && !analyzing) {
+  if (!tutor.options || !tutor.settings) {
+    return (
+      <main className={styles.screen}>
+        <div className={styles.center}>
+          <p className={styles.errorText}>Ustoz sozlamalari yuklanmadi.</p>
+          <button className={styles.retry} onClick={() => void tutor.load()} type="button">
+            Qayta urinish
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (tutor.phase === "setup" || tutor.phase === "starting") {
     return (
       <TutorSetup
-        busy={tutor.busy}
+        busy={tutor.phase === "starting"}
         error={tutor.error}
+        onChange={update}
         onClose={goBack}
-        onStart={onStart}
+        onPreview={(voice) => void tutor.previewVoice(voice)}
+        onStart={(picked) => {
+          setTopic(picked);
+          void tutor.start(picked?.id ?? null);
+        }}
         onUpsell={() => router.push("/premium")}
+        options={tutor.options}
+        previewVoiceId={tutor.previewVoiceId}
         quota={tutor.quota}
         request={request}
+        settings={tutor.settings}
       />
     );
   }
+
+  if (tutor.phase === "finished") {
+    return (
+      <TutorResult
+        elapsedSec={tutor.elapsedSec}
+        messages={tutor.messages}
+        onAgain={() => {
+          setTopic(null);
+          tutor.restart();
+        }}
+        onClose={goBack}
+        plan={tutor.plan}
+        progress={tutor.progress}
+        topicTitle={topic?.title}
+      />
+    );
+  }
+
+  // 지금 자막: 말하는 중이면 실시간 글자, 아니면 마지막 선생님 말
+  const teacherMessages = tutor.messages.filter((m) => m.role === "teacher");
+  const lastTeacher = teacherMessages.at(-1);
+  const prevTeacher = teacherMessages.at(-2);
+  const lastUser = [...tutor.messages].reverse().find((m) => m.role === "user");
+  const textOf = (m?: { displayText?: string; text: string }) => m?.displayText?.trim() || m?.text || "";
+  const caption = tutor.liveTeacherText || textOf(lastTeacher);
+  const captionPrev = tutor.liveTeacherText ? textOf(lastTeacher) : textOf(prevTeacher);
+  const userSaid = tutor.liveUserText || (lastUser?.text.startsWith("[[button") ? "" : lastUser?.text) || "";
+  const voice = tutor.options.voices.find((v) => v.id === tutor.settings?.voiceId);
 
   return (
     <TutorCall
-      active={active}
-      analyzing={analyzing}
+      active={inCall || (tutor.phase === "ending" && !!tutor.error)}
+      analyzing={tutor.phase === "ending" && !tutor.error}
       audioBlocked={tutor.audioBlocked}
-      busy={tutor.busy}
-      caption={tutor.caption}
-      captionPrev={tutor.captionPrev}
+      canReplay={!!lastTeacher && tutor.phase !== "connecting"}
+      caption={caption}
+      captionPrev={captionPrev === caption ? "" : captionPrev}
       elapsedSec={tutor.elapsedSec}
+      emotion={tutor.phase === "speaking" ? lastTeacher?.emotion : undefined}
       error={tutor.error}
-      examples={tutor.examples}
-      maxSec={tutor.maxSec}
+      focusHint={lastTeacher?.correction?.correct ?? ""}
+      limitSec={tutor.limitSec}
       micOn={tutor.micOn}
-      onClose={() => void close()}
-      onEnd={() => void stop()}
-      onExplain={explain}
-      onPickAnother={() => void stop()}
+      onClose={close}
+      onEnd={() => void tutor.end()}
+      onExplain={() => void tutor.requestTurn("explain")}
+      onReplay={() => {
+        if (lastTeacher) void tutor.playMessage(lastTeacher);
+      }}
       onResumeAudio={() => void tutor.resumeAudio()}
-      onUpsell={() => router.push("/premium")}
+      onSlower={() => void tutor.requestTurn("slower")}
       playKorean={playKorean}
-      quota={tutor.quota}
-      state={tutor.state}
-      targets={tutor.targets}
-      teacher={tutor.teacher}
-      teacherName={teacherName}
-      teacherPersonality={teacherPersonality}
+      state={tutor.error && tutor.phase === "ending" ? "error" : CALL_STATE[tutor.phase]}
+      targets={topic ? (tutor.plan?.targetVocabulary ?? []) : []}
+      teacherName={voice?.name}
+      teacherPersonality={PERSONALITY_LABELS[tutor.settings.personality]?.name}
       toggleMic={tutor.toggleMic}
-      topicTitle={topicTitle}
-      userSaid={tutor.userSaid}
+      topicTitle={topic?.title}
+      userSaid={userSaid}
       withMicMuted={tutor.withMicMuted}
     />
   );

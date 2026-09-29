@@ -1,0 +1,321 @@
+/* 모바일 TutorMascot 을 CSS 로 옮겼다. 크기는 전부 --size 비율이다 */
+.mascot {
+  --w: var(--size);
+  --h: calc(var(--size) * 0.86);
+  --eye: calc(var(--size) * 0.13);
+  align-items: center;
+  display: flex;
+  height: calc(var(--h) * 1.5 + var(--size) * 0.14);
+  justify-content: center;
+  pointer-events: none;
+  position: relative;
+  width: calc(var(--w) * 1.5);
+}
+
+/* 몸 뒤의 빛. 상태 색으로 호흡한다 */
+.halo {
+  animation: halo var(--halo-dur) ease-in-out infinite alternate;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 60px 20px var(--accent);
+  height: calc(var(--w) * 1.32);
+  position: absolute;
+  transition: background-color 400ms ease, box-shadow 400ms ease;
+  width: calc(var(--w) * 1.32);
+}
+
+@keyframes halo {
+  from {
+    opacity: 0.12;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+}
+
+.body {
+  align-items: center;
+  animation: float var(--float-dur) ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@keyframes float {
+  from {
+    transform: translateY(3px) scale(1) rotate(var(--tilt));
+  }
+  to {
+    transform: translateY(-5px) scale(var(--float-scale)) rotate(var(--tilt));
+  }
+}
+
+.antenna {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: calc(var(--size) * -0.02);
+}
+
+.bulb {
+  background: var(--bulb);
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px var(--bulb);
+  height: calc(var(--size) * 0.09);
+  opacity: 0.7;
+  transition: background-color 300ms ease;
+  width: calc(var(--size) * 0.09);
+}
+
+.state_thinking .bulb,
+.state_connecting .bulb {
+  animation: bulb 380ms ease-in-out infinite alternate;
+}
+
+@keyframes bulb {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.stem {
+  background: #cfc9f4;
+  border-radius: calc(var(--size) * 0.014);
+  height: calc(var(--size) * 0.07);
+  width: calc(var(--size) * 0.028);
+}
+
+/* 몸체: 진주빛 라벤더 */
+.shell {
+  align-items: center;
+  background: linear-gradient(160deg, #fff 0%, #e4e0ff 34%, #aba2f2 78%, #8278da 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  border-radius: calc(var(--size) * 0.36);
+  box-shadow: 0 14px 28px rgba(11, 8, 24, 0.45);
+  display: flex;
+  flex-direction: column;
+  height: var(--h);
+  position: relative;
+  width: var(--w);
+}
+
+.gloss {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: calc(var(--h) * 0.06);
+  height: calc(var(--h) * 0.12);
+  left: calc(var(--w) * 0.13);
+  position: absolute;
+  top: calc(var(--h) * 0.07);
+  transform: rotate(-12deg);
+  width: calc(var(--w) * 0.34);
+}
+
+/* 얼굴 화면 */
+.screen {
+  align-items: center;
+  background: linear-gradient(160deg, #2a2550, #15122b);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: calc(var(--size) * 0.2);
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--h) * 0.5);
+  justify-content: center;
+  margin-top: calc(var(--h) * 0.08);
+  width: calc(var(--w) * 0.76);
+}
+
+.eyes {
+  align-items: center;
+  display: flex;
+  gap: calc(var(--eye) * 1.05);
+}
+
+.eyeSlot {
+  align-items: center;
+  display: flex;
+  height: calc(var(--eye) * 1.4);
+  justify-content: center;
+  position: relative;
+  width: calc(var(--eye) * 1.4);
+}
+
+.eye {
+  --look-x: 0px;
+  --look-y: 0px;
+  --rot: 0deg;
+  --big: 1;
+  --open: 1;
+  animation: blink 3.66s infinite;
+  background: #ffe36e;
+  border-radius: calc(var(--eye) * 0.5);
+  box-shadow: 0 0 12px #ffe36e;
+  height: calc(var(--eye) * 1.18);
+  transform: translate(var(--look-x), var(--look-y)) rotate(var(--rot)) scale(var(--big)) scaleY(var(--open));
+  transition: transform 260ms cubic-bezier(0.34, 1.4, 0.64, 1), opacity 180ms ease;
+  width: var(--eye);
+}
+
+/* 3~4초마다 한 번 깜빡 */
+@keyframes blink {
+  0%,
+  87%,
+  93%,
+  100% {
+    scale: 1 1;
+  }
+  90% {
+    scale: 1 0.12;
+  }
+}
+
+/* 웃는 눈 ^ ^ */
+.arc {
+  border: calc(var(--eye) * 0.24) solid #ffe36e;
+  border-bottom: 0;
+  border-radius: calc(var(--eye) * 0.6) calc(var(--eye) * 0.6) 0 0;
+  height: calc(var(--eye) * 0.62);
+  opacity: 0;
+  position: absolute;
+  transform: translateY(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  width: calc(var(--eye) * 1.15);
+}
+
+.mouth {
+  animation: none;
+  background: #ffe36e;
+  border-radius: calc(var(--size) * 0.05);
+  height: calc(var(--size) * 0.03);
+  margin-top: calc(var(--size) * 0.035);
+  opacity: 0.9;
+  transition: height 160ms ease, width 160ms ease;
+  width: calc(var(--size) * 0.13);
+}
+
+/* 말하는 동안 입이 벌렸다 오므렸다 (시간 기반 립싱크) */
+.state_speaking .mouth {
+  animation: talk 580ms linear infinite;
+}
+
+@keyframes talk {
+  0% {
+    height: calc(var(--size) * 0.03);
+    width: calc(var(--size) * 0.13);
+  }
+  26% {
+    height: calc(var(--size) * 0.075);
+    width: calc(var(--size) * 0.11);
+  }
+  47% {
+    height: calc(var(--size) * 0.045);
+    width: calc(var(--size) * 0.125);
+  }
+  76% {
+    height: calc(var(--size) * 0.065);
+    width: calc(var(--size) * 0.115);
+  }
+  100% {
+    height: calc(var(--size) * 0.035);
+    width: calc(var(--size) * 0.13);
+  }
+}
+
+.cheek {
+  background: rgba(255, 138, 170, 0.45);
+  border-radius: calc(var(--h) * 0.035);
+  bottom: calc(var(--h) * 0.14);
+  height: calc(var(--h) * 0.07);
+  position: absolute;
+  width: calc(var(--w) * 0.13);
+}
+
+.cheekL {
+  left: calc(var(--w) * 0.1);
+}
+
+.cheekR {
+  right: calc(var(--w) * 0.1);
+}
+
+/* ── 상태 ── */
+.state_listening .eye {
+  --big: 1.12;
+}
+
+.state_connecting .eye {
+  --big: 0.82;
+}
+
+/* 연결 중엔 두리번 */
+.state_connecting .eyes {
+  animation: look 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes look {
+  from {
+    transform: translateX(calc(var(--eye) * -0.45));
+  }
+  to {
+    transform: translateX(calc(var(--eye) * 0.45));
+  }
+}
+
+/* 생각할 땐 위쪽을 보고 눈을 조금 감는다 */
+.state_thinking .eye {
+  --look-x: calc(var(--eye) * 0.3);
+  --look-y: calc(var(--eye) * -0.35);
+  --open: 0.72;
+}
+
+.state_error .eye {
+  --open: 0.22;
+}
+
+/* ── 감정 ── */
+.face_shocked .eye {
+  --big: 1.3;
+}
+
+.face_shocked .mouth,
+.state_speaking.face_shocked .mouth {
+  animation: none;
+  height: calc(var(--size) * 0.1);
+  width: calc(var(--size) * 0.09);
+}
+
+.face_sly .eye {
+  --open: 0.55;
+}
+
+.face_sly .left .eye {
+  --rot: -14deg;
+}
+
+.face_sly .right .eye {
+  --rot: 14deg;
+}
+
+.face_happy .eye {
+  opacity: 0;
+}
+
+.face_happy .arc {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo,
+  .body,
+  .eye,
+  .bulb,
+  .eyes,
+  .mouth {
+    animation: none !important;
+  }
+}

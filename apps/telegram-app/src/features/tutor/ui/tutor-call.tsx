@@ -4,15 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 
 import { romanize } from "../../../shared/lib/romanize";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
-import type { TutorQuota, TutorState } from "../model/tutor";
-import { TutorCharacter } from "./tutor-character";
-import {
-  TUTOR_ACCENT,
-  TUTOR_ERROR_LABELS,
-  TUTOR_PERSONALITY_LABELS,
-  TUTOR_STATE_LABELS,
-  hexA,
-} from "./tutor-labels";
+import type { TutorState, VoiceTutorEmotion } from "../model/voice-tutor";
+import { TUTOR_ACCENT, TUTOR_STATE_LABELS, hexA, tutorErrorText } from "./tutor-labels";
+import { TutorMascot } from "./tutor-mascot";
 import styles from "./tutor-call.module.css";
 
 const fmt = (seconds: number) =>
@@ -20,6 +14,28 @@ const fmt = (seconds: number) =>
 
 /** 표현이 "나왔는지" 볼 때는 띄어쓰기·문장부호를 버리고 본다 */
 const norm = (value: string) => value.replace(/[^가-힣a-z0-9]/gi, "").toLowerCase();
+
+/** "저는 ~라고 해요" 같은 틀은 ~ 앞뒤 조각이 순서대로 다 나오면 쓴 걸로 본다 (모바일과 같다) */
+function matchesTarget(saidNorm: string, target: string): boolean {
+  const parts = target.split("~").map(norm).filter((part) => part.length >= 1);
+  if (parts.join("").length < 2) return false;
+  let from = 0;
+  for (const part of parts) {
+    const at = saidNorm.indexOf(part, from);
+    if (at < 0) return false;
+    from = at + part.length;
+  }
+  return true;
+}
+
+/** KORIO 보라. 마스코트 안테나에 쓴다 */
+const BRAND = "#776ee2";
+
+/**
+ * 통화 화면 배경 — 깊은 밤바다 톤 (모바일 SCENE 과 같은 값).
+ * 청록 바탕이면 라벤더 마스코트와 노란 눈이 보색으로 떠서 캐릭터가 주인공이 된다.
+ */
+const SCENE = { drift: "#2EC4B6", key: "#B3A6FF" };
 
 const WAVE = [
   { delay: 0, peak: 0.42 },
@@ -33,27 +49,32 @@ export interface TutorCallProps {
   active: boolean;
   analyzing: boolean;
   audioBlocked: boolean;
-  busy: boolean;
+  canReplay: boolean;
   caption: string;
   captionPrev: string;
   elapsedSec: number;
+  /** 선생님 답의 감정 — 마스코트 표정 */
+  emotion?: VoiceTutorEmotion;
+  /** 에러 코드 */
   error: string | null;
-  examples: string[];
-  maxSec: number;
+  /** 지금 따라 할 문장. 방금 선생님이 고쳐 준 표현이 오면 그게 1순위다 */
+  focusHint: string;
+  /** 이 수업 최대 길이(초). 있으면 타이머가 남은 시간을 보여 준다 */
+  limitSec: number;
   micOn: boolean;
   onClose: () => void;
   onEnd: () => void;
-  onExplain: (text: string) => Promise<string>;
-  onPickAnother: () => void;
+  onExplain: () => void;
+  onReplay: () => void;
   onResumeAudio: () => void;
-  onUpsell: () => void;
+  onSlower: () => void;
   /** 정확한 한국어 목소리로 들려준다. 끝날 때까지 기다린다 */
   playKorean: (text: string, slow: boolean) => Promise<void>;
-  quota: TutorQuota | null;
   state: TutorState;
+  /** 이번 주제에서 써 볼 표현 (주제 수업일 때만) */
   targets: string[];
-  teacher: { id: string; avatar: string; color: string } | null;
   teacherName?: string;
+  /** 성격 이름 (우즈벡어 원문) */
   teacherPersonality?: string;
   toggleMic: () => void;
   topicTitle?: string;
@@ -73,30 +94,24 @@ function useViewportHeight() {
 }
 
 /**
- * 통화 중 화면 — 모바일 screens/TutorCallScreen.tsx.
+ * 새 Voice Tutor 통화 화면 — 모바일 VoiceTutorCallScreen.tsx.
  *
- * 라이트 모드에서도 어둡게 간다. 통화 화면은 몰입이 전부라 흰 배경이면 채팅창처럼 보인다.
- * 대신 흰 표현 카드가 유일한 밝은 덩어리라서 눈이 거기로 간다.
+ * 예전 텔레그램 튜터 화면에서 바꾼 것 (모바일과 같다): 배경을 밤바다 청록으로,
+ * 오른쪽 위 응원 문구 제거, 가운데 이모지 → 마스코트, 막혔을 때 버튼 셋은
+ * 선생님(워커)에게 직접 요청, 타이머는 남은 시간.
  */
 export function TutorCall(p: TutorCallProps) {
   const height = useViewportHeight();
   const [showText, setShowText] = useState(true);
-  const [explain, setExplain] = useState("");
-  const [explaining, setExplaining] = useState(false);
   const [roman, setRoman] = useState(true);
   const [copied, setCopied] = useState(false);
   const [doneCount, setDoneCount] = useState(0);
   const doneRef = useRef<Set<string>>(new Set());
 
   const accent = TUTOR_ACCENT[p.state] ?? TUTOR_ACCENT.idle;
-  const teacherColor = p.teacher?.color ?? "#8B82EE";
-  const remain = p.maxSec > 0 ? Math.max(0, p.maxSec - p.elapsedSec) : 0;
-  const nearEnd = p.active && p.maxSec > 0 && remain <= 30;
+  const remain = p.limitSec > 0 ? Math.max(0, p.limitSec - p.elapsedSec) : null;
+  const nearEnd = p.active && remain !== null && remain <= 30;
   const avatarSize = height < 700 ? 132 : height < 820 ? 154 : 172;
-
-  useEffect(() => {
-    setExplain("");
-  }, [p.caption]);
 
   // 오늘의 표현을 유저가 직접 말했을 때만 채운다. 선생님이 말한 건 진도가 아니다
   useEffect(() => {
@@ -106,8 +121,7 @@ export function TutorCall(p: TutorCallProps) {
     let changed = false;
     for (const expression of p.targets) {
       if (doneRef.current.has(expression)) continue;
-      const key = norm(expression);
-      if (key.length >= 2 && said.includes(key)) {
+      if (matchesTarget(said, expression)) {
         doneRef.current.add(expression);
         changed = true;
       }
@@ -117,15 +131,14 @@ export function TutorCall(p: TutorCallProps) {
 
   /** 지금 화면에서 "따라 할 한 문장" */
   const focus = useMemo(() => {
-    if (p.examples[0]) return p.examples[0];
+    if (p.focusHint) return p.focusHint;
     const next = p.targets.find((expression) => !doneRef.current.has(expression));
     return next ?? p.targets[0] ?? "";
     // doneCount 가 바뀌면 다음 표현으로 넘어간다
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p.examples, p.targets, doneCount]);
+  }, [p.focusHint, p.targets, doneCount]);
 
-  const replayText = p.caption.trim() || focus;
-  const { playKorean, withMicMuted, onExplain } = p;
+  const { playKorean, withMicMuted } = p;
 
   const play = useCallback(
     (text: string, slow: boolean) => {
@@ -135,18 +148,6 @@ export function TutorCall(p: TutorCallProps) {
     },
     [playKorean, withMicMuted],
   );
-
-  const loadExplain = useCallback(async () => {
-    const source = p.caption.trim() || focus.trim();
-    if (!source || explaining) return;
-    setShowText(true);
-    setExplaining(true);
-    try {
-      setExplain(await onExplain(source));
-    } finally {
-      setExplaining(false);
-    }
-  }, [explaining, focus, onExplain, p.caption]);
 
   const copy = useCallback(async () => {
     if (!focus) return;
@@ -163,21 +164,22 @@ export function TutorCall(p: TutorCallProps) {
   const hasTargets = p.targets.length > 0;
   const pct = hasTargets ? doneCount / p.targets.length : 0;
   const waveActive = p.state === "speaking" || p.state === "listening";
+  const errorText = tutorErrorText(p.error);
 
   const rootVars = {
     "--accent": accent,
-    "--blob-a": hexA(teacherColor, 0.34),
-    "--blob-b": hexA(accent, 0.2),
-    "--key-light": hexA(teacherColor, 0.5),
+    "--blob-a": hexA(SCENE.drift, 0.26),
+    "--blob-b": hexA(accent, 0.16),
+    "--key-light": hexA(SCENE.key, 0.38),
     "--glow-dur": `${p.state === "speaking" ? 820 : p.state === "listening" ? 2000 : 3000}ms`,
     "--wave-dur": `${p.state === "speaking" ? 400 : 820}ms`,
-    "--play-bg": hexA(teacherColor, 0.16),
-    "--teacher": teacherColor,
+    "--play-bg": hexA(BRAND, 0.16),
+    "--teacher": BRAND,
   } as CSSProperties;
 
   return (
     <main className={styles.root} style={rootVars}>
-      {/* 배경 네 겹: 저녁 방 그라데이션 · 표류하는 색 덩어리 둘 · 호흡하는 키라이트 · 비스듬한 빛 */}
+      {/* 배경 네 겹: 밤바다 그라데이션 · 표류하는 빛 둘 · 호흡하는 키라이트 · 비스듬한 빛 */}
       <div aria-hidden="true" className={styles.backdrop}>
         <i className={styles.blobA} />
         <i className={styles.blobB} />
@@ -186,12 +188,7 @@ export function TutorCall(p: TutorCallProps) {
       </div>
 
       <div className={styles.stage}>
-        <TutorCharacter
-          avatar={p.teacher?.avatar ?? "🧑‍🏫"}
-          color={teacherColor}
-          size={avatarSize}
-          state={p.state}
-        />
+        <TutorMascot emotion={p.emotion} size={Math.round(avatarSize * 0.86)} state={p.state} tint={BRAND} />
       </div>
 
       <i aria-hidden="true" className={styles.scrim} />
@@ -203,13 +200,12 @@ export function TutorCall(p: TutorCallProps) {
 
         <div className={styles.idText}>
           <div className={styles.idNameRow}>
-            <strong>{p.teacherName ?? "AI suhbat ustozi"}</strong>
-            <span aria-hidden="true">{p.teacher?.avatar ?? "🧑‍🏫"}</span>
+            <strong data-no-translate="">{p.teacherName ?? "Ovozli AI ustoz"}</strong>
           </div>
           <p className={styles.idRole}>
-            {p.teacherPersonality && TUTOR_PERSONALITY_LABELS[p.teacherPersonality] ? (
+            {p.teacherPersonality ? (
               <>
-                <span>{TUTOR_PERSONALITY_LABELS[p.teacherPersonality]}</span>
+                <span>{p.teacherPersonality}</span>
                 <i>·</i>
               </>
             ) : null}
@@ -221,7 +217,7 @@ export function TutorCall(p: TutorCallProps) {
           {p.active ? (
             <span className={`${styles.timer} ${nearEnd ? styles.timerWarn : ""}`}>
               <MobileIcon name="time-outline" size={13} />
-              {fmt(remain)}
+              {fmt(remain ?? p.elapsedSec)}
             </span>
           ) : null}
           <button
@@ -240,7 +236,11 @@ export function TutorCall(p: TutorCallProps) {
         <div className={styles.progressCard}>
           <div className={styles.progressTop}>
             <span aria-hidden="true">{p.topicTitle ? "☕" : "💬"}</span>
-            {p.topicTitle ? <strong>{p.topicTitle}</strong> : <strong data-i18n="tutor.freeTalk">Erkin suhbat</strong>}
+            {p.topicTitle ? (
+              <strong data-no-translate="">{p.topicTitle}</strong>
+            ) : (
+              <strong data-i18n="voiceTutor.call.freeTalk">Erkin suhbat</strong>
+            )}
           </div>
           {hasTargets ? (
             <>
@@ -254,11 +254,6 @@ export function TutorCall(p: TutorCallProps) {
             </>
           ) : null}
         </div>
-
-        {/* 선생님이 말하는 중엔 비켜준다 */}
-        {p.active && p.state !== "speaking" ? (
-          <p className={styles.cheer}>{"Yana bir oz!\nSen uddalaysan!"}</p>
-        ) : null}
       </div>
 
       <div className={styles.spacer} />
@@ -294,8 +289,6 @@ export function TutorCall(p: TutorCallProps) {
               {p.active ? "Avval salomlashing" : TUTOR_STATE_LABELS[p.state]}
             </p>
           )}
-
-          {explain ? <p className={styles.explainText} data-no-translate="">{explain}</p> : null}
         </section>
       ) : null}
 
@@ -318,31 +311,16 @@ export function TutorCall(p: TutorCallProps) {
         </section>
       ) : null}
 
+      {/* 막혔을 때 바로 누를 세 가지 — 선생님(워커)에게 직접 요청한다 */}
       {p.active ? (
         <div className={styles.pills}>
-          <Pill disabled={!replayText.trim()} emoji="🐌" label="Sekinroq ayting" onClick={() => play(replayText, true)} />
-          <Pill disabled={!replayText.trim()} emoji="🔄" label="Qayta eshitish" onClick={() => play(replayText, false)} />
-          <Pill
-            disabled={explaining || !(p.caption.trim() || focus.trim())}
-            emoji={explaining ? "⏳" : "💡"}
-            label="Tushuntiring"
-            onClick={() => void loadExplain()}
-          />
+          <Pill disabled={p.state === "connecting"} emoji="🐌" label="Sekinroq ayting" onClick={p.onSlower} />
+          <Pill disabled={!p.canReplay} emoji="🔄" label="Qayta eshitish" onClick={p.onReplay} />
+          <Pill disabled={p.state === "connecting"} emoji="💡" label="Tushuntiring" onClick={p.onExplain} />
         </div>
       ) : null}
 
-      {p.error ? (
-        <p className={styles.error}>{TUTOR_ERROR_LABELS[p.error] ?? TUTOR_ERROR_LABELS.generic}</p>
-      ) : null}
-
-      {!p.active && !p.analyzing && p.quota ? (
-        <div className={styles.quota}>
-          <p>{`Bugun ${Math.max(0, p.quota.dailyLimitMin - p.quota.dailyUsedMin)} daqiqa qoldi (kuniga ${p.quota.dailyLimitMin} daqiqa)`}</p>
-          {!p.quota.isMax ? (
-            <button onClick={p.onUpsell} type="button">KORIO MAX bilan kuniga 20 daqiqa</button>
-          ) : null}
-        </div>
-      ) : null}
+      {errorText ? <p className={styles.error}>{errorText}</p> : null}
 
       {/* 통화 조작. 항상 하단 고정 */}
       <footer className={styles.controls}>
@@ -368,10 +346,7 @@ export function TutorCall(p: TutorCallProps) {
             />
           </>
         ) : (
-          <button className={styles.again} disabled={p.busy || p.analyzing} onClick={p.onPickAnother} type="button">
-            <MobileIcon name="refresh" size={19} />
-            <span>Boshqa mavzu tanlash</span>
-          </button>
+          <div className={styles.controlsIdle} />
         )}
       </footer>
 
@@ -392,7 +367,7 @@ export function TutorCall(p: TutorCallProps) {
       {p.analyzing ? (
         <div className={styles.analyzing}>
           <span className={styles.spinner} />
-          <p>Suhbat tahlil qilinmoqda...</p>
+          <p>Bugungi dars yakunlanmoqda...</p>
         </div>
       ) : null}
     </main>

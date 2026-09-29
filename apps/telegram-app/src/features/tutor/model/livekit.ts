@@ -15,9 +15,9 @@ import {
 } from "../../../shared/browser/microphone-session";
 
 /**
- * LiveKit 튜터 연결 하나 — 모바일 services/livekit-tutor.ts 의 웹 버전.
+ * LiveKit 튜터 연결 하나 — 모바일 features/voice-tutor/services/livekit.ts 의 웹 버전.
  *
- *   마이크 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──▶ Gemini Live
+ *   마이크 ──WebRTC──▶ LiveKit ──▶ voice-tutor-agent (STT → API → ElevenLabs)
  *   스피커 ◀──WebRTC── LiveKit ◀──────────────────────┘
  *
  * ⚠️ 서버 /tutor/session 은 이제 OpenAI clientSecret 이 아니라 LiveKit grant 를
@@ -68,6 +68,11 @@ export interface LiveKitTutorHandlers {
 
 export interface LiveKitTutorConnection {
   setMicEnabled: (on: boolean) => void;
+  /**
+   * 선생님(Agent)에게 RPC 를 보낸다. Voice Tutor 의 "천천히"/"설명해 줘" 버튼이 쓴다.
+   * Agent 가 아직 없으면 false.
+   */
+  rpc: (method: string, payload?: string) => Promise<boolean>;
   /** 자동재생이 막혔을 때 사용자 탭 안에서 부른다 */
   resumeAudio: () => Promise<boolean>;
   close: () => Promise<void>;
@@ -253,6 +258,18 @@ export async function connectLiveKitTutor(
       void room.localParticipant
         ?.setMicrophoneEnabled(on)
         .catch(() => undefined);
+    },
+    rpc: async (method: string, payload = "") => {
+      const agent = [...room.remoteParticipants.values()].find(
+        (participant) => participant.attributes?.[ATTR_AGENT_STATE],
+      );
+      if (!agent) return false;
+      await room.localParticipant.performRpc({
+        destinationIdentity: agent.identity,
+        method,
+        payload,
+      });
+      return true;
     },
     resumeAudio: async () => {
       try {
