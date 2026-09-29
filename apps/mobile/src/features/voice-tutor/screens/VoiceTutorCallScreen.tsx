@@ -27,16 +27,49 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
 import { romanize } from "@/utils/romanize";
-import { TutorApi, type TutorQuota } from "../services/tutor.api";
-import { TutorCharacter } from "../components/TutorCharacter";
-import type { TutorState } from "../hooks/useRealtimeTutor";
+import { TutorMascot, type MascotState } from "../components/TutorMascot";
+import type { VoiceTutorEmotion } from "../services/voice-tutor.api";
+
+type TutorState = MascotState;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const fmt = (sec: number) =>
   `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
 
-/** 상태별 강조색. TutorCharacter 와 같은 규칙을 쓴다 */
+/** KORIO 보라. 배경 빛과 마스코트 안테나에 쓴다 (선생님별 색 대신 — 파랑 선생님이면 배경이 통째로 파래져서 촌스러웠다) */
+const BRAND = "#776ee2";
+
+/**
+ * 통화 화면 배경 — 깊은 밤바다 톤.
+ *
+ * 옛 튜터의 보라-남색 밤하늘이 "별로" 라는 피드백으로 바꿨다. 청록 바탕이면
+ * 라벤더 마스코트와 노란 눈이 보색으로 떠서 캐릭터가 주인공이 된다.
+ */
+const SCENE = {
+  top: "#0F3446",
+  mid: "#0B2233",
+  base: "#06111B",
+  /** 왼쪽 위에서 떠다니는 빛 */
+  drift: "#2EC4B6",
+  /** 마스코트 뒤 조명 */
+  key: "#B3A6FF",
+};
+
+/** 표현 "나왔는지" 판정. "저는 ~라고 해요" 같은 틀은 ~ 앞뒤 조각이 순서대로 다 나오면 쓴 걸로 본다 */
+function matchesTarget(saidNorm: string, target: string): boolean {
+  const parts = target.split("~").map(norm).filter((part) => part.length >= 1);
+  if (parts.join("").length < 2) return false;
+  let from = 0;
+  for (const part of parts) {
+    const at = saidNorm.indexOf(part, from);
+    if (at < 0) return false;
+    from = at + part.length;
+  }
+  return true;
+}
+
+/** 상태별 강조색. TutorMascot 과 같은 규칙을 쓴다 */
 const ACCENT: Record<TutorState, string> = {
   idle: "#9C93FF",
   connecting: "#9C93FF",
@@ -50,54 +83,59 @@ const ACCENT: Record<TutorState, string> = {
 const norm = (s: string) =>
   s.replace(/[^가-힣a-z0-9]/gi, "").toLowerCase();
 
-export interface TutorCallScreenProps {
+export interface VoiceTutorCallScreenProps {
   state: TutorState;
+  /** 선생님 답의 감정 — 마스코트 표정 */
+  emotion?: VoiceTutorEmotion;
   caption: string;
   captionPrev: string;
   userSaid: string;
-  examples: string[];
+  /** 지금 따라 할 문장. 방금 선생님이 고쳐 준 표현이 오면 그게 1순위다 */
+  focusHint: string;
+  /** 이번 주제에서 써 볼 표현 (주제 수업일 때만) */
   targets: string[];
-  teacher: { id: string; avatar: string; color: string } | null;
   teacherName?: string;
-  /** 선생님 성격. 헤더 부제("Teasing · 한국어 선생님")에 쓴다 */
+  /** 헤더 부제 앞부분 — 이미 번역된 성격 이름 */
   teacherPersonality?: string;
+  teacherColor: string;
   topicTitle?: string;
   elapsedSec: number;
-  maxSec: number;
+  /** 이 수업 최대 길이(초). 있으면 타이머가 남은 시간을 보여 준다 */
+  limitSec?: number;
   active: boolean;
-  busy: boolean;
   analyzing: boolean;
   micOn: boolean;
+  /** 화면에 띄울 에러 문장 (이미 번역됨) */
   error: string | null;
-  quota: TutorQuota | null;
   toggleMic: () => void;
   withMicMuted: (play: () => Promise<void>) => Promise<void>;
+  onSlower: () => void;
+  onReplay: () => void;
+  onExplain: () => void;
+  canReplay: boolean;
   onEnd: () => void;
   onClose: () => void;
-  onPickAnother: () => void;
-  onUpsell: () => void;
 }
 
 /**
- * 통화 중 화면.
+ * 새 Voice Tutor 통화 화면.
  *
- * 주제/선생님 고르기와 정리 카드는 TutorScreen 이 그대로 들고 있다.
- * 여기는 "지금 통화 중"인 상태 하나만 그린다.
+ * ⚠️ 옛 튜터 `features/tutor/screens/TutorCallScreen.tsx` 를 복사해서 시작했다
+ *    (Kai: "원래 튜터 화면이랑 똑같이"). 옛 파일은 건드리지 않는다. 바꾼 것:
+ *    배경 색(브랜드 보라 기반), 오른쪽 위 응원 문구 제거, 가운데 이모지 →
+ *    TutorMascot, 막혔을 때 버튼 셋은 선생님(워커)에게 직접 요청한다.
  *
  * 배경은 라이트 모드에서도 어둡게 간다. 통화 화면은 몰입이 전부라
  * 흰 배경이면 그냥 채팅창처럼 보인다 — 대신 흰 표현 카드가 유일한
  * 밝은 덩어리라서 눈이 거기로 간다. (랭크 배너와 같은 판단)
  */
-export function TutorCallScreen(p: TutorCallScreenProps) {
+export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { speak, speakSlow } = useSpeech();
 
   const [showText, setShowText] = useState(true);
-  /** 지금 자막에 대한 우즈벡어 설명. 새 문장이 오면 지운다 */
-  const [explain, setExplain] = useState("");
-  const [explaining, setExplaining] = useState(false);
   /** 로마자 표기. 헤더 우측 슬라이더 버튼으로 끈다 (고급자에겐 거슬린다) */
   const [roman, setRoman] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -106,16 +144,12 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
   const doneRef = useRef<Set<string>>(new Set());
 
   const accent = ACCENT[p.state] ?? ACCENT.idle;
-  const teacherColor = p.teacher?.color ?? "#8B82EE";
-  const remain = p.maxSec > 0 ? Math.max(0, p.maxSec - p.elapsedSec) : 0;
-  const nearEnd = p.active && p.maxSec > 0 && remain <= 30;
+  const teacherColor = p.teacherColor;
+  const remain = p.limitSec ? Math.max(0, p.limitSec - p.elapsedSec) : null;
+  const nearEnd = p.active && remain !== null && remain <= 30;
 
   // 배경에 서는 인물이라 예전(104~138)보다 크게 잡는다
   const avatarSize = height < 700 ? 132 : height < 820 ? 154 : 172;
-
-  useEffect(() => {
-    setExplain("");
-  }, [p.caption]);
 
   // 오늘의 표현을 유저가 직접 말했을 때만 채운다.
   // 선생님이 말한 건 진도가 아니다 — 그건 그냥 들은 거다.
@@ -126,8 +160,7 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
     let changed = false;
     for (const ex of p.targets) {
       if (doneRef.current.has(ex)) continue;
-      const k = norm(ex);
-      if (k.length >= 2 && said.includes(k)) {
+      if (matchesTarget(said, ex)) {
         doneRef.current.add(ex);
         changed = true;
       }
@@ -160,13 +193,10 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
 
   /** 지금 화면에서 "따라 할 한 문장" */
   const focus = useMemo(() => {
-    if (p.examples[0]) return p.examples[0];
+    if (p.focusHint) return p.focusHint;
     const next = p.targets.find((ex) => !doneRef.current.has(ex));
     return next ?? p.targets[0] ?? "";
-  }, [p.examples, p.targets, doneCount]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /** 다시 듣기·천천히 가 대상으로 삼는 문장 */
-  const replayText = p.caption.trim() || focus;
+  }, [p.focusHint, p.targets, doneCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const play = useCallback(
     (text: string, slow: boolean) => {
@@ -177,24 +207,6 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
     },
     [p, speakAwait],
   );
-
-  const loadExplain = useCallback(async () => {
-    const src = p.caption.trim() || focus.trim();
-    if (!src || explaining) return;
-    setShowText(true);
-    setExplaining(true);
-    try {
-      const r = await TutorApi.explain(src);
-      setExplain(
-        [r.translation, r.explanation].filter(Boolean).join("\n\n") ||
-          t("tutor.explain.failed"),
-      );
-    } catch {
-      setExplain(t("tutor.explain.failed"));
-    } finally {
-      setExplaining(false);
-    }
-  }, [p.caption, focus, explaining, t]);
 
   const copy = useCallback(async () => {
     if (!focus) return;
@@ -208,21 +220,21 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
 
   return (
     <View style={st.root}>
-      <Backdrop accent={accent} teacherColor={teacherColor} state={p.state} />
+      <Backdrop accent={accent} teacherColor={SCENE.drift} state={p.state} />
 
       {/* 선생님은 배경에 선다. 유리 패널이 그 앞을 덮는 구성이다 */}
       <View style={[st.stage, { top: insets.top + 96 }]} pointerEvents="none">
-        <TutorCharacter
+        <TutorMascot
           state={p.state}
-          avatar={p.teacher?.avatar ?? "🧑‍🏫"}
-          color={teacherColor}
-          size={avatarSize}
+          emotion={p.emotion}
+          size={Math.round(avatarSize * 0.86)}
+          tint={BRAND}
         />
       </View>
 
       {/* 아래를 깔아줘야 유리 패널 위 글씨가 읽힌다 */}
       <LinearGradient
-        colors={["transparent", "rgba(9,7,20,0.55)", "#090714"]}
+        colors={["transparent", "rgba(6,17,27,0.55)", SCENE.base]}
         locations={[0, 0.42, 1]}
         style={st.scrim}
         pointerEvents="none"
@@ -237,14 +249,13 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         <View style={st.idText}>
           <View style={st.idNameRow}>
             <Text style={st.idName} numberOfLines={1}>
-              {p.teacherName ?? t("tutor.title")}
+              {p.teacherName ?? t("voiceTutor.title")}
             </Text>
-            <Text style={st.idEmoji}>{p.teacher?.avatar ?? "🧑‍🏫"}</Text>
           </View>
           <Text style={st.idRole} numberOfLines={1}>
             {p.teacherPersonality
-              ? `${t(`tutor.personality.${p.teacherPersonality}`)} · ${t("tutor.call.roleLabel")}`
-              : t("tutor.call.roleLabel")}
+              ? `${p.teacherPersonality} · ${t("voiceTutor.call.roleLabel")}`
+              : t("voiceTutor.call.roleLabel")}
           </Text>
         </View>
 
@@ -257,7 +268,7 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
                 color={nearEnd ? "#fff" : "rgba(255,255,255,0.8)"}
               />
               <Text style={[st.timerText, nearEnd && st.timerTextWarn]}>
-                {fmt(remain)}
+                {fmt(remain ?? p.elapsedSec)}
               </Text>
             </View>
           )}
@@ -275,20 +286,20 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         </View>
       </View>
 
-      {/* 2) 진도 카드 + 벽에 적어둔 응원 한 줄 */}
+      {/* 2) 진도 카드 */}
       <View style={st.topRow}>
         <View style={st.progressCard}>
           <View style={st.progressTop}>
             <Text style={st.progressIcon}>{p.topicTitle ? "☕" : "💬"}</Text>
             <Text style={st.progressTitle} numberOfLines={1}>
-              {p.topicTitle ?? t("tutor.freeTalk")}
+              {p.topicTitle ?? t("voiceTutor.call.freeTalk")}
             </Text>
           </View>
 
           {hasTargets && (
             <>
               <Text style={st.progressStep}>
-                {t("tutor.call.step", {
+                {t("voiceTutor.call.step", {
                   done: doneCount,
                   total: p.targets.length,
                 })}
@@ -303,16 +314,6 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
           )}
         </View>
 
-        {/* 선생님이 말하는 중엔 비켜준다 — 화면이 시끄러우면 어차피 안 읽힌다 */}
-        {p.active && p.state !== "speaking" && (
-          <Animated.Text
-            entering={FadeIn.duration(600)}
-            exiting={FadeOut.duration(260)}
-            style={st.cheer}
-          >
-            {t("tutor.call.cheer")}
-          </Animated.Text>
-        )}
       </View>
 
       <View style={st.spacer} />
@@ -328,7 +329,7 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
           <View style={st.waveRow}>
             <Waveform state={p.state} accent={accent} />
             <Text style={[st.waveLabel, { color: accent }]} numberOfLines={1}>
-              {t(`tutor.state.${p.state}`)}
+              {t(`voiceTutor.callState.${p.state}`)}
             </Text>
           </View>
 
@@ -358,19 +359,10 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
             </Animated.Text>
           ) : (
             <Text style={st.captionIdle} numberOfLines={2}>
-              {p.active ? t("tutor.call.sayHi") : t(`tutor.state.${p.state}`)}
+              {p.active ? t("voiceTutor.call.sayHi") : t(`voiceTutor.callState.${p.state}`)}
             </Text>
           )}
 
-          {!!explain && (
-            <Animated.Text
-              entering={FadeIn.duration(180)}
-              style={st.explainText}
-              numberOfLines={3}
-            >
-              {explain}
-            </Animated.Text>
-          )}
         </Animated.View>
       )}
 
@@ -383,7 +375,7 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         >
           <View style={st.cardBadge}>
             <Text style={st.cardBadgeText}>
-              {t("tutor.call.todayExpression")}
+              {t("voiceTutor.call.todayExpression")}
             </Text>
           </View>
 
@@ -425,45 +417,29 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         <View style={st.pills}>
           <Pill
             emoji="🐌"
-            label={t("tutor.call.slower")}
-            onPress={() => play(replayText, true)}
-            disabled={!replayText.trim()}
+            label={t("voiceTutor.call.slower")}
+            onPress={p.onSlower}
+            disabled={p.state === "connecting"}
           />
           <Pill
             emoji="🔄"
-            label={t("tutor.call.replay")}
-            onPress={() => play(replayText, false)}
-            disabled={!replayText.trim()}
+            label={t("voiceTutor.call.replay")}
+            onPress={p.onReplay}
+            disabled={!p.canReplay}
           />
           <Pill
-            emoji={explaining ? "⏳" : "💡"}
-            label={t("tutor.call.explain")}
-            onPress={() => void loadExplain()}
-            disabled={explaining || !(p.caption.trim() || focus.trim())}
+            emoji="💡"
+            label={t("voiceTutor.call.explain")}
+            onPress={p.onExplain}
+            disabled={p.state === "connecting"}
           />
         </View>
       )}
 
       {!!p.error && (
         <Text style={st.error} numberOfLines={2}>
-          {t(`tutor.err.${p.error}`, t("tutor.err.generic"))}
+          {p.error}
         </Text>
-      )}
-
-      {!p.active && !p.analyzing && !!p.quota && (
-        <View style={st.quota}>
-          <Text style={st.quotaText}>
-            {t("tutor.quotaLeft", {
-              min: Math.max(0, p.quota.dailyLimitMin - p.quota.dailyUsedMin),
-              limit: p.quota.dailyLimitMin,
-            })}
-          </Text>
-          {!p.quota.isMax && (
-            <Pressable onPress={p.onUpsell} hitSlop={6}>
-              <Text style={st.quotaUpsell}>{t("tutor.upsellMax")}</Text>
-            </Pressable>
-          )}
-        </View>
       )}
 
       {/* 6) 통화 조작. 항상 하단 고정 */}
@@ -472,27 +448,20 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
           <>
             <RoundBtn
               icon={p.micOn ? "mic" : "mic-off"}
-              label={p.micOn ? t("tutor.call.micOff") : t("tutor.call.micOn")}
+              label={p.micOn ? t("voiceTutor.call.micOff") : t("voiceTutor.call.micOn")}
               onPress={p.toggleMic}
               on={!p.micOn}
             />
-            <EndButton label={t("tutor.call.end")} onPress={p.onEnd} />
+            <EndButton label={t("voiceTutor.call.end")} onPress={p.onEnd} />
             <RoundBtn
               icon={showText ? "chatbox-ellipses" : "chatbox-ellipses-outline"}
-              label={showText ? t("tutor.call.textHide") : t("tutor.call.text")}
+              label={showText ? t("voiceTutor.call.textHide") : t("voiceTutor.call.text")}
               onPress={() => setShowText((v) => !v)}
               on={!showText}
             />
           </>
         ) : (
-          <Pressable
-            onPress={p.onPickAnother}
-            disabled={p.busy || p.analyzing}
-            style={[st.again, (p.busy || p.analyzing) && st.dim]}
-          >
-            <Ionicons name="refresh" size={19} color="#fff" />
-            <Text style={st.againText}>{t("tutor.pickAnother")}</Text>
-          </Pressable>
+          <View style={st.controlsIdle} />
         )}
       </View>
 
@@ -501,13 +470,13 @@ export function TutorCallScreen(p: TutorCallScreenProps) {
         style={[st.brand, { marginBottom: insets.bottom > 0 ? 2 : 8 }]}
         numberOfLines={1}
       >
-        {`KORIO · ${t("tutor.call.tagline")} ♡`}
+        {`KORIO · ${t("voiceTutor.call.tagline")} ♡`}
       </Text>
 
       {p.analyzing && (
         <Animated.View entering={FadeIn.duration(200)} style={st.analyzing}>
           <ActivityIndicator color="#fff" size="large" />
-          <Text style={st.analyzingText}>{t("tutor.summary.analyzing")}</Text>
+          <Text style={st.analyzingText}>{t("voiceTutor.call.analyzing")}</Text>
         </Animated.View>
       )}
     </View>
@@ -581,7 +550,7 @@ function Backdrop({
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <LinearGradient
-        colors={["#2B2453", "#1A1533", "#0B0818"]}
+        colors={[SCENE.top, SCENE.mid, SCENE.base]}
         locations={[0, 0.46, 1]}
         start={{ x: 0.15, y: 0 }}
         end={{ x: 0.85, y: 1 }}
@@ -590,21 +559,21 @@ function Backdrop({
       <Animated.View
         style={[
           st.blob,
-          { top: -120, left: -80, backgroundColor: hexA(teacherColor, 0.34) },
+          { top: -120, left: -80, backgroundColor: hexA(teacherColor, 0.26) },
           s1,
         ]}
       />
       <Animated.View
         style={[
           st.blob,
-          { bottom: 20, right: -100, backgroundColor: hexA(accent, 0.2) },
+          { bottom: 20, right: -100, backgroundColor: hexA(accent, 0.16) },
           s2,
         ]}
       />
       <Animated.View
         style={[
           st.keyLight,
-          { backgroundColor: hexA(teacherColor, 0.5) },
+          { backgroundColor: hexA(SCENE.key, 0.38) },
           keyLight,
         ]}
       />
@@ -819,7 +788,7 @@ const GLASS = "rgba(255,255,255,0.07)";
 const GLASS_LINE = "rgba(255,255,255,0.14)";
 
 const st = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#0B0818" },
+  root: { flex: 1, backgroundColor: SCENE.base },
   blob: { position: "absolute", width: 320, height: 320, borderRadius: 160 },
   /** 선생님 뒤에서 호흡하는 조명 */
   keyLight: {
@@ -915,7 +884,7 @@ const st = StyleSheet.create({
   progressCard: {
     flexShrink: 1,
     maxWidth: "62%",
-    backgroundColor: "rgba(14,11,26,0.5)",
+    backgroundColor: "rgba(6,17,27,0.5)",
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 16,
@@ -970,7 +939,7 @@ const st = StyleSheet.create({
 
   glass: {
     marginHorizontal: 14,
-    backgroundColor: "rgba(12,9,24,0.6)",
+    backgroundColor: "rgba(6,17,27,0.6)",
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 22,
@@ -1148,6 +1117,7 @@ const st = StyleSheet.create({
     textDecorationLine: "underline",
   },
 
+  controlsIdle: { height: 58 },
   controls: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -1219,7 +1189,7 @@ const st = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(11,8,24,0.88)",
+    backgroundColor: "rgba(6,17,27,0.9)",
     alignItems: "center",
     justifyContent: "center",
     gap: 14,

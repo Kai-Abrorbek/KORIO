@@ -93,7 +93,7 @@ export function learnModePath(
     // 회화는 AI 음성 튜터와 실제로 말해보는 것이다. 문제 풀이가 아니라
     // 대화라서 로드맵이 없다.
     case "conversation":
-      return "/tutor";
+      return "/voice-tutor";
     default:
       return `/coming-soon?mode=${mode}` as Href;
   }

@@ -12,7 +12,7 @@ import {
   type LiveKitAgentState,
   type LiveKitTutorConnection,
   type TranscriptChunk,
-} from "@/features/tutor/services/livekit-tutor";
+} from "../services/livekit";
 import {
   VoiceTutorApi,
   type VoiceTutorEnd,
@@ -20,6 +20,7 @@ import {
   type VoiceTutorOptions,
   type VoiceTutorPlan,
   type VoiceTutorProgress,
+  type VoiceTutorQuota,
   type VoiceTutorSettings,
   type VoiceTutorVoice,
 } from "../services/voice-tutor.api";
@@ -61,6 +62,13 @@ export function useVoiceTutor() {
   const [micOn, setMicOn] = useState(false);
   const [liveUserText, setLiveUserText] = useState("");
   const [liveTeacherText, setLiveTeacherText] = useState("");
+  /** 통화가 붙은 뒤 흐른 시간 (초). 통화 화면 타이머 */
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const callStartedAt = useRef<number | null>(null);
+  /** 서버 한도. 설정 화면 "오늘 N분 남음" 과 시작 버튼 잠금에 쓴다 */
+  const [quota, setQuota] = useState<VoiceTutorQuota | null>(null);
+  /** 이번 수업 최대 길이(초). 0 = 모름 */
+  const [limitSec, setLimitSec] = useState(0);
 
   const player = useAudioPlayer(null, { updateInterval: 200 });
   const playerStatus = useAudioPlayerStatus(player);
@@ -105,6 +113,10 @@ export function useVoiceTutor() {
       ]);
       if (!mounted.current) return;
       setOptions(available);
+      // 한도를 못 받아도 화면은 연다 — 서버가 시작 시점에 다시 막는다
+      void VoiceTutorApi.quota()
+        .then((q) => { if (mounted.current) setQuota(q); })
+        .catch(() => undefined);
       setSettings({
         ...available.defaults,
         ...saved,
@@ -265,7 +277,7 @@ export function useVoiceTutor() {
     }
   }, [syncMessages]);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (topicId?: string | null) => {
     if (!settings || actionBusy.current || sessionId.current) return;
     actionBusy.current = true;
     setError(null);
@@ -281,12 +293,13 @@ export function useVoiceTutor() {
         if (!permission.granted) throw new Error("MIC_PERMISSION_DENIED");
       }
       await VoiceTutorApi.updateSettings(settings);
-      const created = await VoiceTutorApi.createSession(settings);
+      const created = await VoiceTutorApi.createSession(settings, topicId ?? undefined);
       if (!mounted.current) {
         void VoiceTutorApi.endSession(created.sessionId).catch(() => undefined);
         return;
       }
       sessionId.current = created.sessionId;
+      setLimitSec(created.maxDurationSec ?? 0);
       setPlan(created.plan);
       setProgress(null);
       setEndResult(null);
@@ -326,6 +339,8 @@ export function useVoiceTutor() {
         return;
       }
       connection.current = call;
+      callStartedAt.current = Date.now();
+      setElapsedSec(0);
       setMicOn(true);
       setPhase((current) => current === "connecting" ? "ready" : current);
     } catch (cause) {
@@ -367,6 +382,43 @@ export function useVoiceTutor() {
       setError("CONNECTION_ERROR");
     }
   }, []);
+
+  /**
+   * 통화 화면의 "천천히" / "설명해 줘" 버튼. 워커가 버튼 요청으로 한 턴을 만든다
+   * (받아쓰기를 거치지 않는다).
+   */
+  const request = useCallback(async (kind: "slower" | "explain") => {
+    const room = connection.current?.room;
+    if (!room) return;
+    const agent = [...room.remoteParticipants.values()].find(
+      (participant) => participant.attributes?.["lk.agent.state"],
+    );
+    if (!agent) return;
+    try {
+      await room.localParticipant.performRpc({
+        destinationIdentity: agent.identity,
+        method: "voice_tutor_request",
+        payload: kind,
+      });
+    } catch {
+      setError("CONNECTION_ERROR");
+    }
+  }, []);
+
+  /**
+   * 기기에서 소리를 낼 때(오늘의 표현 듣기) 마이크를 잠깐 끈다. 안 끄면
+   * 선생님이 그 소리를 학습자 말로 듣고 대답해 버린다.
+   */
+  const withMicMuted = useCallback(async (play: () => Promise<void>) => {
+    const call = connection.current;
+    const wasOn = !!call && micOn;
+    if (wasOn) call.setMicEnabled(false);
+    try {
+      await play();
+    } finally {
+      if (wasOn && connection.current === call) call.setMicEnabled(true);
+    }
+  }, [micOn]);
 
   const end = useCallback(async (waitForCompletion = true) => {
     if (ending.current) return;
@@ -432,8 +484,29 @@ export function useVoiceTutor() {
     return () => subscription.remove();
   }, [end]);
 
+  const inCall = ["connecting", "ready", "recording", "thinking", "speaking"].includes(phase);
+  useEffect(() => {
+    if (!inCall) return;
+    const timer = setInterval(() => {
+      if (callStartedAt.current) {
+        setElapsedSec(Math.floor((Date.now() - callStartedAt.current) / 1000));
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [inCall]);
+
+  // 한도에 닿으면 앱이 먼저 깔끔하게 끝낸다. 안 그러면 워커가 방을 닫아서
+  // "연결이 끊겼어요" 로 끝난다 (원가는 서버·워커가 어차피 막는다)
+  useEffect(() => {
+    if (inCall && limitSec > 0 && elapsedSec >= limitSec) void end();
+  }, [inCall, limitSec, elapsedSec, end]);
+
   const restart = useCallback(() => {
     if (sessionId.current || actionBusy.current) return;
+    callStartedAt.current = null;
+    setElapsedSec(0);
+    setLimitSec(0);
+    void VoiceTutorApi.quota().then(setQuota).catch(() => undefined);
     setMessages([]);
     setEndResult(null);
     setError(null);
@@ -463,6 +536,11 @@ export function useVoiceTutor() {
     liveTeacherText,
     toggleMic,
     interrupt,
+    request,
+    withMicMuted,
+    elapsedSec,
+    limitSec,
+    quota,
     playMessage,
     end,
     restart,

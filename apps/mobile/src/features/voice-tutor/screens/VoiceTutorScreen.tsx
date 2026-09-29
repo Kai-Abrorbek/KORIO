@@ -1,70 +1,54 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
-import { useVoiceTutor } from "../hooks/useVoiceTutor";
-import { TutorCharacter, preloadTutorCharacter } from "../character/TutorCharacter";
-import { useVoiceTutorCharacter } from "../character/use-character-controller";
+import { useVoiceTutor, type VoiceTutorPhase } from "../hooks/useVoiceTutor";
+import type { MascotState } from "../components/TutorMascot";
+import { VoiceTutorCallScreen } from "./VoiceTutorCallScreen";
+import { VoiceTutorSetupScreen } from "./VoiceTutorSetupScreen";
+import { VoiceTutorResultScreen } from "./VoiceTutorResultScreen";
 import type {
-  VoiceTutorMessage,
-  VoiceTutorPlan,
-  VoiceTutorPersonality,
-  VoiceTutorProgress,
   VoiceTutorSettings,
+  VoiceTutorTopicCard,
 } from "../services/voice-tutor.api";
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  uz: "O‘zbekcha",
-  ru: "Русский",
-  en: "English",
-  ko: "한국어",
+const CALL_STATE: Record<VoiceTutorPhase, MascotState> = {
+  setup: "idle",
+  starting: "connecting",
+  connecting: "connecting",
+  ready: "listening",
+  recording: "listening",
+  thinking: "thinking",
+  speaking: "speaking",
+  ending: "idle",
+  finished: "idle",
 };
 
-const PERSONALITIES: VoiceTutorPersonality[] = [
-  "friendly",
-  "close_friend",
-  "savage",
-  "chaotic_savage",
-];
-
+/**
+ * 새 Voice Tutor — 설정 → 통화 → 정리.
+ *
+ * 설정·통화 화면은 옛 튜터 화면을 복사해 온 것이다 (VoiceTutorSetupScreen /
+ * VoiceTutorCallScreen 머리 주석 참고). 옛 튜터 파일은 건드리지 않는다.
+ */
 export default function VoiceTutorScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => styles(theme), [theme]);
-  const scrollRef = useRef<ScrollView>(null);
   const tutor = useVoiceTutor();
   const endSession = tutor.end;
-  const active = !["setup", "starting", "finished"].includes(tutor.phase);
-  const canToggleMic = !["connecting", "ending"].includes(tutor.phase);
-  const voiceAvailable = tutor.options?.voices.some((voice) => voice.enabled !== false) ?? false;
-  const spokenMessage = tutor.spokenMessage;
-  const characterId = tutor.settings?.characterId ?? "female_01";
-  const characterFrame = useVoiceTutorCharacter({
-    phase: tutor.phase,
-    isAudioPlaying: tutor.isPlaying,
-    audioAmplitude: tutor.audioAmplitude,
-    reactionKey: spokenMessage?.id,
-    gesture: spokenMessage?.gesture,
-    reactionIntensity: spokenMessage?.intensity,
-    emotion: spokenMessage?.emotion,
-    delivery: spokenMessage?.delivery,
-    personality: tutor.settings?.personality,
-  });
-
-  useEffect(() => { void preloadTutorCharacter(characterId); }, [characterId]);
+  /** 이번 수업 주제. 통화 화면 진도 카드용 */
+  const [topic, setTopic] = useState<VoiceTutorTopicCard | null>(null);
 
   useFocusEffect(useCallback(() => {
     return () => { void endSession(false); };
@@ -74,252 +58,109 @@ export default function VoiceTutorScreen() {
     tutor.setSettings((current) => current ? { ...current, [key]: value } : current);
   };
 
+  const inCall = ["connecting", "ready", "recording", "thinking", "speaking"].includes(tutor.phase);
+
   const close = () => {
-    if (active) void tutor.end(false);
+    if (inCall || tutor.phase === "ending") void tutor.end(false);
     router.back();
   };
 
-  const canReplay = !["connecting", "ending"].includes(tutor.phase);
+  // 지금 자막: 말하는 중이면 실시간 글자, 아니면 마지막 선생님 말
+  const teacherMessages = tutor.messages.filter((m) => m.role === "teacher");
+  const lastTeacher = teacherMessages.at(-1);
+  const prevTeacher = teacherMessages.at(-2);
+  const lastUser = [...tutor.messages].reverse().find((m) => m.role === "user");
+  const caption = tutor.liveTeacherText || lastTeacher?.displayText?.trim() || lastTeacher?.text || "";
+  const captionPrev = tutor.liveTeacherText
+    ? (lastTeacher?.displayText?.trim() || lastTeacher?.text || "")
+    : (prevTeacher?.displayText?.trim() || prevTeacher?.text || "");
+  const userSaid = tutor.liveUserText || (lastUser?.text.startsWith("[[button") ? "" : lastUser?.text) || "";
+  const voices = tutor.options?.voices.filter((v) => v.enabled !== false) ?? [];
+  const voice = voices.find((v) => v.id === tutor.settings?.voiceId);
+
+  if (tutor.loading) {
+    return <View style={[s.root, s.center]}><ActivityIndicator color={theme.primary} /></View>;
+  }
+
+  if (!tutor.options || !tutor.settings) {
+    return (
+      <View style={[s.root, s.center, { paddingTop: insets.top }]}>
+        <Text style={s.error}>{t("voiceTutor.error.load")}</Text>
+        <Pressable style={s.primaryButton} onPress={() => void tutor.load()}>
+          <Text style={s.primaryText}>{t("voiceTutor.retry")}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (tutor.phase === "setup" || tutor.phase === "starting") {
+    return (
+      <VoiceTutorSetupScreen
+        options={tutor.options}
+        settings={tutor.settings}
+        onChange={update}
+        previewVoiceId={tutor.previewVoiceId}
+        onPreview={(v) => void tutor.previewVoice(v)}
+        busy={tutor.phase === "starting"}
+        error={tutor.error ? errorText(tutor.error, t) : null}
+        quota={tutor.quota}
+        onUpsell={() => router.push("/premium")}
+        onClose={close}
+        onStart={(picked) => {
+          setTopic(picked);
+          void tutor.start(picked?.id ?? null);
+        }}
+      />
+    );
+  }
+
+  if (tutor.phase === "finished") {
+    return (
+      <VoiceTutorResultScreen
+        plan={tutor.plan}
+        progress={tutor.progress}
+        messages={tutor.messages}
+        elapsedSec={tutor.elapsedSec}
+        topicTitle={topic?.title}
+        onAgain={() => { setTopic(null); tutor.restart(); }}
+        onClose={() => router.back()}
+      />
+    );
+  }
 
   return (
-    <View style={[s.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <View style={s.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel={t("voiceTutor.close")} onPress={close} style={s.iconButton}>
-          <Ionicons name="arrow-back" size={24} color={theme.text} />
-        </Pressable>
-        <View style={s.headerText}>
-          <Text style={s.headerTitle}>{t("voiceTutor.title")}</Text>
-          <Text style={s.headerSubtitle}>{t("voiceTutor.subtitle")}</Text>
-        </View>
-        {active ? (
-          <Pressable accessibilityRole="button" disabled={tutor.phase === "ending" && !tutor.error} onPress={() => void tutor.end()} style={[s.endButton, tutor.phase === "ending" && !tutor.error && s.disabled]}>
-            <Text style={s.endText}>{t("voiceTutor.end")}</Text>
-          </Pressable>
-        ) : <View style={s.endSpace} />}
-      </View>
-
-      {tutor.loading ? (
-        <View style={s.center}><ActivityIndicator color={theme.primary} /></View>
-      ) : !tutor.options || !tutor.settings ? (
-        <View style={s.center}>
-          <Text style={s.error}>{t("voiceTutor.error.load")}</Text>
-          <Pressable style={s.primaryButton} onPress={() => void tutor.load()}>
-            <Text style={s.primaryText}>{t("voiceTutor.retry")}</Text>
-          </Pressable>
-        </View>
-      ) : tutor.phase === "finished" ? (
-        <ScrollView contentContainerStyle={s.setupContent}>
-          <View style={s.hero}>
-            <View style={s.character}><Text style={s.characterText}>✓</Text></View>
-            <Text style={s.heroTitle}>{t("voiceTutor.finishedTitle")}</Text>
-            <Text style={s.heroHint}>{t("voiceTutor.finishedHint")}</Text>
-          </View>
-          <SessionSummary plan={tutor.plan} progress={tutor.progress} s={s} />
-          <Pressable style={s.primaryButton} onPress={tutor.restart}>
-            <Text style={s.primaryText}>{t("voiceTutor.again")}</Text>
-          </Pressable>
-          <Pressable style={s.secondaryButton} onPress={() => router.back()}>
-            <Text style={s.secondaryText}>{t("voiceTutor.close")}</Text>
-          </Pressable>
-        </ScrollView>
-      ) : tutor.phase === "setup" || tutor.phase === "starting" ? (
-        <ScrollView contentContainerStyle={s.setupContent}>
-          <View style={s.hero}>
-            <TutorCharacter characterId={characterId} frame={characterFrame} size={96} />
-            <Text style={s.heroTitle}>{t("voiceTutor.setupTitle")}</Text>
-            <Text style={s.heroHint}>{t("voiceTutor.setupHint")}</Text>
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.characterTitle")}</Text>
-          <View style={s.choiceList}>
-            {(tutor.options.characters?.length ? tutor.options.characters : [
-              { id: "female_01" as const, name: "Female Tutor", enabled: true },
-              { id: "male_01" as const, name: "Male Tutor", enabled: true },
-            ]).filter((character) => character.enabled !== false).map((character) => (
-              <Choice
-                key={character.id}
-                title={t(`voiceTutor.character.${character.id}`, { defaultValue: character.name })}
-                selected={characterId === character.id}
-                onPress={() => update("characterId", character.id)}
-                s={s}
-              />
-            ))}
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.voice")}</Text>
-          <View style={s.choiceList}>
-            {tutor.options.voices.filter((voice) => voice.enabled !== false).map((voice) => (
-              <View key={voice.id} style={s.voiceRow}>
-                <View style={s.voiceChoice}>
-                  <Choice
-                    title={voice.name}
-                    subtitle={voice.description}
-                    selected={tutor.settings?.voiceId === voice.id}
-                    onPress={() => update("voiceId", voice.id)}
-                    s={s}
-                  />
-                </View>
-                {voice.previewUrl && (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("voiceTutor.preview")}
-                    onPress={() => void tutor.previewVoice(voice)}
-                    style={s.previewButton}
-                  >
-                    <Ionicons name={tutor.previewVoiceId === voice.id ? "stop" : "play"} size={20} color={theme.primary} />
-                  </Pressable>
-                )}
-              </View>
-            ))}
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.explanationLanguage")}</Text>
-          <View style={s.choiceRow}>
-            {tutor.options.explanationLanguages.filter((language) => language.enabled !== false).map((language) => (
-              <Chip key={language.id} label={language.name || LANGUAGE_NAMES[language.id] || language.id} selected={tutor.settings?.explanationLanguage === language.id} onPress={() => update("explanationLanguage", language.id)} s={s} />
-            ))}
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.speechStyle")}</Text>
-          <View style={s.choiceRow}>
-            {tutor.options.speechStyles.map((style) => (
-              <Chip key={style} label={t(`voiceTutor.style.${style}`, { defaultValue: style })} selected={tutor.settings?.speechStyle === style} onPress={() => update("speechStyle", style)} s={s} />
-            ))}
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.personalityTitle")}</Text>
-          <Text style={s.sectionHint}>{t("voiceTutor.personalityHint")}</Text>
-          <View style={s.choiceList}>
-            {(tutor.options.personalities?.length ? tutor.options.personalities : PERSONALITIES).map((personality) => (
-              <Choice
-                key={personality}
-                title={t(`voiceTutor.personality.${personality}.name`)}
-                subtitle={t(`voiceTutor.personality.${personality}.description`)}
-                selected={tutor.settings?.personality === personality}
-                onPress={() => update("personality", personality)}
-                s={s}
-              />
-            ))}
-          </View>
-
-          <Text style={s.sectionTitle}>{t("voiceTutor.koreanLevel")}</Text>
-          <View style={s.choiceRow}>
-            {(tutor.options.koreanLevels ?? ["beginner", "intermediate", "advanced"]).map((level) => (
-              <Chip key={level} label={t(`voiceTutor.level.${level}`, { defaultValue: level })} selected={tutor.settings?.koreanLevel === level} onPress={() => update("koreanLevel", level)} s={s} />
-            ))}
-          </View>
-
-          {tutor.progress !== null && <Text style={s.savedHint}>{t("voiceTutor.lastSessionSaved")}</Text>}
-          {!voiceAvailable && <Text style={s.error}>{t("voiceTutor.voiceUnavailable")}</Text>}
-          {tutor.error && <Text style={s.error}>{errorText(tutor.error, t)}</Text>}
-          <Pressable disabled={tutor.phase === "starting" || !voiceAvailable} style={[s.primaryButton, (tutor.phase === "starting" || !voiceAvailable) && s.disabled]} onPress={() => void tutor.start()}>
-            {tutor.phase === "starting" ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryText}>{t("voiceTutor.start")}</Text>}
-          </Pressable>
-        </ScrollView>
-      ) : (
-        <>
-          <View style={s.callHero}>
-            <TutorCharacter characterId={characterId} frame={characterFrame} size={150} />
-            <Text style={s.phaseText}>{t(`voiceTutor.phase.${tutor.phase}`)}</Text>
-          </View>
-          <ScrollView
-            ref={scrollRef}
-            style={s.conversation}
-            contentContainerStyle={s.conversationContent}
-            onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
-          >
-            {tutor.messages.map((message) => (
-              <MessageBubble key={message.id} message={message} canReplay={canReplay} onReplay={() => void tutor.playMessage(message)} s={s} />
-            ))}
-            {!!tutor.liveUserText && <View style={[s.message, s.userMessage]}><Text style={s.messageRole}>{t("voiceTutor.you")}</Text><Text style={s.messageText}>{tutor.liveUserText}</Text></View>}
-            {!!tutor.liveTeacherText && <View style={[s.message, s.teacherMessage]}><Text style={s.messageRole}>{t("voiceTutor.teacher")}</Text><Text style={s.messageText}>{tutor.liveTeacherText}</Text></View>}
-            {(tutor.phase === "connecting" || tutor.phase === "thinking") && (
-              <View style={s.waiting}><ActivityIndicator size="small" color={theme.primary} /><Text style={s.waitingText}>{t(`voiceTutor.phase.${tutor.phase}`)}</Text></View>
-            )}
-          </ScrollView>
-          {tutor.error && <Text style={s.inlineError}>{errorText(tutor.error, t)}</Text>}
-          <View style={s.controls}>
-            {tutor.phase === "speaking" && (
-              <Pressable accessibilityRole="button" onPress={() => void tutor.interrupt()} style={s.secondaryButton}>
-                <Ionicons name="stop" size={18} color={theme.text} />
-                <Text style={s.secondaryText}>{t("voiceTutor.interrupt")}</Text>
-              </Pressable>
-            )}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={tutor.micOn ? t("voiceTutor.muteMic") : t("voiceTutor.unmuteMic")}
-              disabled={!canToggleMic}
-              onPress={tutor.toggleMic}
-              style={[s.micButton, !tutor.micOn && s.micRecording, !canToggleMic && s.disabled]}
-            >
-              <Ionicons name={tutor.micOn ? "mic" : "mic-off"} size={28} color="#fff" />
-              <Text style={s.micText}>{tutor.micOn ? t("voiceTutor.muteMic") : t("voiceTutor.unmuteMic")}</Text>
-            </Pressable>
-            <Text style={s.recordHint}>{t("voiceTutor.liveHint")}</Text>
-          </View>
-        </>
-      )}
-    </View>
+    <VoiceTutorCallScreen
+      state={tutor.error && tutor.phase === "ending" ? "error" : CALL_STATE[tutor.phase]}
+      emotion={tutor.phase === "speaking" ? lastTeacher?.emotion : undefined}
+      caption={caption}
+      captionPrev={captionPrev === caption ? "" : captionPrev}
+      userSaid={userSaid}
+      focusHint={lastTeacher?.correction?.correct ?? ""}
+      targets={topic ? (tutor.plan?.targetVocabulary ?? []) : []}
+      teacherName={voice?.name}
+      teacherPersonality={t(`voiceTutor.personality.${tutor.settings.personality}.name`)}
+      teacherColor="#776ee2"
+      topicTitle={topic?.title}
+      elapsedSec={tutor.elapsedSec}
+      limitSec={tutor.limitSec}
+      active={inCall || (tutor.phase === "ending" && !!tutor.error)}
+      analyzing={tutor.phase === "ending" && !tutor.error}
+      micOn={tutor.micOn}
+      error={tutor.error ? errorText(tutor.error, t) : null}
+      toggleMic={tutor.toggleMic}
+      withMicMuted={tutor.withMicMuted}
+      onSlower={() => void tutor.request("slower")}
+      onReplay={() => { if (lastTeacher) void tutor.playMessage(lastTeacher); }}
+      onExplain={() => void tutor.request("explain")}
+      canReplay={!!lastTeacher && tutor.phase !== "connecting"}
+      onEnd={() => void tutor.end()}
+      onClose={close}
+    />
   );
 }
 
-function Choice({ title, subtitle, selected, onPress, s }: {
-  title: string; subtitle?: string; selected: boolean; onPress: () => void; s: ReturnType<typeof styles>;
-}) {
-  return <Pressable onPress={onPress} style={[s.choice, selected && s.choiceSelected]}>
-    <View style={s.choiceText}><Text style={s.choiceTitle}>{title}</Text>{subtitle && <Text style={s.choiceSubtitle}>{subtitle}</Text>}</View>
-    <Ionicons name={selected ? "radio-button-on" : "radio-button-off"} size={23} color={selected ? "#776ee2" : "#999"} />
-  </Pressable>;
-}
-
-function Chip({ label, selected, onPress, s }: {
-  label: string; selected: boolean; onPress: () => void; s: ReturnType<typeof styles>;
-}) {
-  return <Pressable onPress={onPress} style={[s.chip, selected && s.chipSelected]}><Text style={[s.chipText, selected && s.chipTextSelected]}>{label}</Text></Pressable>;
-}
-
-function MessageBubble({ message, canReplay, onReplay, s }: {
-  message: VoiceTutorMessage; canReplay: boolean; onReplay: () => void; s: ReturnType<typeof styles>;
-}) {
-  const { t } = useTranslation();
-  const teacher = message.role === "teacher";
-  return <View style={[s.message, teacher ? s.teacherMessage : s.userMessage]}>
-    <Text style={s.messageRole}>{teacher ? t("voiceTutor.teacher") : t("voiceTutor.you")}</Text>
-    <Text style={s.messageText}>{message.displayText?.trim() || message.text}</Text>
-    {message.correction?.correct && <Text style={s.correctionText}>{message.correction.wrong ? `${message.correction.wrong} → ` : ""}{message.correction.correct}</Text>}
-    {teacher && <Pressable accessibilityRole="button" disabled={!canReplay} onPress={onReplay} style={[s.replayButton, !canReplay && s.disabled]}>
-      <Ionicons name="volume-high" size={16} color="#776ee2" />
-      <Text style={s.replayText}>{t("voiceTutor.replay")}</Text>
-    </Pressable>}
-  </View>;
-}
-
-function SessionSummary({ plan, progress, s }: {
-  plan: VoiceTutorPlan | null;
-  progress: VoiceTutorProgress | null;
-  s: ReturnType<typeof styles>;
-}) {
-  const { t } = useTranslation();
-  const sections: { title: string; lines: string[] }[] = [
-    { title: t("voiceTutor.summary.goal"), lines: plan?.lessonGoal ? [plan.lessonGoal] : [] },
-    { title: t("voiceTutor.summary.review"), lines: plan?.reviewTopics ?? [] },
-    { title: t("voiceTutor.summary.next"), lines: plan?.newTopics ?? [] },
-    { title: t("voiceTutor.summary.strong"), lines: progress?.strongPoints ?? [] },
-    { title: t("voiceTutor.summary.weak"), lines: progress?.weakPoints ?? [] },
-    { title: t("voiceTutor.summary.notes"), lines: progress?.notes ? [progress.notes] : [] },
-  ];
-  return <View style={s.summaryList}>
-    {sections.filter((section) => section.lines.length > 0).map((section) => (
-      <View key={section.title} style={s.summaryCard}>
-        <Text style={s.sectionTitle}>{section.title}</Text>
-        {section.lines.map((line, index) => <Text key={`${index}-${line}`} style={s.summaryLine}>• {line}</Text>)}
-      </View>
-    ))}
-  </View>;
-}
-
 function errorText(code: string, t: ReturnType<typeof useTranslation>["t"]): string {
-  const known = new Set(["MIC_PERMISSION_DENIED", "NETWORK_ERROR", "UNAUTHORIZED", "AUDIO_PLAYBACK_FAILED", "INVALID_AUDIO_URL", "VOICE_TUTOR_TTS_UNAVAILABLE", "VOICE_TUTOR_LESSON_UNAVAILABLE", "VOICE_TUTOR_AGENT_UNAVAILABLE", "CONNECTION_LOST", "CONNECTION_ERROR"]);
+  const known = new Set(["VOICE_TUTOR_DAILY_LIMIT_REACHED", "VOICE_TUTOR_MONTHLY_LIMIT_REACHED", "MIC_PERMISSION_DENIED", "NETWORK_ERROR", "UNAUTHORIZED", "AUDIO_PLAYBACK_FAILED", "INVALID_AUDIO_URL", "VOICE_TUTOR_TTS_UNAVAILABLE", "VOICE_TUTOR_LESSON_UNAVAILABLE", "VOICE_TUTOR_AGENT_UNAVAILABLE", "CONNECTION_LOST", "CONNECTION_ERROR"]);
   return known.has(code) ? t(`voiceTutor.error.${code}`) : t("voiceTutor.error.generic");
 }
 

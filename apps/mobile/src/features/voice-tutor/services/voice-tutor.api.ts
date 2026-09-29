@@ -107,6 +107,8 @@ export interface VoiceTutorSession {
     roomName: string;
     participantToken: string;
   };
+  /** 이 수업 최대 길이(초). 서버 한도에서 나온다 */
+  maxDurationSec?: number;
 }
 
 export interface VoiceTutorEnd {
@@ -125,13 +127,45 @@ export interface VoiceTutorSessionDetail {
   messages: VoiceTutorMessage[];
 }
 
+/** 회화 주제 카드 (서버 topics/voice-tutor-topics.ts). 제목·설명은 요청한 언어로 온다 */
+export interface VoiceTutorTopicCard {
+  id: string;
+  category: "daily" | "korea";
+  level: string;
+  icon: string;
+  color: string;
+  title: string;
+  blurb: string;
+  expressionCount: number;
+}
+
+/** 오늘·이번 달 한도 (서버 voice-tutor-quota.service.ts) */
+export interface VoiceTutorQuota {
+  tier: "free" | "super" | "max";
+  isMax: boolean;
+  dailyLimitMin: number;
+  monthlyLimitMin: number;
+  dailyUsedMin: number;
+  monthlyUsedMin: number;
+  /** 지금 시작하면 쓸 수 있는 최대 길이(초). 0 이면 못 쓴다 */
+  allowedSec: number;
+}
+
 export const VoiceTutorApi = {
+  quota: () => api.get<VoiceTutorQuota>("/voice-tutor/quota"),
+  topics: (lang: string) =>
+    api.get<{ topics: VoiceTutorTopicCard[] }>(
+      `/voice-tutor/topics?lang=${encodeURIComponent(lang)}`,
+    ),
   options: () => api.get<VoiceTutorOptions>("/voice-tutor/options"),
   settings: () => api.get<VoiceTutorSettings>("/voice-tutor/settings"),
   updateSettings: (settings: VoiceTutorSettings) =>
     api.patch<VoiceTutorSettings>("/voice-tutor/settings", settings),
-  createSession: (settings: VoiceTutorSettings) =>
-    api.post<VoiceTutorSession>("/voice-tutor/sessions", { settings }),
+  createSession: (settings: VoiceTutorSettings, topicId?: string) =>
+    api.post<VoiceTutorSession>("/voice-tutor/sessions", {
+      settings,
+      ...(topicId ? { topicId } : {}),
+    }),
   getSession: (sessionId: string) =>
     api.get<VoiceTutorSessionDetail>(
       `/voice-tutor/sessions/${encodeURIComponent(sessionId)}`,

@@ -48,7 +48,7 @@ export const PREMIUM_FEATURES: readonly Feature[] = [
 
 /**
  * 잠긴 기능이라도 "맛보기"가 서버에서 열려 있는 것.
- * 튜터는 무료 등급에도 하루 2분이 열려 있다 (apps/api/.../tutor.const.ts).
+ * 튜터는 무료 등급에도 하루 2분이 열려 있다 (apps/api/src/voice-tutor/voice-tutor-quota.service.ts).
  * 아예 못 들어가게 막으면 팔 기회를 스스로 버리는 셈이라, 모달에서
  * 맛보기로 들어갈 길을 남긴다.
  */

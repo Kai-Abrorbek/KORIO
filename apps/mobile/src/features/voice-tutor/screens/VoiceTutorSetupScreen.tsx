@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { createAudioPlayer, type AudioPlayer } from "expo-audio";
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -19,163 +18,111 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import {
-  TutorApi,
-  TUTOR_TEACHING_LANGUAGES,
-  type TutorAddressStyle,
-  type TutorQuota,
-  type TutorTeacherCard,
-  type TutorTeachingLanguage,
-  type TutorTopicCard,
-} from "../services/tutor.api";
-import { useTutorPrefs } from "../store/tutor-prefs.store";
 import { useContentLang } from "@/store/settings.store";
+import { TutorMascot } from "../components/TutorMascot";
+import {
+  VoiceTutorApi,
+  type VoiceTutorOptions,
+  type VoiceTutorPersonality,
+  type VoiceTutorQuota,
+  type VoiceTutorSettings,
+  type VoiceTutorTopicCard,
+  type VoiceTutorVoice,
+} from "../services/voice-tutor.api";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/** 언어 칩의 깃발. 이름 자체는 i18n 에서 각 언어의 제 이름으로 온다 */
-const LANG_FLAG: Record<TutorTeachingLanguage, string> = {
+/** 언어 칩의 깃발 */
+const LANG_FLAG: Record<string, string> = {
   uz: "🇺🇿",
   ru: "🇷🇺",
   en: "🇺🇸",
   ko: "🇰🇷",
 };
 
-export interface TutorSetupResult {
-  topicId?: string;
-  teacherId?: string;
-  addressStyle: TutorAddressStyle;
-  teachingLanguage: TutorTeachingLanguage;
-  /**
-   * 화면에 띄울 이름들. 통화 화면 헤더가 쓴다.
-   *
-   * 서버 grant 에는 선생님 이름이 앱 언어로 안 오고 주제 제목도 없다.
-   * 여기는 카드를 이미 들고 있으니 같이 넘겨준다 — 통화 화면이 같은 목록을
-   * 다시 받아올 이유가 없다.
-   */
-  teacherName?: string;
-  /** 통화 헤더 부제에 쓴다 ("Teasing · 한국어 선생님") */
-  teacherPersonality?: string;
-  topicTitle?: string;
-}
+/** 옛 튜터와 같은 순서 — 우즈벡어 사용자가 기본이다 */
+const LANG_ORDER = ["uz", "ru", "en", "ko"];
 
-export interface TutorSetupScreenProps {
-  /** 연결 중. 시작 버튼 연타를 막는다 */
+/** 목소리 카드 색. 서버 목소리엔 색이 없어서 순서대로 입힌다 */
+const VOICE_COLORS = ["#776ee2", "#F06A8E", "#3FA7D6", "#2FA96A", "#FFA726"];
+
+const PERSONALITIES: VoiceTutorPersonality[] = [
+  "friendly",
+  "close_friend",
+  "savage",
+  "chaotic_savage",
+];
+
+const PERSONALITY_EMOJI: Record<VoiceTutorPersonality, string> = {
+  friendly: "🌿",
+  close_friend: "🤙",
+  savage: "🔥",
+  chaotic_savage: "💥",
+};
+
+export interface VoiceTutorSetupScreenProps {
+  options: VoiceTutorOptions;
+  settings: VoiceTutorSettings;
+  onChange: (key: keyof VoiceTutorSettings, value: string) => void;
+  previewVoiceId: string | null;
+  onPreview: (voice: VoiceTutorVoice) => void;
+  /** 수업을 여는 중 — 시작 버튼 연타 방지 */
   busy: boolean;
+  /** 화면에 띄울 에러 문장 (이미 번역됨) */
   error: string | null;
-  quota: TutorQuota | null;
-  onClose: () => void;
-  onStart: (opts: TutorSetupResult) => void;
+  /** 서버 한도. null 이면 아직 모름 (시작은 막지 않는다 — 서버가 다시 본다) */
+  quota: VoiceTutorQuota | null;
   onUpsell: () => void;
+  onClose: () => void;
+  onStart: (topic: VoiceTutorTopicCard | null) => void;
 }
 
 /**
- * 통화 전 설정 한 페이지.
+ * 새 Voice Tutor 설정 한 페이지.
  *
- * 예전엔 선생님 화면 → 주제 화면 두 단계였고, **주제를 누르는 순간 통화가
- * 시작됐다.** 그래서 말투나 설명 언어를 바꾸려면 되돌아갈 방법이 없었고,
- * 주제를 잘못 눌러도 곧바로 과금되는 통화가 열렸다.
+ * ⚠️ 옛 튜터 `features/tutor/screens/TutorSetupScreen.tsx` 를 복사해서 시작했다
+ *    (Kai: "두 번째 화면도 똑같이"). 옛 파일은 건드리지 않는다.
  *
- * 한 페이지에 모으고 시작은 **버튼으로만** 한다:
- *   설명 언어 → 선생님 → 말투 → 주제 → 시작
+ * 옛 화면과 같은 흐름에 Voice Tutor 에만 있는 두 가지를 끼웠다:
+ *   수업 언어 → 선생님(목소리) → 말투 → 성격 → 한국어 수준 → 주제 → 시작
  *
- * 선생님·말투·언어는 기억한다 (tutor-prefs). 주제만 매번 새로 고른다 —
- * 오늘 뭘 할지는 어제와 다른 게 정상이다.
+ * 설정은 서버(voice_tutor_settings)가 기억한다. 주제만 매번 새로 고른다.
  */
-export function TutorSetupScreen(p: TutorSetupScreenProps) {
-  const { t, i18n } = useTranslation();
+export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
+  const { t } = useTranslation();
   const contentLang = useContentLang();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
 
-  const teacherId = useTutorPrefs((st) => st.teacherId);
-  const setTeacherId = useTutorPrefs((st) => st.setTeacherId);
-  const addressStyle = useTutorPrefs((st) => st.addressStyle);
-  const setAddressStyle = useTutorPrefs((st) => st.setAddressStyle);
-  const savedLang = useTutorPrefs((st) => st.teachingLanguage);
-  const setTeachingLanguage = useTutorPrefs((st) => st.setTeachingLanguage);
-
-  /**
-   * 한 번도 안 골랐으면 앱 언어를 기본으로.
-   *
-   * ⚠️ 매번 앱 언어로 덮으면 안 된다 — 고른 값이 조용히 되돌려진다.
-   *    그래서 null 일 때만 본다.
-   */
-  const teachingLanguage: TutorTeachingLanguage = useMemo(() => {
-    if (savedLang) return savedLang;
-    const base = contentLang as TutorTeachingLanguage;
-    return TUTOR_TEACHING_LANGUAGES.includes(base) ? base : "uz";
-  }, [savedLang, contentLang]);
-
-  const [teachers, setTeachers] = useState<TutorTeacherCard[] | null>(null);
-  const [topics, setTopics] = useState<TutorTopicCard[] | null>(null);
+  const [topics, setTopics] = useState<VoiceTutorTopicCard[] | null>(null);
   const [failed, setFailed] = useState(false);
   /** null = 자유 대화 */
   const [topicId, setTopicId] = useState<string | null>(null);
-  const [previewing, setPreviewing] = useState<string | null>(null);
-  const player = useRef<AudioPlayer | null>(null);
 
   const load = useCallback(() => {
     setFailed(false);
-    Promise.all([TutorApi.teachers(), TutorApi.topics()])
-      .then(([a, b]) => {
-        setTeachers(a.teachers);
-        setTopics(b.topics ?? []);
-      })
+    VoiceTutorApi.topics(contentLang)
+      .then((r) => setTopics(r.topics ?? []))
       .catch(() => setFailed(true));
-  }, []);
+  }, [contentLang]);
 
   useEffect(load, [load]);
 
-  // 화면을 떠나면 미리듣기를 끊는다. 안 끊으면 통화가 시작된 뒤에도 샘플이 나온다
-  useEffect(
-    () => () => {
-      try {
-        player.current?.remove();
-      } catch {
-        /* 이미 해제됐으면 그만 */
-      }
-      player.current = null;
-    },
-    [],
-  );
+  const languages = [...p.options.explanationLanguages]
+    .filter((language) => language.enabled !== false)
+    .sort((a, b) => LANG_ORDER.indexOf(a.id) - LANG_ORDER.indexOf(b.id));
+  const voices = p.options.voices.filter((voice) => voice.enabled !== false);
+  const personalities = p.options.personalities?.length
+    ? p.options.personalities
+    : PERSONALITIES;
+  const levels = p.options.koreanLevels ?? ["beginner", "intermediate", "advanced"];
 
-  /**
-   * 목소리 미리듣기.
-   *
-   * ⚠️ **Azure TTS 를 쓰지 않는다.** 실제 통화는 Gemini native audio 라,
-   *    예전처럼 Azure ko-KR 로 들려주면 고를 때 들은 사람과 수업에서 만나는
-   *    사람이 아예 다르다. 서버가 실제 Gemini 목소리로 미리 만들어 둔 파일을
-   *    그대로 재생한다 (합성 호출이 없으니 즉시 나온다).
-   *
-   * (Azure 는 그대로 남아 있다 — 정확한 한국어 예문 다시 듣기는 여전히
-   *  ko-KR 전용 목소리 쪽이 정확하다. 역할만 갈랐다.)
-   */
-  const preview = useCallback(async (tc: TutorTeacherCard) => {
-    if (!tc.previewUrl) return;
-    setPreviewing(tc.id);
-    try {
-      const uri = TutorApi.teacherPreviewUrl(tc.previewUrl);
-      if (!player.current) player.current = createAudioPlayer({ uri });
-      else player.current.replace({ uri });
-      player.current.play();
-    } catch {
-      /* 미리듣기가 안 돼도 선택은 막지 않는다 */
-    } finally {
-      setPreviewing(null);
-    }
-  }, []);
-
-  // 선생님을 한 명도 안 골랐으면 첫 번째를 기본 선택으로 (빈손으로 시작 못 하게)
-  useEffect(() => {
-    if (!teacherId && teachers?.length) setTeacherId(teachers[0].id);
-  }, [teacherId, teachers, setTeacherId]);
-
-  const teacher = teachers?.find((x) => x.id === teacherId) ?? null;
+  const voiceIndex = voices.findIndex((voice) => voice.id === p.settings.voiceId);
+  const voice = voiceIndex >= 0 ? voices[voiceIndex] : null;
   const topic = topics?.find((x) => x.id === topicId) ?? null;
-  const exhausted = !!p.quota && p.quota.allowedMin <= 0;
-  const canStart = !!teacher && !p.busy && !exhausted;
+  const exhausted = !!p.quota && p.quota.allowedSec <= 0;
+  const canStart = !!voice && !p.busy && !exhausted;
 
   if (failed) {
     return (
@@ -191,7 +138,7 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
     );
   }
 
-  if (!teachers || !topics) {
+  if (!topics) {
     return (
       <View style={[s.container, { paddingTop: insets.top + 6 }]}>
         <Header onClose={p.onClose} theme={theme} />
@@ -213,25 +160,87 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
         contentContainerStyle={s.scroll}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={s.subtitle}>{t("tutor.setup.subtitle")}</Text>
+        <Text style={s.subtitle}>{t("voiceTutor.setup.subtitle")}</Text>
 
-        {/* ── 1. 설명 언어 ── */}
-        <Section title={t("tutor.setup.language.title")} theme={theme}>
+        {/* ── 1. 수업 언어 ── */}
+        <Section title={t("voiceTutor.setup.languageTitle")} theme={theme}>
           <View style={s.langRow}>
-            {TUTOR_TEACHING_LANGUAGES.map((code) => {
-              const on = code === teachingLanguage;
+            {languages.map((language) => {
+              const on = language.id === p.settings.explanationLanguage;
               return (
                 <Pressable
-                  key={code}
-                  onPress={() => setTeachingLanguage(code)}
+                  key={language.id}
+                  onPress={() => p.onChange("explanationLanguage", language.id)}
                   style={[s.langChip, on && s.langChipOn]}
                 >
-                  <Text style={s.langFlag}>{LANG_FLAG[code]}</Text>
+                  <Text style={s.langFlag}>{LANG_FLAG[language.id] ?? "🌐"}</Text>
                   <Text
                     style={[s.langText, on && s.langTextOn]}
                     numberOfLines={1}
                   >
-                    {t(`tutor.setup.language.${code}`)}
+                    {language.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text style={s.sectionHint}>{t("voiceTutor.teachingLanguageHint")}</Text>
+        </Section>
+
+        {/* ── 2. 선생님 (목소리) ── */}
+        <Section title={t("voiceTutor.setup.teacherTitle")} theme={theme}>
+          {voices.length === 0 ? (
+            <Text style={s.errorInline}>{t("voiceTutor.voiceUnavailable")}</Text>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.teacherRow}
+            >
+              {voices.map((v, i) => (
+                <Animated.View key={v.id} entering={FadeInDown.delay(i * 50)}>
+                  <TeacherChip
+                    name={v.name}
+                    description={v.description}
+                    color={VOICE_COLORS[i % VOICE_COLORS.length]}
+                    hasPreview={!!v.previewUrl}
+                    selected={v.id === p.settings.voiceId}
+                    previewing={p.previewVoiceId === v.id}
+                    onSelect={() => p.onChange("voiceId", v.id)}
+                    onPreview={() => p.onPreview(v)}
+                    theme={theme}
+                  />
+                </Animated.View>
+              ))}
+            </ScrollView>
+          )}
+        </Section>
+
+        {/* ── 3. 말투 ── 성격과 독립이다 */}
+        <Section title={t("voiceTutor.setup.addressTitle")} theme={theme}>
+          <View style={s.addressRow}>
+            {(["polite", "casual"] as const).map((style) => {
+              const on = p.settings.speechStyle === style;
+              return (
+                <Pressable
+                  key={style}
+                  onPress={() => p.onChange("speechStyle", style)}
+                  style={[s.addressCard, on && s.addressCardOn]}
+                >
+                  <View style={s.addressHead}>
+                    <Text style={[s.addressLabel, on && s.addressLabelOn]}>
+                      {t(`voiceTutor.style.${style}`)}
+                    </Text>
+                    {on && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={17}
+                        color={theme.primary}
+                      />
+                    )}
+                  </View>
+                  <Text style={s.addressExample} numberOfLines={2}>
+                    {t(`voiceTutor.setup.${style}Example`)}
                   </Text>
                 </Pressable>
               );
@@ -239,71 +248,61 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
           </View>
         </Section>
 
-        {/* ── 2. 선생님 ── */}
-        <Section title={t("tutor.setup.teacher.title")} theme={theme}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.teacherRow}
-          >
-            {teachers.map((tc, i) => (
-              <Animated.View key={tc.id} entering={FadeInDown.delay(i * 50)}>
-                <TeacherChip
-                  teacher={tc}
-                  selected={tc.id === teacherId}
-                  previewing={previewing === tc.id}
-                  onSelect={() => setTeacherId(tc.id)}
-                  onPreview={() => void preview(tc)}
-                  theme={theme}
-                />
-              </Animated.View>
-            ))}
-          </ScrollView>
-        </Section>
-
-        {/* ── 3. 말투 ──
-            ⚠️ 성격과 독립이다. "유나 + 존댓말"(장난스러운데 존댓말)도,
-               "서연 + 반말"(차분한데 친근)도 고를 수 있어야 한다.
-               그리고 이건 **가르치는 한국어의 격식과도 다른 축**이다 —
-               반말 선생님도 카페 주문은 "주세요" 로 가르친다 (서버 프롬프트 §5). */}
-        <Section title={t("tutor.setup.address.title")} theme={theme}>
-          <View style={s.addressRow}>
-            {(["polite", "casual"] as const).map((style) => (
-              <Pressable
-                key={style}
-                onPress={() => setAddressStyle(style)}
-                style={[
-                  s.addressCard,
-                  addressStyle === style && s.addressCardOn,
-                ]}
-              >
-                <View style={s.addressHead}>
-                  <Text
-                    style={[
-                      s.addressLabel,
-                      addressStyle === style && s.addressLabelOn,
-                    ]}
-                  >
-                    {t(`tutor.setup.address.${style}`)}
+        {/* ── 4. 성격 ── Voice Tutor 에만 있다 */}
+        <Section title={t("voiceTutor.personalityTitle")} theme={theme}>
+          <View style={s.grid}>
+            {personalities.map((id) => {
+              const on = p.settings.personality === id;
+              return (
+                <Pressable
+                  key={id}
+                  onPress={() => p.onChange("personality", id)}
+                  style={[s.topicCard, on && s.topicCardOn]}
+                >
+                  <Text style={s.personaEmoji}>{PERSONALITY_EMOJI[id]}</Text>
+                  <Text style={s.topicTitle} numberOfLines={1}>
+                    {t(`voiceTutor.personality.${id}.name`)}
                   </Text>
-                  {addressStyle === style && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={17}
-                      color={theme.primary}
-                    />
+                  <Text style={s.topicBlurb} numberOfLines={3}>
+                    {t(`voiceTutor.personality.${id}.description`)}
+                  </Text>
+                  {on && (
+                    <View style={s.topicCheck}>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={18}
+                        color={theme.primary}
+                      />
+                    </View>
                   )}
-                </View>
-                <Text style={s.addressExample} numberOfLines={2}>
-                  {t(`tutor.setup.address.${style}Example`)}
-                </Text>
-              </Pressable>
-            ))}
+                </Pressable>
+              );
+            })}
           </View>
         </Section>
 
-        {/* ── 4. 주제 ── */}
-        <Section title={t("tutor.setup.topic.title")} theme={theme}>
+        {/* ── 5. 한국어 수준 ── */}
+        <Section title={t("voiceTutor.koreanLevel")} theme={theme}>
+          <View style={s.langRow}>
+            {levels.map((level) => {
+              const on = p.settings.koreanLevel === level;
+              return (
+                <Pressable
+                  key={level}
+                  onPress={() => p.onChange("koreanLevel", level)}
+                  style={[s.langChip, on && s.langChipOn]}
+                >
+                  <Text style={[s.langText, on && s.langTextOn]}>
+                    {t(`voiceTutor.level.${level}`, { defaultValue: level })}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Section>
+
+        {/* ── 6. 주제 ── */}
+        <Section title={t("voiceTutor.setup.topicTitle")} theme={theme}>
           <Pressable
             onPress={() => setTopicId(null)}
             style={[s.freeCard, topicId === null && s.freeCardOn]}
@@ -312,9 +311,9 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
               <Ionicons name="chatbubbles" size={18} color="#fff" />
             </View>
             <View style={s.freeBody}>
-              <Text style={s.freeTitle}>{t("tutor.setup.freeTalk")}</Text>
+              <Text style={s.freeTitle}>{t("voiceTutor.call.freeTalk")}</Text>
               <Text style={s.freeBlurb} numberOfLines={1}>
-                {t("tutor.freeTalkBlurb")}
+                {t("voiceTutor.setup.freeTalkBlurb")}
               </Text>
             </View>
             {topicId === null && (
@@ -330,7 +329,7 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
               g.items.length > 0 && (
                 <View key={g.key} style={s.group}>
                   <Text style={s.groupTitle}>
-                    {t(`tutor.topicGroup.${g.key}`)}
+                    {t(`voiceTutor.setup.topicGroup.${g.key}`)}
                   </Text>
                   <View style={s.grid}>
                     {g.items.map((tp) => (
@@ -376,46 +375,50 @@ export function TutorSetupScreen(p: TutorSetupScreenProps) {
 
         {!!p.error && (
           <Text style={s.errorInline} numberOfLines={2}>
-            {t(`tutor.err.${p.error}`, t("tutor.err.generic"))}
+            {p.error}
           </Text>
         )}
       </ScrollView>
 
-      {/* ── 하단 고정 ──
-          ScrollView 안에 넣으면 끝까지 내려야 보인다. 그리고 안드로이드
-          3버튼 네비게이션에 가려지지 않게 insets.bottom 을 항상 더한다 */}
+      {/* ── 하단 고정 ── 안드로이드 네비바에 가리지 않게 insets.bottom 을 더한다 */}
       <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Text style={s.summary} numberOfLines={1}>
           {[
-            LANG_FLAG[teachingLanguage],
-            teacher?.name,
-            t(`tutor.setup.address.${addressStyle}`),
-            topic?.title ?? t("tutor.setup.freeTalk"),
+            LANG_FLAG[p.settings.explanationLanguage],
+            voice?.name,
+            t(`voiceTutor.style.${p.settings.speechStyle}`),
+            topic?.title ?? t("voiceTutor.call.freeTalk"),
           ]
             .filter(Boolean)
             .join(" · ")}
         </Text>
 
+        {!!p.quota && (
+          <Text style={s.quotaLine} numberOfLines={1}>
+            {t("voiceTutor.setup.quotaLeft", {
+              min: Math.floor(p.quota.allowedSec / 60),
+              limit: p.quota.dailyLimitMin,
+            })}
+          </Text>
+        )}
+
         {exhausted ? (
-          <Pressable onPress={p.onUpsell} style={s.start}>
-            <Text style={s.startText}>{t("tutor.upsellMax")}</Text>
+          <Pressable
+            onPress={p.quota?.isMax ? undefined : p.onUpsell}
+            style={[s.start, p.quota?.isMax && s.startOff]}
+          >
+            <Text style={s.startText}>
+              {p.quota?.isMax
+                ? t("voiceTutor.setup.limitReached")
+                : t("voiceTutor.setup.upsellMax")}
+            </Text>
           </Pressable>
         ) : (
           <StartButton
-            label={t("tutor.setup.start")}
+            label={t("voiceTutor.setup.start")}
             busy={p.busy}
             disabled={!canStart}
-            onPress={() =>
-              p.onStart({
-                topicId: topicId ?? undefined,
-                teacherId: teacherId ?? undefined,
-                addressStyle,
-                teachingLanguage,
-                teacherName: teacher?.name,
-                teacherPersonality: teacher?.personality,
-                topicTitle: topic?.title,
-              })
-            }
+            onPress={() => p.onStart(topic)}
             theme={theme}
           />
         )}
@@ -438,7 +441,7 @@ function Header({
       <Pressable onPress={onClose} style={s.iconBtn} hitSlop={8}>
         <Ionicons name="chevron-down" size={26} color={theme.text} />
       </Pressable>
-      <Text style={s.title}>{t("tutor.setup.title")}</Text>
+      <Text style={s.title}>{t("voiceTutor.setup.title")}</Text>
       <View style={s.iconBtn} />
     </View>
   );
@@ -464,14 +467,20 @@ function Section({
 
 /** 가로 스크롤용 선생님 카드. 세로로 쌓으면 이 페이지가 끝없이 길어진다 */
 function TeacherChip({
-  teacher,
+  name,
+  description,
+  color,
+  hasPreview,
   selected,
   previewing,
   onSelect,
   onPreview,
   theme,
 }: {
-  teacher: TutorTeacherCard;
+  name: string;
+  description?: string;
+  color: string;
+  hasPreview: boolean;
   selected: boolean;
   previewing: boolean;
   onSelect: () => void;
@@ -491,37 +500,36 @@ function TeacherChip({
       onPressOut={() => (press.value = withTiming(0, { duration: 130 }))}
       style={[
         s.teacherCard,
-        selected && { borderColor: teacher.color, borderWidth: 2 },
+        selected && { borderColor: color, borderWidth: 2 },
         style,
       ]}
     >
-      <View style={[s.teacherAvatar, { backgroundColor: teacher.color + "26" }]}>
-        <Text style={s.teacherAvatarText}>{teacher.avatar}</Text>
+      <View style={[s.teacherAvatar, { backgroundColor: color + "26" }]}>
+        <TutorMascot state="idle" size={26} tint={color} />
       </View>
       <View style={s.teacherNameRow}>
         <Text style={s.teacherName} numberOfLines={1}>
-          {teacher.name}
+          {name}
         </Text>
         {selected && (
-          <Ionicons name="checkmark-circle" size={15} color={teacher.color} />
+          <Ionicons name="checkmark-circle" size={15} color={color} />
         )}
       </View>
       <Text style={s.teacherDesc} numberOfLines={2}>
-        {teacher.description}
+        {description ?? ""}
       </Text>
-      {/* 에셋이 아직 없으면 버튼을 아예 안 그린다.
-          눌러도 아무 일 없는 버튼이 제일 나쁘다 */}
-      {!!teacher.previewUrl && (
+      {/* 미리듣기 파일이 없으면 버튼을 아예 안 그린다 */}
+      {hasPreview && (
         <Pressable
           onPress={onPreview}
           hitSlop={10}
-          style={[s.teacherPlay, { borderColor: teacher.color }]}
+          style={[s.teacherPlay, { borderColor: color }]}
         >
-          {previewing ? (
-            <ActivityIndicator size="small" color={teacher.color} />
-          ) : (
-            <Ionicons name="volume-high" size={15} color={teacher.color} />
-          )}
+          <Ionicons
+            name={previewing ? "stop" : "volume-high"}
+            size={15}
+            color={color}
+          />
         </Pressable>
       )}
     </AnimatedPressable>
@@ -599,6 +607,14 @@ const styles = (theme: ThemeColors) =>
     },
 
     section: { marginBottom: 26 },
+    sectionHint: {
+      fontSize: 12,
+      lineHeight: 17,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      marginTop: 9,
+    },
+    personaEmoji: { fontSize: 22 },
     sectionTitle: {
       fontSize: 15,
       fontWeight: "900",
@@ -645,6 +661,7 @@ const styles = (theme: ThemeColors) =>
       borderRadius: 15,
       alignItems: "center",
       justifyContent: "center",
+      overflow: "hidden",
     },
     teacherAvatarText: { fontSize: 23 },
     teacherNameRow: {
@@ -807,6 +824,12 @@ const styles = (theme: ThemeColors) =>
       backgroundColor: theme.bg,
       borderTopWidth: 1,
       borderTopColor: theme.border,
+    },
+    quotaLine: {
+      fontSize: 12,
+      fontWeight: "800",
+      color: theme.primary,
+      textAlign: "center",
     },
     summary: {
       fontSize: 12.5,

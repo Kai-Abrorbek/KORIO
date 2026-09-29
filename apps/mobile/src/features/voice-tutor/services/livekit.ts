@@ -12,9 +12,10 @@ import {
 } from "livekit-client";
 
 /**
- * LiveKit 튜터 연결 하나.
+ * LiveKit 튜터 연결 하나. (옛 `features/tutor/services/livekit-tutor.ts` 에서
+ * 옮겨 왔다 — 2026-09-29 옛 튜터를 앱에서 빼면서 새 Voice Tutor 전용이 됐다)
  *
- *   마이크 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──▶ Gemini 3.8 Live
+ *   마이크 ──WebRTC──▶ LiveKit ──▶ voice-tutor-agent (STT → API → ElevenLabs)
  *                                                      │
  *   스피커 ◀──WebRTC── LiveKit ◀────────────────────────┘
  *
