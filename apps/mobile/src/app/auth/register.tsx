@@ -14,46 +14,72 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
+import { usePasswordResetStore } from "@/store/password-reset.store";
 import { authService } from "@/services/auth.service";
 import KorioLogo from "@/components/home/KorioLogo";
 import TrialBanner from "@/components/auth/TrialBanner";
 
+/** 서버 DTO 의 @MinLength(6) 과 같다 */
+const MIN_PASSWORD = 6;
+/** 서버와 같은 E.164 규칙. 공백·하이픈은 빼고 본다 */
+const toE164 = (raw: string) => raw.replace(/[^\d+]/g, "");
+const E164 = /^\+[1-9]\d{7,14}$/;
+
+/**
+ * 회원가입 — 1단계 (입력). 계정은 여기서 안 만든다.
+ *
+ * 코드 메일을 보내고 verify-code 화면으로 간다. 코드가 맞아야 계정이 생긴다
+ * (예전엔 바로 만들어서 없는 주소·남의 주소로도 가입이 됐다).
+ */
 export default function RegisterScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { setUser } = useAuthStore();
+  const startFlow = usePasswordResetStore((st) => st.startFlow);
   const { sessionId } = useOnboardingStore();
   const { trial } = useLocalSearchParams<{ trial?: string | string[] }>();
   const fromTrial = (Array.isArray(trial) ? trial[0] : trial) === "1";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordAgain, setPasswordAgain] = useState("");
+  const [phone, setPhone] = useState("");
   const [nickname, setNickname] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const phoneE164 = toE164(phone);
+  const phoneBad = phone.trim().length > 0 && !E164.test(phoneE164);
+  const tooShort = password.length > 0 && password.length < MIN_PASSWORD;
+  const mismatch = passwordAgain.length > 0 && password !== passwordAgain;
+  const ready =
+    !!email.trim() &&
+    !!nickname.trim() &&
+    password.length >= MIN_PASSWORD &&
+    password === passwordAgain &&
+    !phoneBad &&
+    !loading;
+
   const handleRegister = async () => {
-    if (!email || !password || !nickname) return;
+    if (!ready) return;
     setLoading(true);
     setError("");
     try {
-      const res = (await authService.register({
-        email,
+      const res = await authService.registerStart({
+        email: email.trim(),
         password,
-        nickname,
+        nickname: nickname.trim(),
         sessionId,
-      })) as any;
-      setUser(res.user, res.accessToken);
-      router.replace(
-        res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
-      );
+        ...(phone.trim() ? { phone: phoneE164 } : {}),
+        lang: i18n.language?.slice(0, 2),
+      });
+      startFlow(res.email ?? email.trim(), "signup");
+      router.push("/auth/verify-code");
     } catch (err: any) {
       const code = err.message ?? "UNKNOWN_ERROR";
-      setError(t(`auth.errors.${code}`) ?? code);
+      setError(t(`auth.errors.${code}`, { defaultValue: t("auth.errors.UNKNOWN_ERROR") }));
     } finally {
       setLoading(false);
     }
@@ -124,6 +150,26 @@ export default function RegisterScreen() {
             />
           </View>
 
+          <View style={[styles.inputContainer, phoneBad && styles.inputError]}>
+            <Ionicons
+              name="call-outline"
+              size={20}
+              color={theme.textSecondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder={t("auth.phoneOptional")}
+              placeholderTextColor={theme.textSecondary}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              textContentType="telephoneNumber"
+            />
+          </View>
+          {phoneBad ? <Text style={styles.fieldHint}>{t("auth.phoneHint")}</Text> : null}
+
           <View style={styles.inputContainer}>
             <Ionicons
               name="lock-closed-outline"
@@ -147,6 +193,28 @@ export default function RegisterScreen() {
               />
             </TouchableOpacity>
           </View>
+          {tooShort ? <Text style={styles.fieldError}>{t("auth.reset.tooShort")}</Text> : null}
+
+          <View style={[styles.inputContainer, mismatch && styles.inputError]}>
+            <Ionicons
+              name="shield-checkmark-outline"
+              size={20}
+              color={theme.textSecondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder={t("auth.passwordConfirm")}
+              placeholderTextColor={theme.textSecondary}
+              value={passwordAgain}
+              onChangeText={setPasswordAgain}
+              secureTextEntry={!showPassword}
+            />
+            {passwordAgain.length > 0 && !mismatch ? (
+              <Ionicons name="checkmark-circle" size={20} color="#1DBB7F" />
+            ) : null}
+          </View>
+          {mismatch ? <Text style={styles.fieldError}>{t("auth.reset.mismatch")}</Text> : null}
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -156,13 +224,9 @@ export default function RegisterScreen() {
           ) : null}
 
           <TouchableOpacity
-            style={[
-              styles.primaryButton,
-              (!email || !password || !nickname || loading) &&
-                styles.primaryButtonDisabled,
-            ]}
+            style={[styles.primaryButton, !ready && styles.primaryButtonDisabled]}
             onPress={handleRegister}
-            disabled={!email || !password || !nickname || loading}
+            disabled={!ready}
           >
             <Text style={styles.primaryButtonText}>
               {loading ? t("common.loading") : t("auth.register")}
@@ -233,6 +297,21 @@ const getStyles = (theme: ThemeColors) =>
     },
     inputIcon: {
       marginRight: 10,
+    },
+    inputError: {
+      borderColor: "#E24B4A",
+    },
+    fieldError: {
+      fontSize: 12.5,
+      color: "#E24B4A",
+      marginTop: -8,
+      marginLeft: 4,
+    },
+    fieldHint: {
+      fontSize: 12.5,
+      color: theme.textSecondary,
+      marginTop: -8,
+      marginLeft: 4,
     },
     input: {
       flex: 1,

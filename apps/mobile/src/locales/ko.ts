@@ -189,6 +189,9 @@ export default {
     },
   },
   auth: {
+    passwordConfirm: "비밀번호 확인",
+    phoneHint: "국가번호부터 입력해 주세요. 예: +998 90 123 45 67",
+    phoneOptional: "전화번호 (선택)",
     login: "로그인",
     register: "회원가입",
     email: "이메일",
@@ -201,10 +204,11 @@ export default {
       link: "비밀번호를 잊으셨나요?",
       title: "비밀번호를 잊으셨나요?",
       subtitle: "가입할 때 쓴 이메일을 알려주면 재설정 코드를 보내드릴게요.",
-      hint: "카카오·구글 같은 소셜 계정으로 가입했다면 비밀번호가 없어요. 그 버튼으로 바로 로그인해 주세요.",
+      hint: "소셜 계정으로 가입했어도 이메일이 있으면 여기서 코드를 받아 비밀번호를 만들 수 있어요.",
       cta: "코드 받기",
     },
     verify: {
+      signupTitle: "이메일을 인증해 주세요",
       title: "코드를 입력해 주세요",
       subtitle: "{{email}} 로 6자리 코드를 보냈어요.",
       cta: "확인",
@@ -214,6 +218,9 @@ export default {
       spam: "메일이 안 보이면 스팸함도 확인해 보세요.",
     },
     reset: {
+      setCta: "비밀번호 만들기",
+      setSubtitle: "이제 이 이메일과 비밀번호로도 로그인할 수 있어요.",
+      setTitle: "비밀번호를 만들어요",
       title: "새 비밀번호를 정해요",
       subtitle: "다른 곳에서 쓰지 않는 비밀번호로 만들어 주세요.",
       newPassword: "새 비밀번호",
@@ -225,6 +232,10 @@ export default {
       strength: { weak: "약함", fair: "보통", strong: "강함" },
     },
     errors: {
+      MAIL_SEND_FAILED: "인증 메일을 보내지 못했어요. 이메일 주소를 확인해 주세요.",
+      PHONE_ALREADY_REGISTERED: "이미 다른 계정에 등록된 전화번호예요.",
+      INVALID_PHONE: "전화번호 형식이 맞지 않아요. +국가번호부터 입력해 주세요.",
+      EMAIL_VERIFICATION_REQUIRED: "이메일 인증이 필요해요. 앱을 최신 버전으로 업데이트해 주세요.",
       UNKNOWN_ERROR: "문제가 생겼어요. 잠시 뒤에 다시 시도해 주세요.",
       INVALID_CODE: "코드가 맞지 않아요. 다시 확인해 주세요.",
       TOO_MANY_ATTEMPTS: "너무 여러 번 틀렸어요. 코드를 새로 받아 주세요.",
@@ -444,6 +455,9 @@ export default {
     },
   },
   account: {
+    noEmailNoPassword: "이메일이 없는 계정이라 비밀번호를 만들 수 없어요",
+    setPasswordHint: "이메일 인증 후 이메일로도 로그인할 수 있어요",
+    setPassword: "비밀번호 만들기",
     profileSection: "프로필",
     accountSection: "계정 정보",
     subscriptionSection: "구독",

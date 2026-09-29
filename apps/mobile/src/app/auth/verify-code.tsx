@@ -21,6 +21,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { authService } from "@/services/auth.service";
 import { usePasswordResetStore } from "@/store/password-reset.store";
+import { useAuthStore } from "@/store/auth.store";
 import AuthStepLayout from "@/components/auth/AuthStepLayout";
 
 const LENGTH = 6;
@@ -95,6 +96,11 @@ export default function VerifyCodeScreen() {
   const inputRef = useRef<TextInput>(null);
 
   const email = usePasswordResetStore((st) => st.email);
+  /** reset / setPassword 는 코드 → 새 비밀번호, signup 은 코드 → 계정 생성 */
+  const purpose = usePasswordResetStore((st) => st.purpose);
+  const clearFlow = usePasswordResetStore((st) => st.clear);
+  const setUser = useAuthStore((st) => st.setUser);
+  const signup = purpose === "signup";
   const sentAt = usePasswordResetStore((st) => st.sentAt);
   const markResent = usePasswordResetStore((st) => st.markResent);
   const setToken = usePasswordResetStore((st) => st.setToken);
@@ -105,10 +111,15 @@ export default function VerifyCodeScreen() {
   const [notice, setNotice] = useState("");
   const [left, setLeft] = useState(RESEND_COOLDOWN_SEC);
 
+  /** 가입 완료로 흐름을 비운 것과 애초에 이메일 없이 들어온 것을 구분한다 */
+  const finished = useRef(false);
+
   // 이메일 없이 이 화면에 직접 들어온 경우 (딥링크·새로고침) 앞 단계로 돌린다
   useEffect(() => {
-    if (!email) router.replace("/auth/forgot-password");
-  }, [email]);
+    if (!email && !finished.current) {
+      router.replace(signup ? "/auth/register" : "/auth/forgot-password");
+    }
+  }, [email, signup]);
 
   // 남은 대기 시간은 "언제 보냈는지" 에서 매초 다시 계산한다.
   // 카운터를 그냥 1씩 빼면 화면이 잠들었다 깨어났을 때 시간이 밀린다
@@ -135,6 +146,17 @@ export default function VerifyCodeScreen() {
     setError("");
     setNotice("");
     try {
+      if (signup) {
+        // 코드가 맞으면 서버가 이때 계정을 만들고 바로 토큰을 준다
+        const res: any = await authService.registerVerify({ email, code: value });
+        finished.current = true;
+        setUser(res.user, res.accessToken);
+        clearFlow();
+        router.replace(
+          res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
+        );
+        return;
+      }
       const res = await authService.verifyResetCode({ email, code: value });
       setToken(res.resetToken);
       router.push("/auth/reset-password");
@@ -155,10 +177,9 @@ export default function VerifyCodeScreen() {
     setLoading(true);
     setError("");
     try {
-      await authService.forgotPassword({
-        email,
-        lang: i18n.language?.slice(0, 2),
-      });
+      const lang = i18n.language?.slice(0, 2);
+      if (signup) await authService.registerResend({ email, lang });
+      else await authService.forgotPassword({ email, lang });
       markResent();
       setCode("");
       setNotice(t("auth.verify.resent"));
@@ -175,7 +196,7 @@ export default function VerifyCodeScreen() {
   return (
     <AuthStepLayout
       icon="mail-open"
-      title={t("auth.verify.title")}
+      title={signup ? t("auth.verify.signupTitle") : t("auth.verify.title")}
       subtitle={t("auth.verify.subtitle", { email })}
       error={error}
       cta={loading ? t("common.loading") : t("auth.verify.cta")}

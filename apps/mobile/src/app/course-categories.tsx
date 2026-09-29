@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
 import { Ionicons } from "@expo/vector-icons";
+import { TutorMascotIcon } from "@/features/voice-tutor/components/TutorMascotIcon";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import {
@@ -89,7 +90,8 @@ const CATEGORIES: Array<{
     key: "conversation",
     category: "conversation",
     icon: "chatbubbles",
-    color: "#EC407A",
+    // 통화 화면의 밤바다 청록. 라벤더 마스코트가 떠 보인다
+    color: "#0F3446",
     guided: true,
     feature: "tutor",
   },
@@ -187,7 +189,12 @@ function CategoryCard({
           </View>
         )}
         <View style={[s.catIcon, { backgroundColor: c.color }]}>
-          <Ionicons name={c.icon as any} size={22} color="#fff" />
+          {c.key === "conversation" ? (
+            // 실전 회화 = AI 음성 튜터. 튜터 화면의 마스코트를 그대로 아이콘으로 쓴다
+            <TutorMascotIcon size={26} />
+          ) : (
+            <Ionicons name={c.icon as any} size={22} color="#fff" />
+          )}
         </View>
         <Text style={s.catLabel}>{label}</Text>
         <Text style={s.catDesc} numberOfLines={2}>

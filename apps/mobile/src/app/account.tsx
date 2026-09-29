@@ -6,6 +6,7 @@
  */
 import { useCallback, useState } from "react";
 import {
+  Alert,
   View,
   Text,
   StyleSheet,
@@ -30,6 +31,8 @@ import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import { signOut } from "@/utils/sign-out";
 import { UserService } from "@/services/user.service";
+import { authService } from "@/services/auth.service";
+import { usePasswordResetStore } from "@/store/password-reset.store";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 
 type Styles = ReturnType<typeof getStyles>;
@@ -111,7 +114,7 @@ function Row({
 }
 
 export default function AccountScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
@@ -121,6 +124,24 @@ export default function AccountScreen() {
   const [editing, setEditing] = useState<Field | null>(null);
   const [pwOpen, setPwOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const startFlow = usePasswordResetStore((st) => st.startFlow);
+  const [pwSending, setPwSending] = useState(false);
+
+  /** 비밀번호 만들기: 내 메일로 코드 → 코드 확인 → 새 비밀번호 (비밀번호 찾기와 같은 화면) */
+  const startSetPassword = async (email: string) => {
+    if (pwSending) return;
+    setPwSending(true);
+    try {
+      await authService.forgotPassword({ email, lang: i18n.language?.slice(0, 2) });
+      startFlow(email, "setPassword");
+      router.push("/auth/verify-code");
+    } catch (e: any) {
+      const code = e?.message ?? "UNKNOWN_ERROR";
+      Alert.alert(t(`auth.errors.${code}`, { defaultValue: t("auth.errors.UNKNOWN_ERROR") }));
+    } finally {
+      setPwSending(false);
+    }
+  };
 
   // 다른 화면에서 아바타를 바꾸고 돌아올 수 있다
   useFocusEffect(
@@ -142,6 +163,9 @@ export default function AccountScreen() {
   const provider = (me as any).provider ?? "local";
   const look = PROVIDER_LOOK[provider] ?? PROVIDER_LOOK.local;
   const isSocial = provider !== "local";
+  // 소셜 가입자도 비밀번호를 만들었으면 "변경" 이다. 옛 서버 응답엔 hasPassword 가
+  // 없으니 그땐 예전 규칙(로컬 = 있음)으로 본다
+  const hasPassword = me.hasPassword ?? !isSocial;
   const joined = (me as any).createdAt
     ? new Date((me as any).createdAt).toLocaleDateString()
     : "-";
@@ -294,17 +318,31 @@ export default function AccountScreen() {
         {/* 보안 */}
         <Text style={s.sectionLabel}>{t("account.securitySection")}</Text>
         <View style={s.card}>
-          {isSocial ? (
+          {hasPassword ? null : me.email ? (
+            // 소셜 가입자: 메일 코드로 본인 확인 → 비밀번호 만들기. 그 뒤로는
+            // 소셜 로그인이 막혀도 이메일+비밀번호로 들어올 수 있다
             <Row
-              icon="lock-closed"
-              color="#A8A8B0"
-              bg="#ECECEE"
-              label={t("account.changePassword")}
-              value={t("account.socialNoPassword")}
+              icon="key"
+              color="#7E57C2"
+              bg="#E7E0F7"
+              label={t("account.setPassword")}
+              value={t("account.setPasswordHint")}
+              onPress={() => void startSetPassword(me.email)}
               s={s}
               theme={theme}
             />
           ) : (
+            <Row
+              icon="lock-closed"
+              color="#A8A8B0"
+              bg="#ECECEE"
+              label={t("account.setPassword")}
+              value={t("account.noEmailNoPassword")}
+              s={s}
+              theme={theme}
+            />
+          )}
+          {!hasPassword ? null : (
             <Row
               icon="lock-closed"
               color="#7E57C2"

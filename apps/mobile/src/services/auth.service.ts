@@ -31,6 +31,25 @@ export const authService = {
     return res;
   },
 
+  // ── 이메일 인증 가입 ──
+  // 1) registerStart  입력값 → 인증 코드 메일 (계정은 아직 없다)
+  // 2) registerVerify 코드 → 계정 생성 + 바로 로그인
+  registerStart: (data: RegisterData & { phone?: string; lang?: string }) =>
+    api.post("/auth/register/start", data) as Promise<{
+      success: boolean;
+      email: string;
+      expiresInSec: number;
+    }>,
+
+  registerResend: (data: { email: string; lang?: string }) =>
+    api.post("/auth/register/resend", data) as Promise<{ success: boolean }>,
+
+  registerVerify: async (data: { email: string; code: string }) => {
+    const res: any = await api.post("/auth/register/verify", data);
+    if (res?.accessToken) await TokenStorage.set(res.accessToken);
+    return res;
+  },
+
   login: async (data: LoginData) => {
     const res: any = await api.post("/auth/login", data);
     if (res?.accessToken) await TokenStorage.set(res.accessToken);

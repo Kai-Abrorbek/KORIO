@@ -68,6 +68,8 @@ export default function ResetPasswordScreen() {
   const { setUser } = useAuthStore();
 
   const resetToken = usePasswordResetStore((st) => st.resetToken);
+  /** 계정 화면에서 소셜 가입자가 처음 비밀번호를 만드는 흐름이면 끝나고 계정 화면으로 */
+  const settingNew = usePasswordResetStore((st) => st.purpose) === "setPassword";
   const clear = usePasswordResetStore((st) => st.clear);
 
   const [pw, setPw] = useState("");
@@ -106,9 +108,20 @@ export default function ResetPasswordScreen() {
       });
       // 서버가 바로 토큰을 준다 — 메일함을 열고 새 비밀번호까지 정한 사람이면
       // 본인이 맞다. 여기서 다시 로그인 화면으로 보내면 방금 정한 걸 또 친다
-      setUser(res.user, res.accessToken);
       finished.current = true;
       clear();
+      if (settingNew) {
+        // 이미 로그인해 있는 상태다. setUser 로 통째 갈면 토큰 응답에 없는
+        // 필드(구독·에너지 등)가 날아간다 — 토큰만 새로 받고 나머지는 합친다.
+        // (비밀번호를 바꾸면 tokenVersion 이 올라가서 옛 토큰은 죽는다)
+        useAuthStore.setState((st) => ({
+          accessToken: res.accessToken,
+          user: st.user ? { ...st.user, ...res.user, hasPassword: true } : res.user,
+        }));
+        router.dismissTo("/account");
+        return;
+      }
+      setUser(res.user, res.accessToken);
       router.replace(
         res.user?.isOnboardingCompleted ? "/(tabs)" : "/onboarding/survey",
       );
@@ -131,10 +144,16 @@ export default function ResetPasswordScreen() {
   return (
     <AuthStepLayout
       icon="key"
-      title={t("auth.reset.title")}
-      subtitle={t("auth.reset.subtitle")}
+      title={settingNew ? t("auth.reset.setTitle") : t("auth.reset.title")}
+      subtitle={settingNew ? t("auth.reset.setSubtitle") : t("auth.reset.subtitle")}
       error={error || inlineError}
-      cta={loading ? t("common.loading") : t("auth.reset.cta")}
+      cta={
+        loading
+          ? t("common.loading")
+          : settingNew
+            ? t("auth.reset.setCta")
+            : t("auth.reset.cta")
+      }
       ctaDisabled={!ready}
       onCta={submit}
       onBack={() => router.replace("/auth/login")}

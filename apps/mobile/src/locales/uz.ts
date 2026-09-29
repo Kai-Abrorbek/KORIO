@@ -190,6 +190,9 @@ export default {
     },
   },
   auth: {
+    passwordConfirm: "Parolni tasdiqlang",
+    phoneHint: "Mamlakat kodidan boshlang. Masalan: +998 90 123 45 67",
+    phoneOptional: "Telefon raqam (ixtiyoriy)",
     login: "Kirish",
     register: "Ro'yxatdan o'tish",
     email: "Email",
@@ -202,10 +205,11 @@ export default {
       link: "Parolni unutdingizmi?",
       title: "Parolni unutdingizmi?",
       subtitle: "Ro'yxatdan o'tgan emailingizni kiriting — tiklash kodini yuboramiz.",
-      hint: "Agar Google yoki Kakao orqali ro'yxatdan o'tgan bo'lsangiz, parol yo'q. O'sha tugma bilan kiring.",
+      hint: "Ijtimoiy tarmoq orqali ro'yxatdan o'tgan bo'lsangiz ham, emailingiz bo'lsa shu yerda kod olib parol yaratishingiz mumkin.",
       cta: "Kodni olish",
     },
     verify: {
+      signupTitle: "Emailingizni tasdiqlang",
       title: "Kodni kiriting",
       subtitle: "{{email}} manziliga 6 xonali kod yubordik.",
       cta: "Tasdiqlash",
@@ -215,6 +219,9 @@ export default {
       spam: "Xat ko'rinmasa, spam papkasini ham tekshiring.",
     },
     reset: {
+      setCta: "Parol yaratish",
+      setSubtitle: "Endi shu email va parol bilan ham kira olasiz.",
+      setTitle: "Parol yaratamiz",
       title: "Yangi parol",
       subtitle: "Boshqa joyda ishlatmaydigan parol tanlang.",
       newPassword: "Yangi parol",
@@ -226,6 +233,10 @@ export default {
       strength: { weak: "Zaif", fair: "O'rtacha", strong: "Kuchli" },
     },
     errors: {
+      MAIL_SEND_FAILED: "Tasdiqlash xatini yuborib bo'lmadi. Email manzilini tekshiring.",
+      PHONE_ALREADY_REGISTERED: "Bu raqam boshqa hisobga ro'yxatdan o'tgan.",
+      INVALID_PHONE: "Telefon raqam noto'g'ri. + va mamlakat kodidan boshlang.",
+      EMAIL_VERIFICATION_REQUIRED: "Emailni tasdiqlash kerak. Ilovani yangilang.",
       UNKNOWN_ERROR: "Nimadir noto'g'ri ketdi. Birozdan so'ng urinib ko'ring.",
       INVALID_CODE: "Kod noto'g'ri. Qaytadan tekshiring.",
       TOO_MANY_ATTEMPTS: "Juda ko'p marta xato kiritildi. Yangi kod oling.",
@@ -451,6 +462,9 @@ export default {
     },
   },
   account: {
+    noEmailNoPassword: "Bu hisobda email yo'q — parol yaratib bo'lmaydi",
+    setPasswordHint: "Emailni tasdiqlagach, email bilan ham kira olasiz",
+    setPassword: "Parol yaratish",
     profileSection: "Profil",
     accountSection: "Akkaunt ma'lumoti",
     subscriptionSection: "Obuna",

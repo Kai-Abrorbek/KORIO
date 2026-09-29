@@ -14,6 +14,10 @@ import { useOnboardingStore } from "./onboarding.store";
 export interface User {
   id: string;
   email: string;
+  /** 비밀번호가 있는지. 소셜 가입자는 계정 화면에서 메일 인증 후 만들 수 있다 */
+  hasPassword?: boolean;
+  /** 코드로 확인한 이메일인지 (이메일 인증 가입부터) */
+  emailVerified?: boolean;
   nickname: string;
   username?: string;
   profileImage?: string;

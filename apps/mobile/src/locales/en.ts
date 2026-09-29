@@ -189,6 +189,9 @@ export default {
     },
   },
   auth: {
+    passwordConfirm: "Confirm password",
+    phoneHint: "Start with your country code, e.g. +998 90 123 45 67",
+    phoneOptional: "Phone number (optional)",
     login: "Log In",
     register: "Sign Up",
     email: "Email",
@@ -201,10 +204,11 @@ export default {
       link: "Forgot your password?",
       title: "Forgot your password?",
       subtitle: "Tell us the email you signed up with and we'll send a reset code.",
-      hint: "If you signed up with Google or Kakao there is no password — just use that button to sign in.",
+      hint: "Signed up with a social account? If it has an email, you can get a code here and create a password.",
       cta: "Send code",
     },
     verify: {
+      signupTitle: "Verify your email",
       title: "Enter the code",
       subtitle: "We sent a 6-digit code to {{email}}.",
       cta: "Continue",
@@ -214,6 +218,9 @@ export default {
       spam: "Can't find it? Check your spam folder too.",
     },
     reset: {
+      setCta: "Create password",
+      setSubtitle: "You can now also sign in with this email and password.",
+      setTitle: "Create a password",
       title: "Choose a new password",
       subtitle: "Pick something you don't use anywhere else.",
       newPassword: "New password",
@@ -225,6 +232,10 @@ export default {
       strength: { weak: "Weak", fair: "Fair", strong: "Strong" },
     },
     errors: {
+      MAIL_SEND_FAILED: "We couldn't send the verification email. Please check the address.",
+      PHONE_ALREADY_REGISTERED: "This phone number is already registered to another account.",
+      INVALID_PHONE: "Invalid phone number. Start with + and your country code.",
+      EMAIL_VERIFICATION_REQUIRED: "Email verification is required. Please update the app.",
       UNKNOWN_ERROR: "Something went wrong. Please try again in a moment.",
       INVALID_CODE: "That code doesn't match. Please check it again.",
       TOO_MANY_ATTEMPTS: "Too many wrong tries. Request a new code.",
@@ -449,6 +460,9 @@ export default {
     },
   },
   account: {
+    noEmailNoPassword: "This account has no email, so a password can't be created",
+    setPasswordHint: "Verify your email to also sign in with it",
+    setPassword: "Create password",
     profileSection: "Profile",
     accountSection: "Account info",
     subscriptionSection: "Subscription",
