@@ -1,0 +1,246 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_41_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-41-2015',
+  title: {
+    ko: '제41회 TOPIK I 읽기',
+    uz: '41-TOPIK I o‘qish',
+    en: '41st TOPIK I Reading',
+    ru: '41-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제41회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조 그대로 구성했습니다.',
+    uz: '41-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 41st TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 41-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2015,
+  round: 41,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제41회 한국어능력시험 I B형 읽기',
+    edition: '제41회',
+    publisher: '국립국제교육원',
+    reference:
+      '사용자 제공 test-paper-paper (1).pdf 및 answer-keys-answers.pdf',
+  },
+  publishedAt: new Date('2015-07-19T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const studentEmail = {
+  ...passage(
+    '받는 사람: liming@hankuk.edu; michael@hankuk.edu; sara@hankuk.edu; …',
+    '보낸 사람: korea@hankuk.edu',
+    '제목: 학생 여러분, 안녕하십니까?',
+    '학생 여러분, ‘전통 문화 함께하기’를 신청해 주셔서 감사합니다.',
+    '‘전통 문화 함께하기’는 이번 주 금요일 오전 10시부터 12시까지 합니다. 태권도를 신청한 학생은 운동화를 신고 체육관으로 오시기 바랍니다. 전통 차 만들기를 신청한 학생은 학생회관으로 오십시오. 모든 신청자는 30분 전에 와서 준비해 주시기 바랍니다.',
+    '그럼 금요일에 뵙겠습니다.',
+    '한국대학교 학생회',
+  ),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '전통 문화 함께하기 안내',
+  subtitle: '한국대학교 학생회',
+  visualVariant: 'official-email',
+};
+
+export const TOPIK_I_41_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-41-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 이야기입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-41-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-41-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-41-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음의 내용과 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-41-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 생각을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-41-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '우리 회사 지하에는 운동하는 방, 책을 읽는 방, 낮잠을 자는 방, 이야기하는 방이 있습니다. 이 방들은 점심시간에만 문을 엽니다. 우리 회사 사람들은 이곳을 좋아합니다. 이 방에 가고 싶은 사람들은 [[blank:q49]] 바로 지하로 갑니다. 식사 후에 짧은 시간 동안 하고 싶은 것을 할 수 있기 때문입니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '눈은 한 번 나빠지면 다시 좋아지기 힘듭니다. 그래서 눈이 나빠지기 전에 눈 건강을 지켜야 합니다. 눈에 좋은 음식을 [[blank:q51]] 눈 운동을 하면 눈 건강에 좋습니다. 그리고 멀리 있는 산이나 나무를 보는 것도 좋습니다. 하지만 눈이 피곤할 때는 눈을 감고 쉬는 것이 제일 좋습니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 목소리가 아주 큽니다. 작게 말하려고 하지만 제 목소리는 다른 사람보다 큽니다. 그래서 많은 사람들이 제 목소리를 싫어합니다. 그러나 우리 할머니는 제 목소리를 아주 좋아하십니다. 할머니가 [[blank:q53]] 때문입니다. 그래서 저는 시간이 날 때마다 할머니 댁에 가서 책과 신문을 읽어 드립니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '우리 동네에는 ‘웃음 극장’이 있습니다. 저는 힘들 때마다 이 극장에 갑니다. 이곳에 가면 재미있는 공연을 볼 수 있기 때문입니다. 그런데 이 극장은 들어갈 때 돈을 내지 않고 나갈 때 돈을 냅니다. 이 극장에는 카메라들이 있어서 사람들의 웃는 모습을 찍습니다. 크게 많이 웃으면 돈을 적게 내고, 적게 웃으면 돈을 많이 냅니다. [[blank:q55]] 사람들은 이곳에서 많이 웃으려고 합니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서대로 맞게 나열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-41-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '걷기는 많은 사람들이 쉽게 할 수 있는 운동입니다. [[marker:m1|㉠]] 걷는 것은 건강에 도움이 많이 됩니다. [[marker:m2|㉡]] 다리만 움직이면서 걷는 것이 아니고 온몸이 움직이게 되기 때문입니다. [[marker:m3|㉢]] 그런데 걷기 운동을 할 때에는 천천히 걷기 시작해서 조금씩 빨리 걷는 것이 좋습니다. [[marker:m4|㉣]] 이렇게 하는 것이 건강에 도움이 더 많이 됩니다.',
+      '어린아이부터 나이가 많은 사람까지 모두 쉽게 할 수 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '제 이름은 김둘입니다. 할아버지께서는 제 옆에 항상 친구가 있기를 바라셨습니다. 그래서 숫자 2로 이름을 지어 주셨습니다. 이 특별한 이름 덕분에 사람들이 저를 잘 기억합니다. 그리고 다른 사람들과 쉽게 친구가 될 수 있습니다. 할아버지께서 지어 주신 이름의 의미처럼 제 옆에는 항상 친구가 있습니다. 그래서 [[blank:q61]] 행복합니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    studentEmail,
+  ),
+  group(
+    'topik-i-41-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 [[blank:q65]] 오랫동안 생각만 하고 빨리 결정하지 못합니다. 결정하는 것이 어려워서 혼자서는 필요한 물건을 잘 고르지 못합니다. 그래서 저는 친구가 옆에 있으면 친구가 하는 것을 따라합니다. 그렇게 하면 제가 결정하지 않아도 돼서 마음이 편합니다. 하지만 지금부터는 제가 작은 일부터 하나씩 결정해 보려고 합니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '사람들은 결혼할 때 보통 많은 사람들을 초대합니다. 다른 사람들에게 결혼하는 모습을 보여 주고 싶기 때문입니다. 그런데 요즘에는 가족과 가까운 친구들만 [[blank:q67]] ‘작은 결혼식’을 하는 사람들이 생겼습니다. 이런 결혼식을 하는 사람들은 적은 돈으로 결혼을 준비합니다. 이렇게 하면서 가까운 사람들과 함께 결혼의 기쁨을 나눕니다.',
+    ),
+  ),
+  group(
+    'topik-i-41-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '아버지는 요리에 관심이 없어서 거의 요리를 하지 않으셨습니다. 그런데 지난달에 어머니가 다리를 다쳐서 요리를 못 하게 되었습니다. 그때부터 아버지는 요리를 [[blank:q69]]. 아버지의 요리는 맛있을 때도 있고 맛없을 때도 있었습니다. 그런데 음식의 맛과 관계없이 어머니는 항상 맛있게 드셨습니다. 그 후로 아버지는 요리하는 것을 좋아하게 되셨습니다.',
+    ),
+  ),
+];
