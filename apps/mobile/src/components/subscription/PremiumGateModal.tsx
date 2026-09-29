@@ -1,13 +1,8 @@
 import { Modal, View, Text, StyleSheet, Pressable } from "react-native";
 import Animated, {
-  FadeIn,
-  SlideInDown,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  withRepeat,
-  withSequence,
-  Easing,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -42,6 +37,9 @@ const FALLBACK = PITCH.grammar;
  *
  * 잠긴 기능을 누르면 여기로 온다. 목적은 하나 — 요금제 화면까지 보내는 것.
  * 그래서 CTA 는 하나만 크게 두고, 나머지는 작게 뺐다.
+ *
+ * ⚠️ 등장 효과는 네이티브 fade 하나뿐이다. 예전엔 스프링 슬라이드 + 자물쇠
+ *    흔들기 + 버튼 광택 반복이 겹쳐서 요란하기만 했다 (Kai: "이상한 애니메이션 싹 빼").
  */
 export default function PremiumGateModal() {
   const { t } = useTranslation();
@@ -57,41 +55,13 @@ export default function PremiumGateModal() {
 
   const pitch = (feature && PITCH[feature]) || FALLBACK;
 
-  // 자물쇠가 한 번 흔들렸다가 멈춘다 (계속 흔들면 시끄럽다)
-  const shake = useSharedValue(0);
-  const lockStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${shake.value}deg` }],
-  }));
-
-  // 버튼 광택
-  const sheen = useSharedValue(-1);
-  const sheenStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: sheen.value * 260 }, { rotate: "18deg" }],
-  }));
-
-  const onShow = () => {
-    shake.value = 0;
-    shake.value = withSequence(
-      withTiming(-9, { duration: 70 }),
-      withTiming(7, { duration: 70 }),
-      withTiming(-4, { duration: 70 }),
-      withTiming(0, { duration: 70 }),
-    );
-    sheen.value = -1;
-    sheen.value = withRepeat(
-      withSequence(
-        withTiming(1.4, { duration: 900, easing: Easing.out(Easing.quad) }),
-        withTiming(-1, { duration: 0 }),
-      ),
-      -1,
-      false,
-    );
-  };
-
   const goPremium = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     close();
-    router.push("/premium");
+    // ⚠️ push 가 아니다. 요금제는 (tabs) 안의 탭이라, 스택 위 화면(무엇을 공부할까 등)
+    //    에서 push 하면 **밑에 깔린 탭만 바뀌고 화면은 그대로**였다 — 버튼이 먹통처럼 보였다.
+    //    dismissTo 는 (tabs) 까지 스택을 걷어내고 요금제 탭을 연다.
+    router.dismissTo("/premium");
   };
 
   const goTaster = () => {
@@ -110,16 +80,16 @@ export default function PremiumGateModal() {
       visible={visible}
       transparent
       animationType="fade"
-      onShow={onShow}
+      // 안드로이드 edge-to-edge: 이게 없으면 모달 window 가 네비바 위에서 끝나서
+      // 시트가 바닥에 안 붙고 공중에 떠 있었다. 바닥까지 깔고 insets.bottom 으로 띄운다
+      statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={close}
     >
-      <Animated.View entering={FadeIn.duration(180)} style={s.backdrop}>
+      <View style={s.backdrop}>
         <Pressable style={{ flex: 1 }} onPress={close} />
 
-        <Animated.View
-          entering={SlideInDown.springify().damping(18)}
-          style={[s.sheet, { paddingBottom: insets.bottom + 20 }]}
-        >
+        <View style={[s.sheet, { paddingBottom: insets.bottom + 20 }]}>
           {/* 손잡이 */}
           <View style={s.grabber} />
 
@@ -131,9 +101,9 @@ export default function PremiumGateModal() {
               end={{ x: 0.5, y: 1 }}
             />
             <HaneulmonMascot size={82} mood="confident" />
-            <Animated.View style={[s.lockBadge, lockStyle]}>
+            <View style={s.lockBadge}>
               <Ionicons name="lock-closed" size={16} color="#fff" />
-            </Animated.View>
+            </View>
           </View>
 
           <Text style={s.title}>
@@ -174,7 +144,6 @@ export default function PremiumGateModal() {
               end={{ x: 1, y: 1 }}
               style={s.cta}
             >
-              <Animated.View style={[s.sheen, sheenStyle]} />
               <Ionicons name="sparkles" size={17} color="#fff" />
               <Text style={s.ctaText}>{t("premiumGate.cta")}</Text>
             </LinearGradient>
@@ -190,8 +159,8 @@ export default function PremiumGateModal() {
               <Text style={s.laterText}>{t("premiumGate.later")}</Text>
             </Pressable>
           )}
-        </Animated.View>
-      </Animated.View>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -287,12 +256,6 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 16,
       backgroundColor: "#4A3CC0",
       zIndex: -1,
-    },
-    sheen: {
-      position: "absolute",
-      width: 44,
-      height: 140,
-      backgroundColor: "rgba(255,255,255,0.22)",
     },
     ctaText: { color: "#fff", fontSize: 16, fontWeight: "800" },
     taster: { alignSelf: "center", paddingVertical: 14, paddingHorizontal: 16 },

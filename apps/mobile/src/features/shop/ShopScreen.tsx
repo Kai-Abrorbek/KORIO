@@ -261,7 +261,7 @@ export default function ShopScreen() {
         <Text style={[s.sectionLabel, { marginTop: 22 }]}>
           {t("shop.superTitle")}
         </Text>
-        <SuperCard isSuper={isSuper} onPress={() => router.push("/premium")} />
+        <SuperCard isSuper={isSuper} onPress={() => router.dismissTo("/premium")} />
 
         {/* ── 에너지 ── SUPER 는 에너지를 안 쓴다. 통째로 안 그린다 */}
         {!isSuper && (

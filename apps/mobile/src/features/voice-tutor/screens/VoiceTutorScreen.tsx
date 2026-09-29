@@ -104,7 +104,7 @@ export default function VoiceTutorScreen() {
         busy={tutor.phase === "starting"}
         error={tutor.error ? errorText(tutor.error, t) : null}
         quota={tutor.quota}
-        onUpsell={() => router.push("/premium")}
+        onUpsell={() => router.dismissTo("/premium")}
         onClose={close}
         onStart={(picked) => {
           setTopic(picked);

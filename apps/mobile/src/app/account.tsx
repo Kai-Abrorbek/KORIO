@@ -285,7 +285,7 @@ export default function AccountScreen() {
                 ? t("account.superUntil", { date: superUntil })
                 : t("account.superCta")
             }
-            onPress={() => router.push("/premium")}
+            onPress={() => router.dismissTo("/premium")}
             s={s}
             theme={theme}
           />

@@ -326,7 +326,7 @@ export default function RootLayout() {
             }}
             onTrySuper={() => {
               closeEnergyModal();
-              router.push("/premium");
+              router.dismissTo("/premium");
             }}
             onRefill={() => {
               closeEnergyModal();

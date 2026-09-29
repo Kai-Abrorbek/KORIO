@@ -88,7 +88,7 @@ export default function SettingsScreen() {
             name={user?.nickname ?? ""}
             avatar={user?.avatar}
             onProfilePress={() => router.push("/profile")}
-            onSubscribePress={() => router.push("/(tabs)/premium")}
+            onSubscribePress={() => router.dismissTo("/premium")}
           />
           <SettingsQuickActions
             onAuthCode={() => setCodeOpen(true)}

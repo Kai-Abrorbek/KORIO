@@ -298,7 +298,7 @@ function PremiumSheet({
         <NBPress
           onPress={() => {
             onClose();
-            router.push("/premium");
+            router.dismissTo("/premium");
           }}
           bg={C.yellow}
           radius={16}
