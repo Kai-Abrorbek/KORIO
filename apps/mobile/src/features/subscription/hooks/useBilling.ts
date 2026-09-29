@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useIAP } from "expo-iap";
+import { getAvailablePurchases as queryPurchases, useIAP } from "expo-iap";
 import type { Purchase } from "expo-iap";
 import { SubscriptionApi } from "../services/subscription.api";
 import type { SubscriptionTier } from "../services/products";
@@ -8,6 +8,7 @@ import {
   buildSubscriptionRequest,
   extractRestorable,
   extractToken,
+  findReplaceable,
   isStoreBillingSupported,
   toStorePlans,
   type StorePlan,
@@ -36,11 +37,9 @@ export function useBilling(onPremiumChanged?: () => void) {
   const {
     connected,
     subscriptions,
-    availablePurchases,
     fetchProducts,
     requestPurchase,
     finishTransaction,
-    getAvailablePurchases,
   } = useIAP({
     onPurchaseSuccess: (purchase) => {
       void handlePurchase(purchase);
@@ -113,7 +112,10 @@ export function useBilling(onPremiumChanged?: () => void) {
       setError(null);
       setPhase("purchasing");
       try {
-        await requestPurchase(buildSubscriptionRequest(plan));
+        // 이미 Play 구독이 있으면 교체로 산다 (안 그러면 이중 결제)
+        const owned = await queryPurchases().catch(() => [] as Purchase[]);
+        const current = findReplaceable(owned, plan.productId);
+        await requestPurchase(buildSubscriptionRequest(plan, current));
         // 결과는 onPurchaseSuccess 로 온다
       } catch (e) {
         setPhase("idle");
@@ -129,8 +131,10 @@ export function useBilling(onPremiumChanged?: () => void) {
     setPhase("restoring");
     setError(null);
     try {
-      await getAvailablePurchases();
-      const items = extractRestorable(availablePurchases ?? []);
+      // 훅의 availablePurchases 는 다음 렌더에야 채워진다. 여기서 읽으면
+      // 첫 탭엔 항상 비어 있어서 "복원할 구매 없음" 이 떴다 → 결과를 직접 받는다
+      const owned = await queryPurchases();
+      const items = extractRestorable(owned);
       if (!items.length) {
         setError("NO_PURCHASES_TO_RESTORE");
         return;
@@ -142,7 +146,7 @@ export function useBilling(onPremiumChanged?: () => void) {
     } finally {
       setPhase("idle");
     }
-  }, [availablePurchases, getAvailablePurchases, onPremiumChanged]);
+  }, [onPremiumChanged]);
 
   const plansByTier = (tier: SubscriptionTier) =>
     plans.filter((p) => p.tier === tier);

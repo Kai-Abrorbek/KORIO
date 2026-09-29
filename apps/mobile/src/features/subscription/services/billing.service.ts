@@ -101,8 +101,58 @@ function pickBestOffer(offers: SubscriptionOffer[]): SubscriptionOffer | null {
   );
 }
 
-/** requestPurchase 에 넘길 인자. 안드로이드는 offerToken 이 필수다 */
-export function buildSubscriptionRequest(plan: StorePlan) {
+/** 지금 이 기기의 Play 계정에 살아있는 우리 구독 (요금제 변경의 "옛 구독") */
+export interface CurrentStoreSub {
+  productId: string;
+  purchaseToken: string;
+}
+
+/**
+ * 이미 구독 중인 유저가 다른 요금제를 살 때 교체할 옛 구독을 찾는다.
+ *
+ * 이걸 안 넘기면 Play 는 새 요금제를 **별개의 구독**으로 만든다 —
+ * SUPER 를 쓰던 유저가 MAX 를 사면 둘 다 매달 빠져나간다.
+ * 여러 개면 자동 갱신 중인 것, 그중 등급이 높은 것을 고른다.
+ */
+export function findReplaceable(
+  purchases: Purchase[],
+  targetProductId: string,
+): CurrentStoreSub | null {
+  const ours = new Set<string>(GOOGLE_SUBSCRIPTION_IDS);
+  const active = purchases
+    .filter(
+      (p) =>
+        ours.has(p.productId) &&
+        p.productId !== targetProductId &&
+        p.purchaseState === "purchased" &&
+        !!p.purchaseToken,
+    )
+    .sort((a, b) => {
+      const renew = Number(!!b.isAutoRenewing) - Number(!!a.isAutoRenewing);
+      if (renew) return renew;
+      return tierRank(tierOf(b.productId)) - tierRank(tierOf(a.productId));
+    });
+  const top = active[0];
+  return top ? { productId: top.productId, purchaseToken: top.purchaseToken! } : null;
+}
+
+function tierRank(tier: SubscriptionTier): number {
+  return tier === "max" ? 2 : 1;
+}
+
+/**
+ * requestPurchase 에 넘길 인자. 안드로이드는 offerToken 이 필수다.
+ *
+ * current 가 있으면 요금제 **교체**로 요청한다. 모드는 항상
+ * with-time-proration — 바로 새 요금제로 바뀌고, 옛 구독의 남은 기간 가치는
+ * 새 요금제 기간으로 환산된다. 업·다운그레이드 모두 즉시 반영이라 서버는
+ * linkedPurchaseToken 으로 옛 건을 눕히기만 하면 된다 (deferred 는 새 토큰이
+ * 바로 오는데 권한은 다음 결제일부터라 서버 판단이 꼬인다).
+ */
+export function buildSubscriptionRequest(
+  plan: StorePlan,
+  current?: CurrentStoreSub | null,
+) {
   return {
     type: "subs" as const,
     request: {
@@ -111,6 +161,15 @@ export function buildSubscriptionRequest(plan: StorePlan) {
         subscriptionOffers: plan.offerToken
           ? [{ sku: plan.productId, offerToken: plan.offerToken }]
           : [],
+        ...(current
+          ? {
+              purchaseToken: current.purchaseToken,
+              subscriptionProductReplacementParams: {
+                oldProductId: current.productId,
+                replacementMode: "with-time-proration" as const,
+              },
+            }
+          : {}),
       },
     },
   };

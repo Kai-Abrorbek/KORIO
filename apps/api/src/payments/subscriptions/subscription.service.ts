@@ -15,6 +15,7 @@ import {
 } from './subscription.schema';
 import {
   ENTITLED_STATUSES,
+  TIER_RANK,
   type PaymentProviderId,
   type SubscriptionStatus,
   type SubscriptionTier,
@@ -167,17 +168,25 @@ export class SubscriptionService {
     );
   }
 
-  /** 이 계정에서 지금 살아있는 구독 (플랫폼 무관 — 웹에서 산 것도 앱에서 통한다) */
+  /**
+   * 이 계정에서 지금 살아있는 구독 (플랫폼 무관 — 웹에서 산 것도 앱에서 통한다)
+   *
+   * 살아있는 게 여러 개면 **등급이 높은 것**이 이긴다. 만료일로만 고르면
+   * SUPER 1년권을 쓰다 MAX 1개월을 산 유저가 SUPER 로 보인다 — MAX 값을
+   * 냈는데 튜터를 못 쓴다. 같은 등급끼리는 늦게 끝나는 쪽.
+   */
   async findActive(userId: string): Promise<SubscriptionDocument | null> {
-    const subs = await this.subModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        status: { $in: ENTITLED_STATUSES },
-        expiresAt: { $gt: new Date() },
-      })
-      .sort({ expiresAt: -1 })
-      .limit(1);
-    return subs[0] ?? null;
+    const subs = await this.subModel.find({
+      userId: new Types.ObjectId(userId),
+      status: { $in: ENTITLED_STATUSES },
+      expiresAt: { $gt: new Date() },
+    });
+    if (!subs.length) return null;
+    return subs.reduce((best, s) => {
+      const rank = TIER_RANK[s.tier ?? 'super'] - TIER_RANK[best.tier ?? 'super'];
+      if (rank !== 0) return rank > 0 ? s : best;
+      return s.expiresAt.getTime() > best.expiresAt.getTime() ? s : best;
+    });
   }
 
   /**
