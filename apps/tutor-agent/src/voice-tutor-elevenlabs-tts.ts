@@ -5,11 +5,18 @@ import {
   type APIConnectOptions,
 } from "@livekit/agents";
 import type { AudioFrame } from "@livekit/rtc-node";
+import { voiceTutorTtsModel } from "./voice-tutor-speech.js";
 
 const SAMPLE_RATE = 24_000;
-const MODEL = "eleven_v3";
+/**
+ * VOICE_TUTOR_TTS_MODEL (default eleven_v4_turbo — built for live talk, ~100ms).
+ * If ElevenLabs refuses that model for this voice/account, the worker drops to
+ * eleven_v3 for the rest of the process instead of going silent, and says so.
+ */
+let activeModel = voiceTutorTtsModel();
+const FALLBACK_MODEL = "eleven_v3";
 
-/** Eleven v3 does not support ElevenLabs' legacy TTS WebSocket. Use HTTP audio streaming. */
+/** Expressive Eleven models are driven over HTTP audio streaming, per sentence. */
 export class VoiceTutorElevenLabsTTS extends tts.TTS {
   label = "korio.voiceTutorElevenLabsTTS";
 
@@ -22,7 +29,7 @@ export class VoiceTutorElevenLabsTTS extends tts.TTS {
   }
 
   get model(): string {
-    return MODEL;
+    return activeModel;
   }
 
   get provider(): string {
@@ -65,9 +72,13 @@ class ElevenLabsV3ChunkedStream extends tts.ChunkedStream {
     super(text, owner, connOptions, abortSignal);
   }
 
-  protected async run(): Promise<void> {
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}/stream?output_format=pcm_24000`,
+  private request(
+    path: "stream" | "plain",
+    model = activeModel,
+  ): Promise<Response> {
+    const suffix = path === "stream" ? "/stream" : "";
+    return fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}${suffix}?output_format=pcm_24000`,
       {
         method: "POST",
         headers: {
@@ -75,15 +86,58 @@ class ElevenLabsV3ChunkedStream extends tts.ChunkedStream {
           "Content-Type": "application/json",
         },
         // Keep Eleven v3's [laughs], [shouts], and [whispers] directives verbatim.
-        body: JSON.stringify({ text: this.inputText, model_id: MODEL }),
+        body: JSON.stringify({ text: this.inputText, model_id: model }),
         signal: AbortSignal.any([
           this.abortSignal,
           AbortSignal.timeout(30_000),
         ]),
       },
     );
+  }
+
+  protected async run(): Promise<void> {
+    try {
+      await this.synthesizeFrames();
+    } catch (error) {
+      // 세션이 닫히거나 끼어들기로 끊긴 건 실패가 아니다. 예전엔 이게 tts_error 와
+      // "Unhandled promise rejection" 으로 찍혀서 진짜 원인(STT) 을 가렸다
+      if (this.abortSignal.aborted) return;
+      throw error;
+    }
+  }
+
+  private async synthesizeFrames(): Promise<void> {
+    let response = await this.request("stream");
+    if (
+      (response.status === 400 || response.status === 422) &&
+      activeModel !== FALLBACK_MODEL
+    ) {
+      const detail = (await response.text().catch(() => "")).slice(0, 200);
+      console.warn(
+        `Voice Tutor TTS model ${activeModel} rejected (HTTP ${response.status} ${detail}) → switching to ${FALLBACK_MODEL}`,
+      );
+      activeModel = FALLBACK_MODEL;
+      response = await this.request("stream");
+    }
     if (!response.ok || !response.body) {
-      console.warn(`Voice Tutor ElevenLabs v3 rejected: HTTP ${response.status}`);
+      // 거절 이유(detail.status)를 남긴다. 예전엔 상태 코드만 찍혀서
+      // "목소리가 안 나온다" 가 모델 문제인지 요금제·voice ID 문제인지 알 수 없었다
+      const detail = (await response.text().catch(() => "")).slice(0, 200);
+      console.warn(
+        `Voice Tutor ElevenLabs ${activeModel} stream rejected: HTTP ${response.status} ${detail}`,
+      );
+      // 스트리밍이 막힌 계정/모델이어도 목소리는 나가야 한다 — 한 번에 받는 경로로 한 번 더
+      if (response.status >= 400 && response.status < 500 && response.status !== 401) {
+        response = await this.request("plain");
+      }
+    }
+    if (!response.ok || !response.body) {
+      const detail = response.bodyUsed
+        ? ""
+        : (await response.text().catch(() => "")).slice(0, 200);
+      console.warn(
+        `Voice Tutor ElevenLabs ${activeModel} rejected: HTTP ${response.status} ${detail}`,
+      );
       throw new Error(
         `ElevenLabs v3 speech request failed: HTTP ${response.status}`,
       );

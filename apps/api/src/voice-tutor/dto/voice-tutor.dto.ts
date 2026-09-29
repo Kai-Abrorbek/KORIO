@@ -11,8 +11,10 @@ import {
 import {
   VOICE_TUTOR_LANGUAGES,
   VOICE_TUTOR_STYLES,
+  type ExplanationLanguage,
 } from '../voice-tutor.config';
 import { VOICE_TUTOR_PERSONALITY_IDS } from '../personality/voice-tutor-personalities';
+import { VOICE_TUTOR_TOPIC_IDS } from '../topics/voice-tutor-topics';
 
 export class UpdateVoiceTutorSettingsDto {
   @IsOptional()
@@ -26,7 +28,7 @@ export class UpdateVoiceTutorSettingsDto {
 
   @IsOptional()
   @IsIn(VOICE_TUTOR_LANGUAGES)
-  explanationLanguage?: 'en' | 'ru' | 'uz';
+  explanationLanguage?: ExplanationLanguage;
 
   @IsOptional()
   @IsString()
@@ -47,6 +49,11 @@ export class CreateVoiceTutorSessionDto {
   @ValidateNested()
   @Type(() => UpdateVoiceTutorSettingsDto)
   settings?: UpdateVoiceTutorSettingsDto;
+
+  /** 회화 주제. 없으면 자유 대화 (다음 수업 계획대로) */
+  @IsOptional()
+  @IsIn(VOICE_TUTOR_TOPIC_IDS)
+  topicId?: string;
 }
 
 export class VoiceTutorAgentTurnDto {

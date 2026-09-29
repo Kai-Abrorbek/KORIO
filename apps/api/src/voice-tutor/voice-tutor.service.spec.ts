@@ -5,6 +5,10 @@ import type { TutorReaction, TutorSettings } from './voice-tutor.types';
 jest.mock('./memory/voice-tutor-profile.service', () => ({
   VoiceTutorProfileService: class VoiceTutorProfileService {},
 }));
+// 한도 서비스도 User 스키마를 불러와서 jest(isolatedModules)에서 데코레이터가 깨진다
+jest.mock('./voice-tutor-quota.service', () => ({
+  VoiceTutorQuotaService: class VoiceTutorQuotaService {},
+}));
 
 const userId = new Types.ObjectId().toString();
 const sessionId = new Types.ObjectId().toString();
@@ -77,6 +81,9 @@ describe('VoiceTutorService lifecycle', () => {
       participantToken: 'participant-token',
     };
     const livekit = { prepareRoom: jest.fn().mockResolvedValue(grant) };
+    const quota = {
+      assertCanStart: jest.fn().mockResolvedValue({ allowedSec: 1200 }),
+    };
     const service = new VoiceTutorService(
       sessions as never,
       messages as never,
@@ -86,6 +93,7 @@ describe('VoiceTutorService lifecycle', () => {
       tts as never,
       {} as never,
       livekit as never,
+      quota as never,
     );
 
     const result = await service.start(userId);
@@ -99,6 +107,9 @@ describe('VoiceTutorService lifecycle', () => {
         displayText: result.initialMessage.displayText,
         speechText: result.initialMessage.speechText,
       },
+      result.settings.explanationLanguage,
+      expect.any(Array),
+      1200,
     );
   });
 
@@ -172,6 +183,7 @@ describe('VoiceTutorService lifecycle', () => {
       tts as never,
       {} as never,
       livekit as never,
+      {} as never,
     );
     const dto = { turnId: 'turn-1', transcript: '안녕하세요' };
     const first = await service.agentTurn(
@@ -245,6 +257,7 @@ describe('VoiceTutorService lifecycle', () => {
       tts as never,
       audio as never,
       {} as never,
+      {} as never,
     );
 
     const [first, second] = await Promise.all([
@@ -317,6 +330,7 @@ describe('VoiceTutorService lifecycle', () => {
       tts as never,
       audio as never,
       {} as never,
+      {} as never,
     );
 
     const result = await service.turn(
@@ -362,6 +376,7 @@ describe('VoiceTutorService lifecycle', () => {
       {} as never,
       {} as never,
       {} as never,
+      {} as never,
     );
     const result = await service.end(userId, sessionId);
     expect(result.status).toBe('ending');
@@ -398,6 +413,7 @@ describe('VoiceTutorService lifecycle', () => {
       {} as never,
       profile as never,
       agents as never,
+      {} as never,
       {} as never,
       {} as never,
       {} as never,
@@ -451,6 +467,7 @@ describe('VoiceTutorService lifecycle', () => {
       messages as never,
       profile as never,
       agents as never,
+      {} as never,
       {} as never,
       {} as never,
       {} as never,

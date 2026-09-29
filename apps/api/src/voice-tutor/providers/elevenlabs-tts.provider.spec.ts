@@ -13,7 +13,7 @@ describe('Voice Tutor ElevenLabs adapter', () => {
     jest.restoreAllMocks();
   });
 
-  it('sends v3 and the laughing reaction even with an old v2 environment value', async () => {
+  it('refuses an old v2 value and sends the laughing reaction to an expressive model', async () => {
     process.env.ELEVENLABS_API_KEY = 'test-key';
     process.env.VOICE_TUTOR_TTS_MODEL = 'eleven_multilingual_v2';
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
@@ -42,7 +42,7 @@ describe('Voice Tutor ElevenLabs adapter', () => {
     expect(url).toContain('/v1/text-to-speech/testvoice123');
     expect(typeof options?.body).toBe('string');
     const body = JSON.parse(options?.body as string) as Record<string, unknown>;
-    expect(body.model_id).toBe('eleven_v3');
+    expect(body.model_id).toBe('eleven_v4_turbo');
     expect(body.text).toBe('[laughs] 배구리? 배고파라고 해.');
     expect(body.voice_settings).toBeUndefined();
   });

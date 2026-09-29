@@ -41,6 +41,7 @@ import {
   VoiceTutorController,
 } from './voice-tutor.controller';
 import { VoiceTutorService } from './voice-tutor.service';
+import { VoiceTutorQuotaService } from './voice-tutor-quota.service';
 import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service';
 
 @Module({
@@ -59,6 +60,7 @@ import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service'
   controllers: [VoiceTutorController, VoiceTutorAgentController],
   providers: [
     VoiceTutorService,
+    VoiceTutorQuotaService,
     VoiceTutorProfileService,
     VoiceTutorAgentsService,
     VoiceTutorAudioService,

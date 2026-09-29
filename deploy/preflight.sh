@@ -366,6 +366,17 @@ if [[ -f agent.env ]]; then
   V_API_URL="$(val agent.env VOICE_TUTOR_API_URL)"
   [[ "$V_API_URL" == https://* ]] && ok "agent.env 에 Voice Tutor HTTPS API URL 있음" \
     || bad "agent.env 에 HTTPS VOICE_TUTOR_API_URL 없음 — 턴 저장/응답이 실패한다"
+  # 음성 모델 — v2 계열은 태그([laughs])를 못 읽어서 코드가 거부하고 기본값으로 바꾼다
+  for f in agent.env api.env; do
+    V_TTS="$(val "$f" VOICE_TUTOR_TTS_MODEL)"
+    case "${V_TTS:-eleven_v4_turbo}" in
+      eleven_v4_turbo|eleven_v4|eleven_v3) ok "$f Voice Tutor TTS 모델: ${V_TTS:-eleven_v4_turbo}" ;;
+      *) warn "$f VOICE_TUTOR_TTS_MODEL=$V_TTS 는 지원 안 함 — eleven_v4_turbo 로 바뀌어 돈다" ;;
+    esac
+  done
+  [[ -n "$(val api.env ELEVENLABS_DEFAULT_VOICE_ID)$(val api.env VOICE_TUTOR_VOICES_JSON)" ]] \
+    && ok "api.env 에 Voice Tutor 목소리 있음" \
+    || bad "api.env 에 ELEVENLABS_DEFAULT_VOICE_ID / VOICE_TUTOR_VOICES_JSON 없음 — 설정 화면에 선생님이 안 뜨고 수업을 못 연다"
 else
   bad "agent.env 없음 — cp agent.env.example agent.env && chmod 600 agent.env"
   warn "     없으면 ./deploy.sh 가 시작도 못 한다"

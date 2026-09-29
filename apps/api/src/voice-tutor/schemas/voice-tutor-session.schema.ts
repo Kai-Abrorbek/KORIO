@@ -11,6 +11,12 @@ export class VoiceTutorSession {
     | 'ended';
   @Prop({ type: Object, required: true }) settings: TutorSettings;
   @Prop({ type: Object, required: true }) plan: TutorPlan;
+  /** 학습자가 고른 회화 주제 (topics/voice-tutor-topics.ts). null = 자유 대화 */
+  @Prop({ type: String, default: null }) topicId: string | null;
+  /** 이번 수업에서 이미 가르친 한국어 (최근 60개). 같은 걸 또 새로 가르치지 않게 */
+  @Prop({ type: [String], default: [] }) taughtItems: string[];
+  /** 이 세션에 허락한 최대 길이(초). 사용량 계산의 상한 (voice-tutor-quota.service) */
+  @Prop({ type: Number, default: null }) allowedSec: number | null;
   @Prop({ default: 0 }) userTurnCount: number;
   @Prop({ default: 0 }) progressAnalyzedTurns: number;
   @Prop({ default: false }) progressRunning: boolean;

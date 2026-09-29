@@ -10,6 +10,8 @@ describe('voice tutor lesson context', () => {
             speechStyle: 'polite',
             explanationLanguage: 'ru',
             koreanLevel: 'beginner',
+            personality: 'friendly',
+            characterId: 'female_01',
           },
           plan: {
             lessonGoal: '시장 주문',
@@ -24,6 +26,7 @@ describe('voice tutor lesson context', () => {
           strongPoints: [],
           weakPoints: [],
           repeatedMistakes: [],
+          recurringMistakes: [],
         },
         Array.from({ length: 20 }, (_, index) => ({
           role: index % 2 ? ('teacher' as const) : ('user' as const),

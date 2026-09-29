@@ -8,8 +8,13 @@ describe('Voice Tutor model configuration', () => {
     else process.env.VOICE_TUTOR_TTS_MODEL = previousModel;
   });
 
-  it('uses Eleven v3 even if an old deployment variable requests v2', () => {
+  it('refuses an old v2 model and falls back to the expressive default', () => {
     process.env.VOICE_TUTOR_TTS_MODEL = 'eleven_multilingual_v2';
+    expect(voiceTutorModels().tts).toBe('eleven_v4_turbo');
+  });
+
+  it('keeps an explicitly chosen expressive model', () => {
+    process.env.VOICE_TUTOR_TTS_MODEL = 'eleven_v3';
     expect(voiceTutorModels().tts).toBe('eleven_v3');
   });
 });

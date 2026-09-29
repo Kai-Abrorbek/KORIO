@@ -15,6 +15,11 @@ const dispatchMetadataSchema = z
       })
       .strict(),
     maxDurationSec: z.number().int().min(1).max(3600),
+    // 없으면 옛 API 가 보낸 dispatch — 워커는 한국어+자동 감지로 받는다
+    // 수업 언어. ko = 한국어로만 가르치는 몰입 수업
+    explanationLanguage: z.enum(["ko", "en", "ru", "uz"]).optional(),
+    // 이번 수업 목표 단어 — 받아쓰기 keywords 로 넘긴다
+    sttKeywords: z.array(z.string().min(1).max(40)).max(30).optional(),
   })
   .strict();
 

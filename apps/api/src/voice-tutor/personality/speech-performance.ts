@@ -21,6 +21,26 @@ function v3AudioTag(reaction?: TutorReaction): string | undefined {
   return undefined;
 }
 
+/** Eleven v3 and v4 (incl. Turbo) read inline audio tags; v2 models do not. */
+export function supportsAudioTags(model: string): boolean {
+  return model.startsWith('eleven_v3') || model.startsWith('eleven_v4');
+}
+
+/**
+ * Chat-style laughter is a subtitle notation, not something to pronounce.
+ * "ㅋㅋㅋㅋ" read aloud is "크크크크" — exactly the flat reading the old tutor had.
+ * Runs of ㅋ/ㅎ become a real laugh; crying marks (ㅠㅠ, ㅜㅜ) are dropped.
+ * Spelled-out laughter such as "AHAHAHA" or "하하하" is left alone: the voice
+ * performs that as written, the way the reference tutor does.
+ */
+export function performLaughNotation(text: string, tags: boolean): string {
+  return text
+    .replace(/[ㅋㅎ]{2,}/g, tags ? ' [laughs] ' : ' ')
+    .replace(/[ㅠㅜ]{2,}/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
 /** Maps neutral reaction metadata to the configured provider model, not the lesson prompt. */
 export function elevenLabsPerformance(
   text: string,
@@ -35,14 +55,18 @@ export function elevenLabsPerformance(
     .trim()
     .slice(0, 1500);
   const intensity = Math.min(1, Math.max(0, reaction?.intensity ?? 0));
-  if (model.startsWith('eleven_v3')) {
+  if (supportsAudioTags(model)) {
     const tag = v3AudioTag(reaction);
-    return { text: tag ? `${tag} ${clean}` : clean, voice_settings: undefined };
+    const spoken = performLaughNotation(clean, true);
+    return {
+      text: tag ? `${tag} ${spoken}` : spoken,
+      voice_settings: undefined,
+    };
   }
-  // Audio tags are v3-only. Multilingual v2 uses restrained voice settings so
+  // Audio tags are v3/v4-only. Multilingual v2 uses restrained voice settings so
   // the chosen identity and Korean pronunciation remain stable across languages.
   return {
-    text: clean,
+    text: performLaughNotation(clean, false),
     voice_settings: {
       stability: Number((0.58 - intensity * 0.18).toFixed(2)),
       similarity_boost: 0.8,

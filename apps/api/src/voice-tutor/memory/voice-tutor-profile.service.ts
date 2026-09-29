@@ -91,7 +91,7 @@ export class VoiceTutorProfileService {
       })),
       explanationLanguages: VOICE_TUTOR_LANGUAGES.map((id) => ({
         id,
-        name: { en: 'English', ru: 'Русский', uz: 'O‘zbekcha' }[id],
+        name: { en: 'English', ru: 'Русский', uz: 'O‘zbekcha', ko: '한국어' }[id],
         enabled: tutorLanguageEnabled(id),
       })),
       speechStyles: [...VOICE_TUTOR_STYLES],
@@ -140,7 +140,10 @@ export class VoiceTutorProfileService {
       voiceId: voices[0]?.id ?? '',
       speechStyle: 'polite',
       explanationLanguage:
-        (language === 'en' || language === 'ru' || language === 'uz') &&
+        (language === 'en' ||
+          language === 'ru' ||
+          language === 'uz' ||
+          language === 'ko') &&
         tutorLanguageEnabled(language)
           ? language
           : 'en',

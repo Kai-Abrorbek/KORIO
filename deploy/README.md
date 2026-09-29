@@ -367,3 +367,18 @@ adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증
 
 ⚠️ 검증은 **앱 설치 시점에** 한 번 돈다. assetlinks 를 나중에 올렸다면 앱을
 지웠다 다시 깔거나 위 `--re-verify` 를 돌려야 반영된다.
+
+## 새 Voice Tutor 배포 메모 (2026-09-29)
+
+- 앱의 "회화" 카드는 이제 **새 Voice Tutor(`/voice-tutor`)** 로 간다. 옛 Gemini Live 튜터는 앱에서 뺐다.
+  단 **텔레그램 미니앱이 아직 옛 `/tutor` API 와 `tutor_agent` 를 쓰므로** API 의 `tutor` 모듈과
+  `tutor_agent` 컨테이너는 그대로 둔다. 미니앱을 Voice Tutor 로 옮긴 뒤에 지운다.
+- API 와 `voice_tutor_agent` 는 **같이** 올린다 (턴 스트리밍 `POST /voice-tutor/agent/sessions/:id/turns/stream`,
+  dispatch metadata 에 `explanationLanguage`·`sttKeywords` 추가). 워커만 새 버전이면 옛 API 의 JSON 경로로 폴백한다.
+- 새 env (예시: `api.env.example`, `agent.env.example`)
+  - `VOICE_TUTOR_TTS_MODEL=eleven_v4_turbo` — api.env·agent.env 둘 다
+  - `VOICE_TUTOR_KO_ENABLED=true` — 한국어로만 가르치는 수업
+  - 선택: `VOICE_TUTOR_ENDPOINTING_MIN_MS/MAX_MS`, `VOICE_TUTOR_STT_PROMPT`, `VOICE_TUTOR_DAILY/MONTHLY_MINUTES_*`
+- 사용 한도: 세션 발급 때 `voice-tutor-quota.service` 가 막고, 워커가 `maxDurationSec` 에 방을 닫는다.
+- 턴 스트림은 `Content-Encoding: identity` 로 나가서 Caddy `encode` 가 모으지 않는다 (첫 문장 지연 방지).
+- 배포 후 확인: 워커 로그 `Job accepted; … teach=… endpointing=…`, 한 턴에 `Turn streamed: first word …ms`.

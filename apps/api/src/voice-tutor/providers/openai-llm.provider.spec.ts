@@ -28,7 +28,7 @@ describe('OpenAiTutorLlmProvider', () => {
     ).resolves.toEqual({ ok: true });
     const request = (global.fetch as jest.MockedFunction<typeof fetch>).mock
       .calls[0][1];
-    const body = JSON.parse(request.body as string) as {
+    const body = JSON.parse(request?.body as string) as {
       reasoning_effort: string;
       response_format: { type: string };
       max_completion_tokens: number;
@@ -52,7 +52,7 @@ describe('OpenAiTutorLlmProvider', () => {
     );
     const request = (global.fetch as jest.MockedFunction<typeof fetch>).mock
       .calls[0][1];
-    const body = JSON.parse(request.body as string) as Record<string, unknown>;
+    const body = JSON.parse(request?.body as string) as Record<string, unknown>;
     expect(body).not.toHaveProperty('reasoning_effort');
     expect(body.messages).toEqual(
       expect.arrayContaining([expect.objectContaining({ role: 'system' })]),

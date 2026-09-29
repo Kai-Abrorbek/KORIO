@@ -11,7 +11,7 @@
     "start": "node dist/agent.js start",
     "voice-tutor:dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "voice-tutor:start": "node dist/voice-tutor-agent.js start",
-    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts",
+    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts",
     "preview:generate": "tsx --env-file-if-exists=.env scripts/generate-voice-previews.ts",
     "probe:voice": "tsx --env-file-if-exists=.env scripts/probe-korean-voice.ts",
     "voice:samples": "tsx --env-file-if-exists=.env scripts/voice-samples.ts",

@@ -11,7 +11,7 @@ export class VoiceTutorSettings {
   @Prop({ required: true }) voiceId: string;
   @Prop({ type: String, enum: ['polite', 'casual'], default: 'polite' })
   speechStyle: SpeechStyle;
-  @Prop({ type: String, enum: ['en', 'ru', 'uz'], default: 'en' })
+  @Prop({ type: String, enum: ['ko', 'en', 'ru', 'uz'], default: 'en' })
   explanationLanguage: ExplanationLanguage;
   @Prop({ default: 'beginner' }) koreanLevel: string;
   @Prop({

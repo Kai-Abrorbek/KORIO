@@ -10,7 +10,8 @@ import {
   AgentDispatchClient,
   TrackSource,
 } from 'livekit-server-sdk';
-import { liveKitEnv } from '../../tutor/livekit/livekit.const';
+import { voiceTutorLiveKitEnv as liveKitEnv } from './livekit-env';
+import type { ExplanationLanguage } from '../voice-tutor.config';
 
 const AGENT_TOKEN_TTL_SEC = 65 * 60;
 const PARTICIPANT_TOKEN_TTL_SEC = 15 * 60;
@@ -24,6 +25,10 @@ export interface VoiceTutorDispatchMetadata {
   voiceId: string;
   greeting: { displayText: string; speechText: string };
   maxDurationSec: number;
+  /** 수업 언어. 워커가 STT 언어 힌트(ko + 이 언어)와 받아쓰기 프롬프트를 고르는 데 쓴다 */
+  explanationLanguage?: ExplanationLanguage;
+  /** 이번 수업 목표 단어 — 받아쓰기가 학습자 발음을 엉뚱한 단어로 듣지 않게 */
+  sttKeywords?: string[];
 }
 
 export interface VoiceTutorLiveKitGrant {
@@ -40,6 +45,9 @@ export class VoiceTutorLiveKitService {
     sessionId: string,
     voiceId: string,
     greeting: { displayText: string; speechText: string },
+    explanationLanguage?: ExplanationLanguage,
+    sttKeywords: string[] = [],
+    maxDurationSec: number = VOICE_TUTOR_MAX_DURATION_SEC,
   ): Promise<VoiceTutorLiveKitGrant> {
     const env = liveKitEnv();
     if (!env.url || !env.apiKey || !env.apiSecret) {
@@ -57,7 +65,13 @@ export class VoiceTutorLiveKitService {
       agentToken: this.mintAgentToken(sessionId, env.apiSecret),
       voiceId,
       greeting,
-      maxDurationSec: VOICE_TUTOR_MAX_DURATION_SEC,
+      // 워커가 이 시간에 방을 닫는다 — 한도(quota)가 서버에서 강제되는 두 번째 자리
+      maxDurationSec: Math.max(
+        1,
+        Math.min(VOICE_TUTOR_MAX_DURATION_SEC, Math.floor(maxDurationSec)),
+      ),
+      ...(explanationLanguage ? { explanationLanguage } : {}),
+      ...(sttKeywords.length ? { sttKeywords } : {}),
     };
     try {
       const dispatch = new AgentDispatchClient(
@@ -85,7 +99,10 @@ export class VoiceTutorLiveKitService {
       canPublish: true,
       canPublishSources: [TrackSource.MICROPHONE],
       canSubscribe: true,
-      canPublishData: false,
+      // 앱의 "멈추기" 버튼은 에이전트에게 RPC(voice_tutor_interrupt)를 보낸다.
+      // RPC 는 데이터 채널로 가므로 이게 false 면 권한 오류로 늘 실패했다.
+      // 에이전트 쪽 RPC 는 호출자 identity 를 확인하므로 열어도 된다
+      canPublishData: true,
       canUpdateOwnMetadata: false,
     });
     return {

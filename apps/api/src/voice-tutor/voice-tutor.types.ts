@@ -18,6 +18,11 @@ export interface TutorPlan {
   grammarFocus: string[];
   conversationScenario: string;
   difficulty: string;
+  /**
+   * 이번 수업을 몇 단계로 깊게 가는지. 없으면 lessonCurriculum() 이 계획에서
+   * 기본 단계를 만든다. 주제 수업은 planForTopic() 이 채운다.
+   */
+  curriculum?: string[];
 }
 
 export interface TutorProgress {
@@ -87,4 +92,6 @@ export interface TutorReaction {
   correction?: TutorCorrection;
   gesture?: TutorGesture;
   language: string;
+  /** 이번 턴에 처음 가르친 한국어 (단어·표현·문법). 같은 걸 또 "새로" 가르치지 않게 쌓는다 */
+  taught?: string[];
 }

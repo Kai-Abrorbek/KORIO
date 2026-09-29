@@ -11,6 +11,7 @@ import { Model, Types } from 'mongoose';
 import {
   VoiceTutorAgentsService,
   defaultVoiceTutorPlan,
+  type TutorReactionMeta,
 } from './agents/voice-tutor-agents.service';
 import type { UpdateVoiceTutorSettingsDto } from './dto/voice-tutor.dto';
 import type { VoiceTutorAgentTurnDto } from './dto/voice-tutor.dto';
@@ -29,9 +30,19 @@ import {
 } from './schemas/voice-tutor-session.schema';
 import {
   VOICE_TUTOR_PROGRESS_INTERVAL,
+  VOICE_TUTOR_RECENT_MESSAGES,
   voiceTutorVoices,
 } from './voice-tutor.config';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
+import { VoiceTutorQuotaService } from './voice-tutor-quota.service';
+import {
+  connectionFallback,
+  findPreemptivePhantom,
+  lessonProgress,
+  planForTopic,
+  sttKeywordsFromPlan,
+} from './voice-tutor-turn-helpers';
+import { VOICE_TUTOR_TOPIC_BY_ID } from './topics/voice-tutor-topics';
 import {
   VoiceTutorLiveKitService,
   type VoiceTutorLiveKitGrant,
@@ -64,7 +75,12 @@ export class VoiceTutorService {
     private readonly tts: ElevenLabsTutorTtsProvider,
     private readonly audio: VoiceTutorAudioService,
     private readonly livekit: VoiceTutorLiveKitService,
+    private readonly quota: VoiceTutorQuotaService,
   ) {}
+
+  getQuota(userId: string) {
+    return this.quota.getQuota(userId);
+  }
 
   options() {
     return this.profile.options();
@@ -76,12 +92,18 @@ export class VoiceTutorService {
     return this.profile.updateSettings(userId, patch);
   }
 
-  async start(userId: string, overrides?: UpdateVoiceTutorSettingsDto) {
+  async start(
+    userId: string,
+    overrides?: UpdateVoiceTutorSettingsDto,
+    topicId?: string,
+  ) {
     const settings =
       overrides && Object.keys(overrides).length
         ? await this.profile.updateSettings(userId, overrides)
         : await this.profile.getSettings(userId);
     const voice = this.assertVoice(settings);
+    // 가장 비싼 기능 — 한도는 세션 발급 지점에서 막는다
+    const quota = await this.quota.assertCanStart(userId);
     const memory = await this.profile.getMemory(userId);
     let plan = await this.profile.latestPlan(userId);
     if (!plan) {
@@ -92,14 +114,24 @@ export class VoiceTutorService {
       }
       await this.profile.savePlan(userId, null, plan);
     }
+    // 주제를 골랐으면 이번 수업만 그 주제로. 저장된 "다음 수업 계획" 은
+    // 건드리지 않는다 — 주제 수업이 끝나면 원래 계획으로 돌아간다
+    const topic = topicId ? VOICE_TUTOR_TOPIC_BY_ID.get(topicId) : undefined;
+    if (topic) plan = planForTopic(plan, topic);
     const session = await this.sessions.create({
       userId: new Types.ObjectId(userId),
       status: 'active',
       settings,
       plan,
+      topicId: topic?.id ?? null,
+      allowedSec: quota.allowedSec,
     });
     const sessionId = session._id.toString();
-    const text = voiceTutorGreeting(settings, plan);
+    const text = voiceTutorGreeting(
+      settings,
+      plan,
+      topic?.title[settings.explanationLanguage],
+    );
     const initialMessage = await this.saveTeacherMessage(
       userId,
       sessionId,
@@ -107,7 +139,7 @@ export class VoiceTutorService {
       {
         displayText: text,
         speechText: text,
-        language: 'ko',
+        language: settings.explanationLanguage,
         emotion: 'happy',
         delivery: 'normal',
         intensity: 0.25,
@@ -125,6 +157,10 @@ export class VoiceTutorService {
           displayText: initialMessage.displayText ?? initialMessage.text,
           speechText: initialMessage.speechText ?? initialMessage.text,
         },
+        // 워커의 받아쓰기(STT) 언어 힌트용. 학습자가 한국어와 모국어를 섞어 말한다
+        settings.explanationLanguage,
+        sttKeywordsFromPlan(plan),
+        quota.allowedSec,
       );
     } catch (error) {
       await Promise.all([
@@ -140,6 +176,8 @@ export class VoiceTutorService {
       plan,
       initialMessage,
       livekit,
+      /** 이 수업에서 쓸 수 있는 최대 길이(초) — 앱 타이머가 이걸로 남은 시간을 보여 준다 */
+      maxDurationSec: quota.allowedSec,
     };
   }
 
@@ -257,12 +295,46 @@ export class VoiceTutorService {
     );
   }
 
+  /**
+   * Same turn as `agentTurn`, but the teacher's words go to `onSpeech` while
+   * the model is still writing them, so the worker can start TTS on the first
+   * sentence. Everything before the first word (auth, lock, dedupe) throws as
+   * usual so the controller can still answer 401/404/409.
+   */
+  async agentTurnStream(
+    sessionId: string,
+    authorization: string | undefined,
+    dto: VoiceTutorAgentTurnDto,
+    onSpeech: (delta: string) => void,
+    signal?: AbortSignal,
+    onMeta?: (meta: TutorReactionMeta) => void,
+  ) {
+    this.livekit.verifyAgentToken(sessionId, authorization);
+    if (!Types.ObjectId.isValid(sessionId))
+      throw new NotFoundException('VOICE_TUTOR_SESSION_NOT_FOUND');
+    const session = await this.sessions.findById(sessionId);
+    if (!session) throw new NotFoundException('VOICE_TUTOR_SESSION_NOT_FOUND');
+    return this.processTurn(
+      String(session.userId),
+      sessionId,
+      dto.turnId,
+      () => Promise.resolve(dto.transcript.trim()),
+      false,
+      { onSpeech, signal, onMeta },
+    );
+  }
+
   private async processTurn(
     userId: string,
     sessionId: string,
     turnId: string | undefined,
     transcribe: () => Promise<string>,
     synthesizeAudio: boolean,
+    live?: {
+      onSpeech: (delta: string) => void;
+      signal?: AbortSignal;
+      onMeta?: (meta: TutorReactionMeta) => void;
+    },
   ) {
     const session = await this.lockActiveSession(userId, sessionId);
     try {
@@ -283,6 +355,9 @@ export class VoiceTutorService {
           role: 'teacher',
         });
         if (teacher) {
+          // A worker retry of a turn that already finished: replay the saved
+          // words instead of generating (and paying for) a second reply.
+          live?.onSpeech(teacher.speechText || teacher.text);
           return {
             userMessage: this.presentMessage(existingUser),
             teacherMessage: this.presentMessage(teacher),
@@ -302,57 +377,134 @@ export class VoiceTutorService {
       const transcript = existingUser?.text ?? (await transcribe());
       if (!transcript)
         throw new BadRequestException('VOICE_TUTOR_EMPTY_TRANSCRIPTION');
-      const userMessage =
+      const startedAt = Date.now();
+      const newUser = !existingUser;
+      let turnCount = session.userTurnCount + (newUser ? 1 : 0);
+      // One round of DB work instead of four in a row — every one of them is a
+      // trip to Atlas sitting in front of the teacher's first word.
+      const [userMessage, memory, recentRows] = await Promise.all([
         existingUser ??
-        (await this.messages.create({
-          userId: new Types.ObjectId(userId),
-          sessionId: session._id,
-          role: 'user',
-          turnId,
-          text: transcript,
-          language: detectTranscriptLanguage(transcript),
-          audioId: null,
-        }));
-      const turnCount = session.userTurnCount + (existingUser ? 0 : 1);
-      if (!existingUser) {
-        await this.sessions.updateOne(
-          { _id: session._id },
-          { $set: { userTurnCount: turnCount } },
-        );
-      }
-      const [memory, recentRows] = await Promise.all([
+          this.messages.create({
+            userId: new Types.ObjectId(userId),
+            sessionId: session._id,
+            role: 'user',
+            turnId,
+            text: transcript,
+            language: detectTranscriptLanguage(transcript),
+            audioId: null,
+          }),
         this.profile.getMemory(userId),
         this.messages
           .find({ sessionId: session._id })
           .sort({ createdAt: -1, _id: -1 })
-          .limit(12)
+          .limit(VOICE_TUTOR_RECENT_MESSAGES + 2)
           .lean(),
+        newUser
+          ? this.sessions.updateOne(
+              { _id: session._id },
+              { $set: { userTurnCount: turnCount } },
+            )
+          : Promise.resolve(null),
       ]);
+      let history = recentRows
+        .filter((row) => String(row._id) !== String(userMessage._id))
+        .reverse();
+      if (newUser) {
+        const phantom = findPreemptivePhantom(history, transcript);
+        if (phantom) {
+          // The worker drafted a reply to the first half of this sentence
+          // (LiveKit preemptive generation) and the learner kept talking. That
+          // draft was never heard — drop it so the tutor does not answer twice
+          // or refer to words the learner never got.
+          history = history.filter((row) => !phantom.includes(row));
+          turnCount -= 1;
+          void Promise.all([
+            this.messages.deleteMany({
+              _id: { $in: phantom.map((row) => row._id) },
+            }),
+            this.sessions.updateOne(
+              { _id: session._id },
+              { $inc: { userTurnCount: -1 } },
+            ),
+          ]).catch((error: Error) =>
+            this.logger.warn(`Voice Tutor phantom cleanup: ${error.name}`),
+          );
+        }
+      }
+      const prepMs = Date.now() - startedAt;
+      let firstWordMs: number | undefined;
+      const onSpeech = live
+        ? (delta: string) => {
+            firstWordMs ??= Date.now() - startedAt;
+            live.onSpeech(delta);
+          }
+        : undefined;
       let reply: TutorReaction;
       let warning: string | null = null;
       try {
-        reply = await this.agents.lesson(
-          session.settings,
-          session.plan,
-          memory,
-          recentRows.reverse().map(({ role, text }) => ({ role, text })),
-        );
-      } catch {
+        const recent = [
+          ...history
+            .slice(-(VOICE_TUTOR_RECENT_MESSAGES - 1))
+            .map(({ role, text }) => ({ role, text })),
+          { role: 'user' as const, text: userMessage.text },
+        ];
+        reply = live && onSpeech
+          ? await this.agents.lessonStream(
+              session.settings,
+              session.plan,
+              memory,
+              recent,
+              onSpeech,
+              live.signal,
+              live.onMeta,
+              lessonProgress(
+                session.plan,
+                turnCount,
+                session.taughtItems ?? [],
+              ),
+            )
+          : await this.agents.lesson(
+              session.settings,
+              session.plan,
+              memory,
+              recent,
+            );
+      } catch (error) {
+        if (live?.signal?.aborted) {
+          // Cancelled before the learner heard anything (preemptive draft
+          // thrown away, or the worker hung up): leave no trace. The real turn
+          // arrives with its own turnId.
+          if (newUser)
+            await Promise.all([
+              this.messages.deleteOne({ _id: userMessage._id }),
+              this.sessions.updateOne(
+                { _id: session._id },
+                { $inc: { userTurnCount: -1 } },
+              ),
+            ]);
+          throw error;
+        }
         warning = 'VOICE_TUTOR_LESSON_UNAVAILABLE';
-        const fallback =
-          session.settings.speechStyle === 'casual'
-            ? '잠깐 연결이 불안정해. 다시 한 번 말해 줄래?'
-            : '잠깐 연결이 불안정해요. 다시 한 번 말씀해 주시겠어요?';
+        const fallback = connectionFallback(
+          session.settings.explanationLanguage,
+          session.settings.speechStyle,
+        );
         reply = {
           displayText: fallback,
           speechText: fallback,
-          language: 'ko',
+          language: session.settings.explanationLanguage,
           emotion: 'neutral',
           delivery: 'normal',
           intensity: 0.1,
           gesture: 'none',
         };
+        // lessonStream only throws when nothing was spoken yet.
+        live?.onSpeech(fallback);
       }
+      if (live)
+        this.logger.log(
+          `Voice Tutor turn ${sessionId}: db ${prepMs}ms, first word ${firstWordMs ?? '-'}ms, total ${Date.now() - startedAt}ms`,
+        );
       const teacherMessage = await this.saveTeacherMessage(
         userId,
         sessionId,
@@ -361,6 +513,20 @@ export class VoiceTutorService {
         turnId,
         synthesizeAudio,
       );
+      if (reply.taught?.length) {
+        void this.sessions
+          .updateOne(
+            { _id: session._id },
+            {
+              $push: {
+                taughtItems: { $each: reply.taught, $slice: -60 },
+              },
+            },
+          )
+          .catch((error: Error) =>
+            this.logger.warn(`Voice Tutor taught items deferred: ${error.name}`),
+          );
+      }
       if (reply.correction?.wrong && reply.correction.correct) {
         await this.profile
           .recordCorrection(

@@ -4,7 +4,7 @@ import type { TutorPlan, TutorSettings } from '../voice-tutor.types';
 const settings: TutorSettings = {
   voiceId: 'voice',
   speechStyle: 'casual',
-  explanationLanguage: 'en',
+  explanationLanguage: 'ko',
   koreanLevel: 'beginner',
   personality: 'friendly',
   characterId: 'female_01',
@@ -20,6 +20,21 @@ const plan: TutorPlan = {
 };
 
 describe('Voice Tutor greeting', () => {
+  it('greets in the selected teaching language', () => {
+    expect(
+      voiceTutorGreeting({ ...settings, explanationLanguage: 'en' }, plan),
+    ).toContain('Korean');
+    expect(
+      voiceTutorGreeting({ ...settings, explanationLanguage: 'ru' }, plan),
+    ).toContain('корейский');
+    expect(
+      voiceTutorGreeting(
+        { ...settings, explanationLanguage: 'uz', speechStyle: 'polite' },
+        plan,
+      ),
+    ).toContain('Assalomu alaykum');
+  });
+
   it('uses personality and speech style independently', () => {
     expect(voiceTutorGreeting(settings, plan)).toContain('안녕!');
     expect(
