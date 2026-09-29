@@ -36,38 +36,41 @@ export function FillInBlank({ answerState, onAnswer, question }: QuestionProps) 
     return full.replace(/\s*\([^()]*\)\s*$/u, "").trim();
   }, [question, tokens]);
 
-  const [values, setValues] = useState<(string | null)[]>(() => Array(total).fill(null));
+  // 빈칸마다 선택지의 **위치**를 담는다. 같은 단어가 두 빈칸의 정답이면 선택지에도 두 번 있어서,
+  // 글자로 찾으면 두 번째 칩을 눌러도 첫 번째가 회수돼 두 빈칸을 다 못 채운다 (모바일 FillInBlank 와 같음).
+  const [picks, setPicks] = useState<(number | null)[]>(() => Array(total).fill(null));
+  const values = useMemo(() => picks.map((i) => (i === null ? null : (options[i] ?? null))), [picks, options]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     stop();
-    setValues(Array(total).fill(null));
+    setPicks(Array(total).fill(null));
     setActiveIndex(0);
   }, [question.id, stop, total]);
 
-  const pickOption = (option: string) => {
+  const pickOption = (option: number) => {
     if (locked) return;
-    const used = values.indexOf(option);
+    const used = picks.indexOf(option);
     if (used !== -1) {
-      const next = [...values];
+      const next = [...picks];
       next[used] = null;
-      setValues(next);
+      setPicks(next);
       setActiveIndex(used);
       return;
     }
-    const target = values[activeIndex] === null ? activeIndex : values.indexOf(null);
+    const target = picks[activeIndex] === null ? activeIndex : picks.indexOf(null);
     if (target === -1) return;
-    const next = [...values];
+    const next = [...picks];
     next[target] = option;
     const following = next.findIndex((value) => value === null);
-    setValues(next);
+    setPicks(next);
     setActiveIndex(following === -1 ? target : following);
   };
 
   const clearBlank = (index: number) => {
     if (locked) return;
     setActiveIndex(index);
-    setValues((current) => {
+    setPicks((current) => {
       if (current[index] === null) return current;
       const next = [...current];
       next[index] = null;
@@ -129,7 +132,7 @@ export function FillInBlank({ answerState, onAnswer, question }: QuestionProps) 
         </div>
         <div className={styles.optionsRow}>
           {options.map((option, index) => {
-            const selected = values.includes(option);
+            const selected = picks.includes(index);
             return (
               <button
                 aria-pressed={selected}
@@ -137,7 +140,7 @@ export function FillInBlank({ answerState, onAnswer, question }: QuestionProps) 
                 data-no-translate
                 disabled={locked}
                 key={`${option}-${index}`}
-                onClick={() => pickOption(option)}
+                onClick={() => pickOption(index)}
                 style={{ animationDelay: `${index * 45}ms` }}
                 type="button"
               >

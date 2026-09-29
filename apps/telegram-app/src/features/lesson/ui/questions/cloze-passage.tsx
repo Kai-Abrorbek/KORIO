@@ -16,19 +16,22 @@ export function ClozePassage({ answerState, onAnswer, question }: QuestionProps)
   const locked = answerState !== "idle";
   const parts = useMemo(() => (question.passage ?? "").split("___"), [question.passage]);
   const blankTotal = parts.length - 1;
-  const [filled, setFilled] = useState<(string | null)[]>(() => Array(blankTotal).fill(null));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const bank = useMemo(() => shuffle(question.options ?? []), [question.id]);
-  const used = filled.filter(Boolean) as string[];
+  // 빈칸마다 뱅크 칩의 **위치**를 담는다. 같은 단어("조언" ×2)가 두 빈칸의 정답일 때
+  // 글자로 "썼는지" 보면 하나만 골라도 같은 글자 칩이 전부 꺼진다 (모바일 ClozePassage 와 같음).
+  const [filled, setFilled] = useState<(number | null)[]>(() => Array(blankTotal).fill(null));
+  const filledWords = filled.map((i) => (i === null ? null : (bank[i] ?? null)));
+  const used = filledWords.filter(Boolean) as string[];
   const activeIndex = filled.findIndex((value) => value === null);
   const allFilled = activeIndex === -1;
 
-  const place = (word: string) => {
-    if (locked || allFilled) return;
+  const place = (bankIndex: number) => {
+    if (locked || allFilled || filled.includes(bankIndex)) return;
     haptic();
     setFilled((current) => {
       const next = [...current];
-      next[next.findIndex((value) => value === null)] = word;
+      next[next.findIndex((value) => value === null)] = bankIndex;
       return next;
     });
   };
@@ -47,7 +50,7 @@ export function ClozePassage({ answerState, onAnswer, question }: QuestionProps)
       <h1 className={styles.clozeTitle}>Matndagi bo&apos;sh joylarni to&apos;ldiring</h1>
       <div className={styles.dots}>
         {filled.map((value, index) => (
-          <i className={value ? styles.dotFilled : index === activeIndex ? styles.dotActive : undefined} key={index} />
+          <i className={value !== null ? styles.dotFilled : index === activeIndex ? styles.dotActive : undefined} key={index} />
         ))}
       </div>
 
@@ -58,13 +61,13 @@ export function ClozePassage({ answerState, onAnswer, question }: QuestionProps)
               {part}
               {index < blankTotal ? (
                 <button
-                  className={`${styles.blank} ${filled[index] ? styles.blankFilled : index === activeIndex ? styles.blankActive : styles.blankIdle}`}
-                  disabled={locked || !filled[index]}
-                  onClick={() => filled[index] && remove(index)}
+                  className={`${styles.blank} ${filledWords[index] ? styles.blankFilled : index === activeIndex ? styles.blankActive : styles.blankIdle}`}
+                  disabled={locked || filled[index] === null}
+                  onClick={() => filled[index] !== null && remove(index)}
                   type="button"
                 >
                   {" "}
-                  {filled[index] ?? "＿＿＿"}{" "}
+                  {filledWords[index] ?? "＿＿＿"}{" "}
                 </button>
               ) : null}
             </span>
@@ -74,9 +77,9 @@ export function ClozePassage({ answerState, onAnswer, question }: QuestionProps)
 
       <div className={styles.clozeBank}>
         {bank.map((word, index) => {
-          const isUsed = used.includes(word);
+          const isUsed = filled.includes(index);
           return (
-            <button className={`${styles.clozeChip} ${isUsed ? styles.clozeChipUsed : ""}`} data-no-translate disabled={locked || isUsed} key={`${word}-${index}`} onClick={() => place(word)} type="button">
+            <button className={`${styles.clozeChip} ${isUsed ? styles.clozeChipUsed : ""}`} data-no-translate disabled={locked || isUsed} key={`${word}-${index}`} onClick={() => place(index)} type="button">
               {word}
             </button>
           );
