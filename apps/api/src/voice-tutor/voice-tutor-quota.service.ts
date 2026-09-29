@@ -46,8 +46,15 @@ const policy = () => ({
   maxMonthly: envMinutes('VOICE_TUTOR_MAX_MONTHLY_MINUTES', 0),
 });
 
-/** 한 수업 최대 길이(분). 워커가 이 시간에 방을 닫는다. SUPER 맛보기 30분을 한 번에 쓸 수 있게 */
-export const VOICE_TUTOR_SESSION_MAX_MIN = 30;
+/**
+ * 한 수업 최대 길이(분). 워커가 이 시간에 방을 닫는다.
+ * MAX 하루 60분을 한 번에 쓸 수 있게 60 — 예전 30 이면 MAX 도 30:00 부터
+ * 시작해서 "1시간이라며?" 가 됐다. 실제 한도는 등급별 남은 시간이 정한다
+ * (free 10 / super 30 / max 60). LiveKit 방 상한(VOICE_TUTOR_MAX_DURATION_SEC)도 60분.
+ */
+export const VOICE_TUTOR_SESSION_MAX_MIN = 60;
+/** allowedSec 을 저장하기 전에 만든 옛 세션의 상한. 사용량 계산에만 쓴다 */
+const LEGACY_SESSION_SEC = 30 * 60;
 /** 이것보다 적게 남았으면 시작을 막는다 — 인사만 하고 끊기는 수업은 원가만 쓴다 */
 const MIN_START_SEC = 30;
 
@@ -163,7 +170,7 @@ export class VoiceTutorQuotaService {
                   1000,
                 ],
               },
-              { $ifNull: ['$allowedSec', VOICE_TUTOR_SESSION_MAX_MIN * 60] },
+              { $ifNull: ['$allowedSec', LEGACY_SESSION_SEC] },
             ],
           },
         },
