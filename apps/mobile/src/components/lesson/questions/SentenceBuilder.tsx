@@ -12,15 +12,12 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  AUTO_SPEECH_DELAY_MS,
-  type SpeechController,
-} from "@/hooks/useSpeech";
+import { AUTO_SPEECH_DELAY_MS, type SpeechController } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import AnswerChip, { ChipLayout } from "@/components/lesson/AnswerChip";
 import CheckButton from "../CheckButton";
 import { useAnswerLines, ANSWER_LINE_H } from "../useAnswerLines";
-import WordBankSheet, { WordBankHint, isLongBank } from "../WordBankSheet";
+import QuestionScroll from "../QuestionScroll";
 
 interface Props {
   question: LessonQuestion;
@@ -57,7 +54,7 @@ export default function SentenceBuilder({
   const compact = winH < 700;
 
   // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
-  const { lines: answerLines } = useAnswerLines(
+  const { lines: answerLines, onPlacedLayout } = useAnswerLines(
     question.options ?? [],
     winW - 40,
     { max: compact ? 2 : 3 },
@@ -65,7 +62,6 @@ export default function SentenceBuilder({
   const { speak, speakSlow, speakAuto, isSpeaking } = speech;
   const speechText = question.audioText || question.answer;
   const hasAutoPlayed = useRef(false);
-  const [bankOpen, setBankOpen] = useState(false);
 
   // 섞인 단어로 초기화
   const [words, setWords] = useState<WordItem[]>(() => {
@@ -93,8 +89,6 @@ export default function SentenceBuilder({
   const placedWords = words
     .filter((w) => w.zone === "placed")
     .sort((a, b) => a.placedIndex - b.placedIndex);
-
-  const isLong = isLongBank(question, compact);
 
   const handleTap = (id: string) => {
     setWords((prev) => {
@@ -208,95 +202,104 @@ export default function SentenceBuilder({
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
-        <Text style={s.title}>{question.question}</Text>
-
-        {/* 캐릭터 + 스피커 버튼 2개 */}
-        <View style={[s.npcRow, compact && { height: 148 }]}>
-          <LessonCharacter
-            state={answerState}
-            seed={question.id}
-            height={compact ? 138 : 170}
-            combo={combo}
-          />
-          <View style={s.speakerBubble}>
-            {/* 말풍선 꼬리 (테두리) */}
-            <View style={s.tailBorder} />
-            {/* 말풍선 꼬리 (안쪽 흰색) */}
-            <View style={s.tailInner} />
-            <TouchableOpacity
-              style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
-              onPress={() => speak(speechText)}
-            >
-              <Ionicons
-                name="volume-high"
-                size={28}
-                color={isSpeaking ? "#fff" : "#4A90D9"}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={s.speakerBtn}
-              onPress={() => speakSlow(speechText)}
-            >
-              <MaterialCommunityIcons name="turtle" size={26} color="#4A90D9" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* 배치 영역 */}
-        <View
-          style={[s.answerArea, { minHeight: answerLines * ANSWER_LINE_H }]}
-        >
-          {/* 줄 (룰드 라인) */}
-          {Array.from({ length: answerLines }).map((_, i) => (
-            <View
-              key={`line-${i}`}
-              style={[s.answerLine, { top: (i + 1) * ANSWER_LINE_H - 2 }]}
+        <QuestionScroll
+          footer={
+            <CheckButton
+              onPress={handleCheck}
+              disabled={placedWords.length === 0 || answerState !== "idle"}
+              theme={theme}
             />
-          ))}
-
-          {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
-          <View style={s.placedWrap}>
-            {placedWords.map((item, idx) => (
-              <View key={item.id} style={s.lineSlot}>
-                <AnswerChip
-                  item={item}
-                  orderIndex={idx}
-                  onTap={handleTap}
-                  onDragToZone={handleDragToZone}
-                  onSwap={handleSwap}
-                  onLayoutMeasured={handleChipLayout}
-                  getPlacedChipLayouts={getPlacedChipLayouts}
-                  theme={theme}
-                  answerState={answerState}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* 단어 뱅크 */}
-        {!isLong ? (
-          <View style={s.chipRow}>{renderBankChips()}</View>
-        ) : (
-          !bankOpen && (
-            <WordBankHint onPress={() => setBankOpen(true)} theme={theme} />
-          )
-        )}
-
-        <CheckButton
-          onPress={handleCheck}
-          disabled={placedWords.length === 0 || answerState !== "idle"}
-          theme={theme}
-        />
-
-        {/* 칩이 많을 때 쓰는 슬라이드업 단어장 */}
-        <WordBankSheet
-          visible={isLong && bankOpen}
-          onClose={() => setBankOpen(false)}
-          theme={theme}
+          }
         >
-          {renderBankChips()}
-        </WordBankSheet>
+          {(fit) => (
+            <>
+              <Text style={s.title}>{question.question}</Text>
+
+              {/* 캐릭터 + 스피커 버튼 2개 */}
+              <View
+                style={[
+                  s.npcRow,
+                  compact && { height: 148 },
+                  fit === 1 && s.npcRowSmall,
+                  fit === 2 && s.npcRowBare,
+                ]}
+              >
+                {fit < 2 && (
+                  <LessonCharacter
+                    state={answerState}
+                    seed={question.id}
+                    height={fit === 1 ? 104 : compact ? 138 : 170}
+                    combo={combo}
+                  />
+                )}
+                <View style={s.speakerBubble}>
+                  {/* 말풍선 꼬리 (테두리) */}
+                  {fit < 2 && <View style={s.tailBorder} />}
+                  {/* 말풍선 꼬리 (안쪽 흰색) */}
+                  {fit < 2 && <View style={s.tailInner} />}
+                  <TouchableOpacity
+                    style={[s.speakerBtn, isSpeaking && s.speakerBtnActive]}
+                    onPress={() => speak(speechText)}
+                  >
+                    <Ionicons
+                      name="volume-high"
+                      size={28}
+                      color={isSpeaking ? "#fff" : "#4A90D9"}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={s.speakerBtn}
+                    onPress={() => speakSlow(speechText)}
+                  >
+                    <MaterialCommunityIcons
+                      name="turtle"
+                      size={26}
+                      color="#4A90D9"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* 배치 영역 */}
+              <View
+                style={[
+                  s.answerArea,
+                  { minHeight: answerLines * ANSWER_LINE_H },
+                ]}
+              >
+                {/* 줄 (룰드 라인) */}
+                {Array.from({ length: answerLines }).map((_, i) => (
+                  <View
+                    key={`line-${i}`}
+                    style={[s.answerLine, { top: (i + 1) * ANSWER_LINE_H - 2 }]}
+                  />
+                ))}
+
+                {/* 칩들: 라인 위에 앉도록 각 슬롯 bottom 정렬 + 자동 줄바꿈 */}
+                <View style={s.placedWrap} onLayout={onPlacedLayout}>
+                  {placedWords.map((item, idx) => (
+                    <View key={item.id} style={s.lineSlot}>
+                      <AnswerChip
+                        item={item}
+                        orderIndex={idx}
+                        onTap={handleTap}
+                        onDragToZone={handleDragToZone}
+                        onSwap={handleSwap}
+                        onLayoutMeasured={handleChipLayout}
+                        getPlacedChipLayouts={getPlacedChipLayouts}
+                        theme={theme}
+                        answerState={answerState}
+                      />
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              {/* 단어 뱅크 — 넘치면 QuestionScroll 이 캐릭터부터 줄이고, 그래도 넘치면 스크롤 */}
+              <View style={s.chipRow}>{renderBankChips()}</View>
+            </>
+          )}
+        </QuestionScroll>
       </Animated.View>
     </GestureHandlerRootView>
   );
@@ -322,6 +325,10 @@ const styles = (theme: ThemeColors, lineH: number) =>
       gap: 16,
       height: 180,
     },
+    /** 화면에 안 들어갈 때 캐릭터를 줄인 줄 (QuestionScroll fit 1) */
+    npcRowSmall: { height: 118 },
+    /** 캐릭터를 뺀 줄 — 말풍선만 (fit 2) */
+    npcRowBare: { height: undefined, marginVertical: 8 },
     speakerBubble: {
       flex: 1,
       backgroundColor: theme.bg,
@@ -393,7 +400,6 @@ const styles = (theme: ThemeColors, lineH: number) =>
       backgroundColor: theme.border,
     },
     placedWrap: {
-      ...StyleSheet.absoluteFill,
       flexDirection: "row",
       flexWrap: "wrap",
       alignContent: "flex-start",

@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -84,80 +90,90 @@ export default function VerbTransform({
 
   return (
     <View style={s.container}>
-      <Animated.Text entering={FadeIn.duration(150)} style={s.title}>
-        {t("lesson.verbTransform")}
-      </Animated.Text>
+      {/* 내용이 길면 여기만 스크롤 — 확인 버튼은 밖에서 항상 맨 아래 */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <Animated.Text entering={FadeIn.duration(150)} style={s.title}>
+          {t("lesson.verbTransform")}
+        </Animated.Text>
 
-      {/* 변형 카드: 기본형 → 목표형 */}
-      <Animated.View entering={FadeIn.duration(150)} style={s.morphRow}>
-        <TouchableOpacity
-          style={s.baseCard}
-          onPress={() => speak(question.baseWord ?? "")}
-          activeOpacity={0.8}
-        >
-          <Text style={s.baseWord}>{question.baseWord}</Text>
-          <Ionicons
-            name="volume-medium"
-            size={16}
-            color={theme.textSecondary}
-          />
-        </TouchableOpacity>
-
-        <View style={s.arrowWrap}>
-          <Ionicons name="arrow-forward" size={22} color={theme.primary} />
-        </View>
-
-        <View style={s.targetBadge}>
-          <Text style={s.targetText}>{question.targetForm}</Text>
-        </View>
-      </Animated.View>
-
-      {/* 조립 미리보기 */}
-      <Animated.View style={[s.preview, glowStyle]}>
-        {built ? (
-          <TouchableOpacity onPress={popSyl} activeOpacity={0.7}>
-            <Text style={[s.previewText, complete && { color: theme.primary }]}>
-              {built}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <Text style={s.previewPlaceholder}>
-            {"＿".repeat(question.answer?.length ?? 3)}
-          </Text>
-        )}
-        {placedIds.length > 0 ? (
-          <TouchableOpacity onPress={popSyl} hitSlop={10} style={s.backspace}>
+        {/* 변형 카드: 기본형 → 목표형 */}
+        <Animated.View entering={FadeIn.duration(150)} style={s.morphRow}>
+          <TouchableOpacity
+            style={s.baseCard}
+            onPress={() => speak(question.baseWord ?? "")}
+            activeOpacity={0.8}
+          >
+            <Text style={s.baseWord}>{question.baseWord}</Text>
             <Ionicons
-              name="backspace-outline"
-              size={22}
+              name="volume-medium"
+              size={16}
               color={theme.textSecondary}
             />
           </TouchableOpacity>
-        ) : null}
-      </Animated.View>
 
-      {/* 음절 칩 */}
-      <View style={s.bank}>
-        {bank.map((syl, i) => {
-          const used = placedIds.includes(syl.id);
-          return (
-            <Animated.View key={syl.id} entering={FadeIn.duration(150)}>
-              <TouchableOpacity
-                disabled={locked || used}
-                onPress={() => tapSyl(syl.id)}
-                activeOpacity={0.8}
-                style={[s.sylChip, used && s.sylChipUsed]}
+          <View style={s.arrowWrap}>
+            <Ionicons name="arrow-forward" size={22} color={theme.primary} />
+          </View>
+
+          <View style={s.targetBadge}>
+            <Text style={s.targetText}>{question.targetForm}</Text>
+          </View>
+        </Animated.View>
+
+        {/* 조립 미리보기 */}
+        <Animated.View style={[s.preview, glowStyle]}>
+          {built ? (
+            <TouchableOpacity onPress={popSyl} activeOpacity={0.7}>
+              <Text
+                style={[s.previewText, complete && { color: theme.primary }]}
               >
-                <Text style={[s.sylText, used && { color: "transparent" }]}>
-                  {syl.char}
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
-      </View>
+                {built}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <Text style={s.previewPlaceholder}>
+              {"＿".repeat(question.answer?.length ?? 3)}
+            </Text>
+          )}
+          {placedIds.length > 0 ? (
+            <TouchableOpacity onPress={popSyl} hitSlop={10} style={s.backspace}>
+              <Ionicons
+                name="backspace-outline"
+                size={22}
+                color={theme.textSecondary}
+              />
+            </TouchableOpacity>
+          ) : null}
+        </Animated.View>
 
-      <View style={{ flex: 1 }} />
+        {/* 음절 칩 */}
+        <View style={s.bank}>
+          {bank.map((syl, i) => {
+            const used = placedIds.includes(syl.id);
+            return (
+              <Animated.View key={syl.id} entering={FadeIn.duration(150)}>
+                <TouchableOpacity
+                  disabled={locked || used}
+                  onPress={() => tapSyl(syl.id)}
+                  activeOpacity={0.8}
+                  style={[s.sylChip, used && s.sylChipUsed]}
+                >
+                  <Text style={[s.sylText, used && { color: "transparent" }]}>
+                    {syl.char}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
+        </View>
+
+        <View style={{ flex: 1 }} />
+      </ScrollView>
 
       <TouchableOpacity
         style={[s.checkBtn, (!built || locked) && s.checkBtnDisabled]}

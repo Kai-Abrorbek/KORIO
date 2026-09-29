@@ -71,24 +71,34 @@ export default function ClozePassage({
     [question.passage],
   );
   const blankCount = parts.length - 1;
-  const [filled, setFilled] = useState<(string | null)[]>(
-    Array(blankCount).fill(null),
-  );
-
   const bank = useMemo(
     () => [...(question.options ?? [])].sort(() => Math.random() - 0.5),
     [question.options],
   );
-  const usedWords = filled.filter(Boolean) as string[];
+
+  /**
+   * 빈칸마다 **뱅크 칩의 위치**를 담는다 (단어가 아니라).
+   *
+   * 같은 단어가 두 빈칸의 정답이면 뱅크에도 두 번 들어 있다 ("조언" ×2).
+   * 예전엔 단어로 "썼는지" 를 봐서 하나만 골라도 같은 글자 칩이 전부 꺼져
+   * 두 번째 빈칸을 채울 수가 없었다.
+   */
+  const [filled, setFilled] = useState<(number | null)[]>(
+    Array(blankCount).fill(null),
+  );
+  const filledWords = filled.map((i) =>
+    i === null ? null : (bank[i] ?? null),
+  );
+  const usedWords = filledWords.filter(Boolean) as string[];
   const activeIdx = filled.findIndex((f) => f === null);
   const allFilled = activeIdx === -1;
 
-  const placeWord = (word: string) => {
-    if (locked || allFilled) return;
+  const placeWord = (bankIdx: number) => {
+    if (locked || allFilled || filled.includes(bankIdx)) return;
     Haptics.selectionAsync();
     setFilled((prev) => {
       const next = [...prev];
-      next[next.findIndex((f) => f === null)] = word;
+      next[next.findIndex((f) => f === null)] = bankIdx;
       return next;
     });
   };
@@ -119,7 +129,10 @@ export default function ClozePassage({
         {filled.map((f, i) => (
           <View
             key={i}
-            style={[s.dot, f ? s.dotFilled : i === activeIdx && s.dotActive]}
+            style={[
+              s.dot,
+              f !== null ? s.dotFilled : i === activeIdx && s.dotActive,
+            ]}
           />
         ))}
       </View>
@@ -137,10 +150,10 @@ export default function ClozePassage({
                 <Text style={s.passage}>{part}</Text>
                 {i < blankCount ? (
                   <Text
-                    onPress={() => filled[i] && removeWord(i)}
+                    onPress={() => filled[i] !== null && removeWord(i)}
                     style={[
                       s.blankInline,
-                      filled[i]
+                      filledWords[i]
                         ? s.blankFilled
                         : i === activeIdx
                           ? s.blankActive
@@ -148,7 +161,7 @@ export default function ClozePassage({
                     ]}
                   >
                     {" "}
-                    {filled[i] ?? "＿＿＿"}{" "}
+                    {filledWords[i] ?? "＿＿＿"}{" "}
                   </Text>
                 ) : null}
               </Text>
@@ -159,7 +172,7 @@ export default function ClozePassage({
         {/* 단어 뱅크 */}
         <View style={s.bank}>
           {bank.map((word, i) => {
-            const used = usedWords.includes(word);
+            const used = filled.includes(i);
             return (
               <Animated.View
                 key={`${word}-${i}`}
@@ -168,7 +181,7 @@ export default function ClozePassage({
                 <PulseBlank active={false} theme={theme}>
                   <TouchableOpacity
                     disabled={locked || used}
-                    onPress={() => placeWord(word)}
+                    onPress={() => placeWord(i)}
                     activeOpacity={0.8}
                     style={[s.chip, used && s.chipUsed]}
                   >

@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -119,84 +125,96 @@ export default function ErrorHunt({
 
   return (
     <View style={s.container}>
-      <Animated.Text entering={FadeIn.duration(150)} style={s.title}>
-        {stage === 1 ? t("lesson.errorHunt") : t("lesson.errorHuntFix")}
-      </Animated.Text>
-
-      {/* 탐정 배지 */}
-      <Animated.View entering={FadeIn.duration(150)} style={s.badge}>
-        <Text style={s.badgeEmoji}>🕵️</Text>
-        <Text style={s.badgeText}>
-          {stage === 1 ? t("lesson.errorHuntHint") : t("lesson.errorHuntFound")}
-        </Text>
-      </Animated.View>
-
-      {/* 문장 — 단어별 탭 */}
-      <Animated.View
-        entering={FadeIn.duration(150)}
-        style={[s.sentenceCard, shakeStyle]}
+      {/* 내용이 길면 여기만 스크롤 — 확인 버튼은 밖에서 항상 맨 아래 */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
       >
-        <View style={s.wordsWrap}>
-          {words.map((w, i) => {
-            const isFound = foundIdx === i;
-            const isMissed = missedIdx === i;
-            return (
-              <TouchableOpacity
-                key={`${w}-${i}`}
-                disabled={locked || stage === 2}
-                onPress={() => tapWord(i)}
-                activeOpacity={0.7}
-                style={[
-                  s.word,
-                  isFound && s.wordFound,
-                  isMissed && s.wordMissed,
-                ]}
-              >
-                {isFound ? (
-                  <StrikeWord word={w} struck theme={theme} />
-                ) : (
-                  <Text style={[s.wordText, isMissed && { color: "#FF4B4B" }]}>
-                    {w}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </Animated.View>
+        <Animated.Text entering={FadeIn.duration(150)} style={s.title}>
+          {stage === 1 ? t("lesson.errorHunt") : t("lesson.errorHuntFix")}
+        </Animated.Text>
 
-      <View style={{ flex: 1 }}>
-        {/* 2단계: 교정 선택지 슬라이드 인 */}
-        {stage === 2 ? (
-          <Animated.View entering={FadeIn.duration(150)} style={s.fixArea}>
-            {options.map((opt) => {
-              const isSel = fix === opt;
+        {/* 탐정 배지 */}
+        <Animated.View entering={FadeIn.duration(150)} style={s.badge}>
+          <Text style={s.badgeEmoji}>🕵️</Text>
+          <Text style={s.badgeText}>
+            {stage === 1
+              ? t("lesson.errorHuntHint")
+              : t("lesson.errorHuntFound")}
+          </Text>
+        </Animated.View>
+
+        {/* 문장 — 단어별 탭 */}
+        <Animated.View
+          entering={FadeIn.duration(150)}
+          style={[s.sentenceCard, shakeStyle]}
+        >
+          <View style={s.wordsWrap}>
+            {words.map((w, i) => {
+              const isFound = foundIdx === i;
+              const isMissed = missedIdx === i;
               return (
-                <Animated.View key={opt} entering={FadeIn.duration(150)}>
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    disabled={locked}
-                    onPress={() => {
-                      Haptics.selectionAsync();
-                      setFix((p) => (p === opt ? null : opt));
-                    }}
-                    style={[s.fixOption, isSel && s.fixOptionSelected]}
-                  >
+                <TouchableOpacity
+                  key={`${w}-${i}`}
+                  disabled={locked || stage === 2}
+                  onPress={() => tapWord(i)}
+                  activeOpacity={0.7}
+                  style={[
+                    s.word,
+                    isFound && s.wordFound,
+                    isMissed && s.wordMissed,
+                  ]}
+                >
+                  {isFound ? (
+                    <StrikeWord word={w} struck theme={theme} />
+                  ) : (
                     <Text
-                      style={[
-                        s.fixOptionText,
-                        isSel && { color: theme.primary },
-                      ]}
+                      style={[s.wordText, isMissed && { color: "#FF4B4B" }]}
                     >
-                      {opt}
+                      {w}
                     </Text>
-                  </TouchableOpacity>
-                </Animated.View>
+                  )}
+                </TouchableOpacity>
               );
             })}
-          </Animated.View>
-        ) : null}
-      </View>
+          </View>
+        </Animated.View>
+
+        <View style={{ flex: 1 }}>
+          {/* 2단계: 교정 선택지 슬라이드 인 */}
+          {stage === 2 ? (
+            <Animated.View entering={FadeIn.duration(150)} style={s.fixArea}>
+              {options.map((opt) => {
+                const isSel = fix === opt;
+                return (
+                  <Animated.View key={opt} entering={FadeIn.duration(150)}>
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      disabled={locked}
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        setFix((p) => (p === opt ? null : opt));
+                      }}
+                      style={[s.fixOption, isSel && s.fixOptionSelected]}
+                    >
+                      <Text
+                        style={[
+                          s.fixOptionText,
+                          isSel && { color: theme.primary },
+                        ]}
+                      >
+                        {opt}
+                      </Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })}
+            </Animated.View>
+          ) : null}
+        </View>
+      </ScrollView>
 
       <TouchableOpacity
         style={[

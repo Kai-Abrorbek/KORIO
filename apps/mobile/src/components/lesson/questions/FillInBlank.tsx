@@ -86,22 +86,31 @@ export default function FillInBlank({
     return fullSentence.replace(/\s*\([^()]*\)\s*$/u, "").trim();
   }, [completedSentence, question.audioText]);
 
-  const [values, setValues] = useState<(string | null)[]>(() =>
+  /**
+   * 빈칸마다 **선택지의 위치**를 담는다 (글자가 아니라).
+   * 같은 단어가 두 빈칸의 정답이면 선택지에도 두 번 있다. 글자로 찾으면
+   * 두 번째 칩을 눌러도 첫 번째 칩이 회수돼서 두 빈칸을 다 못 채운다.
+   */
+  const [picks, setPicks] = useState<(number | null)[]>(() =>
     Array(total).fill(null),
+  );
+  const values = useMemo(
+    () => picks.map((i) => (i === null ? null : (options[i] ?? null))),
+    [picks, options],
   );
   const [activeIndex, setActiveIndex] = useState(0);
 
   // 문제가 바뀌면 초기화
   useEffect(() => {
     stop();
-    setValues(Array(total).fill(null));
+    setPicks(Array(total).fill(null));
     setActiveIndex(0);
   }, [question.id, stop, total]);
 
   /** 선택지 탭: 이미 쓰인 값이면 회수, 아니면 활성 빈칸에 채운다 */
-  const pickOption = (opt: string) => {
+  const pickOption = (opt: number) => {
     if (locked) return;
-    setValues((prev) => {
+    setPicks((prev) => {
       const used = prev.indexOf(opt);
       if (used !== -1) {
         const next = [...prev];
@@ -123,7 +132,7 @@ export default function FillInBlank({
   const clearBlank = (index: number) => {
     if (locked) return;
     setActiveIndex(index);
-    setValues((prev) => {
+    setPicks((prev) => {
       if (prev[index] === null) return prev;
       const next = [...prev];
       next[index] = null;
@@ -264,7 +273,7 @@ export default function FillInBlank({
           </View>
           <View style={s.optionsRow}>
             {options.map((opt, index) => {
-              const isSel = values.includes(opt);
+              const isSel = picks.includes(index);
               return (
                 <Animated.View
                   entering={FadeInDown.delay(index * 45).duration(220)}
@@ -275,7 +284,7 @@ export default function FillInBlank({
                     accessibilityLabel={opt}
                     accessibilityState={{ disabled: locked, selected: isSel }}
                     disabled={locked}
-                    onPress={() => pickOption(opt)}
+                    onPress={() => pickOption(index)}
                     style={({ pressed }) => [
                       s.option,
                       { borderColor: theme.border },
