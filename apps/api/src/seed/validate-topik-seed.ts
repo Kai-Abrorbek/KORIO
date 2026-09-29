@@ -1,9 +1,11 @@
 import {
+  TopikQuestionType,
   TopikResponseType,
   TopikStimulusKind,
 } from '../topik/schemas/topik-content.schema';
 import {
   TOPIK_READING_BLUEPRINT,
+  TopikReadingBlueprintGroup,
   TopikStimulusScope,
 } from '../topik/topik-reading-blueprint';
 import { TopikExamSeed, TopikReadingSeed } from './data/topik';
@@ -22,7 +24,10 @@ function validateLocalizedText(
   }
 }
 
-export function validateTopikReadingSeed(seed: TopikReadingSeed) {
+export function validateTopikReadingSeed(
+  seed: TopikReadingSeed,
+  blueprint: TopikReadingBlueprintGroup[] = TOPIK_READING_BLUEPRINT,
+) {
   const errors: string[] = [];
   const groupsByCode = new Map(seed.groups.map((group) => [group.code, group]));
   const questionCodes = new Set<string>();
@@ -31,9 +36,9 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
     (left, right) => left.number - right.number,
   );
 
-  if (seed.groups.length !== TOPIK_READING_BLUEPRINT.length) {
+  if (seed.groups.length !== blueprint.length) {
     errors.push(
-      `Expected ${TOPIK_READING_BLUEPRINT.length} groups, received ${seed.groups.length}`,
+      `Expected ${blueprint.length} groups, received ${seed.groups.length}`,
     );
   }
   if (seed.questions.length !== seed.exam.totalQuestions) {
@@ -121,41 +126,43 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
     });
   }
 
-  for (const blueprint of TOPIK_READING_BLUEPRINT) {
-    const group = groupsByCode.get(blueprint.code);
+  for (const groupBlueprint of blueprint) {
+    const group = groupsByCode.get(groupBlueprint.code);
     const questions = sortedQuestions.filter(
-      (question) => question.groupCode === blueprint.code,
+      (question) => question.groupCode === groupBlueprint.code,
     );
 
     if (!group) {
-      errors.push(`Missing blueprint group: ${blueprint.code}`);
+      errors.push(`Missing blueprint group: ${groupBlueprint.code}`);
       continue;
     }
     if (
-      group.startNumber !== blueprint.from ||
-      group.endNumber !== blueprint.to
+      group.startNumber !== groupBlueprint.from ||
+      group.endNumber !== groupBlueprint.to
     ) {
-      errors.push(`Range mismatch for group ${blueprint.code}`);
+      errors.push(`Range mismatch for group ${groupBlueprint.code}`);
     }
-    if (questions.length !== blueprint.to - blueprint.from + 1) {
-      errors.push(`Question count mismatch for group ${blueprint.code}`);
+    if (questions.length !== groupBlueprint.to - groupBlueprint.from + 1) {
+      errors.push(`Question count mismatch for group ${groupBlueprint.code}`);
     }
 
     questions.forEach((question, index) => {
-      if (question.type !== blueprint.questionTypes[index]) {
+      if (question.type !== groupBlueprint.questionTypes[index]) {
         errors.push(`Question type mismatch for question ${question.number}`);
       }
     });
 
-    if (blueprint.stimulusScope === TopikStimulusScope.NONE) {
+    if (groupBlueprint.stimulusScope === TopikStimulusScope.NONE) {
       if (questions.some((question) => question.stimulus)) {
-        errors.push(`Group ${blueprint.code} must not have question stimuli`);
+        errors.push(
+          `Group ${groupBlueprint.code} must not have question stimuli`,
+        );
       }
     }
 
-    if (blueprint.stimulusScope === TopikStimulusScope.QUESTION) {
+    if (groupBlueprint.stimulusScope === TopikStimulusScope.QUESTION) {
       questions.forEach((question, index) => {
-        const expectedKind = blueprint.stimulusKinds?.[index];
+        const expectedKind = groupBlueprint.stimulusKinds?.[index];
 
         if (!question.stimulus || question.stimulus.kind !== expectedKind) {
           errors.push(
@@ -165,12 +172,16 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
       });
     }
 
-    if (blueprint.stimulusScope === TopikStimulusScope.GROUP) {
-      if (group.sharedStimulus?.kind !== blueprint.groupStimulusKind) {
-        errors.push(`Shared stimulus mismatch for group ${blueprint.code}`);
+    if (groupBlueprint.stimulusScope === TopikStimulusScope.GROUP) {
+      if (group.sharedStimulus?.kind !== groupBlueprint.groupStimulusKind) {
+        errors.push(
+          `Shared stimulus mismatch for group ${groupBlueprint.code}`,
+        );
       }
       if (questions.some((question) => question.stimulus)) {
-        errors.push(`Group ${blueprint.code} must use only shared stimulus`);
+        errors.push(
+          `Group ${groupBlueprint.code} must use only shared stimulus`,
+        );
       }
     }
   }
@@ -194,6 +205,32 @@ export function validateTopikReadingSeed(seed: TopikReadingSeed) {
     questionCount: seed.questions.length,
     totalPoints,
   };
+}
+
+export function validateTopikII35ReadingSeed(seed: TopikReadingSeed) {
+  const blueprint = TOPIK_READING_BLUEPRINT.map((group) => {
+    if (group.code === 'reading-46-47') {
+      return {
+        ...group,
+        questionTypes: [
+          TopikQuestionType.SENTENCE_INSERTION,
+          TopikQuestionType.PASSAGE_CONTENT_MATCH,
+        ],
+      };
+    }
+    if (group.code === 'reading-48-50') {
+      return {
+        ...group,
+        questionTypes: [
+          TopikQuestionType.AUTHOR_PURPOSE,
+          TopikQuestionType.PASSAGE_FILL_BLANK,
+          TopikQuestionType.AUTHOR_ATTITUDE,
+        ],
+      };
+    }
+    return group;
+  });
+  return validateTopikReadingSeed(seed, blueprint);
 }
 
 export function validateTopikListeningSeed(seed: TopikExamSeed) {
