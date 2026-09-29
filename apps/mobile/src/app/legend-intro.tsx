@@ -68,8 +68,15 @@ export default function LegendIntro() {
     opacity: glow.value,
     transform: [{ scale: 1 + glow.value * 0.15 }],
   }));
-  const twStyle = (d: number) =>
-    useAnimatedStyle(() => ({ opacity: 0.3 + tw.value * 0.7 }));
+  // 반짝이 셋. 예전엔 헬퍼 함수 안에서 훅을 불러서 lint 에러(rules-of-hooks)였다.
+  // 받던 d(순번)는 쓰이지 않고 있었다 — 이제 위상을 1/3씩 어긋나게 써서 번갈아 반짝인다
+  const tw0 = useAnimatedStyle(() => ({ opacity: 0.3 + tw.value * 0.7 }));
+  const tw1 = useAnimatedStyle(() => ({
+    opacity: 0.3 + Math.abs(((tw.value + 0.33) % 1) * 2 - 1) * 0.7,
+  }));
+  const tw2 = useAnimatedStyle(() => ({
+    opacity: 0.3 + Math.abs(((tw.value + 0.66) % 1) * 2 - 1) * 0.7,
+  }));
 
   const start = () => {
     guardLessonStart(Number(energy), () => {
@@ -92,7 +99,7 @@ export default function LegendIntro() {
             style={[
               styles.spark,
               { top: "8%", right: "22%", fontSize: 30 },
-              twStyle(0),
+              tw0,
             ]}
           >
             ✦
@@ -101,7 +108,7 @@ export default function LegendIntro() {
             style={[
               styles.spark,
               { bottom: "24%", left: "20%", fontSize: 24 },
-              twStyle(1),
+              tw1,
             ]}
           >
             ✦
@@ -110,7 +117,7 @@ export default function LegendIntro() {
             style={[
               styles.spark,
               { bottom: "20%", right: "18%", fontSize: 22 },
-              twStyle(2),
+              tw2,
             ]}
           >
             ✦

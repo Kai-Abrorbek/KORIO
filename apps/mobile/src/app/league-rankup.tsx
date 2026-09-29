@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, Pressable, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Image,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -11,9 +19,15 @@ import Animated, {
   withSpring,
   Easing,
   FadeIn,
+  type SharedValue,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { getTier } from "@/constants/league-tiers";
 import TierCrystal from "@/components/league/TierCrystal";
 import { LeagueService } from "@/services/league.service";
@@ -85,25 +99,6 @@ export default function LeagueRankUp() {
     elevation: 3 + lift.value * 10,
   }));
 
-  // 내가 지나간 자리의 행들은 아래로 한 칸씩 밀림
-  const othersStyle = (idx: number) =>
-    useAnimatedStyle(() => {
-      const meIdx = newRank - 1;
-      const oldIdx = oldRank - 1;
-      const shifted = idx >= meIdx && idx < oldIdx;
-      return {
-        transform: [
-          {
-            translateY: shifted
-              ? move.value === 0
-                ? 0
-                : ROW_H * (move.value / -((oldRank - newRank) * ROW_H))
-              : 0,
-          },
-        ],
-      };
-    });
-
   return (
     <View style={[s.c, { paddingTop: insets.top + 20 }]}>
       <View style={s.top}>
@@ -130,13 +125,15 @@ export default function LeagueRankUp() {
             const realIdx = Math.max(0, newRank - 3) + i;
             const isMe = m.isMe;
             return (
-              <Animated.View
+              <RankRow
                 key={m.id ?? i}
-                style={[
-                  s.row,
-                  isMe && [s.rowMe, meStyle],
-                  !isMe && othersStyle(realIdx),
-                ]}
+                idx={realIdx}
+                isMe={isMe}
+                meStyle={meStyle}
+                newRank={newRank}
+                oldRank={oldRank}
+                move={move}
+                style={[s.row, isMe && s.rowMe]}
               >
                 <Text style={[s.rank, isMe && { color: "#58CC02" }]}>
                   {m.rank}
@@ -164,7 +161,7 @@ export default function LeagueRankUp() {
                 >
                   {m.xp} XP
                 </Text>
-              </Animated.View>
+              </RankRow>
             );
           })}
       </View>
@@ -249,3 +246,52 @@ const s = StyleSheet.create({
   btn: { borderRadius: 18, paddingVertical: 20, alignItems: "center" },
   btnText: { color: "#fff", fontSize: 19, fontWeight: "900" },
 });
+
+/**
+ * 순위 한 줄. 내가 지나간 자리의 행들은 아래로 한 칸씩 밀린다.
+ *
+ * ⚠️ 예전엔 map 안에서 `othersStyle(idx)` 로 useAnimatedStyle 을 불렀다.
+ *    행 수가 바뀌면 훅 개수가 달라져서 앱이 죽을 수 있는 코드였다
+ *    (lint react-hooks/rules-of-hooks 에러). 행마다 자기 훅을 갖게 컴포넌트로 뺐다.
+ */
+function RankRow({
+  idx,
+  isMe,
+  meStyle,
+  newRank,
+  oldRank,
+  move,
+  style,
+  children,
+}: {
+  idx: number;
+  isMe: boolean;
+  meStyle: ComponentProps<typeof Animated.View>["style"];
+  newRank: number;
+  oldRank: number;
+  move: SharedValue<number>;
+  style: StyleProp<ViewStyle>;
+  children: ReactNode;
+}) {
+  const shift = useAnimatedStyle(() => {
+    const meIdx = newRank - 1;
+    const oldIdx = oldRank - 1;
+    const shifted = idx >= meIdx && idx < oldIdx;
+    return {
+      transform: [
+        {
+          translateY: shifted
+            ? move.value === 0
+              ? 0
+              : ROW_H * (move.value / -((oldRank - newRank) * ROW_H))
+            : 0,
+        },
+      ],
+    };
+  });
+  return (
+    <Animated.View style={[style, isMe ? meStyle : shift]}>
+      {children}
+    </Animated.View>
+  );
+}

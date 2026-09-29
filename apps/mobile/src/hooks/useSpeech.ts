@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
-/* eslint-disable react-hooks/set-state-in-effect -- playback status is external state. */
 import {
   clearPreloadedSource,
   preload,

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/immutability -- expo-audio exposes imperative player controls. */
 import React, {
   createContext,
   useCallback,

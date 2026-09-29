@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/immutability -- expo-audio exposes an imperative player API. */
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
