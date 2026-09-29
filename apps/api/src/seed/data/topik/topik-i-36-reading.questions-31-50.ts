@@ -1,0 +1,373 @@
+import {
+  TopikChoiceLayout,
+  TopikQuestionType,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  advertisement,
+  notice,
+  passage,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedQuestion } from './topik-seed.types';
+import { topikI36ReadingQuestion as question } from './topik-i-36-reading.question';
+
+const octoberCalendar = {
+  ...notice(),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '10월 일정표',
+  infoItems: [
+    { label: '19일 (일)', value: '—' },
+    { label: '20일 (월)', value: '수영' },
+    { label: '21일 (화)', value: '민수 씨와 점심 약속' },
+    { label: '22일 (수)', value: '쇼핑' },
+    { label: '23일 (목)', value: '수영' },
+    { label: '24일 (금)', value: '동생 생일' },
+    { label: '25일 (토)', value: '미영 씨와 등산' },
+  ],
+  visualVariant: 'official-calendar',
+};
+
+const textMessage = {
+  ...notice(),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '오후 02:25 · 문자 메시지',
+  blocks: textBlocks(
+    '마이클 씨, 미안해요.',
+    '제가 도서관에 있어서 전화를 못 받았어요.',
+    '10분 후에 전화할게요.',
+    '－ 민수 －',
+  ),
+  visualVariant: 'official-text-message',
+};
+
+const cookingClass = {
+  ...advertisement(
+    '행복 요리 교실',
+    '아이와 엄마, 아빠가 함께 맛있는 음식을 만들어요',
+  ),
+  bulletItems: [
+    '일시: 매주 토요일 10시',
+    '장소: 행복 요리 학원 (☎ 02-345-5678)',
+    '요리: 불고기',
+    '참가비: 아이 8,000원 / 어른 10,000원',
+    '커피와 주스를 드립니다.',
+  ],
+  visualVariant: 'official-cooking-class',
+};
+
+export const TOPIK_I_36_READING_QUESTIONS_31_50: TopikSeedQuestion[] = [
+  question({
+    number: 31,
+    groupCode: 'topik-i-36-reading-31-33',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 2,
+    prompt: '오빠가 있습니다. 언니도 있습니다.',
+    choices: ['이름', '가족', '생일', '친구'],
+    answer: '2',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo: '오빠와 언니는 가족이므로 가족에 대한 이야기입니다.',
+  }),
+  question({
+    number: 32,
+    groupCode: 'topik-i-36-reading-31-33',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 2,
+    prompt: '저는 회사원입니다. 자동차 회사에 다닙니다.',
+    choices: ['취미', '장소', '주말', '직업'],
+    answer: '4',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo: '회사원으로 자동차 회사에 다니므로 직업을 말합니다.',
+  }),
+  question({
+    number: 33,
+    groupCode: 'topik-i-36-reading-31-33',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 2,
+    prompt: '한국에는 봄, 여름, 가을, 겨울이 있습니다. 지금은 가을입니다.',
+    choices: ['계절', '나라', '시장', '휴일'],
+    answer: '1',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo:
+      '봄, 여름, 가을, 겨울은 네 계절이므로 계절에 관한 이야기입니다.',
+  }),
+  question({
+    number: 34,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 2,
+    prompt: '서점에 갑니다. ([[blank:q34]])을 삽니다.',
+    choices: ['책', '물', '옷', '빵'],
+    answer: '1',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo: '서점에서 사는 물건은 책입니다.',
+  }),
+  question({
+    number: 35,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 2,
+    prompt: '한국어가 어렵습니다. 친구([[blank:q35]]) 물어봅니다.',
+    choices: ['의', '를', '에게', '에서'],
+    answer: '3',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo:
+      '질문을 받는 사람인 친구 뒤에는 ‘에게’를 써서 ‘친구에게 물어봅니다’라고 합니다.',
+  }),
+  question({
+    number: 36,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 2,
+    prompt: '학교가 ([[blank:q36]]). 그래서 걸어서 갑니다.',
+    choices: ['작습니다', '많습니다', '가깝습니다', '깨끗합니다'],
+    answer: '3',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
+    explanationKo:
+      '학교가 가까워서 걸어서 간다는 뜻이므로 ‘가깝습니다’가 알맞습니다.',
+  }),
+  question({
+    number: 37,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 3,
+    prompt: '영화가 끝났습니다. 극장에서 ([[blank:q37]]).',
+    choices: ['삽니다', '씁니다', '지냅니다', '나갑니다'],
+    answer: '4',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
+    explanationKo:
+      '영화가 끝나면 극장 밖으로 나가므로 ‘나갑니다’가 알맞습니다.',
+  }),
+  question({
+    number: 38,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 3,
+    prompt: '바다 여행이 재미있었습니다. 다음에 ([[blank:q38]]) 갈 겁니다.',
+    choices: ['다시', '서로', '아주', '제일'],
+    answer: '1',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo:
+      '여행이 재미있어서 다음에 한 번 더 가겠다는 뜻이므로 ‘다시’가 알맞습니다.',
+  }),
+  question({
+    number: 39,
+    groupCode: 'topik-i-36-reading-34-39',
+    type: TopikQuestionType.GRAMMAR_FILL_BLANK,
+    points: 2,
+    prompt: '눈이 옵니다. 그리고 바람도 ([[blank:q39]]).',
+    choices: ['줍니다', '붑니다', '옵니다', '됩니다'],
+    answer: '2',
+    template: TopikVisualTemplate.EXAM_SENTENCE,
+    choiceLayout: TopikChoiceLayout.FOUR_COLUMNS,
+    explanationKo: '바람은 ‘불다’라고 표현하므로 ‘바람도 붑니다’가 알맞습니다.',
+  }),
+  question({
+    number: 40,
+    groupCode: 'topik-i-36-reading-40-42',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 3,
+    prompt: '다음을 읽고 맞지 않는 것을 고르십시오.',
+    stimulus: octoberCalendar,
+    choices: [
+      '금요일에 민수 씨를 만납니다.',
+      '주말에 미영 씨와 산에 갑니다.',
+      '일주일에 두 번 수영을 합니다.',
+      '시월 이십이 일에 쇼핑을 합니다.',
+    ],
+    answer: '1',
+    template: TopikVisualTemplate.EXAM_INFO_CARD,
+    explanationKo:
+      '민수 씨와 점심 약속은 금요일이 아니라 10월 21일 화요일에 있습니다.',
+  }),
+  question({
+    number: 41,
+    groupCode: 'topik-i-36-reading-40-42',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 3,
+    prompt: '다음을 읽고 맞지 않는 것을 고르십시오.',
+    stimulus: textMessage,
+    choices: [
+      '민수 씨는 도서관에 있습니다.',
+      '마이클 씨는 도서관에 올 겁니다.',
+      '민수 씨는 10분 후에 전화할 겁니다.',
+      '마이클 씨는 민수 씨에게 전화를 했습니다.',
+    ],
+    answer: '2',
+    template: TopikVisualTemplate.EXAM_INFO_CARD,
+    explanationKo:
+      '메시지에는 민수 씨가 도서관에 있다고만 하며 마이클 씨가 도서관에 온다는 말은 없습니다.',
+  }),
+  question({
+    number: 42,
+    groupCode: 'topik-i-36-reading-40-42',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 3,
+    prompt: '다음을 읽고 맞지 않는 것을 고르십시오.',
+    stimulus: cookingClass,
+    choices: [
+      '엄마는 만 원을 냅니다.',
+      '커피와 주스도 같이 만듭니다.',
+      '요리 교실은 토요일마다 있습니다.',
+      '부모하고 아이가 불고기를 만듭니다.',
+    ],
+    answer: '2',
+    template: TopikVisualTemplate.EXAM_ADVERTISEMENT,
+    explanationKo:
+      '커피와 주스는 요리 교실에서 만들어 보는 음식이 아니라 제공되는 음료입니다.',
+  }),
+  question({
+    number: 43,
+    groupCode: 'topik-i-36-reading-43-45',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 3,
+    prompt: '다음의 내용과 같은 것을 고르십시오.',
+    stimulus: passage(
+      '저는 그림을 배웁니다. 주말마다 공원에 가서 그림을 그립니다. 가끔 어머니와 미술관에 가서 구경을 합니다.',
+    ),
+    choices: [
+      '저는 어머니와 공원에 갑니다.',
+      '어머니는 그림 공부를 합니다.',
+      '저는 공원에서 그림을 그립니다.',
+      '어머니는 혼자 미술관에 갑니다.',
+    ],
+    answer: '3',
+    explanationKo: '주말마다 공원에 가서 그림을 그린다고 했습니다.',
+  }),
+  question({
+    number: 44,
+    groupCode: 'topik-i-36-reading-43-45',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 2,
+    prompt: '다음의 내용과 같은 것을 고르십시오.',
+    stimulus: passage(
+      '오늘 저녁에 손님이 옵니다. 그래서 아침에 꽃도 사고 집도 청소했습니다. 회사가 끝나면 집에 일찍 가서 음식을 준비할 겁니다.',
+    ),
+    choices: [
+      '저녁에 청소를 할 겁니다.',
+      '손님과 저녁을 먹을 겁니다.',
+      '음식을 벌써 준비했습니다.',
+      '손님이 꽃을 사 올 겁니다.',
+    ],
+    answer: '2',
+    explanationKo:
+      '오늘 저녁에 손님이 와서 음식을 준비할 예정이므로 손님과 저녁을 먹을 것입니다.',
+  }),
+  question({
+    number: 45,
+    groupCode: 'topik-i-36-reading-43-45',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 3,
+    prompt: '다음의 내용과 같은 것을 고르십시오.',
+    stimulus: passage(
+      '저는 마음이 아프고 힘들 때 친구를 만납니다. 친구를 만나서 제 생각을 친구에게 이야기합니다. 그러면 기분이 좋고 즐겁습니다.',
+    ),
+    choices: [
+      '저는 친구의 이야기를 잘 듣습니다.',
+      '저는 친구를 만나면 마음이 아픕니다.',
+      '저는 기분이 좋을 때 친구를 만납니다.',
+      '저는 힘들 때 친구와 이야기를 합니다.',
+    ],
+    answer: '4',
+    explanationKo: '힘들 때 친구를 만나 자기 생각을 이야기한다고 했습니다.',
+  }),
+  question({
+    number: 46,
+    groupCode: 'topik-i-36-reading-46-48',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 3,
+    prompt: '다음을 읽고 중심 생각을 고르십시오.',
+    stimulus: passage(
+      '저는 아이들에게 가방을 만들어 줍니다. 다른 사람에게도 자주 가방을 만들어서 선물합니다. 가방 만들기는 어렵지만 재미있습니다.',
+    ),
+    choices: [
+      '저는 가방 만들기가 어렵습니다.',
+      '저는 가방 만들기를 좋아합니다.',
+      '저는 다른 사람과 가방을 만듭니다.',
+      '저는 아이들에게 가방을 선물합니다.',
+    ],
+    answer: '2',
+    explanationKo:
+      '어렵지만 재미있어서 가방을 자주 만들고 선물하므로 가방 만들기를 좋아한다는 것이 중심 생각입니다.',
+  }),
+  question({
+    number: 47,
+    groupCode: 'topik-i-36-reading-46-48',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 3,
+    prompt: '다음을 읽고 중심 생각을 고르십시오.',
+    stimulus: passage(
+      '친구가 다리가 아파서 수업에 못 왔습니다. 저는 오후에 친구에게 숙제를 말해 줄 겁니다. 내일은 친구 집에 가서 함께 학교에 가려고 합니다.',
+    ),
+    choices: [
+      '저는 친구를 도와줄 겁니다.',
+      '저는 친구와 살고 싶습니다.',
+      '저는 친구 집에서 숙제를 할 겁니다.',
+      '저는 보통 친구와 같이 학교에 갑니다.',
+    ],
+    answer: '1',
+    explanationKo:
+      '아픈 친구에게 숙제를 알려 주고 함께 학교에 가려는 등 친구를 도와주려 합니다.',
+  }),
+  question({
+    number: 48,
+    groupCode: 'topik-i-36-reading-46-48',
+    type: TopikQuestionType.PASSAGE_TOPIC,
+    points: 2,
+    prompt: '다음을 읽고 중심 생각을 고르십시오.',
+    stimulus: passage(
+      '형은 어릴 때 조용하고 말이 없었습니다. 그리고 혼자 있는 것을 좋아했습니다. 그런데 지금은 재미있는 말도 많이 하고 사람들도 자주 만납니다.',
+    ),
+    choices: [
+      '형은 옛날과 많이 다릅니다.',
+      '형은 요즘 말을 잘 안 합니다.',
+      '형은 재미있는 이야기를 못 합니다.',
+      '형은 옛날에 사람들을 자주 만났습니다.',
+    ],
+    answer: '1',
+    explanationKo:
+      '어릴 때는 조용하고 혼자 있기를 좋아했지만 지금은 말이 많고 사람들을 자주 만납니다.',
+  }),
+  question({
+    number: 49,
+    groupCode: 'topik-i-36-reading-49-50',
+    type: TopikQuestionType.PASSAGE_FILL_BLANK,
+    points: 2,
+    prompt: '㉠에 들어갈 알맞은 말을 고르십시오.',
+    choices: [
+      '손님이 별로 없습니다',
+      '친절한 직원이 있습니다',
+      '일하는 사람이 없습니다',
+      '주인이 차를 직접 만듭니다',
+    ],
+    answer: '3',
+    choiceLayout: TopikChoiceLayout.TWO_COLUMNS,
+    explanationKo:
+      '손님이 직접 차를 준비하고 컵을 씻으며 차 값도 내므로 일하는 사람이 없는 카페입니다.',
+  }),
+  question({
+    number: 50,
+    groupCode: 'topik-i-36-reading-49-50',
+    type: TopikQuestionType.PASSAGE_CONTENT_MATCH,
+    points: 2,
+    prompt: '이 글의 내용과 같은 것을 고르십시오.',
+    choices: [
+      '이 카페는 오래되었습니다.',
+      '카페의 차 값은 싸지 않습니다.',
+      '손님은 차를 주문하고 기다립니다.',
+      '이 카페는 편안해서 사람들이 좋아합니다.',
+    ],
+    answer: '4',
+    explanationKo:
+      '편하게 오래 앉아 있을 수 있고 차 값도 싸서 카페가 인기 있다고 했습니다.',
+  }),
+];

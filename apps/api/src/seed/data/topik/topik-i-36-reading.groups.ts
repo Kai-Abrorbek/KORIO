@@ -1,0 +1,247 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  notice,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_36_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-36-2014',
+  title: {
+    ko: '제36회 TOPIK I 읽기',
+    uz: '36-TOPIK I o‘qish',
+    en: '36th TOPIK I Reading',
+    ru: '36-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제36회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조대로 구성했습니다.',
+    uz: '36-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 36th TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 36-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2014,
+  round: 36,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제36회 한국어능력시험 I B형 읽기',
+    edition: '제36회',
+    publisher: '국립국제교육원',
+    reference:
+      '사용자 제공 test-paper-paper (1).pdf 및 answer-keys-answers.pdf',
+  },
+  publishedAt: new Date('2014-10-12T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const bookSale = {
+  ...notice(),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '재미있는 그림책!',
+  subtitle: '어린이 용품 · 책 게시판',
+  blocks: textBlocks(
+    '아이들이 좋아하는 그림책입니다.',
+    '초등학생들이 읽을 수 있습니다.',
+    '한 번밖에 안 읽어서 깨끗합니다.',
+    '가격은 배달 비용을 포함해서 15,000원입니다.',
+    '관심 있으신 분은 이메일로 연락 주십시오.',
+  ),
+  infoItems: [{ label: '작성자', value: '김윤미 (yunmi@parang.net)' }],
+  visualVariant: 'official-book-sale',
+};
+
+export const TOPIK_I_36_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-36-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 이야기입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-36-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-36-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-36-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음의 내용과 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-36-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 생각을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-36-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '학교 앞에 새 카페가 문을 열었습니다. 이 카페에는 [[blank:q49]]. 손님이 마시고 싶은 차를 준비해서 마시고 컵도 직접 씻습니다. 차를 마신 후에 차 값은 ‘돈을 넣는 곳’에 내면 됩니다. 이 카페는 편하게 오래 앉아 있을 수 있고 값도 싸서 인기가 많습니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '120전화는 편리합니다. 이 전화는 외국인도 [[blank:q51]]. 호텔을 예약하고 싶은 외국인은 여기에 전화하면 됩니다. 택시나 기차 예약도 도와줍니다. 또한 외국어로 관광 안내도 받을 수 있습니다. 120전화는 24시간 전화를 받습니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저와 제 여동생은 같은 날 태어났습니다. 우리는 얼굴이 아주 비슷합니다. 머리색과 머리 모양도 같습니다. 또 청바지와 흰색 티셔츠를 좋아하는 것도 똑같습니다. 그리고 둘 다 작은 일에도 잘 웃습니다. 그래서 많은 사람들이 [[blank:q53]] 동생으로 생각합니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '떡볶이는 종류가 많습니다. 보통 우리가 먹는 떡볶이는 맵지만 전통 떡볶이는 맵지 않습니다. 고추장을 넣지 않고 간장으로 만들기 때문입니다. [[blank:q55]] 매운 것을 못 먹는 아이들이나 외국인도 먹을 수 있습니다. 또 소고기와 여러 가지 채소가 들어 있기 때문에 맛도 좋고 건강에도 좋습니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서대로 맞게 나열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-36-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '저는 어릴 때부터 춤추는 것을 좋아했습니다. [[marker:m1|㉠]] 요즘도 매일 혼자 거울을 보면서 춤 연습을 합니다. [[marker:m2|㉡]] 주말에는 가끔 친구들과 같이 지하철역이나 공원에서 공연도 합니다. [[marker:m3|㉢]] 사람들의 박수 소리를 들으면 기분이 좋아져서 더 열심히 춤을 춥니다. [[marker:m4|㉣]]',
+      '사람들은 우리의 춤을 보고 박수를 치면서 소리를 지릅니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주시청 앞 도로는 주말에 차가 다닐 수 없습니다. 복잡한 길을 걷기 편한 거리로 [[blank:q61]] 인주시가 이곳을 ‘차 없는 거리’로 만든 것입니다. 사람들은 주말마다 이곳에서 자기가 안 쓰는 물건이나 직접 만든 물건을 사고팝니다. 배가 고프면 길에서 김밥이나 아이스크림을 사 먹을 수도 있습니다. 자유롭고 밝은 분위기 때문에 젊은 사람들이 이곳을 많이 찾고 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    bookSale,
+  ),
+  group(
+    'topik-i-36-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '다음 달 15일부터 경기도 부천에서 국제만화축제가 열립니다. 축제에서는 여러 나라의 만화를 볼 수 있습니다. 어릴 때 본 추억의 만화책부터 요즘 유행하는 만화책까지 다양하게 [[blank:q65]]. 또 유명한 만화가의 사인도 받을 수 있습니다. 그리고 만화가들이 축제에 참가하는 사람들의 얼굴을 그려 줍니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '김지호 씨는 미용사입니다. 도시의 큰 미용실에서 일하고 있습니다. 손님이 많고 바쁘지만 한 달에 한 번은 시골의 작은 마을을 찾아갑니다. 거기서 사람들의 머리를 예쁘게 잘라 줍니다. 돈은 [[blank:q67]]. 그 대신 마을 사람들의 집에서 식사를 하면서 재미있는 이야기를 듣습니다. 김지호 씨는 그곳에 가는 날이 즐겁습니다.',
+    ),
+  ),
+  group(
+    'topik-i-36-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '우리 집에는 나무가 하나 있습니다. 제가 태어났을 때 우리 아버지가 심으신 것입니다. 그래서 저하고 나이가 같습니다. 어릴 때는 그 나무가 저보다 작았는데 지금은 저보다 큽니다. 제가 물을 주고 키워서 나무와 정이 많이 들었습니다. 그러나 이제 그 나무와 헤어져야 합니다. 다음 주에 우리 가족이 이사를 하기 때문입니다. 저는 그 나무가 무척 [[blank:q69]].',
+    ),
+  ),
+];

@@ -8,6 +8,8 @@ export * from './topik-i-37-listening.data';
 export * from './topik-i-37-reading.data';
 export * from './topik-i-35-listening.data';
 export * from './topik-i-35-reading.data';
+export * from './topik-i-36-listening.data';
+export * from './topik-i-36-reading.data';
 export * from './topik-ii-35-listening.data';
 export * from './topik-ii-35-reading.data';
 export * from './topik-ii-35-writing.data';
