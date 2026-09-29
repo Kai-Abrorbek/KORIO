@@ -88,6 +88,18 @@ const HANGUL = /[ㄱ-ㆎ가-힣]/;
  * 못 받고 `question.answer` 로 폴백해 **말풍선에 한국어 정답을 그대로**
  * 띄우고 있었다.
  */
+/**
+ * 칩을 순서대로 조립하는 유형. 시드는 options 를 정답 순서로 적어 둔 게 많아서
+ * (정답 칩 → 오답 칩) 그대로 내려주면 앞에서부터 누르기만 해도 맞는다.
+ * 내려줄 때마다 섞는다. 채점은 이어 붙인 문장으로 하니 순서가 바뀌어도 안전하다.
+ */
+const CHIP_BUILDER_TYPES = new Set([
+  'sentence_builder',
+  'translate_builder',
+  'reply_builder',
+  'word_arrange',
+]);
+
 const GRAMMAR_PROMPT_TYPES = new Set([
   QuestionType.GRAMMAR_BLANK,
   QuestionType.GRAMMAR_BUILD,
@@ -130,6 +142,7 @@ import {
   normalizeJumpTestCategory,
   type JumpTestCategory,
 } from './jump-test.util';
+import { normalizeBuilderChips } from './chip-builder.util';
 
 @Injectable()
 export class LessonsService {
@@ -253,7 +266,11 @@ export class LessonsService {
       // 번역이 있으면 학습자 언어로. 없으면 한국어 원문 그대로
       // (error_hunt·reply_builder 처럼 한국어여야만 성립하는 문항이 그쪽)
       npcText: this.extractI18n(q.npcTextI18n, lang) || q.npcText || '',
-      options: usesNativeBuilder ? nativeOptions : q.options || [],
+      options: this.chipOrder(
+        q.type,
+        usesNativeBuilder ? nativeOptions : q.options || [],
+        usesNativeBuilder && nativeAnswer ? nativeAnswer : q.answer,
+      ),
       choices: q.choices || [], // ← 이거 추가
       answer: usesNativeBuilder && nativeAnswer ? nativeAnswer : q.answer,
       sentencePrefix: q.sentencePrefix || '',
@@ -2125,6 +2142,23 @@ export class LessonsService {
       seen.add(key);
       return true;
     });
+  }
+
+  /**
+   * 조립형 문제의 칩. 어절 단위로 정리한 뒤(chip-builder.util) 섞는다.
+   * 원래 순서(= 정답 순서)와 앞 두 칩이 같으면 다시 섞는다.
+   * 칩이 2개 이하이거나 전부 같은 글자면 섞어도 의미가 없어서 그대로 둔다.
+   */
+  private chipOrder(type: string, raw: string[], answer: string): string[] {
+    if (!CHIP_BUILDER_TYPES.has(type)) return raw;
+    const options = normalizeBuilderChips(raw, answer ?? '');
+    if (options.length < 3) return options;
+    let best = options;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      best = this.shuffle(options);
+      if (best[0] !== options[0] || best[1] !== options[1]) break;
+    }
+    return best;
   }
 
   private shuffle<T>(items: readonly T[]): T[] {

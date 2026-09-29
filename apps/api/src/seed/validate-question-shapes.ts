@@ -10,6 +10,7 @@
  */
 
 import * as seedData from './data/vocabulary';
+import { composeAnswer } from '../lessons/chip-builder.util';
 
 type SeedQuestion = Record<string, any>;
 
@@ -27,6 +28,24 @@ const TYPING_TYPES = new Set([
   'listen_type',
   'listen_fill',
 ]);
+
+/** 칩을 눌러 문장을 조립하는 유형 */
+const CHIP_BUILDER_TYPES = new Set([
+  'sentence_builder',
+  'translate_builder',
+  'reply_builder',
+  'word_arrange',
+]);
+
+/**
+ * 번역·대답 조립 문제의 길이 한도.
+ *
+ * 말풍선에 우즈벡어 두세 줄 넘는 문장이 뜨고 칩이 13개씩 깔리면 폰 한 화면에
+ * 안 들어가고, 학습자는 "번역 시험" 을 보는 기분이 된다 (2026-09-30 Kai 피드백).
+ * 새 문제는 이 안에서 만든다. 긴 기존 문제는 경고로 남겨 두고 차례로 줄인다.
+ */
+export const BUILDER_MAX_WORDS = 9;
+export const BUILDER_MAX_SOURCE_CHARS = 70;
 
 /** 한 번의 검사에서 모은 결과 */
 interface Report {
@@ -227,6 +246,42 @@ function validateVerbTransform(key: string, q: SeedQuestion) {
   }
 }
 
+/**
+ * 조립형: 칩 하나 = 어절 하나, 칩으로 정답을 만들 수 있어야 한다.
+ *
+ * 예전 섹션 3~5 는 "여기 규칙을" 처럼 칩에 어절을 여러 개 넣었다. 그러면
+ * 칩 폭이 제각각이라 화면이 깨지고, 덩어리째 맞추면 돼서 너무 쉬워진다.
+ * API 가 내려줄 때 쪼개 주지만(chip-builder.util) 새 시드는 처음부터 쪼개서 쓴다.
+ * "휴대폰" + "이에요" 처럼 어절보다 잘게 쪼갠 칩은 괜찮다 (채점이 공백을 무시한다).
+ */
+function validateChipBuilder(
+  key: string,
+  q: SeedQuestion,
+  found: { long: string[]; multi: string[] },
+) {
+  const options: string[] = Array.isArray(q.options) ? q.options : [];
+  const answer = typeof q.answer === 'string' ? q.answer.trim() : '';
+  if (!options.length || !answer) return;
+
+  if (options.some((o) => /\s/.test(o.trim()))) found.multi.push(key);
+
+  if (!composeAnswer(options, answer)) {
+    fail(key, `칩을 다 써도 정답을 만들 수 없다 — 칩: ${options.join(' / ')}`);
+  }
+
+  if (q.type === 'translate_builder' || q.type === 'reply_builder') {
+    const words = answer.split(/\s+/).length;
+    // 말풍선에 뜨는 글: 번역은 학습자 언어 뜻 문장, 대답은 상대의 한국어 말
+    const source: string =
+      q.type === 'reply_builder'
+        ? q.npcText || ''
+        : q.answerTranslation?.uz || q.instruction?.uz || '';
+    if (words > BUILDER_MAX_WORDS || source.length > BUILDER_MAX_SOURCE_CHARS) {
+      found.long.push(`${key} (${words}어절, 말풍선 ${source.length}자)`);
+    }
+  }
+}
+
 function validateCommon(key: string, q: SeedQuestion) {
   if (!has4Languages(q.instruction)) {
     fail(key, 'instruction 에 ko/uz/en/ru 가 다 있어야 한다');
@@ -284,9 +339,11 @@ function validateGrading(key: string, q: SeedQuestion) {
 /** 중급 5종만 골라 검사한다. 다른 타입은 그냥 지나간다. */
 export function checkQuestions(entries: Array<[string, SeedQuestion]>): Report {
   report = { errors: [], warnings: [] };
+  const found = { long: [] as string[], multi: [] as string[] };
 
   for (const [key, q] of entries) {
     validateGrading(key, q);
+    if (CHIP_BUILDER_TYPES.has(q.type)) validateChipBuilder(key, q, found);
     if (!TARGET_TYPES.has(q.type)) continue;
     validateCommon(key, q);
     switch (q.type) {
@@ -306,6 +363,17 @@ export function checkQuestions(entries: Array<[string, SeedQuestion]>): Report {
         validateVerbTransform(key, q);
         break;
     }
+  }
+
+  if (found.multi.length) {
+    report.warnings.push(
+      `칩에 어절이 여러 개인 조립 문제 ${found.multi.length}개 (API 가 쪼개서 내려주지만 시드도 쪼갤 것). 예: ${found.multi.slice(0, 8).join(', ')}`,
+    );
+  }
+  if (found.long.length) {
+    report.warnings.push(
+      `번역·대답 조립 문제 ${found.long.length}개가 너무 길다 (정답 ${BUILDER_MAX_WORDS}어절·말풍선 ${BUILDER_MAX_SOURCE_CHARS}자 초과). 예: ${found.long.slice(0, 8).join(', ')}`,
+    );
   }
 
   return report;
