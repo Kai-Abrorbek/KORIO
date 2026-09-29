@@ -296,9 +296,9 @@ if [[ -n "${WEB_DOMAIN:-}" ]] && need dig; then
   fi
 fi
 
-head_ "6. AI 튜터 통화  (LiveKit + Gemini)"
+head_ "6. AI Voice Tutor 통화  (LiveKit + OpenAI STT + ElevenLabs)"
 #
-#   앱 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──Gemini Live──▶ gemini-3.8-live
+#   앱 ──WebRTC──▶ LiveKit ──▶ Voice Tutor Agent ──STT → API(GPT) → ElevenLabs
 #
 # ⚠️ 이 구간의 고장은 전부 **조용하다.** 컨테이너는 다 healthy 인데 통화만
 #    안 된다. 그래서 값 대조를 여기서 미리 한다.
@@ -312,10 +312,6 @@ if [[ -f agent.env ]]; then
   A_URL="$(val agent.env LIVEKIT_URL)";       P_URL="$(val api.env LIVEKIT_URL)"
   A_KEY="$(val agent.env LIVEKIT_API_KEY)";   P_KEY="$(val api.env LIVEKIT_API_KEY)"
   A_SEC="$(val agent.env LIVEKIT_API_SECRET)";P_SEC="$(val api.env LIVEKIT_API_SECRET)"
-  A_NAME="$(val agent.env LIVEKIT_TUTOR_AGENT_NAME)"
-  P_NAME="$(val api.env LIVEKIT_TUTOR_AGENT_NAME)"
-  GKEY="$(val agent.env GOOGLE_API_KEY)"
-  API_GKEY="$(val api.env GOOGLE_API_KEY)"
 
   for pair in "api.env:$P_URL:LIVEKIT_URL" "api.env:$P_KEY:LIVEKIT_API_KEY" \
               "api.env:$P_SEC:LIVEKIT_API_SECRET" "agent.env:$A_URL:LIVEKIT_URL" \
@@ -338,27 +334,16 @@ if [[ -f agent.env ]]; then
     bad "LIVEKIT_URL 이 api.env 와 agent.env 에서 다르다 — API 가 만든 방에 Agent 가 영영 안 들어온다"
   else ok "LIVEKIT_URL 이 api.env == agent.env"; fi
 
-  AN="${A_NAME:-korio-tutor}"; PN="${P_NAME:-korio-tutor}"
-  if [[ "$AN" != "$PN" ]]; then
-    bad "LIVEKIT_TUTOR_AGENT_NAME 불일치: api.env='$PN' vs agent.env='$AN'"
-    warn "     dispatch 는 성공하고 아무도 방에 안 들어온다. 제일 진단하기 어려운 실패다"
-  else ok "LIVEKIT_TUTOR_AGENT_NAME 일치 ($AN)"; fi
-
   [[ "$A_KEY" == "$P_KEY" ]] && ok "LIVEKIT_API_KEY 가 두 파일에서 같음" \
     || bad "LIVEKIT_API_KEY 가 api.env 와 agent.env 에서 다르다 — 다른 프로젝트를 보고 있다"
 
-  # Gemini 키는 Agent 에만 있어야 한다
-  [[ -n "$GKEY" ]] && ok "agent.env 에 GOOGLE_API_KEY 있음" \
-    || bad "agent.env 의 GOOGLE_API_KEY 가 비어 있다 — 통화가 첫 마디부터 실패한다"
-  [[ -z "$API_GKEY" ]] && ok "api.env 에는 GOOGLE_API_KEY 없음 (의도된 것)" \
-    || warn "api.env 에도 GOOGLE_API_KEY 가 있다 — API 컨테이너는 Gemini 에 안 붙는다. 지워도 된다"
-
-  # 기존 Gemini Tutor와 별도 등록되는 Voice Tutor 프로세스의 필수값.
+  # Voice Tutor Agent 의 필수값. agentName 이 어긋나면 dispatch 는 성공하고
+  # 아무도 방에 안 들어온다 — 제일 진단하기 어려운 실패다
   V_NAME="$(val agent.env VOICE_TUTOR_LIVEKIT_AGENT_NAME)"
   V_API_NAME="$(val api.env VOICE_TUTOR_LIVEKIT_AGENT_NAME)"
   [[ "${V_NAME:-korio-voice-tutor}" == "${V_API_NAME:-korio-voice-tutor}" ]] \
     && ok "Voice Tutor agentName 일치 (${V_NAME:-korio-voice-tutor})" \
-    || bad "VOICE_TUTOR_LIVEKIT_AGENT_NAME 불일치 — 새 음성 수업 Agent가 방에 들어오지 않는다"
+    || bad "VOICE_TUTOR_LIVEKIT_AGENT_NAME 불일치 — 음성 수업 Agent가 방에 들어오지 않는다"
   [[ -n "$(val agent.env OPENAI_API_KEY)" ]] && ok "agent.env 에 Voice Tutor OpenAI 키 있음" \
     || bad "agent.env 에 OPENAI_API_KEY 없음 — 새 음성 수업 STT가 작동하지 않는다"
   [[ -n "$(val agent.env ELEVENLABS_API_KEY)" ]] && ok "agent.env 에 Voice Tutor ElevenLabs 키 있음" \

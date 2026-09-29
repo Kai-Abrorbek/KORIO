@@ -32,7 +32,7 @@ docker buildx version >/dev/null 2>&1 \
 
 [[ -f .env ]]     || die ".env 가 없다. .env.example 을 복사해서 채워라."
 [[ -f api.env ]]  || die "api.env 가 없다. cp api.env.example api.env 하고 채워라."
-# Agent 는 GOOGLE_API_KEY 를 따로 쓴다. api.env 에 섞지 않는다
+# Voice Tutor Agent 는 agent.env 를 따로 쓴다 (OpenAI·ElevenLabs·LiveKit). api.env 와 섞지 않는다
 [[ -f agent.env ]] || die "agent.env 가 없다. cp agent.env.example agent.env 하고 채워라."
 set -a; source .env; set +a
 
@@ -70,10 +70,11 @@ color_containers() { local c="$1"; echo "korio_api_$c korio_telegram_$c korio_ad
 #    뜨면 둘 다 같은 agentName 으로 LiveKit 에 등록돼서 dispatch 가 갈린다.
 #    (배포 직후 절반의 통화가 옛 프롬프트로 도는, 아무도 못 알아채는 고장)
 #    그래서 단일 컨테이너를 그 자리에서 갈아끼운다.
-AGENT_SERVICE="tutor_agent"
-AGENT_CONTAINER="korio_tutor_agent"
 VOICE_AGENT_SERVICE="voice_tutor_agent"
 VOICE_AGENT_CONTAINER="korio_voice_tutor_agent"
+# 옛 Gemini 튜터 Agent. compose 에서 뺐지만 서버에 떠 있던 컨테이너는 그대로 남아서
+# LiveKit 에 계속 등록돼 있다 → 배포 때 한 번 치운다 (없으면 아무 일도 안 한다)
+LEGACY_AGENT_CONTAINER="korio_tutor_agent"
 
 # ── 디스크 ──
 #
@@ -294,8 +295,8 @@ cmd_deploy() {
   #
   # 여기서 실패해도 **API 배포는 이미 끝났다.** 그래서 die 하지 않고 경고만
   # 남긴다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
-  deploy_agent || warn "튜터 Agent 가 안 떴다. 통화만 죽은 상태다 — 나머지는 정상."
-  deploy_voice_agent || warn "새 Voice Tutor Agent 가 안 떴다. 새 음성 수업만 사용할 수 없다."
+  remove_legacy_agent
+  deploy_voice_agent || warn "Voice Tutor Agent 가 안 떴다. 음성 수업만 못 쓰는 상태다 — 나머지는 정상."
 
   # 성공했을 때만 치운다. 실패한 배포 뒤엔 되돌릴 이미지가 더 필요하다
   log "옛 이미지 정리 (종류별 최근 ${KEEP_IMAGES}개는 남긴다)"
@@ -305,43 +306,18 @@ cmd_deploy() {
   cmd_status
 }
 
-# 단일 컨테이너를 그 자리에서 갈아끼운다.
-# 이 몇 초 동안 **새로 시작하는 통화만** 실패한다 (기존 통화는 드레인된다).
-deploy_agent() {
-  log "튜터 Agent 교체: ${AGENT_IMAGE}:${TAG}"
-  "${COMPOSE[@]}" up -d --force-recreate --no-deps "$AGENT_SERVICE" || return 1
-  # healthy = 프로세스가 산 게 아니라 **LiveKit 에 등록됐다**는 뜻이다.
-  # 이게 통과해야 dispatch 가 실제로 이 컨테이너로 온다
-  if ! wait_healthy "$AGENT_CONTAINER"; then
-    warn "Agent 가 LiveKit 에 등록되지 않았다. 흔한 원인:"
-    warn "  · agent.env 의 LIVEKIT_URL / API_KEY / API_SECRET 오타"
-    warn "  · GOOGLE_API_KEY 누락 (첫 세션에서만 터지니 로그를 봐라)"
-    warn "  · agent.env 와 api.env 의 LIVEKIT_TUTOR_AGENT_NAME 불일치"
-    return 1
+# 옛 Gemini 튜터 Agent 컨테이너를 치운다. 한 번 지우면 다음 배포부턴 할 일이 없다.
+remove_legacy_agent() {
+  if docker ps -a --format '{{.Names}}' | grep -qx "$LEGACY_AGENT_CONTAINER"; then
+    log "옛 튜터 Agent(${LEGACY_AGENT_CONTAINER}) 제거"
+    docker rm -f "$LEGACY_AGENT_CONTAINER" >/dev/null 2>&1 || warn "옛 튜터 Agent 제거 실패 — docker rm -f ${LEGACY_AGENT_CONTAINER}"
   fi
-  # 이름이 어긋나면 dispatch 가 조용히 아무 데도 안 간다. 실제 등록된 이름을 찍어준다
-  local registered
-  # ⚠️ `|| true` 가 꼭 있어야 한다. set -Eeuo pipefail 이라 docker exec 가
-  #    실패하면 대입문에서 스크립트가 통째로 죽는다 — 배포가 다 끝난 뒤에
-  #    이름 확인 하나 때문에 죽는 건 말이 안 된다
-  registered="$(docker exec "$AGENT_CONTAINER" node -e \
-    "fetch('http://127.0.0.1:8081/worker').then(r=>r.json()).then(j=>console.log(j.agent_name)).catch(()=>{})" \
-    2>/dev/null | tr -d '\r\n' || true)"
-  local expected
-  # 마찬가지로 grep 이 못 찾으면(=값이 아직 없으면) pipefail 이 1 을 돌려준다
-  expected="$(grep -E '^LIVEKIT_TUTOR_AGENT_NAME=' api.env | head -1 | cut -d= -f2- | tr -d ' "'"'"'' || true)"
-  expected="${expected:-korio-tutor}"
-  if [[ -n "$registered" && "$registered" != "$expected" ]]; then
-    warn "Agent 등록 이름이 '${registered}' 인데 api.env 는 '${expected}' 를 부른다 — dispatch 가 아무 데도 안 간다"
-    return 1
-  fi
-  log "튜터 Agent ${GRN}등록됨${RST} (agentName=${registered:-$expected})"
 }
 
-# 새 Voice Tutor는 같은 이미지를 다른 agentName으로 등록하는 별도 프로세스다.
-# 기존 Tutor의 재시작/오류와 독립적으로 상태를 확인한다.
+# Voice Tutor Agent 를 그 자리에서 갈아끼운다.
+# 이 몇 초 동안 **새로 시작하는 통화만** 실패한다 (기존 통화는 드레인된다).
 deploy_voice_agent() {
-  log "새 Voice Tutor Agent 교체: ${AGENT_IMAGE}:${TAG}"
+  log "Voice Tutor Agent 교체: ${AGENT_IMAGE}:${TAG}"
   "${COMPOSE[@]}" up -d --force-recreate --no-deps "$VOICE_AGENT_SERVICE" || return 1
   if ! wait_healthy "$VOICE_AGENT_CONTAINER"; then
     warn "새 Agent가 LiveKit에 등록되지 않았다. agent.env의 OPENAI_API_KEY, ELEVENLABS_API_KEY, VOICE_TUTOR_API_URL, LIVEKIT_* 를 확인해라."
@@ -357,7 +333,7 @@ deploy_voice_agent() {
     warn "새 Agent 등록 이름이 '${registered:-확인 실패}' 인데 api.env 는 '${expected}' 를 부른다"
     return 1
   fi
-  log "새 Voice Tutor Agent ${GRN}등록됨${RST} (agentName=$registered)"
+  log "Voice Tutor Agent ${GRN}등록됨${RST} (agentName=$registered)"
 }
 
 case "${1:-}" in

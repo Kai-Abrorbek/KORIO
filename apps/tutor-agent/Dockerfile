@@ -39,7 +39,7 @@ FROM deps AS build
 COPY apps/tutor-agent ./apps/tutor-agent
 RUN pnpm --filter tutor-agent run build \
     # dist 가 안 나왔는데 조용히 넘어가면 실행 이미지가 빈 채로 만들어진다
-    && test -f apps/tutor-agent/dist/agent.js
+    && test -f apps/tutor-agent/dist/voice-tutor-agent.js
 
 # ── 실행 이미지에 넣을 프로덕션 의존성만 ──
 FROM deps AS prod-deps
@@ -95,4 +95,4 @@ EXPOSE 8081
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 # start = production 모드 (헬스 서버 8081, idle 프로세스 프리워밍)
-CMD ["node", "dist/agent.js", "start"]
+CMD ["node", "dist/voice-tutor-agent.js", "start"]

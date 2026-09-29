@@ -3,19 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/agent.js",
+  "main": "dist/voice-tutor-agent.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check-types": "tsc --noEmit -p tsconfig.json",
-    "dev": "tsx --env-file-if-exists=.env src/agent.ts dev",
-    "start": "node dist/agent.js start",
+    "dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
+    "start": "node dist/voice-tutor-agent.js start",
+    "test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts",
     "voice-tutor:dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "voice-tutor:start": "node dist/voice-tutor-agent.js start",
-    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts",
-    "preview:generate": "tsx --env-file-if-exists=.env scripts/generate-voice-previews.ts",
-    "probe:voice": "tsx --env-file-if-exists=.env scripts/probe-korean-voice.ts",
-    "voice:samples": "tsx --env-file-if-exists=.env scripts/voice-samples.ts",
-    "tutor:sim": "tsx --env-file-if-exists=.env scripts/tutor-sim.ts"
+    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",

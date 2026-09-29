@@ -65,11 +65,8 @@ cd ~/korio/deploy
 cp .env.example .env          # API_DOMAIN, ACME_EMAIL
 cp api.env.example api.env    # MONGODB_URI, JWT_SECRET, LIVEKIT_*, API 키들
 chmod 600 api.env             # 시크릿이다
-cp agent.env.example agent.env  # AI 튜터 Agent: LIVEKIT_*, GOOGLE_API_KEY
-chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
-
-# 새 Voice Tutor도 같은 agent.env를 읽지만 별도 프로세스로 실행된다.
-# OPENAI_API_KEY, ELEVENLABS_API_KEY, VOICE_TUTOR_API_URL을 agent.env에 설정한다.
+cp agent.env.example agent.env  # Voice Tutor Agent: LIVEKIT_*, OPENAI_API_KEY, ELEVENLABS_API_KEY, VOICE_TUTOR_API_URL
+chmod 600 agent.env             # 🔴 시크릿이다
 # api.env와 agent.env의 VOICE_TUTOR_LIVEKIT_AGENT_NAME도 같아야 한다.
 
 # 3) DNS (Hostinger hPanel > 도메인 > DNS 관리)
@@ -109,18 +106,16 @@ chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
 **첫 배포 뒤에는 반드시 `./smoke.sh` 를 한 번 돌려라.** 무중단이 진짜인지
 숫자로 확인하는 유일한 방법이다.
 
-## AI 튜터 Agent (`korio_tutor_agent`)
+## AI Voice Tutor Agent (`korio_voice_tutor_agent`)
 
-새 AI Voice Tutor는 `korio_voice_tutor_agent` 컨테이너로 따로 실행된다.
-기존 Gemini Tutor (`korio_tutor_agent`)와 LiveKit agentName 및 수업 데이터가
-분리돼 있다. `deploy.sh`는 API 교체 후 두 Agent를 각각 다시 띄우고 등록 이름을
-확인한다. 새 Agent는 `agent.env`의 `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`,
-`VOICE_TUTOR_API_URL=https://api.korio.online`이 필요하다. API의 `api.env`에
-넣은 키는 Agent에 자동으로 전달되지 않는다. 두 컨테이너의 상태는
-`./deploy.sh --status`로 확인한다.
+`agent.env` 의 `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`,
+`VOICE_TUTOR_API_URL=https://api.korio.online` 이 필요하다. API 의 `api.env` 에
+넣은 키는 Agent 에 자동으로 전달되지 않는다. 상태는 `./deploy.sh --status`.
+(옛 Gemini 튜터 `korio_tutor_agent` 는 2026-09-30 에 뺐다. `deploy.sh` 가 서버에
+남아 있는 그 컨테이너를 한 번 지운다.)
 
 ```
-앱 ──WebRTC──▶ LiveKit ──▶ Tutor Agent ──Gemini Live──▶ gemini-3.8-live
+앱 ──WebRTC──▶ LiveKit ──▶ Voice Tutor Agent ──STT → API(GPT) → ElevenLabs
 ```
 
 **이것만 blue/green 이 아니다.** 이유는 두 개다.
@@ -138,19 +133,19 @@ chmod 600 agent.env             # 🔴 Gemini 키가 여기 있다
 커버하지 않는다.
 
 여기서 실패해도 **API 배포는 이미 끝나 있다.** 스크립트는 경고만 남기고
-끝낸다 — 튜터 통화만 죽고 나머지 앱은 멀쩡하다.
+끝낸다 — 음성 수업만 죽고 나머지 앱은 멀쩡하다.
 
 ### healthy 의 의미
 
 ```bash
-docker exec korio_tutor_agent node -e \
+docker exec korio_voice_tutor_agent node -e \
   "fetch('http://127.0.0.1:8081/worker').then(r=>r.json()).then(j=>console.log(j))"
 ```
 
 `GET :8081/` 은 프로세스가 살아 있는지가 아니라 **LiveKit WebSocket 이 실제로
 붙어 있는지**를 본다. 이게 아니면 "컨테이너는 떠 있는데 아무도 방에 안
 들어오는" 상태를 못 잡는다. `/worker` 는 등록된 `agent_name` 을 돌려주고,
-배포 스크립트가 이 값을 `api.env` 의 `LIVEKIT_TUTOR_AGENT_NAME` 과 대조한다.
+배포 스크립트가 이 값을 `api.env` 의 `VOICE_TUTOR_LIVEKIT_AGENT_NAME` 과 대조한다.
 
 ### 안 될 때 (전부 조용한 고장이다)
 
@@ -158,14 +153,14 @@ docker exec korio_tutor_agent node -e \
 
 | 원인 | 확인 |
 |---|---|
-| `LIVEKIT_TUTOR_AGENT_NAME` 이 api.env ↔ agent.env 불일치 | `./preflight.sh` 6번 섹션 |
+| `VOICE_TUTOR_LIVEKIT_AGENT_NAME` 이 api.env ↔ agent.env 불일치 | `./preflight.sh` 6번 섹션 |
 | `LIVEKIT_URL` 이 서로 다른 프로젝트 | 같음 |
-| `GOOGLE_API_KEY` 누락 | `docker logs korio_tutor_agent` (첫 세션에서만 터진다) |
+| agent.env 의 `OPENAI_API_KEY` / `ELEVENLABS_API_KEY` / `VOICE_TUTOR_API_URL` 누락 | `docker logs korio_voice_tutor_agent` |
 | API↔Agent metadata 계약 어긋남 | 로그에 `dispatch metadata 에 없는 값: ...` |
 
 ```bash
-docker logs -f korio_tutor_agent        # 세션마다 [tutor <sessionId>] 로 찍힌다
-./deploy.sh --status                     # korio_tutor_agent 도 같이 보인다
+docker logs -f korio_voice_tutor_agent  # 세션마다 찍힌다
+./deploy.sh --status                     # korio_voice_tutor_agent 도 같이 보인다
 ```
 
 ### 롤백
@@ -180,7 +175,7 @@ Agent 는 색이 없어서 `./deploy.sh --rollback` 에 **안 딸려 온다.**
 ### 메모리
 
 세션마다 job 프로세스가 뜨고, 그와 별개로 로컬 EOT 모델(34MB, `@livekit/local-inference`)
-자식 프로세스가 항상 하나 돈다. 우리는 턴 감지를 Gemini 에 맡기고 있어서
+자식 프로세스가 항상 하나 돈다. 턴 감지는 세션 VAD·endpointing 으로 하고 있어서
 그 모델은 실제로 안 쓰는데 워커가 기본으로 띄운다 — 1코어 VPS 면 눈에 띈다.
 `free -m` 으로 한 번 보고, 빠듯하면 스왑부터 확인해라.
 
@@ -290,8 +285,8 @@ docker logs --tail 50 "$C" | grep '어드민 로그인 실패'
 서버에만 둔다. API 키(OpenAI/Anthropic/Azure/Google/카카오/네이버/텔레그램/
 LiveKit)는 전부 여기 있고 앱에는 들어가지 않는다.
 
-**`agent.env` 는 일부러 따로다.** `GOOGLE_API_KEY` 는 튜터 Agent 컨테이너에만
-있고 API 컨테이너는 모른다 — Gemini 에 붙는 건 Agent 뿐이다. 마찬가지로
+**`agent.env` 는 일부러 따로다.** Voice Tutor Agent 가 쓰는 STT·TTS 키는 Agent 컨테이너에만
+있다 (API 가 따로 쓰는 키는 api.env 에 따로 넣는다). 마찬가지로
 `LIVEKIT_API_SECRET` 은 서버 두 곳에만 있고, 앱은 **방 하나짜리 15분 참가자
 토큰**만 받는다.
 
@@ -371,8 +366,7 @@ adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증
 ## 새 Voice Tutor 배포 메모 (2026-09-29)
 
 - 앱의 "회화" 카드는 이제 **새 Voice Tutor(`/voice-tutor`)** 로 간다. 옛 Gemini Live 튜터는 앱에서 뺐다.
-  단 **텔레그램 미니앱이 아직 옛 `/tutor` API 와 `tutor_agent` 를 쓰므로** API 의 `tutor` 모듈과
-  `tutor_agent` 컨테이너는 그대로 둔다. 미니앱을 Voice Tutor 로 옮긴 뒤에 지운다.
+  텔레그램 미니앱도 Voice Tutor 로 옮겼다(2026-09-30). API 의 옛 `tutor` 모듈과 `tutor_agent` 컨테이너는 뺐다.
 - API 와 `voice_tutor_agent` 는 **같이** 올린다 (턴 스트리밍 `POST /voice-tutor/agent/sessions/:id/turns/stream`,
   dispatch metadata 에 `explanationLanguage`·`sttKeywords` 추가). 워커만 새 버전이면 옛 API 의 JSON 경로로 폴백한다.
 - 새 env (예시: `api.env.example`, `agent.env.example`)
