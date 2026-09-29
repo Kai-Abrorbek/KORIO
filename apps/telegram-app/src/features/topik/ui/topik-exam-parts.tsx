@@ -87,6 +87,9 @@ function listeningAsset(key: string) {
   if (key.startsWith("topik-ii-35-")) {
     return `/topik/listening/topik-ii-35-listening/${key.replace("topik-ii-35-", "")}.png`;
   }
+  if (key.startsWith("topik-ii-36-")) {
+    return `/topik/listening/topik-ii-36-listening/${key.replace("topik-ii-36-", "")}.png`;
+  }
   return `/topik/listening/listening-mock-1/${key}.png`;
 }
 
