@@ -11,6 +11,8 @@ import { TopikModule } from '../topik/topik.module';
 import {
   TOPIK_LISTENING_MOCK_1_SEED,
   TOPIK_LISTENING_MOCK_2_SEED,
+  TOPIK_I_35_LISTENING_SEED,
+  TOPIK_I_35_READING_SEED,
   TOPIK_I_37_LISTENING_SEED,
   TOPIK_I_37_READING_SEED,
   TOPIK_READING_MOCK_1_SEED,
@@ -56,6 +58,14 @@ async function seedTopik() {
       data: TopikExamSeed;
       validation: ReturnType<typeof validateTopikReadingSeed>;
     }> = [
+      {
+        data: TOPIK_I_35_READING_SEED,
+        validation: validateTopikIReadingSeed(TOPIK_I_35_READING_SEED),
+      },
+      {
+        data: TOPIK_I_35_LISTENING_SEED,
+        validation: validateTopikListeningSeed(TOPIK_I_35_LISTENING_SEED),
+      },
       {
         data: TOPIK_I_37_READING_SEED,
         validation: validateTopikIReadingSeed(TOPIK_I_37_READING_SEED),

@@ -31,4 +31,12 @@ export const TOPIK_LISTENING_ASSETS: Record<string, number> = {
   "topik-i-37-q16-c2": require("../../../assets/images/topik/topik-i-37-listening/q16-c2.png"),
   "topik-i-37-q16-c3": require("../../../assets/images/topik/topik-i-37-listening/q16-c3.png"),
   "topik-i-37-q16-c4": require("../../../assets/images/topik/topik-i-37-listening/q16-c4.png"),
+  "topik-i-35-q15-c1": require("../../../assets/images/topik/topik-i-35-listening/q15-c1.png"),
+  "topik-i-35-q15-c2": require("../../../assets/images/topik/topik-i-35-listening/q15-c2.png"),
+  "topik-i-35-q15-c3": require("../../../assets/images/topik/topik-i-35-listening/q15-c3.png"),
+  "topik-i-35-q15-c4": require("../../../assets/images/topik/topik-i-35-listening/q15-c4.png"),
+  "topik-i-35-q16-c1": require("../../../assets/images/topik/topik-i-35-listening/q16-c1.png"),
+  "topik-i-35-q16-c2": require("../../../assets/images/topik/topik-i-35-listening/q16-c2.png"),
+  "topik-i-35-q16-c3": require("../../../assets/images/topik/topik-i-35-listening/q16-c3.png"),
+  "topik-i-35-q16-c4": require("../../../assets/images/topik/topik-i-35-listening/q16-c4.png"),
 };
