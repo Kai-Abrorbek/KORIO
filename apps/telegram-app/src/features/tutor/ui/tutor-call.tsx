@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { romanize } from "../../../shared/lib/romanize";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import type { TutorState, VoiceTutorEmotion } from "../model/voice-tutor";
-import { TUTOR_ACCENT, TUTOR_STATE_LABELS, hexA, tutorErrorText } from "./tutor-labels";
+import { TUTOR_STATE_LABELS, hexA, tutorErrorText } from "./tutor-labels";
 import { TutorMascot } from "./tutor-mascot";
 import styles from "./tutor-call.module.css";
 
@@ -32,10 +32,20 @@ function matchesTarget(saidNorm: string, target: string): boolean {
 const BRAND = "#776ee2";
 
 /**
- * 통화 화면 배경 — 깊은 밤바다 톤 (모바일 SCENE 과 같은 값).
- * 청록 바탕이면 라벤더 마스코트와 노란 눈이 보색으로 떠서 캐릭터가 주인공이 된다.
+ * 통화 화면 배경 — 밝은 스튜디오 톤 (모바일 SCENE 과 같은 값).
+ * 라벤더 하늘 → 크림 바닥. 마스코트 뒤엔 복숭아색 햇빛을 깔아 라벤더 몸이 배경에 안 묻히게.
  */
-const SCENE = { drift: "#2EC4B6", key: "#B3A6FF" };
+const SCENE = { drift: "#B3A6FF", key: "#FFC79A" };
+
+/** 밝은 배경에서 글자로 읽히는 상태 색 (마스코트용 TUTOR_ACCENT 보다 한 톤 진함, 모바일 ACCENT 와 같음) */
+const CALL_ACCENT: Record<TutorState, string> = {
+  idle: "#776ee2",
+  connecting: "#776ee2",
+  listening: "#17A864",
+  thinking: "#E08A00",
+  speaking: "#6A5FE0",
+  error: "#E5533D",
+};
 
 const WAVE = [
   { delay: 0, peak: 0.42 },
@@ -108,7 +118,7 @@ export function TutorCall(p: TutorCallProps) {
   const [doneCount, setDoneCount] = useState(0);
   const doneRef = useRef<Set<string>>(new Set());
 
-  const accent = TUTOR_ACCENT[p.state] ?? TUTOR_ACCENT.idle;
+  const accent = CALL_ACCENT[p.state];
   const remain = p.limitSec > 0 ? Math.max(0, p.limitSec - p.elapsedSec) : null;
   const nearEnd = p.active && remain !== null && remain <= 30;
   const avatarSize = height < 700 ? 132 : height < 820 ? 154 : 172;
@@ -168,9 +178,9 @@ export function TutorCall(p: TutorCallProps) {
 
   const rootVars = {
     "--accent": accent,
-    "--blob-a": hexA(SCENE.drift, 0.26),
-    "--blob-b": hexA(accent, 0.16),
-    "--key-light": hexA(SCENE.key, 0.38),
+    "--blob-a": hexA(SCENE.drift, 0.42),
+    "--blob-b": hexA(accent, 0.12),
+    "--key-light": hexA(SCENE.key, 0.85),
     "--glow-dur": `${p.state === "speaking" ? 820 : p.state === "listening" ? 2000 : 3000}ms`,
     "--wave-dur": `${p.state === "speaking" ? 400 : 820}ms`,
     "--play-bg": hexA(BRAND, 0.16),

@@ -1,9 +1,13 @@
 .root {
-  --glass: rgba(255, 255, 255, 0.07);
-  --glass-line: rgba(255, 255, 255, 0.14);
-  /* 밤바다 톤 — 모바일 SCENE (top #0F3446 · mid #0B2233 · base #06111B) */
-  background: #06111b;
-  color: #fff;
+  --glass: rgba(255, 255, 255, 0.86);
+  --glass-line: rgba(119, 110, 226, 0.16);
+  --lip: #e2ddfb;
+  --ink: #1e1a3a;
+  --ink-soft: rgba(30, 26, 58, 0.62);
+  --ink-faint: rgba(30, 26, 58, 0.36);
+  /* 밝은 스튜디오 톤 — 모바일 SCENE (top #E4DEFF · mid #F3EEFF · base #FFF6EC) */
+  background: #fff6ec;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   height: var(--tg-viewport-stable-height, 100dvh);
@@ -24,7 +28,7 @@
 
 /* ── 배경 ── */
 .backdrop {
-  background: linear-gradient(160deg, #0f3446 0%, #0b2233 46%, #06111b 100%);
+  background: linear-gradient(160deg, #e4deff 0%, #f3eeff 46%, #fff6ec 100%);
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -99,7 +103,7 @@
 }
 
 .streak {
-  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.055), transparent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
   height: 320px;
   left: -40px;
   position: absolute;
@@ -120,7 +124,7 @@
 }
 
 .scrim {
-  background: linear-gradient(180deg, transparent 0%, rgba(6, 17, 27, 0.55) 42%, #06111b 100%);
+  background: linear-gradient(180deg, rgba(255, 246, 236, 0) 0%, rgba(255, 246, 236, 0.72) 42%, #fff6ec 100%);
   bottom: 0;
   height: 62%;
   left: 0;
@@ -181,7 +185,7 @@
 }
 
 .idRole {
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--ink-soft);
   display: flex;
   font-size: 12.5px;
   font-weight: 700;
@@ -207,7 +211,7 @@
   background: var(--glass);
   border: 1px solid var(--glass-line);
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
   display: flex;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
@@ -235,7 +239,7 @@
   background: var(--glass);
   border: 1px solid var(--glass-line);
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: var(--ink-soft) !important;
   display: flex;
   height: 40px;
   justify-content: center;
@@ -244,9 +248,9 @@
 }
 
 .tuneOn {
-  background: #fff;
-  border-color: #fff;
-  color: #1a1a2e !important;
+  background: #776ee2;
+  border-color: #776ee2;
+  color: #fff !important;
 }
 
 /* ── 진도 카드 ── */
@@ -260,7 +264,7 @@
 
 .progressCard {
   backdrop-filter: blur(8px);
-  background: rgba(6, 17, 27, 0.5);
+  background: var(--glass);
   border: 1px solid var(--glass-line);
   border-radius: 16px;
   display: flex;
@@ -293,7 +297,7 @@
 }
 
 .progressStep {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--ink-soft);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
@@ -306,14 +310,14 @@
 }
 
 .progressBarRow b {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--ink-soft);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
   font-weight: 900;
 }
 
 .track {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(119, 110, 226, 0.14);
   border-radius: 3px;
   display: block;
   flex: 1;
@@ -343,9 +347,10 @@
 .glass {
   animation: fadeIn 180ms ease both;
   backdrop-filter: blur(10px);
-  background: rgba(6, 17, 27, 0.6);
+  background: var(--glass);
   border: 1px solid var(--glass-line);
   border-radius: 22px;
+  box-shadow: 0 8px 22px rgba(119, 110, 226, 0.12);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
@@ -412,7 +417,7 @@
 
 .userRow p {
   -webkit-box-orient: vertical;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--ink-soft);
   display: -webkit-box;
   font-size: 13px;
   font-style: italic;
@@ -425,7 +430,7 @@
 
 .userRow i {
   align-self: flex-end;
-  background: #5ce08a;
+  background: #17a864;
   border-radius: 1px;
   height: 2px;
   margin-top: 5px;
@@ -434,7 +439,7 @@
 }
 
 .captionPrev {
-  color: rgba(255, 255, 255, 0.32);
+  color: var(--ink-faint);
   font-size: 13px;
   font-weight: 600;
   margin: 0;
@@ -459,7 +464,7 @@
 }
 
 .captionIdle {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--ink-faint);
   font-size: 15px;
   font-weight: 700;
   line-height: 23px;
@@ -472,8 +477,10 @@
 .card {
   animation: cardIn 220ms ease both;
   background: #fff;
+  border: 1.5px solid rgba(119, 110, 226, 0.28);
+  border-bottom: 4px solid #cfc8fa;
   border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 8px 18px rgba(119, 110, 226, 0.18);
   color: #1a1a2e;
   flex: 0 0 auto;
   margin: 16px 14px 0;
@@ -590,8 +597,9 @@
 
 .pill {
   align-items: center;
-  background: var(--glass);
+  background: #fff;
   border: 1px solid var(--glass-line);
+  border-bottom: 3px solid var(--lip);
   border-radius: 999px;
   display: flex;
   flex: 0 1 auto;
@@ -614,14 +622,14 @@
 }
 
 .pill b {
-  color: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
   font-size: 12.5px;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .error {
-  color: #ff8a73;
+  color: #e5533d;
   flex: 0 0 auto;
   font-size: 13px;
   font-weight: 700;
@@ -653,22 +661,23 @@
 
 .ctrlCol span,
 .endCol span {
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--ink-soft);
   font-size: 11px;
   font-weight: 700;
   text-align: center;
 }
 
 .endCol span {
-  color: #fff;
+  color: var(--ink);
   font-size: 12.5px;
   font-weight: 900;
 }
 
 .round {
   align-items: center;
-  background: var(--glass);
+  background: #fff;
   border: 1px solid var(--glass-line);
+  border-bottom: 4px solid var(--lip);
   border-radius: 50%;
   display: flex;
   height: 58px;
@@ -683,9 +692,10 @@
 }
 
 .roundOn {
-  background: #fff;
-  border-color: #fff;
-  color: #1b1730 !important;
+  background: #776ee2;
+  border-color: #776ee2;
+  border-bottom-color: #5b4dd4;
+  color: #fff !important;
 }
 
 .endCol {
@@ -702,6 +712,7 @@
   border: 0;
   border-bottom: 5px solid #b8341f;
   border-radius: 50%;
+  color: #fff !important;
   display: flex;
   height: 72px;
   justify-content: center;
@@ -730,7 +741,7 @@
 
 
 .brand {
-  color: rgba(255, 255, 255, 0.26);
+  color: var(--ink-faint);
   flex: 0 0 auto;
   font-size: 10px;
   font-weight: 700;
@@ -748,7 +759,7 @@
   background: #fff;
   border: 0;
   border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(119, 110, 226, 0.28);
   color: #1a1a2e !important;
   display: flex;
   font-size: 14px;
@@ -766,7 +777,7 @@
 .analyzing {
   align-items: center;
   animation: fadeIn 200ms ease both;
-  background: rgba(6, 17, 27, 0.9);
+  background: rgba(255, 246, 236, 0.95);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -784,9 +795,9 @@
 
 .spinner {
   animation: spin 0.8s linear infinite;
-  border: 3px solid rgba(255, 255, 255, 0.25);
+  border: 3px solid rgba(119, 110, 226, 0.2);
   border-radius: 50%;
-  border-top-color: #fff;
+  border-top-color: #776ee2;
   height: 36px;
   width: 36px;
 }

@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 import * as Clipboard from "expo-clipboard";
 import Animated, {
   useAnimatedStyle,
@@ -41,20 +42,25 @@ const fmt = (sec: number) =>
 const BRAND = "#776ee2";
 
 /**
- * 통화 화면 배경 — 깊은 밤바다 톤.
+ * 통화 화면 배경 — 밝은 스튜디오 톤 (라벤더 하늘 → 크림 바닥).
  *
- * 옛 튜터의 보라-남색 밤하늘이 "별로" 라는 피드백으로 바꿨다. 청록 바탕이면
- * 라벤더 마스코트와 노란 눈이 보색으로 떠서 캐릭터가 주인공이 된다.
+ * 밤바다(청록)도 "별로" 였다 → 영상통화처럼 밝고 화사하게. 라벤더 마스코트가
+ * 라벤더 배경에 묻히지 않게 뒤에는 **따뜻한 복숭아색 햇빛**을 깐다 (보색 분리).
  */
 const SCENE = {
-  top: "#0F3446",
-  mid: "#0B2233",
-  base: "#06111B",
+  top: "#E4DEFF",
+  mid: "#F3EEFF",
+  base: "#FFF6EC",
   /** 왼쪽 위에서 떠다니는 빛 */
-  drift: "#2EC4B6",
-  /** 마스코트 뒤 조명 */
-  key: "#B3A6FF",
+  drift: "#B3A6FF",
+  /** 마스코트 뒤 햇빛 */
+  key: "#FFC79A",
 };
+
+/** 밝은 배경 위 글자색 */
+const INK = "#1E1A3A";
+const INK_SOFT = "rgba(30,26,58,0.62)";
+const INK_FAINT = "rgba(30,26,58,0.36)";
 
 /** 표현 "나왔는지" 판정. "저는 ~라고 해요" 같은 틀은 ~ 앞뒤 조각이 순서대로 다 나오면 쓴 걸로 본다 */
 function matchesTarget(saidNorm: string, target: string): boolean {
@@ -69,14 +75,14 @@ function matchesTarget(saidNorm: string, target: string): boolean {
   return true;
 }
 
-/** 상태별 강조색. TutorMascot 과 같은 규칙을 쓴다 */
+/** 상태별 강조색. TutorMascot 과 같은 규칙인데, 밝은 배경에서 글자로 읽히게 한 톤 진하다 */
 const ACCENT: Record<TutorState, string> = {
-  idle: "#9C93FF",
-  connecting: "#9C93FF",
-  listening: "#5CE08A",
-  thinking: "#FFC24B",
-  speaking: "#B3A6FF",
-  error: "#FF8A73",
+  idle: "#776ee2",
+  connecting: "#776ee2",
+  listening: "#17A864",
+  thinking: "#E08A00",
+  speaking: "#6A5FE0",
+  error: "#E5533D",
 };
 
 /** 표현이 "나왔는지" 볼 때는 띄어쓰기·문장부호를 버리고 본다 */
@@ -125,9 +131,9 @@ export interface VoiceTutorCallScreenProps {
  *    배경 색(브랜드 보라 기반), 오른쪽 위 응원 문구 제거, 가운데 이모지 →
  *    TutorMascot, 막혔을 때 버튼 셋은 선생님(워커)에게 직접 요청한다.
  *
- * 배경은 라이트 모드에서도 어둡게 간다. 통화 화면은 몰입이 전부라
- * 흰 배경이면 그냥 채팅창처럼 보인다 — 대신 흰 표현 카드가 유일한
- * 밝은 덩어리라서 눈이 거기로 간다. (랭크 배너와 같은 판단)
+ * 배경은 다크 모드에서도 밝게 간다 (밝은 스튜디오). 그냥 흰 바탕이면 채팅창처럼
+ * 보이니까 라벤더→크림 그라데이션 + 떠다니는 빛 + 마스코트 뒤 햇빛으로 공간을 만든다.
+ * 카드·알약·버튼은 흰 입체(바텀보더)로 띄운다.
  */
 export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
   const { t } = useTranslation();
@@ -220,6 +226,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
 
   return (
     <View style={st.root}>
+      <StatusBar style="dark" />
       <Backdrop accent={accent} teacherColor={SCENE.drift} state={p.state} />
 
       {/* 선생님은 배경에 선다. 유리 패널이 그 앞을 덮는 구성이다 */}
@@ -234,7 +241,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
 
       {/* 아래를 깔아줘야 유리 패널 위 글씨가 읽힌다 */}
       <LinearGradient
-        colors={["transparent", "rgba(6,17,27,0.55)", SCENE.base]}
+        colors={["rgba(255,246,236,0)", "rgba(255,246,236,0.72)", SCENE.base]}
         locations={[0, 0.42, 1]}
         style={st.scrim}
         pointerEvents="none"
@@ -243,7 +250,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
       {/* 1) 헤더 — 닫기 · 선생님 · 시간 */}
       <View style={[st.header, { paddingTop: insets.top + 4 }]}>
         <Pressable onPress={p.onClose} hitSlop={12} style={st.iconBtn}>
-          <Ionicons name="chevron-down" size={26} color="#fff" />
+          <Ionicons name="chevron-down" size={26} color={INK} />
         </Pressable>
 
         <View style={st.idText}>
@@ -265,7 +272,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
               <Ionicons
                 name="time-outline"
                 size={13}
-                color={nearEnd ? "#fff" : "rgba(255,255,255,0.8)"}
+                color={nearEnd ? "#fff" : INK_SOFT}
               />
               <Text style={[st.timerText, nearEnd && st.timerTextWarn]}>
                 {fmt(remain ?? p.elapsedSec)}
@@ -280,7 +287,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
             <Ionicons
               name="options-outline"
               size={18}
-              color={roman ? "#1A1A2E" : "rgba(255,255,255,0.75)"}
+              color={roman ? "#fff" : INK_SOFT}
             />
           </Pressable>
         </View>
@@ -475,7 +482,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
 
       {p.analyzing && (
         <Animated.View entering={FadeIn.duration(200)} style={st.analyzing}>
-          <ActivityIndicator color="#fff" size="large" />
+          <ActivityIndicator color={BRAND} size="large" />
           <Text style={st.analyzingText}>{t("voiceTutor.call.analyzing")}</Text>
         </Animated.View>
       )}
@@ -491,7 +498,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
  *    이제 withRepeat 으로 계속 왕복한다.
  *
  * 인물 사진 대신 네 겹으로 공간을 만든다:
- *  1) 바탕 그라데이션 — 저녁 무렵의 방
+ *  1) 바탕 그라데이션 — 라벤더 하늘 → 크림 바닥
  *  2) 색 덩어리 둘 — 아주 느리게 표류한다. 선생님 색으로 물든다
  *  3) 선생님 뒤 키라이트 — 말할 때 빠르게, 들을 때 느리게 호흡한다
  *  4) 창에서 비스듬히 들어오는 빛 한 줄 — 평면으로 안 보이게
@@ -559,26 +566,26 @@ function Backdrop({
       <Animated.View
         style={[
           st.blob,
-          { top: -120, left: -80, backgroundColor: hexA(teacherColor, 0.26) },
+          { top: -120, left: -80, backgroundColor: hexA(teacherColor, 0.42) },
           s1,
         ]}
       />
       <Animated.View
         style={[
           st.blob,
-          { bottom: 20, right: -100, backgroundColor: hexA(accent, 0.16) },
+          { bottom: 20, right: -100, backgroundColor: hexA(accent, 0.12) },
           s2,
         ]}
       />
       <Animated.View
         style={[
           st.keyLight,
-          { backgroundColor: hexA(SCENE.key, 0.38) },
+          { backgroundColor: hexA(SCENE.key, 0.85) },
           keyLight,
         ]}
       />
       <LinearGradient
-        colors={["transparent", "rgba(255,255,255,0.055)", "transparent"]}
+        colors={["rgba(255,255,255,0)", "rgba(255,255,255,0.6)", "rgba(255,255,255,0)"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={st.streak}
@@ -743,7 +750,7 @@ function RoundBtn({
         onPress={onPress}
         style={[st.round, on && st.roundOn, style]}
       >
-        <Ionicons name={icon} size={22} color={on ? "#1B1730" : "#fff"} />
+        <Ionicons name={icon} size={22} color={on ? "#fff" : INK} />
       </AnimatedPressable>
       <Text style={st.ctrlLabel} numberOfLines={1}>
         {label}
@@ -784,8 +791,11 @@ function hexA(hex: string, a: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
 }
 
-const GLASS = "rgba(255,255,255,0.07)";
-const GLASS_LINE = "rgba(255,255,255,0.14)";
+/** 흰 유리. 밝은 배경 위라 거의 불투명해야 글씨가 선다 */
+const GLASS = "rgba(255,255,255,0.86)";
+const GLASS_LINE = "rgba(119,110,226,0.16)";
+/** 입체 버튼 바텀보더 */
+const LIP = "#E2DDFB";
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: SCENE.base },
@@ -830,15 +840,14 @@ const st = StyleSheet.create({
   idName: {
     fontSize: 21,
     fontWeight: "900",
-    color: "#fff",
+    color: INK,
     letterSpacing: -0.4,
     flexShrink: 1,
   },
-  idEmoji: { fontSize: 17 },
   idRole: {
     fontSize: 12.5,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.62)",
+    color: INK_SOFT,
     marginTop: 1,
   },
 
@@ -858,7 +867,7 @@ const st = StyleSheet.create({
   timerText: {
     fontSize: 14,
     fontWeight: "800",
-    color: "rgba(255,255,255,0.9)",
+    color: INK,
     fontVariant: ["tabular-nums"],
   },
   timerTextWarn: { color: "#fff" },
@@ -872,7 +881,7 @@ const st = StyleSheet.create({
     borderWidth: 1,
     borderColor: GLASS_LINE,
   },
-  tuneOn: { backgroundColor: "#fff", borderColor: "#fff" },
+  tuneOn: { backgroundColor: BRAND, borderColor: BRAND },
 
   topRow: {
     flexDirection: "row",
@@ -884,7 +893,7 @@ const st = StyleSheet.create({
   progressCard: {
     flexShrink: 1,
     maxWidth: "62%",
-    backgroundColor: "rgba(6,17,27,0.5)",
+    backgroundColor: GLASS,
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 16,
@@ -898,13 +907,13 @@ const st = StyleSheet.create({
     flexShrink: 1,
     fontSize: 14,
     fontWeight: "800",
-    color: "#fff",
+    color: INK,
     letterSpacing: -0.2,
   },
   progressStep: {
     fontSize: 12,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.6)",
+    color: INK_SOFT,
     fontVariant: ["tabular-nums"],
   },
   progressBarRow: { flexDirection: "row", alignItems: "center", gap: 8 },
@@ -912,37 +921,28 @@ const st = StyleSheet.create({
   progressPct: {
     fontSize: 11.5,
     fontWeight: "900",
-    color: "rgba(255,255,255,0.78)",
+    color: INK_SOFT,
     fontVariant: ["tabular-nums"],
   },
   track: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(119,110,226,0.14)",
     overflow: "hidden",
   },
   fill: { height: 6, borderRadius: 3 },
 
-  /** 벽에 적어둔 듯한 응원. 기울이고 흐리게 해서 UI 가 아니라 "낙서" 로 읽히게 */
-  cheer: {
-    flex: 1,
-    textAlign: "right",
-    fontSize: 15,
-    lineHeight: 24,
-    fontWeight: "700",
-    fontStyle: "italic",
-    color: "rgba(255,255,255,0.5)",
-    letterSpacing: 0.3,
-    transform: [{ rotate: "-6deg" }],
-    marginTop: 8,
-  },
 
   glass: {
     marginHorizontal: 14,
-    backgroundColor: "rgba(6,17,27,0.6)",
+    backgroundColor: GLASS,
     borderWidth: 1,
     borderColor: GLASS_LINE,
     borderRadius: 22,
+    shadowColor: BRAND,
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 8 },
     paddingHorizontal: 18,
     paddingVertical: 15,
     gap: 8,
@@ -959,7 +959,7 @@ const st = StyleSheet.create({
 
   userRow: { alignSelf: "flex-end", maxWidth: "88%" },
   userText: {
-    color: "rgba(255,255,255,0.72)",
+    color: INK_SOFT,
     fontSize: 13,
     fontWeight: "700",
     textAlign: "right",
@@ -970,21 +970,21 @@ const st = StyleSheet.create({
     width: 22,
     height: 2,
     borderRadius: 1,
-    backgroundColor: "#5CE08A",
+    backgroundColor: "#17A864",
     marginTop: 5,
     opacity: 0.85,
   },
   captionPrev: {
     fontSize: 13,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.32)",
+    color: INK_FAINT,
     textAlign: "center",
   },
   caption: {
     fontSize: 19,
     lineHeight: 29,
     fontWeight: "800",
-    color: "#fff",
+    color: INK,
     letterSpacing: -0.3,
     textAlign: "center",
   },
@@ -992,14 +992,7 @@ const st = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.5)",
-    textAlign: "center",
-  },
-  explainText: {
-    fontSize: 14,
-    lineHeight: 21,
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.56)",
+    color: INK_FAINT,
     textAlign: "center",
   },
 
@@ -1008,13 +1001,17 @@ const st = StyleSheet.create({
     marginTop: 16,
     backgroundColor: "#fff",
     borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(119,110,226,0.28)",
+    borderBottomWidth: 4,
+    borderBottomColor: "#CFC8FA",
     paddingHorizontal: 12,
     paddingVertical: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.34,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
+    shadowColor: BRAND,
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
   },
   /** 카드 모서리에 걸친 분홍 라벨 */
   cardBadge: {
@@ -1080,9 +1077,11 @@ const st = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     flexShrink: 1,
-    backgroundColor: GLASS,
+    backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: GLASS_LINE,
+    borderBottomWidth: 3,
+    borderBottomColor: LIP,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -1091,7 +1090,7 @@ const st = StyleSheet.create({
   pillText: {
     fontSize: 12.5,
     fontWeight: "800",
-    color: "rgba(255,255,255,0.94)",
+    color: INK,
     flexShrink: 1,
   },
   dim: { opacity: 0.4 },
@@ -1099,22 +1098,10 @@ const st = StyleSheet.create({
   error: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#FF8A73",
+    color: "#E5533D",
     textAlign: "center",
     paddingHorizontal: 24,
     paddingTop: 10,
-  },
-  quota: { alignItems: "center", gap: 6, paddingTop: 12 },
-  quotaText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "rgba(255,255,255,0.7)",
-  },
-  quotaUpsell: {
-    fontSize: 13,
-    fontWeight: "900",
-    color: "#B3A6FF",
-    textDecorationLine: "underline",
   },
 
   controlsIdle: { height: 58 },
@@ -1133,15 +1120,17 @@ const st = StyleSheet.create({
     borderRadius: 29,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: GLASS,
+    backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: GLASS_LINE,
+    borderBottomWidth: 4,
+    borderBottomColor: LIP,
   },
-  roundOn: { backgroundColor: "#fff", borderColor: "#fff" },
+  roundOn: { backgroundColor: BRAND, borderColor: BRAND, borderBottomColor: "#5B4DD4" },
   ctrlLabel: {
     fontSize: 11,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.66)",
+    color: INK_SOFT,
     textAlign: "center",
   },
 
@@ -1158,28 +1147,15 @@ const st = StyleSheet.create({
   },
   /** 수화기를 내려놓는 각도 */
   endIcon: { transform: [{ rotate: "135deg" }] },
-  endText: { color: "#fff", fontSize: 12.5, fontWeight: "900" },
+  endText: { color: INK, fontSize: 12.5, fontWeight: "900" },
 
-  again: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: "#776ee2",
-    borderBottomWidth: 5,
-    borderColor: "#5B4DD4",
-  },
-  againText: { color: "#fff", fontSize: 16, fontWeight: "900" },
 
   brand: {
     textAlign: "center",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1.1,
-    color: "rgba(255,255,255,0.26)",
+    color: INK_FAINT,
     paddingTop: 10,
   },
 
@@ -1189,10 +1165,10 @@ const st = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(6,17,27,0.9)",
+    backgroundColor: "rgba(255,246,236,0.95)",
     alignItems: "center",
     justifyContent: "center",
     gap: 14,
   },
-  analyzingText: { fontSize: 15, fontWeight: "800", color: "#fff" },
+  analyzingText: { fontSize: 15, fontWeight: "800", color: INK },
 });
