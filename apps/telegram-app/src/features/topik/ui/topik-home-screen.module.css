@@ -653,3 +653,353 @@
     animation-duration: 1.5s;
   }
 }
+
+/* TOPIK dashboard: mirror the mobile navigation palette and compact round flow. */
+.screen {
+  --topik-bg: #f7f8f5;
+  --topik-surface: #fff;
+  --topik-surface-elevated: #fff;
+  --topik-text-secondary: #536574;
+  --topik-text-muted: #627381;
+  --topik-text-subtle: #6d7f89;
+  --topik-border: #e1e8e6;
+  --topik-divider: #e9eeec;
+  --topik-primary: #176b71;
+  --topik-primary-strong: #176b71;
+  --topik-primary-soft: #e8f3f1;
+  color: #182a3a;
+  display: flex;
+  flex-direction: column;
+}
+:global(html[data-theme="dark"]) .screen {
+  --topik-bg: #111b20;
+  --topik-surface: #1c292e;
+  --topik-surface-elevated: #223138;
+  --topik-text-secondary: #b6c7c8;
+  --topik-text-muted: #a6b8ba;
+  --topik-text-subtle: #91a6a9;
+  --topik-border: #34464b;
+  --topik-divider: #34464b;
+  --topik-primary: #80cdd0;
+  --topik-primary-strong: #176b71;
+  --topik-primary-soft: #223d40;
+  color: #f1f6f4;
+}
+.headerCopy {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.headerCopy strong {
+  font-size: 17px;
+  font-weight: 900;
+}
+.headerCopy small {
+  color: var(--topik-text-secondary);
+  font-size: 11px;
+}
+.content {
+  flex: 1;
+  gap: 19px;
+  padding: 30px 20px 40px;
+}
+.sectionHeader h2 {
+  font-size: 18px;
+}
+.sectionHeader span {
+  color: var(--topik-text-muted);
+  font-size: 11px;
+}
+.selectedExamCard {
+  overflow: hidden;
+  border: 1px solid var(--topik-primary);
+  border-radius: 16px;
+  background: var(--topik-primary-soft);
+}
+.selectedExamMain {
+  display: flex;
+  width: 100%;
+  min-height: 125px;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.selectedExamCopy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+.selectedExamCopy small {
+  color: var(--topik-primary);
+  font-size: 11px;
+  font-weight: 800;
+}
+.selectedExamCopy strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 19px;
+  font-weight: 900;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.selectedExamCopy > span {
+  color: var(--topik-text-secondary);
+  font-size: 11px;
+}
+.changeRound {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  padding: 9px;
+  border-radius: 9px;
+  background: var(--topik-surface);
+  color: var(--topik-primary);
+  font-size: 11px;
+  font-weight: 900;
+}
+.selectedExamCard .completedRow {
+  justify-content: flex-start;
+  min-height: 46px;
+  width: 100%;
+  padding: 8px 18px;
+  border: 0;
+  border-top: 1px solid var(--topik-divider);
+  background: transparent;
+  color: #2b8a57;
+  text-align: left;
+}
+.selectedExamCard .completedRow > span {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #17683e;
+}
+.selectedExamCard .completedRow strong {
+  margin-left: auto;
+  color: var(--topik-primary);
+  font-size: 11px;
+}
+.selectedExamCard .completedRow > svg:last-child {
+  color: var(--topik-primary);
+}
+.modeList {
+  flex-direction: row;
+}
+.modeCard {
+  display: flex;
+  flex: 1;
+  min-height: 138px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 15px;
+  border-radius: 16px;
+}
+.modeCard > .modeTop {
+  display: flex;
+  flex: initial;
+  height: auto;
+  width: auto;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 13px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--topik-text-secondary);
+}
+.modeSelected > .modeTop {
+  color: var(--topik-primary);
+}
+.modeCard strong {
+  font-size: 15px;
+}
+.modeCard small {
+  line-height: 17px;
+}
+.writingPractice header > span,
+.practiceGrid > button > span i {
+  background: var(--topik-primary-soft);
+  color: var(--topik-primary);
+}
+.practiceGrid > button > small {
+  color: var(--topik-primary);
+}
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  border-top: 1px solid var(--topik-border);
+  background: var(--topik-surface);
+  padding: 12px 20px calc(13px + var(--tg-content-safe-area-inset-bottom, 0px));
+}
+.startButton {
+  width: 100%;
+  min-height: 56px;
+  font-size: 16px;
+}
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--topik-bg);
+}
+.pickerScreen {
+  display: flex;
+  height: 100dvh;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: var(--content-width);
+  padding-top: var(--tg-content-safe-area-inset-top, 0px);
+  background: var(--topik-bg);
+}
+.pickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 18px;
+}
+.pickerHeader small {
+  color: var(--topik-text-secondary);
+  font-size: 11px;
+}
+.pickerHeader h2 {
+  margin: 5px 0 0;
+  font-size: 23px;
+  font-weight: 900;
+}
+.pickerHeader button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.searchBox {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  gap: 9px;
+  margin: 0 20px;
+  padding: 0 14px;
+  border: 1px solid var(--topik-border);
+  border-radius: 13px;
+  background: var(--topik-surface);
+  color: var(--topik-text-secondary);
+}
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+}
+.searchBox input::placeholder {
+  color: var(--topik-text-muted);
+}
+.pickerFilters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+}
+.pickerFilters button {
+  padding: 8px 14px;
+  border: 1px solid var(--topik-border);
+  border-radius: 100px;
+  background: var(--topik-surface);
+  color: var(--topik-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+.pickerFilters .filterSelected {
+  border-color: var(--topik-primary);
+  background: var(--topik-primary-soft);
+  color: var(--topik-primary);
+}
+.pickerFilters > span {
+  margin-left: auto;
+  color: var(--topik-text-secondary);
+  font-size: 11px;
+}
+.pickerList {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+  overflow-y: auto;
+  padding: 0 20px 28px;
+}
+.pickerRow {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border: 1px solid var(--topik-border);
+  border-radius: 14px;
+  background: var(--topik-surface);
+  color: inherit;
+  text-align: left;
+}
+.pickerRowSelected {
+  border-color: var(--topik-primary);
+  background: var(--topik-primary-soft);
+}
+.pickerRow > span {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.pickerRow strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+.pickerRow small {
+  color: var(--topik-text-secondary);
+  font-size: 11px;
+}
+.pickerRow em {
+  color: #17683e;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+}
+.pickerRow > svg {
+  color: var(--topik-text-muted);
+}
+.pickerRowSelected > svg {
+  color: var(--topik-primary);
+}
+.noRounds {
+  padding: 28px;
+  color: var(--topik-text-secondary);
+  text-align: center;
+}
+:global(html[data-theme="dark"]) .selectedExamCard .completedRow,
+:global(html[data-theme="dark"]) .pickerRow em {
+  color: #a9edc8;
+}
+@media (max-width: 370px) {
+  .content {
+    padding-inline: 20px;
+  }
+  .practiceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

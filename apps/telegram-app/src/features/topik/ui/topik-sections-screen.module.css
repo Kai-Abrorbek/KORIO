@@ -495,3 +495,217 @@
     animation: none;
   }
 }
+
+/* Same quiet dashboard treatment as the mobile TOPIK section selector. */
+.screen {
+  --topik-bg: #f7f8f5;
+  --topik-surface: #fff;
+  --topik-secondary: #536574;
+  --topik-muted: #627381;
+  --topik-subtle: #6d7f89;
+  --topik-border: #e1e8e6;
+  --topik-primary: #176b71;
+  --topik-primary-strong: #176b71;
+  --topik-primary-soft: #e8f3f1;
+  color: #182a3a;
+  display: flex;
+  flex-direction: column;
+}
+:global(html[data-theme="dark"]) .screen {
+  --topik-bg: #111b20;
+  --topik-surface: #1c292e;
+  --topik-secondary: #b6c7c8;
+  --topik-muted: #a6b8ba;
+  --topik-subtle: #91a6a9;
+  --topik-border: #34464b;
+  --topik-primary: #80cdd0;
+  --topik-primary-strong: #176b71;
+  --topik-primary-soft: #223d40;
+  color: #f1f6f4;
+}
+.header > strong {
+  font-size: 17px;
+  font-weight: 900;
+  text-align: center;
+}
+.header > button:last-child {
+  color: var(--topik-primary);
+}
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 24px;
+}
+.intro {
+  display: grid;
+  gap: 7px;
+  margin: 29px 0 21px;
+}
+.intro small {
+  color: var(--topik-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.intro h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 34px;
+}
+.recentCard {
+  display: flex;
+  width: 100%;
+  min-height: 112px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 0;
+  border-radius: 17px;
+  background: var(--topik-primary-soft);
+  color: inherit;
+  text-align: left;
+}
+.recentIcon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 14px;
+  background: #d3ece8;
+  color: var(--topik-primary);
+}
+.recentCopy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.recentCopy small {
+  color: var(--topik-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+.recentCopy strong {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recentCard > b,
+.recentCard > svg {
+  color: var(--topik-primary);
+  font-size: 12px;
+  font-weight: 900;
+}
+.sectionHeading {
+  align-items: flex-end;
+  margin: 30px 0 14px;
+}
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+}
+.sectionHeading > span {
+  color: var(--topik-muted);
+}
+.sectionList {
+  gap: 11px;
+}
+.sectionCard {
+  display: flex;
+  min-height: 104px;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border-radius: 17px;
+  box-shadow: none;
+  animation: none;
+}
+.sectionCard:active {
+  opacity: 0.76;
+  transform: none;
+}
+.sectionIcon {
+  width: 55px;
+  height: 55px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+}
+.reading {
+  background: #fcece7;
+  color: #d85f47;
+}
+.listening {
+  background: #fff1d7;
+  color: #b97916;
+}
+.writing {
+  background: var(--topik-primary-soft);
+  color: var(--topik-primary);
+}
+.sectionCopy {
+  flex: 1;
+  gap: 5px;
+  margin-left: 0;
+}
+.sectionCopy strong {
+  margin: 2px 0 0;
+  font-size: 18px;
+}
+.sectionCopy small {
+  color: var(--topik-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 18px;
+}
+.sectionCard > svg {
+  flex: 0 0 auto;
+  color: var(--topik-secondary);
+}
+.footer {
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid var(--topik-border);
+  background: var(--topik-bg);
+  padding: 12px 20px calc(14px + var(--tg-content-safe-area-inset-bottom, 0px));
+}
+.footer button {
+  display: flex;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--topik-primary);
+  border-radius: 13px;
+  background: transparent;
+  color: var(--topik-primary);
+  font-size: 14px;
+  font-weight: 900;
+}
+:global(html[data-theme="dark"]) .recentIcon {
+  background: #2d5050;
+}
+:global(html[data-theme="dark"]) .reading {
+  background: #462d29;
+  color: #ff9d87;
+}
+:global(html[data-theme="dark"]) .listening {
+  background: #403626;
+  color: #f4c777;
+}
+@media (max-width: 390px) {
+  .sectionCard {
+    padding: 15px;
+  }
+  .sectionIcon {
+    width: 55px;
+    height: 55px;
+  }
+}

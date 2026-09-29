@@ -8,6 +8,7 @@ import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { getTopikHistory, getTopikStatsSummary, getTopikWeakQuestions } from "../api/topik";
 import type { TopikHistoryItem, TopikQuestionPerformance, TopikStatsSummary, TopikTypePerformance } from "../model/topik";
 import { useAppLanguage } from "../../../shared/i18n/language-context";
+import topikUz from "../../../shared/i18n/locales/topik/uz";
 import styles from "./topik-stats-screen.module.css";
 
 type ExamType = "topik_i" | "topik_ii";
@@ -71,17 +72,15 @@ export function TopikStatsScreen() {
   if (!premium) return <main className={styles.centered}><MobileIcon name="lock-closed" size={36} /><h1>TOPIK tayyorgarligi — Premium</h1><button onClick={() => router.replace("/premium")} type="button">Premiumni ko‘rish</button></main>;
 
   return <main className={styles.screen}>
-    <section className={`${styles.headerShell} ${examType === "topik_i" ? styles.levelOne : styles.levelTwo}`}>
-      <i className={styles.orbLarge} /><i className={styles.orbSmall} />
-      <header><button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><small>MENING TOPIK HISOBOTIM</small><h1>TOPIK o‘quv statistikasi</h1></div><button aria-label="Yangilash" onClick={() => void load()} type="button"><MobileIcon name="refresh" size={20} /></button></header>
+    <section className={styles.headerShell}>
+      <header><button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><h1>TOPIK o‘quv statistikasi</h1></div><button aria-label="Yangilash" onClick={() => void load()} type="button"><MobileIcon name="refresh" size={20} /></button></header>
       <div className={styles.levelTabs}>{(["topik_i", "topik_ii"] as const).map((type) => <button aria-pressed={type === examType} className={type === examType ? styles.activeLevel : ""} key={type} onClick={() => { setExamType(type); if (type === "topik_i" && section === "writing") setSection("all"); }} type="button">TOPIK {type === "topik_i" ? "I" : "II"}</button>)}</div>
       {!loading && !error && summary ? <div className={styles.hero}><div className={styles.heroMain}><div><small>Umumiy aniqlik</small><strong>{summary.accuracy}<i>%</i></strong></div><span className={styles[insight.tone]}><i />{insight.status}</span></div><div className={styles.scoreStrip}><HeroScore label="So‘nggi ball" value={summary.lastScore} /><i /><HeroScore label="Eng yuqori" value={summary.bestScore} /><i /><HeroScore label="O‘rtacha" value={summary.averageScore} /></div></div> : null}
     </section>
 
     {loading ? <section className={styles.centeredState}><i className={styles.spinner} /><p>O‘quv tarixingiz tahlil qilinmoqda…</p></section> : error || !summary ? <section className={styles.centeredState}><MobileIcon name="cloud-offline-outline" size={36} /><b>Statistikani yuklab bo‘lmadi.</b><button onClick={() => void load()} type="button">Qayta urinish</button></section> : <div className={styles.content}>
+      <section className={`${styles.insight} ${styles[insight.tone]}`}><span><MobileIcon name={insight.icon} size={21} /></span><div><small>Bugungi o‘quv tavsiyasi</small><b>{insight.message}</b></div><button onClick={() => router.push(`/topik?level=${examType === "topik_i" ? "1" : "2"}&section=${section === "all" ? (weakQuestions[0]?.section ?? "reading") : section}`)} type="button">{topikUz.stats.reviewAction}</button></section>
       <nav className={styles.sectionFilters}>{sectionOptions.map((option) => <button className={section === option ? styles.activeFilter : ""} key={option} onClick={() => setSection(option)} type="button"><MobileIcon name={SECTION[option].icon} size={15} />{SECTION[option].label}</button>)}</nav>
-      <section className={`${styles.insight} ${styles[insight.tone]}`}><span><MobileIcon name={insight.icon} size={21} /></span><div><small>Bugungi o‘quv tavsiyasi</small><b>{insight.message}</b></div></section>
-      <section className={styles.metricGrid}><Metric icon="checkmark-done-outline" label="Yakunlanganlar" tone="success" value={String(totalAttempts)} /><Metric icon="layers-outline" label="Yechilgan savollar" tone="primary" value={String(summary.totalQuestions)} /><Metric icon="time-outline" label="O‘qish vaqti" tone="warning" value={formatStudyTime(summary.totalStudySeconds)} /><Metric icon="flash-outline" label="Yordamsiz to‘g‘ri" tone="purple" value={`${independentRate}%`} /></section>
       <Heading caption="SO‘NGGI 6 TA" title="Ball dinamikasi" />
       <section className={styles.trendCard}>
         {trend.length ? (
@@ -100,6 +99,9 @@ export function TopikStatsScreen() {
           <Empty icon="analytics-outline" text={section === "writing" ? "Yozishda avtomatik ball o‘rniga yakunlangan ishlar va o‘qish vaqti ko‘rsatiladi." : "Testni yakunlaganingizdan so‘ng ballar dinamikasi shu yerda ko‘rinadi."} />
         )}
       </section>
+      <Heading caption="NATIJANI KO‘RISH UCHUN BOSING" title="So‘nggi yakunlanganlar" />
+      <section className={styles.historyCard}>{history.length ? history.map((item) => <button key={item.attemptId} onClick={() => router.push(item.section === "writing" ? `/topik-writing?examCode=${encodeURIComponent(item.examCode)}&reviewAttemptId=${encodeURIComponent(item.attemptId)}` : `/topik-result?attemptId=${encodeURIComponent(item.attemptId)}`)} type="button"><span className={styles[item.section]}><MobileIcon name={SECTION[item.section].icon} size={19} /></span><div><b>{item.examRound ? `${item.examRound}-TOPIK` : `TOPIK ${level}`} · {SECTION[item.section].label}</b><small>{MODE[item.mode]} · {new Date(item.submittedAt).toLocaleDateString(language, { month: "short", day: "numeric" })}</small></div>{item.section === "writing" ? <aside><MobileIcon name="checkmark-circle" size={20} /><small>Yakunlandi</small></aside> : <aside><b>{item.score}</b><small>{item.accuracy}%</small></aside>}<MobileIcon name="chevron-forward" size={17} /></button>) : <Empty icon="document-text-outline" text="Hali hech bir imtihon yuborilmagan." />}</section>
+      <section className={styles.metricGrid}><Metric icon="checkmark-done-outline" label="Yakunlanganlar" tone="success" value={String(totalAttempts)} /><Metric icon="layers-outline" label="Yechilgan savollar" tone="primary" value={String(summary.totalQuestions)} /><Metric icon="time-outline" label="O‘qish vaqti" tone="warning" value={formatStudyTime(summary.totalStudySeconds)} /><Metric icon="flash-outline" label="Yordamsiz to‘g‘ri" tone="purple" value={`${independentRate}%`} /></section>
       <Heading caption="PAST ANIQLIKDAN BOSHLAB" title="Savol turi bo‘yicha natija" />
       <section className={styles.card}>
         {sortedTypes.length ? (
@@ -110,8 +112,7 @@ export function TopikStatsScreen() {
       </section>
       <Heading caption="TAKRORIY XATOLAR" title="Ustuvor takrorlash" />
       <section className={styles.card}>{weakQuestions.length ? weakQuestions.map((item) => <div className={styles.weakRow} key={`${item.questionId}-${item.questionVersion}`}><span>{item.questionNumber}</span><div><b>{typeName(item.questionType)[0]}</b><small>{typeName(item.questionType)[1]}</small><p>{item.examRound ? `${item.examRound}-TOPIK` : `TOPIK ${level}`} · {SECTION[item.section].label}</p></div><aside><b>{item.accuracy}%</b><small>{`Ketma-ket ${item.consecutiveWrong} xato`}</small></aside></div>) : <Empty icon="sparkles-outline" text="Hozircha zaif savollar aniqlanmadi." />}</section>
-      <Heading caption="NATIJANI KO‘RISH UCHUN BOSING" title="So‘nggi yakunlanganlar" />
-      <section className={styles.historyCard}>{history.length ? history.map((item) => <button key={item.attemptId} onClick={() => router.push(item.section === "writing" ? `/topik-writing?examCode=${encodeURIComponent(item.examCode)}&reviewAttemptId=${encodeURIComponent(item.attemptId)}` : `/topik-result?attemptId=${encodeURIComponent(item.attemptId)}`)} type="button"><span className={styles[item.section]}><MobileIcon name={SECTION[item.section].icon} size={19} /></span><div><b>{item.examRound ? `${item.examRound}-TOPIK` : `TOPIK ${level}`} · {SECTION[item.section].label}</b><small>{MODE[item.mode]} · {new Date(item.submittedAt).toLocaleDateString(language, { month: "short", day: "numeric" })}</small></div>{item.section === "writing" ? <aside><MobileIcon name="checkmark-circle" size={20} /><small>Yakunlandi</small></aside> : <aside><b>{item.score}</b><small>{item.accuracy}%</small></aside>}<MobileIcon name="chevron-forward" size={17} /></button>) : <Empty icon="document-text-outline" text="Hali hech bir imtihon yuborilmagan." />}</section>
+
     </div>}
   </main>;
 }

@@ -1,60 +1,41 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
-import {
-  MobileIcon,
-  type IoniconName,
-} from "../../../shared/ui/mobile-icon";
+import topikUz from "../../../shared/i18n/locales/topik/uz";
+import { getTopikHistory } from "../api/topik";
+import type { TopikHistoryItem } from "../model/topik";
+import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import styles from "./topik-sections-screen.module.css";
 
 type TopikSection = "reading" | "listening" | "writing";
 
 interface SectionOption {
   key: TopikSection;
-  order: string;
   icon: IoniconName;
-  title: string;
-  description: string;
-  features: string[];
 }
 
 const SECTIONS: SectionOption[] = [
   {
     key: "reading",
-    order: "01",
     icon: "book-outline",
-    title: "O‘qish",
-    description:
-      "Savol turlarini o‘rganing va haqiqiy imtihon tuzilishida bilimingizni tekshiring.",
-    features: ["Bosqichli maslahat", "Sinov imtihoni", "Xatolar tahlili"],
   },
   {
     key: "listening",
-    order: "02",
     icon: "headset-outline",
-    title: "Tinglash",
-    description:
-      "Muhim iboralarni anglash strategiyasi va tinglash sezgisini rivojlantiring.",
-    features: ["Qismni takrorlash", "Muhim ishora", "Tezlik nazorati"],
   },
   {
     key: "writing",
-    order: "03",
     icon: "create-outline",
-    title: "Yozish",
-    description:
-      "Gap tuzilishidan yuqori ball beradigan to‘liq javobgacha rivojlaning.",
-    features: ["Javob tuzilishi", "Yozuv tahlili", "Ball strategiyasi"],
   },
 ];
 
 export function TopikSectionsScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { user } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
   const level = params.get("level") === "1" ? "1" : "2";
   const roman = level === "1" ? "I" : "II";
   const sections = SECTIONS.filter(
@@ -62,9 +43,50 @@ export function TopikSectionsScreen() {
   );
   const premium = Boolean(
     user?.isSuper &&
-      (!user.superExpiresAt ||
-        new Date(user.superExpiresAt).getTime() > Date.now()),
+    (!user.superExpiresAt ||
+      new Date(user.superExpiresAt).getTime() > Date.now()),
   );
+  const [recent, setRecent] = useState<TopikHistoryItem | null>(null);
+
+  const loadRecent = useCallback(async () => {
+    if (!premium) return;
+    try {
+      const items = await getTopikHistory(
+        request,
+        level === "1" ? "topik_i" : "topik_ii",
+        undefined,
+        1,
+      );
+      setRecent(items[0] ?? null);
+    } catch {
+      setRecent(null);
+    }
+  }, [level, premium, request]);
+
+  useEffect(() => {
+    void loadRecent();
+  }, [loadRecent]);
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") void loadRecent();
+    };
+    document.addEventListener("visibilitychange", refresh);
+    return () => document.removeEventListener("visibilitychange", refresh);
+  }, [loadRecent]);
+
+  const openSection = (section: TopikSection) => {
+    window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");
+    router.push(`/topik?level=${level}&section=${section}`);
+  };
+
+  const openRecent = () => {
+    if (!recent) return;
+    router.push(
+      recent.section === "writing"
+        ? `/topik-writing?examCode=${encodeURIComponent(recent.examCode)}&reviewAttemptId=${encodeURIComponent(recent.attemptId)}`
+        : `/topik-result?attemptId=${encodeURIComponent(recent.attemptId)}`,
+    );
+  };
 
   const goBack = () => {
     if (window.history.length > 1) router.back();
@@ -106,123 +128,103 @@ export function TopikSectionsScreen() {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <button aria-label="Orqaga" onClick={goBack} type="button">
+        <button aria-label={topikUz.common.back} onClick={goBack} type="button">
           <MobileIcon name="chevron-back" size={24} />
         </button>
-        <div>
-          <small>IMTIHONGA TAYYORGARLIK</small>
-          <strong>TOPIK {roman}</strong>
-        </div>
-        <span>
-          <MobileIcon name="ribbon-outline" size={20} />
-        </span>
+        <strong>TOPIK {roman}</strong>
+        <button
+          aria-label={topikUz.home.openStats}
+          onClick={() => router.push(`/topik-stats?level=${level}`)}
+          type="button"
+        >
+          <MobileIcon name="stats-chart-outline" size={22} />
+        </button>
       </header>
 
       <div className={styles.content}>
-        <section
-          className={`${styles.hero} ${
-            level === "1" ? styles.heroOne : styles.heroTwo
-          }`}
-        >
-          <i className={styles.heroGlowLarge} />
-          <i className={styles.heroGlowSmall} />
-          <div className={styles.heroTop}>
-            <span>TOPIK {roman}</span>
-            <span>
-              <MobileIcon name="sparkles" size={12} />
-              Aqlli o‘quv reja
-            </span>
-          </div>
-          <h1>Muvaffaqiyat strategiyasini{`\n`}har bir bo‘limda yarating.</h1>
-          <p>
-            Faqat savol yechmang — zaif tomonlaringizni topib, ularni kuchli
-            tomonga aylantiring.
-          </p>
-          <div className={styles.heroFeatures}>
-            <span>
-              <MobileIcon name="analytics-outline" size={15} />
-              Shaxsiy tahlil
-            </span>
-            <i />
-            <span>
-              <MobileIcon name="bulb-outline" size={15} />
-              Bosqichli izoh
-            </span>
-            <i />
-            <span>
-              <MobileIcon name="repeat-outline" size={15} />
-              Zaifliklarni takrorlash
-            </span>
-          </div>
+        <section className={styles.intro}>
+          <small>{topikUz.sections.todayStudy}</small>
+          <h1>{topikUz.sections.chooseSection}</h1>
         </section>
 
+        {recent ? (
+          <button
+            className={styles.recentCard}
+            onClick={openRecent}
+            type="button"
+          >
+            <span className={styles.recentIcon}>
+              <MobileIcon
+                name={
+                  SECTIONS.find((item) => item.key === recent.section)?.icon ??
+                  "book-outline"
+                }
+                size={27}
+              />
+            </span>
+            <span className={styles.recentCopy}>
+              <small>{topikUz.sections.recentStudy}</small>
+              <strong>
+                {topikUz.home[recent.section]} ·{" "}
+                {recent.examRound
+                  ? `${recent.examRound}-variant`
+                  : `TOPIK ${roman}`}
+              </strong>
+              <small>{topikUz.sections.completedStudy}</small>
+            </span>
+            <b>{topikUz.home.viewResult}</b>
+          </button>
+        ) : (
+          <button
+            className={styles.recentCard}
+            onClick={() => openSection("reading")}
+            type="button"
+          >
+            <span className={styles.recentIcon}>
+              <MobileIcon name="book-outline" size={27} />
+            </span>
+            <span className={styles.recentCopy}>
+              <small>{topikUz.sections.firstStep}</small>
+              <strong>{topikUz.sections.startReading}</strong>
+            </span>
+            <MobileIcon name="arrow-forward" size={18} />
+          </button>
+        )}
+
         <div className={styles.sectionHeading}>
-          <div>
-            <small>YO‘NALISHNI TANLANG</small>
-            <h2>O‘rganish bo‘limini tanlang</h2>
-          </div>
+          <h2>{topikUz.sections.sectionSelection}</h2>
           <span>{`${sections.length} ta bo‘lim`}</span>
         </div>
 
         <section className={styles.sectionList}>
-          {sections.map((section, index) => (
+          {sections.map((section) => (
             <button
               className={styles.sectionCard}
               key={section.key}
-              onClick={() => {
-                window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");
-                router.push(`/topik?level=${level}&section=${section.key}`);
-              }}
-              style={{ "--delay": `${index * 90}ms` } as CSSProperties}
+              onClick={() => openSection(section.key)}
               type="button"
             >
-              <span
-                className={`${styles.sectionIcon} ${styles[section.key]}`}
-              >
+              <span className={`${styles.sectionIcon} ${styles[section.key]}`}>
                 <MobileIcon name={section.icon} size={27} />
               </span>
               <span className={styles.sectionCopy}>
-                <small>
-                  {section.order} · {section.title.toUpperCase()}
-                </small>
-                <strong>{section.title}</strong>
+                <strong>{topikUz.sections[section.key].title}</strong>
+                <small>{topikUz.sections[section.key].shortDescription}</small>
               </span>
-              <span className={styles.liveBadge}>
-                <i />
-                Mavjud
-              </span>
-              <p>{section.description}</p>
-              <span className={styles.featureRow}>
-                {section.features.map((feature) => (
-                  <i key={feature}>{feature}</i>
-                ))}
-              </span>
-              <span className={styles.cardFooter}>
-                <span>
-                  <MobileIcon name="checkmark-circle" size={15} />
-                  Hozir boshlash mumkin
-                </span>
-                <i>
-                  <MobileIcon name="arrow-forward" size={18} />
-                </i>
-              </span>
+              <MobileIcon name="chevron-forward" size={20} />
             </button>
           ))}
         </section>
-
-        <aside className={styles.recommendation}>
-          <span>
-            <MobileIcon name="bulb" size={18} />
-          </span>
-          <div>
-            <strong>Endi boshlayapsizmi? O‘qishdan boshlang</strong>
-            <p>
-              Maslahatlar bilan savollarga yondashishni o‘rganing, keyin sinov
-              imtihonida o‘zingizni tekshiring.
-            </p>
-          </div>
-        </aside>
       </div>
+      <footer className={styles.footer}>
+        <button
+          onClick={() => router.push(`/topik-stats?level=${level}`)}
+          type="button"
+        >
+          <MobileIcon name="stats-chart-outline" size={19} />
+          {topikUz.sections.viewStats}
+        </button>
+      </footer>
     </main>
   );
 }

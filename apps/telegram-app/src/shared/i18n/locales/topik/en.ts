@@ -38,6 +38,14 @@ export default {
     assurance: "You can change your selected level at any time.",
   },
   sections: {
+    todayStudy: "Today's study",
+    recentStudy: "Recent study",
+    round: "Round {{round}}",
+    completedStudy: "Completed study",
+    firstStep: "Getting started",
+    startReading: "Start with Reading",
+    sectionSelection: "Choose a section",
+    viewStats: "View learning stats",
     eyebrow: "Exam preparation",
     planBadge: "Smart study plan",
     heroTitle: "Build your passing strategy\none section at a time.",
@@ -47,7 +55,7 @@ export default {
     guidedExplanation: "Guided solutions",
     weaknessReview: "Weakness review",
     focusEyebrow: "Choose your focus",
-    chooseSection: "Choose a section to study",
+    chooseSection: "Which section will you practice?",
     areaCount: "{{count}} sections",
     available: "Available",
     comingSoon: "Coming soon",
@@ -60,24 +68,37 @@ export default {
       "Learn how to approach each question with guided hints, then check your skills in a mock exam.",
     reading: {
       title: "Reading",
+      shortDescription: "Understand sentences and passages",
       description:
         "Learn each question type and test yourself with the official exam structure.",
       features: ["Step-by-step hints", "Mock exams", "Mistake analysis"],
     },
     listening: {
       title: "Listening",
+      shortDescription: "Listen and answer",
       description:
         "Build listening strategies and the instinct to catch key expressions.",
       features: ["Segment replay", "Key clues", "Speed control"],
     },
     writing: {
       title: "Writing",
+      shortDescription: "Express your ideas in writing",
       description:
         "Build high-scoring answers from sentence structure to full responses.",
       features: ["Answer structure", "Writing feedback", "Score strategy"],
     },
   },
   home: {
+    roundSelection: "Choose a round",
+    mockShort: "Exam",
+    examCount: "{{count}} rounds",
+    selectedRound: "Selected round",
+    changeRound: "Change",
+    chooseRound: "Select a round",
+    searchRounds: "Search round or exam title",
+    allRounds: "All",
+    noMatchingRounds: "No matching rounds.",
+    roundMeta: "{{questions}} questions · about {{minutes}} min",
     header: "TOPIK {{level}} {{section}}",
     reading: "Reading",
     listening: "Listening",
@@ -292,6 +313,7 @@ export default {
     statusGrowing: "Growing",
     statusNeedsReview: "Review needed",
     insightTitle: "Today's learning insight",
+    reviewAction: "Practice",
     insightEmpty:
       "Complete one test to reveal your current level and highest-priority skill.",
     insightNoScored:

@@ -38,6 +38,14 @@ export default {
     assurance: "Tanlangan darajani istalgan vaqtda o‘zgartirish mumkin.",
   },
   sections: {
+    todayStudy: "Bugungi o‘qish",
+    recentStudy: "So‘nggi mashg‘ulot",
+    round: "{{round}}-variant",
+    completedStudy: "Yakunlangan mashg‘ulot",
+    firstStep: "Boshlash uchun",
+    startReading: "O‘qishdan boshlang",
+    sectionSelection: "Bo‘lim tanlash",
+    viewStats: "O‘quv statistikasini ko‘rish",
     eyebrow: "Imtihonga tayyorgarlik",
     planBadge: "Aqlli o‘quv reja",
     heroTitle: "Muvaffaqiyat strategiyasini\nhar bir bo‘limda yarating.",
@@ -47,7 +55,7 @@ export default {
     guidedExplanation: "Bosqichli izoh",
     weaknessReview: "Zaifliklarni takrorlash",
     focusEyebrow: "Yo‘nalishni tanlang",
-    chooseSection: "O‘rganish bo‘limini tanlang",
+    chooseSection: "Qaysi bo‘limni mashq qilamiz?",
     areaCount: "{{count}} ta bo‘lim",
     available: "Mavjud",
     comingSoon: "Tez orada",
@@ -61,24 +69,37 @@ export default {
       "Maslahatlar bilan savollarga yondashishni o‘rganing, keyin sinov imtihonida o‘zingizni tekshiring.",
     reading: {
       title: "O‘qish",
+      shortDescription: "Gaplar va matnlarni tushunish",
       description:
         "Savol turlarini o‘rganing va haqiqiy imtihon tuzilishida bilimingizni tekshiring.",
       features: ["Bosqichli maslahat", "Sinov imtihoni", "Xatolar tahlili"],
     },
     listening: {
       title: "Tinglash",
+      shortDescription: "Tinglab javob berish",
       description:
         "Muhim iboralarni anglash strategiyasi va tinglash sezgisini rivojlantiring.",
       features: ["Qismni takrorlash", "Muhim ishora", "Tezlik nazorati"],
     },
     writing: {
       title: "Yozish",
+      shortDescription: "Fikrni yozma ifodalash",
       description:
         "Gap tuzilishidan yuqori ball beradigan to‘liq javobgacha rivojlaning.",
       features: ["Javob tuzilishi", "Yozuv tahlili", "Ball strategiyasi"],
     },
   },
   home: {
+    roundSelection: "Variant tanlash",
+    mockShort: "Imtihon",
+    examCount: "{{count}} ta variant",
+    selectedRound: "Tanlangan variant",
+    changeRound: "O‘zgartirish",
+    chooseRound: "Variantni tanlang",
+    searchRounds: "Raqam yoki nom bo‘yicha qidirish",
+    allRounds: "Barchasi",
+    noMatchingRounds: "Mos variant topilmadi.",
+    roundMeta: "{{questions}} savol · taxminan {{minutes}} daqiqa",
     header: "TOPIK {{level}} · {{section}}",
     reading: "O‘qish",
     listening: "Tinglash",
@@ -294,6 +315,7 @@ export default {
     statusGrowing: "O‘smoqda",
     statusNeedsReview: "Takrorlash kerak",
     insightTitle: "Bugungi o‘quv tavsiyasi",
+    reviewAction: "Mashq qilish",
     insightEmpty:
       "Bitta testni yakunlang — kuchli va ustuvor yo‘nalishlaringizni tahlil qilamiz.",
     insightNoScored:
