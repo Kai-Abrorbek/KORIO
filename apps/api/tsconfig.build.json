@@ -6,7 +6,6 @@
     "dist",
     "**/*spec.ts",
 
-    "src/seed",
-    "src/__scratch"
+    "src/seed"
   ]
 }
