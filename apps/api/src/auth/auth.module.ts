@@ -13,6 +13,11 @@ import {
 } from './schemas/password-reset.schema';
 import { PasswordResetService } from './password-reset.service';
 import {
+  PendingSignup,
+  PendingSignupSchema,
+} from './schemas/pending-signup.schema';
+import { SignupVerificationService } from './signup-verification.service';
+import {
   Onboarding,
   OnboardingSchema,
 } from '../onboarding/schemas/onboarding.schema';
@@ -25,6 +30,7 @@ import { RateLimitGuard } from '../common/rate-limit';
       { name: User.name, schema: UserSchema },
       { name: Onboarding.name, schema: OnboardingSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
+      { name: PendingSignup.name, schema: PendingSignupSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -39,6 +45,7 @@ import { RateLimitGuard } from '../common/rate-limit';
   providers: [
     AuthService,
     PasswordResetService,
+    SignupVerificationService,
     JwtStrategy,
     JwtAuthGuard,
     RateLimitGuard,

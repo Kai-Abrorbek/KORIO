@@ -46,8 +46,13 @@ export const OAUTH: Record<OAuthProviderKey, OAuthConfig> = {
       const prof = acc.profile ?? {};
       return {
         providerId: String(raw?.id ?? ''),
-        // 이메일은 동의 항목이라 안 줄 수 있다. 없으면 없는 대로 간다
-        email: acc.email || undefined,
+        // 이메일은 동의 항목이라 안 줄 수 있다. 없으면 없는 대로 간다.
+        // ⚠️ 카카오가 **확인한** 주소만 받는다. 확인 안 된 주소를 받으면 같은
+        //    이메일의 기존 계정에 붙어 버려서(upsertSocialUser) 남의 계정을 먹을 수 있다
+        email:
+          acc.email && acc.is_email_valid !== false && acc.is_email_verified === true
+            ? acc.email
+            : undefined,
         nickname: prof.nickname || undefined,
         profileImage: prof.profile_image_url || undefined,
       };

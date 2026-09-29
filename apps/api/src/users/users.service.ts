@@ -218,9 +218,18 @@ export class UsersService {
       superActive,
     ).energy;
 
+    // 비밀번호는 select:false 라 문서에 없다. 있는지만 따로 본다 —
+    // 소셜 가입자가 비밀번호를 만들었는지에 따라 계정 화면의 버튼이 갈린다
+    const hasPassword = !!(await this.userModel.exists({
+      _id: user._id,
+      password: { $exists: true, $nin: [null, ''] },
+    }));
+
     return {
       id: user._id.toString(),
       email: user.email,
+      hasPassword,
+      emailVerified: !!user.emailVerifiedAt,
       nickname: user.nickname,
       username: user.username || '',
       profileImage: user.profileImage || '',

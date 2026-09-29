@@ -53,27 +53,52 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // 회원가입
-  async register(dto: RegisterDto) {
+  /**
+   * 옛 가입 엔드포인트. 이메일 인증 없이 계정을 만들던 곳이라 막았다.
+   * 가입은 register/start → register/verify (SignupVerificationService) 로만 한다.
+   */
+  register(_dto: RegisterDto): never {
+    throw new BadRequestException('EMAIL_VERIFICATION_REQUIRED');
+  }
+
+  /**
+   * 이메일 인증을 통과한 가입을 계정으로 만든다.
+   * 비밀번호는 이미 해시돼서 온다 (대기 건에 원문을 두지 않으려고).
+   */
+  async createVerifiedLocalUser(input: {
+    email: string;
+    passwordHash: string;
+    nickname: string;
+    phoneHash?: string;
+    phoneLast4?: string;
+    sessionId?: string;
+  }) {
     // DTO 에서도 맞추지만 DB 를 만지는 층에서 한 번 더 확정한다.
     // 조회와 저장이 서로 다른 형태면 "가입은 됐는데 로그인이 안 되는" 계정이 생긴다
-    const email = normalizeEmail(dto.email);
-    // 대소문자만 다른 옛 문서가 있으면 그것도 같은 사람이다.
-    // 정확히만 보면 'Kai@x.com' 유저가 'kai@x.com' 으로 계정을 하나 더 만든다
+    const email = normalizeEmail(input.email);
+    // 대소문자만 다른 옛 문서가 있으면 그것도 같은 사람이다
     const existing = await findUserByEmail(this.userModel, email);
     if (existing) throw new ConflictException('EMAIL_ALREADY_EXISTS');
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    // 인증 대기 중에 다른 사람이 같은 번호를 먼저 등록했을 수 있다 — 그럼 번호만 뺀다
+    let phone: { phoneHash?: string; phoneLast4?: string } = {};
+    if (input.phoneHash) {
+      const taken = await this.userModel
+        .exists({ phoneHash: input.phoneHash });
+      if (!taken) phone = { phoneHash: input.phoneHash, phoneLast4: input.phoneLast4 };
+    }
 
     const user = await this.userModel.create({
       email,
-      password: hashedPassword,
-      nickname: dto.nickname,
+      password: input.passwordHash,
+      nickname: input.nickname,
       provider: AuthProvider.LOCAL,
+      emailVerifiedAt: new Date(),
+      ...phone,
       ...trialFields(),
     });
 
-    await this.attachOnboarding(user._id, dto.sessionId);
+    await this.attachOnboarding(user._id, input.sessionId);
 
     return this.generateToken(user);
   }
@@ -100,6 +125,15 @@ export class AuthService {
     let nickname = dto.nickname;
     let profileImage = dto.profileImage;
 
+    // 🔴 이 엔드포인트는 **서버가 토큰을 검증할 수 있는 제공자(구글)만** 받는다.
+    //    예전엔 provider·providerId·email 을 앱이 준 그대로 믿어서, 아무나
+    //    { provider: 'kakao', providerId: 'x', email: '남의 메일' } 을 보내면 그
+    //    이메일의 계정에 붙어 토큰을 받아 갔다 (계정 탈취). 카카오·네이버는
+    //    서버 OAuth(`/auth/:provider/start` → callback) 로만 들어온다.
+    if (dto.provider !== AuthProvider.GOOGLE) {
+      throw new BadRequestException('UNSUPPORTED_SOCIAL_PROVIDER');
+    }
+
     // 🔐 구글: id_token 서버 검증 (신뢰 가능한 값만 사용)
     if (dto.provider === AuthProvider.GOOGLE) {
       if (!dto.idToken)
@@ -116,8 +150,12 @@ export class AuthService {
         throw new UnauthorizedException('Invalid Google token');
       providerId = payload.sub;
       // 구글이 준 값도 대소문자가 섞여 올 수 있다. 여기서 안 맞추면 같은 사람이
-      // 이메일 계정과 소셜 계정으로 갈라진다
-      email = normalizeEmailOptional(payload.email);
+      // 이메일 계정과 소셜 계정으로 갈라진다.
+      // ⚠️ 구글이 확인한 주소만 쓴다 — 같은 이메일의 기존 계정에 붙이기 때문이다
+      email =
+        payload.email_verified === false
+          ? undefined
+          : normalizeEmailOptional(payload.email);
       nickname = nickname || payload.name;
       profileImage = profileImage || payload.picture;
     }

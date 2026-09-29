@@ -4,15 +4,11 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { User, UserDocument } from '../users/schemas/user.schema';
-import { AuthProvider } from '../common/enums/provider.enum';
 import { jwtSecret } from '../config/secrets';
 import { findUserByEmail } from '../users/find-by-email';
 import { MailService } from '../mail/mail.service';
 import { resolveMailLang } from '../mail/mail.types';
-import {
-  passwordResetMail,
-  passwordResetSocialMail,
-} from '../mail/mail.templates';
+import { passwordResetMail } from '../mail/mail.templates';
 import {
   PasswordReset,
   PasswordResetDocument,
@@ -61,14 +57,13 @@ export class PasswordResetService {
     const lang = resolveMailLang(user.appLanguage || dto.lang);
     const email = user.email;
 
-    // 소셜 계정은 비밀번호 자체가 없다. 코드를 보내봐야 바꿀 게 없으니
-    // 어떻게 들어오면 되는지만 알려준다
-    if (!user.password || user.provider !== AuthProvider.LOCAL) {
-      void this.mail.send(
-        passwordResetSocialMail(email, lang, String(user.provider ?? '')),
-      );
-      return { success: true as const };
-    }
+    // 이메일이 없는 계정(텔레그램·이메일 동의 안 한 카카오)은 코드를 보낼 곳이 없다
+    if (!email) return { success: true as const };
+
+    // ⚠️ 소셜 계정도 코드를 보낸다 (2026-09-30~). 예전엔 "소셜로 들어오세요"
+    //    안내만 보냈는데, 이제 소셜 가입자도 메일 인증을 거쳐 비밀번호를 만들 수
+    //    있다 — 소셜 로그인이 막혔을 때 이메일+비밀번호로 들어오는 비상구다.
+    //    메일함을 여는 사람은 그 주소의 주인이라 안전하다.
 
     // 새로 요청하면 앞의 건은 죽는다. 여러 개가 동시에 살아 있으면
     // "가장 최근 것" 을 고르는 규칙에 빈틈이 생긴다

@@ -37,6 +37,13 @@ export class User {
   @Prop({ unique: true, sparse: true })
   email: string;
 
+  /**
+   * 이 이메일을 코드로 확인한 시각. 이메일 인증 가입(2026-09-30~)부터 채운다.
+   * 그 전 계정과 소셜 계정은 비어 있다 (소셜은 제공자가 확인한 주소다).
+   */
+  @Prop({ type: Date, default: null })
+  emailVerifiedAt: Date | null;
+
   // select: false — 기본 조회에서 제외한다. 필요한 곳(로그인, 비밀번호 변경)만
   // .select('+password') 로 명시적으로 가져온다. 실수로 응답에 실려 나가는 걸 막는다.
   @Prop({ select: false })

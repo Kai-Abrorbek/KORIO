@@ -65,6 +65,47 @@ const RESET_COPY: Record<MailLang, Copy> = {
   },
 };
 
+/** 가입 이메일 인증 코드 — 모양은 재설정 코드 메일과 같다 */
+const SIGNUP_COPY: Record<MailLang, Copy> = {
+  ko: {
+    subject: 'KORIO 이메일 인증 코드',
+    heading: '이메일을 인증해 주세요',
+    lead: '앱에 아래 코드를 입력하면 가입이 끝나요.',
+    codeLabel: '인증 코드',
+    expiry: '이 코드는 {{minutes}}분 뒤에 만료돼요.',
+    ignore: '본인이 가입한 게 아니라면 이 메일은 무시해도 괜찮아요. 계정은 만들어지지 않아요.',
+    footer: 'KORIO — 한국어를 재미있게',
+  },
+  uz: {
+    subject: 'KORIO email tasdiqlash kodi',
+    heading: 'Emailingizni tasdiqlang',
+    lead: "Ro'yxatdan o'tishni yakunlash uchun ilovaga quyidagi kodni kiriting.",
+    codeLabel: 'Tasdiqlash kodi',
+    expiry: 'Kod {{minutes}} daqiqadan keyin eskiradi.',
+    ignore:
+      "Agar siz ro'yxatdan o'tmagan bo'lsangiz, xatni e'tiborsiz qoldiring. Hisob yaratilmaydi.",
+    footer: 'KORIO — koreys tilini qiziqarli o‘rganing',
+  },
+  en: {
+    subject: 'Your KORIO verification code',
+    heading: 'Verify your email',
+    lead: 'Enter the code below in the app to finish signing up.',
+    codeLabel: 'Verification code',
+    expiry: 'This code expires in {{minutes}} minutes.',
+    ignore: "If you didn't sign up, you can ignore this email. No account will be created.",
+    footer: 'KORIO — Korean, made fun',
+  },
+  ru: {
+    subject: 'Код подтверждения KORIO',
+    heading: 'Подтвердите почту',
+    lead: 'Введите код ниже в приложении, чтобы завершить регистрацию.',
+    codeLabel: 'Код подтверждения',
+    expiry: 'Код действует ещё {{minutes}} мин.',
+    ignore: 'Если вы не регистрировались — просто проигнорируйте письмо. Аккаунт не будет создан.',
+    footer: 'KORIO — корейский с удовольствием',
+  },
+};
+
 type SocialCopy = {
   subject: string;
   heading: string;
@@ -152,7 +193,20 @@ export function passwordResetMail(
   code: string,
   minutes: number,
 ): MailMessage {
-  const c = RESET_COPY[lang];
+  return codeMail(to, RESET_COPY[lang], code, minutes);
+}
+
+/** 가입 이메일 인증 코드 메일 */
+export function signupCodeMail(
+  to: string,
+  lang: MailLang,
+  code: string,
+  minutes: number,
+): MailMessage {
+  return codeMail(to, SIGNUP_COPY[lang], code, minutes);
+}
+
+function codeMail(to: string, c: Copy, code: string, minutes: number): MailMessage {
   const inner = `
     <div style="font-size:21px;font-weight:800;color:${INK};margin-bottom:10px;">${c.heading}</div>
     <div style="font-size:15px;line-height:1.6;color:${MUTED};margin-bottom:26px;">${c.lead}</div>

@@ -1,7 +1,12 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
+import {
+  RegisterDto,
+  ResendSignupDto,
+  VerifySignupDto,
+} from './dto/register.dto';
+import { SignupVerificationService } from './signup-verification.service';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { PasswordResetService } from './password-reset.service';
@@ -26,13 +31,38 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly passwordReset: PasswordResetService,
+    private readonly signup: SignupVerificationService,
   ) {}
 
-  // 한 IP 가 계정을 대량으로 찍어내지 못하게
+  /**
+   * 옛 가입 — 이메일 인증 없이 계정을 만들던 곳. 이제 EMAIL_VERIFICATION_REQUIRED 로 막는다.
+   * 가입은 register/start → register/verify 두 단계다.
+   */
   @RateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
+  register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  // 한 IP 가 인증 메일을 대량으로 뿌리지 못하게 (가입 1건 = 메일 1통)
+  @RateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
+  @Post('register/start')
+  async registerStart(@Body() dto: RegisterDto) {
+    return this.signup.start(dto);
+  }
+
+  // 메일 폭탄 방지 — 비밀번호 찾기와 같은 한도
+  @RateLimit({ windowMs: 15 * 60 * 1000, max: 3, keyBody: 'email' })
+  @Post('register/resend')
+  async registerResend(@Body() dto: ResendSignupDto) {
+    return this.signup.resend(dto);
+  }
+
+  // 6자리 무차별 대입 방지. 건당 5회 제한과 별개로 엔드포인트에도 한도
+  @RateLimit({ windowMs: 10 * 60 * 1000, max: 10, keyBody: 'email' })
+  @Post('register/verify')
+  async registerVerify(@Body() dto: VerifySignupDto) {
+    return this.signup.verify(dto);
   }
 
   // 무차별 대입 방지. ip + email 조합이라 한 IP 뒤의 다른 사람이나
