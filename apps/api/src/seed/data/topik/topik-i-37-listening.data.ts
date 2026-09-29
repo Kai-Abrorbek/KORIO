@@ -63,11 +63,9 @@ const sourcePageFor = (number: number) => {
   if (number <= 14) return 5;
   if (number <= 16) return 6;
   if (number <= 19) return 7;
-  if (number <= 22) return 8;
-  if (number <= 24) return 9;
-  if (number <= 26) return 10;
-  if (number <= 28) return 11;
-  return 12;
+  if (number <= 24) return 8;
+  if (number <= 28) return 9;
+  return 10;
 };
 
 const rawQuestions: ListeningQuestionInput[] = [
