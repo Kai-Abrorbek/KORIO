@@ -1,5 +1,8 @@
 # 시드 데이터 작성 규칙
 
+> **어휘 트랙(섹션 6 이후 새 시드 포함)은 [`vocabulary/VOCAB_SEED_GUIDE.md`](vocabulary/VOCAB_SEED_GUIDE.md) 가 우선이다.**
+> 이 README 의 어휘 부분은 섹션 1~2 시절 규칙이라 레슨 수·`translate_builder` 말풍선 등 일부가 옛날 내용이다.
+
 어휘 트랙(`data/section1`, `data/section2`)과 문법 페이지(`data/grammar`)를 쓸 때 지키는 것.
 TOPIK·합격 레시피는 데이터 구조가 달라서 여기 해당 없다.
 
@@ -294,11 +297,11 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 ## 구조
 
 ```
-유닛  →  노드 6~8개  →  노드당 레슨 4개(고정)  →  레슨당 문제 20~24개
+유닛  →  노드 4~7개  →  노드당 레슨 5개(5번째 복습)  →  레슨당 문제 약 20개
 ```
 
 - **노드 수는 유닛 내용에 따라** 4~6개. 교재 한 과가 다루는 주제 수에 맞춘다.
-- **레슨은 노드당 4개 고정.**
+- **레슨은 노드당 5개** (섹션 4부터. 5번째는 복습 레슨. 섹션 1~3 은 4개로 남아 있다).
 - 문제는 레슨당 20~24개.
 
 노드는 `UNIT{n}_NODES`, 문제는 `UNIT{n}_QUESTIONS` 로 내보낸다. 레슨의 `questions`
@@ -343,7 +346,7 @@ Existing seed files do not need to be rewritten all at once. Add this metadata t
 **배치**
 
 - **같은 타입을 연달아 두지 않는다.** 같은 문제를 두 번 푸는 느낌이 든다.
-- 레슨당 20~24문제, 노드당 레슨 4개, 유닛당 노드 5~8개.
+- 레슨당 약 20문제, 노드당 레슨 5개(섹션 1~3 은 4개), 유닛당 노드 4~7개.
 
 **보기(`options`)**
 
@@ -471,18 +474,19 @@ options: ['학교', '한국어', '회사', '영어'],    // 정답 전부 + 오�
 
 ```ts
 type: 'translate_builder',
-instruction: {                       // ← 말풍선에 뜨는, 옮겨야 할 문장
-  ko: '나는 한국 사람이라고 말하기',  // ko 에 정답을 그대로 쓰면 베끼게 된다
-  uz: 'Men koreysman',
-  en: 'I am Korean',
-  ru: 'Я кореец',
+instruction: BUILD_INSTRUCTION,      // 공용 지시문
+answerTranslation: {                 // ← 말풍선 = 학습자 언어 칸
+  ko: '저는 한국 사람이에요.',
+  uz: 'Men koreysman.',
+  en: 'I am Korean.',
+  ru: 'Я кореец.',
 },
 options: ['사람이에요', '한국', '저는', '어느', '나라'],
 answer: '저는 한국 사람이에요',
 ```
 
-- **`instruction` 이 공용 지시문이면 안 된다.** 제목은 "한국어로 만들어 보세요"로
-  고정이고 말풍선이 `instruction` 이라, 여기에 옮길 내용이 없으면 뭘 만들지 알 수 없다.
+- 말풍선은 **`answerTranslation[학습자 언어]`** 다(서버 `translateSourceText`). 정답 문장의 번역만 쓰고,
+  uz/en/ru 에 한글이 섞이면 `instruction` 으로 폴백된다. 옛 시드처럼 `instruction` 에 옮길 문장을 넣는 방식은 폴백용일 뿐이다.
 - `npcText` 를 쓰지 않는다. 렌더되지 않는다.
 - 스피커가 없다. 학습자 언어라 한국어 TTS 로 읽을 수 없고, 읽어준들 답을 알려주는 셈이다.
 - 힌트는 두 언어를 이어주는 데 쓴다. (`oshpaz = 요리사`, `"-dan" = "에서"`)
