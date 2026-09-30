@@ -1,0 +1,243 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_52_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-52-2017',
+  title: {
+    ko: '제52회 TOPIK I 읽기',
+    uz: '52-TOPIK I o‘qish',
+    en: '52nd TOPIK I Reading',
+    ru: '52-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제52회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조 그대로 구성했습니다.',
+    uz: '52-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 52nd TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 52-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2017,
+  round: 52,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제52회 한국어능력시험 I B-홀수형 읽기',
+    edition: '제52회',
+    publisher: '국립국제교육원',
+    reference: '사용자 제공 test-paper-paper.pdf 및 answer-keys-answers.pdf',
+  },
+  publishedAt: new Date('2017-04-16T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const festivalWebsite = {
+  ...passage(
+    'http://injulove.com',
+    '제6회 ‘인주시 꽃길 걷기 축제’가 이번 달 23일에 열립니다. 사랑하는 사람들과 함께 꽃길을 걸으면서 아름다운 추억을 만들어 보시기 바랍니다. 꽃목걸이 만들기, 엽서 쓰기 등 다양한 행사도 준비했으니 많은 관심 바랍니다.',
+    '일시: 2017년 4월 23일(일) 10:00~17:00',
+    '걷는 길: 인주호수공원에서 인주대학교 앞까지',
+    '참가비: 5,000원',
+  ),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '인주시 문화·행사 | 꽃길 걷기 축제',
+  subtitle: '제6회 인주시 꽃길 걷기 축제',
+  visualVariant: 'official-festival-website',
+};
+
+export const TOPIK_I_52_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-52-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 이야기입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-52-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-52-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-52-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음의 내용과 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-52-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 생각을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-52-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 혼자 여행하는 것을 좋아합니다. 보통 여행 기간이나 장소를 정하지 않고 여행을 떠납니다. 유명한 관광지보다는 작은 마을을 다닙니다. 저는 운전을 하면서 여행하는데 예쁜 경치가 보이면 내려서 구경합니다. 여행하는 곳이 [[blank:q49]] 오랫동안 지낼 때도 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '밀가루는 음식 재료입니다. 그런데 밀가루는 다양한 곳에 사용할 수 있습니다. 포도나 딸기를 씻을 때 밀가루로 씻으면 좋습니다. [[blank:q51]] 냄새가 나는 그릇에 밀가루를 넣고 하루가 지나면 냄새가 나지 않습니다. 밀가루를 사용하면 프라이팬에 남은 기름도 쉽게 닦을 수 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '우리 아이는 피부가 좀 약합니다. 가게에서 파는 비누를 쓰면 피부가 안 좋아집니다. 그래서 저는 인터넷을 보고 아이에게 맞는 비누를 [[blank:q53]]. 방법이 별로 어렵지 않았습니다. 이 비누는 쌀이나 과일 같은 자연 재료로 만들어서 좋습니다. 제가 만든 비누를 사용하고 아이의 피부가 좋아졌습니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저와 아내는 시골에서 자랐습니다. 우리는 결혼한 후에 서울에서 살면서 회사에 다녔습니다. 하지만 도시 생활이 행복하지 않았습니다. 우리는 다시 시골로 [[blank:q55]]. 그래서 얼마 전에 시골에 집도 사고 땅도 조금 샀습니다. 거기에서 꽃을 키울 겁니다. 내일 드디어 이사를 합니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서대로 맞게 나열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-52-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '우리 동네 산에는 동물들이 많이 살고 있습니다. [[marker:m1|㉠]] 그런데 겨울에는 산에 동물들이 먹을 것이 별로 없습니다. [[marker:m2|㉡]] 그래서 저와 동네 사람들은 겨울이 되면 산에 가서 먹을 것을 놓고 옵니다. [[marker:m3|㉢]] 토끼나 산새들이 다 먹은 것입니다. [[marker:m4|㉣]] 추운 겨울에 먹을 것을 가지고 산에 올라가는 것이 힘들지만 우리는 매년 기분 좋게 이 일을 합니다.',
+      '며칠 후에 다시 가 보면 우리가 놓고 온 것이 하나도 없습니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '요즘 공항에서 여러 가지 서비스를 즐길 수 있습니다. 공항 안에 여행으로 피곤한 사람들이 잘 수 있는 방과 샤워할 수 있는 곳이 있습니다. 그리고 여행 가방이 고장 났을 때 가방을 [[blank:q61]] 빌려주는 서비스도 있습니다. 겨울에 따뜻한 나라로 가는 사람들을 위해 겨울옷을 맡아 주는 곳도 있습니다. 여권을 안 가져온 사람들에게 여권을 만들어 주기도 합니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    festivalWebsite,
+  ),
+  group(
+    'topik-i-52-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '몇 달 전 우리 동네에 피아노 학원이 생겼습니다. 어머니는 그 학원 앞을 지날 때마다 한참 동안 서서 피아노 소리를 들으셨습니다. 어머니가 피아노를 배우고 싶어 하시는 것 같아서 저는 [[blank:q65]]. 처음에 어머니는 나이가 많아서 학원에 다니는 것을 부끄러워하셨습니다. 하지만 요즘은 즐겁게 학원에 다니시고 가끔 가족 모임에서 손녀와 함께 연주도 하십니다.',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주시장은 오래된 시장입니다. 그런데 요즘 사람들은 오래된 시장을 별로 좋아하지 않아서 찾는 사람이 적어졌습니다. 시장을 새롭게 바꾸기 위해서 가게 주인들은 시장에 재미있는 그림을 전시하고 가게의 이름도 예쁘게 써서 걸었습니다. 또 이 시장에서만 볼 수 있는 다양한 물건들도 팔기 시작했습니다. 시장이 바뀐 후부터 사람들이 다시 [[blank:q67]].',
+    ),
+  ),
+  group(
+    'topik-i-52-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '예전에 제 꿈은 유명한 영화배우였습니다. 하지만 배우가 되는 것은 생각보다 어려웠습니다. 그래서 저는 [[blank:q69]]. 아이들에게 동화책을 읽어 주는 일입니다. 배우는 아니지만 저는 책을 읽으면서 배우처럼 연기를 합니다. 아이들은 제 연기를 보고 크게 웃거나 박수를 치면서 좋아합니다. 배우가 되지는 못했지만 저는 지금 제가 하는 일이 아주 마음에 듭니다.',
+    ),
+  ),
+];
