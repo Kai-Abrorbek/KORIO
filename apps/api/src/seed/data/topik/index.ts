@@ -14,6 +14,8 @@ export * from './topik-i-52-listening.data';
 export * from './topik-i-52-reading.data';
 export * from './topik-i-60-listening.data';
 export * from './topik-i-60-reading.data';
+export * from './topik-i-64-listening.data';
+export * from './topik-i-64-reading.data';
 export * from './topik-i-35-listening.data';
 export * from './topik-i-35-reading.data';
 export * from './topik-i-36-listening.data';
