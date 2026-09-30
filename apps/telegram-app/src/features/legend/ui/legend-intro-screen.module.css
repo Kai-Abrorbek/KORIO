@@ -18,7 +18,7 @@
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  padding: var(--tg-content-safe-area-inset-top, 0px) 28px 0;
+  padding: var(--korio-top) 28px 0;
 }
 
 .hero {
@@ -84,7 +84,7 @@
   text-align: center;
 }
 
-.footer { padding: 0 20px max(20px, var(--tg-content-safe-area-inset-bottom, 0px)); }
+.footer { padding: 0 20px max(20px, var(--korio-bottom)); }
 .startButton {
   background: linear-gradient(135deg, #ffe066, #ffc800);
   border: 0;
@@ -124,7 +124,7 @@
   gap: 5px;
   position: absolute;
   right: 24px;
-  top: max(60px, calc(var(--tg-content-safe-area-inset-top, 0px) + 20px));
+  top: max(60px, calc(var(--korio-top) + 20px));
 }
 .gems b { color: #fff; font-size: 18px; }
 .energySheet {
@@ -132,7 +132,7 @@
   background: #fff;
   border-radius: 28px 28px 0 0;
   color: #242337;
-  padding: 28px 20px max(24px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 28px 20px max(24px, var(--korio-bottom));
   text-align: left;
   width: 100%;
 }

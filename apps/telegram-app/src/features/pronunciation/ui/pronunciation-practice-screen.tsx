@@ -17,6 +17,7 @@ import {
   type PronStage,
 } from "../data/pronunciation";
 import styles from "./pronunciation-practice-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 const STORY: Record<PronLevel,string> = {
   lv1: "Haneulmonning birinchi buyurtmasi",
@@ -85,7 +86,7 @@ export function PronunciationPracticeScreen() {
   };
 
   return <main className={styles.screen}>
-    <header className={styles.top}><button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={28}/></button><h1>Talaffuz mashqi</h1></header>
+    <header className={styles.top}><button aria-label="Orqaga" onClick={() => safeBack(router)} type="button"><MobileIcon name="chevron-back" size={28}/></button><h1>Talaffuz mashqi</h1></header>
     <nav className={styles.tabs}>{PRON_LEVELS.map((level) => <button className={tab===level ? styles.activeTab : ""} key={level} onClick={() => { window.Telegram?.WebApp.HapticFeedback?.selectionChanged(); setTab(level); setExpanded(1); }} type="button">{level.replace("lv","Lv.")}<i/></button>)}</nav>
     <div className={styles.content}>
       <section className={styles.banner}><div><h2>{STORY[tab]}</h2><p>{FOCUS[tab]}</p><i><b style={{ width: status==="ready" ? `${percent}%` : 0 }}/></i>{status==="error" ? <button onClick={loadScores} type="button"><MobileIcon name="refresh" size={14}/> {"Saqlangan natijani yuklab bo'lmadi"}</button> : null}</div><span className={status==="ready" && percent>0 ? styles.ringOn : ""}><strong>{status==="ready" ? <>{percent}<small>%</small></> : status==="error" ? "!" : "…"}</strong><small>{status==="ready" ? practiced : "--"}/{total}</small></span></section>

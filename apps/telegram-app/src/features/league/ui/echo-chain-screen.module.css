@@ -11,7 +11,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  padding-top: calc(var(--korio-top) + 8px);
   position: relative;
 }
 
@@ -80,7 +80,7 @@
   gap: 10px;
   justify-content: center;
   min-height: 0;
-  padding: 0 16px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  padding: 0 16px calc(var(--korio-bottom) + 16px);
 }
 
 .cell {

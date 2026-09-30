@@ -1,8 +1,8 @@
 .screen{--bg:#fff;--surface:#fff;--text:#1a1a2e;--secondary:#55555f;--border:#eceaf6;--primary:#776ee2;display:grid;width:100%;height:100dvh;grid-template-rows:auto minmax(0,1fr);overflow:hidden;background:var(--bg);color:var(--text)}
-.header{display:flex;min-height:calc(56px + env(safe-area-inset-top));align-items:flex-end;gap:10px;padding:calc(env(safe-area-inset-top) + 4px) 16px 8px}
+.header{display:flex;min-height:calc(56px + var(--korio-top));align-items:flex-end;gap:10px;padding:calc(var(--korio-top) + 4px) 16px 8px}
 .header button{display:grid;width:32px;height:40px;place-items:center;border:0;background:transparent;color:var(--text);padding:0}
 .header h1{align-self:center;margin:0;font-size:22px;font-weight:700;letter-spacing:0}
-.scroll{overflow-y:auto;padding-bottom:calc(40px + env(safe-area-inset-bottom));scrollbar-width:none}
+.scroll{overflow-y:auto;padding-bottom:calc(40px + var(--korio-bottom));scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 .hero{display:flex;flex-direction:column;align-items:center;padding:18px 20px 26px}
 .logo{width:86px;height:86px;margin-bottom:14px;border-radius:26px;object-fit:cover}

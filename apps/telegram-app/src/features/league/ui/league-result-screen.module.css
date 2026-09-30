@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--tg-content-safe-area-inset-top, 0px) 28px 0;
+  padding: var(--korio-top) 28px 0;
   position: relative;
   transition: background 300ms ease;
 }
@@ -115,7 +115,7 @@
   color: var(--stage-dark);
   font-size: 17px;
   font-weight: 900;
-  margin-bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  margin-bottom: calc(var(--korio-bottom) + 16px);
   min-height: 56px;
 }
 
@@ -126,7 +126,7 @@
 
 .buttonPlaceholder {
   height: 56px;
-  margin-bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  margin-bottom: calc(var(--korio-bottom) + 16px);
 }
 
 .confetti {

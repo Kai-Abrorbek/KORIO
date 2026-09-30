@@ -46,6 +46,27 @@ export interface TelegramWebApp {
   showAlert?(message: string, callback?: () => void): void;
   setBackgroundColor?(color: string): void;
   setHeaderColor?(color: string): void;
+  /** Bot API 6.2+. 닫기 전에 "정말 닫을까요?" 를 묻는다 */
+  enableClosingConfirmation?(): void;
+  disableClosingConfirmation?(): void;
+  isClosingConfirmationEnabled?: boolean;
+  /** Bot API 8.0+. 텔레그램 헤더를 없애고 화면 전체를 쓴다 */
+  requestFullscreen?(): void;
+  exitFullscreen?(): void;
+  isFullscreen?: boolean;
+  /** 기기 안전 영역(노치·상태바·홈 인디케이터) */
+  safeAreaInset?: TelegramInsets;
+  /** 전체화면일 때 텔레그램이 위에 띄우는 닫기/메뉴 버튼 영역 */
+  contentSafeAreaInset?: TelegramInsets;
+  onEvent?(event: string, callback: () => void): void;
+  offEvent?(event: string, callback: () => void): void;
+}
+
+export interface TelegramInsets {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
 }
 
 declare global {

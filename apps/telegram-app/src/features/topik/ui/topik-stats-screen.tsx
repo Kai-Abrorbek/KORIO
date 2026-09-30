@@ -10,6 +10,7 @@ import type { TopikHistoryItem, TopikQuestionPerformance, TopikStatsSummary, Top
 import { useAppLanguage } from "../../../shared/i18n/language-context";
 import topikUz from "../../../shared/i18n/locales/topik/uz";
 import styles from "./topik-stats-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 type ExamType = "topik_i" | "topik_ii";
 type StatsSection = "all" | "listening" | "reading" | "writing";
@@ -73,7 +74,7 @@ export function TopikStatsScreen() {
 
   return <main className={styles.screen}>
     <section className={styles.headerShell}>
-      <header><button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><h1>TOPIK o‘quv statistikasi</h1></div><button aria-label="Yangilash" onClick={() => void load()} type="button"><MobileIcon name="refresh" size={20} /></button></header>
+      <header><button aria-label="Orqaga" onClick={() => safeBack(router)} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><h1>TOPIK o‘quv statistikasi</h1></div><button aria-label="Yangilash" onClick={() => void load()} type="button"><MobileIcon name="refresh" size={20} /></button></header>
       <div className={styles.levelTabs}>{(["topik_i", "topik_ii"] as const).map((type) => <button aria-pressed={type === examType} className={type === examType ? styles.activeLevel : ""} key={type} onClick={() => { setExamType(type); if (type === "topik_i" && section === "writing") setSection("all"); }} type="button">TOPIK {type === "topik_i" ? "I" : "II"}</button>)}</div>
       {!loading && !error && summary ? <div className={styles.hero}><div className={styles.heroMain}><div><small>Umumiy aniqlik</small><strong>{summary.accuracy}<i>%</i></strong></div><span className={styles[insight.tone]}><i />{insight.status}</span></div><div className={styles.scoreStrip}><HeroScore label="So‘nggi ball" value={summary.lastScore} /><i /><HeroScore label="Eng yuqori" value={summary.bestScore} /><i /><HeroScore label="O‘rtacha" value={summary.averageScore} /></div></div> : null}
     </section>

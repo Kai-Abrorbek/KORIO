@@ -11,7 +11,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 30px);
+  padding-top: calc(var(--korio-top) + 30px);
   position: relative;
 }
 
@@ -117,7 +117,7 @@
 .boardScroll {
   flex: 1;
   overflow-y: auto;
-  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 12px) 0 calc(var(--tg-content-safe-area-inset-bottom, 0px) + 120px);
+  padding: calc(var(--korio-top) + 12px) 0 calc(var(--korio-bottom) + 120px);
   scrollbar-width: none;
 }
 
@@ -262,7 +262,7 @@
   animation: challengePulse 1.8s ease-in-out infinite;
   background: transparent;
   border: 0;
-  bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 120px);
+  bottom: calc(var(--korio-bottom) + 120px);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -305,7 +305,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   left: 0;
-  padding: 8px 4px max(8px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 8px 4px max(8px, var(--korio-bottom));
   position: absolute;
   right: 0;
   z-index: 15;

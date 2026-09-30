@@ -37,7 +37,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: max(54px, calc(var(--tg-content-safe-area-inset-top, 0px) + 10px)) 16px 16px;
+  padding: max(54px, calc(var(--korio-top) + 10px)) 16px 16px;
   position: relative;
   z-index: 2;
 }
@@ -67,7 +67,7 @@
 }
 
 .scroll {
-  height: calc(100% - max(98px, calc(var(--tg-content-safe-area-inset-top, 0px) + 54px)));
+  height: calc(100% - max(98px, calc(var(--korio-top) + 54px)));
   overflow-y: auto;
   padding-bottom: 110px;
   position: relative;
@@ -399,7 +399,7 @@
   border-radius: 28px 28px 0 0;
   max-height: 85dvh;
   max-width: var(--content-width);
-  padding: 6px 20px max(20px, calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px));
+  padding: 6px 20px max(20px, calc(var(--korio-bottom) + 20px));
   position: relative;
   width: 100%;
 }
@@ -568,7 +568,7 @@
 
 .gameMenu {
   align-items: flex-end;
-  bottom: max(24px, calc(var(--tg-content-safe-area-inset-bottom, 0px) + 12px));
+  bottom: max(24px, calc(var(--korio-bottom) + 12px));
   display: flex;
   flex-direction: column;
   left: 16px;

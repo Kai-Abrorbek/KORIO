@@ -17,7 +17,7 @@
   position: relative;
   height: 100%;
   overflow-y: auto;
-  padding-bottom: calc(100px + var(--tg-content-safe-area-inset-bottom, 0px));
+  padding-bottom: calc(100px + var(--korio-bottom));
   scrollbar-width: none;
 }
 
@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 70px) 24px 36px;
+  padding: calc(var(--korio-top) + 70px) 24px 36px;
   position: relative;
 }
 
@@ -276,7 +276,7 @@
   min-height: 100%;
   padding-left: 30px;
   padding-right: 30px;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 60px);
+  padding-top: calc(var(--korio-top) + 60px);
 }
 
 .activeBadge {
@@ -407,7 +407,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   left: 0;
-  padding: 8px 4px max(8px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 8px 4px max(8px, var(--korio-bottom));
   position: absolute;
   right: 0;
   z-index: 15;
@@ -451,4 +451,4 @@
 }
 
 /* 구독 중 화면에서 들어온 요금제 보기 — 돌아가기 */
-.offerBack{position:absolute;z-index:3;top:max(12px,calc(var(--tg-content-safe-area-inset-top,0px) + 8px));left:12px;display:grid;width:40px;height:40px;place-items:center;border:0;border-radius:20px;background:rgb(255 255 255/22%);color:#fff;padding:0}
+.offerBack{position:absolute;z-index:3;top:max(12px,calc(var(--korio-top) + 8px));left:12px;display:grid;width:40px;height:40px;place-items:center;border:0;border-radius:20px;background:rgb(255 255 255/22%);color:#fff;padding:0}

@@ -20,7 +20,7 @@
   display: flex;
   flex: none;
   gap: 14px;
-  padding: max(54px, calc(var(--tg-content-safe-area-inset-top, 0px) + 7px)) 16px 10px;
+  padding: max(54px, calc(var(--korio-top) + 7px)) 16px 10px;
 }
 
 .statBar > button {
@@ -201,7 +201,7 @@
   background: #fff;
   border-top: 1px solid var(--border);
   flex: none;
-  padding: 12px 12px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 12px);
+  padding: 12px 12px calc(var(--korio-bottom) + 12px);
 }
 
 .inputRow { align-items: center; display: flex; gap: 8px; }
@@ -290,7 +290,7 @@
   padding: 12px;
   position: absolute;
   right: 12px;
-  top: max(110px, calc(var(--tg-content-safe-area-inset-top, 0px) + 63px));
+  top: max(110px, calc(var(--korio-top) + 63px));
   z-index: 100;
 }
 
@@ -384,7 +384,7 @@
 @keyframes sheetIn { from { transform: translateY(800px); } }
 
 @media (max-height: 700px) {
-  .statBar { padding-top: max(34px, calc(var(--tg-content-safe-area-inset-top, 0px) + 5px)); }
+  .statBar { padding-top: max(34px, calc(var(--korio-top) + 5px)); }
   .syllableTarget { padding-bottom: 8px; }
   .syllableTarget > strong { font-size: 32px; height: 64px; width: 64px; }
   .syllableTarget > i { height: 76px; top: 28px; width: 76px; }

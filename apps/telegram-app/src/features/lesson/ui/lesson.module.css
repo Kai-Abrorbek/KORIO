@@ -78,7 +78,7 @@
   background: rgb(255 255 255 / 94%);
   display: flex;
   gap: 13px;
-  padding: max(15px, var(--tg-content-safe-area-inset-top, 0px)) 16px 12px;
+  padding: max(15px, var(--korio-top)) 16px 12px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -135,7 +135,7 @@
   background: rgb(255 255 255 / 94%);
   display: flex;
   gap: 12px;
-  padding: max(6px, var(--tg-content-safe-area-inset-top, 0px)) 16px 12px;
+  padding: max(6px, var(--korio-top)) 16px 12px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -233,7 +233,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(var(--tg-viewport-stable-height, 100dvh) - 74px);
-  padding: 8px 20px max(12px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 8px 20px max(12px, var(--korio-bottom));
 }
 
 .mobileQuestion > h1,
@@ -626,7 +626,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(var(--tg-viewport-stable-height, 100dvh) - 74px);
-  padding: 23px 20px max(102px, calc(var(--tg-content-safe-area-inset-bottom, 0px) + 92px));
+  padding: 23px 20px max(102px, calc(var(--korio-bottom) + 92px));
 }
 
 .questionCard h1 {
@@ -983,7 +983,7 @@
   gap: 9px 12px;
   grid-template-columns: 44px 1fr;
   left: 50%;
-  padding: 17px 18px max(17px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 17px 18px max(17px, var(--korio-bottom));
   position: fixed;
   transform: translateX(-50%);
   width: min(100%, 560px);
@@ -1040,7 +1040,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: max(8px, var(--tg-content-safe-area-inset-top, 0px)) 20px max(16px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: max(8px, var(--korio-top)) 20px max(16px, var(--korio-bottom));
 }
 .jumpStartCenter,
 .resultStage,
@@ -1148,7 +1148,7 @@
 .completeStats strong { background: currentColor; color: #fff; font-size: 13px; font-weight: 800; padding: 6px 2px; text-align: center; }
 .completeStats article > div { align-items: center; display: flex; gap: 6px; justify-content: center; min-height: 56px; padding: 10px 2px; }
 .completeStats b { font-size: 22px; font-weight: 900; }
-.completeActions { align-items: center; display: flex; gap: 12px; padding: 14px 16px max(28px, var(--tg-content-safe-area-inset-bottom, 0px)); }
+.completeActions { align-items: center; display: flex; gap: 12px; padding: 14px 16px max(28px, var(--korio-bottom)); }
 .shareAction,
 .completeClaim {
   align-items: center;
@@ -1166,7 +1166,7 @@
 .shareAction:active,
 .completeClaim:active { border-bottom-width: 2px; transform: translateY(2px); }
 
-.examPage { padding: max(20px, var(--tg-content-safe-area-inset-top, 0px)) 24px max(16px, var(--tg-content-safe-area-inset-bottom, 0px)); }
+.examPage { padding: max(20px, var(--korio-top)) 24px max(16px, var(--korio-bottom)); }
 .examContent { align-items: center; display: flex; flex: 1; flex-direction: column; gap: 10px; position: relative; text-align: center; z-index: 2; }
 .examContent .celebrationMascot,
 .examMascot { height: 170px; margin: 0 0 4px; object-fit: contain; width: 170px; }

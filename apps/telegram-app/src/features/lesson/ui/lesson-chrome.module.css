@@ -1,5 +1,5 @@
 /* ── LessonHeader ── */
-.header{--lc-bg:var(--lesson-bg,#fff);background:var(--app-bg,#fff);padding-top:max(14px,var(--tg-content-safe-area-inset-top,0px))}
+.header{--lc-bg:var(--lesson-bg,#fff);background:var(--app-bg,#fff);padding-top:max(14px,var(--korio-top))}
 .comboWrap{display:flex;justify-content:center;padding-bottom:4px}
 .comboText{color:#1cb0f6;font-size:16px;font-weight:900;animation:lcComboPop .7s cubic-bezier(.34,1.8,.64,1)}
 .headerRow{display:flex;align-items:center;gap:12px;padding:0 16px 12px}
@@ -28,7 +28,7 @@
 /* 확인 버튼은 늘 화면 맨 아래. 내용이 짧으면 margin-top:auto 로 바닥에 붙고,
    길어서 문제 영역이 스크롤되면 sticky 로 바닥에 떠 있는다 (앱처럼 스크롤에 안 딸려감).
    좌우 -20px 은 .q 의 좌우 패딩만큼 배경을 넓혀 뒤로 지나가는 내용을 가린다 */
-.checkWrap{position:sticky;bottom:0;z-index:6;margin:auto calc(-1 * var(--q-pad-x,20px)) 0;padding:10px var(--q-pad-x,20px) calc(8px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)));background:var(--q-bg,#fff)}
+.checkWrap{position:sticky;bottom:0;z-index:6;margin:auto calc(-1 * var(--q-pad-x,20px)) 0;padding:10px var(--q-pad-x,20px) calc(8px + var(--korio-bottom));background:var(--q-bg,#fff)}
 .skipLink{display:block;width:100%;border:0;background:transparent;color:var(--muted,#55555f);padding:10px 0;font-size:15px;font-weight:700;text-align:center}
 .check{display:block;width:100%;height:58px;border:0;border-radius:16px;background:var(--depth);padding:0}
 .check>span{display:flex;height:54px;align-items:center;justify-content:center;border-radius:16px;background:var(--face);color:#fff;font-size:17px;font-weight:800;transition:transform .06s}
@@ -49,7 +49,7 @@
 .fb_correct{--fb-bg:#d7ffb8;--fb-accent:#58a700;--fb-face:#58cc02;--fb-depth:#46a302;--shard:#9bf0f5}
 .fb_wrong{--fb-bg:#ffdfe0;--fb-accent:#ea2b2b;--fb-face:#ff4b4b;--fb-depth:#d33b3b;--shard:#ffb0b0}
 .fb_guidance{--fb-bg:#fff1c7;--fb-accent:#9a6700;--fb-face:#f5a623;--fb-depth:#c98214;--shard:#ffd36a}
-.fbBody{background:var(--fb-bg);color:var(--fb-accent);padding:4px 20px calc(24px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)))}
+.fbBody{background:var(--fb-bg);color:var(--fb-accent);padding:4px 20px calc(24px + var(--korio-bottom))}
 .fbHead{display:flex;align-items:center;gap:12px}
 .fbMascot{width:52px;height:52px;flex:0 0 auto;object-fit:contain;animation:lcPop .45s cubic-bezier(.34,1.56,.64,1)}
 .fbTitle{display:-webkit-box;min-width:0;flex:1;overflow:hidden;font-size:24px;font-weight:900;letter-spacing:-.5px;-webkit-box-orient:vertical;-webkit-line-clamp:2}
@@ -66,7 +66,7 @@
 /* ── QuitLessonModal ── */
 .quitBackdrop{position:fixed;z-index:90;inset:0;display:flex;flex-direction:column;justify-content:flex-end;background:rgb(0 0 0/50%);animation:lcFade .18s ease-out}
 .quitDismiss{flex:1;border:0;background:transparent}
-.quitSheet{display:flex;width:min(100%,560px);flex-direction:column;align-items:center;margin:0 auto;border-radius:24px 24px 0 0;background:var(--app-bg,#fff);color:var(--text,#1a1a2e);padding:12px 20px calc(24px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)));animation:lcSheet .26s cubic-bezier(.215,.61,.355,1)}
+.quitSheet{display:flex;width:min(100%,560px);flex-direction:column;align-items:center;margin:0 auto;border-radius:24px 24px 0 0;background:var(--app-bg,#fff);color:var(--text,#1a1a2e);padding:12px 20px calc(24px + var(--korio-bottom));animation:lcSheet .26s cubic-bezier(.215,.61,.355,1)}
 .quitHandle{width:44px;height:5px;margin-bottom:20px;border-radius:3px;background:var(--border,#eceaf6)}
 .quitMascot{width:150px;height:150px;margin-bottom:16px;object-fit:contain}
 .quitSheet h2{margin:0 0 28px;padding:0 10px;font-size:24px;font-weight:900;line-height:34px;text-align:center}
@@ -77,7 +77,7 @@
 @keyframes lcSheet{from{transform:translateY(100%)}}
 
 /* ── ReviewIntro ── */
-.reviewIntro{display:flex;min-height:0;flex:1;flex-direction:column;padding:0 20px calc(16px + max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px)));animation:lcFade .3s ease-out}
+.reviewIntro{display:flex;min-height:0;flex:1;flex-direction:column;padding:0 20px calc(16px + var(--korio-bottom));animation:lcFade .3s ease-out}
 .reviewCenter{display:flex;flex:1;align-items:center;justify-content:center;gap:4px}
 .reviewCenter img{width:150px;height:150px;flex:0 0 auto;object-fit:contain}
 .reviewBubble{flex:1;margin:0;border:2px solid var(--border,#eceaf6);border-radius:20px;background:var(--surface,#fff);color:var(--text,#1a1a2e);padding:20px;font-size:20px;font-weight:700;line-height:30px}

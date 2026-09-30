@@ -13,7 +13,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 10px) 20px 10px;
+  padding: calc(var(--korio-top) + 10px) 20px 10px;
 }
 
 .challengePage header button {
@@ -126,7 +126,7 @@
 }
 
 .challengePage footer {
-  padding: 0 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+  padding: 0 20px calc(var(--korio-bottom) + 20px);
 }
 
 .challengePage footer > p {

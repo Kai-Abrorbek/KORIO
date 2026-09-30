@@ -8,6 +8,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { getTier, tierLabel, type LeagueResult } from "../model/league";
 import { TierCrystal } from "./tier-crystal";
 import styles from "./league-result-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 const CONFETTI = [
   [8, 2, "#41af80"], [18, 10, "#4683f5"], [29, 4, "#f82681"],
@@ -31,9 +32,9 @@ export function LeagueResultScreen() {
           window.Telegram?.WebApp.HapticFeedback?.notificationOccurred(
             value.change === "demote" ? "warning" : "success",
           );
-        } else router.back();
+        } else safeBack(router);
       })
-      .catch(() => router.back())
+      .catch(() => safeBack(router))
       .finally(() => setLoading(false));
   }, [request, router]);
 
@@ -59,7 +60,7 @@ export function LeagueResultScreen() {
     } catch {
       // 네이티브와 동일하게 확인 API 실패여도 사용자를 화면에 가두지 않는다.
     }
-    router.back();
+    safeBack(router);
   };
 
   return (

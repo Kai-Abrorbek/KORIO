@@ -2,17 +2,17 @@
   background: #f6f5ef;
   color: #21342c;
   min-height: var(--tg-viewport-stable-height, 100dvh);
-  padding-bottom: max(28px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding-bottom: max(28px, var(--korio-bottom));
 }
 .screen button { cursor: pointer; font: inherit; }
 .header {
   align-items: center;
   display: flex;
   gap: 11px;
-  height: calc(63px + var(--tg-content-safe-area-inset-top, 0px));
+  height: calc(63px + var(--korio-top));
   margin: 0 auto;
   max-width: 620px;
-  padding: var(--tg-content-safe-area-inset-top, 0px) 18px 0;
+  padding: var(--korio-top) 18px 0;
 }
 .header > button {
   align-items: center; background: #fff; border: 1px solid #e3e7e1; border-radius: 15px;
@@ -216,7 +216,7 @@
 .continue { align-items: center; background: #37694f; border: 0; border-radius: 19px; color: #fff; display: flex; font-size: 15px; font-weight: 900; justify-content: space-between; margin-top: 22px; min-height: 58px; padding: 0 9px 0 20px; width: 100%; }
 .continue > span { align-items: center; background: #fff; border-radius: 14px; color: #37694f; display: flex; height: 40px; justify-content: center; width: 40px; }
 .modalBackdrop { align-items: flex-end; background: rgb(11 22 17 / 48%); display: flex; inset: 0; justify-content: center; position: fixed; z-index: 80; }
-.sheet { background: #fff; border-radius: 30px 30px 0 0; box-shadow: 0 -8px 24px rgb(0 0 0 / 16%); color: #21342c; max-height: 82dvh; overflow: auto; padding: 10px 18px max(22px, var(--tg-content-safe-area-inset-bottom, 0px)); width: min(620px, 100%); }
+.sheet { background: #fff; border-radius: 30px 30px 0 0; box-shadow: 0 -8px 24px rgb(0 0 0 / 16%); color: #21342c; max-height: 82dvh; overflow: auto; padding: 10px 18px max(22px, var(--korio-bottom)); width: min(620px, 100%); }
 .sheet > i:first-child { background: #e3e7e1; border-radius: 3px; display: block; height: 5px; margin: 0 auto 15px; width: 42px; }
 .sheet > header { align-items: flex-start; display: flex; gap: 12px; padding: 0 2px 15px; }
 .sheet > header > div { flex: 1; min-width: 0; }

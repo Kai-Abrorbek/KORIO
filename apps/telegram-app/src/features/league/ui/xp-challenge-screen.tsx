@@ -8,6 +8,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { challengeMetaOf, getTier, type ChallengeInfo } from "../model/league";
 import styles from "./xp-challenge-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 const FALLBACK_ENERGY_COST = 15;
 
@@ -84,7 +85,7 @@ export function XpChallengeScreen() {
       style={{ "--tier-color": tier.color } as CSSProperties}
     >
       <header>
-        <button aria-label="Yopish" onClick={() => router.back()} type="button">
+        <button aria-label="Yopish" onClick={() => safeBack(router)} type="button">
           <MobileIcon name="close" size={32} />
         </button>
         <h1>{meta.label}</h1>

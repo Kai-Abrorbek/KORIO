@@ -6,7 +6,7 @@
   height: var(--tg-viewport-stable-height, 100dvh);
   margin: 0 auto;
   max-width: var(--content-width);
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  padding-top: calc(var(--korio-top) + 8px);
 }
 
 .introPage header {
@@ -130,7 +130,7 @@
 }
 
 .introPage footer {
-  padding: 0 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+  padding: 0 20px calc(var(--korio-bottom) + 20px);
 }
 
 .introPage footer button {

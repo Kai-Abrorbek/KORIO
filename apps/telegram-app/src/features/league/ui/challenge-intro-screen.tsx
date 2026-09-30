@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { challengeMetaOf, getTier } from "../model/league";
 import styles from "./challenge-intro-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 const SEGMENTS = [5, 10, 20];
 const DURATION = 150;
@@ -37,7 +38,7 @@ export function ChallengeIntroScreen() {
   return (
     <main className={styles.introPage} style={{ "--tier-color": tier.color } as CSSProperties}>
       <header>
-        <button aria-label="Yopish" onClick={() => router.back()} type="button">
+        <button aria-label="Yopish" onClick={() => safeBack(router)} type="button">
           <MobileIcon name="close" size={30} />
         </button>
         <div className={styles.barWrap}>

@@ -8,6 +8,7 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { getTier, tierLabel, type LeagueData, type LeagueMember } from "../model/league";
 import { TierCrystal } from "./tier-crystal";
 import styles from "./league-rankup-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 const ROW_HEIGHT = 78;
 
@@ -41,7 +42,7 @@ export function LeagueRankupScreen() {
         setLoaded(true);
       })
       .catch(() => {
-        if (active) router.back();
+        if (active) safeBack(router);
       });
     return () => { active = false; };
   }, [request, router]);

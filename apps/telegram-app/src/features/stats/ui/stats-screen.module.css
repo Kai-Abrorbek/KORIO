@@ -12,7 +12,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  padding-top: calc(var(--korio-top) + 8px);
   position: relative;
 }
 
@@ -126,7 +126,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   left: 0;
-  padding: 8px 4px max(8px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 8px 4px max(8px, var(--korio-bottom));
   position: absolute;
   right: 0;
   z-index: 15;

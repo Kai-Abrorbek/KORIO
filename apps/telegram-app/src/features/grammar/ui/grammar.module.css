@@ -13,7 +13,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: max(8px, var(--tg-content-safe-area-inset-top, 0px));
+  padding-top: max(8px, var(--korio-top));
   position: relative;
 }
 
@@ -50,7 +50,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 18px max(34px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 0 18px max(34px, var(--korio-bottom));
   scrollbar-width: none;
 }
 
@@ -190,7 +190,7 @@
 .rewardToast { align-items: center; background: #17120c; border-radius: 99px; color: #fbd24e; display: flex; font-size: 12px; font-weight: 900; gap: 7px; justify-content: center; margin: -5px auto 16px; min-height: 39px; padding: 0 17px; width: fit-content; }
 
 .sheetBackdrop { align-items: flex-end; background: rgb(23 18 12 / 46%); display: flex; inset: 0; justify-content: center; position: fixed; z-index: 100; }
-.premiumSheet { align-items: center; animation: sheetIn 240ms cubic-bezier(.2,.82,.34,1); background: var(--grammar-cream); border: 3px solid var(--grammar-ink); border-radius: 28px 28px 0 0; display: flex; flex-direction: column; padding: 9px 22px max(24px, var(--tg-content-safe-area-inset-bottom, 0px)); text-align: center; width: min(100%, var(--content-width)); }
+.premiumSheet { align-items: center; animation: sheetIn 240ms cubic-bezier(.2,.82,.34,1); background: var(--grammar-cream); border: 3px solid var(--grammar-ink); border-radius: 28px 28px 0 0; display: flex; flex-direction: column; padding: 9px 22px max(24px, var(--korio-bottom)); text-align: center; width: min(100%, var(--content-width)); }
 .sheetGrip { background: #cfc4ad; border-radius: 99px; height: 5px; margin-bottom: 18px; width: 44px; }
 .premiumStar { align-items: center; background: #fcefc7; border: 3px solid var(--grammar-ink); border-radius: 20px; color: #e2a83a; display: flex; font-size: 37px; height: 72px; justify-content: center; width: 72px; }
 .premiumSheet h2 { font-size: 22px; margin: 14px 0 7px; }

@@ -16,7 +16,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   min-height: var(--tg-viewport-stable-height, 100dvh);
-  padding-top: var(--tg-content-safe-area-inset-top, 0px);
+  padding-top: var(--korio-top);
   width: 100%;
 }
 
@@ -59,7 +59,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: 0 18px max(42px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 0 18px max(42px, var(--korio-bottom));
 }
 
 .hero {
@@ -839,7 +839,7 @@
   z-index: 2;
   border-top: 1px solid var(--topik-border);
   background: var(--topik-surface);
-  padding: 12px 20px calc(13px + var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 12px 20px calc(13px + var(--korio-bottom));
 }
 .startButton {
   width: 100%;
@@ -858,7 +858,7 @@
   flex-direction: column;
   margin: 0 auto;
   max-width: var(--content-width);
-  padding-top: var(--tg-content-safe-area-inset-top, 0px);
+  padding-top: var(--korio-top);
   background: var(--topik-bg);
 }
 .pickerHeader {

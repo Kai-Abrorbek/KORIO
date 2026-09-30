@@ -23,7 +23,7 @@ import {
 } from "../model/topik";
 import { ChoiceList, StimulusCard, TopikTextBlocks } from "./topik-exam-parts";
 import styles from "./topik-recipe-screen.module.css";
-import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { useTelegramBackOverride, safeBack } from "../../../shared/telegram/back-button";
 
 const CHOICE_MARK = ["①", "②", "③", "④"];
 
@@ -102,7 +102,7 @@ export function TopikRecipeScreen() {
         <MobileIcon name="cloud-offline-outline" size={32} />
         <h1>Imtihon variantlarini yuklab bo‘lmadi.</h1>
         <div className={styles.errorActions}>
-          <button className={styles.mutedButton} onClick={() => router.back()} type="button">Orqaga</button>
+          <button className={styles.mutedButton} onClick={() => safeBack(router)} type="button">Orqaga</button>
           <button onClick={() => void load()} type="button">Qayta urinish</button>
         </div>
       </main>
@@ -112,7 +112,7 @@ export function TopikRecipeScreen() {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <button aria-label="Orqaga" onClick={() => router.back()} type="button">
+        <button aria-label="Orqaga" onClick={() => safeBack(router)} type="button">
           <MobileIcon name="chevron-back" size={24} />
         </button>
         <div>

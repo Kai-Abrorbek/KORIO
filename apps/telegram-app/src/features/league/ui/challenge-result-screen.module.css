@@ -14,7 +14,7 @@
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  padding: var(--tg-content-safe-area-inset-top, 0px) 24px 0;
+  padding: var(--korio-top) 24px 0;
 }
 
 .xpCircle {
@@ -99,7 +99,7 @@
 }
 
 .resultPage footer {
-  padding: 0 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+  padding: 0 20px calc(var(--korio-bottom) + 20px);
 }
 
 .resultPage footer button {

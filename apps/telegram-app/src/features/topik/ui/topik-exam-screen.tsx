@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
-import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { useTelegramBackOverride, safeBack } from "../../../shared/telegram/back-button";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getTopikAttempt,
@@ -396,7 +396,7 @@ export function TopikExamScreen() {
     try {
       await saveProgress();
       stopAudio();
-      router.back();
+      safeBack(router);
     } catch {
       setActionError("exit");
     } finally {
@@ -446,7 +446,7 @@ export function TopikExamScreen() {
 
   return <main className={styles.screen}>
     <header className={styles.examHeader}>
-      <button aria-label="Yopish" onClick={() => isReview ? router.back() : setExitOpen(true)} type="button"><MobileIcon name="close" size={25} /></button>
+      <button aria-label="Yopish" onClick={() => isReview ? safeBack(router) : setExitOpen(true)} type="button"><MobileIcon name="close" size={25} /></button>
       <div className={styles.progressArea}><span><i style={{ width: `${(progressPosition / questions.length) * 100}%` }} /></span><small>{progressLabel}</small></div>
       <div className={styles.timer}><MobileIcon name={mode === "mock_exam" && !isReview ? "time-outline" : "book-outline"} size={16} /><b>{mode === "mock_exam" && !isReview ? formatTime(remainingSeconds) : isReview ? "Izohli takrorlash" : "Izohli o‘rganish"}</b></div>
     </header>
@@ -456,7 +456,7 @@ export function TopikExamScreen() {
     </div>
     <footer className={styles.examFooter}>
       <button data-i18n="topik.exam.previous" disabled={activeStepIndex === 0 || busy} onClick={() => void moveBy(-1)} type="button"><MobileIcon name="chevron-back" size={21} />Oldingi</button>
-      {lastStep ? <button className={styles.primaryButton} disabled={busy} onClick={() => isReview ? router.back() : setSubmitOpen(true)} type="button">{isReview ? "Natijaga qaytish" : "Javoblarni yuborish"}</button> : <button className={styles.primaryButton} disabled={busy} onClick={() => void moveBy(1)} type="button">Keyingi<MobileIcon name="chevron-forward" size={21} /></button>}
+      {lastStep ? <button className={styles.primaryButton} disabled={busy} onClick={() => isReview ? safeBack(router) : setSubmitOpen(true)} type="button">{isReview ? "Natijaga qaytish" : "Javoblarni yuborish"}</button> : <button className={styles.primaryButton} disabled={busy} onClick={() => void moveBy(1)} type="button">Keyingi<MobileIcon name="chevron-forward" size={21} /></button>}
     </footer>
 
     <SheetModal onClose={() => !busy && setExitOpen(false)} visible={exitOpen}>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
-import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { useTelegramBackOverride, safeBack } from "../../../shared/telegram/back-button";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getTopikAttempt,
@@ -150,7 +150,7 @@ export function TopikWritingScreen() {
   const leave = async () => {
     if (leaving) return;
     setLeaving(true);
-    try { await save(currentIndex); router.back(); }
+    try { await save(currentIndex); safeBack(router); }
     catch { setLeaving(false); setErrorOpen(true); }
   };
   const submit = async () => {
@@ -173,13 +173,13 @@ export function TopikWritingScreen() {
   if (!question || !attempt) return <main className={styles.centered}><MobileIcon name="document-text-outline" size={38} /><h1>Yozish imtihonini yuklab bo‘lmadi.</h1><button onClick={() => void load()} type="button">Qayta urinish</button></main>;
 
   return <main className={styles.screen}>
-    <header className={styles.header}><button aria-label="Orqaga" onClick={() => submittedReview ? router.back() : setExitOpen(true)} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><small>{solutionVisible ? "O‘ZINI TEKSHIRISH" : "TOPIK II YOZISH"}</small><b>{question.number} / 54</b></div><span><MobileIcon name={showTimer ? "time-outline" : "book-outline"} size={14} />{showTimer ? formatTime(elapsedSeconds) : singlePractice ? "Tur bo‘yicha mashq" : solutionVisible ? "Izohli takrorlash" : "Izohli o‘rganish"}</span></header>
+    <header className={styles.header}><button aria-label="Orqaga" onClick={() => submittedReview ? safeBack(router) : setExitOpen(true)} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><small>{solutionVisible ? "O‘ZINI TEKSHIRISH" : "TOPIK II YOZISH"}</small><b>{question.number} / 54</b></div><span><MobileIcon name={showTimer ? "time-outline" : "book-outline"} size={14} />{showTimer ? formatTime(elapsedSeconds) : singlePractice ? "Tur bo‘yicha mashq" : solutionVisible ? "Izohli takrorlash" : "Izohli o‘rganish"}</span></header>
     <div className={styles.progress}><i style={{ width: `${(currentIndex + 1) / questions.length * 100}%` }} /></div>
     {solutionVisible ? <section className={styles.completeBanner}><span><MobileIcon name="checkmark" size={22} /></span><div><b>{practiceSolution ? "Namunaviy javob ochildi" : "Yozish javoblari yakunlandi"}</b><p>{practiceSolution ? "Javobingiz bilan solishtirib, tuzilma va katak qoidalarini tekshiring." : "Namunaviy javob va baholash mezonlari bilan o‘zingizni tekshiring."}</p></div></section> : null}
     <div className={styles.content} ref={contentRef}><WritingCard onChange={updateResponse} question={question} readOnly={submittedReview} responses={responses[question.id] ?? {}} showRecommendedTime={showTimer} solution={currentSolution} /></div>
     <footer className={styles.footer}>
       {!singlePractice ? <button data-i18n="topik.exam.previous" disabled={currentIndex === 0 || saving} onClick={() => void moveTo(currentIndex - 1)} type="button"><MobileIcon name="arrow-back" size={18} />Oldingi</button> : null}
-      {currentIndex < questions.length - 1 ? <button className={styles.primary} disabled={saving} onClick={() => void moveTo(currentIndex + 1)} type="button"><MobileIcon name="arrow-forward" size={18} />Keyingi</button> : singlePractice ? practiceSolution ? <button className={styles.primary} disabled={saving} onClick={() => void leave()} type="button"><MobileIcon name="grid-outline" size={18} />Savol turlariga qaytish</button> : <button className={styles.primary} disabled={!currentAnswered || saving || submitting} onClick={() => void revealPractice()} type="button"><MobileIcon name="eye-outline" size={18} />{currentAnswered ? "Namuna va izohni ko‘rish" : "Avval javob yozing"}</button> : submittedReview ? <button className={styles.primary} onClick={() => router.back()} type="button"><MobileIcon name="albums-outline" size={18} />Imtihonlar ro‘yxatiga qaytish</button> : <button className={styles.primary} disabled={saving} onClick={() => setSubmitOpen(true)} type="button"><MobileIcon name="send" size={17} />Javoblarni yuborish</button>}
+      {currentIndex < questions.length - 1 ? <button className={styles.primary} disabled={saving} onClick={() => void moveTo(currentIndex + 1)} type="button"><MobileIcon name="arrow-forward" size={18} />Keyingi</button> : singlePractice ? practiceSolution ? <button className={styles.primary} disabled={saving} onClick={() => void leave()} type="button"><MobileIcon name="grid-outline" size={18} />Savol turlariga qaytish</button> : <button className={styles.primary} disabled={!currentAnswered || saving || submitting} onClick={() => void revealPractice()} type="button"><MobileIcon name="eye-outline" size={18} />{currentAnswered ? "Namuna va izohni ko‘rish" : "Avval javob yozing"}</button> : submittedReview ? <button className={styles.primary} onClick={() => safeBack(router)} type="button"><MobileIcon name="albums-outline" size={18} />Imtihonlar ro‘yxatiga qaytish</button> : <button className={styles.primary} disabled={saving} onClick={() => setSubmitOpen(true)} type="button"><MobileIcon name="send" size={17} />Javoblarni yuborish</button>}
     </footer>
 
     <SheetModal onClose={() => !leaving && setExitOpen(false)} visible={exitOpen}><h2>Hozircha shu yerda to‘xtaysizmi?</h2><p>Hozirgacha tanlagan javoblaringizni xavfsiz saqlaymiz.</p><ModalProgress answered={answeredCount} total={questions.length} /><button className={styles.modalPrimary} disabled={leaving} onClick={() => setExitOpen(false)} type="button">Davom etish</button><button className={styles.modalDanger} disabled={leaving} onClick={() => void leave()} type="button"><MobileIcon name="exit-outline" size={18} />Saqlash va chiqish</button></SheetModal>

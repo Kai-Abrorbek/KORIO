@@ -1,6 +1,6 @@
 .screen { background:#faf9f5; color:#29243d; min-height:var(--tg-viewport-stable-height,100dvh); }
 .screen button { cursor:pointer; }
-.content { margin:0 auto; max-width:620px; padding:max(0px,var(--tg-content-safe-area-inset-top,0px)) 17px max(30px,var(--tg-content-safe-area-inset-bottom,0px)); }
+.content { margin:0 auto; max-width:620px; padding:var(--korio-top) 17px max(30px,var(--korio-bottom)); }
 .topBar { align-items:center; display:flex; justify-content:space-between; min-height:58px; }
 .topBar>button { align-items:center; background:#fff; border:1px solid #e8e5ee; border-radius:14px; color:#29243d; display:flex; height:40px; justify-content:center; padding:0; width:40px; }
 .topBar>span { align-items:center; display:flex; font-size:12.5px; font-weight:800; gap:6px; }

@@ -11,7 +11,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  padding-top: calc(var(--korio-top) + 8px);
   position: relative;
 }
 
@@ -117,7 +117,7 @@
   flex: none;
   flex-direction: column;
   gap: 10px;
-  padding: 14px 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  padding: 14px 20px calc(var(--korio-bottom) + 16px);
 }
 
 .options button {

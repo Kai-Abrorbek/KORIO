@@ -13,6 +13,7 @@ import { useTopikListeningPlayback } from "../browser/use-topik-listening-playba
 import { topikUzText, type TopikRecipeQuestion } from "../model/topik";
 import { ChoiceList, StimulusCard, TopikTextBlocks } from "./topik-exam-parts";
 import styles from "./topik-practice-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 type Phase = "solving" | "result";
 
@@ -115,7 +116,7 @@ export function TopikPracticeScreen() {
         <MobileIcon name="cloud-offline-outline" size={32} />
         <h1>Imtihon variantlarini yuklab bo‘lmadi.</h1>
         <div className={styles.errorActions}>
-          <button className={styles.mutedButton} onClick={() => router.back()} type="button">Orqaga</button>
+          <button className={styles.mutedButton} onClick={() => safeBack(router)} type="button">Orqaga</button>
           <button onClick={() => void load()} type="button">Qayta urinish</button>
         </div>
       </main>
@@ -125,7 +126,7 @@ export function TopikPracticeScreen() {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={24} /></button>
+        <button aria-label="Orqaga" onClick={() => safeBack(router)} type="button"><MobileIcon name="chevron-back" size={24} /></button>
         <div><small>{topikUzText(practiceSet.label)}</small><h1>Taxminiy savollarni yechish</h1></div>
         <b>{phase === "result" && !writtenOnly ? correctCount : answeredCount}/{total}</b>
       </header>
@@ -214,7 +215,7 @@ export function TopikPracticeScreen() {
         {phase === "solving" ? (
           <button disabled={!allAnswered} onClick={() => void submit()} type="button">Tekshirish</button>
         ) : (
-          <button onClick={() => router.back()} type="button">Darsga qaytish</button>
+          <button onClick={() => safeBack(router)} type="button">Darsga qaytish</button>
         )}
       </footer>
     </main>

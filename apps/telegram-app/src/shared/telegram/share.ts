@@ -63,7 +63,7 @@ export function showToast(message: string) {
   Object.assign(toast.style, {
     background: "rgba(26,26,46,.92)",
     borderRadius: "14px",
-    bottom: "calc(24px + max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)))",
+    bottom: "calc(24px + var(--korio-bottom))",
     color: "#fff",
     fontSize: "14px",
     fontWeight: "700",

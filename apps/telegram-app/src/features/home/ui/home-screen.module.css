@@ -31,7 +31,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: max(16px, var(--tg-content-safe-area-inset-top, 0px)) 20px 12px;
+  padding: max(16px, var(--korio-top)) 20px 12px;
 }
 
 .headerButton {
@@ -587,7 +587,7 @@
   background: var(--primary);
   border: 0;
   border-radius: 50%;
-  bottom: calc(88px + var(--tg-content-safe-area-inset-bottom, 0px));
+  bottom: calc(88px + var(--korio-bottom));
   box-shadow: 0 10px 30px rgb(119 110 226 / 44%);
   color: #ffffff !important;
   cursor: pointer;
@@ -623,7 +623,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   left: 50%;
-  padding: 8px 4px max(8px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 8px 4px max(8px, var(--korio-bottom));
   position: fixed;
   transform: translateX(-50%);
   width: min(100%, 560px);
@@ -666,7 +666,7 @@
   border-radius: 28px 28px 0 0;
   max-height: 88dvh;
   overflow-y: auto;
-  padding: 20px 20px max(34px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 20px 20px max(34px, var(--korio-bottom));
   position: relative;
   width: min(100%, 560px);
 }

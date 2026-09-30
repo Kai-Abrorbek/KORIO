@@ -13,7 +13,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 8px);
+  padding-top: calc(var(--korio-top) + 8px);
 }
 
 .header {
@@ -211,7 +211,7 @@
 }
 
 .footer {
-  padding: 10px 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 16px);
+  padding: 10px 20px calc(var(--korio-bottom) + 16px);
 }
 
 .stopButton {
@@ -239,7 +239,7 @@
 }
 
 .endPage {
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 20px);
+  padding-top: calc(var(--korio-top) + 20px);
 }
 
 .endWrap {

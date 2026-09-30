@@ -34,7 +34,7 @@
   height: 48px;
   justify-content: center;
   margin-left: 12px;
-  margin-top: max(8px, var(--tg-content-safe-area-inset-top, 0px));
+  margin-top: max(8px, var(--korio-top));
   padding: 0 4px 5px;
   width: 48px;
 }
@@ -175,7 +175,7 @@
   background: var(--surface);
   border-radius: 28px 28px 0 0;
   box-shadow: 0 -12px 40px rgb(26 26 46 / 12%);
-  padding: 12px 20px max(26px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 12px 20px max(26px, var(--korio-bottom));
   touch-action: pan-y;
   width: min(100%, 560px);
 }
@@ -315,7 +315,7 @@
   align-items: center;
   display: flex;
   gap: 10px;
-  padding: max(12px, var(--tg-content-safe-area-inset-top, 0px)) 16px 8px;
+  padding: max(12px, var(--korio-top)) 16px 8px;
 }
 
 .learningHeader button {
@@ -344,7 +344,7 @@
 }
 
 .categoryContent {
-  padding: 12px 20px max(48px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 12px 20px max(48px, var(--korio-bottom));
 }
 
 .modeSelector {
@@ -539,7 +539,7 @@
 }
 
 .choiceSheet {
-  padding-bottom: max(30px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding-bottom: max(30px, var(--korio-bottom));
 }
 
 .topikOptions {

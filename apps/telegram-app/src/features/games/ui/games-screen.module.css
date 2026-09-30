@@ -10,7 +10,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 4px);
+  padding-top: calc(var(--korio-top) + 4px);
 }
 
 .page > header {
@@ -42,7 +42,7 @@
 .scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 32px);
+  padding: 0 20px calc(var(--korio-bottom) + 32px);
   scrollbar-width: none;
 }
 

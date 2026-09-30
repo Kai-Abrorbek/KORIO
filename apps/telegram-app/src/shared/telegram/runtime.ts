@@ -42,6 +42,29 @@ function gateHaptics(webApp: TelegramWebApp) {
   }
 }
 
+/**
+ * 텔레그램 기본 헤더(흰 띠 + 제목)를 없애고 화면 끝까지 쓴다 — Bot API 8.0+.
+ *
+ * 폰(android/ios)에서만 켠다. 데스크톱·웹에서 전체화면은 창이 모니터를 덮어 버린다.
+ * 전체화면이면 위쪽에 텔레그램의 닫기/⋯ 버튼이 떠 있어서, 화면들은
+ * --korio-top (= 기기 안전영역 + 그 버튼 영역) 만큼 내려서 그린다. globals.css 참고.
+ *
+ * 문제가 생기면 FULLSCREEN 만 false 로 바꾸면 예전 모습으로 돌아간다.
+ */
+const FULLSCREEN = true;
+const MOBILE_PLATFORMS = new Set(["android", "android_x", "ios"]);
+
+function enterFullscreen(webApp: TelegramWebApp) {
+  if (!FULLSCREEN || webApp.isFullscreen) return;
+  if (!MOBILE_PLATFORMS.has(webApp.platform)) return;
+  if (!webApp.isVersionAtLeast?.("8.0")) return;
+  try {
+    webApp.requestFullscreen?.();
+  } catch {
+    // 지원 안 하는 클라이언트면 헤더 있는 채로 둔다
+  }
+}
+
 export function prepareTelegramWebApp(): TelegramWebApp {
   const webApp = window.Telegram?.WebApp;
   if (!webApp) throw new TelegramRuntimeError("TELEGRAM_RUNTIME_UNAVAILABLE");
@@ -57,6 +80,7 @@ export function prepareTelegramWebApp(): TelegramWebApp {
   webApp.disableVerticalSwipes?.();
   webApp.setHeaderColor?.("secondary_bg_color");
   webApp.setBackgroundColor?.("secondary_bg_color");
+  enterFullscreen(webApp);
   webApp.ready();
   return webApp;
 }

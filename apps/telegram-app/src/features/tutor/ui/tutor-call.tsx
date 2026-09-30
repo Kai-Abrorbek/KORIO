@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react";
 
 import { romanize } from "../../../shared/lib/romanize";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
@@ -103,6 +103,27 @@ function useViewportHeight() {
   return height;
 }
 
+/** 이보다 작으면 마스코트가 장난감처럼 보여서 차라리 숨긴다 */
+const MASCOT_MIN = 64;
+
+function useElementHeight(ref: RefObject<HTMLElement | null>) {
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const read = () => setHeight(element.clientHeight);
+    read();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", read);
+      return () => window.removeEventListener("resize", read);
+    }
+    const observer = new ResizeObserver(read);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+  return height;
+}
+
 /**
  * 새 Voice Tutor 통화 화면 — 모바일 VoiceTutorCallScreen.tsx.
  *
@@ -122,6 +143,10 @@ export function TutorCall(p: TutorCallProps) {
   const remain = p.limitSec > 0 ? Math.max(0, p.limitSec - p.elapsedSec) : null;
   const nearEnd = p.active && remain !== null && remain <= 30;
   const avatarSize = height < 700 ? 132 : height < 820 ? 154 : 172;
+  const stageRef = useRef<HTMLDivElement>(null);
+  const stageHeight = useElementHeight(stageRef);
+  // 마스코트 전체 높이 ≈ size × 1.43 (몸통 + 그림자). 위아래 숨 쉴 틈 12px
+  const mascotSize = Math.min(Math.round(avatarSize * 0.86), Math.floor((stageHeight - 12) / 1.43));
 
   // 오늘의 표현을 유저가 직접 말했을 때만 채운다. 선생님이 말한 건 진도가 아니다
   useEffect(() => {
@@ -193,12 +218,7 @@ export function TutorCall(p: TutorCallProps) {
       <div aria-hidden="true" className={styles.backdrop}>
         <i className={styles.blobA} />
         <i className={styles.blobB} />
-        <i className={styles.keyLight} />
         <i className={styles.streak} />
-      </div>
-
-      <div className={styles.stage}>
-        <TutorMascot emotion={p.emotion} size={Math.round(avatarSize * 0.86)} state={p.state} tint={BRAND} />
       </div>
 
       <i aria-hidden="true" className={styles.scrim} />
@@ -266,7 +286,16 @@ export function TutorCall(p: TutorCallProps) {
         </div>
       </div>
 
-      <div className={styles.spacer} />
+      {/* 마스코트는 남는 세로 공간 안에서만 산다. 텔레그램 헤더 때문에 화면이
+          짧아져도 글 패널 뒤로 깔리지 않고, 작아지다가 모자라면 숨는다 */}
+      <div className={styles.stage} ref={stageRef}>
+        {mascotSize >= MASCOT_MIN ? (
+          <div className={styles.stageInner}>
+            <i aria-hidden="true" className={styles.keyLight} />
+            <TutorMascot emotion={p.emotion} size={mascotSize} state={p.state} tint={BRAND} />
+          </div>
+        ) : null}
+      </div>
 
       {showText ? (
         <section aria-live="polite" className={styles.glass}>

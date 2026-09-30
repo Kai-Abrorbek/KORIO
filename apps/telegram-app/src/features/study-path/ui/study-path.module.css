@@ -19,7 +19,7 @@
   display: flex;
   flex: 0 0 auto;
   gap: 11px;
-  padding: max(10px, var(--tg-content-safe-area-inset-top, 0px)) 18px 2px;
+  padding: max(10px, var(--korio-top)) 18px 2px;
   position: relative;
   z-index: 21;
 }
@@ -66,7 +66,7 @@
   margin-left: 12px;
   padding: 0 4px 5px;
   position: relative;
-  top: max(8px, var(--tg-content-safe-area-inset-top, 0px));
+  top: max(8px, var(--korio-top));
   width: 48px;
   z-index: 2;
 }
@@ -76,8 +76,8 @@
 }
 
 .levelScroll {
-  padding: max(16px, var(--tg-content-safe-area-inset-top, 0px)) 18px
-    max(30px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: max(16px, var(--korio-top)) 18px
+    max(30px, var(--korio-bottom));
 }
 
 .levelHero {
@@ -333,7 +333,7 @@
   flex: 0 0 auto;
   justify-content: space-between;
   /* 맨 위 줄이 됐다 (앱처럼 뒤로가기 줄 없이 통계 줄부터) → 안전 영역만큼 내린다 */
-  padding: calc(9px + var(--tg-content-safe-area-inset-top, 0px)) 20px 12px;
+  padding: calc(9px + var(--korio-top)) 20px 12px;
   position: relative;
   z-index: 20;
 }
@@ -973,7 +973,7 @@
   background: var(--jump-color, #776ee2);
   border: 3px solid #ffffff;
   border-radius: 50%;
-  bottom: max(24px, var(--tg-content-safe-area-inset-bottom, 0px));
+  bottom: max(24px, var(--korio-bottom));
   box-shadow: 0 7px 18px rgb(0 0 0 / 20%);
   color: #ffffff;
   cursor: pointer;
@@ -999,7 +999,7 @@
   display: flex;
   gap: 13px;
   left: 0;
-  padding: 18px 20px max(18px, var(--tg-content-safe-area-inset-bottom, 0px));
+  padding: 18px 20px max(18px, var(--korio-bottom));
   position: absolute;
   right: 0;
   z-index: 90;
@@ -1081,7 +1081,7 @@
 
 .nextSectionJump { background:#fff; border:2px solid var(--path-border); border-bottom-width:5px; border-radius:14px; color:#4ba3f5; cursor:pointer; font-size:15px; font-weight:900; margin-top:20px; min-height:52px; width:100%; }
 .roadmapSheetBackdrop { align-items:flex-end; background:rgb(0 0 0 / 50%); display:flex; inset:0; justify-content:center; position:absolute; z-index:100; }
-.roadmapSheet { animation:rewardIn 240ms cubic-bezier(.22,.8,.34,1); background:var(--path-bg); border-radius:28px 28px 0 0; max-height:85%; overflow:hidden; padding:8px 18px max(20px,var(--tg-content-safe-area-inset-bottom,0px)); width:min(100%,560px); }
+.roadmapSheet { animation:rewardIn 240ms cubic-bezier(.22,.8,.34,1); background:var(--path-bg); border-radius:28px 28px 0 0; max-height:85%; overflow:hidden; padding:8px 18px max(20px,var(--korio-bottom)); width:min(100%,560px); }
 .sheetGrip { background:var(--path-border); border-radius:99px; height:5px; margin:0 auto 12px; width:44px; }
 .roadmapSheet>header { align-items:center; display:flex; justify-content:space-between; margin-bottom:12px; }
 .roadmapSheet h2 { font-size:20px; font-weight:900; margin:0; }
@@ -1101,7 +1101,7 @@
 .comingSoonPage>span { font-size:52px; }
 .comingSoonPage h1 { font-size:22px; font-weight:900; margin:16px 0 8px; }
 .comingSoonPage p { color:var(--path-muted); font-size:15px; line-height:1.45; margin:0; }
-.comingSoonBack { background:transparent; border:0; color:var(--path-text); cursor:pointer; left:16px; position:absolute; top:max(18px,var(--tg-content-safe-area-inset-top,0px)); transform:rotate(180deg); }
+.comingSoonBack { background:transparent; border:0; color:var(--path-text); cursor:pointer; left:16px; position:absolute; top:max(18px,var(--korio-top)); transform:rotate(180deg); }
 
 @keyframes spin {
   to {

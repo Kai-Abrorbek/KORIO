@@ -31,7 +31,7 @@
   align-items: center;
   display: flex;
   gap: 12px;
-  padding: calc(var(--tg-content-safe-area-inset-top, 0px) + 56px) 16px 8px;
+  padding: calc(var(--korio-top) + 56px) 16px 8px;
 }
 
 .matchPage > header > button {
@@ -256,7 +256,7 @@
   background: #776ee2;
   border: 0;
   border-radius: 16px;
-  bottom: calc(var(--tg-content-safe-area-inset-bottom, 0px) + 40px);
+  bottom: calc(var(--korio-bottom) + 40px);
   box-shadow: 0 6px 16px rgb(119 110 226 / 30%);
   color: #fff;
   font-size: 17px;
@@ -298,7 +298,7 @@
 @keyframes rewardBob { 50% { transform: translateY(-12px); } }
 
 @media (max-height: 720px) {
-  .matchPage > header { padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 26px); }
+  .matchPage > header { padding-top: calc(var(--korio-top) + 26px); }
   .matchPage > h1 { padding-bottom: 14px; padding-top: 10px; }
   .pairCard { height: 72px; padding: 14px 10px; }
   .board > div { gap: 10px; }

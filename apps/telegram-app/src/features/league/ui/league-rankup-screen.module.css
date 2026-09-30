@@ -6,7 +6,7 @@
   height: var(--tg-viewport-stable-height, 100dvh);
   margin: 0 auto;
   max-width: var(--content-width);
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 20px);
+  padding-top: calc(var(--korio-top) + 20px);
 }
 
 .top {
@@ -129,7 +129,7 @@
 }
 
 .rankupPage footer {
-  padding: 12px 20px calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px);
+  padding: 12px 20px calc(var(--korio-bottom) + 20px);
 }
 
 .rankupPage footer button {

@@ -11,7 +11,7 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 56px);
+  padding-top: calc(var(--korio-top) + 56px);
 }
 
 .close {
@@ -245,7 +245,7 @@
 }
 
 @media (max-height: 700px) {
-  .memoryPage { padding-top: calc(var(--tg-content-safe-area-inset-top, 0px) + 30px); }
+  .memoryPage { padding-top: calc(var(--korio-top) + 30px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

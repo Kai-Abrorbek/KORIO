@@ -8,6 +8,7 @@ import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { getTopikRecipes } from "../api/topik";
 import { topikUzText, type TopikRecipeSummary } from "../model/topik";
 import styles from "./topik-recipes-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 type Level = 3 | 4 | 5 | 6;
 interface Chapter { key: string; level: Level; title: string; groupCodes: string[] }
@@ -63,7 +64,7 @@ export function TopikRecipesScreen() {
   if (loading) return <main className={styles.centered}><i className={styles.spinner} /></main>;
 
   return <main className={styles.screen}>
-    <header className={styles.header}><button aria-label="Orqaga" onClick={() => router.back()} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><h1>Oltin retsept</h1><p>{`${readyCount}/${levelItems.length} tur tayyor`}</p></div></header>
+    <header className={styles.header}><button aria-label="Orqaga" onClick={() => safeBack(router)} type="button"><MobileIcon name="chevron-back" size={24} /></button><div><h1>Oltin retsept</h1><p>{`${readyCount}/${levelItems.length} tur tayyor`}</p></div></header>
     <nav className={styles.tabs}>{([3,4,5,6] as Level[]).map((item) => <button aria-pressed={item === level} className={item === level ? styles.activeTab : ""} key={item} onClick={() => setLevel(item)} type="button">{`${item}-daraja`}</button>)}</nav>
     <div className={styles.content}>{error ? <section className={styles.stateCard}><MobileIcon name="cloud-offline-outline" size={30} /><b>Imtihon variantlarini yuklab bo‘lmadi.</b><button onClick={() => void load()} type="button">Qayta urinish</button></section> : <><section className={styles.levelSummary}><span>{level}</span><div><small>TOPIK II</small><h2>{`${level}-daraja`}</h2><p>{`${readyCount}/${levelItems.length} tur tayyor`}</p></div></section>{chapters.map((chapter, chapterIndex) => { const chapterItems = chapter.groupCodes.map((code) => itemByCode.get(code)).filter((item): item is TopikRecipeSummary => Boolean(item)); if (!chapterItems.length) return null; return <section className={styles.chapter} key={chapter.key}><header><small>CHAPTER {String(chapterIndex + 1).padStart(2,"0")}</small><h2>{chapter.title}</h2></header><div>{chapterItems.map((item) => <button className={!item.ready ? styles.disabledCard : ""} disabled={!item.ready} key={item.groupCode} onClick={() => router.push(`/topik-recipe?groupCode=${encodeURIComponent(item.groupCode)}`)} type="button"><span><MobileIcon name={SECTION_ICON[item.section] ?? "document-text-outline"} size={16} /><b>{item.fromNumber}{item.toNumber !== item.fromNumber ? `~${item.toNumber}` : ""}</b></span><div><small>{topikUzText(item.label)}</small>{item.ready ? <><strong>{topikUzText(item.title)}</strong><p>{`${item.grammarCount} ta asosiy nuqta · ${item.practiceCount} ta savol`}</p></> : <p>Tayyorlanmoqda</p>}</div><MobileIcon name={item.ready ? "chevron-forward" : "lock-closed"} size={item.ready ? 18 : 16} /></button>)}</div></section>; })}</>}</div>
   </main>;

@@ -10,6 +10,7 @@ import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import { changePassword, checkUsername, deleteAccount, getMe, updateMe } from "../api/profile";
 import type { UserMe } from "../model/profile";
 import styles from "./account-screen.module.css";
+import { safeBack } from "../../../shared/telegram/back-button";
 
 type Field = "nickname" | "username" | "bio";
 const LIMITS: Record<Field, number> = { nickname: 20, username: 20, bio: 100 };
@@ -55,7 +56,7 @@ export function AccountScreen() {
             <MobileIcon name="cloud-offline-outline" size={30} />
             <p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p>
             <button onClick={() => setAttempt((value) => value + 1)} type="button">Qayta urinish</button>
-            <button onClick={() => router.back()} type="button">Orqaga</button>
+            <button onClick={() => safeBack(router)} type="button">Orqaga</button>
           </div>
         ) : <i className={styles.spinner} />}
       </main>

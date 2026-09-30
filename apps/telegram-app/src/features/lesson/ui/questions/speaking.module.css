@@ -22,7 +22,7 @@
 .metrics small{margin-top:2px;color:var(--q-muted);font-size:11px;font-weight:600}
 .heard{display:-webkit-box;margin:10px 0 0;overflow:hidden;color:var(--q-muted);font-size:12px;font-weight:600;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 /* 마이크 바 + 건너뛰기는 화면 맨 아래에 붙는다 (확인 버튼과 같은 규칙) */
-.bottom{position:sticky;bottom:0;z-index:6;display:flex;flex-direction:column;align-items:center;margin:auto calc(-1 * var(--q-pad-x,20px)) 0;background:var(--q-bg);padding:10px var(--q-pad-x,20px) max(env(safe-area-inset-bottom),var(--tg-content-safe-area-inset-bottom,0px))}
+.bottom{position:sticky;bottom:0;z-index:6;display:flex;flex-direction:column;align-items:center;margin:auto calc(-1 * var(--q-pad-x,20px)) 0;background:var(--q-bg);padding:10px var(--q-pad-x,20px) var(--korio-bottom)}
 .hint{margin:0 0 10px;color:var(--q-muted);font-size:13px;font-weight:700;text-align:center}
 .hintError{color:#ff4b4b}
 .mic{display:grid;width:150px;height:60px;place-items:center;margin-bottom:12px;border:0;border-bottom:4px solid #1899d6;border-radius:18px;background:#1cb0f6;color:#fff;padding:0}

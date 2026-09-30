@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: max(18px, calc(var(--tg-content-safe-area-inset-top, 0px) + 18px)) 24px 38px;
+  padding: max(18px, calc(var(--korio-top) + 18px)) 24px 38px;
   position: relative;
 }
 
@@ -428,7 +428,7 @@
   flex: 0 0 auto;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 16px calc(12px + max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)));
+  padding: 10px 16px calc(12px + var(--korio-bottom));
 }
 
 .primary {
