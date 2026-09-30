@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useMemo } from "react";
-import { Platform, Pressable, StyleSheet, Text, TextInput } from "react-native";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -94,13 +94,22 @@ const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
   ref,
 ) {
   const s = useMemo(() => getStyles(theme), [theme]);
-  const focus = () => {
-    if (ref && typeof ref !== "function") ref.current?.focus();
-  };
+  const input = useRef<TextInput>(null);
+  // 부모는 ref.current.focus() 로 다시 포커스를 줄 수 있다 (틀렸을 때 등)
+  useImperativeHandle(ref, () => input.current as TextInput, []);
+
+  // autoFocus 를 TextInput 에 그냥 주면 안드로이드 Modal(계정 화면 시트) 안에서는
+  // 키보드가 안 뜬다 — Modal 창이 아직 포커스를 못 받은 순간에 focus() 가 불린다.
+  // 창이 뜬 뒤에 한 번 더 부른다. 일반 화면에서도 해가 없다
+  useEffect(() => {
+    if (!autoFocus) return;
+    const id = setTimeout(() => input.current?.focus(), 350);
+    return () => clearTimeout(id);
+  }, [autoFocus]);
 
   return (
-    <>
-      <Pressable style={s.boxRow} onPress={focus}>
+    <View style={s.wrap}>
+      <View style={s.boxRow} pointerEvents="none">
         {Array.from({ length: CODE_LENGTH }).map((_, i) => (
           <CodeBox
             key={i}
@@ -110,20 +119,28 @@ const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
             theme={theme}
           />
         ))}
-      </Pressable>
+      </View>
+      {/*
+        입력은 칸 위를 통째로 덮는 투명 TextInput 하나가 받는다.
+        예전엔 화면 밖(top:-100)에 숨겨두고 칸을 누르면 JS 로 focus() 했는데,
+        Modal 안에서는 그게 먹지 않아 키보드가 안 떴다. 칸을 누르는 손가락이
+        곧바로 이 입력을 누르게 하면 OS 가 직접 키보드를 띄운다.
+      */}
       <TextInput
-        ref={ref}
-        style={s.hiddenInput}
+        ref={input}
+        style={s.overlayInput}
         value={value}
         onChangeText={(raw) => onChange(raw.replace(/\D/g, "").slice(0, CODE_LENGTH))}
         keyboardType="number-pad"
         maxLength={CODE_LENGTH}
-        autoFocus={autoFocus}
         caretHidden
+        contextMenuHidden
+        selectionColor="transparent"
+        underlineColorAndroid="transparent"
         textContentType="oneTimeCode"
         autoComplete={Platform.OS === "android" ? "sms-otp" : "one-time-code"}
       />
-    </>
+    </View>
   );
 });
 
@@ -154,12 +171,17 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 1,
       backgroundColor: theme.primary,
     },
-    // 화면 밖으로 밀어둔다. opacity:0 만 주면 안드로이드에서 포커스를 못 받는다
-    hiddenInput: {
+    wrap: { position: "relative" },
+    // 투명하지만 0 은 아니다 — 안드로이드는 opacity 0 인 입력에 포커스를 안 주는 기기가 있다
+    overlayInput: {
       position: "absolute",
-      width: 1,
-      height: 1,
-      opacity: 0,
-      top: -100,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0.02,
+      color: "transparent",
+      fontSize: 1,
+      padding: 0,
     },
   });
