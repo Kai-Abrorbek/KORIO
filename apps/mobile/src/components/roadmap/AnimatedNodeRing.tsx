@@ -5,10 +5,8 @@ export const RING_SIZE = 102;
 const STROKE = 9;
 const R = (RING_SIZE - STROKE) / 2;
 const C = 2 * Math.PI * R;
-const TOTAL_STEPS = 4;
 const GAP_DEG = 20;
 const GAP = (GAP_DEG / 360) * C;
-const ARC = (C - GAP * TOTAL_STEPS) / TOTAL_STEPS;
 
 interface Props {
   color: string;
@@ -21,7 +19,11 @@ export default function AnimatedNodeRing({
   completedSteps = 0,
   totalSteps = 4,
 }: Props) {
-  const steps = Array.from({ length: totalSteps }, (_, i) => {
+  // 칸 길이는 레슨 수로 나눠야 한다. 4 로 고정해 두면 레슨 5개 노드(섹션 4~)에서
+  // 5번째 칸이 한 바퀴를 넘어 첫 칸 위에 겹친다.
+  const count = Math.max(1, totalSteps);
+  const ARC = (C - GAP * count) / count;
+  const steps = Array.from({ length: count }, (_, i) => {
     const isDone = i < completedSteps;
     const offset = i * (ARC + GAP);
     return { isDone, offset };
