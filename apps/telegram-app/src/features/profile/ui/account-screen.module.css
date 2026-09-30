@@ -5,3 +5,24 @@
 :global(html[data-theme="dark"]) .screen,:global(html[data-theme="dark"]) .center{--bg:#15151d;--surface:#25252e;--text:#fff;--secondary:#a6a6b3;--border:#3a3a44;--input:#26252e}:global(html[data-theme="dark"]) .dangerSection>div{border-color:#6d3841}
 @media(prefers-reduced-motion:reduce){.spinner,.buttonSpinner{animation-duration:1.8s}.modal>section{animation:none}}
 .loadFailed{display:flex;max-width:280px;flex-direction:column;align-items:center;gap:12px;color:var(--secondary);text-align:center}.loadFailed p{margin:0;font-size:14px;font-weight:600}.loadFailed button{min-width:160px;border:1.5px solid var(--border);border-radius:999px;background:var(--surface);color:var(--primary);padding:10px 20px;font-size:14px;font-weight:800}.loadFailed button+button{border-color:transparent;background:transparent;color:var(--secondary)}
+/* 메일 코드 → 새 비밀번호 시트 */
+.linkButton{display:block;width:100%;border:0;background:transparent;color:var(--primary);padding:14px;margin-top:4px;font-size:15px;font-weight:800}
+.notice{margin:8px 0 0;color:var(--primary);font-size:13px;font-weight:700}
+.steps{display:flex;align-items:center;margin:0 0 16px}
+.steps>span{display:flex;align-items:center;gap:7px;color:var(--secondary)}
+.steps>span>i{display:grid;width:22px;height:22px;place-items:center;border-radius:50%;background:var(--border);color:var(--secondary);font-size:12px;font-style:normal;font-weight:800}
+.steps>span>b{font-size:13px;font-weight:700}
+.steps>.stepOn{color:var(--text)}
+.steps>.stepOn>i{background:var(--primary);color:#fff}
+.steps>em{flex:1;height:2px;margin:0 10px;border-radius:1px;background:var(--border)}
+.steps>em.stepLineOn{background:var(--primary)}
+.codeRow{position:relative;display:flex;gap:9px;justify-content:space-between;cursor:text}
+.codeBox{display:grid;flex:1;max-height:62px;aspect-ratio:.82;place-items:center;border:1.5px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);font-size:26px;font-weight:800}
+.codeBoxFilled{border-color:var(--primary);animation:codePop .22s ease-out}
+.codeBoxActive{border:2px solid var(--primary)}
+.codeBoxError{border-color:#e24b4a}
+.codeCaret{width:2px;height:24px;border-radius:1px;background:var(--primary);animation:caretBlink .42s ease-in-out infinite alternate}
+/* 칸 위를 덮는 투명 입력 — 어디를 눌러도 키보드가 뜨고 붙여넣기·자동완성이 된다 */
+.modal .codeHidden{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;padding:0;opacity:0;background:transparent;color:transparent;caret-color:transparent;font-size:16px}
+@keyframes codePop{50%{transform:scale(1.07)}}
+@keyframes caretBlink{from{opacity:1}to{opacity:.15}}

@@ -462,6 +462,11 @@ export default {
     },
   },
   account: {
+    forgotPassword: "Parolni unutdingizmi?",
+    pwCreated: "Parol yaratildi",
+    stepVerify: "Emailni tasdiqlash",
+    stepNewPassword: "Yangi parol",
+    codeSending: "Emailga kod yuborilmoqda…",
     noEmailNoPassword: "Bu hisobda email yo'q — parol yaratib bo'lmaydi",
     setPasswordHint: "Emailni tasdiqlagach, email bilan ham kira olasiz",
     setPassword: "Parol yaratish",

@@ -459,6 +459,11 @@ export default {
     },
   },
   account: {
+    forgotPassword: "Забыли пароль?",
+    pwCreated: "Пароль создан",
+    stepVerify: "Подтверждение почты",
+    stepNewPassword: "Новый пароль",
+    codeSending: "Отправляем код на почту…",
     noEmailNoPassword: "У аккаунта нет почты — пароль создать нельзя",
     setPasswordHint: "После подтверждения почты можно входить и по ней",
     setPassword: "Создать пароль",

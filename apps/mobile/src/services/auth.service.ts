@@ -71,7 +71,12 @@ export const authService = {
   // 1번은 계정이 없어도 성공으로 온다. 서버가 일부러 구분해서 안 알려준다
   // (여기서 실패를 돌려주면 이 엔드포인트가 회원 조회기가 된다).
 
-  forgotPassword: (data: { email: string; lang?: string }) =>
+  // purpose 는 메일 문구만 바꾼다 (setPassword = "비밀번호 만들기" 안내)
+  forgotPassword: (data: {
+    email: string;
+    lang?: string;
+    purpose?: "reset" | "setPassword";
+  }) =>
     api.post("/auth/password/forgot", data) as Promise<{ success: boolean }>,
 
   verifyResetCode: (data: { email: string; code: string }) =>

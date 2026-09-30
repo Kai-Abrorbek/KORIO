@@ -15,6 +15,8 @@ export interface UserMe extends KorioTelegramUser {
   avatar: AvatarConfig;
   bio: string;
   provider: string;
+  /** 소셜 가입자도 비밀번호를 만들었으면 true. 옛 서버 응답엔 없다 */
+  hasPassword?: boolean;
   createdAt: string;
   joinedYear: number;
   followingCount: number;

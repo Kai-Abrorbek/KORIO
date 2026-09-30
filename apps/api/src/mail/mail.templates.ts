@@ -65,6 +65,54 @@ const RESET_COPY: Record<MailLang, Copy> = {
   },
 };
 
+/**
+ * 소셜 가입자가 계정 화면에서 "비밀번호 만들기" 를 눌렀을 때.
+ * 재설정 문구("비밀번호를 재설정할까요?")를 그대로 쓰면, 비밀번호가 원래 없는
+ * 사람은 이 코드를 어디에 쓰는 건지 모른다 — 방금 연 창에 넣으라고 짚어준다.
+ */
+const SET_PASSWORD_COPY: Record<MailLang, Copy> = {
+  ko: {
+    subject: 'KORIO 비밀번호 만들기 인증 코드',
+    heading: '비밀번호를 만들어요',
+    lead: 'KORIO 앱의 [계정 관리 → 비밀번호 만들기] 창에 아래 코드를 입력하세요. 코드가 맞으면 바로 새 비밀번호를 정할 수 있어요. 그다음부터는 이 이메일과 비밀번호로도 로그인할 수 있어요.',
+    codeLabel: '인증 코드',
+    expiry: '이 코드는 {{minutes}}분 뒤에 만료돼요.',
+    ignore:
+      '본인이 요청한 게 아니라면 이 메일은 무시해도 괜찮아요. 계정은 그대로예요.',
+    footer: 'KORIO — 한국어를 재미있게',
+  },
+  uz: {
+    subject: 'KORIO parol yaratish kodi',
+    heading: 'Parol yaratamiz',
+    lead: 'KORIO ilovasida [Hisob → Parol yaratish] oynasiga quyidagi kodni kiriting. Kod to‘g‘ri bo‘lsa, darhol yangi parol o‘rnatasiz. Shundan so‘ng shu email va parol bilan ham kira olasiz.',
+    codeLabel: 'Tasdiqlash kodi',
+    expiry: 'Kod {{minutes}} daqiqadan keyin eskiradi.',
+    ignore:
+      'Agar buni siz so‘ramagan bo‘lsangiz, xatga e’tibor bermang. Hisobingiz o‘zgarmaydi.',
+    footer: 'KORIO — koreys tilini qiziqarli o‘rganing',
+  },
+  en: {
+    subject: 'Your KORIO code to create a password',
+    heading: 'Create your password',
+    lead: 'Enter the code below in the KORIO app, in the [Account → Create password] window. Once it matches, you can set a new password right away — after that you can also sign in with this email and password.',
+    codeLabel: 'Verification code',
+    expiry: 'This code expires in {{minutes}} minutes.',
+    ignore:
+      "If you didn't request this, you can ignore this email. Your account stays the same.",
+    footer: 'KORIO — Korean, made fun',
+  },
+  ru: {
+    subject: 'Код KORIO для создания пароля',
+    heading: 'Создаём пароль',
+    lead: 'Введите код ниже в приложении KORIO, в окне [Аккаунт → Создать пароль]. Если код верный, вы сразу зададите новый пароль — после этого можно входить и по этой почте с паролем.',
+    codeLabel: 'Код подтверждения',
+    expiry: 'Код действует ещё {{minutes}} мин.',
+    ignore:
+      'Если это были не вы — просто проигнорируйте письмо. С аккаунтом ничего не случится.',
+    footer: 'KORIO — корейский с удовольствием',
+  },
+};
+
 /** 가입 이메일 인증 코드 — 모양은 재설정 코드 메일과 같다 */
 const SIGNUP_COPY: Record<MailLang, Copy> = {
   ko: {
@@ -194,6 +242,16 @@ export function passwordResetMail(
   minutes: number,
 ): MailMessage {
   return codeMail(to, RESET_COPY[lang], code, minutes);
+}
+
+/** 소셜 가입자의 "비밀번호 만들기" 코드 메일 */
+export function setPasswordCodeMail(
+  to: string,
+  lang: MailLang,
+  code: string,
+  minutes: number,
+): MailMessage {
+  return codeMail(to, SET_PASSWORD_COPY[lang], code, minutes);
 }
 
 /** 가입 이메일 인증 코드 메일 */

@@ -455,6 +455,11 @@ export default {
     },
   },
   account: {
+    forgotPassword: "비밀번호를 잊었어요?",
+    pwCreated: "비밀번호를 만들었어요",
+    stepVerify: "이메일 인증",
+    stepNewPassword: "새 비밀번호",
+    codeSending: "메일로 코드를 보내는 중이에요…",
     noEmailNoPassword: "이메일이 없는 계정이라 비밀번호를 만들 수 없어요",
     setPasswordHint: "이메일 인증 후 이메일로도 로그인할 수 있어요",
     setPassword: "비밀번호 만들기",

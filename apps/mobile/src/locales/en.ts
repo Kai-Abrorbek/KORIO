@@ -460,6 +460,11 @@ export default {
     },
   },
   account: {
+    forgotPassword: "Forgot your password?",
+    pwCreated: "Password created",
+    stepVerify: "Verify email",
+    stepNewPassword: "New password",
+    codeSending: "Sending a code to your email…",
     noEmailNoPassword: "This account has no email, so a password can't be created",
     setPasswordHint: "Verify your email to also sign in with it",
     setPassword: "Create password",

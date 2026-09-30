@@ -1,93 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  View,
   Text,
   TextInput,
   StyleSheet,
   Pressable,
-  Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { authService } from "@/services/auth.service";
 import { usePasswordResetStore } from "@/store/password-reset.store";
 import { useAuthStore } from "@/store/auth.store";
 import AuthStepLayout from "@/components/auth/AuthStepLayout";
+import CodeInput, { CODE_LENGTH } from "@/components/auth/CodeInput";
 
-const LENGTH = 6;
+const LENGTH = CODE_LENGTH;
 /** 재전송을 다시 누를 수 있을 때까지 */
 const RESEND_COOLDOWN_SEC = 60;
-
-/** 한 칸. 채워지면 살짝 튀고, 지금 칠 자리는 테두리가 살아난다 */
-function CodeBox({
-  char,
-  active,
-  error,
-  theme,
-}: {
-  char: string;
-  active: boolean;
-  error: boolean;
-  theme: ThemeColors;
-}) {
-  const s = getStyles(theme);
-  const pop = useSharedValue(0);
-  const caret = useSharedValue(0);
-
-  useEffect(() => {
-    if (char) {
-      pop.value = withSequence(
-        withTiming(1, { duration: 90, easing: Easing.out(Easing.quad) }),
-        withTiming(0, { duration: 130 }),
-      );
-    }
-  }, [char, pop]);
-
-  useEffect(() => {
-    if (active && !char) {
-      caret.value = withRepeat(
-        withSequence(withTiming(1, { duration: 420 }), withTiming(0.15, { duration: 420 })),
-        -1,
-        true,
-      );
-    } else {
-      caret.value = withTiming(0, { duration: 120 });
-    }
-  }, [active, char, caret]);
-
-  const boxStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + pop.value * 0.07 }],
-  }));
-  const caretStyle = useAnimatedStyle(() => ({ opacity: caret.value }));
-
-  return (
-    <Animated.View
-      style={[
-        s.box,
-        boxStyle,
-        active && { borderColor: theme.primary, borderWidth: 2 },
-        !!char && { borderColor: theme.primary },
-        error && { borderColor: "#E24B4A" },
-      ]}
-    >
-      {char ? (
-        <Text style={s.boxText}>{char}</Text>
-      ) : (
-        <Animated.View style={[s.caret, caretStyle]} />
-      )}
-    </Animated.View>
-  );
-}
 
 export default function VerifyCodeScreen() {
   const { t, i18n } = useTranslation();
@@ -217,33 +147,12 @@ export default function VerifyCodeScreen() {
         </Pressable>
       }
     >
-      <Pressable style={s.boxRow} onPress={() => inputRef.current?.focus()}>
-        {Array.from({ length: LENGTH }).map((_, i) => (
-          <CodeBox
-            key={i}
-            char={code[i] ?? ""}
-            active={i === code.length}
-            error={!!error}
-            theme={theme}
-          />
-        ))}
-      </Pressable>
-
-      {/*
-        칸은 6개로 보이지만 실제 입력은 이 하나가 다 받는다.
-        칸마다 TextInput 을 두면 붙여넣기·지우기·SMS 자동완성이 전부 깨진다.
-      */}
-      <TextInput
+      <CodeInput
         ref={inputRef}
-        style={s.hiddenInput}
         value={code}
-        onChangeText={onChange}
-        keyboardType="number-pad"
-        maxLength={LENGTH}
-        autoFocus
-        caretHidden
-        textContentType="oneTimeCode"
-        autoComplete={Platform.OS === "android" ? "sms-otp" : "one-time-code"}
+        onChange={onChange}
+        error={!!error}
+        theme={theme}
       />
 
       {!!notice && <Text style={s.notice}>{notice}</Text>}
@@ -254,37 +163,6 @@ export default function VerifyCodeScreen() {
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
-    boxRow: { flexDirection: "row", gap: 9, justifyContent: "space-between" },
-    box: {
-      flex: 1,
-      aspectRatio: 0.82,
-      maxHeight: 62,
-      borderRadius: 14,
-      borderWidth: 1.5,
-      borderColor: theme.border,
-      backgroundColor: theme.surface,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    boxText: {
-      fontSize: 26,
-      fontWeight: "800",
-      color: theme.text,
-    },
-    caret: {
-      width: 2,
-      height: 24,
-      borderRadius: 1,
-      backgroundColor: theme.primary,
-    },
-    // 화면 밖으로 밀어둔다. opacity:0 만 주면 안드로이드에서 포커스를 못 받는다
-    hiddenInput: {
-      position: "absolute",
-      width: 1,
-      height: 1,
-      opacity: 0,
-      top: -100,
-    },
     notice: {
       fontSize: 13,
       fontWeight: "700",

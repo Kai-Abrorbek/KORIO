@@ -25,6 +25,15 @@ export class ForgotPasswordDto {
   @IsOptional()
   @IsIn([...MAIL_LANGS])
   lang?: string;
+
+  /**
+   * 메일 문구만 바꾼다. 흐름·코드·검증은 똑같다.
+   *  reset       — 비밀번호 찾기 / 변경 창의 "잊었어요"
+   *  setPassword — 소셜 가입자가 계정 화면에서 비밀번호를 처음 만들 때
+   */
+  @IsOptional()
+  @IsIn(['reset', 'setPassword'])
+  purpose?: 'reset' | 'setPassword';
 }
 
 export class VerifyResetCodeDto {

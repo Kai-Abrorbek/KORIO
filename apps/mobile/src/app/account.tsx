@@ -4,7 +4,7 @@
  * 프로필(닉네임·아이디·소개)은 여기서 바로 고치고, 비밀번호·탈퇴처럼
  * 되돌리기 어려운 건 확인 단계를 한 번 더 둔다.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   View,
@@ -32,7 +32,7 @@ import { useAuthStore, User } from "@/store/auth.store";
 import { signOut } from "@/utils/sign-out";
 import { UserService } from "@/services/user.service";
 import { authService } from "@/services/auth.service";
-import { usePasswordResetStore } from "@/store/password-reset.store";
+import CodeInput, { CODE_LENGTH } from "@/components/auth/CodeInput";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 
 type Styles = ReturnType<typeof getStyles>;
@@ -114,7 +114,7 @@ function Row({
 }
 
 export default function AccountScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
@@ -124,24 +124,8 @@ export default function AccountScreen() {
   const [editing, setEditing] = useState<Field | null>(null);
   const [pwOpen, setPwOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const startFlow = usePasswordResetStore((st) => st.startFlow);
-  const [pwSending, setPwSending] = useState(false);
-
-  /** 비밀번호 만들기: 내 메일로 코드 → 코드 확인 → 새 비밀번호 (비밀번호 찾기와 같은 화면) */
-  const startSetPassword = async (email: string) => {
-    if (pwSending) return;
-    setPwSending(true);
-    try {
-      await authService.forgotPassword({ email, lang: i18n.language?.slice(0, 2) });
-      startFlow(email, "setPassword");
-      router.push("/auth/verify-code");
-    } catch (e: any) {
-      const code = e?.message ?? "UNKNOWN_ERROR";
-      Alert.alert(t(`auth.errors.${code}`, { defaultValue: t("auth.errors.UNKNOWN_ERROR") }));
-    } finally {
-      setPwSending(false);
-    }
-  };
+  /** 메일 코드 → 새 비밀번호 시트. set = 소셜 가입자 첫 비밀번호, forgot = 변경 창에서 "잊었어요" */
+  const [codeSheet, setCodeSheet] = useState<"set" | "forgot" | null>(null);
 
   // 다른 화면에서 아바타를 바꾸고 돌아올 수 있다
   useFocusEffect(
@@ -327,7 +311,7 @@ export default function AccountScreen() {
               bg="#E7E0F7"
               label={t("account.setPassword")}
               value={t("account.setPasswordHint")}
-              onPress={() => void startSetPassword(me.email)}
+              onPress={() => setCodeSheet("set")}
               s={s}
               theme={theme}
             />
@@ -408,8 +392,30 @@ export default function AccountScreen() {
       )}
 
       {pwOpen && (
-        <PasswordSheet onClose={() => setPwOpen(false)} s={s} theme={theme} />
+        <PasswordSheet
+          onClose={() => setPwOpen(false)}
+          onForgot={
+            me.email
+              ? () => {
+                  setPwOpen(false);
+                  setCodeSheet("forgot");
+                }
+              : undefined
+          }
+          s={s}
+          theme={theme}
+        />
       )}
+
+      {codeSheet && me.email ? (
+        <EmailPasswordSheet
+          email={me.email}
+          mode={codeSheet}
+          onClose={() => setCodeSheet(null)}
+          s={s}
+          theme={theme}
+        />
+      ) : null}
 
       {deleteOpen && (
         <DeleteSheet
@@ -525,10 +531,13 @@ function EditSheet({
 /* ── 비밀번호 변경 ──────────────────────────────── */
 function PasswordSheet({
   onClose,
+  onForgot,
   s,
   theme,
 }: {
   onClose: () => void;
+  /** 이메일이 있는 계정만. 현재 비밀번호를 모르면 메일 코드로 새로 만든다 */
+  onForgot?: () => void;
   s: Styles;
   theme: ThemeColors;
 }) {
@@ -622,6 +631,297 @@ function PasswordSheet({
             activeOpacity={0.85}
             disabled={!canSave}
             onPress={submit}
+          >
+            {busy ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={s.ctaText}>{t("common.save")}</Text>
+            )}
+          </TouchableOpacity>
+          {onForgot ? (
+            <TouchableOpacity style={s.cancel} onPress={onForgot} hitSlop={6}>
+              <Text style={s.linkText}>{t("account.forgotPassword")}</Text>
+            </TouchableOpacity>
+          ) : null}
+        </>
+      )}
+    </Sheet>
+  );
+}
+
+/* ── 메일 코드 → 새 비밀번호 ─────────────────────── */
+const RESEND_SEC = 60;
+
+/**
+ * 현재 비밀번호 대신 "그 메일함을 열 수 있다" 로 본인 확인을 한다.
+ *  set    — 소셜 가입자는 비밀번호가 애초에 없다. 물어볼 현재 비밀번호가 없다
+ *  forgot — 비밀번호는 있는데 기억이 안 난다
+ *
+ * 예전엔 /auth/verify-code 로 보냈는데, 로그인한 사람은 useAuthGuard 가
+ * /auth/* 에서 홈으로 돌려보내서 코드 화면이 뜨자마자 튕겼다.
+ * 그래서 계정 화면을 떠나지 않고 이 시트 안에서 끝낸다.
+ */
+function EmailPasswordSheet({
+  email,
+  mode,
+  onClose,
+  s,
+  theme,
+}: {
+  email: string;
+  mode: "set" | "forgot";
+  onClose: () => void;
+  s: Styles;
+  theme: ThemeColors;
+}) {
+  const { t, i18n } = useTranslation();
+  const codeRef = useRef<TextInput>(null);
+  const [step, setStep] = useState<"code" | "password" | "done">("code");
+  const [code, setCode] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [sentAt, setSentAt] = useState(0);
+  const [left, setLeft] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [next, setNext] = useState("");
+  const [again, setAgain] = useState("");
+
+  const errorText = (e: any) =>
+    t(`auth.errors.${e?.message ?? "UNKNOWN_ERROR"}`, {
+      defaultValue: t("auth.errors.UNKNOWN_ERROR"),
+    });
+
+  const send = async (resend: boolean) => {
+    setSending(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await authService.forgotPassword({
+        email,
+        lang: i18n.language?.slice(0, 2),
+        purpose: mode === "set" ? "setPassword" : "reset",
+      });
+      setSentAt(Date.now());
+      setCode("");
+      if (resend) setNotice(t("auth.verify.resent"));
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // 시트가 열리는 순간 보낸다 — 버튼을 누른 게 곧 "메일로 인증할게" 다
+  useEffect(() => {
+    void send(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 남은 대기 시간은 보낸 시각에서 매초 다시 계산한다 (화면이 잠들었다 깨도 안 밀린다)
+  useEffect(() => {
+    if (!sentAt) return;
+    const tick = () =>
+      setLeft(Math.max(0, RESEND_SEC - Math.floor((Date.now() - sentAt) / 1000)));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [sentAt]);
+
+  const verify = async (value = code) => {
+    if (value.length !== CODE_LENGTH || busy) return;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await authService.verifyResetCode({ email, code: value });
+      setResetToken(res.resetToken);
+      Haptics.selectionAsync();
+      setStep("password");
+    } catch (e) {
+      setError(errorText(e));
+      setCode("");
+      codeRef.current?.focus();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const tooShort = next.length > 0 && next.length < 6;
+  const mismatch = again.length > 0 && next !== again;
+  const canSave = !busy && next.length >= 6 && next === again;
+
+  const save = async () => {
+    if (!canSave) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res: any = await authService.resetPassword({
+        resetToken,
+        newPassword: next,
+      });
+      // 서버가 tokenVersion 을 올려서 지금 쓰던 토큰은 죽는다 → 새 토큰으로 갈아끼운다.
+      // setUser 로 통째 갈면 토큰 응답에 없는 필드(구독·에너지 등)가 날아가서 합친다
+      useAuthStore.setState((st) => ({
+        accessToken: res.accessToken,
+        user: st.user
+          ? { ...st.user, ...res.user, hasPassword: true }
+          : res.user,
+      }));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setStep("done");
+      setTimeout(onClose, 1100);
+    } catch (e: any) {
+      // 토큰(10분)이 지났으면 코드부터 다시 받아야 한다
+      if (String(e?.message ?? "").includes("INVALID_RESET_TOKEN")) {
+        setStep("code");
+        setResetToken("");
+        setCode("");
+      }
+      setError(errorText(e));
+      setBusy(false);
+    }
+  };
+
+  if (step === "done") {
+    return (
+      <Sheet onClose={onClose} s={s}>
+        <View style={s.doneBox}>
+          <Ionicons name="checkmark-circle" size={48} color="#1DBB7F" />
+          <Text style={s.doneText}>
+            {mode === "set" ? t("account.pwCreated") : t("account.pwChanged")}
+          </Text>
+        </View>
+      </Sheet>
+    );
+  }
+
+  const onCode = step === "code";
+
+  return (
+    <Sheet onClose={onClose} s={s}>
+      <Text style={s.sheetTitle}>
+        {mode === "set" ? t("auth.reset.setTitle") : t("auth.reset.title")}
+      </Text>
+
+      {/* 지금 어디쯤인지 — 1 이메일 인증 · 2 새 비밀번호 */}
+      <View style={s.steps}>
+        <View style={s.stepItem}>
+          <View style={[s.stepNum, s.stepNumOn]}>
+            {onCode ? (
+              <Text style={s.stepNumTextOn}>1</Text>
+            ) : (
+              <Ionicons name="checkmark" size={13} color="#fff" />
+            )}
+          </View>
+          <Text style={[s.stepLabel, onCode && s.stepLabelOn]}>
+            {t("account.stepVerify")}
+          </Text>
+        </View>
+        <View style={[s.stepLine, !onCode && s.stepLineOn]} />
+        <View style={s.stepItem}>
+          <View style={[s.stepNum, !onCode && s.stepNumOn]}>
+            <Text style={!onCode ? s.stepNumTextOn : s.stepNumText}>2</Text>
+          </View>
+          <Text style={[s.stepLabel, !onCode && s.stepLabelOn]}>
+            {t("account.stepNewPassword")}
+          </Text>
+        </View>
+      </View>
+
+      {onCode ? (
+        <>
+          <Text style={s.sheetDesc}>
+            {sending && !sentAt
+              ? t("account.codeSending")
+              : t("auth.verify.subtitle", { email })}
+          </Text>
+          <CodeInput
+            ref={codeRef}
+            value={code}
+            onChange={(digits) => {
+              setCode(digits);
+              if (error) setError(null);
+              if (digits.length === CODE_LENGTH) void verify(digits);
+            }}
+            error={!!error}
+            theme={theme}
+          />
+          {error ? (
+            <Text style={s.error}>{error}</Text>
+          ) : notice ? (
+            <Text style={s.notice}>{notice}</Text>
+          ) : null}
+          <Text style={s.hint}>{t("auth.verify.spam")}</Text>
+
+          <TouchableOpacity
+            style={[s.cta, (code.length !== CODE_LENGTH || busy) && s.ctaOff]}
+            activeOpacity={0.85}
+            disabled={code.length !== CODE_LENGTH || busy}
+            onPress={() => void verify()}
+          >
+            {busy ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={s.ctaText}>{t("auth.verify.cta")}</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.cancel}
+            disabled={left > 0 || sending}
+            onPress={() => void send(true)}
+            hitSlop={6}
+          >
+            <Text style={left > 0 || sending ? s.cancelText : s.linkText}>
+              {left > 0
+                ? t("auth.verify.resendIn", { count: left })
+                : t("auth.verify.resend")}
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={s.sheetDesc}>
+            {mode === "set"
+              ? t("auth.reset.setSubtitle")
+              : t("auth.reset.subtitle")}
+          </Text>
+          <TextInput
+            style={s.input}
+            value={next}
+            onChangeText={(v) => {
+              setError(null);
+              setNext(v);
+            }}
+            placeholder={t("account.newPassword")}
+            placeholderTextColor={theme.textSecondary}
+            secureTextEntry
+            autoFocus
+          />
+          <TextInput
+            style={[s.input, { marginTop: 10 }]}
+            value={again}
+            onChangeText={setAgain}
+            placeholder={t("account.newPasswordAgain")}
+            placeholderTextColor={theme.textSecondary}
+            secureTextEntry
+            onSubmitEditing={() => void save()}
+          />
+          <Text style={s.hint}>
+            {tooShort
+              ? t("account.pwTooShort")
+              : mismatch
+                ? t("account.pwMismatch")
+                : t("account.pwRule")}
+          </Text>
+          {error ? <Text style={s.error}>{error}</Text> : null}
+
+          <TouchableOpacity
+            style={[s.cta, !canSave && s.ctaOff]}
+            activeOpacity={0.85}
+            disabled={!canSave}
+            onPress={() => void save()}
           >
             {busy ? (
               <ActivityIndicator color="#fff" />
@@ -920,4 +1220,38 @@ const getStyles = (theme: ThemeColors) =>
     },
     doneBox: { alignItems: "center", paddingVertical: 26, gap: 10 },
     doneText: { fontSize: 16, fontWeight: "700", color: theme.text },
+    linkText: { fontSize: 15, fontWeight: "800", color: theme.primary },
+    notice: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.primary,
+      marginTop: 10,
+    },
+    steps: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    stepItem: { flexDirection: "row", alignItems: "center", gap: 7 },
+    stepNum: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.border,
+    },
+    stepNumOn: { backgroundColor: theme.primary },
+    stepNumText: { fontSize: 12, fontWeight: "800", color: theme.textSecondary },
+    stepNumTextOn: { fontSize: 12, fontWeight: "800", color: "#fff" },
+    stepLabel: { fontSize: 13, fontWeight: "700", color: theme.textSecondary },
+    stepLabelOn: { color: theme.text },
+    stepLine: {
+      flex: 1,
+      height: 2,
+      borderRadius: 1,
+      marginHorizontal: 10,
+      backgroundColor: theme.border,
+    },
+    stepLineOn: { backgroundColor: theme.primary },
   });

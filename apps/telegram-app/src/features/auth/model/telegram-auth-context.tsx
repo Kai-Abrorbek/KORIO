@@ -24,6 +24,11 @@ interface TelegramAuthContextValue {
   accessToken: string | null;
   errorCode: string | null;
   request: <T>(path: string, init?: RequestInit) => Promise<T>;
+  /**
+   * 비밀번호를 만들거나 바꾸면 서버가 tokenVersion 을 올려서 지금 토큰이 죽는다.
+   * 그 응답으로 받은 새 토큰으로 갈아끼운다 (다시 initData 로 로그인할 필요 없이)
+   */
+  replaceAccessToken: (token: string) => void;
   status: AuthStatus;
   updateUser: (partial: Partial<KorioTelegramUser>) => void;
   user: KorioTelegramUser | null;
@@ -95,10 +100,15 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
     setUser((current) => (current ? { ...current, ...partial } : current));
   }, []);
 
+  const replaceAccessToken = useCallback((token: string) => {
+    if (token) setAccessToken(token);
+  }, []);
+
   const value = useMemo<TelegramAuthContextValue>(
     () => ({
       accessToken,
       errorCode: error,
+      replaceAccessToken,
       request,
       status: error
         ? "error"
@@ -108,7 +118,7 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
       updateUser,
       user,
     }),
-    [accessToken, error, request, updateUser, user],
+    [accessToken, error, replaceAccessToken, request, updateUser, user],
   );
 
   return (

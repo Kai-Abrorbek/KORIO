@@ -8,7 +8,10 @@ import { jwtSecret } from '../config/secrets';
 import { findUserByEmail } from '../users/find-by-email';
 import { MailService } from '../mail/mail.service';
 import { resolveMailLang } from '../mail/mail.types';
-import { passwordResetMail } from '../mail/mail.templates';
+import {
+  passwordResetMail,
+  setPasswordCodeMail,
+} from '../mail/mail.templates';
 import {
   PasswordReset,
   PasswordResetDocument,
@@ -76,9 +79,9 @@ export class PasswordResetService {
       expiresAt: new Date(Date.now() + CODE_TTL_MIN * 60_000),
     });
 
-    const sent = await this.mail.send(
-      passwordResetMail(email, lang, code, CODE_TTL_MIN),
-    );
+    const mail =
+      dto.purpose === 'setPassword' ? setPasswordCodeMail : passwordResetMail;
+    const sent = await this.mail.send(mail(email, lang, code, CODE_TTL_MIN));
     if (!sent) {
       this.logger.warn('재설정 코드 메일이 안 나갔다. 유저는 코드를 못 받는다');
     }
