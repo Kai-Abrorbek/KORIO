@@ -124,7 +124,7 @@ export function BlankSentence({
         if (mode === "input") {
           if (soleBlank) {
             return (
-              <label className={`${styles.blank} ${styles.blankFull}`} key={`b-${token.index}`}>
+              <label className={`${styles.blank} ${styles.blankFull} ${value ? styles.filled : ""}`} key={`b-${token.index}`}>
                 <AutoTextarea
                   autoFocus={autoFocusFirst}
                   disabled={locked}
@@ -134,7 +134,6 @@ export function BlankSentence({
                   }}
                   value={value}
                 />
-                {!value ? <span className={`${styles.hint} ${styles.hintFull}`}>·····</span> : null}
               </label>
             );
           }

@@ -132,7 +132,6 @@ export function TranslateType({ answerState, isChecking, onAnswer, question }: Q
           </span>
         </div>
         <div className={styles.quoteRow}>
-          <span className={styles.quote}>“</span>
           <p data-no-translate>{sourceText}</p>
         </div>
       </section>

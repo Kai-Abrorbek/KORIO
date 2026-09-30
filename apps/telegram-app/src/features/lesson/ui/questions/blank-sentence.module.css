@@ -3,13 +3,14 @@
 .rowFull{align-self:stretch;width:100%}
 .text{color:var(--q-text,#1a1a2e);font-size:var(--bs-size,17px);font-weight:600;line-height:1.9;white-space:pre-wrap}
 .blank{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;margin:0 4px;border:0;border-bottom:2.5px solid var(--bs-accent);background:transparent;padding:0 4px}
-.blankFull{flex:1;align-items:stretch;align-self:stretch;margin:0;padding-bottom:4px}
+/* 문장 전체를 쓰는 칸 — 밑줄 대신 둥근 점선 (앱 DotLine 과 같은 4px 점 · 6px 간격) */
+.blankFull{flex:1;align-items:stretch;align-self:stretch;margin:0;padding-bottom:12px;border-bottom:0;background-image:radial-gradient(circle,color-mix(in srgb,var(--bs-accent) 55%,transparent) 2px,transparent 2.3px);background-position:left bottom;background-repeat:repeat-x;background-size:10px 4px}
+.blankFull.filled{background-image:radial-gradient(circle,var(--bs-accent) 2px,transparent 2.3px)}
 .input{height:calc(var(--bs-size,17px) * 1.7);min-width:64px;border:0;outline:0;background:transparent;color:var(--q-text,#1a1a2e);padding:0;font:inherit;font-size:var(--bs-size,17px);font-weight:800;text-align:center}
 .input:disabled{opacity:1}
 .input:disabled:not(:placeholder-shown){-webkit-text-fill-color:var(--q-text,#1a1a2e)}
 .inputFull{width:100%;min-width:0;height:auto;min-height:calc(var(--bs-size,17px) * 1.9);resize:none;overflow:hidden;padding-top:2px;line-height:1.5;text-align:left}
 .hint{position:absolute;bottom:6px;left:50%;color:var(--q-muted,#55555f);font-size:18px;letter-spacing:4px;opacity:.45;pointer-events:none;transform:translateX(-50%)}
-.hintFull{left:2px;transform:none}
 .slot{border-bottom-color:var(--q-border,#eceaf6);text-align:center}
 .slotOn{border-bottom-color:var(--bs-accent)}
 .slotActive{border-bottom-width:3px}

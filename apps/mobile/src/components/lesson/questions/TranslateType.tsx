@@ -222,9 +222,6 @@ export default function TranslateType({
               </View>
 
               <View style={s.sourceQuoteRow}>
-                <Text style={[s.quoteMark, { color: `${theme.primary}80` }]}>
-                  {"“"}
-                </Text>
                 <Text
                   style={[
                     s.sourceText,
@@ -517,13 +514,6 @@ const styles = (theme: ThemeColors) =>
       alignItems: "flex-start",
       marginTop: 14,
       paddingRight: 4,
-    },
-    quoteMark: {
-      width: 24,
-      marginTop: -7,
-      fontSize: 32,
-      lineHeight: 38,
-      fontWeight: "900",
     },
     sourceText: {
       flex: 1,

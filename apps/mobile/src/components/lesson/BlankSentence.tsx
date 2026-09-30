@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -10,6 +10,30 @@ import {
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
 import { BlankToken } from "@/utils/blank-sentence";
+
+const DOT = 4;
+const DOT_GAP = 6;
+
+/**
+ * 문장 전체를 쓰는 칸의 바닥 점선.
+ * 한 줄 밑줄은 딱딱해 보여서 점을 찍는다. borderStyle "dotted" 는 안드로이드에서
+ * 한 변에만 걸면 실선으로 그려져서, 폭을 재고 점을 직접 늘어놓는다.
+ */
+function DotLine({ color }: { color: string }) {
+  const [width, setWidth] = useState(0);
+  const count = Math.max(0, Math.floor((width + DOT_GAP) / (DOT + DOT_GAP)));
+  return (
+    <View
+      style={s.dotLine}
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      pointerEvents="none"
+    >
+      {Array.from({ length: count }, (_, i) => (
+        <View key={i} style={[s.dot, { backgroundColor: color }]} />
+      ))}
+    </View>
+  );
+}
 
 interface Props {
   tokens: BlankToken[];
@@ -104,7 +128,7 @@ export default function BlankSentence({
               style={[
                 s.blank,
                 soleBlank
-                  ? [s.blankFull, { borderBottomColor: accent }]
+                  ? s.blankFull
                   : [
                       s.blankBox,
                       {
@@ -148,18 +172,16 @@ export default function BlankSentence({
                 autoCapitalize="none"
                 onSubmitEditing={soleBlank ? undefined : onSubmit}
               />
-              {!value && (
+              {soleBlank ? (
+                <DotLine color={value ? accent : accent + "80"} />
+              ) : !value ? (
                 <Text
-                  style={[
-                    s.hint,
-                    soleBlank && s.hintFull,
-                    { color: theme.textSecondary },
-                  ]}
+                  style={[s.hint, { color: theme.textSecondary }]}
                   pointerEvents="none"
                 >
                   ·····
                 </Text>
-              )}
+              ) : null}
             </View>
           );
         }
@@ -215,7 +237,17 @@ const s = StyleSheet.create({
     alignItems: "stretch",
     marginHorizontal: 0,
     paddingBottom: 4,
+    // 밑줄 대신 DotLine
+    borderBottomWidth: 0,
   },
+  dotLine: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignSelf: "stretch",
+    height: DOT,
+    marginTop: 6,
+  },
+  dot: { width: DOT, height: DOT, borderRadius: DOT / 2 },
   /** 문장 속 입력 칸 — 밑줄 한 줄이면 칸이 안 보여서 테두리 있는 알약으로 */
   blankBox: {
     alignItems: "center",
@@ -247,5 +279,4 @@ const s = StyleSheet.create({
     letterSpacing: 4,
     opacity: 0.45,
   },
-  hintFull: { alignSelf: "flex-start", left: 2 },
 });
