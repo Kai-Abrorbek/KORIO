@@ -41,4 +41,7 @@ export * from './topik-ii-52-writing.data';
 export * from './topik-ii-60-listening.data';
 export * from './topik-ii-60-reading.data';
 export * from './topik-ii-60-writing.data';
+export * from './topik-ii-64-listening.data';
+export * from './topik-ii-64-reading.data';
+export * from './topik-ii-64-writing.data';
 export * from './topik-seed.types';
