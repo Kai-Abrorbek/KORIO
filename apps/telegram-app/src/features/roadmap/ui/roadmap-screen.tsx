@@ -558,7 +558,7 @@ export function RoadmapScreen() {
       ) : null}
 
       {/* 🇰🇷 스코어 → 위에서 내려오는 과정·스코어 패널 (앱 CourseDropdown) */}
-      <CourseDropdown onClose={() => setCourseOpen(false)} studyMode="free" visible={courseOpen} />
+      <CourseDropdown category={category} onClose={() => setCourseOpen(false)} studyMode="free" visible={courseOpen} />
     </main>
   );
 }

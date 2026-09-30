@@ -18,6 +18,7 @@ import styles from "./course-dropdown.module.css";
 const EMPTY: RoadmapScoreResponse = { completedUnits: 0, milestones: [], nextScore: 0, progress: 0, score: 0 };
 
 export function CourseDropdown({
+  category,
   onClose,
   studyMode,
   visible,
@@ -25,6 +26,8 @@ export function CourseDropdown({
   visible: boolean;
   onClose: () => void;
   studyMode: "guided" | "free";
+  /** 로드맵 트랙. "grammar" 면 문법 스코어 (헤더 숫자와 같은 기준) */
+  category?: string | null;
 }) {
   const router = useRouter();
   const { request } = useTelegramAuth();
@@ -33,12 +36,13 @@ export function CourseDropdown({
   useEffect(() => {
     if (!visible) return;
     let alive = true;
-    const load = studyMode === "guided" ? getStudyPathScore(request) : getRoadmapScore(request);
+    const grammar = !!category && category !== "vocabulary";
+    const load = studyMode === "guided" && !grammar ? getStudyPathScore(request) : getRoadmapScore(request, category);
     void load.then((value) => alive && setScore(value)).catch(() => undefined);
     return () => {
       alive = false;
     };
-  }, [request, studyMode, visible]);
+  }, [category, request, studyMode, visible]);
 
   if (!visible) return null;
   const go = (path: string) => {

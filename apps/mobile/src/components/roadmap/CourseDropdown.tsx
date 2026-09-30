@@ -33,6 +33,8 @@ import { useSettingsStore } from "@/store/settings.store";
 interface Props {
   visible: boolean;
   onClose: () => void;
+  /** 로드맵 트랙. "grammar" 면 문법 스코어 (헤더 숫자와 같은 기준) */
+  category?: string;
 }
 
 const EMPTY: ScoreData = {
@@ -43,7 +45,7 @@ const EMPTY: ScoreData = {
   milestones: [],
 };
 
-export default function CourseDropdown({ visible, onClose }: Props) {
+export default function CourseDropdown({ visible, onClose, category }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -74,10 +76,13 @@ export default function CourseDropdown({ visible, onClose }: Props) {
   useEffect(() => {
     if (!visible) return;
     let alive = true;
+    // 문법 로드맵에서 열면 문법 트랙으로 센다 — 안 그러면 헤더는 문법 스코어인데
+    // 드롭다운은 어휘 스코어라 숫자가 서로 다르다. 학습 로드는 어휘 전용
+    const grammar = !!category && category !== "vocabulary";
     const load =
-      studyMode === "guided"
+      studyMode === "guided" && !grammar
         ? StudyPathService.getScore()
-        : LessonService.getScore();
+        : LessonService.getScore(grammar ? category : undefined);
     load
       .then((r) => {
         if (alive) setSc(r);
@@ -86,7 +91,7 @@ export default function CourseDropdown({ visible, onClose }: Props) {
     return () => {
       alive = false;
     };
-  }, [visible, studyMode]);
+  }, [visible, studyMode, category]);
 
   const go = (path: string) => {
     onClose();

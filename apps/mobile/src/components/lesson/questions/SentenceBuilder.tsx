@@ -48,17 +48,13 @@ export default function SentenceBuilder({
 }: Props) {
   const { t } = useTranslation();
   const s = styles(theme, LINE_H);
-  const { width: winW, height: winH } = useWindowDimensions();
+  const { height: winH } = useWindowDimensions();
 
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
   const compact = winH < 700;
 
-  // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
-  const { lines: answerLines, onPlacedLayout } = useAnswerLines(
-    question.options ?? [],
-    winW - 40,
-    { max: compact ? 2 : 3 },
-  );
+  // 한 줄로 시작해서 올린 칩이 넘칠 때만 늘어난다 (useAnswerLines)
+  const { lines: answerLines, onPlacedLayout } = useAnswerLines();
   const { speak, speakSlow, speakAuto, isSpeaking } = speech;
   const speechText = question.audioText || question.answer;
   const hasAutoPlayed = useRef(false);

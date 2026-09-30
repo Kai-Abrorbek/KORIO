@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
@@ -14,29 +14,6 @@ import styles from "./builder.module.css";
 
 /** 답 영역 한 줄 높이 (AnswerChip 높이 + 여백) */
 export const ANSWER_LINE_H = 65;
-/** AnswerChip: 좌우 패딩 14×2 + lineSlot 오른쪽 여백 8 */
-const CHIP_CHROME = 14 * 2 + 8;
-const CJK = /[ㄱ-힝一-鿿぀-ヿ]/;
-
-function chipWidth(word: string) {
-  let width = 0;
-  for (const char of word) width += CJK.test(char) ? 15.5 : char === " " ? 4.5 : 8.8;
-  return width + CHIP_CHROME;
-}
-
-function estimateLines(words: readonly string[], available: number) {
-  if (!words.length || available <= 0) return 1;
-  let lines = 1;
-  let x = 0;
-  for (const word of words) {
-    const width = Math.min(chipWidth(word), available);
-    if (x + width > available) {
-      lines += 1;
-      x = width;
-    } else x += width;
-  }
-  return lines;
-}
 
 /** 세로가 짧은 기기 — 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다 (앱: 창 높이 < 700) */
 export function useCompact() {
@@ -50,54 +27,46 @@ export function useCompact() {
 }
 
 /**
- * 룰드 라인 답 영역. 전체 단어로 필요한 줄 수를 **처음부터** 잡아 두고(칩 올릴 때 아래가
- * 흔들리지 않게), 실제 배치가 그보다 길어지면 그때만 줄을 늘린다.
+ * 룰드 라인 답 영역. **한 줄로 시작해서** 올린 칩이 다음 줄로 넘어갈 때만 늘고,
+ * 빼면 다시 줄어든다 (앱 useAnswerLines 와 같다).
+ * 예전엔 전체 단어로 2~3줄을 미리 깔아서 빈 줄이 화면 가운데를 차지했다.
  */
 export function AnswerArea({
   answerState,
-  compact,
   large = false,
   onDragToZone,
   onSwap,
   onTap,
   placed,
-  words,
   className,
 }: {
   answerState: AnswerState;
-  compact: boolean;
+  /** 예전 줄 수 상한용 — 지금은 안 쓴다 (부르는 쪽 호환) */
+  compact?: boolean;
   large?: boolean;
   onDragToZone: (id: string, zone: "bank" | "placed") => void;
   onSwap: (draggedId: string, targetId: string) => void;
   onTap: (id: string) => void;
   placed: AnswerChipItem[];
-  /** 뱅크+답 전체 단어 */
-  words: readonly string[];
+  /** 뱅크+답 전체 단어 (예전 줄 수 추정용 — 지금은 안 쓴다, 부르는 쪽 호환) */
+  words?: readonly string[];
   className?: string;
 }) {
   const areaRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const [needed, setNeeded] = useState(0);
-  const key = words.join(" ");
-  const max = compact ? 2 : 3;
-  const estimated = useMemo(() => Math.min(max, Math.max(2, estimateLines(words, width))), [key, max, width]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [needed, setNeeded] = useState(1);
 
   useLayoutEffect(() => {
-    const area = areaRef.current;
     const wrap = wrapRef.current;
-    if (!area || !wrap) return;
-    setWidth(area.clientWidth);
-    const observer = new ResizeObserver(() => {
-      setWidth(area.clientWidth);
-      setNeeded(Math.ceil(wrap.offsetHeight / ANSWER_LINE_H));
-    });
-    observer.observe(area);
+    if (!wrap) return;
+    const measure = () => setNeeded(Math.max(1, Math.ceil(wrap.offsetHeight / ANSWER_LINE_H)));
+    measure();
+    const observer = new ResizeObserver(measure);
     observer.observe(wrap);
     return () => observer.disconnect();
   }, []);
 
-  const lines = Math.max(estimated, needed);
+  const lines = Math.min(8, needed);
   return (
     <div className={`${styles.answerArea} ${className ?? ""}`} ref={areaRef} style={{ minHeight: lines * ANSWER_LINE_H }}>
       {Array.from({ length: lines }, (_, index) => (

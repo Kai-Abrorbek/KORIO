@@ -58,7 +58,8 @@ export default function QuestionScroll({ children, footer }: Props) {
         style={s.scroll}
         contentContainerStyle={s.content}
         scrollEnabled={overflow}
-        showsVerticalScrollIndicator={overflow}
+        // 스크롤바는 안 보인다 — 넘칠 때만 손가락으로 밀 수 있으면 충분하다
+        showsVerticalScrollIndicator={false}
         bounces={false}
         overScrollMode="never"
         keyboardShouldPersistTaps="handled"

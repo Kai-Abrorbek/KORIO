@@ -60,7 +60,7 @@ export default function TranslateBuilder({
   const { speak, stop, isSpeaking, isSpeechPlaying, speechProgress } = speech;
   const s = styles(theme, LINE_H);
   const isReply = mode === "reply";
-  const { width: winW, height: winH } = useWindowDimensions();
+  const { height: winH } = useWindowDimensions();
   // 전체 단어 기준으로 줄 수를 미리 잡아둔다 (칩 올려도 안 흔들리게)
   // 세로가 짧은 기기에서는 캐릭터와 답 줄 수를 줄여 확인 버튼을 지킨다
   const compact = winH < 700;
@@ -97,15 +97,8 @@ export default function TranslateBuilder({
     };
   }, [playSourceText, question.id, stop]);
 
-  const { lines: answerLines, onPlacedLayout } = useAnswerLines(
-    question.options ?? [],
-    winW - 32,
-    { max: compact ? 2 : 3 },
-  );
-  // useAnswerLines 가 이미 전체 단어 기준으로 필요한 줄 수를 재고, 실제 배치가
-  // 추정을 넘기면 늘려 준다. 여기서 또 3줄을 깔면 한 줄이면 되는 짧은 문장에도
-  // 195px 을 잡아먹어 확인 버튼이 아래로 밀린다. SentenceBuilder·WordArrange 도
-  // 훅 값을 그대로 쓴다 — 여기만 바닥값을 얹고 있었다.
+  const { lines: answerLines, onPlacedLayout } = useAnswerLines();
+  // 한 줄로 시작해서 올린 칩이 넘칠 때만 늘어난다 (useAnswerLines)
   const visibleAnswerLines = answerLines;
   const [words, setWords] = useState<WordItem[]>(
     (question.options ?? []).map((w, i) => ({
@@ -467,11 +460,12 @@ const styles = (theme: ThemeColors, lineH: number) =>
 
     answerArea: {
       // 실제 높이는 렌더에서 minHeight 로 덮어쓴다 (줄 수가 칩 개수에 따라 변한다)
-      marginTop: 34,
+      // 말풍선과 답 줄 사이가 휑했다 — 조금 붙인다
+      marginTop: 14,
       marginBottom: 24,
       position: "relative",
     },
-    answerAreaCompact: { marginTop: 16, marginBottom: 14 },
+    answerAreaCompact: { marginTop: 8, marginBottom: 14 },
     answerLine: {
       position: "absolute",
       left: 0,

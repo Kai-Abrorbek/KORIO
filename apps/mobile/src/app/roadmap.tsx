@@ -498,7 +498,11 @@ export default function RoadmapScreen() {
   return (
     <View style={styles.container}>
       <RoadmapBackdrop theme={theme} />
-      <RoadmapHeader stats={userStats} energy={energy} />
+      <RoadmapHeader
+        stats={userStats}
+        energy={energy}
+        category={category ?? undefined}
+      />
 
       {/* 고정 배너 */}
       {currentUnit && (

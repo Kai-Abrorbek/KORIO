@@ -12,9 +12,11 @@ import CourseDropdown from "./CourseDropdown";
 interface Props {
   stats: UserRoadmapStats;
   energy: number;
+  /** 로드맵 트랙. 코스 드롭다운의 스코어·섹션도 이 트랙으로 센다 */
+  category?: string;
 }
 
-export default function RoadmapHeader({ stats, energy }: Props) {
+export default function RoadmapHeader({ stats, energy, category }: Props) {
   const theme = useTheme();
   const isMax = usePremiumTier() === "max";
   const styles = getStyles(theme);
@@ -72,6 +74,7 @@ export default function RoadmapHeader({ stats, energy }: Props) {
 
       <CourseDropdown
         visible={courseOpen}
+        category={category}
         onClose={() => setCourseOpen(false)}
       />
     </View>
