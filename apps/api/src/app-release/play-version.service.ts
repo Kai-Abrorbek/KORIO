@@ -47,6 +47,8 @@ export class PlayVersionService implements OnModuleInit, OnModuleDestroy {
   private latestValue: PlayLatest | null = null;
   private timer?: NodeJS.Timeout;
   private warnedMissing = false;
+  /** 같은 결과를 매시간 찍지 않게 — 바뀔 때만 로그 */
+  private lastReport = '';
 
   latest(): PlayLatest | null {
     return this.latestValue;
@@ -65,6 +67,13 @@ export class PlayVersionService implements OnModuleInit, OnModuleDestroy {
     this.timer = setTimeout(() => void this.refresh(), ms);
     // 이 타이머 때문에 종료(SIGTERM 드레인)가 늦어지면 안 된다
     this.timer.unref?.();
+  }
+
+  private report(message: string, warn = false) {
+    if (message === this.lastReport) return;
+    this.lastReport = message;
+    if (warn) this.logger.warn(message);
+    else this.logger.log(message);
   }
 
   private get packageName(): string | null {
@@ -141,16 +150,17 @@ export class PlayVersionService implements OnModuleInit, OnModuleDestroy {
         }
       }
 
-      if (best) {
-        if (best.versionCode !== this.latestValue?.versionCode) {
-          this.logger.log(`Play ${this.track} 최신: ${best.versionName ?? '?'} (${best.versionCode})`);
-        }
-        this.latestValue = best;
-      }
+      if (best) this.latestValue = best;
+      // 트랙이 비어 있어도 조용히 넘어가면 "되는 건지 안 되는 건지" 알 수가 없다
+      this.report(
+        best
+          ? `Play ${this.track} 최신: ${best.versionName ?? '?'} (versionCode ${best.versionCode})`
+          : `Play ${this.track} 트랙에 완전 공개된 릴리스가 없다 → app-releases.data.ts 값을 쓴다`,
+      );
       this.schedule(REFRESH_MS);
     } catch (error) {
       // 실패해도 마지막으로 알던 값은 그대로 둔다
-      this.logger.warn(`스토어 버전 확인 실패 (${this.track}): ${(error as Error).message}`);
+      this.report(`스토어 버전 확인 실패 (${this.track}): ${(error as Error).message}`, true);
       this.schedule(RETRY_MS);
     } finally {
       if (editId) {
