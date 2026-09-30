@@ -87,14 +87,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_002_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '크기가 너무 크지도 작지도 않고 정확히 맞는다는 표현은 ___예요.',
     blankAnswers: ['딱 맞다'],
     answerTranslation: L(
-      '정확히 맞는다는 표현은 딱 맞다예요.',
-      'Aynan mos kelish ifodasi 딱 맞다.',
-      'The expression for fitting perfectly is 딱 맞다.',
-      'Выражение «идеально подходить» — 딱 맞다.',
+      '딱 맞다',
+      'aynan mos kelmoq (o‘lcham)',
+      'to fit perfectly (size)',
+      'сидеть точно по размеру',
     ),
     grading: {
       mode: 'exact',
@@ -103,7 +101,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 딱 맞다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -208,14 +206,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_007_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '옷이나 신발이 너무 작아서 몸을 세게 조이는 표현은 ___예요.',
     blankAnswers: ['꽉 끼다'],
     answerTranslation: L(
-      '너무 작고 조이는 상태를 꽉 끼다라고 해요.',
-      'Juda tor holat 꽉 끼다 deyiladi.',
-      'The expression for being too tight is 꽉 끼다.',
-      'Выражение «быть слишком тесным» — 꽉 끼다.',
+      '꽉 끼다',
+      'juda tor bo‘lib siqmoq (kiyim, poyabzal)',
+      'to be very tight (clothes, shoes)',
+      'сильно жать, быть тесным',
     ),
     grading: {
       mode: 'exact',
@@ -224,7 +220,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 꽉 끼다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -371,13 +367,13 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_013_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`꽉 끼다`의 해요체 현재형은 ___예요.',
+    sentenceTemplate: '바지가 허리에 ___.',
     blankAnswers: ['꽉 껴요'],
     answerTranslation: L(
-      '`꽉 끼다`는 현재 해요체에서 `꽉 껴요`가 돼요.',
-      '`꽉 끼다`ning hozirgi odobli shakli `꽉 껴요`.',
-      'The polite present form of 꽉 끼다 is 꽉 껴요.',
-      'Вежливая форма настоящего времени — 꽉 껴요.',
+      '바지가 허리에 꽉 껴요.',
+      'Shim belimni qattiq siqyapti.',
+      'The pants are really tight at the waist.',
+      'Брюки сильно жмут в талии.',
     ),
     grading: {
       mode: 'exact',
@@ -386,7 +382,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 꽉 껴요.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -503,14 +499,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_019_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '옷이 몸에 정확히 맞을 때 사용하는 두 단어 표현은 ___예요.',
     blankAnswers: ['딱 맞다'],
     answerTranslation: L(
-      '정확히 맞는 옷에는 딱 맞다를 사용해요.',
-      'Aynan mos kiyim uchun 딱 맞다 ishlatiladi.',
-      'Use 딱 맞다 when clothing fits perfectly.',
-      'Когда одежда сидит идеально, используется 딱 맞다.',
+      '딱 맞다',
+      'kiyim tanaga aynan mos kelmoq (ikki so‘z)',
+      'to fit exactly (clothes, two words)',
+      'сидеть точно по фигуре (два слова)',
     ),
     grading: {
       mode: 'exact',
@@ -519,7 +513,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 딱 맞다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -594,13 +588,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_022_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '크기나 정도가 알맞다는 뜻의 형용사는 ___예요.',
     blankAnswers: ['적당하다'],
     answerTranslation: L(
-      '크기나 정도가 알맞다는 뜻은 적당하다예요.',
-      'O‘lcham yoki daraja mos bo‘lishi 적당하다.',
-      'The adjective meaning suitable or just right is 적당하다.',
-      'Прилагательное со значением «подходящий» — 적당하다.',
+      '적당하다',
+      'me’yorida, mos bo‘lmoq (o‘lcham, daraja)',
+      'to be just right, moderate (adjective)',
+      'быть подходящим, умеренным',
     ),
     grading: {
       mode: 'exact',
@@ -609,7 +602,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact form 적당하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -709,13 +702,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_027_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷에 편안할 정도의 여유가 있다는 뜻의 형용사는 ___예요.',
     blankAnswers: ['넉넉하다'],
     answerTranslation: L(
-      '옷에 편안한 여유가 있는 상태는 넉넉하다예요.',
-      'Kiyim qulay darajada keng bo‘lsa 넉넉하다 deyiladi.',
-      'The adjective for a comfortably roomy fit is 넉넉하다.',
-      'Прилагательное для свободной удобной посадки — 넉넉하다.',
+      '넉넉하다',
+      'qulay darajada keng bo‘lmoq (kiyim)',
+      'to be comfortably roomy (clothes)',
+      'быть свободным с запасом (удобно)',
     ),
     grading: {
       mode: 'exact',
@@ -724,7 +716,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact form 넉넉하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -866,13 +858,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_033_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이 몸에 비해 너무 크고 느슨하다는 형용사는 ___예요.',
     blankAnswers: ['헐렁하다'],
     answerTranslation: L(
-      '너무 크고 느슨한 옷은 헐렁하다고 해요.',
-      'Juda katta va bo‘sh kiyim 헐렁하다 deyiladi.',
-      'Clothing that is excessively loose is described with 헐렁하다.',
-      'Слишком свободную одежду описывают словом 헐렁하다.',
+      '헐렁하다',
+      'haddan tashqari keng, shalvirab turmoq',
+      'to be baggy, too loose',
+      'быть мешковатым, слишком свободным',
     ),
     grading: {
       mode: 'exact',
@@ -881,7 +872,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact form 헐렁하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1005,14 +996,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_039_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`헐렁하다`와 달리 편안할 정도로 여유가 있다는 표현은 ___예요.',
     blankAnswers: ['넉넉하다'],
     answerTranslation: L(
-      '편안할 정도의 여유는 넉넉하다라고 해요.',
-      'Qulay darajada keng holat 넉넉하다 deyiladi.',
-      'A comfortably roomy fit is expressed with 넉넉하다.',
-      'Удобную свободную посадку выражают словом 넉넉하다.',
+      '넉넉하다',
+      'keng, erkin bo‘lmoq (qulay, zaxira bilan)',
+      'to be roomy with comfortable space',
+      'быть просторным, с запасом',
     ),
     grading: {
       mode: 'exact',
@@ -1021,7 +1010,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact form 넉넉하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1096,13 +1085,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_042_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이나 신발의 표시된 크기가 작다는 표현은 ___예요.',
     blankAnswers: ['치수가 작다'],
     answerTranslation: L(
-      '표시된 크기가 작을 때 치수가 작다라고 해요.',
-      'O‘lchami kichik bo‘lsa 치수가 작다 deyiladi.',
-      'The expression for an item being small in size is 치수가 작다.',
-      'Выражение «размер мал» — 치수가 작다.',
+      '치수가 작다',
+      'o‘lchami kichik bo‘lmoq (o‘zlashma so‘zsiz)',
+      'to be small in size (not the loanword)',
+      'быть маленького размера (не заимствование)',
     ),
     grading: {
       mode: 'exact',
@@ -1111,7 +1099,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 치수가 작다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1211,13 +1199,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_047_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷의 가슴이나 몸통 부분의 폭이 크다는 표현은 ___예요.',
     blankAnswers: ['품이 크다'],
     answerTranslation: L(
-      '몸통 부분이 넓다는 표현은 품이 크다예요.',
-      'Kiyimning gavda qismi keng bo‘lsa 품이 크다 deyiladi.',
-      'The expression for a garment being wide through the body is 품이 크다.',
-      'Выражение «одежда широкая в корпусе» — 품이 크다.',
+      '품이 크다',
+      'kiyimning gavda qismi keng bo‘lmoq',
+      'to be wide through the body (garment)',
+      'быть широким в корпусе (одежда)',
     ),
     grading: {
       mode: 'exact',
@@ -1226,7 +1213,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 품이 크다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1368,13 +1355,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_053_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이나 신발의 크기를 뜻하는 단어는 ___예요.',
     blankAnswers: ['치수'],
     answerTranslation: L(
-      '옷이나 신발의 크기를 치수라고 해요.',
-      'Kiyim yoki poyabzal o‘lchami 치수 deyiladi.',
-      'The size or measurement of clothing and shoes is called 치수.',
-      'Размер одежды или обуви называется 치수.',
+      '치수',
+      'o‘lcham (kiyim, poyabzal; o‘zlashma emas)',
+      'size of clothes or shoes (not the loanword)',
+      'размер одежды или обуви (не заимствование)',
     ),
     grading: {
       mode: 'exact',
@@ -1383,7 +1369,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact word 치수.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1501,13 +1487,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_059_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`품이 크다`에서 옷의 몸통 너비를 뜻하는 단어는 ___예요.',
     blankAnswers: ['품'],
     answerTranslation: L(
-      '옷의 몸통 너비를 뜻하는 말은 품이에요.',
-      'Kiyim gavdasining kengligi 품 deyiladi.',
-      'The word for the width through the body of a garment is 품.',
-      'Ширина одежды в области корпуса называется 품.',
+      '품',
+      'kiyim gavdasining kengligi (bir bo‘g‘in)',
+      'width of a garment through the body',
+      'ширина одежды в корпусе',
     ),
     grading: {
       mode: 'exact',
@@ -1516,7 +1501,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact word 품.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1591,13 +1576,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_062_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '바지나 치마의 폭이 넓다는 표현은 ___예요.',
     blankAnswers: ['통이 넓다'],
     answerTranslation: L(
-      '옷의 폭이 넓다는 표현은 통이 넓다예요.',
-      'Shim yoki yubka eni keng bo‘lsa 통이 넓다 deyiladi.',
-      'The expression for a wide cut is 통이 넓다.',
-      'Выражение «широкий крой» — 통이 넓다.',
+      '통이 넓다',
+      'shim yoki yubkaning eni keng bo‘lmoq',
+      'to be wide-cut (pants or skirt)',
+      'быть широким (брюки, юбка)',
     ),
     grading: {
       mode: 'exact',
@@ -1606,7 +1590,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 통이 넓다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1706,13 +1690,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_067_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷에 팔을 덮는 부분이 없다는 표현은 ___예요.',
     blankAnswers: ['소매가 없다'],
     answerTranslation: L(
-      '팔을 덮는 부분이 없는 옷은 소매가 없다라고 해요.',
-      'Yengi yo‘q kiyimga 소매가 없다 deyiladi.',
-      'The expression for sleeveless clothing is 소매가 없다.',
-      'Выражение «без рукавов» — 소매가 없다.',
+      '소매가 없다',
+      'yengi yo‘q bo‘lmoq (kiyim)',
+      'to be sleeveless',
+      'быть без рукавов',
     ),
     grading: {
       mode: 'exact',
@@ -1721,7 +1704,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 소매가 없다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1864,13 +1847,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_073_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '신발의 뒤꿈치 아래 부분이 높다는 표현은 ___예요.',
     blankAnswers: ['굽이 높다'],
     answerTranslation: L(
-      '신발의 뒤쪽이 높다는 표현은 굽이 높다예요.',
-      'Poshnasi baland bo‘lishi 굽이 높다 deyiladi.',
-      'The expression for having a high heel is 굽이 높다.',
-      'Выражение «высокий каблук» — 굽이 높다.',
+      '굽이 높다',
+      'poshnasi baland bo‘lmoq (poyabzal)',
+      'to have high heels (shoes)',
+      'быть на высоком каблуке',
     ),
     grading: {
       mode: 'exact',
@@ -1879,7 +1861,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 굽이 높다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1995,13 +1977,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_079_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷에서 팔을 덮는 부분을 뜻하는 단어는 ___예요.',
     blankAnswers: ['소매'],
     answerTranslation: L(
-      '옷에서 팔을 덮는 부분은 소매예요.',
-      'Kiyimda qo‘lni yopadigan qism 소매.',
-      'The part of clothing that covers the arm is 소매.',
-      'Часть одежды, закрывающая руку, называется 소매.',
+      '소매',
+      'yeng (kiyimning qo‘lni yopadigan qismi)',
+      'sleeve',
+      'рукав',
     ),
     grading: {
       mode: 'exact',
@@ -2010,7 +1991,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact word 소매.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2086,13 +2067,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_082_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '몸에 비해 너무 큰 옷을 설명하는 형용사는 ___예요.',
     blankAnswers: ['헐렁하다'],
     answerTranslation: L(
-      '몸에 비해 너무 큰 옷은 헐렁하다고 해요.',
-      'Tanaga nisbatan juda katta kiyim 헐렁하다 deyiladi.',
-      'Clothing that is too loose is described with 헐렁하다.',
-      'Слишком свободную одежду описывают словом 헐렁하다.',
+      '헐렁하다',
+      'juda keng, bo‘sh bo‘lmoq (kiyim)',
+      'to be too loose (clothes)',
+      'быть слишком свободным (одежда)',
     ),
     grading: {
       mode: 'exact',
@@ -2101,7 +2081,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require 헐렁하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2209,13 +2189,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_087_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '너무 크지도 작지도 않고 알맞다는 형용사는 ___예요.',
     blankAnswers: ['적당하다'],
     answerTranslation: L(
-      '알맞은 크기나 정도를 적당하다고 해요.',
-      'Mos o‘lcham yoki daraja 적당하다 deyiladi.',
-      'A suitable size or degree is described with 적당하다.',
-      'Подходящий размер или степень описываются словом 적당하다.',
+      '적당하다',
+      'na katta, na kichik, me’yorida bo‘lmoq',
+      'to be just right, neither too big nor small',
+      'быть в самый раз, умеренным',
     ),
     grading: {
       mode: 'exact',
@@ -2224,7 +2203,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require 적당하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2373,13 +2352,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_093_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '신발의 높은 뒤꿈치 부분을 뜻하는 단어는 ___예요.',
     blankAnswers: ['굽'],
     answerTranslation: L(
-      '신발 뒤쪽의 높은 부분은 굽이에요.',
-      'Poyabzalning orqa baland qismi 굽.',
-      'The raised heel of a shoe is 굽.',
-      'Высокая задняя часть обуви называется 굽.',
+      '굽',
+      'poyabzal poshnasi',
+      'heel of a shoe',
+      'каблук',
     ),
     grading: {
       mode: 'exact',
@@ -2388,7 +2366,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require the exact word 굽.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2507,13 +2485,12 @@ const S5_UNIT5_NODE1_QUESTIONS = {
   s5u5_099_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '바지 다리 부분의 폭이 넓다는 표현은 ___예요.',
     blankAnswers: ['통이 넓다'],
     answerTranslation: L(
-      '바지의 폭이 넓다는 표현은 통이 넓다예요.',
-      'Shimning oyoq qismi keng bo‘lsa 통이 넓다 deyiladi.',
-      'The expression for wide pant legs is 통이 넓다.',
-      'Выражение для широких штанин — 통이 넓다.',
+      '통이 넓다',
+      'shimning pochasi keng bo‘lmoq',
+      'to have wide pant legs',
+      'иметь широкие штанины',
     ),
     grading: {
       mode: 'exact',
@@ -2522,7 +2499,7 @@ const S5_UNIT5_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 통이 넓다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2599,13 +2576,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_102_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '가게나 쇼핑몰에서 판매하는 물건을 ___이라고 해요.',
     blankAnswers: ['상품'],
     answerTranslation: L(
-      '판매하는 물건을 상품이라고 해요.',
-      'Sotiladigan narsa 상품 deyiladi.',
-      'An item offered for sale is called 상품.',
-      'Товар, выставленный на продажу, называется 상품.',
+      '상품',
+      'mahsulot, sotuvdagi tovar',
+      'product, goods for sale',
+      'товар',
     ),
     grading: {
       mode: 'exact',
@@ -2614,7 +2590,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 상품.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2725,13 +2701,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_107_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '돈의 액수를 뜻하는 단어는 ___이에요.',
     blankAnswers: ['금액'],
     answerTranslation: L(
-      '돈의 액수를 금액이라고 해요.',
-      'Pul miqdori 금액 deyiladi.',
-      'A sum of money is called 금액.',
-      'Сумма денег называется 금액.',
+      '금액',
+      'pul miqdori, summa',
+      'amount of money, sum',
+      'сумма денег',
     ),
     grading: {
       mode: 'exact',
@@ -2740,7 +2715,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 금액.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2893,13 +2868,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_113_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '원래 가격에서 일부를 깎아 주는 것을 ___이라고 해요.',
     blankAnswers: ['할인'],
     answerTranslation: L(
-      '가격을 깎아 주는 것을 할인이라고 해요.',
-      'Narxni kamaytirish 할인 deyiladi.',
-      'A reduction from the original price is called 할인.',
-      'Снижение первоначальной цены называется 할인.',
+      '할인',
+      'chegirma (o‘zlashma so‘z emas)',
+      'discount (not the loanword)',
+      'скидка (не заимствование)',
     ),
     grading: {
       mode: 'exact',
@@ -2908,7 +2882,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 할인.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3037,14 +3011,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_119_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '인터넷 쇼핑몰에서 판매하는 물건을 뜻하는 단어는 ___이에요.',
     blankAnswers: ['상품'],
     answerTranslation: L(
-      '인터넷 쇼핑몰에서 판매하는 물건은 상품이에요.',
-      'Internet do‘konida sotiladigan narsa 상품.',
-      'An item sold in an online shopping mall is a 상품.',
-      'Товар в интернет-магазине называется 상품.',
+      '상품',
+      'internet do‘kondagi mahsulot, tovar',
+      'product, item for sale',
+      'товар (в магазине)',
     ),
     grading: {
       mode: 'exact',
@@ -3053,7 +3025,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 상품.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3126,13 +3098,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_122_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 보내 주는 데 드는 비용을 ___라고 해요.',
     blankAnswers: ['배송비'],
     answerTranslation: L(
-      '상품을 보내 주는 비용은 배송비예요.',
-      'Mahsulotni yetkazish uchun haq 배송비 deyiladi.',
-      'The cost of shipping a product is called 배송비.',
-      'Стоимость доставки товара называется 배송비.',
+      '배송비',
+      'yetkazib berish haqi',
+      'shipping fee',
+      'стоимость доставки',
     ),
     grading: {
       mode: 'exact',
@@ -3141,7 +3112,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 배송비.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3251,13 +3222,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_127_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 산 뒤 돈을 지불하는 동사는 ___예요.',
     blankAnswers: ['결제하다'],
     answerTranslation: L(
-      '상품 값을 지불하는 것을 결제하다라고 해요.',
-      'Mahsulot uchun to‘lash 결제하다 deyiladi.',
-      'The verb for paying for a purchase is 결제하다.',
-      'Глагол «оплачивать покупку» — 결제하다.',
+      '결제하다',
+      'to‘lov qilmoq (xarid uchun)',
+      'to pay (for a purchase)',
+      'оплачивать (покупку)',
     ),
     grading: {
       mode: 'exact',
@@ -3266,7 +3236,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact form 결제하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3411,14 +3381,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_133_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`신용 카드로 돈을 내다`를 쇼핑 표현으로 바꾸면 `신용 카드로 ___`예요.',
     blankAnswers: ['결제하다'],
     answerTranslation: L(
-      '`신용 카드로 결제하다`라고 표현해요.',
-      '`신용 카드로 결제하다` deb aytiladi.',
-      'The shopping expression is 신용 카드로 결제하다.',
-      'Выражение для покупки — 신용 카드로 결제하다.',
+      '결제하다',
+      'to‘lov qilmoq (karta bilan)',
+      'to make a payment (by card)',
+      'производить оплату (картой)',
     ),
     grading: {
       mode: 'exact',
@@ -3427,7 +3395,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact form 결제하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3548,13 +3516,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_139_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '인터넷으로 상품을 살 때 상품을 보내는 비용은 ___예요.',
     blankAnswers: ['배송비'],
     answerTranslation: L(
-      '상품을 보내는 비용은 배송비예요.',
-      'Mahsulot yetkazish haqi 배송비.',
-      'The cost of delivering a product is 배송비.',
-      'Стоимость доставки товара — 배송비.',
+      '배송비',
+      'mahsulotni yetkazish narxi',
+      'delivery cost',
+      'плата за доставку',
     ),
     grading: {
       mode: 'exact',
@@ -3563,7 +3530,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 배송비.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3636,13 +3603,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_142_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전체 금액을 한 번에 모두 내는 결제 방법은 ___이에요.',
     blankAnswers: ['일시불'],
     answerTranslation: L(
-      '한 번에 모두 결제하는 방법은 일시불이에요.',
-      'Butun summani bir martada to‘lash 일시불.',
-      'Paying the full amount at once is 일시불.',
-      'Оплата всей суммы сразу называется 일시불.',
+      '일시불',
+      'bir martalik to‘liq to‘lov',
+      'lump-sum payment (paying in full at once)',
+      'единовременная оплата',
     ),
     grading: {
       mode: 'exact',
@@ -3651,7 +3617,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 일시불.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3761,13 +3727,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_147_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '금액을 여러 번으로 나누어 내는 결제 방법은 ___예요.',
     blankAnswers: ['할부'],
     answerTranslation: L(
-      '돈을 여러 번 나누어 내는 방법은 할부예요.',
-      'Pulni bo‘lib to‘lash 할부 deyiladi.',
-      'Paying an amount in several parts is called 할부.',
-      'Оплата суммы частями называется 할부.',
+      '할부',
+      'bo‘lib to‘lash (muddatli to‘lov)',
+      'installment payment',
+      'оплата в рассрочку',
     ),
     grading: {
       mode: 'exact',
@@ -3776,7 +3741,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact word 할부.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3924,14 +3889,13 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_153_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`3개월 ___`라고 하면 돈을 세 달에 나누어 낸다는 뜻이에요.',
+    sentenceTemplate: '이 가방을 3개월 ___로 샀어요.',
     blankAnswers: ['할부'],
     answerTranslation: L(
-      '`3개월 할부`는 돈을 세 달에 나누어 내는 방법이에요.',
-      '`3개월 할부` pulni uch oyga bo‘lib to‘lashdir.',
-      '3개월 할부 means paying over three months.',
-      '3개월 할부 означает оплату частями в течение трёх месяцев.',
+      '이 가방을 3개월 할부로 샀어요.',
+      'Bu sumkani 3 oyga bo‘lib to‘lab oldim.',
+      'I bought this bag in 3-month installments.',
+      'Я купил эту сумку в рассрочку на 3 месяца.',
     ),
     grading: {
       mode: 'exact',
@@ -3940,7 +3904,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 할부.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4069,13 +4033,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_159_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '돈을 나누지 않고 한 번에 모두 내는 방법은 ___이에요.',
     blankAnswers: ['일시불'],
     answerTranslation: L(
-      '한 번에 모두 내는 방법은 일시불이에요.',
-      'Hammasini bir martada to‘lash 일시불.',
-      'Paying everything at once is 일시불.',
-      'Оплата всей суммы сразу — 일시불.',
+      '일시불',
+      'hammasini bir martada to‘lash',
+      'paying everything at once (one payment)',
+      'оплата сразу всей суммы',
     ),
     grading: {
       mode: 'exact',
@@ -4084,7 +4047,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 일시불.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4157,13 +4120,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_162_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '돈을 내고 상품을 사는 동사는 ___예요.',
     blankAnswers: ['구입하다'],
     answerTranslation: L(
-      '상품을 사는 것을 구입하다라고 해요.',
-      'Mahsulot sotib olish 구입하다 deyiladi.',
-      'The verb meaning to purchase is 구입하다.',
-      'Глагол «приобретать» — 구입하다.',
+      '구입하다',
+      'sotib olmoq (rasmiyroq so‘z)',
+      'to purchase (formal)',
+      'приобретать (формально)',
     ),
     grading: {
       mode: 'exact',
@@ -4172,7 +4134,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact form 구입하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4294,14 +4256,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_167_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '구입한 상품을 판매자에게 다시 돌려보내는 동사는 ___예요.',
     blankAnswers: ['반품하다'],
     answerTranslation: L(
-      '구입한 상품을 다시 돌려보내는 것을 반품하다라고 해요.',
-      'Sotib olingan mahsulotni qaytarish 반품하다 deyiladi.',
-      'The verb for returning a purchased product is 반품하다.',
-      'Глагол «вернуть купленный товар» — 반품하다.',
+      '반품하다',
+      'xarid qilingan tovarni qaytarmoq',
+      'to return a purchased item',
+      'возвращать купленный товар',
     ),
     grading: {
       mode: 'exact',
@@ -4310,7 +4270,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require the exact form 반품하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4456,14 +4416,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_173_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`사다`와 비슷한 뜻으로 쇼핑에서 사용하는 동사는 ___예요.',
     blankAnswers: ['구입하다'],
     answerTranslation: L(
-      '`사다`와 비슷한 쇼핑 표현은 구입하다예요.',
-      '`사다`ga yaqin xarid fe’li 구입하다.',
-      'The shopping verb similar to 사다 is 구입하다.',
-      'Глагол покупки, близкий к 사다, — 구입하다.',
+      '구입하다',
+      'xarid qilmoq (sotib olmoqning rasmiy sinonimi)',
+      'to purchase (formal synonym of to buy)',
+      'приобретать (формальный синоним)',
     ),
     grading: {
       mode: 'exact',
@@ -4472,7 +4430,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 구입하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4606,14 +4564,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_179_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '마음에 들지 않는 상품을 판매자에게 다시 보내는 동사는 ___예요.',
     blankAnswers: ['반품하다'],
     answerTranslation: L(
-      '상품을 다시 보내는 것은 반품하다예요.',
-      'Mahsulotni sotuvchiga qaytarish 반품하다.',
-      'Returning a product to the seller is 반품하다.',
-      'Возврат товара продавцу выражается глаголом 반품하다.',
+      '반품하다',
+      'yoqmagan tovarni sotuvchiga qaytarmoq',
+      'to send an item back to the seller',
+      'вернуть товар продавцу',
     ),
     grading: {
       mode: 'exact',
@@ -4622,7 +4578,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 반품하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4697,13 +4653,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_182_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품 값을 지불하는 동사는 ___예요.',
     blankAnswers: ['결제하다'],
     answerTranslation: L(
-      '상품 값을 지불하는 것은 결제하다예요.',
-      'Mahsulot uchun to‘lash 결제하다.',
-      'The verb for paying for a product is 결제하다.',
-      'Глагол оплаты товара — 결제하다.',
+      '결제하다',
+      'tovar narxini to‘lamoq',
+      'to pay for goods',
+      'оплатить товар',
     ),
     grading: {
       mode: 'exact',
@@ -4712,7 +4667,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 결제하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4829,13 +4784,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_187_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 살 때 돈을 여러 번 나누어 내는 방법은 ___예요.',
     blankAnswers: ['할부'],
     answerTranslation: L(
-      '돈을 여러 번 나누어 내는 방법은 할부예요.',
-      'Pulni bo‘lib to‘lash usuli 할부.',
-      'Paying in several parts is called 할부.',
-      'Оплата частями называется 할부.',
+      '할부',
+      'pulni bir necha marta bo‘lib to‘lash',
+      'paying in several installments',
+      'оплата частями',
     ),
     grading: {
       mode: 'exact',
@@ -4844,7 +4798,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 할부.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4992,13 +4946,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_193_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '구입한 상품을 다시 판매자에게 보내는 동사는 ___예요.',
     blankAnswers: ['반품하다'],
     answerTranslation: L(
-      '구입한 상품을 다시 보내는 것은 반품하다예요.',
-      'Sotib olingan mahsulotni qaytarish 반품하다.',
-      'Returning a purchased product is 반품하다.',
-      'Возврат купленного товара — 반품하다.',
+      '반품하다',
+      'tovarni sotuvchiga qaytarib yubormoq',
+      'to send a product back (return)',
+      'отправить товар обратно (возврат)',
     ),
     grading: {
       mode: 'exact',
@@ -5007,7 +4960,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 반품하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5134,14 +5087,12 @@ const S5_UNIT5_NODE2_QUESTIONS = {
   s5u5_199_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '전체 금액을 한 번에 내지 않고 여러 번으로 나누는 결제 방법은 ___예요.',
     blankAnswers: ['할부'],
     answerTranslation: L(
-      '여러 번으로 나누어 내는 결제 방법은 할부예요.',
-      'Bir necha qismga bo‘lib to‘lash usuli 할부.',
-      'The payment method that divides the amount into several payments is 할부.',
-      'Способ оплаты частями называется 할부.',
+      '할부',
+      'bo‘lib-bo‘lib to‘lash usuli',
+      'installment plan',
+      'рассрочка',
     ),
     grading: {
       mode: 'exact',
@@ -5150,7 +5101,7 @@ const S5_UNIT5_NODE2_QUESTIONS = {
       notes: ['Require 할부.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5228,13 +5179,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_202_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '구입한 상품을 다른 상품으로 바꾸는 동사는 ___예요.',
     blankAnswers: ['교환하다'],
     answerTranslation: L(
-      '상품을 다른 상품으로 바꾸는 것은 교환하다예요.',
-      'Mahsulotni boshqasiga almashtirish 교환하다 deyiladi.',
-      'The verb for exchanging a product is 교환하다.',
-      'Глагол «обменивать товар» — 교환하다.',
+      '교환하다',
+      'tovarni boshqasiga almashtirmoq (rasmiy)',
+      'to exchange an item for another (formal)',
+      'обменивать товар (формально)',
     ),
     grading: {
       mode: 'exact',
@@ -5243,7 +5193,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact form 교환하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5353,13 +5303,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_207_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 돌려주고 낸 돈을 다시 받는 동사는 ___예요.',
     blankAnswers: ['환불하다'],
     answerTranslation: L(
-      '상품을 돌려주고 돈을 다시 받는 것은 환불하다예요.',
-      'Mahsulotni qaytarib pulni olish 환불하다 deyiladi.',
-      'The verb for receiving your money back is 환불하다.',
-      'Глагол «получить деньги обратно» — 환불하다.',
+      '환불하다',
+      'pulni qaytarib olmoq (tovar uchun)',
+      'to get a refund',
+      'получить возврат денег',
     ),
     grading: {
       mode: 'exact',
@@ -5368,7 +5317,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact form 환불하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5514,13 +5463,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_213_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '다른 상품으로 바꾸는 것을 ___이라고 해요.',
     blankAnswers: ['교환'],
     answerTranslation: L(
-      '다른 상품으로 바꾸는 것을 교환이라고 해요.',
-      'Boshqa mahsulotga almashtirish 교환 deyiladi.',
-      'Replacing a product with another is called 교환.',
-      'Замена товара на другой называется 교환.',
+      '교환',
+      'almashtirish (ot, tovar)',
+      'exchange (noun)',
+      'обмен (товара)',
     ),
     grading: {
       mode: 'exact',
@@ -5529,7 +5477,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 교환.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5647,13 +5595,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_219_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 돌려주고 돈을 다시 받는 것을 ___이라고 해요.',
     blankAnswers: ['환불'],
     answerTranslation: L(
-      '돈을 다시 받는 것은 환불이에요.',
-      'Pulni qaytarib olish 환불 deyiladi.',
-      'Getting your money back is called 환불.',
-      'Возврат денег называется 환불.',
+      '환불',
+      'pulni qaytarish (ot)',
+      'refund (noun)',
+      'возврат денег',
     ),
     grading: {
       mode: 'exact',
@@ -5662,7 +5609,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 환불.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5736,13 +5683,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_222_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '돈을 지불했다는 것을 보여 주는 종이는 ___이에요.',
     blankAnswers: ['영수증'],
     answerTranslation: L(
-      '돈을 지불했다는 것을 보여 주는 종이는 영수증이에요.',
-      'To‘lov qilinganini ko‘rsatadigan qog‘oz 영수증.',
-      'The paper showing that payment was made is a 영수증.',
-      'Бумага, подтверждающая оплату, — 영수증.',
+      '영수증',
+      'chek, kvitansiya',
+      'receipt',
+      'чек',
     ),
     grading: {
       mode: 'exact',
@@ -5751,7 +5697,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact word 영수증.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5857,13 +5803,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_227_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '지폐나 동전으로 된 돈을 ___이라고 해요.',
     blankAnswers: ['현금'],
     answerTranslation: L(
-      '지폐나 동전으로 된 돈은 현금이에요.',
-      'Qog‘oz yoki tanga pul 현금 deyiladi.',
-      'Money in notes or coins is called 현금.',
-      'Деньги в виде купюр и монет называются 현금.',
+      '현금',
+      'naqd pul',
+      'cash',
+      'наличные',
     ),
     grading: {
       mode: 'exact',
@@ -5872,7 +5817,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact word 현금.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6012,13 +5957,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_233_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '이미 한 카드 결제를 없던 것으로 하는 동사는 ___예요.',
     blankAnswers: ['취소하다'],
     answerTranslation: L(
-      '이미 한 결제를 없던 것으로 하는 것은 취소하다예요.',
-      'Amalga oshirilgan to‘lovni bekor qilish 취소하다 deyiladi.',
-      'The verb for canceling a completed payment is 취소하다.',
-      'Глагол отмены уже проведённой оплаты — 취소하다.',
+      '취소하다',
+      'bekor qilmoq (to‘lovni)',
+      'to cancel (a payment)',
+      'отменять (платёж)',
     ),
     grading: {
       mode: 'exact',
@@ -6027,7 +5971,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact form 취소하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6154,13 +6098,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_239_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '환불할 때 구입 사실을 확인하는 종이는 ___이에요.',
     blankAnswers: ['영수증'],
     answerTranslation: L(
-      '구입 사실을 확인하는 종이는 영수증이에요.',
-      'Xaridni tasdiqlaydigan qog‘oz 영수증.',
-      'The document confirming the purchase is the 영수증.',
-      'Документ, подтверждающий покупку, — 영수증.',
+      '영수증',
+      'xarid cheki',
+      'receipt (proof of purchase)',
+      'чек (подтверждение покупки)',
     ),
     grading: {
       mode: 'exact',
@@ -6169,7 +6112,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 영수증.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6235,13 +6178,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_242_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이나 물건에 생긴 지저분한 자국을 ___이라고 해요.',
     blankAnswers: ['얼룩'],
     answerTranslation: L(
-      '지저분한 자국은 얼룩이에요.',
-      'Iflos dog‘ 얼룩 deyiladi.',
-      'A dirty mark is called 얼룩.',
-      'Грязное пятно называется 얼룩.',
+      '얼룩',
+      'dog‘ (kiyimdagi iflos iz)',
+      'stain',
+      'пятно',
     ),
     grading: {
       mode: 'exact',
@@ -6250,7 +6192,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact word 얼룩.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6353,13 +6295,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_247_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '깨끗하지 않고 지저분하다는 형용사는 ___예요.',
     blankAnswers: ['더럽다'],
     answerTranslation: L(
-      '깨끗하지 않은 상태는 더럽다예요.',
-      'Toza bo‘lmagan holat 더럽다.',
-      'The adjective meaning dirty is 더럽다.',
-      'Прилагательное «грязный» — 더럽다.',
+      '더럽다',
+      'iflos bo‘lmoq',
+      'to be dirty',
+      'быть грязным',
     ),
     grading: {
       mode: 'exact',
@@ -6368,7 +6309,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact form 더럽다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6505,14 +6446,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_253_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '물건을 보기 좋게 꾸미기 위해 붙이는 것을 ___이라고 해요.',
     blankAnswers: ['장식'],
     answerTranslation: L(
-      '물건을 꾸미는 것은 장식이에요.',
-      'Buyumni bezaydigan narsa 장식.',
-      'An ornament used to decorate an item is called 장식.',
-      'Декоративная деталь называется 장식.',
+      '장식',
+      'bezak',
+      'decoration, ornament',
+      'украшение, декор',
     ),
     grading: {
       mode: 'exact',
@@ -6521,7 +6460,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact word 장식.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6655,13 +6594,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_259_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '붙어 있던 것이 빠지거나 아래로 내려오는 동사는 ___예요.',
     blankAnswers: ['떨어지다'],
     answerTranslation: L(
-      '붙어 있던 것이 빠지는 동사는 떨어지다예요.',
-      'Biriktirilgan narsaning tushib ketishi 떨어지다.',
-      'The verb for something attached coming off is 떨어지다.',
-      'Глагол для отвалившейся детали — 떨어지다.',
+      '떨어지다',
+      'uzilib tushmoq (tugma, bezak)',
+      'to come off, fall off',
+      'отваливаться, отрываться',
     ),
     grading: {
       mode: 'exact',
@@ -6670,7 +6608,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact form 떨어지다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6744,13 +6682,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_262_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '검은색과 흰색의 중간 색은 ___이에요.',
     blankAnswers: ['회색'],
     answerTranslation: L(
-      '검은색과 흰색의 중간 색은 회색이에요.',
-      'Qora va oq orasidagi rang 회색.',
-      'The color between black and white is gray.',
-      'Цвет между чёрным и белым — серый.',
+      '회색',
+      'kulrang',
+      'gray',
+      'серый цвет',
     ),
     grading: {
       mode: 'exact',
@@ -6759,7 +6696,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require the exact word 회색.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6863,14 +6800,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_267_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '색깔이 마음에 들지 않아 돈을 돌려받고 싶을 때 사용하는 동사는 ___예요.',
     blankAnswers: ['환불하다'],
     answerTranslation: L(
-      '돈을 돌려받는 동사는 환불하다예요.',
-      'Pulni qaytarib olish fe’li 환불하다.',
-      'The verb for getting your money back is 환불하다.',
-      'Глагол возврата денег — 환불하다.',
+      '환불하다',
+      'pulni qaytarib olmoq (xaridni qaytarib)',
+      'to get your money back',
+      'вернуть деньги за покупку',
     ),
     grading: {
       mode: 'exact',
@@ -6879,7 +6814,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 환불하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7024,13 +6959,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_273_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '검은색과 흰색을 섞은 것 같은 색은 ___이에요.',
     blankAnswers: ['회색'],
     answerTranslation: L(
-      '검은색과 흰색 사이의 색은 회색이에요.',
-      'Qora va oq orasidagi rang 회색.',
-      'The color between black and white is gray.',
-      'Цвет между чёрным и белым — серый.',
+      '회색',
+      'kul rang (qora va oq orasida)',
+      'gray (between black and white)',
+      'серый',
     ),
     grading: {
       mode: 'exact',
@@ -7039,7 +6973,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 회색.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7165,13 +7099,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_279_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품을 다른 것으로 바꾸는 동사는 ___예요.',
     blankAnswers: ['교환하다'],
     answerTranslation: L(
-      '상품을 바꾸는 동사는 교환하다예요.',
-      'Mahsulotni almashtirish fe’li 교환하다.',
-      'The verb for exchanging a product is 교환하다.',
-      'Глагол обмена товара — 교환하다.',
+      '교환하다',
+      'boshqa tovarga almashtirmoq (rasmiy)',
+      'to exchange for another item (formal)',
+      'обменять на другой товар (формально)',
     ),
     grading: {
       mode: 'exact',
@@ -7180,7 +7113,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 교환하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7254,13 +7187,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_282_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상품에 생긴 지저분한 자국은 ___이에요.',
     blankAnswers: ['얼룩'],
     answerTranslation: L(
-      '지저분한 자국은 얼룩이에요.',
-      'Iflos dog‘ 얼룩.',
-      'A dirty mark is an 얼룩.',
-      'Грязное пятно — 얼룩.',
+      '얼룩',
+      'tovardagi dog‘',
+      'stain, spot',
+      'пятно',
     ),
     grading: {
       mode: 'exact',
@@ -7269,7 +7201,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 얼룩.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7386,13 +7318,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_287_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '이미 한 결제나 주문을 없던 것으로 하는 동사는 ___예요.',
     blankAnswers: ['취소하다'],
     answerTranslation: L(
-      '결제나 주문을 없던 것으로 하는 것은 취소하다예요.',
-      'To‘lov yoki buyurtmani bekor qilish 취소하다.',
-      'The verb for canceling a payment or order is 취소하다.',
-      'Глагол отмены оплаты или заказа — 취소하다.',
+      '취소하다',
+      'buyurtmani bekor qilmoq',
+      'to cancel (an order)',
+      'отменять заказ',
     ),
     grading: {
       mode: 'exact',
@@ -7401,7 +7332,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 취소하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7547,13 +7478,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_293_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '환불할 때 구입 사실을 증명하는 종이는 ___이에요.',
     blankAnswers: ['영수증'],
     answerTranslation: L(
-      '구입 사실을 확인하는 종이는 영수증이에요.',
-      'Xaridni tasdiqlaydigan qog‘oz 영수증.',
-      'The document proving the purchase is the receipt.',
-      'Документ, подтверждающий покупку, — 영수증.',
+      '영수증',
+      'to‘lov cheki',
+      'receipt',
+      'чек об оплате',
     ),
     grading: {
       mode: 'exact',
@@ -7562,7 +7492,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 영수증.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7687,13 +7617,12 @@ const S5_UNIT5_NODE3_QUESTIONS = {
   s5u5_299_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '붙어 있던 장식이 빠지는 동사는 ___예요.',
     blankAnswers: ['떨어지다'],
     answerTranslation: L(
-      '장식이 빠지는 동사는 떨어지다예요.',
-      'Bezakning tushib ketishi 떨어지다.',
-      'The verb for a decoration coming off is 떨어지다.',
-      'Глагол для отвалившегося украшения — 떨어지다.',
+      '떨어지다',
+      'tushib ketmoq (bezak, tugma)',
+      'to fall off (decoration, button)',
+      'отвалиться (украшение, пуговица)',
     ),
     grading: {
       mode: 'exact',
@@ -7702,7 +7631,7 @@ const S5_UNIT5_NODE3_QUESTIONS = {
       notes: ['Require 떨어지다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7770,13 +7699,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_302_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '결정하지 못하고 주저하는 동사는 ___예요.',
     blankAnswers: ['망설이다'],
     answerTranslation: L(
-      '결정하지 못하고 주저하는 것은 망설이다예요.',
-      'Qaror qila olmay ikkilanish 망설이다 deyiladi.',
-      'The verb meaning to hesitate is 망설이다.',
-      'Глагол «сомневаться, колебаться» — 망설이다.',
+      '망설이다',
+      'ikkilanmoq, qaror qila olmaslik',
+      'to hesitate',
+      'колебаться, сомневаться',
     ),
     grading: {
       mode: 'exact',
@@ -7785,7 +7713,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require the exact form 망설이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7901,13 +7829,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_307_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이 사람에게 보기 좋게 맞는다는 표현은 ___예요.',
     blankAnswers: ['잘 어울리다'],
     answerTranslation: L(
-      '옷이 사람에게 보기 좋게 맞는 것은 잘 어울리다예요.',
-      'Kiyim odamga yarashishi 잘 어울리다 deyiladi.',
-      'The expression meaning to suit someone well is 잘 어울리다.',
-      'Выражение «хорошо идти кому-либо» — 잘 어울리다.',
+      '잘 어울리다',
+      'juda yaxshi yarashmoq',
+      'to suit someone very well',
+      'очень идти (об одежде)',
     ),
     grading: {
       mode: 'exact',
@@ -7916,7 +7843,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require exact spacing in 잘 어울리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8063,13 +7990,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_313_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '상체에 입는 짧은 겉옷인 `jacket`은 한국어로 ___이에요.',
     blankAnswers: ['재킷'],
     answerTranslation: L(
-      '`jacket`은 한국어로 재킷이에요.',
-      '`jacket` koreys tilida 재킷.',
-      'The Korean word for “jacket” is 재킷.',
-      'По-корейски «jacket» — 재킷.',
+      '재킷',
+      'kurtka, jaket',
+      'jacket',
+      'жакет, куртка',
     ),
     grading: {
       mode: 'exact',
@@ -8078,7 +8004,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 재킷.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8205,13 +8131,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_319_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '어떤 상품이 좋아서 만족스럽다는 표현은 ___예요.',
     blankAnswers: ['마음에 들다'],
     answerTranslation: L(
-      '상품이 좋고 만족스러울 때 마음에 들다를 사용해요.',
-      'Mahsulot yoqsa 마음에 들다 ishlatiladi.',
-      'Use 마음에 들다 when you like and are pleased with a product.',
-      'Когда товар нравится, используется 마음에 들다.',
+      '마음에 들다',
+      'yoqmoq (ko‘ngilga yoqmoq)',
+      'to like, be pleased with',
+      'нравиться',
     ),
     grading: {
       mode: 'exact',
@@ -8220,7 +8145,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require exact spacing in 마음에 들다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8286,13 +8211,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_322_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`jeans`는 한국어로 ___예요.',
     blankAnswers: ['청바지'],
     answerTranslation: L(
-      '`jeans`는 한국어로 청바지예요.',
-      '`jeans` koreys tilida 청바지.',
-      'The Korean word for “jeans” is 청바지.',
-      'По-корейски «джинсы» — 청바지.',
+      '청바지',
+      'jinsi shim',
+      'jeans',
+      'джинсы',
     ),
     grading: {
       mode: 'exact',
@@ -8301,7 +8225,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 청바지.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8409,13 +8333,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_327_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '한쪽 끝에서 다른 쪽 끝까지의 거리를 ___라고 해요.',
     blankAnswers: ['길이'],
     answerTranslation: L(
-      '한쪽 끝에서 다른 끝까지의 거리는 길이예요.',
-      'Bir uchidan ikkinchi uchigacha bo‘lgan masofa 길이.',
-      'The distance from one end to the other is 길이.',
-      'Расстояние от одного края до другого — 길이.',
+      '길이',
+      'uzunlik',
+      'length',
+      'длина',
     ),
     grading: {
       mode: 'exact',
@@ -8424,7 +8347,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 길이.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8569,13 +8492,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_333_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '물건이 가진 빛의 종류를 뜻하는 단어는 ___이에요.',
     blankAnswers: ['색깔'],
     answerTranslation: L(
-      '물건의 색을 뜻하는 단어는 색깔이에요.',
-      'Buyumning rangi 색깔 deyiladi.',
-      'The Korean word for an item’s color is 색깔.',
-      'Слово, обозначающее цвет предмета, — 색깔.',
+      '색깔',
+      'rang (ikki bo‘g‘in)',
+      'color (two syllables)',
+      'цвет (два слога)',
     ),
     grading: {
       mode: 'exact',
@@ -8584,7 +8506,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 색깔.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8711,13 +8633,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_339_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷이나 신발의 크기를 뜻하는 외래어는 ___예요.',
     blankAnswers: ['사이즈'],
     answerTranslation: L(
-      '옷이나 신발의 크기는 사이즈예요.',
-      'Kiyim yoki poyabzal o‘lchami 사이즈.',
-      'The loanword for clothing or shoe size is 사이즈.',
-      'Заимствованное слово для размера одежды или обуви — 사이즈.',
+      '사이즈',
+      'o‘lcham (inglizcha o‘zlashma)',
+      'size (English loanword)',
+      'размер (заимствование)',
     ),
     grading: {
       mode: 'exact',
@@ -8726,7 +8647,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 사이즈.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8792,13 +8713,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_342_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '현재 물건을 다른 것으로 대신하는 동사는 ___예요.',
     blankAnswers: ['바꾸다'],
     answerTranslation: L(
-      '다른 것으로 대신하는 것은 바꾸다예요.',
-      'Boshqasiga almashtirish 바꾸다 deyiladi.',
-      'The verb meaning to change or replace something is 바꾸다.',
-      'Глагол «менять, заменять» — 바꾸다.',
+      '바꾸다',
+      'almashtirmoq, o‘zgartirmoq (oddiy fe’l)',
+      'to change, swap (basic verb)',
+      'менять (базовый глагол)',
     ),
     grading: {
       mode: 'exact',
@@ -8807,7 +8727,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 바꾸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8918,13 +8838,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_347_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`coat`는 한국어로 ___예요.',
     blankAnswers: ['코트'],
     answerTranslation: L(
-      '`coat`는 한국어로 코트예요.',
-      '`coat` koreys tilida 코트.',
-      'The Korean word for “coat” is 코트.',
-      'По-корейски «coat» — 코트.',
+      '코트',
+      'palto',
+      'coat',
+      'пальто',
     ),
     grading: {
       mode: 'exact',
@@ -8933,7 +8852,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 코트.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9081,14 +9000,13 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_353_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`한 ___ 작은 걸로 바꾸다`에서 크기를 뜻하는 단어는 무엇인가요?',
+    sentenceTemplate: '한 ___ 작은 걸로 바꿔 주세요.',
     blankAnswers: ['사이즈'],
     answerTranslation: L(
-      '`한 사이즈 작은 걸로 바꾸다`라고 해요.',
-      '`한 사이즈 작은 걸로 바꾸다` deb aytiladi.',
-      'The expression is 한 사이즈 작은 걸로 바꾸다.',
-      'Выражение: 한 사이즈 작은 걸로 바꾸다.',
+      '한 사이즈 작은 걸로 바꿔 주세요.',
+      'Bir o‘lcham kichigiga almashtirib bering.',
+      'Please exchange it for one size smaller.',
+      'Поменяйте, пожалуйста, на размер меньше.',
     ),
     grading: {
       mode: 'exact',
@@ -9097,7 +9015,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 사이즈.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9225,13 +9143,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_359_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`다른 것으로 대신하다`라는 뜻의 기본 동사는 ___예요.',
     blankAnswers: ['바꾸다'],
     answerTranslation: L(
-      '다른 것으로 대신하는 동사는 바꾸다예요.',
-      'Boshqasiga almashtirish fe’li 바꾸다.',
-      'The basic verb meaning “to replace with another” is 바꾸다.',
-      'Основной глагол со значением «заменить другим» — 바꾸다.',
+      '바꾸다',
+      'boshqasiga almashtirmoq (oddiy fe’l)',
+      'to replace with another (basic verb)',
+      'заменить другим (базовый глагол)',
     ),
     grading: {
       mode: 'exact',
@@ -9240,7 +9157,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 바꾸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9306,13 +9223,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_362_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`shirt`는 한국어로 ___예요.',
     blankAnswers: ['셔츠'],
     answerTranslation: L(
-      '`shirt`는 한국어로 셔츠예요.',
-      '`shirt` koreys tilida 셔츠.',
-      'The Korean word for “shirt” is 셔츠.',
-      'По-корейски «shirt» — 셔츠.',
+      '셔츠',
+      'ko‘ylak (umumiy so‘z)',
+      'shirt (general word)',
+      'рубашка (общее слово)',
     ),
     grading: {
       mode: 'exact',
@@ -9321,7 +9237,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 셔츠.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9422,13 +9338,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_367_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '길이를 더 짧게 만드는 동사는 ___예요.',
     blankAnswers: ['줄이다'],
     answerTranslation: L(
-      '길이를 짧게 만드는 동사는 줄이다예요.',
-      'Uzunlikni qisqartirish fe’li 줄이다.',
-      'The verb meaning to shorten is 줄이다.',
-      'Глагол «укорачивать» — 줄이다.',
+      '줄이다',
+      'qisqartirmoq (uzunlikni)',
+      'to shorten (length)',
+      'укорачивать (длину)',
     ),
     grading: {
       mode: 'exact',
@@ -9437,7 +9352,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 줄이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9582,13 +9497,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_373_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정장과 함께 많이 입는 셔츠를 ___라고 해요.',
     blankAnswers: ['와이셔츠'],
     answerTranslation: L(
-      '정장과 함께 입는 셔츠는 와이셔츠예요.',
-      'Kostyum bilan kiyiladigan klassik ko‘ylak 와이셔츠.',
-      'A dress shirt worn with a suit is called 와이셔츠.',
-      'Классическая рубашка под костюм называется 와이셔츠.',
+      '와이셔츠',
+      'klassik ko‘ylak (kostyum bilan)',
+      'dress shirt (worn with a suit)',
+      'классическая рубашка (под костюм)',
     ),
     grading: {
       mode: 'exact',
@@ -9597,7 +9511,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 와이셔츠.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9724,14 +9638,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_379_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`소매를 짧게 만들다`를 한 단어로 표현하면 소매를 ___예요.',
     blankAnswers: ['줄이다'],
     answerTranslation: L(
-      '`소매를 줄이다`라고 해요.',
-      '`소매를 줄이다` deb aytiladi.',
-      'The expression is 소매를 줄이다.',
-      'Выражение: 소매를 줄이다.',
+      '줄이다',
+      'qisqartirmoq (yengni, shimni)',
+      'to shorten (sleeves, pants)',
+      'укоротить (рукава, брюки)',
     ),
     grading: {
       mode: 'exact',
@@ -9740,7 +9652,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 줄이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9815,14 +9727,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_382_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '상품을 살지 말지 결정하지 못하고 있을 때 사용하는 동사는 ___예요.',
     blankAnswers: ['망설이다'],
     answerTranslation: L(
-      '결정하지 못할 때 망설이다를 사용해요.',
-      'Qaror qila olmaganda 망설이다 ishlatiladi.',
-      'Use 망설이다 when you cannot decide.',
-      'Когда не получается принять решение, используется 망설이다.',
+      '망설이다',
+      'ikkilanib turmoq (olishga qaror qilolmay)',
+      'to hesitate (can’t decide to buy)',
+      'колебаться (не решаясь купить)',
     ),
     grading: {
       mode: 'exact',
@@ -9831,7 +9741,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 망설이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9942,13 +9852,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_387_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`옷이 나에게 보기 좋게 맞다`라는 표현은 ___예요.',
     blankAnswers: ['잘 어울리다'],
     answerTranslation: L(
-      '옷이 보기 좋게 맞으면 잘 어울리다라고 해요.',
-      'Kiyim yarashsa 잘 어울리다 deyiladi.',
-      'If clothing suits someone, use 잘 어울리다.',
-      'Если одежда человеку идёт, используется 잘 어울리다.',
+      '잘 어울리다',
+      'juda yaxshi yarashmoq (kiyim, menga)',
+      'to look very good on someone',
+      'очень идти, быть к лицу',
     ),
     grading: {
       mode: 'exact',
@@ -9957,7 +9866,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require exact spacing in 잘 어울리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10104,13 +10013,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_393_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '옷의 길이를 짧게 만드는 동사는 ___예요.',
     blankAnswers: ['줄이다'],
     answerTranslation: L(
-      '옷의 길이를 짧게 만드는 동사는 줄이다예요.',
-      'Kiyim uzunligini qisqartirish fe’li 줄이다.',
-      'The verb for shortening clothing is 줄이다.',
-      'Глагол «укорачивать одежду» — 줄이다.',
+      '줄이다',
+      'kiyimni qisqartirmoq',
+      'to shorten clothes (alter)',
+      'укоротить одежду',
     ),
     grading: {
       mode: 'exact',
@@ -10119,7 +10027,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 줄이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10252,14 +10160,12 @@ const S5_UNIT5_NODE4_QUESTIONS = {
   s5u5_399_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '`현재 것을 다른 것으로 교체하다`라는 뜻의 동사는 ___예요.',
     blankAnswers: ['바꾸다'],
     answerTranslation: L(
-      '다른 것으로 교체하는 동사는 바꾸다예요.',
-      'Boshqasiga almashtirish fe’li 바꾸다.',
-      'The verb meaning to change one item for another is 바꾸다.',
-      'Глагол «заменить один предмет другим» — 바꾸다.',
+      '바꾸다',
+      'almashtirmoq (bir narsani boshqasiga; oddiy)',
+      'to change one thing for another (basic)',
+      'заменить одно на другое (базовый глагол)',
     ),
     grading: {
       mode: 'exact',
@@ -10268,7 +10174,7 @@ const S5_UNIT5_NODE4_QUESTIONS = {
       notes: ['Require 바꾸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10345,14 +10251,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_402_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '텔레비전이나 방송을 보면서 상품을 주문하는 쇼핑 방식을 ___이라고 해요.',
     blankAnswers: ['홈쇼핑'],
     answerTranslation: L(
-      '방송을 보면서 상품을 주문하는 쇼핑 방식은 홈쇼핑이에요.',
-      'Ko‘rsatuv orqali buyurtma qilish usuli 홈쇼핑.',
-      'Shopping by ordering products through a broadcast is 홈쇼핑.',
-      'Покупки через телемагазин называются 홈쇼핑.',
+      '홈쇼핑',
+      'teleshop (televizor orqali xarid)',
+      'home shopping (TV shopping)',
+      'телемагазин',
     ),
     grading: {
       mode: 'exact',
@@ -10361,7 +10265,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 홈쇼핑.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10464,13 +10368,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_407_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '사고 싶은 상품을 보내 달라고 신청하는 동사는 ___예요.',
     blankAnswers: ['주문하다'],
     answerTranslation: L(
-      '상품을 보내 달라고 신청하는 동사는 주문하다예요.',
-      'Mahsulot buyurtma qilish fe’li 주문하다.',
-      'The verb meaning “to order” is 주문하다.',
-      'Глагол «заказывать» — 주문하다.',
+      '주문하다',
+      'buyurtma bermoq',
+      'to order',
+      'заказывать',
     ),
     grading: {
       mode: 'exact',
@@ -10479,7 +10382,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 주문하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10623,13 +10526,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_413_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`blouse`는 한국어로 ___예요.',
     blankAnswers: ['블라우스'],
     answerTranslation: L(
-      '`blouse`는 한국어로 블라우스예요.',
-      '`blouse` koreys tilida 블라우스.',
-      'The Korean word for “blouse” is 블라우스.',
-      'По-корейски «blouse» — 블라우스.',
+      '블라우스',
+      'bluzka',
+      'blouse',
+      'блузка',
     ),
     grading: {
       mode: 'exact',
@@ -10638,7 +10540,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 블라우스.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10758,13 +10660,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_419_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여러 종류의 상품을 판매하는 큰 상점은 ___이에요.',
     blankAnswers: ['백화점'],
     answerTranslation: L(
-      '여러 종류의 상품을 판매하는 큰 상점은 백화점이에요.',
-      'Turli mahsulotlar sotiladigan katta do‘kon 백화점.',
-      'A large store selling many kinds of goods is a 백화점.',
-      'Большой магазин с разными товарами — 백화점.',
+      '백화점',
+      'univermag',
+      'department store',
+      'универмаг',
     ),
     grading: {
       mode: 'exact',
@@ -10773,7 +10674,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 백화점.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10847,14 +10748,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_422_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '구입한 상품을 반품하겠다고 요청하는 것을 ___이라고 해요.',
     blankAnswers: ['반품 신청'],
     answerTranslation: L(
-      '상품을 반품하겠다고 요청하는 것은 반품 신청이에요.',
-      'Mahsulotni qaytarish uchun murojaat 반품 신청.',
-      'Requesting to return a purchased product is 반품 신청.',
-      'Подача запроса на возврат называется 반품 신청.',
+      '반품 신청',
+      'qaytarish uchun ariza (ikki so‘z)',
+      'return request (two words)',
+      'заявка на возврат',
     ),
     grading: {
       mode: 'exact',
@@ -10863,7 +10762,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 반품 신청.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10973,13 +10872,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_427_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '화면에서 기능을 실행하기 위해 누르는 부분은 ___이에요.',
     blankAnswers: ['버튼'],
     answerTranslation: L(
-      '화면에서 누르는 부분은 버튼이에요.',
-      'Ekranda bosiladigan qism 버튼.',
-      'The on-screen control you press is a 버튼.',
-      'Элемент экрана, который нажимают, — 버튼.',
+      '버튼',
+      'tugma (ekranda)',
+      'button (on screen)',
+      'кнопка (на экране)',
     ),
     grading: {
       mode: 'exact',
@@ -10988,7 +10886,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 버튼.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11134,14 +11032,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_433_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '컴퓨터 화면에서 항목이나 버튼을 선택해서 누르는 동사는 ___예요.',
     blankAnswers: ['클릭하다'],
     answerTranslation: L(
-      '화면의 버튼을 누르는 동사는 클릭하다예요.',
-      'Ekrandagi tugmani bosish fe’li 클릭하다.',
-      'The verb meaning “to click” is 클릭하다.',
-      'Глагол «кликать» — 클릭하다.',
+      '클릭하다',
+      'bosmoq (sichqoncha bilan)',
+      'to click',
+      'кликать, нажимать',
     ),
     grading: {
       mode: 'exact',
@@ -11150,7 +11046,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 클릭하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11277,13 +11173,13 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_439_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`반품 ___ 버튼`에서 빈칸에 들어갈 단어는 무엇인가요?',
+    sentenceTemplate: '반품 ___ 버튼을 클릭하세요.',
     blankAnswers: ['신청'],
     answerTranslation: L(
-      '`반품 신청 버튼`이라고 해요.',
-      '`반품 신청 버튼` deb aytiladi.',
-      'The expression is 반품 신청 버튼.',
-      'Выражение: 반품 신청 버튼.',
+      '반품 신청 버튼을 클릭하세요.',
+      'Qaytarish arizasi tugmasini bosing.',
+      'Click the return request button.',
+      'Нажмите кнопку заявки на возврат.',
     ),
     grading: {
       mode: 'exact',
@@ -11292,7 +11188,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 신청.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11367,13 +11263,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_442_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '주문을 구별하기 위해 붙이는 번호는 ___예요.',
     blankAnswers: ['주문 번호'],
     answerTranslation: L(
-      '주문을 구별하는 번호는 주문 번호예요.',
-      'Buyurtmani aniqlaydigan raqam 주문 번호.',
-      'The number identifying an order is the 주문 번호.',
-      'Номер, идентифицирующий заказ, — 주문 번호.',
+      '주문 번호',
+      'buyurtma raqami',
+      'order number',
+      'номер заказа',
     ),
     grading: {
       mode: 'exact',
@@ -11382,7 +11277,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 주문 번호.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11486,13 +11381,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_447_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전화번호 등 연락할 수 있는 정보를 ___라고 해요.',
     blankAnswers: ['연락처'],
     answerTranslation: L(
-      '연락할 수 있는 정보는 연락처예요.',
-      'Bog‘lanish ma’lumoti 연락처 deyiladi.',
-      'Contact information is called 연락처.',
-      'Контактные данные называются 연락처.',
+      '연락처',
+      'aloqa ma’lumoti (telefon raqami)',
+      'contact info',
+      'контактные данные',
     ),
     grading: {
       mode: 'exact',
@@ -11501,7 +11395,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 연락처.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11647,13 +11541,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_453_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '은행 계좌에 붙어 있는 번호는 ___예요.',
     blankAnswers: ['계좌번호'],
     answerTranslation: L(
-      '은행 계좌의 번호는 계좌번호예요.',
-      'Bank hisobining raqami 계좌번호.',
-      'A bank account number is 계좌번호.',
-      'Номер банковского счёта — 계좌번호.',
+      '계좌번호',
+      'bank hisob raqami',
+      'bank account number',
+      'номер банковского счёта',
     ),
     grading: {
       mode: 'exact',
@@ -11662,7 +11555,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 계좌번호.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11783,13 +11676,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_459_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`order number`는 한국어로 ___예요.',
     blankAnswers: ['주문 번호'],
     answerTranslation: L(
-      '`order number`는 한국어로 주문 번호예요.',
-      '`order number` koreys tilida 주문 번호.',
-      'The Korean expression for “order number” is 주문 번호.',
-      'По-корейски «order number» — 주문 번호.',
+      '주문 번호',
+      'buyurtmaning raqami',
+      'order number',
+      'номер заказа',
     ),
     grading: {
       mode: 'exact',
@@ -11798,7 +11690,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 주문 번호.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11872,14 +11764,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_462_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '물건이 현재 어떤 모습이나 상황인지 나타내는 단어는 ___예요.',
     blankAnswers: ['상태'],
     answerTranslation: L(
-      '물건의 현재 모습이나 상황은 상태예요.',
-      'Buyumning hozirgi holati 상태.',
-      'The current condition of an item is its 상태.',
-      'Текущее состояние предмета — 상태.',
+      '상태',
+      'holat (buyumning)',
+      'condition, state',
+      'состояние',
     ),
     grading: {
       mode: 'exact',
@@ -11888,7 +11778,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 상태.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11997,13 +11887,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_467_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고객이 질문이나 불만을 글로 남기는 곳은 ___이에요.',
     blankAnswers: ['고객 게시판'],
     answerTranslation: L(
-      '고객이 글을 남기는 곳은 고객 게시판이에요.',
-      'Mijoz yozuv qoldiradigan joy 고객 게시판.',
-      'The place where customers leave messages is the 고객 게시판.',
-      'Место, где клиенты оставляют сообщения, — 고객 게시판.',
+      '고객 게시판',
+      'mijozlar e’lonlar taxtasi (saytda)',
+      'customer message board',
+      'доска для клиентов (на сайте)',
     ),
     grading: {
       mode: 'exact',
@@ -12012,7 +11901,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 고객 게시판.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12158,13 +12047,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_473_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '마음에 들지 않거나 만족하지 않는 생각을 ___이라고 해요.',
     blankAnswers: ['불만'],
     answerTranslation: L(
-      '만족하지 않는 생각은 불만이에요.',
-      'Norozilik 불만 deyiladi.',
-      'Dissatisfaction or a complaint is 불만.',
-      'Недовольство или жалоба — 불만.',
+      '불만',
+      'norozilik, shikoyat',
+      'dissatisfaction, complaint',
+      'недовольство, жалоба',
     ),
     grading: {
       mode: 'exact',
@@ -12173,7 +12061,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require 불만.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12301,13 +12189,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_479_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`product condition`에 해당하는 한국어 단어는 ___예요.',
     blankAnswers: ['상품 상태'],
     answerTranslation: L(
-      '`product condition`은 상품 상태예요.',
-      '`product condition` koreys tilida 상품 상태.',
-      'The Korean expression for “product condition” is 상품 상태.',
-      'По-корейски «product condition» — 상품 상태.',
+      '상품 상태',
+      'mahsulot holati',
+      'product condition',
+      'состояние товара',
     ),
     grading: {
       mode: 'exact',
@@ -12316,7 +12203,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 상품 상태.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12392,13 +12279,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_482_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '가격을 할인해서 판매하는 상품을 ___이라고 해요.',
     blankAnswers: ['세일 상품'],
     answerTranslation: L(
-      '할인해서 판매하는 상품은 세일 상품이에요.',
-      'Chegirma bilan sotiladigan mahsulot 세일 상품.',
-      'A discounted item is a 세일 상품.',
-      'Товар со скидкой — 세일 상품.',
+      '세일 상품',
+      'chegirmadagi mahsulot (sale so‘zi bilan)',
+      'sale item (with the loanword)',
+      'товар со скидкой (с заимствованием)',
     ),
     grading: {
       mode: 'exact',
@@ -12407,7 +12293,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 세일 상품.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12518,14 +12404,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_487_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '고객이 상품 문제에 대해 글을 남길 수 있는 곳은 ___이에요.',
     blankAnswers: ['고객 게시판'],
     answerTranslation: L(
-      '상품 문제에 대해 글을 남기는 곳은 고객 게시판이에요.',
-      'Mahsulot muammosi haqida yoziladigan joy 고객 게시판.',
-      'The place for posting about product problems is the 고객 게시판.',
-      'Место для сообщений о проблемах с товаром — 고객 게시판.',
+      '고객 게시판',
+      'mijozlar forumi (muammo yoziladigan joy)',
+      'customer board (for posting problems)',
+      'форум для клиентов',
     ),
     grading: {
       mode: 'exact',
@@ -12534,7 +12418,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 고객 게시판.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12680,13 +12564,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_493_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`sale item`은 한국어로 ___이에요.',
     blankAnswers: ['세일 상품'],
     answerTranslation: L(
-      '`sale item`은 한국어로 세일 상품이에요.',
-      '`sale item` koreys tilida 세일 상품.',
-      'The Korean expression for “sale item” is 세일 상품.',
-      'По-корейски «sale item» — 세일 상품.',
+      '세일 상품',
+      'sale mahsuloti (chegirmadagi)',
+      'sale item',
+      'товар на распродаже',
     ),
     grading: {
       mode: 'exact',
@@ -12695,7 +12578,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 세일 상품.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12830,14 +12713,12 @@ const S5_UNIT5_NODE5_QUESTIONS = {
   s5u5_499_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '반품 신청 화면에서 주문을 확인하기 위해 필요한 번호는 ___예요.',
     blankAnswers: ['주문 번호'],
     answerTranslation: L(
-      '주문을 확인하는 번호는 주문 번호예요.',
-      'Buyurtmani tekshirish raqami 주문 번호.',
-      'The number used to identify the order is the 주문 번호.',
-      'Номер для проверки заказа — 주문 번호.',
+      '주문 번호',
+      'buyurtma raqami (qaytarishda kerak)',
+      'order number (needed for returns)',
+      'номер заказа (нужен для возврата)',
     ),
     grading: {
       mode: 'exact',
@@ -12846,7 +12727,7 @@ const S5_UNIT5_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 주문 번호.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12915,13 +12796,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_502_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '교재 표에서 여자 옷 S 치수는 ___예요.',
+    sentenceTemplate: '여자 옷 S 사이즈는 ___예요.',
     blankAnswers: ['55(90)'],
     answerTranslation: L(
-      '여자 옷 S 치수는 55(90)예요.',
-      'Ayollar kiyimining S o‘lchami 55(90).',
-      "Women's clothing size S is 55(90).",
-      'Женский размер S — 55(90).',
+      '여자 옷 S 사이즈는 55(90)예요.',
+      'Jadval: ayollar kiyimining S o‘lchami qaysi?',
+      'Chart: what is the women’s clothing size S?',
+      'Таблица: какой размер S в женской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -12930,7 +12811,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require the chart value 55(90).'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13033,13 +12914,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_507_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 옷 XS에 해당하는 표의 치수는 ___예요.',
+    sentenceTemplate: '여자 옷 XS 사이즈는 ___예요.',
     blankAnswers: ['44(85)'],
     answerTranslation: L(
-      '여자 옷 XS는 44(85)예요.',
-      'Ayollar kiyimida XS 44(85).',
-      "Women's size XS is 44(85).",
-      'Женский размер XS — 44(85).',
+      '여자 옷 XS 사이즈는 44(85)예요.',
+      'Jadval: ayollar kiyimining XS o‘lchami qaysi?',
+      'Chart: what is the women’s clothing size XS?',
+      'Таблица: какой размер XS в женской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13048,7 +12929,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require the chart value 44(85).'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13185,13 +13066,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_513_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 옷 XL 치수는 ___예요.',
+    sentenceTemplate: '여자 옷 XL 사이즈는 ___예요.',
     blankAnswers: ['88(105)'],
     answerTranslation: L(
-      '여자 옷 XL 치수는 88(105)예요.',
-      'Ayollar kiyimida XL 88(105).',
-      "Women's size XL is 88(105).",
-      'Женский размер XL — 88(105).',
+      '여자 옷 XL 사이즈는 88(105)예요.',
+      'Jadval: ayollar kiyimining XL o‘lchami qaysi?',
+      'Chart: what is the women’s clothing size XL?',
+      'Таблица: какой размер XL в женской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13200,7 +13081,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 88(105).'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13320,13 +13201,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_519_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 옷 XXL 치수는 ___이에요.',
+    sentenceTemplate: '여자 옷 XXL 사이즈는 ___이에요.',
     blankAnswers: ['110'],
     answerTranslation: L(
-      '여자 옷 XXL 치수는 110이에요.',
-      'Ayollar kiyimida XXL 110.',
-      "Women's size XXL is 110.",
-      'Женский размер XXL — 110.',
+      '여자 옷 XXL 사이즈는 110이에요.',
+      'Jadval: ayollar kiyimining XXL o‘lchami qaysi?',
+      'Chart: what is the women’s clothing size XXL?',
+      'Таблица: какой размер XXL в женской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13335,7 +13216,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 110.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13402,13 +13283,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_522_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 옷 S 치수는 ___이에요.',
+    sentenceTemplate: '남자 옷 S 사이즈는 ___이에요.',
     blankAnswers: ['90'],
     answerTranslation: L(
-      '남자 옷 S 치수는 90이에요.',
-      'Erkaklar kiyimida S 90.',
-      "Men's size S is 90.",
-      'Мужской размер S — 90.',
+      '남자 옷 S 사이즈는 90이에요.',
+      'Jadval: erkaklar kiyimining S o‘lchami qaysi?',
+      'Chart: what is the men’s clothing size S?',
+      'Таблица: какой размер S в мужской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13417,7 +13298,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 90.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13512,13 +13393,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_527_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 옷 XS에 해당하는 치수는 ___예요.',
+    sentenceTemplate: '남자 옷 XS 사이즈는 ___예요.',
     blankAnswers: ['85'],
     answerTranslation: L(
-      '남자 옷 XS 치수는 85예요.',
-      'Erkaklar kiyimida XS 85.',
-      "Men's size XS is 85.",
-      'Мужской размер XS — 85.',
+      '남자 옷 XS 사이즈는 85예요.',
+      'Jadval: erkaklar kiyimining XS o‘lchami qaysi?',
+      'Chart: what is the men’s clothing size XS?',
+      'Таблица: какой размер XS в мужской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13527,7 +13408,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 85.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13657,13 +13538,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_533_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 옷 XL 치수는 ___예요.',
+    sentenceTemplate: '남자 옷 XL 사이즈는 ___예요.',
     blankAnswers: ['105'],
     answerTranslation: L(
-      '남자 옷 XL 치수는 105예요.',
-      'Erkaklar kiyimida XL 105.',
-      "Men's size XL is 105.",
-      'Мужской размер XL — 105.',
+      '남자 옷 XL 사이즈는 105예요.',
+      'Jadval: erkaklar kiyimining XL o‘lchami qaysi?',
+      'Chart: what is the men’s clothing size XL?',
+      'Таблица: какой размер XL в мужской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13672,7 +13553,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 105.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13784,13 +13665,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_539_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 옷 XXL 치수는 ___이에요.',
+    sentenceTemplate: '남자 옷 XXL 사이즈는 ___이에요.',
     blankAnswers: ['110'],
     answerTranslation: L(
-      '남자 옷 XXL 치수는 110이에요.',
-      'Erkaklar kiyimida XXL 110.',
-      "Men's size XXL is 110.",
-      'Мужской размер XXL — 110.',
+      '남자 옷 XXL 사이즈는 110이에요.',
+      'Jadval: erkaklar kiyimining XXL o‘lchami qaysi?',
+      'Chart: what is the men’s clothing size XXL?',
+      'Таблица: какой размер XXL в мужской одежде?',
     ),
     grading: {
       mode: 'exact',
@@ -13799,7 +13680,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 110.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13872,13 +13753,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_542_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 바지 S 치수는 ___cm예요.',
+    sentenceTemplate: '여자 바지 S는 ___cm예요.',
     blankAnswers: ['66~69'],
     answerTranslation: L(
-      '여자 바지 S 치수는 66~69cm예요.',
-      'Ayollar shimining S o‘lchami 66~69 cm.',
-      "Women's pants size S is 66–69 cm.",
-      'Женский размер брюк S — 66–69 см.',
+      '여자 바지 S는 66~69cm예요.',
+      'Jadval: ayollar shimi S necha sm?',
+      'Chart: women’s pants size S is how many cm?',
+      'Таблица: женские брюки S — сколько см?',
     ),
     grading: {
       mode: 'exact',
@@ -13887,7 +13768,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require the range 66~69.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13990,13 +13871,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_547_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 바지 XS 치수 범위는 ___cm예요.',
+    sentenceTemplate: '여자 바지 XS는 ___cm예요.',
     blankAnswers: ['61~64'],
     answerTranslation: L(
       '여자 바지 XS는 61~64cm예요.',
-      'Ayollar shimida XS 61~64 cm.',
-      "Women's pants XS is 61–64 cm.",
-      'Женский XS для брюк — 61–64 см.',
+      'Jadval: ayollar shimi XS necha sm?',
+      'Chart: women’s pants size XS is how many cm?',
+      'Таблица: женские брюки XS — сколько см?',
     ),
     grading: {
       mode: 'exact',
@@ -14005,7 +13886,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 61~64.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14150,13 +14031,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_553_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 바지 L 치수는 ___cm예요.',
+    sentenceTemplate: '여자 바지 L은 ___cm예요.',
     blankAnswers: ['79~84'],
     answerTranslation: L(
-      '여자 바지 L 치수는 79~84cm예요.',
-      'Ayollar shimida L 79~84 cm.',
-      "Women's pants L is 79–84 cm.",
-      'Женский размер брюк L — 79–84 см.',
+      '여자 바지 L은 79~84cm예요.',
+      'Jadval: ayollar shimi L necha sm?',
+      'Chart: women’s pants size L is how many cm?',
+      'Таблица: женские брюки L — сколько см?',
     ),
     grading: {
       mode: 'exact',
@@ -14165,7 +14046,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 79~84.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14285,13 +14166,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_559_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 바지 M의 cm 범위는 ___예요.',
+    sentenceTemplate: '여자 바지 M은 ___cm예요.',
     blankAnswers: ['71~76'],
     answerTranslation: L(
-      '여자 바지 M의 범위는 71~76cm예요.',
-      'Ayollar shimining M oralig‘i 71~76 cm.',
-      "Women's pants M ranges from 71 to 76 cm.",
-      'Женский размер брюк M — 71–76 см.',
+      '여자 바지 M은 71~76cm예요.',
+      'Jadval: ayollar shimi M necha sm?',
+      'Chart: women’s pants size M is how many cm?',
+      'Таблица: женские брюки M — сколько см?',
     ),
     grading: {
       mode: 'exact',
@@ -14300,7 +14181,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 71~76.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14373,13 +14254,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_562_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 바지 M 치수는 ___inch예요.',
+    sentenceTemplate: '남자 바지 M은 ___inch예요.',
     blankAnswers: ['30~31'],
     answerTranslation: L(
-      '남자 바지 M 치수는 30~31inch예요.',
-      'Erkaklar shimida M 30~31 inch.',
-      "Men's pants M is 30–31 inches.",
-      'Мужской размер брюк M — 30–31 дюйм.',
+      '남자 바지 M은 30~31inch예요.',
+      'Jadval: erkaklar shimi M necha dyuym?',
+      'Chart: men’s pants size M is how many inches?',
+      'Таблица: мужские брюки M — сколько дюймов?',
     ),
     grading: {
       mode: 'exact',
@@ -14388,7 +14269,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 30~31.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14491,13 +14372,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_567_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 바지 S의 inch 범위는 ___예요.',
+    sentenceTemplate: '남자 바지 S는 ___inch예요.',
     blankAnswers: ['28~29'],
     answerTranslation: L(
       '남자 바지 S는 28~29inch예요.',
-      'Erkaklar shimida S 28~29 inch.',
-      "Men's pants S is 28–29 inches.",
-      'Мужской размер брюк S — 28–29 дюймов.',
+      'Jadval: erkaklar shimi S necha dyuym?',
+      'Chart: men’s pants size S is how many inches?',
+      'Таблица: мужские брюки S — сколько дюймов?',
     ),
     grading: {
       mode: 'exact',
@@ -14506,7 +14387,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 28~29.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14657,13 +14538,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_573_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 바지 XL 치수는 ___inch예요.',
+    sentenceTemplate: '남자 바지 XL은 ___inch예요.',
     blankAnswers: ['34~37'],
     answerTranslation: L(
-      '남자 바지 XL 치수는 34~37inch예요.',
-      'Erkaklar shimida XL 34~37 inch.',
-      "Men's pants XL is 34–37 inches.",
-      'Мужской XL для брюк — 34–37 дюймов.',
+      '남자 바지 XL은 34~37inch예요.',
+      'Jadval: erkaklar shimi XL necha dyuym?',
+      'Chart: men’s pants size XL is how many inches?',
+      'Таблица: мужские брюки XL — сколько дюймов?',
     ),
     grading: {
       mode: 'exact',
@@ -14672,7 +14553,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 34~37.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14998,13 +14879,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_587_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '여자 바지 XL의 cm 범위는 ___예요.',
+    sentenceTemplate: '여자 바지 XL은 ___cm예요.',
     blankAnswers: ['89~94'],
     answerTranslation: L(
       '여자 바지 XL은 89~94cm예요.',
-      'Ayollar shimida XL 89~94 cm.',
-      "Women's pants XL is 89–94 cm.",
-      'Женский XL для брюк — 89–94 см.',
+      'Jadval: ayollar shimi XL necha sm?',
+      'Chart: women’s pants size XL is how many cm?',
+      'Таблица: женские брюки XL — сколько см?',
     ),
     grading: {
       mode: 'exact',
@@ -15013,7 +14894,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 89~94.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15161,13 +15042,13 @@ const S5_UNIT5_NODE6_QUESTIONS = {
   s5u5_593_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '남자 옷 XXL에 해당하는 수치는 ___이에요.',
+    sentenceTemplate: '남자 옷 XXL은 ___이에요.',
     blankAnswers: ['110'],
     answerTranslation: L(
       '남자 옷 XXL은 110이에요.',
-      'Erkaklar kiyimida XXL 110.',
-      "Men's clothing XXL is 110.",
-      'Мужской XXL — 110.',
+      'Jadval: erkaklar kiyimi XXL qaysi songa teng?',
+      'Chart: men’s clothing XXL equals which number?',
+      'Таблица: мужская одежда XXL — какое число?',
     ),
     grading: {
       mode: 'exact',
@@ -15176,7 +15057,7 @@ const S5_UNIT5_NODE6_QUESTIONS = {
       notes: ['Require 110.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },

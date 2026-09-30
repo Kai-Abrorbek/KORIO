@@ -87,13 +87,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_002_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '사람이 많지 않고 조용한 상태를 ___라고 해요.',
     blankAnswers: ['한산하다'],
     answerTranslation: L(
-      '사람이 많지 않고 조용한 상태는 한산하다예요.',
-      'Odam kam va tinch bo‘lish 한산하다 deyiladi.',
-      'The word for being quiet and uncrowded is 한산하다.',
-      'Слово со значением «тихий и немноголюдный» — 한산하다.',
+      '한산하다',
+      'odam kam va tinch bo‘lmoq (joy)',
+      'to be quiet and uncrowded (a place)',
+      'быть малолюдным и тихим (о месте)',
     ),
     grading: {
       mode: 'exact',
@@ -102,7 +101,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 한산하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -202,13 +201,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_007_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '편안하고 포근한 느낌이 있다는 뜻의 단어는 ___예요.',
     blankAnswers: ['아늑하다'],
     answerTranslation: L(
-      '편안하고 포근한 느낌은 아늑하다예요.',
-      'Shinam va yoqimli ma’no 아늑하다.',
-      'The word meaning cozy is 아늑하다.',
-      'Слово со значением «уютный» — 아늑하다.',
+      '아늑하다',
+      'shinam va qulay bo‘lmoq (xona)',
+      'to be cozy (a room)',
+      'быть уютным (о комнате)',
     ),
     grading: {
       mode: 'exact',
@@ -217,7 +215,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 아늑하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -362,13 +360,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_013_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '보통과 달라서 눈에 띈다는 뜻의 단어는 ___예요.',
     blankAnswers: ['특이하다'],
     answerTranslation: L(
-      '보통과 달라서 눈에 띄는 것은 특이하다예요.',
-      'Oddiydan farqli va ajralib turish 특이하다.',
-      'The word meaning unusual or distinctive is 특이하다.',
-      'Слово со значением «необычный» — 특이하다.',
+      '특이하다',
+      'g‘ayrioddiy, o‘ziga xos bo‘lmoq',
+      'to be unusual, distinctive',
+      'быть необычным, своеобразным',
     ),
     grading: {
       mode: 'exact',
@@ -377,7 +374,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 특이하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -490,14 +487,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_019_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '특별하거나 특이하지 않고 보통이라는 뜻의 단어는 ___예요.',
     blankAnswers: ['평범하다'],
     answerTranslation: L(
-      '특별하지 않고 보통인 것은 평범하다예요.',
-      'Oddiy va alohida emas ma’nosi 평범하다.',
-      'The word meaning ordinary is 평범하다.',
-      'Слово со значением «обычный» — 평범하다.',
+      '평범하다',
+      'oddiy, odatiy bo‘lmoq',
+      'to be ordinary',
+      'быть обычным, заурядным',
     ),
     grading: {
       mode: 'exact',
@@ -506,7 +501,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 평범하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -572,13 +567,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_022_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식 종류가 많다는 표현은 ___예요.',
     blankAnswers: ['메뉴가 다양하다'],
     answerTranslation: L(
-      '음식 종류가 많을 때 메뉴가 다양하다라고 해요.',
-      'Taom turlari ko‘p bo‘lsa 메뉴가 다양하다 deyiladi.',
-      'The expression for having many menu choices is 메뉴가 다양하다.',
-      'Выражение для большого выбора блюд — 메뉴가 다양하다.',
+      '메뉴가 다양하다',
+      'menyusi xilma-xil bo‘lmoq',
+      'to have a varied menu',
+      'иметь разнообразное меню',
     ),
     grading: {
       mode: 'exact',
@@ -587,7 +581,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 메뉴가 다양하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -694,13 +688,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_027_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '가격이 비싸지 않고 비교적 싸다는 표현은 ___예요.',
     blankAnswers: ['가격이 저렴하다'],
     answerTranslation: L(
-      '가격이 비싸지 않을 때 가격이 저렴하다라고 해요.',
-      'Narxi qimmat bo‘lmasa 가격이 저렴하다 deyiladi.',
-      'The expression meaning reasonably priced is 가격이 저렴하다.',
-      'Выражение «цена невысокая» — 가격이 저렴하다.',
+      '가격이 저렴하다',
+      'narxi arzon bo‘lmoq',
+      'to be inexpensive (the price)',
+      'быть недорогим (о цене)',
     ),
     grading: {
       mode: 'exact',
@@ -709,7 +702,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 가격이 저렴하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -846,13 +839,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_033_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식 재료의 상태가 좋고 새롭다는 표현은 ___예요.',
     blankAnswers: ['재료가 신선하다'],
     answerTranslation: L(
-      '좋은 상태의 새 재료는 재료가 신선하다라고 표현해요.',
-      'Yangi mahsulot haqida 재료가 신선하다 deyiladi.',
-      'The expression for fresh ingredients is 재료가 신선하다.',
-      'Выражение для свежих ингредиентов — 재료가 신선하다.',
+      '재료가 신선하다',
+      'masalliqlari yangi bo‘lmoq',
+      'to have fresh ingredients',
+      'иметь свежие ингредиенты',
     ),
     grading: {
       mode: 'exact',
@@ -861,7 +853,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 재료가 신선하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -986,13 +978,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_039_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식의 맛이 자기 취향에 맞다는 표현은 ___예요.',
     blankAnswers: ['음식이 입에 맞다'],
     answerTranslation: L(
-      '음식 맛이 취향에 맞을 때 음식이 입에 맞다라고 해요.',
-      'Taom didga mos kelsa 음식이 입에 맞다 deyiladi.',
-      'The expression for food suiting one’s taste is 음식이 입에 맞다.',
-      'Выражение «еда приходится по вкусу» — 음식이 입에 맞다.',
+      '음식이 입에 맞다',
+      'taom didiga mos kelmoq',
+      'for food to suit one’s taste',
+      'прийтись по вкусу (о еде)',
     ),
     grading: {
       mode: 'exact',
@@ -1001,7 +992,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 음식이 입에 맞다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1067,13 +1058,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_042_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '만날 곳을 결정한다는 표현은 ___예요.',
     blankAnswers: ['장소를 정하다'],
     answerTranslation: L(
-      '만날 곳을 결정하는 것은 장소를 정하다예요.',
-      'Uchrashadigan joyni belgilash 장소를 정하다.',
-      'The expression for deciding where to meet is 장소를 정하다.',
-      'Выражение «определить место встречи» — 장소를 정하다.',
+      '장소를 정하다',
+      'uchrashuv joyini belgilamoq',
+      'to decide on the meeting place',
+      'выбрать место встречи',
     ),
     grading: {
       mode: 'exact',
@@ -1082,7 +1072,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 장소를 정하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1177,13 +1167,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_047_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '약속이나 모임을 할 날짜를 정한다는 표현은 ___예요.',
     blankAnswers: ['날짜를 잡다'],
     answerTranslation: L(
-      '모임 날짜를 정하는 것은 날짜를 잡다예요.',
-      'Uchrashuv sanasini belgilash 날짜를 잡다.',
-      'The expression for setting a date is 날짜를 잡다.',
-      'Выражение «назначить дату» — 날짜를 잡다.',
+      '날짜를 잡다',
+      'uchrashuv sanasini belgilamoq',
+      'to set a date',
+      'назначить дату',
     ),
     grading: {
       mode: 'exact',
@@ -1192,7 +1181,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 날짜를 잡다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1324,13 +1313,13 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_053_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`meeting place`에 해당하는 표현은 약속 ___예요.',
+    sentenceTemplate: '우리 약속 ___가 어디예요?',
     blankAnswers: ['장소'],
     answerTranslation: L(
-      '`meeting place`는 약속 장소예요.',
-      '`meeting place` koreys tilida 약속 장소.',
-      'Meeting place is 약속 장소.',
-      '«Место встречи» — 약속 장소.',
+      '우리 약속 장소가 어디예요?',
+      'Uchrashuv joyimiz qayerda?',
+      'Where is our meeting place?',
+      'Где наше место встречи?',
     ),
     grading: {
       mode: 'exact',
@@ -1339,7 +1328,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 장소.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1456,13 +1445,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_059_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`set a date`에 해당하는 한국어 표현은 ___예요.',
     blankAnswers: ['날짜를 잡다'],
     answerTranslation: L(
-      '`set a date`는 날짜를 잡다예요.',
-      '`set a date` koreys tilida 날짜를 잡다.',
-      'The Korean expression for “set a date” is 날짜를 잡다.',
-      'По-корейски «назначить дату» — 날짜를 잡다.',
+      '날짜를 잡다',
+      'sana belgilamoq (uchrashuv uchun)',
+      'to set a date (for a meeting)',
+      'назначить дату (встречи)',
     ),
     grading: {
       mode: 'exact',
@@ -1471,7 +1459,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 날짜를 잡다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1537,13 +1525,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_062_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정한 약속대로 행동한다는 표현은 ___예요.',
     blankAnswers: ['약속을 지키다'],
     answerTranslation: L(
-      '정한 약속대로 행동하는 것은 약속을 지키다예요.',
-      'Kelishilgan va’daga amal qilish 약속을 지키다.',
-      'The expression for keeping an appointment or promise is 약속을 지키다.',
-      'Выражение «соблюдать договорённость» — 약속을 지키다.',
+      '약속을 지키다',
+      'va’dani bajarmoq (kelishuvga amal qilmoq)',
+      'to keep a promise',
+      'сдержать обещание',
     ),
     grading: {
       mode: 'exact',
@@ -1552,7 +1539,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 약속을 지키다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1658,13 +1645,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_067_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정한 시간을 지키지 않는다는 표현은 ___예요.',
     blankAnswers: ['시간을 어기다'],
     answerTranslation: L(
-      '정한 시간을 지키지 않는 것은 시간을 어기다예요.',
-      'Belgilangan vaqtga amal qilmaslik 시간을 어기다.',
-      'The expression for failing to keep the agreed time is 시간을 어기다.',
-      'Выражение «нарушать назначенное время» — 시간을 어기다.',
+      '시간을 어기다',
+      'kelishilgan vaqtni buzmoq',
+      'to break the agreed time',
+      'нарушить договорённое время',
     ),
     grading: {
       mode: 'exact',
@@ -1673,7 +1659,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 시간을 어기다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1810,13 +1796,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_073_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`keep a promise`에 해당하는 한국어 표현은 ___예요.',
     blankAnswers: ['약속을 지키다'],
     answerTranslation: L(
-      '`keep a promise`는 약속을 지키다예요.',
-      '`keep a promise` koreys tilida 약속을 지키다.',
-      'The Korean expression for “keep a promise” is 약속을 지키다.',
-      'По-корейски «сдерживать обещание» — 약속을 지키다.',
+      '약속을 지키다',
+      'va’dasida turmoq',
+      'to keep a promise',
+      'держать обещание',
     ),
     grading: {
       mode: 'exact',
@@ -1825,7 +1810,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 약속을 지키다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -1942,13 +1927,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_079_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`break the agreed time`에 해당하는 표현은 ___예요.',
     blankAnswers: ['시간을 어기다'],
     answerTranslation: L(
-      '`break the agreed time`은 시간을 어기다예요.',
-      '`break the agreed time` koreys tilida 시간을 어기다.',
-      'The Korean expression is 시간을 어기다.',
-      'Корейское выражение — 시간을 어기다.',
+      '시간을 어기다',
+      'belgilangan vaqtga rioya qilmaslik',
+      'to not keep the agreed time',
+      'не соблюдать условленное время',
     ),
     grading: {
       mode: 'exact',
@@ -1957,7 +1941,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 시간을 어기다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2031,14 +2015,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_082_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '장소에서 느껴지는 전체적인 느낌이 좋다는 표현은 ___예요.',
     blankAnswers: ['분위기가 좋다'],
     answerTranslation: L(
-      '전체적인 느낌이 좋을 때 분위기가 좋다라고 해요.',
-      'Joyning umumiy muhiti yoqimli bo‘lsa 분위기가 좋다 deyiladi.',
-      'The expression for having a nice atmosphere is 분위기가 좋다.',
-      'Выражение «приятная атмосфера» — 분위기가 좋다.',
+      '분위기가 좋다',
+      'muhiti yoqimli bo‘lmoq (joy)',
+      'to have a nice atmosphere',
+      'иметь приятную атмосферу',
     ),
     grading: {
       mode: 'exact',
@@ -2047,7 +2029,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 분위기가 좋다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2156,14 +2138,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_087_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '사람이나 손님이 많이 모여 복잡하다는 뜻의 동사는 ___예요.',
     blankAnswers: ['붐비다'],
     answerTranslation: L(
-      '사람이 많아서 복잡한 것은 붐비다예요.',
-      'Odam ko‘p va gavjum bo‘lish 붐비다.',
-      'The verb meaning to be crowded is 붐비다.',
-      'Глагол со значением «быть многолюдным» — 붐비다.',
+      '붐비다',
+      'gavjum bo‘lmoq, odam tiqilinch bo‘lmoq',
+      'to be crowded',
+      'быть переполненным (людьми)',
     ),
     grading: {
       mode: 'exact',
@@ -2172,7 +2152,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 붐비다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2318,13 +2298,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_093_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '깨끗하고 정돈되어 있다는 뜻의 단어는 ___예요.',
     blankAnswers: ['깔끔하다'],
     answerTranslation: L(
-      '깨끗하고 정돈된 상태는 깔끔하다예요.',
-      'Toza va tartibli holat 깔끔하다.',
-      'The word meaning neat and clean is 깔끔하다.',
-      'Слово со значением «чистый и аккуратный» — 깔끔하다.',
+      '깔끔하다',
+      'toza va ozoda bo‘lmoq',
+      'to be neat and clean',
+      'быть опрятным, аккуратным',
     ),
     grading: {
       mode: 'exact',
@@ -2333,7 +2312,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require 깔끔하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2468,13 +2447,12 @@ const S5_UNIT6_NODE1_QUESTIONS = {
   s5u6_099_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정한 약속대로 행동한다는 표현은 ___예요.',
     blankAnswers: ['약속을 지키다'],
     answerTranslation: L(
-      '정한 약속대로 행동하는 것은 약속을 지키다예요.',
-      'Kelishilgan va’daga amal qilish 약속을 지키다.',
-      'The expression is 약속을 지키다.',
-      'Выражение — 약속을 지키다.',
+      '약속을 지키다',
+      'kelishuvga amal qilmoq (va’da)',
+      'to keep one’s word',
+      'выполнять договорённость',
     ),
     grading: {
       mode: 'exact',
@@ -2483,7 +2461,7 @@ const S5_UNIT6_NODE1_QUESTIONS = {
       notes: ['Require exact spacing in 약속을 지키다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2551,14 +2529,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_102_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '약속을 잡을 수 있을 만큼 시간이 가능하다는 표현은 ___예요.',
     blankAnswers: ['시간이 되다'],
     answerTranslation: L(
-      '시간이 가능하다는 표현은 시간이 되다예요.',
-      'Vaqti mos bo‘lish ifodasi 시간이 되다.',
-      'The expression meaning to be available is 시간이 되다.',
-      'Выражение «быть свободным по времени» — 시간이 되다.',
+      '시간이 되다',
+      'vaqti to‘g‘ri kelmoq (imkon bo‘lmoq)',
+      'to be available (time permits)',
+      'получаться по времени, быть свободным',
     ),
     grading: {
       mode: 'exact',
@@ -2567,7 +2543,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 시간이 되다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2667,13 +2643,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_107_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '다른 일이 없어서 사용할 시간이 있다는 표현은 ___예요.',
     blankAnswers: ['시간이 있다'],
     answerTranslation: L(
-      '사용할 수 있는 시간이 있는 것은 시간이 있다예요.',
-      'Bo‘sh vaqt borligi 시간이 있다 bilan aytiladi.',
-      'The expression meaning to have time is 시간이 있다.',
-      'Выражение «иметь время» — 시간이 있다.',
+      '시간이 있다',
+      'vaqti bor bo‘lmoq',
+      'to have time',
+      'иметь время',
     ),
     grading: {
       mode: 'exact',
@@ -2682,7 +2657,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 시간이 있다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2819,13 +2794,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_113_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '제안한 시간이 일정상 문제없다는 표현은 ___예요.',
     blankAnswers: ['시간이 괜찮다'],
     answerTranslation: L(
-      '제안한 시간이 가능할 때 시간이 괜찮다라고 해요.',
-      'Taklif qilingan vaqt mos bo‘lsa 시간이 괜찮다 deyiladi.',
-      'The expression meaning that a time works is 시간이 괜찮다.',
-      'Выражение «время подходит» — 시간이 괜찮다.',
+      '시간이 괜찮다',
+      'vaqt ma’qul bo‘lmoq (taklif qilingan)',
+      'for the proposed time to be fine',
+      'быть удобным (о предложенном времени)',
     ),
     grading: {
       mode: 'exact',
@@ -2834,7 +2808,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 시간이 괜찮다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -2954,13 +2928,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_119_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '클럽 회원들이 함께 만나는 모임은 ___이에요.',
     blankAnswers: ['동아리 모임'],
     answerTranslation: L(
-      '동아리 회원들의 모임은 동아리 모임이에요.',
-      'Klub a’zolari yig‘ilishi 동아리 모임.',
-      'A meeting of club members is a 동아리 모임.',
-      'Встреча участников клуба — 동아리 모임.',
+      '동아리 모임',
+      'klub (to‘garak) yig‘ilishi',
+      'club meeting',
+      'встреча клуба (кружка)',
     ),
     grading: {
       mode: 'exact',
@@ -2969,7 +2942,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 동아리 모임.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3035,13 +3008,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_122_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정해진 약속이 하나도 없다는 표현은 ___예요.',
     blankAnswers: ['아무 약속도 없다'],
     answerTranslation: L(
-      '약속이 하나도 없는 것은 아무 약속도 없다예요.',
-      'Hech qanday uchrashuv yo‘qligi 아무 약속도 없다.',
-      'The expression for having no appointments is 아무 약속도 없다.',
-      'Выражение «совсем нет встреч» — 아무 약속도 없다.',
+      '아무 약속도 없다',
+      'hech qanday uchrashuvi yo‘q bo‘lmoq',
+      'to have no appointments at all',
+      'не иметь никаких встреч',
     ),
     grading: {
       mode: 'exact',
@@ -3050,7 +3022,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 아무 약속도 없다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3150,13 +3122,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_127_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '하려고 정한 계획이 하나도 없다는 표현은 ___예요.',
     blankAnswers: ['아무 계획도 없다'],
     answerTranslation: L(
-      '정한 계획이 하나도 없는 것은 아무 계획도 없다예요.',
-      'Hech qanday reja yo‘qligi 아무 계획도 없다.',
-      'The expression meaning to have no plans is 아무 계획도 없다.',
-      'Выражение «совсем нет планов» — 아무 계획도 없다.',
+      '아무 계획도 없다',
+      'hech qanday rejasi yo‘q bo‘lmoq',
+      'to have no plans at all',
+      'не иметь никаких планов',
     ),
     grading: {
       mode: 'exact',
@@ -3165,7 +3136,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 아무 계획도 없다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3302,13 +3273,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_133_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '해야 할 일이 하나도 없다는 표현은 ___예요.',
     blankAnswers: ['아무 일도 없다'],
     answerTranslation: L(
-      '해야 할 일이 없는 것은 아무 일도 없다예요.',
-      'Hech qanday ish yo‘qligi 아무 일도 없다.',
-      'The expression for having nothing to do is 아무 일도 없다.',
-      'Выражение «никаких дел нет» — 아무 일도 없다.',
+      '아무 일도 없다',
+      'hech qanday ishi yo‘q bo‘lmoq',
+      'to have nothing to do at all',
+      'не иметь никаких дел',
     ),
     grading: {
       mode: 'exact',
@@ -3317,7 +3287,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 아무 일도 없다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3434,13 +3404,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_139_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`no plans at all`에 해당하는 한국어 표현은 ___예요.',
     blankAnswers: ['아무 계획도 없다'],
     answerTranslation: L(
-      '`no plans at all`은 아무 계획도 없다예요.',
-      '`no plans at all` koreys tilida 아무 계획도 없다.',
-      'The Korean expression is 아무 계획도 없다.',
-      'Корейское выражение — 아무 계획도 없다.',
+      '아무 계획도 없다',
+      'umuman rejasi bo‘lmaslik',
+      'to have no plans at all',
+      'совсем не иметь планов',
     ),
     grading: {
       mode: 'exact',
@@ -3449,7 +3418,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 아무 계획도 없다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3510,13 +3479,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_142_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '서로의 언어를 가르쳐 주며 연습하는 활동은 ___이에요.',
     blankAnswers: ['언어 교환'],
     answerTranslation: L(
-      '서로 다른 언어를 연습하는 활동은 언어 교환이에요.',
-      'Bir-birining tilini o‘rganish 활동i 언어 교환.',
-      'Practicing each other’s languages is a 언어 교환.',
-      'Практика языков друг друга — 언어 교환.',
+      '언어 교환',
+      'til almashinuvi',
+      'language exchange',
+      'языковой обмен',
     ),
     grading: {
       mode: 'exact',
@@ -3525,7 +3493,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 언어 교환.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3625,14 +3593,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_147_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '대학교에서 어떤 분야를 중심으로 공부한다는 동사는 ___예요.',
     blankAnswers: ['전공하다'],
     answerTranslation: L(
-      '대학교에서 특정 분야를 공부하는 것은 전공하다예요.',
-      'Universitetda ma’lum yo‘nalishni o‘qish 전공하다.',
-      'The verb meaning to major in a field is 전공하다.',
-      'Глагол «учиться по специальности» — 전공하다.',
+      '전공하다',
+      'mutaxassislik bo‘yicha o‘qimoq (universitetda)',
+      'to major in (at university)',
+      'специализироваться (в вузе)',
     ),
     grading: {
       mode: 'exact',
@@ -3641,7 +3607,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 전공하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3786,13 +3752,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_153_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '서로 모르는 사람들을 알게 해 주는 동사는 ___예요.',
     blankAnswers: ['소개하다'],
     answerTranslation: L(
-      '서로 알게 해 주는 것은 소개하다예요.',
-      'Odamlarni bir-biriga tanishtirish 소개하다.',
-      'The verb meaning to introduce people is 소개하다.',
-      'Глагол «знакомить» — 소개하다.',
+      '소개하다',
+      'tanishtirmoq (odamlarni)',
+      'to introduce (people)',
+      'познакомить, представить',
     ),
     grading: {
       mode: 'exact',
@@ -3801,7 +3766,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 소개하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3928,13 +3893,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_159_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`language exchange`에 해당하는 한국어 표현은 ___이에요.',
     blankAnswers: ['언어 교환'],
     answerTranslation: L(
-      '`language exchange`는 언어 교환이에요.',
-      '`language exchange` koreys tilida 언어 교환.',
-      'The Korean expression is 언어 교환.',
-      'По-корейски — 언어 교환.',
+      '언어 교환',
+      'til almashish (suhbatdosh bilan mashq)',
+      'language exchange',
+      'языковой обмен (практика)',
     ),
     grading: {
       mode: 'exact',
@@ -3943,7 +3907,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 언어 교환.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4009,13 +3973,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_162_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '날짜와 요일을 확인하는 표는 ___이에요.',
     blankAnswers: ['달력'],
     answerTranslation: L(
-      '날짜와 요일을 보는 것은 달력이에요.',
-      'Sana va hafta kunlari ko‘rsatiladigan narsa 달력.',
-      'A chart showing dates and days is a 달력.',
-      'Таблица с датами и днями недели — 달력.',
+      '달력',
+      'kalendar, taqvim',
+      'calendar',
+      'календарь',
     ),
     grading: {
       mode: 'exact',
@@ -4024,7 +3987,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 달력.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4124,13 +4087,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_167_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '한 나라의 돈을 다른 나라 돈으로 바꾸는 동사는 ___예요.',
     blankAnswers: ['환전하다'],
     answerTranslation: L(
-      '돈을 다른 나라 돈으로 바꾸는 것은 환전하다예요.',
-      'Valyuta almashtirish 환전하다.',
-      'The verb meaning to exchange currency is 환전하다.',
-      'Глагол «обменивать валюту» — 환전하다.',
+      '환전하다',
+      'valyuta almashtirmoq',
+      'to exchange currency',
+      'обменивать валюту',
     ),
     grading: {
       mode: 'exact',
@@ -4139,7 +4101,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 환전하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4284,13 +4246,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_173_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '머리를 자르거나 손질하는 곳은 ___이에요.',
     blankAnswers: ['미용실'],
     answerTranslation: L(
-      '머리를 자르는 곳은 미용실이에요.',
-      'Soch kestiriladigan joy 미용실.',
-      'A place for haircuts is a 미용실.',
-      'Место, где стригут волосы, — 미용실.',
+      '미용실',
+      'sartaroshxona (go‘zallik saloni)',
+      'hair salon',
+      'парикмахерская',
     ),
     grading: {
       mode: 'exact',
@@ -4299,7 +4260,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 미용실.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4424,13 +4385,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_179_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '치아를 치료하러 가는 곳은 ___예요.',
     blankAnswers: ['치과'],
     answerTranslation: L(
-      '치아를 치료하는 곳은 치과예요.',
-      'Tish davolaydigan joy 치과.',
-      'A place for dental treatment is a 치과.',
-      'Место, где лечат зубы, — 치과.',
+      '치과',
+      'tish shifoxonasi (stomatologiya)',
+      'dental clinic',
+      'стоматология',
     ),
     grading: {
       mode: 'exact',
@@ -4439,7 +4399,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 치과.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4507,14 +4467,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_182_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '다른 일을 하기 전에 우선 먼저라는 뜻의 부사는 ___이에요.',
     blankAnswers: ['일단'],
     answerTranslation: L(
-      '우선 먼저라는 뜻은 일단이에요.',
-      '“Avvalo” ma’nosidagi so‘z 일단.',
-      'The adverb meaning “first of all” is 일단.',
-      'Наречие «для начала» — 일단.',
+      '일단',
+      'avvalo, birinchi navbatda',
+      'first of all, for now',
+      'сначала, для начала',
     ),
     grading: {
       mode: 'exact',
@@ -4523,7 +4481,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 일단.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4626,13 +4584,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_187_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '바로 앞의 이전 기회를 뜻하는 단어는 ___이에요.',
     blankAnswers: ['지난번'],
     answerTranslation: L(
-      '이전 기회를 뜻하는 단어는 지난번이에요.',
-      '“O‘tgan safar” ma’nosidagi so‘z 지난번.',
-      'The word meaning “last time” is 지난번.',
-      'Слово «в прошлый раз» — 지난번.',
+      '지난번',
+      'o‘tgan safar',
+      'last time',
+      'в прошлый раз',
     ),
     grading: {
       mode: 'exact',
@@ -4641,7 +4598,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 지난번.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4787,13 +4744,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_193_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`play tennis`에 해당하는 한국어 표현은 ___예요.',
     blankAnswers: ['테니스 치다'],
     answerTranslation: L(
-      '`play tennis`는 테니스 치다예요.',
-      '`play tennis` koreys tilida 테니스 치다.',
-      'The Korean expression is 테니스 치다.',
-      'По-корейски — 테니스 치다.',
+      '테니스 치다',
+      'tennis o‘ynamoq',
+      'to play tennis',
+      'играть в теннис',
     ),
     grading: {
       mode: 'exact',
@@ -4802,7 +4758,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require exact spacing in 테니스 치다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4923,13 +4879,12 @@ const S5_UNIT6_NODE2_QUESTIONS = {
   s5u6_199_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '외국인의 출입국과 체류 관련 업무를 보는 곳은 ___예요.',
     blankAnswers: ['출입국관리사무소'],
     answerTranslation: L(
-      '출입국과 체류 관련 업무를 보는 곳은 출입국관리사무소예요.',
-      'Immigratsiya va yashash ishlari bajariladigan joy 출입국관리사무소.',
-      'The office handling immigration and stay matters is 출입국관리사무소.',
-      'Учреждение по вопросам въезда, выезда и пребывания — 출입국관리사무소.',
+      '출입국관리사무소',
+      'migratsiya xizmati idorasi',
+      'immigration office',
+      'иммиграционная служба',
     ),
     grading: {
       mode: 'exact',
@@ -4938,7 +4893,7 @@ const S5_UNIT6_NODE2_QUESTIONS = {
       notes: ['Require 출입국관리사무소.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5006,13 +4961,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_202_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '눈으로 볼 수 있다는 뜻의 동사는 ___예요.',
     blankAnswers: ['보이다'],
     answerTranslation: L(
-      '눈으로 볼 수 있다는 뜻은 보이다예요.',
-      'Ko‘rinmoq ma’nosidagi fe’l 보이다.',
-      'The verb meaning “to be visible” is 보이다.',
-      'Глагол «быть видимым» — 보이다.',
+      '보이다',
+      'ko‘rinmoq',
+      'to be visible, to be seen',
+      'быть видным, виднеться',
     ),
     grading: {
       mode: 'exact',
@@ -5021,7 +4975,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 보이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5121,13 +5075,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_207_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '소리가 귀에 들어와 들을 수 있다는 동사는 ___예요.',
     blankAnswers: ['들리다'],
     answerTranslation: L(
-      '소리를 들을 수 있다는 뜻의 동사는 들리다예요.',
-      'Eshitilmoq ma’nosidagi fe’l 들리다.',
-      'The verb meaning “to be heard” is 들리다.',
-      'Глагол «быть слышным» — 들리다.',
+      '들리다',
+      'eshitilmoq',
+      'to be heard',
+      'слышаться, быть слышным',
     ),
     grading: {
       mode: 'exact',
@@ -5136,7 +5089,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 들리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5273,13 +5226,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_213_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '그림이 벽에 매달려 있다는 뜻의 동사는 ___예요.',
     blankAnswers: ['걸리다'],
     answerTranslation: L(
-      '벽에 매달려 있다는 뜻의 동사는 걸리다예요.',
-      'Devorga osilgan bo‘lish 걸리다.',
-      'The verb meaning “to be hung” is 걸리다.',
-      'Глагол «быть повешенным» — 걸리다.',
+      '걸리다',
+      'osilgan bo‘lmoq (rasm devorda)',
+      'to be hung (on a wall)',
+      'висеть (о картине на стене)',
     ),
     grading: {
       mode: 'exact',
@@ -5288,7 +5240,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 걸리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5405,13 +5357,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_219_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '물건이 어떤 자리에 놓여 있다는 뜻의 동사는 ___예요.',
     blankAnswers: ['놓이다'],
     answerTranslation: L(
-      '물건이 놓인 상태를 나타내는 동사는 놓이다예요.',
-      'Buyum qo‘yilgan holatni bildiradigan fe’l 놓이다.',
-      'The verb meaning “to be placed” is 놓이다.',
-      'Глагол «быть поставленным» — 놓이다.',
+      '놓이다',
+      'qo‘yilgan bo‘lmoq (buyum)',
+      'to be placed, to be put',
+      'быть положенным (о предмете)',
     ),
     grading: {
       mode: 'exact',
@@ -5420,7 +5371,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 놓이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5486,13 +5437,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_222_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '문이 닫힌 상태가 된다는 동사는 ___예요.',
     blankAnswers: ['닫히다'],
     answerTranslation: L(
-      '문이 닫힌 상태가 되는 것은 닫히다예요.',
-      'Eshik yopilmoq ma’nosidagi fe’l 닫히다.',
-      'The verb meaning “to be closed” is 닫히다.',
-      'Глагол «закрываться» — 닫히다.',
+      '닫히다',
+      'yopilmoq (eshik)',
+      'to be closed (a door)',
+      'закрываться (о двери)',
     ),
     grading: {
       mode: 'exact',
@@ -5501,7 +5451,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 닫히다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5608,13 +5558,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_227_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '문이나 창문이 열린 상태가 된다는 동사는 ___예요.',
     blankAnswers: ['열리다'],
     answerTranslation: L(
-      '열린 상태가 되는 것은 열리다예요.',
-      'Ochilmoq ma’nosidagi fe’l 열리다.',
-      'The verb meaning “to open” is 열리다.',
-      'Глагол «открываться» — 열리다.',
+      '열리다',
+      'ochilmoq (eshik, deraza)',
+      'to be opened, to open',
+      'открываться (о двери, окне)',
     ),
     grading: {
       mode: 'exact',
@@ -5623,7 +5572,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 열리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5760,13 +5709,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_233_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '원래의 것이 다른 것으로 변한다는 동사는 ___예요.',
     blankAnswers: ['바뀌다'],
     answerTranslation: L(
-      '다른 것으로 변하는 것은 바뀌다예요.',
-      'O‘zgarib qolmoq ma’nosidagi fe’l 바뀌다.',
-      'The verb meaning “to be changed” is 바뀌다.',
-      'Глагол «изменяться» — 바뀌다.',
+      '바뀌다',
+      'o‘zgarmoq, almashib qolmoq',
+      'to be changed',
+      'меняться, поменяться',
     ),
     grading: {
       mode: 'exact',
@@ -5775,7 +5723,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 바뀌다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5892,13 +5840,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_239_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전화 연결이 중간에 계속 끊어진다는 동사는 ___예요.',
     blankAnswers: ['끊기다'],
     answerTranslation: L(
-      '전화 연결이 중간에 끊어지는 것은 끊기다예요.',
-      'Telefon aloqasining uzilishi 끊기다.',
-      'The verb meaning “to get disconnected” is 끊기다.',
-      'Глагол «обрываться» — 끊기다.',
+      '끊기다',
+      'uzilmoq (telefon aloqasi)',
+      'to get cut off (a call)',
+      'прерываться (о звонке)',
     ),
     grading: {
       mode: 'exact',
@@ -5907,7 +5854,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 끊기다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5980,13 +5927,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_242_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '목적지에 이른다는 뜻의 동사는 ___예요.',
     blankAnswers: ['도착하다'],
     answerTranslation: L(
-      '목적지에 이르는 것은 도착하다예요.',
-      'Manzilga yetib kelmoq ma’nosidagi fe’l 도착하다.',
-      'The verb meaning “to arrive” is 도착하다.',
-      'Глагол «прибывать» — 도착하다.',
+      '도착하다',
+      'yetib kelmoq',
+      'to arrive',
+      'прибывать, приехать',
     ),
     grading: {
       mode: 'exact',
@@ -5995,7 +5941,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 도착하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6090,13 +6036,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_247_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '지하철역에서 밖으로 나가는 곳은 ___예요.',
     blankAnswers: ['출구'],
     answerTranslation: L(
-      '지하철역에서 밖으로 나가는 곳은 출구예요.',
-      'Metrodan tashqariga chiqish joyi 출구.',
-      'The way out of a subway station is an 출구.',
-      'Выход из метро — 출구.',
+      '출구',
+      'chiqish (metroda)',
+      'exit (in the subway)',
+      'выход (в метро)',
     ),
     grading: {
       mode: 'exact',
@@ -6105,7 +6050,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 출구.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6242,13 +6187,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_253_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '생활용품을 편리하게 살 수 있는 작은 가게는 ___이에요.',
     blankAnswers: ['편의점'],
     answerTranslation: L(
-      '생활용품을 쉽게 살 수 있는 가게는 편의점이에요.',
-      'Kundalik buyumlar sotiladigan kichik do‘kon 편의점.',
-      'A small convenience store is 편의점.',
-      'Небольшой магазин у дома — 편의점.',
+      '편의점',
+      'kichik do‘kon (24 soat ochiq)',
+      'convenience store',
+      'круглосуточный магазин у дома',
     ),
     grading: {
       mode: 'exact',
@@ -6257,7 +6201,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 편의점.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6369,13 +6313,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_259_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '어떤 장소의 바로 반대쪽을 뜻하는 단어는 ___이에요.',
     blankAnswers: ['맞은편'],
     answerTranslation: L(
-      '바로 반대쪽은 맞은편이에요.',
-      'To‘g‘ridan-to‘g‘ri qarama-qarshi tomon 맞은편.',
-      'The opposite side is 맞은편.',
-      'Место прямо напротив — 맞은편.',
+      '맞은편',
+      'qarama-qarshi tomon',
+      'the opposite side',
+      'противоположная сторона',
     ),
     grading: {
       mode: 'exact',
@@ -6384,7 +6327,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 맞은편.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6450,13 +6393,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_262_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '책을 읽으면서 기다릴 수 있는 카페는 ___예요.',
     blankAnswers: ['책 카페'],
     answerTranslation: L(
-      '책이 많은 카페는 책 카페예요.',
-      'Kitob o‘qish mumkin bo‘lgan kafe 책 카페.',
-      'A café where you can read books is a 책 카페.',
-      'Кафе, где можно читать книги, — 책 카페.',
+      '책 카페',
+      'kitob kafesi',
+      'book café',
+      'книжное кафе',
     ),
     grading: {
       mode: 'exact',
@@ -6465,7 +6407,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require exact spacing in 책 카페.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6568,13 +6510,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_267_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '재미있는 물건이나 장소를 둘러본다는 동사는 ___예요.',
     blankAnswers: ['구경하다'],
     answerTranslation: L(
-      '둘러보며 보는 것은 구경하다예요.',
-      'Tomosha qilmoq ma’nosidagi fe’l 구경하다.',
-      'The verb meaning “to look around” is 구경하다.',
-      'Глагол «осматривать» — 구경하다.',
+      '구경하다',
+      'tomosha qilmoq, aylanib ko‘rmoq',
+      'to look around, to sightsee',
+      'осматривать, глазеть',
     ),
     grading: {
       mode: 'exact',
@@ -6583,7 +6524,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 구경하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6723,13 +6664,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_273_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '재즈 음악을 들을 수 있는 카페는 ___예요.',
     blankAnswers: ['재즈 카페'],
     answerTranslation: L(
-      '재즈 음악을 들을 수 있는 곳은 재즈 카페예요.',
-      'Jazz musiqasini tinglash mumkin bo‘lgan joy 재즈 카페.',
-      'A café for jazz music is 재즈 카페.',
-      'Кафе с джазовой музыкой — 재즈 카페.',
+      '재즈 카페',
+      'jaz kafesi',
+      'jazz café',
+      'джаз-кафе',
     ),
     grading: {
       mode: 'exact',
@@ -6738,7 +6678,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require exact spacing in 재즈 카페.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6858,13 +6798,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_279_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고양이와 함께 놀 수 있는 카페는 ___예요.',
     blankAnswers: ['고양이 카페'],
     answerTranslation: L(
-      '고양이와 놀 수 있는 곳은 고양이 카페예요.',
-      'Mushuklar bilan o‘ynash mumkin bo‘lgan kafe 고양이 카페.',
-      'A café where you can play with cats is 고양이 카페.',
-      'Кафе, где можно играть с кошками, — 고양이 카페.',
+      '고양이 카페',
+      'mushuk kafesi',
+      'cat café',
+      'кафе с кошками',
     ),
     grading: {
       mode: 'exact',
@@ -6873,7 +6812,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require exact spacing in 고양이 카페.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6947,14 +6886,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_282_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '기계나 전화기가 제대로 작동하지 않는다는 표현은 ___예요.',
     blankAnswers: ['고장 나다'],
     answerTranslation: L(
-      '기계가 작동하지 않는 것은 고장 나다예요.',
-      'Qurilma ishlamay qolishi 고장 나다.',
-      'The expression meaning “to break down” is 고장 나다.',
-      'Выражение «сломаться» — 고장 나다.',
+      '고장 나다',
+      'buzilmoq (qurilma)',
+      'to break down (a device)',
+      'сломаться (об устройстве)',
     ),
     grading: {
       mode: 'exact',
@@ -6963,7 +6900,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require exact spacing in 고장 나다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7084,13 +7021,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_287_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '가지고 있던 물건을 찾을 수 없게 된다는 동사는 ___예요.',
     blankAnswers: ['잃어버리다'],
     answerTranslation: L(
-      '가지고 있던 물건을 잃는 것은 잃어버리다예요.',
-      'Narsani yo‘qotib qo‘ymoq ma’nosidagi fe’l 잃어버리다.',
-      'The verb meaning “to lose” is 잃어버리다.',
-      'Глагол «потерять» — 잃어버리다.',
+      '잃어버리다',
+      'yo‘qotib qo‘ymoq',
+      'to lose (something)',
+      'потерять',
     ),
     grading: {
       mode: 'exact',
@@ -7099,7 +7035,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 잃어버리다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7236,13 +7172,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_293_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '숙소에서 머무는 데 드는 돈은 ___예요.',
     blankAnswers: ['숙박비'],
     answerTranslation: L(
-      '숙소에서 머무는 비용은 숙박비예요.',
-      'Turar joyda qolish narxi 숙박비.',
-      'The cost of staying at accommodation is 숙박비.',
-      'Стоимость проживания — 숙박비.',
+      '숙박비',
+      'turar joy haqi',
+      'accommodation fee',
+      'плата за проживание',
     ),
     grading: {
       mode: 'exact',
@@ -7251,7 +7186,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 숙박비.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7383,14 +7318,12 @@ const S5_UNIT6_NODE3_QUESTIONS = {
   s5u6_299_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '방이나 높은 곳에서 밖을 바라볼 때 보이는 경치는 ___이에요.',
     blankAnswers: ['전망'],
     answerTranslation: L(
-      '방에서 보이는 경치는 전망이에요.',
-      'Xonadan ko‘rinadigan manzara 전망.',
-      'The view from a room is 전망.',
-      'Вид из комнаты — 전망.',
+      '전망',
+      'manzara (derazadan ko‘rinish)',
+      'view (from a room)',
+      'вид (из окна)',
     ),
     grading: {
       mode: 'exact',
@@ -7399,7 +7332,7 @@ const S5_UNIT6_NODE3_QUESTIONS = {
       notes: ['Require 전망.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7474,13 +7407,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_302_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '직접 이용한 뒤에 쓰는 평가나 글은 ___예요.',
     blankAnswers: ['후기'],
     answerTranslation: L(
-      '직접 경험한 뒤에 쓰는 글은 후기예요.',
-      'Tajribadan keyin yoziladigan sharh 후기.',
-      'A review written after an experience is 후기.',
-      'Отзыв после личного опыта — 후기.',
+      '후기',
+      'sharh (foydalangandan keyin)',
+      'review (after using)',
+      'отзыв (после посещения)',
     ),
     grading: {
       mode: 'exact',
@@ -7489,7 +7421,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 후기.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7589,13 +7521,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_307_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '역사나 문화 자료를 전시하는 곳은 ___이에요.',
     blankAnswers: ['박물관'],
     answerTranslation: L(
-      '여러 자료를 전시하는 곳은 박물관이에요.',
-      'Tarixiy va madaniy narsalar namoyish qilinadigan joy 박물관.',
-      'A place displaying historical or cultural materials is a 박물관.',
-      'Место с историческими и культурными экспонатами — 박물관.',
+      '박물관',
+      'muzey',
+      'museum',
+      'музей',
     ),
     grading: {
       mode: 'exact',
@@ -7604,7 +7535,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 박물관.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7748,13 +7679,13 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_313_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`two-story`에서 층수를 나타낼 때 사용하는 말은 ___예요.',
+    sentenceTemplate: '우리 집은 2층___ 집이에요.',
     blankAnswers: ['짜리'],
     answerTranslation: L(
-      '`2층짜리`의 짜리가 층수의 정도를 나타내요.',
-      '`2층짜리` iborasidagi birlik 짜리.',
-      'The bound form used in 2층짜리 is 짜리.',
-      'В выражении 2층짜리 используется форма 짜리.',
+      '우리 집은 2층짜리 집이에요.',
+      'Bizning uyimiz ikki qavatli uy.',
+      'Our house is a two-story house.',
+      'Наш дом двухэтажный.',
     ),
     grading: {
       mode: 'exact',
@@ -7763,7 +7694,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 짜리.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7887,13 +7818,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_319_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '장소를 보고 받는 인상을 뜻하는 단어는 ___이에요.',
     blankAnswers: ['느낌'],
     answerTranslation: L(
-      '장소에서 받는 인상은 느낌이에요.',
-      'Joydan olinadigan taassurot 느낌.',
-      'The word for an impression or feeling is 느낌.',
-      'Слово «впечатление, ощущение» — 느낌.',
+      '느낌',
+      'taassurot, his',
+      'feeling, impression',
+      'ощущение, впечатление',
     ),
     grading: {
       mode: 'exact',
@@ -7902,7 +7832,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 느낌.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7968,13 +7898,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_322_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '소설이나 글 등의 작품을 쓰는 사람은 ___예요.',
     blankAnswers: ['작가'],
     answerTranslation: L(
-      '글이나 작품을 쓰는 사람은 작가예요.',
-      'Asar yozadigan odam 작가.',
-      'A person who writes literary works is a 작가.',
-      'Человек, пишущий произведения, — 작가.',
+      '작가',
+      'yozuvchi, muallif',
+      'writer, author',
+      'писатель, автор',
     ),
     grading: {
       mode: 'exact',
@@ -7983,7 +7912,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 작가.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8091,13 +8020,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_327_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '건물 안을 보기 좋게 꾸민 것을 ___이라고 해요.',
     blankAnswers: ['실내 장식'],
     answerTranslation: L(
-      '건물 안을 꾸민 것은 실내 장식이에요.',
-      'Bino ichki bezagi 실내 장식.',
-      'Decoration inside a building is 실내 장식.',
-      'Оформление внутри здания — 실내 장식.',
+      '실내 장식',
+      'ichki bezak (interyer)',
+      'interior decoration',
+      'внутреннее убранство, интерьер',
     ),
     grading: {
       mode: 'exact',
@@ -8106,7 +8034,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require exact spacing in 실내 장식.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8252,14 +8180,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_333_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '자기가 원하는 방식대로 자유롭게라는 뜻의 부사는 ___예요.',
     blankAnswers: ['마음대로'],
     answerTranslation: L(
-      '원하는 방식대로 자유롭게라는 뜻은 마음대로예요.',
-      'Xohlagancha, erkin ma’nosidagi so‘z 마음대로.',
-      'The adverb meaning “freely, as one likes” is 마음대로.',
-      'Наречие «как хочется, свободно» — 마음대로.',
+      '마음대로',
+      'xohlagancha, erkin',
+      'as one likes, freely',
+      'как хочется, по своему желанию',
     ),
     grading: {
       mode: 'exact',
@@ -8268,7 +8194,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 마음대로.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8393,13 +8319,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_339_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '안에 있는 물건을 밖으로 나오게 한다는 동사는 ___예요.',
     blankAnswers: ['꺼내다'],
     answerTranslation: L(
-      '안에 있는 것을 밖으로 내는 것은 꺼내다예요.',
-      'Ichkaridagi narsani tashqariga olish 꺼내다.',
-      'The verb meaning “to take out” is 꺼내다.',
-      'Глагол «доставать» — 꺼내다.',
+      '꺼내다',
+      'olib chiqmoq (ichidan)',
+      'to take out',
+      'вынимать, доставать',
     ),
     grading: {
       mode: 'exact',
@@ -8408,7 +8333,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 꺼내다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8474,13 +8399,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_342_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '마신 음료를 다시 채워 주는 것을 ___이라고 해요.',
     blankAnswers: ['리필'],
     answerTranslation: L(
-      '음료를 다시 채워 주는 것은 리필이에요.',
-      'Ichimlikni qayta to‘ldirish 리필.',
-      'Filling a drink again is a 리필.',
-      'Повторное наполнение напитка — 리필.',
+      '리필',
+      'qayta to‘ldirish (ichimlik)',
+      'refill (a drink)',
+      'долив (напитка)',
     ),
     grading: {
       mode: 'exact',
@@ -8489,7 +8413,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 리필.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8589,13 +8513,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_347_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '회사나 가게에서 일하는 사람은 ___이에요.',
     blankAnswers: ['직원'],
     answerTranslation: L(
-      '가게에서 일하는 사람은 직원이에요.',
-      'Do‘konda ishlaydigan odam 직원.',
-      'A person who works at a business is a 직원.',
-      'Работник заведения — 직원.',
+      '직원',
+      'xodim',
+      'staff member, employee',
+      'сотрудник',
     ),
     grading: {
       mode: 'exact',
@@ -8604,7 +8527,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 직원.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8749,13 +8672,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_353_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '돈을 내지 않아도 된다는 뜻의 단어는 ___예요.',
     blankAnswers: ['무료'],
     answerTranslation: L(
-      '돈을 내지 않는 것은 무료예요.',
-      'Pul to‘lash shart emasligi 무료.',
-      'The word meaning “free of charge” is 무료.',
-      'Слово «бесплатно» — 무료.',
+      '무료',
+      'bepul',
+      'free of charge',
+      'бесплатно',
     ),
     grading: {
       mode: 'exact',
@@ -8764,7 +8686,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 무료.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8881,13 +8803,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_359_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '카페에서 음료를 부탁해 시킨다는 동사는 ___예요.',
     blankAnswers: ['주문하다'],
     answerTranslation: L(
-      '음료나 음식을 시키는 것은 주문하다예요.',
-      'Ovqat yoki ichimlik buyurtma qilish 주문하다.',
-      'The verb meaning “to order” is 주문하다.',
-      'Глагол «заказывать» — 주문하다.',
+      '주문하다',
+      'buyurtma bermoq',
+      'to order',
+      'заказывать',
     ),
     grading: {
       mode: 'exact',
@@ -8896,7 +8817,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 주문하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8962,13 +8883,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_362_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '좋고 나쁨이나 수준을 판단하는 것은 ___예요.',
     blankAnswers: ['평가'],
     answerTranslation: L(
-      '좋고 나쁨을 판단하는 것은 평가예요.',
-      'Yaxshi-yomonligini aniqlash 평가.',
-      'Judging quality or level is 평가.',
-      'Определение качества или уровня — 평가.',
+      '평가',
+      'baho, baholash',
+      'evaluation, rating',
+      'оценка',
     ),
     grading: {
       mode: 'exact',
@@ -8977,7 +8897,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 평가.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9086,13 +9006,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_367_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '모든 부분을 합한 전부를 뜻하는 단어는 ___예요.',
     blankAnswers: ['전체'],
     answerTranslation: L(
-      '모든 부분을 합한 것은 전체예요.',
-      'Barcha qismlarning yig‘indisi 전체.',
-      'The word meaning “the whole” is 전체.',
-      'Слово «всё целиком» — 전체.',
+      '전체',
+      'butun, hammasi',
+      'the whole, entirety',
+      'целое, всё целиком',
     ),
     grading: {
       mode: 'exact',
@@ -9101,7 +9020,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 전체.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9238,13 +9157,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_373_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '결정할 때 다른 정보나 자료를 살펴본다는 동사는 ___예요.',
     blankAnswers: ['참고하다'],
     answerTranslation: L(
-      '정보를 살펴보고 결정에 이용하는 것은 참고하다예요.',
-      'Qarorda ma’lumotdan foydalanish 참고하다.',
-      'The verb meaning “to refer to information” is 참고하다.',
-      'Глагол «учитывать информацию» — 참고하다.',
+      '참고하다',
+      'ma’lumotga tayanmoq, inobatga olmoq',
+      'to refer to, to consult',
+      'принимать во внимание, сверяться',
     ),
     grading: {
       mode: 'exact',
@@ -9253,7 +9171,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 참고하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9370,13 +9288,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_379_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '`review`에 해당하는 한국어 단어는 ___예요.',
     blankAnswers: ['후기'],
     answerTranslation: L(
-      '`review`는 한국어로 후기예요.',
-      '`review` koreys tilida 후기.',
-      'The Korean word for “review” is 후기.',
-      'По-корейски «отзыв» — 후기.',
+      '후기',
+      'sharh, fikr-mulohaza (mijoz)',
+      'review (customer)',
+      'отзыв (клиента)',
     ),
     grading: {
       mode: 'exact',
@@ -9385,7 +9302,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 후기.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9451,13 +9368,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_382_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '어떤 장소가 어디에 있는지를 뜻하는 단어는 ___예요.',
     blankAnswers: ['위치'],
     answerTranslation: L(
-      '장소가 있는 자리는 위치예요.',
-      'Joyning qayerda ekanini bildiradigan so‘z 위치.',
-      'The word for where a place is located is 위치.',
-      'Слово «расположение» — 위치.',
+      '위치',
+      'joylashuv',
+      'location',
+      'местоположение',
     ),
     grading: {
       mode: 'exact',
@@ -9466,7 +9382,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 위치.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9567,13 +9483,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_387_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '두 장소 사이의 거리가 짧다는 뜻의 형용사는 ___예요.',
     blankAnswers: ['가깝다'],
     answerTranslation: L(
-      '거리가 짧다는 뜻은 가깝다예요.',
-      'Masofa qisqa bo‘lish ma’nosidagi so‘z 가깝다.',
-      'The adjective meaning “to be near” is 가깝다.',
-      'Прилагательное «быть близко» — 가깝다.',
+      '가깝다',
+      'yaqin bo‘lmoq',
+      'to be near',
+      'быть близким',
     ),
     grading: {
       mode: 'exact',
@@ -9582,7 +9497,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 가깝다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9727,13 +9642,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_393_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '장소를 쉽게 찾을 수 있다는 표현은 ___예요.',
     blankAnswers: ['찾기 편하다'],
     answerTranslation: L(
-      '장소를 쉽게 찾을 수 있다는 표현은 찾기 편하다예요.',
-      'Joyni oson topish mumkinligi 찾기 편하다.',
-      'The expression meaning “easy to find” is 찾기 편하다.',
-      'Выражение «легко найти» — 찾기 편하다.',
+      '찾기 편하다',
+      'topish oson bo‘lmoq',
+      'to be easy to find',
+      'быть лёгким для поиска (о месте)',
     ),
     grading: {
       mode: 'exact',
@@ -9742,7 +9656,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require exact spacing in 찾기 편하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9869,14 +9783,12 @@ const S5_UNIT6_NODE4_QUESTIONS = {
   s5u6_399_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '가게나 식당에서 손님에게 제공하는 응대와 편의는 ___예요.',
     blankAnswers: ['서비스'],
     answerTranslation: L(
-      '손님에게 제공하는 응대와 편의는 서비스예요.',
-      'Mijozga ko‘rsatiladigan xizmat 서비스.',
-      'Customer assistance and convenience are 서비스.',
-      'Обслуживание клиента — 서비스.',
+      '서비스',
+      'xizmat (mijozga)',
+      'service (to customers)',
+      'обслуживание',
     ),
     grading: {
       mode: 'exact',
@@ -9885,7 +9797,7 @@ const S5_UNIT6_NODE4_QUESTIONS = {
       notes: ['Require 서비스.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9964,13 +9876,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_402_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '생일을 축하하기 위해 하는 모임은 ___예요.',
     blankAnswers: ['생일 파티'],
     answerTranslation: L(
-      '생일을 축하하는 모임은 생일 파티예요.',
-      'Tug‘ilgan kunni nishonlash yig‘ilishi 생일 파티.',
-      'A party celebrating a birthday is 생일 파티.',
-      'Празднование дня рождения — 생일 파티.',
+      '생일 파티',
+      'tug‘ilgan kun ziyofati',
+      'birthday party',
+      'вечеринка на день рождения',
     ),
     grading: {
       mode: 'exact',
@@ -9979,7 +9890,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 생일 파티.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10102,13 +10013,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_407_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '모임에 참여하는 사람 수를 뜻하는 단어는 ___이에요.',
     blankAnswers: ['인원'],
     answerTranslation: L(
-      '모임에 참여하는 사람 수는 인원이에요.',
-      'Yig‘ilishdagi odamlar soni 인원.',
-      'The number of people in a group is 인원.',
-      'Количество участников — 인원.',
+      '인원',
+      'odamlar soni (ishtirokchilar)',
+      'number of people',
+      'количество людей',
     ),
     grading: {
       mode: 'exact',
@@ -10117,7 +10027,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 인원.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10254,14 +10164,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_413_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '전체 가운데 거의 모두에 가까운 많은 부분을 뜻하는 말은 ___이에요.',
     blankAnswers: ['대부분'],
     answerTranslation: L(
-      '전체 중 많은 부분을 뜻하는 말은 대부분이에요.',
-      'Ko‘pchilik ma’nosidagi so‘z 대부분.',
-      'The word meaning “most” is 대부분.',
-      'Слово «большинство, в основном» — 대부분.',
+      '대부분',
+      'ko‘pchilik qismi, asosan',
+      'most, the majority',
+      'большинство, большая часть',
     ),
     grading: {
       mode: 'exact',
@@ -10270,7 +10178,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 대부분.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10490,13 +10398,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_422_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '아이들이 놀 수 있도록 만든 장소는 ___예요.',
     blankAnswers: ['놀이터'],
     answerTranslation: L(
-      '아이들이 노는 장소는 놀이터예요.',
-      'Bolalar o‘ynaydigan joy 놀이터.',
-      'A place where children can play is a 놀이터.',
-      'Место для игр детей — 놀이터.',
+      '놀이터',
+      'bolalar maydonchasi',
+      'playground',
+      'детская площадка',
     ),
     grading: {
       mode: 'exact',
@@ -10505,7 +10412,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 놀이터.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10619,13 +10526,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_427_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '어떤 일을 할 때 사용하는 물건은 ___예요.',
     blankAnswers: ['도구'],
     answerTranslation: L(
-      '일을 할 때 사용하는 물건은 도구예요.',
-      'Biror ishda ishlatiladigan buyum 도구.',
-      'An object used to perform a task is a 도구.',
-      'Предмет для выполнения работы — 도구.',
+      '도구',
+      'asbob, qurol',
+      'tool',
+      'инструмент',
     ),
     grading: {
       mode: 'exact',
@@ -10634,7 +10540,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 도구.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10782,14 +10688,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_433_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '어떤 일을 하기가 번거롭고 싫게 느껴진다는 형용사는 ___예요.',
     blankAnswers: ['귀찮다'],
     answerTranslation: L(
-      '하기 싫고 번거롭게 느껴진다는 말은 귀찮다예요.',
-      'Biror ish ortiqcha ovora bo‘lib tuyulishi 귀찮다.',
-      'The adjective meaning “to be bothersome” is 귀찮다.',
-      'Прилагательное «быть хлопотным» — 귀찮다.',
+      '귀찮다',
+      'malol kelmoq, erinmoq',
+      'to be bothersome',
+      'быть хлопотным, лень',
     ),
     grading: {
       mode: 'exact',
@@ -10798,7 +10702,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 귀찮다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11016,14 +10920,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_442_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '예전 한국에서 차나 커피를 마시며 사람들이 만나던 가게는 ___이에요.',
     blankAnswers: ['다방'],
     answerTranslation: L(
-      '예전 한국의 커피·차 가게는 다방이에요.',
-      'Eski koreys qahva va choy joyi 다방.',
-      'The traditional Korean coffeehouse is 다방.',
-      'Традиционное корейское кафе — 다방.',
+      '다방',
+      'eski koreyscha choy-qahvaxona',
+      'old Korean tearoom',
+      'старинная корейская чайная',
     ),
     grading: {
       mode: 'exact',
@@ -11032,7 +10934,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 다방.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11152,13 +11054,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_447_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '이야기하고 있는 과거의 바로 그때를 뜻하는 말은 ___예요.',
     blankAnswers: ['당시'],
     answerTranslation: L(
-      '과거의 그때를 뜻하는 말은 당시예요.',
-      'O‘sha payt ma’nosidagi so‘z 당시.',
-      'The word meaning “at that time” is 당시.',
-      'Слово «в то время» — 당시.',
+      '당시',
+      'o‘sha paytda, o‘sha vaqt',
+      'at that time',
+      'в то время',
     ),
     grading: {
       mode: 'exact',
@@ -11167,7 +11068,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 당시.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11315,14 +11216,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_453_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '음악을 들으며 차나 커피를 마실 수 있었던 다방은 ___이에요.',
     blankAnswers: ['음악다방'],
     answerTranslation: L(
-      '음악을 들을 수 있는 다방은 음악다방이에요.',
-      'Musiqa tinglanadigan dabang 음악다방.',
-      'A dabang centered on music is 음악다방.',
-      'Дабан, где слушали музыку, — 음악다방.',
+      '음악다방',
+      'musiqa tinglanadigan eski qahvaxona',
+      'old music tearoom',
+      'старая музыкальная чайная',
     ),
     grading: {
       mode: 'exact',
@@ -11331,7 +11230,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 음악다방.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11555,13 +11454,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_462_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '볶은 커피 원두를 갈아 만들어 마시는 커피는 ___예요.',
     blankAnswers: ['원두커피'],
     answerTranslation: L(
-      '원두로 만든 커피는 원두커피예요.',
-      'Qahva donidan tayyorlangan qahva 원두커피.',
-      'Coffee made from roasted beans is 원두커피.',
-      'Кофе из обжаренных зёрен — 원두커피.',
+      '원두커피',
+      'qahva donidan qahva (yangi tortilgan)',
+      'coffee brewed from beans',
+      'кофе из зёрен',
     ),
     grading: {
       mode: 'exact',
@@ -11570,7 +11468,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 원두커피.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11686,14 +11584,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_467_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '특정 상품이나 서비스를 전문적으로 파는 가게는 ___이에요.',
     blankAnswers: ['전문점'],
     answerTranslation: L(
-      '특정 상품을 전문적으로 파는 가게는 전문점이에요.',
-      'Ma’lum mahsulotga ixtisoslashgan do‘kon 전문점.',
-      'A shop specializing in one type of product is 전문점.',
-      'Специализированный магазин — 전문점.',
+      '전문점',
+      'ixtisoslashgan do‘kon',
+      'specialty shop',
+      'специализированный магазин',
     ),
     grading: {
       mode: 'exact',
@@ -11702,7 +11598,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 전문점.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11852,13 +11748,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_473_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '하던 일을 멈추고 편하게 쉬는 것은 ___이에요.',
     blankAnswers: ['휴식'],
     answerTranslation: L(
-      '편하게 쉬는 것은 휴식이에요.',
-      'Dam olish 휴식.',
-      'Taking a rest is 휴식.',
-      'Отдых — 휴식.',
+      '휴식',
+      'dam olish, tanaffus',
+      'rest, break',
+      'отдых',
     ),
     grading: {
       mode: 'exact',
@@ -11867,7 +11762,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 휴식.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12086,13 +11981,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_482_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '사람이 많지 않고 조용하다는 뜻의 형용사는 ___예요.',
     blankAnswers: ['한산하다'],
     answerTranslation: L(
-      '사람이 많지 않고 조용한 것은 한산하다예요.',
-      'Odam kam va tinch bo‘lish 한산하다.',
-      'The adjective meaning quiet and uncrowded is 한산하다.',
-      'Прилагательное «малолюдный, спокойный» — 한산하다.',
+      '한산하다',
+      'gavjum bo‘lmaslik, osuda bo‘lmoq',
+      'to be uncrowded and quiet',
+      'быть немноголюдным, спокойным',
     ),
     grading: {
       mode: 'exact',
@@ -12101,7 +11995,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require 한산하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12218,13 +12112,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_487_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정한 약속을 그대로 잘 따르는 표현은 ___예요.',
     blankAnswers: ['약속을 지키다'],
     answerTranslation: L(
-      '정한 약속을 잘 따르는 것은 약속을 지키다예요.',
-      'Kelishilgan va’daga amal qilish 약속을 지키다.',
-      'The expression meaning “to keep an appointment” is 약속을 지키다.',
-      'Выражение «соблюдать договорённость» — 약속을 지키다.',
+      '약속을 지키다',
+      'va’daga vafo qilmoq',
+      'to keep an appointment',
+      'соблюдать договорённость',
     ),
     grading: {
       mode: 'exact',
@@ -12233,7 +12126,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 약속을 지키다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12381,13 +12274,12 @@ const S5_UNIT6_NODE5_QUESTIONS = {
   s5u6_493_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '정해진 시간을 지키지 않는다는 표현은 ___예요.',
     blankAnswers: ['시간을 어기다'],
     answerTranslation: L(
-      '정해진 시간을 지키지 않는 것은 시간을 어기다예요.',
-      'Belgilangan vaqtga amal qilmaslik 시간을 어기다.',
-      'The expression meaning “to break the agreed time” is 시간을 어기다.',
-      'Выражение «нарушить назначенное время» — 시간을 어기다.',
+      '시간을 어기다',
+      'kelishilgan vaqtni buzmoq (kechikmoq)',
+      'to break the agreed time',
+      'нарушить время встречи',
     ),
     grading: {
       mode: 'exact',
@@ -12396,7 +12288,7 @@ const S5_UNIT6_NODE5_QUESTIONS = {
       notes: ['Require exact spacing in 시간을 어기다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },

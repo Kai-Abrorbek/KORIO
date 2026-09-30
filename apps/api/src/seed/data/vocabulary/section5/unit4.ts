@@ -3014,13 +3014,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_113_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '뜨거운 수증기로 음식을 익히는 것을 ___라고 해요.',
     blankAnswers: ['찌다'],
     answerTranslation: L(
-      '뜨거운 수증기로 음식을 익히는 것을 찌다라고 해요.',
-      'Taomni issiq bug‘da pishirish 찌다 deyiladi.',
-      'Cooking food with hot steam is called 찌다.',
-      'Приготовление еды горячим паром называется 찌다.',
+      '찌다',
+      'bug‘da pishirmoq',
+      'to steam (food)',
+      'готовить на пару',
     ),
     grading: {
       mode: 'exact',
@@ -3030,7 +3029,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the dictionary form 찌다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3162,14 +3161,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_119_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '적은 양의 기름으로 재료를 저으면서 익히는 것을 ___라고 해요.',
     blankAnswers: ['볶다'],
     answerTranslation: L(
-      '적은 양의 기름으로 재료를 저으면서 익히는 것을 볶다라고 해요.',
-      'Masalliqni ozroq yog‘da aralashtirib pishirish 볶다 deyiladi.',
-      'Cooking ingredients in a small amount of oil while stirring is 볶다.',
-      'Приготовление продуктов в небольшом количестве масла при помешивании называется 볶다.',
+      '볶다',
+      'qovurmoq (ozroq yog‘da aralashtirib)',
+      'to stir-fry',
+      'обжаривать, помешивая',
     ),
     grading: {
       mode: 'exact',
@@ -3178,7 +3175,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 볶다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3531,13 +3528,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_133_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '뜨거운 기름 속에 재료를 넣어 익히는 것을 ___라고 해요.',
     blankAnswers: ['튀기다'],
     answerTranslation: L(
-      '뜨거운 기름 속에서 익히는 것을 튀기다라고 해요.',
-      'Taomni qizigan yog‘ ichida pishirish 튀기다 deyiladi.',
-      'Cooking food in hot oil is called 튀기다.',
-      'Приготовление еды в горячем масле называется 튀기다.',
+      '튀기다',
+      'ko‘p qaynoq yog‘da qovurmoq',
+      'to deep-fry',
+      'жарить во фритюре',
     ),
     grading: {
       mode: 'exact',
@@ -3546,7 +3542,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 튀기다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -3677,13 +3673,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_139_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '재료를 물속에 넣어 익히는 것을 ___라고 해요.',
     blankAnswers: ['삶다'],
     answerTranslation: L(
-      '재료를 물속에 넣어 익히는 것을 삶다라고 해요.',
-      'Mahsulotni suvda pishirish 삶다 deyiladi.',
-      'Cooking an ingredient in water is called 삶다.',
-      'Приготовление продукта в воде называется 삶다.',
+      '삶다',
+      'suvda qaynatib pishirmoq (tuxum, go‘sht)',
+      'to boil (eggs, meat) in water',
+      'отваривать в воде (яйца, мясо)',
     ),
     grading: {
       mode: 'exact',
@@ -3692,7 +3687,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 삶다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4045,13 +4040,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_153_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전을 프라이팬에 얇게 펴서 익히는 것을 ___라고 해요.',
     blankAnswers: ['부치다'],
     answerTranslation: L(
-      '전을 팬에 얇게 펴서 익히는 것을 부치다라고 해요.',
-      'Jeonni tovada yupqa yoyib pishirish 부치다 deyiladi.',
-      'Cooking jeon flat in a frying pan is called 부치다.',
-      'Приготовление чона тонким слоем на сковороде называется 부치다.',
+      '부치다',
+      'tovada yupqa yoyib pishirmoq (quymoq)',
+      'to pan-fry thin (like pancakes)',
+      'жарить тонким слоем (как оладьи)',
     ),
     grading: {
       mode: 'exact',
@@ -4060,7 +4054,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 부치다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4191,14 +4185,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_159_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '불이나 뜨거운 열로 고기나 생선을 익히는 것을 ___라고 해요.',
     blankAnswers: ['굽다'],
     answerTranslation: L(
-      '불이나 뜨거운 열로 익히는 것을 굽다라고 해요.',
-      'Go‘sht yoki baliqni olov issiqligida pishirish 굽다 deyiladi.',
-      'Cooking meat or fish with direct heat is called 굽다.',
-      'Приготовление мяса или рыбы на сильном жаре называется 굽다.',
+      '굽다',
+      'olovda pishirmoq (go‘sht, baliq)',
+      'to grill, to roast (meat, fish)',
+      'жарить на огне (мясо, рыбу)',
     ),
     grading: {
       mode: 'exact',
@@ -4207,7 +4199,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 굽다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4412,14 +4404,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_167_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '국이나 찌개 같은 액체 음식을 뜨겁게 익히는 것을 ___라고 해요.',
     blankAnswers: ['끓이다'],
     answerTranslation: L(
-      '국이나 찌개를 뜨겁게 익히는 것을 끓이다라고 해요.',
-      'Sho‘rva yoki qaynatma kabi suyuq taomni qaynatish 끓이다 deyiladi.',
-      'Cooking liquid foods such as soup or stew by boiling is 끓이다.',
-      'Варить жидкие блюда, например суп или рагу, называется 끓이다.',
+      '끓이다',
+      'qaynatmoq (sho‘rva tayyorlamoq)',
+      'to boil (a soup or stew)',
+      'варить (суп, рагу)',
     ),
     grading: {
       mode: 'exact',
@@ -4428,7 +4418,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 끓이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -4723,14 +4713,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_179_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '냄비의 물을 뜨겁게 해서 거품이 올라오게 하는 것을 ___라고 해요.',
     blankAnswers: ['끓이다'],
     answerTranslation: L(
-      '물을 뜨겁게 해서 끓게 하는 것을 끓이다라고 해요.',
-      'Suvni qaynash darajasigacha isitish 끓이다 deyiladi.',
-      'Heating water until it boils is called 끓이다.',
-      'Нагревать воду до кипения называется 끓이다.',
+      '끓이다',
+      'qaynatmoq (suvni)',
+      'to boil (water)',
+      'кипятить (воду)',
     ),
     grading: {
       mode: 'exact',
@@ -4739,7 +4727,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact dictionary form 끓이다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5265,13 +5253,12 @@ const S5_UNIT4_NODE2_QUESTIONS = {
   s5u4_199_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전을 팬에 얇게 펴서 익히는 동사는 ___예요.',
     blankAnswers: ['부치다'],
     answerTranslation: L(
-      '전을 팬에 얇게 펴서 익히는 동사는 부치다예요.',
-      'Jeonni tovada yupqa yoyib pishirish uchun 부치다 fe’li ishlatiladi.',
-      'The verb for cooking jeon flat in a pan is 부치다.',
-      'Глагол для приготовления чона тонким слоем на сковороде — 부치다.',
+      '부치다',
+      'tovada yupqa yoyib pishirmoq (quymoq)',
+      'to pan-fry thin (like pancakes)',
+      'жарить тонким слоем (как оладьи)',
     ),
     grading: {
       mode: 'exact',
@@ -5280,7 +5267,7 @@ const S5_UNIT4_NODE2_QUESTIONS = {
       notes: ['Require the exact target vocabulary item 부치다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5493,13 +5480,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_207_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식을 상추 같은 잎으로 감싸는 것을 ___라고 해요.',
     blankAnswers: ['싸다'],
     answerTranslation: L(
-      '음식을 잎으로 감싸는 것을 싸다라고 해요.',
-      'Ovqatni bargga o‘rash 싸다 deyiladi.',
-      'Wrapping food in a leaf is called 싸다.',
-      'Заворачивать еду в лист — 싸다.',
+      '싸다',
+      'bargga o‘ramoq (ovqatni)',
+      'to wrap (food in a leaf)',
+      'заворачивать (еду в лист)',
     ),
     grading: {
       mode: 'exact',
@@ -5508,7 +5494,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact dictionary form 싸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -5801,13 +5787,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_219_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고기와 밥을 잎으로 둘러서 먹는 동사는 ___예요.',
     blankAnswers: ['싸다'],
     answerTranslation: L(
-      '고기와 밥을 잎으로 둘러서 먹는 동사는 싸다예요.',
-      'Go‘sht va guruchni bargga o‘rab yeyish uchun 싸다 fe’li ishlatiladi.',
-      'The verb for wrapping meat and rice in a leaf is 싸다.',
-      'Глагол для заворачивания мяса и риса в лист — 싸다.',
+      '싸다',
+      'bargga o‘ramoq (ovqatni)',
+      'to wrap (food in a leaf)',
+      'заворачивать (еду в лист)',
     ),
     grading: {
       mode: 'exact',
@@ -5816,7 +5801,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact target word 싸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6022,13 +6007,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_227_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식을 소스에 잠깐 묻히는 것을 ___라고 해요.',
     blankAnswers: ['찍다'],
     answerTranslation: L(
-      '음식을 소스에 잠깐 묻히는 것을 찍다라고 해요.',
-      'Ovqatni sousga qisqa botirish 찍다 deyiladi.',
-      'Dipping food briefly in sauce is called 찍다.',
-      'Коротко макать еду в соус — 찍다.',
+      '찍다',
+      'sousga botirmoq',
+      'to dip (in sauce)',
+      'макать (в соус)',
     ),
     grading: {
       mode: 'exact',
@@ -6038,7 +6022,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 찍다, not another sense or expression.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6328,13 +6312,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_239_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '음식의 한쪽을 양념에 묻혀 먹을 때 쓰는 동사는 ___예요.',
     blankAnswers: ['찍다'],
     answerTranslation: L(
-      '음식을 양념에 묻혀 먹을 때 찍다를 써요.',
-      'Ovqatni sousga botirib yeyishda 찍다 ishlatiladi.',
-      '찍다 is used when dipping food into sauce.',
-      '찍다 используется, когда еду макают в соус.',
+      '찍다',
+      'sousga botirmoq',
+      'to dip (in sauce)',
+      'макать (в соус)',
     ),
     grading: {
       mode: 'exact',
@@ -6343,7 +6326,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact dictionary form 찍다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6553,13 +6536,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_247_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '잼을 빵 위에 얇게 펴는 것을 ___라고 해요.',
     blankAnswers: ['바르다'],
     answerTranslation: L(
-      '잼을 빵에 펴는 것을 바르다라고 해요.',
-      'Murabboni nonga surtish 바르다 deyiladi.',
-      'Spreading jam on bread is called 바르다.',
-      'Намазывать джем на хлеб — 바르다.',
+      '바르다',
+      'surtmoq (nonga murabbo)',
+      'to spread (jam on bread)',
+      'намазывать (джем на хлеб)',
     ),
     grading: {
       mode: 'exact',
@@ -6569,7 +6551,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact dictionary form 바르다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6716,13 +6698,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_253_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '밥을 국물에 넣어 섞어 먹는 것을 ___라고 해요.',
     blankAnswers: ['말다'],
     answerTranslation: L(
-      '밥을 국물에 넣는 것을 말다라고 해요.',
-      'Guruchni sho‘rvaga solib aralashtirish 말다 deyiladi.',
-      'Mixing rice into soup is called 말다.',
-      'Добавлять рис в суп и перемешивать — 말다.',
+      '말다',
+      'guruchni sho‘rvaga solib aralashtirmoq',
+      'to mix rice into soup',
+      'класть рис в суп и размешивать',
     ),
     grading: {
       mode: 'exact',
@@ -6732,7 +6713,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact dictionary form 말다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6868,13 +6849,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_259_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '빵에 잼이나 버터를 펴는 동사는 ___예요.',
     blankAnswers: ['바르다'],
     answerTranslation: L(
-      '빵에 잼이나 버터를 펴는 동사는 바르다예요.',
-      'Nonga murabbo yoki sariyog‘ surtish uchun 바르다 ishlatiladi.',
-      'The verb for spreading jam or butter on bread is 바르다.',
-      'Глагол для намазывания джема или масла на хлеб — 바르다.',
+      '바르다',
+      'surtmoq (nonga sariyog‘)',
+      'to spread (butter on bread)',
+      'намазывать (масло на хлеб)',
     ),
     grading: {
       mode: 'exact',
@@ -6883,7 +6863,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require the exact target word 바르다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -6959,13 +6939,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_262_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고기를 상추로 감싸 먹는 것은 ___예요.',
     blankAnswers: ['싸다'],
     answerTranslation: L(
-      '고기를 상추로 감싸는 것은 싸다예요.',
-      'Go‘shtni salat bargiga o‘rash 싸다.',
-      'Wrapping meat in lettuce is 싸다.',
-      'Заворачивать мясо в салат — 싸다.',
+      '싸다',
+      'bargga o‘ramoq (go‘shtni)',
+      'to wrap (meat in lettuce)',
+      'заворачивать (мясо в салат)',
     ),
     grading: {
       mode: 'exact',
@@ -6974,7 +6953,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 싸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7094,13 +7073,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_267_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전을 간장에 살짝 묻혀 먹는 것은 ___예요.',
     blankAnswers: ['찍다'],
     answerTranslation: L(
-      '전을 간장에 묻혀 먹는 것은 찍다예요.',
-      'Jeonni soya sousiga botirib yeyish 찍다.',
-      'Dipping jeon in soy sauce is 찍다.',
-      'Макать чон в соевый соус — 찍다.',
+      '찍다',
+      'sousga botirmoq',
+      'to dip (in sauce)',
+      'макать (в соус)',
     ),
     grading: {
       mode: 'exact',
@@ -7109,7 +7087,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 찍다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7256,13 +7234,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_273_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '밥을 국에 넣어 섞는 동사는 ___예요.',
     blankAnswers: ['말다'],
     answerTranslation: L(
-      '밥을 국에 넣어 섞는 동사는 말다예요.',
-      'Guruchni sho‘rvaga solib aralashtirish uchun 말다 ishlatiladi.',
-      'The verb for mixing rice into soup is 말다.',
-      'Глагол для добавления риса в суп — 말다.',
+      '말다',
+      'guruchni sho‘rvaga solib aralashtirmoq',
+      'to mix rice into soup',
+      'класть рис в суп и размешивать',
     ),
     grading: {
       mode: 'exact',
@@ -7271,7 +7248,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 말다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7404,13 +7381,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_279_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '잼이나 버터를 빵 표면에 펴는 동사는 ___예요.',
     blankAnswers: ['바르다'],
     answerTranslation: L(
-      '잼이나 버터를 빵에 펴는 동사는 바르다예요.',
-      'Murabbo yoki sariyog‘ni nonga surtish fe’li 바르다.',
-      'The verb for spreading jam or butter on bread is 바르다.',
-      'Глагол для намазывания джема или масла на хлеб — 바르다.',
+      '바르다',
+      'surtmoq (nonga)',
+      'to spread (on bread)',
+      'намазывать (на хлеб)',
     ),
     grading: {
       mode: 'exact',
@@ -7419,7 +7395,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 바르다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7634,13 +7610,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_287_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '밥을 국물에 넣어 함께 먹는 동사는 ___예요.',
     blankAnswers: ['말다'],
     answerTranslation: L(
-      '밥을 국물에 넣어 먹는 동사는 말다예요.',
-      'Guruchni sho‘rvaga solib yeyish fe’li 말다.',
-      'The verb for mixing rice into broth is 말다.',
-      'Глагол для добавления риса в бульон — 말다.',
+      '말다',
+      'guruchni sho‘rvaga solib aralashtirmoq',
+      'to mix rice into soup',
+      'класть рис в суп и размешивать',
     ),
     grading: {
       mode: 'exact',
@@ -7649,7 +7624,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 말다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7797,13 +7772,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_293_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '버터를 빵 표면에 펴서 먹는 동사는 ___예요.',
     blankAnswers: ['바르다'],
     answerTranslation: L(
-      '버터를 빵에 펴는 동사는 바르다예요.',
-      'Sariyog‘ni nonga surtish uchun 바르다 ishlatiladi.',
-      'The verb for spreading butter on bread is 바르다.',
-      'Глагол для намазывания масла на хлеб — 바르다.',
+      '바르다',
+      'surtmoq (nonga sariyog‘)',
+      'to spread (butter on bread)',
+      'намазывать (масло на хлеб)',
     ),
     grading: {
       mode: 'exact',
@@ -7812,7 +7786,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 바르다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -7946,13 +7920,12 @@ const S5_UNIT4_NODE3_QUESTIONS = {
   s5u4_299_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고기를 상추에 감싸 먹을 때 쓰는 동사는 ___예요.',
     blankAnswers: ['싸다'],
     answerTranslation: L(
-      '고기를 상추에 감싸는 동사는 싸다예요.',
-      'Go‘shtni salat bargiga o‘rash fe’li 싸다.',
-      'The verb for wrapping meat in lettuce is 싸다.',
-      'Глагол для заворачивания мяса в салат — 싸다.',
+      '싸다',
+      'bargga o‘ramoq (go‘shtni)',
+      'to wrap (meat in lettuce)',
+      'заворачивать (мясо в салат)',
     ),
     grading: {
       mode: 'exact',
@@ -7961,7 +7934,7 @@ const S5_UNIT4_NODE3_QUESTIONS = {
       notes: ['Require 싸다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8169,13 +8142,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_307_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '식사 사이에 먹는 가벼운 음식은 ___이에요.',
     blankAnswers: ['간식'],
     answerTranslation: L(
-      '식사 사이에 먹는 가벼운 음식은 간식이에요.',
-      'Ovqatlar orasida yeyiladigan yengil ovqat 간식.',
-      'A light food eaten between meals is a snack.',
-      'Лёгкая еда между приёмами пищи — это перекус.',
+      '간식',
+      'tamaddi (ovqatlar orasida)',
+      'snack (between meals)',
+      'перекус',
     ),
     grading: {
       mode: 'exact',
@@ -8184,7 +8156,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact Korean noun 간식.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8337,13 +8309,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_313_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '과정이 복잡하지 않고 쉬우면 ___고 해요.',
     blankAnswers: ['간단하다'],
     answerTranslation: L(
-      '과정이 복잡하지 않고 쉬우면 간단하다고 해요.',
-      'Jarayon murakkab bo‘lmasa, 간단하다 deyiladi.',
-      'If a process is not complicated, it is described as 간단하다.',
-      'Если процесс несложный, его описывают словом 간단하다.',
+      '간단하다',
+      'oddiy, oson bo‘lmoq',
+      'to be simple, easy',
+      'быть простым',
     ),
     grading: {
       mode: 'exact',
@@ -8352,7 +8323,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact dictionary form 간단하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8482,13 +8453,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_319_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '많이 배고프지는 않고 조금 배고픈 상태를 ___고 해요.',
     blankAnswers: ['출출하다'],
     answerTranslation: L(
-      '조금 배고픈 상태를 출출하다고 해요.',
-      'Biroz och holat 출출하다 deyiladi.',
-      'Feeling mildly hungry is expressed with 출출하다.',
-      'Состояние лёгкого голода выражается словом 출출하다.',
+      '출출하다',
+      'biroz och bo‘lmoq',
+      'to be a little hungry',
+      'быть слегка голодным',
     ),
     grading: {
       mode: 'exact',
@@ -8497,7 +8467,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact target word 출출하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8704,14 +8674,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_327_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '떡을 너무 오래 볶지 않고 조금만 볶는다는 뜻은 ___ 볶는다는 뜻이에요.',
     blankAnswers: ['살짝'],
     answerTranslation: L(
-      '떡을 조금만 볶는 것은 살짝 볶는다는 뜻이에요.',
-      'Tteokni ozgina qovurish 살짝 볶다 degani.',
-      'Cooking the rice cakes only a little means 볶다 them 살짝.',
-      'Слегка обжарить рисовые палочки — это 살짝 볶다.',
+      '살짝',
+      'sal, yengilgina (masalan, sal qovurmoq)',
+      'lightly, slightly (e.g. fry lightly)',
+      'слегка (например, слегка обжарить)',
     ),
     grading: {
       mode: 'exact',
@@ -8721,7 +8689,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact target word 살짝.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -8867,14 +8835,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_333_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '음식의 맛을 내려고 여러 재료를 섞어 만든 것을 ___이라고 해요.',
     blankAnswers: ['양념'],
     answerTranslation: L(
-      '음식의 맛을 내는 재료의 혼합물을 양념이라고 해요.',
-      'Taomga ta’m beruvchi aralashma 양념 deyiladi.',
-      'A mixture used to season food is called 양념.',
-      'Смесь для придания вкуса блюду называется 양념.',
+      '양념',
+      'ziravorli aralashma (taomga ta’m beradi)',
+      'seasoning mix',
+      'приправа, заправка',
     ),
     grading: {
       mode: 'exact',
@@ -8883,7 +8849,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact noun 양념.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9019,13 +8985,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_339_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '떡볶이에 넣는 생선으로 만든 식재료는 ___이에요.',
     blankAnswers: ['어묵'],
     answerTranslation: L(
-      '떡볶이에 넣는 생선 가공 식품은 어묵이에요.',
-      'Tteokbokkiga qo‘shiladigan baliq mahsuloti 어묵.',
-      'The fish-based ingredient added to tteokbokki is 어묵.',
-      'Рыбный продукт, который добавляют в токпокки, — 어묵.',
+      '어묵',
+      'baliq keki (baliqdan qilingan masalliq)',
+      'fish cake',
+      'рыбные котлетки (из рыбного фарша)',
     ),
     grading: {
       mode: 'exact',
@@ -9034,7 +8999,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact target noun 어묵.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9109,13 +9074,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_342_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '밀을 곱게 갈아서 만든 가루는 ___예요.',
     blankAnswers: ['밀가루'],
     answerTranslation: L(
-      '밀로 만든 가루는 밀가루예요.',
-      'Bug‘doydan tayyorlangan un 밀가루.',
-      'Flour made from wheat is 밀가루.',
-      'Мука из пшеницы — 밀가루.',
+      '밀가루',
+      'bug‘doy uni',
+      'wheat flour',
+      'пшеничная мука',
     ),
     grading: {
       mode: 'exact',
@@ -9124,7 +9088,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact noun 밀가루.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9238,13 +9202,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_347_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '반죽을 부풀게 하려고 넣는 가루는 ___예요.',
     blankAnswers: ['베이킹파우더'],
     answerTranslation: L(
-      '반죽을 부풀게 하는 가루는 베이킹파우더예요.',
-      'Xamirni ko‘taradigan kukun 베이킹파우더.',
-      'The powder used to make batter rise is baking powder.',
-      'Порошок, который помогает тесту подняться, — 베이킹파우더.',
+      '베이킹파우더',
+      'xamirni ko‘taruvchi kukun',
+      'leavening powder (makes dough rise)',
+      'разрыхлитель',
     ),
     grading: {
       mode: 'exact',
@@ -9253,7 +9216,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact target spelling 베이킹파우더.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9402,13 +9365,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_353_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '코코넛으로 만든 흰색 액체 식재료는 ___예요.',
     blankAnswers: ['코코넛 밀크'],
     answerTranslation: L(
-      '코코넛으로 만든 액체 식재료는 코코넛 밀크예요.',
-      'Kokosdan tayyorlangan suyuq mahsulot 코코넛 밀크.',
-      'The liquid ingredient made from coconut is coconut milk.',
-      'Жидкий ингредиент из кокоса — кокосовое молоко.',
+      '코코넛 밀크',
+      'kokos suti',
+      'milk from coconuts',
+      'кокосовое молоко',
     ),
     grading: {
       mode: 'exact',
@@ -9417,7 +9379,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact spelling and spacing 코코넛 밀크.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9548,13 +9510,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_359_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '과일이 먹기 좋은 상태로 변하는 것을 ___고 해요.',
     blankAnswers: ['익다'],
     answerTranslation: L(
-      '과일이 먹기 좋은 상태가 되는 것을 익다고 해요.',
-      'Mevaning yeyishga tayyor bo‘lishi 익다 deyiladi.',
-      'When fruit becomes ready to eat, it is described with 익다.',
-      'Когда фрукт созревает и становится готовым к еде, используется 익다.',
+      '익다',
+      'pishib yetilmoq (meva)',
+      'to ripen (fruit)',
+      'созревать (о фруктах)',
     ),
     grading: {
       mode: 'exact',
@@ -9564,7 +9525,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact dictionary form 익다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9639,13 +9600,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_362_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '작은 갑각류로 여러 요리에 사용하는 해산물은 ___예요.',
     blankAnswers: ['새우'],
     answerTranslation: L(
-      '여러 요리에 사용하는 작은 해산물은 새우예요.',
-      'Ko‘p taomlarda ishlatiladigan kichik dengiz mahsuloti 새우.',
-      'The small seafood ingredient used in many dishes is shrimp.',
-      'Небольшой морепродукт, используемый во многих блюдах, — креветка.',
+      '새우',
+      'krevetka',
+      'shrimp',
+      'креветка',
     ),
     grading: {
       mode: 'exact',
@@ -9654,7 +9614,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact Korean noun 새우.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9768,13 +9728,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_367_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '고기를 가공해서 만든 식재료 중 하나는 ___이에요.',
     blankAnswers: ['햄'],
     answerTranslation: L(
-      '고기를 가공해서 만든 식재료 중 하나는 햄이에요.',
-      'Go‘shtdan qayta ishlanib tayyorlangan mahsulotlardan biri 햄.',
-      'Ham is one processed meat ingredient.',
-      'Ветчина — один из мясных полуфабрикатов.',
+      '햄',
+      'dudlangan cho‘chqa go‘shti mahsuloti',
+      'cured pork (processed meat)',
+      'ветчина',
     ),
     grading: {
       mode: 'exact',
@@ -9783,7 +9742,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact Korean loanword 햄.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -9924,13 +9883,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_373_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '볶음밥에 넣을 수 있는 가공 고기 재료는 ___이에요.',
     blankAnswers: ['햄'],
     answerTranslation: L(
-      '볶음밥에 넣을 수 있는 가공 고기 재료는 햄이에요.',
-      'Qovurilgan guruchga qo‘shiladigan go‘sht mahsuloti 햄.',
-      'The processed meat ingredient that can be added to fried rice is ham.',
-      'Мясной полуфабрикат, который можно добавить в жареный рис, — ветчина.',
+      '햄',
+      'dudlangan cho‘chqa go‘shti mahsuloti',
+      'cured pork (processed meat)',
+      'ветчина',
     ),
     grading: {
       mode: 'exact',
@@ -9939,7 +9897,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require 햄.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10071,13 +10029,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_379_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '작고 껍질이 있는 해산물 식재료는 ___예요.',
     blankAnswers: ['새우'],
     answerTranslation: L(
-      '작은 갑각류 해산물은 새우예요.',
-      'Kichik qisqichbaqasimon dengiz mahsuloti 새우.',
-      'The small crustacean seafood ingredient is shrimp.',
-      'Небольшой ракообразный морепродукт — креветка.',
+      '새우',
+      'krevetka',
+      'shrimp',
+      'креветка',
     ),
     grading: {
       mode: 'exact',
@@ -10086,7 +10043,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact word 새우.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10298,13 +10255,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_387_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '반죽에 넣어 부풀게 하는 가루는 ___예요.',
     blankAnswers: ['베이킹파우더'],
     answerTranslation: L(
-      '반죽을 부풀게 하는 가루는 베이킹파우더예요.',
-      'Xamirni ko‘taradigan kukun 베이킹파우더.',
-      'The powder that makes batter rise is baking powder.',
-      'Порошок, который помогает тесту подняться, — разрыхлитель.',
+      '베이킹파우더',
+      'xamirni ko‘taruvchi kukun',
+      'leavening powder (makes dough rise)',
+      'разрыхлитель',
     ),
     grading: {
       mode: 'exact',
@@ -10313,7 +10269,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact Korean spelling 베이킹파우더.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10461,14 +10417,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_393_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '음식에 맛을 더하기 위해 여러 재료를 섞어 만든 것은 ___이에요.',
     blankAnswers: ['양념'],
     answerTranslation: L(
-      '여러 재료를 섞어 맛을 내는 것은 양념이에요.',
-      'Ta’m berish uchun aralashtirilgan mahsulotlar 양념 deyiladi.',
-      'A mixture of ingredients used for flavor is seasoning.',
-      'Смесь ингредиентов для вкуса называется приправой.',
+      '양념',
+      'ziravorli aralashma (taomga ta’m beradi)',
+      'seasoning mix',
+      'приправа, заправка',
     ),
     grading: {
       mode: 'exact',
@@ -10477,7 +10431,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require 양념.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10610,13 +10564,12 @@ const S5_UNIT4_NODE4_QUESTIONS = {
   s5u4_399_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '배가 아주 고프지는 않지만 조금 고플 때 ___고 해요.',
     blankAnswers: ['출출하다'],
     answerTranslation: L(
-      '조금 배가 고픈 상태는 출출하다고 해요.',
-      'Biroz och holat 출출하다 deyiladi.',
-      'A mildly hungry feeling is expressed with 출출하다.',
-      'Лёгкое чувство голода выражается словом 출출하다.',
+      '출출하다',
+      'biroz och bo‘lmoq',
+      'to be a little hungry',
+      'быть слегка голодным',
     ),
     grading: {
       mode: 'exact',
@@ -10625,7 +10578,7 @@ const S5_UNIT4_NODE4_QUESTIONS = {
       notes: ['Require the exact vocabulary item 출출하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10702,14 +10655,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_402_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '해운대처럼 바다에서 수영하고 쉴 수 있는 곳을 ___이라고 해요.',
     blankAnswers: ['해수욕장'],
     answerTranslation: L(
-      '바다에서 수영하고 쉴 수 있는 곳을 해수욕장이라고 해요.',
-      'Dengizda suzish va dam olish joyi 해수욕장 deyiladi.',
-      'A seaside place for swimming and relaxing is called a 해수욕장.',
-      'Место у моря для купания и отдыха называется 해수욕장.',
+      '해수욕장',
+      'plyaj (dengizda cho‘miladigan joy)',
+      'beach (for swimming in the sea)',
+      'пляж (для купания в море)',
     ),
     grading: {
       mode: 'exact',
@@ -10718,7 +10669,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact Korean word 해수욕장.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10833,13 +10784,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_407_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '파를 넣어 프라이팬에서 부쳐 먹는 음식은 ___이에요.',
     blankAnswers: ['파전'],
     answerTranslation: L(
-      '파를 넣어 부치는 음식은 파전이에요.',
-      'Ko‘k piyoz bilan pishiriladigan taom 파전.',
-      'The pancake made with green onions is called 파전.',
-      'Лепёшка с зелёным луком называется 파전.',
+      '파전',
+      'ko‘k piyozli quymoq',
+      'green onion pancake',
+      'блин с зелёным луком',
     ),
     grading: {
       mode: 'exact',
@@ -10848,7 +10798,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact target word 파전.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -10994,14 +10944,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_413_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '간장 등에 여러 양념을 넣어 음식을 찍어 먹는 소스는 ___이에요.',
     blankAnswers: ['양념장'],
     answerTranslation: L(
-      '음식을 찍어 먹는 양념 소스는 양념장이에요.',
-      'Ovqatni botirib yeyiladigan ziravorli sous 양념장.',
-      'The seasoned sauce used for dipping food is 양념장.',
-      'Соус с приправами для макания еды называется 양념장.',
+      '양념장',
+      'ziravorli botirma sous',
+      'seasoned dipping sauce',
+      'соус для макания с приправами',
     ),
     grading: {
       mode: 'exact',
@@ -11010,7 +10958,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact target word 양념장.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11148,13 +11096,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_419_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '생선이나 채소가 신선하고 상태가 좋을 때 ___고 해요.',
     blankAnswers: ['싱싱하다'],
     answerTranslation: L(
-      '음식 재료가 신선한 상태를 싱싱하다고 해요.',
-      'Mahsulot yangi bo‘lsa 싱싱하다 deyiladi.',
-      'Fresh food can be described with 싱싱하다.',
-      'Свежий продукт описывают словом 싱싱하다.',
+      '싱싱하다',
+      'yangi, tetik bo‘lmoq (baliq, sabzavot)',
+      'to be fresh (fish, vegetables)',
+      'быть свежим (о рыбе, овощах)',
     ),
     grading: {
       mode: 'exact',
@@ -11163,7 +11110,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact form 싱싱하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11239,14 +11186,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_422_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '시장이나 길거리에서 자주 파는 한국식 간식 중 하나는 ___이에요.',
     blankAnswers: ['호떡'],
     answerTranslation: L(
-      '시장이나 길거리에서 자주 볼 수 있는 간식은 호떡이에요.',
-      'Bozor va ko‘chalarda ko‘p uchraydigan tamaddi 호떡.',
-      'Hotteok is a Korean snack commonly sold at markets and street stalls.',
-      'Хотток — корейский перекус, который часто продают на рынках и улицах.',
+      '호떡',
+      'shirin to‘ldirmali qovurilgan kulcha',
+      'sweet filled fried pancake (street snack)',
+      'жареная лепёшка со сладкой начинкой',
     ),
     grading: {
       mode: 'exact',
@@ -11255,7 +11200,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 호떡.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11538,14 +11483,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_433_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '음식이 맛있기로 유명해서 사람들이 많이 찾는 식당을 ___이라고 해요.',
     blankAnswers: ['맛집'],
     answerTranslation: L(
-      '음식으로 유명한 식당을 맛집이라고 해요.',
-      'Mazali taomi bilan mashhur restoran 맛집 deyiladi.',
-      'A restaurant famous for good food is called a 맛집.',
-      'Ресторан, известный вкусной едой, называется 맛집.',
+      '맛집',
+      'taomi mazali mashhur restoran',
+      'restaurant famous for its food',
+      'известный вкусный ресторан',
     ),
     grading: {
       mode: 'exact',
@@ -11554,7 +11497,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 맛집.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11691,13 +11634,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_439_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '시장 가게 앞에 긴 줄이 생긴 한국식 간식은 ___이에요.',
     blankAnswers: ['호떡'],
     answerTranslation: L(
-      '사람들이 줄을 서서 기다린 간식은 호떡이에요.',
-      'Odamlar navbatda kutgan tamaddi 호떡.',
-      'The snack people waited in line for was hotteok.',
-      'Перекус, за которым люди стояли в очереди, — хотток.',
+      '호떡',
+      'shirin to‘ldirmali qovurilgan kulcha',
+      'sweet filled fried pancake (street snack)',
+      'жареная лепёшка со сладкой начинкой',
     ),
     grading: {
       mode: 'exact',
@@ -11706,7 +11648,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require 호떡.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11783,14 +11725,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_442_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '파와 오징어, 새우 같은 해산물을 넣어 만드는 전은 ___이에요.',
     blankAnswers: ['해물 파전'],
     answerTranslation: L(
-      '파와 해물을 넣어 만드는 전은 해물 파전이에요.',
-      'Ko‘k piyoz va dengiz mahsulotlari bilan tayyorlanadigan taom 해물 파전.',
-      'The pancake made with green onions and seafood is 해물 파전.',
-      'Паджон с зелёным луком и морепродуктами называется 해물 파전.',
+      '해물 파전',
+      'dengiz mahsulotli ko‘k piyozli quymoq',
+      'seafood green onion pancake',
+      'блин с морепродуктами и зелёным луком',
     ),
     grading: {
       mode: 'exact',
@@ -11800,7 +11740,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact expression 해물 파전.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -11919,13 +11859,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_447_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '밀가루와 물, 달걀 등을 섞어서 만든 것을 ___이라고 해요.',
     blankAnswers: ['반죽'],
     answerTranslation: L(
-      '밀가루와 물 등을 섞어서 만든 것은 반죽이에요.',
-      'Un, suv va boshqa masalliqlar aralashmasi 반죽 deyiladi.',
-      'The mixture made from flour, water, and other ingredients is called 반죽.',
-      'Смесь муки, воды и других ингредиентов называется 반죽.',
+      '반죽',
+      'xamir',
+      'dough, batter',
+      'тесто',
     ),
     grading: {
       mode: 'exact',
@@ -11934,7 +11873,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 반죽.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12080,14 +12019,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_453_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '해물을 씻고 자르는 등 요리하기 좋게 준비하는 것을 ___라고 해요.',
     blankAnswers: ['손질하다'],
     answerTranslation: L(
-      '식재료를 요리하기 좋게 준비하는 것을 손질하다고 해요.',
-      'Masalliqni pishirishga tayyorlash 손질하다 deyiladi.',
-      'Preparing an ingredient for cooking is called 손질하다.',
-      'Подготовка продукта к приготовлению выражается глаголом 손질하다.',
+      '손질하다',
+      'yuvib, kesib tayyorlamoq (masalliqni)',
+      'to clean and prep (ingredients)',
+      'чистить и разделывать (продукты)',
     ),
     grading: {
       mode: 'exact',
@@ -12096,7 +12033,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact form 손질하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12231,13 +12168,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_459_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '파의 필요 없는 부분을 정리하는 동사는 ___예요.',
     blankAnswers: ['다듬다'],
     answerTranslation: L(
-      '파를 정리하는 동사는 다듬다예요.',
-      'Ko‘k piyozning keraksiz qismlarini tozalash fe’li 다듬다.',
-      'The verb for trimming green onions is 다듬다.',
-      'Глагол для подготовки зелёного лука — 다듬다.',
+      '다듬다',
+      'keraksiz joyini olib tozalamoq (ko‘kat)',
+      'to trim (vegetables)',
+      'обрезать, очищать (овощи)',
     ),
     grading: {
       mode: 'exact',
@@ -12246,7 +12182,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact form 다듬다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12615,14 +12551,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_473_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '전이나 튀김이 씹을 때 가볍게 부서지는 식감이면 ___고 해요.',
     blankAnswers: ['바삭하다'],
     answerTranslation: L(
-      '겉이 잘 익어 아삭하게 부서지는 식감을 바삭하다고 해요.',
-      'Qarsildoq tuzilma 바삭하다 deyiladi.',
-      'A crisp, crunchy texture is described with 바삭하다.',
-      'Хрустящую текстуру описывают словом 바삭하다.',
+      '바삭하다',
+      'qarsildoq bo‘lmoq',
+      'to be crispy',
+      'быть хрустящим',
     ),
     grading: {
       mode: 'exact',
@@ -12631,7 +12565,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact form 바삭하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12767,13 +12701,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_479_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '완성된 음식을 그릇이나 접시에 넣는 동사는 ___예요.',
     blankAnswers: ['담다'],
     answerTranslation: L(
-      '음식을 접시나 그릇에 넣는 동사는 담다예요.',
-      'Ovqatni idishga solish fe’li 담다.',
-      'The verb for putting food into a bowl or plate is 담다.',
-      'Глагол для выкладывания еды в посуду — 담다.',
+      '담다',
+      'idishga solmoq (ovqatni)',
+      'to put (food) into a dish',
+      'накладывать (еду) в тарелку',
     ),
     grading: {
       mode: 'exact',
@@ -12782,7 +12715,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 담다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -12858,13 +12791,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_482_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '비가 내릴 때 들리는 소리를 ___라고 해요.',
     blankAnswers: ['빗소리'],
     answerTranslation: L(
-      '비가 내릴 때 나는 소리는 빗소리예요.',
-      'Yomg‘ir yog‘ganda eshitiladigan tovush 빗소리.',
-      'The sound made by falling rain is called 빗소리.',
-      'Звук падающего дождя называется 빗소리.',
+      '빗소리',
+      'yomg‘ir tovushi',
+      'sound of rain',
+      'шум дождя',
     ),
     grading: {
       mode: 'exact',
@@ -12873,7 +12805,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 빗소리.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13160,14 +13092,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_493_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '파와 오징어, 새우를 넣어 만드는 파전의 이름은 ___이에요.',
     blankAnswers: ['해물 파전'],
     answerTranslation: L(
-      '파와 해물을 넣어 만드는 음식은 해물 파전이에요.',
-      'Ko‘k piyoz va dengiz mahsulotli taom 해물 파전.',
-      'The pajeon made with green onions and seafood is 해물 파전.',
-      'Паджон с зелёным луком и морепродуктами называется 해물 파전.',
+      '해물 파전',
+      'dengiz mahsulotli ko‘k piyozli quymoq',
+      'seafood green onion pancake',
+      'блин с морепродуктами и зелёным луком',
     ),
     grading: {
       mode: 'exact',
@@ -13176,7 +13106,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact expression and spacing 해물 파전.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13314,13 +13244,12 @@ const S5_UNIT4_NODE5_QUESTIONS = {
   s5u4_499_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전의 반대쪽도 익히려고 위아래를 바꾸는 동사는 ___예요.',
     blankAnswers: ['뒤집다'],
     answerTranslation: L(
-      '전의 반대쪽을 익히려고 방향을 바꾸는 동사는 뒤집다예요.',
-      'Taomning ikkinchi tomonini pishirish uchun ag‘darish fe’li 뒤집다.',
-      'The verb for turning food over to cook the other side is 뒤집다.',
-      'Глагол для переворачивания еды на другую сторону — 뒤집다.',
+      '뒤집다',
+      'ag‘darmoq (tovadagi ovqatni)',
+      'to flip over (food in a pan)',
+      'переворачивать (еду на сковороде)',
     ),
     grading: {
       mode: 'exact',
@@ -13329,7 +13258,7 @@ const S5_UNIT4_NODE5_QUESTIONS = {
       notes: ['Require the exact word 뒤집다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13407,14 +13336,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_502_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '전주에서 한국 전통 집 문화를 경험하는 것을 ___이라고 해요.',
     blankAnswers: ['한옥 체험'],
     answerTranslation: L(
-      '전통 한옥에서 문화를 경험하는 것을 한옥 체험이라고 해요.',
-      'An’anaviy koreys uyida tajriba qilish 한옥 체험 deyiladi.',
-      'Experiencing life in a traditional Korean house is called 한옥 체험.',
-      'Знакомство с жизнью в традиционном корейском доме называется 한옥 체험.',
+      '한옥 체험',
+      'an’anaviy koreys uyida yashab ko‘rish',
+      'traditional Korean house experience',
+      'опыт жизни в традиционном корейском доме',
     ),
     grading: {
       mode: 'exact',
@@ -13423,7 +13350,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact expression 한옥 체험 with correct spacing.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13540,13 +13467,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_507_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전주 여행에서 밥을 말아 먹는 국 음식은 ___이에요.',
     blankAnswers: ['해장국'],
     answerTranslation: L(
-      '전주 여행에서 먹는 국 음식은 해장국이에요.',
-      'Jeonju sayohatidagi sho‘rva taomi 해장국.',
-      'The soup presented for the Jeonju trip is 해장국.',
-      'Суп, представленный в поездке в Чонджу, — 해장국.',
+      '해장국',
+      'xumordan chiqaradigan sho‘rva',
+      'hangover soup',
+      'суп от похмелья',
     ),
     grading: {
       mode: 'exact',
@@ -13555,7 +13481,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 해장국.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13702,14 +13628,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_513_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '뜨거운 국물 맛이 개운하고 좋을 때 ___고 표현할 수 있어요.',
     blankAnswers: ['시원하다'],
     answerTranslation: L(
-      '뜨거운 국물 맛이 개운할 때 시원하다고 할 수 있어요.',
-      'Issiq sho‘rva yoqimli va tetiklantiruvchi bo‘lsa 시원하다 deyilishi mumkin.',
-      'A pleasantly refreshing hot broth can be described with 시원하다.',
-      'Приятный вкус горячего бульона можно описать словом 시원하다.',
+      '시원하다',
+      'yoqimli, tetiklantiruvchi bo‘lmoq (issiq sho‘rva)',
+      'to be refreshing (hot soup)',
+      'быть освежающим (о горячем супе)',
     ),
     grading: {
       mode: 'exact',
@@ -13719,7 +13643,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact form 시원하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -13853,13 +13777,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_519_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '한국의 전통 집을 뜻하는 말은 ___이에요.',
     blankAnswers: ['한옥'],
     answerTranslation: L(
-      '한국 전통 집은 한옥이에요.',
-      'An’anaviy koreys uyi 한옥 deyiladi.',
-      'A traditional Korean house is called a 한옥.',
-      'Традиционный корейский дом называется 한옥.',
+      '한옥',
+      'an’anaviy koreys uyi',
+      'traditional Korean house',
+      'традиционный корейский дом',
     ),
     grading: {
       mode: 'exact',
@@ -13868,7 +13791,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 한옥.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14076,13 +13999,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_527_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '담양에서 상추에 싸서 먹는 고기 음식은 ___예요.',
     blankAnswers: ['떡갈비'],
     answerTranslation: L(
-      '담양에서 상추에 싸서 먹는 음식은 떡갈비예요.',
-      'Damyangda salat bargiga o‘rab yeyiladigan taom 떡갈비.',
-      'The Damyang food eaten wrapped in lettuce is 떡갈비.',
-      'Блюдо Тамъяна, которое едят в листе салата, — 떡갈비.',
+      '떡갈비',
+      'qiymalangan qovurg‘a go‘shtidan kotlet',
+      'grilled minced short-rib patty',
+      'котлета из рубленых рёбрышек',
     ),
     grading: {
       mode: 'exact',
@@ -14091,7 +14013,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 떡갈비.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14245,13 +14167,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_533_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '깨나 견과류 같은 향과 맛을 표현하는 형용사는 ___예요.',
     blankAnswers: ['고소하다'],
     answerTranslation: L(
-      '깨나 견과류 같은 맛은 고소하다고 표현해요.',
-      'Kunjut yoki yong‘oqsimon ta’m 고소하다 bilan ifodalanadi.',
-      'A nutty, savory flavor can be described with 고소하다.',
-      'Ореховый, пикантный вкус можно описать словом 고소하다.',
+      '고소하다',
+      'yong‘oqdek mazali bo‘lmoq (kunjut ta’mi)',
+      'to taste nutty (like sesame)',
+      'иметь ореховый вкус (как кунжут)',
     ),
     grading: {
       mode: 'exact',
@@ -14260,7 +14181,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact form 고소하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14395,13 +14316,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_539_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '숲속에 나 있는 길을 ___이라고 해요.',
     blankAnswers: ['숲길'],
     answerTranslation: L(
-      '숲속에 있는 길을 숲길이라고 해요.',
-      'O‘rmon ichidagi yo‘l 숲길 deyiladi.',
-      'A path through a forest is called a 숲길.',
-      'Дорога в лесу называется 숲길.',
+      '숲길',
+      'o‘rmon yo‘lagi',
+      'forest path',
+      'лесная тропа',
     ),
     grading: {
       mode: 'exact',
@@ -14410,7 +14330,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 숲길.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14487,13 +14407,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_542_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전주에서 먹고 밥을 말아 먹는 음식은 ___이에요.',
     blankAnswers: ['해장국'],
     answerTranslation: L(
-      '전주에서 먹는 국 음식은 해장국이에요.',
-      'Jeonjuda yeyiladigan sho‘rva 해장국.',
-      'The soup associated with Jeonju is 해장국.',
-      'С Чонджу в учебнике связан суп 해장국.',
+      '해장국',
+      'xumordan chiqaradigan sho‘rva',
+      'hangover soup',
+      'суп от похмелья',
     ),
     grading: {
       mode: 'exact',
@@ -14502,7 +14421,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require 해장국.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14779,14 +14698,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_553_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '떡갈비의 맛을 설명할 때 교재에서 사용한 형용사는 ___예요.',
     blankAnswers: ['고소하다'],
     answerTranslation: L(
-      '떡갈비의 맛은 고소하다고 표현해요.',
-      'Tteokgalbi ta’mi 고소하다 bilan ifodalanadi.',
-      'The textbook describes the tteokgalbi flavor with 고소하다.',
-      'В учебнике вкус ттоккальби описывается словом 고소하다.',
+      '고소하다',
+      'yong‘oqdek mazali bo‘lmoq (kunjut ta’mi)',
+      'to taste nutty (like sesame)',
+      'иметь ореховый вкус (как кунжут)',
     ),
     grading: {
       mode: 'exact',
@@ -14795,7 +14712,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require 고소하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -14925,13 +14842,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_559_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '전주에서 할 수 있는 한국 전통 문화 경험은 ___이에요.',
     blankAnswers: ['한옥 체험'],
     answerTranslation: L(
-      '전주에서 제시된 전통 문화 경험은 한옥 체험이에요.',
-      'Jeonjuda berilgan an’anaviy tajriba 한옥 체험.',
-      'The traditional cultural experience presented for Jeonju is 한옥 체험.',
-      'Традиционный опыт, представленный для Чонджу, — 한옥 체험.',
+      '한옥 체험',
+      'an’anaviy koreys uyida yashab ko‘rish',
+      'traditional Korean house experience',
+      'опыт жизни в традиционном корейском доме',
     ),
     grading: {
       mode: 'exact',
@@ -14940,7 +14856,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require correct spacing in 한옥 체험.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15015,14 +14931,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_562_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '닭에 인삼과 찹쌀 등의 재료를 넣어 끓이는 한국 음식은 ___이에요.',
     blankAnswers: ['삼계탕'],
     answerTranslation: L(
-      '닭에 여러 재료를 넣어 끓이는 음식은 삼계탕이에요.',
-      'Tovuq va turli masalliqlardan tayyorlanadigan sho‘rva 삼계탕.',
-      'The Korean chicken soup prepared with ingredients such as ginseng and glutinous rice is 삼계탕.',
-      'Корейский куриный суп с женьшенем и клейким рисом называется 삼계탕.',
+      '삼계탕',
+      'jenshenli tovuq sho‘rvasi',
+      'ginseng chicken soup',
+      'куриный суп с женьшенем',
     ),
     grading: {
       mode: 'exact',
@@ -15031,7 +14945,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 삼계탕.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15146,13 +15060,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_567_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '삼계탕에 사용하는 뿌리 재료는 ___이에요.',
     blankAnswers: ['인삼'],
     answerTranslation: L(
-      '삼계탕에 사용하는 뿌리 재료는 인삼이에요.',
-      'Samgyetangda ishlatiladigan ildiz mahsuloti 인삼.',
-      'The root ingredient used in samgyetang is ginseng.',
-      'Корневой ингредиент самгетхана — женьшень.',
+      '인삼',
+      'jenshen (dorivor ildiz)',
+      'ginseng (medicinal root)',
+      'женьшень (лечебный корень)',
     ),
     grading: {
       mode: 'exact',
@@ -15161,7 +15074,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact word 인삼.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15307,13 +15220,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_573_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '익히면 끈기가 많아지는 쌀을 ___이라고 해요.',
     blankAnswers: ['찹쌀'],
     answerTranslation: L(
-      '끈기가 많은 쌀은 찹쌀이에요.',
-      'Yopishqoq guruch 찹쌀 deyiladi.',
-      'Glutinous rice is called 찹쌀.',
-      'Клейкий рис по-корейски называется 찹쌀.',
+      '찹쌀',
+      'yopishqoq guruch',
+      'glutinous rice',
+      'клейкий рис',
     ),
     grading: {
       mode: 'exact',
@@ -15322,7 +15234,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact spelling 찹쌀.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15457,13 +15369,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_579_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '배의 안쪽을 뜻하는 단어는 ___이에요.',
     blankAnswers: ['뱃속'],
     answerTranslation: L(
-      '배의 안쪽은 뱃속이에요.',
-      'Qorin ichi 뱃속 deyiladi.',
-      'The inside of the belly is called 뱃속.',
-      'Внутренняя часть живота называется 뱃속.',
+      '뱃속',
+      'qorin ichi',
+      'inside the belly',
+      'внутри живота',
     ),
     grading: {
       mode: 'exact',
@@ -15472,7 +15383,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require the exact spelling 뱃속.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15548,13 +15459,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_582_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '한국에서 여름에 많이 먹는 닭 요리는 ___이에요.',
     blankAnswers: ['삼계탕'],
     answerTranslation: L(
-      '한국에서 여름에 많이 먹는 닭 요리는 삼계탕이에요.',
-      'Koreyada yozda ko‘p yeyiladigan tovuq taomi 삼계탕.',
-      'The Korean chicken dish commonly eaten in summer is 삼계탕.',
-      'Корейское куриное блюдо, которое часто едят летом, — 삼계탕.',
+      '삼계탕',
+      'jenshenli tovuq sho‘rvasi',
+      'ginseng chicken soup',
+      'куриный суп с женьшенем',
     ),
     grading: {
       mode: 'exact',
@@ -15563,7 +15473,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require 삼계탕.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15678,13 +15588,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_587_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '기운이나 에너지가 생긴다는 뜻의 표현은 ___예요.',
     blankAnswers: ['힘이 나다'],
     answerTranslation: L(
-      '에너지가 생기는 것을 힘이 나다라고 해요.',
-      'Kuch paydo bo‘lishi 힘이 나다 deyiladi.',
-      'The expression meaning to gain strength is 힘이 나다.',
-      'Выражение со значением «набираться сил» — 힘이 나다.',
+      '힘이 나다',
+      'kuch-quvvat paydo bo‘lmoq',
+      'to feel energized',
+      'появляются силы',
     ),
     grading: {
       mode: 'exact',
@@ -15693,7 +15602,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require correct spacing in 힘이 나다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15839,13 +15748,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_593_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '삼계탕 재료로 나오는 끈기가 많은 쌀은 ___이에요.',
     blankAnswers: ['찹쌀'],
     answerTranslation: L(
-      '삼계탕 재료로 나오는 쌀은 찹쌀이에요.',
-      'Samgyetang mahsuloti sifatida yopishqoq guruch — 찹쌀 ishlatiladi.',
-      'The glutinous rice appearing as a samgyetang ingredient is 찹쌀.',
-      'Клейкий рис, используемый в самгетхане, — 찹쌀.',
+      '찹쌀',
+      'yopishqoq guruch',
+      'glutinous rice',
+      'клейкий рис',
     ),
     grading: {
       mode: 'exact',
@@ -15854,7 +15762,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require 찹쌀.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -15991,14 +15899,12 @@ const S5_UNIT4_NODE6_QUESTIONS = {
   s5u4_599_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate:
-      '담양에서 먹는 고기 음식의 맛을 나타내는 형용사는 ___예요.',
     blankAnswers: ['고소하다'],
     answerTranslation: L(
-      '떡갈비의 맛을 나타내는 말은 고소하다예요.',
-      'Tteokgalbi ta’mini ifodalovchi so‘z 고소하다.',
-      'The adjective used for the flavor of tteokgalbi is 고소하다.',
-      'Прилагательное для вкуса ттоккальби — 고소하다.',
+      '고소하다',
+      'yong‘oqdek mazali bo‘lmoq (kunjut ta’mi)',
+      'to taste nutty (like sesame)',
+      'иметь ореховый вкус (как кунжут)',
     ),
     grading: {
       mode: 'exact',
@@ -16007,7 +15913,7 @@ const S5_UNIT4_NODE6_QUESTIONS = {
       notes: ['Require 고소하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -16087,13 +15993,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_602_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '새로운 음식이나 조리법을 만들어 내는 것을 ___라고 해요.',
     blankAnswers: ['개발하다'],
     answerTranslation: L(
-      '새로운 음식이나 조리법을 만드는 것을 개발하다고 해요.',
-      'Yangi taom yoki usul yaratish 개발하다 deyiladi.',
-      'Creating a new food or method is expressed with 개발하다.',
-      'Создание нового блюда или способа выражается глаголом 개발하다.',
+      '개발하다',
+      'ishlab chiqmoq (yangi taom, usul)',
+      'to develop (a new dish, method)',
+      'разрабатывать (новое блюдо, способ)',
     ),
     grading: {
       mode: 'exact',
@@ -16102,7 +16007,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact form 개발하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -16734,13 +16639,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_627_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '하얀 떡볶이에 200g 들어가는 크림 재료는 ___이에요.',
     blankAnswers: ['생크림'],
     answerTranslation: L(
-      '200g 들어가는 크림 재료는 생크림이에요.',
-      '200 g ishlatiladigan qaymoqli mahsulot 생크림.',
-      'The cream ingredient used in a 200 g amount is 생크림.',
-      'Сливочный ингредиент в количестве 200 г — 생크림.',
+      '생크림',
+      'qaymoq (suyuq, ko‘pirtiriladigan)',
+      'fresh cream',
+      'сливки',
     ),
     grading: {
       mode: 'exact',
@@ -16749,7 +16653,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 생크림.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17127,13 +17031,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_642_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '아이가 태어난 지 100일이 되는 날을 ___이라고 해요.',
     blankAnswers: ['백일'],
     answerTranslation: L(
-      '아이가 태어난 지 100일이 되는 날은 백일이에요.',
-      'Bola tug‘ilganidan keyingi yuzinchi kun 백일 deyiladi.',
-      'A baby’s 100th day is called 백일.',
-      'Сотый день после рождения ребёнка называется 백일.',
+      '백일',
+      'bolaning yuz kunligi',
+      'a baby’s 100th day',
+      'сотый день жизни ребёнка',
     ),
     grading: {
       mode: 'exact',
@@ -17142,7 +17045,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 백일.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17257,13 +17160,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_647_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '백일에 먹는 하얀 떡은 ___예요.',
     blankAnswers: ['백설기'],
     answerTranslation: L(
-      '백일에 먹는 떡은 백설기예요.',
-      'Yuz kunlikda yeyiladigan tteok 백설기.',
-      'The rice cake eaten on a baby’s 100th day is 백설기.',
-      'На сотый день ребёнка едят 백설기.',
+      '백설기',
+      'yuz kunlikda yeyiladigan oq bug‘li guruch noni',
+      'white steamed rice cake (for 100th day)',
+      'белый рисовый пирог на пару (на 100 дней)',
     ),
     grading: {
       mode: 'exact',
@@ -17272,7 +17174,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 백설기.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17415,13 +17317,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_653_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '아이의 첫 번째 생일을 뜻하는 말은 ___이에요.',
     blankAnswers: ['돌'],
     answerTranslation: L(
-      '아이의 첫 번째 생일은 돌이에요.',
-      'Bolaning birinchi tug‘ilgan kuni 돌 deyiladi.',
-      'A child’s first birthday is called 돌.',
-      'Первый день рождения ребёнка называется 돌.',
+      '돌',
+      'bolaning birinchi tug‘ilgan kuni',
+      'a child’s first birthday',
+      'первый день рождения ребёнка',
     ),
     grading: {
       mode: 'exact',
@@ -17431,7 +17332,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 돌.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17644,13 +17545,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_662_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '설날과 연결된 길고 흰 막대 모양의 떡은 ___이에요.',
     blankAnswers: ['가래떡'],
     answerTranslation: L(
-      '설날과 연결된 떡은 가래떡이에요.',
-      'Seollal bilan bog‘liq tteok 가래떡.',
-      'The rice cake associated with Seollal is 가래떡.',
-      'С Соллалем связан 떡 가래떡.',
+      '가래떡',
+      'Yangi yilda yeyiladigan uzun oq tayoqsimon non',
+      'long white stick-shaped rice cake',
+      'длинный белый рисовый хлебец-палочка',
     ),
     grading: {
       mode: 'exact',
@@ -17659,7 +17559,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 가래떡.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17771,13 +17671,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_667_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '추석에 먹는 반달 모양의 떡은 ___이에요.',
     blankAnswers: ['송편'],
     answerTranslation: L(
-      '추석에 먹는 떡은 송편이에요.',
-      'Chuseokda yeyiladigan tteok 송편.',
-      'The rice cake eaten on Chuseok is 송편.',
-      'На Чхусок едят 송편.',
+      '송편',
+      'Chuseokda yeyiladigan yarim oy shaklidagi non',
+      'half-moon rice cake eaten on Chuseok',
+      'рисовый пирожок-полумесяц на Чхусок',
     ),
     grading: {
       mode: 'exact',
@@ -17786,7 +17685,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact word 송편.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -17934,13 +17833,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_673_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '몸이나 크기가 점점 커지는 것을 ___라고 해요.',
     blankAnswers: ['자라다'],
     answerTranslation: L(
-      '몸이나 크기가 커지는 것을 자라다고 해요.',
-      'Tana yoki hajmning kattalashishi 자라다 bilan ifodalanadi.',
-      'Growing in size is expressed with 자라다.',
-      'Увеличиваться и расти выражается глаголом 자라다.',
+      '자라다',
+      'o‘smoq, kattalashmoq',
+      'to grow',
+      'расти',
     ),
     grading: {
       mode: 'exact',
@@ -17949,7 +17847,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require the exact form 자라다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -18164,13 +18062,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_682_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '새로운 음식이나 조리법을 만들어 내는 동사는 ___예요.',
     blankAnswers: ['개발하다'],
     answerTranslation: L(
-      '새로운 것을 만들어 내는 동사는 개발하다예요.',
-      'Yangi narsa yaratish fe’li 개발하다.',
-      'The verb for developing something new is 개발하다.',
-      'Глагол «разрабатывать» — 개발하다.',
+      '개발하다',
+      'ishlab chiqmoq (yangi taom, usul)',
+      'to develop (a new dish, method)',
+      'разрабатывать (новое блюдо, способ)',
     ),
     grading: {
       mode: 'exact',
@@ -18179,7 +18076,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require 개발하다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -18287,13 +18184,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_687_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '추석에 먹는 떡은 ___이에요.',
     blankAnswers: ['송편'],
     answerTranslation: L(
-      '추석에 먹는 떡은 송편이에요.',
-      'Chuseokda yeyiladigan tteok 송편.',
-      'The rice cake eaten on Chuseok is 송편.',
-      'На Чхусок едят 송편.',
+      '송편',
+      'Chuseokda yeyiladigan yarim oy shaklidagi non',
+      'half-moon rice cake eaten on Chuseok',
+      'рисовый пирожок-полумесяц на Чхусок',
     ),
     grading: {
       mode: 'exact',
@@ -18302,7 +18198,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require 송편.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
@@ -18450,13 +18346,12 @@ const S5_UNIT4_NODE7_QUESTIONS = {
   s5u4_693_type_answer: {
     type: 'type_answer',
     instruction: TYPE_ANSWER_INSTRUCTION,
-    sentenceTemplate: '아이의 몸이나 크기가 점점 커지는 동사는 ___예요.',
     blankAnswers: ['자라다'],
     answerTranslation: L(
-      '아이가 점점 커지는 것은 자라다예요.',
-      'Bolaning asta-sekin kattalashishi 자라다 bilan ifodalanadi.',
-      'The verb meaning for a child to grow is 자라다.',
-      'Глагол со значением «расти» — 자라다.',
+      '자라다',
+      'o‘smoq, kattalashmoq (bola)',
+      'to grow (a child)',
+      'расти (о ребёнке)',
     ),
     grading: {
       mode: 'exact',
@@ -18465,7 +18360,7 @@ const S5_UNIT4_NODE7_QUESTIONS = {
       notes: ['Require 자라다.'],
       tolerance: {
         punctuation: true,
-        spacing: false,
+        spacing: true,
         minorTypos: false,
       },
     },
