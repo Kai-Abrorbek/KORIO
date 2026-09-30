@@ -7,9 +7,10 @@ import type { AppRelease, ReleaseItem, StoreChannel } from './app-release.types'
  *
  * ── 새로 내보낼 때 ──
  *  1) APP_RELEASES 맨 위에 그날 항목 추가 (4개 언어, 유저가 느끼는 변화만)
- *  2) 스토어에 새 빌드를 올렸으면 그 항목에 storeVersion 을 적고,
- *     **스토어 공개가 끝난 뒤에** STORE.android.latestVersion 을 올린다.
- *     먼저 올리면 "업데이트하세요" 를 눌러도 스토어에 새 버전이 없다
+ *  2) 스토어에 새 빌드를 올렸으면 그 항목에 storeVersion 을 적는다.
+ *     스토어 최신 버전은 서버가 플레이 API 로 알아서 읽는다 (play-version.service.ts,
+ *     "완전 공개" 된 릴리스만). STORE.android.latestVersion 은 플레이를 못 읽을 때의
+ *     예비값이라 가끔 맞춰 두기만 하면 된다
  *  3) 옛 버전이 서버와 안 맞게 됐을 때만 minSupportedVersion 을 올린다 (강제 업데이트)
  *
  * 우즈벡어 따옴표는 ‘ (o‘, g‘) 와 ’ (ma’no) — ASCII ' 금지.

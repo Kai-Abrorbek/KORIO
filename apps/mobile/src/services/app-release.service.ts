@@ -34,6 +34,9 @@ export interface AppVersionInfo {
 export const installedVersion: string =
   Constants.nativeAppVersion ?? Constants.expoConfig?.version ?? "0.0.0";
 
+/** 안드로이드 versionCode. 스토어 최신과 비교할 때 이름보다 정확하다 (개발 빌드면 비어 있을 수 있다) */
+const installedBuild: string = Constants.nativeBuildVersion ?? "";
+
 /**
  * 공용 api 클라이언트를 안 쓴다. 그건 네트워크·5xx 실패 때 전역 "다시 시도"
  * 모달을 띄우는데, 앱 켤 때 조용히 도는 버전 확인이 그걸 띄우면 안 된다.
@@ -53,7 +56,7 @@ export const appReleaseService = {
 
   version: () =>
     quietGet<AppVersionInfo>(
-      `/app/version?platform=${Platform.OS}&version=${encodeURIComponent(installedVersion)}`,
+      `/app/version?platform=${Platform.OS}&version=${encodeURIComponent(installedVersion)}&build=${encodeURIComponent(installedBuild)}`,
     ),
 };
 

@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { APP_RELEASES, STORE } from './app-releases.data';
+import { PlayVersionService } from './play-version.service';
 import type { ReleaseLang, ReleasePlatform } from './app-release.types';
 
 const LANGS: ReleaseLang[] = ['ko', 'uz', 'en', 'ru'];
@@ -23,6 +24,8 @@ export function compareVersion(a: string, b: string): number {
  */
 @Controller('app')
 export class AppReleaseController {
+  constructor(private readonly play: PlayVersionService) {}
+
   /** 업데이트 히스토리 (최신이 위). 문구는 요청한 언어 하나만 내려준다 */
   @Get('releases')
   releases(@Query('lang') lang?: string, @Query('platform') platform?: string) {
@@ -44,17 +47,34 @@ export class AppReleaseController {
    * 설치된 버전이 스토어 최신보다 낮은지.
    *  updateAvailable — "새 버전이 나왔어요" (닫을 수 있음)
    *  forceUpdate     — 최소 지원 버전보다 낮다 (닫을 수 없음)
+   *
+   * 스토어 최신은 플레이 API 가 "완전 공개" 라고 한 릴리스(PlayVersionService).
+   * 앱이 build(versionCode)를 보내면 그걸로 비교한다 — 릴리스 이름이 어떻게
+   * 적혀 있든 정확하다. 플레이 값을 못 읽었으면 app-releases.data.ts 의 값.
+   * 최소 지원 버전은 사람이 정하는 정책이라 항상 파일 값.
    * version 이 없거나 이상하면 둘 다 false — 모르는데 막으면 안 된다.
    */
   @Get('version')
-  version(@Query('version') version?: string) {
+  version(@Query('version') version?: string, @Query('build') build?: string) {
     const store = STORE.android;
+    const auto = this.play.latest();
     const valid = typeof version === 'string' && /^\d+(\.\d+)*$/.test(version);
+    const buildNo = Number(build);
+    const latestVersion = auto?.versionName ?? store.latestVersion;
+
+    let updateAvailable = false;
+    if (auto && Number.isInteger(buildNo) && buildNo > 0) {
+      updateAvailable = buildNo < auto.versionCode;
+    } else if (valid) {
+      updateAvailable = compareVersion(version, latestVersion) < 0;
+    }
+
     return {
-      latestVersion: store.latestVersion,
+      latestVersion,
       minSupportedVersion: store.minSupportedVersion,
       storeUrl: store.storeUrl,
-      updateAvailable: valid && compareVersion(version, store.latestVersion) < 0,
+      source: auto ? 'play' : 'file',
+      updateAvailable,
       forceUpdate:
         valid && compareVersion(version, store.minSupportedVersion) < 0,
     };
