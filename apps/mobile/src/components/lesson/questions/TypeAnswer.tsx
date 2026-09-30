@@ -4,6 +4,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  KeyboardAvoidingView,
+  Keyboard,
+  Platform,
+  ScrollView,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -83,6 +87,32 @@ export default function TypeAnswer({
   );
   const total = blankCount(tokens);
 
+  /**
+   * 한 칸만 있고 문장이 없으면 "이 뜻의 한국어 단어를 써라" 문제다.
+   * 이때는 문장 속 작은 칸 대신 큰 입력 상자를 쓴다 — 작은 칸에 커서만 깜빡이면
+   * 뭘 써야 하는지도, 몇 글자인지도 안 보인다 (2026-09-30 Kai).
+   */
+  const soleWord = total === 1 && tokens.length === 1;
+  const expected = (question.blankAnswers?.[0] ?? question.answer ?? "").trim();
+  /** 기본형(…다)을 쓰는 문제면 그걸 알려 준다. 문장 속 빈칸이면 "문장에 맞는 형태" */
+  const formHint = soleWord
+    ? /다$/.test(expected)
+      ? t("lesson.typeAnswerDictForm")
+      : null
+    : t("lesson.typeAnswerFitForm");
+
+  // 키보드가 올라오면 캐릭터를 치운다. 안 그러면 입력 칸과 확인 버튼이 키보드 밑에 깔린다
+  const [kbUp, setKbUp] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => setKbUp(true));
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKbUp(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  const [focused, setFocused] = useState(false);
+
   const [values, setValues] = useState<(string | null)[]>(() =>
     Array(total).fill(""),
   );
@@ -113,70 +143,135 @@ export default function TypeAnswer({
         : theme.primary;
 
   return (
-    <View style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
-        {/* 제목.
-            말풍선이 학습자 언어의 뜻 문장을 들고 있으면 제목엔 공용 문구만
-            둔다. 문제별 지시문까지 띄우면 **지문이 둘**이 되고, 실제로 둘이
-            어긋난 문항이 있었다 — 지시문은 "주말에 특별한 일이 있는지 묻는
-            문장", 말풍선은 "별일 있어요?". 유저는 큰 글씨를 먼저 읽고 엉뚱한
-            답을 쓴다.
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={s.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* 제목.
+              말풍선이 학습자 언어의 뜻 문장을 들고 있으면 제목엔 공용 문구만
+              둔다. 문제별 지시문까지 띄우면 **지문이 둘**이 되고, 실제로 둘이
+              어긋난 문항이 있었다.
+              npcText(한국어 지문)일 때는 반대다. 문제별 지시문이 없으면 뭘
+              하라는 건지 알 수 없다. */}
+          <Text style={s.title}>
+            {promptText && !question.npcText
+              ? t("lesson.typeAnswerTitle")
+              : question.question || t("lesson.typeAnswerTitle")}
+          </Text>
 
-            npcText(한국어 지문)일 때는 반대다. "이 문장에 맞는 말을 써라" 같은
-            과제라 문제별 지시문이 없으면 뭘 하라는 건지 알 수 없다. */}
-        <Text style={s.title}>
-          {promptText && !question.npcText
-            ? t("lesson.typeAnswerTitle")
-            : question.question || t("lesson.typeAnswerTitle")}
-        </Text>
+          {/* 캐릭터 + 말풍선. 키보드가 올라오면 캐릭터는 빠지고 말풍선만 남는다 */}
+          <View style={[s.npcRow, kbUp && s.npcRowCompact]}>
+            {!kbUp && (
+              <LessonCharacter
+                state={answerState}
+                seed={question.id}
+                height={150}
+              />
+            )}
+            {!!promptText && (
+              <View style={s.bubble}>
+                {!kbUp && <View style={s.tailBorder} />}
+                {!kbUp && <View style={s.tailInner} />}
 
-        {/* 캐릭터 + 말풍선. 지문이 없으면 말풍선은 안 그린다 */}
-        <View style={s.npcRow}>
-          <LessonCharacter
-            state={answerState}
-            seed={question.id}
-            height={150}
-          />
-          {!!promptText && (
-            <View style={s.bubble}>
-              {/* 꼬리 */}
-              <View style={s.tailBorder} />
-              <View style={s.tailInner} />
-
-              <TouchableOpacity
-                onPress={() => speak(promptText, promptLang)}
-                hitSlop={8}
-              >
-                <Ionicons
-                  name="volume-medium"
-                  size={24}
-                  color={isSpeaking ? theme.primary : "#1A9BE6"}
-                />
-              </TouchableOpacity>
-              <View style={s.bubbleTextWrap}>
-                <Text style={s.bubbleText}>{promptText}</Text>
-                <View style={s.dashedUnderline} />
+                <TouchableOpacity
+                  onPress={() => speak(promptText, promptLang)}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="volume-medium"
+                    size={24}
+                    color={isSpeaking ? theme.primary : "#1A9BE6"}
+                  />
+                </TouchableOpacity>
+                <View style={s.bubbleTextWrap}>
+                  <Text style={s.bubbleText}>{promptText}</Text>
+                  <View style={s.dashedUnderline} />
+                </View>
               </View>
+            )}
+          </View>
+
+          {soleWord ? (
+            /* 단어 하나를 쓰는 문제 — 큰 입력 상자 */
+            <View
+              style={[
+                s.wordBox,
+                {
+                  borderColor:
+                    answerState !== "idle"
+                      ? underlineColor
+                      : focused
+                        ? theme.primary
+                        : theme.border,
+                },
+              ]}
+            >
+              <TextInput
+                ref={(el) => {
+                  inputRefs.current[0] = el;
+                }}
+                style={[
+                  s.wordInput,
+                  {
+                    color:
+                      underlineColor === theme.primary
+                        ? theme.text
+                        : underlineColor,
+                  },
+                ]}
+                value={values[0] ?? ""}
+                onChangeText={(txt) => setValue(0, txt)}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                placeholder={t("lesson.typeAnswerPlaceholder")}
+                placeholderTextColor={theme.textSecondary + "99"}
+                editable={!locked}
+                autoFocus
+                autoCorrect={false}
+                spellCheck={false}
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={handleCheck}
+              />
+            </View>
+          ) : (
+            /* 문장 속 빈칸 — 문장을 카드에 담아 칸이 눈에 띄게 */
+            <View style={s.sentenceCard}>
+              <BlankSentence
+                tokens={tokens}
+                values={values}
+                theme={theme}
+                answerState={answerState}
+                mode="input"
+                onChange={setValue}
+                onSubmit={handleCheck}
+                autoFocusFirst
+                fontSize={21}
+              />
             </View>
           )}
-        </View>
 
-        {/* 빈칸 채우기 (빈칸 개수 제한 없음) */}
-        <BlankSentence
-          tokens={tokens}
-          values={values}
-          theme={theme}
-          answerState={answerState}
-          mode="input"
-          onChange={setValue}
-          onSubmit={handleCheck}
-          autoFocusFirst
-          fontSize={22}
-        />
+          {/* 무엇을 써야 하는지 한 줄로 */}
+          {!!formHint && answerState === "idle" && (
+            <View style={s.hintRow}>
+              <Ionicons
+                name="information-circle"
+                size={16}
+                color={theme.primary}
+              />
+              <Text style={s.hintText}>{formHint}</Text>
+            </View>
+          )}
+        </ScrollView>
 
-        <View style={{ flex: 1 }} />
-
-        {/* 확인 버튼 (바닥 고정) */}
+        {/* 확인 버튼 — 스크롤 밖, 키보드 위 */}
         <CheckButton
           onPress={handleCheck}
           disabled={!complete || locked}
@@ -184,7 +279,7 @@ export default function TypeAnswer({
           theme={theme}
         />
       </Animated.View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -196,11 +291,12 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       paddingTop: 8,
       paddingBottom: 12,
     },
+    scroll: { flexGrow: 1, paddingBottom: 16 },
     title: {
       fontSize: 22,
       fontWeight: "800",
       color: theme.text,
-      marginBottom: 24,
+      marginBottom: 20,
     },
 
     // 캐릭터 + 말풍선
@@ -208,8 +304,9 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      marginBottom: 32,
+      marginBottom: 28,
     },
+    npcRowCompact: { marginBottom: 16 },
     bubble: {
       flex: 1,
       backgroundColor: theme.surface,
@@ -266,7 +363,41 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       marginTop: 4,
     },
 
-    // 입력 밑줄 스타일
-
-    // 확인 버튼
+    // 단어 입력 상자 — 입체 카드
+    wordBox: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      borderWidth: 2,
+      borderBottomWidth: 4,
+      paddingHorizontal: 18,
+      paddingVertical: 6,
+    },
+    wordInput: {
+      fontSize: 24,
+      fontWeight: "800",
+      paddingVertical: 12,
+      letterSpacing: 0.5,
+    },
+    sentenceCard: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      borderBottomWidth: 4,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+    },
+    hintRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      marginTop: 12,
+      paddingHorizontal: 4,
+    },
+    hintText: {
+      flex: 1,
+      fontSize: 13.5,
+      fontWeight: "700",
+      color: theme.textSecondary,
+    },
   });

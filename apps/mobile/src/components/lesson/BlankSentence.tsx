@@ -104,9 +104,15 @@ export default function BlankSentence({
               style={[
                 s.blank,
                 soleBlank
-                  ? s.blankFull
-                  : { minWidth, alignItems: "center" as const },
-                { borderBottomColor: accent },
+                  ? [s.blankFull, { borderBottomColor: accent }]
+                  : [
+                      s.blankBox,
+                      {
+                        minWidth: minWidth + 12,
+                        borderColor: accent,
+                        backgroundColor: accent + "14",
+                      },
+                    ],
               ]}
             >
               <TextInput
@@ -209,6 +215,15 @@ const s = StyleSheet.create({
     alignItems: "stretch",
     marginHorizontal: 0,
     paddingBottom: 4,
+  },
+  /** 문장 속 입력 칸 — 밑줄 한 줄이면 칸이 안 보여서 테두리 있는 알약으로 */
+  blankBox: {
+    alignItems: "center",
+    borderBottomWidth: 2,
+    borderWidth: 2,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    marginVertical: 3,
   },
   slotText: { textAlign: "center" },
   input: {

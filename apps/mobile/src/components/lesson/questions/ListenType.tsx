@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -13,10 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useEffect, useRef, useState } from "react";
-import {
-  AUTO_SPEECH_DELAY_MS,
-  type SpeechController,
-} from "@/hooks/useSpeech";
+import { AUTO_SPEECH_DELAY_MS, type SpeechController } from "@/hooks/useSpeech";
 import LessonCharacter from "../LessonCharacter";
 import CheckButton from "../CheckButton";
 
@@ -63,7 +62,10 @@ export default function ListenType({
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <Animated.View entering={FadeIn.duration(150)} style={s.container}>
         <ScrollView
           style={{ flex: 1 }}
@@ -141,7 +143,7 @@ export default function ListenType({
           onSkip={onSkip}
         />
       </Animated.View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -9,6 +9,8 @@ import {
   TextInput,
   useWindowDimensions,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, {
   FadeIn,
@@ -152,252 +154,262 @@ export default function TranslateType({
   };
 
   return (
-    <Animated.View entering={FadeIn.duration(180)} style={s.container}>
-      <ScrollView
-        style={s.scroll}
-        contentContainerStyle={s.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Animated.View entering={FadeInDown.duration(320)} style={s.header}>
-          <View
-            style={[s.headerIcon, { backgroundColor: `${theme.primary}14` }]}
-          >
-            <Ionicons name="language" size={23} color={theme.primary} />
-          </View>
-          <View style={s.headerCopy}>
-            <Text style={s.title}>{t("lesson.translateSentence")}</Text>
-            <Text style={s.subtitle}>{t("lesson.translateTypeHint")}</Text>
-          </View>
-          {question.hard ? (
-            <View style={s.hardBadge}>
-              <MaterialCommunityIcons name="dumbbell" size={14} color="#fff" />
-              <Text style={s.hardText}>{t("lesson.hardPractice")}</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <Animated.View entering={FadeIn.duration(180)} style={s.container}>
+        <ScrollView
+          style={s.scroll}
+          contentContainerStyle={s.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Animated.View entering={FadeInDown.duration(320)} style={s.header}>
+            <View
+              style={[s.headerIcon, { backgroundColor: `${theme.primary}14` }]}
+            >
+              <Ionicons name="language" size={23} color={theme.primary} />
             </View>
-          ) : null}
-        </Animated.View>
-
-        <Animated.View entering={FadeInDown.delay(70).duration(340)}>
-          <LinearGradient
-            colors={[`${theme.primary}1F`, `${MIC_BLUE}12`]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[s.sourceCard, compact && s.sourceCardCompact]}
-          >
-            <View style={s.sourceOrbLarge} />
-            <View style={s.sourceOrbSmall} />
-            <View style={s.sourceTopRow}>
-              <View style={s.sourceLabelWrap}>
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={15}
-                  color={theme.primary}
+            <View style={s.headerCopy}>
+              <Text style={s.title}>{t("lesson.translateSentence")}</Text>
+              <Text style={s.subtitle}>{t("lesson.translateTypeHint")}</Text>
+            </View>
+            {question.hard ? (
+              <View style={s.hardBadge}>
+                <MaterialCommunityIcons
+                  name="dumbbell"
+                  size={14}
+                  color="#fff"
                 />
-                <Text style={[s.sourceLabel, { color: theme.primary }]}>
-                  {t("lesson.sourceSentence")}
+                <Text style={s.hardText}>{t("lesson.hardPractice")}</Text>
+              </View>
+            ) : null}
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(70).duration(340)}>
+            <LinearGradient
+              colors={[`${theme.primary}1F`, `${MIC_BLUE}12`]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[s.sourceCard, compact && s.sourceCardCompact]}
+            >
+              <View style={s.sourceOrbLarge} />
+              <View style={s.sourceOrbSmall} />
+              <View style={s.sourceTopRow}>
+                <View style={s.sourceLabelWrap}>
+                  <Ionicons
+                    name="chatbubble-ellipses-outline"
+                    size={15}
+                    color={theme.primary}
+                  />
+                  <Text style={[s.sourceLabel, { color: theme.primary }]}>
+                    {t("lesson.sourceSentence")}
+                  </Text>
+                </View>
+                <View
+                  style={[s.directionPill, { backgroundColor: theme.surface }]}
+                >
+                  <Text style={[s.directionText, { color: theme.primary }]}>
+                    {t("lesson.toKorean")}
+                  </Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={13}
+                    color={theme.primary}
+                  />
+                </View>
+              </View>
+
+              <View style={s.sourceQuoteRow}>
+                <Text style={[s.quoteMark, { color: `${theme.primary}80` }]}>
+                  {"“"}
+                </Text>
+                <Text
+                  style={[
+                    s.sourceText,
+                    compact && s.sourceTextCompact,
+                    { color: theme.text },
+                  ]}
+                >
+                  {sourceText}
                 </Text>
               </View>
-              <View
-                style={[s.directionPill, { backgroundColor: theme.surface }]}
-              >
-                <Text style={[s.directionText, { color: theme.primary }]}>
-                  {t("lesson.toKorean")}
+            </LinearGradient>
+          </Animated.View>
+
+          <Animated.View
+            entering={FadeInDown.delay(120).duration(340)}
+            style={[
+              s.answerCard,
+              compact && s.answerCardCompact,
+              {
+                backgroundColor: theme.surface,
+                borderColor:
+                  focused || answerState !== "idle" ? accent : theme.border,
+                shadowColor: theme.text,
+              },
+            ]}
+          >
+            <View style={s.answerTopRow}>
+              <View style={s.answerLabelWrap}>
+                <View
+                  style={[s.answerIcon, { backgroundColor: `${accent}14` }]}
+                >
+                  <Ionicons
+                    name={
+                      answerState === "correct"
+                        ? "checkmark"
+                        : answerState === "wrong"
+                          ? "close"
+                          : "create-outline"
+                    }
+                    size={17}
+                    color={accent}
+                  />
+                </View>
+                <Text style={[s.answerLabel, { color: theme.text }]}>
+                  {t("lesson.yourKoreanAnswer")}
                 </Text>
-                <Ionicons name="arrow-forward" size={13} color={theme.primary} />
               </View>
+              {input && !locked ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("lesson.clearAnswer")}
+                  hitSlop={8}
+                  onPress={() => setInput("")}
+                  style={({ pressed }) => [
+                    s.clearButton,
+                    { backgroundColor: `${theme.textSecondary}10` },
+                    pressed && s.pressed,
+                  ]}
+                >
+                  <Ionicons
+                    name="close-circle"
+                    size={18}
+                    color={theme.textSecondary}
+                  />
+                  <Text style={[s.clearText, { color: theme.textSecondary }]}>
+                    {t("lesson.clear")}
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
 
-            <View style={s.sourceQuoteRow}>
-              <Text style={[s.quoteMark, { color: `${theme.primary}80` }]}>
-                {"“"}
+            <TextInput
+              style={[
+                s.input,
+                compact && s.inputCompact,
+                { color: theme.text },
+              ]}
+              value={input}
+              onChangeText={changeInput}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder={t("lesson.enterKoreanAnswer")}
+              placeholderTextColor={`${theme.textSecondary}A6`}
+              editable={!locked}
+              multiline
+              maxLength={300}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+              textAlignVertical="top"
+              onSubmitEditing={check}
+            />
+
+            <View
+              style={[s.answerDivider, { backgroundColor: theme.border }]}
+            />
+            <View style={s.answerFooter}>
+              <View style={[s.koreanDot, { backgroundColor: accent }]} />
+              <Text style={[s.answerHelper, { color: theme.textSecondary }]}>
+                {t("lesson.answerInKorean")}
               </Text>
-              <Text
-                style={[
-                  s.sourceText,
-                  compact && s.sourceTextCompact,
-                  { color: theme.text },
-                ]}
-              >
-                {sourceText}
+              <Text style={[s.characterCount, { color: theme.textSecondary }]}>
+                {input.length}/300
               </Text>
             </View>
-          </LinearGradient>
-        </Animated.View>
+          </Animated.View>
+
+          {!!voiceErrorKey && !locked ? (
+            <Animated.View entering={FadeIn.duration(180)} style={s.errorCard}>
+              <Ionicons name="alert-circle" size={17} color={WRONG} />
+              <Text style={s.voiceError}>{t(voiceErrorKey)}</Text>
+            </Animated.View>
+          ) : null}
+        </ScrollView>
 
         <Animated.View
-          entering={FadeInDown.delay(120).duration(340)}
-          style={[
-            s.answerCard,
-            compact && s.answerCardCompact,
-            {
-              backgroundColor: theme.surface,
-              borderColor:
-                focused || answerState !== "idle" ? accent : theme.border,
-              shadowColor: theme.text,
-            },
-          ]}
+          entering={FadeInDown.delay(170).duration(340)}
+          style={s.actions}
         >
-          <View style={s.answerTopRow}>
-            <View style={s.answerLabelWrap}>
-              <View
-                style={[s.answerIcon, { backgroundColor: `${accent}14` }]}
-              >
-                <Ionicons
-                  name={
-                    answerState === "correct"
-                      ? "checkmark"
-                      : answerState === "wrong"
-                        ? "close"
-                        : "create-outline"
-                  }
-                  size={17}
-                  color={accent}
-                />
-              </View>
-              <Text style={[s.answerLabel, { color: theme.text }]}>
-                {t("lesson.yourKoreanAnswer")}
-              </Text>
-            </View>
-            {input && !locked ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t("lesson.clearAnswer")}
-                hitSlop={8}
-                onPress={() => setInput("")}
-                style={({ pressed }) => [
-                  s.clearButton,
-                  { backgroundColor: `${theme.textSecondary}10` },
-                  pressed && s.pressed,
-                ]}
-              >
-                <Ionicons
-                  name="close-circle"
-                  size={18}
-                  color={theme.textSecondary}
-                />
-                <Text style={[s.clearText, { color: theme.textSecondary }]}>
-                  {t("lesson.clear")}
-                </Text>
-              </Pressable>
-            ) : null}
-          </View>
-
-          <TextInput
-            style={[
-              s.input,
-              compact && s.inputCompact,
-              { color: theme.text },
-            ]}
-            value={input}
-            onChangeText={changeInput}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            placeholder={t("lesson.enterKoreanAnswer")}
-            placeholderTextColor={`${theme.textSecondary}A6`}
-            editable={!locked}
-            multiline
-            maxLength={300}
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-            textAlignVertical="top"
-            onSubmitEditing={check}
-          />
-
-          <View style={[s.answerDivider, { backgroundColor: theme.border }]} />
-          <View style={s.answerFooter}>
-            <View style={[s.koreanDot, { backgroundColor: accent }]} />
-            <Text style={[s.answerHelper, { color: theme.textSecondary }]}>
-              {t("lesson.answerInKorean")}
-            </Text>
-            <Text style={[s.characterCount, { color: theme.textSecondary }]}>
-              {input.length}/300
-            </Text>
-          </View>
-        </Animated.View>
-
-        {!!voiceErrorKey && !locked ? (
-          <Animated.View entering={FadeIn.duration(180)} style={s.errorCard}>
-            <Ionicons name="alert-circle" size={17} color={WRONG} />
-            <Text style={s.voiceError}>{t(voiceErrorKey)}</Text>
-          </Animated.View>
-        ) : null}
-      </ScrollView>
-
-      <Animated.View
-        entering={FadeInDown.delay(170).duration(340)}
-        style={s.actions}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t("lesson.tapToSpeak")}
-          accessibilityState={{ disabled: locked || transcribing }}
-          onPress={toggleVoice}
-          disabled={locked || transcribing}
-          style={({ pressed }) => [
-            s.micButton,
-            {
-              backgroundColor: recording ? MIC_BLUE : `${MIC_BLUE}0E`,
-              borderColor: recording ? MIC_BLUE : `${MIC_BLUE}35`,
-            },
-            pressed && s.pressed,
-            (locked || transcribing) && s.disabled,
-          ]}
-        >
-          <Animated.View
-            style={[
-              s.micIcon,
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("lesson.tapToSpeak")}
+            accessibilityState={{ disabled: locked || transcribing }}
+            onPress={toggleVoice}
+            disabled={locked || transcribing}
+            style={({ pressed }) => [
+              s.micButton,
               {
-                backgroundColor: recording
-                  ? "rgba(255,255,255,0.2)"
-                  : MIC_BLUE,
+                backgroundColor: recording ? MIC_BLUE : `${MIC_BLUE}0E`,
+                borderColor: recording ? MIC_BLUE : `${MIC_BLUE}35`,
               },
-              pulseStyle,
+              pressed && s.pressed,
+              (locked || transcribing) && s.disabled,
             ]}
           >
-            <Ionicons
-              name={
-                transcribing ? "sparkles" : recording ? "stop" : "mic"
-              }
-              size={20}
-              color="#FFFFFF"
-            />
-          </Animated.View>
-          <View style={s.micCopy}>
-            <Text
+            <Animated.View
               style={[
-                s.micText,
-                { color: recording ? "#FFFFFF" : MIC_BLUE },
+                s.micIcon,
+                {
+                  backgroundColor: recording
+                    ? "rgba(255,255,255,0.2)"
+                    : MIC_BLUE,
+                },
+                pulseStyle,
               ]}
             >
-              {recording
-                ? t("lesson.recording")
-                : transcribing
-                  ? t("lesson.speaking.analyzing")
-                  : t("lesson.tapToSpeak")}
-            </Text>
-            {!compact && !recording ? (
-              <Text style={[s.micHint, { color: theme.textSecondary }]}>
-                {t("lesson.voiceFillsAnswer")}
+              <Ionicons
+                name={transcribing ? "sparkles" : recording ? "stop" : "mic"}
+                size={20}
+                color="#FFFFFF"
+              />
+            </Animated.View>
+            <View style={s.micCopy}>
+              <Text
+                style={[s.micText, { color: recording ? "#FFFFFF" : MIC_BLUE }]}
+              >
+                {recording
+                  ? t("lesson.recording")
+                  : transcribing
+                    ? t("lesson.speaking.analyzing")
+                    : t("lesson.tapToSpeak")}
               </Text>
-            ) : null}
-          </View>
-          <Ionicons
-            name={recording ? "pulse" : "chevron-forward"}
-            size={18}
-            color={recording ? "#FFFFFF" : MIC_BLUE}
-          />
-        </Pressable>
+              {!compact && !recording ? (
+                <Text style={[s.micHint, { color: theme.textSecondary }]}>
+                  {t("lesson.voiceFillsAnswer")}
+                </Text>
+              ) : null}
+            </View>
+            <Ionicons
+              name={recording ? "pulse" : "chevron-forward"}
+              size={18}
+              color={recording ? "#FFFFFF" : MIC_BLUE}
+            />
+          </Pressable>
 
-        <CheckButton
-          onPress={check}
-          disabled={!input.trim() || locked || recording || transcribing}
-          loading={isChecking}
-          theme={theme}
-          style={s.checkButton}
-        />
+          <CheckButton
+            onPress={check}
+            disabled={!input.trim() || locked || recording || transcribing}
+            loading={isChecking}
+            theme={theme}
+            style={s.checkButton}
+          />
+        </Animated.View>
       </Animated.View>
-    </Animated.View>
+    </KeyboardAvoidingView>
   );
 }
 
