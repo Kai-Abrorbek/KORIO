@@ -2385,22 +2385,27 @@ export class LessonsService {
    * 하루 노드 완료(user.completedStudyNodes). 예전에는 두 화면이 이걸 같이
    * 불러서 같은 숫자가 떴다.
    */
-  async getScore(userId: string, lang = 'uz') {
+  async getScore(userId: string, lang = 'uz', category?: string) {
     const uId = new Types.ObjectId(userId);
 
-    // 자유 학습 로드맵이 보여주는 노드와 같은 범위로 센다.
-    // 예전에는 문법 트랙 노드까지 전부 셌는데, 그러면 화면에 보이지도 않는
-    // 진도가 숫자에 섞인다 (로드맵 노드 필터와 같은 조건이다).
+    // 자유 학습 로드맵이 보여주는 노드와 같은 범위로 센다 (getRoadmap 과 같은 필터).
+    // 예전에는 트랙 구분이 없어서, 문법 로드맵의 "전체 섹션" 에 어휘 섹션(1~5)과
+    // 어휘 진도가 떴다 — 문법은 섹션 4 까지밖에 없는데 5 가 보였다.
+    const nodeFilter: Record<string, any> = {
+      isActive: true,
+      nodeType: { $ne: 'chest' },
+    };
+    if (category && category !== 'vocabulary') {
+      nodeFilter.category = category;
+    } else {
+      nodeFilter.$or = [
+        { category: { $exists: false } },
+        { category: null },
+        { category: LessonCategory.VOCABULARY },
+      ];
+    }
     const nodes = await this.nodeModel
-      .find({
-        isActive: true,
-        nodeType: { $ne: 'chest' },
-        $or: [
-          { category: { $exists: false } },
-          { category: null },
-          { category: LessonCategory.VOCABULARY },
-        ],
-      })
+      .find(nodeFilter)
       .select('section unit lessonIds')
       .lean();
 

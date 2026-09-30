@@ -579,6 +579,7 @@ export default function RoadmapScreen() {
 
       <SectionListSheet
         visible={sectionSheet}
+        category={category ?? undefined}
         viewingSection={viewingSection}
         onClose={() => setSectionSheet(false)}
         onOpenSection={(section) => {

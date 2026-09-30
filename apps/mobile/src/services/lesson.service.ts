@@ -259,8 +259,11 @@ export const LessonService = {
   }> =>
     api.post(`/lessons/jump-complete`, { attemptId, wrongQuestionIds }),
 
-  getScore: (): Promise<ScoreData> =>
-    api.get(`/lessons/score?lang=${getLang()}`),
+  /** category 를 안 주면 어휘. 문법 로드맵이면 "grammar" — 섹션 수·진도가 트랙마다 다르다 */
+  getScore: (category?: string): Promise<ScoreData> =>
+    api.get(
+      `/lessons/score?lang=${getLang()}${category ? `&category=${encodeURIComponent(category)}` : ""}`,
+    ),
 
   completeLegend: (
     nodeId: string,

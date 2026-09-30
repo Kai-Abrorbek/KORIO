@@ -164,7 +164,8 @@ export function RoadmapScreen() {
     setSheetOpen(true);
     setSectionScore(null);
     try {
-      setSectionScore(await getRoadmapScore(request));
+      // 트랙별로 센다 — 안 넘기면 문법 로드맵에 어휘 섹션(1~5)이 떴다
+      setSectionScore(await getRoadmapScore(request, category));
     } catch {
       setSectionScore({
         completedUnits: 0,

@@ -18,10 +18,14 @@ export function getRoadmap(
   return request<RoadmapResponse>(`/lessons/roadmap?${query.toString()}`);
 }
 
+/** category 를 안 주면 어휘. 문법 로드맵이면 "grammar" — 섹션 수·진도가 트랙마다 다르다 */
 export function getRoadmapScore(
   request: AuthenticatedRequest,
+  category?: string | null,
 ): Promise<RoadmapScoreResponse> {
-  return request<RoadmapScoreResponse>(`/lessons/score?lang=${getContentLang()}`);
+  const query = new URLSearchParams({ lang: getContentLang() });
+  if (category && category !== "vocabulary") query.set("category", category);
+  return request<RoadmapScoreResponse>(`/lessons/score?${query.toString()}`);
 }
 
 /**

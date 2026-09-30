@@ -55,8 +55,11 @@ export default function SectionListSheet({
   onClose,
   onOpenSection,
   onJumpSection,
+  category,
 }: {
   visible: boolean;
+  /** 로드맵 트랙. "grammar" 면 문법 섹션만 센다 (없으면 어휘) */
+  category?: string;
   viewingSection?: number;
   onClose: () => void;
   onOpenSection: (section: number, firstUnit: number) => void;
@@ -90,10 +93,12 @@ export default function SectionListSheet({
     if (!visible) return;
     let alive = true;
     setLoading(true);
+    // 학습 로드는 어휘 트랙 전용이다. 문법 로드맵은 모드와 상관없이 문법 섹션으로 센다
+    const grammar = !!category && category !== "vocabulary";
     const req =
-      studyMode === "guided"
+      studyMode === "guided" && !grammar
         ? StudyPathService.getScore()
-        : LessonService.getScore();
+        : LessonService.getScore(grammar ? category : undefined);
     req
       .then((d) => alive && setSc(d))
       .catch(() => alive && setSc(EMPTY))
@@ -101,7 +106,7 @@ export default function SectionListSheet({
     return () => {
       alive = false;
     };
-  }, [visible, studyMode]);
+  }, [visible, studyMode, category]);
 
   // 아래로 끌어서 닫기
   const dragClose = Gesture.Pan()
