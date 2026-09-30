@@ -38,12 +38,24 @@ export function StreakDayScreen() {
     });
   }, [params]);
 
+  // 연속 학습(하루) → 스코어 상승(유닛) → 상자(노드) → 원래 가던 곳
   const proceed = () => {
     const scoreUp = params.get("scoreUp");
     const category = params.get("category");
+    const chestGrade = params.get("chestGrade");
+    const chest = {
+      chestGems: params.get("chestGems") ?? "",
+      chestGrade: chestGrade ?? "",
+      gemTotal: params.get("gemTotal") ?? "",
+    };
     if (scoreUp) {
-      const next = new URLSearchParams({ score: scoreUp, unit: params.get("scoreUpUnit") ?? "", category: category ?? "" });
+      const next = new URLSearchParams({ ...chest, score: scoreUp, unit: params.get("scoreUpUnit") ?? "", category: category ?? "", from: params.get("from") ?? "" });
       router.replace(`/score-up?${next.toString()}`);
+      return;
+    }
+    if (chestGrade) {
+      const next = new URLSearchParams({ category: category ?? "", from: params.get("from") ?? "", gemTotal: chest.gemTotal || "0", gems: chest.chestGems || "0", grade: chestGrade });
+      router.replace(`/chest-reward?${next.toString()}`);
       return;
     }
     router.replace(category ? `/roadmap?category=${encodeURIComponent(category)}` : "/home");

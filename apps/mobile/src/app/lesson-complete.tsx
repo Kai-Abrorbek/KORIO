@@ -118,6 +118,10 @@ export default function LessonCompleteScreen() {
           scoreUpUnit: params.scoreUpUnit ?? "",
           category: params.category ?? "",
           from: params.from ?? "",
+          // 노드를 끝냈으면 상자 — 축하 화면들이 순서대로 넘겨받는다 (빠뜨리면 상자가 사라진다)
+          chestGrade: params.chestGrade ?? "",
+          chestGems: params.chestGems ?? "",
+          gemTotal: params.gemTotal ?? "",
         },
       });
       return;
@@ -132,6 +136,11 @@ export default function LessonCompleteScreen() {
           score: params.scoreUp,
           unit: params.scoreUpUnit ?? "",
           category: params.category ?? "",
+          from: params.from ?? "",
+          // 노드를 끝냈으면 상자 — 축하 화면들이 순서대로 넘겨받는다 (빠뜨리면 상자가 사라진다)
+          chestGrade: params.chestGrade ?? "",
+          chestGems: params.chestGems ?? "",
+          gemTotal: params.gemTotal ?? "",
         },
       });
       return;

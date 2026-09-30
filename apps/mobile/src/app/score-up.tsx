@@ -42,6 +42,11 @@ export default function ScoreUpScreen() {
     score?: string;
     unit?: string;
     category?: string;
+    from?: string;
+    /** 이 레슨으로 노드도 끝났으면 상자 — 스코어 축하 다음에 연다 */
+    chestGrade?: string;
+    chestGems?: string;
+    gemTotal?: string;
   }>();
   const score = Number(params.score ?? 0);
   const prev = Math.max(0, score - 1);
@@ -85,12 +90,26 @@ export default function ScoreUpScreen() {
   }));
   const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.5 }));
 
-  const goOn = () =>
+  const goOn = () => {
+    if (params.chestGrade) {
+      router.replace({
+        pathname: "/chest-reward",
+        params: {
+          grade: params.chestGrade,
+          gems: params.chestGems ?? "0",
+          gemTotal: params.gemTotal ?? "0",
+          category: params.category ?? "",
+          from: params.from ?? "",
+        },
+      });
+      return;
+    }
     router.replace(
       params.category
         ? { pathname: "/roadmap", params: { category: params.category } }
         : "/roadmap",
     );
+  };
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>

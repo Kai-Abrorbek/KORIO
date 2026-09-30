@@ -161,8 +161,17 @@ export function LessonCompleteScreen() {
     const dailyStreak = params.get("dailyStreak");
     const scoreUp = params.get("scoreUp");
     const chestGrade = params.get("chestGrade");
+    // 노드를 끝내서 받은 상자 — 앞의 축하들이 순서대로 넘겨받는다.
+    // 예전엔 연속 학습·스코어 화면으로 가면 이 값이 빠져서, 오늘 첫 레슨으로
+    // 노드를 끝내면 보석은 들어갔는데 상자 화면은 영영 안 떴다.
+    const chest = {
+      chestGems: params.get("chestGems") ?? "",
+      chestGrade: chestGrade ?? "",
+      gemTotal: params.get("gemTotal") ?? "",
+    };
     if (dailyStreak) {
       const query = new URLSearchParams({
+        ...chest,
         category: category ?? "",
         from: from ?? "",
         scoreUp: scoreUp ?? "",
@@ -175,7 +184,9 @@ export function LessonCompleteScreen() {
     }
     if (scoreUp) {
       const query = new URLSearchParams({
+        ...chest,
         category: category ?? "",
+        from: from ?? "",
         score: scoreUp,
         unit: params.get("scoreUpUnit") ?? "",
       });

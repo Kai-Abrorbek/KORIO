@@ -56,6 +56,10 @@ export default function StreakDayScreen() {
     scoreUpUnit?: string;
     category?: string;
     from?: string;
+    /** 노드를 끝내서 받은 상자. 축하가 끝나면 상자 화면으로 이어 간다 */
+    chestGrade?: string;
+    chestGems?: string;
+    gemTotal?: string;
   }>();
 
   const streak = Math.max(1, Number(params.streak ?? 1) || 1);
@@ -182,7 +186,14 @@ export default function StreakDayScreen() {
   const onContinue = () => {
     // 스코어까지 올랐으면 그 축하를 이어서 보여준다.
     // 두 축하가 겹치면 안 되니 순서를 여기서 한 번만 정한다:
-    //   연속 학습(하루) → 스코어 상승(유닛) → 원래 가던 곳
+    //   연속 학습(하루) → 스코어 상승(유닛) → 상자(노드) → 원래 가던 곳
+    // 예전엔 여기서 상자 값을 안 넘겨서, 오늘 첫 레슨으로 노드를 끝내면
+    // 보석은 들어갔는데 상자 화면은 영영 안 떴다.
+    const chest = {
+      chestGrade: params.chestGrade ?? "",
+      chestGems: params.chestGems ?? "",
+      gemTotal: params.gemTotal ?? "",
+    };
     if (params.scoreUp) {
       router.replace({
         pathname: "/score-up",
@@ -190,6 +201,21 @@ export default function StreakDayScreen() {
           score: params.scoreUp,
           unit: params.scoreUpUnit ?? "",
           category: params.category ?? "",
+          from: params.from ?? "",
+          ...chest,
+        },
+      });
+      return;
+    }
+    if (params.chestGrade) {
+      router.replace({
+        pathname: "/chest-reward",
+        params: {
+          grade: params.chestGrade,
+          gems: params.chestGems ?? "0",
+          gemTotal: params.gemTotal ?? "0",
+          category: params.category ?? "",
+          from: params.from ?? "",
         },
       });
       return;
