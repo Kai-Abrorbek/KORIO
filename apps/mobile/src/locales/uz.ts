@@ -307,37 +307,18 @@ export default {
     footer:
       "KORIO'ni yaxshilashda davom etamiz. Fikringizni yordam markazi orqali yuboring!",
     tags: { new: "Yangi", improve: "Yaxshilandi", fix: "Tuzatildi" },
-    notes: {
-      v1_2_400: {
-        items: [
-          "new|Talaffuz mashqi 120 ta koreyscha minimal juftlik bilan qaytadan yozildi.",
-          "new|Akkauntni boshqarish va yordam markazi sahifalari qo'shildi.",
-          "new|Ovoz sozlamalarida balandlik, nutq tezligi va tebranishni boshqarasiz.",
-          "improve|O'quv rejimi va TOPIK darajasi akkauntda saqlanadi — qurilma almashsa ham qoladi.",
-          "fix|Grammatika mashqida javob oldindan ko'rinib qolayotgani tuzatildi.",
-        ],
-      },
-      v1_2_300: {
-        items: [
-          "new|Grammatika mashqlari yo'l xaritasiga o'tdi. XP va mukofotlar ham beriladi.",
-          "new|Bildirishnomalar markazi ochildi: do'stlar, liga va mukofotlar bir joyda.",
-          "improve|Dars sahifasida tasdiqlash tugmasi berkilib qolishi tuzatildi.",
-        ],
-      },
-      v1_2_200: {
-        items: [
-          "new|Hangul slot o'yini qo'shildi.",
-          "improve|So'z juftlash o'yini endi siz o'rgangan so'zlardan tuziladi.",
-          "fix|SUPER foydalanuvchilarda energiya kamayib ketayotgani tuzatildi.",
-        ],
-      },
-      v1_2_100: {
-        items: [
-          "new|Ball sahifasida bo'limlar bo'yicha jarayonni ko'rasiz.",
-          "improve|Hangulni endi boshlaganlar yo'l xaritasining birinchi bosqichidan boshlaydi.",
-          "fix|Tungi rejimda kartalar ko'rinmay qolayotgani tuzatildi.",
-        ],
-      },
+    latest: "Eng so‘nggi",
+    loadFailed: "Yangilanishlar tarixini yuklab bo‘lmadi",
+    retry: "Qayta urinish",
+    prompt: {
+      title: "Yangi versiya chiqdi!",
+      body: "Yanada yaxshilangan KORIO bilan tanishing. Yangilash bir daqiqa oladi.",
+      cta: "Yangilash",
+      later: "Keyinroq",
+    },
+    force: {
+      title: "Yangilash kerak",
+      body: "Bu versiya endi qo‘llab-quvvatlanmaydi. O‘qishni davom ettirish uchun eng so‘nggi versiyaga yangilang.",
     },
   },
   games: {

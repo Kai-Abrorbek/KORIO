@@ -287,6 +287,9 @@ export default {
     medalTitle: "Monthly medals",
   },
   update: {
+    latest: "Latest",
+    loadFailed: "Couldn't load the update history",
+    retry: "Try again",
     upToDate: "You're on the latest version",
     outdated: "v{{version}} is available",
     current: "Current",

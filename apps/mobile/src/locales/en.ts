@@ -305,37 +305,18 @@ export default {
     footer:
       "We're still making KORIO better. Send us your thoughts from the help center!",
     tags: { new: "New", improve: "Improved", fix: "Fixed" },
-    notes: {
-      v1_2_400: {
-        items: [
-          "new|Pronunciation practice rebuilt around 120 Korean minimal pairs.",
-          "new|Account management and help center screens.",
-          "new|Sound settings: volume, speaking speed and vibration controls.",
-          "improve|Your learning mode and TOPIK level are stored on your account, so they follow you to a new phone.",
-          "fix|The answer was visible before you solved a grammar drill. Fixed.",
-        ],
-      },
-      v1_2_300: {
-        items: [
-          "new|Grammar drills moved onto the roadmap, with the same XP and rewards.",
-          "new|Notification center — friends, league and rewards in one place.",
-          "improve|The check button no longer gets hidden on lesson screens.",
-        ],
-      },
-      v1_2_200: {
-        items: [
-          "new|Added the Jamo Slot game.",
-          "improve|The word match game now uses words you've actually learned.",
-          "fix|SUPER members were still losing energy. Fixed.",
-        ],
-      },
-      v1_2_100: {
-        items: [
-          "new|Score screen shows your progress section by section.",
-          "improve|Complete beginners now start from the Hangul node on the roadmap.",
-          "fix|Cards were hard to see in dark mode. Fixed.",
-        ],
-      },
+    latest: "Latest",
+    loadFailed: "Couldn't load the update history",
+    retry: "Try again",
+    prompt: {
+      title: "A new version is out!",
+      body: "Meet an even better KORIO. Updating takes about a minute.",
+      cta: "Update",
+      later: "Later",
+    },
+    force: {
+      title: "Update required",
+      body: "This version is no longer supported. Please update to the latest version to keep learning.",
     },
   },
   games: {

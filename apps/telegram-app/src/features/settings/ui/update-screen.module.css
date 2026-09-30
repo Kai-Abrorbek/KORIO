@@ -27,3 +27,11 @@
 .item>p,.card>p{min-width:0;flex:1;margin:0;color:var(--text);font-size:14px;font-weight:500;line-height:21px}
 .footer{margin:8px 28px 0;color:var(--secondary);font-size:12px;font-weight:500;text-align:center}
 :global(html[data-theme="dark"]) .screen{--bg:#15151d;--surface:#25252e;--text:#fff;--secondary:#a6a6b3;--border:#3a3a44}
+.entry{animation:entryIn .26s ease-out both}
+@keyframes entryIn{from{opacity:0;transform:translateY(10px)}}
+.versionBadge{border-radius:7px;background:rgb(119 110 226 / 12%);color:var(--primary);padding:3px 8px;font-size:11px;font-weight:800}
+.state{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:30px;color:var(--secondary)}
+.state p{margin:0;font-size:14px;font-weight:600}
+.state button{border:0;border-radius:99px;background:var(--primary);color:#fff;padding:9px 18px;font-size:14px;font-weight:800}
+.spinner{display:block;width:28px;height:28px;margin:30px auto 0;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}

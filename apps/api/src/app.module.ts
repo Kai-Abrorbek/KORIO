@@ -27,6 +27,7 @@ import { ExpressionsModule } from './expressions/expressions.module';
 import { StudyPathModule } from './study-path/study-path.module';
 import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
 import { HealthModule } from './health/health.module';
+import { AppReleaseModule } from './app-release/app-release.module';
 import { PushModule } from './push/push.module';
 import { ReferralModule } from './referral/referral.module';
 import { AnalyticsModule } from './analytics/analytics.module';
@@ -67,6 +68,7 @@ import { AdminModule } from './admin/admin.module';
     StudyPathModule,
     ReadingLessonsModule,
     HealthModule,
+    AppReleaseModule,
     PushModule,
     ReferralModule,
     AnalyticsModule,

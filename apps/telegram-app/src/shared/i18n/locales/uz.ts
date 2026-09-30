@@ -289,6 +289,9 @@ export default {
     medalTitle: "Bu oylik medal",
   },
   update: {
+    latest: "Eng so‘nggi",
+    loadFailed: "Yangilanishlar tarixini yuklab bo‘lmadi",
+    retry: "Qayta urinish",
     upToDate: "Eng so'nggi versiyadasiz",
     outdated: "v{{version}} chiqdi",
     current: "Joriy",

@@ -20,6 +20,7 @@ import ErrorModal from "@/components/common/ErrorModal";
 import PremiumGateModal from "@/components/subscription/PremiumGateModal";
 import { usePresenceHeartbeat } from "@/hooks/usePresenceHeartbeat";
 import TourOverlay from "@/features/tour/TourOverlay";
+import AppUpdateGate from "@/components/app/AppUpdateGate";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -315,6 +316,8 @@ export default function RootLayout() {
 
           {/* 전역 에러 처리 모달*/}
           <ErrorModal />
+          {/* 스토어에 새 버전이 나오면 업데이트 안내 (필수면 닫을 수 없음) */}
+          <AppUpdateGate />
           {/* 전역 에너지 부족 모달 — 어느 화면에서든 뜸 */}
           <EnergyModal
             visible={energyModalVisible}

@@ -288,6 +288,9 @@ export default {
     medalTitle: "Медали месяца",
   },
   update: {
+    latest: "Новое",
+    loadFailed: "Не удалось загрузить историю обновлений",
+    retry: "Повторить",
     upToDate: "У вас последняя версия",
     outdated: "Вышла версия v{{version}}",
     current: "Текущая",

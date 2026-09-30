@@ -287,6 +287,9 @@ export default {
     medalTitle: "이달의 학습 메달",
   },
   update: {
+    latest: "최신",
+    loadFailed: "업데이트 기록을 불러오지 못했어요",
+    retry: "다시 시도",
     upToDate: "최신 버전을 쓰고 있어요",
     outdated: "v{{version}} 이 나왔어요",
     current: "사용 중",

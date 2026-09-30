@@ -2,15 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { apiRequest } from "../../../shared/api/client";
+import { useAppLanguage } from "../../../shared/i18n/language-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import {
-  APP_VERSION,
-  CHANGELOG,
-  TAG_LOOK,
-  compareVersions,
-  parseChange,
-} from "../model/changelog";
+import { TAG_LOOK, type AppRelease } from "../model/changelog";
 import styles from "./update-screen.module.css";
 
 function goBack(router: ReturnType<typeof useRouter>) {
@@ -18,10 +15,37 @@ function goBack(router: ReturnType<typeof useRouter>) {
   else router.replace("/settings");
 }
 
+/** "2026-09-30" → 지금 언어의 날짜. 시간대 때문에 하루 밀리지 않게 정오로 읽는다 */
+function formatDate(date: string, language: string) {
+  const value = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(value.getTime())) return date;
+  try {
+    return value.toLocaleDateString(language, { day: "numeric", month: "long", year: "numeric" });
+  } catch {
+    return date;
+  }
+}
+
+/**
+ * 업데이트 기록. 서버(GET /app/releases)에서 받는다 — 모바일 앱과 같은 목록이고,
+ * 미니앱에 해당 없는 항목(푸시 알림 등)은 서버가 platform=telegram 으로 걸러 준다.
+ * 미니앱은 항상 최신 웹 버전이라 "업데이트하세요" 는 없다.
+ */
 export function UpdateScreen() {
   const router = useRouter();
-  const latest = CHANGELOG[0]?.version ?? APP_VERSION;
-  const upToDate = compareVersions(APP_VERSION, latest) >= 0;
+  const { language } = useAppLanguage();
+  const [releases, setReleases] = useState<AppRelease[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    setFailed(false);
+    apiRequest<{ releases: AppRelease[] }>(`/app/releases?lang=${language}&platform=telegram`)
+      .then((result) => { if (alive) setReleases(result.releases); })
+      .catch(() => { if (alive) setFailed(true); });
+    return () => { alive = false; };
+  }, [attempt, language]);
 
   return (
     <main className={styles.screen}>
@@ -34,63 +58,59 @@ export function UpdateScreen() {
 
       <div className={styles.scroll}>
         <section className={styles.hero}>
-          <Image
-            alt="KORIO"
-            className={styles.logo}
-            height={86}
-            priority
-            src="/app-icon.png"
-            width={86}
-          />
-          <strong>v{APP_VERSION}</strong>
-          <span className={upToDate ? styles.currentStatus : styles.outdatedStatus}>
-            <MobileIcon name={upToDate ? "checkmark-circle" : "arrow-up-circle"} size={15} />
-            {upToDate ? "Eng so‘nggi versiyadasiz" : "v" + latest + " chiqdi"}
+          <Image alt="KORIO" className={styles.logo} height={86} priority src="/app-icon.png" width={86} />
+          <strong>KORIO</strong>
+          <span className={styles.currentStatus}>
+            <MobileIcon name="checkmark-circle" size={15} />
+            Eng so‘nggi versiyadasiz
           </span>
         </section>
 
-        <section className={styles.timeline}>
-          {CHANGELOG.map((entry, index) => {
-            const current = compareVersions(entry.version, APP_VERSION) === 0;
-            return (
-              <article className={styles.entry} key={entry.key}>
+        {failed ? (
+          <div className={styles.state}>
+            <MobileIcon name="cloud-offline-outline" size={30} />
+            <p>Yangilanishlar tarixini yuklab bo‘lmadi</p>
+            <button onClick={() => setAttempt((value) => value + 1)} type="button">Qayta urinish</button>
+          </div>
+        ) : !releases ? (
+          <i className={styles.spinner} />
+        ) : (
+          <section className={styles.timeline}>
+            {releases.map((entry, index) => (
+              <article className={styles.entry} key={entry.id} style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}>
                 <div className={styles.rail}>
-                  <i className={current ? styles.currentDot : styles.dot} />
-                  {index < CHANGELOG.length - 1 ? <i className={styles.line} /> : null}
+                  <i className={index === 0 ? styles.currentDot : styles.dot} />
+                  {index < releases.length - 1 ? <i className={styles.line} /> : null}
                 </div>
                 <div className={styles.entryBody}>
                   <header>
-                    <b>v{entry.version}</b>
-                    {current ? <em>Joriy</em> : null}
-                    <time>{entry.date}</time>
+                    <b data-no-translate="">{formatDate(entry.date, language)}</b>
+                    {entry.storeVersion ? <span className={styles.versionBadge} data-no-translate="">v{entry.storeVersion}</span> : null}
+                    {index === 0 ? <em>Eng so‘nggi</em> : null}
                   </header>
                   <div className={styles.card}>
-                    {entry.items.length ? (
-                      entry.items.map((raw) => {
-                        const item = parseChange(raw);
-                        const look = TAG_LOOK[item.tag];
-                        return (
-                          <div className={styles.item} key={raw}>
-                            <i style={{ backgroundColor: look.background, color: look.color }}>
-                              {look.label}
-                            </i>
-                            <p>{item.text}</p>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p>O‘zgarishlar yozilmagan.</p>
-                    )}
+                    {entry.items.map((item, itemIndex) => {
+                      const look = TAG_LOOK[item.tag] ?? TAG_LOOK.improve;
+                      return (
+                        <div className={styles.item} key={itemIndex}>
+                          <i style={{ backgroundColor: look.background, color: look.color }}>{look.label}</i>
+                          {/* 서버가 이미 지금 언어로 준 문장 — 화면 번역기가 건드리지 않게 */}
+                          <p data-no-translate="">{item.text}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </article>
-            );
-          })}
-        </section>
+            ))}
+          </section>
+        )}
 
-        <p className={styles.footer}>
-          KORIO’ni yaxshilashda davom etamiz. Fikringizni yordam markazi orqali yuboring!
-        </p>
+        {releases ? (
+          <p className={styles.footer}>
+            KORIO’ni yaxshilashda davom etamiz. Fikringizni yordam markazi orqali yuboring!
+          </p>
+        ) : null}
       </div>
     </main>
   );
