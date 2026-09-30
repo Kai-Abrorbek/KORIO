@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { syncTelegramChrome } from "../telegram/runtime";
 
 export type ThemePreference = "dark" | "light" | "system";
 export type ResolvedTheme = "dark" | "light";
@@ -29,6 +30,8 @@ function isThemePreference(value: string | null): value is ThemePreference {
 function applyTheme(theme: ResolvedTheme) {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
+  // 텔레그램 헤더·상태바 색도 같이 — 안 맞추면 상태바 아이콘이 배경에 묻힌다
+  syncTelegramChrome(theme);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

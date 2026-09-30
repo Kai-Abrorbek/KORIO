@@ -46,6 +46,8 @@ export interface TelegramWebApp {
   showAlert?(message: string, callback?: () => void): void;
   setBackgroundColor?(color: string): void;
   setHeaderColor?(color: string): void;
+  /** Bot API 7.10+. 하단 바(안드로이드 내비게이션 영역) 색 */
+  setBottomBarColor?(color: string): void;
   /** Bot API 6.2+. 닫기 전에 "정말 닫을까요?" 를 묻는다 */
   enableClosingConfirmation?(): void;
   disableClosingConfirmation?(): void;

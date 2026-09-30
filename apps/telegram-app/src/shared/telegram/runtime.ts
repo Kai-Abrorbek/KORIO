@@ -42,6 +42,30 @@ function gateHaptics(webApp: TelegramWebApp) {
   }
 }
 
+/** 앱 배경색 (globals.css 의 --theme-bg 와 같은 값) */
+const CHROME_BG = { light: "#ffffff", dark: "#15151d" } as const;
+
+/**
+ * 텔레그램이 그리는 부분(헤더·상태바·하단 바)의 색을 **앱 테마**에 맞춘다.
+ *
+ * 예전엔 "secondary_bg_color" = 텔레그램 테마를 따라갔다. 텔레그램은 다크인데
+ * 앱은 라이트면, 전체화면에서 상태바 아이콘이 흰색이 돼서 흰 배경에 묻혀
+ * 시계·배터리가 안 보였다. 안드로이드는 헤더 색의 밝기로 아이콘 색을 정한다.
+ * 테마가 바뀔 때마다 theme-context 가 다시 부른다.
+ */
+export function syncTelegramChrome(theme: "light" | "dark") {
+  const webApp = window.Telegram?.WebApp;
+  if (!webApp) return;
+  const color = CHROME_BG[theme];
+  try {
+    webApp.setHeaderColor?.(color);
+    webApp.setBackgroundColor?.(color);
+    webApp.setBottomBarColor?.(color);
+  } catch {
+    // 6.9 미만 클라이언트는 hex 를 못 받는다 — 기본색 그대로
+  }
+}
+
 /**
  * 텔레그램 기본 헤더(흰 띠 + 제목)를 없애고 화면 끝까지 쓴다 — Bot API 8.0+.
  *
@@ -78,8 +102,7 @@ export function prepareTelegramWebApp(): TelegramWebApp {
   // 단어 목록 등)을 위아래로 밀 때 텔레그램이 제스처를 가로채서 스크롤이
   // 안 되거나 앱이 접혀 버린다. 앱처럼 화면 안 스크롤이 항상 먼저다.
   webApp.disableVerticalSwipes?.();
-  webApp.setHeaderColor?.("secondary_bg_color");
-  webApp.setBackgroundColor?.("secondary_bg_color");
+  syncTelegramChrome(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   enterFullscreen(webApp);
   webApp.ready();
   return webApp;
