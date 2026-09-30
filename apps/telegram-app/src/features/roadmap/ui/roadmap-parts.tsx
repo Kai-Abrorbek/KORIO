@@ -90,7 +90,7 @@ export function RoadmapPopover({
         <strong>{`Daraja - ${node.scoreValue ?? 0} takrorlash`}</strong>
         <p>
           {node.status === "completed"
-            ? "Barcha Legend bosqichlarini tugatib, yakuniy sovrinni qo'lga kiriting!"
+            ? "Bu ballga yetganingizdan so‘ng, barcha darajalardagi Legend bosqichlarini tugatib, yakuniy sovrinni qo‘lga kiriting!"
             : "Bu bo'limni tugatsangiz ochiladi."}
         </p>
         {node.status === "completed" ? (
