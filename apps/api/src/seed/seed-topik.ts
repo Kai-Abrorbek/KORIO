@@ -41,6 +41,8 @@ import {
   TOPIK_I_47_READING_SEED,
   TOPIK_I_52_LISTENING_SEED,
   TOPIK_I_52_READING_SEED,
+  TOPIK_I_60_LISTENING_SEED,
+  TOPIK_I_60_READING_SEED,
   TOPIK_READING_MOCK_1_SEED,
   TOPIK_READING_MOCK_2_SEED,
   TOPIK_WRITING_MOCK_1_SEED,
@@ -204,6 +206,14 @@ async function seedTopik() {
       {
         data: TOPIK_I_52_LISTENING_SEED,
         validation: validateTopikListeningSeed(TOPIK_I_52_LISTENING_SEED),
+      },
+      {
+        data: TOPIK_I_60_READING_SEED,
+        validation: validateTopikIReadingSeed(TOPIK_I_60_READING_SEED),
+      },
+      {
+        data: TOPIK_I_60_LISTENING_SEED,
+        validation: validateTopikListeningSeed(TOPIK_I_60_LISTENING_SEED),
       },
       {
         data: TOPIK_READING_MOCK_1_SEED,
