@@ -18387,40 +18387,6 @@ const S5_UNIT4_NODE7_QUESTIONS = {
     tags: ['garaetteok', 'review', 'speaking'],
   },
 
-  s5u4_695_translate_builder: {
-    type: 'translate_builder',
-    instruction: L(
-      '이 뜻을 한국어로 말하세요.',
-      'Songpyeonni chiroyli qilsang, chiroyli qizing bo‘ladi deyishadi.',
-      'They say if you make songpyeon nicely, you’ll have a pretty daughter.',
-      'Говорят, если красиво слепить сонпхён, родится красивая дочь.',
-    ),
-    options: [
-      '끓이면',
-      '예쁘게',
-      '딸을',
-      '만들면',
-      '가래떡을',
-      '낳는다고',
-      '송편을',
-      '해요',
-      '잘',
-      '아들을',
-      '예쁜',
-    ],
-    answer: '송편을 예쁘게 잘 만들면 예쁜 딸을 낳는다고 해요',
-    answerTranslation: L(
-      '송편을 예쁘게 잘 만들면 예쁜 딸을 낳는다고 해요.',
-      'Songpyeonni chiroyli qilsang, chiroyli qizing bo‘ladi deyishadi.',
-      'They say if you make songpyeon nicely, you’ll have a pretty daughter.',
-      'Говорят, если красиво слепить сонпхён, родится красивая дочь.',
-    ),
-    level: QuestionLevel.LEVEL_5,
-    lessonCategory: LessonCategory.VOCABULARY,
-    difficulty: 5,
-    tags: ['songpyeon', 'review', 'translate-builder'],
-  },
-
   s5u4_696_listening: {
     type: 'listening',
     instruction: L(
@@ -23860,7 +23826,6 @@ export const S5_UNIT4_NODES = [
           's5u4_692_cloze_passage',
           's5u4_693_type_answer',
           's5u4_694_speaking',
-          's5u4_695_translate_builder',
           's5u4_696_listening',
           's5u4_697_fill_in_blank',
           's5u4_698_word_arrange',
