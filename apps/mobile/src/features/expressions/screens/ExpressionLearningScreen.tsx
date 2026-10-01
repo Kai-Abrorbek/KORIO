@@ -270,10 +270,15 @@ export default function ExpressionLearningScreen() {
   }, [stop]);
 
   useEffect(() => {
+    // 마지막 카드의 자동 재생이 끝날 때까지 기다린다. openRecallOffer 가
+    // stop() 을 부르므로 그냥 띄우면 표현을 읽다가 중간에 끊긴다.
+    // speakAuto 는 isSpeaking 을 동기로 켜므로, 재생이 시작되면 아래
+    // 타이머는 정리되고 끝난 뒤(isSpeaking=false) 다시 잡힌다.
     if (
       !readyForRecall ||
       saving ||
       practiceBusy ||
+      isSpeaking ||
       recallOfferShownRef.current
     ) {
       return;
@@ -285,7 +290,7 @@ export default function ExpressionLearningScreen() {
     }, 550);
 
     return () => clearTimeout(timeout);
-  }, [openRecallOffer, practiceBusy, readyForRecall, saving]);
+  }, [isSpeaking, openRecallOffer, practiceBusy, readyForRecall, saving]);
 
   const startRecallPractice = useCallback(async () => {
     if (recallOfferBusy) return;

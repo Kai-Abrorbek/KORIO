@@ -335,7 +335,8 @@ const styles = (theme: ThemeColors, bottomInset = 0) =>
       flex: 1,
       paddingHorizontal: 20,
       paddingTop: 6,
-      paddingBottom: Math.max(4, bottomInset),
+      // SafeArea 는 lesson.tsx 의 questionArea 가 이미 준다 — 여기서 또 더하면 버튼이 두 번 뜬다
+      paddingBottom: 12,
     },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 20 },

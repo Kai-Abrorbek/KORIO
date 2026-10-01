@@ -430,42 +430,6 @@ export default function ExpressionLearningPage({
               </Text>
             </View>
           )}
-
-          <View style={styles.practiceActions}>
-            {referenceVisible ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t("expressionLearning.listen")}
-                onPress={onSpeak}
-                style={[
-                  styles.speakerButton,
-                  {
-                    backgroundColor: speaking ? palette.primary : palette.bg,
-                    borderColor: speaking ? palette.primary : palette.border,
-                  },
-                ]}
-              >
-                <Ionicons
-                  name={speaking ? "volume-high" : "volume-medium-outline"}
-                  size={23}
-                  color={speaking ? "#FFFFFF" : palette.primary}
-                />
-              </Pressable>
-            ) : null}
-            <ExpressionPracticePanel
-              key={item.key}
-              item={item}
-              typingActive={typingActive}
-              ready={ready}
-              onTypePress={openTyping}
-              onOpenSpeaking={openSpeaking}
-              onPracticeComplete={completePractice}
-              onPracticeMiss={scheduleRetryOnce}
-              onSpeechPassed={onSpeechPassed}
-              onBusyChange={onPracticeBusyChange}
-              onStopSpeech={onStopSpeech}
-            />
-          </View>
         </View>
 
         {!typingActive ? (
@@ -480,6 +444,43 @@ export default function ExpressionLearningPage({
             </Text>
           </View>
         ) : null}
+
+        {/* 듣기·말하기·쓰기 버튼은 뜻 아래로 — 한국어 바로 밑에 뜻이 와야 한눈에 짝이 보인다 */}
+        <View style={styles.practiceActions}>
+          {referenceVisible ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("expressionLearning.listen")}
+              onPress={onSpeak}
+              style={[
+                styles.speakerButton,
+                {
+                  backgroundColor: speaking ? palette.primary : palette.bg,
+                  borderColor: speaking ? palette.primary : palette.border,
+                },
+              ]}
+            >
+              <Ionicons
+                name={speaking ? "volume-high" : "volume-medium-outline"}
+                size={23}
+                color={speaking ? "#FFFFFF" : palette.primary}
+              />
+            </Pressable>
+          ) : null}
+          <ExpressionPracticePanel
+            key={item.key}
+            item={item}
+            typingActive={typingActive}
+            ready={ready}
+            onTypePress={openTyping}
+            onOpenSpeaking={openSpeaking}
+            onPracticeComplete={completePractice}
+            onPracticeMiss={scheduleRetryOnce}
+            onSpeechPassed={onSpeechPassed}
+            onBusyChange={onPracticeBusyChange}
+            onStopSpeech={onStopSpeech}
+          />
+        </View>
 
         {/* Keep this timing-based: never use spring or bounce for card resizing. */}
         {detailsVisible ? (
@@ -630,7 +631,7 @@ const styles = StyleSheet.create({
   speechChipText: { fontSize: 10.5, lineHeight: 15, fontWeight: "800" },
   sentenceArea: {
     flex: 1,
-    minHeight: 208,
+    minHeight: 160,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 4,
@@ -786,7 +787,8 @@ const styles = StyleSheet.create({
   laterText: { fontSize: 11.5, fontWeight: "700" },
   practiceActions: {
     minHeight: 46,
-    marginTop: 18,
+    marginTop: 16,
+    marginBottom: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

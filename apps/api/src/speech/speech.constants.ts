@@ -18,10 +18,18 @@ export type SpeakingTier = 'lenient' | 'normal' | 'strict';
 
 /**
  * 섹션이 올라갈수록 통과 기준을 올린다.
- * 섹션 1~3 관대 / 4~7 보통 / 8+ 빡셈.
+ *
+ * 2026-10 하향: 예전 값(1~3: 60/80, 4~7: 70/85, 8+: 80/90)은 실제 학습자
+ * (우즈벡어 화자)가 거의 통과하지 못했다. 특히 **completeness** 가 문제였다 —
+ * 세 어절짜리 문장에서 한 어절만 발음이 틀려도 67 이 나와서 80 기준에 걸린다.
+ * ("제 국적은 미국입니다" pron 76 / comp 67 → 탈락)
+ *
+ * 다른 문장을 또렷하게 말하는 꼼수는 completeness 가 아니라
+ * speechTextSimilarity(인식 문장 비교)가 막으므로 여기를 낮춰도 된다.
  *
  * completeness 를 같이 보는 이유: 참조 문장의 일부만 짧게 말해도
  * 정확도(accuracy)는 높게 나올 수 있어서, 그것만으로는 "다 말했는지"를 못 막는다.
+ * 그래서 0 으로 두지는 않고 "절반 넘게 제대로 말했다" 수준은 요구한다.
  */
 export interface SpeakingThreshold {
   minSection: number;
@@ -32,9 +40,11 @@ export interface SpeakingThreshold {
 
 // 위에서부터 검사하므로 minSection 내림차순으로 둔다
 export const SPEAKING_THRESHOLDS: SpeakingThreshold[] = [
-  { minSection: 8, tier: 'strict', pron: 80, completeness: 90 },
-  { minSection: 4, tier: 'normal', pron: 70, completeness: 85 },
-  { minSection: 0, tier: 'lenient', pron: 60, completeness: 80 },
+  { minSection: 7, tier: 'strict', pron: 65, completeness: 75 },
+  { minSection: 5, tier: 'normal', pron: 60, completeness: 70 },
+  { minSection: 3, tier: 'lenient', pron: 55, completeness: 65 },
+  // 섹션 1~2 와 섹션을 모르는 문제(레벨 테스트·복습)
+  { minSection: 0, tier: 'lenient', pron: 50, completeness: 60 },
 ];
 
 export function thresholdForSection(section?: number): SpeakingThreshold {
