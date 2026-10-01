@@ -962,6 +962,15 @@ export default {
       otherSection: "Другое",
       events: "События · Новости",
       pickTime: "Выберите время напоминания",
+      diag: {
+        title: "Статус уведомлений",
+        permission: "Разрешение",
+        registered: "Зарегистрировано",
+        token: "Токен",
+        error: "Последняя ошибка",
+        checkedAt: "Время проверки",
+        refresh: "Обновить",
+      },
     },
     sound: {
       muteNow: "Выключить звук",

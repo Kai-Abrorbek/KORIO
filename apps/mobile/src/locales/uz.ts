@@ -962,6 +962,15 @@ export default {
       otherSection: "Boshqa",
       events: "Tadbirlar · Yangiliklar",
       pickTime: "Eslatma vaqtini tanlang",
+      diag: {
+        title: "Bildirishnoma holati",
+        permission: "Ruxsat",
+        registered: "Ro‘yxatdan o‘tgan",
+        token: "Token",
+        error: "Oxirgi xato",
+        checkedAt: "Tekshirilgan vaqt",
+        refresh: "Yangilash",
+      },
     },
     sound: {
       muteNow: "Ovozni o'chirish",

@@ -957,6 +957,15 @@ export default {
       otherSection: "Other",
       events: "Events · News",
       pickTime: "Pick reminder time",
+      diag: {
+        title: "Notification status",
+        permission: "Permission",
+        registered: "Registered",
+        token: "Token",
+        error: "Last error",
+        checkedAt: "Checked at",
+        refresh: "Refresh",
+      },
     },
     sound: {
       muteNow: "Mute now",

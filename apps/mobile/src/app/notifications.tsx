@@ -22,6 +22,7 @@ import {
   type NotificationPrefs,
 } from "@/store/settings.store";
 import { PushApi } from "@/services/push.service";
+import { getPushDiagnostics } from "@/hooks/usePushNotifications";
 
 const fmtHour = (h: number) => `${String(h).padStart(2, "0")}:00`;
 
@@ -79,6 +80,8 @@ export default function NotificationSettings() {
   const s = getStyles(theme);
   const { notifications: n, setNotifications } = useSettingsStore();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [diag, setDiag] = useState(getPushDiagnostics);
 
   /**
    * 스위치 하나 = 로컬 저장 + 서버 저장.
@@ -230,6 +233,55 @@ export default function NotificationSettings() {
             s={s}
           />
         </View>
+
+        {/* 알림 상태 — 푸시가 안 올 때 원인을 폰 화면에서 바로 보려고 */}
+        <Pressable
+          onPress={() => {
+            setDiag(getPushDiagnostics());
+            setDiagOpen((o) => !o);
+          }}
+          style={s.diagToggle}
+          hitSlop={8}
+        >
+          <Text style={s.diagToggleText}>
+            {t("settings.notifications.diag.title")}
+          </Text>
+          <Ionicons
+            name={diagOpen ? "chevron-up" : "chevron-down"}
+            size={14}
+            color={theme.textSecondary}
+          />
+        </Pressable>
+        {diagOpen && (
+          <View style={[s.card, s.diagCard]}>
+            {(
+              [
+                ["permission", diag.permission ?? "-"],
+                ["registered", diag.registered ? "✓" : "✗"],
+                ["token", diag.token ? `…${diag.token.slice(-14)}` : "-"],
+                ["error", diag.lastError ?? "-"],
+                ["checkedAt", diag.checkedAt ?? "-"],
+              ] as const
+            ).map(([k, v]) => (
+              <View key={k} style={s.diagRow}>
+                <Text style={s.diagKey}>
+                  {t(`settings.notifications.diag.${k}`)}
+                </Text>
+                <Text style={s.diagVal} selectable>
+                  {v}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              onPress={() => setDiag(getPushDiagnostics())}
+              style={s.diagRefresh}
+            >
+              <Text style={s.diagRefreshText}>
+                {t("settings.notifications.diag.refresh")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
 
       {/* 시간 선택 시트 */}
@@ -342,6 +394,30 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.border,
       marginLeft: 68,
     },
+    diagToggle: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "center",
+      gap: 4,
+      marginTop: 28,
+      paddingVertical: 6,
+    },
+    diagToggleText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: theme.textSecondary,
+    },
+    diagCard: { marginTop: 8, paddingVertical: 8, paddingHorizontal: 16 },
+    diagRow: { flexDirection: "row", gap: 12, paddingVertical: 6 },
+    diagKey: {
+      width: 92,
+      fontSize: 12,
+      fontWeight: "700",
+      color: theme.textSecondary,
+    },
+    diagVal: { flex: 1, fontSize: 12, color: theme.text },
+    diagRefresh: { alignSelf: "flex-end", paddingVertical: 6 },
+    diagRefreshText: { fontSize: 12, fontWeight: "700", color: theme.primary },
     timeRow: {
       flexDirection: "row",
       alignItems: "center",

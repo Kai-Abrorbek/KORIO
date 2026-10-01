@@ -955,6 +955,15 @@ export default {
       otherSection: "기타",
       events: "이벤트 · 새 소식",
       pickTime: "알림 시간 선택",
+      diag: {
+        title: "알림 상태",
+        permission: "권한",
+        registered: "등록",
+        token: "토큰",
+        error: "마지막 오류",
+        checkedAt: "확인 시각",
+        refresh: "새로고침",
+      },
     },
     sound: {
       muteNow: "지금 소리 끄기",

@@ -180,7 +180,8 @@ export function usePushNotifications() {
         // 예전엔 catch {} 로 버려서 "알림이 안 온다"는 사실만 남고 원인을
         // 볼 방법이 없었다 — 그것 때문에 하루를 날렸다.
         diagnostics.lastError = String(e?.message ?? e).slice(0, 300);
-        if (__DEV__) console.warn('[push] 토큰 발급 실패:', diagnostics);
+        // 릴리스에서도 남긴다 — adb logcat 의 ReactNativeJS 태그로 볼 수 있게
+        console.warn('[push] 토큰 발급 실패:', JSON.stringify(diagnostics));
       }
     })();
 
