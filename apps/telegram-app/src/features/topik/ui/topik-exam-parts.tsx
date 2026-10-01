@@ -335,6 +335,19 @@ export function ListeningQuestionCard({ questions, mode, answers, solutions, sho
   </article>;
 }
 
+/** 지문 하나에 문제가 여럿 붙은 묶음 — 지문 한 번, 문제는 이어서 (앱 TopikReadingSetCard) */
+export function ReadingSetCard({ questions, answers, solutions, highlightedKeys, onSelect, renderSupport }: {
+  questions: TopikQuestionWithGroup[]; answers: Record<string, string | undefined>; solutions: Record<string, TopikRevealedSolution | undefined>; highlightedKeys?: ReadonlySet<string>; onSelect: (questionId: string, choiceKey: string) => void; renderSupport: (question: TopikQuestionWithGroup) => ReactNode;
+}) {
+  const first = questions[0];
+  if (!first) return null;
+  return <article className={styles.questionPaper}>
+    <div className={styles.instruction}><TopikTextBlocks blocks={first.group.instruction} /></div>
+    {first.group.sharedStimulus ? <StimulusCard stimulus={first.group.sharedStimulus} highlightedKeys={highlightedKeys} /> : null}
+    <div className={styles.setQuestions}>{questions.map((question, index) => <section className={index ? styles.dividedQuestion : ""} key={question.id}>{question.stimulus ? <StimulusCard stimulus={question.stimulus} highlightedKeys={highlightedKeys} /> : null}<div className={styles.questionRow}><b>{String(question.number).padStart(2, "0")}</b><TopikTextBlocks blocks={question.prompt} className={styles.prompt} highlightedKeys={highlightedKeys} /></div><ChoiceList choices={question.choices} correctChoiceKey={solutions[question.id]?.correctChoiceKey} disabled={Boolean(solutions[question.id])} layout={question.presentation.choiceLayout} onSelect={(key) => onSelect(question.id, key)} selectedChoiceKey={answers[question.id]} />{renderSupport(question)}</section>)}</div>
+  </article>;
+}
+
 export function HintPanel({ support, solution, selected, busy, onRevealHint, onRevealSolution }: {
   support?: TopikLearningSupport; solution?: TopikRevealedSolution; selected: boolean; busy: boolean; onRevealHint: () => void; onRevealSolution: () => void;
 }) {

@@ -91,7 +91,8 @@ export default function TopikResultScreen() {
     (result.correctCount / result.totalQuestions) * 100,
   );
   const wrongCount = Math.max(0, result.totalQuestions - result.correctCount);
-  const canReviewQuestions = result.mode === "guided";
+  // 실전도 제출이 끝났으면 문제별로 다시 볼 수 있다 (해설 모드로 열린다)
+  const canReviewQuestions = result.section !== "writing";
   const topikLevel = result.examType === "topik_i" ? "I" : "II";
   const heroColors =
     result.examType === "topik_i" ? palette.levelOneHero : palette.levelTwoHero;

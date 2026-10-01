@@ -17,6 +17,7 @@ import {
   TopikListeningQuestionCard,
   TopikNoticeModal,
   TopikQuestionCard,
+  TopikReadingSetCard,
   TopikSubmitModal,
 } from "@/components/topik";
 import {
@@ -31,6 +32,7 @@ import {
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import {
   flattenTopikQuestions,
+  isTopikPassageSet,
   type TopikAttemptMode,
   type TopikAudio,
 } from "@/types/topik";
@@ -123,7 +125,7 @@ export default function TopikExamScreen() {
   const showExamTimer = !isReview && attempt?.mode === "mock_exam";
   const activeQuestions = useMemo(() => {
     if (!question) return [];
-    if (!isListening) return [question];
+    if (!isListening && !isTopikPassageSet(question.group)) return [question];
     return question.group.questions.map((groupQuestion) => ({
       ...groupQuestion,
       group: question.group,
@@ -198,11 +200,12 @@ export default function TopikExamScreen() {
       };
     }, [session]);
   const stepStartIndices = useMemo(() => {
-    if (!isListening) return questions.map((_, index) => index);
+    // 듣기는 묶음 전체, 읽기는 지문을 같이 쓰는 묶음만 한 화면. 나머지는 한 문제씩
     return questions.reduce<number[]>((indices, item, index) => {
-      if (index === 0 || item.group.code !== questions[index - 1].group.code) {
-        indices.push(index);
-      }
+      const sameGroup =
+        index > 0 && item.group.code === questions[index - 1].group.code;
+      const grouped = isListening || isTopikPassageSet(item.group);
+      if (!sameGroup || !grouped) indices.push(index);
       return indices;
     }, []);
   }, [isListening, questions]);
@@ -226,6 +229,19 @@ export default function TopikExamScreen() {
     );
     return keys;
   }, [solution, support]);
+  // 지문 묶음은 지문이 하나라 문제들의 힌트·해설 단서를 다 모아서 칠한다
+  const setHighlightedKeys = useMemo(() => {
+    const keys = new Set<string>();
+    activeQuestions.forEach((item) => {
+      learningSupport[item.id]?.revealedHints.forEach((hint) =>
+        hint.targetSegmentKeys.forEach((key) => keys.add(key)),
+      );
+      revealedSolutions[item.id]?.solution.keyClues.forEach((clue) =>
+        clue.targetSegmentKeys.forEach((key) => keys.add(key)),
+      );
+    });
+    return keys;
+  }, [activeQuestions, learningSupport, revealedSolutions]);
   const activeQuestionKey = activeQuestions.map((item) => item.id).join(",");
   const allActiveAnswered =
     activeQuestions.length > 0 &&
@@ -639,6 +655,45 @@ export default function TopikExamScreen() {
                   support={learningSupport[item.id]}
                   solution={revealedSolutions[item.id]}
                   selected={allActiveAnswered}
+                  busy={busy}
+                  onRevealHint={async () => {
+                    setBusy(true);
+                    try {
+                      await revealNextHint(item.id);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  onRevealSolution={() => void revealQuestionSolution(item.id)}
+                />
+              ) : null
+            }
+          />
+        ) : activeQuestions.length > 1 ? (
+          <TopikReadingSetCard
+            questions={activeQuestions}
+            selectedChoiceKeys={Object.fromEntries(
+              activeQuestions.map((item) => [
+                item.id,
+                answers[item.id]?.selectedChoiceKey,
+              ]),
+            )}
+            correctChoiceKeys={Object.fromEntries(
+              activeQuestions.map((item) => [
+                item.id,
+                revealedSolutions[item.id]?.correctChoiceKey,
+              ]),
+            )}
+            highlightedKeys={setHighlightedKeys}
+            onSelect={(questionId, choiceKey) =>
+              selectAnswer(questionId, choiceKey)
+            }
+            renderSupport={(item) =>
+              attempt.mode === "guided" ? (
+                <TopikHintPanel
+                  support={learningSupport[item.id]}
+                  solution={revealedSolutions[item.id]}
+                  selected={Boolean(answers[item.id])}
                   busy={busy}
                   onRevealHint={async () => {
                     setBusy(true);

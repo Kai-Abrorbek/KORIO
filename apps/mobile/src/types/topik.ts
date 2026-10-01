@@ -491,6 +491,15 @@ export function flattenTopikQuestions(
   );
 }
 
+/**
+ * 읽기에서 한 지문을 여러 문제가 같이 쓰는 묶음인가 ([19~20], [21~22] …).
+ * 이런 묶음은 시험지처럼 한 화면에 지문 한 번 + 문제들을 이어서 보여준다.
+ * 지문이 문제마다 따로인 묶음([31~33] 등)은 지금처럼 한 문제씩.
+ */
+export function isTopikPassageSet(group: TopikQuestionGroup | undefined) {
+  return Boolean(group?.sharedStimulus) && (group?.questions.length ?? 0) > 1;
+}
+
 export function topikText(
   value: TopikI18nText | null | undefined,
   language: TopikLanguage = "ko",

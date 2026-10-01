@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { TopikQuestionWithGroup } from "@/types/topik";
@@ -68,6 +69,88 @@ export function TopikQuestionCard({
   );
 }
 
+interface TopikReadingSetCardProps {
+  questions: TopikQuestionWithGroup[];
+  selectedChoiceKeys: Record<string, string | undefined>;
+  correctChoiceKeys: Record<string, string | undefined>;
+  highlightedKeys?: ReadonlySet<string>;
+  onSelect: (questionId: string, choiceKey: string) => void;
+  renderSupport?: (question: TopikQuestionWithGroup) => ReactNode;
+}
+
+/**
+ * 지문 하나에 문제가 여럿 붙은 묶음 — 시험지처럼 지문 한 번, 문제는 이어서.
+ * 예전엔 문제마다 페이지가 나뉘어 21번을 풀려면 지문을 다시 넘겨봐야 했다.
+ */
+export function TopikReadingSetCard({
+  questions,
+  selectedChoiceKeys,
+  correctChoiceKeys,
+  highlightedKeys,
+  onSelect,
+  renderSupport,
+}: TopikReadingSetCardProps) {
+  const palette = useTopikTheme();
+  const styles = useMemo(() => getStyles(palette), [palette]);
+  const first = questions[0];
+  if (!first) return null;
+
+  return (
+    <View style={styles.paper}>
+      <View style={styles.instructionWrap}>
+        <TopikTextBlocks
+          blocks={first.group.instruction}
+          textStyle={styles.instruction}
+        />
+      </View>
+
+      {first.group.sharedStimulus && (
+        <TopikStimulusCard
+          stimulus={first.group.sharedStimulus}
+          highlightedKeys={highlightedKeys}
+        />
+      )}
+
+      {questions.map((question, index) => (
+        <View
+          key={question.id}
+          style={[styles.setQuestion, index > 0 && styles.setDivider]}
+        >
+          {question.stimulus && (
+            <TopikStimulusCard
+              stimulus={question.stimulus}
+              highlightedKeys={highlightedKeys}
+            />
+          )}
+          <View style={styles.questionRow}>
+            <Text style={styles.questionNumber}>
+              {String(question.number).padStart(2, "0")}
+            </Text>
+            <View style={styles.prompt}>
+              <TopikTextBlocks
+                blocks={question.prompt}
+                highlightedKeys={highlightedKeys}
+                textStyle={styles.promptText}
+              />
+            </View>
+          </View>
+
+          <TopikChoiceList
+            choices={question.choices}
+            layout={question.presentation.choiceLayout}
+            selectedChoiceKey={selectedChoiceKeys[question.id]}
+            correctChoiceKey={correctChoiceKeys[question.id]}
+            disabled={Boolean(correctChoiceKeys[question.id])}
+            onSelect={(choiceKey) => onSelect(question.id, choiceKey)}
+          />
+
+          {renderSupport?.(question)}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const getStyles = (palette: TopikPalette) =>
   StyleSheet.create({
     paper: {
@@ -105,6 +188,12 @@ const getStyles = (palette: TopikPalette) =>
       letterSpacing: -1.5,
     },
     prompt: { flex: 1, paddingTop: 2 },
+    setQuestion: { gap: 16 },
+    setDivider: {
+      borderTopWidth: 1,
+      borderTopColor: palette.divider,
+      paddingTop: 22,
+    },
     promptText: {
       color: palette.text,
       fontSize: 14,

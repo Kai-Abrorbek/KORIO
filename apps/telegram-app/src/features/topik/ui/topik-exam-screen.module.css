@@ -298,6 +298,9 @@
 .listeningQuestions { display: grid; gap: 20px; }
 .listeningQuestions > section { display: grid; gap: 13px; }
 .listeningQuestions .dividedQuestion { border-top: 1px solid var(--divider); padding-top: 20px; }
+.setQuestions { display: grid; gap: 22px; }
+.setQuestions > section { display: grid; gap: 16px; }
+.setQuestions .dividedQuestion { border-top: 1px solid var(--divider); padding-top: 22px; }
 
 .hintPanel { display: grid; gap: 13px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 16px; }
 .scrollContent > .hintPanel { margin-top: 14px; }

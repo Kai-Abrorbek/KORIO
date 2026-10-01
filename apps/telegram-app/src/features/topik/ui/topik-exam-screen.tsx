@@ -24,6 +24,7 @@ import {
 } from "../browser/use-topik-listening-playback";
 import {
   flattenTopikQuestions,
+  isTopikPassageSet,
   type TopikAttempt,
   type TopikAttemptMode,
   type TopikAudio,
@@ -37,6 +38,7 @@ import {
   HintPanel,
   ListeningQuestionCard,
   QuestionCard,
+  ReadingSetCard,
   SheetModal,
 } from "./topik-exam-parts";
 import styles from "./topik-exam-screen.module.css";
@@ -120,7 +122,7 @@ export function TopikExamScreen() {
   const isListening = session?.exam.section === "listening";
   const activeQuestions = useMemo(() => {
     if (!question) return [];
-    if (!isListening) return [question];
+    if (!isListening && !isTopikPassageSet(question.group)) return [question];
     return question.group.questions.map((item) => ({ ...item, group: question.group }));
   }, [isListening, question]);
   const activeAudio = activeQuestions[0]?.audio ?? activeQuestions[0]?.group.sharedAudio ?? null;
@@ -129,9 +131,11 @@ export function TopikExamScreen() {
     : 1;
 
   const stepStartIndices = useMemo(() => {
-    if (!isListening) return questions.map((_, index) => index);
+    // 듣기는 묶음 전체, 읽기는 지문을 같이 쓰는 묶음만 한 화면. 나머지는 한 문제씩
     return questions.reduce<number[]>((indices, item, index) => {
-      if (index === 0 || item.group.code !== questions[index - 1]?.group.code) indices.push(index);
+      const sameGroup = index > 0 && item.group.code === questions[index - 1]?.group.code;
+      const grouped = isListening || isTopikPassageSet(item.group);
+      if (!sameGroup || !grouped) indices.push(index);
       return indices;
     }, []);
   }, [isListening, questions]);
@@ -161,13 +165,15 @@ export function TopikExamScreen() {
           getTopikAttempt(request, reviewAttemptId),
           getTopikResult(request, reviewAttemptId),
         ]);
-        if (nextAttempt.mode !== "guided" || nextAttempt.status !== "submitted" || result.examCode !== examCode) {
-          throw new Error("TOPIK_GUIDED_REVIEW_REQUIRED");
+        // 실전으로 푼 것도 다시 볼 수 있다 — 제출이 끝났으면 해설은 결과에 다 있다
+        if (nextAttempt.status !== "submitted" || result.examCode !== examCode) {
+          throw new Error("TOPIK_REVIEW_NOT_AVAILABLE");
         }
         const nextQuestions = flattenTopikQuestions(nextSession);
         const requestedIndex = nextQuestions.findIndex((item) => item.number === reviewQuestionNumber);
         setSession(nextSession);
-        setAttempt(nextAttempt);
+        // 다시보기는 해설 모드로 그린다 (실전 UI·타이머·자동 재생 X)
+        setAttempt({ ...nextAttempt, mode: "guided" });
         setAnswers(answersFromAttempt(nextAttempt));
         setSolutions(Object.fromEntries(result.questions.map((item) => [item.questionId, {
           questionId: item.questionId,
@@ -431,10 +437,11 @@ export function TopikExamScreen() {
 
   const allActiveAnswered = activeQuestions.every((item) => Boolean(answers[item.id]));
   const showTranscript = isReview || (allActiveAnswered && activeQuestions.some((item) => Boolean(solutions[item.id])));
-  const highlightedKeys = new Set([
-    ...(supports[question.id]?.revealedHints.flatMap((hint) => hint.targetSegmentKeys) ?? []),
-    ...(solutions[question.id]?.solution.keyClues.flatMap((clue) => clue.targetSegmentKeys) ?? []),
-  ]);
+  // 지문 묶음은 지문이 하나라 화면에 보이는 문제들의 단서를 다 모아서 칠한다
+  const highlightedKeys = new Set(activeQuestions.flatMap((item) => [
+    ...(supports[item.id]?.revealedHints.flatMap((hint) => hint.targetSegmentKeys) ?? []),
+    ...(solutions[item.id]?.solution.keyClues.flatMap((clue) => clue.targetSegmentKeys) ?? []),
+  ]));
   const progressEnd = activeQuestions.at(-1)?.number ?? currentIndex + 1;
   const finalNumber = questions.at(-1)?.number ?? questions.length;
   const progressPosition = Math.min(questions.length, currentIndex + Math.max(1, activeQuestions.length));
@@ -452,7 +459,7 @@ export function TopikExamScreen() {
     </header>
     <div className={styles.scrollContent} ref={contentRef}>
       <div className={styles.statusRow}><b>{isReview ? "Izohli takrorlash" : mode === "guided" ? "Izohli o‘rganish" : "Sinov imtihoni"}</b><span>{`Javoblar ${answeredCount}/${questions.length}`}</span></div>
-      {isListening ? <ListeningQuestionCard activeAudioKey={activeAudioKey} answers={Object.fromEntries(activeQuestions.map((item) => [item.id, answers[item.id]?.selectedChoiceKey]))} mode={attempt.mode} onPlayAudio={playGuided} onSelect={(id, key) => { const item = activeQuestions.find((candidate) => candidate.id === id); if (item) selectAnswer(item, key); }} onStopAudio={stopAudio} playCount={activeAudio ? playCounts[activeAudio.key] ?? 0 : 0} playbackStatus={playbackStatus} questions={activeQuestions} renderSupport={(item) => attempt.mode === "guided" ? supportFor(item) : null} showTranscript={showTranscript} solutions={solutions} /> : <><QuestionCard correctChoiceKey={solutions[question.id]?.correctChoiceKey} disabled={Boolean(solutions[question.id])} highlightedKeys={highlightedKeys} onSelect={(key) => selectAnswer(question, key)} question={question} selectedChoiceKey={answers[question.id]?.selectedChoiceKey} />{attempt.mode === "guided" ? supportFor(question) : null}</>}
+      {isListening ? <ListeningQuestionCard activeAudioKey={activeAudioKey} answers={Object.fromEntries(activeQuestions.map((item) => [item.id, answers[item.id]?.selectedChoiceKey]))} mode={attempt.mode} onPlayAudio={playGuided} onSelect={(id, key) => { const item = activeQuestions.find((candidate) => candidate.id === id); if (item) selectAnswer(item, key); }} onStopAudio={stopAudio} playCount={activeAudio ? playCounts[activeAudio.key] ?? 0 : 0} playbackStatus={playbackStatus} questions={activeQuestions} renderSupport={(item) => attempt.mode === "guided" ? supportFor(item) : null} showTranscript={showTranscript} solutions={solutions} /> : activeQuestions.length > 1 ? <ReadingSetCard answers={Object.fromEntries(activeQuestions.map((item) => [item.id, answers[item.id]?.selectedChoiceKey]))} highlightedKeys={highlightedKeys} onSelect={(id, key) => { const item = activeQuestions.find((candidate) => candidate.id === id); if (item) selectAnswer(item, key); }} questions={activeQuestions} renderSupport={(item) => attempt.mode === "guided" ? supportFor(item) : null} solutions={solutions} /> : <><QuestionCard correctChoiceKey={solutions[question.id]?.correctChoiceKey} disabled={Boolean(solutions[question.id])} highlightedKeys={highlightedKeys} onSelect={(key) => selectAnswer(question, key)} question={question} selectedChoiceKey={answers[question.id]?.selectedChoiceKey} />{attempt.mode === "guided" ? supportFor(question) : null}</>}
     </div>
     <footer className={styles.examFooter}>
       <button data-i18n="topik.exam.previous" disabled={activeStepIndex === 0 || busy} onClick={() => void moveBy(-1)} type="button"><MobileIcon name="chevron-back" size={21} />Oldingi</button>

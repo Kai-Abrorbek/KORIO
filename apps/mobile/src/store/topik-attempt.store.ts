@@ -148,12 +148,9 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         TopikService.getAttempt(attemptId),
         TopikService.getResult(attemptId),
       ]);
-      if (
-        attempt.mode !== "guided" ||
-        attempt.status !== "submitted" ||
-        result.examCode !== examCode
-      ) {
-        throw new Error("TOPIK_GUIDED_REVIEW_REQUIRED");
+      // 실전 모드로 푼 것도 다시 볼 수 있다. 제출이 끝났으면 해설은 결과에 다 있다
+      if (attempt.status !== "submitted" || result.examCode !== examCode) {
+        throw new Error("TOPIK_REVIEW_NOT_AVAILABLE");
       }
 
       const revealedSolutions: Record<string, TopikRevealedSolution> =
@@ -178,7 +175,9 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
       set({
         examCode,
         session,
-        attempt,
+        // 다시보기 화면은 해설 모드로 그린다(듣기 플레이어·해설 패널).
+        // 실전 시도를 그대로 두면 화면이 실전 UI(타이머·자동 재생)로 뜬다
+        attempt: { ...attempt, mode: "guided" },
         answers: toDraftAnswers(attempt),
         learningSupport: {},
         revealedSolutions,

@@ -17,6 +17,7 @@ import {
   type StudyMode,
 } from "../model/learning-options";
 import { LearningIcon } from "./learning-icon";
+import { TopikLevelSheet } from "./topik-level-sheet";
 import styles from "./learning.module.css";
 
 const LEARN_MODES: LearnMode[] = [
@@ -272,20 +273,7 @@ export function CourseCategoriesScreen() {
       </div>
 
       {topikOpen ? (
-        <ChoiceSheet label="TOPIK darajasini tanlang" onClose={() => setTopikOpen(false)}>
-          <h2>TOPIK darajasini tanlang</h2>
-          <p>O&apos;rganmoqchi bo&apos;lgan imtihon darajasini tanlang.</p>
-          <div className={styles.topikOptions}>
-            <button disabled={saving} onClick={() => void selectTopik("1")} type="button">
-              <strong>TOPIK I</strong>
-              <small>1–2 daraja</small>
-            </button>
-            <button disabled={saving} onClick={() => void selectTopik("2")} type="button">
-              <strong>TOPIK II</strong>
-              <small>3–6 daraja</small>
-            </button>
-          </div>
-        </ChoiceSheet>
+        <TopikLevelSheet busy={saving} onClose={() => setTopikOpen(false)} onSelect={(level) => void selectTopik(level)} />
       ) : null}
 
       {lockedCategory ? (
