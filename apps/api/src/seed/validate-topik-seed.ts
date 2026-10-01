@@ -233,6 +233,40 @@ export function validateTopikII35ReadingSeed(seed: TopikReadingSeed) {
   return validateTopikReadingSeed(seed, blueprint);
 }
 
+export function validateTopikII83ReadingSeed(seed: TopikReadingSeed) {
+  const blueprint = TOPIK_READING_BLUEPRINT.map((group) => {
+    if (group.code === 'reading-19-20') {
+      return {
+        ...group,
+        questionTypes: [
+          TopikQuestionType.PASSAGE_FILL_BLANK,
+          TopikQuestionType.PASSAGE_TOPIC,
+        ],
+      };
+    }
+    if (group.code === 'reading-21-22') {
+      return {
+        ...group,
+        questionTypes: [
+          TopikQuestionType.PASSAGE_FILL_BLANK,
+          TopikQuestionType.PASSAGE_CONTENT_MATCH,
+        ],
+      };
+    }
+    if (group.code === 'reading-44-45') {
+      return {
+        ...group,
+        questionTypes: [
+          TopikQuestionType.PASSAGE_FILL_BLANK,
+          TopikQuestionType.PASSAGE_TOPIC,
+        ],
+      };
+    }
+    return group;
+  });
+  return validateTopikReadingSeed(seed, blueprint);
+}
+
 export function validateTopikListeningSeed(seed: TopikExamSeed) {
   const errors: string[] = [];
   const sortedQuestions = [...seed.questions].sort(
