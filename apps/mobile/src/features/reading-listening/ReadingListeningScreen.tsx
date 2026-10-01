@@ -49,6 +49,7 @@ import { ReadingVocabularyPractice } from "./ReadingVocabularyPractice";
 import { WordGlossSheet, type WordGlossCopy } from "./WordGlossSheet";
 import { localizedReadingText } from "./reading-listening.text";
 import { READING_LISTENING_PREVIEW } from "./reading-listening.mock";
+import { openCelebration } from "@/utils/streak-chest-route";
 
 /**
  * 문단에서 그릴 조각을 꺼낸다.
@@ -1099,6 +1100,8 @@ export default function ReadingListeningScreen() {
         writingText: writing.trim() || undefined,
       });
       setCompleteResult(result);
+      // 오늘 첫 완료면 연속 도장, 3·6·9…일째면 상자 — 닫으면 완료 시트로 돌아온다
+      openCelebration(result.celebration, "back");
       // 목록을 다시 부르지 않고 이 항목만 갱신한다. 시트를 닫고 목록을
       // 열었을 때 방금 끝낸 글에 체크가 없으면 저장이 안 된 줄 안다.
       setLessonOptions((current) =>

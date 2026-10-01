@@ -15,11 +15,15 @@ import { GlossWordDto } from './dto/gloss-word.dto';
 import { GLOSS_RATE_LIMIT } from './reading-gloss.const';
 import { ListReadingLessonsQueryDto } from './dto/list-reading-lessons-query.dto';
 import { ReadingLessonsService } from './reading-lessons.service';
+import { LessonsService } from '../lessons/lessons.service';
 
 @UseGuards(JwtAuthGuard, RateLimitGuard)
 @Controller('reading-lessons')
 export class ReadingLessonsController {
-  constructor(private readonly readingLessonsService: ReadingLessonsService) {}
+  constructor(
+    private readonly readingLessonsService: ReadingLessonsService,
+    private readonly lessonsService: LessonsService,
+  ) {}
 
   @Get()
   list(@Request() req, @Query() query: ListReadingLessonsQueryDto) {
@@ -39,16 +43,18 @@ export class ReadingLessonsController {
    * 낭독 완료는 여기로 안 온다 — 발음 평가 중에 서버가 직접 찍는다.
    */
   @Post(':code/complete')
-  complete(
+  async complete(
     @Request() req,
     @Param('code') code: string,
     @Body() dto: CompleteReadingLessonDto,
   ) {
-    return this.readingLessonsService.complete(
-      req.user._id.toString(),
-      code,
-      dto,
-    );
+    const userId = req.user._id.toString();
+    const result = await this.readingLessonsService.complete(userId, code, dto);
+    // 리스닝(읽기·듣기)도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+    const celebration = await this.lessonsService
+      .celebrateStudyDay(userId)
+      .catch(() => null);
+    return { ...result, celebration };
   }
 
   /**

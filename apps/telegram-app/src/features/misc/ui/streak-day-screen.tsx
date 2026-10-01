@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { StreakDay } from "../model/misc";
-import { viaStreakChest } from "../model/streak-chest-route";
+import { goNext, viaStreakChest } from "../model/streak-chest-route";
 import styles from "./streak-day-screen.module.css";
 
 function Flame() {
@@ -43,6 +43,13 @@ export function StreakDayScreen() {
   const proceed = () => {
     // 연속 보상 상자가 있으면 원래 가려던 곳 앞에 끼운다 (misc/model/streak-chest-route)
     const go = (next: string) => router.replace(viaStreakChest(next, params));
+    // 표현·말하기·TOPIK·문법·리스닝에서 왔으면 갈 곳이 정해져 있다
+    const fixedNext = params.get("next");
+    if (fixedNext) {
+      if (params.get("streakChestGems")) router.replace(viaStreakChest(fixedNext, params));
+      else goNext(router, fixedNext, () => router.replace("/home"));
+      return;
+    }
     const scoreUp = params.get("scoreUp");
     const category = params.get("category");
     const chestGrade = params.get("chestGrade");

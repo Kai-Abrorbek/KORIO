@@ -16,6 +16,7 @@ import {
   type SpeakingResults,
 } from "./session";
 import { useContentLang } from "@/store/settings.store";
+import { openCelebration } from "@/utils/streak-chest-route";
 
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
 export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShort" | "micError" | "assessError" | "audioError" | "saveFailed";
@@ -373,9 +374,10 @@ export function useSpeakingPractice(packCode: string) {
     savedCursorRef.current = index;
     // 로컬부터 남긴다. 서버가 실패해도 이어서 시작되게.
     useSpeakingCursorStore.getState().setCursor(packCode, index, total);
-    void ExpressionService.saveSpeakingProgress(packCode, index, total).catch(
-      () => undefined,
-    );
+    void ExpressionService.saveSpeakingProgress(packCode, index, total)
+      // 주제를 끝까지 말한 순간이 완료 — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+      .then((progress) => openCelebration(progress?.celebration, "back"))
+      .catch(() => undefined);
   }, [index, loading, loadFailed, retryIds, data, packCode]);
 
   /**

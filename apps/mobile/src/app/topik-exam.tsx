@@ -36,6 +36,7 @@ import {
   type TopikAttemptMode,
   type TopikAudio,
 } from "@/types/topik";
+import { openCelebration } from "@/utils/streak-chest-route";
 
 function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -472,10 +473,14 @@ export default function TopikExamScreen() {
       const result = await submit();
       setSubmitModalVisible(false);
       listeningPlayback.stop();
-      router.replace({
-        pathname: "/topik-result",
+      const resultHref = {
+        pathname: "/topik-result" as const,
         params: { attemptId: result.attemptId },
-      });
+      };
+      // 오늘 첫 완료면 연속 도장(3·6·9…일째면 상자)부터, 끝나면 결과 화면
+      if (!openCelebration(result.celebration, resultHref)) {
+        router.replace(resultHref);
+      }
     } catch {
       setSubmitError(true);
     } finally {

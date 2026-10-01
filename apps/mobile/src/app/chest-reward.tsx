@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet } from "react-native";
 import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
-import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { goNext } from "@/utils/streak-chest-route";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -198,12 +199,10 @@ export default function ChestRewardScreen() {
               onPress={() => {
                 // 축하 흐름 중간(연속 보상 상자)이면 원래 가려던 곳으로 이어 간다
                 if (params.next) {
-                  try {
-                    router.replace(JSON.parse(params.next) as Href);
-                    return;
-                  } catch {
-                    // 깨진 값이면 아래 기본 경로로
-                  }
+                  goNext(params.next, () =>
+                    router.replace(backToRoadmap(category, from)),
+                  );
+                  return;
                 }
                 // 보통은 뒤로 가면 원래 로드맵이다. 딥링크로 바로 열린
                 // 경우엔 돌아갈 곳이 없으니 카테고리로 직접 간다.

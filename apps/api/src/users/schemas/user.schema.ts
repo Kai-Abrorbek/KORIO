@@ -219,6 +219,15 @@ export class User {
   @Prop()
   lastStudiedAt: Date;
 
+  /**
+   * 연속 학습 도장(축하 화면)을 마지막으로 보여준 날 — 유저 시간대 'YYYY-MM-DD'.
+   * 어휘·표현·말하기·TOPIK·문법·리스닝 중 무엇이든 그날 **처음 완료**한 순간에
+   * 한 번만 보여주려고 둔다. "오늘 첫 학습인가" 로 판정하면, 말하기처럼 문장마다
+   * 학습 기록이 쌓이는 모드는 완료 시점엔 이미 첫 학습이 아니라 도장이 영영 안 뜬다.
+   */
+  @Prop({ default: '' })
+  streakCelebratedOn: string;
+
   // ✨ 신규: 가장 길었던 연속 학습일
   @Prop({ default: 0 })
   longestStreak: number;

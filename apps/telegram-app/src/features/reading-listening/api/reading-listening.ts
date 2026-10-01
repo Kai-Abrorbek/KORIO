@@ -1,4 +1,5 @@
 import { getContentLang } from "../../../shared/i18n/content-language";
+import type { StudyCelebration } from "../../misc/model/streak-chest-route";
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
 export interface ReadingLessonSummary {
@@ -51,6 +52,8 @@ export interface ReadingLesson extends ReadingLessonSummary {
   writing: { exampleAnswer: string; helper: LocalizedText; keywords: string[]; placeholder: LocalizedText; prompt: LocalizedText };
 }
 export interface CompleteReadingResult {
+  /** 학습 모드 완료 축하 (연속 도장·상자) */
+  celebration?: StudyCelebration | null;
   progress: ReadingLessonProgress; quizCorrect: number; quizTotal: number; repeat: boolean; success: boolean; totalXP: number | null; xpEarned: number;
 }
 export interface ReadingAssessResult {

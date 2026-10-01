@@ -16,6 +16,7 @@ import type {
   TopikSaveAnswer,
   TopikStatsSummary,
 } from "../model/topik";
+import type { StudyCelebration } from "../../misc/model/streak-chest-route";
 
 type AuthenticatedRequest = <T>(
   path: string,
@@ -112,7 +113,8 @@ export function saveTopikAnswers(
 }
 
 export function submitTopikAttempt(request: AuthenticatedRequest, attemptId: string) {
-  return request(`/topik/attempts/${encodeURIComponent(attemptId)}/submit`, {
+  // 학습 모드 완료 축하 (연속 도장·상자) 가 같이 온다
+  return request<{ celebration?: StudyCelebration | null }>(`/topik/attempts/${encodeURIComponent(attemptId)}/submit`, {
     body: JSON.stringify({}),
     method: "POST",
   });

@@ -1,6 +1,7 @@
 import { getContentLang } from "@/store/settings.store";
 import api from "./api";
 import { Grammar, GrammarListResponse } from "@/types/grammar";
+import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 // 서버에 보내는 lang 은 UI 언어가 아니라 **설명 언어**다 (한국어 UI 면 따로 고른 말)
 const getLang = getContentLang;
@@ -35,6 +36,8 @@ export const GrammarService = {
     gemsEarned?: number;
     /** 지급 후 잔액 (옛 서버는 안 보낸다) */
     gems?: number;
+    /** 학습 모드 완료 축하 (연속 도장·상자) */
+    celebration?: StudyCelebration | null;
     sectionCompleted?: boolean;
   }> => api.post(`/grammar/${code}/complete`, {}),
 };

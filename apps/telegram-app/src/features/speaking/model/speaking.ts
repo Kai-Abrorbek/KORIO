@@ -1,3 +1,5 @@
+import type { StudyCelebration } from "../../misc/model/streak-chest-route";
+
 export interface ExpressionPackMedia {
   emoji: string;
   imageAlt: string;
@@ -48,6 +50,8 @@ export interface ExpressionListResponse {
 }
 
 export interface SpeakingProgress {
+  /** 주제를 끝낸 순간의 축하 (연속 도장·상자) */
+  celebration?: StudyCelebration | null;
   completedCount: number;
   index: number;
   justCompleted: boolean;

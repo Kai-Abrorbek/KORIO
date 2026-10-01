@@ -61,6 +61,7 @@ import {
   templateOf,
 } from "@/utils/blank-sentence";
 import { useContentLang } from "@/store/settings.store";
+import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 type Phase = "main" | "reviewIntro" | "review";
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
@@ -876,6 +877,8 @@ export default function LessonScreen() {
 
     // 완료 화면에 띄울 XP — 서버가 확정한 값으로 채운다
     let earnedXp = 0;
+    // 표현 연습도 학습 모드 완료 — 연속 도장·상자를 완료 화면이 이어 띄운다
+    let practiceCelebration: StudyCelebration | null = null;
 
     if (isExpressionPractice && pack) {
       try {
@@ -886,7 +889,13 @@ export default function LessonScreen() {
           combo,
         });
         earnedXp = r.xpEarned;
-        updateUser({ totalXP: r.totalXP } as any);
+        practiceCelebration = r.celebration ?? null;
+        updateUser({
+          totalXP: r.totalXP,
+          ...(practiceCelebration?.streakChest
+            ? { gems: practiceCelebration.gems }
+            : {}),
+        } as any);
       } catch (err) {
         console.error("표현 연습 완료 저장 실패:", err);
       }
@@ -1074,6 +1083,24 @@ export default function LessonScreen() {
         section: isExpressionPractice ? (section ?? "1") : "",
         unit: isExpressionPractice ? (unit ?? "1") : "",
         from: fromStudyPath ? "studyPath" : "",
+        dailyStreak: practiceCelebration?.dailyStreak
+          ? String(practiceCelebration.dailyStreak.streak)
+          : "",
+        streakWeek: practiceCelebration?.dailyStreak
+          ? JSON.stringify(practiceCelebration.dailyStreak.week)
+          : "",
+        streakChestGems: practiceCelebration?.streakChest
+          ? String(practiceCelebration.streakChest.gems)
+          : "",
+        streakChestDays: practiceCelebration?.streakChest
+          ? String(practiceCelebration.streakChest.streak)
+          : "",
+        gemTotal: practiceCelebration
+          ? String(
+              practiceCelebration.gems -
+                (practiceCelebration.streakChest?.gems ?? 0),
+            )
+          : "",
       },
     });
   };

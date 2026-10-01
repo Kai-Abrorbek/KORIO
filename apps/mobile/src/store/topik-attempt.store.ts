@@ -9,6 +9,7 @@ import type {
   TopikRevealedSolution,
   TopikSaveAnswer,
 } from "@/types/topik";
+import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 interface TopikDraftAnswer extends TopikSaveAnswer {
   startedAtMs: number;
@@ -40,7 +41,9 @@ interface TopikAttemptState {
   loadLearningSupport: (questionId: string) => Promise<void>;
   revealNextHint: (questionId: string) => Promise<void>;
   revealSolution: (questionId: string) => Promise<void>;
-  submit: () => Promise<TopikAttemptResult>;
+  submit: () => Promise<
+    TopikAttemptResult & { celebration: StudyCelebration | null }
+  >;
   reset: () => void;
 }
 
@@ -376,10 +379,11 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
     } else {
       await state.saveProgress();
     }
-    await TopikService.submitAttempt(state.attempt.id);
+    const submission = await TopikService.submitAttempt(state.attempt.id);
     const result = await TopikService.getResult(state.attempt.id);
     set({ result });
-    return result;
+    // 연속 도장·상자는 제출 응답에만 온다 — 결과와 같이 넘겨 화면이 띄우게
+    return { ...result, celebration: submission.celebration ?? null };
   },
 
   reset: () => set({ ...initialState, questionStartedAtMs: Date.now() }),

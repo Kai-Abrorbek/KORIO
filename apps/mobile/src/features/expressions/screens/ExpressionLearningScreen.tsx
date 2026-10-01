@@ -35,6 +35,8 @@ import { useTheme } from "@/hooks/useTheme";
 import * as Haptics from "@/utils/haptics";
 import ExpressionLearningPage from "../components/ExpressionLearningPage";
 import { useExpressionLearning } from "../hooks/useExpressionLearning";
+import { openCelebration } from "@/utils/streak-chest-route";
+import { ExpressionService } from "@/services/expression.service";
 
 const SWIPE_THRESHOLD = 78;
 const SWIPE_VELOCITY = 680;
@@ -213,6 +215,17 @@ export default function ExpressionLearningScreen() {
     current && current.stage !== "recall"
       ? current.expression.pronunciation.ttsText || current.expression.korean
       : "";
+
+  // 노드를 끝낸 순간 = 표현 학습 완료. 하루 학습으로 남기고, 그날 첫 완료면
+  // 연속 도장(3·6·9…일째면 상자)을 위에 띄운다 — 닫으면 이 완료 화면으로 돌아온다
+  const completionSentRef = useRef(false);
+  useEffect(() => {
+    if (!completed || !node || completionSentRef.current) return;
+    completionSentRef.current = true;
+    void ExpressionService.completeNode(node)
+      .then((res) => openCelebration(res?.celebration, "back"))
+      .catch(() => undefined);
+  }, [completed, node]);
 
   useEffect(() => {
     recallOfferShownRef.current = false;

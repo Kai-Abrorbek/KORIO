@@ -11,6 +11,7 @@ import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { completeGrammar, getGrammar } from "../api/grammar";
 import type { GrammarDialogueTurn, GrammarExample, GrammarQuizItem, Grammar } from "../model/grammar";
 import styles from "./grammar.module.css";
+import { openCelebration } from "../../misc/model/streak-chest-route";
 
 function Highlight({ highlight, text }: { highlight?: string; text: string }) {
   if (!highlight || !text.includes(highlight)) return <>{text}</>;
@@ -164,6 +165,8 @@ export function GrammarStudyScreen() {
     completedRef.current.add(grammar.id);
     try {
       const result = await completeGrammar(request, grammar.id);
+      // 오늘 첫 완료면 연속 도장, 3·6·9…일째면 상자 (닫으면 이 화면)
+      openCelebration(router, result.celebration, "back", (gems) => updateUser({ gems }));
       if (result.totalXP !== undefined) updateUser({ totalXP: result.totalXP });
       if (result.gemsEarned > 0) updateUser({ gems: (user?.gems ?? 0) + result.gemsEarned });
       if (!result.already && (result.xpEarned > 0 || result.gemsEarned > 0)) {

@@ -8,12 +8,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GrammarService } from './grammar.service';
+import { LessonsService } from '../lessons/lessons.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('grammar')
 @UseGuards(JwtAuthGuard)
 export class GrammarController {
-  constructor(private readonly grammarService: GrammarService) {}
+  constructor(
+    private readonly grammarService: GrammarService,
+    private readonly lessonsService: LessonsService,
+  ) {}
 
   // section·unit 을 같이 주면 그 하루치 문법만 (학습 로드 모드). 없으면 전체 목록.
   @Get()
@@ -39,7 +43,13 @@ export class GrammarController {
 
   @Post(':code/complete')
   async complete(@Request() req, @Param('code') code: string) {
-    return this.grammarService.completeGrammar(req.user._id.toString(), code);
+    const userId = req.user._id.toString();
+    const result = await this.grammarService.completeGrammar(userId, code);
+    // 문법 공부도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+    const celebration = await this.lessonsService
+      .celebrateStudyDay(userId)
+      .catch(() => null);
+    return { ...result, celebration };
   }
 
   // scoped=1 이면 "다음 문법" 을 그 문법이 속한 유닛 안에서만 찾는다

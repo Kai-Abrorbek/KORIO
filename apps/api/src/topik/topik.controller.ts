@@ -17,6 +17,8 @@ import { TopikStatsQueryDto } from './dto/topik-stats-query.dto';
 import { TopikService } from './topik.service';
 import { TopikStatsService } from './topik-stats.service';
 import { TopikRecipeService } from './topik-recipe.service';
+import { LessonsService } from '../lessons/lessons.service';
+import { StudyCategory } from '../users/utils/study-category.util';
 
 interface AuthenticatedTopikRequest {
   user: { _id: { toString(): string } };
@@ -31,6 +33,7 @@ export class TopikController {
     private readonly topikService: TopikService,
     private readonly topikStatsService: TopikStatsService,
     private readonly topikRecipeService: TopikRecipeService,
+    private readonly lessonsService: LessonsService,
   ) {}
 
   // ── 유형별 학습 (합격 레시피) ──
@@ -203,11 +206,28 @@ export class TopikController {
   }
 
   @Post('attempts/:attemptId/submit')
-  submitAttempt(@Request() request, @Param('attemptId') attemptId: string) {
-    return this.topikService.submitAttempt(
-      request.user._id.toString(),
-      attemptId,
-    );
+  async submitAttempt(
+    @Request() request,
+    @Param('attemptId') attemptId: string,
+  ) {
+    const userId = request.user._id.toString();
+    const result = await this.topikService.submitAttempt(userId, attemptId);
+    // 쓰기는 채점 통계(applySubmittedAttempt)를 안 거쳐 학습 기록이 안 남는다.
+    // 처음 제출한 순간(requiresReview)에만 하루 학습으로 남긴다 — 다시 제출해도 두 번 안 쌓이게
+    if ('requiresReview' in result && result.requiresReview) {
+      await this.lessonsService
+        .recordStudy(userId, {
+          questionCount: Math.max(1, result.totalQuestions),
+          overrideCategory: StudyCategory.TOPIK,
+          xpEarned: 0,
+        })
+        .catch(() => undefined);
+    }
+    // TOPIK 도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+    const celebration = await this.lessonsService
+      .celebrateStudyDay(userId)
+      .catch(() => null);
+    return { ...result, celebration };
   }
 
   @Get('attempts/:attemptId/result')

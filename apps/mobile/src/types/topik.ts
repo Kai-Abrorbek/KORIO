@@ -360,6 +360,8 @@ export interface TopikSubmission {
   elapsedSeconds: number;
   submittedAt: string;
   requiresReview?: boolean;
+  /** 학습 모드 완료 축하 (연속 도장·상자) */
+  celebration?: import("@/utils/streak-chest-route").StudyCelebration | null;
 }
 
 export interface TopikQuestionResult {

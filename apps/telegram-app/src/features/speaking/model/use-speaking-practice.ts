@@ -13,6 +13,8 @@ import {
   setExpressionSaved,
 } from "../api/speaking";
 import { speakingMaskFor, type AssessResult, type ExpressionListResponse } from "./speaking";
+import { openCelebration } from "../../misc/model/streak-chest-route";
+import { useRouter } from "next/navigation";
 
 export type SpeakingPhase = "assessing" | "idle" | "recording" | "starting";
 export type SpeakingError = "assessError" | "audioError" | "micError" | "noSpeech" | "permission" | "saveFailed" | "tooShort" | "unsupported";
@@ -29,7 +31,8 @@ function cursorKey(packCode: string) { return `speaking-cursor:${packCode}`; }
 
 
 export function useSpeakingPractice(packCode: string) {
-  const { request } = useTelegramAuth();
+  const { request, updateUser } = useTelegramAuth();
+  const router = useRouter();
   const [data, setData] = useState<ExpressionListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -205,8 +208,11 @@ export function useSpeakingPractice(packCode: string) {
   useEffect(() => {
     if (loading || loadFailed || retryIds || !data?.items.length) return;
     window.localStorage.setItem(cursorKey(packCode), index >= data.items.length ? "0" : String(index));
-    void saveSpeakingProgress(request, packCode, index, data.items.length).catch(() => undefined);
-  }, [data?.items.length, index, loadFailed, loading, packCode, request, retryIds]);
+    void saveSpeakingProgress(request, packCode, index, data.items.length)
+      // 주제를 끝까지 말한 순간이 완료 — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+      .then((progress) => openCelebration(router, progress?.celebration, "back", (gems) => updateUser({ gems })))
+      .catch(() => undefined);
+  }, [data?.items.length, index, loadFailed, loading, packCode, request, retryIds, router, updateUser]);
 
   useEffect(() => {
     if (loading || completed) return;

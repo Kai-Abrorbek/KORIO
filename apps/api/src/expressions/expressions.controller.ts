@@ -21,6 +21,8 @@ import { ExpressionsService } from './expressions.service';
 import { ExpressionLearningService } from './learning/expression-learning.service';
 import { ExpressionRoadmapService } from './roadmap/expression-roadmap.service';
 import { SpeakingProgressService } from './speaking/speaking-progress.service';
+import { LessonsService } from '../lessons/lessons.service';
+import { StudyCategory } from '../users/utils/study-category.util';
 
 @UseGuards(JwtAuthGuard)
 @Controller('expressions')
@@ -30,6 +32,7 @@ export class ExpressionsController {
     private readonly expressionRoadmapService: ExpressionRoadmapService,
     private readonly expressionLearningService: ExpressionLearningService,
     private readonly speakingProgressService: SpeakingProgressService,
+    private readonly lessonsService: LessonsService,
   ) {}
 
   @Get('roadmap')
@@ -54,6 +57,31 @@ export class ExpressionsController {
       nodeCode,
       query.lang,
     );
+  }
+
+  /**
+   * 표현 카드 학습(노드) 완료.
+   *
+   * 카드 학습은 본 표현만 기록(views)하고 학습 통계에는 안 남아서, 표현만 공부한
+   * 날은 연속 학습일로 안 쳐졌다. 여기서 하루 학습으로 남기고(1건, XP 없음)
+   * 그날 첫 완료면 도장, 3·6·9…일째면 상자를 준다. 잠긴·없는 노드는 404/403.
+   */
+  @Post('nodes/:nodeCode/complete')
+  async completeNodeLearning(
+    @Request() req,
+    @Param('nodeCode') nodeCode: string,
+  ) {
+    const userId = req.user._id.toString();
+    await this.expressionLearningService.getNodeLearning(userId, nodeCode, 'uz');
+    await this.lessonsService.recordStudy(userId, {
+      questionCount: 1,
+      overrideCategory: StudyCategory.EXPRESSION,
+      xpEarned: 0,
+    });
+    const celebration = await this.lessonsService
+      .celebrateStudyDay(userId)
+      .catch(() => null);
+    return { success: true, celebration };
   }
 
   @Get('overview')
@@ -100,11 +128,17 @@ export class ExpressionsController {
     @Param('packCode') packCode: string,
     @Body() dto: CompleteExpressionPracticeDto,
   ) {
-    return this.expressionsService.completePractice(
-      req.user._id.toString(),
+    const userId = req.user._id.toString();
+    const result = await this.expressionsService.completePractice(
+      userId,
       packCode,
       dto,
     );
+    // 표현 연습도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
+    const celebration = await this.lessonsService
+      .celebrateStudyDay(userId)
+      .catch(() => null);
+    return { ...result, celebration };
   }
 
   /** 말하기 연습 — 이 주제를 몇 번째 문장까지 했나 */
@@ -129,12 +163,19 @@ export class ExpressionsController {
     @Param('packCode') packCode: string,
     @Body() dto: SaveSpeakingProgressDto,
   ) {
-    return this.speakingProgressService.save(
-      req.user._id.toString(),
+    const userId = req.user._id.toString();
+    const progress = await this.speakingProgressService.save(
+      userId,
       packCode,
       dto.index,
       dto.total,
     );
+    // 말하기 주제를 끝까지 말한 순간이 "완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자.
+    // 문장별 학습 기록은 채점(assess-expression) 때 이미 남아 있다
+    const celebration = progress.justCompleted
+      ? await this.lessonsService.celebrateStudyDay(userId).catch(() => null)
+      : null;
+    return { ...progress, celebration };
   }
 
   @Get()

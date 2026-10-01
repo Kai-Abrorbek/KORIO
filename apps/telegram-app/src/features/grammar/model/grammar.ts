@@ -1,3 +1,5 @@
+import type { StudyCelebration } from "../../misc/model/streak-chest-route";
+
 export interface GrammarExample {
   gloss: string;
   highlight?: string;
@@ -53,6 +55,8 @@ export interface GrammarListResponse {
 
 export interface GrammarCompleteResult {
   already: boolean;
+  /** 학습 모드 완료 축하 (연속 도장·상자) */
+  celebration?: StudyCelebration | null;
   gemsEarned: number;
   sectionCompleted: boolean;
   success: boolean;

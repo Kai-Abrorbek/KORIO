@@ -10,7 +10,7 @@ import { assessExpression } from "../../speaking/api/speaking";
 import { wordToneOf, type AssessResult } from "../../speaking/model/speaking";
 import { isAutoPlayEnabled, useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { getExpressionNode, recordExpressionView } from "../api/expressions";
+import { completeExpressionNode, getExpressionNode, recordExpressionView } from "../api/expressions";
 import {
   buildLearningQueue,
   buildRecallQueue,
@@ -20,6 +20,7 @@ import {
   type ExpressionNodeLearningResponse,
 } from "../model/expressions";
 import styles from "./expression-learning-screen.module.css";
+import { openCelebration } from "../../misc/model/streak-chest-route";
 
 type VoicePhase = "idle" | "recording" | "analyzing" | "done";
 type TypeState = "idle" | "wrong" | "correct";
@@ -36,7 +37,7 @@ export function ExpressionLearningScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const nodeCode = params.get("node") ?? "";
-  const { request, user } = useTelegramAuth();
+  const { request, updateUser, user } = useTelegramAuth();
   const premium = Boolean(
     user?.isSuper &&
       (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()),
@@ -55,6 +56,16 @@ export function ExpressionLearningScreen() {
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [completed, setCompleted] = useState(false);
+  // 노드를 끝낸 순간 = 표현 학습 완료. 하루 학습으로 남기고, 그날 첫 완료면 연속 도장
+  // (3·6·9…일째면 상자)을 위에 띄운다 — 닫으면 이 완료 화면으로 돌아온다 (앱과 같음)
+  const completionSent = useRef(false);
+  useEffect(() => {
+    if (!completed || !nodeCode || completionSent.current) return;
+    completionSent.current = true;
+    void completeExpressionNode(request, nodeCode)
+      .then((res) => openCelebration(router, res?.celebration, "back", (gems) => updateUser({ gems })))
+      .catch(() => undefined);
+  }, [completed, nodeCode, request, router, updateUser]);
   const [recallStarted, setRecallStarted] = useState(false);
   const [retryItems, setRetryItems] = useState<ExpressionLearningQueueItem[]>([]);
   const [offerOpen, setOfferOpen] = useState(false);

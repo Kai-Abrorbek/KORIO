@@ -30,6 +30,7 @@ import { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { GrammarService } from "@/services/grammar.service";
 import { StudyPathService } from "@/services/study-path.service";
+import { openCelebration } from "@/utils/streak-chest-route";
 
 const C = {
   cream: "#FBF1DC",
@@ -442,6 +443,8 @@ export default function GrammarStudy() {
                   // 응답을 버리면 화면 위 숫자만 옛 값으로 남는다
                   void GrammarService.completeGrammar(g.id)
                     .then((r) => {
+                      // 오늘 첫 완료면 연속 도장, 3·6·9…일째면 상자 (닫으면 이 화면)
+                      openCelebration(r?.celebration, "back");
                       if (r?.gems != null || r?.totalXP != null) {
                         updateUser({
                           ...(r.gems != null ? { gems: r.gems } : {}),

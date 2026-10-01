@@ -11,6 +11,7 @@ import type {
   SpeakingProgress,
   StudyExpression,
 } from "@/types/expression";
+import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 // 서버에 보내는 lang 은 UI 언어가 아니라 **설명 언어**다 (한국어 UI 면 따로 고른 말)
 const getLang = getContentLang;
@@ -77,6 +78,12 @@ export const ExpressionService = {
    *
    * ⚠️ PATCH 다. main.ts 의 CORS methods 에 PUT 이 없다.
    */
+  /** 표현 카드 학습(노드) 완료 — 하루 학습으로 남기고 도장·상자를 받는다 */
+  completeNode: (
+    nodeCode: string,
+  ): Promise<{ success: boolean; celebration: StudyCelebration | null }> =>
+    api.post(`/expressions/nodes/${encodeURIComponent(nodeCode)}/complete`, {}),
+
   saveSpeakingProgress: (
     packCode: string,
     index: number,
@@ -140,6 +147,8 @@ export const ExpressionService = {
     xpEarned: number;
     totalXP: number;
     progress: Array<{ expressionId: string; progress: ExpressionProgress }>;
+    /** 학습 모드 완료 축하 (연속 도장·상자) */
+    celebration?: StudyCelebration | null;
   }> =>
     api.post(
       `/expressions/packs/${encodeURIComponent(packCode)}/practice-complete`,

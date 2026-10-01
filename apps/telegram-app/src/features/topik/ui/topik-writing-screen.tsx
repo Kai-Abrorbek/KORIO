@@ -28,6 +28,7 @@ import {
 } from "../model/topik";
 import { SheetModal, StimulusCard, TopikTextBlocks } from "./topik-exam-parts";
 import styles from "./topik-writing-screen.module.css";
+import { openCelebration } from "../../misc/model/streak-chest-route";
 
 type WritingResponses = Record<string, Record<string, string>>;
 
@@ -54,7 +55,7 @@ function createSaveAnswer(question: TopikQuestionWithGroup, responses: Record<st
 export function TopikWritingScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { request, user } = useTelegramAuth();
+  const { request, updateUser, user } = useTelegramAuth();
   const examCode = params.get("examCode") ?? "";
   const reviewAttemptId = params.get("reviewAttemptId") ?? "";
   const parsedQuestion = Number(params.get("questionNumber"));
@@ -156,7 +157,7 @@ export function TopikWritingScreen() {
   const submit = async () => {
     if (!attempt) return;
     setSubmitting(true);
-    try { await save(currentIndex); await submitTopikAttempt(request, attempt.id); const nextResult = await getTopikResult(request, attempt.id); setResult(nextResult); setSubmitOpen(false); setCurrentIndex(0); }
+    try { await save(currentIndex); const submission = await submitTopikAttempt(request, attempt.id); const nextResult = await getTopikResult(request, attempt.id); setResult(nextResult); setSubmitOpen(false); setCurrentIndex(0); openCelebration(router, submission?.celebration, "back", (gems) => updateUser({ gems })); }
     catch { setSubmitOpen(false); setErrorOpen(true); }
     finally { setSubmitting(false); }
   };

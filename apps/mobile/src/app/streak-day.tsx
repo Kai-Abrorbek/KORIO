@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
-import { viaStreakChest } from "@/utils/streak-chest-route";
+import { goNext, viaStreakChest } from "@/utils/streak-chest-route";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -64,6 +64,8 @@ export default function StreakDayScreen() {
     /** 연속 3·6·9…일째 보상 상자 — 도장 바로 다음에 연다 */
     streakChestGems?: string;
     streakChestDays?: string;
+    /** 어휘 외 모드에서 왔을 때 축하 뒤 갈 곳 — JSON Href 또는 "back" */
+    next?: string;
   }>();
 
   const streak = Math.max(1, Number(params.streak ?? 1) || 1);
@@ -190,6 +192,24 @@ export default function StreakDayScreen() {
   const onContinue = () => {
     // 연속 보상 상자가 있으면 원래 가려던 곳 앞에 끼운다 (utils/streak-chest-route)
     const go = (next: Href) => router.replace(viaStreakChest(next, params));
+
+    // 표현·말하기·TOPIK·문법·리스닝에서 왔으면 갈 곳이 정해져 있다
+    if (params.next) {
+      if (params.streakChestGems) {
+        let target: Href | "back" = "back";
+        if (params.next !== "back") {
+          try {
+            target = JSON.parse(params.next) as Href;
+          } catch {
+            target = "back";
+          }
+        }
+        router.replace(viaStreakChest(target, params));
+        return;
+      }
+      goNext(params.next, () => router.replace("/(tabs)"));
+      return;
+    }
     // 스코어까지 올랐으면 그 축하를 이어서 보여준다.
     // 두 축하가 겹치면 안 되니 순서를 여기서 한 번만 정한다:
     //   연속 학습(하루) → 스코어 상승(유닛) → 상자(노드) → 원래 가던 곳

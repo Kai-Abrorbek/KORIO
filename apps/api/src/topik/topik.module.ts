@@ -31,9 +31,12 @@ import { TopikStatsService } from './topik-stats.service';
 import { TopikRecipeService } from './topik-recipe.service';
 import { TopikRecipe, TopikRecipeSchema } from './schemas/topik-recipe.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
+import { LessonsModule } from '../lessons/lessons.module';
 
 @Module({
   imports: [
+    // 제출 = 학습 모드 완료 → 연속 학습 도장·상자 (LessonsModule 은 TopikModule 을 안 물어 순환 없음)
+    LessonsModule,
     MongooseModule.forFeature([
       { name: TopikExam.name, schema: TopikExamSchema },
       { name: TopikQuestionGroup.name, schema: TopikQuestionGroupSchema },

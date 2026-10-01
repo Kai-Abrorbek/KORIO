@@ -146,6 +146,18 @@ import {
 } from './jump-test.util';
 import { normalizeBuilderChips } from './chip-builder.util';
 
+/** 학습 모드 완료 시의 축하 묶음 (celebrateStudyDay) */
+export interface StudyCelebration {
+  dailyStreak: {
+    streak: number;
+    longest: number;
+    week: { date: string; studied: boolean; isToday: boolean; future: boolean }[];
+  } | null;
+  streakChest: { grade: string; gems: number; streak: number } | null;
+  /** 상자까지 받은 뒤의 보석 — 화면이 카운터를 이 값 - 상자 보석에서 센다 */
+  gems: number;
+}
+
 @Injectable()
 export class LessonsService {
   private readonly logger = new Logger(LessonsService.name);
@@ -572,12 +584,6 @@ export class LessonsService {
       { upsert: true, returnDocument: 'after' },
     );
 
-    // ── 오늘 첫 학습인가 ──
-    // recordStudy **전에** 봐야 한다. 그 다음엔 오늘 기록이 생겨 버려서
-    // "처음"인지 알 수 없다. 하루 경계는 유저 시간대로 자른다 —
-    // 서버 로컬(KST)로 자르면 타슈켄트 유저의 저녁 학습이 다음 날로 넘어간다.
-    const firstStudyToday = !(await this.hasStudiedToday(userId));
-
     // 통계 기록 (카테고리는 문제 타입에서 유도 — recordStudy 가 처리)
     await this.recordStudy(userId, {
       questionIds: lesson.questionIds,
@@ -677,25 +683,8 @@ export class LessonsService {
       }
     }
 
-    // ── 연속 학습 보상 상자 (3·6·9…일째) ──
-    //
-    // 연속 일수가 STREAK_CHEST_EVERY_DAYS 의 배수인 날, 그날의 레슨을 끝내면
-    // 고정 보석 상자. 키가 "그날" 이라 하루 한 번뿐이다. 오늘 첫 학습이 표현·
-    // 말하기였어도(=도장 화면이 안 떴어도) 그날 레슨을 끝내면 받는다 — 연속
-    // 기록은 이미 오늘 찍혔으니 약속한 보상을 빼먹으면 안 된다.
-    let streakChest: { grade: string; gems: number; streak: number } | null =
-      null;
-    const streakDays = streakNow?.current ?? 0;
-    if (streakDays > 0 && streakDays % STREAK_CHEST_EVERY_DAYS === 0) {
-      const tz = await this.usersService.getTimezone(userId);
-      const got = await this.chestService
-        .grantFixedAndClaim(userId, `streak:${dayKey(new Date(), tz)}`, {
-          grade: 'gold',
-          gems: STREAK_CHEST_GEMS,
-        })
-        .catch(() => null);
-      if (got) streakChest = { ...got, streak: streakDays };
-    }
+    // ── 연속 학습 도장 + 3·6·9…일째 보상 상자 ── (모든 학습 모드 공통 규칙)
+    const celebration = await this.celebrateStudyDay(userId, streakNow);
 
     // ── 유닛을 통째로 끝냈나 → 스코어가 오르는 순간 ──
     //
@@ -756,36 +745,84 @@ export class LessonsService {
       energy: updatedUser?.energy ?? 0,
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
       /** 연속 3·6·9…일째의 보상 상자 (이미 들어간 보석). 오늘 이미 받았으면 null */
-      streakChest,
+      streakChest: celebration.streakChest,
       /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
       unitCompleted,
       /**
-       * 오늘의 **첫** 레슨이면 채워진다. 연속 학습일 축하 화면을 띄우는 신호다.
-       * 판정도 숫자도 서버가 준다 — 클라가 "오늘 처음인가" 를 세면 앱을 껐다
-       * 켜거나 두 기기에서 풀 때 또 축하한다.
+       * 오늘 처음 "완료" 한 학습이면 채워진다 (어떤 모드든). 연속 학습 축하 화면 신호.
+       * 판정은 서버가 한다 — User.streakCelebratedOn 으로 하루 한 번.
        */
-      dailyStreak: firstStudyToday
-        ? {
-            streak: streakNow?.current ?? 0,
-            longest: streakNow?.longest ?? 0,
-            /**
-             * 화면에 그릴 7일 창. 오늘부터 앞으로 7일이 아니라 **연속이
-             * 시작된 날**에 고정된 창이다 — 그래야 내일 열어도 어제 체크가
-             * 그대로 남아 "며칠째인지" 가 보인다. 7일이 다 차면 다음 주로 넘어간다.
-             */
-            week: streakWeek(
-              streakNow?.days ?? [],
-              new Date(),
-              await this.usersService.getTimezone(userId),
-            ).map((d) => ({
-              date: d.date.toISOString(),
-              studied: d.studied,
-              isToday: d.isToday,
-              future: d.future,
-            })),
-          }
-        : null,
+      dailyStreak: celebration.dailyStreak,
     };
+  }
+
+  /**
+   * 학습 모드를 하나 **완료**했을 때의 축하 — 모든 모드가 같은 규칙을 쓴다.
+   *
+   *  - 도장(dailyStreak): 그날 처음 완료한 순간 한 번. `streakCelebratedOn` 을
+   *    원자적으로 오늘로 바꾼 쪽만 받는다 (두 기기·연타에도 한 번)
+   *  - 상자(streakChest): 연속 일수가 STREAK_CHEST_EVERY_DAYS 의 배수인 날 한 번.
+   *    키가 "그날" 이라 어느 모드에서 받든 하루 한 번뿐이다
+   *
+   * ⚠️ 부르기 전에 그 모드의 학습 기록(recordStudy 등)이 오늘 날짜로 남아 있어야
+   * 한다 — 연속 일수가 오늘을 포함해야 하니까. 응답에 실을 gems 는 상자를 받은 뒤 값.
+   */
+  async celebrateStudyDay(
+    userId: string,
+    knownStreak?: { current: number; longest: number; days: Date[] } | null,
+  ): Promise<StudyCelebration> {
+    const uid = new Types.ObjectId(userId);
+    // 오늘 실제 학습 기록이 없으면 아무것도 안 준다. 연속 일수는 어제까지로도 0 보다
+    // 클 수 있어서, 이걸 안 보면 "완료" 만 부르고 도장·상자를 받을 수 있다.
+    if (!(await this.hasStudiedToday(userId))) {
+      const user = await this.userModel.findById(uid).select('gems').lean();
+      return { dailyStreak: null, streakChest: null, gems: user?.gems ?? 0 };
+    }
+    const streakNow =
+      knownStreak ??
+      (await this.usersService.syncStreak(userId).catch(() => null));
+    const tz = await this.usersService.getTimezone(userId);
+    const today = dayKey(new Date(), tz);
+    const days = streakNow?.current ?? 0;
+
+    let dailyStreak: StudyCelebration['dailyStreak'] = null;
+    if (days > 0) {
+      const claimed = await this.userModel
+        .findOneAndUpdate(
+          { _id: uid, streakCelebratedOn: { $ne: today } },
+          { $set: { streakCelebratedOn: today } },
+        )
+        .select('_id')
+        .lean();
+      if (claimed) {
+        dailyStreak = {
+          streak: days,
+          longest: streakNow?.longest ?? 0,
+          // 화면에 그릴 7일 창. **연속이 시작된 날**에 고정된 창이라 내일 열어도
+          // 어제 체크가 남는다. 7일이 다 차면 다음 주로 넘어간다.
+          week: streakWeek(streakNow?.days ?? [], new Date(), tz).map((d) => ({
+            date: d.date.toISOString(),
+            studied: d.studied,
+            isToday: d.isToday,
+            future: d.future,
+          })),
+        };
+      }
+    }
+
+    let streakChest: StudyCelebration['streakChest'] = null;
+    if (days > 0 && days % STREAK_CHEST_EVERY_DAYS === 0) {
+      const got = await this.chestService
+        .grantFixedAndClaim(userId, `streak:${today}`, {
+          grade: 'gold',
+          gems: STREAK_CHEST_GEMS,
+        })
+        .catch(() => null);
+      if (got) streakChest = { ...got, streak: days };
+    }
+
+    const user = await this.userModel.findById(uid).select('gems').lean();
+    return { dailyStreak, streakChest, gems: user?.gems ?? 0 };
   }
 
   /**

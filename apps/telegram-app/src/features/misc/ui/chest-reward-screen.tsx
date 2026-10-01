@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
+import { goNext } from "../model/streak-chest-route";
 import styles from "./chest-reward-screen.module.css";
 
 type Phase = "idle" | "opening" | "revealed";
@@ -95,7 +96,7 @@ export function ChestRewardScreen() {
   const back = () => {
     // 축하 흐름 중간(연속 보상 상자)이면 원래 가려던 곳으로 이어 간다
     const next = params.get("next");
-    if (next && next.startsWith("/")) { router.replace(next); return; }
+    if (next) { goNext(router, next, () => router.replace("/home")); return; }
     if (window.history.length > 1) { router.back(); return; }
     if (params.get("from") === "studyPath") { router.replace("/study-path"); return; }
     const category = params.get("category");

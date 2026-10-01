@@ -35,6 +35,7 @@ import type {
 } from "@/types/topik";
 import { flattenTopikQuestions, toTopikLanguage } from "@/types/topik";
 import { getContentLang } from "@/store/settings.store";
+import { openCelebration } from "@/utils/streak-chest-route";
 
 type WritingResponses = Record<string, Record<string, string>>;
 
@@ -284,11 +285,13 @@ export default function TopikWritingScreen() {
     setSubmitting(true);
     try {
       await save(currentIndex);
-      await TopikService.submitAttempt(attempt.id);
+      const submission = await TopikService.submitAttempt(attempt.id);
       const submittedResult = await TopikService.getResult(attempt.id);
       setResult(submittedResult);
       setSubmitVisible(false);
       setCurrentIndex(0);
+      // 결과는 이 화면에 그대로 뜬다 — 도장·상자는 위에 띄웠다가 닫으면 돌아온다
+      openCelebration(submission.celebration, "back");
     } catch {
       setSubmitVisible(false);
       setErrorVisible(true);

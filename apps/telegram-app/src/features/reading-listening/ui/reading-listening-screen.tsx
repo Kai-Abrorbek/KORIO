@@ -22,6 +22,7 @@ import {
   type ReadingWordGloss,
 } from "../api/reading-listening";
 import styles from "./reading-listening-screen.module.css";
+import { openCelebration } from "../../misc/model/streak-chest-route";
 
 const STEPS: Array<{ icon: IoniconName; label: string }> = [
   { icon: "book-outline", label: "O‘qib ko‘ramiz" },
@@ -446,6 +447,8 @@ export function ReadingListeningScreen() {
         writingText: writing.trim() || undefined,
       });
       setCompleteState({ loading: false, error: false, result });
+      // 오늘 첫 완료면 연속 도장, 3·6·9…일째면 상자 — 닫으면 완료 시트로 돌아온다
+      openCelebration(router, result.celebration, "back", (gems) => updateUser({ gems }));
       setLessons((items) => items.map((item) => item.code === lesson.code ? { ...item, progress: result.progress } : item));
       if (result.totalXP !== null) updateUser({ totalXP: result.totalXP });
     } catch { setCompleteState({ loading: false, error: true, result: null }); }

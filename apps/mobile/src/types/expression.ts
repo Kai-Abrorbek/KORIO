@@ -102,6 +102,8 @@ export interface SpeakingProgress {
   completedCount: number;
   /** 이번 저장으로 주제가 끝났는지 (저장 응답에서만 의미 있다) */
   justCompleted: boolean;
+  /** 주제를 끝낸 순간의 축하 (연속 도장·상자) */
+  celebration?: import("@/utils/streak-chest-route").StudyCelebration | null;
 }
 
 export interface ExpressionListResponse {

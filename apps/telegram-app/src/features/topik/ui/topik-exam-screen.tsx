@@ -42,6 +42,7 @@ import {
   SheetModal,
 } from "./topik-exam-parts";
 import styles from "./topik-exam-screen.module.css";
+import { openCelebration } from "../../misc/model/streak-chest-route";
 
 const ANSWER_TIME_PER_QUESTION_MS = 10_000;
 
@@ -66,7 +67,7 @@ function answersFromAttempt(attempt: TopikAttempt) {
 export function TopikExamScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { request, user } = useTelegramAuth();
+  const { request, updateUser, user } = useTelegramAuth();
   const examCode = params.get("examCode") ?? "";
   const reviewAttemptId = params.get("reviewAttemptId") ?? "";
   const reviewQuestionNumber = Math.max(1, Number(params.get("questionNumber")) || 1);
@@ -420,10 +421,12 @@ export function TopikExamScreen() {
       } else {
         await saveProgress();
       }
-      await submitTopikAttempt(request, attempt.id);
+      const submission = await submitTopikAttempt(request, attempt.id);
       const result = await getTopikResult(request, attempt.id);
       stopAudio();
-      router.replace(`/topik-result?attemptId=${encodeURIComponent(result.attemptId)}`);
+      const resultUrl = `/topik-result?attemptId=${encodeURIComponent(result.attemptId)}`;
+      // 오늘 첫 완료면 연속 도장(3·6·9…일째면 상자)부터, 끝나면 결과 화면
+      if (!openCelebration(router, submission?.celebration, resultUrl, (gems) => updateUser({ gems }))) router.replace(resultUrl);
     } catch {
       setActionError("submit");
     } finally {
