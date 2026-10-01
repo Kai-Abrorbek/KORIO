@@ -434,7 +434,7 @@ export default function ExpressionLearningPage({
 
         {!typingActive ? (
           <View
-            style={[styles.meaningArea, { borderTopColor: palette.border }]}
+            style={[styles.meaningArea, { borderBottomColor: palette.border }]}
           >
             <Text style={[styles.sectionLabel, { color: palette.muted }]}>
               {t("expressionLearning.meaning")}
@@ -635,7 +635,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 4,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   recallPromptWrap: {
     width: "100%",
@@ -802,9 +803,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  // 한국어 바로 밑에 붙여서 짝으로 읽히게 — 위 구분선 없이, 아래에만 선을 긋고 버튼은 그 아래
   meaningArea: {
-    borderTopWidth: 1,
-    paddingTop: 15,
+    borderBottomWidth: 1,
+    paddingTop: 2,
+    paddingBottom: 16,
     alignItems: "center",
     gap: 7,
   },

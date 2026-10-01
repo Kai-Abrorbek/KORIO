@@ -31,7 +31,7 @@
 .card { animation: cardIn 230ms ease-out both; background: var(--surface); border: 1px solid var(--border); border-radius: 28px; box-shadow: 0 10px 20px rgb(41 36 61 / 5%); display: flex; flex-direction: column; min-height: 420px; padding: 18px 18px 8px; }
 @keyframes cardIn { from { opacity: .72; transform: translateX(28px) rotate(1deg); } }
 .speechChip { align-items: center; align-self: flex-start; background: var(--primary-soft); border-radius: 99px; color: var(--primary); display: flex; font-size: 10.5px; font-weight: 800; gap: 6px; min-height: 29px; padding: 0 11px; }
-.sentenceArea { align-items: center; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 160px; padding: 20px 4px; }
+.sentenceArea { align-items: center; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 160px; padding: 20px 4px 10px; }
 .sentenceArea > h1 { font-size: clamp(25px, 7vw, 29px); font-weight: 800; letter-spacing: -.7px; line-height: 1.48; margin: 0; text-align: center; width: 100%; }
 .sentenceArea > h1.spoken { background: linear-gradient(90deg, var(--primary) var(--speech-progress), var(--ink) var(--speech-progress)); background-clip: text; color: transparent; }
 .romanization { color: var(--muted); font-size: 12.5px; font-weight: 600; line-height: 19px; margin: 7px 0 0; text-align: center; }
@@ -45,7 +45,8 @@
 .practiceActions > div button { align-items: center; background: transparent; border: 0; border-radius: 20px; color: var(--primary); display: flex; height: 40px; justify-content: center; padding: 0; width: 42px; }
 .practiceActions > div .activeMode { background: var(--primary); color: #fff; }
 .practiceActions > div i { background: var(--border); height: 21px; width: 1px; }
-.meaning { align-items: center; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; padding-top: 15px; }
+/* 한국어 바로 밑에 붙여서 짝으로 읽히게 — 위 구분선 없이, 아래에만 선을 긋고 버튼은 그 아래 (앱과 같음) */
+.meaning { align-items: center; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; padding: 2px 0 16px; }
 .meaning small, .typingArea > small { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 1.2px; }
 .meaning p { font-size: 17px; font-weight: 600; line-height: 26px; margin: 0; text-align: center; }
 .details { padding-top: 4px; }
