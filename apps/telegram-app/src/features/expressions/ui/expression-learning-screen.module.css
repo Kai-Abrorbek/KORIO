@@ -48,7 +48,7 @@
 /* 한국어 바로 밑에 붙여서 짝으로 읽히게 — 위 구분선 없이, 아래에만 선을 긋고 버튼은 그 아래 (앱과 같음) */
 .meaning { align-items: center; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; padding: 2px 0 16px; }
 .meaning small, .typingArea > small { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 1.2px; }
-.meaning p { font-size: 17px; font-weight: 600; line-height: 26px; margin: 0; text-align: center; }
+.meaning p { font-size: 19px; font-weight: 800; line-height: 28px; margin: 0; text-align: center; }
 .details { padding-top: 4px; }
 .details > div { display: grid; gap: 9px; grid-template-columns: 1fr 1fr; margin-top: 17px; }
 .details section { border: 1px solid var(--border); border-radius: 16px; padding: 12px; }

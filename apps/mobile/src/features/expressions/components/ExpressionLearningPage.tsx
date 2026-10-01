@@ -819,9 +819,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   meaning: {
-    fontSize: 17,
-    lineHeight: 26,
-    fontWeight: "600",
+    fontSize: 19,
+    lineHeight: 28,
+    fontWeight: "800",
     textAlign: "center",
   },
   details: { paddingTop: 4 },
