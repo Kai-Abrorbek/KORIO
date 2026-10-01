@@ -141,6 +141,18 @@ export class PushSchedulerService {
     return { ok: true, ms: Date.now() - started };
   }
 
+  /**
+   * 영수증 확인 — 재설치로 죽은 토큰을 걸러내고, FCM 키 문제를 로그로 드러낸다.
+   * blue/green 두 컨테이너가 같이 돌아도 결과가 같아서(멱등) 잠금은 안 건다.
+   */
+  @Cron('*/15 * * * *')
+  async receipts() {
+    if (isShuttingDown()) return;
+    await this.push.checkReceipts().catch((e) =>
+      this.logger.warn(`영수증 확인 실패: ${(e as Error).message}`),
+    );
+  }
+
   @Cron('0 * * * *')
   async tick() {
     // 종료 중인 컨테이너가 마지막으로 한 번 더 도는 걸 막는다

@@ -7,6 +7,7 @@ import {
 } from '../users/schemas/user-stats.schema';
 import { DeviceToken, DeviceTokenSchema } from './schemas/device-token.schema';
 import { PushLog, PushLogSchema } from './schemas/push-log.schema';
+import { PushTicket, PushTicketSchema } from './schemas/push-ticket.schema';
 import { PushService } from './push.service';
 import { PushSchedulerService } from './push-scheduler.service';
 import { PushController } from './push.controller';
@@ -23,6 +24,7 @@ import { PushController } from './push.controller';
     MongooseModule.forFeature([
       { name: DeviceToken.name, schema: DeviceTokenSchema },
       { name: PushLog.name, schema: PushLogSchema },
+      { name: PushTicket.name, schema: PushTicketSchema },
       { name: User.name, schema: UserSchema },
       { name: UserStats.name, schema: UserStatsSchema },
     ]),

@@ -9,7 +9,12 @@ import {
 } from './schemas/device-token.schema';
 import { PushLog, PushLogDocument } from './schemas/push-log.schema';
 import {
+  PushTicket,
+  PushTicketDocument,
+} from './schemas/push-ticket.schema';
+import {
   ExpoPushClient,
+  isCredentialError,
   isDeadTokenError,
   isExpoToken,
   type ExpoPushRequest,
@@ -73,6 +78,8 @@ export class PushService {
     private readonly logModel: Model<PushLogDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(PushTicket.name)
+    private readonly ticketModel: Model<PushTicketDocument>,
   ) {}
 
   // ─────────────────────────── 토큰 관리 ───────────────────────────
@@ -110,6 +117,26 @@ export class PushService {
       },
       { upsert: true },
     );
+
+    // 같은 사람·같은 기기의 옛 토큰은 지운다 — 기기당 토큰 하나.
+    // 앱을 재설치·재빌드하면 FCM 토큰이 새로 나오고 옛 것은 그 순간 죽는데,
+    // 지우지 않으면 죽은 토큰이 계속 쌓여 발송 대상에 섞인다.
+    // 기기 이름이 없으면 어느 기기인지 모르니 건드리지 않는다.
+    // (같은 모델 폰 두 대를 한 계정으로 쓰면 마지막에 연 폰만 남는다 — 감수)
+    const deviceName = (dto.deviceName || '').trim();
+    if (deviceName) {
+      const res = await this.tokenModel.deleteMany({
+        userId: new Types.ObjectId(userId),
+        platform: dto.platform || 'android',
+        deviceName,
+        token: { $ne: token },
+      });
+      if (res.deletedCount) {
+        this.logger.log(
+          `옛 토큰 ${res.deletedCount}개 정리 (user=${userId}, ${deviceName})`,
+        );
+      }
+    }
     return { success: true };
   }
 
@@ -251,6 +278,7 @@ export class PushService {
 
     const outcomes = await this.expo.send(messages);
     await this.retireDeadTokens(outcomes);
+    await this.rememberTickets(outcomes);
     return outcomes.some((o) => o.ok);
   }
 
@@ -437,6 +465,80 @@ export class PushService {
     const key = PREF_KEY_OF[type];
     if (!key) return true;
     return prefs[key] !== false;
+  }
+
+  /** ok 티켓을 저장해 둔다 — 영수증 크론(checkReceipts)이 나중에 확인한다 */
+  private async rememberTickets(
+    outcomes: { token: string; ok: boolean; ticketId?: string }[],
+  ) {
+    const docs = outcomes
+      .filter((o) => o.ok && o.ticketId)
+      .map((o) => ({ ticketId: o.ticketId as string, token: o.token }));
+    if (!docs.length) return;
+    await this.ticketModel.insertMany(docs, { ordered: false }).catch(() => {});
+  }
+
+  /**
+   * 영수증 확인. 크론이 15분마다 부른다.
+   *
+   * - DeviceNotRegistered → 그 토큰은 죽었다. 발송 대상에서 뺀다
+   * - InvalidCredentials · MismatchSenderId → EAS 에 올린 FCM 키 문제.
+   *   전 유저가 못 받는 상황이라 error 로그를 크게 남긴다 (토큰은 안 건드림)
+   * - 아직 영수증이 없는 티켓은 남겨 두고 다음에 다시 묻는다 (24시간 뒤 TTL 로 사라짐)
+   */
+  async checkReceipts(): Promise<{ checked: number; dead: number; failed: number }> {
+    // Expo 권장: 발송 후 15분쯤 지나서 묻는다
+    const ready = new Date(Date.now() - 15 * 60_000);
+    const tickets = await this.ticketModel
+      .find({ createdAt: { $lte: ready } })
+      .sort({ createdAt: 1 })
+      .limit(3000)
+      .select('ticketId token')
+      .lean();
+    if (!tickets.length) return { checked: 0, dead: 0, failed: 0 };
+
+    const receipts = await this.expo.getReceipts(tickets.map((t) => t.ticketId));
+
+    const done: string[] = [];
+    const dead = new Set<string>();
+    const errors = new Map<string, number>();
+    for (const t of tickets) {
+      const r = receipts[t.ticketId];
+      if (!r) continue; // 아직 준비 안 됨
+      done.push(t.ticketId);
+      if (r.status === 'ok') continue;
+      const code = r.details?.error ?? 'UNKNOWN';
+      errors.set(code, (errors.get(code) ?? 0) + 1);
+      if (isDeadTokenError(code)) dead.add(t.token);
+    }
+
+    if (dead.size) {
+      await this.tokenModel
+        .updateMany(
+          { token: { $in: [...dead] } },
+          { $set: { invalidAt: new Date() } },
+        )
+        .catch(() => {});
+    }
+    if (done.length) {
+      await this.ticketModel.deleteMany({ ticketId: { $in: done } }).catch(() => {});
+    }
+
+    const credential = [...errors].filter(([code]) => isCredentialError(code));
+    if (credential.length) {
+      this.logger.error(
+        `🚨 푸시 자격증명 오류 ${credential.map(([c, n]) => `${c}×${n}`).join(', ')} — ` +
+          'EAS 의 FCM V1 서비스 계정 키를 확인하라 (eas credentials). 지금 아무도 알림을 못 받는다',
+      );
+    }
+    const failed = [...errors.values()].reduce((a, b) => a + b, 0);
+    if (failed) {
+      this.logger.warn(
+        `푸시 영수증 실패 ${failed}/${done.length} — ${[...errors].map(([c, n]) => `${c}×${n}`).join(', ')}` +
+          (dead.size ? ` · 죽은 토큰 ${dead.size}개 제외` : ''),
+      );
+    }
+    return { checked: done.length, dead: dead.size, failed };
   }
 
   /** Expo 가 죽었다고 한 토큰에 표시. 안 하면 매번 같은 토큰에 헛발송한다 */
