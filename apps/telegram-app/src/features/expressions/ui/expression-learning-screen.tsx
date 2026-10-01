@@ -179,10 +179,13 @@ export function ExpressionLearningScreen() {
   }, [index, prewarm, queue]);
 
   useEffect(() => {
-    if (!readyForRecall || saving || offerShown.current) return;
+    // 마지막 표현의 자동 재생이 끝난 뒤에 띄운다 — 모달이 stopSpeech() 를 불러서
+    // 그냥 띄우면 읽다가 중간에 끊긴다. 재생이 시작되면(speaking) 타이머가 정리되고
+    // 끝나면 다시 잡힌다 (앱과 같음)
+    if (!readyForRecall || saving || speaking || offerShown.current) return;
     const timer = window.setTimeout(() => { offerShown.current = true; stopSpeech(); setOfferOpen(true); window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success"); }, 550);
     return () => window.clearTimeout(timer);
-  }, [readyForRecall, saving, stopSpeech]);
+  }, [readyForRecall, saving, speaking, stopSpeech]);
 
   useEffect(() => () => { cancelRecording(); stopSpeech(); }, [cancelRecording, stopSpeech]);
 
@@ -314,9 +317,10 @@ export function ExpressionLearningScreen() {
                 {requiresAnswer && !practiceReady ? <button className={styles.later} onClick={() => { scheduleRetry(); setPracticeReady(true); setHintVisible(true); }} type="button">Keyinroq yana mashq qilish</button> : null}
               </div>
             ) : referenceVisible ? <><h1 className={speaking ? styles.spoken : ""} style={{ "--speech-progress": `${speechProgress * 100}%` } as CSSProperties}>{expression.korean}</h1>{expression.pronunciation.romanization ? <p className={styles.romanization}>{expression.pronunciation.romanization}</p> : null}</> : <div className={styles.recallPrompt}><span><MobileIcon name="chatbubble-ellipses-outline" size={21} /></span><p>Ma&apos;nosidan koreyscha iborani eslang</p></div>}
-            <div className={styles.practiceActions}>{referenceVisible ? <button aria-label="Iborani qayta tinglash" className={speaking ? styles.activeAudio : ""} onClick={() => speaking ? stopSpeech() : speak(expression.pronunciation.ttsText || expression.korean)} type="button"><MobileIcon name={speaking ? "volume-high" : "volume-medium-outline"} size={23} /></button> : null}<div><button className={voiceOpen ? styles.activeMode : ""} onClick={openVoice} type="button"><MobileIcon name="mic-outline" size={22} /></button><i /><button className={typingActive ? styles.activeMode : ""} onClick={() => { stopSpeech(); setTypingActive(true); }} type="button"><MobileIcon family="material-community" name="keyboard" size={24} /></button></div></div>
           </div>
           {!typingActive ? <div className={styles.meaning}><small>IBORA MA&apos;NOSI</small><p>{expression.meaning}</p></div> : null}
+          {/* 듣기·말하기·쓰기 버튼은 뜻 아래로 — 한국어 바로 밑에 뜻이 와야 짝이 한눈에 보인다 (앱과 같음) */}
+          <div className={styles.practiceActions}>{referenceVisible ? <button aria-label="Iborani qayta tinglash" className={speaking ? styles.activeAudio : ""} onClick={() => speaking ? stopSpeech() : speak(expression.pronunciation.ttsText || expression.korean)} type="button"><MobileIcon name={speaking ? "volume-high" : "volume-medium-outline"} size={23} /></button> : null}<div><button className={voiceOpen ? styles.activeMode : ""} onClick={openVoice} type="button"><MobileIcon name="mic-outline" size={22} /></button><i /><button className={typingActive ? styles.activeMode : ""} onClick={() => { stopSpeech(); setTypingActive(true); }} type="button"><MobileIcon family="material-community" name="keyboard" size={24} /></button></div></div>
           {detailsOpen ? <div className={styles.details}><div><section><strong><MobileIcon name="person-outline" size={16} />Odatda kim aytadi</strong><p>{expression.speaker || "Hamma"}</p></section><section><strong><MobileIcon name="locate-outline" size={16} />Ishlatiladigan vaziyat</strong><p>{expression.context}</p></section></div>{expression.usageNote ? <aside><MobileIcon name="sparkles-outline" size={18} /><div><strong>Tabiiy aytish usuli</strong><p>{expression.usageNote}</p></div></aside> : null}</div> : null}
           <button className={styles.detailsButton} onClick={() => setDetailsOpen((value) => !value)} type="button">{detailsOpen ? "Yopish" : "Batafsil ko'rish"}<MobileIcon name={detailsOpen ? "chevron-up" : "chevron-down"} size={17} /></button>
         </article>

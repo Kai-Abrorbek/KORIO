@@ -338,6 +338,12 @@
   z-index: 20;
 }
 
+/* 위에 뒤로가기 줄(miniRoadmapNav)이 있으면 안전 영역은 그 줄이 이미 먹었다.
+   여기서 또 내리면 두 줄 사이에 빈 띠가 생긴다 (표현 로드맵) */
+.miniRoadmapNav + .pathStats {
+  padding-top: 9px;
+}
+
 .pathStats > span,
 .pathStats > button {
   align-items: center;
