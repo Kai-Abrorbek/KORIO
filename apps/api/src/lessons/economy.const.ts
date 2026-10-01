@@ -269,3 +269,13 @@ export const LESSON_REPLAY_COOLDOWN_SEC = 60;
  */
 export const PRACTICE_COOLDOWN_SEC = 20;
 export const PRACTICE_DAILY_LIMIT = 60;
+
+/**
+ * 연속 학습 보상 상자 — 연속 N일째마다(3·6·9…) 고정 보석.
+ *
+ * 노드 상자(rollChestReward)와 달리 굴리지 않는다. "3일 오면 200" 이 약속이라
+ * 운에 맡기면 약속이 아니게 된다. 매일 오게 만드는 장치라 에너지 충전(350)과
+ * 비교해 후한 편으로 잡았다 — 한 달 개근이면 약 2,000.
+ */
+export const STREAK_CHEST_EVERY_DAYS = 3;
+export const STREAK_CHEST_GEMS = 200;

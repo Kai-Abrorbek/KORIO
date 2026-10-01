@@ -94,6 +94,49 @@ export class ChestService {
     return { grade: taken.grade, gems: taken.gems };
   }
 
+  /**
+   * 정해진 보상(등급·보석 고정)의 상자를 만들고 그 자리에서 받는다.
+   * 연속 학습 보상처럼 "N 이면 M" 이 약속인 경우에 쓴다 — 굴리지 않는다.
+   * sourceKey 가 유니크라 같은 키로 두 번 못 받는다 (이미 받았으면 null).
+   */
+  async grantFixedAndClaim(
+    userId: string,
+    sourceKey: string,
+    reward: { grade: 'wood' | 'silver' | 'gold'; gems: number; section?: number },
+  ): Promise<{ grade: string; gems: number } | null> {
+    const uId = new Types.ObjectId(userId);
+    try {
+      await this.chestModel.updateOne(
+        { userId: uId, sourceKey },
+        {
+          $setOnInsert: {
+            userId: uId,
+            sourceKey,
+            section: reward.section ?? 1,
+            grade: reward.grade,
+            gems: reward.gems,
+            perfect: false,
+            claimedAt: null,
+          },
+        },
+        { upsert: true },
+      );
+    } catch (error: any) {
+      if (error?.code !== 11000) {
+        this.logger.warn(`상자 생성 실패: ${error?.message}`);
+      }
+    }
+
+    const taken = await this.chestModel.findOneAndUpdate(
+      { userId: uId, sourceKey, claimedAt: null },
+      { $set: { claimedAt: new Date() } },
+    );
+    if (!taken) return null;
+
+    await this.userModel.findByIdAndUpdate(uId, { $inc: { gems: taken.gems } });
+    return { grade: taken.grade, gems: taken.gems };
+  }
+
   /** 아직 안 받은 상자 수. 화면이 상자를 빛나게 할지 정하는 값 */
   async pendingCount(userId: string): Promise<number> {
     return this.chestModel.countDocuments({

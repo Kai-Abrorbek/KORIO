@@ -1130,6 +1130,7 @@ export default {
     oneChanceLeft: "기회가 1번 남았습니다!",
     gemReward: "보석 +{{count}}개",
     continue: "계속",
+    streakTitle: "{{days}}일 연속 학습 보상!",
   },
   syllableDraw: {
     title: "자모를 합쳐 써 보기",

@@ -1012,7 +1012,9 @@ export default function LessonScreen() {
           energy: res.energy,
         } as any);
 
-        const gemsBefore = res.chest ? res.gems - res.chest.gems : res.gems;
+        // 축하 화면들이 보석 카운터를 이어서 센다 — 받기 전 숫자에서 시작
+        const gemsBefore =
+          res.gems - (res.chest?.gems ?? 0) - (res.streakChest?.gems ?? 0);
 
         router.replace({
           pathname: "/lesson-complete",
@@ -1022,6 +1024,13 @@ export default function LessonScreen() {
             time: timeStr,
             chestGrade: res.chest?.grade ?? "",
             chestGems: res.chest ? String(res.chest.gems) : "",
+            // 연속 3·6·9…일째 보상 상자 — 도장 화면 바로 뒤에 연다
+            streakChestGems: res.streakChest
+              ? String(res.streakChest.gems)
+              : "",
+            streakChestDays: res.streakChest
+              ? String(res.streakChest.streak)
+              : "",
             // 유닛을 통째로 끝냈으면 스코어가 오른 순간이다. 완료 화면이
             // 이어서 축하 화면으로 넘긴다
             scoreUp: res.unitCompleted ? String(res.unitCompleted.score) : "",

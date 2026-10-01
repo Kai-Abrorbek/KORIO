@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { StreakDay } from "../model/misc";
+import { viaStreakChest } from "../model/streak-chest-route";
 import styles from "./streak-day-screen.module.css";
 
 function Flame() {
@@ -40,6 +41,8 @@ export function StreakDayScreen() {
 
   // 연속 학습(하루) → 스코어 상승(유닛) → 상자(노드) → 원래 가던 곳
   const proceed = () => {
+    // 연속 보상 상자가 있으면 원래 가려던 곳 앞에 끼운다 (misc/model/streak-chest-route)
+    const go = (next: string) => router.replace(viaStreakChest(next, params));
     const scoreUp = params.get("scoreUp");
     const category = params.get("category");
     const chestGrade = params.get("chestGrade");
@@ -50,15 +53,15 @@ export function StreakDayScreen() {
     };
     if (scoreUp) {
       const next = new URLSearchParams({ ...chest, score: scoreUp, unit: params.get("scoreUpUnit") ?? "", category: category ?? "", from: params.get("from") ?? "" });
-      router.replace(`/score-up?${next.toString()}`);
+      go(`/score-up?${next.toString()}`);
       return;
     }
     if (chestGrade) {
       const next = new URLSearchParams({ category: category ?? "", from: params.get("from") ?? "", gemTotal: chest.gemTotal || "0", gems: chest.chestGems || "0", grade: chestGrade });
-      router.replace(`/chest-reward?${next.toString()}`);
+      go(`/chest-reward?${next.toString()}`);
       return;
     }
-    router.replace(category ? `/roadmap?category=${encodeURIComponent(category)}` : "/home");
+    go(category ? `/roadmap?category=${encodeURIComponent(category)}` : "/home");
   };
 
   return (

@@ -8,6 +8,7 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { backToLearning } from "../model/lesson";
+import { viaStreakChest } from "../../misc/model/streak-chest-route";
 import styles from "./lesson.module.css";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { shareMessage } from "../../../shared/telegram/share";
@@ -177,11 +178,16 @@ export function LessonCompleteScreen() {
         scoreUp: scoreUp ?? "",
         scoreUpUnit: params.get("scoreUpUnit") ?? "",
         streak: dailyStreak,
+        // 도장 찍고 바로 연속 보상 상자 — streak-day 가 끼운다
+        streakChestDays: params.get("streakChestDays") ?? "",
+        streakChestGems: params.get("streakChestGems") ?? "",
         week: params.get("streakWeek") ?? "",
       });
       router.replace(`/streak-day?${query.toString()}`);
       return;
     }
+    // 도장 화면이 안 뜨는 날(오늘 첫 학습이 표현 등)에도 연속 보상 상자는 끼운다
+    const go = (next: string) => router.replace(viaStreakChest(next, params));
     if (scoreUp) {
       const query = new URLSearchParams({
         ...chest,
@@ -190,7 +196,7 @@ export function LessonCompleteScreen() {
         score: scoreUp,
         unit: params.get("scoreUpUnit") ?? "",
       });
-      router.replace(`/score-up?${query.toString()}`);
+      go(`/score-up?${query.toString()}`);
       return;
     }
     if (chestGrade) {
@@ -201,10 +207,10 @@ export function LessonCompleteScreen() {
         gems: params.get("chestGems") ?? "0",
         grade: chestGrade,
       });
-      router.replace(`/chest-reward?${query.toString()}`);
+      go(`/chest-reward?${query.toString()}`);
       return;
     }
-    router.replace(backToLearning(category, from));
+    go(backToLearning(category, from));
   };
 
   return (

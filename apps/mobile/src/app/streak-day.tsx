@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { viaStreakChest } from "@/utils/streak-chest-route";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -60,6 +61,9 @@ export default function StreakDayScreen() {
     chestGrade?: string;
     chestGems?: string;
     gemTotal?: string;
+    /** 연속 3·6·9…일째 보상 상자 — 도장 바로 다음에 연다 */
+    streakChestGems?: string;
+    streakChestDays?: string;
   }>();
 
   const streak = Math.max(1, Number(params.streak ?? 1) || 1);
@@ -184,6 +188,8 @@ export default function StreakDayScreen() {
   }));
 
   const onContinue = () => {
+    // 연속 보상 상자가 있으면 원래 가려던 곳 앞에 끼운다 (utils/streak-chest-route)
+    const go = (next: Href) => router.replace(viaStreakChest(next, params));
     // 스코어까지 올랐으면 그 축하를 이어서 보여준다.
     // 두 축하가 겹치면 안 되니 순서를 여기서 한 번만 정한다:
     //   연속 학습(하루) → 스코어 상승(유닛) → 상자(노드) → 원래 가던 곳
@@ -195,7 +201,7 @@ export default function StreakDayScreen() {
       gemTotal: params.gemTotal ?? "",
     };
     if (params.scoreUp) {
-      router.replace({
+      go({
         pathname: "/score-up",
         params: {
           score: params.scoreUp,
@@ -208,7 +214,7 @@ export default function StreakDayScreen() {
       return;
     }
     if (params.chestGrade) {
-      router.replace({
+      go({
         pathname: "/chest-reward",
         params: {
           grade: params.chestGrade,
@@ -220,7 +226,7 @@ export default function StreakDayScreen() {
       });
       return;
     }
-    router.replace(
+    go(
       params.category
         ? { pathname: "/roadmap", params: { category: params.category } }
         : "/(tabs)",

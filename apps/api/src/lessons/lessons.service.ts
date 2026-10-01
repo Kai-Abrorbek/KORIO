@@ -35,7 +35,7 @@ import { buildMilestones, calcScore } from './score.util';
 import { LeagueService } from '../league/league.service';
 import { ChestService } from './chest.service';
 import { UsersService } from '../users/users.service';
-import { startOfDay } from '../common/date.util';
+import { dayKey, startOfDay } from '../common/date.util';
 import { buildCategoryStatsInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { EnergyService } from '../energy/energy.service';
@@ -57,6 +57,8 @@ import {
   PRACTICE_COOLDOWN_SEC,
   PRACTICE_DAILY_LIMIT,
   awardedXp,
+  STREAK_CHEST_EVERY_DAYS,
+  STREAK_CHEST_GEMS,
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
@@ -675,6 +677,26 @@ export class LessonsService {
       }
     }
 
+    // ── 연속 학습 보상 상자 (3·6·9…일째) ──
+    //
+    // 연속 일수가 STREAK_CHEST_EVERY_DAYS 의 배수인 날, 그날의 레슨을 끝내면
+    // 고정 보석 상자. 키가 "그날" 이라 하루 한 번뿐이다. 오늘 첫 학습이 표현·
+    // 말하기였어도(=도장 화면이 안 떴어도) 그날 레슨을 끝내면 받는다 — 연속
+    // 기록은 이미 오늘 찍혔으니 약속한 보상을 빼먹으면 안 된다.
+    let streakChest: { grade: string; gems: number; streak: number } | null =
+      null;
+    const streakDays = streakNow?.current ?? 0;
+    if (streakDays > 0 && streakDays % STREAK_CHEST_EVERY_DAYS === 0) {
+      const tz = await this.usersService.getTimezone(userId);
+      const got = await this.chestService
+        .grantFixedAndClaim(userId, `streak:${dayKey(new Date(), tz)}`, {
+          grade: 'gold',
+          gems: STREAK_CHEST_GEMS,
+        })
+        .catch(() => null);
+      if (got) streakChest = { ...got, streak: streakDays };
+    }
+
     // ── 유닛을 통째로 끝냈나 → 스코어가 오르는 순간 ──
     //
     // 스코어는 완주한 유닛 수라서 유닛 하나를 다 끝내야 1 오른다. 그런데 그
@@ -733,6 +755,8 @@ export class LessonsService {
       gems: updatedUser?.gems ?? 0,
       energy: updatedUser?.energy ?? 0,
       chest, // ✅ 노드 완성 시 { grade, gems }, 아니면 null
+      /** 연속 3·6·9…일째의 보상 상자 (이미 들어간 보석). 오늘 이미 받았으면 null */
+      streakChest,
       /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
       unitCompleted,
       /**

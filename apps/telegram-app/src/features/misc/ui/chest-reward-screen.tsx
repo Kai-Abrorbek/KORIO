@@ -93,6 +93,9 @@ export function ChestRewardScreen() {
 
   const instruction = tapCount === 0 ? "Yangilash uchun bosing!" : tapCount === 2 ? "1 imkoniyat qoldi!" : "Bosing!";
   const back = () => {
+    // 축하 흐름 중간(연속 보상 상자)이면 원래 가려던 곳으로 이어 간다
+    const next = params.get("next");
+    if (next && next.startsWith("/")) { router.replace(next); return; }
     if (window.history.length > 1) { router.back(); return; }
     if (params.get("from") === "studyPath") { router.replace("/study-path"); return; }
     const category = params.get("category");
@@ -103,7 +106,7 @@ export function ChestRewardScreen() {
     <main className={styles.page}>
       <header><span/><GemCounter amount={phase === "revealed" ? gems : 0} target={phase === "revealed" ? gemTotal + gems : gemTotal}/></header>
       <section className={`${styles.rewardSection} ${phase === "revealed" ? styles.sectionHidden : ""}`}>
-        <h1>{TITLES[grade]}</h1>
+        <h1>{params.get("kind") === "streak" ? `${Number(params.get("days")) || 3} kun ketma-ket o‘qiganingiz uchun sovg‘a!` : TITLES[grade]}</h1>
         <button aria-label="Sandiqni ochish" className={styles.chestButton} onClick={tap} type="button"><Sparkles/><Chest opening={phase === "opening"} ready={ready} shaking={shaking}/></button>
         <div className={styles.tapBottom}>
           <div className={styles.tapDots}>{Array.from({ length: 3 },(_,index)=>{

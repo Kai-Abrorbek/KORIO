@@ -690,7 +690,7 @@ export function LessonScreen() {
       // 완료 화면이 이어서 띄울 축하들 (앱과 같은 파라미터):
       //   오늘의 첫 레슨 → 연속 학습 / 유닛 완료 → 스코어 상승 / 상자 → 상자 열기
       // "오늘 처음인가"·"유닛을 끝냈나" 판정은 서버가 한다 (클라가 세면 또 축하한다)
-      const gemsBefore = result.chest ? result.gems - result.chest.gems : result.gems;
+      const gemsBefore = result.gems - (result.chest?.gems ?? 0) - (result.streakChest?.gems ?? 0);
       routeComplete({
         accuracy,
         category: category ?? undefined,
@@ -702,6 +702,9 @@ export function LessonScreen() {
         scoreUp: result.unitCompleted ? result.unitCompleted.score : undefined,
         scoreUpUnit: result.unitCompleted ? result.unitCompleted.unit : undefined,
         streakWeek: result.dailyStreak ? JSON.stringify(result.dailyStreak.week) : undefined,
+        // 연속 3·6·9…일째 보상 상자 — 도장 화면 바로 뒤에 연다
+        streakChestDays: result.streakChest ? result.streakChest.streak : undefined,
+        streakChestGems: result.streakChest ? result.streakChest.gems : undefined,
         time: elapsed,
         xp: result.xpEarned,
       });

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet } from "react-native";
 import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -40,6 +40,12 @@ export default function ChestRewardScreen() {
     category?: string;
     /** 학습 로드 모드에서 왔으면 "studyPath" */
     from?: string;
+    /** "streak" = 연속 학습 보상 상자 (제목이 다르다) */
+    kind?: string;
+    /** 연속 일수 (kind=streak) */
+    days?: string;
+    /** 받고 나서 이어 갈 곳 (JSON Href). 축하 흐름 중간에 끼워졌을 때 */
+    next?: string;
   }>();
   const category = params.category;
   const from = params.from;
@@ -149,7 +155,11 @@ export default function ChestRewardScreen() {
         style={[styles.section, chestSectionStyle]}
         pointerEvents={phase === "revealed" ? "none" : "auto"}
       >
-        <Text style={styles.title}>{t(CHEST_TITLES[reward.rewardType])}</Text>
+        <Text style={styles.title}>
+          {params.kind === "streak"
+            ? t("chestReward.streakTitle", { days: Number(params.days) || 3 })
+            : t(CHEST_TITLES[reward.rewardType])}
+        </Text>
 
         <View style={styles.chestArea}>
           <Sparkles />
@@ -185,13 +195,21 @@ export default function ChestRewardScreen() {
               label={t("chestReward.continue")}
               color="#1FA9F7"
               darkColor="#1899D6"
-              onPress={() =>
+              onPress={() => {
+                // 축하 흐름 중간(연속 보상 상자)이면 원래 가려던 곳으로 이어 간다
+                if (params.next) {
+                  try {
+                    router.replace(JSON.parse(params.next) as Href);
+                    return;
+                  } catch {
+                    // 깨진 값이면 아래 기본 경로로
+                  }
+                }
                 // 보통은 뒤로 가면 원래 로드맵이다. 딥링크로 바로 열린
                 // 경우엔 돌아갈 곳이 없으니 카테고리로 직접 간다.
-                router.canGoBack()
-                  ? router.back()
-                  : router.replace(backToRoadmap(category, from))
-              }
+                if (router.canGoBack()) router.back();
+                else router.replace(backToRoadmap(category, from));
+              }}
             />
           </View>
         </Animated.View>

@@ -1139,6 +1139,7 @@ export default {
     oneChanceLeft: "Осталась 1 попытка!",
     gemReward: "Камни +{{count}}",
     continue: "Продолжить",
+    streakTitle: "Награда за серию из {{days}} дней!",
   },
   syllableDraw: {
     title: "Составь и напиши",

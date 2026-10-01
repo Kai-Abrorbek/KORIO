@@ -1132,6 +1132,7 @@ export default {
     oneChanceLeft: "1 chance left!",
     gemReward: "Gems +{{count}}",
     continue: "Continue",
+    streakTitle: "{{days}}-day streak reward!",
   },
   syllableDraw: {
     title: "Build and Write",

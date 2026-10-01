@@ -161,6 +161,8 @@ export const LessonService = {
     gems: number;
     energy: number;
     chest: { grade: "wood" | "silver" | "gold"; gems: number } | null;
+    /** 연속 3·6·9…일째 보상 상자 (보석은 이미 들어가 있다). 없으면 null */
+    streakChest?: { grade: string; gems: number; streak: number } | null;
     /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
     unitCompleted: { section: number; unit: number; score: number } | null;
     /** 오늘의 첫 레슨이면 채워진다. 연속 학습 축하 화면을 띄우는 신호 */

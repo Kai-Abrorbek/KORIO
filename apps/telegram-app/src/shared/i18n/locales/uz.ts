@@ -1137,6 +1137,7 @@ export default {
     oneChanceLeft: "1 imkoniyat qoldi!",
     gemReward: "Tosh +{{count}}",
     continue: "Davom etish",
+    streakTitle: "{{days}} kun ketma-ket o‘qiganingiz uchun sovg‘a!",
   },
   syllableDraw: {
     title: "Harflarni birlashtirib yozish",

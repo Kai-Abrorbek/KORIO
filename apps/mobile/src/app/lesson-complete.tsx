@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import { View, Text, StyleSheet, Share } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, type Href } from "expo-router";
+import { viaStreakChest } from "@/utils/streak-chest-route";
 import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
 import { backToRoadmap } from "@/store/settings.store";
@@ -39,6 +40,9 @@ export default function LessonCompleteScreen() {
     dailyStreak?: string;
     /** 서버가 계산한 7일 창 (JSON) */
     streakWeek?: string;
+    /** 연속 3·6·9…일째 보상 상자 */
+    streakChestGems?: string;
+    streakChestDays?: string;
   }>();
 
   const xp = Number(params.xp ?? 0);
@@ -108,10 +112,16 @@ export default function LessonCompleteScreen() {
     //   연속 학습(하루에 한 번) → 스코어 상승(유닛) → 상자 → 원래 가던 곳
     // 오늘 처음 학습한 순간이 가장 큰 사건이라 맨 앞에 둔다. streak-day 가
     // 스코어 파라미터를 그대로 들고 가서 이어 붙인다.
+    // 도장 화면이 안 뜨는 날(오늘 첫 학습이 표현 등)에도 연속 보상 상자는 끼운다
+    const go = (next: Href) => router.replace(viaStreakChest(next, params));
+
     if (params.dailyStreak) {
       router.replace({
         pathname: "/streak-day",
         params: {
+          // 도장 찍고 바로 상자 — streak-day 가 끼운다
+          streakChestGems: params.streakChestGems ?? "",
+          streakChestDays: params.streakChestDays ?? "",
           streak: params.dailyStreak,
           week: params.streakWeek ?? "",
           scoreUp: params.scoreUp ?? "",
@@ -130,7 +140,7 @@ export default function LessonCompleteScreen() {
     // 스코어가 올랐으면 먼저 그걸 보여준다. 유닛 하나를 통째로 끝내야 오르는
     // 드문 순간이라 로드맵에 그냥 돌려보내면 아무도 눈치채지 못한다.
     if (params.scoreUp) {
-      router.replace({
+      go({
         pathname: "/score-up",
         params: {
           score: params.scoreUp,
@@ -146,7 +156,7 @@ export default function LessonCompleteScreen() {
       return;
     }
     if (params.chestGrade) {
-      router.replace({
+      go({
         pathname: "/chest-reward",
         params: {
           grade: params.chestGrade,
@@ -157,7 +167,7 @@ export default function LessonCompleteScreen() {
         },
       });
     } else if (params.category === "expression" && params.pack) {
-      router.replace({
+      go({
         pathname: "/expression-pack",
         params: {
           pack: params.pack,
@@ -167,7 +177,7 @@ export default function LessonCompleteScreen() {
       });
     } else {
       // 문법 트랙에서 왔는데 그냥 /roadmap 으로 보내면 어휘 로드맵이 뜬다
-      router.replace(backToRoadmap(params.category, params.from));
+      go(backToRoadmap(params.category, params.from));
     }
   };
 

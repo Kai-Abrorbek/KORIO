@@ -101,6 +101,8 @@ export interface AnswerGradeResult {
 
 export interface CompleteLessonResult {
   chest: { gems: number; grade: "wood" | "silver" | "gold" } | null;
+  /** 연속 3·6·9…일째 보상 상자 (보석은 이미 들어가 있다) */
+  streakChest?: { gems: number; grade: string; streak: number } | null;
   dailyStreak: {
     longest: number;
     streak: number;
