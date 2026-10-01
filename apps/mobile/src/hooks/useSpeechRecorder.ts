@@ -7,6 +7,7 @@ import {
   encodeWav,
   foldToMono,
   resampleInt16,
+  trimSilence,
 } from "@/utils/wav";
 
 export type SpeechRecorderError =
@@ -144,7 +145,11 @@ export function useSpeechRecorder({
       onErrorRef.current?.("too_short");
       return;
     }
-    onResultRef.current(encodeWav(resampled, TARGET_SAMPLE_RATE));
+    // 앞뒤 무음을 덜어내면 업로드·채점이 그만큼 빨라진다.
+    // 잘라서 서버 최소 길이보다 짧아지면 원본을 그대로 보낸다
+    const trimmed = trimSilence(resampled, TARGET_SAMPLE_RATE);
+    const payload = trimmed.length >= MIN_SAMPLES ? trimmed : resampled;
+    onResultRef.current(encodeWav(payload, TARGET_SAMPLE_RATE));
   }, [stream]);
   finishRef.current = finish;
 

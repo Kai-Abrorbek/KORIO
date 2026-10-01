@@ -33,6 +33,40 @@ function resample(input: Float32Array, sourceRate: number): Float32Array {
   return output;
 }
 
+/**
+ * 앞뒤 무음 잘라내기 (앱 utils/wav.ts trimSilence 와 같은 규칙, float 버전).
+ * 업로드·Azure 처리 시간이 녹음 길이에 비례해서, 말 앞뒤 무음만 덜어도 채점이 빨라진다.
+ * 기준: 가장 큰 소리의 12% 와 하한(≈350/32768) 중 큰 값, 말한 구간 앞뒤 350ms 여유.
+ */
+function trimSilence(samples: Float32Array): Float32Array {
+  const frame = Math.round(TARGET_RATE * 0.02);
+  const frames = Math.floor(samples.length / frame);
+  if (frames < 3) return samples;
+  const levels = new Float32Array(frames);
+  let peak = 0;
+  for (let f = 0; f < frames; f += 1) {
+    let sum = 0;
+    for (let i = 0; i < frame; i += 1) {
+      const v = samples[f * frame + i] ?? 0;
+      sum += v * v;
+    }
+    levels[f] = Math.sqrt(sum / frame);
+    if (levels[f]! > peak) peak = levels[f]!;
+  }
+  const threshold = Math.max(350 / 32768, peak * 0.12);
+  let first = -1;
+  let last = -1;
+  for (let f = 0; f < frames; f += 1) {
+    if (levels[f]! >= threshold) {
+      if (first < 0) first = f;
+      last = f;
+    }
+  }
+  if (first < 0) return samples;
+  const pad = Math.round(TARGET_RATE * 0.35);
+  return samples.slice(Math.max(0, first * frame - pad), Math.min(samples.length, (last + 1) * frame + pad));
+}
+
 function encodeWav(samples: Float32Array): ArrayBuffer {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
@@ -110,7 +144,9 @@ export function useWebSpeechRecorder({ onError, onLevel, onResult }: RecorderOpt
       onErrorRef.current("too_short");
       return;
     }
-    onResultRef.current(encodeWav(converted));
+    // 잘라서 서버 최소 길이보다 짧아지면 원본 그대로
+    const trimmed = trimSilence(converted);
+    onResultRef.current(encodeWav(trimmed.length >= TARGET_RATE * MIN_SECONDS ? trimmed : converted));
   }, [cleanup]);
   stopRef.current = stop;
 

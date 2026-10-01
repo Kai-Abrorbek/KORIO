@@ -86,3 +86,54 @@ export function encodeWav(
   new Int16Array(buffer, 44).set(samples);
   return buffer;
 }
+
+/**
+ * 앞뒤 무음을 잘라낸다 (말한 구간 ± 여유).
+ *
+ * 마이크를 누르고 말을 시작하기까지, 말을 끝내고 정지를 누르기까지의 무음이
+ * 녹음의 절반을 넘는 일이 흔하다. 그대로 보내면 업로드도 Azure 처리도 그만큼
+ * 길어진다 — 채점 대기 시간이 늘고 과금도 오디오 길이로 된다.
+ *
+ * 보수적으로 자른다: 기준은 "가장 큰 소리의 12%" 와 절대 하한 중 큰 값이고,
+ * 말한 구간 앞뒤로 350ms 를 남긴다. 받침·어미 끝소리가 약해도 여유 안에 들어온다.
+ * 말소리를 못 찾으면 자르지 않는다 (서버가 '못 들음' 으로 판단하게 둔다).
+ */
+export function trimSilence(
+  samples: Int16Array,
+  sampleRate = TARGET_SAMPLE_RATE,
+  { frameMs = 20, padMs = 350, floor = 350, relative = 0.12 } = {},
+): Int16Array {
+  const frame = Math.max(1, Math.round((sampleRate * frameMs) / 1000));
+  const frames = Math.floor(samples.length / frame);
+  if (frames < 3) return samples;
+
+  const levels = new Float32Array(frames);
+  let peak = 0;
+  for (let f = 0; f < frames; f++) {
+    let sum = 0;
+    const base = f * frame;
+    for (let i = 0; i < frame; i++) {
+      const v = samples[base + i];
+      sum += v * v;
+    }
+    const level = Math.sqrt(sum / frame);
+    levels[f] = level;
+    if (level > peak) peak = level;
+  }
+
+  const threshold = Math.max(floor, peak * relative);
+  let first = -1;
+  let last = -1;
+  for (let f = 0; f < frames; f++) {
+    if (levels[f] >= threshold) {
+      if (first < 0) first = f;
+      last = f;
+    }
+  }
+  if (first < 0) return samples;
+
+  const pad = Math.round((sampleRate * padMs) / 1000);
+  const start = Math.max(0, first * frame - pad);
+  const end = Math.min(samples.length, (last + 1) * frame + pad);
+  return samples.slice(start, end);
+}

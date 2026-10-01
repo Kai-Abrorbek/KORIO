@@ -43,6 +43,7 @@ import {
   SPEECH_CHANNELS,
   SPEECH_LANGUAGE,
   SPEECH_MAX_BYTES,
+  SPEECH_MAX_SECONDS,
   SPEECH_MIN_SECONDS,
   SPEECH_RATE_LIMIT,
   SPEECH_SAMPLE_RATE,
@@ -150,7 +151,9 @@ export class SpeechService {
     );
     // 통계·XP·연속 학습일. 실패해도 채점 응답은 그대로 나간다 —
     // 기록을 못 남긴 것 때문에 사용자가 다시 말하게 만들 이유가 없다.
-    await this.recordSpeakingStudy(userId, expressionId, result).catch(
+    // 기다리지도 않는다: DB 쓰기 여러 번(통계·XP·리그)이 채점 결과를 붙잡고
+    // 있을 이유가 없다. 결과는 바로 내보내고 기록은 뒤에서 끝낸다.
+    void this.recordSpeakingStudy(userId, expressionId, result).catch(
       (error) => {
         this.logger.warn(
           `말하기 학습 기록 실패: expression=${expressionId} ${String(error)}`,
@@ -243,7 +246,9 @@ export class SpeechService {
 
     // Azure의 발음 점수만으로는 다른 문장을 또렷하게 말한 경우를 충분히
     // 걸러내지 못한다. 삽입·누락을 켜고 실제 인식 문장도 별도로 비교한다.
+    const azureStartedAt = Date.now();
     const outcome = await this.recognize(wav, referenceText, true);
+    const azureMs = Date.now() - azureStartedAt;
     const scores: SpeechScores = outcome.scores ?? {
       pron: 0,
       accuracy: 0,
@@ -265,7 +270,7 @@ export class SpeechService {
       `audio=${stats.seconds}s peak=${stats.peakPct}% rms=${stats.rms} ` +
       `ref="${referenceText}" heard="${outcome.text}" ` +
       `pron=${scores.pron} acc=${scores.accuracy} comp=${scores.completeness} ` +
-      `textMatch=${textSimilarity}/${textSimilarityBar}`;
+      `textMatch=${textSimilarity}/${textSimilarityBar} azure=${azureMs}ms`;
 
     if (outcome.status !== 'success' || scores.pron === 0) {
       // 점수가 0 이면 원인이 오디오인지 Azure 응답인지 봐야 한다.
@@ -621,6 +626,14 @@ export class SpeechService {
     enableMiscue = false,
   ): Promise<RecognizeOutcome> {
     const speechConfig = this.buildSpeechConfig();
+    // SDK 는 파일 오디오를 앞 5초만 한 번에 보내고 그 뒤는 실시간 2배속으로
+    // 천천히 흘려보낸다 (ServiceRecognizerBase.sendAudio — 마이크 스트림을 흉내
+    // 내는 기본값). 우리는 이미 다 녹음된 짧은 파일이라 기다릴 이유가 없다.
+    // 10초짜리 녹음이면 이것만으로 ~2.5초가 그냥 대기였다.
+    speechConfig.setProperty(
+      'SPEECH-TransmitLengthBeforThrottleMs',
+      String((SPEECH_MAX_SECONDS + 5) * 1000),
+    );
     const audioConfig = sdk.AudioConfig.fromWavFileInput(wav);
     const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
 
@@ -791,22 +804,18 @@ export class SpeechService {
     }
     const qid = new Types.ObjectId(questionId);
 
-    const question = await this.questionModel
-      .findById(qid)
-      .select('answer audioText type')
-      .lean();
+    // 두 조회는 서로 기다릴 필요가 없다 — DB 가 외부(Atlas)라 왕복 한 번이 아깝다.
+    // 레벨 테스트/복습처럼 레슨에 안 묶인 문제도 있어서 lesson 이 없으면 가장 관대한 기준으로 떨어진다
+    const [question, lesson] = await Promise.all([
+      this.questionModel.findById(qid).select('answer audioText type').lean(),
+      this.lessonModel.findOne({ questionIds: qid }).select('section').lean(),
+    ]);
     if (!question) throw new NotFoundException('QUESTION_NOT_FOUND');
 
     const referenceText = (question.answer || question.audioText || '').trim();
     if (!referenceText) {
       throw new BadRequestException('QUESTION_HAS_NO_REFERENCE_TEXT');
     }
-
-    // 레벨 테스트/복습처럼 레슨에 안 묶인 문제도 있어서 없으면 가장 관대한 기준으로 떨어진다
-    const lesson = await this.lessonModel
-      .findOne({ questionIds: qid })
-      .select('section')
-      .lean();
 
     return { referenceText, section: lesson?.section };
   }

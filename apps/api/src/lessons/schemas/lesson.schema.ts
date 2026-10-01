@@ -65,3 +65,7 @@ export class Lesson {
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
+
+// 말하기 채점(speech.resolveQuestion)이 문제 → 레슨(섹션)을 찾을 때 쓴다.
+// 없으면 채점 요청마다 레슨 컬렉션 전체를 훑는다.
+LessonSchema.index({ questionIds: 1 });
