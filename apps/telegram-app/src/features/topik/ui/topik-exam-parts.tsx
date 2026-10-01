@@ -93,6 +93,9 @@ function listeningAsset(key: string) {
   if (key.startsWith("topik-i-64-")) {
     return `/topik/listening/topik-i-64-listening/${key.replace("topik-i-64-", "")}.png`;
   }
+  if (key.startsWith("topik-i-91-")) {
+    return `/topik/listening/topik-i-91-listening/${key.replace("topik-i-91-", "")}.png`;
+  }
   if (key.startsWith("topik-i-35-")) {
     return `/topik/listening/topik-i-35-listening/${key.replace("topik-i-35-", "")}.png`;
   }
@@ -125,6 +128,9 @@ function listeningAsset(key: string) {
   }
   if (key.startsWith("topik-ii-83-")) {
     return `/topik/listening/topik-ii-83-listening/${key.replace("topik-ii-83-", "")}.png`;
+  }
+  if (key.startsWith("topik-ii-91-")) {
+    return `/topik/listening/topik-ii-91-listening/${key.replace("topik-ii-91-", "")}.png`;
   }
   return `/topik/listening/listening-mock-1/${key}.png`;
 }
