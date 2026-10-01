@@ -1,0 +1,245 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  notice,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_96_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-96-2024',
+  title: {
+    ko: '제96회 TOPIK I 읽기',
+    uz: '96-TOPIK I o‘qish',
+    en: '96th TOPIK I Reading',
+    ru: '96-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제96회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조 그대로 구성했습니다.',
+    uz: '96-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 96th TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 96-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2024,
+  round: 96,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제96회 한국어능력시험 I B-홀수형 읽기',
+    edition: '제96회',
+    publisher: '국립국제교육원',
+    reference:
+      '사용자 제공 reading-test-paper-paper.pdf 및 answer-keys-answers.pdf',
+  },
+  publishedAt: new Date('2024-10-13T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const swimmingNotice = {
+  ...notice(
+    '인주수영장 회원 여러분, 안녕하세요?',
+    '이번 주말에 수영장 청소를 합니다.',
+    '청소를 하는 날에는 수영장을 이용할 수 없습니다.',
+    '이용에 불편을 드려 죄송합니다.',
+    '청소 일정: 10월 12일(토)~10월 13일(일)',
+    '1층 수영복 가게는 이용할 수 있습니다.',
+  ),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '인주수영장 · 공지 사항',
+  visualVariant: 'official-pool-website-announcement',
+};
+
+export const TOPIK_I_96_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-96-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 내용입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-96-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 말로 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-96-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-96-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음을 읽고 내용이 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-96-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 내용을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-96-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 주말에 형과 바다낚시를 다녀왔습니다. 우리는 배를 타고 낚시를 했습니다. 저는 낚시가 처음이었습니다. 그래서 형이 낚시하는 방법을 가르쳐 주었습니다. 형은 물고기를 많이 ([[blank:q49]]) 저는 못 잡았습니다. 다음에는 저도 물고기를 잡고 싶습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '밀가루는 보통 음식을 만들 때 씁니다. 그런데 밀가루는 빨래를 할 때도 사용할 수 있습니다. 하얀색 옷을 빨 때 밀가루를 조금 넣으면 색깔이 더 하얗게 됩니다. ([[blank:q51]]) 과일을 씻을 때도 밀가루를 사용하면 깨끗하게 씻을 수 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 언니가 한 명 있습니다. 언니는 외국에 있는 회사에 취직을 했습니다. 다음 달에 외국으로 갈 겁니다. 저는 언니에게 특별한 선물을 주고 싶었습니다. 그래서 요즘 언니에게 줄 지갑을 ([[blank:q53]]) 언니가 이 지갑을 볼 때마다 저를 생각하면 좋겠습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '이번 주 토요일에 인주공원에서 ‘느리게 걷기’ 행사를 합니다. 매달 열리는 이 행사는 천천히 ([[blank:q55]]) 공원의 경치를 즐기는 행사입니다. 이번 달에는 인주공원의 빨갛고 노란 단풍을 볼 수 있습니다. 공원 입구에서 출발해서 공원 가운데에 있는 호수까지 걷습니다. 호수에 도착하면 모자를 기념품으로 줍니다. 신청은 행사 3일 전까지 홈페이지에서 하면 됩니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서에 맞게 배열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-96-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '저는 어렸을 때 성격이 조용했습니다. 사람들 앞에서 부끄러워서 말도 잘 못했습니다. [[marker:m1|㉠]] 저는 그 동아리에 들어가서 다양한 연극 공연을 했습니다. [[marker:m2|㉡]] 연극 속에서 말이 많은 사람도, 시끄러운 사람도 되어 봤습니다. [[marker:m3|㉢]] 이제 저는 성격이 많이 바뀌었습니다. [[marker:m4|㉣]] 말도 많아지고 사람들 앞에서도 부끄러워하지 않습니다.',
+      '어느 날 친구가 저에게 연극 동아리를 소개해 주었습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 채소를 사 먹지 않습니다. 부모님이 집 마당에서 채소를 키우기 때문입니다. 주말에 저는 부모님 집에 ([[blank:q61]]) 채소 키우는 것을 도와드립니다. 아이들도 함께 돕습니다. 아이들은 채소가 자라는 모습을 보고 정말 즐거워합니다. 전에는 아이들이 채소를 싫어했지만 지금은 잘 먹습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    swimmingNotice,
+  ),
+  group(
+    'topik-i-96-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주대학교 앞에 ‘라면세상’이 새로 문을 열었습니다. 그곳에 들어가면 한쪽 벽에 큰 책장이 있습니다. 그 책장에는 라면이 책처럼 정리되어 있습니다. 그래서 다양한 종류의 라면을 한 번에 보고 고를 수 있습니다. 라면을 산 후에는 그곳에서 직접 요리해서 먹을 수도 있습니다. 이렇게 다양한 ([[blank:q65]]) 수 있어서 젊은 사람들이 이곳을 많이 찾습니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '지하철을 갈아타는 역에서는 안내 방송과 함께 음악이 나옵니다. 예전에는 음악 없이 안내 방송만 나왔습니다. 그런데 안내 방송을 못 듣는 사람들이 많았습니다. 그래서 사람들에게 ([[blank:q67]]) 잘 알려 주기 위해서 새소리를 함께 사용하게 되었습니다. 이후에 바이올린 음악으로 바뀌었고 지금은 한국 전통 음악을 씁니다.',
+    ),
+  ),
+  group(
+    'topik-i-96-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '초등학생이 된 우리 아이는 자전거를 타고 싶어 했습니다. 그래서 저는 아이의 자전거 연습을 도와주기로 했습니다. 우리는 아파트 놀이터에서 자전거 연습을 했습니다. 거기에는 동네 사람들이 많이 있었습니다. 사람들은 아이가 넘어져서 힘들어할 때 응원을 해 주었습니다. 땀을 흘리는 아이에게 시원한 음료수를 주는 사람도 있었습니다. 얼마 뒤 아이는 드디어 혼자서 ([[blank:q69]]) 수 있게 되었고, 사람들이 크게 박수를 쳐 주었습니다. 아이도 기뻐하며 활짝 웃었습니다.',
+    ),
+  ),
+];
