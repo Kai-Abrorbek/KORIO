@@ -2,12 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Model, Types } from 'mongoose';
-import Anthropic from '@anthropic-ai/sdk';
 import {
   ChatMessage,
   ChatMessageDocument,
 } from './schemas/chat-message.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
+
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
+const OPENAI_TIMEOUT_MS = 30_000;
 
 /** 모델에 넘길 최근 대화 개수 (토큰 절약) */
 const HISTORY_LIMIT = 20;
@@ -39,7 +41,7 @@ export interface ChatReply {
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
-  private readonly client: Anthropic | null;
+  private readonly apiKey: string | null;
   private readonly model: string;
 
   constructor(
@@ -48,13 +50,17 @@ export class AiService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private config: ConfigService,
   ) {
-    const apiKey = this.config.get<string>('ANTHROPIC_API_KEY');
+    // Claude → OpenAI (2026-10). 키는 보이스 튜터·읽기 뜻풀이와 같은 OPENAI_API_KEY.
+    // 모델은 OPENAI_CHAT_MODEL, 없으면 보이스 튜터 수업 모델을 따라간다 — 같은 선생님이
+    // 채팅과 통화에서 다른 말투가 되지 않게.
+    this.apiKey = this.config.get<string>('OPENAI_API_KEY')?.trim() || null;
     this.model =
-      this.config.get<string>('ANTHROPIC_MODEL') ?? 'claude-haiku-4-5-20251001';
+      this.config.get<string>('OPENAI_CHAT_MODEL')?.trim() ||
+      this.config.get<string>('VOICE_TUTOR_LESSON_MODEL')?.trim() ||
+      'gpt-4o-mini';
     // 키가 없어도 서버는 떠야 한다 (다른 기능까지 죽이지 않도록)
-    this.client = apiKey ? new Anthropic({ apiKey }) : null;
-    if (!this.client) {
-      this.logger.warn('ANTHROPIC_API_KEY 없음 — AI 채팅 비활성화');
+    if (!this.apiKey) {
+      this.logger.warn('OPENAI_API_KEY 없음 — AI 채팅 비활성화');
     }
   }
 
@@ -127,7 +133,7 @@ export class AiService {
     latest: string,
     lang: string,
   ): Promise<ChatReply> {
-    if (!this.client) return this.fallback(lang);
+    if (!this.apiKey) return this.fallback(lang);
 
     const user = await this.userModel
       .findById(uId)
@@ -145,23 +151,46 @@ export class AiService {
       content: m.text,
     }));
 
+    // gpt-5.6 계열은 기본이 중간 추론이라 짧은 대화 턴에서 출력 예산을 추론에
+    // 다 써버린다 — 추론을 끄고, 시스템 지시는 developer 역할로 (보이스 튜터와 같은 처리)
+    const isGpt56 = /^gpt-5\.6(?:-|$)/.test(this.model);
+
     try {
-      const res = await this.client.messages.create({
-        model: this.model,
-        max_tokens: 600,
-        system: this.buildSystemPrompt(lang, user?.level, user?.nickname),
-        messages: turns.length ? turns : [{ role: 'user', content: latest }],
+      const res = await fetch(OPENAI_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            {
+              role: isGpt56 ? 'developer' : 'system',
+              content: this.buildSystemPrompt(lang, user?.level, user?.nickname),
+            },
+            ...(turns.length ? turns : [{ role: 'user', content: latest }]),
+          ],
+          // 답은 항상 {text, translation, correction} JSON — 모드로 강제한다
+          response_format: { type: 'json_object' },
+          max_completion_tokens: 600,
+          ...(isGpt56 ? { reasoning_effort: 'none' } : {}),
+        }),
+        signal: AbortSignal.timeout(OPENAI_TIMEOUT_MS),
       });
 
-      const raw = res.content
-        .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-        .map((b) => b.text)
-        .join('\n')
-        .trim();
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${body.slice(0, 200)}`);
+      }
+      const payload = (await res.json()) as {
+        choices?: { message?: { content?: string | null } }[];
+      };
+      const raw = payload.choices?.[0]?.message?.content?.trim() ?? '';
 
       return this.parseReply(raw, lang);
     } catch (err) {
-      this.logger.error(`Anthropic 호출 실패: ${(err as Error).message}`);
+      this.logger.error(`OpenAI 호출 실패: ${(err as Error).message}`);
       return this.fallback(lang);
     }
   }
