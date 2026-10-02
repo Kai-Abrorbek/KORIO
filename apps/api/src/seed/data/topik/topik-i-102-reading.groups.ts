@@ -1,0 +1,245 @@
+import {
+  TopikChoiceLayout,
+  TopikExamType,
+  TopikPublishStatus,
+  TopikSection,
+  TopikStimulusKind,
+  TopikVisualTemplate,
+} from '../../../topik/schemas/topik-content.schema';
+import {
+  insertionPassage,
+  notice,
+  passage,
+  presentation,
+  textBlocks,
+} from './topik-seed.helpers';
+import { TopikSeedExam, TopikSeedGroup } from './topik-seed.types';
+
+export const TOPIK_I_102_READING_EXAM: TopikSeedExam = {
+  code: 'topik-i-reading-102-2025',
+  title: {
+    ko: '제102회 TOPIK I 읽기',
+    uz: '102-TOPIK I o‘qish',
+    en: '102nd TOPIK I Reading',
+    ru: '102-й TOPIK I: чтение',
+  },
+  description: {
+    ko: '제102회 한국어능력시험 TOPIK I 읽기 31번부터 70번까지를 원문 구조 그대로 구성했습니다.',
+    uz: '102-TOPIK I o‘qish bo‘limining 31–70-savollari asl imtihon tuzilishida.',
+    en: 'Questions 31–70 of the 102nd TOPIK I Reading test in the original exam structure.',
+    ru: 'Задания 31–70 чтения 102-го TOPIK I в структуре оригинального экзамена.',
+  },
+  examType: TopikExamType.TOPIK_I,
+  section: TopikSection.READING,
+  year: 2025,
+  round: 102,
+  durationMinutes: 60,
+  totalQuestions: 40,
+  totalPoints: 100,
+  version: 1,
+  status: TopikPublishStatus.PUBLISHED,
+  source: {
+    title: '제102회 한국어능력시험 I B-홀수형 읽기',
+    edition: '제102회',
+    publisher: '국립국제교육원',
+    reference:
+      '사용자 제공 제102회 TOPIK I B-홀수형 읽기 시험지·정답 및 배점표',
+  },
+  publishedAt: new Date('2025-10-19T00:00:00+09:00'),
+  isActive: true,
+};
+
+const group = (
+  code: string,
+  order: number,
+  startNumber: number,
+  endNumber: number,
+  instruction: string,
+  template: TopikVisualTemplate,
+  sharedStimulus?: ReturnType<typeof passage>,
+): TopikSeedGroup => ({
+  code,
+  order,
+  startNumber,
+  endNumber,
+  instruction: textBlocks(instruction),
+  sharedStimulus,
+  pointsPerQuestion: 2,
+  presentation: presentation(template, TopikChoiceLayout.ONE_COLUMN),
+  version: 1,
+  isActive: true,
+});
+
+const bicycleNotice = {
+  ...notice(
+    '안녕하세요, 관리실입니다.',
+    '우리 아파트에서는 관리실 옆에 자전거 주차장을 하나 더 만들었습니다.',
+    '아파트 입구, 계단 등에 둔 자전거는 새 주차장으로 옮겨 주시기 바랍니다.',
+    '새 주차장은 11월 10일 월요일부터 이용하실 수 있습니다.',
+    '주민 여러분의 많은 협조 부탁드립니다.',
+    '한국아파트 관리실(02-1234-5678)',
+  ),
+  kind: TopikStimulusKind.INFO_CARD,
+  title: '한국아파트 게시판',
+  visualVariant: 'official-apartment-bicycle-parking-announcement',
+};
+
+export const TOPIK_I_102_READING_GROUPS: TopikSeedGroup[] = [
+  group(
+    'topik-i-102-reading-31-33',
+    1,
+    31,
+    33,
+    '[31~33] 무엇에 대한 내용입니까? <보기>와 같이 알맞은 것을 고르십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-102-reading-34-39',
+    2,
+    34,
+    39,
+    '[34~39] <보기>와 같이 ( )에 들어갈 말로 가장 알맞은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE,
+  ),
+  group(
+    'topik-i-102-reading-40-42',
+    3,
+    40,
+    42,
+    '[40~42] 다음을 읽고 맞지 않는 것을 고르십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+  ),
+  group(
+    'topik-i-102-reading-43-45',
+    4,
+    43,
+    45,
+    '[43~45] 다음을 읽고 내용이 같은 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-102-reading-46-48',
+    5,
+    46,
+    48,
+    '[46~48] 다음을 읽고 중심 내용을 고르십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+  ),
+  group(
+    'topik-i-102-reading-49-50',
+    6,
+    49,
+    50,
+    '[49~50] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '우리 가족은 오랫동안 외국에 살았습니다. 그곳의 미용실은 가격이 비쌌습니다. 그래서 우리 가족은 미용실에 가지 않았습니다. 남편과 아이의 머리는 제가 잘라 주었습니다. 처음에는 잘 못 ([[blank:q49]]) 나중에는 잘 자르게 되었습니다. 지금 우리 가족은 한국에서 살고 있습니다. 저는 요즘도 가족들의 머리를 잘라 줍니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-51-52',
+    7,
+    51,
+    52,
+    '[51~52] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주시에서는 매년 가을에 떡볶이 축제를 합니다. 이 축제에서는 ‘매운 떡볶이 먹기 대회’가 열리는데 축제에 온 사람은 누구나 이 대회에 참가할 수 있습니다. ([[blank:q51]]) 이 축제에서 한국의 유명한 떡볶이를 모두 먹어 볼 수 있습니다. 떡볶이 재료를 싸게 살 수도 있고 공연도 볼 수 있어서 이 축제를 찾는 사람이 많습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-53-54',
+    8,
+    53,
+    54,
+    '[53~54] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '제 친구는 회사원인데 그림을 잘 그립니다. 오늘 친구가 첫 번째 전시회를 열었습니다. 저는 ([[blank:q53]]) 그 친구의 전시회에 갔다 왔습니다. 전시회에는 꽃 그림이 많았습니다. 저는 장미꽃 그림을 하나 샀습니다. 오늘 이 그림을 제 방에 걸었습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-55-56',
+    9,
+    55,
+    56,
+    '[55~56] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주시에는 유명한 ‘옷 거리’가 있습니다. 이곳은 가게마다 다른 종류의 옷을 팔아서 구경하는 재미가 있습니다. 여러 가게 중에서 인기가 많은 가게는 예전에 유행한 옷을 파는 가게와 특별한 디자인의 청바지를 파는 가게입니다. 다른 곳에서 팔지 않는 옷이 ([[blank:q55]]). 그래서 자기만의 특별한 옷을 사고 싶어 하는 사람들이 많이 찾아옵니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-57-58',
+    10,
+    57,
+    58,
+    '[57~58] 다음을 순서에 맞게 배열한 것을 고르십시오.',
+    TopikVisualTemplate.EXAM_SENTENCE_SET,
+  ),
+  group(
+    'topik-i-102-reading-59-60',
+    11,
+    59,
+    60,
+    '[59~60] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INSERTION,
+    insertionPassage(
+      '얼마 전에 제가 초등학교 때 쓴 일기장을 보았습니다. [[marker:m1|㉠]] 거기에는 제가 선생님께 칭찬을 듣고 기뻐하는 이야기가 써 있었습니다. [[marker:m2|㉡]] 일기를 보고 갑자기 선생님이 생각나서 학교로 전화를 해 봤습니다. 선생님은 아직 그 초등학교에 계셨습니다. [[marker:m3|㉢]] 선생님을 만나서 초등학교 때의 이야기를 나누었습니다. [[marker:m4|㉣]]',
+      '반가운 마음에 저는 초등학교로 찾아갔습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-61-62',
+    12,
+    61,
+    62,
+    '[61~62] 다음을 읽고 물음에 답하십시오. (각 2점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '저는 드라마를 만드는 사람과 함께 일을 합니다. 드라마에 잘 맞는 ([[blank:q61]]) 일입니다. 이번에 시작하는 드라마는 바닷가 시골 마을 사람들의 이야기입니다. 그래서 부산과 제주도의 작은 바닷가 마을들을 여기저기 다녔습니다. 한 달이 걸려서 드라마에 딱 맞는 곳을 찾을 수 있었습니다. 이번 주말에 드라마 촬영이 시작됩니다. 이 드라마가 인기가 있으면 좋겠습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-63-64',
+    13,
+    63,
+    64,
+    '[63~64] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_INFO_CARD,
+    bicycleNotice,
+  ),
+  group(
+    'topik-i-102-reading-65-66',
+    14,
+    65,
+    66,
+    '[65~66] 다음을 읽고 물음에 답하십시오.',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '토끼는 혼자서 생활하는 동물입니다. 보통 산에 사는데 무서운 동물을 만날 때가 많습니다. 그럴 때 토끼가 ([[blank:q65]]) 방법에는 여러 가지가 있습니다. 토끼는 튼튼한 다리로 빠르고 멀리 뛸 수 있습니다. 또 먼 곳에 있는 동물도 냄새로 알 수 있습니다. 귀를 움직여서 소리가 나는 위치도 정확하게 찾습니다. 그래서 무서운 동물이 오는 것을 미리 알 수 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-67-68',
+    15,
+    67,
+    68,
+    '[67~68] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '인주도서관에는 ‘독서 로봇’이 있습니다. 아이들에게 책을 읽어 주는 로봇입니다. 아이들이 책을 펴서 한 장씩 보여 주면 로봇이 읽어 줍니다. 모양도 귀엽고 재미있는 목소리로 책을 읽어 줘서 한글을 모르는 아이들이 좋아합니다. 도서관을 방문한 아이는 누구나 이용할 수 있고, 인터넷으로 미리 신청하면 집에 빌려 갈 수도 있습니다. 이 로봇 덕분에 인주도서관에 ([[blank:q67]]) 있습니다.',
+    ),
+  ),
+  group(
+    'topik-i-102-reading-69-70',
+    16,
+    69,
+    70,
+    '[69~70] 다음을 읽고 물음에 답하십시오. (각 3점)',
+    TopikVisualTemplate.EXAM_PASSAGE,
+    passage(
+      '10년 넘게 키운 강아지가 하늘나라로 떠나서 이제 만날 수 없습니다. 저는 강아지와 함께한 시간을 기억하고 싶어서 휴대폰 게임을 만들었습니다. 주인공과 강아지가 함께 ([[blank:q69]]) 게임입니다. 저는 주인공이 되어 강아지와 높은 산도 오르고 파도가 심한 바다도 건넙니다. 나쁜 사람을 만나면 함께 싸우기도 합니다. 여행을 마치고 집으로 돌아오면 게임이 끝납니다. 저는 강아지가 보고 싶을 때마다 이 게임을 합니다.',
+    ),
+  ),
+];
