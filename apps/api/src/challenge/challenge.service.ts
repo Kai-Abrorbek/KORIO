@@ -109,7 +109,12 @@ export class ChallengeService {
         $expr: { $lt: [{ $size: todayOnly }, CHALLENGE_DAILY_LIMIT] },
       },
       [{ $set: { leagueChallengeClaims: { $concatArrays: [todayOnly, [now]] } } }],
-      { returnDocument: 'after' },
+      {
+        returnDocument: 'after',
+        // 배열(파이프라인) 업데이트는 Mongoose 9 에서 이 옵션 없이는 거부된다.
+        // 빠져 있어서 이 업데이트가 매번 예외로 실패했다
+        updatePipeline: true,
+      },
     );
     if (!claimed) {
       return this.result(tier, config, score, 0, claimsToday.length, false);

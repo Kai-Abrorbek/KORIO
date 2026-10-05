@@ -158,7 +158,12 @@ export class EnergyService {
           },
         },
       ],
-      { returnDocument: 'after' },
+      {
+        returnDocument: 'after',
+        // 배열(파이프라인) 업데이트는 Mongoose 9 에서 이 옵션 없이는 거부된다.
+        // 빠져 있어서 이 업데이트가 매번 예외로 실패했다
+        updatePipeline: true,
+      },
     );
 
     if (!updated) throw new BadRequestException('FREE_LIMIT_REACHED');
@@ -224,7 +229,12 @@ export class EnergyService {
           },
         },
       ],
-      { returnDocument: 'after' },
+      {
+        returnDocument: 'after',
+        // 배열(파이프라인) 업데이트는 Mongoose 9 에서 이 옵션 없이는 거부된다.
+        // 빠져 있어서 이 업데이트가 매번 예외로 실패했다
+        updatePipeline: true,
+      },
     );
 
     return this.buildResponse(updated ?? user);
@@ -298,7 +308,12 @@ export class EnergyService {
           },
         },
       ],
-      { returnDocument: 'after' },
+      {
+        returnDocument: 'after',
+        // 배열(파이프라인) 업데이트는 Mongoose 9 에서 이 옵션 없이는 거부된다.
+        // 빠져 있어서 이 업데이트가 매번 예외로 실패했다
+        updatePipeline: true,
+      },
     );
 
     // 조건이 어긋났으면(겹친 요청이 먼저 먹었다) 지급 없이 현재 상태만
