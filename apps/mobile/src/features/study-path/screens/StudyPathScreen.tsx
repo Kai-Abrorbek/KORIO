@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import { LessonService } from "@/services/lesson.service";
+import { UserService } from "@/services/user.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
 import UnitRoadmap, {
@@ -139,6 +140,17 @@ export default function StudyPathScreen() {
       });
     });
   }, [data, units.length]);
+
+  // 화면에 들어올 때마다 서버의 진짜 에너지·보석으로 맞춘다.
+  // 예전엔 이 화면만 서버에 안 물어봐서, 앱이 레슨 중에 줄여 둔 숫자를 그대로
+  // 보여줬다 — 서버는 하나도 안 깎였는데 여기선 깎인 것처럼 보였다.
+  useFocusEffect(
+    useCallback(() => {
+      UserService.getMe()
+        .then((me) => updateUser(me as any))
+        .catch(() => {});
+    }, [updateUser]),
+  );
 
   useFocusEffect(
     useCallback(() => {

@@ -972,7 +972,13 @@ export class LessonsService {
           : clampCount(dto.energySpent, Math.max(1, ids.length));
       const state = await this.energyService
         .consume(userId, cost)
-        .catch(() => null);
+        .catch((e) => {
+          // 조용히 삼키면 "에너지가 안 깎인다" 를 아무도 못 본다 (로그로 남긴다)
+          this.logger.warn(
+            `에너지 차감 실패(로드): user=${userId} ${String(e)}`,
+          );
+          return null;
+        });
       energyAfter = state?.energy;
     }
 
