@@ -177,11 +177,15 @@ export class EnergyService {
   async consume(userId: string, amount = 1) {
     const user = await this.mustFind(userId);
     const superActive = isSuperActive(user);
-
-    await this.applyRegen(user);
     if (superActive) return this.buildResponse(user);
 
     const spend = Math.max(0, Math.floor(amount || 0));
+
+    // 회복분은 가득 아래일 때만 반영한다. 저장값이 MAX 를 넘어 있으면 그건
+    // 이번 레슨 도중 받은 콤보 보너스다(완료 전이라 소비가 아직 안 빠져 있음).
+    // 여기서 applyRegen 으로 MAX 로 먼저 잘라버리면 보너스가 통째로 사라진다 —
+    // 소비를 뺀 **다음에** MAX 로 자른다 (아래 $min).
+    if ((user.energy ?? 0) < ENERGY_CONFIG.MAX) await this.applyRegen(user);
     if (spend === 0) return this.buildResponse(user);
 
     // 0 밑으로는 안 내려가게 $max 로 바닥을 깐다 (파이프라인 업데이트라
@@ -207,7 +211,15 @@ export class EnergyService {
               ],
             },
             energy: {
-              $max: [0, { $subtract: [{ $ifNull: ['$energy', 0] }, spend] }],
+              $min: [
+                ENERGY_CONFIG.MAX,
+                {
+                  $max: [
+                    0,
+                    { $subtract: [{ $ifNull: ['$energy', 0] }, spend] },
+                  ],
+                },
+              ],
             },
           },
         },
@@ -321,7 +333,19 @@ export class EnergyService {
 
     user.energy = res.energy;
     user.energyUpdatedAt = res.energyUpdatedAt;
-    await user.save();
+    // ⚠️ user.save() 를 쓰면 안 된다. save 는 **문서 전체**를 스키마로 검증해서,
+    // 에너지와 상관없는 필드 하나(옛 enum 값 등)만 어긋나도 throw 한다. 그러면
+    // 차감(consume)·콤보 보너스가 통째로 실패하고(호출부가 삼킨다) 조회 때 회복만
+    // 계속 붙어서 "레슨 끝내면 다시 25" 가 됐다. 바꾸는 두 필드만 원자적으로 쓴다.
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          energy: res.energy,
+          energyUpdatedAt: res.energyUpdatedAt,
+        },
+      },
+    );
   }
 
   /**

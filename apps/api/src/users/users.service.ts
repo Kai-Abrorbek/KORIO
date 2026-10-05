@@ -137,7 +137,12 @@ export class UsersService {
 
     if (!user.hangulCompletedAt) {
       user.hangulCompletedAt = new Date();
-      await user.save();
+      // save() 는 문서 전체를 검증해서 다른 필드 하나만 어긋나도 실패한다
+      // (energy.service applyRegen 과 같은 이유). 바꾸는 필드만 쓴다.
+      await this.userModel.updateOne(
+        { _id: user._id, hangulCompletedAt: null },
+        { $set: { hangulCompletedAt: user.hangulCompletedAt } },
+      );
     }
 
     return { success: true, hangulCompletedAt: user.hangulCompletedAt };
@@ -616,11 +621,16 @@ export class UsersService {
       throw new BadRequestException('SAME_PASSWORD');
     }
 
-    user.password = await bcrypt.hash(dto.newPassword, 10);
     // 비밀번호를 바꿨다는 건 보통 "누가 내 계정을 쓰는 것 같다" 는 뜻이다.
     // 기존에 나간 토큰을 그대로 두면 비번을 바꿔도 상대는 계속 들어온다.
-    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
-    await user.save();
+    // save() 대신 필드만 쓴다 — 문서 전체 검증에 걸려 비번 변경이 실패하지 않게
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $set: { password: await bcrypt.hash(dto.newPassword, 10) },
+        $inc: { tokenVersion: 1 },
+      },
+    );
     return { success: true };
   }
 

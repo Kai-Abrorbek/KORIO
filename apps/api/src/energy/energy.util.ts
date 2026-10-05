@@ -32,8 +32,19 @@ export function computeEnergy(
     };
   }
 
-  let energy = state.energy;
+  let energy = Number.isFinite(state.energy) ? state.energy : 0;
   const last = new Date(state.energyUpdatedAt).getTime();
+  // 기준시각이 없거나 깨진 옛 문서 — 회복 계산을 못 한다. 지금부터 센다.
+  // (그대로 두면 Invalid Date 를 저장하려다 실패해서 차감까지 같이 막힌다)
+  if (!Number.isFinite(last)) {
+    const full = energy >= MAX;
+    return {
+      energy: Math.min(MAX, energy),
+      energyUpdatedAt: now,
+      secondsToNext: full ? 0 : REGEN_MINUTES * 60,
+      isFull: full,
+    };
+  }
   const elapsedMs = now.getTime() - last;
   const regenMs = REGEN_MINUTES * 60 * 1000;
 
