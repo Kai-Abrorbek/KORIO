@@ -33,3 +33,10 @@
 @keyframes egFade{from{opacity:0}}
 @keyframes egUp{from{transform:translateY(100%)}}
 :global(html[data-theme="dark"]) .backdrop{--eg-bg:#15151d;--eg-surface:#25252e;--eg-text:#fff;--eg-muted:#a6a6b3;--eg-border:#3a3a44}
+.earnRow{display:flex;width:100%;align-items:center;gap:12px;margin:-10px 0 16px;border:2px solid #2bb673;border-bottom-width:5px;border-radius:18px;background:var(--eg-surface);color:var(--eg-text);padding:12px;text-align:left;transition:transform .08s,border-bottom-width .08s}
+.earnRow:active{transform:translateY(3px);border-bottom-width:2px}
+.earnRow>i{display:grid;flex:none;width:42px;height:42px;place-items:center;border-radius:14px;background:#2bb673;color:#fff}
+.earnRow>span{display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.earnRow>span b{font-size:15px;font-weight:900}
+.earnRow>span small{color:var(--eg-muted);font-size:12px;font-weight:700}
+.earnRow>em{display:flex;align-items:center;gap:3px;border-radius:11px;background:rgb(43 182 115/10%);color:#2bb673;padding:6px 9px;font-size:14px;font-style:normal;font-weight:900}

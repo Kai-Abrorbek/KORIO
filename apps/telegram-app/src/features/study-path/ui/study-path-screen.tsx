@@ -15,7 +15,8 @@ import { HomeIcon } from "../../home/ui/home-icon";
 import { LearningIcon } from "../../learning/ui/learning-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { claimStudyPathChests, getStudyPath } from "../api/study-path";
-import { useEnergyGuard } from "../../energy/energy-gate";
+import { useEnergyGuard, useEnergySync } from "../../energy/energy-gate";
+import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import {
   STUDY_NODE_COPY,
@@ -148,6 +149,7 @@ function StudyNodePopover({
   return (
     <article
       className={styles.nodePopover}
+      data-node-popover
       style={{ "--node-color": color } as CSSProperties}
     >
       <span className={styles.popoverArrow} />
@@ -253,6 +255,11 @@ export function StudyPathScreen() {
   useTelegramBackOverride(() => router.replace("/home"));
   const scrollRef = useRef<HTMLDivElement>(null);
   const dayRefs = useRef(new Map<string, HTMLElement>());
+  // 아래쪽 노드를 눌러도 팝오버의 시작 버튼까지 보이게 (앱과 같은 동작)
+  const isAutoScrolling = useRevealPopover(scrollRef, selectedNodeId);
+
+  // 헤더 보석·에너지를 서버 값으로 (레슨에서 날아간 차감이 닿은 뒤에)
+  useEnergySync();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -296,14 +303,15 @@ export function StudyPathScreen() {
         const index = days.findIndex((item) => item.day.id === visible.target.id);
         if (index >= 0) {
           setVisibleDayIndex(index);
-          setSelectedNodeId(null);
+          // 팝오버를 보여 주려고 우리가 올린 스크롤이면 닫지 않는다
+          if (!isAutoScrolling()) setSelectedNodeId(null);
         }
       },
       { root, rootMargin: "-8% 0px -58%", threshold: [0.2, 0.45, 0.7] },
     );
     dayRefs.current.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
-  }, [days]);
+  }, [days, isAutoScrolling]);
 
   const openNode = (node: StudyNode, day: StudyDay) => {
     if (node.status === "locked") return;

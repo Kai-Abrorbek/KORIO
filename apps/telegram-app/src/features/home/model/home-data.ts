@@ -23,6 +23,8 @@ export interface HomeDayStats {
 
 export interface HomeCalendarData {
   completedDays: number[];
+  /** 복구펜으로 메운 날 (옛 서버는 안 준다) */
+  frozenDays?: number[];
   longestStreak: number;
   month: number;
   streak: number;

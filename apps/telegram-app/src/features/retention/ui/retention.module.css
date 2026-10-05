@@ -1,0 +1,181 @@
+/* 리텐션 — 홈 카드 · 대화상자 · 연속 목표 화면 · 상점 복구펜 (앱 features/retention 과 같은 톤) */
+
+/* ── 입체 버튼 ── */
+.btn3d{--b:#776ee2;--d:#5a52c4;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:0;border-bottom:4px solid var(--d);border-radius:16px;background:var(--b);color:#fff;padding:0 18px;font-size:16px;font-weight:900;letter-spacing:.3px;overflow:hidden;transition:transform .08s,border-bottom-width .08s;-webkit-tap-highlight-color:transparent}
+.btn3d::before{content:"";position:absolute;top:3px;left:6px;right:6px;height:38%;border-radius:12px;background:rgb(255 255 255/18%);pointer-events:none}
+.btn3d:active:not(:disabled){transform:translateY(3px);border-bottom-width:1px}
+.btn3d:disabled{--b:#d3d3da;--d:#b9b9c2}
+.compact{width:auto;min-height:38px;border-radius:12px;padding:0 14px;font-size:13.5px}
+.green{--b:#2bb673;--d:#1e8f59}
+.orange{--b:#ff7a00;--d:#d45f00}
+.amber{--b:#ffb020;--d:#d48a00}
+.pink{--b:#ff6b9a;--d:#d94877}
+.blue{--b:#3ba7f0;--d:#2180c4}
+.spin{width:18px;height:18px;border:3px solid rgb(255 255 255/40%);border-top-color:#fff;border-radius:50%;animation:r-spin .7s linear infinite}
+
+/* ── 홈 카드 ── */
+.card{margin:0 16px 12px;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 2px 8px rgb(26 26 46/5%);color:var(--text)}
+.cardHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.titleRow{display:flex;align-items:center;gap:8px}
+.titleIcon{display:grid;width:24px;height:24px;place-items:center;border-radius:8px;background:#776ee2;color:#fff}
+.title{font-size:15.5px;font-weight:900}
+.countPill{border-radius:10px;background:rgb(119 110 226/10%);color:#776ee2;padding:2px 8px;font-size:12px;font-weight:900}
+.timer{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:11.5px;font-weight:700}
+
+.quest{display:flex;align-items:center;gap:12px;padding:9px 0}
+.qIcon{display:grid;flex:none;width:40px;height:40px;place-items:center;border-radius:13px;background:color-mix(in srgb,var(--qc) 12%,transparent);color:var(--qc)}
+.qMid{display:flex;flex:1;flex-direction:column;gap:6px;min-width:0}
+.qTitle{overflow:hidden;font-size:14px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.qDone{color:var(--muted)}
+.track{position:relative;height:16px;border-radius:8px;background:var(--border);overflow:hidden}
+.track>i{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--qc);transition:width .7s cubic-bezier(.22,1,.36,1)}
+.track>i::after{content:"";position:absolute;top:2px;left:4px;right:4px;height:4px;border-radius:2px;background:rgb(255 255 255/35%)}
+.track>b{position:relative;display:block;color:var(--text);font-size:10.5px;font-weight:900;line-height:16px;text-align:center}
+.qRight{position:relative;display:flex;justify-content:flex-end;min-width:64px}
+.doneBadge{display:grid;width:32px;height:32px;place-items:center;border-radius:50%;background:#2bb673;color:#fff}
+.reward{display:flex;align-items:center;gap:4px;border-radius:12px;background:rgb(59 182 229/10%);color:#3bb6e5;padding:6px 10px;font-size:13px;font-weight:900}
+.gain{position:absolute;top:-6px;right:6px;display:flex;align-items:center;gap:3px;color:#3bb6e5;font-size:15px;font-weight:900;pointer-events:none;animation:r-gain .9s cubic-bezier(.22,1,.36,1) forwards}
+
+.chest{display:flex;width:100%;align-items:center;gap:12px;margin-top:8px;border:1.5px dashed var(--border);border-radius:16px;background:var(--app-bg);color:var(--text);padding:12px;text-align:left}
+.chestReady{border-style:solid;border-color:#ffb020;background:rgb(255 176 32/10%)}
+.chestIcon{position:relative;display:grid;flex:none;width:40px;height:40px;place-items:center;color:#ffb020}
+.chestReady .chestIcon>svg{animation:r-wobble 1.5s ease-in-out infinite}
+.chestReady .chestIcon::before{content:"";position:absolute;width:46px;height:46px;border-radius:50%;background:#ffe066;animation:r-glow 1.8s ease-in-out infinite}
+.chestIcon>svg{position:relative}
+.chestOpened{color:var(--muted)}
+.sub{color:var(--muted);font-size:12px;font-weight:700}
+
+/* ── 출석 ── */
+.ckGrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ck{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:calc(25% - 6px);height:76px;border:1.5px solid var(--border);border-radius:14px;background:var(--app-bg)}
+.ck small{color:var(--muted);font-size:11px;font-weight:900}
+.ck b{font-size:14px;font-weight:900}
+.ck>svg{color:#3bb6e5}
+.ckSuper{width:calc(50% - 4px);border-color:#5a52c4;background:#776ee2;color:#fff}
+.ckSuper small,.ckToday small{color:#fff}
+.ckSuper>svg{color:#fff}
+.ckSuper b{font-size:10.5px}
+.ckClaimed{opacity:.55}
+.ckToday{border-color:#d94877;background:#ff6b9a;color:#fff;animation:r-pulse 1.6s ease-in-out infinite}
+.ckToday>svg{color:#fff}
+.ckCheck{display:grid;width:26px;height:26px;place-items:center;border-radius:50%;background:#2bb673;color:#fff}
+.ckFoot{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;color:var(--muted);font-size:13px;font-weight:800}
+
+/* ── XP 부스트 ── */
+.boost{position:relative;display:flex;align-items:center;gap:10px;margin:0 16px 12px;border-radius:16px;background:linear-gradient(90deg,#ffb020,#ff6b9a);color:#fff;padding:10px 12px;overflow:hidden}
+.boost::after{content:"";position:absolute;top:-20px;bottom:-20px;left:-60px;width:40px;background:rgb(255 255 255/25%);transform:rotate(18deg);animation:r-sweep 1.8s ease-in-out infinite}
+.boostBadge{display:flex;align-items:center;gap:2px;border-radius:10px;background:#fff;color:#ff8a00;padding:4px 8px;font-size:14px;font-weight:900}
+.boost>strong{flex:1;font-size:14px;font-weight:900}
+.boost>b{font-size:15px;font-variant-numeric:tabular-nums;font-weight:900}
+
+/* ── 스트릭 칩 ── */
+.chips{display:flex;align-items:center;gap:8px;margin:-4px 16px 12px}
+.freezeChip{display:flex;align-items:center;gap:5px;border-radius:12px;background:rgb(59 167 240/10%);color:#2180c4;padding:7px 10px;font-size:12.5px;font-weight:900;white-space:nowrap}
+.goalChip{display:flex;flex:1;align-items:center;justify-content:center;gap:6px;min-width:0;border:0;border-bottom:3px solid #d45f00;border-radius:12px;background:#ff7a00;color:#fff;padding:7px 12px;font-size:12.5px;font-weight:900}
+.goalChip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.goalChip:active{transform:translateY(2px);border-bottom-width:1px}
+
+/* ── 대화상자 ── */
+.dialogRoot{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;padding:0 16px}
+.dialogBackdrop{position:absolute;inset:0;background:rgb(10 8 30/62%);animation:r-fade .2s ease-out both}
+.dialog{position:relative;display:flex;flex-direction:column;align-items:center;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:76px 22px 20px;animation:r-pop .38s cubic-bezier(.34,1.56,.64,1) both}
+.dialogMascot{position:absolute;top:-58px;display:grid;place-items:center}
+.dialogMascot::before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#ffe066;animation:r-halo 2.8s ease-in-out infinite}
+.dialogMascot img{position:relative;width:104px;height:104px;object-fit:contain}
+.dialog h2{margin:0;font-size:21px;font-weight:900;line-height:28px;text-align:center}
+.dialog p{margin:8px 0 0;color:var(--muted);font-size:14.5px;font-weight:600;line-height:21px;text-align:center}
+.dialogRewards{display:flex;width:100%;flex-direction:column;gap:8px;margin-top:16px}
+.dialogChip{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);padding:10px 12px;font-size:14.5px;font-weight:800;animation:r-chip .45s cubic-bezier(.34,1.56,.64,1) both}
+.dialogChip>i{display:grid;width:32px;height:32px;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--cc) 14%,transparent);color:var(--cc)}
+.dialogPrimary{margin-top:20px}
+.dialogSecondary{margin-top:14px;border:0;background:none;color:var(--muted);padding:4px;font-size:14px;font-weight:800}
+
+/* ── 연속 목표 화면 ── */
+.page{position:relative;display:flex;flex-direction:column;width:100%;max-width:var(--content-width);height:var(--tg-viewport-stable-height,100dvh);margin:0 auto;background:var(--app-bg);color:var(--text);overflow:hidden}
+.topBar{display:flex;align-items:center;height:52px;padding:max(4px,var(--korio-top)) 12px 0}
+.topBar>button{display:grid;width:36px;height:36px;place-items:center;border:0;background:none;color:var(--text)}
+.topBar>h1{flex:1;margin:0;font-size:17px;font-weight:900;text-align:center}
+.gemPill{display:flex;align-items:center;gap:4px;border-radius:12px;background:rgb(59 182 229/10%);color:#3bb6e5;padding:5px 10px;font-size:13.5px;font-weight:900}
+.negative{color:#e25c5c}
+.scroll{display:flex;flex:1;flex-direction:column;gap:14px;overflow-y:auto;padding:4px 16px calc(120px + var(--korio-bottom))}
+.state{display:flex;flex:1;align-items:center;justify-content:center}
+.hero{position:relative;display:flex;align-items:center;gap:14px;border-radius:24px;background:linear-gradient(135deg,#ff9a3c,#ff5e62);color:#fff;padding:18px;overflow:hidden}
+.heroFlame{position:relative;display:grid;flex:none;width:86px;height:86px;place-items:center;color:#fff3b0}
+.heroFlame::before{content:"";position:absolute;width:86px;height:86px;border-radius:50%;background:#ffe066;animation:r-flameglow 1.6s ease-in-out infinite}
+.heroFlame>svg{position:relative;animation:r-flicker 1.6s ease-in-out infinite}
+.heroCount{font-size:44px;font-weight:900;line-height:48px}
+.heroLabel{color:#fff3e0;font-size:15px;font-weight:900}
+.heroFreeze{display:flex;align-items:center;gap:5px;width:max-content;margin-top:8px;border-radius:10px;background:rgb(255 255 255/22%);padding:4px 10px;font-size:12px;font-weight:900}
+.mTrack{display:flex;gap:10px;overflow-x:auto;padding:14px 4px 14px 0;scrollbar-width:none}
+.milestone{display:flex;flex:none;flex-direction:column;align-items:center;gap:4px;width:74px;border:1.5px solid var(--border);border-radius:16px;background:var(--app-bg);padding:10px 0;color:#ffb020;animation:r-rise .5s cubic-bezier(.34,1.56,.64,1) both}
+.milestone small{color:var(--text);font-size:12px;font-weight:900}
+.milestone b{display:flex;align-items:center;gap:3px;color:var(--text);font-size:12.5px;font-weight:900}
+.milestone b svg{color:#3bb6e5}
+.milestone em{color:var(--muted);font-size:10.5px;font-style:normal;font-weight:800}
+.mNext{border-color:#d48a00;background:#ffb020;color:#fff}
+.mNext small,.mNext b,.mNext em,.mNext b svg{color:#fff}
+.totalRow{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:12px}
+.totalRow>span{font-size:13.5px;font-weight:800}
+.totalRow>b{display:flex;align-items:center;gap:5px;color:#3bb6e5;font-size:20px;font-weight:900}
+.totalHint{margin-top:4px;color:var(--muted);font-size:11.5px;font-weight:700;text-align:right}
+.section{margin:4px 0 0;font-size:16px;font-weight:900}
+.options{display:flex;flex-direction:column;gap:10px}
+.option{position:relative;display:flex;width:100%;align-items:center;gap:12px;border:2px solid var(--border);border-bottom-width:5px;border-radius:18px;background:var(--surface);color:var(--text);padding:12px;text-align:left;animation:r-slide .45s cubic-bezier(.34,1.56,.64,1) both;transition:transform .08s}
+.option:active{transform:translateY(3px)}
+.optionOn{border-color:#ff7a00;background:color-mix(in srgb,#ff7a00 7%,var(--surface))}
+.optLen{display:grid;flex:none;width:64px;height:48px;place-items:center;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);font-size:13.5px;font-weight:900;text-align:center}
+.optionOn .optLen{border-color:#d45f00;background:#ff7a00;color:#fff}
+.optMid{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+.flames{display:flex;gap:1px;color:var(--muted)}
+.optionOn .flames{color:#ff7a00}
+.optGems{display:flex;align-items:center;gap:4px;border-radius:12px;background:rgb(59 182 229/10%);color:#3bb6e5;padding:6px 10px;font-size:14.5px;font-weight:900}
+.optionOn .optGems{background:#3bb6e5;color:#fff}
+.optCheck{position:absolute;top:-8px;right:-6px;display:grid;width:22px;height:22px;place-items:center;border:2px solid var(--surface);border-radius:50%;background:#ff7a00;color:#fff}
+.active{border:2px solid #ff7a00;border-radius:20px;background:var(--surface);padding:16px}
+.activeTop{display:flex;align-items:center;justify-content:space-between}
+.activeTop>strong{font-size:22px;font-weight:900}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.dot{display:grid;width:26px;height:26px;place-items:center;border-radius:50%;background:var(--border);color:#fff}
+.dotSmall{width:16px;height:16px}
+.dotDone{background:#ff7a00}
+.activeTrack{height:12px;margin-top:14px;border-radius:6px;background:var(--border);overflow:hidden}
+.activeTrack>i{display:block;height:100%;border-radius:6px;background:#ff7a00;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.activeText{margin-top:8px;font-size:14px;font-weight:900}
+.warn{display:flex;align-items:center;gap:6px;margin-top:10px;border-radius:12px;background:rgb(226 92 92/8%);color:#c94545;padding:10px;font-size:12.5px;font-weight:800}
+.rules{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:14px}
+.rules>div{display:flex;align-items:flex-start;gap:8px;color:var(--muted);font-size:12.5px;font-weight:700;line-height:18px}
+.rules>div.ruleWarn{color:#c94545}
+.rules svg{flex:none;margin-top:1px}
+.bottom{position:absolute;left:0;right:0;bottom:0;border-top:1px solid var(--border);background:var(--app-bg);padding:12px 16px calc(12px + var(--korio-bottom))}
+
+/* ── 상점 복구펜 ── */
+.shopLabel{margin:22px 20px 10px;color:var(--muted);font-size:13px;font-weight:900;letter-spacing:.6px;text-transform:uppercase}
+.freezeRow{display:flex;width:calc(100% - 40px);align-items:center;gap:13px;margin:0 20px 12px;border:2px solid var(--border);border-bottom-width:5px;border-radius:18px;background:var(--surface);color:var(--text);padding:14px;text-align:left}
+.freezeRow:active:not(:disabled){transform:translateY(3px);border-bottom-width:2px}
+.freezeRow:disabled{opacity:.55}
+.freezeIcon{display:grid;flex:none;width:48px;height:48px;place-items:center;border-bottom:3px solid #2180c4;border-radius:15px;background:#3ba7f0;color:#fff}
+.freezeMid{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.freezeMid>b{font-size:16px;font-weight:900}
+.freezeMid>small{color:var(--muted);font-size:12px;font-weight:700}
+.slots{display:flex;align-items:center;gap:4px;margin-top:3px}
+.slot{display:grid;width:20px;height:20px;place-items:center;border-radius:6px;background:var(--border);color:var(--muted)}
+.slotOn{background:#3ba7f0;color:#fff}
+.slots>em{margin-left:4px;color:var(--muted);font-size:12px;font-style:normal;font-weight:900}
+.price{display:flex;align-items:center;gap:5px;border-radius:12px;background:#f2fafe;color:#3bb6e5;padding:7px 10px;font-size:15px;font-weight:900}
+.full{color:#2180c4;font-size:13px;font-weight:900}
+
+@keyframes r-spin{to{transform:rotate(360deg)}}
+@keyframes r-gain{0%{opacity:1;transform:translateY(0)}60%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
+@keyframes r-wobble{0%,72%,100%{transform:rotate(0)}76%{transform:rotate(-7deg)}82%{transform:rotate(7deg)}88%{transform:rotate(-4deg)}}
+@keyframes r-glow{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes r-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 rgb(255 107 154/0%)}50%{transform:scale(1.06);box-shadow:0 0 14px rgb(255 107 154/50%)}}
+@keyframes r-sweep{from{left:-60px}to{left:110%}}
+@keyframes r-fade{from{opacity:0}}
+@keyframes r-pop{from{opacity:0;transform:scale(.86)}}
+@keyframes r-halo{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}
+@keyframes r-chip{from{opacity:0;transform:scale(.6)}}
+@keyframes r-flameglow{0%,100%{opacity:.25;transform:scale(1)}45%{opacity:.55;transform:scale(1.15)}}
+@keyframes r-flicker{0%,100%{transform:scale(1) rotate(-3deg)}45%{transform:scale(1.07) rotate(3deg)}}
+@keyframes r-rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes r-slide{from{opacity:0;transform:translateX(24px)}}
+:global(:root[data-theme="dark"]) .price{background:#2e2e39}

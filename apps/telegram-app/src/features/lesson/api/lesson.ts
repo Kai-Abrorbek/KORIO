@@ -155,11 +155,15 @@ export function completePractice(
     energySpent?: number;
     /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
     energySession?: string;
+    /** "복습으로 에너지 벌기" 판 (review 모드에서만) */
+    earnEnergy?: boolean;
   },
 ): Promise<{
   /** 학습 로드 문제 노드 완료 = 그날 학습 완료 → 도장·연속 상자 */
   celebration?: StudyCelebration | null;
   energy?: number;
+  /** 에너지 벌기 판에서 실제로 번 양 */
+  energyEarned?: number;
   success: boolean;
   totalXP: number;
   xpEarned: number;

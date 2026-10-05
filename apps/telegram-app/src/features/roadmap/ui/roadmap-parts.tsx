@@ -83,6 +83,7 @@ export function RoadmapPopover({
   if (node.type === "score") {
     return (
       <article
+        data-node-popover
         className={`${styles.roadmapPopover} ${lockedClass}`}
         style={popupStyle}
       >
@@ -105,6 +106,7 @@ export function RoadmapPopover({
   if (node.type === "chest") {
     return (
       <article
+        data-node-popover
         className={`${styles.roadmapPopover} ${
           node.chestClaimable ? styles.chestPopover : styles.roadmapPopoverLocked
         }`}
@@ -128,6 +130,7 @@ export function RoadmapPopover({
   if (node.status === "locked") {
     return (
       <article
+        data-node-popover
         className={`${styles.roadmapPopover} ${styles.roadmapPopoverLocked}`}
         style={popupStyle}
       >
@@ -153,6 +156,7 @@ export function RoadmapPopover({
   const legend = Boolean(node.legendCompleted);
   return (
     <article
+      data-node-popover
       className={`${styles.roadmapPopover} ${legend ? styles.legendPopover : ""}`}
       style={popupStyle}
     >

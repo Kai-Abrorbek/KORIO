@@ -105,6 +105,8 @@ const IONICONS = {
   "exit-outline": 62174,
   flame: 62227,
   flag: 62224,
+  snow: 62857,
+  "gift-outline": 62264,
   "flag-outline": 62225,
   flash: 62230,
   "flash-outline": 62234,

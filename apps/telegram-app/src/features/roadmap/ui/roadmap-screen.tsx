@@ -12,6 +12,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useEnergyGuard } from "../../energy/energy-gate";
+import { energySpendsSettled } from "../../energy/energy-sync";
+import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { HomeIcon } from "../../home/ui/home-icon";
 import { saveStudyMode } from "../../learning/api/learning-preferences";
@@ -71,13 +73,19 @@ export function RoadmapScreen() {
   const unitRefs = useRef(new Map<string, HTMLElement>());
   const claimingRef = useRef(false);
   const guardLessonStart = useEnergyGuard();
+  // 아래쪽 노드를 눌러도 팝오버의 시작 버튼까지 보이게 (앱과 같은 동작)
+  const isAutoScrolling = useRevealPopover(scrollRef, selectedNodeId);
 
   // 앱처럼 로드맵의 뒤로가기는 홈으로 (코스 선택 화면을 거쳐 들어왔어도)
   useTelegramBackOverride(() => router.replace("/home"));
 
   // 헤더의 보석·에너지·스트릭을 서버 값으로 맞춘다 (레슨을 끝내고 돌아오면 바뀌어 있다)
   useEffect(() => {
-    void request<{ gems?: number; energy?: number; streak?: number; isSuper?: boolean; superExpiresAt?: string | null }>("/users/me")
+    // 레슨에서 날아간 에너지 차감이 서버에 닿은 뒤에 묻는다 (먼저 물으면 한 칸 덜 깎인 값이 온다)
+    void energySpendsSettled()
+      .then(() =>
+        request<{ gems?: number; energy?: number; streak?: number; isSuper?: boolean; superExpiresAt?: string | null }>("/users/me"),
+      )
       .then((me) =>
         updateUser({
           energy: me.energy,
@@ -151,14 +159,15 @@ export function RoadmapScreen() {
         const index = units.findIndex((unit) => unit.id === visible.target.id);
         if (index >= 0) {
           setVisibleUnitIndex(index);
-          setSelectedNodeId(null);
+          // 팝오버를 보여 주려고 우리가 올린 스크롤이면 닫지 않는다
+          if (!isAutoScrolling()) setSelectedNodeId(null);
         }
       },
       { root, rootMargin: "-8% 0px -58%", threshold: [0.2, 0.45] },
     );
     unitRefs.current.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
-  }, [units]);
+  }, [isAutoScrolling, units]);
 
   const openSections = async () => {
     setSheetOpen(true);

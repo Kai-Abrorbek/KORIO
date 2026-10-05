@@ -24,6 +24,9 @@ import {
   resolveMistakes,
 } from "../api/lesson";
 import { openEnergyModal } from "../../energy/energy-gate";
+import { EnergySurge } from "../../energy/energy-surge";
+import { energySpendsSettled, trackEnergySpend } from "../../energy/energy-sync";
+import { rt } from "../../retention/model/retention";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { completeLevelExam, getLevelExam } from "../api/study-lesson";
 import {
@@ -70,6 +73,8 @@ function makeQueue(questions: LessonQuestion[], prefix: string, retry = false): 
 
 /** 문법 트랙 오답은 맞힐 때까지 최대 이만큼 다시 낸다 (앱 GRAMMAR_RETRY_LIMIT) */
 const GRAMMAR_RETRY_LIMIT = 2;
+/** "복습으로 에너지 벌기" 한 판의 문제 수 (벌 수 있는 양은 서버가 정한다) */
+const EARN_SESSION_QUESTIONS = 8;
 
 function shuffle<T>(items: readonly T[]): T[] {
   const out = [...items];
@@ -178,6 +183,8 @@ export function LessonScreen() {
   const isLevelExam = mode === "levelExam";
   const isOnboardingLevelTest = mode === "levelTest";
   const isReview = mode === "review";
+  // 에너지가 바닥나서 들어온 "복습으로 에너지 벌기" 판 — 짧게 끝내고 원래 자리로 (앱과 같다)
+  const isEarnEnergy = isReview && params.get("earn") === "1";
   const isWordPractice = mode === "wordPractice";
   const isGrammarTrack = category === "grammar" && !isJump;
   const selfReportedLevel = params.get("self") ?? "basic_greetings";
@@ -224,8 +231,36 @@ export function LessonScreen() {
   // 맞힐 때마다 서버가 바로 깎고, 완료 때는 이미 깎은 만큼을 빼고 정산한다
   const energySession = useRef(`${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
   const energyCharged = useRef(0);
+  /** 서버에 못 닿은 차감 수 — 끝내지 않고 나갈 때 다시 보낸다 */
+  const energyFailed = useRef(0);
+  /** 완료 정산을 보냈다 — 그 뒤엔 재전송하면 두 번 깎인다 */
+  const energySettled = useRef(false);
   const bonusGiven = useRef(false);
   const [bonusAmount, setBonusAmount] = useState<number | null>(null);
+  /** 콤보 보상 연출 — 번개(배터리) / 에너지 코어 중 매번 랜덤 */
+  const [bonusVariant, setBonusVariant] = useState<"battery" | "surge">("battery");
+  /** 에너지 벌기 판 — 연출이 끝나면 레슨을 나간다 */
+  const leaveAfterBonus = useRef(false);
+
+  // 끝내지 않고 나갈 때 — 서버에 못 닿은 차감을 다시 보낸다 (앱 retryFailedSpends 와 같다).
+  // 안 그러면 실패한 만큼은 영영 안 깎여서, 나갔다 오면 그만큼 "다시 차" 있다
+  const requestRef = useRef(request);
+  requestRef.current = request;
+  useEffect(
+    () => () => {
+      if (energySettled.current) return;
+      let left = energyFailed.current;
+      energyFailed.current = 0;
+      while (left > 0) {
+        const amount = Math.min(5, left);
+        left -= amount;
+        void trackEnergySpend(
+          spendServerEnergy(requestRef.current, energySession.current, amount),
+        ).catch(() => undefined);
+      }
+    },
+    [],
+  );
 
   const resetRun = useCallback(() => {
     startTime.current = Date.now();
@@ -302,7 +337,10 @@ export function LessonScreen() {
           category: "",
           lessonId: "review",
           lessonTitle: "Takrorlash",
-          questions: result.questions,
+          // 에너지 벌기 판은 짧게 — 한 판에 벌 수 있는 양이 정해져 있다
+          questions: isEarnEnergy
+            ? result.questions.slice(0, EARN_SESSION_QUESTIONS)
+            : result.questions,
           totalXp: 16,
         };
       } else if (isWordPractice) {
@@ -373,7 +411,7 @@ export function LessonScreen() {
     } finally {
       setLoading(false);
     }
-  }, [category, examLevel, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, isReview, isWordPractice, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, router, section, selfReportedLevel, target, unit, updateUser]);
+  }, [category, examLevel, group, isEarnEnergy, isJump, isLegend, isLevelExam, isOnboardingLevelTest, isReview, isWordPractice, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, router, section, selfReportedLevel, target, unit, updateUser]);
 
   // 오답 복습: 화면을 벗어날 때(중간 이탈 포함) 그때까지 맞힌 문제를 오답에서 뺀다
   useEffect(() => {
@@ -492,14 +530,18 @@ export function LessonScreen() {
       localSpent.current += 1;
       const nextEnergy = Math.max(0, (user?.energy ?? 0) - 1);
       updateUser({ energy: nextEnergy });
-      if (nextEnergy <= 0) openEnergyModal();
+      // 레슨 도중에 바닥났다 — 다음 문제로 못 넘어간다 (next 가 막는다)
+      if (nextEnergy <= 0) openEnergyModal(true);
 
-      // 서버에서 바로 깎는다 — 몇 문제 풀다 나가도 깎인 채로 남는다 (실패해도 완료 때 정산)
-      spending = spendServerEnergy(request, energySession.current)
+      // 서버에서 바로 깎는다 — 몇 문제 풀다 나가도 깎인 채로 남는다 (실패해도 완료 때 정산).
+      // 다른 화면의 에너지 조회가 이 차감이 끝나길 기다린다 (trackEnergySpend)
+      spending = trackEnergySpend(spendServerEnergy(request, energySession.current))
         .then(() => {
           energyCharged.current += 1;
         })
-        .catch(() => undefined);
+        .catch(() => {
+          energyFailed.current += 1;
+        });
     }
 
     // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다.
@@ -516,9 +558,14 @@ export function LessonScreen() {
           bonusGiven.current = true;
           // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
           updateUser({ energy: Math.max(0, bonus.energy - spentSoFar), gems: bonus.gems });
+          // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로 (앱과 같다)
+          const variant = Math.random() < 0.5 ? "battery" : "surge";
+          setBonusVariant(variant);
           setBonusAmount(bonus.bonusGranted);
-          window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
-          window.setTimeout(() => setBonusAmount(null), 2200);
+          if (variant === "battery") {
+            window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
+            window.setTimeout(() => setBonusAmount(null), 2200);
+          }
         })
         .catch(() => undefined);
     }
@@ -577,6 +624,9 @@ export function LessonScreen() {
   const finish = async () => {
     if (!session || finishing) return;
     setFinishing(true);
+    // 정산 전에 날아가 있는 차감이 서버에 닿게 한다 — 안 그러면 정산이 그 몫을 한 번 더 깎는다
+    energySettled.current = true;
+    await energySpendsSettled();
     const elapsed = Math.max(1, Math.round((Date.now() - startTime.current) / 1000));
     const total = Math.max(1, totalCount.current);
     const accuracy = Math.round((correctCount.current / total) * 100);
@@ -716,8 +766,23 @@ export function LessonScreen() {
           questionIds,
           speedSeconds: elapsed,
           wrongQuestionIds: wrong,
+          ...(isEarnEnergy ? { earnEnergy: true } : {}),
         });
-        updateUser({ totalXP: result.totalXP });
+        updateUser({
+          totalXP: result.totalXP,
+          ...(isEarnEnergy && typeof result.energy === "number" ? { energy: result.energy } : {}),
+        });
+        // 에너지 벌기 판 — 번 만큼 연출하고 바닥났던 레슨으로 돌아간다
+        if (isEarnEnergy) {
+          const got = result.energyEarned ?? 0;
+          if (got > 0) {
+            leaveAfterBonus.current = true;
+            setBonusVariant("surge");
+            setBonusAmount(got);
+          } else if (window.history.length > 1) router.back();
+          else router.replace("/home");
+          return;
+        }
         routeComplete({ accuracy, time: elapsed, xp: result.xpEarned });
         return;
       }
@@ -781,6 +846,24 @@ export function LessonScreen() {
 
   const next = async () => {
     if (!current || answerState === "idle") return;
+    // ── 에너지 0 ── 다음 본풀이 문제는 에너지가 있어야 푼다 (앱과 같다).
+    // 이미 낸 문제(문법 재도전)·복습 라운드·끝(복습 안내/완료)은 막지 않는다
+    const superNow = Boolean(
+      user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()),
+    );
+    if (
+      !superNow &&
+      (mode === "lesson" || mode === "unitPractice") &&
+      phase === "main"
+    ) {
+      const upcoming = queue[cursor + 1];
+      const needsEnergy =
+        !!upcoming && !energyChargedIds.current.has(upcoming.question.id);
+      if (needsEnergy && (user?.energy ?? 0) <= 0) {
+        openEnergyModal(true);
+        return;
+      }
+    }
     if (isJump && hearts <= 0) {
       await finish();
       return;
@@ -922,7 +1005,20 @@ export function LessonScreen() {
 
       {checking ? <div className={styles.checkingToast}>Javob tekshirilmoqda...</div> : null}
       {/* 4연속 정답 보너스 — 앱 EnergyBonusPopup (배터리 + 파티클) */}
-      {bonusAmount ? (
+      {bonusAmount && bonusVariant === "surge" ? (
+        <EnergySurge
+          amount={bonusAmount}
+          onDone={() => {
+            setBonusAmount(null);
+            if (leaveAfterBonus.current) {
+              if (window.history.length > 1) router.back();
+              else router.replace("/home");
+            }
+          }}
+          subtitle={isEarnEnergy ? rt("earn.surgeSub") : undefined}
+        />
+      ) : null}
+      {bonusAmount && bonusVariant === "battery" ? (
         <div aria-live="polite" className={styles.energyBonus}>
           {Array.from({ length: 10 }, (_, index) => {
             const angle = (index / 10) * Math.PI * 2;

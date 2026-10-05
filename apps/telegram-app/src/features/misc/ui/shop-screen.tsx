@@ -10,6 +10,9 @@ import { claimFreeEnergy, getEnergy, getGemPasses, redeemGemPass, refillEnergy }
 import type { EnergyState, GemPass, GemPassList } from "../model/misc";
 import styles from "./shop-screen.module.css";
 import { alertDialog, confirmDialog } from "../../../shared/telegram/dialogs";
+import { buyStreakFreeze, getRetentionSummary } from "../../retention/api/retention";
+import { haptic, rt, type FreezeView } from "../../retention/model/retention";
+import { ShopFreezeSection } from "../../retention/ui/shop-freeze";
 
 const TIERS = [
   { a: "#7FD8F5", b: "#3BB6E5", edge: "#2A94BC" },
@@ -20,6 +23,7 @@ const TIERS = [
 
 const ERROR_COPY: Record<string, string> = {
   ENERGY_ALREADY_FULL: "Energiyangiz allaqachon to'la.",
+  FREEZE_MAX: rt("errors.FREEZE_MAX"),
   ENERGY_SUPER_UNLIMITED: "SUPER'da energiya cheksiz — to'ldirish shart emas.",
   GEM_PASS_FAILED: "Bajarib bo'lmadi. Gavharlaringiz joyida.",
   GEM_PASS_STACK_LIMIT: "Allaqachon yetarlicha to'plangan. Muddat kamaygach yana olasiz.",
@@ -90,20 +94,22 @@ function WithdrawCard({ gems }: { gems: number }) {
 export function ShopScreen() {
   const router=useRouter();
   const {request,updateUser,user}=useTelegramAuth();
-  const [energy,setEnergy]=useState<EnergyState|null>(null),[passes,setPasses]=useState<GemPassList|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[unavailable,setUnavailable]=useState(false);
+  const [energy,setEnergy]=useState<EnergyState|null>(null),[passes,setPasses]=useState<GemPassList|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[unavailable,setUnavailable]=useState(false),[freeze,setFreeze]=useState<FreezeView|null>(null);
   const mounted=useRef(true);
   useEffect(()=>{
     mounted.current=true;
     return()=>{mounted.current=false;};
   },[]);
-  const load=useCallback(async()=>{const [energyResult,passResult]=await Promise.all([getEnergy(request).catch(()=>null),getGemPasses(request).catch(()=>{setUnavailable(true);return null;})]);if(!mounted.current)return;if(energyResult){setEnergy(energyResult);updateUser({energy:energyResult.energy,gems:energyResult.gems});}if(passResult){setPasses(passResult);setUnavailable(false);}setLoading(false);},[request,updateUser]);
+  const load=useCallback(async()=>{const [energyResult,passResult,retentionResult]=await Promise.all([getEnergy(request).catch(()=>null),getGemPasses(request).catch(()=>{setUnavailable(true);return null;}),getRetentionSummary(request).catch(()=>null)]);if(!mounted.current)return;if(retentionResult)setFreeze(retentionResult.freeze);if(energyResult){setEnergy(energyResult);updateUser({energy:energyResult.energy,gems:energyResult.gems});}if(passResult){setPasses(passResult);setUnavailable(false);}setLoading(false);},[request,updateUser]);
   useEffect(()=>{void load();},[load]);
   const run=async(fn:()=>Promise<void>)=>{if(busy)return;setBusy(true);try{await fn();}catch(reason){const code=reason instanceof ApiError?reason.code:"UNKNOWN";void alertDialog(ERROR_COPY[code]??"Birozdan keyin qayta urinib ko'ring.");}finally{setBusy(false);}};
   const gems=passes?.gems??energy?.gems??user?.gems??0,isSuper=energy?.isSuper??Boolean(user?.isSuper),basePerDay=passes?.passes[0]?.perDay??0;
   const untilLabel=useMemo(()=>{if(!passes?.premiumUntil)return null;const date=new Date(passes.premiumUntil);return `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,"0")}.${String(date.getDate()).padStart(2,"0")}`;},[passes?.premiumUntil]);
+  // 복구펜 — 산 뒤 보석 표시는 passes/energy 어느 쪽이 기준이든 같이 맞춘다
+  const buyFreeze=()=>void run(async()=>{const result=await buyStreakFreeze(request);setFreeze(current=>current?{...current,owned:result.owned,max:result.max}:current);setPasses(current=>current?{...current,gems:result.gems}:current);setEnergy(current=>current?{...current,gems:result.gems}:current);updateUser({gems:result.gems});haptic("success");});
   const buy=async(pass:GemPass)=>{if(!(await confirmDialog(`${pass.gems.toLocaleString("en-US")} gavhar sarflab, ${pass.days} kunlik premium olasiz.`)))return;void run(async()=>{const result=await redeemGemPass(request,pass.id);updateUser({gems:result.gems,isSuper:true,superExpiresAt:result.premiumUntil});void alertDialog(`Premium yana ${result.days} kunga uzaytirildi!`);await load();});};
   if(loading)return <main className={`${styles.page} ${styles.loading}`}><i/></main>;
   return <main className={styles.page}><header className={styles.header}><button aria-label="Yopish" onClick={()=>window.history.length>1?router.back():router.replace("/home")} type="button"><MobileIcon name="close" size={24}/></button><h1>Do&apos;kon</h1><span><MobileIcon name="diamond" size={16}/>{gems.toLocaleString("en-US")}</span></header><div className={styles.scroll}><GemHero gems={gems} premiumUntil={untilLabel}/><h2 className={styles.sectionLabel}>PREMIUM MUDDAT</h2><p className={styles.sectionDesc}>To&apos;plagan gavharlaringizga KORIO SUPER&apos;ni yana bir necha kun oling. Muddat uzoq bo&apos;lsa, kuniga arzonroq.</p>
     {unavailable?<div className={styles.retry}><MobileIcon name="cloud-offline-outline" size={26}/><p>Muddatlarni yuklab bo&apos;lmadi. Server javob bermayapti.</p><button onClick={()=>{setUnavailable(false);setLoading(true);void load();}} type="button"><MobileIcon name="refresh" size={15}/>Qayta urinish</button></div>:passes?.passes.map((pass,index)=><PassCard basePerDay={basePerDay} busy={busy} featured={index===passes.passes.length-1} gems={gems} index={index} key={pass.id} onBuy={()=>void buy(pass)} pass={pass}/>) }
-    {passes&&passes.stackedDays>0?<p className={styles.stackNote}>{`Hozir ${passes.stackedDays} kun to'plangan (ko'pi bilan ${passes.maxStackDays} kun)`}</p>:null}<h2 className={`${styles.sectionLabel} ${styles.superLabel}`}>KORIO SUPER</h2><SuperCard active={isSuper} onClick={()=>router.push("/premium")}/>{!isSuper?<EnergySection busy={busy} energy={energy??ENERGY_FALLBACK} gems={gems} onFree={()=>void run(async()=>{const result=await claimFreeEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})} onRefill={()=>void run(async()=>{const result=await refillEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})}/>:null}<WithdrawCard gems={gems}/></div></main>;
+    {passes&&passes.stackedDays>0?<p className={styles.stackNote}>{`Hozir ${passes.stackedDays} kun to'plangan (ko'pi bilan ${passes.maxStackDays} kun)`}</p>:null}<h2 className={`${styles.sectionLabel} ${styles.superLabel}`}>KORIO SUPER</h2><SuperCard active={isSuper} onClick={()=>router.push("/premium")}/>{freeze?<ShopFreezeSection busy={busy} freeze={freeze} gems={gems} isSuper={isSuper} onBuy={buyFreeze}/>:null}{!isSuper?<EnergySection busy={busy} energy={energy??ENERGY_FALLBACK} gems={gems} onFree={()=>void run(async()=>{const result=await claimFreeEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})} onRefill={()=>void run(async()=>{const result=await refillEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})}/>:null}<WithdrawCard gems={gems}/></div></main>;
 }

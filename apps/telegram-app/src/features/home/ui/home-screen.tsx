@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -27,6 +27,16 @@ import { RankBanner } from "./rank-banner";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import styles from "./home-screen.module.css";
 import { HomeTour } from "../../tour/home-tour";
+import { getRetentionSummary } from "../../retention/api/retention";
+import type { RetentionSummary } from "../../retention/model/retention";
+import {
+  CheckinCard,
+  DailyQuestsCard,
+  RetentionOverlays,
+  StreakChips,
+  XpBoostBanner,
+} from "../../retention/ui/home-retention";
+import { energySpendsSettled } from "../../energy/energy-sync";
 
 interface QuickAccessItem {
   color: string;
@@ -109,6 +119,18 @@ export function HomeScreen() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  // 리텐션 — 복구펜·퀘스트·출석·복귀·XP 부스트·연속 목표 (서버 요약 하나, 앱 홈과 같다)
+  const [retention, setRetention] = useState<RetentionSummary | null>(null);
+  const [checkinReward, setCheckinReward] = useState<{
+    day: number;
+    gems: number;
+    superDays: number;
+  } | null>(null);
+  const patchRetention = useCallback(
+    (fn: (summary: RetentionSummary) => RetentionSummary) =>
+      setRetention((current) => (current ? fn(current) : current)),
+    [],
+  );
 
   useEffect(() => {
     if (!authenticatedUser) return;
@@ -118,11 +140,22 @@ export function HomeScreen() {
     }
 
     let active = true;
-    void Promise.allSettled([
+    // 요약이 먼저 연속을 맞춘다(복구펜 자동 사용·목표 판정) — 그 뒤에 계정 값을 받는다
+    void getRetentionSummary(request)
+      .then((summary) => {
+        if (!active) return;
+        setRetention(summary);
+        setProfile((current) =>
+          current ? { ...current, gems: summary.gems, streak: summary.streak } : current,
+        );
+      })
+      .catch(() => undefined);
+    // 레슨에서 막 나왔으면 마지막 에너지 차감이 서버에 닿은 뒤에 묻는다
+    void energySpendsSettled().then(() => Promise.allSettled([
       request<HomeUser>("/users/me"),
       request<{ days: HomeDayStats[] }>("/users/me/stats/weekly"),
       request<{ count: number }>("/notifications/unread-count"),
-    ]).then(([userResult, weekResult, notificationsResult]) => {
+    ])).then(([userResult, weekResult, notificationsResult]) => {
       if (!active) return;
       if (userResult.status === "fulfilled") setProfile(userResult.value);
       if (
@@ -227,6 +260,18 @@ export function HomeScreen() {
           </span>
         </button>
 
+        {/* 복구펜 · 연속 목표 */}
+        <StreakChips summary={retention} />
+
+        {/* 복귀 보상 XP 부스트 */}
+        {retention?.xpBoost ? (
+          <XpBoostBanner
+            multiplier={retention.xpBoost.multiplier}
+            onEnd={() => patchRetention((summary) => ({ ...summary, xpBoost: null }))}
+            until={retention.xpBoost.until}
+          />
+        ) : null}
+
         <section className={`${styles.card} ${styles.lessonCard}`}>
           <div className={styles.sideActions}>
             {SIDE_ACTIONS.map((action) => (
@@ -282,6 +327,20 @@ export function HomeScreen() {
             Davom etish
           </button>
         </section>
+
+        {/* 첫 7일 출석 선물 (다 받으면 사라진다) */}
+        {retention?.checkin ? (
+          <CheckinCard
+            checkin={retention.checkin}
+            onClaimed={setCheckinReward}
+            patch={patchRetention}
+          />
+        ) : null}
+
+        {/* 오늘의 퀘스트 */}
+        {retention ? (
+          <DailyQuestsCard patch={patchRetention} quests={retention.quests} />
+        ) : null}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여 준다 (앱과 같다) */}
         <div className={styles.rankSlot} data-tour="home.rank">
@@ -426,6 +485,14 @@ export function HomeScreen() {
           onClose={() => setCalendarOpen(false)}
         />
       ) : null}
+
+      {/* 복귀 보상 · 복구펜 사용 알림 · 연속 목표 결과 · 출석 선물 (한 번에 하나) */}
+      <RetentionOverlays
+        checkinReward={checkinReward}
+        onCheckinRewardClose={() => setCheckinReward(null)}
+        patch={patchRetention}
+        summary={retention}
+      />
     </main>
   );
 }

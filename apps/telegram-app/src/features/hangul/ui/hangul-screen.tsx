@@ -24,7 +24,7 @@ import {
   type HangulCharacter,
 } from "../model/hangul";
 import styles from "./hangul.module.css";
-import { useEnergyGuard } from "../../energy/energy-gate";
+import { useEnergyGuard, useEnergySync } from "../../energy/energy-gate";
 
 const PARTICLES = Array.from({ length: 12 }, (_, index) => ({
   color: ["#776ee2", "#a78bfa", "#ffd786", "#7fd8f7", "#ffafcc"][
@@ -368,6 +368,8 @@ function GameMenu() {
 export function HangulScreen() {
   const router = useRouter();
   const guardLessonStart = useEnergyGuard();
+  // 시작 게이트가 보는 값 — 다른 모드에서 쓴 만큼 반영된 서버 값으로 맞춘다
+  useEnergySync();
   const { request, updateUser, user } = useTelegramAuth();
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
   const [category, setCategory] = useState<HangulCategory>("consonant");

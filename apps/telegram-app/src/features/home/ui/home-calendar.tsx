@@ -9,6 +9,7 @@ import {
 } from "../model/home-data";
 import { HomeIcon } from "./home-icon";
 import styles from "./home-screen.module.css";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 
 interface HomeCalendarProps {
   fallbackLongestStreak: number;
@@ -69,6 +70,7 @@ export function HomeCalendar({
 
   const completedDays = calendar?.completedDays ?? [];
   const streakDays = calendar?.streakDays ?? [];
+  const frozenDays = calendar?.frozenDays ?? [];
 
   const moveMonth = (offset: number) => {
     setVisibleMonth((current) => {
@@ -153,8 +155,29 @@ export function HomeCalendar({
                   isToday ? styles.calendarDayToday : "",
                 ].join(" ")}
                 key={`${index}-${day ?? "empty"}`}
+                style={{ position: "relative" }}
               >
                 {day}
+                {/* 복구펜으로 메운 날 */}
+                {day !== null && frozenDays.includes(day) ? (
+                  <i
+                    style={{
+                      alignItems: "center",
+                      background: "#3BA7F0",
+                      borderRadius: 8,
+                      color: "#fff",
+                      display: "flex",
+                      height: 15,
+                      justifyContent: "center",
+                      position: "absolute",
+                      right: -3,
+                      top: -3,
+                      width: 15,
+                    }}
+                  >
+                    <MobileIcon name="snow" size={10} />
+                  </i>
+                ) : null}
               </span>
             );
           })}
