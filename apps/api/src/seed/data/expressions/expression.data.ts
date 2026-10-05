@@ -5,6 +5,7 @@ import type {
 } from '../../expression-seed.types';
 import { ASKING_FOR_CLARIFICATION_TOPIC } from './topics/asking-for-clarification';
 import { GREETINGS_AND_GOODBYES_TOPIC } from './topics/greetings-and-goodbyes';
+import { ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC } from './topics/ordering-at-restaurants-and-cafes';
 import { REQUESTS_AND_PERMISSION_TOPIC } from './topics/requests-and-permission';
 import { SELF_INTRODUCTION_TOPIC } from './topics/self-introduction';
 import { THANKS_AND_APOLOGIES_TOPIC } from './topics/thanks-and-apologies';
@@ -26,6 +27,7 @@ const EXPRESSION_TOPICS = [
   THANKS_AND_APOLOGIES_TOPIC,
   ASKING_FOR_CLARIFICATION_TOPIC,
   REQUESTS_AND_PERMISSION_TOPIC,
+  ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC,
 ] as const;
 
 export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =
