@@ -31,15 +31,20 @@ export const StudyPathService = {
   setLevel: (level: number): Promise<{ placementLevel: number }> =>
     api.post("/study-path/levels", { level }),
 
-  /** 급수 졸업 시험 문제 */
-  getLevelExam: (): Promise<{ level: number; questions: any[] }> =>
-    api.get(`/study-path/level-exam?lang=${encodeURIComponent(getLang())}`),
+  /** 급수 졸업 시험 문제. level 이 있으면 그 급 시험 (잠긴 급을 열 때) */
+  getLevelExam: (level?: number): Promise<{ level: number; questions: any[] }> =>
+    api.get(
+      `/study-path/level-exam?lang=${encodeURIComponent(getLang())}` +
+        (level ? `&level=${level}` : ""),
+    ),
 
-  /** 졸업 시험 결과. 떨어져도 다음 급은 열린다 */
+  /** 졸업 시험 결과. **합격해야만** 다음 급으로 간다 */
   completeLevelExam: (body: {
     questionIds: string[];
     wrongQuestionIds?: string[];
     speedSeconds?: number;
+    /** 어느 급의 시험인가. 없으면 지금 급 */
+    level?: number;
   }): Promise<LevelExamResult> =>
     api.post("/study-path/level-exam/complete", { ...body, lang: getLang() }),
 

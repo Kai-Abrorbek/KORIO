@@ -1,4 +1,11 @@
-import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { EnergyService } from './energy.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -33,7 +40,11 @@ export class EnergyController {
 
   @UseGuards(JwtAuthGuard)
   @Post('combo-bonus')
-  async comboBonus(@Request() req) {
-    return this.energyService.grantComboBonus(req.user._id.toString());
+  async comboBonus(@Request() req, @Body() body: { spent?: number }) {
+    // spent = 이번 레슨에서 지금까지 쓴 에너지 (서버는 완료 때 차감하므로)
+    return this.energyService.grantComboBonus(
+      req.user._id.toString(),
+      Number(body?.spent) || 0,
+    );
   }
 }

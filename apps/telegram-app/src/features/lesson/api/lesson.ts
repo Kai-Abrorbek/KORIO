@@ -6,6 +6,7 @@ import type {
   ReportedAnswer,
 } from "../model/lesson";
 import { getContentLang } from "../../../shared/i18n/content-language";
+import type { StudyCelebration } from "../../misc/model/streak-chest-route";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -130,6 +131,8 @@ export function completeLesson(
     totalAnswers: number;
     wrongQuestionIds: string[];
     xpEarned: number;
+    /** 에너지로 칠 정답 수 — 본풀이만 (틀린 문제 다시 풀기는 무료) */
+    energySpent?: number;
   },
 ): Promise<CompleteLessonResult> {
   return request(`/lessons/${encodeURIComponent(lessonId)}/complete`, {
@@ -146,8 +149,17 @@ export function completePractice(
     questionIds: string[];
     speedSeconds: number;
     wrongQuestionIds: string[];
+    /** 본풀이 정답 수 (에너지). 학습 로드 문제 레슨만 서버가 깎는다 */
+    energySpent?: number;
   },
-): Promise<{ success: boolean; totalXP: number; xpEarned: number }> {
+): Promise<{
+  /** 학습 로드 문제 노드 완료 = 그날 학습 완료 → 도장·연속 상자 */
+  celebration?: StudyCelebration | null;
+  energy?: number;
+  success: boolean;
+  totalXP: number;
+  xpEarned: number;
+}> {
   return request("/lessons/practice-complete", {
     body: JSON.stringify(body),
     method: "POST",
@@ -226,9 +238,10 @@ export function resolveMistakes(request: AuthenticatedRequest, correctIds: strin
  * 4연속 정답 보너스 에너지. 횟수·간격은 서버가 막는다 — 앱 EnergyService.comboBonus.
  * 응답의 energy 에는 이번 레슨에서 화면상 깎은 만큼이 아직 안 빠져 있다.
  */
-export function claimComboBonus(request: AuthenticatedRequest) {
+export function claimComboBonus(request: AuthenticatedRequest, spent = 0) {
+  // spent = 이번 레슨에서 지금까지 쓴 에너지 (서버는 완료 때 깎으므로 이걸 알아야 "적다" 를 판단)
   return request<{ bonusGranted: number; energy: number; gems: number }>("/energy/combo-bonus", {
-    body: "{}",
+    body: JSON.stringify({ spent }),
     method: "POST",
   });
 }

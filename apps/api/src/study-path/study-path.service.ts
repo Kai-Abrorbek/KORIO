@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LessonsService } from '../lessons/lessons.service';
@@ -6,6 +11,7 @@ import { LEVEL_EXAM } from '../lessons/study-path.const';
 import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
 import { CompleteLevelExamDto } from './dto/complete-level-exam.dto';
 import {
+  MAX_PLACEMENT_LEVEL,
   PLACEMENT_LEVELS,
   clampLevel,
   sectionRangeForLevel,
@@ -246,12 +252,16 @@ export class StudyPathService {
    */
   async getLevels(userId: string, lang = 'uz') {
     const [me, sections] = await Promise.all([
-      this.userModel.findById(userId).select('placementLevel').lean(),
+      this.userModel
+        .findById(userId)
+        .select('placementLevel studyLevelUnlocked completedLevelExams')
+        .lean(),
       this.nodeModel.distinct('section', { isActive: true }),
     ]);
 
     const ready = new Set<number>((sections as number[]) ?? []);
     const current = me?.placementLevel ?? 1;
+    const unlocked = this.unlockedLevel(me);
 
     const levels = PLACEMENT_LEVELS.map((meta) => {
       const [start, end] = sectionRangeForLevel(meta.level);
@@ -263,10 +273,34 @@ export class StudyPathService {
         title: pickSectionText(meta.title, lang),
         description: pickSectionText(meta.description, lang),
         available,
+        /** 시험 없이 바로 갈 수 있나 */
+        unlocked: meta.level <= unlocked,
+        /** 잠겼으면 열기 위해 볼 시험의 급 (= 바로 아래 급의 졸업 시험) */
+        examLevel: meta.level <= unlocked ? null : meta.level - 1,
       };
     });
 
-    return { current, levels };
+    return { current, unlocked, levels };
+  }
+
+  /**
+   * 학습 로드에서 시험 없이 오갈 수 있는 가장 높은 급.
+   *
+   * 저장된 값(studyLevelUnlocked) · 지금 급(온보딩 배치 시험이 정한 급 포함) ·
+   * 통과한 졸업 시험 다음 급 중 가장 큰 값. 옛 유저는 저장 값이 없어도 지금
+   * 급까지는 그대로 열려 있다 (진도를 빼앗지 않는다).
+   */
+  private unlockedLevel(me: any): number {
+    const passedTop = Math.max(0, ...((me?.completedLevelExams ?? []) as number[]));
+    return Math.min(
+      MAX_PLACEMENT_LEVEL,
+      Math.max(
+        1,
+        me?.studyLevelUnlocked ?? 0,
+        me?.placementLevel ?? 1,
+        passedTop + 1,
+      ),
+    );
   }
 
   /**
@@ -283,20 +317,39 @@ export class StudyPathService {
 
     if (!ready.length) throw new BadRequestException('LEVEL_NOT_AVAILABLE');
 
+    // 위 급으로는 **시험을 통과해야만** 간다. 예전엔 이 화면에서 아무 급이나
+    // 눌러 바로 넘어갈 수 있어서, 1급을 하나도 안 하고 6급으로 갈 수 있었다.
+    // 아래로 내려가는 건 자유 — 열린 최고 급은 그대로 기억해 둔다.
+    const me = await this.userModel
+      .findById(userId)
+      .select('placementLevel studyLevelUnlocked completedLevelExams')
+      .lean();
+    const unlocked = this.unlockedLevel(me);
+    if (target > unlocked) {
+      throw new ForbiddenException('LEVEL_EXAM_REQUIRED');
+    }
+
     await this.userModel.updateOne(
       { _id: userId },
-      { $set: { placementLevel: target, placementLevelSetAt: new Date() } },
+      {
+        $set: {
+          placementLevel: target,
+          placementLevelSetAt: new Date(),
+          studyLevelUnlocked: unlocked,
+        },
+      },
     );
     return { placementLevel: target };
   }
 
   /** 급수 졸업 시험 문제 */
-  async getLevelExam(userId: string, lang = 'uz') {
+  async getLevelExam(userId: string, lang = 'uz', examLevel?: number) {
     const me = await this.userModel
       .findById(userId)
       .select('placementLevel')
       .lean();
-    const level = clampLevel(me?.placementLevel ?? 1);
+    // 급수 화면에서 잠긴 급을 열려고 보면 그 아래 급의 시험이 온다
+    const level = clampLevel(examLevel || (me?.placementLevel ?? 1));
     const [start, end] = sectionRangeForLevel(level);
 
     const exam = await this.lessonsService.getLevelExam(
@@ -310,16 +363,18 @@ export class StudyPathService {
   /**
    * 졸업 시험 결과.
    *
-   * 떨어져도 다음 급은 열어준다. 학습 로드의 약속은 "순서대로 가면 된다" 인데
-   * 시험이 벽이 되면 떨어진 사람은 거기서 앱을 떠난다. 대신 어느 영역이
-   * 약했는지 알려주고, 다시 보고 싶으면 언제든 볼 수 있게 둔다.
+   * 다음 급은 **합격해야만** 열린다 (예전엔 떨어져도 열어줬다 — 급을 넘는 데
+   * 시험이 의미가 없었다). 떨어지면 지금 급에 머물고, 약했던 영역을 알려주고,
+   * 언제든 다시 볼 수 있다. dto.level 이 있으면 그 급의 시험이다 (급수 화면에서
+   * 잠긴 급을 열 때).
    */
   async completeLevelExam(userId: string, dto: CompleteLevelExamDto) {
     const me = await this.userModel
       .findById(userId)
-      .select('placementLevel completedLevelExams')
+      .select('placementLevel studyLevelUnlocked completedLevelExams')
       .lean();
-    const level = clampLevel(me?.placementLevel ?? 1);
+    const currentLevel = clampLevel(me?.placementLevel ?? 1);
+    const level = clampLevel(dto.level || currentLevel);
 
     const questionIds = [
       ...new Set(
@@ -399,11 +454,23 @@ export class StudyPathService {
       gemsTotal = me?.gems ?? 0;
     }
 
-    const next = await this.nextLevelInfo(level, dto.lang ?? 'uz');
+    // **합격해야만** 다음 급으로 간다. 예전엔 떨어져도 넘겨줘서 시험이 장식이었다.
+    // 지금 급보다 낮은 시험을 다시 본 거면 급을 끌어내리지 않는다.
+    const next = passed
+      ? await this.nextLevelInfo(level, dto.lang ?? 'uz')
+      : null;
     if (next) {
+      const unlocked = Math.max(this.unlockedLevel(me), next.level);
       await this.userModel.updateOne(
         { _id: userId },
-        { $set: { placementLevel: next.level } },
+        {
+          $set: {
+            studyLevelUnlocked: unlocked,
+            ...(next.level > currentLevel
+              ? { placementLevel: next.level, placementLevelSetAt: new Date() }
+              : {}),
+          },
+        },
       );
     }
 
@@ -412,6 +479,7 @@ export class StudyPathService {
       correct,
       total,
       level,
+      /** 합격해서 열린 다음 급. 떨어졌으면 null — 지금 급에 머문다 */
       nextLevel: next?.level ?? null,
       weakAreas: await this.weakAreas(wrongIds),
       gemsEarned,

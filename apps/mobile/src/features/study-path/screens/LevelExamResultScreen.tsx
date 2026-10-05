@@ -37,6 +37,8 @@ export default function LevelExamResultScreen() {
     weak?: string;
     gems?: string;
     xp?: string;
+    /** 잠긴 급을 열려고 본 시험이면 그 급. 다시 도전할 때 같은 시험으로 */
+    examLevel?: string;
   }>();
 
   const passed = params.passed === "1";
@@ -168,7 +170,11 @@ export default function LevelExamResultScreen() {
             onPress={() =>
               router.replace({
                 pathname: "/lesson",
-                params: { mode: "levelExam", from: "studyPath" },
+                params: {
+                  mode: "levelExam",
+                  from: "studyPath",
+                  ...(params.examLevel ? { examLevel: params.examLevel } : {}),
+                },
               })
             }
             style={styles.retry}

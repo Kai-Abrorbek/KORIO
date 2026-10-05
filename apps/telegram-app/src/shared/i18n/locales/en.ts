@@ -650,6 +650,9 @@ export default {
       title: "Study path",
       level: "Level {{level}}",
       daysDone: "Days completed",
+      /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
+      lessonsDone: "Lessons done",
+      daysProgress: "Days completed {{done}}/{{total}}",
       ofTotal: "{{done}} / {{total}}",
       currentSection: "Section {{n}} now",
       sections: "Section progress",
@@ -1345,6 +1348,9 @@ export default {
     modalTitle: "You need more energy to start this lesson!",
     tryFreeDays: "Try {{days}} days for free",
     noThanks: "No thanks",
+    /** 체험을 이미 쓴 유저용 (무료 체험 문구 대신) */
+    superStart: "Get SUPER",
+    superUnlimitedCta: "Unlimited energy with SUPER",
     full: "Full",
     freeCount: "Free ({{n}})",
     freeDone: "Tomorrow",
@@ -2227,10 +2233,16 @@ export default {
   studyLevel: {
     title: "Where should we start?",
     subtitle:
-      "Pick what matches your Korean right now.\nYou can change it any time.",
+      "Pick what matches your Korean right now.\nHigher levels open when you pass a test.",
     comingSoon: "Coming soon",
     hint: "Not sure? Starting from Level 1 is a safe bet.",
     change: "Change level",
+    /** 위 급은 시험 통과로만 열린다 (StudyLevelScreen) */
+    examLock: "Pass the Level {{n}} test to unlock",
+    examTitle: "Level {{n}} needs a test",
+    examBody: "Pass the Level {{prev}} final test (25 questions) and you'll move straight to Level {{n}}.",
+    examStart: "Take the test",
+    examCancel: "Later",
   },
   levelExam: {
     cardTitle: "Level {{n}} final exam",
@@ -2240,7 +2252,7 @@ export default {
     passedBody: "Getting here is no small thing. On to the next level.",
     missedTitle: "Level {{n}} — so close",
     missedBody:
-      "The next level is open anyway. Another look at these will make it much easier.",
+      "The next level opens once you pass. Review these and give it another shot.",
     score: "{{correct}} of {{total}} correct",
     weakTitle: "These gave you trouble",
     nextOpen: "Level {{n}} is now open",

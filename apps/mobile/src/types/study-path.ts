@@ -113,6 +113,10 @@ export interface StudyLevel {
   description: string;
   /** 콘텐츠가 준비된 급인지. false 면 잠긴 카드로 보여준다 */
   available: boolean;
+  /** 시험 없이 바로 갈 수 있나 (옛 서버는 안 보낸다 → 열린 것으로) */
+  unlocked?: boolean;
+  /** 잠겼으면 열기 위해 볼 시험의 급 (바로 아래 급) */
+  examLevel?: number | null;
 }
 
 export interface StudyLevelsResponse {
@@ -127,7 +131,7 @@ export interface LevelExamResult {
   correct: number;
   total: number;
   level: number;
-  /** 다음 급수. 떨어져도 열린다 */
+  /** 합격해서 열린 다음 급. 떨어졌으면 null */
   nextLevel: number | null;
   /** 틀린 문제가 몰린 영역 (lessonCategory). 최대 2개 */
   weakAreas: string[];

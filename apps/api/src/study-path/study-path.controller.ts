@@ -49,11 +49,21 @@ export class StudyPathController {
 
   /** 급수 졸업 시험 문제 */
   @Get('level-exam')
-  async getLevelExam(@Request() req, @Query('lang') lang = 'uz') {
-    return this.studyPathService.getLevelExam(req.user._id.toString(), lang);
+  async getLevelExam(
+    @Request() req,
+    @Query('lang') lang = 'uz',
+    @Query('level') level?: string,
+  ) {
+    // level: 급수 화면에서 잠긴 급을 열려고 볼 때 그 아래 급. 없으면 지금 급
+    const examLevel = Number(level) || undefined;
+    return this.studyPathService.getLevelExam(
+      req.user._id.toString(),
+      lang,
+      examLevel,
+    );
   }
 
-  /** 졸업 시험 결과. 떨어져도 다음 급은 열린다 */
+  /** 졸업 시험 결과. **합격해야만** 다음 급으로 간다 */
   @Post('level-exam/complete')
   async completeLevelExam(@Request() req, @Body() dto: CompleteLevelExamDto) {
     return this.studyPathService.completeLevelExam(

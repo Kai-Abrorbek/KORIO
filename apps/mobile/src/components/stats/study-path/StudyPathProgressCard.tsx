@@ -104,7 +104,21 @@ export default function StudyPathProgressCard() {
     done: days.filter((d) => d.status === "completed").length,
     total: days.length,
   };
-  const ratio = dayProgress.total > 0 ? dayProgress.done / dayProgress.total : 0;
+  // 링(레슨) 하나 = 한 판. 진행은 이 단위로 센다.
+  //
+  // 예전엔 "완주한 하루" 로만 셌는데, 하루는 단어·문법·어휘 문제 100개·복습을
+  // 전부 끝내야 1 이 된다. 며칠을 공부해도 링·섹션·숫자가 전부 0 에 머물러서
+  // 통계가 고장 난 것처럼 보였다. 하루 수는 보조 줄로 남긴다.
+  const lessonProgress: Progress = { done: 0, total: 0 };
+  for (const day of days) {
+    for (const node of day.nodes) {
+      const size = node.lessonCount > 0 ? node.lessonCount : 1;
+      lessonProgress.total += size;
+      lessonProgress.done += node.done ? size : Math.min(node.lessonsDone, size);
+    }
+  }
+  const ratio =
+    lessonProgress.total > 0 ? lessonProgress.done / lessonProgress.total : 0;
 
   // 훅은 early return 위에 모아 둔다 — 로딩 중(데이터 0개)과 로딩 후로
   // 훅 개수가 달라지면 순서가 깨진다
@@ -132,6 +146,10 @@ export default function StudyPathProgressCard() {
   }
   if (!data || days.length === 0) return null;
 
+  // 로드의 "지금 섹션" 은 오늘 하는 하루의 섹션이다. 응답의 currentSection 은
+  // 자유 학습 로드맵 기준이라 로드만 하는 유저에겐 엉뚱한 섹션이 뜬다
+  const roadSection = days[data.currentDayIndex]?.section ?? data.currentSection;
+
   // ── 섹션별 진행 ──
   const sectionOrder: number[] = [];
   const bySection = new Map<number, Progress>();
@@ -140,9 +158,13 @@ export default function StudyPathProgressCard() {
       bySection.set(day.section, { done: 0, total: 0 });
       sectionOrder.push(day.section);
     }
+    // 섹션 막대도 링 단위 — 하루 단위면 첫 하루를 끝낼 때까지 비어 있다
     const bucket = bySection.get(day.section)!;
-    bucket.total += 1;
-    if (day.status === "completed") bucket.done += 1;
+    for (const node of day.nodes) {
+      const size = node.lessonCount > 0 ? node.lessonCount : 1;
+      bucket.total += size;
+      bucket.done += node.done ? size : Math.min(node.lessonsDone, size);
+    }
   }
 
   // ── 노드 종류별 진행 ──
@@ -229,22 +251,30 @@ export default function StudyPathProgressCard() {
             />
           </Svg>
           <View style={s.ringCenter} pointerEvents="none">
-            <Text style={s.ringPct}>{pct(dayProgress)}%</Text>
+            <Text style={s.ringPct}>{pct(lessonProgress)}%</Text>
             <Text style={s.ringSub}>
               {t("stats.studyPath.ofTotal", {
-                done: dayProgress.done,
-                total: dayProgress.total,
+                done: lessonProgress.done,
+                total: lessonProgress.total,
               })}
             </Text>
           </View>
         </View>
 
         <View style={s.summaryCol}>
-          <Text style={s.summaryLabel}>{t("stats.studyPath.daysDone")}</Text>
-          <Text style={s.summaryValue}>{dayProgress.done}</Text>
+          <Text style={s.summaryLabel}>
+            {t("stats.studyPath.lessonsDone")}
+          </Text>
+          <Text style={s.summaryValue}>{lessonProgress.done}</Text>
+          <Text style={s.summaryHint}>
+            {t("stats.studyPath.daysProgress", {
+              done: dayProgress.done,
+              total: dayProgress.total,
+            })}
+          </Text>
           <Text style={s.summaryHint}>
             {t("stats.studyPath.currentSection", {
-              n: data.currentSection,
+              n: roadSection,
             })}
           </Text>
 
@@ -262,7 +292,7 @@ export default function StudyPathProgressCard() {
       <View style={s.sectionRow}>
         {sectionOrder.map((num, i) => {
           const p = bySection.get(num)!;
-          const isCurrent = num === data.currentSection;
+          const isCurrent = num === roadSection;
           return (
             <Animated.View
               key={num}

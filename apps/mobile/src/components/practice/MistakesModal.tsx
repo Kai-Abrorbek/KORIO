@@ -14,8 +14,6 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { ThemeColors } from "@/constants/theme";
 import { LessonService } from "@/services/lesson.service";
-import { useEnergyStore } from "@/store/energy.store";
-import { useAuthStore } from "@/store/auth.store";
 import { useContentLang } from "@/store/settings.store";
 
 const MIN_MISTAKES = 10; // 복습 시작 최소 오답 수
@@ -37,8 +35,6 @@ export default function MistakesModal({ visible, onClose, theme }: Props) {
     questions: [],
   });
   const [loading, setLoading] = useState(true);
-  const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
-  const energy = useAuthStore((s) => s.user?.energy ?? 0);
 
   useEffect(() => {
     if (!visible) return;
@@ -53,11 +49,11 @@ export default function MistakesModal({ visible, onClose, theme }: Props) {
   const canStart = data.count >= MIN_MISTAKES;
   const xp = Math.min(40, data.count * 2);
 
+  // 오답 복습은 에너지를 안 쓴다 — 에너지가 0 이어도 막지 않는다
+  // (서버도 review 모드는 차감하지 않는다. lessons.service ENERGY_PRACTICE_MODES)
   const startReview = () => {
     onClose();
-    guardLessonStart(energy, () => {
-      router.push("/lesson?mode=review"); // 복습 모드 (틀린문제로 레슨)
-    });
+    router.push("/lesson?mode=review"); // 복습 모드 (틀린문제로 레슨)
   };
 
   return (

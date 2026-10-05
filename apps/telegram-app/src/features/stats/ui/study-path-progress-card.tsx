@@ -95,7 +95,12 @@ export function StudyPathProgressCard({
     done: data.days.filter((day) => day.status === "completed").length,
     total: data.days.length,
   };
-  const dayPercent = percent(dayProgress);
+  // 링(레슨) 하나 = 한 판. 진행은 이 단위로 센다 (앱과 동일).
+  // 하루는 단어·문법·어휘 100문제·복습을 다 끝내야 1 이라, 하루로만 세면
+  // 며칠을 공부해도 링·섹션·숫자가 전부 0 에 머문다. 하루 수는 보조 줄로 남긴다.
+  const lessonProgress: Progress = { done: 0, total: 0 };
+  // 로드의 "지금 섹션" = 오늘 하는 하루의 섹션 (응답의 currentSection 은 자유 학습 기준)
+  const roadSection = data.days[data.currentDayIndex]?.section ?? data.currentSection;
   const sectionOrder: number[] = [];
   const bySection = new Map<number, Progress>();
   const byKind = new Map<StudyNodeKind, Progress>();
@@ -106,17 +111,22 @@ export function StudyPathProgressCard({
       sectionOrder.push(day.section);
     }
     const section = bySection.get(day.section)!;
-    section.total += 1;
-    if (day.status === "completed") section.done += 1;
 
     for (const node of day.nodes) {
       const kind = byKind.get(node.kind) ?? { done: 0, total: 0 };
       const size = node.lessonCount > 0 ? node.lessonCount : 1;
+      const done = node.done ? size : Math.min(node.lessonsDone, size);
       kind.total += size;
-      kind.done += node.done ? size : Math.min(node.lessonsDone, size);
+      kind.done += done;
       byKind.set(node.kind, kind);
+      // 섹션 막대·전체 링도 같은 링 단위
+      section.total += size;
+      section.done += done;
+      lessonProgress.total += size;
+      lessonProgress.done += done;
     }
   }
+  const dayPercent = percent(lessonProgress);
 
   const groups = GROUPS.map((group) => {
     const merged = group.kinds.reduce<Progress>(
@@ -186,14 +196,15 @@ export function StudyPathProgressCard({
           <span>
             <strong>{dayPercent}%</strong>
             <small>
-              {dayProgress.done} / {dayProgress.total}
+              {lessonProgress.done} / {lessonProgress.total}
             </small>
           </span>
         </div>
         <div className={styles.summary}>
-          <span>Tugatilgan kunlar</span>
-          <strong>{dayProgress.done}</strong>
-          <small>{`Hozir ${data.currentSection}-bo'lim`}</small>
+          <span>Tugatilgan darslar</span>
+          <strong>{lessonProgress.done}</strong>
+          <small>{`Tugatilgan kunlar ${dayProgress.done}/${dayProgress.total}`}</small>
+          <small>{`Hozir ${roadSection}-bo'lim`}</small>
           <div className={styles.goal} style={{ borderLeftColor: goalColor }}>
             <MobileIcon name={goalIcon} size={15} style={{ color: goalColor }} />
             <span>{goalText}</span>
@@ -205,7 +216,7 @@ export function StudyPathProgressCard({
       <div className={styles.sectionRow}>
         {sectionOrder.map((number) => {
           const progress = bySection.get(number)!;
-          const current = number === data.currentSection;
+          const current = number === roadSection;
           return (
             <div key={number}>
               <span>

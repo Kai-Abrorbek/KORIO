@@ -653,6 +653,9 @@ export default {
       title: "O'quv yo'li",
       level: "{{level}}-daraja",
       daysDone: "Tugatilgan kunlar",
+      /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
+      lessonsDone: "Tugatilgan darslar",
+      daysProgress: "Tugatilgan kunlar {{done}}/{{total}}",
       ofTotal: "{{done}} / {{total}}",
       currentSection: "Hozir {{n}}-bo'lim",
       sections: "Bo'limlar bo'yicha",
@@ -1350,6 +1353,9 @@ export default {
     modalTitle: "Bu darsni boshlash uchun ko'proq energiya kerak!",
     tryFreeDays: "{{days}} kun bepul sinab ko'rish",
     noThanks: "Yo'q, rahmat",
+    /** 체험을 이미 쓴 유저용 (무료 체험 문구 대신) */
+    superStart: "SUPER'ni boshlash",
+    superUnlimitedCta: "SUPER bilan cheksiz energiya",
     full: "To'la",
     freeCount: "Bepul ({{n}})",
     freeDone: "Ertaga",
@@ -2237,10 +2243,16 @@ export default {
   studyLevel: {
     title: "Qayerdan boshlaymiz?",
     subtitle:
-      "Hozirgi koreys tili darajangizga mos keladiganini tanlang.\nKeyin istalgan payt o'zgartirasiz.",
+      "Hozirgi koreys tili darajangizga mos keladiganini tanlang.\nYuqori darajalar imtihondan o'tsangiz ochiladi.",
     comingSoon: "Tayyorlanmoqda",
     hint: "Ikkilanayotgan bo'lsangiz, 1-darajadan boshlang.",
     change: "Darajani o'zgartirish",
+    /** 위 급은 시험 통과로만 열린다 (StudyLevelScreen) */
+    examLock: "{{n}}-daraja imtihonidan o'tsangiz ochiladi",
+    examTitle: "{{n}}-darajaga o'tish uchun imtihon kerak",
+    examBody: "{{prev}}-daraja bitiruv imtihonidan (25 savol) o'tsangiz, darhol {{n}}-darajaga o'tasiz.",
+    examStart: "Imtihonni boshlash",
+    examCancel: "Keyinroq",
   },
   levelExam: {
     cardTitle: "{{n}}-daraja bitiruv imtihoni",
@@ -2250,7 +2262,7 @@ export default {
     passedBody: "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz.",
     missedTitle: "{{n}}-daraja, ozgina qoldi",
     missedBody:
-      "Keyingi daraja ochiq. Quyidagilarni yana bir ko'rsangiz ancha oson bo'ladi.",
+      "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring.",
     score: "{{total}} savoldan {{correct}} tasi to'g'ri",
     weakTitle: "Shu qismlar qiyin bo'ldi",
     nextOpen: "{{n}}-daraja ochildi",

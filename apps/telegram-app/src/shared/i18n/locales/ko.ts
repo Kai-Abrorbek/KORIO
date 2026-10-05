@@ -645,6 +645,9 @@ export default {
       title: "학습 로드",
       level: "{{level}}급",
       daysDone: "완주한 하루",
+      /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
+      lessonsDone: "끝낸 레슨",
+      daysProgress: "완주한 하루 {{done}}/{{total}}",
       ofTotal: "{{done}} / {{total}}",
       currentSection: "지금 섹션 {{n}}",
       sections: "섹션 진행",
@@ -1343,6 +1346,9 @@ export default {
     modalTitle: "이 레슨을 시작하려면 에너지가 더 필요합니다!",
     tryFreeDays: "{{days}}일 무료로 이용해보기",
     noThanks: "아니요, 괜찮아요",
+    /** 체험을 이미 쓴 유저용 (무료 체험 문구 대신) */
+    superStart: "SUPER 시작하기",
+    superUnlimitedCta: "SUPER로 에너지 무제한",
     full: "가득 참",
     freeCount: "무료 ({{n}})",
     freeDone: "내일 다시",
@@ -2221,10 +2227,16 @@ export default {
   studyLevel: {
     title: "어디서부터 배울까요?",
     subtitle:
-      "지금 한국어 수준에 맞게 골라주세요.\n나중에 언제든 바꿀 수 있어요.",
+      "지금 한국어 수준에 맞게 골라주세요.\n윗 급은 시험을 통과하면 열려요.",
     comingSoon: "준비 중이에요",
     hint: "잘 모르겠다면 1급부터 시작하는 게 좋아요.",
     change: "급수 바꾸기",
+    /** 위 급은 시험 통과로만 열린다 (StudyLevelScreen) */
+    examLock: "{{n}}급 시험을 통과하면 열려요",
+    examTitle: "{{n}}급으로 가려면 시험이 필요해요",
+    examBody: "{{prev}}급 졸업 시험(25문제)을 통과하면 바로 {{n}}급으로 넘어가요.",
+    examStart: "시험 보기",
+    examCancel: "나중에",
   },
   levelExam: {
     cardTitle: "{{n}}급 졸업 시험",
@@ -2234,7 +2246,7 @@ export default {
     passedBody: "여기까지 온 게 대단해요. 다음 급으로 가요.",
     missedTitle: "{{n}}급, 거의 다 왔어요",
     missedBody:
-      "다음 급은 열어뒀어요. 아래 부분만 한 번 더 보면 훨씬 수월해요.",
+      "다음 급은 시험을 통과해야 열려요. 아래 부분만 한 번 더 보고 다시 도전해 봐요.",
     score: "{{total}}문제 중 {{correct}}개 정답",
     weakTitle: "이 부분이 약했어요",
     nextOpen: "{{n}}급이 열렸어요",

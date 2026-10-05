@@ -170,6 +170,8 @@ export function LessonScreen() {
   const unit = Math.max(1, Number(params.get("unit")) || 1);
   const group = Math.max(1, Number(params.get("group")) || 1);
   const lessonNumber = Math.max(1, Number(params.get("lesson")) || 1);
+  // 급수 시험: 어느 급의 시험인지. 없으면 지금 급 (잠긴 급을 열 때 그 아래 급)
+  const examLevel = Number(params.get("examLevel")) || undefined;
   const isJump = mode === "jumpTest";
   const isLegend = mode === "legend";
   const isLevelExam = mode === "levelExam";
@@ -330,7 +332,7 @@ export function LessonScreen() {
           totalXp: 0,
         };
       } else if (isLevelExam) {
-        const result = await getLevelExam(request);
+        const result = await getLevelExam(request, examLevel);
         next = {
           category: "",
           lessonId: "level-exam",
@@ -349,14 +351,21 @@ export function LessonScreen() {
       if (!next.questions.length) throw new Error("EMPTY_LESSON");
       setSession(next);
       setQueue(makeQueue(next.questions, "main"));
-    } catch {
+    } catch (error) {
+      // 에너지 0 — 서버가 시작을 막았다. 화면 숫자를 0 으로 맞추고 에너지 모달 후 돌아간다 (앱과 같음)
+      if ((error as { code?: string })?.code === "ENERGY_EMPTY") {
+        updateUser({ energy: 0 });
+        openEnergyModal();
+        if (window.history.length > 1) router.back(); else router.replace("/home");
+        return;
+      }
       setSession(null);
       setQueue([]);
       setLoadFailed(true);
     } finally {
       setLoading(false);
     }
-  }, [category, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, isReview, isWordPractice, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, section, selfReportedLevel, target, unit]);
+  }, [category, examLevel, group, isJump, isLegend, isLevelExam, isOnboardingLevelTest, isReview, isWordPractice, kind, lessonId, lessonNumber, mode, nodeId, request, resetRun, router, section, selfReportedLevel, target, unit, updateUser]);
 
   // 오답 복습: 화면을 벗어날 때(중간 이탈 포함) 그때까지 맞힌 문제를 오답에서 뺀다
   useEffect(() => {
@@ -461,7 +470,10 @@ export function LessonScreen() {
     const superActive = Boolean(
       user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()),
     );
-    if (superActive || isJump || isLevelExam || isOnboardingLevelTest) return;
+    // 서버가 실제로 깎는 모드와 같아야 한다 — 일반 레슨·학습 로드 문제 레슨만.
+    // 오답 복습·연습·레전드 등은 안 쓰고, 틀린 문제 다시 풀기(복습 라운드)도 무료다 (앱과 같음)
+    const consumes = mode === "lesson" || mode === "unitPractice";
+    if (superActive || !consumes || phase === "review") return;
     localSpent.current += 1;
     const nextEnergy = Math.max(0, (user?.energy ?? 0) - 1);
     updateUser({ energy: nextEnergy });
@@ -470,7 +482,7 @@ export function LessonScreen() {
     // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다
     if (nextCombo % 4 === 0 && !bonusGiven.current) {
       const spentSoFar = localSpent.current;
-      void claimComboBonus(request)
+      void claimComboBonus(request, spentSoFar)
         .then((bonus) => {
           if (bonus.bonusGranted <= 0) return;
           bonusGiven.current = true;
@@ -587,6 +599,7 @@ export function LessonScreen() {
 
       if (isLevelExam) {
         const result = await completeLevelExam(request, {
+          level: examLevel,
           questionIds,
           speedSeconds: elapsed,
           wrongQuestionIds: wrong,
@@ -606,6 +619,8 @@ export function LessonScreen() {
           total: String(result.total),
           weak: result.weakAreas.join(","),
           xp: String(result.xpEarned),
+          // 다시 도전할 때 같은 급 시험을 다시 보게
+          examLevel: examLevel ? String(examLevel) : "",
         });
         router.replace(`/level-exam-result?${query.toString()}`);
         return;
@@ -632,8 +647,16 @@ export function LessonScreen() {
           questionIds,
           speedSeconds: elapsed,
           wrongQuestionIds: wrong,
+          energySpent: localSpent.current,
         });
-        updateUser({ totalXP: result.totalXP });
+        // 서버가 깎은 진짜 에너지로 덮는다 (화면은 미리 줄여 보였을 뿐)
+        // 로드 문제 노드도 학습 완료 — 도장·연속 상자를 완료 화면이 이어 띄운다 (앱과 동일)
+        const celebration = result.celebration ?? null;
+        updateUser({
+          totalXP: result.totalXP,
+          ...(typeof result.energy === "number" ? { energy: result.energy } : {}),
+          ...(celebration?.streakChest ? { gems: celebration.gems } : {}),
+        });
         // 보상 저장이 끝난 뒤 노드 완료만 실패한 경우, 같은 연습을 다시 제출해
         // 보상이 중복될 수 없도록 완료 화면은 그대로 보여준다.
         await completeStudyNode(request, {
@@ -643,7 +666,17 @@ export function LessonScreen() {
           section,
           unit,
         }).catch(() => undefined);
-        routeComplete({ accuracy, from: from ?? undefined, time: elapsed, xp: result.xpEarned });
+        routeComplete({
+          accuracy,
+          dailyStreak: celebration?.dailyStreak ? celebration.dailyStreak.streak : undefined,
+          from: from ?? undefined,
+          gemTotal: celebration ? celebration.gems - (celebration.streakChest?.gems ?? 0) : undefined,
+          streakChestDays: celebration?.streakChest ? celebration.streakChest.streak : undefined,
+          streakChestGems: celebration?.streakChest ? celebration.streakChest.gems : undefined,
+          streakWeek: celebration?.dailyStreak ? JSON.stringify(celebration.dailyStreak.week) : undefined,
+          time: elapsed,
+          xp: result.xpEarned,
+        });
         return;
       }
 
@@ -684,6 +717,7 @@ export function LessonScreen() {
         totalAnswers: totalCount.current,
         wrongQuestionIds: wrong,
         xpEarned: 0,
+        energySpent: localSpent.current,
       });
       pendingAnswers.current = [];
       updateUser({ energy: result.energy, gems: result.gems, totalXP: result.totalXP });

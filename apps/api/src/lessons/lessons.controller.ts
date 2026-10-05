@@ -147,6 +147,8 @@ export class LessonsController {
     if (!isStudyQuizKind(kind)) {
       throw new BadRequestException('INVALID_STUDY_KIND');
     }
+    // 학습 로드 문제 레슨도 에너지를 쓴다 — 0 이면 시작 못 한다 (SUPER 통과)
+    await this.lessonsService.assertEnergyToStart(req.user._id.toString());
 
     return this.lessonsService.getUnitPractice(
       req.user._id.toString(),
@@ -262,6 +264,10 @@ export class LessonsController {
     @Query('lang') lang: string = 'uz',
     @Request() req?: any,
   ) {
+    // 레슨은 에너지를 쓴다 — 0 이면 시작 못 한다 (SUPER 통과)
+    if (req?.user?._id) {
+      await this.lessonsService.assertEnergyToStart(req.user._id.toString());
+    }
     // userId 를 넘기면 이 열람이 레슨 한 판의 시작으로 기록되고, 응답에
     // attemptId 가 실린다. 앱은 그걸 진행·완료 보고에 그대로 되돌려 보낸다
     return this.lessonsService.getLessonById(

@@ -59,6 +59,7 @@ import {
   awardedXp,
   STREAK_CHEST_EVERY_DAYS,
   STREAK_CHEST_GEMS,
+  GRAMMAR_LESSON_CHEST_GEM_SCALE,
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
@@ -145,6 +146,18 @@ import {
   type JumpTestCategory,
 } from './jump-test.util';
 import { normalizeBuilderChips } from './chip-builder.util';
+
+/**
+ * 에너지를 쓰는 연습 모드 — 학습 로드의 문제 레슨들.
+ * 오답 복습(review)·노드 복습·단어·표현 연습은 안 쓴다.
+ */
+const ENERGY_PRACTICE_MODES = new Set([
+  'unitReview',
+  'unitRecap',
+  'unitVocab',
+  'unitGrammar',
+  'unitFinal',
+]);
 
 /** 학습 모드 완료 시의 축하 묶음 (celebrateStudyDay) */
 export interface StudyCelebration {
@@ -614,7 +627,31 @@ export class LessonsService {
     let chest: { grade: string; gems: number } | null = null;
 
     const node = await this.nodeModel.findById(lesson.nodeId).lean();
-    if (node && node.nodeType !== 'chest') {
+    // 문법 트랙은 화면에서 레슨 하나가 노드 하나다 → 상자도 레슨마다 (아래)
+    const isGrammarNode = node?.category === LessonCategory.GRAMMAR;
+    if (node && node.nodeType !== 'chest' && isGrammarNode) {
+      // 처음 끝낸 레슨만. 다시 풀기로 상자를 또 캐지 못하게 replay 는 제외하고,
+      // sourceKey 가 유니크라 동시 요청이 와도 한 번만 받는다
+      if (dto.isCompleted && !replay) {
+        chest = await this.chestService.earnAndClaim(
+          userId,
+          `grammarLesson:${lessonId}`,
+          {
+            section: node.section ?? 1,
+            perfect: wrongQuestionIds.length === 0,
+            gemScale: GRAMMAR_LESSON_CHEST_GEM_SCALE,
+          },
+        );
+        if (chest) {
+          await this.notifications
+            .create(userId, NotificationType.CHEST, {
+              params: { grade: chest.grade, gems: chest.gems },
+              link: '/roadmap',
+            })
+            .catch(() => {});
+        }
+      }
+    } else if (node && node.nodeType !== 'chest') {
       // 이 노드의 모든 레슨 완료됐는지 확인
       const nodeLessonIds = (node.lessonIds ?? []).map((x: any) =>
         x.toString(),
@@ -659,7 +696,8 @@ export class LessonsService {
         // grantDayChest). 그쪽 노드는 훨씬 잘게 쪼개져 있고 하루 단위로 묶여
         // 있어서, 즉시 지급하면 노드 하나 끝냈는데 며칠치 보석이 한꺼번에
         // 들어온다.
-        const gemScale = node.category === LessonCategory.GRAMMAR ? 0.5 : 1;
+        // 문법 노드는 위에서 레슨 단위로 따로 처리한다
+        const gemScale = 1;
 
         chest = await this.chestService.earnAndClaim(
           userId,
@@ -706,8 +744,14 @@ export class LessonsService {
     // 규칙은 그대로 "맞힌 문제 1개당 1" 이고, correctAnswers 는 위에서 레슨
     // 문항 수의 2배로 이미 잘라둔 서버 값이다. SUPER 는 consume 이 그냥 돌아온다.
     // 중간에 나가면 안 깎이지만 XP·진행도도 없다 — 그게 맞는 거래다.
+    // 본풀이 정답만 친다 — 틀린 문제 다시 풀기는 에너지를 안 쓴다.
+    // 상한은 레슨 문항 수 (본풀이에서 그 이상 맞힐 수 없다)
+    const energyCost =
+      dto.energySpent === undefined
+        ? correctAnswers
+        : clampCount(dto.energySpent, Math.max(1, lessonQuestionIdSet.size));
     await this.energyService
-      .consume(userId, correctAnswers)
+      .consume(userId, energyCost)
       .catch((e) =>
         this.logger.warn(`에너지 차감 실패: user=${userId} ${String(e)}`),
       );
@@ -767,6 +811,11 @@ export class LessonsService {
    * ⚠️ 부르기 전에 그 모드의 학습 기록(recordStudy 등)이 오늘 날짜로 남아 있어야
    * 한다 — 연속 일수가 오늘을 포함해야 하니까. 응답에 실을 gems 는 상자를 받은 뒤 값.
    */
+  /** 에너지를 쓰는 학습을 시작해도 되는지 — 0 이면 ENERGY_EMPTY (SUPER 통과) */
+  async assertEnergyToStart(userId: string): Promise<void> {
+    await this.energyService.assertCanStart(userId);
+  }
+
   async celebrateStudyDay(
     userId: string,
     knownStreak?: { current: number; longest: number; days: Date[] } | null,
@@ -912,6 +961,21 @@ export class LessonsService {
     const combo = clampCount(dto.combo, correct);
     const xp = calcPracticeXp(dto.mode, combo, correct);
 
+    // ── 에너지 ── 학습 로드의 문제 레슨(unit*)은 자유 학습 레슨과 똑같이 쓴다.
+    // 예전엔 여기서 안 깎아서 로드 학습은 에너지가 사실상 무한이었다 (앱만 화면에서
+    // 줄였다가 다음 조회 때 원래대로 돌아갔다). 오답 복습·단어·표현 연습은 안 쓴다.
+    let energyAfter: number | undefined;
+    if (ENERGY_PRACTICE_MODES.has(dto.mode)) {
+      const cost =
+        dto.energySpent === undefined
+          ? correct
+          : clampCount(dto.energySpent, Math.max(1, ids.length));
+      const state = await this.energyService
+        .consume(userId, cost)
+        .catch(() => null);
+      energyAfter = state?.energy;
+    }
+
     /**
      * 빈도 제한 — 리그 챌린지(leagueChallengeClaims)와 같은 장치.
      *
@@ -946,12 +1010,33 @@ export class LessonsService {
       xpEarned: 0,
     });
 
+    // ── 학습 로드의 문제 노드 = 그날의 "학습 완료" ── 자유 학습 레슨과 같은 규칙으로
+    // 도장 + 3·6·9…일째 상자. 예전엔 여기서 안 불러서 로드 학습만 하는 유저는
+    // 도장도 연속 상자도 영영 못 봤다. 오답 복습·단어 연습은 학습 완료로 치지 않는다.
+    // XP 쿨다운·하루 한도에 걸려도 학습은 한 것이니 축하는 그대로 준다.
+    let celebration: StudyCelebration | null = null;
+    if (ENERGY_PRACTICE_MODES.has(dto.mode)) {
+      await this.userModel
+        .updateOne(
+          { _id: new Types.ObjectId(userId) },
+          { $set: { lastStudiedAt: now } },
+        )
+        .catch(() => {});
+      celebration = await this.celebrateStudyDay(userId).catch(() => null);
+    }
+
     if (onCooldown || overDaily) {
       this.logger.warn(
         `연습 XP 거절: user=${userId} mode=${dto.mode} ` +
           `${onCooldown ? '쿨다운' : '하루한도'} (오늘 ${claims.length}/${PRACTICE_DAILY_LIMIT})`,
       );
-      return { success: true, xpEarned: 0, totalXP: me?.totalXP ?? 0 };
+      return {
+        success: true,
+        xpEarned: 0,
+        totalXP: me?.totalXP ?? 0,
+        energy: energyAfter,
+      celebration,
+      };
     }
 
     // 요청이 겹쳐 들어와도 한도를 못 넘도록 조건을 한 번 더 건다
@@ -974,13 +1059,25 @@ export class LessonsService {
       },
     );
     if (!claimed) {
-      return { success: true, xpEarned: 0, totalXP: me?.totalXP ?? 0 };
+      return {
+        success: true,
+        xpEarned: 0,
+        totalXP: me?.totalXP ?? 0,
+        energy: energyAfter,
+      celebration,
+      };
     }
 
     // totalXP · UserStats.xpEarned · 리그 반영 (하루 XP 상한도 여기서 걸린다)
     const res = await this.addXp(userId, xp);
 
-    return { success: true, xpEarned: res.added, totalXP: res.totalXP ?? 0 };
+    return {
+      success: true,
+      xpEarned: res.added,
+      totalXP: res.totalXP ?? 0,
+      energy: energyAfter,
+      celebration,
+    };
   }
 
   /**

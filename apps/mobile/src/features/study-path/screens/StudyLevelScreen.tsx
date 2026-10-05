@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,7 +12,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  SlideInDown,
+} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
@@ -50,6 +55,11 @@ export default function StudyLevelScreen() {
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // 시험으로만 열리는 급을 눌렀을 때 띄우는 안내 시트
+  const [examTarget, setExamTarget] = useState<{
+    level: StudyLevel;
+    color: string;
+  } | null>(null);
 
   useEffect(() => {
     StudyPathService.getLevels()
@@ -61,9 +71,26 @@ export default function StudyLevelScreen() {
       .finally(() => setLoading(false));
   }, []);
 
+  /** 잠긴 급을 열 시험 시작 — 바로 아래 급의 졸업 시험을 본다 */
+  const startExam = useCallback(() => {
+    const examLevel = examTarget?.level.examLevel;
+    setExamTarget(null);
+    if (!examLevel) return;
+    router.push({
+      pathname: "/lesson",
+      params: {
+        mode: "levelExam",
+        from: "studyPath",
+        examLevel: String(examLevel),
+      },
+    });
+  }, [examTarget, router]);
+
   const choose = useCallback(
     async (level: StudyLevel) => {
       if (!level.available || saving) return;
+      // 위 급은 시험 통과로만 간다 (서버도 LEVEL_EXAM_REQUIRED 로 막는다)
+      if (level.unlocked === false) return;
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setSaving(true);
       try {
@@ -146,6 +173,73 @@ export default function StudyLevelScreen() {
                 );
               }
 
+              // 콘텐츠는 있지만 아직 시험을 통과 못 한 급 — 색은 살려 두되
+              // 어둡게 눌러 두고, 누르면 시험 안내 시트를 띄운다
+              if (level.unlocked === false) {
+                return (
+                  <Animated.View
+                    key={level.level}
+                    entering={FadeInDown.delay(index * 60).duration(320)}
+                  >
+                    <Pressable
+                      onPress={() => {
+                        void Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Light,
+                        );
+                        setExamTarget({ level, color });
+                      }}
+                      style={({ pressed }) => [
+                        styles.cardWrap,
+                        pressed && styles.cardPressed,
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.cardDepth,
+                          { backgroundColor: darken(color, 55) },
+                        ]}
+                      />
+                      <LinearGradient
+                        colors={[darken(color, 22), darken(color, 36)]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.card}
+                      >
+                        <View style={styles.orb} pointerEvents="none" />
+                        <View style={styles.badge}>
+                          <Text style={[styles.badgeText, styles.dimText]}>
+                            {level.level}
+                          </Text>
+                        </View>
+                        <View style={styles.texts}>
+                          <Text
+                            style={[styles.cardTitle, styles.dimText]}
+                            numberOfLines={1}
+                          >
+                            {level.title}
+                          </Text>
+                          <View style={styles.examPill}>
+                            <Ionicons name="ribbon" size={12} color="#fff" />
+                            <Text style={styles.examPillText} numberOfLines={1}>
+                              {t("studyLevel.examLock", {
+                                n: level.examLevel ?? level.level - 1,
+                              })}
+                            </Text>
+                          </View>
+                        </View>
+                        <View style={styles.lockBubble}>
+                          <Ionicons
+                            name="lock-closed"
+                            size={15}
+                            color={darken(color, 30)}
+                          />
+                        </View>
+                      </LinearGradient>
+                    </Pressable>
+                  </Animated.View>
+                );
+              }
+
               return (
                 <Animated.View
                   key={level.level}
@@ -205,6 +299,88 @@ export default function StudyLevelScreen() {
           <Text style={styles.hint}>{t("studyLevel.hint")}</Text>
         </ScrollView>
       )}
+
+      {/* 시험으로만 열리는 급 — 무엇을 보면 열리는지 알려주고 바로 시작 */}
+      <Modal
+        visible={!!examTarget}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={() => setExamTarget(null)}
+      >
+        {examTarget ? (
+          <View style={styles.sheetRoot}>
+            <Animated.View
+              entering={FadeIn.duration(180)}
+              style={StyleSheet.absoluteFill}
+            >
+              <Pressable
+                style={styles.backdrop}
+                onPress={() => setExamTarget(null)}
+              />
+            </Animated.View>
+            <Animated.View
+              entering={SlideInDown.springify().damping(18)}
+              style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}
+            >
+              <View style={styles.grabber} />
+              <View
+                style={[
+                  styles.sheetIcon,
+                  { backgroundColor: examTarget.color },
+                ]}
+              >
+                <View style={styles.sheetIconShine} />
+                <Ionicons name="ribbon" size={34} color="#fff" />
+              </View>
+              <Text style={styles.sheetTitle}>
+                {t("studyLevel.examTitle", { n: examTarget.level.level })}
+              </Text>
+              <Text style={styles.sheetBody}>
+                {t("studyLevel.examBody", {
+                  n: examTarget.level.level,
+                  prev: examTarget.level.examLevel ?? examTarget.level.level - 1,
+                })}
+              </Text>
+
+              <Pressable
+                onPress={startExam}
+                style={({ pressed }) => [
+                  styles.sheetCtaWrap,
+                  pressed && styles.cardPressed,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.sheetCtaDepth,
+                    { backgroundColor: darken(examTarget.color, 38) },
+                  ]}
+                />
+                <LinearGradient
+                  colors={[examTarget.color, darken(examTarget.color, 14)]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.sheetCta}
+                >
+                  <View style={styles.shine} pointerEvents="none" />
+                  <Text style={styles.sheetCtaText}>
+                    {t("studyLevel.examStart")}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+              <Pressable
+                onPress={() => setExamTarget(null)}
+                style={styles.sheetCancel}
+                hitSlop={8}
+              >
+                <Text style={styles.sheetCancelText}>
+                  {t("studyLevel.examCancel")}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          </View>
+        ) : null}
+      </Modal>
     </View>
   );
 }
@@ -336,6 +512,114 @@ const getStyles = (theme: ThemeColors) =>
       fontWeight: "600",
       color: theme.textSecondary,
       opacity: 0.85,
+    },
+    dimText: { color: "rgba(255,255,255,0.72)" },
+    examPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      gap: 5,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 999,
+      backgroundColor: "rgba(255,255,255,0.16)",
+      maxWidth: "100%",
+    },
+    examPillText: {
+      fontSize: 11.5,
+      fontWeight: "800",
+      color: "#fff",
+      flexShrink: 1,
+    },
+    lockBubble: {
+      width: 30,
+      height: 30,
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255,255,255,0.9)",
+    },
+    sheetRoot: { flex: 1, justifyContent: "flex-end" },
+    backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+    sheet: {
+      backgroundColor: theme.bg,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      paddingHorizontal: 22,
+      paddingTop: 10,
+      alignItems: "center",
+    },
+    grabber: {
+      width: 40,
+      height: 5,
+      borderRadius: 999,
+      backgroundColor: theme.border,
+      marginBottom: 18,
+    },
+    sheetIcon: {
+      width: 72,
+      height: 72,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      marginBottom: 14,
+      borderWidth: 2,
+      borderColor: "rgba(255,255,255,0.35)",
+    },
+    sheetIconShine: {
+      position: "absolute",
+      top: 6,
+      left: 10,
+      width: 26,
+      height: 10,
+      borderRadius: 999,
+      backgroundColor: "rgba(255,255,255,0.35)",
+      transform: [{ rotate: "-20deg" }],
+    },
+    sheetTitle: {
+      fontSize: 20,
+      fontWeight: "900",
+      color: theme.text,
+      textAlign: "center",
+      letterSpacing: -0.3,
+    },
+    sheetBody: {
+      marginTop: 8,
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.textSecondary,
+      textAlign: "center",
+      lineHeight: 20,
+      marginBottom: 22,
+    },
+    sheetCtaWrap: { alignSelf: "stretch", position: "relative" },
+    sheetCtaDepth: {
+      position: "absolute",
+      top: 5,
+      left: 0,
+      right: 0,
+      bottom: -4,
+      borderRadius: 18,
+    },
+    sheetCta: {
+      height: 54,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    sheetCtaText: {
+      color: "#fff",
+      fontSize: 16.5,
+      fontWeight: "900",
+      letterSpacing: 0.2,
+    },
+    sheetCancel: { paddingVertical: 14, marginTop: 4 },
+    sheetCancelText: {
+      fontSize: 14.5,
+      fontWeight: "800",
+      color: theme.textSecondary,
     },
     hint: {
       marginTop: 18,

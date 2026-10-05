@@ -422,6 +422,15 @@ export class User {
   @Prop({ type: [Number], default: [] })
   completedLevelExams: number[];
 
+  /**
+   * 학습 로드에서 **자유롭게 오갈 수 있는 가장 높은 급**.
+   * 이보다 위로 가려면 바로 아래 급의 졸업 시험을 통과해야 한다
+   * (study-path.service setLevel / completeLevelExam). 아래로 내려가도 이 값은
+   * 줄지 않아서 다시 올라올 때 또 시험을 보지 않는다. 없으면 placementLevel 기준.
+   */
+  @Prop()
+  studyLevelUnlocked?: number;
+
   // 학습 로드 모드에서 끝낸 노드 키 ("<섹션>-<유닛>:<종류>", 예: "1-3:practice").
   // 레슨·문법·단어는 각자 자기 진행도가 있으므로 여기엔 실전/복습/마무리만 쌓인다.
   @Prop({ type: [String], default: [] })

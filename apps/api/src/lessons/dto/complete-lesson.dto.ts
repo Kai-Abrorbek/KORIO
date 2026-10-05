@@ -52,6 +52,16 @@ export class CompleteLessonDto {
   isCompleted: boolean;
 
   /**
+   * 에너지로 칠 정답 수 — **본풀이**에서 맞힌 것만.
+   * 틀린 문제 다시 풀기(복습 라운드)는 에너지를 안 쓴다. 없으면 correctAnswers.
+   */
+  @IsInt()
+  @Min(0)
+  @Max(1000)
+  @IsOptional()
+  energySpent?: number;
+
+  /**
    * 이 판의 계측 id (`GET /lessons/:id` 응답의 attemptId).
    *
    * 선택값인 이유: 배포 직후에는 이걸 모르는 옛 앱이 남아 있다. 없으면 서버가

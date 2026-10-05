@@ -21,6 +21,7 @@ import {
 } from "./BatteryBadge";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuthStore } from "@/store/auth.store";
 
 interface Props {
   visible: boolean;
@@ -48,6 +49,9 @@ export default function EnergyModal({
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // 무료 체험을 이미 쓴 사람에게 "30일 무료" 를 다시 약속하면 안 된다 (결제 화면에서 체험이 안 나옴)
+  const user = useAuthStore((st) => st.user);
+  const usedTrial = !!user?.hasUsedTrial || user?.superPlan === "trial";
 
   return (
     <Modal
@@ -102,7 +106,7 @@ export default function EnergyModal({
                   <Text
                     style={[s.cardAction, { color: ENERGY_COLORS.magenta }]}
                   >
-                    {t("energy.freeTrialDo")}
+                    {usedTrial ? t("energy.superStart") : t("energy.freeTrialDo")}
                   </Text>
                 </TouchableOpacity>
               </LinearGradient>
@@ -157,7 +161,9 @@ export default function EnergyModal({
             onPress={onTrySuper}
             style={s.cta}
           >
-            <Text style={s.ctaText}>{t("energy.tryFreeDays", { days: TRIAL_DAYS })}</Text>
+            <Text style={s.ctaText}>{usedTrial
+                ? t("energy.superUnlimitedCta")
+                : t("energy.tryFreeDays", { days: TRIAL_DAYS })}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

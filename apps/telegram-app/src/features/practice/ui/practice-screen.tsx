@@ -7,7 +7,6 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { MobileIcon, type MaterialCommunityIconName } from "../../../shared/ui/mobile-icon";
 import styles from "./practice-screen.module.css";
 import { getContentLang } from "../../../shared/i18n/content-language";
-import { useEnergyGuard } from "../../energy/energy-gate";
 
 interface MistakeQuestion {
   id: string;
@@ -39,7 +38,6 @@ function MistakesModal({ onClose, request }: {
   request: <T>(path: string, init?: RequestInit) => Promise<T>;
 }) {
   const router = useRouter();
-  const guardLessonStart = useEnergyGuard();
   const [data, setData] = useState<MistakesResponse>({ count: 0, questions: [] });
   const [loading, setLoading] = useState(true);
 
@@ -58,8 +56,8 @@ function MistakesModal({ onClose, request }: {
   const start = () => {
     if (!canStart) return;
     onClose();
-    // 복습도 에너지를 쓴다 — 앱 MistakesModal 처럼 없으면 에너지 모달부터
-    guardLessonStart(() => router.push("/lesson?mode=review"));
+    // 오답 복습은 에너지를 안 쓴다 — 0 이어도 막지 않는다 (앱과 같음)
+    router.push("/lesson?mode=review");
   };
 
   return (

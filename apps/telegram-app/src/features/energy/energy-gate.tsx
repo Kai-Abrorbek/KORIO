@@ -61,6 +61,8 @@ export function EnergyModalHost() {
   const router = useRouter();
   const { user } = useTelegramAuth();
   const [open, setOpen] = useState(false);
+  // 무료 체험을 이미 쓴 사람에게 "30일 무료" 를 다시 약속하지 않는다 (앱 EnergyModal 과 동일)
+  const usedTrial = Boolean(user?.hasUsedTrial) || user?.superPlan === "trial";
 
   useEffect(() => {
     listeners.add(setOpen);
@@ -106,7 +108,9 @@ export function EnergyModalHost() {
                 <em />
               </span>
               <b>Cheksiz</b>
-              <strong className={styles.magenta}>Bepul sinab ko&apos;rish</strong>
+              <strong className={styles.magenta}>
+                {usedTrial ? "SUPER'ni boshlash" : "Bepul sinab ko'rish"}
+              </strong>
             </button>
             <span className={styles.check}><MobileIcon name="checkmark-circle" size={28} /></span>
           </div>
@@ -130,7 +134,7 @@ export function EnergyModalHost() {
           }}
           type="button"
         >
-          {`${TRIAL_DAYS} kun bepul sinab ko'rish`}
+          {usedTrial ? "SUPER bilan cheksiz energiya" : `${TRIAL_DAYS} kun bepul sinab ko'rish`}
         </button>
         <button
           className={styles.dismiss}

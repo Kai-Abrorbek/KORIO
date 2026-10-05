@@ -42,4 +42,14 @@ export class CompletePracticeDto {
   @Max(1000)
   @IsOptional()
   combo?: number;
+
+  /**
+   * 에너지로 칠 정답 수 — **본풀이**에서 맞힌 것만.
+   * 틀린 문제 다시 풀기(복습 라운드)는 에너지를 안 쓴다. 없으면 correctAnswers.
+   */
+  @IsInt()
+  @Min(0)
+  @Max(1000)
+  @IsOptional()
+  energySpent?: number;
 }

@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -33,6 +34,21 @@ export class EnergyService {
     const user = await this.mustFind(userId);
     await this.applyRegen(user);
     return this.buildResponse(user);
+  }
+
+  /**
+   * 에너지를 쓰는 학습을 **시작**해도 되는가. 0 이면 막는다 (SUPER 는 항상 통과).
+   *
+   * 예전엔 앱 화면만 막았다(guardLessonStart). 서버는 완료 때 0 밑으로 안 내려가게만
+   * 깎아서, 앱을 거치지 않거나 화면 값이 어긋나 있으면 에너지 0 으로 계속 풀 수 있었다.
+   */
+  async assertCanStart(userId: string): Promise<void> {
+    const user = await this.mustFind(userId);
+    await this.applyRegen(user);
+    if (isSuperActive(user)) return;
+    if ((user.energy ?? 0) <= 0) {
+      throw new ForbiddenException('ENERGY_EMPTY');
+    }
   }
 
   // ─────────────────────────── 충전 ───────────────────────────
@@ -170,11 +186,26 @@ export class EnergyService {
 
     // 0 밑으로는 안 내려가게 $max 로 바닥을 깐다 (파이프라인 업데이트라
     // 현재 값을 읽어 계산하는 것까지 한 번의 원자적 연산 안에서 끝난다)
+    //
+    // ⚠️ 가득 찬 상태에서 깎을 때는 회복 기준시각을 **지금**으로 다시 잡는다.
+    // 가득 찬 동안엔 기준시각을 굳이 갱신하지 않아서(applyRegen) 며칠 전 값이
+    // 남아 있다. 그대로 두면 다음 조회 때 "며칠치 회복" 이 한 번에 붙어서
+    // 레슨 하나 끝내고 로드맵에 돌아오면 25 로 다시 차 있었다 — 에너지가
+    // 사실상 무한이던 버그. 회복은 가득에서 내려온 순간부터 세야 한다.
+    // (같은 $set 단계 안의 '$energy' 는 갱신 **전** 값을 본다)
+    const now = new Date();
     const updated = await this.userModel.findOneAndUpdate(
       { _id: user._id },
       [
         {
           $set: {
+            energyUpdatedAt: {
+              $cond: [
+                { $gte: [{ $ifNull: ['$energy', 0] }, ENERGY_CONFIG.MAX] },
+                now,
+                '$energyUpdatedAt',
+              ],
+            },
             energy: {
               $max: [0, { $subtract: [{ $ifNull: ['$energy', 0] }, spend] }],
             },
@@ -197,14 +228,24 @@ export class EnergyService {
    *    부르든 여기서 정해진 만큼만 나간다. 예전엔 앱 말을 그대로 믿어서,
    *    이 엔드포인트를 반복 호출하는 것만으로 에너지를 계속 채울 수 있었다.
    */
-  async grantComboBonus(userId: string) {
+  async grantComboBonus(userId: string, spentInSession = 0) {
     const user = await this.mustFind(userId);
     await this.applyRegen(user);
+
+    // 레슨 중 차감은 **완료 때** 서버가 한꺼번에 한다. 그래서 레슨 도중의 저장값은
+    // 이번 판에 쓴 만큼이 아직 안 빠져 있다 — 그걸 그대로 보면 화면엔 8 인데
+    // 서버는 20 으로 보고 "넉넉하다" 며 보너스를 영영 안 준다. 앱이 이번 판에
+    // 쓴 양을 같이 보낸다 (최대치로 자른다. 부풀려 봐야 받는 건 아래 한도 안이다)
+    const spent = Math.min(
+      ENERGY_CONFIG.MAX,
+      Math.max(0, Math.floor(Number(spentInSession) || 0)),
+    );
+    const effective = Math.max(0, (user.energy ?? 0) - spent);
 
     const now = new Date();
     const todayStart = startOfDay(now, user.timezone);
     const decision = decideComboBonus({
-      energy: user.energy,
+      energy: effective,
       isSuper: isSuperActive(user),
       claimsToday: claimsSince(user.comboBonusClaims, todayStart),
       now,
@@ -224,7 +265,7 @@ export class EnergyService {
       {
         _id: user._id,
         // 조건을 여기 한 번 더 건다. 요청이 겹쳐 들어와도 한도를 못 넘는다
-        energy: { $lte: COMBO_BONUS_THRESHOLD },
+        energy: { $lte: COMBO_BONUS_THRESHOLD + spent },
         $expr: {
           $lt: [{ $size: todayOnly }, COMBO_BONUS_DAILY_LIMIT],
         },
@@ -233,7 +274,13 @@ export class EnergyService {
         {
           $set: {
             energy: {
-              $min: [ENERGY_CONFIG.MAX, { $add: ['$energy', decision.granted] }],
+              // 저장값엔 이번 판 소비가 아직 안 빠져 있다 — 상한도 그만큼 올려야
+              // 보너스가 잘리지 않는다. 완료 때 차감되면 MAX 안으로 돌아온다.
+              // (중간에 나가면 다음 조회에서 computeEnergy 가 MAX 로 자른다)
+              $min: [
+                ENERGY_CONFIG.MAX + spent,
+                { $add: ['$energy', decision.granted] },
+              ],
             },
             comboBonusClaims: { $concatArrays: [todayOnly, [now]] },
           },

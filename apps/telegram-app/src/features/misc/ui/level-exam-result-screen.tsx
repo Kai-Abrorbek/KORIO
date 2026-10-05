@@ -27,7 +27,7 @@ export function LevelExamResultScreen() {
       <section className={styles.examContent}>
         <Image alt="Haneulmon" className={styles.examMascot} height={passed ? 170 : 150} src={`/characters/hangulmon_${passed ? "celebrating" : "default"}.png`} unoptimized width={passed ? 170 : 150} />
         <h1>{passed ? `${level}-daraja o'tildi!` : `${level}-daraja, ozgina qoldi`}</h1>
-        <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : "Keyingi daraja ochiq. Quyidagilarni yana bir ko'rsangiz ancha oson bo'ladi."}</p>
+        <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring."}</p>
         <div className={styles.examScore}><b>{ratio}%</b><span>{`${total} savoldan ${correct} tasi to'g'ri`}</span></div>
         {passed && (gems > 0 || xp > 0) ? <div className={styles.examRewards}>
           {gems > 0 ? <span><MobileIcon name="diamond" size={19} />+{gems}</span> : null}
@@ -38,7 +38,7 @@ export function LevelExamResultScreen() {
       </section>
       <footer className={styles.examActions}>
         <button className={styles.examPrimary} onClick={() => router.replace("/study-path")} type="button">Davom etish</button>
-        {!passed ? <button className={styles.examRetry} onClick={() => router.replace("/lesson?mode=levelExam&from=studyPath")} type="button">Qayta urinish</button> : null}
+        {!passed ? <button className={styles.examRetry} onClick={() => router.replace(`/lesson?mode=levelExam&from=studyPath${params.get("examLevel") ? `&examLevel=${params.get("examLevel")}` : ""}`)} type="button">Qayta urinish</button> : null}
       </footer>
     </main>
   );

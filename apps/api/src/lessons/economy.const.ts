@@ -279,3 +279,15 @@ export const PRACTICE_DAILY_LIMIT = 60;
  */
 export const STREAK_CHEST_EVERY_DAYS = 3;
 export const STREAK_CHEST_GEMS = 200;
+
+/**
+ * 문법 트랙 상자 배율 — **레슨 하나(=화면의 문법 노드 하나)** 당.
+ *
+ * 문법 트랙은 서버에선 노드 1개 = 레슨 4개지만 화면은 레슨 하나를 노드
+ * 하나로 펼친다(expandGrammarLessonNodes). 예전엔 레슨 4개를 다 끝내야
+ * 상자가 나와서 유저 눈엔 "노드를 끝냈는데 상자가 안 나온다" 였다.
+ * 이제 레슨마다 주고, 대신 배율을 낮춘다 — 레슨당 12문제라 어휘 노드
+ * (17문제 × 4~5레슨) 와 같은 값을 주면 문법만 돌며 보석을 캐게 된다.
+ * 결과: 나무 3~5 · 은 5~8 · 금 8~12 (+무실수 약 5).
+ */
+export const GRAMMAR_LESSON_CHEST_GEM_SCALE = 0.3;

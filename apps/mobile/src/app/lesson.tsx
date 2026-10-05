@@ -178,6 +178,7 @@ export default function LessonScreen() {
     from,
     group,
     lesson: lessonNo,
+    examLevel,
   } = useLocalSearchParams<{
     lessonId?: string;
     mode?: string;
@@ -197,6 +198,8 @@ export default function LessonScreen() {
     from?: string;
     /** 학습 로드 모드: 노드 안의 몇 번째 레슨인지 (1-based) */
     lesson?: string;
+    /** 급수 시험: 어느 급의 시험인지. 없으면 지금 급 (잠긴 급을 열 때 그 아래 급) */
+    examLevel?: string;
   }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
@@ -270,6 +273,15 @@ export default function LessonScreen() {
   const [jumpHeartLimit, setJumpHeartLimit] = useState(fallbackHeartLimit);
   const [showQuit, setShowQuit] = useState(false);
   const isSuper = useAuthStore((st) => st.user?.isSuper ?? false);
+  /**
+   * 이 판이 에너지를 쓰는가 — 서버가 실제로 깎는 모드와 **정확히** 같아야 한다.
+   *  · 쓴다: 일반 레슨(어휘·문법 트랙), 학습 로드의 문제 레슨(unitPractice)
+   *  · 안 쓴다: 오답 복습·단어/표현 연습·레슨/노드 복습·레전드·점프/레벨 테스트·졸업 시험
+   * 예전엔 앱이 모든 모드에서 화면 숫자를 깎았는데 서버는 일반 레슨만 깎아서,
+   * 로드 학습·복습을 하고 나오면 숫자가 원래대로 "다시 차" 보였다.
+   */
+  // 일반 레슨은 mode 파라미터 없이 열린다 (챌린지는 시작할 때 서버가 따로 깎는다)
+  const consumesEnergy = !isSuper && (isUnitPractice || !mode);
   const [hearts, setHearts] = useState(jumpHeartLimit);
   const [showBonus, setShowBonus] = useState(false);
   const [bonusAmount, setBonusAmount] = useState(0);
@@ -303,7 +315,7 @@ export default function LessonScreen() {
 
   useEffect(() => {
     void loadLesson();
-  }, [category, lessonId, mode, nodeId, pack, section, unit]);
+  }, [category, examLevel, lessonId, mode, nodeId, pack, section, unit]);
 
   useEffect(() => {
     setEnergy(userEnergy);
@@ -396,7 +408,9 @@ export default function LessonScreen() {
       }
 
       if (isLevelExam) {
-        const { questions } = await StudyPathService.getLevelExam();
+        const { questions } = await StudyPathService.getLevelExam(
+          Number(examLevel) || undefined,
+        );
         setLesson({
           lessonId: "level-exam",
           lessonTitle: "Level Exam",
@@ -483,6 +497,15 @@ export default function LessonScreen() {
           ? shuffleGrammarQuestions(data.questions)
           : [...data.questions];
     } catch (err) {
+      // 에너지 0 — 서버가 시작을 막았다. 화면 숫자가 어긋나 있었던 것이니
+      // 0 으로 맞추고 에너지 모달을 띄운 뒤 돌아간다
+      if ((err as { code?: string })?.code === "ENERGY_EMPTY") {
+        updateUser({ energy: 0 } as any);
+        openEnergyModal();
+        if (router.canGoBack()) router.back();
+        else router.replace("/(tabs)");
+        return;
+      }
       // 예전엔 여기서 가짜 레슨을 채웠다. 유저는 서버에 없는 문제를 풀고,
       // 다 풀어도 완료 처리가 안 돼서 XP 도 진행도도 남지 않았다
       console.error("레슨 로드 실패:", err);
@@ -718,7 +741,8 @@ export default function LessonScreen() {
       //    (lessons.service.completeLesson → energyService.consume).
       //    여기서는 바가 살아 움직이게 화면만 미리 줄인다. 완료 응답의
       //    res.energy 가 진짜 값으로 덮어쓴다.
-      if (!isSuper && !isJumpTest && !isLevelExam) {
+      // 틀린 문제 다시 풀기(복습 라운드)는 에너지를 안 쓴다
+      if (consumesEnergy && phase !== "review") {
         localSpent.current += 1;
         const cur = useAuthStore.getState().user?.energy ?? 0;
         const next = Math.max(0, cur - 1);
@@ -730,7 +754,7 @@ export default function LessonScreen() {
           const spentSoFar = localSpent.current;
           (async () => {
             try {
-              const bonusRes = await EnergyService.comboBonus();
+              const bonusRes = await EnergyService.comboBonus(spentSoFar);
               if (bonusRes.bonusGranted > 0) {
                 bonusGiven.current = true; // 이 레슨에선 다시 안 줌
                 updateUser({
@@ -902,6 +926,7 @@ export default function LessonScreen() {
     } else if (isLevelExam) {
       try {
         const res = await StudyPathService.completeLevelExam({
+          level: Number(examLevel) || undefined,
           questionIds: practicedIds,
           wrongQuestionIds: wrongArr,
           speedSeconds: seconds,
@@ -923,6 +948,8 @@ export default function LessonScreen() {
             weak: res.weakAreas.join(","),
             gems: String(res.gemsEarned),
             xp: String(res.xpEarned),
+            // 다시 도전할 때 같은 급 시험을 다시 보게
+            examLevel: examLevel ?? "",
           },
         });
         return;
@@ -939,9 +966,19 @@ export default function LessonScreen() {
           wrongQuestionIds: wrongArr,
           speedSeconds: seconds,
           combo,
+          energySpent: localSpent.current,
         });
         earnedXp = r.xpEarned;
-        updateUser({ totalXP: r.totalXP } as any);
+        // 로드 문제 노드도 학습 완료 — 도장·연속 상자를 완료 화면이 이어 띄운다
+        practiceCelebration = r.celebration ?? null;
+        updateUser({
+          totalXP: r.totalXP,
+          // 서버가 깎은 진짜 값으로 덮는다 (앱은 화면에서만 미리 줄였다)
+          ...(typeof r.energy === "number" ? { energy: r.energy } : {}),
+          ...(practiceCelebration?.streakChest
+            ? { gems: practiceCelebration.gems }
+            : {}),
+        } as any);
         // 노드 완료는 XP 저장과 별개다 — 하나가 실패해도 다른 하나는 남는다
         await StudyPathService.completeNode(
           Number(section),
@@ -1014,6 +1051,7 @@ export default function LessonScreen() {
           isCompleted: true,
           attemptId: attemptId.current,
           answers: tailAnswers,
+          energySpent: localSpent.current,
         });
         updateUser({
           totalXP: res.totalXP,

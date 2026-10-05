@@ -52,9 +52,13 @@ export interface StudyPathResponse {
 export interface StudyLevel {
   available: boolean;
   description: string;
+  /** 잠겼으면 열기 위해 볼 시험의 급 (바로 아래 급) */
+  examLevel?: number | null;
   level: number;
   sections: [number, number];
   title: string;
+  /** 시험 없이 바로 갈 수 있나 (옛 서버는 안 보낸다 → 열린 것으로) */
+  unlocked?: boolean;
 }
 
 export interface StudyLevelsResponse {

@@ -68,6 +68,11 @@ export function StreakDayScreen() {
       go(`/chest-reward?${next.toString()}`);
       return;
     }
+    // 학습 로드에서 왔으면 그 하루로 돌아간다 (자율 로드맵으로 새면 안 된다)
+    if (params.get("from") === "studyPath") {
+      go("/study-path");
+      return;
+    }
     go(category ? `/roadmap?category=${encodeURIComponent(category)}` : "/home");
   };
 

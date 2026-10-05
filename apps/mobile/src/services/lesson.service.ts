@@ -17,6 +17,7 @@ export interface ReportedAnswer {
 }
 import { AnswerGradeResult, LessonSession } from "@/types/lesson";
 import { getContentLang } from "@/store/settings.store";
+import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 /**
  * 연습 완료 모드. 서버 PRACTICE_BASE_XP 의 키와 1:1 로 맞아야 한다 —
@@ -153,6 +154,8 @@ export const LessonService = {
       attemptId?: string | null;
       /** 문제별 답안. 통계 전용 — 보상 계산에는 안 쓰인다 */
       answers?: ReportedAnswer[];
+      /** 에너지로 칠 정답 수 — 본풀이만 (틀린 문제 다시 풀기는 무료) */
+      energySpent?: number;
     },
   ): Promise<{
     success: boolean;
@@ -283,6 +286,15 @@ export const LessonService = {
     wrongQuestionIds?: string[];
     speedSeconds?: number;
     combo?: number;
-  }): Promise<{ success: boolean; xpEarned: number; totalXP: number }> =>
-    api.post(`/lessons/practice-complete`, body),
+    /** 본풀이 정답 수 (에너지). 학습 로드 문제 레슨만 서버가 깎는다 */
+    energySpent?: number;
+  }): Promise<{
+    success: boolean;
+    xpEarned: number;
+    totalXP: number;
+    /** 에너지를 쓰는 모드(학습 로드)면 차감 후 값 */
+    energy?: number;
+    /** 학습 로드 문제 노드 완료 = 그날 학습 완료 → 도장·연속 상자 */
+    celebration?: StudyCelebration | null;
+  }> => api.post(`/lessons/practice-complete`, body),
 };

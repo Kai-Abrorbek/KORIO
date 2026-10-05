@@ -246,6 +246,11 @@ export default function StreakDayScreen() {
       });
       return;
     }
+    // 학습 로드에서 왔으면 그 하루로 돌아간다 (자율 로드맵으로 새면 안 된다)
+    if (params.from === "studyPath") {
+      go("/study-path");
+      return;
+    }
     go(
       params.category
         ? { pathname: "/roadmap", params: { category: params.category } }
