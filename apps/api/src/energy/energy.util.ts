@@ -41,12 +41,13 @@ export function computeEnergy(
     return {
       energy: Math.min(MAX, energy),
       energyUpdatedAt: now,
-      secondsToNext: full ? 0 : REGEN_MINUTES * 60,
+      secondsToNext: full ? 0 : Math.ceil(REGEN_MINUTES * 60),
       isFull: full,
     };
   }
   const elapsedMs = now.getTime() - last;
-  const regenMs = REGEN_MINUTES * 60 * 1000;
+  // REGEN_MINUTES 가 소수일 수 있다 (28.8) — ms 를 정수로 맞춘다
+  const regenMs = Math.round(REGEN_MINUTES * 60 * 1000);
 
   if (energy >= MAX) {
     // 이미 꽉참 — 기준시각만 now로
@@ -93,8 +94,9 @@ export function minutesToFull(
   const { MAX, REGEN_MINUTES } = ENERGY_CONFIG;
   if (isSuper || energy >= MAX) return 0;
   const remainingUnits = MAX - energy;
-  // 다음 1개는 secondsToNext, 나머지는 REGEN_MINUTES씩
-  return Math.ceil(secondsToNext / 60) + (remainingUnits - 1) * REGEN_MINUTES;
+  // 다음 1개는 secondsToNext, 나머지는 REGEN_MINUTES씩.
+  // REGEN_MINUTES 가 소수(28.8)라 통째로 올림한다 — "3시간 12.6분" 이 나오면 안 된다
+  return Math.ceil(secondsToNext / 60 + (remainingUnits - 1) * REGEN_MINUTES);
 }
 
 // ─────────────────────────── 콤보 보너스 ───────────────────────────

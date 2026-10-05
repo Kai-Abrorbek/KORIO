@@ -1,8 +1,18 @@
+/** 0 에서 가득까지 걸리는 시간 — 하루에 한 번 꽉 찬다 (2026-10-06) */
+const FULL_REFILL_HOURS = 24;
+// 최대 에너지. 출시 초기 이탈을 줄이려고 25 → 50 (2026-10-06).
+// 앱의 폴백 값(apps/mobile/src/constants/energy.ts)도 같이 바꾼다
+const MAX_ENERGY = 50;
+
 export const ENERGY_CONFIG = {
-  // 최대 에너지. 출시 초기 이탈을 줄이려고 25 → 50 (2026-10-06).
-  // 앱의 폴백 값(apps/mobile/src/constants/energy.ts)도 같이 바꾼다
-  MAX: 50,
-  REGEN_MINUTES: 60, // 1개 회복에 걸리는 시간(분)
+  MAX: MAX_ENERGY,
+  FULL_REFILL_HOURS,
+  /**
+   * 1개 회복에 걸리는 시간(분). MAX 와 FULL_REFILL_HOURS 에서 뽑는다 —
+   * 50개면 28.8분. 소수여도 된다 (회복 계산은 ms 로 한다).
+   * MAX 만 바꿔도 "하루에 가득" 은 그대로 유지된다.
+   */
+  REGEN_MINUTES: (FULL_REFILL_HOURS * 60) / MAX_ENERGY,
   REFILL_GEM_COST: 350, // 충전하기 비용
   FREE_DAILY_LIMIT: 3, // 무료 +5 하루 횟수
   FREE_AMOUNT: 10, // 무료로 받는 양 (5 → 10, 2026-10-06)
