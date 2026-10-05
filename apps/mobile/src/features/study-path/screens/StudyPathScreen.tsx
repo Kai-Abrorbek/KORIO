@@ -35,6 +35,7 @@ import type { StudyDay, StudyNode } from "@/types/study-path";
 import DayBanner from "../components/DayBanner";
 import SectionDivider from "../components/SectionDivider";
 import LevelExamCard from "../components/LevelExamCard";
+import { useRevealPopover } from "@/components/roadmap/useRevealPopover";
 import StudyNodePopover from "../components/StudyNodePopover";
 import { useStudyPath } from "../hooks/useStudyPath";
 import {
@@ -56,6 +57,9 @@ export default function StudyPathScreen() {
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const { data, loading, loadFailed, reload } = useStudyPath();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
+  // 아래쪽 노드를 눌러도 팝오버 버튼까지 보이게 올린다
+  const { listWrapRef, onScroll, revealPopover, isAutoScrolling } =
+    useRevealPopover(listRef);
   const [visibleDayIndex, setVisibleDayIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
@@ -295,6 +299,7 @@ export default function StudyPathScreen() {
             onNodeTap={handleNodeTap}
             onClaimChest={handleClaimChest}
             renderNodePopover={renderNodePopover}
+            onPopoverLayout={revealPopover}
           />
         </Pressable>
       );
@@ -305,6 +310,7 @@ export default function StudyPathScreen() {
       handleClaimChest,
       handleNodeTap,
       renderNodePopover,
+      revealPopover,
       selectedNodeId,
       styles.unitElevated,
       user?.avatar,
@@ -317,7 +323,8 @@ export default function StudyPathScreen() {
       const index = viewableItems[0]?.index;
       if (index !== null && index !== undefined) {
         setVisibleDayIndex(index);
-        setSelectedNodeId(null);
+        // 팝오버를 보여주려고 방금 자동으로 올린 거면 닫지 않는다
+        if (!isAutoScrolling()) setSelectedNodeId(null);
       }
     },
   );
@@ -377,12 +384,6 @@ export default function StudyPathScreen() {
           done={countDone(bannerDay)}
           total={bannerDay.nodes.length}
           level={data?.currentLevel ?? 1}
-          onLevelPress={() =>
-            router.push({
-              pathname: "/study-level",
-              params: { from: "studyPath" },
-            })
-          }
         />
       ) : null}
 
@@ -409,25 +410,33 @@ export default function StudyPathScreen() {
           <Text style={styles.stateTitle}>{t("studyPath.empty")}</Text>
         </View>
       ) : (
-        <FlatList
-          ref={listRef}
-          data={units}
-          keyExtractor={(unit) => unit.id}
-          renderItem={renderUnit}
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          getItemLayout={getItemLayout}
-          onScrollToIndexFailed={onScrollToIndexFailed}
-          viewabilityConfig={viewabilityConfig.current}
-          onViewableItemsChanged={onViewableItemsChanged.current}
-          ListFooterComponent={listFooter}
-          onScrollBeginDrag={closePopover}
-          removeClippedSubviews
-          windowSize={3}
-          maxToRenderPerBatch={2}
-          initialNumToRender={2}
-        />
+        <View ref={listWrapRef} collapsable={false} style={styles.scroll}>
+          <FlatList
+            ref={listRef}
+            data={units}
+            keyExtractor={(unit) => unit.id}
+            renderItem={renderUnit}
+            style={styles.scroll}
+            contentContainerStyle={[
+              styles.scrollContent,
+              // 맨 아래 노드의 팝오버도 올려서 보일 수 있게 자리를 더 둔다
+              selectedNodeId ? styles.scrollContentOpen : null,
+            ]}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            getItemLayout={getItemLayout}
+            onScrollToIndexFailed={onScrollToIndexFailed}
+            viewabilityConfig={viewabilityConfig.current}
+            onViewableItemsChanged={onViewableItemsChanged.current}
+            ListFooterComponent={listFooter}
+            onScrollBeginDrag={closePopover}
+            removeClippedSubviews
+            windowSize={3}
+            maxToRenderPerBatch={2}
+            initialNumToRender={2}
+          />
+        </View>
       )}
 
       {units.length > 0 && !loading ? (
@@ -451,6 +460,7 @@ const getStyles = (theme: ThemeColors) =>
     unitElevated: { zIndex: 9999, elevation: 30 },
     scroll: { flex: 1 },
     scrollContent: { paddingTop: 10, paddingBottom: 140 },
+    scrollContentOpen: { paddingBottom: 380 },
     state: {
       flex: 1,
       alignItems: "center",

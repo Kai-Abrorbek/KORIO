@@ -15,7 +15,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ScoreNode from "./ScoreNode";
 import Svg, { Path } from "react-native-svg";
 import { darken } from "@/utils/color";
@@ -49,6 +49,11 @@ interface Props {
   renderNodePopover?: (context: RoadmapNodePopoverContext) => ReactNode;
   /** 상자를 눌러 쌓인 보상을 받는다. 두 모드가 같은 핸들러를 쓴다 */
   onClaimChest?: () => void;
+  /**
+   * 팝오버가 그려진 뒤 그 컨테이너를 넘긴다. 화면이 잘렸는지 재서
+   * 버튼까지 보이게 스크롤한다 (useRevealPopover)
+   */
+  onPopoverLayout?: (popover: View) => void;
 }
 
 const ZIGZAG_OFFSETS = [55, -20, -50, -10];
@@ -99,11 +104,14 @@ export default function UnitRoadmap({
   onGoLegend,
   renderNodePopover,
   onClaimChest,
+  onPopoverLayout,
   hideNodeRing = false,
   directStart = false,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
+  // 열린 팝오버는 한 번에 하나라 ref 하나면 된다
+  const popoverRef = useRef<View>(null);
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
 
@@ -316,7 +324,14 @@ export default function UnitRoadmap({
               )}
 
               {isSelected && (
-                <View style={styles.popoverContainer}>
+                <View
+                  ref={popoverRef}
+                  collapsable={false}
+                  style={styles.popoverContainer}
+                  onLayout={() => {
+                    if (popoverRef.current) onPopoverLayout?.(popoverRef.current);
+                  }}
+                >
                   {/* 상자는 두 모드에서 똑같이 동작해야 하므로 트랙 전용
                       팝오버를 쓰지 않는다. 학습 로드의 팝오버는 상자를 모르고
                       null 을 돌려줘서, 눌러도 아무 반응이 없었다. */}

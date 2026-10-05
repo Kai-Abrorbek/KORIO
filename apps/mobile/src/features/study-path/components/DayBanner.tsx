@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -21,9 +21,12 @@ interface Props {
   color: string;
   done: number;
   total: number;
-  /** 지금 배우는 급수. 누르면 다시 고를 수 있다 */
+  /**
+   * 지금 배우는 급수 — **보여주기만** 한다.
+   * 예전엔 눌러서 급수를 마음대로 바꿨다. 이제 다음 급은 졸업 시험을
+   * 통과해야만 간다 (목록 끝 LevelExamCard → 합격 시 서버가 올려준다).
+   */
   level: number;
-  onLevelPress: () => void;
 }
 
 /**
@@ -39,7 +42,6 @@ export default function DayBanner({
   done,
   total,
   level,
-  onLevelPress,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -112,21 +114,12 @@ export default function DayBanner({
           </View>
         </View>
 
-        <Pressable
-          style={styles.levelBtn}
-          onPress={onLevelPress}
-          hitSlop={8}
-          accessibilityLabel={t("studyLevel.change")}
-        >
+        <View style={styles.levelBadge}>
+          <Ionicons name="school" size={12} color="rgba(255,255,255,0.9)" />
           <Text style={styles.levelText}>
             {t("studyPath.levelShort", { n: level })}
           </Text>
-          <Ionicons
-            name="swap-vertical"
-            size={13}
-            color="rgba(255,255,255,0.9)"
-          />
-        </Pressable>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -265,7 +258,7 @@ const getStyles = (_theme: ThemeColors) =>
       fontWeight: "900",
       color: "rgba(255,255,255,0.92)",
     },
-    levelBtn: {
+    levelBadge: {
       marginLeft: 10,
       alignSelf: "flex-start",
       minHeight: 30,

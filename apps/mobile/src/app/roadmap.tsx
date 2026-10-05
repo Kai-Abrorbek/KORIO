@@ -28,6 +28,7 @@ import {
   energySpendsSettled,
   useEnergyStore,
 } from "@/store/energy.store";
+import { useRevealPopover } from "@/components/roadmap/useRevealPopover";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
@@ -84,6 +85,8 @@ export default function RoadmapScreen() {
   const [isPastSection, setIsPastSection] = useState(false);
   const [viewingSection, setViewingSection] = useState<number | undefined>();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
+  // 아래쪽 노드를 눌러도 팝오버 버튼까지 보이게 올린다 (학습 로드와 같다)
+  const { listWrapRef, onScroll, revealPopover } = useRevealPopover(listRef);
   /** 연타 방어. state 는 다음 렌더에야 반영돼서 못 막는다 */
   const claimingRef = useRef(false);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
@@ -423,6 +426,7 @@ export default function RoadmapScreen() {
             onGoLegend={handleGoLegend}
             onClaimChest={handleClaimChest}
             directStart={category === "grammar"}
+            onPopoverLayout={revealPopover}
           />
         </Pressable>
       );
@@ -523,34 +527,42 @@ export default function RoadmapScreen() {
         />
       )}
 
-      <FlatList
-        ref={listRef}
-        data={processedUnits}
-        keyExtractor={(u) => u.id}
-        renderItem={renderUnit}
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        getItemLayout={getItemLayout}
-        onScrollToIndexFailed={onScrollToIndexFailed}
-        viewabilityConfig={viewabilityConfig.current}
-        onViewableItemsChanged={onViewableItemsChanged.current}
-        removeClippedSubviews
-        windowSize={3}
-        maxToRenderPerBatch={2}
-        initialNumToRender={2}
-        updateCellsBatchingPeriod={60}
-        ListFooterComponent={
-          roadmap.nextSection ? (
-            <NextSectionLocked
-              sectionNumber={roadmap.nextSection.sectionNumber}
-              title={roadmap.nextSection.title}
-              description={roadmap.nextSection.description}
-              onJump={handleNextSectionJump}
-            />
-          ) : null
-        }
-      />
+      <View ref={listWrapRef} collapsable={false} style={styles.scroll}>
+        <FlatList
+          ref={listRef}
+          data={processedUnits}
+          keyExtractor={(u) => u.id}
+          renderItem={renderUnit}
+          style={styles.scroll}
+          contentContainerStyle={[
+            styles.scrollContent,
+            // 맨 아래 노드의 팝오버도 올려서 보일 수 있게 자리를 더 둔다
+            selectedNodeId ? styles.scrollContentOpen : null,
+          ]}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          getItemLayout={getItemLayout}
+          onScrollToIndexFailed={onScrollToIndexFailed}
+          viewabilityConfig={viewabilityConfig.current}
+          onViewableItemsChanged={onViewableItemsChanged.current}
+          removeClippedSubviews
+          windowSize={3}
+          maxToRenderPerBatch={2}
+          initialNumToRender={2}
+          updateCellsBatchingPeriod={60}
+          ListFooterComponent={
+            roadmap.nextSection ? (
+              <NextSectionLocked
+                sectionNumber={roadmap.nextSection.sectionNumber}
+                title={roadmap.nextSection.title}
+                description={roadmap.nextSection.description}
+                onJump={handleNextSectionJump}
+              />
+            ) : null
+          }
+        />
+      </View>
 
       {/* current 유닛으로 점프 버튼 */}
       <TouchableOpacity
@@ -626,6 +638,7 @@ const getStyles = (theme: ThemeColors) =>
     scroll: {
       flex: 1,
     },
+    scrollContentOpen: { paddingBottom: 380 },
     scrollContent: {
       paddingTop: 10,
       paddingBottom: 140,

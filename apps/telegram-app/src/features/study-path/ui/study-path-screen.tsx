@@ -200,12 +200,11 @@ function DayBanner({
   color,
   day,
   level,
-  onLevelPress,
 }: {
   color: string;
   day: StudyDay;
+  /** 보여주기만 한다 — 다음 급은 졸업 시험 합격으로만 간다 (앱과 같음) */
   level: number;
-  onLevelPress: () => void;
 }) {
   const done = day.nodes.filter((node) => node.done).length;
   const complete = day.nodes.length > 0 && done >= day.nodes.length;
@@ -234,8 +233,7 @@ function DayBanner({
           </em>
         </span>
       </span>
-      <button onClick={onLevelPress} type="button">{`${level}-daraja `}<HomeIcon name="swap" size={13} />
-      </button>
+      <span className={styles.levelBadge}>{`${level}-daraja`}</span>
     </section>
   );
 }
@@ -389,7 +387,6 @@ export function StudyPathScreen() {
           color={banner.color}
           day={banner.day}
           level={data.currentLevel}
-          onLevelPress={() => router.push("/study-level?from=studyPath")}
         />
       ) : null}
 
