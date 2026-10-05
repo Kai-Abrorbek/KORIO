@@ -46,6 +46,8 @@ export default function CalendarModal({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [streakDays, setStreakDays] = useState<number[]>([]);
+  /** 복구펜으로 메운 날 — 눈송이로 표시 */
+  const [frozenDays, setFrozenDays] = useState<number[]>([]);
   const [serverStreak, setServerStreak] = useState<number | null>(null);
   const [longestStreak, setLongestStreak] = useState(0);
   const WEEKS = t("home.days", { returnObjects: true }) as string[];
@@ -67,6 +69,7 @@ export default function CalendarModal({
       .then((data) => {
         setCompletedDays(data.completedDays ?? []);
         setStreakDays(data.streakDays ?? []);
+        setFrozenDays(data.frozenDays ?? []);
         setServerStreak(data.streak ?? 0);
         setLongestStreak(data.longestStreak ?? 0);
       })
@@ -262,6 +265,15 @@ export default function CalendarModal({
                               >
                                 {day}
                               </Text>
+                              {frozenDays.includes(day) ? (
+                                <View style={styles.frozenBadge}>
+                                  <Ionicons
+                                    name="snow"
+                                    size={9}
+                                    color="#FFFFFF"
+                                  />
+                                </View>
+                              ) : null}
                             </View>
                           ) : null}
                         </View>
@@ -445,6 +457,17 @@ const getStyles = (theme: ThemeColors) =>
     dayTextStreak: {
       color: "#fff",
       fontWeight: "800",
+    },
+    frozenBadge: {
+      position: "absolute",
+      top: -3,
+      right: -3,
+      width: 15,
+      height: 15,
+      borderRadius: 8,
+      backgroundColor: "#3BA7F0",
+      alignItems: "center",
+      justifyContent: "center",
     },
     dayCircle: {
       width: 36,

@@ -288,16 +288,20 @@ export const LessonService = {
     wrongQuestionIds?: string[];
     speedSeconds?: number;
     combo?: number;
-    /** 본풀이 정답 수 (에너지). 학습 로드 문제 레슨만 서버가 깎는다 */
+    /** 본풀이 문제 수 (에너지, 맞든 틀리든 문제당 1). 학습 로드 문제 레슨만 서버가 깎는다 */
     energySpent?: number;
     /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
     energySession?: string;
+    /** "복습으로 에너지 벌기" 판 (review 모드에서만) */
+    earnEnergy?: boolean;
   }): Promise<{
     success: boolean;
     xpEarned: number;
     totalXP: number;
-    /** 에너지를 쓰는 모드(학습 로드)면 차감 후 값 */
+    /** 에너지를 쓰는 모드(학습 로드)면 차감 후 값, 에너지 벌기 판이면 번 뒤 값 */
     energy?: number;
+    /** 에너지 벌기 판에서 실제로 번 양 (상한 때문에 정답 수보다 적을 수 있다) */
+    energyEarned?: number;
     /** 학습 로드 문제 노드 완료 = 그날 학습 완료 → 도장·연속 상자 */
     celebration?: StudyCelebration | null;
   }> => api.post(`/lessons/practice-complete`, body),

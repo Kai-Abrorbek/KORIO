@@ -70,7 +70,13 @@ export function useEnergySync(): void {
 
 interface EnergyState {
   modalVisible: boolean;
-  openEnergyModal: () => void;
+  /**
+   * 레슨 도중에 바닥나서 뜬 모달인가.
+   * 그러면 "괜찮아요" 는 레슨을 나가고, "복습으로 벌기" 는 레슨 위에 복습을 띄워서
+   * 다 벌면 그 레슨으로 돌아와 이어서 푼다.
+   */
+  modalFromLesson: boolean;
+  openEnergyModal: (fromLesson?: boolean) => void;
   closeEnergyModal: () => void;
   /**
    * 학습 시작 게이트. 에너지 있으면 onAllowed() 실행, 없으면 모달 띄움.
@@ -82,7 +88,9 @@ interface EnergyState {
 
 export const useEnergyStore = create<EnergyState>((set) => ({
   modalVisible: false,
-  openEnergyModal: () => set({ modalVisible: true }),
+  modalFromLesson: false,
+  openEnergyModal: (fromLesson = false) =>
+    set({ modalVisible: true, modalFromLesson: fromLesson }),
   closeEnergyModal: () => set({ modalVisible: false }),
   guardLessonStart: (energy, onAllowed) => {
     // 호출부가 여러 곳이라 여기서 직접 확인한다.
@@ -90,7 +98,7 @@ export const useEnergyStore = create<EnergyState>((set) => ({
     const isSuper = useAuthStore.getState().user?.isSuper ?? false;
 
     if (!isSuper && energy <= 0) {
-      set({ modalVisible: true });
+      set({ modalVisible: true, modalFromLesson: false });
       return false;
     }
     onAllowed();

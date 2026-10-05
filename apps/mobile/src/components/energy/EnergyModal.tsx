@@ -23,6 +23,9 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "@/store/auth.store";
 import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
+import { useEffect, useState } from "react";
+import { EnergyService } from "@/services/energy.service";
+import { LessonService } from "@/services/lesson.service";
 
 interface Props {
   visible: boolean;
@@ -33,6 +36,8 @@ interface Props {
   onRefill?: () => void;
   /** 하루 3회 무료 충전 — 상점으로 보낸다 */
   onFree?: () => void;
+  /** 틀린 문제 복습으로 에너지 벌기 */
+  onEarn?: () => void;
   onDismissToHome?: () => void;
 }
 
@@ -44,6 +49,7 @@ export default function EnergyModal({
   onTrySuper,
   onRefill,
   onFree,
+  onEarn,
   onDismissToHome,
 }: Props) {
   const { t } = useTranslation();
@@ -54,6 +60,32 @@ export default function EnergyModal({
   // 무료 체험을 이미 쓴 사람에게 "30일 무료" 를 다시 약속하면 안 된다 (결제 화면에서 체험이 안 나옴)
   const user = useAuthStore((st) => st.user);
   const usedTrial = !!user?.hasUsedTrial || user?.superPlan === "trial";
+
+  // 복습으로 벌기 — 틀린 문제가 있고 오늘 더 벌 수 있을 때만 보여준다
+  const [earn, setEarn] = useState<{ remaining: number; max: number } | null>(
+    null,
+  );
+  useEffect(() => {
+    if (!visible) return;
+    let alive = true;
+    setEarn(null);
+    Promise.all([
+      EnergyService.getState().catch(() => null),
+      LessonService.getMistakes().catch(() => null),
+    ]).then(([st, mistakes]) => {
+      if (!alive || !st || !mistakes) return;
+      const remaining = st.earnRemaining ?? 0;
+      if ((mistakes.count ?? 0) > 0 && remaining > 0) {
+        setEarn({
+          remaining,
+          max: Math.min(remaining, st.earnSessionMax ?? remaining),
+        });
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [visible]);
 
   return (
     <Modal
@@ -161,6 +193,29 @@ export default function EnergyModal({
             </TouchableOpacity>
           </View>
 
+          {/* 복습으로 에너지 벌기 — 바닥났을 때 앱을 닫는 대신 할 수 있는 일 */}
+          {earn && onEarn ? (
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={onEarn}
+              style={s.earnRow}
+            >
+              <View style={s.earnIcon}>
+                <Ionicons name="refresh" size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.earnTitle}>{t("retention.earn.title")}</Text>
+                <Text style={s.earnSub}>
+                  {t("retention.earn.sub", { n: earn.max })}
+                </Text>
+              </View>
+              <View style={s.earnChip}>
+                <Ionicons name="flash" size={13} color="#2BB673" />
+                <Text style={s.earnChipText}>+{earn.max}</Text>
+              </View>
+            </TouchableOpacity>
+          ) : null}
+
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={onTrySuper}
@@ -261,6 +316,44 @@ const getStyles = (theme: ThemeColors) =>
     },
     cardAction: { fontSize: 15, fontWeight: "800", textAlign: "center" },
     gemRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+    earnRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      marginTop: -10,
+      marginBottom: 16,
+      padding: 12,
+      borderRadius: 18,
+      backgroundColor: theme.surface,
+      borderWidth: 2,
+      borderColor: "#2BB673",
+      borderBottomWidth: 5,
+    },
+    earnIcon: {
+      width: 42,
+      height: 42,
+      borderRadius: 14,
+      backgroundColor: "#2BB673",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    earnTitle: { fontSize: 15, fontWeight: "900", color: theme.text },
+    earnSub: {
+      marginTop: 2,
+      fontSize: 12,
+      fontWeight: "700",
+      color: theme.textSecondary,
+    },
+    earnChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+      paddingHorizontal: 9,
+      paddingVertical: 6,
+      borderRadius: 11,
+      backgroundColor: "#2BB6731A",
+    },
+    earnChipText: { fontSize: 14, fontWeight: "900", color: "#2BB673" },
     cta: {
       backgroundColor: ENERGY_COLORS.blue,
       borderRadius: 16,

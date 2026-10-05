@@ -70,6 +70,8 @@ import { useContentLang } from "@/store/settings.store";
 import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 type Phase = "main" | "reviewIntro" | "review";
+/** "복습으로 에너지 벌기" 한 판의 문제 수 (벌 수 있는 양은 서버가 정한다) */
+const EARN_SESSION_QUESTIONS = 8;
 /** 카드 안에서 결과를 보여주는 유형 — 아래 피드백 바를 띄우지 않는다 */
 const HIDES_FEEDBACK_BAR = new Set(["grammar_blank", "grammar_build"]);
 const LEGEND_SEGMENTS = [5, 7, 10];
@@ -185,6 +187,7 @@ export default function LessonScreen() {
     group,
     lesson: lessonNo,
     examLevel,
+    earn,
   } = useLocalSearchParams<{
     lessonId?: string;
     mode?: string;
@@ -206,10 +209,14 @@ export default function LessonScreen() {
     lesson?: string;
     /** 급수 시험: 어느 급의 시험인지. 없으면 지금 급 (잠긴 급을 열 때 그 아래 급) */
     examLevel?: string;
+    /** "1" = 에너지가 바닥나서 들어온 "복습으로 에너지 벌기" 판 (review 모드) */
+    earn?: string;
   }>();
   const isLevelTest = mode === "levelTest";
   const isWordPractice = mode === "wordPractice";
   const isReview = mode === "review";
+  // 에너지 벌기 판 — 짧게 끝내고, 번 만큼 보여준 뒤 원래 자리로 돌아간다
+  const isEarnEnergy = isReview && earn === "1";
   const isLessonReview = mode === "lessonReview";
   const isNodeReview = mode === "nodeReview";
   const isJumpTest = mode === "jumpTest";
@@ -297,6 +304,8 @@ export default function LessonScreen() {
     "lightning",
   );
   const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
+  /** 에너지 벌기 판 — 보상 연출이 끝나면 레슨을 나간다 */
+  const leaveAfterBonus = useRef(false);
 
   // ── 학습 계측 ──
   //
@@ -489,7 +498,11 @@ export default function LessonScreen() {
       }
 
       if (isReview) {
-        const { questions } = await LessonService.getMistakeQuestions();
+        const { questions: all } = await LessonService.getMistakeQuestions();
+        // 에너지 벌기 판은 짧게 — 한 판에 벌 수 있는 양이 정해져 있다
+        const questions = isEarnEnergy
+          ? all.slice(0, EARN_SESSION_QUESTIONS)
+          : all;
         setLesson({
           lessonId: "review",
           lessonTitle: "Review",
@@ -782,7 +795,8 @@ export default function LessonScreen() {
       const cur = useAuthStore.getState().user?.energy ?? 0;
       const next = Math.max(0, cur - 1);
       updateUser({ energy: next } as any);
-      if (next <= 0) openEnergyModal();
+      // 레슨 도중에 바닥났다 — 다음 문제로 못 넘어간다 (handleNext 가 막는다)
+      if (next <= 0) openEnergyModal(true);
 
       // 다른 화면의 에너지 조회가 이 차감이 끝나길 기다린다 (trackEnergySpend)
       spending = trackEnergySpend(EnergyService.spend(energySession.current))
@@ -1084,9 +1098,29 @@ export default function LessonScreen() {
           wrongQuestionIds: wrongArr,
           speedSeconds: seconds,
           combo,
+          ...(isEarnEnergy ? { earnEnergy: true } : {}),
         });
         earnedXp = r.xpEarned;
-        updateUser({ totalXP: r.totalXP } as any);
+        updateUser({
+          totalXP: r.totalXP,
+          ...(isEarnEnergy && typeof r.energy === "number"
+            ? { energy: r.energy }
+            : {}),
+        } as any);
+
+        // 에너지 벌기 판 — 번 만큼 연출하고 원래 자리(바닥났던 레슨)로 돌아간다
+        if (isEarnEnergy) {
+          const got = r.energyEarned ?? 0;
+          if (got > 0) {
+            leaveAfterBonus.current = true;
+            setBonusAmount(got);
+            setBonusVariant("surge");
+            setShowBonus(true);
+          } else {
+            goHome();
+          }
+          return;
+        }
       } catch (err) {
         console.error("연습 완료 저장 실패:", err);
       }
@@ -1225,6 +1259,19 @@ export default function LessonScreen() {
   };
 
   const handleNext = async () => {
+    // ── 에너지 0 ── 다음 본풀이 문제는 에너지가 있어야 푼다.
+    // 예전엔 모달을 닫고(또는 상점 갔다 와서) 공짜로 계속 풀 수 있었다.
+    // 이미 낸 문제(문법 재도전)·복습 라운드·끝(복습 안내/완료)은 막지 않는다.
+    if (consumesEnergy && phase === "main") {
+      const nextQ = questionQueue.current[1];
+      const needsEnergy =
+        !!nextQ && !energyChargedIds.current.has(nextQ.id || "");
+      if (needsEnergy && (useAuthStore.getState().user?.energy ?? 0) <= 0) {
+        openEnergyModal(true);
+        return;
+      }
+    }
+
     if (isLevelTest) {
       if (locked.current) return;
       locked.current = true;
@@ -1448,6 +1495,7 @@ export default function LessonScreen() {
             onDone={() => {
               setShowBonus(false);
               setShowLightning(false); // 배터리 끝날 때 번개도 같이 정리
+              if (leaveAfterBonus.current) goHome();
             }}
           />
         </>
@@ -1455,7 +1503,11 @@ export default function LessonScreen() {
         <EnergySurge
           visible={showBonus}
           amount={bonusAmount}
-          onDone={() => setShowBonus(false)}
+          subtitle={isEarnEnergy ? t("retention.earn.surgeSub") : undefined}
+          onDone={() => {
+            setShowBonus(false);
+            if (leaveAfterBonus.current) goHome();
+          }}
         />
       )}
     </View>

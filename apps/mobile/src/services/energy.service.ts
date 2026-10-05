@@ -12,6 +12,9 @@ export interface EnergyState {
   refillCost: number;
   /** 무료 충전 한 번에 받는 양 (옛 서버는 안 준다 → ENERGY_FREE_AMOUNT 폴백) */
   freeAmount?: number;
+  /** 오늘 복습으로 더 벌 수 있는 양 / 한 판 최대 (옛 서버는 안 준다) */
+  earnRemaining?: number;
+  earnSessionMax?: number;
   freeRemaining: number;
 }
 

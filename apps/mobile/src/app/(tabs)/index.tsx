@@ -41,6 +41,11 @@ import { HOME_TOUR } from "@/features/tour/tours";
 import { useTourStore } from "@/features/tour/tour.store";
 import { useTourScroll } from "@/features/tour/useTourScroll";
 import { syncTimezone } from "@/utils/timezone";
+import { useRetentionStore } from "@/store/retention.store";
+import DailyQuestsCard from "@/features/retention/components/DailyQuestsCard";
+import CheckinCard from "@/features/retention/components/CheckinCard";
+import XpBoostBanner from "@/features/retention/components/XpBoostBanner";
+import RetentionOverlays from "@/features/retention/components/RetentionOverlays";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
@@ -90,6 +95,15 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
   const lessonProgress = (user as User)?.currentUnitProgress ?? 0;
+  // 리텐션 — 복구펜·퀘스트·출석·복귀·XP 부스트·연속 목표 (서버 요약 하나)
+  const retention = useRetentionStore((st) => st.summary);
+  const refreshRetention = useRetentionStore((st) => st.refresh);
+  const patchRetention = useRetentionStore((st) => st.patch);
+  const [checkinReward, setCheckinReward] = useState<{
+    day: number;
+    gems: number;
+    superDays: number;
+  } | null>(null);
 
   useEffect(() => {
     aiPulse.value = withRepeat(
@@ -133,6 +147,8 @@ export default function HomeScreen() {
       StatsService.getWeekly()
         .then((data) => setWeekly(data.days))
         .catch((err) => console.error("weekly 실패:", err));
+      // 퀘스트 진행도·복구펜·출석·복귀 보상 — 돌아올 때마다 서버 값으로
+      void refreshRetention();
       // 배지는 목록 없이 개수만 받아온다
       NotificationService.unreadCount()
         .then((r) => setUnreadNotifs(r.count))
@@ -289,8 +305,46 @@ export default function HomeScreen() {
                 );
               })}
             </View>
+
+            {/* 복구펜 · 연속 목표 */}
+            <View style={styles.streakChips}>
+              <View style={styles.freezeChip}>
+                <Ionicons name="snow" size={14} color="#3BA7F0" />
+                <Text style={styles.freezeChipText}>
+                  {t("retention.freeze.chip", {
+                    n: retention?.freeze.owned ?? user?.streakFreeze ?? 0,
+                    max: retention?.freeze.max ?? 2,
+                  })}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.goalChip}
+                activeOpacity={0.85}
+                onPress={() => router.push("/streak-goal")}
+              >
+                <Ionicons name="trophy" size={14} color="#FFFFFF" />
+                <Text style={styles.goalChipText} numberOfLines={1}>
+                  {retention?.streakGoal.active
+                    ? t("retention.goal.chipActive", {
+                        p: retention.streakGoal.active.progress,
+                        n: retention.streakGoal.active.days,
+                      })
+                    : t("retention.goal.chip")}
+                </Text>
+                <Ionicons name="chevron-forward" size={13} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
           </Animated.View>
         </TouchableOpacity>
+
+        {/* 복귀 보상 XP 부스트 */}
+        {retention?.xpBoost ? (
+          <XpBoostBanner
+            until={retention.xpBoost.until}
+            multiplier={retention.xpBoost.multiplier}
+            onEnd={() => patchRetention((r) => ({ ...r, xpBoost: null }))}
+          />
+        ) : null}
 
         {/* 이어서 학습하기 카드 */}
         <Animated.View
@@ -406,6 +460,18 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </TourTarget>
         </Animated.View>
+
+        {/* 첫 7일 출석 선물 (다 받으면 사라진다) */}
+        {retention?.checkin ? (
+          <CheckinCard
+            checkin={retention.checkin}
+            onClaimed={setCheckinReward}
+          />
+        ) : null}
+
+        {/* 오늘의 퀘스트 */}
+        {retention ? <DailyQuestsCard quests={retention.quests} /> : null}
+
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여준다 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>
           <TourTarget
@@ -591,6 +657,12 @@ export default function HomeScreen() {
         <View style={styles.quickAccessBottomSpace} />
       </ScrollView>
 
+      {/* 복귀 보상 · 복구펜 사용 알림 · 연속 목표 결과 · 출석 선물 (한 번에 하나) */}
+      <RetentionOverlays
+        checkinReward={checkinReward}
+        onCheckinRewardClose={() => setCheckinReward(null)}
+      />
+
       {/* AI 플로팅 버튼 */}
       <TourTarget tourId="home.ai" style={styles.tourFloating}>
         <FloatingAIButton onPress={() => setChatVisible(true)} positioned={false} />
@@ -658,6 +730,41 @@ const getStyles = (theme: ThemeColors) =>
       shadowOpacity: 0.05,
       shadowRadius: 8,
       elevation: 2,
+    },
+    streakChips: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginTop: 12,
+    },
+    freezeChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      paddingHorizontal: 10,
+      paddingVertical: 7,
+      borderRadius: 12,
+      backgroundColor: "#3BA7F01A",
+    },
+    freezeChipText: { fontSize: 12.5, fontWeight: "900", color: "#2180C4" },
+    goalChip: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 12,
+      backgroundColor: "#FF7A00",
+      borderBottomWidth: 3,
+      borderBottomColor: "#D45F00",
+    },
+    goalChipText: {
+      flexShrink: 1,
+      fontSize: 12.5,
+      fontWeight: "900",
+      color: "#FFFFFF",
     },
     streakHeader: {
       flexDirection: "row",

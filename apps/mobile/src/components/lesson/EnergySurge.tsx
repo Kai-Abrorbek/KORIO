@@ -41,6 +41,8 @@ interface Props {
   visible: boolean;
   amount: number;
   onDone: () => void;
+  /** 아래 작은 글씨 (기본: 연속 정답 보너스) */
+  subtitle?: string;
 }
 
 const { width: W, height: H } = Dimensions.get("window");
@@ -143,7 +145,12 @@ function useRingStyle(v: SharedValue<number>, to: number) {
   }));
 }
 
-export default function EnergySurge({ visible, amount, onDone }: Props) {
+export default function EnergySurge({
+  visible,
+  amount,
+  onDone,
+  subtitle,
+}: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [display, setDisplay] = useState(0);
@@ -394,7 +401,9 @@ export default function EnergySurge({ visible, amount, onDone }: Props) {
 
         <Animated.View style={[styles.titleWrap, titleStyle]}>
           <Text style={styles.title}>{t("lesson.energySurge")}</Text>
-          <Text style={styles.sub}>{t("lesson.energySurgeSub")}</Text>
+          <Text style={styles.sub}>
+            {subtitle ?? t("lesson.energySurgeSub")}
+          </Text>
         </Animated.View>
       </View>
     </View>

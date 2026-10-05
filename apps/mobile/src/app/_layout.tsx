@@ -28,6 +28,7 @@ export default function RootLayout() {
   usePresenceHeartbeat();
   const energyModalVisible = useEnergyStore((s) => s.modalVisible);
   const closeEnergyModal = useEnergyStore((s) => s.closeEnergyModal);
+  const energyModalFromLesson = useEnergyStore((s) => s.modalFromLesson);
   const gems = useAuthStore((s) => s.user?.gems ?? 0);
   const router = useRouter();
 
@@ -325,7 +326,13 @@ export default function RootLayout() {
             onClose={closeEnergyModal}
             onDismissToHome={() => {
               closeEnergyModal();
-              router.replace("/roadmap");
+              // 레슨 도중이면 레슨을 나간다. 시작 게이트에서 떴으면 그 자리에 머문다
+              if (energyModalFromLesson && router.canGoBack()) router.back();
+            }}
+            // 복습으로 에너지 벌기 — 레슨 위에 띄운다. 다 벌면 돌아와서 이어서 푼다
+            onEarn={() => {
+              closeEnergyModal();
+              router.push("/lesson?mode=review&earn=1");
             }}
             onTrySuper={() => {
               closeEnergyModal();

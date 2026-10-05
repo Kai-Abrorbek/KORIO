@@ -30,6 +30,9 @@ import SuperCard from "./SuperCard";
 import EnergySection from "./EnergySection";
 import WithdrawCard from "./WithdrawCard";
 import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
+import StreakFreezeSection from "./StreakFreezeSection";
+import { RetentionService } from "@/services/retention.service";
+import { useRetentionStore } from "@/store/retention.store";
 
 /**
  * 상점 (Do'kon).
@@ -61,6 +64,10 @@ export default function ShopScreen() {
   const [kbPad, setKbPad] = useState(0);
 
   const scrollRef = useRef<ScrollView>(null);
+  // 복구펜 보유·가격은 리텐션 요약에서 (서버가 정한다)
+  const freeze = useRetentionStore((st) => st.summary?.freeze ?? null);
+  const refreshRetention = useRetentionStore((st) => st.refresh);
+  const patchRetention = useRetentionStore((st) => st.patch);
 
   const syncUser = (next: { energy?: number; gems?: number }) => {
     const cur = useAuthStore.getState().user;
@@ -94,7 +101,8 @@ export default function ShopScreen() {
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      void refreshRetention();
+    }, [load, refreshRetention]),
   );
 
   // 키보드가 내려가면 여분 패딩을 거둔다
@@ -160,6 +168,18 @@ export default function ShopScreen() {
       const next = await EnergyService.claimFree();
       setEnergy(next);
       syncUser({ energy: next.energy, gems: next.gems });
+    });
+
+  const buyFreeze = () =>
+    run(async () => {
+      const res = await RetentionService.buyFreeze();
+      syncUser({ gems: res.gems });
+      useAuthStore.getState().updateUser({ streakFreeze: res.owned } as never);
+      patchRetention((r) => ({
+        ...r,
+        gems: res.gems,
+        freeze: { ...r.freeze, owned: res.owned },
+      }));
     });
 
   const close = () => {
@@ -263,6 +283,20 @@ export default function ShopScreen() {
           {t("shop.superTitle")}
         </Text>
         <SuperCard isSuper={isSuper} onPress={() => router.dismissTo("/premium")} />
+
+        {/* ── 스트릭 복구펜 ── */}
+        {freeze ? (
+          <StreakFreezeSection
+            owned={freeze.owned}
+            max={freeze.max}
+            price={freeze.price}
+            superWeekly={freeze.superWeekly}
+            gems={gems}
+            isSuper={isSuper}
+            busy={busy}
+            onBuy={buyFreeze}
+          />
+        ) : null}
 
         {/* ── 에너지 ── SUPER 는 에너지를 안 쓴다. 통째로 안 그린다 */}
         {!isSuper && (

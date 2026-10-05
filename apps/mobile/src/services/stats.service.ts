@@ -18,6 +18,8 @@ export interface CalendarData {
   streak: number;
   /** 역대 최장 연속 학습일 */
   longestStreak: number;
+  /** 복구펜으로 메운 이번 달 날짜 (옛 서버는 안 준다) */
+  frozenDays?: number[];
 }
 
 export interface DayStats {
