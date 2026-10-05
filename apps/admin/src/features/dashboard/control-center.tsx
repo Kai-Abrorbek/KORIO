@@ -38,7 +38,7 @@ function MetricCard({ metric, onDay }: { metric: MetricSeries; onDay: (index: nu
     <div className="bm-mini-plot" onMouseLeave={() => setHover(null)} onMouseMove={event => {const rect=event.currentTarget.getBoundingClientRect();const fraction=(event.clientX-rect.left)/rect.width;setHover(Math.max(0,Math.min(n-1,Math.round((fraction-.1)*n/0.9))));}} onClick={() => hover !== null && onDay(hover)} role="button" tabIndex={0} aria-label={`${metric.label} 날짜별 상세 보기`} onKeyDown={event => {if(event.key === "Enter") onDay(hover ?? n-1);}}>
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={`${metric.label} 추이`}>
         {ticks.map((tick,i) => <g key={i}><line x1={left} x2={width-right} y1={y(tick)} y2={y(tick)} stroke="var(--grid)"/><text x={left-6} y={y(tick)+3} textAnchor="end" fill="var(--ink-3)" fontSize="10">{metric.unit === "percent" ? `${tick.toFixed(1)}%` : Math.round(tick).toLocaleString("ko-KR")}</text></g>)}
-        <path d={line} fill="none" stroke="var(--brand)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"/>
+        <path d={line} fill="none" stroke="var(--brand)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"/>
         {hover !== null && <g><line x1={x(hover)} x2={x(hover)} y1={top} y2={height-bottom} stroke="var(--border-strong)" strokeWidth="1"/><circle cx={x(hover)} cy={y(metric.values[hover] ?? 0)} r="5" fill="var(--brand)"/></g>}
         {[0,Math.floor((n-1)/3),Math.floor((n-1)*2/3),n-1].map((i,k) => <text key={k} x={x(i)} y={height-4} textAnchor={k===0?"start":k===3?"end":"middle"} fill="var(--ink-3)" fontSize="10">{metric.labels[i]?.slice(5).replace("-",".")}</text>)}
       </svg>

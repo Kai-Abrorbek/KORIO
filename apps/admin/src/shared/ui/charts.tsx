@@ -88,7 +88,7 @@ export function Sparkline({
         d={`M ${line}`}
         fill="none"
         stroke={color}
-        strokeWidth="1.6"
+        strokeWidth="2.2"
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
@@ -111,6 +111,8 @@ export function LineChart({
   endLabels = false,
   formatValue = full,
   formatAxis,
+  formatLabel = shortDate,
+  formatDate = longDate,
   zoom = false,
 }: {
   labels: string[];
@@ -128,6 +130,8 @@ export function LineChart({
   endLabels?: boolean;
   formatValue?: (n: number) => string;
   formatAxis?: (n: number) => string;
+  formatLabel?: (label: string) => string;
+  formatDate?: (label: string) => string;
   /** 작은 변화를 읽어야 하는 단일 지표 화면에서 실제 값 근처로 축을 좁힌다. */
   zoom?: boolean;
 }) {
@@ -203,7 +207,7 @@ export function LineChart({
             <g key={t}>
               <line x1={padLeft} x2={W - padRight} y1={y(t)} y2={y(t)} stroke="var(--grid)" strokeWidth="1" />
               <text x={padLeft - 8} y={y(t) + 3.5} textAnchor="end" fontSize="10" fill="var(--ink-3)" className="tnum">
-                {zoom ? (formatAxis ?? formatValue)(t) : compact(Math.round(t))}
+                {formatAxis ? formatAxis(t) : zoom ? formatValue(t) : compact(Math.round(t))}
               </text>
             </g>
           ))}
@@ -211,7 +215,7 @@ export function LineChart({
           {labels.map((d, i) =>
             showTick(i) ? (
               <text key={d} x={x(i)} y={height - 6} textAnchor="middle" fontSize="10" fill="var(--ink-3)" className="tnum">
-                {shortDate(d)}
+                {formatLabel(d)}
               </text>
             ) : null,
           )}
@@ -231,7 +235,7 @@ export function LineChart({
               d={`M ${s.values.map((v, i) => `${x(i)},${y(v)}`).join(" L ")}`}
               fill="none"
               stroke={s.color}
-              strokeWidth="2"
+              strokeWidth="3"
               strokeLinejoin="round"
               strokeLinecap="round"
             />
@@ -279,7 +283,7 @@ export function LineChart({
           className="tip"
           style={{ left: Math.min(Math.max(x(hover), 76), Math.max(W - 76, 76)), top: PAD.top + 4 }}
         >
-          <div className="tip-date">{longDate(labels[hover]!)}</div>
+          <div className="tip-date">{formatDate(labels[hover]!)}</div>
           {series.map((s) => (
             <div className="tip-row" key={s.key}>
               <span className="legend-swatch" style={{ background: s.color }} />

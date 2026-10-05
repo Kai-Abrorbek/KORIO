@@ -22,6 +22,7 @@ const NAV: NavGroup[] = [
   { href: "/content", label: "콘텐츠", icon: "layers", color: "violet", permission: "content:read", children: [{ label: "학습 경로", href: "/content" }, { label: "문제 관리", href: "/content?tab=questions" }, { label: "문제 품질", href: "/content?tab=quality" }, { label: "Grammar · Expressions · Hangul", href: "/content?tab=library" }, { label: "번역 상태", href: "/content?tab=localization" }] },
   { href: "/analytics", label: "분석", icon: "chart", color: "cyan", permission: "analytics:read", children: [{ label: "학습 분석", href: "/analytics" }, { label: "레슨 퍼널", href: "/analytics?tab=funnel" }, { label: "문제 분석", href: "/analytics?tab=questions" }, { label: "리텐션", href: "/analytics?tab=retention" }] },
   { href: "/subscriptions", label: "구독", icon: "card", color: "amber", permission: "subscription:read", children: [{ label: "구독 현황", href: "/subscriptions" }, { label: "구독자 관리", href: "/subscriptions?tab=customers" }] },
+  { href: "/revenue", label: "매출", icon: "money", color: "green", permission: "subscription:read", children: [{ label: "매출 개요", href: "/revenue" }, { label: "거래 내역", href: "/revenue?tab=transactions" }, { label: "지출 · 정산", href: "/revenue?tab=expenses" }] },
   { href: "/gamification", label: "게이미피케이션", icon: "spark", color: "orange", permission: "analytics:read", children: [{ label: "활동 분석", href: "/gamification" }, { label: "설정", href: "/gamification?tab=settings" }] },
   { href: "/operations", label: "운영", icon: "bolt", color: "purple", permission: "operations:write", children: [{ label: "서비스 제어", href: "/operations" }, { label: "공지 · 이벤트", href: "/operations?tab=announcements" }] },
   { href: "/admin", label: "관리자 · 감사", icon: "shield", color: "slate", permission: "audit:read", children: [{ label: "감사 로그", href: "/admin" }, { label: "권한", href: "/admin?tab=roles" }] },
@@ -37,6 +38,7 @@ function NavIcon({ name }: { name: string }) {
     layers: <><path d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5"/></>,
     chart: <><path d="M3 3v18h18M6 16l4-5 4 2 5-7"/></>,
     card: <><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></>,
+    money: <><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5h-4.3a2 2 0 0 0 0 4h1.6a2 2 0 0 1 0 4H8.5M12 6v12"/></>,
     spark: <><path d="m12 2 2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2L12 2Z"/></>,
     bolt: <><path d="m13 2-9 12h7l-1 8 10-12h-7l0-8Z"/></>,
     shield: <><path d="m12 2 8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></>,
@@ -54,6 +56,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<{ label: string; top: number } | null>(null);
   const [search, setSearch] = useState(false);
   const [query, setQuery] = useState("");
   const [customOpen, setCustomOpen] = useState(false);
@@ -63,6 +66,10 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   const active = permitted.find(item => isCurrent(item.href, path)) ?? permitted[0];
   const flyout = permitted.find(item => item.href === open);
   const results = permitted.flatMap(group => group.children.map(child => ({ ...child, section: group.label }))).filter(item => `${item.label} ${item.section}`.toLowerCase().includes(query.toLowerCase()));
+  const showRailTooltip = (label: string, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    setHovered({ label, top: rect.top + rect.height / 2 });
+  };
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -80,16 +87,16 @@ function ShellContent({ children }: { children: React.ReactNode }) {
     <div className="console-shell">
       <aside className="icon-rail" aria-label="주 메뉴">
         <Link href="/" className="rail-logo" aria-label="KORIO 홈" onClick={() => setOpen(null)}>K</Link>
-        <div className="rail-links">
+        <div className="rail-links" onScroll={() => setHovered(null)}>
           {permitted.map(item => (
             <div className="rail-wrap" key={item.href}>
-              <button className={`rail-button rail-${item.color}${active?.href === item.href ? " is-current" : ""}${open === item.href ? " is-open" : ""}`} type="button" aria-label={item.label} aria-expanded={open === item.href} onClick={() => setOpen(open === item.href ? null : item.href)}><NavIcon name={item.icon}/></button>
-              <span className="rail-tooltip" role="tooltip">{item.label}</span>
+              <button className={`rail-button rail-${item.color}${active?.href === item.href ? " is-current" : ""}${open === item.href ? " is-open" : ""}`} type="button" aria-label={item.label} aria-expanded={open === item.href} onMouseEnter={event => showRailTooltip(item.label, event.currentTarget)} onMouseLeave={() => setHovered(null)} onFocus={event => showRailTooltip(item.label, event.currentTarget)} onBlur={() => setHovered(null)} onClick={() => {setHovered(null);setOpen(open === item.href ? null : item.href);}}><NavIcon name={item.icon}/></button>
             </div>
           ))}
         </div>
         <button type="button" className="rail-avatar" title={me?.email} onClick={() => setOpen(open === "account" ? null : "account")}>{me?.nickname?.slice(0,1) ?? "A"}</button>
       </aside>
+      {hovered && !open && <span className="rail-floating-tooltip" role="tooltip" style={{ top: hovered.top }}>{hovered.label}</span>}
 
       {flyout && <div className="nav-flyout" aria-label={`${flyout.label} 하위 메뉴`}>
         <div className="flyout-head"><span>{flyout.label}</span><button type="button" onClick={() => setOpen(null)} aria-label="메뉴 닫기">‹</button></div>
