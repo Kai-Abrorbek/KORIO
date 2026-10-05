@@ -19,7 +19,8 @@ import {
   minutesToFull,
 } from './energy.util';
 import { isSuperActive } from '../users/super.util';
-import { startOfDay } from '../common/date.util';
+import { dayKey, startOfDay } from '../common/date.util';
+import { ENERGY_EARN } from '../retention/retention.config';
 
 @Injectable()
 export class EnergyService {
@@ -304,6 +305,75 @@ export class EnergyService {
     return this.consume(userId, remaining);
   }
 
+  // ─────────────────────────── 복습으로 벌기 ───────────────────────────
+
+  /**
+   * 틀린 문제 복습으로 에너지 벌기 — 에너지가 바닥났을 때 앱을 닫는 대신
+   * 할 수 있는 일을 준다. 정답 하나당 ENERGY_EARN.PER_CORRECT, 한 판·하루 상한.
+   *
+   * 하루 상한을 조건으로 업데이트에 건다 — 요청이 겹쳐도 못 넘는다.
+   * SUPER 는 에너지를 안 쓰니 벌 것도 없다.
+   */
+  async earnFromPractice(userId: string, correct: number) {
+    const user = await this.mustFind(userId);
+    if (isSuperActive(user)) return { ...this.buildResponse(user), earned: 0 };
+    await this.applyRegen(user);
+
+    const now = new Date();
+    const today = dayKey(now, user.timezone);
+    const usedToday =
+      user.energyEarnState?.day === today
+        ? Math.max(0, user.energyEarnState.amount ?? 0)
+        : 0;
+    const want = Math.min(
+      Math.max(0, Math.floor(correct || 0)) * ENERGY_EARN.PER_CORRECT,
+      ENERGY_EARN.SESSION_MAX,
+      ENERGY_EARN.DAILY_MAX - usedToday,
+      ENERGY_CONFIG.MAX - (user.energy ?? 0),
+    );
+    if (want <= 0) return { ...this.buildResponse(user), earned: 0 };
+
+    const usedExpr = {
+      $cond: [
+        { $eq: ['$energyEarnState.day', today] },
+        { $ifNull: ['$energyEarnState.amount', 0] },
+        0,
+      ],
+    };
+    const updated = await this.userModel.findOneAndUpdate(
+      {
+        _id: user._id,
+        $expr: { $lte: [{ $add: [usedExpr, want] }, ENERGY_EARN.DAILY_MAX] },
+      },
+      [
+        {
+          $set: {
+            energy: {
+              $min: [
+                ENERGY_CONFIG.MAX,
+                { $add: [{ $ifNull: ['$energy', 0] }, want] },
+              ],
+            },
+            energyEarnState: { day: today, amount: { $add: [usedExpr, want] } },
+          },
+        },
+      ],
+      { returnDocument: 'after', updatePipeline: true },
+    );
+    if (!updated) return { ...this.buildResponse(user), earned: 0 };
+    return { ...this.buildResponse(updated), earned: want };
+  }
+
+  /** 오늘 복습으로 더 벌 수 있는 양 (에너지 모달 안내용) */
+  earnRemainingToday(user: User): number {
+    const today = dayKey(new Date(), user.timezone);
+    const used =
+      user.energyEarnState?.day === today
+        ? Math.max(0, user.energyEarnState.amount ?? 0)
+        : 0;
+    return Math.max(0, ENERGY_EARN.DAILY_MAX - used);
+  }
+
   // ─────────────────────────── 콤보 보너스 ───────────────────────────
 
   /**
@@ -456,6 +526,9 @@ export class EnergyService {
       refillCost: ENERGY_CONFIG.REFILL_GEM_COST,
       // 무료 충전 한 번에 받는 양 — 앱이 "+10" 을 하드코딩하지 않게 같이 준다
       freeAmount: ENERGY_CONFIG.FREE_AMOUNT,
+      // 오늘 복습으로 더 벌 수 있는 양 / 한 판 최대 (에너지 모달 안내용)
+      earnRemaining: this.earnRemainingToday(user),
+      earnSessionMax: ENERGY_EARN.SESSION_MAX,
       freeRemaining: Math.max(
         0,
         ENERGY_CONFIG.FREE_DAILY_LIMIT - freeUsedToday,

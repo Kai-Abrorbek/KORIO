@@ -38,6 +38,7 @@ import { UsersService } from '../users/users.service';
 import { dayKey, startOfDay } from '../common/date.util';
 import { buildCategoryStatsInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
+import { COMEBACK } from '../retention/retention.config';
 import { EnergyService } from '../energy/energy.service';
 import {
   LearningEventsService,
@@ -1078,11 +1079,28 @@ export class LessonsService {
     // totalXP · UserStats.xpEarned · 리그 반영 (하루 XP 상한도 여기서 걸린다)
     const res = await this.addXp(userId, xp);
 
+    // 에너지가 바닥나서 "복습으로 벌기" 로 들어온 판 — 정답 수만큼 (상한은 서버가)
+    // 빈도 제한(위 쿨다운·하루 횟수)을 통과한 요청만 여기까지 온다
+    let energyEarned = 0;
+    if (dto.mode === 'review' && dto.earnEnergy) {
+      const earned = await this.energyService
+        .earnFromPractice(userId, correct)
+        .catch((e) => {
+          this.logger.warn(`에너지 벌기 실패: user=${userId} ${String(e)}`);
+          return null;
+        });
+      if (earned) {
+        energyEarned = earned.earned;
+        energyAfter = earned.energy;
+      }
+    }
+
     return {
       success: true,
       xpEarned: res.added,
       totalXP: res.totalXP ?? 0,
       energy: energyAfter,
+      energyEarned,
       celebration,
     };
   }
@@ -1784,13 +1802,22 @@ export class LessonsService {
    * @returns 실제로 지급된 XP (상한에 걸리면 0)
    */
   private async grantXp(userId: string, amount: number): Promise<number> {
+    const uId = new Types.ObjectId(userId);
+    // 복귀 보상의 XP 배수 부스트 — 켜져 있는 동안 모든 XP 가 배로 (하루 상한은 그대로)
+    const boost = await this.userModel
+      .findById(uId)
+      .select('xpBoostUntil')
+      .lean();
+    const mult =
+      boost?.xpBoostUntil && new Date(boost.xpBoostUntil) > new Date()
+        ? COMEBACK.XP_MULTIPLIER
+        : 1;
     const want = Math.max(
       0,
-      Math.min(SINGLE_GRANT_XP_CAP, Math.floor(amount || 0)),
+      Math.min(SINGLE_GRANT_XP_CAP * mult, Math.floor((amount || 0) * mult)),
     );
     if (want === 0) return 0;
 
-    const uId = new Types.ObjectId(userId);
     const today = startOfDay(
       new Date(),
       await this.usersService.getTimezone(userId),

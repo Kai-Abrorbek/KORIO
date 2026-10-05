@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -45,7 +46,12 @@ import { PushService } from '../push/push.service';
 import { PushType } from '../push/push.types';
 import { NotificationType } from '../notifications/schemas/notification.schema';
 import { computeEnergy } from '../energy/energy.util';
-import { calcStreak } from './utils/streak.util';
+import {
+  calcStreak,
+  evaluateStreakGoal,
+  planStreakFreeze,
+} from './utils/streak.util';
+import { STREAK_FREEZE } from '../retention/retention.config';
 import {
   CategoryCounts,
   StudyCategory,
@@ -73,6 +79,8 @@ import {
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(UserStats.name) private statsModel: Model<UserStatsDocument>,
@@ -384,10 +392,15 @@ export class UsersService {
       .lean();
 
     const targetTz = await this.getTimezone(targetId);
+    const targetFrozen = await this.userModel
+      .findById(targetId)
+      .select('streakFrozenDays')
+      .lean();
     const { current: streakCurrent } = calcStreak(
       streakRows.map((r) => r.date),
       new Date(),
       targetTz,
+      targetFrozen?.streakFrozenDays ?? [],
     );
 
     return {
@@ -1018,19 +1031,79 @@ export class UsersService {
 
   async syncStreak(userId: string, prevLongest = 0) {
     const uId = new Types.ObjectId(userId);
-    const rows = await this.statsModel
-      .find({
-        userId: uId,
-        $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
-      })
-      .select('date')
-      .lean();
+    const [rows, me] = await Promise.all([
+      this.statsModel
+        .find({
+          userId: uId,
+          $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
+        })
+        .select('date')
+        .lean(),
+      this.userModel
+        .findById(uId)
+        .select(
+          'timezone streakFreeze streakFrozenDays isSuper superExpiresAt superFreezeGrantedAt streakGoal',
+        )
+        .lean(),
+    ]);
 
-    const tz = await this.getTimezone(userId);
-    const { current, longest, days: calcStreakDays } = calcStreak(
-      rows.map((r) => r.date),
-      new Date(),
+    const tz = resolveTimezone(me?.timezone);
+    const now = new Date();
+    const studied = rows.map((r) => r.date);
+    let frozen: Date[] = (me?.streakFrozenDays ?? []).map((d) => new Date(d));
+    let freezes = Math.max(0, me?.streakFreeze ?? 0);
+
+    // SUPER 는 주 1개씩 복구펜을 받는다 (보유 상한까지)
+    if (me && isSuperActive(me)) {
+      const granted = await this.grantSuperWeeklyFreeze(uId, now);
+      if (granted) freezes += STREAK_FREEZE.SUPER_WEEKLY;
+    }
+
+    // 오늘 기준으로 연속이 끊길 상황이면 복구펜으로 메운다
+    const plan = planStreakFreeze({
+      studied,
+      frozen,
+      today: now,
       tz,
+      available: freezes,
+    });
+    if (plan.length) {
+      // 같은 날을 두 번 메우지 않게(동시 호출) 조건을 업데이트에 건다
+      const used = await this.userModel
+        .findOneAndUpdate(
+          {
+            _id: uId,
+            streakFreeze: { $gte: plan.length },
+            streakFrozenDays: { $nin: plan },
+          },
+          {
+            $inc: { streakFreeze: -plan.length },
+            $push: {
+              streakFrozenDays: {
+                $each: plan,
+                $slice: -STREAK_FREEZE.KEEP_FROZEN_DAYS,
+              },
+            },
+            $set: { streakFreezeNotice: { used: plan.length, at: now } },
+          },
+        )
+        .select('_id')
+        .lean();
+      if (used) {
+        frozen = [...frozen, ...plan];
+        this.logger.log(
+          `복구펜 ${plan.length}개 사용: user=${userId} → ${plan
+            .map((d) => d.toISOString().slice(0, 10))
+            .join(',')}`,
+        );
+      }
+    }
+
+    const { current, longest, days: calcStreakDays } = calcStreak(
+      studied,
+      now,
+      tz,
+      frozen,
     );
     const nextLongest = Math.max(longest, current, prevLongest);
 
@@ -1041,8 +1114,97 @@ export class UsersService {
       )
       .catch(() => {});
 
+    // 연속 학습 목표 — 달성/실패를 여기서 확정한다 (실패면 보석 회수)
+    await this.settleStreakGoal(uId, me?.streakGoal, studied, frozen, tz, now)
+      .catch(() => {});
+
     // days 도 돌려준다 — 연속 학습 화면의 7일 창을 여기서 계산해야 해서다
     return { current, longest: nextLongest, days: calcStreakDays };
+  }
+
+  /**
+   * SUPER 주간 복구펜. 7일에 한 번, 보유 상한 아래일 때만 준다.
+   * 조건을 업데이트에 걸어서 동시에 불려도 한 번만 들어간다.
+   */
+  private async grantSuperWeeklyFreeze(
+    uId: Types.ObjectId,
+    now: Date,
+  ): Promise<boolean> {
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const res = await this.userModel.updateOne(
+      {
+        _id: uId,
+        $and: [
+          {
+            $or: [
+              { superFreezeGrantedAt: null },
+              { superFreezeGrantedAt: { $lte: weekAgo } },
+            ],
+          },
+          {
+            $expr: {
+              $lt: [{ $ifNull: ['$streakFreeze', 0] }, STREAK_FREEZE.MAX_HOLD],
+            },
+          },
+        ],
+      },
+      {
+        $inc: { streakFreeze: STREAK_FREEZE.SUPER_WEEKLY },
+        $set: { superFreezeGrantedAt: now },
+      },
+    );
+    return res.modifiedCount > 0;
+  }
+
+  /**
+   * 진행 중인 연속 목표를 판정해서 저장한다.
+   * 실패면 고를 때 준 보석을 돌려받는다 — 잔액이 모자라면 마이너스가 된다
+   * (받자마자 쓰고 일부러 끊어서 공짜로 캐는 걸 막는다).
+   * status·startedAt 을 조건에 걸어서 두 번 회수되지 않는다.
+   */
+  private async settleStreakGoal(
+    uId: Types.ObjectId,
+    goal: any,
+    studied: Date[],
+    frozen: Date[],
+    tz: string,
+    now: Date,
+  ): Promise<void> {
+    if (!goal || goal.status !== 'active') return;
+    const res = evaluateStreakGoal({
+      startDay: goal.startDay,
+      targetDays: goal.days,
+      studied,
+      frozen,
+      today: now,
+      tz,
+    });
+    const cond = {
+      _id: uId,
+      'streakGoal.status': 'active' as const,
+      'streakGoal.startedAt': goal.startedAt,
+    };
+
+    if (res.status === 'active') {
+      if (res.progress !== goal.progress) {
+        await this.userModel.updateOne(cond, {
+          $set: { 'streakGoal.progress': res.progress },
+        });
+      }
+      return;
+    }
+
+    await this.userModel.updateOne(cond, {
+      $set: {
+        'streakGoal.status': res.status,
+        'streakGoal.progress': res.progress,
+        'streakGoal.endedAt': now,
+        'streakGoal.seen': false,
+      },
+      ...(res.status === 'failed'
+        ? { $inc: { gems: -Math.max(0, goal.gems ?? 0) } }
+        : {}),
+    });
   }
 
   /** 특정 월의 학습한 날짜 리스트 (1-31) + 연속 학습일 */
@@ -1057,7 +1219,7 @@ export class UsersService {
       $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
     };
 
-    const [monthStats, allStats] = await Promise.all([
+    const [monthStats, allStats, frozenOf] = await Promise.all([
       this.statsModel
         .find({ userId: uId, date: { $gte: start, $lt: end }, ...studied })
         .select('date')
@@ -1067,7 +1229,11 @@ export class UsersService {
         .find({ userId: uId, ...studied })
         .select('date')
         .lean(),
+      this.userModel.findById(uId).select('streakFrozenDays').lean(),
     ]);
+    const frozenDates = (frozenOf?.streakFrozenDays ?? []).map(
+      (d) => new Date(d),
+    );
 
     const completedDays = Array.from(
       new Set(monthStats.map((s) => dateParts(s.date, tz).day)),
@@ -1077,10 +1243,19 @@ export class UsersService {
       allStats.map((s) => s.date),
       new Date(),
       tz,
+      frozenDates,
     );
 
     // 현재 연속 구간 중 이번 달에 속하는 날짜만 (달력 하이라이트용)
     const streakDays = days
+      .filter((d) => {
+        const dp = dateParts(d, tz);
+        return dp.year === year && dp.month === month;
+      })
+      .map((d) => dateParts(d, tz).day);
+
+    // 복구펜으로 메운 날 (이번 달) — 달력에 따로 표시한다
+    const frozenDays = frozenDates
       .filter((d) => {
         const dp = dateParts(d, tz);
         return dp.year === year && dp.month === month;
@@ -1092,6 +1267,7 @@ export class UsersService {
       month,
       completedDays,
       streakDays,
+      frozenDays,
       streak: current,
       longestStreak: longest,
     };

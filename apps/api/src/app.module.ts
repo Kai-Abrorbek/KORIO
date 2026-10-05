@@ -32,6 +32,7 @@ import { PushModule } from './push/push.module';
 import { ReferralModule } from './referral/referral.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AdminModule } from './admin/admin.module';
+import { RetentionModule } from './retention/retention.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { AdminModule } from './admin/admin.module';
     PaymentsModule,
     LeagueModule,
     EnergyModule,
+    RetentionModule,
     AiModule,
     VoiceTutorModule,
     GrammarModule,

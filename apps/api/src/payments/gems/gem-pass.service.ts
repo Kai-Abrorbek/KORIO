@@ -157,6 +157,72 @@ export class GemPassService {
     };
   }
 
+  /**
+   * 보상으로 프리미엄 며칠을 **공짜로** 준다 (출석 7일째 등).
+   *
+   * 보석 기간권과 같은 길(provider 'gems' 구독 행 → syncUser)을 쓴다.
+   * key 로 멱등하다 — (provider, externalTransactionId) 유니크 인덱스라 같은
+   * key 로 두 번 불러도 한 번만 들어간다. 이미 받았으면 false.
+   */
+  async grantRewardDays(
+    userId: string,
+    days: number,
+    key: string,
+  ): Promise<boolean> {
+    const n = Math.max(1, Math.floor(days));
+    const uid = new Types.ObjectId(userId);
+    const externalTransactionId = `reward:${userId}:${key}`;
+
+    const exists = await this.subModel.exists({
+      provider: 'gems',
+      externalTransactionId,
+    });
+    if (exists) return false;
+
+    const { premiumUntil } = await this.currentStack(userId);
+    const now = new Date();
+    const startedAt = premiumUntil && premiumUntil > now ? premiumUntil : now;
+    const expiresAt = new Date(startedAt.getTime() + n * DAY_MS);
+
+    try {
+      await this.subModel.create({
+        userId: uid,
+        provider: 'gems',
+        platform: 'internal',
+        tier: 'super',
+        plan: 'gem_pass',
+        productId: `reward_${key}`,
+        status: 'active',
+        startedAt,
+        expiresAt,
+        autoRenew: false,
+        externalTransactionId,
+      });
+    } catch (error) {
+      // 유니크 충돌 = 동시에 두 번 불렸다. 먼저 들어간 쪽이 이미 줬다
+      if ((error as { code?: number })?.code === 11000) return false;
+      throw error;
+    }
+
+    await this.subEvents
+      .record({
+        userId,
+        fromStatus: null,
+        toStatus: 'active',
+        provider: 'gems',
+        plan: 'gem_pass',
+        productId: `reward_${key}`,
+        reason: 'reward',
+      })
+      .catch(() => undefined);
+
+    await this.subscriptions.syncUser(userId);
+    this.logger.log(
+      `보상 프리미엄: user=${userId} ${n}일 (${key}) → ${expiresAt.toISOString()}`,
+    );
+    return true;
+  }
+
   /** 지금 프리미엄이 언제까지인지 + 보석으로 쌓아둔 일수 */
   private async currentStack(userId: string) {
     const now = new Date();

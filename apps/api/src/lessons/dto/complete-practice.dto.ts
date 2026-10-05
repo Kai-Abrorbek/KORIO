@@ -1,6 +1,7 @@
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsOptional,
@@ -61,4 +62,12 @@ export class CompletePracticeDto {
   @MaxLength(64)
   @IsOptional()
   energySession?: string;
+
+  /**
+   * 에너지가 바닥나서 "복습으로 에너지 벌기" 로 들어온 판인가.
+   * review 모드에서만 듣는다. 정답 수만큼(상한 있음) 에너지를 준다.
+   */
+  @IsBoolean()
+  @IsOptional()
+  earnEnergy?: boolean;
 }

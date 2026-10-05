@@ -268,9 +268,57 @@ export class User {
   @Prop({ type: Date, default: null })
   trialStartedAt: Date | null;
 
-  // 신규: 복구펜 개수
+  // 복구펜 개수 (STREAK_FREEZE.MAX_HOLD 까지). 연속이 끊길 날에 자동으로 쓴다
   @Prop({ default: 0 })
   streakFreeze: number;
+
+  /** 복구펜으로 메운 날들 (그 유저 시간대 자정). 연속 계산의 이어짐에만 쓴다 */
+  @Prop({ type: [Date], default: [] })
+  streakFrozenDays: Date[];
+
+  /** 복구펜을 자동으로 썼다는 알림 — 앱이 한 번 보여주고 지운다 */
+  @Prop({ type: Object, default: null })
+  streakFreezeNotice?: { used: number; at: Date } | null;
+
+  /** SUPER 주간 복구펜을 마지막으로 준 시각 */
+  @Prop({ type: Date, default: null })
+  superFreezeGrantedAt?: Date | null;
+
+  /** 일일 퀘스트 — 그날 받은 보상 id 들 (진행도는 UserStats 에서 읽는다) */
+  @Prop({ type: Object, default: null })
+  dailyQuestState?: { day: string; claimed: string[] } | null;
+
+  /** 복습으로 번 에너지 — 하루 상한용 */
+  @Prop({ type: Object, default: null })
+  energyEarnState?: { day: string; amount: number } | null;
+
+  /** 복귀 보상을 마지막으로 받은 시각 */
+  @Prop({ type: Date, default: null })
+  comebackClaimedAt?: Date | null;
+
+  /** 이 시각까지 XP 배수 (복귀 보상) */
+  @Prop({ type: Date, default: null })
+  xpBoostUntil?: Date | null;
+
+  /** 첫 7일 출석 — 받은 횟수와 마지막으로 받은 날 */
+  @Prop({ type: Object, default: null })
+  checkin?: { count: number; lastDay: string } | null;
+
+  /**
+   * 연속 학습 목표. 고를 때 보석을 주고, 끊기면 돌려받는다.
+   * status 가 끝난 상태(completed/failed)이고 seen 이 false 면 앱이 결과를 한 번 보여준다.
+   */
+  @Prop({ type: Object, default: null })
+  streakGoal?: {
+    days: number;
+    gems: number;
+    startDay: Date;
+    startedAt: Date;
+    status: 'active' | 'completed' | 'failed';
+    progress: number;
+    endedAt?: Date | null;
+    seen?: boolean;
+  } | null;
 
   // 신규: 보석 (인앱 화폐)
   @Prop({ default: 0 })

@@ -32,35 +32,136 @@ export function calcStreak(
   dates: (Date | string | number)[],
   today: Date = new Date(),
   tz?: string,
+  /**
+   * 복구펜으로 메운 날. **이어짐 판정에만** 쓰고 학습일 수(current)에는 안 센다.
+   * 복구펜은 연속을 지켜줄 뿐 하루를 공부한 걸로 쳐주지는 않는다.
+   */
+  frozen: (Date | string | number)[] = [],
 ): StreakResult {
   if (!dates?.length) return { current: 0, longest: 0, days: [] };
 
-  const uniq = Array.from(
-    new Set(dates.map((d) => startOfDay(d, tz).getTime())),
+  const studied = new Set(dates.map((d) => startOfDay(d, tz).getTime()));
+  const all = Array.from(
+    new Set([...studied, ...frozen.map((d) => startOfDay(d, tz).getTime())]),
   ).sort((a, b) => a - b);
 
-  let longest = 1;
-  let run = 1;
-  for (let i = 1; i < uniq.length; i++) {
-    const gap = Math.round((uniq[i] - uniq[i - 1]) / DAY_MS);
-    run = gap <= MAX_GAP_DAYS ? run + 1 : 1;
+  // 가장 긴 연속 — 이어짐은 공부한 날 + 메운 날로, 길이는 공부한 날만 센다
+  let longest = 0;
+  let run = 0;
+  for (let i = 0; i < all.length; i++) {
+    if (i > 0 && Math.round((all[i] - all[i - 1]) / DAY_MS) > MAX_GAP_DAYS) {
+      run = 0;
+    }
+    if (studied.has(all[i])) run += 1;
     if (run > longest) longest = run;
   }
 
   const t0 = startOfDay(today, tz).getTime();
-  const last = uniq[uniq.length - 1];
-  // 마지막 학습일과 오늘 사이가 이틀을 넘으면(= 이틀 연속 안 함) 끊긴다
+  const last = all[all.length - 1];
+  // 마지막 학습일(또는 메운 날)과 오늘 사이가 이틀을 넘으면(= 이틀 연속 안 함) 끊긴다
   if (Math.round((t0 - last) / DAY_MS) > MAX_GAP_DAYS)
     return { current: 0, longest, days: [] };
 
-  const days: number[] = [last];
-  for (let i = uniq.length - 2; i >= 0; i--) {
-    if (Math.round((uniq[i + 1] - uniq[i]) / DAY_MS) > MAX_GAP_DAYS) break;
-    days.push(uniq[i]);
+  const days: number[] = [];
+  for (let i = all.length - 1; i >= 0; i--) {
+    if (
+      i < all.length - 1 &&
+      Math.round((all[i + 1] - all[i]) / DAY_MS) > MAX_GAP_DAYS
+    ) {
+      break;
+    }
+    if (studied.has(all[i])) days.push(all[i]);
   }
   days.reverse();
 
   return { current: days.length, longest, days: days.map((n) => new Date(n)) };
+}
+
+/**
+ * 복구펜을 몇 장, 어느 날에 쓸지 정한다 (순수 함수).
+ *
+ * 연속은 하루 빠지는 건 원래 봐준다(MAX_GAP_DAYS). 그 이상 빠져서 **오늘 기준으로
+ * 끊길 상황**일 때만 쓴다 — 마지막 학습일(또는 이미 메운 날) 바로 다음 날부터
+ * 끊기지 않을 만큼만 메운다.
+ *
+ * 가진 복구펜으로 다 못 메우면 **한 장도 쓰지 않는다.** 어차피 끊기는데 쓰면
+ * 복구펜만 날린다.
+ */
+export function planStreakFreeze(input: {
+  studied: (Date | string | number)[];
+  frozen: (Date | string | number)[];
+  today: Date;
+  tz?: string;
+  available: number;
+}): Date[] {
+  const { studied, frozen, today, tz, available } = input;
+  if (available <= 0 || !studied.length) return [];
+
+  const all = Array.from(
+    new Set([...studied, ...frozen].map((d) => startOfDay(d, tz).getTime())),
+  ).sort((a, b) => a - b);
+  const last = all[all.length - 1];
+  const t0 = startOfDay(today, tz).getTime();
+  const gap = Math.round((t0 - last) / DAY_MS);
+  if (gap <= MAX_GAP_DAYS) return [];
+
+  const needed = gap - MAX_GAP_DAYS;
+  if (needed > available) return [];
+
+  return Array.from({ length: needed }, (_, i) =>
+    startOfDay(last + (i + 1) * DAY_MS + DAY_MS / 2, tz),
+  );
+}
+
+/**
+ * 연속 학습 목표 판정 (순수 함수).
+ *
+ * 목표를 고른 날(startDay) 전날을 "있었던 날" 로 두고, 그 뒤로 연속 규칙
+ * (하루까지는 빠져도 됨)이 끊기지 않은 채 공부한 날이 targetDays 가 되면 달성.
+ * 중간에 끊기면 실패. 복구펜으로 메운 날은 이어짐에는 쓰고 일수에는 안 센다.
+ *
+ * 고른 날 아직 공부를 안 했어도 바로 실패가 아니다 — 그날이나 다음 날 하면 된다.
+ */
+export type StreakGoalStatus = 'active' | 'completed' | 'failed';
+
+export function evaluateStreakGoal(input: {
+  startDay: Date | string | number;
+  targetDays: number;
+  studied: (Date | string | number)[];
+  frozen: (Date | string | number)[];
+  today: Date;
+  tz?: string;
+}): { status: StreakGoalStatus; progress: number } {
+  const { targetDays, today, tz } = input;
+  const s0 = startOfDay(input.startDay, tz).getTime();
+  const studied = new Set(
+    input.studied.map((d) => startOfDay(d, tz).getTime()),
+  );
+  const present = Array.from(
+    new Set([
+      ...studied,
+      ...input.frozen.map((d) => startOfDay(d, tz).getTime()),
+    ]),
+  )
+    .filter((t) => t >= s0)
+    .sort((a, b) => a - b);
+
+  let prev = s0 - DAY_MS;
+  let progress = 0;
+  for (const t of present) {
+    if (Math.round((t - prev) / DAY_MS) > MAX_GAP_DAYS) {
+      return { status: 'failed', progress };
+    }
+    if (studied.has(t)) progress += 1;
+    if (progress >= targetDays) return { status: 'completed', progress };
+    prev = t;
+  }
+
+  const t0 = startOfDay(today, tz).getTime();
+  if (Math.round((t0 - prev) / DAY_MS) > MAX_GAP_DAYS) {
+    return { status: 'failed', progress };
+  }
+  return { status: 'active', progress };
 }
 
 /**
