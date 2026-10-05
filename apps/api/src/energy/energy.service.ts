@@ -454,6 +454,8 @@ export class EnergyService {
       etaHours: Math.floor(totalMin / 60),
       etaMinutes: totalMin % 60,
       refillCost: ENERGY_CONFIG.REFILL_GEM_COST,
+      // 무료 충전 한 번에 받는 양 — 앱이 "+10" 을 하드코딩하지 않게 같이 준다
+      freeAmount: ENERGY_CONFIG.FREE_AMOUNT,
       freeRemaining: Math.max(
         0,
         ENERGY_CONFIG.FREE_DAILY_LIMIT - freeUsedToday,

@@ -29,7 +29,7 @@ import { KOR_FLAG } from "@/constants/course";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/store/auth.store";
-import { useEnergyStore } from "@/store/energy.store";
+import { energySpendsSettled, useEnergyStore } from "@/store/energy.store";
 import type { RoadmapUnit } from "@/types/roadmap";
 import type { StudyDay, StudyNode } from "@/types/study-path";
 import DayBanner from "../components/DayBanner";
@@ -144,9 +144,11 @@ export default function StudyPathScreen() {
   // 화면에 들어올 때마다 서버의 진짜 에너지·보석으로 맞춘다.
   // 예전엔 이 화면만 서버에 안 물어봐서, 앱이 레슨 중에 줄여 둔 숫자를 그대로
   // 보여줬다 — 서버는 하나도 안 깎였는데 여기선 깎인 것처럼 보였다.
+  // 레슨에서 막 나왔으면 마지막 차감이 서버에 닿은 뒤에 묻는다 (자유 학습과 같다)
   useFocusEffect(
     useCallback(() => {
-      UserService.getMe()
+      energySpendsSettled()
+        .then(() => UserService.getMe())
         .then((me) => updateUser(me as any))
         .catch(() => {});
     }, [updateUser]),

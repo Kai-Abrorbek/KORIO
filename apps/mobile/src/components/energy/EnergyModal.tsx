@@ -22,6 +22,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "@/store/auth.store";
+import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
 
 interface Props {
   visible: boolean;
@@ -30,7 +31,8 @@ interface Props {
   onClose: () => void;
   onTrySuper?: () => void;
   onRefill?: () => void;
-  onWatchAd?: () => void;
+  /** 하루 3회 무료 충전 — 상점으로 보낸다 */
+  onFree?: () => void;
   onDismissToHome?: () => void;
 }
 
@@ -41,7 +43,7 @@ export default function EnergyModal({
   onClose,
   onTrySuper,
   onRefill,
-  onWatchAd,
+  onFree,
   onDismissToHome,
 }: Props) {
   const { t } = useTranslation();
@@ -125,7 +127,7 @@ export default function EnergyModal({
               onPress={onRefill}
               style={[s.card, { opacity: 0.6 }]}
             >
-              <BatteryBadge value={25} fill="gray" size={44} />
+              <BatteryBadge value={ENERGY_MAX} fill="gray" size={44} />
               <Text style={[s.cardLabel, { color: ENERGY_COLORS.numGray }]}>
                 {t("energy.refill")}
               </Text>
@@ -137,21 +139,24 @@ export default function EnergyModal({
               </View>
             </TouchableOpacity>
 
-            {/* 광고 +5 */}
+            {/* 무료 +N (하루 3회) — 광고 SDK 가 없어 "광고 보기" 는 눌러도 닫히기만
+                했다. 실제로 받을 수 있는 무료 충전으로 바꿨다 (텔레그램과 같음) */}
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={onWatchAd}
+              onPress={onFree}
               style={s.card}
             >
               <BatteryBadge
-                value={5}
+                value={ENERGY_FREE_AMOUNT}
                 fill="pink"
                 fillFraction={0.42}
                 size={44}
               />
-              <Text style={s.cardLabel}>{t("energy.plusFive")}</Text>
+              <Text style={s.cardLabel}>
+                {t("energy.plusAmount", { n: ENERGY_FREE_AMOUNT })}
+              </Text>
               <Text style={[s.cardAction, { color: ENERGY_COLORS.blue }]}>
-                {t("energy.watchAd")}
+                {t("energy.freeGet")}
               </Text>
             </TouchableOpacity>
           </View>

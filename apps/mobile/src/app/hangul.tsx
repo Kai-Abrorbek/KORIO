@@ -20,7 +20,7 @@ import CategoryTabs from "@/components/hangul/CategoryTabs";
 import CharacterCard from "@/components/hangul/CharacterCard";
 import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
 import GameMenu from "@/components/hangul/games/GameMenu";
-import { useEnergyStore } from "@/store/energy.store";
+import { useEnergyStore, useEnergySync } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
 import { HangulMastery, HangulService } from "@/services/hangul.service";
@@ -32,6 +32,8 @@ export default function HangulScreen() {
   const styles = getStyles(theme);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
+  // 시작 게이트가 보는 값 — 다른 모드에서 쓴 만큼 반영된 서버 값으로 맞춘다
+  useEnergySync();
   const [category, setCategory] = useState<HangulCategory>("consonant");
   const [selected, setSelected] = useState<HangulCharacter | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);

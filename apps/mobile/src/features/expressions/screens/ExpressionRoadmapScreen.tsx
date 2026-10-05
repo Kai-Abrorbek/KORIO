@@ -26,6 +26,7 @@ import { KOR_FLAG } from "@/constants/course";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/store/auth.store";
+import { useEnergySync } from "@/store/energy.store";
 import type { RoadmapUnit } from "@/types/roadmap";
 import ExpressionNodePopover from "../components/ExpressionNodePopover";
 import ExpressionTopicSheet from "../components/ExpressionTopicSheet";
@@ -39,6 +40,8 @@ export default function ExpressionRoadmapScreen() {
   const styles = getStyles(theme);
   const user = useAuthStore((state) => state.user);
   const energy = user?.energy ?? 0;
+  // 헤더 에너지는 서버 값 — 다른 모드에서 쓴 만큼이 여기서도 보여야 한다
+  useEnergySync();
   const { roadmap, loading, loadFailed, reload } = useExpressionRoadmap();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   const [visibleUnitIndex, setVisibleUnitIndex] = useState(0);

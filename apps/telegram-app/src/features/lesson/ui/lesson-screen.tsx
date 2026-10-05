@@ -216,8 +216,10 @@ export function LessonScreen() {
   const nextRef = useRef<() => Promise<void>>(async () => undefined);
   const grammarRetryCounts = useRef(new Map<string, number>());
   const reviewCorrectIds = useRef(new Set<string>());
-  /** 이번 레슨에서 화면상 깎아 둔 에너지. 실제 차감은 완료 때 서버가 한다 */
+  /** 이번 판에 쓴 에너지 (본풀이 문제 수 — 맞든 틀리든 문제당 1). 완료 정산에 쓴다 */
   const localSpent = useRef(0);
+  /** 이번 판에 이미 에너지를 낸 문제 id — 같은 문제를 다시 물을 때 두 번 안 받는다 */
+  const energyChargedIds = useRef(new Set<string>());
   // 에너지 세션 — 이번 판 id 와 서버가 이미 깎은 양 (앱 lesson.tsx 와 같다).
   // 맞힐 때마다 서버가 바로 깎고, 완료 때는 이미 깎은 만큼을 빼고 정산한다
   const energySession = useRef(`${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
@@ -242,6 +244,7 @@ export function LessonScreen() {
     grammarRetryCounts.current.clear();
     reviewCorrectIds.current.clear();
     localSpent.current = 0;
+    energyChargedIds.current.clear();
     bonusGiven.current = false;
     setBonusAmount(null);
     setCursor(0);
@@ -457,9 +460,11 @@ export function LessonScreen() {
       const nextCombo = combo + 1;
       setCombo(nextCombo);
       setAnswerState("correct");
-      spendEnergy(nextCombo);
+      spendEnergy(current.question.id, nextCombo);
     } else {
       setCombo(0);
+      // 틀려도 문제당 1 (앱과 같다)
+      spendEnergy(current.question.id, null);
       if (isJump && firstAttempt) setHearts((value) => Math.max(0, value - 1));
       setAnswerState("wrong");
     }
@@ -467,11 +472,12 @@ export function LessonScreen() {
   };
 
   /**
-   * 맞힐 때마다 에너지 바를 한 칸 줄여 보인다 (앱과 같다).
-   * 실제 차감은 레슨 완료 때 서버가 한다 — 여기서 서버를 부르면 그 호출 한 줄만
-   * 빼도 에너지 0 으로 무한히 풀 수 있게 된다. 완료 응답의 energy 가 진짜 값으로 덮는다.
+   * 본풀이 문제는 **맞든 틀리든** 한 문제당 1 (앱 lesson.tsx 와 같다).
+   * 같은 문제를 다시 묻는 건 공짜 — 오답 복습 라운드, 문법 즉석 재도전.
+   * 서버에서 바로 깎고, 완료 때는 이미 깎은 만큼 빼고 정산한다.
+   * nextCombo 는 맞혔을 때만 넘긴다 (4연속 보너스 판정용).
    */
-  const spendEnergy = (nextCombo: number) => {
+  const spendEnergy = (questionId: string, nextCombo: number | null) => {
     const superActive = Boolean(
       user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()),
     );
@@ -479,21 +485,26 @@ export function LessonScreen() {
     // 오답 복습·연습·레전드 등은 안 쓰고, 틀린 문제 다시 풀기(복습 라운드)도 무료다 (앱과 같음)
     const consumes = mode === "lesson" || mode === "unitPractice";
     if (superActive || !consumes || phase === "review") return;
-    localSpent.current += 1;
-    const nextEnergy = Math.max(0, (user?.energy ?? 0) - 1);
-    updateUser({ energy: nextEnergy });
-    if (nextEnergy <= 0) openEnergyModal();
 
-    // 서버에서 바로 깎는다 — 몇 문제 풀다 나가도 깎인 채로 남는다 (실패해도 완료 때 정산)
-    const spending = spendServerEnergy(request, energySession.current)
-      .then(() => {
-        energyCharged.current += 1;
-      })
-      .catch(() => undefined);
+    let spending: Promise<void> = Promise.resolve();
+    if (!energyChargedIds.current.has(questionId)) {
+      energyChargedIds.current.add(questionId);
+      localSpent.current += 1;
+      const nextEnergy = Math.max(0, (user?.energy ?? 0) - 1);
+      updateUser({ energy: nextEnergy });
+      if (nextEnergy <= 0) openEnergyModal();
+
+      // 서버에서 바로 깎는다 — 몇 문제 풀다 나가도 깎인 채로 남는다 (실패해도 완료 때 정산)
+      spending = spendServerEnergy(request, energySession.current)
+        .then(() => {
+          energyCharged.current += 1;
+        })
+        .catch(() => undefined);
+    }
 
     // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다.
     // 방금 차감이 서버에 반영된 뒤에 묻는다
-    if (nextCombo % 4 === 0 && !bonusGiven.current) {
+    if (nextCombo !== null && nextCombo % 4 === 0 && !bonusGiven.current) {
       let spentSoFar = 0;
       void spending
         .then(() => {

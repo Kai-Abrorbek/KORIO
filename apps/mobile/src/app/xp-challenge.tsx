@@ -14,6 +14,7 @@ import Animated, {
 import { useEffect, useState } from "react";
 import { getTier } from "@/constants/league-tiers";
 import { useAuthStore } from "@/store/auth.store";
+import { useEnergySync } from "@/store/energy.store";
 import { LeagueService, type ChallengeInfo } from "@/services/league.service";
 import { ApiError } from "@/services/api";
 import { challengeMetaOf } from "@/constants/league-challenge";
@@ -33,6 +34,8 @@ export default function XpChallenge() {
   const tier = getTier(p.tier ?? "bronze");
   const user = useAuthStore((s) => s.user);
   const energy = user?.energy ?? 0;
+  // "에너지 부족" 판정이 보는 값 — 다른 모드에서 쓴 만큼 반영된 서버 값으로 맞춘다
+  useEnergySync();
 
   // 리그마다 종목이 다르다. 뭘 하는지·얼마가 드는지는 서버에서 받는다 —
   // 앱이 고르게 두면 제일 후한 종목을 직접 지정해서 부를 수 있다.

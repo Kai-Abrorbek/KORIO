@@ -75,8 +75,7 @@ export function EnergyModalHost() {
   const close = () => setOpen(false);
   const toShop = () => {
     close();
-    // 앱은 아직 버튼만 있고(TODO) 닫힌다. 텔레그램은 상점에서 실제로 충전·무료 +5 가
-    // 되므로 거기로 보낸다
+    // 상점에서 실제로 충전·무료 +10 이 되므로 거기로 보낸다 (앱도 같다)
     router.push("/shop");
   };
 
@@ -115,14 +114,14 @@ export function EnergyModalHost() {
             <span className={styles.check}><MobileIcon name="checkmark-circle" size={28} /></span>
           </div>
           <button className={`${styles.card} ${styles.dim}`} onClick={toShop} type="button">
-            <Battery value={25} />
+            <Battery value={50} />
             <b className={styles.gray}>To&apos;ldirish</b>
             <span className={styles.gemRow}><MobileIcon name="diamond" size={16} /><strong>350</strong></span>
           </button>
           <button className={styles.card} onClick={toShop} type="button">
-            <Battery fraction={0.42} pink value={5} />
-            <b>Energiya +5</b>
-            <strong className={styles.blue}>Reklama ko&apos;rish</strong>
+            <Battery fraction={0.42} pink value={10} />
+            <b>Energiya +10</b>
+            <strong className={styles.blue}>Bepul olish</strong>
           </button>
         </div>
 

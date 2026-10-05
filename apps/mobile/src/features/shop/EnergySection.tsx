@@ -26,6 +26,8 @@ interface Props {
   etaHours: number;
   etaMinutes: number;
   refillCost: number;
+  /** 무료 충전 한 번에 받는 양 (서버 값) */
+  freeAmount: number;
   freeRemaining: number;
   canRefill: boolean;
   busy: boolean;
@@ -39,6 +41,7 @@ export default function EnergySection({
   etaHours,
   etaMinutes,
   refillCost,
+  freeAmount,
   freeRemaining,
   canRefill,
   busy,
@@ -130,7 +133,7 @@ export default function EnergySection({
         </View>
       </Pressable>
 
-      {/* 무료 +5 (하루 제한). 가득이면 하루치 무료분을 태우므로 막는다 */}
+      {/* 무료 +N (하루 제한). 가득이면 하루치 무료분을 태우므로 막는다 */}
       <Pressable
         onPress={tap(onFree)}
         disabled={freeOff}
@@ -140,9 +143,11 @@ export default function EnergySection({
           pressed && !freeOff && s.rowPressed,
         ]}
       >
-        <BatteryBadge value={5} fill="gray" size={46} />
+        <BatteryBadge value={freeAmount} fill="gray" size={46} />
         <View style={s.rowMid}>
-          <Text style={s.rowLabel}>{t("energy.plusFive")}</Text>
+          <Text style={s.rowLabel}>
+            {t("energy.plusAmount", { n: freeAmount })}
+          </Text>
         </View>
         <Text
           style={[

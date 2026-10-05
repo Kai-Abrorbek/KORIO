@@ -548,6 +548,8 @@ export default {
     goToLegend: "레전드 레벨로 가기",
   },
   lesson: {
+    energySurge: "에너지 충전!",
+    energySurgeSub: "연속 정답 보너스",
     loadFailed: "레슨을 불러올 수 없어요",
     check: "확인",
     readingQuiz: "글을 읽고 질문에 답하세요",
@@ -1342,7 +1344,8 @@ export default {
     widgetBoost: "위젯 부스트",
     install: "설치하기",
     new: "신규",
-    plusFive: "에너지 +5",
+    plusAmount: "에너지 +{{n}}",
+    freeGet: "무료로 받기",
     watchAd: "광고 보기",
     nextRefill: "다음 충전: {{h}}시간 후",
     modalTitle: "이 레슨을 시작하려면 에너지가 더 필요합니다!",

@@ -157,6 +157,7 @@ export function decideComboBonus(input: {
   }
 
   // 바닥일수록 많이 준다 — 여기서 끊기면 유저가 그냥 앱을 닫는다
-  const base = energy <= 5 ? COMBO_BONUS_MAX : energy <= 10 ? 6 : 4;
+  // (구간은 MAX 50 기준. 25 시절 5/10/15 를 두 배로)
+  const base = energy <= 10 ? COMBO_BONUS_MAX : energy <= 20 ? 6 : 4;
   return { granted: Math.min(base, MAX - energy) };
 }

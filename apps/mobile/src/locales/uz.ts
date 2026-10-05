@@ -557,6 +557,8 @@ export default {
     goToLegend: "Legend bosqichiga o'tish",
   },
   lesson: {
+    energySurge: "Energiya to'ldi!",
+    energySurgeSub: "Ketma-ket to'g'ri javob bonusi",
     loadFailed: "Darsni yuklab bo'lmadi",
     readingQuiz: "Matnni o'qib, savolga javob bering",
     wordCount: "{{count}} so'z",
@@ -1349,7 +1351,8 @@ export default {
     widgetBoost: "Vidjet Boost",
     install: "O'rnatish",
     new: "Yangi",
-    plusFive: "Energiya +5",
+    plusAmount: "Energiya +{{n}}",
+    freeGet: "Bepul olish",
     watchAd: "Reklama ko'rish",
     nextRefill: "Keyingi to'ldirish: {{h}} soatdan keyin",
     modalTitle: "Bu darsni boshlash uchun ko'proq energiya kerak!",

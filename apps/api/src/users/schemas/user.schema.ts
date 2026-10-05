@@ -8,6 +8,7 @@ import { SelfReportedLevel } from '../../common/enums/self-level.enum';
 import { Interest } from '../../common/enums/interest.enum';
 import { AvatarConfig, AvatarConfigSchema } from './avatar.schema';
 import { DEFAULT_AVATAR_CONFIG } from '../avatar/avatar.constants';
+import { ENERGY_CONFIG } from '../../energy/energy.constants';
 import {
   LEARN_MODES,
   STUDY_MODES,
@@ -321,8 +322,9 @@ export class User {
   @Prop({ default: true })
   contactsDiscoverable: boolean;
 
-  //  신규: 에너지/하트
-  @Prop({ default: 5 })
+  // 에너지. 새 계정은 **가득 찬 채로** 시작한다 — 예전 기본값 5 는 하트 시절
+  // 값이 남은 것이라, 가입하자마자 5문제 풀고 막혔다 (첫날 이탈의 지름길)
+  @Prop({ default: ENERGY_CONFIG.MAX })
   energy: number;
 
   //  신규: 팔로잉/팔로워 (배열로 가져감 - MVP)

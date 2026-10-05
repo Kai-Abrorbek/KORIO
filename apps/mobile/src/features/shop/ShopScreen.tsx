@@ -29,6 +29,7 @@ import PassCard from "./PassCard";
 import SuperCard from "./SuperCard";
 import EnergySection from "./EnergySection";
 import WithdrawCard from "./WithdrawCard";
+import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
 
 /**
  * 상점 (Do'kon).
@@ -267,7 +268,8 @@ export default function ShopScreen() {
         {!isSuper && (
           <EnergySection
             energy={energy?.energy ?? 0}
-            maxEnergy={energy?.maxEnergy ?? 25}
+            maxEnergy={energy?.maxEnergy ?? ENERGY_MAX}
+            freeAmount={energy?.freeAmount ?? ENERGY_FREE_AMOUNT}
             etaHours={energy?.etaHours ?? 0}
             etaMinutes={energy?.etaMinutes ?? 0}
             refillCost={energy?.refillCost ?? 350}

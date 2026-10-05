@@ -7,6 +7,8 @@ export interface EnergyState {
   isSuper: boolean;
   maxEnergy: number;
   refillCost: number;
+  /** 무료 충전 한 번에 받는 양 (옛 서버는 안 준다) */
+  freeAmount?: number;
 }
 
 export interface GemPass {

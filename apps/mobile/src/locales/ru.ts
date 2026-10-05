@@ -553,6 +553,8 @@ export default {
     goToLegend: "Перейти к уровню «Легенда»",
   },
   lesson: {
+    energySurge: "Заряд энергии!",
+    energySurgeSub: "Бонус за серию верных ответов",
     loadFailed: "Не удалось загрузить урок",
     check: "Проверить",
     next: "Продолжить",
@@ -1349,7 +1351,8 @@ export default {
     widgetBoost: "Виджет-буст",
     install: "Установить",
     new: "НОВОЕ",
-    plusFive: "Энергия +5",
+    plusAmount: "Энергия +{{n}}",
+    freeGet: "Получить бесплатно",
     watchAd: "Смотреть рекламу",
     nextRefill: "Следующее: через {{h}} ч",
     modalTitle: "Чтобы начать урок, нужно больше энергии!",

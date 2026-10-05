@@ -1,13 +1,17 @@
 export const ENERGY_CONFIG = {
-  MAX: 25, // 최대 에너지 (나중에 여기만 바꾸면 됨)
+  // 최대 에너지. 출시 초기 이탈을 줄이려고 25 → 50 (2026-10-06).
+  // 앱의 폴백 값(apps/mobile/src/constants/energy.ts)도 같이 바꾼다
+  MAX: 50,
   REGEN_MINUTES: 60, // 1개 회복에 걸리는 시간(분)
   REFILL_GEM_COST: 350, // 충전하기 비용
   FREE_DAILY_LIMIT: 3, // 무료 +5 하루 횟수
-  FREE_AMOUNT: 5, // 무료로 받는 양
+  FREE_AMOUNT: 10, // 무료로 받는 양 (5 → 10, 2026-10-06)
 } as const;
 
 export const COMBO_BONUS_STREAK = 4; // 4연속 정답 (앱이 판단한다)
-export const COMBO_BONUS_THRESHOLD = 15; // 에너지 15 이하일 때만
+// 에너지가 이 값 이하일 때만 준다. MAX 25 시절 15(60%) 였던 비율을 그대로
+// MAX 50 에 맞췄다 — 15 로 두면 50 중 15 까지 내려가야 받아서 거의 안 나온다
+export const COMBO_BONUS_THRESHOLD = 30;
 export const COMBO_BONUS_MAX = 8; // 최대 8까지
 
 /**

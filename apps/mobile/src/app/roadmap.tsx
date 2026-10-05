@@ -24,7 +24,10 @@ import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
-import { useEnergyStore } from "@/store/energy.store";
+import {
+  energySpendsSettled,
+  useEnergyStore,
+} from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
@@ -159,7 +162,10 @@ export default function RoadmapScreen() {
   const loadRoadmap = useCallback(async () => {
     try {
       setLoading(true);
-      UserService.getMe()
+      // 레슨에서 막 나왔으면 마지막 차감이 서버에 닿은 뒤에 묻는다 —
+      // 먼저 물으면 한 칸 덜 깎인 에너지가 와서 화면을 되감는다
+      energySpendsSettled()
+        .then(() => UserService.getMe())
         .then((me) => updateUser(me as any))
         .catch(() => {});
 

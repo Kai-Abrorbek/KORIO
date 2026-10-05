@@ -331,13 +331,14 @@ export default function RootLayout() {
               closeEnergyModal();
               router.dismissTo("/premium");
             }}
+            // 충전·무료 충전은 상점에 실제로 붙어 있다 (예전엔 TODO 라 눌러도 닫히기만 했다)
             onRefill={() => {
               closeEnergyModal();
-              // TODO: 보석으로 충전 (백엔드 연동)
+              router.push("/shop");
             }}
-            onWatchAd={() => {
+            onFree={() => {
               closeEnergyModal();
-              // TODO: 광고 보고 +5 (광고 SDK)
+              router.push("/shop");
             }}
           />
           {/* 전역 구독 유도 모달 — 잠긴 기능을 누르면 어디서든 뜸 */}

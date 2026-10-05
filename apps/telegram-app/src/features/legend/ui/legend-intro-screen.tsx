@@ -78,11 +78,11 @@ export function LegendIntroScreen() {
                 <span>SUPER</span><MobileIcon name="infinite" size={44} /><b>Cheksiz</b><small>Bepul sinab ko&apos;rish</small>
                 <i><MobileIcon name="checkmark-circle" size={28} /></i>
               </button>
-              <button className={`${styles.energyCard} ${styles.disabledCard}`} onClick={() => setShowEnergy(false)} type="button">
+              <button className={`${styles.energyCard} ${styles.disabledCard}`} onClick={() => router.push("/shop")} type="button">
                 <MobileIcon name="flash" size={44} /><b>To&apos;ldirish</b><small><MobileIcon name="diamond" size={16} />350</small>
               </button>
-              <button className={styles.energyCard} onClick={() => setShowEnergy(false)} type="button">
-                <MobileIcon name="flash" size={44} /><b>Energiya +5</b><small>Reklama ko&apos;rish</small>
+              <button className={styles.energyCard} onClick={() => router.push("/shop")} type="button">
+                <MobileIcon name="flash" size={44} /><b>Energiya +10</b><small>Bepul olish</small>
               </button>
             </div>
             <button className={styles.trialButton} onClick={() => router.push("/premium")} type="button">30 kun bepul sinab ko&apos;rish</button>

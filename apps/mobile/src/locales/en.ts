@@ -553,6 +553,8 @@ export default {
     goToLegend: "Go to Legend level",
   },
   lesson: {
+    energySurge: "Energy Surge!",
+    energySurgeSub: "Answer streak bonus",
     loadFailed: "Couldn't load this lesson",
     check: "Check",
     readingQuiz: "Read the passage and answer the question",
@@ -1344,7 +1346,8 @@ export default {
     widgetBoost: "Widget Boost",
     install: "Install",
     new: "NEW",
-    plusFive: "Energy +5",
+    plusAmount: "Energy +{{n}}",
+    freeGet: "Get it free",
     watchAd: "Watch ad",
     nextRefill: "Next refill: in {{h}}h",
     modalTitle: "You need more energy to start this lesson!",

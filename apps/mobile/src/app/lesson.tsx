@@ -42,12 +42,18 @@ import { LEGEND_XP } from "@/constants/xp-mirror";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { UserService } from "@/services/user.service";
 import { onboardingService } from "@/services/onboarding.service";
-import { useEnergyStore } from "@/store/energy.store";
+import {
+  energySpendsSettled,
+  trackEnergySpend,
+  useEnergyStore,
+} from "@/store/energy.store";
 import { EnergyService } from "@/services/energy.service";
 import QuitLessonModal from "@/components/lesson/QuitLessonModal";
 import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
+import EnergySurge from "@/components/lesson/EnergySurge";
+import { ENERGY_MAX } from "@/constants/energy";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import { shuffleGrammarQuestions } from "@/utils/shuffle";
 import {
@@ -239,7 +245,7 @@ export default function LessonScreen() {
   const [gradingFeedback, setGradingFeedback] =
     useState<AnswerGradeResult | null>(null);
   const answerSubmissionLocked = useRef(false);
-  const userEnergy = useAuthStore((st) => st.user?.energy ?? 25);
+  const userEnergy = useAuthStore((st) => st.user?.energy ?? ENERGY_MAX);
   const [energy, setEnergy] = useState(userEnergy);
   const openEnergyModal = useEnergyStore((s) => s.openEnergyModal);
   const [combo, setCombo] = useState(0);
@@ -286,6 +292,10 @@ export default function LessonScreen() {
   const [showBonus, setShowBonus] = useState(false);
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
+  /** 콤보 보상 연출 — 번개 / 에너지 코어 중 매번 랜덤 */
+  const [bonusVariant, setBonusVariant] = useState<"lightning" | "surge">(
+    "lightning",
+  );
   const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
 
   // ── 학습 계측 ──
@@ -304,12 +314,11 @@ export default function LessonScreen() {
   /** 지금 문제를 화면에 띄운 시각. 풀이 시간을 재려고 */
   const shownAt = useRef(Date.now());
   /**
-   * 이번 레슨에서 **화면상** 깎아둔 에너지.
+   * 이번 판에 쓴 에너지 (본풀이 문제 수 — 맞든 틀리든 문제당 1).
    *
-   * 실제 차감은 레슨을 끝낼 때 서버가 한다(lessons.service.completeLesson).
-   * 여기서는 바가 살아 움직이게 미리 줄여만 둔다. 콤보 보너스 응답이 주는
-   * 서버 에너지에는 이번 레슨분이 아직 안 빠져 있어서, 그 값에서 이만큼을
-   * 빼야 화면이 되감기지 않는다.
+   * 문제마다 서버가 바로 깎고(/energy/spend), 완료 때 이 값으로 정산한다
+   * (이미 깎은 만큼은 빼고). 콤보 보너스 때는 "아직 서버에 안 닿은 몫" 을
+   * 이 값 - energyCharged 로 계산한다.
    */
   const localSpent = useRef(0);
   /**
@@ -322,6 +331,34 @@ export default function LessonScreen() {
     `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
   );
   const energyCharged = useRef(0);
+  /** 이번 판에 이미 에너지를 낸 문제 id — 같은 문제를 다시 물을 때 두 번 안 받는다 */
+  const energyChargedIds = useRef<Set<string>>(new Set());
+  /** 서버에 못 닿은 차감 수 (네트워크 실패). 끝내지 않고 나갈 때 다시 보낸다 */
+  const energyFailed = useRef(0);
+  /** 완료 정산을 보냈는가 — 그 뒤엔 서버가 다 깎았으니 재전송하면 두 번 깎인다 */
+  const energySettled = useRef(false);
+
+  /**
+   * 끝내지 않고 나갈 때, 서버에 못 닿은 차감을 다시 보낸다.
+   * 안 그러면 실패한 만큼은 영영 안 깎여서, 나갔다 오면 그만큼 "다시 차" 있다.
+   * (spend 는 한 번에 5 까지만 받는다)
+   */
+  const retryFailedSpends = () => {
+    if (energySettled.current) return;
+    let left = energyFailed.current;
+    energyFailed.current = 0;
+    while (left > 0) {
+      const n = Math.min(5, left);
+      left -= n;
+      void trackEnergySpend(
+        EnergyService.spend(energySession.current, n),
+      ).catch(() => {});
+    }
+  };
+
+  // 하드웨어 뒤로가기 등으로 화면이 내려갈 때도 같은 처리 (ref 만 읽어서 deps 불필요)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => () => retryFailedSpends(), []);
 
   useEffect(() => {
     void loadLesson();
@@ -728,6 +765,35 @@ export default function LessonScreen() {
     totalCount.current += 1;
     recordAnswer(question, isCorrect);
 
+    // ── 에너지 ── 본풀이 문제는 **맞든 틀리든** 한 문제당 1.
+    // 같은 문제를 다시 묻는 건 공짜다: 레슨 뒤 오답 복습 라운드(phase "review"),
+    // 문법 트랙의 즉석 재도전(같은 id 가 큐에 다시 들어온다).
+    // 서버에서 바로 깎고(/energy/spend), 완료 때는 이미 깎은 만큼 빼고 정산한다.
+    // 서버 정산 상한도 레슨 문항 수라서 "문제당 1" 과 정확히 맞는다.
+    const energyKey = question.id || `#${answerIndex.current}`;
+    let spending: Promise<void> | null = null;
+    if (
+      consumesEnergy &&
+      phase !== "review" &&
+      !energyChargedIds.current.has(energyKey)
+    ) {
+      energyChargedIds.current.add(energyKey);
+      localSpent.current += 1;
+      const cur = useAuthStore.getState().user?.energy ?? 0;
+      const next = Math.max(0, cur - 1);
+      updateUser({ energy: next } as any);
+      if (next <= 0) openEnergyModal();
+
+      // 다른 화면의 에너지 조회가 이 차감이 끝나길 기다린다 (trackEnergySpend)
+      spending = trackEnergySpend(EnergyService.spend(energySession.current))
+        .then(() => {
+          energyCharged.current += 1;
+        })
+        .catch(() => {
+          energyFailed.current += 1;
+        });
+    }
+
     if (isCorrect) {
       setShowCombo(true);
       correctCount.current += 1;
@@ -742,56 +808,41 @@ export default function LessonScreen() {
 
       const nextCombo = combo + 1;
       setCombo(nextCombo);
-      // 슈퍼가 아닐 때만 에너지 소모
-      //
-      // ⚠️ 예전에는 여기서 매 정답마다 `/energy/consume` 을 불렀다. 서버는 앱이
-      //    불러줄 때만 깎으므로, 이 호출 한 줄만 빼면 에너지 0 으로 무한히 풀 수
-      //    있었다 — 에너지 경제도, 350보석 충전도, SUPER 를 살 이유도 같이
-      //    사라진다. **실제 차감은 이제 레슨 완료 때 서버가 한다**
-      //    (lessons.service.completeLesson → energyService.consume).
-      //    여기서는 바가 살아 움직이게 화면만 미리 줄인다. 완료 응답의
-      //    res.energy 가 진짜 값으로 덮어쓴다.
-      // 틀린 문제 다시 풀기(복습 라운드)는 에너지를 안 쓴다
-      if (consumesEnergy && phase !== "review") {
-        localSpent.current += 1;
-        const cur = useAuthStore.getState().user?.energy ?? 0;
-        const next = Math.max(0, cur - 1);
-        updateUser({ energy: next } as any);
-        if (next <= 0) openEnergyModal();
 
-        // 서버에서 바로 깎는다. 실패해도 완료 때 정산으로 깎인다
-        const spending = EnergyService.spend(energySession.current)
-          .then(() => {
-            energyCharged.current += 1;
-          })
-          .catch(() => {});
-
-        // 4연속 보너스는 그대로 서버가 준다 (횟수·간격을 서버가 막는다).
-        // 방금 차감이 서버에 반영된 **뒤에** 묻는다 — 순서가 꼬이면 한 칸 어긋난다
-        if (nextCombo % 4 === 0 && !bonusGiven.current) {
-          (async () => {
-            await spending;
-            // 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
-            const spentSoFar = Math.max(
-              0,
-              localSpent.current - energyCharged.current,
-            );
-            try {
-              const bonusRes = await EnergyService.comboBonus(spentSoFar);
-              if (bonusRes.bonusGranted > 0) {
-                bonusGiven.current = true; // 이 레슨에선 다시 안 줌
-                updateUser({
-                  // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
-                  energy: Math.max(0, bonusRes.energy - spentSoFar),
-                  gems: bonusRes.gems,
-                } as any);
-                setBonusAmount(bonusRes.bonusGranted);
-                setShowLightning(true);
-                setShowBonus(true);
-              }
-            } catch {}
-          })();
-        }
+      // 4연속 보너스는 서버가 준다 (횟수·간격을 서버가 막는다).
+      // 방금 차감이 서버에 반영된 **뒤에** 묻는다 — 순서가 꼬이면 한 칸 어긋난다.
+      // 복습 라운드는 에너지를 안 쓰니 보너스도 없다
+      if (
+        consumesEnergy &&
+        phase !== "review" &&
+        nextCombo % 4 === 0 &&
+        !bonusGiven.current
+      ) {
+        (async () => {
+          await spending;
+          // 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
+          const spentSoFar = Math.max(
+            0,
+            localSpent.current - energyCharged.current,
+          );
+          try {
+            const bonusRes = await EnergyService.comboBonus(spentSoFar);
+            if (bonusRes.bonusGranted > 0) {
+              bonusGiven.current = true; // 이 레슨에선 다시 안 줌
+              updateUser({
+                // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
+                energy: Math.max(0, bonusRes.energy - spentSoFar),
+                gems: bonusRes.gems,
+              } as any);
+              setBonusAmount(bonusRes.bonusGranted);
+              // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로
+              const variant = Math.random() < 0.5 ? "lightning" : "surge";
+              setBonusVariant(variant);
+              if (variant === "lightning") setShowLightning(true);
+              setShowBonus(true);
+            }
+          } catch {}
+        })();
       }
 
       if (!uniqueCorrect.current.has(question.id)) {
@@ -907,6 +958,11 @@ export default function LessonScreen() {
   };
 
   const finishLesson = async () => {
+    // 완료 정산 전에 날아가 있는 차감이 서버에 닿게 한다. 안 그러면 정산이 그 몫을
+    // "아직 안 깎임" 으로 보고 한 번 더 깎는다 (마지막 정답 직후 바로 끝낼 때)
+    energySettled.current = true;
+    await energySpendsSettled();
+
     const wrongArr = [...finalWrongIds.current];
 
     // 정답률 / 시간
@@ -1378,19 +1434,30 @@ export default function LessonScreen() {
         onContinue={() => setShowQuit(false)}
         onQuit={() => {
           setShowQuit(false);
+          retryFailedSpends();
           goHome();
         }}
       />
 
-      <LightningStrike visible={showLightning} />
-      <EnergyBonusPopup
-        visible={showBonus}
-        amount={bonusAmount}
-        onDone={() => {
-          setShowBonus(false);
-          setShowLightning(false); // 배터리 끝날 때 번개도 같이 정리
-        }}
-      />
+      {bonusVariant === "lightning" ? (
+        <>
+          <LightningStrike visible={showLightning} />
+          <EnergyBonusPopup
+            visible={showBonus}
+            amount={bonusAmount}
+            onDone={() => {
+              setShowBonus(false);
+              setShowLightning(false); // 배터리 끝날 때 번개도 같이 정리
+            }}
+          />
+        </>
+      ) : (
+        <EnergySurge
+          visible={showBonus}
+          amount={bonusAmount}
+          onDone={() => setShowBonus(false)}
+        />
+      )}
     </View>
   );
 }

@@ -741,11 +741,11 @@ export class LessonsService {
     // (리그 챌린지는 이미 startChallenge 에서 서버가 깎고 있었다. 레슨만 빠져
     //  있었던 것이다.)
     //
-    // 규칙은 그대로 "맞힌 문제 1개당 1" 이고, correctAnswers 는 위에서 레슨
-    // 문항 수의 2배로 이미 잘라둔 서버 값이다. SUPER 는 consume 이 그냥 돌아온다.
-    // 중간에 나가면 안 깎이지만 XP·진행도도 없다 — 그게 맞는 거래다.
-    // 본풀이 정답만 친다 — 틀린 문제 다시 풀기는 에너지를 안 쓴다.
-    // 상한은 레슨 문항 수 (본풀이에서 그 이상 맞힐 수 없다)
+    // 규칙: 본풀이 문제 1개당 1 — 맞든 틀리든 (10-06 변경. 예전엔 정답만 쳤다).
+    // 레슨 뒤 오답 복습 라운드·문법 즉석 재도전은 같은 문제라 안 친다.
+    // 앱이 문제마다 /energy/spend 로 이미 깎고, 여기선 남은 몫만 정산한다.
+    // 상한은 레슨 문항 수 (문제당 1 이라 그 이상 나올 수 없다).
+    // energySpent 를 안 보내는 옛 앱은 예전처럼 정답 수로 친다. SUPER 는 안 깎인다.
     const energyCost =
       dto.energySpent === undefined
         ? correctAnswers
@@ -961,7 +961,8 @@ export class LessonsService {
     const combo = clampCount(dto.combo, correct);
     const xp = calcPracticeXp(dto.mode, combo, correct);
 
-    // ── 에너지 ── 학습 로드의 문제 레슨(unit*)은 자유 학습 레슨과 똑같이 쓴다.
+    // ── 에너지 ── 학습 로드의 문제 레슨(unit*)은 자유 학습 레슨과 똑같이 쓴다
+    // (본풀이 문제당 1, 맞든 틀리든. 상한은 문항 수).
     // 예전엔 여기서 안 깎아서 로드 학습은 에너지가 사실상 무한이었다 (앱만 화면에서
     // 줄였다가 다음 조회 때 원래대로 돌아갔다). 오답 복습·단어·표현 연습은 안 쓴다.
     let energyAfter: number | undefined;

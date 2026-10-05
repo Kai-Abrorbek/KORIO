@@ -28,7 +28,7 @@ const ERROR_COPY: Record<string, string> = {
 };
 
 /** 에너지 조회가 실패해도 섹션은 그린다 (모바일 ShopScreen 의 기본값과 같다) */
-const ENERGY_FALLBACK:EnergyState={energy:0,etaHours:0,etaMinutes:0,freeRemaining:0,gems:0,isSuper:false,maxEnergy:25,refillCost:350};
+const ENERGY_FALLBACK:EnergyState={energy:0,etaHours:0,etaMinutes:0,freeRemaining:0,gems:0,isSuper:false,maxEnergy:50,refillCost:350,freeAmount:10};
 
 function Battery({ value, pink = false }: { pink?: boolean; value: number }) {
   return <span className={`${styles.battery} ${pink ? styles.batteryPink : ""}`}><i/><b>{value}</b><em/></span>;
@@ -70,7 +70,7 @@ function EnergySection({ busy, energy, gems, onFree, onRefill }: { busy: boolean
   const refillOff=full||gems<energy.refillCost||busy, freeOff=energy.freeRemaining<=0||full||busy;
   return <section className={styles.energySection}><header><strong>ENERGIYA</strong>{!full?<span><MobileIcon name="time-outline" size={13}/>{`${hours} soat ${minutes} daqiqa`}</span>:null}</header><div className={styles.energyBar}><span><i style={{width:`${Math.max(0,Math.min(100,energy.energy/energy.maxEnergy*100))}%`}}/><b>{energy.energy} / {energy.maxEnergy}</b></span><em className={full?styles.capFull:""}><MobileIcon name="flash" size={18}/></em></div>
     <button disabled={refillOff} onClick={()=>{window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");onRefill();}} type="button"><Battery pink value={energy.maxEnergy}/><span><b>To&apos;ldirish</b>{full?<small>To&apos;la</small>:null}</span><em><MobileIcon name="diamond" size={15}/>{energy.refillCost.toLocaleString("en-US")}</em></button>
-    <button disabled={freeOff} onClick={()=>{window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");onFree();}} type="button"><Battery value={5}/><span><b>Energiya +5</b></span><strong className={energy.freeRemaining>0?styles.freeActive:""}>{energy.freeRemaining>0?`Bepul (${energy.freeRemaining})`:"Ertaga"}</strong></button>
+    <button disabled={freeOff} onClick={()=>{window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");onFree();}} type="button"><Battery value={energy.freeAmount??10}/><span><b>Energiya +{energy.freeAmount??10}</b></span><strong className={energy.freeRemaining>0?styles.freeActive:""}>{energy.freeRemaining>0?`Bepul (${energy.freeRemaining})`:"Ertaga"}</strong></button>
   </section>;
 }
 
