@@ -1,5 +1,5 @@
-import { DashboardPage } from "@/features/dashboard/dashboard-page";
+import { ControlCenter } from "@/features/dashboard/control-center";
 
 export default function Page() {
-  return <DashboardPage />;
+  return <ControlCenter />;
 }

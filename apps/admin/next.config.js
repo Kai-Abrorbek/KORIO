@@ -1,3 +1,4 @@
+/* global process */
 /**
  * 어드민은 **정적 export** 로 나간다 (telegram-app 과 같은 방식).
  *

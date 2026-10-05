@@ -110,6 +110,8 @@ export function LineChart({
   area = false,
   endLabels = false,
   formatValue = full,
+  formatAxis,
+  zoom = false,
 }: {
   labels: string[];
   series: Series[];
@@ -125,6 +127,9 @@ export function LineChart({
    */
   endLabels?: boolean;
   formatValue?: (n: number) => string;
+  formatAxis?: (n: number) => string;
+  /** 작은 변화를 읽어야 하는 단일 지표 화면에서 실제 값 근처로 축을 좁힌다. */
+  zoom?: boolean;
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
@@ -132,17 +137,23 @@ export function LineChart({
 
   const W = Math.max(width, 0);
   const padRight = PAD.right + (endLabels ? END_LABEL_W : 0);
-  const innerW = Math.max(W - PAD.left - padRight, 1);
+  const padLeft = zoom ? 70 : PAD.left;
+  const innerW = Math.max(W - padLeft - padRight, 1);
   const innerH = height - PAD.top - PAD.bottom;
 
-  const peak = Math.max(1, ...series.flatMap((s) => s.values));
-  const max = niceMax(peak);
+  const allValues = series.flatMap((s) => s.values);
+  const peak = Math.max(1, ...allValues);
+  const low = Math.min(...allValues, peak);
+  const margin = Math.max((peak - low) * .15, peak * .015, .1);
+  const min = zoom ? Math.max(0, low - margin) : 0;
+  const max = zoom ? peak + margin : niceMax(peak);
+  const span = Math.max(0.000001, max - min);
   const n = labels.length;
 
-  const x = (i: number) => PAD.left + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW);
-  const y = (v: number) => PAD.top + innerH - (v / max) * innerH;
+  const x = (i: number) => padLeft + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW);
+  const y = (v: number) => PAD.top + innerH - ((v - min) / span) * innerH;
 
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => max * f);
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => min + span * f);
 
   // 끝값이 가까우면 라벨끼리 겹친다. 위에서부터 최소 간격을 강제해 밀어낸다
   const endRows = (() => {
@@ -164,7 +175,7 @@ export function LineChart({
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const f = (e.clientX - rect.left - PAD.left) / innerW;
+    const f = (e.clientX - rect.left - padLeft) / innerW;
     setHover(Math.max(0, Math.min(n - 1, Math.round(f * (n - 1)))));
   };
 
@@ -190,9 +201,9 @@ export function LineChart({
           {/* 격자 — 뒤로 물러나 있어야 한다 */}
           {ticks.map((t) => (
             <g key={t}>
-              <line x1={PAD.left} x2={W - padRight} y1={y(t)} y2={y(t)} stroke="var(--grid)" strokeWidth="1" />
-              <text x={PAD.left - 8} y={y(t) + 3.5} textAnchor="end" fontSize="10" fill="var(--ink-3)" className="tnum">
-                {compact(Math.round(t))}
+              <line x1={padLeft} x2={W - padRight} y1={y(t)} y2={y(t)} stroke="var(--grid)" strokeWidth="1" />
+              <text x={padLeft - 8} y={y(t) + 3.5} textAnchor="end" fontSize="10" fill="var(--ink-3)" className="tnum">
+                {zoom ? (formatAxis ?? formatValue)(t) : compact(Math.round(t))}
               </text>
             </g>
           ))}

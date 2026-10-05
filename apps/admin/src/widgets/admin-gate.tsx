@@ -2,7 +2,7 @@
 
 import { useSession } from "@/features/auth/session";
 import { LoginScreen } from "@/features/auth/login-screen";
-import { AppShell } from "./app-shell";
+import { ConsoleShell } from "./console-shell";
 
 /**
  * 로그인 여부로 화면을 가른다.
@@ -25,5 +25,5 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
   if (status === "anonymous") return <LoginScreen />;
 
-  return <AppShell>{children}</AppShell>;
+  return <ConsoleShell>{children}</ConsoleShell>;
 }

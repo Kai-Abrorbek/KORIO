@@ -8,21 +8,20 @@ const KEY = "korio_admin_theme";
 const ThemeContext = createContext<{
   mode: Mode;
   toggle: () => void;
-}>({ mode: "dark", toggle: () => {} });
+}>({ mode: "light", toggle: () => {} });
 
 export const useTheme = () => useContext(ThemeContext);
 
 /**
  * 다크/라이트 토글.
  *
- * **기본은 다크다.** 차트가 화면의 대부분인데 어두운 바탕에서 색이 훨씬 잘
- * 갈린다. 라이트는 밝은 사무실·프로젝터에서 필요해서 남긴다.
+ * Baremetrics 레퍼런스에 맞춰 라이트를 기본으로 두고 다크 모드도 유지한다.
  *
  * 고른 값은 `<html data-theme>` 에 찍고 localStorage 에 남긴다 — CSS 가
  * 그 속성으로 갈리고, 토글이 OS 설정을 **양방향으로** 이긴다.
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<Mode>("dark");
+  const [mode, setMode] = useState<Mode>("light");
 
   useEffect(() => {
     let saved: string | null = null;
@@ -31,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       /* 무시 */
     }
-    const next: Mode = saved === "light" ? "light" : "dark";
+    const next: Mode = saved === "dark" ? "dark" : "light";
     setMode(next);
     document.documentElement.dataset.theme = next;
   }, []);

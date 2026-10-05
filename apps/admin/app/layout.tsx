@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./console.css";
 import { ThemeProvider } from "@/shared/ui/theme";
 import { SessionProvider } from "@/features/auth/session";
 import { AdminGate } from "@/widgets/admin-gate";
@@ -18,9 +19,9 @@ export const metadata: Metadata = {
 const THEME_BOOT = `
 try {
   var t = localStorage.getItem('korio_admin_theme');
-  document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
 } catch (e) {
-  document.documentElement.dataset.theme = 'dark';
+  document.documentElement.dataset.theme = 'light';
 }
 `.trim();
 
@@ -30,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" data-theme="dark" suppressHydrationWarning>
+    <html lang="ko" data-theme="light" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
