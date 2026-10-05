@@ -332,6 +332,14 @@ export class User {
   @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
   followers: Types.ObjectId[];
 
+  /**
+   * 지금 진행 중인 레슨의 에너지 세션 — { id, spent }.
+   * 레슨 도중 맞힐 때마다 서버가 바로 깎고(/energy/spend) 여기에 센다.
+   * 완료 때는 여기 센 만큼을 빼고 나머지만 깎는다 (energy.service settleSession).
+   */
+  @Prop({ type: Object, default: null })
+  energySession?: { id: string; spent: number } | null;
+
   // 에너지 마지막 회복 계산 시각 (lazy regen용)
   @Prop({ default: () => new Date() })
   energyUpdatedAt: Date;

@@ -240,6 +240,70 @@ export class EnergyService {
     return this.buildResponse(updated ?? user);
   }
 
+  // ─────────────────────────── 레슨 중 차감 ───────────────────────────
+
+  /**
+   * 레슨 도중 맞힐 때마다 **바로** 깎는다.
+   *
+   * 예전엔 완료 때만 깎아서, 문제 몇 개 풀다 나가거나 자유↔로드를 오가면 서버엔
+   * 하나도 안 깎인 채 25 로 남았다 — 다른 화면으로 가면 다시 25, 무한 루프.
+   * 에너지는 계정 하나에 하나고 어디서 쓰든 그 자리에서 줄어야 한다.
+   *
+   * 세션 id 로 이번 판에 이미 깎은 양을 센다. 완료 때(settleSession) 그만큼은 빼고
+   * 나머지만 깎으니 두 번 깎이지 않는다. 앱이 이 호출을 빼먹어도 완료 때 다 깎인다.
+   */
+  async spend(userId: string, sessionId: string, amount = 1) {
+    const sid = String(sessionId ?? '').slice(0, 64);
+    const n = Math.min(5, Math.max(1, Math.floor(Number(amount) || 1)));
+    const state = await this.consume(userId, n);
+    if (!sid || state.isSuper) return state;
+
+    const uid = new Types.ObjectId(userId);
+    const bumped = await this.userModel.updateOne(
+      { _id: uid, 'energySession.id': sid },
+      { $inc: { 'energySession.spent': n } },
+    );
+    if (bumped.matchedCount === 0) {
+      // 새 판 — 이전 판 기록은 덮어쓴다 (진행 중인 판은 하나뿐이다)
+      await this.userModel.updateOne(
+        { _id: uid },
+        { $set: { energySession: { id: sid, spent: n } } },
+      );
+    }
+    return state;
+  }
+
+  /**
+   * 레슨 완료 때 정산. total = 이번 판에 쓴 총량(앱이 센 본풀이 정답 수).
+   * 레슨 도중 spend 로 이미 깎은 만큼을 빼고 나머지만 깎는다.
+   * 완료 요청이 재시도돼도 두 번 깎지 않게, 정산한 양을 세션에 기록해 둔다.
+   */
+  async settleSession(
+    userId: string,
+    sessionId: string | undefined,
+    total: number,
+  ) {
+    const uid = new Types.ObjectId(userId);
+    let already = 0;
+    if (sessionId) {
+      const me = await this.userModel
+        .findById(uid)
+        .select('energySession')
+        .lean();
+      if (me?.energySession?.id === sessionId) {
+        already = Math.max(0, me.energySession.spent ?? 0);
+      }
+    }
+    const remaining = Math.max(0, Math.floor(total) - already);
+    if (sessionId) {
+      await this.userModel.updateOne(
+        { _id: uid, 'energySession.id': sessionId },
+        { $max: { 'energySession.spent': Math.floor(total) } },
+      );
+    }
+    return this.consume(userId, remaining);
+  }
+
   // ─────────────────────────── 콤보 보너스 ───────────────────────────
 
   /**

@@ -18,9 +18,12 @@ export const EnergyService = {
   refill: (): Promise<EnergyState> => api.post("/energy/refill", {}),
   claimFree: (): Promise<EnergyState> => api.post("/energy/free", {}),
   consume: (): Promise<EnergyState> => api.post("/energy/consume", {}),
+  /** 레슨 도중 맞힐 때마다 서버에서 바로 깎는다. session = 이번 판 id */
+  spend: (session: string, amount = 1): Promise<EnergyState> =>
+    api.post("/energy/spend", { session, amount }),
   /**
-   * 4연속 정답 보너스. spent = 이번 레슨에서 지금까지 쓴 에너지 —
-   * 서버는 레슨 완료 때 한꺼번에 깎으므로 이걸 알아야 "에너지가 적다" 를 판단한다
+   * 4연속 정답 보너스. spent = 화면상 썼지만 아직 서버에서 안 깎인 몫
+   * (spend 가 실패했거나 진행 중인 것. 보통 0)
    */
   comboBonus: (
     spent = 0,

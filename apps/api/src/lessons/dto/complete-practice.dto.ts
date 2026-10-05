@@ -52,4 +52,13 @@ export class CompletePracticeDto {
   @Max(1000)
   @IsOptional()
   energySpent?: number;
+
+  /**
+   * 이 판의 에너지 세션 id (앱이 레슨을 열 때 만든다). 레슨 도중 /energy/spend 로
+   * 이미 깎은 만큼은 완료 때 다시 깎지 않는다.
+   */
+  @IsString()
+  @MaxLength(64)
+  @IsOptional()
+  energySession?: string;
 }

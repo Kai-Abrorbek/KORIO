@@ -312,6 +312,16 @@ export default function LessonScreen() {
    * 빼야 화면이 되감기지 않는다.
    */
   const localSpent = useRef(0);
+  /**
+   * 에너지 세션 — 이번 판 id 와 서버가 **이미 깎은** 양.
+   * 맞힐 때마다 서버가 바로 깎는다(/energy/spend). 예전처럼 완료 때만 깎으면
+   * 몇 문제 풀다 나가거나 자유↔로드를 오갈 때 서버엔 안 깎인 25 가 남아 무한 루프였다.
+   * 완료 때는 서버가 이미 깎은 만큼을 빼고 정산한다 (두 번 안 깎는다).
+   */
+  const energySession = useRef(
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+  );
+  const energyCharged = useRef(0);
 
   useEffect(() => {
     void loadLesson();
@@ -749,16 +759,29 @@ export default function LessonScreen() {
         updateUser({ energy: next } as any);
         if (next <= 0) openEnergyModal();
 
+        // 서버에서 바로 깎는다. 실패해도 완료 때 정산으로 깎인다
+        const spending = EnergyService.spend(energySession.current)
+          .then(() => {
+            energyCharged.current += 1;
+          })
+          .catch(() => {});
+
         // 4연속 보너스는 그대로 서버가 준다 (횟수·간격을 서버가 막는다).
+        // 방금 차감이 서버에 반영된 **뒤에** 묻는다 — 순서가 꼬이면 한 칸 어긋난다
         if (nextCombo % 4 === 0 && !bonusGiven.current) {
-          const spentSoFar = localSpent.current;
           (async () => {
+            await spending;
+            // 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
+            const spentSoFar = Math.max(
+              0,
+              localSpent.current - energyCharged.current,
+            );
             try {
               const bonusRes = await EnergyService.comboBonus(spentSoFar);
               if (bonusRes.bonusGranted > 0) {
                 bonusGiven.current = true; // 이 레슨에선 다시 안 줌
                 updateUser({
-                  // 서버 값에는 이번 레슨분이 아직 안 빠져 있다
+                  // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
                   energy: Math.max(0, bonusRes.energy - spentSoFar),
                   gems: bonusRes.gems,
                 } as any);
@@ -967,6 +990,7 @@ export default function LessonScreen() {
           speedSeconds: seconds,
           combo,
           energySpent: localSpent.current,
+          energySession: energySession.current,
         });
         earnedXp = r.xpEarned;
         // 로드 문제 노드도 학습 완료 — 도장·연속 상자를 완료 화면이 이어 띄운다
@@ -1052,6 +1076,7 @@ export default function LessonScreen() {
           attemptId: attemptId.current,
           answers: tailAnswers,
           energySpent: localSpent.current,
+          energySession: energySession.current,
         });
         updateUser({
           totalXP: res.totalXP,

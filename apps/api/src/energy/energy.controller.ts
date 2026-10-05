@@ -38,10 +38,22 @@ export class EnergyController {
     return this.energyService.consume(req.user._id.toString(), 1);
   }
 
+  /** 레슨 도중 맞힐 때마다 — 그 자리에서 깎는다 (session = 이번 판 id) */
+  @UseGuards(JwtAuthGuard)
+  @Post('spend')
+  spend(@Request() req, @Body() body: { session?: string; amount?: number }) {
+    return this.energyService.spend(
+      req.user._id.toString(),
+      String(body?.session ?? ''),
+      Number(body?.amount) || 1,
+    );
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('combo-bonus')
   async comboBonus(@Request() req, @Body() body: { spent?: number }) {
-    // spent = 이번 레슨에서 지금까지 쓴 에너지 (서버는 완료 때 차감하므로)
+    // spent = 이번 레슨에서 화면상 썼지만 **아직 서버에서 안 깎인** 양
+    // (spend 가 실패했거나 아직 안 끝난 몫. 보통 0~1)
     return this.energyService.grantComboBonus(
       req.user._id.toString(),
       Number(body?.spent) || 0,

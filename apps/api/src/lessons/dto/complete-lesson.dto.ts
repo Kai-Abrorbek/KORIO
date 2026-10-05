@@ -62,6 +62,15 @@ export class CompleteLessonDto {
   energySpent?: number;
 
   /**
+   * 이 판의 에너지 세션 id (앱이 레슨을 열 때 만든다). 레슨 도중 /energy/spend 로
+   * 이미 깎은 만큼은 완료 때 다시 깎지 않는다.
+   */
+  @IsString()
+  @MaxLength(64)
+  @IsOptional()
+  energySession?: string;
+
+  /**
    * 이 판의 계측 id (`GET /lessons/:id` 응답의 attemptId).
    *
    * 선택값인 이유: 배포 직후에는 이걸 모르는 옛 앱이 남아 있다. 없으면 서버가

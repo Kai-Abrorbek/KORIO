@@ -133,6 +133,8 @@ export function completeLesson(
     xpEarned: number;
     /** 에너지로 칠 정답 수 — 본풀이만 (틀린 문제 다시 풀기는 무료) */
     energySpent?: number;
+    /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
+    energySession?: string;
   },
 ): Promise<CompleteLessonResult> {
   return request(`/lessons/${encodeURIComponent(lessonId)}/complete`, {
@@ -151,6 +153,8 @@ export function completePractice(
     wrongQuestionIds: string[];
     /** 본풀이 정답 수 (에너지). 학습 로드 문제 레슨만 서버가 깎는다 */
     energySpent?: number;
+    /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
+    energySession?: string;
   },
 ): Promise<{
   /** 학습 로드 문제 노드 완료 = 그날 학습 완료 → 도장·연속 상자 */
@@ -238,8 +242,16 @@ export function resolveMistakes(request: AuthenticatedRequest, correctIds: strin
  * 4연속 정답 보너스 에너지. 횟수·간격은 서버가 막는다 — 앱 EnergyService.comboBonus.
  * 응답의 energy 에는 이번 레슨에서 화면상 깎은 만큼이 아직 안 빠져 있다.
  */
+/** 레슨 도중 맞힐 때마다 서버에서 바로 깎는다 (앱과 같다). session = 이번 판 id */
+export function spendEnergy(request: AuthenticatedRequest, session: string, amount = 1) {
+  return request<{ energy: number }>("/energy/spend", {
+    body: JSON.stringify({ amount, session }),
+    method: "POST",
+  });
+}
+
 export function claimComboBonus(request: AuthenticatedRequest, spent = 0) {
-  // spent = 이번 레슨에서 지금까지 쓴 에너지 (서버는 완료 때 깎으므로 이걸 알아야 "적다" 를 판단)
+  // spent = 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
   return request<{ bonusGranted: number; energy: number; gems: number }>("/energy/combo-bonus", {
     body: JSON.stringify({ spent }),
     method: "POST",

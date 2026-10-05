@@ -15,6 +15,7 @@ import {
   getLesson,
   getNodeReview,
   claimComboBonus,
+  spendEnergy as spendServerEnergy,
   getMistakeQuestions,
   getUnitPractice,
   getWordPractice,
@@ -217,6 +218,10 @@ export function LessonScreen() {
   const reviewCorrectIds = useRef(new Set<string>());
   /** 이번 레슨에서 화면상 깎아 둔 에너지. 실제 차감은 완료 때 서버가 한다 */
   const localSpent = useRef(0);
+  // 에너지 세션 — 이번 판 id 와 서버가 이미 깎은 양 (앱 lesson.tsx 와 같다).
+  // 맞힐 때마다 서버가 바로 깎고, 완료 때는 이미 깎은 만큼을 빼고 정산한다
+  const energySession = useRef(`${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
+  const energyCharged = useRef(0);
   const bonusGiven = useRef(false);
   const [bonusAmount, setBonusAmount] = useState<number | null>(null);
 
@@ -479,14 +484,26 @@ export function LessonScreen() {
     updateUser({ energy: nextEnergy });
     if (nextEnergy <= 0) openEnergyModal();
 
-    // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다
+    // 서버에서 바로 깎는다 — 몇 문제 풀다 나가도 깎인 채로 남는다 (실패해도 완료 때 정산)
+    const spending = spendServerEnergy(request, energySession.current)
+      .then(() => {
+        energyCharged.current += 1;
+      })
+      .catch(() => undefined);
+
+    // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다.
+    // 방금 차감이 서버에 반영된 뒤에 묻는다
     if (nextCombo % 4 === 0 && !bonusGiven.current) {
-      const spentSoFar = localSpent.current;
-      void claimComboBonus(request, spentSoFar)
+      let spentSoFar = 0;
+      void spending
+        .then(() => {
+          spentSoFar = Math.max(0, localSpent.current - energyCharged.current);
+          return claimComboBonus(request, spentSoFar);
+        })
         .then((bonus) => {
           if (bonus.bonusGranted <= 0) return;
           bonusGiven.current = true;
-          // 서버 값에는 이번 레슨에서 화면상 깎은 만큼이 아직 안 빠져 있다
+          // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
           updateUser({ energy: Math.max(0, bonus.energy - spentSoFar), gems: bonus.gems });
           setBonusAmount(bonus.bonusGranted);
           window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
@@ -648,6 +665,7 @@ export function LessonScreen() {
           speedSeconds: elapsed,
           wrongQuestionIds: wrong,
           energySpent: localSpent.current,
+          energySession: energySession.current,
         });
         // 서버가 깎은 진짜 에너지로 덮는다 (화면은 미리 줄여 보였을 뿐)
         // 로드 문제 노드도 학습 완료 — 도장·연속 상자를 완료 화면이 이어 띄운다 (앱과 동일)
@@ -718,6 +736,7 @@ export function LessonScreen() {
         wrongQuestionIds: wrong,
         xpEarned: 0,
         energySpent: localSpent.current,
+          energySession: energySession.current,
       });
       pendingAnswers.current = [];
       updateUser({ energy: result.energy, gems: result.gems, totalXP: result.totalXP });

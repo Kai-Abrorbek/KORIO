@@ -751,7 +751,7 @@ export class LessonsService {
         ? correctAnswers
         : clampCount(dto.energySpent, Math.max(1, lessonQuestionIdSet.size));
     await this.energyService
-      .consume(userId, energyCost)
+      .settleSession(userId, dto.energySession, energyCost)
       .catch((e) =>
         this.logger.warn(`에너지 차감 실패: user=${userId} ${String(e)}`),
       );
@@ -971,7 +971,7 @@ export class LessonsService {
           ? correct
           : clampCount(dto.energySpent, Math.max(1, ids.length));
       const state = await this.energyService
-        .consume(userId, cost)
+        .settleSession(userId, dto.energySession, cost)
         .catch((e) => {
           // 조용히 삼키면 "에너지가 안 깎인다" 를 아무도 못 본다 (로그로 남긴다)
           this.logger.warn(

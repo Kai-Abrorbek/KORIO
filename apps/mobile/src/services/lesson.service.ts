@@ -156,6 +156,8 @@ export const LessonService = {
       answers?: ReportedAnswer[];
       /** 에너지로 칠 정답 수 — 본풀이만 (틀린 문제 다시 풀기는 무료) */
       energySpent?: number;
+      /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
+      energySession?: string;
     },
   ): Promise<{
     success: boolean;
@@ -288,6 +290,8 @@ export const LessonService = {
     combo?: number;
     /** 본풀이 정답 수 (에너지). 학습 로드 문제 레슨만 서버가 깎는다 */
     energySpent?: number;
+    /** 이번 판 에너지 세션 id — 레슨 도중 이미 깎은 만큼은 완료 때 빼고 정산 */
+    energySession?: string;
   }): Promise<{
     success: boolean;
     xpEarned: number;
