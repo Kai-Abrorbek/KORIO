@@ -10,6 +10,11 @@ import {
 import { AdminAuthService } from './admin-auth.service';
 import { AdminAuthController } from './admin-auth.controller';
 import { AdminAuditService } from './admin-audit.service';
+import { AdminAuditController } from './admin-audit.controller';
+import { AdminUsersController } from './admin-users.controller';
+import { AdminUsersService } from './admin-users.service';
+import { AdminSubscriptionsController } from './admin-subscriptions.controller';
+import { AdminSubscriptionsService } from './admin-subscriptions.service';
 import { AdminGuard } from './guards/admin.guard';
 import { AdminAnalyticsController } from './analytics/admin-analytics.controller';
 import { AdminAnalyticsService } from './analytics/admin-analytics.service';
@@ -23,6 +28,17 @@ import {
   SubscriptionSchema,
 } from '../payments/subscriptions/subscription.schema';
 import { AnalyticsModule } from '../analytics/analytics.module';
+import { AdminRevenueController } from './revenue/admin-revenue.controller';
+import { AdminRevenueService } from './revenue/admin-revenue.service';
+import { PlayReportSyncService } from './revenue/play-report.sync.service';
+import {
+  PlayReportFile,
+  PlayReportFileSchema,
+  PlayReportRow,
+  PlayReportRowSchema,
+  PlayReportSyncState,
+  PlayReportSyncStateSchema,
+} from './revenue/play-report.schema';
 
 /**
  * 운영 도구.
@@ -44,15 +60,29 @@ import { AnalyticsModule } from '../analytics/analytics.module';
       { name: UserStats.name, schema: UserStatsSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
       { name: Subscription.name, schema: SubscriptionSchema },
+      { name: PlayReportFile.name, schema: PlayReportFileSchema },
+      { name: PlayReportRow.name, schema: PlayReportRowSchema },
+      { name: PlayReportSyncState.name, schema: PlayReportSyncStateSchema },
     ]),
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
     AnalyticsModule,
   ],
-  controllers: [AdminAuthController, AdminAnalyticsController],
+  controllers: [
+    AdminAuthController,
+    AdminAnalyticsController,
+    AdminAuditController,
+    AdminUsersController,
+    AdminSubscriptionsController,
+    AdminRevenueController,
+  ],
   providers: [
     AdminAuthService,
     AdminAuditService,
+    AdminUsersService,
+    AdminSubscriptionsService,
+    AdminRevenueService,
+    PlayReportSyncService,
     AdminAnalyticsService,
     AdminGuard,
     RateLimitGuard,

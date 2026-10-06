@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useSession } from "@/features/auth/session";
+import { isMockMode, useSession } from "@/features/auth/session";
+import { LiveUsersPage } from "./live-users-page";
 import { leagues, mockUserRepository, type AdminUser, type UserAction, type UserPage, type UserQuery } from "./repository";
 import styles from "./users.module.css";
 
@@ -17,6 +18,10 @@ const detailTabs: { id: DetailTab; label: string }[] = [
 ];
 
 export function UsersPage() {
+  return isMockMode ? <MockUsersPage/> : <LiveUsersPage/>;
+}
+
+function MockUsersPage() {
   const params = useSearchParams();
   const { can } = useSession();
   const [query, setQuery] = useState<UserQuery>({ status: "all", tier: "all", country: "all", section: "all", league: "all", activity: "all", sort: "newest", page: 1, pageSize: 12 });

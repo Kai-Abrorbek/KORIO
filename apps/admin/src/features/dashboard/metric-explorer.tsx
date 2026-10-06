@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useConsole } from "@/widgets/console-context";
+import { isMockMode } from "@/features/auth/session";
 import { METRICS, formatMetric, mockSeries, type MetricKey } from "./mock-source";
 import { MetricDetailChart } from "./metric-detail-chart";
+import { LiveMetricExplorer } from "./live-metric-explorer";
 
 const DAY = 86_400_000;
 type Grain = "day" | "week" | "month";
@@ -32,6 +34,10 @@ function GrowthChart({ labels, values }: { labels: string[]; values: number[] })
 }
 
 export function MetricExplorer() {
+  return isMockMode ? <MockMetricExplorer/> : <LiveMetricExplorer/>;
+}
+
+function MockMetricExplorer() {
   const {range}=useConsole();
   const [key,setKey]=useState<MetricKey>("dau");
   const [grain,setGrain]=useState<Grain>("day");

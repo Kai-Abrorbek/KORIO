@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useSession } from "@/features/auth/session";
+import { isMockMode, useSession } from "@/features/auth/session";
+import { LiveSubscriptionsPage } from "./live-subscriptions-page";
 import { useConsole } from "@/widgets/console-context";
 import { BarChart } from "@/shared/ui/charts";
 import { mockSubscriptionRepository, type AdminSubscription, type SubscriptionEvent, type SubscriptionPage, type SubscriptionQuery, type SubscriptionStatus, type SubscriptionTier } from "./repository";
@@ -31,6 +32,10 @@ function aggregate(events: SubscriptionEvent[], from: string, to: string) {
 }
 
 export function SubscriptionsPage() {
+  return isMockMode ? <MockSubscriptionsPage/> : <LiveSubscriptionsPage/>;
+}
+
+function MockSubscriptionsPage() {
   const params = useSearchParams();
   const { can } = useSession();
   const { range } = useConsole();

@@ -1,6 +1,6 @@
 # KORIO Admin
 
-`apps/admin` is the KORIO operations console. The navigation and pages are built to work with typed mock data while the remaining NestJS admin endpoints are developed.
+`apps/admin` is the KORIO operations console. Local development uses typed mock data by default; production uses the NestJS Admin API for connected pages.
 
 ## Run
 
@@ -15,7 +15,9 @@ $env:NEXT_PUBLIC_ADMIN_DATA_MODE="mock"
 pnpm --filter admin build
 ```
 
-For a production build, mock **data** mode must be enabled explicitly. Authentication is never mocked in a production build: the existing Admin API login is required. Without this flag, the existing live dashboard API is used. `ADMIN_STATIC_EXPORT=true` produces the static export used by the Docker image. The Admin Dockerfile currently enables mock data mode while the new endpoints are unfinished.
+For a production build, mock **data** mode must be enabled explicitly. Authentication is never mocked in a production build: the Admin API login is required. Without this flag, Control Center and metric detail use `/admin/analytics/*`; users, subscriptions, and audit use their new read-only `/admin/*` endpoints. Pages without a corresponding API show an explicit unavailable state instead of demo records. `ADMIN_STATIC_EXPORT=true` produces the static export used by the Docker image. The Admin Dockerfile builds in API mode.
+
+To test the current live-data path locally, run the API with its database and admin auth configuration, then start the admin app with `$env:NEXT_PUBLIC_ADMIN_DATA_MODE="api"`. The account needs an admin role plus `analytics:read`, `users:read`, `subscription:read`, or `audit:read` for the corresponding pages. No admin credentials are bundled with the frontend.
 
 ## Routes
 
@@ -27,7 +29,7 @@ For a production build, mock **data** mode must be enabled explicitly. Authentic
 | `/content` | Hierarchy, questions, quality, localized content |
 | `/analytics` | Section/unit/lesson metrics, lesson funnel, question analytics, retention |
 | `/subscriptions` | Subscription state, trends, customer management |
-| `/revenue` | Gross revenue, expenses, profit, settlement and mock transaction ledger |
+| `/revenue` | Google Play estimated sales and earnings reports in API mode; gross revenue, expenses, profit and settlements in mock mode only |
 | `/gamification` | XP/streak/league/challenge and server constants |
 | `/operations` | Mock service controls, announcements and campaigns |
 | `/admin` | Audit log and role matrix |
@@ -36,8 +38,10 @@ Query parameters select tabs, so links can drill down between pages (for example
 
 ## Connecting the backend
 
-The current API has `/admin/auth/*` and five `/admin/analytics/*` read endpoints. It does not yet have admin list or mutation endpoints for users, content, subscriptions, operations or audit. Frontend feature modules therefore define typed sources/repositories beside each page (`src/features/*/mock-source.ts` or `repository.ts`). Implement API-backed versions of those contracts and swap the imports when endpoints exist. The existing `src/shared/api/client.ts` supplies the admin token and handles 401 responses.
+The API has `/admin/auth/*`, five `/admin/analytics/*` read endpoints, paginated read-only `/admin/users`, `/admin/subscriptions`, and `/admin/audit` endpoints, and Google Play report-backed `/admin/revenue/summary` and `/admin/revenue/transactions` endpoints. Control Center and metric detail consume analytics in API mode, including prior-period comparison. User, subscription, audit, and revenue pages consume the corresponding live endpoints. Content, gamification, and operations still lack live admin endpoints and display an unavailable state in API mode. Frontend feature modules retain typed mock sources for local UI work. The existing `src/shared/api/client.ts` supplies the admin token and handles 401 responses.
 
-Content mocks follow the existing `LessonNode → Lesson → Question` hierarchy and the separate Grammar, Expression and Hangul sources. They do not imply a database schema change. The `/revenue` screen uses a separate typed `RevenueSource` with clearly labelled KRW mock figures: daily/weekly/monthly/yearly gross sales, refunds, fees, operating expenses, profit, settlements, channel mix and transaction exports. The real subscription records still do not contain reliable price/currency data, so these figures must not be used for financial reporting. Real revenue/MRR requires an API-backed payment, refund, exchange-rate and expense ledger.
+Content mocks follow the existing `LessonNode → Lesson → Question` hierarchy and the separate Grammar, Expression and Hangul sources. They do not imply a database schema change. In mock mode, `/revenue` uses a separate typed `RevenueSource` with clearly labelled KRW demo figures. These must not be used for financial reporting. In API mode, `/revenue` reads Google Play financial reports through the backend: estimated sales are buyer-currency, provisional figures; earnings are merchant-currency, monthly report figures. The UI keeps them separate, never converts currencies implicitly, and does not claim profit or payout from incomplete data. If the Play bucket is not configured or reports have not been generated, it shows an explicit no-data state rather than revenue of zero. The real subscription records still do not contain reliable charged prices; they are not used as a revenue ledger.
+
+To connect Play reports, set `GOOGLE_PLAY_REPORT_BUCKET=gs://pubsite_prod_rev_...` on the API server and grant its Google service account access to the Play financial reports. The server also needs the existing `GOOGLE_PLAY_PACKAGE_NAME`. The API checks for new monthly report snapshots daily; a super admin can request a check with `POST /admin/revenue/sync`. Viewing reports requires `subscription:read`. No report bucket or credentials are shipped in the admin frontend. Live imports and reconciliation against Play Console must be verified when the first real report becomes available.
 
 Mutating actions in mock mode are local demonstrations. Operations and mock audit records use browser storage; other feature mocks reset on full reload. The NestJS backend must enforce role permissions, confirmation reason requirements and audit logging when the real endpoints are added.

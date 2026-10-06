@@ -7,7 +7,7 @@ import { isMockMode } from "@/features/auth/session";
 import { LineChart, Donut, Legend } from "@/shared/ui/charts";
 import { CohortTable } from "./cohort-table";
 import { Funnel } from "./funnel";
-import { DashboardPage as LiveDashboardPage } from "./dashboard-page";
+import { LiveControlCenter } from "./live-control-center";
 import { METRICS, formatMetric, mockDashboardSource, type DashboardAlert, type DashboardBreakdown, type MetricSeries } from "./mock-source";
 import type { FunnelStep } from "./types";
 
@@ -56,7 +56,7 @@ function DayModal({ selection, close }: { selection: SelectedDay; close: () => v
 }
 
 export function ControlCenter() {
-  if (!isMockMode) return <LiveDashboardPage/>;
+  if (!isMockMode) return <LiveControlCenter/>;
   return <MockControlCenter/>;
 }
 

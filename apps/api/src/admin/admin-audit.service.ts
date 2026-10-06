@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -23,6 +23,84 @@ export class AdminAuditService {
     @InjectModel(AdminAuditLog.name)
     private readonly model: Model<AdminAuditLogDocument>,
   ) {}
+
+  /** Read-only, paginated audit feed. Never expose userAgent or arbitrary actor documents. */
+  async list(query: {
+    page?: string;
+    pageSize?: string;
+    search?: string;
+    action?: string;
+  }) {
+    const page = Number(query.page ?? 1);
+    const pageSize = Number(query.pageSize ?? 20);
+    if (
+      !Number.isInteger(page) ||
+      page < 1 ||
+      !Number.isInteger(pageSize) ||
+      pageSize < 1 ||
+      pageSize > 100
+    ) {
+      throw new BadRequestException('INVALID_PAGINATION');
+    }
+    const search = query.search?.trim() ?? '';
+    const action = query.action?.trim() ?? '';
+    if (search.length > 100 || action.length > 100)
+      throw new BadRequestException('INVALID_FILTER');
+    const filter: Record<string, unknown> = {};
+    if (action) filter.action = action;
+    if (search) {
+      const slash = String.fromCharCode(92);
+      const pattern = new RegExp(
+        [...search]
+          .map((char) =>
+            '.^$*+?()[]{}|'.includes(char) || char === slash
+              ? slash + char
+              : char,
+          )
+          .join(''),
+        'i',
+      );
+      filter.$or = [
+        { adminEmail: pattern },
+        { action: pattern },
+        { targetLabel: pattern },
+        { targetId: pattern },
+        { reason: pattern },
+      ];
+    }
+    const [items, total] = await Promise.all([
+      this.model
+        .find(filter)
+        .sort({ at: -1, _id: -1 })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .select(
+          'at adminEmail adminRole action targetType targetId targetLabel changes reason success ip errorCode',
+        )
+        .lean(),
+      this.model.countDocuments(filter),
+    ]);
+    return {
+      items: items.map((row) => ({
+        id: String(row._id),
+        at: row.at.toISOString(),
+        adminEmail: row.adminEmail,
+        adminRole: row.adminRole,
+        action: row.action,
+        targetType: row.targetType,
+        targetId: row.targetId,
+        targetLabel: row.targetLabel,
+        changes: row.changes,
+        reason: row.reason,
+        success: row.success,
+        ip: row.ip,
+        errorCode: row.errorCode,
+      })),
+      total,
+      page,
+      pageSize,
+    };
+  }
 
   async record(params: {
     admin: AdminRequestContext;

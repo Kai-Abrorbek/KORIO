@@ -31,8 +31,8 @@ COPY apps/admin ./apps/admin
 COPY packages/eslint-config ./packages/eslint-config
 COPY packages/typescript-config ./packages/typescript-config
 ENV ADMIN_STATIC_EXPORT=true
-# 화면 데이터는 임시 mock이지만 인증은 운영 Admin API를 사용한다.
-ENV NEXT_PUBLIC_ADMIN_DATA_MODE=mock
+# 운영 화면은 실제 Admin API를 사용한다. 미연결 화면은 명시적인 안내를 표시한다.
+ENV NEXT_PUBLIC_ADMIN_DATA_MODE=api
 RUN pnpm --filter admin build \
     && test -f apps/admin/out/index.html
 
