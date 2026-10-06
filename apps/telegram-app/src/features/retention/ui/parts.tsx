@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import styles from "./retention.module.css";
@@ -67,22 +67,7 @@ export interface RewardChip {
   label: string;
 }
 
-/**
- * 가운데 뜨는 보상 대화상자 — 복귀 보상·복구펜 알림·목표 결과·출석 선물 (앱 RewardDialog).
- */
-export function RewardDialog({
-  mood = "great",
-  title,
-  body,
-  rewards = [],
-  primaryLabel,
-  onPrimary,
-  primaryTone = "purple",
-  secondaryLabel,
-  onSecondary,
-  loading,
-  onBackdrop,
-}: {
+export interface RewardDialogProps {
   mood?: string;
   title: string;
   body?: string;
@@ -94,10 +79,57 @@ export function RewardDialog({
   onSecondary?: () => void;
   loading?: boolean;
   onBackdrop?: () => void;
-}) {
+}
+
+/** 열림·닫힘 페이드 길이 — CSS .dialogRoot transition 과 같게 */
+const FADE_MS = 180;
+
+/**
+ * 가운데 뜨는 보상 대화상자 — 복귀 보상·복구펜 알림·목표 결과·출석 선물 (앱 RewardDialog).
+ *
+ * ⚠️ 연출 애니메이션 금지 (2026-10-06). 튀어나오기·후광 맥박·칩 팝이 흔들려 보였다.
+ *    열림/닫힘은 **불투명도 페이드 하나만**. 닫힐 때도 페이드아웃이 보이도록
+ *    open 이 false 가 돼도 FADE_MS 동안 붙여 두고, 그동안은 마지막 내용을 그린다.
+ */
+export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boolean }) {
+  const lastShown = useRef(props);
+  if (open) lastShown.current = props;
+  const [mounted, setMounted] = useState(open);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      // 붙은 다음 프레임에 켜야 transition 이 돈다
+      const frame = requestAnimationFrame(() => setShown(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    setShown(false);
+    const timer = window.setTimeout(() => setMounted(false), FADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
+  if (!mounted) return null;
+  const {
+    mood = "great",
+    title,
+    body,
+    rewards = [],
+    primaryLabel,
+    onPrimary,
+    primaryTone = "purple",
+    secondaryLabel,
+    onSecondary,
+    loading,
+    onBackdrop,
+  } = open ? props : lastShown.current;
   const dismiss = onBackdrop ?? onSecondary;
   return (
-    <div aria-modal="true" className={styles.dialogRoot} role="dialog">
+    <div
+      aria-modal="true"
+      className={`${styles.dialogRoot} ${shown && open ? styles.dialogShown : ""}`}
+      role="dialog"
+    >
       <button
         aria-label="close"
         className={styles.dialogBackdrop}
@@ -118,12 +150,7 @@ export function RewardDialog({
               <span
                 className={styles.dialogChip}
                 key={index}
-                style={
-                  {
-                    "--cc": chip.color,
-                    animationDelay: `${0.22 + index * 0.12}s`,
-                  } as CSSProperties
-                }
+                style={{ "--cc": chip.color } as CSSProperties}
               >
                 <i><MobileIcon name={chip.icon} size={18} /></i>
                 {chip.label}

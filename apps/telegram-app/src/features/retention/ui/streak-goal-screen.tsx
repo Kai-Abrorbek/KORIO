@@ -224,41 +224,46 @@ export function StreakGoalScreen() {
         </>
       )}
 
-      {confirming && chosen ? (
-        <RewardDialog
-          body={rt("goal.confirmBody", { gems: chosen.gems })}
-          loading={starting}
-          mood="determined"
-          onPrimary={() => void start()}
-          onSecondary={() => setConfirming(false)}
-          primaryLabel={rt("goal.confirmYes")}
-          primaryTone="orange"
-          rewards={[
-            { color: "#3BB6E5", icon: "diamond", label: rt("goal.confirmGet", { gems: chosen.gems }) },
-            { color: "#FF7A00", icon: "flame", label: rt("goal.confirmKeep", { n: chosen.days }) },
-          ]}
-          secondaryLabel={rt("goal.confirmNo")}
-          title={rt("goal.confirmTitle", { len: goalLength(chosen.days) })}
-        />
-      ) : null}
+      {/* 대화상자는 계속 붙여 두고 open 만 바꾼다 — 닫힐 때도 페이드가 보인다 */}
+      <RewardDialog
+        body={rt("goal.confirmBody", { gems: chosen?.gems ?? 0 })}
+        loading={starting}
+        mood="determined"
+        onPrimary={() => void start()}
+        onSecondary={() => setConfirming(false)}
+        open={confirming && Boolean(chosen)}
+        primaryLabel={rt("goal.confirmYes")}
+        primaryTone="orange"
+        rewards={
+          chosen
+            ? [
+                { color: "#3BB6E5", icon: "diamond", label: rt("goal.confirmGet", { gems: chosen.gems }) },
+                { color: "#FF7A00", icon: "flame", label: rt("goal.confirmKeep", { n: chosen.days }) },
+              ]
+            : []
+        }
+        secondaryLabel={rt("goal.confirmNo")}
+        title={rt("goal.confirmTitle", { len: goalLength(chosen?.days ?? 0) })}
+      />
 
-      {started ? (
-        <RewardDialog
-          body={rt("goal.startedBody", { n: started.days })}
-          mood="celebrating"
-          onPrimary={() => {
-            setStarted(null);
-            goStudy();
-          }}
-          onSecondary={() => setStarted(null)}
-          primaryLabel={rt("goal.goStudy")}
-          rewards={[
-            { color: "#3BB6E5", icon: "diamond", label: rt("goal.confirmGet", { gems: started.gems }) },
-          ]}
-          secondaryLabel={rt("close")}
-          title={rt("goal.startedTitle")}
-        />
-      ) : null}
+      <RewardDialog
+        body={rt("goal.startedBody", { n: started?.days ?? 0 })}
+        mood="celebrating"
+        onPrimary={() => {
+          setStarted(null);
+          goStudy();
+        }}
+        onSecondary={() => setStarted(null)}
+        open={Boolean(started)}
+        primaryLabel={rt("goal.goStudy")}
+        rewards={
+          started
+            ? [{ color: "#3BB6E5", icon: "diamond", label: rt("goal.confirmGet", { gems: started.gems }) }]
+            : []
+        }
+        secondaryLabel={rt("close")}
+        title={rt("goal.startedTitle")}
+      />
     </main>
   );
 }

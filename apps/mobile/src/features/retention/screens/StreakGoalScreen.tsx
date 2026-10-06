@@ -491,7 +491,7 @@ function Milestone({
   const next = index === 0;
   return (
     <Animated.View style={[s.milestone, next && s.milestoneNext, style]}>
-      <Text style={[s.mDay, next && s.mLight]}>
+      <Text style={[s.mDay, next && s.mLight]} maxFontSizeMultiplier={1.2}>
         {t("retention.goal.dayN", { n: day })}
       </Text>
       <Ionicons name="gift" size={22} color={next ? "#FFFFFF" : "#FFB020"} />
@@ -499,7 +499,7 @@ function Milestone({
         <Ionicons name="diamond" size={11} color={next ? "#FFFFFF" : GEM} />
         <Text style={[s.mGemsText, next && s.mLight]}>{gems}</Text>
       </View>
-      <Text style={[s.mIn, next && s.mLight]}>
+      <Text style={[s.mIn, next && s.mLight]} maxFontSizeMultiplier={1.2}>
         {inDays === 1
           ? t("retention.goal.tomorrow")
           : t("retention.goal.inDays", { n: inDays })}
@@ -558,7 +558,10 @@ function GoalOption({
     >
       <Animated.View style={[s.option, selected && s.optionSelected, style]}>
         <View style={[s.optionLen, selected && s.optionLenSelected]}>
-          <Text style={[s.optionLenText, selected && s.mLight]}>
+          <Text
+            style={[s.optionLenText, selected && s.mLight]}
+            maxFontSizeMultiplier={1.2}
+          >
             {goalLength(t, option.days)}
           </Text>
         </View>
@@ -759,8 +762,9 @@ const getStyles = (theme: ThemeColors) =>
     },
     track: { gap: 10, paddingVertical: 14, paddingRight: 4 },
     milestone: {
-      width: 74,
+      width: 82,
       paddingVertical: 10,
+      paddingHorizontal: 6,
       borderRadius: 16,
       alignItems: "center",
       gap: 4,
@@ -772,11 +776,23 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: "#FFB020",
       borderColor: "#D48A00",
     },
-    mDay: { fontSize: 12, fontWeight: "900", color: theme.text },
+    mDay: {
+      fontSize: 12,
+      fontWeight: "900",
+      color: theme.text,
+      textAlign: "center",
+    },
     mLight: { color: "#FFFFFF" },
     mGems: { flexDirection: "row", alignItems: "center", gap: 3 },
     mGemsText: { fontSize: 12.5, fontWeight: "900", color: theme.text },
-    mIn: { fontSize: 10.5, fontWeight: "800", color: theme.textSecondary },
+    // "5 kundan keyin" 처럼 두 줄로 접혀도 가운데에 오게
+    mIn: {
+      fontSize: 10.5,
+      fontWeight: "800",
+      color: theme.textSecondary,
+      textAlign: "center",
+      lineHeight: 13,
+    },
     totalRow: {
       flexDirection: "row",
       alignItems: "center",
@@ -819,8 +835,10 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: "#FF7A0010",
     },
     optionLen: {
-      width: 64,
-      height: 48,
+      width: 76,
+      minHeight: 52,
+      paddingHorizontal: 6,
+      paddingVertical: 4,
       borderRadius: 14,
       backgroundColor: theme.bg,
       borderWidth: 1,
@@ -829,7 +847,14 @@ const getStyles = (theme: ThemeColors) =>
       justifyContent: "center",
     },
     optionLenSelected: { backgroundColor: FLAME, borderColor: "#D45F00" },
-    optionLenText: { fontSize: 15, fontWeight: "900", color: theme.text },
+    // "1 haftalik" 이 두 줄로 접혀도 가운데 정렬
+    optionLenText: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: theme.text,
+      textAlign: "center",
+      lineHeight: 17,
+    },
     optionMid: { flex: 1, gap: 4 },
     flames: { flexDirection: "row", gap: 1 },
     optionSub: {

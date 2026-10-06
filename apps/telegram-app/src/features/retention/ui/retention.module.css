@@ -1,7 +1,7 @@
 /* 리텐션 — 홈 카드 · 대화상자 · 연속 목표 화면 · 상점 복구펜 (앱 features/retention 과 같은 톤) */
 
 /* ── 입체 버튼 ── */
-.btn3d{--b:#776ee2;--d:#5a52c4;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:0;border-bottom:4px solid var(--d);border-radius:16px;background:var(--b);color:#fff;padding:0 18px;font-size:16px;font-weight:900;letter-spacing:.3px;overflow:hidden;transition:transform .08s,border-bottom-width .08s;-webkit-tap-highlight-color:transparent}
+.btn3d{--b:#776ee2;--d:#5a52c4;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:0;border-bottom:4px solid var(--d);border-radius:16px;background:var(--b);color:#fff;padding:0 18px;font-size:16px;font-weight:900;letter-spacing:.3px;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .btn3d::before{content:"";position:absolute;top:3px;left:6px;right:6px;height:38%;border-radius:12px;background:rgb(255 255 255/18%);pointer-events:none}
 .btn3d:active:not(:disabled){transform:translateY(3px);border-bottom-width:1px}
 .btn3d:disabled{--b:#d3d3da;--d:#b9b9c2}
@@ -76,16 +76,18 @@
 .goalChip:active{transform:translateY(2px);border-bottom-width:1px}
 
 /* ── 대화상자 ── */
-.dialogRoot{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;padding:0 16px}
-.dialogBackdrop{position:absolute;inset:0;background:rgb(10 8 30/62%);animation:r-fade .2s ease-out both}
-.dialog{position:relative;display:flex;flex-direction:column;align-items:center;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:76px 22px 20px;animation:r-pop .38s cubic-bezier(.34,1.56,.64,1) both}
+.dialogRoot{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;padding:0 16px;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.dialogShown{opacity:1;pointer-events:auto}
+/* 대화상자는 애니메이션 없음 — 튀어나오는 스프링·후광 맥박이 흔들려 보였다 (2026-10-06) */
+.dialogBackdrop{position:absolute;inset:0;background:rgb(10 8 30/62%)}
+.dialog{position:relative;display:flex;flex-direction:column;align-items:center;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:76px 22px 20px}
 .dialogMascot{position:absolute;top:-58px;display:grid;place-items:center}
-.dialogMascot::before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#ffe066;animation:r-halo 2.8s ease-in-out infinite}
+.dialogMascot::before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#ffe066;opacity:.5}
 .dialogMascot img{position:relative;width:104px;height:104px;object-fit:contain}
 .dialog h2{margin:0;font-size:21px;font-weight:900;line-height:28px;text-align:center}
 .dialog p{margin:8px 0 0;color:var(--muted);font-size:14.5px;font-weight:600;line-height:21px;text-align:center}
 .dialogRewards{display:flex;width:100%;flex-direction:column;gap:8px;margin-top:16px}
-.dialogChip{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);padding:10px 12px;font-size:14.5px;font-weight:800;animation:r-chip .45s cubic-bezier(.34,1.56,.64,1) both}
+.dialogChip{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);padding:10px 12px;font-size:14.5px;font-weight:800}
 .dialogChip>i{display:grid;width:32px;height:32px;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--cc) 14%,transparent);color:var(--cc)}
 .dialogPrimary{margin-top:20px}
 .dialogSecondary{margin-top:14px;border:0;background:none;color:var(--muted);padding:4px;font-size:14px;font-weight:800}
@@ -107,11 +109,11 @@
 .heroLabel{color:#fff3e0;font-size:15px;font-weight:900}
 .heroFreeze{display:flex;align-items:center;gap:5px;width:max-content;margin-top:8px;border-radius:10px;background:rgb(255 255 255/22%);padding:4px 10px;font-size:12px;font-weight:900}
 .mTrack{display:flex;gap:10px;overflow-x:auto;padding:14px 4px 14px 0;scrollbar-width:none}
-.milestone{display:flex;flex:none;flex-direction:column;align-items:center;gap:4px;width:74px;border:1.5px solid var(--border);border-radius:16px;background:var(--app-bg);padding:10px 0;color:#ffb020;animation:r-rise .5s cubic-bezier(.34,1.56,.64,1) both}
+.milestone{display:flex;flex:none;flex-direction:column;align-items:center;gap:4px;width:82px;border:1.5px solid var(--border);border-radius:16px;background:var(--app-bg);padding:10px 6px;color:#ffb020;text-align:center;animation:r-rise .5s cubic-bezier(.34,1.56,.64,1) both}
 .milestone small{color:var(--text);font-size:12px;font-weight:900}
 .milestone b{display:flex;align-items:center;gap:3px;color:var(--text);font-size:12.5px;font-weight:900}
 .milestone b svg{color:#3bb6e5}
-.milestone em{color:var(--muted);font-size:10.5px;font-style:normal;font-weight:800}
+.milestone em{color:var(--muted);font-size:10.5px;font-style:normal;font-weight:800;line-height:13px}
 .mNext{border-color:#d48a00;background:#ffb020;color:#fff}
 .mNext small,.mNext b,.mNext em,.mNext b svg{color:#fff}
 .totalRow{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:12px}
@@ -123,7 +125,7 @@
 .option{position:relative;display:flex;width:100%;align-items:center;gap:12px;border:2px solid var(--border);border-bottom-width:5px;border-radius:18px;background:var(--surface);color:var(--text);padding:12px;text-align:left;animation:r-slide .45s cubic-bezier(.34,1.56,.64,1) both;transition:transform .08s}
 .option:active{transform:translateY(3px)}
 .optionOn{border-color:#ff7a00;background:color-mix(in srgb,#ff7a00 7%,var(--surface))}
-.optLen{display:grid;flex:none;width:64px;height:48px;place-items:center;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);font-size:13.5px;font-weight:900;text-align:center}
+.optLen{display:grid;flex:none;width:76px;min-height:52px;place-items:center;border:1px solid var(--border);border-radius:14px;background:var(--app-bg);padding:4px 6px;font-size:13.5px;font-weight:900;line-height:17px;text-align:center}
 .optionOn .optLen{border-color:#d45f00;background:#ff7a00;color:#fff}
 .optMid{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
 .flames{display:flex;gap:1px;color:var(--muted)}
@@ -170,10 +172,6 @@
 @keyframes r-glow{0%,100%{opacity:.2}50%{opacity:1}}
 @keyframes r-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 rgb(255 107 154/0%)}50%{transform:scale(1.06);box-shadow:0 0 14px rgb(255 107 154/50%)}}
 @keyframes r-sweep{from{left:-60px}to{left:110%}}
-@keyframes r-fade{from{opacity:0}}
-@keyframes r-pop{from{opacity:0;transform:scale(.86)}}
-@keyframes r-halo{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}
-@keyframes r-chip{from{opacity:0;transform:scale(.6)}}
 @keyframes r-flameglow{0%,100%{opacity:.25;transform:scale(1)}45%{opacity:.55;transform:scale(1.15)}}
 @keyframes r-flicker{0%,100%{transform:scale(1) rotate(-3deg)}45%{transform:scale(1.07) rotate(3deg)}}
 @keyframes r-rise{from{opacity:0;transform:translateY(14px)}}

@@ -1,16 +1,6 @@
-import { useEffect, type ComponentProps } from "react";
+import { useRef, type ComponentProps } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import HaneulmonMascot, {
   type HaneulmonMood,
@@ -25,7 +15,7 @@ export interface RewardChip {
   label: string;
 }
 
-interface Props {
+export interface RewardDialogProps {
   visible: boolean;
   mood?: HaneulmonMood;
   title: string;
@@ -45,82 +35,53 @@ interface Props {
 /**
  * 가운데 뜨는 보상 대화상자 — 복귀 보상·복구펜 알림·목표 결과가 같이 쓴다.
  *
- * ⚠️ 이 앱의 Modal 규칙(CharacterDetailSheet 참고): Modal 안에서 reanimated
- *    entering/exiting 을 쓰지 않는다, statusBarTranslucent, animationType="none",
- *    GestureHandlerRootView 로 다시 감싼다. 하나라도 어기면 "보이는데 안 눌린다".
+ * ⚠️ 연출 애니메이션 금지 (2026-10-06). 스프링으로 튀어나오기·후광 맥박·칩 팝·
+ *    버튼 튕김이 카드와 버튼을 흔들리게 했다. 열림/닫힘은 **Modal 기본 페이드
+ *    (animationType="fade") 하나만** 쓴다. 안에서 reanimated 를 다시 쓰지 말 것 —
+ *    Modal 자체 애니와 겹치면 어긋난다 (SectionListSheet 주석 참고).
+ * statusBarTranslucent + GestureHandlerRootView 는 그대로 (edge-to-edge 인셋·터치).
+ *
+ * 닫힐 때도 페이드아웃이 보이도록 Modal 은 계속 붙여 두고 visible 만 바꾼다.
+ * 닫히는 동안 부모가 내용을 비워도(null) 깜빡이지 않게 마지막 내용을 잡아 둔다.
  */
-export default function RewardDialog({
-  visible,
-  mood = "great",
-  title,
-  body,
-  rewards = [],
-  primaryLabel,
-  onPrimary,
-  primaryColor,
-  primaryDepth,
-  secondaryLabel,
-  onSecondary,
-  loading,
-  onBackdrop,
-}: Props) {
+export default function RewardDialog(props: RewardDialogProps) {
   const theme = useTheme();
   const s = getStyles(theme);
-  const show = useSharedValue(0);
-  const glow = useSharedValue(0);
-
-  useEffect(() => {
-    if (visible) {
-      show.value = 0;
-      show.value = withSpring(1, { damping: 13, stiffness: 170 });
-      glow.value = withRepeat(
-        withSequence(
-          withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-          withTiming(0, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-        ),
-        -1,
-      );
-    } else {
-      show.value = 0;
-      glow.value = 0;
-    }
-  }, [visible]);
-
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: Math.min(1, show.value),
-  }));
-  const cardStyle = useAnimatedStyle(() => ({
-    opacity: Math.min(1, show.value),
-    transform: [{ scale: 0.86 + 0.14 * show.value }],
-  }));
-  const haloStyle = useAnimatedStyle(() => ({
-    opacity: 0.35 + 0.35 * glow.value,
-    transform: [{ scale: 1 + 0.08 * glow.value }],
-  }));
-
-  if (!visible) return null;
+  const lastShown = useRef(props);
+  if (props.visible) lastShown.current = props;
+  const {
+    mood = "great",
+    title,
+    body,
+    rewards = [],
+    primaryLabel,
+    onPrimary,
+    primaryColor,
+    primaryDepth,
+    secondaryLabel,
+    onSecondary,
+    loading,
+    onBackdrop,
+  } = props.visible ? props : lastShown.current;
+  const visible = props.visible;
 
   return (
     <Modal
       transparent
       visible={visible}
-      animationType="none"
+      animationType="fade"
       statusBarTranslucent
       onRequestClose={() => (onBackdrop ?? onSecondary)?.()}
     >
       <GestureHandlerRootView style={s.root}>
-        <Animated.View
-          style={[StyleSheet.absoluteFill, s.backdrop, backdropStyle]}
-        >
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={() => (onBackdrop ?? onSecondary)?.()}
-          />
-        </Animated.View>
+        <Pressable
+          style={[StyleSheet.absoluteFill, s.backdrop]}
+          onPress={() => (onBackdrop ?? onSecondary)?.()}
+        />
 
-        <Animated.View style={[s.card, cardStyle]}>
+        <View style={s.card}>
           <View style={s.mascotWrap}>
-            <Animated.View style={[s.halo, haloStyle]} />
+            <View style={s.halo} />
             <HaneulmonMascot size={104} mood={mood} />
           </View>
 
@@ -130,7 +91,7 @@ export default function RewardDialog({
           {rewards.length ? (
             <View style={s.rewards}>
               {rewards.map((r, i) => (
-                <RewardChipView key={i} chip={r} index={i} theme={theme} />
+                <RewardChipView key={i} chip={r} theme={theme} />
               ))}
             </View>
           ) : null}
@@ -148,7 +109,7 @@ export default function RewardDialog({
               <Text style={s.secondaryText}>{secondaryLabel}</Text>
             </Pressable>
           ) : null}
-        </Animated.View>
+        </View>
       </GestureHandlerRootView>
     </Modal>
   );
@@ -156,32 +117,19 @@ export default function RewardDialog({
 
 function RewardChipView({
   chip,
-  index,
   theme,
 }: {
   chip: RewardChip;
-  index: number;
   theme: ThemeColors;
 }) {
   const s = getStyles(theme);
-  const pop = useSharedValue(0);
-  useEffect(() => {
-    pop.value = withDelay(
-      220 + index * 120,
-      withSpring(1, { damping: 9, stiffness: 180 }),
-    );
-  }, []);
-  const style = useAnimatedStyle(() => ({
-    opacity: Math.min(1, pop.value),
-    transform: [{ scale: 0.6 + 0.4 * pop.value }],
-  }));
   return (
-    <Animated.View style={[s.chip, style]}>
+    <View style={s.chip}>
       <View style={[s.chipIcon, { backgroundColor: chip.color + "22" }]}>
         <Ionicons name={chip.icon} size={18} color={chip.color} />
       </View>
       <Text style={s.chipText}>{chip.label}</Text>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -213,6 +161,7 @@ const getStyles = (theme: ThemeColors) =>
       height: 150,
       borderRadius: 75,
       backgroundColor: "#FFE066",
+      opacity: 0.5,
     },
     title: {
       fontSize: 21,
