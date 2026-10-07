@@ -5,8 +5,16 @@
  * 서비스 코드 곳곳에 흩어져 있으면 하나만 고치고 나머지를 놓친다.
  */
 
+import {
+  registerRuntimeScalar,
+  runtimeConfig,
+} from '../app-settings/runtime-values';
+
 /** 초대가 성사되면 초대자·피초대자에게 각각 주는 보석 */
-export const REFERRAL_GEMS = 1000;
+export let REFERRAL_GEMS = 1000;
+registerRuntimeScalar('REFERRAL_GEMS', 1000, (value) => {
+  REFERRAL_GEMS = value;
+});
 
 /**
  * 피초대자가 코드를 쓸 수 있는 기한 (가입 후 며칠).
@@ -28,12 +36,13 @@ export const MAX_REWARDED_REFERRALS = 100;
  * 1명당 1000 보석만 주면 "한 명 초대하고 끝" 이 된다. 계단을 놓아야
  * 두 번째·세 번째를 부른다. 각 단계는 딱 한 번만 지급된다.
  */
-export const REFERRAL_MILESTONES: { count: number; gems: number }[] = [
-  { count: 3, gems: 1000 },
-  { count: 10, gems: 3000 },
-  { count: 25, gems: 8000 },
-  { count: 50, gems: 20000 },
-];
+export const REFERRAL_MILESTONES: { count: number; gems: number }[] =
+  runtimeConfig('REFERRAL_MILESTONES', [
+    { count: 3, gems: 1000 },
+    { count: 10, gems: 3000 },
+    { count: 25, gems: 8000 },
+    { count: 50, gems: 20000 },
+  ]);
 
 /** 초대 코드 길이 */
 export const CODE_LENGTH = 7;

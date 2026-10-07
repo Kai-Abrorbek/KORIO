@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Pressable,
 } from "react-native";
-import Animated, { SlideInDown, FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,7 +19,6 @@ import {
   SuperInfinityBadge,
   ENERGY_COLORS,
 } from "./BatteryBadge";
-import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "@/store/auth.store";
 import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
@@ -55,7 +54,6 @@ export default function EnergyModal({
   const { t } = useTranslation();
   const theme = useTheme();
   const s = getStyles(theme);
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   // 무료 체험을 이미 쓴 사람에게 "30일 무료" 를 다시 약속하면 안 된다 (결제 화면에서 체험이 안 나옴)
   const user = useAuthStore((st) => st.user);
@@ -65,15 +63,19 @@ export default function EnergyModal({
   const [earn, setEarn] = useState<{ remaining: number; max: number } | null>(
     null,
   );
+  const [limits, setLimits] = useState<{ maxEnergy: number; freeAmount: number; refillCost: number } | null>(null);
   useEffect(() => {
     if (!visible) return;
     let alive = true;
     setEarn(null);
+    setLimits(null);
     Promise.all([
       EnergyService.getState().catch(() => null),
       LessonService.getMistakes().catch(() => null),
     ]).then(([st, mistakes]) => {
-      if (!alive || !st || !mistakes) return;
+      if (!alive || !st) return;
+      setLimits({ maxEnergy: st.maxEnergy, freeAmount: st.freeAmount ?? ENERGY_FREE_AMOUNT, refillCost: st.refillCost });
+      if (!mistakes) return;
       const remaining = st.earnRemaining ?? 0;
       if ((mistakes.count ?? 0) > 0 && remaining > 0) {
         setEarn({
@@ -159,14 +161,14 @@ export default function EnergyModal({
               onPress={onRefill}
               style={[s.card, { opacity: 0.6 }]}
             >
-              <BatteryBadge value={ENERGY_MAX} fill="gray" size={44} />
+              <BatteryBadge value={limits?.maxEnergy ?? ENERGY_MAX} fill="gray" size={44} />
               <Text style={[s.cardLabel, { color: ENERGY_COLORS.numGray }]}>
                 {t("energy.refill")}
               </Text>
               <View style={s.gemRow}>
                 <Ionicons name="diamond" size={16} color="#B9B9C4" />
                 <Text style={[s.cardAction, { color: theme.textSecondary }]}>
-                  {refillCost}
+                  {limits?.refillCost ?? refillCost}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -179,13 +181,13 @@ export default function EnergyModal({
               style={s.card}
             >
               <BatteryBadge
-                value={ENERGY_FREE_AMOUNT}
+                value={limits?.freeAmount ?? ENERGY_FREE_AMOUNT}
                 fill="pink"
                 fillFraction={0.42}
                 size={44}
               />
               <Text style={s.cardLabel}>
-                {t("energy.plusAmount", { n: ENERGY_FREE_AMOUNT })}
+                {t("energy.plusAmount", { n: limits?.freeAmount ?? ENERGY_FREE_AMOUNT })}
               </Text>
               <Text style={[s.cardAction, { color: ENERGY_COLORS.blue }]}>
                 {t("energy.freeGet")}

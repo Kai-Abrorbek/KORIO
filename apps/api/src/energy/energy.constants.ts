@@ -1,10 +1,12 @@
+import { runtimeConfig, runtimeNumber } from '../app-settings/runtime-values';
+
 /** 0 에서 가득까지 걸리는 시간 — 하루에 한 번 꽉 찬다 (2026-10-06) */
 const FULL_REFILL_HOURS = 24;
 // 최대 에너지. 출시 초기 이탈을 줄이려고 25 → 50 (2026-10-06).
 // 앱의 폴백 값(apps/mobile/src/constants/energy.ts)도 같이 바꾼다
 const MAX_ENERGY = 50;
 
-export const ENERGY_CONFIG = {
+export const ENERGY_CONFIG = runtimeConfig('ENERGY_CONFIG', {
   MAX: MAX_ENERGY,
   FULL_REFILL_HOURS,
   /**
@@ -12,11 +14,17 @@ export const ENERGY_CONFIG = {
    * 50개면 28.8분. 소수여도 된다 (회복 계산은 ms 로 한다).
    * MAX 만 바꿔도 "하루에 가득" 은 그대로 유지된다.
    */
-  REGEN_MINUTES: (FULL_REFILL_HOURS * 60) / MAX_ENERGY,
+  get REGEN_MINUTES() {
+    return (
+      (runtimeNumber('ENERGY_CONFIG.FULL_REFILL_HOURS', FULL_REFILL_HOURS) *
+        60) /
+      runtimeNumber('ENERGY_CONFIG.MAX', MAX_ENERGY)
+    );
+  },
   REFILL_GEM_COST: 350, // 충전하기 비용
   FREE_DAILY_LIMIT: 3, // 무료 +5 하루 횟수
   FREE_AMOUNT: 10, // 무료로 받는 양 (5 → 10, 2026-10-06)
-} as const;
+} as const);
 
 /**
  * 연속 정답 보너스 (2026-10-07 개편).
@@ -29,11 +37,11 @@ export const ENERGY_CONFIG = {
  * 6~12 라, 보너스만으로 에너지가 늘어나는 일은 없다 (구독 압력 유지).
  * 바닥일수록 조금 더 — 여기서 끊기면 유저가 그냥 앱을 닫는다.
  */
-export const COMBO_BONUS_AMOUNT = [
+export const COMBO_BONUS_AMOUNT = runtimeConfig('COMBO_BONUS_AMOUNT', [
   { maxEnergy: 10, amount: 4 },
   { maxEnergy: 25, amount: 3 },
   { maxEnergy: Infinity, amount: 2 },
-] as const;
+] as const);
 
 /**
  * 콤보 보너스를 서버가 막는 두 가지.

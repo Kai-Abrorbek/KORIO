@@ -9,6 +9,19 @@
  * 으로 옮겼고, 여기는 상자만 남긴다.
  */
 
+import { runtimeConfig } from '../app-settings/runtime-values';
+
+export const CHEST_REWARDS = runtimeConfig('CHEST_REWARDS', {
+  WOOD_MIN: 10,
+  WOOD_MAX: 15,
+  SILVER_MIN: 16,
+  SILVER_MAX: 25,
+  GOLD_MIN: 26,
+  GOLD_MAX: 40,
+  PROGRESS_PER_SECTION: 3,
+  PERFECT_BONUS: 15,
+});
+
 // 노드 완주 상자 — 등급 미지수(랜덤), 보석 짜게
 export function rollChest(): {
   grade: 'wood' | 'silver' | 'gold';
@@ -17,9 +30,20 @@ export function rollChest(): {
   const rand = (a: number, b: number) =>
     a + Math.floor(Math.random() * (b - a + 1));
   const r = Math.random();
-  if (r < 0.6) return { grade: 'wood', gems: rand(10, 15) };
-  if (r < 0.9) return { grade: 'silver', gems: rand(16, 25) };
-  return { grade: 'gold', gems: rand(26, 40) };
+  if (r < 0.6)
+    return {
+      grade: 'wood',
+      gems: rand(CHEST_REWARDS.WOOD_MIN, CHEST_REWARDS.WOOD_MAX),
+    };
+  if (r < 0.9)
+    return {
+      grade: 'silver',
+      gems: rand(CHEST_REWARDS.SILVER_MIN, CHEST_REWARDS.SILVER_MAX),
+    };
+  return {
+    grade: 'gold',
+    gems: rand(CHEST_REWARDS.GOLD_MIN, CHEST_REWARDS.GOLD_MAX),
+  };
 }
 
 // 상자 보석 = 등급 랜덤 + 진도 보너스(섹션) + 완벽 보너스, 트랙 배율 적용
@@ -37,8 +61,9 @@ export function rollChestReward(params: {
 }): { grade: 'wood' | 'silver' | 'gold'; gems: number } {
   const base = rollChest(); // 등급 + 기본 보석 (랜덤)
 
-  const progressBonus = Math.max(0, params.section - 1) * 3; // 섹션1=+0, 섹션2=+3...
-  const perfectBonus = params.perfect ? 15 : 0;
+  const progressBonus =
+    Math.max(0, params.section - 1) * CHEST_REWARDS.PROGRESS_PER_SECTION;
+  const perfectBonus = params.perfect ? CHEST_REWARDS.PERFECT_BONUS : 0;
   const gems =
     (base.gems + progressBonus + perfectBonus) * (params.gemScale ?? 1);
 

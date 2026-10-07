@@ -34,6 +34,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { AdminModule } from './admin/admin.module';
 import { RetentionModule } from './retention/retention.module';
 import { SupportModule } from './support/support.module';
+import { AppSettingsModule } from './app-settings/app-settings.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { SupportModule } from './support/support.module';
     AnalyticsModule,
     AdminModule,
     SupportModule,
+    AppSettingsModule,
     MailModule,
   ],
   controllers: [AppController],

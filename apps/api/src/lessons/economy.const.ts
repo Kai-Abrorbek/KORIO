@@ -1,4 +1,5 @@
 import { QuestionType } from './schemas/question.schema';
+import { registerRuntimeScalar } from '../app-settings/runtime-values';
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
@@ -46,7 +47,10 @@ import { QuestionType } from './schemas/question.schema';
  * ⚠️ 이 값을 바꾸면 리그 유지 XP(TIER_CONFIG.keepXp)도 같이 봐야 한다.
  *    둘은 같은 눈금을 쓴다.
  */
-export const XP_AWARD_DIVISOR = 3;
+export let XP_AWARD_DIVISOR = 3;
+registerRuntimeScalar('XP_AWARD_DIVISOR', 3, (value) => {
+  XP_AWARD_DIVISOR = value;
+});
 
 /** 시드·표에 적힌 기본 XP → 실제로 주는 XP */
 export function awardedXp(raw: number): number {
@@ -239,10 +243,16 @@ export function clampCount(value: unknown, limit: number): number {
  * 하루가 2,000~3,000 이라 그 위로 여유를 뒀다. 잘리면 서버 로그에 남으니,
  * 정상 유저가 실제로 걸리면 그때 올리면 된다.
  */
-export const DAILY_XP_CAP = 5000;
+export let DAILY_XP_CAP = 5000;
+registerRuntimeScalar('DAILY_XP_CAP', 5000, (value) => {
+  DAILY_XP_CAP = value;
+});
 
 /** 한 번의 요청으로 줄 수 있는 XP 상한 (기존 addXp 의 1000 을 상수화) */
-export const SINGLE_GRANT_XP_CAP = 1000;
+export let SINGLE_GRANT_XP_CAP = 1000;
+registerRuntimeScalar('SINGLE_GRANT_XP_CAP', 1000, (value) => {
+  SINGLE_GRANT_XP_CAP = value;
+});
 
 /**
  * 이미 끝낸 레슨을 다시 풀 때의 XP 배율.
@@ -278,7 +288,10 @@ export const PRACTICE_DAILY_LIMIT = 60;
  * 비교해 후한 편으로 잡았다 — 한 달 개근이면 약 2,000.
  */
 export const STREAK_CHEST_EVERY_DAYS = 3;
-export const STREAK_CHEST_GEMS = 200;
+export let STREAK_CHEST_GEMS = 200;
+registerRuntimeScalar('STREAK_CHEST_GEMS', 200, (value) => {
+  STREAK_CHEST_GEMS = value;
+});
 
 /**
  * 문법 트랙 상자 배율 — **레슨 하나(=화면의 문법 노드 하나)** 당.
@@ -290,4 +303,7 @@ export const STREAK_CHEST_GEMS = 200;
  * (17문제 × 4~5레슨) 와 같은 값을 주면 문법만 돌며 보석을 캐게 된다.
  * 결과: 나무 3~5 · 은 5~8 · 금 8~12 (+무실수 약 5).
  */
-export const GRAMMAR_LESSON_CHEST_GEM_SCALE = 0.3;
+export let GRAMMAR_LESSON_CHEST_GEM_SCALE = 0.3;
+registerRuntimeScalar('GRAMMAR_LESSON_CHEST_GEM_SCALE', 0.3, (value) => {
+  GRAMMAR_LESSON_CHEST_GEM_SCALE = value;
+});

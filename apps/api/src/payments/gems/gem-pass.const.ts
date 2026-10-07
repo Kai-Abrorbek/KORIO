@@ -23,6 +23,11 @@
  * → 25명 초대 = 37,000 ≈ 30일권 하나. 초대가 압도적으로 큰 경로이고
  *   그게 의도다. 체감이 짜면 상자 보석을 올리는 쪽이 먼저다 (이 표보다).
  */
+import {
+  registerRuntimeScalar,
+  runtimeConfig,
+} from '../../app-settings/runtime-values';
+
 export interface GemPass {
   /** 앱·서버가 같이 쓰는 식별자 */
   id: string;
@@ -30,12 +35,12 @@ export interface GemPass {
   gems: number;
 }
 
-export const GEM_PASSES: GemPass[] = [
+export const GEM_PASSES: GemPass[] = runtimeConfig('GEM_PASSES', [
   { id: 'days_3', days: 3, gems: 5000 },
   { id: 'days_7', days: 7, gems: 10000 },
   { id: 'days_14', days: 14, gems: 18000 },
   { id: 'days_30', days: 30, gems: 33000 },
-];
+]);
 
 export const gemPassById = (id: string): GemPass | undefined =>
   GEM_PASSES.find((pass) => pass.id === id);
@@ -47,4 +52,7 @@ export const gemPassById = (id: string): GemPass | undefined =>
  * 남은 기간이 이 값을 넘으면 더 못 산다 — 막는 게 아니라 "나중에 또 오라" 는
  * 장치다.
  */
-export const GEM_PASS_MAX_STACK_DAYS = 60;
+export let GEM_PASS_MAX_STACK_DAYS = 60;
+registerRuntimeScalar('GEM_PASS_MAX_STACK_DAYS', 60, (value) => {
+  GEM_PASS_MAX_STACK_DAYS = value;
+});

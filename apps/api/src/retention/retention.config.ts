@@ -8,8 +8,13 @@
  * (STREAK_CHEST_GEMS), 급수 졸업 50.
  */
 
+import {
+  registerRuntimeScalar,
+  runtimeConfig,
+} from '../app-settings/runtime-values';
+
 /** 스트릭 복구펜 — 연속이 끊길 날을 대신 메워준다 */
-export const STREAK_FREEZE = {
+export const STREAK_FREEZE = runtimeConfig('STREAK_FREEZE', {
   /** 상점 가격 (보석) */
   PRICE_GEMS: 200,
   /** 최대 보유 개수. 많이 쌓아두면 연속의 긴장감이 사라진다 */
@@ -18,7 +23,7 @@ export const STREAK_FREEZE = {
   SUPER_WEEKLY: 1,
   /** 메운 날 기록은 최근 이만큼만 남긴다 (배열이 끝없이 자라지 않게) */
   KEEP_FROZEN_DAYS: 60,
-} as const;
+} as const);
 
 /**
  * 일일 퀘스트.
@@ -94,7 +99,7 @@ export const QUEST_POOL: Record<QuestTier, QuestDef[]> = {
   ],
 };
 
-export const DAILY_QUESTS = {
+export const DAILY_QUESTS = runtimeConfig('DAILY_QUESTS', {
   /** 칸별 보상 (보석) */
   REWARD: { easy: 10, normal: 20, hard: 35, bonus: 20 } as Record<
     QuestSlot,
@@ -126,7 +131,7 @@ export const DAILY_QUESTS = {
     'topik',
   ],
   CATEGORY_MIN_RECENT: 5,
-} as const;
+} as const);
 
 /**
  * 세 칸을 다 끝내면 여는 상자 — 뭐가 나올지 모른다.
@@ -148,7 +153,10 @@ export const QUEST_CHEST: { weight: number; pick: QuestChestRoll[] }[] = [
   { weight: 18, pick: [{ type: 'xpBoost', minutes: 15 }] },
   { weight: 10, pick: [{ type: 'freeze' }] },
 ];
-export const QUEST_CHEST_FREEZE_FALLBACK_GEMS = 50;
+export let QUEST_CHEST_FREEZE_FALLBACK_GEMS = 50;
+registerRuntimeScalar('QUEST_CHEST_FREEZE_FALLBACK_GEMS', 50, (value) => {
+  QUEST_CHEST_FREEZE_FALLBACK_GEMS = value;
+});
 
 /**
  * 월간 챌린지 — 이번 달에 받은 퀘스트 수. 칸마다 보상, 끝 칸은 그 달 한정 배지.
@@ -164,17 +172,17 @@ export const MONTHLY_CHALLENGE = {
 } as const;
 
 /** 에너지 0 일 때 — 틀린 문제 복습으로 에너지 벌기 */
-export const ENERGY_EARN = {
+export const ENERGY_EARN = runtimeConfig('ENERGY_EARN', {
   /** 정답 하나당 */
   PER_CORRECT: 1,
   /** 한 판 최대 */
   SESSION_MAX: 5,
   /** 하루 최대 — 이걸로 SUPER·충전을 대신할 수는 없게 */
   DAILY_MAX: 15,
-} as const;
+} as const);
 
 /** 복귀 보상 — 며칠 쉬다 돌아온 사람 */
-export const COMEBACK = {
+export const COMEBACK = runtimeConfig('COMEBACK', {
   /** 마지막 학습 후 이만큼 지나야 복귀로 본다 */
   IDLE_DAYS: 3,
   /** 한 번 받으면 이 기간 동안은 다시 안 준다 */
@@ -182,21 +190,22 @@ export const COMEBACK = {
   /** XP 배수 부스트 시간(분) */
   BOOST_MINUTES: 15,
   XP_MULTIPLIER: 2,
-} as const;
+} as const);
 
 /**
  * 첫 7일 출석 — 하루 한 번 출석 체크, 7번 받으면 끝.
  * 연속이 아니어도 된다 (빠진 날은 그다음 날 이어서). 7일째는 SUPER 하루.
  */
-export const CHECKIN_REWARDS: { gems: number; superDays?: number }[] = [
-  { gems: 20 },
-  { gems: 30 },
-  { gems: 40 },
-  { gems: 50 },
-  { gems: 70 },
-  { gems: 100 },
-  { gems: 0, superDays: 1 },
-];
+export const CHECKIN_REWARDS: { gems: number; superDays?: number }[] =
+  runtimeConfig('CHECKIN_REWARDS', [
+    { gems: 20 },
+    { gems: 30 },
+    { gems: 40 },
+    { gems: 50 },
+    { gems: 70 },
+    { gems: 100 },
+    { gems: 0, superDays: 1 },
+  ]);
 
 /**
  * 연속 학습 목표 — 고르는 즉시 보석을 주고, 연속이 끊기면 그만큼 돌려받는다.
@@ -204,10 +213,13 @@ export const CHECKIN_REWARDS: { gems: number; superDays?: number }[] = [
  * ⚠️ 돌려받을 때 잔액이 모자라면 **마이너스가 된다.** 받자마자 다 쓰고 일부러
  *    끊는 식으로 공짜 보석을 캐는 걸 막으려고 그렇다 (화면에 미리 알린다).
  */
-export const STREAK_GOALS: { days: number; gems: number }[] = [
-  { days: 3, gems: 50 },
-  { days: 7, gems: 150 },
-  { days: 14, gems: 350 },
-  { days: 21, gems: 600 },
-  { days: 30, gems: 1000 },
-];
+export const STREAK_GOALS: { days: number; gems: number }[] = runtimeConfig(
+  'STREAK_GOALS',
+  [
+    { days: 3, gems: 50 },
+    { days: 7, gems: 150 },
+    { days: 14, gems: 350 },
+    { days: 21, gems: 600 },
+    { days: 30, gems: 1000 },
+  ],
+);

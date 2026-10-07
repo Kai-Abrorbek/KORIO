@@ -417,7 +417,7 @@ export class AdminGamificationService {
   settings() {
     return {
       readOnly: true,
-      note: '서버 코드가 실제 규칙의 기준입니다. 이 화면에서 수정할 수 없으며 변경하려면 코드 검토와 재배포가 필요합니다.',
+      note: '이 화면은 서버 규칙의 참조용입니다. 안전하게 운영 중 변경 가능한 숫자는 앱 설정 메뉴에서 관리합니다. 그 외 구조·악용 방지 규칙은 코드 검토와 배포가 필요합니다.',
       groups: [
         {
           title: 'XP',

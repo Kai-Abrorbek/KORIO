@@ -25,7 +25,8 @@ const NAV: NavGroup[] = [
   { href: "/analytics", label: "분석", icon: "chart", color: "cyan", permission: "analytics:read", children: [{ label: "학습 분석", href: "/analytics" }, { label: "레슨 퍼널", href: "/analytics?tab=funnel" }, { label: "문제 분석", href: "/analytics?tab=questions" }, { label: "리텐션", href: "/analytics?tab=retention" }] },
   { href: "/subscriptions", label: "구독", icon: "card", color: "amber", permission: "subscription:read", children: [{ label: "구독 현황", href: "/subscriptions" }, { label: "구독자 관리", href: "/subscriptions?tab=customers" }] },
   { href: "/revenue", label: "매출", icon: "money", color: "green", permission: "subscription:read", children: [{ label: "매출 개요", href: "/revenue" }, { label: "거래 내역", href: "/revenue?tab=transactions" }, { label: "지출 · 정산", href: "/revenue?tab=expenses" }] },
-  { href: "/gamification", label: "게이미피케이션", icon: "spark", color: "orange", permission: "analytics:read", children: [{ label: "활동 분석", href: "/gamification" }, { label: "설정", href: "/gamification?tab=settings" }] },
+  { href: "/gamification", label: "게이미피케이션", icon: "spark", color: "orange", permission: "analytics:read", children: [{ label: "활동 분석", href: "/gamification" }, { label: "설정 참조", href: "/gamification?tab=settings" }] },
+  { href: "/settings", label: "앱 설정", icon: "settings", color: "slate", permission: "analytics:read", children: [{ label: "숫자 설정", href: "/settings" }] },
   { href: "/operations", label: "운영", icon: "bolt", color: "purple", permission: "operations:write", children: [{ label: "서비스 제어", href: "/operations" }, { label: "공지 · 이벤트", href: "/operations?tab=announcements" }] },
   { href: "/admin", label: "관리자 · 감사", icon: "shield", color: "slate", permission: "audit:read", children: [{ label: "감사 로그", href: "/admin" }, { label: "권한", href: "/admin?tab=roles" }] },
 ];
@@ -43,6 +44,7 @@ function NavIcon({ name }: { name: string }) {
     card: <><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></>,
     money: <><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5h-4.3a2 2 0 0 0 0 4h1.6a2 2 0 0 1 0 4H8.5M12 6v12"/></>,
     spark: <><path d="m12 2 2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2L12 2Z"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></>,
     bolt: <><path d="m13 2-9 12h7l-1 8 10-12h-7l0-8Z"/></>,
     shield: <><path d="m12 2 8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></>,
   };
