@@ -39,6 +39,11 @@ import {
   PlayReportSyncState,
   PlayReportSyncStateSchema,
 } from './revenue/play-report.schema';
+import { Question, QuestionSchema } from '../lessons/schemas/question.schema';
+import { Lesson, LessonSchema } from '../lessons/schemas/lesson.schema';
+import { LessonNode, LessonNodeSchema } from '../lessons/schemas/node.schema';
+import { AdminContentController } from './content/admin-content.controller';
+import { AdminContentService } from './content/admin-content.service';
 
 /**
  * 운영 도구.
@@ -63,6 +68,9 @@ import {
       { name: PlayReportFile.name, schema: PlayReportFileSchema },
       { name: PlayReportRow.name, schema: PlayReportRowSchema },
       { name: PlayReportSyncState.name, schema: PlayReportSyncStateSchema },
+      { name: Question.name, schema: QuestionSchema },
+      { name: Lesson.name, schema: LessonSchema },
+      { name: LessonNode.name, schema: LessonNodeSchema },
     ]),
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
@@ -75,6 +83,7 @@ import {
     AdminUsersController,
     AdminSubscriptionsController,
     AdminRevenueController,
+    AdminContentController,
   ],
   providers: [
     AdminAuthService,
@@ -84,6 +93,7 @@ import {
     AdminRevenueService,
     PlayReportSyncService,
     AdminAnalyticsService,
+    AdminContentService,
     AdminGuard,
     RateLimitGuard,
   ],

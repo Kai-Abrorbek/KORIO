@@ -1,0 +1,67 @@
+.page { gap: 20px; }
+.summary { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 24px; align-items: center; padding: 22px 26px; border-radius: 14px; background: var(--surface); }
+.summary > div { display: grid; gap: 2px; }
+.summary span { color: var(--ink-2); font-size: 13px; }
+.summary strong { color: var(--ink); font-size: 32px; line-height: 1.2; letter-spacing: -.04em; }
+.summary p { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.6; }
+.summary > p { padding-left: 24px; border-left: 1px solid var(--border); font-size: 13px; }
+.filters { gap: 10px; }
+.filters label { display: grid; gap: 5px; color: var(--ink-2); font-size: 11px; font-weight: 650; }
+.filters label span { padding-left: 2px; }
+.filters input { width: 170px; }
+.filters input[type="number"] { min-width: 90px; width: 90px; }
+.filters select { min-width: 110px; }
+.filters button { align-self: end; cursor: pointer; }
+.headNote { margin-top: 3px; color: var(--ink-3); font-size: 12px; }
+.list { display: grid; }
+.row { display: grid; grid-template-columns: minmax(170px, 260px) minmax(0, 1fr); gap: 13px 22px; padding: 19px 22px; border-bottom: 1px solid var(--border); }
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--surface-2); }
+.rowMain { min-width: 0; }
+.rowTop { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.codeButton { padding: 0; color: var(--brand); font-size: 14px; font-weight: 750; text-align: left; overflow-wrap: anywhere; }
+.codeButton:hover, .detailButton:hover { text-decoration: underline; }
+.preview { margin: 8px 0 4px; color: var(--ink); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.questionId { color: var(--ink-3); font-size: 11px; overflow-wrap: anywhere; }
+.rowPaths { display: grid; gap: 6px; min-width: 0; align-content: center; }
+.path { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--ink-2); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+.path span { min-width: 0; }
+.path b { color: var(--brand); font-size: 14px; font-weight: 700; }
+.path code, .pathIds code, .identity code, .questionId, .issueDetail code { font-family: var(--font-mono); }
+.path code { color: var(--ink-3); font-size: 11px; }
+.compactPath { padding: 7px 9px; border-radius: 7px; background: var(--surface-2); }
+.row:hover .compactPath { background: var(--surface); }
+.rowFoot { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.issueList { display: flex; flex: 1; flex-wrap: wrap; gap: 5px; }
+.issue { display: inline-flex; align-items: center; padding: 4px 7px; border-radius: 6px; font-size: 11px; font-weight: 650; line-height: 1.35; }
+.structural { color: var(--critical); background: color-mix(in srgb, var(--critical) 10%, var(--surface)); }
+.signal { color: var(--serious); background: color-mix(in srgb, var(--serious) 13%, var(--surface)); }
+.sample, .noIssue, .muted { color: var(--ink-3); font-size: 12px; }
+.noLocation { color: var(--critical); font-size: 12px; }
+.detailButton { color: var(--brand); font-size: 12px; font-weight: 700; }
+.disclaimer { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.65; }
+.drawer { width: min(680px, 100vw); }
+.drawerHeading { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-top: 20px; }
+.drawerHeading h3 { margin: 3px 0 6px; color: var(--ink); font-size: 25px; overflow-wrap: anywhere; }
+.drawerHeading p { margin: 0; color: var(--ink-2); line-height: 1.5; }
+.eyebrow { color: var(--brand) !important; font-size: 10px; font-weight: 760; letter-spacing: .08em; }
+.identity { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 18px; margin-top: 22px; padding: 14px; border-radius: 9px; background: var(--surface-2); }
+.identity div { display: grid; gap: 4px; min-width: 0; }
+.identity small, .detailList small { color: var(--ink-3); font-size: 11px; }
+.identity code { color: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
+.identity button, .locationCard button { color: var(--brand); font-size: 12px; font-weight: 700; }
+.drawerSection { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); }
+.drawerSection h4 { margin: 0 0 12px; color: var(--ink); font-size: 15px; }
+.drawerSection .muted { margin: 9px 0 0; line-height: 1.55; }
+.locationCard { display: grid; gap: 9px; padding: 12px; border: 1px solid var(--border); border-radius: 9px; margin-bottom: 9px; }
+.locationCard button { justify-self: start; }
+.pathIds { color: var(--ink-3); font-size: 11px; overflow-wrap: anywhere; }
+.issueDetail { padding: 12px; border: 1px solid var(--border); border-radius: 9px; margin-bottom: 9px; }
+.issueDetail p { margin: 9px 0; color: var(--ink); font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+.issueDetail small { color: var(--ink-3); font-size: 11px; }
+.detailList { display: grid; gap: 10px; margin-top: 15px; }
+.detailList > div { padding: 11px 13px; border-radius: 8px; background: var(--surface-2); }
+.detailList pre { margin: 6px 0 0; color: var(--ink); font: 12px/1.65 var(--font-sans); white-space: pre-wrap; overflow-wrap: anywhere; }
+.copyError { color: var(--critical); font-size: 12px; }
+@media (max-width: 900px) { .row { grid-template-columns: 1fr; } .rowFoot { grid-column: 1; } }
+@media (max-width: 680px) { .summary { grid-template-columns: 1fr; gap: 12px; } .summary > p { padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--border); } .filters label { flex: 1; } .filters input, .filters input[type="number"], .filters select { width: 100%; min-width: 0; } }
