@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminModule } from '../admin/admin.module';
 import { RateLimitGuard } from '../common/rate-limit';
@@ -14,6 +15,7 @@ import { SupportService } from './support.service';
 @Module({
   imports: [
     AdminModule,
+    JwtModule.register({}),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: SupportTicket.name, schema: SupportTicketSchema },
