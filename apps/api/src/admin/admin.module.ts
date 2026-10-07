@@ -80,6 +80,13 @@ import { AdminOperationsController } from './operations/admin-operations.control
 import { AdminOperationsService } from './operations/admin-operations.service';
 import { AdminManageController } from './admin-manage.controller';
 import { AdminManageService } from './admin-manage.service';
+import {
+  AdminRewardGrant,
+  AdminRewardGrantSchema,
+} from './rewards/admin-reward-grant.schema';
+import { AdminUserActionsController } from './rewards/admin-user-actions.controller';
+import { AdminUserActionsService } from './rewards/admin-user-actions.service';
+import { PaymentsModule } from '../payments/payments.module';
 
 /**
  * 운영 도구.
@@ -112,12 +119,14 @@ import { AdminManageService } from './admin-manage.service';
       { name: Expression.name, schema: ExpressionSchema },
       { name: ExpressionPack.name, schema: ExpressionPackSchema },
       { name: ExpressionNode.name, schema: ExpressionNodeSchema },
+      { name: AdminRewardGrant.name, schema: AdminRewardGrantSchema },
     ]),
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
     AnalyticsModule,
     AppReleaseModule,
     PushModule,
+    PaymentsModule,
     MongooseModule.forFeature([
       { name: DeviceToken.name, schema: DeviceTokenSchema },
     ]),
@@ -136,6 +145,7 @@ import { AdminManageService } from './admin-manage.service';
     AdminGamificationController,
     AdminOperationsController,
     AdminManageController,
+    AdminUserActionsController,
   ],
   providers: [
     AdminAuthService,
@@ -153,6 +163,7 @@ import { AdminManageService } from './admin-manage.service';
     AdminGamificationService,
     AdminOperationsService,
     AdminManageService,
+    AdminUserActionsService,
     AdminGuard,
     RateLimitGuard,
   ],

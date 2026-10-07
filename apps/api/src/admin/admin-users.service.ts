@@ -8,7 +8,7 @@ import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
 
 const FIELDS =
-  '_id email nickname username country provider createdAt lastActiveAt isOnboardingCompleted placementLevel totalXP streak longestStreak league gems energy isSuper superTier superPlan superExpiresAt trialStartedAt';
+  '_id email nickname username country provider createdAt lastActiveAt isOnboardingCompleted placementLevel totalXP streak longestStreak league gems energy streakFreeze isSuper superTier superPlan superExpiresAt trialStartedAt';
 const SORT = {
   newest: { createdAt: -1 as const, _id: -1 as const },
   oldest: { createdAt: 1 as const, _id: 1 as const },
@@ -34,6 +34,7 @@ interface UserRow {
   league?: string;
   gems?: number;
   energy?: number;
+  streakFreeze?: number;
   isSuper?: boolean;
   superTier?: string;
   superPlan?: string;
@@ -60,6 +61,7 @@ const publicUser = (row: UserRow) => ({
   league: row.league ?? 'bronze',
   gems: row.gems ?? 0,
   energy: row.energy ?? 0,
+  streakFreeze: row.streakFreeze ?? 0,
   // The user's projection is informative, not a billing entitlement decision.
   projectedPremium: !!row.isSuper,
   projectedTier: row.superTier ?? null,

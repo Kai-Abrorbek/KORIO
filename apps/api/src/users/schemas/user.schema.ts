@@ -346,6 +346,10 @@ export class User {
   @Prop({ default: 0 })
   gems: number;
 
+  /** 관리자 수동 보상 재시도로 잔액이 두 번 증가하지 않도록 사용자 갱신과 함께 원자적으로 기록한다. */
+  @Prop({ type: [String], default: [], select: false })
+  adminRewardKeys: string[];
+
   // ─────────────── 친구 초대 ───────────────
 
   /**
