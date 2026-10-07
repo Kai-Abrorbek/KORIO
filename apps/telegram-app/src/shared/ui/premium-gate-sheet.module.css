@@ -1,0 +1,201 @@
+/* 앱 components/subscription/PremiumGateModal 과 같은 치수·색 */
+.backdrop {
+  /* 앱 theme.ts 와 같은 값 (라이트: bg = surface = 흰색) */
+  --pg-surface: #ffffff;
+  --pg-bg: #ffffff;
+  --pg-text: #1a1a2e;
+  --pg-muted: #55555f;
+  --pg-border: #eceaf6;
+  align-items: flex-end;
+  /* 모달은 페이드로만 연다 — 슬라이드·스프링·팝 금지 */
+  animation: pgFade 160ms ease-out both;
+  background: rgb(12 10 30 / 55%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 120;
+}
+
+:global(html[data-theme="dark"]) .backdrop {
+  --pg-surface: #25252e;
+  --pg-bg: #15151d;
+  --pg-text: #ffffff;
+  --pg-muted: #a6a6b3;
+  --pg-border: #3a3a44;
+}
+
+.sheet {
+  background: var(--pg-surface);
+  border-radius: 28px 28px 0 0;
+  color: var(--pg-text);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 22px max(20px, calc(var(--korio-bottom, 0px) + 20px));
+  touch-action: pan-y;
+  width: min(100%, 560px);
+}
+
+.grabber {
+  align-self: center;
+  background: var(--pg-border);
+  border-radius: 2px;
+  height: 4px;
+  margin-bottom: 12px;
+  width: 40px;
+}
+
+.hero {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.heroGlow {
+  background: linear-gradient(180deg, var(--pitch), transparent);
+  border-radius: 95px;
+  height: 100px;
+  left: 50%;
+  opacity: 0.16;
+  position: absolute;
+  top: -10px;
+  transform: translateX(-50%);
+  width: 190px;
+}
+
+.mascot {
+  height: 82px;
+  object-fit: contain;
+  position: relative;
+  width: 82px;
+}
+
+.lockBadge {
+  align-items: center;
+  background: #5f4fd8;
+  border: 3px solid var(--pg-surface);
+  border-radius: 50%;
+  bottom: 2px;
+  color: #ffffff;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  position: absolute;
+  right: 31%;
+  width: 30px;
+}
+
+.sheet .title {
+  color: var(--pg-text);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 4px 0 0;
+  text-align: center;
+}
+
+.sheet .sub {
+  color: var(--pg-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 19px;
+  margin: 6px 0 0;
+  text-align: center;
+}
+
+.perks {
+  background: var(--pg-bg);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 18px 0;
+  padding: 14px;
+}
+
+.perkRow {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.perkDot {
+  align-items: center;
+  background: color-mix(in srgb, var(--pitch) 14%, transparent);
+  border-radius: 50%;
+  color: var(--pitch);
+  display: flex;
+  flex: 0 0 auto;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.perkDotEnergy {
+  background: rgb(255 216 102 / 14%);
+  color: #e2a83a;
+}
+
+.perkText {
+  color: var(--pg-text);
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* CTA — 입체 바텀보더, 누르면 내려앉는다 */
+.sheet .cta {
+  align-items: center;
+  background: linear-gradient(135deg, #8e85f0, #776ee2 50%, #5f4fd8);
+  border: 0;
+  border-bottom: 4px solid #4a3cc0;
+  border-radius: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  gap: 8px;
+  height: 58px;
+  justify-content: center;
+  margin-top: 2px;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet .cta:active {
+  border-bottom-width: 1px;
+  transform: translateY(3px);
+}
+
+.sheet .taster,
+.sheet .later {
+  align-self: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 14px 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet .taster {
+  color: #776ee2;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.sheet .later {
+  color: var(--pg-muted);
+  font-weight: 600;
+}
+
+@keyframes pgFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

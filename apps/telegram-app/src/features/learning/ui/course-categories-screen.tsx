@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -16,6 +16,7 @@ import {
   type LearningCategory,
   type StudyMode,
 } from "../model/learning-options";
+import { PremiumGateSheet } from "../../../shared/ui/premium-gate-sheet";
 import { LearningIcon } from "./learning-icon";
 import { TopikLevelSheet } from "./topik-level-sheet";
 import styles from "./learning.module.css";
@@ -33,29 +34,6 @@ const LEARN_MODES: LearnMode[] = [
 
 function isLearnMode(value: string): value is LearnMode {
   return LEARN_MODES.includes(value as LearnMode);
-}
-
-interface ChoiceSheetProps {
-  children: ReactNode;
-  label: string;
-  onClose: () => void;
-}
-
-function ChoiceSheet({ children, label, onClose }: ChoiceSheetProps) {
-  return (
-    <div className={styles.sheetBackdrop} onClick={onClose} role="presentation">
-      <section
-        aria-label={label}
-        aria-modal="true"
-        className={`${styles.modeSheet} ${styles.choiceSheet}`}
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-      >
-        <div className={styles.sheetGrip} aria-hidden="true" />
-        {children}
-      </section>
-    </div>
-  );
 }
 
 export function CourseCategoriesScreen() {
@@ -276,35 +254,20 @@ export function CourseCategoriesScreen() {
         <TopikLevelSheet busy={saving} onClose={() => setTopikOpen(false)} onSelect={(level) => void selectTopik(level)} />
       ) : null}
 
+      {/* 잠긴 학습 — 앱 PremiumGateModal 과 같은 시트 */}
       {lockedCategory ? (
-        <ChoiceSheet label="KORIO Premium" onClose={() => setLockedCategory(null)}>
-          <div className={styles.premiumMark}>★</div>
-          <h2>{lockedCategory.label} — Premium</h2>
-          <p>
-            Bu yo&apos;nalish KORIO Premium bilan ochiladi. Barcha premium
-            darslarga cheklovsiz kiring.
-          </p>
-          <button
-            className={styles.premiumButton}
-            onClick={() => router.push("/premium")}
-            type="button"
-          >
-            Premiumni ko&apos;rish
-          </button>
-          {hasLearningTaster(lockedCategory.feature) ? (
-            <button
-              className={styles.tasterButton}
-              onClick={() => {
-                const destination = learningDestination(lockedCategory.category);
-                setLockedCategory(null);
-                if (destination) router.push(destination);
-              }}
-              type="button"
-            >
-              Avval bepul sinab ko&apos;rish
-            </button>
-          ) : null}
-        </ChoiceSheet>
+        <PremiumGateSheet
+          feature={lockedCategory.feature}
+          onClose={() => setLockedCategory(null)}
+          onTaster={
+            hasLearningTaster(lockedCategory.feature)
+              ? () => {
+                  const destination = learningDestination(lockedCategory.category);
+                  if (destination) router.push(destination);
+                }
+              : undefined
+          }
+        />
       ) : null}
     </main>
   );
