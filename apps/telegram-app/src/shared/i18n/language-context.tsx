@@ -21,6 +21,7 @@ import {
 import {
   loadTranslationCatalog,
   translateValue,
+  translateWithKey,
   type TranslationCatalog,
 } from "./translation-catalog";
 
@@ -72,7 +73,12 @@ function localizeText(node: Text, catalog: TranslationCatalog | null) {
   // 같은 원문이 여러 뜻인 곳("Ustoz" = 선생님 / 마스터 티어)은 부모의 data-i18n 키로 정한다
   const key = node.parentElement?.getAttribute("data-i18n");
   const keyed = key && catalog ? catalog.keys.get(key) : undefined;
-  const rendered = keyed && !keyed.includes("{{") ? keyed : translateValue(source, catalog);
+  // 템플릿 키면 그 키의 틀로만 맞춘다 ({{n}}-kun → 3일째 / 3일차 / 3일 중 그 키 것)
+  const rendered = keyed
+    ? keyed.includes("{{")
+      ? (translateWithKey(source, key ?? "", catalog) ?? translateValue(source, catalog))
+      : keyed
+    : translateValue(source, catalog);
   textValues.set(node, { rendered, source });
   if (current !== rendered) node.nodeValue = rendered;
 }

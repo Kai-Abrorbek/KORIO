@@ -61,7 +61,7 @@ export function ShopFreezeSection({
           </span>
         </span>
         {full ? (
-          <span className={styles.full}>{rt("freeze.full")}</span>
+          <span className={styles.full} data-i18n="retention.freeze.full">{rt("freeze.full")}</span>
         ) : (
           <span className={styles.price} data-no-translate>
             <MobileIcon name="diamond" size={15} />

@@ -26,8 +26,11 @@ export function Button3D({
   loading,
   compact,
   className = "",
+  i18nKey,
 }: {
   label: string;
+  /** 같은 우즈벡어가 여러 뜻인 글자면 locale 키를 콕 집는다 (번역기 data-i18n) */
+  i18nKey?: string;
   onClick?: () => void;
   tone?: Tone;
   icon?: ReactNode;
@@ -54,7 +57,7 @@ export function Button3D({
       {loading ? <i className={styles.spin} /> : (
         <>
           {icon}
-          {label}
+          {i18nKey ? <span data-i18n={i18nKey}>{label}</span> : label}
         </>
       )}
     </button>
@@ -75,6 +78,9 @@ export interface RewardDialogProps {
   primaryLabel: string;
   onPrimary: () => void;
   primaryTone?: Tone;
+  /** 번역기에 locale 키를 콕 집어 준다 ("Yaxshi" 처럼 여러 뜻인 짧은 말) */
+  primaryKey?: string;
+  secondaryKey?: string;
   secondaryLabel?: string;
   onSecondary?: () => void;
   loading?: boolean;
@@ -118,6 +124,8 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
     primaryLabel,
     onPrimary,
     primaryTone = "purple",
+    primaryKey,
+    secondaryKey,
     secondaryLabel,
     onSecondary,
     loading,
@@ -160,13 +168,19 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
         ) : null}
         <Button3D
           className={styles.dialogPrimary}
+          i18nKey={primaryKey}
           label={primaryLabel}
           loading={loading}
           onClick={onPrimary}
           tone={primaryTone}
         />
         {secondaryLabel ? (
-          <button className={styles.dialogSecondary} onClick={onSecondary} type="button">
+          <button
+            className={styles.dialogSecondary}
+            data-i18n={secondaryKey}
+            onClick={onSecondary}
+            type="button"
+          >
             {secondaryLabel}
           </button>
         ) : null}

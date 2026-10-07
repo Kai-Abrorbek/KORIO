@@ -111,6 +111,7 @@ export function StreakGoalScreen() {
             <Button3D
               compact
               icon={<MobileIcon name="refresh" size={16} />}
+              i18nKey="retention.retry"
               label={rt("retry")}
               onClick={() => void load()}
             />
@@ -261,6 +262,7 @@ export function StreakGoalScreen() {
             ? [{ color: "#3BB6E5", icon: "diamond", label: rt("goal.confirmGet", { gems: started.gems }) }]
             : []
         }
+        secondaryKey="retention.close"
         secondaryLabel={rt("close")}
         title={rt("goal.startedTitle")}
       />
@@ -308,13 +310,13 @@ function MilestoneTrack({
             key={day}
             style={{ animationDelay: `${index * 0.07}s` } as CSSProperties}
           >
-            <small>{rt("goal.dayN", { n: day })}</small>
+            <small data-i18n="retention.goal.dayN">{rt("goal.dayN", { n: day })}</small>
             <MobileIcon name="gift" size={22} />
             <b>
               <MobileIcon name="diamond" size={11} />
               <span data-no-translate>{gems}</span>
             </b>
-            <em>
+            <em data-i18n={day - streak === 1 ? "retention.goal.tomorrow" : "retention.goal.inDays"}>
               {day - streak === 1
                 ? rt("goal.tomorrow")
                 : rt("goal.inDays", { n: day - streak })}

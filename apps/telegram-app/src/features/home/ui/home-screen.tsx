@@ -217,10 +217,18 @@ export function HomeScreen() {
           </button>
         </header>
 
-        <button
+        {/* 카드 전체를 누르면 달력 — 안에 목표 칩(버튼)이 들어가서 button 대신 div (button 안 button 은 안 된다) */}
+        <div
           className={`${styles.card} ${styles.streakCard}`}
           onClick={() => setCalendarOpen(true)}
-          type="button"
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setCalendarOpen(true);
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
           <span className={styles.streakHeading}>
             <span>
@@ -258,10 +266,10 @@ export function HomeScreen() {
               );
             })}
           </span>
-        </button>
 
-        {/* 복구펜 · 연속 목표 */}
-        <StreakChips summary={retention} />
+          {/* 복구펜 · 연속 목표 (앱처럼 스트릭 카드 안) */}
+          <StreakChips summary={retention} />
+        </div>
 
         {/* 복귀 보상 XP 부스트 */}
         {retention?.xpBoost ? (

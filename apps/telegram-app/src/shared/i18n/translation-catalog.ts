@@ -17,6 +17,12 @@ export interface TranslationCatalog {
   exact: Map<string, string>;
   /** 키 경로 → 번역. 같은 우즈벡어가 여러 뜻으로 쓰일 때 data-i18n 으로 콕 집는다 */
   keys: Map<string, string>;
+  /**
+   * 키 경로 → 그 키의 템플릿 ({{n}} 이 든 문장). data-i18n 이 템플릿 키를 가리키면
+   * 그 템플릿으로만 맞춘다 — "{{n}}-kun" 처럼 같은 우즈벡어 틀이 여러 키에 있을 때
+   * (3일째 / 3일차 / 3일) 엉뚱한 쪽 번역이 붙지 않게.
+   */
+  keyTemplates: Map<string, TemplateTranslation>;
   normalized: Map<string, string>;
   templates: TemplateTranslation[];
 }
@@ -216,7 +222,9 @@ function collectTranslations(
     if (path) catalog.keys.set(path, target);
     if (!source.trim() || source === target) return;
     if (source.includes("{{")) {
-      catalog.templates.push(compileTemplate(source, target));
+      const template = compileTemplate(source, target);
+      catalog.templates.push(template);
+      if (path) catalog.keyTemplates.set(path, template);
     }
     if (source.includes("{{")) addTemplateFragments(catalog, source, target, path);
     else addExact(catalog, source, target, path);
@@ -276,6 +284,7 @@ export function loadTranslationCatalog(
     ([source, target]) => {
       const catalog: TranslationCatalog = {
         exact: new Map(),
+        keyTemplates: new Map(),
         keys: new Map(),
         normalized: new Map(),
         templates: [],
@@ -290,6 +299,28 @@ export function loadTranslationCatalog(
   );
   cache.set(language, pending);
   return pending;
+}
+
+/** data-i18n 이 템플릿 키일 때 — 그 템플릿으로 맞으면 번역, 아니면 null */
+export function translateWithKey(
+  value: string,
+  key: string,
+  catalog: TranslationCatalog | null,
+): string | null {
+  const template = catalog?.keyTemplates.get(key);
+  if (!catalog || !template) return null;
+  const leading = value.match(/^\s*/u)?.[0] ?? "";
+  const trailing = value.match(/\s*$/u)?.[0] ?? "";
+  const source = value.slice(leading.length, value.length - trailing.length);
+  const match = source.match(template.pattern);
+  if (!match) return null;
+  const values = new Map<string, string>();
+  template.tokens.forEach((token, index) => {
+    const part = match[index + 1] ?? "";
+    values.set(token, catalog.exact.get(part) ?? catalog.normalized.get(normalizeLookup(part)) ?? part);
+  });
+  const translated = template.target.replace(TOKEN, (_, token: string) => values.get(token.trim()) ?? "");
+  return `${leading}${translated}${trailing}`;
 }
 
 export function translateValue(

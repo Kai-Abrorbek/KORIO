@@ -54,7 +54,15 @@ export function StreakChips({ summary }: { summary: RetentionSummary | null }) {
           n: summary?.freeze.owned ?? 0,
         })}
       </span>
-      <button className={styles.goalChip} onClick={() => router.push("/streak-goal")} type="button">
+      <button
+        className={styles.goalChip}
+        onClick={(event) => {
+          // 카드(달력 열기) 클릭으로 번지지 않게
+          event.stopPropagation();
+          router.push("/streak-goal");
+        }}
+        type="button"
+      >
         <MobileIcon name="trophy" size={14} />
         <span>
           {active
@@ -360,7 +368,7 @@ export function CheckinCard({
               ].join(" ")}
               key={reward.day}
             >
-              <small>{rt("checkin.day", { n: reward.day })}</small>
+              <small data-i18n="retention.checkin.day">{rt("checkin.day", { n: reward.day })}</small>
               {claimed ? (
                 <i className={styles.ckCheck}><MobileIcon name="checkmark" size={16} /></i>
               ) : isSuper ? (
@@ -458,6 +466,7 @@ export function RetentionOverlays({
           label: rt("comeback.boost", { m: comeback.boostMinutes, x: comeback.multiplier }),
         },
       ],
+      secondaryKey: "retention.later",
       secondaryLabel: rt("later"),
       title: rt("comeback.title"),
     };
@@ -471,6 +480,7 @@ export function RetentionOverlays({
       mood: "streak",
       onBackdrop: ack,
       onPrimary: ack,
+      primaryKey: "retention.ok",
       primaryLabel: rt("ok"),
       primaryTone: "blue",
       rewards: [
@@ -496,7 +506,9 @@ export function RetentionOverlays({
       mood: won ? "celebrating" : "sleepy",
       onPrimary: () => ack(() => router.push("/streak-goal")),
       onSecondary: () => ack(),
+      primaryKey: won ? "retention.goal.nextGoal" : "retention.goal.retry",
       primaryLabel: won ? rt("goal.nextGoal") : rt("goal.retry"),
+      secondaryKey: "retention.close",
       secondaryLabel: rt("close"),
       title: won ? rt("goal.wonTitle", { n: result.days }) : rt("goal.lostTitle"),
     };
@@ -506,6 +518,7 @@ export function RetentionOverlays({
       mood: isSuper ? "level_up" : "great",
       onBackdrop: onCheckinRewardClose,
       onPrimary: onCheckinRewardClose,
+      primaryKey: "retention.ok",
       primaryLabel: rt("ok"),
       rewards: [
         isSuper

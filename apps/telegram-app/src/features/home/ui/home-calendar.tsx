@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import {
@@ -10,6 +10,7 @@ import {
 import { HomeIcon } from "./home-icon";
 import styles from "./home-screen.module.css";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 
 interface HomeCalendarProps {
   fallbackLongestStreak: number;
@@ -29,6 +30,9 @@ export function HomeCalendar({
     year: today.getFullYear(),
   }));
   const [calendar, setCalendar] = useState<HomeCalendarData | null>(null);
+  // 앱 바텀시트처럼 아래로 끌어내리면 닫힌다
+  const sheetRef = useRef<HTMLElement>(null);
+  useSwipeToClose(sheetRef, onClose);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -85,6 +89,7 @@ export function HomeCalendar({
         aria-label="O'quv taqvimi"
         aria-modal="true"
         className={styles.calendarSheet}
+        ref={sheetRef}
         onClick={(event) => event.stopPropagation()}
         role="dialog"
       >
