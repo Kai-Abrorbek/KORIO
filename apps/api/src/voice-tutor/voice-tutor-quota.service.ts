@@ -24,15 +24,16 @@ export type VoiceTutorTier = 'free' | 'super' | 'max';
 export type VoiceTutorQuotaKind = 'trial' | 'daily';
 
 /**
- * 기본값 (Kai, 2026-09-30). env 로 바꿀 수 있다:
+ * 기본값 (Kai, 2026-09-30 · 월 상한 2026-10-07). env 로 바꿀 수 있다:
  *   VOICE_TUTOR_FREE_TRIAL_MINUTES=10
  *   VOICE_TUTOR_SUPER_TRIAL_MINUTES=30
  *   VOICE_TUTOR_MAX_DAILY_MINUTES=60
- *   VOICE_TUTOR_MAX_MONTHLY_MINUTES=0   (0 = 한 달 상한 없음)
+ *   VOICE_TUTOR_MAX_MONTHLY_MINUTES=200 (0 = 한 달 상한 없음)
  *
  * ⚠️ 원가: 새 튜터는 분당 대략 $0.03~0.05. MAX 가 하루 60분을 매일 채우면
- *    월 1,800분 ≈ $55~90 인데 MAX 실수령은 월 ~$13.6 이다. 대부분은 그만큼
- *    안 쓰지만 헤비 유저는 적자다 — 손해를 막으려면 MAX_MONTHLY 를 300 안팎으로 건다.
+ *    월 1,800분 ≈ $55~90 인데 MAX(월 13,000원) 실수령은 약 1만원이다.
+ *    분당 40~70원이면 150~250분부터 적자라 한 달 200분으로 막는다.
+ *    문구(voiceTutor.setup.upsellMax · error.VOICE_TUTOR_TRIAL_USED)도 200분을 말한다 — 바꾸면 같이.
  */
 function envMinutes(name: string, fallback: number): number {
   const raw = Number(process.env[name]);
@@ -43,7 +44,7 @@ const policy = () => ({
   free: { kind: 'trial' as const, minutes: envMinutes('VOICE_TUTOR_FREE_TRIAL_MINUTES', 10) },
   super: { kind: 'trial' as const, minutes: envMinutes('VOICE_TUTOR_SUPER_TRIAL_MINUTES', 30) },
   max: { kind: 'daily' as const, minutes: envMinutes('VOICE_TUTOR_MAX_DAILY_MINUTES', 60) },
-  maxMonthly: envMinutes('VOICE_TUTOR_MAX_MONTHLY_MINUTES', 0),
+  maxMonthly: envMinutes('VOICE_TUTOR_MAX_MONTHLY_MINUTES', 200),
 });
 
 /**

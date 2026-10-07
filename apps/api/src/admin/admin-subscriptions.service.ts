@@ -106,9 +106,15 @@ export class AdminSubscriptionsService {
         )) ||
       (tier && !['super', 'max'].includes(tier)) ||
       (provider &&
-        !['google_play', 'toss', 'uzum', 'click', 'payme', 'gems'].includes(
-          provider,
-        ))
+        ![
+          'google_play',
+          'toss',
+          'uzum',
+          'click',
+          'payme',
+          'gems',
+          'telegram_stars',
+        ].includes(provider))
     ) {
       throw new BadRequestException('INVALID_SUBSCRIPTION_FILTER');
     }

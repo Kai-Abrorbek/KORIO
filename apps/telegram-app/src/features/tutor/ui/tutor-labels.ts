@@ -7,7 +7,7 @@ import type { TutorState, VoiceTutorPersonality } from "../model/voice-tutor";
  */
 export const TUTOR_ERROR_LABELS: Record<string, string> = {
   generic: "Xatolik yuz berdi. Qayta urinib ko‘ring.",
-  VOICE_TUTOR_TRIAL_USED: "Sinov vaqti tugadi. KORIO MAX bilan har kuni 1 soat dars qilishingiz mumkin.",
+  VOICE_TUTOR_TRIAL_USED: "Sinov vaqti tugadi. KORIO MAX bilan kuniga 1 soatgacha, oyiga 200 daqiqagacha dars qilishingiz mumkin.",
   VOICE_TUTOR_DAILY_LIMIT_REACHED: "Bugungi dars vaqti tugadi. Ertaga ko'rishamiz!",
   VOICE_TUTOR_MONTHLY_LIMIT_REACHED: "Bu oylik dars vaqti tugadi.",
   MIC_PERMISSION_DENIED: "Gapirish uchun mikrofon ruxsati kerak.",

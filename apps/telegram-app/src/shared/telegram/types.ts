@@ -60,6 +60,11 @@ export interface TelegramWebApp {
   safeAreaInset?: TelegramInsets;
   /** 전체화면일 때 텔레그램이 위에 띄우는 닫기/메뉴 버튼 영역 */
   contentSafeAreaInset?: TelegramInsets;
+  /** Bot API 6.1+. 인보이스 링크를 결제창으로 연다 (텔레그램 Stars 결제) */
+  openInvoice?(
+    url: string,
+    callback?: (status: "paid" | "cancelled" | "failed" | "pending") => void,
+  ): void;
   onEvent?(event: string, callback: () => void): void;
   offEvent?(event: string, callback: () => void): void;
 }

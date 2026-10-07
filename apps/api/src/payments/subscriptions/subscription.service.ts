@@ -16,7 +16,11 @@ import {
 import {
   ENTITLED_STATUSES,
   TIER_RANK,
+  pickActiveSubscription,
   type PaymentProviderId,
+  type SubscriptionCountry,
+  type SubscriptionPlan,
+  type SubscriptionPlatform,
   type SubscriptionStatus,
   type SubscriptionTier,
   type VerifiedPurchase,
@@ -24,6 +28,32 @@ import {
 
 /** 새 구독을 시작할 때 한 번 주는 보석 */
 const WELCOME_GEM_GRANT = 500;
+const DAY_MS = 86_400_000;
+
+/** 한 번 사는 기간권 (자동 갱신 없음) — 지금은 텔레그램 Stars 만 쓴다 */
+export interface OneTimePassInput {
+  userId: string;
+  provider: PaymentProviderId;
+  platform: SubscriptionPlatform;
+  country?: SubscriptionCountry;
+  tier: SubscriptionTier;
+  plan: SubscriptionPlan;
+  productId: string;
+  days: number;
+  /** 결제 id. 같은 값은 한 번만 반영된다 */
+  externalTransactionId: string;
+  payerId?: string;
+  priceMicros?: number | null;
+  currency?: string;
+}
+
+export interface OneTimePassResult {
+  /** false = 이미 반영된 결제 (재전송) */
+  applied: boolean;
+  tier: SubscriptionTier;
+  startedAt: Date;
+  expiresAt: Date;
+}
 
 @Injectable()
 export class SubscriptionService {
@@ -189,12 +219,117 @@ export class SubscriptionService {
       status: { $in: ENTITLED_STATUSES },
       expiresAt: { $gt: new Date() },
     });
-    if (!subs.length) return null;
-    return subs.reduce((best, s) => {
-      const rank = TIER_RANK[s.tier ?? 'super'] - TIER_RANK[best.tier ?? 'super'];
-      if (rank !== 0) return rank > 0 ? s : best;
-      return s.expiresAt.getTime() > best.expiresAt.getTime() ? s : best;
+    return pickActiveSubscription(subs);
+  }
+
+  /**
+   * 한 번 사는 기간권을 반영한다 (텔레그램 Stars).
+   *
+   * 같은 등급 이상이 이미 살아 있으면 **그 뒤에 이어 붙인다** — 지금부터 세면
+   * 남은 기간을 버리게 된다. 아래 등급만 살아 있으면(SUPER 쓰는 중에 MAX 구매)
+   * 지금 시작한다: 비싼 걸 샀으면 바로 써야 하고, SUPER 는 MAX 가 끝난 뒤에
+   * 다시 이어진다 (syncUser · 만료 청소부가 그 경계를 다시 투영한다).
+   *
+   * 멱등: 같은 externalTransactionId 는 한 번만 들어간다. 웹훅이 재전송돼도
+   * 날짜를 다시 계산하지 않는다. 한 유저의 결제가 동시에 두 건 들어오는 경우는
+   * 호출하는 쪽(TelegramStarsService)이 유저별로 줄을 세운다.
+   */
+  async applyOneTimePass(input: OneTimePassInput): Promise<OneTimePassResult> {
+    const uid = new Types.ObjectId(input.userId);
+    const key = {
+      provider: input.provider,
+      externalTransactionId: input.externalTransactionId,
+    };
+    const already = async (): Promise<OneTimePassResult | null> => {
+      const row = await this.subModel
+        .findOne(key)
+        .select('tier startedAt expiresAt')
+        .lean();
+      return row
+        ? {
+            applied: false,
+            tier: row.tier ?? input.tier,
+            startedAt: row.startedAt,
+            expiresAt: row.expiresAt,
+          }
+        : null;
+    };
+    const existing = await already();
+    if (existing) return existing;
+
+    const now = new Date();
+    const live = await this.subModel
+      .find({
+        userId: uid,
+        status: { $in: ENTITLED_STATUSES },
+        expiresAt: { $gt: now },
+      })
+      .select('tier expiresAt')
+      .lean();
+    const rank = TIER_RANK[input.tier];
+    const startedAt = live
+      .filter((s) => TIER_RANK[s.tier ?? 'super'] >= rank)
+      .reduce((until, s) => (s.expiresAt > until ? s.expiresAt : until), now);
+    const expiresAt = new Date(
+      startedAt.getTime() + Math.max(1, Math.floor(input.days)) * DAY_MS,
+    );
+
+    // 보석은 이 계정의 첫 유료 구독에만
+    const hadAny = await this.subModel.exists({
+      userId: uid,
+      welcomeGrantGiven: true,
     });
+
+    let doc: SubscriptionDocument;
+    try {
+      doc = await this.subModel.create({
+        userId: uid,
+        provider: input.provider,
+        platform: input.platform,
+        country: input.country ?? 'OTHER',
+        tier: input.tier,
+        plan: input.plan,
+        productId: input.productId,
+        status: 'active',
+        startedAt,
+        expiresAt,
+        autoRenew: false,
+        externalTransactionId: input.externalTransactionId,
+        payerId: input.payerId,
+        priceMicros: input.priceMicros ?? null,
+        currency: input.currency ?? '',
+        welcomeGrantGiven: !hadAny,
+        lastVerifiedAt: now,
+      });
+    } catch (error) {
+      // 같은 결제가 동시에 두 번 들어왔다 — 먼저 들어간 쪽이 이미 반영했다
+      if ((error as { code?: number })?.code === 11000) {
+        const raced = await already();
+        if (raced) return raced;
+      }
+      throw error;
+    }
+
+    if (!hadAny) {
+      await this.userModel.updateOne(
+        { _id: uid },
+        { $inc: { gems: WELCOME_GEM_GRANT } },
+      );
+    }
+
+    await this.subEvents.record({
+      userId: uid,
+      subscriptionId: doc._id,
+      fromStatus: null,
+      toStatus: 'active',
+      provider: input.provider,
+      plan: input.plan,
+      productId: input.productId,
+      reason: 'purchase',
+    });
+
+    await this.syncUser(input.userId);
+    return { applied: true, tier: input.tier, startedAt, expiresAt };
   }
 
   /**
@@ -207,13 +342,13 @@ export class SubscriptionService {
    *
    * 체험(trial)은 결제가 아니라 가입 시 붙는 것이라 구독이 없을 때만 남긴다.
    */
-  async syncUser(userId: string) {
+  async syncUser(userId: string): Promise<boolean> {
     const active = await this.findActive(userId);
     const user = await this.userModel
       .findById(userId)
       .select('superPlan superExpiresAt isSuper')
       .lean();
-    if (!user) return;
+    if (!user) return false;
 
     if (active) {
       await this.userModel.updateOne(
@@ -227,7 +362,7 @@ export class SubscriptionService {
           },
         },
       );
-      return;
+      return true;
     }
 
     // 결제 구독이 없다. 체험이 아직 살아있으면 건드리지 않는다.
@@ -235,7 +370,7 @@ export class SubscriptionService {
       (user as any).superPlan === 'trial' &&
       (user as any).superExpiresAt &&
       new Date((user as any).superExpiresAt).getTime() > Date.now();
-    if (onTrial) return;
+    if (onTrial) return true;
 
     await this.userModel.updateOne(
       { _id: new Types.ObjectId(userId) },
@@ -248,6 +383,7 @@ export class SubscriptionService {
         },
       },
     );
+    return false;
   }
 
   /** GET /subscriptions/me — 앱이 프리미엄 권한을 판단하는 단 하나의 창구 */
@@ -261,11 +397,12 @@ export class SubscriptionService {
     // 여기가 권한을 판단하는 창구다. 판단만 하고 DB 는 그대로 두면
     // 만료된 계정이 계속 isSuper: true 로 남아 있어서, 이 함수를 안 거치는
     // 코드가 하나라도 생기면 그 즉시 공짜 프리미엄이 된다. 발견하면 내린다.
+    //
+    // 단, 끝난 건 **한 구간**일 수 있다 — MAX 기간권이 끝나도 그 뒤로 이어 산
+    // SUPER 가 남아 있으면 계속 SUPER 다. 그래서 무작정 내리지 않고 구독
+    // 컬렉션에서 다시 투영한다 (남은 게 없으면 syncUser 가 내린다).
     if (isSuperStale(user as any)) {
-      await this.userModel.updateOne(
-        { _id: new Types.ObjectId(userId) },
-        { $set: expiredSuperFields() },
-      );
+      await this.syncUser(userId);
       Object.assign(user as any, expiredSuperFields());
     }
 
@@ -330,18 +467,38 @@ export class SubscriptionService {
    * 해당된다. 체험이 끝나고 앱을 안 여는 계정은 DB 에 isSuper: true 로
    * 계속 남아, 유저 목록·통계·푸시 대상 산출처럼 isSuperActive 를 안 거치는
    * 코드가 하나만 생겨도 바로 새는 자리가 된다.
-   * 하루 한 번 훑어서 DB 를 사실과 맞춰둔다.
+   * 한 시간마다 훑어서 DB 를 사실과 맞춰둔다.
+   *
+   * 무작정 내리지 않고 유저마다 syncUser 로 다시 투영한다. 끝난 게 한 구간일
+   * 수 있어서다 — MAX 가 끝나도 뒤에 이어 산 SUPER(텔레그램 Stars 기간권,
+   * 보석 기간권)가 남아 있으면 그게 새 superExpiresAt 이 된다. 예전처럼
+   * updateMany 로 내리면 돈 내고 산 기간이 앱을 열 때까지 사라져 있었다.
    */
-  @Cron('17 4 * * *')
+  @Cron('17 * * * *')
   async sweepExpiredSuper() {
-    const res = await this.userModel.updateMany(
-      { isSuper: true, superExpiresAt: { $ne: null, $lte: new Date() } },
-      { $set: expiredSuperFields() },
-    );
-    if (res.modifiedCount) {
-      this.logger.log(`만료된 SUPER ${res.modifiedCount}건 내림`);
+    const stale = await this.userModel
+      .find({ isSuper: true, superExpiresAt: { $ne: null, $lte: new Date() } })
+      .select('_id')
+      .limit(2000)
+      .lean();
+    let lowered = 0;
+    let continued = 0;
+    for (const user of stale) {
+      try {
+        if (await this.syncUser(user._id.toString())) continued++;
+        else lowered++;
+      } catch (error) {
+        this.logger.warn(
+          `만료 청소 실패: user=${String(user._id)} ${String(error)}`,
+        );
+      }
     }
-    return { lowered: res.modifiedCount };
+    if (lowered || continued) {
+      this.logger.log(
+        `만료된 SUPER ${lowered}건 내림 · ${continued}건은 다음 구간으로 이어짐`,
+      );
+    }
+    return { lowered, continued };
   }
 
   /**

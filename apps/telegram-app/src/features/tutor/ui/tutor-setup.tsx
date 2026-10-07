@@ -150,7 +150,14 @@ export function TutorSetup(p: TutorSetupProps) {
     { key: "daily", title: "Kundalik suhbat", items: topics.filter((item) => item.category === "daily") },
   ].filter((group) => group.items.length > 0);
 
-  const left = p.quota ? Math.max(0, p.quota.limitMin - p.quota.usedMin) : 0;
+  // daily(MAX) 는 하루·한 달 상한을 다 반영한 allowedSec 이 실제 남은 시간이다
+  const left = !p.quota
+    ? 0
+    : p.quota.kind === "daily"
+      ? Math.floor(p.quota.allowedSec / 60)
+      : Math.max(0, p.quota.limitMin - p.quota.usedMin);
+  /** 하루치가 남았는데 막혔으면 한 달 상한 (서버 assertCanStart 와 같은 판정) */
+  const monthlyOut = exhausted && !!p.quota && p.quota.usedMin < p.quota.limitMin - 1;
 
   return (
     <main className={styles.screen}>
@@ -406,8 +413,10 @@ export function TutorSetup(p: TutorSetupProps) {
           >
             <span>
               {p.quota?.isMax
-                ? "Bugungi dars vaqti tugadi. Ertaga ko'rishamiz!"
-                : "KORIO MAX bilan har kuni 1 soat dars"}
+                ? monthlyOut
+                  ? "Bu oylik dars vaqti tugadi."
+                  : "Bugungi dars vaqti tugadi. Ertaga ko'rishamiz!"
+                : "KORIO MAX bilan kuniga 1 soatgacha · oyiga 200 daqiqa"}
             </span>
           </button>
         ) : (

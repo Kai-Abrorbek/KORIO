@@ -75,7 +75,14 @@ export function adminJwtSecret(): string | null {
  *    이 경고가 로그 맨 위에 뜨면 그 상황이라는 뜻이다.
  */
 const OPTIONAL_SECRETS: { key: string; breaks: string }[] = [
-  { key: 'TELEGRAM_BOT_TOKEN', breaks: 'Telegram Mini App 로그인' },
+  {
+    key: 'TELEGRAM_BOT_TOKEN',
+    breaks: 'Telegram Mini App 로그인 · Stars 결제',
+  },
+  {
+    key: 'TELEGRAM_WEBHOOK_SECRET',
+    breaks: 'Telegram Stars 결제 (봇 웹훅을 전부 거절)',
+  },
   { key: 'ADMIN_JWT_SECRET', breaks: '어드민 패널 로그인' },
   { key: 'OPENAI_API_KEY', breaks: 'AI 튜터' },
   { key: 'AZURE_SPEECH_KEY', breaks: '발음 평가 · 튜터 음성' },
@@ -96,6 +103,7 @@ const OPTIONAL_SECRETS: { key: string; breaks: string }[] = [
  */
 const WHITESPACE_SENSITIVE = [
   'TELEGRAM_BOT_TOKEN',
+  'TELEGRAM_WEBHOOK_SECRET',
   'JWT_SECRET',
   'ADMIN_JWT_SECRET',
   'MONGODB_URI',

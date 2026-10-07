@@ -67,6 +67,14 @@ export class Subscription {
   @Prop()
   externalSubscriptionId?: string;
 
+  /**
+   * 돈을 낸 스토어 쪽 계정 id. 텔레그램 Stars 환불(refundStarPayment)은
+   * **결제한** 텔레그램 유저 id 가 있어야 된다 — 인보이스 링크를 받은 친구가
+   * 대신 냈을 수도 있어서 KORIO 계정만으로는 모른다.
+   */
+  @Prop()
+  payerId?: string;
+
   /** 구독 시작 보상(보석)을 이미 줬는지. 갱신마다 또 주면 안 된다 */
   /**
    * 결제 금액 (마이크로 단위, 1,000,000 = 1). 모르면 null.

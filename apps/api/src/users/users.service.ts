@@ -30,6 +30,14 @@ import {
 import { langToFlag, levelToNumber } from './utils';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
+  Subscription,
+  SubscriptionDocument,
+} from '../payments/subscriptions/subscription.schema';
+import {
+  ENTITLED_STATUSES,
+  pickActiveSubscription,
+} from '../payments/subscriptions/subscription.types';
+import {
   expiredSuperFields,
   isSuperActive,
   isSuperStale,
@@ -88,6 +96,8 @@ export class UsersService {
     @InjectModel(UserProgress.name)
     private progressModel: Model<UserProgressDocument>,
     @InjectModel(LessonNode.name) private nodeModel: Model<LessonNodeDocument>,
+    @InjectModel(Subscription.name)
+    private subModel: Model<SubscriptionDocument>,
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
   ) {}
@@ -196,6 +206,29 @@ export class UsersService {
   }
 
   /** 본인 정보 + 카운트 */
+  /**
+   * 지금 살아있는 결제 구독으로 만든 user.isSuper 투영값. 없으면 null.
+   * SubscriptionService.syncUser 와 같은 규칙이다 (등급 우선 → 늦은 만료).
+   */
+  private async nextSuperFields(userId: string) {
+    const subs = await this.subModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        status: { $in: ENTITLED_STATUSES },
+        expiresAt: { $gt: new Date() },
+      })
+      .select('tier plan expiresAt')
+      .lean();
+    const active = pickActiveSubscription(subs);
+    if (!active) return null;
+    return {
+      isSuper: true,
+      superTier: active.tier ?? 'super',
+      superPlan: active.plan,
+      superExpiresAt: active.expiresAt,
+    };
+  }
+
   async getMe(userId: string) {
     const user = await this.userModel
       .findById(userId)
@@ -215,13 +248,17 @@ export class UsersService {
     // 체험이 끝났으면 DB 의 isSuper 도 내려준다.
     // 안 그러면 만료된 계정이 DB 상으로는 계속 슈퍼로 보인다.
     if (isSuperStale(user)) {
-      // isSuper 만 내리면 superPlan 이 'trial' 로 남아서, 끝난 체험이
-      // DB 상으로는 계속 진행 중이다. 한 벌로 같이 비운다.
+      // 끝난 건 한 구간일 수 있다 — MAX 기간권 뒤에 이어 산 SUPER 가 남아
+      // 있으면 그걸로 다시 투영한다 (SubscriptionService.syncUser 와 같은 판정).
+      // 없으면 isSuper 만 내리지 말고 한 벌로 비운다: superPlan 이 'trial' 로
+      // 남으면 끝난 체험이 DB 상으로는 계속 진행 중이다.
+      const next = await this.nextSuperFields(userId);
+      const fields = next ?? expiredSuperFields();
       await this.userModel.updateOne(
         { _id: new Types.ObjectId(userId) },
-        { $set: expiredSuperFields() },
+        { $set: fields },
       );
-      Object.assign(user, expiredSuperFields());
+      Object.assign(user, fields);
     }
 
     // 에너지도 파생 데이터다. 저장값을 그대로 주면 시간 회복분이 빠지고,

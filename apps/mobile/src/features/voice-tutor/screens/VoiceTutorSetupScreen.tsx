@@ -123,6 +123,8 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
   const topic = topics?.find((x) => x.id === topicId) ?? null;
   const exhausted = !!p.quota && p.quota.allowedSec <= 0;
   const canStart = !!voice && !p.busy && !exhausted;
+  /** 하루치가 남았는데 막혔으면 한 달 상한 (서버 assertCanStart 와 같은 판정) */
+  const monthlyOut = exhausted && !!p.quota && p.quota.usedMin < p.quota.limitMin - 1;
 
   if (failed) {
     return (
@@ -400,7 +402,10 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
                 ? "voiceTutor.setup.trialLeft"
                 : "voiceTutor.setup.quotaLeft",
               {
-                min: Math.max(0, p.quota.limitMin - p.quota.usedMin),
+                min:
+                  p.quota.kind === "daily"
+                    ? Math.floor(p.quota.allowedSec / 60)
+                    : Math.max(0, p.quota.limitMin - p.quota.usedMin),
                 limit: p.quota.limitMin,
               },
             )}
@@ -414,7 +419,9 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
           >
             <Text style={s.startText}>
               {p.quota?.isMax
-                ? t("voiceTutor.setup.limitReached")
+                ? monthlyOut
+                  ? t("voiceTutor.error.VOICE_TUTOR_MONTHLY_LIMIT_REACHED")
+                  : t("voiceTutor.setup.limitReached")
                 : t("voiceTutor.setup.upsellMax")}
             </Text>
           </Pressable>

@@ -14,6 +14,9 @@ import { RateLimitGuard } from '../common/rate-limit';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { GemPassController } from './gems/gem-pass.controller';
 import { GemPassService } from './gems/gem-pass.service';
+import { TelegramBotApi } from './providers/telegram-stars/telegram-bot.api';
+import { TelegramStarsController } from './providers/telegram-stars/telegram-stars.controller';
+import { TelegramStarsService } from './providers/telegram-stars/telegram-stars.service';
 
 /**
  * 결제는 독립 모듈이다. 기존 subscription 모듈(체험·플랜 목록)은 그대로 두고,
@@ -31,13 +34,16 @@ import { GemPassService } from './gems/gem-pass.service';
     // 구독 상태 전이 기록 (분석 전용)
     AnalyticsModule,
   ],
-  controllers: [PaymentsController, GemPassController],
+  controllers: [PaymentsController, GemPassController, TelegramStarsController],
   providers: [
     PaymentsService,
     SubscriptionService,
     SubscriptionRefreshService,
     GooglePlayProvider,
     GemPassService,
+    // 텔레그램 미니앱 Stars 결제 + 봇 웹훅
+    TelegramBotApi,
+    TelegramStarsService,
     RateLimitGuard,
   ],
   exports: [SubscriptionService, GemPassService],

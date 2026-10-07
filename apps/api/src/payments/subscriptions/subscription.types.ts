@@ -6,9 +6,17 @@ export type PaymentProviderId =
   | 'click'
   | 'payme'
   /** 현금이 아니라 앱 안에서 모은 보석으로 산 기간권 */
-  | 'gems';
+  | 'gems'
+  /** 텔레그램 미니앱 — Stars(XTR) 로 산 기간권 (providers/telegram-stars) */
+  | 'telegram_stars';
 
-export type SubscriptionPlatform = 'android' | 'ios' | 'web' | 'internal';
+export type SubscriptionPlatform =
+  | 'android'
+  | 'ios'
+  | 'web'
+  | 'internal'
+  /** 텔레그램 미니앱 */
+  | 'telegram';
 
 /** 가격·상품이 나라별로 갈리므로 구독에 국가를 박아둔다 */
 export type SubscriptionCountry = 'KR' | 'UZ' | 'OTHER';
@@ -96,6 +104,26 @@ export const TIER_RANK: Record<SubscriptionTier, number> = {
   super: 1,
   max: 2,
 };
+
+/**
+ * 살아있는 구독 여러 개 중 지금 권한을 줄 하나.
+ *
+ * **등급이 높은 것**이 이긴다. 만료일로만 고르면 SUPER 1년권을 쓰다 MAX
+ * 1개월을 산 유저가 SUPER 로 보인다 — MAX 값을 냈는데 튜터를 못 쓴다.
+ * 같은 등급끼리는 늦게 끝나는 쪽.
+ */
+export function pickActiveSubscription<
+  T extends { tier?: SubscriptionTier | null; expiresAt: Date },
+>(subs: T[]): T | null {
+  if (!subs.length) return null;
+  return subs.reduce((best, s) => {
+    const rank = TIER_RANK[s.tier ?? 'super'] - TIER_RANK[best.tier ?? 'super'];
+    if (rank !== 0) return rank > 0 ? s : best;
+    return new Date(s.expiresAt).getTime() > new Date(best.expiresAt).getTime()
+      ? s
+      : best;
+  });
+}
 
 /** 검증을 마친 결과. 어느 Provider 든 이 모양으로 돌려준다 */
 export interface VerifiedPurchase {
