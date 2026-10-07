@@ -56,7 +56,9 @@ const BATT_H = 28;
 // 타이밍 (ms)
 const T_POP = 620; // 코어 등장
 const T_FILL = 820; // 배터리 차오름 시작
-const T_COLLECT = 1950; // 헤더로 흡수 시작
+// 헤더로 흡수 시작. 배터리가 다 차고(~1.46초) 나서 이만큼 머문다 —
+// 예전 1950 은 다 찬 걸 보기도 전에 빨려 들어가서 "너무 빨리 지나간다" 였다 (2026-10-07)
+const T_COLLECT = 3200;
 const D_COLLECT = 480;
 
 interface SparkDef {

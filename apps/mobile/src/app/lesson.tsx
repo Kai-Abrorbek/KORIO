@@ -58,6 +58,11 @@ import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import { shuffleGrammarQuestions } from "@/utils/shuffle";
 import { listeningScript } from "@/utils/listening";
 import {
+  newComboTracker,
+  refundComboTracker,
+  stepComboTracker,
+} from "@/utils/combo-bonus";
+import {
   normalizeOnboardingPlacement,
   resolveOnboardingPlacement,
 } from "@/utils/onboarding-placement";
@@ -313,7 +318,8 @@ export default function LessonScreen() {
   const [bonusVariant, setBonusVariant] = useState<"lightning" | "surge">(
     "lightning",
   );
-  const bonusGiven = useRef(false); // 레슨당 보너스 1회 제한
+  // 연속 정답 보너스 — 언제 줄지 (레슨당 2~3번, utils/combo-bonus.ts)
+  const comboTracker = useRef(newComboTracker());
   /** 에너지 벌기 판 — 보상 연출이 끝나면 레슨을 나간다 */
   const leaveAfterBonus = useRef(false);
 
@@ -407,6 +413,7 @@ export default function LessonScreen() {
   const loadLesson = async () => {
     try {
       setLoading(true);
+      comboTracker.current = newComboTracker();
       answerSubmissionLocked.current = false;
       setIsCheckingAnswer(false);
       setGradingFeedback(null);
@@ -767,6 +774,36 @@ export default function LessonScreen() {
     else router.replace("/");
   };
 
+  /**
+   * 연속 정답 보너스 요청. 방금 차감이 서버에 반영된 **뒤에** 묻는다 —
+   * 순서가 꼬이면 한 칸 어긋난다. 서버가 안 주면(간격·하루 한도) 회차를 되돌린다.
+   */
+  const requestComboBonus = async (spending: Promise<void> | null) => {
+    await spending;
+    // 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
+    const spentSoFar = Math.max(0, localSpent.current - energyCharged.current);
+    try {
+      const bonusRes = await EnergyService.comboBonus(spentSoFar);
+      if (bonusRes.bonusGranted <= 0) {
+        comboTracker.current = refundComboTracker(comboTracker.current);
+        return;
+      }
+      updateUser({
+        // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
+        energy: Math.max(0, bonusRes.energy - spentSoFar),
+        gems: bonusRes.gems,
+      } as any);
+      setBonusAmount(bonusRes.bonusGranted);
+      // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로
+      const variant = Math.random() < 0.5 ? "lightning" : "surge";
+      setBonusVariant(variant);
+      setShowLightning(variant === "lightning");
+      setShowBonus(true);
+    } catch {
+      comboTracker.current = refundComboTracker(comboTracker.current);
+    }
+  };
+
   const commitAnswer = (
     question: LessonQuestion,
     isCorrect: boolean,
@@ -819,6 +856,18 @@ export default function LessonScreen() {
         });
     }
 
+    // ── 연속 정답 에너지 보너스 ── 레슨당 2~3번. 언제 줄지는 comboTracker 가,
+    // 얼마나 줄지·막을지는 서버가 정한다. 복습 라운드는 에너지를 안 쓰니 없다
+    if (consumesEnergy && phase === "main") {
+      const step = stepComboTracker(
+        comboTracker.current,
+        isCorrect,
+        Math.max(0, questionQueue.current.length - 1),
+      );
+      comboTracker.current = step.tracker;
+      if (step.fire) void requestComboBonus(spending);
+    }
+
     if (isCorrect) {
       setShowCombo(true);
       correctCount.current += 1;
@@ -833,42 +882,6 @@ export default function LessonScreen() {
 
       const nextCombo = combo + 1;
       setCombo(nextCombo);
-
-      // 4연속 보너스는 서버가 준다 (횟수·간격을 서버가 막는다).
-      // 방금 차감이 서버에 반영된 **뒤에** 묻는다 — 순서가 꼬이면 한 칸 어긋난다.
-      // 복습 라운드는 에너지를 안 쓰니 보너스도 없다
-      if (
-        consumesEnergy &&
-        phase !== "review" &&
-        nextCombo % 4 === 0 &&
-        !bonusGiven.current
-      ) {
-        (async () => {
-          await spending;
-          // 화면상 썼지만 아직 서버에서 안 깎인 몫 (보통 0)
-          const spentSoFar = Math.max(
-            0,
-            localSpent.current - energyCharged.current,
-          );
-          try {
-            const bonusRes = await EnergyService.comboBonus(spentSoFar);
-            if (bonusRes.bonusGranted > 0) {
-              bonusGiven.current = true; // 이 레슨에선 다시 안 줌
-              updateUser({
-                // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
-                energy: Math.max(0, bonusRes.energy - spentSoFar),
-                gems: bonusRes.gems,
-              } as any);
-              setBonusAmount(bonusRes.bonusGranted);
-              // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로
-              const variant = Math.random() < 0.5 ? "lightning" : "surge";
-              setBonusVariant(variant);
-              if (variant === "lightning") setShowLightning(true);
-              setShowBonus(true);
-            }
-          } catch {}
-        })();
-      }
 
       if (!uniqueCorrect.current.has(question.id)) {
         uniqueCorrect.current.add(question.id);

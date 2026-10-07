@@ -10,7 +10,6 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import {
   ENERGY_CONFIG,
   COMBO_BONUS_DAILY_LIMIT,
-  COMBO_BONUS_THRESHOLD,
 } from './energy.constants';
 import {
   claimsSince,
@@ -377,9 +376,9 @@ export class EnergyService {
   // ─────────────────────────── 콤보 보너스 ───────────────────────────
 
   /**
-   * 4연속 정답 보너스.
+   * 연속 정답 보너스 (레슨당 2~3번 — 언제 줄지는 앱이 정한다).
    *
-   * ⚠️ "정말 4연속 맞혔는지" 는 서버가 모른다 — 채점이 앱에 있다. 그래서
+   * ⚠️ "정말 연속으로 맞혔는지" 는 서버가 모른다 — 채점이 앱에 있다. 그래서
    *    규칙(간격·횟수·에너지 상한)은 전부 서버가 들고 있고, 앱이 언제
    *    부르든 여기서 정해진 만큼만 나간다. 예전엔 앱 말을 그대로 믿어서,
    *    이 엔드포인트를 반복 호출하는 것만으로 에너지를 계속 채울 수 있었다.
@@ -421,7 +420,8 @@ export class EnergyService {
       {
         _id: user._id,
         // 조건을 여기 한 번 더 건다. 요청이 겹쳐 들어와도 한도를 못 넘는다
-        energy: { $lte: COMBO_BONUS_THRESHOLD + spent },
+        // 가득이면 줄 게 없다 (이번 판 소비는 아직 저장값에서 안 빠져 있다)
+        energy: { $lt: ENERGY_CONFIG.MAX + spent },
         $expr: {
           $lt: [{ $size: todayOnly }, COMBO_BONUS_DAILY_LIMIT],
         },

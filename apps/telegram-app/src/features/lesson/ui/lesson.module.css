@@ -1206,13 +1206,14 @@
 }
 
 /* ── 4연속 정답 에너지 보너스 (앱 EnergyBonusPopup) ── */
-.energyBonus { align-items: center; animation: bonus-life 2.6s ease both; display: flex; inset: 0; justify-content: center; pointer-events: none; position: fixed; z-index: 120; }
+.energyBonus { align-items: center; animation: bonus-life 3.6s ease both; display: flex; inset: 0; justify-content: center; pointer-events: none; position: fixed; z-index: 120; }
 .energyBonus i { border-radius: calc(var(--bonus-size) * .3); height: var(--bonus-size); position: absolute; transform: translate(var(--bonus-x), var(--bonus-y)) rotate(var(--bonus-rot)); width: var(--bonus-size); animation: bonus-burst .5s cubic-bezier(.34,1.56,.64,1) both; }
 .bonusBattery { align-items: center; background: #ffc107; border-radius: 24px; display: flex; height: 96px; justify-content: center; position: relative; width: 150px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
 .bonusBattery em { background: #fff; border-radius: 11px; height: 52px; left: 18px; opacity: .45; position: absolute; top: 22px; width: 22px; }
 .bonusBattery b { color: #fff; font-size: 48px; font-weight: 900; letter-spacing: -1px; }
 .bonusCap { background: #ffc107; border-radius: 3px 7px 7px 3px; height: 36px; margin-left: 4px; width: 13px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
-@keyframes bonus-life { 0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+/* 3.6초 — 나타남 0.2초 · 머묾 2.9초 · 사라짐 0.5초 (예전 2.6초는 너무 빨리 지나갔다) */
+@keyframes bonus-life { 0% { opacity: 0; } 6% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes bonus-burst { from { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(.4); } }
 @keyframes bonus-pop { from { transform: scale(.5); } }
 

@@ -1,8 +1,7 @@
 import {
+  COMBO_BONUS_AMOUNT,
   COMBO_BONUS_COOLDOWN_SEC,
   COMBO_BONUS_DAILY_LIMIT,
-  COMBO_BONUS_MAX,
-  COMBO_BONUS_THRESHOLD,
   ENERGY_CONFIG,
 } from './energy.constants';
 
@@ -111,7 +110,6 @@ export function claimsSince(dates: (Date | string)[] | undefined, from: Date): D
 export type ComboBonusDeny =
   | 'SUPER'
   | 'FULL'
-  | 'ENOUGH_ENERGY'
   | 'COOLDOWN'
   | 'DAILY_LIMIT';
 
@@ -123,10 +121,10 @@ export interface ComboBonusDecision {
 /**
  * 콤보 보너스로 몇 개를 줄지 정한다.
  *
- * ⚠️ "정말 4연속 맞혔는지" 는 여기서 확인하지 못한다. 채점이 앱에 있어서
+ * ⚠️ "정말 연속으로 맞혔는지" 는 여기서 확인하지 못한다. 채점이 앱에 있어서
  *    서버는 요청이 왔다는 것밖에 모른다. 그래서 대신 **간격과 횟수**로 막는다.
  *    앱을 믿고 그냥 주면, 이 엔드포인트를 반복 호출하는 것만으로 에너지를
- *    계속 채울 수 있다 (임계값 15 아래로만 내려가면 다시 받을 수 있으므로
+ *    계속 채울 수 있다 (간격·하루 횟수가 없으면
  *    사실상 무제한이 된다).
  *
  * 순수 함수다 — DB 없이 규칙만 검사할 수 있게.
@@ -142,11 +140,8 @@ export function decideComboBonus(input: {
   const { MAX } = ENERGY_CONFIG;
 
   if (isSuper) return { granted: 0, reason: 'SUPER' };
+  // 에너지가 넉넉해도 준다 (2026-10-07). 대신 양이 적고 횟수·간격을 막는다
   if (energy >= MAX) return { granted: 0, reason: 'FULL' };
-  // 넉넉하면 안 준다. 이 선이 없으면 보너스만으로 계속 꽉 채울 수 있다
-  if (energy > COMBO_BONUS_THRESHOLD) {
-    return { granted: 0, reason: 'ENOUGH_ENERGY' };
-  }
 
   const claims = input.claimsToday.map((d) => new Date(d).getTime());
   if (claims.length >= COMBO_BONUS_DAILY_LIMIT) {
@@ -158,8 +153,8 @@ export function decideComboBonus(input: {
     return { granted: 0, reason: 'COOLDOWN' };
   }
 
-  // 바닥일수록 많이 준다 — 여기서 끊기면 유저가 그냥 앱을 닫는다
-  // (구간은 MAX 50 기준. 25 시절 5/10/15 를 두 배로)
-  const base = energy <= 10 ? COMBO_BONUS_MAX : energy <= 20 ? 6 : 4;
+  // 바닥일수록 조금 더 (COMBO_BONUS_AMOUNT)
+  const base =
+    COMBO_BONUS_AMOUNT.find((row) => energy <= row.maxEnergy)?.amount ?? 2;
   return { granted: Math.min(base, MAX - energy) };
 }

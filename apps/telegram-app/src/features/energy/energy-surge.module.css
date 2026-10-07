@@ -1,4 +1,5 @@
-.surge{--total:2.45s;position:fixed;inset:0;z-index:130;pointer-events:none}
+/* 3.7초 — 배터리가 다 찬 뒤 1.7초 머문다 (예전 2.45초는 다 찬 걸 보기도 전에 빨려 들어갔다. 앱 EnergySurge T_COLLECT 와 같다) */
+.surge{--total:3.7s;position:fixed;inset:0;z-index:130;pointer-events:none}
 .dim{position:absolute;inset:0;background:#140f33;animation:surge-dim var(--total) ease both}
 .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 
@@ -22,19 +23,19 @@
 .title strong{color:#ffe066;font-size:30px;font-weight:900;letter-spacing:.5px;text-shadow:0 3px 10px rgb(119 110 226/90%)}
 .title small{margin-top:4px;color:#e6e3ff;font-size:14px;font-weight:800}
 
-@keyframes surge-dim{0%{opacity:0}9%{opacity:.55}80%{opacity:.55}100%{opacity:0}}
+@keyframes surge-dim{0%{opacity:0}6%{opacity:.55}87%{opacity:.55}100%{opacity:0}}
 @keyframes surge-arm{to{transform:rotate(calc(var(--a0) + var(--sw)))}}
 @keyframes surge-spark{0%{opacity:0;transform:translateX(var(--dist)) scale(1.4)}15%{opacity:1}88%{opacity:1}100%{opacity:0;transform:translateX(0) scale(.5)}}
 @keyframes surge-ring{0%{opacity:0;transform:scale(.45)}8%{opacity:.9}100%{opacity:0;transform:scale(2.7)}}
 @keyframes surge-ring2{0%{opacity:0;transform:scale(.45)}8%{opacity:.9}100%{opacity:0;transform:scale(3.4)}}
 @keyframes surge-orb{
-  0%,25%{opacity:0;transform:translate(0,0) scale(0)}
-  31%{opacity:1;transform:translate(0,0) scale(1.14)}
-  36%{transform:translate(0,0) scale(.94)}
-  41%,79%{opacity:1;transform:translate(0,0) scale(1)}
-  92%{opacity:1}
+  0%,16.5%{opacity:0;transform:translate(0,0) scale(0)}
+  20.5%{opacity:1;transform:translate(0,0) scale(1.14)}
+  24%{transform:translate(0,0) scale(.94)}
+  27%,86%{opacity:1;transform:translate(0,0) scale(1)}
+  94.5%{opacity:1}
   100%{opacity:0;transform:translate(calc(50vw - 52px),calc(-50vh + var(--korio-top,0px) + 34px)) scale(.15)}
 }
-@keyframes surge-rays{0%,25%{opacity:0;transform:rotate(0)}40%{opacity:1}80%{opacity:1}95%{opacity:0}100%{opacity:0;transform:rotate(150deg)}}
+@keyframes surge-rays{0%,16.5%{opacity:0;transform:rotate(0)}26.5%{opacity:1}87%{opacity:1}96.5%{opacity:0}100%{opacity:0;transform:rotate(150deg)}}
 @keyframes surge-fill{to{width:100%}}
-@keyframes surge-title{0%,34%{opacity:0;transform:translateY(-156px) scale(.86)}44%{opacity:1;transform:translateY(-172px) scale(1)}79%{opacity:1}92%,100%{opacity:0;transform:translateY(-172px) scale(1)}}
+@keyframes surge-title{0%,22.5%{opacity:0;transform:translateY(-156px) scale(.86)}29%{opacity:1;transform:translateY(-172px) scale(1)}86%{opacity:1}94.5%,100%{opacity:0;transform:translateY(-172px) scale(1)}}

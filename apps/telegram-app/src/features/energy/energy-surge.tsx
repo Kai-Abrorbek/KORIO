@@ -13,7 +13,8 @@ import styles from "./energy-surge.module.css";
  *   4) 코어가 헤더의 에너지 쪽으로 날아가 흡수된다
  * 번개 연출(배터리 팝업)과 랜덤으로 번갈아 나온다. 클릭을 막지 않는다.
  */
-const TOTAL_MS = 2450;
+/** CSS --total 과 같아야 한다 (energy-surge.module.css) */
+const TOTAL_MS = 3700;
 const FILL_AT = 820;
 const SPARKS = Array.from({ length: 18 }, (_, index) => ({
   angle: (index / 18) * 360 + (index % 2 ? 10 : -7),

@@ -56,7 +56,7 @@ export default function LightningStrike({ visible, onDone }: Props) {
       withTiming(1, { duration: 50 }),
       // 은은하게 배경으로 유지 (배터리 뜨는 동안)
       withTiming(0.45, { duration: 300 }),
-      withDelay(1400, withTiming(0, { duration: 500 })), // 배터리랑 같이 사라짐
+      withDelay(2400, withTiming(0, { duration: 500 })), // 배터리랑 같이 사라짐 (배터리 유지 2.9초에 맞춤)
     );
 
     // ✅ onDone을 타이머로 확실하게 (애니 콜백 대신)

@@ -48,6 +48,11 @@ import { FeedbackBar, LessonHeader, QuitLessonModal, ReviewIntro } from "./lesso
 import { LessonSpeechProvider } from "./questions/shared";
 import styles from "./lesson.module.css";
 import { playSfx } from "../../../shared/browser/sfx";
+import {
+  newComboTracker,
+  refundComboTracker,
+  stepComboTracker,
+} from "../model/combo-bonus";
 
 const SMART_TYPES = new Set(["type_answer", "translate_type", "listen_type", "listen_fill"]);
 const GRAMMAR_TYPES = new Set(["grammar_blank", "grammar_build"]);
@@ -240,7 +245,8 @@ export function LessonScreen() {
   const energyFailed = useRef(0);
   /** 완료 정산을 보냈다 — 그 뒤엔 재전송하면 두 번 깎인다 */
   const energySettled = useRef(false);
-  const bonusGiven = useRef(false);
+  // 연속 정답 보너스 — 언제 줄지 (레슨당 2~3번, model/combo-bonus.ts — 앱과 같은 규칙)
+  const comboTracker = useRef(newComboTracker());
   const [bonusAmount, setBonusAmount] = useState<number | null>(null);
   /** 콤보 보상 연출 — 번개(배터리) / 에너지 코어 중 매번 랜덤 */
   const [bonusVariant, setBonusVariant] = useState<"battery" | "surge">("battery");
@@ -286,7 +292,7 @@ export function LessonScreen() {
     reviewCorrectIds.current.clear();
     localSpent.current = 0;
     energyChargedIds.current.clear();
-    bonusGiven.current = false;
+    comboTracker.current = newComboTracker();
     setBonusAmount(null);
     setCursor(0);
     setPhase("main");
@@ -523,7 +529,7 @@ export function LessonScreen() {
    * 본풀이 문제는 **맞든 틀리든** 한 문제당 1 (앱 lesson.tsx 와 같다).
    * 같은 문제를 다시 묻는 건 공짜 — 오답 복습 라운드, 문법 즉석 재도전.
    * 서버에서 바로 깎고, 완료 때는 이미 깎은 만큼 빼고 정산한다.
-   * nextCombo 는 맞혔을 때만 넘긴다 (4연속 보너스 판정용).
+   * nextCombo 는 맞혔을 때만 넘긴다 (null = 틀림 — 연속 정답 보너스 판정용).
    */
   const spendEnergy = (questionId: string, nextCombo: number | null) => {
     const superActive = Boolean(
@@ -554,9 +560,15 @@ export function LessonScreen() {
         });
     }
 
-    // 4연속 정답 보너스 — 레슨당 한 번. 횟수·간격은 서버가 막는다.
-    // 방금 차감이 서버에 반영된 뒤에 묻는다
-    if (nextCombo !== null && nextCombo % 4 === 0 && !bonusGiven.current) {
+    // 연속 정답 보너스 — 레슨당 2~3번. 언제 줄지는 comboTracker 가,
+    // 얼마나 줄지·막을지는 서버가 정한다. 방금 차감이 서버에 반영된 뒤에 묻는다
+    const step = stepComboTracker(
+      comboTracker.current,
+      nextCombo !== null,
+      Math.max(0, queue.length - cursor - 1),
+    );
+    comboTracker.current = step.tracker;
+    if (step.fire) {
       let spentSoFar = 0;
       void spending
         .then(() => {
@@ -564,8 +576,11 @@ export function LessonScreen() {
           return claimComboBonus(request, spentSoFar);
         })
         .then((bonus) => {
-          if (bonus.bonusGranted <= 0) return;
-          bonusGiven.current = true;
+          if (bonus.bonusGranted <= 0) {
+            // 서버가 안 줬다(간격·하루 한도) — 이번 회차는 없던 걸로
+            comboTracker.current = refundComboTracker(comboTracker.current);
+            return;
+          }
           // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
           updateUser({ energy: Math.max(0, bonus.energy - spentSoFar), gems: bonus.gems });
           // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로 (앱과 같다)
@@ -574,10 +589,13 @@ export function LessonScreen() {
           setBonusAmount(bonus.bonusGranted);
           if (variant === "battery") {
             window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
-            window.setTimeout(() => setBonusAmount(null), 2200);
+            // 연출(bonus-life 3.6s)이 끝까지 보이게 — 예전엔 2.2초에 잘랐다
+            window.setTimeout(() => setBonusAmount(null), 3600);
           }
         })
-        .catch(() => undefined);
+        .catch(() => {
+          comboTracker.current = refundComboTracker(comboTracker.current);
+        });
     }
   };
 

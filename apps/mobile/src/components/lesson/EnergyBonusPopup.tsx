@@ -46,8 +46,9 @@ export default function EnergyBonusPopup({ visible, amount, onDone }: Props) {
     // 페이드인 → 유지 → 페이드아웃 을 하나의 시퀀스로
     fade.value = withSequence(
       withTiming(1, { duration: 200 }), // 나타남
+      // 다 찬 숫자를 충분히 볼 수 있게 오래 머문다 (예전 1.9초는 너무 빨랐다)
       withDelay(
-        1900,
+        2900,
         withTiming(0, { duration: 500 }, (fin) => {
           if (fin) runOnJS(onDone)();
         }),
