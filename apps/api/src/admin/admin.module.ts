@@ -64,6 +64,12 @@ import { AdminContentLibraryController } from './content/admin-content-library.c
 import { AdminContentLibraryService } from './content/admin-content-library.service';
 import { AdminContentLocalizationController } from './content/admin-content-localization.controller';
 import { AdminContentLocalizationService } from './content/admin-content-localization.service';
+import {
+  LeagueRoom,
+  LeagueRoomSchema,
+} from '../league/schemas/league-room.schema';
+import { AdminGamificationController } from './gamification/admin-gamification.controller';
+import { AdminGamificationService } from './gamification/admin-gamification.service';
 
 /**
  * 운영 도구.
@@ -83,6 +89,7 @@ import { AdminContentLocalizationService } from './content/admin-content-localiz
       { name: User.name, schema: UserSchema },
       { name: AdminAuditLog.name, schema: AdminAuditLogSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: LeagueRoom.name, schema: LeagueRoomSchema },
       { name: UserProgress.name, schema: UserProgressSchema },
       { name: Subscription.name, schema: SubscriptionSchema },
       { name: PlayReportFile.name, schema: PlayReportFileSchema },
@@ -111,6 +118,7 @@ import { AdminContentLocalizationService } from './content/admin-content-localiz
     AdminContentPathController,
     AdminContentLibraryController,
     AdminContentLocalizationController,
+    AdminGamificationController,
   ],
   providers: [
     AdminAuthService,
@@ -125,6 +133,7 @@ import { AdminContentLocalizationService } from './content/admin-content-localiz
     AdminContentPathService,
     AdminContentLibraryService,
     AdminContentLocalizationService,
+    AdminGamificationService,
     AdminGuard,
     RateLimitGuard,
   ],
