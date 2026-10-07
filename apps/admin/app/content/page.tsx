@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { LiveContentPage } from "@/features/content/live-content-page";
-import { isMockMode } from "@/features/auth/session";
+import { isMockMode } from "@/shared/config/data-mode";
 
 export default function Page() {
   return <Suspense fallback={<div className="admin-card admin-empty">콘텐츠를 불러오는 중…</div>}>

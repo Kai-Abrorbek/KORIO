@@ -8,6 +8,9 @@ import {
   useState,
 } from "react";
 import { AdminToken, api, setUnauthorizedHandler } from "@/shared/api/client";
+import { isMockAuthMode, isMockMode } from "@/shared/config/data-mode";
+
+export { isMockAuthMode, isMockMode };
 
 export type AdminPermission =
   | "analytics:read"
@@ -30,17 +33,6 @@ export interface AdminMe {
 }
 
 type Status = "loading" | "authenticated" | "anonymous";
-
-/** 데이터 소스 선택. 운영 빌드에서는 명시적으로 mock 화면을 켤 수 있다. */
-export const isMockMode =
-  process.env.NEXT_PUBLIC_ADMIN_DATA_MODE === "mock" ||
-  (process.env.NODE_ENV === "development" &&
-    process.env.NEXT_PUBLIC_ADMIN_DATA_MODE !== "api");
-
-/** 인증 우회는 로컬 개발에서만 허용한다. 운영 mock 화면도 실제 관리자 로그인이 필요하다. */
-export const isMockAuthMode =
-  process.env.NODE_ENV === "development" &&
-  process.env.NEXT_PUBLIC_ADMIN_DATA_MODE !== "api";
 
 const MOCK_ADMIN: AdminMe = {
   userId: "mock-super-admin",
