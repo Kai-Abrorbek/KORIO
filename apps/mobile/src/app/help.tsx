@@ -17,7 +17,7 @@ import {
   Linking,
   Platform,
 } from "react-native";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -213,6 +213,17 @@ export default function HelpScreen() {
         {/* 문의 */}
         <Text style={s.sectionLabel}>{t("help.contactSection")}</Text>
         <View style={s.card}>
+          <ContactRow
+            icon="chatbubble-ellipses"
+            color="#7157D9"
+            bg="#EEE8FF"
+            label={t("help.contactSection")}
+            desc={t("help.replyNote")}
+            onPress={() => router.push("/support" as Href)}
+            s={s}
+            theme={theme}
+          />
+          <View style={s.divider} />
           <ContactRow
             icon="mail"
             color="#45B7D1"

@@ -20,6 +20,7 @@ interface NavGroup {
 const NAV: NavGroup[] = [
   { href: "/", label: "Control Center", icon: "grid", color: "blue", permission: "analytics:read", children: [{ label: "개요", href: "/" }, { label: "지표 상세", href: "/metrics" }] },
   { href: "/users", label: "사용자", icon: "users", color: "pink", permission: "users:read", children: [{ label: "사용자 목록", href: "/users" }, { label: "사용자 세그먼트", href: "/users?tab=segments" }] },
+  { href: "/support", label: "문의함", icon: "mail", color: "cyan", permission: "users:write", children: [{ label: "사용자 문의", href: "/support" }] },
   { href: "/content", label: "콘텐츠", icon: "layers", color: "violet", permission: "content:read", children: [{ label: "학습 경로", href: "/content" }, { label: "문제 관리", href: "/content?tab=questions" }, { label: "문제 품질", href: "/content?tab=quality" }, { label: "Grammar · Expressions · Hangul", href: "/content?tab=library" }, { label: "번역 상태", href: "/content?tab=localization" }] },
   { href: "/analytics", label: "분석", icon: "chart", color: "cyan", permission: "analytics:read", children: [{ label: "학습 분석", href: "/analytics" }, { label: "레슨 퍼널", href: "/analytics?tab=funnel" }, { label: "문제 분석", href: "/analytics?tab=questions" }, { label: "리텐션", href: "/analytics?tab=retention" }] },
   { href: "/subscriptions", label: "구독", icon: "card", color: "amber", permission: "subscription:read", children: [{ label: "구독 현황", href: "/subscriptions" }, { label: "구독자 관리", href: "/subscriptions?tab=customers" }] },
@@ -36,6 +37,7 @@ function NavIcon({ name }: { name: string }) {
   const paths: Record<string, React.ReactNode> = {
     grid: <><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></>,
     users: <><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a5 5 0 0 1 10 0v2M16 5a3 3 0 0 1 0 6M16 15a5 5 0 0 1 5 5"/></>,
+    mail: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></>,
     layers: <><path d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5"/></>,
     chart: <><path d="M3 3v18h18M6 16l4-5 4 2 5-7"/></>,
     card: <><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></>,

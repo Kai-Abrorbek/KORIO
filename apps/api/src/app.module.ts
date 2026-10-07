@@ -33,6 +33,7 @@ import { ReferralModule } from './referral/referral.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AdminModule } from './admin/admin.module';
 import { RetentionModule } from './retention/retention.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { RetentionModule } from './retention/retention.module';
     ReferralModule,
     AnalyticsModule,
     AdminModule,
+    SupportModule,
     MailModule,
   ],
   controllers: [AppController],
