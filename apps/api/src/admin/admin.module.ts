@@ -70,6 +70,14 @@ import {
 } from '../league/schemas/league-room.schema';
 import { AdminGamificationController } from './gamification/admin-gamification.controller';
 import { AdminGamificationService } from './gamification/admin-gamification.service';
+import { AppReleaseModule } from '../app-release/app-release.module';
+import { PushModule } from '../push/push.module';
+import {
+  DeviceToken,
+  DeviceTokenSchema,
+} from '../push/schemas/device-token.schema';
+import { AdminOperationsController } from './operations/admin-operations.controller';
+import { AdminOperationsService } from './operations/admin-operations.service';
 
 /**
  * 운영 도구.
@@ -106,6 +114,11 @@ import { AdminGamificationService } from './gamification/admin-gamification.serv
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
     AnalyticsModule,
+    AppReleaseModule,
+    PushModule,
+    MongooseModule.forFeature([
+      { name: DeviceToken.name, schema: DeviceTokenSchema },
+    ]),
   ],
   controllers: [
     AdminAuthController,
@@ -119,6 +132,7 @@ import { AdminGamificationService } from './gamification/admin-gamification.serv
     AdminContentLibraryController,
     AdminContentLocalizationController,
     AdminGamificationController,
+    AdminOperationsController,
   ],
   providers: [
     AdminAuthService,
@@ -134,6 +148,7 @@ import { AdminGamificationService } from './gamification/admin-gamification.serv
     AdminContentLibraryService,
     AdminContentLocalizationService,
     AdminGamificationService,
+    AdminOperationsService,
     AdminGuard,
     RateLimitGuard,
   ],
