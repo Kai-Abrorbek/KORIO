@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { isMockMode, useSession } from "@/features/auth/session";
 import { mockAuditSource, type AuditEntry } from "@/shared/data/mock-audit";
-import { LiveAuditPage } from "./live-audit-page";
+import { LiveAdminPage } from "./live-admin-page";
 
 type Tab="audit"|"roles";
 type Role="super_admin"|"content_admin"|"support"|"analyst";
@@ -14,7 +14,7 @@ const PERMISSIONS=["analytics:read","users:read","users:write","content:read","c
 const ROLE_ACCESS:Record<Role,string[]>={super_admin:PERMISSIONS,content_admin:["analytics:read","content:read","content:write","users:read"],support:["analytics:read","users:read","users:write","subscription:read"],analyst:["analytics:read","users:read","content:read","subscription:read"]};
 
 export function AdminAuditPage(){
-  return isMockMode ? <MockAdminAuditPage/> : <LiveAuditPage/>;
+  return isMockMode ? <MockAdminAuditPage/> : <LiveAdminPage/>;
 }
 
 function MockAdminAuditPage(){

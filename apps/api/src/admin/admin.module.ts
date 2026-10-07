@@ -78,6 +78,8 @@ import {
 } from '../push/schemas/device-token.schema';
 import { AdminOperationsController } from './operations/admin-operations.controller';
 import { AdminOperationsService } from './operations/admin-operations.service';
+import { AdminManageController } from './admin-manage.controller';
+import { AdminManageService } from './admin-manage.service';
 
 /**
  * 운영 도구.
@@ -133,6 +135,7 @@ import { AdminOperationsService } from './operations/admin-operations.service';
     AdminContentLocalizationController,
     AdminGamificationController,
     AdminOperationsController,
+    AdminManageController,
   ],
   providers: [
     AdminAuthService,
@@ -149,6 +152,7 @@ import { AdminOperationsService } from './operations/admin-operations.service';
     AdminContentLocalizationService,
     AdminGamificationService,
     AdminOperationsService,
+    AdminManageService,
     AdminGuard,
     RateLimitGuard,
   ],
