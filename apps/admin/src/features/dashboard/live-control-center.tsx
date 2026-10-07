@@ -31,18 +31,20 @@ export function LiveControlCenter() {
   const previousSuffix = qs(previous);
   const overview = useQuery<OverviewResponse>(`/admin/analytics/overview${currentSuffix}`);
   const active = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${currentSuffix}`);
-  const priorOverview = useQuery<OverviewResponse>(`/admin/analytics/overview${previousSuffix}`);
-  const priorActive = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${previousSuffix}`);
-  const funnel = useQuery<FunnelResponse>("/admin/analytics/funnel");
-  const subscriptions = useQuery<SubscriptionsResponse>(`/admin/analytics/subscriptions${currentSuffix}`);
-  const retention = useQuery<RetentionResponse>("/admin/analytics/retention?weeks=8");
-  const [selected, setSelected] = useState<{ metric: MetricSeries; index: number } | null>(null);
+  const priorOverview = useQuery<OverviewResponse>(`/admin/analytics/overview${previousSuffix}`, { refreshMs: 120_000 });
+  const priorActive = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${previousSuffix}`, { refreshMs: 120_000 });
+  const funnel = useQuery<FunnelResponse>("/admin/analytics/funnel", { refreshMs: 120_000 });
+  const subscriptions = useQuery<SubscriptionsResponse>(`/admin/analytics/subscriptions${currentSuffix}`, { refreshMs: 60_000 });
+  const retention = useQuery<RetentionResponse>("/admin/analytics/retention?weeks=8", { refreshMs: 300_000 });
+  const [selected, setSelected] = useState<{ key: string; date: string } | null>(null);
   const trends = useMemo(() => overview.data && active.data && priorOverview.data && priorActive.data
     ? liveTrends(active.data, overview.data, priorActive.data, priorOverview.data)
     : null, [overview.data, active.data, priorOverview.data, priorActive.data]);
   const trendError = overview.error || active.error || priorOverview.error || priorActive.error;
   const trendLoading = overview.loading || active.loading || priorOverview.loading || priorActive.loading;
   const reloadTrends = () => { overview.reload(); active.reload(); priorOverview.reload(); priorActive.reload(); };
+  const selectedMetric = selected && trends?.find(metric => metric.key === selected.key);
+  const selectedIndex = selectedMetric && selected ? selectedMetric.labels.indexOf(selected.date) : -1;
   const kpi = (key: string) => overview.data?.kpis.find(item => item.key === key);
   const currentSignup = kpi("newUsers");
 
@@ -50,7 +52,7 @@ export function LiveControlCenter() {
     <div className="bm-control-layout">
       <div className="bm-metric-grid">
         {trendError ? <div className="admin-card"><ErrorState code={trendError} onRetry={reloadTrends}/></div>
-          : !trendLoading && trends ? trends.map(metric => <LiveMetricCard key={metric.key} metric={metric} onDay={index => setSelected({ metric, index })}/>)
+          : !trendLoading && trends ? trends.map(metric => <LiveMetricCard key={metric.key} metric={metric} onDay={index => { const date = metric.labels[index]; if (date) setSelected({ key: metric.key, date }); }}/>)
           : Array.from({ length: 4 }, (_, index) => <div key={index} className="admin-card skeleton" style={{ height: 350 }}/>) }
       </div>
       <aside className="bm-side-column">
@@ -67,12 +69,12 @@ export function LiveControlCenter() {
     {overview.data && <div className="admin-grid three">{overview.data.kpis.filter(item => !["newUsers"].includes(item.key)).map(item => <div className="admin-card admin-kpi" key={item.key}><div className="admin-kpi-label">{KPI_LABELS[item.key] ?? item.key}</div><div className="admin-kpi-value">{item.unit === "percent" ? `${item.value}%` : item.key === "avgStudyMinutes" ? `${item.value}분` : item.value.toLocaleString("ko-KR")}</div><div className="admin-kpi-note">{item.deltaPct === null ? "직전 기간 비교 없음" : `직전 기간 대비 ${item.deltaPct >= 0 ? "+" : ""}${item.deltaPct}%`}</div></div>)}</div>}
     {overview.data?.unavailable.map(item => <p className="bm-data-note" key={item.key}>{item.key.toUpperCase()}: {item.detail}</p>)}
     <div className="admin-grid">
-      <section className="admin-card"><div className="admin-card-head"><h3>DAU / WAU / MAU</h3><Legend items={[{ key: "dau", label: "DAU", color: "var(--series-1)" }, { key: "wau", label: "WAU", color: "var(--series-2)" }, { key: "mau", label: "MAU", color: "var(--series-4)" }]}/></div><div className="admin-card-body">{active.error ? <ErrorState code={active.error} onRetry={active.reload}/> : active.data ? <LineChart labels={active.data.series.map(item => item.date)} series={[{ key: "dau", label: "DAU", color: "var(--series-1)", values: active.data.series.map(item => item.dau) }, { key: "wau", label: "WAU", color: "var(--series-2)", values: active.data.series.map(item => item.wau) }, { key: "mau", label: "MAU", color: "var(--series-4)", values: active.data.series.map(item => item.mau) }]} height={270}/> : <div className="skeleton" style={{ height: 270 }}/>}</div></section>
+      <section className="admin-card"><div className="admin-card-head"><h3>DAU / WAU / MAU</h3><Legend items={[{ key: "dau", label: "DAU", color: "var(--series-1)" }, { key: "wau", label: "WAU", color: "var(--series-2)" }, { key: "mau", label: "MAU", color: "var(--series-4)" }]}/></div><div className="admin-card-body">{active.error ? <ErrorState code={active.error} onRetry={active.reload}/> : active.data ? <LineChart labels={active.data.series.map(item => item.date)} series={[{ key: "dau", label: "DAU", color: "var(--series-1)", values: active.data.series.map(item => item.dau) }, { key: "wau", label: "WAU", color: "var(--series-2)", values: active.data.series.map(item => item.wau) }, { key: "mau", label: "MAU", color: "var(--series-4)", values: active.data.series.map(item => item.mau) }]} height={270}/> : <div className="skeleton" style={{ height: 270 }}/>}<p className="bm-data-note">학습 기록이 있는 고유 계정 수입니다. 같은 날 여러 번 학습해도 DAU는 1명이며, 날짜는 각 사용자 시간대 기준입니다.</p></div></section>
       <section className="admin-card"><div className="admin-card-head"><h3>신규 가입</h3></div><div className="admin-card-body">{overview.error ? <ErrorState code={overview.error} onRetry={overview.reload}/> : active.data && currentSignup ? <LineChart labels={active.data.series.map(item => item.date)} series={[{ key: "signups", label: "신규 가입", color: "var(--series-1)", values: currentSignup.sparkline }]} area height={270}/> : <div className="skeleton" style={{ height: 270 }}/>}</div></section>
     </div>
     <div className="admin-grid"><section className="admin-card"><div className="admin-card-head"><h3>학습 퍼널 · 전체 기간</h3><Link href="/analytics?tab=funnel">상세 분석 →</Link></div><div className="admin-card-body">{funnel.error ? <ErrorState code={funnel.error} onRetry={funnel.reload}/> : funnel.data ? <Funnel steps={funnel.data.steps}/> : <div className="skeleton" style={{ height: 220 }}/>}</div></section><section className="admin-card"><div className="admin-card-head"><h3>구독 구성</h3><Link href="/subscriptions">구독 상세 →</Link></div><div className="admin-card-body">{subscriptions.error ? <ErrorState code={subscriptions.error} onRetry={subscriptions.reload}/> : subscriptions.data ? <Donut parts={[{ key: "premium", label: "Premium", value: subscriptions.data.active, color: "var(--series-1)" }, { key: "free", label: "Free", value: subscriptions.data.free, color: "var(--border-strong)" }]} height={210}/> : <div className="skeleton" style={{ height: 210 }}/>}<p className="bm-data-note">MRR·매출은 결제 금액 원장이 준비될 때까지 표시하지 않습니다.</p></div></section></div>
     <section className="admin-card"><div className="admin-card-head"><h3>가입 주차별 코호트 리텐션</h3><Link href="/analytics?tab=retention">전체 보기 →</Link></div><div className="admin-card-body">{retention.error ? <ErrorState code={retention.error} onRetry={retention.reload}/> : retention.data ? <CohortTable cohorts={retention.data.cohorts}/> : <div className="skeleton" style={{ height: 230 }}/>}</div></section>
-    {selected && <div className="admin-modal-backdrop" onMouseDown={() => setSelected(null)}><section className="admin-modal" role="dialog" aria-modal="true" aria-label="날짜별 지표 상세" onMouseDown={event => event.stopPropagation()}><h3>{selected.metric.label}</h3><p>{selected.metric.labels[selected.index]} · 실제 API 데이터</p><div className="admin-detail-grid"><div><small>해당 날짜</small><strong>{formatMetric(selected.metric, selected.metric.values[selected.index] ?? 0)}</strong></div><div><small>전일</small><strong>{formatMetric(selected.metric, selected.metric.values[selected.index - 1] ?? 0)}</strong></div><div><small>선택 기간</small><strong>{range.from} ~ {range.to}</strong></div></div><div className="admin-modal-actions"><button className="btn btn-ghost" onClick={() => setSelected(null)}>닫기</button><Link className="btn btn-primary" href={`/metrics?metric=${selected.metric.key}`}>지표 상세로 이동</Link></div></section></div>}
+    {selectedMetric && selectedIndex >= 0 && <div className="admin-modal-backdrop" onMouseDown={() => setSelected(null)}><section className="admin-modal" role="dialog" aria-modal="true" aria-label="날짜별 지표 상세" onMouseDown={event => event.stopPropagation()}><h3>{selectedMetric.label}</h3><p>{selectedMetric.labels[selectedIndex]} · 실제 API 데이터</p><div className="admin-detail-grid"><div><small>해당 날짜</small><strong>{formatMetric(selectedMetric, selectedMetric.values[selectedIndex] ?? 0)}</strong></div><div><small>전일</small><strong>{formatMetric(selectedMetric, selectedMetric.values[selectedIndex - 1] ?? 0)}</strong></div><div><small>선택 기간</small><strong>{range.from} ~ {range.to}</strong></div></div><div className="admin-modal-actions"><button className="btn btn-ghost" onClick={() => setSelected(null)}>닫기</button><Link className="btn btn-primary" href={`/metrics?metric=${selectedMetric.key}`}>지표 상세로 이동</Link></div></section></div>}
   </div>;
 }
 

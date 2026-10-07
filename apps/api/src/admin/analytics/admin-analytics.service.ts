@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, PipelineStage } from 'mongoose';
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import {
   UserStats,
@@ -23,6 +23,7 @@ import {
   LessonAttemptDocument,
 } from '../../analytics/schemas/lesson-attempt.schema';
 import { ENTITLED_STATUSES } from '../../payments/subscriptions/subscription.types';
+import { APP_TIMEZONE } from '../../common/date.util';
 import {
   DateRange,
   dayKey,
@@ -160,9 +161,9 @@ export class AdminAnalyticsService {
    * "앱을 열었다"(User.lastActiveAt)와는 다른 숫자다. 학습 앱에서 의미 있는
    * 쪽은 이쪽이라 이걸 기본으로 잡았고, 화면에도 그렇게 적힌다.
    *
-   * ⚠️ UserStats.date 는 **유저 각자의 시간대**로 자른 날짜다. 우즈벡과 한국이
-   *    섞여 있어서 하루 경계가 사람마다 조금씩 다르다. 추이를 보는 데는 문제가
-   *    없지만 "정확히 이 24시간" 을 묻는 값은 아니다.
+   * UserStats.date 는 유저 현지 날짜의 자정을 UTC 시각으로 저장한다.
+   * 조회할 때 해당 유저의 시간대로 날짜 라벨을 복원해야 서울의 오늘 학습이
+   * UTC 기준 어제에 표시되지 않는다. 이 지표는 정확히 최근 24시간이 아니다.
    */
   async activeUsers(fromISO?: string, toISO?: string) {
     const range = resolveRange(fromISO, toISO);
@@ -173,13 +174,8 @@ export class AdminAnalyticsService {
     // 메모리에서 굴린다 (구간이 90일이어도 행 수는 학습자 수 × 일수 수준)
     const rows = await this.statsModel
       .aggregate<{ _id: { d: string; u: string } }>([
-        {
-          $match: {
-            date: { $gte: new Date(range.from.getTime() - 29 * DAY_MS), $lte: range.to },
-            $or: [{ totalQuestions: { $gt: 0 } }, { xpEarned: { $gt: 0 } }],
-          },
-        },
-        { $group: { _id: { d: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, u: '$userId' } } },
+        ...this.localDayStats(new Date(range.from.getTime() - 29 * DAY_MS), range.to, true),
+        { $group: { _id: { d: '$_adminLocalDay', u: '$userId' } } },
       ])
       .exec();
 
@@ -400,35 +396,94 @@ export class AdminAnalyticsService {
 
   // ─────────────────────────── 내부 ───────────────────────────
 
-  /** 그 기간에 **실제로 학습한** 고유 유저 수 */
-  private async distinctLearners(from: Date, to: Date): Promise<number> {
-    const r = await this.statsModel
-      .aggregate<{ n: number }>([
-        {
-          $match: {
-            date: { $gte: from, $lte: to },
-            $or: [{ totalQuestions: { $gt: 0 } }, { xpEarned: { $gt: 0 } }],
+  /**
+   * Stats.date is a UTC instant representing the user's local midnight, not
+   * a UTC calendar day. Include one padded day before lookup, then filter by
+   * the local YYYY-MM-DD label. No stored date or public response shape changes.
+   */
+  private localDayStats(
+    from: Date,
+    to: Date,
+    activityOnly: boolean,
+  ): PipelineStage[] {
+    return [
+      {
+        $match: {
+          date: {
+            $gte: new Date(from.getTime() - DAY_MS),
+            $lte: new Date(to.getTime() + DAY_MS),
+          },
+          ...(activityOnly
+            ? {
+                $or: [{ totalQuestions: { $gt: 0 } }, { xpEarned: { $gt: 0 } }],
+              }
+            : {}),
+        },
+      },
+      {
+        $lookup: {
+          from: this.userModel.collection.name,
+          localField: 'userId',
+          foreignField: '_id',
+          pipeline: [{ $project: { timezone: 1, isBot: 1 } }],
+          as: '_adminUser',
+        },
+      },
+      { $match: { '_adminUser.isBot': { $ne: true } } },
+      {
+        $addFields: {
+          _adminTimezone: {
+            $let: {
+              vars: { timezone: { $arrayElemAt: ['$_adminUser.timezone', 0] } },
+              in: {
+                $cond: [
+                  { $in: ['$$timezone', [null, '']] },
+                  APP_TIMEZONE,
+                  '$$timezone',
+                ],
+              },
+            },
           },
         },
-        { $group: { _id: '$userId' } },
-        { $count: 'n' },
-      ])
-      .exec();
+      },
+      {
+        $addFields: {
+          _adminLocalDay: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$date',
+              timezone: '$_adminTimezone',
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          _adminLocalDay: { $gte: dayKey(from), $lte: dayKey(to) },
+        },
+      },
+    ];
+  }
+
+  /** 그 기간에 **실제로 학습한** 고유 유저 수 */
+  private async distinctLearners(from: Date, to: Date): Promise<number> {
+    const stages: PipelineStage[] = [
+      ...this.localDayStats(from, to, true),
+      { $group: { _id: '$userId' } },
+      { $count: 'n' },
+    ];
+    const r = await this.statsModel.aggregate<{ n: number }>(stages).exec();
     return r[0]?.n ?? 0;
   }
 
   private async dauSeries(range: DateRange) {
+    const stages: PipelineStage[] = [
+      ...this.localDayStats(range.from, range.to, true),
+      { $group: { _id: { d: '$_adminLocalDay', u: '$userId' } } },
+      { $group: { _id: '$_id.d', value: { $sum: 1 } } },
+    ];
     const rows = await this.statsModel
-      .aggregate<{ _id: string; value: number }>([
-        {
-          $match: {
-            date: { $gte: range.from, $lte: range.to },
-            $or: [{ totalQuestions: { $gt: 0 } }, { xpEarned: { $gt: 0 } }],
-          },
-        },
-        { $group: { _id: { d: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, u: '$userId' } } },
-        { $group: { _id: '$_id.d', value: { $sum: 1 } } },
-      ])
+      .aggregate<{ _id: string; value: number }>(stages)
       .exec();
     return fillSeries(range, rows);
   }
@@ -456,13 +511,20 @@ export class AdminAnalyticsService {
   }
 
   private async studyTotals(from: Date, to: Date) {
+    const statsStages: PipelineStage[] = [
+      ...this.localDayStats(from, to, false),
+      { $group: { _id: '$userId', seconds: { $sum: '$studyTimeSeconds' } } },
+      {
+        $group: {
+          _id: null,
+          seconds: { $sum: '$seconds' },
+          learners: { $sum: 1 },
+        },
+      },
+    ];
     const [agg, lessons] = await Promise.all([
       this.statsModel
-        .aggregate<{ seconds: number; learners: number }>([
-          { $match: { date: { $gte: from, $lte: to } } },
-          { $group: { _id: '$userId', seconds: { $sum: '$studyTimeSeconds' } } },
-          { $group: { _id: null, seconds: { $sum: '$seconds' }, learners: { $sum: 1 } } },
-        ])
+        .aggregate<{ seconds: number; learners: number }>(statsStages)
         .exec(),
       this.progressModel.countDocuments({
         isCompleted: true,

@@ -202,6 +202,24 @@ describe('AdminContentService', () => {
     expect(result.items[0].issues).toEqual([]);
   });
 
+  it('filters by exact lesson membership before calculating global count', async () => {
+    exec.mockResolvedValue([{ items: [], count: [] }]);
+    await service.list({ lessonId: lessonA.toString() });
+    const pipeline = (
+      aggregate.mock.calls as unknown as Array<
+        [Array<{ $match?: Record<string, unknown> }>]
+      >
+    )[0][0];
+    expect(
+      pipeline.some(
+        (stage) => String(stage.$match?.['lessons._id']) === String(lessonA),
+      ),
+    ).toBe(true);
+    await expect(
+      service.list({ lessonId: 'not-an-id' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('keeps a lesson visible when its node has been removed', async () => {
     exec.mockResolvedValue([
       {

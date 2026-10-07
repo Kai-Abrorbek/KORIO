@@ -82,11 +82,11 @@ export function LiveRevenuePage() {
   const permitted = can("subscription:read");
   const chartFrom = iso(new Date(Math.max(Date.parse(`${range.from}T00:00:00.000Z`), Date.parse(`${range.to}T00:00:00.000Z`) - 365 * DAY_MS)));
   const path = (from: string) => permitted ? `/admin/revenue/summary${qs({ from, to: range.to, currency })}` : null;
-  const chart = useQuery<RevenueSummary>(path(chartFrom));
-  const daily = useQuery<RevenueSummary>(path(periodStart("day", range.to)));
-  const weekly = useQuery<RevenueSummary>(path(periodStart("week", range.to)));
-  const monthly = useQuery<RevenueSummary>(path(periodStart("month", range.to)));
-  const yearly = useQuery<RevenueSummary>(path(periodStart("year", range.to)));
+  const chart = useQuery<RevenueSummary>(path(chartFrom), { refreshMs: 300_000 });
+  const daily = useQuery<RevenueSummary>(path(periodStart("day", range.to)), { refreshMs: 300_000 });
+  const weekly = useQuery<RevenueSummary>(path(periodStart("week", range.to)), { refreshMs: 300_000 });
+  const monthly = useQuery<RevenueSummary>(path(periodStart("month", range.to)), { refreshMs: 300_000 });
+  const yearly = useQuery<RevenueSummary>(path(periodStart("year", range.to)), { refreshMs: 300_000 });
   const periods = [daily, weekly, monthly, yearly];
   const data = chart.data;
   const selectedCurrency = data?.selectedCurrency ?? currency;

@@ -34,8 +34,8 @@ export function LiveMetricExplorer() {
   const priorSuffix = qs(prior);
   const overview = useQuery<OverviewResponse>(`/admin/analytics/overview${currentSuffix}`);
   const active = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${currentSuffix}`);
-  const priorOverview = useQuery<OverviewResponse>(`/admin/analytics/overview${priorSuffix}`);
-  const priorActive = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${priorSuffix}`);
+  const priorOverview = useQuery<OverviewResponse>(`/admin/analytics/overview${priorSuffix}`, { refreshMs: 120_000 });
+  const priorActive = useQuery<ActiveUsersResponse>(`/admin/analytics/active-users${priorSuffix}`, { refreshMs: 120_000 });
   const [key, setKey] = useState<LiveTrendKey>("dau");
   const [unsupported, setUnsupported] = useState<string | null>(null);
   const [grain, setGrain] = useState<Grain>("day");

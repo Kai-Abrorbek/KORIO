@@ -1,41 +1,37 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { AdminGuard } from '../guards/admin.guard';
 import { RequirePermission } from '../decorators/require-permission.decorator';
-import { AdminContentService } from './admin-content.service';
+import { AdminGuard } from '../guards/admin.guard';
+import { AdminContentLibraryService } from './admin-content-library.service';
 
-@Controller('admin/content/questions')
+@Controller('admin/content/library')
 @UseGuards(AdminGuard)
 @RequirePermission('content:read')
-export class AdminContentController {
-  constructor(private readonly content: AdminContentService) {}
+export class AdminContentLibraryController {
+  constructor(private readonly library: AdminContentLibraryService) {}
 
   @Get()
   list(
+    @Query('kind') kind?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
     @Query('search') search?: string,
     @Query('section') section?: string,
     @Query('unit') unit?: string,
-    @Query('type') type?: string,
     @Query('active') active?: string,
-    @Query('onlyIssues') onlyIssues?: string,
-    @Query('lessonId') lessonId?: string,
   ) {
-    return this.content.list({
+    return this.library.list({
+      kind,
       page,
       pageSize,
       search,
       section,
       unit,
-      type,
       active,
-      onlyIssues,
-      lessonId,
     });
   }
 
-  @Get(':id')
-  get(@Param('id') id: string) {
-    return this.content.get(id);
+  @Get(':kind/:id')
+  get(@Param('kind') kind: string, @Param('id') id: string) {
+    return this.library.get(kind, id);
   }
 }

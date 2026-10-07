@@ -44,6 +44,25 @@ import { Lesson, LessonSchema } from '../lessons/schemas/lesson.schema';
 import { LessonNode, LessonNodeSchema } from '../lessons/schemas/node.schema';
 import { AdminContentController } from './content/admin-content.controller';
 import { AdminContentService } from './content/admin-content.service';
+import { AdminContentPathController } from './content/admin-content-path.controller';
+import { AdminContentPathService } from './content/admin-content-path.service';
+import { Grammar, GrammarSchema } from '../grammer/schemas/grammar.schema';
+import {
+  Expression,
+  ExpressionSchema,
+} from '../expressions/schemas/expression.schema';
+import {
+  ExpressionPack,
+  ExpressionPackSchema,
+} from '../expressions/schemas/expression-pack.schema';
+import {
+  ExpressionNode,
+  ExpressionNodeSchema,
+} from '../expressions/schemas/expression-node.schema';
+import { AdminContentLibraryController } from './content/admin-content-library.controller';
+import { AdminContentLibraryService } from './content/admin-content-library.service';
+import { AdminContentLocalizationController } from './content/admin-content-localization.controller';
+import { AdminContentLocalizationService } from './content/admin-content-localization.service';
 
 /**
  * 운영 도구.
@@ -71,6 +90,10 @@ import { AdminContentService } from './content/admin-content.service';
       { name: Question.name, schema: QuestionSchema },
       { name: Lesson.name, schema: LessonSchema },
       { name: LessonNode.name, schema: LessonNodeSchema },
+      { name: Grammar.name, schema: GrammarSchema },
+      { name: Expression.name, schema: ExpressionSchema },
+      { name: ExpressionPack.name, schema: ExpressionPackSchema },
+      { name: ExpressionNode.name, schema: ExpressionNodeSchema },
     ]),
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
@@ -84,6 +107,9 @@ import { AdminContentService } from './content/admin-content.service';
     AdminSubscriptionsController,
     AdminRevenueController,
     AdminContentController,
+    AdminContentPathController,
+    AdminContentLibraryController,
+    AdminContentLocalizationController,
   ],
   providers: [
     AdminAuthService,
@@ -94,6 +120,9 @@ import { AdminContentService } from './content/admin-content.service';
     PlayReportSyncService,
     AdminAnalyticsService,
     AdminContentService,
+    AdminContentPathService,
+    AdminContentLibraryService,
+    AdminContentLocalizationService,
     AdminGuard,
     RateLimitGuard,
   ],

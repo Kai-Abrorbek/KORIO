@@ -34,6 +34,7 @@ type Query = {
   type?: string;
   active?: string;
   onlyIssues?: string;
+  lessonId?: string;
 };
 
 type LocationLesson = Partial<Lesson> & {
@@ -481,6 +482,7 @@ export class AdminContentService {
   private pipeline(
     match: Record<string, unknown>,
     location?: { section?: number; unit?: number },
+    lessonId?: Types.ObjectId,
   ): PipelineStage[] {
     const since = new Date(Date.now() - WINDOW_DAYS * 86_400_000);
     const flags = issueFlags();
@@ -495,6 +497,7 @@ export class AdminContentService {
         },
       },
     ];
+    if (lessonId) stages.push({ $match: { 'lessons._id': lessonId } });
     stages.push({
       $lookup: {
         from: this.nodes.collection.name,
@@ -617,6 +620,9 @@ export class AdminContentService {
     const unit = numberFilter(query.unit, 'unit');
     const active = query.active ?? 'all';
     const onlyIssues = query.onlyIssues ?? 'false';
+    if (query.lessonId && !/^[0-9a-fA-F]{24}$/.test(query.lessonId)) {
+      throw new BadRequestException('INVALID_LESSON_ID');
+    }
     if (
       !Number.isInteger(page) ||
       page < 1 ||
@@ -649,7 +655,11 @@ export class AdminContentService {
         });
       }
     }
-    const stages = this.pipeline(match, { section, unit });
+    const stages = this.pipeline(
+      match,
+      { section, unit },
+      query.lessonId ? new Types.ObjectId(query.lessonId) : undefined,
+    );
     if (onlyIssues === 'true') stages.push({ $match: { _flagged: true } });
     stages.push({
       $facet: {
