@@ -12,11 +12,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import {
-  RoadmapData,
-  RoadmapNode,
-  RoadmapUnit,
-} from "@/types/roadmap";
+import { RoadmapData, RoadmapNode, RoadmapUnit } from "@/types/roadmap";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
 import SectionListSheet from "@/components/roadmap/SectionListSheet";
@@ -24,16 +20,14 @@ import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
-import {
-  energySpendsSettled,
-  useEnergyStore,
-} from "@/store/energy.store";
+import { energySpendsSettled, useEnergyStore } from "@/store/energy.store";
 import { useRevealPopover } from "@/components/roadmap/useRevealPopover";
 import { useAuthStore } from "@/store/auth.store";
 import { KOR_FLAG } from "@/constants/course";
 import { UserService } from "@/services/user.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
+import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
 import {
   DIVIDER_HEIGHT,
   ROW_HEIGHT,
@@ -564,40 +558,12 @@ export default function RoadmapScreen() {
         />
       </View>
 
-      {/* current 유닛으로 점프 버튼 */}
-      <TouchableOpacity
-        style={styles.scrollBtn}
+      {/* current 유닛으로 점프 버튼 (학습 로드와 같은 버튼) */}
+      <JumpToCurrentButton
+        direction={isPastSection ? "back" : isPastCurrent ? "up" : "down"}
+        color={currentUnit?.color ?? theme.primary}
         onPress={handleScrollToggle}
-        activeOpacity={0.85}
-      >
-        <View
-          style={[
-            styles.scrollBtnGlow,
-            { backgroundColor: currentUnit?.color ?? theme.primary },
-          ]}
-        />
-
-        <View style={styles.scrollBtnDepth} />
-
-        <View
-          style={[
-            styles.scrollBtnFace,
-            { borderColor: currentUnit?.color ?? theme.primary },
-          ]}
-        >
-          <Ionicons
-            name={
-              isPastSection
-                ? "arrow-undo"
-                : isPastCurrent
-                  ? "arrow-up"
-                  : "arrow-down"
-            }
-            size={24}
-            color={currentUnit?.color ?? theme.primary}
-          />
-        </View>
-      </TouchableOpacity>
+      />
 
       <SectionListSheet
         visible={sectionSheet}
@@ -626,8 +592,6 @@ export default function RoadmapScreen() {
   );
 }
 
-const SCROLL_BTN_SIZE = 52;
-
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: {
@@ -642,48 +606,6 @@ const getStyles = (theme: ThemeColors) =>
     scrollContent: {
       paddingTop: 10,
       paddingBottom: 140,
-    },
-    scrollBtn: {
-      position: "absolute",
-      bottom: 110,
-      right: 18,
-      width: SCROLL_BTN_SIZE + 8,
-      height: SCROLL_BTN_SIZE + 11,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    scrollBtnGlow: {
-      position: "absolute",
-      top: -3,
-      width: SCROLL_BTN_SIZE + 14,
-      height: SCROLL_BTN_SIZE + 14,
-      borderRadius: 999,
-      opacity: 0.16,
-    },
-    scrollBtnDepth: {
-      position: "absolute",
-      top: 7,
-      width: SCROLL_BTN_SIZE,
-      height: SCROLL_BTN_SIZE,
-      borderRadius: 999,
-      backgroundColor: theme.border,
-    },
-    scrollBtnFace: {
-      position: "absolute",
-      top: 0,
-      width: SCROLL_BTN_SIZE,
-      height: SCROLL_BTN_SIZE,
-      borderRadius: 999,
-      backgroundColor: theme.surface,
-      borderWidth: 2.5,
-      borderColor: theme.border,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.14,
-      shadowRadius: 12,
-      elevation: 8,
     },
     unitElevated: {
       zIndex: 9999,

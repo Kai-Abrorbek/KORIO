@@ -13,6 +13,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { StatsService } from "@/services/stats.service";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Gesture,
   GestureDetector,
@@ -41,6 +42,8 @@ export default function CalendarModal({
 }: CalendarModalProps) {
   const theme = useTheme();
   const styles = getStyles(theme);
+  // 시트가 하단 내비게이션 바 밑으로 깔려 마지막 줄(메달)이 잘렸다 — 그만큼 위로 올린다
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const translateY = useSharedValue(0);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -146,7 +149,10 @@ export default function CalendarModal({
           />
           <GestureDetector gesture={panGesture}>
             <Animated.View style={sheetStyle}>
-              <TouchableOpacity activeOpacity={1} style={styles.sheet}>
+              <TouchableOpacity
+                activeOpacity={1}
+                style={[styles.sheet, { paddingBottom: 28 + insets.bottom }]}
+              >
                 {/* 핸들 + X 버튼 */}
                 <View style={styles.sheetTop}>
                   <View style={styles.handle} />
@@ -330,7 +336,7 @@ const getStyles = (theme: ThemeColors) =>
       borderTopRightRadius: 28,
       padding: 20,
       paddingBottom: 40,
-      maxHeight: SCREEN_HEIGHT * 0.85,
+      maxHeight: SCREEN_HEIGHT * 0.92,
     },
     sheetTop: {
       flexDirection: "row",

@@ -366,6 +366,15 @@ export default function StudyPathScreen() {
         sectionNumber={data.nextLevel.level}
         title={data.nextLevel.title}
         description={data.nextLevel.description}
+        badgeKey="studyPath.nextLevelBadge"
+        jumpKey="studyPath.nextLevelJump"
+        // 다음 급으로 건너뛰기 = 지금 급 졸업 시험. 합격하면 서버가 다음 급으로 올린다
+        onJump={() =>
+          router.push({
+            pathname: "/lesson",
+            params: { mode: "levelExam", from: "studyPath" },
+          })
+        }
       />
     );
   }, [data?.currentLevel, data?.levelExam, data?.nextLevel, router]);
@@ -384,6 +393,13 @@ export default function StudyPathScreen() {
           done={countDone(bannerDay)}
           total={bannerDay.nodes.length}
           level={data?.currentLevel ?? 1}
+          // 급수 목록 — 아래 급은 바로, 위 급은 시험을 통과해야 간다
+          onLevelPress={() =>
+            router.push({
+              pathname: "/study-level",
+              params: { from: "studyPath" },
+            })
+          }
         />
       ) : null}
 
@@ -445,7 +461,6 @@ export default function StudyPathScreen() {
             visibleDayIndex > (data?.currentDayIndex ?? 0) ? "up" : "down"
           }
           color={bannerUnit?.color ?? theme.primary}
-          bottom={40}
           onPress={jumpToToday}
         />
       ) : null}

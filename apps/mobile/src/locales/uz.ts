@@ -2285,6 +2285,8 @@ export default {
   studyPath: {
     sectionStart: "{{n}}-bo'lim boshlandi",
     levelShort: "{{n}}-daraja",
+    nextLevelBadge: "Keyingi daraja",
+    nextLevelJump: "Imtihon topshirib o'tish",
     lockedHint: "Oldingi bosqichni tugatsangiz ochiladi",
     preview: "Oldindan ko'rish",
     lessonProgress: "Halqa {{done}}/{{total}}",

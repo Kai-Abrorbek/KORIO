@@ -2269,6 +2269,8 @@ export default {
   studyPath: {
     sectionStart: "섹션 {{n}} 시작",
     levelShort: "{{n}}급",
+    nextLevelBadge: "다음 급",
+    nextLevelJump: "시험 보고 바로 넘어가기",
     lockedHint: "앞 단계를 끝내면 열려요",
     preview: "미리보기",
     lessonProgress: "링 {{done}}/{{total}}",
