@@ -18,6 +18,7 @@ import { AdminSubscriptionsService } from './admin-subscriptions.service';
 import { AdminGuard } from './guards/admin.guard';
 import { AdminAnalyticsController } from './analytics/admin-analytics.controller';
 import { AdminAnalyticsService } from './analytics/admin-analytics.service';
+import { AdminLearningDetailService } from './analytics/admin-learning-detail.service';
 import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
 import {
   UserProgress,
@@ -119,6 +120,7 @@ import { AdminContentLocalizationService } from './content/admin-content-localiz
     AdminRevenueService,
     PlayReportSyncService,
     AdminAnalyticsService,
+    AdminLearningDetailService,
     AdminContentService,
     AdminContentPathService,
     AdminContentLibraryService,

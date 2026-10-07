@@ -2,6 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AdminGuard } from '../guards/admin.guard';
 import { RequirePermission } from '../decorators/require-permission.decorator';
 import { AdminAnalyticsService } from './admin-analytics.service';
+import { AdminLearningDetailService } from './admin-learning-detail.service';
 
 /**
  * 어드민 분석 API.
@@ -14,7 +15,29 @@ import { AdminAnalyticsService } from './admin-analytics.service';
 @UseGuards(AdminGuard)
 @RequirePermission('analytics:read')
 export class AdminAnalyticsController {
-  constructor(private readonly service: AdminAnalyticsService) {}
+  constructor(
+    private readonly service: AdminAnalyticsService,
+    private readonly detail: AdminLearningDetailService,
+  ) {}
+
+  @Get('learning-path')
+  learningPath(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.detail.hierarchy(from, to);
+  }
+
+  @Get('lesson-funnel')
+  lessonFunnel(
+    @Query('lessonId') lessonId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.detail.lessonFunnel(lessonId ?? '', from, to);
+  }
+
+  @Get('questions')
+  questions(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.detail.questionAnalysis(from, to);
+  }
 
   /** 대시보드 첫 화면 KPI. 계산 못 하는 지표는 unavailable 로 같이 내려간다 */
   @Get('overview')

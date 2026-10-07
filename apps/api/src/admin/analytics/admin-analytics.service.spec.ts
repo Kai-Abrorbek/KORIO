@@ -61,4 +61,56 @@ describe('AdminAnalyticsService local-day activity', () => {
     const firstMatch = pipelines[0][0].$match as { date: { $gte: Date } };
     expect(firstMatch.date.$gte.toISOString()).toBe('2026-10-06T00:00:00.000Z');
   });
+
+  it('excludes immature users from retention denominators and does not count signup-day study as D1', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-07T12:00:00.000Z'));
+    try {
+      const users = [
+        {
+          _id: 'older',
+          createdAt: new Date('2026-10-01T23:00:00.000Z'),
+          timezone: 'Asia/Seoul',
+        },
+        {
+          _id: 'today',
+          createdAt: new Date('2026-10-06T15:10:00.000Z'),
+          timezone: 'Asia/Seoul',
+        },
+      ];
+      const stats = [
+        { userId: 'older', date: new Date('2026-10-01T15:00:00.000Z') }, // signup day
+        { userId: 'older', date: new Date('2026-10-02T15:00:00.000Z') }, // D1
+        { userId: 'today', date: new Date('2026-10-06T15:00:00.000Z') }, // signup day
+      ];
+      const userModel = {
+        find: jest.fn().mockReturnValue({
+          select: jest
+            .fn()
+            .mockReturnValue({ lean: jest.fn().mockResolvedValue(users) }),
+        }),
+      };
+      const statsModel = {
+        find: jest.fn().mockReturnValue({
+          select: jest
+            .fn()
+            .mockReturnValue({ lean: jest.fn().mockResolvedValue(stats) }),
+        }),
+      };
+      const service = new AdminAnalyticsService(
+        userModel as never,
+        statsModel as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+      );
+      const result = await service.retention(8);
+      expect(result.cohorts).toEqual([
+        expect.objectContaining({ size: 1, d1: 100, d7: null, d30: null }),
+        expect.objectContaining({ size: 1, d1: null, d7: null, d30: null }),
+      ]);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });

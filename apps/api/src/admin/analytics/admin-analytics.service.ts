@@ -23,7 +23,7 @@ import {
   LessonAttemptDocument,
 } from '../../analytics/schemas/lesson-attempt.schema';
 import { ENTITLED_STATUSES } from '../../payments/subscriptions/subscription.types';
-import { APP_TIMEZONE } from '../../common/date.util';
+import { APP_TIMEZONE, dayKey as localDayKey, resolveTimezone } from '../../common/date.util';
 import {
   DateRange,
   dayKey,
@@ -340,7 +340,7 @@ export class AdminAnalyticsService {
     const since = new Date(Date.now() - weeks * 7 * DAY_MS);
     const users = await this.userModel
       .find({ ...REAL_USERS, createdAt: { $gte: since } })
-      .select('_id createdAt')
+      .select('_id createdAt timezone')
       .lean();
     if (!users.length) return { cohorts: [] };
 
@@ -350,14 +350,15 @@ export class AdminAnalyticsService {
       .lean();
 
     const activity = new Map<string, Set<number>>();
-    const signup = new Map<string, number>();
+    const signup = new Map<string, { day: string; timezone: string }>();
     for (const u of users) {
-      signup.set(String(u._id), new Date((u as any).createdAt).getTime());
+      const timezone = resolveTimezone(u.timezone);
+      signup.set(String(u._id), { day: localDayKey(new Date((u as any).createdAt), timezone), timezone });
     }
     for (const s of stats) {
       const start = signup.get(String(s.userId));
-      if (start === undefined) continue;
-      const dayIdx = Math.floor((new Date(s.date).getTime() - start) / DAY_MS);
+      if (!start) continue;
+      const dayIdx = Math.round((Date.parse(`${localDayKey(s.date, start.timezone)}T00:00:00Z`) - Date.parse(`${start.day}T00:00:00Z`)) / DAY_MS);
       if (dayIdx < 0) continue;
       const set = activity.get(String(s.userId)) ?? new Set<number>();
       set.add(dayIdx);
@@ -365,19 +366,19 @@ export class AdminAnalyticsService {
     }
 
     // 주 단위 코호트 × D1/D7/D30
-    const buckets = new Map<string, { size: number; d1: number; d7: number; d30: number }>();
+    const buckets = new Map<string, { size: number; eligible1: number; eligible7: number; eligible30: number; d1: number; d7: number; d30: number }>();
     for (const u of users) {
-      const created = new Date((u as any).createdAt);
-      const wk = weekKey(created);
-      const b = buckets.get(wk) ?? { size: 0, d1: 0, d7: 0, d30: 0 };
+      const userDay = signup.get(String(u._id))!;
+      const wk = weekKey(new Date(`${userDay.day}T00:00:00Z`));
+      const b = buckets.get(wk) ?? { size: 0, eligible1: 0, eligible7: 0, eligible30: 0, d1: 0, d7: 0, d30: 0 };
       b.size += 1;
       const days = activity.get(String(u._id)) ?? new Set<number>();
-      const age = Math.floor((Date.now() - created.getTime()) / DAY_MS);
-      // 아직 그 날짜에 도달하지 않은 코호트는 분모에서 빼야 한다.
-      // 안 그러면 최근 코호트의 D30 이 항상 0% 로 보인다
-      if (age >= 1 && hasAround(days, 1)) b.d1 += 1;
-      if (age >= 7 && hasAround(days, 7)) b.d7 += 1;
-      if (age >= 30 && hasAround(days, 30)) b.d30 += 1;
+      const today = localDayKey(new Date(), userDay.timezone);
+      const age = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${userDay.day}T00:00:00Z`)) / DAY_MS);
+      // 당일 진행 기록은 D1에 섞지 않는다. 각 일차에 도달한 사용자만 분모로 쓴다.
+      if (age >= 1) { b.eligible1 += 1; if (days.has(1)) b.d1 += 1; }
+      if (age >= 7) { b.eligible7 += 1; if (days.has(7)) b.d7 += 1; }
+      if (age >= 30) { b.eligible30 += 1; if (days.has(30)) b.d30 += 1; }
       buckets.set(wk, b);
     }
 
@@ -387,9 +388,9 @@ export class AdminAnalyticsService {
         .map(([week, b]) => ({
           week,
           size: b.size,
-          d1: pct(b.d1, b.size),
-          d7: pct(b.d7, b.size),
-          d30: pct(b.d30, b.size),
+          d1: pct(b.d1, b.eligible1),
+          d7: pct(b.d7, b.eligible7),
+          d30: pct(b.d30, b.eligible30),
         })),
     };
   }
@@ -578,11 +579,6 @@ function kpi(
 function pct(n: number, d: number): number | null {
   if (!d) return null;
   return Math.round((n / d) * 1000) / 10;
-}
-
-/** 그 날짜 근처(±1일)에 학습했나. 하루 경계가 시간대마다 달라 딱 맞추면 놓친다 */
-function hasAround(days: Set<number>, target: number): boolean {
-  return days.has(target) || days.has(target - 1) || days.has(target + 1);
 }
 
 /** ISO 주차 키 (2026-W07) */
