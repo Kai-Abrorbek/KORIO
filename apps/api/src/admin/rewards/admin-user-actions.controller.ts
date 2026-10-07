@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import {
   IsIn,
+  IsArray,
+  IsMongoId,
   IsInt,
   IsString,
   IsUUID,
@@ -16,6 +18,8 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ArrayMaxSize,
+  ArrayMinSize,
 } from 'class-validator';
 import { AdminGuard, type AdminRequestContext } from '../guards/admin.guard';
 import { RequirePermission } from '../decorators/require-permission.decorator';
@@ -38,6 +42,14 @@ class SendPersonalPushDto {
   @IsString() @MinLength(1) @MaxLength(80) title: string;
   @IsString() @MinLength(1) @MaxLength(500) body: string;
   @IsString() @MinLength(5) @MaxLength(500) reason: string;
+}
+
+class SendSelectedPushDto extends SendPersonalPushDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(100)
+  @IsMongoId({ each: true })
+  userIds: string[];
 }
 
 @Controller('admin/users/:id')
@@ -71,5 +83,21 @@ export class AdminUserActionsController {
     @Req() req: { admin: AdminRequestContext },
   ) {
     return this.actions.push(id, dto, req.admin);
+  }
+}
+
+@Controller('admin/users')
+@UseGuards(AdminGuard, RateLimitGuard)
+export class AdminSelectedPushController {
+  constructor(private readonly actions: AdminUserActionsService) {}
+
+  @Post('push/batch')
+  @RequirePermission('users:write')
+  @RateLimit({ windowMs: 60 * 60_000, max: 30 })
+  push(
+    @Body() dto: SendSelectedPushDto,
+    @Req() req: { admin: AdminRequestContext },
+  ) {
+    return this.actions.pushSelected(dto, req.admin);
   }
 }

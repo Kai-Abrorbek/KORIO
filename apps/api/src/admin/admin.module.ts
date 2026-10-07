@@ -84,7 +84,7 @@ import {
   AdminRewardGrant,
   AdminRewardGrantSchema,
 } from './rewards/admin-reward-grant.schema';
-import { AdminUserActionsController } from './rewards/admin-user-actions.controller';
+import { AdminSelectedPushController, AdminUserActionsController } from './rewards/admin-user-actions.controller';
 import { AdminUserActionsService } from './rewards/admin-user-actions.service';
 import { PaymentsModule } from '../payments/payments.module';
 
@@ -146,6 +146,7 @@ import { PaymentsModule } from '../payments/payments.module';
     AdminOperationsController,
     AdminManageController,
     AdminUserActionsController,
+    AdminSelectedPushController,
   ],
   providers: [
     AdminAuthService,

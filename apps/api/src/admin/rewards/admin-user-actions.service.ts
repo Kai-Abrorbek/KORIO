@@ -225,4 +225,100 @@ export class AdminUserActionsService {
         : 'NOT_ACCEPTED_OR_DUPLICATE',
     };
   }
+
+  async pushSelected(
+    input: {
+      requestId: string;
+      userIds: string[];
+      title: string;
+      body: string;
+      reason: string;
+    },
+    admin: AdminRequestContext,
+  ) {
+    const userIds = [...new Set(input.userIds.map((id) => id.toLowerCase()))];
+    const title = input.title.trim();
+    const body = input.body.trim();
+    const reason = input.reason.trim();
+    if (
+      !userIds.length ||
+      userIds.length > 100 ||
+      userIds.length !== input.userIds.length ||
+      userIds.some((id) => !Types.ObjectId.isValid(id)) ||
+      !title ||
+      !body ||
+      reason.length < 5
+    ) {
+      throw new BadRequestException('INVALID_SELECTED_PUSH');
+    }
+
+    // Recheck the selected accounts server-side. A removed account or bot must
+    // fail the whole request before any notification goes out.
+    const targets = await this.users
+      .find({
+        _id: { $in: userIds.map((id) => new Types.ObjectId(id)) },
+        isBot: { $ne: true },
+      })
+      .select('_id')
+      .lean();
+    if (targets.length !== userIds.length)
+      throw new BadRequestException('INVALID_PUSH_TARGETS');
+
+    const results: { userId: string; accepted: boolean; error: boolean }[] =
+      new Array(userIds.length);
+    let next = 0;
+    await Promise.all(
+      Array.from({ length: Math.min(5, userIds.length) }, async () => {
+        while (next < userIds.length) {
+          const index = next++;
+          const userId = userIds[index];
+          try {
+            const accepted = await this.pushService.send(
+              userId,
+              PushType.ANNOUNCEMENT,
+              {
+                copy: { title, body },
+                dedupKey: `admin-selected:${input.requestId}`,
+              },
+            );
+            results[index] = { userId, accepted, error: false };
+          } catch {
+            results[index] = { userId, accepted: false, error: true };
+          }
+        }
+      }),
+    );
+    const accepted = results.filter((result) => result.accepted).length;
+    const failed = results.filter((result) => result.error).length;
+    await this.audit.record({
+      admin,
+      action: 'user.push.selected',
+      targetType: 'users',
+      reason,
+      success: failed === 0,
+      errorCode: failed ? 'PARTIAL_SEND_FAILURE' : '',
+      changes: {
+        push: {
+          from: null,
+          to: {
+            userIds,
+            title,
+            body,
+            requestId: input.requestId,
+            accepted,
+            notAccepted: userIds.length - accepted - failed,
+            failed,
+          },
+        },
+      },
+    });
+    return {
+      requested: userIds.length,
+      accepted,
+      notAccepted: userIds.length - accepted - failed,
+      failed,
+      results,
+      note: 'EXPO_ACCEPTED_RECEIPT_PENDING',
+    };
+  }
 }
