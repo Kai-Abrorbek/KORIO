@@ -91,7 +91,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="console-shell">
       <aside className="icon-rail" aria-label="주 메뉴">
-        <Link href="/" className="rail-logo" aria-label="KORIO 홈" onClick={() => setOpen(null)}><Image src="/korio-logo.jpg" alt="" width={110} height={110} priority /></Link>
+        <Link href="/" className="rail-logo" aria-label="KORIO 홈" onClick={() => setOpen(null)}><Image src="/korio-mascot.png" alt="" width={50} height={50} priority unoptimized /></Link>
         <div className="rail-links" onScroll={() => setHovered(null)}>
           {permitted.map(item => (
             <div className="rail-wrap" key={item.href}>
@@ -113,7 +113,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
 
       <div className="console-main">
         <header className="console-topbar">
-          <div className="console-title"><span className="title-avatar"><Image src="/korio-logo.jpg" alt="" width={132} height={132} priority /></span><div><span className="title-eyebrow">KORIO ADMIN</span><h1>{active?.label ?? "Control Center"}</h1></div>{isMockMode && <span className="mock-tag">MOCK DATA</span>}</div>
+          <div className="console-title"><span className="title-avatar"><Image src="/korio-mascot.png" alt="" width={62} height={62} priority unoptimized /></span><div><span className="title-eyebrow">KORIO ADMIN</span><h1>{active?.label ?? "Control Center"}</h1></div>{isMockMode && <span className="mock-tag">MOCK DATA</span>}</div>
           <div className="console-actions">
             <button className="top-control search-control" type="button" onClick={() => setSearch(true)}><span aria-hidden>⌕</span> 검색 <kbd>Ctrl K</kbd></button>
             <select className="top-control view-control" aria-label="보기 선택" value={active?.href ?? "/"} onChange={e => router.push(e.target.value)}>{permitted.map(item => <option key={item.href} value={item.href}>{item.label}</option>)}</select>

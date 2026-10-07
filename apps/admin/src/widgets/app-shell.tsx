@@ -50,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* ── 사이드바 ── */}
       <aside className="sidebar">
         <div className="sidebar-head">
-          <div className="logo-mark"><Image src="/korio-icon.png" alt="" width={24} height={24} /></div>
+          <div className="logo-mark"><Image src="/korio-mascot.png" alt="" width={24} height={24} unoptimized /></div>
           <span className="sidebar-title">KORIO Admin</span>
         </div>
 

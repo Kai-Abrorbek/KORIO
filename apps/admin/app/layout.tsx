@@ -8,7 +8,7 @@ import { AdminGate } from "@/widgets/admin-gate";
 export const metadata: Metadata = {
   title: "KORIO Admin | 운영 콘솔",
   description: "KORIO 운영 콘솔",
-  icons: { icon: "/korio-icon.png", apple: "/korio-icon.png" },
+  icons: { icon: "/korio-mascot.png", apple: "/korio-mascot.png" },
 };
 
 /**

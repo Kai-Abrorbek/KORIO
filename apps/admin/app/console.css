@@ -28,7 +28,7 @@
 .console-shell { display:flex; width:100%; height:100dvh; overflow:hidden; background:var(--bg); }
 .icon-rail { position:relative; z-index:55; display:flex; flex-direction:column; align-items:center; width:104px; flex:0 0 104px; background:var(--surface); border-right:1px solid var(--border); }
 .rail-logo { position:relative; display:block; width:50px; height:50px; margin:32px 0 56px; overflow:hidden; border:1px solid var(--border); border-radius:16px; background:#fff; }
-.rail-logo img { position:absolute; max-width:none; left:-30px; top:-19px; }
+.rail-logo img { display:block; width:100%; height:100%; object-fit:contain; }
 .rail-links { display:flex; flex-direction:column; align-items:center; gap:23px; width:100%; min-height:0; overflow-y:auto; padding:0 0 16px; scrollbar-width:none; }
 .rail-links::-webkit-scrollbar { display:none; }
 .rail-wrap { position:relative; flex-shrink:0; }
@@ -60,7 +60,7 @@
 .console-topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-shrink:0; min-height:146px; padding:30px 36px 26px; }
 .console-title { display:flex; align-items:center; gap:25px; min-width:0; }
 .title-avatar { position:relative; display:block; width:62px; height:62px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); border-radius:50%; background:#fff; }
-.title-avatar img { position:absolute; max-width:none; left:-35px; top:-22px; }
+.title-avatar img { display:block; width:100%; height:100%; object-fit:contain; }
 .title-eyebrow { display:block; color:var(--ink-3); font-size:10px; font-weight:700; letter-spacing:.13em; }
 .console-title h1 { font-size:31px; font-weight:730; line-height:1.2; letter-spacing:-.035em; white-space:nowrap; }
 .mock-tag { align-self:center; padding:5px 7px; border:1px solid #dfe3ff; border-radius:5px; color:#8390df; font-size:10px; font-weight:700; letter-spacing:.05em; white-space:nowrap; }
@@ -155,7 +155,7 @@
 .admin-hbar-value { min-width:52px; text-align:right; font-weight:700; }
 
 @media (max-width:1100px) { .console-topbar { align-items:flex-start; flex-direction:column; min-height:0; padding:20px; }.console-content { padding:0 20px 32px; }.search-control { display:none; }.admin-grid.three,.admin-grid.four { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media (max-width:720px) { .icon-rail { width:62px; flex-basis:62px; }.rail-logo { width:40px; height:40px; margin:20px 0 34px; }.rail-logo img { left:-35px; top:-24px; }.rail-links { gap:10px; }.rail-button { width:42px; height:42px; }.rail-floating-tooltip { left:56px; }.nav-flyout { left:62px; width:min(320px,calc(100vw - 62px)); }.console-title { gap:12px; }.title-avatar { width:42px; height:42px; }.title-avatar img { left:-45px; top:-32px; }.console-title h1 { font-size:23px; }.view-control { display:none; }.admin-grid,.admin-grid.three,.admin-grid.four,.admin-split { grid-template-columns:1fr; } }
+@media (max-width:720px) { .icon-rail { width:62px; flex-basis:62px; }.rail-logo { width:40px; height:40px; margin:20px 0 34px; }.rail-links { gap:10px; }.rail-button { width:42px; height:42px; }.rail-floating-tooltip { left:56px; }.nav-flyout { left:62px; width:min(320px,calc(100vw - 62px)); }.console-title { gap:12px; }.title-avatar { width:42px; height:42px; }.console-title h1 { font-size:23px; }.view-control { display:none; }.admin-grid,.admin-grid.three,.admin-grid.four,.admin-split { grid-template-columns:1fr; } }
 
 /* Control Center cards and the hover drill down shown in the reference. */
 .bm-control-layout { display:grid; grid-template-columns:minmax(0,2.02fr) minmax(320px,1fr); gap:23px; align-items:start; }

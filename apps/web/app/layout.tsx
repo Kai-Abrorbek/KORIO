@@ -14,7 +14,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "KORIO | 한국어를 즐겁게 배우다",
   description: "KORIO와 함께 한국어를 재미있게 배우세요.",
-  icons: { icon: "/korio-icon.png", apple: "/korio-icon.png" },
+  icons: { icon: "/korio-mascot.png", apple: "/korio-mascot.png" },
 };
 
 export default function RootLayout({
