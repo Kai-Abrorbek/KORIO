@@ -1,0 +1,545 @@
+/*
+ * 학습 로드 전용 조각 — 앱 features/study-path/components 와 같은 모양.
+ * (지도·노드·배경·헤더는 roadmap/ui/map 을 같이 쓴다)
+ */
+
+/* ───────────── 하루 배너 (DayBanner) ───────────── */
+
+.dayBanner {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  margin: 0 14px 12px;
+}
+
+.glow {
+  position: absolute;
+  inset: 12px 14px -10px;
+  border-radius: 28px;
+  background: var(--day);
+  opacity: 0.2;
+}
+
+.depth {
+  position: absolute;
+  inset: 8px 0 -1px;
+  border-radius: 24px;
+  background: var(--day-depth);
+}
+
+.face {
+  position: relative;
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  overflow: hidden;
+  border: 1.5px solid rgb(255 255 255 / 28%);
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--day) 0%, var(--day-mid) 100%);
+  padding: 14px 16px 14px 14px;
+  box-shadow: 0 10px 16px rgb(0 0 0 / 17%);
+  color: #fff;
+}
+
+.face > i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.orbLarge {
+  top: -48px;
+  right: -35px;
+  width: 108px;
+  height: 108px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.orbSmall {
+  left: 80px;
+  bottom: -31px;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+}
+
+.shine {
+  top: 0;
+  left: 18px;
+  right: 40px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 52%);
+}
+
+.dayBadge {
+  position: relative;
+  display: flex;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  margin-right: 12px;
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: 19px;
+  background: rgb(255 255 255 / 20%);
+  padding: 4px;
+}
+
+.dayBadge > span {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  border-radius: 15px;
+  background: rgb(255 255 255 / 15%);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.body > small {
+  overflow: hidden;
+  color: rgb(255 255 255 / 82%);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.35px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.body > strong {
+  overflow: hidden;
+  font-size: 17.5px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 7px;
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 18%);
+}
+
+.track > b {
+  position: relative;
+  display: block;
+  min-width: 9px;
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.track > b::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  right: 5px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 65%);
+}
+
+.progressRow > em {
+  color: rgb(255 255 255 / 92%);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.levelBadge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  margin-left: 10px;
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: 11px;
+  background: rgb(255 255 255 / 18%);
+  padding: 0 9px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.levelBadge:active {
+  opacity: 0.85;
+  transform: scale(0.97);
+}
+
+.levelBadge > svg {
+  color: rgb(255 255 255 / 90%);
+}
+
+/* ───────────── 섹션 이정표 (SectionDivider) ───────────── */
+
+.sectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 4px;
+  padding: 0 22px;
+}
+
+.sectionDivider > i {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--day) 33%, transparent);
+}
+
+.sectionDivider > span {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid color-mix(in srgb, var(--day) 40%, transparent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--day);
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ───────────── 노드 팝오버 (StudyNodePopover) ───────────── */
+
+.popover {
+  position: relative;
+  margin: 0 20px;
+  border-radius: 18px;
+  background: var(--day);
+  padding: 16px 18px;
+  box-shadow: 0 6px 12px color-mix(in srgb, var(--day-shadow) 25%, transparent);
+  color: #fff;
+  cursor: default;
+}
+
+.popArrow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: calc(-10px + var(--arrow-x, 0px));
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--day);
+  border-left: 10px solid transparent;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleIcon {
+  display: grid;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 18%);
+}
+
+.titleTexts {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.titleTexts > small {
+  color: rgb(255 255 255 / 75%);
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+}
+
+.titleTexts > strong {
+  overflow: hidden;
+  font-size: 18.5px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.description {
+  margin: 9px 0 0;
+  color: rgb(255 255 255 / 86%);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 19px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.metaRow > span {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 5px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 15%);
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.lockedNote {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 13px;
+  background: rgb(255 255 255 / 16%);
+  padding: 0 12px;
+}
+
+.lockedNote > svg {
+  flex: none;
+  color: rgb(255 255 255 / 90%);
+}
+
+.lockedNote > span {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.startButton {
+  display: flex;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 13px;
+  background: #fff;
+  color: var(--day);
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.startButton:active {
+  opacity: 0.85;
+}
+
+/* ───────────── 졸업 시험 카드 (LevelExamCard) ───────────── */
+
+.examCard {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: calc(100% - 28px);
+  margin: 18px 14px 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.examCard:active {
+  transform: translateY(2px);
+}
+
+.examDepth {
+  position: absolute;
+  inset: 6px 0 -4px;
+  border-radius: 22px;
+  background: var(--exam-depth);
+}
+
+.examFace {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  overflow: hidden;
+  border: 1.5px solid rgb(255 255 255 / 28%);
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--exam) 0%, var(--exam-mid) 100%);
+  padding: 17px 16px;
+  color: #fff;
+}
+
+.examFace > i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.examShine {
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 52%);
+}
+
+.examOrb {
+  top: -46px;
+  right: -32px;
+  width: 104px;
+  height: 104px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.examIcon {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: 17px;
+  background: rgb(255 255 255 / 20%);
+}
+
+.examTexts {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.examTexts > strong {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.examTexts > small {
+  color: rgb(255 255 255 / 88%);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 17px;
+}
+
+.examFace > svg {
+  position: relative;
+  color: rgb(255 255 255 / 90%);
+}
+
+/* ───────────── 상태 (불러오는 중 · 실패 · 비었음) ───────────── */
+
+.state {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 28px;
+}
+
+.errorIcon {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+  border-radius: 22px;
+  background: rgb(119 110 226 / 8%);
+  color: #776ee2;
+}
+
+.stateTitle {
+  margin: 0;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.retryButton {
+  min-height: 46px;
+  border: 0;
+  border-radius: 15px;
+  background: #776ee2;
+  color: #fff;
+  padding: 0 24px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* ───────────── 표현 로드맵 말풍선 (ExpressionNodePopover) ───────────── */
+
+.exprTitleIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+}
+
+.exprTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.exprProgress {
+  display: block;
+  height: 6px;
+  margin-top: 13px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 20%);
+}
+
+.exprProgress > b {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: #fff;
+}

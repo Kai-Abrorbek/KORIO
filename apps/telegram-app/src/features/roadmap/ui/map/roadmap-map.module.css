@@ -1,0 +1,1529 @@
+/*
+ * 로드맵 지도 — 앱(apps/mobile/src/components/roadmap)과 같은 모양.
+ * 숫자는 앱 StyleSheet 값을 그대로 옮겼다 (UnitRoadmap · LessonNode · AnimatedNodeRing ·
+ * ScoreNode · NodePopover · SectionBanner · RoadmapHeader · RoadmapBackdrop · NextSectionLocked).
+ * 색은 앱 ThemeColors 와 같은 전역 토큰: bg=--app-bg, surface=--surface, text=--text,
+ * textSecondary=--muted, border=--border.
+ */
+
+.page {
+  /* 잠긴 노드 — 앱 theme.border / darken(theme.border, 20) */
+  --locked-main: #eceaf6;
+  --locked-dark: #d8d6e2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 560px);
+  height: var(--tg-viewport-stable-height, 100dvh);
+  min-height: 520px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--app-bg);
+  color: var(--text);
+}
+
+:global(:root[data-theme="dark"]) .page {
+  --locked-main: #3a3a44;
+  --locked-dark: #262630;
+}
+
+.page button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ───────────── 배경 (RoadmapBackdrop) ───────────── */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8f6ff 0%, #f2faff 55%, #fff9ee 100%);
+  pointer-events: none;
+}
+
+.backdrop > i {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+}
+
+.orbTop {
+  top: 122px;
+  right: -52px;
+  width: 176px;
+  height: 176px;
+  background: #beb7ff;
+  opacity: 0.14;
+}
+
+.orbSide {
+  top: 52%;
+  left: -82px;
+  width: 210px;
+  height: 210px;
+  background: #bfefff;
+  opacity: 0.12;
+}
+
+.backdrop > .cloud {
+  top: 206px;
+  left: 14px;
+  width: 86px;
+  height: 42px;
+  border-radius: 0;
+  opacity: 0.58;
+}
+
+.cloud > b {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.cloud > b:nth-child(1) {
+  left: 4px;
+  bottom: 2px;
+  width: 76px;
+  height: 24px;
+}
+
+.cloud > b:nth-child(2) {
+  left: 16px;
+  bottom: 13px;
+  width: 28px;
+  height: 28px;
+}
+
+.cloud > b:nth-child(3) {
+  right: 13px;
+  bottom: 10px;
+  width: 36px;
+  height: 36px;
+}
+
+.hillLeft {
+  left: -118px;
+  bottom: -126px;
+  width: 330px;
+  height: 235px;
+  background: #dcd7ff;
+  opacity: 0.22;
+  transform: rotate(-8deg);
+}
+
+.hillRight {
+  right: -154px;
+  bottom: -96px;
+  width: 350px;
+  height: 205px;
+  background: #cfefff;
+  opacity: 0.17;
+  transform: rotate(9deg);
+}
+
+.backdrop > .sparkle {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #8c82e8;
+  opacity: 0.42;
+  transform: rotate(45deg);
+}
+
+.backdrop > .sparkleOne {
+  top: 324px;
+  left: 32px;
+}
+
+.backdrop > .sparkleTwo {
+  top: 39%;
+  right: 34px;
+  width: 7px;
+  height: 7px;
+}
+
+.backdrop > .sparkleThree {
+  top: 68%;
+  left: 68px;
+  width: 6px;
+  height: 6px;
+}
+
+:global(:root[data-theme="dark"]) .backdrop {
+  background: linear-gradient(180deg, #171522 0%, #211f36 55%, #15151d 100%);
+}
+
+:global(:root[data-theme="dark"]) .orbTop {
+  background: #776ee2;
+}
+
+:global(:root[data-theme="dark"]) .orbSide {
+  background: #45b7d1;
+}
+
+:global(:root[data-theme="dark"]) .cloud > b {
+  background: #3b3850;
+}
+
+:global(:root[data-theme="dark"]) .hillLeft {
+  background: #393456;
+}
+
+:global(:root[data-theme="dark"]) .hillRight {
+  background: #2d2945;
+}
+
+/* ───────────── 상단 통계 (RoadmapHeader) ───────────── */
+
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + var(--korio-top)) 20px 14px;
+}
+
+.header > button,
+.header > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 0;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+}
+
+.header > button {
+  cursor: pointer;
+}
+
+.flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.caret {
+  margin-left: 2px;
+  color: var(--muted);
+}
+
+.flame {
+  color: #ff7a00;
+}
+
+.gem {
+  color: #45b7d1;
+}
+
+.header > .super {
+  border-radius: 8px;
+  background: #a56eff;
+  padding: 5px 14px;
+  box-shadow: 0 2px 6px rgb(165 110 255 / 40%);
+  transform: skewX(-10deg);
+}
+
+.super > b {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  transform: skewX(10deg);
+}
+
+.header > .superMax {
+  border: 1.5px solid #ffd93d;
+  background: #241a4d;
+  box-shadow: 0 2px 6px rgb(255 217 61 / 40%);
+}
+
+.superMax > b {
+  color: #ffd93d;
+}
+
+/* 에너지 (EnergyBadge) */
+.energy {
+  display: flex;
+  align-items: center;
+}
+
+.energyBody {
+  position: relative;
+  display: grid;
+  width: 30.16px;
+  height: 18px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 5.04px;
+  background: #ffd4e2;
+}
+
+.energyBody::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 3.96px;
+  background: #ff4b82;
+}
+
+.energyBody > svg {
+  position: relative;
+  color: #fff;
+}
+
+.energyNub {
+  width: 3px;
+  height: 9.36px;
+  margin-left: 2px;
+  border-radius: 0 3px 3px 0;
+  background: #ff4b82;
+}
+
+.energy > b {
+  margin-left: 8px;
+  color: #ff4b82;
+  font-size: 16.12px;
+  font-weight: 900;
+}
+
+/* ───────────── 고정 배너 (SectionBanner) ───────────── */
+
+.banner {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  margin: 0 14px 12px;
+}
+
+.bannerGlow {
+  position: absolute;
+  inset: 12px 14px -10px;
+  border-radius: 28px;
+  background: var(--unit);
+  opacity: 0.2;
+}
+
+.bannerDepth {
+  position: absolute;
+  inset: 8px 0 -1px;
+  border-radius: 24px;
+  background: var(--unit-depth);
+}
+
+.bannerFace {
+  position: relative;
+  display: flex;
+  min-height: 86px;
+  align-items: center;
+  overflow: hidden;
+  border: 1.5px solid rgb(255 255 255 / 28%);
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--unit) 0%, var(--unit-mid) 100%);
+  padding: 14px 12px 14px 14px;
+  box-shadow: 0 10px 16px rgb(0 0 0 / 17%);
+}
+
+.bannerFace > i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.bannerOrbLarge {
+  top: -48px;
+  right: -35px;
+  width: 108px;
+  height: 108px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.bannerOrbSmall {
+  left: 80px;
+  bottom: -31px;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+}
+
+.bannerShine {
+  top: 0;
+  left: 18px;
+  right: 82px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 52%);
+}
+
+.bannerMain {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bannerMain:active {
+  opacity: 0.9;
+  transform: scale(0.99);
+}
+
+.mapBadge {
+  display: flex;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  margin-right: 12px;
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 20%);
+  padding: 4px;
+}
+
+.mapBadge > span {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 15%);
+  color: #fff;
+}
+
+.bannerText {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bannerText > small {
+  color: rgb(255 255 255 / 82%);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.35px;
+}
+
+.bannerText > strong {
+  overflow: hidden;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 51px;
+  margin-left: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.guide > i {
+  position: absolute;
+  top: 6px;
+  left: 1px;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  background: rgb(0 0 0 / 20%);
+}
+
+.guide > span {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1.5px solid rgb(255 255 255 / 36%);
+  border-radius: 15px;
+  background: rgb(255 255 255 / 17%);
+  color: #fff;
+}
+
+.guide:active > span {
+  opacity: 0.86;
+}
+
+/* ───────────── 스크롤 영역 ───────────── */
+
+.scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 10px 0 140px;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 맨 아래 노드의 팝오버도 올려서 보일 수 있게 자리를 더 둔다 */
+.scrollOpen {
+  padding-bottom: 380px;
+}
+
+.center {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  color: var(--muted);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid color-mix(in srgb, #776ee2 25%, transparent);
+  border-top-color: #776ee2;
+  border-radius: 50%;
+  animation: m-spin 0.8s linear infinite;
+}
+
+.retry {
+  border: 0;
+  border-radius: 12px;
+  background: #776ee2;
+  color: #fff;
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 800;
+}
+
+/* ───────────── 유닛 (UnitRoadmap) ───────────── */
+
+.unit {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.unitElevated {
+  z-index: 50;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 24px;
+  padding: 0 24px;
+}
+
+.divider > i {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+}
+
+.divider > span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nodes {
+  position: relative;
+}
+
+/* 길은 가운데 기준 400px 폭에 그린다 (노드 위치 = 가운데 + 지그재그 값) */
+.route {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 400px;
+  margin-left: -200px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.nodeRow {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 80px;
+  margin-bottom: 50px;
+  justify-content: center;
+}
+
+.nodeRowSelected {
+  z-index: 30;
+}
+
+.nodePosition {
+  position: relative;
+  display: flex;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
+}
+
+.character {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.characterAvatar {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  place-items: center;
+  overflow: hidden;
+}
+
+.characterAvatar > svg,
+.characterAvatar > img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+}
+
+.characterStars {
+  display: flex;
+  gap: 3px;
+  color: var(--border);
+}
+
+.popoverWrap {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+}
+
+/* "여기로 건너뛸래요?" 말풍선 */
+.jumpBubble {
+  position: absolute;
+  bottom: 92px;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  animation: m-bob 1.04s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.jumpBubble > span {
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  padding: 12px 22px;
+  box-shadow: 0 8px 12px rgb(0 0 0 / 12%);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+}
+
+.jumpBubble > i {
+  width: 0;
+  height: 0;
+  margin-top: -1px;
+  border-top: 11px solid var(--surface);
+  border-right: 10px solid transparent;
+  border-left: 10px solid transparent;
+}
+
+/* ───────────── 노드 (LessonNode) ───────────── */
+
+.lessonNode {
+  position: relative;
+  display: flex;
+  width: 72px;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  position: absolute;
+  top: -11px;
+  left: -15px;
+  width: 102px;
+  height: 102px;
+  pointer-events: none;
+}
+
+.nodeButton {
+  position: relative;
+  display: flex;
+  width: 72px;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ground {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  width: 51.84px;
+  height: 16px;
+  margin-left: -25.92px;
+  border-radius: 999px;
+  background: var(--dark);
+  opacity: 0.18;
+  transform: scaleX(1.16);
+}
+
+.aura {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 82px;
+  height: 82px;
+  border-radius: 999px;
+  background: var(--main);
+  opacity: 0.1;
+  box-shadow: 0 0 13px var(--main);
+}
+
+.depth {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--dark);
+  box-shadow: 0 7px 8px rgb(0 0 0 / 12%);
+  transition: transform 0.08s, opacity 0.08s;
+}
+
+.faceWrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 72px;
+  transition: transform 0.08s;
+}
+
+.floatWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.face {
+  position: relative;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  overflow: hidden;
+  border: 2.5px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+  background: var(--main);
+  color: var(--icon);
+}
+
+.nodeButton:active .depth {
+  opacity: 0.7;
+  transform: scaleY(0.5);
+}
+
+.nodeButton:active .faceWrap {
+  transform: translateY(6px) scale(0.96);
+}
+
+.lowerShade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 25.92px;
+  background: rgb(0 0 0 / 8%);
+  pointer-events: none;
+}
+
+.innerBorder {
+  position: absolute;
+  inset: 5px;
+  border: 1.5px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.gloss {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 40.32px;
+  height: 18px;
+  margin-left: -20.16px;
+  border-radius: 36px;
+  background: rgb(255 255 255 / 38%);
+  pointer-events: none;
+}
+
+/* 완료 노드 광택 — 가끔 쓱 지나간다 */
+.shine {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: 28px;
+  width: 16px;
+  background: rgb(255 255 255 / 85%);
+  opacity: 0;
+  pointer-events: none;
+  animation: m-shine var(--shine-cycle, 5s) ease-in-out var(--shine-delay, 0s) infinite;
+}
+
+.nodeIcon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.nodeIconLocked {
+  opacity: 0.55;
+}
+
+.spark {
+  position: absolute;
+  color: #fff;
+  line-height: 1;
+  pointer-events: none;
+  animation: m-sparkle 1.6s ease-in-out infinite;
+}
+
+.sparkTR {
+  top: 2px;
+  right: 4px;
+  font-size: 14px;
+}
+
+.sparkBL {
+  bottom: 4px;
+  left: 6px;
+  font-size: 11px;
+}
+
+/* 현재 노드 둥실 */
+.floating {
+  animation: m-float 2.2s ease-in-out infinite;
+}
+
+/* 열린 노드는 가끔 흔들 */
+.wiggle {
+  animation: m-wiggle var(--wiggle-cycle, 6s) ease-in-out var(--wiggle-delay, 0s) infinite;
+}
+
+/* ───────────── 스코어 노드 (ScoreNode) ───────────── */
+
+.scoreNode {
+  position: relative;
+  display: flex;
+  width: 98px;
+  height: 108px;
+  flex-direction: column;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.scoreBase {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 41px;
+  height: 41px;
+  margin-left: -20.5px;
+}
+
+.scoreBase > i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: 999px;
+  opacity: 0.15;
+}
+
+.scoreBase > i:first-child {
+  bottom: 0;
+  height: 100%;
+  background: var(--base-dark);
+}
+
+.scoreBase > i:last-child {
+  bottom: 5px;
+  height: 82%;
+  background: var(--base);
+}
+
+.scoreBadge {
+  position: relative;
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  perspective: 900px;
+}
+
+.scoreHalo {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 94px;
+  height: 94px;
+  opacity: 0.4;
+}
+
+.scoreFace {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  backface-visibility: hidden;
+}
+
+.scoreFace > svg {
+  position: absolute;
+  inset: 0;
+  width: 82px;
+  height: 82px;
+}
+
+.scoreFace > b {
+  position: relative;
+  color: var(--num);
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.scoreFace > span {
+  position: relative;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.scoreFlipFront {
+  animation: m-flip-front 3.2s ease-in-out infinite;
+}
+
+.scoreFlipBack {
+  transform: rotateY(180deg);
+  animation: m-flip-back 3.2s ease-in-out infinite;
+}
+
+.scoreStatic .scoreFace:last-child {
+  display: none;
+}
+
+/* ───────────── 팝오버 (NodePopover) ───────────── */
+
+.bubble {
+  position: relative;
+  margin: 0 20px;
+  border-radius: 18px;
+  background: var(--bubble);
+  padding: 16px 18px;
+  box-shadow: 0 6px 12px color-mix(in srgb, var(--bubble-shadow) 25%, transparent);
+  color: #fff;
+  cursor: default;
+}
+
+.bubbleLocked {
+  --bubble: var(--locked-main);
+  --bubble-shadow: #000;
+  box-shadow: 0 6px 12px rgb(0 0 0 / 10%);
+}
+
+.arrow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: calc(-10px + var(--arrow-x, 0px));
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--bubble);
+  border-left: 10px solid transparent;
+}
+
+.bubbleTitle {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.bubbleSub {
+  display: block;
+  margin-bottom: 14px;
+  color: rgb(255 255 255 / 85%);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lockedTitle {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.lockedText {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-align: center;
+}
+
+.popBtn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.popBtn > em {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.continueBtn {
+  gap: 12px;
+  background: #fff;
+  color: var(--unit);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.continueBtn:active,
+.reviewBtn:active,
+.legendBtn:active,
+.jumpTestBtn:active,
+.lockedBtn:active {
+  opacity: 0.85;
+}
+
+.reviewBtn {
+  gap: 10px;
+  margin-bottom: 10px;
+  border-bottom: 4px solid rgb(0 0 0 / 12%);
+  background: #fff;
+  color: var(--unit);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.legendBtn {
+  gap: 10px;
+  border-bottom: 4px solid #e5ae00;
+  background: #ffd900;
+  color: #8a6d00;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.legendBtn > em {
+  font-weight: 900;
+}
+
+.jumpTestBtn {
+  border-bottom: 4px solid #1899d6;
+  background: #1cb0f6;
+  color: #fff;
+  padding: 13px 18px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.lockedBtn {
+  background: var(--app-bg);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* 노란 입체 CTA (레전드로 · 상자 열기) */
+.ctaBtn {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 56px;
+  margin-top: 4px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ctaBtn > i {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  height: 50px;
+  border-radius: 16px;
+  background: #e5ae00;
+}
+
+.ctaBtn > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  height: 50px;
+  place-items: center;
+  border-radius: 16px;
+  background: #ffc800;
+  color: #8a6d00;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.ctaBtn:active > span {
+  transform: translateY(4px);
+}
+
+/* ───────────── 다음 섹션 (NextSectionLocked) ───────────── */
+
+.nextSection {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1.5px solid var(--border);
+  background: var(--surface);
+  padding: 28px 24px 40px;
+}
+
+.nextBadge {
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: var(--border);
+  color: var(--muted);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.nextTitleRow {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--muted);
+}
+
+.nextTitleRow > img,
+.nextTitleRow > svg {
+  flex: none;
+}
+
+.nextTitleRow > img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+/* 긴 제목("2-daraja · Kundalik suhbat")이 화면 밖으로 나가지 않게 줄바꿈 */
+.nextTitleRow > strong {
+  min-width: 0;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.nextDesc {
+  margin: 0 0 26px;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: center;
+}
+
+.nextJump {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nextJump > i {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--border);
+}
+
+.nextJump > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  height: 52px;
+  place-items: center;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: #4ba3f5;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.nextJump:active > span {
+  opacity: 0.85;
+}
+
+/* ───────────── 지금 할 곳으로 (JumpToCurrentButton) ───────────── */
+
+/* 노드와 같은 입체 원판 — 유닛 색 윗면 + 진한 두께 + 광택 + 흰 테두리, 화살표가 갈 쪽으로 살짝 */
+.jumpCurrent {
+  position: absolute;
+  right: 16px;
+  z-index: 40;
+  width: 62px;
+  height: 66px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jumpCurrent > i {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.jumpGlow {
+  top: -2px;
+  left: 0;
+  width: 62px;
+  height: 62px;
+  background: var(--jump);
+  opacity: 0.28;
+  filter: blur(10px);
+}
+
+.jumpDepth {
+  top: 7px;
+  left: 4px;
+  width: 54px;
+  height: 54px;
+  background: var(--jump-dark);
+  box-shadow: 0 10px 16px rgb(0 0 0 / 16%);
+}
+
+.jumpCurrent > span {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid var(--surface);
+  border-radius: 999px;
+  background: var(--jump);
+  color: #fff;
+  transition: transform 0.08s;
+}
+
+/* 윗면 광택 */
+.jumpCurrent > span::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 13px;
+  right: 13px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 34%);
+}
+
+.jumpCurrent:active > span {
+  transform: translateY(5px);
+}
+
+.jumpArrow {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.jumpDown {
+  animation: m-nudge-down 1.8s ease-in-out infinite;
+}
+
+.jumpUp {
+  animation: m-nudge-up 1.8s ease-in-out infinite;
+}
+
+@keyframes m-nudge-down {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(3px);
+  }
+  88% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes m-nudge-up {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-3px);
+  }
+  88% {
+    transform: translateY(1px);
+  }
+}
+
+/* 준비 중 (콘텐츠 없는 트랙) */
+.soon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.soonBack {
+  position: absolute;
+  top: calc(12px + var(--korio-top));
+  left: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 0;
+}
+
+.soon > span {
+  margin-bottom: 16px;
+  font-size: 52px;
+}
+
+.soon > h1 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.soon > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* ───────────── 움직임 ───────────── */
+
+@keyframes m-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes m-bob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+@keyframes m-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes m-sparkle {
+  0%,
+  25% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes m-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(-72px) rotate(20deg);
+  }
+  7% {
+    opacity: 0.7;
+  }
+  14%,
+  100% {
+    opacity: 0;
+    transform: translateX(72px) rotate(20deg);
+  }
+}
+
+@keyframes m-wiggle {
+  0%,
+  94%,
+  100% {
+    transform: rotate(0);
+  }
+  95% {
+    transform: rotate(-3.4deg);
+  }
+  96% {
+    transform: rotate(3.4deg);
+  }
+  97% {
+    transform: rotate(-2.3deg);
+  }
+  98.5% {
+    transform: rotate(0.6deg);
+  }
+}
+
+@keyframes m-flip-front {
+  0%,
+  25% {
+    transform: rotateY(0deg);
+  }
+  50%,
+  75% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes m-flip-back {
+  0%,
+  25% {
+    transform: rotateY(180deg);
+  }
+  50%,
+  75% {
+    transform: rotateY(360deg);
+  }
+  100% {
+    transform: rotateY(540deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating,
+  .wiggle,
+  .spark,
+  .shine,
+  .jumpBubble,
+  .scoreFlipFront,
+  .scoreFlipBack,
+  .jumpDown,
+  .jumpUp {
+    animation: none;
+  }
+}

@@ -1,245 +1,32 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
-import { HomeIcon } from "../../home/ui/home-icon";
-import { LearningIcon } from "../../learning/ui/learning-icon";
-import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { claimStudyPathChests, getStudyPath } from "../api/study-path";
-import { useEnergyGuard, useEnergySync } from "../../energy/energy-gate";
-import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
-import {
-  STUDY_NODE_COPY,
-  STUDY_PATH_COLORS,
-  studyCountLabel,
-  studyNodeTitle,
-  type StudyDay,
-  type StudyNode,
-  type StudyNodeKind,
-  type StudyNodeStatus,
-  type StudyPathResponse,
-} from "../model/study-path";
-import styles from "./study-path.module.css";
+import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
+import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useEnergyGuard, useEnergySync } from "../../energy/energy-gate";
 import { CourseDropdown } from "../../roadmap/ui/course-dropdown";
+import { AppIcon } from "../../roadmap/ui/map/icon";
+import { JumpToCurrent } from "../../roadmap/ui/map/jump-to-current";
+import { NextSectionLocked } from "../../roadmap/ui/map/next-section-locked";
+import { NodePopover } from "../../roadmap/ui/map/node-popover";
+import { RoadmapBackdrop } from "../../roadmap/ui/map/roadmap-backdrop";
+import { RoadmapHeader } from "../../roadmap/ui/map/roadmap-header";
+import map from "../../roadmap/ui/map/roadmap-map.module.css";
+import { UnitRoadmap } from "../../roadmap/ui/map/unit-roadmap";
+import { claimStudyPathChests, getStudyPath } from "../api/study-path";
+import type { StudyDay, StudyNode, StudyPathResponse } from "../model/study-path";
+import { buildStudyPathViewModel } from "../model/study-path-view";
+import { DayBanner, LevelExamCard, SectionDivider, StudyNodePopover } from "./study-map-parts";
+import styles from "./study-map.module.css";
 
-interface DisplayNode {
-  claimable?: boolean;
-  id: string;
-  source?: StudyNode;
-  status: StudyNodeStatus;
-  type: "chest" | "study";
-}
-
-interface DisplayDay {
-  color: string;
-  day: StudyDay;
-  nodes: DisplayNode[];
-}
-
-const NODE_OFFSETS = [64, 43, 34, 47];
-const NODE_ROW_HEIGHT = 126;
-
-function displayDays(data: StudyPathResponse): DisplayDay[] {
-  const days = data.days.map((day, dayIndex) => {
-    const nodes: DisplayNode[] = [];
-    let lessonCount = 0;
-    let chestIndex = 0;
-    day.nodes.forEach((node, index) => {
-      nodes.push({
-        id: `${day.id}:${node.id}`,
-        source: node,
-        status: node.status,
-        type: "study",
-      });
-      lessonCount += 1;
-      if (lessonCount % 3 === 0 && index < day.nodes.length - 1) {
-        chestIndex += 1;
-        nodes.push({
-          id: `${day.id}:chest:${chestIndex}`,
-          status: node.status === "completed" ? "completed" : "locked",
-          type: "chest",
-        });
-      }
-    });
-    return {
-      color: STUDY_PATH_COLORS[dayIndex % STUDY_PATH_COLORS.length] ?? "#776ee2",
-      day,
-      nodes,
-    };
-  });
-
-  if (data.pendingChests > 0) {
-    for (let dayIndex = days.length - 1; dayIndex >= 0; dayIndex -= 1) {
-      const target = [...(days[dayIndex]?.nodes ?? [])]
-        .reverse()
-        .find((node) => node.type === "chest" && node.status === "completed");
-      if (target) {
-        target.claimable = true;
-        break;
-      }
-    }
-  }
-  return days;
-}
-
-function routePaths(nodes: DisplayNode[]) {
-  const points = nodes.map((_, index) => ({
-    x: NODE_OFFSETS[index % NODE_OFFSETS.length] ?? 50,
-    y: 44 + index * NODE_ROW_HEIGHT,
-  }));
-  const segments = points.slice(1).map((point, index) => {
-    const previous = points[index] ?? point;
-    const middle = (previous.y + point.y) / 2;
-    return {
-      active: nodes[index]?.status !== "locked",
-      d: `M ${previous.x} ${previous.y} C ${previous.x} ${middle}, ${point.x} ${middle}, ${point.x} ${point.y}`,
-    };
-  });
-  return {
-    full: segments.map((segment) => segment.d).join(" "),
-    height: Math.max(100, points.at(-1)?.y ?? 100),
-    segments,
-  };
-}
-
-function nodeStatusClass(status: StudyNodeStatus): string {
-  if (status === "completed") return styles.nodeCompleted ?? "";
-  if (status === "current") return styles.nodeCurrent ?? "";
-  return styles.nodeLocked ?? "";
-}
-
-function NodeIcon({ kind }: { kind: StudyNodeKind }) {
-  if (kind === "review" || kind === "recap") {
-    return <HomeIcon name="refresh" size={27} />;
-  }
-  if (kind === "words") return <LearningIcon name="albums" size={27} />;
-  if (kind === "grammar") return <LearningIcon name="book" size={27} />;
-  if (kind === "grammarQuiz") {
-    return <LearningIcon name="construct" size={27} />;
-  }
-  if (kind === "final") return <HomeIcon name="ribbon" size={27} />;
-  return <MobileIcon name="create-outline" size={27} />;
-}
-
-function StudyNodePopover({
-  color,
-  day,
-  node,
-  onStart,
-  step,
-}: {
-  color: string;
-  day: StudyDay;
-  node: StudyNode;
-  onStart: () => void;
-  step: number;
-}) {
-  const locked = node.status === "locked";
-  const completed = node.status === "completed";
-  return (
-    <article
-      className={styles.nodePopover}
-      data-node-popover
-      style={{ "--node-color": color } as CSSProperties}
-    >
-      <span className={styles.popoverArrow} />
-      <div className={styles.popoverTitleRow}>
-        <span className={styles.popoverIcon}>
-          {completed ? (
-            <HomeIcon name="check" size={19} />
-          ) : locked ? (
-            <LearningIcon name="lock" size={18} />
-          ) : (
-            <NodeIcon kind={node.kind} />
-          )}
-        </span>
-        <span>
-          <small>
-            {locked ? "Oldindan ko'rish · " : ""}
-            {step} / {day.nodes.length}-bosqich
-          </small>
-          <strong>{studyNodeTitle(node)}</strong>
-        </span>
-      </div>
-      <p>{STUDY_NODE_COPY[node.kind].description}</p>
-      <div className={styles.popoverMeta}>
-        {node.count > 0 ? <span>▱ {studyCountLabel(node)}</span> : null}
-        {node.lessonCount > 1 ? (
-          <span>
-            ▤ Halqa {node.lessonsDone}/{node.lessonCount}
-          </span>
-        ) : null}
-      </div>
-      {locked ? (
-        <div className={styles.lockedNotice}>
-          <MobileIcon name="time-outline" size={18} /> Oldingi bosqichni tugatsangiz ochiladi
-        </div>
-      ) : (
-        <button className={styles.nodeStart} onClick={onStart} type="button">
-          {completed
-            ? "Qayta ishlash"
-            : node.lessonsDone > 0
-              ? `${node.nextLesson}-dan davom`
-              : "Boshlash"}
-          <HomeIcon name="arrow" size={19} />
-        </button>
-      )}
-    </article>
-  );
-}
-
-function DayBanner({
-  color,
-  day,
-  level,
-}: {
-  color: string;
-  day: StudyDay;
-  /** 보여주기만 한다 — 다음 급은 졸업 시험 합격으로만 간다 (앱과 같음) */
-  level: number;
-}) {
-  const done = day.nodes.filter((node) => node.done).length;
-  const complete = day.nodes.length > 0 && done >= day.nodes.length;
-  const progress = day.nodes.length > 0 ? (done / day.nodes.length) * 100 : 0;
-  return (
-    <section
-      className={styles.dayBanner}
-      style={{ "--day-color": color } as CSSProperties}
-    >
-      <span className={styles.dayBadge}>
-        {complete ? <HomeIcon name="check" size={25} /> : day.dayNumber}
-      </span>
-      <span className={styles.dayBannerBody}>
-        <small>
-          {complete
-            ? "Bugungi dars tugadi!"
-            : `${day.dayNumber}-kun · ${day.phase === 1 ? "O'rganish" : "Mashq"}`}
-        </small>
-        <strong>{day.title}</strong>
-        <span className={styles.dayProgressRow}>
-          <i>
-            <b style={{ width: `${progress}%` }} />
-          </i>
-          <em>
-            {done}/{day.nodes.length}
-          </em>
-        </span>
-      </span>
-      <span className={styles.levelBadge}>{`${level}-daraja`}</span>
-    </section>
-  );
-}
-
+/**
+ * 학습 로드 (앱 StudyPathScreen) — 하루하루를 로드맵 지도와 같은 모양으로 그린다.
+ * 지도·노드·배경·헤더는 자유 학습 로드맵(roadmap/ui/map)과 같은 조각을 쓴다.
+ */
 export function StudyPathScreen() {
   const router = useRouter();
   const [courseOpen, setCourseOpen] = useState(false);
@@ -249,7 +36,7 @@ export function StudyPathScreen() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [visibleDayIndex, setVisibleDayIndex] = useState(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [claiming, setClaiming] = useState(false);
+  const claimingRef = useRef(false);
   const guardLessonStart = useEnergyGuard();
   // 앱처럼 학습 로드의 뒤로가기는 홈으로
   useTelegramBackOverride(() => router.replace("/home"));
@@ -279,28 +66,33 @@ export function StudyPathScreen() {
     void load();
   }, [load]);
 
-  const days = useMemo(() => (data ? displayDays(data) : []), [data]);
+  const viewModel = useMemo(
+    () => (data ? buildStudyPathViewModel(data.days, (data.pendingChests ?? 0) > 0) : null),
+    [data],
+  );
+  const units = useMemo(() => viewModel?.units ?? [], [viewModel]);
+  const days = useMemo(() => data?.days ?? [], [data]);
+  const currentDayIndex = data?.currentDayIndex ?? 0;
 
+  // 들어오면 오늘 하루로
   useEffect(() => {
-    if (!data || days.length === 0) return;
-    const current = days[data.currentDayIndex];
+    if (!data || units.length === 0) return;
+    setSelectedNodeId(null);
     requestAnimationFrame(() => {
-      dayRefs.current.get(current?.day.id ?? "")?.scrollIntoView({
-        block: "start",
-      });
+      dayRefs.current.get(units[data.currentDayIndex]?.id ?? "")?.scrollIntoView({ block: "start" });
     });
-  }, [data, days]);
+  }, [data, units]);
 
   useEffect(() => {
     const root = scrollRef.current;
-    if (!root || days.length === 0) return;
+    if (!root || units.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
         if (!visible) return;
-        const index = days.findIndex((item) => item.day.id === visible.target.id);
+        const index = units.findIndex((unit) => unit.id === visible.target.id);
         if (index >= 0) {
           setVisibleDayIndex(index);
           // 팝오버를 보여 주려고 우리가 올린 스크롤이면 닫지 않는다
@@ -311,10 +103,12 @@ export function StudyPathScreen() {
     );
     dayRefs.current.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
-  }, [days, isAutoScrolling]);
+  }, [isAutoScrolling, units]);
 
+  /** 노드 종류마다 이미 있는 화면으로 보낸다. 범위는 그 하루로 좁힌다 */
   const openNode = (node: StudyNode, day: StudyDay) => {
-    if (node.status === "locked") return;
+    if (node.status === "locked") return; // 미리보기만 되는 노드
+    setSelectedNodeId(null);
     const params = new URLSearchParams({
       from: "studyPath",
       section: String(day.section),
@@ -338,15 +132,22 @@ export function StudyPathScreen() {
     guardLessonStart(() => router.push(`/lesson?${params.toString()}`));
   };
 
+  // 잠긴 노드도 열린다 — 앞으로 뭘 배우는지 미리 볼 수 있어야 한다. 시작만 못 할 뿐이다.
+  const tapNode = (nodeId: string) => {
+    const isChest = nodeId.includes("-auto-chest-");
+    if (!isChest && !viewModel?.nodeById.has(nodeId)) return;
+    setSelectedNodeId((current) => (current === nodeId ? null : nodeId));
+  };
+
+  /** 상자 받기 — 자유 학습과 같은 엔드포인트·같은 상자 화면 */
   const claimChest = async () => {
-    if (claiming) return;
-    setClaiming(true);
+    if (claimingRef.current) return;
+    claimingRef.current = true;
     try {
       const result = await claimStudyPathChests(request);
       if (result.claimed > 0) {
         updateUser({ gems: result.totalGems });
         void load();
-        // 자유 학습과 같은 상자 화면 (탭해서 열기·보석 쏟아짐). from 을 넘겨야 닫을 때 이쪽으로 온다
         const params = new URLSearchParams({
           from: "studyPath",
           gemTotal: String(result.totalGems - result.gems),
@@ -358,259 +159,153 @@ export function StudyPathScreen() {
     } catch {
       // 못 받아도 화면을 막지 않는다
     } finally {
-      setClaiming(false);
+      claimingRef.current = false;
     }
   };
 
-  const banner = days[visibleDayIndex] ?? days[data?.currentDayIndex ?? 0];
+  const bannerDay = days[visibleDayIndex] ?? days[currentDayIndex];
+  const bannerUnit = units[visibleDayIndex] ?? units[currentDayIndex];
+  const isMax = (user as { superTier?: string | null } | null)?.superTier === "max";
 
   return (
-    <main className={styles.pathPage}>
-      <header className={styles.pathStats}>
-        <button onClick={() => setCourseOpen(true)} type="button">
-          <span>🇰🇷</span>
-          <b>{data?.score ?? 0}</b>
-          <HomeIcon className={styles.caret} name="caret" size={15} />
-        </button>
-        <span>
-          <HomeIcon name="flame" size={22} />
-          <b>{user?.streak ?? 0}</b>
-        </span>
-        <span>
-          <HomeIcon className={styles.diamond} name="diamond" size={20} />
-          <b>{user?.gems ?? 0}</b>
-        </span>
-        {user?.isSuper ? (
-          <span className={styles.superBadge}>SUPER</span>
-        ) : (
-          <span>
-            <HomeIcon name="heart" size={23} />
-            <b>{user?.energy ?? 0}</b>
-          </span>
-        )}
-      </header>
+    <main className={map.page}>
+      <RoadmapBackdrop />
+      <RoadmapHeader
+        energy={user?.energy ?? 0}
+        gems={user?.gems ?? 0}
+        isMax={isMax}
+        isSuper={Boolean(user?.isSuper)}
+        onCourse={() => setCourseOpen(true)}
+        score={data?.score ?? 0}
+        streak={user?.streak ?? 0}
+      />
 
-      {banner && data ? (
+      {bannerDay && bannerUnit ? (
         <DayBanner
-          color={banner.color}
-          day={banner.day}
-          level={data.currentLevel}
+          color={bannerUnit.color}
+          day={bannerDay}
+          level={data?.currentLevel ?? 1}
+          // 급수 목록 — 아래 급은 바로, 위 급은 시험을 통과해야 간다
+          onLevelPress={() => router.push("/study-level?from=studyPath")}
         />
       ) : null}
 
       {loading ? (
-        <div className={styles.centerState}>
-          <span className={styles.spinner} />
+        <div className={styles.state}>
+          <span className={map.spinner} />
         </div>
       ) : loadFailed ? (
-        <div className={styles.centerState}>
-          <span className={styles.stateIcon}>☁</span>
-          <strong>O&apos;quv yo&apos;lini yuklab bo&apos;lmadi.</strong>
-          <button onClick={() => void load()} type="button">
-            Qayta urinish
+        <div className={styles.state}>
+          <span className={styles.errorIcon}>
+            <AppIcon name="cloud-offline-outline" size={34} />
+          </span>
+          <p className={styles.stateTitle}>{uzt("studyPath.loadFailed")}</p>
+          <button className={styles.retryButton} onClick={() => void load()} type="button">
+            {uzt("studyPath.retry")}
           </button>
         </div>
-      ) : days.length === 0 ? (
-        <div className={styles.centerState}>
-          <strong>Hozircha tayyor dars yo&apos;q.</strong>
+      ) : units.length === 0 ? (
+        <div className={styles.state}>
+          <p className={styles.stateTitle}>{uzt("studyPath.empty")}</p>
         </div>
       ) : (
-        <div className={styles.pathScroll} ref={scrollRef}>
-          {days.map(({ color, day, nodes }) => {
-            const route = routePaths(nodes);
+        <div
+          className={`${map.scroll} ${selectedNodeId ? map.scrollOpen : ""}`}
+          onClick={() => setSelectedNodeId(null)}
+          ref={scrollRef}
+        >
+          {units.map((unit, index) => {
+            const day = days[index];
             return (
               <section
-                className={styles.pathDay}
-                id={day.id}
-                key={day.id}
+                className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
+                id={unit.id}
+                key={unit.id}
+                onClick={(event) => event.stopPropagation()}
                 ref={(element) => {
-                  if (element) dayRefs.current.set(day.id, element);
-                  else dayRefs.current.delete(day.id);
+                  if (element) dayRefs.current.set(unit.id, element);
+                  else dayRefs.current.delete(unit.id);
                 }}
-                style={{ "--unit-color": color } as CSSProperties}
+                style={{ position: "relative" }}
               >
-                {day.sectionStart ? (
-                  <div className={styles.sectionDivider}>
-                    <i />
-                    <span>⚑ {day.section}-bo&apos;lim boshlandi</span>
-                    <i />
-                  </div>
-                ) : null}
-                <div className={styles.dayTitle}>
-                  <span>{`${day.dayNumber}-kun`}</span>
-                  <strong>
-                    {day.phase === 1
-                      ? `${day.title} o'rganish`
-                      : `${day.title} mashq`}
-                  </strong>
-                </div>
-                <div
-                  className={styles.nodesMap}
-                  style={{ height: `${route.height + 70}px` }}
-                >
-                  <svg
-                    aria-hidden="true"
-                    className={styles.pathConnector}
-                    preserveAspectRatio="none"
-                    viewBox={`0 0 100 ${route.height + 4}`}
-                  >
-                    <path className={styles.connectorShadow} d={route.full} />
-                    <path className={styles.connectorBase} d={route.full} />
-                    {route.segments.map((segment, index) => (
-                      <path
-                        className={
-                          segment.active
-                            ? styles.connectorActive
-                            : styles.connectorLocked
-                        }
-                        d={segment.d}
-                        key={`${day.id}:route:${index}`}
-                      />
-                    ))}
-                    <path className={styles.connectorShine} d={route.full} />
-                  </svg>
-
-                  {nodes.map((displayNode, index) => {
-                    const source = displayNode.source;
-                    const selected = selectedNodeId === displayNode.id;
-                    const nodeOffset =
-                      NODE_OFFSETS[index % NODE_OFFSETS.length] ?? 50;
-                    const progress = source
-                      ? (source.lessonsDone / Math.max(1, source.lessonCount)) * 360
-                      : 0;
+                {day?.sectionStart ? <SectionDivider color={unit.color} section={day.section} /> : null}
+                <UnitRoadmap
+                  avatar={user?.avatar}
+                  customPopover
+                  onNodeTap={tapNode}
+                  renderPopover={({ node, onClose, triangleOffsetX }) => {
+                    // 상자는 두 모드에서 똑같이 — 지도의 기본 말풍선을 쓴다
+                    if (node.type === "chest") {
+                      return (
+                        <NodePopover
+                          canJump={false}
+                          node={node}
+                          onClaimChest={() => void claimChest()}
+                          onClose={onClose}
+                          onGoLegend={() => undefined}
+                          onJumpTest={() => undefined}
+                          onLegend={() => undefined}
+                          onReview={() => undefined}
+                          onStart={() => undefined}
+                          triangleOffsetX={triangleOffsetX}
+                          unit={unit}
+                        />
+                      );
+                    }
+                    const entry = viewModel?.nodeById.get(node.id);
+                    if (!entry) return null;
                     return (
-                      <div
-                        className={`${styles.nodeRow} ${
-                          selected ? styles.nodeRowSelected : ""
-                        }`}
-                        key={displayNode.id}
-                        style={
-                          {
-                            "--node-offset": `${nodeOffset}%`,
-                            top: `${index * NODE_ROW_HEIGHT}px`,
-                          } as CSSProperties
-                        }
-                      >
-                        <button
-                          aria-label={
-                            source ? studyNodeTitle(source) : "Mukofot sandig'i"
-                          }
-                          className={`${styles.pathNode} ${
-                            nodeStatusClass(displayNode.status)
-                          } ${displayNode.claimable ? styles.nodeClaimable : ""}`}
-                          disabled={displayNode.type === "chest" && !displayNode.claimable}
-                          onClick={() => {
-                            if (displayNode.type === "chest") {
-                              if (displayNode.claimable) void claimChest();
-                              return;
-                            }
-                            setSelectedNodeId((current) =>
-                              current === displayNode.id ? null : displayNode.id,
-                            );
-                          }}
-                          style={
-                            {
-                              "--node-progress": `${progress}deg`,
-                            } as CSSProperties
-                          }
-                          type="button"
-                        >
-                          <span className={styles.nodeFace}>
-                            {displayNode.type === "chest" ? (
-                              <span className={styles.chestIcon}>🎁</span>
-                            ) : source ? (
-                              <NodeIcon kind={source.kind} />
-                            ) : null}
-                          </span>
-                        </button>
-
-                        {source?.status === "current" && !selected ? (
-                          <span
-                            className={styles.currentMascot}
-                            style={
-                              {
-                                "--mascot-left": `${
-                                  nodeOffset > 50
-                                    ? nodeOffset - 28
-                                    : nodeOffset + 20
-                                }%`,
-                              } as CSSProperties
-                            }
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img alt="" src="/characters/hangulmon_default.png" />
-                          </span>
-                        ) : null}
-
-                        {selected && source ? (
-                          <StudyNodePopover
-                            color={color}
-                            day={day}
-                            node={source}
-                            onStart={() => openNode(source, day)}
-                            step={day.nodes.indexOf(source) + 1}
-                          />
-                        ) : null}
-                      </div>
+                      <StudyNodePopover
+                        color={unit.color}
+                        node={entry.node}
+                        onStart={() => openNode(entry.node, entry.day)}
+                        step={entry.step}
+                        stepCount={entry.day.nodes.length}
+                        title={node.title ?? ""}
+                        triangleOffsetX={triangleOffsetX}
+                      />
                     );
-                  })}
-                </div>
+                  }}
+                  selectedNodeId={selectedNodeId}
+                  unit={unit}
+                />
               </section>
             );
           })}
 
+          {/* 그 급을 다 끝냈으면 졸업 시험이 먼저다. 다음 급 안내는 그 뒤에 */}
           {data?.levelExam.available ? (
-            <button
-              className={`${styles.levelExamCard} ${
-                data.levelExam.passed ? styles.levelExamPassed : ""
-              }`}
-              onClick={() => router.push("/lesson?mode=levelExam&from=studyPath")}
-              type="button"
-            >
-              <span>
-                <HomeIcon name="ribbon" size={27} />
-              </span>
-              <span>
-                <strong>{`${data.currentLevel}-daraja bitiruv imtihoni`}</strong>
-                <small>
-                  {data.levelExam.passed
-                    ? "Allaqachon o'tgansiz. Yana ishlashingiz mumkin."
-                    : "Shu darajada o'rganganingizni 25 ta savolda sinaymiz."}
-                </small>
-              </span>
-              <HomeIcon name="chevron" size={20} />
-            </button>
-          ) : null}
-
-          {data?.nextLevel ? (
-            <section className={styles.nextLevelCard}>
-              <span className={styles.nextLevelBadge}>KEYINGI DARAJA</span>
-              <div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" src="/characters/hangulmon_default.png" />
-                <LearningIcon name="lock" size={21} />
-                <strong>{data.nextLevel.title}</strong>
-              </div>
-              <p>{data.nextLevel.description}</p>
-            </section>
+            <LevelExamCard
+              level={data.currentLevel}
+              onPress={() => router.push("/lesson?mode=levelExam&from=studyPath")}
+              passed={data.levelExam.passed}
+            />
+          ) : data?.nextLevel ? (
+            <NextSectionLocked
+              badgeKey="studyPath.nextLevelBadge"
+              description={data.nextLevel.description}
+              jumpKey="studyPath.nextLevelJump"
+              // 다음 급으로 건너뛰기 = 지금 급 졸업 시험. 합격하면 서버가 다음 급으로 올린다
+              onJump={() => router.push("/lesson?mode=levelExam&from=studyPath")}
+              sectionNumber={data.nextLevel.level}
+              title={data.nextLevel.title}
+            />
           ) : null}
         </div>
       )}
 
-      {!loading && data && days.length > 0 ? (
-        <button
-          aria-label="Bugungi darsga o'tish"
-          className={styles.jumpCurrent}
-          onClick={() =>
+      {units.length > 0 && !loading ? (
+        <JumpToCurrent
+          color={bannerUnit?.color ?? "#776ee2"}
+          direction={visibleDayIndex > currentDayIndex ? "up" : "down"}
+          label="Bugungi darsga o'tish"
+          onPress={() => {
+            setSelectedNodeId(null);
             dayRefs.current
-              .get(days[data.currentDayIndex]?.day.id ?? "")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" })
-          }
-          style={{ "--jump-color": banner?.color } as CSSProperties}
-          type="button"
-        >
-          {visibleDayIndex > data.currentDayIndex ? "↑" : "↓"}
-        </button>
+              .get(units[currentDayIndex]?.id ?? "")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
       ) : null}
 
       {/* 🇰🇷 스코어 → 위에서 내려오는 과정·스코어 패널 (앱 CourseDropdown) */}

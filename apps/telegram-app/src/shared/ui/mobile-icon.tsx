@@ -107,6 +107,28 @@ const IONICONS = {
   flag: 62224,
   snow: 62857,
   "gift-outline": 62264,
+  "play-forward": 62672,
+  // 표현 로드맵 노드 아이콘 (서버 seed 의 icon 값)
+  "arrow-forward-outline": 61751,
+  "briefcase-outline": 61874,
+  "business-outline": 61895,
+  "card-outline": 61928,
+  "checkmark-done-circle-outline": 61987,
+  "earth-outline": 62147,
+  "heart-circle-outline": 62316,
+  "help-circle-outline": 62334,
+  "key-outline": 62372,
+  "map-outline": 62531,
+  "navigate-outline": 62576,
+  "people-circle-outline": 62625,
+  "people-outline": 62627,
+  "person-circle-outline": 62634,
+  "pricetags-outline": 62702,
+  "receipt-outline": 62735,
+  "sad-outline": 62798,
+  "sunny-outline": 62894,
+  map: 62530,
+  "swap-vertical": 62899,
   "flag-outline": 62225,
   flash: 62230,
   "flash-outline": 62234,
@@ -248,6 +270,7 @@ const MATERIAL_COMMUNITY = {
   headphones: 983755,
   keyboard: 983820,
   "lightning-bolt": 988171,
+  "treasure-chest": 984870,
   microphone: 983916,
   sync: 984294,
   "timer-outline": 984347,
@@ -260,6 +283,11 @@ const MATERIAL_COMMUNITY = {
 } as const;
 
 export type IoniconName = keyof typeof IONICONS;
+
+/** 서버가 준 아이콘 이름이 이 폰트 표에 있는지 — 없으면 대체 아이콘을 써야 한다 */
+export function hasIonicon(name: string | null | undefined): name is IoniconName {
+  return Boolean(name) && Object.prototype.hasOwnProperty.call(IONICONS, name as string);
+}
 export type MaterialCommunityIconName = keyof typeof MATERIAL_COMMUNITY;
 
 interface MobileIconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {

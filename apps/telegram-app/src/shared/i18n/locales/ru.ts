@@ -2275,6 +2275,8 @@ export default {
   studyPath: {
     sectionStart: "Начало раздела {{n}}",
     levelShort: "Ур.{{n}}",
+    nextLevelBadge: "Следующий уровень",
+    nextLevelJump: "Сдать тест и перейти",
     lockedHint: "Откроется после предыдущего шага",
     preview: "Предпросмотр",
     lessonProgress: "Кольцо {{done}}/{{total}}",

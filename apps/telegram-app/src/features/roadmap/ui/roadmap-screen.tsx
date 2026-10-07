@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -15,31 +8,26 @@ import { useEnergyGuard } from "../../energy/energy-gate";
 import { energySpendsSettled } from "../../energy/energy-sync";
 import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
-import { HomeIcon } from "../../home/ui/home-icon";
-import { saveStudyMode } from "../../learning/api/learning-preferences";
-import { LearningIcon } from "../../learning/ui/learning-icon";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { claimStudyPathChests } from "../../study-path/api/study-path";
 import { getRoadmap, getRoadmapScore } from "../api/roadmap";
-import {
-  prepareRoadmapUnits,
-  ROADMAP_NODE_OFFSETS,
-  ROADMAP_NODE_ROW_HEIGHT,
-  roadmapRoutePaths,
-  roadmapStatusClass,
-} from "../model/roadmap-view";
+import { prepareRoadmapUnits } from "../model/roadmap-view";
 import type {
   RoadmapNode,
   RoadmapScoreResponse,
   RoadmapUnit,
 } from "../model/roadmap";
-import {
-  RoadmapBanner,
-  RoadmapNodeIcon,
-  RoadmapPopover,
-} from "./roadmap-parts";
 import { RoadmapSectionSheet } from "./roadmap-section-sheet";
-import styles from "../../study-path/ui/study-path.module.css";
 import { CourseDropdown } from "./course-dropdown";
+import { AppIcon } from "./map/icon";
+import { JumpToCurrent } from "./map/jump-to-current";
+import { NextSectionLocked } from "./map/next-section-locked";
+import { NodePopover } from "./map/node-popover";
+import { RoadmapBackdrop } from "./map/roadmap-backdrop";
+import { RoadmapHeader } from "./map/roadmap-header";
+import map from "./map/roadmap-map.module.css";
+import { SectionBanner } from "./map/section-banner";
+import { UnitRoadmap } from "./map/unit-roadmap";
 
 interface NextSection {
   description: string;
@@ -258,272 +246,147 @@ export function RoadmapScreen() {
     }
   };
 
-  const switchToGuided = async () => {
-    try {
-      await saveStudyMode(request, "guided");
-      updateUser({ studyMode: "guided" });
-      router.replace("/study-path");
-    } catch {
-      // 저장 실패 시 현재 자유 학습 화면을 유지한다.
-    }
+  /** 스코어 배지 → 그 유닛 첫 노드로 올라가서 팝오버를 연다 (앱 handleGoLegend) */
+  const goLegend = (unit: RoadmapUnit) => {
+    const first = unit.nodes[0];
+    if (!first) return;
+    setSelectedNodeId(null);
+    unitRefs.current.get(unit.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => setSelectedNodeId(first.id), 400);
   };
 
   const visibleUnit = units[visibleUnitIndex] ?? units[0];
+  const isMax = (user as { superTier?: string | null } | null)?.superTier === "max";
 
   if (!loading && category && !loadFailed && units.length === 0) {
     return (
-      <main className={`${styles.pathPage} ${styles.comingSoonPage}`}>
-        <button
-          aria-label="Orqaga"
-          className={styles.comingSoonBack}
-          onClick={() => router.replace("/course-categories")}
-          type="button"
-        >
-          <HomeIcon name="back" size={26} />
-        </button>
-        <span>🚧</span>
-        <h1>Tez orada!</h1>
-        <p>Bu kurs hali tayyorlanmoqda. Kuting!</p>
+      <main className={map.page}>
+        <RoadmapBackdrop />
+        <div className={map.soon}>
+          <button
+            aria-label="Orqaga"
+            className={map.soonBack}
+            onClick={() => router.replace("/course-categories")}
+            type="button"
+          >
+            <AppIcon name="chevron-back" size={28} />
+          </button>
+          <span>🚧</span>
+          <h1>{uzt("roadmap.comingSoonTitle")}</h1>
+          <p>{uzt("roadmap.comingSoonDesc")}</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className={styles.pathPage}>
-      <header className={styles.pathStats}>
-        <button onClick={() => setCourseOpen(true)} type="button">
-          <span>🇰🇷</span>
-          <b>{scoreValue}</b>
-          <HomeIcon className={styles.caret} name="caret" size={15} />
-        </button>
-        <span>
-          <HomeIcon name="flame" size={22} />
-          <b>{user?.streak ?? 0}</b>
-        </span>
-        <span>
-          <HomeIcon className={styles.diamond} name="diamond" size={20} />
-          <b>{user?.gems ?? 0}</b>
-        </span>
-        {user?.isSuper ? (
-          <span className={styles.superBadge}>SUPER</span>
-        ) : (
-          <span>
-            <HomeIcon name="heart" size={23} />
-            <b>{user?.energy ?? 0}</b>
-          </span>
-        )}
-      </header>
+    <main className={map.page}>
+      <RoadmapBackdrop />
+      <RoadmapHeader
+        energy={user?.energy ?? 0}
+        gems={user?.gems ?? 0}
+        isMax={isMax}
+        isSuper={Boolean(user?.isSuper)}
+        onCourse={() => setCourseOpen(true)}
+        score={scoreValue}
+        streak={user?.streak ?? 0}
+      />
 
-      <div className={styles.studyModeSwitch}>
-        <button onClick={() => void switchToGuided()} type="button">
-          <LearningIcon name="footsteps" size={15} /> O&apos;quv yo&apos;li
-        </button>
-        <button className={styles.studyModeActive} type="button">
-          <LearningIcon name="compass" size={15} /> Erkin o&apos;rganish
-        </button>
-      </div>
-
+      {/* 고정 배너 */}
       {visibleUnit ? (
-        <RoadmapBanner onOpen={() => void openSections()} unit={visibleUnit} />
+        <SectionBanner
+          color={visibleUnit.color}
+          onPress={() => void openSections()}
+          sectionNumber={visibleUnit.sectionNumber}
+          title={visibleUnit.title}
+          unitNumber={visibleUnit.unitNumber}
+        />
       ) : null}
 
       {loading ? (
-        <div className={styles.centerState}>
-          <span className={styles.spinner} />
+        <div className={map.center}>
+          <span className={map.spinner} />
         </div>
       ) : loadFailed ? (
-        <div className={styles.centerState}>
-          <span className={styles.stateIcon}>☁</span>
+        <div className={map.center}>
+          <AppIcon name="cloud-offline-outline" size={40} />
           <strong>Darsni yuklab bo&apos;lmadi</strong>
-          <button onClick={() => void load()} type="button">
+          <button className={map.retry} onClick={() => void load()} type="button">
             Qayta urinish
           </button>
         </div>
       ) : (
-        <div className={styles.pathScroll} ref={scrollRef}>
-          {units.map((unit) => {
-            const route = roadmapRoutePaths(unit.nodes);
-            return (
-              <section
-                className={styles.pathDay}
-                id={unit.id}
-                key={unit.id}
-                ref={(element) => {
-                  if (element) unitRefs.current.set(unit.id, element);
-                  else unitRefs.current.delete(unit.id);
-                }}
-                style={{ "--unit-color": unit.color } as CSSProperties}
-              >
-                <div className={styles.dayTitle}>
-                  <span>{unit.unitNumber}-birlik</span>
-                  <strong>{unit.title}</strong>
-                </div>
-                <div
-                  className={styles.nodesMap}
-                  style={{ height: `${route.height + 70}px` }}
-                >
-                  <svg
-                    aria-hidden="true"
-                    className={styles.pathConnector}
-                    preserveAspectRatio="none"
-                    viewBox={`0 0 100 ${route.height + 4}`}
-                  >
-                    <path className={styles.connectorShadow} d={route.full} />
-                    <path className={styles.connectorBase} d={route.full} />
-                    {route.segments.map((segment, index) => (
-                      <path
-                        className={
-                          segment.active
-                            ? styles.connectorActive
-                            : styles.connectorLocked
-                        }
-                        d={segment.d}
-                        key={`${unit.id}:route:${index}`}
-                      />
-                    ))}
-                    <path className={styles.connectorShine} d={route.full} />
-                  </svg>
-
-                  {unit.nodes.map((node, index) => {
-                    const nodeOffset =
-                      ROADMAP_NODE_OFFSETS[
-                        index % ROADMAP_NODE_OFFSETS.length
-                      ] ?? ROADMAP_NODE_OFFSETS[0];
-                    const selected = selectedNodeId === node.id;
-                    const progress =
-                      ((node.completedLessons ?? 0) /
-                        Math.max(1, node.totalLessons ?? 1)) *
-                      360;
-                    const jumpable = node.status === "locked" && index === 0;
-                    return (
-                      <div
-                        className={`${styles.nodeRow} ${
-                          selected ? styles.nodeRowSelected : ""
-                        }`}
-                        key={node.id}
-                        style={
-                          {
-                            "--node-offset": `${nodeOffset}%`,
-                            top: `${index * ROADMAP_NODE_ROW_HEIGHT}px`,
-                          } as CSSProperties
-                        }
-                      >
-                        <button
-                          aria-label={node.title || unit.title}
-                          className={`${styles.pathNode} ${roadmapStatusClass(
-                            styles,
-                            node.status,
-                          )} ${jumpable ? styles.nodeJumpable : ""} ${
-                            node.legendCompleted ? styles.nodeLegend : ""
-                          } ${node.chestClaimable ? styles.nodeClaimable : ""} ${
-                            node.type === "score" ? styles.scoreNode : ""
-                          }`}
-                          onClick={() => {
-                            if (
-                              category === "grammar" &&
-                              node.status !== "locked"
-                            ) {
-                              startNode(node);
-                              return;
-                            }
-                            setSelectedNodeId((current) =>
-                              current === node.id ? null : node.id,
-                            );
-                          }}
-                          style={
-                            { "--node-progress": `${progress}deg` } as CSSProperties
-                          }
-                          type="button"
-                        >
-                          <span className={styles.nodeFace}>
-                            {node.type === "chest" ? (
-                              <span className={styles.chestIcon}>🎁</span>
-                            ) : node.type === "score" ? (
-                              <b className={styles.scoreNumber}>
-                                {node.scoreValue ?? unit.unitNumber}
-                              </b>
-                            ) : jumpable ? (
-                              <span className={styles.playIcon}>▶</span>
-                            ) : (
-                              <RoadmapNodeIcon node={node} />
-                            )}
-                          </span>
-                        </button>
-
-                        {node.status === "current" && !selected ? (
-                          <span
-                            className={styles.currentMascot}
-                            style={
-                              {
-                                "--mascot-left": `${
-                                  nodeOffset > 50
-                                    ? nodeOffset - 28
-                                    : nodeOffset + 20
-                                }%`,
-                              } as CSSProperties
-                            }
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img alt="" src="/characters/hangulmon_default.png" />
-                          </span>
-                        ) : null}
-
-                        {selected ? (
-                          <RoadmapPopover
-                            canJump={jumpable}
-                            node={node}
-                            onClaim={() => void claimChest()}
-                            onClose={() => setSelectedNodeId(null)}
-                            onJump={() => jumpToUnit(unit)}
-                            onLegend={() => legendNode(node)}
-                            onReview={() => reviewNode(node)}
-                            onStart={() => startNode(node)}
-                            unit={unit}
-                          />
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
+        <div
+          className={`${map.scroll} ${selectedNodeId ? map.scrollOpen : ""}`}
+          onClick={() => setSelectedNodeId(null)}
+          ref={scrollRef}
+        >
+          {units.map((unit) => (
+            <section
+              className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
+              id={unit.id}
+              key={unit.id}
+              onClick={(event) => event.stopPropagation()}
+              ref={(element) => {
+                if (element) unitRefs.current.set(unit.id, element);
+                else unitRefs.current.delete(unit.id);
+              }}
+              style={{ position: "relative" }}
+            >
+              <UnitRoadmap
+                avatar={user?.avatar}
+                directStart={category === "grammar"}
+                onNodeStart={startNode}
+                onNodeTap={(nodeId) => setSelectedNodeId((current) => (current === nodeId ? null : nodeId))}
+                renderPopover={({ index, node, onClose, triangleOffsetX }) => (
+                  <NodePopover
+                    canJump={index === 0 && node.status === "locked"}
+                    node={node}
+                    onClaimChest={() => void claimChest()}
+                    onClose={onClose}
+                    onGoLegend={() => goLegend(unit)}
+                    onJumpTest={() => jumpToUnit(unit)}
+                    onLegend={() => legendNode(node)}
+                    onReview={() => reviewNode(node)}
+                    onStart={() => startNode(node)}
+                    triangleOffsetX={triangleOffsetX}
+                    unit={unit}
+                  />
+                )}
+                selectedNodeId={selectedNodeId}
+                unit={unit}
+              />
+            </section>
+          ))}
 
           {nextSection ? (
-            <section className={styles.nextLevelCard}>
-              <span className={styles.nextLevelBadge}>KEYINGI BO&apos;LIM</span>
-              <div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" src="/characters/hangulmon_default.png" />
-                <LearningIcon name="lock" size={21} />
-                <strong>{nextSection.title}</strong>
-              </div>
-              <p>{nextSection.description}</p>
-              <button
-                className={styles.nextSectionJump}
-                onClick={() => {
-                  const params = new URLSearchParams({
-                    category: category ?? "",
-                    section: String(nextSection.sectionNumber),
-                    target: "section",
-                    unit: String(nextSection.firstUnitNumber || 1),
-                  });
-                  router.push(`/jump-start?${params.toString()}`);
-                }}
-                type="button"
-              >
-                Shu yerga o&apos;tasizmi?
-              </button>
-            </section>
+            <NextSectionLocked
+              description={nextSection.description}
+              onJump={() => {
+                setSelectedNodeId(null);
+                const params = new URLSearchParams({
+                  category: category ?? "",
+                  section: String(nextSection.sectionNumber),
+                  target: "section",
+                  unit: String(nextSection.firstUnitNumber || 1),
+                });
+                router.push(`/jump-start?${params.toString()}`);
+              }}
+              sectionNumber={nextSection.sectionNumber}
+              title={nextSection.title}
+            />
           ) : null}
         </div>
       )}
 
+      {/* current 유닛으로 점프 버튼 */}
       {!loading && units.length > 0 ? (
-        <button
-          aria-label="Hozirgi darsga o'tish"
-          className={styles.jumpCurrent}
-          onClick={() => {
+        <JumpToCurrent
+          color={units[currentUnitIndex]?.color ?? "#776ee2"}
+          direction={isPastSection ? "back" : visibleUnitIndex > currentUnitIndex ? "up" : "down"}
+          label="Hozirgi darsga o'tish"
+          onPress={() => {
+            // 지난 섹션을 보고 있으면 "현재 섹션으로 돌아가기" — 그 안엔 current 유닛이 없다
             if (isPastSection) {
               setViewSection(undefined);
               return;
@@ -532,15 +395,7 @@ export function RoadmapScreen() {
               .get(units[currentUnitIndex]?.id ?? "")
               ?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
-          style={{ "--jump-color": visibleUnit?.color } as CSSProperties}
-          type="button"
-        >
-          {isPastSection
-            ? "↶"
-            : visibleUnitIndex > currentUnitIndex
-              ? "↑"
-              : "↓"}
-        </button>
+        />
       ) : null}
 
       {sheetOpen ? (

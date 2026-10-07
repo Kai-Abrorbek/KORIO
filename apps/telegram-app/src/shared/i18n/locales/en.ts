@@ -2270,6 +2270,8 @@ export default {
   studyPath: {
     sectionStart: "Section {{n}} begins",
     levelShort: "Lv.{{n}}",
+    nextLevelBadge: "Next level",
+    nextLevelJump: "Take the test to skip ahead",
     lockedHint: "Opens once you finish the step before",
     preview: "Preview",
     lessonProgress: "Ring {{done}}/{{total}}",
