@@ -24,16 +24,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  FadeIn,
-  SlideInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import {
@@ -104,21 +94,6 @@ export default function AppUpdateGate() {
     return () => sub.remove();
   }, [check]);
 
-  // 새 버전 아이콘이 살짝 떠 있는 느낌
-  const bob = useSharedValue(0);
-  useEffect(() => {
-    if (!info) return;
-    bob.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 900, easing: Easing.inOut(Easing.quad) }),
-        withTiming(0, { duration: 900, easing: Easing.inOut(Easing.quad) }),
-      ),
-      -1,
-      true,
-    );
-  }, [info, bob]);
-  const bobStyle = useAnimatedStyle(() => ({ transform: [{ translateY: bob.value }] }));
-
   if (!info) return null;
   const force = info.forceUpdate;
 
@@ -139,22 +114,23 @@ export default function AppUpdateGate() {
     <Modal
       transparent
       statusBarTranslucent
-      animationType="none"
+      navigationBarTranslucent
+      // 모달은 페이드로만 열고 닫는다 (스프링·팝·둥실 금지)
+      animationType="fade"
       // 필수 업데이트면 안드로이드 뒤로가기로도 못 닫는다
       onRequestClose={force ? () => undefined : () => void later()}
     >
-      <Animated.View entering={FadeIn.duration(180)} style={s.backdrop}>
+      <View style={s.backdrop}>
         {force ? null : <Pressable style={StyleSheet.absoluteFill} onPress={() => void later()} />}
-        <Animated.View
-          entering={SlideInDown.springify().damping(18).stiffness(160)}
+        <View
           style={[
             s.sheet,
             { backgroundColor: theme.surface, paddingBottom: insets.bottom + 18 },
           ]}
         >
-          <Animated.View style={[s.iconWrap, { backgroundColor: theme.primary }, bobStyle]}>
+          <View style={[s.iconWrap, { backgroundColor: theme.primary }]}>
             <Ionicons name={force ? "construct" : "rocket"} size={34} color="#fff" />
-          </Animated.View>
+          </View>
 
           <View style={[s.versionPill, { backgroundColor: theme.primary + "1F" }]}>
             <Text style={[s.versionPillText, { color: theme.primary }]}>
@@ -194,8 +170,8 @@ export default function AppUpdateGate() {
               </Text>
             </Pressable>
           )}
-        </Animated.View>
-      </Animated.View>
+        </View>
+      </View>
     </Modal>
   );
 }

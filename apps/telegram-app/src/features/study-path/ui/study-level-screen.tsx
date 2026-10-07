@@ -52,9 +52,12 @@ export function StudyLevelScreen() {
 
   /** 잠긴 급을 열 시험 시작 — 바로 아래 급의 졸업 시험을 본다 */
   const startExam = () => {
-    const examLevel = examTarget?.level.examLevel;
+    if (!examTarget) return;
+    // 서버가 examLevel 을 안 줘도 바로 아래 급 시험으로 간다
+    // (예전엔 값이 없으면 시트만 닫히고 아무 일도 안 일어났다)
+    const examLevel =
+      examTarget.level.examLevel ?? Math.max(1, examTarget.level.level - 1);
     setExamTarget(null);
-    if (!examLevel) return;
     router.push(`/lesson?mode=levelExam&from=studyPath&examLevel=${examLevel}`);
   };
 

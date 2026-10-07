@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import Animated, {
   FadeInDown,
-  SlideInDown,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -278,17 +277,17 @@ function PremiumSheet({
   t: (k: string, o?: any) => string;
 }) {
   return (
+    // 모달은 페이드로만 열고 닫는다 (스프링·팝 금지)
     <Modal
       transparent
       visible={visible}
       animationType="fade"
+      statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={onClose}
     >
       <Pressable style={st.overlay} onPress={onClose} />
-      <Animated.View
-        entering={SlideInDown.springify().damping(18)}
-        style={[st.sheet, { paddingBottom: bottomInset + 24 }]}
-      >
+      <View style={[st.sheet, { paddingBottom: bottomInset + 24 }]}>
         <View style={st.handle} />
         <View style={st.crownWrap}>
           <Ionicons name="star" size={40} color={C.gold} />
@@ -309,7 +308,7 @@ function PremiumSheet({
         <Pressable onPress={onClose} style={{ paddingVertical: 10 }}>
           <Text style={st.later}>{t("grammarList.premiumLater")}</Text>
         </Pressable>
-      </Animated.View>
+      </View>
     </Modal>
   );
 }

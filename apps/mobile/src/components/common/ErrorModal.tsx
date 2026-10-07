@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, Modal, Pressable } from "react-native";
-import Animated, { ZoomIn, FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
@@ -20,15 +19,14 @@ export default function ErrorModal() {
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      // 모달은 페이드로만 열고 닫는다 (스프링·팝 금지)
+      animationType="fade"
+      statusBarTranslucent
       onRequestClose={dismiss}
     >
-      <Animated.View entering={FadeIn.duration(150)} style={s.backdrop}>
+      <View style={s.backdrop}>
         <Pressable style={StyleSheet.absoluteFill} onPress={dismiss} />
-        <Animated.View
-          entering={ZoomIn.springify().damping(15).mass(0.7)}
-          style={s.card}
-        >
+        <View style={s.card}>
           <View style={s.iconWrap}>
             <Ionicons name="warning" size={32} color="#fff" />
           </View>
@@ -43,8 +41,8 @@ export default function ErrorModal() {
           <Pressable onPress={dismiss} hitSlop={6} style={s.closeBtn}>
             <Text style={s.closeT}>{t("errors.close")}</Text>
           </Pressable>
-        </Animated.View>
-      </Animated.View>
+        </View>
+      </View>
     </Modal>
   );
 }

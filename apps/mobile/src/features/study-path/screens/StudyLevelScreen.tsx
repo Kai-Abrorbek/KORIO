@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -12,11 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, {
-  FadeIn,
-  FadeInDown,
-  SlideInDown,
-} from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
@@ -60,6 +57,11 @@ export default function StudyLevelScreen() {
     level: StudyLevel;
     color: string;
   } | null>(null);
+  // 닫히는 동안(페이드 아웃)에도 내용이 남아 있게 마지막 대상을 쥐고 있는다.
+  // 안 그러면 visible=false 와 동시에 내용이 사라져 빈 배경만 깜빡인다
+  const lastExamRef = useRef(examTarget);
+  if (examTarget) lastExamRef.current = examTarget;
+  const sheetTarget = examTarget ?? lastExamRef.current;
 
   useEffect(() => {
     StudyPathService.getLevels()
@@ -73,9 +75,13 @@ export default function StudyLevelScreen() {
 
   /** 잠긴 급을 열 시험 시작 — 바로 아래 급의 졸업 시험을 본다 */
   const startExam = useCallback(() => {
-    const examLevel = examTarget?.level.examLevel;
+    if (!examTarget) return;
+    // 서버가 examLevel 을 안 줘도(옛 응답) 바로 아래 급 시험으로 간다.
+    // 예전엔 값이 없으면 시트만 닫히고 아무 일도 안 일어났다
+    const examLevel =
+      examTarget.level.examLevel ?? Math.max(1, examTarget.level.level - 1);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setExamTarget(null);
-    if (!examLevel) return;
     router.push({
       pathname: "/lesson",
       params: {
@@ -300,46 +306,49 @@ export default function StudyLevelScreen() {
         </ScrollView>
       )}
 
-      {/* 시험으로만 열리는 급 — 무엇을 보면 열리는지 알려주고 바로 시작 */}
+      {/* 시험으로만 열리는 급 — 무엇을 보면 열리는지 알려주고 바로 시작.
+          Modal 안에서는 reanimated entering/exiting 을 절대 쓰지 않는다:
+          보이는 위치와 터치 위치가 어긋나 버튼이 안 눌린다. 열고 닫기는 페이드만. */}
       <Modal
         visible={!!examTarget}
         transparent
-        animationType="none"
+        animationType="fade"
         statusBarTranslucent
+        navigationBarTranslucent
         onRequestClose={() => setExamTarget(null)}
       >
-        {examTarget ? (
-          <View style={styles.sheetRoot}>
-            <Animated.View
-              entering={FadeIn.duration(180)}
+        {sheetTarget ? (
+          <GestureHandlerRootView style={styles.sheetRoot}>
+            <Pressable
               style={StyleSheet.absoluteFill}
+              onPress={() => setExamTarget(null)}
             >
-              <Pressable
-                style={styles.backdrop}
-                onPress={() => setExamTarget(null)}
-              />
-            </Animated.View>
-            <Animated.View
-              entering={SlideInDown.springify().damping(18)}
-              style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}
+              <View style={styles.backdrop} />
+            </Pressable>
+            <View
+              style={[
+                styles.sheet,
+                { paddingBottom: Math.max(insets.bottom, 12) + 12 },
+              ]}
             >
               <View style={styles.grabber} />
               <View
                 style={[
                   styles.sheetIcon,
-                  { backgroundColor: examTarget.color },
+                  { backgroundColor: sheetTarget.color },
                 ]}
               >
                 <View style={styles.sheetIconShine} />
                 <Ionicons name="ribbon" size={34} color="#fff" />
               </View>
               <Text style={styles.sheetTitle}>
-                {t("studyLevel.examTitle", { n: examTarget.level.level })}
+                {t("studyLevel.examTitle", { n: sheetTarget.level.level })}
               </Text>
               <Text style={styles.sheetBody}>
                 {t("studyLevel.examBody", {
-                  n: examTarget.level.level,
-                  prev: examTarget.level.examLevel ?? examTarget.level.level - 1,
+                  n: sheetTarget.level.level,
+                  prev:
+                    sheetTarget.level.examLevel ?? sheetTarget.level.level - 1,
                 })}
               </Text>
 
@@ -353,11 +362,11 @@ export default function StudyLevelScreen() {
                 <View
                   style={[
                     styles.sheetCtaDepth,
-                    { backgroundColor: darken(examTarget.color, 38) },
+                    { backgroundColor: darken(sheetTarget.color, 38) },
                   ]}
                 />
                 <LinearGradient
-                  colors={[examTarget.color, darken(examTarget.color, 14)]}
+                  colors={[sheetTarget.color, darken(sheetTarget.color, 14)]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.sheetCta}
@@ -377,8 +386,8 @@ export default function StudyLevelScreen() {
                   {t("studyLevel.examCancel")}
                 </Text>
               </Pressable>
-            </Animated.View>
-          </View>
+            </View>
+          </GestureHandlerRootView>
         ) : null}
       </Modal>
     </View>
