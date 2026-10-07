@@ -56,6 +56,7 @@ import EnergySurge from "@/components/lesson/EnergySurge";
 import { ENERGY_MAX } from "@/constants/energy";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import { shuffleGrammarQuestions } from "@/utils/shuffle";
+import { listeningScript } from "@/utils/listening";
 import {
   normalizeOnboardingPlacement,
   resolveOnboardingPlacement,
@@ -131,9 +132,12 @@ function automaticSpeechOf(
       text = question.audioText || question.answer;
       break;
     case "word_arrange":
-    case "listening":
     case "listen_type":
       text = question.answer;
+      break;
+    case "listening":
+      // 듣고 고르기는 정답이 아니라 대화(audioText)를 읽는다 — 정답을 읽으면 찍기가 된다
+      text = listeningScript(question);
       break;
     case "listen_fill":
       text = fillTemplate(
@@ -226,6 +230,9 @@ export default function LessonScreen() {
   const isUnitPractice = mode === "unitPractice";
   // 급수 졸업 시험 — 하트 제한이 있고 결과를 전용 화면에서 본다
   const isLevelExam = mode === "levelExam";
+  // 하트(기회)를 쓰는 시험 — 틀리면 하트 -1, 다 쓰면 그 자리에서 끝(불합격).
+  // 졸업 시험은 예전에 틀린 문제를 복습 라운드에서 다시 풀게 해서 무한 기회였다
+  const usesHearts = isJumpTest || isLevelExam;
   const isGrammarTrack = category === "grammar" && !isJumpTest;
   const unitKind: StudyQuizKind = STUDY_QUIZ_KINDS.includes(
     kind as StudyQuizKind,
@@ -282,6 +289,9 @@ export default function LessonScreen() {
   const correctCount = useRef(0);
   const totalCount = useRef(0);
   const wrongIds = useRef<string[]>([]);
+  // 졸업 시험에서 실제로 답한 문제. 중간에 하트를 다 쓰고 끝나면 안 푼 문제까지
+  // 서버에 보내면 안 된다 (맞힌 수가 부풀려진다)
+  const examAnsweredIds = useRef<Set<string>>(new Set());
   const jumpAttemptId = useRef<string | null>(null);
   const [jumpHeartLimit, setJumpHeartLimit] = useState(fallbackHeartLimit);
   const [showQuit, setShowQuit] = useState(false);
@@ -378,8 +388,8 @@ export default function LessonScreen() {
   }, [userEnergy]);
 
   useEffect(() => {
-    if (isJumpTest) setHearts(jumpHeartLimit);
-  }, [isJumpTest, jumpHeartLimit]);
+    if (usesHearts) setHearts(jumpHeartLimit);
+  }, [usesHearts, jumpHeartLimit]);
 
   // 복습 모드: 화면 벗어날 때(중간 이탈 포함) 그때까지 맞춘 문제를 오답에서 제거
   useEffect(() => {
@@ -464,9 +474,9 @@ export default function LessonScreen() {
       }
 
       if (isLevelExam) {
-        const { questions } = await StudyPathService.getLevelExam(
-          Number(examLevel) || undefined,
-        );
+        const { questions, hearts: limit } =
+          await StudyPathService.getLevelExam(Number(examLevel) || undefined);
+        if (limit) setJumpHeartLimit(limit);
         setLesson({
           lessonId: "level-exam",
           lessonTitle: "Level Exam",
@@ -777,6 +787,7 @@ export default function LessonScreen() {
 
     totalCount.current += 1;
     recordAnswer(question, isCorrect);
+    if (isLevelExam) examAnsweredIds.current.add(question.id);
 
     // ── 에너지 ── 본풀이 문제는 **맞든 틀리든** 한 문제당 1.
     // 같은 문제를 다시 묻는 건 공짜다: 레슨 뒤 오답 복습 라운드(phase "review"),
@@ -864,7 +875,7 @@ export default function LessonScreen() {
       }
     } else {
       setCombo(0);
-      if (isJumpTest) {
+      if (usesHearts) {
         wrongIds.current.push(question.id);
         setHearts((h) => Math.max(0, h - 1));
       } else if (isGrammarTrack && phase === "main") {
@@ -919,7 +930,8 @@ export default function LessonScreen() {
     const question = questionQueue.current[0];
     if (!question || answerSubmissionLocked.current) return;
 
-    if (isJumpTest) {
+    // 시험(점프·졸업)은 건너뛰기 = 오답(하트 -1). 조용히 넘기면 하트 하나 안 잃고 통과한다
+    if (usesHearts) {
       answerSubmissionLocked.current = true;
       commitAnswer(question, false);
       return;
@@ -971,7 +983,7 @@ export default function LessonScreen() {
     }
   };
 
-  const finishLesson = async () => {
+  const finishLesson = async (heartsOut = false) => {
     // 완료 정산 전에 날아가 있는 차감이 서버에 닿게 한다. 안 그러면 정산이 그 몫을
     // "아직 안 깎임" 으로 보고 한 번 더 깎는다 (마지막 정답 직후 바로 끝낼 때)
     energySettled.current = true;
@@ -1020,8 +1032,9 @@ export default function LessonScreen() {
       try {
         const res = await StudyPathService.completeLevelExam({
           level: Number(examLevel) || undefined,
-          questionIds: practicedIds,
-          wrongQuestionIds: wrongArr,
+          // 실제로 답한 문제만. 하트를 다 써서 중간에 끝났으면 거기까지다
+          questionIds: [...examAnsweredIds.current],
+          wrongQuestionIds: wrongIds.current,
           speedSeconds: seconds,
         });
         // 보석도 같이 갈아 끼운다. 예전엔 XP 만 반영해서, 결과 화면은
@@ -1043,6 +1056,9 @@ export default function LessonScreen() {
             xp: String(res.xpEarned),
             // 다시 도전할 때 같은 급 시험을 다시 보게
             examLevel: examLevel ?? "",
+            // 기회를 다 써서 끝났는지 — 결과 화면 문구가 달라진다
+            heartsOut: heartsOut ? "1" : "",
+            hearts: String(jumpHeartLimit),
           },
         });
         return;
@@ -1288,8 +1304,9 @@ export default function LessonScreen() {
     setIsCheckingAnswer(false);
     setShowCombo(false);
 
-    if (isJumpTest && hearts <= 0) {
-      finishJumpTest(true);
+    if (usesHearts && hearts <= 0) {
+      if (isJumpTest) finishJumpTest(true);
+      else await finishLesson(true);
       return;
     }
     // 현재 문제 큐에서 제거
@@ -1389,7 +1406,7 @@ export default function LessonScreen() {
           energy={energy}
           hearts={hearts}
           maxHearts={jumpHeartLimit}
-          showHearts={isJumpTest}
+          showHearts={usesHearts}
           answerState={answerState}
           onClose={() =>
             isJumpTest || isLevelTest ? goHome() : setShowQuit(true)

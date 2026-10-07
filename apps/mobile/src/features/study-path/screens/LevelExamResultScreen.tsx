@@ -39,9 +39,15 @@ export default function LevelExamResultScreen() {
     xp?: string;
     /** 잠긴 급을 열려고 본 시험이면 그 급. 다시 도전할 때 같은 시험으로 */
     examLevel?: string;
+    /** "1" = 기회(하트)를 다 써서 중간에 끝났다 */
+    heartsOut?: string;
+    /** 이 시험의 기회 수 */
+    hearts?: string;
   }>();
 
   const passed = params.passed === "1";
+  const heartsOut = !passed && params.heartsOut === "1";
+  const hearts = Number(params.hearts) || 5;
   const correct = Number(params.correct ?? 0);
   const total = Number(params.total ?? 0);
   const level = Number(params.level ?? 1);
@@ -69,16 +75,22 @@ export default function LevelExamResultScreen() {
           entering={FadeInDown.delay(120).duration(360)}
           style={[styles.title, { color }]}
         >
-          {t(passed ? "levelExam.passedTitle" : "levelExam.missedTitle", {
-            n: level,
-          })}
+          {passed
+            ? t("levelExam.passedTitle", { n: level })
+            : heartsOut
+              ? t("levelExam.heartsOutTitle")
+              : t("levelExam.missedTitle", { n: level })}
         </Animated.Text>
 
         <Animated.Text
           entering={FadeInDown.delay(180).duration(360)}
           style={styles.subtitle}
         >
-          {t(passed ? "levelExam.passedBody" : "levelExam.missedBody")}
+          {passed
+            ? t("levelExam.passedBody")
+            : heartsOut
+              ? t("levelExam.heartsOutBody", { hearts })
+              : t("levelExam.missedBody")}
         </Animated.Text>
 
         <Animated.View

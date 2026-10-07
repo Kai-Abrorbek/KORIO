@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CSSProperties } from "react";
 
+import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { WEAK_AREA_LABELS } from "../model/misc";
 import styles from "./celebration-screen.module.css";
@@ -12,6 +13,9 @@ export function LevelExamResultScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const passed = params.get("passed") === "1";
+  // 기회(하트)를 다 써서 중간에 끝났는지 — 앱 LevelExamResultScreen 과 같은 문구
+  const heartsOut = !passed && params.get("heartsOut") === "1";
+  const hearts = Number(params.get("hearts")) || 5;
   const correct = Math.max(0, Number(params.get("correct")) || 0);
   const total = Math.max(0, Number(params.get("total")) || 0);
   const level = Math.max(1, Number(params.get("level")) || 1);
@@ -26,8 +30,8 @@ export function LevelExamResultScreen() {
       {passed ? <div className={styles.examConfetti} aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} style={{ "--i": index } as CSSProperties} />)}</div> : null}
       <section className={styles.examContent}>
         <Image alt="Haneulmon" className={styles.examMascot} height={passed ? 170 : 150} src={`/characters/hangulmon_${passed ? "celebrating" : "default"}.png`} unoptimized width={passed ? 170 : 150} />
-        <h1>{passed ? `${level}-daraja o'tildi!` : `${level}-daraja, ozgina qoldi`}</h1>
-        <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring."}</p>
+        <h1>{passed ? `${level}-daraja o'tildi!` : heartsOut ? uzt("levelExam.heartsOutTitle") : `${level}-daraja, ozgina qoldi`}</h1>
+        <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : heartsOut ? uzt("levelExam.heartsOutBody", { hearts }) : "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring."}</p>
         <div className={styles.examScore}><b>{ratio}%</b><span>{`${total} savoldan ${correct} tasi to'g'ri`}</span></div>
         {passed && (gems > 0 || xp > 0) ? <div className={styles.examRewards}>
           {gems > 0 ? <span><MobileIcon name="diamond" size={19} />+{gems}</span> : null}

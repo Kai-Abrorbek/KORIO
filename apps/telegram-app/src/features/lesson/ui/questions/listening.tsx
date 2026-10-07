@@ -4,103 +4,91 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
-import { AUTO_SPEECH_DELAY_MS, shuffle, useLessonSpeech, type QuestionProps } from "./shared";
-import styles from "./questions.module.css";
+import { AUTO_SPEECH_DELAY_MS, haptic, shuffle, useLessonSpeech, type QuestionProps } from "./shared";
+import q from "./questions.module.css";
+import styles from "./reading.module.css";
 
 /**
- * 듣고 단어 고르기 (listening) — 모바일 questions/Listening.
- * 뜨자마자 한 번 읽고, 큰 스피커(읽는 동안 두근) + 거북이(느리게),
- * 점선 칸에 단어를 눌러 쌓고(다시 누르면 빠짐), 아래 은행엔 빈자리를 남긴다.
+ * 듣고 고르기(listening)가 들려줄 말 — 앱 utils/listening.ts 와 같다.
+ * 시드의 "여자: … 남자: …" 화자 표시는 빼고 읽는다. audioText 가 없는 옛 문항만 정답으로 대신한다.
  */
-interface Word {
-  id: string;
-  word: string;
-  placed: boolean;
-  order: number;
+const SPEAKER_LABEL = /(^|[\s.?!,])([가-힣A-Za-z]{1,4})\s*:\s*/g;
+export function listeningScript(question: { audioText?: string; answer?: string }): string {
+  const raw = (question.audioText || question.answer || "").trim();
+  return raw.replace(SPEAKER_LABEL, "$1 ").replace(/\s+/g, " ").trim();
 }
 
-export function Listening({ answerState, onAnswer, question }: QuestionProps) {
+/**
+ * 듣고 고르기 (listening) — 모바일 questions/Listening 과 같다. TOPIK 듣기처럼
+ * 대화(audioText)를 듣고, 질문(instruction)에 맞는 답을 보기 4개 중에서 고른다.
+ * 들려준 문장은 화면에 안 보여준다 — 귀로 풀어야 한다.
+ *
+ * ⚠️ 예전엔 audioText 를 무시하고 정답 문장을 읽은 뒤 같은 문장을 고르게 해서 찍기였다.
+ */
+export function Listening({ answerState, onAnswer, onSkip, question }: QuestionProps) {
   const { speak, speakAuto, speaking } = useLessonSpeech();
   const auto = useRef(false);
-  const initial = useMemo(
-    () => shuffle(question.options ?? question.answer.split(" ")).map((word, index) => ({ id: `w-${index}`, order: 0, placed: false, word })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [question.id],
-  );
-  const [words, setWords] = useState<Word[]>(initial);
+  const [selected, setSelected] = useState<string | null>(null);
+  const locked = answerState !== "idle";
+  const script = listeningScript(question);
+  // 시드는 정답을 첫 칸에 적어 둔다 — 자리로 외우지 않게 섞는다 (한 문제 안에선 고정)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const options = useMemo(() => shuffle(question.options ?? []), [question.id]);
 
   useEffect(() => {
-    if (auto.current) return;
+    if (auto.current || !script) return;
     auto.current = true;
-    const timer = window.setTimeout(() => speakAuto(question.answer), AUTO_SPEECH_DELAY_MS);
+    const timer = window.setTimeout(() => speakAuto(script), AUTO_SPEECH_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [question.answer, speakAuto]);
-
-  const locked = answerState !== "idle";
-  const placed = words.filter((word) => word.placed).sort((a, b) => a.order - b.order);
-
-  const place = (id: string) => {
-    if (locked) return;
-    setWords((current) => {
-      const max = Math.max(0, ...current.filter((word) => word.placed).map((word) => word.order));
-      return current.map((word) => (word.id === id ? { ...word, order: max + 1, placed: true } : word));
-    });
-  };
-  const unplace = (id: string) => {
-    if (locked) return;
-    setWords((current) => current.map((word) => (word.id === id ? { ...word, placed: false } : word)));
-  };
+  }, [script, speakAuto]);
 
   return (
-    <div className={styles.q}>
-      <h1 className={styles.title} style={{ marginBottom: 24 }}>Eshitganingizni tanlang</h1>
+    <div className={q.q}>
+      <h1 className={styles.clozeTitle} data-no-translate={question.question ? true : undefined} style={{ marginBottom: 18 }}>
+        {question.question || "Eshiting va tanlang"}
+      </h1>
 
-      <div className={styles.audioRow}>
+      <div className={q.audioRow} style={{ marginBottom: 22 }}>
         <button
           aria-label="Tinglash"
-          className={`${styles.bigSpeaker} ${speaking ? styles.pulsing : ""}`}
-          onClick={() => speak(question.answer)}
+          className={`${q.bigSpeaker} ${speaking ? q.pulsing : ""}`}
+          onClick={() => speak(script)}
           type="button"
         >
           <MobileIcon name="volume-high" size={36} />
         </button>
-        <button aria-label="Sekin tinglash" className={styles.slowSpeaker} onClick={() => speak(question.answer, { slow: true })} type="button">
+        <button aria-label="Sekin tinglash" className={q.slowSpeaker} onClick={() => speak(script, { slow: true })} type="button">
           <MobileIcon family="material-community" name="turtle" size={30} />
         </button>
       </div>
 
-      <div className={styles.placedArea}>
-        {placed.length === 0 ? (
-          <p className={styles.placeholder}>So&apos;zni bosing yoki sudrab olib keling</p>
-        ) : (
-          <div className={styles.chipRow}>
-            {placed.map((word) => (
-              <button className={styles.chip} data-no-translate disabled={locked} key={word.id} onClick={() => unplace(word.id)} type="button">
-                {word.word}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className={styles.divider} />
-
-      <div className={styles.chipRow}>
-        {words.map((word) =>
-          word.placed ? (
-            <span aria-hidden="true" className={`${styles.chip} ${styles.chipGhost}`} key={word.id}>
-              <span style={{ opacity: 0 }}>{word.word}</span>
+      {options.map((option, index) => {
+        const selectedHere = selected === option;
+        return (
+          <button
+            className={`${styles.option} ${selectedHere ? styles.optionOn : ""}`}
+            disabled={locked}
+            key={option}
+            onClick={() => {
+              if (locked) return;
+              haptic();
+              setSelected((current) => (current === option ? null : option));
+            }}
+            type="button"
+          >
+            <span className={styles.optionBadge}>{String.fromCharCode(65 + index)}</span>
+            <span className={styles.optionText} data-no-translate>
+              {option}
             </span>
-          ) : (
-            <button className={styles.chip} data-no-translate disabled={locked} key={word.id} onClick={() => place(word.id)} type="button">
-              {word.word}
-            </button>
-          ),
-        )}
-      </div>
+          </button>
+        );
+      })}
 
       <CheckButton
-        disabled={placed.length === 0 || locked}
-        onClick={() => placed.length > 0 && !locked && onAnswer(placed.map((word) => word.word).join(" "))}
+        disabled={!selected || locked}
+        onClick={() => selected && !locked && onAnswer(selected)}
+        onSkip={onSkip}
+        skipLabel={!locked ? "Tinglash mashqini o'tkazib yuborish" : undefined}
       />
     </div>
   );

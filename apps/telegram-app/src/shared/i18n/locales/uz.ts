@@ -2261,6 +2261,9 @@ export default {
     passedTitle: "{{n}}-daraja o'tildi!",
     passedBody: "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz.",
     missedTitle: "{{n}}-daraja, ozgina qoldi",
+    heartsOutTitle: "Imkoniyatlar tugadi",
+    heartsOutBody:
+      "{{hearts}} marta xato qilsangiz, imtihon tugaydi. Quyidagi qismlarni yana bir ko'rib chiqing va qayta urinib ko'ring.",
     missedBody:
       "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring.",
     score: "{{total}} savoldan {{correct}} tasi to'g'ri",

@@ -32,7 +32,10 @@ export const StudyPathService = {
     api.post("/study-path/levels", { level }),
 
   /** 급수 졸업 시험 문제. level 이 있으면 그 급 시험 (잠긴 급을 열 때) */
-  getLevelExam: (level?: number): Promise<{ level: number; questions: any[] }> =>
+  /** hearts = 기회 수. 이만큼 틀리면 시험이 끝난다 (서버 LEVEL_EXAM.hearts) */
+  getLevelExam: (
+    level?: number,
+  ): Promise<{ level: number; hearts?: number; questions: any[] }> =>
     api.get(
       `/study-path/level-exam?lang=${encodeURIComponent(getLang())}` +
         (level ? `&level=${level}` : ""),

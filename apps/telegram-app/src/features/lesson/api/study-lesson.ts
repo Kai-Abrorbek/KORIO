@@ -7,7 +7,8 @@ type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 export function getLevelExam(
   request: AuthenticatedRequest,
   level?: number,
-): Promise<{ level: number; questions: LessonQuestion[] }> {
+  // hearts = 기회 수. 이만큼 틀리면 시험이 끝난다 (서버 LEVEL_EXAM.hearts)
+): Promise<{ level: number; hearts?: number; questions: LessonQuestion[] }> {
   return request(`/study-path/level-exam?lang=${getContentLang()}${level ? `&level=${level}` : ""}`);
 }
 

@@ -2256,6 +2256,9 @@ export default {
     passedTitle: "Level {{n}} passed!",
     passedBody: "Getting here is no small thing. On to the next level.",
     missedTitle: "Level {{n}} — so close",
+    heartsOutTitle: "Out of chances",
+    heartsOutBody:
+      "The exam ends after {{hearts}} mistakes. Review the parts below once more and try again.",
     missedBody:
       "The next level opens once you pass. Review these and give it another shot.",
     score: "{{correct}} of {{total}} correct",

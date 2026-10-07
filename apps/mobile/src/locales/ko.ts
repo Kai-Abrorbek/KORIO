@@ -2250,6 +2250,9 @@ export default {
     passedTitle: "{{n}}급 통과!",
     passedBody: "여기까지 온 게 대단해요. 다음 급으로 가요.",
     missedTitle: "{{n}}급, 거의 다 왔어요",
+    heartsOutTitle: "기회를 다 썼어요",
+    heartsOutBody:
+      "{{hearts}}번 틀리면 시험이 끝나요. 아래 부분만 한 번 더 보고 다시 도전해 봐요.",
     missedBody:
       "다음 급은 시험을 통과해야 열려요. 아래 부분만 한 번 더 보고 다시 도전해 봐요.",
     score: "{{total}}문제 중 {{correct}}개 정답",

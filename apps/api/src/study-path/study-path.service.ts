@@ -357,7 +357,8 @@ export class StudyPathService {
       lang,
       LEVEL_EXAM.questions,
     );
-    return { level, ...exam };
+    // 기회 수는 서버가 정한다 — 앱은 이 값으로 하트를 그린다
+    return { level, hearts: LEVEL_EXAM.hearts, ...exam };
   }
 
   /**
@@ -407,7 +408,8 @@ export class StudyPathService {
     // 문항 수의 80% 미만을 냈으면 시험을 친 것으로 보지 않는다
     // (중간 이탈은 여기서 걸러지고, 조작된 요청도 같이 걸린다)
     const enough = total >= Math.ceil(LEVEL_EXAM.questions * 0.8);
-    const passed = enough && correct / total >= LEVEL_EXAM.passRatio;
+    // 기회(하트)를 다 쓰면 불합격. 앱은 그 순간 시험을 끝내고 여기로 온다
+    const passed = enough && wrongIds.length < LEVEL_EXAM.hearts;
 
     if (!enough && (dto.questionIds ?? []).length > 0) {
       this.logger.warn(
@@ -423,9 +425,14 @@ export class StudyPathService {
       speedSeconds: dto.speedSeconds,
     });
 
+    // 떨어지면 맞힌 만큼만 (최대 1/3). 하트가 생기면서 시험이 몇 문제 만에 끝날 수
+    // 있게 됐다 — 고정 1/3 을 주면 일부러 다섯 번 틀리고 XP 를 받아 가는 판이 된다
+    const failXp = Math.round(
+      (LEVEL_EXAM.xp / 3) * Math.min(1, correct / LEVEL_EXAM.questions),
+    );
     const xpRes = await this.lessonsService.addXp(
       userId,
-      passed ? LEVEL_EXAM.xp : Math.round(LEVEL_EXAM.xp / 3),
+      passed ? LEVEL_EXAM.xp : failXp,
     );
 
     // 통과 보상은 급수당 한 번만.

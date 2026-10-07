@@ -181,6 +181,9 @@ export function LessonScreen() {
   const isJump = mode === "jumpTest";
   const isLegend = mode === "legend";
   const isLevelExam = mode === "levelExam";
+  // 하트(기회)를 쓰는 시험 — 틀리면 하트 -1, 다 쓰면 그 자리에서 끝(불합격). 앱 lesson.tsx 와 같다.
+  // 졸업 시험은 예전에 틀린 문제를 복습 라운드에서 다시 풀게 해서 무한 기회였다
+  const usesHearts = isJump || isLevelExam;
   const isOnboardingLevelTest = mode === "levelTest";
   const isReview = mode === "review";
   // 에너지가 바닥나서 들어온 "복습으로 에너지 벌기" 판 — 짧게 끝내고 원래 자리로 (앱과 같다)
@@ -219,6 +222,8 @@ export function LessonScreen() {
   const firstWrongInstances = useRef(new Set<string>());
   const finalWrongIds = useRef(new Set<string>());
   const allWrongIds = useRef(new Set<string>());
+  // 졸업 시험에서 실제로 답한 문제 — 하트를 다 쓰고 끝나면 안 푼 문제는 보내지 않는다
+  const answeredQuestionIds = useRef(new Set<string>());
   const reviewQuestions = useRef(new Map<string, LessonQuestion>());
   const nextRef = useRef<() => Promise<void>>(async () => undefined);
   const grammarRetryCounts = useRef(new Map<string, number>());
@@ -275,6 +280,7 @@ export function LessonScreen() {
     firstWrongInstances.current.clear();
     finalWrongIds.current.clear();
     allWrongIds.current.clear();
+    answeredQuestionIds.current.clear();
     reviewQuestions.current.clear();
     grammarRetryCounts.current.clear();
     reviewCorrectIds.current.clear();
@@ -379,6 +385,9 @@ export function LessonScreen() {
         };
       } else if (isLevelExam) {
         const result = await getLevelExam(request, examLevel);
+        const limit = result.hearts ?? 5;
+        setHeartLimit(limit);
+        setHearts(limit);
         next = {
           category: "",
           lessonId: "level-exam",
@@ -474,6 +483,7 @@ export function LessonScreen() {
     const firstAttempt = !answeredInstances.current.has(current.instanceId);
     if (firstAttempt) {
       answeredInstances.current.add(current.instanceId);
+      answeredQuestionIds.current.add(current.question.id);
       totalCount.current += 1;
       recordAnswer(current.question, correct);
       if (correct) {
@@ -486,7 +496,7 @@ export function LessonScreen() {
         finalWrongIds.current.add(current.question.id);
         // 앱과 같은 규칙: 문법 트랙은 몇 문제 뒤에 다시 내고(next 에서),
         // 그 밖의 학습은 틀린 문제를 모아 마지막에 복습한다
-        if (!isJump && !isOnboardingLevelTest && !isGrammarTrack && phase === "main") {
+        if (!usesHearts && !isOnboardingLevelTest && !isGrammarTrack && phase === "main") {
           reviewQuestions.current.set(current.question.id, current.question);
         }
       }
@@ -503,7 +513,7 @@ export function LessonScreen() {
       setCombo(0);
       // 틀려도 문제당 1 (앱과 같다)
       spendEnergy(current.question.id, null);
-      if (isJump && firstAttempt) setHearts((value) => Math.max(0, value - 1));
+      if (usesHearts && firstAttempt) setHearts((value) => Math.max(0, value - 1));
       setAnswerState("wrong");
     }
     setGradeFeedback(serverGrade);
@@ -602,7 +612,8 @@ export function LessonScreen() {
    */
   const skipQuestion = () => {
     if (!current || answerState !== "idle" || checking) return;
-    if (isJump) {
+    // 시험(점프·졸업)은 건너뛰기 = 오답(하트 -1)
+    if (usesHearts) {
       commitGrade(false);
       return;
     }
@@ -621,7 +632,7 @@ export function LessonScreen() {
     router.replace(`/lesson-complete?${query.toString()}`);
   };
 
-  const finish = async () => {
+  const finish = async (heartsOut = false) => {
     if (!session || finishing) return;
     setFinishing(true);
     // 정산 전에 날아가 있는 차감이 서버에 닿게 한다 — 안 그러면 정산이 그 몫을 한 번 더 깎는다
@@ -678,9 +689,10 @@ export function LessonScreen() {
       if (isLevelExam) {
         const result = await completeLevelExam(request, {
           level: examLevel,
-          questionIds,
+          // 실제로 답한 문제만. 하트를 다 써서 중간에 끝났으면 거기까지다
+          questionIds: [...answeredQuestionIds.current],
           speedSeconds: elapsed,
-          wrongQuestionIds: wrong,
+          wrongQuestionIds: [...allWrongIds.current],
         });
         // 보석도 같이 갈아 끼운다 — 결과 화면은 "+보석" 을 보여 주는데 헤더는 옛 값이면 안 된다
         updateUser({
@@ -699,6 +711,9 @@ export function LessonScreen() {
           xp: String(result.xpEarned),
           // 다시 도전할 때 같은 급 시험을 다시 보게
           examLevel: examLevel ? String(examLevel) : "",
+          // 기회를 다 써서 끝났는지 — 결과 화면 문구가 달라진다
+          heartsOut: heartsOut ? "1" : "",
+          hearts: String(heartLimit),
         });
         router.replace(`/level-exam-result?${query.toString()}`);
         return;
@@ -864,8 +879,8 @@ export function LessonScreen() {
         return;
       }
     }
-    if (isJump && hearts <= 0) {
-      await finish();
+    if (usesHearts && hearts <= 0) {
+      await finish(true);
       return;
     }
     let nextQueue = queue;
@@ -984,7 +999,7 @@ export function LessonScreen() {
           onClose={close}
           progress={progress / 100}
           showCombo={answerState === "correct"}
-          showHearts={isJump}
+          showHearts={usesHearts}
         />
       )}
 

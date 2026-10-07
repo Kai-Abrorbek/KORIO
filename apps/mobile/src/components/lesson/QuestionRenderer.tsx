@@ -80,7 +80,7 @@ export default function QuestionRenderer({
     case "word_matching":
       return <WordMatching {...props} />;
     case "listening":
-      return <Listening {...props} speech={speech} />;
+      return <Listening {...props} onSkip={onSkip} speech={speech} />;
     case "listen_type":
       return (
         <ListenType {...props} isChecking={isChecking} speech={speech} />
