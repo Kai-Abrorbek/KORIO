@@ -193,3 +193,48 @@
 .dialogSecondary.dialogSecondary{color:var(--muted);font-size:14px;font-weight:800}
 .option.option{color:var(--text)}
 .freezeRow.freezeRow{color:var(--text)}
+
+/* ── 퀘스트 v2 — 난이도 칸 · 바꾸기 · 미스터리 상자 (앱 DailyQuestsCard 와 같다) ── */
+.rerollInfo{display:flex;align-items:center;gap:4px;margin:-4px 0 4px;color:var(--muted);font-size:11.5px;font-weight:700}
+.qHead{display:flex;align-items:center;gap:6px}
+.tierChip{border-radius:7px;background:color-mix(in srgb,var(--tc) 12%,transparent);color:var(--td);padding:2px 7px;font-size:10.5px;font-style:normal;font-weight:900;letter-spacing:.2px}
+.promoMark{display:grid;place-items:center}
+.qTitleWrap.qTitleWrap{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;line-height:1.3}
+.qRightCol{flex-direction:column;align-items:flex-end;gap:6px}
+.rerollBtn.rerollBtn{display:grid;width:28px;height:28px;place-items:center;border:1.5px solid var(--border);border-radius:50%;background:var(--app-bg);color:var(--muted);padding:0}
+.rerollBtn:active{transform:translateY(1px);opacity:.8}
+.mystery{background:rgb(255 176 32/12%);color:#d48a00;padding:6px 9px}
+.chestGot{color:#d48a00;font-size:13px;font-weight:900}
+
+/* ── 월간 챌린지 ── */
+.monthHead{display:flex;align-items:center;gap:14px}
+.monthText{display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.monthText .title{white-space:normal}
+.monthBadgeLine{margin-top:2px;color:var(--muted);font-size:12px;font-weight:800}
+.monthBadgeEarned{color:var(--md)}
+.monthTrackWrap{position:relative;display:flex;align-items:center;height:28px;margin:18px 14px 26px 0}
+.monthTrack{position:relative;flex:1;height:12px;border-radius:6px;background:var(--border);overflow:hidden}
+.monthTrack>i{position:absolute;inset:0 auto 0 0;border-radius:6px;background:var(--mc);transition:width .8s cubic-bezier(.22,1,.36,1)}
+.monthTrack>i::after{content:"";position:absolute;top:2px;left:4px;right:4px;height:3px;border-radius:2px;background:rgb(255 255 255/35%)}
+.markerSlot{position:absolute;top:0;display:flex;flex-direction:column;align-items:center;width:28px;margin-left:-14px}
+.markerSlot>b{margin-top:3px;color:var(--muted);font-size:10.5px;font-weight:900}
+.marker.marker{display:grid;width:28px;height:28px;place-items:center;border:2px solid var(--border);border-bottom-width:3px;border-radius:50%;background:var(--surface);color:var(--muted);padding:0}
+.markerDone.markerDone{border-color:var(--md);background:var(--mc);color:#fff}
+.markerReady.markerReady{border-color:#d48a00;background:#ffb020;color:#fff}
+.monthBadges{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+
+/* 배지 — 45° 돌린 둥근 사각형(마름모) + 아래 두께 */
+.badge{position:relative;display:inline-grid;flex:none;width:var(--bs);height:calc(var(--bs) + 4px);place-items:start center}
+.badgeFace{position:absolute;top:calc(var(--bs) * .14);width:calc(var(--bs) * .72);height:calc(var(--bs) * .72);border:1.5px solid rgb(255 255 255/35%);border-radius:28%;background:var(--bc);box-shadow:0 3px 0 var(--bd);transform:rotate(45deg);overflow:hidden}
+.badgeFace::after{content:"";position:absolute;top:5px;left:6px;width:50%;height:16%;border-radius:99px;background:rgb(255 255 255/40%)}
+.badgeIcon{position:absolute;inset:0 0 4px;display:grid;place-items:center;color:#fff}
+.badgeTag{position:absolute;bottom:0;left:50%;min-width:20px;height:16px;border:1.5px solid #fff;border-radius:8px;background:var(--bd);color:#fff;padding:0 4px;font-size:9.5px;font-weight:900;line-height:13px;text-align:center;transform:translateX(-50%)}
+.badgeLocked .badgeFace{border-color:var(--border, #eceaf6);background:var(--border, #eceaf6);box-shadow:0 3px 0 rgb(85 85 95/30%)}
+.badgeLocked .badgeFace::after{display:none}
+.badgeLocked .badgeIcon{color:var(--muted, #6b6b78)}
+.badgesSection{margin:0 20px 24px}
+.badgesSection>h2{margin:0 0 12px;color:var(--text, #1a1a2e);font-size:18px;font-weight:800}
+.badgesScroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.badgeItem{display:flex;flex:none;flex-direction:column;align-items:center;width:64px}
+.badgeItem>b{margin-top:6px;color:var(--text, #1a1a2e);font-size:11.5px;font-weight:800}
+.badgeItem>small{color:var(--muted, #6b6b78);font-size:10px;font-weight:700}

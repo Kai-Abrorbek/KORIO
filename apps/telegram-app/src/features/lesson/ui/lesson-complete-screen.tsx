@@ -12,6 +12,7 @@ import { viaStreakChest } from "../../misc/model/streak-chest-route";
 import styles from "./lesson.module.css";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { shareMessage } from "../../../shared/telegram/share";
+import { reportQuestEvent } from "../../retention/api/retention";
 
 function displayTime(raw: string | null): string {
   if (raw?.includes(":")) return raw;
@@ -149,6 +150,8 @@ export function LessonCompleteScreen() {
     const text = lines.join("\n");
     try {
       await shareMessage(text, "Dars tugadi!");
+      // 일일 퀘스트 "내 공부 기록 공유하기"
+      void reportQuestEvent(request, "shareProgress");
     } finally {
       sharing.current = false;
     }

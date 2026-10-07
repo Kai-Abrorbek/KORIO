@@ -34,6 +34,7 @@ import {
   isSuperActive,
   isSuperStale,
 } from './super.util';
+import { bumpQuestCounter } from './utils/quest-counter.util';
 import { presenceFor } from './presence.util';
 import {
   computeSkillScores,
@@ -417,6 +418,8 @@ export class UsersService {
       totalXP: user.totalXP || 0,
       streak: streakCurrent,
       league: user.league,
+      // 월간 챌린지 배지 (달 키, 최근 순) — 친구 프로필에도 보인다
+      questBadges: [...((user as any).questBadges ?? [])].sort().reverse(),
       isSuper: isSuperActive(user),
       superTier: isSuperActive(user)
         ? (user.superTier === 'max' ? 'max' : 'super')
@@ -821,12 +824,25 @@ export class UsersService {
     const target = await this.userModel.findById(targetUserId);
     if (!target) throw new NotFoundException('대상 유저를 찾을 수 없습니다');
 
-    await this.userModel.findByIdAndUpdate(currentUserId, {
-      $addToSet: { following: new Types.ObjectId(targetUserId) },
-    });
+    // 새로 팔로우한 경우만 일일 퀘스트 "친구 팔로우" 로 센다 (이미 팔로우 중이면 그대로)
+    const added = await this.userModel.updateOne(
+      {
+        _id: new Types.ObjectId(currentUserId),
+        following: { $ne: new Types.ObjectId(targetUserId) },
+      },
+      { $addToSet: { following: new Types.ObjectId(targetUserId) } },
+    );
     await this.userModel.findByIdAndUpdate(targetUserId, {
       $addToSet: { followers: new Types.ObjectId(currentUserId) },
     });
+    if (added.modifiedCount) {
+      await bumpQuestCounter(
+        this.statsModel,
+        currentUserId,
+        startOfDay(new Date(), await this.getTimezone(currentUserId)),
+        'follow',
+      );
+    }
 
     // 팔로우 당한 쪽에 알림. 실패해도 팔로우 자체는 성공시킨다.
     const me = await this.userModel

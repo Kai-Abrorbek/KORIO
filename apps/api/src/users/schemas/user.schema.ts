@@ -284,9 +284,31 @@ export class User {
   @Prop({ type: Date, default: null })
   superFreezeGrantedAt?: Date | null;
 
-  /** 일일 퀘스트 — 그날 받은 보상 id 들 (진행도는 UserStats 에서 읽는다) */
+  /**
+   * 일일 퀘스트 — 그날 깔린 퀘스트(picks)·받은 칸·바꾼 횟수.
+   * 진행도는 UserStats 에서 읽는다. picks 가 없으면(옛 기록) 그날 처음 볼 때 뽑는다.
+   */
   @Prop({ type: Object, default: null })
-  dailyQuestState?: { day: string; claimed: string[] } | null;
+  dailyQuestState?: {
+    day: string;
+    claimed: string[];
+    picks?: {
+      slot: string;
+      kind: string;
+      target: number;
+      category?: string;
+      promo?: boolean;
+    }[];
+    rerolls?: number;
+  } | null;
+
+  /** 월간 챌린지 — 이번 달 받은 퀘스트 수와 받은 칸 */
+  @Prop({ type: Object, default: null })
+  monthlyQuest?: { month: string; count: number; claimed: number[] } | null;
+
+  /** 월간 챌린지 배지 — 달 키 목록 ('2026-10'). 프로필에 보인다 */
+  @Prop({ type: [String], default: [] })
+  questBadges?: string[];
 
   /** 복습으로 번 에너지 — 하루 상한용 */
   @Prop({ type: Object, default: null })

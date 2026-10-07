@@ -8,6 +8,7 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { GeneratedAvatar, AVATAR_BACKGROUNDS, getAvatarHeaderContentColor } from "../../league/ui/generated-avatar";
 import { getMe } from "../api/profile";
 import { TIER_COLORS, TIER_LABELS, type UserMe } from "../model/profile";
+import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import styles from "./profile-screen.module.css";
 
 export function ProfileScreen() {
@@ -77,6 +78,9 @@ export function ProfileScreen() {
             <Stat icon="diamond" color="#45B7D1" value={`${profile.gems ?? 0} gavhar`} />
           </div>
         </section>
+
+        {/* 월간 챌린지 배지 — 없으면 안 보인다 (앱과 같다) */}
+        <QuestBadgesRow badges={profile.questBadges} />
 
         <section className={styles.friendStreak}>
           <h2>Do‘st bilan ketma-ket o‘qish</h2>

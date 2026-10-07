@@ -13,6 +13,7 @@ import WeeklyProgressChart from "@/components/friend-profile/WeeklyProgressChart
 import LearningStatusGrid from "@/components/profile/LearningStatusGrid";
 import ReportBlockSection from "@/components/friend-profile/ReportBlockSection";
 import FollowedBySection from "@/components/friend-profile/FollowedBySection";
+import QuestBadgesRow from "@/features/retention/components/QuestBadgesRow";
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -131,6 +132,8 @@ export default function FriendProfileScreen() {
         isFollowedBy={isFollowedBy}
         onPress={toggleFollow}
       />
+
+      <QuestBadgesRow badges={user.questBadges} />
 
       <WeeklyProgressChart
         points={points}

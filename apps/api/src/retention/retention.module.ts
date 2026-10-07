@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
+import {
+  UserMistake,
+  UserMistakeSchema,
+} from '../users/schemas/user-mistake.schema';
 import { UsersModule } from '../users/users.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { RetentionController } from './retention.controller';
@@ -16,6 +20,7 @@ import { RetentionService } from './retention.service';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: UserStats.name, schema: UserStatsSchema },
+      { name: UserMistake.name, schema: UserMistakeSchema },
     ]),
     UsersModule,
     PaymentsModule,

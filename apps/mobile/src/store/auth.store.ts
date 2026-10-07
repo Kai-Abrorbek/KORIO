@@ -45,6 +45,8 @@ export interface User {
   /** 무료 체험을 이미 써봤는지. 만료돼도 true 로 남는다 */
   hasUsedTrial?: boolean;
   streakFreeze?: number;
+  /** 월간 챌린지 배지 (달 키 "2026-10") */
+  questBadges?: string[];
   gems?: number;
   energy?: number;
   followingCount?: number;

@@ -1,5 +1,10 @@
 import type {
+  MonthlyView,
+  QuestChestResult,
+  QuestEventType,
   QuestId,
+  QuestSlotId,
+  QuestsView,
   RetentionSummary,
   StreakGoalPage,
 } from "../model/retention";
@@ -26,10 +31,42 @@ export function ackFreezeNotice(request: AuthenticatedRequest) {
   return request<{ success: boolean }>("/retention/freeze/notice/ack", post());
 }
 
-export function claimQuest(request: AuthenticatedRequest, id: QuestId | "chest") {
-  return request<{ gems: number; reward: number }>(
-    "/retention/quests/claim",
-    post({ id }),
+export function claimQuest(
+  request: AuthenticatedRequest,
+  id: QuestSlotId | QuestId | "chest",
+) {
+  return request<{
+    gems: number;
+    reward: number;
+    monthly?: MonthlyView;
+    chest?: QuestChestResult;
+    xpBoost?: { until: string; multiplier: number } | null;
+  }>("/retention/quests/claim", post({ id }));
+}
+
+/** 한 칸 바꾸기 */
+export function rerollQuest(request: AuthenticatedRequest, slot: QuestSlotId) {
+  return request<{ quests: QuestsView }>("/retention/quests/reroll", post({ slot }));
+}
+
+/** 공유·초대처럼 서버가 못 보는 행동을 알린다 (실패해도 조용히) */
+export async function reportQuestEvent(
+  request: AuthenticatedRequest,
+  type: QuestEventType,
+): Promise<QuestsView | null> {
+  try {
+    const res = await request<{ quests: QuestsView }>("/retention/quests/event", post({ type }));
+    return res.quests;
+  } catch {
+    return null;
+  }
+}
+
+/** 월간 챌린지 칸 보상 */
+export function claimMonthly(request: AuthenticatedRequest, at: number) {
+  return request<{ gems: number; reward: number; badge: string | null; monthly: MonthlyView }>(
+    "/retention/monthly/claim",
+    post({ at }),
   );
 }
 

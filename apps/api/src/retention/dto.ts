@@ -1,5 +1,6 @@
 import { IsIn, IsInt } from 'class-validator';
-import { STREAK_GOALS } from './retention.config';
+import { MONTHLY_CHALLENGE, STREAK_GOALS } from './retention.config';
+import { QUEST_EVENT_KEYS } from '../users/utils/quest-counter.util';
 
 export class StartStreakGoalDto {
   @IsInt()
@@ -8,6 +9,32 @@ export class StartStreakGoalDto {
 }
 
 export class ClaimQuestDto {
-  @IsIn(['xp', 'correct', 'minutes', 'chest'])
+  // 새 앱은 칸(easy·normal·hard·bonus), 옛 앱은 종류(xp·correct·minutes)로 보낸다
+  @IsIn([
+    'easy',
+    'normal',
+    'hard',
+    'bonus',
+    'chest',
+    'xp',
+    'correct',
+    'minutes',
+  ])
   id: string;
+}
+
+export class RerollQuestDto {
+  @IsIn(['easy', 'normal', 'hard', 'bonus'])
+  slot: string;
+}
+
+export class QuestEventDto {
+  @IsIn(QUEST_EVENT_KEYS)
+  type: string;
+}
+
+export class ClaimMonthlyDto {
+  @IsInt()
+  @IsIn(MONTHLY_CHALLENGE.MILESTONES.map((m) => m.at))
+  at: number;
 }

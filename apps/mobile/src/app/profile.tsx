@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import { UserService } from "@/services/user.service";
+import QuestBadgesRow from "@/features/retention/components/QuestBadgesRow";
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -75,6 +76,9 @@ export default function ProfileScreen() {
         totalXp={profile.totalXp}
         gems={user?.gems ?? 0}
       />
+
+      {/* 월간 챌린지 배지 — 없으면 안 보인다 */}
+      <QuestBadgesRow badges={user?.questBadges} />
 
       <FriendStreakSection
         streaks={profile.friendStreaks}

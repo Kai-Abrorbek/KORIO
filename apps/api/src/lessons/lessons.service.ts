@@ -147,6 +147,8 @@ import {
   type JumpTestCategory,
 } from './jump-test.util';
 import { normalizeBuilderChips } from './chip-builder.util';
+import { DAILY_QUESTS } from '../retention/retention.config';
+import { bumpQuestCounter } from '../users/utils/quest-counter.util';
 
 /**
  * 에너지를 쓰는 연습 모드 — 학습 로드의 문제 레슨들.
@@ -1186,13 +1188,28 @@ export class LessonsService {
       await this.usersService.getTimezone(userId),
     );
 
+    // 일일 퀘스트 카운터 — 한 판(문제 SESSION_MIN_QUESTIONS 개 이상)을 끝냈나,
+    // 정답률 90% 이상인가, 실수 없이 끝냈나
+    const isSession = total >= DAILY_QUESTS.SESSION_MIN_QUESTIONS;
+    const correctCount = Math.max(0, total - wrong);
+    const questInc: Record<string, number> = isSession
+      ? {
+          'questCounters.sessions': 1,
+          ...(correctCount / total >= DAILY_QUESTS.ACCURATE_RATIO
+            ? { 'questCounters.accurate': 1 }
+            : {}),
+          ...(wrong === 0 ? { 'questCounters.perfect': 1 } : {}),
+        }
+      : {};
+
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
       {
         $inc: {
+          ...questInc,
           studyTimeSeconds: seconds,
           totalQuestions: total,
-          correctQuestions: Math.max(0, total - wrong),
+          correctQuestions: correctCount,
           xpEarned: xp,
           ...buildCategoryStatsInc(
             items,
@@ -1726,7 +1743,7 @@ export class LessonsService {
     // 오답 노트에서 맞힌 것들은 그 자리에서 해소로 본다. 노트는 유저가
     // 의식하고 다시 푸는 자리라 연속 두 번을 기다릴 필요가 없다.
     const now = new Date();
-    await this.userMistakeModel.updateMany(
+    const res = await this.userMistakeModel.updateMany(
       {
         userId: new Types.ObjectId(userId),
         questionId: { $in: validIds.map((id) => new Types.ObjectId(id)) },
@@ -1734,6 +1751,16 @@ export class LessonsService {
       },
       { $set: { resolvedAt: now, streak: MISTAKE_RESOLVE_STREAK } },
     );
+    // 일일 퀘스트 "오답 n개 해결" — 실제로 해소된 것만 센다
+    if (res.modifiedCount) {
+      await bumpQuestCounter(
+        this.userStatsModel,
+        userId,
+        startOfDay(now, await this.usersService.getTimezone(userId)),
+        'mistakes',
+        res.modifiedCount,
+      );
+    }
 
     return { removed: validIds.length };
   }

@@ -7,6 +7,7 @@ import uz from "../../../shared/i18n/locales/uz";
 
 export type QuestId = "xp" | "correct" | "minutes";
 
+/** 옛 모양 (서버가 옛 앱용으로 같이 보낸다) */
 export interface QuestItem {
   id: QuestId;
   target: number;
@@ -15,6 +16,59 @@ export interface QuestItem {
   claimed: boolean;
   gems: number;
 }
+
+/** 칸 — 쉬움·보통·어려움 + SUPER 보너스 (앱 services/retention.service 와 같다) */
+export type QuestSlotId = "easy" | "normal" | "hard" | "bonus";
+
+export type QuestKind =
+  | "xp"
+  | "correct"
+  | "minutes"
+  | "sessions"
+  | "accurate"
+  | "perfect"
+  | "mistakes"
+  | "category"
+  | "follow"
+  | "shareProgress"
+  | "shareInvite";
+
+export type QuestEventType = "shareProgress" | "shareInvite";
+
+export interface QuestSlot {
+  id: QuestSlotId;
+  slot: QuestSlotId;
+  kind: QuestKind;
+  category: string | null;
+  promo: boolean;
+  target: number;
+  progress: number;
+  done: boolean;
+  claimed: boolean;
+  gems: number;
+}
+
+export interface QuestsView {
+  day: string;
+  items: QuestItem[];
+  slots?: QuestSlot[];
+  rerolls?: { used: number; max: number; left: number };
+  chest: { gems: number; ready: boolean; claimed: boolean };
+}
+
+export interface MonthlyView {
+  month: string;
+  count: number;
+  target: number;
+  daysLeft: number;
+  milestones: { at: number; gems: number; badge: boolean; reached: boolean; claimed: boolean }[];
+  badges: string[];
+}
+
+export type QuestChestResult =
+  | { type: "gems"; gems: number }
+  | { type: "xpBoost"; minutes: number; multiplier: number }
+  | { type: "freeze"; owned: number };
 
 export interface StreakGoalOption {
   days: number;
@@ -51,11 +105,9 @@ export interface RetentionSummary {
   gems: number;
   streak: number;
   freeze: FreezeView;
-  quests: {
-    day: string;
-    items: QuestItem[];
-    chest: { gems: number; ready: boolean; claimed: boolean };
-  };
+  quests: QuestsView;
+  /** 옛 서버는 안 보낸다 */
+  monthly?: MonthlyView;
   checkin: CheckinView | null;
   comeback: {
     idleDays: number;

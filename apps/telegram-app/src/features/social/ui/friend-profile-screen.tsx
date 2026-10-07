@@ -10,6 +10,7 @@ import { languageFlag, type FriendProfile, type WeeklyDay } from "../model/socia
 import { ErrorState, FriendAvatar, LoadingState, goBack, shareText } from "./social-parts";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import styles from "./social.module.css";
+import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import { alertDialog } from "../../../shared/telegram/dialogs";
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -75,6 +76,7 @@ export function FriendProfileScreen() {
       </section>
       <FollowedBy profile={profile} />
       {!profile.isMe ? <button className={`${styles.profileFollow} ${following ? styles.profileFollowing : profile.isFollowedBy ? styles.profileFollowBack : ""}`} disabled={busy} onClick={() => void toggleFollow()} type="button"><MobileIcon name="person-add" size={20} />{following ? "Obuna bo‘lingan" : profile.isFollowedBy ? "Javoban kuzatish" : "Obuna bo‘lish"}</button> : null}
+      <QuestBadgesRow badges={profile.questBadges} />
       <WeeklyChart meXp={meXp} name={profile.nickname} points={points} themXp={themXp} />
       <section className={styles.learningStatus}><h2>O‘qish holati</h2><div>
         <ProfileStat color="#FF7A00" icon="flame" value={`${profile.streak ?? 0} kun`} />

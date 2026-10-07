@@ -8,6 +8,8 @@ export interface FriendStreak {
 }
 
 export interface UserMe extends KorioTelegramUser {
+  /** 월간 챌린지 배지 (달 키 "2026-10") */
+  questBadges?: string[];
   email: string;
   nickname: string;
   username: string;

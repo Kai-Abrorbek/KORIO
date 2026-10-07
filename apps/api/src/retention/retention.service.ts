@@ -23,22 +23,82 @@ import {
   daysBetween,
   resolveTimezone,
   startOfDay,
+  startOfDayPlus,
 } from '../common/date.util';
+import {
+  UserMistake,
+  UserMistakeDocument,
+} from '../users/schemas/user-mistake.schema';
+import { isSuperActive } from '../users/super.util';
+import {
+  bumpQuestCounter,
+  QUEST_EVENT_KEYS,
+  type QuestCounterKey,
+} from '../users/utils/quest-counter.util';
 import {
   CHECKIN_REWARDS,
   COMEBACK,
   DAILY_QUESTS,
+  MONTHLY_CHALLENGE,
+  QUEST_CHEST_FREEZE_FALLBACK_GEMS,
   STREAK_FREEZE,
   STREAK_GOALS,
 } from './retention.config';
+import {
+  bandOf,
+  pickBonus,
+  pickDailyQuests,
+  rerollPick,
+  rollQuestChest,
+  type PickContext,
+  type QuestPick,
+} from './quest-picker';
 
 const DAY_MS = 86_400_000;
 const STUDIED = {
   $or: [{ xpEarned: { $gt: 0 } }, { totalQuestions: { $gt: 0 } }],
 };
 
-export type QuestId = 'xp' | 'correct' | 'minutes';
-export const QUEST_IDS: QuestId[] = ['xp', 'correct', 'minutes'];
+/** 옛 앱(퀘스트 3종 고정)이 아는 id */
+export const LEGACY_QUEST_IDS = ['xp', 'correct', 'minutes'] as const;
+export const QUEST_SLOT_IDS = ['easy', 'normal', 'hard', 'bonus'] as const;
+
+/** 상자 대표값 — 옛 앱이 상자 옆 숫자 칸에 그린다 (실제로는 랜덤) */
+const QUEST_CHEST_DISPLAY_GEMS = 50;
+
+/** 오늘 칸의 진행도 — 학습 통계 + 행동 카운터 */
+function progressOf(
+  pick: QuestPick,
+  row: {
+    xpEarned?: number;
+    correctQuestions?: number;
+    studyTimeSeconds?: number;
+    questCounters?: unknown;
+    categoryCounts?: unknown;
+  } | null,
+): number {
+  switch (pick.kind) {
+    case 'xp':
+      return row?.xpEarned ?? 0;
+    case 'correct':
+      return row?.correctQuestions ?? 0;
+    case 'minutes':
+      return Math.floor((row?.studyTimeSeconds ?? 0) / 60);
+    case 'category':
+      return Number(
+        (row?.categoryCounts as Record<string, number> | undefined)?.[
+          pick.category ?? ''
+        ] ?? 0,
+      );
+    default:
+      // sessions · accurate · perfect · mistakes · follow · shareProgress · shareInvite
+      return Number(
+        (row?.questCounters as Record<string, number> | undefined)?.[
+          pick.kind
+        ] ?? 0,
+      );
+  }
+}
 
 /**
  * 리텐션 장치 한 곳 — 복구펜 · 일일 퀘스트 · 복귀 보상 · 첫 7일 출석 · 연속 목표.
@@ -56,6 +116,8 @@ export class RetentionService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(UserStats.name)
     private readonly statsModel: Model<UserStatsDocument>,
+    @InjectModel(UserMistake.name)
+    private readonly mistakeModel: Model<UserMistakeDocument>,
     private readonly usersService: UsersService,
     private readonly gemPass: GemPassService,
   ) {}
@@ -82,6 +144,7 @@ export class RetentionService {
       streak: me.streak ?? 0,
       freeze: this.freezeView(me),
       quests,
+      monthly: this.monthlyView(me, today),
       checkin: this.checkinView(me, today),
       comeback,
       xpBoost:
@@ -156,123 +219,515 @@ export class RetentionService {
   // ─────────────────────────── 일일 퀘스트 ───────────────────────────
 
   /**
-   * 진행도는 따로 세지 않는다 — 그날의 학습 통계(UserStats)를 읽는다.
-   * 어떤 모드로 공부하든 recordStudy·grantXp 가 이미 쌓고 있다.
+   * 오늘의 퀘스트.
+   *
+   * 칸(쉬움·보통·어려움 + SUPER bonus)은 그날 처음 볼 때 뽑아서 저장한다
+   * (quest-picker — 유저·날짜 시드라 다시 뽑아도 같다). 진행도는 그날의 학습
+   * 통계(UserStats)와 행동 카운터(questCounters)에서 읽는다.
+   *
+   * items 는 **옛 앱용**이다 — 옛 앱은 xp·correct·minutes 세 종류만 알아서,
+   * 오늘 깔린 칸 중 그 종류인 것만 옛 모양으로 보내 준다 (모르는 id 를 받으면
+   * 홈이 죽는다). 새 앱은 slots 를 그린다.
    */
   private async questsFor(
     me: User & { _id: Types.ObjectId },
     tz: string,
     today: string,
   ) {
+    const isSuper = isSuperActive(me);
+    const state = await this.ensureQuestState(me, tz, today, isSuper);
+
     const row = await this.statsModel
       .findOne({ userId: me._id, date: startOfDay(new Date(), tz) })
-      .select('xpEarned correctQuestions studyTimeSeconds')
+      .select(
+        'xpEarned correctQuestions studyTimeSeconds questCounters categoryCounts',
+      )
       .lean();
 
-    const minutesTarget = Math.min(
-      DAILY_QUESTS.MINUTES_MAX,
-      Math.max(
-        DAILY_QUESTS.MINUTES_MIN,
-        me.dailyGoalMinutes || DAILY_QUESTS.MINUTES_DEFAULT,
-      ),
-    );
-    const raw: Record<QuestId, { target: number; progress: number }> = {
-      xp: { target: DAILY_QUESTS.XP_TARGET, progress: row?.xpEarned ?? 0 },
-      correct: {
-        target: DAILY_QUESTS.CORRECT_TARGET,
-        progress: row?.correctQuestions ?? 0,
-      },
-      minutes: {
-        target: minutesTarget,
-        progress: Math.floor((row?.studyTimeSeconds ?? 0) / 60),
-      },
-    };
-    const claimed =
-      me.dailyQuestState?.day === today
-        ? (me.dailyQuestState.claimed ?? [])
-        : [];
-
-    const items = QUEST_IDS.map((id) => {
-      const { target, progress } = raw[id];
-      return {
-        id,
-        target,
-        progress: Math.min(target, Math.max(0, progress)),
-        done: progress >= target,
-        claimed: claimed.includes(id),
-        gems: DAILY_QUESTS.QUEST_GEMS,
-      };
-    });
+    const slots = state.picks
+      // SUPER 가 끝났으면 bonus 칸은 숨긴다 (받을 수도 없다)
+      .filter((pick) => pick.slot !== 'bonus' || isSuper)
+      .map((pick) => {
+        const progress = progressOf(pick, row);
+        return {
+          id: pick.slot,
+          slot: pick.slot,
+          kind: pick.kind,
+          category: pick.category ?? null,
+          promo: !!pick.promo,
+          target: pick.target,
+          progress: Math.min(pick.target, Math.max(0, progress)),
+          done: progress >= pick.target,
+          claimed: state.claimed.includes(pick.slot),
+          gems: DAILY_QUESTS.REWARD[pick.slot] ?? 0,
+        };
+      });
+    const base = slots.filter((slot) => slot.slot !== 'bonus');
+    const rerollMax = isSuper
+      ? DAILY_QUESTS.REROLLS_SUPER
+      : DAILY_QUESTS.REROLLS_FREE;
 
     return {
       day: today,
-      items,
+      // 옛 앱용 (위 설명)
+      items: slots
+        .filter((slot) =>
+          (LEGACY_QUEST_IDS as readonly string[]).includes(slot.kind),
+        )
+        .map((slot) => ({
+          id: slot.kind,
+          target: slot.target,
+          progress: slot.progress,
+          done: slot.done,
+          claimed: slot.claimed,
+          gems: slot.gems,
+        })),
+      slots,
+      rerolls: {
+        used: state.rerolls,
+        max: rerollMax,
+        left: Math.max(0, rerollMax - state.rerolls),
+      },
       chest: {
-        gems: DAILY_QUESTS.CHEST_GEMS,
-        ready: items.every((q) => q.done),
-        claimed: claimed.includes('chest'),
+        // 뭐가 나올지 모르는 상자 — 옛 앱이 숫자 칸에 그릴 대표값
+        gems: QUEST_CHEST_DISPLAY_GEMS,
+        ready: base.length > 0 && base.every((slot) => slot.done),
+        claimed: state.claimed.includes('chest'),
       },
     };
   }
 
-  /** 퀘스트 보상 받기 (id = xp | correct | minutes | chest) */
-  async claimQuest(userId: string, id: string) {
-    const isChest = id === 'chest';
-    if (!isChest && !QUEST_IDS.includes(id as QuestId)) {
-      throw new BadRequestException('UNKNOWN_QUEST');
+  /** 오늘 깔린 칸을 돌려준다. 없으면(그날 처음) 뽑아서 저장한다 */
+  private async ensureQuestState(
+    me: User & { _id: Types.ObjectId },
+    tz: string,
+    today: string,
+    isSuper: boolean,
+  ): Promise<{ picks: QuestPick[]; claimed: string[]; rerolls: number }> {
+    const prev = me.dailyQuestState;
+    const sameDay = prev?.day === today;
+
+    if (sameDay && prev?.picks?.length) {
+      let picks = prev.picks as QuestPick[];
+      // 오늘 SUPER 가 됐다 — 이미 깔린 세 칸은 두고 bonus 만 붙인다
+      if (isSuper && !picks.some((pick) => pick.slot === 'bonus')) {
+        const bonus = pickBonus(
+          await this.pickContext(me, tz, today, isSuper),
+          picks,
+        );
+        if (bonus) {
+          await this.userModel.updateOne(
+            {
+              _id: me._id,
+              'dailyQuestState.day': today,
+              'dailyQuestState.picks.slot': { $ne: 'bonus' },
+            },
+            { $push: { 'dailyQuestState.picks': bonus } },
+          );
+          picks = [...picks, bonus];
+        }
+      }
+      return {
+        picks,
+        claimed: prev.claimed ?? [],
+        rerolls: prev.rerolls ?? 0,
+      };
     }
 
+    const picks = pickDailyQuests(
+      await this.pickContext(me, tz, today, isSuper),
+    );
+    // 배포 당일 옛 기록(picks 없음)이면 받은 것(상자 등)은 그대로 둔다
+    const claimed = sameDay ? (prev?.claimed ?? []) : [];
+    const res = await this.userModel.updateOne(
+      {
+        _id: me._id,
+        $or: [
+          { dailyQuestState: null },
+          { 'dailyQuestState.day': { $ne: today } },
+          { 'dailyQuestState.picks.0': { $exists: false } },
+        ],
+      },
+      { $set: { dailyQuestState: { day: today, claimed, picks, rerolls: 0 } } },
+    );
+    if (!res.modifiedCount) {
+      // 다른 요청(다른 기기)이 먼저 깔았다 — 그걸 쓴다
+      const fresh = await this.userModel
+        .findById(me._id)
+        .select('dailyQuestState')
+        .lean();
+      const st = fresh?.dailyQuestState;
+      if (st?.day === today && st.picks?.length) {
+        return {
+          picks: st.picks as QuestPick[],
+          claimed: st.claimed ?? [],
+          rerolls: st.rerolls ?? 0,
+        };
+      }
+    }
+    return { picks, claimed, rerolls: 0 };
+  }
+
+  /**
+   * 뽑기에 필요한 것 — 최근 7일 활동량(목표치 크기), 오답 수, 약한 분야.
+   * 오늘은 빼고 본다 (오늘 많이 했다고 오늘 목표가 커지면 안 된다).
+   */
+  private async pickContext(
+    me: User & { _id: Types.ObjectId },
+    tz: string,
+    today: string,
+    isSuper: boolean,
+  ): Promise<PickContext> {
+    const now = new Date();
+    const [rows, openMistakes] = await Promise.all([
+      this.statsModel
+        .find({
+          userId: me._id,
+          date: {
+            $gte: startOfDayPlus(now, -7, tz),
+            $lt: startOfDay(now, tz),
+          },
+        })
+        .select('xpEarned totalQuestions categoryCounts categoryCorrect')
+        .lean(),
+      this.mistakeModel.countDocuments({ userId: me._id, resolvedAt: null }),
+    ]);
+
+    const studied = rows.filter(
+      (r) => (r.xpEarned ?? 0) > 0 || (r.totalQuestions ?? 0) > 0,
+    );
+    const avgXp = studied.length
+      ? studied.reduce((sum, r) => sum + (r.xpEarned ?? 0), 0) / studied.length
+      : 0;
+
+    // 카테고리 퀘스트 — 최근에 실제로 푼 분야 중 정답률이 가장 낮은 곳.
+    // 안 해 본 분야(잠긴 기능일 수도)는 내지 않는다
+    const counts = new Map<string, number>();
+    const correct = new Map<string, number>();
+    for (const r of rows as any[]) {
+      for (const cat of DAILY_QUESTS.CATEGORIES) {
+        const n = Number(r.categoryCounts?.[cat] ?? 0);
+        if (n) counts.set(cat, (counts.get(cat) ?? 0) + n);
+        const c = r.categoryCorrect?.[cat];
+        if (c != null) correct.set(cat, (correct.get(cat) ?? 0) + Number(c));
+      }
+    }
+    const scored = [...counts.entries()]
+      .filter(([, n]) => n >= DAILY_QUESTS.CATEGORY_MIN_RECENT)
+      .map(([cat, n]) => ({
+        cat,
+        // 정답 기록이 없는 옛 데이터는 정답률을 모르니 뒤로 미룬다
+        acc: correct.has(cat) ? (correct.get(cat) ?? 0) / n : 2,
+      }))
+      .sort((a, b) => a.acc - b.acc);
+
+    return {
+      userId: me._id.toString(),
+      day: today,
+      band: bandOf(avgXp),
+      isSuper,
+      openMistakes,
+      category: scored[0]?.cat ?? null,
+    };
+  }
+
+  /**
+   * 퀘스트 보상 받기. id = easy | normal | hard | bonus | chest.
+   * 옛 앱은 xp | correct | minutes 로 보낸다 — 오늘 그 종류인 칸으로 바꿔 읽는다.
+   * 받을 때마다 월간 챌린지 칸이 하나 찬다 (상자는 안 센다).
+   */
+  async claimQuest(userId: string, id: string) {
     const me = await this.findMe(userId);
     const tz = resolveTimezone(me.timezone);
     const today = dayKey(new Date(), tz);
     const quests = await this.questsFor(me, tz, today);
 
-    const ready = isChest
-      ? quests.chest.ready
-      : quests.items.find((q) => q.id === id)?.done;
-    if (!ready) throw new BadRequestException('QUEST_NOT_DONE');
+    if (id === 'chest') {
+      if (!quests.chest.ready) throw new BadRequestException('QUEST_NOT_DONE');
+      return this.openQuestChest(me, today);
+    }
 
-    const reward = isChest ? DAILY_QUESTS.CHEST_GEMS : DAILY_QUESTS.QUEST_GEMS;
-    const sameDay = { $eq: ['$dailyQuestState.day', today] };
+    const slotId = (LEGACY_QUEST_IDS as readonly string[]).includes(id)
+      ? quests.slots.find((slot) => slot.kind === id)?.slot
+      : id;
+    const slot = quests.slots.find((s) => s.slot === slotId);
+    if (!slot) throw new BadRequestException('UNKNOWN_QUEST');
+    if (!slot.done) throw new BadRequestException('QUEST_NOT_DONE');
+
+    const reward = slot.gems;
+    const month = today.slice(0, 7);
+    const sameMonth = { $eq: ['$monthlyQuest.month', month] };
 
     // 오늘 이미 받았으면 조건에서 걸린다 (연타·두 기기)
     const updated = await this.userModel
       .findOneAndUpdate(
         {
           _id: me._id,
-          $nor: [
-            { 'dailyQuestState.day': today, 'dailyQuestState.claimed': id },
-          ],
+          'dailyQuestState.day': today,
+          'dailyQuestState.claimed': { $ne: slot.slot },
         },
         [
           {
             $set: {
-              dailyQuestState: {
-                day: today,
-                claimed: {
-                  $cond: [
-                    sameDay,
-                    {
-                      $concatArrays: [
-                        { $ifNull: ['$dailyQuestState.claimed', []] },
-                        [id],
-                      ],
-                    },
-                    [id],
-                  ],
-                },
+              'dailyQuestState.claimed': {
+                $concatArrays: [
+                  { $ifNull: ['$dailyQuestState.claimed', []] },
+                  [slot.slot],
+                ],
               },
               gems: { $add: [{ $ifNull: ['$gems', 0] }, reward] },
+              monthlyQuest: {
+                $cond: [
+                  sameMonth,
+                  {
+                    month,
+                    count: {
+                      $add: [{ $ifNull: ['$monthlyQuest.count', 0] }, 1],
+                    },
+                    claimed: { $ifNull: ['$monthlyQuest.claimed', []] },
+                  },
+                  { month, count: 1, claimed: [] },
+                ],
+              },
             },
           },
         ],
         { returnDocument: 'after', updatePipeline: true },
       )
-      .select('gems')
+      .select('gems monthlyQuest questBadges')
       .lean();
 
     if (!updated) throw new BadRequestException('QUEST_ALREADY_CLAIMED');
-    return { gems: updated.gems ?? 0, reward };
+    return {
+      gems: updated.gems ?? 0,
+      reward,
+      monthly: this.monthlyView(updated as User, today),
+    };
+  }
+
+  /** 상자 — 보석·XP 부스트·복구펜 중 하나. 하루 한 번 (조건부 원자 업데이트) */
+  private async openQuestChest(
+    me: User & { _id: Types.ObjectId },
+    today: string,
+  ) {
+    let roll = rollQuestChest();
+    // 복구펜이 이미 꽉 찼으면 보석으로 바꿔 준다
+    if (
+      roll.type === 'freeze' &&
+      (me.streakFreeze ?? 0) >= STREAK_FREEZE.MAX_HOLD
+    ) {
+      roll = { type: 'gems', gems: QUEST_CHEST_FREEZE_FALLBACK_GEMS };
+    }
+
+    const set: Record<string, unknown> = {
+      'dailyQuestState.claimed': {
+        $concatArrays: [
+          { $ifNull: ['$dailyQuestState.claimed', []] },
+          ['chest'],
+        ],
+      },
+    };
+    if (roll.type === 'gems') {
+      set.gems = { $add: [{ $ifNull: ['$gems', 0] }, roll.gems] };
+    } else if (roll.type === 'xpBoost') {
+      // 이미 켜져 있으면 끝나는 시각에 이어 붙인다
+      set.xpBoostUntil = {
+        $add: [
+          { $max: ['$$NOW', { $ifNull: ['$xpBoostUntil', '$$NOW'] }] },
+          roll.minutes * 60_000,
+        ],
+      };
+    } else {
+      set.streakFreeze = {
+        $min: [
+          STREAK_FREEZE.MAX_HOLD,
+          { $add: [{ $ifNull: ['$streakFreeze', 0] }, 1] },
+        ],
+      };
+    }
+
+    const updated = await this.userModel
+      .findOneAndUpdate(
+        {
+          _id: me._id,
+          'dailyQuestState.day': today,
+          'dailyQuestState.claimed': { $ne: 'chest' },
+        },
+        [{ $set: set }],
+        { returnDocument: 'after', updatePipeline: true },
+      )
+      .select('gems xpBoostUntil streakFreeze')
+      .lean();
+    if (!updated) throw new BadRequestException('QUEST_ALREADY_CLAIMED');
+
+    return {
+      gems: updated.gems ?? 0,
+      // 옛 앱은 이 숫자를 "+N 보석" 으로 띄운다
+      reward: roll.type === 'gems' ? roll.gems : 0,
+      chest:
+        roll.type === 'gems'
+          ? { type: 'gems' as const, gems: roll.gems }
+          : roll.type === 'xpBoost'
+            ? {
+                type: 'xpBoost' as const,
+                minutes: roll.minutes,
+                multiplier: COMEBACK.XP_MULTIPLIER,
+              }
+            : { type: 'freeze' as const, owned: updated.streakFreeze ?? 0 },
+      xpBoost:
+        updated.xpBoostUntil && new Date(updated.xpBoostUntil) > new Date()
+          ? {
+              until: new Date(updated.xpBoostUntil).toISOString(),
+              multiplier: COMEBACK.XP_MULTIPLIER,
+            }
+          : null,
+    };
+  }
+
+  /**
+   * 한 칸 바꾸기 — 하루 REROLLS_FREE 번 (SUPER 는 REROLLS_SUPER).
+   * 받았거나 이미 끝낸 칸은 못 바꾼다. 같은 난이도의 다른 퀘스트로.
+   */
+  async rerollQuest(userId: string, slotId: string) {
+    const me = await this.findMe(userId);
+    const tz = resolveTimezone(me.timezone);
+    const today = dayKey(new Date(), tz);
+    const quests = await this.questsFor(me, tz, today);
+
+    const slot = quests.slots.find((s) => s.slot === slotId);
+    if (!slot) throw new BadRequestException('UNKNOWN_QUEST');
+    if (slot.claimed) throw new BadRequestException('QUEST_ALREADY_CLAIMED');
+    if (slot.done) throw new BadRequestException('QUEST_DONE');
+    if (quests.rerolls.left <= 0) throw new BadRequestException('NO_REROLLS');
+
+    // questsFor 가 오늘 칸을 저장해 뒀다 — 저장된 그대로 다시 읽어 바꾼다
+    const fresh = await this.findMe(userId);
+    const state = fresh.dailyQuestState;
+    if (state?.day !== today || !state.picks?.length) {
+      throw new BadRequestException('REROLL_CONFLICT');
+    }
+    const used = state.rerolls ?? 0;
+    const next = rerollPick(
+      await this.pickContext(fresh, tz, today, isSuperActive(fresh)),
+      state.picks as QuestPick[],
+      slot.slot,
+      used + 1,
+    );
+    if (!next) throw new BadRequestException('NO_ALTERNATIVE');
+
+    const res = await this.userModel.updateOne(
+      {
+        _id: me._id,
+        'dailyQuestState.day': today,
+        'dailyQuestState.claimed': { $ne: slot.slot },
+        ...(used === 0
+          ? {
+              $or: [
+                { 'dailyQuestState.rerolls': 0 },
+                { 'dailyQuestState.rerolls': { $exists: false } },
+              ],
+            }
+          : { 'dailyQuestState.rerolls': used }),
+      },
+      {
+        $set: {
+          'dailyQuestState.picks.$[p]': next,
+          'dailyQuestState.rerolls': used + 1,
+        },
+      },
+      { arrayFilters: [{ 'p.slot': slot.slot }] },
+    );
+    if (!res.modifiedCount) throw new BadRequestException('REROLL_CONFLICT');
+
+    const after = await this.findMe(userId);
+    return { quests: await this.questsFor(after, tz, today) };
+  }
+
+  /**
+   * 앱이 알려 주는 행동 (공유) — 서버가 직접 볼 수 없어서 앱 말을 믿는다.
+   * 그래서 하루 상한(EVENT_DAILY_CAP)을 걸고, 보상은 어차피 칸당 하루 한 번이다.
+   */
+  async questEvent(userId: string, type: string) {
+    if (!QUEST_EVENT_KEYS.includes(type as QuestCounterKey)) {
+      throw new BadRequestException('UNKNOWN_EVENT');
+    }
+    const me = await this.findMe(userId);
+    const tz = resolveTimezone(me.timezone);
+    await bumpQuestCounter(
+      this.statsModel,
+      me._id,
+      startOfDay(new Date(), tz),
+      type as QuestCounterKey,
+      1,
+      DAILY_QUESTS.EVENT_DAILY_CAP,
+    );
+    return { quests: await this.questsFor(me, tz, dayKey(new Date(), tz)) };
+  }
+
+  // ─────────────────────────── 월간 챌린지 ───────────────────────────
+
+  private monthlyView(
+    me: Pick<User, 'monthlyQuest' | 'questBadges'>,
+    today: string,
+  ) {
+    const month = today.slice(0, 7);
+    const st = me.monthlyQuest?.month === month ? me.monthlyQuest : null;
+    const count = st?.count ?? 0;
+    const claimed = st?.claimed ?? [];
+    const [y, m, d] = today.split('-').map(Number);
+    const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    return {
+      month,
+      count,
+      target: MONTHLY_CHALLENGE.TARGET,
+      /** 오늘 포함 남은 날 */
+      daysLeft: Math.max(1, daysInMonth - d + 1),
+      milestones: MONTHLY_CHALLENGE.MILESTONES.map((ms) => ({
+        at: ms.at,
+        gems: ms.gems,
+        badge: ms.badge,
+        reached: count >= ms.at,
+        claimed: claimed.includes(ms.at),
+      })),
+      /** 지금까지 모은 배지 (달 키, 최근 순) */
+      badges: [...(me.questBadges ?? [])].sort().reverse(),
+    };
+  }
+
+  /** 월간 챌린지 칸 보상. 배지 칸이면 그 달 배지도 */
+  async claimMonthly(userId: string, at: number) {
+    const ms = MONTHLY_CHALLENGE.MILESTONES.find((m) => m.at === Number(at));
+    if (!ms) throw new BadRequestException('UNKNOWN_MILESTONE');
+    const me = await this.findMe(userId);
+    const tz = resolveTimezone(me.timezone);
+    const today = dayKey(new Date(), tz);
+    const month = today.slice(0, 7);
+
+    const updated = await this.userModel
+      .findOneAndUpdate(
+        {
+          _id: me._id,
+          'monthlyQuest.month': month,
+          'monthlyQuest.count': { $gte: ms.at },
+          'monthlyQuest.claimed': { $ne: ms.at },
+        },
+        {
+          $push: { 'monthlyQuest.claimed': ms.at },
+          $inc: { gems: ms.gems },
+          ...(ms.badge ? { $addToSet: { questBadges: month } } : {}),
+        },
+        { returnDocument: 'after' },
+      )
+      .select('gems monthlyQuest questBadges')
+      .lean();
+    if (!updated) throw new BadRequestException('MONTHLY_NOT_READY');
+
+    return {
+      gems: updated.gems ?? 0,
+      reward: ms.gems,
+      badge: ms.badge ? month : null,
+      monthly: this.monthlyView(updated as User, today),
+    };
   }
 
   // ─────────────────────────── 복귀 보상 ───────────────────────────
@@ -542,7 +997,7 @@ export class RetentionService {
     const me = await this.userModel
       .findById(new Types.ObjectId(userId))
       .select(
-        'timezone gems streak streakFreeze streakFreezeNotice dailyQuestState dailyGoalMinutes comebackClaimedAt xpBoostUntil checkin streakGoal',
+        'timezone gems streak streakFreeze streakFreezeNotice dailyQuestState dailyGoalMinutes comebackClaimedAt xpBoostUntil checkin streakGoal isSuper superExpiresAt monthlyQuest questBadges',
       )
       .lean();
     if (!me) throw new NotFoundException('USER_NOT_FOUND');

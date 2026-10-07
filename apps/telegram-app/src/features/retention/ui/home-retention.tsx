@@ -3,32 +3,65 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
-import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
+import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import {
   ackFreezeNotice,
   ackStreakGoal,
   claimCheckin,
   claimComeback,
+  claimMonthly,
   claimQuest,
+  rerollQuest,
+  reportQuestEvent,
 } from "../api/retention";
 import {
   haptic,
   rt,
   type CheckinView,
-  type QuestId,
-  type QuestItem,
+  type MonthlyView,
+  type QuestChestResult,
+  type QuestSlot,
+  type QuestSlotId,
   type RetentionSummary,
 } from "../model/retention";
+import {
+  MONTH_BADGES,
+  TIER_META,
+  monthName,
+  monthOf,
+  questAction,
+  questIcon,
+  questTitle,
+  questTitleKey,
+  type QuestAction,
+} from "../model/quest-meta";
+import { getMyInvite } from "../../social/api/social";
+import { shareMessage } from "../../../shared/telegram/share";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { Button3D, RewardDialog, type RewardDialogProps } from "./parts";
 import styles from "./retention.module.css";
 
 type Patch = (fn: (s: RetentionSummary) => RetentionSummary) => void;
 
-const QUEST_META: Record<QuestId, { icon: IoniconName; color: string }> = {
-  correct: { color: "#2BB673", icon: "checkmark-done" },
-  minutes: { color: "#776ee2", icon: "time" },
-  xp: { color: "#FFB020", icon: "flash" },
+/** 옛 서버(slots 없음)면 옛 3종을 칸 모양으로 */
+function slotsOf(quests: RetentionSummary["quests"]): QuestSlot[] {
+  if (quests.slots?.length) return quests.slots;
+  return quests.items.map((item) => ({
+    ...item,
+    category: null,
+    id: item.id as unknown as QuestSlotId,
+    kind: item.id,
+    promo: false,
+    slot: item.id as unknown as QuestSlotId,
+  }));
+}
+
+const ACTION_TONE: Record<QuestAction, "pink" | "orange" | "blue" | "purple"> = {
+  find: "blue",
+  invite: "orange",
+  review: "purple",
+  share: "pink",
 };
 
 function untilMidnight() {
@@ -118,31 +151,46 @@ export function XpBoostBanner({
 export function DailyQuestsCard({
   quests,
   patch,
+  streak = 0,
 }: {
   quests: RetentionSummary["quests"];
   patch: Patch;
+  streak?: number;
 }) {
-  const { request, updateUser } = useTelegramAuth();
+  const router = useRouter();
+  const { request, updateUser, user } = useTelegramAuth();
   const [left, setLeft] = useState(untilMidnight());
   const [busy, setBusy] = useState<string | null>(null);
   const [gain, setGain] = useState<{ id: string; n: number; key: number } | null>(null);
+  // 방금 연 상자에서 뭐가 나왔나
+  const [got, setGot] = useState<QuestChestResult | null>(null);
 
   useEffect(() => {
     const timer = window.setInterval(() => setLeft(untilMidnight()), 60000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const claim = async (id: QuestId | "chest") => {
+  const slots = slotsOf(quests);
+  const base = slots.filter((q) => q.slot !== "bonus");
+  const rerollsLeft = quests.rerolls?.left ?? 0;
+
+  const claim = async (id: QuestSlotId | "chest") => {
     if (busy) return;
     setBusy(id);
     try {
       const result = await claimQuest(request, id);
       haptic("success");
       updateUser({ gems: result.gems });
-      setGain({ id, key: Date.now(), n: result.reward });
+      if (result.reward > 0) setGain({ id, key: Date.now(), n: result.reward });
+      if (id === "chest") setGot(result.chest ?? { gems: result.reward, type: "gems" });
       patch((summary) => ({
         ...summary,
         gems: result.gems,
+        ...(result.monthly ? { monthly: result.monthly } : {}),
+        ...(result.xpBoost ? { xpBoost: result.xpBoost } : {}),
+        ...(result.chest?.type === "freeze"
+          ? { freeze: { ...summary.freeze, owned: result.chest.owned } }
+          : {}),
         quests: {
           ...summary.quests,
           chest:
@@ -150,8 +198,9 @@ export function DailyQuestsCard({
               ? { ...summary.quests.chest, claimed: true }
               : summary.quests.chest,
           items: summary.quests.items.map((item) =>
-            item.id === id ? { ...item, claimed: true } : item,
+            (item.id as string) === id ? { ...item, claimed: true } : item,
           ),
+          slots: summary.quests.slots?.map((q) => (q.slot === id ? { ...q, claimed: true } : q)),
         },
       }));
     } catch {
@@ -161,9 +210,66 @@ export function DailyQuestsCard({
     }
   };
 
-  const doneCount = quests.items.filter((item) => item.done).length;
+  const reroll = async (slot: QuestSlotId) => {
+    if (busy) return;
+    setBusy(`reroll:${slot}`);
+    haptic("light");
+    try {
+      const result = await rerollQuest(request, slot);
+      patch((summary) => ({ ...summary, quests: result.quests }));
+    } catch {
+      haptic("warning");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  /** 홍보·바로가기 — 공유는 텔레그램 채팅 선택창으로 */
+  const act = async (quest: QuestSlot, action: QuestAction) => {
+    if (busy) return;
+    haptic("light");
+    if (action === "find") {
+      router.push("/add-friends");
+      return;
+    }
+    if (action === "review") {
+      router.push("/lesson?mode=review");
+      return;
+    }
+    setBusy(quest.slot);
+    try {
+      const invite = await getMyInvite(request).catch(() => null);
+      const code = invite?.code ?? "";
+      const link = invite?.link ?? "https://korio.online";
+      const text =
+        action === "invite"
+          ? uzt("invite.shareMessage", {
+              code,
+              gems: invite?.rewardGems ?? 1000,
+              link,
+              nickname: user?.nickname ?? "",
+            })
+          : streak > 0
+            ? rt("quests.shareProgressMessage", { code, link, streak })
+            : rt("quests.shareProgressPlain", { code, link });
+      await shareMessage(text, "KORIO");
+      const next = await reportQuestEvent(request, action === "invite" ? "shareInvite" : "shareProgress");
+      if (next) patch((summary) => ({ ...summary, quests: next }));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const doneCount = base.filter((item) => item.done).length;
   const chest = quests.chest;
   const chestReady = chest.ready && !chest.claimed;
+  const gotText = !got
+    ? null
+    : got.type === "gems"
+      ? rt("quests.chestGems", { n: got.gems })
+      : got.type === "xpBoost"
+        ? rt("quests.chestBoost", { m: got.minutes, x: got.multiplier })
+        : rt("quests.chestFreeze");
 
   return (
     <section className={styles.card}>
@@ -172,7 +278,7 @@ export function DailyQuestsCard({
           <i className={styles.titleIcon}><MobileIcon name="flag" size={15} /></i>
           <strong className={styles.title}>{rt("quests.title")}</strong>
           <span className={styles.countPill} data-no-translate>
-            {doneCount}/{quests.items.length}
+            {doneCount}/{base.length}
           </span>
         </span>
         <span className={styles.timer}>
@@ -181,12 +287,24 @@ export function DailyQuestsCard({
         </span>
       </div>
 
-      {quests.items.map((quest) => (
+      {quests.rerolls ? (
+        <div className={styles.rerollInfo}>
+          <MobileIcon name="shuffle" size={13} />
+          <span data-i18n={rerollsLeft > 0 ? "retention.quests.rerollsLeft" : "retention.quests.rerollNone"}>
+            {rerollsLeft > 0 ? rt("quests.rerollsLeft", { n: rerollsLeft }) : rt("quests.rerollNone")}
+          </span>
+        </div>
+      ) : null}
+
+      {slots.map((quest) => (
         <QuestRow
-          busy={busy === quest.id}
-          gain={gain?.id === quest.id ? gain : null}
-          key={quest.id}
-          onClaim={() => void claim(quest.id)}
+          busy={busy === quest.slot}
+          canReroll={rerollsLeft > 0 && !busy}
+          gain={gain?.id === quest.slot ? gain : null}
+          key={quest.slot}
+          onAction={(action) => void act(quest, action)}
+          onClaim={() => void claim(quest.slot)}
+          onReroll={() => void reroll(quest.slot)}
           quest={quest}
         />
       ))}
@@ -204,23 +322,26 @@ export function DailyQuestsCard({
           <strong className={styles.qTitle}>
             {chest.claimed ? rt("quests.chestOpened") : rt("quests.chest")}
           </strong>
-          <span className={styles.sub}>
-            {chestReady
-              ? rt("quests.chestReady")
-              : chest.claimed
-                ? rt("quests.chestTomorrow")
-                : rt("quests.chestHint")}
-          </span>
+          {gotText ? (
+            <span className={styles.chestGot}>{gotText}</span>
+          ) : (
+            <span className={styles.sub}>
+              {chestReady
+                ? rt("quests.chestReady")
+                : chest.claimed
+                  ? rt("quests.chestTomorrow")
+                  : rt("quests.chestMystery")}
+            </span>
+          )}
         </span>
         <span className={styles.qRight}>
           {chestReady ? (
             <span className={`${styles.btn3d} ${styles.amber} ${styles.compact}`}>
               {busy === "chest" ? <i className={styles.spin} /> : rt("quests.open")}
             </span>
-          ) : (
-            <span className={styles.reward}>
-              <MobileIcon name="diamond" size={12} />
-              <span data-no-translate>{chest.gems}</span>
+          ) : chest.claimed ? null : (
+            <span className={`${styles.reward} ${styles.mystery}`}>
+              <MobileIcon name="help" size={14} />
             </span>
           )}
           {gain?.id === "chest" ? (
@@ -237,15 +358,23 @@ export function DailyQuestsCard({
 function QuestRow({
   quest,
   busy,
+  canReroll,
   gain,
   onClaim,
+  onAction,
+  onReroll,
 }: {
-  quest: QuestItem;
+  quest: QuestSlot;
   busy: boolean;
+  canReroll: boolean;
   gain: { n: number; key: number } | null;
   onClaim: () => void;
+  onAction: (action: QuestAction) => void;
+  onReroll: () => void;
 }) {
-  const meta = QUEST_META[quest.id];
+  const meta = questIcon(quest);
+  const tier = TIER_META[quest.slot];
+  const action = questAction(quest.kind);
   const ratio = quest.target > 0 ? Math.min(1, quest.progress / quest.target) : 0;
   // 처음 그릴 때 0 에서 차오르게
   const [shown, setShown] = useState(0);
@@ -253,24 +382,49 @@ function QuestRow({
     const frame = requestAnimationFrame(() => setShown(ratio));
     return () => cancelAnimationFrame(frame);
   }, [ratio]);
+  // 공유·초대·팔로우처럼 한 번 하면 끝나는 건 막대 대신 버튼만
+  const oneShot = quest.promo && quest.target === 1;
+  const showAction = !!action && !quest.done && !quest.claimed;
+  const showReroll = canReroll && !quest.done && !quest.claimed;
 
   return (
     <div className={styles.quest} style={{ "--qc": quest.done ? "#2BB673" : meta.color } as CSSProperties}>
       <i className={styles.qIcon} style={{ "--qc": meta.color } as CSSProperties}>
-        <MobileIcon name={meta.icon} size={18} />
+        <MobileIcon name={meta.icon} size={19} />
       </i>
       <span className={styles.qMid}>
-        <strong className={`${styles.qTitle} ${quest.claimed ? styles.qDone : ""}`}>
-          {rt(`quests.${quest.id}`, { n: quest.target })}
-        </strong>
-        <span className={styles.track}>
-          <i style={{ width: `${shown * 100}%` }} />
-          <b data-no-translate>
-            {quest.progress}/{quest.target}
-          </b>
+        <span className={styles.qHead}>
+          {tier ? (
+            <em
+              className={styles.tierChip}
+              data-i18n={`retention.quests.tier.${quest.slot}`}
+              style={{ "--tc": tier.color, "--td": tier.dark } as CSSProperties}
+            >
+              {rt(`quests.tier.${quest.slot}`)}
+            </em>
+          ) : null}
+          {quest.promo ? (
+            <i className={styles.promoMark} style={{ color: meta.color }}>
+              <MobileIcon name="megaphone" size={12} />
+            </i>
+          ) : null}
         </span>
+        <strong
+          className={`${styles.qTitle} ${styles.qTitleWrap} ${quest.claimed ? styles.qDone : ""}`}
+          data-i18n={questTitleKey(quest)}
+        >
+          {questTitle(quest)}
+        </strong>
+        {oneShot ? null : (
+          <span className={styles.track}>
+            <i style={{ width: `${shown * 100}%` }} />
+            <b data-no-translate>
+              {quest.progress}/{quest.target}
+            </b>
+          </span>
+        )}
       </span>
-      <span className={styles.qRight}>
+      <span className={`${styles.qRight} ${styles.qRightCol}`}>
         {quest.claimed ? (
           <i className={styles.doneBadge}><MobileIcon name="checkmark" size={18} /></i>
         ) : quest.done ? (
@@ -282,12 +436,31 @@ function QuestRow({
             onClick={onClaim}
             tone="green"
           />
+        ) : showAction && action ? (
+          <Button3D
+            compact
+            i18nKey={`retention.quests.action.${action}`}
+            label={rt(`quests.action.${action}`)}
+            loading={busy}
+            onClick={() => onAction(action)}
+            tone={ACTION_TONE[action]}
+          />
         ) : (
           <span className={styles.reward}>
             <MobileIcon name="diamond" size={12} />
             <span data-no-translate>{quest.gems}</span>
           </span>
         )}
+        {showReroll ? (
+          <button
+            aria-label="Almashtirish"
+            className={styles.rerollBtn}
+            onClick={onReroll}
+            type="button"
+          >
+            <MobileIcon name="shuffle" size={14} />
+          </button>
+        ) : null}
         {gain ? (
           <span className={styles.gain} key={gain.key}>
             <MobileIcon name="diamond" size={13} />+{gain.n}
@@ -295,6 +468,162 @@ function QuestRow({
         ) : null}
       </span>
     </div>
+  );
+}
+
+// ─────────────────────────── 월간 챌린지 ───────────────────────────
+
+/** 월간 챌린지 배지 — 달마다 색·그림이 다른 마름모 메달 (앱 QuestBadge 와 같다) */
+export function QuestBadge({
+  month,
+  size = 56,
+  locked = false,
+}: {
+  month: string;
+  size?: number;
+  locked?: boolean;
+}) {
+  const meta = MONTH_BADGES[monthOf(month)] ?? MONTH_BADGES[1]!;
+  return (
+    <span
+      className={`${styles.badge} ${locked ? styles.badgeLocked : ""}`}
+      style={{ "--bc": meta.color, "--bd": meta.dark, "--bs": `${size}px` } as CSSProperties}
+    >
+      <i className={styles.badgeFace} />
+      <span className={styles.badgeIcon}>
+        <MobileIcon name={locked ? "lock-closed" : meta.icon} size={Math.round(size * 0.38)} />
+      </span>
+      {!locked ? (
+        <b className={styles.badgeTag} data-no-translate>
+          {monthOf(month)}
+        </b>
+      ) : null}
+    </span>
+  );
+}
+
+/** 프로필 — 월간 챌린지 배지 모음. 없으면 아무것도 안 그린다 */
+export function QuestBadgesRow({ badges }: { badges?: string[] }) {
+  if (!badges?.length) return null;
+  return (
+    <section className={styles.badgesSection}>
+      <h2 data-i18n="retention.monthly.profileTitle">{rt("monthly.profileTitle")}</h2>
+      <div className={styles.badgesScroll}>
+        {badges.map((key) => (
+          <span className={styles.badgeItem} key={key}>
+            <QuestBadge month={key} size={50} />
+            <b data-i18n={`retention.monthly.months.${monthOf(key)}`}>{monthName(key)}</b>
+            <small data-no-translate>{key.slice(0, 4)}</small>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** 홈 — 월간 챌린지 (앱 MonthlyChallengeCard 와 같다) */
+export function MonthlyChallengeCard({ monthly, patch }: { monthly: MonthlyView; patch: Patch }) {
+  const { request, updateUser } = useTelegramAuth();
+  const [busy, setBusy] = useState<number | null>(null);
+  const meta = MONTH_BADGES[monthOf(monthly.month)] ?? MONTH_BADGES[1]!;
+  const earned = monthly.badges.includes(monthly.month);
+  const badgeAt = monthly.milestones.find((m) => m.badge)?.at ?? monthly.target;
+  const claimable = monthly.milestones.find((m) => m.reached && !m.claimed);
+  const ratio = monthly.target > 0 ? Math.min(1, monthly.count / monthly.target) : 0;
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setShown(ratio));
+    return () => cancelAnimationFrame(frame);
+  }, [ratio]);
+  const past = monthly.badges.filter((b) => b !== monthly.month);
+
+  const claim = async (at: number) => {
+    if (busy !== null) return;
+    setBusy(at);
+    try {
+      const result = await claimMonthly(request, at);
+      haptic("success");
+      updateUser({ gems: result.gems });
+      patch((summary) => ({ ...summary, gems: result.gems, monthly: result.monthly }));
+    } catch {
+      // 이미 받았거나 아직
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <section className={styles.card} style={{ "--mc": meta.color, "--md": meta.dark } as CSSProperties}>
+      <div className={styles.monthHead}>
+        <QuestBadge locked={!earned} month={monthly.month} size={56} />
+        <span className={styles.monthText}>
+          <strong className={styles.title} data-i18n="retention.monthly.title">
+            {rt("monthly.title", { month: monthName(monthly.month) })}
+          </strong>
+          <span className={styles.sub} data-i18n="retention.monthly.sub">
+            {rt("monthly.sub", { d: monthly.daysLeft, n: monthly.count, target: monthly.target })}
+          </span>
+          <span
+            className={`${styles.monthBadgeLine} ${earned ? styles.monthBadgeEarned : ""}`}
+            data-i18n={earned ? "retention.monthly.badgeEarned" : "retention.monthly.badgeLocked"}
+          >
+            {earned ? rt("monthly.badgeEarned") : rt("monthly.badgeLocked", { n: badgeAt })}
+          </span>
+        </span>
+      </div>
+
+      <div className={styles.monthTrackWrap}>
+        <span className={styles.monthTrack}>
+          <i style={{ width: `${shown * 100}%` }} />
+        </span>
+        {monthly.milestones.map((ms) => {
+          const pos = monthly.target > 0 ? Math.min(1, ms.at / monthly.target) : 1;
+          const ready = ms.reached && !ms.claimed;
+          return (
+            <span className={styles.markerSlot} key={ms.at} style={{ left: `${pos * 100}%` }}>
+              <button
+                className={`${styles.marker} ${ms.claimed ? styles.markerDone : ""} ${ready ? styles.markerReady : ""}`}
+                disabled={!ready || busy !== null}
+                onClick={() => void claim(ms.at)}
+                type="button"
+              >
+                <MobileIcon name={ms.claimed ? "checkmark" : ms.badge ? "ribbon" : "gift"} size={14} />
+              </button>
+              <b data-no-translate>{ms.at}</b>
+            </span>
+          );
+        })}
+      </div>
+
+      {claimable ? (
+        <Button3D
+          i18nKey="retention.monthly.claim"
+          icon={
+            <>
+              <MobileIcon name="diamond" size={14} />
+              <b data-no-translate>{claimable.gems}</b>
+            </>
+          }
+          label={rt("monthly.claim")}
+          loading={busy === claimable.at}
+          onClick={() => void claim(claimable.at)}
+          tone="amber"
+        />
+      ) : null}
+
+      {past.length > 0 ? (
+        <div className={styles.monthBadges}>
+          <span className={styles.sub} data-i18n="retention.monthly.myBadges">
+            {rt("monthly.myBadges")}
+          </span>
+          <div className={styles.badgesScroll}>
+            {past.map((key) => (
+              <QuestBadge key={key} month={key} size={36} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </section>
   );
 }
 

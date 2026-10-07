@@ -32,6 +32,7 @@ import type { RetentionSummary } from "../../retention/model/retention";
 import {
   CheckinCard,
   DailyQuestsCard,
+  MonthlyChallengeCard,
   RetentionOverlays,
   StreakChips,
   XpBoostBanner,
@@ -347,7 +348,11 @@ export function HomeScreen() {
 
         {/* 오늘의 퀘스트 */}
         {retention ? (
-          <DailyQuestsCard patch={patchRetention} quests={retention.quests} />
+          <DailyQuestsCard patch={patchRetention} quests={retention.quests} streak={retention.streak} />
+        ) : null}
+        {/* 월간 챌린지 — 퀘스트 N개 → 그 달 한정 배지 (앱과 같다) */}
+        {retention?.monthly ? (
+          <MonthlyChallengeCard monthly={retention.monthly} patch={patchRetention} />
         ) : null}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여 준다 (앱과 같다) */}

@@ -43,6 +43,7 @@ import { useTourScroll } from "@/features/tour/useTourScroll";
 import { syncTimezone } from "@/utils/timezone";
 import { useRetentionStore } from "@/store/retention.store";
 import DailyQuestsCard from "@/features/retention/components/DailyQuestsCard";
+import MonthlyChallengeCard from "@/features/retention/components/MonthlyChallengeCard";
 import CheckinCard from "@/features/retention/components/CheckinCard";
 import XpBoostBanner from "@/features/retention/components/XpBoostBanner";
 import RetentionOverlays from "@/features/retention/components/RetentionOverlays";
@@ -471,6 +472,9 @@ export default function HomeScreen() {
 
         {/* 오늘의 퀘스트 */}
         {retention ? <DailyQuestsCard quests={retention.quests} /> : null}
+        {retention?.monthly ? (
+          <MonthlyChallengeCard monthly={retention.monthly} />
+        ) : null}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여준다 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>

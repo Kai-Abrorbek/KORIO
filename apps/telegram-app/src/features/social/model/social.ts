@@ -19,6 +19,8 @@ export interface SocialUser {
 }
 
 export interface FriendProfile extends SocialUser {
+  /** 월간 챌린지 배지 (달 키, 최근 순) */
+  questBadges?: string[];
   bio?: string;
   joinedYear?: number;
   coursePrimaryFlag?: string;

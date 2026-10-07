@@ -33,6 +33,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore } from "@/store/auth.store";
 import { useReferralStore } from "@/store/referral.store";
+import { reportQuestEvent } from "@/features/retention/questActions";
 import {
   ReferralApi,
   type ClaimError,
@@ -132,7 +133,12 @@ export default function InviteScreen() {
         code: data.code,
         link: data.link,
       }),
-    });
+    }).then((res) => {
+      // 일일 퀘스트 "친구에게 초대장 보내기"
+      if (res.action !== Share.dismissedAction) {
+        void reportQuestEvent("shareInvite");
+      }
+    }).catch(() => undefined);
   };
 
   const submit = async () => {

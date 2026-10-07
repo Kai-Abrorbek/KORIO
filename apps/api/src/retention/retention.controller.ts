@@ -8,7 +8,13 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RetentionService } from './retention.service';
-import { ClaimQuestDto, StartStreakGoalDto } from './dto';
+import {
+  ClaimMonthlyDto,
+  ClaimQuestDto,
+  QuestEventDto,
+  RerollQuestDto,
+  StartStreakGoalDto,
+} from './dto';
 
 @Controller('retention')
 @UseGuards(JwtAuthGuard)
@@ -36,6 +42,24 @@ export class RetentionController {
   @Post('quests/claim')
   claimQuest(@Request() req, @Body() dto: ClaimQuestDto) {
     return this.service.claimQuest(req.user._id.toString(), dto.id);
+  }
+
+  /** 한 칸 바꾸기 (하루 1번, SUPER 3번) */
+  @Post('quests/reroll')
+  rerollQuest(@Request() req, @Body() dto: RerollQuestDto) {
+    return this.service.rerollQuest(req.user._id.toString(), dto.slot);
+  }
+
+  /** 앱이 알려 주는 행동 — 학습 결과 공유 · 초대장 보내기 */
+  @Post('quests/event')
+  questEvent(@Request() req, @Body() dto: QuestEventDto) {
+    return this.service.questEvent(req.user._id.toString(), dto.type);
+  }
+
+  // ── 월간 챌린지 ──
+  @Post('monthly/claim')
+  claimMonthly(@Request() req, @Body() dto: ClaimMonthlyDto) {
+    return this.service.claimMonthly(req.user._id.toString(), dto.at);
   }
 
   // ── 복귀 보상 ──

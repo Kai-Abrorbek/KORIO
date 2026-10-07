@@ -1,14 +1,14 @@
-import { useEffect, useState, type ComponentProps } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withSequence,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
@@ -16,24 +16,37 @@ import type { ThemeColors } from "@/constants/theme";
 import * as Haptics from "@/utils/haptics";
 import {
   RetentionService,
-  type QuestId,
-  type QuestItem,
+  type QuestChestResult,
+  type QuestSlot,
+  type QuestSlotId,
   type RetentionSummary,
 } from "@/services/retention.service";
 import { useRetentionStore } from "@/store/retention.store";
 import { useAuthStore } from "@/store/auth.store";
 import Button3D from "./Button3D";
+import {
+  TIER_META,
+  questAction,
+  questIcon,
+  questTitle,
+  type QuestAction,
+} from "../questMeta";
+import { shareInviteQuest, shareProgressQuest } from "../questActions";
 
 const GEM = "#3BB6E5";
 
-const QUEST_META: Record<
-  QuestId,
-  { icon: ComponentProps<typeof Ionicons>["name"]; color: string }
-> = {
-  xp: { icon: "flash", color: "#FFB020" },
-  correct: { icon: "checkmark-done", color: "#2BB673" },
-  minutes: { icon: "time", color: "#776ee2" },
-};
+/** 옛 서버(slots 없음)면 옛 3종을 칸 모양으로 바꿔 그린다 */
+function slotsOf(quests: RetentionSummary["quests"]): QuestSlot[] {
+  if (quests.slots?.length) return quests.slots;
+  return quests.items.map((item) => ({
+    ...item,
+    id: item.id as unknown as QuestSlotId,
+    slot: item.id as unknown as QuestSlotId,
+    kind: item.id,
+    category: null,
+    promo: false,
+  }));
+}
 
 /** 다음 자정까지 남은 시간 (기기 시계 기준 — 대부분 계정 시간대와 같다) */
 function untilMidnight(): { h: number; m: number } {
@@ -45,8 +58,9 @@ function untilMidnight(): { h: number; m: number } {
 }
 
 /**
- * 홈 — 오늘의 퀘스트 3개 + 다 끝내면 여는 상자.
- * 진행도는 서버가 그날 학습 통계에서 읽어 준다. 보상은 직접 눌러서 받는다.
+ * 홈 — 오늘의 퀘스트 (쉬움·보통·어려움 + SUPER 보너스) + 다 끝내면 여는 미스터리 상자.
+ * 칸마다 그 난이도의 퀘스트 목록에서 랜덤으로 뽑힌다 (서버). 진행도도 서버가 준다.
+ * 하루 정해진 횟수만큼 칸을 바꿀 수 있다 (↻).
  */
 export default function DailyQuestsCard({
   quests,
@@ -63,7 +77,10 @@ export default function DailyQuestsCard({
     return () => clearInterval(id);
   }, []);
 
-  const doneCount = quests.items.filter((q) => q.done).length;
+  const slots = slotsOf(quests);
+  const base = slots.filter((q) => q.slot !== "bonus");
+  const doneCount = base.filter((q) => q.done).length;
+  const rerollsLeft = quests.rerolls?.left ?? 0;
 
   return (
     <View style={s.card}>
@@ -75,7 +92,7 @@ export default function DailyQuestsCard({
           <Text style={s.title}>{t("retention.quests.title")}</Text>
           <View style={s.countPill}>
             <Text style={s.countText}>
-              {doneCount}/{quests.items.length}
+              {doneCount}/{base.length}
             </Text>
           </View>
         </View>
@@ -91,8 +108,24 @@ export default function DailyQuestsCard({
         </View>
       </View>
 
-      {quests.items.map((q) => (
-        <QuestRow key={q.id} quest={q} theme={theme} />
+      {quests.rerolls ? (
+        <View style={s.rerollInfo}>
+          <Ionicons name="shuffle" size={13} color={theme.textSecondary} />
+          <Text style={s.rerollInfoText}>
+            {rerollsLeft > 0
+              ? t("retention.quests.rerollsLeft", { n: rerollsLeft })
+              : t("retention.quests.rerollNone")}
+          </Text>
+        </View>
+      ) : null}
+
+      {slots.map((q) => (
+        <QuestRow
+          key={q.slot}
+          quest={q}
+          theme={theme}
+          canReroll={rerollsLeft > 0}
+        />
       ))}
 
       <ChestRow chest={quests.chest} theme={theme} />
@@ -103,17 +136,30 @@ export default function DailyQuestsCard({
 function useClaim() {
   const patch = useRetentionStore((st) => st.patch);
   const updateUser = useAuthStore((st) => st.updateUser);
-  return async (id: QuestId | "chest") => {
+  return async (id: QuestSlotId | "chest") => {
     const res = await RetentionService.claimQuest(id);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    updateUser({ gems: res.gems } as any);
+    updateUser({
+      gems: res.gems,
+      ...(res.chest?.type === "freeze"
+        ? { streakFreeze: res.chest.owned }
+        : {}),
+    } as any);
     patch((sum) => ({
       ...sum,
       gems: res.gems,
+      ...(res.monthly ? { monthly: res.monthly } : {}),
+      ...(res.xpBoost ? { xpBoost: res.xpBoost } : {}),
+      ...(res.chest?.type === "freeze"
+        ? { freeze: { ...sum.freeze, owned: res.chest.owned } }
+        : {}),
       quests: {
         ...sum.quests,
+        slots: sum.quests.slots?.map((q) =>
+          q.slot === id ? { ...q, claimed: true } : q,
+        ),
         items: sum.quests.items.map((q) =>
-          q.id === id ? { ...q, claimed: true } : q,
+          (q.id as string) === id ? { ...q, claimed: true } : q,
         ),
         chest:
           id === "chest"
@@ -121,7 +167,7 @@ function useClaim() {
             : sum.quests.chest,
       },
     }));
-    return res.reward;
+    return res;
   };
 }
 
@@ -153,16 +199,31 @@ function GainFloat({ amount, trigger }: { amount: number; trigger: number }) {
   );
 }
 
-function QuestRow({ quest, theme }: { quest: QuestItem; theme: ThemeColors }) {
+function QuestRow({
+  quest,
+  theme,
+  canReroll,
+}: {
+  quest: QuestSlot;
+  theme: ThemeColors;
+  canReroll: boolean;
+}) {
   const { t } = useTranslation();
   const s = getStyles(theme);
-  const meta = QUEST_META[quest.id];
+  const router = useRouter();
+  const meta = questIcon(quest);
+  const tier = TIER_META[quest.slot];
+  const action = questAction(quest.kind);
   const claim = useClaim();
+  const patch = useRetentionStore((st) => st.patch);
+  const streak = useRetentionStore((st) => st.summary?.streak ?? 0);
   const [busy, setBusy] = useState(false);
   const [burst, setBurst] = useState(0);
   const ratio =
     quest.target > 0 ? Math.min(1, quest.progress / quest.target) : 0;
   const fill = useSharedValue(0);
+  // 공유·초대·팔로우처럼 한 번 하면 끝나는 건 막대 대신 버튼만
+  const oneShot = quest.promo && quest.target === 1;
 
   useEffect(() => {
     fill.value = withTiming(ratio, {
@@ -177,7 +238,7 @@ function QuestRow({ quest, theme }: { quest: QuestItem; theme: ThemeColors }) {
     if (busy) return;
     setBusy(true);
     try {
-      await claim(quest.id);
+      await claim(quest.slot);
       setBurst((n) => n + 1);
     } catch {
       // 이미 받았거나 아직 안 됨 — 다음 새로고침이 맞춘다
@@ -186,32 +247,83 @@ function QuestRow({ quest, theme }: { quest: QuestItem; theme: ThemeColors }) {
     }
   };
 
+  const onAction = async (kind: QuestAction) => {
+    if (busy) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (kind === "find") {
+      router.push("/add-friends");
+      return;
+    }
+    if (kind === "review") {
+      router.push("/lesson?mode=review");
+      return;
+    }
+    setBusy(true);
+    try {
+      if (kind === "invite") await shareInviteQuest(t);
+      else await shareProgressQuest(t, streak);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onReroll = async () => {
+    if (busy) return;
+    setBusy(true);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      const { quests } = await RetentionService.rerollQuest(quest.slot);
+      patch((sum) => ({ ...sum, quests }));
+    } catch {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const showReroll = canReroll && !quest.done && !quest.claimed;
+  const showAction = !!action && !quest.done && !quest.claimed;
+
   return (
     <View style={s.row}>
       <View style={[s.qIcon, { backgroundColor: meta.color + "1F" }]}>
-        <Ionicons name={meta.icon} size={18} color={meta.color} />
+        <Ionicons name={meta.icon} size={19} color={meta.color} />
       </View>
       <View style={s.qMid}>
+        <View style={s.qHead}>
+          {tier ? (
+            <View style={[s.tierChip, { backgroundColor: tier.color + "1F" }]}>
+              <Text style={[s.tierText, { color: tier.dark }]}>
+                {t(`retention.quests.tier.${quest.slot}`)}
+              </Text>
+            </View>
+          ) : null}
+          {quest.promo ? (
+            <Ionicons name="megaphone" size={12} color={meta.color} />
+          ) : null}
+        </View>
         <Text
           style={[s.qTitle, quest.claimed && s.qTitleDone]}
-          numberOfLines={1}
+          numberOfLines={2}
         >
-          {t(`retention.quests.${quest.id}`, { n: quest.target })}
+          {questTitle(t, quest)}
         </Text>
-        <View style={s.track}>
-          <Animated.View
-            style={[
-              s.fill,
-              { backgroundColor: quest.done ? "#2BB673" : meta.color },
-              fillStyle,
-            ]}
-          >
-            <View style={s.fillShine} />
-          </Animated.View>
-          <Text style={s.trackText}>
-            {quest.progress}/{quest.target}
-          </Text>
-        </View>
+        {oneShot ? null : (
+          <View style={s.track}>
+            <Animated.View
+              style={[
+                s.fill,
+                { backgroundColor: quest.done ? "#2BB673" : meta.color },
+                fillStyle,
+              ]}
+            >
+              <View style={s.fillShine} />
+            </Animated.View>
+            <Text style={s.trackText}>
+              {quest.progress}/{quest.target}
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={s.qRight}>
@@ -229,12 +341,33 @@ function QuestRow({ quest, theme }: { quest: QuestItem; theme: ThemeColors }) {
             loading={busy}
             onPress={onClaim}
           />
+        ) : showAction && action ? (
+          <Button3D
+            compact
+            label={t(`retention.quests.action.${action}`)}
+            color={meta.color}
+            depthColor={tier?.dark ?? "#5a52c4"}
+            loading={busy}
+            onPress={() => void onAction(action)}
+          />
         ) : (
           <View style={s.rewardChip}>
             <Ionicons name="diamond" size={12} color={GEM} />
             <Text style={s.rewardText}>{quest.gems}</Text>
           </View>
         )}
+        {showReroll ? (
+          <Pressable
+            onPress={() => void onReroll()}
+            disabled={busy}
+            hitSlop={8}
+            style={({ pressed }) => [s.rerollBtn, pressed && s.rerollPressed]}
+            accessibilityRole="button"
+            accessibilityLabel={t("retention.quests.rerollsLeft", { n: 1 })}
+          >
+            <Ionicons name="shuffle" size={14} color={theme.textSecondary} />
+          </Pressable>
+        ) : null}
         <GainFloat amount={quest.gems} trigger={burst} />
       </View>
     </View>
@@ -253,6 +386,8 @@ function ChestRow({
   const claim = useClaim();
   const [busy, setBusy] = useState(false);
   const [burst, setBurst] = useState(0);
+  // 방금 연 상자에서 뭐가 나왔나 (이 화면에서만 보여준다)
+  const [got, setGot] = useState<QuestChestResult | null>(null);
   const wobble = useSharedValue(0);
   const glow = useSharedValue(0);
 
@@ -293,13 +428,25 @@ function ChestRow({
     if (busy) return;
     setBusy(true);
     try {
-      await claim("chest");
-      setBurst((n) => n + 1);
+      const res = await claim("chest");
+      setGot(res.chest ?? { type: "gems", gems: res.reward });
+      if (res.reward > 0) setBurst((n) => n + 1);
     } catch {
     } finally {
       setBusy(false);
     }
   };
+
+  const gotText = !got
+    ? null
+    : got.type === "gems"
+      ? t("retention.quests.chestGems", { n: got.gems })
+      : got.type === "xpBoost"
+        ? t("retention.quests.chestBoost", {
+            m: got.minutes,
+            x: got.multiplier,
+          })
+        : t("retention.quests.chestFreeze");
 
   return (
     <Pressable
@@ -323,13 +470,17 @@ function ChestRow({
             ? t("retention.quests.chestOpened")
             : t("retention.quests.chest")}
         </Text>
-        <Text style={s.chestSub}>
-          {ready
-            ? t("retention.quests.chestReady")
-            : chest.claimed
-              ? t("retention.quests.chestTomorrow")
-              : t("retention.quests.chestHint")}
-        </Text>
+        {gotText ? (
+          <Text style={s.chestGot}>{gotText}</Text>
+        ) : (
+          <Text style={s.chestSub}>
+            {ready
+              ? t("retention.quests.chestReady")
+              : chest.claimed
+                ? t("retention.quests.chestTomorrow")
+                : t("retention.quests.chestMystery")}
+          </Text>
+        )}
       </View>
       <View style={s.qRight}>
         {ready ? (
@@ -341,13 +492,16 @@ function ChestRow({
             loading={busy}
             onPress={onOpen}
           />
-        ) : (
-          <View style={s.rewardChip}>
-            <Ionicons name="diamond" size={12} color={GEM} />
-            <Text style={s.rewardText}>{chest.gems}</Text>
+        ) : chest.claimed ? null : (
+          // 뭐가 나올지 모른다 — 숫자 대신 물음표
+          <View style={[s.rewardChip, s.mysteryChip]}>
+            <Ionicons name="help" size={14} color="#D48A00" />
           </View>
         )}
-        <GainFloat amount={chest.gems} trigger={burst} />
+        <GainFloat
+          amount={got?.type === "gems" ? got.gems : 0}
+          trigger={burst}
+        />
       </View>
     </Pressable>
   );
@@ -423,7 +577,7 @@ const getStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
     },
-    qMid: { flex: 1, gap: 6 },
+    qMid: { flex: 1, gap: 5 },
     qTitle: { fontSize: 14, fontWeight: "800", color: theme.text },
     qTitleDone: { color: theme.textSecondary },
     track: {
@@ -507,4 +661,37 @@ const getStyles = (theme: ThemeColors) =>
     },
     chestTitle: { fontSize: 14, fontWeight: "900", color: theme.text },
     chestSub: { fontSize: 12, fontWeight: "700", color: theme.textSecondary },
+    chestGot: { fontSize: 13, fontWeight: "900", color: "#D48A00" },
+    mysteryChip: { backgroundColor: "#FFB0201F", paddingHorizontal: 9 },
+    rerollInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      marginTop: -4,
+      marginBottom: 4,
+    },
+    rerollInfoText: {
+      fontSize: 11.5,
+      fontWeight: "700",
+      color: theme.textSecondary,
+    },
+    qHead: { flexDirection: "row", alignItems: "center", gap: 6 },
+    tierChip: {
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: 7,
+    },
+    tierText: { fontSize: 10.5, fontWeight: "900", letterSpacing: 0.2 },
+    rerollBtn: {
+      marginTop: 6,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.bg,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    rerollPressed: { transform: [{ translateY: 1 }], opacity: 0.8 },
   });

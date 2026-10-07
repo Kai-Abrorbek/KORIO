@@ -8,6 +8,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
 import { ReferralApi } from "@/services/referral.service";
+import { reportQuestEvent } from "@/features/retention/questActions";
 import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
 import Confetti from "@/components/lesson-complete/Confetti";
 import StatCard from "@/components/lesson-complete/StatCard";
@@ -95,10 +96,14 @@ export default function LessonCompleteScreen() {
     );
 
     try {
-      await Share.share({
+      const res = await Share.share({
         message: lines.join("\n"),
         title: t("lessonComplete.share.title"),
       });
+      // 일일 퀘스트 "내 공부 기록 공유하기"
+      if (res.action !== Share.dismissedAction) {
+        void reportQuestEvent("shareProgress");
+      }
     } catch {
       // 유저가 시트를 그냥 닫아도 여기로 온다. 실패로 취급할 일이 아니다
     } finally {

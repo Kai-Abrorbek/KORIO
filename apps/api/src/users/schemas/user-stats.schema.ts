@@ -45,6 +45,14 @@ export class UserStats {
    */
   @Prop({ type: Map, of: Number, default: {} })
   categoryCorrect: Map<string, number>;
+
+  /**
+   * 일일 퀘스트용 그날의 행동 카운터.
+   * { sessions, accurate, perfect, mistakes, follow, shareProgress, shareInvite }
+   * 학습 통계로 못 세는 것만 여기 쌓는다 (users/utils/quest-counter.util.ts).
+   */
+  @Prop({ type: Map, of: Number, default: {} })
+  questCounters: Map<string, number>;
 }
 
 export const UserStatsSchema = SchemaFactory.createForClass(UserStats);
