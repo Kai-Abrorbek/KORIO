@@ -106,7 +106,7 @@ export default function UpdateScreen() {
         {/* 지금 버전 */}
         <View style={s.hero}>
           <Image
-            source={require("../../assets/images/icon.png")}
+            source={require("../../assets/images/korio-icon.png")}
             style={s.logo}
           />
           <Text style={s.heroVersion}>v{installedVersion}</Text>

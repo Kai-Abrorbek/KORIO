@@ -12,7 +12,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "KORIO",
   description: "Koreys tilini KORIO bilan o'rganing",
-  title: "KORIO",
+  title: "KORIO | Learn Korean",
+  icons: { icon: "/korio-icon.png", apple: "/korio-icon.png" },
 };
 
 export const viewport: Viewport = {

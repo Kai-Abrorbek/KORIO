@@ -408,10 +408,8 @@ svg {
   width: 24px;
   height: 24px;
   border-radius: 7px;
-  background: var(--brand);
-  color: var(--brand-ink);
-  font-size: 11px;
-  font-weight: 900;
+  overflow: hidden;
+  background: #fff;
 }
 .sidebar-title {
   font-size: 13px;

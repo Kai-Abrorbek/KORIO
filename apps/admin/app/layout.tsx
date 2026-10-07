@@ -6,8 +6,9 @@ import { SessionProvider } from "@/features/auth/session";
 import { AdminGate } from "@/widgets/admin-gate";
 
 export const metadata: Metadata = {
-  title: "KORIO Admin",
+  title: "KORIO Admin | 운영 콘솔",
   description: "KORIO 운영 콘솔",
+  icons: { icon: "/korio-icon.png", apple: "/korio-icon.png" },
 };
 
 /**

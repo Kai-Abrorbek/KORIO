@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, type AdminPermission } from "@/features/auth/session";
@@ -49,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* ── 사이드바 ── */}
       <aside className="sidebar">
         <div className="sidebar-head">
-          <div className="logo-mark">K</div>
+          <div className="logo-mark"><Image src="/korio-icon.png" alt="" width={24} height={24} /></div>
           <span className="sidebar-title">KORIO Admin</span>
         </div>
 

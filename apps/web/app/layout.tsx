@@ -12,8 +12,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "KORIO",
-  description: "Learn Korean with KORIO",
+  title: "KORIO | 한국어를 즐겁게 배우다",
+  description: "KORIO와 함께 한국어를 재미있게 배우세요.",
+  icons: { icon: "/korio-icon.png", apple: "/korio-icon.png" },
 };
 
 export default function RootLayout({
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>
