@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Platform } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { AppState, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -12,14 +12,13 @@ import i18n from "@/locales/i18n";
 /**
  * 앱이 켜져 있을 때 알림이 오면 어떻게 할지.
  *
- * 기본값은 "아무것도 안 보임" 이다. 유저가 레슨을 푸는 중에 배너가 떨어지면
- * 오답의 원인이 된다 — 소리 없이 목록에만 쌓아둔다.
+ * 학습 알림은 조용히 목록에 쌓고, 운영 공지는 앱 사용 중에도 보이게 한다.
  */
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: false,
+  handleNotification: async (notification) => ({
+    shouldShowBanner: notification.request.content.data?.type === "announcement",
     shouldShowList: true,
-    shouldPlaySound: false,
+    shouldPlaySound: notification.request.content.data?.type === "announcement",
     shouldSetBadge: true,
   }),
 });
@@ -92,22 +91,48 @@ export function usePushNotifications() {
   const language = useSettingsStore((s) => s.language);
   const master = useSettingsStore((s) => s.notifications.master);
   const tokenRef = useRef<string | null>(null);
+  const [registrationAttempt, retryRegistration] = useState(0);
+  const retryCount = useRef(0);
+
+  // 권한을 OS 설정에서 바꾸거나 네트워크가 돌아온 뒤 앱으로 복귀하면 다시 등록한다.
+  useEffect(() => {
+    let previous = AppState.currentState;
+    const listener = AppState.addEventListener("change", (next) => {
+      if (next === "active" && previous !== "active") retryRegistration((n) => n + 1);
+      previous = next;
+    });
+    return () => listener.remove();
+  }, []);
 
   // ── 등록 ──
   useEffect(() => {
     let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const scheduleRetry = () => {
+      if (cancelled) return;
+      const delay = Math.min(300_000, 15_000 * 2 ** Math.min(retryCount.current++, 4));
+      retryTimer = setTimeout(() => retryRegistration((n) => n + 1), delay);
+    };
 
     (async () => {
       if (!isLoggedIn) return;
       diagnostics.checkedAt = new Date().toISOString();
       diagnostics.registered = false;
+      diagnostics.lastError = null;
 
-      await ensureAndroidChannels();
+      try {
+        await ensureAndroidChannels();
+      } catch (e: any) {
+        diagnostics.lastError = `CHANNEL_SETUP_FAILED: ${String(e?.message ?? e).slice(0, 200)}`;
+        scheduleRetry();
+        return;
+      }
 
-      // 에뮬레이터는 푸시 토큰을 못 받는다. 여기서 거르지 않으면 매번 에러가 뜬다
+      // SDK 56은 Play 서비스가 있는 Android 에뮬레이터도 지원한다.
+      // 기기 여부는 진단에 남기고 실제 토큰 발급 결과로 판단한다.
       diagnostics.isDevice = Device.isDevice;
-      if (!Device.isDevice) {
-        diagnostics.lastError = 'NOT_A_PHYSICAL_DEVICE (에뮬레이터는 푸시 불가)';
+      if (Platform.OS === "web") {
+        diagnostics.lastError = "WEB_PUSH_UNSUPPORTED";
         return;
       }
 
@@ -151,18 +176,19 @@ export function usePushNotifications() {
         diagnostics.token = res.data;
         diagnostics.lastError = null;
 
-        await PushApi.register({
+        const registration = await PushApi.register({
           token: res.data,
           platform: Platform.OS === "ios" ? "ios" : "android",
           deviceName: Device.modelName ?? "",
           appVersion: Constants.expoConfig?.version ?? "",
           appLanguage: language,
         });
+        if (!registration.success) throw new Error("PUSH_TOKEN_REJECTED_BY_SERVER");
 
         // 서버에는 아직 이 사람의 스위치가 없다 (기기에만 있었다).
         // 등록 직후 한 번 통째로 올려서 서버 크론이 같은 값을 보게 한다.
         const prefs = useSettingsStore.getState().notifications;
-        await PushApi.updateSettings({
+        const synced = await PushApi.updateSettings({
           master: prefs.master,
           daily: prefs.daily,
           streak: prefs.streak,
@@ -171,9 +197,11 @@ export function usePushNotifications() {
           events: prefs.events,
           dailyHour: prefs.dailyHour,
           appLanguage: language,
-        }).catch(() => {});
+        });
+        if (!synced.success) throw new Error("PUSH_SETTINGS_REJECTED_BY_SERVER");
 
         diagnostics.registered = true;
+        retryCount.current = 0;
       } catch (e: any) {
         // 삼키지 않는다. Firebase 미초기화(google-services.json 이 네이티브에
         // 안 들어감), FCM 자격증명 누락, projectId 불일치가 전부 여기로 온다.
@@ -182,13 +210,15 @@ export function usePushNotifications() {
         diagnostics.lastError = String(e?.message ?? e).slice(0, 300);
         // 릴리스에서도 남긴다 — adb logcat 의 ReactNativeJS 태그로 볼 수 있게
         console.warn('[push] 토큰 발급 실패:', JSON.stringify(diagnostics));
+        scheduleRetry();
       }
     })();
 
     return () => {
       cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [isLoggedIn, language, master]);
+  }, [isLoggedIn, language, master, registrationAttempt]);
 
   // ── 알림을 눌러서 앱에 들어온 경우 ──
   useEffect(() => {

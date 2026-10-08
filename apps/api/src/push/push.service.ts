@@ -277,6 +277,25 @@ export class PushService {
     }));
 
     const outcomes = await this.expo.send(messages);
+    const failures = new Map<string, number>();
+    for (const outcome of outcomes) {
+      if (!outcome.ok) {
+        const code = outcome.error ?? 'EXPO_SEND_FAILED';
+        failures.set(code, (failures.get(code) ?? 0) + 1);
+      }
+    }
+    if (failures.size) {
+      const summary = [...failures]
+        .map(([code, count]) => `${code}×${count}`)
+        .join(', ');
+      if ([...failures.keys()].some(isCredentialError)) {
+        this.logger.error(
+          `푸시 즉시 자격증명 오류 — ${summary}. EAS FCM V1 자격증명 확인 필요`,
+        );
+      } else {
+        this.logger.warn(`푸시 티켓 미접수 — ${summary}`);
+      }
+    }
     await this.retireDeadTokens(outcomes);
     await this.rememberTickets(outcomes);
     return outcomes.some((o) => o.ok);
