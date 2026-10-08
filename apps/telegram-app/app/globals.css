@@ -218,18 +218,60 @@ textarea {
   width: 100%;
 }
 
+.boot-mascot {
+  animation: boot-mascot-in 560ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  bottom: calc(50% + 34px);
+  height: 270px;
+  left: 50%;
+  position: absolute;
+  translate: -50% 0;
+  width: 270px;
+}
+
+.boot-mascot img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
 .boot-logo {
   align-items: center;
   display: flex;
   justify-content: center;
 }
 
-.boot-logo img {
+.boot-logo-mark {
   animation: boot-logo-in 420ms cubic-bezier(0.215, 0.61, 0.355, 1) 260ms both;
-  border-radius: 32px;
   display: block;
-  height: min(230px, 60vw);
-  width: min(230px, 60vw);
+  flex: 0 0 86px;
+}
+
+.boot-logo-text {
+  align-items: center;
+  display: flex;
+}
+
+.boot-logo-text i {
+  animation: boot-logo-in 320ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  font-size: 74px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-right: -1px;
+}
+
+.boot-logo-text i:nth-child(1) { animation-delay: 480ms; }
+.boot-logo-text i:nth-child(2) { animation-delay: 555ms; }
+.boot-logo-text i:nth-child(3) { animation-delay: 630ms; }
+.boot-logo-text i:nth-child(4) { animation-delay: 705ms; }
+.boot-logo-text i:nth-child(5) { animation-delay: 780ms; }
+
+@keyframes boot-mascot-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
 }
 
 @keyframes boot-logo-in {
@@ -384,7 +426,9 @@ h2 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .boot-logo img {
+  .boot-mascot,
+  .boot-logo-mark,
+  .boot-logo-text i {
     animation: none;
   }
 }
