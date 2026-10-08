@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useAppLanguage } from "../../shared/i18n/language-context";
 import { MobileIcon, type IoniconName } from "../../shared/ui/mobile-icon";
 import styles from "./home-tour.module.css";
 
@@ -101,24 +102,36 @@ export function HomeTour() {
   const [rect, setRect] = useState<Rect | null>(null);
   const [screen, setScreen] = useState({ height: 0, width: 0 });
   const current = active ? HOME_STEPS[step] : undefined;
+  // 한국어 UI 면 뜻 언어를 묻는 시트(ContentLanguagePrompt)가 먼저 뜬다. 고를 때까지 투어는
+  // 기다린다 — 같이 뜨면 투어의 어두운 막이 시트를 덮어 아무것도 못 누른다
+  const { language, ready, savedContentLanguage } = useAppLanguage();
+  const languagePending = !ready || (language === "ko" && savedContentLanguage === null);
+  /** "다시 보기" 요청 — 한 번만 꺼내 쓴다 (언어 시트를 기다리는 동안 다시 읽으면 이미 지워져 있다) */
+  const requestedRef = useRef<boolean | null>(null);
 
   // 처음 오면 한 번 / 설정에서 "다시 보기" 를 누르고 오면 다시
   useEffect(() => {
-    let requested = false;
-    try {
-      requested = window.localStorage.getItem(TOUR_REQUEST_KEY) === "true";
-      if (requested) window.localStorage.removeItem(TOUR_REQUEST_KEY);
-    } catch {
-      requested = false;
+    if (requestedRef.current === null) {
+      let requestedNow = false;
+      try {
+        requestedNow = window.localStorage.getItem(TOUR_REQUEST_KEY) === "true";
+        if (requestedNow) window.localStorage.removeItem(TOUR_REQUEST_KEY);
+      } catch {
+        requestedNow = false;
+      }
+      requestedRef.current = requestedNow;
     }
+    if (languagePending) return;
+    const requested = requestedRef.current;
     if (!requested && readSeen()[HOME_TOUR]) return;
     // 화면이 다 그려지고(등장 애니메이션까지) 대상 위치가 잡힌 뒤에 켠다
     const timer = window.setTimeout(() => {
+      requestedRef.current = false;
       setStep(0);
       setActive(true);
     }, requested ? 450 : 1300);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [languagePending]);
 
   const finish = useCallback(() => {
     markSeen(HOME_TOUR);

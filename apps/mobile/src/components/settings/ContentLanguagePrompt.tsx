@@ -16,21 +16,38 @@ import { detectDeviceContentLanguage } from "@/locales/i18n";
  * 언어 설정 화면에서 한국어를 고를 때는 이걸 안 쓴다 — 그 화면이 직접 시트를
  * 열고, 열기 전에 기본값을 먼저 저장해서 여기 조건(null)에 안 걸리게 한다.
  */
-export default function ContentLanguagePrompt() {
-  const language = useSettingsStore((st) => st.language);
-  const saved = useSettingsStore((st) => st.contentLanguage);
-  const setContentLanguage = useSettingsStore((st) => st.setContentLanguage);
+/** 저장된 설정을 디스크에서 복원했는지 */
+function useSettingsHydrated() {
   const [hydrated, setHydrated] = useState(() =>
     useSettingsStore.persist.hasHydrated(),
   );
-  const [visible, setVisible] = useState(false);
-
-  // 저장된 설정을 복원하기 전엔 contentLanguage 가 늘 null 이다.
-  // 그때 물으면 이미 고른 사람한테도 또 묻는다
+  // 복원하기 전엔 contentLanguage 가 늘 null 이다. 그때 물으면 이미 고른 사람한테도 또 묻는다
   useEffect(() => {
     if (hydrated) return;
     return useSettingsStore.persist.onFinishHydration(() => setHydrated(true));
   }, [hydrated]);
+  return hydrated;
+}
+
+/**
+ * 뜻·설명 언어 시트가 아직 남아 있는지 — 설정 복원 전이거나, 한국어 UI 인데 안 골랐거나.
+ *
+ * 처음 뜨는 다른 안내(홈 기능 투어 등)는 **이게 false 가 된 뒤에** 켠다.
+ * 둘이 같이 뜨면 투어의 어두운 막이 시트 위를 덮어 아무것도 못 누른다.
+ */
+export function useContentLanguagePending() {
+  const hydrated = useSettingsHydrated();
+  const language = useSettingsStore((st) => st.language);
+  const saved = useSettingsStore((st) => st.contentLanguage);
+  return !hydrated || (language === "ko" && saved === null);
+}
+
+export default function ContentLanguagePrompt() {
+  const language = useSettingsStore((st) => st.language);
+  const saved = useSettingsStore((st) => st.contentLanguage);
+  const setContentLanguage = useSettingsStore((st) => st.setContentLanguage);
+  const hydrated = useSettingsHydrated();
+  const [visible, setVisible] = useState(false);
 
   const needed = hydrated && language === "ko" && saved === null;
 

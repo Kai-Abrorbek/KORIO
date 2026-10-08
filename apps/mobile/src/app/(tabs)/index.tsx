@@ -26,6 +26,7 @@ import CalendarModal from "@/components/home/CalendarModal";
 import NotificationModal from "@/components/notifications/NotificationModal";
 import { NotificationService } from "@/services/notification.service";
 import FloatingAIButton from "@/components/home/FloatingAIButton";
+import { useContentLanguagePending } from "@/components/settings/ContentLanguagePrompt";
 import AIChatModal from "@/components/home/AIChatModal";
 import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
@@ -87,6 +88,8 @@ export default function HomeScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const startTour = useTourStore((st) => st.startIfUnseen);
   const consumePendingTour = useTourStore((st) => st.consumePending);
+  // 한국어 폰이면 뜻 언어를 묻는 시트가 먼저 뜬다 — 고를 때까지 투어는 기다린다
+  const languagePending = useContentLanguagePending();
   // 투어 단계가 바뀌면 대상이 보이도록 스크롤한다 (오버레이는 루트에 있어서
   // 이 ScrollView 를 모른다). AI 버튼은 늘 보이므로 제외.
   const { onScroll: onTourScroll } = useTourScroll(HOME_TOUR, scrollRef, [
@@ -120,18 +123,21 @@ export default function HomeScreen() {
   // 처음 온 사람에게 기능 안내를 한 번 돌린다.
   // 화면이 다 그려지고 대상 버튼 위치가 잡힌 뒤에 시작해야 스포트라이트가
   // 엉뚱한 자리를 뚫는다. 애니메이션(FadeInDown 600ms)까지 기다린다.
+  // 뜻 언어 시트가 떠 있으면 그게 끝난 뒤에 (같이 뜨면 투어 막이 시트를 덮는다).
   useEffect(() => {
+    if (languagePending) return;
     const id = setTimeout(() => startTour(HOME_TOUR), 1300);
     return () => clearTimeout(id);
-  }, [startTour]);
+  }, [languagePending, startTour]);
 
   // 설정에서 "다시 보기" 로 예약한 투어는 여기서 꺼낸다.
   // 화면이 자리를 잡은 뒤에 켜야 스포트라이트가 제자리에 뚫린다.
   useFocusEffect(
     useCallback(() => {
+      if (languagePending) return;
       const id = setTimeout(() => consumePendingTour(HOME_TOUR), 450);
       return () => clearTimeout(id);
-    }, [consumePendingTour]),
+    }, [consumePendingTour, languagePending]),
   );
 
   useFocusEffect(
