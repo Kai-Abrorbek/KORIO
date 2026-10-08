@@ -46,8 +46,17 @@ export interface TgPreCheckoutQuery {
   invoice_payload: string;
 }
 
+/** 인라인 버튼 누름 (카드 입금 승인/거절) */
+export interface TgCallbackQuery {
+  id: string;
+  from: TgUser;
+  data?: string;
+  message?: { message_id: number; chat: { id: number } };
+}
+
 export interface TgUpdate {
   update_id?: number;
   message?: TgMessage;
   pre_checkout_query?: TgPreCheckoutQuery;
+  callback_query?: TgCallbackQuery;
 }

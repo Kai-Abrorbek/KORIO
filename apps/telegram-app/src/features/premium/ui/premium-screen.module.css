@@ -952,3 +952,113 @@
     animation-duration: 1ms;
   }
 }
+
+/* ── 결제 수단 (Humo·Uzcard / Telegram Stars) ── */
+.methodWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 20px 0;
+}
+
+.methodLabel {
+  color: var(--premium-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.methodBar {
+  background: var(--premium-card);
+  border: 2px solid var(--premium-border);
+  border-radius: 16px;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+}
+
+.methodBar button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 12px;
+  color: var(--premium-muted);
+  display: flex;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  gap: 6px;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.methodBar button.methodActive {
+  background: var(--premium-primary);
+  box-shadow: inset 0 -3px 0 #5b4dd4;
+  color: #fff;
+}
+
+/* ── 진행 중인 카드 입금 ── */
+.offerBanner {
+  padding: 16px 20px 0;
+}
+
+.activeBanner {
+  margin-top: 16px;
+  width: 100%;
+}
+
+.orderBanner {
+  align-items: center;
+  background: rgb(255 196 107 / 18%);
+  border: 2px solid #ffc46b;
+  border-bottom-width: 4px;
+  border-radius: 16px;
+  color: var(--premium-text);
+  display: flex;
+  font: inherit;
+  gap: 10px;
+  padding: 11px 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.orderBanner:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.orderBannerReview {
+  background: rgb(119 110 226 / 10%);
+  border-color: var(--premium-primary);
+}
+
+.orderBannerIcon {
+  align-items: center;
+  background: #ff9600;
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  flex: 0 0 34px;
+  height: 34px;
+  justify-content: center;
+}
+
+.orderBannerReview .orderBannerIcon {
+  background: var(--premium-primary);
+}
+
+.orderBannerText {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 18px;
+}
+
+.orderBanner b {
+  color: var(--premium-primary);
+  font-size: 13.5px;
+  font-weight: 900;
+}

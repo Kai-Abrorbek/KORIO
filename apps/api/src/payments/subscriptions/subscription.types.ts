@@ -8,7 +8,9 @@ export type PaymentProviderId =
   /** 현금이 아니라 앱 안에서 모은 보석으로 산 기간권 */
   | 'gems'
   /** 텔레그램 미니앱 — Stars(XTR) 로 산 기간권 (providers/telegram-stars) */
-  | 'telegram_stars';
+  | 'telegram_stars'
+  /** 텔레그램 미니앱 — Humo·Uzcard 로 우리 카드에 직접 입금, 운영자 승인 (card/) */
+  | 'card_transfer';
 
 export type SubscriptionPlatform =
   | 'android'

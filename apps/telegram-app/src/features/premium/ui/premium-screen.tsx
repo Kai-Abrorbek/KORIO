@@ -17,11 +17,18 @@ import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { fetchCardConfig, fetchCardOrder } from "../api/card";
 import {
   createStarsInvoice,
   fetchMySubscription,
   fetchStarsCatalog,
 } from "../api/stars";
+import {
+  formatSom,
+  type CardConfig,
+  type CardOrder,
+  type CardProduct,
+} from "../model/card";
 import {
   MAX_FEATURES,
   PLAN_KEY,
@@ -34,6 +41,7 @@ import {
   type StarsProduct,
   type SubscriptionTier,
 } from "../model/premium";
+import { CardPayFlow } from "./card-pay-flow";
 import styles from "./premium-screen.module.css";
 
 function formatDate(value: string) {
@@ -81,15 +89,40 @@ function LoadingView() {
   );
 }
 
+/** 진행 중인 카드 입금 주문 — 누르면 입금/심사 화면을 다시 연다 */
+function CardOrderBanner({ onOpen, order }: { onOpen: () => void; order: CardOrder }) {
+  const review = order.status === "submitted";
+  const key = review ? "cardPay.pendingBanner" : "cardPay.awaitingBanner";
+  return (
+    <button
+      className={`${styles.orderBanner} ${review ? styles.orderBannerReview : ""}`}
+      onClick={onOpen}
+      type="button"
+    >
+      <span className={styles.orderBannerIcon}>
+        <MobileIcon name={review ? "time-outline" : "card"} size={18} />
+      </span>
+      <span className={styles.orderBannerText} data-i18n={key}>
+        {uzt(key, { amount: formatSom(order.amount) })}
+      </span>
+      <b data-i18n="cardPay.open">{uzt("cardPay.open")}</b>
+    </button>
+  );
+}
+
 /** 결제 수단이 텔레그램 Stars·보석처럼 한 번 사는 기간권인지 */
 const isOneTime = (subscription: MySubscription) =>
   !subscription.isTrial && !subscription.autoRenew && subscription.provider !== "google_play";
 
 function ActiveView({
+  cardOrder,
   onBrowse,
+  onResumeCard,
   subscription,
 }: {
+  cardOrder: CardOrder | null;
   onBrowse: (tier?: SubscriptionTier) => void;
+  onResumeCard: () => void;
   subscription: MySubscription;
 }) {
   const canUpgrade = subscription.canUpgradeTo.length > 0;
@@ -137,6 +170,12 @@ function ActiveView({
             <strong>Har kuni AI ustoz bilan koreyscha gaplashing</strong>
             <MobileIcon name="chevron-forward" size={16} />
           </button>
+        ) : null}
+
+        {cardOrder ? (
+          <div className={styles.activeBanner}>
+            <CardOrderBanner onOpen={onResumeCard} order={cardOrder} />
+          </div>
         ) : null}
 
         {oneTime ? (
@@ -227,14 +266,18 @@ function FeatureList({ tier }: { tier: SubscriptionTier }) {
 
 /** 앱 PlanCard 와 같은 모양 — 가격만 Stars */
 function PlanCard({
+  card,
   onSelect,
   plan,
   selected,
 }: {
+  /** 있으면 카드 입금(so'm) 가격으로 보여준다 */
+  card?: CardProduct | null;
   onSelect: () => void;
   plan: StarsProduct;
   selected: boolean;
 }) {
+  const save = card ? card.savePercent : plan.savePercent;
   const planKey = `premium.plans.${PLAN_KEY[plan.months] ?? "monthly"}`;
   return (
     <div className={plan.best ? styles.bestWrap : undefined}>
@@ -261,24 +304,46 @@ function PlanCard({
           <span className={styles.planNames}>
             <strong data-i18n={planKey}>{uzt(planKey)}</strong>
             {plan.months > 1 ? (
-              <small data-i18n="premium.totalPrice">
-                {uzt("premium.totalPrice", { price: `⭐ ${formatStars(plan.stars)}` })}
-              </small>
+              card ? (
+                <small>
+                  <span data-i18n="premium.totalPrice">
+                    {uzt("premium.totalPrice", { price: formatSom(card.priceUzs) })}
+                  </span>{" "}
+                  <span data-i18n="cardPay.som">{uzt("cardPay.som")}</span>
+                </small>
+              ) : (
+                <small data-i18n="premium.totalPrice">
+                  {uzt("premium.totalPrice", { price: `⭐ ${formatStars(plan.stars)}` })}
+                </small>
+              )
             ) : null}
           </span>
         </span>
         <span className={styles.planRight}>
-          {plan.savePercent > 0 ? (
+          {save > 0 ? (
             <em className={styles.saveTag} data-no-translate>
-              −{plan.savePercent}%
+              −{save}%
             </em>
           ) : null}
-          <b className={styles.planPrice} data-no-translate>
-            ⭐ {formatStars(plan.perMonthStars)}
-          </b>
-          <small className={styles.planPer}>
-            /<span data-i18n="premium.perMonthLabel">{uzt("premium.perMonthLabel")}</span>
-          </small>
+          {card ? (
+            <>
+              <b className={styles.planPrice} data-no-translate>
+                {formatSom(card.perMonthUzs)}
+              </b>
+              <small className={styles.planPer} data-i18n="cardPay.perMonth">
+                {uzt("cardPay.perMonth")}
+              </small>
+            </>
+          ) : (
+            <>
+              <b className={styles.planPrice} data-no-translate>
+                ⭐ {formatStars(plan.perMonthStars)}
+              </b>
+              <small className={styles.planPer}>
+                /<span data-i18n="premium.perMonthLabel">{uzt("premium.perMonthLabel")}</span>
+              </small>
+            </>
+          )}
         </span>
       </button>
     </div>
@@ -399,21 +464,31 @@ function changedSince(before: MySubscription | null, after: MySubscription | nul
   return after.expiresAt !== before.expiresAt || after.tier !== before.tier;
 }
 
+type PayMethod = "stars" | "card";
+const METHOD_KEY = "korio-pay-method";
+
 function OfferView({
+  cardConfig,
   catalog,
   catalogFailed,
   initialTier = "max",
   onBack,
+  onOpenCard,
   onPaid,
+  onResumeCard,
   onRetryCatalog,
   subscription,
 }: {
+  /** Humo·Uzcard 카드 입금 — 끄기 스위치가 꺼져 있으면 enabled=false */
+  cardConfig: CardConfig | null;
   catalog: StarsCatalog | null;
   catalogFailed: boolean;
   initialTier?: SubscriptionTier;
   /** 구독 중 화면에서 "요금제 보기" 로 들어왔을 때 — 돌아갈 길 (예전엔 막다른 화면이었다) */
   onBack?: () => void;
+  onOpenCard: (product: CardProduct) => void;
   onPaid: (subscription: MySubscription | null, tier: SubscriptionTier) => void;
+  onResumeCard: () => void;
   onRetryCatalog: () => void;
   subscription: MySubscription | null;
 }) {
@@ -424,11 +499,39 @@ function OfferView({
   const [phase, setPhase] = useState<PayPhase>("idle");
   const [notice, setNotice] = useState<Notice>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const cardEnabled = Boolean(cardConfig?.enabled && cardConfig.cards.length);
+  // 우즈벡어 UI 면 카드 입금이 기본 (Stars 는 해외카드·판매처가 필요하다). 마지막 선택은 기억한다
+  const [methodPick, setMethodPick] = useState<PayMethod | null>(() => {
+    try {
+      const saved = localStorage.getItem(METHOD_KEY);
+      return saved === "card" || saved === "stars" ? saved : null;
+    } catch {
+      return null;
+    }
+  });
+  const method: PayMethod = !cardEnabled
+    ? "stars"
+    : (methodPick ?? (language === "uz" ? "card" : "stars"));
+  const pickMethod = (next: PayMethod) => {
+    haptic("light");
+    setMethodPick(next);
+    try {
+      localStorage.setItem(METHOD_KEY, next);
+    } catch {
+      /* 저장 못 해도 이번 화면에선 된다 */
+    }
+  };
+  const cardById = (id: string) => cardConfig?.products.find((p) => p.id === id) ?? null;
   useTelegramBackOverride(onBack ?? null);
 
   const plans = useMemo(
-    () => (catalog?.products ?? []).filter((product) => product.tier === tier),
-    [catalog, tier],
+    () =>
+      (catalog?.products ?? []).filter(
+        (product) =>
+          product.tier === tier &&
+          (method !== "card" || cardConfig?.products.some((p) => p.id === product.id)),
+      ),
+    [cardConfig, catalog, method, tier],
   );
   // 등급을 바꾸면 그 등급의 "가장 이득" 이 기본 선택
   const selected =
@@ -456,6 +559,11 @@ function OfferView({
   const pay = async () => {
     if (!selected || phase !== "idle") return;
     haptic("medium");
+    if (method === "card") {
+      const card = cardById(selected.id);
+      if (card) onOpenCard(card);
+      return;
+    }
     setNotice(null);
     setPhase("opening");
 
@@ -543,6 +651,41 @@ function OfferView({
 
         <FeatureList tier={tier} />
 
+        {cardEnabled ? (
+          <section className={styles.methodWrap}>
+            <span className={styles.methodLabel} data-i18n="cardPay.method">
+              {uzt("cardPay.method")}
+            </span>
+            <div className={styles.methodBar} role="tablist">
+              {(["card", "stars"] as const).map((candidate) => (
+                <button
+                  aria-selected={method === candidate}
+                  className={method === candidate ? styles.methodActive : ""}
+                  key={candidate}
+                  onClick={() => pickMethod(candidate)}
+                  role="tab"
+                  type="button"
+                >
+                  {candidate === "card" ? (
+                    <MobileIcon name="card" size={17} />
+                  ) : (
+                    <span aria-hidden="true">⭐</span>
+                  )}
+                  <span data-no-translate>
+                    {candidate === "card" ? "Humo / Uzcard" : "Telegram Stars"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {cardConfig?.activeOrder ? (
+          <div className={styles.offerBanner}>
+            <CardOrderBanner onOpen={onResumeCard} order={cardConfig.activeOrder} />
+          </div>
+        ) : null}
+
         {plans.length ? (
           <section className={styles.plans}>
             {plans.map((plan) => (
@@ -552,6 +695,7 @@ function OfferView({
                   haptic("light");
                   setSelectedId(plan.id);
                 }}
+                card={method === "card" ? cardById(plan.id) : null}
                 plan={plan}
                 selected={selected?.id === plan.id}
               />
@@ -577,12 +721,17 @@ function OfferView({
           </p>
         ) : null}
 
-        <button className={styles.starsHelpLink} onClick={() => setHelpOpen(true)} type="button">
-          <span aria-hidden="true">⭐</span>
-          <span data-i18n="premiumStars.howToGet">{uzt("premiumStars.howToGet")}</span>
-        </button>
-        <p className={styles.terms} data-i18n="premiumStars.oneTimeTerms">
-          {uzt("premiumStars.oneTimeTerms")}
+        {method === "stars" ? (
+          <button className={styles.starsHelpLink} onClick={() => setHelpOpen(true)} type="button">
+            <span aria-hidden="true">⭐</span>
+            <span data-i18n="premiumStars.howToGet">{uzt("premiumStars.howToGet")}</span>
+          </button>
+        ) : null}
+        <p
+          className={styles.terms}
+          data-i18n={method === "card" ? "cardPay.terms" : "premiumStars.oneTimeTerms"}
+        >
+          {uzt(method === "card" ? "cardPay.terms" : "premiumStars.oneTimeTerms")}
         </p>
       </div>
 
@@ -593,7 +742,14 @@ function OfferView({
             // premium.billedAs("{{period}} — {{price}}") 를 쪼개 그린다 — 템플릿 번역은 값(기간 이름)까지는 안 옮긴다
             <p className={styles.ctaNote}>
               <span data-i18n={periodKey}>{uzt(periodKey)}</span>
-              <span data-no-translate>{` — ⭐ ${formatStars(selected.stars)}`}</span>
+              {method === "card" && cardById(selected.id) ? (
+                <>
+                  <span data-no-translate>{` — ${formatSom(cardById(selected.id)?.priceUzs ?? 0)} `}</span>
+                  <span data-i18n="cardPay.som">{uzt("cardPay.som")}</span>
+                </>
+              ) : (
+                <span data-no-translate>{` — ⭐ ${formatStars(selected.stars)}`}</span>
+              )}
             </p>
           ) : null}
           <button
@@ -602,7 +758,12 @@ function OfferView({
             onClick={() => void pay()}
             type="button"
           >
-            {phase === "idle" ? (
+            {phase === "idle" && method === "card" ? (
+              <>
+                <MobileIcon name="card" size={20} />
+                <span data-i18n="cardPay.payWithCard">{uzt("cardPay.payWithCard")}</span>
+              </>
+            ) : phase === "idle" ? (
               <>
                 <span className={styles.ctaStar} aria-hidden="true">
                   ⭐
@@ -634,6 +795,9 @@ export function PremiumScreen() {
   const [catalog, setCatalog] = useState<StarsCatalog | null>(null);
   const [catalogFailed, setCatalogFailed] = useState(false);
   const [paid, setPaid] = useState<{ subscription: MySubscription | null; tier: SubscriptionTier } | null>(null);
+  const [cardConfig, setCardConfig] = useState<CardConfig | null>(null);
+  /** 카드 입금 화면 — 새 주문(product) 또는 진행 중 주문 이어 보기(resume) */
+  const [cardFlow, setCardFlow] = useState<{ product?: CardProduct; resume?: CardOrder } | null>(null);
 
   const applySubscription = useCallback(
     (result: MySubscription) => {
@@ -674,6 +838,17 @@ export function PremiumScreen() {
     loadCatalog();
   }, [loadCatalog]);
 
+  // 카드 입금 설정 — 실패하면 그냥 Stars 만 보인다
+  useEffect(() => {
+    void fetchCardConfig(request)
+      .then(setCardConfig)
+      .catch(() => setCardConfig(null));
+  }, [request]);
+
+  const setActiveOrder = useCallback((order: CardOrder | null) => {
+    setCardConfig((current) => (current ? { ...current, activeOrder: order } : current));
+  }, []);
+
   const handlePaid = useCallback(
     (result: MySubscription | null, boughtTier: SubscriptionTier) => {
       if (result) applySubscription(result);
@@ -682,6 +857,38 @@ export function PremiumScreen() {
     },
     [applySubscription, updateUser],
   );
+
+  /** 카드 입금이 승인됐다 — 구독을 다시 받아 완료 시트를 띄운다 */
+  const handleCardApproved = useCallback(
+    (order: CardOrder) => {
+      setActiveOrder(null);
+      setCardFlow(null);
+      void fetchMySubscription(request)
+        .catch(() => null)
+        .then((result) => handlePaid(result, order.tier));
+    },
+    [handlePaid, request, setActiveOrder],
+  );
+
+  // 입금 화면을 닫아도 심사 중이면 결과를 계속 본다 (승인되면 바로 완료 시트)
+  const reviewingId =
+    !cardFlow && cardConfig?.activeOrder?.status === "submitted" ? cardConfig.activeOrder.id : null;
+  useEffect(() => {
+    if (!reviewingId) return;
+    const timer = window.setInterval(() => {
+      void fetchCardOrder(request, reviewingId)
+        .then((order) => {
+          if (order.status === "approved") handleCardApproved(order);
+          else if (order.status !== "submitted") setActiveOrder(order.status === "awaiting_transfer" ? order : null);
+        })
+        .catch(() => undefined);
+    }, 12000);
+    return () => window.clearInterval(timer);
+  }, [handleCardApproved, request, reviewingId, setActiveOrder]);
+
+  const resumeCard = () => {
+    if (cardConfig?.activeOrder) setCardFlow({ resume: cardConfig.activeOrder });
+  };
 
   const closePaid = () => {
     setPaid(null);
@@ -695,19 +902,24 @@ export function PremiumScreen() {
   const body =
     subscription?.isPremium && !showPlans ? (
       <ActiveView
+        cardOrder={cardConfig?.activeOrder ?? null}
         onBrowse={(nextTier) => {
           if (nextTier) setTier(nextTier);
           setShowPlans(true);
         }}
+        onResumeCard={resumeCard}
         subscription={subscription}
       />
     ) : (
       <OfferView
+        cardConfig={cardConfig}
         catalog={catalog}
         catalogFailed={catalogFailed}
         initialTier={tier}
         onBack={subscription?.isPremium ? () => setShowPlans(false) : undefined}
+        onOpenCard={(product) => setCardFlow({ product })}
         onPaid={handlePaid}
+        onResumeCard={resumeCard}
         onRetryCatalog={loadCatalog}
         subscription={subscription}
       />
@@ -716,6 +928,16 @@ export function PremiumScreen() {
   return (
     <>
       {body}
+      {cardFlow && cardConfig ? (
+        <CardPayFlow
+          config={cardConfig}
+          onApproved={handleCardApproved}
+          onChanged={setActiveOrder}
+          onClose={() => setCardFlow(null)}
+          product={cardFlow.product}
+          resume={cardFlow.resume}
+        />
+      ) : null}
       {paid ? (
         <PaidSheet onClose={closePaid} subscription={paid.subscription} tier={paid.tier} />
       ) : null}

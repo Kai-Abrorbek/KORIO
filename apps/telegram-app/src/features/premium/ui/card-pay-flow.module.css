@@ -1,0 +1,820 @@
+/* Humo·Uzcard 카드 입금 — 전체 화면. 열릴 때 페이드 하나뿐 (슬라이드·스프링·팝 금지) */
+.screen {
+  --cp-bg: #f7f6fd;
+  --cp-surface: #ffffff;
+  --cp-text: #1a1a2e;
+  --cp-muted: #5c5c6b;
+  --cp-border: #eceaf6;
+  --cp-primary: #776ee2;
+  --cp-primary-dark: #5b4dd4;
+  --cp-good: #58cc02;
+  --cp-bad: #e5533d;
+  animation: cpFade 160ms ease-out both;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  position: fixed;
+  z-index: 110;
+}
+
+:global(html[data-theme="dark"]) .screen {
+  --cp-bg: #15151d;
+  --cp-surface: #25252e;
+  --cp-text: #ffffff;
+  --cp-muted: #a6a6b3;
+  --cp-border: #3a3a44;
+}
+
+/* ── 머리 ── */
+.header {
+  align-items: center;
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 40px 1fr auto;
+  padding: calc(var(--korio-top, 0px) + 10px) 12px 10px;
+}
+
+.header h1 {
+  font-size: 17px;
+  font-weight: 900;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerBtn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 20px;
+  color: var(--cp-text);
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+}
+
+.headerBtn:active {
+  background: rgb(119 110 226 / 10%);
+}
+
+.headerPlan {
+  background: rgb(119 110 226 / 12%);
+  border-radius: 999px;
+  color: var(--cp-primary);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+/* ── 본문 / 하단 고정 버튼 ── */
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 18px 18px 28px;
+  scrollbar-width: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+/* 스크롤 영역 안의 카드·목록이 줄어들면 은행 카드가 찌그러진다 */
+.body > * {
+  flex-shrink: 0;
+}
+
+.footer {
+  background: var(--cp-surface);
+  border-top: 1px solid var(--cp-border);
+  box-shadow: 0 -4px 12px rgb(0 0 0 / 5%);
+  padding: 12px 18px max(14px, calc(var(--korio-bottom, 0px) + 12px));
+}
+
+.cta {
+  align-items: center;
+  background: var(--cp-primary);
+  border: 0;
+  border-bottom: 4px solid var(--cp-primary-dark);
+  border-radius: 16px;
+  color: #fff;
+  display: flex;
+  font: inherit;
+  font-size: 16.5px;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  min-height: 56px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 70ms ease-out, border-bottom-width 70ms ease-out;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cta::after {
+  animation: cpGloss 3.4s ease-in-out infinite;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 26%), transparent);
+  content: "";
+  inset: 0 auto 0 -40%;
+  position: absolute;
+  width: 40%;
+}
+
+.cta:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.cta:disabled {
+  opacity: 0.55;
+}
+
+.cta:disabled::after {
+  display: none;
+}
+
+.ctaSoft {
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-bottom-width: 4px;
+  color: var(--cp-text);
+}
+
+.ctaSoft::after {
+  display: none;
+}
+
+.textBtn {
+  align-items: center;
+  align-self: center;
+  background: transparent;
+  border: 0;
+  color: var(--cp-muted);
+  display: inline-flex;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 6px;
+  padding: 8px 12px;
+}
+
+.loading {
+  align-items: center;
+  justify-content: center;
+}
+
+.loading i,
+.spinner {
+  animation: cpSpin 0.8s linear infinite;
+  border: 3px solid rgb(119 110 226 / 18%);
+  border-radius: 50%;
+  border-top-color: var(--cp-primary);
+  display: block;
+  height: 30px;
+  width: 30px;
+}
+
+.spinner {
+  border-color: rgb(255 255 255 / 35%);
+  border-top-color: #fff;
+  border-width: 2.5px;
+  height: 18px;
+  width: 18px;
+}
+
+/* ── 금액 ── */
+.amountCard {
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-bottom-width: 4px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 16px 14px;
+}
+
+.amountLabel {
+  color: var(--cp-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.amountRow {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amountValue {
+  color: var(--cp-primary);
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.amountUnit {
+  font-size: 17px;
+  font-weight: 900;
+  margin-right: auto;
+}
+
+.discountRow {
+  align-items: center;
+  color: var(--cp-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.discountRow s {
+  opacity: 0.7;
+}
+
+.discountRow em {
+  background: rgb(88 204 2 / 14%);
+  border-radius: 6px;
+  color: #3f9a00;
+  font-style: normal;
+  font-weight: 900;
+  padding: 1px 6px;
+}
+
+.exactHint {
+  background: rgb(255 196 107 / 18%);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  margin: 6px 0 0;
+  padding: 9px 11px;
+}
+
+/* ── 복사 버튼 ── */
+.copyBtn {
+  align-items: center;
+  background: rgb(119 110 226 / 12%);
+  border: 0;
+  border-radius: 999px;
+  color: var(--cp-primary);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 5px;
+  padding: 7px 12px;
+  transition: background-color 150ms ease;
+}
+
+.copyBtn:active {
+  transform: scale(0.96);
+}
+
+.copyBtnLight {
+  background: rgb(255 255 255 / 22%);
+  color: #fff;
+}
+
+.copyBtnDone {
+  background: var(--cp-good);
+  color: #fff;
+}
+
+/* ── 받는 카드 ── */
+.sectionHead {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  font-weight: 900;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.timer {
+  align-items: center;
+  background: rgb(119 110 226 / 12%);
+  border-radius: 999px;
+  color: var(--cp-primary);
+  display: inline-flex;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  gap: 5px;
+  padding: 5px 10px;
+}
+
+.timerOver {
+  background: rgb(229 83 61 / 12%);
+  color: var(--cp-bad);
+}
+
+.cardTabs {
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 4px;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  padding: 4px;
+}
+
+.cardTabs button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: var(--cp-muted);
+  display: flex;
+  font: inherit;
+  font-size: 13px;
+  gap: 6px;
+  justify-content: center;
+  padding: 9px 6px;
+}
+
+.cardTabs button b {
+  font-weight: 900;
+}
+
+.cardTabActive {
+  background: var(--cp-primary) !important;
+  color: #fff !important;
+}
+
+.bankCard {
+  aspect-ratio: 1.586;
+  border-radius: 20px;
+  box-shadow: 0 14px 28px -12px rgb(20 20 60 / 45%);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 230px;
+  overflow: hidden;
+  padding: 18px 18px 14px;
+  position: relative;
+  transition: transform 120ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bankCard:active {
+  transform: scale(0.985);
+}
+
+.bankHumo {
+  background:
+    radial-gradient(circle at 85% 10%, rgb(255 255 255 / 22%), transparent 42%),
+    linear-gradient(135deg, #0b7a6f 0%, #12a38f 48%, #1fc3a8 100%);
+}
+
+.bankUzcard {
+  background:
+    radial-gradient(circle at 85% 10%, rgb(255 255 255 / 20%), transparent 42%),
+    linear-gradient(135deg, #12306b 0%, #1d4fb3 52%, #2f7be0 100%);
+}
+
+.bankFlash {
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 85%),
+    0 14px 28px -12px rgb(20 20 60 / 45%);
+}
+
+/* 카드 위를 천천히 지나가는 광택 */
+.bankGloss {
+  animation: cpCardGloss 4.2s ease-in-out infinite;
+  background: linear-gradient(105deg, transparent, rgb(255 255 255 / 20%), transparent);
+  inset: -20% auto -20% -50%;
+  pointer-events: none;
+  position: absolute;
+  transform: rotate(8deg);
+  width: 45%;
+}
+
+.bankTop,
+.bankBottom {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.bankChip {
+  background: linear-gradient(135deg, #f6e27a, #d4a72c);
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 15%);
+  height: 30px;
+  width: 42px;
+}
+
+.bankBrand {
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.bankNumber {
+  font-size: clamp(19px, 6vw, 24px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  position: relative;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  white-space: nowrap;
+}
+
+.bankHolder {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  opacity: 0.92;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeOverNote {
+  background: rgb(229 83 61 / 10%);
+  border-radius: 12px;
+  color: var(--cp-bad);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 18px;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+/* ── 순서 ── */
+.steps {
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+}
+
+.steps li {
+  align-items: flex-start;
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 10px;
+  line-height: 20px;
+}
+
+.stepNum {
+  align-items: center;
+  background: rgb(119 110 226 / 14%);
+  border-radius: 12px;
+  color: var(--cp-primary);
+  display: flex;
+  flex: 0 0 24px;
+  font-size: 12.5px;
+  font-weight: 900;
+  height: 24px;
+  justify-content: center;
+}
+
+/* ── 영수증 ── */
+.hiddenInput {
+  display: none;
+}
+
+.dropzone {
+  align-items: center;
+  aspect-ratio: 1.15;
+  background: var(--cp-surface);
+  border: 2.5px dashed rgb(119 110 226 / 45%);
+  border-radius: 22px;
+  color: var(--cp-text);
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 10px;
+  justify-content: center;
+  max-height: 300px;
+  padding: 20px;
+  width: 100%;
+}
+
+.dropzone:active {
+  background: rgb(119 110 226 / 6%);
+}
+
+.dropzone strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.dropzone small {
+  color: var(--cp-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dropIcon {
+  align-items: center;
+  background: rgb(119 110 226 / 12%);
+  border-radius: 22px;
+  color: var(--cp-primary);
+  display: flex;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
+.preview {
+  background: #0d0d14;
+  border-radius: 22px;
+  display: flex;
+  justify-content: center;
+  max-height: 340px;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview img {
+  display: block;
+  max-height: 340px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.previewChange {
+  align-items: center;
+  background: rgb(0 0 0 / 62%);
+  border: 0;
+  border-radius: 999px;
+  bottom: 10px;
+  color: #fff;
+  display: inline-flex;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  right: 10px;
+}
+
+.last4Label {
+  font-size: 14px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.last4Wrap {
+  align-items: center;
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-bottom-width: 4px;
+  border-radius: 18px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 12px;
+}
+
+.last4Mask {
+  color: var(--cp-muted);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.last4Boxes {
+  display: flex;
+  gap: 6px;
+  position: relative;
+}
+
+.last4Box {
+  align-items: center;
+  background: var(--cp-bg);
+  border: 2px solid var(--cp-border);
+  border-radius: 10px;
+  display: flex;
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  height: 44px;
+  justify-content: center;
+  transition: border-color 120ms ease;
+  width: 36px;
+}
+
+.last4BoxActive {
+  border-color: var(--cp-primary);
+}
+
+.last4BoxFilled {
+  border-color: rgb(119 110 226 / 55%);
+  color: var(--cp-primary);
+}
+
+/* 실제 입력은 네 칸 위에 투명하게 겹친다 (붙여넣기·자동완성도 그대로 된다) */
+.last4Input {
+  background: transparent;
+  border: 0;
+  caret-color: transparent;
+  color: transparent;
+  font-size: 16px;
+  inset: 0;
+  opacity: 0.01;
+  position: absolute;
+  width: 100%;
+}
+
+.last4Hint {
+  color: var(--cp-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 17px;
+  margin: -6px 0 0;
+  text-align: center;
+}
+
+.last4HintError {
+  color: var(--cp-bad);
+  font-weight: 800;
+}
+
+.error {
+  background: rgb(229 83 61 / 10%);
+  border-radius: 12px;
+  color: var(--cp-bad);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 18px;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+/* ── 심사 중 / 결과 ── */
+.statusBody {
+  align-items: center;
+  padding-top: 32px;
+  text-align: center;
+}
+
+.statusHero {
+  display: grid;
+  height: 140px;
+  place-items: center;
+  position: relative;
+  width: 140px;
+}
+
+.statusPulse {
+  animation: cpPulse 2.2s ease-in-out infinite;
+  background: radial-gradient(circle, rgb(119 110 226 / 30%), rgb(119 110 226 / 0%) 70%);
+  border-radius: 50%;
+  inset: 0;
+  position: absolute;
+}
+
+.statusMascot {
+  position: relative;
+}
+
+.statusIcon {
+  align-items: center;
+  background: rgb(119 110 226 / 12%);
+  border-radius: 32px;
+  color: var(--cp-primary);
+  display: flex;
+  height: 88px;
+  justify-content: center;
+  width: 88px;
+}
+
+.statusIconBad {
+  background: rgb(229 83 61 / 12%);
+  color: var(--cp-bad);
+}
+
+.statusTitle {
+  font-size: 22px;
+  font-weight: 900;
+  margin: 4px 0 0;
+}
+
+.statusSub {
+  color: var(--cp-muted);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 21px;
+  margin: 0;
+  max-width: 330px;
+}
+
+.summary {
+  background: var(--cp-surface);
+  border: 2px solid var(--cp-border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0 0;
+  padding: 4px 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.summary > div {
+  align-items: center;
+  border-bottom: 1px solid var(--cp-border);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 11px 0;
+}
+
+.summary > div:last-child {
+  border-bottom: 0;
+}
+
+.summary dt {
+  color: var(--cp-muted);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.summary dd {
+  font-size: 14.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  margin: 0;
+}
+
+@keyframes cpFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes cpSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cpGloss {
+  0%,
+  55% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+@keyframes cpCardGloss {
+  0%,
+  60% {
+    transform: translateX(0) rotate(8deg);
+  }
+  100% {
+    transform: translateX(330%) rotate(8deg);
+  }
+}
+
+@keyframes cpPulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta::after,
+  .bankGloss,
+  .statusPulse,
+  .loading i,
+  .spinner {
+    animation-duration: 1ms;
+  }
+}

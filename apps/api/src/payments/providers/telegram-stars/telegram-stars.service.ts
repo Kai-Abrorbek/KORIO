@@ -13,7 +13,12 @@ import {
   SubscriptionService,
   type OneTimePassResult,
 } from '../../subscriptions/subscription.service';
-import { TelegramApiError, TelegramBotApi } from './telegram-bot.api';
+import {
+  TelegramApiError,
+  TelegramBotApi,
+  telegramAdminIds,
+} from './telegram-bot.api';
+import { CardPaymentService } from '../../card/card-payment.service';
 import {
   STARS_INVOICE_PHOTO_PATH,
   starsCatalog,
@@ -52,16 +57,6 @@ function miniAppUrl(): string {
     .replace(/\/+$/, '');
 }
 
-/** /refund 를 쓸 수 있는 텔레그램 유저 id */
-function adminIds(): Set<string> {
-  return new Set(
-    (process.env.TELEGRAM_ADMIN_IDS ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  );
-}
-
 /**
  * 텔레그램 Stars 결제 — 미니앱이 인보이스를 열고, 봇 웹훅이 결과를 받는다.
  *
@@ -87,6 +82,8 @@ export class TelegramStarsService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly subscriptions: SubscriptionService,
     private readonly bot: TelegramBotApi,
+    // 카드 입금 승인 버튼(callback_query)·/cardcheck 도 같은 봇 웹훅으로 들어온다
+    private readonly cards: CardPaymentService,
   ) {}
 
   /** 미니앱 요금제 카드 */
@@ -136,6 +133,12 @@ export class TelegramStarsService {
 
   /** 웹훅 한 건 */
   async handleUpdate(update: TgUpdate): Promise<void> {
+    if (update.callback_query) {
+      await this.cards
+        .handleCallback(update.callback_query)
+        .catch((error) => this.logger.warn(`버튼 처리 실패: ${String(error)}`));
+      return;
+    }
     if (update.pre_checkout_query) {
       await this.onPreCheckout(update.pre_checkout_query);
       return;
@@ -312,8 +315,16 @@ export class TelegramStarsService {
       }
       case '/refund': {
         // 운영자 전용. 모르는 사람에게는 명령이 있는지도 알리지 않는다
-        if (!msg.from || !adminIds().has(String(msg.from.id))) return;
+        if (!msg.from || !telegramAdminIds().includes(String(msg.from.id)))
+          return;
         await reply(await this.refund(args[0] ?? ''));
+        return;
+      }
+      case '/cardcheck': {
+        // 운영자 전용 — 카드 입금 설정(카드번호 검사 결과·대기 건수)
+        if (!msg.from || !telegramAdminIds().includes(String(msg.from.id)))
+          return;
+        await reply(await this.cards.describe());
         return;
       }
       default:

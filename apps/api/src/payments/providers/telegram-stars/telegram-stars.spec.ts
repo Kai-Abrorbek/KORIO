@@ -14,6 +14,9 @@ jest.mock('../../../common/rate-limit', () => ({
   RateLimit: () => () => undefined,
   RateLimitGuard: class {},
 }));
+jest.mock('../../card/card-payment.service', () => ({
+  CardPaymentService: class {},
+}));
 jest.mock('../../dto/create-stars-invoice.dto', () => ({
   CreateStarsInvoiceDto: class {},
 }));
@@ -192,12 +195,17 @@ function setup() {
     revokeRefunded: jest.fn().mockResolvedValue(1),
   };
   const bot = { enabled: true, call: jest.fn().mockResolvedValue(true) };
+  const cards = {
+    handleCallback: jest.fn().mockResolvedValue(true),
+    describe: jest.fn().mockResolvedValue('💳 카드 입금: 켜짐'),
+  };
   const service = new TelegramStarsService(
     users as never,
     subs as never,
     bot as never,
+    cards as never,
   );
-  return { service, users, subs, bot };
+  return { service, users, subs, bot, cards };
 }
 
 const paidUpdate = (productId: string, charge = 'ch_1', amount?: number) => {
@@ -457,5 +465,33 @@ describe('봇 명령', () => {
     });
     await service.handleUpdate(refundMsg);
     expect(subs.revokeRefunded).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('카드 입금으로 넘기는 것', () => {
+  it('인라인 버튼(callback_query)은 카드 결제 서비스로', async () => {
+    const { service, cards } = setup();
+    const q = { id: 'cb', from: { id: 1 }, data: 'cp:a:abc' };
+    await service.handleUpdate({ callback_query: q });
+    expect(cards.handleCallback).toHaveBeenCalledWith(q);
+  });
+
+  it('/cardcheck 는 운영자만', async () => {
+    const { service, cards, bot } = setup();
+    const env = process.env.TELEGRAM_ADMIN_IDS;
+    process.env.TELEGRAM_ADMIN_IDS = '7';
+    const msg = (from: number) => ({
+      message: {
+        message_id: 1,
+        from: { id: from },
+        chat: { id: from, type: 'private' },
+        text: '/cardcheck',
+      },
+    });
+    await service.handleUpdate(msg(8));
+    expect(cards.describe).not.toHaveBeenCalled();
+    await service.handleUpdate(msg(7));
+    expect(lastCall(bot.call)[1].text).toContain('카드 입금');
+    process.env.TELEGRAM_ADMIN_IDS = env;
   });
 });

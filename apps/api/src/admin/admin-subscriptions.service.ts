@@ -114,6 +114,7 @@ export class AdminSubscriptionsService {
           'payme',
           'gems',
           'telegram_stars',
+          'card_transfer',
         ].includes(provider))
     ) {
       throw new BadRequestException('INVALID_SUBSCRIPTION_FILTER');
