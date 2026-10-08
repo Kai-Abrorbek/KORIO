@@ -669,7 +669,7 @@ export class CardPaymentService implements OnModuleInit {
 const PROBLEM_KO = {
   LENGTH: '16자리가 아님',
   NOT_DIGITS: '숫자가 아닌 글자',
-  BRAND: 'Uzcard(8600)·Humo(9860) 번호가 아님',
+  BRAND: 'Uzcard(8600·6262)·Humo(9860) 번호가 아님',
   LUHN: '체크섬 틀림 — 오타 확인 (진짜 맞는 번호면 CARD_PAYMENT_SKIP_LUHN=true)',
 } as const;
 

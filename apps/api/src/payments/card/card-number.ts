@@ -4,7 +4,7 @@
  * 카드번호는 env 로 들어온다 (CARD_PAYMENT_CARDS). 한 자리만 틀려도 유저 돈이
  * 남의 카드로 간다 — 그래서 화면에 띄우기 전에 서버가 세 가지를 본다.
  *   1. 숫자 16자리 (공백·하이픈은 지운다)
- *   2. 앞자리 — Uzcard 8600, Humo 9860
+ *   2. 앞자리 — Uzcard 8600 · 6262(UnionPay 코뱃지), Humo 9860
  *   3. Luhn 체크섬 — 한 자리 오타·인접 두 자리 바뀜을 잡는다
  * 하나라도 틀리면 그 카드는 안 띄운다. 남은 카드가 없으면 카드 결제가 꺼진다.
  *
@@ -24,6 +24,9 @@ export interface ReceivingCard {
 
 const BRAND_PREFIX: { prefix: string; brand: CardBrand }[] = [
   { prefix: '8600', brand: 'uzcard' },
+  // Uzcard–UnionPay 코뱃지 카드. UnionPay 번호 중엔 Luhn 이 안 맞는 것도 있다고 알려져
+  // 있어서, 진짜 번호인데 LUHN 으로 막히면 CARD_PAYMENT_SKIP_LUHN=true
+  { prefix: '6262', brand: 'uzcard' },
   { prefix: '9860', brand: 'humo' },
 ];
 

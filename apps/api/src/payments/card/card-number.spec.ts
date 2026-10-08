@@ -24,6 +24,8 @@ function withCheckDigit(first15: string) {
 
 const HUMO = withCheckDigit('986012345678901');
 const UZCARD = withCheckDigit('860049494949494');
+/** Uzcard–UnionPay 코뱃지 */
+const UZCARD_UP = withCheckDigit('626212345678901');
 /** 마지막 숫자 하나만 틀린 오타 */
 const HUMO_TYPO = HUMO.slice(0, 15) + String((Number(HUMO[15]) + 1) % 10);
 
@@ -39,7 +41,9 @@ describe('카드번호 검사', () => {
   it('앞자리로 Humo·Uzcard 를 가린다', () => {
     expect(cardBrand(HUMO)).toBe('humo');
     expect(cardBrand(UZCARD)).toBe('uzcard');
+    expect(cardBrand(UZCARD_UP)).toBe('uzcard');
     expect(cardBrand('4111111111111111')).toBeNull();
+    expect(cardBrand('6200123456789012')).toBeNull();
   });
 
   it('문제를 이름으로 돌려준다', () => {
@@ -51,6 +55,10 @@ describe('카드번호 검사', () => {
     expect(cardProblem('4111111111111111')).toBe('BRAND');
     expect(cardProblem(HUMO_TYPO)).toBe('LUHN');
     expect(cardProblem(HUMO_TYPO, true)).toBeNull();
+    expect(cardProblem(UZCARD_UP)).toBeNull();
+    // 사용자가 실제로 넣었던 테스트 값 — 15자리 / Luhn 불일치
+    expect(cardProblem('9860 0000 000 0000')).toBe('LENGTH');
+    expect(cardProblem('8600 0000 0000 0000')).toBe('LUHN');
   });
 
   it('env 를 읽어 맞는 카드만 띄우고 틀린 건 가려서 알린다', () => {
