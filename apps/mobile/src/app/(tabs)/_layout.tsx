@@ -5,6 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import ContentLanguagePrompt from "@/components/settings/ContentLanguagePrompt";
+import AdminRewardPrompt from "@/components/rewards/AdminRewardPrompt";
 
 export default function TabsLayout() {
   const { t, i18n } = useTranslation();
@@ -74,6 +75,7 @@ export default function TabsLayout() {
       </Tabs>
       {/* 이 설정이 생기기 전부터 한국어 UI 를 쓰던 사람에게 한 번 묻는다 */}
       <ContentLanguagePrompt />
+      <AdminRewardPrompt />
     </>
   );
 }

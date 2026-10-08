@@ -27,6 +27,9 @@ export interface UserMe {
     | "obsidian"
     | "diamond";
   isSuper: boolean;
+  superTier: "super" | "max" | null;
+  superPlan: string | null;
+  superExpiresAt: string | null;
   streakFreeze: number;
   gems: number;
   energy: number;

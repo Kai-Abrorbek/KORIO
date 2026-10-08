@@ -2,6 +2,17 @@ import topik from "./topik/en";
 
 export default {
   topik,
+  rewardInbox: {
+    title: "A gift from the Korio team!",
+    subtitle: "Your reward has been added to your account.",
+    gems: "{{amount}} gems",
+    energy_refill: "Full energy refill",
+    streak_freeze: "{{amount}} streak freeze",
+    super_days: "{{amount}} days of SUPER",
+    confirm: "Got it, continue",
+    saving: "Confirming…",
+    error: "Couldn't save your confirmation. Please try again.",
+  },
   common: {
     loadFailed: "Couldn't load. Please try again in a moment",
     retry: "Try again",

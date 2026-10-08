@@ -2,6 +2,17 @@ import topik from "./topik/ru";
 
 export default {
   topik,
+  rewardInbox: {
+    title: "Подарок от команды Korio!",
+    subtitle: "Награда уже зачислена на ваш счёт.",
+    gems: "Кристаллы: {{amount}}",
+    energy_refill: "Полное восстановление энергии",
+    streak_freeze: "Защита серии: {{amount}}",
+    super_days: "SUPER на {{amount}} дн.",
+    confirm: "Понятно, продолжить",
+    saving: "Подтверждаем…",
+    error: "Не удалось сохранить подтверждение. Попробуйте снова.",
+  },
   common: {
     loadFailed: "Не удалось загрузить. Попробуйте чуть позже",
     retry: "Повторить",

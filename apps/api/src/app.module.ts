@@ -35,6 +35,7 @@ import { AdminModule } from './admin/admin.module';
 import { RetentionModule } from './retention/retention.module';
 import { SupportModule } from './support/support.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
+import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
     AdminModule,
     SupportModule,
     AppSettingsModule,
+    RewardInboxModule,
     MailModule,
   ],
   controllers: [AppController],

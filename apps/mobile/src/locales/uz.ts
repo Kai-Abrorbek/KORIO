@@ -2,6 +2,17 @@ import topik from "./topik/uz";
 
 export default {
   topik,
+  rewardInbox: {
+    title: "Korio jamoasidan sovgʻa!",
+    subtitle: "Mukofot hisobingizga qoʻshildi.",
+    gems: "{{amount}} ta olmos",
+    energy_refill: "Energiya toʻliq tiklandi",
+    streak_freeze: "{{amount}} ta ketma-ketlik himoyasi",
+    super_days: "{{amount}} kunlik SUPER",
+    confirm: "Tushunarli, davom etish",
+    saving: "Tasdiqlanmoqda…",
+    error: "Tasdiqni saqlab boʻlmadi. Qayta urinib koʻring.",
+  },
   common: {
     loadFailed: "Yuklab bo'lmadi. Birozdan so'ng urinib ko'ring",
     retry: "Qayta urinish",

@@ -34,8 +34,18 @@ export class AdminRewardGrant {
 
   @Prop({ type: Date, default: null })
   appliedAt: Date | null;
+
+  /** 앱에서 지급 사실을 확인한 시각. 기존 문서의 누락 값은 미확인으로 본다. */
+  @Prop({ type: Date, default: null })
+  acknowledgedAt: Date | null;
 }
 
 export const AdminRewardGrantSchema =
   SchemaFactory.createForClass(AdminRewardGrant);
 AdminRewardGrantSchema.index({ userId: 1, createdAt: -1 });
+AdminRewardGrantSchema.index({
+  userId: 1,
+  status: 1,
+  acknowledgedAt: 1,
+  appliedAt: 1,
+});

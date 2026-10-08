@@ -2,6 +2,17 @@ import topik from "./topik/ko";
 
 export default {
   topik,
+  rewardInbox: {
+    title: "운영팀의 선물이 도착했어요!",
+    subtitle: "보상이 계정에 지급되었어요.",
+    gems: "보석 {{amount}}개",
+    energy_refill: "에너지 전체 충전",
+    streak_freeze: "연속 학습 보호권 {{amount}}개",
+    super_days: "SUPER 이용권 {{amount}}일",
+    confirm: "확인하고 계속하기",
+    saving: "확인 중…",
+    error: "확인을 저장하지 못했어요. 다시 시도해 주세요.",
+  },
   common: {
     loadFailed: "불러오지 못했어요. 잠시 뒤에 다시 시도해 주세요",
     retry: "다시 시도",
