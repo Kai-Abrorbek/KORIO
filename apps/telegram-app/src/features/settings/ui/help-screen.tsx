@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { uzt } from "../../../shared/i18n/uz-text";
+import { showToast } from "../../../shared/telegram/share";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
-import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { APP_VERSION } from "../model/changelog";
 import {
   HELP_CATEGORIES,
@@ -47,33 +48,71 @@ function openExternal(url: string) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+/**
+ * 이메일 주소 복사. 예전엔 mailto: 로 window.location 을 넘겼는데, 텔레그램 웹뷰는
+ * mailto 를 못 열어서 오류 페이지로 넘어가 버리고 뒤로도 못 나왔다(앱을 다시 켜야 했다).
+ * 이제 문의는 앱 안(/support)에서 쓰고, 메일을 쓰고 싶은 사람에겐 주소만 복사해 준다.
+ */
+async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    // 오래된 웹뷰 — 아래로
+  }
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  Object.assign(area.style, { left: "-9999px", position: "fixed", top: "0" });
+  document.body.appendChild(area);
+  area.select();
+  try {
+    document.execCommand("copy");
+  } finally {
+    area.remove();
+  }
+}
+
 interface ContactRowProps {
   background: string;
   color: string;
   description?: string;
+  /** 번역 키 (같은 우즈벡어 문장이 다른 뜻일 때 번역기가 헷갈리지 않게) */
+  descriptionKey?: string;
   icon: IoniconName;
   label: string;
+  labelKey?: string;
   onClick: () => void;
+  trailing?: IoniconName;
 }
 
-function ContactRow({ background, color, description, icon, label, onClick }: ContactRowProps) {
+function ContactRow({
+  background,
+  color,
+  description,
+  descriptionKey,
+  icon,
+  label,
+  labelKey,
+  onClick,
+  trailing = "chevron-forward",
+}: ContactRowProps) {
   return (
     <button className={styles.contactRow} onClick={onClick} type="button">
       <i className={styles.contactIcon} style={{ backgroundColor: background, color }}>
         <MobileIcon name={icon} size={20} />
       </i>
       <span>
-        <b>{label}</b>
-        {description ? <small>{description}</small> : null}
+        <b data-i18n={labelKey}>{label}</b>
+        {description ? <small data-i18n={descriptionKey}>{description}</small> : null}
       </span>
-      <MobileIcon name="chevron-forward" size={19} />
+      <MobileIcon name={trailing} size={19} />
     </button>
   );
 }
 
 export function HelpScreen() {
   const router = useRouter();
-  const { user } = useTelegramAuth();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<HelpCategory | null>(null);
   const [open, setOpen] = useState<string | null>(null);
@@ -87,25 +126,10 @@ export function HelpScreen() {
     });
   }, [category, query]);
 
-  const sendMail = () => {
+  const copyEmail = async () => {
     haptic();
-    const platform = window.Telegram?.WebApp.platform || navigator.platform || "web";
-    const body = [
-      "",
-      "",
-      "———————————",
-      "App: KORIO " + APP_VERSION,
-      "Platform: " + platform,
-      "User: " + (user?.email ?? "-"),
-    ].join("\n");
-    const url =
-      "mailto:" +
-      SUPPORT.email +
-      "?subject=" +
-      encodeURIComponent("[KORIO] Savol") +
-      "&body=" +
-      encodeURIComponent(body);
-    window.location.href = url;
+    await copyText(SUPPORT.email).catch(() => undefined);
+    showToast(uzt("help.emailCopied"));
   };
 
   return (
@@ -203,12 +227,27 @@ export function HelpScreen() {
         <h2 className={styles.sectionLabel}>Biz bilan bog‘lanish</h2>
         <section className={styles.card}>
           <ContactRow
+            background="#EEE8FF"
+            color="#7157D9"
+            description={uzt("support.entryDesc")}
+            descriptionKey="support.entryDesc"
+            icon="chatbubble-ellipses"
+            label={uzt("support.title")}
+            labelKey="support.title"
+            onClick={() => {
+              haptic();
+              router.push("/support");
+            }}
+          />
+          <i className={styles.contactDivider} />
+          <ContactRow
             background="#D5F0F5"
             color="#45B7D1"
             description={SUPPORT.email}
             icon="mail"
             label="Email orqali"
-            onClick={sendMail}
+            onClick={() => void copyEmail()}
+            trailing="copy-outline"
           />
           <i className={styles.contactDivider} />
           <ContactRow
@@ -220,8 +259,8 @@ export function HelpScreen() {
             onClick={() => openExternal(SUPPORT.telegram)}
           />
         </section>
-        <p className={styles.replyNote}>
-          Odatda 1-2 kun ichida javob beramiz. Ilova versiyasi va qurilma ma’lumoti avtomatik qo‘shiladi.
+        <p className={styles.replyNote} data-i18n="help.replyNoteShort">
+          {uzt("help.replyNoteShort")}
         </p>
 
         <h2 className={styles.sectionLabel}>Hujjatlar</h2>
