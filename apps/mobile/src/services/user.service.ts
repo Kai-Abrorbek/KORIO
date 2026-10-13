@@ -2,6 +2,26 @@ import { UserProfile } from "@/types/profile";
 import api from "./api";
 import { AvatarConfig } from "@/types/avatar";
 
+/** 친구 프로필 "이번 주 대결" — api users/versus-week.util 과 같은 모양 */
+export interface VersusDay {
+  /** YYYY-MM-DD (리그 시간대 달력) */
+  date: string;
+  /** 0=일 … 6=토 */
+  weekday: number;
+  them: number;
+  me: number;
+}
+
+export interface VersusWeek {
+  today: string;
+  /** 월 → 일 */
+  days: VersusDay[];
+  them: number;
+  me: number;
+  lastWeek: { them: number; me: number };
+  isMe: boolean;
+}
+
 export interface UserMe {
   id: string;
   email: string;
@@ -179,6 +199,10 @@ export const UserService = {
 
   getUserWeekly: (id: string): Promise<{ days: any[] }> =>
     api.get(`/users/${id}/stats/weekly`),
+
+  /** 친구 프로필 "이번 주 대결" — 리그 주(월~일)의 날짜별 XP, 친구 · 나 */
+  getVersusWeek: (id: string): Promise<VersusWeek> =>
+    api.get(`/users/${id}/stats/versus`),
 
   searchUsers: (q: string): Promise<any[]> =>
     api.get(`/users/search?q=${encodeURIComponent(q)}`),

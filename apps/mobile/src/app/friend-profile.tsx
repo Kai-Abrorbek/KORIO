@@ -3,19 +3,17 @@ import { View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { UserService } from "@/services/user.service";
-import { StatsService } from "@/services/stats.service";
+import { UserService, type VersusWeek } from "@/services/user.service";
+import { useAuthStore } from "@/store/auth.store";
 import FriendProfileHeader from "@/components/friend-profile/FriendProfileHeader";
 import ProfileMeta from "@/components/profile/ProfileMeta";
 import ProfileStatsRow from "@/components/profile/ProfileStatsRow";
 import FollowButton from "@/components/friend-profile/FollowButton";
-import WeeklyProgressChart from "@/components/friend-profile/WeeklyProgressChart";
+import WeeklyVersus from "@/components/friend-profile/WeeklyVersus";
 import LearningStatusGrid from "@/components/profile/LearningStatusGrid";
 import ReportBlockSection from "@/components/friend-profile/ReportBlockSection";
 import FollowedBySection from "@/components/friend-profile/FollowedBySection";
 import QuestBadgesRow from "@/features/retention/components/QuestBadgesRow";
-
-const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 const langToFlag = (lang?: string) =>
   ({ ko: "🇰🇷", en: "🇺🇸", uz: "🇺🇿", ru: "🇷🇷" })[lang ?? ""] ?? "🇰🇷";
@@ -29,11 +27,9 @@ export default function FriendProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowedBy, setIsFollowedBy] = useState(false);
-  const [points, setPoints] = useState<
-    { label: string; themXp: number; meXp: number }[]
-  >([]);
-  const [themWeekXp, setThemWeekXp] = useState(0);
-  const [meWeekXp, setMeWeekXp] = useState(0);
+  const me = useAuthStore((st) => st.user);
+  // 이번 주 대결 — 못 불러와도 프로필은 보여 준다 (그 칸만 숨긴다)
+  const [versus, setVersus] = useState<VersusWeek | null>(null);
 
   const goBack = () => {
     if (router.canGoBack()) router.back();
@@ -47,28 +43,13 @@ export default function FriendProfileScreen() {
 
       Promise.all([
         UserService.getUserById(id),
-        UserService.getUserWeekly(id),
-        StatsService.getWeekly(), // 내 주간
+        UserService.getVersusWeek(id).catch(() => null),
       ])
-        .then(([u, themW, meW]) => {
+        .then(([u, week]) => {
           setUser(u);
           setIsFollowing(!!u.isFollowing);
           setIsFollowedBy(!!u.isFollowedBy);
-
-          const themDays = themW?.days ?? [];
-          const meDays = meW?.days ?? [];
-
-          // 날짜 기준으로 요일 라벨 + XP 매핑 (두 배열 같은 7일 범위)
-          const merged = themDays.map((d: any, i: number) => {
-            const label = DAY_LABELS[new Date(d.date).getDay()];
-            const themXp = d.xpEarned ?? 0;
-            const meXp = meDays[i]?.xpEarned ?? 0;
-            return { label, themXp, meXp };
-          });
-
-          setPoints(merged);
-          setThemWeekXp(merged.reduce((s, p) => s + p.themXp, 0));
-          setMeWeekXp(merged.reduce((s, p) => s + p.meXp, 0));
+          setVersus(week?.days?.length === 7 ? week : null);
         })
         .catch((e) => console.error("친구 프로필 로드 실패:", e))
         .finally(() => setLoading(false));
@@ -135,12 +116,17 @@ export default function FriendProfileScreen() {
 
       <QuestBadgesRow badges={user.questBadges} />
 
-      <WeeklyProgressChart
-        points={points}
-        themName={user.nickname}
-        themXp={themWeekXp}
-        meXp={meWeekXp}
-      />
+      {versus && (
+        <WeeklyVersus
+          data={versus}
+          name={user.nickname}
+          themAvatar={user.avatar}
+          themImage={user.profileImage}
+          meName={me?.nickname ?? ""}
+          meAvatar={me?.avatar}
+          meImage={me?.profileImage}
+        />
+      )}
 
       <LearningStatusGrid
         streak={user.streak}
