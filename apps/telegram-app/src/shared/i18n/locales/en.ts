@@ -867,6 +867,7 @@ export default {
       following: "Following",
       followers: "Followers",
     },
+    empty: "No one here yet",
   },
   userCourses: {
     loadFailed: "Couldn't load this",

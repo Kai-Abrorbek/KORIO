@@ -20,3 +20,11 @@
 @media(max-width:390px){.followPill{min-width:82px;padding-right:10px;padding-left:10px;font-size:12px}.friendRow{padding-right:10px;padding-left:10px}.profileStats{gap:20px}.followCard{margin-right:20px;margin-left:20px}.codeRow strong{font-size:27px}.suggestionRow{gap:8px}.suggestionRow .avatar{--avatar-size:48px!important}}
 @media(prefers-reduced-motion:reduce){.heroAvatar,.heroAvatar svg,.inviteHero>i,.loading span,.miniSpinner{animation:none}}
 .searchSpinner{display:flex;justify-content:center;padding:20px 0 8px}
+
+/* ── 친구: 팔로잉 ↔ 팔로워 옆으로 밀기 (friends-screen) ── */
+.friendsPane{padding-bottom:max(40px,var(--korio-bottom));scrollbar-width:none}
+.friendsPane::-webkit-scrollbar{display:none}
+.tabs button{transition:color .22s}
+.tabs>i{transform:translateX(calc(clamp(0,var(--tab-progress,0),1)*100%));transition:transform .32s cubic-bezier(.22,1,.36,1)}
+@supports (color:color-mix(in srgb,red 50%,blue)){.tabs button:nth-of-type(1){color:color-mix(in srgb,#45b7d1 calc(clamp(0,1 - var(--tab-progress,0),1)*100%),var(--secondary))}.tabs button:nth-of-type(2){color:color-mix(in srgb,#45b7d1 calc(clamp(0,var(--tab-progress,0),1)*100%),var(--secondary))}}
+[data-swiping] .tabs>i,[data-swiping] .tabs button{transition:none}

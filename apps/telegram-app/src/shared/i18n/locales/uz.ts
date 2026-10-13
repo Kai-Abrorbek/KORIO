@@ -871,6 +871,7 @@ export default {
       following: "Obunalar",
       followers: "Obunachilar",
     },
+    empty: "Hozircha bu yerda hech kim yo'q",
   },
   userCourses: {
     loadFailed: "Ma'lumotni yuklab bo'lmadi",

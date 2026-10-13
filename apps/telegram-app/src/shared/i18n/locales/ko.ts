@@ -862,6 +862,7 @@ export default {
       following: "팔로잉",
       followers: "팔로워",
     },
+    empty: "아직 여기에 아무도 없어요",
   },
   userCourses: {
     loadFailed: "정보를 불러오지 못했어요",
