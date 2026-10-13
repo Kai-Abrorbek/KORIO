@@ -408,7 +408,7 @@ const REFERRAL_JOINED: Table = {
   uz: [
     {
       title: '{{nickname}} taklifingizni qabul qildi 🎉',
-      body: '{{gems}} ta gavhar hisobingizga tushdi. Hozir ko\'ring.',
+      body: "{{gems}} ta gavhar hisobingizga tushdi. Hozir ko'ring.",
     },
   ],
   en: [
@@ -421,6 +421,60 @@ const REFERRAL_JOINED: Table = {
     {
       title: '{{nickname}} присоединился по вашему коду 🎉',
       body: 'Вы получили {{gems}} самоцветов. Загляните.',
+    },
+  ],
+};
+
+const GEM_PAYOUT_DONE: Table = {
+  ko: [
+    {
+      title: '보석 출금 완료 💸',
+      body: "{{amount}} so'm 을 •••• {{last4}} 카드로 보냈어요.",
+    },
+  ],
+  uz: [
+    {
+      title: 'Gavhar yechish bajarildi 💸',
+      body: "{{amount}} so'm •••• {{last4}} kartaga yuborildi.",
+    },
+  ],
+  en: [
+    {
+      title: 'Gem withdrawal sent 💸',
+      body: "We sent {{amount}} so'm to the card •••• {{last4}}.",
+    },
+  ],
+  ru: [
+    {
+      title: 'Вывод самоцветов выполнен 💸',
+      body: 'Мы отправили {{amount}} сум на карту •••• {{last4}}.',
+    },
+  ],
+};
+
+const GEM_PAYOUT_REJECTED: Table = {
+  ko: [
+    {
+      title: '보석 출금 신청이 반려됐어요',
+      body: '보석 {{gems}}개는 돌려드렸어요. 상점에서 사유를 확인해 주세요.',
+    },
+  ],
+  uz: [
+    {
+      title: "Gavhar yechish so'rovi rad etildi",
+      body: "{{gems}} ta gavhar qaytarildi. Sababini do'konda ko'ring.",
+    },
+  ],
+  en: [
+    {
+      title: 'Gem withdrawal declined',
+      body: 'Your {{gems}} gems were returned. See the reason in the shop.',
+    },
+  ],
+  ru: [
+    {
+      title: 'Вывод самоцветов отклонён',
+      body: '{{gems}} самоцветов вернули. Причину смотрите в магазине.',
     },
   ],
 };
@@ -438,6 +492,8 @@ const TABLES: Partial<Record<PushType, Table>> = {
   [PushType.LEAGUE_RESULT]: LEAGUE_RESULT,
   [PushType.ENERGY_FULL]: ENERGY_FULL,
   [PushType.REFERRAL_JOINED]: REFERRAL_JOINED,
+  [PushType.GEM_PAYOUT_DONE]: GEM_PAYOUT_DONE,
+  [PushType.GEM_PAYOUT_REJECTED]: GEM_PAYOUT_REJECTED,
 };
 
 /** {{key}} 를 params 값으로 바꾼다. 값이 없으면 자리표시자를 지운다 */

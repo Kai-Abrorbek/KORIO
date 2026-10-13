@@ -36,6 +36,7 @@ import { RetentionModule } from './retention/retention.module';
 import { SupportModule } from './support/support.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
 import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
+import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
     SupportModule,
     AppSettingsModule,
     RewardInboxModule,
+    GemPayoutsModule,
     MailModule,
   ],
   controllers: [AppController],

@@ -29,6 +29,10 @@ export enum PushType {
   REFERRAL_JOINED = 'referral_joined',
   /** 어드민 공지 — 신규 기능 안내 등 */
   ANNOUNCEMENT = 'announcement',
+  /** 보석 출금 송금 완료 (돈이 걸린 것 — 스위치로 못 끈다) */
+  GEM_PAYOUT_DONE = 'gem_payout_done',
+  /** 보석 출금 반려 · 보석 반환 */
+  GEM_PAYOUT_REJECTED = 'gem_payout_rejected',
 }
 
 /**

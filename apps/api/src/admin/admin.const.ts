@@ -37,6 +37,10 @@ export const ADMIN_PERMISSIONS = [
   /** 어드민 추가·제거 */
   'admin:manage',
   'audit:read',
+  /** 보석 출금 요청 보기 (카드 번호·이름이 보인다) */
+  'payouts:read',
+  /** 출금 처리 — 송금 완료·반려(보석 반환). 돈이 걸려서 super_admin 만 */
+  'payouts:write',
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 

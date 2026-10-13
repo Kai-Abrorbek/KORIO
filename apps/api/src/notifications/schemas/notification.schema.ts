@@ -18,6 +18,8 @@ export enum NotificationType {
   LEVEL_UP = 'level_up', // 레벨 상승
   SUPER_EXPIRING = 'super_expiring', // 체험 만료 임박
   REFERRAL = 'referral', // 내 초대 코드로 누가 가입
+  GEM_PAYOUT_DONE = 'gem_payout_done', // 보석 출금 송금 완료 (params: amount, last4)
+  GEM_PAYOUT_REJECTED = 'gem_payout_rejected', // 보석 출금 반려 (params: gems, reason)
   SYSTEM = 'system', // 공지 (params.message 필수)
 }
 

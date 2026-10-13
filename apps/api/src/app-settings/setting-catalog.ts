@@ -24,6 +24,7 @@ import {
   STREAK_CHEST_GEMS,
   XP_AWARD_DIVISOR,
 } from '../lessons/economy.const';
+import { GEM_PAYOUT } from '../gem-payouts/gem-payout.const';
 
 export type SettingSpec = {
   key: string;
@@ -354,6 +355,15 @@ export const SETTING_CATALOG: SettingSpec[] = [
     10,
   ),
   item('DAILY_XP_CAP', '하루 XP 상한', 'XP', 'XP', DAILY_XP_CAP, 100, 20000),
+  item(
+    'GEM_PAYOUT.MIN_GEMS',
+    '출금 최소 보석',
+    '보석 출금',
+    '보석',
+    GEM_PAYOUT.MIN_GEMS,
+    1,
+    10_000_000,
+  ),
   item(
     'SINGLE_GRANT_XP_CAP',
     '한 번의 XP 지급 상한',
