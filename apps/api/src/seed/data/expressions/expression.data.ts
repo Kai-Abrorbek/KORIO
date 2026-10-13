@@ -6,6 +6,7 @@ import type {
 import { ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC } from './topics/asking-for-and-understanding-directions';
 import { ASKING_FOR_CLARIFICATION_TOPIC } from './topics/asking-for-clarification';
 import { GREETINGS_AND_GOODBYES_TOPIC } from './topics/greetings-and-goodbyes';
+import { MAKING_AND_CHANGING_APPOINTMENTS_TOPIC } from './topics/making-and-changing-appointments';
 import { ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC } from './topics/ordering-at-restaurants-and-cafes';
 import { PAYING_AT_CONVENIENCE_STORES_TOPIC } from './topics/paying-at-convenience-stores';
 import { REQUESTS_AND_PERMISSION_TOPIC } from './topics/requests-and-permission';
@@ -34,6 +35,7 @@ const EXPRESSION_TOPICS = [
   PAYING_AT_CONVENIENCE_STORES_TOPIC,
   ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC,
   USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC,
+  MAKING_AND_CHANGING_APPOINTMENTS_TOPIC,
 ] as const;
 
 export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =
