@@ -6,6 +6,7 @@ import type {
   ScoreData,
 } from "../model/misc";
 import type { PayoutBrand, PayoutChanged, PayoutOverview } from "../model/payout";
+import type { GemHistoryPage, GemHistoryType, GemSummary } from "../model/gems";
 import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
@@ -55,4 +56,16 @@ export function createGemPayout(
 
 export function cancelGemPayout(request: AuthenticatedRequest, id: string) {
   return request<PayoutChanged>(`/gem-payouts/${encodeURIComponent(id)}/cancel`, { body: "{}", method: "POST" });
+}
+
+/** 보석 내역 — 잔액·이번 달 받은/쓴 보석 */
+export function getGemSummary(request: AuthenticatedRequest) {
+  return request<GemSummary>("/gems/summary");
+}
+
+/** 보석 내역 한 페이지 (최근 것부터). before 는 앞 페이지의 nextCursor */
+export function getGemHistory(request: AuthenticatedRequest, type: GemHistoryType, before: string | null) {
+  const query = new URLSearchParams({ type });
+  if (before) query.set("before", before);
+  return request<GemHistoryPage>(`/gems/history?${query.toString()}`);
 }

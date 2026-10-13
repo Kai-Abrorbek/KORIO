@@ -14,6 +14,7 @@ import { buyStreakFreeze, getRetentionSummary } from "../../retention/api/retent
 import { haptic, rt, type FreezeView } from "../../retention/model/retention";
 import { ShopFreezeSection } from "../../retention/ui/shop-freeze";
 import { WithdrawCard } from "./withdraw-card";
+import { uzt } from "../../../shared/i18n/uz-text";
 
 const TIERS = [
   { a: "#7FD8F5", b: "#3BB6E5", edge: "#2A94BC" },
@@ -39,8 +40,10 @@ function Battery({ value, pink = false }: { pink?: boolean; value: number }) {
   return <span className={`${styles.battery} ${pink ? styles.batteryPink : ""}`}><i/><b>{value}</b><em/></span>;
 }
 
-function GemHero({ gems, premiumUntil }: { gems: number; premiumUntil: string | null }) {
+function GemHero({ gems, onHistory, premiumUntil }: { gems: number; onHistory: () => void; premiumUntil: string | null }) {
   return <section className={styles.gemHero}>
+    {/* 보석 내역 — 이 보석이 어디서 왔고 어디로 갔는지 */}
+    <button className={styles.historyPill} onClick={()=>{window.Telegram?.WebApp.HapticFeedback?.selectionChanged();onHistory();}} type="button"><MobileIcon name="receipt-outline" size={14}/><span data-i18n="gemHistory.entry">{uzt("gemHistory.entry")}</span><MobileIcon name="chevron-forward" size={13}/></button>
     {Array.from({ length: 3 },(_,index)=><i className={styles.heroSpark} key={index} style={{ "--i": index } as CSSProperties}><MobileIcon name="sparkles" size={10+index*2}/></i>)}
     <small>GAVHARLARIM</small><div><MobileIcon name="diamond" size={26}/><strong>{gems.toLocaleString("en-US")}</strong></div><p>1 gavhar = 1 so&apos;m</p>
     <MobileIcon className={styles.heroGem} name="diamond" size={66}/>
@@ -97,7 +100,7 @@ export function ShopScreen() {
   const buyFreeze=()=>void run(async()=>{const result=await buyStreakFreeze(request);setFreeze(current=>current?{...current,owned:result.owned,max:result.max}:current);setPasses(current=>current?{...current,gems:result.gems}:current);setEnergy(current=>current?{...current,gems:result.gems}:current);updateUser({gems:result.gems});haptic("success");});
   const buy=async(pass:GemPass)=>{if(!(await confirmDialog(`${pass.gems.toLocaleString("en-US")} gavhar sarflab, ${pass.days} kunlik premium olasiz.`)))return;void run(async()=>{const result=await redeemGemPass(request,pass.id);updateUser({gems:result.gems,isSuper:true,superExpiresAt:result.premiumUntil});void alertDialog(`Premium yana ${result.days} kunga uzaytirildi!`);await load();});};
   if(loading)return <main className={`${styles.page} ${styles.loading}`}><i/></main>;
-  return <main className={styles.page}><header className={styles.header}><button aria-label="Yopish" onClick={()=>window.history.length>1?router.back():router.replace("/home")} type="button"><MobileIcon name="close" size={24}/></button><h1>Do&apos;kon</h1><span><MobileIcon name="diamond" size={16}/>{gems.toLocaleString("en-US")}</span></header><div className={styles.scroll}><GemHero gems={gems} premiumUntil={untilLabel}/><h2 className={styles.sectionLabel}>PREMIUM MUDDAT</h2><p className={styles.sectionDesc}>To&apos;plagan gavharlaringizga KORIO SUPER&apos;ni yana bir necha kun oling. Muddat uzoq bo&apos;lsa, kuniga arzonroq.</p>
+  return <main className={styles.page}><header className={styles.header}><button aria-label="Yopish" onClick={()=>window.history.length>1?router.back():router.replace("/home")} type="button"><MobileIcon name="close" size={24}/></button><h1>Do&apos;kon</h1><button aria-label={uzt("gemHistory.title")} className={styles.gemChipBtn} onClick={()=>router.push("/gem-history")} type="button"><MobileIcon name="diamond" size={16}/>{gems.toLocaleString("en-US")}</button></header><div className={styles.scroll}><GemHero gems={gems} onHistory={()=>router.push("/gem-history")} premiumUntil={untilLabel}/><h2 className={styles.sectionLabel}>PREMIUM MUDDAT</h2><p className={styles.sectionDesc}>To&apos;plagan gavharlaringizga KORIO SUPER&apos;ni yana bir necha kun oling. Muddat uzoq bo&apos;lsa, kuniga arzonroq.</p>
     {unavailable?<div className={styles.retry}><MobileIcon name="cloud-offline-outline" size={26}/><p>Muddatlarni yuklab bo&apos;lmadi. Server javob bermayapti.</p><button onClick={()=>{setUnavailable(false);setLoading(true);void load();}} type="button"><MobileIcon name="refresh" size={15}/>Qayta urinish</button></div>:passes?.passes.map((pass,index)=><PassCard basePerDay={basePerDay} busy={busy} featured={index===passes.passes.length-1} gems={gems} index={index} key={pass.id} onBuy={()=>void buy(pass)} pass={pass}/>) }
     {passes&&passes.stackedDays>0?<p className={styles.stackNote}>{`Hozir ${passes.stackedDays} kun to'plangan (ko'pi bilan ${passes.maxStackDays} kun)`}</p>:null}<h2 className={`${styles.sectionLabel} ${styles.superLabel}`}>KORIO SUPER</h2><SuperCard active={isSuper} onClick={()=>router.push("/premium")}/>{freeze?<ShopFreezeSection busy={busy} freeze={freeze} gems={gems} isSuper={isSuper} onBuy={buyFreeze}/>:null}{!isSuper?<EnergySection busy={busy} energy={energy??ENERGY_FALLBACK} gems={gems} onFree={()=>void run(async()=>{const result=await claimFreeEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})} onRefill={()=>void run(async()=>{const result=await refillEnergy(request);setEnergy(result);updateUser({energy:result.energy,gems:result.gems});})}/>:null}<WithdrawCard gems={gems} onGemsChange={next=>{updateUser({gems:next});setPasses(current=>current?{...current,gems:next}:current);setEnergy(current=>current?{...current,gems:next}:current);}}/></div></main>;
 }

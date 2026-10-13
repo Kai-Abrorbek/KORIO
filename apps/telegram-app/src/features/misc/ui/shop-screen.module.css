@@ -57,3 +57,9 @@
 @keyframes payoutIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 :global(:root[data-theme="dark"]) .payoutAmount,:global(:root[data-theme="dark"]) .withdrawCard>p.payoutNote{background:#1d1d26}
 @media(prefers-reduced-motion:reduce){.payoutOpen,.payoutSteps>li.stepActive>span{animation:none}}
+
+/* ── 보석 내역으로 가는 길 (gem-history-screen) ── */
+.historyPill{align-items:center;backdrop-filter:blur(4px);background:rgb(255 255 255/20%);border:1px solid rgb(255 255 255/28%);border-radius:999px;color:#fff;display:flex;font-size:12px;font-weight:900;gap:4px;padding:6px 9px 6px 10px;position:absolute;right:14px;top:14px;z-index:1}
+.historyPill:active{transform:scale(.96)}
+.heroSpark{top:calc(56px + var(--i)*15px)}
+.header .gemChipBtn{color:#3bb6e5;font-size:16px;font-weight:900;gap:5px;justify-content:flex-end;min-width:40px;width:auto}
