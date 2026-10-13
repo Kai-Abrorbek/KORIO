@@ -3,7 +3,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 
 import {
-  CATEGORY_COLORS,
   CATEGORY_LABELS,
   CATEGORY_LIST,
   type CategoryChartPoint,
@@ -15,6 +14,7 @@ import {
   MobileIcon,
   type IoniconName,
 } from "../../../shared/ui/mobile-icon";
+import { useCategoryColors } from "./use-category-colors";
 import {
   PeriodSelector,
   Spinner,
@@ -75,11 +75,12 @@ function CategoryTabs({
   onChange: (category: StudyCategory) => void;
   value: StudyCategory;
 }) {
+  const categoryColors = useCategoryColors();
   return (
     <div className={styles.tabs}>
       {CATEGORY_LIST.map((category) => {
         const active = category === value;
-        const color = CATEGORY_COLORS[category];
+        const color = categoryColors[category];
         return (
           <button
             className={active ? styles.tabActive : ""}
@@ -111,7 +112,7 @@ function CategorySummary({
   category: StudyCategory;
   stats: CategoryStats;
 }) {
-  const color = CATEGORY_COLORS[category];
+  const color = useCategoryColors()[category];
   const tiles: Array<{
     background: string;
     icon: IoniconName;
@@ -214,6 +215,7 @@ function StudyInfoChart({
   const [period, setPeriod] = useState<StudyPeriod>("week");
   const [data, setData] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const categoryColors = useCategoryColors();
 
   useEffect(() => {
     let active = true;
@@ -242,7 +244,7 @@ function StudyInfoChart({
     );
   }
 
-  const color = CATEGORY_COLORS[category];
+  const color = categoryColors[category];
   const colors = {
     newWords: color,
     knownWords: color + "99",

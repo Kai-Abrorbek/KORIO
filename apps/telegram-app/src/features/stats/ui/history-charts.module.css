@@ -46,9 +46,10 @@
   fill: var(--stats-muted);
 }
 
+/* 길이는 pathLength={1} 로 정규화 — 고정 길이(1000)면 월·연 단위처럼 긴 선이 중간에 끊긴다 */
 .linePath {
   animation: drawLine 1000ms ease-out both;
-  stroke-dasharray: 1000;
+  stroke-dasharray: 1;
 }
 
 .range {
@@ -134,7 +135,7 @@
 
 @keyframes drawLine {
   from {
-    stroke-dashoffset: 1000;
+    stroke-dashoffset: 1;
   }
 
   to {

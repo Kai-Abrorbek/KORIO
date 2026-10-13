@@ -132,6 +132,12 @@ export const CATEGORY_COLORS: Record<StudyCategory, string> = {
   other: "#9AA0A6",
 };
 
+/** 다크 모드 색 — TOPIK 진갈색(#825707)은 어두운 카드 위에서 묻혀서 밝힌다 */
+export const CATEGORY_COLORS_DARK: Record<StudyCategory, string> = {
+  ...CATEGORY_COLORS,
+  topik: "#C4943F",
+};
+
 export const CATEGORY_LABELS: Record<StudyCategory, string> = {
   vocab: "Lug'at",
   grammar: "Grammatika",

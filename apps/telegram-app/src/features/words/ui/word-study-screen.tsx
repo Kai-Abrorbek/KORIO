@@ -334,8 +334,10 @@ function RecallCard({
             onChange={(event) => onAnswer(event.target.value)}
             onFocus={(event) => {
               onFocusChange(true);
+              // currentTarget 은 이벤트가 끝나면 null 이 된다 — 타이머 전에 잡아 둔다
+              const input = event.currentTarget;
               window.setTimeout(
-                () => event.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" }),
+                () => input.scrollIntoView({ behavior: "smooth", block: "center" }),
                 180,
               );
             }}

@@ -4,7 +4,6 @@ import { useEffect, useState, type CSSProperties } from "react";
 
 import {
   ALL_CATEGORIES,
-  CATEGORY_COLORS,
   CATEGORY_LABELS,
   type HeatmapDay,
   type StudyPeriod,
@@ -12,6 +11,7 @@ import {
   type VolumePoint,
 } from "../model/stats";
 import { getPeriod } from "./period-view";
+import { useCategoryColors } from "./use-category-colors";
 import {
   PeriodSelector,
   Spinner,
@@ -140,6 +140,7 @@ function StudyTimeChart({ request }: { request: AuthenticatedRequest }) {
           d={smoothPath(coordinates)}
           fill="none"
           key={period}
+          pathLength={1}
           stroke="#776ee2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -193,6 +194,7 @@ function StudyVolumeChart({ request }: { request: AuthenticatedRequest }) {
   const [points, setPoints] = useState<VolumePoint[]>([]);
   const [average, setAverage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const categoryColors = useCategoryColors();
 
   useEffect(() => {
     let active = true;
@@ -240,7 +242,7 @@ function StudyVolumeChart({ request }: { request: AuthenticatedRequest }) {
       <div className={styles.legend}>
         {ALL_CATEGORIES.map((category) => (
           <span key={category}>
-            <i style={{ backgroundColor: CATEGORY_COLORS[category] }} />
+            <i style={{ backgroundColor: categoryColors[category] }} />
             {CATEGORY_LABELS[category]}
           </span>
         ))}
@@ -267,7 +269,7 @@ function StudyVolumeChart({ request }: { request: AuthenticatedRequest }) {
                       <b
                         key={category}
                         style={{
-                          backgroundColor: CATEGORY_COLORS[category],
+                          backgroundColor: categoryColors[category],
                           flexGrow: point[category],
                         }}
                       />
