@@ -11,7 +11,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
+import { GestureDetector } from "react-native-gesture-handler";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,6 +37,15 @@ import {
   TopikLevelModal,
   type TopikLevel,
 } from "@/components/topik/TopikLevelModal";
+import SwipeSlides, {
+  useSegmentOnOpacity,
+  useSegmentTextColor,
+  useSegmentThumb,
+} from "@/components/common/SwipeSlides";
+import { useSwipeTabs } from "@/components/common/useSwipeTabs";
+
+/** 세그먼트 순서 = 옆으로 넘기는 순서 */
+const STUDY_MODES: StudyMode[] = ["guided", "free"];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -281,56 +292,83 @@ function GuidedEntry({
   );
 }
 
-/** 학습 로드 ↔ 자율 전환. 여기가 학습 모드를 고르는 화면이라 이 자리가 맞다. */
+const MODE_OPTIONS: { mode: StudyMode; icon: string; labelKey: string }[] = [
+  { mode: "guided", icon: "footsteps", labelKey: "studyMode.guided" },
+  { mode: "free", icon: "compass", labelKey: "studyMode.free" },
+];
+
+/**
+ * 학습 로드 ↔ 자율 전환. 여기가 학습 모드를 고르는 화면이라 이 자리가 맞다.
+ * 선택 배경·글자색은 progress 를 따라간다 — 아래 내용을 옆으로 밀면 같이 미끄러진다.
+ */
 function ModeSegment({
-  mode,
   onChange,
+  progress,
   s,
   theme,
   t,
 }: {
-  mode: StudyMode;
   onChange: (m: StudyMode) => void;
+  progress: SharedValue<number>;
   s: ReturnType<typeof getStyles>;
   theme: ThemeColors;
   t: (k: string) => string;
 }) {
-  const OPTIONS: { mode: StudyMode; icon: string; labelKey: string }[] = [
-    { mode: "guided", icon: "footsteps", labelKey: "studyMode.guided" },
-    { mode: "free", icon: "compass", labelKey: "studyMode.free" },
-  ];
+  const { onLayout, thumbStyle } = useSegmentThumb(progress, { border: 2, gap: 4, inset: 4 });
 
   return (
     <View style={s.modeWrap}>
       <Text style={s.modeTitle}>{t("courses.modeTitle")}</Text>
 
-      <View style={s.segment}>
-        {OPTIONS.map((o) => {
-          const on = o.mode === mode;
-          return (
-            <Pressable
-              key={o.mode}
-              onPress={() => onChange(o.mode)}
-              style={[s.segmentItem, on && s.segmentItemOn]}
-            >
-              <Ionicons
-                name={o.icon as any}
-                size={16}
-                color={on ? "#fff" : theme.textSecondary}
-              />
-              <Text style={[s.segmentText, on && s.segmentTextOn]}>
-                {t(o.labelKey)}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View style={s.segment} onLayout={onLayout}>
+        <Animated.View style={[s.segmentThumb, thumbStyle]} />
+        {MODE_OPTIONS.map((o, slot) => (
+          <ModeOption
+            icon={o.icon}
+            key={o.mode}
+            label={t(o.labelKey)}
+            onPress={() => onChange(o.mode)}
+            progress={progress}
+            s={s}
+            slot={slot}
+            theme={theme}
+          />
+        ))}
       </View>
-
-      <Text style={s.modeNote}>
-        {t(mode === "guided" ? "courses.modeGuidedNote" : "courses.modeFreeNote")}
-      </Text>
-      <Text style={s.modeHint}>{t("courses.modeHint")}</Text>
     </View>
+  );
+}
+
+function ModeOption({
+  icon,
+  label,
+  onPress,
+  progress,
+  s,
+  slot,
+  theme,
+}: {
+  icon: string;
+  label: string;
+  onPress: () => void;
+  progress: SharedValue<number>;
+  s: ReturnType<typeof getStyles>;
+  slot: number;
+  theme: ThemeColors;
+}) {
+  const textColor = useSegmentTextColor(progress, slot, theme.textSecondary, "#fff");
+  const onOpacity = useSegmentOnOpacity(progress, slot);
+  return (
+    <Pressable onPress={onPress} style={s.segmentItem}>
+      {/* 아이콘 색은 애니가 안 돼서 회색·흰색 두 벌을 겹쳐 두고 흰색을 비춘다 */}
+      <View>
+        <Ionicons name={icon as any} size={16} color={theme.textSecondary} />
+        <Animated.View style={[StyleSheet.absoluteFill, onOpacity]}>
+          <Ionicons name={icon as any} size={16} color="#fff" />
+        </Animated.View>
+      </View>
+      <Animated.Text style={[s.segmentText, textColor]}>{label}</Animated.Text>
+    </Pressable>
   );
 }
 
@@ -342,10 +380,15 @@ export default function CourseCategories() {
   const [topikModalVisible, setTopikModalVisible] = useState(false);
   const { canUse, requirePremium } = useFeatureAccess();
   const studyMode = useSettingsStore((st) => st.studyMode);
-  // 학습 로드에서는 로드가 안 덮는 것만 남긴다 (CATEGORIES 주석 참고)
-  const visible = CATEGORIES.filter(
-    (c) => studyMode === "free" || c.guided,
-  );
+  const modeIndex = Math.max(0, STUDY_MODES.indexOf(studyMode));
+  // 아래 내용을 옆으로 밀어도 학습 방식이 바뀐다 (세그먼트를 누른 것과 같다)
+  const modeProgress = useSharedValue(modeIndex);
+  const { gesture: modeSwipe } = useSwipeTabs({
+    count: STUDY_MODES.length,
+    index: modeIndex,
+    onIndexChange: (next) => commitStudyMode(STUDY_MODES[next] ?? studyMode),
+    progress: modeProgress,
+  });
   const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
 
   const selectTopikLevel = (level: TopikLevel) => {
@@ -355,6 +398,49 @@ export default function CourseCategories() {
     setTopikModalVisible(false);
     router.push({ pathname: "/topik-sections", params: { level } });
   };
+
+  // 방식마다 설명·로드 입구·분야 목록이 달라서 그 부분만 옆으로 넘긴다.
+  // 학습 로드에서는 로드가 안 덮는 것만 남긴다 (CATEGORIES 주석 참고)
+  const renderMode = (mode: StudyMode) => (
+    <View>
+      <Text style={s.modeNote}>
+        {t(mode === "guided" ? "courses.modeGuidedNote" : "courses.modeFreeNote")}
+      </Text>
+      <Text style={s.modeHint}>{t("courses.modeHint")}</Text>
+
+      {mode === "guided" && (
+        <GuidedEntry
+          s={s}
+          t={t}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
+            // 홈의 "이어서 학습하기" 도 여기로 온다.
+            commitLearnMode("vocabulary");
+            // 급수를 아직 안 골랐으면 그것부터. 골랐으면 바로 이어서 간다.
+            router.push(guidedEntryPath());
+          }}
+        />
+      )}
+
+      <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
+      <View style={s.grid}>
+        {CATEGORIES.filter((c) => mode === "free" || c.guided).map((c, i) => (
+          <CategoryCard
+            key={c.key}
+            c={c}
+            index={i}
+            s={s}
+            label={t(`courses.categories.${c.key}`)}
+            desc={t(`courses.categoryDesc.${c.key}`)}
+            onTopikPress={() => setTopikModalVisible(true)}
+            requirePremium={requirePremium}
+            locked={!canUse(c.feature)}
+          />
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 4 }]}>
@@ -372,50 +458,29 @@ export default function CourseCategories() {
         </Text>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <ModeSegment
-          mode={studyMode}
-          onChange={commitStudyMode}
-          s={s}
-          theme={theme}
-          t={t}
-        />
-
-        {studyMode === "guided" && (
-          <GuidedEntry
-            s={s}
-            t={t}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
-              // 홈의 "이어서 학습하기" 도 여기로 온다.
-              commitLearnMode("vocabulary");
-              // 급수를 아직 안 골랐으면 그것부터. 골랐으면 바로 이어서 간다.
-              router.push(guidedEntryPath());
-            }}
-          />
-        )}
-
-        <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
-        <View style={s.grid}>
-          {visible.map((c, i) => (
-            <CategoryCard
-              key={c.key}
-              c={c}
-              index={i}
+      <GestureDetector gesture={modeSwipe}>
+        <View style={s.swipeArea}>
+          <ScrollView
+            contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
+            showsVerticalScrollIndicator={false}
+          >
+            <ModeSegment
+              onChange={commitStudyMode}
+              progress={modeProgress}
               s={s}
-              label={t(`courses.categories.${c.key}`)}
-              desc={t(`courses.categoryDesc.${c.key}`)}
-              onTopikPress={() => setTopikModalVisible(true)}
-              requirePremium={requirePremium}
-              locked={!canUse(c.feature)}
+              theme={theme}
+              t={t}
             />
-          ))}
+
+            <SwipeSlides
+              bleed={20}
+              index={modeIndex}
+              progress={modeProgress}
+              slides={[renderMode("guided"), renderMode("free")]}
+            />
+          </ScrollView>
         </View>
-      </ScrollView>
+      </GestureDetector>
       <TopikLevelModal
         visible={topikModalVisible}
         onClose={() => setTopikModalVisible(false)}
@@ -437,6 +502,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     headerTitle: { fontSize: 22, fontWeight: "700", color: theme.text },
     scroll: { paddingHorizontal: 20, paddingTop: 12 },
+    swipeArea: { flex: 1 },
     guidedCard: {
       flexDirection: "row",
       alignItems: "center",
@@ -469,7 +535,7 @@ const getStyles = (theme: ThemeColors) =>
       marginTop: 2,
     },
 
-    modeWrap: { marginBottom: 22 },
+    modeWrap: { marginBottom: 0 },
     modeTitle: {
       fontSize: 15,
       fontWeight: "800",
@@ -485,6 +551,8 @@ const getStyles = (theme: ThemeColors) =>
       padding: 4,
       gap: 4,
     },
+    // 선택 배경 — useSegmentThumb 이 위치·폭을 잡는다 (border 2 · padding 4 · gap 4 와 맞춰야 한다)
+    segmentThumb: { backgroundColor: theme.primary, borderRadius: 10 },
     segmentItem: {
       flex: 1,
       flexDirection: "row",
@@ -494,13 +562,11 @@ const getStyles = (theme: ThemeColors) =>
       paddingVertical: 9,
       borderRadius: 10,
     },
-    segmentItemOn: { backgroundColor: theme.primary },
     segmentText: {
       fontSize: 13.5,
       fontWeight: "800",
       color: theme.textSecondary,
     },
-    segmentTextOn: { color: "#fff" },
     modeNote: {
       fontSize: 12.5,
       fontWeight: "600",
@@ -514,6 +580,7 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.textSecondary,
       opacity: 0.75,
       marginTop: 4,
+      marginBottom: 22,
     },
     lead: {
       fontSize: 15,

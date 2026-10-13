@@ -40,7 +40,8 @@ export default function TopTabs({ value, onChange, progress }: Props) {
   // 밑줄은 두 탭 사이를 미는 만큼 옮겨 간다
   const indicatorStyle = useAnimatedStyle(() => {
     const [x0 = 0, w0 = 46, x1 = 70, w1 = 46] = marks.value;
-    const p = progress.value;
+    // 끝 탭에서 고무줄로 끌려도 밑줄은 끝 탭에서 멈춘다
+    const p = Math.min(1, Math.max(0, progress.value));
     return {
       transform: [{ translateX: x0 + (x1 - x0) * p }],
       width: w0 + (w1 - w0) * p,

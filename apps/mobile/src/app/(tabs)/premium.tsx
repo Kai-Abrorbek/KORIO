@@ -19,7 +19,9 @@ import Animated, {
   withSequence,
   withTiming,
   Easing,
+  type SharedValue,
 } from "react-native-reanimated";
+import { GestureDetector } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
@@ -37,6 +39,11 @@ import {
 } from "@/features/subscription/services/billing.service";
 import { useBilling } from "@/features/subscription/hooks/useBilling";
 import { useSubscription } from "@/features/subscription/hooks/useSubscription";
+import SwipeSlides, {
+  useSegmentTextColor,
+  useSegmentThumb,
+} from "@/components/common/SwipeSlides";
+import { useSwipeTabs } from "@/components/common/useSwipeTabs";
 
 const { width } = Dimensions.get("window");
 
@@ -78,18 +85,25 @@ export default function PremiumScreen() {
 
   const tierPlans = useMemo(() => plansByTier(tier), [plansByTier, tier]);
 
+  // 화면 어디든 옆으로 밀면 SUPER ↔ MAX (위 등급 버튼을 누른 것과 같다).
+  // 아래 early return 보다 위에 있어야 한다 (훅 순서)
+  const tierIndex = Math.max(0, TIERS.indexOf(tier));
+  const tierProgress = useSharedValue(tierIndex);
+  const { gesture: tierSwipe } = useSwipeTabs({
+    count: TIERS.length,
+    disabled: busy,
+    index: tierIndex,
+    onIndexChange: (next) => setTier(TIERS[next] ?? tier),
+    progress: tierProgress,
+  });
+
   // 기본 선택은 "가장 알뜰" 배지를 붙인 상품과 같아야 한다.
   // 배지는 연간에 달아놓고 기본 선택은 월간이면 화면이 서로 다른 말을 한다.
   useEffect(() => {
     if (!tierPlans.length) return;
     // 등급을 바꾸면 그 등급 안에서 다시 고른다
     if (selected && tierPlans.some((p) => p.productId === selected)) return;
-    const best = tierPlans.reduce((a, b) =>
-      savingPercent(b, tierPlans) > savingPercent(a, tierPlans) ? b : a,
-    );
-    if (savingPercent(best, tierPlans) > 0) return setSelected(best.productId);
-    const trial = tierPlans.find((p) => p.hasFreeTrial);
-    setSelected((trial ?? tierPlans[0]).productId);
+    setSelected(defaultPlanId(tierPlans));
   }, [tierPlans, selected]);
 
   // 로고 반짝임
@@ -110,15 +124,6 @@ export default function PremiumScreen() {
     () => tierPlans.find((p) => p.productId === selected) ?? null,
     [tierPlans, selected],
   );
-
-  /** 할인율이 가장 큰 상품 하나만 강조한다. 넷 다 강조하면 강조가 아니다 */
-  const bestPlanId = useMemo(() => {
-    if (tierPlans.length < 2) return null;
-    const top = tierPlans.reduce((a, b) =>
-      savingPercent(b, tierPlans) > savingPercent(a, tierPlans) ? b : a,
-    );
-    return savingPercent(top, tierPlans) > 0 ? top.productId : null;
-  }, [tierPlans]);
 
   if (subLoading && !subscription) {
     return (
@@ -241,61 +246,24 @@ export default function PremiumScreen() {
   // ── 구독 안내 ──
   const showPlans = supported && connected && tierPlans.length > 0;
 
-  return (
-    <View style={s.container}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: insets.bottom + TAB_BAR_HEIGHT + (showPlans ? 190 : 40),
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* 히어로 */}
-        <LinearGradient
-          colors={["#9D8DFF", "#776ee2", "#5B4DD4"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.hero}
-        >
-          <Animated.View style={[s.shine, shimmerStyle]} />
-          <View style={s.crownWrap}>
-            <Ionicons name="star" size={36} color="#FFD93D" />
-          </View>
-          <View style={s.logoRow}>
-            <Text style={s.logoKorio}>KORIO</Text>
-            <View style={s.superTag}>
-              <Text style={s.superTagText}>SUPER</Text>
-            </View>
-          </View>
-          <Text style={s.heroSub}>{t("premium.heroSub")}</Text>
-        </LinearGradient>
-
-        {/* 등급 선택 — MAX 가 기본. AI 튜터가 킬러 기능이다 */}
-        <View style={s.tierBar}>
-          {TIERS.map((tk) => {
-            const on = tier === tk;
-            return (
-              <Pressable
-                key={tk}
-                style={[s.tierBtn, on && s.tierBtnOn]}
-                onPress={() => setTier(tk)}
-              >
-                <Text style={[s.tierBtnText, on && s.tierBtnTextOn]}>
-                  {t(`premium.tier.${tk}`)}
-                </Text>
-                {tk === "max" && (
-                  <View style={s.tierStar}>
-                    <Ionicons name="sparkles" size={11} color="#FFD93D" />
-                  </View>
-                )}
-              </Pressable>
-            );
-          })}
-        </View>
-        <Text style={s.tierBlurb}>{t(`premium.tierBlurb.${tier}`)}</Text>
+  /**
+   * 등급 하나의 설명·혜택·요금제. 두 등급 다 미리 그려 두고 옆으로 넘긴다.
+   * 보고 있는 등급의 선택은 selected, 옆 등급은 그 등급의 기본(가장 알뜰) 을 보여준다 —
+   * 넘어가면 위 effect 가 selected 를 그 등급 기본으로 맞추니 넘어가도 바뀌어 보이지 않는다.
+   */
+  const renderTier = (tk: SubscriptionTier) => {
+    const list = plansByTier(tk);
+    const picked = list.some((p) => p.productId === selected)
+      ? selected
+      : defaultPlanId(list);
+    const best = bestPlanIdOf(list);
+    return (
+      <View>
+        <Text style={s.tierBlurb}>{t(`premium.tierBlurb.${tk}`)}</Text>
 
         {/* 혜택 */}
         <View style={s.section}>
-          {tier === "max" && (
+          {tk === "max" && (
             <>
               {MAX_FEATURES.map((f) => (
                 <View key={f.key} style={s.featureRow}>
@@ -328,7 +296,7 @@ export default function PremiumScreen() {
             </>
           )}
 
-          {tier === "super" &&
+          {tk === "super" &&
             SUPER_FEATURES.map((f) => (
               <View key={f.key} style={s.featureRow}>
                 <View style={s.featureIcon}>
@@ -351,15 +319,15 @@ export default function PremiumScreen() {
         </View>
 
         {/* 요금제 — 가격은 전부 스토어가 준 값이다 */}
-        {showPlans ? (
+        {supported && connected && list.length > 0 ? (
           <View style={s.plans}>
-            {tierPlans.map((plan) => (
+            {list.map((plan) => (
               <PlanCard
                 key={plan.productId}
                 plan={plan}
-                plans={tierPlans}
-                selected={selected === plan.productId}
-                best={plan.productId === bestPlanId}
+                plans={list}
+                selected={picked === plan.productId}
+                best={plan.productId === best}
                 onPress={() => setSelected(plan.productId)}
                 theme={theme}
                 s={s}
@@ -378,27 +346,79 @@ export default function PremiumScreen() {
             theme={theme}
           />
         )}
+      </View>
+    );
+  };
 
-        {!!error && <Text style={s.errorText}>{t(`premium.err.generic`)}</Text>}
-
-        {/* 복원 */}
-        {supported && (
-          <TouchableOpacity
-            style={s.restoreBtn}
-            onPress={restore}
-            disabled={busy}
-            activeOpacity={0.7}
+  return (
+    <View style={s.container}>
+      <GestureDetector gesture={tierSwipe}>
+        <View style={s.swipeArea}>
+          <ScrollView
+            contentContainerStyle={{
+              paddingBottom: insets.bottom + TAB_BAR_HEIGHT + (showPlans ? 190 : 40),
+            }}
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={s.restoreText}>
-              {phase === "restoring"
-                ? t("premium.restoring")
-                : t("premium.restore")}
-            </Text>
-          </TouchableOpacity>
-        )}
+            {/* 히어로 */}
+            <LinearGradient
+              colors={["#9D8DFF", "#776ee2", "#5B4DD4"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={s.hero}
+            >
+              <Animated.View style={[s.shine, shimmerStyle]} />
+              <View style={s.crownWrap}>
+                <Ionicons name="star" size={36} color="#FFD93D" />
+              </View>
+              <View style={s.logoRow}>
+                <Text style={s.logoKorio}>KORIO</Text>
+                <View style={s.superTag}>
+                  <Text style={s.superTagText}>SUPER</Text>
+                </View>
+              </View>
+              <Text style={s.heroSub}>{t("premium.heroSub")}</Text>
+            </LinearGradient>
 
-        <Text style={s.terms}>{t("premium.terms")}</Text>
-      </ScrollView>
+            {/* 등급 선택 — MAX 가 기본. AI 튜터가 킬러 기능이다.
+                선택 배경·글자색은 옆으로 미는 만큼 따라간다 */}
+            <TierBar
+              onChange={setTier}
+              progress={tierProgress}
+              s={s}
+              t={t}
+              theme={theme}
+            />
+
+            {/* 등급마다 다른 설명·혜택·요금제 — 그 부분만 옆으로 넘긴다 */}
+            <SwipeSlides
+              index={tierIndex}
+              progress={tierProgress}
+              slides={[renderTier(TIERS[0] ?? "super"), renderTier(TIERS[1] ?? "max")]}
+            />
+
+            {!!error && <Text style={s.errorText}>{t(`premium.err.generic`)}</Text>}
+
+            {/* 복원 */}
+            {supported && (
+              <TouchableOpacity
+                style={s.restoreBtn}
+                onPress={restore}
+                disabled={busy}
+                activeOpacity={0.7}
+              >
+                <Text style={s.restoreText}>
+                  {phase === "restoring"
+                    ? t("premium.restoring")
+                    : t("premium.restore")}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <Text style={s.terms}>{t("premium.terms")}</Text>
+          </ScrollView>
+        </View>
+      </GestureDetector>
 
       {/* 하단 고정 CTA — ScrollView 밖. 홈버튼/네비바에 안 가리게 SafeArea */}
       {showPlans && (
@@ -439,6 +459,93 @@ export default function PremiumScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+/**
+ * 기본 선택은 "가장 알뜰" 배지를 붙인 상품과 같아야 한다.
+ * 배지는 연간에 달아놓고 기본 선택은 월간이면 화면이 서로 다른 말을 한다.
+ */
+function defaultPlanId(list: StorePlan[]): string | null {
+  if (!list.length) return null;
+  const best = list.reduce((a, b) =>
+    savingPercent(b, list) > savingPercent(a, list) ? b : a,
+  );
+  if (savingPercent(best, list) > 0) return best.productId;
+  const trial = list.find((p) => p.hasFreeTrial);
+  return (trial ?? list[0])?.productId ?? null;
+}
+
+/** 할인율이 가장 큰 상품 하나만 강조한다. 넷 다 강조하면 강조가 아니다 */
+function bestPlanIdOf(list: StorePlan[]): string | null {
+  if (list.length < 2) return null;
+  const top = list.reduce((a, b) =>
+    savingPercent(b, list) > savingPercent(a, list) ? b : a,
+  );
+  return savingPercent(top, list) > 0 ? top.productId : null;
+}
+
+/** SUPER | MAX 바. 선택 배경이 progress 를 따라 미끄러진다 (border 2 · padding 4 · gap 4) */
+function TierBar({
+  onChange,
+  progress,
+  s,
+  t,
+  theme,
+}: {
+  onChange: (tier: SubscriptionTier) => void;
+  progress: SharedValue<number>;
+  s: ReturnType<typeof styles>;
+  t: (key: string) => string;
+  theme: ThemeColors;
+}) {
+  const { onLayout, thumbStyle } = useSegmentThumb(progress, { border: 2, gap: 4, inset: 4 });
+  return (
+    <View style={s.tierBar} onLayout={onLayout}>
+      <Animated.View style={[s.tierThumb, thumbStyle]} />
+      {TIERS.map((tk, slot) => (
+        <TierOption
+          key={tk}
+          label={t(`premium.tier.${tk}`)}
+          onPress={() => onChange(tk)}
+          progress={progress}
+          s={s}
+          slot={slot}
+          star={tk === "max"}
+          theme={theme}
+        />
+      ))}
+    </View>
+  );
+}
+
+function TierOption({
+  label,
+  onPress,
+  progress,
+  s,
+  slot,
+  star,
+  theme,
+}: {
+  label: string;
+  onPress: () => void;
+  progress: SharedValue<number>;
+  s: ReturnType<typeof styles>;
+  slot: number;
+  star: boolean;
+  theme: ThemeColors;
+}) {
+  const textColor = useSegmentTextColor(progress, slot, theme.textSecondary, "#fff");
+  return (
+    <Pressable style={s.tierBtn} onPress={onPress}>
+      <Animated.Text style={[s.tierBtnText, textColor]}>{label}</Animated.Text>
+      {star && (
+        <View style={s.tierStar}>
+          <Ionicons name="sparkles" size={11} color="#FFD93D" />
+        </View>
+      )}
+    </Pressable>
   );
 }
 
@@ -672,14 +779,15 @@ const styles = (theme: ThemeColors) =>
       paddingVertical: 11,
       borderRadius: 999,
     },
-    tierBtnOn: { backgroundColor: theme.primary },
+    // 선택 배경 — useSegmentThumb 이 위치·폭을 잡는다
+    tierThumb: { backgroundColor: theme.primary, borderRadius: 999 },
+    swipeArea: { flex: 1 },
     tierBtnText: {
       fontSize: 15,
       fontWeight: "900",
       color: theme.textSecondary,
       letterSpacing: 0.5,
     },
-    tierBtnTextOn: { color: "#fff" },
     tierStar: { marginLeft: -1 },
     tierBlurb: {
       fontSize: 13.5,
