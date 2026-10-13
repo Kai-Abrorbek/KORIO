@@ -12,6 +12,8 @@ export type NotificationType =
   | "level_up"
   | "super_expiring"
   | "referral"
+  | "gem_payout_done"
+  | "gem_payout_rejected"
   | "system";
 
 export interface AppNotification {

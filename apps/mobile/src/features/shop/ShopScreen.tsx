@@ -316,7 +316,14 @@ export default function ShopScreen() {
         )}
 
         {/* ── 출금 ── */}
-        <WithdrawCard gems={gems} onInputFocus={onInputFocus} />
+        <WithdrawCard
+          gems={gems}
+          onInputFocus={onInputFocus}
+          onGemsChange={(next) => {
+            syncUser({ gems: next });
+            load();
+          }}
+        />
 
         <View style={{ height: kbPad }} />
       </ScrollView>

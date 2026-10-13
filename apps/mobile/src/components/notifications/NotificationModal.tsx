@@ -61,6 +61,8 @@ const LOOK: Record<
   level_up: { icon: "arrow-up-circle", color: "#8C82F0" },
   super_expiring: { icon: "star", color: "#E2A83A" },
   referral: { icon: "gift", color: "#1DBB7F" },
+  gem_payout_done: { icon: "card", color: "#1DBB7F" },
+  gem_payout_rejected: { icon: "arrow-undo", color: "#E5379B" },
   system: { icon: "megaphone", color: "#A6A6B3" },
 };
 
