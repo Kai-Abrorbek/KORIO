@@ -212,10 +212,15 @@ export default function ShopScreen() {
           <Ionicons name="close" size={24} color={theme.textSecondary} />
         </Pressable>
         <Text style={s.headerTitle}>{t("home.shop")}</Text>
-        <View style={s.gemChip}>
+        {/* 보석 숫자를 누르면 내역 */}
+        <Pressable
+          onPress={() => router.push("/gem-history")}
+          hitSlop={8}
+          style={({ pressed }) => [s.gemChip, pressed && { opacity: 0.7 }]}
+        >
           <Ionicons name="diamond" size={16} color="#3BB6E5" />
           <Text style={s.gemChipText}>{gems.toLocaleString("en-US")}</Text>
-        </View>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -224,7 +229,11 @@ export default function ShopScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
       >
-        <GemHero gems={gems} premiumUntilLabel={untilLabel} />
+        <GemHero
+          gems={gems}
+          premiumUntilLabel={untilLabel}
+          onHistory={() => router.push("/gem-history")}
+        />
 
         {/* ── 프리미엄 기간권 ── 보석의 주 용도 */}
         <Text style={s.sectionLabel}>{t("shop.premiumTitle")}</Text>

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
@@ -24,10 +24,11 @@ import type { ThemeColors } from "@/constants/theme";
  *
  * 숫자만 크게 찍으면 정적이라, 보석이 천천히 떠오르고 별 세 개가 엇갈려 반짝인다.
  */
+// 오른쪽 위는 "내역" 버튼 자리라 반짝이는 그 아래로
 const SPARKS = [
-  { top: 16, right: 96, size: 11, delay: 0 },
-  { top: 54, right: 58, size: 8, delay: 700 },
-  { top: 30, right: 34, size: 14, delay: 1300 },
+  { top: 56, right: 104, size: 11, delay: 0 },
+  { top: 78, right: 64, size: 8, delay: 700 },
+  { top: 52, right: 34, size: 14, delay: 1300 },
 ];
 
 function Spark({ top, right, size, delay }: (typeof SPARKS)[number]) {
@@ -60,9 +61,11 @@ function Spark({ top, right, size, delay }: (typeof SPARKS)[number]) {
 interface Props {
   gems: number;
   premiumUntilLabel: string | null;
+  /** 보석 내역으로 (이 보석이 어디서 왔고 어디로 갔는지) */
+  onHistory?: () => void;
 }
 
-export default function GemHero({ gems, premiumUntilLabel }: Props) {
+export default function GemHero({ gems, premiumUntilLabel, onHistory }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -94,6 +97,18 @@ export default function GemHero({ gems, premiumUntilLabel }: Props) {
       {SPARKS.map((sp) => (
         <Spark key={`${sp.top}-${sp.right}`} {...sp} />
       ))}
+
+      {onHistory && (
+        <Pressable
+          onPress={onHistory}
+          hitSlop={8}
+          style={({ pressed }) => [s.historyPill, pressed && { transform: [{ scale: 0.96 }] }]}
+        >
+          <Ionicons name="receipt-outline" size={14} color="#fff" />
+          <Text style={s.historyText}>{t("gemHistory.entry")}</Text>
+          <Ionicons name="chevron-forward" size={13} color="#fff" />
+        </Pressable>
+      )}
 
       <View style={s.left}>
         <Text style={s.label}>{t("shop.balance")}</Text>
@@ -148,6 +163,23 @@ const styles = (_theme: ThemeColors) =>
     },
     hint: { fontSize: 11, fontWeight: "700", color: "rgba(255,255,255,0.72)" },
     bigGem: { position: "absolute", right: -6, bottom: -10 },
+    historyPill: {
+      position: "absolute",
+      top: 14,
+      right: 14,
+      zIndex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingLeft: 10,
+      paddingRight: 9,
+      paddingVertical: 6,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.28)",
+      backgroundColor: "rgba(255,255,255,0.2)",
+    },
+    historyText: { fontSize: 12, fontWeight: "900", color: "#fff" },
     untilChip: {
       flexDirection: "row",
       alignItems: "center",
