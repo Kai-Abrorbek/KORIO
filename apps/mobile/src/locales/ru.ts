@@ -872,6 +872,7 @@ export default {
       following: "Подписки",
       followers: "Подписчики",
     },
+    empty: "Здесь пока никого нет",
   },
   userCourses: {
     loadFailed: "Не удалось загрузить",

@@ -1,37 +1,36 @@
-import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from "react-native-reanimated";
+import { useState } from "react";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import Animated, { useAnimatedStyle, type SharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { FriendTab } from "@/types/friend";
+import { useSegmentTextColor } from "@/components/common/SwipeSlides";
+
+const ACTIVE = "#45B7D1";
+const TABS: FriendTab[] = ["following", "followers"];
 
 interface Props {
   value: FriendTab;
   onChange: (t: FriendTab) => void;
+  /** 페이저 위치 (0 팔로잉 ~ 1 팔로워) — 밑줄·글자색이 손가락을 따라온다 */
+  progress: SharedValue<number>;
 }
 
-export default function FriendsTabs({ value, onChange }: Props) {
-  const { t } = useTranslation();
+export default function FriendsTabs({ value, onChange, progress }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
   const [width, setWidth] = useState(0);
-  const offset = useSharedValue(0);
 
-  useEffect(() => {
-    if (!width) return;
-    offset.value = withTiming(value === "following" ? 0 : width / 2, {
-      duration: 220,
-    });
-  }, [value, width, offset]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: offset.value }],
-  }));
+  // 끝 탭에서 고무줄로 밖까지 끌려도 밑줄은 끝 칸에서 멈춘다
+  const indicatorStyle = useAnimatedStyle(
+    () => ({
+      transform: [
+        { translateX: Math.min(1, Math.max(0, progress.value)) * (width / 2) },
+      ],
+    }),
+    [width],
+  );
 
   return (
     <View
@@ -39,34 +38,48 @@ export default function FriendsTabs({ value, onChange }: Props) {
       onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
     >
       <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.tab}
-          onPress={() => onChange("following")}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[styles.text, value === "following" && styles.textActive]}
-          >
-            {t("friends.tabs.following")}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.tab}
-          onPress={() => onChange("followers")}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[styles.text, value === "followers" && styles.textActive]}
-          >
-            {t("friends.tabs.followers")}
-          </Text>
-        </TouchableOpacity>
+        {TABS.map((tab, slot) => (
+          <TabButton
+            active={value === tab}
+            key={tab}
+            onPress={() => onChange(tab)}
+            progress={progress}
+            slot={slot}
+            tab={tab}
+          />
+        ))}
       </View>
       <View style={styles.bottomLine} />
       <Animated.View
         style={[styles.indicator, { width: width / 2 }, indicatorStyle]}
       />
     </View>
+  );
+}
+
+function TabButton({
+  active,
+  onPress,
+  progress,
+  slot,
+  tab,
+}: {
+  active: boolean;
+  onPress: () => void;
+  progress: SharedValue<number>;
+  slot: number;
+  tab: FriendTab;
+}) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const styles = getStyles(theme);
+  const color = useSegmentTextColor(progress, slot, theme.textSecondary, ACTIVE);
+  return (
+    <TouchableOpacity style={styles.tab} onPress={onPress} activeOpacity={0.7}>
+      <Animated.Text style={[styles.text, active && styles.textActive, color]}>
+        {t(`friends.tabs.${tab}`)}
+      </Animated.Text>
+    </TouchableOpacity>
   );
 }
 
@@ -90,7 +103,6 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.textSecondary,
     },
     textActive: {
-      color: "#45B7D1",
       fontWeight: "800",
     },
     bottomLine: {
@@ -102,7 +114,7 @@ const getStyles = (theme: ThemeColors) =>
       bottom: 0,
       left: 0,
       height: 3,
-      backgroundColor: "#45B7D1",
+      backgroundColor: ACTIVE,
       borderRadius: 2,
     },
   });
