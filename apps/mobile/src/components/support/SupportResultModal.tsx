@@ -14,10 +14,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
+import type { SupportCategory } from "@/services/support.service";
+import { SUPPORT_CATEGORY_LOOK, SUPPORT_LIMITS } from "./supportLook";
 
 /**
  * 문의 보내기 결과 — 기본 Alert 대신.
- * 접수되면 엄지 든 한글몬 + 무엇을 보냈는지 한 줄, 실패하면 다시 시도.
+ * 접수되면 엄지 든 한글몬 + 무엇을 보냈는지 한 줄, 실패하면 다시 시도, 하루 한도면 내일.
  * 모달은 페이드로만 열고 닫는다 (ErrorModal 과 같은 규칙 — 스프링·팝 금지). 안쪽만 살짝 움직인다.
  */
 const MASCOT = require("../../../assets/images/characters/hangulmon_great_float.png");
@@ -28,8 +30,10 @@ const SPARKS = [
 ] as const;
 
 export type SupportResult =
-  | { kind: "sent"; category: string; subject: string }
-  | { kind: "failed" };
+  | { kind: "sent"; category: SupportCategory; subject: string }
+  | { kind: "failed" }
+  /** 하루 한도(5건) · 너무 자주 보냄 (409 · 429) */
+  | { kind: "limit" };
 
 interface Props {
   result: SupportResult | null;
@@ -42,6 +46,8 @@ export default function SupportResultModal({ result, onClose, onRetry }: Props) 
   const theme = useTheme();
   const s = styles(theme);
   const sent = result?.kind === "sent";
+  const failed = result?.kind === "failed";
+  const kind = result?.kind ?? "sent";
 
   return (
     <Modal
@@ -57,41 +63,58 @@ export default function SupportResultModal({ result, onClose, onRetry }: Props) 
           {sent ? (
             <Mascot />
           ) : (
-            <View style={s.failIcon}>
-              <Ionicons name="cloud-offline" size={30} color="#fff" />
+            <View style={[s.failIcon, kind === "limit" && s.limitIcon]}>
+              <Ionicons
+                name={kind === "limit" ? "hourglass" : "cloud-offline"}
+                size={30}
+                color="#fff"
+              />
             </View>
           )}
 
-          <Text style={s.title}>
-            {sent ? t("support.sentTitle") : t("support.failedTitle")}
-          </Text>
+          <Text style={s.title}>{t(`support.${kind}Title`)}</Text>
           <Text style={s.body}>
-            {sent ? t("support.sentBody") : t("support.failedBody")}
+            {t(`support.${kind}Body`, { n: SUPPORT_LIMITS.perDay })}
           </Text>
 
           {result?.kind === "sent" && (
             <View style={s.ticket}>
-              <View style={s.ticketChip}>
-                <Text style={s.ticketChipText}>
+              <View
+                style={[
+                  s.ticketChip,
+                  { backgroundColor: SUPPORT_CATEGORY_LOOK[result.category].color + "24" },
+                ]}
+              >
+                <Ionicons
+                  name={SUPPORT_CATEGORY_LOOK[result.category].icon}
+                  size={12}
+                  color={SUPPORT_CATEGORY_LOOK[result.category].color}
+                />
+                <Text
+                  style={[
+                    s.ticketChipText,
+                    { color: SUPPORT_CATEGORY_LOOK[result.category].color },
+                  ]}
+                >
                   {t(`support.category.${result.category}`)}
                 </Text>
               </View>
               <Text style={s.ticketSubject} numberOfLines={1}>
                 {result.subject}
               </Text>
-              <Ionicons name="mail-outline" size={16} color={theme.textSecondary} />
+              <Ionicons name="checkmark-circle" size={17} color="#1DBB7F" />
             </View>
           )}
 
           <Pressable
-            onPress={sent ? onClose : onRetry}
+            onPress={failed ? onRetry : onClose}
             style={({ pressed }) => [s.primary, pressed && s.primaryPressed]}
           >
             <Text style={s.primaryText}>
-              {sent ? t("support.ok") : t("common.retry")}
+              {failed ? t("common.retry") : t("support.ok")}
             </Text>
           </Pressable>
-          {!sent && (
+          {failed && (
             <Pressable onPress={onClose} hitSlop={6} style={s.secondary}>
               <Text style={s.secondaryText}>{t("common.close")}</Text>
             </Pressable>
@@ -218,6 +241,7 @@ const styles = (theme: ThemeColors) =>
       marginBottom: 16,
       marginTop: 6,
     },
+    limitIcon: { backgroundColor: "#E2A83A" },
     title: {
       fontSize: 21,
       fontWeight: "900",
@@ -247,6 +271,9 @@ const styles = (theme: ThemeColors) =>
       marginBottom: 18,
     },
     ticketChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
       paddingHorizontal: 9,
       paddingVertical: 4,
       borderRadius: 999,

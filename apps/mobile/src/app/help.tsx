@@ -217,8 +217,8 @@ export default function HelpScreen() {
             icon="chatbubble-ellipses"
             color="#7157D9"
             bg="#EEE8FF"
-            label={t("help.contactSection")}
-            desc={t("help.replyNote")}
+            label={t("support.title")}
+            desc={t("support.entryDesc")}
             onPress={() => router.push("/support" as Href)}
             s={s}
             theme={theme}
