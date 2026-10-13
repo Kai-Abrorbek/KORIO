@@ -47,11 +47,12 @@ function IconBadge({
     <span
       className={styles.iconBadge}
       style={{
-        backgroundColor: background,
+        "--badge-bg": background,
+        "--badge-tint": color,
         color,
         height: size,
         width: size,
-      }}
+      } as CSSProperties}
     >
       <MobileIcon name={name} size={size * 0.52} />
     </span>
@@ -128,7 +129,14 @@ function TodayInfoCard({
   );
 }
 
-const MOMENTUM_COLORS = ["", "#D9D5F7", "#B9B1F1", "#948AEA", "#6C5FE0"];
+// 실제 색은 period-view.module.css 의 --momentum-* (라이트/다크)
+const MOMENTUM_COLORS = [
+  "",
+  "var(--momentum-1)",
+  "var(--momentum-2)",
+  "var(--momentum-3)",
+  "var(--momentum-4)",
+];
 
 function MomentumCard({ days }: { days: HeatmapDay[] }) {
   const recent = useMemo(
@@ -148,7 +156,7 @@ function MomentumCard({ days }: { days: HeatmapDay[] }) {
   const icon: IoniconName =
     delta > 0 ? "trending-up" : delta < 0 ? "trending-down" : "remove";
   const color =
-    delta > 0 ? "#1D9E75" : delta < 0 ? "#FF6B6B" : "#55555F";
+    delta > 0 ? "#1D9E75" : delta < 0 ? "#FF6B6B" : "var(--stats-muted)";
   const text =
     delta > 0
       ? "O'tgan haftadan +" + delta + " kun"
@@ -176,7 +184,7 @@ function MomentumCard({ days }: { days: HeatmapDay[] }) {
                 backgroundColor:
                   day.intensity > 0
                     ? MOMENTUM_COLORS[day.intensity]
-                    : "#ECEAF6",
+                    : "var(--momentum-0)",
                 height:
                   (day.intensity > 0
                     ? 22 + (day.intensity / 4) * 78

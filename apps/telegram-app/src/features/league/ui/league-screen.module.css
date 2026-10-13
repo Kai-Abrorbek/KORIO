@@ -3,7 +3,13 @@
   --muted: #55555f;
   --primary: #776ee2;
   --text: #1a1a2e;
-  background: #fff;
+  /* 바탕·탭바 / 내 줄 — 다크는 아래에서 바꾼다 (text·muted·border 는 globals.css 가 덮는다) */
+  --league-bg: #fff;
+  --league-nav: #fff;
+  --league-me-bg: #d7f5b1;
+  --league-me-name: #3d3d3d;
+  --league-me-green: #58a700;
+  background: var(--league-bg);
   color: var(--text);
   display: flex;
   flex-direction: column;
@@ -139,7 +145,7 @@
 .rowPromote { background: rgb(88 204 2 / 10%); }
 .rowDemote { background: rgb(255 75 75 / 10%); }
 .rowMe {
-  background: #d7f5b1;
+  background: var(--league-me-bg);
   border-radius: 10px;
 }
 
@@ -178,7 +184,7 @@
   font-weight: 800;
 }
 
-.rankBadge strong.rankMe { color: #58a700; }
+.rankBadge strong.rankMe { color: var(--league-me-green); }
 
 .medalTail {
   border-left: 7px solid transparent;
@@ -207,7 +213,7 @@
 }
 
 .memberInfo > strong.nameMe {
-  color: #3d3d3d;
+  color: var(--league-me-name);
 }
 
 .memberSub {
@@ -230,7 +236,7 @@
 }
 
 .xp { color: #afafaf; }
-.xpMe { color: #58a700; font-weight: 800; }
+.xpMe { color: var(--league-me-green); font-weight: 800; }
 
 .zoneDivider {
   align-items: center;
@@ -299,7 +305,7 @@
 .challengeButton:active { transform: scale(.95); }
 
 .bottomNav {
-  background: #fff;
+  background: var(--league-nav);
   border-top: 1px solid var(--border);
   bottom: 0;
   display: grid;
@@ -326,6 +332,15 @@
 }
 
 .bottomNav button.navActive { color: var(--primary); }
+
+/* ── 다크 모드 (앱 theme.ts 다크와 같은 값) ── */
+:global(html[data-theme="dark"]) .leaguePage {
+  --league-bg: #15151d;
+  --league-nav: #25252e;
+  --league-me-bg: #233a1c;
+  --league-me-name: #ffffff;
+  --league-me-green: #7ed33a;
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes challengePulse { 50% { transform: scale(1.06); } }

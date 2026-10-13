@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import { getStudyPath } from "../../study-path/api/study-path";
 import type {
@@ -172,6 +172,7 @@ export function StudyPathProgressCard({
         <div className={styles.ring}>
           <svg aria-hidden="true" height="122" viewBox="0 0 122 122" width="122">
             <circle
+              className={styles.ringTrack}
               cx="61"
               cy="61"
               fill="none"
@@ -242,9 +243,10 @@ export function StudyPathProgressCard({
             <span
               className={styles.kindIcon}
               style={{
-                backgroundColor: group.color + "22",
+                "--kind-bg": group.color + "22",
+                "--kind-tint": group.color,
                 color: group.color,
-              }}
+              } as CSSProperties}
             >
               <MobileIcon name={group.icon} size={13} />
             </span>

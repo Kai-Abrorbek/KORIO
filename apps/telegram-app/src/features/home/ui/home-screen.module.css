@@ -6,6 +6,11 @@
   --text: #1a1a2e;
   --muted: #55555f;
   --border: #eceaf6;
+  /* 달력 시트의 옅은 회색 칸 / 완료한 날 / 오늘·메달 노랑 — 다크는 파일 끝에서 바꾼다 */
+  --home-soft: #f7f6fb;
+  --home-day-done: #eeedfe;
+  --home-day-done-text: var(--primary);
+  --home-warm: #fff4dc;
   background: var(--background);
   color: var(--text);
   margin: 0 auto;
@@ -162,7 +167,7 @@
 }
 
 .dayToday {
-  background: #fff4dc;
+  background: var(--home-warm);
   border-color: #ff7a00;
   color: #ff7a00;
 }
@@ -681,7 +686,7 @@
 
 .sheetClose {
   align-items: center;
-  background: #f7f6fb;
+  background: var(--home-soft);
   border: 0;
   border-radius: 50%;
   color: var(--muted) !important;
@@ -741,7 +746,7 @@
 }
 
 .calendarStats {
-  background: #f7f6fb;
+  background: var(--home-soft);
   border-radius: 16px;
   display: flex;
   margin-bottom: 18px;
@@ -810,8 +815,8 @@
 }
 
 .calendarDayCompleted {
-  background: #eeedfe;
-  color: var(--primary);
+  background: var(--home-day-done);
+  color: var(--home-day-done-text);
   font-weight: 800;
 }
 
@@ -843,7 +848,7 @@
 
 .medalRow span {
   align-items: center;
-  background: #f7f6fb;
+  background: var(--home-soft);
   border: 1.5px solid var(--border);
   border-radius: 50%;
   color: var(--border);
@@ -854,7 +859,7 @@
 }
 
 .medalRow .medalEarned {
-  background: #fff4dc;
+  background: var(--home-warm);
   border-color: #fac775;
   color: #e2a83a;
 }
@@ -920,4 +925,12 @@
 @keyframes ai-glow {
   0%, 100% { box-shadow: 0 10px 26px rgb(119 110 226 / 50%); }
   50% { box-shadow: 0 10px 38px rgb(119 110 226 / 14%); }
+}
+
+/* ── 다크 모드 (앱 theme.ts 다크와 같은 값) ── */
+:global(html[data-theme="dark"]) .homePage {
+  --home-soft: #2d2d38;
+  --home-day-done: #332d4a;
+  --home-day-done-text: #a59dff;
+  --home-warm: #40371e;
 }

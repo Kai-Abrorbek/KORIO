@@ -14,7 +14,7 @@
 }
 
 .header > strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 16px;
   font-weight: 800;
 }
@@ -46,6 +46,10 @@
   position: relative;
 }
 
+.ringTrack {
+  stroke: var(--stats-border);
+}
+
 .ringFill {
   animation: ringGrow 950ms 150ms ease-out both;
 }
@@ -58,14 +62,14 @@
 }
 
 .ring > span strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 27px;
   font-weight: 900;
   letter-spacing: -.5px;
 }
 
 .ring > span small {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 11px;
   font-weight: 700;
   margin-top: 1px;
@@ -76,13 +80,13 @@
 }
 
 .summary > span {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 12px;
   font-weight: 700;
 }
 
 .summary > strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   display: block;
   font-size: 30px;
   font-weight: 900;
@@ -91,7 +95,7 @@
 }
 
 .summary > small {
-  color: #55555f;
+  color: var(--stats-muted);
   display: block;
   font-size: 11.5px;
   font-weight: 600;
@@ -100,7 +104,7 @@
 
 .goal {
   align-items: center;
-  background: #fff;
+  background: var(--stats-elevated);
   border-left: 3px solid;
   border-radius: 11px;
   display: flex;
@@ -110,7 +114,7 @@
 }
 
 .goal span {
-  color: #1a1a2e;
+  color: var(--stats-text);
   flex: 1;
   font-size: 11.5px;
   font-weight: 700;
@@ -118,7 +122,7 @@
 }
 
 .blockTitle {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .6px;
@@ -136,7 +140,7 @@
 }
 
 .sectionRow > div > span {
-  background: #eceaf6;
+  background: var(--stats-border);
   border-radius: 5px;
   display: block;
   height: 9px;
@@ -150,7 +154,7 @@
 }
 
 .sectionRow small {
-  color: #55555f;
+  color: var(--stats-muted);
   display: block;
   font-size: 10px;
   font-weight: 700;
@@ -161,7 +165,7 @@
 }
 
 .sectionRow small.sectionActive {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-weight: 900;
 }
 
@@ -179,6 +183,7 @@
 
 .kindIcon {
   align-items: center;
+  background-color: var(--kind-bg);
   border-radius: 8px;
   display: flex;
   flex: 0 0 24px;
@@ -186,8 +191,13 @@
   justify-content: center;
 }
 
+/* 다크: 아이콘 색을 옅게 깐 유리 톤 */
+:global(html[data-theme="dark"]) .kindIcon {
+  background-color: color-mix(in srgb, var(--kind-tint) 18%, transparent);
+}
+
 .kindList strong {
-  color: #55555f;
+  color: var(--stats-muted);
   flex: 0 0 54px;
   font-size: 11.5px;
   font-weight: 700;
@@ -196,7 +206,7 @@
 }
 
 .kindTrack {
-  background: #eceaf6;
+  background: var(--stats-border);
   border-radius: 4px;
   flex: 1;
   height: 8px;
@@ -210,7 +220,7 @@
 }
 
 .kindList b {
-  color: #1a1a2e;
+  color: var(--stats-text);
   flex: 0 0 52px;
   font-size: 11.5px;
   font-weight: 800;

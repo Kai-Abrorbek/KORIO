@@ -1,5 +1,5 @@
 .sectionTitle {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 20px;
   font-weight: 800;
   margin: 8px 20px 12px;
@@ -14,10 +14,16 @@
 
 .iconBadge {
   align-items: center;
+  background-color: var(--badge-bg);
   border-radius: 13px;
   display: flex;
   flex: 0 0 auto;
   justify-content: center;
+}
+
+/* 다크: 파스텔 버블 대신 아이콘 색을 옅게 깐 유리 톤 */
+:global(html[data-theme="dark"]) .iconBadge {
+  background-color: color-mix(in srgb, var(--badge-tint) 18%, transparent);
 }
 
 .todayEmptyCard {
@@ -27,7 +33,7 @@
 
 .todayEmpty {
   align-items: center;
-  color: #55555f;
+  color: var(--stats-muted);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -40,7 +46,7 @@
 }
 
 .todayEmpty strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 15px;
   font-weight: 700;
 }
@@ -63,14 +69,14 @@
 }
 
 .todayTopCard > span:nth-child(2) {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 13px;
   font-weight: 600;
   margin-top: 12px;
 }
 
 .todayTopCard > strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 24px;
   font-weight: 800;
   margin-top: 2px;
@@ -87,13 +93,13 @@
 }
 
 .weekdayRow strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 16px;
   font-weight: 800;
 }
 
 .weekdayRow p {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 13px;
   font-weight: 500;
   line-height: 18px;
@@ -121,7 +127,7 @@
 }
 
 .momentumBig {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 20px;
   font-weight: 900;
   letter-spacing: -.4px;
@@ -129,10 +135,24 @@
 }
 
 .momentumBars {
+  /* 0 = 안 한 날, 1~4 = 강도 */
+  --momentum-0: #eceaf6;
+  --momentum-1: #d9d5f7;
+  --momentum-2: #b9b1f1;
+  --momentum-3: #948aea;
+  --momentum-4: #6c5fe0;
   align-items: flex-end;
   display: flex;
   gap: 5px;
   height: 62px;
+}
+
+:global(html[data-theme="dark"]) .momentumBars {
+  --momentum-0: #3a3a44;
+  --momentum-1: #3d3766;
+  --momentum-2: #574dab;
+  --momentum-3: #6f63d4;
+  --momentum-4: #8f84f0;
 }
 
 .momentumSlot {
@@ -153,7 +173,7 @@
 }
 
 .momentumDivider {
-  background: #eceaf6;
+  background: var(--stats-border);
   bottom: -4px;
   left: -4px;
   position: absolute;
@@ -162,7 +182,7 @@
 }
 
 .momentumFoot {
-  color: #55555f;
+  color: var(--stats-muted);
   display: flex;
   font-size: 10.5px;
   font-weight: 700;
@@ -171,7 +191,7 @@
 }
 
 .momentumFoot strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-weight: 900;
 }
 

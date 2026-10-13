@@ -5,10 +5,34 @@
   --word-primary: #776ee2;
   --word-surface: #fff;
   --word-text: #1a1a2e;
+  /* 테마 토큰 — globals.css 가 --word-* 를 !important 로 덮으므로 --ws-* 로 따로 둔다 */
+  --ws-page-glow-a: #beb7ff2b;
+  --ws-page-glow-b: #bfefff38;
+  --ws-page-top: #f7f5ff;
+  --ws-page-mid: #fff;
+  --ws-page-bottom: #f3faff;
+  --ws-neutral: var(--word-surface);
+  --ws-inset: var(--word-bg);
+  --ws-option: var(--word-bg);
+  --ws-primary-soft: rgb(119 110 226 / 9%);
+  --ws-primary-softer: rgb(119 110 226 / 8%);
+  --ws-spinner-track: #e8e5f7;
+  --ws-error-bg: #fff0f4;
+  --ws-error-ink: #e95d84;
+  --ws-success-soft: #eaf9f1;
+  --ws-success-line: #bcebd4;
+  --ws-success-ink: #168658;
+  --ws-danger-soft: #fff0f2;
+  --ws-danger-line: #ffd0d6;
+  --ws-danger-ink: #c74355;
+  --ws-ring: rgb(255 255 255 / 27%);
+  --ws-emoji-glow: rgb(255 255 255 / 63%);
+  --ws-chip: rgb(255 255 255 / 72%);
+  --ws-letter: rgb(255 255 255 / 85%);
   background:
-    radial-gradient(circle at calc(100% + 100px) 84px, #beb7ff2b 0 110px, transparent 111px),
-    radial-gradient(circle at -100px calc(100% - 80px), #bfefff38 0 90px, transparent 91px),
-    linear-gradient(180deg, #f7f5ff 0%, #fff 52%, #f3faff 100%);
+    radial-gradient(circle at calc(100% + 100px) 84px, var(--ws-page-glow-a) 0 110px, transparent 111px),
+    radial-gradient(circle at -100px calc(100% - 80px), var(--ws-page-glow-b) 0 90px, transparent 91px),
+    linear-gradient(180deg, var(--ws-page-top) 0%, var(--ws-page-mid) 52%, var(--ws-page-bottom) 100%);
   color: var(--word-text);
   display: flex;
   flex-direction: column;
@@ -17,6 +41,33 @@
   max-width: var(--content-width);
   overflow: hidden;
   position: relative;
+}
+
+/* 다크 — 모바일 ThemeColors 와 같은 팔레트 */
+:global(html[data-theme="dark"]) .wordPage {
+  --ws-page-glow-a: rgb(119 110 226 / 10%);
+  --ws-page-glow-b: rgb(28 167 216 / 6%);
+  --ws-page-top: #1b1930;
+  --ws-page-mid: #15151d;
+  --ws-page-bottom: #161922;
+  --ws-neutral: #2d2d38;
+  --ws-inset: #2d2d38;
+  --ws-option: #2d2d38;
+  --ws-primary-soft: #332d4a;
+  --ws-primary-softer: #332d4a;
+  --ws-spinner-track: #332d4a;
+  --ws-error-bg: #472828;
+  --ws-error-ink: #f27a9b;
+  --ws-success-soft: #1e3b30;
+  --ws-success-line: #2b5c46;
+  --ws-success-ink: #5fd39a;
+  --ws-danger-soft: #472828;
+  --ws-danger-line: #6e3a40;
+  --ws-danger-ink: #ff8b98;
+  --ws-ring: rgb(255 255 255 / 5%);
+  --ws-emoji-glow: rgb(0 0 0 / 32%);
+  --ws-chip: rgb(21 21 29 / 50%);
+  --ws-letter: rgb(255 255 255 / 8%);
 }
 
 .header {
@@ -28,7 +79,7 @@
 
 .closeButton {
   align-items: center;
-  background: var(--word-surface);
+  background: var(--ws-neutral);
   border: 0;
   border-radius: 15px;
   box-shadow: 0 4px 9px rgb(0 0 0 / 6%);
@@ -177,7 +228,7 @@
 
 .scopeButton em {
   align-items: center;
-  background: var(--word-bg);
+  background: var(--ws-inset);
   border-radius: 12px;
   color: var(--word-primary);
   display: flex;
@@ -236,7 +287,7 @@
 
 .spinner {
   animation: spin 800ms linear infinite;
-  border: 4px solid #e8e5f7;
+  border: 4px solid var(--ws-spinner-track);
   border-radius: 50%;
   border-top-color: var(--word-primary);
   height: 38px;
@@ -245,9 +296,9 @@
 
 .errorIcon {
   align-items: center;
-  background: #fff0f4;
+  background: var(--ws-error-bg);
   border-radius: 22px;
-  color: #e95d84;
+  color: var(--ws-error-ink);
   display: flex;
   height: 62px;
   justify-content: center;
@@ -308,6 +359,12 @@
 
 .wordCard,
 .previewCard {
+  /* 카드 팔레트(--word-from 등은 TSX 인라인) — 다크에선 같은 색조의 깊은 톤 */
+  --ws-from: var(--word-from);
+  --ws-to: var(--word-to);
+  --ws-tint: var(--word-tint);
+  --ws-line: var(--word-from);
+  --ws-ink: var(--word-accent-dark);
   background: var(--word-surface);
   border: 1.5px solid var(--word-border);
   border-radius: 30px;
@@ -320,8 +377,17 @@
   width: 100%;
 }
 
+:global(html[data-theme="dark"]) .wordCard,
+:global(html[data-theme="dark"]) .previewCard {
+  --ws-from: color-mix(in srgb, var(--word-accent) 22%, #25252e);
+  --ws-to: color-mix(in srgb, var(--word-accent) 11%, #25252e);
+  --ws-tint: color-mix(in srgb, var(--word-accent) 15%, #25252e);
+  --ws-line: color-mix(in srgb, var(--word-accent) 36%, #25252e);
+  --ws-ink: color-mix(in srgb, var(--word-accent) 68%, #fff);
+}
+
 .visualArea {
-  background: linear-gradient(135deg, var(--word-from), var(--word-to));
+  background: linear-gradient(135deg, var(--ws-from), var(--ws-to));
   display: flex;
   flex: 1 1 148px;
   flex-direction: column;
@@ -333,7 +399,7 @@
 
 .visualArea::before,
 .visualArea::after {
-  border: 22px solid rgb(255 255 255 / 27%);
+  border: 22px solid var(--ws-ring);
   border-radius: 999px;
   content: "";
   position: absolute;
@@ -386,8 +452,8 @@
 }
 
 .coreChip {
-  background: rgb(255 255 255 / 72%);
-  color: var(--word-accent-dark);
+  background: var(--ws-chip);
+  color: var(--ws-ink);
   font-size: 11px;
   gap: 5px;
   padding: 0 11px;
@@ -411,7 +477,7 @@
 }
 
 .wordEmoji {
-  filter: drop-shadow(0 5px 14px rgb(255 255 255 / 63%));
+  filter: drop-shadow(0 5px 14px var(--ws-emoji-glow));
   font-size: 76px;
   line-height: 96px;
   text-align: center;
@@ -419,7 +485,7 @@
 
 .wordLetter {
   align-items: center;
-  background: rgb(255 255 255 / 85%);
+  background: var(--ws-letter);
   border-radius: 38px;
   color: var(--word-accent);
   display: flex;
@@ -470,9 +536,9 @@
 .speakerButton,
 .speakerActive {
   align-items: center;
-  border: 1.5px solid var(--word-from);
+  border: 1.5px solid var(--ws-line);
   border-radius: 18px;
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   cursor: pointer;
   display: flex;
   flex: 0 0 52px;
@@ -482,7 +548,7 @@
 }
 
 .speakerButton {
-  background: var(--word-tint);
+  background: var(--ws-tint);
 }
 
 .speakerActive {
@@ -492,7 +558,7 @@
 }
 
 .meaningLabel {
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 1.2px;
@@ -527,7 +593,7 @@
 
 .exampleTitle > span {
   align-items: center;
-  background: var(--word-tint);
+  background: var(--ws-tint);
   border-radius: 10px;
   color: var(--word-accent);
   display: flex;
@@ -537,8 +603,8 @@
 }
 
 .examplePanel {
-  background: var(--word-tint);
-  border: 1.5px solid var(--word-from);
+  background: var(--ws-tint);
+  border: 1.5px solid var(--ws-line);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -589,12 +655,12 @@
 }
 
 .usageNote svg {
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   flex: 0 0 auto;
 }
 
 .recallCard {
-  border-color: var(--word-from);
+  border-color: var(--ws-line);
 }
 
 .recallCorrect {
@@ -627,7 +693,7 @@
 }
 
 .recallCountHint {
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   flex-shrink: 1;
   font-size: 11px;
   font-weight: 800;
@@ -644,8 +710,8 @@
 
 .answerShell {
   align-items: center;
-  background: var(--word-tint);
-  border: 1.5px solid var(--word-from);
+  background: var(--ws-tint);
+  border: 1.5px solid var(--ws-line);
   border-radius: 18px;
   display: flex;
   min-height: 64px;
@@ -702,7 +768,7 @@
 
 .recallFeedback {
   align-items: center;
-  background: var(--word-bg);
+  background: var(--ws-inset);
   border: 1.5px solid var(--word-border);
   border-radius: 18px;
   display: flex;
@@ -712,13 +778,13 @@
 }
 
 .feedbackCorrect {
-  background: #eaf9f1;
-  border-color: #bcebd4;
+  background: var(--ws-success-soft);
+  border-color: var(--ws-success-line);
 }
 
 .feedbackWrong {
-  background: #fff0f2;
-  border-color: #ffd0d6;
+  background: var(--ws-danger-soft);
+  border-color: var(--ws-danger-line);
 }
 
 .feedbackIcon {
@@ -755,11 +821,11 @@
 }
 
 .feedbackCorrect .feedbackCopy strong {
-  color: #168658;
+  color: var(--ws-success-ink);
 }
 
 .feedbackWrong .feedbackCopy strong {
-  color: #c74355;
+  color: var(--ws-danger-ink);
 }
 
 .feedbackCopy small {
@@ -775,7 +841,7 @@
   align-items: center;
   border: 0;
   border-radius: 13px;
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   display: flex;
   flex: 0 0 38px;
   height: 38px;
@@ -800,10 +866,10 @@
 
 .hintButton {
   align-items: center;
-  background: var(--word-tint);
-  border: 1px solid var(--word-from);
+  background: var(--ws-tint);
+  border: 1px solid var(--ws-line);
   border-radius: 13px;
-  color: var(--word-accent-dark);
+  color: var(--ws-ink);
   display: flex;
   font-size: 11px;
   font-weight: 900;
@@ -849,7 +915,7 @@
 
 .previewVisual {
   align-items: center;
-  background: linear-gradient(135deg, var(--word-from), var(--word-to));
+  background: linear-gradient(135deg, var(--ws-from), var(--ws-to));
   display: flex;
   flex: 1;
   justify-content: center;
@@ -912,7 +978,7 @@
 
 .navigation > button {
   align-items: center;
-  background: var(--word-surface);
+  background: var(--ws-neutral);
   border: 1.5px solid var(--word-border);
   border-radius: 18px;
   color: var(--word-text);
@@ -932,7 +998,7 @@
 }
 
 .navigation > button:disabled {
-  background: var(--word-surface);
+  background: var(--ws-neutral);
   border-color: var(--word-border);
   box-shadow: none;
   color: var(--word-muted);
@@ -1063,7 +1129,7 @@
 }
 
 .scopeSectionRow button {
-  background: var(--word-bg);
+  background: var(--ws-option);
   border: 1.5px solid var(--word-border);
   border-radius: 18px;
   color: var(--word-text);
@@ -1105,7 +1171,7 @@
 
 .unitGrid > button {
   align-items: center;
-  background: var(--word-bg);
+  background: var(--ws-option);
   border: 1.5px solid var(--word-border);
   border-radius: 18px;
   color: var(--word-text);
@@ -1149,7 +1215,7 @@
 }
 
 .unitGrid > .unitSelected {
-  background: rgb(119 110 226 / 9%);
+  background: var(--ws-primary-soft);
   border-color: var(--word-primary);
 }
 
@@ -1175,7 +1241,7 @@
 
 .playbackOptions > button {
   align-items: center;
-  background: var(--word-bg);
+  background: var(--ws-option);
   border: 1.5px solid var(--word-border);
   border-radius: 18px;
   color: var(--word-text);
@@ -1187,7 +1253,7 @@
 }
 
 .playbackOptions > .playbackSelected {
-  background: rgb(119 110 226 / 8%);
+  background: var(--ws-primary-softer);
   border-color: var(--word-primary);
 }
 
@@ -1276,7 +1342,7 @@
 
 .offerIcon {
   align-items: center;
-  background: rgb(119 110 226 / 9%);
+  background: var(--ws-primary-soft);
   border-radius: 21px;
   color: var(--word-primary);
   display: flex;

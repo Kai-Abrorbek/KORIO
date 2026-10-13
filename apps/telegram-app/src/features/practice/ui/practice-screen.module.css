@@ -2,7 +2,10 @@
   --border: #eceaf6;
   --muted: #686874;
   --text: #1a1a2e;
-  background: #fff;
+  /* 페이지 바탕 / 카드 — 다크는 아래에서 바꾼다 (text·muted·border 는 globals.css 가 덮는다) */
+  --practice-bg: #fff;
+  --practice-card: #fff;
+  background: var(--practice-bg);
   color: var(--text);
   height: var(--tg-viewport-stable-height, 100dvh);
   margin: 0 auto;
@@ -49,7 +52,7 @@
 
 .heroHeading img { flex: 0 0 66px; height: 66px; object-fit: contain; width: 66px; }
 
-.heroCard { background: #fff; border-radius: 16px; padding: 15px; }
+.heroCard { background: var(--practice-card); border-radius: 16px; padding: 15px; }
 .heroCard > strong { color: var(--text); display: block; font-size: 17px; font-weight: 800; margin-bottom: 10px; }
 .heroCard > button { background: #1cb0f6; border: 0 solid #1899d6; border-bottom-width: 3px; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 900; min-height: 47px; width: 100%; }
 
@@ -67,7 +70,7 @@
 
 .skillRow {
   align-items: center;
-  background: #fff;
+  background: var(--practice-card);
   border: 2px solid var(--border);
   border-bottom-width: 4px;
   border-radius: 18px;
@@ -97,7 +100,7 @@
 
 .mistakesModal {
   animation: modalIn 280ms ease both;
-  background: #fff;
+  background: var(--practice-bg);
   display: flex;
   flex-direction: column;
   inset: 0;
@@ -130,6 +133,12 @@
 .mistakeList article p { color: var(--muted); font-size: 14px; margin: 0 0 6px; }
 .mistakeList article strong { color: var(--text); font-size: 18px; font-weight: 800; }
 .mistakeList > p.empty { color: var(--muted); font-size: 16px; margin: 0; padding: 30px 10px; text-align: center; }
+
+/* ── 다크 모드 (앱 theme.ts 다크와 같은 값) ── */
+:global(html[data-theme="dark"]) .page {
+  --practice-bg: #15151d;
+  --practice-card: #25252e;
+}
 
 @keyframes modalIn { from { transform: translateX(100%); } }
 @keyframes spin { to { transform: rotate(360deg); } }

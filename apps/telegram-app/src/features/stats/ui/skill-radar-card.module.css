@@ -14,20 +14,20 @@
 }
 
 .header strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 16px;
   font-weight: 800;
 }
 
 .header span {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 11.5px;
   font-weight: 600;
 }
 
 .diagnosis {
   align-items: center;
-  background: #fff;
+  background: var(--stats-elevated);
   border-left: 3px solid;
   border-radius: 12px;
   display: flex;
@@ -37,7 +37,7 @@
 }
 
 .diagnosis span {
-  color: #1a1a2e;
+  color: var(--stats-text);
   flex: 1;
   font-size: 13px;
   font-weight: 600;
@@ -59,6 +59,19 @@
   width: 100%;
 }
 
+/* 거미줄 · 점 테두리 · 축 라벨 (SVG 속성보다 CSS 가 우선) */
+.web {
+  stroke: var(--stats-border);
+}
+
+.dot {
+  stroke: var(--stats-surface);
+}
+
+.axisLabel {
+  fill: var(--stats-muted);
+}
+
 .value {
   animation: radarGrow 900ms 120ms ease-out both;
   transform-box: fill-box;
@@ -66,10 +79,16 @@
 }
 
 .list {
+  /* 라이트는 카드와 같은 흰색(원본 그대로), 다크는 트랙 톤 */
+  --radar-track: #fff;
   display: flex;
   flex-direction: column;
   gap: 9px;
   margin-top: 6px;
+}
+
+:global(html[data-theme="dark"]) .list {
+  --radar-track: var(--stats-border);
 }
 
 .list > div {
@@ -79,7 +98,7 @@
 }
 
 .list > div > span:first-child {
-  color: #55555f;
+  color: var(--stats-muted);
   flex: 0 0 62px;
   font-size: 12px;
   font-weight: 700;
@@ -88,7 +107,7 @@
 }
 
 .list > div > span:nth-child(2) {
-  background: #fff;
+  background: var(--radar-track);
   border-radius: 4px;
   flex: 1;
   height: 8px;
@@ -102,7 +121,7 @@
 }
 
 .list strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   flex: 0 0 46px;
   font-size: 12px;
   font-weight: 800;
@@ -110,7 +129,7 @@
 }
 
 .foot {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 11px;
   margin: 14px 0 0;
   text-align: center;

@@ -125,6 +125,7 @@ function StudyTimeChart({ request }: { request: AuthenticatedRequest }) {
       >
         {[0, 1, 2, 3, 4].map((line) => (
           <line
+            className={styles.gridLine}
             key={line}
             stroke="#ECEAF6"
             strokeOpacity=".5"
@@ -158,6 +159,7 @@ function StudyTimeChart({ request }: { request: AuthenticatedRequest }) {
         {labels.map((index) =>
           points[index] ? (
             <text
+              className={styles.axisLabel}
               fill="#55555F"
               fontSize="10"
               fontWeight="600"

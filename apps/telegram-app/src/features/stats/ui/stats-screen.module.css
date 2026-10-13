@@ -1,10 +1,13 @@
 .statsPage {
+  /* 페이지 배경(상단 탭·기간 선택 바탕) / 카드 안 흰 박스(콜아웃) */
+  --stats-bg: #fff;
   --stats-border: #eceaf6;
+  --stats-elevated: #fff;
   --stats-muted: #55555f;
   --stats-primary: #776ee2;
   --stats-surface: #fff;
   --stats-text: #1a1a2e;
-  background: #fff;
+  background: var(--stats-bg);
   color: var(--stats-text);
   display: flex;
   flex-direction: column;
@@ -28,7 +31,7 @@
 }
 
 .topTabs {
-  background: #fff;
+  background: var(--stats-bg);
   border-bottom: 1px solid var(--stats-border);
   padding: 0 20px;
   position: relative;
@@ -75,7 +78,7 @@
 .periodSelector {
   align-items: center;
   align-self: flex-start;
-  background: #fff;
+  background: var(--stats-bg);
   border-radius: 12px;
   display: flex;
   margin-bottom: 14px;
@@ -148,6 +151,13 @@
 
 .bottomNav button.navActive {
   color: var(--stats-primary);
+}
+
+/* ── 다크 모드 (앱 theme.ts 다크와 같은 값) ──
+   text·muted·surface·border 는 globals.css 가 main 에 이미 덮어쓴다 */
+:global(html[data-theme="dark"]) .statsPage {
+  --stats-bg: #15151d;
+  --stats-elevated: #2d2d38;
 }
 
 @keyframes spin {

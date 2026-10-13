@@ -145,6 +145,7 @@ export function SkillRadarCard({
           </defs>
           {[0.25, 0.5, 0.75, 1].map((ring) => (
             <polygon
+              className={styles.web}
               fill="none"
               key={ring}
               points={polygonPoints(data.skills, radius, () => ring)}
@@ -156,6 +157,7 @@ export function SkillRadarCard({
             const outer = pointAt(index, data.skills.length, radius, 1);
             return (
               <line
+                className={styles.web}
                 key={skill.category}
                 stroke="#ECEAF6"
                 strokeWidth="1"
@@ -191,6 +193,7 @@ export function SkillRadarCard({
             return (
               <g key={skill.category}>
                 <circle
+                  className={styles.dot}
                   cx={point.x}
                   cy={point.y}
                   fill={weak ? "#FF6B6B" : "#776ee2"}
@@ -199,6 +202,7 @@ export function SkillRadarCard({
                   strokeWidth="2"
                 />
                 <text
+                  className={weak ? undefined : styles.axisLabel}
                   fill={weak ? "#FF6B6B" : "#55555F"}
                   fontSize="11"
                   fontWeight={weak ? "800" : "700"}

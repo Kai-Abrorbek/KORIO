@@ -154,7 +154,15 @@ function CategorySummary({
       <div>
         {tiles.map((tile) => (
           <span key={tile.label}>
-            <i style={{ backgroundColor: tile.background, color: tile.tint }}>
+            <i
+              style={
+                {
+                  "--tile-bg": tile.background,
+                  "--tile-tint": tile.tint,
+                  color: tile.tint,
+                } as CSSProperties
+              }
+            >
               <MobileIcon name={tile.icon} size={15} />
             </i>
             <strong>{tile.value}</strong>

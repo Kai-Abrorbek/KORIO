@@ -7,7 +7,14 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { StatsCard } from "./stats-screen";
 import styles from "./yearly-heatmap.module.css";
 
-const ACTIVE_COLORS = ["#D9D2F5", "#B7ABEC", "#9587E0", "#776ee2"];
+// 실제 색은 yearly-heatmap.module.css 의 --heat-* (라이트/다크)
+const EMPTY_COLOR = "var(--heat-0)";
+const ACTIVE_COLORS = [
+  "var(--heat-1)",
+  "var(--heat-2)",
+  "var(--heat-3)",
+  "var(--heat-4)",
+];
 const MONTHS = [
   "Yan",
   "Fev",
@@ -93,7 +100,7 @@ function MonthBlock({
                       date > today
                         ? "transparent"
                         : intensity === 0
-                          ? "#ECEAF6"
+                          ? EMPTY_COLOR
                           : ACTIVE_COLORS[intensity - 1],
                   }}
                 />
@@ -173,7 +180,7 @@ export function YearlyHeatmap({ days }: { days: HeatmapDay[] }) {
         </div>
         <div className={styles.legend}>
           <span>Less</span>
-          {["#ECEAF6", ...ACTIVE_COLORS].map((color) => (
+          {[EMPTY_COLOR, ...ACTIVE_COLORS].map((color) => (
             <i key={color} style={{ backgroundColor: color }} />
           ))}
           <span>More</span>

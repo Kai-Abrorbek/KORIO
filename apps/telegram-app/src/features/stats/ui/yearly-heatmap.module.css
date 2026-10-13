@@ -1,5 +1,5 @@
 .sectionTitle {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 20px;
   font-weight: 800;
   margin: 8px 20px 12px;
@@ -13,7 +13,7 @@
 }
 
 .header > strong {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 17px;
   font-weight: 800;
 }
@@ -28,22 +28,42 @@
   align-items: center;
   background: transparent;
   border: 0;
-  color: #1a1a2e;
+  color: var(--stats-text);
   display: flex;
   justify-content: center;
   padding: 0;
 }
 
 .header button:disabled {
-  color: #eceaf6;
+  color: var(--stats-border);
 }
 
 .header b {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 13px;
   font-weight: 700;
   min-width: 80px;
   text-align: center;
+}
+
+/* 히트맵 칸 색: 0 = 안 한 날, 1~4 = 강도 (범례와 같은 값) */
+.legend,
+.row {
+  --heat-0: #eceaf6;
+  --heat-1: #d9d2f5;
+  --heat-2: #b7abec;
+  --heat-3: #9587e0;
+  --heat-4: #776ee2;
+}
+
+/* 다크: 연한 보라가 튀지 않게 어두운 쪽부터 밝아지는 램프 */
+:global(html[data-theme="dark"]) .legend,
+:global(html[data-theme="dark"]) .row {
+  --heat-0: #30303a;
+  --heat-1: #3d3766;
+  --heat-2: #574dab;
+  --heat-3: #6f63d4;
+  --heat-4: #8f84f0;
 }
 
 .legend {
@@ -54,7 +74,7 @@
 }
 
 .legend span {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 12px;
   font-weight: 600;
   margin: 0 4px;
@@ -74,7 +94,7 @@
 }
 
 .days {
-  color: #55555f;
+  color: var(--stats-muted);
   display: flex;
   flex: 0 0 18px;
   flex-direction: column;
@@ -95,7 +115,7 @@
 }
 
 .month > strong {
-  color: #55555f;
+  color: var(--stats-muted);
   display: block;
   font-size: 10px;
   font-weight: 700;

@@ -9,14 +9,14 @@
 }
 
 .controls + h3 {
-  color: #1a1a2e;
+  color: var(--stats-text);
   font-size: 17px;
   font-weight: 800;
   margin: 0 0 8px;
 }
 
 .subtitle {
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 13px;
   margin: 0 0 18px;
 }
@@ -33,13 +33,26 @@
   width: 100%;
 }
 
+/* 그리드 · 축 라벨 (SVG 속성보다 CSS 가 우선) */
+.gridLine {
+  stroke: var(--stats-border);
+}
+
+:global(html[data-theme="dark"]) .gridLine {
+  stroke-opacity: 1;
+}
+
+.axisLabel {
+  fill: var(--stats-muted);
+}
+
 .linePath {
   animation: drawLine 1000ms ease-out both;
   stroke-dasharray: 1000;
 }
 
 .range {
-  color: #55555f;
+  color: var(--stats-muted);
   display: flex;
   font-size: 11px;
   justify-content: space-between;
@@ -55,7 +68,7 @@
 
 .legend span {
   align-items: center;
-  color: #55555f;
+  color: var(--stats-muted);
   display: flex;
   font-size: 10px;
   font-weight: 600;
@@ -87,7 +100,7 @@
 
 .barSlot > small {
   bottom: -18px;
-  color: #55555f;
+  color: var(--stats-muted);
   font-size: 10px;
   font-weight: 600;
   left: 50%;
@@ -98,7 +111,7 @@
 
 .emptyBar {
   align-self: flex-end;
-  background: #eceaf6;
+  background: var(--stats-border);
   border-radius: 2px;
   height: 4px;
   width: 100%;
