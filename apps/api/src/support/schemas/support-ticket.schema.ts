@@ -15,6 +15,15 @@ export type SupportCategory = (typeof SUPPORT_CATEGORIES)[number];
 export const SUPPORT_STATUSES = ['open', 'sending', 'answered'] as const;
 export type SupportStatus = (typeof SUPPORT_STATUSES)[number];
 
+/**
+ * 답장이 가는 곳.
+ *  telegram — 텔레그램 미니앱 유저 (이메일이 없다) → 봇 메시지
+ *  email    — 계정 이메일
+ *  app      — 둘 다 없으면 앱 "내 문의" 화면 + 푸시로만
+ */
+export const SUPPORT_REPLY_CHANNELS = ['email', 'telegram', 'app'] as const;
+export type SupportReplyChannel = (typeof SUPPORT_REPLY_CHANNELS)[number];
+
 @Schema({ _id: false })
 export class SupportReply {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -28,6 +37,14 @@ export class SupportReply {
 
   @Prop({ required: true })
   sentAt: Date;
+
+  /** 어디로 보냈는지 — 이 필드가 생기기 전 답장은 전부 이메일이었다 */
+  @Prop({ type: String, enum: SUPPORT_REPLY_CHANNELS, default: 'email' })
+  channel: SupportReplyChannel;
+
+  /** 텔레그램 봇 전송이 실패했으면 false. 답장은 앱 "내 문의" 에 그대로 남는다 */
+  @Prop({ default: true })
+  delivered: boolean;
 }
 
 const SupportReplySchema = SchemaFactory.createForClass(SupportReply);

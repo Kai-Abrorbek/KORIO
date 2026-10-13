@@ -33,6 +33,8 @@ export enum PushType {
   GEM_PAYOUT_DONE = 'gem_payout_done',
   /** 보석 출금 반려 · 보석 반환 */
   GEM_PAYOUT_REJECTED = 'gem_payout_rejected',
+  /** 내 문의에 운영팀이 답장했다 (params: subject) — 유저 요청에 대한 응답이라 스위치로 못 끈다 */
+  SUPPORT_REPLY = 'support_reply',
 }
 
 /**

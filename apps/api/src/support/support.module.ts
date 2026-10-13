@@ -3,6 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminModule } from '../admin/admin.module';
 import { RateLimitGuard } from '../common/rate-limit';
+import { TelegramBotApi } from '../payments/providers/telegram-stars/telegram-bot.api';
+import { PushModule } from '../push/push.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import {
   SupportTicket,
@@ -16,12 +18,13 @@ import { SupportService } from './support.service';
   imports: [
     AdminModule,
     JwtModule.register({}),
+    PushModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: SupportTicket.name, schema: SupportTicketSchema },
     ]),
   ],
   controllers: [SupportController, AdminSupportController],
-  providers: [SupportService, RateLimitGuard],
+  providers: [SupportService, TelegramBotApi, RateLimitGuard],
 })
 export class SupportModule {}

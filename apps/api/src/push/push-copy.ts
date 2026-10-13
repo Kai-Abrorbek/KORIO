@@ -479,6 +479,33 @@ const GEM_PAYOUT_REJECTED: Table = {
   ],
 };
 
+const SUPPORT_REPLY: Table = {
+  ko: [
+    {
+      title: '문의에 답변이 왔어요 💬',
+      body: '「{{subject}}」 — 눌러서 답변을 확인해 보세요.',
+    },
+  ],
+  uz: [
+    {
+      title: 'Murojaatingizga javob keldi 💬',
+      body: "«{{subject}}» — javobni ko'rish uchun bosing.",
+    },
+  ],
+  en: [
+    {
+      title: 'Support replied to you 💬',
+      body: '"{{subject}}" — tap to read the reply.',
+    },
+  ],
+  ru: [
+    {
+      title: 'Поддержка ответила 💬',
+      body: '«{{subject}}» — нажмите, чтобы прочитать ответ.',
+    },
+  ],
+};
+
 /** ANNOUNCEMENT 는 어드민이 문구를 직접 넘긴다 — 여기 표에 없다 */
 const TABLES: Partial<Record<PushType, Table>> = {
   [PushType.FOLLOW]: FOLLOW,
@@ -494,6 +521,7 @@ const TABLES: Partial<Record<PushType, Table>> = {
   [PushType.REFERRAL_JOINED]: REFERRAL_JOINED,
   [PushType.GEM_PAYOUT_DONE]: GEM_PAYOUT_DONE,
   [PushType.GEM_PAYOUT_REJECTED]: GEM_PAYOUT_REJECTED,
+  [PushType.SUPPORT_REPLY]: SUPPORT_REPLY,
 };
 
 /** {{key}} 를 params 값으로 바꾼다. 값이 없으면 자리표시자를 지운다 */
