@@ -229,20 +229,41 @@ export class GemPassService {
     return true;
   }
 
-  /** 지금 프리미엄이 언제까지인지 + 보석으로 쌓아둔 일수 */
+  /**
+   * 지금 프리미엄이 언제까지인지 + 보석으로 쌓아둔 일수.
+   *
+   * 30일 체험은 구독 행이 없고 user 에만 있다(superPlan 'trial'). 예전엔 구독
+   * 행만 봐서 체험 중인 사람을 "프리미엄 없음" 으로 보고 지금부터 기간을 셌다.
+   * 그러면 syncUser 가 그 짧은 기간으로 user 를 덮어써서, 기간권(또는 보상
+   * 하루)이 끝날 때 남은 체험까지 같이 사라졌다. 이제 체험 끝 뒤에 붙인다.
+   */
   private async currentStack(userId: string) {
     const now = new Date();
-    const active = await this.subModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        status: { $in: ENTITLED_STATUSES },
-        expiresAt: { $gt: now },
-      })
-      .sort({ expiresAt: -1 })
-      .limit(1)
-      .lean();
+    const [active, user] = await Promise.all([
+      this.subModel
+        .find({
+          userId: new Types.ObjectId(userId),
+          status: { $in: ENTITLED_STATUSES },
+          expiresAt: { $gt: now },
+        })
+        .sort({ expiresAt: -1 })
+        .limit(1)
+        .lean(),
+      this.userModel.findById(userId).select('superPlan superExpiresAt').lean(),
+    ]);
 
-    const premiumUntil = active[0]?.expiresAt ?? null;
+    let premiumUntil: Date | null = active[0]?.expiresAt ?? null;
+    const trialEnd =
+      user?.superPlan === 'trial' && user.superExpiresAt
+        ? new Date(user.superExpiresAt)
+        : null;
+    if (
+      trialEnd &&
+      trialEnd > now &&
+      (!premiumUntil || trialEnd > premiumUntil)
+    ) {
+      premiumUntil = trialEnd;
+    }
     // 상한은 "보석으로 산 것" 이 아니라 남은 전체 기간으로 본다.
     // 결제 구독이 1년 남았는데 보석으로 60일을 더 쌓는 건 의미가 없다.
     const stackedDays = premiumUntil

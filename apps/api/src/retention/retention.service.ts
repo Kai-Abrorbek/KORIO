@@ -32,6 +32,7 @@ import {
   UserMistakeDocument,
 } from '../users/schemas/user-mistake.schema';
 import { isSuperActive } from '../users/super.util';
+import { checkinRewardFor } from './checkin-reward';
 import {
   bumpQuestCounter,
   QUEST_EVENT_KEYS,
@@ -837,10 +838,10 @@ export class RetentionService {
       count,
       /** 오늘 받을 수 있나 (하루 한 번) */
       canClaim: me.checkin?.lastDay !== today,
+      // SUPER(체험 포함)면 "SUPER 하루" 칸이 보석으로 보인다 (checkin-reward)
       rewards: CHECKIN_REWARDS.map((r, i) => ({
         day: i + 1,
-        gems: r.gems,
-        superDays: r.superDays ?? 0,
+        ...checkinRewardFor(me, r),
       })),
     };
   }
@@ -853,7 +854,8 @@ export class RetentionService {
     if (count >= CHECKIN_REWARDS.length) {
       throw new BadRequestException('CHECKIN_DONE');
     }
-    const reward = CHECKIN_REWARDS[count];
+    // 이미 프리미엄이면 SUPER 하루 대신 그만큼의 보석 (checkin-reward 참고)
+    const reward = checkinRewardFor(me, CHECKIN_REWARDS[count]);
 
     // 횟수·날짜를 조건으로 — 같은 날 두 번, 같은 칸 두 번을 막는다
     const res = await this.userModel.updateOne(
@@ -902,6 +904,7 @@ export class RetentionService {
     // 프리미엄까지 무사히 준 뒤에 적는다 (실패하면 위에서 보석을 되돌린다)
     await this.gemLedger?.record(me._id, reward.gems ?? 0, 'checkin', {
       day: count + 1,
+      ...(reward.swapped ? { superDay: 1 } : {}),
     });
 
     const after = await this.userModel
@@ -911,7 +914,11 @@ export class RetentionService {
     return {
       day: count + 1,
       gems: after?.gems ?? 0,
-      reward: { gems: reward.gems, superDays: reward.superDays ?? 0 },
+      reward: {
+        gems: reward.gems,
+        superDays: reward.superDays,
+        swapped: reward.swapped,
+      },
       superGranted,
     };
   }

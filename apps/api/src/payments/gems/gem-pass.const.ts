@@ -46,6 +46,16 @@ export const gemPassById = (id: string): GemPass | undefined =>
   GEM_PASSES.find((pass) => pass.id === id);
 
 /**
+ * 프리미엄 하루의 보석 값 — 가장 짧은 기간권의 하루 단가(올림).
+ * 1일권은 팔지 않으니 기준 기간권(3일 5,000)으로 센다 → 1,667.
+ * 출석 7일째 "SUPER 하루" 를 이미 프리미엄인 사람에게 보석으로 바꿔 줄 때 쓴다.
+ */
+export function gemPassDayPrice(): number {
+  const base = [...GEM_PASSES].sort((a, b) => a.days - b.days)[0];
+  return base && base.days > 0 ? Math.ceil(base.gems / base.days) : 0;
+}
+
+/**
  * 보석 기간권으로 쌓을 수 있는 프리미엄의 상한(일).
  *
  * 없으면 보석 부자가 몇 년치를 한 번에 쌓아두고 영영 결제하지 않는다.
