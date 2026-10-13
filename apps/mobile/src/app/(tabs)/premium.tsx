@@ -7,7 +7,6 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
-  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,10 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
-  withSequence,
   withTiming,
-  Easing,
   type SharedValue,
 } from "react-native-reanimated";
 import { GestureDetector } from "react-native-gesture-handler";
@@ -44,8 +40,7 @@ import SwipeSlides, {
   useSegmentThumb,
 } from "@/components/common/SwipeSlides";
 import { useSwipeTabs } from "@/components/common/useSwipeTabs";
-
-const { width } = Dimensions.get("window");
+import PremiumHero from "@/features/subscription/components/PremiumHero";
 
 /** 카드가 눌릴 때 바텀보더까지 같이 줄어들게 하려면 애니메이션 가능한 Pressable 이 필요하다 */
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -105,20 +100,6 @@ export default function PremiumScreen() {
     if (selected && tierPlans.some((p) => p.productId === selected)) return;
     setSelected(defaultPlanId(tierPlans));
   }, [tierPlans, selected]);
-
-  // 로고 반짝임
-  const shimmer = useSharedValue(0.5);
-  useEffect(() => {
-    shimmer.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.5, { duration: 1400, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-  }, []);
-  const shimmerStyle = useAnimatedStyle(() => ({ opacity: shimmer.value }));
 
   const selectedPlan = useMemo(
     () => tierPlans.find((p) => p.productId === selected) ?? null,
@@ -259,9 +240,7 @@ export default function PremiumScreen() {
     const best = bestPlanIdOf(list);
     return (
       <View>
-        <Text style={s.tierBlurb}>{t(`premium.tierBlurb.${tk}`)}</Text>
-
-        {/* 혜택 */}
+        {/* 혜택 — 등급 한 줄 설명은 히어로로 옮겼다 */}
         <View style={s.section}>
           {tk === "max" && (
             <>
@@ -360,25 +339,8 @@ export default function PremiumScreen() {
             }}
             showsVerticalScrollIndicator={false}
           >
-            {/* 히어로 */}
-            <LinearGradient
-              colors={["#9D8DFF", "#776ee2", "#5B4DD4"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={s.hero}
-            >
-              <Animated.View style={[s.shine, shimmerStyle]} />
-              <View style={s.crownWrap}>
-                <Ionicons name="star" size={36} color="#FFD93D" />
-              </View>
-              <View style={s.logoRow}>
-                <Text style={s.logoKorio}>KORIO</Text>
-                <View style={s.superTag}>
-                  <Text style={s.superTagText}>SUPER</Text>
-                </View>
-              </View>
-              <Text style={s.heroSub}>{t("premium.heroSub")}</Text>
-            </LinearGradient>
+            {/* 히어로 — 보고 있는 등급에 맞춰 한글몬·태그·문구가 바뀐다 (미는 만큼 섞인다) */}
+            <PremiumHero progress={tierProgress} />
 
             {/* 등급 선택 — MAX 가 기본. AI 튜터가 킬러 기능이다.
                 선택 배경·글자색은 옆으로 미는 만큼 따라간다 */}
@@ -704,60 +666,6 @@ const styles = (theme: ThemeColors) =>
     container: { flex: 1, backgroundColor: theme.bg },
     center: { alignItems: "center", justifyContent: "center" },
 
-    hero: {
-      paddingTop: 70,
-      paddingBottom: 36,
-      paddingHorizontal: 24,
-      alignItems: "center",
-      borderBottomLeftRadius: 32,
-      borderBottomRightRadius: 32,
-      overflow: "hidden",
-    },
-    shine: {
-      position: "absolute",
-      top: -60,
-      left: -80,
-      width: width * 0.6,
-      height: "240%",
-      backgroundColor: "rgba(255,255,255,0.12)",
-      transform: [{ rotate: "22deg" }],
-    },
-    crownWrap: {
-      width: 72,
-      height: 72,
-      borderRadius: 24,
-      backgroundColor: "rgba(255,255,255,0.18)",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 16,
-    },
-    logoRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-    logoKorio: {
-      fontSize: 34,
-      fontWeight: "900",
-      color: "#fff",
-      letterSpacing: 1,
-    },
-    superTag: {
-      backgroundColor: "#FFD93D",
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      transform: [{ rotate: "-3deg" }],
-    },
-    superTagText: {
-      fontSize: 18,
-      fontWeight: "900",
-      color: "#5B4DD4",
-      letterSpacing: 1,
-    },
-    heroSub: {
-      fontSize: 15,
-      color: "rgba(255,255,255,0.9)",
-      marginTop: 12,
-      textAlign: "center",
-      fontWeight: "600",
-    },
 
     tierBar: {
       flexDirection: "row",
@@ -789,15 +697,6 @@ const styles = (theme: ThemeColors) =>
       letterSpacing: 0.5,
     },
     tierStar: { marginLeft: -1 },
-    tierBlurb: {
-      fontSize: 13.5,
-      fontWeight: "700",
-      color: theme.textSecondary,
-      textAlign: "center",
-      marginTop: 10,
-      marginHorizontal: 28,
-      lineHeight: 19,
-    },
 
     section: { paddingHorizontal: 20, paddingTop: 24, gap: 18 },
     featureTitleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
