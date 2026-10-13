@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 import type { LeagueMember } from "../model/league";
 import { GeneratedAvatar } from "./generated-avatar";
+import { AuraRing } from "../../../shared/ui/avatar-aura";
 import styles from "./friend-avatar.module.css";
 
 const PALETTE = [
@@ -35,6 +36,8 @@ export function FriendAvatar({ member, size = 52 }: { member: LeagueMember; size
           {member.nickname.trim().charAt(0).toUpperCase()}
         </span>
       )}
+      {/* 오라를 산 사람은 리그 줄에서도 테두리 빛이 돈다 */}
+      <AuraRing aura={avatar?.aura} />
       {member.online ? <i className={styles.online} /> : null}
     </span>
   );

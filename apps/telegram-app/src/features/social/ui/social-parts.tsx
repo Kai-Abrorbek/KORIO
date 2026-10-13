@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { create as createQrCode } from "qrcode";
 
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
+import { AuraRing } from "../../../shared/ui/avatar-aura";
 import { followUser, unfollowUser } from "../api/social";
 import type { SocialUser } from "../model/social";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
@@ -57,6 +58,7 @@ export function FriendAvatar({ name, avatar, imageUrl, size = 56, online = false
         // eslint-disable-next-line @next/next/no-img-element
         <img alt={name} src={imageUrl} />
       ) : <b>{name.trim().charAt(0).toUpperCase() || "?"}</b>}
+      <AuraRing aura={avatar?.aura} />
       {online ? <i className={styles.onlineDot} /> : null}
     </span>
   );

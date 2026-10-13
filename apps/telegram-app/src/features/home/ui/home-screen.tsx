@@ -1,5 +1,6 @@
 "use client";
 
+import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
@@ -102,7 +103,7 @@ function UserArtwork({ user, onPress }: { user: HomeUser; onPress: () => void })
   return (
     <button aria-label="Avatarni tahrirlash" className={styles.avatarArtworkButton} onClick={onPress} type="button">
       {user.avatar ? (
-        <span className={styles.generatedArtwork}><GeneratedAvatar avatar={user.avatar} variant="full" /></span>
+        <span className={styles.generatedArtwork}><AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura></span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img alt="" className={styles.mascotArtwork} src="/characters/hangulmon_default.png" />

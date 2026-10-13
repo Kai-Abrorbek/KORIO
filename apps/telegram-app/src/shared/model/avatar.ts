@@ -12,6 +12,8 @@ export const AVATAR_IDS = {
   headwear: ["headwear_none", "headwear_cap", "headwear_beanie", "headwear_headband", "headwear_bucket"],
   outfit: ["outfit_hoodie", "outfit_varsity", "outfit_sweater", "outfit_sport", "outfit_hanbok", "outfit_denim"],
   background: ["background_cloud", "background_lilac", "background_sky", "background_mint", "background_lime", "background_sand", "background_peach", "background_coral", "background_navy", "background_plum", "background_sunset", "background_aurora"],
+  /** 보석으로 사는 움직이는 효과 (api cosmetics) — 산 것만 장착된다 */
+  aura: ["aura_none", "aura_stardust", "aura_snow", "aura_blossom", "aura_flame", "aura_hangul"],
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -30,6 +32,7 @@ export interface AvatarConfig {
   headwear: AvatarValue<"headwear">;
   outfit: AvatarValue<"outfit">;
   background: AvatarValue<"background">;
+  aura: AvatarValue<"aura">;
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
@@ -45,13 +48,15 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   headwear: "headwear_none",
   outfit: "outfit_hoodie",
   background: "background_lilac",
+  aura: "aura_none",
 };
 
 export function mergeAvatarConfig(avatar?: Partial<AvatarConfig> | null): AvatarConfig {
   return { ...DEFAULT_AVATAR_CONFIG, ...avatar, version: AVATAR_VERSION };
 }
 
-export function randomAvatar(): AvatarConfig {
+/** 무작위 — 오라는 돈 주고 산 것이라 바꾸지 않는다 */
+export function randomAvatar(keep?: Pick<AvatarConfig, "aura">): AvatarConfig {
   const pick = <T extends readonly string[]>(values: T): T[number] =>
     values[Math.floor(Math.random() * values.length)]!;
   return {
@@ -67,5 +72,6 @@ export function randomAvatar(): AvatarConfig {
     headwear: pick(AVATAR_IDS.headwear),
     outfit: pick(AVATAR_IDS.outfit),
     background: pick(AVATAR_IDS.background),
+    aura: keep?.aura ?? "aura_none",
   };
 }

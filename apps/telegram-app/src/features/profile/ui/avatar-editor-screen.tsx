@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -16,9 +16,13 @@ import {
   GeneratedAvatar,
 } from "../../league/ui/generated-avatar";
 import { updateAvatar } from "../api/profile";
+import { getCosmetics, purchaseCosmetic, type CosmeticsState } from "../api/cosmetics";
 import { AVATAR_CATEGORIES, type AvatarOption } from "../model/avatar-catalog";
 import styles from "./avatar-editor-screen.module.css";
 import { playSfx } from "../../../shared/browser/sfx";
+import { uzt } from "../../../shared/i18n/uz-text";
+import { AvatarAura, AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
+import { AuraBought, AuraBuySheet, AuraGrid, auraPrice, ownsAura } from "./aura-picker";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
@@ -39,17 +43,50 @@ export function AvatarEditorScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [saveErrorOpen, setSaveErrorOpen] = useState(false);
+  // 오라 (보석으로 산다) — 목록 · 가진 것 · 보석
+  const [cosmetics, setCosmetics] = useState<CosmeticsState | null>(null);
+  const [cosStatus, setCosStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [buyOpen, setBuyOpen] = useState(false);
+  const [buying, setBuying] = useState(false);
+  const [buyError, setBuyError] = useState(false);
+  const [bought, setBought] = useState<Exclude<AuraId, "aura_none"> | null>(null);
 
+  const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
+  const dirty = useRef(hasChanges);
+  dirty.current = hasChanges;
+
+  // 계정 아바타가 바뀌면 다시 맞춘다 — 단 고치던 게 있으면 덮지 않는다 (오라를 산 직후 등)
   useEffect(() => {
+    if (dirty.current) return;
     setDraft(userAvatar);
     setInitial(userAvatar);
-    setSelectedCategory("skinTone");
   }, [userAvatar]);
+
+  const loadCosmetics = useCallback(async () => {
+    setCosStatus("loading");
+    try {
+      setCosmetics(await getCosmetics(request));
+      setCosStatus("ready");
+    } catch {
+      setCosStatus("failed");
+    }
+  }, [request]);
+
+  useEffect(() => {
+    void loadCosmetics();
+  }, [loadCosmetics]);
+
+  const draftAura = isAura(draft.aura) ? draft.aura : null;
+  // 입어보는 중 (아직 안 산 오라)
+  const tryingOn = draftAura !== null && cosStatus === "ready" && !ownsAura(cosmetics, draftAura);
+  const tryPrice = draftAura ? (auraPrice(cosmetics, draftAura) ?? 0) : 0;
+  const gems = cosmetics?.gems ?? user?.gems ?? 0;
+  const otherChanges =
+    JSON.stringify({ ...draft, aura: initial.aura }) !== JSON.stringify(initial);
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
     AVATAR_CATEGORIES[0]!;
-  const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
   const heroBackground =
     AVATAR_BACKGROUNDS[draft.background] ??
     AVATAR_BACKGROUNDS.background_cloud;
@@ -85,14 +122,43 @@ export function AvatarEditorScreen() {
 
   const randomize = () => {
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
-    setDraft(randomAvatar());
+    // 오라는 산 것이라 그대로 둔다
+    setDraft((current) => randomAvatar({ aura: current.aura }));
   };
 
-  const save = async () => {
+  const pickAura = (id: AuraId) => {
+    hapticSelection();
+    setDraft((current) => ({ ...current, aura: id }));
+  };
+
+  const buy = async () => {
+    if (!draftAura || buying) return;
+    setBuying(true);
+    setBuyError(false);
+    try {
+      const result = await purchaseCosmetic(request, draftAura, true);
+      setCosmetics((current) => (current ? { ...current, gems: result.gems, owned: result.owned, equipped: { aura: draftAura } } : current));
+      // 저장된 쪽도 이 오라로 — 고치던 다른 부분은 그대로 둔다
+      setInitial((current) => ({ ...current, aura: draftAura }));
+      updateUser({ avatar: mergeAvatarConfig({ ...user?.avatar, aura: draftAura }), gems: result.gems });
+      window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
+      playSfx("combo");
+      setBuyOpen(false);
+      setBought(draftAura);
+    } catch {
+      window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("error");
+      setBuyError(true);
+      void loadCosmetics();
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  const save = async (withoutAura = false) => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const result = await updateAvatar(request, draft);
+      const result = await updateAvatar(request, withoutAura ? { ...draft, aura: initial.aura } : draft);
       updateUser({ avatar: result.avatar });
       window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
       goBack(router);
@@ -130,12 +196,29 @@ export function AvatarEditorScreen() {
       >
         <i className={styles.heroOrbLarge} />
         <i className={styles.heroOrbSmall} />
-        <span className={styles.freeBadge}>
-          <MobileIcon name="sparkles" size={14} />
-          Hozircha barcha buyumlar bepul
-        </span>
+        {selectedCategory === "aura" ? (
+          <span className={`${styles.freeBadge} ${styles.gemBadge}`} data-no-translate>
+            <MobileIcon name="diamond" size={14} />
+            {gems.toLocaleString("en-US")}
+          </span>
+        ) : (
+          <span className={styles.freeBadge}>
+            <MobileIcon name="sparkles" size={14} />
+            <span data-i18n="avatarEditor.basicFree">{uzt("avatarEditor.basicFree")}</span>
+          </span>
+        )}
+        {tryingOn && draftAura ? (
+          <span
+            className={styles.tryOnBadge}
+            style={{ "--rarity": RARITY_COLOR[AURA_LOOK[draftAura].rarity] } as React.CSSProperties}
+          >
+            <span data-i18n="avatarEditor.aura.tryOn">{uzt("avatarEditor.aura.tryOn")}</span>
+          </span>
+        ) : null}
         <div className={styles.heroAvatar}>
-          <GeneratedAvatar avatar={draft} variant="full" />
+          <AvatarAura aura={draft.aura}>
+            <GeneratedAvatar avatar={draft} variant="full" />
+          </AvatarAura>
         </div>
         <button className={styles.randomButton} onClick={randomize} type="button">
           <span>
@@ -161,6 +244,11 @@ export function AvatarEditorScreen() {
               >
                 <MobileIcon name={item.icon} size={20} />
                 {item.label}
+                {item.id === "aura" && !selected ? (
+                  <em className={styles.newBadge} data-i18n="avatarEditor.aura.newBadge">
+                    {uzt("avatarEditor.aura.newBadge")}
+                  </em>
+                ) : null}
               </button>
             );
           })}
@@ -168,6 +256,16 @@ export function AvatarEditorScreen() {
       </section>
 
       <section className={styles.optionsScroll}>
+        {category.id === "aura" ? (
+          <AuraGrid
+            draft={draft}
+            equipped={initial.aura ?? "aura_none"}
+            onPick={pickAura}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+          />
+        ) : (
         <div className={styles.optionsGrid} key={category.id}>
           {category.options.map((option) => {
             const selected = draft[category.id] === option.id;
@@ -204,13 +302,53 @@ export function AvatarEditorScreen() {
             );
           })}
         </div>
+        )}
       </section>
 
       <footer className={styles.bottomBar}>
-        <button disabled={isSaving} onClick={() => { playSfx("click"); void save(); }} type="button">
-          {isSaving ? "Saqlanmoqda..." : "Qahramonni saqlash"}
-        </button>
+        {tryingOn ? (
+          <>
+            <button
+              className={styles.buyButton}
+              onClick={() => {
+                playSfx("click");
+                setBuyError(false);
+                setBuyOpen(true);
+              }}
+              type="button"
+            >
+              <span className={styles.buyPrice} data-no-translate>
+                <MobileIcon name="diamond" size={16} />
+                {tryPrice.toLocaleString("en-US")}
+              </span>
+              <span data-i18n="avatarEditor.aura.buy">{uzt("avatarEditor.aura.buy")}</span>
+            </button>
+            {otherChanges ? (
+              <button className={styles.saveWithout} disabled={isSaving} onClick={() => void save(true)} type="button">
+                <span data-i18n="avatarEditor.aura.saveWithout">{uzt("avatarEditor.aura.saveWithout")}</span>
+              </button>
+            ) : null}
+          </>
+        ) : (
+          <button disabled={isSaving} onClick={() => { playSfx("click"); void save(); }} type="button">
+            {isSaving ? "Saqlanmoqda..." : "Qahramonni saqlash"}
+          </button>
+        )}
       </footer>
+
+      {buyOpen && draftAura ? (
+        <AuraBuySheet
+          avatar={draft}
+          buying={buying}
+          error={buyError}
+          gems={gems}
+          id={draftAura}
+          onBuy={() => void buy()}
+          onClose={() => setBuyOpen(false)}
+          price={tryPrice}
+        />
+      ) : null}
+      {bought ? <AuraBought avatar={draft} id={bought} onClose={() => setBought(null)} /> : null}
 
       {discardOpen ? (
         <div aria-modal="true" className={styles.dialog} role="dialog">

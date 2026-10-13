@@ -13,6 +13,7 @@ import styles from "./social.module.css";
 import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import { alertDialog } from "../../../shared/telegram/dialogs";
 import { WeeklyVersus } from "./weekly-versus";
+import { AvatarAura } from "../../../shared/ui/avatar-aura";
 
 const LEAGUE_LABELS: Record<string, string> = { bronze: "Bronza", silver: "Kumush", gold: "Oltin", sapphire: "Safir", ruby: "Yoqut", emerald: "Zumrad", amethyst: "Ametist", pearl: "Marvarid", obsidian: "Obsidian", diamond: "Olmos" };
 const LEAGUE_COLORS: Record<string, string> = { bronze: "#CD7F32", silver: "#9AA0A6", gold: "#F4B400", sapphire: "#3282CE", ruby: "#E54B4B", emerald: "#2BA47F", amethyst: "#8E63CE", pearl: "#D7C9E3", obsidian: "#34343F", diamond: "#45B7D1" };
@@ -58,7 +59,7 @@ export function FriendProfileScreen() {
         <header><button aria-label="Orqaga" onClick={() => goBack(router)} type="button"><MobileIcon name="arrow-back" size={26} /></button><h1>{profile.nickname}</h1><button aria-label="Ulashish" onClick={() => void shareText(profile.nickname, `KORIO’da ${profile.nickname} profilini ko‘ring\nhttps://korio.online/u/${profile.id}`)} type="button"><MobileIcon name="share-outline" size={26} /></button></header>
         {profile.isSuper ? <span className={styles.superBadge}>SUPER</span> : null}
         {profile.isOnline ? <span className={styles.onlineBadge}>● Onlayn</span> : null}
-        <div className={styles.heroAvatar}><GeneratedAvatar avatar={profile.avatar} variant="full" /></div>
+        <div className={styles.heroAvatar}><AvatarAura aura={profile.avatar?.aura}><GeneratedAvatar avatar={profile.avatar} variant="full" /></AvatarAura></div>
       </section>
       <p className={styles.profileMeta}>@{profile.username || profile.nickname} · {profile.joinedYear ?? new Date().getFullYear()}-yilda qo‘shildi</p>
       <section className={styles.profileStats}>

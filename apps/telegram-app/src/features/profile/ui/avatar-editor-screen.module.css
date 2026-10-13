@@ -392,6 +392,83 @@
   color: #e0455a;
 }
 
+/* ── 오라 ── */
+.gemBadge {
+  color: #1899d6;
+  font-variant-numeric: tabular-nums;
+}
+
+.tryOnBadge {
+  animation: tryOn 1.6s ease-in-out infinite;
+  background: var(--rarity);
+  border-radius: 999px;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--rarity) 40%, transparent);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 900;
+  padding: 7px 11px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 2;
+}
+
+.categories button {
+  position: relative;
+}
+
+.newBadge {
+  background: linear-gradient(90deg, #ff6b9a, #ff9a3c);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+}
+
+.bottomBar button.buyButton {
+  align-items: center;
+  background: linear-gradient(180deg, #4cc4f0, #1fa4dc);
+  border-bottom-color: #157fae;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.buyPrice {
+  align-items: center;
+  background: rgb(255 255 255 / 22%);
+  border-radius: 999px;
+  display: flex;
+  font-variant-numeric: tabular-nums;
+  gap: 4px;
+  padding: 4px 10px;
+}
+
+.bottomBar button.saveWithout {
+  background: transparent;
+  border: 0;
+  color: var(--secondary);
+  font-size: 13.5px;
+  font-weight: 800;
+  margin-top: 4px;
+  min-height: 36px;
+  padding: 6px;
+}
+
+@keyframes tryOn {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
 }

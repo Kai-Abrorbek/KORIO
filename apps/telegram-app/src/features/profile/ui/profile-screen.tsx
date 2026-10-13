@@ -1,5 +1,6 @@
 "use client";
 
+import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -54,7 +55,9 @@ export function ProfileScreen() {
           </header>
           {profile.isSuper ? <span className={styles.superBadge}>SUPER</span> : null}
           <button aria-label="Avatarni tahrirlash" className={styles.avatarButton} onClick={() => router.push("/avatar-editor")} type="button">
-            <GeneratedAvatar avatar={avatar} variant="full" />
+            <AvatarAura aura={avatar?.aura}>
+              <GeneratedAvatar avatar={avatar} variant="full" />
+            </AvatarAura>
           </button>
         </section>
 

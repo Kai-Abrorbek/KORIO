@@ -18,6 +18,14 @@ const options = (ids: readonly string[], swatches?: readonly string[]) =>
   ids.map((id, index) => ({ id, swatch: swatches?.[index] }));
 
 export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
+  // 맨 앞 — 보석으로 사는 움직이는 효과. 그리드가 따로 있다 (aura-picker)
+  {
+    id: "aura",
+    icon: "sparkles",
+    label: "Aura",
+    preview: "full",
+    options: options(AVATAR_IDS.aura),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

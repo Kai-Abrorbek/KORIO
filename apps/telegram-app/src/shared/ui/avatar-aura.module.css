@@ -1,0 +1,404 @@
+/* ── 전신 ── */
+.wrap {
+  container-type: inline-size;
+  display: block;
+  height: 100%;
+  isolation: isolate;
+  pointer-events: none;
+  position: relative;
+  width: 100%;
+}
+
+.body {
+  display: block;
+  height: 100%;
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+.back,
+.front {
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+}
+
+.back {
+  z-index: 0;
+}
+
+.front {
+  z-index: 3;
+}
+
+.back i,
+.front i,
+.front span,
+.back span {
+  display: block;
+  font-style: normal;
+  position: absolute;
+}
+
+/* 캐릭터 뒤의 빛 — 숨 쉬듯 */
+.glow {
+  animation: breathe 3.2s ease-in-out infinite;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--aura) 55%, transparent), transparent);
+  height: 92%;
+  left: 2%;
+  top: 6%;
+  width: 96%;
+}
+
+[data-aura="aura_flame"] .glow {
+  animation: flicker 1.4s ease-in-out infinite;
+  background: radial-gradient(closest-side at 50% 62%, rgb(255 122 0 / 55%), rgb(255 75 31 / 16%) 70%, transparent);
+}
+
+[data-aura="aura_hangul"] .glow {
+  background:
+    radial-gradient(closest-side, rgb(139 127 240 / 52%), transparent),
+    radial-gradient(48% 10% at 50% 57%, rgb(255 212 92 / 45%), transparent);
+}
+
+/* 반짝이 — 네 갈래 별 */
+.spark {
+  animation: twinkle 2.2s ease-in-out var(--d) infinite both;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #fff 0 22%, var(--aura) 48%, color-mix(in srgb, var(--aura) 60%, transparent) 75%);
+  filter: drop-shadow(0 0 3px var(--aura));
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: calc(var(--size) * 1.7);
+}
+
+/* 떨어지는 줄 — 높이가 상자와 같아서 translateY(%) 가 상자 기준이 된다 */
+.col {
+  animation: fall var(--dur) linear var(--d) infinite;
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.colDrift {
+  animation-name: drift;
+}
+
+.colRise {
+  animation-name: rise;
+  animation-timing-function: ease-out;
+}
+
+.flake {
+  animation: sway var(--sway) ease-in-out infinite alternate;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #fff 45%, rgb(255 255 255 / 0%) 72%);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgb(143 211 255 / 90%);
+  left: var(--x);
+  top: 0;
+  translate: -50% -50%;
+  width: calc(var(--size) * 1.3);
+  min-width: 3px;
+}
+
+.petal {
+  animation: spin var(--spin) linear infinite;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #ffe0ea, #ff8fb3 60%, #ff6f9f);
+  border-radius: 0 72% 0 72%;
+  box-shadow: 0 1px 3px rgb(255 111 159 / 35%);
+  left: var(--x);
+  top: 0;
+  translate: -50% -50%;
+  width: var(--size);
+  min-width: 5px;
+}
+
+.ember {
+  animation: ember var(--dur, 2s) ease-out var(--d, 0s) infinite;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #fff6d0 0 20%, var(--c) 55%, transparent 72%);
+  border-radius: 50%;
+  filter: blur(0.3px);
+  left: var(--x);
+  top: 88%;
+  translate: -50% -50%;
+  width: calc(var(--size) * 1.5);
+  min-width: 4px;
+}
+
+/* 불꽃 혀 — 캐릭터 뒤 아래쪽에서 일렁여 실루엣 가장자리로 삐져나온다 */
+.tongue {
+  animation: tongue var(--dur) ease-in-out var(--d) infinite alternate;
+  background: linear-gradient(to top, #ff4b1f, #ff7a00 45%, #ffc83d 80%, rgb(255 236 160 / 0%));
+  border-radius: 50% 50% 46% 46% / 70% 70% 30% 30%;
+  bottom: 6%;
+  filter: blur(1.5px);
+  height: var(--h);
+  left: var(--x);
+  opacity: 0.9;
+  transform-origin: 50% 100%;
+  translate: -50% 0;
+  width: var(--w);
+}
+
+/* 한글 궤도 — Y(앞뒤·크기·겹침) 와 X(좌우) 를 1/4 박자 어긋나게 → 타원 */
+.orbitY {
+  animation: orbitY var(--t) ease-in-out var(--d) infinite alternate;
+  display: block;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.orbitX {
+  animation: orbitX var(--t) ease-in-out var(--d) infinite alternate;
+  display: block;
+  inset: 0;
+  position: absolute;
+}
+
+.orbitX b {
+  -webkit-text-stroke: 1.2px #4c3fc0;
+  color: #ffe27a;
+  paint-order: stroke fill;
+  font-size: 22px;
+  font-size: 11cqw;
+  font-weight: 900;
+  left: 50%;
+  line-height: 1;
+  position: absolute;
+  text-shadow:
+    0 0 8px rgb(139 127 240 / 90%),
+    0 0 16px rgb(255 212 92 / 60%);
+  top: 58%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── 동그란 얼굴 (리그·목록) ── */
+.mini {
+  display: block;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.miniRing {
+  animation: ringSpin 3.6s linear infinite;
+  background: conic-gradient(from 0deg, var(--ring));
+  border-radius: 50%;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--aura) 70%, transparent);
+  inset: -3px;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  pointer-events: none;
+  position: absolute;
+}
+
+.miniSparks {
+  inset: -4px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.miniSparks i {
+  animation: twinkle 1.8s ease-in-out var(--d) infinite both;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #fff 0 20%, var(--aura) 45%, transparent 70%);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  display: block;
+  left: var(--x);
+  position: absolute;
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: max(7px, 24%);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1, 1);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1.03, 1.06);
+  }
+
+  60% {
+    opacity: 0.7;
+    transform: scale(0.98, 1);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(45deg);
+  }
+
+  70% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.75) rotate(70deg);
+  }
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(-8%);
+  }
+
+  to {
+    transform: translateY(104%);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate(-3cqw, -8%);
+  }
+
+  to {
+    transform: translate(6cqw, 104%);
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-58%);
+  }
+}
+
+@keyframes sway {
+  from {
+    transform: translateX(-5px);
+  }
+
+  to {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg) translateX(0);
+  }
+
+  50% {
+    transform: rotate(180deg) translateX(6px);
+  }
+
+  to {
+    transform: rotate(360deg) translateX(0);
+  }
+}
+
+@keyframes tongue {
+  from {
+    transform: scale(0.9, 0.82) skewX(-4deg);
+  }
+
+  to {
+    transform: scale(1.05, 1.08) skewX(5deg);
+  }
+}
+
+@keyframes ember {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+}
+
+@keyframes orbitY {
+  from {
+    opacity: 0.45;
+    transform: translateY(-6%) scale(0.7);
+    z-index: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(6%) scale(1.12);
+    z-index: 3;
+  }
+}
+
+@keyframes orbitX {
+  from {
+    transform: translateX(-46%);
+  }
+
+  to {
+    transform: translateX(46%);
+  }
+}
+
+@keyframes ringSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .spark,
+  .col,
+  .flake,
+  .petal,
+  .ember,
+  .tongue,
+  .orbitY,
+  .orbitX,
+  .miniRing,
+  .miniSparks i {
+    animation-duration: 0s;
+    animation-iteration-count: 1;
+  }
+
+  .spark,
+  .miniSparks i {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
