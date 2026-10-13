@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { api } from "@/shared/api/client";
 
-interface BatchResult { requested: number; accepted: number; notAccepted: number; failed: number }
+interface BatchResult { requested: number; accepted: number; notAccepted: number; failed: number; results: { userId: string; accepted: boolean; error: boolean }[] }
 
-export function SelectedPushPanel({ recipients, onClear }: { recipients: Map<string, string>; onClear: () => void }) {
+export function SelectedPushPanel({ recipients, onClear, onResult }: { recipients: Map<string, string>; onClear: () => void; onResult: (requestedIds: string[], remainingIds: string[]) => void }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [reason, setReason] = useState("");
@@ -21,15 +21,17 @@ export function SelectedPushPanel({ recipients, onClear }: { recipients: Map<str
   async function send() {
     if (busy || !recipients.size || recipients.size > 100 || !title.trim() || !body.trim() || reason.trim().length < 5) return;
     if (!window.confirm(`체크한 ${recipients.size}명에게 동일한 알림을 발송할까요? 발송 후 취소할 수 없습니다.`)) return;
-    const payload = JSON.stringify({ userIds: [...recipients.keys()], title: title.trim(), body: body.trim(), reason: reason.trim() });
+    const requestedIds = [...recipients.keys()];
+    const payload = JSON.stringify({ userIds: requestedIds, title: title.trim(), body: body.trim(), reason: reason.trim() });
     const key = requestId && requestPayload === payload ? requestId : crypto.randomUUID();
     setRequestId(key); setRequestPayload(payload); setBusy(true); setMessage("");
     try {
       const result = await api.post<BatchResult>("/admin/users/push/batch", {
-        requestId: key, userIds: [...recipients.keys()], title: title.trim(), body: body.trim(), reason: reason.trim(),
+        requestId: key, userIds: requestedIds, title: title.trim(), body: body.trim(), reason: reason.trim(),
       });
-      setMessage(`${result.requested}명 중 발송 접수 ${result.accepted}명 · 미접수 ${result.notAccepted}명 · 오류 ${result.failed}명. 기기 도착은 별도 영수증 확인 전까지 확정되지 않습니다.`);
-      setRequestId(null); onClear();
+      const remainingIds = result.results.filter(item => !item.accepted).map(item => item.userId);
+      setMessage(`${result.requested}명 중 발송 접수 ${result.accepted}명 · 미접수 ${result.notAccepted}명 · 오류 ${result.failed}명. ${remainingIds.length ? "미접수 대상은 선택 상태로 남겼습니다. 재발송 전 실제 수신 여부와 기기 토큰·알림 설정을 확인하세요. " : ""}기기 도착은 별도 영수증 확인 전까지 확정되지 않습니다.`);
+      setRequestId(null); onResult(requestedIds, remainingIds);
       if (!result.notAccepted && !result.failed) { setTitle(""); setBody(""); setReason(""); }
     } catch (error) {
       setMessage(`일괄 발송 요청 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"}. 같은 요청으로 재시도할 수 있습니다.`);

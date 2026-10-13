@@ -118,25 +118,9 @@ export class PushService {
       { upsert: true },
     );
 
-    // 같은 사람·같은 기기의 옛 토큰은 지운다 — 기기당 토큰 하나.
-    // 앱을 재설치·재빌드하면 FCM 토큰이 새로 나오고 옛 것은 그 순간 죽는데,
-    // 지우지 않으면 죽은 토큰이 계속 쌓여 발송 대상에 섞인다.
-    // 기기 이름이 없으면 어느 기기인지 모르니 건드리지 않는다.
-    // (같은 모델 폰 두 대를 한 계정으로 쓰면 마지막에 연 폰만 남는다 — 감수)
-    const deviceName = (dto.deviceName || '').trim();
-    if (deviceName) {
-      const res = await this.tokenModel.deleteMany({
-        userId: new Types.ObjectId(userId),
-        platform: dto.platform || 'android',
-        deviceName,
-        token: { $ne: token },
-      });
-      if (res.deletedCount) {
-        this.logger.log(
-          `옛 토큰 ${res.deletedCount}개 정리 (user=${userId}, ${deviceName})`,
-        );
-      }
-    }
+    // deviceName 은 모델명이라 기기 고유값이 아니다. 같은 모델 두 대를
+    // 한 계정에서 쓰더라도 서로의 토큰을 지우지 않는다. 죽은 토큰은 Expo
+    // 영수증(DeviceNotRegistered)과 마지막 등록 시각으로 걸러진다.
     return { success: true };
   }
 
@@ -211,6 +195,19 @@ export class PushService {
       if (used >= ENGAGEMENT_DAILY_MAX) return false;
     }
 
+    // 토큰이 없는 발송은 시도조차 못 한다. 이때 장부를 먼저 만들면 같은
+    // 관리자 요청 ID로 기기 등록 후 재시도해도 영원히 중복으로 막힌다.
+    const tokens = await this.liveTokens(uid);
+    if (!tokens.length) return false;
+
+    const lang: PushLang = resolvePushLang((user as any).appLanguage);
+    const copy =
+      opts.copy ??
+      opts.copyByLang?.[lang] ??
+      opts.copyByLang?.[DEFAULT_PUSH_LANG] ??
+      buildCopy(type, lang, opts.params ?? {}, opts.rotation ?? 0);
+    if (!copy) return false;
+
     // 장부 선점. 여기서 걸리면 이미 나간 것이다.
     const dedupKey = opts.dedupKey ?? `${type}:${Date.now()}:${Math.random()}`;
     try {
@@ -222,25 +219,35 @@ export class PushService {
         dayKey: today,
         delivered: false,
       });
-    } catch (e: any) {
-      if (e?.code === 11000) return false; // 중복 — 이미 보냈다
+    } catch (e: unknown) {
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        e.code === 11000
+      ) {
+        // 요청 응답이 유실돼 같은 키로 재시도한 경우, 이미 Expo가 접수한
+        // 기록은 다시 보내지 않고 접수 상태만 돌려준다.
+        const previous = await this.logModel
+          .findOne({ userId: uid, dedupKey })
+          .select('delivered')
+          .lean();
+        return previous?.delivered === true;
+      }
       throw e;
     }
 
-    const lang: PushLang = resolvePushLang((user as any).appLanguage);
-    const copy =
-      opts.copy ??
-      opts.copyByLang?.[lang] ??
-      opts.copyByLang?.[DEFAULT_PUSH_LANG] ??
-      buildCopy(type, lang, opts.params ?? {}, opts.rotation ?? 0);
-    if (!copy) return false;
-
-    const delivered = await this.deliver(uid, copy, {
-      type,
-      link: opts.link,
-      params: opts.params,
-      channelId: opts.channelId ?? (counted ? 'study' : 'default'),
-    });
+    const delivered = await this.deliver(
+      uid,
+      copy,
+      {
+        type,
+        link: opts.link,
+        params: opts.params,
+        channelId: opts.channelId ?? (counted ? 'study' : 'default'),
+      },
+      tokens,
+    );
 
     if (delivered) {
       await this.logModel
@@ -260,8 +267,9 @@ export class PushService {
       params?: Record<string, any>;
       channelId?: string;
     },
+    registeredTokens?: string[],
   ): Promise<boolean> {
-    const tokens = await this.liveTokens(uid);
+    const tokens = registeredTokens ?? (await this.liveTokens(uid));
     if (!tokens.length) return false;
 
     const messages: ExpoPushRequest[] = tokens.map((to) => ({
