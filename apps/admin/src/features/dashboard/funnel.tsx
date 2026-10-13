@@ -11,7 +11,7 @@ const LABEL: Record<string, string> = {
   firstLessonStart: "첫 레슨 시작",
   firstLessonComplete: "첫 레슨 완료",
   return7d: "7일 뒤에도 학습",
-  premium: "프리미엄 전환",
+  premium: "유료 Premium 전환",
 };
 
 /** 전환율이 이보다 낮은 단계는 빨갛게 — 여기가 구멍이다 */

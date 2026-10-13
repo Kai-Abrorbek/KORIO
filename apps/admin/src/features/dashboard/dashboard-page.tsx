@@ -149,8 +149,8 @@ export function DashboardPage() {
             <>
               <Donut
                 parts={[
-                  { key: "premium", label: "프리미엄", value: subs.data.active, color: "var(--series-1)" },
-                  { key: "free", label: "무료", value: subs.data.free, color: "var(--border-strong)" },
+                  { key: "premium", label: "유료 Premium", value: subs.data.active, color: "var(--series-1)" },
+                  { key: "free", label: "유료 이용권 없음", value: subs.data.free, color: "var(--border-strong)" },
                 ]}
               />
               <div className="chart-sub" style={{ marginTop: 2 }}>

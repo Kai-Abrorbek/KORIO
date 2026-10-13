@@ -22,7 +22,11 @@ import {
   LessonAttempt,
   LessonAttemptDocument,
 } from '../../analytics/schemas/lesson-attempt.schema';
-import { ENTITLED_STATUSES } from '../../payments/subscriptions/subscription.types';
+import {
+  PAID_SUBSCRIPTION_PROVIDERS,
+  paidEntitlementMatch,
+  paidEventMatch,
+} from './paid-subscription.filter';
 import { APP_TIMEZONE, dayKey as localDayKey, resolveTimezone } from '../../common/date.util';
 import {
   DateRange,
@@ -289,7 +293,7 @@ export class AdminAnalyticsService {
       this.userModel.countDocuments(REAL_USERS),
       this.subEventModel
         .aggregate<{ _id: { d: string; r: string; s: string }; n: number }>([
-          { $match: { at: { $gte: range.from, $lte: range.to } } },
+          { $match: paidEventMatch(range.from, range.to) },
           {
             $group: {
               _id: {
@@ -319,7 +323,7 @@ export class AdminAnalyticsService {
       churnSeries: fillSeries(range, churned.map((e) => ({ _id: e._id.d, value: e.n }))),
       /** 이력이 없던 시절은 셀 수 없다. 화면이 "언제부터" 를 말해야 한다 */
       eventsSince: await this.subEventModel
-        .findOne()
+        .findOne({ provider: { $in: [...PAID_SUBSCRIPTION_PROVIDERS] } })
         .sort({ at: 1 })
         .select('at')
         .lean()
@@ -541,15 +545,12 @@ export class AdminAnalyticsService {
     };
   }
 
-  /** 지금 프리미엄인 사람 수 (한 사람이 구독을 여러 건 가질 수 있어 고유로 센다) */
+  /** 현재 유효한 유료 결제자 수. 무료 이용권은 권한만 주고 이 수치에는 넣지 않는다. */
   private async countActiveSubscriptions(): Promise<number> {
     const r = await this.subModel
       .aggregate<{ n: number }>([
         {
-          $match: {
-            status: { $in: [...ENTITLED_STATUSES] },
-            expiresAt: { $gt: new Date() },
-          },
+          $match: paidEntitlementMatch(new Date()),
         },
         { $group: { _id: '$userId' } },
         { $count: 'n' },
