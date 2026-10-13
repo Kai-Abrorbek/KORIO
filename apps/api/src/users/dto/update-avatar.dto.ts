@@ -1,4 +1,4 @@
-import { Equals, IsIn, IsInt, IsString } from 'class-validator';
+import { Equals, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 import {
   AVATAR_OPTIONS,
   AVATAR_VERSION,
@@ -53,4 +53,10 @@ export class UpdateAvatarDto {
   @IsString()
   @IsIn([...AVATAR_OPTIONS.background])
   background: AvatarConfigValue['background'];
+
+  /** 오라 — 없으면(예전 앱) 지금 장착한 걸 그대로 둔다. 산 것만 장착 가능 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.aura])
+  aura?: AvatarConfigValue['aura'];
 }

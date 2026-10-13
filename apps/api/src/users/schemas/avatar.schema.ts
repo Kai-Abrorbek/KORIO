@@ -80,6 +80,10 @@ export class AvatarConfig {
     default: DEFAULT_AVATAR_CONFIG.background,
   })
   background: string;
+
+  /** 장착한 오라 (cosmetics) — 산 것만 */
+  @Prop({ type: String, default: 'aura_none' })
+  aura: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);

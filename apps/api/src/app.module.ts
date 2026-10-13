@@ -38,6 +38,7 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
 import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
 import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
 import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
+import { CosmeticsModule } from './cosmetics/cosmetics.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
     RewardInboxModule,
     GemPayoutsModule,
     GemLedgerModule,
+    CosmeticsModule,
     MailModule,
   ],
   controllers: [AppController],

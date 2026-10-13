@@ -272,6 +272,10 @@ export class User {
   @Prop({ default: 0 })
   streakFreeze: number;
 
+  /** 보석으로 산 꾸미기 아이템 id (cosmetics) — 한 번 사면 영원히 */
+  @Prop({ type: [String], default: [] })
+  ownedCosmetics: string[];
+
   /** 복구펜으로 메운 날들 (그 유저 시간대 자정). 연속 계산의 이어짐에만 쓴다 */
   @Prop({ type: [Date], default: [] })
   streakFrozenDays: Date[];

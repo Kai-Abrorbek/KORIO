@@ -1,3 +1,5 @@
+import { AURA_IDS } from '../../cosmetics/cosmetics.const';
+
 export const AVATAR_VERSION = 1 as const;
 
 export const AVATAR_OPTIONS = {
@@ -90,6 +92,8 @@ export const AVATAR_OPTIONS = {
     'background_sunset',
     'background_aurora',
   ],
+  /** 보석으로 사는 움직이는 효과 (cosmetics). 가진 것만 장착할 수 있다 */
+  aura: AURA_IDS,
 } as const;
 
 export interface AvatarConfigValue {
@@ -105,6 +109,7 @@ export interface AvatarConfigValue {
   headwear: (typeof AVATAR_OPTIONS.headwear)[number];
   outfit: (typeof AVATAR_OPTIONS.outfit)[number];
   background: (typeof AVATAR_OPTIONS.background)[number];
+  aura?: (typeof AVATAR_OPTIONS.aura)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
@@ -120,4 +125,5 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   headwear: 'headwear_none',
   outfit: 'outfit_hoodie',
   background: 'background_lilac',
+  aura: 'aura_none',
 };

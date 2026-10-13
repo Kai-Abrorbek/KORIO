@@ -25,6 +25,7 @@ export const GEM_SOURCES = [
   // 상점·프리미엄
   'energy_refill', // 에너지 충전
   'gem_pass', // 보석으로 산 프리미엄 { days }
+  'cosmetic', // 캐릭터 꾸미기 아이템 { item }
   'subscription_bonus', // 구독 시작 보너스
   // 출금
   'payout', // 카드로 출금 신청 { last4 }

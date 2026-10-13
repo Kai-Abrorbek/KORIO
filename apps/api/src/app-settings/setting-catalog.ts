@@ -25,6 +25,7 @@ import {
   XP_AWARD_DIVISOR,
 } from '../lessons/economy.const';
 import { GEM_PAYOUT } from '../gem-payouts/gem-payout.const';
+import { COSMETICS } from '../cosmetics/cosmetics.const';
 
 export type SettingSpec = {
   key: string;
@@ -253,6 +254,17 @@ export const SETTING_CATALOG: SettingSpec[] = [
       goal.gems,
       0,
       10000,
+    ),
+  ),
+  ...COSMETICS.map((cosmetic, index) =>
+    item(
+      `COSMETICS.${index}.price`,
+      `꾸미기 ${cosmetic.id} 가격`,
+      '꾸미기',
+      '보석',
+      cosmetic.price,
+      1,
+      1000000,
     ),
   ),
   ...GEM_PASSES.map((pass, index) =>
