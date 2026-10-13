@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
+import { AuraRing, isAura } from "@/components/avatar/AvatarAura";
 import type { AvatarConfig } from "@/types/avatar";
 import { getAvatarColor, getInitial } from "@/utils/avatar";
 
@@ -44,11 +45,14 @@ function FriendAvatar({
   online = false,
 }: Props) {
   const body = renderBody(name, avatar, avatarUri, size);
-  if (!online) return body;
+  // 오라를 산 사람은 목록·리그에서도 테두리 빛이 돈다
+  const hasAura = isAura(avatar?.aura);
+  if (!online && !hasAura) return body;
   return (
     <View style={{ width: size, height: size }}>
       {body}
-      <OnlineDot size={size} />
+      {hasAura && <AuraRing aura={avatar?.aura} size={size} />}
+      {online && <OnlineDot size={size} />}
     </View>
   );
 }

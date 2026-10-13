@@ -20,6 +20,8 @@ interface AvatarEditorState {
 
   reset: () => void;
   randomize: () => void;
+  /** 저장된 쪽(initial)만 고친다 — 오라를 사서 바로 장착됐을 때 */
+  patchInitial: (patch: Partial<AvatarConfig>) => void;
 }
 
 function pick<T extends readonly string[]>(values: T): T[number] {
@@ -40,6 +42,7 @@ function createRandomAvatar(): AvatarConfig {
     headwear: pick(AVATAR_IDS.headwear),
     outfit: pick(AVATAR_IDS.outfit),
     background: pick(AVATAR_IDS.background),
+    aura: "aura_none",
   };
 }
 
@@ -73,8 +76,14 @@ export const useAvatarEditorStore = create<AvatarEditorState>((set) => ({
       draft: state.initial,
     })),
 
+  // 오라는 산 것이라 무작위로 바꾸지 않는다
   randomize: () =>
-    set({
-      draft: createRandomAvatar(),
-    }),
+    set((state) => ({
+      draft: { ...createRandomAvatar(), aura: state.draft.aura },
+    })),
+
+  patchInitial: (patch) =>
+    set((state) => ({
+      initial: { ...state.initial, ...patch },
+    })),
 }));

@@ -414,6 +414,7 @@ export default function HomeScreen() {
                 avatar={user.avatar}
                 size={200}
                 showBackground={false}
+                aura
               />
             ) : (
               <HaneulmonMascot size={200} mood="default" />

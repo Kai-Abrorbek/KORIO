@@ -135,7 +135,7 @@ export default function ProfileHeader({
           style={styles.avatarButton}
           onPress={() => router.push("/avatar-editor")}
         >
-          <AvatarPreview avatar={avatar} size={230} showBackground={false} />
+          <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
         </TouchableOpacity>
       </Animated.View>
     </LinearGradient>

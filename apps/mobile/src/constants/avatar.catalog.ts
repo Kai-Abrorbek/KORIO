@@ -21,6 +21,16 @@ const free = (id: AvatarOption["id"], swatch?: string): AvatarOption => ({
 });
 
 export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
+  // 맨 앞 — 보석으로 사는 움직이는 효과. 값은 서버(/cosmetics), 그리드는 AuraPicker
+  {
+    id: "aura",
+    icon: "sparkles",
+    preview: "full",
+    options: AVATAR_IDS.aura.map((id) => ({
+      id,
+      unlock: { type: "gems" as const, price: 0 },
+    })),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

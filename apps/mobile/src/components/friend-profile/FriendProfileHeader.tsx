@@ -110,7 +110,7 @@ export default function FriendProfileHeader({
       )}
 
       <Animated.View style={[styles.avatarWrap, mascotStyle]}>
-        <AvatarPreview avatar={avatar} size={230} showBackground={false} />
+        <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
       </Animated.View>
     </LinearGradient>
   );

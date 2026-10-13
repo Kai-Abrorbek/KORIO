@@ -16,12 +16,17 @@ import {
   mergeAvatarConfig,
   type AvatarConfig,
 } from "@/types/avatar";
+import AvatarAura, { isAura } from "./AvatarAura";
 
 interface Props {
   avatar?: Partial<AvatarConfig> | null;
   size?: number;
   showBackground?: boolean;
   variant?: "full" | "head";
+  /** 장착한 오라를 같이 그린다 (전신에만) */
+  aura?: boolean;
+  /** 카드처럼 여러 개가 한 화면에 있을 때 입자를 반만 */
+  auraLite?: boolean;
 }
 
 const SKIN = {
@@ -1158,6 +1163,8 @@ export default function AvatarPreview({
   size = 220,
   showBackground = true,
   variant = "full",
+  aura = false,
+  auraLite = false,
 }: Props) {
   const config = mergeAvatarConfig(avatar);
 
@@ -1172,7 +1179,7 @@ export default function AvatarPreview({
 
   const viewBox = variant === "head" ? "52 16 216 216" : "0 0 320 360";
 
-  return (
+  const svg = (
     <Svg
       width={size}
       height={size}
@@ -1234,5 +1241,12 @@ export default function AvatarPreview({
 
       <AvatarHeadwear headwear={config.headwear} outfit={outfit} />
     </Svg>
+  );
+
+  if (!aura || variant !== "full" || !isAura(config.aura)) return svg;
+  return (
+    <AvatarAura aura={config.aura} size={size} lite={auraLite}>
+      {svg}
+    </AvatarAura>
   );
 }

@@ -23,6 +23,7 @@ export const GEM_LOOK: Record<string, { icon: IconName; color: string }> = {
   referral_milestone: { icon: "people", color: "#776ee2" },
   energy_refill: { icon: "flash", color: "#E5379B" },
   gem_pass: { icon: "star", color: "#A946DA" },
+  cosmetic: { icon: "sparkles", color: "#E2A83A" },
   subscription_bonus: { icon: "sparkles", color: "#A946DA" },
   payout: { icon: "card", color: "#0FA36B" },
   payout_refund: { icon: "arrow-undo", color: "#0FA36B" },
@@ -87,6 +88,12 @@ export function describeGemTx(item: GemTx, t: TFunction): { title: string; detai
       break;
     case "admin":
       if (item.amount < 0) title = t("gemHistory.sources.admin_out");
+      break;
+    case "cosmetic":
+      // 어떤 오라를 샀는지
+      if (typeof p.item === "string" && p.item.startsWith("aura_")) {
+        details.push(t(`avatarEditor.aura.items.${p.item}.name`));
+      }
       break;
   }
   return { title, details };

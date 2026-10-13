@@ -26,8 +26,18 @@ import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
 import { mergeAvatarConfig } from "@/types/avatar";
 import type { AvatarConfig, AvatarOption } from "@/types/avatar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { UserService } from "@/services/user.service";
+import { CosmeticsService, type CosmeticsState } from "@/services/cosmetics.service";
+import { AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "@/components/avatar/AvatarAura";
+import {
+  AuraBought,
+  AuraBuySheet,
+  AuraGrid,
+  auraPrice,
+  ownsAura,
+} from "@/components/avatar/AuraPicker";
+import Button3D from "@/features/retention/components/Button3D";
 
 export default function AvatarEditorScreen() {
   const router = useRouter();
@@ -38,6 +48,7 @@ export default function AvatarEditorScreen() {
   const styles = getStyles(theme);
   const [isSaving, setIsSaving] = useState(false);
   const avatar = useAuthStore((state) => state.user?.avatar);
+  const userGems = useAuthStore((state) => state.user?.gems);
   const updateUser = useAuthStore((state) => state.updateUser);
 
   const draft = useAvatarEditorStore((state) => state.draft);
@@ -50,6 +61,15 @@ export default function AvatarEditorScreen() {
   const setPart = useAvatarEditorStore((state) => state.setPart);
   const reset = useAvatarEditorStore((state) => state.reset);
   const randomize = useAvatarEditorStore((state) => state.randomize);
+  const patchInitial = useAvatarEditorStore((state) => state.patchInitial);
+
+  // 오라 (보석으로 산다) — 목록 · 가진 것 · 보석
+  const [cosmetics, setCosmetics] = useState<CosmeticsState | null>(null);
+  const [cosStatus, setCosStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [buyOpen, setBuyOpen] = useState(false);
+  const [buying, setBuying] = useState(false);
+  const [buyError, setBuyError] = useState(false);
+  const [bought, setBought] = useState<AuraId | null>(null);
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
@@ -63,15 +83,74 @@ export default function AvatarEditorScreen() {
   );
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
+  const dirty = useRef(hasChanges);
+  dirty.current = hasChanges;
+
+  const draftAura = isAura(draft.aura) ? draft.aura : null;
+  // 입어보는 중 (아직 안 산 오라)
+  const tryingOn = draftAura !== null && cosStatus === "ready" && !ownsAura(cosmetics, draftAura);
+  const tryPrice = draftAura ? (auraPrice(cosmetics, draftAura) ?? 0) : 0;
+  const gems = cosmetics?.gems ?? userGems ?? 0;
+  const otherChanges =
+    JSON.stringify({ ...draft, aura: initial.aura }) !== JSON.stringify(initial);
 
   // 선택된 캐릭터 배경색으로 hero 전체를 채운다 (이중 배경 제거)
   const heroBg =
     AVATAR_BACKGROUNDS[mergeAvatarConfig(draft).background] ??
     AVATAR_BACKGROUNDS.background_cloud;
 
+  // 계정 아바타가 바뀌면 다시 맞춘다 — 단 고치던 게 있으면 덮지 않는다 (오라를 산 직후 등)
   useEffect(() => {
+    if (dirty.current) return;
     startEditing(avatar);
   }, [avatar, startEditing]);
+
+  const loadCosmetics = useCallback(async () => {
+    setCosStatus("loading");
+    try {
+      setCosmetics(await CosmeticsService.list());
+      setCosStatus("ready");
+    } catch {
+      setCosStatus("failed");
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadCosmetics();
+  }, [loadCosmetics]);
+
+  const handleAuraPick = (id: AuraId) => {
+    void Haptics.selectionAsync();
+    setPart("aura", id);
+  };
+
+  const handleBuy = async () => {
+    if (!draftAura || buying) return;
+    setBuying(true);
+    setBuyError(false);
+    try {
+      const result = await CosmeticsService.purchase(draftAura, true);
+      setCosmetics((current) =>
+        current
+          ? { ...current, gems: result.gems, owned: result.owned, equipped: { aura: draftAura } }
+          : current,
+      );
+      // 저장된 쪽도 이 오라로 — 고치던 다른 부분은 그대로 둔다
+      patchInitial({ aura: draftAura });
+      updateUser({
+        avatar: mergeAvatarConfig({ ...avatar, aura: draftAura }),
+        gems: result.gems,
+      } as any);
+      setBuyOpen(false);
+      setBought(draftAura);
+    } catch {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setBuyError(true);
+      void loadCosmetics();
+    } finally {
+      setBuying(false);
+    }
+  };
 
   const makeCandidate = (option: AvatarOption): AvatarConfig =>
     ({
@@ -124,13 +203,15 @@ export default function AvatarEditorScreen() {
     reset();
   };
 
-  const handleSave = async () => {
+  const handleSave = async (withoutAura = false) => {
     if (isSaving) return;
 
     setIsSaving(true);
 
     try {
-      const result = await UserService.updateAvatar(draft);
+      const result = await UserService.updateAvatar(
+        withoutAura ? { ...draft, aura: initial.aura } : draft,
+      );
 
       updateUser({
         avatar: result.avatar,
@@ -199,18 +280,40 @@ export default function AvatarEditorScreen() {
           <View style={styles.heroOrbLarge} />
           <View style={styles.heroOrbSmall} />
 
-          <View style={styles.freeBadge}>
-            <Ionicons name="sparkles" size={14} color="#6B61D8" />
+          {selectedCategory === "aura" ? (
+            <View style={styles.freeBadge}>
+              <Ionicons name="diamond" size={14} color="#1899D6" />
 
-            <Text style={styles.freeBadgeText}>
-              {t("avatarEditor.allFree")}
-            </Text>
-          </View>
+              <Text style={[styles.freeBadgeText, { color: "#1899D6" }]}>
+                {gems.toLocaleString("en-US")}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.freeBadge}>
+              <Ionicons name="sparkles" size={14} color="#6B61D8" />
+
+              <Text style={styles.freeBadgeText}>
+                {t("avatarEditor.basicFree")}
+              </Text>
+            </View>
+          )}
+
+          {tryingOn && draftAura && (
+            <View
+              style={[
+                styles.tryOnBadge,
+                { backgroundColor: RARITY_COLOR[AURA_LOOK[draftAura].rarity] },
+              ]}
+            >
+              <Text style={styles.tryOnText}>{t("avatarEditor.aura.tryOn")}</Text>
+            </View>
+          )}
 
           <AvatarPreview
             avatar={draft}
             size={Math.min(width * 0.66, 220)}
             showBackground={false}
+            aura
           />
 
           <TouchableOpacity
@@ -267,6 +370,19 @@ export default function AvatarEditorScreen() {
                 >
                   {t(`avatarEditor.categories.${item.id}`)}
                 </Text>
+
+                {item.id === "aura" && !selected && (
+                  <LinearGradient
+                    colors={["#FF6B9A", "#FF9A3C"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.newBadge}
+                  >
+                    <Text style={styles.newBadgeText}>
+                      {t("avatarEditor.aura.newBadge")}
+                    </Text>
+                  </LinearGradient>
+                )}
               </TouchableOpacity>
             );
           })}
@@ -284,6 +400,16 @@ export default function AvatarEditorScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        {category.id === "aura" ? (
+          <AuraGrid
+            draft={draft}
+            equipped={initial.aura ?? "aura_none"}
+            onPick={handleAuraPick}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+          />
+        ) : (
         <Animated.View
           key={category.id}
           entering={FadeInDown.duration(280)}
@@ -307,6 +433,7 @@ export default function AvatarEditorScreen() {
             />
           ))}
         </Animated.View>
+        )}
       </ScrollView>
 
       <View
@@ -317,15 +444,58 @@ export default function AvatarEditorScreen() {
           },
         ]}
       >
-        <PrimaryButton
-          label={isSaving ? t("avatarEditor.saving") : t("avatarEditor.save")}
-          onPress={handleSave}
-          disabled={isSaving}
-          color={theme.primary}
-          darkColor="#554CB5"
-          style={styles.saveButton}
-        />
+        {tryingOn ? (
+          <>
+            {/* 입어보는 중 — 아래 버튼이 "사기" 로 바뀐다 */}
+            <Button3D
+              label={`${tryPrice.toLocaleString("en-US")}  ·  ${t("avatarEditor.aura.buy")}`}
+              color="#1FA4DC"
+              depthColor="#157FAE"
+              icon={<Ionicons name="diamond" size={18} color="#FFFFFF" />}
+              onPress={() => {
+                setBuyError(false);
+                setBuyOpen(true);
+              }}
+            />
+            {otherChanges && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                disabled={isSaving}
+                onPress={() => void handleSave(true)}
+                style={styles.saveWithout}
+              >
+                <Text style={styles.saveWithoutText}>
+                  {t("avatarEditor.aura.saveWithout")}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
+        ) : (
+          <PrimaryButton
+            label={isSaving ? t("avatarEditor.saving") : t("avatarEditor.save")}
+            onPress={() => void handleSave()}
+            disabled={isSaving}
+            color={theme.primary}
+            darkColor="#554CB5"
+            style={styles.saveButton}
+          />
+        )}
       </View>
+
+      <AuraBuySheet
+        visible={buyOpen}
+        avatar={draft}
+        id={draftAura}
+        price={tryPrice}
+        gems={gems}
+        buying={buying}
+        error={buyError}
+        onBuy={() => void handleBuy()}
+        onClose={() => setBuyOpen(false)}
+      />
+      {bought && (
+        <AuraBought avatar={draft} id={bought} onClose={() => setBought(null)} />
+      )}
     </View>
   );
 }
@@ -417,6 +587,41 @@ const getStyles = (theme: ThemeColors) =>
       color: "#5D54C5",
       fontSize: 12,
       fontWeight: "900",
+    },
+    tryOnBadge: {
+      position: "absolute",
+      top: 16,
+      right: 16,
+      borderRadius: 999,
+      paddingHorizontal: 11,
+      paddingVertical: 7,
+      zIndex: 2,
+    },
+    tryOnText: {
+      color: "#FFFFFF",
+      fontSize: 11.5,
+      fontWeight: "900",
+    },
+    newBadge: {
+      borderRadius: 999,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    newBadgeText: {
+      color: "#FFFFFF",
+      fontSize: 9.5,
+      fontWeight: "900",
+      letterSpacing: 0.3,
+    },
+    saveWithout: {
+      alignSelf: "center",
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+    },
+    saveWithoutText: {
+      color: theme.textSecondary,
+      fontSize: 13.5,
+      fontWeight: "800",
     },
     randomButton: {
       position: "absolute",

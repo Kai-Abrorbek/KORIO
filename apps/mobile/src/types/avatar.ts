@@ -90,6 +90,15 @@ export const AVATAR_IDS = {
     "background_sunset",
     "background_aurora",
   ],
+  /** 보석으로 사는 움직이는 효과 (api cosmetics) — 산 것만 장착된다 */
+  aura: [
+    "aura_none",
+    "aura_stardust",
+    "aura_snow",
+    "aura_blossom",
+    "aura_flame",
+    "aura_hangul",
+  ],
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -109,6 +118,7 @@ export interface AvatarConfig {
   headwear: AvatarValue<"headwear">;
   outfit: AvatarValue<"outfit">;
   background: AvatarValue<"background">;
+  aura: AvatarValue<"aura">;
 }
 
 export type AvatarUnlock =
@@ -142,6 +152,7 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   headwear: "headwear_none",
   outfit: "outfit_hoodie",
   background: "background_lilac",
+  aura: "aura_none",
 };
 
 export function mergeAvatarConfig(
