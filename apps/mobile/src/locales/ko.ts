@@ -2036,6 +2036,12 @@ export default {
     topicListSubtitle: "배우고 싶은 상황을 선택하면 해당 위치로 바로 이동해요.",
     topicListCurrent: "현재 위치",
     topicListProgress: "노드 {{completed}}/{{total}}",
+    nextTopic: "다음 주제",
+    skippedTopic: "건너뛴 주제",
+    jumpToTopic: "이 주제로 넘어갈까요?",
+    backToTopic: "이 주제로 돌아갈까요?",
+    topicN: "주제 {{n}}",
+    jumpFailed: "주제를 옮기지 못했어요. 다시 시도해 주세요.",
   },
   expressionLearning: {
     listen: "표현 다시 듣기",

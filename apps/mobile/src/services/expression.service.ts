@@ -27,6 +27,16 @@ export const ExpressionService = {
   getRoadmap: (): Promise<ExpressionRoadmapResponse> =>
     api.get(`/expressions/roadmap?lang=${encodeURIComponent(getLang())}`),
 
+  /**
+   * 주제를 골라 바로 넘어간다 (목록 / "이 주제로 넘어갈까요?") — 그 주제부터 길을 다시 연다.
+   * 바뀐 로드맵을 그대로 돌려준다
+   */
+  focusTopic: (topicCode: string): Promise<ExpressionRoadmapResponse> =>
+    api.post(
+      `/expressions/packs/${encodeURIComponent(topicCode)}/focus?lang=${encodeURIComponent(getLang())}`,
+      {},
+    ),
+
   getNodeLearning: (
     nodeCode: string,
   ): Promise<ExpressionNodeLearningResponse> =>

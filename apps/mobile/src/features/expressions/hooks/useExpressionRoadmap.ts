@@ -34,5 +34,6 @@ export function useExpressionRoadmap() {
     }, [contentLang, load]),
   );
 
-  return { roadmap, loading, loadFailed, reload: load };
+  // 주제를 골라 넘어가면 서버가 바뀐 로드맵을 바로 준다 — 다시 받지 않고 그걸로 바꾼다
+  return { roadmap, loading, loadFailed, reload: load, setRoadmap };
 }

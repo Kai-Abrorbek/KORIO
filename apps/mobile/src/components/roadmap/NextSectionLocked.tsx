@@ -1,4 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
@@ -14,6 +21,15 @@ interface Props {
   badgeKey?: string;
   /** 아래 버튼 글자 키 (학습 로드는 "시험 보고 바로 넘어가기") */
   jumpKey?: string;
+  /** 넘어가는 중 — 두 번 눌리지 않게 */
+  jumpDisabled?: boolean;
+  /**
+   * 높이를 늘 같게 — 제목 1줄(넘치면 글자를 줄인다)·설명 이 줄 수로 고정.
+   * 표현 로드맵처럼 FlatList 사이사이에 끼워서 높이를 미리 알아야 할 때 쓴다
+   */
+  fixedLines?: { description: number };
+  /** 로드맵 중간에 끼울 때 위아래 경계 등 */
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function NextSectionLocked({
@@ -23,13 +39,16 @@ export default function NextSectionLocked({
   onJump,
   badgeKey = "roadmap.nextSection",
   jumpKey = "roadmap.jumpHere",
+  jumpDisabled = false,
+  fixedLines,
+  style,
 }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {/* 배지 */}
       <View style={styles.badge}>
         <Text style={styles.badgeText}>{t(badgeKey)}</Text>
@@ -40,19 +59,37 @@ export default function NextSectionLocked({
         {/* 아직 못 여는 구간이라 벅차하는 표정 */}
         <HaneulmonMascot size={64} mood="overwhelmed" />
         <Ionicons name="lock-closed" size={22} color={theme.textSecondary} />
-        <Text style={styles.title}>{title || `Section ${sectionNumber}`}</Text>
+        <Text
+          style={styles.title}
+          numberOfLines={fixedLines ? 1 : undefined}
+          adjustsFontSizeToFit={!!fixedLines}
+          minimumFontScale={0.6}
+        >
+          {title || `Section ${sectionNumber}`}
+        </Text>
       </View>
 
       {description ? (
-        <Text style={styles.description}>{description}</Text>
+        <Text
+          style={[
+            styles.description,
+            fixedLines && {
+              minHeight: fixedLines.description * DESCRIPTION_LINE,
+            },
+          ]}
+          numberOfLines={fixedLines?.description}
+        >
+          {description}
+        </Text>
       ) : null}
 
       {/* 건너뛰기 — 학습 로드의 다음 급은 졸업 시험으로만 가서 onJump 가 없다.
           그때는 눌러도 아무 일 없는 버튼을 그리지 않는다 */}
       {onJump ? (
         <TouchableOpacity
-          style={styles.jumpBtn}
+          style={[styles.jumpBtn, jumpDisabled && styles.jumpBtnBusy]}
           onPress={onJump}
+          disabled={jumpDisabled}
           activeOpacity={0.85}
         >
           <View style={styles.jumpBtnDepth} />
@@ -64,6 +101,8 @@ export default function NextSectionLocked({
     </View>
   );
 }
+
+const DESCRIPTION_LINE = 24;
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
@@ -109,7 +148,7 @@ const getStyles = (theme: ThemeColors) =>
     },
     description: {
       fontSize: 16,
-      lineHeight: 24,
+      lineHeight: DESCRIPTION_LINE,
       fontWeight: "500",
       textAlign: "center",
       color: theme.textSecondary,
@@ -120,6 +159,7 @@ const getStyles = (theme: ThemeColors) =>
       alignSelf: "stretch",
       height: 56,
     },
+    jumpBtnBusy: { opacity: 0.6 },
     jumpBtnDepth: {
       position: "absolute",
       left: 0,

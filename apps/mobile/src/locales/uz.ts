@@ -2048,6 +2048,12 @@ export default {
     topicListSubtitle: "Vaziyatni tanlang — yo'ldagi o'sha mavzuga o'tasiz.",
     topicListCurrent: "Hozirgi mavzu",
     topicListProgress: "Tugunlar {{completed}}/{{total}}",
+    nextTopic: "Keyingi mavzu",
+    skippedTopic: "O'tkazib yuborilgan mavzu",
+    jumpToTopic: "Shu mavzuga o'tasizmi?",
+    backToTopic: "Shu mavzuga qaytasizmi?",
+    topicN: "{{n}}-mavzu",
+    jumpFailed: "Mavzuga o'tib bo'lmadi. Qayta urinib ko'ring.",
   },
   expressionLearning: {
     listen: "Iborani qayta tinglash",

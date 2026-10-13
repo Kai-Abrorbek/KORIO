@@ -2043,6 +2043,12 @@ export default {
     topicListSubtitle: "Choose a situation to jump to its place on the roadmap.",
     topicListCurrent: "Current",
     topicListProgress: "{{completed}}/{{total}} nodes",
+    nextTopic: "Next topic",
+    skippedTopic: "Skipped topic",
+    jumpToTopic: "Jump to this topic?",
+    backToTopic: "Go back to this topic?",
+    topicN: "Topic {{n}}",
+    jumpFailed: "Couldn't switch topics. Please try again.",
   },
   expressionLearning: {
     listen: "Listen again",
