@@ -42,3 +42,21 @@
 .topicStatus { align-items: center; background: color-mix(in srgb, var(--topic-color) 9%, #fff); border-radius: 12px; color: var(--topic-color); display: flex; height: 32px; justify-content: center; width: 32px; }
 @keyframes sheetIn { from { transform: translateY(100%); } }
 @media (prefers-reduced-motion: reduce) { .spinner, .topicSheet { animation-duration: 1ms; } }
+
+/* 주제 사이 "다음 주제" — 로드맵 중간에 끼므로 위아래 경계를 둘 다 준다 */
+.nextTopic {
+  border-bottom: 1.5px solid var(--border);
+  margin: 4px 0 22px;
+}
+
+/* ── 다크 모드 — 주제 목록 시트 (앱 theme.ts 다크와 같은 값) ── */
+:global(html[data-theme="dark"]) .topicSheet { background: #25252e; color: #fff; }
+:global(html[data-theme="dark"]) .sheetHandle { background: #3a3a44; }
+:global(html[data-theme="dark"]) .topicSheet header p,
+:global(html[data-theme="dark"]) .topicCopy em { color: #a6a6b3; }
+:global(html[data-theme="dark"]) .topicSheet header button { background: #2d2d38; color: #a6a6b3; }
+:global(html[data-theme="dark"]) .topicList > button { background: #2d2d38; border-color: #3a3a44; color: #fff; }
+:global(html[data-theme="dark"]) .topicList > .topicSelected { background: color-mix(in srgb, var(--topic-color) 14%, #25252e); border-color: var(--topic-color); }
+:global(html[data-theme="dark"]) .topicEmoji,
+:global(html[data-theme="dark"]) .topicStatus { background: color-mix(in srgb, var(--topic-color) 18%, #25252e); }
+:global(html[data-theme="dark"]) .topicCopy > i { background: #3a3a44; }

@@ -8,6 +8,17 @@ export function getExpressionRoadmap(request: AuthenticatedRequest) {
   return request<ExpressionRoadmapResponse>(`/expressions/roadmap?lang=${getContentLang()}`);
 }
 
+/**
+ * 주제를 골라 바로 넘어간다 (목록 / "이 주제로 넘어갈까요?") — 그 주제부터 길을 다시 연다.
+ * 바뀐 로드맵을 그대로 돌려준다
+ */
+export function focusExpressionTopic(request: AuthenticatedRequest, topicCode: string) {
+  return request<ExpressionRoadmapResponse>(
+    `/expressions/packs/${encodeURIComponent(topicCode)}/focus?lang=${getContentLang()}`,
+    { method: "POST" },
+  );
+}
+
 export function getExpressionNode(request: AuthenticatedRequest, nodeCode: string) {
   return request<ExpressionNodeLearningResponse>(`/expressions/nodes/${encodeURIComponent(nodeCode)}/learning?lang=${getContentLang()}`);
 }

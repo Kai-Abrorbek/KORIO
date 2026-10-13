@@ -2111,6 +2111,12 @@ export default {
     topicListSubtitle: "Выберите ситуацию, чтобы перейти к ней на карте.",
     topicListCurrent: "Текущая",
     topicListProgress: "Узлы: {{completed}}/{{total}}",
+    nextTopic: "Следующая тема",
+    jumpToTopic: "Перейти к этой теме?",
+    topicN: "Тема {{n}}",
+    skippedTopic: "Пропущенная тема",
+    backToTopic: "Вернуться к этой теме?",
+    jumpFailed: "Не удалось перейти к теме. Попробуйте ещё раз.",
   },
   expressionLearning: {
     listen: "Прослушать ещё раз",

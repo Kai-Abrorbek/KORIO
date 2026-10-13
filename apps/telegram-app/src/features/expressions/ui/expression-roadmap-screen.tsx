@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { translateText } from "../../../shared/i18n/language-context";
 import { uzt } from "../../../shared/i18n/uz-text";
+import { alertDialog } from "../../../shared/telegram/dialogs";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { hasIonicon, MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
@@ -13,13 +15,15 @@ import type { RoadmapNode, RoadmapUnit } from "../../roadmap/model/roadmap";
 import { CourseDropdown } from "../../roadmap/ui/course-dropdown";
 import { darken } from "../../roadmap/ui/map/color";
 import { AppIcon } from "../../roadmap/ui/map/icon";
+import { JumpToCurrent } from "../../roadmap/ui/map/jump-to-current";
+import { NextSectionLocked } from "../../roadmap/ui/map/next-section-locked";
 import { RoadmapBackdrop } from "../../roadmap/ui/map/roadmap-backdrop";
 import { RoadmapHeader } from "../../roadmap/ui/map/roadmap-header";
 import map from "../../roadmap/ui/map/roadmap-map.module.css";
 import { SectionBanner } from "../../roadmap/ui/map/section-banner";
 import { UnitRoadmap } from "../../roadmap/ui/map/unit-roadmap";
 import study from "../../study-path/ui/study-map.module.css";
-import { getExpressionRoadmap } from "../api/expressions";
+import { focusExpressionTopic, getExpressionRoadmap } from "../api/expressions";
 import { EXPRESSION_COLORS, type ExpressionRoadmapNode, type ExpressionRoadmapResponse } from "../model/expressions";
 import styles from "./expression-roadmap-screen.module.css";
 
@@ -132,6 +136,8 @@ export function ExpressionRoadmapScreen() {
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
+  /** 넘어가는 중인 주제 code — 두 번 눌리지 않게 */
+  const [jumpingTopic, setJumpingTopic] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const unitRefs = useRef(new Map<string, HTMLElement>());
   // 아래쪽 노드를 눌러도 팝오버의 시작 버튼까지 보이게
@@ -199,9 +205,35 @@ export function ExpressionRoadmapScreen() {
     setSelectedNodeId((current) => (current === nodeId ? null : nodeId));
   };
 
+  /**
+   * 고른 주제로 바로 넘어간다 — 서버가 그 주제부터 길을 다시 열고 바뀐 로드맵을 준다.
+   * 로드맵이 바뀌면 위 effect 가 새 current(= 고른 주제)로 스크롤한다
+   */
+  const focusTopic = async (index: number) => {
+    const topic = roadmap?.topics[index];
+    if (!topic || jumpingTopic) return;
+    window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
+    setJumpingTopic(topic.code);
+    setTopicSheetOpen(false);
+    setSelectedNodeId(null);
+    try {
+      setRoadmap(await focusExpressionTopic(request, topic.code));
+    } catch {
+      window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("error");
+      void alertDialog(translateText(uzt("expressionRoadmap.jumpFailed")));
+    } finally {
+      setJumpingTopic(null);
+    }
+  };
+
+  // 목록에서 고른 주제 — 아직 못 간 곳이면 바로 넘어가고, 이미 열린 곳이면 그 자리로 스크롤만
   const jumpToTopic = (index: number) => {
     const unit = units[index];
     if (!unit) return;
+    if (unit.status === "locked") {
+      void focusTopic(index);
+      return;
+    }
     setTopicSheetOpen(false);
     setVisibleIndex(index);
     setSelectedNodeId(null);
@@ -253,32 +285,69 @@ export function ExpressionRoadmapScreen() {
         </div>
       ) : units.length === 0 ? <div className={styles.state} style={{ position: "relative", zIndex: 1 }}><strong>{uzt("expressionRoadmap.empty")}</strong></div> : (
         <div className={`${map.scroll} ${selectedNodeId ? map.scrollOpen : ""}`} onClick={() => setSelectedNodeId(null)} ref={scrollRef}>
-          {units.map((unit) => (
-            <section
-              className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
-              id={unit.id}
-              key={unit.id}
-              onClick={(event) => event.stopPropagation()}
-              ref={(element) => { if (element) unitRefs.current.set(unit.id, element); else unitRefs.current.delete(unit.id); }}
-              style={{ position: "relative" }}
-            >
-              <UnitRoadmap
-                avatar={user?.avatar}
-                customPopover
-                hideNodeRing
-                onNodeTap={tapNode}
-                renderPopover={({ node, triangleOffsetX }) => {
-                  const source = view?.nodeById.get(node.id);
-                  if (!source) return null;
-                  return <ExpressionNodePopover color={unit.color} node={source} onStart={() => openNode(source)} triangleOffsetX={triangleOffsetX} />;
-                }}
-                selectedNodeId={selectedNodeId}
-                unit={unit}
-              />
-            </section>
+          {units.map((unit, index) => (
+            <Fragment key={unit.id}>
+              {/* 아직 못 간 주제 앞 — 어휘 로드맵의 "다음 섹션" 처럼, 시험 없이 바로 넘어간다.
+                  지금 위치보다 앞(건너뛴 주제)이면 "돌아갈까요?" 로 */}
+              {index > 0 && unit.status === "locked" ? (
+                <NextSectionLocked
+                  badgeKey={index < currentIndex ? "expressionRoadmap.skippedTopic" : "expressionRoadmap.nextTopic"}
+                  className={styles.nextTopic}
+                  description={roadmap?.topics[index]?.description}
+                  jumpDisabled={jumpingTopic !== null}
+                  jumpKey={index < currentIndex ? "expressionRoadmap.backToTopic" : "expressionRoadmap.jumpToTopic"}
+                  onJump={() => void focusTopic(index)}
+                  sectionNumber={index + 1}
+                  title={
+                    <>
+                      <span data-i18n="expressionRoadmap.topicN">
+                        {uzt("expressionRoadmap.topicN", { n: index + 1 })}
+                      </span>
+                      {` · ${unit.title}`}
+                    </>
+                  }
+                />
+              ) : null}
+              <section
+                className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
+                id={unit.id}
+                onClick={(event) => event.stopPropagation()}
+                ref={(element) => { if (element) unitRefs.current.set(unit.id, element); else unitRefs.current.delete(unit.id); }}
+                style={{ position: "relative" }}
+              >
+                <UnitRoadmap
+                  avatar={user?.avatar}
+                  customPopover
+                  hideNodeRing
+                  onNodeTap={tapNode}
+                  renderPopover={({ node, triangleOffsetX }) => {
+                    const source = view?.nodeById.get(node.id);
+                    if (!source) return null;
+                    return <ExpressionNodePopover color={unit.color} node={source} onStart={() => openNode(source)} triangleOffsetX={triangleOffsetX} />;
+                  }}
+                  selectedNodeId={selectedNodeId}
+                  unit={unit}
+                />
+              </section>
+            </Fragment>
           ))}
         </div>
       )}
+
+      {/* 지금 할 곳으로 (어휘 로드맵과 같은 버튼) */}
+      {!loading && units.length > 0 ? (
+        <JumpToCurrent
+          color={units[currentIndex]?.color ?? "#776ee2"}
+          direction={visibleIndex > currentIndex ? "up" : "down"}
+          label="Hozirgi darsga o'tish"
+          onPress={() => {
+            setSelectedNodeId(null);
+            unitRefs.current
+              .get(units[currentIndex]?.id ?? "")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+      ) : null}
 
       {topicSheetOpen ? (
         <div className={styles.sheetBackdrop} onClick={() => setTopicSheetOpen(false)} role="presentation">
