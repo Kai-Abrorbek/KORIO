@@ -46,6 +46,22 @@ export class ExpressionsController {
     );
   }
 
+  /**
+   * 표현 로드맵에서 주제를 골라 바로 넘어간다 (목록 / "이 주제로 넘어갈까요?").
+   * 어휘 로드맵의 섹션 건너뛰기와 달리 시험이 없다 — 표현은 상황별이라 순서 의존이 약하다.
+   * 바뀐 로드맵을 그대로 돌려줘서 앱이 한 번에 다시 그린다.
+   */
+  @Post('packs/:packCode/focus')
+  async focusTopic(
+    @Request() req,
+    @Param('packCode') packCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
+  ) {
+    const userId = req.user._id.toString();
+    await this.expressionRoadmapService.focusTopic(userId, packCode);
+    return this.expressionRoadmapService.getRoadmap(userId, query.lang);
+  }
+
   @Get('nodes/:nodeCode/learning')
   async getNodeLearning(
     @Request() req,

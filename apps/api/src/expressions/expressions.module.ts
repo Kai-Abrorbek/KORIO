@@ -23,6 +23,10 @@ import {
   UserSpeakingProgress,
   UserSpeakingProgressSchema,
 } from './schemas/user-speaking-progress.schema';
+import {
+  UserExpressionPath,
+  UserExpressionPathSchema,
+} from './schemas/user-expression-path.schema';
 
 @Module({
   imports: [
@@ -39,6 +43,7 @@ import {
         name: UserSpeakingProgress.name,
         schema: UserSpeakingProgressSchema,
       },
+      { name: UserExpressionPath.name, schema: UserExpressionPathSchema },
     ]),
   ],
   controllers: [ExpressionsController],
