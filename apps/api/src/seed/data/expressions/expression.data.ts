@@ -11,6 +11,7 @@ import { ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC } from './topics/ordering-at-re
 import { PAYING_AT_CONVENIENCE_STORES_TOPIC } from './topics/paying-at-convenience-stores';
 import { REQUESTS_AND_PERMISSION_TOPIC } from './topics/requests-and-permission';
 import { SELF_INTRODUCTION_TOPIC } from './topics/self-introduction';
+import { SPEAKING_AT_HOSPITALS_AND_PHARMACIES_TOPIC } from './topics/speaking-at-hospitals-and-pharmacies';
 import { THANKS_AND_APOLOGIES_TOPIC } from './topics/thanks-and-apologies';
 import { USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC } from './topics/using-buses-subways-and-taxis';
 
@@ -36,6 +37,7 @@ const EXPRESSION_TOPICS = [
   ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC,
   USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC,
   MAKING_AND_CHANGING_APPOINTMENTS_TOPIC,
+  SPEAKING_AT_HOSPITALS_AND_PHARMACIES_TOPIC,
 ] as const;
 
 export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =
