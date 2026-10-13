@@ -1,5 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { useSwipePagerBlocker } from "@/components/common/SwipePager";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StudyCategory } from "@/types/stats";
@@ -24,8 +26,10 @@ export default function CategoryTabs({ value, onChange }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
+  // 통계 페이저 안이라 칩 줄을 가로로 밀면 탭이 넘어가 버린다 — 칩 줄 위에선 칩 스크롤이 먼저
+  const swipeBlocker = useSwipePagerBlocker();
 
-  return (
+  const list = (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
@@ -56,6 +60,11 @@ export default function CategoryTabs({ value, onChange }: Props) {
         );
       })}
     </ScrollView>
+  );
+  return swipeBlocker ? (
+    <GestureDetector gesture={swipeBlocker}>{list}</GestureDetector>
+  ) : (
+    list
   );
 }
 

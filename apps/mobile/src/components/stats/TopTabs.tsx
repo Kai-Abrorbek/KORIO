@@ -1,11 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  type LayoutChangeEvent,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, {
+  interpolateColor,
   useSharedValue,
   useAnimatedStyle,
-  withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
-import { useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { StatsTab } from "@/types/stats";
@@ -13,48 +18,75 @@ import { StatsTab } from "@/types/stats";
 interface Props {
   value: StatsTab;
   onChange: (t: StatsTab) => void;
+  /** 페이저 위치 (0 = 기간별, 1 = 학습별, 미는 중엔 소수) — 밑줄·글자색이 따라온다 */
+  progress: SharedValue<number>;
 }
 
-export default function TopTabs({ value, onChange }: Props) {
+export default function TopTabs({ value, onChange, progress }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const offset = useSharedValue(value === "period" ? 0 : 1);
+  // 두 탭 글자의 자리·폭 [x0, w0, x1, w1] — 언어마다 글자 길이가 달라서 잰다
+  const marks = useSharedValue([0, 46, 70, 46]);
 
-  useEffect(() => {
-    offset.value = withTiming(value === "period" ? 0 : 1, { duration: 200 });
-  }, [value, offset]);
+  const measure = (slot: 0 | 1) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    const next = [...marks.value];
+    next[slot * 2] = x;
+    next[slot * 2 + 1] = width;
+    marks.value = next;
+  };
 
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateX: offset.value * 70,
-      },
-    ],
-  }));
+  // 밑줄은 두 탭 사이를 미는 만큼 옮겨 간다
+  const indicatorStyle = useAnimatedStyle(() => {
+    const [x0 = 0, w0 = 46, x1 = 70, w1 = 46] = marks.value;
+    const p = progress.value;
+    return {
+      transform: [{ translateX: x0 + (x1 - x0) * p }],
+      width: w0 + (w1 - w0) * p,
+    };
+  });
+
+  // 글자색도 미는 만큼 옮겨 간다
+  const firstColor = useAnimatedStyle(
+    () => ({
+      color: interpolateColor(progress.value, [0, 1], [theme.text, theme.textSecondary]),
+    }),
+    [theme],
+  );
+  const secondColor = useAnimatedStyle(
+    () => ({
+      color: interpolateColor(progress.value, [0, 1], [theme.textSecondary, theme.text]),
+    }),
+    [theme],
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <TouchableOpacity
           style={styles.tab}
+          onLayout={measure(0)}
           onPress={() => onChange("period")}
           activeOpacity={0.7}
         >
-          <Text style={[styles.text, value === "period" && styles.textActive]}>
+          <Animated.Text
+            style={[styles.text, value === "period" && styles.textActive, firstColor]}
+          >
             {t("stats.tabs.period")}
-          </Text>
+          </Animated.Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tab}
+          onLayout={measure(1)}
           onPress={() => onChange("category")}
           activeOpacity={0.7}
         >
-          <Text
-            style={[styles.text, value === "category" && styles.textActive]}
+          <Animated.Text
+            style={[styles.text, value === "category" && styles.textActive, secondColor]}
           >
             {t("stats.tabs.category")}
-          </Text>
+          </Animated.Text>
         </TouchableOpacity>
       </View>
       <Animated.View style={[styles.indicator, indicatorStyle]} />
