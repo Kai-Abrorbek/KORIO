@@ -29,70 +29,246 @@
   background: linear-gradient(135deg, #9d8dff, #776ee2 52%, #5b4dd4);
 }
 
+/* ── 히어로 — 보고 있는 등급(SUPER/MAX)에 맞춰 섞이며 바뀐다 ── */
 .hero {
+  /* 고무줄로 밖까지 끌려도 0~1 안에서만 섞는다 */
+  --p: clamp(0, var(--swipe-progress, 1), 1);
+  /* 글자·태그·한글몬은 겹쳐 보이지 않게 — 앞 절반에 사라지고 뒤 절반에 나타난다 */
+  --out: clamp(0, 1 - var(--p) * 2, 1);
+  --in: clamp(0, var(--p) * 2 - 1, 1);
   align-items: center;
   border-radius: 0 0 32px 32px;
   color: #fff;
   display: flex;
-  flex-direction: column;
+  gap: 6px;
+  isolation: isolate;
+  min-height: 196px;
   overflow: hidden;
-  padding: calc(var(--korio-top) + 70px) 24px 36px;
+  padding: calc(var(--korio-top) + 22px) 14px 22px 24px;
   position: relative;
 }
 
-.shine {
-  animation: shimmer 2.8s ease-in-out infinite;
-  background: rgb(255 255 255 / 12%);
-  height: 240%;
-  left: -80px;
-  opacity: .5;
+.heroWithBack {
+  padding-top: calc(var(--korio-top) + 62px);
+}
+
+.heroBg {
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgb(255 255 255 / 16%), transparent 55%),
+    linear-gradient(140deg, #7b5cff 0%, #4a33c7 48%, #1f1460 100%);
+  inset: 0;
   position: absolute;
-  top: -60px;
-  transform: rotate(22deg);
-  width: 60%;
+  z-index: -2;
 }
 
-.crown {
-  align-items: center;
-  background: rgb(255 255 255 / 18%);
-  border-radius: 24px;
-  color: #ffd93d;
+.heroBgMax {
+  background:
+    radial-gradient(90% 80% at 100% 100%, rgb(255 190 60 / 22%), transparent 60%),
+    linear-gradient(140deg, #4a2c86 0%, #2a1858 50%, #120a30 100%);
+  opacity: var(--p);
+}
+
+.heroSpark {
+  animation: heroTwinkle 2.6s ease-in-out var(--d) infinite;
+  color: #fff;
   display: flex;
-  height: 72px;
-  justify-content: center;
-  margin-bottom: 16px;
-  width: 72px;
+  filter: drop-shadow(0 0 4px rgb(255 255 255 / 70%));
+  opacity: 0.2;
+  position: absolute;
+  z-index: -1;
 }
 
-.logoRow {
-  align-items: center;
+.heroSpark:nth-child(odd) {
+  color: color-mix(in srgb, #ffd93d calc(var(--p) * 100%), #ffc4ee);
+}
+
+.heroCopy {
   display: flex;
-  gap: 10px;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.logoRow > strong {
-  font-size: 34px;
+.heroBrand {
+  font-size: 30px;
   font-weight: 900;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
-.logoRow > b {
-  background: #ffd93d;
-  border-radius: 8px;
-  color: #5b4dd4;
-  font-size: 18px;
+/* 두 태그를 한 칸에 겹쳐 두고 섞는다 */
+.heroTags {
+  display: grid;
+  justify-items: start;
+  margin-top: 9px;
+}
+
+.heroTags > b {
+  border-radius: 10px;
+  font-size: 22px;
   font-weight: 900;
-  letter-spacing: 1px;
-  padding: 4px 10px;
+  grid-area: 1 / 1;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  overflow: hidden;
+  padding: 7px 13px 6px;
+  position: relative;
   transform: rotate(-3deg);
+  transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hero > p {
-  color: rgb(255 255 255 / 90%);
-  font-size: 15px;
-  font-weight: 600;
-  margin: 12px 0 0;
-  text-align: center;
+.heroTagSuper {
+  background: linear-gradient(135deg, #ff8ad8, #b86cff);
+  box-shadow: 0 4px 0 #7a3fd0, 0 8px 18px rgb(184 108 255 / 45%);
+  color: #fff;
+  opacity: var(--out);
+  transform: rotate(-3deg) scale(calc(1 - var(--p) * 0.25));
+}
+
+.heroTagMax {
+  background: linear-gradient(135deg, #ffe680, #ffb020);
+  box-shadow: 0 4px 0 #c27a00, 0 8px 18px rgb(255 176 32 / 45%);
+  color: #4a2c00;
+  opacity: var(--in);
+  transform: rotate(-3deg) scale(calc(0.75 + var(--p) * 0.25));
+}
+
+/* 태그 위로 지나가는 광택 */
+.heroTags > b > i {
+  animation: heroGloss 3.2s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 75%), transparent);
+  height: 140%;
+  left: -40%;
+  position: absolute;
+  top: -20%;
+  transform: skewX(-20deg);
+  width: 30%;
+}
+
+.heroSubs {
+  display: grid;
+  margin-top: 12px;
+}
+
+.heroSubs > span {
+  color: rgb(255 255 255 / 88%);
+  font-size: 14px;
+  font-weight: 700;
+  grid-area: 1 / 1;
+  line-height: 19px;
+  transition: opacity 0.32s ease;
+  /* 한국어가 낱자 단위로 끊기지 않게 */
+  word-break: keep-all;
+}
+
+.heroSubSuper {
+  opacity: var(--out);
+}
+
+.heroSubMax {
+  opacity: var(--in);
+}
+
+/* 한글몬 무대 — 빛 · 둥실 · 그림자 */
+.heroStage {
+  flex: none;
+  height: 150px;
+  position: relative;
+  width: 150px;
+}
+
+.heroGlow {
+  animation: heroPulse 2.6s ease-in-out infinite;
+  background: radial-gradient(circle, rgb(255 170 236 / 78%) 0%, rgb(200 130 255 / 34%) 40%, transparent 70%);
+  border-radius: 50%;
+  inset: -14px;
+  opacity: calc(1 - var(--p));
+  position: absolute;
+  transition: opacity 0.32s ease;
+}
+
+.heroGlowMax {
+  background: radial-gradient(circle, rgb(255 242 180 / 80%) 0%, rgb(255 208 96 / 30%) 40%, transparent 70%);
+  opacity: var(--p);
+}
+
+.heroBob {
+  animation: heroBob 2.6s ease-in-out infinite;
+  display: grid;
+  inset: 0;
+  position: absolute;
+}
+
+.heroBob > img {
+  filter: drop-shadow(0 6px 10px rgb(10 5 40 / 35%));
+  grid-area: 1 / 1;
+  height: 150px;
+  object-fit: contain;
+  transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 150px;
+}
+
+/* 넘길 때 옆으로 비켜나며 바뀐다 */
+.heroMascotSuper {
+  opacity: var(--out);
+  transform: translateX(calc(var(--p) * -26px)) scale(calc(1 - var(--p) * 0.16));
+}
+
+.heroMascotMax {
+  opacity: var(--in);
+  transform: translateX(calc((1 - var(--p)) * 26px)) scale(calc(0.84 + var(--p) * 0.16));
+}
+
+.heroFloor {
+  animation: heroFloor 2.6s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgb(5 2 25 / 45%), transparent);
+  bottom: -2px;
+  height: 14px;
+  left: 34px;
+  position: absolute;
+  right: 34px;
+  z-index: -1;
+}
+
+[data-swiping] .heroTags > b,
+[data-swiping] .heroSubs > span,
+[data-swiping] .heroGlow,
+[data-swiping] .heroBob > img {
+  transition: none;
+}
+
+@keyframes heroBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes heroFloor {
+  0%, 100% { opacity: 1; transform: scaleX(1); }
+  50% { opacity: 0.6; transform: scaleX(0.82); }
+}
+
+@keyframes heroPulse {
+  0%, 100% { transform: scale(0.94); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes heroTwinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(20deg); }
+}
+
+@keyframes heroGloss {
+  0%, 55% { left: -40%; }
+  100% { left: 130%; }
+}
+
+@media (max-width: 360px) {
+  .heroStage, .heroBob > img { height: 124px; width: 124px; }
+  .heroBrand { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroSpark, .heroGlow, .heroBob, .heroFloor, .heroTags > b > i { animation: none; }
 }
 
 .tierBar {
@@ -164,15 +340,6 @@
 .tierBar button svg {
   color: #ffd93d;
   margin-left: -1px;
-}
-
-.tierBlurb {
-  color: var(--premium-muted);
-  font-size: 13.5px;
-  font-weight: 700;
-  line-height: 19px;
-  margin: 10px 28px 0;
-  text-align: center;
 }
 
 .features {
@@ -479,7 +646,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shine,
   .loading i {
     animation-duration: 1ms;
   }

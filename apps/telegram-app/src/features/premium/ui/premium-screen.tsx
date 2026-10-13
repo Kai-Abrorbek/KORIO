@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -655,17 +656,7 @@ function OfferView({
             <MobileIcon name="chevron-back" size={24} />
           </button>
         ) : null}
-        <section className={styles.gradient + " " + styles.hero}>
-          <i className={styles.shine} />
-          <span className={styles.crown}>
-            <MobileIcon name="star" size={36} />
-          </span>
-          <div className={styles.logoRow}>
-            <strong>KORIO</strong>
-            <b>SUPER</b>
-          </div>
-          <p>Cheksiz energiya bilan to&apos;xtovsiz o&apos;rganing</p>
-        </section>
+        <PremiumHero withBack={Boolean(onBack)} />
 
         <div className={styles.tierBar}>
           {/* 선택 배경 — 밀고 있는 만큼 옆 칸으로 미끄러진다 */}
@@ -687,14 +678,8 @@ function OfferView({
         <SwipeSlides
           index={TIERS.indexOf(tier)}
           slides={[
-            <>
-              <p className={styles.tierBlurb}>Cheklovsiz o&apos;rganing</p>
-              <FeatureList tier="super" />
-            </>,
-            <>
-              <p className={styles.tierBlurb}>Har kuni AI ustoz bilan koreyscha gaplashing</p>
-              <FeatureList tier="max" />
-            </>,
+            <FeatureList key="super" tier="super" />,
+            <FeatureList key="max" tier="max" />,
           ]}
         />
 
@@ -820,6 +805,88 @@ function OfferView({
       <PremiumTabs />
       {helpOpen ? <StarsHelpSheet onClose={() => setHelpOpen(false)} /> : null}
     </main>
+  );
+}
+
+/** 히어로의 반짝이 — 자리·크기·박자를 다르게 해서 같이 깜빡이지 않게 */
+const HERO_SPARKS = [
+  { x: "5%", y: "12%", size: 13, delay: 0 },
+  { x: "40%", y: "10%", size: 10, delay: 0.9 },
+  { x: "57%", y: "62%", size: 12, delay: 1.7 },
+  { x: "92%", y: "12%", size: 15, delay: 0.4 },
+  { x: "90%", y: "80%", size: 11, delay: 1.3 },
+  { x: "47%", y: "88%", size: 9, delay: 2.1 },
+] as const;
+
+/**
+ * 요금제 화면 맨 위. 보고 있는 등급(SUPER / MAX)에 맞춰 배경·태그·문구·한글몬이 바뀐다.
+ * 옆으로 미는 만큼(--swipe-progress: 0 SUPER ~ 1 MAX) 섞이며 넘어간다 — 등급 버튼과 같은 값.
+ * 한글몬이 보라색이라 배경은 어둡게, 뒤에 빛(SUPER 분홍·MAX 금색)을 깔아 몸이 묻히지 않게 한다.
+ */
+function PremiumHero({ withBack }: { withBack: boolean }) {
+  return (
+    <section className={`${styles.hero} ${withBack ? styles.heroWithBack : ""}`}>
+      <i aria-hidden="true" className={styles.heroBg} />
+      <i aria-hidden="true" className={`${styles.heroBg} ${styles.heroBgMax}`} />
+      {HERO_SPARKS.map((spark, index) => (
+        <i
+          aria-hidden="true"
+          className={styles.heroSpark}
+          key={index}
+          style={{ "--d": `${spark.delay}s`, left: spark.x, top: spark.y } as CSSProperties}
+        >
+          <MobileIcon name="sparkles" size={spark.size} />
+        </i>
+      ))}
+
+      <div className={styles.heroCopy}>
+        <strong className={styles.heroBrand}>KORIO</strong>
+        <span className={styles.heroTags}>
+          <b className={styles.heroTagSuper}>
+            SUPER
+            <i aria-hidden="true" />
+          </b>
+          <b className={styles.heroTagMax}>
+            MAX
+            <i aria-hidden="true" />
+          </b>
+        </span>
+        <span className={styles.heroSubs}>
+          <span className={styles.heroSubSuper} data-i18n="premium.heroSub">
+            {uzt("premium.heroSub")}
+          </span>
+          <span className={styles.heroSubMax} data-i18n="premium.tierBlurb.max">
+            {uzt("premium.tierBlurb.max")}
+          </span>
+        </span>
+      </div>
+
+      <div aria-hidden="true" className={styles.heroStage}>
+        <i className={styles.heroGlow} />
+        <i className={`${styles.heroGlow} ${styles.heroGlowMax}`} />
+        <span className={styles.heroBob}>
+          <Image
+            alt=""
+            className={styles.heroMascotSuper}
+            height={150}
+            priority
+            src="/characters/hangulmon_streak_float.png"
+            unoptimized
+            width={150}
+          />
+          <Image
+            alt=""
+            className={styles.heroMascotMax}
+            height={150}
+            priority
+            src="/characters/hangulmon_confident_float.png"
+            unoptimized
+            width={150}
+          />
+        </span>
+        <i className={styles.heroFloor} />
+      </div>
+    </section>
   );
 }
 
