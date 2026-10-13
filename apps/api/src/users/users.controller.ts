@@ -177,6 +177,12 @@ export class UsersController {
     return this.usersService.getWeeklyStats(req.user._id.toString(), date);
   }
 
+  /** 친구 프로필 "이번 주 대결" — 친구 · 나의 리그 주 날짜별 XP */
+  @Get(':id/stats/versus')
+  async getVersusWeek(@Request() req, @Param('id') id: string) {
+    return this.usersService.getVersusWeek(req.user._id.toString(), id);
+  }
+
   @Get(':id/stats/weekly')
   async getUserWeekly(@Param('id') id: string, @Query('date') date?: string) {
     return this.usersService.getWeeklyStats(id, date);

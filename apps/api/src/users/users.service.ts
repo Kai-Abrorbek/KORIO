@@ -30,6 +30,7 @@ import {
   startOfMonthPlus,
 } from '../common/date.util';
 import { langToFlag, levelToNumber } from './utils';
+import { buildVersusWeek, versusFetchRange } from './versus-week.util';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
   Subscription,
@@ -1335,6 +1336,36 @@ export class UsersService {
       frozenDays,
       streak: current,
       longestStreak: longest,
+    };
+  }
+
+  /**
+   * 친구 프로필 "이번 주 대결" — 리그 주(월~일)의 날짜별 XP 를 친구 · 나 나란히.
+   * 합계가 리그 주간 XP 와 같은 창이고, 시간대가 달라도 날짜 이름으로 맞춘다
+   * (versus-week.util 참고).
+   */
+  async getVersusWeek(viewerId: string, targetId: string) {
+    if (!Types.ObjectId.isValid(targetId))
+      throw new BadRequestException('INVALID_USER_ID');
+    const now = new Date();
+    const { from, to } = versusFetchRange(now);
+    const side = async (id: string) => {
+      const [tz, rows] = await Promise.all([
+        this.getTimezone(id),
+        this.statsModel
+          .find({
+            userId: new Types.ObjectId(id),
+            date: { $gte: from, $lt: to },
+          })
+          .select('date xpEarned')
+          .lean(),
+      ]);
+      return { tz, rows };
+    };
+    const [them, me] = await Promise.all([side(targetId), side(viewerId)]);
+    return {
+      ...buildVersusWeek(them, me, now),
+      isMe: targetId === viewerId,
     };
   }
 
