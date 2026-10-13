@@ -5,6 +5,7 @@ import { useConsole } from "@/widgets/console-context";
 import { isMockMode } from "@/features/auth/session";
 import { METRICS, formatMetric, mockSeries, type MetricKey } from "./mock-source";
 import { MetricDetailChart } from "./metric-detail-chart";
+import { MetricChangeChart } from "./metric-change-chart";
 import { LiveMetricExplorer } from "./live-metric-explorer";
 
 const DAY = 86_400_000;
@@ -21,16 +22,6 @@ function aggregate(labels: string[], values: number[], grain: Grain) {
     groups.set(key, entry);
   });
   return { labels:[...groups.keys()], values:[...groups.values()].map(v => Math.round(v.total / v.count * 10) / 10) };
-}
-
-function GrowthChart({ labels, values }: { labels: string[]; values: number[] }) {
-  const points = labels.slice(-12).map((label, i) => {
-    const value = values[values.length - 12 + i] ?? 0;
-    return { label, newValue: Math.max(0,Math.round(value * .57)), expansion:Math.max(0,Math.round(value * .2)), churn:Math.max(0,Math.round(value * .16)), contraction:Math.max(0,Math.round(value * .07)) };
-  });
-  const [hover,setHover]=useState<number|null>(null);
-  const max=Math.max(1,...points.map(p=>p.newValue+p.expansion));
-  return <div className="bm-growth-wrap"><div className="bm-growth-plot">{points.map((p,i)=><div key={p.label} className="bm-growth-col" onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(null)}><div className="bm-growth-positive" style={{height:`${((p.newValue+p.expansion)/max)*43}%`}}><span style={{height:`${p.expansion/(p.newValue+p.expansion)*100}%`,background:"#b4e9c8"}}/><span style={{height:`${p.newValue/(p.newValue+p.expansion)*100}%`,background:"#2fc56f"}}/></div><div className="bm-growth-baseline"/><div className="bm-growth-negative" style={{height:`${((p.churn+p.contraction)/max)*43}%`}}><span style={{height:`${p.churn/(p.churn+p.contraction)*100}%`,background:"#e94885"}}/><span style={{height:`${p.contraction/(p.churn+p.contraction)*100}%`,background:"#f5abc8"}}/></div><small>{p.label.slice(5).replace("-","/")}</small></div>)}</div>{hover !== null && points[hover] && <div className="bm-growth-tooltip"><strong>{points[hover].label}</strong><span>신규 <b>+{points[hover].newValue}</b></span><span>확장 <b>+{points[hover].expansion}</b></span><span>이탈 <b>−{points[hover].churn}</b></span><span>감소 <b>−{points[hover].contraction}</b></span></div>}</div>;
 }
 
 export function MetricExplorer() {
@@ -83,7 +74,8 @@ function MockMetricExplorer() {
       </div>
       <div className="bm-explorer-chart"><MetricDetailChart labels={grouped.labels} values={grouped.values} previous={comparison} periodDays={range.days} metric={definition} compare={compare} trendline={trendline} benchmark={benchmark} annotations={annotations} showAnnotations={showAnnotations} onAnnotate={openAnnotation}/></div>
     </section>
-    <div className="admin-grid"><section className="admin-card"><div className="admin-card-head"><h3>기간별 변화 구성</h3><select value={grain} onChange={e=>setGrain(e.target.value as Grain)}><option value="day">일별</option><option value="week">주별</option><option value="month">월별</option></select></div><div className="admin-card-body"><GrowthChart labels={grouped.labels} values={grouped.values}/><p className="bm-data-note">막대의 구성은 차트 상호작용용 예시값입니다. 지표별 실제 이벤트 계약은 백엔드 연결 시 정의합니다.</p></div></section><section className="admin-card"><div className="admin-card-head"><h3>데이터 읽는 법</h3></div><div className="admin-card-body bm-insight"><div><span className="admin-pill blue">현재</span><strong>{formatMetric(definition,metric.current)}</strong><small>선택 기간 마지막 날</small></div><div><span className="admin-pill">직전</span><strong>{formatMetric(definition,metric.previous)}</strong><small>직전 비교 기준</small></div><div><span className="admin-pill good">변화</span><strong>{metric.delta>0?"+":""}{metric.delta}%</strong><small>선택 기간 대비</small></div><p>차트의 점에 마우스를 올리면 날짜와 값을 볼 수 있습니다. 표에는 같은 수치가 일별로 표시됩니다.</p></div></section></div>
+    <section className="admin-card"><div className="admin-card-head"><h3>{grain === "month" ? "월별" : grain === "week" ? "주별" : "일별"} 변화</h3><span className="bm-data-note">이전 구간 대비 지표 차이 · mock 데이터</span></div><MetricChangeChart labels={grouped.labels} values={grouped.values} metric={definition}/></section>
+    <section className="admin-card"><div className="admin-card-head"><h3>데이터 읽는 법</h3></div><div className="admin-card-body bm-insight"><div><span className="admin-pill blue">현재</span><strong>{formatMetric(definition,metric.current)}</strong><small>선택 기간 마지막 날</small></div><div><span className="admin-pill">직전</span><strong>{formatMetric(definition,metric.previous)}</strong><small>직전 비교 기준</small></div><div><span className="admin-pill good">변화</span><strong>{metric.delta>0?"+":""}{metric.delta}%</strong><small>선택 기간 대비</small></div><p>차트의 점에 마우스를 올리면 날짜와 값을 볼 수 있습니다. 표에는 같은 수치가 일별로 표시됩니다.</p></div></section>
     {annotationTarget && <div className="bm-annotation-backdrop" role="presentation" onMouseDown={()=>setAnnotationTarget(null)}><div className="bm-annotation-dialog" role="dialog" aria-modal="true" aria-labelledby="bm-annotation-title" onMouseDown={event=>event.stopPropagation()}><h3 id="bm-annotation-title">지표 주석 · {annotationTarget}</h3><p>차트에서 해당 날짜를 다시 확인할 수 있습니다. 이 메모는 현재 브라우저에만 저장됩니다.</p><textarea aria-label="주석 내용" autoFocus value={annotationText} onChange={event=>setAnnotationText(event.target.value)} placeholder="이 날짜에 있었던 일을 기록하세요"/><div><button type="button" onClick={()=>setAnnotationTarget(null)}>취소</button><button type="button" className="is-primary" onClick={saveAnnotation}>저장</button></div></div></div>}
   </div>;
 }

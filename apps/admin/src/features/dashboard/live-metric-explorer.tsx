@@ -7,6 +7,7 @@ import { ErrorState } from "@/shared/ui/primitives";
 import { useConsole } from "@/widgets/console-context";
 import { liveTrends, LIVE_TREND_KEYS, previousRange, priorValues, type LiveTrendKey } from "./live-metrics";
 import { MetricDetailChart } from "./metric-detail-chart";
+import { MetricChangeChart } from "./metric-change-chart";
 import { formatMetric } from "./mock-source";
 import type { ActiveUsersResponse, OverviewResponse } from "./types";
 
@@ -80,6 +81,7 @@ export function LiveMetricExplorer() {
         <div className="bm-explorer-summary"><small>{metric.label}</small><strong>{formatMetric(metric, last)}</strong><span className={delta === null ? "" : delta >= 0 ? "bm-positive" : "bm-negative"}>{delta === null ? "비교 불가" : `${delta >= 0 ? "↑" : "↓"} ${Math.abs(delta)}%`} <em>선택 기간</em></span><select aria-label="차트 간격" value={grain} onChange={event => setGrain(event.target.value as Grain)}><option value="day">Days</option><option value="week">Weeks</option><option value="month">Months</option></select></div>
         <div className="bm-explorer-chart"><MetricDetailChart labels={grouped.labels} values={grouped.values} previous={priorGrouped.values} periodDays={range.days} metric={metric} compare={compare} trendline={trendline} benchmark={benchmark} annotations={annotations} showAnnotations={showAnnotations} onAnnotate={openAnnotation}/></div>
       </section>
+      <section className="admin-card"><div className="admin-card-head"><h3>{grain === "month" ? "월별" : grain === "week" ? "주별" : "일별"} 변화</h3><span className="bm-data-note">이전 구간 대비 실제 지표 차이</span></div><MetricChangeChart labels={grouped.labels} values={grouped.values} metric={metric}/></section>
       <section className="admin-card"><div className="admin-card-head"><h3>데이터 읽는 법</h3></div><div className="admin-card-body bm-insight"><div><span className="admin-pill blue">현재</span><strong>{formatMetric(metric, metric.current)}</strong><small>{key === "signups" ? "선택 기간 가입 합계" : "선택 기간 마지막 날"}</small></div><div><span className="admin-pill">직전</span><strong>{formatMetric(metric, metric.previous)}</strong><small>{key === "signups" ? "직전 기간 가입 합계" : "직전 기간 마지막 날"}</small></div><div><span className="admin-pill good">변화</span><strong>{metric.previous ? `${metric.delta >= 0 ? "+" : ""}${metric.delta}%` : "—"}</strong><small>직전 기간 대비</small></div><p>학습자는 앱 실행이 아닌 실제 학습 기록 기준입니다. 주석은 현재 브라우저에만 저장됩니다.</p></div></section>
     </>}
     {annotationTarget && <div className="bm-annotation-backdrop" role="presentation" onMouseDown={() => setAnnotationTarget(null)}><div className="bm-annotation-dialog" role="dialog" aria-modal="true" aria-labelledby="bm-live-annotation-title" onMouseDown={event => event.stopPropagation()}><h3 id="bm-live-annotation-title">지표 주석 · {annotationTarget}</h3><p>이 메모는 현재 브라우저에만 저장됩니다.</p><textarea aria-label="주석 내용" autoFocus value={annotationText} onChange={event => setAnnotationText(event.target.value)} placeholder="이 날짜에 있었던 일을 기록하세요"/><div><button type="button" onClick={() => setAnnotationTarget(null)}>취소</button><button type="button" className="is-primary" onClick={saveAnnotation}>저장</button></div></div></div>}

@@ -9,43 +9,10 @@ import { CohortTable } from "./cohort-table";
 import { Funnel } from "./funnel";
 import { LiveControlCenter } from "./live-control-center";
 import { METRICS, formatMetric, mockDashboardSource, type DashboardAlert, type DashboardBreakdown, type MetricSeries } from "./mock-source";
+import { MetricSparkCard } from "./metric-spark-card";
 import type { FunnelStep } from "./types";
 
 interface SelectedDay { metric: MetricSeries; index: number; }
-
-function MetricCard({ metric, onDay }: { metric: MetricSeries; onDay: (index: number) => void }) {
-  const [hover, setHover] = useState<number | null>(null);
-  const n = metric.values.length;
-  const width = 490;
-  const height = 154;
-  const left = 47;
-  const right = 16;
-  const top = 13;
-  const bottom = 28;
-  const minimum = Math.min(...metric.values) * .96;
-  const maximum = Math.max(...metric.values) * 1.025;
-  const span = Math.max(1, maximum - minimum);
-  const x = (i: number) => left + i * (width - left - right) / Math.max(1, n - 1);
-  const y = (v: number) => top + (1 - (v - minimum) / span) * (height - top - bottom);
-  const line = metric.values.map((value, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(value).toFixed(1)}`).join(" ");
-  const ticks = Array.from({length: 5}, (_, i) => minimum + (span / 4) * i);
-  const deltaGood = metric.favorable === "neutral" ? null : (metric.delta >= 0) === (metric.favorable === "up");
-  const query = `metric=${metric.key}`;
-
-  return <article className="bm-metric admin-card">
-    <Link href={`/metrics?${query}`} className="bm-metric-title">{metric.label}</Link>
-    <div className="bm-metric-numbers"><strong>{formatMetric(metric,metric.current)}</strong><span>이전 {formatMetric(metric,metric.previous)}</span><b className={deltaGood === null ? "neutral" : deltaGood ? "positive" : "negative"}>{metric.delta >= 0 ? "↑" : "↓"} {Math.abs(metric.delta)}%</b></div>
-    <div className="bm-mini-plot" onMouseLeave={() => setHover(null)} onMouseMove={event => {const rect=event.currentTarget.getBoundingClientRect();const fraction=(event.clientX-rect.left)/rect.width;setHover(Math.max(0,Math.min(n-1,Math.round((fraction-.1)*n/0.9))));}} onClick={() => hover !== null && onDay(hover)} role="button" tabIndex={0} aria-label={`${metric.label} 날짜별 상세 보기`} onKeyDown={event => {if(event.key === "Enter") onDay(hover ?? n-1);}}>
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={`${metric.label} 추이`}>
-        {ticks.map((tick,i) => <g key={i}><line x1={left} x2={width-right} y1={y(tick)} y2={y(tick)} stroke="var(--grid)"/><text x={left-6} y={y(tick)+3} textAnchor="end" fill="var(--ink-3)" fontSize="10">{metric.unit === "percent" ? `${tick.toFixed(1)}%` : Math.round(tick).toLocaleString("ko-KR")}</text></g>)}
-        <path d={line} fill="none" stroke="var(--brand)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"/>
-        {hover !== null && <g><line x1={x(hover)} x2={x(hover)} y1={top} y2={height-bottom} stroke="var(--border-strong)" strokeWidth="1"/><circle cx={x(hover)} cy={y(metric.values[hover] ?? 0)} r="5" fill="var(--brand)"/></g>}
-        {[0,Math.floor((n-1)/3),Math.floor((n-1)*2/3),n-1].map((i,k) => <text key={k} x={x(i)} y={height-4} textAnchor={k===0?"start":k===3?"end":"middle"} fill="var(--ink-3)" fontSize="10">{metric.labels[i]?.slice(5).replace("-",".")}</text>)}
-      </svg>
-      {hover !== null && <div className="bm-mini-tip" style={{ left:`${Math.min(82,Math.max(17,(x(hover)/width)*100))}%` }}><span>{metric.labels[hover]}</span><b>● {formatMetric(metric, metric.values[hover] ?? 0)}</b><small>클릭하여 날짜 상세 보기</small></div>}
-    </div>
-  </article>;
-}
 
 function DayModal({ selection, close }: { selection: SelectedDay; close: () => void }) {
   const { metric, index } = selection;
@@ -81,7 +48,7 @@ function MockControlCenter() {
 
   return <div className="admin-page bm-control">
     <div className="bm-control-layout">
-      <div className="bm-metric-grid">{metrics ? metrics.map(metric=><MetricCard key={metric.key} metric={metric} onDay={index=>setSelected({metric,index})}/>) : METRICS.map(metric=><div key={metric.key} className="admin-card skeleton" style={{height:350}}/>)}</div>
+      <div className="bm-metric-grid">{metrics ? metrics.map(metric=><MetricSparkCard key={metric.key} metric={metric} onDay={index=>setSelected({metric,index})}/>) : METRICS.map(metric=><div key={metric.key} className="admin-card skeleton" style={{height:350}}/>)}</div>
       <aside className="bm-side-column">
         <section className="admin-card"><div className="admin-card-head"><h3>Breakdown</h3><select aria-label="분석 기간" value={breakdownPeriod} onChange={e=>setBreakdownPeriod(e.target.value as "selected"|"today")}><option value="selected">선택 기간</option><option value="today">오늘</option></select></div><div className="bm-breakdown">{breakdown.map(item=><Link href={item.href} key={item.label}><span><b>{breakdownPeriod==="today" ? Math.round(item.count/Math.max(1,range.days)) : item.count}</b> {item.label}</span>{item.change !== undefined && <strong className={item.change>=0?"bm-positive":"bm-negative"}>{item.change>=0?"+":"−"} {Math.abs(item.change)}</strong>}</Link>)}</div></section>
         <section className="admin-card"><div className="admin-card-head"><h3>지금 확인할 문제</h3><Link href="/content?tab=quality">모두 보기 →</Link></div>{alerts.map(alert=><Link key={alert.id} className="bm-alert" href={alert.href}><span className={`admin-pill ${alert.severity==="critical"?"bad":alert.severity==="warning"?"warn":"blue"}`}>{alert.severity.toUpperCase()}</span><strong>{alert.title}</strong><small>{alert.detail}</small></Link>)}</section>

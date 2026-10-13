@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isMockAuthMode, isMockMode, useSession, type AdminPermission } from "@/features/auth/session";
 import { ThemeToggle } from "@/shared/ui/theme";
 import { ConsoleProvider, useConsole } from "./console-context";
@@ -59,6 +59,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   const { me, can, logout } = useSession();
   const { range, preset, setPreset, setCustom } = useConsole();
   const path = usePathname();
+  const contentRef = useRef<HTMLElement>(null);
   const router = useRouter();
   const [open, setOpen] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ label: string; top: number } | null>(null);
@@ -87,6 +88,8 @@ function ShellContent({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  useEffect(() => { contentRef.current?.scrollTo({ top: 0, behavior: "instant" }); }, [path]);
 
   return (
     <div className="console-shell">
@@ -123,7 +126,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
             <ThemeToggle/>
           </div>
         </header>
-        <main className="console-content">{children}</main>
+        <main className="console-content" ref={contentRef}>{children}</main>
       </div>
 
       {search && <div className="search-overlay" onMouseDown={() => setSearch(false)}><div className="search-dialog" role="dialog" aria-modal="true" aria-label="메뉴 검색" onMouseDown={e => e.stopPropagation()}><div className="search-input-row"><span>⌕</span><input autoFocus placeholder="페이지 검색…" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => {if(e.key === "Escape")setSearch(false);if(e.key === "Enter" && results[0]){router.push(results[0].href);setSearch(false);}}}/><button type="button" onClick={() => setSearch(false)}>ESC</button></div><div className="search-results">{results.length ? results.map(item => <button type="button" key={item.href} onClick={() => {router.push(item.href);setSearch(false);setQuery("");}}><span>{item.label}</span><small>{item.section}</small></button>) : <p>검색 결과가 없습니다.</p>}</div></div></div>}

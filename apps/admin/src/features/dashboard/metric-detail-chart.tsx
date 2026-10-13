@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type MouseEvent } from "react";
+import { useId, useRef, useState, type MouseEvent } from "react";
 import { useWidth } from "@/shared/ui/use-width";
 import { formatMetric, type MetricDefinition } from "./mock-source";
 
@@ -32,6 +32,7 @@ function dateLabel(date: string, monthly: boolean) {
 export function MetricDetailChart({ labels, values, previous, periodDays, metric, compare, trendline, benchmark, annotations, showAnnotations, onAnnotate }: Props) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
+  const annotateHoverAt = useRef(0);
   const gradientId = useId();
   const count = labels.length;
   const innerWidth = Math.max(1, width - LEFT - RIGHT);
@@ -50,6 +51,7 @@ export function MetricDetailChart({ labels, values, previous, periodDays, metric
   const activeValue = active !== null ? values[active] ?? 0 : 0;
   const priorValue = active !== null ? previous[active] ?? 0 : 0;
   const difference = priorValue ? (activeValue - priorValue) / priorValue * 100 : 0;
+  const tooltipBelow = active !== null && y(activeValue) < 163;
   const ticks = Array.from({ length: 5 }, (_, index) => minimum + span * index / 4);
   const tickEvery = Math.max(1, Math.ceil(count / Math.max(1, Math.floor(innerWidth / 80))));
   const onMove = (event: MouseEvent<HTMLDivElement>) => {
@@ -73,19 +75,20 @@ export function MetricDetailChart({ labels, values, previous, periodDays, metric
         <path d={`${pointPath(values)} L ${x(count - 1)},${TOP + innerHeight} L ${x(0)},${TOP + innerHeight} Z`} fill={`url(#${gradientId})`}/>
         {compare && <path d={pointPath(previous)} fill="none" stroke="var(--series-4)" strokeWidth="2.5" strokeDasharray="7 5" strokeLinecap="round" strokeLinejoin="round"/>}
         {trendline && <path d={`M ${x(0)},${y(values[0] ?? 0)} L ${x(count - 1)},${y(values.at(-1) ?? 0)}`} fill="none" stroke="var(--series-3)" strokeWidth="2" strokeDasharray="4 5"/>}
-        <path d={pointPath(values)} fill="none" stroke="var(--brand)" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d={pointPath(values)} fill="none" stroke="var(--brand)" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
+        {count <= 40 && values.map((value, index) => <circle key={labels[index]} cx={x(index)} cy={y(value)} r="3.2" fill="var(--brand)"/>)}
         {showAnnotations && labels.map((label, index) => annotations[label] ? <circle key={label} cx={x(index)} cy={y(values[index] ?? 0)} r="5" fill="var(--series-3)" stroke="white" strokeWidth="2"/> : null)}
         {active !== null && <>
           <g className="bm-detail-moving" style={{ transform: `translateX(${x(active)}px)` }}><line x1={0} x2={0} y1={TOP} y2={TOP + innerHeight} stroke="var(--brand)" strokeOpacity=".2" strokeWidth="2"/><circle cx={0} cy={TOP + innerHeight} r="5" fill="white" stroke="var(--brand)" strokeOpacity=".35"/></g>
           <circle className="bm-detail-moving" cx={0} cy={0} r="9" fill="white" stroke="var(--brand)" strokeWidth="2.5" style={{ transform: `translate(${x(active)}px, ${y(activeValue)}px)` }}/>
         </>}
       </svg>}
-      {active !== null && <div className="bm-detail-tooltip" role="tooltip" style={{ left: Math.max(96, Math.min(width - 96, x(active))), top: Math.max(6, y(activeValue) - 149) }} onMouseMove={event => event.stopPropagation()}>
+      {active !== null && <div className={`bm-detail-tooltip${tooltipBelow ? " is-below" : ""}`} role="tooltip" style={{ left: Math.max(96, Math.min(width - 96, x(active))), top: tooltipBelow ? y(activeValue) + 18 : y(activeValue) - 142 }} onMouseMove={event => event.stopPropagation()}>
         <span className="bm-detail-tooltip-date">{dateLabel(labels[active]!, false)}</span>
         <strong>{format(activeValue)}</strong>
         <span className={difference >= 0 ? "bm-positive" : "bm-negative"}>{difference >= 0 ? "↑" : "↓"} {Math.abs(difference).toFixed(1)}% <small>{periodDays}일 전 대비</small></span>
         {showAnnotations && annotations[labels[active]!] && <p>{annotations[labels[active]!]}</p>}
-        <button type="button" onClick={() => onAnnotate(labels[active]!)}>{annotations[labels[active]!] ? "주석 수정" : "+ 주석 추가"}</button>
+        <button type="button" onPointerEnter={() => { annotateHoverAt.current = performance.now(); }} onPointerLeave={() => { annotateHoverAt.current = 0; }} onClick={event => { if (event.detail === 0 || performance.now() - annotateHoverAt.current > 180) onAnnotate(labels[active]!); }}>{annotations[labels[active]!] ? "주석 수정" : "+ 주석 추가"}</button>
       </div>}
     </div>
     <div className="bm-detail-breakout" aria-label="날짜별 지표 표"><table><thead><tr><th>BREAKOUT</th>{columns.map((label, index) => <th className={active === firstColumn + index ? "selected" : ""} key={label}>{dateLabel(label, false)}</th>)}</tr></thead><tbody>
