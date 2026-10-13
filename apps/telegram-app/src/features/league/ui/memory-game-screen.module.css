@@ -11,7 +11,8 @@
   margin: 0 auto;
   max-width: var(--content-width);
   overflow: hidden;
-  padding-top: calc(var(--korio-top) + 56px);
+  /* --korio-top 이 이미 텔레그램 상단 버튼 자리까지 품고 있다 — 예전 +56px 는 빈 띠만 만들었다 */
+  padding-top: calc(var(--korio-top) + 12px);
 }
 
 .close {

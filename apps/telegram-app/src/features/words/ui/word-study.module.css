@@ -389,7 +389,9 @@
 .visualArea {
   background: linear-gradient(135deg, var(--ws-from), var(--ws-to));
   display: flex;
-  flex: 1 1 148px;
+  /* 앱과 같게 — 그림 칸은 내용 높이만큼만 (최소 148px), 남는 높이는 아래 설명(cardBody)이 가진다.
+     예전엔 그림 칸도 같이 늘어나서 뜻·예문이 카드 밖으로 잘렸다 */
+  flex: 0 1 auto;
   flex-direction: column;
   min-height: 148px;
   overflow: hidden;
@@ -502,7 +504,14 @@
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  /* 아주 낮은 화면에선 예문이 넘칠 수 있다 — 잘리는 대신 카드 안에서 내려 본다 */
+  overflow-y: auto;
   padding: 16px 22px 18px;
+  scrollbar-width: none;
+}
+
+.cardBody::-webkit-scrollbar {
+  display: none;
 }
 
 .wordRow {

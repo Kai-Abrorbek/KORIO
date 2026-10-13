@@ -312,6 +312,10 @@ export function MobileIcon({ family = "ionicons", name, size = 24, ...props }: M
         fill="currentColor"
         fontFamily={family === "material-community" ? "KorioMaterialCommunityIcons" : "KorioIonicons"}
         fontSize="30"
+        // 아이콘 글꼴엔 기울임·굵은 면이 없다. <i>(기본 italic)·<b> 안에 두면 브라우저가 가짜로
+        // 기울이고 두껍게 그려서 아이콘이 오른쪽으로 쏠려 보였다 — 부모 글꼴 모양을 받지 않게 막는다
+        fontStyle="normal"
+        fontWeight="normal"
         textAnchor="middle"
         x="16"
         y="16"

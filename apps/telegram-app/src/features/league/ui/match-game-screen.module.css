@@ -31,7 +31,8 @@
   align-items: center;
   display: flex;
   gap: 12px;
-  padding: calc(var(--korio-top) + 56px) 16px 8px;
+  /* --korio-top 이 이미 텔레그램 상단 버튼 자리까지 품고 있다 — 예전 +56px 는 빈 띠만 만들었다 */
+  padding: calc(var(--korio-top) + 12px) 16px 8px;
 }
 
 .matchPage > header > button {
