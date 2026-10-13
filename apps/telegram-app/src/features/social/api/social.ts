@@ -3,6 +3,7 @@ import type {
   FriendProfile,
   MyInvite,
   SocialUser,
+  VersusWeek,
   WeeklyStats,
 } from "../model/social";
 
@@ -28,6 +29,10 @@ export const getUserWeekly = (request: AuthenticatedRequest, id: string) =>
 
 export const getMyWeekly = (request: AuthenticatedRequest) =>
   request<WeeklyStats>("/users/me/stats/weekly");
+
+/** 친구 프로필 "이번 주 대결" — 리그 주(월~일)의 날짜별 XP, 친구 · 나 */
+export const getVersusWeek = (request: AuthenticatedRequest, id: string) =>
+  request<VersusWeek>(`/users/${id}/stats/versus`);
 
 export const followUser = (request: AuthenticatedRequest, id: string) =>
   request<{ success: boolean }>(`/users/follow/${id}`, { method: "POST", body: "{}" });

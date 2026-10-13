@@ -5,31 +5,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { AVATAR_BACKGROUNDS, GeneratedAvatar, getAvatarHeaderContentColor } from "../../league/ui/generated-avatar";
-import { followUser, getMyWeekly, getUser, getUserWeekly, unfollowUser } from "../api/social";
-import { languageFlag, type FriendProfile, type WeeklyDay } from "../model/social";
+import { followUser, getUser, getVersusWeek, unfollowUser } from "../api/social";
+import { languageFlag, type FriendProfile, type VersusWeek } from "../model/social";
 import { ErrorState, FriendAvatar, LoadingState, goBack, shareText } from "./social-parts";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import styles from "./social.module.css";
 import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import { alertDialog } from "../../../shared/telegram/dialogs";
+import { WeeklyVersus } from "./weekly-versus";
 
-const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 const LEAGUE_LABELS: Record<string, string> = { bronze: "Bronza", silver: "Kumush", gold: "Oltin", sapphire: "Safir", ruby: "Yoqut", emerald: "Zumrad", amethyst: "Ametist", pearl: "Marvarid", obsidian: "Obsidian", diamond: "Olmos" };
 const LEAGUE_COLORS: Record<string, string> = { bronze: "#CD7F32", silver: "#9AA0A6", gold: "#F4B400", sapphire: "#3282CE", ruby: "#E54B4B", emerald: "#2BA47F", amethyst: "#8E63CE", pearl: "#D7C9E3", obsidian: "#34343F", diamond: "#45B7D1" };
-
-interface Point { label: string; themXp: number; meXp: number }
-
-function mergeWeek(them: WeeklyDay[], me: WeeklyDay[]): Point[] {
-  const source = them.length ? them : Array.from({ length: 7 }, (_, index) => ({ date: new Date(Date.now() - (6 - index) * 86400000).toISOString(), xpEarned: 0 }));
-  return source.map((day, index) => ({ label: DAY_LABELS[new Date(day.date).getDay()] ?? "", themXp: day.xpEarned ?? 0, meXp: me[index]?.xpEarned ?? 0 }));
-}
 
 export function FriendProfileScreen() {
   const router = useRouter();
   const id = useSearchParams().get("id");
-  const { request } = useTelegramAuth();
+  const { request, user: me } = useTelegramAuth();
   const [profile, setProfile] = useState<FriendProfile | null>(null);
-  const [points, setPoints] = useState<Point[]>([]);
+  // 이번 주 대결 — 못 불러와도 프로필은 보여 준다 (그 칸만 숨긴다)
+  const [versus, setVersus] = useState<VersusWeek | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -37,8 +31,8 @@ export function FriendProfileScreen() {
   const load = useCallback(() => {
     if (!id) { setStatus("error"); return; }
     setStatus("loading");
-    void Promise.all([getUser(request, id), getUserWeekly(request, id), getMyWeekly(request)])
-      .then(([user, them, me]) => { setProfile(user); setFollowing(Boolean(user.isFollowing)); setPoints(mergeWeek(them.days ?? [], me.days ?? [])); setStatus("ready"); })
+    void Promise.all([getUser(request, id), getVersusWeek(request, id).catch(() => null)])
+      .then(([user, week]) => { setProfile(user); setFollowing(Boolean(user.isFollowing)); setVersus(week?.days?.length === 7 ? week : null); setStatus("ready"); })
       .catch(() => setStatus("error"));
   }, [id, request]);
   useEffect(load, [load]);
@@ -58,8 +52,6 @@ export function FriendProfileScreen() {
   const avatarBackground = AVATAR_BACKGROUNDS[profile.avatar?.background ?? "background_lilac"];
   const heroStyle = { "--hero-from": avatarBackground[0], "--hero-to": avatarBackground[1], "--hero-text": getAvatarHeaderContentColor(profile.avatar) } as CSSProperties;
   const flag = profile.coursePrimaryFlag ?? languageFlag(profile.targetLanguage);
-  const themXp = points.reduce((sum, point) => sum + point.themXp, 0);
-  const meXp = points.reduce((sum, point) => sum + point.meXp, 0);
   return (
     <main className={styles.screen}><div className={styles.scroll}>
       <section className={styles.friendHero} style={heroStyle}>
@@ -77,7 +69,7 @@ export function FriendProfileScreen() {
       <FollowedBy profile={profile} />
       {!profile.isMe ? <button className={`${styles.profileFollow} ${following ? styles.profileFollowing : profile.isFollowedBy ? styles.profileFollowBack : ""}`} disabled={busy} onClick={() => void toggleFollow()} type="button"><MobileIcon name="person-add" size={20} />{following ? "Obuna bo‘lingan" : profile.isFollowedBy ? "Javoban kuzatish" : "Obuna bo‘lish"}</button> : null}
       <QuestBadgesRow badges={profile.questBadges} />
-      <WeeklyChart meXp={meXp} name={profile.nickname} points={points} themXp={themXp} />
+      {versus ? <WeeklyVersus data={versus} meAvatar={me?.avatar} meImage={me?.profileImage} meName={me?.nickname ?? ""} name={profile.nickname} themAvatar={profile.avatar} themImage={profile.profileImage} /> : null}
       <section className={styles.learningStatus}><h2>O‘qish holati</h2><div>
         <ProfileStat color="#FF7A00" icon="flame" value={`${profile.streak ?? 0} kun`} />
         <ProfileStat emoji={flag} value={String(profile.languageLevel ?? 1)} />
@@ -100,10 +92,3 @@ function ProfileStat({ color, emoji, icon, value }: { color?: string; emoji?: st
   return <div>{emoji ? <span>{emoji}</span> : icon ? <MobileIcon name={icon} size={27} style={{ color }} /> : null}<b>{value}</b></div>;
 }
 
-function WeeklyChart({ points, name, themXp, meXp }: { points: Point[]; name: string; themXp: number; meXp: number }) {
-  const max = Math.max(1, ...points.flatMap((point) => [point.themXp, point.meXp]));
-  const coords = (key: "themXp" | "meXp") => points.map((point, index) => ({ x: points.length === 1 ? 150 : 10 + index * (280 / (points.length - 1)), y: 12 + (1 - point[key] / max) * 136 }));
-  const path = (values: Array<{ x: number; y: number }>) => values.map((point, index) => `${index ? "L" : "M"}${point.x},${point.y}`).join(" ");
-  const them = coords("themXp"); const me = coords("meXp");
-  return <section className={styles.weekly}><h2>Haftalik o‘sish</h2><div className={styles.chart}><div><span>{max}</span><span>{Math.round(max * 2 / 3)}</span><span>{Math.round(max / 3)}</span><span>0</span></div><svg aria-label="Haftalik XP grafigi" preserveAspectRatio="none" role="img" viewBox="0 0 300 160"><g className={styles.gridLines}><line x1="0" x2="300" y1="12" y2="12"/><line x1="0" x2="300" y1="57" y2="57"/><line x1="0" x2="300" y1="103" y2="103"/><line x1="0" x2="300" y1="148" y2="148"/></g><path className={styles.meLine} d={path(me)} /><path className={styles.themLine} d={path(them)} />{me.map((point, index) => <circle className={styles.mePoint} cx={point.x} cy={point.y} key={`me-${index}`} r="4" />)}{them.map((point, index) => <circle className={styles.themPoint} cx={point.x} cy={point.y} key={`them-${index}`} r="6" />)}</svg></div><div className={styles.chartLabels}>{points.map((point, index) => <span key={index}>{point.label}</span>)}</div><div className={styles.legend}><p><i className={styles.themDot}/><b>{name}</b><strong>{`${themXp}XP`}</strong></p><p><i className={styles.meDot}/><b>Men</b><strong>{`${meXp}XP`}</strong></p></div></section>;
-}
