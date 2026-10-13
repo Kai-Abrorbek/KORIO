@@ -103,6 +103,20 @@
   gap: 4px;
   margin: 24px 20px 0;
   padding: 4px;
+  position: relative;
+}
+
+/* 선택 배경 — 칸 하나 크기, 밀고 있는 만큼(--swipe-progress: 0 SUPER ~ 1 MAX) 옆 칸으로 간다 */
+.tierThumb {
+  background: var(--premium-primary);
+  border-radius: 999px;
+  bottom: 4px;
+  left: 4px;
+  position: absolute;
+  top: 4px;
+  transform: translateX(calc(clamp(0, var(--swipe-progress, 0), 1) * (100% + 4px)));
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: calc((100% - 12px) / 2);
 }
 
 .tierBar button {
@@ -119,11 +133,32 @@
   justify-content: center;
   letter-spacing: .5px;
   padding: 11px 0;
+  position: relative;
+  z-index: 1;
 }
 
 .tierBar button.tierActive {
-  background: var(--premium-primary);
   color: #fff;
+}
+
+/* 글자색도 미는 만큼 흰색 ↔ 회색으로 옮겨 간다 */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  .tierBar button {
+    transition: color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .tierBar button:nth-of-type(1) {
+    color: color-mix(in srgb, #fff calc((1 - clamp(0, var(--swipe-progress, 0), 1)) * 100%), var(--premium-muted));
+  }
+
+  .tierBar button:nth-of-type(2) {
+    color: color-mix(in srgb, #fff calc(clamp(0, var(--swipe-progress, 0), 1) * 100%), var(--premium-muted));
+  }
+}
+
+[data-swiping] .tierThumb,
+[data-swiping] .tierBar button {
+  transition: none;
 }
 
 .tierBar button svg {

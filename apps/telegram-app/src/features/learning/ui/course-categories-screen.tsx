@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -17,6 +17,8 @@ import {
   type StudyMode,
 } from "../model/learning-options";
 import { PremiumGateSheet } from "../../../shared/ui/premium-gate-sheet";
+import { SwipeSlides } from "../../../shared/ui/swipe-slides";
+import { useSwipeTabs, writeSwipeProgress } from "../../../shared/ui/use-swipe-tabs";
 import { LearningIcon } from "./learning-icon";
 import { TopikLevelSheet } from "./topik-level-sheet";
 import styles from "./learning.module.css";
@@ -31,6 +33,9 @@ const LEARN_MODES: LearnMode[] = [
   "listening",
   "topik",
 ];
+
+/** 세그먼트 순서 = 옆으로 넘기는 순서 */
+const STUDY_MODES: StudyMode[] = ["guided", "free"];
 
 function isLearnMode(value: string): value is LearnMode {
   return LEARN_MODES.includes(value as LearnMode);
@@ -54,13 +59,15 @@ export function CourseCategoriesScreen() {
     else router.replace("/courses");
   };
 
-  const visibleCategories = useMemo(
-    () =>
-      LEARNING_CATEGORIES.filter(
-        (category) => studyMode === "free" || category.guided,
-      ),
-    [studyMode],
+  // 학습 로드에서는 로드가 안 덮는 것만 남긴다. 두 방식 다 미리 그려 두고 옆으로 넘긴다
+  const categoriesByMode = useMemo(
+    () => ({
+      free: LEARNING_CATEGORIES,
+      guided: LEARNING_CATEGORIES.filter((category) => category.guided),
+    }),
+    [],
   );
+  const contentRef = useRef<HTMLDivElement>(null);
   const heading = searchParams.get("label") || "Nimani o'rganasiz?";
 
   const changeStudyMode = async (nextMode: StudyMode) => {
@@ -133,6 +140,87 @@ export function CourseCategoriesScreen() {
     }
   };
 
+  // 아래 내용을 옆으로 밀어도 학습 방식이 바뀐다 (세그먼트를 누른 것과 같다)
+  useSwipeTabs(contentRef, {
+    count: STUDY_MODES.length,
+    disabled: saving,
+    index: STUDY_MODES.indexOf(studyMode),
+    onIndexChange: (next) => void changeStudyMode(STUDY_MODES[next] ?? studyMode),
+    onProgress: (progress, immediate) =>
+      writeSwipeProgress(contentRef.current, progress, immediate),
+  });
+
+  const renderMode = (mode: StudyMode) => (
+    <>
+      <p className={styles.modeNote}>
+        {mode === "guided"
+          ? "Yo'l-xarita tuzib beradiganidan tashqari, alohida kiriladigan joylar."
+          : "Xohlagan joyingizni tanlab kiring."}
+      </p>
+      <small className={styles.modeHint}>
+        Bosqichingiz saqlanadi. Istagan payt qaytarib o&apos;zgartirasiz.
+      </small>
+
+      {mode === "guided" ? (
+        <button
+          className={styles.guidedCard}
+          disabled={saving}
+          onClick={() => void enterGuidedPath()}
+          type="button"
+        >
+          <span>
+            <LearningIcon name="footsteps" size={25} />
+          </span>
+          <span>
+            <strong>Bugungi yo&apos;l-xarita</strong>
+            <small>
+              Siz uchun tartib bilan tuzilgan bugungi ishdan boshlang
+            </small>
+          </span>
+          <HomeIcon name="chevron" size={20} />
+        </button>
+      ) : null}
+
+      <p className={styles.categoryLead}>Nimani o&apos;rganasiz?</p>
+      <section className={styles.categoryGrid}>
+        {categoriesByMode[mode].map((category, index) => {
+          const locked = !canUseLearningFeature(
+            user ?? {},
+            category.feature,
+          );
+          return (
+            <button
+              className={`${styles.categoryCard} ${
+                locked ? styles.categoryLocked : ""
+              }`}
+              disabled={saving}
+              key={category.key}
+              onClick={() => void openCategory(category)}
+              style={
+                { "--delay": `${index * 45}ms` } as CSSProperties
+              }
+              type="button"
+            >
+              {locked ? (
+                <span className={styles.lockPill}>
+                  <LearningIcon name="lock" size={11} />
+                </span>
+              ) : null}
+              <span
+                className={styles.categoryIcon}
+                style={{ backgroundColor: category.color }}
+              >
+                <LearningIcon name={category.icon} size={23} />
+              </span>
+              <strong>{category.label}</strong>
+              <small>{category.description}</small>
+            </button>
+          );
+        })}
+      </section>
+    </>
+  );
+
   const selectTopik = async (level: "1" | "2") => {
     if (saving) return;
     setSaving(true);
@@ -157,10 +245,12 @@ export function CourseCategoriesScreen() {
         <h1>{heading}</h1>
       </header>
 
-      <div className={styles.categoryContent}>
+      <div className={styles.categoryContent} ref={contentRef}>
         <section className={styles.modeSelector}>
           <h2>Qanday o&apos;rganamiz?</h2>
           <div className={styles.modeSegment}>
+            {/* 선택 배경 — 밀고 있는 만큼 옆 칸으로 미끄러진다 */}
+            <i aria-hidden="true" className={styles.modeThumb} />
             <button
               className={studyMode === "guided" ? styles.modeSelected : ""}
               disabled={saving}
@@ -180,73 +270,14 @@ export function CourseCategoriesScreen() {
               Erkin o&apos;rganish
             </button>
           </div>
-          <p>
-            {studyMode === "guided"
-              ? "Yo'l-xarita tuzib beradiganidan tashqari, alohida kiriladigan joylar."
-              : "Xohlagan joyingizni tanlab kiring."}
-          </p>
-          <small>
-            Bosqichingiz saqlanadi. Istagan payt qaytarib o&apos;zgartirasiz.
-          </small>
         </section>
 
-        {studyMode === "guided" ? (
-          <button
-            className={styles.guidedCard}
-            disabled={saving}
-            onClick={() => void enterGuidedPath()}
-            type="button"
-          >
-            <span>
-              <LearningIcon name="footsteps" size={25} />
-            </span>
-            <span>
-              <strong>Bugungi yo&apos;l-xarita</strong>
-              <small>
-                Siz uchun tartib bilan tuzilgan bugungi ishdan boshlang
-              </small>
-            </span>
-            <HomeIcon name="chevron" size={20} />
-          </button>
-        ) : null}
-
-        <p className={styles.categoryLead}>Nimani o&apos;rganasiz?</p>
-        <section className={styles.categoryGrid}>
-          {visibleCategories.map((category, index) => {
-            const locked = !canUseLearningFeature(
-              user ?? {},
-              category.feature,
-            );
-            return (
-              <button
-                className={`${styles.categoryCard} ${
-                  locked ? styles.categoryLocked : ""
-                }`}
-                disabled={saving}
-                key={category.key}
-                onClick={() => void openCategory(category)}
-                style={
-                  { "--delay": `${index * 45}ms` } as CSSProperties
-                }
-                type="button"
-              >
-                {locked ? (
-                  <span className={styles.lockPill}>
-                    <LearningIcon name="lock" size={11} />
-                  </span>
-                ) : null}
-                <span
-                  className={styles.categoryIcon}
-                  style={{ backgroundColor: category.color }}
-                >
-                  <LearningIcon name={category.icon} size={23} />
-                </span>
-                <strong>{category.label}</strong>
-                <small>{category.description}</small>
-              </button>
-            );
-          })}
-        </section>
+        {/* 방식마다 설명·로드 입구·분야 목록이 달라서 그 부분만 옆으로 넘긴다 */}
+        <SwipeSlides
+          bleed={20}
+          index={STUDY_MODES.indexOf(studyMode)}
+          slides={[renderMode("guided"), renderMode("free")]}
+        />
         {error ? <p className={styles.formError}>{error}</p> : null}
       </div>
 

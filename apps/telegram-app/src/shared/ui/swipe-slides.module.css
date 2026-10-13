@@ -1,0 +1,41 @@
+/* 두 장을 옆으로 붙여 두고 하나만 보인다. 위치·높이는 조상의 --swipe-progress 로 */
+.slides {
+  --slides-p: clamp(0, var(--swipe-progress, 0), 1);
+  margin-inline: calc(var(--slides-bleed, 0px) * -1);
+  overflow: hidden;
+  position: relative;
+}
+
+/* 높이를 잰 뒤부터 두 장 사이를 보간한다 (재기 전엔 그냥 auto) */
+.slides[data-measured] {
+  height: calc(var(--slide-h0) + (var(--slide-h1) - var(--slide-h0)) * var(--slides-p));
+  transition: height 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.track {
+  align-items: flex-start;
+  display: flex;
+  /* 고무줄로 끝에서 살짝 밖까지 끌리게 clamp 안 한 값 */
+  transform: translate3d(calc(var(--swipe-progress, 0) * -100%), 0, 0);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.slide {
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  min-width: 0;
+  padding-inline: var(--slides-bleed, 0px);
+}
+
+:global([data-swiping]) .slides,
+:global([data-swiping]) .track {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slides[data-measured],
+  .track {
+    transition-duration: 1ms;
+  }
+}

@@ -15,6 +15,8 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useAppLanguage } from "../../../shared/i18n/language-context";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { SwipeSlides } from "../../../shared/ui/swipe-slides";
+import { useSwipeTabs, writeSwipeProgress } from "../../../shared/ui/use-swipe-tabs";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { fetchCardConfig, fetchCardOrder } from "../api/card";
@@ -524,21 +526,41 @@ function OfferView({
   const cardById = (id: string) => cardConfig?.products.find((p) => p.id === id) ?? null;
   useTelegramBackOverride(onBack ?? null);
 
-  const plans = useMemo(
-    () =>
+  // 두 등급 다 미리 그려 두고 옆으로 넘긴다 (SUPER ↔ MAX 스와이프)
+  const plansByTier = useMemo(() => {
+    const of = (candidate: SubscriptionTier) =>
       (catalog?.products ?? []).filter(
         (product) =>
-          product.tier === tier &&
+          product.tier === candidate &&
           (method !== "card" || cardConfig?.products.some((p) => p.id === product.id)),
-      ),
-    [cardConfig, catalog, method, tier],
-  );
+      );
+    return { max: of("max"), super: of("super") };
+  }, [cardConfig, catalog, method]);
   // 등급을 바꾸면 그 등급의 "가장 이득" 이 기본 선택
-  const selected =
-    plans.find((plan) => plan.id === selectedId) ??
-    plans.find((plan) => plan.best) ??
-    plans[0] ??
+  const selectedOf = (list: StarsProduct[]) =>
+    list.find((plan) => plan.id === selectedId) ??
+    list.find((plan) => plan.best) ??
+    list[0] ??
     null;
+  const plans = plansByTier[tier];
+  const selected = selectedOf(plans);
+  const hasPlans = plansByTier.super.length > 0 || plansByTier.max.length > 0;
+
+  const changeTier = (next: SubscriptionTier) => {
+    if (next === tier) return;
+    setTier(next);
+    setSelectedId(null);
+  };
+  // 화면 어디든 옆으로 밀면 SUPER ↔ MAX (위 등급 버튼을 누른 것과 같다)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useSwipeTabs(scrollRef, {
+    count: TIERS.length,
+    disabled: phase !== "idle",
+    index: TIERS.indexOf(tier),
+    onIndexChange: (next) => changeTier(TIERS[next] ?? tier),
+    onProgress: (progress, immediate) =>
+      writeSwipeProgress(scrollRef.current, progress, immediate),
+  });
 
   /** 결제 완료 뒤 웹훅이 반영할 때까지 잠깐 기다린다 */
   const confirmPaid = useCallback(
@@ -601,13 +623,33 @@ function OfferView({
     setPhase("idle");
   };
 
+  const renderPlans = (list: StarsProduct[]) => {
+    const picked = selectedOf(list);
+    return (
+      <section className={styles.plans}>
+        {list.map((plan) => (
+          <PlanCard
+            key={plan.id}
+            onSelect={() => {
+              haptic("light");
+              setSelectedId(plan.id);
+            }}
+            card={method === "card" ? cardById(plan.id) : null}
+            plan={plan}
+            selected={picked?.id === plan.id}
+          />
+        ))}
+      </section>
+    );
+  };
+
   const periodKey = selected ? `premium.plans.${PLAN_KEY[selected.months] ?? "monthly"}` : "";
   const busyLabel =
     phase === "checking" ? "premiumStars.checking" : "premiumStars.opening";
 
   return (
     <main className={styles.premiumPage}>
-      <div className={styles.scroll + " " + styles.scrollWithCta}>
+      <div className={styles.scroll + " " + styles.scrollWithCta} ref={scrollRef}>
         {onBack ? (
           <button aria-label="Orqaga" className={styles.offerBack} onClick={onBack} type="button">
             <MobileIcon name="chevron-back" size={24} />
@@ -626,14 +668,13 @@ function OfferView({
         </section>
 
         <div className={styles.tierBar}>
+          {/* 선택 배경 — 밀고 있는 만큼 옆 칸으로 미끄러진다 */}
+          <i aria-hidden="true" className={styles.tierThumb} />
           {TIERS.map((candidate) => (
             <button
               className={candidate === tier ? styles.tierActive : ""}
               key={candidate}
-              onClick={() => {
-                setTier(candidate);
-                setSelectedId(null);
-              }}
+              onClick={() => changeTier(candidate)}
               type="button"
             >
               {candidate.toUpperCase()}
@@ -643,13 +684,19 @@ function OfferView({
             </button>
           ))}
         </div>
-        <p className={styles.tierBlurb}>
-          {tier === "max"
-            ? "Har kuni AI ustoz bilan koreyscha gaplashing"
-            : "Cheklovsiz o'rganing"}
-        </p>
-
-        <FeatureList tier={tier} />
+        <SwipeSlides
+          index={TIERS.indexOf(tier)}
+          slides={[
+            <>
+              <p className={styles.tierBlurb}>Cheklovsiz o&apos;rganing</p>
+              <FeatureList tier="super" />
+            </>,
+            <>
+              <p className={styles.tierBlurb}>Har kuni AI ustoz bilan koreyscha gaplashing</p>
+              <FeatureList tier="max" />
+            </>,
+          ]}
+        />
 
         {cardEnabled ? (
           <section className={styles.methodWrap}>
@@ -686,21 +733,11 @@ function OfferView({
           </div>
         ) : null}
 
-        {plans.length ? (
-          <section className={styles.plans}>
-            {plans.map((plan) => (
-              <PlanCard
-                key={plan.id}
-                onSelect={() => {
-                  haptic("light");
-                  setSelectedId(plan.id);
-                }}
-                card={method === "card" ? cardById(plan.id) : null}
-                plan={plan}
-                selected={selected?.id === plan.id}
-              />
-            ))}
-          </section>
+        {hasPlans ? (
+          <SwipeSlides
+            index={TIERS.indexOf(tier)}
+            slides={[renderPlans(plansByTier.super), renderPlans(plansByTier.max)]}
+          />
         ) : catalogFailed ? (
           <section className={styles.storeBox}>
             <MobileIcon name="cloud-offline-outline" size={30} />
