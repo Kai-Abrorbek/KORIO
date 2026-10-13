@@ -2785,6 +2785,9 @@ export default {
       gotTitle: "День {{n}} отмечен!",
       gotGems: "{{n}} самоцветов",
       gotSuper: "SUPER на {{n}} день бесплатно",
+      subSwapped: "Заходите каждый день за подарком. На 7-й день — много самоцветов!",
+      swappedTag: "вместо SUPER",
+      swappedBody: "У вас уже есть SUPER, поэтому вместо дня SUPER вы получили самоцветы на его стоимость.",
     },
     boost: {
       active: "XP ×{{n}} включён",

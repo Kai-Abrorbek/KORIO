@@ -35,7 +35,12 @@ export default function CheckinCard({
 }: {
   checkin: Checkin;
   /** 받은 직후 (축하 연출을 홈이 띄운다) */
-  onClaimed?: (r: { day: number; gems: number; superDays: number }) => void;
+  onClaimed?: (r: {
+    day: number;
+    gems: number;
+    superDays: number;
+    swapped?: boolean;
+  }) => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -71,6 +76,7 @@ export default function CheckinCard({
         day: res.day,
         gems: res.reward.gems,
         superDays: res.reward.superDays,
+        swapped: res.reward.swapped,
       });
     } catch {
       // 이미 받았으면 다음 새로고침이 맞춘다
@@ -85,7 +91,12 @@ export default function CheckinCard({
         <Ionicons name="calendar" size={18} color="#FF6B9A" />
         <Text style={s.title}>{t("retention.checkin.title")}</Text>
       </View>
-      <Text style={s.sub}>{t("retention.checkin.sub")}</Text>
+      <Text style={s.sub}>
+        {/* 이미 SUPER 면 7일째가 보석이다 */}
+        {checkin.rewards.some((r) => r.swapped)
+          ? t("retention.checkin.subSwapped")
+          : t("retention.checkin.sub")}
+      </Text>
 
       <View style={s.grid}>
         {checkin.rewards.map((r, i) => (
@@ -94,6 +105,7 @@ export default function CheckinCard({
             day={r.day}
             gems={r.gems}
             superDays={r.superDays}
+            swapped={!!r.swapped}
             claimed={i < checkin.count}
             today={i === todayIndex}
             theme={theme}
@@ -125,6 +137,7 @@ function DayTile({
   day,
   gems,
   superDays,
+  swapped,
   claimed,
   today,
   theme,
@@ -132,6 +145,8 @@ function DayTile({
   day: number;
   gems: number;
   superDays: number;
+  /** 이미 SUPER 라 SUPER 하루 대신 보석 — 칸은 7일째 큰 칸 그대로 */
+  swapped: boolean;
   claimed: boolean;
   today: boolean;
   theme: ThemeColors;
@@ -139,7 +154,8 @@ function DayTile({
   const { t } = useTranslation();
   const s = getStyles(theme);
   const pulse = useSharedValue(0);
-  const isSuper = superDays > 0;
+  // 7일째 큰 보라 칸 (SUPER 하루 또는 그 대신 받는 보석)
+  const isSuper = superDays > 0 || swapped;
 
   useEffect(() => {
     if (!today) {
@@ -177,6 +193,14 @@ function DayTile({
         <View style={s.check}>
           <Ionicons name="checkmark" size={16} color="#FFFFFF" />
         </View>
+      ) : swapped ? (
+        <>
+          <View style={s.swapRow}>
+            <Ionicons name="diamond" size={18} color="#9CE8FF" />
+            <Text style={s.swapGems}>{gems.toLocaleString("en-US")}</Text>
+          </View>
+          <Text style={s.superText}>{t("retention.checkin.swappedTag")}</Text>
+        </>
       ) : isSuper ? (
         <>
           <Ionicons name="infinite" size={20} color="#FFFFFF" />
@@ -253,6 +277,8 @@ const getStyles = (theme: ThemeColors) =>
     tileDayLight: { color: "#FFFFFF" },
     tileGems: { fontSize: 14, fontWeight: "900", color: theme.text },
     superText: { fontSize: 10.5, fontWeight: "900", color: "#FFFFFF" },
+    swapRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+    swapGems: { fontSize: 17, fontWeight: "900", color: "#FFFFFF" },
     check: {
       width: 26,
       height: 26,

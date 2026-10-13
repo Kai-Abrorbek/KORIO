@@ -2780,6 +2780,9 @@ export default {
       gotTitle: "Day {{n}} checked in!",
       gotGems: "{{n}} gems",
       gotSuper: "{{n}} day of SUPER free",
+      subSwapped: "Come back every day for a gift. Day 7 is a big gem prize!",
+      swappedTag: "instead of SUPER",
+      swappedBody: "You already have SUPER, so instead of a free SUPER day you got the gems that day is worth.",
     },
     boost: {
       active: "{{n}}x XP is on",

@@ -2790,6 +2790,9 @@ export default {
       gotTitle: "{{n}}-kun belgilandi!",
       gotGems: "{{n}} ta gavhar",
       gotSuper: "{{n}} kun SUPER bepul",
+      subSwapped: "Har kuni kirib sovg'a oling. 7-kuni katta gavhar sovg'asi!",
+      swappedTag: "SUPER o'rniga",
+      swappedBody: "Sizda SUPER allaqachon bor, shuning uchun 1 kunlik SUPER o'rniga o'sha kunni sotib olsa bo'ladigan gavhar berdik.",
     },
     boost: {
       active: "XP {{n}} barobar",

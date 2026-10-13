@@ -117,7 +117,8 @@ export interface RetentionSummary {
   checkin: {
     count: number;
     canClaim: boolean;
-    rewards: { day: number; gems: number; superDays: number }[];
+    /** swapped: 이미 SUPER(체험 포함)라 SUPER 하루 대신 그만큼의 보석 */
+    rewards: { day: number; gems: number; superDays: number; swapped?: boolean }[];
   } | null;
   comeback: {
     idleDays: number;
@@ -185,7 +186,7 @@ export const RetentionService = {
   claimCheckin: (): Promise<{
     day: number;
     gems: number;
-    reward: { gems: number; superDays: number };
+    reward: { gems: number; superDays: number; swapped?: boolean };
     superGranted: boolean;
   }> => api.post("/retention/checkin/claim", {}),
 

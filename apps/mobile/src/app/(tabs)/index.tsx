@@ -107,6 +107,7 @@ export default function HomeScreen() {
     day: number;
     gems: number;
     superDays: number;
+    swapped?: boolean;
   } | null>(null);
 
   useEffect(() => {

@@ -28,7 +28,12 @@ export default function RetentionOverlays({
   checkinReward,
   onCheckinRewardClose,
 }: {
-  checkinReward: { day: number; gems: number; superDays: number } | null;
+  checkinReward: {
+    day: number;
+    gems: number;
+    superDays: number;
+    swapped?: boolean;
+  } | null;
   onCheckinRewardClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -144,9 +149,12 @@ export default function RetentionOverlays({
     };
   } else if (checkinReward) {
     const isSuper = checkinReward.superDays > 0;
+    // 이미 SUPER 라 SUPER 하루 대신 보석을 받았다 — 왜 보석인지 한 줄
+    const swapped = !!checkinReward.swapped;
     dialog = {
-      mood: isSuper ? "level_up" : "great",
+      mood: isSuper || swapped ? "level_up" : "great",
       title: t("retention.checkin.gotTitle", { n: checkinReward.day }),
+      ...(swapped ? { body: t("retention.checkin.swappedBody") } : {}),
       rewards: [
         isSuper
           ? {
@@ -160,7 +168,7 @@ export default function RetentionOverlays({
               icon: "diamond",
               color: "#3BB6E5",
               label: t("retention.checkin.gotGems", {
-                n: checkinReward.gems,
+                n: checkinReward.gems.toLocaleString("en-US"),
               }),
             },
       ],
