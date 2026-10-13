@@ -1249,14 +1249,6 @@
   opacity: 0.85;
 }
 
-.nextJump:disabled {
-  cursor: wait;
-}
-
-.nextJump:disabled > span {
-  opacity: 0.6;
-}
-
 /* ───────────── 지금 할 곳으로 (JumpToCurrentButton) ───────────── */
 
 /* 노드와 같은 입체 원판 — 유닛 색 윗면 + 진한 두께 + 광택 + 흰 테두리, 화살표가 갈 쪽으로 살짝 */

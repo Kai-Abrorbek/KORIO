@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -16,7 +16,6 @@ import { CourseDropdown } from "../../roadmap/ui/course-dropdown";
 import { darken } from "../../roadmap/ui/map/color";
 import { AppIcon } from "../../roadmap/ui/map/icon";
 import { JumpToCurrent } from "../../roadmap/ui/map/jump-to-current";
-import { NextSectionLocked } from "../../roadmap/ui/map/next-section-locked";
 import { RoadmapBackdrop } from "../../roadmap/ui/map/roadmap-backdrop";
 import { RoadmapHeader } from "../../roadmap/ui/map/roadmap-header";
 import map from "../../roadmap/ui/map/roadmap-map.module.css";
@@ -285,51 +284,29 @@ export function ExpressionRoadmapScreen() {
         </div>
       ) : units.length === 0 ? <div className={styles.state} style={{ position: "relative", zIndex: 1 }}><strong>{uzt("expressionRoadmap.empty")}</strong></div> : (
         <div className={`${map.scroll} ${selectedNodeId ? map.scrollOpen : ""}`} onClick={() => setSelectedNodeId(null)} ref={scrollRef}>
-          {units.map((unit, index) => (
-            <Fragment key={unit.id}>
-              {/* 아직 못 간 주제 앞 — 어휘 로드맵의 "다음 섹션" 처럼, 시험 없이 바로 넘어간다.
-                  지금 위치보다 앞(건너뛴 주제)이면 "돌아갈까요?" 로 */}
-              {index > 0 && unit.status === "locked" ? (
-                <NextSectionLocked
-                  badgeKey={index < currentIndex ? "expressionRoadmap.skippedTopic" : "expressionRoadmap.nextTopic"}
-                  className={styles.nextTopic}
-                  description={roadmap?.topics[index]?.description}
-                  jumpDisabled={jumpingTopic !== null}
-                  jumpKey={index < currentIndex ? "expressionRoadmap.backToTopic" : "expressionRoadmap.jumpToTopic"}
-                  onJump={() => void focusTopic(index)}
-                  sectionNumber={index + 1}
-                  title={
-                    <>
-                      <span data-i18n="expressionRoadmap.topicN">
-                        {uzt("expressionRoadmap.topicN", { n: index + 1 })}
-                      </span>
-                      {` · ${unit.title}`}
-                    </>
-                  }
-                />
-              ) : null}
-              <section
-                className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
-                id={unit.id}
-                onClick={(event) => event.stopPropagation()}
-                ref={(element) => { if (element) unitRefs.current.set(unit.id, element); else unitRefs.current.delete(unit.id); }}
-                style={{ position: "relative" }}
-              >
-                <UnitRoadmap
-                  avatar={user?.avatar}
-                  customPopover
-                  hideNodeRing
-                  onNodeTap={tapNode}
-                  renderPopover={({ node, triangleOffsetX }) => {
-                    const source = view?.nodeById.get(node.id);
-                    if (!source) return null;
-                    return <ExpressionNodePopover color={unit.color} node={source} onStart={() => openNode(source)} triangleOffsetX={triangleOffsetX} />;
-                  }}
-                  selectedNodeId={selectedNodeId}
-                  unit={unit}
-                />
-              </section>
-            </Fragment>
+          {units.map((unit) => (
+            <section
+              className={unit.nodes.some((node) => node.id === selectedNodeId) ? map.unitElevated : undefined}
+              id={unit.id}
+              key={unit.id}
+              onClick={(event) => event.stopPropagation()}
+              ref={(element) => { if (element) unitRefs.current.set(unit.id, element); else unitRefs.current.delete(unit.id); }}
+              style={{ position: "relative" }}
+            >
+              <UnitRoadmap
+                avatar={user?.avatar}
+                customPopover
+                hideNodeRing
+                onNodeTap={tapNode}
+                renderPopover={({ node, triangleOffsetX }) => {
+                  const source = view?.nodeById.get(node.id);
+                  if (!source) return null;
+                  return <ExpressionNodePopover color={unit.color} node={source} onStart={() => openNode(source)} triangleOffsetX={triangleOffsetX} />;
+                }}
+                selectedNodeId={selectedNodeId}
+                unit={unit}
+              />
+            </section>
           ))}
         </div>
       )}

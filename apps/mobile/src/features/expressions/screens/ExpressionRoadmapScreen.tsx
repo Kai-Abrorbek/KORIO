@@ -13,7 +13,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import JumpToCurrentButton from "@/components/roadmap/JumpToCurrentButton";
-import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
 import RoadmapHeader from "@/components/roadmap/RoadmapHeader";
 import SectionBanner from "@/components/roadmap/SectionBanner";
@@ -38,15 +37,11 @@ import ExpressionTopicSheet from "../components/ExpressionTopicSheet";
 import { useExpressionRoadmap } from "../hooks/useExpressionRoadmap";
 import { buildExpressionRoadmapViewModel } from "../utils/expression-roadmap.adapter";
 
-/** "다음 주제" 칸 높이 — 처음 그려질 때 재서 바꾼다 (제목 1줄·설명 2줄로 고정이라 칸마다 같다) */
-const NEXT_TOPIC_ESTIMATE = 356;
-
 export default function ExpressionRoadmapScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
-  // 렌더마다 새로 만들면 renderUnit 이 매번 바뀌어 지도 전체가 다시 그려진다
-  const styles = useMemo(() => getStyles(theme), [theme]);
+  const styles = getStyles(theme);
   const user = useAuthStore((state) => state.user);
   const energy = user?.energy ?? 0;
   // 헤더 에너지는 서버 값 — 다른 모드에서 쓴 만큼이 여기서도 보여야 한다
@@ -59,18 +54,12 @@ export default function ExpressionRoadmapScreen() {
   const [topicSheetVisible, setTopicSheetVisible] = useState(false);
   /** 넘어가는 중인 주제 code — 두 번 눌리지 않게 */
   const [jumpingTopic, setJumpingTopic] = useState<string | null>(null);
-  const [nextTopicHeight, setNextTopicHeight] = useState(NEXT_TOPIC_ESTIMATE);
   const viewModel = useMemo(
     () => (roadmap ? buildExpressionRoadmapViewModel(roadmap) : null),
     [roadmap],
   );
   const units = viewModel?.units ?? [];
   const currentUnitIndex = viewModel?.currentUnitIndex ?? 0;
-  // 아직 못 간 주제 앞에는 "다음 주제" 칸이 붙는다 (첫 주제는 빼고)
-  const hasNextTopic = useCallback(
-    (index: number) => index > 0 && units[index]?.status === "locked",
-    [units],
-  );
   const bannerUnit =
     units[visibleUnitIndex] ?? units[viewModel?.currentUnitIndex ?? 0];
   const userStats = {
@@ -85,11 +74,7 @@ export default function ExpressionRoadmapScreen() {
 
   const layout = useMemo(() => {
     const heights = units.map(
-      (unit, index) =>
-        DIVIDER_HEIGHT +
-        unit.nodes.length * ROW_HEIGHT +
-        UNIT_PADDING +
-        (hasNextTopic(index) ? nextTopicHeight : 0),
+      (unit) => DIVIDER_HEIGHT + unit.nodes.length * ROW_HEIGHT + UNIT_PADDING,
     );
     const offsets: number[] = [];
     let accumulated = 0;
@@ -98,7 +83,7 @@ export default function ExpressionRoadmapScreen() {
       accumulated += height;
     }
     return { heights, offsets };
-  }, [hasNextTopic, nextTopicHeight, units]);
+  }, [units]);
 
   const getItemLayout = useCallback(
     (_: ArrayLike<RoadmapUnit> | null | undefined, index: number) => ({
@@ -217,67 +202,17 @@ export default function ExpressionRoadmapScreen() {
     [openNode, viewModel],
   );
   const renderUnit = useCallback(
-    ({ item, index }: { item: RoadmapUnit; index: number }) => {
-      // 지금 위치보다 앞(건너뛴 주제)이면 "돌아갈까요?" 로
-      const skipped = index < currentUnitIndex;
-      return (
-        <View>
-          {/* 아직 못 간 주제 앞 — 어휘 로드맵의 "다음 섹션" 처럼, 시험 없이 바로 넘어간다 */}
-          {hasNextTopic(index) ? (
-            <View
-              onLayout={(event) => {
-                const height = Math.round(event.nativeEvent.layout.height);
-                if (height > 0 && Math.abs(height - nextTopicHeight) > 1) {
-                  setNextTopicHeight(height);
-                }
-              }}
-            >
-              <NextSectionLocked
-                sectionNumber={index + 1}
-                title={`${t("expressionRoadmap.topicN", { n: index + 1 })} · ${item.title}`}
-                description={roadmap?.topics[index]?.description ?? ""}
-                badgeKey={
-                  skipped
-                    ? "expressionRoadmap.skippedTopic"
-                    : "expressionRoadmap.nextTopic"
-                }
-                jumpKey={
-                  skipped
-                    ? "expressionRoadmap.backToTopic"
-                    : "expressionRoadmap.jumpToTopic"
-                }
-                onJump={() => void focusTopic(index)}
-                jumpDisabled={jumpingTopic !== null}
-                fixedLines={{ description: 2 }}
-                style={styles.nextTopic}
-              />
-            </View>
-          ) : null}
-          <UnitRoadmap
-            unit={item}
-            avatar={user?.avatar}
-            hideNodeRing
-            selectedNodeId={selectedNodeId}
-            onNodeTap={handleNodeTap}
-            renderNodePopover={renderNodePopover}
-          />
-        </View>
-      );
-    },
-    [
-      currentUnitIndex,
-      focusTopic,
-      handleNodeTap,
-      hasNextTopic,
-      jumpingTopic,
-      nextTopicHeight,
-      renderNodePopover,
-      roadmap,
-      selectedNodeId,
-      styles.nextTopic,
-      t,
-      user?.avatar,
-    ],
+    ({ item }: { item: RoadmapUnit }) => (
+      <UnitRoadmap
+        unit={item}
+        avatar={user?.avatar}
+        hideNodeRing
+        selectedNodeId={selectedNodeId}
+        onNodeTap={handleNodeTap}
+        renderNodePopover={renderNodePopover}
+      />
+    ),
+    [handleNodeTap, renderNodePopover, selectedNodeId, user?.avatar],
   );
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 40 });
   const onViewableItemsChanged = useRef(
@@ -388,13 +323,6 @@ const getStyles = (theme: ThemeColors) =>
     },
     scroll: { flex: 1 },
     scrollContent: { paddingTop: 10, paddingBottom: 140 },
-    // 주제 사이 "다음 주제" — 로드맵 중간에 끼므로 위아래 경계를 둘 다 준다
-    nextTopic: {
-      borderBottomWidth: 1.5,
-      borderBottomColor: theme.border,
-      marginTop: 4,
-      marginBottom: 22,
-    },
     state: {
       flex: 1,
       alignItems: "center",
