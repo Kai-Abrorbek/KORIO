@@ -1,0 +1,29 @@
+/* 남은 높이를 다 쓰는 창 — 탭들이 옆으로 나란히 붙어 있고 하나만 보인다 */
+.pager {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+/* 탭 하나 = 세로 스크롤 영역 하나 (탭마다 스크롤 위치가 따로 남는다) */
+.pane {
+  flex: 0 0 100%;
+  height: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition-duration: 1ms !important;
+  }
+}
