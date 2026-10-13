@@ -98,7 +98,8 @@ export interface FreezeView {
 export interface CheckinView {
   count: number;
   canClaim: boolean;
-  rewards: { day: number; gems: number; superDays: number }[];
+  /** swapped: 이미 SUPER(체험 포함)라 SUPER 하루 대신 그만큼의 보석 */
+  rewards: { day: number; gems: number; superDays: number; swapped?: boolean }[];
 }
 
 export interface RetentionSummary {

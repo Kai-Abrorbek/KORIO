@@ -2838,6 +2838,9 @@ export default {
       gotTitle: "{{n}}일째 출석 완료!",
       gotGems: "보석 {{n}}개",
       gotSuper: "SUPER {{n}}일 무료",
+      subSwapped: "매일 들어와서 선물을 받아가세요. 7일째엔 보석 왕창!",
+      swappedTag: "SUPER 대신",
+      swappedBody: "이미 SUPER라서 SUPER 1일권 대신 그 하루를 살 수 있는 만큼의 보석을 드렸어요.",
     },
     boost: {
       active: "XP {{n}}배 적용 중",

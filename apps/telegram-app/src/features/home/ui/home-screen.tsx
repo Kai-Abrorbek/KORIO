@@ -126,6 +126,7 @@ export function HomeScreen() {
     day: number;
     gems: number;
     superDays: number;
+    swapped?: boolean;
   } | null>(null);
   const patchRetention = useCallback(
     (fn: (summary: RetentionSummary) => RetentionSummary) =>

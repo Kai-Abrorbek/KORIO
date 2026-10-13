@@ -636,11 +636,13 @@ export function CheckinCard({
 }: {
   checkin: CheckinView;
   patch: Patch;
-  onClaimed: (reward: { day: number; gems: number; superDays: number }) => void;
+  onClaimed: (reward: { day: number; gems: number; superDays: number; swapped?: boolean }) => void;
 }) {
   const { request, updateUser } = useTelegramAuth();
   const [busy, setBusy] = useState(false);
   const todayIndex = checkin.canClaim ? checkin.count : -1;
+  // 이미 SUPER 면 7일째가 보석이다
+  const anySwapped = checkin.rewards.some((reward) => reward.swapped);
 
   const claim = async () => {
     if (busy || !checkin.canClaim) return;
@@ -667,6 +669,7 @@ export function CheckinCard({
         day: result.day,
         gems: result.reward.gems,
         superDays: result.reward.superDays,
+        swapped: result.reward.swapped,
       });
     } catch {
       // 이미 받았으면 다음 새로고침이 맞춘다
@@ -681,12 +684,15 @@ export function CheckinCard({
         <MobileIcon name="calendar" size={18} style={{ color: "#FF6B9A" }} />
         <strong className={styles.title}>{rt("checkin.title")}</strong>
       </span>
-      <p className={styles.sub} style={{ margin: "4px 0 0" }}>{rt("checkin.sub")}</p>
+      <p className={styles.sub} data-i18n={anySwapped ? "retention.checkin.subSwapped" : "retention.checkin.sub"} style={{ margin: "4px 0 0" }}>
+        {anySwapped ? rt("checkin.subSwapped") : rt("checkin.sub")}
+      </p>
       <div className={styles.ckGrid}>
         {checkin.rewards.map((reward, index) => {
           const claimed = index < checkin.count;
           const today = index === todayIndex;
-          const isSuper = reward.superDays > 0;
+          // 7일째 큰 보라 칸 (SUPER 하루 또는 그 대신 받는 보석)
+          const isSuper = reward.superDays > 0 || Boolean(reward.swapped);
           return (
             <span
               className={[
@@ -700,6 +706,14 @@ export function CheckinCard({
               <small data-i18n="retention.checkin.day">{rt("checkin.day", { n: reward.day })}</small>
               {claimed ? (
                 <i className={styles.ckCheck}><MobileIcon name="checkmark" size={16} /></i>
+              ) : reward.swapped ? (
+                <>
+                  <span className={styles.ckSwap}>
+                    <MobileIcon name="diamond" size={18} />
+                    <b data-no-translate>{reward.gems.toLocaleString("en-US")}</b>
+                  </span>
+                  <b data-i18n="retention.checkin.swappedTag">{rt("checkin.swappedTag")}</b>
+                </>
               ) : isSuper ? (
                 <>
                   <MobileIcon name="infinite" size={20} />
@@ -751,7 +765,7 @@ export function RetentionOverlays({
 }: {
   summary: RetentionSummary | null;
   patch: Patch;
-  checkinReward: { day: number; gems: number; superDays: number } | null;
+  checkinReward: { day: number; gems: number; superDays: number; swapped?: boolean } | null;
   onCheckinRewardClose: () => void;
 }) {
   const router = useRouter();
@@ -843,8 +857,11 @@ export function RetentionOverlays({
     };
   } else if (checkinReward) {
     const isSuper = checkinReward.superDays > 0;
+    // 이미 SUPER 라 SUPER 하루 대신 보석을 받았다 — 왜 보석인지 한 줄
+    const swapped = Boolean(checkinReward.swapped);
     dialog = {
-      mood: isSuper ? "level_up" : "great",
+      ...(swapped ? { body: rt("checkin.swappedBody") } : {}),
+      mood: isSuper || swapped ? "level_up" : "great",
       onBackdrop: onCheckinRewardClose,
       onPrimary: onCheckinRewardClose,
       primaryKey: "retention.ok",
@@ -852,7 +869,7 @@ export function RetentionOverlays({
       rewards: [
         isSuper
           ? { color: "#776ee2", icon: "infinite", label: rt("checkin.gotSuper", { n: checkinReward.superDays }) }
-          : { color: "#3BB6E5", icon: "diamond", label: rt("checkin.gotGems", { n: checkinReward.gems }) },
+          : { color: "#3BB6E5", icon: "diamond", label: rt("checkin.gotGems", { n: checkinReward.gems.toLocaleString("en-US") }) },
       ],
       title: rt("checkin.gotTitle", { n: checkinReward.day }),
     };

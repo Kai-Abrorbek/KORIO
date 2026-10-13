@@ -55,6 +55,9 @@
 .ckSuper small,.ckToday small{color:#fff}
 .ckSuper>svg{color:#fff}
 .ckSuper b{font-size:10.5px}
+.ckSwap{display:flex;align-items:center;gap:5px}
+.ckSwap svg{color:#9ce8ff}
+.ckSuper .ckSwap b{font-size:17px}
 .ckClaimed{opacity:.55}
 .ckToday{border-color:#d94877;background:#ff6b9a;color:#fff;animation:r-pulse 1.6s ease-in-out infinite}
 .ckToday>svg{color:#fff}

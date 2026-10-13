@@ -81,7 +81,7 @@ export function claimCheckin(request: AuthenticatedRequest) {
   return request<{
     day: number;
     gems: number;
-    reward: { gems: number; superDays: number };
+    reward: { gems: number; superDays: number; swapped?: boolean };
     superGranted: boolean;
   }>("/retention/checkin/claim", post());
 }
