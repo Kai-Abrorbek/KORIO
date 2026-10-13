@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
+import { GemLedgerService } from '../../gem-ledger/gem-ledger.service';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -66,6 +72,7 @@ export class SubscriptionService {
     private readonly userModel: Model<UserDocument>,
     // 구독 상태 전이 기록 (분석 전용). 실패해도 결제에 영향 없다
     private readonly subEvents: SubscriptionEventsService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /**
@@ -143,6 +150,11 @@ export class SubscriptionService {
       await this.userModel.updateOne(
         { _id: uid },
         { $inc: { gems: WELCOME_GEM_GRANT } },
+      );
+      await this.gemLedger?.record(
+        uid,
+        WELCOME_GEM_GRANT,
+        'subscription_bonus',
       );
     }
 
@@ -314,6 +326,11 @@ export class SubscriptionService {
       await this.userModel.updateOne(
         { _id: uid },
         { $inc: { gems: WELCOME_GEM_GRANT } },
+      );
+      await this.gemLedger?.record(
+        uid,
+        WELCOME_GEM_GRANT,
+        'subscription_bonus',
       );
     }
 

@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -24,6 +25,7 @@ export class ChestService {
     private readonly chestModel: Model<PendingChestDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /**
@@ -91,6 +93,10 @@ export class ChestService {
     if (!taken) return null;
 
     await this.userModel.findByIdAndUpdate(uId, { $inc: { gems: taken.gems } });
+    await this.gemLedger?.record(uId, taken.gems, 'chest', {
+      grade: taken.grade,
+      from: sourceKey.startsWith('grammarLesson:') ? 'grammar' : 'lesson',
+    });
     return { grade: taken.grade, gems: taken.gems };
   }
 
@@ -134,6 +140,12 @@ export class ChestService {
     if (!taken) return null;
 
     await this.userModel.findByIdAndUpdate(uId, { $inc: { gems: taken.gems } });
+    await this.gemLedger?.record(
+      uId,
+      taken.gems,
+      sourceKey.startsWith('streak:') ? 'streak_chest' : 'chest',
+      { grade: taken.grade, from: 'roadmap' },
+    );
     return { grade: taken.grade, gems: taken.gems };
   }
 
@@ -207,6 +219,12 @@ export class ChestService {
     const best = won
       .slice()
       .sort((a, b) => order.indexOf(b.grade) - order.indexOf(a.grade))[0];
+
+    await this.gemLedger?.record(uId, gems, 'chest', {
+      grade: best?.grade ?? 'wood',
+      from: 'roadmap',
+      count: won.length,
+    });
 
     return {
       claimed: won.length,

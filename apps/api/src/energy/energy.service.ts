@@ -3,7 +3,9 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -25,6 +27,7 @@ import { ENERGY_EARN } from '../retention/retention.config';
 export class EnergyService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   // ─────────────────────────── 조회 ───────────────────────────
@@ -108,6 +111,11 @@ export class EnergyService {
       }
       throw new BadRequestException('NOT_ENOUGH_GEMS');
     }
+    await this.gemLedger?.record(
+      user._id,
+      -ENERGY_CONFIG.REFILL_GEM_COST,
+      'energy_refill',
+    );
     return this.buildResponse(updated);
   }
 

@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { LEAGUE_TIMEZONE } from '../common/date.util';
 import {
   getWeekKey,
@@ -102,6 +103,7 @@ export class LeagueService {
     @InjectModel(LeagueRoom.name) private roomModel: Model<LeagueRoomDocument>,
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /** settleDueWeeks 가 겹쳐 도는 걸 막는다 (같은 프로세스 안에서만 유효) */
@@ -411,6 +413,12 @@ export class LeagueService {
 
         // 실제 유저에게만 알림 (봇은 matchedCount 0)
         if (res.matchedCount > 0) {
+          if (gems > 0) {
+            await this.gemLedger?.record(uid, gems, 'league', {
+              tier: room.tier,
+              rank,
+            });
+          }
           const type =
             change === 'promote'
               ? NotificationType.LEAGUE_PROMOTED

@@ -3,7 +3,9 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -41,6 +43,7 @@ export class ReferralService {
     private readonly userModel: Model<UserDocument>,
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   // ─────────────────────────── 내 초대 현황 ───────────────────────────
@@ -222,6 +225,10 @@ export class ReferralService {
     );
     if (gems) {
       await this.userModel.updateOne({ _id: inviterId }, { $inc: { gems } });
+      await this.gemLedger?.record(uid, gems, 'referral_welcome');
+      await this.gemLedger?.record(inviterId, gems, 'referral', {
+        nickname: String((me as { nickname?: string }).nickname ?? ''),
+      });
     }
 
     const milestoneGems = await this.payMilestones(inviterId);
@@ -262,7 +269,12 @@ export class ReferralService {
           $inc: { gems: m.gems },
         },
       );
-      if (res) paid += m.gems;
+      if (res) {
+        paid += m.gems;
+        await this.gemLedger?.record(inviterId, m.gems, 'referral_milestone', {
+          count: m.count,
+        });
+      }
     }
     return paid;
   }

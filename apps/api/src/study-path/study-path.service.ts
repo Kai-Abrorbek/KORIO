@@ -3,7 +3,9 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LessonsService } from '../lessons/lessons.service';
@@ -61,6 +63,7 @@ export class StudyPathService {
     private readonly userModel: Model<UserDocument>,
     @InjectModel(Question.name)
     private readonly questionModel: Model<QuestionDocument>,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /**
@@ -452,6 +455,9 @@ export class StudyPathService {
         { returnDocument: 'after' },
       );
       if (granted) {
+        await this.gemLedger?.record(userId, LEVEL_EXAM.gems, 'level_exam', {
+          level,
+        });
         gemsEarned = LEVEL_EXAM.gems;
         gemsTotal = granted.gems ?? 0;
       }

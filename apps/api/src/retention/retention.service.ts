@@ -3,7 +3,9 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -120,6 +122,7 @@ export class RetentionService {
     private readonly mistakeModel: Model<UserMistakeDocument>,
     private readonly usersService: UsersService,
     private readonly gemPass: GemPassService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   // ─────────────────────────── 요약 ───────────────────────────
@@ -201,6 +204,11 @@ export class RetentionService {
       }
       throw new BadRequestException('NOT_ENOUGH_GEMS');
     }
+    await this.gemLedger?.record(
+      uid,
+      -STREAK_FREEZE.PRICE_GEMS,
+      'streak_freeze',
+    );
     return {
       gems: updated.gems ?? 0,
       owned: updated.streakFreeze ?? 0,
@@ -498,6 +506,7 @@ export class RetentionService {
       .lean();
 
     if (!updated) throw new BadRequestException('QUEST_ALREADY_CLAIMED');
+    await this.gemLedger?.record(me._id, reward, 'quest');
     return {
       gems: updated.gems ?? 0,
       reward,
@@ -559,6 +568,9 @@ export class RetentionService {
       .select('gems xpBoostUntil streakFreeze')
       .lean();
     if (!updated) throw new BadRequestException('QUEST_ALREADY_CLAIMED');
+    if (roll.type === 'gems') {
+      await this.gemLedger?.record(me._id, roll.gems, 'quest_chest');
+    }
 
     return {
       gems: updated.gems ?? 0,
@@ -721,6 +733,9 @@ export class RetentionService {
       .select('gems monthlyQuest questBadges')
       .lean();
     if (!updated) throw new BadRequestException('MONTHLY_NOT_READY');
+    await this.gemLedger?.record(me._id, ms.gems, 'monthly_challenge', {
+      at: ms.at,
+    });
 
     return {
       gems: updated.gems ?? 0,
@@ -884,6 +899,11 @@ export class RetentionService {
       }
     }
 
+    // 프리미엄까지 무사히 준 뒤에 적는다 (실패하면 위에서 보석을 되돌린다)
+    await this.gemLedger?.record(me._id, reward.gems ?? 0, 'checkin', {
+      day: count + 1,
+    });
+
     const after = await this.userModel
       .findById(me._id)
       .select('gems isSuper superExpiresAt superTier')
@@ -976,6 +996,9 @@ export class RetentionService {
       },
     );
     if (!res.modifiedCount) throw new BadRequestException('GOAL_ACTIVE');
+    await this.gemLedger?.record(me._id, option.gems, 'streak_goal', {
+      days: option.days,
+    });
 
     // 오늘 이미 공부했으면 바로 1일로 잡히게
     await this.usersService.syncStreak(userId).catch(() => null);

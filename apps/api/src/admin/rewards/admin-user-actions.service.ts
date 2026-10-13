@@ -3,7 +3,9 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../users/schemas/user.schema';
@@ -38,6 +40,7 @@ export class AdminUserActionsService {
     private readonly subscriptions: SubscriptionService,
     private readonly pushService: PushService,
     private readonly audit: AdminAuditService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   private async target(id: string) {
@@ -153,6 +156,9 @@ export class AdminUserActionsService {
         update.$inc = { streakFreeze: 1 };
       }
       const applied = await this.users.updateOne(filter, update);
+      if (applied.modifiedCount && input.kind === 'gems') {
+        await this.gemLedger?.record(uid, input.amount, 'admin');
+      }
       if (!applied.modifiedCount) {
         const previous = await this.users.exists({
           _id: uid,

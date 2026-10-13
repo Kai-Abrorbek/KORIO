@@ -4,7 +4,9 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -100,6 +102,7 @@ export class UsersService {
     private subModel: Model<SubscriptionDocument>,
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /**
@@ -1247,7 +1250,7 @@ export class UsersService {
       return;
     }
 
-    await this.userModel.updateOne(cond, {
+    const ended = await this.userModel.updateOne(cond, {
       $set: {
         'streakGoal.status': res.status,
         'streakGoal.progress': res.progress,
@@ -1258,6 +1261,15 @@ export class UsersService {
         ? { $inc: { gems: -Math.max(0, goal.gems ?? 0) } }
         : {}),
     });
+    if (res.status === 'failed' && ended.modifiedCount) {
+      const lostGoal = goal as { gems?: number; days?: number };
+      await this.gemLedger?.record(
+        uId,
+        -Math.max(0, Number(lostGoal.gems ?? 0)),
+        'streak_goal_lost',
+        { days: Number(lostGoal.days ?? 0) },
+      );
+    }
   }
 
   /** 특정 월의 학습한 날짜 리스트 (1-31) + 연속 학습일 */

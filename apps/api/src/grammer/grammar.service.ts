@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Grammar, GrammarDocument } from './schemas/grammar.schema';
@@ -20,6 +21,7 @@ export class GrammarService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private readonly lessonsService: LessonsService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   private pick(obj: any, lang: string): string {
@@ -249,6 +251,12 @@ export class GrammarService {
         { returnDocument: 'after' },
       );
       if (granted) {
+        await this.gemLedger?.record(
+          userId,
+          SECTION_COMPLETE_GEMS,
+          'grammar_section',
+          { section: Number(section) },
+        );
         gemsEarned = SECTION_COMPLETE_GEMS;
         gemsTotal = granted.gems ?? 0;
       }

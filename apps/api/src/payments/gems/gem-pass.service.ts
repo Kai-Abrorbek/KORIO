@@ -3,7 +3,9 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../users/schemas/user.schema';
@@ -40,6 +42,7 @@ export class GemPassService {
     private readonly subscriptions: SubscriptionService,
     // 보석 기간권도 구독 행을 만든다. 결제 구독과 구분해서 남긴다
     private readonly subEvents: SubscriptionEventsService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   /** 상점에 뿌릴 목록 + 지금 내가 살 수 있는지 */
@@ -138,6 +141,9 @@ export class GemPassService {
       plan: 'gem_pass',
       productId: `gem_${pass.id}`,
       reason: 'gem_pass',
+    });
+    await this.gemLedger?.record(uid, -pass.gems, 'gem_pass', {
+      days: pass.days,
     });
 
     // 기존 투영 경로를 그대로 쓴다 → user.isSuper / superExpiresAt 갱신

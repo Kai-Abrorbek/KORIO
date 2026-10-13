@@ -37,6 +37,7 @@ import { SupportModule } from './support/support.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
 import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
 import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
+import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
     AppSettingsModule,
     RewardInboxModule,
     GemPayoutsModule,
+    GemLedgerModule,
     MailModule,
   ],
   controllers: [AppController],

@@ -120,6 +120,7 @@ function setup(gems = 1000, provider = 'telegram') {
   const push = { send: jest.fn(() => Promise.resolve(true)) };
   const bot = { enabled: true, call: jest.fn(() => Promise.resolve()) };
   const audit = { record: jest.fn(() => Promise.resolve()) };
+  const ledger = { record: jest.fn(() => Promise.resolve()) };
   const service = new GemPayoutService(
     requests as never,
     users as never,
@@ -127,6 +128,7 @@ function setup(gems = 1000, provider = 'telegram') {
     push as never,
     bot as never,
     audit as never,
+    ledger as never,
   );
   const admin = {
     userId: new Types.ObjectId().toString(),
@@ -142,6 +144,7 @@ function setup(gems = 1000, provider = 'telegram') {
     push,
     bot,
     audit,
+    ledger,
     admin,
     uid: uid.toString(),
     userGems,
@@ -324,5 +327,59 @@ describe('운영자 처리', () => {
     ).rejects.toThrow('PAYOUT_STATE_CHANGED');
     expect(t.bot.call).not.toHaveBeenCalled();
     expect(t.push.send).toHaveBeenCalled();
+  });
+});
+
+describe('보석 장부', () => {
+  it('신청은 −, 취소 환불은 + 로 남긴다 (끝 4자리·사유)', async () => {
+    const t = setup();
+    const { request } = await t.service.create(t.uid, dto());
+    expect(t.ledger.record).toHaveBeenCalledTimes(1);
+    expect(t.ledger.record).toHaveBeenLastCalledWith(
+      expect.anything(),
+      -500,
+      'payout',
+      { last4: HUMO.slice(-4) },
+    );
+    await t.service.cancel(t.uid, request.id);
+    expect(t.ledger.record).toHaveBeenCalledTimes(2);
+    expect(t.ledger.record).toHaveBeenLastCalledWith(
+      expect.anything(),
+      500,
+      'payout_refund',
+      { last4: HUMO.slice(-4), reason: 'cancelled' },
+    );
+  });
+
+  it('반려 환불은 rejected 로 한 번만 · 막힌 신청은 안 남긴다', async () => {
+    const t = setup();
+    const { request } = await t.service.create(t.uid, dto());
+    await expect(t.service.create(t.uid, dto())).rejects.toThrow(
+      'PAYOUT_ALREADY_OPEN',
+    );
+    await expect(
+      t.service.create(t.uid, dto({ gems: 99999 })),
+    ).rejects.toThrow();
+    expect(t.ledger.record).toHaveBeenCalledTimes(1);
+
+    await t.service.adminSetStatus(
+      request.id,
+      { status: 'rejected', reason: 'invalid_card' },
+      t.admin,
+    );
+    await expect(
+      t.service.adminSetStatus(
+        request.id,
+        { status: 'rejected', reason: 'invalid_card' },
+        t.admin,
+      ),
+    ).rejects.toThrow('PAYOUT_STATE_CHANGED');
+    expect(t.ledger.record).toHaveBeenCalledTimes(2);
+    expect(t.ledger.record).toHaveBeenLastCalledWith(
+      expect.anything(),
+      500,
+      'payout_refund',
+      { last4: HUMO.slice(-4), reason: 'rejected' },
+    );
   });
 });

@@ -3,7 +3,9 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -68,7 +70,10 @@ const MONTHLY_GEM_GRANT = 500;
 
 @Injectable()
 export class SubscriptionService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Optional() private readonly gemLedger?: GemLedgerService,
+  ) {}
 
   getPlans() {
     return { plans: PLANS, features: FEATURES };
@@ -129,6 +134,13 @@ export class SubscriptionService {
       },
       ...(alreadySuper ? {} : { $inc: { gems: MONTHLY_GEM_GRANT } }),
     });
+    if (!alreadySuper) {
+      await this.gemLedger?.record(
+        userId,
+        MONTHLY_GEM_GRANT,
+        'subscription_bonus',
+      );
+    }
 
     return { success: true, plan: plan.id, expiresAt: expires };
   }

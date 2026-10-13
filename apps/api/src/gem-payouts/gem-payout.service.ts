@@ -4,7 +4,9 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, Types } from 'mongoose';
 import { AdminAuditService } from '../admin/admin-audit.service';
@@ -71,6 +73,7 @@ export class GemPayoutService {
     private readonly push: PushService,
     private readonly bot: TelegramBotApi,
     private readonly audit: AdminAuditService,
+    @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
 
   // ───────────────────────── 유저 ─────────────────────────
@@ -142,6 +145,9 @@ export class GemPayoutService {
         cardHolder: holder,
         status: 'pending',
         open: true,
+      });
+      await this.gemLedger?.record(uid, -gems, 'payout', {
+        last4: digits.slice(-4),
       });
       this.logger.log(
         `[payout] 신청 user=${userId} gems=${gems} card=${maskPayoutCard(digits)}`,
@@ -348,6 +354,17 @@ export class GemPayoutService {
         );
         return null;
       });
+    if (user) {
+      await this.gemLedger?.record(
+        request.userId,
+        request.gems,
+        'payout_refund',
+        {
+          last4: request.cardLast4,
+          reason: request.status === 'cancelled' ? 'cancelled' : 'rejected',
+        },
+      );
+    }
     return user?.gems ?? null;
   }
 
