@@ -1,0 +1,124 @@
+.tabCount {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.hero {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.amount {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.sectionTitle {
+  margin: 24px 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* 송금할 때 그대로 옮겨 적는 칸 — 크게, 복사 버튼과 함께 */
+.transfer {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--brand-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+}
+
+.copyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.copyRow small {
+  display: block;
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+
+.copyRow strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 17px;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.wrap {
+  word-break: break-all;
+}
+
+.timeline {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.timeline span {
+  display: inline-block;
+  min-width: 78px;
+  margin-right: 8px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 22px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.success {
+  background: #13a754;
+  color: #fff;
+}
+
+.danger {
+  background: var(--critical);
+  color: #fff;
+}
+
+.success:hover:not(:disabled),
+.danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.dangerGhost {
+  color: var(--critical);
+}

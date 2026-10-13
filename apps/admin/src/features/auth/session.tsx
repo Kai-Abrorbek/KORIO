@@ -22,7 +22,9 @@ export type AdminPermission =
   | "subscription:override"
   | "operations:write"
   | "admin:manage"
-  | "audit:read";
+  | "audit:read"
+  | "payouts:read"
+  | "payouts:write";
 
 export interface AdminMe {
   userId: string;
@@ -42,6 +44,7 @@ const MOCK_ADMIN: AdminMe = {
   permissions: [
     "analytics:read", "users:read", "users:write", "content:read", "content:write",
     "subscription:read", "subscription:override", "operations:write", "admin:manage", "audit:read",
+    "payouts:read", "payouts:write",
   ],
 };
 
