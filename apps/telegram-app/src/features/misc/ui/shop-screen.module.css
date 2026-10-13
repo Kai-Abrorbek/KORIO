@@ -3,3 +3,57 @@
 :global(:root[data-theme="dark"]) .passPrice,:global(:root[data-theme="dark"]) .energySection>button>em{background:#2e2e39}:global(:root[data-theme="dark"]) .withdrawCard label>span,:global(:root[data-theme="dark"]) .amount>span{background:#1d1d26}
 @media(max-width:390px){.passCard{gap:9px;padding:13px 11px}.dayBadge{height:48px;width:48px}.passCopy>span strong{font-size:14px}.passPrice{padding:6px}.passPrice b{font-size:14px}.superBody{gap:9px;padding:12px 11px}.superBody>b{font-size:12px}.brands button{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.heroGem,.heroSpark,.shine,.superStrip>i,.loading>i{animation:none}}
+/* ── 보석 출금 (withdraw-card.tsx) ── */
+.withdraw>h2{text-transform:uppercase}
+.withdrawCard label>span.fieldBad{border-color:#e5379b;color:#e5379b}
+.withdrawCard input:disabled{opacity:.6}
+.amount>span{min-width:0}
+.holderInput{font-size:15px!important;letter-spacing:.4px!important;text-transform:uppercase}
+.holderInput::placeholder{text-transform:none}
+.payoutLoadFail{align-items:center;background:#f59e0b1a;border:0;border-radius:12px;color:#b45309;display:flex;font-size:12px;font-weight:700;gap:7px;padding:10px;text-align:left}
+.payoutSpinner{animation:spin .8s linear infinite;border:3px solid rgba(255,255,255,.45);border-radius:50%;border-top-color:#fff;display:inline-block;height:20px;vertical-align:middle;width:20px}
+/* 진행 중 카드 */
+.payoutOpen{animation:payoutIn .36s cubic-bezier(.22,1,.36,1) both}
+.payoutOpen>header>i{background:color-mix(in srgb,var(--status) 13%,transparent);color:var(--status)}
+.payoutAmount{align-items:center;background:#f6f5fd;border-radius:16px;display:flex;gap:10px;padding:14px}
+.payoutAmount>span{display:flex;flex:1;flex-direction:column;min-width:0}
+.payoutAmount b{font-size:24px;font-weight:900;letter-spacing:-.3px}
+.payoutAmount small{color:var(--muted);font-size:12px;font-weight:700;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.payoutAmount small+small{letter-spacing:.3px;margin-top:1px}
+.payoutAmount>em{align-items:center;background:#3bb6e51f;border-radius:999px;color:#2a94bc;display:flex;flex:none;font-size:12px;font-style:normal;font-weight:900;gap:4px;padding:5px 9px}
+.payoutAmount>em svg{color:#3bb6e5}
+.payoutSteps{display:flex;list-style:none;margin:0;padding:0}
+.payoutSteps>li{align-items:center;display:flex;flex:1;flex-direction:column;gap:7px;position:relative}
+.payoutSteps>li::before,.payoutSteps>li::after{background:var(--border);border-radius:2px;content:"";height:3px;position:absolute;top:10px;width:calc(50% - 11px)}
+.payoutSteps>li::before{left:0}
+.payoutSteps>li::after{right:0}
+.payoutSteps>li:first-child::before,.payoutSteps>li:last-child::after{display:none}
+.payoutSteps>li.stepDone::before,.payoutSteps>li.stepDone::after,.payoutSteps>li.stepActive::before{background:var(--status)}
+.payoutSteps>li>span{align-items:center;background:var(--border);border-radius:50%;color:#fff;display:flex;height:22px;justify-content:center;position:relative;width:22px}
+.payoutSteps>li.stepDone>span,.payoutSteps>li.stepActive>span{background:var(--status)}
+.payoutSteps>li>span>i{background:transparent;border-radius:50%;height:8px;width:8px}
+.payoutSteps>li.stepActive>span>i{background:#fff}
+/* 지금 단계는 숨 쉬듯 퍼지는 링 — 멈춘 화면이 아니라 처리 중이라는 느낌 */
+.payoutSteps>li.stepActive>span{animation:payoutPulse 1.4s ease-out infinite}
+.payoutSteps>li>b{color:var(--muted);font-size:11px;font-weight:800}
+.payoutSteps>li.stepDone>b,.payoutSteps>li.stepActive>b{color:var(--text)}
+.payoutCancel{background:var(--surface);border:2px solid #e5379b55;border-bottom-width:4px;border-radius:14px;color:#e5379b;font-size:14px;font-weight:900;min-height:46px}
+.payoutCancel:active:not(:disabled){border-bottom-width:2px;transform:translateY(2px)}
+.payoutCancel .payoutSpinner{border-color:#e5379b40;border-top-color:#e5379b}
+.withdrawCard>p.payoutNote{background:#f4f4f8;color:var(--muted)}
+/* 최근 결과 */
+.payoutRecent{background:var(--surface);border:2px solid var(--border);border-radius:18px;display:flex;flex-direction:column;gap:10px;margin:0 20px 12px;padding:12px 14px}
+.payoutRecentTitle{color:var(--muted);font-size:12px;font-weight:900}
+.payoutRow{align-items:flex-start;display:flex;gap:10px}
+.payoutRow>i{align-items:center;background:color-mix(in srgb,var(--status) 13%,transparent);border-radius:50%;color:var(--status);display:flex;flex:none;height:30px;justify-content:center;width:30px}
+.payoutRow>span{display:flex;flex:1;flex-direction:column;min-width:0}
+.payoutRowTop{align-items:center;display:flex;gap:8px}
+.payoutRowTop>b{flex:1;font-size:14px;font-weight:900}
+.payoutRowStatus{color:var(--status);font-size:11px;font-weight:900}
+.payoutRow small{color:var(--muted);font-size:11px;font-weight:700;margin-top:2px}
+.payoutRowReason{color:#e5379b;display:flex;flex-wrap:wrap;font-size:11px;font-weight:700;gap:0 4px;line-height:16px;margin-top:4px}
+.payoutRowReason>span+span::before{content:"· "}
+@keyframes payoutPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--status) 45%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+@keyframes payoutIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+:global(:root[data-theme="dark"]) .payoutAmount,:global(:root[data-theme="dark"]) .withdrawCard>p.payoutNote{background:#1d1d26}
+@media(prefers-reduced-motion:reduce){.payoutOpen,.payoutSteps>li.stepActive>span{animation:none}}

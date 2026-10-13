@@ -18,7 +18,7 @@ import styles from "./notification-sheet.module.css";
 type NotificationType =
   | "follow" | "league_promoted" | "league_demoted" | "league_result" | "chest"
   | "streak" | "streak_risk" | "energy_full" | "level_up" | "super_expiring"
-  | "referral" | "system";
+  | "referral" | "gem_payout_done" | "gem_payout_rejected" | "system";
 
 interface AppNotification {
   id: string;
@@ -41,6 +41,8 @@ const LOOK: Record<NotificationType, { icon: IoniconName; color: string }> = {
   level_up: { icon: "arrow-up-circle", color: "#8C82F0" },
   super_expiring: { icon: "star", color: "#E2A83A" },
   referral: { icon: "gift", color: "#1DBB7F" },
+  gem_payout_done: { icon: "card", color: "#1DBB7F" },
+  gem_payout_rejected: { icon: "arrow-undo", color: "#E5379B" },
   system: { icon: "megaphone", color: "#A6A6B3" },
 };
 
@@ -57,6 +59,8 @@ const COPY: Record<NotificationType, { title: string; body: string }> = {
   level_up: { title: "Darajangiz oshdi", body: "" },
   super_expiring: { title: "Bepul sinov tugayapti", body: "{{days}} kun qoldi" },
   referral: { title: "{{nickname}} sizning kodingiz bilan qo'shildi", body: "{{gems}} ta gavhar hisobingizga tushdi" },
+  gem_payout_done: { title: "Gavhar yechish bajarildi", body: "{{amount}} so'm •••• {{last4}} kartaga yuborildi" },
+  gem_payout_rejected: { title: "Gavhar yechish so'rovi rad etildi", body: "{{gems}} ta gavhar qaytarildi. Sababini do'konda ko'ring" },
   system: { title: "{{message}}", body: "" },
 };
 

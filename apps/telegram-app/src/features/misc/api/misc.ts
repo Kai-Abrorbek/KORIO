@@ -5,6 +5,7 @@ import type {
   PublicUser,
   ScoreData,
 } from "../model/misc";
+import type { PayoutBrand, PayoutChanged, PayoutOverview } from "../model/payout";
 import { getContentLang } from "../../../shared/i18n/content-language";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
@@ -38,4 +39,20 @@ export function getScore(request: AuthenticatedRequest) {
 
 export function getPublicUser(request: AuthenticatedRequest, userId: string) {
   return request<PublicUser>(`/users/${encodeURIComponent(userId)}`);
+}
+
+/** 보석 출금 — 최소 수량·진행 중인 신청·최근 결과 */
+export function getGemPayouts(request: AuthenticatedRequest) {
+  return request<PayoutOverview>("/gem-payouts/me");
+}
+
+export function createGemPayout(
+  request: AuthenticatedRequest,
+  input: { brand: PayoutBrand; cardNumber: string; cardHolder: string; gems: number },
+) {
+  return request<PayoutChanged>("/gem-payouts", { body: JSON.stringify(input), method: "POST" });
+}
+
+export function cancelGemPayout(request: AuthenticatedRequest, id: string) {
+  return request<PayoutChanged>(`/gem-payouts/${encodeURIComponent(id)}/cancel`, { body: "{}", method: "POST" });
 }
