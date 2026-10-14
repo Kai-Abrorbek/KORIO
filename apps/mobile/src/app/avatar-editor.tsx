@@ -113,6 +113,7 @@ export default function AvatarEditorScreen() {
   const headerVisibility = useSharedValue(1);
   const optionsScrollRef = useRef<ScrollView>(null);
   const scrollAnchor = useRef(0);
+  const bottomRevealOffset = useRef<number | null>(null);
   const headerStyle = useAnimatedStyle(() => ({
     height: 60 * headerVisibility.value,
     paddingTop: 8 * headerVisibility.value,
@@ -127,20 +128,35 @@ export default function AvatarEditorScreen() {
   const handleOptionsScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
     const y = Math.max(0, contentOffset.y);
-    const atBottom = contentSize.height > layoutMeasurement.height &&
-      y + layoutMeasurement.height >= contentSize.height - 16;
+    const maxOffset = Math.max(0, contentSize.height - layoutMeasurement.height);
+    const atBottom = maxOffset > 2
+      ? y >= maxOffset - 2
+      : headerCollapsed;
 
-    if (y <= 8 || atBottom) {
+    if (atBottom) {
       setHeaderCollapsed(false);
+      // 펼친 헤더 때문에 스크롤 영역이 줄어도 다시 접히지 않게 유지한다.
+      bottomRevealOffset.current = Math.max(bottomRevealOffset.current ?? y, y);
       scrollAnchor.current = y;
-    } else if (y - scrollAnchor.current > 24) {
+      return;
+    }
+
+    if (bottomRevealOffset.current !== null) {
+      // 목록 끝에서 벗어나 새로 위로 스크롤하기 전까지 펼친 상태를 유지한다.
+      if (y < bottomRevealOffset.current - 24) {
+        bottomRevealOffset.current = null;
+        scrollAnchor.current = y;
+      }
+      return;
+    }
+
+    if (y - scrollAnchor.current > 24) {
       setHeaderCollapsed(true);
       scrollAnchor.current = y;
-    } else if (scrollAnchor.current - y > 24) {
-      setHeaderCollapsed(false);
+    } else if (y < scrollAnchor.current) {
       scrollAnchor.current = y;
     }
-  }, []);
+  }, [headerCollapsed]);
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
@@ -289,6 +305,7 @@ export default function AvatarEditorScreen() {
     selectCategory(id);
     optionsScrollRef.current?.scrollTo({ y: 0, animated: false });
     scrollAnchor.current = 0;
+    bottomRevealOffset.current = null;
     setHeaderCollapsed(false);
   };
 
