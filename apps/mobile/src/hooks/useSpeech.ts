@@ -12,7 +12,8 @@ import {
   type SpeechGender,
   type SpeechLanguage,
 } from "@/services/tts.service";
-import { DEFAULT_SPEECH_VOICE, useSettingsStore } from "@/store/settings.store";
+import { useSettingsStore } from "@/store/settings.store";
+import { resolveSpeechVoice } from "@/utils/speech-voice";
 import { activatePlaybackAudio } from "@/utils/audio-session";
 
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
@@ -82,11 +83,7 @@ export function useSpeech() {
     (text: string, lang: string, slow: boolean, options?: SpeechPlaybackOptions) => {
       const { sound } = useSettingsStore.getState();
       const language = toSpeechLanguage(lang);
-      const voice =
-        options?.voice?.trim() ||
-        (language === "ko-KR"
-          ? sound.speechVoice || DEFAULT_SPEECH_VOICE
-          : undefined);
+      const voice = resolveSpeechVoice(language, sound, options?.voice);
       const rate = Math.min(
         2,
         Math.max(

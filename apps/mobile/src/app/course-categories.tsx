@@ -158,6 +158,7 @@ function CategoryCard({
   onTopikPress,
   requirePremium,
   locked,
+  language,
 }: {
   c: (typeof CATEGORIES)[number];
   label: string;
@@ -168,9 +169,10 @@ function CategoryCard({
   /** 구독 게이트. 통과하면 onAllowed 실행, 아니면 유도 모달 */
   requirePremium: (feature: Feature, onAllowed: () => void) => boolean;
   locked: boolean;
+  language: string;
 }) {
   const pressed = useSharedValue(0);
-  const go = makeGo(c, onTopikPress);
+  const go = makeGo(c, onTopikPress, language);
   const aStyle = useAnimatedStyle(() => ({
     transform: [
       { translateY: pressed.value * 2 },
@@ -220,13 +222,17 @@ function CategoryCard({
 function makeGo(
   c: (typeof CATEGORIES)[number],
   onTopikPress: () => void,
+  language: string,
 ): () => void {
   return () => {
+    if (c.category === "hangul") {
+      router.push({ pathname: "/hangul", params: { lang: language } });
+      return;
+    }
     // 아래 셋은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
     // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
     const SHORTCUTS: Record<string, string> = {
       pronunciation: "/pronunciation-practice",
-      hangul: "/hangul",
       games: "/games",
       wordCard: "/word-study",
       // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
@@ -389,7 +395,9 @@ export default function CourseCategories() {
     onIndexChange: (next) => commitStudyMode(STUDY_MODES[next] ?? studyMode),
     progress: modeProgress,
   });
-  const { label } = useLocalSearchParams<{ lang?: string; label?: string }>();
+  const { lang, label } = useLocalSearchParams<{ lang?: string; label?: string }>();
+  const language = lang === "en" ? "en" : "ko";
+  const isEnglish = language === "en";
 
   const selectTopikLevel = (level: TopikLevel) => {
     Haptics.selectionAsync();
@@ -404,11 +412,17 @@ export default function CourseCategories() {
   const renderMode = (mode: StudyMode) => (
     <View>
       <Text style={s.modeNote}>
-        {t(mode === "guided" ? "courses.modeGuidedNote" : "courses.modeFreeNote")}
+        {t(
+          isEnglish
+            ? "alphabet.courseIntro"
+            : mode === "guided"
+              ? "courses.modeGuidedNote"
+              : "courses.modeFreeNote",
+        )}
       </Text>
-      <Text style={s.modeHint}>{t("courses.modeHint")}</Text>
+      {!isEnglish && <Text style={s.modeHint}>{t("courses.modeHint")}</Text>}
 
-      {mode === "guided" && (
+      {!isEnglish && mode === "guided" && (
         <GuidedEntry
           s={s}
           t={t}
@@ -425,17 +439,24 @@ export default function CourseCategories() {
 
       <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
       <View style={s.grid}>
-        {CATEGORIES.filter((c) => mode === "free" || c.guided).map((c, i) => (
+        {CATEGORIES.filter((c) =>
+          isEnglish ? c.category === "hangul" : mode === "free" || c.guided,
+        ).map((c, i) => (
           <CategoryCard
             key={c.key}
             c={c}
             index={i}
             s={s}
-            label={t(`courses.categories.${c.key}`)}
-            desc={t(`courses.categoryDesc.${c.key}`)}
+            label={t(
+              isEnglish ? "alphabet.title" : `courses.categories.${c.key}`,
+            )}
+            desc={t(
+              isEnglish ? "alphabet.courseIntro" : `courses.categoryDesc.${c.key}`,
+            )}
             onTopikPress={() => setTopikModalVisible(true)}
             requirePremium={requirePremium}
             locked={!canUse(c.feature)}
+            language={language}
           />
         ))}
       </View>

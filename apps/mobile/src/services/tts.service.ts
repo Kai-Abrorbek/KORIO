@@ -2,6 +2,8 @@ import type { AudioSource } from "expo-audio";
 import api, { BASE_URL } from "@/services/api";
 import { useAuthStore } from "@/store/auth.store";
 import { useOnboardingStore } from "@/store/onboarding.store";
+import { useSettingsStore } from "@/store/settings.store";
+import { resolveSpeechVoice } from "@/utils/speech-voice";
 
 export type SpeechGender = "female" | "male";
 export type SpeechLanguage = "ko-KR" | "uz-UZ" | "en-US" | "ru-RU";
@@ -30,6 +32,10 @@ interface PrepareSpeechResponse {
 }
 
 export const TtsService = {
+  getVoices: (language: SpeechLanguage): Promise<SpeechVoice[]> =>
+    api.get<SpeechVoice[]>(
+      `/tts/voices?language=${encodeURIComponent(language)}`,
+    ),
   getKoreanVoices: (): Promise<SpeechVoice[]> =>
     api.get<SpeechVoice[]>("/tts/voices"),
 
@@ -45,8 +51,14 @@ export const TtsService = {
     request: PrepareSpeechRequest,
   ): Promise<AudioSource> => {
     const { isLoggedIn } = useAuthStore.getState();
+    const voice = resolveSpeechVoice(
+      request.language,
+      useSettingsStore.getState().sound,
+      request.voice,
+    );
     const { audioId } = await api.post<PrepareSpeechResponse>("/tts/speech", {
       ...request,
+      voice,
       ...(isLoggedIn
         ? {}
         : { sessionId: useOnboardingStore.getState().sessionId }),

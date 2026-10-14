@@ -9,12 +9,14 @@ import {
   Ip,
   Param,
   Post,
+  Query,
   Req,
   StreamableFile,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtOptionalGuard } from '../auth/jwt-optional.guard';
+import { ListSpeechVoicesDto } from './dto/list-speech-voices.dto';
 import { SynthesizeSpeechDto } from './dto/synthesize-speech.dto';
 import { RequestQuota } from './guest-speech-quota';
 import { TtsService } from './tts.service';
@@ -35,8 +37,8 @@ export class TtsController {
 
   @Get('voices')
   @UseGuards(JwtAuthGuard)
-  getVoices() {
-    return this.ttsService.listKoreanVoices();
+  getVoices(@Query() query: ListSpeechVoicesDto) {
+    return this.ttsService.listVoices(query.language ?? 'ko-KR');
   }
 
   /**
@@ -71,8 +73,14 @@ export class TtsController {
       throw new BadRequestException('SPEECH_TEXT_TOO_LONG');
     }
     // 세션을 보내는 앱은 세션 단위로, 안 보내는 옛 앱은 IP 단위로 센다
-    if (!this.bySession.hit(dto.sessionId ?? `ip:${ip}`) || !this.byIp.hit(ip)) {
-      throw new HttpException('SPEECH_GUEST_LIMIT', HttpStatus.TOO_MANY_REQUESTS);
+    if (
+      !this.bySession.hit(dto.sessionId ?? `ip:${ip}`) ||
+      !this.byIp.hit(ip)
+    ) {
+      throw new HttpException(
+        'SPEECH_GUEST_LIMIT',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
   }
 

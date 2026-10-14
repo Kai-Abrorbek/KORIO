@@ -1,6 +1,8 @@
 import topik from "./topik/uz";
+import alphabet from "./alphabet";
 
 export default {
+  alphabet: alphabet.uz,
   topik,
   rewardInbox: {
     title: "Korio jamoasidan sovgʻa!",
@@ -1047,10 +1049,14 @@ export default {
       voiceSection: "Nutq",
       voice: "Ovoz",
       voiceDesc: "Koreyscha so'zlovchini tanlang",
+      koreanVoice: "Koreyscha dars ovozi",
+      koreanVoiceDesc: "Darslardagi koreyscha nutq uchun ishlatiladi",
+      englishVoice: "Inglizcha dars ovozi",
+      englishVoiceDesc: "Barcha darslardagi inglizcha nutq uchun ishlatiladi",
       voicePickerTitle: "Ovozni tanlang",
       voicePickerDesc:
         "Ovozlarni tinglab ko'ring va darslarda eshitmoqchi bo'lganingizni tanlang.",
-      loadingVoices: "Koreyscha ovozlar yuklanmoqda...",
+      loadingVoices: "Ovozlar yuklanmoqda...",
       voiceLoadError: "Ovozlar ro'yxatini yuklab bo'lmadi.",
       retry: "Qayta urinish",
       female: "Ayol",

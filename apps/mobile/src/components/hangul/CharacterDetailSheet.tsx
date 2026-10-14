@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -28,12 +28,19 @@ import { HangulCharacter } from "@/types/hangul";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
+import type { SpeechLanguage } from "@/services/tts.service";
 
 interface Props {
-  character: HangulCharacter | null;
+  character: Pick<
+    HangulCharacter,
+    "char" | "name" | "romanization" | "examples"
+  > | null;
   visible: boolean;
   onClose: () => void;
-  onStartGame: () => void;
+  onStartGame?: () => void;
+  speechLanguage?: SpeechLanguage;
+  speechText?: string;
+  pronunciationHint?: string;
 }
 
 export default function CharacterDetailSheet({
@@ -41,9 +48,13 @@ export default function CharacterDetailSheet({
   visible,
   onClose,
   onStartGame,
+  speechLanguage = "ko-KR",
+  speechText,
+  pronunciationHint,
 }: Props) {
   const { t } = useTranslation();
-  const { speak, isSpeaking } = useSpeech();
+  const { speak, stop, isSpeaking } = useSpeech();
+  const [audioFailed, setAudioFailed] = useState(false);
   const theme = useTheme();
   const styles = getStyles(theme);
   const insets = useSafeAreaInsets();
@@ -54,6 +65,11 @@ export default function CharacterDetailSheet({
   const backdrop = useSharedValue(0);
   const sheetY = useSharedValue(CLOSED);
   const charIn = useSharedValue(0);
+
+  useEffect(() => {
+    setAudioFailed(false);
+    stop();
+  }, [visible, character, stop]);
 
   useEffect(() => {
     if (visible) {
@@ -105,7 +121,10 @@ export default function CharacterDetailSheet({
   if (!character) return null;
 
   const handleSpeak = () => {
-    speak(character.name);
+    setAudioFailed(false);
+    speak(speechText ?? character.name, speechLanguage, {
+      onError: () => setAudioFailed(true),
+    });
   };
 
   return (
@@ -143,13 +162,35 @@ export default function CharacterDetailSheet({
             <View style={styles.charArea}>
               <View style={styles.ring} />
               <Animated.View style={[styles.charBubble, charStyle]}>
-                <Text style={styles.bigChar}>{character.char}</Text>
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  style={[
+                    styles.bigChar,
+                    speechLanguage === "en-US" && { fontSize: 68 },
+                  ]}
+                >
+                  {character.char}
+                </Text>
               </Animated.View>
             </View>
 
             {/* 이름 + 로마자 */}
             <Text style={styles.name}>{character.name}</Text>
-            <Text style={styles.roman}>{character.romanization}</Text>
+            <Text
+              style={[
+                styles.roman,
+                speechLanguage === "en-US" && {
+                  textTransform: "none",
+                  letterSpacing: 0,
+                },
+              ]}
+            >
+              {character.romanization}
+            </Text>
+            {pronunciationHint && (
+              <Text style={styles.hint}>{pronunciationHint}</Text>
+            )}
 
             {/* 음성 버튼 */}
             <TouchableOpacity
@@ -165,24 +206,52 @@ export default function CharacterDetailSheet({
               <Text
                 style={[styles.audioBtnText, isSpeaking && { color: "#fff" }]}
               >
-                {t("hangul.detail.listen")}
+                {t(
+                  speechLanguage === "en-US"
+                    ? "alphabet.listenName"
+                    : "hangul.detail.listen",
+                )}
               </Text>
             </TouchableOpacity>
+            {audioFailed && (
+              <Text accessibilityRole="alert" style={styles.hint}>
+                {t("alphabet.audioError")}
+              </Text>
+            )}
 
             {/* 예시 단어 */}
             <Text style={styles.sectionTitle}>
-              {t("hangul.detail.examples")}
+              {t(
+                speechLanguage === "en-US"
+                  ? "alphabet.wordSounds"
+                  : "hangul.detail.examples",
+              )}
             </Text>
             <View style={styles.examplesGrid}>
               {character.examples.map((ex, i) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.exampleChip}
-                  onPress={() => speak(ex.word)}
+                  onPress={() => {
+                    setAudioFailed(false);
+                    speak(ex.word, speechLanguage, {
+                      onError: () => setAudioFailed(true),
+                    });
+                  }}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.exampleWord}>{ex.word}</Text>
-                  <Text style={styles.exampleRoman}>{ex.romanization}</Text>
+                  {ex.sound ? (
+                    <View>
+                      <Text style={styles.sound}>{ex.sound}</Text>
+                      <Text style={styles.exampleWord}>{ex.word}</Text>
+                      <Text style={styles.exampleRoman}>{ex.romanization}</Text>
+                    </View>
+                  ) : (
+                    <>
+                      <Text style={styles.exampleWord}>{ex.word}</Text>
+                      <Text style={styles.exampleRoman}>{ex.romanization}</Text>
+                    </>
+                  )}
                   <Ionicons
                     name="volume-medium-outline"
                     size={14}
@@ -194,19 +263,21 @@ export default function CharacterDetailSheet({
             </View>
 
             {/* 게임 CTA */}
-            <TouchableOpacity
-              style={styles.gameBtn}
-              activeOpacity={0.85}
-              onPress={() => {
-                onClose();
-                setTimeout(onStartGame, 300);
-              }}
-            >
-              <Ionicons name="game-controller" size={20} color="#fff" />
-              <Text style={styles.gameBtnText}>
-                {t("hangul.detail.playGame")}
-              </Text>
-            </TouchableOpacity>
+            {onStartGame && (
+              <TouchableOpacity
+                style={styles.gameBtn}
+                activeOpacity={0.85}
+                onPress={() => {
+                  onClose();
+                  setTimeout(onStartGame, 300);
+                }}
+              >
+                <Ionicons name="game-controller" size={20} color="#fff" />
+                <Text style={styles.gameBtnText}>
+                  {t("hangul.detail.playGame")}
+                </Text>
+              </TouchableOpacity>
+            )}
           </ScrollView>
         </Animated.View>
       </GestureHandlerRootView>
@@ -290,6 +361,19 @@ const getStyles = (theme: ThemeColors) =>
       marginBottom: 18,
       letterSpacing: 2,
       textTransform: "uppercase",
+    },
+    hint: {
+      fontSize: 14,
+      lineHeight: 21,
+      color: theme.textSecondary,
+      textAlign: "center",
+      marginBottom: 16,
+    },
+    sound: {
+      fontSize: 16,
+      fontWeight: "800",
+      color: theme.primary,
+      marginBottom: 4,
     },
     audioBtn: {
       flexDirection: "row",

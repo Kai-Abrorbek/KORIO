@@ -1,6 +1,8 @@
 import topik from "./topik/ko";
+import alphabet from "./alphabet";
 
 export default {
+  alphabet: alphabet.ko,
   topik,
   rewardInbox: {
     title: "운영팀의 선물이 도착했어요!",
@@ -1040,10 +1042,14 @@ export default {
       voiceSection: "말하기",
       voice: "목소리",
       voiceDesc: "한국어 화자 선택",
+      koreanVoice: "한국어 학습 목소리",
+      koreanVoiceDesc: "한국어로 읽는 학습 음성에 적용돼요",
+      englishVoice: "영어 학습 목소리",
+      englishVoiceDesc: "영어로 읽는 모든 학습 음성에 적용돼요",
       voicePickerTitle: "목소리를 골라보세요",
       voicePickerDesc:
         "재생 버튼으로 들어보고 마음에 드는 목소리를 선택하세요.",
-      loadingVoices: "한국어 목소리를 불러오는 중...",
+      loadingVoices: "목소리를 불러오는 중...",
       voiceLoadError: "목소리 목록을 불러오지 못했어요.",
       retry: "다시 시도",
       female: "여성",

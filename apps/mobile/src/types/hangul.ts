@@ -3,6 +3,8 @@ export type HangulCategory = "consonant" | "vowel";
 export interface HangulExample {
   word: string;
   romanization: string;
+  /** 알파벳 예시에서 해당 글자가 내는 소리 (IPA). */
+  sound?: string;
 }
 
 export interface HangulCharacter {

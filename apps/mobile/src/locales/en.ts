@@ -1,6 +1,8 @@
 import topik from "./topik/en";
+import alphabet from "./alphabet";
 
 export default {
+  alphabet: alphabet.en,
   topik,
   rewardInbox: {
     title: "A gift from the Korio team!",
@@ -1042,10 +1044,14 @@ export default {
       voiceSection: "Speech",
       voice: "Voice",
       voiceDesc: "Choose a Korean speaker",
+      koreanVoice: "Korean learning voice",
+      koreanVoiceDesc: "Used for Korean speech in lessons",
+      englishVoice: "English learning voice",
+      englishVoiceDesc: "Used for English speech across all lessons",
       voicePickerTitle: "Choose a voice",
       voicePickerDesc:
         "Preview each voice, then select the one you want to hear in lessons.",
-      loadingVoices: "Loading Korean voices...",
+      loadingVoices: "Loading voices...",
       voiceLoadError: "Couldn't load the voice list.",
       retry: "Try again",
       female: "Female",

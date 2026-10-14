@@ -7,7 +7,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "@/utils/haptics";
@@ -16,6 +16,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import {
   DEFAULT_SPEECH_VOICE,
+  DEFAULT_ENGLISH_SPEECH_VOICE,
   useSettingsStore,
   type SoundPrefs,
 } from "@/store/settings.store";
@@ -23,11 +24,24 @@ import { useSound } from "@/hooks/useSound";
 import { useSpeech } from "@/hooks/useSpeech";
 import { VolumeSlider } from "@/components/settings/VolumeSlider";
 import { VoicePickerModal } from "@/components/settings/VoicePickerModal";
-import { TtsService, type SpeechVoice } from "@/services/tts.service";
-import { useCallback, useMemo, useState } from "react";
+import {
+  TtsService,
+  type SpeechVoice,
+  type SpeechLanguage,
+} from "@/services/tts.service";
+import { useCallback, useState } from "react";
+import { resolveSpeechVoice } from "@/utils/speech-voice";
 
 /** 미리듣기 문장 — 학습 콘텐츠라 번역 대상이 아니다 */
 const SAMPLE = "안녕하세요";
+type LearningSpeechLanguage = Extract<SpeechLanguage, "ko-KR" | "en-US">;
+const VOICE_LANGUAGES: LearningSpeechLanguage[] = ["ko-KR", "en-US"];
+const SAMPLES = { "ko-KR": SAMPLE, "en-US": "Hello! Let's learn English." };
+interface VoiceListState {
+  voices: SpeechVoice[];
+  loading: boolean;
+  failed: boolean;
+}
 
 const DEFAULTS: SoundPrefs = {
   speechVolume: 1,
@@ -35,6 +49,7 @@ const DEFAULTS: SoundPrefs = {
   keyVolume: 1,
   speechRate: 1,
   speechVoice: DEFAULT_SPEECH_VOICE,
+  englishSpeechVoice: DEFAULT_ENGLISH_SPEECH_VOICE,
   autoPlay: true,
   keyHaptics: true,
   rewardHaptics: true,
@@ -164,38 +179,63 @@ export default function SoundSettings() {
   const { play } = useSound();
   const { speak, stop, isSpeaking } = useSpeech();
   const [voicePickerVisible, setVoicePickerVisible] = useState(false);
-  const [voices, setVoices] = useState<SpeechVoice[]>([]);
-  const [voicesLoading, setVoicesLoading] = useState(false);
-  const [voiceLoadFailed, setVoiceLoadFailed] = useState(false);
+  const [voiceLanguage, setVoiceLanguage] =
+    useState<LearningSpeechLanguage>("ko-KR");
+  const [voiceLists, setVoiceLists] = useState<
+    Record<LearningSpeechLanguage, VoiceListState>
+  >({
+    "ko-KR": { voices: [], loading: false, failed: false },
+    "en-US": { voices: [], loading: false, failed: false },
+  });
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const activeList = voiceLists[voiceLanguage];
+  useFocusEffect(useCallback(() => () => stop(), [stop]));
 
-  const loadVoices = useCallback(async () => {
-    setVoicesLoading(true);
-    setVoiceLoadFailed(false);
+  const loadVoices = useCallback(async (language: LearningSpeechLanguage) => {
+    setVoiceLists((lists) => ({
+      ...lists,
+      [language]: { ...lists[language], loading: true, failed: false },
+    }));
     try {
-      setVoices(await TtsService.getKoreanVoices());
+      const voices = await TtsService.getVoices(language);
+      setVoiceLists((lists) => ({
+        ...lists,
+        [language]: { voices, loading: false, failed: false },
+      }));
     } catch {
-      setVoiceLoadFailed(true);
-    } finally {
-      setVoicesLoading(false);
+      setVoiceLists((lists) => ({
+        ...lists,
+        [language]: { ...lists[language], loading: false, failed: true },
+      }));
     }
   }, []);
 
-  const selectedVoice = useMemo(
-    () => voices.find((voice) => voice.shortName === sound.speechVoice),
-    [sound.speechVoice, voices],
-  );
-  const selectedVoiceLabel =
-    selectedVoice?.localName ??
-    sound.speechVoice
-      .replace(/^ko-KR-/, "")
-      .replace(/Neural$/, "")
-      .split(":")[0];
+  const selectedVoiceName = resolveSpeechVoice(voiceLanguage, sound)!;
+  const voiceLabel = (language: LearningSpeechLanguage) => {
+    const name = resolveSpeechVoice(language, sound)!;
+    return (
+      voiceLists[language].voices.find((voice) => voice.shortName === name)
+        ?.localName ??
+      name
+        .replace(/^(ko-KR|en-US)-/, "")
+        .replace(/Neural$/, "")
+        .split(":")[0]
+    );
+  };
   const audibleSpeechVolume = sound.speechVolume > 0 ? sound.speechVolume : 1;
 
-  const openVoicePicker = () => {
+  const openVoicePicker = (language: LearningSpeechLanguage) => {
+    stop();
+    setPreviewingVoice(null);
+    setPreviewFailed(false);
+    setVoiceLanguage(language);
     setVoicePickerVisible(true);
-    if (voices.length === 0 && !voicesLoading) void loadVoices();
+    if (
+      voiceLists[language].voices.length === 0 &&
+      !voiceLists[language].loading
+    )
+      void loadVoices(language);
   };
 
   const closeVoicePicker = () => {
@@ -210,15 +250,19 @@ export default function SoundSettings() {
       setPreviewingVoice(null);
       return;
     }
-    speak(SAMPLE, "ko-KR", {
+    setPreviewFailed(false);
+    setPreviewingVoice(voice.shortName);
+    speak(SAMPLES[voiceLanguage], voiceLanguage, {
       voice: voice.shortName,
       volume: audibleSpeechVolume,
       respectSoundSettings: false,
       onDone: () => setPreviewingVoice(null),
-      onError: () => setPreviewingVoice(null),
+      onError: () => {
+        setPreviewingVoice(null);
+        setPreviewFailed(true);
+      },
       onStopped: () => setPreviewingVoice(null),
     });
-    setPreviewingVoice(voice.shortName);
   };
 
   const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -328,26 +372,43 @@ export default function SoundSettings() {
         {/* 음성 */}
         <Text style={s.sectionLabel}>{t("settings.sound.voiceSection")}</Text>
         <View style={s.card}>
-          <Pressable
-            style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]}
-            onPress={openVoicePicker}
-          >
-            <IconSq icon="people" color="#E85D97" bg="#FFE0EC" s={s} />
-            <View style={{ flex: 1 }}>
-              <Text style={s.rowLabel}>{t("settings.sound.voice")}</Text>
-              <Text style={s.rowDesc}>{t("settings.sound.voiceDesc")}</Text>
+          {VOICE_LANGUAGES.map((language, index) => (
+            <View key={language}>
+              {index > 0 && <View style={s.rowDivider} />}
+              <Pressable
+                style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]}
+                onPress={() => openVoicePicker(language)}
+              >
+                <IconSq icon="people" color="#E85D97" bg="#FFE0EC" s={s} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.rowLabel}>
+                    {t(
+                      language === "ko-KR"
+                        ? "settings.sound.koreanVoice"
+                        : "settings.sound.englishVoice",
+                    )}
+                  </Text>
+                  <Text style={s.rowDesc}>
+                    {t(
+                      language === "ko-KR"
+                        ? "settings.sound.koreanVoiceDesc"
+                        : "settings.sound.englishVoiceDesc",
+                    )}
+                  </Text>
+                </View>
+                <View style={s.voiceValue}>
+                  <Text style={s.voiceValueText} numberOfLines={1}>
+                    {voiceLabel(language)}
+                  </Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={theme.textSecondary}
+                  />
+                </View>
+              </Pressable>
             </View>
-            <View style={s.voiceValue}>
-              <Text style={s.voiceValueText} numberOfLines={1}>
-                {selectedVoiceLabel}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={18}
-                color={theme.textSecondary}
-              />
-            </View>
-          </Pressable>
+          ))}
           <View style={s.rowDivider} />
           <SliderRow
             icon="speedometer"
@@ -371,21 +432,32 @@ export default function SoundSettings() {
             s={s}
           />
           <View style={s.previewWrap}>
-            <Pressable
-              style={({ pressed }) => [s.preview, pressed && s.previewPressed]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                speak(SAMPLE, "ko-KR", {
-                  volume: audibleSpeechVolume,
-                  respectSoundSettings: false,
-                });
-              }}
-            >
-              <Ionicons name="play" size={16} color={theme.primary} />
-              <Text style={s.previewText}>
-                {t("settings.sound.preview")} · {SAMPLE}
-              </Text>
-            </Pressable>
+            {VOICE_LANGUAGES.map((language) => (
+              <Pressable
+                key={language}
+                style={({ pressed }) => [
+                  s.preview,
+                  pressed && s.previewPressed,
+                ]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  speak(SAMPLES[language], language, {
+                    volume: audibleSpeechVolume,
+                    respectSoundSettings: false,
+                  });
+                }}
+              >
+                <Ionicons name="play" size={16} color={theme.primary} />
+                <Text style={s.previewText}>
+                  {t("settings.sound.preview")} ·{" "}
+                  {t(
+                    language === "ko-KR"
+                      ? "courses.languages.korean"
+                      : "courses.languages.english",
+                  )}
+                </Text>
+              </Pressable>
+            ))}
           </View>
           <View style={s.rowDivider} />
           <ToggleRow
@@ -466,18 +538,33 @@ export default function SoundSettings() {
       </ScrollView>
       <VoicePickerModal
         visible={voicePickerVisible}
-        voices={voices}
-        selectedVoice={sound.speechVoice}
-        loading={voicesLoading}
-        loadFailed={voiceLoadFailed}
+        voices={activeList.voices}
+        selectedVoice={selectedVoiceName}
+        loading={activeList.loading}
+        loadFailed={activeList.failed}
         previewingVoice={previewingVoice}
         isSpeaking={isSpeaking}
         theme={theme}
+        title={t(
+          voiceLanguage === "ko-KR"
+            ? "settings.sound.koreanVoice"
+            : "settings.sound.englishVoice",
+        )}
+        description={t(
+          previewFailed
+            ? "alphabet.audioError"
+            : "settings.sound.voicePickerDesc",
+        )}
         onClose={closeVoicePicker}
-        onRetry={() => void loadVoices()}
+        onRetry={() => void loadVoices(voiceLanguage)}
         onSelect={(voice) => {
           Haptics.selectionAsync();
-          setSound({ speechVoice: voice.shortName });
+          setSound(
+            voiceLanguage === "ko-KR"
+              ? { speechVoice: voice.shortName }
+              : { englishSpeechVoice: voice.shortName },
+          );
+          closeVoicePicker();
         }}
         onPreview={previewVoice}
       />
@@ -564,7 +651,7 @@ const getStyles = (theme: ThemeColors) =>
       marginTop: 8,
       marginHorizontal: 32,
     },
-    previewWrap: { paddingHorizontal: 16, paddingBottom: 14 },
+    previewWrap: { paddingHorizontal: 16, paddingBottom: 14, gap: 8 },
     preview: {
       flexDirection: "row",
       alignItems: "center",

@@ -40,6 +40,8 @@ interface Props {
   onRetry: () => void;
   onSelect: (voice: SpeechVoice) => void;
   onPreview: (voice: SpeechVoice) => void;
+  title?: string;
+  description?: string;
 }
 
 export function VoicePickerModal({
@@ -55,6 +57,8 @@ export function VoicePickerModal({
   onRetry,
   onSelect,
   onPreview,
+  title,
+  description,
 }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -118,10 +122,10 @@ export function VoicePickerModal({
               <View style={s.header}>
                 <View style={s.headerText}>
                   <Text style={s.title}>
-                    {t("settings.sound.voicePickerTitle")}
+                    {title ?? t("settings.sound.voicePickerTitle")}
                   </Text>
                   <Text style={s.subtitle}>
-                    {t("settings.sound.voicePickerDesc")}
+                    {description ?? t("settings.sound.voicePickerDesc")}
                   </Text>
                 </View>
                 <Pressable style={s.close} onPress={onClose} hitSlop={8}>

@@ -13,6 +13,8 @@
 
 - Read the nearest `AGENTS.md`, relevant `README.md`, and package scripts before editing.
 - Preserve unrelated working-tree changes. Never revert, overwrite, or broadly reformat user work.
+- After finishing implementation and relevant validation, commit the changes belonging to the completed task. Exclude unrelated user changes from the commit.
+- Report whether a mobile change needs an OTA update or a new native build. Leave running or publishing OTA updates to the user unless they explicitly request otherwise.
 - Keep changes focused on the requested outcome and reuse existing patterns before adding abstractions.
 - Ask before adding a production dependency, changing a public contract or database schema, or running destructive seed/data operations.
 - Never commit secrets or expose values from `.env*` files, tokens, credentials, or private keys.

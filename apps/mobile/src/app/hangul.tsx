@@ -9,7 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { HANGUL_CHARACTERS } from "@/constants/hangul";
@@ -24,8 +24,14 @@ import { useEnergyStore, useEnergySync } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
 import { HangulMastery, HangulService } from "@/services/hangul.service";
+import EnglishAlphabetScreen from "@/components/hangul/EnglishAlphabetScreen";
 
 export default function HangulScreen() {
+  const { lang } = useLocalSearchParams<{ lang?: string }>();
+  return lang === "en" ? <EnglishAlphabetScreen /> : <KoreanHangulScreen />;
+}
+
+function KoreanHangulScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
@@ -144,7 +150,12 @@ export default function HangulScreen() {
         )}
 
         {/* 탭 */}
-        <CategoryTabs value={category} onChange={setCategory} />
+        <CategoryTabs
+          value={category}
+          onChange={(next) => {
+            if (next !== "all") setCategory(next);
+          }}
+        />
 
         {/* 글자 그리드 */}
         <Animated.View

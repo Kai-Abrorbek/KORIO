@@ -116,6 +116,15 @@ export default function CoursesScreen() {
     if (!target) return;
     commitStudyMode(mode);
 
+    // 영어는 먼저 글자 학습만 제공한다. 한국어 학습 로드로 보내지 않는다.
+    if (target.code === "en") {
+      router.push({
+        pathname: "/course-categories",
+        params: { lang: target.code, label: target.label },
+      });
+      return;
+    }
+
     // 학습 로드는 오늘 뭘 할지까지 정해주는 모드다. 여기서 다시 분야를
     // 고르라고 하면 그 약속이 깨지므로 바로 하루치 로드맵으로 보낸다.
     if (mode === "guided") {
@@ -164,7 +173,7 @@ export default function CoursesScreen() {
               theme={theme}
               s={s}
               label={t(`courses.languages.${item.key}`)}
-              count={count}
+              count={item.code === "en" ? t("alphabet.courseCount") : count}
               onPress={() =>
                 setPending({
                   code: item.code,

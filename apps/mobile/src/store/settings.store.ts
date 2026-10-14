@@ -2,6 +2,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Href } from "expo-router";
+import {
+  DEFAULT_SPEECH_VOICE,
+  DEFAULT_ENGLISH_SPEECH_VOICE,
+} from "@/utils/speech-voice";
 import i18n, {
   detectDeviceLanguage,
   detectDeviceContentLanguage,
@@ -9,6 +13,11 @@ import i18n, {
   type AppLanguage,
   type ContentLanguage,
 } from "../locales/i18n";
+
+export {
+  DEFAULT_SPEECH_VOICE,
+  DEFAULT_ENGLISH_SPEECH_VOICE,
+} from "@/utils/speech-voice";
 
 type Language = AppLanguage;
 export type Theme = "light" | "dark" | "system";
@@ -24,7 +33,6 @@ export type LearnMode =
   | "topik";
 
 export type TopikLevel = "1" | "2";
-export const DEFAULT_SPEECH_VOICE = "ko-KR-SunHiNeural";
 
 /**
  * "이어서 학습하기" 가 갈 곳이 확실한 모드만 여기 들어간다.
@@ -119,6 +127,8 @@ export interface SoundPrefs {
   speechRate: number;
   /** Azure Speech 한국어 음성 ShortName */
   speechVoice: string;
+  /** Azure Speech 영어 음성. 한국어 목소리 선택과 별도로 저장한다. */
+  englishSpeechVoice: string;
   /** 문제가 나오면 알아서 읽어주기 */
   autoPlay: boolean;
   /** 탭할 때 진동 */
@@ -208,6 +218,7 @@ export const useSettingsStore = create<SettingsState>()(
         keyVolume: 1,
         speechRate: 1,
         speechVoice: DEFAULT_SPEECH_VOICE,
+        englishSpeechVoice: DEFAULT_ENGLISH_SPEECH_VOICE,
         autoPlay: true,
         keyHaptics: true,
         rewardHaptics: true,
@@ -283,6 +294,13 @@ export const useSettingsStore = create<SettingsState>()(
         // 이 설정이 생기기 전에 저장된 데이터에는 음성 이름이 없다.
         if (state?.sound && !state.sound.speechVoice) {
           state.sound.speechVoice = DEFAULT_SPEECH_VOICE;
+        }
+        if (
+          state?.sound &&
+          (typeof state.sound.englishSpeechVoice !== "string" ||
+            !state.sound.englishSpeechVoice.startsWith("en-US-"))
+        ) {
+          state.sound.englishSpeechVoice = DEFAULT_ENGLISH_SPEECH_VOICE;
         }
 
         // "무음으로 시작" 을 켜뒀으면 이번 실행은 소리 없이 연다

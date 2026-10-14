@@ -1,6 +1,8 @@
 import topik from "./topik/ru";
+import alphabet from "./alphabet";
 
 export default {
+  alphabet: alphabet.ru,
   topik,
   rewardInbox: {
     title: "Подарок от команды Korio!",
@@ -1047,10 +1049,14 @@ export default {
       voiceSection: "Речь",
       voice: "Голос",
       voiceDesc: "Выберите корейского диктора",
+      koreanVoice: "Голос для изучения корейского",
+      koreanVoiceDesc: "Используется для корейской речи на занятиях",
+      englishVoice: "Голос для изучения английского",
+      englishVoiceDesc: "Используется для английской речи во всех занятиях",
       voicePickerTitle: "Выберите голос",
       voicePickerDesc:
         "Прослушайте голоса и выберите тот, который хотите слышать на занятиях.",
-      loadingVoices: "Загрузка корейских голосов...",
+      loadingVoices: "Загрузка голосов...",
       voiceLoadError: "Не удалось загрузить список голосов.",
       retry: "Повторить",
       female: "Женский",

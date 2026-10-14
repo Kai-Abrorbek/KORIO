@@ -18,10 +18,11 @@ import { ThemeColors } from "@/constants/theme";
 const DEPTH = 4;
 
 interface Props {
-  character: HangulCharacter;
+  character: Pick<HangulCharacter, "char" | "romanization">;
   mastery: 0 | 1 | 2 | 3;
   index: number;
   onPress: () => void;
+  showMastery?: boolean;
 }
 
 function getStyleByMastery(mastery: number, theme: ThemeColors) {
@@ -62,6 +63,7 @@ export default function CharacterCard({
   mastery,
   index,
   onPress,
+  showMastery = true,
 }: Props) {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -158,23 +160,33 @@ export default function CharacterCard({
             { backgroundColor: config.bg, borderColor: config.border },
           ]}
         >
-          <Text style={[styles.char, { color: config.accent }]}>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[styles.char, { color: config.accent }]}
+          >
             {character.char}
           </Text>
-          <Text style={[styles.roman, { color: config.accent, opacity: 0.7 }]}>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[styles.roman, { color: config.accent, opacity: 0.7 }]}
+          >
             {character.romanization}
           </Text>
-          <View style={styles.stars}>
-            {[0, 1, 2].map((i) => (
-              <Ionicons
-                key={i}
-                name={i < mastery ? "star" : "star-outline"}
-                size={11}
-                color={i < mastery ? config.accent : theme.border}
-                style={{ marginHorizontal: 1 }}
-              />
-            ))}
-          </View>
+          {showMastery && (
+            <View style={styles.stars}>
+              {[0, 1, 2].map((i) => (
+                <Ionicons
+                  key={i}
+                  name={i < mastery ? "star" : "star-outline"}
+                  size={11}
+                  color={i < mastery ? config.accent : theme.border}
+                  style={{ marginHorizontal: 1 }}
+                />
+              ))}
+            </View>
+          )}
         </Pressable>
       </Animated.View>
     </Animated.View>

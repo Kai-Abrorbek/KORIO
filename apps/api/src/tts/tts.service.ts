@@ -51,10 +51,7 @@ interface AzureVoiceResponse {
   StyleList?: string[];
 }
 
-const VOICES: Record<
-  SpeechLanguage,
-  Record<'female' | 'male', string>
-> = {
+const VOICES: Record<SpeechLanguage, Record<'female' | 'male', string>> = {
   'ko-KR': {
     female: 'ko-KR-SunHiNeural',
     male: 'ko-KR-InJoonNeural',
@@ -80,14 +77,21 @@ export class TtsService {
   private readonly audioIdByCacheKey = new Map<string, string>();
   private readonly inFlight = new Map<string, Promise<Buffer>>();
   private cacheBytes = 0;
-  private voicesCache: { expiresAt: number; voices: SpeechVoice[] } | null =
-    null;
+  private readonly voicesCache = new Map<
+    SpeechLanguage,
+    { expiresAt: number; voices: SpeechVoice[] }
+  >();
 
   constructor(private readonly configService: ConfigService) {}
 
-  async listKoreanVoices(): Promise<SpeechVoice[]> {
-    if (this.voicesCache && this.voicesCache.expiresAt > Date.now()) {
-      return this.voicesCache.voices;
+  listKoreanVoices(): Promise<SpeechVoice[]> {
+    return this.listVoices('ko-KR');
+  }
+
+  async listVoices(language: SpeechLanguage = 'ko-KR'): Promise<SpeechVoice[]> {
+    const cached = this.voicesCache.get(language);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.voices;
     }
 
     const controller = new AbortController();
@@ -111,7 +115,9 @@ export class TtsService {
         throw new BadGatewayException('AZURE_SPEECH_VOICES_INVALID');
       }
       const voices = payload
-        .filter(this.isAzureKoreanVoice)
+        .filter((voice): voice is AzureVoiceResponse =>
+          this.isAzureVoice(voice, language),
+        )
         .map<SpeechVoice>((voice) => ({
           shortName: voice.ShortName,
           displayName: voice.DisplayName ?? voice.ShortName,
@@ -123,16 +129,16 @@ export class TtsService {
         }))
         .sort((a, b) => {
           if (a.gender !== b.gender) return a.gender === 'female' ? -1 : 1;
-          return a.localName.localeCompare(b.localName, 'ko');
+          return a.localName.localeCompare(b.localName, language);
         });
       if (voices.length === 0) {
         throw new BadGatewayException('AZURE_SPEECH_VOICES_EMPTY');
       }
 
-      this.voicesCache = {
+      this.voicesCache.set(language, {
         expiresAt: Date.now() + VOICE_CACHE_TTL_MS,
         voices,
-      };
+      });
       return voices;
     } catch (error) {
       if (
@@ -372,15 +378,16 @@ export class TtsService {
     return subscriptionKey;
   }
 
-  private isAzureKoreanVoice(
-    this: void,
+  private isAzureVoice(
     value: unknown,
+    language: SpeechLanguage,
   ): value is AzureVoiceResponse {
     if (!value || typeof value !== 'object') return false;
     const voice = value as Partial<AzureVoiceResponse>;
     return (
-      voice.Locale === 'ko-KR' &&
+      voice.Locale === language &&
       typeof voice.ShortName === 'string' &&
+      voice.ShortName.startsWith(`${language}-`) &&
       (voice.Gender === 'Female' || voice.Gender === 'Male')
     );
   }
@@ -393,10 +400,15 @@ export class TtsService {
   ) {
     const ratePercent = Math.round((rate - 1) * 100);
     const rateValue = `${ratePercent >= 0 ? '+' : ''}${ratePercent}%`;
+    const escapedText = this.escapeXml(text);
+    const spokenText =
+      language === 'en-US' && /^[A-Za-z]$/.test(text)
+        ? `<say-as interpret-as="characters">${escapedText}</say-as>`
+        : escapedText;
     return [
       `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${language}">`,
       `<voice name="${this.escapeXml(voice)}"><prosody rate="${rateValue}">`,
-      this.escapeXml(text),
+      spokenText,
       '</prosody></voice></speak>',
     ].join('');
   }
