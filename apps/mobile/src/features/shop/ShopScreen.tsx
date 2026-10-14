@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, type Href } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
@@ -31,6 +31,7 @@ import EnergySection from "./EnergySection";
 import WithdrawCard from "./WithdrawCard";
 import { ENERGY_FREE_AMOUNT, ENERGY_MAX } from "@/constants/energy";
 import StreakFreezeSection from "./StreakFreezeSection";
+import StickerPromoCard from "@/components/stickers/StickerPromoCard";
 import { RetentionService } from "@/services/retention.service";
 import { useRetentionStore } from "@/store/retention.store";
 
@@ -55,6 +56,8 @@ export default function ShopScreen() {
   const s = styles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // 스티커팩 카드에 내 캐릭터 얼굴
+  const avatar = useAuthStore((st) => st.user?.avatar);
 
   const [energy, setEnergy] = useState<EnergyState | null>(null);
   const [passList, setPassList] = useState<GemPassList | null>(null);
@@ -292,6 +295,16 @@ export default function ShopScreen() {
           {t("shop.superTitle")}
         </Text>
         <SuperCard isSuper={isSuper} onPress={() => router.dismissTo("/premium")} />
+
+        {/* ── 내 캐릭터 텔레그램 스티커팩 ── */}
+        <Text style={[s.sectionLabel, { marginTop: 22 }]}>
+          {t("stickers.shopLabel")}
+        </Text>
+        <StickerPromoCard
+          avatar={avatar}
+          onPress={() => router.push("/stickers" as Href)}
+          style={{ marginHorizontal: 20, marginBottom: 12 }}
+        />
 
         {/* ── 스트릭 복구펜 ── */}
         {freeze ? (

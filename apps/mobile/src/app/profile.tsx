@@ -17,11 +17,12 @@ import { t } from "i18next";
 import { useAuthStore } from "@/store/auth.store";
 import { signOut } from "@/utils/sign-out";
 import { toUserProfile } from "@/services/user.service";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import { UserService } from "@/services/user.service";
 import QuestBadgesRow from "@/features/retention/components/QuestBadgesRow";
+import StickerPromoCard from "@/components/stickers/StickerPromoCard";
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -68,6 +69,13 @@ export default function ProfileScreen() {
 
       <AddFriendButton onPress={() => router.push("/add-friends")} />
 
+      {/* 내 캐릭터 텔레그램 스티커팩 */}
+      <StickerPromoCard
+        avatar={user?.avatar}
+        onPress={() => router.push("/stickers" as Href)}
+        style={styles.stickerPromo}
+      />
+
       <LearningStatusGrid
         streak={profile.streak}
         languageFlag={profile.coursePrimaryFlag}
@@ -100,6 +108,11 @@ const getStyles = (theme: ThemeColors) =>
     },
     content: {
       paddingBottom: 120,
+    },
+    stickerPromo: {
+      marginHorizontal: 20,
+      marginTop: -12,
+      marginBottom: 28,
     },
     logout: {
       flexDirection: "row",

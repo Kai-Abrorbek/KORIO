@@ -24,6 +24,7 @@ export const GEM_LOOK: Record<string, { icon: IconName; color: string }> = {
   energy_refill: { icon: "flash", color: "#E5379B" },
   gem_pass: { icon: "star", color: "#A946DA" },
   cosmetic: { icon: "sparkles", color: "#E2A83A" },
+  sticker_pack: { icon: "paper-plane", color: "#2AABEE" },
   subscription_bonus: { icon: "sparkles", color: "#A946DA" },
   payout: { icon: "card", color: "#0FA36B" },
   payout_refund: { icon: "arrow-undo", color: "#0FA36B" },
