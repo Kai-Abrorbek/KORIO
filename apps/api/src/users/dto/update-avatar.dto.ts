@@ -59,4 +59,10 @@ export class UpdateAvatarDto {
   @IsString()
   @IsIn([...AVATAR_OPTIONS.aura])
   aura?: AvatarConfigValue['aura'];
+
+  /** 장면 — 없으면(예전 앱) 지금 것을 그대로 둔다. 산 것·무료만 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.scene])
+  scene?: AvatarConfigValue['scene'];
 }

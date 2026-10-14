@@ -1,4 +1,4 @@
-import { AURA_IDS } from '../../cosmetics/cosmetics.const';
+import { AURA_IDS, SCENE_IDS } from '../../cosmetics/cosmetics.const';
 
 export const AVATAR_VERSION = 1 as const;
 
@@ -94,6 +94,8 @@ export const AVATAR_OPTIONS = {
   ],
   /** 보석으로 사는 움직이는 효과 (cosmetics). 가진 것만 장착할 수 있다 */
   aura: AURA_IDS,
+  /** 캐릭터 뒤 장면 그림 (cosmetics). background 그라데이션 위에 깐다 — 예전 앱은 이 칸을 모른다 */
+  scene: SCENE_IDS,
 } as const;
 
 export interface AvatarConfigValue {
@@ -110,6 +112,7 @@ export interface AvatarConfigValue {
   outfit: (typeof AVATAR_OPTIONS.outfit)[number];
   background: (typeof AVATAR_OPTIONS.background)[number];
   aura?: (typeof AVATAR_OPTIONS.aura)[number];
+  scene?: (typeof AVATAR_OPTIONS.scene)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
@@ -126,4 +129,5 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   outfit: 'outfit_hoodie',
   background: 'background_lilac',
   aura: 'aura_none',
+  scene: 'scene_none',
 };

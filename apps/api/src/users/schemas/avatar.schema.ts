@@ -84,6 +84,10 @@ export class AvatarConfig {
   /** 장착한 오라 (cosmetics) — 산 것만 */
   @Prop({ type: String, default: 'aura_none' })
   aura: string;
+
+  /** 캐릭터 뒤 장면 (cosmetics, 예: scene_namsan) — 산 것·무료만 */
+  @Prop({ type: String, default: 'scene_none' })
+  scene: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);

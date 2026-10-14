@@ -14,20 +14,28 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import {
   AURA_NONE,
   COSMETICS,
+  SCENE_NONE,
   cosmeticById,
   isFreeCosmetic,
   ownedWithFree,
 } from './cosmetics.const';
 
-/** 장착하려는 오라를 갖고 있는지 — avatar 저장(updateAvatar)도 이걸 쓴다 */
-export function assertAuraOwned(
-  aura: string | null | undefined,
+/**
+ * 장착하려는 꾸미기(오라·장면)를 갖고 있는지 — avatar 저장(updateAvatar)도 이걸 쓴다.
+ * 없음(none)·무료(가격 0)는 늘 통과.
+ */
+export function assertCosmeticOwned(
+  id: string | null | undefined,
   owned: readonly string[] | null | undefined,
 ) {
-  if (!aura || aura === AURA_NONE || isFreeCosmetic(aura)) return;
-  if (!(owned ?? []).includes(aura))
+  if (!id || id === AURA_NONE || id === SCENE_NONE || isFreeCosmetic(id))
+    return;
+  if (!(owned ?? []).includes(id))
     throw new ForbiddenException('COSMETIC_NOT_OWNED');
 }
+
+/** 예전 이름 (오라만 쓰던 때) */
+export const assertAuraOwned = assertCosmeticOwned;
 
 /**
  * 꾸미기 아이템 — 보석으로 사고, 산 건 영원히 내 것. 장착은 avatar.aura.
@@ -47,13 +55,16 @@ export class CosmeticsService {
   async list(userId: string) {
     const user = await this.users
       .findById(new Types.ObjectId(userId))
-      .select('gems ownedCosmetics avatar.aura')
+      .select('gems ownedCosmetics avatar.aura avatar.scene')
       .lean();
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
     return {
       gems: user.gems ?? 0,
       owned: ownedWithFree(user.ownedCosmetics),
-      equipped: { aura: user.avatar?.aura ?? AURA_NONE },
+      equipped: {
+        aura: user.avatar?.aura ?? AURA_NONE,
+        scene: user.avatar?.scene ?? SCENE_NONE,
+      },
       items: COSMETICS.map((item) => ({
         id: item.id,
         slot: item.slot,
@@ -76,7 +87,7 @@ export class CosmeticsService {
           { _id: uid },
           {
             $addToSet: { ownedCosmetics: item.id },
-            ...(equip ? { $set: { 'avatar.aura': item.id } } : {}),
+            ...(equip ? { $set: { [`avatar.${item.slot}`]: item.id } } : {}),
           },
           { returnDocument: 'after' },
         )
@@ -97,7 +108,7 @@ export class CosmeticsService {
         {
           $inc: { gems: -price },
           $addToSet: { ownedCosmetics: item.id },
-          ...(equip ? { $set: { 'avatar.aura': item.id } } : {}),
+          ...(equip ? { $set: { [`avatar.${item.slot}`]: item.id } } : {}),
         },
         { returnDocument: 'after' },
       )

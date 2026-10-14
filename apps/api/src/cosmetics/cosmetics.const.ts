@@ -14,7 +14,8 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  *   일반 800 · 희귀 2,000 · 에픽 5,000 · 전설 12,000
  * 어드민 "앱 숫자 설정" 에서 가격만 올리면 된다 (COSMETICS.<n>.price, 0 = 무료).
  */
-export type CosmeticSlot = 'aura';
+/** aura: 캐릭터 주위 효과 · scene: 캐릭터 뒤 "서울 여행" 장면 그림 (avatar.scene) */
+export type CosmeticSlot = 'aura' | 'scene';
 export type CosmeticRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface CosmeticItem {
@@ -32,6 +33,13 @@ export const COSMETICS: CosmeticItem[] = runtimeConfig('COSMETICS', [
   { id: 'aura_blossom', slot: 'aura', rarity: 'rare', price: 0 },
   { id: 'aura_flame', slot: 'aura', rarity: 'epic', price: 0 },
   { id: 'aura_hangul', slot: 'aura', rarity: 'legendary', price: 0 },
+  // ⚠️ 새 아이템은 맨 뒤에 — 어드민 설정 키가 순번(COSMETICS.<n>.price)이다
+  { id: 'scene_hangang', slot: 'scene', rarity: 'rare', price: 0 },
+  { id: 'scene_cvs', slot: 'scene', rarity: 'rare', price: 0 },
+  { id: 'scene_namsan', slot: 'scene', rarity: 'rare', price: 0 },
+  { id: 'scene_jeju', slot: 'scene', rarity: 'epic', price: 0 },
+  { id: 'scene_snow', slot: 'scene', rarity: 'epic', price: 0 },
+  { id: 'scene_gyeongbokgung', slot: 'scene', rarity: 'legendary', price: 0 },
 ]);
 
 /** avatar.aura 에 들어갈 수 있는 값 (none 포함) */
@@ -42,6 +50,19 @@ export const AURA_IDS = [
   'aura_blossom',
   'aura_flame',
   'aura_hangul',
+] as const;
+
+export const SCENE_NONE = 'scene_none';
+
+/** avatar.scene 에 들어갈 수 있는 값 (none 포함). 그림은 앱이 같은 id 로 갖고 있다 */
+export const SCENE_IDS = [
+  SCENE_NONE,
+  'scene_hangang',
+  'scene_cvs',
+  'scene_namsan',
+  'scene_jeju',
+  'scene_snow',
+  'scene_gyeongbokgung',
 ] as const;
 
 export const cosmeticById = (id: string): CosmeticItem | undefined =>

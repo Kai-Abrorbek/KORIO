@@ -5,7 +5,11 @@ jest.mock('../gem-ledger/gem-ledger.service', () => ({
 }));
 
 import { replaceRuntimeValues } from '../app-settings/runtime-values';
-import { assertAuraOwned, CosmeticsService } from './cosmetics.service';
+import {
+  assertAuraOwned,
+  assertCosmeticOwned,
+  CosmeticsService,
+} from './cosmetics.service';
 
 /** 지금은 전부 무료(0)다. 파는 경로는 어드민이 가격을 올린 것처럼 값을 넣고 본다 */
 const SALE = new Map([
@@ -154,6 +158,55 @@ describe('CosmeticsService — 무료(가격 0)', () => {
     replaceRuntimeValues(SALE);
     expect(() => assertAuraOwned('aura_flame', ['aura_flame'])).not.toThrow();
     expect(() => assertAuraOwned('aura_hangul', ['aura_flame'])).toThrow(
+      'COSMETIC_NOT_OWNED',
+    );
+  });
+});
+
+describe('CosmeticsService — 장면(scene)', () => {
+  const userId = new Types.ObjectId().toString();
+
+  it('장면을 "사면" avatar.scene 에 입힌다 (무료면 보석 없이)', async () => {
+    const users = {
+      findOneAndUpdate: jest.fn().mockReturnValue(
+        chain({
+          gems: 5,
+          ownedCosmetics: ['scene_namsan'],
+          avatar: { scene: 'scene_namsan' },
+        }),
+      ),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    await service.purchase(userId, 'scene_namsan', true);
+    const [, update] = users.findOneAndUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(update).toEqual({
+      $addToSet: { ownedCosmetics: 'scene_namsan' },
+      $set: { 'avatar.scene': 'scene_namsan' },
+    });
+  });
+
+  it('목록은 장착한 장면도 돌려준다', async () => {
+    const users = {
+      findById: jest
+        .fn()
+        .mockReturnValue(
+          chain({ gems: 1, ownedCosmetics: [], avatar: { aura: 'aura_snow' } }),
+        ),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    const res = await service.list(userId);
+    expect(res.equipped).toEqual({ aura: 'aura_snow', scene: 'scene_none' });
+    expect(res.items.some((item) => item.slot === 'scene')).toBe(true);
+  });
+
+  it('장면을 팔게 되면 안 가진 건 못 입는다 (없음은 늘 통과)', () => {
+    replaceRuntimeValues(new Map([['COSMETICS.10.price', 9000]]));
+    expect(() => assertCosmeticOwned('scene_none', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('scene_snow', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('scene_gyeongbokgung', [])).toThrow(
       'COSMETIC_NOT_OWNED',
     );
   });

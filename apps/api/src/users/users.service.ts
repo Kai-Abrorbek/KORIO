@@ -31,7 +31,7 @@ import {
 } from '../common/date.util';
 import { langToFlag, levelToNumber } from './utils';
 import { buildVersusWeek, versusFetchRange } from './versus-week.util';
-import { assertAuraOwned } from '../cosmetics/cosmetics.service';
+import { assertCosmeticOwned } from '../cosmetics/cosmetics.service';
 import { isFreeCosmetic } from '../cosmetics/cosmetics.const';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
@@ -833,11 +833,15 @@ export class UsersService {
     // 오라는 산 것만. 예전 앱은 aura 를 안 보낸다 → 지금 장착한 걸 그대로 둔다
     const current = await this.userModel
       .findById(userId)
-      .select('ownedCosmetics avatar.aura')
+      .select('ownedCosmetics avatar.aura avatar.scene')
       .lean();
     if (!current) throw new NotFoundException('유저를 찾을 수 없습니다');
     const aura = dto.aura ?? current.avatar?.aura ?? 'aura_none';
-    assertAuraOwned(aura, current.ownedCosmetics);
+    const scene = dto.scene ?? current.avatar?.scene ?? 'scene_none';
+    assertCosmeticOwned(aura, current.ownedCosmetics);
+    assertCosmeticOwned(scene, current.ownedCosmetics);
+    // 무료로 입은 건 내 것으로 남긴다 (나중에 다시 팔아도 유지)
+    const claimed = [aura, scene].filter((id) => isFreeCosmetic(id));
 
     const updated = await this.userModel
       .findByIdAndUpdate(
@@ -847,11 +851,11 @@ export class UsersService {
             avatar: {
               ...dto,
               aura,
+              scene,
             },
           },
-          // 무료 오라를 입으면 내 것으로 남긴다 (나중에 다시 팔아도 유지)
-          ...(isFreeCosmetic(aura)
-            ? { $addToSet: { ownedCosmetics: aura } }
+          ...(claimed.length
+            ? { $addToSet: { ownedCosmetics: { $each: claimed } } }
             : {}),
         },
         {
