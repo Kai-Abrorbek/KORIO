@@ -28,6 +28,7 @@ export function SceneGrid({
   onRetry,
   state,
   status,
+  onOpenAlbum,
 }: {
   draft: AvatarConfig;
   /** 지금 저장돼 있는 장면 */
@@ -36,6 +37,7 @@ export function SceneGrid({
   onRetry: () => void;
   state: CosmeticsState | null;
   status: "loading" | "ready" | "failed";
+  onOpenAlbum: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -57,6 +59,11 @@ export function SceneGrid({
     <Animated.View entering={FadeIn.duration(220)} style={{ paddingHorizontal: 16 }}>
       <Text style={s.headTitle}>{t("avatarEditor.scene.title")}</Text>
       <Text style={s.headSub}>{t("avatarEditor.scene.subtitle")}</Text>
+      <Pressable onPress={onOpenAlbum} style={local.albumButton} accessibilityRole="button">
+        <Ionicons name="images-outline" size={17} color="#6055C4" />
+        <Text style={local.albumText}>{t("avatarPostcards.open")}</Text>
+        <Ionicons name="chevron-forward" size={15} color="#6055C4" />
+      </Pressable>
       <View style={s.grid}>
         {(["scene_none", ...SCENE_ORDER] as SceneId[]).map((id) => (
           <SceneCard
@@ -163,6 +170,8 @@ function SceneCard({
 }
 
 const local = StyleSheet.create({
+  albumButton: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 11, paddingVertical: 8, borderRadius: 999, backgroundColor: "#EFECFF", marginBottom: 12 },
+  albumText: { color: "#6055C4", fontSize: 12, fontWeight: "800" },
   preview: { justifyContent: "flex-end" },
   info: { flexDirection: "column", alignItems: "flex-start", justifyContent: "flex-start", gap: 5, flexGrow: 1 },
   name: { flex: 0 },

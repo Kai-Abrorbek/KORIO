@@ -73,8 +73,10 @@ import {
   templateOf,
 } from "@/utils/blank-sentence";
 import { getContentLang, useContentLang } from "@/store/settings.store";
-import { useAvatarStudyStore } from "@/store/avatar-study.store";
+import { todaysAvatarWord, useAvatarStudyStore } from "@/store/avatar-study.store";
 import { isPet } from "@/components/avatar/AvatarPet";
+import { isScene } from "@/components/avatar/AvatarScene";
+import { mergeAvatarConfig } from "@/types/avatar";
 import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 type Phase = "main" | "reviewIntro" | "review";
@@ -1228,6 +1230,23 @@ export default function LessonScreen() {
           gems: res.gems,
           energy: res.energy,
         } as any);
+
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser?.avatar && isScene(currentUser.avatar.scene)) {
+          const recent = todaysAvatarWord(
+            useAvatarStudyStore.getState().recentWord,
+            currentUser.id,
+            getContentLang(),
+          );
+          useAvatarStudyStore.getState().collectPostcard({
+            userId: currentUser.id,
+            scene: currentUser.avatar.scene,
+            avatar: mergeAvatarConfig(currentUser.avatar),
+            streak: currentUser.streak ?? 0,
+            word: recent?.word ?? null,
+            meaning: recent?.meaning ?? null,
+          });
+        }
 
         // 축하 화면들이 보석 카운터를 이어서 센다 — 받기 전 숫자에서 시작
         const gemsBefore =

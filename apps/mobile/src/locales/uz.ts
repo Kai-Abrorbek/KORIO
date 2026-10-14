@@ -2412,6 +2412,15 @@ export default {
     UNKNOWN_ERROR: "Noma'lum xatolik. Qayta urinib ko'ring.",
     retry: "Qayta urinish",
   },
+  avatarPostcards: {
+    title: "Seul sayohat albomi",
+    count: "{{n}} ta xotira",
+    open: "Sayohat albomini ko‘rish",
+    emptyTitle: "Birinchi otkritkangiz kutmoqda",
+    emptyBody: "Manzarani tanlab, darsni tugating — qahramoningiz va bugungi so‘z saqlanadi.",
+    localNotice: "Albom hozircha faqat shu qurilmada saqlanadi.",
+    memory: "Bugungi o‘quv sayohati",
+  },
   avatarEditor: {
     secretCombo: { nightGuardian: "✦ Sirli to‘plam · Tungi qo‘riqchi" },
     title: "Mening qahramonim",

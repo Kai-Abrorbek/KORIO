@@ -11,7 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "@/utils/haptics";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -556,6 +556,7 @@ export default function AvatarEditorScreen() {
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
             status={cosStatus}
+            onOpenAlbum={() => router.push("/avatar-postcards" as Href)}
           />
         ) : (
         <Animated.View

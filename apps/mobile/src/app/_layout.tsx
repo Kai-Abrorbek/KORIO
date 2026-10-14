@@ -298,6 +298,10 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="avatar-postcards"
+              options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
               name="word-rain"
               options={{ animation: "fade", gestureEnabled: false }}
             />
