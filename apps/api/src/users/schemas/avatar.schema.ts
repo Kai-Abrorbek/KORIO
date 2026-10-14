@@ -100,6 +100,10 @@ export class AvatarConfig {
   /** 오른손에 든 것 (cosmetics, 예: hand_lightstick) — 산 것·무료만 */
   @Prop({ type: String, default: 'hand_none' })
   hand: string;
+
+  /** 기본 모자 대신 쓰는 모자 (cosmetics, 예: hat_gat) — 산 것·무료만 */
+  @Prop({ type: String, default: 'hat_none' })
+  hat: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);

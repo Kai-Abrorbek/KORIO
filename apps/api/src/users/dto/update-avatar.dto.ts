@@ -83,4 +83,10 @@ export class UpdateAvatarDto {
   @IsString()
   @IsIn([...AVATAR_OPTIONS.hand])
   hand?: AvatarConfigValue['hand'];
+
+  /** 모자 — 없으면(예전 앱) 지금 것을 그대로 둔다. 산 것·무료만 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.hat])
+  hat?: AvatarConfigValue['hat'];
 }

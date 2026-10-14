@@ -204,6 +204,7 @@ describe('CosmeticsService — 장면(scene)', () => {
       pet: 'pet_none',
       costume: 'costume_none',
       hand: 'hand_none',
+      hat: 'hat_none',
     });
     expect(res.items.some((item) => item.slot === 'scene')).toBe(true);
   });
@@ -303,5 +304,36 @@ describe('CosmeticsService — 의상·손(costume·hand, K팝 세트)', () => {
     expect(() => assertCosmeticOwned('hand_mic', [])).toThrow(
       'COSMETIC_NOT_OWNED',
     );
+  });
+});
+
+describe('CosmeticsService — 한국 전통 세트(hat)', () => {
+  const userId = new Types.ObjectId().toString();
+
+  it('갓은 avatar.hat 에 씌운다', async () => {
+    const users = {
+      findOneAndUpdate: jest
+        .fn()
+        .mockReturnValue(chain({ gems: 5, ownedCosmetics: [], avatar: {} })),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    await service.purchase(userId, 'hat_gat', true);
+    const [, update] = users.findOneAndUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(update).toEqual({
+      $addToSet: { ownedCosmetics: 'hat_gat' },
+      $set: { 'avatar.hat': 'hat_gat' },
+    });
+  });
+
+  it('전통 세트는 COSMETICS 18~24 — 곤룡포를 팔면 안 가진 사람은 못 입는다', () => {
+    replaceRuntimeValues(new Map([['COSMETICS.18.price', 15000]]));
+    expect(() => assertCosmeticOwned('costume_gonryongpo', [])).toThrow(
+      'COSMETIC_NOT_OWNED',
+    );
+    expect(() => assertCosmeticOwned('hat_none', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('hat_ikseongwan', [])).not.toThrow();
   });
 });

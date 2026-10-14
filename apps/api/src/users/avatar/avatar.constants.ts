@@ -2,6 +2,7 @@ import {
   AURA_IDS,
   COSTUME_IDS,
   HAND_IDS,
+  HAT_IDS,
   PET_IDS,
   SCENE_IDS,
 } from '../../cosmetics/cosmetics.const';
@@ -108,6 +109,8 @@ export const AVATAR_OPTIONS = {
   costume: COSTUME_IDS,
   /** 오른손에 든 것 (cosmetics) */
   hand: HAND_IDS,
+  /** 기본 모자 대신 쓰는 모자 (cosmetics) */
+  hat: HAT_IDS,
 } as const;
 
 export interface AvatarConfigValue {
@@ -128,6 +131,7 @@ export interface AvatarConfigValue {
   pet?: (typeof AVATAR_OPTIONS.pet)[number];
   costume?: (typeof AVATAR_OPTIONS.costume)[number];
   hand?: (typeof AVATAR_OPTIONS.hand)[number];
+  hat?: (typeof AVATAR_OPTIONS.hat)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
@@ -148,4 +152,5 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   pet: 'pet_none',
   costume: 'costume_none',
   hand: 'hand_none',
+  hat: 'hat_none',
 };

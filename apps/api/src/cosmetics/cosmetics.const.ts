@@ -18,8 +18,16 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  * aura: 캐릭터 주위 효과 · scene: 캐릭터 뒤 "서울 여행" 장면 그림 (avatar.scene)
  * pet: 캐릭터 옆 펫 (avatar.pet) — 연속 학습일에 따라 앱이 아기·꼬마·다 큰 모습으로 그린다
  * costume: 기본 옷 대신 입는 의상 (avatar.costume) · hand: 오른손에 든 것 (avatar.hand)
+ * hat: 기본 모자 대신 쓰는 모자 (avatar.hat)
+ * 세트(K팝·왕·선비·수문장·태권도)와 세트 효과는 앱이 정한다 — 서버는 칸·id·가격만
  */
-export type CosmeticSlot = 'aura' | 'scene' | 'pet' | 'costume' | 'hand';
+export type CosmeticSlot =
+  | 'aura'
+  | 'scene'
+  | 'pet'
+  | 'costume'
+  | 'hand'
+  | 'hat';
 export type CosmeticRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface CosmeticItem {
@@ -52,6 +60,14 @@ export const COSMETICS: CosmeticItem[] = runtimeConfig('COSMETICS', [
   { id: 'costume_stage', slot: 'costume', rarity: 'epic', price: 0 },
   { id: 'hand_lightstick', slot: 'hand', rarity: 'rare', price: 0 },
   { id: 'hand_mic', slot: 'hand', rarity: 'rare', price: 0 },
+  // 한국 전통 세트 — 왕 · 선비 · 수문장 · 태권도
+  { id: 'costume_gonryongpo', slot: 'costume', rarity: 'legendary', price: 0 },
+  { id: 'hat_ikseongwan', slot: 'hat', rarity: 'epic', price: 0 },
+  { id: 'costume_seonbi', slot: 'costume', rarity: 'epic', price: 0 },
+  { id: 'hat_gat', slot: 'hat', rarity: 'rare', price: 0 },
+  { id: 'costume_guard', slot: 'costume', rarity: 'epic', price: 0 },
+  { id: 'hat_jeollip', slot: 'hat', rarity: 'rare', price: 0 },
+  { id: 'costume_taekwondo', slot: 'costume', rarity: 'rare', price: 0 },
 ]);
 
 /** avatar.aura 에 들어갈 수 있는 값 (none 포함) */
@@ -90,10 +106,24 @@ export const PET_IDS = [
 
 export const COSTUME_NONE = 'costume_none';
 export const HAND_NONE = 'hand_none';
+export const HAT_NONE = 'hat_none';
 
-/** avatar.costume / avatar.hand 에 들어갈 수 있는 값 (none 포함). 모양은 앱이 같은 id 로 갖고 있다 */
-export const COSTUME_IDS = [COSTUME_NONE, 'costume_stage'] as const;
+/** avatar.costume / hand / hat 에 들어갈 수 있는 값 (none 포함). 모양은 앱이 같은 id 로 갖고 있다 */
+export const COSTUME_IDS = [
+  COSTUME_NONE,
+  'costume_stage',
+  'costume_gonryongpo',
+  'costume_seonbi',
+  'costume_guard',
+  'costume_taekwondo',
+] as const;
 export const HAND_IDS = [HAND_NONE, 'hand_lightstick', 'hand_mic'] as const;
+export const HAT_IDS = [
+  HAT_NONE,
+  'hat_ikseongwan',
+  'hat_gat',
+  'hat_jeollip',
+] as const;
 
 /** 칸마다 "안 입음" 값 — 늘 가진 것으로 친다 */
 export const NONE_BY_SLOT: Record<CosmeticSlot, string> = {
@@ -102,6 +132,7 @@ export const NONE_BY_SLOT: Record<CosmeticSlot, string> = {
   pet: PET_NONE,
   costume: COSTUME_NONE,
   hand: HAND_NONE,
+  hat: HAT_NONE,
 };
 /** avatar 에 장착되는 칸 (저장·목록에서 다 같이 다룬다) */
 export const COSMETIC_SLOTS = Object.keys(NONE_BY_SLOT) as CosmeticSlot[];
