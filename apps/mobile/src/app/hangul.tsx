@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -20,28 +20,34 @@ import CategoryTabs from "@/components/hangul/CategoryTabs";
 import CharacterCard from "@/components/hangul/CharacterCard";
 import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
 import GameMenu from "@/components/hangul/games/GameMenu";
-import { useEnergyStore, useEnergySync } from "@/store/energy.store";
+import { useEnergyStore, syncEnergyFromServer } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
 import { HangulMastery, HangulService } from "@/services/hangul.service";
-import EnglishAlphabetScreen from "@/components/hangul/EnglishAlphabetScreen";
+import {
+  ENGLISH_ALPHABET,
+  type EnglishLetter,
+} from "@/constants/english-alphabet";
 
 export default function HangulScreen() {
   const { lang } = useLocalSearchParams<{ lang?: string }>();
-  return lang === "en" ? <EnglishAlphabetScreen /> : <KoreanHangulScreen />;
-}
-
-function KoreanHangulScreen() {
-  const { t } = useTranslation();
+  const isEnglish = lang === "en";
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
   // 시작 게이트가 보는 값 — 다른 모드에서 쓴 만큼 반영된 서버 값으로 맞춘다
-  useEnergySync();
+  useFocusEffect(
+    useCallback(() => {
+      if (!isEnglish) void syncEnergyFromServer();
+    }, [isEnglish]),
+  );
   const [category, setCategory] = useState<HangulCategory>("consonant");
-  const [selected, setSelected] = useState<HangulCharacter | null>(null);
+  const [selected, setSelected] = useState<
+    HangulCharacter | EnglishLetter | null
+  >(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [masteryMap, setMasteryMap] = useState<Record<string, HangulMastery>>(
     {},
@@ -50,14 +56,20 @@ function KoreanHangulScreen() {
   const [totalCount, setTotalCount] = useState(HANGUL_CHARACTERS.length);
   const [finishing, setFinishing] = useState(false);
 
+  useEffect(() => {
+    setCategory("consonant");
+    setSelected(null);
+    setSheetOpen(false);
+  }, [isEnglish]);
+
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
   // 한글을 못 읽는다고 답했고 아직 안 끝낸 유저에게만 완료 버튼을 보여준다
   const needsHangulNode =
-    user?.hangulLevel === "none" && !user?.hangulCompletedAt;
+    !isEnglish && user?.hangulLevel === "none" && !user?.hangulCompletedAt;
 
   const finishHangul = async () => {
-    if (finishing) return;
+    if (isEnglish || finishing) return;
     setFinishing(true);
     try {
       const res = await UserService.completeHangul();
@@ -72,6 +84,7 @@ function KoreanHangulScreen() {
   // deps 를 비우려고 store 는 getState() 로 직접 읽는다 (user 바뀔 때마다 재요청 방지).
   useFocusEffect(
     useCallback(() => {
+      if (isEnglish) return;
       let alive = true;
       HangulService.getProgress()
         .then((res) => {
@@ -94,22 +107,37 @@ function KoreanHangulScreen() {
       return () => {
         alive = false;
       };
-    }, []),
+    }, [isEnglish]),
   );
 
   const charactersByCategory = useMemo(
-    () => HANGUL_CHARACTERS.filter((c) => c.category === category),
-    [category],
+    () =>
+      (isEnglish ? ENGLISH_ALPHABET : HANGUL_CHARACTERS).filter(
+        (c) => c.category === category,
+      ),
+    [category, isEnglish],
   );
+
+  const detailCharacter = useMemo(() => {
+    if (!selected || !isEnglish || !("koreanName" in selected)) return selected;
+    return {
+      ...selected,
+      name:
+        i18n.language.split("-")[0] === "ko"
+          ? selected.koreanName
+          : selected.name,
+    };
+  }, [selected, isEnglish, i18n.language]);
 
   const getMastery = (id: string): HangulMastery => masteryMap[id] ?? 0;
 
-  const openDetail = (character: HangulCharacter) => {
+  const openDetail = (character: HangulCharacter | EnglishLetter) => {
     setSelected(character);
     setSheetOpen(true);
   };
 
   const goToGame = () => {
+    if (isEnglish) return;
     guardLessonStart(energy, () => {
       router.push({ pathname: "/hangul-game", params: { category } });
     });
@@ -124,7 +152,9 @@ function KoreanHangulScreen() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
           <Ionicons name="chevron-back" size={28} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>{t("hangul.title")}</Text>
+        <Text style={styles.title}>
+          {t(isEnglish ? "alphabet.title" : "hangul.title")}
+        </Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -133,7 +163,19 @@ function KoreanHangulScreen() {
         contentContainerStyle={{ paddingBottom: 110 }}
       >
         {/* 진행도 카드 */}
-        <MasteryCard learned={learnedCount} total={totalCount} />
+        <MasteryCard
+          learned={isEnglish ? 0 : learnedCount}
+          total={isEnglish ? ENGLISH_ALPHABET.length : totalCount}
+          reference={
+            isEnglish
+              ? {
+                  title: t("alphabet.title"),
+                  heading: "A–Z",
+                  caption: t("alphabet.courseCount"),
+                }
+              : undefined
+          }
+        />
 
         {/* 40자를 다 익히면 서버가 알아서 노드를 닫는다.
             이미 한글을 아는 유저가 게임을 다 돌지 않고 넘어갈 수 있게 수동 버튼도 남겨둔다. */}
@@ -150,12 +192,7 @@ function KoreanHangulScreen() {
         )}
 
         {/* 탭 */}
-        <CategoryTabs
-          value={category}
-          onChange={(next) => {
-            if (next !== "all") setCategory(next);
-          }}
-        />
+        <CategoryTabs value={category} onChange={setCategory} />
 
         {/* 글자 그리드 */}
         <Animated.View
@@ -167,23 +204,34 @@ function KoreanHangulScreen() {
             <CharacterCard
               key={ch.id}
               character={ch}
-              mastery={getMastery(ch.id)}
+              mastery={isEnglish ? 0 : getMastery(ch.id)}
+              showMastery={!isEnglish}
               index={idx}
               onPress={() => openDetail(ch)}
             />
           ))}
         </Animated.View>
+        {isEnglish && (
+          <Text style={styles.readingNote}>{t("alphabet.soundsNote")}</Text>
+        )}
       </ScrollView>
 
       {/* FAB - 게임 시작 */}
-      <GameMenu />
+      {!isEnglish && <GameMenu />}
 
       {/* 디테일 시트 */}
       <CharacterDetailSheet
-        character={selected}
+        character={detailCharacter}
         visible={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        onStartGame={goToGame}
+        onStartGame={isEnglish ? undefined : goToGame}
+        speechLanguage={isEnglish ? "en-US" : "ko-KR"}
+        speechText={
+          isEnglish && selected && "uppercase" in selected
+            ? selected.uppercase
+            : undefined
+        }
+        pronunciationHint={isEnglish ? t("alphabet.nameNote") : undefined}
       />
     </View>
   );
@@ -226,6 +274,13 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       flexWrap: "wrap",
       paddingHorizontal: 12,
+    },
+    readingNote: {
+      marginHorizontal: 20,
+      marginTop: 18,
+      fontSize: 14,
+      lineHeight: 21,
+      color: theme.textSecondary,
     },
     fab: {
       position: "absolute",

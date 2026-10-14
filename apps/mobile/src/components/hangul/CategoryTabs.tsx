@@ -11,9 +11,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 
 interface Props {
-  value: HangulCategory | "all";
-  onChange: (cat: HangulCategory | "all") => void;
-  includeAll?: boolean;
+  value: HangulCategory;
+  onChange: (cat: HangulCategory) => void;
 }
 
 const TABS: { id: HangulCategory; labelKey: string }[] = [
@@ -21,11 +20,7 @@ const TABS: { id: HangulCategory; labelKey: string }[] = [
   { id: "vowel", labelKey: "hangul.tabs.vowels" },
 ];
 
-export default function CategoryTabs({
-  value,
-  onChange,
-  includeAll = false,
-}: Props) {
+export default function CategoryTabs({ value, onChange }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -52,10 +47,7 @@ export default function CategoryTabs({
   return (
     <View style={styles.wrap}>
       <Animated.View style={[styles.indicator, indicatorStyle]} />
-      {(includeAll
-        ? [{ id: "all" as const, labelKey: "alphabet.all" }, ...TABS]
-        : TABS
-      ).map((tab) => (
+      {TABS.map((tab) => (
         <TouchableOpacity
           key={tab.id}
           style={styles.tab}

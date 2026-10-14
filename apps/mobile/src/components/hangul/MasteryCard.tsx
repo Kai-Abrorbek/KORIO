@@ -17,9 +17,11 @@ import HaneulmonMascot from "../home/HaneulmonMascot";
 interface Props {
   learned: number;
   total: number;
+  /** 게임 진도 집계 전의 글자 안내도 같은 마스코트 카드를 사용한다. */
+  reference?: { title: string; heading: string; caption: string };
 }
 
-export default function MasteryCard({ learned, total }: Props) {
+export default function MasteryCard({ learned, total, reference }: Props) {
   const { t } = useTranslation();
   const percent = total > 0 ? Math.round((learned / total) * 100) : 0;
 
@@ -106,21 +108,28 @@ export default function MasteryCard({ learned, total }: Props) {
         </Animated.View>
 
         <View style={styles.content}>
-          <Text style={styles.label}>{t("hangul.hero.progress")}</Text>
+          <Text style={styles.label}>
+            {reference?.title ?? t("hangul.hero.progress")}
+          </Text>
           <View style={styles.numberRow}>
-            <Text style={styles.percent}>{displayPercent}</Text>
-            <Text style={styles.percentSign}>%</Text>
+            <Text style={styles.percent}>
+              {reference?.heading ?? displayPercent}
+            </Text>
+            {!reference && <Text style={styles.percentSign}>%</Text>}
           </View>
           <Text style={styles.subText}>
-            {t("hangul.hero.learned", { learned: displayLearned, total })}
+            {reference?.caption ??
+              t("hangul.hero.learned", { learned: displayLearned, total })}
           </Text>
 
           {/* 진행도 바 */}
-          <View style={styles.track}>
-            <Animated.View style={[styles.fill, progressStyle]}>
-              <View style={styles.fillHighlight} />
-            </Animated.View>
-          </View>
+          {!reference && (
+            <View style={styles.track}>
+              <Animated.View style={[styles.fill, progressStyle]}>
+                <View style={styles.fillHighlight} />
+              </Animated.View>
+            </View>
+          )}
         </View>
 
         {/* 코너 장식 */}
