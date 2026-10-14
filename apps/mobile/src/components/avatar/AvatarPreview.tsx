@@ -17,6 +17,37 @@ import {
   type AvatarConfig,
 } from "@/types/avatar";
 import AvatarAura, { isAura } from "./AvatarAura";
+import { costumeShapes, handShapes, type WShape } from "./avatarWearables";
+
+/** 입는 꾸미기 도형 → react-native-svg (텔레그램은 같은 도형을 DOM SVG 로 그린다) */
+function WearShapes({ shapes }: { shapes: WShape[] }) {
+  return (
+    <>
+      {shapes.map((shape, index) => {
+        if (shape.k === "g") {
+          return (
+            <G key={index} transform={shape.transform}>
+              <WearShapes shapes={shape.children} />
+            </G>
+          );
+        }
+        const paint = {
+          fill: shape.f ?? "none",
+          opacity: shape.o,
+          stroke: shape.s,
+          strokeWidth: shape.w,
+          ...(shape.k === "path" && shape.round ? { strokeLinecap: "round" as const, strokeLinejoin: "round" as const } : null),
+        };
+        if (shape.k === "path") return <Path key={index} d={shape.d} {...paint} />;
+        if (shape.k === "rect") {
+          return <Rect key={index} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx={shape.rx} {...paint} />;
+        }
+        if (shape.k === "circle") return <Circle key={index} cx={shape.cx} cy={shape.cy} r={shape.r} {...paint} />;
+        return <Ellipse key={index} cx={shape.cx} cy={shape.cy} rx={shape.rx} ry={shape.ry} {...paint} />;
+      })}
+    </>
+  );
+}
 
 interface Props {
   avatar?: Partial<AvatarConfig> | null;
@@ -1178,6 +1209,10 @@ export default function AvatarPreview({
   const bodyX = 160 - bodyWidth / 2;
 
   const viewBox = variant === "head" ? "52 16 216 216" : "0 0 320 360";
+  // 상점 의상 (기본 옷 대신) · 손에 든 것 (전신만)
+  const wearBody = { bodyX, bodyWidth, skin };
+  const costume = costumeShapes(config.costume, wearBody);
+  const handItem = variant === "full" ? handShapes(config.hand, wearBody) : null;
 
   const svg = (
     <Svg
@@ -1219,13 +1254,17 @@ export default function AvatarPreview({
 
       <AvatarLegs skin={skin} />
 
-      <AvatarOutfit
-        bodyX={bodyX}
-        bodyWidth={bodyWidth}
-        outfit={outfit}
-        outfitId={config.outfit}
-        skin={skin}
-      />
+      {costume ? (
+        <WearShapes shapes={costume} />
+      ) : (
+        <AvatarOutfit
+          bodyX={bodyX}
+          bodyWidth={bodyWidth}
+          outfit={outfit}
+          outfitId={config.outfit}
+          skin={skin}
+        />
+      )}
 
       <Rect x="139" y="180" width="42" height="34" rx="15" fill={skin} />
 
@@ -1240,6 +1279,8 @@ export default function AvatarPreview({
       <AvatarEyewear eyewear={config.eyewear} />
 
       <AvatarHeadwear headwear={config.headwear} outfit={outfit} />
+
+      {handItem && <WearShapes shapes={handItem} />}
     </Svg>
   );
 

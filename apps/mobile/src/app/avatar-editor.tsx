@@ -28,7 +28,7 @@ import type { AvatarConfig, AvatarOption } from "@/types/avatar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { UserService } from "@/services/user.service";
 import { CosmeticsService, type CosmeticsState } from "@/services/cosmetics.service";
-import { AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "@/components/avatar/AvatarAura";
+import { AURA_LOOK, RARITY_COLOR, type AuraId } from "@/components/avatar/AvatarAura";
 import { SCENE_LOOK, SceneBackdrop, isScene, sceneHeroColors, type SceneId } from "@/components/avatar/AvatarScene";
 import {
   AuraGrid,
@@ -39,18 +39,35 @@ import {
   slotAllFree,
   slotOf,
   type ShopItemId,
+  type ShopSlot,
 } from "@/components/avatar/AuraPicker";
+import { WearGrid } from "@/components/avatar/WearPicker";
+import { WEAR_LOOK, isCostume, isHand, type WearItemId, type WearSlot } from "@/components/avatar/avatarWearables";
 import { SceneGrid } from "@/components/avatar/ScenePicker";
 import { PetGrid } from "@/components/avatar/PetPicker";
 import AvatarPet, { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
 import Button3D from "@/features/retention/components/Button3D";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-/** 산 아이템을 입힌 모양 — 오라·장면·펫 제 칸에 */
+/** 상점 칸 — 아바타에 장착되는 꾸미기 */
+const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hand"];
+const isShopSlot = (value: string): value is ShopSlot => (SHOP_SLOTS as string[]).includes(value);
+
+/** 산 아이템을 입힌 모양 — 제 칸에 */
 function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
-  if (isScene(item)) return { ...config, scene: item };
-  if (isPet(item)) return { ...config, pet: item };
-  return { ...config, aura: item };
+  return { ...config, [slotOf(item)]: item } as AvatarConfig;
+}
+
+/** 등급 · 글 묶음 (시트·배지 문구) */
+function rarityOf(item: ShopItemId) {
+  if (isScene(item)) return SCENE_LOOK[item].rarity;
+  if (isPet(item)) return PET_LOOK[item].rarity;
+  if (isCostume(item) || isHand(item)) return WEAR_LOOK[item].rarity;
+  return AURA_LOOK[item].rarity;
+}
+function keysOf(item: ShopItemId) {
+  const slot = slotOf(item);
+  return `avatarEditor.${slot === "costume" || slot === "hand" ? "wear" : slot}`;
 }
 
 export default function AvatarEditorScreen() {
@@ -106,35 +123,33 @@ export default function AvatarEditorScreen() {
   const dirty = useRef(hasChanges);
   dirty.current = hasChanges;
 
-  const draftAura = isAura(draft.aura) ? draft.aura : null;
   const draftScene = isScene(draft.scene) ? draft.scene : null;
   const cosReady = cosStatus === "ready";
-  // 입어보는 중 (아직 안 산 오라 · 장면)
-  const pendingAura = draftAura && cosReady && !ownsCosmetic(cosmetics, draftAura) ? draftAura : null;
-  const pendingScene = draftScene && cosReady && !ownsCosmetic(cosmetics, draftScene) ? draftScene : null;
-  const draftPet = isPet(draft.pet) ? draft.pet : null;
-  const pendingPet = draftPet && cosReady && !ownsCosmetic(cosmetics, draftPet) ? draftPet : null;
+  // 입어보는 중 — 상점 칸마다 아직 안 산 걸 입고 있나
+  const pendingBySlot = Object.fromEntries(
+    SHOP_SLOTS.map((slot) => {
+      const id: string = draft[slot];
+      return [slot, cosReady && !id.endsWith("_none") && !ownsCosmetic(cosmetics, id) ? (id as ShopItemId) : null];
+    }),
+  ) as Record<ShopSlot, ShopItemId | null>;
+  // 보고 있는 탭이 어느 칸인지 (세트 탭 = 의상·손)
+  const tabSlots: ShopSlot[] =
+    selectedCategory === "costume" ? ["costume", "hand"] : isShopSlot(selectedCategory) ? [selectedCategory] : [];
   // 살 것 — 보고 있는 탭 쪽 먼저
-  const pendingBySlot = { aura: pendingAura, scene: pendingScene, pet: pendingPet };
   const pending: ShopItemId | null =
-    (selectedCategory === "scene" || selectedCategory === "pet" ? pendingBySlot[selectedCategory] : null) ??
-    pendingAura ??
-    pendingScene ??
-    pendingPet;
+    [...tabSlots, ...SHOP_SLOTS].map((slot) => pendingBySlot[slot]).find((id) => id !== null) ?? null;
   const tryingOn = pending !== null;
   const tryPrice = pending ? (cosmeticPrice(cosmetics, pending) ?? 0) : 0;
   const gems = cosmetics?.gems ?? userGems ?? 0;
   // "빼고 저장" — 안 산 것만 저장된 것으로 되돌린 모양
-  const withoutPending: AvatarConfig = {
-    ...draft,
-    ...(pendingAura ? { aura: initial.aura } : null),
-    ...(pendingScene ? { scene: initial.scene } : null),
-    ...(pendingPet ? { pet: initial.pet } : null),
-  };
+  const withoutPending = SHOP_SLOTS.reduce<AvatarConfig>(
+    (config, slot) => (pendingBySlot[slot] ? ({ ...config, [slot]: initial[slot] } as AvatarConfig) : config),
+    draft,
+  );
   const otherChanges = JSON.stringify(withoutPending) !== JSON.stringify(initial);
-  // 오라·장면 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
-  const shopTab =
-    selectedCategory === "aura" || selectedCategory === "scene" || selectedCategory === "pet" ? selectedCategory : null;
+  // 상점 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
+  const shopTab = tabSlots.length > 0 ? (selectedCategory === "costume" ? "wear" : tabSlots[0]) : null;
+  const shopTabFree = tabSlots.length > 0 && tabSlots.every((slot) => slotAllFree(cosmetics, slot));
 
   // 선택된 캐릭터 배경색으로 hero 전체를 채운다 (이중 배경 제거). 장면을 골랐으면 그림이 깔리고 색은 그 밑
   const heroBg =
@@ -167,6 +182,12 @@ export default function AvatarEditorScreen() {
     setPart("aura", id);
   };
 
+  // 세트 — 누르면 입고, 입은 걸 다시 누르면 벗는다
+  const handleWearToggle = (slot: WearSlot, id: WearItemId) => {
+    void Haptics.selectionAsync();
+    setPart(slot, draft[slot] === id ? `${slot}_none` : id);
+  };
+
   const handlePetPick = (id: PetId) => {
     void Haptics.selectionAsync();
     setPart("pet", id);
@@ -195,7 +216,7 @@ export default function AvatarEditorScreen() {
           : current,
       );
       // 저장된 쪽도 이 아이템으로 — 고치던 다른 부분은 그대로 둔다
-      patchInitial(isScene(item) ? { scene: item } : isPet(item) ? { pet: item } : { aura: item });
+      patchInitial({ [slotOf(item)]: item } as Partial<AvatarConfig>);
       updateUser({
         avatar: wear(mergeAvatarConfig(avatar), item),
         gems: result.gems,
@@ -328,7 +349,7 @@ export default function AvatarEditorScreen() {
             </>
           )}
 
-          {shopTab && slotAllFree(cosmetics, shopTab) ? (
+          {shopTab && shopTabFree ? (
             <View style={styles.freeBadge}>
               <Ionicons name="sparkles" size={14} color="#6B61D8" />
 
@@ -359,18 +380,11 @@ export default function AvatarEditorScreen() {
               style={[
                 styles.tryOnBadge,
                 {
-                  backgroundColor:
-                    RARITY_COLOR[
-                      isScene(pending)
-                        ? SCENE_LOOK[pending].rarity
-                        : isPet(pending)
-                          ? PET_LOOK[pending].rarity
-                          : AURA_LOOK[pending].rarity
-                    ],
+                  backgroundColor: RARITY_COLOR[rarityOf(pending)],
                 },
               ]}
             >
-              <Text style={styles.tryOnText}>{t(`avatarEditor.${slotOf(pending)}.tryOn`)}</Text>
+              <Text style={styles.tryOnText}>{t(`${keysOf(pending)}.tryOn`)}</Text>
             </View>
           )}
 
@@ -439,7 +453,7 @@ export default function AvatarEditorScreen() {
                   {t(`avatarEditor.categories.${item.id}`)}
                 </Text>
 
-                {item.id === "pet" && !selected && (
+                {item.id === "costume" && !selected && (
                   <LinearGradient
                     colors={["#FF6B9A", "#FF9A3C"]}
                     start={{ x: 0, y: 0 }}
@@ -473,6 +487,15 @@ export default function AvatarEditorScreen() {
             draft={draft}
             equipped={initial.aura ?? "aura_none"}
             onPick={handleAuraPick}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+          />
+        ) : category.id === "costume" ? (
+          <WearGrid
+            draft={draft}
+            equipped={{ costume: initial.costume, hand: initial.hand }}
+            onToggle={handleWearToggle}
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
             status={cosStatus}
@@ -552,7 +575,7 @@ export default function AvatarEditorScreen() {
                 style={styles.saveWithout}
               >
                 <Text style={styles.saveWithoutText}>
-                  {t(`avatarEditor.${pending ? slotOf(pending) : "aura"}.saveWithout`)}
+                  {t(`${pending ? keysOf(pending) : "avatarEditor.aura"}.saveWithout`)}
                 </Text>
               </TouchableOpacity>
             )}

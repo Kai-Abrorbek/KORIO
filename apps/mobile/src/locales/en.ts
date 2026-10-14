@@ -2434,6 +2434,7 @@ export default {
       aura: "Aura",
       scene: "Scene",
       pet: "Pet",
+      costume: "Sets",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2567,6 +2568,41 @@ export default {
         pet_dokkaebi: {
           name: "Dokkaebi",
           desc: "A mischievous goblin with a magic club",
+        },
+      },
+    },
+    /** 세트 — 입는 꾸미기 (api cosmetics, slot costume·hand) */
+    wear: {
+      title: "Sets — wear, hold, complete",
+      subtitle: "Tap to wear, tap again to take off",
+      freeAll: "All sets free",
+      inUse: "Wearing",
+      tryOn: "Trying on",
+      buyWear: "Buy and wear",
+      saveWithout: "Save without new items",
+      boughtTitle: "It's yours!",
+      boughtBody: "Now everyone sees it on your profile and in the league",
+      loadFailed: "Couldn't load sets",
+      progress: "{{n}}/{{total}}",
+      done: "Complete!",
+      sets: {
+        kpop: {
+          name: "K-pop set",
+          desc: "Like an idol on stage — the outfit plus a lightstick or a mic",
+        },
+      },
+      items: {
+        costume_stage: {
+          name: "Stage outfit",
+          desc: "A sparkly jacket with gold epaulettes",
+        },
+        hand_lightstick: {
+          name: "Lightstick",
+          desc: "KORIO lightstick with a glowing purple heart",
+        },
+        hand_mic: {
+          name: "Microphone",
+          desc: "A silver stage mic",
         },
       },
     },

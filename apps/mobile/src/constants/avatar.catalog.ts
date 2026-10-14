@@ -51,6 +51,16 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
       unlock: { type: "gems" as const, price: 0 },
     })),
   },
+  // 세트 — 상점 의상·손에 든 것 (WearPicker). 칸 id 는 costume 이지만 hand 도 이 탭에서 고른다
+  {
+    id: "costume",
+    icon: "ribbon-outline",
+    preview: "full",
+    options: AVATAR_IDS.costume.map((id) => ({
+      id,
+      unlock: { type: "gems" as const, price: 0 },
+    })),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

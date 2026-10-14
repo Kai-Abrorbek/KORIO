@@ -2428,6 +2428,7 @@ export default {
       aura: "오라",
       scene: "장면",
       pet: "펫",
+      costume: "세트",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2561,6 +2562,41 @@ export default {
         pet_dokkaebi: {
           name: "도깨비",
           desc: "방망이 든 장난꾸러기 요괴",
+        },
+      },
+    },
+    /** 세트 — 입는 꾸미기 (api cosmetics, slot costume·hand) */
+    wear: {
+      title: "세트 — 입고, 들고, 완성하기",
+      subtitle: "누르면 입고, 한 번 더 누르면 벗어요",
+      freeAll: "세트 전부 무료",
+      inUse: "착용 중",
+      tryOn: "입어보는 중",
+      buyWear: "사서 바로 입기",
+      saveWithout: "새 아이템 빼고 저장",
+      boughtTitle: "새 아이템 획득!",
+      boughtBody: "프로필과 리그에서 모두가 볼 수 있어요",
+      loadFailed: "세트를 불러오지 못했어요",
+      progress: "{{n}}/{{total}}",
+      done: "완성!",
+      sets: {
+        kpop: {
+          name: "K팝 세트",
+          desc: "무대 위 아이돌처럼 — 의상에 응원봉이나 마이크를 들면 완성",
+        },
+      },
+      items: {
+        costume_stage: {
+          name: "무대 의상",
+          desc: "금 견장과 반짝이 재킷",
+        },
+        hand_lightstick: {
+          name: "응원봉",
+          desc: "보라 하트가 빛나는 KORIO 응원봉",
+        },
+        hand_mic: {
+          name: "마이크",
+          desc: "무대 위 은색 마이크",
         },
       },
     },

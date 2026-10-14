@@ -1,3 +1,5 @@
+import { COSTUME_IDS, HAND_IDS } from "@/components/avatar/avatarWearables";
+
 export const AVATAR_VERSION = 1 as const;
 
 export const AVATAR_IDS = {
@@ -111,6 +113,10 @@ export const AVATAR_IDS = {
   ],
   /** 캐릭터 옆 펫 (api cosmetics, slot pet) — 연속 학습일로 자란다 */
   pet: ["pet_none", "pet_jindo", "pet_hangulmon", "pet_tiger", "pet_dokkaebi"],
+  /** 상점 의상 (api cosmetics, slot costume) — 기본 옷 대신 그린다 */
+  costume: COSTUME_IDS,
+  /** 오른손에 든 것 (api cosmetics, slot hand) */
+  hand: HAND_IDS,
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -133,6 +139,8 @@ export interface AvatarConfig {
   aura: AvatarValue<"aura">;
   scene: AvatarValue<"scene">;
   pet: AvatarValue<"pet">;
+  costume: AvatarValue<"costume">;
+  hand: AvatarValue<"hand">;
 }
 
 export type AvatarUnlock =
@@ -169,6 +177,8 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   aura: "aura_none",
   scene: "scene_none",
   pet: "pet_none",
+  costume: "costume_none",
+  hand: "hand_none",
 };
 
 export function mergeAvatarConfig(
