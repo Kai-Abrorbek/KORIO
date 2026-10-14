@@ -11,14 +11,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { User, UserDocument } from '../users/schemas/user.schema';
-import { AURA_NONE, COSMETICS, cosmeticById } from './cosmetics.const';
+import {
+  AURA_NONE,
+  COSMETICS,
+  cosmeticById,
+  isFreeCosmetic,
+  ownedWithFree,
+} from './cosmetics.const';
 
 /** 장착하려는 오라를 갖고 있는지 — avatar 저장(updateAvatar)도 이걸 쓴다 */
 export function assertAuraOwned(
   aura: string | null | undefined,
   owned: readonly string[] | null | undefined,
 ) {
-  if (!aura || aura === AURA_NONE) return;
+  if (!aura || aura === AURA_NONE || isFreeCosmetic(aura)) return;
   if (!(owned ?? []).includes(aura))
     throw new ForbiddenException('COSMETIC_NOT_OWNED');
 }
@@ -46,7 +52,7 @@ export class CosmeticsService {
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
     return {
       gems: user.gems ?? 0,
-      owned: user.ownedCosmetics ?? [],
+      owned: ownedWithFree(user.ownedCosmetics),
       equipped: { aura: user.avatar?.aura ?? AURA_NONE },
       items: COSMETICS.map((item) => ({
         id: item.id,
@@ -62,6 +68,28 @@ export class CosmeticsService {
     if (!item) throw new BadRequestException('UNKNOWN_COSMETIC');
     const uid = new Types.ObjectId(userId);
     const price = item.price;
+
+    // 무료 — 보석 없이 내 것으로 넣고(나중에 다시 팔아도 유지) 바로 입힌다
+    if (price <= 0) {
+      const claimed = await this.users
+        .findOneAndUpdate(
+          { _id: uid },
+          {
+            $addToSet: { ownedCosmetics: item.id },
+            ...(equip ? { $set: { 'avatar.aura': item.id } } : {}),
+          },
+          { returnDocument: 'after' },
+        )
+        .select('gems ownedCosmetics avatar')
+        .lean();
+      if (!claimed) throw new NotFoundException('USER_NOT_FOUND');
+      return {
+        itemId: item.id,
+        gems: claimed.gems ?? 0,
+        owned: ownedWithFree(claimed.ownedCosmetics),
+        avatar: claimed.avatar,
+      };
+    }
 
     const bought = await this.users
       .findOneAndUpdate(

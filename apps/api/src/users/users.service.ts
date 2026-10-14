@@ -32,6 +32,7 @@ import {
 import { langToFlag, levelToNumber } from './utils';
 import { buildVersusWeek, versusFetchRange } from './versus-week.util';
 import { assertAuraOwned } from '../cosmetics/cosmetics.service';
+import { isFreeCosmetic } from '../cosmetics/cosmetics.const';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
   Subscription,
@@ -848,6 +849,10 @@ export class UsersService {
               aura,
             },
           },
+          // 무료 오라를 입으면 내 것으로 남긴다 (나중에 다시 팔아도 유지)
+          ...(isFreeCosmetic(aura)
+            ? { $addToSet: { ownedCosmetics: aura } }
+            : {}),
         },
         {
           returnDocument: 'after',

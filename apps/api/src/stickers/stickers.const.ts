@@ -7,14 +7,15 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  * 유저 이름으로 만든다. 캐릭터를 바꾸면 조금 내고 같은 세트를 새 그림으로 바꾼다 —
  * 이미 세트를 추가해 둔 사람(친구 포함)에게도 바뀐 그림이 보인다.
  *
- * 가격 기준 (1 보석 = 1 so'm): 오라 일반 800 ~ 전설 12,000 사이.
+ * 2026-10-14 부터 **무료**(0). 앱은 값이 0 이면 "무료로 만들기" 로 그린다.
+ * 다시 팔 때 기준 (1 보석 = 1 so'm): 처음 4,000 · 다시 그리기 500.
  * 어드민 "앱 숫자 설정" 에서 바꿀 수 있다 (STICKER_PACK.price · refreshPrice).
  */
 export const STICKER_PACK = runtimeConfig('STICKER_PACK', {
   /** 처음 만들 때 */
-  price: 4000,
+  price: 0,
   /** 캐릭터를 바꾸고 다시 만들 때 */
-  refreshPrice: 500,
+  refreshPrice: 0,
 });
 
 /** 표가 살아 있는 시간 — 텔레그램 열고 START 누르기까지 */

@@ -4,6 +4,7 @@ jest.mock('../gem-ledger/gem-ledger.service', () => ({
   GemLedgerService: class GemLedgerService {},
 }));
 
+import { replaceRuntimeValues } from '../app-settings/runtime-values';
 import { AuthProvider } from '../common/enums/provider.enum';
 import { TelegramApiError } from '../payments/providers/telegram-stars/telegram-bot.api';
 import { STICKER_DESIGNS, stickerSvg } from './art/sticker-designs';
@@ -157,6 +158,16 @@ const linkOf = (res: unknown) => (res as { link: string }).link;
 beforeAll(() => {
   process.env.TELEGRAM_BOT_USERNAME = 'korio_bot';
 });
+// 지금은 무료(0)다. 보석 경로는 어드민이 가격을 올린 것처럼 값을 넣고 본다
+beforeEach(() =>
+  replaceRuntimeValues(
+    new Map([
+      ['STICKER_PACK.price', 4000],
+      ['STICKER_PACK.refreshPrice', 500],
+    ]),
+  ),
+);
+afterEach(() => replaceRuntimeValues(new Map()));
 
 describe('스티커 그림', () => {
   it('8장 모두 글자가 있고 SVG 가 만들어진다 (모르는 캐릭터 값은 기본값)', () => {
@@ -458,5 +469,22 @@ describe('StickersService', () => {
     expect(called(bot, 'sendMessage').at(-1)?.text).toContain(
       'Not enough gems',
     );
+  });
+});
+
+describe('StickersService — 무료(가격 0)', () => {
+  it('보석이 0 이어도 만들고, 보석·장부는 그대로', async () => {
+    replaceRuntimeValues(new Map());
+    const { service, doc, ledger, uid } = setup({
+      provider: AuthProvider.TELEGRAM,
+      providerId: '42',
+      gems: 0,
+    });
+    const state = await service.state(uid);
+    expect(state).toMatchObject({ price: 0, refreshPrice: 0 });
+    const res = await service.make(uid);
+    expect(res.status).toBe('ready');
+    expect(doc('gems')).toBe(0);
+    expect(ledger.record).not.toHaveBeenCalled();
   });
 });

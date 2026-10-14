@@ -260,17 +260,17 @@ export const SETTING_CATALOG: SettingSpec[] = [
   ...COSMETICS.map((cosmetic, index) =>
     item(
       `COSMETICS.${index}.price`,
-      `꾸미기 ${cosmetic.id} 가격`,
+      `꾸미기 ${cosmetic.id} 가격 (0 = 무료)`,
       '꾸미기',
       '보석',
       cosmetic.price,
-      1,
+      0,
       1000000,
     ),
   ),
   item(
     'STICKER_PACK.price',
-    '텔레그램 스티커팩 가격 (처음)',
+    '텔레그램 스티커팩 가격 (처음, 0 = 무료)',
     '꾸미기',
     '보석',
     STICKER_PACK.price,
@@ -279,7 +279,7 @@ export const SETTING_CATALOG: SettingSpec[] = [
   ),
   item(
     'STICKER_PACK.refreshPrice',
-    '텔레그램 스티커팩 다시 만들기 가격',
+    '텔레그램 스티커팩 다시 만들기 가격 (0 = 무료)',
     '꾸미기',
     '보석',
     STICKER_PACK.refreshPrice,

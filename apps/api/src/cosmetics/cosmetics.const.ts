@@ -7,9 +7,12 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  * 식별자·등급·가격만 있고, 모양은 앱 쪽 카탈로그가 같은 id 로 갖고 있다.
  * 장착한 오라는 avatar.aura 에 들어가서 리그·친구 프로필·목록 어디서든 남에게 보인다.
  *
- * 가격 기준 (1 보석 = 1 so'm, 상자 보석으로 하루 70~85):
+ * 2026-10-14 부터 **전부 무료**(가격 0). 가격이 0 인 아이템은 모두가 가진 걸로 친다 —
+ * 입으면(구매·아바타 저장) ownedCosmetics 에 넣어 둬서, 나중에 다시 팔아도 그때 받은 건 계속 내 것.
+ *
+ * 다시 팔 때 기준 (1 보석 = 1 so'm, 상자 보석으로 하루 70~85):
  *   일반 800 · 희귀 2,000 · 에픽 5,000 · 전설 12,000
- * 어드민 "앱 숫자 설정" 에서 바꿀 수 있다 (COSMETICS.<n>.price).
+ * 어드민 "앱 숫자 설정" 에서 가격만 올리면 된다 (COSMETICS.<n>.price, 0 = 무료).
  */
 export type CosmeticSlot = 'aura';
 export type CosmeticRarity = 'common' | 'rare' | 'epic' | 'legendary';
@@ -24,11 +27,11 @@ export interface CosmeticItem {
 export const AURA_NONE = 'aura_none';
 
 export const COSMETICS: CosmeticItem[] = runtimeConfig('COSMETICS', [
-  { id: 'aura_stardust', slot: 'aura', rarity: 'common', price: 800 },
-  { id: 'aura_snow', slot: 'aura', rarity: 'common', price: 800 },
-  { id: 'aura_blossom', slot: 'aura', rarity: 'rare', price: 2000 },
-  { id: 'aura_flame', slot: 'aura', rarity: 'epic', price: 5000 },
-  { id: 'aura_hangul', slot: 'aura', rarity: 'legendary', price: 12000 },
+  { id: 'aura_stardust', slot: 'aura', rarity: 'common', price: 0 },
+  { id: 'aura_snow', slot: 'aura', rarity: 'common', price: 0 },
+  { id: 'aura_blossom', slot: 'aura', rarity: 'rare', price: 0 },
+  { id: 'aura_flame', slot: 'aura', rarity: 'epic', price: 0 },
+  { id: 'aura_hangul', slot: 'aura', rarity: 'legendary', price: 0 },
 ]);
 
 /** avatar.aura 에 들어갈 수 있는 값 (none 포함) */
@@ -43,3 +46,17 @@ export const AURA_IDS = [
 
 export const cosmeticById = (id: string): CosmeticItem | undefined =>
   COSMETICS.find((item) => item.id === id);
+
+/** 가격 0 = 무료 = 모두가 가진 것 */
+export const isFreeCosmetic = (id: string | null | undefined): boolean => {
+  const item = id ? cosmeticById(id) : undefined;
+  return Boolean(item && item.price <= 0);
+};
+
+/** 산 것 + 지금 무료인 것 */
+export const ownedWithFree = (owned: readonly string[] | null | undefined) => [
+  ...new Set([
+    ...(owned ?? []),
+    ...COSMETICS.filter((item) => item.price <= 0).map((item) => item.id),
+  ]),
+];
