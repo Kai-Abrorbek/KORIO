@@ -65,6 +65,6 @@ import {
     CardReceiptOcrService,
     RateLimitGuard,
   ],
-  exports: [SubscriptionService, GemPassService],
+  exports: [SubscriptionService, GemPassService, TelegramBotApi],
 })
 export class PaymentsModule {}

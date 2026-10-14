@@ -7,6 +7,7 @@ import { useQuery } from "@/shared/api/use-query";
 import { LineChart } from "@/shared/ui/charts";
 import { ErrorState } from "@/shared/ui/primitives";
 import { useConsole } from "@/widgets/console-context";
+import { LiveFinanceLedger } from "./live-finance-ledger";
 
 type Grain = "day" | "week" | "month" | "year";
 type AmountKey = "grossMinor" | "refundsMinor" | "googleFeesMinor" | "taxMinor" | "netMinor";
@@ -106,7 +107,7 @@ export function LiveRevenuePage() {
 
   if (!permitted) return <div className="admin-card admin-empty">매출 조회 권한이 없습니다.</div>;
   return <div className="admin-page rev-page">
-    <div className="admin-page-head"><div><h2>Revenue Center</h2><p>Google Play 보고서의 실제 수치만 표시합니다. 보고서가 없으면 매출을 0으로 확정하지 않습니다.</p></div><span className="admin-pill blue">Google Play · 실데이터</span></div>
+    <div className="admin-page-head"><div><h2>Revenue Center</h2><p>Google Play 보고서와 Telegram 결제·운영 지출을 원천별로 표시합니다. 보고서가 없으면 매출을 0으로 확정하지 않습니다.</p></div><div className="rev-page-links"><span className="admin-pill blue">Google Play · 실데이터</span><a className="admin-pill blue" href="#revenue-finance">텔레그램 · 지출 관리 ↓</a></div></div>
     {chart.error ? <section className="admin-card"><ErrorState code={chart.error} onRetry={chart.reload}/></section> : chart.loading || !data ? <div className="admin-card skeleton" style={{ height: 300 }}/> : <>
       <section className="rev-hero"><div className="rev-hero-main"><span className="rev-hero-kicker">선택 기간 예상 판매 총액 · {chartFrom} — {range.to}</span><strong>{hasSales ? format(data.totals.grossMinor) : "자료 없음"}</strong><span>{hasSales ? `${selectedCurrency} · 예상 판매 실적 보고서 기준` : data.status === "unconfigured" ? "Google Play 재무 보고서 연결 대기" : ready ? "선택 기간 예상 판매 자료 없음" : "사용 가능한 Google Play 재무 보고서 없음"}</span><p>예상 판매 실적은 확정 정산액이나 순이익이 아닙니다. 월별 수익 보고서와 합산하지 않습니다.</p></div><div className="rev-hero-stats"><div><span>예상 환불액</span><strong>{hasSales ? format(data.totals.refundsMinor) : "자료 없음"}</strong></div><div><span>예상 결제 건수</span><strong>{hasSales ? data.totals.orders.toLocaleString("ko-KR") : "자료 없음"}</strong></div><div><span>수익 보고서 순액</span><strong>{hasEarnings ? format(data.totals.netMinor) : "자료 없음"}</strong></div><div><span>Google 수수료</span><strong>{hasEarnings ? format(data.totals.googleFeesMinor) : "자료 없음"}</strong></div></div></section>
       <div className="admin-toolbar"><label htmlFor="revenue-currency">통화</label><select id="revenue-currency" value={selectedCurrency} disabled={!data.currencies.length} onChange={event => setCurrency(event.target.value)}><option value="">보고서 없음</option>{data.currencies.map(item => <option key={item} value={item}>{item}</option>)}</select><button type="button" onClick={() => { chart.reload(); daily.reload(); weekly.reload(); monthly.reload(); yearly.reload(); }}>새로고침</button><span className="page-sub">통화별 금액은 합산하지 않습니다.</span></div>
@@ -121,5 +122,6 @@ export function LiveRevenuePage() {
       </>}
       <p className="rev-disclaimer">예상 판매 실적·월별 수익 보고서는 서로 다른 원천과 날짜 기준입니다. 같은 통화를 선택해도 두 금액을 빼서 순이익이나 정산액을 계산하지 않습니다. 차트는 해당 원본 기록이 있는 날짜만 연결합니다. 예상 판매 자료: {data.coverage.estimatedThrough ?? "없음"} · 수익 보고서: {data.coverage.earningsThrough ?? "없음"} · 마지막 수집: {data.coverage.lastImportedAt ? new Date(data.coverage.lastImportedAt).toLocaleString("ko-KR") : "없음"}</p>
     </>}
+    <LiveFinanceLedger />
   </div>;
 }

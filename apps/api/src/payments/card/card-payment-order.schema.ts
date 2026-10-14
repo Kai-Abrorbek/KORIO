@@ -43,10 +43,10 @@ export class CardPaymentOrder {
   @Prop({ required: true })
   productId: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   tier: SubscriptionTier;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   plan: SubscriptionPlan;
 
   @Prop({ required: true })
@@ -63,7 +63,7 @@ export class CardPaymentOrder {
   @Prop({ required: true, index: true })
   amount: number;
 
-  @Prop({ required: true, index: true })
+  @Prop({ type: String, required: true, index: true })
   status: CardOrderStatus;
 
   /** 입금 타이머가 끝나는 시각 */

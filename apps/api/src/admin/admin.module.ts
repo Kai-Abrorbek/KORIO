@@ -84,9 +84,24 @@ import {
   AdminRewardGrant,
   AdminRewardGrantSchema,
 } from './rewards/admin-reward-grant.schema';
-import { AdminSelectedPushController, AdminUserActionsController } from './rewards/admin-user-actions.controller';
+import {
+  AdminSelectedPushController,
+  AdminUserActionsController,
+} from './rewards/admin-user-actions.controller';
 import { AdminUserActionsService } from './rewards/admin-user-actions.service';
 import { PaymentsModule } from '../payments/payments.module';
+import {
+  ManualRevenueEntry,
+  ManualRevenueEntrySchema,
+} from './revenue/manual-revenue-entry.schema';
+import {
+  CardPaymentOrder,
+  CardPaymentOrderSchema,
+} from '../payments/card/card-payment-order.schema';
+import { AdminManualRevenueService } from './revenue/admin-manual-revenue.service';
+import { AdminStarsBalanceService } from './revenue/admin-stars-balance.service';
+import { AdminCardTransfersService } from './revenue/admin-card-transfers.service';
+import { AdminStarsSalesService } from './revenue/admin-stars-sales.service';
 
 /**
  * 운영 도구.
@@ -120,6 +135,8 @@ import { PaymentsModule } from '../payments/payments.module';
       { name: ExpressionPack.name, schema: ExpressionPackSchema },
       { name: ExpressionNode.name, schema: ExpressionNodeSchema },
       { name: AdminRewardGrant.name, schema: AdminRewardGrantSchema },
+      { name: ManualRevenueEntry.name, schema: ManualRevenueEntrySchema },
+      { name: CardPaymentOrder.name, schema: CardPaymentOrderSchema },
     ]),
     // 계측 컬렉션(LessonAttempt·QuestionAttempt·SubscriptionEvent)의 모델을
     // 빌려 쓴다. AnalyticsModule 이 MongooseModule 을 re-export 한다
@@ -155,6 +172,10 @@ import { PaymentsModule } from '../payments/payments.module';
     AdminSubscriptionsService,
     AdminRevenueService,
     PlayReportSyncService,
+    AdminManualRevenueService,
+    AdminStarsBalanceService,
+    AdminCardTransfersService,
+    AdminStarsSalesService,
     AdminAnalyticsService,
     AdminLearningDetailService,
     AdminContentService,
