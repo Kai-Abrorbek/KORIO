@@ -6,8 +6,8 @@ import type { AvatarConfig } from "../../../shared/model/avatar";
 import {
   WEAR_LOOK,
   WEAR_SETS,
-  isCostume,
   setProgress,
+  wearSlotOf,
   type WearItemId,
   type WearSlot,
 } from "../../../shared/model/avatar-wearables";
@@ -26,9 +26,15 @@ import wearStyles from "./wear-picker.module.css";
  * 카드를 누르면 입고, 입은 걸 한 번 더 누르면 벗는다. 안 산 것이면 아래 버튼 → 시트 (오라와 같은 흐름).
  */
 const fmt = (n: number) => n.toLocaleString("en-US");
-const SET_ICON: Record<(typeof WEAR_SETS)[number]["id"], IoniconName> = { kpop: "musical-notes" };
+const SET_ICON: Record<(typeof WEAR_SETS)[number]["id"], IoniconName> = {
+  kpop: "musical-notes",
+  king: "sunny",
+  seonbi: "book",
+  guard: "shield-checkmark",
+  taekwondo: "fitness",
+};
+const GROUPS = ["kpop", "tradition"] as const;
 
-const slotOfWear = (id: WearItemId): WearSlot => (isCostume(id) ? "costume" : "hand");
 
 export function WearGrid({
   draft,
@@ -64,47 +70,80 @@ export function WearGrid({
         <b data-i18n="avatarEditor.wear.title">{uzt("avatarEditor.wear.title")}</b>
         <small data-i18n="avatarEditor.wear.subtitle">{uzt("avatarEditor.wear.subtitle")}</small>
       </div>
-      {WEAR_SETS.map((set) => {
-        const progress = setProgress(set, draft);
-        const ids = set.parts.flatMap((part) => part.ids);
-        return (
-          <section className={wearStyles.set} key={set.id}>
-            <header className={wearStyles.setHead}>
-              <span className={wearStyles.setIcon}>
-                <MobileIcon name={SET_ICON[set.id]} size={18} />
-              </span>
-              <span className={wearStyles.setText}>
-                <b data-i18n={`avatarEditor.wear.sets.${set.id}.name`}>{uzt(`avatarEditor.wear.sets.${set.id}.name`)}</b>
-                <small data-i18n={`avatarEditor.wear.sets.${set.id}.desc`}>{uzt(`avatarEditor.wear.sets.${set.id}.desc`)}</small>
-              </span>
-              {progress.complete ? (
-                <em className={`${wearStyles.progress} ${wearStyles.complete}`}>
-                  <MobileIcon name="checkmark-circle" size={14} />
-                  <span data-i18n="avatarEditor.wear.done">{uzt("avatarEditor.wear.done")}</span>
-                </em>
-              ) : (
-                <em className={wearStyles.progress} data-no-translate>
-                  {progress.done}/{progress.total}
-                </em>
-              )}
-            </header>
-            <div className={styles.grid}>
-              {ids.map((id) => (
-                <WearCard
-                  draft={draft}
-                  equipped={equipped}
-                  id={id}
-                  key={id}
-                  onToggle={onToggle}
-                  state={state}
-                  status={status}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {/* 세트 효과 안내 */}
+      <p className={wearStyles.bonus}>
+        <MobileIcon name="sparkles" size={15} />
+        <span data-i18n="avatarEditor.wear.bonus">{uzt("avatarEditor.wear.bonus")}</span>
+      </p>
+      {GROUPS.map((group) => (
+        <div className={wearStyles.group} key={group}>
+          {group === "tradition" ? (
+            <h3 className={wearStyles.groupTitle} data-i18n={`avatarEditor.wear.groups.${group}`}>
+              {uzt(`avatarEditor.wear.groups.${group}`)}
+            </h3>
+          ) : null}
+          {WEAR_SETS.filter((set) => set.group === group).map((set) => (
+            <SetSection
+              draft={draft}
+              equipped={equipped}
+              key={set.id}
+              onToggle={onToggle}
+              set={set}
+              state={state}
+              status={status}
+            />
+          ))}
+        </div>
+      ))}
     </div>
+  );
+}
+
+/** 세트 하나 — 머리글(아이콘·이름·설명·몇 칸 채웠나) + 그 세트 아이템 카드 */
+function SetSection({
+  draft,
+  equipped,
+  onToggle,
+  set,
+  state,
+  status,
+}: {
+  draft: AvatarConfig;
+  equipped: Partial<Record<WearSlot, string>>;
+  onToggle: (slot: WearSlot, id: WearItemId) => void;
+  set: (typeof WEAR_SETS)[number];
+  state: CosmeticsState | null;
+  status: "loading" | "ready" | "failed";
+}) {
+  const progress = setProgress(set, draft);
+  const ids = set.parts.flatMap((part) => part.ids);
+  return (
+    <section className={wearStyles.set}>
+      <header className={wearStyles.setHead}>
+        <span className={wearStyles.setIcon} style={{ "--set": set.halo } as CSSProperties}>
+          <MobileIcon name={SET_ICON[set.id]} size={18} />
+        </span>
+        <span className={wearStyles.setText}>
+          <b data-i18n={`avatarEditor.wear.sets.${set.id}.name`}>{uzt(`avatarEditor.wear.sets.${set.id}.name`)}</b>
+          <small data-i18n={`avatarEditor.wear.sets.${set.id}.desc`}>{uzt(`avatarEditor.wear.sets.${set.id}.desc`)}</small>
+        </span>
+        {progress.complete ? (
+          <em className={`${wearStyles.progress} ${wearStyles.complete}`}>
+            <MobileIcon name="checkmark-circle" size={14} />
+            <span data-i18n="avatarEditor.wear.done">{uzt("avatarEditor.wear.done")}</span>
+          </em>
+        ) : (
+          <em className={wearStyles.progress} data-no-translate>
+            {progress.done}/{progress.total}
+          </em>
+        )}
+      </header>
+      <div className={styles.grid}>
+        {ids.map((id) => (
+          <WearCard draft={draft} equipped={equipped} id={id} key={id} onToggle={onToggle} state={state} status={status} />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -123,7 +162,7 @@ function WearCard({
   state: CosmeticsState | null;
   status: "loading" | "ready" | "failed";
 }) {
-  const slot = slotOfWear(id);
+  const slot = wearSlotOf(id);
   const selected = draft[slot] === id;
   const look = WEAR_LOOK[id];
   const owned = ownsCosmetic(state, id);

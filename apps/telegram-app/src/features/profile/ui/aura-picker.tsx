@@ -8,7 +8,7 @@ import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { AURA_LOOK, AURA_ORDER, AvatarAura, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
 import { SCENE_LOOK, SceneBackdrop, isScene, type SceneId } from "../../../shared/ui/avatar-scene";
 import { AvatarPet, PET_LOOK, isPet, type PaidPet } from "../../../shared/ui/avatar-pet";
-import { WEAR_LOOK, isCostume, isHand, type WearItemId } from "../../../shared/model/avatar-wearables";
+import { WEAR_LOOK, isWearItem, wearSlotOf, type WearItemId } from "../../../shared/model/avatar-wearables";
 import { PetGrowth } from "./pet-growth";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
@@ -24,10 +24,10 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 
 /** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫) — 사는 시트·산 직후 창은 다 같이 쓴다 */
 export type ShopItemId = Exclude<AuraId, "aura_none"> | Exclude<SceneId, "scene_none"> | PaidPet | WearItemId;
-export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand";
+export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat";
 
 export const slotOf = (id: ShopItemId): ShopSlot =>
-  isScene(id) ? "scene" : isPet(id) ? "pet" : isCostume(id) ? "costume" : isHand(id) ? "hand" : "aura";
+  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : "aura";
 
 export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
@@ -49,7 +49,7 @@ export function ownsCosmetic(state: CosmeticsState | null, id: string | undefine
 function shopLook(id: ShopItemId) {
   if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
   if (isPet(id)) return { rarity: PET_LOOK[id].rarity, color: PET_LOOK[id].accent, keys: "avatarEditor.pet" };
-  if (isCostume(id) || isHand(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
+  if (isWearItem(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
   return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
@@ -65,9 +65,9 @@ function ShopStage({
   className?: string;
   streak?: number;
 }) {
-  if (isCostume(id) || isHand(id)) {
-    // 의상·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
-    const worn = { ...avatar, [isCostume(id) ? "costume" : "hand"]: id };
+  if (isWearItem(id)) {
+    // 의상·모자·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
+    const worn = { ...avatar, [wearSlotOf(id)]: id };
     return (
       <div className={`${className} ${styles.sceneStage} ${styles.petStage}`}>
         <SceneBackdrop scene={avatar.scene} />

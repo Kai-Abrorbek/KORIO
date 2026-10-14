@@ -2643,10 +2643,31 @@ export default {
       loadFailed: "세트를 불러오지 못했어요",
       progress: "{{n}}/{{total}}",
       done: "완성!",
+      bonus: "세트를 다 갖추면 캐릭터 뒤에 세트 빛이 켜져요",
+      groups: {
+        kpop: "K팝",
+        tradition: "한국 전통 세트",
+      },
       sets: {
         kpop: {
           name: "K팝 세트",
           desc: "무대 위 아이돌처럼 — 의상에 응원봉이나 마이크를 들면 완성",
+        },
+        king: {
+          name: "왕",
+          desc: "곤룡포에 익선관까지 — 조선의 왕",
+        },
+        seonbi: {
+          name: "선비",
+          desc: "흰 도포에 갓 — 조선의 선비",
+        },
+        guard: {
+          name: "수문장",
+          desc: "철릭에 전립 — 궁궐 문을 지키는 장수",
+        },
+        taekwondo: {
+          name: "태권도",
+          desc: "검은 띠 도복 하나면 완성",
         },
       },
       items: {
@@ -2661,6 +2682,34 @@ export default {
         hand_mic: {
           name: "마이크",
           desc: "무대 위 은색 마이크",
+        },
+        costume_gonryongpo: {
+          name: "곤룡포",
+          desc: "가슴과 어깨에 금빛 용",
+        },
+        hat_ikseongwan: {
+          name: "익선관",
+          desc: "매미 날개가 달린 임금의 관",
+        },
+        costume_seonbi: {
+          name: "선비 도포",
+          desc: "검은 깃과 붉은 세조대",
+        },
+        hat_gat: {
+          name: "갓",
+          desc: "구슬 갓끈이 달린 선비의 갓",
+        },
+        costume_guard: {
+          name: "수문장 철릭",
+          desc: "남색 철릭에 붉은 전대",
+        },
+        hat_jeollip: {
+          name: "전립",
+          desc: "붉은 상모가 달린 무관의 모자",
+        },
+        costume_taekwondo: {
+          name: "태권도 도복",
+          desc: "검은 띠와 가슴의 태극",
         },
       },
     },

@@ -36,7 +36,7 @@ import {
   type ShopItemId,
   type ShopSlot,
 } from "./aura-picker";
-import { WEAR_LOOK, isCostume, isHand, type WearItemId, type WearSlot } from "../../../shared/model/avatar-wearables";
+import { WEAR_LOOK, isWearItem, type WearItemId, type WearSlot } from "../../../shared/model/avatar-wearables";
 import { WearGrid } from "./wear-picker";
 import { SceneGrid } from "./scene-picker";
 import { PetGrid } from "./pet-picker";
@@ -46,7 +46,7 @@ function hapticSelection() {
 }
 
 /** 상점 칸 — 아바타에 장착되는 꾸미기 */
-const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hand"];
+const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hat", "hand"];
 const isShopSlot = (value: string): value is ShopSlot => (SHOP_SLOTS as string[]).includes(value);
 
 /** 산 아이템을 입힌 모양 — 제 칸에 */
@@ -58,12 +58,12 @@ function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
 function rarityOf(item: ShopItemId) {
   if (isScene(item)) return SCENE_LOOK[item].rarity;
   if (isPet(item)) return PET_LOOK[item].rarity;
-  if (isCostume(item) || isHand(item)) return WEAR_LOOK[item].rarity;
+  if (isWearItem(item)) return WEAR_LOOK[item].rarity;
   return AURA_LOOK[item].rarity;
 }
 function keysOf(item: ShopItemId) {
   const slot = slotOf(item);
-  return `avatarEditor.${slot === "costume" || slot === "hand" ? "wear" : slot}`;
+  return `avatarEditor.${slot === "costume" || slot === "hand" || slot === "hat" ? "wear" : slot}`;
 }
 
 function goBack(router: ReturnType<typeof useRouter>) {
@@ -126,7 +126,7 @@ export function AvatarEditorScreen() {
   ) as Record<ShopSlot, ShopItemId | null>;
   // 보고 있는 탭이 어느 칸인지 (세트 탭 = 의상·손)
   const tabSlots: ShopSlot[] =
-    selectedCategory === "costume" ? ["costume", "hand"] : isShopSlot(selectedCategory) ? [selectedCategory] : [];
+    selectedCategory === "costume" ? ["costume", "hat", "hand"] : isShopSlot(selectedCategory) ? [selectedCategory] : [];
   // 살 것 — 보고 있는 탭 쪽 먼저
   const pending: ShopItemId | null =
     [...tabSlots, ...SHOP_SLOTS].map((slot) => pendingBySlot[slot]).find((id) => id !== null) ?? null;
@@ -185,7 +185,14 @@ export function AvatarEditorScreen() {
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
     // 오라·장면·펫은 상점 아이템이라 그대로 둔다
     setDraft((current) =>
-      randomAvatar({ aura: current.aura, scene: current.scene, pet: current.pet, costume: current.costume, hand: current.hand }),
+      randomAvatar({
+        aura: current.aura,
+        scene: current.scene,
+        pet: current.pet,
+        costume: current.costume,
+        hand: current.hand,
+        hat: current.hat,
+      }),
     );
   };
 
@@ -366,7 +373,7 @@ export function AvatarEditorScreen() {
         ) : category.id === "costume" ? (
           <WearGrid
             draft={draft}
-            equipped={{ costume: initial.costume, hand: initial.hand }}
+            equipped={{ costume: initial.costume, hat: initial.hat, hand: initial.hand }}
             onRetry={() => void loadCosmetics()}
             onToggle={toggleWear}
             state={cosmetics}

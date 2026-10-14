@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from "react";
 
 import type { AvatarConfig } from "../model/league";
-import { costumeShapes, handShapes, type WShape } from "../../../shared/model/avatar-wearables";
+import { costumeShapes, handShapes, hatShapes, setHaloShapes, type WShape } from "../../../shared/model/avatar-wearables";
 
 /** 입는 꾸미기 도형 → SVG (모바일은 같은 도형을 react-native-svg 로 그린다) */
 function WearShapes({ shapes }: { shapes: WShape[] }) {
@@ -192,10 +192,14 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
   const wearBody = { bodyX, bodyWidth, skin };
   const costume = costumeShapes(config.costume, wearBody);
   const hand = variant === "full" ? handShapes(config.hand, wearBody) : null;
+  const hat = hatShapes(config.hat);
+  // 세트 효과 — 다 갖추면 뒤에 은은한 빛 (전신만)
+  const halo = variant === "full" ? setHaloShapes(config) : null;
   return (
     <svg aria-hidden="true" preserveAspectRatio="xMidYMid meet" viewBox={variant === "head" ? "52 16 216 216" : "0 0 320 360"}>
       {showBackground ? <AvatarBackground colors={background} gradientId={gradientId} /> : null}
       {showBackground ? <circle cx="160" cy="149" fill="#fff" opacity=".24" r="126" /> : null}
+      {halo ? <WearShapes shapes={halo} /> : null}
       <ellipse cx="160" cy="337" fill="#151521" opacity=".14" rx="91" ry="15" />
       <BackHair hair={hair} style={config.hairstyle} />
       <AvatarLegs skin={skin} />
@@ -210,7 +214,7 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
       <FacialHair hair={hair} style={config.facialHair} />
       <FrontHair hair={hair} style={config.hairstyle} />
       <Eyewear style={config.eyewear} />
-      <Headwear id={config.headwear} outfit={outfit} />
+      {hat ? <WearShapes shapes={hat} /> : <Headwear id={config.headwear} outfit={outfit} />}
       {hand ? <WearShapes shapes={hand} /> : null}
     </svg>
   );
