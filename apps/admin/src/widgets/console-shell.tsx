@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isMockAuthMode, isMockMode, useSession, type AdminPermission } from "@/features/auth/session";
+import { PAYOUTS_CHANGED_EVENT } from "@/features/payouts/payout-alert";
+import { useQuery } from "@/shared/api/use-query";
 import { ThemeToggle } from "@/shared/ui/theme";
 import { ConsoleProvider, useConsole } from "./console-context";
 
@@ -59,6 +61,22 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
 
 function ShellContent({ children }: { children: React.ReactNode }) {
   const { me, can, logout } = useSession();
+  const payoutAlerts = useQuery<{ total: number }>(
+    can("payouts:read") && !isMockMode ? "/admin/gem-payouts?status=open&page=1&pageSize=1" : null,
+    { refreshMs: 15_000 },
+  );
+  const payoutCount = payoutAlerts.data?.total ?? 0;
+  const payoutCountLabel = payoutCount > 99 ? "99+" : String(payoutCount);
+  const payoutAlert = payoutAlerts.error ? "!" : payoutCount > 0 ? payoutCountLabel : null;
+  const payoutMenuLabel = payoutAlerts.error
+    ? "출금 요청 · 확인 실패"
+    : payoutCount > 0 ? `출금 요청 · 처리할 것 ${payoutCount}건` : "출금 요청";
+  const reloadPayoutAlerts = payoutAlerts.reload;
+  useEffect(() => {
+    const refresh = () => reloadPayoutAlerts();
+    window.addEventListener(PAYOUTS_CHANGED_EVENT, refresh);
+    return () => window.removeEventListener(PAYOUTS_CHANGED_EVENT, refresh);
+  }, [reloadPayoutAlerts]);
   const { range, preset, setPreset, setCustom } = useConsole();
   const path = usePathname();
   const contentRef = useRef<HTMLElement>(null);
@@ -100,7 +118,8 @@ function ShellContent({ children }: { children: React.ReactNode }) {
         <div className="rail-links" onScroll={() => setHovered(null)}>
           {permitted.map(item => (
             <div className="rail-wrap" key={item.href}>
-              <button className={`rail-button rail-${item.color}${active?.href === item.href ? " is-current" : ""}${open === item.href ? " is-open" : ""}`} type="button" aria-label={item.label} aria-expanded={open === item.href} onMouseEnter={event => showRailTooltip(item.label, event.currentTarget)} onMouseLeave={() => setHovered(null)} onFocus={event => showRailTooltip(item.label, event.currentTarget)} onBlur={() => setHovered(null)} onClick={() => {setHovered(null);setOpen(open === item.href ? null : item.href);}}><NavIcon name={item.icon}/></button>
+              <button className={`rail-button rail-${item.color}${active?.href === item.href ? " is-current" : ""}${open === item.href ? " is-open" : ""}`} type="button" aria-label={item.href === "/payouts" ? payoutMenuLabel : item.label} aria-expanded={open === item.href} onMouseEnter={event => showRailTooltip(item.href === "/payouts" ? payoutMenuLabel : item.label, event.currentTarget)} onMouseLeave={() => setHovered(null)} onFocus={event => showRailTooltip(item.href === "/payouts" ? payoutMenuLabel : item.label, event.currentTarget)} onBlur={() => setHovered(null)} onClick={() => {setHovered(null);setOpen(open === item.href ? null : item.href);}}><NavIcon name={item.icon}/></button>
+              {item.href === "/payouts" && payoutAlert && <span aria-hidden="true" className={`rail-count${payoutAlerts.error ? " is-error" : ""}`}>{payoutAlert}</span>}
             </div>
           ))}
         </div>
@@ -111,7 +130,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
       {flyout && <div className="nav-flyout" aria-label={`${flyout.label} 하위 메뉴`}>
         <div className="flyout-head"><span>{flyout.label}</span><button type="button" onClick={() => setOpen(null)} aria-label="메뉴 닫기">‹</button></div>
         <div className="flyout-group-label">{flyout.label === "Control Center" ? "OVERVIEW" : flyout.label.toUpperCase()}</div>
-        {flyout.children.map(child => <Link key={child.href} href={child.href} className={`flyout-link${child.href === (typeof window === "undefined" ? path : path + window.location.search) ? " is-active" : ""}`} onClick={() => setOpen(null)}>{child.label}</Link>)}
+        {flyout.children.map(child => <Link key={child.href} href={child.href} className={`flyout-link${child.href === (typeof window === "undefined" ? path : path + window.location.search) ? " is-active" : ""}`} onClick={() => setOpen(null)}>{child.label}{child.href === "/payouts" && payoutAlert && <span aria-hidden="true" className={`flyout-count${payoutAlerts.error ? " is-error" : ""}`}>{payoutAlert}</span>}</Link>)}
       </div>}
       {open === "account" && <div className="account-popover"><strong>{me?.email}</strong><span>{ROLE_LABEL[me?.role ?? ""] ?? me?.role}</span><ThemeToggle/>{!isMockAuthMode && <button className="btn btn-ghost" onClick={logout}>로그아웃</button>}</div>}
       {open && <button className="flyout-scrim" aria-label="메뉴 닫기" onClick={() => setOpen(null)}/>}

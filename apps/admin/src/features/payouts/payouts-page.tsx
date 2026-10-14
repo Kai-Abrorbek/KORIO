@@ -7,6 +7,7 @@ import { useSession } from "@/features/auth/session";
 import { ErrorState } from "@/shared/ui/primitives";
 import { full } from "@/shared/ui/format";
 import styles from "./payouts.module.css";
+import { PAYOUTS_CHANGED_EVENT } from "./payout-alert";
 
 type Status = "pending" | "processing" | "completed" | "rejected" | "cancelled";
 type Filter = "open" | Status | "";
@@ -224,6 +225,7 @@ function PayoutDrawer({ id, canWrite, onClose, onChanged }: { id: string; canWri
         ...(status === "rejected" ? { reason } : {}),
         ...(note.trim() ? { note: note.trim() } : {}),
       });
+      window.dispatchEvent(new Event(PAYOUTS_CHANGED_EVENT));
       setNotice({
         tone: "good",
         text: status === "processing" ? "송금 중으로 바꿨어요." : status === "completed" ? "송금 완료 처리했고 유저에게 알렸어요." : "반려했고 보석을 돌려준 뒤 유저에게 알렸어요.",
