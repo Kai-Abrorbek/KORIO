@@ -2404,6 +2404,7 @@ export default {
     retry: "Try again",
   },
   avatarEditor: {
+    secretCombo: { nightGuardian: "✦ Secret combo · Night Guardian" },
     title: "My character",
     subtitle: "Create a KORIO character that feels like you",
     allFree: "All items are free for now",

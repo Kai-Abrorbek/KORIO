@@ -21,9 +21,9 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import AvatarPreview, { AVATAR_BACKGROUNDS } from "@/components/avatar/AvatarPreview";
+import { AVATAR_BACKGROUNDS } from "@/components/avatar/AvatarPreview";
+import AvatarComboStage from "@/components/avatar/AvatarComboStage";
 import { SceneBackdrop, isScene } from "@/components/avatar/AvatarScene";
-import AvatarPet from "@/components/avatar/AvatarPet";
 import { mergeAvatarConfig } from "@/types/avatar";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
@@ -426,16 +426,7 @@ export default function HomeScreen() {
               <SceneBackdrop scene={user.avatar.scene} />
             )}
             {user?.avatar ? (
-              <View style={{ width: 200, height: 200 }}>
-                <AvatarPreview
-                  avatar={user.avatar}
-                  size={200}
-                  showBackground={false}
-                  aura
-                />
-                {/* 펫 — 연속 학습일만큼 자란 모습 */}
-                <AvatarPet pet={user.avatar.pet} streak={user.streak} avatarSize={200} />
-              </View>
+              <AvatarComboStage avatar={user.avatar} size={200} streak={user.streak} />
             ) : (
               <HaneulmonMascot size={200} mood="default" />
             )}

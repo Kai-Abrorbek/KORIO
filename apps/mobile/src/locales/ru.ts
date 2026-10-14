@@ -2409,6 +2409,7 @@ export default {
     retry: "Повторить",
   },
   avatarEditor: {
+    secretCombo: { nightGuardian: "✦ Секретный набор · Ночной страж" },
     title: "Мой персонаж",
     subtitle: "Создай собственного персонажа KORIO",
     allFree: "Сейчас все предметы бесплатны",

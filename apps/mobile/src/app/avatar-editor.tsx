@@ -15,9 +15,8 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import AvatarPreview, {
-  AVATAR_BACKGROUNDS,
-} from "@/components/avatar/AvatarPreview";
+import { AVATAR_BACKGROUNDS } from "@/components/avatar/AvatarPreview";
+import AvatarComboStage from "@/components/avatar/AvatarComboStage";
 import AvatarOptionCard from "@/components/avatar/AvatarOptionCard";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { AVATAR_CATEGORIES } from "@/constants/avatar.catalog";
@@ -47,7 +46,7 @@ import { WearGrid } from "@/components/avatar/WearPicker";
 import { WEAR_LOOK, isCostume, isHand, type WearItemId, type WearSlot } from "@/components/avatar/avatarWearables";
 import { SceneGrid } from "@/components/avatar/ScenePicker";
 import { PetGrid } from "@/components/avatar/PetPicker";
-import AvatarPet, { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
+import { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
 import Button3D from "@/features/retention/components/Button3D";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
@@ -425,15 +424,7 @@ export default function AvatarEditorScreen() {
             </View>
           )}
 
-          <View style={{ width: heroAvatarSize, height: heroAvatarSize }}>
-            <AvatarPreview
-              avatar={draft}
-              size={heroAvatarSize}
-              showBackground={false}
-              aura
-            />
-            <AvatarPet pet={draft.pet} streak={streak} avatarSize={heroAvatarSize} />
-          </View>
+          <AvatarComboStage avatar={draft} size={heroAvatarSize} streak={streak} />
 
           <TouchableOpacity
             activeOpacity={0.84}

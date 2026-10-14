@@ -2399,6 +2399,7 @@ export default {
   },
   avatarEditor: {
     title: "내 캐릭터",
+    secretCombo: { nightGuardian: "✦ 비밀 조합 · 야간 수문장" },
     subtitle: "나만의 KORIO 캐릭터를 만들어봐",
     allFree: "지금은 모든 아이템 무료",
     basicFree: "기본 아이템은 무료",

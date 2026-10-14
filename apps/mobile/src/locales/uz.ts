@@ -2413,6 +2413,7 @@ export default {
     retry: "Qayta urinish",
   },
   avatarEditor: {
+    secretCombo: { nightGuardian: "✦ Sirli to‘plam · Tungi qo‘riqchi" },
     title: "Mening qahramonim",
     subtitle: "O‘zingga xos KORIO qahramonini yarat",
     allFree: "Hozircha barcha buyumlar bepul",
