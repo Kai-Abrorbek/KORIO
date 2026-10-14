@@ -2543,6 +2543,7 @@ export default {
     pet: {
       title: "Hayvoncha — har kuni o'qisangiz o'sadi",
       subtitle: "Profilingizda qahramoningiz yonida turadi",
+      reviewStars: "Takrorlash yulduzlari: {{n}}",
       none: "Hayvonchasiz",
       freeAll: "Hamma hayvonchalar bepul",
       inUse: "Siz bilan",

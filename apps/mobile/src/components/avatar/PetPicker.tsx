@@ -12,6 +12,8 @@ import Button3D from "@/features/retention/components/Button3D";
 import { useTheme } from "@/hooks/useTheme";
 import type { AvatarConfig } from "@/types/avatar";
 import type { CosmeticsState } from "@/services/cosmetics.service";
+import { useAuthStore } from "@/store/auth.store";
+import { useAvatarStudyStore } from "@/store/avatar-study.store";
 
 /**
  * 캐릭터 에디터의 "펫" 탭 — 텔레그램 pet-picker 와 같다.
@@ -43,6 +45,8 @@ export function PetGrid({
   const theme = useTheme();
   const s = useMemo(() => getShopPickerStyles(theme), [theme]);
   const { width } = useWindowDimensions();
+  const userId = useAuthStore((current) => current.user?.id);
+  const starCount = useAvatarStudyStore((current) => userId ? (current.petStars?.[userId] ?? 0) : 0);
   const cardW = (Math.min(width, 520) - 16 * 2 - 12) / 2;
 
   if (status === "failed") {
@@ -59,6 +63,12 @@ export function PetGrid({
     <Animated.View entering={FadeIn.duration(220)} style={{ paddingHorizontal: 16 }}>
       <Text style={s.headTitle}>{t("avatarEditor.pet.title")}</Text>
       <Text style={s.headSub}>{t("avatarEditor.pet.subtitle")}</Text>
+      {isPet(draft.pet) ? (
+        <View style={local.starBadge}>
+          <Ionicons name="star" size={14} color="#9E6A00" />
+          <Text style={local.starText}>{t("avatarEditor.pet.reviewStars", { n: starCount })}</Text>
+        </View>
+      ) : null}
       <View style={local.growth}>
         <PetGrowth pet={isPet(draft.pet) ? draft.pet : "pet_jindo"} streak={streak} />
       </View>
@@ -170,6 +180,8 @@ function PetCard({
 }
 
 const local = StyleSheet.create({
+  starBadge: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#FFF2BD", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 10 },
+  starText: { color: "#77520A", fontSize: 12, fontWeight: "800" },
   growth: { marginBottom: 12 },
   preview: { justifyContent: "flex-end", paddingBottom: 2 },
   none: { flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center", opacity: 0.55 },

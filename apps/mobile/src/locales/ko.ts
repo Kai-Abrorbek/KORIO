@@ -2528,6 +2528,7 @@ export default {
     pet: {
       title: "펫 — 연속 학습할수록 자라요",
       subtitle: "프로필에서 내 캐릭터 옆에 함께 있어요",
+      reviewStars: "복습 별 {{n}}개",
       none: "펫 없음",
       freeAll: "펫 전부 무료",
       inUse: "함께하는 중",

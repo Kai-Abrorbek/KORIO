@@ -74,6 +74,7 @@ import {
 } from "@/utils/blank-sentence";
 import { getContentLang, useContentLang } from "@/store/settings.store";
 import { useAvatarStudyStore } from "@/store/avatar-study.store";
+import { isPet } from "@/components/avatar/AvatarPet";
 import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 type Phase = "main" | "reviewIntro" | "review";
@@ -266,6 +267,8 @@ export default function LessonScreen() {
     useState<AnswerGradeResult | null>(null);
   const answerSubmissionLocked = useRef(false);
   const userEnergy = useAuthStore((st) => st.user?.energy ?? ENERGY_MAX);
+  const equippedPet = useAuthStore((st) => st.user?.avatar?.pet);
+  const petStreak = useAuthStore((st) => st.user?.streak ?? 0);
   const [energy, setEnergy] = useState(userEnergy);
   const openEnergyModal = useEnergyStore((s) => s.openEnergyModal);
   const [combo, setCombo] = useState(0);
@@ -273,6 +276,8 @@ export default function LessonScreen() {
   const [showCombo, setShowCombo] = useState<boolean>(false);
   const reviewTotal = useRef(0);
   const reviewCorrectIds = useRef<Set<string>>(new Set());
+  const starredReviewIds = useRef<Set<string>>(new Set());
+  const [earnedReviewStar, setEarnedReviewStar] = useState(false);
   const questionQueue = useRef<LessonQuestion[]>([]); // 현재 푸는 큐 (main → review)
   const reviewQueue = useRef<LessonQuestion[]>([]); // 1단계서 틀린 문제 모음
   const finalWrongIds = useRef<Set<string>>(new Set()); // 최종 못 맞춘 ID (서버 저장용)
@@ -419,6 +424,8 @@ export default function LessonScreen() {
       setIsCheckingAnswer(false);
       setGradingFeedback(null);
       setAnswerState("idle");
+      setEarnedReviewStar(false);
+      starredReviewIds.current.clear();
       grammarRetryCounts.current.clear();
       if (isLevelTest) {
         const questions =
@@ -811,6 +818,7 @@ export default function LessonScreen() {
     feedback: AnswerGradeResult | null = null,
   ) => {
     setGradingFeedback(feedback);
+    setEarnedReviewStar(false);
 
     if (isLevelTest) {
       if (locked.current) return;
@@ -870,6 +878,14 @@ export default function LessonScreen() {
     }
 
     if (isCorrect) {
+      if (phase === "review" && isPet(equippedPet) && !starredReviewIds.current.has(question.id)) {
+        const userId = useAuthStore.getState().user?.id;
+        if (userId) {
+          starredReviewIds.current.add(question.id);
+          useAvatarStudyStore.getState().awardReviewStar(userId);
+          setEarnedReviewStar(true);
+        }
+      }
       const userId = useAuthStore.getState().user?.id;
       if (userId) {
         useAvatarStudyStore.getState().rememberWord({
@@ -1494,6 +1510,9 @@ export default function LessonScreen() {
               onNext={handleNext}
               theme={theme}
               combo={combo}
+              pet={equippedPet}
+              petStreak={petStreak}
+              recoveredStar={earnedReviewStar}
             />
           )}
 

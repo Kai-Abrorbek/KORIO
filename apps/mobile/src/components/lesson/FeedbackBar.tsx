@@ -23,6 +23,8 @@ import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useTranslation } from "react-i18next";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerGradeResult, AnswerState } from "@/types/lesson";
+import PetLessonReaction from "@/components/avatar/PetLessonReaction";
+import { isPet } from "@/components/avatar/AvatarPet";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -200,6 +202,9 @@ interface Props {
   onNext: () => void;
   theme: ThemeColors;
   combo?: number;
+  pet?: string | null;
+  petStreak?: number | null;
+  recoveredStar?: boolean;
 }
 
 export default function FeedbackBar({
@@ -209,6 +214,9 @@ export default function FeedbackBar({
   explanation,
   gradingFeedback,
   onNext,
+  pet,
+  petStreak,
+  recoveredStar,
 }: Props) {
   const { t } = useTranslation();
   const progress = useSharedValue(0);
@@ -292,7 +300,11 @@ export default function FeedbackBar({
         {/* 체크 + 제목 + 우측 아이콘 */}
         <View style={s.headRow}>
           {/* 정답·오답 반응을 캐릭터로. 아이콘보다 감정이 바로 읽힌다 */}
-          <HaneulmonMascot size={52} mood={isCorrect ? "correct" : "wrong"} />
+          {isPet(pet) ? (
+            <PetLessonReaction pet={pet} streak={petStreak} state={state} recovered={recoveredStar} />
+          ) : (
+            <HaneulmonMascot size={52} mood={isCorrect ? "correct" : "wrong"} />
+          )}
 
           <Text style={[s.title, { color: accent }]} numberOfLines={2}>
             {label}

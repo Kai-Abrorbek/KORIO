@@ -2534,6 +2534,7 @@ export default {
     pet: {
       title: "Pet — grows with your streak",
       subtitle: "Stands next to your hero on your profile",
+      reviewStars: "Review stars: {{n}}",
       none: "No pet",
       freeAll: "All pets free",
       inUse: "With you",
