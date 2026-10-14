@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Optional,
   ServiceUnavailableException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { randomBytes } from 'crypto';
@@ -384,7 +385,8 @@ export class StickersService implements StickerStartHandler {
       this.logger.warn(
         `스티커팩 실패 user=${String(user._id)}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      throw new ServiceUnavailableException('STICKERS_FAILED');
+      // 5xx 로 주면 앱이 "서버 오류" 전역 모달을 띄운다 — 화면 안에서 보여줄 실패라 422
+      throw new UnprocessableEntityException('STICKERS_FAILED');
     }
   }
 
