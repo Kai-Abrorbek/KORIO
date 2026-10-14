@@ -276,6 +276,35 @@ export class User {
   @Prop({ type: [String], default: [] })
   ownedCosmetics: string[];
 
+  /** 내 캐릭터 텔레그램 스티커팩 (stickers) — 봇이 이 유저 이름으로 만든 세트 */
+  @Prop({ type: Object, default: null })
+  stickerPack?: {
+    name: string;
+    ownerId: string;
+    avatarKey: string;
+    version: number;
+    artVersion: number;
+    count: number;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null;
+
+  /** 스티커를 만드는 중 (이 시각까지) — 두 번 눌러도 한 번만 만든다 */
+  @Prop({ type: Date, default: null })
+  stickerBusyUntil?: Date | null;
+
+  /** 앱 → 텔레그램 봇으로 넘어갈 때 쓰는 일회용 표 (/start stk_<token>) */
+  @Prop({ type: Object, default: null })
+  stickerLink?: { token: string; expiresAt: Date } | null;
+
+  /** 이어 둔 텔레그램 계정 — 텔레그램으로 가입하지 않은 유저의 스티커팩 주인 */
+  @Prop({ type: Object, default: null })
+  telegramLink?: {
+    id: string;
+    username?: string | null;
+    linkedAt: Date;
+  } | null;
+
   /** 복구펜으로 메운 날들 (그 유저 시간대 자정). 연속 계산의 이어짐에만 쓴다 */
   @Prop({ type: [Date], default: [] })
   streakFrozenDays: Date[];
@@ -571,6 +600,14 @@ UserSchema.index(
     unique: true,
     partialFilterExpression: { referralCode: { $type: 'string' } },
     name: 'referralCode_unique_when_set',
+  },
+);
+// 봇 /start stk_<token> 으로 표 주인을 찾는다 (표가 있을 때만 인덱싱)
+UserSchema.index(
+  { 'stickerLink.token': 1 },
+  {
+    partialFilterExpression: { 'stickerLink.token': { $type: 'string' } },
+    name: 'stickerLink_token_when_set',
   },
 );
 UserSchema.index(

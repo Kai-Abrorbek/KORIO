@@ -39,6 +39,7 @@ import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
 import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
 import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
 import { CosmeticsModule } from './cosmetics/cosmetics.module';
+import { StickersModule } from './stickers/stickers.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { CosmeticsModule } from './cosmetics/cosmetics.module';
     GemPayoutsModule,
     GemLedgerModule,
     CosmeticsModule,
+    StickersModule,
     MailModule,
   ],
   controllers: [AppController],

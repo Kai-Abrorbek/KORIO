@@ -12,6 +12,7 @@ import { SubscriptionService } from './subscriptions/subscription.service';
 import { SubscriptionRefreshService } from './subscriptions/subscription-refresh.service';
 import { RateLimitGuard } from '../common/rate-limit';
 import { AnalyticsModule } from '../analytics/analytics.module';
+import { StickersModule } from '../stickers/stickers.module';
 import { GemPassController } from './gems/gem-pass.controller';
 import { GemPassService } from './gems/gem-pass.service';
 import { TelegramBotApi } from './providers/telegram-stars/telegram-bot.api';
@@ -41,6 +42,8 @@ import {
     ]),
     // 구독 상태 전이 기록 (분석 전용)
     AnalyticsModule,
+    // 봇 /start stk_… (스티커팩) 을 넘긴다
+    StickersModule,
   ],
   controllers: [
     PaymentsController,

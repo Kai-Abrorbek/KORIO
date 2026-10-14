@@ -26,6 +26,7 @@ import {
 } from '../lessons/economy.const';
 import { GEM_PAYOUT } from '../gem-payouts/gem-payout.const';
 import { COSMETICS } from '../cosmetics/cosmetics.const';
+import { STICKER_PACK } from '../stickers/stickers.const';
 
 export type SettingSpec = {
   key: string;
@@ -266,6 +267,24 @@ export const SETTING_CATALOG: SettingSpec[] = [
       1,
       1000000,
     ),
+  ),
+  item(
+    'STICKER_PACK.price',
+    '텔레그램 스티커팩 가격 (처음)',
+    '꾸미기',
+    '보석',
+    STICKER_PACK.price,
+    0,
+    1000000,
+  ),
+  item(
+    'STICKER_PACK.refreshPrice',
+    '텔레그램 스티커팩 다시 만들기 가격',
+    '꾸미기',
+    '보석',
+    STICKER_PACK.refreshPrice,
+    0,
+    1000000,
   ),
   ...GEM_PASSES.map((pass, index) =>
     item(

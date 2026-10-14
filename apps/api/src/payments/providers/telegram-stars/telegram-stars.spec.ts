@@ -399,6 +399,25 @@ describe('봇 명령', () => {
     expect(bot.call).not.toHaveBeenCalled();
   });
 
+  it('/start stk_<표> 는 스티커팩으로 넘기고 미니앱 버튼은 안 보낸다', async () => {
+    const { users, subs, bot, cards } = setup();
+    const stickers = { handleStart: jest.fn().mockResolvedValue(undefined) };
+    const service = new TelegramStarsService(
+      users as never,
+      subs as never,
+      bot as never,
+      cards as never,
+      stickers,
+    );
+    await service.handleUpdate(command('/start stk_abcDEF123_-xyz'));
+    expect(stickers.handleStart).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 777 }),
+      'abcDEF123_-xyz',
+      777,
+    );
+    expect(bot.call).not.toHaveBeenCalled();
+  });
+
   it('/refund 는 운영자만 — 남에게는 명령이 있는지도 안 알린다', async () => {
     const { service, bot, subs } = setup();
     process.env.TELEGRAM_ADMIN_IDS = '1, 2';

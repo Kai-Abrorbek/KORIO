@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,6 +21,11 @@ import {
   telegramAdminIds,
 } from './telegram-bot.api';
 import { CardPaymentService } from '../../card/card-payment.service';
+import {
+  STICKER_START_HANDLER,
+  STICKER_START_PREFIX,
+  type StickerStartHandler,
+} from '../../../stickers/sticker-start';
 import {
   STARS_INVOICE_PHOTO_PATH,
   starsCatalog,
@@ -84,6 +91,10 @@ export class TelegramStarsService {
     private readonly bot: TelegramBotApi,
     // 카드 입금 승인 버튼(callback_query)·/cardcheck 도 같은 봇 웹훅으로 들어온다
     private readonly cards: CardPaymentService,
+    // 앱에서 "텔레그램에서 스티커 마저 만들기" 로 온 /start stk_<표>
+    @Optional()
+    @Inject(STICKER_START_HANDLER)
+    private readonly stickers?: StickerStartHandler,
   ) {}
 
   /** 미니앱 요금제 카드 */
@@ -286,6 +297,21 @@ export class TelegramStarsService {
 
     switch (command) {
       case '/start': {
+        const payload = args[0] ?? '';
+        if (
+          this.stickers &&
+          msg.from &&
+          msg.chat.type === 'private' &&
+          payload.startsWith(STICKER_START_PREFIX)
+        ) {
+          // 스티커를 그리고 올리는 데 몇 초 걸린다 — 웹훅을 붙잡지 않는다 (안에서 다 삼킨다)
+          void this.stickers.handleStart(
+            msg.from,
+            payload.slice(STICKER_START_PREFIX.length),
+            msg.chat.id,
+          );
+          return;
+        }
         const app = miniAppUrl();
         if (!app || msg.chat.type !== 'private') return;
         const lang = await this.langFor(msg.from);
