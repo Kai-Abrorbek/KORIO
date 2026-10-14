@@ -88,6 +88,10 @@ export class AvatarConfig {
   /** 캐릭터 뒤 장면 (cosmetics, 예: scene_namsan) — 산 것·무료만 */
   @Prop({ type: String, default: 'scene_none' })
   scene: string;
+
+  /** 캐릭터 옆 펫 (cosmetics, 예: pet_jindo) — 산 것·무료만 */
+  @Prop({ type: String, default: 'pet_none' })
+  pet: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);

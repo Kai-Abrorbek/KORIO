@@ -198,7 +198,11 @@ describe('CosmeticsService — 장면(scene)', () => {
     };
     const service = new CosmeticsService(users as never, undefined);
     const res = await service.list(userId);
-    expect(res.equipped).toEqual({ aura: 'aura_snow', scene: 'scene_none' });
+    expect(res.equipped).toEqual({
+      aura: 'aura_snow',
+      scene: 'scene_none',
+      pet: 'pet_none',
+    });
     expect(res.items.some((item) => item.slot === 'scene')).toBe(true);
   });
 
@@ -209,5 +213,60 @@ describe('CosmeticsService — 장면(scene)', () => {
     expect(() => assertCosmeticOwned('scene_gyeongbokgung', [])).toThrow(
       'COSMETIC_NOT_OWNED',
     );
+  });
+});
+
+describe('CosmeticsService — 펫(pet)', () => {
+  const userId = new Types.ObjectId().toString();
+
+  it('펫을 "사면" avatar.pet 에 입힌다 (무료면 보석 없이)', async () => {
+    const users = {
+      findOneAndUpdate: jest.fn().mockReturnValue(
+        chain({
+          gems: 5,
+          ownedCosmetics: ['pet_jindo'],
+          avatar: { pet: 'pet_jindo' },
+        }),
+      ),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    await service.purchase(userId, 'pet_jindo', true);
+    const [, update] = users.findOneAndUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(update).toEqual({
+      $addToSet: { ownedCosmetics: 'pet_jindo' },
+      $set: { 'avatar.pet': 'pet_jindo' },
+    });
+  });
+
+  it('목록은 장착한 펫도 돌려준다', async () => {
+    const users = {
+      findById: jest.fn().mockReturnValue(
+        chain({
+          gems: 1,
+          ownedCosmetics: [],
+          avatar: { aura: 'aura_none', pet: 'pet_tiger' },
+        }),
+      ),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    const res = await service.list(userId);
+    expect(res.equipped.pet).toBe('pet_tiger');
+    expect(res.items.filter((item) => item.slot === 'pet')).toHaveLength(4);
+  });
+
+  it('펫을 팔게 되면 안 가진 건 못 입는다 (없음은 늘 통과)', () => {
+    // 펫은 COSMETICS 11~14 — 도깨비(14)만 유료로
+    replaceRuntimeValues(new Map([['COSMETICS.14.price', 12000]]));
+    expect(() => assertCosmeticOwned('pet_none', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('pet_jindo', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('pet_dokkaebi', [])).toThrow(
+      'COSMETIC_NOT_OWNED',
+    );
+    expect(() =>
+      assertCosmeticOwned('pet_dokkaebi', ['pet_dokkaebi']),
+    ).not.toThrow();
   });
 });

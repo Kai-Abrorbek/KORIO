@@ -14,22 +14,23 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import {
   AURA_NONE,
   COSMETICS,
+  PET_NONE,
   SCENE_NONE,
   cosmeticById,
   isFreeCosmetic,
+  isNoneCosmetic,
   ownedWithFree,
 } from './cosmetics.const';
 
 /**
- * 장착하려는 꾸미기(오라·장면)를 갖고 있는지 — avatar 저장(updateAvatar)도 이걸 쓴다.
+ * 장착하려는 꾸미기(오라·장면·펫)를 갖고 있는지 — avatar 저장(updateAvatar)도 이걸 쓴다.
  * 없음(none)·무료(가격 0)는 늘 통과.
  */
 export function assertCosmeticOwned(
   id: string | null | undefined,
   owned: readonly string[] | null | undefined,
 ) {
-  if (!id || id === AURA_NONE || id === SCENE_NONE || isFreeCosmetic(id))
-    return;
+  if (!id || isNoneCosmetic(id) || isFreeCosmetic(id)) return;
   if (!(owned ?? []).includes(id))
     throw new ForbiddenException('COSMETIC_NOT_OWNED');
 }
@@ -55,7 +56,7 @@ export class CosmeticsService {
   async list(userId: string) {
     const user = await this.users
       .findById(new Types.ObjectId(userId))
-      .select('gems ownedCosmetics avatar.aura avatar.scene')
+      .select('gems ownedCosmetics avatar.aura avatar.scene avatar.pet')
       .lean();
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
     return {
@@ -64,6 +65,7 @@ export class CosmeticsService {
       equipped: {
         aura: user.avatar?.aura ?? AURA_NONE,
         scene: user.avatar?.scene ?? SCENE_NONE,
+        pet: user.avatar?.pet ?? PET_NONE,
       },
       items: COSMETICS.map((item) => ({
         id: item.id,

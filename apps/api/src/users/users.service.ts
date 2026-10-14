@@ -833,15 +833,17 @@ export class UsersService {
     // 오라는 산 것만. 예전 앱은 aura 를 안 보낸다 → 지금 장착한 걸 그대로 둔다
     const current = await this.userModel
       .findById(userId)
-      .select('ownedCosmetics avatar.aura avatar.scene')
+      .select('ownedCosmetics avatar.aura avatar.scene avatar.pet')
       .lean();
     if (!current) throw new NotFoundException('유저를 찾을 수 없습니다');
     const aura = dto.aura ?? current.avatar?.aura ?? 'aura_none';
     const scene = dto.scene ?? current.avatar?.scene ?? 'scene_none';
+    const pet = dto.pet ?? current.avatar?.pet ?? 'pet_none';
     assertCosmeticOwned(aura, current.ownedCosmetics);
     assertCosmeticOwned(scene, current.ownedCosmetics);
+    assertCosmeticOwned(pet, current.ownedCosmetics);
     // 무료로 입은 건 내 것으로 남긴다 (나중에 다시 팔아도 유지)
-    const claimed = [aura, scene].filter((id) => isFreeCosmetic(id));
+    const claimed = [aura, scene, pet].filter((id) => isFreeCosmetic(id));
 
     const updated = await this.userModel
       .findByIdAndUpdate(
@@ -852,6 +854,7 @@ export class UsersService {
               ...dto,
               aura,
               scene,
+              pet,
             },
           },
           ...(claimed.length

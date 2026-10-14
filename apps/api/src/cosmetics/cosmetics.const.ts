@@ -14,8 +14,11 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  *   일반 800 · 희귀 2,000 · 에픽 5,000 · 전설 12,000
  * 어드민 "앱 숫자 설정" 에서 가격만 올리면 된다 (COSMETICS.<n>.price, 0 = 무료).
  */
-/** aura: 캐릭터 주위 효과 · scene: 캐릭터 뒤 "서울 여행" 장면 그림 (avatar.scene) */
-export type CosmeticSlot = 'aura' | 'scene';
+/**
+ * aura: 캐릭터 주위 효과 · scene: 캐릭터 뒤 "서울 여행" 장면 그림 (avatar.scene)
+ * pet: 캐릭터 옆 펫 (avatar.pet) — 연속 학습일에 따라 앱이 아기·꼬마·다 큰 모습으로 그린다
+ */
+export type CosmeticSlot = 'aura' | 'scene' | 'pet';
 export type CosmeticRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface CosmeticItem {
@@ -40,6 +43,10 @@ export const COSMETICS: CosmeticItem[] = runtimeConfig('COSMETICS', [
   { id: 'scene_jeju', slot: 'scene', rarity: 'epic', price: 0 },
   { id: 'scene_snow', slot: 'scene', rarity: 'epic', price: 0 },
   { id: 'scene_gyeongbokgung', slot: 'scene', rarity: 'legendary', price: 0 },
+  { id: 'pet_jindo', slot: 'pet', rarity: 'rare', price: 0 },
+  { id: 'pet_hangulmon', slot: 'pet', rarity: 'rare', price: 0 },
+  { id: 'pet_tiger', slot: 'pet', rarity: 'epic', price: 0 },
+  { id: 'pet_dokkaebi', slot: 'pet', rarity: 'legendary', price: 0 },
 ]);
 
 /** avatar.aura 에 들어갈 수 있는 값 (none 포함) */
@@ -64,6 +71,26 @@ export const SCENE_IDS = [
   'scene_snow',
   'scene_gyeongbokgung',
 ] as const;
+
+export const PET_NONE = 'pet_none';
+
+/** avatar.pet 에 들어갈 수 있는 값 (none 포함). 그림은 앱이 같은 id 로 갖고 있다 */
+export const PET_IDS = [
+  PET_NONE,
+  'pet_jindo',
+  'pet_hangulmon',
+  'pet_tiger',
+  'pet_dokkaebi',
+] as const;
+
+/** 칸마다 "안 입음" 값 — 늘 가진 것으로 친다 */
+export const NONE_BY_SLOT: Record<CosmeticSlot, string> = {
+  aura: AURA_NONE,
+  scene: SCENE_NONE,
+  pet: PET_NONE,
+};
+const NONE_IDS = new Set(Object.values(NONE_BY_SLOT));
+export const isNoneCosmetic = (id: string) => NONE_IDS.has(id);
 
 export const cosmeticById = (id: string): CosmeticItem | undefined =>
   COSMETICS.find((item) => item.id === id);
