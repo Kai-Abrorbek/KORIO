@@ -379,7 +379,7 @@ export default function AvatarEditorScreen() {
           style={styles.hero}
         >
           {draftScene ? (
-            <SceneBackdrop scene={draftScene} />
+            <SceneBackdrop scene={draftScene} living />
           ) : (
             <>
               <View style={styles.heroOrbLarge} />

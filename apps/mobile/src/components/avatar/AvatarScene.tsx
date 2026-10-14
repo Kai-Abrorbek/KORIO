@@ -1,6 +1,8 @@
-import { StyleSheet, View, type ImageSourcePropType } from "react-native";
+import { useEffect, useState } from "react";
+import { AppState, StyleSheet, View, type ImageSourcePropType } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeIn, useReducedMotion } from "react-native-reanimated";
 
 /**
  * 배경 장면 — 캐릭터 뒤에 까는 서울 여행 그림 (api cosmetics, slot scene). 텔레그램 shared/ui/avatar-scene 과 같다.
@@ -61,6 +63,22 @@ const SCENE_IMAGES: Record<PaidScene, ImageSourcePropType> = {
 export const isScene = (value: unknown): value is PaidScene =>
   typeof value === "string" && value in SCENE_LOOK;
 
+type SceneTime = "morning" | "day" | "sunset" | "night";
+
+export function sceneTimeAt(hour: number): SceneTime {
+  if (hour >= 5 && hour < 11) return "morning";
+  if (hour >= 11 && hour < 17) return "day";
+  if (hour >= 17 && hour < 20) return "sunset";
+  return "night";
+}
+
+const TIME_TINT: Record<SceneTime, readonly [string, string, string]> = {
+  morning: ["rgba(255,229,170,0.30)", "rgba(255,249,224,0.14)", "rgba(255,241,205,0.10)"],
+  day: ["rgba(193,227,255,0.25)", "rgba(232,247,255,0.12)", "rgba(255,255,255,0.08)"],
+  sunset: ["rgba(250,139,143,0.36)", "rgba(255,194,127,0.19)", "rgba(230,121,149,0.10)"],
+  night: ["rgba(17,24,72,0.31)", "rgba(26,34,90,0.12)", "rgba(19,18,68,0.20)"],
+};
+
 /** 히어로 색 — 장면이 있으면 장면 색, 없으면 null (색 배경 그대로) */
 export function sceneHeroColors(scene: unknown) {
   if (!isScene(scene)) return null;
@@ -80,11 +98,29 @@ export function SceneBackdrop({
   scene,
   shade = false,
   focusY = "72%",
+  living = false,
 }: {
   scene?: string | null;
   shade?: boolean;
   focusY?: `${number}%`;
+  /** Tint the existing art by the viewer's local time; leave collected postcards unchanged. */
+  living?: boolean;
 }) {
+  const [time, setTime] = useState<SceneTime>(() => sceneTimeAt(new Date().getHours()));
+  const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    if (!living) return;
+    const refresh = () => setTime(sceneTimeAt(new Date().getHours()));
+    refresh();
+    const timer = setInterval(refresh, 60_000);
+    const appState = AppState.addEventListener("change", (state) => {
+      if (state === "active") refresh();
+    });
+    return () => {
+      clearInterval(timer);
+      appState.remove();
+    };
+  }, [living]);
   if (!isScene(scene)) return null;
   const look = SCENE_LOOK[scene];
   return (
@@ -97,6 +133,16 @@ export function SceneBackdrop({
         transition={0}
         cachePolicy="memory-disk"
       />
+      {living ? (
+        <Animated.View
+          key={time}
+          entering={reducedMotion ? undefined : FadeIn.duration(1100)}
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
+        >
+          <LinearGradient colors={TIME_TINT[time]} style={StyleSheet.absoluteFill} />
+        </Animated.View>
+      ) : null}
       {shade && look.text === "light" ? (
         <LinearGradient
           colors={["rgba(8,6,28,0.52)", "rgba(8,6,28,0)"]}

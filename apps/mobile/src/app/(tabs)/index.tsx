@@ -425,7 +425,7 @@ export default function HomeScreen() {
               style={StyleSheet.absoluteFill}
             />
             {user?.avatar && isScene(user.avatar.scene) && (
-              <SceneBackdrop scene={user.avatar.scene} />
+              <SceneBackdrop scene={user.avatar.scene} living />
             )}
             {user?.avatar ? (
               <AvatarComboStage

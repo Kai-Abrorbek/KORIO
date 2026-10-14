@@ -56,7 +56,7 @@ export default function FriendProfileHeader({
       end={{ x: 1, y: 1 }}
       style={styles.hero}
     >
-      <SceneBackdrop scene={avatarConfig.scene} shade />
+      <SceneBackdrop scene={avatarConfig.scene} shade living />
       <View style={styles.topRow}>
         <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.7}>
           <Ionicons name="arrow-back" size={26} color={headerContentColor} />
