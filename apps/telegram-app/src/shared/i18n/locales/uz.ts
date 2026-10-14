@@ -2507,6 +2507,7 @@ export default {
       aura: "Aura",
       scene: "Sahna",
       pet: "Hayvoncha",
+      costume: "To'plamlar",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2640,6 +2641,41 @@ export default {
         pet_dokkaebi: {
           name: "Tokkebi",
           desc: "Gurzi ushlagan sho'x ertak maxluqi",
+        },
+      },
+    },
+    /** 세트 — 입는 꾸미기 (api cosmetics, slot costume·hand) */
+    wear: {
+      title: "To'plamlar — kiying, ushlang, yig'ing",
+      subtitle: "Bossangiz kiyasiz, yana bossangiz yechasiz",
+      freeAll: "Hamma to'plamlar bepul",
+      inUse: "Kiyilgan",
+      tryOn: "Kiyib ko'ryapsiz",
+      buyWear: "Sotib olish va kiyish",
+      saveWithout: "Yangi buyumsiz saqlash",
+      boughtTitle: "Yangi buyum sizniki!",
+      boughtBody: "Endi uni profil va ligada hamma ko'radi",
+      loadFailed: "To'plamlarni yuklab bo'lmadi",
+      progress: "{{n}}/{{total}}",
+      done: "Tayyor!",
+      sets: {
+        kpop: {
+          name: "K-pop to'plami",
+          desc: "Sahnadagi aydol kabi — kostyum va tayoqcha yoki mikrofon bilan to'liq",
+        },
+      },
+      items: {
+        costume_stage: {
+          name: "Sahna kostyumi",
+          desc: "Oltin pogonli yaltiroq kurtka",
+        },
+        hand_lightstick: {
+          name: "Fan-tayoqcha",
+          desc: "Binafsha yurakchali KORIO yorug' tayoqchasi",
+        },
+        hand_mic: {
+          name: "Mikrofon",
+          desc: "Sahnadagi kumush mikrofon",
         },
       },
     },

@@ -1,6 +1,29 @@
 import { useId, type ReactNode } from "react";
 
 import type { AvatarConfig } from "../model/league";
+import { costumeShapes, handShapes, type WShape } from "../../../shared/model/avatar-wearables";
+
+/** 입는 꾸미기 도형 → SVG (모바일은 같은 도형을 react-native-svg 로 그린다) */
+function WearShapes({ shapes }: { shapes: WShape[] }) {
+  return (
+    <>
+      {shapes.map((shape, index) => {
+        if (shape.k === "g") return <g key={index} transform={shape.transform}><WearShapes shapes={shape.children} /></g>;
+        const paint = {
+          fill: shape.f ?? "none",
+          opacity: shape.o,
+          stroke: shape.s,
+          strokeWidth: shape.w,
+          ...(shape.k === "path" && shape.round ? { strokeLinecap: "round" as const, strokeLinejoin: "round" as const } : null),
+        };
+        if (shape.k === "path") return <path d={shape.d} key={index} {...paint} />;
+        if (shape.k === "rect") return <rect height={shape.height} key={index} rx={shape.rx} width={shape.width} x={shape.x} y={shape.y} {...paint} />;
+        if (shape.k === "circle") return <circle cx={shape.cx} cy={shape.cy} key={index} r={shape.r} {...paint} />;
+        return <ellipse cx={shape.cx} cy={shape.cy} key={index} rx={shape.rx} ry={shape.ry} {...paint} />;
+      })}
+    </>
+  );
+}
 
 const DEFAULTS = {
   skinTone: "skin_08",
@@ -165,6 +188,10 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
   const bodyWidth = BODY_WIDTH[config.bodyShape] ?? BODY_WIDTH.body_balanced!;
   const bodyX = 160 - bodyWidth / 2;
   const background = AVATAR_BACKGROUNDS[config.background as keyof typeof AVATAR_BACKGROUNDS] ?? AVATAR_BACKGROUNDS.background_lilac;
+  // 상점 의상 (기본 옷 대신) · 손에 든 것 (전신만)
+  const wearBody = { bodyX, bodyWidth, skin };
+  const costume = costumeShapes(config.costume, wearBody);
+  const hand = variant === "full" ? handShapes(config.hand, wearBody) : null;
   return (
     <svg aria-hidden="true" preserveAspectRatio="xMidYMid meet" viewBox={variant === "head" ? "52 16 216 216" : "0 0 320 360"}>
       {showBackground ? <AvatarBackground colors={background} gradientId={gradientId} /> : null}
@@ -172,7 +199,7 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
       <ellipse cx="160" cy="337" fill="#151521" opacity=".14" rx="91" ry="15" />
       <BackHair hair={hair} style={config.hairstyle} />
       <AvatarLegs skin={skin} />
-      <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} skin={skin} />
+      {costume ? <WearShapes shapes={costume} /> : <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} skin={skin} />}
       <rect fill={skin} height="34" rx="15" width="42" x="139" y="180" />
       <ellipse cx="84" cy="139" fill={skin} rx="24" ry="29" />
       <ellipse cx="236" cy="139" fill={skin} rx="24" ry="29" />
@@ -184,6 +211,7 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
       <FrontHair hair={hair} style={config.hairstyle} />
       <Eyewear style={config.eyewear} />
       <Headwear id={config.headwear} outfit={outfit} />
+      {hand ? <WearShapes shapes={hand} /> : null}
     </svg>
   );
 }

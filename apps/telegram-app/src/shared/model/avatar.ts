@@ -1,3 +1,5 @@
+import { COSTUME_IDS, HAND_IDS } from "./avatar-wearables";
+
 export const AVATAR_VERSION = 1 as const;
 
 export const AVATAR_IDS = {
@@ -18,6 +20,10 @@ export const AVATAR_IDS = {
   scene: ["scene_none", "scene_hangang", "scene_cvs", "scene_namsan", "scene_jeju", "scene_snow", "scene_gyeongbokgung"],
   /** 캐릭터 옆 펫 (api cosmetics, slot pet) — 연속 학습일로 자란다 */
   pet: ["pet_none", "pet_jindo", "pet_hangulmon", "pet_tiger", "pet_dokkaebi"],
+  /** 상점 의상 (api cosmetics, slot costume) — 기본 옷 대신 그린다 */
+  costume: COSTUME_IDS,
+  /** 오른손에 든 것 (api cosmetics, slot hand) */
+  hand: HAND_IDS,
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -39,6 +45,8 @@ export interface AvatarConfig {
   aura: AvatarValue<"aura">;
   scene: AvatarValue<"scene">;
   pet: AvatarValue<"pet">;
+  costume: AvatarValue<"costume">;
+  hand: AvatarValue<"hand">;
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
@@ -57,14 +65,19 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   aura: "aura_none",
   scene: "scene_none",
   pet: "pet_none",
+  costume: "costume_none",
+  hand: "hand_none",
 };
 
 export function mergeAvatarConfig(avatar?: Partial<AvatarConfig> | null): AvatarConfig {
   return { ...DEFAULT_AVATAR_CONFIG, ...avatar, version: AVATAR_VERSION };
 }
 
-/** 무작위 — 오라·배경 장면·펫은 상점 아이템이라 바꾸지 않는다 */
-export function randomAvatar(keep?: Partial<Pick<AvatarConfig, "aura" | "scene" | "pet">>): AvatarConfig {
+/** 상점 아이템 칸 — 무작위로 바꾸지 않는다 */
+export type ShopFields = Pick<AvatarConfig, "aura" | "scene" | "pet" | "costume" | "hand">;
+
+/** 무작위 — 상점 아이템(오라·장면·펫·의상·손)은 그대로 둔다 */
+export function randomAvatar(keep?: Partial<ShopFields>): AvatarConfig {
   const pick = <T extends readonly string[]>(values: T): T[number] =>
     values[Math.floor(Math.random() * values.length)]!;
   return {
@@ -83,5 +96,7 @@ export function randomAvatar(keep?: Partial<Pick<AvatarConfig, "aura" | "scene" 
     aura: keep?.aura ?? "aura_none",
     scene: keep?.scene ?? "scene_none",
     pet: keep?.pet ?? "pet_none",
+    costume: keep?.costume ?? "costume_none",
+    hand: keep?.hand ?? "hand_none",
   };
 }
