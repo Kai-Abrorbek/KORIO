@@ -18345,7 +18345,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_001_translate_builder',
           's6u5_002_type_answer',
           's6u5_003_fill_in_blank',
@@ -18384,7 +18384,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_021_translate_builder',
           's6u5_022_type_answer',
           's6u5_023_fill_in_blank',
@@ -18423,7 +18423,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_041_translate_builder',
           's6u5_042_type_answer',
           's6u5_043_fill_in_blank',
@@ -18462,7 +18462,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_061_translate_builder',
           's6u5_062_type_answer',
           's6u5_063_fill_in_blank',
@@ -18501,7 +18501,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_081_translate_builder',
           's6u5_082_type_answer',
           's6u5_083_fill_in_blank',
@@ -18556,7 +18556,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_101_translate_builder',
           's6u5_102_type_answer',
           's6u5_103_fill_in_blank',
@@ -18595,7 +18595,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_121_translate_builder',
           's6u5_122_type_answer',
           's6u5_123_fill_in_blank',
@@ -18634,7 +18634,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_141_translate_builder',
           's6u5_142_type_answer',
           's6u5_143_fill_in_blank',
@@ -18673,7 +18673,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_161_translate_builder',
           's6u5_162_type_answer',
           's6u5_163_fill_in_blank',
@@ -18712,7 +18712,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_181_translate_builder',
           's6u5_182_type_answer',
           's6u5_183_fill_in_blank',
@@ -18767,7 +18767,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_201_translate_builder',
           's6u5_202_type_answer',
           's6u5_203_fill_in_blank',
@@ -18806,7 +18806,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_221_translate_builder',
           's6u5_222_type_answer',
           's6u5_223_fill_in_blank',
@@ -18845,7 +18845,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_241_translate_builder',
           's6u5_242_type_answer',
           's6u5_243_fill_in_blank',
@@ -18884,7 +18884,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_261_translate_builder',
           's6u5_262_type_answer',
           's6u5_263_fill_in_blank',
@@ -18923,7 +18923,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_281_translate_builder',
           's6u5_282_type_answer',
           's6u5_283_fill_in_blank',
@@ -18973,7 +18973,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_301_translate_builder',
           's6u5_302_type_answer',
           's6u5_303_fill_in_blank',
@@ -19012,7 +19012,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_321_translate_builder',
           's6u5_322_type_answer',
           's6u5_323_fill_in_blank',
@@ -19051,7 +19051,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_341_translate_builder',
           's6u5_342_type_answer',
           's6u5_343_fill_in_blank',
@@ -19090,7 +19090,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_361_translate_builder',
           's6u5_362_type_answer',
           's6u5_363_fill_in_blank',
@@ -19129,7 +19129,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_381_translate_builder',
           's6u5_382_type_answer',
           's6u5_383_fill_in_blank',
@@ -19184,7 +19184,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.CONVERSATION,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_401_translate_builder',
           's6u5_402_type_answer',
           's6u5_403_fill_in_blank',
@@ -19223,7 +19223,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.CONVERSATION,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_421_translate_builder',
           's6u5_422_type_answer',
           's6u5_423_fill_in_blank',
@@ -19262,7 +19262,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.CONVERSATION,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_441_translate_builder',
           's6u5_442_type_answer',
           's6u5_443_fill_in_blank',
@@ -19301,7 +19301,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.CONVERSATION,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_461_translate_builder',
           's6u5_462_type_answer',
           's6u5_463_fill_in_blank',
@@ -19340,7 +19340,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.CONVERSATION,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_481_translate_builder',
           's6u5_482_type_answer',
           's6u5_483_fill_in_blank',
@@ -19395,7 +19395,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.VOCABULARY,
         level: QuestionLevel.LEVEL_3,
         order: 1,
-        questionIds: [
+        questions: [
           's6u5_501_translate_builder',
           's6u5_502_type_answer',
           's6u5_503_fill_in_blank',
@@ -19434,7 +19434,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 2,
-        questionIds: [
+        questions: [
           's6u5_521_translate_builder',
           's6u5_522_type_answer',
           's6u5_523_fill_in_blank',
@@ -19473,7 +19473,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 3,
-        questionIds: [
+        questions: [
           's6u5_541_translate_builder',
           's6u5_542_type_answer',
           's6u5_543_fill_in_blank',
@@ -19512,7 +19512,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.LISTENING,
         level: QuestionLevel.LEVEL_3,
         order: 4,
-        questionIds: [
+        questions: [
           's6u5_561_translate_builder',
           's6u5_562_type_answer',
           's6u5_563_fill_in_blank',
@@ -19551,7 +19551,7 @@ export const S6_UNIT5_NODES = [
         category: LessonCategory.GRAMMAR,
         level: QuestionLevel.LEVEL_3,
         order: 5,
-        questionIds: [
+        questions: [
           's6u5_581_translate_builder',
           's6u5_582_type_answer',
           's6u5_583_fill_in_blank',
