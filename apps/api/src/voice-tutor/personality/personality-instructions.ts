@@ -23,6 +23,11 @@ export function personalityInstructions(
   personality: TutorPersonality,
   format: 'json' | 'stream' = 'json',
 ): string {
+  // Do not override the selected wild friend's performance with restrained
+  // guidance intended for the other teachers.
+  if (personality === 'chaotic_savage') {
+    return `${CHAOTIC_SAVAGE_STYLE}\n${format === 'stream' ? STREAM_META_RULES : JSON_OUTPUT_RULES}`;
+  }
   const config = personalityConfig(personality);
   return `${PERSONALITY_RULES[personality]}
 The learner selected this personality. Keep speechStyle separate from personality.

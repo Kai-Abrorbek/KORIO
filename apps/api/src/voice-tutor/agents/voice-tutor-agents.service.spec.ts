@@ -6,6 +6,9 @@ import type {
   TutorSettings,
 } from '../voice-tutor.types';
 import { VoiceTutorAgentsService } from './voice-tutor-agents.service';
+import { lessonAgentInstructions } from '../prompts/lesson-agent.prompt';
+import { personalityInstructions } from '../personality/personality-instructions';
+import { elevenLabsPerformance } from '../personality/speech-performance';
 
 const settings: TutorSettings = {
   voiceId: 'test-voice',
@@ -65,6 +68,73 @@ function setup() {
 }
 
 describe('VoiceTutorAgentsService lesson paths', () => {
+  it.each(['shout', 'laugh'] as const)(
+    'routes chaotic_savage separately and preserves %s performance in both paths',
+    async (delivery) => {
+      const { llm, service } = setup();
+      const chaotic = { ...settings, personality: 'chaotic_savage' as const };
+      const metadata = {
+        language: 'ko',
+        emotion: delivery === 'laugh' ? 'laughing' : 'disbelief',
+        delivery,
+        intensity: 0.95,
+        gesture: 'hand_raise_3',
+        correction: null,
+        taught: [],
+      };
+      const text = '씨발, 주문 존나 깔끔하네! 이제 계산은 누가 하냐?';
+      llm.completeJson.mockResolvedValue({ ...metadata, text });
+      llm.streamText.mockReturnValue(
+        modelStream([`@meta ${JSON.stringify(metadata)}\n`, text]),
+      );
+      const events: string[] = [];
+      const json = await service.lesson(chaotic, plan, memory, recent);
+      const streamed = await service.lessonStream(
+        chaotic,
+        plan,
+        memory,
+        recent,
+        (speech) => events.push(speech),
+        undefined,
+        () => events.push('meta'),
+      );
+
+      expect(llm.completeJson.mock.calls[0][1]).toBe(
+        `${lessonAgentInstructions('chaotic_savage')}\n${personalityInstructions('chaotic_savage')}`,
+      );
+      expect(llm.streamText.mock.calls[0][1]).toBe(
+        `${lessonAgentInstructions('chaotic_savage', 'stream')}\n${personalityInstructions('chaotic_savage', 'stream')}`,
+      );
+      for (const input of [
+        llm.completeJson.mock.calls[0][2],
+        llm.streamText.mock.calls[0][2],
+      ]) {
+        const parsed = JSON.parse(input) as {
+          student: Record<string, unknown>;
+        };
+        expect(parsed.student).toMatchObject({
+          lessonGoal: plan.lessonGoal,
+          scenario: plan.conversationScenario,
+          learnedVocabulary: memory.learnedVocabulary,
+        });
+        expect(parsed.student).not.toHaveProperty('targetVocabulary');
+        expect(parsed.student).not.toHaveProperty('grammarFocus');
+        expect(parsed.student).not.toHaveProperty('reviewTopics');
+      }
+      expect(events).toEqual(['meta', text]);
+      for (const reply of [json, streamed]) {
+        expect(reply).toMatchObject({
+          speechText: text,
+          delivery,
+          intensity: 0.95,
+        });
+        expect(elevenLabsPerformance(text, 'eleven_v3', reply).text).toBe(
+          `${delivery === 'laugh' ? '[laughs]' : '[shouts]'} ${text}`,
+        );
+      }
+    },
+  );
+
   it('passes the same student context and normalizes taught items in JSON and streaming replies', async () => {
     const { llm, service } = setup();
     const metadata = {

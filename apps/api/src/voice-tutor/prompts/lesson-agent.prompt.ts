@@ -1,5 +1,6 @@
 import type { TutorPlan, TutorSettings } from '../voice-tutor.types';
 import { TEACHING_LANGUAGE_NAMES } from '../voice-tutor.config';
+import { CHAOTIC_SAVAGE_LESSON } from './chaotic-savage.prompt';
 
 export interface LessonPromptContext {
   settings: TutorSettings;
@@ -51,18 +52,35 @@ COVERAGE MEMORY
 Report taught as a short array of Korean words, phrases or grammar forms actually introduced for the first time in THIS lesson (Hangul), or [] if none. Exclude passing mentions, future items, already-taught retries and invented learner errors. Teach in small bites, usually one new expression at a time.`;
 
 /** Legacy upload path and the opening: one JSON object per turn. */
+const JSON_OUTPUT = `Return a JSON object. Set text and displayText to the subtitle; set speechText to spoken words without TTS markup. Include language (primary spoken language code), correction (null or a short {original, corrected} object), emotion, delivery, intensity (0–1), gesture, and taught. Keep displayText and speechText semantically consistent even if pacing differs.`;
+
 export const LESSON_AGENT_INSTRUCTIONS = `${LESSON_AGENT_BASE}
-Return a JSON object. Set text and displayText to the subtitle; set speechText to spoken words without TTS markup. Include language (primary spoken language code), correction (null or a short {original, corrected} object), emotion, delivery, intensity (0–1), gesture, and taught. Keep displayText and speechText semantically consistent even if pacing differs.`;
+${JSON_OUTPUT}`;
 
 /** Keep the live metadata header and streamed plain-text contract unchanged. */
-export const LESSON_AGENT_STREAM_INSTRUCTIONS = `${LESSON_AGENT_BASE}
-
-OUTPUT FORMAT (live voice, streamed — follow exactly):
+const STREAM_OUTPUT = `OUTPUT FORMAT (live voice, streamed — follow exactly):
 Line 1: @meta followed by one compact JSON object on a single line: {"emotion":…, "delivery":…, "intensity":0–1, "gesture":…, "language":"ko|en|ru|uz", "correction":{"original":…, "corrected":…} or null, "taught":[newly introduced Korean items]}.
 Then a line break, then ONLY words said out loud. They are spoken AND shown as the subtitle.
 No JSON after the header, labels like "Teacher:", markdown, emoji, bracketed stage directions or provider markup.
 For an earned expressive moment you may use capitals, natural vowel elongation or spelled-out laughter; do not add them automatically. Keep Korean in Hangul.
 Make the first sentence short so the voice can start immediately.`;
+
+export const LESSON_AGENT_STREAM_INSTRUCTIONS = `${LESSON_AGENT_BASE}
+
+${STREAM_OUTPUT}`;
+
+/** Keep the other teachers unchanged; the wild friend has its own pedagogy. */
+export function lessonAgentInstructions(
+  personality: TutorSettings['personality'],
+  format: 'json' | 'stream' = 'json',
+): string {
+  if (personality === 'chaotic_savage') {
+    return `${CHAOTIC_SAVAGE_LESSON}${format === 'stream' ? '\n\n' : '\n'}${format === 'stream' ? STREAM_OUTPUT : JSON_OUTPUT}`;
+  }
+  return format === 'stream'
+    ? LESSON_AGENT_STREAM_INSTRUCTIONS
+    : LESSON_AGENT_INSTRUCTIONS;
+}
 
 export function buildLessonContext(context: LessonPromptContext): string {
   return JSON.stringify({
@@ -76,9 +94,15 @@ export function buildLessonContext(context: LessonPromptContext): string {
     estimatedLevel: context.estimatedLevel || context.settings.koreanLevel,
     lessonGoal: context.plan.lessonGoal,
     difficulty: context.plan.difficulty,
-    reviewTopics: context.plan.reviewTopics.slice(0, 4),
-    targetVocabulary: context.plan.targetVocabulary.slice(0, 8),
-    grammarFocus: context.plan.grammarFocus.slice(0, 5),
+    // Re-sending seed expressions kept pulling the wild friend's free
+    // conversation back into the same introduction/vocabulary drills.
+    ...(context.settings.personality === 'chaotic_savage'
+      ? {}
+      : {
+          reviewTopics: context.plan.reviewTopics.slice(0, 4),
+          targetVocabulary: context.plan.targetVocabulary.slice(0, 8),
+          grammarFocus: context.plan.grammarFocus.slice(0, 5),
+        }),
     scenario: context.plan.conversationScenario,
     memorySummary: context.memorySummary.slice(-1000),
     learnedVocabulary: context.learnedVocabulary?.slice(-24) ?? [],

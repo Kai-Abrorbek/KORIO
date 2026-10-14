@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { buildLessonInput } from './lesson-context';
 import { parseLessonReply, parsePlan, parseProgress } from './agent-output';
 import type { StudentMemorySnapshot } from '../memory/voice-tutor-profile.service';
-import {
-  LESSON_AGENT_INSTRUCTIONS,
-  LESSON_AGENT_STREAM_INSTRUCTIONS,
-} from '../prompts/lesson-agent.prompt';
+import { lessonAgentInstructions } from '../prompts/lesson-agent.prompt';
 import { LessonStreamParser } from './lesson-stream';
 import type { LessonPromptContext } from '../prompts/lesson-agent.prompt';
 import { PLANNING_AGENT_INSTRUCTIONS } from '../prompts/planning-agent.prompt';
@@ -42,7 +39,7 @@ export class VoiceTutorAgentsService {
   ): Promise<TutorReaction> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().lesson,
-      `${LESSON_AGENT_INSTRUCTIONS}\n${personalityInstructions(settings.personality)}`,
+      `${lessonAgentInstructions(settings.personality)}\n${personalityInstructions(settings.personality)}`,
       buildLessonInput(
         {
           settings,
@@ -102,7 +99,7 @@ export class VoiceTutorAgentsService {
     try {
       for await (const delta of this.llm.streamText(
         voiceTutorModels().lesson,
-        `${LESSON_AGENT_STREAM_INSTRUCTIONS}\n${personalityInstructions(settings.personality, 'stream')}`,
+        `${lessonAgentInstructions(settings.personality, 'stream')}\n${personalityInstructions(settings.personality, 'stream')}`,
         buildLessonInput(
           {
             settings,
