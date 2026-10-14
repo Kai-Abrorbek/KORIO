@@ -74,6 +74,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const sideButtonIconColor = theme.bg === "#15151D" ? "#D8D3FF" : "#4F43AE";
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(0);
@@ -374,14 +375,14 @@ export default function HomeScreen() {
               activeOpacity={0.7}
               onPress={() => router.push("/profile")}
             >
-              <Ionicons name="person-outline" size={22} color={theme.primary} />
+              <Ionicons name="person-outline" size={24} color={sideButtonIconColor} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.lessonSideBtn}
               activeOpacity={0.85}
               onPress={() => router.push("/courses")}
             >
-              <Ionicons name="book-outline" size={22} color={theme.primary} />
+              <Ionicons name="book-outline" size={24} color={sideButtonIconColor} />
             </TouchableOpacity>
             <TourTarget tourId="home.categories">
               <TouchableOpacity
@@ -391,8 +392,8 @@ export default function HomeScreen() {
               >
                 <Ionicons
                   name="swap-horizontal"
-                  size={22}
-                  color={theme.primary}
+                  size={24}
+                  color={sideButtonIconColor}
                 />
               </TouchableOpacity>
             </TourTarget>
@@ -405,8 +406,8 @@ export default function HomeScreen() {
             >
               <Ionicons
                 name="settings-outline"
-                size={22}
-                color={theme.primary}
+                size={24}
+                color={sideButtonIconColor}
               />
             </TouchableOpacity>
           </View>
@@ -890,16 +891,16 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 14,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.primary + "12", // 보라 7% 틴트
-      borderWidth: 1.5,
-      borderColor: theme.primary + "30", // 보라 19% 테두리
+      backgroundColor: theme.bg === "#15151D" ? "#292837" : "#FFFFFF",
+      borderWidth: 2,
+      borderColor: theme.bg === "#15151D" ? "#B7AFFA" : "#6659CB",
       borderBottomWidth: 4,
-      borderBottomColor: theme.primary + "55", // 진한 보라 = 3D 입체감
-      shadowColor: theme.primary,
-      shadowOpacity: 0.12,
-      shadowOffset: { width: 0, height: 3 },
-      shadowRadius: 6,
-      elevation: 3,
+      borderBottomColor: theme.bg === "#15151D" ? "#8176DF" : "#5145AE",
+      shadowColor: "#171341",
+      shadowOpacity: 0.28,
+      shadowOffset: { width: 0, height: 4 },
+      shadowRadius: 8,
+      elevation: 8,
     },
     lessonSideBtnPrimary: {
       backgroundColor: theme.primary, // + 버튼은 강조 (꽉 채운 색)
