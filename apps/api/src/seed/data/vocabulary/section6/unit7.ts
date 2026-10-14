@@ -10,7 +10,7 @@ const L = (ko: string, uz: string, en: string, ru: string) => ({
   ru,
 });
 
-const LV = QuestionLevel.LEVEL_6;
+const LV = QuestionLevel.LEVEL_3;
 
 const I = {
   matching: L(

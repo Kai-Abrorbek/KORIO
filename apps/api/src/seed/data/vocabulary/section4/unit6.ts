@@ -840,7 +840,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_001_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -873,7 +873,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_002_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -942,7 +942,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_003_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '처음에는 ___했지만 지금은 훨씬 ___ ___.',
@@ -968,7 +968,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_004_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1000,7 +1000,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_005_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -1031,7 +1031,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_006_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -1059,7 +1059,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_007_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1093,7 +1093,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_008_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '같이 여행한 뒤에 두 사람이 친해졌다고 말하기',
@@ -1135,7 +1135,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_009_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '매일 연습해서 한국어 ___이 전보다 훨씬 ___ ___.',
@@ -1161,7 +1161,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_010_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1194,7 +1194,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_011_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1263,7 +1263,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_012_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국 생활이 많이 편하졌어요',
@@ -1290,7 +1290,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_013_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '요즘 일이 전보다 더 바빠졌다고 말하기',
@@ -1328,7 +1328,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_014_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1362,7 +1362,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_015_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -1390,7 +1390,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_016_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '겨울이 가까워져서 날씨가 많이 추워졌다고 말하기',
@@ -1428,7 +1428,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_017_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1461,7 +1461,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_018_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -1503,7 +1503,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_019_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1572,7 +1572,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_020_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '처음보다 한국 음식이 덜 맵게 느껴진다고 말하기',
@@ -1611,7 +1611,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_021_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -1638,7 +1638,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_022_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1672,7 +1672,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_023_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '계속 공부해서 한국어가 전보다 자연스러워졌다고 말하기',
@@ -1710,7 +1710,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_024_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`A-아지다/어지다`를 사용해서 한국 생활이 전보다 많이 편해졌다고 쓰세요.',
@@ -1760,7 +1760,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_025_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -1793,7 +1793,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_026_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -1856,7 +1856,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_027_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '처음에는 한국 생활이 ___었지만 지금은 많이 ___ ___.',
@@ -1882,7 +1882,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_028_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -1915,7 +1915,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_029_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 친구가 많아져서 생활이 더 즐거워졌다고 말하기',
@@ -1954,7 +1954,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_030_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -1982,7 +1982,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_031_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2016,7 +2016,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_032_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -2050,7 +2050,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_033_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국에서 지낸 시간이 ___지면서 생활도 더 ___ ___.',
@@ -2076,7 +2076,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_034_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2109,7 +2109,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_035_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2179,7 +2179,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_036_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '요즘 한국어 발음이 많이 좋어졌어요',
@@ -2206,7 +2206,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_037_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -2240,7 +2240,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_038_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2274,7 +2274,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_039_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -2302,7 +2302,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_040_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -2335,7 +2335,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_041_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2371,7 +2371,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_042_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2441,7 +2441,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_043_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '시간이 지나면서 한국에서 사는 것이 점점 편해졌다고 말하기',
@@ -2481,7 +2481,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_044_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '친구가 ___지면서 한국 생활도 더 ___ ___.',
@@ -2507,7 +2507,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_045_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2541,7 +2541,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_046_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에서 생활한 지 1년이 지나서 많이 익숙해졌다고 말하기',
@@ -2582,7 +2582,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_047_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -2620,7 +2620,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_048_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`A-아지다/어지다`를 사용해서 이제 한국 생활에 많이 익숙해졌다고 쓰세요.',
@@ -2670,7 +2670,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_049_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -2703,7 +2703,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_050_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -2772,7 +2772,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_051_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '몇 년 사이에 길은 더 ___졌고 교통은 훨씬 ___ ___.',
@@ -2798,7 +2798,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_052_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -2833,7 +2833,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_053_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -2865,7 +2865,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_054_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -2893,7 +2893,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_055_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -2928,7 +2928,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_056_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -2960,7 +2960,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_057_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -2987,7 +2987,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_058_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3020,7 +3020,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_059_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3089,7 +3089,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_060_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '길이 전보다 넓어졌고 교통도 편리하졌어요',
@@ -3116,7 +3116,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_061_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '사람이 많아져서 거리가 더 복잡해졌다고 말하기',
@@ -3154,7 +3154,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_062_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3188,7 +3188,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_063_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -3216,7 +3216,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_064_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국어 실력이 조금씩 좋아지고 있다고 말하기',
@@ -3255,7 +3255,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_065_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3288,7 +3288,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_066_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -3330,7 +3330,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_067_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3401,7 +3401,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_068_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -3433,7 +3433,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_069_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '요즘 날씨가 점점 ___지고 낮도 조금씩 ___ ___.',
@@ -3459,7 +3459,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_070_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -3493,7 +3493,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_071_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '꾸준히 연습하면 어려웠던 일이 점점 쉬워진다고 말하기',
@@ -3532,7 +3532,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_072_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`A-아지다/어지다`를 사용해서 날씨가 점점 더워지고 있다고 쓰세요.',
@@ -3582,7 +3582,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_073_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -3615,7 +3615,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_074_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -3684,7 +3684,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_075_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -3711,7 +3711,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_076_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -3746,7 +3746,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_077_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -3780,7 +3780,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_078_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -3808,7 +3808,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_079_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -3843,7 +3843,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_080_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구와 자주 만나면서 두 사람이 더 가까워졌다고 말하기',
@@ -3883,7 +3883,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_081_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -3910,7 +3910,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_082_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -3945,7 +3945,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_083_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4016,7 +4016,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_084_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '운동을 계속해서 몸이 가볍어졌어요',
@@ -4043,7 +4043,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_085_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -4077,7 +4077,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_086_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4110,7 +4110,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_087_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -4138,7 +4138,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_088_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 어려웠던 일이 연습 후 쉬워졌다고 말하기',
@@ -4178,7 +4178,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_089_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4217,7 +4217,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_090_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4287,7 +4287,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_091_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '꾸준히 노력해서 생활이 전보다 좋아졌다고 말하기',
@@ -4326,7 +4326,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_092_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4364,7 +4364,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_093_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -4399,7 +4399,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_094_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4434,7 +4434,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_095_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '예전보다 사람들 앞에서 말하는 것이 편해졌다고 말하기',
@@ -4474,7 +4474,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_096_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`자연스러워졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -4515,7 +4515,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_097_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -4548,7 +4548,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_098_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4617,7 +4617,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_099_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '오랜만이에요. 요즘은 한국 생활이 많이 ___ ___.',
@@ -4643,7 +4643,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_100_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4676,7 +4676,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_101_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -4709,7 +4709,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_102_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -4737,7 +4737,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_103_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4775,7 +4775,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_104_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구의 얼굴이 전보다 밝아졌다고 말하기',
@@ -4812,7 +4812,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_105_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '그동안 한국어 ___이 많이 ___지고 말하기도 더 ___ ___.',
@@ -4838,7 +4838,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_106_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4871,7 +4871,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_107_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -4940,7 +4940,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_108_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.error,
     npcText: '오랜만에 만났는데 친구가 밝어졌어요',
@@ -4967,7 +4967,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_109_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활이 이제 많이 편해졌냐고 친구에게 묻기',
@@ -5005,7 +5005,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_110_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -5040,7 +5040,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_111_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -5068,7 +5068,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_112_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -5101,7 +5101,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_113_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -5138,7 +5138,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_114_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -5207,7 +5207,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_115_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '최근 생활에서 좋아진 점이 많다고 말하기',
@@ -5245,7 +5245,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_116_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -5286,7 +5286,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_117_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -5313,7 +5313,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_118_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -5349,7 +5349,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_119_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음보다 한국 생활이 훨씬 익숙하고 편해졌다고 말하기',
@@ -5388,7 +5388,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_120_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`편해졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -5435,7 +5435,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_121_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -5468,7 +5468,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_122_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5502,7 +5502,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_123_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국어 수업에서 처음 ___서 서로 잘 ___ ___.',
@@ -5528,7 +5528,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_124_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5563,7 +5563,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_125_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국에 온 뒤 새로운 사람들을 많이 알게 되었다고 말하기',
@@ -5604,7 +5604,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_126_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -5632,7 +5632,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_127_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5667,7 +5667,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_128_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '친구 덕분에 좋은 식당을 알게 되었다고 말하기',
@@ -5707,7 +5707,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_129_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '친구가 소개해 ___서 그 사람과 자주 ___게 ___.',
@@ -5733,7 +5733,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_130_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5769,7 +5769,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_131_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5806,7 +5806,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_132_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국에 와서 샤오밍 씨를 알다게 됐어요.',
@@ -5833,7 +5833,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_133_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '새 회사에 들어간 뒤 지금의 동료들을 알게 되었다고 말하기',
@@ -5875,7 +5875,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_134_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -5912,7 +5912,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_135_verb_transform: {
     type: 'verb_transform',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.transform,
     baseWord: '알다',
@@ -5939,7 +5939,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_136_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '여행 중에 우연히 지금의 가장 친한 친구를 알게 되었다고 말하기',
@@ -5981,7 +5981,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_137_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6018,7 +6018,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_138_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -6046,7 +6046,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_139_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6083,7 +6083,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_140_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국어를 공부하면서 한국 문화도 자연스럽게 알게 되었다고 말하기',
@@ -6123,7 +6123,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_141_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국어를 ___하면서 한국의 문화와 역사도 ___게 ___.',
@@ -6149,7 +6149,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_142_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6187,7 +6187,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_143_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -6222,7 +6222,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_144_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`V-게 되다`를 사용해서 한국에 와서 샤오밍 씨를 알게 되었다고 쓰세요.',
@@ -6272,7 +6272,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_145_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -6305,7 +6305,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_146_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6339,7 +6339,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_147_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국 드라마에 관심이 ___서 한국어를 ___게 ___.',
@@ -6365,7 +6365,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_148_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6401,7 +6401,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_149_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -6435,7 +6435,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_150_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -6463,7 +6463,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_151_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6498,7 +6498,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_152_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '건강 때문에 아침마다 운동하게 되었다고 말하기',
@@ -6537,7 +6537,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_153_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '새 회사가 집에서 ___워서 지하철을 매일 ___게 ___.',
@@ -6563,7 +6563,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_154_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6598,7 +6598,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_155_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6635,7 +6635,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_156_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -6677,7 +6677,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_157_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '회사 업무 때문에 중국어도 공부하게 되었다고 말하기',
@@ -6717,7 +6717,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_158_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6751,7 +6751,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_159_verb_transform: {
     type: 'verb_transform',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.transform,
     baseWord: '배우다',
@@ -6778,7 +6778,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_160_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '재택근무를 시작해서 집에서 점심을 먹게 되었다고 말하기',
@@ -6817,7 +6817,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_161_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '회사 일이 ___져서 주말에도 가끔 ___하게 ___.',
@@ -6843,7 +6843,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_162_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -6882,7 +6882,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_163_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국 친구가 생겨서 한국어로 더 자주 이야기하게 되었다고 말하기',
@@ -6923,7 +6923,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_164_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`배우게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -6964,7 +6964,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_165_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -6997,7 +6997,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_166_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7031,7 +7031,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_167_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -7058,7 +7058,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_168_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7093,7 +7093,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_169_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -7127,7 +7127,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_170_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -7155,7 +7155,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_171_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7189,7 +7189,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_172_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 살면서 김치를 매일 먹게 되었다고 말하기',
@@ -7228,7 +7228,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_173_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국 친구가 많이 ___서 한국어로 자주 ___하게 ___.',
@@ -7254,7 +7254,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_174_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7291,7 +7291,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_175_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7328,7 +7328,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_176_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '지금은 매운 음식을 잘 먹다게 됐어요.',
@@ -7355,7 +7355,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_177_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에서 살면서 겨울에 두꺼운 옷을 자주 입게 되었다고 말하기',
@@ -7396,7 +7396,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_178_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7435,7 +7435,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_179_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -7477,7 +7477,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_180_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 못 했지만 지금은 혼자 은행 업무도 보게 되었다고 말하기',
@@ -7519,7 +7519,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_181_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -7546,7 +7546,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_182_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7583,7 +7583,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_183_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 살면서 전보다 가족에게 자주 전화하게 되었다고 말하기',
@@ -7623,7 +7623,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_184_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`먹게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -7664,7 +7664,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_185_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -7697,7 +7697,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_186_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7730,7 +7730,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_187_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '대학교를 ___한 뒤 서울의 회사에 ___하게 ___.',
@@ -7756,7 +7756,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_188_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7791,7 +7791,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_189_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '내년에 외국에서 유학하게 되었다고 말하기',
@@ -7829,7 +7829,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_190_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -7857,7 +7857,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_191_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7892,7 +7892,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_192_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '졸업 후 은행에서 일하게 되었다고 말하기',
@@ -7931,7 +7931,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_193_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '올해 대학을 ___하고 내년부터 회사에서 ___하게 ___.',
@@ -7957,7 +7957,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_194_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7993,7 +7993,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_195_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8026,7 +8026,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_196_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -8068,7 +8068,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_197_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '결혼 후 배우자의 고향에서 살게 되었다고 말하기',
@@ -8108,7 +8108,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_198_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8146,7 +8146,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_199_verb_transform: {
     type: 'verb_transform',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.transform,
     baseWord: '일하다',
@@ -8173,7 +8173,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_200_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '외국 대학원에 합격해서 유학하게 되었다고 말하기',
@@ -8213,7 +8213,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_201_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '회사에 ___한 뒤 다른 도시에서 혼자 ___게 ___.',
@@ -8239,7 +8239,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_202_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8276,7 +8276,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_203_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -8310,7 +8310,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_204_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8353,7 +8353,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_205_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8388,7 +8388,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_206_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '다음 달부터 새로운 학교에 다니게 되었다고 말하기',
@@ -8428,7 +8428,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_207_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '장학금을 ___아서 내년부터 외국에서 ___하게 ___.',
@@ -8454,7 +8454,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_208_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-게 되다`를 사용해서 대학교를 졸업한 뒤 서울에서 일하게 되었다고 쓰세요.',
@@ -8504,7 +8504,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_209_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -8537,7 +8537,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_210_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8569,7 +8569,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_211_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '회사 생활은 ___해졌고 한국 음식도 잘 ___게 ___.',
@@ -8595,7 +8595,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_212_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -8630,7 +8630,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_213_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '다음 달부터 중국에서 일하게 되었다고 말하기',
@@ -8669,7 +8669,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_214_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -8697,7 +8697,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_215_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -8734,7 +8734,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_216_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '회사 생활이 많이 편하게 됐어요.',
@@ -8761,7 +8761,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_217_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '회사 생활은 편해졌지만 다음 달부터 중국에서 일하게 되었다고 말하기',
@@ -8803,7 +8803,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_218_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -8840,7 +8840,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_219_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -8882,7 +8882,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_220_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활에 익숙해져서 혼자 여행도 다니게 되었다고 말하기',
@@ -8923,7 +8923,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_221_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '한국어가 ___스러워져서 사람들과 더 자주 ___하게 ___.',
@@ -8949,7 +8949,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_222_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -8989,7 +8989,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_223_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 한국어가 어려웠지만 지금은 매일 사용하게 되었다고 말하기',
@@ -9029,7 +9029,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_224_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-게 되다`를 사용해서 회사에서 한국어를 매일 사용하게 되었다고 쓰세요.',
@@ -9079,7 +9079,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_225_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -9112,7 +9112,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_226_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9148,7 +9148,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_227_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '장학금을 ___게 돼서 한국에 더 오래 ___게 ___.',
@@ -9174,7 +9174,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_228_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9209,7 +9209,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_229_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구를 따라 행사에 갔다가 봉사 활동을 시작하게 되었다고 말하기',
@@ -9251,7 +9251,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_230_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -9279,7 +9279,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_231_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -9318,7 +9318,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_232_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '친구의 부탁으로 통역을 하다게 됐어요.',
@@ -9345,7 +9345,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_233_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -9379,7 +9379,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_234_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9420,7 +9420,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_235_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -9462,7 +9462,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_236_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -9499,7 +9499,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_237_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -9526,7 +9526,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_238_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9566,7 +9566,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_239_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -9600,7 +9600,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_240_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`일하게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -9646,7 +9646,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_241_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -9679,7 +9679,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_242_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9748,7 +9748,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_243_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '정말 ___간만이에요. 그___ 잘 ___어요?',
@@ -9774,7 +9774,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_244_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9808,7 +9808,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_245_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -9839,7 +9839,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_246_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -9867,7 +9867,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_247_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -9902,7 +9902,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_248_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -9932,7 +9932,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_249_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -9974,7 +9974,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_250_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10009,7 +10009,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_251_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '잘 지냈다고 대답한 뒤 상대방의 안부도 다시 묻기',
@@ -10048,7 +10048,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_252_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -10075,7 +10075,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_253_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10110,7 +10110,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_254_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친한 친구에게 오랜만이라서 정말 반갑다고 말하기',
@@ -10147,7 +10147,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_255_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.error,
     npcText: '오래간만이에요. 그동안 잘 지내요었어요?',
@@ -10174,7 +10174,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_256_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10210,7 +10210,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_257_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -10242,7 +10242,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_258_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -10276,7 +10276,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_259_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10346,7 +10346,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_260_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10380,7 +10380,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_261_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '오랫동안 못 만난 동료에게 반갑게 인사하고 안부 묻기',
@@ -10418,7 +10418,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_262_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -10451,7 +10451,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_263_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10490,7 +10490,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_264_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '오랜만에 만난 사람에게 “오래간만이에요. 그동안 잘 지냈어요?”라고 쓰세요.',
@@ -10539,7 +10539,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_265_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -10572,7 +10572,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_266_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10645,7 +10645,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_267_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '요즘은 회사 ___이 좀 ___지만 그래도 잘 ___고 있어요.',
@@ -10671,7 +10671,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_268_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10707,7 +10707,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_269_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '요즘 주말마다 친구들을 만나면서 잘 지낸다고 말하기',
@@ -10747,7 +10747,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_270_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -10775,7 +10775,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_271_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10810,7 +10810,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_272_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '최근 운동을 시작해서 건강하게 잘 지낸다고 말하기',
@@ -10850,7 +10850,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_273_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -10892,7 +10892,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_274_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -10928,7 +10928,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_275_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '최근 새로운 회사에 다니고 있다고 말하기',
@@ -10967,7 +10967,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_276_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -10994,7 +10994,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_277_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11036,7 +11036,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_278_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '요즘 회사와 공부 때문에 바쁘지만 재미있다고 말하기',
@@ -11075,7 +11075,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_279_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.error,
     npcText: '요즘 어떻게 지내요세요?',
@@ -11102,7 +11102,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_280_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11141,7 +11141,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_281_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '최근에는 특별한 일 없이 평범하게 지낸다고 말하기',
@@ -11181,7 +11181,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_282_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -11209,7 +11209,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_283_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11281,7 +11281,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_284_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11322,7 +11322,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_285_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '회사 일도 하고 한국어도 공부하면서 바쁘게 지낸다고 말하기',
@@ -11363,7 +11363,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_286_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -11396,7 +11396,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_287_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11432,7 +11432,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_288_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '다음 뜻을 한국어로 쓰세요.',
@@ -11471,7 +11471,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_289_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -11504,7 +11504,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_290_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11567,7 +11567,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_291_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '처음에는 회사 일이 ___설었지만 이제는 많이 ___해 ___.',
@@ -11593,7 +11593,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_292_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11628,7 +11628,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_293_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활이 전보다 훨씬 편해졌다고 말하기',
@@ -11666,7 +11666,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_294_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -11694,7 +11694,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_295_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11727,7 +11727,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_296_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 친구가 많아져서 한국어를 더 자주 쓰게 되었다고 말하기',
@@ -11768,7 +11768,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_297_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -11810,7 +11810,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_298_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11846,7 +11846,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_299_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음보다 회사 생활이 편해지고 동료들과도 친해졌다고 말하기',
@@ -11886,7 +11886,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_300_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -11913,7 +11913,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_301_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -11953,7 +11953,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_302_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음보다 혼자 할 수 있는 일이 많아졌다고 말하기',
@@ -11994,7 +11994,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_303_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국 음식도 이제 잘 먹어지게 됐어요.',
@@ -12021,7 +12021,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_304_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12056,7 +12056,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_305_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -12089,7 +12089,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_306_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -12117,7 +12117,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_307_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12191,7 +12191,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_308_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12231,7 +12231,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_309_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 어려웠지만 이제 한국 생활이 많이 편해졌다고 말하기',
@@ -12271,7 +12271,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_310_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -12304,7 +12304,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_311_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12341,7 +12341,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_312_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`익숙해졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -12382,7 +12382,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_313_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -12415,7 +12415,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_314_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12490,7 +12490,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_315_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '다음 ___부터 중국에서 ___하게 ___.',
@@ -12516,7 +12516,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_316_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12550,7 +12550,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_317_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '중국에서 2년 동안 지낼 예정이라고 말하기',
@@ -12589,7 +12589,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_318_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -12617,7 +12617,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_319_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12652,7 +12652,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_320_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '외국에서 살아 본 적이 없어서 조금 걱정이라고 말하기',
@@ -12692,7 +12692,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_321_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -12734,7 +12734,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_322_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12768,7 +12768,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_323_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 걱정하지 말고 곧 익숙해질 거라고 격려하기',
@@ -12807,7 +12807,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_324_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -12834,7 +12834,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_325_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12873,7 +12873,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_326_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -12907,7 +12907,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_327_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.error,
     npcText: '외국에서 지내 본 적이 한 번도 있어요.',
@@ -12934,7 +12934,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_328_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -12973,7 +12973,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_329_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -13007,7 +13007,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_330_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -13035,7 +13035,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_331_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13107,7 +13107,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_332_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13146,7 +13146,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_333_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구에게 중국에서 얼마나 있을 건지 묻기',
@@ -13184,7 +13184,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_334_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -13217,7 +13217,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_335_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13256,7 +13256,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_336_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-게 되다`를 사용해서 다음 달부터 중국에서 일하게 되었다고 쓰세요.',
@@ -13309,7 +13309,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_337_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -13342,7 +13342,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_338_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13413,7 +13413,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_339_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -13440,7 +13440,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_340_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13474,7 +13474,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_341_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '지난달에 결혼해서 배우자와 같이 살게 되었다고 말하기',
@@ -13514,7 +13514,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_342_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -13542,7 +13542,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_343_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13577,7 +13577,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_344_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '대학교를 졸업한 뒤 원하는 회사에 취직했다고 말하기',
@@ -13617,7 +13617,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_345_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -13659,7 +13659,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_346_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13693,7 +13693,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_347_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -13728,7 +13728,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_348_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -13755,7 +13755,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_349_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13792,7 +13792,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_350_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -13824,7 +13824,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_351_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.error,
     npcText: '내년에 미국으로 유학을 가다게 됐어요.',
@@ -13851,7 +13851,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_352_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -13887,7 +13887,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_353_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '대학원에 입학해서 요즘 다시 공부하느라 바쁘다고 말하기',
@@ -13926,7 +13926,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_354_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -13954,7 +13954,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_355_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -14026,7 +14026,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_356_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -14068,7 +14068,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_357_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -14102,7 +14102,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_358_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -14135,7 +14135,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_359_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -14178,7 +14178,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_360_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`먹게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -14227,7 +14227,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_361_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -14260,7 +14260,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_362_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14330,7 +14330,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_363_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '집을 ___기 전에 창문을 ___고 불을 ___세요.',
@@ -14356,7 +14356,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_364_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14391,7 +14391,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_365_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '수영하기 전에 준비 운동을 하라고 말하기',
@@ -14430,7 +14430,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_366_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -14458,7 +14458,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_367_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14522,7 +14522,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_368_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14558,7 +14558,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_369_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '비행기를 타기 전에 여권을 확인한다고 말하기',
@@ -14597,7 +14597,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_370_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -14639,7 +14639,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_371_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14674,7 +14674,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_372_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국에 오기 전에 어디에서 살았는지 말하기',
@@ -14713,7 +14713,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_373_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -14740,7 +14740,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_374_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14812,7 +14812,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_375_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '중요한 회의 전에 자료를 다시 확인한다고 말하기',
@@ -14853,7 +14853,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_376_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '밥을 먹었기 전에 손을 씻으세요.',
@@ -14880,7 +14880,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_377_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -14915,7 +14915,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_378_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '자기 전에 휴대 전화를 오래 보지 않는다고 말하기',
@@ -14956,7 +14956,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_379_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -14984,7 +14984,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_380_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15056,7 +15056,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_381_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15092,7 +15092,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_382_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '죽기 전에 꼭 세계 여행을 해 보고 싶다고 말하기',
@@ -15133,7 +15133,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_383_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15169,7 +15169,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_384_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`V-기 전에`를 사용해서 “밥을 먹기 전에 손을 씻어요.”라고 쓰세요.',
@@ -15221,7 +15221,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_385_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -15254,7 +15254,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_386_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15306,7 +15306,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_387_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate: '숙제를 ___ 후에 친구를 ___고 게임도 ___ 거예요.',
@@ -15332,7 +15332,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_388_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15368,7 +15368,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_389_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '수업이 끝난 후에 친구를 만나기로 했다고 말하기',
@@ -15408,7 +15408,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_390_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -15436,7 +15436,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_391_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15507,7 +15507,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_392_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15542,7 +15542,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_393_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아침을 먹은 후에 커피를 마신다고 말하기',
@@ -15581,7 +15581,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_394_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -15608,7 +15608,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_395_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15680,7 +15680,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_396_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '대학교를 졸업한 후에 취직하고 싶다고 말하기',
@@ -15720,7 +15720,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_397_verb_transform: {
     type: 'verb_transform',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.transform,
     baseWord: '먹다',
@@ -15747,7 +15747,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_398_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15782,7 +15782,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_399_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '친구를 만난 후에 같이 저녁을 먹었다고 말하기',
@@ -15822,7 +15822,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_400_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -15850,7 +15850,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_401_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15921,7 +15921,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_402_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -15956,7 +15956,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_403_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '일을 모두 끝낸 후에 집에 갔다고 말하기',
@@ -15996,7 +15996,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_404_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -16029,7 +16029,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_405_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16068,7 +16068,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_406_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '운전한 후에는 충분히 쉬어야 한다고 말하기',
@@ -16107,7 +16107,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_407_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16142,7 +16142,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_408_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`V-(으)ㄴ 후에`를 사용해서 “아침을 먹은 후에 커피를 마셔요.”라고 쓰세요.',
@@ -16191,7 +16191,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_409_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.reading,
     passage:
@@ -16224,7 +16224,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_410_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16296,7 +16296,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_411_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -16323,7 +16323,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_412_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16358,7 +16358,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_413_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '회사에 도착한 후에 먼저 이메일을 확인한다고 말하기',
@@ -16398,7 +16398,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_414_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -16426,7 +16426,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_415_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16497,7 +16497,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_416_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16535,7 +16535,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_417_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '퇴근한 후에 운동하러 간다고 말하기',
@@ -16573,7 +16573,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_418_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -16615,7 +16615,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_419_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16653,7 +16653,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_420_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '저녁을 먹은 후에 가족과 전화한다고 말하기',
@@ -16692,7 +16692,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_421_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -16719,7 +16719,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_422_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16790,7 +16790,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_423_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16832,7 +16832,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_424_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '잠을 자기 전에 알람을 맞추고 일어난 후에는 바로 창문을 연다고 말하기',
@@ -16874,7 +16874,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_425_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '회사에 도착하기 후에 이메일을 확인해요.',
@@ -16901,7 +16901,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_426_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -16939,7 +16939,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_427_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -16974,7 +16974,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_428_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.cloze,
     passage:
@@ -17002,7 +17002,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_429_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -17068,7 +17068,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_430_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -17110,7 +17110,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_431_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '출근 전에 커피를 사고 회사에 도착한 후에 마신다고 말하기',
@@ -17151,7 +17151,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_432_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '`먹기 전에` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -17192,7 +17192,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_433_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -17225,7 +17225,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_434_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17296,7 +17296,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_435_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -17323,7 +17323,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_436_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17359,7 +17359,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_437_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -17395,7 +17395,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_438_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -17423,7 +17423,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_439_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17494,7 +17494,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_440_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17530,7 +17530,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_441_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '졸업하기 전에 취업 준비를 시작했다고 말하기',
@@ -17569,7 +17569,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_442_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -17611,7 +17611,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_443_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17646,7 +17646,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_444_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '결혼하기 전에 부모님과 살았고 결혼한 후에 배우자와 살게 되었다고 말하기',
@@ -17688,7 +17688,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_445_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -17715,7 +17715,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_446_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17787,7 +17787,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_447_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17822,7 +17822,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_448_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '취직한 후에 생활 패턴이 많이 달라졌다고 말하기',
@@ -17862,7 +17862,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_449_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국에 왔기 전에 고향에서 회사에 다녔어요.',
@@ -17889,7 +17889,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_450_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -17925,7 +17925,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_451_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '유학을 마친 후에 고향으로 돌아갈 계획이라고 말하기',
@@ -17965,7 +17965,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_452_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -17993,7 +17993,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_453_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18066,7 +18066,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_454_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18113,7 +18113,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_455_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '취직하기 전에는 학생이었고 취직한 후에는 아침 일찍 일어나게 되었다고 말하기',
@@ -18156,7 +18156,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_456_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`온 후에` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -18197,7 +18197,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_457_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -18230,7 +18230,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_458_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18303,7 +18303,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_459_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -18330,7 +18330,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_460_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18366,7 +18366,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_461_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '계약서에 서명하기 전에 내용을 자세히 읽는다고 말하기',
@@ -18406,7 +18406,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_462_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -18434,7 +18434,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_463_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18505,7 +18505,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_464_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18541,7 +18541,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_465_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '수업을 시작하기 전에 휴대 전화를 무음으로 바꾸라고 말하기',
@@ -18582,7 +18582,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_466_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -18624,7 +18624,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_467_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18665,7 +18665,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_468_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -18700,7 +18700,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_469_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -18727,7 +18727,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_470_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18804,7 +18804,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_471_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -18847,7 +18847,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_472_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -18881,7 +18881,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_473_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '시험을 본 전에 충분히 공부해야 해요.',
@@ -18908,7 +18908,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_474_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -18951,7 +18951,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_475_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -18985,7 +18985,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_476_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -19013,7 +19013,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_477_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19089,7 +19089,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_478_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -19133,7 +19133,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_479_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -19167,7 +19167,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_480_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`본 후에` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -19219,7 +19219,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_481_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -19252,7 +19252,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_482_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19323,7 +19323,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_483_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -19350,7 +19350,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_484_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19386,7 +19386,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_485_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 한국에 오기 전에 무슨 일을 했는지 묻기',
@@ -19425,7 +19425,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_486_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -19453,7 +19453,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_487_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19524,7 +19524,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_488_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19560,7 +19560,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_489_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '대학교를 졸업한 후에 회사에서 일했다고 말하기',
@@ -19599,7 +19599,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_490_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -19641,7 +19641,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_491_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19677,7 +19677,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_492_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 오기 전에 가족과 여행도 많이 했다고 말하기',
@@ -19718,7 +19718,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_493_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -19745,7 +19745,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_494_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19818,7 +19818,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_495_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국으로 출발하기 전에 가족과 마지막으로 식사했다고 말하기',
@@ -19860,7 +19860,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_496_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국에 왔기 전에 은행에서 일했어요.',
@@ -19887,7 +19887,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_497_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -19929,7 +19929,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_498_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '고향에서는 회사에 다니고 퇴근한 후에 한국어를 공부했다고 말하기',
@@ -19970,7 +19970,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_499_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -19998,7 +19998,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_500_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20076,7 +20076,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_501_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20118,7 +20118,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_502_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 오기 전에는 회사에 다녔지만 지금은 한국에서 공부한다고 말하기',
@@ -20161,7 +20161,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_503_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20201,7 +20201,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_504_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-기 전에`를 사용해서 한국에 오기 전에 고향에서 회사에 다녔다고 쓰세요.',
@@ -20254,7 +20254,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_505_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -20287,7 +20287,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_506_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20358,7 +20358,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_507_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate: '자기 ___에는 샤워를 ___고 다음 날 입을 옷을 ___해요.',
@@ -20384,7 +20384,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_508_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20419,7 +20419,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_509_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 자기 전에 보통 무엇을 하는지 묻기',
@@ -20458,7 +20458,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_510_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -20486,7 +20486,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_511_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20556,7 +20556,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_512_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20594,7 +20594,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_513_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '자기 전에 다음 날 할 일을 메모한다고 말하기',
@@ -20635,7 +20635,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_514_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -20677,7 +20677,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_515_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20715,7 +20715,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_516_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '침대에 누운 후에는 휴대 전화를 멀리 둔다고 말하기',
@@ -20756,7 +20756,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_517_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -20783,7 +20783,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_518_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20856,7 +20856,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_519_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '책을 다 읽은 후에 바로 잔다고 말하기',
@@ -20897,7 +20897,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_520_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '자기 전에는 보통 책을 읽은어요.',
@@ -20924,7 +20924,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_521_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -20962,7 +20962,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_522_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '잠을 잘 자기 위해서 자기 전에는 커피를 안 마신다고 말하기',
@@ -21005,7 +21005,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_523_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -21033,7 +21033,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_524_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21106,7 +21106,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_525_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21146,7 +21146,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_526_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '자기 전에 책을 읽는데 마음이 편해져서 좋다고 말하기',
@@ -21187,7 +21187,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_527_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21229,7 +21229,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_528_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-기 전에`를 사용해서 “자기 전에 보통 책을 조금 읽어요.”라고 쓰세요.',
@@ -21280,7 +21280,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_529_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -21308,7 +21308,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_530_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21380,7 +21380,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_531_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -21407,7 +21407,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_532_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21441,7 +21441,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_533_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 여기에 살기 전에 어디에서 살았는지 묻기',
@@ -21480,7 +21480,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_534_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -21508,7 +21508,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_535_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21580,7 +21580,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_536_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21616,7 +21616,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_537_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '부산에 살 때는 바다가 가까워서 자주 갔다고 말하기',
@@ -21657,7 +21657,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_538_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -21699,7 +21699,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_539_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21737,7 +21737,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_540_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -21773,7 +21773,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_541_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -21800,7 +21800,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_542_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21878,7 +21878,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_543_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이사하기 전에는 출근에 한 시간이 걸렸다고 말하기',
@@ -21920,7 +21920,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_544_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '서울에 산기 전에 부산에서 살았어요.',
@@ -21947,7 +21947,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_545_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -21986,7 +21986,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_546_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이사한 후에 회사는 가까워졌지만 집이 조금 작아졌다고 말하기',
@@ -22027,7 +22027,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_547_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -22055,7 +22055,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_548_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22130,7 +22130,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_549_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22171,7 +22171,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_550_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '부산에서 얼마나 살았는지 상대방에게 묻기',
@@ -22208,7 +22208,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_551_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22248,7 +22248,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_552_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`V-기 전에`를 사용해서 “서울에 살기 전에 부산에서 1년 정도 살았어요.”라고 쓰세요.',
@@ -22299,7 +22299,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_553_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -22332,7 +22332,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_554_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22404,7 +22404,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_555_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -22431,7 +22431,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_556_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22468,7 +22468,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_557_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 오늘 수업이 끝난 후에 무엇을 할 건지 묻기',
@@ -22510,7 +22510,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_558_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -22538,7 +22538,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_559_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22610,7 +22610,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_560_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22645,7 +22645,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_561_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구를 만나기 전에 숙제를 끝낼 거라고 말하기',
@@ -22685,7 +22685,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_562_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -22727,7 +22727,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_563_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22764,7 +22764,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_564_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '저녁을 먹은 후에 근처 카페에 갈 거라고 말하기',
@@ -22805,7 +22805,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_565_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -22832,7 +22832,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_566_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -22904,7 +22904,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_567_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '집에 돌아간 후에는 샤워하고 쉴 거라고 말하기',
@@ -22944,7 +22944,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_568_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '수업이 끝나기 후에 친구를 만날 거예요.',
@@ -22971,7 +22971,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_569_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23016,7 +23016,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_570_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -23051,7 +23051,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_571_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -23079,7 +23079,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_572_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23153,7 +23153,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_573_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23194,7 +23194,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_574_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '친구를 어디에서 만날 건지 상대방에게 묻기',
@@ -23232,7 +23232,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_575_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23273,7 +23273,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_576_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`끝난 후에` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -23314,7 +23314,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_577_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -23347,7 +23347,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_578_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23420,7 +23420,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_579_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -23447,7 +23447,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_580_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23484,7 +23484,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_581_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방에게 죽기 전에 꼭 해 보고 싶은 일이 있는지 묻기',
@@ -23526,7 +23526,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_582_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -23554,7 +23554,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_583_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23629,7 +23629,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_584_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23668,7 +23668,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_585_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국어를 잘하게 된 후에 한국 회사에서 일해 보고 싶다고 말하기',
@@ -23711,7 +23711,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_586_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -23753,7 +23753,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_587_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23792,7 +23792,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_588_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '부모님이 더 나이가 드시기 전에 같이 제주도에 가고 싶다고 말하기',
@@ -23835,7 +23835,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_589_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -23862,7 +23862,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_590_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -23936,7 +23936,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_591_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '세계 여행을 마친 후에 경험을 책으로 쓰고 싶다고 말하기',
@@ -23978,7 +23978,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_592_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '죽은 전에 꼭 세계 여행을 하고 싶어요.',
@@ -24005,7 +24005,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_593_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24047,7 +24047,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_594_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -24082,7 +24082,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_595_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -24110,7 +24110,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_596_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24188,7 +24188,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_597_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24231,7 +24231,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_598_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '세계 여행을 하기 전에 무엇을 준비해야 하는지 묻기',
@@ -24272,7 +24272,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_599_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24315,7 +24315,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_600_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`모은 후에` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -24366,7 +24366,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_601_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -24399,7 +24399,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_602_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24470,7 +24470,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_603_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -24497,7 +24497,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_604_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24535,7 +24535,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_605_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 회사 일이 힘들었지만 지금은 많이 편해졌다고 말하기',
@@ -24575,7 +24575,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_606_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -24603,7 +24603,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_607_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24673,7 +24673,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_608_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24708,7 +24708,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_609_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국어 공부를 계속해서 발음이 전보다 좋아졌다고 말하기',
@@ -24747,7 +24747,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_610_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '회사 생활에 많이 익숙해졌어요?',
@@ -24782,7 +24782,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_611_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24816,7 +24816,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_612_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활에 익숙해져서 예전보다 마음이 편하다고 말하기',
@@ -24855,7 +24855,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_613_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -24882,7 +24882,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_614_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -24954,7 +24954,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_615_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음보다 한국어로 이야기하는 것이 자연스러워졌다고 말하기',
@@ -24993,7 +24993,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_616_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText: '처음에는 힘들었는데 지금은 회사 생활에 많이 익숙해졌어요.',
@@ -25029,7 +25029,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_617_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25065,7 +25065,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_618_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활을 오래 하면서 혼자 다니는 것도 편해졌다고 말하기',
@@ -25107,7 +25107,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_619_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -25135,7 +25135,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_620_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25205,7 +25205,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_621_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -25241,7 +25241,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_622_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '시간이 지나면서 한국 생활이 점점 편해졌다고 말하기',
@@ -25280,7 +25280,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_623_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25321,7 +25321,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_624_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`편해졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -25362,7 +25362,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_625_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -25395,7 +25395,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_626_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25468,7 +25468,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_627_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -25495,7 +25495,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_628_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25531,7 +25531,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_629_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 친구가 생겨서 주말에도 한국어를 자주 쓰게 되었다고 말하기',
@@ -25572,7 +25572,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_630_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -25600,7 +25600,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_631_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25671,7 +25671,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_632_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25708,7 +25708,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_633_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 드라마를 좋아하게 돼서 한국어 표현을 많이 찾아보게 되었다고 말하기',
@@ -25751,7 +25751,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_634_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -25793,7 +25793,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_635_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25828,7 +25828,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_636_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '회사 동료의 권유로 주말마다 등산하게 되었다고 말하기',
@@ -25868,7 +25868,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_637_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -25895,7 +25895,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_638_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -25966,7 +25966,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_639_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 회사에 다니면서 존댓말을 더 자주 쓰게 되었다고 말하기',
@@ -26008,7 +26008,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_640_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국에 와서 매운 음식을 잘 먹어게 됐어요.',
@@ -26035,7 +26035,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_641_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26074,7 +26074,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_642_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 와서 전에 안 하던 운동을 많이 하게 되었다고 말하기',
@@ -26117,7 +26117,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_643_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -26145,7 +26145,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_644_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26217,7 +26217,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_645_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -26257,7 +26257,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_646_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 살면서 한국 친구를 많이 알게 되었다고 말하기',
@@ -26298,7 +26298,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_647_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26340,7 +26340,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_648_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`먹게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -26381,7 +26381,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_649_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -26414,7 +26414,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_650_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26483,7 +26483,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_651_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -26510,7 +26510,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_652_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26545,7 +26545,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_653_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '오래간만에 만난 친구에게 다음 달부터 중국에서 일하게 됐다고 말하기',
@@ -26584,7 +26584,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_654_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -26612,7 +26612,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_655_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26682,7 +26682,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_656_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26717,7 +26717,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_657_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '결혼한 후에 부산으로 이사하게 됐다고 말하기',
@@ -26756,7 +26756,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_658_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '오래간만이에요. 요즘 어떻게 지내세요?',
@@ -26792,7 +26792,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_659_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26827,7 +26827,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_660_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -26861,7 +26861,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_661_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -26888,7 +26888,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_662_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -26952,7 +26952,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_663_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '오래간만에 만난 사람에게 그동안 별일 없었는지 묻기',
@@ -26990,7 +26990,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_664_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText: '오래간만이에요. 저는 다음 달부터 중국에서 일하게 됐어요.',
@@ -27026,7 +27026,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_665_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27064,7 +27064,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_666_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '중국에서 얼마나 있을 건지 상대방에게 묻기',
@@ -27102,7 +27102,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_667_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -27130,7 +27130,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_668_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27202,7 +27202,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_669_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27241,7 +27241,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_670_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '오래간만에 만난 친구에게 요즘 어떻게 지내는지 묻기',
@@ -27279,7 +27279,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_671_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27321,7 +27321,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_672_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`유학을 가게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -27362,7 +27362,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_673_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -27395,7 +27395,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_674_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27469,7 +27469,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_675_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -27496,7 +27496,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_676_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27533,7 +27533,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_677_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활에 익숙해져서 은행이나 병원에도 혼자 갈 수 있다고 말하기',
@@ -27575,7 +27575,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_678_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -27603,7 +27603,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_679_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27676,7 +27676,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_680_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27712,7 +27712,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_681_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '처음에는 한국 친구가 거의 없었지만 지금은 많이 알게 되었다고 말하기',
@@ -27754,7 +27754,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_682_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -27796,7 +27796,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_683_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27831,7 +27831,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_684_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '요즘은 한국 생활에 익숙해져서 혼자서도 잘 지낸다고 말하기',
@@ -27871,7 +27871,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_685_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -27898,7 +27898,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_686_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -27971,7 +27971,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_687_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국에 오래 살면서 처음보다 생활이 많이 편해졌다고 말하기',
@@ -28011,7 +28011,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_688_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '한국 생활이 익숙하게 졌어요.',
@@ -28038,7 +28038,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_689_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28083,7 +28083,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_690_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -28119,7 +28119,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_691_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -28147,7 +28147,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_692_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28224,7 +28224,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_693_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28267,7 +28267,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_694_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국 생활이 어떠냐는 질문에 처음보다 훨씬 편해졌다고 대답하기',
@@ -28305,7 +28305,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_695_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28348,7 +28348,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_696_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`많아졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -28389,7 +28389,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_697_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -28422,7 +28422,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_698_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28499,7 +28499,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_699_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -28526,7 +28526,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_700_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28563,7 +28563,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_701_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '기숙사에서 살게 된 후에 혼자 해야 하는 일이 많아졌다고 말하기',
@@ -28606,7 +28606,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_702_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -28634,7 +28634,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_703_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28706,7 +28706,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_704_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28740,7 +28740,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_705_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '요리를 자주 하게 돼서 처음보다 훨씬 쉬워졌다고 말하기',
@@ -28780,7 +28780,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_706_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '한국에 와서 뭐가 제일 많이 달라졌어요?',
@@ -28817,7 +28817,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_707_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28855,7 +28855,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_708_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국어가 좋아진 후에 한국 친구들과 더 자주 이야기하게 되었다고 말하기',
@@ -28898,7 +28898,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_709_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -28925,7 +28925,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_710_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -28999,7 +28999,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_711_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국어 과정을 마친 후에 한국 회사에 취직하고 싶다고 말하기',
@@ -29041,7 +29041,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_712_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText:
@@ -29078,7 +29078,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_713_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29118,7 +29118,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_714_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -29151,7 +29151,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_715_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -29179,7 +29179,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_716_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29252,7 +29252,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_717_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29292,7 +29292,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_718_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -29325,7 +29325,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_719_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -29371,7 +29371,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_720_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`이야기하게 됐어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -29424,7 +29424,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_721_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -29457,7 +29457,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_722_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29527,7 +29527,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_723_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -29554,7 +29554,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_724_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29590,7 +29590,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_725_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '어린 시절 경찰관이라는 직업을 꿈꿨다는 뜻을 자연스럽게 표현하세요.',
@@ -29629,7 +29629,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_726_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -29657,7 +29657,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_727_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29728,7 +29728,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_728_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29765,7 +29765,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_729_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '대학교 생활을 하면서 정말 원하는 일을 알게 됐다는 뜻을 표현하세요.',
@@ -29807,7 +29807,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_730_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -29837,7 +29837,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_731_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -29873,7 +29873,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_732_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '은퇴 뒤에 세계 여러 곳을 여행하고 싶다는 희망을 표현하세요.',
@@ -29914,7 +29914,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_733_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -29941,7 +29941,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_734_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30013,7 +30013,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_735_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -30046,7 +30046,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_736_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText: '저는 은퇴한 후에 여행도 하고 봉사 활동도 하고 싶어요.',
@@ -30082,7 +30082,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_737_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30120,7 +30120,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_738_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '좋은 선생님을 만난 경험 때문에 꿈이 달라졌다는 의미를 표현하세요.',
@@ -30159,7 +30159,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_739_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -30187,7 +30187,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_740_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30260,7 +30260,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_741_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30300,7 +30300,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_742_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '현재 꿈을 이룬 뒤 다른 사람들을 돕고 싶다는 미래 계획을 표현하세요.',
@@ -30342,7 +30342,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_743_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30378,7 +30378,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_744_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`되고 싶어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -30419,7 +30419,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_745_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -30452,7 +30452,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_746_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30524,7 +30524,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_747_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -30551,7 +30551,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_748_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30587,7 +30587,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_749_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '사람들을 직접 돕는 일을 좋아해서 의사를 꿈꾼다는 뜻을 표현하세요.',
@@ -30628,7 +30628,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_750_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -30656,7 +30656,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_751_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30726,7 +30726,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_752_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30763,7 +30763,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_753_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '해외에서 일하는 꿈을 위해 지금 외국어를 공부하고 있다는 뜻을 표현하세요.',
@@ -30805,7 +30805,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_754_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '지금 꿈이 뭐예요?',
@@ -30834,7 +30834,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_755_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -30870,7 +30870,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_756_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '여러 경험을 하면서 내가 원하는 일이 무엇인지 알게 됐다는 의미를 표현하세요.',
@@ -30913,7 +30913,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_757_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -30940,7 +30940,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_758_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31011,7 +31011,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_759_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '대학교 졸업 뒤 병원에서 일하고 싶다는 진로 계획을 표현하세요.',
@@ -31049,7 +31049,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_760_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '어렸을 때는 선생님이 되고 싶어요.',
@@ -31076,7 +31076,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_761_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31114,7 +31114,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_762_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '꿈이 바뀌었지만 이전 경험이 지금의 목표에 도움이 된다는 뜻을 표현하세요.',
@@ -31156,7 +31156,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_763_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -31184,7 +31184,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_764_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31256,7 +31256,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_765_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31295,7 +31295,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_766_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '꿈을 위해 무엇을 준비하고 있는지 상대방에게 묻는 질문을 만드세요.',
@@ -31337,7 +31337,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_767_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31378,7 +31378,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_768_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`되고 싶어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -31419,7 +31419,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_769_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -31452,7 +31452,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_770_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31522,7 +31522,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_771_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -31549,7 +31549,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_772_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31584,7 +31584,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_773_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '집 근처에 새로운 지하철역이 생겨 교통이 더 편해졌다는 뜻을 표현하세요.',
@@ -31625,7 +31625,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_774_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -31653,7 +31653,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_775_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31723,7 +31723,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_776_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31761,7 +31761,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_777_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한국어를 배우는 사람이 늘었고 한국 문화에 대한 관심도 커졌다는 뜻을 표현하세요.',
@@ -31804,7 +31804,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_778_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -31834,7 +31834,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_779_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -31873,7 +31873,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_780_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '고향에서 예전보다 건물이 많아지고 길도 넓어졌다는 내용을 표현하세요.',
@@ -31913,7 +31913,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_781_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -31940,7 +31940,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_782_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32012,7 +32012,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_783_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '새 공원이 늘어나 고향에서 살기가 더 좋아졌다는 내용을 표현하세요.',
@@ -32053,7 +32053,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_784_error_hunt: {
     type: 'error_hunt',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.error,
     npcText: '예전보다 외국인이 많이 많게 됐어요.',
@@ -32080,7 +32080,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_785_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32118,7 +32118,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_786_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '교통은 좋아졌지만 사람이 많아져 조금 복잡해졌다는 도시 변화의 양면을 표현하세요.',
@@ -32158,7 +32158,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_787_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -32186,7 +32186,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_788_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32258,7 +32258,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_789_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32301,7 +32301,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_790_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '예전에는 작은 도시였지만 지금은 많이 발전했다는 고향 소개 문장을 표현하세요.',
@@ -32341,7 +32341,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_791_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32381,7 +32381,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_792_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`편리해졌어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -32422,7 +32422,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_793_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -32455,7 +32455,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_794_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32517,7 +32517,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_795_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -32544,7 +32544,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_796_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32579,7 +32579,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_797_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '초등학교에 들어간 뒤 친구를 많이 사귀었다는 인생 사건을 표현하세요.',
@@ -32619,7 +32619,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_798_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -32647,7 +32647,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_799_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32718,7 +32718,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_800_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32755,7 +32755,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_801_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '취직한 뒤 직장생활이 잘되어 두 차례 승진했다는 사건을 표현하세요.',
@@ -32797,7 +32797,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_802_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -32827,7 +32827,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_803_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -32863,7 +32863,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_804_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '결혼하고 아이가 태어난 뒤 생활이 크게 달라졌다는 인생 변화를 표현하세요.',
@@ -32904,7 +32904,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_805_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -32931,7 +32931,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_806_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33003,7 +33003,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_807_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -33037,7 +33037,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_808_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText: '대학교를 졸업한 후에 취직했고 몇 년 후에는 결혼했어요.',
@@ -33073,7 +33073,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_809_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33113,7 +33113,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_810_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -33145,7 +33145,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_811_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -33173,7 +33173,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_812_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33244,7 +33244,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_813_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33286,7 +33286,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_814_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '졸업, 취직, 결혼이 자기 인생에서 중요한 사건이었다는 내용을 표현하세요.',
@@ -33328,7 +33328,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_815_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33370,7 +33370,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_816_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '`올라갔어요` 표현을 써서 다음 뜻을 한국어로 쓰세요.',
@@ -33411,7 +33411,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_817_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reading,
     passage:
@@ -33444,7 +33444,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_818_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33514,7 +33514,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_819_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -33541,7 +33541,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_820_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33577,7 +33577,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_821_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '한강의 다리가 과거 한 개에서 약 서른 개로 증가했다는 자료를 표현하세요.',
@@ -33618,7 +33618,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_822_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -33646,7 +33646,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_823_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33715,7 +33715,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_824_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33750,7 +33750,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_825_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '도시 발전으로 생활은 편리해졌지만 사람과 자동차도 증가했다는 내용을 표현하세요.',
@@ -33791,7 +33791,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_826_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -33821,7 +33821,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_827_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33860,7 +33860,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_828_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -33892,7 +33892,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_829_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -33919,7 +33919,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_830_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -33988,7 +33988,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_831_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -34020,7 +34020,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_832_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '상대방의 기분이 조금 나아졌는지 묻는 자연스러운 질문을 만드세요.',
@@ -34057,7 +34057,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_833_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fillBlank,
     sentenceTemplate:
@@ -34084,7 +34084,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_834_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -34153,7 +34153,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_835_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '배가 고파 음식을 많이 먹었다는 문장을 만드세요.',
@@ -34191,7 +34191,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_836_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.listenType,
     audioText: '담배 좀 끊으세요.',
@@ -34226,7 +34226,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_837_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -34267,7 +34267,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_838_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이 뜻을 한국어로 말하세요.',
@@ -34303,7 +34303,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_839_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.cloze,
     passage:
@@ -34331,7 +34331,7 @@ export const S4_UNIT6_QUESTIONS = {
 
   s4u6_840_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_4,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '이번 발음 규칙을 완전한 문장으로 설명하세요. 받침 ㅎ·ㄶ·ㅀ 뒤에 모음이 오면 ㅎ이 발음되지 않는다는 내용이어야 합니다.',
@@ -34408,7 +34408,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем A-아지다/어지다 для выражения изменения состояния с разными прилагательными',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_001_reading_quiz',
@@ -34451,7 +34451,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Описываем изменения в адаптации к жизни, работе, транспорту, еде, отношениям и корейскому языку',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_025_reading_quiz',
@@ -34494,7 +34494,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Сочетаем грамматику изменения с наречиями степени и описываем постепенные изменения погоды, города и жизни',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_049_reading_quiz',
@@ -34537,7 +34537,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Сравниваем прошлое и настоящее в спорте, учёбе, переезде, работе и отношениях',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_073_reading_quiz',
@@ -34580,7 +34580,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Спрашиваем о делах после долгой разлуки и рассказываем об изменениях в жизни, работе, здоровье и корейском языке',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_097_reading_quiz',
@@ -34637,7 +34637,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Осваиваем V-게 되다 и рассказываем, как обстоятельства привели к новым знакомствам и знаниям',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_121_reading_quiz',
@@ -34680,7 +34680,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Описываем новые действия и привычки, возникшие из-за интересов, работы, друзей, здоровья и других обстоятельств',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_145_reading_quiz',
@@ -34719,7 +34719,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Описываем новые привычки в еде, транспорте, языке, работе и отношениях после приезда в Корею',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_165_reading_quiz',
@@ -34758,7 +34758,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем V-게 되다 для крупных жизненных изменений: поступления, выпуска, учёбы за границей, брака и работы',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_185_reading_quiz',
@@ -34801,7 +34801,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Различаем A-아/어지다 и V-게 되다 и естественно рассказываем о причинах, процессе и результате изменений',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_209_reading_quiz',
@@ -34858,7 +34858,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Приветствуем давно не виденного человека и естественно спрашиваем, как он поживал и не случилось ли чего-нибудь',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_241_reading_quiz',
@@ -34901,7 +34901,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Подробно рассказываем о последних делах: работе, учёбе, спорте, друзьях и повседневной жизни',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_265_reading_quiz',
@@ -34944,7 +34944,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем A-아/어지다 и V-게 되다 для описания изменений в работе, еде, языке, отношениях и самостоятельности',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_289_reading_quiz',
@@ -34987,7 +34987,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Говорим о будущей работе за границей, сроке пребывания, волнении из-за отсутствия опыта и адаптации',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_313_reading_quiz',
@@ -35030,7 +35030,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем поступление, выпуск, учёбу за границей, брак и работу для полноценного разговора о последних изменениях и будущих планах',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_337_reading_quiz',
@@ -35087,7 +35087,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем V-기 전에 для действий перед едой, отъездом, сном, учёбой, поездкой и другими событиями',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_361_reading_quiz',
@@ -35130,7 +35130,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем V-(으)ㄴ 후에 для завершённого первого действия и следующего за ним действия',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_385_reading_quiz',
@@ -35173,7 +35173,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем 전에 и 후에 вместе, чтобы описывать день от пробуждения до сна в точном порядке',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_409_reading_quiz',
@@ -35216,7 +35216,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Сравниваем жизнь до и после приезда в Корею, поступления, выпуска, учёбы за границей, брака и работы',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_433_reading_quiz',
@@ -35259,7 +35259,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем 전에 и 후에 для точного порядка подготовки, выполнения и последующих действий в поездках, собеседованиях, экзаменах, презентациях и работе',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_457_reading_quiz',
@@ -35316,7 +35316,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Спрашиваем и рассказываем о работе, семье, учёбе и опыте до приезда в Корею',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_481_reading_quiz',
@@ -35359,7 +35359,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Говорим о привычках перед сном и после того, как легли, а также объясняем их причины',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_505_reading_quiz',
@@ -35402,7 +35402,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Спрашиваем о прежнем месте проживания и сравниваем жизнь до и после переезда',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_529_reading_quiz',
@@ -35445,7 +35445,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Обсуждаем ближайшие планы — занятия, домашнюю работу, встречи, еду и возвращение домой — по порядку',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_553_reading_quiz',
@@ -35488,7 +35488,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Говорим о мечтах на жизнь, необходимой подготовке и следующих целях после их достижения',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_577_reading_quiz',
@@ -35545,7 +35545,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем A-아지다/어지다, чтобы сравнивать язык, работу, еду и быт вначале и сейчас',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_601_reading_quiz',
@@ -35588,7 +35588,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Используем V-게 되다 для новых привычек в еде, транспорте, языке, работе и увлечениях',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_625_reading_quiz',
@@ -35631,7 +35631,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Обмениваемся новостями после долгой разлуки: поступление, выпуск, учёба за границей, брак и работа',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_649_reading_quiz',
@@ -35674,7 +35674,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Объясняем изменения в транспорте, больницах, банках, языке и общении на конкретных примерах',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_673_reading_quiz',
@@ -35717,7 +35717,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Объединяем конструкции изменения и времени, связывая жизнь до Кореи, настоящее и будущие цели',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_697_reading_quiz',
@@ -35774,7 +35774,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Сравниваем детские и нынешние мечты и говорим о жизни после пенсии',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's4u6_721_reading_quiz',
@@ -35817,7 +35817,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Объясняем нынешнюю мечту, причины её изменения, подготовку и будущие карьерные планы',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's4u6_745_reading_quiz',
@@ -35860,7 +35860,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Сравниваем жильё, транспорт, население и инфраструктуру раньше и сейчас и пишем о родном городе',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's4u6_769_reading_quiz',
@@ -35903,7 +35903,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Организуем важные события жизни и объясняем изменение уровня счастья до и после них',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's4u6_793_reading_quiz',
@@ -35946,7 +35946,7 @@ export const S4_UNIT6_NODES = [
           ru: 'Изучаем изменения населения и инфраструктуры Сеула и тренируем выпадение ㅎ перед гласной после ㅎ, ㄶ и ㅀ',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_4,
+        level: QuestionLevel.LEVEL_2,
         order: 5,
         questions: [
           's4u6_817_reading_quiz',

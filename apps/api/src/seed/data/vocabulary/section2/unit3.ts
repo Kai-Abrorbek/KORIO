@@ -3586,7 +3586,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_001_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -3613,7 +3613,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_002_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아파요', '머리가', '머리를', '괜찮아요'],
@@ -3639,7 +3639,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_003_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['목이', '많이', '아파요', '머리가', '안'],
@@ -3665,7 +3665,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_004_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어디가 아프세요?',
@@ -3691,7 +3691,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_005_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '배가 아프다고 말하기',
@@ -3722,7 +3722,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_006_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '허리',
@@ -3750,7 +3750,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_007_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아파요', '저는', '무릎이', '무릎을', '많이'],
@@ -3776,7 +3776,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_008_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['어깨가', '아파요', '오늘은', '어깨를', '좋아요'],
@@ -3802,7 +3802,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_009_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '"발이 아파요"를 직접 입력하세요.',
@@ -3846,7 +3846,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_010_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '다리가 많이 아프다고 말하기',
@@ -3877,7 +3877,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_011_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '허리가 많이 아파요.',
@@ -3903,7 +3903,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_012_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['손이', '아파요', '오른쪽', '손을', '왼쪽'],
@@ -3929,7 +3929,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_013_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '무릎',
@@ -3957,7 +3957,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_014_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아파요', '가슴이', '조금', '가슴을', '많이'],
@@ -3983,7 +3983,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_015_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '무릎이 많이 아파요.',
@@ -4021,7 +4021,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_016_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '어깨가 조금 아프다고 말하기',
@@ -4052,7 +4052,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_017_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['어디가', '아프세요', '많이', '먹어요', '어디를'],
@@ -4078,7 +4078,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_018_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['저는', '발이', '아파요', '오늘', '발을', '내일'],
@@ -4110,7 +4110,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_019_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -4137,7 +4137,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_020_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['기침을', '많이', '해요', '기침이', '마셔요'],
@@ -4163,7 +4163,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_021_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['열이', '많이', '나요', '열을', '해요'],
@@ -4189,7 +4189,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_022_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '감기에 걸렸어요.',
@@ -4215,7 +4215,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_023_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '콧물이 난다고 말하기',
@@ -4246,7 +4246,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_024_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '기침을 많이 ',
@@ -4274,7 +4274,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_025_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['저는', '감기에', '걸렸어요', '감기를', '먹었어요'],
@@ -4300,7 +4300,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_026_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['콧물이', '많이', '나요', '콧물을', '마셔요'],
@@ -4326,7 +4326,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_027_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '"열이 나요"를 직접 입력하세요.',
@@ -4370,7 +4370,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_028_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '기침을 많이 한다고 말하기',
@@ -4401,7 +4401,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_029_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '콧물이 많이 나요.',
@@ -4427,7 +4427,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_030_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['목이', '아프고', '기침을', '해요', '먹어요', '목을'],
@@ -4453,7 +4453,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_031_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '감기',
@@ -4481,7 +4481,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_032_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['감기에', '걸려서', '목이', '아파요', '감기를', '먹어요'],
@@ -4507,7 +4507,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_033_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '감기에 걸려서 기침을 많이 해요.',
@@ -4545,7 +4545,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_034_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '감기에 걸려서 목이 아프다고 말하기',
@@ -4576,7 +4576,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_035_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['열도', '나고', '콧물도', '나요', '열을', '해요'],
@@ -4602,7 +4602,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_036_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['저는', '감기에', '걸렸어요', '어제', '감기를', '아파요'],
@@ -4634,7 +4634,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_037_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -4661,7 +4661,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_038_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['머리가', '아파요', '아프어요', '머리를'],
@@ -4687,7 +4687,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_039_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['오늘', '아주', '바빠요', '바쁘어요', '저는'],
@@ -4713,7 +4713,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_040_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '오늘은 좀 바빠요.',
@@ -4739,7 +4739,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_041_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '배가 고프다고 말하기',
@@ -4770,7 +4770,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_042_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '아프다 → ',
@@ -4798,7 +4798,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_043_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['배가', '많이', '아파요', '아프어요', '배를'],
@@ -4824,7 +4824,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_044_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['이번', '주말에는', '좀', '바빠요', '바쁘아요', '한가해요'],
@@ -4850,7 +4850,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_045_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: {
       ko: '아프다를 해요체로 활용해 직접 입력하세요.',
@@ -4894,7 +4894,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_046_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '오늘 아주 바쁘다고 말하기',
@@ -4925,7 +4925,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_047_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '배가 고파요.',
@@ -4951,7 +4951,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_048_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아침을', '안', '먹어서', '배가', '고파요', '고프어요', '먹어요'],
@@ -4977,7 +4977,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_049_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '바쁘다 → ',
@@ -5005,7 +5005,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_050_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['어제는', '날씨가', '나빴어요', '나쁘었어요', '좋았어요'],
@@ -5031,7 +5031,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_051_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '이번 주말에는 좀 바빠요.',
@@ -5069,7 +5069,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_052_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아침을 먹지 않아서 배가 고프다고 말하기',
@@ -5100,7 +5100,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_053_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['목이', '아파서', '병원에', '갔어요', '아프어서', '목을'],
@@ -5126,7 +5126,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_054_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['요즘', '너무', '바빠서', '피곤해요', '바쁘어서', '한가해요'],
@@ -5158,7 +5158,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_055_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -5185,7 +5185,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_056_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['여동생이', '아주', '예뻐요', '예쁘어요', '예빠요'],
@@ -5211,7 +5211,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_057_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['저는', '매일', '편지를', '써요', '쓰어요', '읽어요'],
@@ -5237,7 +5237,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_058_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아키라 씨 여동생이 예뻐요.',
@@ -5263,7 +5263,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_059_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '매일 편지를 쓴다고 말하기',
@@ -5294,7 +5294,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_060_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '예쁘다 → ',
@@ -5322,7 +5322,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_061_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['어제', '편지를', '썼어요', '쓰었어요', '읽어요'],
@@ -5348,7 +5348,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_062_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['오늘은', '날씨가', '좋아요', '어제는', '나빴어요', '나쁘었어요'],
@@ -5374,7 +5374,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_063_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: {
       ko: '쓰다를 해요체로 활용해 직접 입력하세요.',
@@ -5418,7 +5418,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_064_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '여동생이 예쁘다고 말하기',
@@ -5449,7 +5449,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_065_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제는 편지를 썼어요.',
@@ -5475,7 +5475,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_066_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['오늘은', '날씨가', '좋지만', '어제는', '나빴어요', '나쁘었어요'],
@@ -5501,7 +5501,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_067_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '쓰다 → ',
@@ -5529,7 +5529,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_068_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아키라', '씨', '여동생이', '예뻐요', '예쁘어요', '바빠요'],
@@ -5555,7 +5555,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_069_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '어제는 편지를 썼어요.',
@@ -5593,7 +5593,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_070_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '어제 편지를 썼다고 말하기',
@@ -5624,7 +5624,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_071_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -5658,7 +5658,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_072_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -5701,7 +5701,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_073_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '기다리',
@@ -5729,7 +5729,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_074_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['많이', '먹지', '아이스크림을', '마세요', '먹어요', '마셔요'],
@@ -5755,7 +5755,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_075_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '기다리지 마세요.',
@@ -5781,7 +5781,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_076_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['늦지', '마세요', '내일', '늦어요', '오늘', '가세요'],
@@ -5807,7 +5807,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_077_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '담배를 피우지 말라고 하기',
@@ -5838,7 +5838,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_078_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: {
       ko: '먹다를 사용해서 "먹지 마세요"를 직접 입력하세요.',
@@ -5882,7 +5882,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_079_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['술을', '마시지', '마세요', '마셔요', '많이', '드세요'],
@@ -5908,7 +5908,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_080_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '전화하',
@@ -5936,7 +5936,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_081_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['말을', '많이', '하지', '마세요', '하세요', '약을'],
@@ -5962,7 +5962,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_082_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '술을 마시지 마세요.',
@@ -5988,7 +5988,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_083_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '너무 오래 목욕하지 말라고 하기',
@@ -6019,7 +6019,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_084_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아이스크림을', '먹지', '마세요', '많이', '먹어요', '약을'],
@@ -6045,7 +6045,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_085_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '담배를 피우지 마세요.',
@@ -6083,7 +6083,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_086_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['여기에서', '기다리지', '마세요', '기다려요', '담배를', '내일'],
@@ -6109,7 +6109,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_087_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '여기에서 기다리지 말라고 하기',
@@ -6147,7 +6147,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_088_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '말을 많이 ',
@@ -6175,7 +6175,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_089_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['오늘은', '운동하지', '마세요', '운동해요', '많이', '어제는'],
@@ -6201,7 +6201,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_090_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['너무', '늦게', '자지', '마세요', '자요', '일찍'],
@@ -6234,7 +6234,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_091_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '박물관에서 전화',
@@ -6262,7 +6262,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_092_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -6295,7 +6295,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_093_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '여기에서 담배 피우지 마세요.',
@@ -6321,7 +6321,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_094_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['여기에서는', '사진을', '찍지', '마세요', '찍어요', '전화해요'],
@@ -6347,7 +6347,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_095_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '여기에서 사진을 찍지 말라고 하기',
@@ -6378,7 +6378,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_096_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '"박물관에서 전화하지 마세요"를 한국어로 직접 입력하세요.',
@@ -6422,7 +6422,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_097_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['병원에서', '큰', '소리로', '말하지', '마세요', '말해요', '작게'],
@@ -6448,7 +6448,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_098_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '여기에서 담배를 ',
@@ -6476,7 +6476,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_099_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['병원에서', '담배를', '피우지', '마세요', '피워요', '약을'],
@@ -6502,7 +6502,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_100_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '사진을 찍지 마세요.',
@@ -6528,7 +6528,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_101_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '병원에서 큰 소리로 말하지 말라고 하기',
@@ -6567,7 +6567,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_102_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['여기에서', '음식을', '먹지', '마세요', '먹어요', '물을'],
@@ -6593,7 +6593,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_103_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: {
       ko: '전화하다를 금지 표현으로 바꿔 직접 입력하세요.',
@@ -6637,7 +6637,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_104_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -6671,7 +6671,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_105_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '여기에서 음식을 먹지 말라고 하기',
@@ -6702,7 +6702,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_106_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '극장에서 큰 소리로 ',
@@ -6736,7 +6736,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_107_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -6770,7 +6770,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_108_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -6811,7 +6811,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_109_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '목이 아파요. 말을 많이 ',
@@ -6839,7 +6839,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_110_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -6874,7 +6874,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_111_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '말을 많이 하지 마세요.',
@@ -6900,7 +6900,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_112_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['기침을', '많이', '하면', '담배를', '피우지', '마세요', '피워요'],
@@ -6926,7 +6926,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_113_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '감기에 걸렸으니 술을 마시지 말라고 하기',
@@ -6965,7 +6965,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_114_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     audioText: '말을 많이 하지 마세요.',
@@ -7005,7 +7005,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_115_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7039,7 +7039,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_116_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '기침을 많이 해요. 담배를 ',
@@ -7073,7 +7073,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_117_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7107,7 +7107,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_118_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '얼음물을 마시지 마세요.',
@@ -7133,7 +7133,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_119_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '열이 나면 오래 목욕하지 말라고 하기',
@@ -7172,7 +7172,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_120_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7206,7 +7206,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_121_translate_type: {
     type: 'translate_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '"목이 아프니까 말을 많이 하지 마세요"를 한국어로 직접 입력하세요.',
@@ -7250,7 +7250,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_122_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7284,7 +7284,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_123_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '목이 아프니 얼음물을 마시지 말라고 하기',
@@ -7323,7 +7323,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_124_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '감기에 걸렸어요. 오늘은 무리',
@@ -7351,7 +7351,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_125_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7385,7 +7385,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_126_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7426,7 +7426,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_127_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '목이 아파요. 얼음물을 ',
@@ -7460,7 +7460,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_128_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7494,7 +7494,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_129_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '집에서 푹 쉬세요.',
@@ -7520,7 +7520,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_130_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7554,7 +7554,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_131_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '기침을 하면 담배를 피우지 말라고 하기',
@@ -7585,7 +7585,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_132_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     audioText: '약을 드시고 집에서 푹 쉬세요.',
@@ -7623,7 +7623,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_133_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['기침을', '많이', '하면', '따뜻한', '물을', '드세요', '얼음물을'],
@@ -7649,7 +7649,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_134_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '열이 많이 나요. 오늘은 운동',
@@ -7677,7 +7677,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_135_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['목이', '아프면', '말을', '많이', '하지', '마세요', '하세요'],
@@ -7703,7 +7703,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_136_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '따뜻한 물을 드세요.',
@@ -7729,7 +7729,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_137_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '감기에 걸렸으니 집에서 푹 쉬라고 하기',
@@ -7768,7 +7768,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_138_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7803,7 +7803,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_139_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     audioText: '얼음물을 마시지 마세요.',
@@ -7843,7 +7843,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_140_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7877,7 +7877,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_141_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '목이 아프면 따뜻한 물을 마시라고 하기',
@@ -7916,7 +7916,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_142_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentencePrefix: '기침을 많이 해요. 담배를 ',
@@ -7950,7 +7950,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_143_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [
@@ -7985,7 +7985,7 @@ export const S2_UNIT3_QUESTIONS = {
 
   s2u3_144_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: [

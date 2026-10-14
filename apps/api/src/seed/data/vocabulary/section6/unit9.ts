@@ -10,7 +10,7 @@ const L = (ko: string, uz: string, en: string, ru: string) => ({
   ru,
 });
 
-const LV = QuestionLevel.LEVEL_6;
+const LV = QuestionLevel.LEVEL_3;
 
 const I = {
   matching: L(
@@ -2063,7 +2063,7 @@ export const S6_UNIT9_WORDS = [
   },
 ] satisfies readonly WordSeedEntry[];
 
-export const S6_UNIT8_QUESTIONS = {
+export const S6_UNIT9_QUESTIONS = {
   /* ============================= NODE 1 / LESSON 1 ============================= */
 
   s6u9_001_word_matching: {
@@ -13724,7 +13724,7 @@ export const S6_UNIT8_QUESTIONS = {
   },
 };
 
-export const S6_UNIT8_NODES = [
+export const S6_UNIT9_NODES = [
   {
     title: L(
       '연극과 행동 표현',

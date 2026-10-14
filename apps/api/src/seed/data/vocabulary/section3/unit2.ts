@@ -5117,7 +5117,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_001_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '영화를 봐요',
@@ -5148,7 +5148,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_002_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '시간이 있으면 뭘 해요?' }],
@@ -5180,7 +5180,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_003_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -5207,7 +5207,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_004_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '시간이 나면 컴퓨터를 해요.',
@@ -5233,7 +5233,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_005_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '시간이 있으면 ___ 들어요.',
@@ -5260,7 +5260,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_006_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.arrange,
     options: ['시간이', '있으면', '그림을', '그려요', '사진을', '봐요'],
@@ -5286,7 +5286,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_007_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '시간이 나면 사진을 찍어요.',
@@ -5311,7 +5311,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_008_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '책을 읽어요',
@@ -5342,7 +5342,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_009_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '집에 있으면 책을 읽어요.',
@@ -5368,7 +5368,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_010_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '일요일에 보통 뭘 해요?' }],
@@ -5400,7 +5400,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_011_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '시간이 나면 뭘 해요?',
@@ -5427,7 +5427,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_012_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '책을 보는 것이 아니라 직접 그림을 만드는 활동입니다.',
@@ -5461,7 +5461,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_013_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '수진 씨의 취미는 무엇입니까?',
@@ -5495,7 +5495,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_014_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -5522,7 +5522,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_015_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '시간이 있으면 음악을 듣는다고 말하기',
@@ -5553,7 +5553,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_016_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -5584,7 +5584,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_017_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -5618,7 +5618,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_018_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -5645,7 +5645,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_019_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '낚시',
@@ -5676,7 +5676,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_020_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '영화를 보는 취미를 ___이라고 해요.',
@@ -5703,7 +5703,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_021_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 취미는 영화 감상이에요.',
@@ -5729,7 +5729,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_022_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '취미가 뭐예요?' }],
@@ -5761,7 +5761,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_023_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.arrange,
     options: ['제', '취미는', '등산이에요', '낚시를', '해요', '아주'],
@@ -5787,7 +5787,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_024_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '제 취미는 독서예요.',
@@ -5812,7 +5812,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_025_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '산에 올라가는 취미는 ___이에요.',
@@ -5839,7 +5839,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_026_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '취미가 뭐예요?',
@@ -5866,7 +5866,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_027_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '마이클 씨의 취미는 무엇입니까?',
@@ -5900,7 +5900,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_028_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -5927,7 +5927,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_029_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.type,
     npcText: '책 읽기를 뜻하는 취미 이름을 입력하세요.',
@@ -5961,7 +5961,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_030_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '내 취미가 음악 감상이라고 말하기',
@@ -5992,7 +5992,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_031_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -6023,7 +6023,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_032_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 취미는 음악 감상이고 친구는 독서를 좋아해요.',
@@ -6049,7 +6049,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_033_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '영화를 보는 것은 ___이고 책을 읽는 것은 ___예요.',
@@ -6076,7 +6076,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_034_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -6109,7 +6109,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_035_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -6136,7 +6136,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_036_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentenceTemplate: 'A: 피아노 칠 수 있어요?\nB: 아니요, ___ 못 쳐요.',
@@ -6163,7 +6163,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_037_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 전혀 못 쳐요.',
@@ -6189,7 +6189,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_038_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '피아노 칠 수 있어요?' }],
@@ -6221,7 +6221,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_039_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '아니요, 전혀 못 쳐요.',
@@ -6246,7 +6246,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_040_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentenceTemplate:
@@ -6274,7 +6274,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_041_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 별로 안 멀어요. 버스로 10분 걸려요.',
@@ -6300,7 +6300,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_042_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '집에서 학교까지 얼마나 멉니까?',
@@ -6339,7 +6339,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_043_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '학교에서 집이 멀어요?',
@@ -6366,7 +6366,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_044_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.fill,
     sentenceTemplate:
@@ -6394,7 +6394,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_045_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 3년 전부터 배워서 아주 잘해요.',
@@ -6420,7 +6420,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_046_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '태권도 잘해요?' }],
@@ -6452,7 +6452,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_047_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['태권도를', '아주', '잘해요', '전혀', '못해요', '학교에서'],
@@ -6478,7 +6478,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_048_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '학교에서 ___ 안 멀어요. 버스로 ___ 걸려요.',
@@ -6504,7 +6504,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_049_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '세 사람 중 실력이 가장 좋은 사람은 누구입니까?',
@@ -6538,7 +6538,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_050_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.type,
     npcText: '피아노를 하나도 칠 수 없습니다.',
@@ -6572,7 +6572,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_051_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -6605,7 +6605,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_052_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '유나 씨에게 맞는 설명은 무엇입니까?',
@@ -6644,7 +6644,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_053_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -6680,7 +6680,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_054_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText:
@@ -6709,7 +6709,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_055_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '민수는 등산을 ___ 좋아하고 피아노는 ___ 못 쳐요.',
@@ -6736,7 +6736,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_056_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.arrange,
     options: ['제', '취미는', '사진', '찍기예요', '전혀', '못해요'],
@@ -6762,7 +6762,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_057_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '저는 낚시는 좋아하지만 전혀 잘하지 못해요.',
@@ -6787,7 +6787,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_058_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '피아노 잘 쳐요?',
@@ -6814,7 +6814,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_059_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '지훈 씨에 대한 설명으로 맞는 것은 무엇입니까?',
@@ -6853,7 +6853,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_060_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -6884,7 +6884,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_061_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: {
       ko: '피아노를 전혀 못 친다고 말하기',
@@ -6915,7 +6915,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_062_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '태권도는 ___ 잘하고 피아노는 ___ 잘 못 쳐요.',
@@ -6941,7 +6941,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_063_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.type,
     npcText: '학교까지 멀지 않지만 아주 가깝다고까지 말하지는 않습니다.',
@@ -6975,7 +6975,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_064_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 교재의 정도 표현 사용과 가장 잘 맞는 것은 무엇입니까?',
@@ -7014,7 +7014,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_065_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText:
@@ -7044,7 +7044,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_066_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentenceTemplate: '수진은 음악을 ___ 좋아하지만 피아노는 ___ 못 쳐요.',
@@ -7071,7 +7071,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_067_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -7102,7 +7102,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_068_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -7172,7 +7172,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_069_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '한국어를 ___ 재미있어요.',
@@ -7199,7 +7199,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_070_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '한국어를 배우는 것이 재미있어요.',
@@ -7225,7 +7225,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_071_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['요리하는', '것이', '즐거워요', '단어를', '어려워요', '먹는'],
@@ -7251,7 +7251,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_072_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '요리하는 것이 즐거워요.',
@@ -7276,7 +7276,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_073_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '단어를 ___ 어려워요.',
@@ -7303,7 +7303,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_074_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '단어를 외우는 것이 어려워요.',
@@ -7329,7 +7329,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_075_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '한국어 공부에서 뭐가 어려워요?' }],
@@ -7361,7 +7361,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_076_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '고향 음식을 ___ 힘들어요.',
@@ -7388,7 +7388,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_077_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '이 사람이 힘들어하는 것은 무엇입니까?',
@@ -7427,7 +7427,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_078_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['혼자', '사는', '것이', '편해요', '고향', '힘들어요'],
@@ -7453,7 +7453,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_079_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '혼자 ___ 것이 ___.',
@@ -7479,7 +7479,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_080_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '혼자 사는 게 어때요?',
@@ -7506,7 +7506,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_081_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '요리를 할 때 기분이 좋고 즐겁습니다.',
@@ -7540,7 +7540,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_082_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '한국어를 배우는 것은 재미있지만 단어를 외우는 것은 어려워요.',
@@ -7568,7 +7568,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_083_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 1의 내용과 맞지 않는 것은 무엇입니까?',
@@ -7607,7 +7607,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_084_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -7638,7 +7638,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_085_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -7678,7 +7678,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_086_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '바다에 가요',
@@ -7709,7 +7709,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_087_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '등산하는 것을 좋아하세요?' }],
@@ -7741,7 +7741,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_088_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 바다에 가는 것을 좋아해요.',
@@ -7767,7 +7767,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_089_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 요리하는 것을 좋아하세요?\nB: 아니요, ___ 좋아해요.',
@@ -7800,7 +7800,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_090_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '요리하는 것보다 먹는 것을 좋아해요.',
@@ -7826,7 +7826,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_091_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '여행하는 것을 좋아하세요?' }],
@@ -7858,7 +7858,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_092_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['전화하는', '것을', '좋아해요', '여행하는', '것이', '힘들어요'],
@@ -7884,7 +7884,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_093_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '음악을 듣는 것을 좋아해요.',
@@ -7909,7 +7909,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_094_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 노래하는 것을 좋아하세요?\nB: 아니요, ___ 좋아해요.',
@@ -7942,7 +7942,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_095_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '음악을 듣는 것을 좋아해요.',
@@ -7968,7 +7968,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_096_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '야구하는 것을 좋아하세요?' }],
@@ -8000,7 +8000,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_097_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '이 사람은 야구를 어떻게 즐깁니까?',
@@ -8039,7 +8039,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_098_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '야구를 ___ 것을 ___.',
@@ -8065,7 +8065,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_099_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '영화를 보는 것을 좋아하세요?',
@@ -8092,7 +8092,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_100_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '영화보다 텔레비전 시청을 더 좋아합니다.',
@@ -8126,7 +8126,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_101_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -8157,7 +8157,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_102_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -8197,7 +8197,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_103_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '축구',
@@ -8228,7 +8228,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_104_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '운동장에서 뭐 했어요?' }],
@@ -8260,7 +8260,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_105_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '친구들이 축구하는 것을 구경했어요.',
@@ -8286,7 +8286,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_106_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -8319,7 +8319,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_107_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '사람들이 춤추는 것을 보고 있어요.',
@@ -8344,7 +8344,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_108_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 지금 뭐 하고 있어요?\nB: 사람들이 ___ 보고 있어요.',
@@ -8377,7 +8377,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_109_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '사람들이 춤추는 것을 보고 있어요.',
@@ -8403,7 +8403,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_110_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '켈리 씨는 그림을 잘 그려요?' }],
@@ -8435,7 +8435,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_111_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '전에 켈리 씨가 ___ 봤어요.',
@@ -8468,7 +8468,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_112_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '화자는 켈리 씨의 어떤 모습을 봤습니까?',
@@ -8502,7 +8502,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_113_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '전에 켈리 씨가 ___ 것을 ___.',
@@ -8528,7 +8528,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_114_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '히엔 씨는 남자 친구가 있어요?',
@@ -8564,7 +8564,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_115_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '히엔 씨가 남자 친구와 전화하는 모습을 자주 봤습니다.',
@@ -8598,7 +8598,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_116_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지금 민수 씨는 어디에 있어요?' }],
@@ -8630,7 +8630,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_117_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '조금 전에 도서관에서 책을 읽는 것을 봤어요.',
@@ -8656,7 +8656,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_118_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -8687,7 +8687,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_119_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -8726,7 +8726,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_120_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '수진 씨가 좋아하는 것은 무엇입니까?',
@@ -8765,7 +8765,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_121_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '한국 생활에서 뭐가 힘들어요?' }],
@@ -8797,7 +8797,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_122_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText:
@@ -8827,7 +8827,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_123_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '한국어를 ___ 재미있지만 단어를 ___ 어려워요.',
@@ -8860,7 +8860,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_124_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: [
@@ -8894,7 +8894,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_125_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '저는 음악을 듣는 것을 좋아해요.',
@@ -8919,7 +8919,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_126_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '한국어 공부가 재미있어요?',
@@ -8946,7 +8946,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_127_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '마이클 씨가 직접 한 행동은 무엇입니까?',
@@ -8985,7 +8985,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_128_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '민수 씨가 도서관에서 책을 읽고 있는 모습을 봤습니다.',
@@ -9019,7 +9019,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_129_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -9050,7 +9050,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_130_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -9078,7 +9078,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_131_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 음악을 듣는 것을 좋아하고 친구는 노래하는 것을 좋아해요.',
@@ -9106,7 +9106,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_132_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '친구들이 ___ 것을 ___ 봤어요.',
@@ -9132,7 +9132,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_133_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 “좋아하는 행동”이 아니라 “직접 본 행동”을 말하는 문장은 무엇입니까?',
@@ -9171,19 +9171,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_134_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '민수 씨를 오늘 봤어요?',
-    options: [
-      '네',
-      '읽는',
-      '책을',
-      '좋아해요',
-      '것을',
-      '도서관에서',
-      '봤어요',
-    ],
+    options: ['네', '읽는', '책을', '좋아해요', '것을', '도서관에서', '봤어요'],
     answer: '네 도서관에서 책을 읽는 것을 봤어요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9206,7 +9198,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_135_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -9237,7 +9229,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_136_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -9321,7 +9313,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_137_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '수영',
@@ -9352,7 +9344,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_138_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '수영할 줄 알아요?' }],
@@ -9384,7 +9376,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_139_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 할 줄 알지만 별로 잘 못해요.',
@@ -9410,7 +9402,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_140_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '테니스 ___ 알아요?',
@@ -9437,7 +9429,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_141_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '테니스 칠 줄 알아요?',
@@ -9462,7 +9454,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_142_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['스케이트', '탈', '줄', '알아요', '칠', '기타'],
@@ -9488,7 +9480,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_143_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '스케이트 탈 줄 알아요?' }],
@@ -9520,7 +9512,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_144_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '젓가락질 ___ 알아요?',
@@ -9547,7 +9539,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_145_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 젓가락질을 할 줄 몰라요.',
@@ -9573,7 +9565,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_146_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '이 사람이 잘할 수 있는 것은 무엇입니까?',
@@ -9607,7 +9599,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_147_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 기타 칠 줄 알아요?\nB: 네, ___ 별로 잘 못 쳐요.',
@@ -9640,7 +9632,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_148_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '네, 기타를 ___ 알지만 ___ 잘 못 쳐요.',
@@ -9666,20 +9658,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_149_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '기타 칠 줄 알아요?',
-    options: [
-      '줄',
-      '알지만',
-      '타요',
-      '네',
-      '못',
-      '잘',
-      '칠',
-      '쳐요',
-    ],
+    options: ['줄', '알지만', '타요', '네', '못', '잘', '칠', '쳐요'],
     answer: '네 칠 줄 알지만 잘 못 쳐요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -9702,7 +9685,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_150_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '잡채를 만드는 방법을 하나도 모릅니다.',
@@ -9736,7 +9719,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_151_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 잡채는 전혀 못 만들어요.',
@@ -9762,7 +9745,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_152_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -9793,7 +9776,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_153_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -9826,7 +9809,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_154_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -9853,7 +9836,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_155_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '수영은 ___ 알지만 ___ 잘 못해요.',
@@ -9880,7 +9863,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_156_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '수영은 할 줄 알지만 별로 잘 못해요.',
@@ -9906,7 +9889,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_157_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '기타 칠 줄 알아요?' }],
@@ -9938,7 +9921,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_158_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '기타를 칠 줄 알지만 잘 못 쳐요.',
@@ -9963,7 +9946,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_159_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '잡채는 ___ 못 만들어요.',
@@ -9990,7 +9973,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_160_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '잡채 만들 줄 알아요?',
@@ -10017,7 +10000,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_161_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '세 사람 중 기타를 가장 잘 치는 사람은 누구입니까?',
@@ -10051,18 +10034,10 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_162_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
-    options: [
-      '전혀',
-      '잘',
-      '테니스를',
-      '쳐요',
-      '칠',
-      '알고',
-      '줄',
-    ],
+    options: ['전혀', '잘', '테니스를', '쳐요', '칠', '알고', '줄'],
     answer: '테니스를 칠 줄 알고 잘 쳐요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -10085,7 +10060,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_163_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '스케이트를 타는 방법을 알고 있습니다.',
@@ -10119,7 +10094,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_164_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '젓가락질을 할 줄 몰라요.',
@@ -10145,7 +10120,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_165_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '테니스는 ___ 알고 ___ 쳐요.',
@@ -10171,7 +10146,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_166_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -10202,7 +10177,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_167_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '“할 줄 알지만 별로 잘 못해요”와 가장 가까운 뜻은 무엇입니까?',
@@ -10241,7 +10216,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_168_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '스케이트는 ___ 알고 잘 타지만 잡채는 ___ 몰라요.',
@@ -10268,7 +10243,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_169_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '기타를 칠 줄 알지만 잘 못 친다고 말하기',
@@ -10276,16 +10251,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
       en: 'I know how to play guitar, but I cannot play it well',
       ru: 'Я умею играть на гитаре, но играю плохо',
     },
-    options: [
-      '쳐요',
-      '타요',
-      '잘',
-      '알지만',
-      '칠',
-      '못',
-      '기타를',
-      '줄',
-    ],
+    options: ['쳐요', '타요', '잘', '알지만', '칠', '못', '기타를', '줄'],
     answer: '기타를 칠 줄 알지만 잘 못 쳐요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -10308,7 +10274,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_170_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -10342,7 +10308,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_171_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -10369,7 +10335,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_172_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '태권도 할 줄 알아요?' }],
@@ -10403,7 +10369,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_173_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 저는 고등학교 때 태권도 선수였어요. 그래서 아주 잘해요.',
@@ -10431,7 +10397,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_174_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '자전거 ___ 알아요?',
@@ -10458,7 +10424,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_175_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '자전거 탈 줄 알아요?',
@@ -10483,7 +10449,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_176_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '스페인어 할 줄 알아요?' }],
@@ -10515,7 +10481,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_177_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '스페인어 할 줄 알아요?',
@@ -10542,7 +10508,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_178_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '탁구 ___ 알아요?',
@@ -10569,7 +10535,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_179_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '탁구 칠 줄 알지만 별로 잘 못해요.',
@@ -10595,7 +10561,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_180_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 인터뷰에서 ○는 어떤 뜻입니까?',
@@ -10634,7 +10600,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_181_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '낚시 ___ 알아요?',
@@ -10661,7 +10627,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_182_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '낚시는 ___ 알지만 ___ 잘 못해요.',
@@ -10687,7 +10653,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_183_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '한자를 읽는 방법을 아는지 묻습니다.',
@@ -10721,7 +10687,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_184_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '한자를 읽을 줄 알지만 별로 잘 못 읽어요.',
@@ -10747,7 +10713,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_185_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -10774,7 +10740,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_186_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -10808,7 +10774,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_187_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -10841,7 +10807,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_188_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '준호 씨가 전혀 못하는 것은 무엇입니까?',
@@ -10875,7 +10841,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_189_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '자전거 탈 줄 알아요?' }],
@@ -10907,7 +10873,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_190_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '자전거는 아주 잘 타지만 탁구는 칠 줄만 알고 잘 못해요.',
@@ -10933,7 +10899,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_191_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '스페인어는 ___ 알고 한자는 ___ 몰라요.',
@@ -10960,7 +10926,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_192_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['한자를', '읽을', '줄', '알아요', '탁구를', '타요'],
@@ -10986,7 +10952,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_193_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '탁구 칠 줄 알지만 별로 잘 못해요.',
@@ -11011,7 +10977,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_194_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '한자를 잘 읽어요?',
@@ -11048,7 +11014,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_195_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다나카 씨의 태권도 실력에 가장 가까운 설명은 무엇입니까?',
@@ -11087,7 +11053,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_196_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '낚시 방법을 전혀 모릅니다.',
@@ -11121,7 +11087,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_197_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -11152,7 +11118,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_198_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '자전거를 탈 줄 알고 아주 잘 탄다고 말하기',
@@ -11160,16 +11126,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
       en: 'I know how to ride a bicycle and I ride very well',
       ru: 'Я умею ездить на велосипеде и езжу очень хорошо',
     },
-    options: [
-      '알고',
-      '타요',
-      '자전거를',
-      '잘',
-      '아주',
-      '쳐요',
-      '줄',
-      '탈',
-    ],
+    options: ['알고', '타요', '자전거를', '잘', '아주', '쳐요', '줄', '탈'],
     answer: '자전거를 탈 줄 알고 아주 잘 타요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -11192,7 +11149,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_199_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '스페인어는 ___ 알고 한자는 ___ 몰라요.',
@@ -11218,7 +11175,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_200_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -11246,7 +11203,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_201_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '태권도는 아주 잘하고 탁구는 별로 잘 못하지만 자전거는 잘 타요.',
@@ -11274,7 +11231,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_202_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '이 사람이 할 줄은 알지만 잘하지 못하는 것은 무엇입니까?',
@@ -11308,7 +11265,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_203_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -11344,7 +11301,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_204_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -11423,7 +11380,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_205_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제 아키라 씨하고 ___ 식당이 저 식당이에요.',
@@ -11450,7 +11407,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_206_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '주말에 본 영화가 아주 재미있었어요.',
@@ -11476,7 +11433,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_207_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['주말에', '본', '영화가', '아주', '재미있었어요', '먹은'],
@@ -11502,7 +11459,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_208_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '아침에 먹은 빵이 참 맛있었어요.',
@@ -11527,7 +11484,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_209_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '아침에 ___ 빵이 참 맛있었어요.',
@@ -11554,7 +11511,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_210_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이 사진은 언제 찍었어요?' }],
@@ -11586,7 +11543,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_211_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이 사진은 지난주에 여행 가서 찍은 사진이에요.',
@@ -11612,7 +11569,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_212_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '지난주 여행에서 사진을 찍었습니다.',
@@ -11646,7 +11603,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_213_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '화자가 좋아하는 음악은 어느 음악입니까?',
@@ -11685,7 +11642,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_214_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '아까 ___ 음악은 내가 좋아하는 음악이에요.',
@@ -11711,7 +11668,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_215_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '이 음악 알아요?',
@@ -11738,7 +11695,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_216_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '이 케이크는 오늘 아침에 ___ 거예요.',
@@ -11765,7 +11722,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_217_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이 케이크는 오늘 아침에 만든 거예요.',
@@ -11791,7 +11748,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_218_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '오늘 아침에 만든 케이크라고 말하기',
@@ -11822,7 +11779,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_219_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 교재 연습 1과 맞지 않는 연결은 무엇입니까?',
@@ -11860,7 +11817,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_220_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -11891,7 +11848,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_221_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -11925,7 +11882,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_222_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '은행에서 일하고 있는 사람은 누구입니까?',
@@ -11959,7 +11916,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_223_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제 ___ 친구는 은행에서 일하고 있어요.',
@@ -11986,7 +11943,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_224_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 만난 친구는 은행에서 일하고 있어요.',
@@ -12012,7 +11969,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_225_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['지난번에', '간', '식당이', '참', '좋았어요', '마신'],
@@ -12038,7 +11995,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_226_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '지난번에 간 식당이 참 좋았어요.',
@@ -12063,7 +12020,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_227_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지난번에 간 식당 어땠어요?' }],
@@ -12095,7 +12052,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_228_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '친구가 ___ 차는 녹차예요.',
@@ -12122,7 +12079,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_229_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '친구가 마신 차가 뭐예요?',
@@ -12149,7 +12106,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_230_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '너무 슬펐던 것은 무엇입니까?',
@@ -12188,7 +12145,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_231_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '어제 읽은 책이 아주 슬펐습니다.',
@@ -12222,7 +12179,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_232_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 읽은 책이 너무 슬펐어요.',
@@ -12248,7 +12205,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_233_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '어제 ___ 지갑을 오늘 ___.',
@@ -12274,7 +12231,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_234_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '오늘 어제 산 지갑을 잃어버렸다고 말하기',
@@ -12305,7 +12262,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_235_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -12336,7 +12293,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_236_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '친구가 ___ 차는 녹차이고 어제 ___ 책은 너무 슬펐어요.',
@@ -12363,7 +12320,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_237_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 2의 내용과 맞는 것은 무엇입니까?',
@@ -12402,7 +12359,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_238_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -12439,7 +12396,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_239_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -12466,7 +12423,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_240_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '오늘 아침에 커피를 마셨어요?' }],
@@ -12498,7 +12455,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_241_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '오늘 아침에 커피를 ___ 사람은 마리코 씨와 히엔 씨예요.',
@@ -12525,7 +12482,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_242_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '오늘 아침에 커피를 마신 사람은 마리코 씨와 히엔 씨예요.',
@@ -12551,7 +12508,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_243_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['지난주에', '명동에', '간', '사람', '지하철을', '마신'],
@@ -12577,7 +12534,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_244_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '지난주에 명동에 간 사람',
@@ -12602,7 +12559,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_245_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '오늘 학교에 지하철을 타고 ___ 사람',
@@ -12629,19 +12586,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_246_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '어떤 사람을 찾고 있어요?',
-    options: [
-      '학교에',
-      '사람',
-      '지하철을',
-      '녹차예요',
-      '온',
-      '타고',
-      '오늘',
-    ],
+    options: ['학교에', '사람', '지하철을', '녹차예요', '온', '타고', '오늘'],
     answer: '오늘 학교에 지하철을 타고 온 사람',
     acceptedAnswers: [],
     answerTranslation: {
@@ -12664,7 +12613,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_247_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '“지난 주말에 쇼핑을 한 사람”은 어떤 질문에 “네”라고 답한 사람입니까?',
@@ -12703,7 +12652,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_248_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '지난 주말에 쇼핑했습니다.',
@@ -12737,7 +12686,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_249_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '지난 주말에 쇼핑을 한 사람',
@@ -12763,7 +12712,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_250_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '오늘 숙제를 안 ___ 사람',
@@ -12789,7 +12738,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_251_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 교재 35쪽의 인터뷰 항목인 것은 무엇입니까?',
@@ -12827,7 +12776,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_252_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -12857,7 +12806,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_253_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '오늘 아침을 먹지 않은 사람',
@@ -12888,7 +12837,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_254_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제 집에서 음식을 ___ 사람',
@@ -12915,7 +12864,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_255_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -12949,7 +12898,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_256_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '지금 이야기하는 사진은 어떤 사진입니까?',
@@ -12988,7 +12937,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_257_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이 케이크 누가 만들었어요?' }],
@@ -13020,7 +12969,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_258_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 만난 친구는 은행에서 일하고 있어요.',
@@ -13046,7 +12995,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_259_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '지난번에 ___ 식당이 좋았고 어제 ___ 책은 슬펐어요.',
@@ -13073,7 +13022,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_260_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['어제', '산', '지갑을', '오늘', '잃어버렸어요', '읽은'],
@@ -13099,7 +13048,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_261_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '친구가 마신 차는 녹차예요.',
@@ -13124,7 +13073,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_262_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '어제 읽은 책 어땠어요?',
@@ -13151,7 +13100,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_263_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 행동으로 “사람”을 설명하는 표현은 무엇입니까?',
@@ -13190,7 +13139,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_264_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '오늘 학교에 지하철로 왔습니다.',
@@ -13224,7 +13173,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_265_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '오늘 학교에 지하철을 타고 온 사람을 찾고 있어요.',
@@ -13250,7 +13199,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_266_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -13278,7 +13227,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_267_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -13308,7 +13257,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_268_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '지난주에 명동에 간 사람',
@@ -13339,7 +13288,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_269_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate:
@@ -13366,7 +13315,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_270_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 동사가 바르게 바뀐 것은 무엇입니까?',
@@ -13405,7 +13354,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_271_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -13439,7 +13388,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_272_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -13539,7 +13488,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_273_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -13566,7 +13515,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_274_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '오늘은 학교에 ___ 않아요.',
@@ -13593,7 +13542,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_275_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '오늘은 학교에 가지 않아요.',
@@ -13619,7 +13568,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_276_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['제', '방은', '크지', '않아요', '많지', '바빠요'],
@@ -13645,7 +13594,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_277_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '제 방은 크지 않아요.',
@@ -13670,7 +13619,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_278_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '사람들이 별로 ___ 않아요.',
@@ -13697,7 +13646,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_279_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '거기에 사람이 많아요?' }],
@@ -13729,7 +13678,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_280_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '아키라 씨는 요즘 일이 많지 않아서 여유가 있습니다.',
@@ -13763,7 +13712,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_281_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '그 책은 어렵지 않아요.',
@@ -13789,7 +13738,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_282_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '저는 공부하면서 음악을 ___ 않아요.',
@@ -13816,7 +13765,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_283_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '공부할 때 하지 않는 것은 무엇입니까?',
@@ -13850,7 +13799,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_284_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '매운 음식을 좋아하지 않는다고 말하기',
@@ -13881,7 +13830,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_285_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '어제는 커피를 ___ ___.',
@@ -13907,7 +13856,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_286_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '내일부터도 학교에 늦을 거예요?',
@@ -13942,7 +13891,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_287_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -13972,7 +13921,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_288_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '제 방은 ___ 않고 그 책도 ___ 않아요.',
@@ -13999,7 +13948,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_289_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -14033,7 +13982,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_290_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -14060,7 +14009,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_291_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어제 학교에 갔어요?' }],
@@ -14092,7 +14041,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_292_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 아파서 가지 못했어요.',
@@ -14118,7 +14067,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_293_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 점심 먹었어요?\nB: 아니요, 시간이 없어서 ___ ___.',
@@ -14145,7 +14094,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_294_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '시간이 없어서 먹지 못했어요.',
@@ -14170,7 +14119,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_295_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '오늘 배운 문법 다 이해했어요?' }],
@@ -14202,7 +14151,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_296_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '문법이 너무 어려워서 전부 이해할 수 없었습니다.',
@@ -14236,7 +14185,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_297_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어려워서 다 이해하지 못했어요.',
@@ -14262,7 +14211,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_298_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -14290,7 +14239,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_299_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '왜 선생님을 만나지 못했습니까?',
@@ -14329,7 +14278,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_300_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '음악이 너무 ___ 샤오밍 씨의 말을 ___ 못했어요.',
@@ -14355,7 +14304,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_301_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '조금 전에 샤오밍 씨가 하는 말 들었어요?',
@@ -14390,7 +14339,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_302_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -14421,7 +14370,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_303_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '아파서 학교에 가지 못했다고 말하기',
@@ -14452,7 +14401,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_304_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -14480,7 +14429,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_305_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '음악 때문에 하지 못한 것은 무엇입니까?',
@@ -14519,7 +14468,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_306_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -14559,7 +14508,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_307_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '김치',
@@ -14590,7 +14539,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_308_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '김치가 많이 매워요?' }],
@@ -14622,7 +14571,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_309_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 별로 맵지 않아요.',
@@ -14648,7 +14597,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_310_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 지하철에 사람이 많아요?\nB: 아니요, 별로 ___ 않아요.',
@@ -14675,7 +14624,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_311_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '지하철 상황에 가장 알맞은 대답은 무엇입니까?',
@@ -14713,7 +14662,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_312_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '지금 배고파요?' }],
@@ -14745,7 +14694,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_313_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 별로 배고프지 않아요.',
@@ -14771,7 +14720,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_314_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 요즘 날씨가 추워요?\nB: 아니요, 별로 ___ 않아요.',
@@ -14798,7 +14747,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_315_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '요즘 날씨가 별로 춥지 않아요.',
@@ -14823,7 +14772,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_316_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어제 시험은 어려웠어요?' }],
@@ -14855,7 +14804,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_317_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '어제 시험은 생각보다 쉬운 편이었습니다.',
@@ -14889,18 +14838,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_318_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '어제 공부 많이 했어요?',
-    options: [
-      '못했어요',
-      '별로',
-      '많이',
-      '않았어요',
-      '아니요',
-      '하지',
-    ],
+    options: ['못했어요', '별로', '많이', '않았어요', '아니요', '하지'],
     answer: '아니요 별로 많이 하지 않았어요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -14923,7 +14865,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_319_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '다음 중 어제 일에 대한 대답은 무엇입니까?',
@@ -14962,7 +14904,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_320_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -14990,7 +14932,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_321_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어제 중간시험 어려웠어요?' }],
@@ -15022,7 +14964,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_322_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -15052,7 +14994,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_323_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -15086,7 +15028,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_324_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '내일 이후의 계획을 말하는 문장은 무엇입니까?',
@@ -15124,7 +15066,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_325_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '아키라 씨 요즘 바빠요?' }],
@@ -15156,7 +15098,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_326_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아키라 씨는 요즘 바쁘지 않아요. 그래서 자주 만나요.',
@@ -15182,7 +15124,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_327_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제는 커피를 ___ ___.',
@@ -15209,7 +15151,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_328_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['내일부터', '학교에', '늦지', '않을', '거예요', '않았어요'],
@@ -15235,7 +15177,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_329_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '내일부터 학교에 늦지 않을 거예요.',
@@ -15260,7 +15202,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_330_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '방이 커요?',
@@ -15287,7 +15229,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_331_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '매운 음식은 제 취향이 아닙니다.',
@@ -15321,7 +15263,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_332_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '계획과 달리 행동을 할 수 없었던 것은 무엇입니까?',
@@ -15360,7 +15302,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_333_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '샤오밍 씨 말 들었어요?' }],
@@ -15392,7 +15334,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_334_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate:
@@ -15419,7 +15361,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_335_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '사람들이 별로 많지 않다고 말하기',
@@ -15450,7 +15392,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_336_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -15481,7 +15423,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_337_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate:
@@ -15509,7 +15451,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_338_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '그 책은 어렵지 않지만 오늘 배운 문법은 다 이해하지 못했어요.',
@@ -15537,7 +15479,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_339_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 예문에서 “하지 못한 행동”인 것은 무엇입니까?',
@@ -15576,7 +15518,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_340_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -15661,7 +15603,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_341_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '수영 자주 하세요?' }],
@@ -15693,7 +15635,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_342_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 저는 수영하는 것을 좋아해요.',
@@ -15719,7 +15661,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_343_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 등산 자주 하세요?\nB: 네, 저는 ___ 좋아해요.',
@@ -15752,7 +15694,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_344_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['저는', '등산하는', '것을', '좋아해요', '영화를', '못해요'],
@@ -15778,7 +15720,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_345_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '네, 저는 등산하는 것을 좋아해요.',
@@ -15803,7 +15745,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_346_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '영화 자주 보세요?' }],
@@ -15838,7 +15780,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_347_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 저는 영화 보는 것을 좋아해요.',
@@ -15867,19 +15809,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_348_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '영화 자주 보세요?',
-    options: [
-      '저는',
-      '좋아해요',
-      '네',
-      '것을',
-      '영화',
-      '보는',
-      '알아요',
-    ],
+    options: ['저는', '좋아해요', '네', '것을', '영화', '보는', '알아요'],
     answer: '네 저는 영화 보는 것을 좋아해요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -15902,7 +15836,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_349_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 여행 자주 하세요?\nB: 네, 저는 ___ 좋아해요.',
@@ -15935,7 +15869,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_350_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '여행을 자주 하고 여행 자체를 좋아합니다.',
@@ -15969,7 +15903,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_351_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네, 저는 여행하는 것을 좋아해요.',
@@ -15995,7 +15929,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_352_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '음악 자주 들으세요?' }],
@@ -16030,7 +15964,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_353_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '네, 저는 음악 듣는 것을 좋아해요.',
@@ -16058,7 +15992,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_354_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '나는 음악 듣는 것을 좋아해요',
@@ -16089,7 +16023,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_355_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 1에 나오지 않는 활동은 무엇입니까?',
@@ -16123,7 +16057,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_356_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -16154,7 +16088,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_357_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage: '저는 취미가 많아요. ___ 좋아하고, ___ 좋아하고, ___ 좋아해요.',
@@ -16193,7 +16127,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_358_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '운전을 할 줄 알아요?' }],
@@ -16228,7 +16162,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_359_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '운전을 할 줄 알지만 잘 못해요.',
@@ -16254,7 +16188,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_360_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '스키를 ___ 알지만 잘 못해요.',
@@ -16281,18 +16215,10 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_361_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
-    options: [
-      '잘',
-      '알지만',
-      '스키를',
-      '칠',
-      '줄',
-      '탈',
-      '못해요',
-    ],
+    options: ['잘', '알지만', '스키를', '칠', '줄', '탈', '못해요'],
     answer: '스키를 탈 줄 알지만 잘 못해요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -16315,7 +16241,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_362_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '스키를 탈 줄 알지만 잘 못해요.',
@@ -16340,7 +16266,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_363_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '피아노를 칠 줄 알아요?' }],
@@ -16372,7 +16298,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_364_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '피아노를 칠 줄 알지만 잘 못해요.',
@@ -16398,19 +16324,11 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_365_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '피아노를 칠 줄 알아요?',
-    options: [
-      '탈',
-      '잘',
-      '네',
-      '칠',
-      '줄',
-      '알지만',
-      '못해요',
-    ],
+    options: ['탈', '잘', '네', '칠', '줄', '알지만', '못해요'],
     answer: '네 칠 줄 알지만 잘 못해요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -16433,7 +16351,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_366_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '스페인어를 ___ 알지만 잘 못해요.',
@@ -16460,7 +16378,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_367_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '스페인어를 하는 방법은 알지만 능숙하지 않습니다.',
@@ -16494,7 +16412,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_368_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '스페인어를 ___ 알지만 ___ 못해요.',
@@ -16520,7 +16438,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_369_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '한국 음식을 만들 줄 알아요?' }],
@@ -16552,7 +16470,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_370_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '한국 음식을 만들 줄 알지만 잘 못해요.',
@@ -16578,7 +16496,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_371_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '한국 음식을 만들 줄 알지만 잘 못해요',
@@ -16586,15 +16504,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
       en: 'I know how to make Korean food, but I am not very good at it',
       ru: 'Я умею готовить корейскую еду, но не очень хорошо',
     },
-    options: [
-      '음식을',
-      '만들',
-      '잘',
-      '한국',
-      '알지만',
-      '못해요',
-      '줄',
-    ],
+    options: ['음식을', '만들', '잘', '한국', '알지만', '못해요', '줄'],
     answer: '한국 음식을 만들 줄 알지만 잘 못해요',
     acceptedAnswers: [],
     answerTranslation: {
@@ -16617,7 +16527,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_372_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 2에서 “타다”와 연결되는 것은 무엇입니까?',
@@ -16651,7 +16561,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_373_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -16682,7 +16592,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_374_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -16716,7 +16626,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_375_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '주말에 ___ 영화 어땠어요?',
@@ -16743,7 +16653,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_376_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '주말에 본 영화 어땠어요?',
@@ -16769,7 +16679,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_377_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['주말에', '본', '영화', '어땠어요', '들은', '수업'],
@@ -16795,7 +16705,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_378_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '주말에 본 영화 어땠어요?',
@@ -16820,7 +16730,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_379_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제 ___ 콘서트 어땠어요?',
@@ -16847,7 +16757,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_380_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어제 콘서트에 다녀왔어요.' }],
@@ -16879,7 +16789,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_381_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 다녀온 콘서트 어땠어요?',
@@ -16905,7 +16815,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_382_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '정우가 ___ 친구 어땠어요?',
@@ -16938,7 +16848,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_383_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '정우가 친구를 소개해 줬어요.',
@@ -16965,7 +16875,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_384_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '정우가 소개해 준 친구 어땠어요?',
@@ -16990,7 +16900,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_385_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '어제 ___ 책 어땠어요?',
@@ -17017,7 +16927,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_386_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 읽은 책 어땠어요?',
@@ -17043,7 +16953,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_387_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: '아침에 ___ 수업 어땠어요?',
@@ -17070,7 +16980,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_388_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '오늘 아침에 들었던 수업에 대해 묻습니다.',
@@ -17104,7 +17014,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_389_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 3에서 “정우”와 연결된 것은 무엇입니까?',
@@ -17143,7 +17053,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_390_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -17174,7 +17084,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_391_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -17208,7 +17118,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_392_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '한국어가 어려워요?' }],
@@ -17240,7 +17150,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_393_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 어렵지 않아요.',
@@ -17266,7 +17176,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_394_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 김치가 매워요?\nB: 아니요, ___ 않아요.',
@@ -17293,7 +17203,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_395_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.arrange,
     options: ['아니요', '김치가', '맵지', '않아요', '크지', '못해요'],
@@ -17319,7 +17229,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_396_listen_type: {
     type: 'listen_type',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenType,
     answer: '아니요, 김치가 맵지 않아요.',
@@ -17344,7 +17254,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_397_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '옷이 커요?' }],
@@ -17376,7 +17286,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_398_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 크지 않아요.',
@@ -17402,7 +17312,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_399_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentenceTemplate: 'A: 집이 멀어요?\nB: 아니요, ___ 않아요.',
@@ -17429,7 +17339,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_400_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '집이 멀어요?',
@@ -17456,7 +17366,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_401_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '오늘 친구를 만나요?' }],
@@ -17488,7 +17398,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_402_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 오늘 친구를 만나지 않아요.',
@@ -17514,7 +17424,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_403_listen_fill: {
     type: 'listen_fill',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.listenFill,
     sentenceTemplate: '오늘 친구를 ___ ___.',
@@ -17540,7 +17450,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_404_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어제 학교에 갔어요?' }],
@@ -17572,7 +17482,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_405_type_answer: {
     type: 'type_answer',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.type,
     npcText: '어제 학교에 가지 않았습니다.',
@@ -17606,7 +17516,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_406_reading_quiz: {
     type: 'reading_quiz',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: {
       ko: '교재 연습 4에서 과거형으로 대답해야 하는 질문은 무엇입니까?',
@@ -17645,7 +17555,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_407_dialog_order: {
     type: 'dialog_order',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialogOrder,
     dialogLines: [
@@ -17676,7 +17586,7 @@ export const S3_UNIT2_QUESTIONS = withTypedAnswerGrading({
 
   s3u2_408_cloze_passage: {
     type: 'cloze_passage',
-    level: QuestionLevel.LEVEL_3,
+    level: QuestionLevel.LEVEL_2,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.cloze,
     passage:
@@ -17730,7 +17640,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Изучить основные хобби: фильмы, музыка, рисование, фотография, чтение и пианино',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_001_image_choice',
@@ -17766,7 +17676,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Различать названия хобби: фильмы, музыка, рыбалка, походы и чтение',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_018_word_matching',
@@ -17802,7 +17712,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Понимать степень в ситуациях с навыками и расстоянием',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_035_word_matching',
@@ -17838,7 +17748,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Различать интерес и реальный навык и естественно использовать выражения степени',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_052_reading_quiz',
@@ -17888,7 +17798,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Описывать ощущения от учёбы, готовки, запоминания, еды и жизни одному',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_069_fill_in_blank',
@@ -17924,7 +17834,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Говорить о предпочтениях: походы, море, готовка, путешествия, музыка, бейсбол и телевизор',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_086_image_choice',
@@ -17960,7 +17870,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Описывать увиденные действия других: футбол, танцы, рисование, звонки и чтение',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_103_image_choice',
@@ -17996,7 +17906,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Различать действие как объект оценки, предпочтения или наблюдения',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_120_reading_quiz',
@@ -18046,7 +17956,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Спрашивать об умении плавать, играть в теннис и на гитаре, кататься, пользоваться палочками и готовить',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_137_image_choice',
@@ -18082,7 +17992,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Различать умение и реальный уровень навыка',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_154_word_matching',
@@ -18118,7 +18028,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Проводить интервью об умении заниматься тхэквондо, ездить на велосипеде, говорить по-испански, играть в настольный теннис, рыбачить и читать ханча',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_171_word_matching',
@@ -18154,7 +18064,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Понимать и описывать наличие навыка и уровень владения разными действиями',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_188_reading_quiz',
@@ -18204,7 +18114,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Описывать фильмы, еду, фотографии, музыку и торты через завершённые действия',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_205_fill_in_blank',
@@ -18240,7 +18150,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Объединять информацию о друзьях, ресторанах, чае, книгах и кошельках в одно предложение',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_222_reading_quiz',
@@ -18276,7 +18186,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Описывать людей через поездки, транспорт, покупки, домашнюю работу, завтрак и готовку',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_239_word_matching',
@@ -18312,7 +18222,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Использовать завершённые действия для понимания и описания людей и предметов',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_256_reading_quiz',
@@ -18362,7 +18272,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Преобразовывать краткое отрицание в -지 않다 и использовать его в настоящем, прошедшем и будущем',
         },
         category: LessonCategory.EXPRESSION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_273_word_matching',
@@ -18398,7 +18308,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Объяснять действия, которые не удалось выполнить из-за времени, сложности, отсутствия человека или шума',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_290_word_matching',
@@ -18434,7 +18344,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Естественно говорить, что острота, количество людей, голод, холод, сложность или объём учёбы невелики',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_307_image_choice',
@@ -18470,7 +18380,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Различать отрицание в настоящем, прошедшем и будущем и невозможность выполнить действие',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_324_reading_quiz',
@@ -18520,7 +18430,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Повторить любимые занятия на примерах плавания, походов, фильмов, путешествий и музыки',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 1,
         questions: [
           's3u2_341_dialog_complete',
@@ -18556,7 +18466,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Повторить различие между умением и уровнем на примерах вождения, лыж, пианино, испанского и корейской кухни',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 2,
         questions: [
           's3u2_358_dialog_complete',
@@ -18592,7 +18502,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Повторить вопросы о фильмах, концертах, друзьях, книгах и занятиях через прошлые действия',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 3,
         questions: [
           's3u2_375_fill_in_blank',
@@ -18628,7 +18538,7 @@ export const S3_UNIT2_NODES = [
           ru: 'Повторить отрицание настоящего и прошедшего на ситуациях с корейским языком, кимчхи, одеждой, домом, друзьями и школой',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_3,
+        level: QuestionLevel.LEVEL_2,
         order: 4,
         questions: [
           's3u2_392_dialog_complete',

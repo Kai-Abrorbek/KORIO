@@ -68,7 +68,7 @@ const vocabTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.typeAnswer,
   answer,
@@ -89,7 +89,7 @@ const translateBuilder = (
   difficulty = 5,
 ) => ({
   type: 'translate_builder' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction,
   options,
@@ -109,7 +109,7 @@ const wordArrange = (
   difficulty = 5,
 ) => ({
   type: 'word_arrange' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.arrange,
   options,
@@ -130,7 +130,7 @@ const fillBlank = (
   difficulty = 5,
 ) => ({
   type: 'fill_in_blank' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.fillBlank,
   npcText,
@@ -153,7 +153,7 @@ const readingQuiz = (
   difficulty = 5,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   npcText,
   instruction: L(instruction, instruction, instruction, instruction),
@@ -176,7 +176,7 @@ const errorHunt = (
   difficulty = 5,
 ) => ({
   type: 'error_hunt' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.error,
   npcText,
@@ -199,7 +199,7 @@ const clozePassage = (
   difficulty = 5,
 ) => ({
   type: 'cloze_passage' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.cloze,
   npcText,
@@ -237,7 +237,7 @@ const grammarTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -285,7 +285,7 @@ const grammarReadingQuiz = (
   difficulty = 5,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.reading,
   npcText,
@@ -342,7 +342,7 @@ const purposeTypeAnswer = (
   acceptedAnswers: string[] = [],
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -408,7 +408,7 @@ const passiveTypeAnswer = (
   acceptedAnswers: string[] = [],
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -440,7 +440,7 @@ const contrastTypeAnswer = (
   acceptedAnswers: string[] = [],
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -472,7 +472,7 @@ const topicTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -10623,7 +10623,7 @@ export const S5_UNIT9_NODES = [
           'Различаем даты и значения Дня детей, Дня родителей, Дня учителя, Дня хангыля и Дня труда',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u9_001_reading_quiz',
@@ -10662,7 +10662,7 @@ export const S5_UNIT9_NODES = [
           'Связываем исторические памятные дни с независимостью, объединением, основанием государства и памятью',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u9_021_reading_quiz',
@@ -10701,7 +10701,7 @@ export const S5_UNIT9_NODES = [
           'Используем лексику церемоний, посадки деревьев, флагов, цветов, шествий, фейерверков и минуты молчания',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u9_041_reading_quiz',
@@ -10740,7 +10740,7 @@ export const S5_UNIT9_NODES = [
           'Используем дополнительную лексику для объяснения причины, атмосферы и исторического смысла памятных дней',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u9_061_reading_quiz',
@@ -10779,7 +10779,7 @@ export const S5_UNIT9_NODES = [
           'Объединяем даты, причины и мероприятия, чтобы рассказывать о Дне хангыля и других памятных днях',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u9_081_reading_quiz',
@@ -10838,7 +10838,7 @@ export const S5_UNIT9_NODES = [
           'Используем N을/를 위해 для обозначения человека, группы или цели, ради которой совершается действие',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u9_101_reading_quiz',
@@ -10877,7 +10877,7 @@ export const S5_UNIT9_NODES = [
           'Используем V-기 위해 для целей: отметить, рассказать, защитить, помнить и т. д.',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u9_121_reading_quiz',
@@ -10916,7 +10916,7 @@ export const S5_UNIT9_NODES = [
           'Связываем типичные действия в памятные дни с их реальными целями',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u9_141_reading_quiz',
@@ -10955,7 +10955,7 @@ export const S5_UNIT9_NODES = [
           'Различаем действия ради получателя пользы и действия ради конкретной глагольной цели',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u9_161_reading_quiz',
@@ -10994,7 +10994,7 @@ export const S5_UNIT9_NODES = [
           'Используем выражения цели, чтобы объяснять смысл действий в День хангыля, День освобождения и День памяти',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u9_181_reading_quiz',
@@ -11053,7 +11053,7 @@ export const S5_UNIT9_NODES = [
           'Изучаем основное значение пассива через 만들어지다, 세워지다, 지어지다 и 알려지다',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u9_201_reading_quiz',
@@ -11092,7 +11092,7 @@ export const S5_UNIT9_NODES = [
           'Используем пассивные формы, когда важнее объект или результат, а не деятель',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u9_221_reading_quiz',
@@ -11131,7 +11131,7 @@ export const S5_UNIT9_NODES = [
           'Используем пассивные формы для описания решений, распространения информации, соблюдения правил и проведения мероприятий',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u9_241_reading_quiz',
@@ -11170,7 +11170,7 @@ export const S5_UNIT9_NODES = [
           'Различаем пассивное V-아지다/어지다 и изменение состояния A-아지다/어지다, а также актив и пассив',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u9_261_reading_quiz',
@@ -11209,7 +11209,7 @@ export const S5_UNIT9_NODES = [
           'Объединяем пассивные формы для описания создания хангыля, распространения его ценности и проведения мероприятий',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u9_281_reading_quiz',
@@ -11268,7 +11268,7 @@ export const S5_UNIT9_NODES = [
           'Используем V-는데도 불구하고 для противопоставления действия или события неожиданному результату',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u9_301_reading_quiz',
@@ -11307,7 +11307,7 @@ export const S5_UNIT9_NODES = [
           'Изучаем A-(으)ㄴ데도 불구하고 и противопоставляем неблагоприятное состояние неожиданному результату',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u9_321_reading_quiz',
@@ -11346,7 +11346,7 @@ export const S5_UNIT9_NODES = [
           'Используем N인데도 불구하고 для противопоставления условий, выраженных существительными, реальной ситуации',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u9_341_reading_quiz',
@@ -11385,7 +11385,7 @@ export const S5_UNIT9_NODES = [
           'Понимаем общее значение противопоставления и различаем случаи, когда 불구하고 делает его более явным',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u9_361_reading_quiz',
@@ -11424,7 +11424,7 @@ export const S5_UNIT9_NODES = [
           'Объединяем лексику памятных дней, выражение цели и пассив с новой грамматикой противопоставления',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u9_381_reading_quiz',

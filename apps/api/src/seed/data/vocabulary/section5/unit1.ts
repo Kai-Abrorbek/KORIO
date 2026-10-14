@@ -331,7 +331,7 @@ const base = (
   hint: S5I18nText = H.context,
   xpReward = 25,
 ) => ({
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory,
   acceptedAnswers: [],
   answerTranslation,
@@ -14791,7 +14791,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать назначение церемонии поступления, ориентации, встречи новых студентов, фестиваля и выпускной церемонии',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u1_001_reading_quiz',
@@ -14830,7 +14830,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Находить в объявлениях дату, время, место, актовый зал и парковку и использовать эту информацию при выборе мероприятия',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u1_021_reading_quiz',
@@ -14869,7 +14869,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать мероприятия, в которых участвуют, и мероприятия, которые смотрят, используя лексику конкурсов, концертов и призов',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u1_041_reading_quiz',
@@ -14908,7 +14908,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Связывать лексику новых студентов, старшекурсников, клубов, встреч и возможностей в реальных университетских ситуациях',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u1_061_reading_quiz',
@@ -14947,7 +14947,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Объединить лексику мероприятий, объявлений, конкурсов и клубов, чтобы сравнивать варианты и обосновывать выбор',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u1_081_reading_quiz',
@@ -15000,7 +15000,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать лекцию, предмет и специальность и подробно рассказывать о своей учёбе в этом семестре',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u1_101_reading_quiz',
@@ -15039,7 +15039,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Использовать лексику регистрации на курсы и выбирать философские и языковые занятия с учётом расписания и интересов',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u1_121_reading_quiz',
@@ -15078,7 +15078,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать оценки за экзамены и академические кредиты и одновременно учитывать предметы и требования для выпуска',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u1_141_reading_quiz',
@@ -15117,7 +15117,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Связать подачу заявления, регистрацию, успешный отбор и стипендию с реальными университетскими требованиями',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u1_161_reading_quiz',
@@ -15156,7 +15156,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Объединить требования специальности, регистрацию, оценки, кредиты, стипендию и личные интересы для реального учебного плана',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u1_181_reading_quiz',
@@ -15209,7 +15209,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать лексику въезда, регистрации иностранца, регистрационной карты и иммиграционной службы в реальных ситуациях',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u1_201_reading_quiz',
@@ -15248,7 +15248,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать жильё, общежитие и агентство недвижимости и составлять реальный план проживания',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u1_221_reading_quiz',
@@ -15287,7 +15287,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Использовать лексику транспортной карты, пересадки и скидки в реальных поездках на автобусе и метро',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u1_241_reading_quiz',
@@ -15326,7 +15326,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать перерабатываемый, пищевой и обычный мусор и правильно использовать соответствующую лексику',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u1_261_reading_quiz',
@@ -15365,7 +15365,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Объединить информацию о въезде, регистрации, жилье, транспорте и сортировке мусора для реальных ситуаций иностранного студента',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u1_281_reading_quiz',
@@ -15418,7 +15418,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Определять личные приоритеты между учёбой, путешествиями, подработкой, клубами, волонтёрством и общением',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u1_301_reading_quiz',
@@ -15457,7 +15457,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать оплачиваемую подработку и волонтёрство по цели, оплате и ситуации',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u1_321_reading_quiz',
@@ -15496,7 +15496,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать вступление в клуб и участие в его деятельности и использовать клубы для знакомств и адаптации',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u1_341_reading_quiz',
@@ -15535,7 +15535,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Различать просмотр и непосредственное участие в университетском фестивале и обсуждать прошлый опыт и будущие планы',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u1_361_reading_quiz',
@@ -15574,7 +15574,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Оценивать удовлетворённость университетской жизнью через баланс учёбы, работы, друзей, клубов и волонтёрства и предлагать улучшения',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u1_381_reading_quiz',
@@ -15627,7 +15627,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Готовить вопросы и точно получать информацию, необходимую для представления друга',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u1_401_reading_quiz',
@@ -15666,7 +15666,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Отделять подтверждённые факты от предположений и организовывать нужную информацию по темам',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u1_421_reading_quiz',
@@ -15705,7 +15705,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Связывать специальность, интересы и университетскую деятельность в естественное представление человека',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u1_441_reading_quiz',
@@ -15744,7 +15744,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Применять корейские формы обращения в университетских ситуациях и различать старших и младших',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u1_461_reading_quiz',
@@ -15783,7 +15783,7 @@ export const S5_UNIT1_NODES = [
           ru: 'Объединить вопросы, ответы, обработку информации, представление человека и формы обращения в одной практической задаче',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u1_481_reading_quiz',

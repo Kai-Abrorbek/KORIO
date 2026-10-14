@@ -68,7 +68,7 @@ const vocabTypeAnswer = (
   difficulty = 4,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.typeAnswer,
   answer,
@@ -89,7 +89,7 @@ const translateBuilder = (
   difficulty = 4,
 ) => ({
   type: 'translate_builder' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction,
   options,
@@ -109,7 +109,7 @@ const wordArrange = (
   difficulty = 4,
 ) => ({
   type: 'word_arrange' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.arrange,
   options,
@@ -130,7 +130,7 @@ const fillBlank = (
   difficulty = 4,
 ) => ({
   type: 'fill_in_blank' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.fillBlank,
   sentenceTemplate,
@@ -153,7 +153,7 @@ const readingQuiz = (
   difficulty = 4,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.reading,
   passage,
@@ -177,7 +177,7 @@ const errorHunt = (
   difficulty = 4,
 ) => ({
   type: 'error_hunt' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.error,
   npcText,
@@ -200,7 +200,7 @@ const clozePassage = (
   difficulty = 5,
 ) => ({
   type: 'cloze_passage' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.cloze,
   passage,
@@ -223,7 +223,7 @@ const grammarTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -281,7 +281,7 @@ const grammarReadingQuiz = (
   difficulty = 5,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.reading,
   npcText,
@@ -1242,14 +1242,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The TV is making a strange noise.',
       'Телевизор издаёт странный звук.',
     ),
-    [
-      '이상한',
-      '소리가',
-      '화면이',
-      '나요',
-      '텔레비전에서',
-      '꺼져요',
-    ],
+    ['이상한', '소리가', '화면이', '나요', '텔레비전에서', '꺼져요'],
     '텔레비전에서 이상한 소리가 나요',
     L(
       '텔레비전에서 이상한 소리가 나요.',
@@ -1325,13 +1318,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The vegetables froze in the fridge.',
       'Овощи в холодильнике замёрзли.',
     ),
-    [
-      '녹았어요',
-      '냉장고에서',
-      '채소가',
-      '얼었어요',
-      '세탁기에서',
-    ],
+    ['녹았어요', '냉장고에서', '채소가', '얼었어요', '세탁기에서'],
     '냉장고에서 채소가 얼었어요',
     L(
       '냉장고에서 채소가 얼었어요.',
@@ -1393,13 +1380,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The paper got jammed in the copier.',
       'В копировальном аппарате застряла бумага.',
     ),
-    [
-      '빠졌어요',
-      '복사기에',
-      '종이가',
-      '걸렸어요',
-      '전화가',
-    ],
+    ['빠졌어요', '복사기에', '종이가', '걸렸어요', '전화가'],
     '복사기에 종이가 걸렸어요',
     L(
       '복사기에 종이가 걸렸어요.',
@@ -1475,15 +1456,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The washing machine runs, but it won’t spin-dry.',
       'Стиральная машина работает, но не отжимает.',
     ),
-    [
-      '탈수가',
-      '멈춰요',
-      '돼요',
-      '돌아가서',
-      '안',
-      '세탁기는',
-      '돌아가는데',
-    ],
+    ['탈수가', '멈춰요', '돼요', '돌아가서', '안', '세탁기는', '돌아가는데'],
     '세탁기는 돌아가는데 탈수가 안 돼요',
     L(
       '세탁기는 돌아가는데 탈수가 안 돼요.',
@@ -1585,13 +1558,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I spilled a drink on my laptop.',
       'Я пролил напиток на ноутбук.',
     ),
-    [
-      '음료수를',
-      '휴대폰에',
-      '쏟았어요',
-      '노트북에',
-      '떨어뜨렸어요',
-    ],
+    ['음료수를', '휴대폰에', '쏟았어요', '노트북에', '떨어뜨렸어요'],
     '노트북에 음료수를 쏟았어요',
     L(
       '노트북에 음료수를 쏟았어요.',
@@ -1740,15 +1707,7 @@ export const S5_UNIT7_QUESTIONS = {
       'A lot of dust has built up inside the computer.',
       'Внутри компьютера скопилось много пыли.',
     ),
-    [
-      '많이',
-      '물이',
-      '꼈어요',
-      '안에',
-      '빠졌어요',
-      '컴퓨터',
-      '먼지가',
-    ],
+    ['많이', '물이', '꼈어요', '안에', '빠졌어요', '컴퓨터', '먼지가'],
     '컴퓨터 안에 먼지가 많이 꼈어요',
     L(
       '컴퓨터 안에 먼지가 많이 꼈어요.',
@@ -1943,15 +1902,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The plug was out, so I plugged it back in.',
       'Вилка выпала, и я вставил её обратно.',
     ),
-    [
-      '뺐어요',
-      '있어서',
-      '플러그가',
-      '다시',
-      '빠져',
-      '걸려',
-      '꽂았어요',
-    ],
+    ['뺐어요', '있어서', '플러그가', '다시', '빠져', '걸려', '꽂았어요'],
     '플러그가 빠져 있어서 다시 꽂았어요',
     L(
       '플러그가 빠져 있어서 다시 꽂았어요.',
@@ -2028,14 +1979,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Unplug it before cleaning.',
       'Перед чисткой выньте вилку из розетки.',
     ),
-    [
-      '빼세요',
-      '플러그를',
-      '전에',
-      '꽂으세요',
-      '청소하기',
-      '후에',
-    ],
+    ['빼세요', '플러그를', '전에', '꽂으세요', '청소하기', '후에'],
     '청소하기 전에 플러그를 빼세요',
     L(
       '청소하기 전에 플러그를 빼세요.',
@@ -2097,15 +2041,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Water is leaking, so turn off the tap first.',
       'Течёт вода, сначала перекройте кран.',
     ),
-    [
-      '새니까',
-      '잠그세요',
-      '트세요',
-      '먼저',
-      '수돗물을',
-      '나중에',
-      '물이',
-    ],
+    ['새니까', '잠그세요', '트세요', '먼저', '수돗물을', '나중에', '물이'],
     '물이 새니까 먼저 수돗물을 잠그세요',
     L(
       '물이 새니까 먼저 수돗물을 잠그세요.',
@@ -2189,15 +2125,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Try turning it off and on again.',
       'Попробуйте выключить и снова включить.',
     ),
-    [
-      '전원을',
-      '보세요',
-      '껐다가',
-      '끄세요',
-      '플러그를',
-      '켜',
-      '다시',
-    ],
+    ['전원을', '보세요', '껐다가', '끄세요', '플러그를', '켜', '다시'],
     '전원을 껐다가 다시 켜 보세요',
     L(
       '전원을 껐다가 다시 켜 보세요.',
@@ -2300,14 +2228,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I took my phone to the repair center.',
       'Я отнёс телефон в сервисный центр.',
     ),
-    [
-      '휴대폰을',
-      '버렸어요',
-      '센터에',
-      '수리',
-      '가져갔어요',
-      '카메라를',
-    ],
+    ['휴대폰을', '버렸어요', '센터에', '수리', '가져갔어요', '카메라를'],
     '휴대폰을 수리 센터에 가져갔어요',
     L(
       '휴대폰을 수리 센터에 가져갔어요.',
@@ -2746,15 +2667,7 @@ export const S5_UNIT7_QUESTIONS = {
       'The problem kept happening, so I requested a repair.',
       'Проблема не исчезала, и я подал заявку на ремонт.',
     ),
-    [
-      '해결돼서',
-      '계속돼서',
-      '수리',
-      '신청을',
-      '문제가',
-      '했어요',
-      '취소를',
-    ],
+    ['해결돼서', '계속돼서', '수리', '신청을', '문제가', '했어요', '취소를'],
     '문제가 계속돼서 수리 신청을 했어요',
     L(
       '문제가 계속돼서 수리 신청을 했어요.',
@@ -3038,14 +2951,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I turned it off and then on again.',
       'Я выключил и снова включил.',
     ),
-    [
-      '켰어요',
-      '껐어요',
-      '껐다가',
-      '전원을',
-      '플러그를',
-      '다시',
-    ],
+    ['켰어요', '껐어요', '껐다가', '전원을', '플러그를', '다시'],
     '전원을 껐다가 다시 켰어요',
     L(
       '전원을 껐다가 다시 켰어요.',
@@ -3122,14 +3028,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I unplugged it and then plugged it back in.',
       'Я вынул вилку и снова вставил.',
     ),
-    [
-      '전원을',
-      '꽂았어요',
-      '뺐다가',
-      '뺐어요',
-      '플러그를',
-      '다시',
-    ],
+    ['전원을', '꽂았어요', '뺐다가', '뺐어요', '플러그를', '다시'],
     '플러그를 뺐다가 다시 꽂았어요',
     L(
       '플러그를 뺐다가 다시 꽂았어요.',
@@ -3192,14 +3091,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I turned off the tap and then turned it on again.',
       'Я закрыл кран и снова открыл.',
     ),
-    [
-      '플러그를',
-      '다시',
-      '틀었어요',
-      '잠갔다가',
-      '수돗물을',
-      '잠갔어요',
-    ],
+    ['플러그를', '다시', '틀었어요', '잠갔다가', '수돗물을', '잠갔어요'],
     '수돗물을 잠갔다가 다시 틀었어요',
     L(
       '수돗물을 잠갔다가 다시 틀었어요.',
@@ -3282,14 +3174,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I started the engine, then turned it off again.',
       'Я завёл двигатель, а потом снова заглушил.',
     ),
-    [
-      '시동을',
-      '켰어요',
-      '다시',
-      '껐어요',
-      '풀었다가',
-      '걸었다가',
-    ],
+    ['시동을', '켰어요', '다시', '껐어요', '풀었다가', '걸었다가'],
     '시동을 걸었다가 다시 껐어요',
     L(
       '시동을 걸었다가 다시 껐어요.',
@@ -3391,15 +3276,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I turned the copier off and on again.',
       'Я выключил и снова включил копир.',
     ),
-    [
-      '켰어요',
-      '전원을',
-      '껐어요',
-      '다시',
-      '껐다가',
-      '켰다가',
-      '복사기',
-    ],
+    ['켰어요', '전원을', '껐어요', '다시', '껐다가', '켰다가', '복사기'],
     '복사기 전원을 껐다가 다시 켰어요',
     L(
       '복사기 전원을 껐다가 다시 켰어요.',
@@ -3476,14 +3353,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I turned on the tap and then turned it off again.',
       'Я открыл кран и снова закрыл.',
     ),
-    [
-      '수돗물을',
-      '다시',
-      '잠갔어요',
-      '틀었다가',
-      '틀었어요',
-      '잠갔다가',
-    ],
+    ['수돗물을', '다시', '잠갔어요', '틀었다가', '틀었어요', '잠갔다가'],
     '수돗물을 틀었다가 다시 잠갔어요',
     L(
       '수돗물을 틀었다가 다시 잠갔어요.',
@@ -3750,14 +3620,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Try turning the power off and on again.',
       'Попробуйте выключить питание и снова включить.',
     ),
-    [
-      '보세요',
-      '껐다가',
-      '꺼',
-      '전원을',
-      '켜',
-      '다시',
-    ],
+    ['보세요', '껐다가', '꺼', '전원을', '켜', '다시'],
     '전원을 껐다가 다시 켜 보세요',
     L(
       '전원을 껐다가 다시 켜 보세요.',
@@ -4116,14 +3979,7 @@ export const S5_UNIT7_QUESTIONS = {
       'I dropped my phone and the screen broke.',
       'Я уронил телефон, и экран разбился.',
     ),
-    [
-      '액정이',
-      '소리가',
-      '떨어뜨렸다가',
-      '휴대폰을',
-      '쏟았다가',
-      '나갔어요',
-    ],
+    ['액정이', '소리가', '떨어뜨렸다가', '휴대폰을', '쏟았다가', '나갔어요'],
     '휴대폰을 떨어뜨렸다가 액정이 나갔어요',
     L(
       '휴대폰을 떨어뜨렸다가 액정이 나갔어요.',
@@ -5237,15 +5093,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though it’s a new product, it breaks down often.',
       'Хотя это новый товар, он часто ломается.',
     ),
-    [
-      '나요',
-      '제품인데도',
-      '안',
-      '오래된',
-      '새',
-      '고장이',
-      '자주',
-    ],
+    ['나요', '제품인데도', '안', '오래된', '새', '고장이', '자주'],
     '새 제품인데도 고장이 자주 나요',
     L(
       '새 제품인데도 고장이 자주 나요.',
@@ -5324,15 +5172,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though repairs are expensive, I have no choice but to fix it.',
       'Хоть ремонт дорогой, придётся чинить.',
     ),
-    [
-      '수리비가',
-      '고칠',
-      '싸서',
-      '버릴',
-      '비싼데도',
-      '수밖에',
-      '없어요',
-    ],
+    ['수리비가', '고칠', '싸서', '버릴', '비싼데도', '수밖에', '없어요'],
     '수리비가 비싼데도 고칠 수밖에 없어요',
     L(
       '수리비가 비싼데도 고칠 수밖에 없어요.',
@@ -5691,15 +5531,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though I plugged it in, it won’t turn on.',
       'Хотя я вставил вилку, он не включается.',
     ),
-    [
-      '플러그를',
-      '꺼져요',
-      '뺐는데도',
-      '안',
-      '전원이',
-      '켜져요',
-      '꽂았는데도',
-    ],
+    ['플러그를', '꺼져요', '뺐는데도', '안', '전원이', '켜져요', '꽂았는데도'],
     '플러그를 꽂았는데도 전원이 안 켜져요',
     L(
       '플러그를 꽂았는데도 전원이 안 켜져요.',
@@ -5764,14 +5596,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though I called again, it keeps cutting out.',
       'Хотя я перезвонил, связь всё время обрывается.',
     ),
-    [
-      '계속',
-      '다시',
-      '연결돼요',
-      '끊겨요',
-      '전화해서',
-      '전화했는데도',
-    ],
+    ['계속', '다시', '연결돼요', '끊겨요', '전화해서', '전화했는데도'],
     '다시 전화했는데도 계속 끊겨요',
     L(
       '다시 전화했는데도 계속 끊겨요.',
@@ -6341,15 +6166,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though it was fixed last week, it broke again.',
       'Хотя его чинили на прошлой неделе, он снова сломался.',
     ),
-    [
-      '고장',
-      '났어요',
-      '또',
-      '고쳐서',
-      '지난주에',
-      '고쳤는데도',
-      '작동해요',
-    ],
+    ['고장', '났어요', '또', '고쳐서', '지난주에', '고쳤는데도', '작동해요'],
     '지난주에 고쳤는데도 또 고장 났어요',
     L(
       '지난주에 고쳤는데도 또 고장 났어요.',
@@ -6596,15 +6413,7 @@ export const S5_UNIT7_QUESTIONS = {
       'Even though it’s a new product, problems keep happening.',
       'Хоть товар новый, постоянно возникают проблемы.',
     ),
-    [
-      '없어요',
-      '새',
-      '문제가',
-      '오래된',
-      '자꾸',
-      '생겨요',
-      '제품인데도',
-    ],
+    ['없어요', '새', '문제가', '오래된', '자꾸', '생겨요', '제품인데도'],
     '새 제품인데도 자꾸 문제가 생겨요',
     L(
       '새 제품인데도 자꾸 문제가 생겨요.',
@@ -10596,7 +10405,7 @@ export const S5_UNIT7_NODES = [
           'Различаем корейские выражения для типичных неисправностей',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u7_001_reading_quiz',
@@ -10635,7 +10444,7 @@ export const S5_UNIT7_NODES = [
           'Различаем падение, воду, пролитую жидкость и пыль и связываем причины с поломками',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u7_021_reading_quiz',
@@ -10674,7 +10483,7 @@ export const S5_UNIT7_NODES = [
           'Правильно используем выражения для питания, вилок, крана и двигателя',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u7_041_reading_quiz',
@@ -10713,7 +10522,7 @@ export const S5_UNIT7_NODES = [
           'Связываем описание неисправности с сервисным центром, мастером, заявкой, заменой и инструкцией',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u7_061_reading_quiz',
@@ -10752,7 +10561,7 @@ export const S5_UNIT7_NODES = [
           'Описываем симптомы и причины, выполняем базовую проверку и передаём точную информацию при обращении в сервис',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u7_081_reading_quiz',
@@ -10811,7 +10620,7 @@ export const S5_UNIT7_NODES = [
           'Изучаем форму V-았다가/었다가 и основное значение изменения после действия',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u7_101_reading_quiz',
@@ -10850,7 +10659,7 @@ export const S5_UNIT7_NODES = [
           'Связываем противоположные действия: включить/выключить, вставить/вынуть, открыть/закрыть',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u7_121_reading_quiz',
@@ -10889,7 +10698,7 @@ export const S5_UNIT7_NODES = [
           'Используем V-았다가/었다가 в практических инструкциях по проверке питания, вилки и воды',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u7_141_reading_quiz',
@@ -10928,7 +10737,7 @@ export const S5_UNIT7_NODES = [
           'Описываем неожиданные неисправности или изменения после предыдущего действия',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u7_161_reading_quiz',
@@ -10967,7 +10776,7 @@ export const S5_UNIT7_NODES = [
           'Связываем симптомы, предпринятые действия и результат с V-았다가/었다가 для точного объяснения мастеру',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u7_181_reading_quiz',
@@ -11026,7 +10835,7 @@ export const S5_UNIT7_NODES = [
           'Используем V-는데도 для противопоставления выполненного действия и неожиданного результата',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u7_201_reading_quiz',
@@ -11065,7 +10874,7 @@ export const S5_UNIT7_NODES = [
           'Различаем A-(으)ㄴ데도 и N인데도 при описании состояния, стоимости и роли специалиста',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u7_221_reading_quiz',
@@ -11104,7 +10913,7 @@ export const S5_UNIT7_NODES = [
           'Используем V-는데도 после продолжающихся действий для описания сохраняющейся проблемы',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u7_241_reading_quiz',
@@ -11143,7 +10952,7 @@ export const S5_UNIT7_NODES = [
           'Описываем ситуации, когда проверка питания, вилки, воды, бумаги и замена деталей не решили проблему',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u7_261_reading_quiz',
@@ -11182,7 +10991,7 @@ export const S5_UNIT7_NODES = [
           'Объединяем состояние устройства, историю ремонта, предпринятые действия и текущие симптомы с помощью всех трёх форм',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u7_281_reading_quiz',
@@ -11241,7 +11050,7 @@ export const S5_UNIT7_NODES = [
           'Изучаем основное употребление A/V-더니 для изменения или результата после наблюдаемого состояния или действия',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u7_301_reading_quiz',
@@ -11280,7 +11089,7 @@ export const S5_UNIT7_NODES = [
           'Используем -더니 с прилагательными и глаголами состояния для сравнения прошлого и текущего состояния',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u7_321_reading_quiz',
@@ -11319,7 +11128,7 @@ export const S5_UNIT7_NODES = [
           'Используем A/V-더니 для описания учащающихся симптомов и перехода к более серьёзной неисправности',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u7_341_reading_quiz',
@@ -11358,7 +11167,7 @@ export const S5_UNIT7_NODES = [
           'Связываем шум, проблемы экрана, замятие бумаги и запуск двигателя с последующей поломкой',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u7_361_reading_quiz',
@@ -11397,7 +11206,7 @@ export const S5_UNIT7_NODES = [
           'Связываем начальное состояние, повторные симптомы, ухудшение и текущую неисправность с помощью A/V-더니',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u7_381_reading_quiz',
@@ -11456,7 +11265,7 @@ export const S5_UNIT7_NODES = [
           'Изучаем базовую форму V-도록 하다 на инструкциях по питанию, вилке и воде',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u7_401_reading_quiz',
@@ -11495,7 +11304,7 @@ export const S5_UNIT7_NODES = [
           'Используем V-지 않도록 하다 для предотвращения повреждений от воды, ударов, жидкости и пыли',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u7_421_reading_quiz',
@@ -11534,7 +11343,7 @@ export const S5_UNIT7_NODES = [
           'Следуем последовательной проверке питания, подключений, замятия бумаги и подготовки к ремонту',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u7_441_reading_quiz',
@@ -11573,7 +11382,7 @@ export const S5_UNIT7_NODES = [
           'Используем V-도록 하다 для поручения проверки, оформления, замены деталей и информирования клиента',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u7_461_reading_quiz',
@@ -11612,7 +11421,7 @@ export const S5_UNIT7_NODES = [
           'Объединяем лексику и грамматику Unit 7 в реальный процесс от симптомов и проверки до профилактики и ремонта',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u7_481_reading_quiz',

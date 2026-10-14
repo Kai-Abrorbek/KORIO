@@ -92,6 +92,24 @@ import {
   S5_UNIT8_NODES,
   S5_UNIT9_QUESTIONS,
   S5_UNIT9_NODES,
+  S6_UNIT1_QUESTIONS,
+  S6_UNIT1_NODES,
+  S6_UNIT2_QUESTIONS,
+  S6_UNIT2_NODES,
+  S6_UNIT3_QUESTIONS,
+  S6_UNIT3_NODES,
+  S6_UNIT4_QUESTIONS,
+  S6_UNIT4_NODES,
+  S6_UNIT5_QUESTIONS,
+  S6_UNIT5_NODES,
+  S6_UNIT6_QUESTIONS,
+  S6_UNIT6_NODES,
+  S6_UNIT7_QUESTIONS,
+  S6_UNIT7_NODES,
+  S6_UNIT8_QUESTIONS,
+  S6_UNIT8_NODES,
+  S6_UNIT9_QUESTIONS,
+  S6_UNIT9_NODES,
 } from './data/vocabulary';
 
 async function seed() {
@@ -157,6 +175,16 @@ async function seed() {
     ...S5_UNIT7_QUESTIONS,
     ...S5_UNIT8_QUESTIONS,
     ...S5_UNIT9_QUESTIONS,
+
+    ...S6_UNIT1_QUESTIONS,
+    ...S6_UNIT2_QUESTIONS,
+    ...S6_UNIT3_QUESTIONS,
+    ...S6_UNIT4_QUESTIONS,
+    ...S6_UNIT5_QUESTIONS,
+    ...S6_UNIT6_QUESTIONS,
+    ...S6_UNIT7_QUESTIONS,
+    ...S6_UNIT8_QUESTIONS,
+    ...S6_UNIT9_QUESTIONS,
   };
 
   const allNodes = [
@@ -206,6 +234,16 @@ async function seed() {
     ...S5_UNIT7_NODES,
     ...S5_UNIT8_NODES,
     ...S5_UNIT9_NODES,
+
+    ...S6_UNIT1_NODES,
+    ...S6_UNIT2_NODES,
+    ...S6_UNIT3_NODES,
+    ...S6_UNIT4_NODES,
+    ...S6_UNIT5_NODES,
+    ...S6_UNIT6_NODES,
+    ...S6_UNIT7_NODES,
+    ...S6_UNIT8_NODES,
+    ...S6_UNIT9_NODES,
   ];
 
   for (const nodeData of allNodes) {

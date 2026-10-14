@@ -4386,7 +4386,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_001_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '할머니',
@@ -4417,7 +4417,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_002_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -4444,7 +4444,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_003_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 할머니예요.',
@@ -4470,7 +4470,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_004_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '아버지와 어머니는 ',
@@ -4504,7 +4504,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_005_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아버지예요', '우리', '이분은', '어머니예요', '할머니예요'],
@@ -4530,7 +4530,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_006_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -4557,7 +4557,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_007_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 아버지예요.',
@@ -4583,7 +4583,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_008_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '어머니의 어머니는 ',
@@ -4611,7 +4611,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_009_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['할아버지예요', '우리', '할머니예요', '이분은', '어머니예요'],
@@ -4637,7 +4637,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_010_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이분은 누구세요?' }],
@@ -4675,7 +4675,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_011_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '할아버지',
@@ -4706,7 +4706,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_012_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이분은 우리 어머니세요.',
@@ -4732,7 +4732,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_013_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(윗사람을 가리키며) 나를 낳아 주신 남자분이라고 소개하기',
@@ -4763,7 +4763,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_014_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '아버지의 아버지는 ',
@@ -4791,7 +4791,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_015_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['부모님이세요', '우리', '할머니세요', '이분들은', '아버지세요'],
@@ -4817,7 +4817,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_016_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -4853,7 +4853,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_017_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '부모님이 계세요.',
@@ -4884,7 +4884,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_018_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -4911,7 +4911,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_019_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 남자예요. 나이가 많은 남자 형제는 ',
@@ -4945,7 +4945,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_020_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 형이에요.',
@@ -4971,7 +4971,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_021_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['누나예요', '우리', '언니예요', '형이에요', '오빠예요'],
@@ -4997,7 +4997,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_022_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 여자예요. 나이가 많은 남자 형제는 ',
@@ -5025,7 +5025,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_023_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -5052,7 +5052,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_024_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 언니예요.',
@@ -5078,7 +5078,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_025_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -5120,7 +5120,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_026_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 남자예요. 나이가 많은 여자 형제는 ',
@@ -5148,7 +5148,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_027_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['오빠예요', '우리', '형이에요', '누나예요', '언니예요'],
@@ -5174,7 +5174,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_028_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 누나예요.',
@@ -5200,7 +5200,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_029_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -5236,7 +5236,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_030_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 여자예요. 나이가 많은 여자 형제는 ',
@@ -5264,7 +5264,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_031_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(여자가) 나이 많은 여자 형제를 가리켜 소개하기',
@@ -5295,7 +5295,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_032_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['형이에요', '우리', '누나예요', '언니예요', '오빠예요'],
@@ -5321,7 +5321,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_033_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -5357,7 +5357,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_034_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 오빠예요.',
@@ -5388,7 +5388,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_035_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '아들',
@@ -5419,7 +5419,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_036_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -5446,7 +5446,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_037_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 여동생이에요.',
@@ -5472,7 +5472,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_038_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 남자예요. 제 ',
@@ -5506,7 +5506,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_039_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['아들이에요', '우리', '딸이에요', '아내예요', '남편이에요'],
@@ -5532,7 +5532,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_040_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -5559,7 +5559,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_041_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 남동생이에요.',
@@ -5585,7 +5585,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_042_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 여자예요. 제 ',
@@ -5613,7 +5613,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_043_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['딸이에요', '우리', '아들이에요', '아내예요', '남편이에요'],
@@ -5639,7 +5639,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_044_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -5675,7 +5675,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_045_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '아내',
@@ -5706,7 +5706,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_046_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 아들이에요.',
@@ -5732,7 +5732,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_047_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(사진을 가리키며) 내가 낳은 여자아이라고 소개하기',
@@ -5763,7 +5763,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_048_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '저는 남자 동생이 있어요. 제 ',
@@ -5791,7 +5791,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_049_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['남편이에요', '우리', '아내예요', '딸이에요', '아들이에요'],
@@ -5817,7 +5817,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_050_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -5853,7 +5853,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_051_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 아내예요.',
@@ -5884,7 +5884,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_052_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -5911,7 +5911,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_053_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '우리 가족은 모두 네 ',
@@ -5945,7 +5945,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_054_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '가족이 몇 명이에요?',
@@ -5971,7 +5971,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_055_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '부모님',
@@ -6002,7 +6002,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_056_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['명이에요', '네', '가족은', '우리', '다섯'],
@@ -6028,7 +6028,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_057_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '가족이 몇 명이에요?' }],
@@ -6060,7 +6060,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_058_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 가족은 다섯 명이에요.',
@@ -6086,7 +6086,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_059_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '부모님이 계시고 여동생이 한 ',
@@ -6114,7 +6114,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_060_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -6141,7 +6141,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_061_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['명이에요', '몇', '가족이', '살이에요', '우리'],
@@ -6167,7 +6167,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_062_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '동생이 한 명 있어요.',
@@ -6193,7 +6193,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_063_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -6229,7 +6229,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_064_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이분은 우리 ',
@@ -6263,7 +6263,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_065_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 식구가 모두 다섯이라고 말하기',
@@ -6294,7 +6294,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_066_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['있어요', '명', '한', '동생이', '두'],
@@ -6320,7 +6320,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_067_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '가족이 몇 명이에요?',
@@ -6347,7 +6347,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_068_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이분은 우리 할아버지세요.',
@@ -6378,7 +6378,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_069_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -6405,7 +6405,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_070_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '10은 ',
@@ -6439,7 +6439,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_071_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '스물이에요.',
@@ -6465,7 +6465,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_072_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '스물다섯', '저는', '서른', '마흔'],
@@ -6491,7 +6491,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_073_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '20은 ',
@@ -6519,7 +6519,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_074_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -6546,7 +6546,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_075_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '서른이에요.',
@@ -6572,7 +6572,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_076_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '서른', '저는', '마흔', '스물'],
@@ -6598,7 +6598,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_077_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '30은 ',
@@ -6626,7 +6626,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_078_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '몇 살이에요?' }],
@@ -6664,7 +6664,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_079_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '마흔이에요.',
@@ -6690,7 +6690,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_080_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '쉰',
@@ -6721,7 +6721,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_081_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '40은 ',
@@ -6749,7 +6749,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_082_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(나는) 올해 20살이라고 말하기',
@@ -6780,7 +6780,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_083_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '마흔', '저는', '쉰', '서른'],
@@ -6806,7 +6806,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_084_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -6842,7 +6842,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_085_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '쉰이에요.',
@@ -6873,7 +6873,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_086_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '백',
@@ -6904,7 +6904,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_087_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -6931,7 +6931,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_088_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '예순이에요.',
@@ -6957,7 +6957,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_089_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '60은 ',
@@ -6985,7 +6985,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_090_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '예순', '저는', '일흔', '여든'],
@@ -7011,7 +7011,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_091_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -7038,7 +7038,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_092_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '일흔이에요.',
@@ -7064,7 +7064,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_093_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '70은 ',
@@ -7092,7 +7092,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_094_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '아흔', '여든', '일흔', '백'],
@@ -7118,7 +7118,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_095_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '80은 한국말로 뭐예요?' }],
@@ -7145,7 +7145,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_096_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '여든이에요.',
@@ -7171,7 +7171,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_097_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '80은 ',
@@ -7199,7 +7199,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_098_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(나는) 나이가 90이라고 말하기',
@@ -7230,7 +7230,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_099_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '아흔',
@@ -7261,7 +7261,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_100_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '백', '아흔', '여든', '예순'],
@@ -7287,7 +7287,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_101_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '90은 한국말로 뭐예요?' }],
@@ -7314,7 +7314,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_102_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아흔이에요.',
@@ -7345,7 +7345,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_103_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '저는 ',
@@ -7379,7 +7379,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_104_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '스무 살이에요.',
@@ -7405,7 +7405,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_105_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -7432,7 +7432,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_106_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '열', '동생은', '스무', '서른'],
@@ -7458,7 +7458,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_107_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '가족이 ',
@@ -7492,7 +7492,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_108_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -7519,7 +7519,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_109_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '네 명이에요.',
@@ -7545,7 +7545,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_110_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -7581,7 +7581,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_111_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '우리 가족은 다섯 ',
@@ -7609,7 +7609,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_112_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '스무', '저는', '명이에요', '다섯'],
@@ -7635,7 +7635,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_113_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 스물세 살이에요.',
@@ -7661,7 +7661,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_114_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '두 명',
@@ -7692,7 +7692,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_115_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '누나는 서른 ',
@@ -7720,7 +7720,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_116_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(나는) 올해 23살이라고 말하기',
@@ -7751,7 +7751,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_117_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['있어요', '명', '두', '동생이', '세'],
@@ -7777,7 +7777,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_118_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -7819,7 +7819,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_119_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '동생은 열 살이에요.',
@@ -7850,7 +7850,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_120_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '50은 ',
@@ -7878,7 +7878,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_121_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -7905,7 +7905,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_122_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 마흔 살이에요.',
@@ -7931,7 +7931,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_123_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '몇 살이에요?' }],
@@ -7969,7 +7969,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_124_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '쉰', '아버지는', '예순', '마흔'],
@@ -7995,7 +7995,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_125_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -8022,7 +8022,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_126_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '우리 가족은 여섯 ',
@@ -8050,7 +8050,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_127_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '가족이 여섯 명이에요.',
@@ -8076,7 +8076,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_128_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '몇', '명이에요', '가족이', '스무'],
@@ -8102,7 +8102,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_129_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -8138,7 +8138,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_130_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '스물다섯 살이에요.',
@@ -8164,7 +8164,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_131_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '동생이 세 ',
@@ -8192,7 +8192,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_132_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '백',
@@ -8223,7 +8223,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_133_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 어머니 나이가 40이라고 말하기',
@@ -8254,7 +8254,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_134_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['살이에요', '스물여덟', '저는', '스무', '서른'],
@@ -8280,7 +8280,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_135_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '몇 살이에요?',
@@ -8307,7 +8307,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_136_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 서른 살이에요.',
@@ -8338,7 +8338,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_137_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -8365,7 +8365,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_138_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이거는 지호 씨',
@@ -8399,7 +8399,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_139_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '지호 씨의 가방이에요.',
@@ -8425,7 +8425,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_140_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['책이에요', '제', '이거는', '가방이에요', '누구'],
@@ -8451,7 +8451,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_141_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '저 사람은 ',
@@ -8485,7 +8485,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_142_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -8512,7 +8512,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_143_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '누구 가방이에요?',
@@ -8538,7 +8538,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_144_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['우산이에요', '누구', '가방이에요', '제', '지갑이에요'],
@@ -8564,7 +8564,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_145_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이거는 하윤 씨 우산이에요? 아니요, ',
@@ -8592,7 +8592,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_146_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이거는 누구 책이에요?' }],
@@ -8624,7 +8624,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_147_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 책이에요.',
@@ -8650,7 +8650,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_148_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '지갑',
@@ -8681,7 +8681,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_149_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이거는 수아 씨',
@@ -8709,7 +8709,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_150_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(물건을 가리키며) 이 가방 주인이 누구인지 묻기',
@@ -8740,7 +8740,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_151_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['우산이에요', '제', '이거는', '누구', '가방이에요'],
@@ -8766,7 +8766,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_152_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -8802,7 +8802,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_153_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '누구 우산이에요?',
@@ -8833,7 +8833,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_154_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '친구',
@@ -8864,7 +8864,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_155_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.match,
     answer: '',
@@ -8891,7 +8891,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_156_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 친구예요.',
@@ -8917,7 +8917,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_157_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"저의"를 줄이면 ',
@@ -8951,7 +8951,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_158_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['친구예요', '제', '사람은', '이', '내', '누구'],
@@ -8977,7 +8977,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_159_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -9004,7 +9004,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_160_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '내 친구예요.',
@@ -9030,7 +9030,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_161_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"나의"를 줄이면 ',
@@ -9058,7 +9058,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_162_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['가방이에요', '제', '내', '우산이에요', '누구'],
@@ -9084,7 +9084,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_163_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이거는 누구 우산이에요?' }],
@@ -9116,7 +9116,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_164_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 이름은 하윤이에요.',
@@ -9142,7 +9142,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_165_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '선생님, ',
@@ -9176,7 +9176,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_166_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(물건을 가리키며) 내 소유의 가방이라고 말하기',
@@ -9207,7 +9207,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_167_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '휴대폰',
@@ -9238,7 +9238,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_168_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['지갑이에요', '내', '이거는', '제', '가방이에요'],
@@ -9264,7 +9264,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_169_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -9300,7 +9300,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_170_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 지갑이에요.',
@@ -9331,7 +9331,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_171_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -9358,7 +9358,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_172_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '저는 요리',
@@ -9392,7 +9392,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_173_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 요리를 잘해요.',
@@ -9418,7 +9418,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_174_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['잘해요', '노래를', '저는', '못해요', '수영을'],
@@ -9444,7 +9444,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_175_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentencePrefix: '한국말을 잘해요? 아니요, ',
@@ -9478,7 +9478,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_176_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -9505,7 +9505,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_177_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 운전을 잘 못해요.',
@@ -9531,7 +9531,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_178_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '영어를 잘해요?' }],
@@ -9563,7 +9563,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_179_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '저는 수영',
@@ -9591,7 +9591,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_180_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['못해요', '수영을', '저는', '잘해요', '노래를'],
@@ -9617,7 +9617,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_181_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 수학을 못해요.',
@@ -9643,7 +9643,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_182_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '수영',
@@ -9674,7 +9674,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_183_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentencePrefix: '지호 씨는 요리사예요. 요리를 ',
@@ -9702,7 +9702,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_184_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(나는) 운전이 서투르다고 말하기',
@@ -9733,7 +9733,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_185_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['못해요', '잘', '영어를', '저는', '잘해요'],
@@ -9759,7 +9759,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_186_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -9795,7 +9795,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_187_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '노래를 잘 못해요.',
@@ -9826,7 +9826,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_188_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이거는 지호 씨',
@@ -9854,7 +9854,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_189_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -9881,7 +9881,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_190_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 친구는 노래를 잘해요.',
@@ -9907,7 +9907,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_191_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '이거는 누구 가방이에요?' }],
@@ -9939,7 +9939,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_192_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['잘해요', '요리를', '친구는', '제', '못해요'],
@@ -9965,7 +9965,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_193_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -9992,7 +9992,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_194_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: I.fill,
     sentencePrefix: '한국말을 잘해요? 아니요, 잘 ',
@@ -10020,7 +10020,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_195_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아니요, 잘 못해요.',
@@ -10046,7 +10046,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_196_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['가방이에요', '누구', '제', '책이에요', '내'],
@@ -10072,7 +10072,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_197_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '뭐를 잘해요?' }],
@@ -10104,7 +10104,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_198_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '저는 태권도를 잘해요.',
@@ -10130,7 +10130,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_199_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '선생님, 이거는 ',
@@ -10158,7 +10158,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_200_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '운전',
@@ -10189,7 +10189,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_201_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(나는) 수영을 전혀 할 줄 모른다고 말하기',
@@ -10220,7 +10220,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_202_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['휴대폰', '이에요', '제', '이거는', '내', '가방', '이에요'],
@@ -10246,7 +10246,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_203_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '뭐를 잘해요?',
@@ -10273,7 +10273,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_204_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '제 가방이에요.',
@@ -10304,7 +10304,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_205_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -10331,7 +10331,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_206_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"나이"의 높임말은 ',
@@ -10365,7 +10365,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_207_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '연세가 어떻게 되세요?',
@@ -10391,7 +10391,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_208_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['되세요', '어떻게', '연세가', '할머니', '성함이'],
@@ -10417,7 +10417,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_209_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"이름"의 높임말은 ',
@@ -10445,7 +10445,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_210_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -10472,7 +10472,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_211_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '성함이 어떻게 되세요?',
@@ -10498,7 +10498,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_212_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['되세요', '어떻게', '성함이', '연세가', '이름이'],
@@ -10524,7 +10524,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_213_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"집"의 높임말은 ',
@@ -10552,7 +10552,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_214_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '성함이 어떻게 되세요?' }],
@@ -10590,7 +10590,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_215_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 할머니 댁이에요.',
@@ -10616,7 +10616,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_216_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '댁',
@@ -10647,7 +10647,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_217_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"사람"의 높임말은 ',
@@ -10681,7 +10681,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_218_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(윗사람에게) 나이를 공손하게 묻기',
@@ -10712,7 +10712,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_219_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['선생님이세요', '우리', '이분은', '할머니세요', '저분은'],
@@ -10738,7 +10738,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_220_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '연세가 어떻게 되세요?' }],
@@ -10770,7 +10770,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_221_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이분은 우리 선생님이세요.',
@@ -10801,7 +10801,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_222_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '주무시다',
@@ -10832,7 +10832,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_223_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -10859,7 +10859,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_224_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할머니가 주무세요.',
@@ -10885,7 +10885,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_225_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"있다"의 높임말은 ',
@@ -10919,7 +10919,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_226_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['계세요', '집에', '할머니가', '있어요', '댁에'],
@@ -10945,7 +10945,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_227_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -10972,7 +10972,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_228_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지가 밥을 드세요.',
@@ -10998,7 +10998,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_229_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"먹다"의 높임말은 ',
@@ -11026,7 +11026,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_230_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['주무세요', '할아버지가', '계세요', '드세요', '자요'],
@@ -11052,7 +11052,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_231_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할머니가 지금 어디에 계세요?' }],
@@ -11085,7 +11085,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_232_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할머니가 댁에 계세요.',
@@ -11111,7 +11111,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_233_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '"자다"의 높임말은 ',
@@ -11139,7 +11139,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_234_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 아버지가 식사 중이라고 높여서 말하기',
@@ -11170,7 +11170,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_235_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '드시다',
@@ -11201,7 +11201,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_236_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['드세요', '커피를', '어머니가', '마셔요', '주무세요'],
@@ -11227,7 +11227,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_237_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할아버지가 뭐 하세요?' }],
@@ -11254,7 +11254,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_238_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할아버지가 주무세요.',
@@ -11285,7 +11285,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_239_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이분은 우리 어머니',
@@ -11319,7 +11319,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_240_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -11346,7 +11346,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_241_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 어머니세요.',
@@ -11372,7 +11372,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_242_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -11404,7 +11404,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_243_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '아버지는 회사원',
@@ -11432,7 +11432,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_244_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -11459,7 +11459,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_245_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 회사원이세요.',
@@ -11485,7 +11485,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_246_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -11521,7 +11521,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_247_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '이분은 의사',
@@ -11549,7 +11549,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_248_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['선생님이세요', '우리', '이분은', '의사세요', '저분은'],
@@ -11575,7 +11575,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_249_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '이분은 의사세요.',
@@ -11601,7 +11601,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_250_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '선생님',
@@ -11632,7 +11632,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_251_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '우리 할머니는 선생님',
@@ -11660,7 +11660,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_252_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 아버지 직업이 의사라고 높여 말하기',
@@ -11691,7 +11691,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_253_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -11723,7 +11723,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_254_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '아버지는 무슨 일을 하세요?' }],
@@ -11761,7 +11761,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_255_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 아버지는 의사세요.',
@@ -11792,7 +11792,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_256_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '할머니는 지금 방에 ',
@@ -11820,7 +11820,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_257_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할머니는 지금 계세요.',
@@ -11846,7 +11846,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_258_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -11873,7 +11873,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_259_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -11904,7 +11904,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_260_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['계세요', '댁에', '아버지가', '있어요', '집에'],
@@ -11930,7 +11930,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_261_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -11957,7 +11957,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_262_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '아버지는 지금 밥을 ',
@@ -11985,7 +11985,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_263_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 밥을 드세요.',
@@ -12011,7 +12011,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_264_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['하세요', '일을', '무슨', '해요', '뭐'],
@@ -12037,7 +12037,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_265_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어머니는 무슨 일을 하세요?' }],
@@ -12069,7 +12069,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_266_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '무슨 일을 하세요?',
@@ -12095,7 +12095,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_267_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.fill,
     sentencePrefix: '사람을 높여서 셀 때는 "명" 대신 ',
@@ -12123,7 +12123,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_268_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '성함',
@@ -12154,7 +12154,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_269_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(할머니가) 어디 있는지 높여서 묻기',
@@ -12185,7 +12185,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_270_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['할머니세요', '우리', '이분은', '선생님이세요', '저분은'],
@@ -12211,7 +12211,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_271_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '할머니 연세가 어떻게 되세요?',
@@ -12238,7 +12238,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_272_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 할머니세요.',
@@ -12269,7 +12269,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_273_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -12296,7 +12296,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_274_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"가다"에 높임을 붙이면 ',
@@ -12330,7 +12330,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_275_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '선생님은 친절하세요.',
@@ -12356,7 +12356,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_276_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['다니세요', '회사에', '아버지는', '가세요', '학교에'],
@@ -12382,7 +12382,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_277_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '김 선생님은 아주 ',
@@ -12416,7 +12416,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_278_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -12443,7 +12443,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_279_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 회사에 다니세요.',
@@ -12469,7 +12469,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_280_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['가세요', '할머니가', '다니세요', '좋아하세요', '가요'],
@@ -12495,7 +12495,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_281_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"다니다"에 높임을 붙이면 ',
@@ -12523,7 +12523,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_282_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '아버지는 무슨 일을 하세요?' }],
@@ -12555,7 +12555,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_283_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할머니는 바쁘세요.',
@@ -12581,7 +12581,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_284_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '친절하다',
@@ -12612,7 +12612,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_285_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '어머니는 태권도를 ',
@@ -12640,7 +12640,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_286_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 할머니가 마음이 따뜻하다고 높여 말하기',
@@ -12671,7 +12671,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_287_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['바쁘세요', '지금', '선생님은', '친절하세요', '바빠요'],
@@ -12697,7 +12697,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_288_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할머니가 어디에 가세요?' }],
@@ -12729,7 +12729,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_289_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어머니는 태권도를 좋아하세요.',
@@ -12760,7 +12760,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_290_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '읽다',
@@ -12791,7 +12791,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_291_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -12818,7 +12818,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_292_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 책을 읽으세요.',
@@ -12844,7 +12844,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_293_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"읽다"에 높임을 붙이면 ',
@@ -12878,7 +12878,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_294_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['많으세요', '친구가', '할머니는', '많아요', '적으세요'],
@@ -12904,7 +12904,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_295_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -12931,7 +12931,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_296_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '할머니는 친구가 많으세요.',
@@ -12957,7 +12957,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_297_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"많다"에 높임을 붙이면 ',
@@ -12985,7 +12985,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_298_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['멋있으세요', '아버지는', '멋있어요', '많으세요', '어머니는'],
@@ -13011,7 +13011,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_299_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할머니는 친구가 많으세요?' }],
@@ -13043,7 +13043,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_300_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 멋있으세요.',
@@ -13069,7 +13069,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_301_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '우리 할아버지는 아주 ',
@@ -13097,7 +13097,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_302_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 아버지가 독서 중이라고 높여 말하기',
@@ -13128,7 +13128,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_303_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '멋있다',
@@ -13159,7 +13159,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_304_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -13191,7 +13191,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_305_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '김 선생님은 지금 뭐 하세요?' }],
@@ -13223,7 +13223,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_306_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '선생님은 재미있으세요.',
@@ -13254,7 +13254,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_307_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"가세요"의 지난 일은 ',
@@ -13288,7 +13288,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_308_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.match,
     answer: '',
@@ -13315,7 +13315,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_309_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어제 시장에 가셨어요.',
@@ -13341,7 +13341,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_310_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['드셨어요', '비빔밥을', '어제', '어머니는', '드세요'],
@@ -13367,7 +13367,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_311_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"드세요"의 지난 일은 ',
@@ -13395,7 +13395,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_312_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -13422,7 +13422,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_313_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어머니는 비빔밥을 드셨어요.',
@@ -13448,7 +13448,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_314_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '할아버지는 어제 어디에 가셨어요?' }],
@@ -13480,7 +13480,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_315_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '"읽으세요"의 지난 일은 ',
@@ -13514,7 +13514,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_316_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: [
@@ -13546,7 +13546,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_317_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '전에 선생님이셨어요.',
@@ -13572,7 +13572,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_318_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '비빔밥',
@@ -13603,7 +13603,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_319_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '할머니는 어제 댁에 ',
@@ -13631,7 +13631,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_320_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 할아버지가 예전에 선생님이었다고 높여 말하기',
@@ -13668,7 +13668,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_321_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['가셨어요', '회사에', '어제', '아버지는', '가세요'],
@@ -13694,7 +13694,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_322_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '어머니는 어제 뭐 하셨어요?' }],
@@ -13726,7 +13726,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_323_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '아버지는 회사에 가셨어요.',
@@ -13757,7 +13757,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_324_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '부모님이 ',
@@ -13791,7 +13791,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_325_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '가족이 모두 네 명이에요.',
@@ -13817,7 +13817,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_326_word_matching: {
     type: 'word_matching',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.match,
     answer: '',
@@ -13844,7 +13844,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_327_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [
@@ -13880,7 +13880,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_328_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['미인이세요', '어머니가', '미인이에요', '아버지가', '친절하세요'],
@@ -13906,7 +13906,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_329_audio_match: {
     type: 'audio_match',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.LISTENING,
     instruction: I.audioMatch,
     answer: '',
@@ -13933,7 +13933,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_330_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '할머니는 친구가 ',
@@ -13961,7 +13961,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_331_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '어머니가 미인이세요.',
@@ -13987,7 +13987,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_332_word_arrange: {
     type: 'word_arrange',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['계세요', '일본에', '모두', '가족이', '있어요'],
@@ -14013,7 +14013,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_333_dialog_complete: {
     type: 'dialog_complete',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.dialog,
     dialogLines: [{ speaker: 'npc', text: '가족이 모두 일본에 계세요?' }],
@@ -14051,7 +14051,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_334_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '가족이 모두 일본에 계세요.',
@@ -14077,7 +14077,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_335_fill_in_blank: {
     type: 'fill_in_blank',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.fill,
     sentencePrefix: '할아버지는 전에 선생님',
@@ -14105,7 +14105,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_336_image_choice: {
     type: 'image_choice',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.VOCABULARY,
     instruction: I.image,
     answer: '주무시다',
@@ -14136,7 +14136,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_337_translate_builder: {
     type: 'translate_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.EXPRESSION,
     instruction: {
       ko: '(우리) 할머니가 집에 있다고 높여 말하기',
@@ -14167,7 +14167,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_338_sentence_builder: {
     type: 'sentence_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.GRAMMAR,
     instruction: I.arrange,
     options: ['읽으세요', '신문을', '지금', '아버지는', '읽어요'],
@@ -14193,7 +14193,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_339_reply_builder: {
     type: 'reply_builder',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.reply,
     npcText: '아버지는 무슨 일을 하세요?',
@@ -14220,7 +14220,7 @@ export const S2_UNIT1_QUESTIONS = {
 
   s2u1_340_speaking: {
     type: 'speaking',
-    level: QuestionLevel.LEVEL_2,
+    level: QuestionLevel.LEVEL_1,
     lessonCategory: LessonCategory.CONVERSATION,
     instruction: I.speak,
     audioText: '우리 가족을 소개합니다.',
@@ -14272,7 +14272,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Дедушка · Бабушка · Отец · Мать · Родители',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 1,
         questions: [
           's2u1_001_image_choice',
@@ -14308,7 +14308,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Слово зависит от пола говорящего',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 2,
         questions: [
           's2u1_018_word_matching',
@@ -14344,7 +14344,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Брат · Сестра · Жена · Муж · Дочь · Сын',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 3,
         questions: [
           's2u1_035_image_choice',
@@ -14380,7 +14380,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Все слова о семье и счёт людей',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 4,
         questions: [
           's2u1_052_word_matching',
@@ -14430,7 +14430,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Десять · Двадцать · Тридцать · Сорок · Пятьдесят',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 1,
         questions: [
           's2u1_069_word_matching',
@@ -14466,7 +14466,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Шестьдесят · Семьдесят · Восемьдесят · Девяносто · Сто',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 2,
         questions: [
           's2u1_086_image_choice',
@@ -14502,7 +14502,7 @@ export const S2_UNIT1_NODES = [
           ru: '스물 перед счётным словом становится 스무',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 3,
         questions: [
           's2u1_103_fill_in_blank',
@@ -14538,7 +14538,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Сколько лет? · Сколько человек?',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 4,
         questions: [
           's2u1_120_fill_in_blank',
@@ -14588,7 +14588,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Чья сумка? · Книга Чихо',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 1,
         questions: [
           's2u1_137_word_matching',
@@ -14624,7 +14624,7 @@ export const S2_UNIT1_NODES = [
           ru: '저의 → 제 · 나의 → 내',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 2,
         questions: [
           's2u1_154_image_choice',
@@ -14660,7 +14660,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Три уровня умения',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 3,
         questions: [
           's2u1_171_word_matching',
@@ -14696,7 +14696,7 @@ export const S2_UNIT1_NODES = [
           ru: 'N(의) N вместе с 잘하다 и 못하다',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 4,
         questions: [
           's2u1_188_fill_in_blank',
@@ -14746,7 +14746,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Для старших меняется само слово',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 1,
         questions: [
           's2u1_205_word_matching',
@@ -14782,7 +14782,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Глагол тоже меняется целиком',
         },
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 2,
         questions: [
           's2u1_222_image_choice',
@@ -14818,7 +14818,7 @@ export const S2_UNIT1_NODES = [
           ru: 'С конечным согласным 이세요, без него 세요',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 3,
         questions: [
           's2u1_239_fill_in_blank',
@@ -14854,7 +14854,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Существительные, глаголы и N(이)세요 в одном диалоге',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 4,
         questions: [
           's2u1_256_fill_in_blank',
@@ -14904,7 +14904,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Идти · Ходить · Добрый · Любить · Занят',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 1,
         questions: [
           's2u1_273_word_matching',
@@ -14940,7 +14940,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Читать · Много · Стильный · Интересный',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 2,
         questions: [
           's2u1_290_image_choice',
@@ -14976,7 +14976,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Прошедшее время тоже вежливое',
         },
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 3,
         questions: [
           's2u1_307_fill_in_blank',
@@ -15012,7 +15012,7 @@ export const S2_UNIT1_NODES = [
           ru: 'Семья, числа, вежливость и -(으)시- вместе',
         },
         category: LessonCategory.CONVERSATION,
-        level: QuestionLevel.LEVEL_2,
+        level: QuestionLevel.LEVEL_1,
         order: 4,
         questions: [
           's2u1_324_fill_in_blank',

@@ -68,7 +68,7 @@ const vocabTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.typeAnswer,
   answer,
@@ -89,7 +89,7 @@ const translateBuilder = (
   difficulty = 5,
 ) => ({
   type: 'translate_builder' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction,
   options,
@@ -109,7 +109,7 @@ const wordArrange = (
   difficulty = 5,
 ) => ({
   type: 'word_arrange' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.arrange,
   options,
@@ -130,7 +130,7 @@ const fillBlank = (
   difficulty = 5,
 ) => ({
   type: 'fill_in_blank' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.fillBlank,
   npcText,
@@ -153,7 +153,7 @@ const readingQuiz = (
   difficulty = 5,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   npcText,
   instruction: L(instruction, instruction, instruction, instruction),
@@ -176,7 +176,7 @@ const errorHunt = (
   difficulty = 5,
 ) => ({
   type: 'error_hunt' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.error,
   npcText,
@@ -199,7 +199,7 @@ const clozePassage = (
   difficulty = 5,
 ) => ({
   type: 'cloze_passage' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.VOCABULARY,
   instruction: I.cloze,
   npcText,
@@ -237,7 +237,7 @@ const grammarTypeAnswer = (
   difficulty = 5,
 ) => ({
   type: 'type_answer' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.typeAnswer,
   answer,
@@ -285,7 +285,7 @@ const grammarReadingQuiz = (
   difficulty = 5,
 ) => ({
   type: 'reading_quiz' as const,
-  level: QuestionLevel.LEVEL_5,
+  level: QuestionLevel.LEVEL_3,
   lessonCategory: LessonCategory.GRAMMAR,
   instruction: I.reading,
   npcText,
@@ -2354,14 +2354,7 @@ export const S5_UNIT8_QUESTIONS = {
       'Drunk driving is very dangerous.',
       'Вождение в нетрезвом виде очень опасно.',
     ),
-    [
-      '매우',
-      '조금',
-      '안전해요',
-      '음주',
-      '운전은',
-      '위험해요',
-    ],
+    ['매우', '조금', '안전해요', '음주', '운전은', '위험해요'],
     '음주 운전은 매우 위험해요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -3303,14 +3296,7 @@ export const S5_UNIT8_QUESTIONS = {
       'I was waiting for the bus, then took a taxi.',
       'Я ждал автобус, но потом сел на такси.',
     ),
-    [
-      '택시를',
-      '탔어요',
-      '내렸어요',
-      '기다리다가',
-      '버스를',
-      '기다려서',
-    ],
+    ['택시를', '탔어요', '내렸어요', '기다리다가', '버스를', '기다려서'],
     '버스를 기다리다가 택시를 탔어요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -4190,13 +4176,7 @@ export const S5_UNIT8_QUESTIONS = {
       'I listened to music while driving.',
       'Я слушал музыку за рулём.',
     ),
-    [
-      '운전하면서',
-      '운전해서',
-      '들었어요',
-      '불렀어요',
-      '음악을',
-    ],
+    ['운전하면서', '운전해서', '들었어요', '불렀어요', '음악을'],
     '운전하면서 음악을 들었어요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -5279,15 +5259,7 @@ export const S5_UNIT8_QUESTIONS = {
       'You said your friend is visiting someone in hospital today?',
       'Твой друг сегодня идёт навестить больного, говоришь?',
     ),
-    [
-      '문병을',
-      '오늘',
-      '갔다고요?',
-      '어제',
-      '병원에',
-      '친구가',
-      '간다고요?',
-    ],
+    ['문병을', '오늘', '갔다고요?', '어제', '병원에', '친구가', '간다고요?'],
     '친구가 오늘 병원에 문병을 간다고요?',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -5693,13 +5665,7 @@ export const S5_UNIT8_QUESTIONS = {
       'You said the accident was caused by speeding?',
       'Причина аварии в превышении скорости, говоришь?',
     ),
-    [
-      '과속한다고요?',
-      '결과가',
-      '사고',
-      '과속이라고요?',
-      '원인이',
-    ],
+    ['과속한다고요?', '결과가', '사고', '과속이라고요?', '원인이'],
     '사고 원인이 과속이라고요?',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -6320,13 +6286,7 @@ export const S5_UNIT8_QUESTIONS = {
       'You said your friend was in an accident?',
       'Твой друг попал в аварию, говоришь?',
     ),
-    [
-      '사고를',
-      '친구가',
-      '당한다고요?',
-      '냈다고요?',
-      '당했다고요?',
-    ],
+    ['사고를', '친구가', '당한다고요?', '냈다고요?', '당했다고요?'],
     '친구가 사고를 당했다고요?',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -8440,16 +8400,7 @@ export const S5_UNIT8_QUESTIONS = {
       'To take off the cast, it will need to heal well.',
       'Чтобы снять гипс, нужно как следует поправиться.',
     ),
-    [
-      '깁스를',
-      '충분히',
-      '나아야',
-      '텐데요',
-      '풀려면',
-      '풀면',
-      '다쳐야',
-      '할',
-    ],
+    ['깁스를', '충분히', '나아야', '텐데요', '풀려면', '풀면', '다쳐야', '할'],
     '깁스를 풀려면 충분히 나아야 할 텐데요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -8511,16 +8462,7 @@ export const S5_UNIT8_QUESTIONS = {
       'The tests should be finished before the surgery.',
       'До операции обследования должны закончиться.',
     ),
-    [
-      '시작해야',
-      '끝나야',
-      '검사가',
-      '전에',
-      '텐데요',
-      '수술',
-      '할',
-      '후에',
-    ],
+    ['시작해야', '끝나야', '검사가', '전에', '텐데요', '수술', '할', '후에'],
     '수술 전에 검사가 끝나야 할 텐데요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -9433,16 +9375,7 @@ export const S5_UNIT8_QUESTIONS = {
       'I hope my injured friend recovers quickly.',
       'Надеюсь, пострадавший друг скоро поправится.',
     ),
-    [
-      '친구가',
-      '할',
-      '나아야',
-      '빨리',
-      '늦게',
-      '다친',
-      '다쳐야',
-      '텐데요',
-    ],
+    ['친구가', '할', '나아야', '빨리', '늦게', '다친', '다쳐야', '텐데요'],
     '다친 친구가 빨리 나아야 할 텐데요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -9681,15 +9614,7 @@ export const S5_UNIT8_QUESTIONS = {
       'I hope my friend’s surgery goes well.',
       'Надеюсь, операция друга пройдёт хорошо.',
     ),
-    [
-      '친구',
-      '잘못돼야',
-      '수술이',
-      '텐데요',
-      '끝나야',
-      '할',
-      '잘돼야',
-    ],
+    ['친구', '잘못돼야', '수술이', '텐데요', '끝나야', '할', '잘돼야'],
     '친구 수술이 잘돼야 할 텐데요',
     L(
       '이 뜻을 한국어로 말하세요.',
@@ -10167,7 +10092,7 @@ export const S5_UNIT8_NODES = [
           'Изучаем 교통사고 и 사고가 나다 и различаем аварию и её предотвращение',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u8_001_reading_quiz',
@@ -10206,7 +10131,7 @@ export const S5_UNIT8_NODES = [
           'Практикуем ремни безопасности, превышение скорости и соблюдение ограничений',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u8_021_reading_quiz',
@@ -10245,7 +10170,7 @@ export const S5_UNIT8_NODES = [
           'Практикуем соблюдение сигналов и контроль обстановки на перекрёстках и перед движением',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u8_041_reading_quiz',
@@ -10284,7 +10209,7 @@ export const S5_UNIT8_NODES = [
           'Различаем превышение скорости и вождение в нетрезвом виде и выбираем безопасное поведение',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u8_061_reading_quiz',
@@ -10323,7 +10248,7 @@ export const S5_UNIT8_NODES = [
           'Объединяем лексику Unit 8, чтобы оценивать риск аварии и выбирать безопасные действия',
         ),
         category: LessonCategory.VOCABULARY,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u8_081_reading_quiz',
@@ -10382,7 +10307,7 @@ export const S5_UNIT8_NODES = [
           'Изучаем основную форму и значение V-다가, когда во время действия происходит другое событие',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u8_101_reading_quiz',
@@ -10421,7 +10346,7 @@ export const S5_UNIT8_NODES = [
           'Используем V-다가 для опасных ситуаций, связанных с сигналами, обстановкой и скоростью',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u8_121_reading_quiz',
@@ -10460,7 +10385,7 @@ export const S5_UNIT8_NODES = [
           'Изучаем V-다가 для прекращения действия на полпути или перехода к другому действию',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u8_141_reading_quiz',
@@ -10499,7 +10424,7 @@ export const S5_UNIT8_NODES = [
           'Сравниваем прерывание действия, одновременность и смену после завершённого действия',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u8_161_reading_quiz',
@@ -10538,7 +10463,7 @@ export const S5_UNIT8_NODES = [
           'Объединяем V-다가 с лексикой дорожной безопасности для объяснения событий перед аварией',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u8_181_reading_quiz',
@@ -10597,7 +10522,7 @@ export const S5_UNIT8_NODES = [
           'Уточняем прошлые события через -았/었다고요? и различаем 사고를 내다 и 사고를 당하다',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u8_201_reading_quiz',
@@ -10636,7 +10561,7 @@ export const S5_UNIT8_NODES = [
           'Различаем A-다고요 для прилагательных и V-ㄴ다고/는다고요 для действий в дорожных и больничных ситуациях',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u8_221_reading_quiz',
@@ -10675,7 +10600,7 @@ export const S5_UNIT8_NODES = [
           'Различаем N이라고요 и N라고요 по конечной согласной и сравниваем формы существительных, глаголов и прилагательных',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u8_241_reading_quiz',
@@ -10714,7 +10639,7 @@ export const S5_UNIT8_NODES = [
           'Точно уточняем сведения о травмах, гипсе, операции, госпитализации и выписке с правильным временем',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u8_261_reading_quiz',
@@ -10753,7 +10678,7 @@ export const S5_UNIT8_NODES = [
           'Объединяем формы после прилагательных, глаголов, существительных и прошедшего времени для точного уточнения аварии, места, травм и лечения',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u8_281_reading_quiz',
@@ -10812,7 +10737,7 @@ export const S5_UNIT8_NODES = [
           'Изучаем основное значение на ситуациях с авариями, сигналами и ремнями безопасности',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u8_301_reading_quiz',
@@ -10851,7 +10776,7 @@ export const S5_UNIT8_NODES = [
           'Практикуем формы -아도/어도 с разными глаголами и прилагательными в дорожных ситуациях',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u8_321_reading_quiz',
@@ -10890,7 +10815,7 @@ export const S5_UNIT8_NODES = [
           'Применяем грамматику к травмам, гипсу, лечению и выписке после аварии',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u8_341_reading_quiz',
@@ -10929,7 +10854,7 @@ export const S5_UNIT8_NODES = [
           'Сравниваем усиленное уступительное значение с обычным противопоставлением и различаем формы глаголов и прилагательных',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u8_361_reading_quiz',
@@ -10968,7 +10893,7 @@ export const S5_UNIT8_NODES = [
           'Объединяем лексику Unit 8 об авариях, скорости, алкоголе, сигналах, травмах и лечении с 아무리 -아도/어도',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u8_381_reading_quiz',
@@ -11027,7 +10952,7 @@ export const S5_UNIT8_NODES = [
           'Выражаем беспокойство и надежду относительно травм, операции и восстановления после аварии',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 1,
         questions: [
           's5u8_401_reading_quiz',
@@ -11066,7 +10991,7 @@ export const S5_UNIT8_NODES = [
           'Выражаем условия и информацию, которые понадобятся для выписки, операции, гипса и посещения больного',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 2,
         questions: [
           's5u8_421_reading_quiz',
@@ -11105,7 +11030,7 @@ export const S5_UNIT8_NODES = [
           'Практикуем посещение больного, часы посещения, состояние друга и подготовку к визиту',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 3,
         questions: [
           's5u8_441_reading_quiz',
@@ -11144,7 +11069,7 @@ export const S5_UNIT8_NODES = [
           'Различаем прямую необходимость -아야/어야 해요 и предполагаемую необходимость или беспокойство -아야/어야 할 텐데요',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 4,
         questions: [
           's5u8_461_reading_quiz',
@@ -11183,7 +11108,7 @@ export const S5_UNIT8_NODES = [
           'Объединяем лексику и грамматику Unit 8 об авариях, безопасности, травмах, лечении и посещении больного',
         ),
         category: LessonCategory.GRAMMAR,
-        level: QuestionLevel.LEVEL_5,
+        level: QuestionLevel.LEVEL_3,
         order: 5,
         questions: [
           's5u8_481_reading_quiz',
