@@ -202,6 +202,8 @@ describe('CosmeticsService — 장면(scene)', () => {
       aura: 'aura_snow',
       scene: 'scene_none',
       pet: 'pet_none',
+      costume: 'costume_none',
+      hand: 'hand_none',
     });
     expect(res.items.some((item) => item.slot === 'scene')).toBe(true);
   });
@@ -268,5 +270,38 @@ describe('CosmeticsService — 펫(pet)', () => {
     expect(() =>
       assertCosmeticOwned('pet_dokkaebi', ['pet_dokkaebi']),
     ).not.toThrow();
+  });
+});
+
+describe('CosmeticsService — 의상·손(costume·hand, K팝 세트)', () => {
+  const userId = new Types.ObjectId().toString();
+
+  it('의상은 avatar.costume, 응원봉은 avatar.hand 에 입힌다', async () => {
+    const users = {
+      findOneAndUpdate: jest
+        .fn()
+        .mockReturnValue(chain({ gems: 5, ownedCosmetics: [], avatar: {} })),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    await service.purchase(userId, 'costume_stage', true);
+    await service.purchase(userId, 'hand_lightstick', true);
+    const updates = users.findOneAndUpdate.mock.calls.map(
+      (call) => (call as [unknown, { $set?: Record<string, string> }])[1].$set,
+    );
+    expect(updates).toEqual([
+      { 'avatar.costume': 'costume_stage' },
+      { 'avatar.hand': 'hand_lightstick' },
+    ]);
+  });
+
+  it('팔게 되면 안 가진 마이크는 못 든다 (없음은 늘 통과)', () => {
+    // K팝 세트는 COSMETICS 15~17 — 마이크(17)만 유료로
+    replaceRuntimeValues(new Map([['COSMETICS.17.price', 3000]]));
+    expect(() => assertCosmeticOwned('hand_none', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('costume_none', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('hand_lightstick', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('hand_mic', [])).toThrow(
+      'COSMETIC_NOT_OWNED',
+    );
   });
 });

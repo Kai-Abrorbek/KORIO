@@ -71,4 +71,16 @@ export class UpdateAvatarDto {
   @IsString()
   @IsIn([...AVATAR_OPTIONS.pet])
   pet?: AvatarConfigValue['pet'];
+
+  /** 의상 — 없으면(예전 앱) 지금 것을 그대로 둔다. 산 것·무료만 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.costume])
+  costume?: AvatarConfigValue['costume'];
+
+  /** 손에 든 것 — 없으면(예전 앱) 지금 것을 그대로 둔다. 산 것·무료만 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.hand])
+  hand?: AvatarConfigValue['hand'];
 }

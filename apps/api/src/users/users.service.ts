@@ -32,7 +32,12 @@ import {
 import { langToFlag, levelToNumber } from './utils';
 import { buildVersusWeek, versusFetchRange } from './versus-week.util';
 import { assertCosmeticOwned } from '../cosmetics/cosmetics.service';
-import { isFreeCosmetic } from '../cosmetics/cosmetics.const';
+import {
+  COSMETIC_SLOTS,
+  CosmeticSlot,
+  NONE_BY_SLOT,
+  isFreeCosmetic,
+} from '../cosmetics/cosmetics.const';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
   Subscription,
@@ -830,20 +835,28 @@ export class UsersService {
   }
 
   async updateAvatar(userId: string, dto: UpdateAvatarDto) {
-    // 오라는 산 것만. 예전 앱은 aura 를 안 보낸다 → 지금 장착한 걸 그대로 둔다
+    // 상점 꾸미기 칸(오라·장면·펫·의상·손)은 산 것·무료만.
+    // 예전 앱은 모르는 칸을 안 보낸다 → 지금 장착한 걸 그대로 둔다
     const current = await this.userModel
       .findById(userId)
-      .select('ownedCosmetics avatar.aura avatar.scene avatar.pet')
+      .select(
+        ['ownedCosmetics', ...COSMETIC_SLOTS.map((s) => `avatar.${s}`)].join(
+          ' ',
+        ),
+      )
       .lean();
     if (!current) throw new NotFoundException('유저를 찾을 수 없습니다');
-    const aura = dto.aura ?? current.avatar?.aura ?? 'aura_none';
-    const scene = dto.scene ?? current.avatar?.scene ?? 'scene_none';
-    const pet = dto.pet ?? current.avatar?.pet ?? 'pet_none';
-    assertCosmeticOwned(aura, current.ownedCosmetics);
-    assertCosmeticOwned(scene, current.ownedCosmetics);
-    assertCosmeticOwned(pet, current.ownedCosmetics);
+    const worn: Partial<Record<CosmeticSlot, string>> = current.avatar ?? {};
+    const shop = Object.fromEntries(
+      COSMETIC_SLOTS.map((slot) => [
+        slot,
+        dto[slot] ?? worn[slot] ?? NONE_BY_SLOT[slot],
+      ]),
+    ) as Record<CosmeticSlot, string>;
+    for (const id of Object.values(shop))
+      assertCosmeticOwned(id, current.ownedCosmetics);
     // 무료로 입은 건 내 것으로 남긴다 (나중에 다시 팔아도 유지)
-    const claimed = [aura, scene, pet].filter((id) => isFreeCosmetic(id));
+    const claimed = Object.values(shop).filter((id) => isFreeCosmetic(id));
 
     const updated = await this.userModel
       .findByIdAndUpdate(
@@ -852,9 +865,7 @@ export class UsersService {
           $set: {
             avatar: {
               ...dto,
-              aura,
-              scene,
-              pet,
+              ...shop,
             },
           },
           ...(claimed.length

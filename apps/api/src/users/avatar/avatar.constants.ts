@@ -1,4 +1,10 @@
-import { AURA_IDS, PET_IDS, SCENE_IDS } from '../../cosmetics/cosmetics.const';
+import {
+  AURA_IDS,
+  COSTUME_IDS,
+  HAND_IDS,
+  PET_IDS,
+  SCENE_IDS,
+} from '../../cosmetics/cosmetics.const';
 
 export const AVATAR_VERSION = 1 as const;
 
@@ -98,6 +104,10 @@ export const AVATAR_OPTIONS = {
   scene: SCENE_IDS,
   /** 캐릭터 옆 펫 (cosmetics). 크기·모습은 연속 학습일로 앱이 정한다 — 예전 앱은 이 칸을 모른다 */
   pet: PET_IDS,
+  /** 기본 옷 대신 입는 의상 (cosmetics) — 예전 앱은 이 칸을 몰라 기본 옷으로 보인다 */
+  costume: COSTUME_IDS,
+  /** 오른손에 든 것 (cosmetics) */
+  hand: HAND_IDS,
 } as const;
 
 export interface AvatarConfigValue {
@@ -116,6 +126,8 @@ export interface AvatarConfigValue {
   aura?: (typeof AVATAR_OPTIONS.aura)[number];
   scene?: (typeof AVATAR_OPTIONS.scene)[number];
   pet?: (typeof AVATAR_OPTIONS.pet)[number];
+  costume?: (typeof AVATAR_OPTIONS.costume)[number];
+  hand?: (typeof AVATAR_OPTIONS.hand)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
@@ -134,4 +146,6 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   aura: 'aura_none',
   scene: 'scene_none',
   pet: 'pet_none',
+  costume: 'costume_none',
+  hand: 'hand_none',
 };

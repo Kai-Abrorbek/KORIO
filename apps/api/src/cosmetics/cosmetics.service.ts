@@ -12,10 +12,10 @@ import { Model, Types } from 'mongoose';
 import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import {
-  AURA_NONE,
   COSMETICS,
-  PET_NONE,
-  SCENE_NONE,
+  COSMETIC_SLOTS,
+  CosmeticSlot,
+  NONE_BY_SLOT,
   cosmeticById,
   isFreeCosmetic,
   isNoneCosmetic,
@@ -56,17 +56,24 @@ export class CosmeticsService {
   async list(userId: string) {
     const user = await this.users
       .findById(new Types.ObjectId(userId))
-      .select('gems ownedCosmetics avatar.aura avatar.scene avatar.pet')
+      .select(
+        [
+          'gems ownedCosmetics',
+          ...COSMETIC_SLOTS.map((s) => `avatar.${s}`),
+        ].join(' '),
+      )
       .lean();
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
+    const avatar: Partial<Record<CosmeticSlot, string>> = user.avatar ?? {};
     return {
       gems: user.gems ?? 0,
       owned: ownedWithFree(user.ownedCosmetics),
-      equipped: {
-        aura: user.avatar?.aura ?? AURA_NONE,
-        scene: user.avatar?.scene ?? SCENE_NONE,
-        pet: user.avatar?.pet ?? PET_NONE,
-      },
+      equipped: Object.fromEntries(
+        COSMETIC_SLOTS.map((slot) => [
+          slot,
+          avatar[slot] ?? NONE_BY_SLOT[slot],
+        ]),
+      ) as Record<CosmeticSlot, string>,
       items: COSMETICS.map((item) => ({
         id: item.id,
         slot: item.slot,

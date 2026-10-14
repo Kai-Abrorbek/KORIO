@@ -92,6 +92,14 @@ export class AvatarConfig {
   /** 캐릭터 옆 펫 (cosmetics, 예: pet_jindo) — 산 것·무료만 */
   @Prop({ type: String, default: 'pet_none' })
   pet: string;
+
+  /** 기본 옷 대신 입는 의상 (cosmetics, 예: costume_stage) — 산 것·무료만 */
+  @Prop({ type: String, default: 'costume_none' })
+  costume: string;
+
+  /** 오른손에 든 것 (cosmetics, 예: hand_lightstick) — 산 것·무료만 */
+  @Prop({ type: String, default: 'hand_none' })
+  hand: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);
