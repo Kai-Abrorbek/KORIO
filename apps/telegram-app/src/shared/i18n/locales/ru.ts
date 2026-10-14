@@ -2484,6 +2484,7 @@ export default {
     unsavedTitle: "Отменить изменения?",
     unsavedMessage: "Несохранённые изменения персонажа будут потеряны.",
     discard: "Отменить",
+    keepEditing: "Продолжить",
     saving: "Сохранение...",
     saveFailedTitle: "Не удалось сохранить",
     saveFailedMessage: "Проверь подключение к интернету и попробуй снова.",

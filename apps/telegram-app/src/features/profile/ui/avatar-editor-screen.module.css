@@ -330,68 +330,6 @@
   opacity: 0.55;
 }
 
-.dialog {
-  position: fixed;
-  z-index: 100;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgb(30 26 46 / 48%);
-  padding: 24px;
-}
-
-.dialogBackdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  border: 0;
-  background: transparent;
-}
-
-.dialog > section {
-  position: relative;
-  width: min(100%, 330px);
-  border-radius: 22px;
-  background: var(--surface);
-  padding: 22px 20px 16px;
-  box-shadow: 0 18px 50px rgb(0 0 0 / 20%);
-}
-
-.dialog h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.dialog p {
-  margin: 0 0 18px;
-  color: var(--secondary);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
-.dialog section > div {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.dialog section button {
-  min-height: 40px;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--primary);
-  padding: 0 12px;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.dialog section button.destructive {
-  color: #e0455a;
-}
-
 /* ── 오라 ── */
 .gemBadge {
   color: #1899d6;
@@ -399,7 +337,6 @@
 }
 
 .tryOnBadge {
-  animation: tryOn 1.6s ease-in-out infinite;
   background: var(--rarity);
   border-radius: 999px;
   box-shadow: 0 4px 10px color-mix(in srgb, var(--rarity) 40%, transparent);
@@ -458,16 +395,6 @@
   padding: 6px;
 }
 
-@keyframes tryOn {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-2px);
-  }
-}
 
 @keyframes fadeIn {
   from { opacity: 0; }

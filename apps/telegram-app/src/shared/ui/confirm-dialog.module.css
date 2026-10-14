@@ -1,0 +1,117 @@
+/* 열고 닫기는 페이드만 */
+.root {
+  align-items: center;
+  animation: fade 0.18s ease both;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 140;
+}
+
+.backdrop {
+  background: rgb(14 10 40 / 55%);
+  border: 0;
+  inset: 0;
+  position: absolute;
+}
+
+.card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: 28px;
+  box-shadow: 0 18px 40px rgb(20 12 70 / 22%);
+  color: var(--text);
+  max-width: 340px;
+  padding: 26px 20px 16px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  word-break: keep-all;
+}
+
+/* 색 동그라미 두 겹 — 바깥은 옅게, 안은 진하게 */
+.badge {
+  align-items: center;
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  border-radius: 50%;
+  display: inline-flex;
+  height: 76px;
+  justify-content: center;
+  margin-bottom: 14px;
+  width: 76px;
+}
+
+.badge > span {
+  align-items: center;
+  background: var(--tone);
+  border-bottom: 4px solid var(--tone-depth);
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  height: 56px;
+  justify-content: center;
+  width: 56px;
+}
+
+.card h2 {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  line-height: 25px;
+  margin: 0 0 6px;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 21px;
+  margin: 0 4px;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.confirm,
+.cancel {
+  align-items: center;
+  border-radius: 16px;
+  display: flex;
+  font-size: 16px;
+  font-weight: 900;
+  height: 52px;
+  justify-content: center;
+  width: 100%;
+}
+
+.confirm {
+  background: var(--tone);
+  border: 0;
+  border-bottom: 4px solid var(--tone-depth);
+  color: #fff;
+}
+
+.cancel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-bottom-width: 4px;
+  color: var(--muted);
+}
+
+.confirm:active,
+.cancel:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

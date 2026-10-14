@@ -92,18 +92,6 @@
   width: 320px;
 }
 
-.heroSpark {
-  animation: twinkle 2.6s ease-in-out var(--d) infinite both;
-  aspect-ratio: 1;
-  background: #fff;
-  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  left: var(--spot-x);
-  pointer-events: none;
-  position: absolute;
-  top: var(--spot-y);
-  width: 14px;
-}
-
 .fan {
   height: 150px;
   margin: 0 auto 6px;
@@ -114,15 +102,13 @@
 .fanCard {
   --x: calc((var(--i) - 1) * 88px);
   --r: calc((var(--i) - 1) * 11deg);
-  animation:
-    fanIn 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--i) * 0.08s) both,
-    float 3.2s ease-in-out calc(var(--i) * 0.5s + 0.6s) infinite;
   filter: drop-shadow(0 8px 12px rgb(40 20 120 / 28%));
   height: 132px;
   left: calc(50% - 66px);
   position: absolute;
   top: 10px;
   width: 132px;
+  transform: translate(var(--x), 0) rotate(var(--r));
 }
 
 .fanCard:nth-child(2) {
@@ -134,7 +120,6 @@
 }
 
 .fanPlaceholder {
-  animation: float 3.2s ease-in-out infinite;
   display: block;
   height: 140px;
   left: calc(50% - 62px);
@@ -150,7 +135,6 @@
 
 .tgBadge {
   align-items: center;
-  animation: pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.4s both;
   background: var(--tg);
   border: 3px solid #fff;
   border-radius: 50%;
@@ -188,7 +172,6 @@
 /* ── 내 세트 상태 ── */
 .status {
   align-items: center;
-  animation: rise 0.35s ease-out both;
   background: color-mix(in srgb, #58cc02 12%, var(--surface));
   border: 2px solid color-mix(in srgb, #58cc02 40%, transparent);
   border-radius: 18px;
@@ -216,7 +199,6 @@
 }
 
 .statusOutdated .statusIcon {
-  animation: spinOnce 1.6s ease-in-out infinite;
   background: #ff9600;
 }
 
@@ -281,7 +263,6 @@
 }
 
 .tile {
-  animation: tileIn 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--i) * 0.05s) both;
   aspect-ratio: 1;
   background:
     radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%),
@@ -295,11 +276,6 @@
   position: relative;
 }
 
-.tile:active {
-  border-bottom-width: 2px;
-  transform: translateY(2px);
-}
-
 .tile img {
   display: block;
   height: 100%;
@@ -307,14 +283,8 @@
   width: 100%;
 }
 
-.tile img.poke {
-  animation: poke 0.55s cubic-bezier(0.2, 1.6, 0.4, 1);
-}
-
 .tileLoading i {
-  animation: shimmer 1.2s ease-in-out infinite;
-  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--text) 8%, transparent) 50%, transparent 80%);
-  background-size: 200% 100%;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   border-radius: 14px;
   display: block;
   height: 100%;
@@ -460,14 +430,6 @@
   position: relative;
 }
 
-.progress {
-  animation: progress 5.5s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
-  background: color-mix(in srgb, var(--primary) 22%, transparent);
-  inset: 0 auto 0 0;
-  position: absolute;
-  width: 0;
-}
-
 .ctaLoading .spinner,
 .cta .spinner {
   position: relative;
@@ -488,18 +450,6 @@
   background: #ffd43b;
   color: #6a2c00;
   letter-spacing: 0.3px;
-}
-
-.shine {
-  animation: shine 2.8s ease-in-out infinite;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 32%), transparent);
-  height: 100%;
-  left: -40%;
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  transform: skewX(-20deg);
-  width: 28%;
 }
 
 .spinner {
@@ -526,7 +476,6 @@
 }
 
 .error {
-  animation: shake 0.4s ease;
   color: #ea2b2b;
   font-size: 13px;
   font-weight: 800;
@@ -550,7 +499,6 @@
 }
 
 .backdrop {
-  animation: fade 0.2s ease both;
   background: rgb(14 10 40 / 55%);
   border: 0;
   inset: 0;
@@ -558,7 +506,6 @@
 }
 
 .sheet {
-  animation: sheetUp 0.32s cubic-bezier(0.2, 1, 0.3, 1) both;
   background: var(--surface);
   border-radius: 26px 26px 0 0;
   max-width: var(--content-width);
@@ -579,7 +526,6 @@
 
 .sheetIcon {
   align-items: center;
-  animation: pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) 0.1s both;
   background: var(--tg);
   border-bottom: 4px solid var(--tg-dark);
   border-radius: 22px;
@@ -650,6 +596,14 @@
   margin-bottom: 12px !important;
 }
 
+.waitingSpinner {
+  border-color: color-mix(in srgb, var(--tg-dark) 25%, transparent);
+  border-top-color: var(--tg-dark);
+  flex: none;
+  height: 16px;
+  width: 16px;
+}
+
 .waiting {
   align-items: center;
   color: var(--tg-dark) !important;
@@ -657,27 +611,6 @@
   font-weight: 800 !important;
   gap: 8px;
   justify-content: center;
-}
-
-.dots {
-  display: inline-flex;
-  gap: 3px;
-}
-
-.dots b {
-  animation: dot 1s ease-in-out infinite;
-  background: currentColor;
-  border-radius: 50%;
-  height: 6px;
-  width: 6px;
-}
-
-.dots b:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.dots b:nth-child(3) {
-  animation-delay: 0.3s;
 }
 
 .later {
@@ -692,7 +625,6 @@
 }
 
 .done {
-  animation: popIn 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
   background: var(--surface);
   border-radius: 28px;
   max-width: 360px;
@@ -701,27 +633,6 @@
   position: relative;
   text-align: center;
   width: 100%;
-}
-
-.burst {
-  height: 0;
-  left: 50%;
-  position: absolute;
-  top: 98px;
-  width: 0;
-}
-
-.burst i {
-  animation: ray 0.9s ease-out calc(var(--i) * 0.02s) both;
-  background: linear-gradient(to top, rgb(255 200 61 / 0%), #ffc83d);
-  border-radius: 4px;
-  height: 120px;
-  left: -3px;
-  position: absolute;
-  top: -120px;
-  transform: rotate(var(--a));
-  transform-origin: 50% 100%;
-  width: 6px;
 }
 
 .doneFan {
@@ -733,13 +644,13 @@
 .doneFan img {
   --x: calc((var(--i) - 1) * 84px);
   --r: calc((var(--i) - 1) * 12deg);
-  animation: fanIn 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) calc(0.15s + var(--i) * 0.1s) both;
   filter: drop-shadow(0 8px 12px rgb(40 20 120 / 22%));
   height: 130px;
   left: calc(50% - 65px);
   position: absolute;
   top: 24px;
   width: 130px;
+  transform: translate(var(--x), 0) rotate(var(--r));
 }
 
 .doneFan img:nth-child(2) {
@@ -749,198 +660,14 @@
   z-index: 1;
 }
 
-@keyframes fanIn {
-  from {
-    opacity: 0;
-    transform: translate(0, 30px) rotate(0) scale(0.5);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(var(--x), 0) rotate(var(--r)) scale(1);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-
-  50% {
-    translate: 0 -6px;
-  }
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(0.3) rotate(0deg);
-  }
-
-  50% {
-    opacity: 0.9;
-    transform: scale(1) rotate(45deg);
-  }
-}
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-}
-
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
-@keyframes tileIn {
-  from {
-    opacity: 0;
-    transform: scale(0.6) rotate(-6deg);
-  }
-}
-
-@keyframes poke {
-  0% {
-    transform: scale(1) rotate(0);
-  }
-
-  35% {
-    transform: scale(1.18) rotate(-8deg);
-  }
-
-  65% {
-    transform: scale(0.96) rotate(5deg);
-  }
-
-  100% {
-    transform: scale(1) rotate(0);
-  }
-}
-
-@keyframes shimmer {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
-@keyframes spinOnce {
-  0%,
-  60% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes progress {
-  to {
-    width: 92%;
-  }
-}
-
-@keyframes shine {
-  0% {
-    left: -40%;
-  }
-
-  60%,
-  100% {
-    left: 130%;
-  }
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  75% {
-    transform: translateX(5px);
-  }
-}
-
 @keyframes fade {
   from {
     opacity: 0;
-  }
-}
-
-@keyframes sheetUp {
-  from {
-    transform: translateY(100%);
-  }
-}
-
-@keyframes dot {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: translateY(0);
-  }
-
-  50% {
-    opacity: 1;
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes ray {
-  from {
-    opacity: 0;
-    transform: rotate(var(--a)) scaleY(0.2);
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-    transform: rotate(var(--a)) scaleY(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fanCard,
-  .fanPlaceholder,
-  .heroSpark,
-  .tile,
-  .statusOutdated .statusIcon,
-  .shine,
-  .burst i,
-  .doneFan img {
-    animation-duration: 0s;
-    animation-iteration-count: 1;
   }
 }

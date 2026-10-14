@@ -2488,6 +2488,7 @@ export default {
     unsavedTitle: "O‘zgarishlar bekor qilinsinmi?",
     unsavedMessage: "Saqlanmagan avatar o‘zgarishlari yo‘qoladi.",
     discard: "Tashlab ketish",
+    keepEditing: "Tahrirlashni davom ettirish",
     saving: "Saqlanmoqda...",
     saveFailedTitle: "Saqlab bo‘lmadi",
     saveFailedMessage: "Internet aloqasini tekshirib, yana urinib ko‘r.",

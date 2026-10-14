@@ -23,7 +23,6 @@ export function StickerPromoCard({ avatar }: { avatar?: Partial<AvatarConfig> | 
       }}
       type="button"
     >
-      <i aria-hidden="true" className={styles.shine} />
       <span className={styles.face}>
         <span className={styles.sticker}>
           <GeneratedAvatar avatar={avatar} variant="head" />

@@ -9,6 +9,7 @@ import {
   type AvatarConfig,
   type AvatarField,
 } from "../../../shared/model/avatar";
+import { ConfirmDialog } from "../../../shared/ui/confirm-dialog";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import {
@@ -355,52 +356,27 @@ export function AvatarEditorScreen() {
       ) : null}
       {bought ? <AuraBought avatar={draft} id={bought} onClose={() => setBought(null)} /> : null}
 
-      {discardOpen ? (
-        <div aria-modal="true" className={styles.dialog} role="dialog">
-          <button
-            aria-label="Bekor qilish"
-            className={styles.dialogBackdrop}
-            onClick={() => setDiscardOpen(false)}
-            type="button"
-          />
-          <section>
-            <h2>O‘zgarishlar bekor qilinsinmi?</h2>
-            <p>Saqlanmagan avatar o‘zgarishlari yo‘qoladi.</p>
-            <div>
-              <button onClick={() => setDiscardOpen(false)} type="button">
-                Bekor qilish
-              </button>
-              <button
-                className={styles.destructive}
-                onClick={() => goBack(router)}
-                type="button"
-              >
-                Tashlab ketish
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
-
-      {saveErrorOpen ? (
-        <div aria-modal="true" className={styles.dialog} role="alertdialog">
-          <button
-            aria-label="Yopish"
-            className={styles.dialogBackdrop}
-            onClick={() => setSaveErrorOpen(false)}
-            type="button"
-          />
-          <section>
-            <h2>Saqlab bo‘lmadi</h2>
-            <p>Qaytadan urinib ko‘ring.</p>
-            <div>
-              <button onClick={() => setSaveErrorOpen(false)} type="button">
-                OK
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
+      {/* 앱 안 확인창 — 페이드로만 열린다 */}
+      <ConfirmDialog
+        cancelKey="avatarEditor.keepEditing"
+        confirmKey="avatarEditor.discard"
+        icon="trash-outline"
+        messageKey="avatarEditor.unsavedMessage"
+        onCancel={() => setDiscardOpen(false)}
+        onConfirm={() => goBack(router)}
+        open={discardOpen}
+        titleKey="avatarEditor.unsavedTitle"
+      />
+      <ConfirmDialog
+        confirmKey="common.close"
+        icon="cloud-offline-outline"
+        messageKey="avatarEditor.saveFailedMessage"
+        onCancel={() => setSaveErrorOpen(false)}
+        onConfirm={() => setSaveErrorOpen(false)}
+        open={saveErrorOpen}
+        titleKey="avatarEditor.saveFailedTitle"
+        tone="warning"
+      />
     </main>
   );
 }

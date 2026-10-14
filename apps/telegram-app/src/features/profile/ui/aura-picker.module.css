@@ -219,15 +219,16 @@
   flex-direction: column;
   max-width: 520px;
   padding: 8px 20px max(18px, var(--korio-bottom));
+  opacity: 0;
   position: relative;
   text-align: center;
-  transform: translateY(100%);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.2s ease;
   width: 100%;
 }
 
+/* 열고 닫기는 페이드만 (밀어 올리기·튕김 금지). 아래로 끌어 닫기는 useSwipeToClose */
 .shown .sheet {
-  transform: translateY(0);
+  opacity: 1;
 }
 
 .grabber {
@@ -405,7 +406,7 @@
 
 .bought {
   align-items: center;
-  animation: riseIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fadeIn 0.2s ease both;
   background:
     radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--aura) 30%, transparent), transparent 60%),
     var(--surface);
@@ -419,30 +420,6 @@
   position: relative;
   text-align: center;
   width: 100%;
-}
-
-.burst {
-  height: 220px;
-  left: 50%;
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  translate: -50% 0;
-  width: 220px;
-}
-
-.burst i {
-  animation: burst 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
-  animation-delay: calc(var(--i) * 18ms);
-  background: var(--aura);
-  border-radius: 999px;
-  display: block;
-  height: 14px;
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: rotate(var(--a)) translateY(-40px);
-  width: 4px;
 }
 
 .boughtAvatar {
@@ -485,24 +462,12 @@
   }
 }
 
-@keyframes riseIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
 }
 
-@keyframes burst {
-  from {
-    opacity: 1;
-    transform: rotate(var(--a)) translateY(-30px) scaleY(0.4);
-  }
-
-  to {
-    opacity: 0;
-    transform: rotate(var(--a)) translateY(-108px) scaleY(1);
-  }
-}
 
 /* 무료 — 반짝이 + 보라 */
 .free {

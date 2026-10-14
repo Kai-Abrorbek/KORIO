@@ -7,6 +7,7 @@ import { ApiError } from "../../../shared/api/client";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { safeBack, useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import {
@@ -22,6 +23,9 @@ import styles from "./stickers-screen.module.css";
  * 내 캐릭터 텔레그램 스티커팩 — 모바일 app/stickers.tsx 와 같은 화면.
  *
  * 서버가 지금 캐릭터로 8장을 그려(미리보기) 보여주고, 사면 봇이 텔레그램 세트를 만든다.
+ *
+ * ⚠️ 연출 애니메이션 금지 (둥실·반짝·흔들림·튕김·빛 터짐 전부). 시트·모달은 단순 페이드만.
+ *    움직이는 건 로딩 스피너 하나.
  * 봇을 시작한 적 없는 사람은 봇 링크(START)로 넘어가서 거기서 이어서 만든다 — 그동안
  * 이 화면은 서버를 몇 초마다 다시 물어서, 다 되면 바로 완성 화면을 띄운다.
  */
@@ -73,7 +77,6 @@ export function StickersScreen() {
   const [doneKind, setDoneKind] = useState<"new" | "refresh">("new");
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState(0);
-  const [poked, setPoked] = useState<{ index: number; at: number } | null>(null);
   const packBefore = useRef<string | null>(null);
 
   const load = useCallback(async () => {
@@ -198,9 +201,6 @@ export function StickersScreen() {
       <div className={styles.scroll}>
         <section className={styles.hero}>
           <i aria-hidden="true" className={styles.heroGlow} />
-          {["10% 16%", "88% 12%", "93% 46%", "6% 44%", "30% 5%"].map((spot, index) => (
-            <i aria-hidden="true" className={styles.heroSpark} key={spot} style={{ "--spot-x": spot.split(" ")[0], "--spot-y": spot.split(" ")[1], "--d": `${index * 0.45}s` } as CSSProperties} />
-          ))}
           <div className={styles.fan}>
             {fan.length === 3 ? (
               fan.map((src, index) => (
@@ -255,21 +255,15 @@ export function StickersScreen() {
         ) : (
           <div className={styles.grid}>
             {(preview?.stickers ?? Array.from({ length: 8 }, () => null)).map((sticker, index) => (
-              <button
+              <span
                 aria-label={sticker?.text ?? ""}
                 className={`${styles.tile} ${sticker ? "" : styles.tileLoading}`}
                 data-no-translate
-                key={`${sticker?.id ?? "s"}-${index}-${poked?.index === index ? poked.at : 0}`}
-                onClick={() => {
-                  if (!sticker) return;
-                  haptic("light");
-                  setPoked({ index, at: Date.now() });
-                }}
-                style={{ "--i": index } as CSSProperties}
-                type="button"
+                key={`${sticker?.id ?? "s"}-${index}`}
+                role="img"
               >
-                {sticker ? <img alt="" className={poked?.index === index ? styles.poke : ""} src={sticker.image} /> : <i />}
-              </button>
+                {sticker ? <img alt="" src={sticker.image} /> : <i />}
+              </span>
             ))}
           </div>
         )}
@@ -322,13 +316,11 @@ export function StickersScreen() {
           </button>
         ) : phase === "making" ? (
           <button className={`${styles.cta} ${styles.ctaMaking}`} disabled type="button">
-            <i className={styles.progress} />
             <i className={styles.spinner} />
             <span data-i18n={MAKING_STEPS[step] ?? MAKING_STEPS[0]}>{uzt(MAKING_STEPS[step] ?? MAKING_STEPS[0])}</span>
           </button>
         ) : upToDate && pack ? (
           <button className={`${styles.cta} ${styles.ctaTelegram}`} onClick={() => openTelegram(pack.url)} type="button">
-            <i className={styles.shine} />
             <MobileIcon name="paper-plane" size={19} />
             <span data-i18n="stickers.cta.add">{uzt("stickers.cta.add")}</span>
           </button>
@@ -345,7 +337,6 @@ export function StickersScreen() {
         ) : (
           <>
             <button className={`${styles.cta} ${styles.ctaBuy}`} onClick={() => void make()} type="button">
-              <i className={styles.shine} />
               <span data-i18n={refreshing ? "stickers.cta.update" : "stickers.cta.make"}>
                 {uzt(refreshing ? "stickers.cta.update" : "stickers.cta.make")}
               </span>
@@ -387,10 +378,13 @@ export function StickersScreen() {
 /** 봇을 시작해야 할 때 — 세 걸음 안내 + 봇 열기. 그동안 위에서 서버를 다시 묻는다 */
 function LinkSheet({ cost, link, onClose, waiting }: { cost: number; link: string; onClose: () => void; waiting: boolean }) {
   const [opened, setOpened] = useState(false);
+  const sheetRef = useRef<HTMLElement>(null);
+  // 아래로 끌어 닫기
+  useSwipeToClose(sheetRef, onClose);
   return (
     <div aria-modal="true" className={styles.sheetRoot} role="dialog">
       <button aria-label={uzt("stickers.link.close")} className={styles.backdrop} onClick={onClose} type="button" />
-      <section className={styles.sheet}>
+      <section className={styles.sheet} ref={sheetRef}>
         <i className={styles.grabber} />
         <span className={styles.sheetIcon}>
           <MobileIcon name="paper-plane" size={30} />
@@ -412,11 +406,7 @@ function LinkSheet({ cost, link, onClose, waiting }: { cost: number; link: strin
         ) : null}
         {opened ? (
           <p className={styles.waiting}>
-            <i className={styles.dots}>
-              <b />
-              <b />
-              <b />
-            </i>
+            <i className={`${styles.spinner} ${styles.waitingSpinner}`} />
             <span data-i18n={waiting ? "stickers.making.draw" : "stickers.link.waiting"}>
               {uzt(waiting ? "stickers.making.draw" : "stickers.link.waiting")}
             </span>
@@ -431,7 +421,6 @@ function LinkSheet({ cost, link, onClose, waiting }: { cost: number; link: strin
           }}
           type="button"
         >
-          <i className={styles.shine} />
           <MobileIcon name="paper-plane" size={19} />
           <span data-i18n="stickers.link.open">{uzt("stickers.link.open")}</span>
         </button>
@@ -443,7 +432,7 @@ function LinkSheet({ cost, link, onClose, waiting }: { cost: number; link: strin
   );
 }
 
-/** 완성 — 빛이 터지고 스티커 세 장이 튀어나온다 */
+/** 완성 — 스티커 세 장 + 텔레그램에 추가 (페이드로만 열린다) */
 function DoneModal({
   kind,
   onAdd,
@@ -459,11 +448,6 @@ function DoneModal({
     <div aria-modal="true" className={`${styles.sheetRoot} ${styles.center}`} role="dialog">
       <button aria-label={uzt("stickers.done.later")} className={styles.backdrop} onClick={onClose} type="button" />
       <section className={styles.done}>
-        <span aria-hidden="true" className={styles.burst}>
-          {Array.from({ length: 12 }, (_, i) => (
-            <i key={i} style={{ "--a": `${i * 30}deg`, "--i": i } as CSSProperties} />
-          ))}
-        </span>
         <div className={styles.doneFan}>
           {stickers.map((src, index) => (src ? <img alt="" key={index} src={src} style={{ "--i": index } as CSSProperties} /> : null))}
         </div>
@@ -479,7 +463,6 @@ function DoneModal({
           }}
           type="button"
         >
-          <i className={styles.shine} />
           <MobileIcon name="paper-plane" size={19} />
           <span data-i18n="stickers.cta.add">{uzt("stickers.cta.add")}</span>
         </button>

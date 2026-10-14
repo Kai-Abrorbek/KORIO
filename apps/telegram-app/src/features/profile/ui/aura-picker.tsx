@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import type { AvatarConfig } from "../../../shared/model/avatar";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { AURA_LOOK, AURA_ORDER, AvatarAura, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import type { CosmeticsState } from "../api/cosmetics";
 import styles from "./aura-picker.module.css";
@@ -178,16 +179,19 @@ export function AuraBuySheet({
   const look = AURA_LOOK[id];
   const short = Math.max(0, price - gems);
   const [shown, setShown] = useState(false);
+  const sheetRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const frame = requestAnimationFrame(() => setShown(true));
     return () => cancelAnimationFrame(frame);
   }, []);
   useTelegramBackOverride(buying ? () => undefined : onClose);
+  // 아래로 끌어 닫기 (사는 중엔 그대로)
+  useSwipeToClose(sheetRef, buying ? () => undefined : onClose);
 
   return (
     <div aria-modal="true" className={`${styles.sheetRoot} ${shown ? styles.shown : ""}`} role="dialog">
       <button aria-label={uzt("avatarEditor.aura.later")} className={styles.backdrop} onClick={buying ? undefined : onClose} type="button" />
-      <section className={styles.sheet} data-rarity={look.rarity} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
+      <section className={styles.sheet} data-rarity={look.rarity} ref={sheetRef} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
         <i className={styles.grabber} />
         <div className={styles.sheetStage}>
           <span className={styles.sheetAvatar}>
@@ -242,7 +246,7 @@ export function AuraBuySheet({
   );
 }
 
-/** 산 직후 — 빛 터지는 축하 한 번 */
+/** 산 직후 — 페이드로만 뜬다 (빛 터짐·튕김 없음) */
 export function AuraBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: Exclude<AuraId, "aura_none">; onClose: () => void }) {
   const look = AURA_LOOK[id];
   useTelegramBackOverride(onClose);
@@ -250,11 +254,6 @@ export function AuraBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: 
     <div aria-modal="true" className={`${styles.sheetRoot} ${styles.shown} ${styles.center}`} role="dialog">
       <button aria-label={uzt("avatarEditor.aura.great")} className={styles.backdrop} onClick={onClose} type="button" />
       <section className={styles.bought} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
-        <span aria-hidden="true" className={styles.burst}>
-          {Array.from({ length: 12 }, (_, i) => (
-            <i key={i} style={{ "--a": `${i * 30}deg`, "--i": i } as CSSProperties} />
-          ))}
-        </span>
         <span className={styles.boughtAvatar}>
           <AvatarAura aura={id}>
             <GeneratedAvatar avatar={{ ...avatar, aura: id }} variant="full" />
