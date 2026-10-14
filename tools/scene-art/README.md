@@ -13,6 +13,6 @@
 
 - 캔버스 1200×1000. 캐릭터는 가운데에 서고 발은 y≈900 — 랜드마크는 양옆·머리 위에.
 - 움직이지 않는다 (반짝임·흔들림 금지).
-- `glyphs.json`: 간판 글자(편의점24+1라면)의 Jua 윤곽 — `apps/api/scripts/sticker-glyphs.py` 와 같은 방식으로 뽑음.
+- `glyphs.json`: 간판 글자(편의점24+1라면, 펫 책의 한글)의 Jua 윤곽 — `python apps/api/scripts/sticker-glyphs.py Jua-Regular.ttf '편의점24+1라면한글'` 로 뽑음.
 - 굽기: 루트에서 `npx tsx tools/scene-art/render.ts`
 - 아이템 목록·가격: `apps/api/src/cosmetics/cosmetics.const.ts` (가격은 어드민 설정 `COSMETICS.<index>.price`)
