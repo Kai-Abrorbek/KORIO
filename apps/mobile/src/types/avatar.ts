@@ -109,6 +109,8 @@ export const AVATAR_IDS = {
     "scene_snow",
     "scene_gyeongbokgung",
   ],
+  /** 캐릭터 옆 펫 (api cosmetics, slot pet) — 연속 학습일로 자란다 */
+  pet: ["pet_none", "pet_jindo", "pet_hangulmon", "pet_tiger", "pet_dokkaebi"],
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -130,6 +132,7 @@ export interface AvatarConfig {
   background: AvatarValue<"background">;
   aura: AvatarValue<"aura">;
   scene: AvatarValue<"scene">;
+  pet: AvatarValue<"pet">;
 }
 
 export type AvatarUnlock =
@@ -165,6 +168,7 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   background: "background_lilac",
   aura: "aura_none",
   scene: "scene_none",
+  pet: "pet_none",
 };
 
 export function mergeAvatarConfig(

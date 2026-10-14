@@ -44,6 +44,7 @@ function createRandomAvatar(): AvatarConfig {
     background: pick(AVATAR_IDS.background),
     aura: "aura_none",
     scene: "scene_none",
+    pet: "pet_none",
   };
 }
 
@@ -78,10 +79,10 @@ export const useAvatarEditorStore = create<AvatarEditorState>((set) => ({
     })),
 
   // 오라는 산 것이라 무작위로 바꾸지 않는다
-  // 오라·배경 장면은 상점 아이템이라 무작위로 바꾸지 않는다
+  // 오라·배경 장면·펫은 상점 아이템이라 무작위로 바꾸지 않는다
   randomize: () =>
     set((state) => ({
-      draft: { ...createRandomAvatar(), aura: state.draft.aura, scene: state.draft.scene },
+      draft: { ...createRandomAvatar(), aura: state.draft.aura, scene: state.draft.scene, pet: state.draft.pet },
     })),
 
   patchInitial: (patch) =>

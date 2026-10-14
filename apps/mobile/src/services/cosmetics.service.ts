@@ -1,10 +1,10 @@
 import api from "./api";
 import type { AvatarConfig } from "@/types/avatar";
 
-/** api cosmetics — 꾸미기 아이템 (오라 · 배경 장면) */
+/** api cosmetics — 꾸미기 아이템 (오라 · 배경 장면 · 펫) */
 export interface CosmeticItem {
   id: string;
-  slot: "aura" | "scene";
+  slot: "aura" | "scene" | "pet";
   rarity: "common" | "rare" | "epic" | "legendary";
   price: number;
 }
@@ -12,7 +12,7 @@ export interface CosmeticItem {
 export interface CosmeticsState {
   gems: number;
   owned: string[];
-  equipped: { aura: string; scene?: string };
+  equipped: { aura: string; scene?: string; pet?: string };
   items: CosmeticItem[];
 }
 

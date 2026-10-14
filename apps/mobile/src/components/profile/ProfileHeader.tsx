@@ -11,12 +11,15 @@ import AvatarPreview, {
   getAvatarHeaderContentColor,
 } from "@/components/avatar/AvatarPreview";
 import { SceneBackdrop, sceneHeroColors } from "@/components/avatar/AvatarScene";
+import AvatarPet from "@/components/avatar/AvatarPet";
 import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
   name: string;
   isSuper: boolean;
   avatar?: AvatarConfig | null;
+  /** 연속 학습일 — 펫이 이만큼 자란 모습으로 보인다 */
+  streak?: number;
   onShare?: () => void;
   onSettings?: () => void;
 }
@@ -25,6 +28,7 @@ export default function ProfileHeader({
   name,
   isSuper,
   avatar,
+  streak = 0,
   onShare,
   onSettings,
 }: Props) {
@@ -113,6 +117,7 @@ export default function ProfileHeader({
           onPress={() => router.push("/avatar-editor")}
         >
           <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
+          <AvatarPet pet={avatarConfig.pet} streak={streak} avatarSize={230} />
         </TouchableOpacity>
       </View>
     </LinearGradient>

@@ -96,6 +96,8 @@ export function describeGemTx(item: GemTx, t: TFunction): { title: string; detai
         details.push(t(`avatarEditor.aura.items.${p.item}.name`));
       } else if (typeof p.item === "string" && p.item.startsWith("scene_")) {
         details.push(t(`avatarEditor.scene.items.${p.item}.name`));
+      } else if (typeof p.item === "string" && p.item.startsWith("pet_")) {
+        details.push(t(`avatarEditor.pet.items.${p.item}.name`));
       }
       break;
   }

@@ -41,12 +41,16 @@ import {
   type ShopItemId,
 } from "@/components/avatar/AuraPicker";
 import { SceneGrid } from "@/components/avatar/ScenePicker";
+import { PetGrid } from "@/components/avatar/PetPicker";
+import AvatarPet, { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
 import Button3D from "@/features/retention/components/Button3D";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-/** 산 아이템을 입힌 모양 — 오라면 오라 칸, 장면이면 장면 칸 */
+/** 산 아이템을 입힌 모양 — 오라·장면·펫 제 칸에 */
 function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
-  return isScene(item) ? { ...config, scene: item } : { ...config, aura: item };
+  if (isScene(item)) return { ...config, scene: item };
+  if (isPet(item)) return { ...config, pet: item };
+  return { ...config, aura: item };
 }
 
 export default function AvatarEditorScreen() {
@@ -59,6 +63,8 @@ export default function AvatarEditorScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const avatar = useAuthStore((state) => state.user?.avatar);
   const userGems = useAuthStore((state) => state.user?.gems);
+  // 펫은 연속 학습일만큼 자란 모습으로 보인다
+  const streak = useAuthStore((state) => state.user?.streak ?? 0);
   const updateUser = useAuthStore((state) => state.updateUser);
 
   const draft = useAvatarEditorStore((state) => state.draft);
@@ -88,6 +94,7 @@ export default function AvatarEditorScreen() {
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
     AVATAR_CATEGORIES[0];
 
+  const heroAvatarSize = Math.min(width * 0.66, 220);
   const cardGap = 10;
   const horizontalPadding = 16;
   const cardSize = Math.min(
@@ -105,9 +112,15 @@ export default function AvatarEditorScreen() {
   // 입어보는 중 (아직 안 산 오라 · 장면)
   const pendingAura = draftAura && cosReady && !ownsCosmetic(cosmetics, draftAura) ? draftAura : null;
   const pendingScene = draftScene && cosReady && !ownsCosmetic(cosmetics, draftScene) ? draftScene : null;
+  const draftPet = isPet(draft.pet) ? draft.pet : null;
+  const pendingPet = draftPet && cosReady && !ownsCosmetic(cosmetics, draftPet) ? draftPet : null;
   // 살 것 — 보고 있는 탭 쪽 먼저
+  const pendingBySlot = { aura: pendingAura, scene: pendingScene, pet: pendingPet };
   const pending: ShopItemId | null =
-    selectedCategory === "scene" ? (pendingScene ?? pendingAura) : (pendingAura ?? pendingScene);
+    (selectedCategory === "scene" || selectedCategory === "pet" ? pendingBySlot[selectedCategory] : null) ??
+    pendingAura ??
+    pendingScene ??
+    pendingPet;
   const tryingOn = pending !== null;
   const tryPrice = pending ? (cosmeticPrice(cosmetics, pending) ?? 0) : 0;
   const gems = cosmetics?.gems ?? userGems ?? 0;
@@ -116,10 +129,12 @@ export default function AvatarEditorScreen() {
     ...draft,
     ...(pendingAura ? { aura: initial.aura } : null),
     ...(pendingScene ? { scene: initial.scene } : null),
+    ...(pendingPet ? { pet: initial.pet } : null),
   };
   const otherChanges = JSON.stringify(withoutPending) !== JSON.stringify(initial);
   // 오라·장면 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
-  const shopTab = selectedCategory === "aura" || selectedCategory === "scene" ? selectedCategory : null;
+  const shopTab =
+    selectedCategory === "aura" || selectedCategory === "scene" || selectedCategory === "pet" ? selectedCategory : null;
 
   // 선택된 캐릭터 배경색으로 hero 전체를 채운다 (이중 배경 제거). 장면을 골랐으면 그림이 깔리고 색은 그 밑
   const heroBg =
@@ -152,6 +167,11 @@ export default function AvatarEditorScreen() {
     setPart("aura", id);
   };
 
+  const handlePetPick = (id: PetId) => {
+    void Haptics.selectionAsync();
+    setPart("pet", id);
+  };
+
   const handleScenePick = (id: SceneId) => {
     void Haptics.selectionAsync();
     setPart("scene", id);
@@ -175,7 +195,7 @@ export default function AvatarEditorScreen() {
           : current,
       );
       // 저장된 쪽도 이 아이템으로 — 고치던 다른 부분은 그대로 둔다
-      patchInitial(isScene(item) ? { scene: item } : { aura: item });
+      patchInitial(isScene(item) ? { scene: item } : isPet(item) ? { pet: item } : { aura: item });
       updateUser({
         avatar: wear(mergeAvatarConfig(avatar), item),
         gems: result.gems,
@@ -340,7 +360,13 @@ export default function AvatarEditorScreen() {
                 styles.tryOnBadge,
                 {
                   backgroundColor:
-                    RARITY_COLOR[isScene(pending) ? SCENE_LOOK[pending].rarity : AURA_LOOK[pending].rarity],
+                    RARITY_COLOR[
+                      isScene(pending)
+                        ? SCENE_LOOK[pending].rarity
+                        : isPet(pending)
+                          ? PET_LOOK[pending].rarity
+                          : AURA_LOOK[pending].rarity
+                    ],
                 },
               ]}
             >
@@ -348,12 +374,15 @@ export default function AvatarEditorScreen() {
             </View>
           )}
 
-          <AvatarPreview
-            avatar={draft}
-            size={Math.min(width * 0.66, 220)}
-            showBackground={false}
-            aura
-          />
+          <View style={{ width: heroAvatarSize, height: heroAvatarSize }}>
+            <AvatarPreview
+              avatar={draft}
+              size={heroAvatarSize}
+              showBackground={false}
+              aura
+            />
+            <AvatarPet pet={draft.pet} streak={streak} avatarSize={heroAvatarSize} />
+          </View>
 
           <TouchableOpacity
             activeOpacity={0.84}
@@ -410,7 +439,7 @@ export default function AvatarEditorScreen() {
                   {t(`avatarEditor.categories.${item.id}`)}
                 </Text>
 
-                {item.id === "scene" && !selected && (
+                {item.id === "pet" && !selected && (
                   <LinearGradient
                     colors={["#FF6B9A", "#FF9A3C"]}
                     start={{ x: 0, y: 0 }}
@@ -447,6 +476,16 @@ export default function AvatarEditorScreen() {
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
             status={cosStatus}
+          />
+        ) : category.id === "pet" ? (
+          <PetGrid
+            draft={draft}
+            equipped={initial.pet ?? "pet_none"}
+            onPick={handlePetPick}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+            streak={streak}
           />
         ) : category.id === "scene" ? (
           <SceneGrid
@@ -540,9 +579,10 @@ export default function AvatarEditorScreen() {
         error={buyError}
         onBuy={() => void handleBuy()}
         onClose={() => setBuyOpen(false)}
+        streak={streak}
       />
       {bought && (
-        <CosmeticBought avatar={draft} id={bought} onClose={() => setBought(null)} />
+        <CosmeticBought avatar={draft} id={bought} onClose={() => setBought(null)} streak={streak} />
       )}
 
       <ConfirmDialog

@@ -11,6 +11,7 @@ import AvatarPreview, {
   getAvatarHeaderContentColor,
 } from "@/components/avatar/AvatarPreview";
 import { SceneBackdrop, sceneHeroColors } from "@/components/avatar/AvatarScene";
+import AvatarPet from "@/components/avatar/AvatarPet";
 import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
@@ -21,6 +22,8 @@ interface Props {
   /** 지금 접속 중인지 (서버가 lastActiveAt 으로 판단) */
   isOnline?: boolean;
   avatar?: Partial<AvatarConfig> | null;
+  /** 연속 학습일 — 펫이 이만큼 자란 모습으로 보인다 */
+  streak?: number;
   onBack?: () => void;
   onShare?: () => void;
 }
@@ -32,6 +35,7 @@ export default function FriendProfileHeader({
   superTier,
   isOnline = false,
   avatar,
+  streak = 0,
   onBack,
   onShare,
 }: Props) {
@@ -86,7 +90,10 @@ export default function FriendProfileHeader({
       )}
 
       <View style={styles.avatarWrap}>
-        <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
+        <View style={{ width: 230, height: 230 }}>
+          <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
+          <AvatarPet pet={avatarConfig.pet} streak={streak} avatarSize={230} />
+        </View>
       </View>
     </LinearGradient>
   );

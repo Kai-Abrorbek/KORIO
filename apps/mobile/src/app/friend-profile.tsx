@@ -87,6 +87,7 @@ export default function FriendProfileScreen() {
         name={user.nickname}
         league={user.league}
         avatar={user.avatar}
+        streak={user.streak}
         isSuper={user.isSuper}
         superTier={user.superTier}
         isOnline={user.isOnline}

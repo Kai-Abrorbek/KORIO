@@ -41,6 +41,16 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
       unlock: { type: "gems" as const, price: 0 },
     })),
   },
+  // 캐릭터 옆 펫 — 값은 서버(/cosmetics), 그리드는 PetPicker
+  {
+    id: "pet",
+    icon: "paw-outline",
+    preview: "full",
+    options: AVATAR_IDS.pet.map((id) => ({
+      id,
+      unlock: { type: "gems" as const, price: 0 },
+    })),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

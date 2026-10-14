@@ -2433,6 +2433,7 @@ export default {
       background: "Background",
       aura: "Aura",
       scene: "Scene",
+      pet: "Pet",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2524,6 +2525,48 @@ export default {
         scene_snow: {
           name: "Snowy Seoul",
           desc: "First snow over Seoul",
+        },
+      },
+    },
+    /** 펫 — 캐릭터 옆 친구 (api cosmetics, slot pet). 연속 학습일로 자란다 */
+    pet: {
+      title: "Pet — grows with your streak",
+      subtitle: "Stands next to your hero on your profile",
+      none: "No pet",
+      freeAll: "All pets free",
+      inUse: "With you",
+      tryOn: "Previewing",
+      buyWear: "Buy and adopt",
+      saveWithout: "Save without pet",
+      boughtTitle: "You have a new friend!",
+      boughtBody: "Study every day and it grows up fast",
+      loadFailed: "Couldn't load pets",
+      streakNow: "{{n}}-day streak now",
+      growNext: "Keep your streak {{n}} more days to grow",
+      grownUp: "Fully grown! If your streak breaks, it turns back into a baby",
+      stageAt: "Day {{n}}",
+      growTitle: "How it grows",
+      stages: {
+        s0: "Baby",
+        s1: "Kid",
+        s2: "Grown-up",
+      },
+      items: {
+        pet_jindo: {
+          name: "Jindo puppy",
+          desc: "Korea's loyal native dog",
+        },
+        pet_hangulmon: {
+          name: "Mini Hangulmon",
+          desc: "A tiny friend of the KORIO mascot",
+        },
+        pet_tiger: {
+          name: "Baby tiger",
+          desc: "The tiger from Korean folk paintings",
+        },
+        pet_dokkaebi: {
+          name: "Dokkaebi",
+          desc: "A mischievous goblin with a magic club",
         },
       },
     },

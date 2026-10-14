@@ -7,6 +7,8 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AURA_LOOK, AURA_ORDER, RARITY_COLOR, isAura, type AuraId } from "@/components/avatar/AvatarAura";
 import { SCENE_LOOK, SceneBackdrop, isScene, type PaidScene } from "@/components/avatar/AvatarScene";
+import AvatarPet, { PET_LOOK, isPet, type PaidPet } from "@/components/avatar/AvatarPet";
+import PetGrowth from "@/components/avatar/PetGrowth";
 import Button3D from "@/features/retention/components/Button3D";
 import SwipeSheet from "@/components/common/SwipeSheet";
 import { useTheme } from "@/hooks/useTheme";
@@ -23,11 +25,11 @@ import * as Haptics from "@/utils/haptics";
 const fmt = (n: number) => n.toLocaleString("en-US");
 const GEM = "#1899D6";
 
-/** 상점 꾸미기 아이템 (오라 · 배경 장면) */
-export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene;
-export type ShopSlot = "aura" | "scene";
+/** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫) */
+export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene | PaidPet;
+export type ShopSlot = "aura" | "scene" | "pet";
 
-export const slotOf = (id: ShopItemId): ShopSlot => (isScene(id) ? "scene" : "aura");
+export const slotOf = (id: ShopItemId): ShopSlot => (isScene(id) ? "scene" : isPet(id) ? "pet" : "aura");
 
 export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
@@ -45,11 +47,12 @@ export function ownsCosmetic(state: CosmeticsState | null, id: string | undefine
   return !!state?.owned.includes(id);
 }
 
-const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id);
+const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id) || isPet(id);
 
-/** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면은 장면 강조색 */
+/** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면·펫은 강조색 */
 function shopLook(id: ShopItemId) {
   if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
+  if (isPet(id)) return { rarity: PET_LOOK[id].rarity, color: PET_LOOK[id].accent, keys: "avatarEditor.pet" };
   return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
@@ -197,8 +200,39 @@ function AuraCard({
   );
 }
 
-/** 시트·산 직후 창 위 그림 — 오라는 오라 두른 캐릭터, 장면은 그 장면 앞에 선 캐릭터 */
-function ShopStage({ avatar, id, height, s }: { avatar: AvatarConfig; id: ShopItemId; height: number; s: ReturnType<typeof getStyles> }) {
+/** 시트·산 직후 창 위 그림 — 오라는 오라 두른 캐릭터, 장면은 그 장면 앞에, 펫은 캐릭터 옆에(크게) */
+function ShopStage({
+  avatar,
+  id,
+  height,
+  s,
+  streak = 0,
+}: {
+  avatar: AvatarConfig;
+  id: ShopItemId;
+  height: number;
+  s: ReturnType<typeof getStyles>;
+  streak?: number;
+}) {
+  if (isPet(id)) {
+    const look = PET_LOOK[id];
+    const size = height * 0.84;
+    return (
+      <LinearGradient
+        colors={[look.accent + "1F", look.accent + "47"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[s.sceneStage, { height }]}
+      >
+        <SceneBackdrop scene={avatar.scene} />
+        {/* 캐릭터를 오른쪽으로 비켜 세워 펫 자리를 낸다 */}
+        <View style={{ width: size, height: size, marginLeft: size * 0.36 }}>
+          <AvatarPreview avatar={avatar} size={size} showBackground={false} aura />
+          <AvatarPet pet={id} streak={streak} avatarSize={size} share={0.64} />
+        </View>
+      </LinearGradient>
+    );
+  }
   if (isScene(id)) {
     return (
       <View style={[s.sceneStage, { height }]}>
@@ -227,6 +261,7 @@ export function CosmeticBuySheet({
   error,
   onBuy,
   onClose,
+  streak = 0,
 }: {
   visible: boolean;
   avatar: AvatarConfig;
@@ -237,6 +272,8 @@ export function CosmeticBuySheet({
   error: boolean;
   onBuy: () => void;
   onClose: () => void;
+  /** 펫이면 지금 단계 모습·자라는 단계를 보여 준다 */
+  streak?: number;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -249,12 +286,18 @@ export function CosmeticBuySheet({
   return (
     // 바닥에 붙고 아래로 끌어 닫는 시트, 페이드로만 열린다 (사는 중엔 못 닫음)
     <SwipeSheet dismissible={!buying} onClose={onClose} visible={visible}>
-      <ShopStage avatar={avatar} id={id} height={200} s={s} />
+      {/* 펫은 아래에 자라는 단계 표가 더 붙어서 무대를 조금 낮춘다 (작은 폰에서도 시트가 넘치지 않게) */}
+      <ShopStage avatar={avatar} id={id} height={isPet(id) ? 168 : 200} s={s} streak={streak} />
       <View style={[s.sheetRarity, { backgroundColor: rarity }]}>
         <Text style={s.rarityText}>{t(`avatarEditor.aura.rarity.${look.rarity}`)}</Text>
       </View>
       <Text style={s.sheetTitle}>{t(`${look.keys}.items.${id}.name`)}</Text>
       <Text style={s.sheetDesc}>{t(`${look.keys}.items.${id}.desc`)}</Text>
+      {isPet(id) && (
+        <View style={{ marginTop: 12 }}>
+          <PetGrowth pet={id} streak={streak} />
+        </View>
+      )}
 
       <View style={s.rows}>
         <View style={s.row}>
@@ -293,7 +336,17 @@ export function CosmeticBuySheet({
 }
 
 /** 산 직후 — 페이드로만 뜬다 (빛 터짐·튕김 없음) */
-export function CosmeticBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: ShopItemId | null; onClose: () => void }) {
+export function CosmeticBought({
+  avatar,
+  id,
+  onClose,
+  streak = 0,
+}: {
+  avatar: AvatarConfig;
+  id: ShopItemId | null;
+  onClose: () => void;
+  streak?: number;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
@@ -307,8 +360,8 @@ export function CosmeticBought({ avatar, id, onClose }: { avatar: AvatarConfig; 
       <View style={s.center}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={s.bought}>
-          {isScene(id) ? (
-            <ShopStage avatar={avatar} id={id} height={170} s={s} />
+          {isScene(id) || isPet(id) ? (
+            <ShopStage avatar={avatar} id={id} height={170} s={s} streak={streak} />
           ) : (
             <>
               <View style={[s.boughtGlow, { backgroundColor: look.color + "33" }]} />

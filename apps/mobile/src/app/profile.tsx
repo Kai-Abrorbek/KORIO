@@ -52,6 +52,7 @@ export default function ProfileScreen() {
         name={profile.name}
         isSuper={profile.isSuper}
         avatar={user?.avatar}
+        streak={user?.streak ?? 0}
         onShare={() => {
           router.push("/follow-link");
         }}

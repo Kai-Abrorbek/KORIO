@@ -22,6 +22,7 @@ import { useAuthStore, User } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { SceneBackdrop, isScene } from "@/components/avatar/AvatarScene";
+import AvatarPet from "@/components/avatar/AvatarPet";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
 import NotificationModal from "@/components/notifications/NotificationModal";
@@ -414,20 +415,27 @@ export default function HomeScreen() {
               // 배경 장면을 골랐으면 그 그림 앞에 선 엽서처럼
               <View style={[styles.sceneCard, { borderColor: theme.bg === "#15151D" ? "#2C2A3F" : "#FFFFFF" }]}>
                 <SceneBackdrop scene={user.avatar.scene} />
+                <View style={{ width: 166, height: 166 }}>
+                  <AvatarPreview
+                    avatar={user.avatar}
+                    size={166}
+                    showBackground={false}
+                    aura
+                  />
+                  <AvatarPet pet={user.avatar.pet} streak={user.streak} avatarSize={166} />
+                </View>
+              </View>
+            ) : user?.avatar ? (
+              <View style={{ width: 200, height: 200 }}>
                 <AvatarPreview
                   avatar={user.avatar}
-                  size={166}
+                  size={200}
                   showBackground={false}
                   aura
                 />
+                {/* 펫 — 연속 학습일만큼 자란 모습 */}
+                <AvatarPet pet={user.avatar.pet} streak={user.streak} avatarSize={200} />
               </View>
-            ) : user?.avatar ? (
-              <AvatarPreview
-                avatar={user.avatar}
-                size={200}
-                showBackground={false}
-                aura
-              />
             ) : (
               <HaneulmonMascot size={200} mood="default" />
             )}
